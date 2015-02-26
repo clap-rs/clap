@@ -1,3 +1,5 @@
+extern crate libc;
+
 use std::env;
 
 use ArgMatches;
@@ -7,14 +9,18 @@ use args::FlagArg;
 use args::PosArg;
 
 pub struct App {
-	name: &'static str,
-	author: Option<&'static str>,
-	version: Option<&'static str>,
-	about: Option<&'static str>,
+	pub name: &'static str,
+	pub author: Option<&'static str>,
+	pub version: Option<&'static str>,
+	pub about: Option<&'static str>,
 	// raw_args: Vec<Arg>,
 	flags: Vec<FlagArg>,
 	opts: Vec<OptArg>,
-	positionals: Vec<PosArg>
+	positionals: Vec<PosArg>,
+	needs_long_help: bool,
+	needs_long_version: bool,
+	needs_short_help: bool,
+	needs_short_version: bool
 }
 
 impl App {
@@ -27,7 +33,11 @@ impl App {
 			// raw_args: vec![],
 			flags: vec![],
 			opts: vec![],
-			positionals: vec![]
+			needs_long_version: true,
+			needs_long_help: true,
+			positionals: vec![],
+			needs_short_help: true,
+			needs_short_version: true 
 		}
 	}
 
@@ -66,6 +76,20 @@ impl App {
 				value: None
 			});
 		} else {
+			if let Some(l) = a.long {
+				if l == "help" {
+					self.needs_long_help = false;
+				} else if l == "version" {
+					self.needs_long_version = false;
+				}
+			}
+			if let Some(s) = a.short {
+				if s == 'h' {
+					self.needs_short_help = false;
+				} else if s == 'v' {
+					self.needs_short_version = false;
+				}
+			}
 			self.flags.push(FlagArg{
 				name: a.name,
 				short: a.short,
@@ -76,25 +100,25 @@ impl App {
 		self
 	}
 
+	pub fn print_help(&self) {
+		println!("Help info!");
+		unsafe { libc::exit(0); }
+	}
+
+	pub fn print_version(&self) {
+		println!("Version Info!");
+		unsafe { libc::exit(0); }
+	}
+
 	pub fn get_matches(&mut self) -> ArgMatches {
 
-		let mut matches = ArgMatches {
-		    flags: vec![],
-    		opts: vec![],
-    		positionals: vec![], 
-    		required: vec![],
-    		blacklist: vec![],
-    		about: self.about,
-    		name: self.name,
-    		author: self.author,
-    		version: self.version 
-		};
+		let mut matches = ArgMatches::new(self);
 
 		let mut needs_val = false;
 		let mut needs_val_of = String::new();
 		let mut pos_counter = 1;
-		for a in env::args().collect::<Vec<String>>().tail() {
-			let arg_slice = a.as_slice();
+		for arg in env::args().collect::<Vec<String>>().tail() {
+			let arg_slice = arg.as_slice();
 			if needs_val {
 				for o in self.opts.iter() {
 					if needs_val_of == o.name.to_string() {
@@ -104,7 +128,7 @@ impl App {
 						    long: o.long, 
 						    help: o.help,
 						    required: o.required,
-						    value: Some(a.clone()) 
+						    value: Some(arg.clone()) 
 						});
 						needs_val = false;
 						needs_val_of.clear();
@@ -117,9 +141,14 @@ impl App {
 				// Single flag, or option
 				let mut p_arg = arg_slice.trim_left_matches(|c| c == '-');
 				let mut found = false;
+				if p_arg == "help" && self.needs_long_help {
+					self.print_help();
+				} else if p_arg == "version" && self.needs_long_version {
+					self.print_version();
+				}
 				for f in self.flags.iter() {
 					if let Some(l) = f.long {
-						if l == p_arg.as_slice() {
+						if l == p_arg {
 							matches.flags.push(f.clone());
 							found = true;
 							break;
@@ -132,8 +161,8 @@ impl App {
 					p_arg = p_argv[0];
 					for o in self.opts.iter() {
 						if let Some(l) = o.long {
-							if l == p_arg.as_slice() {
-								found = true;
+							if l == p_arg {
+								// found = true;
 								matches.opts.push(OptArg{
 									name: o.name,
 								    short: o.short,
@@ -149,7 +178,7 @@ impl App {
 				} else {
 					for o in self.opts.iter() {
 						if let Some(l) = o.long {
-							if l == p_arg.as_slice() {
+							if l == p_arg {
 								found = true;
 								needs_val = true;
 								needs_val_of = o.name.to_string();
@@ -157,7 +186,8 @@ impl App {
 							}
 						}
 					} 
-					if ! found { panic!("Arg {} not valid", a); }
+					// Fails if argument supplied to binary isn't valid
+					assert!(found == false);
 					continue;
 				}
 			} else if arg_slice.starts_with("-") {
@@ -166,6 +196,11 @@ impl App {
 					let p_arg = arg_slice.trim_left_matches(|c| c == '-');
 					let mut found = false;
 					for c in p_arg.chars() {
+						if c == 'h' && self.needs_short_help {
+							self.print_help();
+						} else if c == 'v' && self.needs_short_version {
+							self.print_version();
+						}
 						for f in self.flags.iter() {
 							if let Some(s) = f.short {
 								if c == s {
@@ -174,13 +209,19 @@ impl App {
 								}
 							}
 						}
-						if ! found { panic!("Argument {} isn't valid.", arg_slice); }
+						// Fails if argument supplied to binary isn't valid
+						assert!(found == false);
 						continue;
 					}
 				} else {
 					// Short flag or opt
 					let mut found = false;
 					let p_arg = arg_slice.char_at(1); 
+					if p_arg == 'h' && self.needs_short_help {
+						self.print_help();
+					} else if p_arg == 'v' && self.needs_short_version {
+						self.print_version();
+					}
 					for f in self.flags.iter() {
 						if let Some(s) = f.short {
 							if p_arg == s {
@@ -199,7 +240,8 @@ impl App {
 							}
 						}
 					} 
-					if ! found { panic!("Argument {} isn't valid.", arg_slice); }
+					// Fails if argument supplied to binary isn't valid
+					assert!(found == false);
 					continue;
 				}
 			} else {
@@ -212,7 +254,7 @@ impl App {
 						name: p.name,
 						help: p.help,
 						required: p.required,
-						value: Some(a.clone()),
+						value: Some(arg.clone()),
 						index: pos_counter
 					});
 					pos_counter += 1;
