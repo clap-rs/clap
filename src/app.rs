@@ -6,13 +6,12 @@ use args::OptArg;
 use args::FlagArg;
 use args::PosArg;
 
-#[derive(Clone)]
 pub struct App {
 	name: &'static str,
 	author: Option<&'static str>,
 	version: Option<&'static str>,
 	about: Option<&'static str>,
-	raw_args: Vec<Arg>,
+	// raw_args: Vec<Arg>,
 	flags: Vec<FlagArg>,
 	opts: Vec<OptArg>,
 	positionals: Vec<PosArg>
@@ -25,7 +24,7 @@ impl App {
 			author: None,
 			about: None,
 			version: None,
-			raw_args: vec![],
+			// raw_args: vec![],
 			flags: vec![],
 			opts: vec![],
 			positionals: vec![]
@@ -141,7 +140,7 @@ impl App {
 								    long: o.long, 
 								    help: o.help,
 								    required: o.required,
-								    value: Some(p_argv[1].to_string().clone()) 
+								    value: Some(p_argv[1].to_string()) 
 								});
 								break;
 							}
@@ -169,7 +168,7 @@ impl App {
 					for c in p_arg.chars() {
 						for f in self.flags.iter() {
 							if let Some(s) = f.short {
-								if c == s.char_at(0) {
+								if c == s {
 									found = true;
 									matches.flags.push(f.clone());
 								}
@@ -184,7 +183,7 @@ impl App {
 					let p_arg = arg_slice.char_at(1); 
 					for f in self.flags.iter() {
 						if let Some(s) = f.short {
-							if p_arg == s.char_at(0) {
+							if p_arg == s {
 								found = true;
 								matches.flags.push(f.clone());
 							}
@@ -192,7 +191,7 @@ impl App {
 					}
 					for o in self.opts.iter() {
 						if let Some(s) = o.short {
-							if s.char_at(0) == p_arg {
+							if s == p_arg {
 								found = true;
 								needs_val = true;
 								needs_val_of = o.name.to_string();
@@ -205,7 +204,9 @@ impl App {
 				}
 			} else {
 				// Positional
-				if self.positionals.is_empty() { panic!("Positional argument {} found but APP doesn't accept any", a); }
+
+				// Fails if no positionals are expected/possible
+				assert!(self.positionals.is_empty() == false);
 				for p in self.positionals.iter() {
 					matches.positionals.push(PosArg{
 						name: p.name,
@@ -219,7 +220,11 @@ impl App {
 			}
 
 		}
-		if needs_val { panic!("Value not provided for argument {}", needs_val_of); }
+
+		// Fails if we reached the end of args() but were still
+		// expecting a value, such as ./fake -c
+		// where -c takes a value
+		assert!(needs_val == false);
 
 		matches
 	}

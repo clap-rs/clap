@@ -1,12 +1,11 @@
-#[derive(Clone)]
 pub struct Arg {
     pub name: &'static str,
-    pub short: Option<&'static str>,
+    pub short: Option<char>,
     pub long: Option<&'static str>,
     pub help: Option<&'static str>,
     pub required: bool,
     pub takes_value: bool,
-    pub index: Option<i32>
+    pub index: Option<u8>
     // allow_multiple: bool
     // exclusive_with
     // requires
@@ -26,12 +25,13 @@ impl Arg {
 	}
 
 	pub fn short(&mut self, s: &'static str) -> &mut Arg {
-		self.short = Some(s);
+		self.short = Some(s.trim_left_matches(|c| c == '-')
+						   .char_at(0));
 		self
 	}
 
 	pub fn long(&mut self, l: &'static str) -> &mut Arg {
-		self.long = Some(l);
+		self.long = Some(l.trim_left_matches(|c| c == '-'));
 		self
 	}
 
@@ -46,12 +46,14 @@ impl Arg {
 	}
 
 	pub fn takes_value(&mut self, tv: bool) -> &mut Arg {
+		assert!(self.index == None);
 		self.takes_value = tv;
 		self
 	}
 
-	pub fn index(&mut self, i: i32) -> &mut Arg {
-		self.index = Some(i);
+	pub fn index(&mut self, idx: u8) -> &mut Arg {
+		assert!(self.takes_value == false);
+		self.index = Some(idx);
 		self
 	}
 }

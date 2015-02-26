@@ -1,6 +1,6 @@
 extern crate clap;
 
-use clap::{App, Arg, ArgMatches};
+use clap::{App, Arg};
 
 fn main() {
 	let matches = App::new("MyApp")

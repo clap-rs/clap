@@ -1,7 +1,6 @@
-#[derive(Clone)]
 pub struct OptArg {
     pub name: &'static str,
-    pub short: Option<&'static str>,
+    pub short: Option<char>,
     pub long: Option<&'static str>,
     pub help: Option<&'static str>,
     pub required: bool,

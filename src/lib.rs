@@ -1,3 +1,5 @@
+#![feature(collections, core)]
+
 pub use argmatches::ArgMatches;
 pub use arg::Arg;
 pub use app::App;
