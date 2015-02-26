@@ -5,7 +5,7 @@ use clap::{App, Arg, ArgMatches};
 fn main() {
 	let matches = App::new("MyApp")
 						.version("1.0")
-						.author("Jostmon <jostmon2@gmail.com>")
+						.author("Kevin K. <kbknapp@gmail.com")
 						.about("Does awesome things")
 						.arg(Arg::new("config")
 									.short("c")
