@@ -561,7 +561,7 @@ impl App {
 					false, true);
 		}
 
-		//self.validate_blacklist(&matches);
+		self.validate_blacklist(&matches);
 
 		matches
 	}
