@@ -95,6 +95,8 @@ impl App {
 				short: a.short,
 				long: a.long,
 				help: a.help,
+				multiple: a.multiple,
+				occurrences: 1
 			});
 		}
 		self
@@ -108,9 +110,9 @@ impl App {
 	fn print_version(&self) {
 		let ver = match self.version { 
 			Some(v) => v,
-			None => "0.0"
+			None => ""
 		};
-		println!("{} v{}", self.name, ver);
+		println!("{} {}", self.name, ver);
 		unsafe { libc::exit(0); }
 	}
 
@@ -127,8 +129,16 @@ impl App {
 		for f in self.flags.iter() {
 			if let Some(l) = f.long {
 				if l == p_arg {
-					found = true;
-					matches.flags.push(f.clone());
+					for ff in matches.flags.iter_mut() {
+						if ff.name == f.name {
+							// already in matches
+							ff.occurrences = if ff.multiple { ff.occurrences + 1 } else { 1 };
+							found = true;
+						} 
+					}
+					if ! found {
+						matches.flags.push(f.clone())
+					}
 					return "";
 				}
 			}

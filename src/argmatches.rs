@@ -43,4 +43,11 @@ impl ArgMatches {
         }
         false
 	}
+
+    pub fn occurrences_of(&self, name: &'static str) -> u8 {
+        for f in self.flags.iter() {
+            if f.name == name { return f.occurrences; }
+        }
+        0
+    }
 }

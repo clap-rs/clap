@@ -4,4 +4,6 @@ pub struct FlagArg {
     pub short: Option<char>,
     pub long: Option<&'static str>,
     pub help: Option<&'static str>,
+    pub multiple: bool,
+    pub occurrences: u8
 }

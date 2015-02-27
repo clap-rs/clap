@@ -5,8 +5,8 @@ pub struct Arg {
     pub help: Option<&'static str>,
     pub required: bool,
     pub takes_value: bool,
-    pub index: Option<u8>
-    // allow_multiple: bool
+    pub index: Option<u8>,
+    pub multiple: bool,
     // exclusive_with
     // requires
 }
@@ -20,6 +20,7 @@ impl Arg {
 			help: None,
 			required: false,
 			takes_value: false,
+			multiple: false,
 			index: None
 		}
 	}
@@ -54,6 +55,13 @@ impl Arg {
 	pub fn index(&mut self, idx: u8) -> &mut Arg {
 		assert!(self.takes_value == false);
 		self.index = Some(idx);
+		self
+	}
+
+	pub fn multiple(&mut self, multi: bool) -> &mut Arg {
+		assert!(self.takes_value == false);
+		assert!(self.index == None);
+		self.multiple = true;
 		self
 	}
 }
