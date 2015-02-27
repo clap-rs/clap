@@ -1,11 +1,12 @@
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 use app::App;
 use args::{ FlagArg, OptArg, PosArg };
 
 pub struct ArgMatches {
     pub required: Vec<&'static str>,
-    pub blacklist: Vec<&'static str>,
+    pub blacklist: HashSet<&'static str>,
     pub about: Option<&'static str>,
     pub name: &'static str,
     pub author: Option<&'static str>,
@@ -22,7 +23,7 @@ impl ArgMatches {
             opts: HashMap::new(),
             positionals: HashMap::new(),
     		required: vec![],
-    		blacklist: vec![],
+    		blacklist: HashSet::new(),
     		about: app.about,
     		name: app.name,
     		author: app.author,

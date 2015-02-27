@@ -26,7 +26,7 @@ pub struct App {
 	needs_short_version: bool,
 	required: HashSet<&'static str>,
 	arg_list: HashSet<&'static str>,
-	// blacklist: HashMap<&'static str, Vec<&'static str>>
+	blacklist: HashSet<&'static str>
 }
 
 impl App {
@@ -45,7 +45,8 @@ impl App {
 			needs_short_help: true,
 			needs_short_version: true,
 			required: HashSet::new(), 
-			arg_list: HashSet::new()
+			arg_list: HashSet::new(),
+			blacklist: HashSet::new()
 		}
 	}
 
@@ -204,6 +205,10 @@ impl App {
 				if s != arg { continue; }
 
 				if !matches.flags.contains_key(k) {
+					if self.blacklist.contains(k) {
+						self.report_error(&format!("The argument -{} is mutually exclusive with one or more other arguments", arg),
+							false, true);
+					}
 					matches.flags.insert(k, v.clone());
 					if self.required.contains(k) {
 						self.required.remove(k);
@@ -215,6 +220,13 @@ impl App {
 								if matches.flags.contains_key(n) { continue; }
 								if matches.positionals.contains_key(n) { continue; }
 								self.required.insert(n);
+							}
+						}
+					}
+					if let Some(ref bl) = v.blacklist {
+						if ! bl.is_empty() {
+							for name in bl.iter() {
+								self.blacklist.insert(k);
 							}
 						}
 					}
@@ -249,6 +261,10 @@ impl App {
 		for (k, v) in self.opts.iter() {
 			if let Some(ref l) = v.long {
 				if *l == arg {
+					if self.blacklist.contains(k) {
+						self.report_error(&format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
+							false, true);
+					}
 					matches.opts.insert(k, OptArg{
 						name: v.name,
 					    short: v.short,
@@ -279,9 +295,20 @@ impl App {
 				// so the 'if let' must finish it's scope first
 				// before calling .insert()
 				if ! multi { 
+					if self.blacklist.contains(k) {
+						self.report_error(&format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
+							false, true);
+					}
 					matches.flags.insert(k, v.clone());
 					if self.required.contains(k) {
 						self.required.remove(k);
+					}
+					if let Some(ref bl) = v.blacklist {
+						if ! bl.is_empty() {
+							for name in bl.iter() {
+								self.blacklist.insert(k);
+							}
+						}
 					}
 				}
 				if let Some(ref reqs) = v.requires {
@@ -360,6 +387,15 @@ impl App {
 			let mut skip = false;
 			if let Some(ref nvo) = needs_val_of {
 				if let Some(ref opt) = self.opts.get(nvo) {
+					if self.blacklist.contains(opt.name) {
+						self.report_error(
+							&format!("The argument {} is mutually exclusive with one or more other arguments", 
+							if let Some(long) = opt.long {
+								format!("--{}",long)
+							}else{
+								format!("-{}",opt.short.unwrap())
+							}),false, true);
+					}
 					matches.opts.insert(nvo, OptArg{
 						name: opt.name,
 					    short: opt.short,
@@ -369,6 +405,13 @@ impl App {
 					    required: opt.required,
 					    value: Some(arg.clone()) 
 					});
+					if let Some(ref bl) = opt.blacklist {
+						if ! bl.is_empty() {
+							for name in bl.iter() {
+								self.blacklist.insert(opt.name);
+							}
+						}
+					}
 					if self.required.contains(opt.name) {
 						self.required.remove(opt.name);
 					}
@@ -404,6 +447,10 @@ impl App {
 						false, true);
 				}
 				if let Some(ref p) = self.positionals_idx.get(&pos_counter) {
+					if self.blacklist.contains(p.name) {
+						self.report_error(&format!("The argument \"{}\" is mutually exclusive with one or more other arguments", arg),
+							false, true);
+					}
 					matches.positionals.insert(p.name, PosArg{
 						name: p.name,
 						help: p.help,
@@ -412,6 +459,13 @@ impl App {
 						value: Some(arg.clone()),
 						index: pos_counter
 					});
+					if let Some(ref bl) = p.blacklist {
+						if ! bl.is_empty() {
+							for name in bl.iter() {
+								self.blacklist.insert(p.name);
+							}
+						}
+					}
 					if self.required.contains(p.name) {
 						self.required.remove(p.name);
 					}
