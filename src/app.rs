@@ -100,13 +100,17 @@ impl App {
 		self
 	}
 
-	pub fn print_help(&self) {
+	fn print_help(&self) {
 		println!("Help info!");
 		unsafe { libc::exit(0); }
 	}
 
-	pub fn print_version(&self) {
-		println!("Version Info!");
+	fn print_version(&self) {
+		let ver = match self.version { 
+			Some(v) => v,
+			None => "0.0"
+		};
+		println!("{} v{}", self.name, ver);
 		unsafe { libc::exit(0); }
 	}
 
@@ -222,11 +226,11 @@ impl App {
 		let mut matches = ArgMatches::new(self);
 
 		// let mut needs_val = false;
-		let mut needs_val_of = String::new(); 
+		let mut needs_val_of = "".to_string(); 
 		let mut pos_counter = 1;
 		for arg in env::args().collect::<Vec<String>>().tail() {
 			let arg_slice = arg.as_slice();
-			if needs_val_of.is_empty() {
+			if ! needs_val_of.is_empty() {
 				for o in self.opts.iter() {
 					if needs_val_of == o.name.to_string() {
 						matches.opts.push(OptArg{
