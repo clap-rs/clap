@@ -16,45 +16,43 @@ pub struct ArgMatches {
 }
 
 impl ArgMatches {
-	pub fn new(name: &'static str) -> ArgMatches {
+	pub fn new(app: &App) -> ArgMatches {
 		ArgMatches {
             flags: HashMap::new(),
             opts: HashMap::new(),
             positionals: HashMap::new(),
     		required: vec![],
     		blacklist: vec![],
-    		about: None,
-    		name: name,
-    		author: None,
-    		version: None,
+    		about: app.about,
+    		name: app.name,
+    		author: app.author,
+    		version: app.version,
     	}
 	}
 
-    pub fn fill_with(&mut self, app: &App) {
-        self.about = app.about;
-        self.author = app.author;
-        self.version = app.version;
-    }
-
-	pub fn value_of(&self, name: &'static str) -> Option<&'static str> {
-        if let Some(opt) = self.opts.get(&(name)) {
-            return opt.value;
+	pub fn value_of(&self, name: &'static str) -> Option<&String> {
+        if let Some(ref opt) = self.opts.get(name) {
+        	if let Some(ref v) = opt.value {
+        		return Some(v);
+        	} 
         }
-        if let Some(pos) = self.positionals.get(name) {
-            return pos.value; 
+        if let Some(ref pos) = self.positionals.get(name) {
+        	if let Some(ref v) = pos.value {
+        		return Some(v);
+        	} 
         }
         None
 	}
 
 	pub fn is_present(&self, name: &'static str) -> bool {
-        if let Some(_) = self.flags.get(&(name)) {
+        if let Some(_) = self.flags.get(name) {
             return true;
         }
         false
 	}
 
     pub fn occurrences_of(&self, name: &'static str) -> u8 {
-        if let Some(f) = self.flags.get(&(name)) {
+        if let Some(ref f) = self.flags.get(name) {
             return f.occurrences;
         }
         0

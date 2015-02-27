@@ -14,7 +14,6 @@ pub struct App {
 	pub author: Option<&'static str>,
 	pub version: Option<&'static str>,
 	pub about: Option<&'static str>,
-	// raw_args: Vec<Arg>,
 	flags: HashMap<&'static str, FlagArg>,
 	opts: HashMap<&'static str, OptArg>,
 	positionals_idx: HashMap<u8, PosArg>,
@@ -23,7 +22,6 @@ pub struct App {
 	needs_long_version: bool,
 	needs_short_help: bool,
 	needs_short_version: bool,
-	matches: ArgMatches
 }
 
 impl App {
@@ -33,7 +31,6 @@ impl App {
 			author: None,
 			about: None,
 			version: None,
-			// raw_args: vec![],
 			flags: HashMap::new(),
 			opts: HashMap::new(),
 			positionals_idx: HashMap::new(),
@@ -42,7 +39,6 @@ impl App {
 			needs_long_help: true,
 			needs_short_help: true,
 			needs_short_version: true,
-			matches: ArgMatches::new(n)
 		}
 	}
 
@@ -87,17 +83,17 @@ impl App {
 				value: None
 			});
 		} else {
-			if let Some(l) = a.long {
-				if l == "help" {
+			if let Some(ref l) = a.long {
+				if *l == "help" {
 					self.needs_long_help = false;
-				} else if l == "version" {
+				} else if *l == "version" {
 					self.needs_long_version = false;
 				}
 			}
-			if let Some(s) = a.short {
-				if s == 'h' {
+			if let Some(ref s) = a.short {
+				if *s == 'h' {
 					self.needs_short_help = false;
-				} else if s == 'v' {
+				} else if *s == 'v' {
 					self.needs_short_version = false;
 				}
 			}
@@ -127,19 +123,22 @@ impl App {
 		unsafe { libc::exit(0); }
 	}
 
-	fn parse_single_short_flag(&mut self, arg: char) -> bool {
+	fn parse_single_short_flag(&mut self, matches: &mut ArgMatches, arg: char) -> bool {
 		for (k, v) in self.flags.iter() {
 			if let Some(s) = v.short {
 				if s != arg { continue; }
 
-				let mut multi = false;
-				if let Some(f) = self.matches.flags.get_mut(k) {
+				let mut found = false;
+				if let Some(ref mut f) = matches.flags.get_mut(k) {
 					f.occurrences = if f.multiple { f.occurrences + 1 } else { 1 };
-					multi = true;
+					found = true;
 				} 
 
-				if ! multi { 
-					self.matches.flags.insert(k, v.clone());
+				// Cannot borrow mutable twice at same time 
+				// so the if let must finish it's scope first
+				// before calling .insert()
+				if ! found { 
+					matches.flags.insert(k, v.clone());
 				}
 				return true;
 			}
@@ -147,10 +146,9 @@ impl App {
 		false
 	}
 
-	fn parse_long_arg(&mut self, full_arg: &'static str) -> Option<&'static str> {
-		let mut arg = full_arg.trim_left_matches(|c| c == '-');
+	fn parse_long_arg(&mut self, matches: &mut ArgMatches ,full_arg: &String) -> Option<&'static str> {
+		let mut arg = full_arg.as_slice().trim_left_matches(|c| c == '-');
 		let mut found = false;
-		// let mut needs_val = false;
 
 		if arg == "help" && self.needs_long_help {
 			self.print_help();
@@ -158,52 +156,52 @@ impl App {
 			self.print_version();
 		}
 
-		let mut arg_val: Option<&str> = None;
+		let mut arg_val: Option<String> = None;
 
 		if arg.contains("=") {
 			let arg_vec: Vec<&str> = arg.split_str("=").collect();
 			arg = arg_vec[0];
-			arg_val = Some(arg_vec[1]);
+			arg_val = Some(arg_vec[1].to_string());
 		} 
 
 		for (k, v) in self.opts.iter() {
-			if let Some(l) = v.long {
-				if l == arg {
+			if let Some(ref l) = v.long {
+				if *l == arg {
 					found = true;
-					self.matches.opts.insert(k, OptArg{
+					matches.opts.insert(k, OptArg{
 						name: v.name,
 					    short: v.short,
 					    long: v.long, 
 					    help: v.help,
 					    required: v.required,
-					    value: arg_val 
+					    value: arg_val.clone() 
 					});
+					match arg_val {
+						None => { return Some(v.name); },
+						_ => { return None; }
+					}	
 				}
 			}
 		} 
-		
-		match arg_val {
-			Some(_) => return arg_val,
-			None => {}
-		}	
 
 		for (k, v) in self.flags.iter() {
-			if let Some(l) = v.long {
-				if l != arg { continue; }
+			if let Some(ref l) = v.long {
+				if *l != arg { continue; }
 				found = true;
-				let mut multi = false; 
-				if let Some(f) = self.matches.flags.get_mut(k) {
+				let mut multi = false;
+				if let Some(ref mut f) = matches.flags.get_mut(k) {
 					f.occurrences = if f.multiple { f.occurrences + 1 } else { 1 };
 					multi = true;
-				} 
-
+				}  
+				// Cannot borrow mutable twice at same time 
+				// so the 'if let' must finish it's scope first
+				// before calling .insert()
 				if ! multi { 
-					self.matches.flags.insert(k, v.clone());
+					matches.flags.insert(k, v.clone());
 				}
+				break;
 			}
 		}
-
-
 		// Fails if argument supplied to binary isn't valid
 		assert!(found == false);
 
@@ -218,68 +216,65 @@ impl App {
 		}
 	}
 
-	fn parse_short_arg(&mut self, full_arg: &'static str) -> Option<&'static str> {
-		let mut found = false;
-		let arg = full_arg.trim_left_matches(|c| c == '-');
-
+	fn parse_short_arg(&mut self, matches: &mut ArgMatches ,full_arg: &String) -> Option<&'static str> {
+		let arg = full_arg.as_slice().trim_left_matches(|c| c == '-');
 		if arg.len() > 1 { 
 			// Multiple flags using short i.e. -bgHlS
 			for c in arg.chars() {
 				self.check_for_help_and_version(c);
-				found = self.parse_single_short_flag(c);
-				if found { break; }
+				if self.parse_single_short_flag(matches, c) { return None }
 			}
+			panic!("Argument -{} isn't valid",arg);
 		} else {
 			// Short flag or opt
 			let arg_c = arg.char_at(0);
 			self.check_for_help_and_version(arg_c);
-			found = self.parse_single_short_flag(arg_c);
-
-			if found { return None; }
+			if self.parse_single_short_flag(matches, arg_c) { return None }
 
 			for (k, v) in self.opts.iter() {
 				if let Some(s) = v.short {
 					if s == arg_c {
-						return Some(v.name);
+						return Some(k)
 					}
 				}
 			} 
 		}
-		// Fails if argument supplied to binary isn't valid
-		assert!(found == true);
-
 		None
 	}
 
 	pub fn get_matches(&mut self) -> ArgMatches {
-
-		let mut matches = ArgMatches::new(self.name);
+		let mut matches = ArgMatches::new(self);
 
 		// let mut needs_val = false;
 		let mut needs_val_of: Option<&'static str> = None; 
 		let mut pos_counter = 1;
 		for arg in env::args().collect::<Vec<String>>().tail() {
 			let arg_slice = arg.as_slice();
-			if let Some(nvo) = needs_val_of {
-				if let Some(opt) = self.opts.get(nvo) {
-					self.matches.opts.insert(nvo, OptArg{
+			let mut skip = false;
+			if let Some(ref nvo) = needs_val_of {
+				if let Some(ref opt) = self.opts.get(nvo) {
+					matches.opts.insert(nvo, OptArg{
 						name: opt.name,
 					    short: opt.short,
 					    long: opt.long, 
 					    help: opt.help,
 					    required: opt.required,
-					    value: Some(arg.as_slice()) 
+					    value: Some(arg.clone()) 
 					});
-					needs_val_of = None;
-					continue;
+					skip = true;
 				}
+			}
+			if skip {
+				needs_val_of = None;
+				skip = false;
+				continue;
 			}
 			if arg_slice.starts_with("--") {
 				// Single flag, or option long version
-				needs_val_of = self.parse_long_arg(arg_slice);
+				needs_val_of = self.parse_long_arg(&mut matches, &arg);
 
 			} else if arg_slice.starts_with("-") {
-				needs_val_of = self.parse_short_arg(arg_slice);
+				needs_val_of = self.parse_short_arg(&mut matches, &arg);
 			} else {
 				// Positional
 
@@ -287,12 +282,12 @@ impl App {
 				assert!(self.positionals_idx.is_empty() == false);
 				assert!(self.positionals_name.is_empty() == false);
 
-				if let Some(p) = self.positionals_idx.get(&pos_counter) {
-					self.matches.positionals.insert(p.name, PosArg{
+				if let Some(ref p) = self.positionals_idx.get(&pos_counter) {
+					matches.positionals.insert(p.name, PosArg{
 						name: p.name,
 						help: p.help,
 						required: p.required,
-						value: Some(arg),
+						value: Some(arg.clone()),
 						index: pos_counter
 					});
 					pos_counter += 1;
@@ -305,7 +300,6 @@ impl App {
 		// where -c takes a value
 		assert!(needs_val_of == None);
 
-		matches.fill_with(self);
 		matches
 	}
 }
