@@ -78,6 +78,7 @@ impl App {
 				index: i,
 				required: a.required,
 				help: a.help,
+				blacklist: a.blacklist.clone(),
 				requires: a.requires.clone(),
 				value: None
 			});
@@ -85,6 +86,7 @@ impl App {
 				name: a.name,
 				index: i,
 				required: a.required,
+				blacklist: a.blacklist.clone(),
 				requires: a.requires.clone(),
 				help: a.help,
 				value: None
@@ -94,6 +96,7 @@ impl App {
 				name: a.name,
 				short: a.short,
 				long: a.long,
+				blacklist: a.blacklist.clone(),
 				help: a.help,
 				requires: a.requires.clone(),
 				required: a.required,
@@ -123,6 +126,7 @@ impl App {
 				short: a.short,
 				long: a.long,
 				help: a.help,
+				blacklist: a.blacklist.clone(),
 				multiple: a.multiple,
 				requires: a.requires.clone(),
 				occurrences: 1
@@ -209,7 +213,16 @@ impl App {
 						self.report_error(&format!("The argument -{} is mutually exclusive with one or more other arguments", arg),
 							false, true);
 					}
-					matches.flags.insert(k, v.clone());
+					matches.flags.insert(k, FlagArg{
+					    name: v.name,
+					    short: v.short,
+					    long: v.long,
+					    help: v.help,
+					    multiple: v.multiple,
+					    occurrences: v.occurrences,
+					    blacklist: None, 
+					    requires: None
+					});
 					if self.required.contains(k) {
 						self.required.remove(k);
 					}
@@ -271,7 +284,8 @@ impl App {
 					    long: v.long, 
 					    help: v.help,
 					    required: v.required,
-					    requires: v.requires.clone(),
+					    blacklist: None,
+					    requires: None,
 					    value: arg_val.clone() 
 					});
 					match arg_val {
@@ -299,7 +313,16 @@ impl App {
 						self.report_error(&format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
 							false, true);
 					}
-					matches.flags.insert(k, v.clone());
+					matches.flags.insert(k, FlagArg{
+					    name: v.name,
+					    short: v.short,
+					    long: v.long,
+					    help: v.help,
+					    multiple: v.multiple,
+					    occurrences: v.occurrences,
+					    blacklist: None, 
+					    requires: None
+					});
 					if self.required.contains(k) {
 						self.required.remove(k);
 					}
@@ -401,7 +424,8 @@ impl App {
 					    short: opt.short,
 					    long: opt.long, 
 					    help: opt.help,
-					    requires: opt.requires.clone(),
+					    requires: None,
+					    blacklist: None,
 					    required: opt.required,
 					    value: Some(arg.clone()) 
 					});
@@ -455,7 +479,8 @@ impl App {
 						name: p.name,
 						help: p.help,
 						required: p.required,
-						requires: p.requires.clone(),
+						blacklist: None,
+						requires: None,
 						value: Some(arg.clone()),
 						index: pos_counter
 					});

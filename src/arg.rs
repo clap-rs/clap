@@ -7,7 +7,7 @@ pub struct Arg {
     pub takes_value: bool,
     pub index: Option<u8>,
     pub multiple: bool,
-    // exclusive_with
+   	pub blacklist: Option<Vec<&'static str>>, 
     pub requires: Option<Vec<&'static str>>
 }
 
@@ -22,6 +22,7 @@ impl Arg {
 			takes_value: false,
 			multiple: false,
 			index: None,
+			blacklist: Some(vec![]),
 			requires: Some(vec![]),
 		}
 	}
@@ -44,6 +45,26 @@ impl Arg {
 
 	pub fn required(&mut self, r: bool) -> &mut Arg {
 		self.required = r;
+		self
+	}
+
+	pub fn mutually_excludes(&mut self, name: &'static str) -> &mut Arg {
+		if let Some(ref mut vec) = self.blacklist {
+			vec.push(name);
+		} else {
+			self.blacklist = Some(vec![]);
+		}
+		self
+	}
+
+	pub fn mutually_excludes_all(&mut self, names: Vec<&'static str>) -> &mut Arg {
+		if let Some(ref mut vec) = self.blacklist {
+			for n in names {
+				vec.push(n);
+			}
+		} else {
+			self.blacklist = Some(vec![]);
+		}
 		self
 	}
 
