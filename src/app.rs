@@ -116,6 +116,31 @@ impl App {
 		unsafe { libc::exit(0); }
 	}
 
+	fn validate_short_flag(&self, matches: &mut ArgMatches, arg: char) -> bool {
+		let mut found = false;
+		for f in self.flags.iter() {
+			if let Some(s) = f.short {
+				if s == arg {
+					found = true;
+					let mut mult = false;
+					for ff in matches.flags.iter_mut() {
+						if ff.name == f.name {
+							// already in matches
+							ff.occurrences = if ff.multiple { ff.occurrences + 1 } else { 1 };
+							mult = true;
+							break;
+						} 
+					}
+					if ! mult {
+						matches.flags.push(f.clone())
+					}
+				}
+				break;
+			}
+		}
+		found
+	}
+
 	fn parse_long_arg(&self, matches: &mut ArgMatches, arg: &str) -> &'static str {
 		let mut p_arg = arg.trim_left_matches(|c| c == '-');
 		let mut found = false;
@@ -191,25 +216,7 @@ impl App {
 				} else if c == 'v' && self.needs_short_version {
 					self.print_version();
 				}
-				for f in self.flags.iter() {
-					if let Some(s) = f.short {
-						if s == c {
-							found = true;
-							let mut mult = false;
-							for ff in matches.flags.iter_mut() {
-								if ff.name == f.name {
-									// already in matches
-									ff.occurrences = if ff.multiple { ff.occurrences + 1 } else { 1 };
-									mult = true;
-								} 
-							}
-							if ! mult {
-								matches.flags.push(f.clone())
-							}
-							return "";
-						}
-					}
-				}
+				found = self.validate_short_flag(matches, c);
 				// Fails if argument supplied to binary isn't valid
 				assert!(found == false);
 				return "";
@@ -222,21 +229,16 @@ impl App {
 			} else if p_arg == 'v' && self.needs_short_version {
 				self.print_version();
 			}
-			for f in self.flags.iter() {
-				if let Some(s) = f.short {
-					if p_arg == s {
-						found = true;
-						matches.flags.push(f.clone());
+			found = self.validate_short_flag(matches, p_arg);
+			if ! found {
+				for o in self.opts.iter() {
+					if let Some(s) = o.short {
+						if s == p_arg {
+							return o.name;
+						}
 					}
-				}
+				} 
 			}
-			for o in self.opts.iter() {
-				if let Some(s) = o.short {
-					if s == p_arg {
-						return o.name;
-					}
-				}
-			} 
 		}
 		// Fails if argument supplied to binary isn't valid
 		assert!(found == false);
