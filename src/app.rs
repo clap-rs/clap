@@ -1,5 +1,6 @@
 extern crate libc;
 
+use std::collections::BTreeMap;
 use std::collections::HashMap;
 use std::env;
 
@@ -16,7 +17,7 @@ pub struct App {
 	pub about: Option<&'static str>,
 	flags: HashMap<&'static str, FlagArg>,
 	opts: HashMap<&'static str, OptArg>,
-	positionals_idx: HashMap<u8, PosArg>,
+	positionals_idx: BTreeMap<u8, PosArg>,
 	positionals_name: HashMap<&'static str, PosArg>,
 	needs_long_help: bool,
 	needs_long_version: bool,
@@ -33,7 +34,7 @@ impl App {
 			version: None,
 			flags: HashMap::new(),
 			opts: HashMap::new(),
-			positionals_idx: HashMap::new(),
+			positionals_idx: BTreeMap::new(),
 			positionals_name: HashMap::new(),
 			needs_long_version: true,
 			needs_long_help: true,
@@ -120,17 +121,60 @@ impl App {
 	}
 
 	fn print_help(&self) {
-		println!("Help info!");
+		self.print_version(false);
+		let mut flags = false;
+		let mut pos = false;
+		let mut opts = false;
+
+		if let Some(ref author) = self.author {
+			println!("{}", author);
+		}
+		if let Some(ref about) = self.about {
+			println!("{}", about);
+		}
+		print!("USAGE {} {} {} {}", self.name,
+			if ! self.flags.is_empty() {flags = true; "[FLAGS]"} else {""},
+			if ! self.opts.is_empty() {opts = true; "[OPTIONS]"} else {""},
+			if ! self.positionals_name.is_empty() {pos = true; "[POSITIONAL]"} else {""});
+		if flags || opts || pos {
+			println!("");
+			println!("Where...");
+		}
+		if flags {
+			println!("");
+			println!("FLAGS:");
+			for (_, v) in self.flags.iter() {
+				println!("{}{}\t\t{}",
+						if let Some(ref s) = v.short{format!("-{}",s)}else{format!("   ")},
+						if let Some(ref l) = v.long {format!(",--{}",l)}else {format!("   ")},
+						if let Some(ref h) = v.help {*h} else {"   "} );
+			}
+		}
+		if opts {
+			println!("");
+			println!("OPTIONS:");
+			for (_, v) in self.opts.iter() {
+				println!("{}{}\t\t{}",
+						if let Some(ref s) = v.short{format!("-{}",s)}else{format!("   ")},
+						if let Some(ref l) = v.long {format!(",--{}",l)}else {format!("   ")},
+						if let Some(ref h) = v.help {*h} else {"   "} );
+			}
+		}
+		if pos {
+			println!("");
+			println!("POSITIONAL ARGUMENTS:");
+			for (_, v) in self.positionals_idx.iter() {
+				println!("{}\t\t\t{}", v.name,
+						if let Some(ref h) = v.help {*h} else {"   "} );
+			}
+		}
+
 		self.exit();
 	}
 
-	fn print_version(&self) {
-		let ver = match self.version { 
-			Some(v) => v,
-			None => ""
-		};
-		println!("{} {}", self.name, ver);
-		self.exit();
+	fn print_version(&self, quit: bool) {
+		println!("{} {}", self.name, if let Some(ref v) = self.version {*v} else {""} );
+		if quit { self.exit(); }
 	}
 
 	fn parse_single_short_flag(&mut self, matches: &mut ArgMatches, arg: char) -> bool {
@@ -157,7 +201,7 @@ impl App {
 		if arg == "help" && self.needs_long_help {
 			self.print_help();
 		} else if arg == "version" && self.needs_long_version {
-			self.print_version();
+			self.print_version(true);
 		}
 
 		let mut arg_val: Option<String> = None;
@@ -218,7 +262,7 @@ impl App {
 		if arg == 'h' && self.needs_short_help {
 			self.print_help();
 		} else if arg == 'v' && self.needs_short_version {
-			self.print_version();
+			self.print_version(true);
 		}
 	}
 
@@ -247,7 +291,7 @@ impl App {
 						}
 					}
 				} 
-				
+
 				self.report_error(
 					&format!("Argument -{} isn't valid",arg_c),
 					false, true);
