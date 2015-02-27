@@ -132,7 +132,7 @@ impl App {
 		if let Some(ref about) = self.about {
 			println!("{}", about);
 		}
-		print!("USAGE {} {} {} {}", self.name,
+		print!("USAGE: {} {} {} {}", self.name,
 			if ! self.flags.is_empty() {flags = true; "[FLAGS]"} else {""},
 			if ! self.opts.is_empty() {opts = true; "[OPTIONS]"} else {""},
 			if ! self.positionals_name.is_empty() {pos = true; "[POSITIONAL]"} else {""});
