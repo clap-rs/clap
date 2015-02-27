@@ -110,16 +110,123 @@ impl App {
 		unsafe { libc::exit(0); }
 	}
 
+	fn parse_long_arg(&self, matches: &mut ArgMatches, arg: &str) -> &'static str {
+		let mut p_arg = arg.trim_left_matches(|c| c == '-');
+		let mut found = false;
+		let mut needs_val = false;
+
+		if p_arg == "help" && self.needs_long_help {
+			self.print_help();
+		} else if p_arg == "version" && self.needs_long_version {
+			self.print_version();
+		}
+		for f in self.flags.iter() {
+			if let Some(l) = f.long {
+				if l == p_arg {
+					found = true;
+					matches.flags.push(f.clone());
+					return "";
+				}
+			}
+		}
+		if p_arg.contains("=") {
+			let p_argv: Vec<&str> = p_arg.split_str("=").collect();
+			p_arg = p_argv[0];
+			for o in self.opts.iter() {
+				if let Some(l) = o.long {
+					if l == p_arg {
+						found = true;
+						matches.opts.push(OptArg{
+							name: o.name,
+						    short: o.short,
+						    long: o.long, 
+						    help: o.help,
+						    required: o.required,
+						    value: Some(p_argv[1].to_string()) 
+						});
+						break;
+					}
+				}
+			} 
+		} else {
+			for o in self.opts.iter() {
+				if let Some(l) = o.long {
+					if l == p_arg {
+						return o.name;
+					}
+				}
+			} 
+		}
+
+		// Fails if argument supplied to binary isn't valid
+		assert!(found == false);
+
+		""
+	}
+
+	fn parse_short_arg(&self, matches: &mut ArgMatches, arg: &str) -> &'static str {
+		let mut found = false;
+		if arg.len() > 2 {
+			// Multiple flags using short i.e. -bgHlS
+			let p_arg = arg.trim_left_matches(|c| c == '-');
+			for c in p_arg.chars() {
+				if c == 'h' && self.needs_short_help {
+					self.print_help();
+				} else if c == 'v' && self.needs_short_version {
+					self.print_version();
+				}
+				for f in self.flags.iter() {
+					if let Some(s) = f.short {
+						if c == s {
+							found = true;
+							matches.flags.push(f.clone());
+						}
+					}
+				}
+				// Fails if argument supplied to binary isn't valid
+				assert!(found == false);
+				return "";
+			}
+		} else {
+			// Short flag or opt
+			let p_arg = arg.char_at(1); 
+			if p_arg == 'h' && self.needs_short_help {
+				self.print_help();
+			} else if p_arg == 'v' && self.needs_short_version {
+				self.print_version();
+			}
+			for f in self.flags.iter() {
+				if let Some(s) = f.short {
+					if p_arg == s {
+						found = true;
+						matches.flags.push(f.clone());
+					}
+				}
+			}
+			for o in self.opts.iter() {
+				if let Some(s) = o.short {
+					if s == p_arg {
+						return o.name;
+					}
+				}
+			} 
+		}
+		// Fails if argument supplied to binary isn't valid
+		assert!(found == false);
+
+		""
+	}
+
 	pub fn get_matches(&mut self) -> ArgMatches {
 
 		let mut matches = ArgMatches::new(self);
 
-		let mut needs_val = false;
-		let mut needs_val_of = String::new();
+		// let mut needs_val = false;
+		let mut needs_val_of = String::new(); 
 		let mut pos_counter = 1;
 		for arg in env::args().collect::<Vec<String>>().tail() {
 			let arg_slice = arg.as_slice();
-			if needs_val {
+			if needs_val_of.is_empty() {
 				for o in self.opts.iter() {
 					if needs_val_of == o.name.to_string() {
 						matches.opts.push(OptArg{
@@ -130,7 +237,6 @@ impl App {
 						    required: o.required,
 						    value: Some(arg.clone()) 
 						});
-						needs_val = false;
 						needs_val_of.clear();
 						break;
 					}
@@ -139,116 +245,16 @@ impl App {
 			}
 			if arg_slice.starts_with("--") {
 				// Single flag, or option
-				let mut p_arg = arg_slice.trim_left_matches(|c| c == '-');
-				let mut found = false;
-				if p_arg == "help" && self.needs_long_help {
-					self.print_help();
-				} else if p_arg == "version" && self.needs_long_version {
-					self.print_version();
-				}
-				for f in self.flags.iter() {
-					if let Some(l) = f.long {
-						if l == p_arg {
-							matches.flags.push(f.clone());
-							found = true;
-							break;
-						}
-					}
-				}
-				if found { continue; }
-				if p_arg.as_slice().contains("=") {
-					let p_argv: Vec<&str> = p_arg.split_str("=").collect();
-					p_arg = p_argv[0];
-					for o in self.opts.iter() {
-						if let Some(l) = o.long {
-							if l == p_arg {
-								// found = true;
-								matches.opts.push(OptArg{
-									name: o.name,
-								    short: o.short,
-								    long: o.long, 
-								    help: o.help,
-								    required: o.required,
-								    value: Some(p_argv[1].to_string()) 
-								});
-								break;
-							}
-						}
-					} 
-				} else {
-					for o in self.opts.iter() {
-						if let Some(l) = o.long {
-							if l == p_arg {
-								found = true;
-								needs_val = true;
-								needs_val_of = o.name.to_string();
-								break;
-							}
-						}
-					} 
-					// Fails if argument supplied to binary isn't valid
-					assert!(found == false);
-					continue;
-				}
+				needs_val_of = self.parse_long_arg(&mut matches, arg_slice).to_string();
+
 			} else if arg_slice.starts_with("-") {
-				if arg_slice.len() > 2 {
-					// Multiple flags using short i.e. -bgHlS
-					let p_arg = arg_slice.trim_left_matches(|c| c == '-');
-					let mut found = false;
-					for c in p_arg.chars() {
-						if c == 'h' && self.needs_short_help {
-							self.print_help();
-						} else if c == 'v' && self.needs_short_version {
-							self.print_version();
-						}
-						for f in self.flags.iter() {
-							if let Some(s) = f.short {
-								if c == s {
-									found = true;
-									matches.flags.push(f.clone());
-								}
-							}
-						}
-						// Fails if argument supplied to binary isn't valid
-						assert!(found == false);
-						continue;
-					}
-				} else {
-					// Short flag or opt
-					let mut found = false;
-					let p_arg = arg_slice.char_at(1); 
-					if p_arg == 'h' && self.needs_short_help {
-						self.print_help();
-					} else if p_arg == 'v' && self.needs_short_version {
-						self.print_version();
-					}
-					for f in self.flags.iter() {
-						if let Some(s) = f.short {
-							if p_arg == s {
-								found = true;
-								matches.flags.push(f.clone());
-							}
-						}
-					}
-					for o in self.opts.iter() {
-						if let Some(s) = o.short {
-							if s == p_arg {
-								found = true;
-								needs_val = true;
-								needs_val_of = o.name.to_string();
-								break;
-							}
-						}
-					} 
-					// Fails if argument supplied to binary isn't valid
-					assert!(found == false);
-					continue;
-				}
+				needs_val_of = self.parse_short_arg(&mut matches, arg_slice).to_string();
 			} else {
 				// Positional
 
 				// Fails if no positionals are expected/possible
 				assert!(self.positionals.is_empty() == false);
+
 				for p in self.positionals.iter() {
 					matches.positionals.push(PosArg{
 						name: p.name,
@@ -266,7 +272,7 @@ impl App {
 		// Fails if we reached the end of args() but were still
 		// expecting a value, such as ./fake -c
 		// where -c takes a value
-		assert!(needs_val == false);
+		assert!(needs_val_of.is_empty());
 
 		matches
 	}
