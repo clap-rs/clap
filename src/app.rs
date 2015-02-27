@@ -241,7 +241,7 @@ impl App {
 			}
 		}
 		// Fails if argument supplied to binary isn't valid
-		assert!(found == false);
+		assert!(found == true);
 
 		""
 	}
