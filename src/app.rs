@@ -204,54 +204,12 @@ impl App {
 		if quit { self.exit(); }
 	}
 
-	fn parse_single_short_flag(&mut self, matches: &mut ArgMatches, arg: char) -> bool {
-		for (k, v) in self.flags.iter() {
-			if let Some(s) = v.short {
-				if s != arg { continue; }
-
-				if !matches.flags.contains_key(k) {
-					if self.blacklist.contains(k) {
-						self.report_error(&format!("The argument -{} is mutually exclusive with one or more other arguments", arg),
-							false, true);
-					}
-					matches.flags.insert(k, FlagArg{
-					    name: v.name,
-					    short: v.short,
-					    long: v.long,
-					    help: v.help,
-					    multiple: v.multiple,
-					    occurrences: v.occurrences,
-					    blacklist: None, 
-					    requires: None
-					});
-					if self.required.contains(k) {
-						self.required.remove(k);
-					}
-					if let Some(ref reqs) = v.requires {
-						if ! reqs.is_empty() {
-							for n in reqs.iter() {
-								if matches.opts.contains_key(n) { continue; }
-								if matches.flags.contains_key(n) { continue; }
-								if matches.positionals.contains_key(n) { continue; }
-								self.required.insert(n);
-							}
-						}
-					}
-					if let Some(ref bl) = v.blacklist {
-						if ! bl.is_empty() {
-							for name in bl.iter() {
-								self.blacklist.insert(k);
-							}
-						}
-					}
-				} else if matches.flags.get(k).unwrap().multiple { 
-					matches.flags.get_mut(k).unwrap().occurrences += 1
-				}
-
-				return true;
-			}
+	fn check_for_help_and_version(&self, arg: char) {
+		if arg == 'h' && self.needs_short_help {
+			self.print_help();
+		} else if arg == 'v' && self.needs_short_version {
+			self.print_version(true);
 		}
-		false
 	}
 
 	fn parse_long_arg(&mut self, matches: &mut ArgMatches ,full_arg: &String) -> Option<&'static str> {
@@ -357,14 +315,6 @@ impl App {
 		None
 	}
 
-	fn check_for_help_and_version(&self, arg: char) {
-		if arg == 'h' && self.needs_short_help {
-			self.print_help();
-		} else if arg == 'v' && self.needs_short_version {
-			self.print_version(true);
-		}
-	}
-
 	fn parse_short_arg(&mut self, matches: &mut ArgMatches ,full_arg: &String) -> Option<&'static str> {
 		let arg = full_arg.as_slice().trim_left_matches(|c| c == '-');
 		if arg.len() > 1 { 
@@ -400,6 +350,56 @@ impl App {
 		None
 	}
 
+	fn parse_single_short_flag(&mut self, matches: &mut ArgMatches, arg: char) -> bool {
+		for (k, v) in self.flags.iter() {
+			if let Some(s) = v.short {
+				if s != arg { continue; }
+
+				if !matches.flags.contains_key(k) {
+					if self.blacklist.contains(k) {
+						self.report_error(&format!("The argument -{} is mutually exclusive with one or more other arguments", arg),
+							false, true);
+					}
+					matches.flags.insert(k, FlagArg{
+					    name: v.name,
+					    short: v.short,
+					    long: v.long,
+					    help: v.help,
+					    multiple: v.multiple,
+					    occurrences: v.occurrences,
+					    blacklist: None, 
+					    requires: None
+					});
+					if self.required.contains(k) {
+						self.required.remove(k);
+					}
+					if let Some(ref reqs) = v.requires {
+						if ! reqs.is_empty() {
+							for n in reqs.iter() {
+								if matches.opts.contains_key(n) { continue; }
+								if matches.flags.contains_key(n) { continue; }
+								if matches.positionals.contains_key(n) { continue; }
+								self.required.insert(n);
+							}
+						}
+					}
+					if let Some(ref bl) = v.blacklist {
+						if ! bl.is_empty() {
+							for name in bl.iter() {
+								self.blacklist.insert(k);
+							}
+						}
+					}
+				} else if matches.flags.get(k).unwrap().multiple { 
+					matches.flags.get_mut(k).unwrap().occurrences += 1
+				}
+
+				return true;
+			}
+		}
+		false
+	}
+	
 	fn validate_blacklist(&self, matches: &ArgMatches) {
 		if ! self.blacklist.is_empty() {
 			for name in self.blacklist.iter() {
