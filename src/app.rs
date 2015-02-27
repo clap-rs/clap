@@ -129,14 +129,16 @@ impl App {
 		for f in self.flags.iter() {
 			if let Some(l) = f.long {
 				if l == p_arg {
+					found = true;
+					let mut mult = false;
 					for ff in matches.flags.iter_mut() {
 						if ff.name == f.name {
 							// already in matches
 							ff.occurrences = if ff.multiple { ff.occurrences + 1 } else { 1 };
-							found = true;
+							mult = true;
 						} 
 					}
-					if ! found {
+					if ! mult {
 						matches.flags.push(f.clone())
 					}
 					return "";
@@ -191,9 +193,20 @@ impl App {
 				}
 				for f in self.flags.iter() {
 					if let Some(s) = f.short {
-						if c == s {
+						if s == c {
 							found = true;
-							matches.flags.push(f.clone());
+							let mut mult = false;
+							for ff in matches.flags.iter_mut() {
+								if ff.name == f.name {
+									// already in matches
+									ff.occurrences = if ff.multiple { ff.occurrences + 1 } else { 1 };
+									mult = true;
+								} 
+							}
+							if ! mult {
+								matches.flags.push(f.clone())
+							}
+							return "";
 						}
 					}
 				}
