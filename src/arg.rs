@@ -8,7 +8,7 @@ pub struct Arg {
     pub index: Option<u8>,
     pub multiple: bool,
     // exclusive_with
-    // requires
+    pub requires: Option<Vec<&'static str>>
 }
 
 impl Arg {
@@ -21,7 +21,8 @@ impl Arg {
 			required: false,
 			takes_value: false,
 			multiple: false,
-			index: None
+			index: None,
+			requires: Some(vec![]),
 		}
 	}
 
@@ -46,6 +47,26 @@ impl Arg {
 		self
 	}
 
+	pub fn requires(&mut self, name: &'static str) -> &mut Arg {
+		if let Some(ref mut vec) = self.requires {
+			vec.push(name);
+		} else {
+			self.requires = Some(vec![]);
+		}
+		self
+	}
+
+	pub fn requires_all(&mut self, names: Vec<&'static str>) -> &mut Arg {
+		if let Some(ref mut vec) = self.requires {
+			for n in names {
+				vec.push(n);
+			}
+		} else {
+			self.requires = Some(vec![]);
+		}
+		self
+	}
+
 	pub fn takes_value(&mut self, tv: bool) -> &mut Arg {
 		assert!(self.index == None);
 		self.takes_value = tv;
@@ -54,6 +75,7 @@ impl Arg {
 
 	pub fn index(&mut self, idx: u8) -> &mut Arg {
 		assert!(self.takes_value == false);
+		if idx < 1 { panic!("Argument index must start at 1"); }
 		self.index = Some(idx);
 		self
 	}

@@ -2,6 +2,7 @@ extern crate libc;
 
 use std::collections::BTreeMap;
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::env;
 
 use ArgMatches;
@@ -23,6 +24,9 @@ pub struct App {
 	needs_long_version: bool,
 	needs_short_help: bool,
 	needs_short_version: bool,
+	required: HashSet<&'static str>,
+	arg_list: HashSet<&'static str>,
+	// blacklist: HashMap<&'static str, Vec<&'static str>>
 }
 
 impl App {
@@ -40,6 +44,8 @@ impl App {
 			needs_long_help: true,
 			needs_short_help: true,
 			needs_short_version: true,
+			required: HashSet::new(), 
+			arg_list: HashSet::new()
 		}
 	}
 
@@ -59,18 +65,26 @@ impl App {
 	}
 
 	pub fn arg(&mut self, a: &Arg) -> &mut App {
+		if self.arg_list.contains(a.name) {
+			panic!("Argument name must be unique, \"{}\" is already in use", a.name);
+		}
+		if a.required {
+			self.required.insert(a.name);
+		}
 		if let Some(i) = a.index {
 			self.positionals_name.insert(a.name, PosArg {
 				name: a.name,
 				index: i,
 				required: a.required,
 				help: a.help,
+				requires: a.requires.clone(),
 				value: None
 			});
 			self.positionals_idx.insert(i, PosArg {
 				name: a.name,
 				index: i,
 				required: a.required,
+				requires: a.requires.clone(),
 				help: a.help,
 				value: None
 			});
@@ -80,6 +94,7 @@ impl App {
 				short: a.short,
 				long: a.long,
 				help: a.help,
+				requires: a.requires.clone(),
 				required: a.required,
 				value: None
 			});
@@ -98,12 +113,17 @@ impl App {
 					self.needs_short_version = false;
 				}
 			}
+			// Flags can't be required
+			if self.required.contains(a.name) {
+				self.required.remove(a.name);
+			}
 			self.flags.insert(a.name, FlagArg{
 				name: a.name,
 				short: a.short,
 				long: a.long,
 				help: a.help,
 				multiple: a.multiple,
+				requires: a.requires.clone(),
 				occurrences: 1
 			});
 		}
@@ -132,6 +152,7 @@ impl App {
 		if let Some(ref about) = self.about {
 			println!("{}", about);
 		}
+		println!("");
 		print!("USAGE: {} {} {} {}", self.name,
 			if ! self.flags.is_empty() {flags = true; "[FLAGS]"} else {""},
 			if ! self.opts.is_empty() {opts = true; "[OPTIONS]"} else {""},
@@ -184,6 +205,19 @@ impl App {
 
 				if !matches.flags.contains_key(k) {
 					matches.flags.insert(k, v.clone());
+					if self.required.contains(k) {
+						self.required.remove(k);
+					}
+					if let Some(ref reqs) = v.requires {
+						if ! reqs.is_empty() {
+							for n in reqs.iter() {
+								if matches.opts.contains_key(n) { continue; }
+								if matches.flags.contains_key(n) { continue; }
+								if matches.positionals.contains_key(n) { continue; }
+								self.required.insert(n);
+							}
+						}
+					}
 				} else if matches.flags.get(k).unwrap().multiple { 
 					matches.flags.get_mut(k).unwrap().occurrences += 1
 				}
@@ -221,6 +255,7 @@ impl App {
 					    long: v.long, 
 					    help: v.help,
 					    required: v.required,
+					    requires: v.requires.clone(),
 					    value: arg_val.clone() 
 					});
 					match arg_val {
@@ -245,6 +280,19 @@ impl App {
 				// before calling .insert()
 				if ! multi { 
 					matches.flags.insert(k, v.clone());
+					if self.required.contains(k) {
+						self.required.remove(k);
+					}
+				}
+				if let Some(ref reqs) = v.requires {
+					if ! reqs.is_empty() {
+						for n in reqs.iter() {
+							if matches.opts.contains_key(n) { continue; }
+							if matches.flags.contains_key(n) { continue; }
+							if matches.positionals.contains_key(n) { continue; }
+							self.required.insert(n);
+						}
+					}
 				}
 				break;
 			}
@@ -317,9 +365,23 @@ impl App {
 					    short: opt.short,
 					    long: opt.long, 
 					    help: opt.help,
+					    requires: opt.requires.clone(),
 					    required: opt.required,
 					    value: Some(arg.clone()) 
 					});
+					if self.required.contains(opt.name) {
+						self.required.remove(opt.name);
+					}
+					if let Some(ref reqs) = opt.requires {
+						if ! reqs.is_empty() {
+							for n in reqs.iter() {
+								if matches.opts.contains_key(n) { continue; }
+								if matches.flags.contains_key(n) { continue; }
+								if matches.positionals.contains_key(n) { continue; }
+								self.required.insert(n);
+							}
+						}
+					}
 					skip = true;
 				}
 			}
@@ -346,10 +408,26 @@ impl App {
 						name: p.name,
 						help: p.help,
 						required: p.required,
+						requires: p.requires.clone(),
 						value: Some(arg.clone()),
 						index: pos_counter
 					});
+					if self.required.contains(p.name) {
+						self.required.remove(p.name);
+					}
+					if let Some(ref reqs) = p.requires {
+						if ! reqs.is_empty() {
+							for n in reqs.iter() {
+								if matches.opts.contains_key(n) { continue; }
+								if matches.flags.contains_key(n) { continue; }
+								if matches.positionals.contains_key(n) { continue; }
+								self.required.insert(n);
+							}
+						}
+					}
 					pos_counter += 1;
+				} else {
+					self.report_error(&format!("Positional argument \"{}\" was found, but {} wasn't expecting any", arg, self.name), false, true);
 				}
 			}
 		}
@@ -357,10 +435,14 @@ impl App {
 		match needs_val_of {
 			Some(ref a) => {
 				self.report_error(
-					&format!("Argument {} requires a value but none was supplied", a),
+					&format!("Argument \"{}\" requires a value but none was supplied", a),
 					false, true);
 			}
 			_ => {}
+		}
+		if ! self.required.is_empty() {
+			self.report_error(&"One or more required arguments were not supplied".to_string(),
+					false, true);
 		}
 		matches
 	}

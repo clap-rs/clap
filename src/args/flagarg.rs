@@ -5,5 +5,6 @@ pub struct FlagArg {
     pub long: Option<&'static str>,
     pub help: Option<&'static str>,
     pub multiple: bool,
-    pub occurrences: u8
+    pub occurrences: u8,
+    pub requires: Option<Vec<&'static str>>
 }
