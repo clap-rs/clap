@@ -1,5 +1,6 @@
 extern crate libc;
 
+use std::collections::HashMap;
 use std::env;
 
 use ArgMatches;
@@ -14,13 +15,15 @@ pub struct App {
 	pub version: Option<&'static str>,
 	pub about: Option<&'static str>,
 	// raw_args: Vec<Arg>,
-	flags: Vec<FlagArg>,
-	opts: Vec<OptArg>,
-	positionals: Vec<PosArg>,
+	flags: HashMap<&'static str, FlagArg>,
+	opts: HashMap<&'static str, OptArg>,
+	positionals_idx: HashMap<u8, PosArg>,
+	positionals_name: HashMap<&'static str, PosArg>,
 	needs_long_help: bool,
 	needs_long_version: bool,
 	needs_short_help: bool,
-	needs_short_version: bool
+	needs_short_version: bool,
+	matches: ArgMatches
 }
 
 impl App {
@@ -31,13 +34,15 @@ impl App {
 			about: None,
 			version: None,
 			// raw_args: vec![],
-			flags: vec![],
-			opts: vec![],
+			flags: HashMap::new(),
+			opts: HashMap::new(),
+			positionals_idx: HashMap::new(),
+			positionals_name: HashMap::new(),
 			needs_long_version: true,
 			needs_long_help: true,
-			positionals: vec![],
 			needs_short_help: true,
-			needs_short_version: true 
+			needs_short_version: true,
+			matches: ArgMatches::new(n)
 		}
 	}
 
@@ -58,16 +63,22 @@ impl App {
 
 	pub fn arg(&mut self, a: &Arg) -> &mut App {
 		if let Some(i) = a.index {
-			self.positionals.push(PosArg {
+			self.positionals_name.insert(a.name, PosArg {
 				name: a.name,
 				index: i,
 				required: a.required,
 				help: a.help,
 				value: None
-
+			});
+			self.positionals_idx.insert(i, PosArg {
+				name: a.name,
+				index: i,
+				required: a.required,
+				help: a.help,
+				value: None
 			});
 		} else if a.takes_value {
-			self.opts.push(OptArg {
+			self.opts.insert(a.name, OptArg {
 				name: a.name,
 				short: a.short,
 				long: a.long,
@@ -90,7 +101,7 @@ impl App {
 					self.needs_short_version = false;
 				}
 			}
-			self.flags.push(FlagArg{
+			self.flags.insert(a.name, FlagArg{
 				name: a.name,
 				short: a.short,
 				long: a.long,
@@ -116,193 +127,186 @@ impl App {
 		unsafe { libc::exit(0); }
 	}
 
-	fn validate_short_flag(&self, matches: &mut ArgMatches, arg: char) -> bool {
-		let mut found = false;
-		for f in self.flags.iter() {
-			if let Some(s) = f.short {
-				if s == arg {
-					found = true;
-					let mut mult = false;
-					for ff in matches.flags.iter_mut() {
-						if ff.name == f.name {
-							// already in matches
-							ff.occurrences = if ff.multiple { ff.occurrences + 1 } else { 1 };
-							mult = true;
-							break;
-						} 
-					}
-					if ! mult {
-						matches.flags.push(f.clone())
-					}
+	fn parse_single_short_flag(&mut self, arg: char) -> bool {
+		for (k, v) in self.flags.iter() {
+			if let Some(s) = v.short {
+				if s != arg { continue; }
+
+				let mut multi = false;
+				if let Some(f) = self.matches.flags.get_mut(k) {
+					f.occurrences = if f.multiple { f.occurrences + 1 } else { 1 };
+					multi = true;
+				} 
+
+				if ! multi { 
+					self.matches.flags.insert(k, v.clone());
 				}
-				break;
+				return true;
 			}
 		}
-		found
+		false
 	}
 
-	fn parse_long_arg(&self, matches: &mut ArgMatches, arg: &str) -> &'static str {
-		let mut p_arg = arg.trim_left_matches(|c| c == '-');
+	fn parse_long_arg(&mut self, full_arg: &'static str) -> Option<&'static str> {
+		let mut arg = full_arg.trim_left_matches(|c| c == '-');
 		let mut found = false;
-		let mut needs_val = false;
+		// let mut needs_val = false;
 
-		if p_arg == "help" && self.needs_long_help {
+		if arg == "help" && self.needs_long_help {
 			self.print_help();
-		} else if p_arg == "version" && self.needs_long_version {
+		} else if arg == "version" && self.needs_long_version {
 			self.print_version();
 		}
-		for f in self.flags.iter() {
-			if let Some(l) = f.long {
-				if l == p_arg {
+
+		let mut arg_val: Option<&str> = None;
+
+		if arg.contains("=") {
+			let arg_vec: Vec<&str> = arg.split_str("=").collect();
+			arg = arg_vec[0];
+			arg_val = Some(arg_vec[1]);
+		} 
+
+		for (k, v) in self.opts.iter() {
+			if let Some(l) = v.long {
+				if l == arg {
 					found = true;
-					let mut mult = false;
-					for ff in matches.flags.iter_mut() {
-						if ff.name == f.name {
-							// already in matches
-							ff.occurrences = if ff.multiple { ff.occurrences + 1 } else { 1 };
-							mult = true;
-						} 
-					}
-					if ! mult {
-						matches.flags.push(f.clone())
-					}
-					return "";
+					self.matches.opts.insert(k, OptArg{
+						name: v.name,
+					    short: v.short,
+					    long: v.long, 
+					    help: v.help,
+					    required: v.required,
+					    value: arg_val 
+					});
+				}
+			}
+		} 
+		
+		match arg_val {
+			Some(_) => return arg_val,
+			None => {}
+		}	
+
+		for (k, v) in self.flags.iter() {
+			if let Some(l) = v.long {
+				if l != arg { continue; }
+				found = true;
+				let mut multi = false; 
+				if let Some(f) = self.matches.flags.get_mut(k) {
+					f.occurrences = if f.multiple { f.occurrences + 1 } else { 1 };
+					multi = true;
+				} 
+
+				if ! multi { 
+					self.matches.flags.insert(k, v.clone());
 				}
 			}
 		}
-		if p_arg.contains("=") {
-			let p_argv: Vec<&str> = p_arg.split_str("=").collect();
-			p_arg = p_argv[0];
-			for o in self.opts.iter() {
-				if let Some(l) = o.long {
-					if l == p_arg {
-						found = true;
-						matches.opts.push(OptArg{
-							name: o.name,
-						    short: o.short,
-						    long: o.long, 
-						    help: o.help,
-						    required: o.required,
-						    value: Some(p_argv[1].to_string()) 
-						});
-						break;
-					}
-				}
-			} 
-		} else {
-			for o in self.opts.iter() {
-				if let Some(l) = o.long {
-					if l == p_arg {
-						return o.name;
-					}
-				}
-			} 
-		}
+
 
 		// Fails if argument supplied to binary isn't valid
 		assert!(found == false);
 
-		""
+		None
 	}
 
-	fn parse_short_arg(&self, matches: &mut ArgMatches, arg: &str) -> &'static str {
+	fn check_for_help_and_version(&self, arg: char) {
+		if arg == 'h' && self.needs_short_help {
+			self.print_help();
+		} else if arg == 'v' && self.needs_short_version {
+			self.print_version();
+		}
+	}
+
+	fn parse_short_arg(&mut self, full_arg: &'static str) -> Option<&'static str> {
 		let mut found = false;
-		if arg.len() > 2 {
+		let arg = full_arg.trim_left_matches(|c| c == '-');
+
+		if arg.len() > 1 { 
 			// Multiple flags using short i.e. -bgHlS
-			let p_arg = arg.trim_left_matches(|c| c == '-');
-			for c in p_arg.chars() {
-				if c == 'h' && self.needs_short_help {
-					self.print_help();
-				} else if c == 'v' && self.needs_short_version {
-					self.print_version();
-				}
-				found = self.validate_short_flag(matches, c);
-				// Fails if argument supplied to binary isn't valid
-				assert!(found == false);
-				return "";
+			for c in arg.chars() {
+				self.check_for_help_and_version(c);
+				found = self.parse_single_short_flag(c);
+				if found { break; }
 			}
 		} else {
 			// Short flag or opt
-			let p_arg = arg.char_at(1); 
-			if p_arg == 'h' && self.needs_short_help {
-				self.print_help();
-			} else if p_arg == 'v' && self.needs_short_version {
-				self.print_version();
-			}
-			found = self.validate_short_flag(matches, p_arg);
-			if ! found {
-				for o in self.opts.iter() {
-					if let Some(s) = o.short {
-						if s == p_arg {
-							return o.name;
-						}
+			let arg_c = arg.char_at(0);
+			self.check_for_help_and_version(arg_c);
+			found = self.parse_single_short_flag(arg_c);
+
+			if found { return None; }
+
+			for (k, v) in self.opts.iter() {
+				if let Some(s) = v.short {
+					if s == arg_c {
+						return Some(v.name);
 					}
-				} 
-			}
+				}
+			} 
 		}
 		// Fails if argument supplied to binary isn't valid
 		assert!(found == true);
 
-		""
+		None
 	}
 
 	pub fn get_matches(&mut self) -> ArgMatches {
 
-		let mut matches = ArgMatches::new(self);
+		let mut matches = ArgMatches::new(self.name);
 
 		// let mut needs_val = false;
-		let mut needs_val_of = "".to_string(); 
+		let mut needs_val_of: Option<&'static str> = None; 
 		let mut pos_counter = 1;
-		for arg in env::args().collect::<Vec<String>>().tail() {
+		let args = env::args().collect::<Vec<String>>().tail();
+		for arg in args {
 			let arg_slice = arg.as_slice();
-			if ! needs_val_of.is_empty() {
-				for o in self.opts.iter() {
-					if needs_val_of == o.name.to_string() {
-						matches.opts.push(OptArg{
-							name: o.name,
-						    short: o.short,
-						    long: o.long, 
-						    help: o.help,
-						    required: o.required,
-						    value: Some(arg.clone()) 
-						});
-						needs_val_of.clear();
-						break;
-					}
+			if let Some(nvo) = needs_val_of {
+				if let Some(opt) = self.opts.get(nvo) {
+					self.matches.opts.insert(nvo, OptArg{
+						name: opt.name,
+					    short: opt.short,
+					    long: opt.long, 
+					    help: opt.help,
+					    required: opt.required,
+					    value: Some(arg.as_slice()) 
+					});
+					needs_val_of = None;
+					continue;
 				}
-				continue;
 			}
 			if arg_slice.starts_with("--") {
-				// Single flag, or option
-				needs_val_of = self.parse_long_arg(&mut matches, arg_slice).to_string();
+				// Single flag, or option long version
+				needs_val_of = self.parse_long_arg(arg_slice);
 
 			} else if arg_slice.starts_with("-") {
-				needs_val_of = self.parse_short_arg(&mut matches, arg_slice).to_string();
+				needs_val_of = self.parse_short_arg(arg_slice);
 			} else {
 				// Positional
 
 				// Fails if no positionals are expected/possible
-				assert!(self.positionals.is_empty() == false);
+				assert!(self.positionals_idx.is_empty() == false);
+				assert!(self.positionals_name.is_empty() == false);
 
-				for p in self.positionals.iter() {
-					matches.positionals.push(PosArg{
+				if let Some(p) = self.positionals_idx.get(&pos_counter) {
+					self.matches.positionals.insert(p.name, PosArg{
 						name: p.name,
 						help: p.help,
 						required: p.required,
-						value: Some(arg.clone()),
+						value: Some(arg),
 						index: pos_counter
 					});
 					pos_counter += 1;
 				}
 			}
-
 		}
 
 		// Fails if we reached the end of args() but were still
 		// expecting a value, such as ./fake -c
 		// where -c takes a value
-		assert!(needs_val_of.is_empty());
+		assert!(needs_val_of == None);
 
+		matches.fill_with(self);
 		matches
 	}
 }

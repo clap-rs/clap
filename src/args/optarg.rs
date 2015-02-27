@@ -4,5 +4,5 @@ pub struct OptArg {
     pub long: Option<&'static str>,
     pub help: Option<&'static str>,
     pub required: bool,
-    pub value: Option<String>
+    pub value: Option<&'static str>
 }
