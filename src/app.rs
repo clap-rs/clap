@@ -26,7 +26,7 @@ pub struct App {
 	needs_short_version: bool,
 	required: HashSet<&'static str>,
 	arg_list: HashSet<&'static str>,
-	blacklist: HashSet<&'static str>
+	blacklist: HashSet<&'static str>,
 }
 
 impl App {
@@ -46,7 +46,7 @@ impl App {
 			needs_short_version: true,
 			required: HashSet::new(), 
 			arg_list: HashSet::new(),
-			blacklist: HashSet::new()
+			blacklist: HashSet::new(),
 		}
 	}
 
@@ -399,6 +399,52 @@ impl App {
 		None
 	}
 
+	fn validate_blacklist(&self, matches: &ArgMatches) {
+		if ! self.blacklist.is_empty() {
+			for name in self.blacklist.iter() {
+				for (k, v) in matches.flags.iter() {
+					if k == name {
+						self.report_error(&format!("The argument \"{}\" is mutually exclusive with one or more other arguments",
+							if let Some(s) = v.short {
+								format!("-{}", s)
+							} else if let Some(l) = v.long {
+								format!("--{}", l)
+							} else {
+								format!("{}", v.name)
+							}),
+							false, true);
+					}
+				}
+				for (k, v) in matches.opts.iter() {
+					if k == name {
+						self.report_error(&format!("The argument \"{}\" is mutually exclusive with one or more other arguments",
+							if let Some(s) = v.short {
+								format!("-{}", s)
+							} else if let Some(l) = v.long {
+								format!("--{}", l)
+							} else {
+								format!("{}", v.name)
+							}),
+							false, true);
+					}
+				}
+				for (k, v) in matches.positionals.iter() {
+					if k == name {
+						self.report_error(&format!("The argument \"{}\" is mutually exclusive with one or more other arguments",
+							if let Some(s) = v.short {
+								format!("-{}", s)
+							} else if let Some(l) = v.long {
+								format!("--{}", l)
+							} else {
+								format!("{}", v.name)
+							}),
+							false, true);
+					}
+				}
+			}
+		}
+	}
+
 	pub fn get_matches(&mut self) -> ArgMatches {
 		let mut matches = ArgMatches::new(self);
 
@@ -523,6 +569,9 @@ impl App {
 			self.report_error(&"One or more required arguments were not supplied".to_string(),
 					false, true);
 		}
+
+		self.validate_blacklist(&matches);
+
 		matches
 	}
 }

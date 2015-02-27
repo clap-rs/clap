@@ -1,5 +1,5 @@
 [package]
 
 name = "clap"
-version = "0.3.0"
+version = "0.3.3"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
