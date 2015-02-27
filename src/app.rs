@@ -258,8 +258,7 @@ impl App {
 		// let mut needs_val = false;
 		let mut needs_val_of: Option<&'static str> = None; 
 		let mut pos_counter = 1;
-		let args = env::args().collect::<Vec<String>>().tail();
-		for arg in args {
+		for arg in env::args().collect::<Vec<String>>().tail() {
 			let arg_slice = arg.as_slice();
 			if let Some(nvo) = needs_val_of {
 				if let Some(opt) = self.opts.get(nvo) {
