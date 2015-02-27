@@ -430,14 +430,7 @@ impl App {
 				}
 				for (k, v) in matches.positionals.iter() {
 					if k == name {
-						self.report_error(&format!("The argument \"{}\" is mutually exclusive with one or more other arguments",
-							if let Some(s) = v.short {
-								format!("-{}", s)
-							} else if let Some(l) = v.long {
-								format!("--{}", l)
-							} else {
-								format!("{}", v.name)
-							}),
+						self.report_error(&format!("The argument \"{}\" is mutually exclusive with one or more other arguments",v.name),
 							false, true);
 					}
 				}
