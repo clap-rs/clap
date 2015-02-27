@@ -432,7 +432,7 @@ impl App {
 					if let Some(ref bl) = opt.blacklist {
 						if ! bl.is_empty() {
 							for name in bl.iter() {
-								self.blacklist.insert(opt.name);
+								self.blacklist.insert(name);
 							}
 						}
 					}
