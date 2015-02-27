@@ -264,9 +264,6 @@ impl App {
 					f.occurrences = if f.multiple { f.occurrences + 1 } else { 1 };
 					multi = true;
 				}  
-				// Cannot borrow mutable twice at same time 
-				// so the 'if let' must finish it's scope first
-				// before calling .insert()
 				if ! multi { 
 					if self.blacklist.contains(k) {
 						self.report_error(&format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
@@ -288,7 +285,7 @@ impl App {
 					if let Some(ref bl) = v.blacklist {
 						if ! bl.is_empty() {
 							for name in bl.iter() {
-								self.blacklist.insert(k);
+								self.blacklist.insert(name);
 							}
 						}
 					}
@@ -386,7 +383,7 @@ impl App {
 					if let Some(ref bl) = v.blacklist {
 						if ! bl.is_empty() {
 							for name in bl.iter() {
-								self.blacklist.insert(k);
+								self.blacklist.insert(name);
 							}
 						}
 					}
@@ -399,7 +396,7 @@ impl App {
 		}
 		false
 	}
-	
+
 	fn validate_blacklist(&self, matches: &ArgMatches) {
 		if ! self.blacklist.is_empty() {
 			for name in self.blacklist.iter() {
@@ -527,7 +524,7 @@ impl App {
 					if let Some(ref bl) = p.blacklist {
 						if ! bl.is_empty() {
 							for name in bl.iter() {
-								self.blacklist.insert(p.name);
+								self.blacklist.insert(name);
 							}
 						}
 					}
