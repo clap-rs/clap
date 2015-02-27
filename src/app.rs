@@ -180,9 +180,10 @@ impl App {
 			println!("");
 			println!("OPTIONS:");
 			for (_, v) in self.opts.iter() {
-				println!("{}{}\t\t{}",
+				println!("{}{}{}\t\t{}",
 						if let Some(ref s) = v.short{format!("-{}",s)}else{format!("   ")},
 						if let Some(ref l) = v.long {format!(",--{}",l)}else {format!("   ")},
+						format!(" <{}>", v.name),
 						if let Some(ref h) = v.help {*h} else {"   "} );
 			}
 		}
@@ -404,26 +405,26 @@ impl App {
 			for name in self.blacklist.iter() {
 				for (k, v) in matches.flags.iter() {
 					if k == name {
-						self.report_error(&format!("The argument \"{}\" is mutually exclusive with one or more other arguments",
+						self.report_error(&format!("The argument {} is mutually exclusive with one or more other arguments",
 							if let Some(s) = v.short {
 								format!("-{}", s)
 							} else if let Some(l) = v.long {
 								format!("--{}", l)
 							} else {
-								format!("{}", v.name)
+								format!("\"{}\"", v.name)
 							}),
 							false, true);
 					}
 				}
 				for (k, v) in matches.opts.iter() {
 					if k == name {
-						self.report_error(&format!("The argument \"{}\" is mutually exclusive with one or more other arguments",
+						self.report_error(&format!("The argument {} is mutually exclusive with one or more other arguments",
 							if let Some(s) = v.short {
 								format!("-{}", s)
 							} else if let Some(l) = v.long {
 								format!("--{}", l)
 							} else {
-								format!("{}", v.name)
+								format!("\"{}\"", v.name)
 							}),
 							false, true);
 					}
