@@ -109,9 +109,19 @@ impl App {
 		self
 	}
 
+	fn exit(&self) {
+		unsafe { libc::exit(0); }
+	}
+
+	fn report_error(&self, msg: &String, help: bool, quit: bool) {
+		println!("{}", msg);
+		if help { self.print_help(); }
+		if quit {self.exit(); }
+	}
+
 	fn print_help(&self) {
 		println!("Help info!");
-		unsafe { libc::exit(0); }
+		self.exit();
 	}
 
 	fn print_version(&self) {
@@ -120,7 +130,7 @@ impl App {
 			None => ""
 		};
 		println!("{} {}", self.name, ver);
-		unsafe { libc::exit(0); }
+		self.exit();
 	}
 
 	fn parse_single_short_flag(&mut self, matches: &mut ArgMatches, arg: char) -> bool {
@@ -195,9 +205,12 @@ impl App {
 				break;
 			}
 		}
-		// Fails if argument supplied to binary isn't valid
-		assert!(found == false);
 
+		if ! found {
+			self.report_error(
+				&format!("Argument --{} isn't valid", arg),
+				false, true);
+		}
 		None
 	}
 
@@ -216,22 +229,30 @@ impl App {
 			for c in arg.chars() {
 				self.check_for_help_and_version(c);
 				if ! self.parse_single_short_flag(matches, c) { 
-					panic!("Argument -{} isn't valid",arg);
+					self.report_error(
+						&format!("Argument -{} isn't valid",c),
+						false, true);
 				}
 			}
 		} else {
 			// Short flag or opt
 			let arg_c = arg.char_at(0);
 			self.check_for_help_and_version(arg_c);
-			if self.parse_single_short_flag(matches, arg_c) { return None }
 
-			for (k, v) in self.opts.iter() {
-				if let Some(s) = v.short {
-					if s == arg_c {
-						return Some(k)
+			if ! self.parse_single_short_flag(matches, arg_c) { 
+				for (k, v) in self.opts.iter() {
+					if let Some(s) = v.short {
+						if s == arg_c {
+							return Some(k)
+						}
 					}
-				}
-			} 
+				} 
+				
+				self.report_error(
+					&format!("Argument -{} isn't valid",arg_c),
+					false, true);
+			}
+
 		}
 		None
 	}
@@ -271,10 +292,11 @@ impl App {
 			} else {
 				// Positional
 
-				// Fails if no positionals are expected/possible
-				assert!(self.positionals_idx.is_empty() == false);
-				assert!(self.positionals_name.is_empty() == false);
-
+				if self.positionals_idx.is_empty() || self.positionals_name.is_empty() {
+					self.report_error(
+						&format!("Found positional argument {}, but {} doesn't accept any", arg, self.name),
+						false, true);
+				}
 				if let Some(ref p) = self.positionals_idx.get(&pos_counter) {
 					matches.positionals.insert(p.name, PosArg{
 						name: p.name,
@@ -288,11 +310,14 @@ impl App {
 			}
 		}
 
-		// Fails if we reached the end of args() but were still
-		// expecting a value, such as ./fake -c
-		// where -c takes a value
-		assert!(needs_val_of == None);
-
+		match needs_val_of {
+			Some(ref a) => {
+				self.report_error(
+					&format!("Argument {} requires a value but none was supplied", a),
+					false, true);
+			}
+			_ => {}
+		}
 		matches
 	}
 }
