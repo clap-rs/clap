@@ -61,7 +61,7 @@ impl Arg {
 	pub fn multiple(&mut self, multi: bool) -> &mut Arg {
 		assert!(self.takes_value == false);
 		assert!(self.index == None);
-		self.multiple = true;
+		self.multiple = multi;
 		self
 	}
 }

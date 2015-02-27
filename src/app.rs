@@ -128,18 +128,12 @@ impl App {
 			if let Some(s) = v.short {
 				if s != arg { continue; }
 
-				let mut found = false;
-				if let Some(ref mut f) = matches.flags.get_mut(k) {
-					f.occurrences = if f.multiple { f.occurrences + 1 } else { 1 };
-					found = true;
-				} 
-
-				// Cannot borrow mutable twice at same time 
-				// so the if let must finish it's scope first
-				// before calling .insert()
-				if ! found { 
+				if !matches.flags.contains_key(k) {
 					matches.flags.insert(k, v.clone());
+				} else if matches.flags.get(k).unwrap().multiple { 
+					matches.flags.get_mut(k).unwrap().occurrences += 1
 				}
+
 				return true;
 			}
 		}
@@ -167,7 +161,6 @@ impl App {
 		for (k, v) in self.opts.iter() {
 			if let Some(ref l) = v.long {
 				if *l == arg {
-					found = true;
 					matches.opts.insert(k, OptArg{
 						name: v.name,
 					    short: v.short,
@@ -222,9 +215,10 @@ impl App {
 			// Multiple flags using short i.e. -bgHlS
 			for c in arg.chars() {
 				self.check_for_help_and_version(c);
-				if self.parse_single_short_flag(matches, c) { return None }
+				if ! self.parse_single_short_flag(matches, c) { 
+					panic!("Argument -{} isn't valid",arg);
+				}
 			}
-			panic!("Argument -{} isn't valid",arg);
 		} else {
 			// Short flag or opt
 			let arg_c = arg.char_at(0);
@@ -266,7 +260,6 @@ impl App {
 			}
 			if skip {
 				needs_val_of = None;
-				skip = false;
 				continue;
 			}
 			if arg_slice.starts_with("--") {

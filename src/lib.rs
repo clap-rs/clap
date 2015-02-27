@@ -1,4 +1,4 @@
-#![feature(collections, core)]
+#![feature(collections, core, libc, env)]
 
 pub use argmatches::ArgMatches;
 pub use arg::Arg;
