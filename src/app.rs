@@ -135,6 +135,13 @@ impl App {
 		self
 	}
 
+	pub fn args(&mut self, args: Vec<&Arg>) -> &mut App {
+		for arg in args.iter() {
+			self.arg(arg);
+		}
+		self
+	}
+
 	fn exit(&self) {
 		unsafe { libc::exit(0); }
 	}

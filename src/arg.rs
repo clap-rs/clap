@@ -52,7 +52,21 @@ pub struct Arg {
 }
 
 impl Arg {
-	/// Creates a new instace of and `Arg`
+	/// Creates a new instace of `Arg` using a unique string name. 
+	/// The name will be used by the library consumer to get information about
+	/// whether or not the argument was used at runtime. 
+	///
+	/// **NOTE:** in the case of arguments that take values (i.e. `takes_value(true)`)
+	/// the name will also be displayed when the user prints the usage/help information
+	/// of the program.
+	///
+	/// Example:
+	///
+	/// ```rust.example
+	/// # let matches = App::new("myprog")
+	/// #                 .arg(
+	/// Arg::new("conifg")
+	/// # ).get_matches();
 	pub fn new(n: &'static str) -> Arg {
 		Arg {
 			name: n,
@@ -68,27 +82,97 @@ impl Arg {
 		}
 	}
 
+	/// Sets the short version of the argument without the preceding `-`.
+	///
+	/// **NOTE:** Any leading `-` characters will be stripped, and only the first
+	/// non `-` chacter will be used as the `short` version, i.e. for when the user
+	/// mistakenly sets the short to `-o` or the like.
+	/// Example:
+	///
+	/// ```rust.example
+	/// # let matches = App::new("myprog")
+	/// #                 .arg(
+	/// # Arg::new("conifg")
+	///       .short("c")
+	/// # ).get_matches();
 	pub fn short(&mut self, s: &'static str) -> &mut Arg {
 		self.short = Some(s.trim_left_matches(|c| c == '-')
 						   .char_at(0));
 		self
 	}
 
+	/// Sets the long version of the argument without the preceding `--`.
+	///
+	/// **NOTE:** Any leading `-` characters will be stripped i.e. for 
+	/// when the user mistakenly sets the short to `--out` or the like.
+	///
+	/// Example:
+	///
+	/// ```rust.example
+	/// # let matches = App::new("myprog")
+	/// #                 .arg(
+	/// # Arg::new("conifg")
+	///       .long("config")
+	/// # ).get_matches();
 	pub fn long(&mut self, l: &'static str) -> &mut Arg {
 		self.long = Some(l.trim_left_matches(|c| c == '-'));
 		self
 	}
 
+	/// Sets the help text of the argument that will be displayed to the user
+	/// when they print the usage/help information. 
+	///
+	/// Example:
+	///
+	/// ```rust.example
+	/// # let matches = App::new("myprog")
+	/// #                 .arg(
+	/// # Arg::new("conifg")
+	///       .help("The config file used by the myprog")
+	/// # ).get_matches();
 	pub fn help(&mut self, h: &'static str) -> &mut Arg {
 		self.help = Some(h);
 		self
 	}
 
+	/// Sets whether or not the argument is required by default. Required by
+	/// default means it is required, when no other mutually exlusive rules have
+	/// been evaluated. Mutually exclusive rules take precedence over being required
+	/// by default.
+	///
+	/// **NOTE:** Flags (i.e. not positional, or arguments that take values)
+	/// cannot be required by default.
+	/// when they print the usage/help information. 
+	///
+	/// Example:
+	///
+	/// ```rust.example
+	/// # let matches = App::new("myprog")
+	/// #                 .arg(
+	/// # Arg::new("conifg")
+	///       .required(true)
+	/// # ).get_matches();
 	pub fn required(&mut self, r: bool) -> &mut Arg {
 		self.required = r;
 		self
 	}
 
+	/// Sets a mutually exclusive argument by name. I.e. when using this argument, 
+	/// the following argument can't be present.
+	///
+	/// **NOTE:** Mutually exclusive rules take precedence over being required
+	/// by default. Mutually exclusive rules only need to be set for one of the two
+	/// arguments, they do not need to be set for each.
+	///
+	/// Example:
+	///
+	/// ```rust.example
+	/// # let mut myprog = App::new("myprog");
+	/// myprog.arg(Arg::new("conifg")
+	///                 .mutually_excludes("debug"))
+	///       .arg(Arg::new("debug")
+	///	                .short("d"))
+	/// # .get_matches();
 	pub fn mutually_excludes(&mut self, name: &'static str) -> &mut Arg {
 		if let Some(ref mut vec) = self.blacklist {
 			vec.push(name);
@@ -98,6 +182,24 @@ impl Arg {
 		self
 	}
 
+	/// Sets a mutually exclusive arguments by names. I.e. when using this argument, 
+	/// the following argument can't be present.
+	///
+	/// **NOTE:** Mutually exclusive rules take precedence over being required
+	/// by default. Mutually exclusive rules only need to be set for one of the two
+	/// arguments, they do not need to be set for each.
+	///
+	/// Example:
+	///
+	/// ```rust.example
+	/// # let mut myprog = App::new("myprog");
+	/// myprog.arg(Arg::new("conifg")
+	///                 .mutually_excludes_all(
+	///						vec!["debug", "input"]))
+	///       .arg(Arg::new("debug")
+	///	                .short("d"))
+    ///       .arg(Arg::new("input"))
+	/// # .get_matches();
 	pub fn mutually_excludes_all(&mut self, names: Vec<&'static str>) -> &mut Arg {
 		if let Some(ref mut vec) = self.blacklist {
 			for n in names {
