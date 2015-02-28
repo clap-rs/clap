@@ -225,7 +225,7 @@ impl App {
 		let mut arg_val: Option<String> = None;
 
 		if arg.contains("=") {
-			let arg_vec: Vec<&str> = arg.split_str("=").collect();
+			let arg_vec: Vec<&str> = arg.split("=").collect();
 			arg = arg_vec[0];
 			arg_val = Some(arg_vec[1].to_string());
 		} 
