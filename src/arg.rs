@@ -84,6 +84,11 @@ impl Arg {
 
 	/// Sets the short version of the argument without the preceding `-`.
 	///
+	///
+	/// By default `clap` automatically assigns `v` and `h` to display version and help information 
+	/// respectivly. You may use `v` or `h` for your own purposes, in which case `clap` simply
+	/// will not asign those to the displaying of version or help.
+	///
 	/// **NOTE:** Any leading `-` characters will be stripped, and only the first
 	/// non `-` chacter will be used as the `short` version, i.e. for when the user
 	/// mistakenly sets the short to `-o` or the like.
@@ -102,6 +107,11 @@ impl Arg {
 	}
 
 	/// Sets the long version of the argument without the preceding `--`.
+	///
+	/// By default `clap` automatically assigns `version` and `help` to display version and help information 
+	/// respectivly. You may use `version` or `help` for your own purposes, in which case `clap` simply
+	/// will not asign those to the displaying of version or help automatically, and you will have to do
+	/// so manually.
 	///
 	/// **NOTE:** Any leading `-` characters will be stripped i.e. for 
 	/// when the user mistakenly sets the short to `--out` or the like.

@@ -11,10 +11,35 @@ use args::OptArg;
 use args::FlagArg;
 use args::PosArg;
 
+/// Used to create a representation of the program and all possible command line arguments
+/// for parsing at runtime.
+///
+///
+/// Stores a list of all posisble arguments, as well as information displayed to the user such as
+/// help and versioning information.
+///
+/// Example:
+///
+/// ```rust.example
+/// let myprog = App::new("myprog")
+///                   .author("Me, me@mail.com")
+///	                  .version("1.0.2")
+///                   .about("Explains in brief what the program does")
+///                   .arg(
+///                        // Add a possible command line argument
+///                    )
+///                   .get_matches();
+///
+/// // Your pogram logic starts here...
+/// ```
 pub struct App {
+	/// The name displayed to the user when showing version and help/usage information
 	pub name: &'static str,
+	/// A string of author(s) if desired. Displayed when showing help/usage information
 	pub author: Option<&'static str>,
+	/// The version displayed to the user
 	pub version: Option<&'static str>,
+	/// A brief explaination of the program that gets displayed to the user when shown help/usage information
 	pub about: Option<&'static str>,
 	flags: HashMap<&'static str, FlagArg>,
 	opts: HashMap<&'static str, OptArg>,
@@ -30,6 +55,14 @@ pub struct App {
 }
 
 impl App {
+	/// Creates a new instance of an application requiring a name (such as the binary). Will be displayed
+	/// to the user when they print version or help and usage information.
+	///
+	/// Example:
+	///
+	/// ```rust.example
+	/// let prog = App::new("myprog");
+	/// ```
 	pub fn new(n: &'static str) -> App {
 		App {
 			name: n,
@@ -50,21 +83,51 @@ impl App {
 		}
 	}
 
+	/// Sets a string of author(s)
+	///
+	/// Example:
+	///
+	/// ```rust.example
+	/// .author("Kevin <kbknapp@gmail.com>");
+	/// ```
 	pub fn author(&mut self, a: &'static str) -> &mut App {
 		self.author = Some(a);
 		self
 	}
 
+	/// Sets a string briefly describing what the program does
+	///
+	/// Example:
+	///
+	/// ```rust.example
+	/// .about("Does really amazing things to great people");
+	/// ```
 	pub fn about(&mut self, a: &'static str) -> &mut App {
 		self.about = Some(a);
 		self
 	}
 
+	/// Sets a string of the version number
+	///
+	/// Example:
+	///
+	/// ```rust.example
+	/// .version("v0.1.24");
+	/// ```
 	pub fn version(&mut self, v: &'static str)-> &mut App  {
 		self.version = Some(v);
 		self
 	}
 
+	/// Adds an argument to the list of valid possibilties
+	///
+	/// Example:
+	///
+	/// ```rust.example
+	/// .arg(Arg::new("config")
+	///     // Additional argument configuration goes here...
+	/// );
+	/// ```
 	pub fn arg(&mut self, a: &Arg) -> &mut App {
 		if self.arg_list.contains(a.name) {
 			panic!("Argument name must be unique, \"{}\" is already in use", a.name);
@@ -92,6 +155,9 @@ impl App {
 				value: None
 			});
 		} else if a.takes_value {
+			if a.short == None && a.long == None {
+				panic!("An argument that takes a value must have either a .short() or .long() [or both] assigned");
+			}
 			self.opts.insert(a.name, OptArg {
 				name: a.name,
 				short: a.short,
@@ -117,6 +183,9 @@ impl App {
 					self.needs_short_version = false;
 				}
 			}
+			if a.short == None && a.long == None {
+				panic!("A flag argument must have either a .short() or .long() [or both] assigned");
+			}
 			// Flags can't be required
 			if self.required.contains(a.name) {
 				self.required.remove(a.name);
@@ -135,6 +204,14 @@ impl App {
 		self
 	}
 
+	/// Adds arguments to the list of valid possibilties
+	///
+	/// Example:
+	///
+	/// ```rust.example
+	/// .args( vec![Arg::new("config").short("c"),
+	///				Arg::new("debug").short("d")]);
+	/// ```
 	pub fn args(&mut self, args: Vec<&Arg>) -> &mut App {
 		for arg in args.iter() {
 			self.arg(arg);

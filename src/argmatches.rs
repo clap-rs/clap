@@ -4,7 +4,7 @@ use std::collections::HashSet;
 use app::App;
 use args::{ FlagArg, OptArg, PosArg };
 
-/// `ArgMatches` is used to get information about the arguments that
+/// Used to get information about the arguments that
 /// where supplied to the program at runtime.
 ///
 ///
