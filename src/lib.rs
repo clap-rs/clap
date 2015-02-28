@@ -6,6 +6,7 @@
 //! A simply library for parsing command line arguments when writing 
 //! command line and console applications.
 
+pub use argmatches::ArgMatches;
 pub use arg::Arg;
 pub use app::App;
 
