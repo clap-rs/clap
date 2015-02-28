@@ -1,4 +1,3 @@
-#[derive(Clone)]
 pub struct FlagArg {
     pub name: &'static str,
     pub short: Option<char>,
