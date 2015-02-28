@@ -33,7 +33,7 @@
 //!									.takes_value(true))
 //!						.arg(Arg::new("output")
 //!									.help("Sets an optional output file")
-//!									.index(1)
+//!									.index(1))
 //!						.arg(Arg::new("debug")
 //!									.short("d")
 //! 								.multiple(true)
@@ -56,6 +56,27 @@
 //! }
 //! 
 //! // more porgram logic goes here...
+//! ```
+//!
+//! If you were to compile the above program and run it with the flag `--help` or `-h` the following output woud be presented
+//!
+//! ```sh
+//! $ myprog --help
+//! MyApp 1.0
+//! Kevin K. <kbknapp@gmail.com>
+//! Does awesome things
+//! 
+//! USAGE: MyApp [FLAGS] [OPTIONS] [POSITIONAL]
+//! Where...
+//! 
+//! FLAGS:
+//! -d   		Turn debugging information on
+//! 
+//! OPTIONS:
+//! -c,--config <config>		Sets a custom config file
+//! 
+//! POSITIONAL ARGUMENTS:
+//! output			Sets an optional output file
 //! ```
 
 pub use argmatches::ArgMatches;
