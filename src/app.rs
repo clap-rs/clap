@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::env;
 
-use ArgMatches;
+use argmatches::ArgMatches;
 use Arg;
 use args::OptArg;
 use args::FlagArg;

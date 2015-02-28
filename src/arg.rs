@@ -1,17 +1,58 @@
+/// The abstract representation of a command line argument used by the consumer of the library.
+/// 
+///
+/// This struct is used by the library consumer and describes the command line arguments for 
+/// their program.
+/// and then evaluates the settings the consumer provided and determines the concret
+/// argument struct to use when parsing.
+///
+/// Example:
+///
+/// ```rust.example
+/// # let matches = App::new("myprog")
+/// #                 .arg(
+/// Arg::new("conifg")
+///       .short("c")
+///       .long("config")
+///       .takes_value(true)
+///       .help("Provides a config file to myprog")
+/// # ).get_matches();
 pub struct Arg {
+	/// The unique name of the argument, required
     pub name: &'static str,
+    /// The short version (i.e. single character) of the argument, no preceding `-`
+    /// **NOTE:** `short` is mutually exclusive with `index`
     pub short: Option<char>,
+    /// The long version of the flag (i.e. word) without the preceding `--`
+    /// **NOTE:** `long` is mutually exclusive with `index`
     pub long: Option<&'static str>,
+    /// The string of text that will displayed to the user when the application's
+    /// `help` text is displayed
     pub help: Option<&'static str>,
+    /// If this is a required by default when using the command line program
+    /// i.e. a configuration file that's required for the program to function
+    /// **NOTE:** required by default means, it is required *until* mutually
+    /// exclusive arguments are evaluated.
     pub required: bool,
+    /// Determines if this argument is an option, vice a flag or positional and
+    /// is mutually exclusive with `index` and `multiple`
     pub takes_value: bool,
+    /// The index of the argument. `index` is mutually exclusive with `takes_value`
+    /// and `multiple`
     pub index: Option<u8>,
+    /// Determines if multiple instances of the same flag are allowed. `multiple` 
+    /// is mutually exclusive with `index` and `takes_value`.
+    /// I.e. `-v -v -v` or `-vvv`
     pub multiple: bool,
+    /// A list of names for other arguments that *may not* be used with this flag
    	pub blacklist: Option<Vec<&'static str>>, 
+    /// A list of names of other arguments that are *required* to be used when 
+    /// this flag is used
     pub requires: Option<Vec<&'static str>>
 }
 
 impl Arg {
+	/// Creates a new instace of and `Arg`
 	pub fn new(n: &'static str) -> Arg {
 		Arg {
 			name: n,

@@ -1,6 +1,7 @@
 /// `FlagArg` represents a flag argument for command line applications. Flag arguments 
 /// take no additional values, and are always preceded by either a `-` (single character)
-/// or `--` (single word, no spaces).
+/// or `--` (single word, no spaces). `FlagArg` isn't directly used by the end application
+/// writer, only internally to the `clap` library.
 /// Example:
 /// ```sh
 /// $ myprog -a --some

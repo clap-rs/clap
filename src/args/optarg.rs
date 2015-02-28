@@ -1,7 +1,8 @@
 /// `OptArg` represents a option argument for command line applications, which is one that
 /// takes an additional value. Option arguments are always preceded by either a `-` 
 /// (single character) or `--` (single word, no spaces) then followed by a space and the
-/// value.
+/// value.  `OptArg` isn't directly used by the end application
+/// writer, only internally to the `clap` library.
 /// Example:
 /// ```sh
 /// $ myprog -a some --test other --third=file
