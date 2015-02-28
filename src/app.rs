@@ -523,6 +523,31 @@ impl App {
 	pub fn get_matches(&mut self) -> ArgMatches {
 		let mut matches = ArgMatches::new(self);
 
+		if self.needs_long_help {
+			self.flags.insert("clap_help", FlagArg{
+				name: "clap_help",
+				short: if self.needs_short_help { Some('h') } else { None },
+				long: Some("help"),
+				help: Some("Prints this message"),
+				blacklist: None,
+				multiple: false,
+				requires: None,
+				occurrences: 1
+			});
+		}
+		if self.needs_long_version {
+			self.flags.insert("clap_version", FlagArg{
+				name: "clap_version",
+				short: if self.needs_short_help { Some('v') } else { None },
+				long: Some("version"),
+				help: Some("Prints version information"),
+				blacklist: None,
+				multiple: false,
+				requires: None,
+				occurrences: 1
+			});
+		}
+
 		// let mut needs_val = false;
 		let mut needs_val_of: Option<&'static str> = None; 
 		let mut pos_counter = 1;

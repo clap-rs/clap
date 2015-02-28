@@ -66,8 +66,8 @@
 //! Kevin K. <kbknapp@gmail.com>
 //! Does awesome things
 //! 
-//! USAGE: MyApp [FLAGS] [OPTIONS] [POSITIONAL]
-//! Where...
+//! USAGE: 
+//! 	MyApp [FLAGS] [OPTIONS] [POSITIONAL]
 //! 
 //! FLAGS:
 //! -d   		Turn debugging information on
