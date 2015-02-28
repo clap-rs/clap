@@ -4,7 +4,7 @@
 #![feature(collections, core, libc, env)]
 
 //! A simply library for parsing command line arguments when writing 
-//! command line applications.
+//! command line and console applications.
 
 pub use argmatches::ArgMatches;
 pub use arg::Arg;
@@ -14,7 +14,3 @@ mod app;
 mod argmatches;
 mod arg;
 mod args;
-
-#[test]
-fn it_works() {
-}
