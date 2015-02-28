@@ -93,7 +93,7 @@ impl Arg {
 	/// # let matches = App::new("myprog")
 	/// #                 .arg(
 	/// # Arg::new("conifg")
-	///       .short("c")
+	/// .short("c")
 	/// # ).get_matches();
 	pub fn short(&mut self, s: &'static str) -> &mut Arg {
 		self.short = Some(s.trim_left_matches(|c| c == '-')
@@ -112,7 +112,7 @@ impl Arg {
 	/// # let matches = App::new("myprog")
 	/// #                 .arg(
 	/// # Arg::new("conifg")
-	///       .long("config")
+	/// .long("config")
 	/// # ).get_matches();
 	pub fn long(&mut self, l: &'static str) -> &mut Arg {
 		self.long = Some(l.trim_left_matches(|c| c == '-'));
@@ -128,7 +128,7 @@ impl Arg {
 	/// # let matches = App::new("myprog")
 	/// #                 .arg(
 	/// # Arg::new("conifg")
-	///       .help("The config file used by the myprog")
+	/// .help("The config file used by the myprog")
 	/// # ).get_matches();
 	pub fn help(&mut self, h: &'static str) -> &mut Arg {
 		self.help = Some(h);
@@ -150,7 +150,7 @@ impl Arg {
 	/// # let matches = App::new("myprog")
 	/// #                 .arg(
 	/// # Arg::new("conifg")
-	///       .required(true)
+	/// .required(true)
 	/// # ).get_matches();
 	pub fn required(&mut self, r: bool) -> &mut Arg {
 		self.required = r;
@@ -167,12 +167,9 @@ impl Arg {
 	/// Example:
 	///
 	/// ```rust.example
-	/// # let mut myprog = App::new("myprog");
-	/// myprog.arg(Arg::new("conifg")
-	///                 .mutually_excludes("debug"))
-	///       .arg(Arg::new("debug")
-	///	                .short("d"))
-	/// # .get_matches();
+	/// # let myprog = App::new("myprog").arg(Arg::new("conifg")
+	/// .mutually_excludes("debug")
+	/// # ).get_matches();
 	pub fn mutually_excludes(&mut self, name: &'static str) -> &mut Arg {
 		if let Some(ref mut vec) = self.blacklist {
 			vec.push(name);
@@ -192,14 +189,10 @@ impl Arg {
 	/// Example:
 	///
 	/// ```rust.example
-	/// # let mut myprog = App::new("myprog");
-	/// myprog.arg(Arg::new("conifg")
-	///                 .mutually_excludes_all(
-	///						vec!["debug", "input"]))
-	///       .arg(Arg::new("debug")
-	///	                .short("d"))
-    ///       .arg(Arg::new("input"))
-	/// # .get_matches();
+	/// # let myprog = App::new("myprog").arg(Arg::new("conifg")
+	/// .mutually_excludes_all(
+	///		vec!["debug", "input"])
+	/// # ).get_matches();
 	pub fn mutually_excludes_all(&mut self, names: Vec<&'static str>) -> &mut Arg {
 		if let Some(ref mut vec) = self.blacklist {
 			for n in names {
@@ -219,12 +212,9 @@ impl Arg {
 	/// Example:
 	///
 	/// ```rust.example
-	/// # let mut myprog = App::new("myprog");
-	/// myprog.arg(Arg::new("conifg")
-	///                 .requires("debug"))
-	///       .arg(Arg::new("debug")
-	///	                .short("d"))
-	/// # .get_matches();
+	/// # let myprog = App::new("myprog").arg(Arg::new("conifg")
+	/// .requires("debug")
+	/// # ).get_matches();
 	pub fn requires(&mut self, name: &'static str) -> &mut Arg {
 		if let Some(ref mut vec) = self.requires {
 			vec.push(name);
@@ -243,14 +233,10 @@ impl Arg {
 	/// Example:
 	///
 	/// ```rust.example
-	/// # let mut myprog = App::new("myprog");
-	/// myprog.arg(Arg::new("conifg")
-	///                 .requires_all(
-	///						vec!["debug", "input"]))
-	///       .arg(Arg::new("debug")
-	///	                .short("d"))
-    ///       .arg(Arg::new("input"))
-	/// # .get_matches();
+	/// # let myprog = App::new("myprog").arg(Arg::new("conifg")
+	/// .requires_all(
+	///		vec!["debug", "input"])
+	/// # ).get_matches();
 	pub fn requires_all(&mut self, names: Vec<&'static str>) -> &mut Arg {
 		if let Some(ref mut vec) = self.requires {
 			for n in names {
@@ -272,8 +258,8 @@ impl Arg {
 	/// ```rust.example
 	/// # let matches = App::new("myprog")
 	/// #                 .arg(
-	/// Arg::new("conifg")
-	///       .takes_value(true)
+	/// # Arg::new("conifg")
+	/// .takes_value(true)
 	/// # ).get_matches();
 	pub fn takes_value(&mut self, tv: bool) -> &mut Arg {
 		assert!(self.index == None);
@@ -293,8 +279,8 @@ impl Arg {
 	/// ```rust.example
 	/// # let matches = App::new("myprog")
 	/// #                 .arg(
-	/// Arg::new("conifg")
-	///       .index(1)
+	/// # Arg::new("conifg")
+	/// .index(1)
 	/// # ).get_matches();
 	pub fn index(&mut self, idx: u8) -> &mut Arg {
 		assert!(self.takes_value == false);
@@ -316,9 +302,8 @@ impl Arg {
 	/// ```rust.example
 	/// # let matches = App::new("myprog")
 	/// #                 .arg(
-	/// Arg::new("debug")
-	///       .short("d")
-	///       .multiple(true)
+	/// # Arg::new("debug")
+	/// .multiple(true)
 	/// # ).get_matches();
 	pub fn multiple(&mut self, multi: bool) -> &mut Arg {
 		assert!(self.takes_value == false);
