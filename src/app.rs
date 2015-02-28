@@ -254,10 +254,10 @@ impl App {
 			println!("");
 			println!("FLAGS:");
 			for (_, v) in self.flags.iter() {
-				println!("{}{}\t\t{}",
-						if let Some(ref s) = v.short{format!("-{}",s)}else{format!("    ")},
-						if let Some(ref l) = v.long {format!(" ,--{}",l)}else {format!("    ")},
-						if let Some(ref h) = v.help {*h} else {"    "} );
+				println!("{}{}\t{}",
+						if let Some(ref s) = v.short{format!("-{}",s)}else{format!("   ")},
+						if let Some(ref l) = v.long {format!(",--{}",l)}else {format!("   \t")},
+						if let Some(ref h) = v.help {*h} else {"   "} );
 			}
 		}
 		if opts {
@@ -265,10 +265,10 @@ impl App {
 			println!("OPTIONS:");
 			for (_, v) in self.opts.iter() {
 				println!("{}{}{}\t\t{}",
-						if let Some(ref s) = v.short{format!("-{}",s)}else{format!("    ")},
-						if let Some(ref l) = v.long {format!(" ,--{}",l)}else {format!("    ")},
+						if let Some(ref s) = v.short{format!("-{}",s)}else{format!("   ")},
+						if let Some(ref l) = v.long {format!(",--{}",l)}else {format!("   ")},
 						format!(" <{}>", v.name),
-						if let Some(ref h) = v.help {*h} else {"    "} );
+						if let Some(ref h) = v.help {*h} else {"   "} );
 			}
 		}
 		if pos {
@@ -276,7 +276,7 @@ impl App {
 			println!("POSITIONAL ARGUMENTS:");
 			for (_, v) in self.positionals_idx.iter() {
 				println!("{}\t\t\t{}", v.name,
-						if let Some(ref h) = v.help {*h} else {"    "} );
+						if let Some(ref h) = v.help {*h} else {"   "} );
 			}
 		}
 
