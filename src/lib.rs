@@ -66,15 +66,17 @@
 //! Kevin K. <kbknapp@gmail.com>
 //! Does awesome things
 //! 
-//! USAGE: 
+//! USAGE:
 //! 	MyApp [FLAGS] [OPTIONS] [POSITIONAL]
 //! 
 //! FLAGS:
-//! -d   		Turn debugging information on
+//! -d   			Turn debugging information on
+//! -h,--help		Prints this message
+//! -v,--version	Prints version information
 //! 
 //! OPTIONS:
 //! -c,--config <config>		Sets a custom config file
-//! 
+//!
 //! POSITIONAL ARGUMENTS:
 //! output			Sets an optional output file
 //! ```
