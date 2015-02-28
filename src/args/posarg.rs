@@ -1,11 +1,15 @@
 /// `PosArg` represents a positional argument, i.e. one that isn't preceded 
 /// by a `-` or `--`. `PosArg` isn't directly used by the end application
 /// writer, only internally to the `clap` library.
+///
 /// Example: 
+///
 /// ```sh
 /// $ myprog some_file
 /// ```
+///
 /// where `some_file` is the first positional argument to `myprog`
+///
 /// **NOTE:** The index starts at `1` **NOT** `0`
 pub struct PosArg {
 	/// The unique name of the argument, required

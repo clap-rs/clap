@@ -57,8 +57,8 @@ impl Arg {
 	/// whether or not the argument was used at runtime. 
 	///
 	/// **NOTE:** in the case of arguments that take values (i.e. `takes_value(true)`)
-	/// the name will also be displayed when the user prints the usage/help information
-	/// of the program.
+	/// and positional arguments (i.e. those without a `-` or `--`) the name will also 
+	/// be displayed when the user prints the usage/help information of the program.
 	///
 	/// Example:
 	///
@@ -211,6 +211,20 @@ impl Arg {
 		self
 	}
 
+	/// Sets an argument by name that is required when this one is presnet I.e. when
+	/// using this argument, the following argument *must* be present.
+	///
+	/// **NOTE:** Mutually exclusive rules take precedence over being required
+	///
+	/// Example:
+	///
+	/// ```rust.example
+	/// # let mut myprog = App::new("myprog");
+	/// myprog.arg(Arg::new("conifg")
+	///                 .requires("debug"))
+	///       .arg(Arg::new("debug")
+	///	                .short("d"))
+	/// # .get_matches();
 	pub fn requires(&mut self, name: &'static str) -> &mut Arg {
 		if let Some(ref mut vec) = self.requires {
 			vec.push(name);
@@ -220,6 +234,23 @@ impl Arg {
 		self
 	}
 
+	/// Sets arguments by names that are required when this one is presnet I.e. when
+	/// using this argument, the following arguments *must* be present.
+	///
+	/// **NOTE:** Mutually exclusive rules take precedence over being required
+	/// by default. 
+	///
+	/// Example:
+	///
+	/// ```rust.example
+	/// # let mut myprog = App::new("myprog");
+	/// myprog.arg(Arg::new("conifg")
+	///                 .requires_all(
+	///						vec!["debug", "input"]))
+	///       .arg(Arg::new("debug")
+	///	                .short("d"))
+    ///       .arg(Arg::new("input"))
+	/// # .get_matches();
 	pub fn requires_all(&mut self, names: Vec<&'static str>) -> &mut Arg {
 		if let Some(ref mut vec) = self.requires {
 			for n in names {
@@ -231,12 +262,40 @@ impl Arg {
 		self
 	}
 
+	/// Specifies that the argument takes an additional value at run time.
+	/// 
+	/// **NOTE:** When setting this to `true` the `name` of the argument
+	/// will be used when printing the help/usage information to the user. 
+	///
+	/// Example:
+	///
+	/// ```rust.example
+	/// # let matches = App::new("myprog")
+	/// #                 .arg(
+	/// Arg::new("conifg")
+	///       .takes_value(true)
+	/// # ).get_matches();
 	pub fn takes_value(&mut self, tv: bool) -> &mut Arg {
 		assert!(self.index == None);
 		self.takes_value = tv;
 		self
 	}
 
+	/// Specifies the index of a positional argument starting at 1.
+	/// 
+	/// **NOTE:** When setting this,  any `short` or `long` values you set
+	/// are ignored as positional arguments cannot have a `short` or `long`.
+	/// Also, the name will be used when printing the help/usage information 
+	/// to the user. 
+	///
+	/// Example:
+	///
+	/// ```rust.example
+	/// # let matches = App::new("myprog")
+	/// #                 .arg(
+	/// Arg::new("conifg")
+	///       .index(1)
+	/// # ).get_matches();
 	pub fn index(&mut self, idx: u8) -> &mut Arg {
 		assert!(self.takes_value == false);
 		if idx < 1 { panic!("Argument index must start at 1"); }
@@ -244,6 +303,23 @@ impl Arg {
 		self
 	}
 
+	/// Specifies if the flag may appear more than once such as for multiple debugging
+	/// levels (as an example). `-ddd` for three levels of debugging, or `-d -d -d`. 
+	/// When this is set to `true` you recieve the number of occurances the user supplied
+	/// of a particular flag at runtime.
+	/// 
+	/// **NOTE:** When setting this,  any `takes_value` or `index` values you set
+	/// are ignored as flags cannot have a values or an `index`.
+	///
+	/// Example:
+	///
+	/// ```rust.example
+	/// # let matches = App::new("myprog")
+	/// #                 .arg(
+	/// Arg::new("debug")
+	///       .short("d")
+	///       .multiple(true)
+	/// # ).get_matches();
 	pub fn multiple(&mut self, multi: bool) -> &mut Arg {
 		assert!(self.takes_value == false);
 		assert!(self.index == None);

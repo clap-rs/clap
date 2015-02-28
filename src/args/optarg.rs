@@ -3,10 +3,13 @@
 /// (single character) or `--` (single word, no spaces) then followed by a space and the
 /// value.  `OptArg` isn't directly used by the end application
 /// writer, only internally to the `clap` library.
+///
 /// Example:
+///
 /// ```sh
 /// $ myprog -a some --test other --third=file
 /// ```
+///
 /// **NOTE:** The long version may also use the `--argument=value` version too
 pub struct OptArg {
 	/// The unique name of the argument, required
