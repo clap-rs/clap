@@ -6,7 +6,7 @@ authors = ["Kevin K. <kbknapp@gmail.com>"]
 exclude = ["docs/*"]
 description = "A Command Line Argument Parser written in Rust"
 repository = "https://github.com/kbknapp/clap-rs.git"
-
+documentation = "http://kbknapp.github.io/clap-rs/docs/clap/index.html"
 readme = "README.md"
 
 keywords = ["terminal", "command", "commandline", "parser", "parse"]
