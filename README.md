@@ -81,16 +81,16 @@ Command Line Argument Parser written in Rust
  ```
 
 ## Installation
-Simply add `clap` as a dependecy in your `Cargo.toml` file:
+Simply add `clap` as a dependecy in your `Cargo.toml` file to use from crates.io:
 
  ```
  [dependencies]
  clap = "*"
  ```
- Or to simply track the latest version on the master branch:
+ Or to simply track the latest on the master branch at github:
 
 ```
 [dependencies.clap]
 git = "https://github.com/kbknapp/clap-rs.git"
 ```
-Then run either `cargo build` or `cargo update` for your project.
+Then run `cargo build` or `cargo update` for your project.
