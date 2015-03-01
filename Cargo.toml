@@ -3,3 +3,12 @@
 name = "clap"
 version = "0.3.5"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
+exclude = ["docs/*"]
+description = "A Command Line Argument Parser written in Rust"
+repository = "https://github.com/kbknapp/clap-rs.git"
+
+readme = "README.md"
+
+keywords = ["terminal", "command", "command line", "parser", "parse", "opt", "options", "shell"]
+
+license-file = "LICENSE"

@@ -131,6 +131,22 @@ impl App {
 	pub fn arg(&mut self, a: &Arg) -> &mut App {
 		if self.arg_list.contains(a.name) {
 			panic!("Argument name must be unique, \"{}\" is already in use", a.name);
+		} else {
+			self.arg_list.insert(a.name);
+		}
+		if let Some(s) = a.short {
+			if self.arg_list.contains(s) {
+				panic!("Argument short must be unique, -{} is already in use", s);
+			} else {
+				self.arg_list.insert(s);
+			}
+		}
+		if let Some(l) = a.long {
+			if self.arg_list.contains(l) {
+				panic!("Argument long must be unique, --{} is already in use", l);
+			} else {
+				self.arg_list.insert(l);
+			}
 		}
 		if a.required {
 			self.required.insert(a.name);
