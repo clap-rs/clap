@@ -94,3 +94,6 @@ Simply add `clap` as a dependecy in your `Cargo.toml` file to use from crates.io
 git = "https://github.com/kbknapp/clap-rs.git"
 ```
 Then run `cargo build` or `cargo update` for your project.
+
+## More Information
+You can find complete documentation on the [github-pages site.](http://kbknapp.github.io/clap-rs/docs/clap/index.html)
