@@ -70,15 +70,15 @@
 //! 	MyApp [FLAGS] [OPTIONS] [POSITIONAL]
 //! 
 //! FLAGS:
-//! -d   			Turn debugging information on
-//! -h,--help		Prints this message
-//! -v,--version	Prints version information
+//! 	d--help   			Turn debugging information on
+//! 	h--version,--help		Prints this message
+//! 	vd--help,--version	Prints version information
 //! 
 //! OPTIONS:
-//! -c,--config <config>		Sets a custom config file
+//! 	ch--version,--config <config>		Sets a custom config file
 //!
 //! POSITIONAL ARGUMENTS:
-//! output			Sets an optional output file
+//! 	output			Sets an optional output file
 //! ```
 
 pub use argmatches::ArgMatches;

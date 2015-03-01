@@ -69,15 +69,15 @@ Command Line Argument Parser written in Rust
  	MyApp [FLAGS] [OPTIONS] [POSITIONAL]
  
  FLAGS:
- -d   			Turn debugging information on
- -h,--help		Prints this message
- -v,--version	Prints version information
+ 	-d   			Turn debugging information on
+ 	-h,--help		Prints this message
+ 	-v,--version	Prints version information
  
  OPTIONS:
- -c,--config <config>		Sets a custom config file
+	 -c,--config <config>		Sets a custom config file
 
  POSITIONAL ARGUMENTS:
- output			Sets an optional output file
+	 output			Sets an optional output file
  ```
 
 ## Installation
