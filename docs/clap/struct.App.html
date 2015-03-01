@@ -43,7 +43,7 @@
     <section id='main' class="content struct">
 <h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>clap</a>::<wbr><a class='struct' href=''>App</a><wbr></span><span class='out-of-band'><span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-19' href='../src/clap/app.rs.html#35-57'>[src]</a></span></h1>
+        </span><a id='src-19' href='../src/clap/app.rs.html#37-59'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct App {
     pub name: &amp;'static <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>,
     pub author: <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;'static <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;,
@@ -63,7 +63,8 @@
                       .<span class='ident'>version</span>(<span class='string'>&quot;1.0.2&quot;</span>)
                    .<span class='ident'>about</span>(<span class='string'>&quot;Explains in brief what the program does&quot;</span>)
                    .<span class='ident'>arg</span>(
-                        <span class='comment'>// Add a possible command line argument</span>
+                            <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;in_file&quot;</span>).<span class='ident'>index</span>(<span class='number'>1</span>)
+                        <span class='comment'>// Add other possible command line argument options here...</span>
                     )
                    .<span class='ident'>get_matches</span>();
 
@@ -80,37 +81,38 @@ to the user when they print version or help and usage information.</p>
 
 <p>Example:</p>
 <pre id='rust-example-rendered' class='rust '>
-<span class='kw'>let</span> <span class='ident'>prog</span> <span class='op'>=</span> <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;myprog&quot;</span>);
+<span class='kw'>let</span> <span class='ident'>prog</span> <span class='op'>=</span> <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;myprog&quot;</span>)
 </pre>
 </div><h4 id='method.author' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.author' class='fnname'>author</a>(&amp;mut self, a: &amp;'static <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; &amp;mut <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a></code></h4>
 <div class='docblock'><p>Sets a string of author(s)</p>
 
 <p>Example:</p>
 <pre id='rust-example-rendered' class='rust '>
-.<span class='ident'>author</span>(<span class='string'>&quot;Kevin &lt;kbknapp@gmail.com&gt;&quot;</span>);
+.<span class='ident'>author</span>(<span class='string'>&quot;Kevin &lt;kbknapp@gmail.com&gt;&quot;</span>)
 </pre>
 </div><h4 id='method.about' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.about' class='fnname'>about</a>(&amp;mut self, a: &amp;'static <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; &amp;mut <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a></code></h4>
 <div class='docblock'><p>Sets a string briefly describing what the program does</p>
 
 <p>Example:</p>
 <pre id='rust-example-rendered' class='rust '>
-.<span class='ident'>about</span>(<span class='string'>&quot;Does really amazing things to great people&quot;</span>);
+.<span class='ident'>about</span>(<span class='string'>&quot;Does really amazing things to great people&quot;</span>)
 </pre>
 </div><h4 id='method.version' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.version' class='fnname'>version</a>(&amp;mut self, v: &amp;'static <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; &amp;mut <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a></code></h4>
 <div class='docblock'><p>Sets a string of the version number</p>
 
 <p>Example:</p>
 <pre id='rust-example-rendered' class='rust '>
-.<span class='ident'>version</span>(<span class='string'>&quot;v0.1.24&quot;</span>);
+.<span class='ident'>version</span>(<span class='string'>&quot;v0.1.24&quot;</span>)
 </pre>
 </div><h4 id='method.arg' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.arg' class='fnname'>arg</a>(&amp;mut self, a: &amp;<a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>) -&gt; &amp;mut <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a></code></h4>
 <div class='docblock'><p>Adds an argument to the list of valid possibilties</p>
 
 <p>Example:</p>
 <pre id='rust-example-rendered' class='rust '>
-.<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;config&quot;</span>)
-    <span class='comment'>// Additional argument configuration goes here...</span>
-);
+ .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;config&quot;</span>)
+                .<span class='ident'>short</span>(<span class='string'>&quot;c&quot;</span>)
+            <span class='comment'>// Additional argument configuration goes here...</span>
+ )
 </pre>
 </div><h4 id='method.args' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.args' class='fnname'>args</a>(&amp;mut self, args: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;<a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&gt;) -&gt; &amp;mut <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a></code></h4>
 <div class='docblock'><p>Adds arguments to the list of valid possibilties</p>
@@ -118,7 +120,7 @@ to the user when they print version or help and usage information.</p>
 <p>Example:</p>
 <pre id='rust-example-rendered' class='rust '>
  .<span class='ident'>args</span>( <span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;config&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;c&quot;</span>),
-                <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;debug&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;d&quot;</span>)]);
+                <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;debug&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;d&quot;</span>)])
 </pre>
 </div><h4 id='method.get_matches' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.get_matches' class='fnname'>get_matches</a>(&amp;mut self) -&gt; <a class='struct' href='../clap/struct.ArgMatches.html' title='clap::ArgMatches'>ArgMatches</a></code></h4>
 </div></section>

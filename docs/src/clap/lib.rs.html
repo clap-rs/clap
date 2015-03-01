@@ -130,11 +130,10 @@
 <span id="88">88</span>
 <span id="89">89</span>
 <span id="90">90</span>
-<span id="91">91</span>
 </pre><pre class='rust '>
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>crate_type</span><span class='op'>=</span> <span class='string'>&quot;lib&quot;</span>]</span>
 
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>feature</span>(<span class='ident'>collections</span>, <span class='ident'>core</span>, <span class='ident'>libc</span>, <span class='ident'>env</span>)]</span>
+<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>feature</span>(<span class='ident'>collections</span>, <span class='ident'>core</span>, <span class='ident'>libc</span>)]</span>
 
 <span class='doccomment'>//! A simply library for parsing command line arguments when writing </span>
 <span class='doccomment'>//! command line and console applications.</span>
@@ -150,8 +149,7 @@
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//! Example:</span>
 <span class='doccomment'>//! </span>
-<span class='doccomment'>//! ```rust.example</span>
-<span class='doccomment'>//! extern crate clap;</span>
+<span class='doccomment'>//! ```no_run</span>
 <span class='doccomment'>//! use clap::{Arg, App};</span>
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//! // ...</span>

@@ -8,7 +8,8 @@
 ///
 /// Example:
 ///
-/// ```rust.example
+/// ```no_run
+/// # use clap::{App, Arg};
 /// # let matches = App::new("myprog")
 /// #                 .arg(
 /// Arg::new("conifg")
@@ -62,10 +63,12 @@ impl Arg {
 	///
 	/// Example:
 	///
-	/// ```rust.example
+	/// ```no_run
+	/// # use clap::{App, Arg};
 	/// # let matches = App::new("myprog")
 	/// #                 .arg(
 	/// Arg::new("conifg")
+	/// # .short("c")
 	/// # ).get_matches();
 	pub fn new(n: &'static str) -> Arg {
 		Arg {
@@ -94,7 +97,8 @@ impl Arg {
 	/// mistakenly sets the short to `-o` or the like.
 	/// Example:
 	///
-	/// ```rust.example
+	/// ```no_run
+	/// # use clap::{App, Arg};
 	/// # let matches = App::new("myprog")
 	/// #                 .arg(
 	/// # Arg::new("conifg")
@@ -118,7 +122,8 @@ impl Arg {
 	///
 	/// Example:
 	///
-	/// ```rust.example
+	/// ```no_run
+	/// # use clap::{App, Arg};
 	/// # let matches = App::new("myprog")
 	/// #                 .arg(
 	/// # Arg::new("conifg")
@@ -134,7 +139,8 @@ impl Arg {
 	///
 	/// Example:
 	///
-	/// ```rust.example
+	/// ```no_run
+	/// # use clap::{App, Arg};
 	/// # let matches = App::new("myprog")
 	/// #                 .arg(
 	/// # Arg::new("conifg")
@@ -156,7 +162,8 @@ impl Arg {
 	///
 	/// Example:
 	///
-	/// ```rust.example
+	/// ```no_run
+	/// # use clap::{App, Arg};
 	/// # let matches = App::new("myprog")
 	/// #                 .arg(
 	/// # Arg::new("conifg")
@@ -176,7 +183,8 @@ impl Arg {
 	///
 	/// Example:
 	///
-	/// ```rust.example
+	/// ```no_run
+	/// # use clap::{App, Arg};
 	/// # let myprog = App::new("myprog").arg(Arg::new("conifg")
 	/// .mutually_excludes("debug")
 	/// # ).get_matches();
@@ -198,7 +206,8 @@ impl Arg {
 	///
 	/// Example:
 	///
-	/// ```rust.example
+	/// ```no_run
+	/// # use clap::{App, Arg};
 	/// # let myprog = App::new("myprog").arg(Arg::new("conifg")
 	/// .mutually_excludes_all(
 	///		vec!["debug", "input"])
@@ -221,7 +230,8 @@ impl Arg {
 	///
 	/// Example:
 	///
-	/// ```rust.example
+	/// ```no_run
+	/// # use clap::{App, Arg};
 	/// # let myprog = App::new("myprog").arg(Arg::new("conifg")
 	/// .requires("debug")
 	/// # ).get_matches();
@@ -242,7 +252,8 @@ impl Arg {
 	///
 	/// Example:
 	///
-	/// ```rust.example
+	/// ```no_run
+	/// # use clap::{App, Arg};
 	/// # let myprog = App::new("myprog").arg(Arg::new("conifg")
 	/// .requires_all(
 	///		vec!["debug", "input"])
@@ -265,7 +276,8 @@ impl Arg {
 	///
 	/// Example:
 	///
-	/// ```rust.example
+	/// ```no_run
+	/// # use clap::{App, Arg};
 	/// # let matches = App::new("myprog")
 	/// #                 .arg(
 	/// # Arg::new("conifg")
@@ -286,7 +298,8 @@ impl Arg {
 	///
 	/// Example:
 	///
-	/// ```rust.example
+	/// ```no_run
+	/// # use clap::{App, Arg};
 	/// # let matches = App::new("myprog")
 	/// #                 .arg(
 	/// # Arg::new("conifg")
@@ -309,7 +322,8 @@ impl Arg {
 	///
 	/// Example:
 	///
-	/// ```rust.example
+	/// ```no_run
+	/// # use clap::{App, Arg};
 	/// # let matches = App::new("myprog")
 	/// #                 .arg(
 	/// # Arg::new("debug")
