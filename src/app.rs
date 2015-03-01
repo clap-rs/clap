@@ -51,6 +51,8 @@ pub struct App {
 	needs_short_version: bool,
 	required: HashSet<&'static str>,
 	arg_list: HashSet<&'static str>,
+	short_list: HashSet<char>,
+	long_list: HashSet<&'static str>,
 	blacklist: HashSet<&'static str>,
 }
 
@@ -79,6 +81,8 @@ impl App {
 			needs_short_version: true,
 			required: HashSet::new(), 
 			arg_list: HashSet::new(),
+			short_list: HashSet::new(),
+			long_list: HashSet::new(),
 			blacklist: HashSet::new(),
 		}
 	}
@@ -134,18 +138,18 @@ impl App {
 		} else {
 			self.arg_list.insert(a.name);
 		}
-		if let Some(s) = a.short {
-			if self.arg_list.contains(s) {
+		if let Some(ref s) = a.short {
+			if self.short_list.contains(s) {
 				panic!("Argument short must be unique, -{} is already in use", s);
 			} else {
-				self.arg_list.insert(s);
+				self.short_list.insert(*s);
 			}
 		}
-		if let Some(l) = a.long {
-			if self.arg_list.contains(l) {
+		if let Some(ref l) = a.long {
+			if self.long_list.contains(l) {
 				panic!("Argument long must be unique, --{} is already in use", l);
 			} else {
-				self.arg_list.insert(l);
+				self.long_list.insert(l);
 			}
 		}
 		if a.required {
