@@ -364,6 +364,20 @@
 <span id="322">322</span>
 <span id="323">323</span>
 <span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
 </pre><pre class='rust '>
 <span class='doccomment'>/// The abstract representation of a command line argument used by the consumer of the library.</span>
 <span class='doccomment'>/// </span>
@@ -375,7 +389,8 @@
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// Example:</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>/// ```rust.example</span>
+<span class='doccomment'>/// ```no_run</span>
+<span class='doccomment'>/// # use clap::{App, Arg};</span>
 <span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
 <span class='doccomment'>/// #                 .arg(</span>
 <span class='doccomment'>/// Arg::new(&quot;conifg&quot;)</span>
@@ -429,10 +444,12 @@
 	<span class='doccomment'>///</span>
 	<span class='doccomment'>/// Example:</span>
 	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```rust.example</span>
+	<span class='doccomment'>/// ```no_run</span>
+	<span class='doccomment'>/// # use clap::{App, Arg};</span>
 	<span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
 	<span class='doccomment'>/// #                 .arg(</span>
 	<span class='doccomment'>/// Arg::new(&quot;conifg&quot;)</span>
+	<span class='doccomment'>/// # .short(&quot;c&quot;)</span>
 	<span class='doccomment'>/// # ).get_matches();</span>
 	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
 		<span class='ident'>Arg</span> {
@@ -461,7 +478,8 @@
 	<span class='doccomment'>/// mistakenly sets the short to `-o` or the like.</span>
 	<span class='doccomment'>/// Example:</span>
 	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```rust.example</span>
+	<span class='doccomment'>/// ```no_run</span>
+	<span class='doccomment'>/// # use clap::{App, Arg};</span>
 	<span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
 	<span class='doccomment'>/// #                 .arg(</span>
 	<span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
@@ -485,7 +503,8 @@
 	<span class='doccomment'>///</span>
 	<span class='doccomment'>/// Example:</span>
 	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```rust.example</span>
+	<span class='doccomment'>/// ```no_run</span>
+	<span class='doccomment'>/// # use clap::{App, Arg};</span>
 	<span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
 	<span class='doccomment'>/// #                 .arg(</span>
 	<span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
@@ -501,7 +520,8 @@
 	<span class='doccomment'>///</span>
 	<span class='doccomment'>/// Example:</span>
 	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```rust.example</span>
+	<span class='doccomment'>/// ```no_run</span>
+	<span class='doccomment'>/// # use clap::{App, Arg};</span>
 	<span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
 	<span class='doccomment'>/// #                 .arg(</span>
 	<span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
@@ -523,7 +543,8 @@
 	<span class='doccomment'>///</span>
 	<span class='doccomment'>/// Example:</span>
 	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```rust.example</span>
+	<span class='doccomment'>/// ```no_run</span>
+	<span class='doccomment'>/// # use clap::{App, Arg};</span>
 	<span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
 	<span class='doccomment'>/// #                 .arg(</span>
 	<span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
@@ -543,7 +564,8 @@
 	<span class='doccomment'>///</span>
 	<span class='doccomment'>/// Example:</span>
 	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```rust.example</span>
+	<span class='doccomment'>/// ```no_run</span>
+	<span class='doccomment'>/// # use clap::{App, Arg};</span>
 	<span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::new(&quot;conifg&quot;)</span>
 	<span class='doccomment'>/// .mutually_excludes(&quot;debug&quot;)</span>
 	<span class='doccomment'>/// # ).get_matches();</span>
@@ -565,7 +587,8 @@
 	<span class='doccomment'>///</span>
 	<span class='doccomment'>/// Example:</span>
 	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```rust.example</span>
+	<span class='doccomment'>/// ```no_run</span>
+	<span class='doccomment'>/// # use clap::{App, Arg};</span>
 	<span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::new(&quot;conifg&quot;)</span>
 	<span class='doccomment'>/// .mutually_excludes_all(</span>
 	<span class='doccomment'>///		vec![&quot;debug&quot;, &quot;input&quot;])</span>
@@ -588,7 +611,8 @@
 	<span class='doccomment'>///</span>
 	<span class='doccomment'>/// Example:</span>
 	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```rust.example</span>
+	<span class='doccomment'>/// ```no_run</span>
+	<span class='doccomment'>/// # use clap::{App, Arg};</span>
 	<span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::new(&quot;conifg&quot;)</span>
 	<span class='doccomment'>/// .requires(&quot;debug&quot;)</span>
 	<span class='doccomment'>/// # ).get_matches();</span>
@@ -609,7 +633,8 @@
 	<span class='doccomment'>///</span>
 	<span class='doccomment'>/// Example:</span>
 	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```rust.example</span>
+	<span class='doccomment'>/// ```no_run</span>
+	<span class='doccomment'>/// # use clap::{App, Arg};</span>
 	<span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::new(&quot;conifg&quot;)</span>
 	<span class='doccomment'>/// .requires_all(</span>
 	<span class='doccomment'>///		vec![&quot;debug&quot;, &quot;input&quot;])</span>
@@ -632,7 +657,8 @@
 	<span class='doccomment'>///</span>
 	<span class='doccomment'>/// Example:</span>
 	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```rust.example</span>
+	<span class='doccomment'>/// ```no_run</span>
+	<span class='doccomment'>/// # use clap::{App, Arg};</span>
 	<span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
 	<span class='doccomment'>/// #                 .arg(</span>
 	<span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
@@ -653,7 +679,8 @@
 	<span class='doccomment'>///</span>
 	<span class='doccomment'>/// Example:</span>
 	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```rust.example</span>
+	<span class='doccomment'>/// ```no_run</span>
+	<span class='doccomment'>/// # use clap::{App, Arg};</span>
 	<span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
 	<span class='doccomment'>/// #                 .arg(</span>
 	<span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
@@ -676,7 +703,8 @@
 	<span class='doccomment'>///</span>
 	<span class='doccomment'>/// Example:</span>
 	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```rust.example</span>
+	<span class='doccomment'>/// ```no_run</span>
+	<span class='doccomment'>/// # use clap::{App, Arg};</span>
 	<span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
 	<span class='doccomment'>/// #                 .arg(</span>
 	<span class='doccomment'>/// # Arg::new(&quot;debug&quot;)</span>

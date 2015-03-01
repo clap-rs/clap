@@ -1,6 +1,6 @@
 #![crate_type= "lib"]
 
-#![feature(collections, core, libc, env)]
+#![feature(collections, core, libc)]
 
 //! A simply library for parsing command line arguments when writing 
 //! command line and console applications.
@@ -16,8 +16,7 @@
 //!
 //! Example:
 //! 
-//! ```rust.example
-//! extern crate clap;
+//! ```no_run
 //! use clap::{Arg, App};
 //!
 //! // ...

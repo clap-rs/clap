@@ -20,13 +20,15 @@ use args::PosArg;
 ///
 /// Example:
 ///
-/// ```rust.example
+/// ```no_run
+/// # use clap::{App, Arg};
 /// let myprog = App::new("myprog")
 ///                   .author("Me, me@mail.com")
 ///	                  .version("1.0.2")
 ///                   .about("Explains in brief what the program does")
 ///                   .arg(
-///                        // Add a possible command line argument
+///							Arg::new("in_file").index(1)
+///                        // Add other possible command line argument options here...
 ///                    )
 ///                   .get_matches();
 ///
@@ -62,8 +64,10 @@ impl App {
 	///
 	/// Example:
 	///
-	/// ```rust.example
-	/// let prog = App::new("myprog");
+	/// ```no_run
+	/// # use clap::{App, Arg};
+	/// let prog = App::new("myprog")
+	/// # .get_matches();
 	/// ```
 	pub fn new(n: &'static str) -> App {
 		App {
@@ -91,8 +95,11 @@ impl App {
 	///
 	/// Example:
 	///
-	/// ```rust.example
-	/// .author("Kevin <kbknapp@gmail.com>");
+	/// ```no_run
+	/// # use clap::{App, Arg};
+	/// # let app = App::new("myprog")
+	/// .author("Kevin <kbknapp@gmail.com>")
+	/// # .get_matches();
 	/// ```
 	pub fn author(&mut self, a: &'static str) -> &mut App {
 		self.author = Some(a);
@@ -103,8 +110,11 @@ impl App {
 	///
 	/// Example:
 	///
-	/// ```rust.example
-	/// .about("Does really amazing things to great people");
+	/// ```no_run
+	/// # use clap::{App, Arg};
+	/// # let app = App::new("myprog")
+	/// .about("Does really amazing things to great people")
+	/// # .get_matches();
 	/// ```
 	pub fn about(&mut self, a: &'static str) -> &mut App {
 		self.about = Some(a);
@@ -115,8 +125,11 @@ impl App {
 	///
 	/// Example:
 	///
-	/// ```rust.example
-	/// .version("v0.1.24");
+	/// ```no_run
+	/// # use clap::{App, Arg};
+	/// # let app = App::new("myprog")
+	/// .version("v0.1.24")
+	/// # .get_matches();
 	/// ```
 	pub fn version(&mut self, v: &'static str)-> &mut App  {
 		self.version = Some(v);
@@ -127,10 +140,14 @@ impl App {
 	///
 	/// Example:
 	///
-	/// ```rust.example
+	/// ```no_run
+	/// # use clap::{App, Arg};
+	/// # let app = App::new("myprog")
 	/// .arg(Arg::new("config")
-	///     // Additional argument configuration goes here...
-	/// );
+	///				.short("c")
+	///     		// Additional argument configuration goes here...
+	/// )
+	/// # .get_matches();
 	/// ```
 	pub fn arg(&mut self, a: &Arg) -> &mut App {
 		if self.arg_list.contains(a.name) {
@@ -228,9 +245,12 @@ impl App {
 	///
 	/// Example:
 	///
-	/// ```rust.example
+	/// ```no_run
+	/// # use clap::{App, Arg};
+	/// # let app = App::new("myprog")
 	/// .args( vec![Arg::new("config").short("c"),
-	///				Arg::new("debug").short("d")]);
+	///				Arg::new("debug").short("d")])
+	/// # .get_matches();
 	/// ```
 	pub fn args(&mut self, args: Vec<&Arg>) -> &mut App {
 		for arg in args.iter() {

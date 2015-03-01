@@ -190,6 +190,14 @@
 <span id="148">148</span>
 <span id="149">149</span>
 <span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>HashMap</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>HashSet</span>;
@@ -204,7 +212,8 @@
 <span class='doccomment'>/// Fields of `ArgMatches` aren&#39;t designed to be used directly, only </span>
 <span class='doccomment'>/// the methods in order to query information.</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>/// ```rust.example</span>
+<span class='doccomment'>/// ```no_run</span>
+<span class='doccomment'>/// # use clap::{App, Arg};</span>
 <span class='doccomment'>///  let matches = App::new(&quot;MyApp&quot;)</span>
 <span class='doccomment'>/// // adding of arguments and configuration goes here...</span>
 <span class='doccomment'>/// #                    .arg(Arg::new(&quot;config&quot;)</span>
@@ -213,7 +222,7 @@
 <span class='doccomment'>/// #                               .takes_value(true))</span>
 <span class='doccomment'>/// #                    .arg(Arg::new(&quot;debug&quot;)</span>
 <span class='doccomment'>/// #                                   .short(&quot;d&quot;)</span>
-<span class='doccomment'>/// #                                   .multiple(true)</span>
+<span class='doccomment'>/// #                                   .multiple(true))</span>
 <span class='doccomment'>///                     .get_matches();</span>
 <span class='doccomment'>///    // if you had an argument named &quot;output&quot; that takes a value </span>
 <span class='doccomment'>///    if let Some(o) = matches.value_of(&quot;output&quot;) {</span>
@@ -256,7 +265,8 @@
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// Example:</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ```rust.example</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
     <span class='doccomment'>/// let matches = App::new(&quot;myprog&quot;).get_matches();</span>
     <span class='doccomment'>/// ```</span>
 	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>app</span>: <span class='kw-2'>&amp;</span><span class='ident'>App</span>) <span class='op'>-&gt;</span> <span class='ident'>ArgMatches</span> {
@@ -279,7 +289,9 @@
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// Example:</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ```rust.example</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let matches = App::new(&quot;myapp&quot;).arg(Arg::new(&quot;output&quot;).takes_value(true)).get_matches();</span>
     <span class='doccomment'>/// if let Some(o) = matches.value_of(&quot;output&quot;) {</span>
     <span class='doccomment'>///        println!(&quot;Value for output: {}&quot;, o);</span>
     <span class='doccomment'>/// }</span>
@@ -304,7 +316,9 @@
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// Example:</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ```rust.example</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let matches = App::new(&quot;myapp&quot;).arg(Arg::new(&quot;output&quot;).takes_value(true)).get_matches();</span>
     <span class='doccomment'>/// if matches.is_present(&quot;output&quot;) {</span>
     <span class='doccomment'>///        println!(&quot;The output argument was used!&quot;);</span>
     <span class='doccomment'>/// }</span>
@@ -327,7 +341,9 @@
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// Example:</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ```rust.example</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let matches = App::new(&quot;myapp&quot;).arg(Arg::new(&quot;output&quot;).takes_value(true)).get_matches();</span>
     <span class='doccomment'>/// if matches.occurrences_of(&quot;debug&quot;) &gt; 1 {</span>
     <span class='doccomment'>///     println!(&quot;Debug mode is REALLY on&quot;);</span>
     <span class='doccomment'>/// } else {</span>

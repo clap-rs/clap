@@ -737,6 +737,26 @@
 <span id="695">695</span>
 <span id="696">696</span>
 <span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
+<span id="704">704</span>
+<span id="705">705</span>
+<span id="706">706</span>
+<span id="707">707</span>
+<span id="708">708</span>
+<span id="709">709</span>
+<span id="710">710</span>
+<span id="711">711</span>
+<span id="712">712</span>
+<span id="713">713</span>
+<span id="714">714</span>
+<span id="715">715</span>
+<span id="716">716</span>
+<span id="717">717</span>
 </pre><pre class='rust '>
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>libc</span>;
 
@@ -760,13 +780,15 @@
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// Example:</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>/// ```rust.example</span>
+<span class='doccomment'>/// ```no_run</span>
+<span class='doccomment'>/// # use clap::{App, Arg};</span>
 <span class='doccomment'>/// let myprog = App::new(&quot;myprog&quot;)</span>
 <span class='doccomment'>///                   .author(&quot;Me, me@mail.com&quot;)</span>
 <span class='doccomment'>///	                  .version(&quot;1.0.2&quot;)</span>
 <span class='doccomment'>///                   .about(&quot;Explains in brief what the program does&quot;)</span>
 <span class='doccomment'>///                   .arg(</span>
-<span class='doccomment'>///                        // Add a possible command line argument</span>
+<span class='doccomment'>///							Arg::new(&quot;in_file&quot;).index(1)</span>
+<span class='doccomment'>///                        // Add other possible command line argument options here...</span>
 <span class='doccomment'>///                    )</span>
 <span class='doccomment'>///                   .get_matches();</span>
 <span class='doccomment'>///</span>
@@ -802,8 +824,10 @@
 	<span class='doccomment'>///</span>
 	<span class='doccomment'>/// Example:</span>
 	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```rust.example</span>
-	<span class='doccomment'>/// let prog = App::new(&quot;myprog&quot;);</span>
+	<span class='doccomment'>/// ```no_run</span>
+	<span class='doccomment'>/// # use clap::{App, Arg};</span>
+	<span class='doccomment'>/// let prog = App::new(&quot;myprog&quot;)</span>
+	<span class='doccomment'>/// # .get_matches();</span>
 	<span class='doccomment'>/// ```</span>
 	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span> {
 		<span class='ident'>App</span> {
@@ -831,8 +855,11 @@
 	<span class='doccomment'>///</span>
 	<span class='doccomment'>/// Example:</span>
 	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```rust.example</span>
-	<span class='doccomment'>/// .author(&quot;Kevin &lt;kbknapp@gmail.com&gt;&quot;);</span>
+	<span class='doccomment'>/// ```no_run</span>
+	<span class='doccomment'>/// # use clap::{App, Arg};</span>
+	<span class='doccomment'>/// # let app = App::new(&quot;myprog&quot;)</span>
+	<span class='doccomment'>/// .author(&quot;Kevin &lt;kbknapp@gmail.com&gt;&quot;)</span>
+	<span class='doccomment'>/// # .get_matches();</span>
 	<span class='doccomment'>/// ```</span>
 	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>author</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>App</span> {
 		<span class='self'>self</span>.<span class='ident'>author</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>a</span>);
@@ -843,8 +870,11 @@
 	<span class='doccomment'>///</span>
 	<span class='doccomment'>/// Example:</span>
 	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```rust.example</span>
-	<span class='doccomment'>/// .about(&quot;Does really amazing things to great people&quot;);</span>
+	<span class='doccomment'>/// ```no_run</span>
+	<span class='doccomment'>/// # use clap::{App, Arg};</span>
+	<span class='doccomment'>/// # let app = App::new(&quot;myprog&quot;)</span>
+	<span class='doccomment'>/// .about(&quot;Does really amazing things to great people&quot;)</span>
+	<span class='doccomment'>/// # .get_matches();</span>
 	<span class='doccomment'>/// ```</span>
 	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>about</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>App</span> {
 		<span class='self'>self</span>.<span class='ident'>about</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>a</span>);
@@ -855,8 +885,11 @@
 	<span class='doccomment'>///</span>
 	<span class='doccomment'>/// Example:</span>
 	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```rust.example</span>
-	<span class='doccomment'>/// .version(&quot;v0.1.24&quot;);</span>
+	<span class='doccomment'>/// ```no_run</span>
+	<span class='doccomment'>/// # use clap::{App, Arg};</span>
+	<span class='doccomment'>/// # let app = App::new(&quot;myprog&quot;)</span>
+	<span class='doccomment'>/// .version(&quot;v0.1.24&quot;)</span>
+	<span class='doccomment'>/// # .get_matches();</span>
 	<span class='doccomment'>/// ```</span>
 	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>version</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>)<span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>App</span>  {
 		<span class='self'>self</span>.<span class='ident'>version</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>v</span>);
@@ -867,10 +900,14 @@
 	<span class='doccomment'>///</span>
 	<span class='doccomment'>/// Example:</span>
 	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```rust.example</span>
+	<span class='doccomment'>/// ```no_run</span>
+	<span class='doccomment'>/// # use clap::{App, Arg};</span>
+	<span class='doccomment'>/// # let app = App::new(&quot;myprog&quot;)</span>
 	<span class='doccomment'>/// .arg(Arg::new(&quot;config&quot;)</span>
-	<span class='doccomment'>///     // Additional argument configuration goes here...</span>
-	<span class='doccomment'>/// );</span>
+	<span class='doccomment'>///				.short(&quot;c&quot;)</span>
+	<span class='doccomment'>///     		// Additional argument configuration goes here...</span>
+	<span class='doccomment'>/// )</span>
+	<span class='doccomment'>/// # .get_matches();</span>
 	<span class='doccomment'>/// ```</span>
 	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>arg</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>Arg</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>App</span> {
 		<span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>arg_list</span>.<span class='ident'>contains</span>(<span class='ident'>a</span>.<span class='ident'>name</span>) {
@@ -968,9 +1005,12 @@
 	<span class='doccomment'>///</span>
 	<span class='doccomment'>/// Example:</span>
 	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```rust.example</span>
+	<span class='doccomment'>/// ```no_run</span>
+	<span class='doccomment'>/// # use clap::{App, Arg};</span>
+	<span class='doccomment'>/// # let app = App::new(&quot;myprog&quot;)</span>
 	<span class='doccomment'>/// .args( vec![Arg::new(&quot;config&quot;).short(&quot;c&quot;),</span>
-	<span class='doccomment'>///				Arg::new(&quot;debug&quot;).short(&quot;d&quot;)]);</span>
+	<span class='doccomment'>///				Arg::new(&quot;debug&quot;).short(&quot;d&quot;)])</span>
+	<span class='doccomment'>/// # .get_matches();</span>
 	<span class='doccomment'>/// ```</span>
 	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>args</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>args</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>Arg</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>App</span> {
 		<span class='kw'>for</span> <span class='ident'>arg</span> <span class='kw'>in</span> <span class='ident'>args</span>.<span class='ident'>iter</span>() {

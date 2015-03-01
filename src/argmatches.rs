@@ -11,7 +11,8 @@ use args::{ FlagArg, OptArg, PosArg };
 /// Fields of `ArgMatches` aren't designed to be used directly, only 
 /// the methods in order to query information.
 ///
-/// ```rust.example
+/// ```no_run
+/// # use clap::{App, Arg};
 ///  let matches = App::new("MyApp")
 /// // adding of arguments and configuration goes here...
 /// #                    .arg(Arg::new("config")
@@ -20,7 +21,7 @@ use args::{ FlagArg, OptArg, PosArg };
 /// #                               .takes_value(true))
 /// #                    .arg(Arg::new("debug")
 /// #                                   .short("d")
-/// #                                   .multiple(true)
+/// #                                   .multiple(true))
 ///                     .get_matches();
 ///    // if you had an argument named "output" that takes a value 
 ///    if let Some(o) = matches.value_of("output") {
@@ -63,7 +64,8 @@ impl ArgMatches {
     ///
     /// Example:
     ///
-    /// ```rust.example
+    /// ```no_run
+    /// # use clap::{App, Arg};
     /// let matches = App::new("myprog").get_matches();
     /// ```
 	pub fn new(app: &App) -> ArgMatches {
@@ -86,7 +88,9 @@ impl ArgMatches {
     ///
     /// Example:
     ///
-    /// ```rust.example
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let matches = App::new("myapp").arg(Arg::new("output").takes_value(true)).get_matches();
     /// if let Some(o) = matches.value_of("output") {
     ///        println!("Value for output: {}", o);
     /// }
@@ -111,7 +115,9 @@ impl ArgMatches {
     ///
     /// Example:
     ///
-    /// ```rust.example
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let matches = App::new("myapp").arg(Arg::new("output").takes_value(true)).get_matches();
     /// if matches.is_present("output") {
     ///        println!("The output argument was used!");
     /// }
@@ -134,7 +140,9 @@ impl ArgMatches {
     ///
     /// Example:
     ///
-    /// ```rust.example
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let matches = App::new("myapp").arg(Arg::new("output").takes_value(true)).get_matches();
     /// if matches.occurrences_of("debug") > 1 {
     ///     println!("Debug mode is REALLY on");
     /// } else {
