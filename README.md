@@ -79,3 +79,19 @@ Command Line Argument Parser written in Rust
  POSITIONAL ARGUMENTS:
  output			Sets an optional output file
  ```
+ 
+ ## Installation
+ Simply add `clap` as a dependecy in your `Cargo.toml` file:
+ 
+ ```
+ [dependencies]
+ clap = "0.3.5"
+ ```
+ Or to simply track the latest version on the master branch:
+ 
+ ```
+[dependencies.clap]
+git = "https://github.com/kbknapp/clap-rs.git"
+```
+Then run either `cargo build` or `cargo update` for your project.
+ 
