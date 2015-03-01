@@ -35,7 +35,7 @@ Command Line Argument Parser written in Rust
 									.index(1))
 						.arg(Arg::new("debug")
 									.short("d")
- 								.multiple(true)
+ 									.multiple(true)
 									.help("Turn debugging information on"))
 						.get_matches();
 
@@ -48,7 +48,7 @@ Command Line Argument Parser written in Rust
 	}
 
  match matches.occurrences_of("debug") {
- 	0 => println!("Debug mode is off"),
+ 		0 => println!("Debug mode is off"),
 		1 => println!("Debug mode is kind of on"),
 		2 => println!("Debug mode is on"),
 		3 | _ => println!("Don't be crazy"),
@@ -79,19 +79,18 @@ Command Line Argument Parser written in Rust
  POSITIONAL ARGUMENTS:
  output			Sets an optional output file
  ```
- 
- ## Installation
- Simply add `clap` as a dependecy in your `Cargo.toml` file:
- 
+
+## Installation
+Simply add `clap` as a dependecy in your `Cargo.toml` file:
+
  ```
  [dependencies]
  clap = "0.3.5"
  ```
  Or to simply track the latest version on the master branch:
- 
- ```
+
+```
 [dependencies.clap]
 git = "https://github.com/kbknapp/clap-rs.git"
 ```
 Then run either `cargo build` or `cargo update` for your project.
- 
