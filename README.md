@@ -85,7 +85,7 @@ Simply add `clap` as a dependecy in your `Cargo.toml` file:
 
  ```
  [dependencies]
- clap = "0.3.5"
+ clap = "*"
  ```
  Or to simply track the latest version on the master branch:
 
