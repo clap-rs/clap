@@ -11,4 +11,4 @@ readme = "README.md"
 
 keywords = ["terminal", "command", "commandline", "parser", "parse"]
 
-license-file = "LICENSE"
+license-file = "LICENSE-MIT"
