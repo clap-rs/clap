@@ -43,7 +43,7 @@
     <section id='main' class="content mod">
 <h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>clap</a><wbr></span><span class='out-of-band'><a href='stability.html'>[stability]</a> <span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-0' href='../src/clap/lib.rs.html#1-90'>[src]</a></span></h1>
+        </span><a id='src-0' href='../src/clap/lib.rs.html#1-116'>[src]</a></span></h1>
 <div class='docblock'><p>A simply library for parsing command line arguments when writing
  command line and console applications.</p>
 
@@ -108,12 +108,12 @@
     MyApp [FLAGS] [OPTIONS] [POSITIONAL]
  
  FLAGS:
-    d--help             Turn debugging information on
-    h--version,--help       Prints this message
-    vd--help,--version  Prints version information
+    -d              Turn debugging information on
+    -h,--help       Prints this message
+    -v,--version    Prints version information
  
  OPTIONS:
-    ch--version,--config &lt;config&gt;       Sets a custom config file
+    -c,--config &lt;config&gt;        Sets a custom config file
 
  POSITIONAL ARGUMENTS:
     output          Sets an optional output file

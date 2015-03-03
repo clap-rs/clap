@@ -69,12 +69,12 @@
 //! 	MyApp [FLAGS] [OPTIONS] [POSITIONAL]
 //! 
 //! FLAGS:
-//! 	d--help   			Turn debugging information on
-//! 	h--version,--help		Prints this message
-//! 	vd--help,--version	Prints version information
+//! 	-d   			Turn debugging information on
+//! 	-h,--help		Prints this message
+//! 	-v,--version	Prints version information
 //! 
 //! OPTIONS:
-//! 	ch--version,--config <config>		Sets a custom config file
+//! 	-c,--config <config>		Sets a custom config file
 //!
 //! POSITIONAL ARGUMENTS:
 //! 	output			Sets an optional output file
@@ -88,3 +88,29 @@ mod app;
 mod argmatches;
 mod arg;
 mod args;
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	#[should_fail]
+	fn non_unique_arg_names(){
+		App::new("test_app").arg(Arg::new("some").short("s"))
+		    				.arg(Arg::new("some").long("long"));
+	}
+
+	#[test]
+	#[should_fail]
+	fn non_unique_shorts(){
+		App::new("test_app").arg(Arg::new("some").short("s"))
+		    				.arg(Arg::new("other").short("s"));
+	}
+
+	#[test]
+	#[should_fail]
+	fn non_unique_longs(){
+		App::new("test_app").arg(Arg::new("some").long("long"))
+		    				.arg(Arg::new("other").long("long"));
+	}
+}
