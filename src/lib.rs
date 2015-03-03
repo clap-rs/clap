@@ -91,10 +91,8 @@ mod args;
 
 #[cfg(test)]
 mod tests {
-	use super::*;
-<<<<<<< HEAD
-=======
-	
+    use super::*;
+
 	#[test]
 	#[should_fail]
 	fn unique_arg_names(){
@@ -134,6 +132,5 @@ mod tests {
 	#[test]
 	fn create_arg_opt(){
 		Arg::new("some").short("s").long("some").takes_value(true).help("help with some arg").required(true);
->>>>>>> tests
 	}
 }
