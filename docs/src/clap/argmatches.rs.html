@@ -200,7 +200,7 @@
 <span id="158">158</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>HashMap</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>HashSet</span>;
+<span class='comment'>// use std::collections::HashSet;</span>
 
 <span class='kw'>use</span> <span class='ident'>app</span>::<span class='ident'>App</span>;
 <span class='kw'>use</span> <span class='ident'>args</span>::{ <span class='ident'>FlagArg</span>, <span class='ident'>OptArg</span>, <span class='ident'>PosArg</span> };
@@ -248,12 +248,12 @@
 <span class='doccomment'>///        }</span>
 <span class='doccomment'>/// }</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>ArgMatches</span> {
-    <span class='kw'>pub</span> <span class='ident'>required</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span><span class='op'>&gt;</span>,
-    <span class='kw'>pub</span> <span class='ident'>blacklist</span>: <span class='ident'>HashSet</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span><span class='op'>&gt;</span>,
-    <span class='kw'>pub</span> <span class='ident'>about</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span><span class='op'>&gt;</span>,
     <span class='kw'>pub</span> <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>,
-    <span class='kw'>pub</span> <span class='ident'>author</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span><span class='op'>&gt;</span>,
-    <span class='kw'>pub</span> <span class='ident'>version</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span><span class='op'>&gt;</span>,
+    <span class='comment'>// pub author: Option&lt;&amp;&#39;static str&gt;,</span>
+    <span class='comment'>// pub about: Option&lt;&amp;&#39;static str&gt;,</span>
+    <span class='comment'>// pub version: Option&lt;&amp;&#39;static str&gt;,</span>
+    <span class='comment'>// pub required: Vec&lt;&amp;&#39;static str&gt;,</span>
+    <span class='comment'>// pub blacklist: HashSet&lt;&amp;&#39;static str&gt;,</span>
     <span class='kw'>pub</span> <span class='ident'>flags</span>: <span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>, <span class='ident'>FlagArg</span><span class='op'>&gt;</span>,
     <span class='kw'>pub</span> <span class='ident'>opts</span>: <span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>, <span class='ident'>OptArg</span><span class='op'>&gt;</span>,
     <span class='kw'>pub</span> <span class='ident'>positionals</span>: <span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>, <span class='ident'>PosArg</span><span class='op'>&gt;</span>,
@@ -271,15 +271,15 @@
     <span class='doccomment'>/// ```</span>
 	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>app</span>: <span class='kw-2'>&amp;</span><span class='ident'>App</span>) <span class='op'>-&gt;</span> <span class='ident'>ArgMatches</span> {
 		<span class='ident'>ArgMatches</span> {
+    		<span class='ident'>name</span>: <span class='ident'>app</span>.<span class='ident'>name</span>,
             <span class='ident'>flags</span>: <span class='ident'>HashMap</span>::<span class='ident'>new</span>(),
             <span class='ident'>opts</span>: <span class='ident'>HashMap</span>::<span class='ident'>new</span>(),
             <span class='ident'>positionals</span>: <span class='ident'>HashMap</span>::<span class='ident'>new</span>(),
-    		<span class='ident'>required</span>: <span class='macro'>vec</span><span class='macro'>!</span>[],
-    		<span class='ident'>blacklist</span>: <span class='ident'>HashSet</span>::<span class='ident'>new</span>(),
-    		<span class='ident'>about</span>: <span class='ident'>app</span>.<span class='ident'>about</span>,
-    		<span class='ident'>name</span>: <span class='ident'>app</span>.<span class='ident'>name</span>,
-    		<span class='ident'>author</span>: <span class='ident'>app</span>.<span class='ident'>author</span>,
-    		<span class='ident'>version</span>: <span class='ident'>app</span>.<span class='ident'>version</span>,
+    		<span class='comment'>// required: vec![],</span>
+    		<span class='comment'>// blacklist: HashSet::new(),</span>
+    		<span class='comment'>// about: app.about,</span>
+    		<span class='comment'>// author: app.author,</span>
+    		<span class='comment'>// version: app.version,</span>
     	}
 	}
 

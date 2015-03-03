@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::collections::HashSet;
+// use std::collections::HashSet;
 
 use app::App;
 use args::{ FlagArg, OptArg, PosArg };
@@ -47,12 +47,12 @@ use args::{ FlagArg, OptArg, PosArg };
 ///        }
 /// }
 pub struct ArgMatches {
-    pub required: Vec<&'static str>,
-    pub blacklist: HashSet<&'static str>,
-    pub about: Option<&'static str>,
     pub name: &'static str,
-    pub author: Option<&'static str>,
-    pub version: Option<&'static str>,
+    // pub author: Option<&'static str>,
+    // pub about: Option<&'static str>,
+    // pub version: Option<&'static str>,
+    // pub required: Vec<&'static str>,
+    // pub blacklist: HashSet<&'static str>,
     pub flags: HashMap<&'static str, FlagArg>,
     pub opts: HashMap<&'static str, OptArg>,
     pub positionals: HashMap<&'static str, PosArg>,
@@ -70,15 +70,15 @@ impl ArgMatches {
     /// ```
 	pub fn new(app: &App) -> ArgMatches {
 		ArgMatches {
+    		name: app.name,
             flags: HashMap::new(),
             opts: HashMap::new(),
             positionals: HashMap::new(),
-    		required: vec![],
-    		blacklist: HashSet::new(),
-    		about: app.about,
-    		name: app.name,
-    		author: app.author,
-    		version: app.version,
+    		// required: vec![],
+    		// blacklist: HashSet::new(),
+    		// about: app.about,
+    		// author: app.author,
+    		// version: app.version,
     	}
 	}
 
