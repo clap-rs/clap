@@ -9,6 +9,6 @@ repository = "https://github.com/kbknapp/clap-rs.git"
 documentation = "http://kbknapp.github.io/clap-rs/docs/clap/index.html"
 readme = "README.md"
 
-keywords = ["terminal", "command", "commandline", "parser", "parse"]
+keywords = ["argument", "command", "arg", "parser", "parse"]
 
-license-file = "LICENSE-MIT"
+license = "MIT"
