@@ -104,7 +104,7 @@ impl Arg {
 	/// # Arg::new("conifg")
 	/// .short("c")
 	/// # ).get_matches();
-	pub fn short(&mut self, s: &'static str) -> &mut Arg {
+	pub fn short(mut self, s: &'static str) -> Arg {
 		self.short = Some(s.trim_left_matches(|c| c == '-')
 						   .char_at(0));
 		self
@@ -129,7 +129,7 @@ impl Arg {
 	/// # Arg::new("conifg")
 	/// .long("config")
 	/// # ).get_matches();
-	pub fn long(&mut self, l: &'static str) -> &mut Arg {
+	pub fn long(mut self, l: &'static str) -> Arg {
 		self.long = Some(l.trim_left_matches(|c| c == '-'));
 		self
 	}
@@ -146,7 +146,7 @@ impl Arg {
 	/// # Arg::new("conifg")
 	/// .help("The config file used by the myprog")
 	/// # ).get_matches();
-	pub fn help(&mut self, h: &'static str) -> &mut Arg {
+	pub fn help(mut self, h: &'static str) -> Arg {
 		self.help = Some(h);
 		self
 	}
@@ -169,7 +169,7 @@ impl Arg {
 	/// # Arg::new("conifg")
 	/// .required(true)
 	/// # ).get_matches();
-	pub fn required(&mut self, r: bool) -> &mut Arg {
+	pub fn required(mut self, r: bool) -> Arg {
 		self.required = r;
 		self
 	}
@@ -188,7 +188,7 @@ impl Arg {
 	/// # let myprog = App::new("myprog").arg(Arg::new("conifg")
 	/// .mutually_excludes("debug")
 	/// # ).get_matches();
-	pub fn mutually_excludes(&mut self, name: &'static str) -> &mut Arg {
+	pub fn mutually_excludes(mut self, name: &'static str) -> Arg {
 		if let Some(ref mut vec) = self.blacklist {
 			vec.push(name);
 		} else {
@@ -212,7 +212,7 @@ impl Arg {
 	/// .mutually_excludes_all(
 	///		vec!["debug", "input"])
 	/// # ).get_matches();
-	pub fn mutually_excludes_all(&mut self, names: Vec<&'static str>) -> &mut Arg {
+	pub fn mutually_excludes_all(mut self, names: Vec<&'static str>) -> Arg {
 		if let Some(ref mut vec) = self.blacklist {
 			for n in names {
 				vec.push(n);
@@ -235,7 +235,7 @@ impl Arg {
 	/// # let myprog = App::new("myprog").arg(Arg::new("conifg")
 	/// .requires("debug")
 	/// # ).get_matches();
-	pub fn requires(&mut self, name: &'static str) -> &mut Arg {
+	pub fn requires(mut self, name: &'static str) -> Arg {
 		if let Some(ref mut vec) = self.requires {
 			vec.push(name);
 		} else {
@@ -258,7 +258,7 @@ impl Arg {
 	/// .requires_all(
 	///		vec!["debug", "input"])
 	/// # ).get_matches();
-	pub fn requires_all(&mut self, names: Vec<&'static str>) -> &mut Arg {
+	pub fn requires_all(mut self, names: Vec<&'static str>) -> Arg {
 		if let Some(ref mut vec) = self.requires {
 			for n in names {
 				vec.push(n);
@@ -283,7 +283,7 @@ impl Arg {
 	/// # Arg::new("conifg")
 	/// .takes_value(true)
 	/// # ).get_matches();
-	pub fn takes_value(&mut self, tv: bool) -> &mut Arg {
+	pub fn takes_value(mut self, tv: bool) -> Arg {
 		assert!(self.index == None);
 		self.takes_value = tv;
 		self
@@ -305,7 +305,7 @@ impl Arg {
 	/// # Arg::new("conifg")
 	/// .index(1)
 	/// # ).get_matches();
-	pub fn index(&mut self, idx: u8) -> &mut Arg {
+	pub fn index(mut self, idx: u8) -> Arg {
 		assert!(self.takes_value == false);
 		if idx < 1 { panic!("Argument index must start at 1"); }
 		self.index = Some(idx);
@@ -329,7 +329,7 @@ impl Arg {
 	/// # Arg::new("debug")
 	/// .multiple(true)
 	/// # ).get_matches();
-	pub fn multiple(&mut self, multi: bool) -> &mut Arg {
+	pub fn multiple(mut self, multi: bool) -> Arg {
 		assert!(self.takes_value == false);
 		assert!(self.index == None);
 		self.multiple = multi;

@@ -46,7 +46,7 @@ pub struct App {
 	flags: HashMap<&'static str, FlagArg>,
 	opts: HashMap<&'static str, OptArg>,
 	positionals_idx: BTreeMap<u8, PosArg>,
-	positionals_name: HashMap<&'static str, PosArg>,
+	// positionals_name: HashMap<&'static str, PosArg>,
 	needs_long_help: bool,
 	needs_long_version: bool,
 	needs_short_help: bool,
@@ -78,7 +78,7 @@ impl App {
 			flags: HashMap::new(),
 			opts: HashMap::new(),
 			positionals_idx: BTreeMap::new(),
-			positionals_name: HashMap::new(),
+			// positionals_name: HashMap::new(),
 			needs_long_version: true,
 			needs_long_help: true,
 			needs_short_help: true,
@@ -101,7 +101,7 @@ impl App {
 	/// .author("Kevin <kbknapp@gmail.com>")
 	/// # .get_matches();
 	/// ```
-	pub fn author(&mut self, a: &'static str) -> &mut App {
+	pub fn author(mut self, a: &'static str) -> App {
 		self.author = Some(a);
 		self
 	}
@@ -116,7 +116,7 @@ impl App {
 	/// .about("Does really amazing things to great people")
 	/// # .get_matches();
 	/// ```
-	pub fn about(&mut self, a: &'static str) -> &mut App {
+	pub fn about(mut self, a: &'static str) -> App {
 		self.about = Some(a);
 		self
 	}
@@ -131,7 +131,7 @@ impl App {
 	/// .version("v0.1.24")
 	/// # .get_matches();
 	/// ```
-	pub fn version(&mut self, v: &'static str)-> &mut App  {
+	pub fn version(mut self, v: &'static str)-> App  {
 		self.version = Some(v);
 		self
 	}
@@ -149,7 +149,7 @@ impl App {
 	/// )
 	/// # .get_matches();
 	/// ```
-	pub fn arg(&mut self, a: &Arg) -> &mut App {
+	pub fn arg(mut self, a: Arg) -> App {
 		if self.arg_list.contains(a.name) {
 			panic!("Argument name must be unique, \"{}\" is already in use", a.name);
 		} else {
@@ -173,21 +173,21 @@ impl App {
 			self.required.insert(a.name);
 		}
 		if let Some(i) = a.index {
-			self.positionals_name.insert(a.name, PosArg {
-				name: a.name,
-				index: i,
-				required: a.required,
-				help: a.help,
-				blacklist: a.blacklist.clone(),
-				requires: a.requires.clone(),
-				value: None
-			});
+			// self.positionals_name.insert(a.name, PosArg {
+				// name: a.name,
+				// index: i,
+				// required: a.required,
+				// help: a.help,
+				// blacklist: a.blacklist,
+				// requires: a.requires,
+				// value: None
+			// });
 			self.positionals_idx.insert(i, PosArg {
 				name: a.name,
 				index: i,
 				required: a.required,
-				blacklist: a.blacklist.clone(),
-				requires: a.requires.clone(),
+				blacklist: a.blacklist,
+				requires: a.requires,
 				help: a.help,
 				value: None
 			});
@@ -199,9 +199,9 @@ impl App {
 				name: a.name,
 				short: a.short,
 				long: a.long,
-				blacklist: a.blacklist.clone(),
+				blacklist: a.blacklist,
 				help: a.help,
-				requires: a.requires.clone(),
+				requires: a.requires,
 				required: a.required,
 				value: None
 			});
@@ -232,9 +232,9 @@ impl App {
 				short: a.short,
 				long: a.long,
 				help: a.help,
-				blacklist: a.blacklist.clone(),
+				blacklist: a.blacklist,
 				multiple: a.multiple,
-				requires: a.requires.clone(),
+				requires: a.requires,
 				occurrences: 1
 			});
 		}
@@ -252,9 +252,9 @@ impl App {
 	///				Arg::new("debug").short("d")])
 	/// # .get_matches();
 	/// ```
-	pub fn args(&mut self, args: Vec<&Arg>) -> &mut App {
-		for arg in args.iter() {
-			self.arg(arg);
+	pub fn args(mut self, args: Vec<Arg>) -> App {
+		for arg in args.into_iter() {
+			self = self.arg(arg);
 		}
 		self
 	}
@@ -263,10 +263,10 @@ impl App {
 		unsafe { libc::exit(0); }
 	}
 
-	fn report_error(&self, msg: &String, help: bool, quit: bool) {
+	fn report_error(&self, msg: String, help: bool, quit: bool) {
 		println!("{}", msg);
 		if help { self.print_help(); }
-		if quit {self.exit(); }
+		if quit { env::set_exit_status(1); self.exit(); }
 	}
 
 	fn print_help(&self) {
@@ -275,10 +275,10 @@ impl App {
 		let mut pos = false;
 		let mut opts = false;
 
-		if let Some(ref author) = self.author {
+		if let Some(author) = self.author {
 			println!("{}", author);
 		}
-		if let Some(ref about) = self.about {
+		if let Some(about) = self.about {
 			println!("{}", about);
 		}
 		println!("");
@@ -286,24 +286,24 @@ impl App {
 		print!("\t{} {} {} {}", self.name,
 			if ! self.flags.is_empty() {flags = true; "[FLAGS]"} else {""},
 			if ! self.opts.is_empty() {opts = true; "[OPTIONS]"} else {""},
-			if ! self.positionals_name.is_empty() {pos = true; "[POSITIONAL]"} else {""});
+			if ! self.positionals_idx.is_empty() {pos = true; "[POSITIONAL]"} else {""});
 		if flags || opts || pos {
 			println!("");
 		}
 		if flags {
 			println!("");
 			println!("FLAGS:");
-			for (_, v) in self.flags.iter() {
+			for v in self.flags.values() {
 				println!("\t{}{}\t{}",
-						if let Some(ref s) = v.short{format!("-{}",s)}else{format!("   ")},
-						if let Some(ref l) = v.long {format!(",--{}",l)}else {format!("   \t")},
-						if let Some(ref h) = v.help {*h} else {"   "} );
+						if let Some(s) = v.short{format!("-{}",s)}else{format!("   ")},
+						if let Some(l) = v.long {format!(",--{}",l)}else {format!("   \t")},
+						if let Some(h) = v.help {h} else {"   "} );
 			}
 		}
 		if opts {
 			println!("");
 			println!("OPTIONS:");
-			for (_, v) in self.opts.iter() {
+			for v in self.opts.values() {
 				println!("\t{}{}{}\t\t{}",
 						if let Some(ref s) = v.short{format!("-{}",s)}else{format!("   ")},
 						if let Some(ref l) = v.long {format!(",--{}",l)}else {format!("   ")},
@@ -314,9 +314,9 @@ impl App {
 		if pos {
 			println!("");
 			println!("POSITIONAL ARGUMENTS:");
-			for (_, v) in self.positionals_idx.iter() {
+			for v in self.positionals_idx.values() {
 				println!("\t{}\t\t\t{}", v.name,
-						if let Some(ref h) = v.help {*h} else {"   "} );
+						if let Some(h) = v.help {h} else {"   "} );
 			}
 		}
 
@@ -324,7 +324,7 @@ impl App {
 	}
 
 	fn print_version(&self, quit: bool) {
-		println!("{} {}", self.name, if let Some(ref v) = self.version {*v} else {""} );
+		println!("{} {}", self.name, if let Some(v) = self.version {v} else {""} );
 		if quit { self.exit(); }
 	}
 
@@ -358,7 +358,7 @@ impl App {
 			if let Some(ref l) = v.long {
 				if *l == arg {
 					if self.blacklist.contains(k) {
-						self.report_error(&format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
+						self.report_error(format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
 							false, true);
 					}
 					matches.opts.insert(k, OptArg{
@@ -390,7 +390,7 @@ impl App {
 				}  
 				if ! multi { 
 					if self.blacklist.contains(k) {
-						self.report_error(&format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
+						self.report_error(format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
 							false, true);
 					}
 					matches.flags.insert(k, FlagArg{
@@ -430,7 +430,7 @@ impl App {
 
 		if ! found {
 			self.report_error(
-				&format!("Argument --{} isn't valid", arg),
+				format!("Argument --{} isn't valid", arg),
 				false, true);
 		}
 		None
@@ -444,7 +444,7 @@ impl App {
 				self.check_for_help_and_version(c);
 				if ! self.parse_single_short_flag(matches, c) { 
 					self.report_error(
-						&format!("Argument -{} isn't valid",c),
+						format!("Argument -{} isn't valid",c),
 						false, true);
 				}
 			}
@@ -463,7 +463,7 @@ impl App {
 				} 
 
 				self.report_error(
-					&format!("Argument -{} isn't valid",arg_c),
+					format!("Argument -{} isn't valid",arg_c),
 					false, true);
 			}
 
@@ -478,7 +478,7 @@ impl App {
 
 				if !matches.flags.contains_key(k) {
 					if self.blacklist.contains(k) {
-						self.report_error(&format!("The argument -{} is mutually exclusive with one or more other arguments", arg),
+						self.report_error(format!("The argument -{} is mutually exclusive with one or more other arguments", arg),
 							false, true);
 					}
 					matches.flags.insert(k, FlagArg{
@@ -526,7 +526,7 @@ impl App {
 			for name in self.blacklist.iter() {
 				for (k, v) in matches.flags.iter() {
 					if k == name {
-						self.report_error(&format!("The argument {} is mutually exclusive with one or more other arguments",
+						self.report_error(format!("The argument {} is mutually exclusive with one or more other arguments",
 							if let Some(s) = v.short {
 								format!("-{}", s)
 							} else if let Some(l) = v.long {
@@ -539,7 +539,7 @@ impl App {
 				}
 				for (k, v) in matches.opts.iter() {
 					if k == name {
-						self.report_error(&format!("The argument {} is mutually exclusive with one or more other arguments",
+						self.report_error(format!("The argument {} is mutually exclusive with one or more other arguments",
 							if let Some(s) = v.short {
 								format!("-{}", s)
 							} else if let Some(l) = v.long {
@@ -552,7 +552,7 @@ impl App {
 				}
 				for (k, v) in matches.positionals.iter() {
 					if k == name {
-						self.report_error(&format!("The argument \"{}\" is mutually exclusive with one or more other arguments",v.name),
+						self.report_error(format!("The argument \"{}\" is mutually exclusive with one or more other arguments",v.name),
 							false, true);
 					}
 				}
@@ -560,9 +560,7 @@ impl App {
 		}
 	}
 
-	pub fn get_matches(&mut self) -> ArgMatches {
-		let mut matches = ArgMatches::new(self);
-
+	fn create_help_and_version(&mut self) {
 		if self.needs_long_help {
 			self.flags.insert("clap_help", FlagArg{
 				name: "clap_help",
@@ -587,18 +585,24 @@ impl App {
 				occurrences: 1
 			});
 		}
+	}
+
+	pub fn get_matches(mut self) -> ArgMatches {
+		let mut matches = ArgMatches::new(&self);
+
+		self.create_help_and_version();
 
 		// let mut needs_val = false;
 		let mut needs_val_of: Option<&'static str> = None; 
 		let mut pos_counter = 1;
-		for arg in env::args().collect::<Vec<String>>().tail() {
+		for arg in env::args().collect::<Vec<_>>().tail() {
 			let arg_slice = arg.as_slice();
 			let mut skip = false;
-			if let Some(ref nvo) = needs_val_of {
+			if let Some(nvo) = needs_val_of {
 				if let Some(ref opt) = self.opts.get(nvo) {
 					if self.blacklist.contains(opt.name) {
 						self.report_error(
-							&format!("The argument {} is mutually exclusive with one or more other arguments", 
+							format!("The argument {} is mutually exclusive with one or more other arguments", 
 							if let Some(long) = opt.long {
 								format!("--{}",long)
 							}else{
@@ -651,14 +655,14 @@ impl App {
 			} else {
 				// Positional
 
-				if self.positionals_idx.is_empty() || self.positionals_name.is_empty() {
+				if self.positionals_idx.is_empty() { // || self.positionals_name.is_empty() {
 					self.report_error(
-						&format!("Found positional argument {}, but {} doesn't accept any", arg, self.name),
+						format!("Found positional argument {}, but {} doesn't accept any", arg, self.name),
 						false, true);
 				}
 				if let Some(ref p) = self.positionals_idx.get(&pos_counter) {
 					if self.blacklist.contains(p.name) {
-						self.report_error(&format!("The argument \"{}\" is mutually exclusive with one or more other arguments", arg),
+						self.report_error(format!("The argument \"{}\" is mutually exclusive with one or more other arguments", arg),
 							false, true);
 					}
 					matches.positionals.insert(p.name, PosArg{
@@ -692,7 +696,7 @@ impl App {
 					}
 					pos_counter += 1;
 				} else {
-					self.report_error(&format!("Positional argument \"{}\" was found, but {} wasn't expecting any", arg, self.name), false, true);
+					self.report_error(format!("Positional argument \"{}\" was found, but {} wasn't expecting any", arg, self.name), false, true);
 				}
 			}
 		}
@@ -700,13 +704,13 @@ impl App {
 		match needs_val_of {
 			Some(ref a) => {
 				self.report_error(
-					&format!("Argument \"{}\" requires a value but none was supplied", a),
+					format!("Argument \"{}\" requires a value but none was supplied", a),
 					false, true);
 			}
 			_ => {}
 		}
 		if ! self.required.is_empty() {
-			self.report_error(&"One or more required arguments were not supplied".to_string(),
+			self.report_error("One or more required arguments were not supplied".to_string(),
 					false, true);
 		}
 
