@@ -156,6 +156,26 @@
 <span id="114">114</span>
 <span id="115">115</span>
 <span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
 </pre><pre class='rust '>
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>crate_type</span><span class='op'>=</span> <span class='string'>&quot;lib&quot;</span>]</span>
 
@@ -250,27 +270,47 @@
 
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>test</span>)]</span>
 <span class='kw'>mod</span> <span class='ident'>tests</span> {
-	<span class='kw'>use</span> <span class='ident'>super</span>::<span class='op'>*</span>;
+    <span class='kw'>use</span> <span class='ident'>super</span>::<span class='op'>*</span>;
 
 	<span class='attribute'>#[<span class='ident'>test</span>]</span>
 	<span class='attribute'>#[<span class='ident'>should_fail</span>]</span>
-	<span class='kw'>fn</span> <span class='ident'>non_unique_arg_names</span>(){
-		<span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;test_app&quot;</span>).<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;s&quot;</span>))
-		    				.<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>long</span>(<span class='string'>&quot;long&quot;</span>));
+	<span class='kw'>fn</span> <span class='ident'>unique_arg_names</span>(){
+		<span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>args</span>(<span class='macro'>vec</span><span class='macro'>!</span>[
+			<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;arg&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;a&quot;</span>),
+			<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;arg&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;b&quot;</span>)
+		]);
 	}
-
 	<span class='attribute'>#[<span class='ident'>test</span>]</span>
 	<span class='attribute'>#[<span class='ident'>should_fail</span>]</span>
-	<span class='kw'>fn</span> <span class='ident'>non_unique_shorts</span>(){
-		<span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;test_app&quot;</span>).<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;s&quot;</span>))
-		    				.<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;other&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;s&quot;</span>));
+	<span class='kw'>fn</span> <span class='ident'>unique_arg_shorts</span>(){
+		<span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>args</span>(<span class='macro'>vec</span><span class='macro'>!</span>[
+			<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;arg1&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;a&quot;</span>),
+			<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;arg2&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;a&quot;</span>)
+		]);
 	}
-
 	<span class='attribute'>#[<span class='ident'>test</span>]</span>
 	<span class='attribute'>#[<span class='ident'>should_fail</span>]</span>
-	<span class='kw'>fn</span> <span class='ident'>non_unique_longs</span>(){
-		<span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;test_app&quot;</span>).<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>long</span>(<span class='string'>&quot;long&quot;</span>))
-		    				.<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;other&quot;</span>).<span class='ident'>long</span>(<span class='string'>&quot;long&quot;</span>));
+	<span class='kw'>fn</span> <span class='ident'>unique_arg_longs</span>(){
+		<span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>args</span>(<span class='macro'>vec</span><span class='macro'>!</span>[
+			<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;arg1&quot;</span>).<span class='ident'>long</span>(<span class='string'>&quot;long&quot;</span>),
+			<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;arg2&quot;</span>).<span class='ident'>long</span>(<span class='string'>&quot;long&quot;</span>)
+		]);
+	}
+	<span class='attribute'>#[<span class='ident'>test</span>]</span>
+	<span class='kw'>fn</span> <span class='ident'>create_app</span>(){
+		<span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>about</span>(<span class='string'>&quot;about&quot;</span>).<span class='ident'>author</span>(<span class='string'>&quot;author&quot;</span>).<span class='ident'>version</span>(<span class='string'>&quot;1.0&quot;</span>);
+	}
+	<span class='attribute'>#[<span class='ident'>test</span>]</span>
+	<span class='kw'>fn</span> <span class='ident'>create_arg_flag</span>(){
+		<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;a&quot;</span>).<span class='ident'>long</span>(<span class='string'>&quot;long&quot;</span>).<span class='ident'>help</span>(<span class='string'>&quot;help with some arg&quot;</span>).<span class='ident'>multiple</span>(<span class='boolval'>true</span>);
+	}
+	<span class='attribute'>#[<span class='ident'>test</span>]</span>
+	<span class='kw'>fn</span> <span class='ident'>create_arg_pos</span>(){
+		<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>index</span>(<span class='number'>1</span>).<span class='ident'>help</span>(<span class='string'>&quot;help with some arg&quot;</span>).<span class='ident'>required</span>(<span class='boolval'>true</span>);
+	}
+	<span class='attribute'>#[<span class='ident'>test</span>]</span>
+	<span class='kw'>fn</span> <span class='ident'>create_arg_opt</span>(){
+		<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;s&quot;</span>).<span class='ident'>long</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>takes_value</span>(<span class='boolval'>true</span>).<span class='ident'>help</span>(<span class='string'>&quot;help with some arg&quot;</span>).<span class='ident'>required</span>(<span class='boolval'>true</span>);
 	}
 }
 </pre>
