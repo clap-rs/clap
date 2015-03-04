@@ -104,7 +104,7 @@ impl ArgMatches {
         if let Some(ref pos) = self.positionals.get(name) {
         	if let Some(ref v) = pos.value {
         		return Some(v);
-        	} 
+        	}  
         }
         None
 	}

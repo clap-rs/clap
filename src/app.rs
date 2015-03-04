@@ -46,7 +46,7 @@ pub struct App {
 	flags: HashMap<&'static str, FlagArg>,
 	opts: HashMap<&'static str, OptArg>,
 	positionals_idx: BTreeMap<u8, PosArg>,
-	positionals_name: HashMap<&'static str, PosArg>,
+	// positionals_name: HashMap<&'static str, PosArg>,
 	needs_long_help: bool,
 	needs_long_version: bool,
 	needs_short_help: bool,
@@ -78,7 +78,7 @@ impl App {
 			flags: HashMap::new(),
 			opts: HashMap::new(),
 			positionals_idx: BTreeMap::new(),
-			positionals_name: HashMap::new(),
+			// positionals_name: HashMap::new(),
 			needs_long_version: true,
 			needs_long_help: true,
 			needs_short_help: true,
@@ -101,7 +101,7 @@ impl App {
 	/// .author("Kevin <kbknapp@gmail.com>")
 	/// # .get_matches();
 	/// ```
-	pub fn author(&mut self, a: &'static str) -> &mut App {
+	pub fn author(mut self, a: &'static str) -> App {
 		self.author = Some(a);
 		self
 	}
@@ -116,7 +116,7 @@ impl App {
 	/// .about("Does really amazing things to great people")
 	/// # .get_matches();
 	/// ```
-	pub fn about(&mut self, a: &'static str) -> &mut App {
+	pub fn about(mut self, a: &'static str) -> App {
 		self.about = Some(a);
 		self
 	}
@@ -131,7 +131,7 @@ impl App {
 	/// .version("v0.1.24")
 	/// # .get_matches();
 	/// ```
-	pub fn version(&mut self, v: &'static str)-> &mut App  {
+	pub fn version(mut self, v: &'static str)-> App  {
 		self.version = Some(v);
 		self
 	}
@@ -149,7 +149,7 @@ impl App {
 	/// )
 	/// # .get_matches();
 	/// ```
-	pub fn arg(&mut self, a: &Arg) -> &mut App {
+	pub fn arg(mut self, a: Arg) -> App {
 		if self.arg_list.contains(a.name) {
 			panic!("Argument name must be unique, \"{}\" is already in use", a.name);
 		} else {
@@ -173,21 +173,21 @@ impl App {
 			self.required.insert(a.name);
 		}
 		if let Some(i) = a.index {
-			self.positionals_name.insert(a.name, PosArg {
-				name: a.name,
-				index: i,
-				required: a.required,
-				help: a.help,
-				blacklist: a.blacklist.clone(),
-				requires: a.requires.clone(),
-				value: None
-			});
+			// self.positionals_name.insert(a.name, PosArg {
+				// name: a.name,
+				// index: i,
+				// required: a.required,
+				// help: a.help,
+				// blacklist: a.blacklist,
+				// requires: a.requires,
+				// value: None
+			// });
 			self.positionals_idx.insert(i, PosArg {
 				name: a.name,
 				index: i,
 				required: a.required,
-				blacklist: a.blacklist.clone(),
-				requires: a.requires.clone(),
+				blacklist: a.blacklist,
+				requires: a.requires,
 				help: a.help,
 				value: None
 			});
@@ -199,9 +199,9 @@ impl App {
 				name: a.name,
 				short: a.short,
 				long: a.long,
-				blacklist: a.blacklist.clone(),
+				blacklist: a.blacklist,
 				help: a.help,
-				requires: a.requires.clone(),
+				requires: a.requires,
 				required: a.required,
 				value: None
 			});
@@ -232,9 +232,9 @@ impl App {
 				short: a.short,
 				long: a.long,
 				help: a.help,
-				blacklist: a.blacklist.clone(),
+				blacklist: a.blacklist,
 				multiple: a.multiple,
-				requires: a.requires.clone(),
+				requires: a.requires,
 				occurrences: 1
 			});
 		}
@@ -252,14 +252,14 @@ impl App {
 	///				Arg::new("debug").short("d")])
 	/// # .get_matches();
 	/// ```
-	pub fn args(&mut self, args: Vec<&Arg>) -> &mut App {
-		for arg in args.iter() {
-			self.arg(arg);
+	pub fn args(mut self, args: Vec<Arg>) -> App {
+		for arg in args.into_iter() {
+			self = self.arg(arg);
 		}
 		self
 	}
 
-	fn exit(self) {
+	fn exit(&self) {
 		unsafe { libc::exit(0); }
 	}
 
@@ -286,7 +286,7 @@ impl App {
 		print!("\t{} {} {} {}", self.name,
 			if ! self.flags.is_empty() {flags = true; "[FLAGS]"} else {""},
 			if ! self.opts.is_empty() {opts = true; "[OPTIONS]"} else {""},
-			if ! self.positionals_name.is_empty() {pos = true; "[POSITIONAL]"} else {""});
+			if ! self.positionals_idx.is_empty() {pos = true; "[POSITIONAL]"} else {""});
 		if flags || opts || pos {
 			println!("");
 		}
@@ -585,7 +585,6 @@ impl App {
 				occurrences: 1
 			});
 		}
-
 	}
 
 	pub fn get_matches(mut self) -> ArgMatches {
@@ -656,7 +655,7 @@ impl App {
 			} else {
 				// Positional
 
-				if self.positionals_idx.is_empty() || self.positionals_name.is_empty() {
+				if self.positionals_idx.is_empty() { // || self.positionals_name.is_empty() {
 					self.report_error(
 						format!("Found positional argument {}, but {} doesn't accept any", arg, self.name),
 						false, true);
