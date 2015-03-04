@@ -358,7 +358,7 @@ impl App {
 			if let Some(ref l) = v.long {
 				if *l == arg {
 					if self.blacklist.contains(k) {
-						self.report_error(&format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
+						self.report_error(format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
 							false, true);
 					}
 					matches.opts.insert(k, OptArg{
@@ -390,7 +390,7 @@ impl App {
 				}  
 				if ! multi { 
 					if self.blacklist.contains(k) {
-						self.report_error(&format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
+						self.report_error(format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
 							false, true);
 					}
 					matches.flags.insert(k, FlagArg{
@@ -430,7 +430,7 @@ impl App {
 
 		if ! found {
 			self.report_error(
-				&format!("Argument --{} isn't valid", arg),
+				format!("Argument --{} isn't valid", arg),
 				false, true);
 		}
 		None
@@ -444,7 +444,7 @@ impl App {
 				self.check_for_help_and_version(c);
 				if ! self.parse_single_short_flag(matches, c) { 
 					self.report_error(
-						&format!("Argument -{} isn't valid",c),
+						format!("Argument -{} isn't valid",c),
 						false, true);
 				}
 			}
@@ -463,7 +463,7 @@ impl App {
 				} 
 
 				self.report_error(
-					&format!("Argument -{} isn't valid",arg_c),
+					format!("Argument -{} isn't valid",arg_c),
 					false, true);
 			}
 
@@ -478,7 +478,7 @@ impl App {
 
 				if !matches.flags.contains_key(k) {
 					if self.blacklist.contains(k) {
-						self.report_error(&format!("The argument -{} is mutually exclusive with one or more other arguments", arg),
+						self.report_error(format!("The argument -{} is mutually exclusive with one or more other arguments", arg),
 							false, true);
 					}
 					matches.flags.insert(k, FlagArg{
@@ -526,7 +526,7 @@ impl App {
 			for name in self.blacklist.iter() {
 				for (k, v) in matches.flags.iter() {
 					if k == name {
-						self.report_error(&format!("The argument {} is mutually exclusive with one or more other arguments",
+						self.report_error(format!("The argument {} is mutually exclusive with one or more other arguments",
 							if let Some(s) = v.short {
 								format!("-{}", s)
 							} else if let Some(l) = v.long {
@@ -539,7 +539,7 @@ impl App {
 				}
 				for (k, v) in matches.opts.iter() {
 					if k == name {
-						self.report_error(&format!("The argument {} is mutually exclusive with one or more other arguments",
+						self.report_error(format!("The argument {} is mutually exclusive with one or more other arguments",
 							if let Some(s) = v.short {
 								format!("-{}", s)
 							} else if let Some(l) = v.long {
@@ -552,7 +552,7 @@ impl App {
 				}
 				for (k, v) in matches.positionals.iter() {
 					if k == name {
-						self.report_error(&format!("The argument \"{}\" is mutually exclusive with one or more other arguments",v.name),
+						self.report_error(format!("The argument \"{}\" is mutually exclusive with one or more other arguments",v.name),
 							false, true);
 					}
 				}
