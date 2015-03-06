@@ -4,12 +4,14 @@ use std::collections::BTreeMap;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::env;
+use std::vec::IntoIter;
 
 use argmatches::ArgMatches;
 use Arg;
 use args::OptArg;
 use args::FlagArg;
 use args::PosArg;
+use subcommand::SubCommand;
 
 /// Used to create a representation of the program and all possible command line arguments
 /// for parsing at runtime.
@@ -46,16 +48,19 @@ pub struct App {
 	flags: HashMap<&'static str, FlagArg>,
 	opts: HashMap<&'static str, OptArg>,
 	positionals_idx: BTreeMap<u8, PosArg>,
+	subcommands: HashMap<&'static str, Box<App>>,
 	// positionals_name: HashMap<&'static str, PosArg>,
 	needs_long_help: bool,
 	needs_long_version: bool,
 	needs_short_help: bool,
 	needs_short_version: bool,
+	needs_subcmd_help: bool,
 	required: HashSet<&'static str>,
 	arg_list: HashSet<&'static str>,
 	short_list: HashSet<char>,
 	long_list: HashSet<&'static str>,
 	blacklist: HashSet<&'static str>,
+
 }
 
 impl App {
@@ -78,10 +83,12 @@ impl App {
 			flags: HashMap::new(),
 			opts: HashMap::new(),
 			positionals_idx: BTreeMap::new(),
+			subcommands: HashMap::new(),
 			// positionals_name: HashMap::new(),
 			needs_long_version: true,
 			needs_long_help: true,
 			needs_short_help: true,
+			needs_subcmd_help: true,
 			needs_short_version: true,
 			required: HashSet::new(), 
 			arg_list: HashSet::new(),
@@ -259,6 +266,20 @@ impl App {
 		self
 	}
 
+	pub fn subcommand(mut self, subcmd: App) -> App {
+		if subcmd.name == "help" { self.needs_subcmd_help = false; }
+		self.subcommands.insert(subcmd.name, Box::new(subcmd));
+		self
+	}
+
+	pub fn subcommands(mut self, subcmds: Vec<App>) -> App {
+		for subcmd in subcmds.into_iter() {
+			self = self.subcommand(subcmd);
+		}
+		self
+	}
+
+
 	fn exit(&self) {
 		unsafe { libc::exit(0); }
 	}
@@ -274,6 +295,7 @@ impl App {
 		let mut flags = false;
 		let mut pos = false;
 		let mut opts = false;
+		let mut subcmds = false;
 
 		if let Some(author) = self.author {
 			println!("{}", author);
@@ -283,11 +305,12 @@ impl App {
 		}
 		println!("");
 		println!("USAGE:");
-		print!("\t{} {} {} {}", self.name,
+		print!("\t{} {} {} {} {}", self.name,
+			if ! self.subcommands.is_empty() {subcmds = true; "[SUBCOMMANDS]"} else {""},
 			if ! self.flags.is_empty() {flags = true; "[FLAGS]"} else {""},
 			if ! self.opts.is_empty() {opts = true; "[OPTIONS]"} else {""},
 			if ! self.positionals_idx.is_empty() {pos = true; "[POSITIONAL]"} else {""});
-		if flags || opts || pos {
+		if flags || opts || pos || subcmds {
 			println!("");
 		}
 		if flags {
@@ -317,6 +340,14 @@ impl App {
 			for v in self.positionals_idx.values() {
 				println!("\t{}\t\t\t{}", v.name,
 						if let Some(h) = v.help {h} else {"   "} );
+			}
+		}
+		if subcmds {
+			println!("");
+			println!("SUBCOMMANDS:");
+			for sc in self.subcommands.values() {
+				println!("\t{}\t\t{}", sc.name,
+					if let Some(a) = sc.about {a} else {"   "} );
 			}
 		}
 
@@ -585,17 +616,19 @@ impl App {
 				occurrences: 1
 			});
 		}
+		if self.needs_subcmd_help {
+			self.subcommands.insert("help", Box::new(App::new("help").about("Prints this message")));
+		}
 	}
 
-	pub fn get_matches(mut self) -> ArgMatches {
-		let mut matches = ArgMatches::new(&self);
-
+	fn get_matches_from(&mut self, it: &mut IntoIter<String>, matches: &mut ArgMatches) -> Option<&'static str> {
 		self.create_help_and_version();
 
 		// let mut needs_val = false;
+		let mut subcmd_name: Option<&'static str> = None;
 		let mut needs_val_of: Option<&'static str> = None; 
 		let mut pos_counter = 1;
-		for arg in env::args().collect::<Vec<_>>().tail() {
+		while let Some(arg) = it.next() {
 			let arg_slice = arg.as_slice();
 			let mut skip = false;
 			if let Some(nvo) = needs_val_of {
@@ -648,12 +681,16 @@ impl App {
 			}
 			if arg_slice.starts_with("--") {
 				// Single flag, or option long version
-				needs_val_of = self.parse_long_arg(&mut matches, &arg);
+				needs_val_of = self.parse_long_arg(matches, &arg);
 
 			} else if arg_slice.starts_with("-") {
-				needs_val_of = self.parse_short_arg(&mut matches, &arg);
+				needs_val_of = self.parse_short_arg(matches, &arg);
 			} else {
-				// Positional
+				// Positional or Subcommand
+				if let Some(sca) = self.subcommands.get(arg_slice) {
+					subcmd_name = Some(sca.name);
+					break;
+				}
 
 				if self.positionals_idx.is_empty() { // || self.positionals_name.is_empty() {
 					self.report_error(
@@ -715,6 +752,32 @@ impl App {
 		}
 
 		self.validate_blacklist(&matches);
+
+		subcmd_name	
+	}
+
+	pub fn get_matches(mut self) -> ArgMatches {
+		let mut matches = ArgMatches::new(self.name);
+
+		let args = env::args().collect::<Vec<_>>();	
+
+		let mut it = args.into_iter();
+
+		let mut subcmd = self.get_matches_from(&mut it, &mut matches);
+		while let Some(sc) = subcmd {
+			if let Some(sca) = self.subcommands.get_mut(sc) {
+				let mut new_matches = SubCommand {
+					name: sc,
+					matches: ArgMatches::new(sc)
+				};
+				subcmd = sca.get_matches_from(&mut it, &mut new_matches.matches);
+				matches.subcommand.insert(sc, new_matches);
+				// prev_matches = prev_matches.unwrap().subcommand.get_mut(sc).unwrap().matches;
+			} else {
+				panic!("Found subcommand \"{}\" but wasn't able to find a valid representation of it to match against", sc);
+			}
+			matches = &mut matches.subcommand.get_mut(sc).unwrap().matches;
+		}
 
 		matches
 	}

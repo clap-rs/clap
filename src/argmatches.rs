@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 // use std::collections::HashSet;
 
-use app::App;
+// use app::App;
 use args::{ FlagArg, OptArg, PosArg };
+use subcommand::SubCommand;
 
 /// Used to get information about the arguments that
 /// where supplied to the program at runtime.
@@ -47,7 +48,7 @@ use args::{ FlagArg, OptArg, PosArg };
 ///        }
 /// }
 pub struct ArgMatches {
-    pub name: &'static str,
+    pub matches_of: &'static str,
     // pub author: Option<&'static str>,
     // pub about: Option<&'static str>,
     // pub version: Option<&'static str>,
@@ -56,6 +57,7 @@ pub struct ArgMatches {
     pub flags: HashMap<&'static str, FlagArg>,
     pub opts: HashMap<&'static str, OptArg>,
     pub positionals: HashMap<&'static str, PosArg>,
+    pub subcommand: HashMap<&'static str, SubCommand>
 }
 
 impl ArgMatches {
@@ -68,12 +70,13 @@ impl ArgMatches {
     /// # use clap::{App, Arg};
     /// let matches = App::new("myprog").get_matches();
     /// ```
-	pub fn new(app: &App) -> ArgMatches {
+	pub fn new(name: &'static str) -> ArgMatches {
 		ArgMatches {
-    		name: app.name,
+    		matches_of: name,
             flags: HashMap::new(),
             opts: HashMap::new(),
             positionals: HashMap::new(),
+            subcommand: HashMap::new()
     		// required: vec![],
     		// blacklist: HashSet::new(),
     		// about: app.about,
@@ -123,9 +126,12 @@ impl ArgMatches {
     /// }
     /// ```
 	pub fn is_present(&self, name: &'static str) -> bool {
-        if let Some(_) = self.flags.get(name) {
-            return true;
-        }
+        if self.subcommand.contains_key(name) || 
+            self.flags.contains_key(name) ||
+             self.opts.contains_key(name) ||
+              self.positionals.contains_key(name) {
+                return true;
+              }
         false
 	}
 
@@ -154,5 +160,17 @@ impl ArgMatches {
             return f.occurrences;
         }
         0
+    }
+
+    pub fn subcommand_matches(&self, name: &'static str) -> Option<&ArgMatches> {
+        if let Some(ref sc) = self.subcommand.get(name) {
+            return Some(&sc.matches);
+        }
+        None
+    }
+
+    pub fn subcommand_name(&self) -> Option<&'static str> {
+        if self.subcommand.is_empty() { return None; }
+        return Some(self.subcommand.keys().collect::<Vec<_>>()[0]);
     }
 }

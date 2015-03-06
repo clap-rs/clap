@@ -1,6 +1,6 @@
 #![crate_type= "lib"]
 
-#![feature(collections, core, libc)]
+#![feature(collections, core, libc, exit_status)]
 
 //! A simply library for parsing command line arguments when writing 
 //! command line and console applications.
@@ -88,6 +88,7 @@ mod app;
 mod argmatches;
 mod arg;
 mod args;
+mod subcommand;
 
 #[cfg(test)]
 mod tests {
