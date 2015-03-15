@@ -17,7 +17,7 @@ Command Line Argument Parser written in Rust
  
  ```rust
  extern crate clap;
- use clap::{Arg, App};
+ use clap::{Arg, App, SubCommand};
 
  // ...
  
@@ -37,6 +37,11 @@ Command Line Argument Parser written in Rust
 									.short("d")
  									.multiple(true)
 									.help("Turn debugging information on"))
+						.subcommand(SubCommand::new("test")
+									.about("controls testing features")
+									.arg(Arg::new("verbose")
+										.short("v")
+										.help("print test information verbosely")))
 						.get_matches();
 
 	if let Some(o) = matches.value_of("output") {
@@ -54,6 +59,14 @@ Command Line Argument Parser written in Rust
 		3 | _ => println!("Don't be crazy"),
  }
  
+ if let Some(ref matches) = matches.subcommand_matches("test") {
+ 	if matches.is_present("list") {
+ 		println!("Printing testing lists...");
+ 	} else {
+ 		println!("Not printing testing lists...");
+ 	}
+ }
+ 
  // more porgram logic goes here...
  ```
 
@@ -66,7 +79,7 @@ Command Line Argument Parser written in Rust
  Does awesome things
  
  USAGE:
- 	MyApp [FLAGS] [OPTIONS] [POSITIONAL]
+ 	MyApp [FLAGS] [OPTIONS] [POSITIONAL] [SUBCOMMANDS]
  
  FLAGS:
  	-d   			Turn debugging information on
@@ -78,6 +91,10 @@ Command Line Argument Parser written in Rust
 
  POSITIONAL ARGUMENTS:
 	 output			Sets an optional output file
+
+ SUBCOMMANDS:
+ 	help			Prints this message
+ 	test			Controls testing features
  ```
 
 ## Installation
