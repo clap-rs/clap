@@ -1,7 +1,7 @@
 [package]
 
 name = "clap"
-version = "0.4.0"
+version = "0.4.1"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
 exclude = ["docs/*"]
 description = "A Command Line Argument Parser written in Rust"

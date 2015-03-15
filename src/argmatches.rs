@@ -172,7 +172,7 @@ impl ArgMatches {
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
-    /// # let matches = App::new("myapp").subcommand(SubCommand::new("test")).get_matches();
+    /// # let app_matches = App::new("myapp").subcommand(SubCommand::new("test")).get_matches();
     /// if let Some(matches) = app_matches.subcommand_matches("test") {
     ///     // Use matches as normal
     /// }
@@ -192,8 +192,8 @@ impl ArgMatches {
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
-    /// # let matches = App::new("myapp").subcommand(SubCommand::new("test")).get_matches();
-    /// match app_matches.subcommand_() {
+    /// # let app_matches = App::new("myapp").subcommand(SubCommand::new("test")).get_matches();
+    /// match app_matches.subcommand_name() {
     ///     Some("test")   => {}, // test was used
     ///     Some("config") => {}, // config was used
     ///     _              => {}, // Either no subcommand or one not tested for...
