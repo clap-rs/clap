@@ -26,7 +26,7 @@
 
     <section class="sidebar">
         
-        <p class='location'></p>
+        <p class='location'></p><script>window.sidebarCurrent = {name: 'clap', ty: 'mod', relpath: '../'};</script>
     </section>
 
     <nav class="sub">
@@ -43,7 +43,7 @@
     <section id='main' class="content mod">
 <h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>clap</a><wbr></span><span class='out-of-band'><a href='stability.html'>[stability]</a> <span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-0' href='../src/clap/lib.rs.html#1-136'>[src]</a></span></h1>
+        </span><a id='src-0' href='../src/clap/lib.rs.html#1-155'>[src]</a></span></h1>
 <div class='docblock'><p>A simply library for parsing command line arguments when writing
  command line and console applications.</p>
 
@@ -77,6 +77,11 @@
                                     .<span class='ident'>short</span>(<span class='string'>&quot;d&quot;</span>)
                                 .<span class='ident'>multiple</span>(<span class='boolval'>true</span>)
                                     .<span class='ident'>help</span>(<span class='string'>&quot;Turn debugging information on&quot;</span>))
+                        .<span class='ident'>subcomamnd</span>(<span class='ident'>SubCommand</span>::<span class='ident'>new</span>(<span class='string'>&quot;test&quot;</span>)
+                                                .<span class='ident'>about</span>(<span class='string'>&quot;Has test sub functionality&quot;</span>)
+                                                .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;verbose&quot;</span>)
+                                                            .<span class='ident'>short</span>(<span class='string'>&quot;v&quot;</span>)
+                                                            .<span class='ident'>help</span>(<span class='string'>&quot;Display verbose information&quot;</span>)))
                         .<span class='ident'>get_matches</span>();
 
     <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>o</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>value_of</span>(<span class='string'>&quot;output&quot;</span>) {
@@ -94,6 +99,14 @@
         <span class='number'>3</span> <span class='op'>|</span> _ <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Don&#39;t be crazy&quot;</span>),
  }
  
+ <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>matches</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>subcommand_matches</span>(<span class='string'>&quot;test&quot;</span>) {
+    <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>is_present</span>(<span class='string'>&quot;verbose&quot;</span>) {
+            <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Printing verbose test info...&quot;</span>);
+        } <span class='kw'>else</span> {
+            <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Not printing regular test info...&quot;</span>);
+        }
+    }
+
  <span class='comment'>// more porgram logic goes here...</span>
 </pre>
 
@@ -105,7 +118,7 @@
  Does awesome things
  
  USAGE:
-    MyApp [FLAGS] [OPTIONS] [POSITIONAL]
+    MyApp [FLAGS] [OPTIONS] [POSITIONAL] [SUBCOMMANDS]
  
  FLAGS:
     -d              Turn debugging information on
@@ -117,6 +130,10 @@
 
  POSITIONAL ARGUMENTS:
     output          Sets an optional output file
+
+ SUBCOMMANDS:
+    help            Prints this message
+        test            Has test sub-functionality
 </code></pre>
 </div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
@@ -140,6 +157,13 @@
                                title='clap::ArgMatches'>ArgMatches</a></td>
                         <td class='docblock short'><p>Used to get information about the arguments that
 where supplied to the program at runtime.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.SubCommand.html'
+                               title='clap::SubCommand'>SubCommand</a></td>
+                        <td class='docblock short'><p>The abstract representation of a command line subcommand used by the consumer of the library.</p>
 </td>
                     </tr>
                 </table></section>

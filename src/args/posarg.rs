@@ -2,7 +2,7 @@
 /// by a `-` or `--`. `PosArg` isn't directly used by the end application
 /// writer, only internally to the `clap` library.
 ///
-/// Example: 
+/// # Example 
 ///
 /// ```sh
 /// $ myprog some_file

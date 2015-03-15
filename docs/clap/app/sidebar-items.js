@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["App","Used to create a representation of the program and all possible command line arguments  for parsing at runtime."]]});

@@ -26,7 +26,7 @@
 
     <section class="sidebar">
         
-        <p class='location'><a href='index.html'>clap</a></p><div class='block struct'><h2>Structs</h2><a class='struct current' href='struct.App.html' title='Used to create a representation of the program and all possible command line arguments  for parsing at runtime.'>App</a><a class='struct ' href='struct.Arg.html' title='The abstract representation of a command line argument used by the consumer of the library.  '>Arg</a><a class='struct ' href='struct.ArgMatches.html' title='Used to get information about the arguments that where supplied to the program at runtime.'>ArgMatches</a></div>
+        <p class='location'><a href='index.html'>clap</a></p><script>window.sidebarCurrent = {name: 'App', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </section>
 
     <nav class="sub">
@@ -43,7 +43,7 @@
     <section id='main' class="content struct">
 <h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>clap</a>::<wbr><a class='struct' href=''>App</a><wbr></span><span class='out-of-band'><span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-19' href='../src/clap/app.rs.html#37-59'>[src]</a></span></h1>
+        </span><a id='src-22' href='../src/clap/app.rs.html#39-64'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct App {
     pub name: &amp;'static <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>,
     pub author: <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;'static <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;,
@@ -122,7 +122,9 @@ to the user when they print version or help and usage information.</p>
  .<span class='ident'>args</span>( <span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;config&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;c&quot;</span>),
                 <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;debug&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;d&quot;</span>)])
 </pre>
-</div><h4 id='method.get_matches' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.get_matches' class='fnname'>get_matches</a>(self) -&gt; <a class='struct' href='../clap/struct.ArgMatches.html' title='clap::ArgMatches'>ArgMatches</a></code></h4>
+</div><h4 id='method.subcommand' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.subcommand' class='fnname'>subcommand</a>(self, subcmd: <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a></code></h4>
+<h4 id='method.subcommands' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.subcommands' class='fnname'>subcommands</a>(self, subcmds: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&gt;) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a></code></h4>
+<h4 id='method.get_matches' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.get_matches' class='fnname'>get_matches</a>(self) -&gt; <a class='struct' href='../clap/struct.ArgMatches.html' title='clap::ArgMatches'>ArgMatches</a></code></h4>
 </div></section>
     <section id='search' class="content hidden"></section>
 

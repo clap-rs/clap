@@ -26,7 +26,7 @@
 
     <section class="sidebar">
         
-        <p class='location'><a href='index.html'>clap</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.App.html' title='Used to create a representation of the program and all possible command line arguments  for parsing at runtime.'>App</a><a class='struct current' href='struct.Arg.html' title='The abstract representation of a command line argument used by the consumer of the library.  '>Arg</a><a class='struct ' href='struct.ArgMatches.html' title='Used to get information about the arguments that where supplied to the program at runtime.'>ArgMatches</a></div>
+        <p class='location'><a href='index.html'>clap</a></p><script>window.sidebarCurrent = {name: 'Arg', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </section>
 
     <nav class="sub">
@@ -43,7 +43,7 @@
     <section id='main' class="content struct">
 <h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>clap</a>::<wbr><a class='struct' href=''>Arg</a><wbr></span><span class='out-of-band'><span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-4358' href='../src/clap/arg.rs.html#21-53'>[src]</a></span></h1>
+        </span><a id='src-4820' href='../src/clap/arg.rs.html#21-53'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct Arg {
     pub name: &amp;'static <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>,
     pub short: <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a href='http://doc.rust-lang.org/nightly/std/primitive.char.html'>char</a>&gt;,
@@ -62,8 +62,8 @@ their program.
 and then evaluates the settings the consumer provided and determines the concret
 argument struct to use when parsing.</p>
 
-<p>Example:</p>
-<pre id='rust-example-rendered' class='rust '>
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;conifg&quot;</span>)
       .<span class='ident'>short</span>(<span class='string'>&quot;c&quot;</span>)
       .<span class='ident'>long</span>(<span class='string'>&quot;config&quot;</span>)

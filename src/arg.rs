@@ -6,7 +6,7 @@
 /// and then evaluates the settings the consumer provided and determines the concret
 /// argument struct to use when parsing.
 ///
-/// Example:
+/// # Example
 ///
 /// ```no_run
 /// # use clap::{App, Arg};

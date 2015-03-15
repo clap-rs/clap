@@ -9,7 +9,7 @@
 
     <title>app.rs.html -- source</title>
 
-    <link rel="stylesheet" type="text/css" href="../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
 
     
     
@@ -761,6 +761,55 @@
 <span id="719">719</span>
 <span id="720">720</span>
 <span id="721">721</span>
+<span id="722">722</span>
+<span id="723">723</span>
+<span id="724">724</span>
+<span id="725">725</span>
+<span id="726">726</span>
+<span id="727">727</span>
+<span id="728">728</span>
+<span id="729">729</span>
+<span id="730">730</span>
+<span id="731">731</span>
+<span id="732">732</span>
+<span id="733">733</span>
+<span id="734">734</span>
+<span id="735">735</span>
+<span id="736">736</span>
+<span id="737">737</span>
+<span id="738">738</span>
+<span id="739">739</span>
+<span id="740">740</span>
+<span id="741">741</span>
+<span id="742">742</span>
+<span id="743">743</span>
+<span id="744">744</span>
+<span id="745">745</span>
+<span id="746">746</span>
+<span id="747">747</span>
+<span id="748">748</span>
+<span id="749">749</span>
+<span id="750">750</span>
+<span id="751">751</span>
+<span id="752">752</span>
+<span id="753">753</span>
+<span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
+<span id="758">758</span>
+<span id="759">759</span>
+<span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
+<span id="769">769</span>
+<span id="770">770</span>
 </pre><pre class='rust '>
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>libc</span>;
 
@@ -768,12 +817,14 @@
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>HashMap</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>HashSet</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>env</span>;
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>vec</span>::<span class='ident'>IntoIter</span>;
 
 <span class='kw'>use</span> <span class='ident'>argmatches</span>::<span class='ident'>ArgMatches</span>;
 <span class='kw'>use</span> <span class='ident'>Arg</span>;
 <span class='kw'>use</span> <span class='ident'>args</span>::<span class='ident'>OptArg</span>;
 <span class='kw'>use</span> <span class='ident'>args</span>::<span class='ident'>FlagArg</span>;
 <span class='kw'>use</span> <span class='ident'>args</span>::<span class='ident'>PosArg</span>;
+<span class='kw'>use</span> <span class='ident'>subcommand</span>::<span class='ident'>SubCommand</span>;
 
 <span class='doccomment'>/// Used to create a representation of the program and all possible command line arguments</span>
 <span class='doccomment'>/// for parsing at runtime.</span>
@@ -810,16 +861,19 @@
 	<span class='ident'>flags</span>: <span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>, <span class='ident'>FlagArg</span><span class='op'>&gt;</span>,
 	<span class='ident'>opts</span>: <span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>, <span class='ident'>OptArg</span><span class='op'>&gt;</span>,
 	<span class='ident'>positionals_idx</span>: <span class='ident'>BTreeMap</span><span class='op'>&lt;</span><span class='ident'>u8</span>, <span class='ident'>PosArg</span><span class='op'>&gt;</span>,
+	<span class='ident'>subcommands</span>: <span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>, <span class='ident'>Box</span><span class='op'>&lt;</span><span class='ident'>App</span><span class='op'>&gt;&gt;</span>,
 	<span class='comment'>// positionals_name: HashMap&lt;&amp;&#39;static str, PosArg&gt;,</span>
 	<span class='ident'>needs_long_help</span>: <span class='ident'>bool</span>,
 	<span class='ident'>needs_long_version</span>: <span class='ident'>bool</span>,
 	<span class='ident'>needs_short_help</span>: <span class='ident'>bool</span>,
 	<span class='ident'>needs_short_version</span>: <span class='ident'>bool</span>,
+	<span class='ident'>needs_subcmd_help</span>: <span class='ident'>bool</span>,
 	<span class='ident'>required</span>: <span class='ident'>HashSet</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span><span class='op'>&gt;</span>,
 	<span class='ident'>arg_list</span>: <span class='ident'>HashSet</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span><span class='op'>&gt;</span>,
 	<span class='ident'>short_list</span>: <span class='ident'>HashSet</span><span class='op'>&lt;</span><span class='ident'>char</span><span class='op'>&gt;</span>,
 	<span class='ident'>long_list</span>: <span class='ident'>HashSet</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span><span class='op'>&gt;</span>,
 	<span class='ident'>blacklist</span>: <span class='ident'>HashSet</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span><span class='op'>&gt;</span>,
+
 }
 
 <span class='kw'>impl</span> <span class='ident'>App</span> {
@@ -842,10 +896,12 @@
 			<span class='ident'>flags</span>: <span class='ident'>HashMap</span>::<span class='ident'>new</span>(),
 			<span class='ident'>opts</span>: <span class='ident'>HashMap</span>::<span class='ident'>new</span>(),
 			<span class='ident'>positionals_idx</span>: <span class='ident'>BTreeMap</span>::<span class='ident'>new</span>(),
+			<span class='ident'>subcommands</span>: <span class='ident'>HashMap</span>::<span class='ident'>new</span>(),
 			<span class='comment'>// positionals_name: HashMap::new(),</span>
 			<span class='ident'>needs_long_version</span>: <span class='boolval'>true</span>,
 			<span class='ident'>needs_long_help</span>: <span class='boolval'>true</span>,
 			<span class='ident'>needs_short_help</span>: <span class='boolval'>true</span>,
+			<span class='ident'>needs_subcmd_help</span>: <span class='boolval'>true</span>,
 			<span class='ident'>needs_short_version</span>: <span class='boolval'>true</span>,
 			<span class='ident'>required</span>: <span class='ident'>HashSet</span>::<span class='ident'>new</span>(), 
 			<span class='ident'>arg_list</span>: <span class='ident'>HashSet</span>::<span class='ident'>new</span>(),
@@ -937,15 +993,6 @@
 			<span class='self'>self</span>.<span class='ident'>required</span>.<span class='ident'>insert</span>(<span class='ident'>a</span>.<span class='ident'>name</span>);
 		}
 		<span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>i</span>) <span class='op'>=</span> <span class='ident'>a</span>.<span class='ident'>index</span> {
-			<span class='comment'>// self.positionals_name.insert(a.name, PosArg {</span>
-				<span class='comment'>// name: a.name,</span>
-				<span class='comment'>// index: i,</span>
-				<span class='comment'>// required: a.required,</span>
-				<span class='comment'>// help: a.help,</span>
-				<span class='comment'>// blacklist: a.blacklist,</span>
-				<span class='comment'>// requires: a.requires,</span>
-				<span class='comment'>// value: None</span>
-			<span class='comment'>// });</span>
 			<span class='self'>self</span>.<span class='ident'>positionals_idx</span>.<span class='ident'>insert</span>(<span class='ident'>i</span>, <span class='ident'>PosArg</span> {
 				<span class='ident'>name</span>: <span class='ident'>a</span>.<span class='ident'>name</span>,
 				<span class='ident'>index</span>: <span class='ident'>i</span>,
@@ -1023,6 +1070,20 @@
 		<span class='self'>self</span>
 	}
 
+	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>subcommand</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>subcmd</span>: <span class='ident'>App</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span> {
+		<span class='kw'>if</span> <span class='ident'>subcmd</span>.<span class='ident'>name</span> <span class='op'>==</span> <span class='string'>&quot;help&quot;</span> { <span class='self'>self</span>.<span class='ident'>needs_subcmd_help</span> <span class='op'>=</span> <span class='boolval'>false</span>; }
+		<span class='self'>self</span>.<span class='ident'>subcommands</span>.<span class='ident'>insert</span>(<span class='ident'>subcmd</span>.<span class='ident'>name</span>, <span class='ident'>Box</span>::<span class='ident'>new</span>(<span class='ident'>subcmd</span>));
+		<span class='self'>self</span>
+	}
+
+	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>subcommands</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>subcmds</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>App</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span> {
+		<span class='kw'>for</span> <span class='ident'>subcmd</span> <span class='kw'>in</span> <span class='ident'>subcmds</span>.<span class='ident'>into_iter</span>() {
+			<span class='self'>self</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>subcommand</span>(<span class='ident'>subcmd</span>);
+		}
+		<span class='self'>self</span>
+	}
+
+
 	<span class='kw'>fn</span> <span class='ident'>exit</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) {
 		<span class='kw'>unsafe</span> { <span class='ident'>libc</span>::<span class='ident'>exit</span>(<span class='number'>0</span>); }
 	}
@@ -1038,6 +1099,7 @@
 		<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>flags</span> <span class='op'>=</span> <span class='boolval'>false</span>;
 		<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>pos</span> <span class='op'>=</span> <span class='boolval'>false</span>;
 		<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>opts</span> <span class='op'>=</span> <span class='boolval'>false</span>;
+		<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>subcmds</span> <span class='op'>=</span> <span class='boolval'>false</span>;
 
 		<span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>author</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>author</span> {
 			<span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{}&quot;</span>, <span class='ident'>author</span>);
@@ -1047,11 +1109,12 @@
 		}
 		<span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;&quot;</span>);
 		<span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;USAGE:&quot;</span>);
-		<span class='macro'>print</span><span class='macro'>!</span>(<span class='string'>&quot;\t{} {} {} {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>name</span>,
+		<span class='macro'>print</span><span class='macro'>!</span>(<span class='string'>&quot;\t{} {} {} {} {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>name</span>,
+			<span class='kw'>if</span> <span class='op'>!</span> <span class='self'>self</span>.<span class='ident'>subcommands</span>.<span class='ident'>is_empty</span>() {<span class='ident'>subcmds</span> <span class='op'>=</span> <span class='boolval'>true</span>; <span class='string'>&quot;[SUBCOMMANDS]&quot;</span>} <span class='kw'>else</span> {<span class='string'>&quot;&quot;</span>},
 			<span class='kw'>if</span> <span class='op'>!</span> <span class='self'>self</span>.<span class='ident'>flags</span>.<span class='ident'>is_empty</span>() {<span class='ident'>flags</span> <span class='op'>=</span> <span class='boolval'>true</span>; <span class='string'>&quot;[FLAGS]&quot;</span>} <span class='kw'>else</span> {<span class='string'>&quot;&quot;</span>},
 			<span class='kw'>if</span> <span class='op'>!</span> <span class='self'>self</span>.<span class='ident'>opts</span>.<span class='ident'>is_empty</span>() {<span class='ident'>opts</span> <span class='op'>=</span> <span class='boolval'>true</span>; <span class='string'>&quot;[OPTIONS]&quot;</span>} <span class='kw'>else</span> {<span class='string'>&quot;&quot;</span>},
 			<span class='kw'>if</span> <span class='op'>!</span> <span class='self'>self</span>.<span class='ident'>positionals_idx</span>.<span class='ident'>is_empty</span>() {<span class='ident'>pos</span> <span class='op'>=</span> <span class='boolval'>true</span>; <span class='string'>&quot;[POSITIONAL]&quot;</span>} <span class='kw'>else</span> {<span class='string'>&quot;&quot;</span>});
-		<span class='kw'>if</span> <span class='ident'>flags</span> <span class='op'>||</span> <span class='ident'>opts</span> <span class='op'>||</span> <span class='ident'>pos</span> {
+		<span class='kw'>if</span> <span class='ident'>flags</span> <span class='op'>||</span> <span class='ident'>opts</span> <span class='op'>||</span> <span class='ident'>pos</span> <span class='op'>||</span> <span class='ident'>subcmds</span> {
 			<span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;&quot;</span>);
 		}
 		<span class='kw'>if</span> <span class='ident'>flags</span> {
@@ -1081,6 +1144,14 @@
 			<span class='kw'>for</span> <span class='ident'>v</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>positionals_idx</span>.<span class='ident'>values</span>() {
 				<span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;\t{}\t\t\t{}&quot;</span>, <span class='ident'>v</span>.<span class='ident'>name</span>,
 						<span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>h</span>) <span class='op'>=</span> <span class='ident'>v</span>.<span class='ident'>help</span> {<span class='ident'>h</span>} <span class='kw'>else</span> {<span class='string'>&quot;   &quot;</span>} );
+			}
+		}
+		<span class='kw'>if</span> <span class='ident'>subcmds</span> {
+			<span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;&quot;</span>);
+			<span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;SUBCOMMANDS:&quot;</span>);
+			<span class='kw'>for</span> <span class='ident'>sc</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>subcommands</span>.<span class='ident'>values</span>() {
+				<span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;\t{}\t\t{}&quot;</span>, <span class='ident'>sc</span>.<span class='ident'>name</span>,
+					<span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>a</span>) <span class='op'>=</span> <span class='ident'>sc</span>.<span class='ident'>about</span> {<span class='ident'>a</span>} <span class='kw'>else</span> {<span class='string'>&quot;   &quot;</span>} );
 			}
 		}
 
@@ -1349,17 +1420,19 @@
 				<span class='ident'>occurrences</span>: <span class='number'>1</span>
 			});
 		}
+		<span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>needs_subcmd_help</span> {
+			<span class='self'>self</span>.<span class='ident'>subcommands</span>.<span class='ident'>insert</span>(<span class='string'>&quot;help&quot;</span>, <span class='ident'>Box</span>::<span class='ident'>new</span>(<span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;help&quot;</span>).<span class='ident'>about</span>(<span class='string'>&quot;Prints this message&quot;</span>)));
+		}
 	}
 
-	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_matches</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>ArgMatches</span> {
-		<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>matches</span> <span class='op'>=</span> <span class='ident'>ArgMatches</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>);
-
+	<span class='kw'>fn</span> <span class='ident'>get_matches_from</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>matches</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>ArgMatches</span>, <span class='ident'>it</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>IntoIter</span><span class='op'>&lt;</span><span class='ident'>String</span><span class='op'>&gt;</span>) {
 		<span class='self'>self</span>.<span class='ident'>create_help_and_version</span>();
 
 		<span class='comment'>// let mut needs_val = false;</span>
+		<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>subcmd_name</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='prelude-val'>None</span>;
 		<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>needs_val_of</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='prelude-val'>None</span>; 
 		<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>pos_counter</span> <span class='op'>=</span> <span class='number'>1</span>;
-		<span class='kw'>for</span> <span class='ident'>arg</span> <span class='kw'>in</span> <span class='ident'>env</span>::<span class='ident'>args</span>().<span class='ident'>collect</span>::<span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span>_<span class='op'>&gt;&gt;</span>().<span class='ident'>tail</span>() {
+		<span class='kw'>while</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>arg</span>) <span class='op'>=</span> <span class='ident'>it</span>.<span class='ident'>next</span>() {
 			<span class='kw'>let</span> <span class='ident'>arg_slice</span> <span class='op'>=</span> <span class='ident'>arg</span>.<span class='ident'>as_slice</span>();
 			<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>skip</span> <span class='op'>=</span> <span class='boolval'>false</span>;
 			<span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>nvo</span>) <span class='op'>=</span> <span class='ident'>needs_val_of</span> {
@@ -1412,12 +1485,19 @@
 			}
 			<span class='kw'>if</span> <span class='ident'>arg_slice</span>.<span class='ident'>starts_with</span>(<span class='string'>&quot;--&quot;</span>) {
 				<span class='comment'>// Single flag, or option long version</span>
-				<span class='ident'>needs_val_of</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>parse_long_arg</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>matches</span>, <span class='kw-2'>&amp;</span><span class='ident'>arg</span>);
+				<span class='ident'>needs_val_of</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>parse_long_arg</span>(<span class='ident'>matches</span>, <span class='kw-2'>&amp;</span><span class='ident'>arg</span>);
 
 			} <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>arg_slice</span>.<span class='ident'>starts_with</span>(<span class='string'>&quot;-&quot;</span>) {
-				<span class='ident'>needs_val_of</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>parse_short_arg</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>matches</span>, <span class='kw-2'>&amp;</span><span class='ident'>arg</span>);
+				<span class='ident'>needs_val_of</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>parse_short_arg</span>(<span class='ident'>matches</span>, <span class='kw-2'>&amp;</span><span class='ident'>arg</span>);
 			} <span class='kw'>else</span> {
-				<span class='comment'>// Positional</span>
+				<span class='comment'>// Positional or Subcommand</span>
+				<span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>sca</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>subcommands</span>.<span class='ident'>get</span>(<span class='ident'>arg_slice</span>) {
+					<span class='kw'>if</span> <span class='ident'>sca</span>.<span class='ident'>name</span> <span class='op'>==</span> <span class='string'>&quot;help&quot;</span> {
+						<span class='self'>self</span>.<span class='ident'>print_help</span>();
+					}
+					<span class='ident'>subcmd_name</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>sca</span>.<span class='ident'>name</span>);
+					<span class='kw'>break</span>;
+				}
 
 				<span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>positionals_idx</span>.<span class='ident'>is_empty</span>() { <span class='comment'>// || self.positionals_name.is_empty() {</span>
 					<span class='self'>self</span>.<span class='ident'>report_error</span>(
@@ -1480,6 +1560,24 @@
 
 		<span class='self'>self</span>.<span class='ident'>validate_blacklist</span>(<span class='kw-2'>&amp;</span><span class='ident'>matches</span>);
 
+		<span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>sc_name</span>) <span class='op'>=</span> <span class='ident'>subcmd_name</span> {
+			<span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>sc</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>subcommands</span>.<span class='ident'>get_mut</span>(<span class='ident'>sc_name</span>) {
+				<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>new_matches</span> <span class='op'>=</span> <span class='ident'>ArgMatches</span>::<span class='ident'>new</span>(<span class='ident'>sc_name</span>);
+				<span class='ident'>sc</span>.<span class='ident'>get_matches_from</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>new_matches</span>, <span class='ident'>it</span>);
+				<span class='ident'>matches</span>.<span class='ident'>subcommand</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>((<span class='ident'>sc_name</span>, <span class='ident'>Box</span>::<span class='ident'>new</span>(<span class='ident'>SubCommand</span>{
+					<span class='ident'>name</span>: <span class='ident'>sc_name</span>,
+					<span class='ident'>matches</span>: <span class='ident'>new_matches</span>})));
+			}
+		}	
+	}
+
+	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_matches</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>ArgMatches</span> {
+		<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>matches</span> <span class='op'>=</span> <span class='ident'>ArgMatches</span>::<span class='ident'>new</span>(<span class='self'>self</span>.<span class='ident'>name</span>);
+
+		<span class='kw'>let</span> <span class='ident'>args</span> <span class='op'>=</span> <span class='ident'>env</span>::<span class='ident'>args</span>().<span class='ident'>collect</span>::<span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span>_<span class='op'>&gt;&gt;</span>();	
+
+		<span class='self'>self</span>.<span class='ident'>get_matches_from</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>matches</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>args</span>.<span class='ident'>into_iter</span>());
+
 		<span class='ident'>matches</span>
 	}
 }
@@ -1523,13 +1621,13 @@
     
 
     <script>
-        window.rootPath = "../../";
+        window.rootPath = "../../../";
         window.currentCrate = "clap";
         window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
-    <script src="../../main.js"></script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
     
-    <script async src="../../search-index.js"></script>
+    <script async src="../../../search-index.js"></script>
 </body>
 </html>

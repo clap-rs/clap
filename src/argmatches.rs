@@ -1,7 +1,5 @@
 use std::collections::HashMap;
-// use std::collections::HashSet;
 
-// use app::App;
 use args::{ FlagArg, OptArg, PosArg };
 use subcommand::SubCommand;
 
@@ -11,6 +9,8 @@ use subcommand::SubCommand;
 ///
 /// Fields of `ArgMatches` aren't designed to be used directly, only 
 /// the methods in order to query information.
+///
+/// # Example
 ///
 /// ```no_run
 /// # use clap::{App, Arg};
@@ -46,25 +46,31 @@ use subcommand::SubCommand;
 ///        } else {
 ///            println!("Debug mode kind of on");
 ///        }
+///    }
+///
+///    // You can get the sub-matches of a particular subcommand (in this case "test")
+///    // If "test" had it's own "-l" flag you could check for it's presence accordingly
+///    if let Some(ref matches) = matches.subcommand_matches("test") {
+///      if matches.is_present("list") {
+///             println!("Printing testing lists...");
+///         } else {
+///             println!("Not printing testing lists...");
+///         }
+///     }
 /// }
 pub struct ArgMatches {
     pub matches_of: &'static str,
-    // pub author: Option<&'static str>,
-    // pub about: Option<&'static str>,
-    // pub version: Option<&'static str>,
-    // pub required: Vec<&'static str>,
-    // pub blacklist: HashSet<&'static str>,
     pub flags: HashMap<&'static str, FlagArg>,
     pub opts: HashMap<&'static str, OptArg>,
     pub positionals: HashMap<&'static str, PosArg>,
-    pub subcommand: HashMap<&'static str, SubCommand>
+    pub subcommand: Option<(&'static str, Box<SubCommand>)>
 }
 
 impl ArgMatches {
     /// Creates a new instance of `ArgMatches`. This ins't called directly, but
     /// through the `.get_matches()` method of `App`
     ///
-    /// Example:
+    /// # Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -76,12 +82,7 @@ impl ArgMatches {
             flags: HashMap::new(),
             opts: HashMap::new(),
             positionals: HashMap::new(),
-            subcommand: HashMap::new()
-    		// required: vec![],
-    		// blacklist: HashSet::new(),
-    		// about: app.about,
-    		// author: app.author,
-    		// version: app.version,
+            subcommand: None
     	}
 	}
 
@@ -89,7 +90,7 @@ impl ArgMatches {
     /// an additional value at runtime). If the option wasn't present at runtime
     /// it returns `None`
     ///
-    /// Example:
+    /// # Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -116,7 +117,7 @@ impl ArgMatches {
     /// option or positional arguments (use `.value_of()` instead)
     ///
     ///
-    /// Example:
+    /// # Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -126,8 +127,10 @@ impl ArgMatches {
     /// }
     /// ```
 	pub fn is_present(&self, name: &'static str) -> bool {
-        if self.subcommand.contains_key(name) || 
-            self.flags.contains_key(name) ||
+        if let Some((sc_name, _ )) = self.subcommand {
+            if sc_name == name { return true; } 
+        }
+        if self.flags.contains_key(name) ||
              self.opts.contains_key(name) ||
               self.positionals.contains_key(name) {
                 return true;
@@ -144,7 +147,7 @@ impl ArgMatches {
     /// at all.
     ///
     ///
-    /// Example:
+    /// # Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -162,15 +165,44 @@ impl ArgMatches {
         0
     }
 
+    /// If a subcommand was found, returns the ArgMatches struct associated with it's matches
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, SubCommand};
+    /// # let matches = App::new("myapp").subcommand(SubCommand::new("test")).get_matches();
+    /// if let Some(matches) = app_matches.subcommand_matches("test") {
+    ///     // Use matches as normal
+    /// }
+    /// ```
     pub fn subcommand_matches(&self, name: &'static str) -> Option<&ArgMatches> {
-        if let Some(ref sc) = self.subcommand.get(name) {
+        if let Some( ( sc_name, ref sc)) = self.subcommand {
+            if sc_name != name { return None; }
             return Some(&sc.matches);
         }
         None
     }
 
+    /// If a subcommand was found, returns the name associated with it
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, SubCommand};
+    /// # let matches = App::new("myapp").subcommand(SubCommand::new("test")).get_matches();
+    /// match app_matches.subcommand_() {
+    ///     Some("test")   => {}, // test was used
+    ///     Some("config") => {}, // config was used
+    ///     _              => {}, // Either no subcommand or one not tested for...
+    /// }
+    /// ```
     pub fn subcommand_name(&self) -> Option<&'static str> {
-        if self.subcommand.is_empty() { return None; }
-        return Some(self.subcommand.keys().collect::<Vec<_>>()[0]);
+        if let Some((name, _)) = self.subcommand {
+            return Some(name);
+        }
+        None
     }
 }

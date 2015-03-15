@@ -3,7 +3,7 @@
 /// or `--` (single word, no spaces). `FlagArg` isn't directly used by the end application
 /// writer, only internally to the `clap` library.
 ///
-/// Example:
+/// # Example
 ///
 /// ```sh
 /// $ myprog -a --some

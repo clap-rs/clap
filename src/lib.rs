@@ -37,6 +37,11 @@
 //!									.short("d")
 //! 								.multiple(true)
 //!									.help("Turn debugging information on"))
+//!						.subcomamnd(SubCommand::new("test")
+//!												.about("Has test sub functionality")
+//!												.arg(Arg::new("verbose")
+//!															.short("v")
+//!															.help("Display verbose information")))
 //!						.get_matches();
 //!
 //!	if let Some(o) = matches.value_of("output") {
@@ -54,6 +59,14 @@
 //!		3 | _ => println!("Don't be crazy"),
 //! }
 //! 
+//! if let Some(ref matches) = matches.subcommand_matches("test") {
+//! 	if matches.is_present("verbose") {
+//!			println!("Printing verbose test info...");
+//!		} else {
+//!			println!("Not printing regular test info...");
+//!		}
+//!	}
+//!
 //! // more porgram logic goes here...
 //! ```
 //!
@@ -66,7 +79,7 @@
 //! Does awesome things
 //! 
 //! USAGE:
-//! 	MyApp [FLAGS] [OPTIONS] [POSITIONAL]
+//! 	MyApp [FLAGS] [OPTIONS] [POSITIONAL] [SUBCOMMANDS]
 //! 
 //! FLAGS:
 //! 	-d   			Turn debugging information on
@@ -78,11 +91,16 @@
 //!
 //! POSITIONAL ARGUMENTS:
 //! 	output			Sets an optional output file
+//!
+//! SUBCOMMANDS:
+//! 	help 			Prints this message
+//!		test 			Has test sub-functionality
 //! ```
 
 pub use argmatches::ArgMatches;
 pub use arg::Arg;
 pub use app::App;
+pub use subcommand::SubCommand;
 
 mod app;
 mod argmatches;

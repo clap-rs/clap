@@ -180,15 +180,6 @@ impl App {
 			self.required.insert(a.name);
 		}
 		if let Some(i) = a.index {
-			// self.positionals_name.insert(a.name, PosArg {
-				// name: a.name,
-				// index: i,
-				// required: a.required,
-				// help: a.help,
-				// blacklist: a.blacklist,
-				// requires: a.requires,
-				// value: None
-			// });
 			self.positionals_idx.insert(i, PosArg {
 				name: a.name,
 				index: i,
@@ -621,7 +612,7 @@ impl App {
 		}
 	}
 
-	fn get_matches_from(&mut self, it: &mut IntoIter<String>, matches: &mut ArgMatches) -> Option<&'static str> {
+	fn get_matches_from(&mut self, matches: &mut ArgMatches, it: &mut IntoIter<String>) {
 		self.create_help_and_version();
 
 		// let mut needs_val = false;
@@ -688,6 +679,9 @@ impl App {
 			} else {
 				// Positional or Subcommand
 				if let Some(sca) = self.subcommands.get(arg_slice) {
+					if sca.name == "help" {
+						self.print_help();
+					}
 					subcmd_name = Some(sca.name);
 					break;
 				}
@@ -753,7 +747,15 @@ impl App {
 
 		self.validate_blacklist(&matches);
 
-		subcmd_name	
+		if let Some(sc_name) = subcmd_name {
+			if let Some(ref mut sc) = self.subcommands.get_mut(sc_name) {
+				let mut new_matches = ArgMatches::new(sc_name);
+				sc.get_matches_from(&mut new_matches, it);
+				matches.subcommand = Some((sc_name, Box::new(SubCommand{
+					name: sc_name,
+					matches: new_matches})));
+			}
+		}	
 	}
 
 	pub fn get_matches(mut self) -> ArgMatches {
@@ -761,23 +763,7 @@ impl App {
 
 		let args = env::args().collect::<Vec<_>>();	
 
-		let mut it = args.into_iter();
-
-		let mut subcmd = self.get_matches_from(&mut it, &mut matches);
-		while let Some(sc) = subcmd {
-			if let Some(sca) = self.subcommands.get_mut(sc) {
-				let mut new_matches = SubCommand {
-					name: sc,
-					matches: ArgMatches::new(sc)
-				};
-				subcmd = sca.get_matches_from(&mut it, &mut new_matches.matches);
-				matches.subcommand.insert(sc, new_matches);
-				// prev_matches = prev_matches.unwrap().subcommand.get_mut(sc).unwrap().matches;
-			} else {
-				panic!("Found subcommand \"{}\" but wasn't able to find a valid representation of it to match against", sc);
-			}
-			matches = &mut matches.subcommand.get_mut(sc).unwrap().matches;
-		}
+		self.get_matches_from(&mut matches, &mut args.into_iter());
 
 		matches
 	}
