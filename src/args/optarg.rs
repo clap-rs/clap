@@ -12,7 +12,7 @@
 ///
 /// **NOTE:** The long version may also use the `--argument=value` version too
 pub struct OptArg {
-	/// The unique name of the argument, required
+    /// The unique name of the argument, required
     pub name: &'static str,
     /// The short version (i.e. single character) of the argument, no preceding `-`
     pub short: Option<char>,

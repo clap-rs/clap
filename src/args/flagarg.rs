@@ -9,7 +9,7 @@
 /// $ myprog -a --some
 /// ```
 pub struct FlagArg {
-	/// The unique name of the argument, required
+    /// The unique name of the argument, required
     pub name: &'static str,
     /// The short version (i.e. single character)
     /// of the argument, no preceding `-`
