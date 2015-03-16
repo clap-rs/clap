@@ -761,9 +761,11 @@ impl App {
 	pub fn get_matches(mut self) -> ArgMatches {
 		let mut matches = ArgMatches::new(self.name);
 
-		let args = env::args().collect::<Vec<_>>();	
+		let args = env::args().collect::<Vec<_>>();
+		let mut args_iter = args.into_iter();
+		let _ = args_iter.next();  // Program name
 
-		self.get_matches_from(&mut matches, &mut args.into_iter());
+		self.get_matches_from(&mut matches, &mut args_iter);
 
 		matches
 	}
