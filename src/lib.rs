@@ -14,7 +14,7 @@
 //! After defining a list of possible valid arguments you get a list of matches that the user supplied at runtime. You can then use this list to
 //! determine the functioning of your program.
 //!
-//! Example:
+//! # Example
 //! 
 //! ```no_run
 //! use clap::{Arg, App, SubCommand};
@@ -113,7 +113,7 @@ mod tests {
     use super::*;
 
 	#[test]
-	#[should_fail]
+	#[should_panic]
 	fn unique_arg_names(){
 		App::new("some").args(vec![
 			Arg::new("arg").short("a"),
@@ -121,7 +121,7 @@ mod tests {
 		]);
 	}
 	#[test]
-	#[should_fail]
+	#[should_panic]
 	fn unique_arg_shorts(){
 		App::new("some").args(vec![
 			Arg::new("arg1").short("a"),
@@ -129,7 +129,7 @@ mod tests {
 		]);
 	}
 	#[test]
-	#[should_fail]
+	#[should_panic]
 	fn unique_arg_longs(){
 		App::new("some").args(vec![
 			Arg::new("arg1").long("long"),

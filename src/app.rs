@@ -20,7 +20,7 @@ use subcommand::SubCommand;
 /// Stores a list of all posisble arguments, as well as information displayed to the user such as
 /// help and versioning information.
 ///
-/// Example:
+/// # Example
 ///
 /// ```no_run
 /// # use clap::{App, Arg};
@@ -607,7 +607,7 @@ impl App {
 				occurrences: 1
 			});
 		}
-		if self.needs_subcmd_help {
+		if self.needs_subcmd_help && ! self.subcommands.is_empty() {
 			self.subcommands.insert("help", Box::new(App::new("help").about("Prints this message")));
 		}
 	}
