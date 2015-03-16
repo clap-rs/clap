@@ -833,7 +833,7 @@
 <span class='doccomment'>/// Stores a list of all posisble arguments, as well as information displayed to the user such as</span>
 <span class='doccomment'>/// help and versioning information.</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>/// Example:</span>
+<span class='doccomment'>/// # Example</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```no_run</span>
 <span class='doccomment'>/// # use clap::{App, Arg};</span>
@@ -1420,7 +1420,7 @@
 				<span class='ident'>occurrences</span>: <span class='number'>1</span>
 			});
 		}
-		<span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>needs_subcmd_help</span> {
+		<span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>needs_subcmd_help</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span> <span class='self'>self</span>.<span class='ident'>subcommands</span>.<span class='ident'>is_empty</span>() {
 			<span class='self'>self</span>.<span class='ident'>subcommands</span>.<span class='ident'>insert</span>(<span class='string'>&quot;help&quot;</span>, <span class='ident'>Box</span>::<span class='ident'>new</span>(<span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;help&quot;</span>).<span class='ident'>about</span>(<span class='string'>&quot;Prints this message&quot;</span>)));
 		}
 	}
