@@ -75,15 +75,15 @@ impl ArgMatches {
     /// # use clap::{App, Arg};
     /// let matches = App::new("myprog").get_matches();
     /// ```
-	pub fn new(name: &'static str) -> ArgMatches {
-		ArgMatches {
-    		matches_of: name,
+    pub fn new(name: &'static str) -> ArgMatches {
+        ArgMatches {
+            matches_of: name,
             flags: HashMap::new(),
             opts: HashMap::new(),
             positionals: HashMap::new(),
             subcommand: None
-    	}
-	}
+        }
+    }
 
     /// Gets the value of a specific option or positional argument (i.e. an argument that takes
     /// an additional value at runtime). If the option wasn't present at runtime
@@ -98,19 +98,19 @@ impl ArgMatches {
     ///        println!("Value for output: {}", o);
     /// }
     /// ```
-	pub fn value_of(&self, name: &'static str) -> Option<&String> {
+    pub fn value_of(&self, name: &'static str) -> Option<&String> {
         if let Some(ref opt) = self.opts.get(name) {
-        	if let Some(ref v) = opt.value {
-        		return Some(v);
-        	} 
+            if let Some(ref v) = opt.value {
+                return Some(v);
+            } 
         }
         if let Some(ref pos) = self.positionals.get(name) {
-        	if let Some(ref v) = pos.value {
-        		return Some(v);
-        	}  
+            if let Some(ref v) = pos.value {
+                return Some(v);
+            }  
         }
         None
-	}
+    }
 
     /// Checks if a flag was argument was supplied at runtime. **DOES NOT** work for
     /// option or positional arguments (use `.value_of()` instead)
@@ -125,7 +125,7 @@ impl ArgMatches {
     ///        println!("The output argument was used!");
     /// }
     /// ```
-	pub fn is_present(&self, name: &'static str) -> bool {
+    pub fn is_present(&self, name: &'static str) -> bool {
         if let Some((sc_name, _ )) = self.subcommand {
             if sc_name == name { return true; } 
         }
@@ -135,7 +135,7 @@ impl ArgMatches {
                 return true;
               }
         false
-	}
+    }
 
     /// Checks the number of occurrences of a flag at runtime.
     ///

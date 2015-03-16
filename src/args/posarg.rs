@@ -12,7 +12,7 @@
 ///
 /// **NOTE:** The index starts at `1` **NOT** `0`
 pub struct PosArg {
-	/// The unique name of the argument, required
+    /// The unique name of the argument, required
     pub name: &'static str,
     /// The string of text that will displayed to the user when the application's
     /// `help` text is displayed
