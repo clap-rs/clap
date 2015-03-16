@@ -13,7 +13,7 @@ use argmatches::ArgMatches;
 /// ```no_run
 /// # use clap::{App, Arg, SubCommand};
 /// # let matches = App::new("myprog")
-/// #                 .subcommand(
+/// #                    .subcommand(
 /// SubCommand::new("conifg")
 ///                .about("Used for configuration")
 ///                .arg(Arg::new("config_file")

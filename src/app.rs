@@ -298,7 +298,6 @@ impl App {
     ///                        .index(1)
     ///                        .help("Configuration file to use")))
     ///             // Additional subcommand configuration goes here, such as arguments...
-    /// )
     /// # .get_matches();
     /// ```
     pub fn subcommand(mut self, subcmd: App) -> App {

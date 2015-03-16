@@ -14,7 +14,7 @@
 //! After defining a list of possible valid arguments you get a list of matches that the user supplied at runtime. You can then use this list to
 //! determine the functioning of your program.
 //!
-//! # Example
+//! Example:
 //! 
 //! ```no_run
 //! use clap::{Arg, App, SubCommand};
