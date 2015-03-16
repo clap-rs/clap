@@ -247,7 +247,6 @@
 <span id="205">205</span>
 <span id="206">206</span>
 <span id="207">207</span>
-<span id="208">208</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>HashMap</span>;
 
@@ -265,7 +264,7 @@
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```no_run</span>
 <span class='doccomment'>/// # use clap::{App, Arg};</span>
-<span class='doccomment'>///  let matches = App::new(&quot;MyApp&quot;)</span>
+<span class='doccomment'>/// let matches = App::new(&quot;MyApp&quot;)</span>
 <span class='doccomment'>/// // adding of arguments and configuration goes here...</span>
 <span class='doccomment'>/// #                    .arg(Arg::new(&quot;config&quot;)</span>
 <span class='doccomment'>/// #                               .long(&quot;config&quot;)</span>
@@ -275,38 +274,37 @@
 <span class='doccomment'>/// #                                   .short(&quot;d&quot;)</span>
 <span class='doccomment'>/// #                                   .multiple(true))</span>
 <span class='doccomment'>///                     .get_matches();</span>
-<span class='doccomment'>///    // if you had an argument named &quot;output&quot; that takes a value </span>
-<span class='doccomment'>///    if let Some(o) = matches.value_of(&quot;output&quot;) {</span>
-<span class='doccomment'>///        println!(&quot;Value for output: {}&quot;, o);</span>
-<span class='doccomment'>///    }</span>
+<span class='doccomment'>/// // if you had an argument named &quot;output&quot; that takes a value </span>
+<span class='doccomment'>/// if let Some(o) = matches.value_of(&quot;output&quot;) {</span>
+<span class='doccomment'>///     println!(&quot;Value for output: {}&quot;, o);</span>
+<span class='doccomment'>/// }</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>///    // Although not advised, if you have a required argument</span>
-<span class='doccomment'>///    // you can call .unwrap() because the program will exit long before</span>
-<span class='doccomment'>///    // here at noticing the user didn&#39;t supply a required argument...</span>
-<span class='doccomment'>///    // use at your own risk ;)</span>
-<span class='doccomment'>///    println!(&quot;Config file: {}&quot;, matches.value_of(&quot;config&quot;).unwrap());</span>
+<span class='doccomment'>/// // Although not advised, if you have a required argument</span>
+<span class='doccomment'>/// // you can call .unwrap() because the program will exit long before</span>
+<span class='doccomment'>/// // here at noticing the user didn&#39;t supply a required argument...</span>
+<span class='doccomment'>/// // use at your own risk ;)</span>
+<span class='doccomment'>/// println!(&quot;Config file: {}&quot;, matches.value_of(&quot;config&quot;).unwrap());</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>///    // You can check the present of an argument</span>
-<span class='doccomment'>///    if matches.is_present(&quot;debug&quot;) {</span>
-<span class='doccomment'>///        // Checking if &quot;debug&quot; was present was necessary,</span>
-<span class='doccomment'>///        // as occurrences returns 0 if a flag isn&#39;t found</span>
-<span class='doccomment'>///        // but we can check how many times &quot;debug&quot; was found</span>
-<span class='doccomment'>///        // if we allow multiple (if multiple isn&#39;t allowed it always be 1 or 0)</span>
-<span class='doccomment'>///        if matches.occurrences_of(&quot;debug&quot;) &gt; 1 {</span>
-<span class='doccomment'>///            println!(&quot;Debug mode is REALLY on&quot;);</span>
-<span class='doccomment'>///        } else {</span>
-<span class='doccomment'>///            println!(&quot;Debug mode kind of on&quot;);</span>
-<span class='doccomment'>///        }</span>
-<span class='doccomment'>///    }</span>
+<span class='doccomment'>/// // You can check the present of an argument</span>
+<span class='doccomment'>/// if matches.is_present(&quot;debug&quot;) {</span>
+<span class='doccomment'>///     // Checking if &quot;debug&quot; was present was necessary,</span>
+<span class='doccomment'>///     // as occurrences returns 0 if a flag isn&#39;t found</span>
+<span class='doccomment'>///     // but we can check how many times &quot;debug&quot; was found</span>
+<span class='doccomment'>///     // if we allow multiple (if multiple isn&#39;t allowed it always be 1 or 0)</span>
+<span class='doccomment'>///     if matches.occurrences_of(&quot;debug&quot;) &gt; 1 {</span>
+<span class='doccomment'>///         println!(&quot;Debug mode is REALLY on&quot;);</span>
+<span class='doccomment'>///     } else {</span>
+<span class='doccomment'>///         println!(&quot;Debug mode kind of on&quot;);</span>
+<span class='doccomment'>///     }</span>
+<span class='doccomment'>/// }</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>///    // You can get the sub-matches of a particular subcommand (in this case &quot;test&quot;)</span>
-<span class='doccomment'>///    // If &quot;test&quot; had it&#39;s own &quot;-l&quot; flag you could check for it&#39;s presence accordingly</span>
-<span class='doccomment'>///    if let Some(ref matches) = matches.subcommand_matches(&quot;test&quot;) {</span>
-<span class='doccomment'>///      if matches.is_present(&quot;list&quot;) {</span>
-<span class='doccomment'>///             println!(&quot;Printing testing lists...&quot;);</span>
-<span class='doccomment'>///         } else {</span>
-<span class='doccomment'>///             println!(&quot;Not printing testing lists...&quot;);</span>
-<span class='doccomment'>///         }</span>
+<span class='doccomment'>/// // You can get the sub-matches of a particular subcommand (in this case &quot;test&quot;)</span>
+<span class='doccomment'>/// // If &quot;test&quot; had it&#39;s own &quot;-l&quot; flag you could check for it&#39;s presence accordingly</span>
+<span class='doccomment'>/// if let Some(ref matches) = matches.subcommand_matches(&quot;test&quot;) {</span>
+<span class='doccomment'>///     if matches.is_present(&quot;list&quot;) {</span>
+<span class='doccomment'>///         println!(&quot;Printing testing lists...&quot;);</span>
+<span class='doccomment'>///     } else {</span>
+<span class='doccomment'>///         println!(&quot;Not printing testing lists...&quot;);</span>
 <span class='doccomment'>///     }</span>
 <span class='doccomment'>/// }</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>ArgMatches</span> {
@@ -423,7 +421,7 @@
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// ```no_run</span>
     <span class='doccomment'>/// # use clap::{App, Arg, SubCommand};</span>
-    <span class='doccomment'>/// # let matches = App::new(&quot;myapp&quot;).subcommand(SubCommand::new(&quot;test&quot;)).get_matches();</span>
+    <span class='doccomment'>/// # let app_matches = App::new(&quot;myapp&quot;).subcommand(SubCommand::new(&quot;test&quot;)).get_matches();</span>
     <span class='doccomment'>/// if let Some(matches) = app_matches.subcommand_matches(&quot;test&quot;) {</span>
     <span class='doccomment'>///     // Use matches as normal</span>
     <span class='doccomment'>/// }</span>
@@ -443,8 +441,8 @@
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// ```no_run</span>
     <span class='doccomment'>/// # use clap::{App, Arg, SubCommand};</span>
-    <span class='doccomment'>/// # let matches = App::new(&quot;myapp&quot;).subcommand(SubCommand::new(&quot;test&quot;)).get_matches();</span>
-    <span class='doccomment'>/// match app_matches.subcommand_() {</span>
+    <span class='doccomment'>/// # let app_matches = App::new(&quot;myapp&quot;).subcommand(SubCommand::new(&quot;test&quot;)).get_matches();</span>
+    <span class='doccomment'>/// match app_matches.subcommand_name() {</span>
     <span class='doccomment'>///     Some(&quot;test&quot;)   =&gt; {}, // test was used</span>
     <span class='doccomment'>///     Some(&quot;config&quot;) =&gt; {}, // config was used</span>
     <span class='doccomment'>///     _              =&gt; {}, // Either no subcommand or one not tested for...</span>

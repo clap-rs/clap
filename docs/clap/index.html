@@ -57,7 +57,7 @@
 
 <p>Example:</p>
 <pre id='rust-example-rendered' class='rust '>
- <span class='kw'>use</span> <span class='ident'>clap</span>::{<span class='ident'>Arg</span>, <span class='ident'>App</span>};
+ <span class='kw'>use</span> <span class='ident'>clap</span>::{<span class='ident'>Arg</span>, <span class='ident'>App</span>, <span class='ident'>SubCommand</span>};
 
  <span class='comment'>// ...</span>
  
@@ -77,7 +77,7 @@
                                     .<span class='ident'>short</span>(<span class='string'>&quot;d&quot;</span>)
                                 .<span class='ident'>multiple</span>(<span class='boolval'>true</span>)
                                     .<span class='ident'>help</span>(<span class='string'>&quot;Turn debugging information on&quot;</span>))
-                        .<span class='ident'>subcomamnd</span>(<span class='ident'>SubCommand</span>::<span class='ident'>new</span>(<span class='string'>&quot;test&quot;</span>)
+                        .<span class='ident'>subcommand</span>(<span class='ident'>SubCommand</span>::<span class='ident'>new</span>(<span class='string'>&quot;test&quot;</span>)
                                                 .<span class='ident'>about</span>(<span class='string'>&quot;Has test sub functionality&quot;</span>)
                                                 .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;verbose&quot;</span>)
                                                             .<span class='ident'>short</span>(<span class='string'>&quot;v&quot;</span>)

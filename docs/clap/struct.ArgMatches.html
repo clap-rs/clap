@@ -43,7 +43,7 @@
     <section id='main' class="content struct">
 <h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>clap</a>::<wbr><a class='struct' href=''>ArgMatches</a><wbr></span><span class='out-of-band'><span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-4545' href='../src/clap/argmatches.rs.html#61-67'>[src]</a></span></h1>
+        </span><a id='src-4545' href='../src/clap/argmatches.rs.html#60-66'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct ArgMatches {
     pub matches_of: &amp;'static <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>,
     pub flags: <a class='struct' href='http://doc.rust-lang.org/nightly/std/collections/hash/map/struct.HashMap.html' title='std::collections::hash::map::HashMap'>HashMap</a>&lt;&amp;'static <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, FlagArg&gt;,
@@ -58,41 +58,40 @@ the methods in order to query information.</p>
 
 <h1 id="example" class='section-header'><a
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
- <span class='kw'>let</span> <span class='ident'>matches</span> <span class='op'>=</span> <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;MyApp&quot;</span>)
+<span class='kw'>let</span> <span class='ident'>matches</span> <span class='op'>=</span> <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;MyApp&quot;</span>)
 <span class='comment'>// adding of arguments and configuration goes here...</span>
                     .<span class='ident'>get_matches</span>();
-   <span class='comment'>// if you had an argument named &quot;output&quot; that takes a value </span>
-   <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>o</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>value_of</span>(<span class='string'>&quot;output&quot;</span>) {
-       <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Value for output: {}&quot;</span>, <span class='ident'>o</span>);
-   }
+<span class='comment'>// if you had an argument named &quot;output&quot; that takes a value </span>
+<span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>o</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>value_of</span>(<span class='string'>&quot;output&quot;</span>) {
+    <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Value for output: {}&quot;</span>, <span class='ident'>o</span>);
+}
 
-   <span class='comment'>// Although not advised, if you have a required argument</span>
-   <span class='comment'>// you can call .unwrap() because the program will exit long before</span>
-   <span class='comment'>// here at noticing the user didn&#39;t supply a required argument...</span>
-   <span class='comment'>// use at your own risk ;)</span>
-   <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Config file: {}&quot;</span>, <span class='ident'>matches</span>.<span class='ident'>value_of</span>(<span class='string'>&quot;config&quot;</span>).<span class='ident'>unwrap</span>());
+<span class='comment'>// Although not advised, if you have a required argument</span>
+<span class='comment'>// you can call .unwrap() because the program will exit long before</span>
+<span class='comment'>// here at noticing the user didn&#39;t supply a required argument...</span>
+<span class='comment'>// use at your own risk ;)</span>
+<span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Config file: {}&quot;</span>, <span class='ident'>matches</span>.<span class='ident'>value_of</span>(<span class='string'>&quot;config&quot;</span>).<span class='ident'>unwrap</span>());
 
-   <span class='comment'>// You can check the present of an argument</span>
-   <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>is_present</span>(<span class='string'>&quot;debug&quot;</span>) {
-       <span class='comment'>// Checking if &quot;debug&quot; was present was necessary,</span>
-       <span class='comment'>// as occurrences returns 0 if a flag isn&#39;t found</span>
-       <span class='comment'>// but we can check how many times &quot;debug&quot; was found</span>
-       <span class='comment'>// if we allow multiple (if multiple isn&#39;t allowed it always be 1 or 0)</span>
-       <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>occurrences_of</span>(<span class='string'>&quot;debug&quot;</span>) <span class='op'>&gt;</span> <span class='number'>1</span> {
-           <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Debug mode is REALLY on&quot;</span>);
-       } <span class='kw'>else</span> {
-           <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Debug mode kind of on&quot;</span>);
-       }
-   }
+<span class='comment'>// You can check the present of an argument</span>
+<span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>is_present</span>(<span class='string'>&quot;debug&quot;</span>) {
+    <span class='comment'>// Checking if &quot;debug&quot; was present was necessary,</span>
+    <span class='comment'>// as occurrences returns 0 if a flag isn&#39;t found</span>
+    <span class='comment'>// but we can check how many times &quot;debug&quot; was found</span>
+    <span class='comment'>// if we allow multiple (if multiple isn&#39;t allowed it always be 1 or 0)</span>
+    <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>occurrences_of</span>(<span class='string'>&quot;debug&quot;</span>) <span class='op'>&gt;</span> <span class='number'>1</span> {
+        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Debug mode is REALLY on&quot;</span>);
+    } <span class='kw'>else</span> {
+        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Debug mode kind of on&quot;</span>);
+    }
+}
 
-   <span class='comment'>// You can get the sub-matches of a particular subcommand (in this case &quot;test&quot;)</span>
-   <span class='comment'>// If &quot;test&quot; had it&#39;s own &quot;-l&quot; flag you could check for it&#39;s presence accordingly</span>
-   <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>matches</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>subcommand_matches</span>(<span class='string'>&quot;test&quot;</span>) {
-     <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>is_present</span>(<span class='string'>&quot;list&quot;</span>) {
-            <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Printing testing lists...&quot;</span>);
-        } <span class='kw'>else</span> {
-            <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Not printing testing lists...&quot;</span>);
-        }
+<span class='comment'>// You can get the sub-matches of a particular subcommand (in this case &quot;test&quot;)</span>
+<span class='comment'>// If &quot;test&quot; had it&#39;s own &quot;-l&quot; flag you could check for it&#39;s presence accordingly</span>
+<span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>matches</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>subcommand_matches</span>(<span class='string'>&quot;test&quot;</span>) {
+    <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>is_present</span>(<span class='string'>&quot;list&quot;</span>) {
+        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Printing testing lists...&quot;</span>);
+    } <span class='kw'>else</span> {
+        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Not printing testing lists...&quot;</span>);
     }
 }
 </pre>
@@ -157,7 +156,7 @@ at all.</p>
 
 <h1 id="example" class='section-header'><a
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
-<span class='kw'>match</span> <span class='ident'>app_matches</span>.<span class='ident'>subcommand_</span>() {
+<span class='kw'>match</span> <span class='ident'>app_matches</span>.<span class='ident'>subcommand_name</span>() {
     <span class='prelude-val'>Some</span>(<span class='string'>&quot;test&quot;</span>)   <span class='op'>=&gt;</span> {}, <span class='comment'>// test was used</span>
     <span class='prelude-val'>Some</span>(<span class='string'>&quot;config&quot;</span>) <span class='op'>=&gt;</span> {}, <span class='comment'>// config was used</span>
     _              <span class='op'>=&gt;</span> {}, <span class='comment'>// Either no subcommand or one not tested for...</span>
