@@ -17,7 +17,7 @@
 //! Example:
 //! 
 //! ```no_run
-//! use clap::{Arg, App};
+//! use clap::{Arg, App, SubCommand};
 //!
 //! // ...
 //! 
@@ -37,7 +37,7 @@
 //!									.short("d")
 //! 								.multiple(true)
 //!									.help("Turn debugging information on"))
-//!						.subcomamnd(SubCommand::new("test")
+//!						.subcommand(SubCommand::new("test")
 //!												.about("Has test sub functionality")
 //!												.arg(Arg::new("verbose")
 //!															.short("v")

@@ -14,7 +14,7 @@ use subcommand::SubCommand;
 ///
 /// ```no_run
 /// # use clap::{App, Arg};
-///  let matches = App::new("MyApp")
+/// let matches = App::new("MyApp")
 /// // adding of arguments and configuration goes here...
 /// #                    .arg(Arg::new("config")
 /// #                               .long("config")
@@ -24,38 +24,37 @@ use subcommand::SubCommand;
 /// #                                   .short("d")
 /// #                                   .multiple(true))
 ///                     .get_matches();
-///    // if you had an argument named "output" that takes a value 
-///    if let Some(o) = matches.value_of("output") {
-///        println!("Value for output: {}", o);
-///    }
+/// // if you had an argument named "output" that takes a value 
+/// if let Some(o) = matches.value_of("output") {
+///     println!("Value for output: {}", o);
+/// }
 ///
-///    // Although not advised, if you have a required argument
-///    // you can call .unwrap() because the program will exit long before
-///    // here at noticing the user didn't supply a required argument...
-///    // use at your own risk ;)
-///    println!("Config file: {}", matches.value_of("config").unwrap());
+/// // Although not advised, if you have a required argument
+/// // you can call .unwrap() because the program will exit long before
+/// // here at noticing the user didn't supply a required argument...
+/// // use at your own risk ;)
+/// println!("Config file: {}", matches.value_of("config").unwrap());
 ///
-///    // You can check the present of an argument
-///    if matches.is_present("debug") {
-///        // Checking if "debug" was present was necessary,
-///        // as occurrences returns 0 if a flag isn't found
-///        // but we can check how many times "debug" was found
-///        // if we allow multiple (if multiple isn't allowed it always be 1 or 0)
-///        if matches.occurrences_of("debug") > 1 {
-///            println!("Debug mode is REALLY on");
-///        } else {
-///            println!("Debug mode kind of on");
-///        }
-///    }
+/// // You can check the present of an argument
+/// if matches.is_present("debug") {
+///     // Checking if "debug" was present was necessary,
+///     // as occurrences returns 0 if a flag isn't found
+///     // but we can check how many times "debug" was found
+///     // if we allow multiple (if multiple isn't allowed it always be 1 or 0)
+///     if matches.occurrences_of("debug") > 1 {
+///         println!("Debug mode is REALLY on");
+///     } else {
+///         println!("Debug mode kind of on");
+///     }
+/// }
 ///
-///    // You can get the sub-matches of a particular subcommand (in this case "test")
-///    // If "test" had it's own "-l" flag you could check for it's presence accordingly
-///    if let Some(ref matches) = matches.subcommand_matches("test") {
-///      if matches.is_present("list") {
-///             println!("Printing testing lists...");
-///         } else {
-///             println!("Not printing testing lists...");
-///         }
+/// // You can get the sub-matches of a particular subcommand (in this case "test")
+/// // If "test" had it's own "-l" flag you could check for it's presence accordingly
+/// if let Some(ref matches) = matches.subcommand_matches("test") {
+///     if matches.is_present("list") {
+///         println!("Printing testing lists...");
+///     } else {
+///         println!("Not printing testing lists...");
 ///     }
 /// }
 pub struct ArgMatches {
