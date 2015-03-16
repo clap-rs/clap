@@ -4,7 +4,7 @@ use clap::{App, Arg, SubCommand};
 
 fn main() {
 
-	// Create an application with 3 possible arguments
+	// Create an application with 5 possible arguments (2 auto generated) and 2 subcommands (1 auto generated)
 	//	- A config file
 	//		+ Uses "-c filename" or "--config filename"
 	//	- An output file
