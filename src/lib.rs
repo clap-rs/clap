@@ -26,22 +26,22 @@
 //!                        .author("Kevin K. <kbknapp@gmail.com>")
 //!                        .about("Does awesome things")
 //!                        .arg(Arg::new("config")
-//!                                    .short("c")
-//!                                    .long("config")
-//!                                    .help("Sets a custom config file")
-//!                                    .takes_value(true))
+//!                             .short("c")
+//!                             .long("config")
+//!                             .help("Sets a custom config file")
+//!                             .takes_value(true))
 //!                        .arg(Arg::new("output")
-//!                                    .help("Sets an optional output file")
-//!                                    .index(1))
+//!                             .help("Sets an optional output file")
+//!                             .index(1))
 //!                        .arg(Arg::new("debug")
-//!                                    .short("d")
-//!                                 .multiple(true)
-//!                                    .help("Turn debugging information on"))
+//!                             .short("d")
+//!                             .multiple(true)
+//!                             .help("Turn debugging information on"))
 //!                        .subcommand(SubCommand::new("test")
-//!                                                .about("Has test sub functionality")
-//!                                                .arg(Arg::new("verbose")
-//!                                                            .short("v")
-//!                                                            .help("Display verbose information")))
+//!                                    .about("Has test sub functionality")
+//!                                    .arg(Arg::new("verbose")
+//!                                         .short("v")
+//!                                         .help("Display verbose information")))
 //!                        .get_matches();
 //!
 //!    if let Some(o) = matches.value_of("output") {
@@ -58,7 +58,7 @@
 //!        2 => println!("Debug mode is on"),
 //!        3 | _ => println!("Don't be crazy"),
 //! }
-//! 
+//!
 //! if let Some(ref matches) = matches.subcommand_matches("test") {
 //!     if matches.is_present("verbose") {
 //!            println!("Printing verbose test info...");
