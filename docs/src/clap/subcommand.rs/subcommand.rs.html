@@ -101,31 +101,31 @@
 <span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
 <span class='doccomment'>/// #                 .subcommand(</span>
 <span class='doccomment'>/// SubCommand::new(&quot;conifg&quot;)</span>
-<span class='doccomment'>///				.about(&quot;Used for configuration&quot;)</span>
-<span class='doccomment'>///				.arg(Arg::new(&quot;config_file&quot;)</span>
-<span class='doccomment'>///						   .help(&quot;The configuration file to use&quot;)</span>
-<span class='doccomment'>///					       .index(1))</span>
+<span class='doccomment'>///                .about(&quot;Used for configuration&quot;)</span>
+<span class='doccomment'>///                .arg(Arg::new(&quot;config_file&quot;)</span>
+<span class='doccomment'>///                           .help(&quot;The configuration file to use&quot;)</span>
+<span class='doccomment'>///                           .index(1))</span>
 <span class='doccomment'>/// # ).get_matches();</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>SubCommand</span> {
-   	<span class='kw'>pub</span> <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>,
-   	<span class='kw'>pub</span> <span class='ident'>matches</span>: <span class='ident'>ArgMatches</span> 
+       <span class='kw'>pub</span> <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>,
+       <span class='kw'>pub</span> <span class='ident'>matches</span>: <span class='ident'>ArgMatches</span> 
 }
 
 <span class='kw'>impl</span> <span class='ident'>SubCommand</span> {
-	<span class='doccomment'>/// Creates a new instance of a subcommand requiring a name. Will be displayed</span>
-	<span class='doccomment'>/// to the user when they print version or help and usage information.</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// # Example</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```no_run</span>
-	<span class='doccomment'>/// # use clap::{App, Arg, SubCommand};</span>
-	<span class='doccomment'>/// # let prog = App::new(&quot;myprog&quot;).subcommand(</span>
-	<span class='doccomment'>/// SubCommand::new(&quot;config&quot;)</span>
-	<span class='doccomment'>/// # ).get_matches();</span>
-	<span class='doccomment'>/// ```</span>
-	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span> {
-		<span class='ident'>App</span>::<span class='ident'>new</span>(<span class='ident'>name</span>)
-	}
+    <span class='doccomment'>/// Creates a new instance of a subcommand requiring a name. Will be displayed</span>
+    <span class='doccomment'>/// to the user when they print version or help and usage information.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg, SubCommand};</span>
+    <span class='doccomment'>/// # let prog = App::new(&quot;myprog&quot;).subcommand(</span>
+    <span class='doccomment'>/// SubCommand::new(&quot;config&quot;)</span>
+    <span class='doccomment'>/// # ).get_matches();</span>
+    <span class='doccomment'>/// ```</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span> {
+        <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='ident'>name</span>)
+    }
 }
 </pre>
 </section>

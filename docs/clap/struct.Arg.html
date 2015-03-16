@@ -170,16 +170,16 @@ arguments, they do not need to be set for each.</p>
 </pre>
 </div><h4 id='method.mutually_excludes_all' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.mutually_excludes_all' class='fnname'>mutually_excludes_all</a>(self, names: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'static <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a></code></h4>
 <div class='docblock'><p>Sets a mutually exclusive arguments by names. I.e. when using this argument,
- the following argument can&#39;t be present.</p>
+the following argument can&#39;t be present.</p>
 
 <p><strong>NOTE:</strong> Mutually exclusive rules take precedence over being required
- by default. Mutually exclusive rules only need to be set for one of the two
- arguments, they do not need to be set for each.</p>
+by default. Mutually exclusive rules only need to be set for one of the two
+arguments, they do not need to be set for each.</p>
 
 <p>Example:</p>
 <pre id='rust-example-rendered' class='rust '>
- .<span class='ident'>mutually_excludes_all</span>(
-        <span class='macro'>vec</span><span class='macro'>!</span>[<span class='string'>&quot;debug&quot;</span>, <span class='string'>&quot;input&quot;</span>])
+.<span class='ident'>mutually_excludes_all</span>(
+       <span class='macro'>vec</span><span class='macro'>!</span>[<span class='string'>&quot;debug&quot;</span>, <span class='string'>&quot;input&quot;</span>])
 </pre>
 </div><h4 id='method.requires' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.requires' class='fnname'>requires</a>(self, name: &amp;'static <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a></code></h4>
 <div class='docblock'><p>Sets an argument by name that is required when this one is presnet I.e. when
@@ -193,15 +193,15 @@ using this argument, the following argument <em>must</em> be present.</p>
 </pre>
 </div><h4 id='method.requires_all' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.requires_all' class='fnname'>requires_all</a>(self, names: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'static <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a></code></h4>
 <div class='docblock'><p>Sets arguments by names that are required when this one is presnet I.e. when
- using this argument, the following arguments <em>must</em> be present.</p>
+using this argument, the following arguments <em>must</em> be present.</p>
 
 <p><strong>NOTE:</strong> Mutually exclusive rules take precedence over being required
- by default. </p>
+by default. </p>
 
 <p>Example:</p>
 <pre id='rust-example-rendered' class='rust '>
- .<span class='ident'>requires_all</span>(
-        <span class='macro'>vec</span><span class='macro'>!</span>[<span class='string'>&quot;debug&quot;</span>, <span class='string'>&quot;input&quot;</span>])
+.<span class='ident'>requires_all</span>(
+       <span class='macro'>vec</span><span class='macro'>!</span>[<span class='string'>&quot;debug&quot;</span>, <span class='string'>&quot;input&quot;</span>])
 </pre>
 </div><h4 id='method.takes_value' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.takes_value' class='fnname'>takes_value</a>(self, tv: <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a></code></h4>
 <div class='docblock'><p>Specifies that the argument takes an additional value at run time.</p>

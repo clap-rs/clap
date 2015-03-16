@@ -325,15 +325,15 @@
     <span class='doccomment'>/// # use clap::{App, Arg};</span>
     <span class='doccomment'>/// let matches = App::new(&quot;myprog&quot;).get_matches();</span>
     <span class='doccomment'>/// ```</span>
-	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>ArgMatches</span> {
-		<span class='ident'>ArgMatches</span> {
-    		<span class='ident'>matches_of</span>: <span class='ident'>name</span>,
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>ArgMatches</span> {
+        <span class='ident'>ArgMatches</span> {
+            <span class='ident'>matches_of</span>: <span class='ident'>name</span>,
             <span class='ident'>flags</span>: <span class='ident'>HashMap</span>::<span class='ident'>new</span>(),
             <span class='ident'>opts</span>: <span class='ident'>HashMap</span>::<span class='ident'>new</span>(),
             <span class='ident'>positionals</span>: <span class='ident'>HashMap</span>::<span class='ident'>new</span>(),
             <span class='ident'>subcommand</span>: <span class='prelude-val'>None</span>
-    	}
-	}
+        }
+    }
 
     <span class='doccomment'>/// Gets the value of a specific option or positional argument (i.e. an argument that takes</span>
     <span class='doccomment'>/// an additional value at runtime). If the option wasn&#39;t present at runtime</span>
@@ -348,19 +348,19 @@
     <span class='doccomment'>///        println!(&quot;Value for output: {}&quot;, o);</span>
     <span class='doccomment'>/// }</span>
     <span class='doccomment'>/// ```</span>
-	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>value_of</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>String</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>value_of</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>String</span><span class='op'>&gt;</span> {
         <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>opt</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>opts</span>.<span class='ident'>get</span>(<span class='ident'>name</span>) {
-        	<span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>v</span>) <span class='op'>=</span> <span class='ident'>opt</span>.<span class='ident'>value</span> {
-        		<span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>v</span>);
-        	} 
+            <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>v</span>) <span class='op'>=</span> <span class='ident'>opt</span>.<span class='ident'>value</span> {
+                <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>v</span>);
+            } 
         }
         <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>pos</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>positionals</span>.<span class='ident'>get</span>(<span class='ident'>name</span>) {
-        	<span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>v</span>) <span class='op'>=</span> <span class='ident'>pos</span>.<span class='ident'>value</span> {
-        		<span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>v</span>);
-        	}  
+            <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>v</span>) <span class='op'>=</span> <span class='ident'>pos</span>.<span class='ident'>value</span> {
+                <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>v</span>);
+            }  
         }
         <span class='prelude-val'>None</span>
-	}
+    }
 
     <span class='doccomment'>/// Checks if a flag was argument was supplied at runtime. **DOES NOT** work for</span>
     <span class='doccomment'>/// option or positional arguments (use `.value_of()` instead)</span>
@@ -375,7 +375,7 @@
     <span class='doccomment'>///        println!(&quot;The output argument was used!&quot;);</span>
     <span class='doccomment'>/// }</span>
     <span class='doccomment'>/// ```</span>
-	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_present</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_present</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
         <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>((<span class='ident'>sc_name</span>, _ )) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>subcommand</span> {
             <span class='kw'>if</span> <span class='ident'>sc_name</span> <span class='op'>==</span> <span class='ident'>name</span> { <span class='kw'>return</span> <span class='boolval'>true</span>; } 
         }
@@ -385,7 +385,7 @@
                 <span class='kw'>return</span> <span class='boolval'>true</span>;
               }
         <span class='boolval'>false</span>
-	}
+    }
 
     <span class='doccomment'>/// Checks the number of occurrences of a flag at runtime.</span>
     <span class='doccomment'>///</span>

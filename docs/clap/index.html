@@ -45,95 +45,95 @@
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
         </span><a id='src-0' href='../src/clap/lib.rs.html#1-155'>[src]</a></span></h1>
 <div class='docblock'><p>A simply library for parsing command line arguments when writing
- command line and console applications.</p>
+command line and console applications.</p>
 
 <p>You can use <code>clap</code> to lay out a list of possible valid command line arguments and let <code>clap</code> parse the string given by the user at runtime.
- When using <code>clap</code> you define a set of parameters and rules for your arguments and at runtime <code>clap</code> will determine their validity.
- Also, <code>clap</code> provides the traditional version and help switches &#39;for free&#39; by parsing the list of possible valid arguments lazily at runtime.
- i.e. only when it&#39;s been determined that the user wants or needs to see the help and version information.</p>
+When using <code>clap</code> you define a set of parameters and rules for your arguments and at runtime <code>clap</code> will determine their validity.
+Also, <code>clap</code> provides the traditional version and help switches &#39;for free&#39; by parsing the list of possible valid arguments lazily at runtime.
+i.e. only when it&#39;s been determined that the user wants or needs to see the help and version information.</p>
 
 <p>After defining a list of possible valid arguments you get a list of matches that the user supplied at runtime. You can then use this list to
- determine the functioning of your program.</p>
+determine the functioning of your program.</p>
 
-<p># Example</p>
-<pre id='rust-example-rendered' class='rust '>
- <span class='kw'>use</span> <span class='ident'>clap</span>::{<span class='ident'>Arg</span>, <span class='ident'>App</span>, <span class='ident'>SubCommand</span>};
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
+<span class='kw'>use</span> <span class='ident'>clap</span>::{<span class='ident'>Arg</span>, <span class='ident'>App</span>, <span class='ident'>SubCommand</span>};
 
- <span class='comment'>// ...</span>
+<span class='comment'>// ...</span>
  
- <span class='kw'>let</span> <span class='ident'>matches</span> <span class='op'>=</span> <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;MyApp&quot;</span>)
-                        .<span class='ident'>version</span>(<span class='string'>&quot;1.0&quot;</span>)
-                        .<span class='ident'>author</span>(<span class='string'>&quot;Kevin K. &lt;kbknapp@gmail.com&gt;&quot;</span>)
-                        .<span class='ident'>about</span>(<span class='string'>&quot;Does awesome things&quot;</span>)
-                        .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;config&quot;</span>)
-                                    .<span class='ident'>short</span>(<span class='string'>&quot;c&quot;</span>)
-                                    .<span class='ident'>long</span>(<span class='string'>&quot;config&quot;</span>)
-                                    .<span class='ident'>help</span>(<span class='string'>&quot;Sets a custom config file&quot;</span>)
-                                    .<span class='ident'>takes_value</span>(<span class='boolval'>true</span>))
-                        .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;output&quot;</span>)
-                                    .<span class='ident'>help</span>(<span class='string'>&quot;Sets an optional output file&quot;</span>)
-                                    .<span class='ident'>index</span>(<span class='number'>1</span>))
-                        .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;debug&quot;</span>)
-                                    .<span class='ident'>short</span>(<span class='string'>&quot;d&quot;</span>)
+<span class='kw'>let</span> <span class='ident'>matches</span> <span class='op'>=</span> <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;MyApp&quot;</span>)
+                       .<span class='ident'>version</span>(<span class='string'>&quot;1.0&quot;</span>)
+                       .<span class='ident'>author</span>(<span class='string'>&quot;Kevin K. &lt;kbknapp@gmail.com&gt;&quot;</span>)
+                       .<span class='ident'>about</span>(<span class='string'>&quot;Does awesome things&quot;</span>)
+                       .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;config&quot;</span>)
+                                   .<span class='ident'>short</span>(<span class='string'>&quot;c&quot;</span>)
+                                   .<span class='ident'>long</span>(<span class='string'>&quot;config&quot;</span>)
+                                   .<span class='ident'>help</span>(<span class='string'>&quot;Sets a custom config file&quot;</span>)
+                                   .<span class='ident'>takes_value</span>(<span class='boolval'>true</span>))
+                       .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;output&quot;</span>)
+                                   .<span class='ident'>help</span>(<span class='string'>&quot;Sets an optional output file&quot;</span>)
+                                   .<span class='ident'>index</span>(<span class='number'>1</span>))
+                       .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;debug&quot;</span>)
+                                   .<span class='ident'>short</span>(<span class='string'>&quot;d&quot;</span>)
                                 .<span class='ident'>multiple</span>(<span class='boolval'>true</span>)
-                                    .<span class='ident'>help</span>(<span class='string'>&quot;Turn debugging information on&quot;</span>))
-                        .<span class='ident'>subcommand</span>(<span class='ident'>SubCommand</span>::<span class='ident'>new</span>(<span class='string'>&quot;test&quot;</span>)
-                                                .<span class='ident'>about</span>(<span class='string'>&quot;Has test sub functionality&quot;</span>)
-                                                .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;verbose&quot;</span>)
-                                                            .<span class='ident'>short</span>(<span class='string'>&quot;v&quot;</span>)
-                                                            .<span class='ident'>help</span>(<span class='string'>&quot;Display verbose information&quot;</span>)))
-                        .<span class='ident'>get_matches</span>();
+                                   .<span class='ident'>help</span>(<span class='string'>&quot;Turn debugging information on&quot;</span>))
+                       .<span class='ident'>subcommand</span>(<span class='ident'>SubCommand</span>::<span class='ident'>new</span>(<span class='string'>&quot;test&quot;</span>)
+                                               .<span class='ident'>about</span>(<span class='string'>&quot;Has test sub functionality&quot;</span>)
+                                               .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;verbose&quot;</span>)
+                                                           .<span class='ident'>short</span>(<span class='string'>&quot;v&quot;</span>)
+                                                           .<span class='ident'>help</span>(<span class='string'>&quot;Display verbose information&quot;</span>)))
+                       .<span class='ident'>get_matches</span>();
 
-    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>o</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>value_of</span>(<span class='string'>&quot;output&quot;</span>) {
-        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Value for output: {}&quot;</span>, <span class='ident'>o</span>);
-    }
+   <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>o</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>value_of</span>(<span class='string'>&quot;output&quot;</span>) {
+       <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Value for output: {}&quot;</span>, <span class='ident'>o</span>);
+   }
  
-    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>c</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>value_of</span>(<span class='string'>&quot;config&quot;</span>) {
-        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Value for config: {}&quot;</span>, <span class='ident'>c</span>);
-    }
+   <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>c</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>value_of</span>(<span class='string'>&quot;config&quot;</span>) {
+       <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Value for config: {}&quot;</span>, <span class='ident'>c</span>);
+   }
 
- <span class='kw'>match</span> <span class='ident'>matches</span>.<span class='ident'>occurrences_of</span>(<span class='string'>&quot;debug&quot;</span>) {
+<span class='kw'>match</span> <span class='ident'>matches</span>.<span class='ident'>occurrences_of</span>(<span class='string'>&quot;debug&quot;</span>) {
     <span class='number'>0</span> <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Debug mode is off&quot;</span>),
-        <span class='number'>1</span> <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Debug mode is kind of on&quot;</span>),
-        <span class='number'>2</span> <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Debug mode is on&quot;</span>),
-        <span class='number'>3</span> <span class='op'>|</span> _ <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Don&#39;t be crazy&quot;</span>),
- }
+       <span class='number'>1</span> <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Debug mode is kind of on&quot;</span>),
+       <span class='number'>2</span> <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Debug mode is on&quot;</span>),
+       <span class='number'>3</span> <span class='op'>|</span> _ <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Don&#39;t be crazy&quot;</span>),
+}
  
- <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>matches</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>subcommand_matches</span>(<span class='string'>&quot;test&quot;</span>) {
+<span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>matches</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>subcommand_matches</span>(<span class='string'>&quot;test&quot;</span>) {
     <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>is_present</span>(<span class='string'>&quot;verbose&quot;</span>) {
-            <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Printing verbose test info...&quot;</span>);
-        } <span class='kw'>else</span> {
-            <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Not printing regular test info...&quot;</span>);
-        }
-    }
+           <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Printing verbose test info...&quot;</span>);
+       } <span class='kw'>else</span> {
+           <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Not printing regular test info...&quot;</span>);
+       }
+   }
 
- <span class='comment'>// more porgram logic goes here...</span>
+<span class='comment'>// more porgram logic goes here...</span>
 </pre>
 
 <p>If you were to compile the above program and run it with the flag <code>--help</code> or <code>-h</code> the following output woud be presented</p>
 
-<pre><code class="language-sh"> $ myprog --help
- MyApp 1.0
- Kevin K. &lt;kbknapp@gmail.com&gt;
- Does awesome things
+<pre><code class="language-sh">$ myprog --help
+MyApp 1.0
+Kevin K. &lt;kbknapp@gmail.com&gt;
+Does awesome things
  
- USAGE:
+USAGE:
     MyApp [FLAGS] [OPTIONS] [POSITIONAL] [SUBCOMMANDS]
  
- FLAGS:
-    -d              Turn debugging information on
-    -h,--help       Prints this message
-    -v,--version    Prints version information
+FLAGS:
+    -d               Turn debugging information on
+    -h,--help        Prints this message
+    -v,--version     Prints version information
  
- OPTIONS:
+OPTIONS:
     -c,--config &lt;config&gt;        Sets a custom config file
 
- POSITIONAL ARGUMENTS:
-    output          Sets an optional output file
+POSITIONAL ARGUMENTS:
+    output            Sets an optional output file
 
- SUBCOMMANDS:
-    help            Prints this message
-        test            Has test sub-functionality
+SUBCOMMANDS:
+    help             Prints this message
+    test             Has test sub-functionality
 </code></pre>
 </div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
@@ -141,7 +141,7 @@
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.App.html'
                                title='clap::App'>App</a></td>
                         <td class='docblock short'><p>Used to create a representation of the program and all possible command line arguments
- for parsing at runtime.</p>
+for parsing at runtime.</p>
 </td>
                     </tr>
                 

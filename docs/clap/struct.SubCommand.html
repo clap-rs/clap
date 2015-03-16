@@ -50,16 +50,16 @@
 }</pre><div class='docblock'><p>The abstract representation of a command line subcommand used by the consumer of the library.</p>
 
 <p>This struct is used by the library consumer and describes all the valid options of the subcommand for 
- their program. SubCommands are treated like &quot;sub apps&quot; and contain all the same possibilities (such as
- their own arguments and subcommands).</p>
+their program. SubCommands are treated like &quot;sub apps&quot; and contain all the same possibilities (such as
+their own arguments and subcommands).</p>
 
-<p># Example</p>
-<pre id='rust-example-rendered' class='rust '>
- <span class='ident'>SubCommand</span>::<span class='ident'>new</span>(<span class='string'>&quot;conifg&quot;</span>)
-                .<span class='ident'>about</span>(<span class='string'>&quot;Used for configuration&quot;</span>)
-                .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;config_file&quot;</span>)
-                           .<span class='ident'>help</span>(<span class='string'>&quot;The configuration file to use&quot;</span>)
-                           .<span class='ident'>index</span>(<span class='number'>1</span>))
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
+<span class='ident'>SubCommand</span>::<span class='ident'>new</span>(<span class='string'>&quot;conifg&quot;</span>)
+               .<span class='ident'>about</span>(<span class='string'>&quot;Used for configuration&quot;</span>)
+               .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;config_file&quot;</span>)
+                          .<span class='ident'>help</span>(<span class='string'>&quot;The configuration file to use&quot;</span>)
+                          .<span class='ident'>index</span>(<span class='number'>1</span>))
 </pre>
 </div><h2 class='fields'>Fields</h2>
 <table><tr><td id='structfield.name'><a class='stability Unmarked' title='No stability level'></a><code>name</code></td><td></td></tr><tr><td id='structfield.matches'><a class='stability Unmarked' title='No stability level'></a><code>matches</code></td><td></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl <a class='struct' href='../clap/struct.SubCommand.html' title='clap::SubCommand'>SubCommand</a></code></h3><div class='impl-items'><h4 id='method.new' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.new' class='fnname'>new</a>(name: &amp;'static <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a></code></h4>

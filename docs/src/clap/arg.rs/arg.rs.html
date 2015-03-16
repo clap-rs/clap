@@ -400,7 +400,7 @@
 <span class='doccomment'>///       .help(&quot;Provides a config file to myprog&quot;)</span>
 <span class='doccomment'>/// # ).get_matches();</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Arg</span> {
-	<span class='doccomment'>/// The unique name of the argument, required</span>
+    <span class='doccomment'>/// The unique name of the argument, required</span>
     <span class='kw'>pub</span> <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>,
     <span class='doccomment'>/// The short version (i.e. single character) of the argument, no preceding `-`</span>
     <span class='doccomment'>/// **NOTE:** `short` is mutually exclusive with `index`</span>
@@ -427,295 +427,295 @@
     <span class='doccomment'>/// I.e. `-v -v -v` or `-vvv`</span>
     <span class='kw'>pub</span> <span class='ident'>multiple</span>: <span class='ident'>bool</span>,
     <span class='doccomment'>/// A list of names for other arguments that *may not* be used with this flag</span>
-   	<span class='kw'>pub</span> <span class='ident'>blacklist</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span><span class='op'>&gt;&gt;</span>, 
+    <span class='kw'>pub</span> <span class='ident'>blacklist</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span><span class='op'>&gt;&gt;</span>, 
     <span class='doccomment'>/// A list of names of other arguments that are *required* to be used when </span>
     <span class='doccomment'>/// this flag is used</span>
     <span class='kw'>pub</span> <span class='ident'>requires</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span><span class='op'>&gt;&gt;</span>
 }
 
 <span class='kw'>impl</span> <span class='ident'>Arg</span> {
-	<span class='doccomment'>/// Creates a new instace of `Arg` using a unique string name. </span>
-	<span class='doccomment'>/// The name will be used by the library consumer to get information about</span>
-	<span class='doccomment'>/// whether or not the argument was used at runtime. </span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// **NOTE:** in the case of arguments that take values (i.e. `takes_value(true)`)</span>
-	<span class='doccomment'>/// and positional arguments (i.e. those without a `-` or `--`) the name will also </span>
-	<span class='doccomment'>/// be displayed when the user prints the usage/help information of the program.</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// Example:</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```no_run</span>
-	<span class='doccomment'>/// # use clap::{App, Arg};</span>
-	<span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
-	<span class='doccomment'>/// #                 .arg(</span>
-	<span class='doccomment'>/// Arg::new(&quot;conifg&quot;)</span>
-	<span class='doccomment'>/// # .short(&quot;c&quot;)</span>
-	<span class='doccomment'>/// # ).get_matches();</span>
-	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
-		<span class='ident'>Arg</span> {
-			<span class='ident'>name</span>: <span class='ident'>n</span>,
-			<span class='ident'>short</span>: <span class='prelude-val'>None</span>,
-			<span class='ident'>long</span>: <span class='prelude-val'>None</span>,
-			<span class='ident'>help</span>: <span class='prelude-val'>None</span>,
-			<span class='ident'>required</span>: <span class='boolval'>false</span>,
-			<span class='ident'>takes_value</span>: <span class='boolval'>false</span>,
-			<span class='ident'>multiple</span>: <span class='boolval'>false</span>,
-			<span class='ident'>index</span>: <span class='prelude-val'>None</span>,
-			<span class='ident'>blacklist</span>: <span class='prelude-val'>Some</span>(<span class='macro'>vec</span><span class='macro'>!</span>[]),
-			<span class='ident'>requires</span>: <span class='prelude-val'>Some</span>(<span class='macro'>vec</span><span class='macro'>!</span>[]),
-		}
-	}
+    <span class='doccomment'>/// Creates a new instace of `Arg` using a unique string name. </span>
+    <span class='doccomment'>/// The name will be used by the library consumer to get information about</span>
+    <span class='doccomment'>/// whether or not the argument was used at runtime. </span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// **NOTE:** in the case of arguments that take values (i.e. `takes_value(true)`)</span>
+    <span class='doccomment'>/// and positional arguments (i.e. those without a `-` or `--`) the name will also </span>
+    <span class='doccomment'>/// be displayed when the user prints the usage/help information of the program.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
+    <span class='doccomment'>/// #                 .arg(</span>
+    <span class='doccomment'>/// Arg::new(&quot;conifg&quot;)</span>
+    <span class='doccomment'>/// # .short(&quot;c&quot;)</span>
+    <span class='doccomment'>/// # ).get_matches();</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
+        <span class='ident'>Arg</span> {
+            <span class='ident'>name</span>: <span class='ident'>n</span>,
+            <span class='ident'>short</span>: <span class='prelude-val'>None</span>,
+            <span class='ident'>long</span>: <span class='prelude-val'>None</span>,
+            <span class='ident'>help</span>: <span class='prelude-val'>None</span>,
+            <span class='ident'>required</span>: <span class='boolval'>false</span>,
+            <span class='ident'>takes_value</span>: <span class='boolval'>false</span>,
+            <span class='ident'>multiple</span>: <span class='boolval'>false</span>,
+            <span class='ident'>index</span>: <span class='prelude-val'>None</span>,
+            <span class='ident'>blacklist</span>: <span class='prelude-val'>Some</span>(<span class='macro'>vec</span><span class='macro'>!</span>[]),
+            <span class='ident'>requires</span>: <span class='prelude-val'>Some</span>(<span class='macro'>vec</span><span class='macro'>!</span>[]),
+        }
+    }
 
-	<span class='doccomment'>/// Sets the short version of the argument without the preceding `-`.</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// By default `clap` automatically assigns `v` and `h` to display version and help information </span>
-	<span class='doccomment'>/// respectivly. You may use `v` or `h` for your own purposes, in which case `clap` simply</span>
-	<span class='doccomment'>/// will not asign those to the displaying of version or help.</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// **NOTE:** Any leading `-` characters will be stripped, and only the first</span>
-	<span class='doccomment'>/// non `-` chacter will be used as the `short` version, i.e. for when the user</span>
-	<span class='doccomment'>/// mistakenly sets the short to `-o` or the like.</span>
-	<span class='doccomment'>/// Example:</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```no_run</span>
-	<span class='doccomment'>/// # use clap::{App, Arg};</span>
-	<span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
-	<span class='doccomment'>/// #                 .arg(</span>
-	<span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
-	<span class='doccomment'>/// .short(&quot;c&quot;)</span>
-	<span class='doccomment'>/// # ).get_matches();</span>
-	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>short</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>s</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
-		<span class='self'>self</span>.<span class='ident'>short</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>s</span>.<span class='ident'>trim_left_matches</span>(<span class='op'>|</span><span class='ident'>c</span><span class='op'>|</span> <span class='ident'>c</span> <span class='op'>==</span> <span class='string'>&#39;-&#39;</span>)
-						   .<span class='ident'>char_at</span>(<span class='number'>0</span>));
-		<span class='self'>self</span>
-	}
+    <span class='doccomment'>/// Sets the short version of the argument without the preceding `-`.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// By default `clap` automatically assigns `v` and `h` to display version and help information </span>
+    <span class='doccomment'>/// respectivly. You may use `v` or `h` for your own purposes, in which case `clap` simply</span>
+    <span class='doccomment'>/// will not asign those to the displaying of version or help.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// **NOTE:** Any leading `-` characters will be stripped, and only the first</span>
+    <span class='doccomment'>/// non `-` chacter will be used as the `short` version, i.e. for when the user</span>
+    <span class='doccomment'>/// mistakenly sets the short to `-o` or the like.</span>
+    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
+    <span class='doccomment'>/// #                 .arg(</span>
+    <span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
+    <span class='doccomment'>/// .short(&quot;c&quot;)</span>
+    <span class='doccomment'>/// # ).get_matches();</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>short</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>s</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
+        <span class='self'>self</span>.<span class='ident'>short</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>s</span>.<span class='ident'>trim_left_matches</span>(<span class='op'>|</span><span class='ident'>c</span><span class='op'>|</span> <span class='ident'>c</span> <span class='op'>==</span> <span class='string'>&#39;-&#39;</span>)
+                           .<span class='ident'>char_at</span>(<span class='number'>0</span>));
+        <span class='self'>self</span>
+    }
 
-	<span class='doccomment'>/// Sets the long version of the argument without the preceding `--`.</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// By default `clap` automatically assigns `version` and `help` to display version and help information </span>
-	<span class='doccomment'>/// respectivly. You may use `version` or `help` for your own purposes, in which case `clap` simply</span>
-	<span class='doccomment'>/// will not asign those to the displaying of version or help automatically, and you will have to do</span>
-	<span class='doccomment'>/// so manually.</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// **NOTE:** Any leading `-` characters will be stripped i.e. for </span>
-	<span class='doccomment'>/// when the user mistakenly sets the short to `--out` or the like.</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// Example:</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```no_run</span>
-	<span class='doccomment'>/// # use clap::{App, Arg};</span>
-	<span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
-	<span class='doccomment'>/// #                 .arg(</span>
-	<span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
-	<span class='doccomment'>/// .long(&quot;config&quot;)</span>
-	<span class='doccomment'>/// # ).get_matches();</span>
-	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>long</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>l</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
-		<span class='self'>self</span>.<span class='ident'>long</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>l</span>.<span class='ident'>trim_left_matches</span>(<span class='op'>|</span><span class='ident'>c</span><span class='op'>|</span> <span class='ident'>c</span> <span class='op'>==</span> <span class='string'>&#39;-&#39;</span>));
-		<span class='self'>self</span>
-	}
+    <span class='doccomment'>/// Sets the long version of the argument without the preceding `--`.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// By default `clap` automatically assigns `version` and `help` to display version and help information </span>
+    <span class='doccomment'>/// respectivly. You may use `version` or `help` for your own purposes, in which case `clap` simply</span>
+    <span class='doccomment'>/// will not asign those to the displaying of version or help automatically, and you will have to do</span>
+    <span class='doccomment'>/// so manually.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// **NOTE:** Any leading `-` characters will be stripped i.e. for </span>
+    <span class='doccomment'>/// when the user mistakenly sets the short to `--out` or the like.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
+    <span class='doccomment'>/// #                 .arg(</span>
+    <span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
+    <span class='doccomment'>/// .long(&quot;config&quot;)</span>
+    <span class='doccomment'>/// # ).get_matches();</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>long</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>l</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
+        <span class='self'>self</span>.<span class='ident'>long</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>l</span>.<span class='ident'>trim_left_matches</span>(<span class='op'>|</span><span class='ident'>c</span><span class='op'>|</span> <span class='ident'>c</span> <span class='op'>==</span> <span class='string'>&#39;-&#39;</span>));
+        <span class='self'>self</span>
+    }
 
-	<span class='doccomment'>/// Sets the help text of the argument that will be displayed to the user</span>
-	<span class='doccomment'>/// when they print the usage/help information. </span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// Example:</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```no_run</span>
-	<span class='doccomment'>/// # use clap::{App, Arg};</span>
-	<span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
-	<span class='doccomment'>/// #                 .arg(</span>
-	<span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
-	<span class='doccomment'>/// .help(&quot;The config file used by the myprog&quot;)</span>
-	<span class='doccomment'>/// # ).get_matches();</span>
-	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>help</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>h</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
-		<span class='self'>self</span>.<span class='ident'>help</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>h</span>);
-		<span class='self'>self</span>
-	}
+    <span class='doccomment'>/// Sets the help text of the argument that will be displayed to the user</span>
+    <span class='doccomment'>/// when they print the usage/help information. </span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
+    <span class='doccomment'>/// #                 .arg(</span>
+    <span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
+    <span class='doccomment'>/// .help(&quot;The config file used by the myprog&quot;)</span>
+    <span class='doccomment'>/// # ).get_matches();</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>help</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>h</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
+        <span class='self'>self</span>.<span class='ident'>help</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>h</span>);
+        <span class='self'>self</span>
+    }
 
-	<span class='doccomment'>/// Sets whether or not the argument is required by default. Required by</span>
-	<span class='doccomment'>/// default means it is required, when no other mutually exlusive rules have</span>
-	<span class='doccomment'>/// been evaluated. Mutually exclusive rules take precedence over being required</span>
-	<span class='doccomment'>/// by default.</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// **NOTE:** Flags (i.e. not positional, or arguments that take values)</span>
-	<span class='doccomment'>/// cannot be required by default.</span>
-	<span class='doccomment'>/// when they print the usage/help information. </span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// Example:</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```no_run</span>
-	<span class='doccomment'>/// # use clap::{App, Arg};</span>
-	<span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
-	<span class='doccomment'>/// #                 .arg(</span>
-	<span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
-	<span class='doccomment'>/// .required(true)</span>
-	<span class='doccomment'>/// # ).get_matches();</span>
-	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>required</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>r</span>: <span class='ident'>bool</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
-		<span class='self'>self</span>.<span class='ident'>required</span> <span class='op'>=</span> <span class='ident'>r</span>;
-		<span class='self'>self</span>
-	}
+    <span class='doccomment'>/// Sets whether or not the argument is required by default. Required by</span>
+    <span class='doccomment'>/// default means it is required, when no other mutually exlusive rules have</span>
+    <span class='doccomment'>/// been evaluated. Mutually exclusive rules take precedence over being required</span>
+    <span class='doccomment'>/// by default.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// **NOTE:** Flags (i.e. not positional, or arguments that take values)</span>
+    <span class='doccomment'>/// cannot be required by default.</span>
+    <span class='doccomment'>/// when they print the usage/help information. </span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
+    <span class='doccomment'>/// #                 .arg(</span>
+    <span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
+    <span class='doccomment'>/// .required(true)</span>
+    <span class='doccomment'>/// # ).get_matches();</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>required</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>r</span>: <span class='ident'>bool</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
+        <span class='self'>self</span>.<span class='ident'>required</span> <span class='op'>=</span> <span class='ident'>r</span>;
+        <span class='self'>self</span>
+    }
 
-	<span class='doccomment'>/// Sets a mutually exclusive argument by name. I.e. when using this argument, </span>
-	<span class='doccomment'>/// the following argument can&#39;t be present.</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// **NOTE:** Mutually exclusive rules take precedence over being required</span>
-	<span class='doccomment'>/// by default. Mutually exclusive rules only need to be set for one of the two</span>
-	<span class='doccomment'>/// arguments, they do not need to be set for each.</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// Example:</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```no_run</span>
-	<span class='doccomment'>/// # use clap::{App, Arg};</span>
-	<span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::new(&quot;conifg&quot;)</span>
-	<span class='doccomment'>/// .mutually_excludes(&quot;debug&quot;)</span>
-	<span class='doccomment'>/// # ).get_matches();</span>
-	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>mutually_excludes</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
-		<span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>vec</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>blacklist</span> {
-			<span class='ident'>vec</span>.<span class='ident'>push</span>(<span class='ident'>name</span>);
-		} <span class='kw'>else</span> {
-			<span class='self'>self</span>.<span class='ident'>blacklist</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='macro'>vec</span><span class='macro'>!</span>[]);
-		}
-		<span class='self'>self</span>
-	}
+    <span class='doccomment'>/// Sets a mutually exclusive argument by name. I.e. when using this argument, </span>
+    <span class='doccomment'>/// the following argument can&#39;t be present.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// **NOTE:** Mutually exclusive rules take precedence over being required</span>
+    <span class='doccomment'>/// by default. Mutually exclusive rules only need to be set for one of the two</span>
+    <span class='doccomment'>/// arguments, they do not need to be set for each.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::new(&quot;conifg&quot;)</span>
+    <span class='doccomment'>/// .mutually_excludes(&quot;debug&quot;)</span>
+    <span class='doccomment'>/// # ).get_matches();</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>mutually_excludes</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
+        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>vec</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>blacklist</span> {
+            <span class='ident'>vec</span>.<span class='ident'>push</span>(<span class='ident'>name</span>);
+        } <span class='kw'>else</span> {
+            <span class='self'>self</span>.<span class='ident'>blacklist</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='macro'>vec</span><span class='macro'>!</span>[]);
+        }
+        <span class='self'>self</span>
+    }
 
-	<span class='doccomment'>/// Sets a mutually exclusive arguments by names. I.e. when using this argument, </span>
-	<span class='doccomment'>/// the following argument can&#39;t be present.</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// **NOTE:** Mutually exclusive rules take precedence over being required</span>
-	<span class='doccomment'>/// by default. Mutually exclusive rules only need to be set for one of the two</span>
-	<span class='doccomment'>/// arguments, they do not need to be set for each.</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// Example:</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```no_run</span>
-	<span class='doccomment'>/// # use clap::{App, Arg};</span>
-	<span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::new(&quot;conifg&quot;)</span>
-	<span class='doccomment'>/// .mutually_excludes_all(</span>
-	<span class='doccomment'>///		vec![&quot;debug&quot;, &quot;input&quot;])</span>
-	<span class='doccomment'>/// # ).get_matches();</span>
-	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>mutually_excludes_all</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>names</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
-		<span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>vec</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>blacklist</span> {
-			<span class='kw'>for</span> <span class='ident'>n</span> <span class='kw'>in</span> <span class='ident'>names</span> {
-				<span class='ident'>vec</span>.<span class='ident'>push</span>(<span class='ident'>n</span>);
-			}
-		} <span class='kw'>else</span> {
-			<span class='self'>self</span>.<span class='ident'>blacklist</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='macro'>vec</span><span class='macro'>!</span>[]);
-		}
-		<span class='self'>self</span>
-	}
+    <span class='doccomment'>/// Sets a mutually exclusive arguments by names. I.e. when using this argument, </span>
+    <span class='doccomment'>/// the following argument can&#39;t be present.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// **NOTE:** Mutually exclusive rules take precedence over being required</span>
+    <span class='doccomment'>/// by default. Mutually exclusive rules only need to be set for one of the two</span>
+    <span class='doccomment'>/// arguments, they do not need to be set for each.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::new(&quot;conifg&quot;)</span>
+    <span class='doccomment'>/// .mutually_excludes_all(</span>
+    <span class='doccomment'>///        vec![&quot;debug&quot;, &quot;input&quot;])</span>
+    <span class='doccomment'>/// # ).get_matches();</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>mutually_excludes_all</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>names</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
+        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>vec</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>blacklist</span> {
+            <span class='kw'>for</span> <span class='ident'>n</span> <span class='kw'>in</span> <span class='ident'>names</span> {
+                <span class='ident'>vec</span>.<span class='ident'>push</span>(<span class='ident'>n</span>);
+            }
+        } <span class='kw'>else</span> {
+            <span class='self'>self</span>.<span class='ident'>blacklist</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='macro'>vec</span><span class='macro'>!</span>[]);
+        }
+        <span class='self'>self</span>
+    }
 
-	<span class='doccomment'>/// Sets an argument by name that is required when this one is presnet I.e. when</span>
-	<span class='doccomment'>/// using this argument, the following argument *must* be present.</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// **NOTE:** Mutually exclusive rules take precedence over being required</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// Example:</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```no_run</span>
-	<span class='doccomment'>/// # use clap::{App, Arg};</span>
-	<span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::new(&quot;conifg&quot;)</span>
-	<span class='doccomment'>/// .requires(&quot;debug&quot;)</span>
-	<span class='doccomment'>/// # ).get_matches();</span>
-	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>requires</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
-		<span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>vec</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>requires</span> {
-			<span class='ident'>vec</span>.<span class='ident'>push</span>(<span class='ident'>name</span>);
-		} <span class='kw'>else</span> {
-			<span class='self'>self</span>.<span class='ident'>requires</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='macro'>vec</span><span class='macro'>!</span>[]);
-		}
-		<span class='self'>self</span>
-	}
+    <span class='doccomment'>/// Sets an argument by name that is required when this one is presnet I.e. when</span>
+    <span class='doccomment'>/// using this argument, the following argument *must* be present.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// **NOTE:** Mutually exclusive rules take precedence over being required</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::new(&quot;conifg&quot;)</span>
+    <span class='doccomment'>/// .requires(&quot;debug&quot;)</span>
+    <span class='doccomment'>/// # ).get_matches();</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>requires</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
+        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>vec</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>requires</span> {
+            <span class='ident'>vec</span>.<span class='ident'>push</span>(<span class='ident'>name</span>);
+        } <span class='kw'>else</span> {
+            <span class='self'>self</span>.<span class='ident'>requires</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='macro'>vec</span><span class='macro'>!</span>[]);
+        }
+        <span class='self'>self</span>
+    }
 
-	<span class='doccomment'>/// Sets arguments by names that are required when this one is presnet I.e. when</span>
-	<span class='doccomment'>/// using this argument, the following arguments *must* be present.</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// **NOTE:** Mutually exclusive rules take precedence over being required</span>
-	<span class='doccomment'>/// by default. </span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// Example:</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```no_run</span>
-	<span class='doccomment'>/// # use clap::{App, Arg};</span>
-	<span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::new(&quot;conifg&quot;)</span>
-	<span class='doccomment'>/// .requires_all(</span>
-	<span class='doccomment'>///		vec![&quot;debug&quot;, &quot;input&quot;])</span>
-	<span class='doccomment'>/// # ).get_matches();</span>
-	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>requires_all</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>names</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
-		<span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>vec</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>requires</span> {
-			<span class='kw'>for</span> <span class='ident'>n</span> <span class='kw'>in</span> <span class='ident'>names</span> {
-				<span class='ident'>vec</span>.<span class='ident'>push</span>(<span class='ident'>n</span>);
-			}
-		} <span class='kw'>else</span> {
-			<span class='self'>self</span>.<span class='ident'>requires</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='macro'>vec</span><span class='macro'>!</span>[]);
-		}
-		<span class='self'>self</span>
-	}
+    <span class='doccomment'>/// Sets arguments by names that are required when this one is presnet I.e. when</span>
+    <span class='doccomment'>/// using this argument, the following arguments *must* be present.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// **NOTE:** Mutually exclusive rules take precedence over being required</span>
+    <span class='doccomment'>/// by default. </span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::new(&quot;conifg&quot;)</span>
+    <span class='doccomment'>/// .requires_all(</span>
+    <span class='doccomment'>///        vec![&quot;debug&quot;, &quot;input&quot;])</span>
+    <span class='doccomment'>/// # ).get_matches();</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>requires_all</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>names</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
+        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>vec</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>requires</span> {
+            <span class='kw'>for</span> <span class='ident'>n</span> <span class='kw'>in</span> <span class='ident'>names</span> {
+                <span class='ident'>vec</span>.<span class='ident'>push</span>(<span class='ident'>n</span>);
+            }
+        } <span class='kw'>else</span> {
+            <span class='self'>self</span>.<span class='ident'>requires</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='macro'>vec</span><span class='macro'>!</span>[]);
+        }
+        <span class='self'>self</span>
+    }
 
-	<span class='doccomment'>/// Specifies that the argument takes an additional value at run time.</span>
-	<span class='doccomment'>/// </span>
-	<span class='doccomment'>/// **NOTE:** When setting this to `true` the `name` of the argument</span>
-	<span class='doccomment'>/// will be used when printing the help/usage information to the user. </span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// Example:</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```no_run</span>
-	<span class='doccomment'>/// # use clap::{App, Arg};</span>
-	<span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
-	<span class='doccomment'>/// #                 .arg(</span>
-	<span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
-	<span class='doccomment'>/// .takes_value(true)</span>
-	<span class='doccomment'>/// # ).get_matches();</span>
-	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>takes_value</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>tv</span>: <span class='ident'>bool</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
-		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>index</span> <span class='op'>==</span> <span class='prelude-val'>None</span>);
-		<span class='self'>self</span>.<span class='ident'>takes_value</span> <span class='op'>=</span> <span class='ident'>tv</span>;
-		<span class='self'>self</span>
-	}
+    <span class='doccomment'>/// Specifies that the argument takes an additional value at run time.</span>
+    <span class='doccomment'>/// </span>
+    <span class='doccomment'>/// **NOTE:** When setting this to `true` the `name` of the argument</span>
+    <span class='doccomment'>/// will be used when printing the help/usage information to the user. </span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
+    <span class='doccomment'>/// #                 .arg(</span>
+    <span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
+    <span class='doccomment'>/// .takes_value(true)</span>
+    <span class='doccomment'>/// # ).get_matches();</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>takes_value</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>tv</span>: <span class='ident'>bool</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
+        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>index</span> <span class='op'>==</span> <span class='prelude-val'>None</span>);
+        <span class='self'>self</span>.<span class='ident'>takes_value</span> <span class='op'>=</span> <span class='ident'>tv</span>;
+        <span class='self'>self</span>
+    }
 
-	<span class='doccomment'>/// Specifies the index of a positional argument starting at 1.</span>
-	<span class='doccomment'>/// </span>
-	<span class='doccomment'>/// **NOTE:** When setting this,  any `short` or `long` values you set</span>
-	<span class='doccomment'>/// are ignored as positional arguments cannot have a `short` or `long`.</span>
-	<span class='doccomment'>/// Also, the name will be used when printing the help/usage information </span>
-	<span class='doccomment'>/// to the user. </span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// Example:</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```no_run</span>
-	<span class='doccomment'>/// # use clap::{App, Arg};</span>
-	<span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
-	<span class='doccomment'>/// #                 .arg(</span>
-	<span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
-	<span class='doccomment'>/// .index(1)</span>
-	<span class='doccomment'>/// # ).get_matches();</span>
-	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>index</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>idx</span>: <span class='ident'>u8</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
-		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>takes_value</span> <span class='op'>==</span> <span class='boolval'>false</span>);
-		<span class='kw'>if</span> <span class='ident'>idx</span> <span class='op'>&lt;</span> <span class='number'>1</span> { <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Argument index must start at 1&quot;</span>); }
-		<span class='self'>self</span>.<span class='ident'>index</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>idx</span>);
-		<span class='self'>self</span>
-	}
+    <span class='doccomment'>/// Specifies the index of a positional argument starting at 1.</span>
+    <span class='doccomment'>/// </span>
+    <span class='doccomment'>/// **NOTE:** When setting this,  any `short` or `long` values you set</span>
+    <span class='doccomment'>/// are ignored as positional arguments cannot have a `short` or `long`.</span>
+    <span class='doccomment'>/// Also, the name will be used when printing the help/usage information </span>
+    <span class='doccomment'>/// to the user. </span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
+    <span class='doccomment'>/// #                 .arg(</span>
+    <span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
+    <span class='doccomment'>/// .index(1)</span>
+    <span class='doccomment'>/// # ).get_matches();</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>index</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>idx</span>: <span class='ident'>u8</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
+        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>takes_value</span> <span class='op'>==</span> <span class='boolval'>false</span>);
+        <span class='kw'>if</span> <span class='ident'>idx</span> <span class='op'>&lt;</span> <span class='number'>1</span> { <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Argument index must start at 1&quot;</span>); }
+        <span class='self'>self</span>.<span class='ident'>index</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>idx</span>);
+        <span class='self'>self</span>
+    }
 
-	<span class='doccomment'>/// Specifies if the flag may appear more than once such as for multiple debugging</span>
-	<span class='doccomment'>/// levels (as an example). `-ddd` for three levels of debugging, or `-d -d -d`. </span>
-	<span class='doccomment'>/// When this is set to `true` you recieve the number of occurances the user supplied</span>
-	<span class='doccomment'>/// of a particular flag at runtime.</span>
-	<span class='doccomment'>/// </span>
-	<span class='doccomment'>/// **NOTE:** When setting this,  any `takes_value` or `index` values you set</span>
-	<span class='doccomment'>/// are ignored as flags cannot have a values or an `index`.</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// Example:</span>
-	<span class='doccomment'>///</span>
-	<span class='doccomment'>/// ```no_run</span>
-	<span class='doccomment'>/// # use clap::{App, Arg};</span>
-	<span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
-	<span class='doccomment'>/// #                 .arg(</span>
-	<span class='doccomment'>/// # Arg::new(&quot;debug&quot;)</span>
-	<span class='doccomment'>/// .multiple(true)</span>
-	<span class='doccomment'>/// # ).get_matches();</span>
-	<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>multiple</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>multi</span>: <span class='ident'>bool</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
-		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>takes_value</span> <span class='op'>==</span> <span class='boolval'>false</span>);
-		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>index</span> <span class='op'>==</span> <span class='prelude-val'>None</span>);
-		<span class='self'>self</span>.<span class='ident'>multiple</span> <span class='op'>=</span> <span class='ident'>multi</span>;
-		<span class='self'>self</span>
-	}
+    <span class='doccomment'>/// Specifies if the flag may appear more than once such as for multiple debugging</span>
+    <span class='doccomment'>/// levels (as an example). `-ddd` for three levels of debugging, or `-d -d -d`. </span>
+    <span class='doccomment'>/// When this is set to `true` you recieve the number of occurances the user supplied</span>
+    <span class='doccomment'>/// of a particular flag at runtime.</span>
+    <span class='doccomment'>/// </span>
+    <span class='doccomment'>/// **NOTE:** When setting this,  any `takes_value` or `index` values you set</span>
+    <span class='doccomment'>/// are ignored as flags cannot have a values or an `index`.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
+    <span class='doccomment'>/// #                 .arg(</span>
+    <span class='doccomment'>/// # Arg::new(&quot;debug&quot;)</span>
+    <span class='doccomment'>/// .multiple(true)</span>
+    <span class='doccomment'>/// # ).get_matches();</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>multiple</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>multi</span>: <span class='ident'>bool</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
+        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>takes_value</span> <span class='op'>==</span> <span class='boolval'>false</span>);
+        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>index</span> <span class='op'>==</span> <span class='prelude-val'>None</span>);
+        <span class='self'>self</span>.<span class='ident'>multiple</span> <span class='op'>=</span> <span class='ident'>multi</span>;
+        <span class='self'>self</span>
+    }
 }
 </pre>
 </section>

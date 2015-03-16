@@ -51,24 +51,24 @@
     pub about: <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;'static <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;,
     // some fields omitted
 }</pre><div class='docblock'><p>Used to create a representation of the program and all possible command line arguments
- for parsing at runtime.</p>
+for parsing at runtime.</p>
 
 <p>Stores a list of all posisble arguments, as well as information displayed to the user such as
- help and versioning information.</p>
+help and versioning information.</p>
 
-<p># Example</p>
-<pre id='rust-example-rendered' class='rust '>
- <span class='kw'>let</span> <span class='ident'>myprog</span> <span class='op'>=</span> <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;myprog&quot;</span>)
-                   .<span class='ident'>author</span>(<span class='string'>&quot;Me, me@mail.com&quot;</span>)
-                      .<span class='ident'>version</span>(<span class='string'>&quot;1.0.2&quot;</span>)
-                   .<span class='ident'>about</span>(<span class='string'>&quot;Explains in brief what the program does&quot;</span>)
-                   .<span class='ident'>arg</span>(
-                            <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;in_file&quot;</span>).<span class='ident'>index</span>(<span class='number'>1</span>)
-                        <span class='comment'>// Add other possible command line argument options here...</span>
-                    )
-                   .<span class='ident'>get_matches</span>();
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
+<span class='kw'>let</span> <span class='ident'>myprog</span> <span class='op'>=</span> <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;myprog&quot;</span>)
+                  .<span class='ident'>author</span>(<span class='string'>&quot;Me, me@mail.com&quot;</span>)
+                     .<span class='ident'>version</span>(<span class='string'>&quot;1.0.2&quot;</span>)
+                  .<span class='ident'>about</span>(<span class='string'>&quot;Explains in brief what the program does&quot;</span>)
+                  .<span class='ident'>arg</span>(
+                           <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;in_file&quot;</span>).<span class='ident'>index</span>(<span class='number'>1</span>)
+                       <span class='comment'>// Add other possible command line argument options here...</span>
+                   )
+                  .<span class='ident'>get_matches</span>();
 
- <span class='comment'>// Your pogram logic starts here...</span>
+<span class='comment'>// Your pogram logic starts here...</span>
 </pre>
 </div><h2 class='fields'>Fields</h2>
 <table><tr><td id='structfield.name'><a class='stability Unmarked' title='No stability level'></a><code>name</code></td><td><div class='docblock'><p>The name displayed to the user when showing version and help/usage information</p>
@@ -119,46 +119,46 @@ showing the usage.</p>
 </div><h4 id='method.arg' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.arg' class='fnname'>arg</a>(self, a: <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a></code></h4>
 <div class='docblock'><p>Adds an argument to the list of valid possibilties</p>
 
-<p># Example</p>
-<pre id='rust-example-rendered' class='rust '>
- .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;config&quot;</span>)
-                .<span class='ident'>short</span>(<span class='string'>&quot;c&quot;</span>)
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
+.<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;config&quot;</span>)
+               .<span class='ident'>short</span>(<span class='string'>&quot;c&quot;</span>)
             <span class='comment'>// Additional argument configuration goes here...</span>
- )
+)
 </pre>
 </div><h4 id='method.args' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.args' class='fnname'>args</a>(self, args: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&gt;) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a></code></h4>
 <div class='docblock'><p>Adds multiple arguments to the list of valid possibilties</p>
 
-<p># Example</p>
-<pre id='rust-example-rendered' class='rust '>
- .<span class='ident'>args</span>( <span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;config&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;c&quot;</span>),
-                <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;debug&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;d&quot;</span>)])
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
+.<span class='ident'>args</span>( <span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;config&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;c&quot;</span>),
+               <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;debug&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;d&quot;</span>)])
 </pre>
 </div><h4 id='method.subcommand' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.subcommand' class='fnname'>subcommand</a>(self, subcmd: <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a></code></h4>
 <div class='docblock'><p>Adds a subcommand to the list of valid possibilties. Subcommands
- are effectively sub apps, because they can contain their own arguments
- and subcommands. They also function just like apps, in that they get their
- own auto generated help and version switches.</p>
+are effectively sub apps, because they can contain their own arguments
+and subcommands. They also function just like apps, in that they get their
+own auto generated help and version switches.</p>
 
-<p># Example</p>
-<pre id='rust-example-rendered' class='rust '>
- .<span class='ident'>subcommand</span>(<span class='ident'>SubCommand</span>::<span class='ident'>new</span>(<span class='string'>&quot;config&quot;</span>)
-                .<span class='ident'>about</span>(<span class='string'>&quot;Controls configuration features&quot;</span>)
-                .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;config_file&quot;</span>)
-                        .<span class='ident'>index</span>(<span class='number'>1</span>)
-                        .<span class='ident'>help</span>(<span class='string'>&quot;Configuration file to use&quot;</span>)))
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
+.<span class='ident'>subcommand</span>(<span class='ident'>SubCommand</span>::<span class='ident'>new</span>(<span class='string'>&quot;config&quot;</span>)
+               .<span class='ident'>about</span>(<span class='string'>&quot;Controls configuration features&quot;</span>)
+               .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;config_file&quot;</span>)
+                       .<span class='ident'>index</span>(<span class='number'>1</span>)
+                       .<span class='ident'>help</span>(<span class='string'>&quot;Configuration file to use&quot;</span>)))
             <span class='comment'>// Additional subcommand configuration goes here, such as arguments...</span>
- )
+)
 </pre>
 </div><h4 id='method.subcommands' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.subcommands' class='fnname'>subcommands</a>(self, subcmds: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&gt;) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a></code></h4>
 <div class='docblock'><p>Adds multiple subcommands to the list of valid possibilties</p>
 
-<p># Example</p>
-<pre id='rust-example-rendered' class='rust '>
- .<span class='ident'>subcommands</span>( <span class='macro'>vec</span><span class='macro'>!</span>[
-        <span class='ident'>SubCommand</span>::<span class='ident'>new</span>(<span class='string'>&quot;config&quot;</span>).<span class='ident'>about</span>(<span class='string'>&quot;Controls configuration functionality&quot;</span>)
-                                 .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;config_file&quot;</span>).<span class='ident'>index</span>(<span class='number'>1</span>)),
-        <span class='ident'>SubCommand</span>::<span class='ident'>new</span>(<span class='string'>&quot;debug&quot;</span>).<span class='ident'>about</span>(<span class='string'>&quot;Controls debug functionality&quot;</span>)])
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
+.<span class='ident'>subcommands</span>( <span class='macro'>vec</span><span class='macro'>!</span>[
+       <span class='ident'>SubCommand</span>::<span class='ident'>new</span>(<span class='string'>&quot;config&quot;</span>).<span class='ident'>about</span>(<span class='string'>&quot;Controls configuration functionality&quot;</span>)
+                                .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;config_file&quot;</span>).<span class='ident'>index</span>(<span class='number'>1</span>)),
+       <span class='ident'>SubCommand</span>::<span class='ident'>new</span>(<span class='string'>&quot;debug&quot;</span>).<span class='ident'>about</span>(<span class='string'>&quot;Controls debug functionality&quot;</span>)])
 </pre>
 </div><h4 id='method.get_matches' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.get_matches' class='fnname'>get_matches</a>(self) -&gt; <a class='struct' href='../clap/struct.ArgMatches.html' title='clap::ArgMatches'>ArgMatches</a></code></h4>
 </div></section>

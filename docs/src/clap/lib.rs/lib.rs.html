@@ -220,50 +220,50 @@
 <span class='doccomment'>//! // ...</span>
 <span class='doccomment'>//! </span>
 <span class='doccomment'>//! let matches = App::new(&quot;MyApp&quot;)</span>
-<span class='doccomment'>//!						.version(&quot;1.0&quot;)</span>
-<span class='doccomment'>//!						.author(&quot;Kevin K. &lt;kbknapp@gmail.com&gt;&quot;)</span>
-<span class='doccomment'>//!						.about(&quot;Does awesome things&quot;)</span>
-<span class='doccomment'>//!						.arg(Arg::new(&quot;config&quot;)</span>
-<span class='doccomment'>//!									.short(&quot;c&quot;)</span>
-<span class='doccomment'>//!									.long(&quot;config&quot;)</span>
-<span class='doccomment'>//!									.help(&quot;Sets a custom config file&quot;)</span>
-<span class='doccomment'>//!									.takes_value(true))</span>
-<span class='doccomment'>//!						.arg(Arg::new(&quot;output&quot;)</span>
-<span class='doccomment'>//!									.help(&quot;Sets an optional output file&quot;)</span>
-<span class='doccomment'>//!									.index(1))</span>
-<span class='doccomment'>//!						.arg(Arg::new(&quot;debug&quot;)</span>
-<span class='doccomment'>//!									.short(&quot;d&quot;)</span>
-<span class='doccomment'>//! 								.multiple(true)</span>
-<span class='doccomment'>//!									.help(&quot;Turn debugging information on&quot;))</span>
-<span class='doccomment'>//!						.subcommand(SubCommand::new(&quot;test&quot;)</span>
-<span class='doccomment'>//!												.about(&quot;Has test sub functionality&quot;)</span>
-<span class='doccomment'>//!												.arg(Arg::new(&quot;verbose&quot;)</span>
-<span class='doccomment'>//!															.short(&quot;v&quot;)</span>
-<span class='doccomment'>//!															.help(&quot;Display verbose information&quot;)))</span>
-<span class='doccomment'>//!						.get_matches();</span>
+<span class='doccomment'>//!                        .version(&quot;1.0&quot;)</span>
+<span class='doccomment'>//!                        .author(&quot;Kevin K. &lt;kbknapp@gmail.com&gt;&quot;)</span>
+<span class='doccomment'>//!                        .about(&quot;Does awesome things&quot;)</span>
+<span class='doccomment'>//!                        .arg(Arg::new(&quot;config&quot;)</span>
+<span class='doccomment'>//!                                    .short(&quot;c&quot;)</span>
+<span class='doccomment'>//!                                    .long(&quot;config&quot;)</span>
+<span class='doccomment'>//!                                    .help(&quot;Sets a custom config file&quot;)</span>
+<span class='doccomment'>//!                                    .takes_value(true))</span>
+<span class='doccomment'>//!                        .arg(Arg::new(&quot;output&quot;)</span>
+<span class='doccomment'>//!                                    .help(&quot;Sets an optional output file&quot;)</span>
+<span class='doccomment'>//!                                    .index(1))</span>
+<span class='doccomment'>//!                        .arg(Arg::new(&quot;debug&quot;)</span>
+<span class='doccomment'>//!                                    .short(&quot;d&quot;)</span>
+<span class='doccomment'>//!                                 .multiple(true)</span>
+<span class='doccomment'>//!                                    .help(&quot;Turn debugging information on&quot;))</span>
+<span class='doccomment'>//!                        .subcommand(SubCommand::new(&quot;test&quot;)</span>
+<span class='doccomment'>//!                                                .about(&quot;Has test sub functionality&quot;)</span>
+<span class='doccomment'>//!                                                .arg(Arg::new(&quot;verbose&quot;)</span>
+<span class='doccomment'>//!                                                            .short(&quot;v&quot;)</span>
+<span class='doccomment'>//!                                                            .help(&quot;Display verbose information&quot;)))</span>
+<span class='doccomment'>//!                        .get_matches();</span>
 <span class='doccomment'>//!</span>
-<span class='doccomment'>//!	if let Some(o) = matches.value_of(&quot;output&quot;) {</span>
-<span class='doccomment'>//!		println!(&quot;Value for output: {}&quot;, o);</span>
-<span class='doccomment'>//!	}</span>
+<span class='doccomment'>//!    if let Some(o) = matches.value_of(&quot;output&quot;) {</span>
+<span class='doccomment'>//!        println!(&quot;Value for output: {}&quot;, o);</span>
+<span class='doccomment'>//!    }</span>
 <span class='doccomment'>//! </span>
-<span class='doccomment'>//!	if let Some(c) = matches.value_of(&quot;config&quot;) {</span>
-<span class='doccomment'>//!		println!(&quot;Value for config: {}&quot;, c);</span>
-<span class='doccomment'>//!	}</span>
+<span class='doccomment'>//!    if let Some(c) = matches.value_of(&quot;config&quot;) {</span>
+<span class='doccomment'>//!        println!(&quot;Value for config: {}&quot;, c);</span>
+<span class='doccomment'>//!    }</span>
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//! match matches.occurrences_of(&quot;debug&quot;) {</span>
-<span class='doccomment'>//! 	0 =&gt; println!(&quot;Debug mode is off&quot;),</span>
-<span class='doccomment'>//!		1 =&gt; println!(&quot;Debug mode is kind of on&quot;),</span>
-<span class='doccomment'>//!		2 =&gt; println!(&quot;Debug mode is on&quot;),</span>
-<span class='doccomment'>//!		3 | _ =&gt; println!(&quot;Don&#39;t be crazy&quot;),</span>
+<span class='doccomment'>//!     0 =&gt; println!(&quot;Debug mode is off&quot;),</span>
+<span class='doccomment'>//!        1 =&gt; println!(&quot;Debug mode is kind of on&quot;),</span>
+<span class='doccomment'>//!        2 =&gt; println!(&quot;Debug mode is on&quot;),</span>
+<span class='doccomment'>//!        3 | _ =&gt; println!(&quot;Don&#39;t be crazy&quot;),</span>
 <span class='doccomment'>//! }</span>
 <span class='doccomment'>//! </span>
 <span class='doccomment'>//! if let Some(ref matches) = matches.subcommand_matches(&quot;test&quot;) {</span>
-<span class='doccomment'>//! 	if matches.is_present(&quot;verbose&quot;) {</span>
-<span class='doccomment'>//!			println!(&quot;Printing verbose test info...&quot;);</span>
-<span class='doccomment'>//!		} else {</span>
-<span class='doccomment'>//!			println!(&quot;Not printing regular test info...&quot;);</span>
-<span class='doccomment'>//!		}</span>
-<span class='doccomment'>//!	}</span>
+<span class='doccomment'>//!     if matches.is_present(&quot;verbose&quot;) {</span>
+<span class='doccomment'>//!            println!(&quot;Printing verbose test info...&quot;);</span>
+<span class='doccomment'>//!        } else {</span>
+<span class='doccomment'>//!            println!(&quot;Not printing regular test info...&quot;);</span>
+<span class='doccomment'>//!        }</span>
+<span class='doccomment'>//!    }</span>
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//! // more porgram logic goes here...</span>
 <span class='doccomment'>//! ```</span>
@@ -277,22 +277,22 @@
 <span class='doccomment'>//! Does awesome things</span>
 <span class='doccomment'>//! </span>
 <span class='doccomment'>//! USAGE:</span>
-<span class='doccomment'>//! 	MyApp [FLAGS] [OPTIONS] [POSITIONAL] [SUBCOMMANDS]</span>
+<span class='doccomment'>//!     MyApp [FLAGS] [OPTIONS] [POSITIONAL] [SUBCOMMANDS]</span>
 <span class='doccomment'>//! </span>
 <span class='doccomment'>//! FLAGS:</span>
-<span class='doccomment'>//! 	-d   			Turn debugging information on</span>
-<span class='doccomment'>//! 	-h,--help		Prints this message</span>
-<span class='doccomment'>//! 	-v,--version	Prints version information</span>
+<span class='doccomment'>//!     -d               Turn debugging information on</span>
+<span class='doccomment'>//!     -h,--help        Prints this message</span>
+<span class='doccomment'>//!     -v,--version     Prints version information</span>
 <span class='doccomment'>//! </span>
 <span class='doccomment'>//! OPTIONS:</span>
-<span class='doccomment'>//! 	-c,--config &lt;config&gt;		Sets a custom config file</span>
+<span class='doccomment'>//!     -c,--config &lt;config&gt;        Sets a custom config file</span>
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//! POSITIONAL ARGUMENTS:</span>
-<span class='doccomment'>//! 	output			Sets an optional output file</span>
+<span class='doccomment'>//!     output            Sets an optional output file</span>
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//! SUBCOMMANDS:</span>
-<span class='doccomment'>//! 	help 			Prints this message</span>
-<span class='doccomment'>//!		test 			Has test sub-functionality</span>
+<span class='doccomment'>//!     help             Prints this message</span>
+<span class='doccomment'>//!     test             Has test sub-functionality</span>
 <span class='doccomment'>//! ```</span>
 
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>argmatches</span>::<span class='ident'>ArgMatches</span>;
@@ -310,46 +310,46 @@
 <span class='kw'>mod</span> <span class='ident'>tests</span> {
     <span class='kw'>use</span> <span class='ident'>super</span>::<span class='op'>*</span>;
 
-	<span class='attribute'>#[<span class='ident'>test</span>]</span>
-	<span class='attribute'>#[<span class='ident'>should_panic</span>]</span>
-	<span class='kw'>fn</span> <span class='ident'>unique_arg_names</span>(){
-		<span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>args</span>(<span class='macro'>vec</span><span class='macro'>!</span>[
-			<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;arg&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;a&quot;</span>),
-			<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;arg&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;b&quot;</span>)
-		]);
-	}
-	<span class='attribute'>#[<span class='ident'>test</span>]</span>
-	<span class='attribute'>#[<span class='ident'>should_panic</span>]</span>
-	<span class='kw'>fn</span> <span class='ident'>unique_arg_shorts</span>(){
-		<span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>args</span>(<span class='macro'>vec</span><span class='macro'>!</span>[
-			<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;arg1&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;a&quot;</span>),
-			<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;arg2&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;a&quot;</span>)
-		]);
-	}
-	<span class='attribute'>#[<span class='ident'>test</span>]</span>
-	<span class='attribute'>#[<span class='ident'>should_panic</span>]</span>
-	<span class='kw'>fn</span> <span class='ident'>unique_arg_longs</span>(){
-		<span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>args</span>(<span class='macro'>vec</span><span class='macro'>!</span>[
-			<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;arg1&quot;</span>).<span class='ident'>long</span>(<span class='string'>&quot;long&quot;</span>),
-			<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;arg2&quot;</span>).<span class='ident'>long</span>(<span class='string'>&quot;long&quot;</span>)
-		]);
-	}
-	<span class='attribute'>#[<span class='ident'>test</span>]</span>
-	<span class='kw'>fn</span> <span class='ident'>create_app</span>(){
-		<span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>about</span>(<span class='string'>&quot;about&quot;</span>).<span class='ident'>author</span>(<span class='string'>&quot;author&quot;</span>).<span class='ident'>version</span>(<span class='string'>&quot;1.0&quot;</span>);
-	}
-	<span class='attribute'>#[<span class='ident'>test</span>]</span>
-	<span class='kw'>fn</span> <span class='ident'>create_arg_flag</span>(){
-		<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;a&quot;</span>).<span class='ident'>long</span>(<span class='string'>&quot;long&quot;</span>).<span class='ident'>help</span>(<span class='string'>&quot;help with some arg&quot;</span>).<span class='ident'>multiple</span>(<span class='boolval'>true</span>);
-	}
-	<span class='attribute'>#[<span class='ident'>test</span>]</span>
-	<span class='kw'>fn</span> <span class='ident'>create_arg_pos</span>(){
-		<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>index</span>(<span class='number'>1</span>).<span class='ident'>help</span>(<span class='string'>&quot;help with some arg&quot;</span>).<span class='ident'>required</span>(<span class='boolval'>true</span>);
-	}
-	<span class='attribute'>#[<span class='ident'>test</span>]</span>
-	<span class='kw'>fn</span> <span class='ident'>create_arg_opt</span>(){
-		<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;s&quot;</span>).<span class='ident'>long</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>takes_value</span>(<span class='boolval'>true</span>).<span class='ident'>help</span>(<span class='string'>&quot;help with some arg&quot;</span>).<span class='ident'>required</span>(<span class='boolval'>true</span>);
-	}
+    <span class='attribute'>#[<span class='ident'>test</span>]</span>
+    <span class='attribute'>#[<span class='ident'>should_panic</span>]</span>
+    <span class='kw'>fn</span> <span class='ident'>unique_arg_names</span>(){
+        <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>args</span>(<span class='macro'>vec</span><span class='macro'>!</span>[
+            <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;arg&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;a&quot;</span>),
+            <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;arg&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;b&quot;</span>)
+        ]);
+    }
+    <span class='attribute'>#[<span class='ident'>test</span>]</span>
+    <span class='attribute'>#[<span class='ident'>should_panic</span>]</span>
+    <span class='kw'>fn</span> <span class='ident'>unique_arg_shorts</span>(){
+        <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>args</span>(<span class='macro'>vec</span><span class='macro'>!</span>[
+            <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;arg1&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;a&quot;</span>),
+            <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;arg2&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;a&quot;</span>)
+        ]);
+    }
+    <span class='attribute'>#[<span class='ident'>test</span>]</span>
+    <span class='attribute'>#[<span class='ident'>should_panic</span>]</span>
+    <span class='kw'>fn</span> <span class='ident'>unique_arg_longs</span>(){
+        <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>args</span>(<span class='macro'>vec</span><span class='macro'>!</span>[
+            <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;arg1&quot;</span>).<span class='ident'>long</span>(<span class='string'>&quot;long&quot;</span>),
+            <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;arg2&quot;</span>).<span class='ident'>long</span>(<span class='string'>&quot;long&quot;</span>)
+        ]);
+    }
+    <span class='attribute'>#[<span class='ident'>test</span>]</span>
+    <span class='kw'>fn</span> <span class='ident'>create_app</span>(){
+        <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>about</span>(<span class='string'>&quot;about&quot;</span>).<span class='ident'>author</span>(<span class='string'>&quot;author&quot;</span>).<span class='ident'>version</span>(<span class='string'>&quot;1.0&quot;</span>);
+    }
+    <span class='attribute'>#[<span class='ident'>test</span>]</span>
+    <span class='kw'>fn</span> <span class='ident'>create_arg_flag</span>(){
+        <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;a&quot;</span>).<span class='ident'>long</span>(<span class='string'>&quot;long&quot;</span>).<span class='ident'>help</span>(<span class='string'>&quot;help with some arg&quot;</span>).<span class='ident'>multiple</span>(<span class='boolval'>true</span>);
+    }
+    <span class='attribute'>#[<span class='ident'>test</span>]</span>
+    <span class='kw'>fn</span> <span class='ident'>create_arg_pos</span>(){
+        <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>index</span>(<span class='number'>1</span>).<span class='ident'>help</span>(<span class='string'>&quot;help with some arg&quot;</span>).<span class='ident'>required</span>(<span class='boolval'>true</span>);
+    }
+    <span class='attribute'>#[<span class='ident'>test</span>]</span>
+    <span class='kw'>fn</span> <span class='ident'>create_arg_opt</span>(){
+        <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;s&quot;</span>).<span class='ident'>long</span>(<span class='string'>&quot;some&quot;</span>).<span class='ident'>takes_value</span>(<span class='boolval'>true</span>).<span class='ident'>help</span>(<span class='string'>&quot;help with some arg&quot;</span>).<span class='ident'>required</span>(<span class='boolval'>true</span>);
+    }
 }
 </pre>
 </section>
