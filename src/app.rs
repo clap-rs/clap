@@ -762,7 +762,7 @@ impl App {
                 // Single flag, or option long version
                 needs_val_of = self.parse_long_arg(matches, &arg);
 
-            } else if arg_slice.starts_with("-") {
+            } else if arg_slice.starts_with("-") && arg_slice.len() != 1 {
                 needs_val_of = self.parse_short_arg(matches, &arg);
             } else {
                 // Positional or Subcommand
@@ -774,7 +774,7 @@ impl App {
                     break;
                 }
 
-                if self.positionals_idx.is_empty() { // || self.positionals_name.is_empty() {
+                if self.positionals_idx.is_empty() {
                     self.report_error(
                         format!("Found positional argument {}, but {} doesn't accept any", arg, self.name),
                         true, true);
