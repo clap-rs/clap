@@ -105,8 +105,7 @@ impl Arg {
     /// .short("c")
     /// # ).get_matches();
     pub fn short(mut self, s: &'static str) -> Arg {
-        self.short = Some(s.trim_left_matches(|c| c == '-')
-                           .char_at(0));
+        self.short = s.trim_left_matches(|c| c == '-').chars().nth(0);
         self
     }
 

@@ -347,13 +347,13 @@ impl App {
             let flags = ! self.flags.is_empty();
             let pos = ! self.positionals_idx.is_empty();
             let req_pos = self.positionals_idx.values().filter_map(|ref x| if x.required { Some(x.name) } else {None})
-                                                       .fold(String::new(), |acc, ref name| acc + &format!("<{}> ", name.to_uppercase())[..]);
+                                                       .fold(String::new(), |acc, ref name| acc + &format!("<{}> ", name)[..]);
             let req_opts = self.opts.values().filter(|ref x| x.required)
                                              .fold(String::new(), |acc, ref o| acc + &format!("{}{} ",if let Some(s) = o.short {
                                                                                                      format!("-{} ", s)
                                                                                                    } else {
                                                                                                        format!("--{}=",o.long.unwrap())
-                                                                                                   },o.name.to_uppercase()));
+                                                                                                   },o.name));
             let opts = ! self.opts.is_empty();
             let subcmds = ! self.subcommands.is_empty();
 
@@ -409,7 +409,7 @@ impl App {
                 println!("\t{}{}{}\t{}",
                         if let Some(ref s) = v.short{format!("-{} ",s)}else{format!("   ")},
                         if let Some(ref l) = v.long {format!(",--{}=",l)}else {needs_tab = true; format!(" ")},
-                        format!("{}", v.name.to_uppercase()),
+                        format!("{}", v.name),
                         if let Some(ref h) = v.help {if needs_tab {format!("\t{}", *h)} else { format!("{}", *h) } } else {format!("   ")} );
             }
         }
@@ -563,7 +563,7 @@ impl App {
             }
         } else {
             // Short flag or opt
-            let arg_c = arg.char_at(0);
+            let arg_c = arg.chars().nth(0).unwrap();
             self.check_for_help_and_version(arg_c);
 
             if ! self.parse_single_short_flag(matches, arg_c) { 
