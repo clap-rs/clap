@@ -703,66 +703,71 @@ impl App {
     fn get_matches_from(&mut self, matches: &mut ArgMatches, it: &mut IntoIter<String>) {
         self.create_help_and_version();
 
-        // let mut needs_val = false;
+        let mut pos_only = false;
         let mut subcmd_name: Option<&'static str> = None;
         let mut needs_val_of: Option<&'static str> = None; 
         let mut pos_counter = 1;
         while let Some(arg) = it.next() {
             let arg_slice = arg.as_slice();
             let mut skip = false;
-            if let Some(nvo) = needs_val_of {
-                if let Some(ref opt) = self.opts.get(nvo) {
-                    if self.blacklist.contains(opt.name) {
-                        self.report_error(
-                            format!("The argument {} is mutually exclusive with one or more other arguments", 
-                            if let Some(long) = opt.long {
-                                format!("--{}",long)
-                            }else{
-                                format!("-{}",opt.short.unwrap())
-                            }),true, true);
-                    }
-                    matches.opts.insert(nvo, OptArg{
-                        name: opt.name,
-                        short: opt.short,
-                        long: opt.long, 
-                        help: opt.help,
-                        requires: None,
-                        blacklist: None,
-                        required: opt.required,
-                        value: Some(arg.clone()) 
-                    });
-                    if let Some(ref bl) = opt.blacklist {
-                        if ! bl.is_empty() {
-                            for name in bl.iter() {
-                                self.blacklist.insert(name);
+            if ! pos_only {
+                if let Some(nvo) = needs_val_of {
+                    if let Some(ref opt) = self.opts.get(nvo) {
+                        if self.blacklist.contains(opt.name) {
+                            self.report_error(
+                                format!("The argument {} is mutually exclusive with one or more other arguments", 
+                                if let Some(long) = opt.long {
+                                    format!("--{}",long)
+                                }else{
+                                    format!("-{}",opt.short.unwrap())
+                                }),true, true);
+                        }
+                        matches.opts.insert(nvo, OptArg{
+                            name: opt.name,
+                            short: opt.short,
+                            long: opt.long, 
+                            help: opt.help,
+                            requires: None,
+                            blacklist: None,
+                            required: opt.required,
+                            value: Some(arg.clone()) 
+                        });
+                        if let Some(ref bl) = opt.blacklist {
+                            if ! bl.is_empty() {
+                                for name in bl.iter() {
+                                    self.blacklist.insert(name);
+                                }
                             }
                         }
-                    }
-                    if self.required.contains(opt.name) {
-                        self.required.remove(opt.name);
-                    }
-                    if let Some(ref reqs) = opt.requires {
-                        if ! reqs.is_empty() {
-                            for n in reqs.iter() {
-                                if matches.opts.contains_key(n) { continue; }
-                                if matches.flags.contains_key(n) { continue; }
-                                if matches.positionals.contains_key(n) { continue; }
-                                self.required.insert(n);
+                        if self.required.contains(opt.name) {
+                            self.required.remove(opt.name);
+                        }
+                        if let Some(ref reqs) = opt.requires {
+                            if ! reqs.is_empty() {
+                                for n in reqs.iter() {
+                                    if matches.opts.contains_key(n) { continue; }
+                                    if matches.flags.contains_key(n) { continue; }
+                                    if matches.positionals.contains_key(n) { continue; }
+                                    self.required.insert(n);
+                                }
                             }
                         }
+                        skip = true;
                     }
-                    skip = true;
                 }
             }
             if skip {
                 needs_val_of = None;
                 continue;
             }
-            if arg_slice.starts_with("--") {
+            if arg_slice.starts_with("--") && ! pos_only {
+                if arg_slice.len() == 2 {
+                    pos_only = true;
+                    continue;
+                }
                 // Single flag, or option long version
                 needs_val_of = self.parse_long_arg(matches, &arg);
-
-            } else if arg_slice.starts_with("-") && arg_slice.len() != 1 {
+            } else if arg_slice.starts_with("-") && arg_slice.len() != 1 && ! pos_only {
                 needs_val_of = self.parse_short_arg(matches, &arg);
             } else {
                 // Positional or Subcommand
