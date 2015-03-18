@@ -447,7 +447,7 @@ impl App {
     }
 
     fn parse_long_arg(&mut self, matches: &mut ArgMatches ,full_arg: &String) -> Option<&'static str> {
-        let mut arg = full_arg.as_slice().trim_left_matches(|c| c == '-');
+        let mut arg = full_arg.trim_left_matches(|c| c == '-');
         let mut found = false;
 
         if arg == "help" && self.needs_long_help {
@@ -547,7 +547,7 @@ impl App {
     }
 
     fn parse_short_arg(&mut self, matches: &mut ArgMatches ,full_arg: &String) -> Option<&'static str> {
-        let arg = full_arg.as_slice().trim_left_matches(|c| c == '-');
+        let arg = &full_arg[..].trim_left_matches(|c| c == '-');
         if arg.len() > 1 { 
             // Multiple flags using short i.e. -bgHlS
             for c in arg.chars() {
@@ -708,7 +708,7 @@ impl App {
         let mut needs_val_of: Option<&'static str> = None; 
         let mut pos_counter = 1;
         while let Some(arg) = it.next() {
-            let arg_slice = arg.as_slice();
+            let arg_slice = &arg[..];
             let mut skip = false;
             if ! pos_only {
                 if let Some(nvo) = needs_val_of {

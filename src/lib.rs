@@ -1,6 +1,6 @@
 #![crate_type= "lib"]
 
-#![feature(collections, core, libc, exit_status)]
+#![feature(collections, libc, exit_status)]
 
 //! A simply library for parsing command line arguments when writing 
 //! command line and console applications.
