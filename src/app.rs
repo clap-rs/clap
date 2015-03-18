@@ -7,12 +7,7 @@ use std::env;
 use std::path::Path;
 use std::vec::IntoIter;
 
-use argmatches::ArgMatches;
-use Arg;
-use args::OptArg;
-use args::FlagArg;
-use args::PosArg;
-use subcommand::SubCommand;
+use args::{ ArgMatches, Arg, OptArg, FlagArg, PosArg, SubCommand };
 
 /// Used to create a representation of the program and all possible command line arguments
 /// for parsing at runtime.
@@ -38,19 +33,18 @@ use subcommand::SubCommand;
 /// // Your pogram logic starts here...
 /// ```
 pub struct App {
-    /// The name displayed to the user when showing version and help/usage information
-    pub name: &'static str,
-    /// A string of author(s) if desired. Displayed when showing help/usage information
-    pub author: Option<&'static str>,
-    /// The version displayed to the user
-    pub version: Option<&'static str>,
-    /// A brief explaination of the program that gets displayed to the user when shown help/usage information
-    pub about: Option<&'static str>,
+    // The name displayed to the user when showing version and help/usage information
+    name: &'static str,
+    // A string of author(s) if desired. Displayed when showing help/usage information
+    author: Option<&'static str>,
+    // The version displayed to the user
+    version: Option<&'static str>,
+    // A brief explaination of the program that gets displayed to the user when shown help/usage information
+    about: Option<&'static str>,
     flags: HashMap<&'static str, FlagArg>,
     opts: HashMap<&'static str, OptArg>,
     positionals_idx: BTreeMap<u8, PosArg>,
     subcommands: HashMap<&'static str, Box<App>>,
-    // positionals_name: HashMap<&'static str, PosArg>,
     needs_long_help: bool,
     needs_long_version: bool,
     needs_short_help: bool,

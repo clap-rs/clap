@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
-use args::{ FlagArg, OptArg, PosArg };
-use subcommand::SubCommand;
+use args::{ FlagArg, OptArg, PosArg, SubCommand };
 
 /// Used to get information about the arguments that
 /// where supplied to the program at runtime.
