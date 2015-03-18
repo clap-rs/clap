@@ -526,12 +526,15 @@ impl App {
                 }
                 if let Some(ref reqs) = v.requires {
                     if ! reqs.is_empty() {
-                        for n in reqs.iter() {
-                            if matches.opts.contains_key(n) { continue; }
-                            if matches.flags.contains_key(n) { continue; }
-                            if matches.positionals.contains_key(n) { continue; }
-                            self.required.insert(n);
-                        }
+	                	// Add all required args which aren't already found in matches to the
+	                	// final required list
+	                    for n in reqs.iter().filter(|&a|
+	                        ! matches.opts.contains_key(a) ||
+	                        ! matches.flags.contains_key(a) ||
+	                        ! matches.positionals.contains_key(a) ) {
+
+	                    	self.required.insert(n);
+	                    }
                     }
                 }
                 break;
@@ -744,13 +747,16 @@ impl App {
                         }
                         if let Some(ref reqs) = opt.requires {
                             if ! reqs.is_empty() {
-                                for n in reqs.iter() {
-                                    if matches.opts.contains_key(n) { continue; }
-                                    if matches.flags.contains_key(n) { continue; }
-                                    if matches.positionals.contains_key(n) { continue; }
-                                    self.required.insert(n);
-                                }
-                            }
+	                        	// Add all required args which aren't already found in matches to the
+	                        	// final required list
+	                            for n in reqs.iter().filter(|&a|
+	                                ! matches.opts.contains_key(a) ||
+	                                ! matches.flags.contains_key(a) ||
+	                                ! matches.positionals.contains_key(a) ) {
+
+	                            	self.required.insert(n);
+	                            }
+	                        }
                         }
                         skip = true;
                     }
@@ -810,11 +816,14 @@ impl App {
                     }
                     if let Some(ref reqs) = p.requires {
                         if ! reqs.is_empty() {
-                            for n in reqs.iter() {
-                                if matches.opts.contains_key(n) { continue; }
-                                if matches.flags.contains_key(n) { continue; }
-                                if matches.positionals.contains_key(n) { continue; }
-                                self.required.insert(n);
+                        	// Add all required args which aren't already found in matches to the
+                        	// final required list
+                            for n in reqs.iter().filter(|&a|
+                                ! matches.opts.contains_key(a) ||
+                                ! matches.flags.contains_key(a) ||
+                                ! matches.positionals.contains_key(a) ) {
+
+                            	self.required.insert(n);
                             }
                         }
                     }
