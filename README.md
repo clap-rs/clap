@@ -38,8 +38,8 @@ fn main() {
                           .subcommand(SubCommand::new("test")
                                       .about("controls testing features")
                                       .arg(Arg::new("verbose")
-                                      .short("v")
-                                      .help("print test information verbosely")))
+                                          .short("v")
+                                          .help("print test information verbosely")))
                           .get_matches();
 
     if let Some(o) = matches.value_of("output") {
@@ -58,10 +58,10 @@ fn main() {
     }
 
     if let Some(ref matches) = matches.subcommand_matches("test") {
-        if matches.is_present("list") {
-            println!("Printing testing lists...");
+        if matches.is_present("verbose") {
+            println!("Printing verbosely...");
         } else {
-            println!("Not printing testing lists...");
+            println!("Printing normally...");
         }
     }
 
