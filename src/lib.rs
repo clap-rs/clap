@@ -97,16 +97,11 @@
 //!     test             Has test sub-functionality
 //! ```
 
-pub use argmatches::ArgMatches;
-pub use arg::Arg;
+pub use args::{Arg, SubCommand, ArgMatches};
 pub use app::App;
-pub use subcommand::SubCommand;
 
 mod app;
-mod argmatches;
-mod arg;
 mod args;
-mod subcommand;
 
 #[cfg(test)]
 mod tests {
