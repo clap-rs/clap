@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/arg.rs`.">
+    <meta name="description" content="Source to the Rust file `src/args/arg.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>arg.rs.html -- source</title>
 
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../../main.css">
 
     
     
@@ -377,7 +377,6 @@
 <span id="335">335</span>
 <span id="336">336</span>
 <span id="337">337</span>
-<span id="338">338</span>
 </pre><pre class='rust '>
 <span class='doccomment'>/// The abstract representation of a command line argument used by the consumer of the library.</span>
 <span class='doccomment'>/// </span>
@@ -486,8 +485,7 @@
     <span class='doccomment'>/// .short(&quot;c&quot;)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>short</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>s</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
-        <span class='self'>self</span>.<span class='ident'>short</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>s</span>.<span class='ident'>trim_left_matches</span>(<span class='op'>|</span><span class='ident'>c</span><span class='op'>|</span> <span class='ident'>c</span> <span class='op'>==</span> <span class='string'>&#39;-&#39;</span>)
-                           .<span class='ident'>char_at</span>(<span class='number'>0</span>));
+        <span class='self'>self</span>.<span class='ident'>short</span> <span class='op'>=</span> <span class='ident'>s</span>.<span class='ident'>trim_left_matches</span>(<span class='op'>|</span><span class='ident'>c</span><span class='op'>|</span> <span class='ident'>c</span> <span class='op'>==</span> <span class='string'>&#39;-&#39;</span>).<span class='ident'>chars</span>().<span class='ident'>nth</span>(<span class='number'>0</span>);
         <span class='self'>self</span>
     }
 
@@ -757,13 +755,13 @@
     
 
     <script>
-        window.rootPath = "../../../";
+        window.rootPath = "../../../../";
         window.currentCrate = "clap";
         window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
-    <script src="../../../main.js"></script>
+    <script src="../../../../jquery.js"></script>
+    <script src="../../../../main.js"></script>
     
-    <script async src="../../../search-index.js"></script>
+    <script async src="../../../../search-index.js"></script>
 </body>
 </html>

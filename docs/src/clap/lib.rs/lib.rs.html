@@ -190,15 +190,10 @@
 <span id="148">148</span>
 <span id="149">149</span>
 <span id="150">150</span>
-<span id="151">151</span>
-<span id="152">152</span>
-<span id="153">153</span>
-<span id="154">154</span>
-<span id="155">155</span>
 </pre><pre class='rust '>
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>crate_type</span><span class='op'>=</span> <span class='string'>&quot;lib&quot;</span>]</span>
 
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>feature</span>(<span class='ident'>collections</span>, <span class='ident'>core</span>, <span class='ident'>libc</span>, <span class='ident'>exit_status</span>)]</span>
+<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>feature</span>(<span class='ident'>libc</span>, <span class='ident'>exit_status</span>)]</span>
 
 <span class='doccomment'>//! A simply library for parsing command line arguments when writing </span>
 <span class='doccomment'>//! command line and console applications.</span>
@@ -224,22 +219,22 @@
 <span class='doccomment'>//!                        .author(&quot;Kevin K. &lt;kbknapp@gmail.com&gt;&quot;)</span>
 <span class='doccomment'>//!                        .about(&quot;Does awesome things&quot;)</span>
 <span class='doccomment'>//!                        .arg(Arg::new(&quot;config&quot;)</span>
-<span class='doccomment'>//!                                    .short(&quot;c&quot;)</span>
-<span class='doccomment'>//!                                    .long(&quot;config&quot;)</span>
-<span class='doccomment'>//!                                    .help(&quot;Sets a custom config file&quot;)</span>
-<span class='doccomment'>//!                                    .takes_value(true))</span>
+<span class='doccomment'>//!                             .short(&quot;c&quot;)</span>
+<span class='doccomment'>//!                             .long(&quot;config&quot;)</span>
+<span class='doccomment'>//!                             .help(&quot;Sets a custom config file&quot;)</span>
+<span class='doccomment'>//!                             .takes_value(true))</span>
 <span class='doccomment'>//!                        .arg(Arg::new(&quot;output&quot;)</span>
-<span class='doccomment'>//!                                    .help(&quot;Sets an optional output file&quot;)</span>
-<span class='doccomment'>//!                                    .index(1))</span>
+<span class='doccomment'>//!                             .help(&quot;Sets an optional output file&quot;)</span>
+<span class='doccomment'>//!                             .index(1))</span>
 <span class='doccomment'>//!                        .arg(Arg::new(&quot;debug&quot;)</span>
-<span class='doccomment'>//!                                    .short(&quot;d&quot;)</span>
-<span class='doccomment'>//!                                 .multiple(true)</span>
-<span class='doccomment'>//!                                    .help(&quot;Turn debugging information on&quot;))</span>
+<span class='doccomment'>//!                             .short(&quot;d&quot;)</span>
+<span class='doccomment'>//!                             .multiple(true)</span>
+<span class='doccomment'>//!                             .help(&quot;Turn debugging information on&quot;))</span>
 <span class='doccomment'>//!                        .subcommand(SubCommand::new(&quot;test&quot;)</span>
-<span class='doccomment'>//!                                                .about(&quot;Has test sub functionality&quot;)</span>
-<span class='doccomment'>//!                                                .arg(Arg::new(&quot;verbose&quot;)</span>
-<span class='doccomment'>//!                                                            .short(&quot;v&quot;)</span>
-<span class='doccomment'>//!                                                            .help(&quot;Display verbose information&quot;)))</span>
+<span class='doccomment'>//!                                    .about(&quot;Has test sub functionality&quot;)</span>
+<span class='doccomment'>//!                                    .arg(Arg::new(&quot;verbose&quot;)</span>
+<span class='doccomment'>//!                                         .short(&quot;v&quot;)</span>
+<span class='doccomment'>//!                                         .help(&quot;Display verbose information&quot;)))</span>
 <span class='doccomment'>//!                        .get_matches();</span>
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//!    if let Some(o) = matches.value_of(&quot;output&quot;) {</span>
@@ -256,7 +251,7 @@
 <span class='doccomment'>//!        2 =&gt; println!(&quot;Debug mode is on&quot;),</span>
 <span class='doccomment'>//!        3 | _ =&gt; println!(&quot;Don&#39;t be crazy&quot;),</span>
 <span class='doccomment'>//! }</span>
-<span class='doccomment'>//! </span>
+<span class='doccomment'>//!</span>
 <span class='doccomment'>//! if let Some(ref matches) = matches.subcommand_matches(&quot;test&quot;) {</span>
 <span class='doccomment'>//!     if matches.is_present(&quot;verbose&quot;) {</span>
 <span class='doccomment'>//!            println!(&quot;Printing verbose test info...&quot;);</span>
@@ -295,16 +290,11 @@
 <span class='doccomment'>//!     test             Has test sub-functionality</span>
 <span class='doccomment'>//! ```</span>
 
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>argmatches</span>::<span class='ident'>ArgMatches</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>arg</span>::<span class='ident'>Arg</span>;
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>args</span>::{<span class='ident'>Arg</span>, <span class='ident'>SubCommand</span>, <span class='ident'>ArgMatches</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>app</span>::<span class='ident'>App</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>subcommand</span>::<span class='ident'>SubCommand</span>;
 
 <span class='kw'>mod</span> <span class='ident'>app</span>;
-<span class='kw'>mod</span> <span class='ident'>argmatches</span>;
-<span class='kw'>mod</span> <span class='ident'>arg</span>;
 <span class='kw'>mod</span> <span class='ident'>args</span>;
-<span class='kw'>mod</span> <span class='ident'>subcommand</span>;
 
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>test</span>)]</span>
 <span class='kw'>mod</span> <span class='ident'>tests</span> {
