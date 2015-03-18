@@ -1,4 +1,7 @@
-# clap ![Travis-CI](https://travis-ci.org/kbknapp/clap-rs.svg?branch=master)
+# clap
+
+![Travis-CI](https://travis-ci.org/kbknapp/clap-rs.svg?branch=master)
+
 Command Line Argument Parser written in Rust
 
 A simply library for parsing command line arguments and subcommands when writing command line and console applications.
