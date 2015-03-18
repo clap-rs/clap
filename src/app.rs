@@ -218,11 +218,12 @@ impl App {
                 name: a.name,
                 short: a.short,
                 long: a.long,
+                multiple: a.multiple,
                 blacklist: a.blacklist,
                 help: a.help,
                 requires: a.requires,
                 required: a.required,
-                value: None
+                values: None
             });
         } else {
             if let Some(ref l) = a.long {
@@ -450,12 +451,12 @@ impl App {
             self.print_version(true);
         }
 
-        let mut arg_val: Option<String> = None;
+        let mut arg_val: Option<Vec<String>> = None;
 
         if arg.contains("=") {
             let arg_vec: Vec<&str> = arg.split("=").collect();
             arg = arg_vec[0];
-            arg_val = Some(arg_vec[1].to_string());
+            arg_val = Some(vec![arg_vec[1].to_string()]);
         } 
 
         for (k, v) in self.opts.iter() {
@@ -465,6 +466,11 @@ impl App {
                         self.report_error(format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
                             true, true);
                     }
+                    let mut name_to_return = Option<
+                    match arg_val {
+                        None => { return Some(v.name); },
+                        _ => { return None; }
+                    }  
                     matches.opts.insert(k, OptArg{
                         name: v.name,
                         short: v.short,
@@ -472,13 +478,11 @@ impl App {
                         help: v.help,
                         required: v.required,
                         blacklist: None,
+                        multiple: v.multiple,
                         requires: None,
-                        value: arg_val.clone() 
+                        values: arg_val 
                     });
-                    match arg_val {
-                        None => { return Some(v.name); },
-                        _ => { return None; }
-                    }    
+                      
                 }
             }
         } 
@@ -726,8 +730,9 @@ impl App {
                             help: opt.help,
                             requires: None,
                             blacklist: None,
+                            multiple: opt.multiple,
                             required: opt.required,
-                            value: Some(arg.clone()) 
+                            values: Some(vec![arg.clone()]) 
                         });
                         if let Some(ref bl) = opt.blacklist {
                             if ! bl.is_empty() {

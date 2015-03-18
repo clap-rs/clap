@@ -31,6 +31,8 @@ pub struct OptArg {
     pub requires: Option<Vec<&'static str>>,
     /// A list of names for other arguments that *may not* be used with this flag
     pub blacklist: Option<Vec<&'static str>>,
+    /// Allow multiple values of an option argument
+    pub multiple: bool,
     /// The value provided to the argument by the user
-    pub value: Option<String>
+    pub values: Option<Vec<String>>
 }
