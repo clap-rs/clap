@@ -329,7 +329,6 @@ impl Arg {
     /// .multiple(true)
     /// # ).get_matches();
     pub fn multiple(mut self, multi: bool) -> Arg {
-        assert!(self.takes_value == false);
         assert!(self.index == None);
         self.multiple = multi;
         self
