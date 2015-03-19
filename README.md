@@ -1,4 +1,7 @@
-# clap ![Travis-CI](https://travis-ci.org/kbknapp/clap-rs.svg?branch=master)
+# clap
+
+![Travis-CI](https://travis-ci.org/kbknapp/clap-rs.svg?branch=master)
+
 Command Line Argument Parser written in Rust
 
 A simply library for parsing command line arguments and subcommands when writing command line and console applications.
@@ -119,3 +122,19 @@ Add `extern crate clap;` to your crate root.
 ## More Information
 
 You can find complete documentation on the [github-pages site](http://kbknapp.github.io/clap-rs/docs/clap/index.html) for this project.
+
+## How to build
+
+### Running the tests
+
+```
+cargo test
+```
+
+### Building the documentation
+
+Run this instead of `cargo doc` to generate the proper module docstring:
+
+```
+make doc
+```
