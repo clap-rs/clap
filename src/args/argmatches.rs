@@ -86,7 +86,10 @@ impl ArgMatches {
 
     /// Gets the value of a specific option or positional argument (i.e. an argument that takes
     /// an additional value at runtime). If the option wasn't present at runtime
-    /// it returns `None`
+    /// it returns `None`. 
+    ///
+    /// *NOTE:* If getting a value for an option argument that allows multiples, prefer `values_of()`
+    /// as `value_of()` will only return the _*first*_ value.
     ///
     /// # Example
     ///
@@ -99,14 +102,43 @@ impl ArgMatches {
     /// ```
     pub fn value_of(&self, name: &'static str) -> Option<&String> {
         if let Some(ref opt) = self.opts.get(name) {
-            if let Some(ref v) = opt.value {
-                return Some(v);
+            if ! opt.values.is_empty() {
+                if let Some(ref s) = opt.values.iter().nth(0) {
+                    return Some(s);
+                }
             } 
         }
         if let Some(ref pos) = self.positionals.get(name) {
             if let Some(ref v) = pos.value {
                 return Some(v);
             }  
+        }
+        None
+    }
+
+    /// Gets the values of a specific option in a vector (i.e. an argument that takes
+    /// an additional value at runtime). If the option wasn't present at runtime
+    /// it returns `None`
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let matches = App::new("myapp").arg(Arg::new("output").takes_value(true)).get_matches();
+    /// // If the program had option "-c" that took a value and was run
+    /// // via "myapp -o some -o other -o file"
+    /// // values_of() would return a [&str; 3] ("some", "other", "file")
+    /// if let Some(os) = matches.values_of("output") {
+    ///        for o in os {
+    ///            println!("A value for output: {}", o);
+    ///        }
+    /// }
+    /// ```
+    pub fn values_of(&self, name: &'static str) -> Option<Vec<&str>> {
+        if let Some(ref opt) = self.opts.get(name) {
+            if opt.values.is_empty() { return None; } 
+
+            return Some(opt.values.iter().map(|s| &s[..]).collect::<Vec<_>>());
         }
         None
     }
