@@ -31,6 +31,10 @@ pub struct OptArg {
     pub requires: Option<Vec<&'static str>>,
     /// A list of names for other arguments that *may not* be used with this flag
     pub blacklist: Option<Vec<&'static str>>,
+    /// Allow multiple occurrences of an option argument such as "-c some -c other"
+    pub multiple: bool,
+    /// How many occurences of this option have been found when parsing
+    pub occurrences: u8,
     /// The value provided to the argument by the user
-    pub value: Option<String>
+    pub values: Vec<String>
 }

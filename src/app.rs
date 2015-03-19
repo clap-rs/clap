@@ -218,11 +218,13 @@ impl App {
                 name: a.name,
                 short: a.short,
                 long: a.long,
+                multiple: a.multiple,
                 blacklist: a.blacklist,
                 help: a.help,
                 requires: a.requires,
+                occurrences: 1,
                 required: a.required,
-                value: None
+                values: vec![]
             });
         } else {
             if let Some(ref l) = a.long {
@@ -455,6 +457,10 @@ impl App {
         if arg.contains("=") {
             let arg_vec: Vec<&str> = arg.split("=").collect();
             arg = arg_vec[0];
+            // prevents "--config= value" typo
+            if arg_vec[1].len() == 0 {
+                self.report_error(format!("Argument --{} requires a value, but none was supplied", arg), true, true);
+            }
             arg_val = Some(arg_vec[1].to_string());
         } 
 
@@ -465,20 +471,35 @@ impl App {
                         self.report_error(format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
                             true, true);
                     }
-                    matches.opts.insert(k, OptArg{
-                        name: v.name,
-                        short: v.short,
-                        long: v.long, 
-                        help: v.help,
-                        required: v.required,
-                        blacklist: None,
-                        requires: None,
-                        value: arg_val.clone() 
-                    });
+                    let mut done = false;
+                    if v.multiple {
+                        if let Some(ref mut o) = matches.opts.get_mut(v.name) {
+                            if arg_val.is_some() {
+                                o.occurrences += 1;
+                                o.values.push(arg_val.clone().unwrap());
+                                return None;
+                            }
+                            done = true;
+                        }
+                    }
+                    if ! done {
+                        matches.opts.insert(k, OptArg{
+                            name: v.name,
+                            short: v.short,
+                            long: v.long, 
+                            help: v.help,
+                            required: v.required,
+                            blacklist: None,
+                            occurrences: 1,
+                            multiple: v.multiple,
+                            requires: None,
+                            values: if arg_val.is_some() { vec![arg_val.clone().unwrap()]} else {vec![]} 
+                        });
+                    } 
                     match arg_val {
                         None => { return Some(v.name); },
                         _ => { return None; }
-                    }    
+                    } 
                 }
             }
         } 
@@ -555,27 +576,29 @@ impl App {
                         true, true);
                 }
             }
-        } else {
-            // Short flag or opt
-            let arg_c = arg.chars().nth(0).unwrap();
-            self.check_for_help_and_version(arg_c);
+            return None;
+        } 
+        // Short flag or opt
+        let arg_c = arg.chars().nth(0).unwrap();
 
-            if ! self.parse_single_short_flag(matches, arg_c) { 
-                for (k, v) in self.opts.iter() {
-                    if let Some(s) = v.short {
-                        if s == arg_c {
-                            return Some(k)
-                        }
-                    }
-                } 
+        // Ensure the arg in question isn't a help or version flag
+        self.check_for_help_and_version(arg_c);
 
-                self.report_error(
-                    format!("Argument -{} isn't valid",arg_c),
-                    true, true);
+        // Check for a matching flag, and return none if found
+        if self.parse_single_short_flag(matches, arg_c) { return None; }
+        
+        // Check for matching short in options, and return the name
+        // (only ones with shorts, of course)
+        for v in self.opts.values().filter(|&v| v.short.is_some()) {
+            if v.short.unwrap() == arg_c {
+                return Some(v.name)
             }
+        } 
 
-        }
-        None
+        // Didn't match a flag or option, must be invalid
+        self.report_error( format!("Argument -{} isn't valid",arg_c), true, true);
+
+        unreachable!();
     }
 
     fn parse_single_short_flag(&mut self, matches: &mut ArgMatches, arg: char) -> bool {
@@ -719,16 +742,28 @@ impl App {
                                     format!("-{}",opt.short.unwrap())
                                 }),true, true);
                         }
-                        matches.opts.insert(nvo, OptArg{
-                            name: opt.name,
-                            short: opt.short,
-                            long: opt.long, 
-                            help: opt.help,
-                            requires: None,
-                            blacklist: None,
-                            required: opt.required,
-                            value: Some(arg.clone()) 
-                        });
+                        let mut done = false;
+                        if opt.multiple {
+                            if let Some(ref mut o) = matches.opts.get_mut(opt.name) {
+                                done = true;
+                                o.values.push(arg.clone());
+                                o.occurrences += 1;
+                            } 
+                        } 
+                        if ! done {
+                            matches.opts.insert(nvo, OptArg{
+                                name: opt.name,
+                                short: opt.short,
+                                long: opt.long, 
+                                help: opt.help,
+                                requires: None,
+                                blacklist: None,
+                                multiple: opt.multiple,
+                                occurrences: 1,
+                                required: opt.required,
+                                values: vec![arg.clone()] 
+                            });
+                        }
                         if let Some(ref bl) = opt.blacklist {
                             if ! bl.is_empty() {
                                 for name in bl.iter() {
