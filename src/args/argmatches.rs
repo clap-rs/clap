@@ -102,8 +102,8 @@ impl ArgMatches {
     /// ```
     pub fn value_of(&self, name: &'static str) -> Option<&String> {
         if let Some(ref opt) = self.opts.get(name) {
-            if let Some(ref v) = opt.values {
-                if let Some(ref s) = v.iter().nth(0) {
+            if ! opt.values.is_empty() {
+                if let Some(ref s) = opt.values.iter().nth(0) {
                     return Some(s);
                 }
             } 
@@ -136,9 +136,9 @@ impl ArgMatches {
     /// ```
     pub fn values_of(&self, name: &'static str) -> Option<Vec<&str>> {
         if let Some(ref opt) = self.opts.get(name) {
-            if let Some(ref v) = opt.values {
-                return Some(v.iter().map(|s| &s[..]).collect::<Vec<_>>());
-            } 
+            if opt.values.is_empty() { return None; } 
+
+            return Some(opt.values.iter().map(|s| &s[..]).collect::<Vec<_>>());
         }
         None
     }
