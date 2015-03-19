@@ -12,6 +12,8 @@ doc:
 	cp src/lib.rs code.bak
 	cat README.md | sed -e 's/^/\/\/! /g' > readme.bak
 	sed -i '/\/\/ DOCS/r readme.bak' src/lib.rs
+	rm -rf docs/*
+	cp -r target/doc/* docs/
 	(cargo doc --no-deps && make clean) || (make clean && false)
 
 clean:
