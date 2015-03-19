@@ -40,13 +40,13 @@ fn main() {
                                     .index(1))
                         .arg(Arg::new("debug")
                                     .short("d")
-                                     .multiple(true)
+                                    .multiple(true)
                                     .help("Turn debugging information on"))
                         .subcommand(SubCommand::new("test")
                                                 .about("does testing things")
                                                 .arg(Arg::new("list")
-                                                            .short("l")
-                                                            .help("lists test values")))
+                                                    .short("l")
+                                                    .help("lists test values")))
                         .get_matches();
 
     // You can check the value provided by positional arguments, or option arguments
@@ -61,7 +61,7 @@ fn main() {
     // You can see how many times a particular flag or argument occurred
     // Note, only flags can have multiple occurrences
     match matches.occurrences_of("debug") {
-         0 => println!("Debug mode is off"),
+        0 => println!("Debug mode is off"),
         1 => println!("Debug mode is kind of on"),
         2 => println!("Debug mode is on"),
         3 | _ => println!("Don't be crazy"),

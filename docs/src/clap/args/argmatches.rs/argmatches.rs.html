@@ -246,6 +246,40 @@
 <span id="204">204</span>
 <span id="205">205</span>
 <span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>HashMap</span>;
 
@@ -335,7 +369,10 @@
 
     <span class='doccomment'>/// Gets the value of a specific option or positional argument (i.e. an argument that takes</span>
     <span class='doccomment'>/// an additional value at runtime). If the option wasn&#39;t present at runtime</span>
-    <span class='doccomment'>/// it returns `None`</span>
+    <span class='doccomment'>/// it returns `None`. </span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// *NOTE:* If getting a value for an option argument that allows multiples, prefer `values_of()`</span>
+    <span class='doccomment'>/// as `value_of()` will only return the _*first*_ value.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// # Example</span>
     <span class='doccomment'>///</span>
@@ -348,14 +385,43 @@
     <span class='doccomment'>/// ```</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>value_of</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>String</span><span class='op'>&gt;</span> {
         <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>opt</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>opts</span>.<span class='ident'>get</span>(<span class='ident'>name</span>) {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>v</span>) <span class='op'>=</span> <span class='ident'>opt</span>.<span class='ident'>value</span> {
-                <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>v</span>);
+            <span class='kw'>if</span> <span class='op'>!</span> <span class='ident'>opt</span>.<span class='ident'>values</span>.<span class='ident'>is_empty</span>() {
+                <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>s</span>) <span class='op'>=</span> <span class='ident'>opt</span>.<span class='ident'>values</span>.<span class='ident'>iter</span>().<span class='ident'>nth</span>(<span class='number'>0</span>) {
+                    <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>s</span>);
+                }
             } 
         }
         <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>pos</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>positionals</span>.<span class='ident'>get</span>(<span class='ident'>name</span>) {
             <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>v</span>) <span class='op'>=</span> <span class='ident'>pos</span>.<span class='ident'>value</span> {
                 <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>v</span>);
             }  
+        }
+        <span class='prelude-val'>None</span>
+    }
+
+    <span class='doccomment'>/// Gets the values of a specific option in a vector (i.e. an argument that takes</span>
+    <span class='doccomment'>/// an additional value at runtime). If the option wasn&#39;t present at runtime</span>
+    <span class='doccomment'>/// it returns `None`</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let matches = App::new(&quot;myapp&quot;).arg(Arg::new(&quot;output&quot;).takes_value(true)).get_matches();</span>
+    <span class='doccomment'>/// // If the program had option &quot;-c&quot; that took a value and was run</span>
+    <span class='doccomment'>/// // via &quot;myapp -o some -o other -o file&quot;</span>
+    <span class='doccomment'>/// // values_of() would return a [&amp;str; 3] (&quot;some&quot;, &quot;other&quot;, &quot;file&quot;)</span>
+    <span class='doccomment'>/// if let Some(os) = matches.values_of(&quot;output&quot;) {</span>
+    <span class='doccomment'>///        for o in os {</span>
+    <span class='doccomment'>///            println!(&quot;A value for output: {}&quot;, o);</span>
+    <span class='doccomment'>///        }</span>
+    <span class='doccomment'>/// }</span>
+    <span class='doccomment'>/// ```</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>values_of</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>str</span><span class='op'>&gt;&gt;</span> {
+        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>opt</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>opts</span>.<span class='ident'>get</span>(<span class='ident'>name</span>) {
+            <span class='kw'>if</span> <span class='ident'>opt</span>.<span class='ident'>values</span>.<span class='ident'>is_empty</span>() { <span class='kw'>return</span> <span class='prelude-val'>None</span>; } 
+
+            <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>opt</span>.<span class='ident'>values</span>.<span class='ident'>iter</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>s</span><span class='op'>|</span> <span class='kw-2'>&amp;</span><span class='ident'>s</span>[..]).<span class='ident'>collect</span>::<span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span>_<span class='op'>&gt;&gt;</span>());
         }
         <span class='prelude-val'>None</span>
     }
@@ -385,13 +451,12 @@
         <span class='boolval'>false</span>
     }
 
-    <span class='doccomment'>/// Checks the number of occurrences of a flag at runtime.</span>
+    <span class='doccomment'>/// Checks the number of occurrences of an option or flag at runtime. </span>
+    <span class='doccomment'>/// If an option or flag isn&#39;t present it will return `0`, if the option or flag doesn&#39;t </span>
+    <span class='doccomment'>/// allow multiple occurrences, it will return `1` no matter how many times it occurred </span>
+    <span class='doccomment'>/// (unless it wasn&#39;t prsent) at all.</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// This **DOES NOT** work for option or positional arguments </span>
-    <span class='doccomment'>/// (use `.value_of()` instead). If a flag isn&#39;t present it will</span>
-    <span class='doccomment'>/// return `0`, if a flag doesn&#39;t allow multiple occurrences, it will</span>
-    <span class='doccomment'>/// return `1` no matter how many times it occurred (unless it wasn&#39;t prsent)</span>
-    <span class='doccomment'>/// at all.</span>
+    <span class='doccomment'>/// *NOTE:* This _*DOES NOT*_ work for positional arguments (use `.value_of()` instead). </span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// # Example</span>
@@ -408,6 +473,9 @@
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>occurrences_of</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>u8</span> {
         <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>f</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>flags</span>.<span class='ident'>get</span>(<span class='ident'>name</span>) {
             <span class='kw'>return</span> <span class='ident'>f</span>.<span class='ident'>occurrences</span>;
+        }
+        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>o</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>opts</span>.<span class='ident'>get</span>(<span class='ident'>name</span>) {
+            <span class='kw'>return</span> <span class='ident'>o</span>.<span class='ident'>occurrences</span>;
         }
         <span class='number'>0</span>
     }

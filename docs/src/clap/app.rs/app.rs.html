@@ -915,6 +915,41 @@
 <span id="873">873</span>
 <span id="874">874</span>
 <span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
 </pre><pre class='rust '>
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>libc</span>;
 
@@ -1136,11 +1171,13 @@
                 <span class='ident'>name</span>: <span class='ident'>a</span>.<span class='ident'>name</span>,
                 <span class='ident'>short</span>: <span class='ident'>a</span>.<span class='ident'>short</span>,
                 <span class='ident'>long</span>: <span class='ident'>a</span>.<span class='ident'>long</span>,
+                <span class='ident'>multiple</span>: <span class='ident'>a</span>.<span class='ident'>multiple</span>,
                 <span class='ident'>blacklist</span>: <span class='ident'>a</span>.<span class='ident'>blacklist</span>,
                 <span class='ident'>help</span>: <span class='ident'>a</span>.<span class='ident'>help</span>,
                 <span class='ident'>requires</span>: <span class='ident'>a</span>.<span class='ident'>requires</span>,
+                <span class='ident'>occurrences</span>: <span class='number'>1</span>,
                 <span class='ident'>required</span>: <span class='ident'>a</span>.<span class='ident'>required</span>,
-                <span class='ident'>value</span>: <span class='prelude-val'>None</span>
+                <span class='ident'>values</span>: <span class='macro'>vec</span><span class='macro'>!</span>[]
             });
         } <span class='kw'>else</span> {
             <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>l</span>) <span class='op'>=</span> <span class='ident'>a</span>.<span class='ident'>long</span> {
@@ -1373,6 +1410,10 @@
         <span class='kw'>if</span> <span class='ident'>arg</span>.<span class='ident'>contains</span>(<span class='string'>&quot;=&quot;</span>) {
             <span class='kw'>let</span> <span class='ident'>arg_vec</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>str</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>arg</span>.<span class='ident'>split</span>(<span class='string'>&quot;=&quot;</span>).<span class='ident'>collect</span>();
             <span class='ident'>arg</span> <span class='op'>=</span> <span class='ident'>arg_vec</span>[<span class='number'>0</span>];
+            <span class='comment'>// prevents &quot;--config= value&quot; typo</span>
+            <span class='kw'>if</span> <span class='ident'>arg_vec</span>[<span class='number'>1</span>].<span class='ident'>len</span>() <span class='op'>==</span> <span class='number'>0</span> {
+                <span class='self'>self</span>.<span class='ident'>report_error</span>(<span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;Argument --{} requires a value, but none was supplied&quot;</span>, <span class='ident'>arg</span>), <span class='boolval'>true</span>, <span class='boolval'>true</span>);
+            }
             <span class='ident'>arg_val</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>arg_vec</span>[<span class='number'>1</span>].<span class='ident'>to_string</span>());
         } 
 
@@ -1383,20 +1424,35 @@
                         <span class='self'>self</span>.<span class='ident'>report_error</span>(<span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;The argument --{} is mutually exclusive with one or more other arguments&quot;</span>, <span class='ident'>arg</span>),
                             <span class='boolval'>true</span>, <span class='boolval'>true</span>);
                     }
-                    <span class='ident'>matches</span>.<span class='ident'>opts</span>.<span class='ident'>insert</span>(<span class='ident'>k</span>, <span class='ident'>OptArg</span>{
-                        <span class='ident'>name</span>: <span class='ident'>v</span>.<span class='ident'>name</span>,
-                        <span class='ident'>short</span>: <span class='ident'>v</span>.<span class='ident'>short</span>,
-                        <span class='ident'>long</span>: <span class='ident'>v</span>.<span class='ident'>long</span>, 
-                        <span class='ident'>help</span>: <span class='ident'>v</span>.<span class='ident'>help</span>,
-                        <span class='ident'>required</span>: <span class='ident'>v</span>.<span class='ident'>required</span>,
-                        <span class='ident'>blacklist</span>: <span class='prelude-val'>None</span>,
-                        <span class='ident'>requires</span>: <span class='prelude-val'>None</span>,
-                        <span class='ident'>value</span>: <span class='ident'>arg_val</span>.<span class='ident'>clone</span>() 
-                    });
+                    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>done</span> <span class='op'>=</span> <span class='boolval'>false</span>;
+                    <span class='kw'>if</span> <span class='ident'>v</span>.<span class='ident'>multiple</span> {
+                        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>o</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>opts</span>.<span class='ident'>get_mut</span>(<span class='ident'>v</span>.<span class='ident'>name</span>) {
+                            <span class='kw'>if</span> <span class='ident'>arg_val</span>.<span class='ident'>is_some</span>() {
+                                <span class='ident'>o</span>.<span class='ident'>occurrences</span> <span class='op'>+=</span> <span class='number'>1</span>;
+                                <span class='ident'>o</span>.<span class='ident'>values</span>.<span class='ident'>push</span>(<span class='ident'>arg_val</span>.<span class='ident'>clone</span>().<span class='ident'>unwrap</span>());
+                                <span class='kw'>return</span> <span class='prelude-val'>None</span>;
+                            }
+                            <span class='ident'>done</span> <span class='op'>=</span> <span class='boolval'>true</span>;
+                        }
+                    }
+                    <span class='kw'>if</span> <span class='op'>!</span> <span class='ident'>done</span> {
+                        <span class='ident'>matches</span>.<span class='ident'>opts</span>.<span class='ident'>insert</span>(<span class='ident'>k</span>, <span class='ident'>OptArg</span>{
+                            <span class='ident'>name</span>: <span class='ident'>v</span>.<span class='ident'>name</span>,
+                            <span class='ident'>short</span>: <span class='ident'>v</span>.<span class='ident'>short</span>,
+                            <span class='ident'>long</span>: <span class='ident'>v</span>.<span class='ident'>long</span>, 
+                            <span class='ident'>help</span>: <span class='ident'>v</span>.<span class='ident'>help</span>,
+                            <span class='ident'>required</span>: <span class='ident'>v</span>.<span class='ident'>required</span>,
+                            <span class='ident'>blacklist</span>: <span class='prelude-val'>None</span>,
+                            <span class='ident'>occurrences</span>: <span class='number'>1</span>,
+                            <span class='ident'>multiple</span>: <span class='ident'>v</span>.<span class='ident'>multiple</span>,
+                            <span class='ident'>requires</span>: <span class='prelude-val'>None</span>,
+                            <span class='ident'>values</span>: <span class='kw'>if</span> <span class='ident'>arg_val</span>.<span class='ident'>is_some</span>() { <span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>arg_val</span>.<span class='ident'>clone</span>().<span class='ident'>unwrap</span>()]} <span class='kw'>else</span> {<span class='macro'>vec</span><span class='macro'>!</span>[]} 
+                        });
+                    } 
                     <span class='kw'>match</span> <span class='ident'>arg_val</span> {
                         <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> { <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>v</span>.<span class='ident'>name</span>); },
                         _ <span class='op'>=&gt;</span> { <span class='kw'>return</span> <span class='prelude-val'>None</span>; }
-                    }    
+                    } 
                 }
             }
         } 
@@ -1473,27 +1529,29 @@
                         <span class='boolval'>true</span>, <span class='boolval'>true</span>);
                 }
             }
-        } <span class='kw'>else</span> {
-            <span class='comment'>// Short flag or opt</span>
-            <span class='kw'>let</span> <span class='ident'>arg_c</span> <span class='op'>=</span> <span class='ident'>arg</span>.<span class='ident'>chars</span>().<span class='ident'>nth</span>(<span class='number'>0</span>).<span class='ident'>unwrap</span>();
-            <span class='self'>self</span>.<span class='ident'>check_for_help_and_version</span>(<span class='ident'>arg_c</span>);
+            <span class='kw'>return</span> <span class='prelude-val'>None</span>;
+        } 
+        <span class='comment'>// Short flag or opt</span>
+        <span class='kw'>let</span> <span class='ident'>arg_c</span> <span class='op'>=</span> <span class='ident'>arg</span>.<span class='ident'>chars</span>().<span class='ident'>nth</span>(<span class='number'>0</span>).<span class='ident'>unwrap</span>();
 
-            <span class='kw'>if</span> <span class='op'>!</span> <span class='self'>self</span>.<span class='ident'>parse_single_short_flag</span>(<span class='ident'>matches</span>, <span class='ident'>arg_c</span>) { 
-                <span class='kw'>for</span> (<span class='ident'>k</span>, <span class='ident'>v</span>) <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>opts</span>.<span class='ident'>iter</span>() {
-                    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>s</span>) <span class='op'>=</span> <span class='ident'>v</span>.<span class='ident'>short</span> {
-                        <span class='kw'>if</span> <span class='ident'>s</span> <span class='op'>==</span> <span class='ident'>arg_c</span> {
-                            <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>k</span>)
-                        }
-                    }
-                } 
+        <span class='comment'>// Ensure the arg in question isn&#39;t a help or version flag</span>
+        <span class='self'>self</span>.<span class='ident'>check_for_help_and_version</span>(<span class='ident'>arg_c</span>);
 
-                <span class='self'>self</span>.<span class='ident'>report_error</span>(
-                    <span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;Argument -{} isn&#39;t valid&quot;</span>,<span class='ident'>arg_c</span>),
-                    <span class='boolval'>true</span>, <span class='boolval'>true</span>);
+        <span class='comment'>// Check for a matching flag, and return none if found</span>
+        <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>parse_single_short_flag</span>(<span class='ident'>matches</span>, <span class='ident'>arg_c</span>) { <span class='kw'>return</span> <span class='prelude-val'>None</span>; }
+        
+        <span class='comment'>// Check for matching short in options, and return the name</span>
+        <span class='comment'>// (only ones with shorts, of course)</span>
+        <span class='kw'>for</span> <span class='ident'>v</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>opts</span>.<span class='ident'>values</span>().<span class='ident'>filter</span>(<span class='op'>|</span><span class='kw-2'>&amp;</span><span class='ident'>v</span><span class='op'>|</span> <span class='ident'>v</span>.<span class='ident'>short</span>.<span class='ident'>is_some</span>()) {
+            <span class='kw'>if</span> <span class='ident'>v</span>.<span class='ident'>short</span>.<span class='ident'>unwrap</span>() <span class='op'>==</span> <span class='ident'>arg_c</span> {
+                <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>v</span>.<span class='ident'>name</span>)
             }
+        } 
 
-        }
-        <span class='prelude-val'>None</span>
+        <span class='comment'>// Didn&#39;t match a flag or option, must be invalid</span>
+        <span class='self'>self</span>.<span class='ident'>report_error</span>( <span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;Argument -{} isn&#39;t valid&quot;</span>,<span class='ident'>arg_c</span>), <span class='boolval'>true</span>, <span class='boolval'>true</span>);
+
+        <span class='macro'>unreachable</span><span class='macro'>!</span>();
     }
 
     <span class='kw'>fn</span> <span class='ident'>parse_single_short_flag</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>matches</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>ArgMatches</span>, <span class='ident'>arg</span>: <span class='ident'>char</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
@@ -1637,16 +1695,28 @@
                                     <span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;-{}&quot;</span>,<span class='ident'>opt</span>.<span class='ident'>short</span>.<span class='ident'>unwrap</span>())
                                 }),<span class='boolval'>true</span>, <span class='boolval'>true</span>);
                         }
-                        <span class='ident'>matches</span>.<span class='ident'>opts</span>.<span class='ident'>insert</span>(<span class='ident'>nvo</span>, <span class='ident'>OptArg</span>{
-                            <span class='ident'>name</span>: <span class='ident'>opt</span>.<span class='ident'>name</span>,
-                            <span class='ident'>short</span>: <span class='ident'>opt</span>.<span class='ident'>short</span>,
-                            <span class='ident'>long</span>: <span class='ident'>opt</span>.<span class='ident'>long</span>, 
-                            <span class='ident'>help</span>: <span class='ident'>opt</span>.<span class='ident'>help</span>,
-                            <span class='ident'>requires</span>: <span class='prelude-val'>None</span>,
-                            <span class='ident'>blacklist</span>: <span class='prelude-val'>None</span>,
-                            <span class='ident'>required</span>: <span class='ident'>opt</span>.<span class='ident'>required</span>,
-                            <span class='ident'>value</span>: <span class='prelude-val'>Some</span>(<span class='ident'>arg</span>.<span class='ident'>clone</span>()) 
-                        });
+                        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>done</span> <span class='op'>=</span> <span class='boolval'>false</span>;
+                        <span class='kw'>if</span> <span class='ident'>opt</span>.<span class='ident'>multiple</span> {
+                            <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>o</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>opts</span>.<span class='ident'>get_mut</span>(<span class='ident'>opt</span>.<span class='ident'>name</span>) {
+                                <span class='ident'>done</span> <span class='op'>=</span> <span class='boolval'>true</span>;
+                                <span class='ident'>o</span>.<span class='ident'>values</span>.<span class='ident'>push</span>(<span class='ident'>arg</span>.<span class='ident'>clone</span>());
+                                <span class='ident'>o</span>.<span class='ident'>occurrences</span> <span class='op'>+=</span> <span class='number'>1</span>;
+                            } 
+                        } 
+                        <span class='kw'>if</span> <span class='op'>!</span> <span class='ident'>done</span> {
+                            <span class='ident'>matches</span>.<span class='ident'>opts</span>.<span class='ident'>insert</span>(<span class='ident'>nvo</span>, <span class='ident'>OptArg</span>{
+                                <span class='ident'>name</span>: <span class='ident'>opt</span>.<span class='ident'>name</span>,
+                                <span class='ident'>short</span>: <span class='ident'>opt</span>.<span class='ident'>short</span>,
+                                <span class='ident'>long</span>: <span class='ident'>opt</span>.<span class='ident'>long</span>, 
+                                <span class='ident'>help</span>: <span class='ident'>opt</span>.<span class='ident'>help</span>,
+                                <span class='ident'>requires</span>: <span class='prelude-val'>None</span>,
+                                <span class='ident'>blacklist</span>: <span class='prelude-val'>None</span>,
+                                <span class='ident'>multiple</span>: <span class='ident'>opt</span>.<span class='ident'>multiple</span>,
+                                <span class='ident'>occurrences</span>: <span class='number'>1</span>,
+                                <span class='ident'>required</span>: <span class='ident'>opt</span>.<span class='ident'>required</span>,
+                                <span class='ident'>values</span>: <span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>arg</span>.<span class='ident'>clone</span>()] 
+                            });
+                        }
                         <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>bl</span>) <span class='op'>=</span> <span class='ident'>opt</span>.<span class='ident'>blacklist</span> {
                             <span class='kw'>if</span> <span class='op'>!</span> <span class='ident'>bl</span>.<span class='ident'>is_empty</span>() {
                                 <span class='kw'>for</span> <span class='ident'>name</span> <span class='kw'>in</span> <span class='ident'>bl</span>.<span class='ident'>iter</span>() {
