@@ -222,6 +222,7 @@ impl App {
                 blacklist: a.blacklist,
                 help: a.help,
                 requires: a.requires,
+                occurrences: 1,
                 required: a.required,
                 values: vec![]
             });
@@ -456,6 +457,10 @@ impl App {
         if arg.contains("=") {
             let arg_vec: Vec<&str> = arg.split("=").collect();
             arg = arg_vec[0];
+            // prevents "--config= value" typo
+            if arg_vec[1].len() == 0 {
+                self.report_error(format!("Argument --{} requires a value, but none was supplied", arg), true, true);
+            }
             arg_val = Some(arg_vec[1].to_string());
         } 
 
@@ -466,19 +471,31 @@ impl App {
                         self.report_error(format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
                             true, true);
                     }
-
-                    matches.opts.insert(k, OptArg{
-                        name: v.name,
-                        short: v.short,
-                        long: v.long, 
-                        help: v.help,
-                        required: v.required,
-                        blacklist: None,
-                        multiple: v.multiple,
-                        requires: None,
-                        values: if arg_val.is_some() { vec![arg_val.clone().unwrap()]} else {vec![]} 
-                    });
-                      
+                    let mut done = false;
+                    if v.multiple {
+                        if let Some(ref mut o) = matches.opts.get_mut(v.name) {
+                            if arg_val.is_some() {
+                                o.occurrences += 1;
+                                o.values.push(arg_val.clone().unwrap());
+                                return None;
+                            }
+                            done = true;
+                        }
+                    }
+                    if ! done {
+                        matches.opts.insert(k, OptArg{
+                            name: v.name,
+                            short: v.short,
+                            long: v.long, 
+                            help: v.help,
+                            required: v.required,
+                            blacklist: None,
+                            occurrences: 1,
+                            multiple: v.multiple,
+                            requires: None,
+                            values: if arg_val.is_some() { vec![arg_val.clone().unwrap()]} else {vec![]} 
+                        });
+                    } 
                     match arg_val {
                         None => { return Some(v.name); },
                         _ => { return None; }
@@ -730,6 +747,7 @@ impl App {
                             if let Some(ref mut o) = matches.opts.get_mut(opt.name) {
                                 done = true;
                                 o.values.push(arg.clone());
+                                o.occurrences += 1;
                             } 
                         } 
                         if ! done {
@@ -741,6 +759,7 @@ impl App {
                                 requires: None,
                                 blacklist: None,
                                 multiple: opt.multiple,
+                                occurrences: 1,
                                 required: opt.required,
                                 values: vec![arg.clone()] 
                             });

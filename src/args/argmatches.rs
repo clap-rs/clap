@@ -168,13 +168,12 @@ impl ArgMatches {
         false
     }
 
-    /// Checks the number of occurrences of a flag at runtime.
+    /// Checks the number of occurrences of an option or flag at runtime. 
+    /// If an option or flag isn't present it will return `0`, if the option or flag doesn't 
+    /// allow multiple occurrences, it will return `1` no matter how many times it occurred 
+    /// (unless it wasn't prsent) at all.
     ///
-    /// This **DOES NOT** work for option or positional arguments 
-    /// (use `.value_of()` instead). If a flag isn't present it will
-    /// return `0`, if a flag doesn't allow multiple occurrences, it will
-    /// return `1` no matter how many times it occurred (unless it wasn't prsent)
-    /// at all.
+    /// *NOTE:* This _*DOES NOT*_ work for positional arguments (use `.value_of()` instead). 
     ///
     ///
     /// # Example
@@ -191,6 +190,9 @@ impl ArgMatches {
     pub fn occurrences_of(&self, name: &'static str) -> u8 {
         if let Some(ref f) = self.flags.get(name) {
             return f.occurrences;
+        }
+        if let Some(ref o) = self.opts.get(name) {
+            return o.occurrences;
         }
         0
     }

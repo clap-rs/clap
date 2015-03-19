@@ -33,6 +33,8 @@ pub struct OptArg {
     pub blacklist: Option<Vec<&'static str>>,
     /// Allow multiple occurrences of an option argument such as "-c some -c other"
     pub multiple: bool,
+    /// How many occurences of this option have been found when parsing
+    pub occurrences: u8,
     /// The value provided to the argument by the user
     pub values: Vec<String>
 }
