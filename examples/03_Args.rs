@@ -9,16 +9,15 @@ fn main() {
     // special type of arguement, called SubCommands (which will be discussed seperately).
     //
     // Args are described in the same manner as Apps using the "builder pattern" with multiple
-    // methods describing various options for the individual arguments. 
+    // methods describing various settings for the individual arguments. 
     //
     // Arguments can be added to applications in two manners, one at a time with the arg() method,
     // or multiple arguments at once via a Vec<Arg> inside the args() method.
     //
     // There are various options which can be set for a given argument, some apply to any of the
     // three types of arguments, some only apply one or two of the types. *NOTE* if you set 
-    // incompatible options on a single argument, it will panic! at runtime. This is by design, so
-    // that you know right away an error was made. You only need to set the options you care about
-    // for each argument. 
+    // incompatible options on a single argument, clap will panic! at runtime. This is by design,
+    // so that you know right away an error was made. 
     //
     // # Help and Version
     // clap automatically generates a help and version flag for you, unless you specificy your
@@ -27,26 +26,24 @@ fn main() {
     // be automatically generated for you.
     let matches = App::new("MyApp")
                         // All application settings go here...
-                        // A simple "Flag" argument (i.e. "-a")
-                        .arg(Arg::new("debug"))
-                        // A complex "Option" argument (i.e. one that takes a value) such as "-c some"
-                        .arg(Arg::new("config")                 // This name will be displayed with the help message
-                                                                // and is used to get runtime details of this argument
-                                    .help("sets a config file") // A short message displayed with the help message
-                                    .short("c")                 // Sets an argument trigger to "-c"
-                                    .long("config")             // Sets an argument trigger to "--config"
-                                    .takes_value(true)          // Specifies a value *MUST* accompany this argument
-                                                                // such as "-c some" (if you provided a short()) or 
-                                                                // "--config some" or "--config=some" (if you provided
-                                                                // a long())
-                                    .multiple(true)             // Allows multiple instances of this argument such as
-                                                                // "-c some -c other -c string"
-                                    .required(true)             // By default the user *MUST* use this argument
-                                    .requires("")
-                                    .requires_all()
-                                    .mutually_excludes()
-                                    .mutually_excludes_all()
-                            )
+                        
+                        // A simple "Flag" argument example (i.e. "-d")
+                        .arg(Arg::new("debug")
+                                    .help("turn on debugging information")
+                                    .short("d"))
+
+                        // Two arguments, one "Option" argument (i.e. one that takes a value) such
+                        // as "-c some", and one positional argument (i.e. "myapp some_file")
+                        .args( vec![
+                            Arg::new("config")
+                                    .help("sets the config file to use")
+                                    .short("c")
+                                    .long("config"),
+                            Arg::new("input")
+                                    .help("the input file to use")
+                                    .index(1)
+                                    .required(true)
+                        ])
                         .get_matches();
      
     // Continued program logic goes here...
