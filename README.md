@@ -123,6 +123,8 @@ Add `extern crate clap;` to your crate root.
 
 You can find complete documentation on the [github-pages site](http://kbknapp.github.io/clap-rs/docs/clap/index.html) for this project.
 
+You can also find full usage examples in the examples/ directory of this repo.
+
 ## How to build
 
 ### Running the tests
