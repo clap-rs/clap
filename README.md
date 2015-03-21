@@ -17,7 +17,7 @@ When using `clap` you define a set of parameters and rules for your arguments an
 ## Quick Example
  
 ```rust
-// (Full example with comments in examples/myapp.rs)
+// (Full example with comments in examples/01_QuickExample.rs)
 extern crate clap;
 use clap::{Arg, App, SubCommand};
 
