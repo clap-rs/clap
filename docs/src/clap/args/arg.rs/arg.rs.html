@@ -376,7 +376,6 @@
 <span id="334">334</span>
 <span id="335">335</span>
 <span id="336">336</span>
-<span id="337">337</span>
 </pre><pre class='rust '>
 <span class='doccomment'>/// The abstract representation of a command line argument used by the consumer of the library.</span>
 <span class='doccomment'>/// </span>
@@ -709,7 +708,6 @@
     <span class='doccomment'>/// .multiple(true)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>multiple</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>multi</span>: <span class='ident'>bool</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span> {
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>takes_value</span> <span class='op'>==</span> <span class='boolval'>false</span>);
         <span class='macro'>assert</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>index</span> <span class='op'>==</span> <span class='prelude-val'>None</span>);
         <span class='self'>self</span>.<span class='ident'>multiple</span> <span class='op'>=</span> <span class='ident'>multi</span>;
         <span class='self'>self</span>
