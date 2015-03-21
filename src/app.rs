@@ -201,6 +201,15 @@ impl App {
             self.required.insert(a.name);
         }
         if let Some(i) = a.index {
+            if a.short.is_some() || a.long.is_some() {
+                panic!("Argument \"{}\" has conflicting requirements, both index() and short(), or long(), were supplied", a.name);
+            }
+            if a.multiple {
+                panic!("Argument \"{}\" has conflicting requirements, both index() and multiple(true) were supplied",a.name);
+            }
+            if a.takes_value {
+                panic!("Argument \"{}\" has conflicting requirements, both index() and takes_value(true) were supplied", a.name);
+            }
             self.positionals_idx.insert(i, PosArg {
                 name: a.name,
                 index: i,
@@ -211,9 +220,11 @@ impl App {
                 value: None
             });
         } else if a.takes_value {
-            if a.short == None && a.long == None {
-                panic!("An argument that takes a value must have either a .short() or .long() [or both] assigned");
+            if a.short.is_none() && a.long.is_none() {
+                panic!("Argument \"{}\" has take_value(true), yet neither a short() or long() were supplied", a.name);
             }
+            // No need to check for .index() as that is handled above
+
             self.opts.insert(a.name, OptArg {
                 name: a.name,
                 short: a.short,
@@ -241,13 +252,19 @@ impl App {
                     self.needs_short_version = false;
                 }
             }
-            if a.short == None && a.long == None {
-                panic!("A flag argument must have either a .short() or .long() [or both] assigned");
+            if a.short.is_none() && a.long.is_none() {
+                panic!("Argument \"{}\" must have either a short() and/or long() supplied since no index() or takes_value() were found", a.name);
             }
+            if a.required {
+                panic!("Argument \"{}\" cannot be required(true) because it has no index() or takes_value(true)", a.name)
+            }
+            // No need to check for index() or takes_value() as that is handled above
+
             // Flags can't be required
-            if self.required.contains(a.name) {
-                self.required.remove(a.name);
-            }
+            // This should be unreachable...
+            // if self.required.contains(a.name) {
+                // self.required.remove(a.name);
+            // }
             self.flags.insert(a.name, FlagArg{
                 name: a.name,
                 short: a.short,

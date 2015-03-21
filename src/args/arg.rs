@@ -283,7 +283,6 @@ impl Arg {
     /// .takes_value(true)
     /// # ).get_matches();
     pub fn takes_value(mut self, tv: bool) -> Arg {
-        assert!(self.index == None);
         self.takes_value = tv;
         self
     }
@@ -305,8 +304,6 @@ impl Arg {
     /// .index(1)
     /// # ).get_matches();
     pub fn index(mut self, idx: u8) -> Arg {
-        assert!(self.takes_value == false);
-        if idx < 1 { panic!("Argument index must start at 1"); }
         self.index = Some(idx);
         self
     }
@@ -329,7 +326,6 @@ impl Arg {
     /// .multiple(true)
     /// # ).get_matches();
     pub fn multiple(mut self, multi: bool) -> Arg {
-        assert!(self.index == None);
         self.multiple = multi;
         self
     }
