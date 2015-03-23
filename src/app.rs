@@ -652,23 +652,24 @@ impl App {
                     true, true);
             }
 
-            if matches.opts.contains_key(v.name) && !v.multiple {
-                self.report_error(format!("Argument --{} was supplied more than once, but does not support multiple values", arg), true, true);
-            }
-
-            // Ensure this isn't an option being added multiple times if it doesn't suppor it
-            if v.multiple && arg_val.is_some() {
-                if let Some(ref mut o) = matches.opts.get_mut(v.name) {
-                    o.occurrences += 1;
-                    o.values.push(arg_val.clone().unwrap());
-                    return None;
+            if matches.opts.contains_key(v.name) {
+                if !v.multiple {
+                    self.report_error(format!("Argument --{} was supplied more than once, but does not support multiple values", arg), true, true);
                 }
+                if arg_val.is_some() {
+                    if let Some(ref mut o) = matches.opts.get_mut(v.name) {
+                        o.occurrences += 1;
+                        o.values.push(arg_val.clone().unwrap());
+                    }
+                }
+            } else {
+                matches.opts.insert(v.name, OptArg{
+                    name: v.name,
+                    occurrences: 1,
+                    values: if arg_val.is_some() { vec![arg_val.clone().unwrap()]} else {vec![]} 
+                });
             }
-            matches.opts.insert(v.name, OptArg{
-                name: v.name,
-                occurrences: 1,
-                values: if arg_val.is_some() { vec![arg_val.clone().unwrap()]} else {vec![]} 
-            });
+            
             if let Some(ref bl) = v.blacklist {
                 for name in bl {
                     self.blacklist.insert(name);
@@ -756,7 +757,7 @@ impl App {
             for c in arg.chars() {
                 self.check_for_help_and_version(c);
                 if !self.parse_single_short_flag(matches, c) { 
-                    self.report_error(format!("Argument -{} isn't valid",c), true, true);
+                    self.report_error(format!("Argument -{} isn't valid",arg), true, true);
                 }
             }
             return None;
@@ -779,15 +780,17 @@ impl App {
                     true, true);
             }
 
-            if matches.opts.contains_key(v.name) && !v.multiple {
-                self.report_error(format!("Argument -{} was supplied more than once, but does not support multiple values", arg), true, true);
+            if matches.opts.contains_key(v.name) {
+                if !v.multiple {
+                    self.report_error(format!("Argument -{} was supplied more than once, but does not support multiple values", arg), true, true);
+                }
+            } else {
+                matches.opts.insert(v.name, OptArg{
+                    name: v.name,
+                    occurrences: 1,
+                    values: vec![]
+                });
             }
-
-            matches.opts.insert(v.name, OptArg{
-                name: v.name,
-                occurrences: 1,
-                values: vec![]
-            });
             if let Some(ref bl) = v.blacklist {
                 for name in bl {
                     self.blacklist.insert(name);
