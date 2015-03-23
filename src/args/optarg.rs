@@ -14,6 +14,18 @@
 pub struct OptArg {
     /// The unique name of the argument, required
     pub name: &'static str,
+    /// How many occurences of this option have been found when parsing
+    pub occurrences: u8,
+    /// The value provided to the argument by the user
+    pub values: Vec<String>
+}
+
+pub struct OptBuilder {
+    pub name: &'static str,
+    /// Allow multiple occurrences of an option argument such as "-c some -c other"
+    pub multiple: bool,
+    /// A list of names for other arguments that *may not* be used with this flag
+    pub blacklist: Option<Vec<&'static str>>,
     /// The short version (i.e. single character) of the argument, no preceding `-`
     pub short: Option<char>,
     /// The long version of the flag (i.e. word) without the preceding `--`
@@ -29,12 +41,4 @@ pub struct OptArg {
     /// A list of names of other arguments that are *required* to be used when 
     /// this flag is used
     pub requires: Option<Vec<&'static str>>,
-    /// A list of names for other arguments that *may not* be used with this flag
-    pub blacklist: Option<Vec<&'static str>>,
-    /// Allow multiple occurrences of an option argument such as "-c some -c other"
-    pub multiple: bool,
-    /// How many occurences of this option have been found when parsing
-    pub occurrences: u8,
-    /// The value provided to the argument by the user
-    pub values: Vec<String>
 }
