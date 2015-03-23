@@ -8,9 +8,28 @@
 /// ```sh
 /// $ myprog -a --some
 /// ```
+#[derive(Copy)]
 pub struct FlagArg {
     /// The unique name of the argument, required
     pub name: &'static str,
+    /// How many occurences of this flag have been
+    /// found when parsing
+    pub occurrences: u8
+}
+
+pub struct FlagBuilder {
+    pub name: &'static str,
+    /// Determines if multiple instances of the same
+    /// flag are allowed
+    /// I.e. `-v -v -v` or `-vvv`
+    pub multiple: bool,
+    /// A list of names for other arguments that
+    /// *may not* be used with this flag
+    pub blacklist: Option<Vec<&'static str>>,
+    /// A list of names of other arguments that 
+    /// are *required* to be used when this
+    /// flag is used
+    pub requires: Option<Vec<&'static str>>,
     /// The short version (i.e. single character)
     /// of the argument, no preceding `-`
     pub short: Option<char>,
@@ -21,18 +40,4 @@ pub struct FlagArg {
     /// the user when the application's `help` 
     /// text is displayed
     pub help: Option<&'static str>,
-    /// Determines if multiple instances of the same
-    /// flag are allowed
-    /// I.e. `-v -v -v` or `-vvv`
-    pub multiple: bool,
-    /// How many occurences of this flag have been
-    /// found when parsing
-    pub occurrences: u8,
-    /// A list of names for other arguments that
-    /// *may not* be used with this flag
-    pub blacklist: Option<Vec<&'static str>>,
-    /// A list of names of other arguments that 
-    /// are *required* to be used when this
-    /// flag is used
-    pub requires: Option<Vec<&'static str>>
 }

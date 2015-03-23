@@ -1,6 +1,7 @@
 #![crate_type= "lib"]
 
-#![feature(libc, exit_status)]
+#![feature(libc)]
+#![feature(exit_status)]
 
 // DOCS
 

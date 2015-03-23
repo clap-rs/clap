@@ -7,7 +7,10 @@ use std::env;
 use std::path::Path;
 use std::vec::IntoIter;
 
-use args::{ ArgMatches, Arg, OptArg, FlagArg, PosArg, SubCommand };
+use args::{ ArgMatches, Arg, SubCommand };
+use args::{FlagArg, FlagBuilder};
+use args::{OptArg, OptBuilder};
+use args::{PosArg, PosBuilder};
 
 /// Used to create a representation of the program and all possible command line arguments
 /// for parsing at runtime.
@@ -41,9 +44,9 @@ pub struct App {
     version: Option<&'static str>,
     // A brief explaination of the program that gets displayed to the user when shown help/usage information
     about: Option<&'static str>,
-    flags: HashMap<&'static str, FlagArg>,
-    opts: HashMap<&'static str, OptArg>,
-    positionals_idx: BTreeMap<u8, PosArg>,
+    flags: HashMap<&'static str, FlagBuilder>,
+    opts: HashMap<&'static str, OptBuilder>,
+    positionals_idx: BTreeMap<u8, PosBuilder>,
     subcommands: HashMap<&'static str, Box<App>>,
     needs_long_help: bool,
     needs_long_version: bool,
@@ -81,7 +84,6 @@ impl App {
             opts: HashMap::new(),
             positionals_idx: BTreeMap::new(),
             subcommands: HashMap::new(),
-            // positionals_name: HashMap::new(),
             needs_long_version: true,
             needs_long_help: true,
             needs_short_help: true,
@@ -210,14 +212,13 @@ impl App {
             if a.takes_value {
                 panic!("Argument \"{}\" has conflicting requirements, both index() and takes_value(true) were supplied", a.name);
             }
-            self.positionals_idx.insert(i, PosArg {
+            self.positionals_idx.insert(i, PosBuilder {
                 name: a.name,
                 index: i,
                 required: a.required,
                 blacklist: a.blacklist,
                 requires: a.requires,
                 help: a.help,
-                value: None
             });
         } else if a.takes_value {
             if a.short.is_none() && a.long.is_none() {
@@ -225,7 +226,7 @@ impl App {
             }
             // No need to check for .index() as that is handled above
 
-            self.opts.insert(a.name, OptArg {
+            self.opts.insert(a.name, OptBuilder {
                 name: a.name,
                 short: a.short,
                 long: a.long,
@@ -233,9 +234,7 @@ impl App {
                 blacklist: a.blacklist,
                 help: a.help,
                 requires: a.requires,
-                occurrences: 1,
                 required: a.required,
-                values: vec![]
             });
         } else {
             if let Some(ref l) = a.long {
@@ -265,7 +264,7 @@ impl App {
             // if self.required.contains(a.name) {
                 // self.required.remove(a.name);
             // }
-            self.flags.insert(a.name, FlagArg{
+            self.flags.insert(a.name, FlagBuilder {
                 name: a.name,
                 short: a.short,
                 long: a.long,
@@ -273,7 +272,6 @@ impl App {
                 blacklist: a.blacklist,
                 multiple: a.multiple,
                 requires: a.requires,
-                occurrences: 1
             });
         }
         self
@@ -339,17 +337,6 @@ impl App {
             self = self.subcommand(subcmd);
         }
         self
-    }
-
-
-    fn exit(&self) {
-        unsafe { libc::exit(0); }
-    }
-
-    fn report_error(&self, msg: String, help: bool, quit: bool) {
-        println!("{}", msg);
-        if help { self.print_usage(true); }
-        if quit { env::set_exit_status(1); self.exit(); }
     }
 
     fn print_usage(&self, more_info: bool) {
@@ -451,290 +438,33 @@ impl App {
         if quit { self.exit(); }
     }
 
-    fn check_for_help_and_version(&self, arg: char) {
-        if arg == 'h' && self.needs_short_help {
-            self.print_help();
-        } else if arg == 'v' && self.needs_short_version {
-            self.print_version(true);
-        }
+    fn exit(&self) {
+        unsafe { libc::exit(0); }
     }
 
-    fn parse_long_arg(&mut self, matches: &mut ArgMatches ,full_arg: &String) -> Option<&'static str> {
-        let mut arg = full_arg.trim_left_matches(|c| c == '-');
-        let mut found = false;
-
-        if arg == "help" && self.needs_long_help {
-            self.print_help();
-        } else if arg == "version" && self.needs_long_version {
-            self.print_version(true);
-        }
-
-        let mut arg_val: Option<String> = None;
-
-        if arg.contains("=") {
-            let arg_vec: Vec<&str> = arg.split("=").collect();
-            arg = arg_vec[0];
-            // prevents "--config= value" typo
-            if arg_vec[1].len() == 0 {
-                self.report_error(format!("Argument --{} requires a value, but none was supplied", arg), true, true);
-            }
-            arg_val = Some(arg_vec[1].to_string());
-        } 
-
-        for (k, v) in self.opts.iter() {
-            if let Some(ref l) = v.long {
-                if *l == arg {
-                    if self.blacklist.contains(k) {
-                        self.report_error(format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
-                            true, true);
-                    }
-                    let mut done = false;
-                    if v.multiple {
-                        if let Some(ref mut o) = matches.opts.get_mut(v.name) {
-                            if arg_val.is_some() {
-                                o.occurrences += 1;
-                                o.values.push(arg_val.clone().unwrap());
-                                return None;
-                            }
-                            done = true;
-                        }
-                    }
-                    if ! done {
-                        matches.opts.insert(k, OptArg{
-                            name: v.name,
-                            short: v.short,
-                            long: v.long, 
-                            help: v.help,
-                            required: v.required,
-                            blacklist: None,
-                            occurrences: 1,
-                            multiple: v.multiple,
-                            requires: None,
-                            values: if arg_val.is_some() { vec![arg_val.clone().unwrap()]} else {vec![]} 
-                        });
-                    } 
-                    match arg_val {
-                        None => { return Some(v.name); },
-                        _ => { return None; }
-                    } 
-                }
-            }
-        } 
-
-        for (k, v) in self.flags.iter() {
-            if let Some(ref l) = v.long {
-                if *l != arg { continue; }
-                found = true;
-                let mut multi = false;
-                if let Some(ref mut f) = matches.flags.get_mut(k) {
-                    f.occurrences = if f.multiple { f.occurrences + 1 } else { 1 };
-                    multi = true;
-                }  
-                if ! multi { 
-                    if self.blacklist.contains(k) {
-                        self.report_error(format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
-                            true, true);
-                    }
-                    matches.flags.insert(k, FlagArg{
-                        name: v.name,
-                        short: v.short,
-                        long: v.long,
-                        help: v.help,
-                        multiple: v.multiple,
-                        occurrences: v.occurrences,
-                        blacklist: None, 
-                        requires: None
-                    });
-                    if self.required.contains(k) {
-                        self.required.remove(k);
-                    }
-                    if let Some(ref bl) = v.blacklist {
-                        if ! bl.is_empty() {
-                            for name in bl.iter() {
-                                self.blacklist.insert(name);
-                            }
-                        }
-                    }
-                }
-                if let Some(ref reqs) = v.requires {
-                    if ! reqs.is_empty() {
-	                	// Add all required args which aren't already found in matches to the
-	                	// final required list
-	                    for n in reqs.iter().filter(|&a|
-	                        ! matches.opts.contains_key(a) ||
-	                        ! matches.flags.contains_key(a) ||
-	                        ! matches.positionals.contains_key(a) ) {
-
-	                    	self.required.insert(n);
-	                    }
-                    }
-                }
-                break;
-            }
-        }
-
-        if ! found {
-            self.report_error(
-                format!("Argument --{} isn't valid", arg),
-                true, true);
-        }
-        None
+    fn report_error(&self, msg: String, help: bool, quit: bool) {
+        println!("{}", msg);
+        if help { self.print_usage(true); }
+        if quit { env::set_exit_status(1); self.exit(); }
     }
 
-    fn parse_short_arg(&mut self, matches: &mut ArgMatches ,full_arg: &String) -> Option<&'static str> {
-        let arg = &full_arg[..].trim_left_matches(|c| c == '-');
-        if arg.len() > 1 { 
-            // Multiple flags using short i.e. -bgHlS
-            for c in arg.chars() {
-                self.check_for_help_and_version(c);
-                if ! self.parse_single_short_flag(matches, c) { 
-                    self.report_error(
-                        format!("Argument -{} isn't valid",c),
-                        true, true);
-                }
-            }
-            return None;
-        } 
-        // Short flag or opt
-        let arg_c = arg.chars().nth(0).unwrap();
+    pub fn get_matches(mut self) -> ArgMatches {
+        let mut matches = ArgMatches::new(self.name);
 
-        // Ensure the arg in question isn't a help or version flag
-        self.check_for_help_and_version(arg_c);
-
-        // Check for a matching flag, and return none if found
-        if self.parse_single_short_flag(matches, arg_c) { return None; }
-        
-        // Check for matching short in options, and return the name
-        // (only ones with shorts, of course)
-        for v in self.opts.values().filter(|&v| v.short.is_some()) {
-            if v.short.unwrap() == arg_c {
-                return Some(v.name)
-            }
-        } 
-
-        // Didn't match a flag or option, must be invalid
-        self.report_error( format!("Argument -{} isn't valid",arg_c), true, true);
-
-        unreachable!();
-    }
-
-    fn parse_single_short_flag(&mut self, matches: &mut ArgMatches, arg: char) -> bool {
-        for (k, v) in self.flags.iter() {
-            if let Some(s) = v.short {
-                if s != arg { continue; }
-
-                if !matches.flags.contains_key(k) {
-                    if self.blacklist.contains(k) {
-                        self.report_error(format!("The argument -{} is mutually exclusive with one or more other arguments", arg),
-                            false, true);
-                    }
-                    matches.flags.insert(k, FlagArg{
-                        name: v.name,
-                        short: v.short,
-                        long: v.long,
-                        help: v.help,
-                        multiple: v.multiple,
-                        occurrences: v.occurrences,
-                        blacklist: None, 
-                        requires: None
-                    });
-                    if self.required.contains(k) {
-                        self.required.remove(k);
-                    }
-                    if let Some(ref reqs) = v.requires {
-                        if ! reqs.is_empty() {
-                            for n in reqs.iter() {
-                                if matches.opts.contains_key(n) { continue; }
-                                if matches.flags.contains_key(n) { continue; }
-                                if matches.positionals.contains_key(n) { continue; }
-                                self.required.insert(n);
-                            }
-                        }
-                    }
-                    if let Some(ref bl) = v.blacklist {
-                        if ! bl.is_empty() {
-                            for name in bl.iter() {
-                                self.blacklist.insert(name);
-                            }
-                        }
-                    }
-                } else if matches.flags.get(k).unwrap().multiple { 
-                    matches.flags.get_mut(k).unwrap().occurrences += 1
-                }
-
-                return true;
-            }
-        }
-        false
-    }
-
-    fn validate_blacklist(&self, matches: &ArgMatches) {
-        if ! self.blacklist.is_empty() {
-            for name in self.blacklist.iter() {
-                for (k, v) in matches.flags.iter() {
-                    if k == name {
-                        self.report_error(format!("The argument {} is mutually exclusive with one or more other arguments",
-                            if let Some(s) = v.short {
-                                format!("-{}", s)
-                            } else if let Some(l) = v.long {
-                                format!("--{}", l)
-                            } else {
-                                format!("\"{}\"", v.name)
-                            }),
-                            true, true);
-                    }
-                }
-                for (k, v) in matches.opts.iter() {
-                    if k == name {
-                        self.report_error(format!("The argument {} is mutually exclusive with one or more other arguments",
-                            if let Some(s) = v.short {
-                                format!("-{}", s)
-                            } else if let Some(l) = v.long {
-                                format!("--{}", l)
-                            } else {
-                                format!("\"{}\"", v.name)
-                            }),
-                            true, true);
-                    }
-                }
-                for (k, v) in matches.positionals.iter() {
-                    if k == name {
-                        self.report_error(format!("The argument \"{}\" is mutually exclusive with one or more other arguments",v.name),
-                            false, true);
-                    }
+        let args = env::args().collect::<Vec<_>>();    
+        let mut it = args.into_iter();
+        if let Some(name) = it.next() {
+            let p = Path::new(&name[..]);
+            if let Some(f) = p.file_name() {
+                match f.to_os_string().into_string() {
+                    Ok(s) => self.bin_name = Some(s),
+                    Err(_) => {}
                 }
             }
         }
-    }
+        self.get_matches_from(&mut matches, &mut it );
 
-    fn create_help_and_version(&mut self) {
-        if self.needs_long_help {
-            self.flags.insert("clap_help", FlagArg{
-                name: "clap_help",
-                short: if self.needs_short_help { Some('h') } else { None },
-                long: Some("help"),
-                help: Some("Prints this message"),
-                blacklist: None,
-                multiple: false,
-                requires: None,
-                occurrences: 1
-            });
-        }
-        if self.needs_long_version {
-            self.flags.insert("clap_version", FlagArg{
-                name: "clap_version",
-                short: if self.needs_short_help { Some('v') } else { None },
-                long: Some("version"),
-                help: Some("Prints version information"),
-                blacklist: None,
-                multiple: false,
-                requires: None,
-                occurrences: 1
-            });
-        }
-        if self.needs_subcmd_help && ! self.subcommands.is_empty() {
-            self.subcommands.insert("help", Box::new(App::new("help").about("Prints this message")));
-        }
+        matches
     }
 
     fn get_matches_from(&mut self, matches: &mut ArgMatches, it: &mut IntoIter<String>) {
@@ -747,63 +477,23 @@ impl App {
         while let Some(arg) = it.next() {
             let arg_slice = &arg[..];
             let mut skip = false;
-            if ! pos_only {
+            if !pos_only {
                 if let Some(nvo) = needs_val_of {
                     if let Some(ref opt) = self.opts.get(nvo) {
-                        if self.blacklist.contains(opt.name) {
-                            self.report_error(
-                                format!("The argument {} is mutually exclusive with one or more other arguments", 
-                                if let Some(long) = opt.long {
-                                    format!("--{}",long)
-                                }else{
-                                    format!("-{}",opt.short.unwrap())
-                                }),true, true);
+                        // if self.blacklist.contains(opt.name) {
+                        //     self.report_error(
+                        //         format!("The argument {} is mutually exclusive with one or more other arguments", 
+                        //         if let Some(long) = opt.long {
+                        //             format!("--{}",long)
+                        //         }else{
+                        //             format!("-{}",opt.short.unwrap())
+                        //         }),true, true);
+                        // }
+                        if let Some(ref mut o) = matches.opts.get_mut(opt.name) {
+                            o.values.push(arg.clone());
+                            o.occurrences = if opt.multiple { o.occurrences + 1 } else { 1 };
                         }
-                        let mut done = false;
-                        if opt.multiple {
-                            if let Some(ref mut o) = matches.opts.get_mut(opt.name) {
-                                done = true;
-                                o.values.push(arg.clone());
-                                o.occurrences += 1;
-                            } 
-                        } 
-                        if ! done {
-                            matches.opts.insert(nvo, OptArg{
-                                name: opt.name,
-                                short: opt.short,
-                                long: opt.long, 
-                                help: opt.help,
-                                requires: None,
-                                blacklist: None,
-                                multiple: opt.multiple,
-                                occurrences: 1,
-                                required: opt.required,
-                                values: vec![arg.clone()] 
-                            });
-                        }
-                        if let Some(ref bl) = opt.blacklist {
-                            if ! bl.is_empty() {
-                                for name in bl.iter() {
-                                    self.blacklist.insert(name);
-                                }
-                            }
-                        }
-                        if self.required.contains(opt.name) {
-                            self.required.remove(opt.name);
-                        }
-                        if let Some(ref reqs) = opt.requires {
-                            if ! reqs.is_empty() {
-	                        	// Add all required args which aren't already found in matches to the
-	                        	// final required list
-	                            for n in reqs.iter().filter(|&a|
-	                                ! matches.opts.contains_key(a) ||
-	                                ! matches.flags.contains_key(a) ||
-	                                ! matches.positionals.contains_key(a) ) {
-
-	                            	self.required.insert(n);
-	                            }
-	                        }
-                        }
+                        
                         skip = true;
                     }
                 }
@@ -812,7 +502,7 @@ impl App {
                 needs_val_of = None;
                 continue;
             }
-            if arg_slice.starts_with("--") && ! pos_only {
+            if arg_slice.starts_with("--") && !pos_only {
                 if arg_slice.len() == 2 {
                     pos_only = true;
                     continue;
@@ -841,36 +531,29 @@ impl App {
                         self.report_error(format!("The argument \"{}\" is mutually exclusive with one or more other arguments", arg),
                             true, true);
                     }
+
                     matches.positionals.insert(p.name, PosArg{
                         name: p.name,
-                        help: p.help,
-                        required: p.required,
-                        blacklist: None,
-                        requires: None,
-                        value: Some(arg.clone()),
-                        index: pos_counter
+                        value: arg.clone(),
                     });
+
                     if let Some(ref bl) = p.blacklist {
-                        if ! bl.is_empty() {
-                            for name in bl.iter() {
-                                self.blacklist.insert(name);
-                            }
+                        for name in bl {
+                            self.blacklist.insert(name);
                         }
                     }
                     if self.required.contains(p.name) {
                         self.required.remove(p.name);
                     }
                     if let Some(ref reqs) = p.requires {
-                        if ! reqs.is_empty() {
-                        	// Add all required args which aren't already found in matches to the
-                        	// final required list
-                            for n in reqs.iter().filter(|&a|
-                                ! matches.opts.contains_key(a) ||
-                                ! matches.flags.contains_key(a) ||
-                                ! matches.positionals.contains_key(a) ) {
+                        // Add all required args which aren't already found in matches to the
+                        // final required list
+                        for n in reqs {
+                            if matches.positionals.contains_key(n) {continue;}
+                            if matches.opts.contains_key(n) {continue;}
+                            if matches.flags.contains_key(n) {continue;}
 
-                            	self.required.insert(n);
-                            }
+                            self.required.insert(n);
                         }
                     }
                     pos_counter += 1;
@@ -879,7 +562,6 @@ impl App {
                 }
             }
         }
-
         match needs_val_of {
             Some(ref a) => {
                 self.report_error(
@@ -899,29 +581,323 @@ impl App {
             if let Some(ref mut sc) = self.subcommands.get_mut(sc_name) {
                 let mut new_matches = ArgMatches::new(sc_name);
                 sc.get_matches_from(&mut new_matches, it);
-                matches.subcommand = Some((sc_name, Box::new(SubCommand{
+                matches.subcommand = Some(Box::new(SubCommand{
                     name: sc_name,
-                    matches: new_matches})));
+                    matches: new_matches}));
             }
         }    
     }
 
-    pub fn get_matches(mut self) -> ArgMatches {
-        let mut matches = ArgMatches::new(self.name);
+    fn create_help_and_version(&mut self) {
+        if self.needs_long_help {
+            self.flags.insert("clap_help", FlagBuilder {
+                name: "clap_help",
+                short: if self.needs_short_help { Some('h') } else { None },
+                long: Some("help"),
+                help: Some("Prints this message"),
+                blacklist: None,
+                multiple: false,
+                requires: None,
+            });
+        }
+        if self.needs_long_version {
+            self.flags.insert("clap_version", FlagBuilder {
+                name: "clap_version",
+                short: if self.needs_short_help { Some('v') } else { None },
+                long: Some("version"),
+                help: Some("Prints version information"),
+                blacklist: None,
+                multiple: false,
+                requires: None,
+            });
+        }
+        if self.needs_subcmd_help && !self.subcommands.is_empty() {
+            self.subcommands.insert("help", Box::new(App::new("help").about("Prints this message")));
+        }
+    }
 
-        let args = env::args().collect::<Vec<_>>();    
-        let mut it = args.into_iter();
-        if let Some(name) = it.next() {
-            let p = Path::new(&name[..]);
-            if let Some(f) = p.file_name() {
-                match f.to_os_string().into_string() {
-                    Ok(s) => self.bin_name = Some(s),
-                    Err(_) => {}
+    fn check_for_help_and_version(&self, arg: char) {
+        if arg == 'h' && self.needs_short_help {
+            self.print_help();
+        } else if arg == 'v' && self.needs_short_version {
+            self.print_version(true);
+        }
+    }
+
+    fn parse_long_arg(&mut self, matches: &mut ArgMatches ,full_arg: &String) -> Option<&'static str> {
+        let mut arg = full_arg.trim_left_matches(|c| c == '-');
+
+        if arg == "help" && self.needs_long_help {
+            self.print_help();
+        } else if arg == "version" && self.needs_long_version {
+            self.print_version(true);
+        }
+
+        let mut arg_val: Option<String> = None;
+
+        if arg.contains("=") {
+            let arg_vec: Vec<&str> = arg.split("=").collect();
+            arg = arg_vec[0];
+            // prevents "--config= value" typo
+            if arg_vec[1].len() == 0 {
+                self.report_error(format!("Argument --{} requires a value, but none was supplied", arg), true, true);
+            }
+            arg_val = Some(arg_vec[1].to_string());
+        } 
+
+        if let Some(v) = self.opts.values().filter(|&v| v.long.is_some()).filter(|&v| v.long.unwrap() == arg).nth(0) {
+            // Ensure this option isn't on the master mutually excludes list
+            if self.blacklist.contains(v.name) {
+                self.report_error(format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
+                    true, true);
+            }
+
+            if matches.opts.contains_key(v.name) && !v.multiple {
+                self.report_error(format!("Argument --{} was supplied more than once, but does not support multiple values", arg), true, true);
+            }
+
+            // Ensure this isn't an option being added multiple times if it doesn't suppor it
+            if v.multiple && arg_val.is_some() {
+                if let Some(ref mut o) = matches.opts.get_mut(v.name) {
+                    o.occurrences += 1;
+                    o.values.push(arg_val.clone().unwrap());
+                    return None;
                 }
             }
-        }
-        self.get_matches_from(&mut matches, &mut it );
+            matches.opts.insert(v.name, OptArg{
+                name: v.name,
+                occurrences: 1,
+                values: if arg_val.is_some() { vec![arg_val.clone().unwrap()]} else {vec![]} 
+            });
+            if let Some(ref bl) = v.blacklist {
+                for name in bl {
+                    self.blacklist.insert(name);
+                }
+            }
+            if self.required.contains(v.name) {
+                self.required.remove(v.name);
+            }
+            if let Some(ref reqs) = v.requires {
+                // Add all required args which aren't already found in matches to the
+                // final required list
+                for n in reqs {
+                    if matches.opts.contains_key(n) { continue; }
+                    if matches.flags.contains_key(n) { continue; }
+                    if matches.positionals.contains_key(n) { continue; }
 
-        matches
+                    self.required.insert(n);
+                }
+            } 
+            match arg_val {
+                None => { return Some(v.name); },
+                _    => { return None; }
+            }
+        } 
+
+        for v in self.flags.values().filter(|&v| v.long.is_some()).filter(|&v| v.long.unwrap() == arg) {
+            // Ensure this flag isn't on the mutually excludes list
+            if self.blacklist.contains(v.name) {
+                self.report_error(format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
+                    true, true);
+            }
+            
+            // Make sure this isn't one being added multiple times if it doesn't suppor it
+            if matches.flags.contains_key(v.name) && !v.multiple {
+                self.report_error(format!("Argument --{} was supplied more than once, but does not support multiple values", arg), true, true);
+            }
+
+            let mut done = false;
+            if let Some(ref mut f) = matches.flags.get_mut(v.name) {
+                done = true;
+                f.occurrences = if v.multiple { f.occurrences + 1 } else { 1 };
+            }
+            if !done { 
+                matches.flags.insert(v.name, FlagArg{
+                    name: v.name,
+                    occurrences: 1
+                });
+            }
+
+            // If this flag was requierd, remove it
+            // .. even though Flags shouldn't be required
+            if self.required.contains(v.name) {
+                self.required.remove(v.name);
+            }
+
+            // Add all of this flags "mutually excludes" list to the master list
+            if let Some(ref bl) = v.blacklist {
+                for name in bl {
+                    self.blacklist.insert(name);
+                }
+            }
+
+            // Add all required args which aren't already found in matches to the master list
+            if let Some(ref reqs) = v.requires {
+                for n in reqs {
+                    if matches.flags.contains_key(n) { continue; }
+                    if matches.opts.contains_key(n) { continue; }
+                    if matches.positionals.contains_key(n) { continue; }
+
+                    self.required.insert(n);
+                }
+            }
+            return None;
+        }
+
+        // Shouldn't reach here
+        self.report_error(format!("Argument --{} isn't valid", arg), true, true);
+        unreachable!();
     }
+
+    fn parse_short_arg(&mut self, matches: &mut ArgMatches ,full_arg: &String) -> Option<&'static str> {
+        let arg = &full_arg[..].trim_left_matches(|c| c == '-');
+        if arg.len() > 1 { 
+            // Multiple flags using short i.e. -bgHlS
+            for c in arg.chars() {
+                self.check_for_help_and_version(c);
+                if !self.parse_single_short_flag(matches, c) { 
+                    self.report_error(format!("Argument -{} isn't valid",c), true, true);
+                }
+            }
+            return None;
+        } 
+        // Short flag or opt
+        let arg_c = arg.chars().nth(0).unwrap();
+
+        // Ensure the arg in question isn't a help or version flag
+        self.check_for_help_and_version(arg_c);
+
+        // Check for a matching flag, and return none if found
+        if self.parse_single_short_flag(matches, arg_c) { return None; }
+        
+        // Check for matching short in options, and return the name
+        // (only ones with shorts, of course)
+        for v in self.opts.values().filter(|&v| v.short.is_some()) {
+            if v.short.unwrap() != arg_c { continue; }
+                
+            // Ensure this option isn't on the master mutually excludes list
+            if self.blacklist.contains(v.name) {
+                self.report_error(format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
+                    true, true);
+            }
+
+            if matches.opts.contains_key(v.name) && !v.multiple {
+                self.report_error(format!("Argument --{} was supplied more than once, but does not support multiple values", arg), true, true);
+            }
+
+            matches.opts.insert(v.name, OptArg{
+                name: v.name,
+                occurrences: 1,
+                values: vec![]
+            });
+            if let Some(ref bl) = v.blacklist {
+                for name in bl {
+                    self.blacklist.insert(name);
+                }
+            }
+            if self.required.contains(v.name) {
+                self.required.remove(v.name);
+            }
+            if let Some(ref reqs) = v.requires {
+                // Add all required args which aren't already found in matches to the
+                // final required list
+                for n in reqs {
+                    if matches.opts.contains_key(n) { continue; }
+                    if matches.flags.contains_key(n) { continue; }
+                    if matches.positionals.contains_key(n) { continue; }
+
+                    self.required.insert(n);
+                }
+            } 
+            return Some(v.name)
+        } 
+
+        // Didn't match a flag or option, must be invalid
+        self.report_error( format!("Argument -{} isn't valid",arg_c), true, true);
+
+        unreachable!();
+    }
+
+    fn parse_single_short_flag(&mut self, matches: &mut ArgMatches, arg: char) -> bool {
+        for v in self.flags.values().filter(|&v| v.short.is_some()).filter(|&v| v.short.unwrap() == arg) {
+            // Ensure this flag isn't on the mutually excludes list
+            if self.blacklist.contains(v.name) {
+                self.report_error(format!("The argument -{} is mutually exclusive with one or more other arguments", arg),
+                    true, true);
+            }
+
+            // Make sure this isn't one being added multiple times if it doesn't suppor it
+            if matches.flags.contains_key(v.name) && !v.multiple {
+                self.report_error(format!("Argument -{} was supplied more than once, but does not support multiple values", arg), true, true);
+            }
+
+            let mut done = false;
+            if let Some(ref mut f) = matches.flags.get_mut(v.name) {
+                done = true;
+                f.occurrences = if v.multiple { f.occurrences + 1 } else { 1 };
+            } 
+            if !done {
+                matches.flags.insert(v.name, FlagArg{
+                    name: v.name,
+                    occurrences: 1
+                });
+            }
+
+            // If this flag was requierd, remove it
+            // .. even though Flags shouldn't be required
+            if self.required.contains(v.name) {
+                self.required.remove(v.name);
+            }
+
+            // Add all of this flags "mutually excludes" list to the master list
+            if let Some(ref bl) = v.blacklist {
+                for name in bl {
+                    self.blacklist.insert(name);
+                }
+            }
+
+            // Add all required args which aren't already found in matches to the master list
+            if let Some(ref reqs) = v.requires {
+                for n in reqs {
+                    if matches.flags.contains_key(n) { continue; }
+                    if matches.opts.contains_key(n) { continue; }
+                    if matches.positionals.contains_key(n) { continue; }
+
+                    self.required.insert(n);
+                }
+            }
+            return true;
+        }
+        false
+    }
+
+    fn validate_blacklist(&self, matches: &ArgMatches) {
+        for name in self.blacklist.iter() {
+            if matches.flags.contains_key(name) {
+                self.report_error(format!("The argument {} is mutually exclusive with one or more other arguments",
+                    if let Some(s) = self.flags.get(name).unwrap().short {
+                        format!("-{}", s)
+                    } else if let Some(l) = self.flags.get(name).unwrap().long {
+                        format!("--{}", l)
+                    } else {
+                        format!("\"{}\"", name)
+                    }), true, true);
+            }
+            if matches.opts.contains_key(name) {
+                self.report_error(format!("The argument {} is mutually exclusive with one or more other arguments",
+                    if let Some(s) = self.opts.get(name).unwrap().short {
+                        format!("-{}", s)
+                    } else if let Some(l) = self.opts.get(name).unwrap().long {
+                        format!("--{}", l)
+                    } else {
+                        format!("\"{}\"", name)
+                    }), true, true);
+            }
+            if matches.positionals.contains_key(name) {
+                self.report_error(format!("The argument \"{}\" is mutually exclusive with one or more other arguments",name),
+                    false, true);
+            }
+        }
+    }
+
 }

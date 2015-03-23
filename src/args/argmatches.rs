@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use args::{ FlagArg, OptArg, PosArg, SubCommand };
+use args::SubCommand;
+use args::flagarg::FlagArg;
+use args::optarg::OptArg;
+use args::posarg::PosArg;
 
 /// Used to get information about the arguments that
 /// where supplied to the program at runtime.
@@ -61,7 +64,7 @@ pub struct ArgMatches {
     pub flags: HashMap<&'static str, FlagArg>,
     pub opts: HashMap<&'static str, OptArg>,
     pub positionals: HashMap<&'static str, PosArg>,
-    pub subcommand: Option<(&'static str, Box<SubCommand>)>
+    pub subcommand: Option<Box<SubCommand>>
 }
 
 impl ArgMatches {
@@ -100,18 +103,16 @@ impl ArgMatches {
     ///        println!("Value for output: {}", o);
     /// }
     /// ```
-    pub fn value_of(&self, name: &'static str) -> Option<&String> {
+    pub fn value_of(&self, name: &'static str) -> Option<&str> {
         if let Some(ref opt) = self.opts.get(name) {
-            if ! opt.values.is_empty() {
+            if !opt.values.is_empty() {
                 if let Some(ref s) = opt.values.iter().nth(0) {
-                    return Some(s);
+                    return Some(&s[..]);
                 }
             } 
         }
         if let Some(ref pos) = self.positionals.get(name) {
-            if let Some(ref v) = pos.value {
-                return Some(v);
-            }  
+            return Some(&pos.value[..]);
         }
         None
     }
@@ -157,14 +158,12 @@ impl ArgMatches {
     /// }
     /// ```
     pub fn is_present(&self, name: &'static str) -> bool {
-        if let Some((sc_name, _ )) = self.subcommand {
-            if sc_name == name { return true; } 
+        if let Some(ref sc) = self.subcommand {
+            if sc.name == name { return true; } 
         }
-        if self.flags.contains_key(name) ||
-             self.opts.contains_key(name) ||
-              self.positionals.contains_key(name) {
-                return true;
-              }
+        if self.flags.contains_key(name) {return true;}
+        if self.opts.contains_key(name) {return true;}
+        if self.positionals.contains_key(name) {return true;}
         false
     }
 
@@ -210,8 +209,8 @@ impl ArgMatches {
     /// }
     /// ```
     pub fn subcommand_matches(&self, name: &'static str) -> Option<&ArgMatches> {
-        if let Some( ( sc_name, ref sc)) = self.subcommand {
-            if sc_name != name { return None; }
+        if let Some( ref sc) = self.subcommand {
+            if sc.name != name { return None; }
             return Some(&sc.matches);
         }
         None
@@ -232,8 +231,8 @@ impl ArgMatches {
     /// }
     /// ```
     pub fn subcommand_name(&self) -> Option<&'static str> {
-        if let Some((name, _)) = self.subcommand {
-            return Some(name);
+        if let Some( ref sc ) = self.subcommand {
+            return Some(sc.name);
         }
         None
     }
