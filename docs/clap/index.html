@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `clap` crate.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, clap">
+
+    <title>clap - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <section class="sidebar">
+        
+        <p class='location'></p><script>window.sidebarCurrent = {name: 'clap', ty: 'mod', relpath: '../'};</script>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press 'S' to search, '?' for more options..."
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content mod">
+<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>clap</a><wbr></span><span class='out-of-band'><a href='stability.html'>[stability]</a> <span id='render-detail'>
+            <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-0' href='../src/clap/lib.rs.html#1-301'>[src]</a></span></h1>
+<div class='docblock'>
+<h1 id="clap" class='section-header'><a
+                           href="#clap">clap</a></h1>
+<p><img src="https://travis-ci.org/kbknapp/clap-rs.svg?branch=master" alt="Travis-CI"></p>
+
+<p>Command Line Argument Parser written in Rust</p>
+
+<p>A simply library for parsing command line arguments and subcommands when writing command line and console applications.</p>
+
+<p>You can use <code>clap</code> to lay out a list of possible valid command line arguments and subcommands, then let <code>clap</code> parse the string given by the user at runtime.</p>
+
+<p>When using <code>clap</code> you define a set of parameters and rules for your arguments and subcommands, then at runtime <code>clap</code> will determine their validity.</p>
+
+<p><code>clap</code> also provides the traditional version and help switches &#39;for free&#39; by parsing the list of possible valid arguments lazily at runtime, and if not already defined by the developer <code>clap</code> will autogenerate all applicable &quot;help&quot; and &quot;version&quot; switches (as well as a &quot;help&quot; subcommand if other subcommands are defined as well).</p>
+
+<p>After defining a list of possible valid arguments and subcommands, <code>clap</code> gives you a list of valid matches that the user supplied at runtime, or informs the user of their error and exits gracefully. You can use this list to determine the functioning of your program.</p>
+
+<h2 id="quick-example" class='section-header'><a
+                           href="#quick-example">Quick Example</a></h2><pre id='rust-example-rendered' class='rust '>
+<span class='comment'>// (Full example with comments in examples/01_QuickExample.rs)</span>
+<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>clap</span>;
+<span class='kw'>use</span> <span class='ident'>clap</span>::{<span class='ident'>Arg</span>, <span class='ident'>App</span>, <span class='ident'>SubCommand</span>};
+ 
+<span class='kw'>fn</span> <span class='ident'>main</span>() {
+    <span class='kw'>let</span> <span class='ident'>matches</span> <span class='op'>=</span> <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;MyApp&quot;</span>)
+                          .<span class='ident'>version</span>(<span class='string'>&quot;1.0&quot;</span>)
+                          .<span class='ident'>author</span>(<span class='string'>&quot;Kevin K. &lt;kbknapp@gmail.com&gt;&quot;</span>)
+                          .<span class='ident'>about</span>(<span class='string'>&quot;Does awesome things&quot;</span>)
+                          .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;config&quot;</span>)
+                               .<span class='ident'>short</span>(<span class='string'>&quot;c&quot;</span>)
+                               .<span class='ident'>long</span>(<span class='string'>&quot;config&quot;</span>)
+                               .<span class='ident'>help</span>(<span class='string'>&quot;Sets a custom config file&quot;</span>)
+                               .<span class='ident'>takes_value</span>(<span class='boolval'>true</span>))
+                          .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;output&quot;</span>)
+                               .<span class='ident'>help</span>(<span class='string'>&quot;Sets an optional output file&quot;</span>)
+                               .<span class='ident'>index</span>(<span class='number'>1</span>))
+                          .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;debug&quot;</span>)
+                               .<span class='ident'>short</span>(<span class='string'>&quot;d&quot;</span>)
+                               .<span class='ident'>multiple</span>(<span class='boolval'>true</span>)
+                               .<span class='ident'>help</span>(<span class='string'>&quot;Turn debugging information on&quot;</span>))
+                          .<span class='ident'>subcommand</span>(<span class='ident'>SubCommand</span>::<span class='ident'>new</span>(<span class='string'>&quot;test&quot;</span>)
+                                      .<span class='ident'>about</span>(<span class='string'>&quot;controls testing features&quot;</span>)
+                                      .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;verbose&quot;</span>)
+                                          .<span class='ident'>short</span>(<span class='string'>&quot;v&quot;</span>)
+                                          .<span class='ident'>help</span>(<span class='string'>&quot;print test information verbosely&quot;</span>)))
+                          .<span class='ident'>get_matches</span>();
+ 
+    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>o</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>value_of</span>(<span class='string'>&quot;output&quot;</span>) {
+        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Value for output: {}&quot;</span>, <span class='ident'>o</span>);
+    }
+ 
+    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>c</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>value_of</span>(<span class='string'>&quot;config&quot;</span>) {
+        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Value for config: {}&quot;</span>, <span class='ident'>c</span>);
+    }
+ 
+    <span class='kw'>match</span> <span class='ident'>matches</span>.<span class='ident'>occurrences_of</span>(<span class='string'>&quot;debug&quot;</span>) {
+        <span class='number'>0</span> <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Debug mode is off&quot;</span>),
+        <span class='number'>1</span> <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Debug mode is kind of on&quot;</span>),
+        <span class='number'>2</span> <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Debug mode is on&quot;</span>),
+        <span class='number'>3</span> <span class='op'>|</span> _ <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Don&#39;t be crazy&quot;</span>),
+    }
+ 
+    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>matches</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>subcommand_matches</span>(<span class='string'>&quot;test&quot;</span>) {
+        <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>is_present</span>(<span class='string'>&quot;verbose&quot;</span>) {
+            <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Printing verbosely...&quot;</span>);
+        } <span class='kw'>else</span> {
+            <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Printing normally...&quot;</span>);
+        }
+    }
+ 
+    <span class='comment'>// more porgram logic goes here...</span>
+}
+</pre>
+
+<p>If you were to compile the above program and run it with the flag <code>--help</code> or <code>-h</code> (or <code>help</code> subcommand, since we defined <code>test</code> as a subcommand) the following output woud be presented</p>
+
+<pre><code class="language-sh">$ myprog --help
+MyApp 1.0
+Kevin K. &lt;kbknapp@gmail.com&gt;
+Does awesome things
+ 
+USAGE:
+    MyApp [FLAGS] [OPTIONS] [POSITIONAL] [SUBCOMMANDS]
+ 
+FLAGS:
+    -d               Turn debugging information on
+    -h,--help        Prints this message
+    -v,--version     Prints version information
+  
+OPTIONS:
+    -c,--config &lt;config&gt;        Sets a custom config file
+ 
+POSITIONAL ARGUMENTS:
+    output            Sets an optional output file
+ 
+SUBCOMMANDS:
+    help            Prints this message
+    test            Controls testing features
+</code></pre>
+
+<h2 id="installation" class='section-header'><a
+                           href="#installation">Installation</a></h2>
+<p>Add <code>clap</code> as a dependecy in your <code>Cargo.toml</code> file to use from crates.io:</p>
+<pre id='rust-example-rendered' class='rust '>
+ [<span class='ident'>dependencies</span>]
+ <span class='ident'>clap</span> <span class='op'>=</span> <span class='string'>&quot;*&quot;</span>
+</pre>
+
+<p>Or track the latest on the master branch at github:</p>
+<pre id='rust-example-rendered' class='rust '>
+[<span class='ident'>dependencies</span>.<span class='ident'>clap</span>]
+<span class='ident'>git</span> <span class='op'>=</span> <span class='string'>&quot;https://github.com/kbknapp/clap-rs.git&quot;</span>
+</pre>
+
+<p>Then run <code>cargo build</code> or <code>cargo update</code> for your project.</p>
+
+<h2 id="usage" class='section-header'><a
+                           href="#usage">Usage</a></h2>
+<p>Add <code>extern crate clap;</code> to your crate root.</p>
+
+<h2 id="more-information" class='section-header'><a
+                           href="#more-information">More Information</a></h2>
+<p>You can find complete documentation on the <a href="http://kbknapp.github.io/clap-rs/docs/clap/index.html">github-pages site</a> for this project.</p>
+
+<p>You can also find full usage examples in the examples/ directory of this repo.</p>
+
+<h2 id="how-to-build" class='section-header'><a
+                           href="#how-to-build">How to build</a></h2>
+<h3 id="running-the-tests" class='section-header'><a
+                           href="#running-the-tests">Running the tests</a></h3><pre id='rust-example-rendered' class='rust '>
+<span class='ident'>cargo</span> <span class='ident'>test</span>
+</pre>
+
+<h3 id="building-the-documentation" class='section-header'><a
+                           href="#building-the-documentation">Building the documentation</a></h3>
+<p>Run this instead of <code>cargo doc</code> to generate the proper module docstring:</p>
+<pre id='rust-example-rendered' class='rust '>
+<span class='ident'>make</span> <span class='ident'>doc</span>
+</pre>
+
+<h1 id="clap-1" class='section-header'><a
+                           href="#clap-1">clap</a></h1>
+<p><img src="https://travis-ci.org/kbknapp/clap-rs.svg?branch=master" alt="Travis-CI"></p>
+
+<p>Command Line Argument Parser written in Rust</p>
+
+<p>A simply library for parsing command line arguments and subcommands when writing command line and console applications.</p>
+
+<p>You can use <code>clap</code> to lay out a list of possible valid command line arguments and subcommands, then let <code>clap</code> parse the string given by the user at runtime.</p>
+
+<p>When using <code>clap</code> you define a set of parameters and rules for your arguments and subcommands, then at runtime <code>clap</code> will determine their validity.</p>
+
+<p><code>clap</code> also provides the traditional version and help switches &#39;for free&#39; by parsing the list of possible valid arguments lazily at runtime, and if not already defined by the developer <code>clap</code> will autogenerate all applicable &quot;help&quot; and &quot;version&quot; switches (as well as a &quot;help&quot; subcommand if other subcommands are defined as well).</p>
+
+<p>After defining a list of possible valid arguments and subcommands, <code>clap</code> gives you a list of valid matches that the user supplied at runtime, or informs the user of their error and exits gracefully. You can use this list to determine the functioning of your program.</p>
+
+<h2 id="quick-example-1" class='section-header'><a
+                           href="#quick-example-1">Quick Example</a></h2><pre id='rust-example-rendered' class='rust '>
+<span class='comment'>// (Full example with comments in examples/01_QuickExample.rs)</span>
+<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>clap</span>;
+<span class='kw'>use</span> <span class='ident'>clap</span>::{<span class='ident'>Arg</span>, <span class='ident'>App</span>, <span class='ident'>SubCommand</span>};
+ 
+<span class='kw'>fn</span> <span class='ident'>main</span>() {
+    <span class='kw'>let</span> <span class='ident'>matches</span> <span class='op'>=</span> <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;MyApp&quot;</span>)
+                          .<span class='ident'>version</span>(<span class='string'>&quot;1.0&quot;</span>)
+                          .<span class='ident'>author</span>(<span class='string'>&quot;Kevin K. &lt;kbknapp@gmail.com&gt;&quot;</span>)
+                          .<span class='ident'>about</span>(<span class='string'>&quot;Does awesome things&quot;</span>)
+                          .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;config&quot;</span>)
+                               .<span class='ident'>short</span>(<span class='string'>&quot;c&quot;</span>)
+                               .<span class='ident'>long</span>(<span class='string'>&quot;config&quot;</span>)
+                               .<span class='ident'>help</span>(<span class='string'>&quot;Sets a custom config file&quot;</span>)
+                               .<span class='ident'>takes_value</span>(<span class='boolval'>true</span>))
+                          .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;output&quot;</span>)
+                               .<span class='ident'>help</span>(<span class='string'>&quot;Sets an optional output file&quot;</span>)
+                               .<span class='ident'>index</span>(<span class='number'>1</span>))
+                          .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;debug&quot;</span>)
+                               .<span class='ident'>short</span>(<span class='string'>&quot;d&quot;</span>)
+                               .<span class='ident'>multiple</span>(<span class='boolval'>true</span>)
+                               .<span class='ident'>help</span>(<span class='string'>&quot;Turn debugging information on&quot;</span>))
+                          .<span class='ident'>subcommand</span>(<span class='ident'>SubCommand</span>::<span class='ident'>new</span>(<span class='string'>&quot;test&quot;</span>)
+                                      .<span class='ident'>about</span>(<span class='string'>&quot;controls testing features&quot;</span>)
+                                      .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;verbose&quot;</span>)
+                                          .<span class='ident'>short</span>(<span class='string'>&quot;v&quot;</span>)
+                                          .<span class='ident'>help</span>(<span class='string'>&quot;print test information verbosely&quot;</span>)))
+                          .<span class='ident'>get_matches</span>();
+ 
+    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>o</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>value_of</span>(<span class='string'>&quot;output&quot;</span>) {
+        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Value for output: {}&quot;</span>, <span class='ident'>o</span>);
+    }
+ 
+    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>c</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>value_of</span>(<span class='string'>&quot;config&quot;</span>) {
+        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Value for config: {}&quot;</span>, <span class='ident'>c</span>);
+    }
+ 
+    <span class='kw'>match</span> <span class='ident'>matches</span>.<span class='ident'>occurrences_of</span>(<span class='string'>&quot;debug&quot;</span>) {
+        <span class='number'>0</span> <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Debug mode is off&quot;</span>),
+        <span class='number'>1</span> <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Debug mode is kind of on&quot;</span>),
+        <span class='number'>2</span> <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Debug mode is on&quot;</span>),
+        <span class='number'>3</span> <span class='op'>|</span> _ <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Don&#39;t be crazy&quot;</span>),
+    }
+ 
+    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>matches</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>subcommand_matches</span>(<span class='string'>&quot;test&quot;</span>) {
+        <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>is_present</span>(<span class='string'>&quot;verbose&quot;</span>) {
+            <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Printing verbosely...&quot;</span>);
+        } <span class='kw'>else</span> {
+            <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Printing normally...&quot;</span>);
+        }
+    }
+ 
+    <span class='comment'>// more porgram logic goes here...</span>
+}
+</pre>
+
+<p>If you were to compile the above program and run it with the flag <code>--help</code> or <code>-h</code> (or <code>help</code> subcommand, since we defined <code>test</code> as a subcommand) the following output woud be presented</p>
+
+<pre><code class="language-sh">$ myprog --help
+MyApp 1.0
+Kevin K. &lt;kbknapp@gmail.com&gt;
+Does awesome things
+ 
+USAGE:
+    MyApp [FLAGS] [OPTIONS] [POSITIONAL] [SUBCOMMANDS]
+ 
+FLAGS:
+    -d               Turn debugging information on
+    -h,--help        Prints this message
+    -v,--version     Prints version information
+  
+OPTIONS:
+    -c,--config &lt;config&gt;        Sets a custom config file
+ 
+POSITIONAL ARGUMENTS:
+    output            Sets an optional output file
+ 
+SUBCOMMANDS:
+    help            Prints this message
+    test            Controls testing features
+</code></pre>
+
+<h2 id="installation-1" class='section-header'><a
+                           href="#installation-1">Installation</a></h2>
+<p>Add <code>clap</code> as a dependecy in your <code>Cargo.toml</code> file to use from crates.io:</p>
+<pre id='rust-example-rendered' class='rust '>
+ [<span class='ident'>dependencies</span>]
+ <span class='ident'>clap</span> <span class='op'>=</span> <span class='string'>&quot;*&quot;</span>
+</pre>
+
+<p>Or track the latest on the master branch at github:</p>
+<pre id='rust-example-rendered' class='rust '>
+[<span class='ident'>dependencies</span>.<span class='ident'>clap</span>]
+<span class='ident'>git</span> <span class='op'>=</span> <span class='string'>&quot;https://github.com/kbknapp/clap-rs.git&quot;</span>
+</pre>
+
+<p>Then run <code>cargo build</code> or <code>cargo update</code> for your project.</p>
+
+<h2 id="usage-1" class='section-header'><a
+                           href="#usage-1">Usage</a></h2>
+<p>Add <code>extern crate clap;</code> to your crate root.</p>
+
+<h2 id="more-information-1" class='section-header'><a
+                           href="#more-information-1">More Information</a></h2>
+<p>You can find complete documentation on the <a href="http://kbknapp.github.io/clap-rs/docs/clap/index.html">github-pages site</a> for this project.</p>
+
+<p>You can also find full usage examples in the examples/ directory of this repo.</p>
+
+<h2 id="how-to-build-1" class='section-header'><a
+                           href="#how-to-build-1">How to build</a></h2>
+<h3 id="running-the-tests-1" class='section-header'><a
+                           href="#running-the-tests-1">Running the tests</a></h3><pre id='rust-example-rendered' class='rust '>
+<span class='ident'>cargo</span> <span class='ident'>test</span>
+</pre>
+
+<h3 id="building-the-documentation-1" class='section-header'><a
+                           href="#building-the-documentation-1">Building the documentation</a></h3>
+<p>Run this instead of <code>cargo doc</code> to generate the proper module docstring:</p>
+<pre id='rust-example-rendered' class='rust '>
+<span class='ident'>make</span> <span class='ident'>doc</span>
+</pre>
+</div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.App.html'
+                               title='clap::App'>App</a></td>
+                        <td class='docblock short'><p>Used to create a representation of the program and all possible command line arguments
+for parsing at runtime.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Arg.html'
+                               title='clap::Arg'>Arg</a></td>
+                        <td class='docblock short'><p>The abstract representation of a command line argument used by the consumer of the library.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.ArgMatches.html'
+                               title='clap::ArgMatches'>ArgMatches</a></td>
+                        <td class='docblock short'><p>Used to get information about the arguments that
+where supplied to the program at runtime.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.SubCommand.html'
+                               title='clap::SubCommand'>SubCommand</a></td>
+                        <td class='docblock short'><p>The abstract representation of a command line subcommand used by the consumer of the library.</p>
+</td>
+                    </tr>
+                </table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&larrb;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&rarrb;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code>, <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "clap";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script async src="../search-index.js"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ArgMatches","Used to get information about the arguments that where supplied to the program at runtime."]]});

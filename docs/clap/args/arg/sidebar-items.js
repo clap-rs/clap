@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Arg","The abstract representation of a command line argument used by the consumer of the library."]]});

@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="Source to the Rust file `src/args/argmatches.rs`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang">
+
+    <title>argmatches.rs.html -- source</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <section class="sidebar">
+        
+        
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press 'S' to search, '?' for more options..."
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+</pre><pre class='rust '>
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>HashMap</span>;
+
+<span class='kw'>use</span> <span class='ident'>args</span>::<span class='ident'>SubCommand</span>;
+<span class='kw'>use</span> <span class='ident'>args</span>::<span class='ident'>flagarg</span>::<span class='ident'>FlagArg</span>;
+<span class='kw'>use</span> <span class='ident'>args</span>::<span class='ident'>optarg</span>::<span class='ident'>OptArg</span>;
+<span class='kw'>use</span> <span class='ident'>args</span>::<span class='ident'>posarg</span>::<span class='ident'>PosArg</span>;
+
+<span class='doccomment'>/// Used to get information about the arguments that</span>
+<span class='doccomment'>/// where supplied to the program at runtime.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// Fields of `ArgMatches` aren&#39;t designed to be used directly, only </span>
+<span class='doccomment'>/// the methods in order to query information.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// # Example</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// ```no_run</span>
+<span class='doccomment'>/// # use clap::{App, Arg};</span>
+<span class='doccomment'>/// let matches = App::new(&quot;MyApp&quot;)</span>
+<span class='doccomment'>/// // adding of arguments and configuration goes here...</span>
+<span class='doccomment'>/// #                    .arg(Arg::new(&quot;config&quot;)</span>
+<span class='doccomment'>/// #                               .long(&quot;config&quot;)</span>
+<span class='doccomment'>/// #                               .required(true)</span>
+<span class='doccomment'>/// #                               .takes_value(true))</span>
+<span class='doccomment'>/// #                    .arg(Arg::new(&quot;debug&quot;)</span>
+<span class='doccomment'>/// #                                   .short(&quot;d&quot;)</span>
+<span class='doccomment'>/// #                                   .multiple(true))</span>
+<span class='doccomment'>///                     .get_matches();</span>
+<span class='doccomment'>/// // if you had an argument named &quot;output&quot; that takes a value </span>
+<span class='doccomment'>/// if let Some(o) = matches.value_of(&quot;output&quot;) {</span>
+<span class='doccomment'>///     println!(&quot;Value for output: {}&quot;, o);</span>
+<span class='doccomment'>/// }</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// // Although not advised, if you have a required argument</span>
+<span class='doccomment'>/// // you can call .unwrap() because the program will exit long before</span>
+<span class='doccomment'>/// // here at noticing the user didn&#39;t supply a required argument...</span>
+<span class='doccomment'>/// // use at your own risk ;)</span>
+<span class='doccomment'>/// println!(&quot;Config file: {}&quot;, matches.value_of(&quot;config&quot;).unwrap());</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// // You can check the present of an argument</span>
+<span class='doccomment'>/// if matches.is_present(&quot;debug&quot;) {</span>
+<span class='doccomment'>///     // Checking if &quot;debug&quot; was present was necessary,</span>
+<span class='doccomment'>///     // as occurrences returns 0 if a flag isn&#39;t found</span>
+<span class='doccomment'>///     // but we can check how many times &quot;debug&quot; was found</span>
+<span class='doccomment'>///     // if we allow multiple (if multiple isn&#39;t allowed it always be 1 or 0)</span>
+<span class='doccomment'>///     if matches.occurrences_of(&quot;debug&quot;) &gt; 1 {</span>
+<span class='doccomment'>///         println!(&quot;Debug mode is REALLY on&quot;);</span>
+<span class='doccomment'>///     } else {</span>
+<span class='doccomment'>///         println!(&quot;Debug mode kind of on&quot;);</span>
+<span class='doccomment'>///     }</span>
+<span class='doccomment'>/// }</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// // You can get the sub-matches of a particular subcommand (in this case &quot;test&quot;)</span>
+<span class='doccomment'>/// // If &quot;test&quot; had it&#39;s own &quot;-l&quot; flag you could check for it&#39;s presence accordingly</span>
+<span class='doccomment'>/// if let Some(ref matches) = matches.subcommand_matches(&quot;test&quot;) {</span>
+<span class='doccomment'>///     if matches.is_present(&quot;list&quot;) {</span>
+<span class='doccomment'>///         println!(&quot;Printing testing lists...&quot;);</span>
+<span class='doccomment'>///     } else {</span>
+<span class='doccomment'>///         println!(&quot;Not printing testing lists...&quot;);</span>
+<span class='doccomment'>///     }</span>
+<span class='doccomment'>/// }</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>ArgMatches</span> {
+    <span class='kw'>pub</span> <span class='ident'>matches_of</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>,
+    <span class='kw'>pub</span> <span class='ident'>flags</span>: <span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>, <span class='ident'>FlagArg</span><span class='op'>&gt;</span>,
+    <span class='kw'>pub</span> <span class='ident'>opts</span>: <span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>, <span class='ident'>OptArg</span><span class='op'>&gt;</span>,
+    <span class='kw'>pub</span> <span class='ident'>positionals</span>: <span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>, <span class='ident'>PosArg</span><span class='op'>&gt;</span>,
+    <span class='kw'>pub</span> <span class='ident'>subcommand</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Box</span><span class='op'>&lt;</span><span class='ident'>SubCommand</span><span class='op'>&gt;&gt;</span>
+}
+
+<span class='kw'>impl</span> <span class='ident'>ArgMatches</span> {
+    <span class='doccomment'>/// Creates a new instance of `ArgMatches`. This ins&#39;t called directly, but</span>
+    <span class='doccomment'>/// through the `.get_matches()` method of `App`</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// let matches = App::new(&quot;myprog&quot;).get_matches();</span>
+    <span class='doccomment'>/// ```</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>ArgMatches</span> {
+        <span class='ident'>ArgMatches</span> {
+            <span class='ident'>matches_of</span>: <span class='ident'>name</span>,
+            <span class='ident'>flags</span>: <span class='ident'>HashMap</span>::<span class='ident'>new</span>(),
+            <span class='ident'>opts</span>: <span class='ident'>HashMap</span>::<span class='ident'>new</span>(),
+            <span class='ident'>positionals</span>: <span class='ident'>HashMap</span>::<span class='ident'>new</span>(),
+            <span class='ident'>subcommand</span>: <span class='prelude-val'>None</span>
+        }
+    }
+
+    <span class='doccomment'>/// Gets the value of a specific option or positional argument (i.e. an argument that takes</span>
+    <span class='doccomment'>/// an additional value at runtime). If the option wasn&#39;t present at runtime</span>
+    <span class='doccomment'>/// it returns `None`. </span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// *NOTE:* If getting a value for an option argument that allows multiples, prefer `values_of()`</span>
+    <span class='doccomment'>/// as `value_of()` will only return the _*first*_ value.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let matches = App::new(&quot;myapp&quot;).arg(Arg::new(&quot;output&quot;).takes_value(true)).get_matches();</span>
+    <span class='doccomment'>/// if let Some(o) = matches.value_of(&quot;output&quot;) {</span>
+    <span class='doccomment'>///        println!(&quot;Value for output: {}&quot;, o);</span>
+    <span class='doccomment'>/// }</span>
+    <span class='doccomment'>/// ```</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>value_of</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>str</span><span class='op'>&gt;</span> {
+        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>opt</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>opts</span>.<span class='ident'>get</span>(<span class='ident'>name</span>) {
+            <span class='kw'>if</span> <span class='op'>!</span><span class='ident'>opt</span>.<span class='ident'>values</span>.<span class='ident'>is_empty</span>() {
+                <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>s</span>) <span class='op'>=</span> <span class='ident'>opt</span>.<span class='ident'>values</span>.<span class='ident'>iter</span>().<span class='ident'>nth</span>(<span class='number'>0</span>) {
+                    <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>&amp;</span><span class='ident'>s</span>[..]);
+                }
+            } 
+        }
+        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>pos</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>positionals</span>.<span class='ident'>get</span>(<span class='ident'>name</span>) {
+            <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>&amp;</span><span class='ident'>pos</span>.<span class='ident'>value</span>[..]);
+        }
+        <span class='prelude-val'>None</span>
+    }
+
+    <span class='doccomment'>/// Gets the values of a specific option in a vector (i.e. an argument that takes</span>
+    <span class='doccomment'>/// an additional value at runtime). If the option wasn&#39;t present at runtime</span>
+    <span class='doccomment'>/// it returns `None`</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let matches = App::new(&quot;myapp&quot;).arg(Arg::new(&quot;output&quot;).takes_value(true)).get_matches();</span>
+    <span class='doccomment'>/// // If the program had option &quot;-c&quot; that took a value and was run</span>
+    <span class='doccomment'>/// // via &quot;myapp -o some -o other -o file&quot;</span>
+    <span class='doccomment'>/// // values_of() would return a [&amp;str; 3] (&quot;some&quot;, &quot;other&quot;, &quot;file&quot;)</span>
+    <span class='doccomment'>/// if let Some(os) = matches.values_of(&quot;output&quot;) {</span>
+    <span class='doccomment'>///        for o in os {</span>
+    <span class='doccomment'>///            println!(&quot;A value for output: {}&quot;, o);</span>
+    <span class='doccomment'>///        }</span>
+    <span class='doccomment'>/// }</span>
+    <span class='doccomment'>/// ```</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>values_of</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>str</span><span class='op'>&gt;&gt;</span> {
+        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>opt</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>opts</span>.<span class='ident'>get</span>(<span class='ident'>name</span>) {
+            <span class='kw'>if</span> <span class='ident'>opt</span>.<span class='ident'>values</span>.<span class='ident'>is_empty</span>() { <span class='kw'>return</span> <span class='prelude-val'>None</span>; } 
+
+            <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>opt</span>.<span class='ident'>values</span>.<span class='ident'>iter</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>s</span><span class='op'>|</span> <span class='kw-2'>&amp;</span><span class='ident'>s</span>[..]).<span class='ident'>collect</span>::<span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span>_<span class='op'>&gt;&gt;</span>());
+        }
+        <span class='prelude-val'>None</span>
+    }
+
+    <span class='doccomment'>/// Checks if a flag was argument was supplied at runtime. **DOES NOT** work for</span>
+    <span class='doccomment'>/// option or positional arguments (use `.value_of()` instead)</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let matches = App::new(&quot;myapp&quot;).arg(Arg::new(&quot;output&quot;).takes_value(true)).get_matches();</span>
+    <span class='doccomment'>/// if matches.is_present(&quot;output&quot;) {</span>
+    <span class='doccomment'>///        println!(&quot;The output argument was used!&quot;);</span>
+    <span class='doccomment'>/// }</span>
+    <span class='doccomment'>/// ```</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_present</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
+        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>sc</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>subcommand</span> {
+            <span class='kw'>if</span> <span class='ident'>sc</span>.<span class='ident'>name</span> <span class='op'>==</span> <span class='ident'>name</span> { <span class='kw'>return</span> <span class='boolval'>true</span>; } 
+        }
+        <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>flags</span>.<span class='ident'>contains_key</span>(<span class='ident'>name</span>) {<span class='kw'>return</span> <span class='boolval'>true</span>;}
+        <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>opts</span>.<span class='ident'>contains_key</span>(<span class='ident'>name</span>) {<span class='kw'>return</span> <span class='boolval'>true</span>;}
+        <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>positionals</span>.<span class='ident'>contains_key</span>(<span class='ident'>name</span>) {<span class='kw'>return</span> <span class='boolval'>true</span>;}
+        <span class='boolval'>false</span>
+    }
+
+    <span class='doccomment'>/// Checks the number of occurrences of an option or flag at runtime. </span>
+    <span class='doccomment'>/// If an option or flag isn&#39;t present it will return `0`, if the option or flag doesn&#39;t </span>
+    <span class='doccomment'>/// allow multiple occurrences, it will return `1` no matter how many times it occurred </span>
+    <span class='doccomment'>/// (unless it wasn&#39;t prsent) at all.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// *NOTE:* This _*DOES NOT*_ work for positional arguments (use `.value_of()` instead). </span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let matches = App::new(&quot;myapp&quot;).arg(Arg::new(&quot;output&quot;).takes_value(true)).get_matches();</span>
+    <span class='doccomment'>/// if matches.occurrences_of(&quot;debug&quot;) &gt; 1 {</span>
+    <span class='doccomment'>///     println!(&quot;Debug mode is REALLY on&quot;);</span>
+    <span class='doccomment'>/// } else {</span>
+    <span class='doccomment'>///     println!(&quot;Debug mode kind of on&quot;);</span>
+    <span class='doccomment'>/// }</span>
+    <span class='doccomment'>/// ```</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>occurrences_of</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>u8</span> {
+        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>f</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>flags</span>.<span class='ident'>get</span>(<span class='ident'>name</span>) {
+            <span class='kw'>return</span> <span class='ident'>f</span>.<span class='ident'>occurrences</span>;
+        }
+        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>o</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>opts</span>.<span class='ident'>get</span>(<span class='ident'>name</span>) {
+            <span class='kw'>return</span> <span class='ident'>o</span>.<span class='ident'>occurrences</span>;
+        }
+        <span class='number'>0</span>
+    }
+
+    <span class='doccomment'>/// If a subcommand was found, returns the ArgMatches struct associated with it&#39;s matches</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg, SubCommand};</span>
+    <span class='doccomment'>/// # let app_matches = App::new(&quot;myapp&quot;).subcommand(SubCommand::new(&quot;test&quot;)).get_matches();</span>
+    <span class='doccomment'>/// if let Some(matches) = app_matches.subcommand_matches(&quot;test&quot;) {</span>
+    <span class='doccomment'>///     // Use matches as normal</span>
+    <span class='doccomment'>/// }</span>
+    <span class='doccomment'>/// ```</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>subcommand_matches</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>ArgMatches</span><span class='op'>&gt;</span> {
+        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>( <span class='kw-2'>ref</span> <span class='ident'>sc</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>subcommand</span> {
+            <span class='kw'>if</span> <span class='ident'>sc</span>.<span class='ident'>name</span> <span class='op'>!=</span> <span class='ident'>name</span> { <span class='kw'>return</span> <span class='prelude-val'>None</span>; }
+            <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>&amp;</span><span class='ident'>sc</span>.<span class='ident'>matches</span>);
+        }
+        <span class='prelude-val'>None</span>
+    }
+
+    <span class='doccomment'>/// If a subcommand was found, returns the name associated with it</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg, SubCommand};</span>
+    <span class='doccomment'>/// # let app_matches = App::new(&quot;myapp&quot;).subcommand(SubCommand::new(&quot;test&quot;)).get_matches();</span>
+    <span class='doccomment'>/// match app_matches.subcommand_name() {</span>
+    <span class='doccomment'>///     Some(&quot;test&quot;)   =&gt; {}, // test was used</span>
+    <span class='doccomment'>///     Some(&quot;config&quot;) =&gt; {}, // config was used</span>
+    <span class='doccomment'>///     _              =&gt; {}, // Either no subcommand or one not tested for...</span>
+    <span class='doccomment'>/// }</span>
+    <span class='doccomment'>/// ```</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>subcommand_name</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span><span class='op'>&gt;</span> {
+        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>( <span class='kw-2'>ref</span> <span class='ident'>sc</span> ) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>subcommand</span> {
+            <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>sc</span>.<span class='ident'>name</span>);
+        }
+        <span class='prelude-val'>None</span>
+    }
+}
+</pre>
+</section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&larrb;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&rarrb;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code>, <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "clap";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    
+    <script async src="../../../search-index.js"></script>
+</body>
+</html>
