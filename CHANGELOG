@@ -1,3 +1,6 @@
+# v0.4.11
+    * Bug fixes and cleaned up code organization (well started to...)
+    * Changed runtime representation of arguments to lower allocated memory
 # v0.4.10
     * Minor bug fixes
     * Added more comprehensive examples to repo
