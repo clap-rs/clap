@@ -1,9 +1,3 @@
-#![crate_type= "lib"]
-
-#![feature(libc)]
-#![feature(exit_status)]
-
-// DOCS
 //! # clap
 //! 
 //! ![Travis-CI](https://travis-ci.org/kbknapp/clap-rs.svg?branch=master)
@@ -146,14 +140,3 @@
 //! ```
 //! make doc
 //! ```
-
-pub use args::{Arg, SubCommand, ArgMatches};
-pub use app::App;
-
-mod app;
-mod args;
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-}
