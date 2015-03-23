@@ -694,7 +694,7 @@ impl App {
             }
         } 
 
-        for v in self.flags.values().filter(|&v| v.long.is_some()).filter(|&v| v.long.unwrap() == arg) {
+        if let Some(v) = self.flags.values().filter(|&v| v.long.is_some()).filter(|&v| v.long.unwrap() == arg).nth(0) {
             // Ensure this flag isn't on the mutually excludes list
             if self.blacklist.contains(v.name) {
                 self.report_error(format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
@@ -772,9 +772,7 @@ impl App {
         
         // Check for matching short in options, and return the name
         // (only ones with shorts, of course)
-        for v in self.opts.values().filter(|&v| v.short.is_some()) {
-            if v.short.unwrap() != arg_c { continue; }
-                
+        if let Some(v) = self.opts.values().filter(|&v| v.short.is_some()).filter(|&v| v.short.unwrap() == arg_c).nth(0) {
             // Ensure this option isn't on the master mutually excludes list
             if self.blacklist.contains(v.name) {
                 self.report_error(format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
@@ -782,7 +780,7 @@ impl App {
             }
 
             if matches.opts.contains_key(v.name) && !v.multiple {
-                self.report_error(format!("Argument --{} was supplied more than once, but does not support multiple values", arg), true, true);
+                self.report_error(format!("Argument -{} was supplied more than once, but does not support multiple values", arg), true, true);
             }
 
             matches.opts.insert(v.name, OptArg{
