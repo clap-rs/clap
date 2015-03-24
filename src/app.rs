@@ -25,7 +25,7 @@ use args::{PosArg, PosBuilder};
 /// # use clap::{App, Arg};
 /// let myprog = App::new("myprog")
 ///                   .author("Me, me@mail.com")
-///                      .version("1.0.2")
+///                   .version("1.0.2")
 ///                   .about("Explains in brief what the program does")
 ///                   .arg(
 ///                            Arg::new("in_file").index(1)
@@ -35,19 +35,19 @@ use args::{PosArg, PosBuilder};
 ///
 /// // Your pogram logic starts here...
 /// ```
-pub struct App {
+pub struct App<'a, 'v, 'ab, 'u> {
     // The name displayed to the user when showing version and help/usage information
-    name: &'static str,
+    name: String,
     // A string of author(s) if desired. Displayed when showing help/usage information
-    author: Option<&'static str>,
+    author: Option<&'a str>,
     // The version displayed to the user
-    version: Option<&'static str>,
+    version: Option<&'v str>,
     // A brief explaination of the program that gets displayed to the user when shown help/usage information
-    about: Option<&'static str>,
+    about: Option<&'ab str>,
     flags: HashMap<&'static str, FlagBuilder>,
     opts: HashMap<&'static str, OptBuilder>,
     positionals_idx: BTreeMap<u8, PosBuilder>,
-    subcommands: HashMap<&'static str, Box<App>>,
+    subcommands: HashMap<String, Box<App<'a, 'v, 'ab, 'u>>>,
     needs_long_help: bool,
     needs_long_version: bool,
     needs_short_help: bool,
@@ -58,12 +58,12 @@ pub struct App {
     short_list: HashSet<char>,
     long_list: HashSet<&'static str>,
     blacklist: HashSet<&'static str>,
-    usage_str: Option<&'static str>,
+    usage_str: Option<&'u str>,
     bin_name: Option<String>
 
 }
 
-impl App {
+impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
     /// Creates a new instance of an application requiring a name (such as the binary). Will be displayed
     /// to the user when they print version or help and usage information.
     ///
@@ -74,9 +74,9 @@ impl App {
     /// let prog = App::new("myprog")
     /// # .get_matches();
     /// ```
-    pub fn new(n: &'static str) -> App {
+    pub fn new<'n>(n: &'n str) -> App<'a, 'v, 'ab, 'u> {
         App {
-            name: n,
+            name: n.to_string(),
             author: None,
             about: None,
             version: None,
@@ -109,7 +109,7 @@ impl App {
     /// .author("Kevin <kbknapp@gmail.com>")
     /// # .get_matches();
     /// ```
-    pub fn author(mut self, a: &'static str) -> App {
+    pub fn author(mut self, a: &'a str) -> App<'a, 'v, 'ab, 'u> {
         self.author = Some(a);
         self
     }
@@ -124,7 +124,7 @@ impl App {
     /// .about("Does really amazing things to great people")
     /// # .get_matches();
     /// ```
-    pub fn about(mut self, a: &'static str) -> App {
+    pub fn about(mut self, a: &'ab str) -> App<'a, 'v, 'ab, 'u > {
         self.about = Some(a);
         self
     }
@@ -139,7 +139,7 @@ impl App {
     /// .version("v0.1.24")
     /// # .get_matches();
     /// ```
-    pub fn version(mut self, v: &'static str) -> App  {
+    pub fn version(mut self, v: &'v str) -> App<'a, 'v, 'ab, 'u>  {
         self.version = Some(v);
         self
     }
@@ -161,7 +161,7 @@ impl App {
     /// .usage("myapp [-clDas] <some_file>")
     /// # .get_matches();
     /// ```
-    pub fn usage(mut self, u: &'static str) -> App {
+    pub fn usage(mut self, u: &'u str) -> App<'a, 'v, 'ab, 'u> {
         self.usage_str = Some(u);
         self
     }
@@ -179,7 +179,7 @@ impl App {
     /// )
     /// # .get_matches();
     /// ```
-    pub fn arg(mut self, a: Arg) -> App {
+    pub fn arg(mut self, a: Arg) -> App<'a, 'v, 'ab, 'u> {
         if self.arg_list.contains(a.name) {
             panic!("Argument name must be unique, \"{}\" is already in use", a.name);
         } else {
@@ -288,7 +288,7 @@ impl App {
     ///                Arg::new("debug").short("d")])
     /// # .get_matches();
     /// ```
-    pub fn args(mut self, args: Vec<Arg>) -> App {
+    pub fn args(mut self, args: Vec<Arg>) -> App<'a, 'v, 'ab, 'u> {
         for arg in args.into_iter() {
             self = self.arg(arg);
         }
@@ -313,9 +313,9 @@ impl App {
     ///             // Additional subcommand configuration goes here, such as arguments...
     /// # .get_matches();
     /// ```
-    pub fn subcommand(mut self, subcmd: App) -> App {
+    pub fn subcommand(mut self, subcmd: App<'a, 'v, 'ab, 'u>) -> App<'a, 'v, 'ab, 'u> {
         if subcmd.name == "help" { self.needs_subcmd_help = false; }
-        self.subcommands.insert(subcmd.name, Box::new(subcmd));
+        self.subcommands.insert(subcmd.name.clone(), Box::new(subcmd));
         self
     }
 
@@ -332,7 +332,7 @@ impl App {
     ///        SubCommand::new("debug").about("Controls debug functionality")])
     /// # .get_matches();
     /// ```
-    pub fn subcommands(mut self, subcmds: Vec<App>) -> App {
+    pub fn subcommands(mut self, subcmds: Vec<App<'a, 'v, 'ab, 'u>>) -> App<'a, 'v, 'ab, 'u> {
         for subcmd in subcmds.into_iter() {
             self = self.subcommand(subcmd);
         }
@@ -357,7 +357,7 @@ impl App {
             let opts = ! self.opts.is_empty();
             let subcmds = ! self.subcommands.is_empty();
 
-            print!("\t{} {} {} {} {}", if let Some(ref name) = self.bin_name { &name[..] } else { self.name },
+            print!("\t{} {} {} {} {}", if let Some(ref name) = self.bin_name { name } else { &self.name },
                 if flags {"[FLAGS]"} else {""},
                 if opts {
                     if req_opts.is_empty() { "[OPTIONS]" } else { &req_opts[..] } 
@@ -449,7 +449,7 @@ impl App {
     }
 
     pub fn get_matches(mut self) -> ArgMatches {
-        let mut matches = ArgMatches::new(self.name);
+        let mut matches = ArgMatches::new();
 
         let args = env::args().collect::<Vec<_>>();    
         let mut it = args.into_iter();
@@ -471,7 +471,7 @@ impl App {
         self.create_help_and_version();
 
         let mut pos_only = false;
-        let mut subcmd_name: Option<&'static str> = None;
+        let mut subcmd_name: Option<String> = None;
         let mut needs_val_of: Option<&'static str> = None; 
         let mut pos_counter = 1;
         while let Some(arg) = it.next() {
@@ -513,11 +513,11 @@ impl App {
                 needs_val_of = self.parse_short_arg(matches, &arg);
             } else {
                 // Positional or Subcommand
-                if let Some(sca) = self.subcommands.get(arg_slice) {
-                    if sca.name == "help" {
+                if self.subcommands.contains_key(&arg) {
+                    if arg_slice == "help" {
                         self.print_help();
                     }
-                    subcmd_name = Some(sca.name);
+                    subcmd_name = Some(arg.clone());
                     break;
                 }
 
@@ -578,11 +578,11 @@ impl App {
         self.validate_blacklist(&matches);
 
         if let Some(sc_name) = subcmd_name {
-            if let Some(ref mut sc) = self.subcommands.get_mut(sc_name) {
-                let mut new_matches = ArgMatches::new(sc_name);
+            if let Some(ref mut sc) = self.subcommands.get_mut(&sc_name) {
+                let mut new_matches = ArgMatches::new();
                 sc.get_matches_from(&mut new_matches, it);
                 matches.subcommand = Some(Box::new(SubCommand{
-                    name: sc_name,
+                    name: sc.name.clone(),
                     matches: new_matches}));
             }
         }    
@@ -612,7 +612,7 @@ impl App {
             });
         }
         if self.needs_subcmd_help && !self.subcommands.is_empty() {
-            self.subcommands.insert("help", Box::new(App::new("help").about("Prints this message")));
+            self.subcommands.insert("help".to_string(), Box::new(App::new("help").about("Prints this message")));
         }
     }
 
