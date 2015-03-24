@@ -1,3 +1,5 @@
+# v0.4.14
+    * Changed App version, about, name, author, and usage to allow lifetimes other than 'static
 # v0.4.13
     * Bug fixes with how multiple options are parsed
 # v0.4.12
