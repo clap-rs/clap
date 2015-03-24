@@ -6,6 +6,7 @@ use std::collections::HashSet;
 use std::env;
 use std::path::Path;
 use std::vec::IntoIter;
+use std::borrow::ToOwned;
 
 use args::{ ArgMatches, Arg, SubCommand };
 use args::{FlagArg, FlagBuilder};
@@ -76,7 +77,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
     /// ```
     pub fn new<'n>(n: &'n str) -> App<'a, 'v, 'ab, 'u> {
         App {
-            name: n.to_string(),
+            name: n.to_owned(),
             author: None,
             about: None,
             version: None,
@@ -571,7 +572,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
             _ => {}
         }
         if ! self.required.is_empty() {
-            self.report_error("One or more required arguments were not supplied".to_string(),
+            self.report_error("One or more required arguments were not supplied".to_owned(),
                     true, true);
         }
 
@@ -612,7 +613,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
             });
         }
         if self.needs_subcmd_help && !self.subcommands.is_empty() {
-            self.subcommands.insert("help".to_string(), Box::new(App::new("help").about("Prints this message")));
+            self.subcommands.insert("help".to_owned(), Box::new(App::new("help").about("Prints this message")));
         }
     }
 
@@ -642,7 +643,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
             if arg_vec[1].len() == 0 {
                 self.report_error(format!("Argument --{} requires a value, but none was supplied", arg), true, true);
             }
-            arg_val = Some(arg_vec[1].to_string());
+            arg_val = Some(arg_vec[1].to_owned());
         } 
 
         if let Some(v) = self.opts.values().filter(|&v| v.long.is_some()).filter(|&v| v.long.unwrap() == arg).nth(0) {
