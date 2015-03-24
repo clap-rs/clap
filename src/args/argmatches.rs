@@ -60,7 +60,7 @@ use args::posarg::PosArg;
 ///     }
 /// }
 pub struct ArgMatches {
-    pub matches_of: &'static str,
+    // pub matches_of: &'static str,
     pub flags: HashMap<&'static str, FlagArg>,
     pub opts: HashMap<&'static str, OptArg>,
     pub positionals: HashMap<&'static str, PosArg>,
@@ -77,9 +77,9 @@ impl ArgMatches {
     /// # use clap::{App, Arg};
     /// let matches = App::new("myprog").get_matches();
     /// ```
-    pub fn new(name: &'static str) -> ArgMatches {
+    pub fn new() -> ArgMatches {
         ArgMatches {
-            matches_of: name,
+            // matches_of: name,
             flags: HashMap::new(),
             opts: HashMap::new(),
             positionals: HashMap::new(),
@@ -230,9 +230,9 @@ impl ArgMatches {
     ///     _              => {}, // Either no subcommand or one not tested for...
     /// }
     /// ```
-    pub fn subcommand_name(&self) -> Option<&'static str> {
+    pub fn subcommand_name(&self) -> Option<&str> {
         if let Some( ref sc ) = self.subcommand {
-            return Some(sc.name);
+            return Some(&sc.name[..]);
         }
         None
     }

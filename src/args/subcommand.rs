@@ -21,7 +21,7 @@ use ArgMatches;
 ///                           .index(1))
 /// # ).get_matches();
 pub struct SubCommand {
-       pub name: &'static str,
+       pub name: String,
        pub matches: ArgMatches 
 }
 
@@ -37,7 +37,7 @@ impl SubCommand {
     /// SubCommand::new("config")
     /// # ).get_matches();
     /// ```
-    pub fn new(name: &'static str) -> App {
+    pub fn new<'a, 'v, 'ab, 'u>(name: &'a str) -> App<'a, 'v, 'ab, 'u> {
         App::new(name)
     }
 }
