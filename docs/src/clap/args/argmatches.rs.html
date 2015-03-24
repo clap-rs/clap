@@ -342,7 +342,7 @@
 <span class='doccomment'>///     }</span>
 <span class='doccomment'>/// }</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>ArgMatches</span> {
-    <span class='kw'>pub</span> <span class='ident'>matches_of</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>,
+    <span class='comment'>// pub matches_of: &amp;&#39;static str,</span>
     <span class='kw'>pub</span> <span class='ident'>flags</span>: <span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>, <span class='ident'>FlagArg</span><span class='op'>&gt;</span>,
     <span class='kw'>pub</span> <span class='ident'>opts</span>: <span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>, <span class='ident'>OptArg</span><span class='op'>&gt;</span>,
     <span class='kw'>pub</span> <span class='ident'>positionals</span>: <span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>, <span class='ident'>PosArg</span><span class='op'>&gt;</span>,
@@ -359,9 +359,9 @@
     <span class='doccomment'>/// # use clap::{App, Arg};</span>
     <span class='doccomment'>/// let matches = App::new(&quot;myprog&quot;).get_matches();</span>
     <span class='doccomment'>/// ```</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>ArgMatches</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>() <span class='op'>-&gt;</span> <span class='ident'>ArgMatches</span> {
         <span class='ident'>ArgMatches</span> {
-            <span class='ident'>matches_of</span>: <span class='ident'>name</span>,
+            <span class='comment'>// matches_of: name,</span>
             <span class='ident'>flags</span>: <span class='ident'>HashMap</span>::<span class='ident'>new</span>(),
             <span class='ident'>opts</span>: <span class='ident'>HashMap</span>::<span class='ident'>new</span>(),
             <span class='ident'>positionals</span>: <span class='ident'>HashMap</span>::<span class='ident'>new</span>(),
@@ -512,9 +512,9 @@
     <span class='doccomment'>///     _              =&gt; {}, // Either no subcommand or one not tested for...</span>
     <span class='doccomment'>/// }</span>
     <span class='doccomment'>/// ```</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>subcommand_name</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>subcommand_name</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>str</span><span class='op'>&gt;</span> {
         <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>( <span class='kw-2'>ref</span> <span class='ident'>sc</span> ) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>subcommand</span> {
-            <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>sc</span>.<span class='ident'>name</span>);
+            <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>&amp;</span><span class='ident'>sc</span>.<span class='ident'>name</span>[..]);
         }
         <span class='prelude-val'>None</span>
     }

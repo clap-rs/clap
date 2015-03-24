@@ -107,7 +107,7 @@
 <span class='doccomment'>///                           .index(1))</span>
 <span class='doccomment'>/// # ).get_matches();</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>SubCommand</span> {
-       <span class='kw'>pub</span> <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>,
+       <span class='kw'>pub</span> <span class='ident'>name</span>: <span class='ident'>String</span>,
        <span class='kw'>pub</span> <span class='ident'>matches</span>: <span class='ident'>ArgMatches</span> 
 }
 
@@ -123,7 +123,7 @@
     <span class='doccomment'>/// SubCommand::new(&quot;config&quot;)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
     <span class='doccomment'>/// ```</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span><span class='op'>&gt;</span>(<span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span><span class='op'>&gt;</span> {
         <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='ident'>name</span>)
     }
 }
