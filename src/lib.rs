@@ -1,9 +1,10 @@
 #![crate_type= "lib"]
 
-#![feature(libc)]
 #![feature(exit_status)]
 
 // DOCS
+
+extern crate libc;
 
 pub use args::{Arg, SubCommand, ArgMatches};
 pub use app::App;
