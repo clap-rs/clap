@@ -3,7 +3,7 @@
 name = "clap"
 version = "0.4.14"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
-exclude = ["docs/*", "examples/*", "tests/*"]
+exclude = ["docs/*", "examples/*", "claptests/*"]
 description = "A Command Line Argument Parser written in Rust"
 repository = "https://github.com/kbknapp/clap-rs.git"
 documentation = "http://kbknapp.github.io/clap-rs/docs/clap/index.html"
