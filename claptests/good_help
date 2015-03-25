@@ -1,0 +1,21 @@
+claptests 0.0.1
+Kevin K. <kbknapp@gmail.com>
+tests clap library
+
+USAGE:
+	claptests [FLAGS] [OPTIONS] [POSITIONAL] [SUBCOMMANDS]
+
+FLAGS:
+	-f,--flag	tests flags
+	-v,--version	Prints version information
+	-h,--help	Prints this message
+
+OPTIONS:
+	-o ,--option=option	tests options
+
+POSITIONAL ARGUMENTS:
+	positional			tests positionals
+
+SUBCOMMANDS:
+	help		Prints this message
+	subcmd		tests subcommands

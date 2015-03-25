@@ -481,15 +481,6 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
             if !pos_only {
                 if let Some(nvo) = needs_val_of {
                     if let Some(ref opt) = self.opts.get(nvo) {
-                        // if self.blacklist.contains(opt.name) {
-                        //     self.report_error(
-                        //         format!("The argument {} is mutually exclusive with one or more other arguments", 
-                        //         if let Some(long) = opt.long {
-                        //             format!("--{}",long)
-                        //         }else{
-                        //             format!("-{}",opt.short.unwrap())
-                        //         }),true, true);
-                        // }
                         if let Some(ref mut o) = matches.opts.get_mut(opt.name) {
                             o.values.push(arg.clone());
                             o.occurrences = if opt.multiple { o.occurrences + 1 } else { 1 };
