@@ -6,3 +6,4 @@ authors = ["Kevin K. <kbknapp@gmail.com>"]
 
 [dependencies.clap]
 git = "file:/home/kevin/Projects/clap-rs"
+branch = "extrabox"

@@ -48,7 +48,7 @@ pub struct App<'a, 'v, 'ab, 'u> {
     flags: HashMap<&'static str, FlagBuilder>,
     opts: HashMap<&'static str, OptBuilder>,
     positionals_idx: BTreeMap<u8, PosBuilder>,
-    subcommands: HashMap<String, Box<App<'a, 'v, 'ab, 'u>>>,
+    subcommands: HashMap<String, App<'a, 'v, 'ab, 'u>>,
     needs_long_help: bool,
     needs_long_version: bool,
     needs_short_help: bool,
@@ -316,7 +316,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
     /// ```
     pub fn subcommand(mut self, subcmd: App<'a, 'v, 'ab, 'u>) -> App<'a, 'v, 'ab, 'u> {
         if subcmd.name == "help" { self.needs_subcmd_help = false; }
-        self.subcommands.insert(subcmd.name.clone(), Box::new(subcmd));
+        self.subcommands.insert(subcmd.name.clone(), subcmd);
         self
     }
 
@@ -613,7 +613,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
             });
         }
         if self.needs_subcmd_help && !self.subcommands.is_empty() {
-            self.subcommands.insert("help".to_owned(), Box::new(App::new("help").about("Prints this message")));
+            self.subcommands.insert("help".to_owned(), App::new("help").about("Prints this message"));
         }
     }
 
