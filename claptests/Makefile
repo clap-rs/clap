@@ -10,11 +10,11 @@ test:
 	cp Cargo.toml cargo.bak
 	read -p "fork url: " FORK
 	read -p "branch [master]: " BRANCH
-	sed -e "s/^\#FORK/$FORK" cargo.bak > Cargo.toml
+	sed -e "s/^\#FORK/git=\"$FORK\"/" cargo.bak > Cargo.toml
 	if [ "$BRANCH" == "" ]; then
-		sed -i "s/^\#BRANCH/master/" Cargo.toml
+		sed -i "s/^\#BRANCH/branch=\"master\"/" Cargo.toml
 	else
-		sed -i "s/^\#BRNACH/$BRANCH/" Cargo.toml
+		sed -i "s/^\#BRNACH/branch=\"$BRANCH\"/" Cargo.toml
 	fi
 	(make clean) || (make clean && false)
 	(make build) || (make clean && false)
