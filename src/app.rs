@@ -418,7 +418,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
             println!("");
             println!("POSITIONAL ARGUMENTS:");
             for v in self.positionals_idx.values() {
-                println!("\t{}\t\t\t{}", v.name,
+                println!("\t{}\t\t{}", v.name,
                         if let Some(h) = v.help {h} else {"   "} );
             }
         }
