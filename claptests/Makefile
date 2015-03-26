@@ -20,7 +20,6 @@ test:
 	cd "$(THIS_DIR)"
 	(make build) || (make clean && false)
 	cd "$(THIS_DIR)"
-	cargo test
 	(./run_tests.py) || (make clean && false)
 	mv cargo.bak Cargo.toml
 	make clean
