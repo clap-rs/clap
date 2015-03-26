@@ -127,10 +127,21 @@ You can also find full usage examples in the examples/ directory of this repo.
 
 ## How to build
 
-### Running the tests
+Clone the repo (`master` branch if using `clap`, `dev` branch if contributing) and build with Cargo
 
 ```
-cargo test
+git clone https://github.com/kbknapp/clap-rs
+cd clap-rs
+cargo build --release
+```
+
+### Running the tests
+
+If contributing, you can run the tests as follows (assuming you've already cloned the repo to `clap-rs/`
+
+```
+cd clap-rs/claptests
+make test
 ```
 
 ### Building the documentation
@@ -140,3 +151,5 @@ Run this instead of `cargo doc` to generate the proper module docstring:
 ```
 make doc
 ```
+
+Then browse to `clap-rs/docs/index.html` in your web-browser of choice
