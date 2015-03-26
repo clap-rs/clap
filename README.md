@@ -26,7 +26,7 @@ fn main() {
                           .version("1.0")
                           .author("Kevin K. <kbknapp@gmail.com>")
                           .about("Does awesome things")
-                          .arg(Arg::new("config")
+                          .arg(Arg::new("CONFIG")
                                .short("c")
                                .long("config")
                                .help("Sets a custom config file")
