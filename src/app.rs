@@ -657,7 +657,8 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
             } else {
                 matches.opts.insert(v.name, OptArg{
                     name: v.name,
-                    occurrences: 1,
+                    // If arg_val is None occurrences will get incremented upon receiving a value
+                    occurrences: if arg_val.is_some() { 1 } else { 0 },
                     values: if arg_val.is_some() { vec![arg_val.clone().unwrap()]} else {vec![]} 
                 });
             }
@@ -779,7 +780,8 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
             } else {
                 matches.opts.insert(v.name, OptArg{
                     name: v.name,
-                    occurrences: 1,
+                    // occurrences will get incremented upon receiving a value
+                    occurrences: 0,
                     values: vec![]
                 });
             }

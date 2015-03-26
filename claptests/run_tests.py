@@ -11,8 +11,28 @@ cmds = {'help short:   ': ['{} -h | wc -l'.format(_bin), ['21']],
 		'flag short:   ': ['{} -f'.format(_bin), ['flag present 1 times',
 												  'option NOT present',
 												  'positional NOT present', 
-												 'subcmd NOT present']],
+												  'subcmd NOT present']],
+		'flags short:  ': ['{} -ff'.format(_bin), ['flag present 2 times',
+												  'option NOT present',
+												  'positional NOT present', 
+												  'subcmd NOT present']],
+		'flags short:  ': ['{} -f -f'.format(_bin), ['flag present 2 times',
+												  'option NOT present',
+												  'positional NOT present', 
+												  'subcmd NOT present']],
 		'flag long:    ': ['{} --flag'.format(_bin), ['flag present 1 times',
+													  'option NOT present', 
+													  'positional NOT present', 
+													  'subcmd NOT present']],
+		'flags long:   ': ['{} --flag --flag'.format(_bin), ['flag present 2 times',
+													  'option NOT present', 
+													  'positional NOT present', 
+													  'subcmd NOT present']],
+		'flags both:   ': ['{} -f --flag'.format(_bin), ['flag present 2 times',
+													  'option NOT present', 
+													  'positional NOT present', 
+													  'subcmd NOT present']],
+		'flags s/l(cmb):': ['{} -ff --flag'.format(_bin), ['flag present 3 times',
 													  'option NOT present', 
 													  'positional NOT present', 
 													  'subcmd NOT present']],
@@ -21,17 +41,42 @@ cmds = {'help short:   ': ['{} -h | wc -l'.format(_bin), ['21']],
 												    'positional present with value: some',
 												    'subcmd NOT present']],
 		'option short: ': ['{} -o some'.format(_bin), ['flag NOT present',
-												       'option present with value: some',
+												       'option present 1 times with value: some',
 												       'An option: some',
 												       'positional NOT present',
 												       'subcmd NOT present']],
+		'options short:': ['{} -o some -o other'.format(_bin), ['flag NOT present',
+												       'option present 2 times with value: some',
+												       'An option: some',
+												       'An option: other',
+												       'positional NOT present',
+												       'subcmd NOT present']],
 		'option long:  ': ['{} --option some'.format(_bin), ['flag NOT present',
-												             'option present with value: some',
+												       		 'option present 1 times with value: some',
        												         'An option: some',
 												             'positional NOT present',
 												             'subcmd NOT present']],
+		'options long: ': ['{} --option some --option other'.format(_bin), ['flag NOT present',
+												             'option present 2 times with value: some',
+       												         'An option: some',
+       												         'An option: other',
+												             'positional NOT present',
+												             'subcmd NOT present']],
+		'options long=:': ['{} --option=some --option=other'.format(_bin), ['flag NOT present',
+												             'option present 2 times with value: some',
+       												         'An option: some',
+       												         'An option: other',
+												             'positional NOT present',
+												             'subcmd NOT present']],
+		'options 3:    ': ['{} --option=some --option=other -o opt'.format(_bin), ['flag NOT present',
+												             'option present 3 times with value: some',
+       												         'An option: some',
+       												         'An option: other',
+       												         'An option: opt',
+												             'positional NOT present',
+												             'subcmd NOT present']],
 		'option long=: ': ['{} --option=some'.format(_bin), ['flag NOT present',
-												             'option present with value: some',
+												       		 'option present 1 times with value: some',
        												         'An option: some',
 												             'positional NOT present',
 												             'subcmd NOT present']]}
@@ -44,16 +89,16 @@ def pass_fail(name, check, good):
 			print('Pass')
 			return
 		failed = True
-		print('Fail')
+		print('Fail\n\tShould be: {}\n\tBut is:    {}'.format(good, check))
 		return
 	_failed = False
 	for i, line in enumerate(check):
 		if line == good[i]:
 			continue
 		_failed = True
+		print('Fail\n\tShould be: {}\n\tBut is:    {}'.format(good[i], line))
 	if _failed:
 		failed = True
-		print('Fail')
 		return
 	print('Pass')
 
