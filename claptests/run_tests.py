@@ -11,24 +11,24 @@ cmds = {'help short:   ': ['{} -h | wc -l'.format(_bin), ['21']],
 		'flag short:   ': ['{} -f'.format(_bin), ['flag present 1 times',
 												  'option NOT present',
 												  'positional NOT present', 
-												 'subcmd NOT present']],
+												  'subcmd NOT present']],
 		'flags short:  ': ['{} -ff'.format(_bin), ['flag present 2 times',
 												  'option NOT present',
 												  'positional NOT present', 
-												 'subcmd NOT present']],
+												  'subcmd NOT present']],
 		'flags short:  ': ['{} -f -f'.format(_bin), ['flag present 2 times',
 												  'option NOT present',
 												  'positional NOT present', 
-												 'subcmd NOT present']],
+												  'subcmd NOT present']],
 		'flag long:    ': ['{} --flag'.format(_bin), ['flag present 1 times',
 													  'option NOT present', 
 													  'positional NOT present', 
 													  'subcmd NOT present']],
-		'flags long:    ': ['{} --flag --flag'.format(_bin), ['flag present 2 times',
+		'flags long:   ': ['{} --flag --flag'.format(_bin), ['flag present 2 times',
 													  'option NOT present', 
 													  'positional NOT present', 
 													  'subcmd NOT present']],
-		'flags both:    ': ['{} -f --flag'.format(_bin), ['flag present 2 times',
+		'flags both:   ': ['{} -f --flag'.format(_bin), ['flag present 2 times',
 													  'option NOT present', 
 													  'positional NOT present', 
 													  'subcmd NOT present']],
@@ -68,7 +68,7 @@ cmds = {'help short:   ': ['{} -h | wc -l'.format(_bin), ['21']],
        												         'An option: other',
 												             'positional NOT present',
 												             'subcmd NOT present']],
-		'options 3:': ['{} --option=some --option=other -o opt'.format(_bin), ['flag NOT present',
+		'options 3:    ': ['{} --option=some --option=other -o opt'.format(_bin), ['flag NOT present',
 												             'option present 3 times with value: some',
        												         'An option: some',
        												         'An option: other',
@@ -89,16 +89,16 @@ def pass_fail(name, check, good):
 			print('Pass')
 			return
 		failed = True
-		print('Fail')
+		print('Fail\n\tShould be: {}\n\tBut is:    {}'.format(good, check))
 		return
 	_failed = False
 	for i, line in enumerate(check):
 		if line == good[i]:
 			continue
 		_failed = True
+		print('Fail\n\tShould be: {}\n\tBut is:    {}'.format(good[i], line))
 	if _failed:
 		failed = True
-		print('Fail')
 		return
 	print('Pass')
 
