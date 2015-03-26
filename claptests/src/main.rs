@@ -67,6 +67,8 @@ fn main() {
 
     if let Some(p) = matches.value_of("positional") {
     	println!("positional present with value: {}", p);
+    } else {
+        println!("positional NOT present");
     }
 
     if matches.is_present("subcmd") {
