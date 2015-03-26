@@ -483,7 +483,8 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                     if let Some(ref opt) = self.opts.get(nvo) {
                         if let Some(ref mut o) = matches.opts.get_mut(opt.name) {
                             o.values.push(arg.clone());
-                            o.occurrences = if opt.multiple { o.occurrences + 1 } else { 1 };
+                            // if it's multiple the occurrences are increased when originall found
+                            o.occurrences = if opt.multiple { o.occurrences } else { 1 };
                         }
                         
                         skip = true;
