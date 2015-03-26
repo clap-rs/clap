@@ -408,17 +408,17 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
             for v in self.opts.values() {
                 let mut needs_tab = false;
                 println!("\t{}{}{}\t{}",
-                        if let Some(ref s) = v.short{format!("-{} ",s)}else{format!("   ")},
-                        if let Some(ref l) = v.long {format!(",--{}=",l)}else {needs_tab = true; format!(" ")},
+                        if let Some(s) = v.short{format!("-{} ",s)}else{format!("   ")},
+                        if let Some(l) = v.long {format!(",--{}=",l)}else {needs_tab = true; format!(" ")},
                         format!("{}", v.name),
-                        if let Some(ref h) = v.help {if needs_tab {format!("\t{}", *h)} else { format!("{}", *h) } } else {format!("   ")} );
+                        if let Some(h) = v.help {if needs_tab {format!("\t{}", h)} else { format!("{}", h) } } else {format!("   ")} );
             }
         }
         if pos {
             println!("");
             println!("POSITIONAL ARGUMENTS:");
             for v in self.positionals_idx.values() {
-                println!("\t{}\t\t\t{}", v.name,
+                println!("\t{}\t\t{}", v.name,
                         if let Some(h) = v.help {h} else {"   "} );
             }
         }
