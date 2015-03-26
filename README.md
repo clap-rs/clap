@@ -49,7 +49,7 @@ fn main() {
         println!("Value for output: {}", o);
     }
 
-    if let Some(c) = matches.value_of("config") {
+    if let Some(c) = matches.value_of("CONFIG") {
         println!("Value for config: {}", c);
     }
 
@@ -89,7 +89,7 @@ FLAGS:
     -v,--version     Prints version information
  
 OPTIONS:
-    -c,--config <config>        Sets a custom config file
+    -c,--config=CONFIG        Sets a custom config file
 
 POSITIONAL ARGUMENTS:
     output            Sets an optional output file
