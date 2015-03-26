@@ -483,8 +483,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
                     if let Some(ref opt) = self.opts.get(nvo) {
                         if let Some(ref mut o) = matches.opts.get_mut(opt.name) {
                             o.values.push(arg.clone());
-                            // if it's multiple the occurrences are increased when originall found
-                            o.occurrences = if opt.multiple { o.occurrences } else { 1 };
+                            o.occurrences = if opt.multiple { o.occurrences + 1 } else { 1 };
                         }
                         
                         skip = true;
@@ -658,7 +657,8 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
             } else {
                 matches.opts.insert(v.name, OptArg{
                     name: v.name,
-                    occurrences: 1,
+                    // If arg_val is None occurrences will get incremented upon receiving a value
+                    occurrences: if arg_val.is_some() { 1 } else { 0 },
                     values: if arg_val.is_some() { vec![arg_val.clone().unwrap()]} else {vec![]} 
                 });
             }
@@ -780,7 +780,8 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
             } else {
                 matches.opts.insert(v.name, OptArg{
                     name: v.name,
-                    occurrences: 1,
+                    // occurrences will get incremented upon receiving a value
+                    occurrences: 0,
                     values: vec![]
                 });
             }
