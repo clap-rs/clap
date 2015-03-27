@@ -36,7 +36,7 @@ use args::{PosArg, PosBuilder};
 ///
 /// // Your pogram logic starts here...
 /// ```
-pub struct App<'a, 'v, 'ab, 'u> {
+pub struct App<'a, 'v, 'ab, 'u, 'ar> {
     // The name displayed to the user when showing version and help/usage information
     name: String,
     // A string of author(s) if desired. Displayed when showing help/usage information
@@ -45,26 +45,26 @@ pub struct App<'a, 'v, 'ab, 'u> {
     version: Option<&'v str>,
     // A brief explaination of the program that gets displayed to the user when shown help/usage information
     about: Option<&'ab str>,
-    flags: HashMap<&'static str, FlagBuilder>,
-    opts: HashMap<&'static str, OptBuilder>,
-    positionals_idx: BTreeMap<u8, PosBuilder>,
-    subcommands: HashMap<String, App<'a, 'v, 'ab, 'u>>,
+    flags: HashMap<&'ar str, FlagBuilder<'ar>>,
+    opts: HashMap<&'ar str, OptBuilder<'ar>>,
+    positionals_idx: BTreeMap<u8, PosBuilder<'ar>>,
+    subcommands: HashMap<String, App<'a, 'v, 'ab, 'u, 'ar>>,
     needs_long_help: bool,
     needs_long_version: bool,
     needs_short_help: bool,
     needs_short_version: bool,
     needs_subcmd_help: bool,
-    required: HashSet<&'static str>,
-    arg_list: HashSet<&'static str>,
+    required: HashSet<&'ar str>,
+    arg_list: HashSet<&'ar str>,
     short_list: HashSet<char>,
-    long_list: HashSet<&'static str>,
-    blacklist: HashSet<&'static str>,
+    long_list: HashSet<&'ar str>,
+    blacklist: HashSet<&'ar str>,
     usage_str: Option<&'u str>,
     bin_name: Option<String>
 
 }
 
-impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
+impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     /// Creates a new instance of an application requiring a name (such as the binary). Will be displayed
     /// to the user when they print version or help and usage information.
     ///
@@ -75,7 +75,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
     /// let prog = App::new("myprog")
     /// # .get_matches();
     /// ```
-    pub fn new<'n>(n: &'n str) -> App<'a, 'v, 'ab, 'u> {
+    pub fn new<'n>(n: &'n str) -> App<'a, 'v, 'ab, 'u, 'ar> {
         App {
             name: n.to_owned(),
             author: None,
@@ -110,7 +110,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
     /// .author("Kevin <kbknapp@gmail.com>")
     /// # .get_matches();
     /// ```
-    pub fn author(mut self, a: &'a str) -> App<'a, 'v, 'ab, 'u> {
+    pub fn author(mut self, a: &'a str) -> App<'a, 'v, 'ab, 'u, 'ar> {
         self.author = Some(a);
         self
     }
@@ -125,7 +125,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
     /// .about("Does really amazing things to great people")
     /// # .get_matches();
     /// ```
-    pub fn about(mut self, a: &'ab str) -> App<'a, 'v, 'ab, 'u > {
+    pub fn about(mut self, a: &'ab str) -> App<'a, 'v, 'ab, 'u, 'ar> {
         self.about = Some(a);
         self
     }
@@ -140,7 +140,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
     /// .version("v0.1.24")
     /// # .get_matches();
     /// ```
-    pub fn version(mut self, v: &'v str) -> App<'a, 'v, 'ab, 'u>  {
+    pub fn version(mut self, v: &'v str) -> App<'a, 'v, 'ab, 'u, 'ar>  {
         self.version = Some(v);
         self
     }
@@ -162,7 +162,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
     /// .usage("myapp [-clDas] <some_file>")
     /// # .get_matches();
     /// ```
-    pub fn usage(mut self, u: &'u str) -> App<'a, 'v, 'ab, 'u> {
+    pub fn usage(mut self, u: &'u str) -> App<'a, 'v, 'ab, 'u, 'ar> {
         self.usage_str = Some(u);
         self
     }
@@ -180,7 +180,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
     /// )
     /// # .get_matches();
     /// ```
-    pub fn arg(mut self, a: Arg) -> App<'a, 'v, 'ab, 'u> {
+    pub fn arg<'l, 'h, 'b, 'r>(mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar>) -> App<'a, 'v, 'ab, 'u, 'ar> {
         if self.arg_list.contains(a.name) {
             panic!("Argument name must be unique, \"{}\" is already in use", a.name);
         } else {
@@ -289,7 +289,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
     ///                Arg::new("debug").short("d")])
     /// # .get_matches();
     /// ```
-    pub fn args(mut self, args: Vec<Arg>) -> App<'a, 'v, 'ab, 'u> {
+    pub fn args(mut self, args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar>>) -> App<'a, 'v, 'ab, 'u, 'ar> {
         for arg in args.into_iter() {
             self = self.arg(arg);
         }
@@ -314,7 +314,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
     ///             // Additional subcommand configuration goes here, such as arguments...
     /// # .get_matches();
     /// ```
-    pub fn subcommand(mut self, subcmd: App<'a, 'v, 'ab, 'u>) -> App<'a, 'v, 'ab, 'u> {
+    pub fn subcommand(mut self, subcmd: App<'a, 'v, 'ab, 'u, 'ar>) -> App<'a, 'v, 'ab, 'u, 'ar> {
         if subcmd.name == "help" { self.needs_subcmd_help = false; }
         self.subcommands.insert(subcmd.name.clone(), subcmd);
         self
@@ -333,7 +333,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
     ///        SubCommand::new("debug").about("Controls debug functionality")])
     /// # .get_matches();
     /// ```
-    pub fn subcommands(mut self, subcmds: Vec<App<'a, 'v, 'ab, 'u>>) -> App<'a, 'v, 'ab, 'u> {
+    pub fn subcommands(mut self, subcmds: Vec<App<'a, 'v, 'ab, 'u, 'ar>>) -> App<'a, 'v, 'ab, 'u, 'ar> {
         for subcmd in subcmds.into_iter() {
             self = self.subcommand(subcmd);
         }
@@ -449,7 +449,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
         if quit { env::set_exit_status(1); self.exit(); }
     }
 
-    pub fn get_matches(mut self) -> ArgMatches {
+    pub fn get_matches(mut self) -> ArgMatches<'ar> {
         let mut matches = ArgMatches::new();
 
         let args = env::args().collect::<Vec<_>>();    
@@ -468,12 +468,12 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
         matches
     }
 
-    fn get_matches_from(&mut self, matches: &mut ArgMatches, it: &mut IntoIter<String>) {
+    fn get_matches_from(&mut self, matches: &mut ArgMatches<'ar>, it: &mut IntoIter<String>) {
         self.create_help_and_version();
 
         let mut pos_only = false;
         let mut subcmd_name: Option<String> = None;
-        let mut needs_val_of: Option<&'static str> = None; 
+        let mut needs_val_of: Option<&str> = None; 
         let mut pos_counter = 1;
         while let Some(arg) = it.next() {
             let arg_slice = &arg[..];
@@ -518,14 +518,14 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
                         format!("Found positional argument {}, but {} doesn't accept any", arg, self.name),
                         true, true);
                 }
-                if let Some(ref p) = self.positionals_idx.get(&pos_counter) {
+                if let Some(p) = self.positionals_idx.get(&pos_counter) {
                     if self.blacklist.contains(p.name) {
                         self.report_error(format!("The argument \"{}\" is mutually exclusive with one or more other arguments", arg),
                             true, true);
                     }
 
                     matches.positionals.insert(p.name, PosArg{
-                        name: p.name,
+                        name: p.name.to_owned(),
                         value: arg.clone(),
                     });
 
@@ -616,7 +616,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
         }
     }
 
-    fn parse_long_arg(&mut self, matches: &mut ArgMatches ,full_arg: &String) -> Option<&'static str> {
+    fn parse_long_arg(&mut self, matches: &mut ArgMatches<'ar> ,full_arg: &String) -> Option<&'ar str> {
         let mut arg = full_arg.trim_left_matches(|c| c == '-');
 
         if arg == "help" && self.needs_long_help {
@@ -656,7 +656,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
                 }
             } else {
                 matches.opts.insert(v.name, OptArg{
-                    name: v.name,
+                    name: v.name.to_owned(),
                     occurrences: 1,
                     values: if arg_val.is_some() { vec![arg_val.clone().unwrap()]} else {vec![]} 
                 });
@@ -706,7 +706,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
             }
             if !done { 
                 matches.flags.insert(v.name, FlagArg{
-                    name: v.name,
+                    name: v.name.to_owned(),
                     occurrences: 1
                 });
             }
@@ -742,7 +742,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
         unreachable!();
     }
 
-    fn parse_short_arg(&mut self, matches: &mut ArgMatches ,full_arg: &String) -> Option<&'static str> {
+    fn parse_short_arg(&mut self, matches: &mut ArgMatches<'ar> ,full_arg: &String) -> Option<&'ar str> {
         let arg = &full_arg[..].trim_left_matches(|c| c == '-');
         if arg.len() > 1 { 
             // Multiple flags using short i.e. -bgHlS
@@ -778,7 +778,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
                 }
             } else {
                 matches.opts.insert(v.name, OptArg{
-                    name: v.name,
+                    name: v.name.to_owned(),
                     occurrences: 1,
                     values: vec![]
                 });
@@ -811,7 +811,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
         unreachable!();
     }
 
-    fn parse_single_short_flag(&mut self, matches: &mut ArgMatches, arg: char) -> bool {
+    fn parse_single_short_flag(&mut self, matches: &mut ArgMatches<'ar>, arg: char) -> bool {
         for v in self.flags.values().filter(|&v| v.short.is_some()).filter(|&v| v.short.unwrap() == arg) {
             // Ensure this flag isn't on the mutually excludes list
             if self.blacklist.contains(v.name) {
@@ -831,7 +831,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
             } 
             if !done {
                 matches.flags.insert(v.name, FlagArg{
-                    name: v.name,
+                    name: v.name.to_owned(),
                     occurrences: 1
                 });
             }
@@ -864,7 +864,7 @@ impl<'a, 'v, 'ab, 'u> App<'a, 'v, 'ab, 'u>{
         false
     }
 
-    fn validate_blacklist(&self, matches: &ArgMatches) {
+    fn validate_blacklist(&self, matches: &ArgMatches<'ar>) {
         for name in self.blacklist.iter() {
             if matches.flags.contains_key(name) {
                 self.report_error(format!("The argument {} is mutually exclusive with one or more other arguments",
