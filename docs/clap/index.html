@@ -43,7 +43,7 @@
     <section id='main' class="content mod">
 <h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>clap</a><wbr></span><span class='out-of-band'><a href='stability.html'>[stability]</a> <span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-0' href='../src/clap/lib.rs.html#1-259'>[src]</a></span></h1>
+        </span><a id='src-0' href='../src/clap/lib.rs.html#1-272'>[src]</a></span></h1>
 <div class='docblock'>
 <h1 id="clap" class='section-header'><a
                            href="#clap">clap</a></h1>
@@ -72,7 +72,7 @@
                           .<span class='ident'>version</span>(<span class='string'>&quot;1.0&quot;</span>)
                           .<span class='ident'>author</span>(<span class='string'>&quot;Kevin K. &lt;kbknapp@gmail.com&gt;&quot;</span>)
                           .<span class='ident'>about</span>(<span class='string'>&quot;Does awesome things&quot;</span>)
-                          .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;config&quot;</span>)
+                          .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;CONFIG&quot;</span>)
                                .<span class='ident'>short</span>(<span class='string'>&quot;c&quot;</span>)
                                .<span class='ident'>long</span>(<span class='string'>&quot;config&quot;</span>)
                                .<span class='ident'>help</span>(<span class='string'>&quot;Sets a custom config file&quot;</span>)
@@ -95,7 +95,7 @@
         <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Value for output: {}&quot;</span>, <span class='ident'>o</span>);
     }
  
-    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>c</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>value_of</span>(<span class='string'>&quot;config&quot;</span>) {
+    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>c</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>value_of</span>(<span class='string'>&quot;CONFIG&quot;</span>) {
         <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Value for config: {}&quot;</span>, <span class='ident'>c</span>);
     }
  
@@ -134,7 +134,7 @@ FLAGS:
     -v,--version     Prints version information
   
 OPTIONS:
-    -c,--config &lt;config&gt;        Sets a custom config file
+    -c,--config=CONFIG        Sets a custom config file
  
 POSITIONAL ARGUMENTS:
     output            Sets an optional output file
@@ -172,9 +172,19 @@ SUBCOMMANDS:
 
 <h2 id="how-to-build" class='section-header'><a
                            href="#how-to-build">How to build</a></h2>
+<p>Clone the repo (<code>master</code> branch if using <code>clap</code>, <code>dev</code> branch if contributing) and build with Cargo</p>
+<pre id='rust-example-rendered' class='rust '>
+<span class='ident'>git</span> <span class='ident'>clone</span> <span class='ident'>https</span>:<span class='comment'>//github.com/kbknapp/clap-rs</span>
+<span class='ident'>cd</span> <span class='ident'>clap</span><span class='op'>-</span><span class='ident'>rs</span>
+<span class='ident'>cargo</span> <span class='ident'>build</span> <span class='op'>-</span><span class='op'>-</span><span class='ident'>release</span>
+</pre>
+
 <h3 id="running-the-tests" class='section-header'><a
-                           href="#running-the-tests">Running the tests</a></h3><pre id='rust-example-rendered' class='rust '>
-<span class='ident'>cargo</span> <span class='ident'>test</span>
+                           href="#running-the-tests">Running the tests</a></h3>
+<p>If contributing, you can run the tests as follows (assuming you&#39;ve already cloned the repo to <code>clap-rs/</code></p>
+<pre id='rust-example-rendered' class='rust '>
+<span class='ident'>cd</span> <span class='ident'>clap</span><span class='op'>-</span><span class='ident'>rs</span><span class='op'>/</span><span class='ident'>claptests</span>
+<span class='ident'>make</span> <span class='ident'>test</span>
 </pre>
 
 <h3 id="building-the-documentation" class='section-header'><a
@@ -183,6 +193,8 @@ SUBCOMMANDS:
 <pre id='rust-example-rendered' class='rust '>
 <span class='ident'>make</span> <span class='ident'>doc</span>
 </pre>
+
+<p>Then browse to <code>clap-rs/docs/index.html</code> in your web-browser of choice</p>
 </div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
                     <tr>
