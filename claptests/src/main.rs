@@ -54,7 +54,7 @@ fn main() {
 
     if matches.is_present("option") {
         if let Some(v) = matches.value_of("option") {
-        	println!("option present with value: {}", v);
+        	println!("option present {} times with value: {}",matches.occurrences_of("option"), v);
         }
         if let Some(ref ov) = matches.values_of("option") {
         	for o in ov {
@@ -67,6 +67,8 @@ fn main() {
 
     if let Some(p) = matches.value_of("positional") {
     	println!("positional present with value: {}", p);
+    } else {
+        println!("positional NOT present");
     }
 
     if matches.is_present("subcmd") {

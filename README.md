@@ -26,7 +26,7 @@ fn main() {
                           .version("1.0")
                           .author("Kevin K. <kbknapp@gmail.com>")
                           .about("Does awesome things")
-                          .arg(Arg::new("config")
+                          .arg(Arg::new("CONFIG")
                                .short("c")
                                .long("config")
                                .help("Sets a custom config file")
@@ -49,7 +49,7 @@ fn main() {
         println!("Value for output: {}", o);
     }
 
-    if let Some(c) = matches.value_of("config") {
+    if let Some(c) = matches.value_of("CONFIG") {
         println!("Value for config: {}", c);
     }
 
@@ -89,7 +89,7 @@ FLAGS:
     -v,--version     Prints version information
  
 OPTIONS:
-    -c,--config <config>        Sets a custom config file
+    -c,--config=CONFIG        Sets a custom config file
 
 POSITIONAL ARGUMENTS:
     output            Sets an optional output file
@@ -127,10 +127,21 @@ You can also find full usage examples in the examples/ directory of this repo.
 
 ## How to build
 
-### Running the tests
+Clone the repo (`master` branch if using `clap`, `dev` branch if contributing) and build with Cargo
 
 ```
-cargo test
+git clone https://github.com/kbknapp/clap-rs
+cd clap-rs
+cargo build --release
+```
+
+### Running the tests
+
+If contributing, you can run the tests as follows (assuming you've already cloned the repo to `clap-rs/`
+
+```
+cd clap-rs/claptests
+make test
 ```
 
 ### Building the documentation
@@ -140,3 +151,5 @@ Run this instead of `cargo doc` to generate the proper module docstring:
 ```
 make doc
 ```
+
+Then browse to `clap-rs/docs/index.html` in your web-browser of choice
