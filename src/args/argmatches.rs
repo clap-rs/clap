@@ -59,15 +59,15 @@ use args::posarg::PosArg;
 ///         println!("Not printing testing lists...");
 ///     }
 /// }
-pub struct ArgMatches {
+pub struct ArgMatches<'a> {
     // pub matches_of: &'static str,
-    pub flags: HashMap<&'static str, FlagArg>,
-    pub opts: HashMap<&'static str, OptArg>,
-    pub positionals: HashMap<&'static str, PosArg>,
-    pub subcommand: Option<Box<SubCommand>>
+    pub flags: HashMap<&'a str, FlagArg>,
+    pub opts: HashMap<&'a str, OptArg>,
+    pub positionals: HashMap<&'a str, PosArg>,
+    pub subcommand: Option<Box<SubCommand<'a>>>
 }
 
-impl ArgMatches {
+impl<'a> ArgMatches<'a> {
     /// Creates a new instance of `ArgMatches`. This ins't called directly, but
     /// through the `.get_matches()` method of `App`
     ///
@@ -77,7 +77,7 @@ impl ArgMatches {
     /// # use clap::{App, Arg};
     /// let matches = App::new("myprog").get_matches();
     /// ```
-    pub fn new() -> ArgMatches {
+    pub fn new() -> ArgMatches<'a> {
         ArgMatches {
             // matches_of: name,
             flags: HashMap::new(),
@@ -103,7 +103,7 @@ impl ArgMatches {
     ///        println!("Value for output: {}", o);
     /// }
     /// ```
-    pub fn value_of(&self, name: &'static str) -> Option<&str> {
+    pub fn value_of<'n>(&self, name: &'n str) -> Option<&str> {
         if let Some(ref opt) = self.opts.get(name) {
             if !opt.values.is_empty() {
                 if let Some(ref s) = opt.values.iter().nth(0) {
@@ -135,7 +135,7 @@ impl ArgMatches {
     ///        }
     /// }
     /// ```
-    pub fn values_of(&self, name: &'static str) -> Option<Vec<&str>> {
+    pub fn values_of<'n>(&self, name: &'n str) -> Option<Vec<&str>> {
         if let Some(ref opt) = self.opts.get(name) {
             if opt.values.is_empty() { return None; } 
 
@@ -157,7 +157,7 @@ impl ArgMatches {
     ///        println!("The output argument was used!");
     /// }
     /// ```
-    pub fn is_present(&self, name: &'static str) -> bool {
+    pub fn is_present<'n>(&self, name: &'n str) -> bool {
         if let Some(ref sc) = self.subcommand {
             if sc.name == name { return true; } 
         }
@@ -186,7 +186,7 @@ impl ArgMatches {
     ///     println!("Debug mode kind of on");
     /// }
     /// ```
-    pub fn occurrences_of(&self, name: &'static str) -> u8 {
+    pub fn occurrences_of<'n>(&self, name: &'n str) -> u8 {
         if let Some(ref f) = self.flags.get(name) {
             return f.occurrences;
         }
@@ -208,7 +208,7 @@ impl ArgMatches {
     ///     // Use matches as normal
     /// }
     /// ```
-    pub fn subcommand_matches(&self, name: &'static str) -> Option<&ArgMatches> {
+    pub fn subcommand_matches<'n>(&self, name: &'n str) -> Option<&ArgMatches> {
         if let Some( ref sc) = self.subcommand {
             if sc.name != name { return None; }
             return Some(&sc.matches);
