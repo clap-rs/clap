@@ -1,7 +1,9 @@
+# v0.4.17
+    * Arg values now accept lifetimes other than 'static
 # v0.4.16
-	* Fixed bug with multiple options
-	* Removed unneeded Box<>'s
-	* Fixed formatting with positionals in help info
+    * Fixed bug with multiple options
+    * Removed unneeded Box<>'s
+    * Fixed formatting with positionals in help info
 # v0.4.15
     * Changed libc to crates.io in prep for Rust 1.0 stability
 # v0.4.14
