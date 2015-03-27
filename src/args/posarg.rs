@@ -13,16 +13,16 @@
 /// **NOTE:** The index starts at `1` **NOT** `0`
 pub struct PosArg {
     /// The unique name of the argument, required
-    pub name: &'static str,
+    pub name: String,
     /// The value provided to the argument by the user
     pub value: String,
 }
 
-pub struct PosBuilder {
-    pub name: &'static str,
+pub struct PosBuilder<'n> {
+    pub name: &'n str,
     /// The string of text that will displayed to the user when the application's
     /// `help` text is displayed
-    pub help: Option<&'static str>,
+    pub help: Option<&'n str>,
     /// If this is a required by default when using the command line program
     /// i.e. a configuration file that's required for the program to function
     /// **NOTE:** required by default means, it is required *until* mutually
@@ -30,9 +30,9 @@ pub struct PosBuilder {
     pub required: bool,
     /// A list of names of other arguments that are *required* to be used when 
     /// this flag is used
-    pub requires: Option<Vec<&'static str>>,
+    pub requires: Option<Vec<&'n str>>,
     /// A list of names for other arguments that *may not* be used with this flag
-    pub blacklist: Option<Vec<&'static str>>,
+    pub blacklist: Option<Vec<&'n str>>,
     /// The index of the argument
     pub index: u8 
 }
