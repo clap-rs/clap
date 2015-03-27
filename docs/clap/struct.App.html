@@ -44,7 +44,7 @@
 <h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>clap</a>::<wbr><a class='struct' href=''>App</a><wbr></span><span class='out-of-band'><span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
         </span><a id='src-33' href='../src/clap/app.rs.html#39-65'>[src]</a></span></h1>
-<pre class='rust struct'>pub struct App&lt;'a, 'v, 'ab, 'u&gt; {
+<pre class='rust struct'>pub struct App&lt;'a, 'v, 'ab, 'u, 'ar&gt; {
     // some fields omitted
 }</pre><div class='docblock'><p>Used to create a representation of the program and all possible command line arguments
 for parsing at runtime.</p>
@@ -66,7 +66,7 @@ help and versioning information.</p>
 
 <span class='comment'>// Your pogram logic starts here...</span>
 </pre>
-</div><h2 id='methods'>Methods</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;'a, 'v, 'ab, 'u&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u&gt;</code></h3><div class='impl-items'><h4 id='method.new' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.new' class='fnname'>new</a>&lt;'n&gt;(n: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u&gt;</code></h4>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;'a, 'v, 'ab, 'u, 'ar&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u, 'ar&gt;</code></h3><div class='impl-items'><h4 id='method.new' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.new' class='fnname'>new</a>&lt;'n&gt;(n: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u, 'ar&gt;</code></h4>
 <div class='docblock'><p>Creates a new instance of an application requiring a name (such as the binary). Will be displayed
 to the user when they print version or help and usage information.</p>
 
@@ -74,28 +74,28 @@ to the user when they print version or help and usage information.</p>
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 <span class='kw'>let</span> <span class='ident'>prog</span> <span class='op'>=</span> <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;myprog&quot;</span>)
 </pre>
-</div><h4 id='method.author' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.author' class='fnname'>author</a>(self, a: &amp;'a <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u&gt;</code></h4>
+</div><h4 id='method.author' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.author' class='fnname'>author</a>(self, a: &amp;'a <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u, 'ar&gt;</code></h4>
 <div class='docblock'><p>Sets a string of author(s)</p>
 
 <h1 id="example" class='section-header'><a
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>author</span>(<span class='string'>&quot;Kevin &lt;kbknapp@gmail.com&gt;&quot;</span>)
 </pre>
-</div><h4 id='method.about' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.about' class='fnname'>about</a>(self, a: &amp;'ab <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u&gt;</code></h4>
+</div><h4 id='method.about' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.about' class='fnname'>about</a>(self, a: &amp;'ab <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u, 'ar&gt;</code></h4>
 <div class='docblock'><p>Sets a string briefly describing what the program does</p>
 
 <h1 id="example" class='section-header'><a
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>about</span>(<span class='string'>&quot;Does really amazing things to great people&quot;</span>)
 </pre>
-</div><h4 id='method.version' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.version' class='fnname'>version</a>(self, v: &amp;'v <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u&gt;</code></h4>
+</div><h4 id='method.version' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.version' class='fnname'>version</a>(self, v: &amp;'v <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u, 'ar&gt;</code></h4>
 <div class='docblock'><p>Sets a string of the version number</p>
 
 <h1 id="example" class='section-header'><a
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>version</span>(<span class='string'>&quot;v0.1.24&quot;</span>)
 </pre>
-</div><h4 id='method.usage' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.usage' class='fnname'>usage</a>(self, u: &amp;'u <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u&gt;</code></h4>
+</div><h4 id='method.usage' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.usage' class='fnname'>usage</a>(self, u: &amp;'u <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u, 'ar&gt;</code></h4>
 <div class='docblock'><p>Sets a custom usage string to over-ride the one auto-generated by <code>clap</code></p>
 
 <p><em>NOTE:</em> You do not need to specify the &quot;USAGE: &quot; portion, as that will 
@@ -109,7 +109,7 @@ showing the usage.</p>
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>usage</span>(<span class='string'>&quot;myapp [-clDas] &lt;some_file&gt;&quot;</span>)
 </pre>
-</div><h4 id='method.arg' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.arg' class='fnname'>arg</a>(self, a: <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u&gt;</code></h4>
+</div><h4 id='method.arg' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.arg' class='fnname'>arg</a>&lt;'l, 'h, 'b, 'r&gt;(self, a: <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'ar, 'ar, 'ar, 'ar, 'ar&gt;) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u, 'ar&gt;</code></h4>
 <div class='docblock'><p>Adds an argument to the list of valid possibilties</p>
 
 <h1 id="example" class='section-header'><a
@@ -119,7 +119,7 @@ showing the usage.</p>
             <span class='comment'>// Additional argument configuration goes here...</span>
 )
 </pre>
-</div><h4 id='method.args' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.args' class='fnname'>args</a>(self, args: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&gt;) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u&gt;</code></h4>
+</div><h4 id='method.args' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.args' class='fnname'>args</a>(self, args: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'ar, 'ar, 'ar, 'ar, 'ar&gt;&gt;) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u, 'ar&gt;</code></h4>
 <div class='docblock'><p>Adds multiple arguments to the list of valid possibilties</p>
 
 <h1 id="example" class='section-header'><a
@@ -127,7 +127,7 @@ showing the usage.</p>
 .<span class='ident'>args</span>( <span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;config&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;c&quot;</span>),
                <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;debug&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;d&quot;</span>)])
 </pre>
-</div><h4 id='method.subcommand' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.subcommand' class='fnname'>subcommand</a>(self, subcmd: <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u&gt;) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u&gt;</code></h4>
+</div><h4 id='method.subcommand' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.subcommand' class='fnname'>subcommand</a>(self, subcmd: <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u, 'ar&gt;) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u, 'ar&gt;</code></h4>
 <div class='docblock'><p>Adds a subcommand to the list of valid possibilties. Subcommands
 are effectively sub apps, because they can contain their own arguments
 and subcommands. They also function just like apps, in that they get their
@@ -142,7 +142,7 @@ own auto generated help and version switches.</p>
                        .<span class='ident'>help</span>(<span class='string'>&quot;Configuration file to use&quot;</span>)))
             <span class='comment'>// Additional subcommand configuration goes here, such as arguments...</span>
 </pre>
-</div><h4 id='method.subcommands' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.subcommands' class='fnname'>subcommands</a>(self, subcmds: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u&gt;&gt;) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u&gt;</code></h4>
+</div><h4 id='method.subcommands' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.subcommands' class='fnname'>subcommands</a>(self, subcmds: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u, 'ar&gt;&gt;) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u, 'ar&gt;</code></h4>
 <div class='docblock'><p>Adds multiple subcommands to the list of valid possibilties</p>
 
 <h1 id="example" class='section-header'><a
@@ -152,7 +152,7 @@ own auto generated help and version switches.</p>
                                 .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;config_file&quot;</span>).<span class='ident'>index</span>(<span class='number'>1</span>)),
        <span class='ident'>SubCommand</span>::<span class='ident'>new</span>(<span class='string'>&quot;debug&quot;</span>).<span class='ident'>about</span>(<span class='string'>&quot;Controls debug functionality&quot;</span>)])
 </pre>
-</div><h4 id='method.get_matches' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.get_matches' class='fnname'>get_matches</a>(self) -&gt; <a class='struct' href='../clap/struct.ArgMatches.html' title='clap::ArgMatches'>ArgMatches</a></code></h4>
+</div><h4 id='method.get_matches' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.get_matches' class='fnname'>get_matches</a>(self) -&gt; <a class='struct' href='../clap/struct.ArgMatches.html' title='clap::ArgMatches'>ArgMatches</a>&lt;'ar&gt;</code></h4>
 </div></section>
     <section id='search' class="content hidden"></section>
 

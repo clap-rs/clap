@@ -299,6 +299,19 @@
 <span id="257">257</span>
 <span id="258">258</span>
 <span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
 </pre><pre class='rust '>
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>crate_type</span><span class='op'>=</span> <span class='string'>&quot;lib&quot;</span>]</span>
 
@@ -333,7 +346,7 @@
 <span class='doccomment'>//!                           .version(&quot;1.0&quot;)</span>
 <span class='doccomment'>//!                           .author(&quot;Kevin K. &lt;kbknapp@gmail.com&gt;&quot;)</span>
 <span class='doccomment'>//!                           .about(&quot;Does awesome things&quot;)</span>
-<span class='doccomment'>//!                           .arg(Arg::new(&quot;config&quot;)</span>
+<span class='doccomment'>//!                           .arg(Arg::new(&quot;CONFIG&quot;)</span>
 <span class='doccomment'>//!                                .short(&quot;c&quot;)</span>
 <span class='doccomment'>//!                                .long(&quot;config&quot;)</span>
 <span class='doccomment'>//!                                .help(&quot;Sets a custom config file&quot;)</span>
@@ -356,7 +369,7 @@
 <span class='doccomment'>//!         println!(&quot;Value for output: {}&quot;, o);</span>
 <span class='doccomment'>//!     }</span>
 <span class='doccomment'>//! </span>
-<span class='doccomment'>//!     if let Some(c) = matches.value_of(&quot;config&quot;) {</span>
+<span class='doccomment'>//!     if let Some(c) = matches.value_of(&quot;CONFIG&quot;) {</span>
 <span class='doccomment'>//!         println!(&quot;Value for config: {}&quot;, c);</span>
 <span class='doccomment'>//!     }</span>
 <span class='doccomment'>//! </span>
@@ -396,7 +409,7 @@
 <span class='doccomment'>//!     -v,--version     Prints version information</span>
 <span class='doccomment'>//!  </span>
 <span class='doccomment'>//! OPTIONS:</span>
-<span class='doccomment'>//!     -c,--config &lt;config&gt;        Sets a custom config file</span>
+<span class='doccomment'>//!     -c,--config=CONFIG        Sets a custom config file</span>
 <span class='doccomment'>//! </span>
 <span class='doccomment'>//! POSITIONAL ARGUMENTS:</span>
 <span class='doccomment'>//!     output            Sets an optional output file</span>
@@ -434,10 +447,21 @@
 <span class='doccomment'>//! </span>
 <span class='doccomment'>//! ## How to build</span>
 <span class='doccomment'>//! </span>
-<span class='doccomment'>//! ### Running the tests</span>
+<span class='doccomment'>//! Clone the repo (`master` branch if using `clap`, `dev` branch if contributing) and build with Cargo</span>
 <span class='doccomment'>//! </span>
 <span class='doccomment'>//! ```</span>
-<span class='doccomment'>//! cargo test</span>
+<span class='doccomment'>//! git clone https://github.com/kbknapp/clap-rs</span>
+<span class='doccomment'>//! cd clap-rs</span>
+<span class='doccomment'>//! cargo build --release</span>
+<span class='doccomment'>//! ```</span>
+<span class='doccomment'>//! </span>
+<span class='doccomment'>//! ### Running the tests</span>
+<span class='doccomment'>//! </span>
+<span class='doccomment'>//! If contributing, you can run the tests as follows (assuming you&#39;ve already cloned the repo to `clap-rs/`</span>
+<span class='doccomment'>//! </span>
+<span class='doccomment'>//! ```</span>
+<span class='doccomment'>//! cd clap-rs/claptests</span>
+<span class='doccomment'>//! make test</span>
 <span class='doccomment'>//! ```</span>
 <span class='doccomment'>//! </span>
 <span class='doccomment'>//! ### Building the documentation</span>
@@ -447,6 +471,8 @@
 <span class='doccomment'>//! ```</span>
 <span class='doccomment'>//! make doc</span>
 <span class='doccomment'>//! ```</span>
+<span class='doccomment'>//! </span>
+<span class='doccomment'>//! Then browse to `clap-rs/docs/index.html` in your web-browser of choice</span>
 
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>libc</span>;
 
