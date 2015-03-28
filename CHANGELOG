@@ -1,6 +1,9 @@
 # v0.4.18
     * Correctly displays subcommand names when printint help, version, or usage
       (i.e. 'parent-subcommand' for help/version or 'parent subcommand' for usage)
+    * Fixed bug with arguments required by other arguments, not displaying as
+      required to the user when printing usage information
+    * Changed some format!() to .to_owned() for performance reasons
 # v0.4.17
     * Arg values now accept lifetimes other than 'static
 # v0.4.16
