@@ -358,7 +358,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             let opts = ! self.opts.is_empty();
             let subcmds = ! self.subcommands.is_empty();
 
-            print!("\t{} {} {} {} {}", if let Some(ref name) = self.bin_name { name } else { &self.name },
+            print!("\t{} {} {} {} {}", if let Some(ref name) = self.bin_name { name.replace("-", " ") } else { self.name.clone() },
                 if flags {"[FLAGS]"} else {""},
                 if opts {
                     if req_opts.is_empty() { "[OPTIONS]" } else { &req_opts[..] } 
@@ -376,10 +376,10 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
 
     fn print_help(&self) {
         self.print_version(false);
-        let flags = ! self.flags.is_empty();
-        let pos = ! self.positionals_idx.is_empty();
-        let opts = ! self.opts.is_empty();
-        let subcmds = ! self.subcommands.is_empty();
+        let flags = !self.flags.is_empty();
+        let pos = !self.positionals_idx.is_empty();
+        let opts = !self.opts.is_empty();
+        let subcmds = !self.subcommands.is_empty();
 
         if let Some(author) = self.author {
             println!("{}", author);
@@ -435,7 +435,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     }
 
     fn print_version(&self, quit: bool) {
-        println!("{} {}", self.name, if let Some(v) = self.version {v} else {""} );
+        println!("{} {}", self.bin_name.clone().unwrap_or(self.name.clone()), self.version.unwrap_or("") );
         if quit { self.exit(); }
     }
 
@@ -457,9 +457,8 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         if let Some(name) = it.next() {
             let p = Path::new(&name[..]);
             if let Some(f) = p.file_name() {
-                match f.to_os_string().into_string() {
-                    Ok(s) => self.bin_name = Some(s),
-                    Err(_) => {}
+                if let Ok(s) = f.to_os_string().into_string() {
+                    self.bin_name = Some(s);
                 }
             }
         }
@@ -563,7 +562,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             }
             _ => {}
         }
-        if ! self.required.is_empty() {
+        if !self.required.is_empty() {
             self.report_error("One or more required arguments were not supplied".to_owned(),
                     true, true);
         }
@@ -573,6 +572,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         if let Some(sc_name) = subcmd_name {
             if let Some(ref mut sc) = self.subcommands.get_mut(&sc_name) {
                 let mut new_matches = ArgMatches::new();
+                sc.bin_name = Some(format!("{}{}{}", self.bin_name.clone().unwrap_or(format!("")),if self.bin_name.is_some() {"-"} else {""}, sc.name.clone()));
                 sc.get_matches_from(&mut new_matches, it);
                 matches.subcommand = Some(Box::new(SubCommand{
                     name: sc.name.clone(),
