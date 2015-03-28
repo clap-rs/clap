@@ -572,7 +572,6 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             if let Some(ref mut sc) = self.subcommands.get_mut(&sc_name) {
                 let mut new_matches = ArgMatches::new();
                 sc.bin_name = Some(format!("{}{}{}", self.bin_name.clone().unwrap_or(format!("")),if self.bin_name.is_some() {"-"} else {""}, sc.name.clone()));
-                println!("sc bin_name: {:?}", sc.bin_name);
                 sc.get_matches_from(&mut new_matches, it);
                 matches.subcommand = Some(Box::new(SubCommand{
                     name: sc.name.clone(),
