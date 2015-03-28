@@ -626,6 +626,13 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                             true, true);
                     }
 
+                    if let Some(ref p_vals) = p.possible_vals {
+                        if !p_vals.is_empty() {
+                            if !p_vals.contains(arg_slice) {
+                                self.report_error(format!("{} is a valid value for {}", arg_slice, p.name), true, true);
+                            }
+                        }
+                    }
                     matches.positionals.insert(p.name, PosArg{
                         name: p.name.to_owned(),
                         value: arg.clone(),
@@ -750,6 +757,19 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             if matches.opts.contains_key(v.name) {
                 if !v.multiple {
                     self.report_error(format!("Argument --{} was supplied more than once, but does not support multiple values", arg), true, true);
+                }
+                if let Some(ref p_vals) = v.possible_vals {
+                    if !p_vals.is_empty() {
+                        if !p_vals.contains(v.name) {
+                            self.report_error(format!("{} is a valid value for {}", 
+                                                        arg_val.clone().unwrap_or(arg.to_owned()), 
+                                                        if v.long.is_some() {
+                                                            format!("--{}", v.long.unwrap())
+                                                        }else{
+                                                            format!("-{}", v.short.unwrap())
+                                                        }), true, true);
+                        }
+                    }
                 }
                 if arg_val.is_some() {
                     if let Some(ref mut o) = matches.opts.get_mut(v.name) {

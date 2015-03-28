@@ -25,6 +25,8 @@ fn main() {
     								.multiple(true))
     					.arg(Arg::new("positional")
     								.index(1)
+                                    .possible_values(vec!["vi","emacs"])
+                                    .required(true)
     								.help("tests positionals"))
     					.subcommand(SubCommand::new("subcmd")
     											.about("tests subcommands")
