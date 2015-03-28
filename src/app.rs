@@ -349,24 +349,18 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             let pos = !self.positionals_idx.is_empty();
             let opts = !self.opts.is_empty();
             let subcmds = !self.subcommands.is_empty();
-            // let req_pos = self.positionals_idx.values().filter_map(|ref x| if x.required { Some(x.name) } else {None})
-            //                                            .fold(String::new(), |acc, ref name| acc + &format!("<{}> ", name)[..]);
-            // let req_opts = self.opts.values().filter(|ref x| x.required)
-            //                                  .fold(String::new(), |acc, ref o| acc + &format!("{}{} ",if let Some(s) = o.short {
-            //                                                                                          format!("-{} ", s)
-            //                                                                                        } else {
-            //                                                                                            format!("--{}=",o.long.unwrap())
-            //                                                                                        },o.name));
+            let req_pos = self.positionals_idx.values().filter_map(|ref x| if x.required || self.required.contains(x.name) { Some(x.name) } else {None})
+                                                       .fold(String::new(), |acc, ref name| acc + &format!("<{}> ", name)[..]);
+            let req_opts = self.opts.values().filter(|ref x| x.required || self.required.contains(x.name))
+                                             .fold(String::new(), |acc, ref o| acc + &format!("-{}{} ",if let Some(s) = o.short {
+                                                                                                     format!("{} ", s)
+                                                                                                   } else {
+                                                                                                       format!("-{}=",o.long.unwrap())
+                                                                                                   },o.name));
 
             print!("\t{} {} {} {} {}", if let Some(ref name) = self.bin_name { name.replace("-", " ") } else { self.name.clone() },
                 if flags {"[FLAGS]"} else {""},
                 if opts {
-                    let req_opts = self.opts.values().filter(|ref x| x.required || self.required.contains(x.name))
-                                                     .fold(String::new(), |acc, ref o| acc + &format!("{}{} ",if let Some(s) = o.short {
-                                                                                                             format!("-{} ", s)
-                                                                                                           } else {
-                                                                                                               format!("--{}=",o.long.unwrap())
-                                                                                                           },o.name));
                     if req_opts.len() != self.opts.len() && !req_opts.is_empty() { 
                         format!("[OPTIONS] {}", &req_opts[..])
                     } else if req_opts.is_empty() { 
@@ -376,8 +370,6 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                     } 
                 } else { "".to_owned() },
                 if pos {
-                    let req_pos = self.positionals_idx.values().filter_map(|ref x| if x.required || self.required.contains(x.name) { Some(x.name) } else {None})
-                                                               .fold(String::new(), |acc, ref name| acc + &format!("<{}> ", name)[..]);
                     if req_pos.len() != self.positionals_idx.len() && !req_pos.is_empty() { 
                         format!("[POSITIONAL] {}", &req_pos[..])
                     } else if req_pos.is_empty() { 
@@ -417,8 +409,8 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             println!("FLAGS:");
             for v in self.flags.values() {
                 println!("\t{}{}\t{}",
-                        if let Some(s) = v.short{format!("-{}",s)}else{format!("   ")},
-                        if let Some(l) = v.long {format!(",--{}",l)}else {format!("   \t")},
+                        if let Some(s) = v.short{format!("-{}",s)}else{"   ".to_owned()},
+                        if let Some(l) = v.long {format!(",--{}",l)}else {"   \t".to_owned()},
                         if let Some(h) = v.help {h} else {"   "} );
             }
         }
@@ -428,10 +420,10 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             for v in self.opts.values() {
                 let mut needs_tab = false;
                 println!("\t{}{}{}\t{}",
-                        if let Some(s) = v.short{format!("-{} ",s)}else{format!("   ")},
-                        if let Some(l) = v.long {format!(",--{}=",l)}else {needs_tab = true; format!(" ")},
+                        if let Some(s) = v.short{format!("-{} ",s)}else{"   ".to_owned()},
+                        if let Some(l) = v.long {format!(",--{}=",l)}else {needs_tab = true; " ".to_owned()},
                         format!("{}", v.name),
-                        if let Some(h) = v.help {if needs_tab {format!("\t{}", h)} else { format!("{}", h) } } else {format!("   ")} );
+                        if let Some(h) = v.help {if needs_tab {format!("\t{}", h)} else { format!("{}", h) } } else {"   ".to_owned()} );
             }
         }
         if pos {
@@ -591,7 +583,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         if let Some(sc_name) = subcmd_name {
             if let Some(ref mut sc) = self.subcommands.get_mut(&sc_name) {
                 let mut new_matches = ArgMatches::new();
-                sc.bin_name = Some(format!("{}{}{}", self.bin_name.clone().unwrap_or(format!("")),if self.bin_name.is_some() {"-"} else {""}, sc.name.clone()));
+                sc.bin_name = Some(format!("{}{}{}", self.bin_name.clone().unwrap_or("".to_owned()),if self.bin_name.is_some() {"-"} else {""}, sc.name.clone()));
                 sc.get_matches_from(&mut new_matches, it);
                 matches.subcommand = Some(Box::new(SubCommand{
                     name: sc.name.clone(),
