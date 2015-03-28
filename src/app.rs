@@ -180,7 +180,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     /// )
     /// # .get_matches();
     /// ```
-    pub fn arg<'l, 'h, 'b, 'r>(mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar>) -> App<'a, 'v, 'ab, 'u, 'ar> {
+    pub fn arg<'l, 'h, 'b, 'r>(mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) -> App<'a, 'v, 'ab, 'u, 'ar> {
         if self.arg_list.contains(a.name) {
             panic!("Argument name must be unique, \"{}\" is already in use", a.name);
         } else {
@@ -213,30 +213,76 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             if a.takes_value {
                 panic!("Argument \"{}\" has conflicting requirements, both index() and takes_value(true) were supplied", a.name);
             }
-            self.positionals_idx.insert(i, PosBuilder {
+            // Create the Positional Arguemnt Builder with each HashSet = None to only allocate those that require it
+            let mut pb = PosBuilder {
                 name: a.name,
                 index: i,
                 required: a.required,
-                blacklist: a.blacklist,
-                requires: a.requires,
+                blacklist: None,
+                requires: None,
+                possible_vals: None,
                 help: a.help,
-            });
+            };
+            // Check if there is anything in the blacklist (mutually excludes list) and add any values
+            if let Some(ref bl) = a.blacklist {
+                let mut bhs = HashSet::new();
+                // without derefing n = &&str
+                for n in bl { bhs.insert(*n); }
+                pb.blacklist = Some(bhs);
+            }
+            // Check if there is anything in the requires list and add any values
+            if let Some(ref r) = a.requires {
+                let mut rhs = HashSet::new();
+                // without derefing n = &&str
+                for n in r { rhs.insert(*n); }
+                pb.requires = Some(rhs);
+            }
+            // Check if there is anything in the possible values and add those as well
+            if let Some(ref p) = a.possible_vals {
+                let mut phs = HashSet::new();
+                // without derefing n = &&str
+                for n in p { phs.insert(*n); }
+                pb.possible_vals = Some(phs);
+            }
+            self.positionals_idx.insert(i, pb);
         } else if a.takes_value {
             if a.short.is_none() && a.long.is_none() {
                 panic!("Argument \"{}\" has take_value(true), yet neither a short() or long() were supplied", a.name);
             }
             // No need to check for .index() as that is handled above
-
-            self.opts.insert(a.name, OptBuilder {
+            let mut ob = OptBuilder {
                 name: a.name,
                 short: a.short,
                 long: a.long,
                 multiple: a.multiple,
-                blacklist: a.blacklist,
+                blacklist: None,
                 help: a.help,
-                requires: a.requires,
+                possible_vals: None,
+                requires: None,
                 required: a.required,
-            });
+            };
+            // Check if there is anything in the blacklist (mutually excludes list) and add any values
+            if let Some(ref bl) = a.blacklist {
+                let mut bhs = HashSet::new();
+                // without derefing n = &&str
+                for n in bl { bhs.insert(*n); }
+                ob.blacklist = Some(bhs);
+            }
+            // Check if there is anything in the requires list and add any values
+            if let Some(ref r) = a.requires {
+                let mut rhs = HashSet::new();
+                // without derefing n = &&str
+                for n in r { rhs.insert(*n); }
+                ob.requires = Some(rhs);
+            }
+            // Check if there is anything in the possible values and add those as well
+            if let Some(ref p) = a.possible_vals {
+                let mut phs = HashSet::new();
+                // without derefing n = &&str
+                for n in p { phs.insert(*n); }
+                ob.possible_vals = Some(phs);
+            }
+            self.opts.insert(a.name, ob);
         } else {
             if let Some(ref l) = a.long {
                 if *l == "help" {
@@ -265,15 +311,30 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             // if self.required.contains(a.name) {
                 // self.required.remove(a.name);
             // }
-            self.flags.insert(a.name, FlagBuilder {
+            let mut fb = FlagBuilder {
                 name: a.name,
                 short: a.short,
                 long: a.long,
                 help: a.help,
-                blacklist: a.blacklist,
+                blacklist: None,
                 multiple: a.multiple,
-                requires: a.requires,
-            });
+                requires: None,
+            };
+            // Check if there is anything in the blacklist (mutually excludes list) and add any values
+            if let Some(ref bl) = a.blacklist {
+                let mut bhs = HashSet::new();
+                // without derefing n = &&str
+                for n in bl { bhs.insert(*n); }
+                fb.blacklist = Some(bhs);
+            }
+            // Check if there is anything in the requires list and add any values
+            if let Some(ref r) = a.requires {
+                let mut rhs = HashSet::new();
+                // without derefing n = &&str
+                for n in r { rhs.insert(*n); }
+                fb.requires = Some(rhs);
+            }
+            self.flags.insert(a.name, fb);
         }
         self
     }
@@ -289,7 +350,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     ///                Arg::new("debug").short("d")])
     /// # .get_matches();
     /// ```
-    pub fn args(mut self, args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar>>) -> App<'a, 'v, 'ab, 'u, 'ar> {
+    pub fn args(mut self, args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>) -> App<'a, 'v, 'ab, 'u, 'ar> {
         for arg in args.into_iter() {
             self = self.arg(arg);
         }
@@ -411,7 +472,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                 println!("\t{}{}\t{}",
                         if let Some(s) = v.short{format!("-{}",s)}else{"   ".to_owned()},
                         if let Some(l) = v.long {format!(",--{}",l)}else {"   \t".to_owned()},
-                        if let Some(h) = v.help {h} else {"   "} );
+                        v.help.unwrap_or("   ") );
             }
         }
         if opts {
@@ -423,7 +484,16 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                         if let Some(s) = v.short{format!("-{} ",s)}else{"   ".to_owned()},
                         if let Some(l) = v.long {format!(",--{}=",l)}else {needs_tab = true; " ".to_owned()},
                         format!("{}", v.name),
-                        if let Some(h) = v.help {if needs_tab {format!("\t{}", h)} else { format!("{}", h) } } else {"   ".to_owned()} );
+                        if let Some(h) = v.help {
+                            format!("{}{}{}",
+                                if needs_tab { "\t" } else { "" },
+                                h,
+                                if let Some(ref pv) = v.possible_vals {
+                                    format!(" [ {}]", pv.iter().fold(String::new(), |acc, name| acc + &format!("{} ",name)[..] ))
+                                }else{"".to_owned()})
+                        } else {
+                            "   ".to_owned()
+                        } );
             }
         }
         if pos {
@@ -431,7 +501,15 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             println!("POSITIONAL ARGUMENTS:");
             for v in self.positionals_idx.values() {
                 println!("\t{}\t\t{}", v.name,
-                        if let Some(h) = v.help {h} else {"   "} );
+                        if let Some(h) = v.help {
+                            format!("{}{}",
+                                h,
+                                if let Some(ref pv) = v.possible_vals {
+                                    format!(" [ {}]", pv.iter().fold(String::new(), |acc, name| acc + &format!("{} ",name)[..] ))
+                                }else{"".to_owned()})
+                        } else {
+                            "   ".to_owned()
+                        } );
             }
         }
         if subcmds {
@@ -455,9 +533,9 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         unsafe { libc::exit(0); }
     }
 
-    fn report_error(&self, msg: String, help: bool, quit: bool) {
+    fn report_error(&self, msg: String, usage: bool, quit: bool) {
         println!("{}", msg);
-        if help { self.print_usage(true); }
+        if usage { self.print_usage(true); }
         if quit { env::set_exit_status(1); self.exit(); }
     }
 
@@ -492,6 +570,19 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             if !pos_only {
                 if let Some(nvo) = needs_val_of {
                     if let Some(ref opt) = self.opts.get(nvo) {
+                        if let Some(ref p_vals) = opt.possible_vals {
+                            if !p_vals.is_empty() {
+                                if !p_vals.contains(arg_slice) {
+                                    self.report_error(format!("{} is a valid value for {}", 
+                                                                arg_slice, 
+                                                                if opt.long.is_some() {
+                                                                    format!("--{}",opt.long.unwrap())
+                                                                }else{
+                                                                    format!("-{}", opt.short.unwrap())
+                                                                }), true, true);
+                                }
+                            }
+                        }
                         if let Some(ref mut o) = matches.opts.get_mut(opt.name) {
                             o.values.push(arg.clone());
                             o.occurrences = if opt.multiple { o.occurrences + 1 } else { 1 };
