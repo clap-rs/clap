@@ -1,3 +1,6 @@
+# v0.4.18
+    * Correctly displays subcommand names when printint help, version, or usage
+      (i.e. 'parent-subcommand' for help/version or 'parent subcommand' for usage)
 # v0.4.17
     * Arg values now accept lifetimes other than 'static
 # v0.4.16
