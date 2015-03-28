@@ -345,27 +345,47 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         if let Some(u) = self.usage_str {
             println!("\t{}",u);
         } else {
-            let flags = ! self.flags.is_empty();
-            let pos = ! self.positionals_idx.is_empty();
-            let req_pos = self.positionals_idx.values().filter_map(|ref x| if x.required { Some(x.name) } else {None})
-                                                       .fold(String::new(), |acc, ref name| acc + &format!("<{}> ", name)[..]);
-            let req_opts = self.opts.values().filter(|ref x| x.required)
-                                             .fold(String::new(), |acc, ref o| acc + &format!("{}{} ",if let Some(s) = o.short {
-                                                                                                     format!("-{} ", s)
-                                                                                                   } else {
-                                                                                                       format!("--{}=",o.long.unwrap())
-                                                                                                   },o.name));
-            let opts = ! self.opts.is_empty();
-            let subcmds = ! self.subcommands.is_empty();
+            let flags = !self.flags.is_empty();
+            let pos = !self.positionals_idx.is_empty();
+            let opts = !self.opts.is_empty();
+            let subcmds = !self.subcommands.is_empty();
+            // let req_pos = self.positionals_idx.values().filter_map(|ref x| if x.required { Some(x.name) } else {None})
+            //                                            .fold(String::new(), |acc, ref name| acc + &format!("<{}> ", name)[..]);
+            // let req_opts = self.opts.values().filter(|ref x| x.required)
+            //                                  .fold(String::new(), |acc, ref o| acc + &format!("{}{} ",if let Some(s) = o.short {
+            //                                                                                          format!("-{} ", s)
+            //                                                                                        } else {
+            //                                                                                            format!("--{}=",o.long.unwrap())
+            //                                                                                        },o.name));
 
             print!("\t{} {} {} {} {}", if let Some(ref name) = self.bin_name { name.replace("-", " ") } else { self.name.clone() },
                 if flags {"[FLAGS]"} else {""},
                 if opts {
-                    if req_opts.is_empty() { "[OPTIONS]" } else { &req_opts[..] } 
-                } else { "" },
+                    let req_opts = self.opts.values().filter(|ref x| x.required || self.required.contains(x.name))
+                                                     .fold(String::new(), |acc, ref o| acc + &format!("{}{} ",if let Some(s) = o.short {
+                                                                                                             format!("-{} ", s)
+                                                                                                           } else {
+                                                                                                               format!("--{}=",o.long.unwrap())
+                                                                                                           },o.name));
+                    if req_opts.len() != self.opts.len() && !req_opts.is_empty() { 
+                        format!("[OPTIONS] {}", &req_opts[..])
+                    } else if req_opts.is_empty() { 
+                        "[OPTIONS]".to_owned()
+                    } else {
+                        req_opts 
+                    } 
+                } else { "".to_owned() },
                 if pos {
-                    if req_pos.is_empty() { "[POSITIONAL]"} else { &req_pos[..] }
-                } else {""},
+                    let req_pos = self.positionals_idx.values().filter_map(|ref x| if x.required || self.required.contains(x.name) { Some(x.name) } else {None})
+                                                               .fold(String::new(), |acc, ref name| acc + &format!("<{}> ", name)[..]);
+                    if req_pos.len() != self.positionals_idx.len() && !req_pos.is_empty() { 
+                        format!("[POSITIONAL] {}", &req_pos[..])
+                    } else if req_pos.is_empty() { 
+                        "[POSITIONAL]".to_owned() 
+                    } else {
+                        req_pos 
+                    } 
+                } else {"".to_owned()},
                 if subcmds {"[SUBCOMMANDS]"} else {""});
         }
 
