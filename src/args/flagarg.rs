@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 /// `FlagArg` represents a flag argument for command line applications. Flag arguments 
 /// take no additional values, and are always preceded by either a `-` (single character)
 /// or `--` (single word, no spaces). `FlagArg` isn't directly used by the end application
@@ -31,11 +33,11 @@ pub struct FlagBuilder<'n> {
     pub multiple: bool,
     /// A list of names for other arguments that
     /// *may not* be used with this flag
-    pub blacklist: Option<Vec<&'n str>>,
+    pub blacklist: Option<HashSet<&'n str>>,
     /// A list of names of other arguments that 
     /// are *required* to be used when this
     /// flag is used
-    pub requires: Option<Vec<&'n str>>,
+    pub requires: Option<HashSet<&'n str>>,
     /// The short version (i.e. single character)
     /// of the argument, no preceding `-`
     pub short: Option<char>,

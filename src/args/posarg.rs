@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 /// `PosArg` represents a positional argument, i.e. one that isn't preceded 
 /// by a `-` or `--`. `PosArg` isn't directly used by the end application
 /// writer, only internally to the `clap` library.
@@ -30,9 +32,11 @@ pub struct PosBuilder<'n> {
     pub required: bool,
     /// A list of names of other arguments that are *required* to be used when 
     /// this flag is used
-    pub requires: Option<Vec<&'n str>>,
+    pub requires: Option<HashSet<&'n str>>,
     /// A list of names for other arguments that *may not* be used with this flag
-    pub blacklist: Option<Vec<&'n str>>,
+    pub blacklist: Option<HashSet<&'n str>>,
+    /// A list of possible values for this argument
+    pub possible_vals: Option<HashSet<&'n str>>,
     /// The index of the argument
     pub index: u8 
 }
