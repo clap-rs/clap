@@ -410,9 +410,21 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             let pos = !self.positionals_idx.is_empty();
             let opts = !self.opts.is_empty();
             let subcmds = !self.subcommands.is_empty();
-            let req_pos = self.positionals_idx.values().filter_map(|ref x| if x.required || self.required.contains(x.name) { Some(x.name) } else {None})
+            let mut num_req_pos = 0;
+            let req_pos = self.positionals_idx.values().filter_map(|ref x| if x.required || self.required.contains(x.name) { 
+                num_req_pos += 1;
+                Some(x.name) 
+            } else {
+                None
+            })
                                                        .fold(String::new(), |acc, ref name| acc + &format!("<{}> ", name)[..]);
-            let req_opts = self.opts.values().filter(|ref x| x.required || self.required.contains(x.name))
+            let mut num_req_opts = 0;
+            let req_opts = self.opts.values().filter_map(|x| if x.required || self.required.contains(x.name) {
+                num_req_opts += 1;
+                Some(x)
+            }else {
+                None
+            })
                                              .fold(String::new(), |acc, ref o| acc + &format!("-{}{} ",if let Some(s) = o.short {
                                                                                                      format!("{} ", s)
                                                                                                    } else {
@@ -422,7 +434,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             print!("\t{} {} {} {} {}", if let Some(ref name) = self.bin_name { name.replace("-", " ") } else { self.name.clone() },
                 if flags {"[FLAGS]"} else {""},
                 if opts {
-                    if req_opts.len() != self.opts.len() && !req_opts.is_empty() { 
+                    if num_req_opts != self.opts.len() && !req_opts.is_empty() { 
                         format!("[OPTIONS] {}", &req_opts[..])
                     } else if req_opts.is_empty() { 
                         "[OPTIONS]".to_owned()
@@ -431,7 +443,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                     } 
                 } else { "".to_owned() },
                 if pos {
-                    if req_pos.len() != self.positionals_idx.len() && !req_pos.is_empty() { 
+                    if num_req_pos != self.positionals_idx.len() && !req_pos.is_empty() { 
                         format!("[POSITIONAL] {}", &req_pos[..])
                     } else if req_pos.is_empty() { 
                         "[POSITIONAL]".to_owned() 
