@@ -431,7 +431,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                                                                                                        format!("-{}=",o.long.unwrap())
                                                                                                    },o.name));
 
-            print!("\t{} {} {} {} {}", if let Some(ref name) = self.bin_name { name.replace("-", " ") } else { self.name.clone() },
+            print!("\t{} {} {} {} {}", self.bin_name.clone().unwrap_or(self.name.clone()),
                 if flags {"[FLAGS]"} else {""},
                 if opts {
                     if num_req_opts != self.opts.len() && !req_opts.is_empty() { 
@@ -537,7 +537,9 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     }
 
     fn print_version(&self, quit: bool) {
-        println!("{} {}", self.bin_name.clone().unwrap_or(self.name.clone()), self.version.unwrap_or("") );
+        // Print the binary name if existing, but replace all spaces with hyphens in case we're
+        // dealing with subcommands i.e. git mv is translated to git-mv
+        println!("{} {}", &self.bin_name.clone().unwrap_or(self.name.clone())[..].replace(" ", "-"), self.version.unwrap_or("") );
         if quit { self.exit(); }
     }
 
@@ -698,7 +700,8 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         if let Some(sc_name) = subcmd_name {
             if let Some(ref mut sc) = self.subcommands.get_mut(&sc_name) {
                 let mut new_matches = ArgMatches::new();
-                sc.bin_name = Some(format!("{}{}{}", self.bin_name.clone().unwrap_or("".to_owned()),if self.bin_name.is_some() {"-"} else {""}, sc.name.clone()));
+                // bin_name should be parent's bin_name + the sc's name seperated by a space
+                sc.bin_name = Some(format!("{}{}{}", self.bin_name.clone().unwrap_or("".to_owned()),if self.bin_name.is_some() {" "} else {""}, sc.name.clone()));
                 sc.get_matches_from(&mut new_matches, it);
                 matches.subcommand = Some(Box::new(SubCommand{
                     name: sc.name.clone(),
