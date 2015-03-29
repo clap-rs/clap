@@ -489,7 +489,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                                 if needs_tab { "\t" } else { "" },
                                 h,
                                 if let Some(ref pv) = v.possible_vals {
-                                    format!(" [ {}]", pv.iter().fold(String::new(), |acc, name| acc + &format!("{} ",name)[..] ))
+                                    format!(" [values: {}]", pv.iter().fold(String::new(), |acc, name| acc + &format!("{} ",name)[..] ))
                                 }else{"".to_owned()})
                         } else {
                             "   ".to_owned()
@@ -505,7 +505,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                             format!("{}{}",
                                 h,
                                 if let Some(ref pv) = v.possible_vals {
-                                    format!(" [ {}]", pv.iter().fold(String::new(), |acc, name| acc + &format!("{} ",name)[..] ))
+                                    format!(" [values: {}]", pv.iter().fold(String::new(), |acc, name| acc + &format!("{} ",name)[..] ))
                                 }else{"".to_owned()})
                         } else {
                             "   ".to_owned()
@@ -573,7 +573,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                         if let Some(ref p_vals) = opt.possible_vals {
                             if !p_vals.is_empty() {
                                 if !p_vals.contains(arg_slice) {
-                                    self.report_error(format!("{} is a valid value for {}", 
+                                    self.report_error(format!("{} isn't a valid value for {}", 
                                                                 arg_slice, 
                                                                 if opt.long.is_some() {
                                                                     format!("--{}",opt.long.unwrap())
@@ -629,7 +629,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                     if let Some(ref p_vals) = p.possible_vals {
                         if !p_vals.is_empty() {
                             if !p_vals.contains(arg_slice) {
-                                self.report_error(format!("{} is a valid value for {}", arg_slice, p.name), true, true);
+                                self.report_error(format!("{} isn't a valid value for {}", arg_slice, p.name), true, true);
                             }
                         }
                     }
@@ -759,9 +759,9 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                     self.report_error(format!("Argument --{} was supplied more than once, but does not support multiple values", arg), true, true);
                 }
                 if let Some(ref p_vals) = v.possible_vals {
-                    if !p_vals.is_empty() {
-                        if !p_vals.contains(v.name) {
-                            self.report_error(format!("{} is a valid value for {}", 
+                    if let Some(ref av) = arg_val {
+                        if !p_vals.contains(&av[..]) {
+                            self.report_error(format!("{} isn't a valid value for {}", 
                                                         arg_val.clone().unwrap_or(arg.to_owned()), 
                                                         if v.long.is_some() {
                                                             format!("--{}", v.long.unwrap())
@@ -823,7 +823,8 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                 self.report_error(format!("Argument --{} was supplied more than once, but does not support multiple values", arg), true, true);
             }
 
-            let mut done = false;
+            let mut 
+            done = false;
             if let Some(ref mut f) = matches.flags.get_mut(v.name) {
                 done = true;
                 f.occurrences = if v.multiple { f.occurrences + 1 } else { 1 };
