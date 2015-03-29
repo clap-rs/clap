@@ -207,9 +207,12 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             if a.short.is_some() || a.long.is_some() {
                 panic!("Argument \"{}\" has conflicting requirements, both index() and short(), or long(), were supplied", a.name);
             }
-            if a.multiple {
-                panic!("Argument \"{}\" has conflicting requirements, both index() and multiple(true) were supplied",a.name);
+            if self.positionals_idx.contains_key(&i) {
+                panic!("Argument \"{}\" has the same index as another positional argument", a.name);
             }
+            // if a.multiple {
+            //     panic!("Argument \"{}\" has conflicting requirements, both index() and multiple(true) were supplied",a.name);
+            // }
             if a.takes_value {
                 panic!("Argument \"{}\" has conflicting requirements, both index() and takes_value(true) were supplied", a.name);
             }
@@ -218,6 +221,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                 name: a.name,
                 index: i,
                 required: a.required,
+                multiple: a.multiple,
                 blacklist: None,
                 requires: None,
                 possible_vals: None,
@@ -554,6 +558,11 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     }
 
     pub fn get_matches(mut self) -> ArgMatches<'ar> {
+        self.verify_positionals();
+        for sc in self.subcommands.values() {
+            sc.verify_positionals();
+        }
+
         let mut matches = ArgMatches::new();
 
         let args = env::args().collect::<Vec<_>>();    
@@ -569,6 +578,29 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         self.get_matches_from(&mut matches, &mut it );
 
         matches
+    }
+
+    fn verify_positionals(&self) {
+        // Because you must wait until all arguments have been supplied, this is the first chance
+        // to make assertions on positional argument indexes
+        // 
+        // Firt we verify that the index highest supplied index, is equal to the number of
+        // positional arguments to verify there are no gaps (i.e. supplying an index of 1 and 3
+        // but no 2)
+        //
+        // Next we verify that only the highest index has a .multiple(true) (if any)
+        if let Some((idx, ref p)) = self.positionals_idx.iter().rev().next() {
+            if *idx as usize != self.positionals_idx.len() {
+                panic!("Found positional argument \"{}\" who's index is {} but there are only {} positional arguments defined", p.name, idx, self.positionals_idx.len());
+            }
+        }
+        if let Some(ref p) = self.positionals_idx.values()
+                                                 .filter(|ref a| a.multiple)
+                                                 .filter(|ref a| a.index as usize != self.positionals_idx.len())
+                                                 .next() {
+            panic!("Found positional argument \"{}\" which accepts multiple values but it's not the last positional argument (i.e. others have a higher index)", 
+                    p.name);
+        }
     }
 
     fn get_matches_from(&mut self, matches: &mut ArgMatches<'ar>, it: &mut IntoIter<String>) {
@@ -651,10 +683,27 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                             }
                         }
                     }
-                    matches.positionals.insert(p.name, PosArg{
-                        name: p.name.to_owned(),
-                        value: arg.clone(),
-                    });
+                    // Have we made the update yet?
+                    let mut done = false;
+                    if p.multiple {
+                        // Check if it's already existing and update if so...
+                        if let Some(ref mut pa) = matches.positionals.get_mut(p.name) {
+                            done = true;
+                            pa.occurrences += 1;
+                            pa.values.push(arg.clone());
+                        }
+                    } else {
+                        // Only increment the positional counter if it doesn't allow multiples
+                        pos_counter += 1;
+                    }
+                    // Was an update made, or is this the first occurrence?
+                    if !done {
+                        matches.positionals.insert(p.name, PosArg{
+                            name: p.name.to_owned(),
+                            occurrences: 1,
+                            values: vec![arg.clone()],
+                        });
+                    }
 
                     if let Some(ref bl) = p.blacklist {
                         for name in bl {
@@ -675,7 +724,6 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                             self.required.insert(n);
                         }
                     }
-                    pos_counter += 1;
                 } else {
                     self.report_error(format!("Positional argument \"{}\" was found, but {} wasn't expecting any", arg, self.name), true, true);
                 }
