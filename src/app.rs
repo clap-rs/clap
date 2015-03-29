@@ -489,7 +489,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                                 if needs_tab { "\t" } else { "" },
                                 h,
                                 if let Some(ref pv) = v.possible_vals {
-                                    format!(" [values: {}]", pv.iter().fold(String::new(), |acc, name| acc + &format!("{} ",name)[..] ))
+                                    format!(" [values:{}]", pv.iter().fold(String::new(), |acc, name| acc + &format!("{}",name)[..] ))
                                 }else{"".to_owned()})
                         } else {
                             "   ".to_owned()
@@ -505,7 +505,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                             format!("{}{}",
                                 h,
                                 if let Some(ref pv) = v.possible_vals {
-                                    format!(" [values: {}]", pv.iter().fold(String::new(), |acc, name| acc + &format!("{} ",name)[..] ))
+                                    format!(" [values:{}]", pv.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] ))
                                 }else{"".to_owned()})
                         } else {
                             "   ".to_owned()
