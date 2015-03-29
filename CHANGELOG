@@ -1,3 +1,5 @@
+# v0.5.2
+    * Fixed a bug when applications have hyphens in their names
 # v0.5.1
     * Fixed a bug when the only arguments you've defined are also required
 # v0.5.0
