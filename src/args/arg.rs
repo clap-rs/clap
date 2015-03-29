@@ -344,7 +344,7 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// # use clap::{App, Arg};
     /// # let matches = App::new("myprog")
     /// #                 .arg(
-    /// # Arg::new("debug").index(true)
+    /// # Arg::new("debug").index(1)
     /// .possible_values(vec!["fast", "slow"])
     /// # ).get_matches();
     pub fn possible_values(mut self, names: Vec<&'p str>) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
