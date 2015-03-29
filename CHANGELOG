@@ -1,3 +1,7 @@
+# v0.5.3
+    * Added support for positional arguments which accept multiple values if they
+      are last (i.e. have the highest index)
+    * Fixed several assertions for developer errors (i.e. not end-user errors)
 # v0.5.2
     * Fixed a bug when applications have hyphens in their names
 # v0.5.1
