@@ -1,6 +1,6 @@
 extern crate clap;
 
-use clap::App;
+use clap::{App, Arg};
 
 fn main() {
     // If you have arguments of specific values you want to test for, you can use the 
