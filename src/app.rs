@@ -207,6 +207,9 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             if a.short.is_some() || a.long.is_some() {
                 panic!("Argument \"{}\" has conflicting requirements, both index() and short(), or long(), were supplied", a.name);
             }
+            if self.positionals_idx.contains_key(&i) {
+                panic!("Argument \"{}\" has the same index as another positional argument", a.name);
+            }
             // if a.multiple {
             //     panic!("Argument \"{}\" has conflicting requirements, both index() and multiple(true) were supplied",a.name);
             // }
@@ -586,14 +589,14 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         // Next we verify that only the highest index has a .multiple(true) (if any)
         if let Some((idx, ref p)) = self.positionals_idx.iter().rev().next() {
             if *idx as usize != self.positionals_idx.len() {
-                panic!("Found a positional argument \"{}\" who's index is {} but there are only {} positional arguments defined", p.name, idx, self.positionals_idx.len());
+                panic!("Found positional argument \"{}\" who's index is {} but there are only {} positional arguments defined", p.name, idx, self.positionals_idx.len());
             }
         }
         if let Some(ref p) = self.positionals_idx.values()
                                                  .filter(|ref a| a.multiple)
                                                  .filter(|ref a| a.index as usize != self.positionals_idx.len())
                                                  .next() {
-            panic!("A positional argument which accepts multiple values MUST have the highest index of all the possible positional arguments, {} does not", 
+            panic!("Found positional argument \"{}\" which accepts multiple values but it's not the last positional argument (i.e. others have a higher index)", 
                     p.name);
         }
     }
