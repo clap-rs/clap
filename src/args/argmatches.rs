@@ -91,8 +91,8 @@ impl<'a> ArgMatches<'a> {
     /// an additional value at runtime). If the option wasn't present at runtime
     /// it returns `None`. 
     ///
-    /// *NOTE:* If getting a value for an option argument that allows multiples, prefer `values_of()`
-    /// as `value_of()` will only return the _*first*_ value.
+    /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
+    /// prefer `values_of()` as `value_of()` will only return the _*first*_ value.
     ///
     /// # Example
     ///
@@ -105,21 +105,21 @@ impl<'a> ArgMatches<'a> {
     /// ```
     pub fn value_of<'n>(&self, name: &'n str) -> Option<&str> {
         if let Some(ref opt) = self.opts.get(name) {
-            if !opt.values.is_empty() {
-                if let Some(ref s) = opt.values.iter().nth(0) {
-                    return Some(&s[..]);
-                }
-            } 
+            if let Some(ref s) = opt.values.iter().nth(0) {
+                return Some(&s[..]);
+            }
         }
         if let Some(ref pos) = self.positionals.get(name) {
-            return Some(&pos.value[..]);
+            if let Some(ref s) = pos.values.iter().nth(0) {
+                return Some(&s[..]);
+            }
         }
         None
     }
 
-    /// Gets the values of a specific option in a vector (i.e. an argument that takes
-    /// an additional value at runtime). If the option wasn't present at runtime
-    /// it returns `None`
+    /// Gets the values of a specific option or positional argument in a vector (i.e. an argument
+    /// that takes an additional value at runtime). If the option wasn't present at runtime it
+    /// returns `None`
     ///
     /// # Example
     ///
@@ -140,6 +140,11 @@ impl<'a> ArgMatches<'a> {
             if opt.values.is_empty() { return None; } 
 
             return Some(opt.values.iter().map(|s| &s[..]).collect::<Vec<_>>());
+        }
+        if let Some(ref pos) = self.positionals.get(name) {
+            if pos.values.is_empty() { return None; } 
+
+            return Some(pos.values.iter().map(|s| &s[..]).collect::<Vec<_>>());
         }
         None
     }
@@ -167,12 +172,10 @@ impl<'a> ArgMatches<'a> {
         false
     }
 
-    /// Checks the number of occurrences of an option or flag at runtime. 
+    /// Checks the number of occurrences of an option, flag, or positional argument at runtime. 
     /// If an option or flag isn't present it will return `0`, if the option or flag doesn't 
     /// allow multiple occurrences, it will return `1` no matter how many times it occurred 
     /// (unless it wasn't prsent) at all.
-    ///
-    /// *NOTE:* This _*DOES NOT*_ work for positional arguments (use `.value_of()` instead). 
     ///
     ///
     /// # Example
