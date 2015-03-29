@@ -4,15 +4,15 @@
 
 Command Line Argument Parser written in Rust
 
-A simply library for parsing command line arguments and subcommands when writing command line and console applications.
+It is a simple to use and efficient library for parsing command line arguments and subcommands when writing command line, console, or terminal applications.
 
-You can use `clap` to lay out a list of possible valid command line arguments and subcommands, then let `clap` parse the string given by the user at runtime.
+You can use clap to lay out a list of possible valid command line arguments and subcommands, then let `clap` parse *and validate* the string given by the user at runtime. This means you focus on your applications functionality, not parsing and validating arguments.
 
-When using `clap` you define a set of parameters and rules for your arguments and subcommands, then at runtime `clap` will determine their validity.
+What seperates `clap` from other options available is the very simple almost 'Pythonic' style in which you define the valid available arguments for your program. This means you don't have to spend tons time learning an entirely new library's structures and use.
 
-`clap` also provides the traditional version and help switches 'for free' by parsing the list of possible valid arguments lazily at runtime, and if not already defined by the developer `clap` will autogenerate all applicable "help" and "version" switches (as well as a "help" subcommand if other subcommands are defined as well).
+`clap` also provides all the traditional version and help switches (or flags) 'for free' by parsing the list of developer supplied arguments. If the developer hasn't defined them already, `clap` will auto-generate only the applicable "help" and "version" switches (as well as a "help" subcommand so long as other subcommands have been manually defined as well).
 
- After defining a list of possible valid arguments and subcommands, `clap` gives you a list of valid matches that the user supplied at runtime, or informs the user of their error and exits gracefully. You can use this list to determine the functioning of your program.
+After defining a list of possible valid arguments and subcommands, `clap` parses the string given by the end-user at runtime then gives you a list of the valid matches and their values. If the user made an error or typo, `clap` informs them and exits gracefully. This means that you can simply use these matches and values to determine the functioning of your program.
 
 ## Quick Example
  
