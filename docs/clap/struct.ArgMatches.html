@@ -43,7 +43,7 @@
     <section id='main' class="content struct">
 <h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>clap</a>::<wbr><a class='struct' href=''>ArgMatches</a><wbr></span><span class='out-of-band'><span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-7606' href='../src/clap/args/argmatches.rs.html#62-68'>[src]</a></span></h1>
+        </span><a id='src-7896' href='../src/clap/args/argmatches.rs.html#62-68'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct ArgMatches&lt;'a&gt; {
     pub flags: <a class='struct' href='http://doc.rust-lang.org/nightly/std/collections/hash/map/struct.HashMap.html' title='std::collections::hash::map::HashMap'>HashMap</a>&lt;&amp;'a <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, FlagArg&gt;,
     pub opts: <a class='struct' href='http://doc.rust-lang.org/nightly/std/collections/hash/map/struct.HashMap.html' title='std::collections::hash::map::HashMap'>HashMap</a>&lt;&amp;'a <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, OptArg&gt;,
@@ -108,8 +108,8 @@ through the <code>.get_matches()</code> method of <code>App</code></p>
 an additional value at runtime). If the option wasn&#39;t present at runtime
 it returns <code>None</code>. </p>
 
-<p><em>NOTE:</em> If getting a value for an option argument that allows multiples, prefer <code>values_of()</code>
-as <code>value_of()</code> will only return the <em><em>first</em></em> value.</p>
+<p><em>NOTE:</em> If getting a value for an option or positional argument that allows multiples,
+prefer <code>values_of()</code> as <code>value_of()</code> will only return the <em><em>first</em></em> value.</p>
 
 <h1 id="example" class='section-header'><a
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
@@ -118,9 +118,9 @@ as <code>value_of()</code> will only return the <em><em>first</em></em> value.</
 }
 </pre>
 </div><h4 id='method.values_of' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.values_of' class='fnname'>values_of</a>&lt;'n&gt;(&amp;self, name: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;&gt;</code></h4>
-<div class='docblock'><p>Gets the values of a specific option in a vector (i.e. an argument that takes
-an additional value at runtime). If the option wasn&#39;t present at runtime
-it returns <code>None</code></p>
+<div class='docblock'><p>Gets the values of a specific option or positional argument in a vector (i.e. an argument
+that takes an additional value at runtime). If the option wasn&#39;t present at runtime it
+returns <code>None</code></p>
 
 <h1 id="example" class='section-header'><a
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
@@ -144,12 +144,10 @@ option or positional arguments (use <code>.value_of()</code> instead)</p>
 }
 </pre>
 </div><h4 id='method.occurrences_of' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.occurrences_of' class='fnname'>occurrences_of</a>&lt;'n&gt;(&amp;self, name: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a></code></h4>
-<div class='docblock'><p>Checks the number of occurrences of an option or flag at runtime.
+<div class='docblock'><p>Checks the number of occurrences of an option, flag, or positional argument at runtime.
 If an option or flag isn&#39;t present it will return <code>0</code>, if the option or flag doesn&#39;t 
 allow multiple occurrences, it will return <code>1</code> no matter how many times it occurred 
 (unless it wasn&#39;t prsent) at all.</p>
-
-<p><em>NOTE:</em> This <em><em>DOES NOT</em></em> work for positional arguments (use <code>.value_of()</code> instead). </p>
 
 <h1 id="example" class='section-header'><a
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
