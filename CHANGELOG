@@ -1,3 +1,5 @@
+# v0.5.1
+    * Fixed a bug when the only arguments you've defined are also required
 # v0.5.0
     * Added support for values and positional arguments with only specific values
     * Some performance fixes
