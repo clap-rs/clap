@@ -580,7 +580,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                                                                 }else{
                                                                     format!("-{}", opt.short.unwrap())
                                                                 },
-                                                                format!("[valid values: {}]", p_vals.iter().fold(String::new(), |acc, name| acc + &format!("{} ",name)[..] )) ), true, true);
+                                                                format!("\n\t[valid values:{}]", p_vals.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] )) ), true, true);
                                 }
                             }
                         }
@@ -633,7 +633,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                                 self.report_error(format!("\"{}\" isn't a valid value for {}{}", 
                                     arg_slice, 
                                     p.name,
-                                    format!("[valid values: {}]", p_vals.iter().fold(String::new(), |acc, name| acc + &format!("{} ",name)[..] )) ), true, true);
+                                    format!("\n\t[valid values:{}]", p_vals.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] )) ), true, true);
                             }
                         }
                     }
@@ -772,7 +772,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                                                         }else{
                                                             format!("-{}", v.short.unwrap())
                                                         },
-                                                        format!("[valid values: {}]", p_vals.iter().fold(String::new(), |acc, name| acc + &format!("{} ",name)[..] )) ), true, true);
+                                                        format!("\n\t[valid values:{}]", p_vals.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] )) ), true, true);
                         }
                     }
                 }
