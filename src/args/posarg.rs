@@ -16,8 +16,10 @@ use std::collections::HashSet;
 pub struct PosArg {
     /// The unique name of the argument, required
     pub name: String,
+    /// How many occurences of this option have been found when parsing
+    pub occurrences: u8,
     /// The value provided to the argument by the user
-    pub value: String,
+    pub values: Vec<String>
 }
 
 pub struct PosBuilder<'n> {
@@ -30,6 +32,8 @@ pub struct PosBuilder<'n> {
     /// **NOTE:** required by default means, it is required *until* mutually
     /// exclusive arguments are evaluated.
     pub required: bool,
+    /// Allow multiple occurrences of an option argument such as "-c some -c other"
+    pub multiple: bool,
     /// A list of names of other arguments that are *required* to be used when 
     /// this flag is used
     pub requires: Option<HashSet<&'n str>>,

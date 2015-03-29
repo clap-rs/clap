@@ -207,9 +207,9 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             if a.short.is_some() || a.long.is_some() {
                 panic!("Argument \"{}\" has conflicting requirements, both index() and short(), or long(), were supplied", a.name);
             }
-            if a.multiple {
-                panic!("Argument \"{}\" has conflicting requirements, both index() and multiple(true) were supplied",a.name);
-            }
+            // if a.multiple {
+            //     panic!("Argument \"{}\" has conflicting requirements, both index() and multiple(true) were supplied",a.name);
+            // }
             if a.takes_value {
                 panic!("Argument \"{}\" has conflicting requirements, both index() and takes_value(true) were supplied", a.name);
             }
@@ -218,6 +218,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                 name: a.name,
                 index: i,
                 required: a.required,
+                multiple: a.multiple,
                 blacklist: None,
                 requires: None,
                 possible_vals: None,
@@ -652,10 +653,27 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                             }
                         }
                     }
-                    matches.positionals.insert(p.name, PosArg{
-                        name: p.name.to_owned(),
-                        value: arg.clone(),
-                    });
+                    // Have we made the update yet?
+                    let mut done = false;
+                    if p.multiple {
+                        // Check if it's already existing and update if so...
+                        if let Some(ref mut pa) = matches.positionals.get_mut(p.name) {
+                            done = true;
+                            pa.occurrences += 1;
+                            pa.values.push(arg.clone());
+                        }
+                    } else {
+                        // Only increment the positional counter if it doesn't allow multiples
+                        pos_counter += 1;
+                    }
+                    // Was an update made, or is this the first occurrence?
+                    if !done {
+                        matches.positionals.insert(p.name, PosArg{
+                            name: p.name.to_owned(),
+                            occurrences: 1,
+                            values: vec![arg.clone()],
+                        });
+                    }
 
                     if let Some(ref bl) = p.blacklist {
                         for name in bl {
@@ -676,7 +694,6 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                             self.required.insert(n);
                         }
                     }
-                    pos_counter += 1;
                 } else {
                     self.report_error(format!("Positional argument \"{}\" was found, but {} wasn't expecting any", arg, self.name), true, true);
                 }
