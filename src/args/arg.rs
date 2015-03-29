@@ -18,7 +18,7 @@
 ///       .takes_value(true)
 ///       .help("Provides a config file to myprog")
 /// # ).get_matches();
-pub struct Arg<'n, 'l, 'h, 'b, 'r> {
+pub struct Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// The unique name of the argument, required
     pub name: &'n str,
     /// The short version (i.e. single character) of the argument, no preceding `-`
@@ -47,12 +47,14 @@ pub struct Arg<'n, 'l, 'h, 'b, 'r> {
     pub multiple: bool,
     /// A list of names for other arguments that *may not* be used with this flag
     pub blacklist: Option<Vec<&'b str>>, 
+    /// A list of possible values for an option or positional argument
+    pub possible_vals: Option<Vec<&'p str>>,
     /// A list of names of other arguments that are *required* to be used when 
     /// this flag is used
     pub requires: Option<Vec<&'r str>>
 }
 
-impl<'n, 'l, 'h, 'b, 'r> Arg<'n, 'l, 'h, 'b, 'r> {
+impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// Creates a new instace of `Arg` using a unique string name. 
     /// The name will be used by the library consumer to get information about
     /// whether or not the argument was used at runtime. 
@@ -70,7 +72,7 @@ impl<'n, 'l, 'h, 'b, 'r> Arg<'n, 'l, 'h, 'b, 'r> {
     /// Arg::new("conifg")
     /// # .short("c")
     /// # ).get_matches();
-    pub fn new(n: &'n str) -> Arg<'n, 'l, 'h, 'b, 'r> {
+    pub fn new(n: &'n str) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
         Arg {
             name: n,
             short: None,
@@ -80,8 +82,9 @@ impl<'n, 'l, 'h, 'b, 'r> Arg<'n, 'l, 'h, 'b, 'r> {
             takes_value: false,
             multiple: false,
             index: None,
-            blacklist: Some(vec![]),
-            requires: Some(vec![]),
+            possible_vals: None,
+            blacklist: None,
+            requires: None,
         }
     }
 
@@ -104,7 +107,7 @@ impl<'n, 'l, 'h, 'b, 'r> Arg<'n, 'l, 'h, 'b, 'r> {
     /// # Arg::new("conifg")
     /// .short("c")
     /// # ).get_matches();
-    pub fn short(mut self, s: &str) -> Arg<'n, 'l, 'h, 'b, 'r> {
+    pub fn short(mut self, s: &str) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
         self.short = s.trim_left_matches(|c| c == '-').chars().nth(0);
         self
     }
@@ -128,7 +131,7 @@ impl<'n, 'l, 'h, 'b, 'r> Arg<'n, 'l, 'h, 'b, 'r> {
     /// # Arg::new("conifg")
     /// .long("config")
     /// # ).get_matches();
-    pub fn long(mut self, l: &'l str) -> Arg<'n, 'l, 'h, 'b, 'r> {
+    pub fn long(mut self, l: &'l str) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
         self.long = Some(l.trim_left_matches(|c| c == '-'));
         self
     }
@@ -145,7 +148,7 @@ impl<'n, 'l, 'h, 'b, 'r> Arg<'n, 'l, 'h, 'b, 'r> {
     /// # Arg::new("conifg")
     /// .help("The config file used by the myprog")
     /// # ).get_matches();
-    pub fn help(mut self, h: &'h str) -> Arg<'n, 'l, 'h, 'b, 'r> {
+    pub fn help(mut self, h: &'h str) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
         self.help = Some(h);
         self
     }
@@ -168,7 +171,7 @@ impl<'n, 'l, 'h, 'b, 'r> Arg<'n, 'l, 'h, 'b, 'r> {
     /// # Arg::new("conifg")
     /// .required(true)
     /// # ).get_matches();
-    pub fn required(mut self, r: bool) -> Arg<'n, 'l, 'h, 'b, 'r> {
+    pub fn required(mut self, r: bool) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
         self.required = r;
         self
     }
@@ -187,11 +190,11 @@ impl<'n, 'l, 'h, 'b, 'r> Arg<'n, 'l, 'h, 'b, 'r> {
     /// # let myprog = App::new("myprog").arg(Arg::new("conifg")
     /// .mutually_excludes("debug")
     /// # ).get_matches();
-    pub fn mutually_excludes(mut self, name: &'b str) -> Arg<'n, 'l, 'h, 'b, 'r> {
+    pub fn mutually_excludes(mut self, name: &'b str) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
         if let Some(ref mut vec) = self.blacklist {
             vec.push(name);
         } else {
-            self.blacklist = Some(vec![]);
+            self.blacklist = Some(vec![name]);
         }
         self
     }
@@ -211,13 +214,13 @@ impl<'n, 'l, 'h, 'b, 'r> Arg<'n, 'l, 'h, 'b, 'r> {
     /// .mutually_excludes_all(
     ///        vec!["debug", "input"])
     /// # ).get_matches();
-    pub fn mutually_excludes_all(mut self, names: Vec<&'b str>) -> Arg<'n, 'l, 'h, 'b, 'r> {
+    pub fn mutually_excludes_all(mut self, names: Vec<&'b str>) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
         if let Some(ref mut vec) = self.blacklist {
             for n in names {
                 vec.push(n);
             }
         } else {
-            self.blacklist = Some(vec![]);
+            self.blacklist = Some(names);
         }
         self
     }
@@ -234,11 +237,11 @@ impl<'n, 'l, 'h, 'b, 'r> Arg<'n, 'l, 'h, 'b, 'r> {
     /// # let myprog = App::new("myprog").arg(Arg::new("conifg")
     /// .requires("debug")
     /// # ).get_matches();
-    pub fn requires(mut self, name: &'r str) -> Arg<'n, 'l, 'h, 'b, 'r> {
+    pub fn requires(mut self, name: &'r str) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
         if let Some(ref mut vec) = self.requires {
             vec.push(name);
         } else {
-            self.requires = Some(vec![]);
+            self.requires = Some(vec![name]);
         }
         self
     }
@@ -257,13 +260,13 @@ impl<'n, 'l, 'h, 'b, 'r> Arg<'n, 'l, 'h, 'b, 'r> {
     /// .requires_all(
     ///        vec!["debug", "input"])
     /// # ).get_matches();
-    pub fn requires_all(mut self, names: Vec<&'r str>) -> Arg<'n, 'l, 'h, 'b, 'r> {
+    pub fn requires_all(mut self, names: Vec<&'r str>) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
         if let Some(ref mut vec) = self.requires {
             for n in names {
                 vec.push(n);
             }
         } else {
-            self.requires = Some(vec![]);
+            self.requires = Some(names);
         }
         self
     }
@@ -282,7 +285,7 @@ impl<'n, 'l, 'h, 'b, 'r> Arg<'n, 'l, 'h, 'b, 'r> {
     /// # Arg::new("conifg")
     /// .takes_value(true)
     /// # ).get_matches();
-    pub fn takes_value(mut self, tv: bool) -> Arg<'n, 'l, 'h, 'b, 'r> {
+    pub fn takes_value(mut self, tv: bool) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
         self.takes_value = tv;
         self
     }
@@ -303,7 +306,7 @@ impl<'n, 'l, 'h, 'b, 'r> Arg<'n, 'l, 'h, 'b, 'r> {
     /// # Arg::new("conifg")
     /// .index(1)
     /// # ).get_matches();
-    pub fn index(mut self, idx: u8) -> Arg<'n, 'l, 'h, 'b, 'r> {
+    pub fn index(mut self, idx: u8) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
         self.index = Some(idx);
         self
     }
@@ -325,8 +328,33 @@ impl<'n, 'l, 'h, 'b, 'r> Arg<'n, 'l, 'h, 'b, 'r> {
     /// # Arg::new("debug")
     /// .multiple(true)
     /// # ).get_matches();
-    pub fn multiple(mut self, multi: bool) -> Arg<'n, 'l, 'h, 'b, 'r> {
+    pub fn multiple(mut self, multi: bool) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
         self.multiple = multi;
+        self
+    }
+
+    /// Specifies a list of possible values for this argument. At runtime, clap verifies that only
+    /// one of the specified values was used, or fails with a usage string.
+    /// 
+    /// **NOTE:** This setting only applies to options and positional arguments 
+    ///
+    /// Example:
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let matches = App::new("myprog")
+    /// #                 .arg(
+    /// # Arg::new("debug").index(1)
+    /// .possible_values(vec!["fast", "slow"])
+    /// # ).get_matches();
+    pub fn possible_values(mut self, names: Vec<&'p str>) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+        if let Some(ref mut vec) = self.possible_vals {
+            for n in names {
+                vec.push(n);
+            }
+        } else {
+            self.possible_vals = Some(names);
+        }
         self
     }
 }
