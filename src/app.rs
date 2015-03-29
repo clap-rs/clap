@@ -573,6 +573,12 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     fn get_matches_from(&mut self, matches: &mut ArgMatches<'ar>, it: &mut IntoIter<String>) {
         self.create_help_and_version();
 
+        if let Some(idx) = self.positionals_idx.values().filter_map(|ref a| if a.multiple {Some(a.index)}else{None}).next() {
+            if idx != self.positionals_idx.len() as u8 {
+                panic!("A positional argument which accepts multiple values MUST have the highest index of all the possible positional arguments, {} does not", 
+                    self.positionals_idx.get(&idx).unwrap().name);
+            }
+        }
         let mut pos_only = false;
         let mut subcmd_name: Option<String> = None;
         let mut needs_val_of: Option<&str> = None; 
