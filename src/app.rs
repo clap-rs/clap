@@ -553,6 +553,11 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     }
 
     pub fn get_matches(mut self) -> ArgMatches<'ar> {
+        self.verify_positionals();
+        for sc in self.subcommands.values() {
+            sc.verify_positionals();
+        }
+
         let mut matches = ArgMatches::new();
 
         let args = env::args().collect::<Vec<_>>();    
@@ -570,15 +575,32 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         matches
     }
 
+    fn verify_positionals(&self) {
+        // Because you must wait until all arguments have been supplied, this is the first chance
+        // to make assertions on positional argument indexes
+        // 
+        // Firt we verify that the index highest supplied index, is equal to the number of
+        // positional arguments to verify there are no gaps (i.e. supplying an index of 1 and 3
+        // but no 2)
+        //
+        // Next we verify that only the highest index has a .multiple(true) (if any)
+        if let Some((idx, ref p)) = self.positionals_idx.iter().rev().next() {
+            if *idx as usize != self.positionals_idx.len() {
+                panic!("Found a positional argument \"{}\" who's index is {} but there are only {} positional arguments defined", p.name, idx, self.positionals_idx.len());
+            }
+        }
+        if let Some(ref p) = self.positionals_idx.values()
+                                                 .filter(|ref a| a.multiple)
+                                                 .filter(|ref a| a.index as usize != self.positionals_idx.len())
+                                                 .next() {
+            panic!("A positional argument which accepts multiple values MUST have the highest index of all the possible positional arguments, {} does not", 
+                    p.name);
+        }
+    }
+
     fn get_matches_from(&mut self, matches: &mut ArgMatches<'ar>, it: &mut IntoIter<String>) {
         self.create_help_and_version();
 
-        if let Some(idx) = self.positionals_idx.values().filter_map(|ref a| if a.multiple {Some(a.index)}else{None}).next() {
-            if idx != self.positionals_idx.len() as u8 {
-                panic!("A positional argument which accepts multiple values MUST have the highest index of all the possible positional arguments, {} does not", 
-                    self.positionals_idx.get(&idx).unwrap().name);
-            }
-        }
         let mut pos_only = false;
         let mut subcmd_name: Option<String> = None;
         let mut needs_val_of: Option<&str> = None; 
