@@ -51,15 +51,15 @@
 
 <p>Command Line Argument Parser written in Rust</p>
 
-<p>A simply library for parsing command line arguments and subcommands when writing command line and console applications.</p>
+<p>It is a simple to use and efficient library for parsing command line arguments and subcommands when writing command line, console, or terminal applications.</p>
 
-<p>You can use <code>clap</code> to lay out a list of possible valid command line arguments and subcommands, then let <code>clap</code> parse the string given by the user at runtime.</p>
+<p>You can use clap to lay out a list of possible valid command line arguments and subcommands, then let <code>clap</code> parse <em>and validate</em> the string given by the user at runtime. This means you focus on your applications functionality, not parsing and validating arguments.</p>
 
-<p>When using <code>clap</code> you define a set of parameters and rules for your arguments and subcommands, then at runtime <code>clap</code> will determine their validity.</p>
+<p>What seperates <code>clap</code> from other options available is the very simple almost &#39;Pythonic&#39; style in which you define the valid available arguments for your program. This means you don&#39;t have to spend tons time learning an entirely new library&#39;s structures and use.</p>
 
-<p><code>clap</code> also provides the traditional version and help switches &#39;for free&#39; by parsing the list of possible valid arguments lazily at runtime, and if not already defined by the developer <code>clap</code> will autogenerate all applicable &quot;help&quot; and &quot;version&quot; switches (as well as a &quot;help&quot; subcommand if other subcommands are defined as well).</p>
+<p><code>clap</code> also provides all the traditional version and help switches (or flags) &#39;for free&#39; by parsing the list of developer supplied arguments. If the developer hasn&#39;t defined them already, <code>clap</code> will auto-generate only the applicable &quot;help&quot; and &quot;version&quot; switches (as well as a &quot;help&quot; subcommand so long as other subcommands have been manually defined as well).</p>
 
-<p>After defining a list of possible valid arguments and subcommands, <code>clap</code> gives you a list of valid matches that the user supplied at runtime, or informs the user of their error and exits gracefully. You can use this list to determine the functioning of your program.</p>
+<p>After defining a list of possible valid arguments and subcommands, <code>clap</code> parses the string given by the end-user at runtime then gives you a list of the valid matches and their values. If the user made an error or typo, <code>clap</code> informs them and exits gracefully. This means that you can simply use these matches and values to determine the functioning of your program.</p>
 
 <h2 id="quick-example" class='section-header'><a
                            href="#quick-example">Quick Example</a></h2><pre id='rust-example-rendered' class='rust '>
