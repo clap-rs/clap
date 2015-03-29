@@ -196,6 +196,9 @@ impl<'a> ArgMatches<'a> {
         if let Some(ref o) = self.opts.get(name) {
             return o.occurrences;
         }
+        if let Some(ref p) = self.positionals.get(name) {
+            return p.occurrences;
+        }
         0
     }
 
