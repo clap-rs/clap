@@ -1,3 +1,6 @@
+# v0.5.5
+    * Fixed formatting in help info when flags or options have a long but no short
+    * Prefer long in usage info when a required option has both long and short
 # v0.5.4
     * Positional arguments that accept multiple values are now displayed correctly
       in usage and help string with '...' indicating multiple values
