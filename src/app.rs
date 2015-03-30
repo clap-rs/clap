@@ -485,7 +485,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             .values()
             .filter(|&f| f.long.is_some())
             .filter(|&f| f.long.unwrap().len() + f.name.len() + 3 > longest_opt)
-            .map(|&f| longest_opt = f.long.unwrap().len() + 3 + f.name.unwrap().len());
+            .map(|&f| longest_opt = f.long.unwrap().len() + 3 + f.name.len());
         let mut longest_pos = 0;
         self.positionals_idx
             .values()
