@@ -477,20 +477,20 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         let mut longest_flag = 0;
         self.flags
             .values()
-            .filter(|&f| f.long.is_some())
-            .filter(|&f| f.long.unwrap().len() + 2 > longest_flag)
-            .map(|&f| longest_flag = f.long.unwrap().len());
+            .filter(|ref f| f.long.is_some())
+            .filter(|ref f| f.long.unwrap().len() + 2 > longest_flag)
+            .map(|ref f| longest_flag = f.long.unwrap().len());
         let mut longest_opt= 0;
         self.opts
             .values()
-            .filter(|&f| f.long.is_some())
-            .filter(|&f| f.long.unwrap().len() + f.name.len() + 3 > longest_opt)
-            .map(|&f| longest_opt = f.long.unwrap().len() + 3 + f.name.len());
+            .filter(|ref f| f.long.is_some())
+            .filter(|ref f| f.long.unwrap().len() + f.name.len() + 3 > longest_opt)
+            .map(|ref f| longest_opt = f.long.unwrap().len() + 3 + f.name.len());
         let mut longest_pos = 0;
         self.positionals_idx
             .values()
-            .filter(|&f| f.name.len() > longest_pos)
-            .map(|&f| longest_pos = f.name.len());
+            .filter(|ref f| f.name.len() > longest_pos)
+            .map(|ref f| longest_pos = f.name.len());
         
         if let Some(author) = self.author {
             println!("{}", author);
