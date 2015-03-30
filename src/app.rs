@@ -434,9 +434,9 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                 None
             })
                                              .fold(String::new(), |acc, ref o| acc + &format!("-{}{} ",if let Some(l) = o.long {
-                                                                                                     format!("{} ", l)
+                                                                                                     format!("-{}=", l)
                                                                                                    } else {
-                                                                                                       format!("-{}=",o.short.unwrap())
+                                                                                                       format!("{} ",o.short.unwrap())
                                                                                                    },o.name));
 
             print!("\t{} {} {} {} {}", self.bin_name.clone().unwrap_or(self.name.clone()),
@@ -491,7 +491,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             for v in self.flags.values() {
                 println!("\t{}{}\t{}",
                         if let Some(s) = v.short{format!("-{}",s)}else{"   ".to_owned()},
-                        if let Some(l) = v.long {format!("{}--{}",if v.short.is_some() { ", " } else {""}, l)}else {"   \t".to_owned()},
+                        if let Some(l) = v.long {format!("{}--{}",if v.short.is_some() { ", " } else {" "}, l)}else {"   \t".to_owned()},
                         v.help.unwrap_or("   ") );
             }
         }
@@ -501,8 +501,8 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             for v in self.opts.values() {
                 let mut needs_tab = false;
                 println!("\t{}{}{}\t{}",
-                        if let Some(s) = v.short{format!("-{} ",s)}else{"   ".to_owned()},
-                        if let Some(l) = v.long {format!("{}--{}=",if v.short.is_some() {", "} else {""},l)}else {needs_tab = true; " ".to_owned()},
+                        if let Some(s) = v.short{format!("-{}",s)}else{"   ".to_owned()},
+                        if let Some(l) = v.long {format!("{}--{}=",if v.short.is_some() {", "} else {" "},l)}else {needs_tab = true; " ".to_owned()},
                         format!("{}", v.name),
                         if let Some(h) = v.help {
                             format!("{}{}{}",
