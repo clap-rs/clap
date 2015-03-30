@@ -408,7 +408,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     fn print_usage(&self, more_info: bool) {
         println!("USAGE:");
         if let Some(u) = self.usage_str {
-            println!("\t{}",u);
+            println!("    {}",u);
         } else {
             let flags = !self.flags.is_empty();
             let pos = !self.positionals_idx.is_empty();
@@ -439,7 +439,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                                                                                                        format!("{} ",o.short.unwrap())
                                                                                                    },o.name));
 
-            print!("\t{} {} {} {} {}", self.bin_name.clone().unwrap_or(self.name.clone()),
+            print!("    {} {} {} {} {}", self.bin_name.clone().unwrap_or(self.name.clone()),
                 if flags {"[FLAGS]"} else {""},
                 if opts {
                     if num_req_opts != self.opts.len() && !req_opts.is_empty() { 
@@ -474,6 +474,24 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         let opts = !self.opts.is_empty();
         let subcmds = !self.subcommands.is_empty();
 
+        let mut longest_flag = 0;
+        self.flags
+            .values()
+            .filter(|&f| f.long.is_some())
+            .filter(|&f| f.long.unwrap().len() + 2 > longest_flag)
+            .map(|&f| longest_flag = f.long.unwrap().len());
+        let mut longest_opt= 0;
+        self.opts
+            .values()
+            .filter(|&f| f.long.is_some())
+            .filter(|&f| f.long.unwrap().len() + f.name.len() + 3 > longest_opt)
+            .map(|&f| longest_opt = f.long.unwrap().len() + 3 + f.name.unwrap().len());
+        let mut longest_pos = 0;
+        self.positionals_idx
+            .values()
+            .filter(|&f| f.name.len() > longest_pos)
+            .map(|&f| longest_pos = f.name.len());
+        
         if let Some(author) = self.author {
             println!("{}", author);
         }
@@ -485,14 +503,24 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         if flags || opts || pos || subcmds {
             println!("");
         }
+
+        let tab = "    ";
         if flags {
             println!("");
             println!("FLAGS:");
             for v in self.flags.values() {
-                println!("\t{}{}\t{}",
-                        if let Some(s) = v.short{format!("-{}",s)}else{"   ".to_owned()},
-                        if let Some(l) = v.long {format!("{}--{}",if v.short.is_some() { ", " } else {" "}, l)}else {"   \t".to_owned()},
-                        v.help.unwrap_or("   ") );
+                println!("    {}{}{}{}",
+                        if let Some(s) = v.short{format!("-{}",s)}else{"    ".to_owned()},
+                        if let Some(l) = v.long {
+                            format!("{}--{}{}{}", 
+                                if v.short.is_some() { ", " } else {""}, 
+                                l, 
+                                self.get_spaces(longest_flag-v.long.unwrap().len() + v.name.len() + 3),
+                                tab)
+                        } else {
+                            format!("{}{}",self.get_spaces(longest_flag+2),tab)
+                        },
+                        v.help.unwrap_or(tab) );
             }
         }
         if opts {
@@ -500,13 +528,13 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             println!("OPTIONS:");
             for v in self.opts.values() {
                 let mut needs_tab = false;
-                println!("\t{}{}{}\t{}",
+                println!("    {}{}{}{}{}",
                         if let Some(s) = v.short{format!("-{}",s)}else{"   ".to_owned()},
                         if let Some(l) = v.long {format!("{}--{}=",if v.short.is_some() {", "} else {" "},l)}else {needs_tab = true; " ".to_owned()},
                         format!("{}", v.name),
                         if let Some(h) = v.help {
                             format!("{}{}{}",
-                                if needs_tab { "\t" } else { "" },
+                                if needs_tab { "    " } else { "" },
                                 h,
                                 if let Some(ref pv) = v.possible_vals {
                                     format!(" [values:{}]", pv.iter().fold(String::new(), |acc, name| acc + &format!("{}",name)[..] ))
@@ -520,7 +548,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             println!("");
             println!("POSITIONAL ARGUMENTS:");
             for v in self.positionals_idx.values() {
-                println!("\t{}\t\t{}", if v.multiple {format!("{}...",v.name)} else {v.name.to_owned()},
+                println!("    {}        {}", if v.multiple {format!("{}...",v.name)} else {v.name.to_owned()},
                         if let Some(h) = v.help {
                             format!("{}{}",
                                 h,
@@ -536,7 +564,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             println!("");
             println!("SUBCOMMANDS:");
             for sc in self.subcommands.values() {
-                println!("\t{}\t\t{}", sc.name,
+                println!("    {}        {}", sc.name,
                     if let Some(a) = sc.about {a} else {"   "} );
             }
         }
@@ -544,6 +572,31 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         self.exit();
     }
 
+    fn get_spaces(&self, num: usize) -> &'static str {
+        match num {
+            0 => "",
+            1 => " ",
+            2 => "  ",
+            3 => "   ",
+            4 => "    ",
+            5 => "     ",
+            6 => "      ",
+            7 => "       ",
+            8 => "        ",
+            9 => "         ",
+            10=> "          ",
+            11=> "           ",
+            12=> "            ",
+            13=> "             ",
+            14=> "              ",
+            15=> "               ",
+            16=> "                ",
+            17=> "                 ",
+            18=> "                  ",
+            19=> "                   ",
+            20|_=> "                    "
+        }
+    }
     fn print_version(&self, quit: bool) {
         // Print the binary name if existing, but replace all spaces with hyphens in case we're
         // dealing with subcommands i.e. git mv is translated to git-mv
@@ -630,7 +683,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                                                                 }else{
                                                                     format!("-{}", opt.short.unwrap())
                                                                 },
-                                                                format!("\n\t[valid values:{}]", p_vals.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] )) ), true, true);
+                                                                format!("\n    [valid values:{}]", p_vals.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] )) ), true, true);
                                 }
                             }
                         }
@@ -683,7 +736,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                                 self.report_error(format!("\"{}\" isn't a valid value for {}{}", 
                                     arg_slice, 
                                     p.name,
-                                    format!("\n\t[valid values:{}]", p_vals.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] )) ), true, true);
+                                    format!("\n    [valid values:{}]", p_vals.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] )) ), true, true);
                             }
                         }
                     }
@@ -839,7 +892,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                                                         }else{
                                                             format!("-{}", v.short.unwrap())
                                                         },
-                                                        format!("\n\t[valid values:{}]", p_vals.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] )) ), true, true);
+                                                        format!("\n    [valid values:{}]", p_vals.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] )) ), true, true);
                         }
                     }
                 }
