@@ -475,22 +475,30 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         let subcmds = !self.subcommands.is_empty();
 
         let mut longest_flag = 0;
-        self.flags
+        for fl in self.flags
             .values()
-            .filter(|ref f| f.long.is_some())
-            .filter(|ref f| f.long.unwrap().len() + 2 > longest_flag)
-            .map(|ref f| longest_flag = f.long.unwrap().len());
+            .filter_map(|ref f| f.long)
+            .map(|ref l| l.len() + 2) {
+            if fl > longest_flag { longest_flag = fl; }
+        }
         let mut longest_opt= 0;
-        self.opts
+        for ol in self.opts
             .values()
-            .filter(|ref f| f.long.is_some())
-            .filter(|ref f| f.long.unwrap().len() + f.name.len() + 3 > longest_opt)
-            .map(|ref f| longest_opt = f.long.unwrap().len() + 3 + f.name.len());
+            .filter_map(|ref f| if f.long.is_some() {let mult = if f.multiple { 3 } else { 0 }; Some(f.long.unwrap().len() + mult + f.name.len() + 3)}else {None}) {
+            if ol > longest_opt {longest_opt = ol;}
+        }
         let mut longest_pos = 0;
-        self.positionals_idx
+        for pl in self.positionals_idx
             .values()
-            .filter(|ref f| f.name.len() > longest_pos)
-            .map(|ref f| longest_pos = f.name.len());
+            .map(|ref f| if f.multiple { f.name.len() + 3 } else { f.name.len() } ) {
+            if pl > longest_pos {longest_pos = pl;}
+        }
+        let mut longest_sc = 0;
+        for scl in self.subcommands
+            .values()
+            .map(|ref f| f.name.len() ) {
+            if scl > longest_sc {longest_sc = scl;}
+        }
         
         if let Some(author) = self.author {
             println!("{}", author);
@@ -510,15 +518,16 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             println!("FLAGS:");
             for v in self.flags.values() {
                 println!("{}{}{}{}",tab,
-                        if let Some(s) = v.short{format!("-{}",s)}else{"    ".to_owned()},
+                        if let Some(s) = v.short{format!("-{}",s)}else{tab.to_owned()},
                         if let Some(l) = v.long {
-                            format!("{}--{}{}{}", 
+                            format!("{}--{}{}", 
                                 if v.short.is_some() { ", " } else {""}, 
                                 l, 
-                                self.get_spaces(longest_flag-v.long.unwrap().len() + v.name.len() + 3),
-                                tab)
+                                // +2 accounts for the ', ' +4 for tab = 6
+                                self.get_spaces((longest_flag + 4) - (v.long.unwrap().len() + 2)))
                         } else {
-                            format!("{}{}",self.get_spaces(longest_flag+2),tab)
+                            // 6 is tab (4) + -- (2)
+                            self.get_spaces(longest_flag+6).to_owned()
                         },
                         v.help.unwrap_or(tab) );
             }
@@ -527,23 +536,32 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             println!("");
             println!("OPTIONS:");
             for v in self.opts.values() {
-                let mut needs_tab = false;
-                println!("{}{}{}{}{}",tab,
+                // if it supports multiple we add '...' i.e. 3 to the name length
+                let mult = if v.multiple { 3 } else { 0 };
+                // let long_len = if v.long.is_some() { v.long.unwrap().len() + 3}else{0};
+                // let mut needs_tab = false;
+                println!("{}{}{}{}{}{}",tab,
                         if let Some(s) = v.short{format!("-{}",s)}else{tab.to_owned()},
                         if let Some(l) = v.long {
                             format!("{}--{}=", 
-                                if v.short.is_some() {", "} else {" "},l)
+                                if v.short.is_some() {", "} else {""},l)
                         } else {
-                            needs_tab = true; " ".to_owned()
+                            "".to_owned()
                         },
-                        format!("{}", v.name),
+                        format!("{}{}", v.name, if v.multiple{"..."} else {""}),
+                        if v.long.is_some() {
+                            self.get_spaces((longest_opt + 4) - (v.long.unwrap().len() + v.name.len() + 2 + mult))
+                        } else {
+                            // 7 is '--=' (3) + tab (4)
+                            self.get_spaces(longest_opt + 7)
+                        },
                         if let Some(h) = v.help {
-                            format!("{}{}{}",
-                                if needs_tab { tab } else { "" },
-                                h,
+                            format!("{}{}", h,
                                 if let Some(ref pv) = v.possible_vals {
                                     format!(" [values:{}]", pv.iter().fold(String::new(), |acc, name| acc + &format!("{}",name)[..] ))
-                                }else{"".to_owned()})
+                                }else{
+                                    "".to_owned()
+                                })
                         } else {
                             tab.to_owned()
                         } );
@@ -553,30 +571,36 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             println!("");
             println!("POSITIONAL ARGUMENTS:");
             for v in self.positionals_idx.values() {
-                println!("    {}        {}", if v.multiple {format!("{}...",v.name)} else {v.name.to_owned()},
-                        if let Some(h) = v.help {
-                            format!("{}{}",
-                                h,
-                                if let Some(ref pv) = v.possible_vals {
-                                    format!(" [values:{}]", pv.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] ))
-                                }else{"".to_owned()})
-                        } else {
-                            "   ".to_owned()
-                        } );
+                let mult = if v.multiple { 3 } else { 0 };
+                println!("{}{}{}{}",tab,
+                    if v.multiple {format!("{}...",v.name)} else {v.name.to_owned()},
+                    self.get_spaces((longest_pos + 4) - (v.name.len() + mult)),
+                    if let Some(h) = v.help {
+                        format!("{}{}",
+                            h,
+                            if let Some(ref pv) = v.possible_vals {
+                                format!(" [values:{}]", pv.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] ))
+                            }else{"".to_owned()})
+                    } else {
+                        tab.to_owned()
+                    } );
             }
         }
         if subcmds {
             println!("");
             println!("SUBCOMMANDS:");
             for sc in self.subcommands.values() {
-                println!("    {}        {}", sc.name,
-                    if let Some(a) = sc.about {a} else {"   "} );
+                println!("{}{}{}{}",tab,
+                 sc.name,
+                 self.get_spaces((longest_sc + 4) - (sc.name.len())),
+                 if let Some(a) = sc.about {a} else {tab} );
             }
         }
 
         self.exit();
     }
 
+    #[inline(always)]
     fn get_spaces(&self, num: usize) -> &'static str {
         match num {
             0 => "",
@@ -599,7 +623,12 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             17=> "                 ",
             18=> "                  ",
             19=> "                   ",
-            20|_=> "                    "
+            20=> "                    ",
+            21=> "                     ",
+            22=> "                      ",
+            23=> "                       ",
+            24=> "                        ",
+            25|_=> "                         "
         }
     }
     fn print_version(&self, quit: bool) {
