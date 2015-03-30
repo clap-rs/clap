@@ -528,9 +528,14 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             println!("OPTIONS:");
             for v in self.opts.values() {
                 let mut needs_tab = false;
-                println!("{}{}{}{}{}{}",tab,
+                println!("{}{}{}{}{}",tab,
                         if let Some(s) = v.short{format!("-{}",s)}else{"   ".to_owned()},
-                        if let Some(l) = v.long {format!("{}--{}=",if v.short.is_some() {", "} else {" "},l)}else {needs_tab = true; " ".to_owned()},
+                        if let Some(l) = v.long {
+                            format!("{}--{}=", 
+                                if v.short.is_some() {", "} else {" "},l)
+                        } else {
+                            needs_tab = true; " ".to_owned()
+                        },
                         format!("{}", v.name),
                         if let Some(h) = v.help {
                             format!("{}{}{}",
