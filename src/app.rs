@@ -417,11 +417,15 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             let mut num_req_pos = 0;
             let req_pos = self.positionals_idx.values().filter_map(|ref x| if x.required || self.required.contains(x.name) { 
                 num_req_pos += 1;
-                Some(x.name) 
+                if x.multiple {
+                    Some(format!("<{}>...", x.name))
+                } else {
+                    Some(format!("<{}>", x.name))
+                } 
             } else {
                 None
             })
-                                                       .fold(String::new(), |acc, ref name| acc + &format!("<{}> ", name)[..]);
+                                                       .fold(String::new(), |acc, ref name| acc + &format!("{} ", name)[..]);
             let mut num_req_opts = 0;
             let req_opts = self.opts.values().filter_map(|x| if x.required || self.required.contains(x.name) {
                 num_req_opts += 1;
@@ -516,7 +520,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             println!("");
             println!("POSITIONAL ARGUMENTS:");
             for v in self.positionals_idx.values() {
-                println!("\t{}\t\t{}", v.name,
+                println!("\t{}\t\t{}", if v.multiple {format!("{}...",v.name)} else {v.name.to_owned()},
                         if let Some(h) = v.help {
                             format!("{}{}",
                                 h,
