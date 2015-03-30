@@ -1,3 +1,6 @@
+# v0.5.4
+    * Positional arguments that accept multiple values are now displayed correctly
+      in usage and help string with '...' indicating multiple values
 # v0.5.3
     * Added support for positional arguments which accept multiple values if they
       are last (i.e. have the highest index)
