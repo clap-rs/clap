@@ -509,7 +509,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             println!("");
             println!("FLAGS:");
             for v in self.flags.values() {
-                println!("{}{}{}{}{}",tab,
+                println!("{}{}{}{}",tab,
                         if let Some(s) = v.short{format!("-{}",s)}else{"    ".to_owned()},
                         if let Some(l) = v.long {
                             format!("{}--{}{}{}", 
@@ -529,7 +529,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             for v in self.opts.values() {
                 let mut needs_tab = false;
                 println!("{}{}{}{}{}",tab,
-                        if let Some(s) = v.short{format!("-{}",s)}else{"   ".to_owned()},
+                        if let Some(s) = v.short{format!("-{}",s)}else{tab.to_owned()},
                         if let Some(l) = v.long {
                             format!("{}--{}=", 
                                 if v.short.is_some() {", "} else {" "},l)
