@@ -1,3 +1,5 @@
+# v0.5.6
+    * Fixed another bug in help info formatting, help info is now 100%
 # v0.5.5
     * Fixed formatting in help info when flags or options have a long but no short
     * Prefer long in usage info when a required option has both long and short
