@@ -800,6 +800,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                     if let Some(ref bl) = p.blacklist {
                         for name in bl {
                             self.blacklist.insert(name);
+                            self.required.remove(name);
                         }
                     }
                     if self.required.contains(p.name) {
@@ -948,6 +949,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             if let Some(ref bl) = v.blacklist {
                 for name in bl {
                     self.blacklist.insert(name);
+                    self.required.remove(name);
                 }
             }
             if self.required.contains(v.name) {
@@ -1005,6 +1007,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             if let Some(ref bl) = v.blacklist {
                 for name in bl {
                     self.blacklist.insert(name);
+                    self.required.remove(name);
                 }
             }
 
@@ -1070,6 +1073,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             if let Some(ref bl) = v.blacklist {
                 for name in bl {
                     self.blacklist.insert(name);
+                    self.required.remove(name);
                 }
             }
             if self.required.contains(v.name) {
@@ -1130,6 +1134,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             if let Some(ref bl) = v.blacklist {
                 for name in bl {
                     self.blacklist.insert(name);
+                    self.required.remove(name);
                 }
             }
 
