@@ -21,7 +21,6 @@ fn main() {
                         .arg(Arg::new("option")
                                     .short("o")
                                     .long("option")
-                                    .required(true)
                                     .help("tests options")
                                     .takes_value(true)
                                     .multiple(true))
@@ -30,9 +29,9 @@ fn main() {
                                     .help("tests positionals"))
                         .args(vec![
                             Arg::new("flag2").short("F").mutually_excludes("flag").help("tests flags with exclusions").requires("option2"),
-                            Arg::new("option2").takes_value(true).long("long-option-2").mutually_excludes("option").help("tests long options with exclusions and requirements").requires_all(vec!["positional", "positional2"]),
+                            Arg::new("option2").takes_value(true).long("long-option-2").mutually_excludes("option").help("tests long options with exclusions and requirements").requires("positional2"),
                             Arg::new("positional2").index(2).help("tests positionals with exclusions and multiple"),
-                            Arg::new("option3").takes_value(true).short("O").possible_values(vec!["fast", "slow"]).help("test options with specific value sets").requires("positional3"),
+                            Arg::new("option3").takes_value(true).short("O").possible_values(vec!["fast", "slow"]).help("test options with specific value sets"),
                             Arg::new("positional3").index(3).multiple(true).possible_values(vec!["vi", "emacs"]).help("tests positionals with specific value sets")
                         ])
                         .subcommand(SubCommand::new("subcmd")
