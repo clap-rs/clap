@@ -306,7 +306,10 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                 panic!("Argument \"{}\" must have either a short() and/or long() supplied since no index() or takes_value() were found", a.name);
             }
             if a.required {
-                panic!("Argument \"{}\" cannot be required(true) because it has no index() or takes_value(true)", a.name)
+                panic!("Argument \"{}\" cannot be required(true) because it has no index() or takes_value(true)", a.name);
+            }
+            if a.possible_vals.is_some() {
+                panic!("Argument \"{}\" cannot have a specific value set because it doesn't have takes_value(true) set", a.name);
             }
             // No need to check for index() or takes_value() as that is handled above
 
