@@ -549,19 +549,19 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                             format!("{}--{}=", 
                                 if v.short.is_some() {", "} else {""},l)
                         } else {
-                            "".to_owned()
+                            " ".to_owned()
                         },
                         format!("{}{}", v.name, if v.multiple{"..."} else {""}),
                         if v.long.is_some() {
                             self.get_spaces((longest_opt + 4) - (v.long.unwrap().len() + v.name.len() + 2 + mult))
                         } else {
                             // 7 is '--=' (3) + tab (4)
-                            self.get_spaces(longest_opt + 7)
+                            self.get_spaces((longest_opt + 6) - (v.name.len() + mult))
                         },
                         if let Some(h) = v.help {
                             format!("{}{}", h,
                                 if let Some(ref pv) = v.possible_vals {
-                                    format!(" [values:{}]", pv.iter().fold(String::new(), |acc, name| acc + &format!("{}",name)[..] ))
+                                    format!(" [values:{}]", pv.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] ))
                                 }else{
                                     "".to_owned()
                                 })
