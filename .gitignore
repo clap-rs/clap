@@ -12,3 +12,6 @@
 
 # Cargo files
 Cargo.lock
+
+# Temp files
+*~
