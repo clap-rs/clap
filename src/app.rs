@@ -549,7 +549,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                             format!("{}--{}=", 
                                 if v.short.is_some() {", "} else {""},l)
                         } else {
-                            "".to_owned()
+                            " ".to_owned()
                         },
                         format!("{}{}", v.name, if v.multiple{"..."} else {""}),
                         if v.long.is_some() {
@@ -561,7 +561,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                         if let Some(h) = v.help {
                             format!("{}{}", h,
                                 if let Some(ref pv) = v.possible_vals {
-                                    format!(" [values:{}]", pv.iter().fold(String::new(), |acc, name| acc + &format!("{}",name)[..] ))
+                                    format!(" [values:{}]", pv.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] ))
                                 }else{
                                     "".to_owned()
                                 })
