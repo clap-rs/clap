@@ -508,6 +508,14 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             .filter_map(|ref f| if f.long.is_some() {let mult = if f.multiple { 3 } else { 0 }; Some(f.long.unwrap().len() + mult + f.name.len() + 3)}else {None}) {
             if ol > longest_opt {longest_opt = ol;}
         }
+        if longest_opt == 0 {
+            for ol in self.opts
+                .values()
+                .map(|ref f| 
+                    f.name.len() + if f.multiple { 3 } else { 0 } + 2 ){
+                if ol > longest_opt {longest_opt = ol;}
+            }
+        }
         let mut longest_pos = 0;
         for pl in self.positionals_idx
             .values()
@@ -649,7 +657,12 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             22=> "                      ",
             23=> "                       ",
             24=> "                        ",
-            25|_=> "                         "
+            25=> "                         ",
+            26=> "                          ",
+            27=> "                           ",
+            28=> "                            ",
+            29=> "                             ",
+            30|_=> "                             "
         }
     }
     fn print_version(&self, quit: bool) {
