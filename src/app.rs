@@ -800,7 +800,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                 // let mut req_pos_from_name = None;
                 if let Some(p) = self.positionals_idx.get(&pos_counter) {
                     if self.blacklist.contains(p.name) {
-                        self.report_error(format!("The argument \"{}\" is mutually exclusive with one or more other arguments", arg),
+                        self.report_error(format!("The argument \"{}\" cannot be used with one or more of the other specified arguments", arg),
                             true, true);
                     }
 
@@ -872,12 +872,14 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             }
             _ => {}
         }
+
+        self.validate_blacklist(&matches);
+
         if !self.required.is_empty() {
             self.report_error("One or more required arguments were not supplied".to_owned(),
                     true, true);
         }
 
-        self.validate_blacklist(&matches);
 
         if let Some(sc_name) = subcmd_name {
             if let Some(ref mut sc) = self.subcommands.get_mut(&sc_name) {
@@ -952,7 +954,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         if let Some(v) = self.opts.values().filter(|&v| v.long.is_some()).filter(|&v| v.long.unwrap() == arg).nth(0) {
             // Ensure this option isn't on the master mutually excludes list
             if self.blacklist.contains(v.name) {
-                self.report_error(format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
+                self.report_error(format!("The argument --{} cannot be used with one or more of the other specified arguments", arg),
                     true, true);
             }
 
@@ -1019,7 +1021,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         if let Some(v) = self.flags.values().filter(|&v| v.long.is_some()).filter(|&v| v.long.unwrap() == arg).nth(0) {
             // Ensure this flag isn't on the mutually excludes list
             if self.blacklist.contains(v.name) {
-                self.report_error(format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
+                self.report_error(format!("The argument --{} cannot be used with one or more of the other specified arguments", arg),
                     true, true);
             }
             
@@ -1101,7 +1103,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         if let Some(v) = self.opts.values().filter(|&v| v.short.is_some()).filter(|&v| v.short.unwrap() == arg_c).nth(0) {
             // Ensure this option isn't on the master mutually excludes list
             if self.blacklist.contains(v.name) {
-                self.report_error(format!("The argument --{} is mutually exclusive with one or more other arguments", arg),
+                self.report_error(format!("The argument -{} cannot be used with one or more of the other specified arguments", arg),
                     true, true);
             }
 
@@ -1152,7 +1154,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         for v in self.flags.values().filter(|&v| v.short.is_some()).filter(|&v| v.short.unwrap() == arg) {
             // Ensure this flag isn't on the mutually excludes list
             if self.blacklist.contains(v.name) {
-                self.report_error(format!("The argument -{} is mutually exclusive with one or more other arguments", arg),
+                self.report_error(format!("The argument -{} cannot be used with one or more of the other specified arguments", arg),
                     true, true);
             }
 
@@ -1208,7 +1210,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     fn validate_blacklist(&self, matches: &ArgMatches<'ar>) {
         for name in self.blacklist.iter() {
             if matches.flags.contains_key(name) {
-                self.report_error(format!("The argument {} is mutually exclusive with one or more other arguments",
+                self.report_error(format!("The argument {} cannot be used with one or more of the other specified arguments",
                     if let Some(s) = self.flags.get(name).unwrap().short {
                         format!("-{}", s)
                     } else if let Some(l) = self.flags.get(name).unwrap().long {
@@ -1218,17 +1220,17 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                     }), true, true);
             }
             if matches.opts.contains_key(name) {
-                self.report_error(format!("The argument {} is mutually exclusive with one or more other arguments",
-                    if let Some(s) = self.opts.get(name).unwrap().short {
-                        format!("-{}", s)
-                    } else if let Some(l) = self.opts.get(name).unwrap().long {
-                        format!("--{}", l)
+                self.report_error(format!("The argument {} cannot be used with one or more of the other specified arguments",
+                    if let Some(s) = self.opts.get(name).unwrap().long {
+                        format!("--{}", s)
+                    } else if let Some(l) = self.opts.get(name).unwrap().short {
+                        format!("-{}", l)
                     } else {
                         format!("\"{}\"", name)
                     }), true, true);
             }
             if matches.positionals.contains_key(name) {
-                self.report_error(format!("The argument \"{}\" is mutually exclusive with one or more other arguments",name),
+                self.report_error(format!("The argument \"{}\" cannot be used with one or more of the other specified arguments",name),
                     false, true);
             }
         }
