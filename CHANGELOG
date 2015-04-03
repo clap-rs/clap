@@ -1,3 +1,6 @@
+# v0.5.9
+    * Removed unstable features for Rust 1.0
+    * Removed libc as a dependency in favor of std::process::exit()
 # v0.5.8
     * Fixed bug with positional arguments who are required by others, but not listed in usage
     * Improved error messages for arguments with exclusions
