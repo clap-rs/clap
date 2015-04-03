@@ -1,3 +1,9 @@
+# v0.5.8
+    * Fixed bug with positional arguments who are required by others, but not listed in usage
+    * Improved error messages for arguments with exclusions
+    * Fixed help information formatting (regression from a rebase)
+    * Improved assertions for flag arguments
+    * Small code clean ups
 # v0.5.7
     * Fixed bug with required-by-default arguments who are mutually exclusive
       with matched arguments
