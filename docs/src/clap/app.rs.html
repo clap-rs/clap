@@ -1280,8 +1280,6 @@
 <span id="1238">1238</span>
 <span id="1239">1239</span>
 </pre><pre class='rust '>
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>libc</span>;
-
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>BTreeMap</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>HashMap</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>HashSet</span>;
@@ -1289,6 +1287,7 @@
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>path</span>::<span class='ident'>Path</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>vec</span>::<span class='ident'>IntoIter</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>borrow</span>::<span class='ident'>ToOwned</span>;
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>process</span>;
 
 <span class='kw'>use</span> <span class='ident'>args</span>::{ <span class='ident'>ArgMatches</span>, <span class='ident'>Arg</span>, <span class='ident'>SubCommand</span> };
 <span class='kw'>use</span> <span class='ident'>args</span>::{<span class='ident'>FlagArg</span>, <span class='ident'>FlagBuilder</span>};
@@ -1901,7 +1900,7 @@
             }
         }
 
-        <span class='self'>self</span>.<span class='ident'>exit</span>();
+        <span class='self'>self</span>.<span class='ident'>exit</span>(<span class='number'>0</span>);
     }
 
     <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
@@ -1939,17 +1938,18 @@
         <span class='comment'>// Print the binary name if existing, but replace all spaces with hyphens in case we&#39;re</span>
         <span class='comment'>// dealing with subcommands i.e. git mv is translated to git-mv</span>
         <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{} {}&quot;</span>, <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>bin_name</span>.<span class='ident'>clone</span>().<span class='ident'>unwrap_or</span>(<span class='self'>self</span>.<span class='ident'>name</span>.<span class='ident'>clone</span>())[..].<span class='ident'>replace</span>(<span class='string'>&quot; &quot;</span>, <span class='string'>&quot;-&quot;</span>), <span class='self'>self</span>.<span class='ident'>version</span>.<span class='ident'>unwrap_or</span>(<span class='string'>&quot;&quot;</span>) );
-        <span class='kw'>if</span> <span class='ident'>quit</span> { <span class='self'>self</span>.<span class='ident'>exit</span>(); }
+        <span class='kw'>if</span> <span class='ident'>quit</span> { <span class='self'>self</span>.<span class='ident'>exit</span>(<span class='number'>0</span>); }
     }
 
-    <span class='kw'>fn</span> <span class='ident'>exit</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) {
-        <span class='kw'>unsafe</span> { <span class='ident'>libc</span>::<span class='ident'>exit</span>(<span class='number'>0</span>); }
+    <span class='kw'>fn</span> <span class='ident'>exit</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>status</span>: <span class='ident'>i32</span>) {
+        <span class='ident'>process</span>::<span class='ident'>exit</span>(<span class='ident'>status</span>);
+        <span class='comment'>// unsafe { libc::exit(0); }</span>
     }
 
     <span class='kw'>fn</span> <span class='ident'>report_error</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>msg</span>: <span class='ident'>String</span>, <span class='ident'>usage</span>: <span class='ident'>bool</span>, <span class='ident'>quit</span>: <span class='ident'>bool</span>) {
         <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{}&quot;</span>, <span class='ident'>msg</span>);
         <span class='kw'>if</span> <span class='ident'>usage</span> { <span class='self'>self</span>.<span class='ident'>print_usage</span>(<span class='boolval'>true</span>); }
-        <span class='kw'>if</span> <span class='ident'>quit</span> { <span class='ident'>env</span>::<span class='ident'>set_exit_status</span>(<span class='number'>1</span>); <span class='self'>self</span>.<span class='ident'>exit</span>(); }
+        <span class='kw'>if</span> <span class='ident'>quit</span> { <span class='self'>self</span>.<span class='ident'>exit</span>(<span class='number'>1</span>); }
     }
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_matches</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>ArgMatches</span><span class='op'>&lt;</span><span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {

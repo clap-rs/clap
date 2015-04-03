@@ -363,14 +363,8 @@
 <span id="321">321</span>
 <span id="322">322</span>
 <span id="323">323</span>
-<span id="324">324</span>
-<span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
 </pre><pre class='rust '>
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>crate_type</span><span class='op'>=</span> <span class='string'>&quot;lib&quot;</span>]</span>
-
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>feature</span>(<span class='ident'>exit_status</span>)]</span>
 
 <span class='comment'>// DOCS</span>
 <span class='doccomment'>//! # clap</span>
@@ -583,8 +577,6 @@
 <span class='doccomment'>//!   - Once parsing is complete, the memory footprint of `clap` should be low since the  main program is the star of the show</span>
 <span class='doccomment'>//! * `panic!` on *developer* error, exit gracefully on *end-user* error</span>
 <span class='doccomment'>//! </span>
-
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>libc</span>;
 
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>args</span>::{<span class='ident'>Arg</span>, <span class='ident'>SubCommand</span>, <span class='ident'>ArgMatches</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>app</span>::<span class='ident'>App</span>;
