@@ -55,6 +55,7 @@ pub struct App<'a, 'v, 'ab, 'u, 'ar> {
     needs_short_version: bool,
     needs_subcmd_help: bool,
     required: HashSet<&'ar str>,
+    matched_reqs: HashSet<&'ar  str>,
     arg_list: HashSet<&'ar str>,
     short_list: HashSet<char>,
     long_list: HashSet<&'ar str>,
@@ -91,6 +92,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             needs_subcmd_help: true,
             needs_short_version: true,
             required: HashSet::new(), 
+            matched_reqs: HashSet::new(),
             arg_list: HashSet::new(),
             short_list: HashSet::new(),
             long_list: HashSet::new(),
@@ -216,6 +218,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             if a.takes_value {
                 panic!("Argument \"{}\" has conflicting requirements, both index() and takes_value(true) were supplied", a.name);
             }
+
             // Create the Positional Arguemnt Builder with each HashSet = None to only allocate those that require it
             let mut pb = PosBuilder {
                 name: a.name,
@@ -238,7 +241,8 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             if let Some(ref r) = a.requires {
                 let mut rhs = HashSet::new();
                 // without derefing n = &&str
-                for n in r { rhs.insert(*n); }
+                for n in r { 
+                    rhs.insert(*n); }
                 pb.requires = Some(rhs);
             }
             // Check if there is anything in the possible values and add those as well
@@ -409,16 +413,31 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     }
 
     fn print_usage(&self, more_info: bool) {
+        let tab = "    ";
         println!("USAGE:");
         if let Some(u) = self.usage_str {
-            println!("    {}",u);
+            println!("{}{}",tab,u);
         } else {
             let flags = !self.flags.is_empty();
             let pos = !self.positionals_idx.is_empty();
             let opts = !self.opts.is_empty();
             let subcmds = !self.subcommands.is_empty();
             let mut num_req_pos = 0;
-            let req_pos = self.positionals_idx.values().filter_map(|ref x| if x.required || self.required.contains(x.name) { 
+            let mut matched_pos_reqs = HashSet::new();
+            // If it's required we also need to ensure all previous positionals are required too
+            let mut found = false;
+            for p in self.positionals_idx.values().rev() {
+                if found {
+                    matched_pos_reqs.insert(p.name);
+                    continue;
+                }
+                if self.matched_reqs.contains(p.name) {
+                    matched_pos_reqs.insert(p.name);
+                    found = true;                
+                }
+            }
+
+            let req_pos = self.positionals_idx.values().filter_map(|ref x| if x.required || matched_pos_reqs.contains(x.name) { 
                 num_req_pos += 1;
                 if x.multiple {
                     Some(format!("<{}>...", x.name))
@@ -430,7 +449,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             })
                                                        .fold(String::new(), |acc, ref name| acc + &format!("{} ", name)[..]);
             let mut num_req_opts = 0;
-            let req_opts = self.opts.values().filter_map(|x| if x.required || self.required.contains(x.name) {
+            let req_opts = self.opts.values().filter_map(|x| if x.required  || self.matched_reqs.contains(x.name) {
                 num_req_opts += 1;
                 Some(x)
             }else {
@@ -442,7 +461,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                                                                                                        format!("{} ",o.short.unwrap())
                                                                                                    },o.name));
 
-            print!("    {} {} {} {} {}", self.bin_name.clone().unwrap_or(self.name.clone()),
+            print!("{}{} {} {} {} {}",tab, self.bin_name.clone().unwrap_or(self.name.clone()),
                 if flags {"[FLAGS]"} else {""},
                 if opts {
                     if num_req_opts != self.opts.len() && !req_opts.is_empty() { 
@@ -653,7 +672,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
 
     pub fn get_matches(mut self) -> ArgMatches<'ar> {
         self.verify_positionals();
-        for sc in self.subcommands.values() {
+        for (_,sc) in self.subcommands.iter_mut() {
             sc.verify_positionals();
         }
 
@@ -674,7 +693,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         matches
     }
 
-    fn verify_positionals(&self) {
+    fn verify_positionals(&mut self) {
         // Because you must wait until all arguments have been supplied, this is the first chance
         // to make assertions on positional argument indexes
         // 
@@ -694,6 +713,19 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                                                  .next() {
             panic!("Found positional argument \"{}\" which accepts multiple values but it's not the last positional argument (i.e. others have a higher index)", 
                     p.name);
+        }
+        
+        // If it's required we also need to ensure all previous positionals are required too
+        let mut found = false;
+        for (_, p) in self.positionals_idx.iter_mut().rev() {
+            if found {
+                p.required = true;
+                self.required.insert(p.name);
+                continue;
+            }
+            if p.required {
+                found = true;                
+            }
         }
     }
 
@@ -738,6 +770,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                 needs_val_of = None;
                 continue;
             }
+
             if arg_slice.starts_with("--") && !pos_only {
                 if arg_slice.len() == 2 {
                     pos_only = true;
@@ -762,6 +795,9 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                         format!("Found positional argument {}, but {} doesn't accept any", arg, self.name),
                         true, true);
                 }
+                // If we find that an argument requires a positiona, we need to update all the
+                // previous positionals too. This will denote where to start
+                // let mut req_pos_from_name = None;
                 if let Some(p) = self.positionals_idx.get(&pos_counter) {
                     if self.blacklist.contains(p.name) {
                         self.report_error(format!("The argument \"{}\" is mutually exclusive with one or more other arguments", arg),
@@ -806,13 +842,16 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                             self.required.remove(name);
                         }
                     }
-                    if self.required.contains(p.name) {
+
+                    // No need to check for existance, returns None if not found
+                    // if self.required.contains(p.name) {
                         self.required.remove(p.name);
-                    }
+                    // }
                     if let Some(ref reqs) = p.requires {
                         // Add all required args which aren't already found in matches to the
                         // final required list
                         for n in reqs {
+                            self.matched_reqs.insert(n);
                             if matches.positionals.contains_key(n) {continue;}
                             if matches.opts.contains_key(n) {continue;}
                             if matches.flags.contains_key(n) {continue;}
@@ -955,13 +994,15 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                     self.required.remove(name);
                 }
             }
-            if self.required.contains(v.name) {
+            // No need to check for existance, returns None if not found
+            // if self.required.contains(v.name) {
                 self.required.remove(v.name);
-            }
+            // }
             if let Some(ref reqs) = v.requires {
                 // Add all required args which aren't already found in matches to the
                 // final required list
                 for n in reqs {
+                    self.matched_reqs.insert(n);
                     if matches.opts.contains_key(n) { continue; }
                     if matches.flags.contains_key(n) { continue; }
                     if matches.positionals.contains_key(n) { continue; }
@@ -1002,9 +1043,10 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
 
             // If this flag was requierd, remove it
             // .. even though Flags shouldn't be required
-            if self.required.contains(v.name) {
+            // No need to check for existance, returns None if not found
+            // if self.required.contains(v.name) {
                 self.required.remove(v.name);
-            }
+            // }
 
             // Add all of this flags "mutually excludes" list to the master list
             if let Some(ref bl) = v.blacklist {
@@ -1017,6 +1059,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             // Add all required args which aren't already found in matches to the master list
             if let Some(ref reqs) = v.requires {
                 for n in reqs {
+                    self.matched_reqs.insert(n);
                     if matches.flags.contains_key(n) { continue; }
                     if matches.opts.contains_key(n) { continue; }
                     if matches.positionals.contains_key(n) { continue; }
@@ -1080,13 +1123,15 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                     self.required.remove(name);
                 }
             }
-            if self.required.contains(v.name) {
+            // No need to check for existance, returns None if not found
+            // if self.required.contains(v.name) {
                 self.required.remove(v.name);
-            }
+            // }
             if let Some(ref reqs) = v.requires {
                 // Add all required args which aren't already found in matches to the
                 // final required list
                 for n in reqs {
+                    self.matched_reqs.insert(n);
                     if matches.opts.contains_key(n) { continue; }
                     if matches.flags.contains_key(n) { continue; }
                     if matches.positionals.contains_key(n) { continue; }
@@ -1130,9 +1175,11 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
 
             // If this flag was requierd, remove it
             // .. even though Flags shouldn't be required
-            if self.required.contains(v.name) {
+
+            // No need to check for existance, returns None if it didn't exist
+            // if self.required.contains(v.name) {
                 self.required.remove(v.name);
-            }
+            // }
 
             // Add all of this flags "mutually excludes" list to the master list
             if let Some(ref bl) = v.blacklist {
@@ -1145,6 +1192,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             // Add all required args which aren't already found in matches to the master list
             if let Some(ref reqs) = v.requires {
                 for n in reqs {
+                    self.matched_reqs.insert(n);
                     if matches.flags.contains_key(n) { continue; }
                     if matches.opts.contains_key(n) { continue; }
                     if matches.positionals.contains_key(n) { continue; }
