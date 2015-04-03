@@ -1,5 +1,3 @@
-extern crate libc;
-
 use std::collections::BTreeMap;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -7,6 +5,7 @@ use std::env;
 use std::path::Path;
 use std::vec::IntoIter;
 use std::borrow::ToOwned;
+use std::process;
 
 use args::{ ArgMatches, Arg, SubCommand };
 use args::{FlagArg, FlagBuilder};
@@ -619,7 +618,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             }
         }
 
-        self.exit();
+        self.exit(0);
     }
 
     #[inline(always)]
@@ -657,17 +656,18 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         // Print the binary name if existing, but replace all spaces with hyphens in case we're
         // dealing with subcommands i.e. git mv is translated to git-mv
         println!("{} {}", &self.bin_name.clone().unwrap_or(self.name.clone())[..].replace(" ", "-"), self.version.unwrap_or("") );
-        if quit { self.exit(); }
+        if quit { self.exit(0); }
     }
 
-    fn exit(&self) {
-        unsafe { libc::exit(0); }
+    fn exit(&self, status: i32) {
+        process::exit(status);
+        // unsafe { libc::exit(0); }
     }
 
     fn report_error(&self, msg: String, usage: bool, quit: bool) {
         println!("{}", msg);
         if usage { self.print_usage(true); }
-        if quit { env::set_exit_status(1); self.exit(); }
+        if quit { self.exit(1); }
     }
 
     pub fn get_matches(mut self) -> ArgMatches<'ar> {
