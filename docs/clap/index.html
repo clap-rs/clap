@@ -43,7 +43,7 @@
     <section id='main' class="content mod">
 <h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>clap</a><wbr></span><span class='out-of-band'><a href='stability.html'>[stability]</a> <span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-0' href='../src/clap/lib.rs.html#1-272'>[src]</a></span></h1>
+        </span><a id='src-0' href='../src/clap/lib.rs.html#1-327'>[src]</a></span></h1>
 <div class='docblock'>
 <h1 id="clap" class='section-header'><a
                            href="#clap">clap</a></h1>
@@ -51,18 +51,74 @@
 
 <p>Command Line Argument Parser written in Rust</p>
 
-<p>It is a simple to use and efficient library for parsing command line arguments and subcommands when writing command line, console, or terminal applications.</p>
+<p>It is a simple to use and efficient library for parsing command line arguments and subcommands when writing console, or terminal applications.</p>
 
-<p>You can use clap to lay out a list of possible valid command line arguments and subcommands, then let <code>clap</code> parse <em>and validate</em> the string given by the user at runtime. This means you focus on your applications functionality, not parsing and validating arguments.</p>
+<p>You can use <code>clap</code> to lay out a list of possible valid command line arguments and subcommands, then let <code>clap</code> parse <em>and validate</em> the string given by the user at runtime. This means you focus on your applications functionality, not parsing and validating arguments.</p>
 
-<p>What seperates <code>clap</code> from other options available is the very simple almost &#39;Pythonic&#39; style in which you define the valid available arguments for your program. This means you don&#39;t have to spend tons time learning an entirely new library&#39;s structures and use.</p>
+<p>What is different about <code>clap</code> from other options available is the very simple almost &#39;Pythonic&#39; style in which you define the valid available arguments for your program, while still giving advanced features. <code>clap</code> allows you express complex relationships between arguments in a very simple manner. This means you don&#39;t have to spend tons time learning an entirely new library&#39;s structures and use. The basics of <code>clap</code> can be learned almost intuitively.</p>
 
-<p><code>clap</code> also provides all the traditional version and help switches (or flags) &#39;for free&#39; by parsing the list of developer supplied arguments. If the developer hasn&#39;t defined them already, <code>clap</code> will auto-generate only the applicable &quot;help&quot; and &quot;version&quot; switches (as well as a &quot;help&quot; subcommand so long as other subcommands have been manually defined as well).</p>
+<p><code>clap</code> also provides all the traditional version and help switches (or flags) &#39;for free&#39; by parsing the list of developer supplied arguments. If the developer hasn&#39;t defined them already (or only defined some of them), <code>clap</code> will auto-generate the applicable &quot;help&quot; and &quot;version&quot; switches (as well as a &quot;help&quot; subcommand so long as other subcommands have been manually defined as well).</p>
 
 <p>After defining a list of possible valid arguments and subcommands, <code>clap</code> parses the string given by the end-user at runtime then gives you a list of the valid matches and their values. If the user made an error or typo, <code>clap</code> informs them and exits gracefully. This means that you can simply use these matches and values to determine the functioning of your program.</p>
 
+<h2 id="features" class='section-header'><a
+                           href="#features">Features</a></h2>
+<p>Below are a few of the features which <code>clap</code> supports, full descriptions and usage can be found in the <a href="http://kbknapp.github.io/clap-rs/docs/clap/index.html">documentation</a> and <code>examples/</code> directory</p>
+
+<ul>
+<li><strong>Auto-generated Help, Version, and Usage information</strong>
+
+<ul>
+<li>Can be fully, or partially overridden if you wish to roll your own help, version, or usage</li>
+</ul></li>
+<li><strong>Flags / Switches</strong> (i.e. bool fields)
+
+<ul>
+<li>Both short and long versions supported (i.e. <code>-f</code> and <code>--flag</code> respectively)</li>
+<li>Supports combining short versions (i.e. <code>-fBgoZ</code> is the same as <code>-f -B -g -o -Z</code>)</li>
+<li>Also supports multiple occurrences (i.e. <code>myprog -vvv</code> or <code>myprog -v -v -v</code>)</li>
+</ul></li>
+<li><strong>Positional Arguments</strong> (i.e. those which are based off an index)
+
+<ul>
+<li>Also supports multiple values (i.e. <code>myprog &lt;file&gt;...</code></li>
+<li>Supports Specific Value Sets (See below)</li>
+</ul></li>
+<li><strong>Option Arguments</strong> (i.e. those that take values as options)
+
+<ul>
+<li>Both short and long versions supported (i.e. <code>-o value</code> and <code>--option value</code> or <code>--option=value</code> respectively)</li>
+<li>Also supports multiple values (i.e. <code>myprog --option &lt;value&gt; --option &lt;othervalue&gt;</code>)</li>
+<li>Supports Specific Value Sets (See below)</li>
+</ul></li>
+<li><strong>Sub-Commands</strong> (i.e. <code>git add &lt;file&gt;</code> where <code>add</code> is a sub-command of <code>git</code>)
+
+<ul>
+<li>Support their own sub-arguments, and sub-commands</li>
+<li>Get their own auto-generated Help, Version, and Usage independant of parent</li>
+</ul></li>
+<li><strong>Requirement Rules</strong>: Arguments can optionally define the following types of requirement rules
+
+<ul>
+<li>Required by default</li>
+<li>Required only if certain arguments are present</li>
+<li>Can require other arguments to be present</li>
+</ul></li>
+<li><strong>Exclusion Rules</strong>: Arguments can optionally define the following types of exclusion rules
+
+<ul>
+<li>Can be disallowed when certain arguments are present</li>
+<li>Can disallow use of other arguments when present</li>
+</ul></li>
+<li><strong>Specific Value Sets</strong>: Positional or Option Arguments can optionally define a specific set of allowed values (i.e. imagine a <code>--mode</code> option which may <em>only</em> have one of two values <code>fast</code> or <code>slow</code> such as <code>--mode fast</code> or <code>--mode slow</code>)</li>
+<li><strong>Default Values</strong>: Although not specifically provided by <code>clap</code> you can achieve this exact functionality from Rust&#39;s <code>Option&lt;&amp;str&gt;.unwrap_or(&quot;some default&quot;)</code> method</li>
+<li><strong>Auto Version from Cargo.toml</strong>: <code>clap</code> is fully compatible with Rust&#39;s <code>env!()</code> macro for achieving this functionality. See <code>examples/09_AutoVersion.rs</code> for how to do this (Thanks to <a href="https://github.com/jhelwig">jhelwig</a> for pointing this out)</li>
+</ul>
+
 <h2 id="quick-example" class='section-header'><a
-                           href="#quick-example">Quick Example</a></h2><pre id='rust-example-rendered' class='rust '>
+                           href="#quick-example">Quick Example</a></h2>
+<p>The following shows a quick example of some of the basic functionality of <code>clap</code>. For more advanced usage, such as requirements, exclusions, multiple values and occurrences see the <a href="http://kbknapp.github.io/clap-rs/docs/clap/index.html">documentation</a> or <code>examples/</code> directory of this repository.</p>
+<pre id='rust-example-rendered' class='rust '>
 <span class='comment'>// (Full example with comments in examples/01_QuickExample.rs)</span>
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>clap</span>;
 <span class='kw'>use</span> <span class='ident'>clap</span>::{<span class='ident'>Arg</span>, <span class='ident'>App</span>, <span class='ident'>SubCommand</span>};
@@ -158,43 +214,77 @@ SUBCOMMANDS:
 <span class='ident'>git</span> <span class='op'>=</span> <span class='string'>&quot;https://github.com/kbknapp/clap-rs.git&quot;</span>
 </pre>
 
-<p>Then run <code>cargo build</code> or <code>cargo update</code> for your project.</p>
-
-<h2 id="usage" class='section-header'><a
-                           href="#usage">Usage</a></h2>
 <p>Add <code>extern crate clap;</code> to your crate root.</p>
+
+<p>Define a list of valid arguments for your program (see the documentation or examples/ directory)</p>
+
+<p>Then run <code>cargo build</code> or <code>cargo update &amp;&amp; cargo build</code> for your project.</p>
 
 <h2 id="more-information" class='section-header'><a
                            href="#more-information">More Information</a></h2>
 <p>You can find complete documentation on the <a href="http://kbknapp.github.io/clap-rs/docs/clap/index.html">github-pages site</a> for this project.</p>
 
-<p>You can also find full usage examples in the examples/ directory of this repo.</p>
+<p>You can also find full usage examples in the <code>examples/</code> directory of this repo.</p>
 
-<h2 id="how-to-build" class='section-header'><a
-                           href="#how-to-build">How to build</a></h2>
-<p>Clone the repo (<code>master</code> branch if using <code>clap</code>, <code>dev</code> branch if contributing) and build with Cargo</p>
-<pre id='rust-example-rendered' class='rust '>
-<span class='ident'>git</span> <span class='ident'>clone</span> <span class='ident'>https</span>:<span class='comment'>//github.com/kbknapp/clap-rs</span>
-<span class='ident'>cd</span> <span class='ident'>clap</span><span class='op'>-</span><span class='ident'>rs</span>
-<span class='ident'>cargo</span> <span class='ident'>build</span> <span class='op'>-</span><span class='op'>-</span><span class='ident'>release</span>
-</pre>
+<h2 id="how-to-build-and-contribute" class='section-header'><a
+                           href="#how-to-build-and-contribute">How to build and contribute</a></h2>
+<p>Contributions are always welcome! And there is a multitude of ways in which you can help depending on what you like to do, or are good at. Anything from documentation, code cleanup, issue completion, new features, you name it, even filing issues is contributing and greatly appreciated!</p>
+
+<ol>
+<li>Fork the project</li>
+<li>Clone your fork (<code>git clone https://github.com/$USER/clap-rs &amp;&amp; cd clap-rs</code>)</li>
+<li>Create new branch (<code>git checkout -b your-branch</code>)</li>
+<li>Make your changes, and commit (<code>git commit -am &quot;your message&quot;</code>)</li>
+<li>If applicable, run the tests (See below)</li>
+<li>Push your changes back to your fork (<code>git push origin your-branch</code>)</li>
+<li>Create a pull request! (You can create the pull request right away, and we&#39;ll merge when read. This a good way to discuss proposed changes)</li>
+</ol>
+
+<p>Another really great way to help is if you find an interesting, or helpful way in which to use <code>clap</code> you can either add it to the <code>examples/</code> directory, or file an issue and tell me. I&#39;m all about giving credit where credit is due :)</p>
 
 <h3 id="running-the-tests" class='section-header'><a
                            href="#running-the-tests">Running the tests</a></h3>
 <p>If contributing, you can run the tests as follows (assuming you&#39;ve already cloned the repo to <code>clap-rs/</code></p>
 <pre id='rust-example-rendered' class='rust '>
-<span class='ident'>cd</span> <span class='ident'>clap</span><span class='op'>-</span><span class='ident'>rs</span><span class='op'>/</span><span class='ident'>claptests</span>
+<span class='ident'>cd</span> <span class='ident'>clap</span><span class='op'>-</span><span class='ident'>rs</span>
+<span class='ident'>cargo</span> <span class='ident'>test</span>
+<span class='ident'>cd</span> <span class='ident'>claptests</span>
 <span class='ident'>make</span> <span class='ident'>test</span>
 </pre>
 
 <h3 id="building-the-documentation" class='section-header'><a
                            href="#building-the-documentation">Building the documentation</a></h3>
-<p>Run this instead of <code>cargo doc</code> to generate the proper module docstring:</p>
+<p>If the changes require re-building the documentation, run this instead of <code>cargo doc</code> to generate the proper module docstring:</p>
 <pre id='rust-example-rendered' class='rust '>
 <span class='ident'>make</span> <span class='ident'>doc</span>
 </pre>
 
-<p>Then browse to <code>clap-rs/docs/index.html</code> in your web-browser of choice</p>
+<p>Then browse to <code>clap-rs/docs/clap/index.html</code> in your web-browser of choice to check it out. You can then create a PR on the <code>gh-pages</code> branch</p>
+
+<h3 id="goals" class='section-header'><a
+                           href="#goals">Goals</a></h3>
+<p>There are a few goals of <code>clap</code> that I&#39;d like to maintain. If your proposed changes break, or go against any of these goals we&#39;ll discuss the changes further before merging (but will <em>not</em> be ignored, all contributes are welcome!). These are by no means hard-and-fast rules, as I&#39;m no expert and break them myself from time to time (even if just by mistake or ignorance :P).</p>
+
+<ul>
+<li>Remain backwards compatible when possible
+
+<ul>
+<li>If backwards compatibility <em>must</em> be broken, use deprecation warnings if at all possible before removing legacy code</li>
+<li>This does not apply for security concerns</li>
+</ul></li>
+<li>Parse arguments quickly
+
+<ul>
+<li>Parsing of arguments shouldn&#39;t slow down usage of the main program</li>
+<li>This is also true of generating help and usage information</li>
+</ul></li>
+<li>Try not to be cognizant of memory usage
+
+<ul>
+<li>Once parsing is complete, the memory footprint of <code>clap</code> should be low since the  main program is the star of the show</li>
+</ul></li>
+<li><code>panic!</code> on <em>developer</em> error, exit gracefully on <em>end-user</em> error</li>
+</ul>
 </div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
                     <tr>
