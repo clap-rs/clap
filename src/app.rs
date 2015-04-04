@@ -211,9 +211,6 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             if self.positionals_idx.contains_key(&i) {
                 panic!("Argument \"{}\" has the same index as another positional argument", a.name);
             }
-            // if a.multiple {
-            //     panic!("Argument \"{}\" has conflicting requirements, both index() and multiple(true) were supplied",a.name);
-            // }
             if a.takes_value {
                 panic!("Argument \"{}\" has conflicting requirements, both index() and takes_value(true) were supplied", a.name);
             }
@@ -316,11 +313,6 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             }
             // No need to check for index() or takes_value() as that is handled above
 
-            // Flags can't be required
-            // This should be unreachable...
-            // if self.required.contains(a.name) {
-                // self.required.remove(a.name);
-            // }
             let mut fb = FlagBuilder {
                 name: a.name,
                 short: a.short,
@@ -665,6 +657,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             30|_=> "                             "
         }
     }
+
     fn print_version(&self, quit: bool) {
         // Print the binary name if existing, but replace all spaces with hyphens in case we're
         // dealing with subcommands i.e. git mv is translated to git-mv
@@ -674,7 +667,6 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
 
     fn exit(&self, status: i32) {
         process::exit(status);
-        // unsafe { libc::exit(0); }
     }
 
     fn report_error(&self, msg: String, usage: bool, quit: bool) {
@@ -1009,10 +1001,9 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                     self.required.remove(name);
                 }
             }
-            // No need to check for existance, returns None if not found
-            // if self.required.contains(v.name) {
-                self.required.remove(v.name);
-            // }
+
+            self.required.remove(v.name);
+
             if let Some(ref reqs) = v.requires {
                 // Add all required args which aren't already found in matches to the
                 // final required list
@@ -1058,10 +1049,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
 
             // If this flag was requierd, remove it
             // .. even though Flags shouldn't be required
-            // No need to check for existance, returns None if not found
-            // if self.required.contains(v.name) {
-                self.required.remove(v.name);
-            // }
+            self.required.remove(v.name);
 
             // Add all of this flags "mutually excludes" list to the master list
             if let Some(ref bl) = v.blacklist {
@@ -1087,6 +1075,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
 
         // Shouldn't reach here
         self.report_error(format!("Argument --{} isn't valid", arg), true, true);
+        // Can't reach here...
         unreachable!();
     }
 
@@ -1138,10 +1127,9 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                     self.required.remove(name);
                 }
             }
-            // No need to check for existance, returns None if not found
-            // if self.required.contains(v.name) {
-                self.required.remove(v.name);
-            // }
+
+            self.required.remove(v.name);
+
             if let Some(ref reqs) = v.requires {
                 // Add all required args which aren't already found in matches to the
                 // final required list
@@ -1190,11 +1178,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
 
             // If this flag was requierd, remove it
             // .. even though Flags shouldn't be required
-
-            // No need to check for existance, returns None if it didn't exist
-            // if self.required.contains(v.name) {
-                self.required.remove(v.name);
-            // }
+            self.required.remove(v.name);
 
             // Add all of this flags "mutually excludes" list to the master list
             if let Some(ref bl) = v.blacklist {
