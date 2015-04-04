@@ -187,18 +187,28 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         } else {
             self.arg_list.insert(a.name);
         }
-        if let Some(ref s) = a.short {
-            if self.short_list.contains(s) {
+        if let Some(s) = a.short {
+            if self.short_list.contains(&s) {
                 panic!("Argument short must be unique, -{} is already in use", s);
             } else {
-                self.short_list.insert(*s);
+                self.short_list.insert(s);
+            }
+            if s == 'h' {
+                self.needs_short_help = false;
+            } else if s == 'v' {
+                self.needs_short_version = false;
             }
         }
-        if let Some(ref l) = a.long {
+        if let Some(l) = a.long {
             if self.long_list.contains(l) {
                 panic!("Argument long must be unique, --{} is already in use", l);
             } else {
                 self.long_list.insert(l);
+            }
+            if l == "help" {
+                self.needs_long_help = false;
+            } else if l == "version" {
+                self.needs_long_version = false;
             }
         }
         if a.required {
@@ -211,9 +221,6 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             if self.positionals_idx.contains_key(&i) {
                 panic!("Argument \"{}\" has the same index as another positional argument", a.name);
             }
-            // if a.multiple {
-            //     panic!("Argument \"{}\" has conflicting requirements, both index() and multiple(true) were supplied",a.name);
-            // }
             if a.takes_value {
                 panic!("Argument \"{}\" has conflicting requirements, both index() and takes_value(true) were supplied", a.name);
             }
@@ -291,20 +298,6 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             }
             self.opts.insert(a.name, ob);
         } else {
-            if let Some(ref l) = a.long {
-                if *l == "help" {
-                    self.needs_long_help = false;
-                } else if *l == "version" {
-                    self.needs_long_version = false;
-                }
-            }
-            if let Some(ref s) = a.short {
-                if *s == 'h' {
-                    self.needs_short_help = false;
-                } else if *s == 'v' {
-                    self.needs_short_version = false;
-                }
-            }
             if a.short.is_none() && a.long.is_none() {
                 panic!("Argument \"{}\" must have either a short() and/or long() supplied since no index() or takes_value() were found", a.name);
             }
@@ -316,11 +309,6 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             }
             // No need to check for index() or takes_value() as that is handled above
 
-            // Flags can't be required
-            // This should be unreachable...
-            // if self.required.contains(a.name) {
-                // self.required.remove(a.name);
-            // }
             let mut fb = FlagBuilder {
                 name: a.name,
                 short: a.short,
@@ -665,6 +653,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             30|_=> "                             "
         }
     }
+
     fn print_version(&self, quit: bool) {
         // Print the binary name if existing, but replace all spaces with hyphens in case we're
         // dealing with subcommands i.e. git mv is translated to git-mv
@@ -674,7 +663,6 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
 
     fn exit(&self, status: i32) {
         process::exit(status);
-        // unsafe { libc::exit(0); }
     }
 
     fn report_error(&self, msg: String, usage: bool, quit: bool) {
@@ -909,26 +897,34 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
 
     fn create_help_and_version(&mut self) {
         if self.needs_long_help {
-            self.flags.insert("clap_help", FlagBuilder {
+            let mut arg = FlagBuilder {
                 name: "clap_help",
-                short: if self.needs_short_help { Some('h') } else { None },
+                short: None,
                 long: Some("help"),
-                help: Some("Prints this message"),
+                help: Some("Prints help information"),
                 blacklist: None,
                 multiple: false,
                 requires: None,
-            });
+            };
+            if self.needs_short_help {
+                arg.short = Some('h');
+            }
+            self.flags.insert("clap_help", arg);
         }
         if self.needs_long_version {
-            self.flags.insert("clap_version", FlagBuilder {
+            let mut arg = FlagBuilder {
                 name: "clap_version",
-                short: if self.needs_short_help { Some('v') } else { None },
+                short: None,
                 long: Some("version"),
                 help: Some("Prints version information"),
                 blacklist: None,
                 multiple: false,
                 requires: None,
-            });
+            };
+            if self.needs_short_version {
+                arg.short = Some('v');
+            }
+            self.flags.insert("clap_version", arg);
         }
         if self.needs_subcmd_help && !self.subcommands.is_empty() {
             self.subcommands.insert("help".to_owned(), App::new("help").about("Prints this message"));
@@ -1009,10 +1005,9 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                     self.required.remove(name);
                 }
             }
-            // No need to check for existance, returns None if not found
-            // if self.required.contains(v.name) {
-                self.required.remove(v.name);
-            // }
+
+            self.required.remove(v.name);
+
             if let Some(ref reqs) = v.requires {
                 // Add all required args which aren't already found in matches to the
                 // final required list
@@ -1058,10 +1053,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
 
             // If this flag was requierd, remove it
             // .. even though Flags shouldn't be required
-            // No need to check for existance, returns None if not found
-            // if self.required.contains(v.name) {
-                self.required.remove(v.name);
-            // }
+            self.required.remove(v.name);
 
             // Add all of this flags "mutually excludes" list to the master list
             if let Some(ref bl) = v.blacklist {
@@ -1087,6 +1079,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
 
         // Shouldn't reach here
         self.report_error(format!("Argument --{} isn't valid", arg), true, true);
+        // Can't reach here...
         unreachable!();
     }
 
@@ -1138,10 +1131,9 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                     self.required.remove(name);
                 }
             }
-            // No need to check for existance, returns None if not found
-            // if self.required.contains(v.name) {
-                self.required.remove(v.name);
-            // }
+
+            self.required.remove(v.name);
+
             if let Some(ref reqs) = v.requires {
                 // Add all required args which aren't already found in matches to the
                 // final required list
@@ -1190,11 +1182,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
 
             // If this flag was requierd, remove it
             // .. even though Flags shouldn't be required
-
-            // No need to check for existance, returns None if it didn't exist
-            // if self.required.contains(v.name) {
-                self.required.remove(v.name);
-            // }
+            self.required.remove(v.name);
 
             // Add all of this flags "mutually excludes" list to the master list
             if let Some(ref bl) = v.blacklist {
