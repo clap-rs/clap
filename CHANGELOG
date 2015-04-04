@@ -1,3 +1,6 @@
+# v0.5.11
+    * Fixed bug with partial overrides of help / version (with -v and -h)
+    * Small code cleanup
 # v0.5.10
     * Fixed bug when the only options available have no long version in help info
 # v0.5.9
