@@ -1,3 +1,5 @@
+# v0.5.12
+    * Arguments are now sorted by name so displaying of the help info doesn't change from run to run
 # v0.5.11
     * Fixed bug with partial overrides of help / version (with -v and -h)
     * Small code cleanup
