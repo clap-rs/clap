@@ -1279,9 +1279,12 @@
 <span id="1237">1237</span>
 <span id="1238">1238</span>
 <span id="1239">1239</span>
+<span id="1240">1240</span>
+<span id="1241">1241</span>
+<span id="1242">1242</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>BTreeMap</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>HashMap</span>;
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>BTreeSet</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>HashSet</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>env</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>path</span>::<span class='ident'>Path</span>;
@@ -1326,10 +1329,10 @@
     <span class='ident'>version</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;v</span> <span class='ident'>str</span><span class='op'>&gt;</span>,
     <span class='comment'>// A brief explaination of the program that gets displayed to the user when shown help/usage information</span>
     <span class='ident'>about</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;ab</span> <span class='ident'>str</span><span class='op'>&gt;</span>,
-    <span class='ident'>flags</span>: <span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;ar</span> <span class='ident'>str</span>, <span class='ident'>FlagBuilder</span><span class='op'>&lt;</span><span class='lifetime'>&#39;ar</span><span class='op'>&gt;&gt;</span>,
-    <span class='ident'>opts</span>: <span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;ar</span> <span class='ident'>str</span>, <span class='ident'>OptBuilder</span><span class='op'>&lt;</span><span class='lifetime'>&#39;ar</span><span class='op'>&gt;&gt;</span>,
+    <span class='ident'>flags</span>: <span class='ident'>BTreeMap</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;ar</span> <span class='ident'>str</span>, <span class='ident'>FlagBuilder</span><span class='op'>&lt;</span><span class='lifetime'>&#39;ar</span><span class='op'>&gt;&gt;</span>,
+    <span class='ident'>opts</span>: <span class='ident'>BTreeMap</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;ar</span> <span class='ident'>str</span>, <span class='ident'>OptBuilder</span><span class='op'>&lt;</span><span class='lifetime'>&#39;ar</span><span class='op'>&gt;&gt;</span>,
     <span class='ident'>positionals_idx</span>: <span class='ident'>BTreeMap</span><span class='op'>&lt;</span><span class='ident'>u8</span>, <span class='ident'>PosBuilder</span><span class='op'>&lt;</span><span class='lifetime'>&#39;ar</span><span class='op'>&gt;&gt;</span>,
-    <span class='ident'>subcommands</span>: <span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='ident'>String</span>, <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;&gt;</span>,
+    <span class='ident'>subcommands</span>: <span class='ident'>BTreeMap</span><span class='op'>&lt;</span><span class='ident'>String</span>, <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;&gt;</span>,
     <span class='ident'>needs_long_help</span>: <span class='ident'>bool</span>,
     <span class='ident'>needs_long_version</span>: <span class='ident'>bool</span>,
     <span class='ident'>needs_short_help</span>: <span class='ident'>bool</span>,
@@ -1363,10 +1366,10 @@
             <span class='ident'>author</span>: <span class='prelude-val'>None</span>,
             <span class='ident'>about</span>: <span class='prelude-val'>None</span>,
             <span class='ident'>version</span>: <span class='prelude-val'>None</span>,
-            <span class='ident'>flags</span>: <span class='ident'>HashMap</span>::<span class='ident'>new</span>(),
-            <span class='ident'>opts</span>: <span class='ident'>HashMap</span>::<span class='ident'>new</span>(),
+            <span class='ident'>flags</span>: <span class='ident'>BTreeMap</span>::<span class='ident'>new</span>(),
+            <span class='ident'>opts</span>: <span class='ident'>BTreeMap</span>::<span class='ident'>new</span>(),
             <span class='ident'>positionals_idx</span>: <span class='ident'>BTreeMap</span>::<span class='ident'>new</span>(),
-            <span class='ident'>subcommands</span>: <span class='ident'>HashMap</span>::<span class='ident'>new</span>(),
+            <span class='ident'>subcommands</span>: <span class='ident'>BTreeMap</span>::<span class='ident'>new</span>(),
             <span class='ident'>needs_long_version</span>: <span class='boolval'>true</span>,
             <span class='ident'>needs_long_help</span>: <span class='boolval'>true</span>,
             <span class='ident'>needs_short_help</span>: <span class='boolval'>true</span>,
@@ -1469,18 +1472,28 @@
         } <span class='kw'>else</span> {
             <span class='self'>self</span>.<span class='ident'>arg_list</span>.<span class='ident'>insert</span>(<span class='ident'>a</span>.<span class='ident'>name</span>);
         }
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>s</span>) <span class='op'>=</span> <span class='ident'>a</span>.<span class='ident'>short</span> {
-            <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>short_list</span>.<span class='ident'>contains</span>(<span class='ident'>s</span>) {
+        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>s</span>) <span class='op'>=</span> <span class='ident'>a</span>.<span class='ident'>short</span> {
+            <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>short_list</span>.<span class='ident'>contains</span>(<span class='kw-2'>&amp;</span><span class='ident'>s</span>) {
                 <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Argument short must be unique, -{} is already in use&quot;</span>, <span class='ident'>s</span>);
             } <span class='kw'>else</span> {
-                <span class='self'>self</span>.<span class='ident'>short_list</span>.<span class='ident'>insert</span>(<span class='op'>*</span><span class='ident'>s</span>);
+                <span class='self'>self</span>.<span class='ident'>short_list</span>.<span class='ident'>insert</span>(<span class='ident'>s</span>);
+            }
+            <span class='kw'>if</span> <span class='ident'>s</span> <span class='op'>==</span> <span class='string'>&#39;h&#39;</span> {
+                <span class='self'>self</span>.<span class='ident'>needs_short_help</span> <span class='op'>=</span> <span class='boolval'>false</span>;
+            } <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>s</span> <span class='op'>==</span> <span class='string'>&#39;v&#39;</span> {
+                <span class='self'>self</span>.<span class='ident'>needs_short_version</span> <span class='op'>=</span> <span class='boolval'>false</span>;
             }
         }
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>l</span>) <span class='op'>=</span> <span class='ident'>a</span>.<span class='ident'>long</span> {
+        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>l</span>) <span class='op'>=</span> <span class='ident'>a</span>.<span class='ident'>long</span> {
             <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>long_list</span>.<span class='ident'>contains</span>(<span class='ident'>l</span>) {
                 <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Argument long must be unique, --{} is already in use&quot;</span>, <span class='ident'>l</span>);
             } <span class='kw'>else</span> {
                 <span class='self'>self</span>.<span class='ident'>long_list</span>.<span class='ident'>insert</span>(<span class='ident'>l</span>);
+            }
+            <span class='kw'>if</span> <span class='ident'>l</span> <span class='op'>==</span> <span class='string'>&quot;help&quot;</span> {
+                <span class='self'>self</span>.<span class='ident'>needs_long_help</span> <span class='op'>=</span> <span class='boolval'>false</span>;
+            } <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>l</span> <span class='op'>==</span> <span class='string'>&quot;version&quot;</span> {
+                <span class='self'>self</span>.<span class='ident'>needs_long_version</span> <span class='op'>=</span> <span class='boolval'>false</span>;
             }
         }
         <span class='kw'>if</span> <span class='ident'>a</span>.<span class='ident'>required</span> {
@@ -1493,9 +1506,6 @@
             <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>positionals_idx</span>.<span class='ident'>contains_key</span>(<span class='kw-2'>&amp;</span><span class='ident'>i</span>) {
                 <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Argument \&quot;{}\&quot; has the same index as another positional argument&quot;</span>, <span class='ident'>a</span>.<span class='ident'>name</span>);
             }
-            <span class='comment'>// if a.multiple {</span>
-            <span class='comment'>//     panic!(&quot;Argument \&quot;{}\&quot; has conflicting requirements, both index() and multiple(true) were supplied&quot;,a.name);</span>
-            <span class='comment'>// }</span>
             <span class='kw'>if</span> <span class='ident'>a</span>.<span class='ident'>takes_value</span> {
                 <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Argument \&quot;{}\&quot; has conflicting requirements, both index() and takes_value(true) were supplied&quot;</span>, <span class='ident'>a</span>.<span class='ident'>name</span>);
             }
@@ -1528,7 +1538,7 @@
             }
             <span class='comment'>// Check if there is anything in the possible values and add those as well</span>
             <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>p</span>) <span class='op'>=</span> <span class='ident'>a</span>.<span class='ident'>possible_vals</span> {
-                <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>phs</span> <span class='op'>=</span> <span class='ident'>HashSet</span>::<span class='ident'>new</span>();
+                <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>phs</span> <span class='op'>=</span> <span class='ident'>BTreeSet</span>::<span class='ident'>new</span>();
                 <span class='comment'>// without derefing n = &amp;&amp;str</span>
                 <span class='kw'>for</span> <span class='ident'>n</span> <span class='kw'>in</span> <span class='ident'>p</span> { <span class='ident'>phs</span>.<span class='ident'>insert</span>(<span class='op'>*</span><span class='ident'>n</span>); }
                 <span class='ident'>pb</span>.<span class='ident'>possible_vals</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>phs</span>);
@@ -1566,27 +1576,13 @@
             }
             <span class='comment'>// Check if there is anything in the possible values and add those as well</span>
             <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>p</span>) <span class='op'>=</span> <span class='ident'>a</span>.<span class='ident'>possible_vals</span> {
-                <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>phs</span> <span class='op'>=</span> <span class='ident'>HashSet</span>::<span class='ident'>new</span>();
+                <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>phs</span> <span class='op'>=</span> <span class='ident'>BTreeSet</span>::<span class='ident'>new</span>();
                 <span class='comment'>// without derefing n = &amp;&amp;str</span>
                 <span class='kw'>for</span> <span class='ident'>n</span> <span class='kw'>in</span> <span class='ident'>p</span> { <span class='ident'>phs</span>.<span class='ident'>insert</span>(<span class='op'>*</span><span class='ident'>n</span>); }
                 <span class='ident'>ob</span>.<span class='ident'>possible_vals</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>phs</span>);
             }
             <span class='self'>self</span>.<span class='ident'>opts</span>.<span class='ident'>insert</span>(<span class='ident'>a</span>.<span class='ident'>name</span>, <span class='ident'>ob</span>);
         } <span class='kw'>else</span> {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>l</span>) <span class='op'>=</span> <span class='ident'>a</span>.<span class='ident'>long</span> {
-                <span class='kw'>if</span> <span class='op'>*</span><span class='ident'>l</span> <span class='op'>==</span> <span class='string'>&quot;help&quot;</span> {
-                    <span class='self'>self</span>.<span class='ident'>needs_long_help</span> <span class='op'>=</span> <span class='boolval'>false</span>;
-                } <span class='kw'>else</span> <span class='kw'>if</span> <span class='op'>*</span><span class='ident'>l</span> <span class='op'>==</span> <span class='string'>&quot;version&quot;</span> {
-                    <span class='self'>self</span>.<span class='ident'>needs_long_version</span> <span class='op'>=</span> <span class='boolval'>false</span>;
-                }
-            }
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>s</span>) <span class='op'>=</span> <span class='ident'>a</span>.<span class='ident'>short</span> {
-                <span class='kw'>if</span> <span class='op'>*</span><span class='ident'>s</span> <span class='op'>==</span> <span class='string'>&#39;h&#39;</span> {
-                    <span class='self'>self</span>.<span class='ident'>needs_short_help</span> <span class='op'>=</span> <span class='boolval'>false</span>;
-                } <span class='kw'>else</span> <span class='kw'>if</span> <span class='op'>*</span><span class='ident'>s</span> <span class='op'>==</span> <span class='string'>&#39;v&#39;</span> {
-                    <span class='self'>self</span>.<span class='ident'>needs_short_version</span> <span class='op'>=</span> <span class='boolval'>false</span>;
-                }
-            }
             <span class='kw'>if</span> <span class='ident'>a</span>.<span class='ident'>short</span>.<span class='ident'>is_none</span>() <span class='op'>&amp;&amp;</span> <span class='ident'>a</span>.<span class='ident'>long</span>.<span class='ident'>is_none</span>() {
                 <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Argument \&quot;{}\&quot; must have either a short() and/or long() supplied since no index() or takes_value() were found&quot;</span>, <span class='ident'>a</span>.<span class='ident'>name</span>);
             }
@@ -1598,11 +1594,6 @@
             }
             <span class='comment'>// No need to check for index() or takes_value() as that is handled above</span>
 
-            <span class='comment'>// Flags can&#39;t be required</span>
-            <span class='comment'>// This should be unreachable...</span>
-            <span class='comment'>// if self.required.contains(a.name) {</span>
-                <span class='comment'>// self.required.remove(a.name);</span>
-            <span class='comment'>// }</span>
             <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>fb</span> <span class='op'>=</span> <span class='ident'>FlagBuilder</span> {
                 <span class='ident'>name</span>: <span class='ident'>a</span>.<span class='ident'>name</span>,
                 <span class='ident'>short</span>: <span class='ident'>a</span>.<span class='ident'>short</span>,
@@ -1790,6 +1781,14 @@
             .<span class='ident'>filter_map</span>(<span class='op'>|</span><span class='kw-2'>ref</span> <span class='ident'>f</span><span class='op'>|</span> <span class='kw'>if</span> <span class='ident'>f</span>.<span class='ident'>long</span>.<span class='ident'>is_some</span>() {<span class='kw'>let</span> <span class='ident'>mult</span> <span class='op'>=</span> <span class='kw'>if</span> <span class='ident'>f</span>.<span class='ident'>multiple</span> { <span class='number'>3</span> } <span class='kw'>else</span> { <span class='number'>0</span> }; <span class='prelude-val'>Some</span>(<span class='ident'>f</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>().<span class='ident'>len</span>() <span class='op'>+</span> <span class='ident'>mult</span> <span class='op'>+</span> <span class='ident'>f</span>.<span class='ident'>name</span>.<span class='ident'>len</span>() <span class='op'>+</span> <span class='number'>3</span>)}<span class='kw'>else</span> {<span class='prelude-val'>None</span>}) {
             <span class='kw'>if</span> <span class='ident'>ol</span> <span class='op'>&gt;</span> <span class='ident'>longest_opt</span> {<span class='ident'>longest_opt</span> <span class='op'>=</span> <span class='ident'>ol</span>;}
         }
+        <span class='kw'>if</span> <span class='ident'>longest_opt</span> <span class='op'>==</span> <span class='number'>0</span> {
+            <span class='kw'>for</span> <span class='ident'>ol</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>opts</span>
+                .<span class='ident'>values</span>()
+                .<span class='ident'>map</span>(<span class='op'>|</span><span class='kw-2'>ref</span> <span class='ident'>f</span><span class='op'>|</span> 
+                    <span class='ident'>f</span>.<span class='ident'>name</span>.<span class='ident'>len</span>() <span class='op'>+</span> <span class='kw'>if</span> <span class='ident'>f</span>.<span class='ident'>multiple</span> { <span class='number'>3</span> } <span class='kw'>else</span> { <span class='number'>0</span> } <span class='op'>+</span> <span class='number'>2</span> ){
+                <span class='kw'>if</span> <span class='ident'>ol</span> <span class='op'>&gt;</span> <span class='ident'>longest_opt</span> {<span class='ident'>longest_opt</span> <span class='op'>=</span> <span class='ident'>ol</span>;}
+            }
+        }
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>longest_pos</span> <span class='op'>=</span> <span class='number'>0</span>;
         <span class='kw'>for</span> <span class='ident'>pl</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>positionals_idx</span>
             .<span class='ident'>values</span>()
@@ -1931,9 +1930,15 @@
             <span class='number'>22</span><span class='op'>=&gt;</span> <span class='string'>&quot;                      &quot;</span>,
             <span class='number'>23</span><span class='op'>=&gt;</span> <span class='string'>&quot;                       &quot;</span>,
             <span class='number'>24</span><span class='op'>=&gt;</span> <span class='string'>&quot;                        &quot;</span>,
-            <span class='number'>25</span><span class='op'>|</span>_<span class='op'>=&gt;</span> <span class='string'>&quot;                         &quot;</span>
+            <span class='number'>25</span><span class='op'>=&gt;</span> <span class='string'>&quot;                         &quot;</span>,
+            <span class='number'>26</span><span class='op'>=&gt;</span> <span class='string'>&quot;                          &quot;</span>,
+            <span class='number'>27</span><span class='op'>=&gt;</span> <span class='string'>&quot;                           &quot;</span>,
+            <span class='number'>28</span><span class='op'>=&gt;</span> <span class='string'>&quot;                            &quot;</span>,
+            <span class='number'>29</span><span class='op'>=&gt;</span> <span class='string'>&quot;                             &quot;</span>,
+            <span class='number'>30</span><span class='op'>|</span>_<span class='op'>=&gt;</span> <span class='string'>&quot;                             &quot;</span>
         }
     }
+
     <span class='kw'>fn</span> <span class='ident'>print_version</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>quit</span>: <span class='ident'>bool</span>) {
         <span class='comment'>// Print the binary name if existing, but replace all spaces with hyphens in case we&#39;re</span>
         <span class='comment'>// dealing with subcommands i.e. git mv is translated to git-mv</span>
@@ -1943,7 +1948,6 @@
 
     <span class='kw'>fn</span> <span class='ident'>exit</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>status</span>: <span class='ident'>i32</span>) {
         <span class='ident'>process</span>::<span class='ident'>exit</span>(<span class='ident'>status</span>);
-        <span class='comment'>// unsafe { libc::exit(0); }</span>
     }
 
     <span class='kw'>fn</span> <span class='ident'>report_error</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>msg</span>: <span class='ident'>String</span>, <span class='ident'>usage</span>: <span class='ident'>bool</span>, <span class='ident'>quit</span>: <span class='ident'>bool</span>) {
@@ -2177,27 +2181,37 @@
     }
 
     <span class='kw'>fn</span> <span class='ident'>create_help_and_version</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
+        <span class='comment'>// name is &quot;hclap_help&quot; because flags are sorted by name</span>
         <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>needs_long_help</span> {
-            <span class='self'>self</span>.<span class='ident'>flags</span>.<span class='ident'>insert</span>(<span class='string'>&quot;clap_help&quot;</span>, <span class='ident'>FlagBuilder</span> {
-                <span class='ident'>name</span>: <span class='string'>&quot;clap_help&quot;</span>,
-                <span class='ident'>short</span>: <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>needs_short_help</span> { <span class='prelude-val'>Some</span>(<span class='string'>&#39;h&#39;</span>) } <span class='kw'>else</span> { <span class='prelude-val'>None</span> },
+            <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>arg</span> <span class='op'>=</span> <span class='ident'>FlagBuilder</span> {
+                <span class='ident'>name</span>: <span class='string'>&quot;hclap_help&quot;</span>,
+                <span class='ident'>short</span>: <span class='prelude-val'>None</span>,
                 <span class='ident'>long</span>: <span class='prelude-val'>Some</span>(<span class='string'>&quot;help&quot;</span>),
-                <span class='ident'>help</span>: <span class='prelude-val'>Some</span>(<span class='string'>&quot;Prints this message&quot;</span>),
+                <span class='ident'>help</span>: <span class='prelude-val'>Some</span>(<span class='string'>&quot;Prints help information&quot;</span>),
                 <span class='ident'>blacklist</span>: <span class='prelude-val'>None</span>,
                 <span class='ident'>multiple</span>: <span class='boolval'>false</span>,
                 <span class='ident'>requires</span>: <span class='prelude-val'>None</span>,
-            });
+            };
+            <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>needs_short_help</span> {
+                <span class='ident'>arg</span>.<span class='ident'>short</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='string'>&#39;h&#39;</span>);
+            }
+            <span class='self'>self</span>.<span class='ident'>flags</span>.<span class='ident'>insert</span>(<span class='string'>&quot;hclap_help&quot;</span>, <span class='ident'>arg</span>);
         }
         <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>needs_long_version</span> {
-            <span class='self'>self</span>.<span class='ident'>flags</span>.<span class='ident'>insert</span>(<span class='string'>&quot;clap_version&quot;</span>, <span class='ident'>FlagBuilder</span> {
-                <span class='ident'>name</span>: <span class='string'>&quot;clap_version&quot;</span>,
-                <span class='ident'>short</span>: <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>needs_short_help</span> { <span class='prelude-val'>Some</span>(<span class='string'>&#39;v&#39;</span>) } <span class='kw'>else</span> { <span class='prelude-val'>None</span> },
+            <span class='comment'>// name is &quot;vclap_version&quot; because flags are sorted by name</span>
+            <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>arg</span> <span class='op'>=</span> <span class='ident'>FlagBuilder</span> {
+                <span class='ident'>name</span>: <span class='string'>&quot;vclap_version&quot;</span>,
+                <span class='ident'>short</span>: <span class='prelude-val'>None</span>,
                 <span class='ident'>long</span>: <span class='prelude-val'>Some</span>(<span class='string'>&quot;version&quot;</span>),
                 <span class='ident'>help</span>: <span class='prelude-val'>Some</span>(<span class='string'>&quot;Prints version information&quot;</span>),
                 <span class='ident'>blacklist</span>: <span class='prelude-val'>None</span>,
                 <span class='ident'>multiple</span>: <span class='boolval'>false</span>,
                 <span class='ident'>requires</span>: <span class='prelude-val'>None</span>,
-            });
+            };
+            <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>needs_short_version</span> {
+                <span class='ident'>arg</span>.<span class='ident'>short</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='string'>&#39;v&#39;</span>);
+            }
+            <span class='self'>self</span>.<span class='ident'>flags</span>.<span class='ident'>insert</span>(<span class='string'>&quot;vclap_version&quot;</span>, <span class='ident'>arg</span>);
         }
         <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>needs_subcmd_help</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='self'>self</span>.<span class='ident'>subcommands</span>.<span class='ident'>is_empty</span>() {
             <span class='self'>self</span>.<span class='ident'>subcommands</span>.<span class='ident'>insert</span>(<span class='string'>&quot;help&quot;</span>.<span class='ident'>to_owned</span>(), <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;help&quot;</span>).<span class='ident'>about</span>(<span class='string'>&quot;Prints this message&quot;</span>));
@@ -2278,10 +2292,9 @@
                     <span class='self'>self</span>.<span class='ident'>required</span>.<span class='ident'>remove</span>(<span class='ident'>name</span>);
                 }
             }
-            <span class='comment'>// No need to check for existance, returns None if not found</span>
-            <span class='comment'>// if self.required.contains(v.name) {</span>
-                <span class='self'>self</span>.<span class='ident'>required</span>.<span class='ident'>remove</span>(<span class='ident'>v</span>.<span class='ident'>name</span>);
-            <span class='comment'>// }</span>
+
+            <span class='self'>self</span>.<span class='ident'>required</span>.<span class='ident'>remove</span>(<span class='ident'>v</span>.<span class='ident'>name</span>);
+
             <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>reqs</span>) <span class='op'>=</span> <span class='ident'>v</span>.<span class='ident'>requires</span> {
                 <span class='comment'>// Add all required args which aren&#39;t already found in matches to the</span>
                 <span class='comment'>// final required list</span>
@@ -2327,10 +2340,7 @@
 
             <span class='comment'>// If this flag was requierd, remove it</span>
             <span class='comment'>// .. even though Flags shouldn&#39;t be required</span>
-            <span class='comment'>// No need to check for existance, returns None if not found</span>
-            <span class='comment'>// if self.required.contains(v.name) {</span>
-                <span class='self'>self</span>.<span class='ident'>required</span>.<span class='ident'>remove</span>(<span class='ident'>v</span>.<span class='ident'>name</span>);
-            <span class='comment'>// }</span>
+            <span class='self'>self</span>.<span class='ident'>required</span>.<span class='ident'>remove</span>(<span class='ident'>v</span>.<span class='ident'>name</span>);
 
             <span class='comment'>// Add all of this flags &quot;mutually excludes&quot; list to the master list</span>
             <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>bl</span>) <span class='op'>=</span> <span class='ident'>v</span>.<span class='ident'>blacklist</span> {
@@ -2356,6 +2366,7 @@
 
         <span class='comment'>// Shouldn&#39;t reach here</span>
         <span class='self'>self</span>.<span class='ident'>report_error</span>(<span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;Argument --{} isn&#39;t valid&quot;</span>, <span class='ident'>arg</span>), <span class='boolval'>true</span>, <span class='boolval'>true</span>);
+        <span class='comment'>// Can&#39;t reach here...</span>
         <span class='macro'>unreachable</span><span class='macro'>!</span>();
     }
 
@@ -2407,10 +2418,9 @@
                     <span class='self'>self</span>.<span class='ident'>required</span>.<span class='ident'>remove</span>(<span class='ident'>name</span>);
                 }
             }
-            <span class='comment'>// No need to check for existance, returns None if not found</span>
-            <span class='comment'>// if self.required.contains(v.name) {</span>
-                <span class='self'>self</span>.<span class='ident'>required</span>.<span class='ident'>remove</span>(<span class='ident'>v</span>.<span class='ident'>name</span>);
-            <span class='comment'>// }</span>
+
+            <span class='self'>self</span>.<span class='ident'>required</span>.<span class='ident'>remove</span>(<span class='ident'>v</span>.<span class='ident'>name</span>);
+
             <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>reqs</span>) <span class='op'>=</span> <span class='ident'>v</span>.<span class='ident'>requires</span> {
                 <span class='comment'>// Add all required args which aren&#39;t already found in matches to the</span>
                 <span class='comment'>// final required list</span>
@@ -2459,11 +2469,7 @@
 
             <span class='comment'>// If this flag was requierd, remove it</span>
             <span class='comment'>// .. even though Flags shouldn&#39;t be required</span>
-
-            <span class='comment'>// No need to check for existance, returns None if it didn&#39;t exist</span>
-            <span class='comment'>// if self.required.contains(v.name) {</span>
-                <span class='self'>self</span>.<span class='ident'>required</span>.<span class='ident'>remove</span>(<span class='ident'>v</span>.<span class='ident'>name</span>);
-            <span class='comment'>// }</span>
+            <span class='self'>self</span>.<span class='ident'>required</span>.<span class='ident'>remove</span>(<span class='ident'>v</span>.<span class='ident'>name</span>);
 
             <span class='comment'>// Add all of this flags &quot;mutually excludes&quot; list to the master list</span>
             <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>bl</span>) <span class='op'>=</span> <span class='ident'>v</span>.<span class='ident'>blacklist</span> {
