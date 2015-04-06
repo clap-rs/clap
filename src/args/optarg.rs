@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 /// `OptArg` represents a option argument for command line applications, which is one that
 /// takes an additional value. Option arguments are always preceded by either a `-` 
@@ -41,7 +42,7 @@ pub struct OptBuilder<'n> {
     /// exclusive arguments are evaluated.
     pub required: bool,
     /// A list of possible values for this argument
-    pub possible_vals: Option<HashSet<&'n str>>,
+    pub possible_vals: Option<BTreeSet<&'n str>>,
     /// A list of names of other arguments that are *required* to be used when 
     /// this flag is used
     pub requires: Option<HashSet<&'n str>>,

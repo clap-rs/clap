@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 /// `PosArg` represents a positional argument, i.e. one that isn't preceded 
 /// by a `-` or `--`. `PosArg` isn't directly used by the end application
@@ -40,7 +41,7 @@ pub struct PosBuilder<'n> {
     /// A list of names for other arguments that *may not* be used with this flag
     pub blacklist: Option<HashSet<&'n str>>,
     /// A list of possible values for this argument
-    pub possible_vals: Option<HashSet<&'n str>>,
+    pub possible_vals: Option<BTreeSet<&'n str>>,
     /// The index of the argument
     pub index: u8 
 }

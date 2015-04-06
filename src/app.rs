@@ -1,4 +1,5 @@
 use std::collections::BTreeMap;
+use std::collections::BTreeSet;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::env;
@@ -44,10 +45,10 @@ pub struct App<'a, 'v, 'ab, 'u, 'ar> {
     version: Option<&'v str>,
     // A brief explaination of the program that gets displayed to the user when shown help/usage information
     about: Option<&'ab str>,
-    flags: HashMap<&'ar str, FlagBuilder<'ar>>,
-    opts: HashMap<&'ar str, OptBuilder<'ar>>,
+    flags: BTreeMap<&'ar str, FlagBuilder<'ar>>,
+    opts: BTreeMap<&'ar str, OptBuilder<'ar>>,
     positionals_idx: BTreeMap<u8, PosBuilder<'ar>>,
-    subcommands: HashMap<String, App<'a, 'v, 'ab, 'u, 'ar>>,
+    subcommands: BTreeMap<String, App<'a, 'v, 'ab, 'u, 'ar>>,
     needs_long_help: bool,
     needs_long_version: bool,
     needs_short_help: bool,
@@ -81,10 +82,10 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             author: None,
             about: None,
             version: None,
-            flags: HashMap::new(),
-            opts: HashMap::new(),
+            flags: BTreeMap::new(),
+            opts: BTreeMap::new(),
             positionals_idx: BTreeMap::new(),
-            subcommands: HashMap::new(),
+            subcommands: BTreeMap::new(),
             needs_long_version: true,
             needs_long_help: true,
             needs_short_help: true,
@@ -253,7 +254,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             }
             // Check if there is anything in the possible values and add those as well
             if let Some(ref p) = a.possible_vals {
-                let mut phs = HashSet::new();
+                let mut phs = BTreeSet::new();
                 // without derefing n = &&str
                 for n in p { phs.insert(*n); }
                 pb.possible_vals = Some(phs);
@@ -291,7 +292,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             }
             // Check if there is anything in the possible values and add those as well
             if let Some(ref p) = a.possible_vals {
-                let mut phs = HashSet::new();
+                let mut phs = BTreeSet::new();
                 // without derefing n = &&str
                 for n in p { phs.insert(*n); }
                 ob.possible_vals = Some(phs);
@@ -896,9 +897,10 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     }
 
     fn create_help_and_version(&mut self) {
+        // name is "hclap_help" because flags are sorted by name
         if self.needs_long_help {
             let mut arg = FlagBuilder {
-                name: "clap_help",
+                name: "hclap_help",
                 short: None,
                 long: Some("help"),
                 help: Some("Prints help information"),
@@ -909,11 +911,12 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             if self.needs_short_help {
                 arg.short = Some('h');
             }
-            self.flags.insert("clap_help", arg);
+            self.flags.insert("hclap_help", arg);
         }
         if self.needs_long_version {
+            // name is "vclap_version" because flags are sorted by name
             let mut arg = FlagBuilder {
-                name: "clap_version",
+                name: "vclap_version",
                 short: None,
                 long: Some("version"),
                 help: Some("Prints version information"),
@@ -924,7 +927,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             if self.needs_short_version {
                 arg.short = Some('v');
             }
-            self.flags.insert("clap_version", arg);
+            self.flags.insert("vclap_version", arg);
         }
         if self.needs_subcmd_help && !self.subcommands.is_empty() {
             self.subcommands.insert("help".to_owned(), App::new("help").about("Prints this message"));
