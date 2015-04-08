@@ -174,10 +174,10 @@ Contributions are always welcome! And there is a multitude of ways in which you 
 1. Fork the project
 2. Clone your fork (`git clone https://github.com/$USER/clap-rs && cd clap-rs`)
 3. Create new branch (`git checkout -b your-branch`)
-4. Make your changes, and commit (`git commit -am "your message"`)
+4. Make your changes, and commit (`git commit -am "your message"`) (I try to use a [conventional](https://github.com/ajoslin/conventional-changelog/blob/master/CONVENTIONS.md) changelog format using [clog](https://github.com/thoughtram/clog))
 5. If applicable, run the tests (See below)
 6. Push your changes back to your fork (`git push origin your-branch`)
-7. Create a pull request! (You can create the pull request right away, and we'll merge when read. This a good way to discuss proposed changes)
+7. Create a pull request! (You can create the pull request right away, and we'll merge when read. This a good way to discuss proposed changes) 
 
 Another really great way to help is if you find an interesting, or helpful way in which to use `clap` you can either add it to the `examples/` directory, or file an issue and tell me. I'm all about giving credit where credit is due :)
 
