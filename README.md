@@ -1,5 +1,7 @@
 # clap
 
+[![Join the chat at https://gitter.im/kbknapp/clap-rs](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kbknapp/clap-rs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ![Travis-CI](https://travis-ci.org/kbknapp/clap-rs.svg?branch=master)
 
 Command Line Argument Parser written in Rust
