@@ -161,7 +161,7 @@ Define a list of valid arguments for your program (see the documentation or exam
 
 Then run `cargo build` or `cargo update && cargo build` for your project.
 
-## More Information
+### More Information
 
 You can find complete documentation on the [github-pages site](http://kbknapp.github.io/clap-rs/docs/clap/index.html) for this project.
 
@@ -186,10 +186,8 @@ Another really great way to help is if you find an interesting, or helpful way i
 If contributing, you can run the tests as follows (assuming you've already cloned the repo to `clap-rs/`
 
 ```
-cd clap-rs
-cargo test
-cd claptests
-make test
+cd clap-rs && cargo test
+cd clap-tests && make test
 ```
 
 ### Building the documentation
@@ -212,7 +210,10 @@ There are a few goals of `clap` that I'd like to maintain. If your proposed chan
 * Parse arguments quickly
   - Parsing of arguments shouldn't slow down usage of the main program
   - This is also true of generating help and usage information
-* Try not to be cognizant of memory usage
+* Try to be cognizant of memory usage
   - Once parsing is complete, the memory footprint of `clap` should be low since the  main program is the star of the show
 * `panic!` on *developer* error, exit gracefully on *end-user* error
 
+## License
+
+`clap` is licensed under the MIT license. Please the LICENSE file in this repository for more information.
