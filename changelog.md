@@ -1,3 +1,14 @@
+<a name="v0.5.13"></a>
+## v0.5.13 (2015-04-09)
+
+
+#### Features
+
+* **SubCommands**  add method to get name and subcommand matches together ([64e53928](https://github.com/kbknapp/clap-rs/commit/64e539280e23e567cf5de393b346eb0ca20e7eb5))
+* **ArgMatches**  add method to get default usage string ([02462150](https://github.com/kbknapp/clap-rs/commit/02462150ca750bdc7012627d7e8d96379d494d7f))
+
+
+
 <a name="v0.5.12"></a>
 ## v0.5.12 (2015-04-08)
 
