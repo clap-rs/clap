@@ -6,6 +6,7 @@ use std::path::Path;
 use std::vec::IntoIter;
 use std::borrow::ToOwned;
 use std::process;
+use std::fmt::Write;
 
 use args::{ ArgMatches, Arg, SubCommand };
 use args::{FlagArg, FlagBuilder};
@@ -399,11 +400,13 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         self
     }
 
-    fn print_usage(&self, more_info: bool) {
+    fn create_usage(&self) -> String {
         let tab = "    ";
-        println!("USAGE:");
+        let mut usage = String::with_capacity(75);
+        usage.push_str("USAGE:\n");
+        usage.push_str(tab);
         if let Some(u) = self.usage_str {
-            println!("{}{}",tab,u);
+            usage.push_str(u);
         } else {
             let flags = !self.flags.is_empty();
             let pos = !self.positionals_idx.is_empty();
@@ -433,7 +436,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                 } 
             } else {
                 None
-            })
+            } )
                                                        .fold(String::new(), |acc, ref name| acc + &format!("{} ", name)[..]);
             let mut num_req_opts = 0;
             let req_opts = self.opts.values().filter_map(|x| if x.required  || self.matched_reqs.contains(x.name) {
@@ -448,29 +451,43 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                                                                                                        format!("{} ",o.short.unwrap())
                                                                                                    },o.name));
 
-            print!("{}{} {} {} {} {}",tab, self.bin_name.clone().unwrap_or(self.name.clone()),
-                if flags {"[FLAGS]"} else {""},
-                if opts {
+            // usage.push_str(tab);
+            usage.push_str(&self.bin_name.clone().unwrap_or(self.name.clone())[..]);
+            // usage.push_str(tab);
+            if flags {
+                usage.push_str(" [FLAGS]");
+            }
+            if opts {
+                write!(&mut usage," {}",
                     if num_req_opts != self.opts.len() && !req_opts.is_empty() { 
-                        format!("[OPTIONS] {}", &req_opts[..])
+                        format!(" [OPTIONS] {}", &req_opts[..])
                     } else if req_opts.is_empty() { 
-                        "[OPTIONS]".to_owned()
+                        " [OPTIONS]".to_owned()
                     } else {
-                        req_opts 
-                    } 
-                } else { "".to_owned() },
-                if pos {
+                        req_opts
+                    });
+            }
+            if pos {
+                write!(&mut usage, " {}",
                     if num_req_pos != self.positionals_idx.len() && !req_pos.is_empty() { 
-                        format!("[POSITIONAL] {}", &req_pos[..])
+                        format!(" [POSITIONAL] {}", &req_pos[..])
                     } else if req_pos.is_empty() { 
-                        "[POSITIONAL]".to_owned() 
+                        " [POSITIONAL]".to_owned()
                     } else {
-                        req_pos 
-                    } 
-                } else {"".to_owned()},
-                if subcmds {"[SUBCOMMANDS]"} else {""});
+                        req_pos
+                    } );
+            }
+            if subcmds {
+                usage.push_str(" [SUBCOMMANDS]");
+            }                
         }
 
+        usage.shrink_to_fit();
+        usage
+    }
+
+    fn print_usage(&self, more_info: bool) {
+        print!("{}",self.create_usage());
         if more_info {
             println!("\nFor more information try --help");
         }
@@ -689,6 +706,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                 }
             }
         }
+        matches.usage = Some(self.create_usage());
         self.get_matches_from(&mut matches, &mut it );
 
         matches

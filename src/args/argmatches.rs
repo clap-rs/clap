@@ -64,7 +64,8 @@ pub struct ArgMatches<'a> {
     pub flags: HashMap<&'a str, FlagArg>,
     pub opts: HashMap<&'a str, OptArg>,
     pub positionals: HashMap<&'a str, PosArg>,
-    pub subcommand: Option<Box<SubCommand<'a>>>
+    pub subcommand: Option<Box<SubCommand<'a>>>,
+    pub usage: Option<String>
 }
 
 impl<'a> ArgMatches<'a> {
@@ -83,7 +84,8 @@ impl<'a> ArgMatches<'a> {
             flags: HashMap::new(),
             opts: HashMap::new(),
             positionals: HashMap::new(),
-            subcommand: None
+            subcommand: None,
+            usage: None
         }
     }
 
@@ -239,6 +241,44 @@ impl<'a> ArgMatches<'a> {
     pub fn subcommand_name(&self) -> Option<&str> {
         if let Some( ref sc ) = self.subcommand {
             return Some(&sc.name[..]);
+        }
+        None
+    }
+
+    /// If a subcommand was found, returns the name and matches associated with it
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, SubCommand};
+    /// # let app_matches = App::new("myapp").subcommand(SubCommand::new("test")).get_matches();
+    /// match app_matches.subcommand() {
+    ///     ("test", Some(matches))   => {}, // test was used
+    ///     ("config", Some(matches)) => {}, // config was used
+    ///     _                         => {}, // Either no subcommand or one not tested for...
+    /// }
+    /// ```
+    pub fn subcommand(&self) -> (&str, Option<&ArgMatches>) {
+        if let Some( ref sc ) = self.subcommand {
+            return (&sc.name[..], Some(&sc.matches));
+        }
+        ("", None)
+    }
+
+    /// Returns a slice of the default usage for the *top level parent App only*
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, SubCommand};
+    /// # let app_matches = App::new("myapp").subcommand(SubCommand::new("test")).get_matches();
+    /// println!("{}",app_matches.usage().unwrap());
+    /// ```
+    pub fn usage(&self) -> Option<&str> {
+        if let Some( ref u ) = self.usage {
+            return Some(&u[..]);
         }
         None
     }
