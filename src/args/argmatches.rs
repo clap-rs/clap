@@ -242,4 +242,26 @@ impl<'a> ArgMatches<'a> {
         }
         None
     }
+
+    /// If a subcommand was found, returns the name and matches associated with it
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, SubCommand};
+    /// # let app_matches = App::new("myapp").subcommand(SubCommand::new("test")).get_matches();
+    /// match app_matches.subcommand() {
+    ///     ("test", Some(matches))   => {}, // test was used
+    ///     ("config", Some(matches)) => {}, // config was used
+    ///     _                         => {}, // Either no subcommand or one not tested for...
+    /// }
+    /// ```
+    pub fn subcommand(&self) -> (&str, Option<&ArgMatches>) {
+        if let Some( ref sc ) = self.subcommand {
+            return (&sc.name[..], Some(&sc.matches));
+        }
+        ("", None)
+    }
+
 }
