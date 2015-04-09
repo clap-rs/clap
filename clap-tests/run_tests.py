@@ -90,7 +90,7 @@ Kevin K. <kbknapp@gmail.com>
 tests subcommands
 
 USAGE:
-    claptests subcmd [FLAGS] [OPTIONS] [POSITIONAL] 
+    claptests subcmd [FLAGS] [OPTIONS] [POSITIONAL]
 
 FLAGS:
     -h, --help       Prints help information

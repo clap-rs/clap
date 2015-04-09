@@ -61,7 +61,6 @@ pub struct App<'a, 'v, 'ab, 'u, 'ar> {
     long_list: HashSet<&'ar str>,
     blacklist: HashSet<&'ar str>,
     usage_str: Option<&'u str>,
-    usage: Option<String>,
     bin_name: Option<String>
 
 }
@@ -98,7 +97,6 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             short_list: HashSet::new(),
             long_list: HashSet::new(),
             usage_str: None,
-            usage: None,
             blacklist: HashSet::new(),
             bin_name: None,
         }
@@ -462,9 +460,9 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             if opts {
                 write!(&mut usage," {}",
                     if num_req_opts != self.opts.len() && !req_opts.is_empty() { 
-                        format!("[OPTIONS] {}", &req_opts[..])
+                        format!(" [OPTIONS] {}", &req_opts[..])
                     } else if req_opts.is_empty() { 
-                        "[OPTIONS]".to_owned()
+                        " [OPTIONS]".to_owned()
                     } else {
                         req_opts
                     });
@@ -472,9 +470,9 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             if pos {
                 write!(&mut usage, " {}",
                     if num_req_pos != self.positionals_idx.len() && !req_pos.is_empty() { 
-                        format!("[POSITIONAL] {}", &req_pos[..])
+                        format!(" [POSITIONAL] {}", &req_pos[..])
                     } else if req_pos.is_empty() { 
-                        "[POSITIONAL]".to_owned()
+                        " [POSITIONAL]".to_owned()
                     } else {
                         req_pos
                     } );

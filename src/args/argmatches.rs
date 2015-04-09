@@ -274,7 +274,7 @@ impl<'a> ArgMatches<'a> {
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
     /// # let app_matches = App::new("myapp").subcommand(SubCommand::new("test")).get_matches();
-    /// println!(matches.usage());
+    /// println!("{}",app_matches.usage().unwrap());
     /// ```
     pub fn usage(&self) -> Option<&str> {
         if let Some( ref u ) = self.usage {
