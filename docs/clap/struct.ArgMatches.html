@@ -43,12 +43,13 @@
     <section id='main' class="content struct">
 <h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>clap</a>::<wbr><a class='struct' href=''>ArgMatches</a><wbr></span><span class='out-of-band'><span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-8822' href='../src/clap/args/argmatches.rs.html#62-68'>[src]</a></span></h1>
+        </span><a id='src-8831' href='../src/clap/args/argmatches.rs.html#62-69'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct ArgMatches&lt;'a&gt; {
     pub flags: <a class='struct' href='http://doc.rust-lang.org/nightly/std/collections/hash/map/struct.HashMap.html' title='std::collections::hash::map::HashMap'>HashMap</a>&lt;&amp;'a <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, FlagArg&gt;,
     pub opts: <a class='struct' href='http://doc.rust-lang.org/nightly/std/collections/hash/map/struct.HashMap.html' title='std::collections::hash::map::HashMap'>HashMap</a>&lt;&amp;'a <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, OptArg&gt;,
     pub positionals: <a class='struct' href='http://doc.rust-lang.org/nightly/std/collections/hash/map/struct.HashMap.html' title='std::collections::hash::map::HashMap'>HashMap</a>&lt;&amp;'a <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, PosArg&gt;,
     pub subcommand: <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='http://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html' title='alloc::boxed::Box'>Box</a>&lt;<a class='struct' href='../clap/struct.SubCommand.html' title='clap::SubCommand'>SubCommand</a>&lt;'a&gt;&gt;&gt;,
+    pub usage: <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='http://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>&gt;,
 }</pre><div class='docblock'><p>Used to get information about the arguments that
 where supplied to the program at runtime.</p>
 
@@ -95,7 +96,7 @@ the methods in order to query information.</p>
 }
 </pre>
 </div><h2 class='fields'>Fields</h2>
-<table><tr><td id='structfield.flags'><a class='stability Unmarked' title='No stability level'></a><code>flags</code></td><td></td></tr><tr><td id='structfield.opts'><a class='stability Unmarked' title='No stability level'></a><code>opts</code></td><td></td></tr><tr><td id='structfield.positionals'><a class='stability Unmarked' title='No stability level'></a><code>positionals</code></td><td></td></tr><tr><td id='structfield.subcommand'><a class='stability Unmarked' title='No stability level'></a><code>subcommand</code></td><td></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;'a&gt; <a class='struct' href='../clap/struct.ArgMatches.html' title='clap::ArgMatches'>ArgMatches</a>&lt;'a&gt;</code></h3><div class='impl-items'><h4 id='method.new' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class='struct' href='../clap/struct.ArgMatches.html' title='clap::ArgMatches'>ArgMatches</a>&lt;'a&gt;</code></h4>
+<table><tr><td id='structfield.flags'><a class='stability Unmarked' title='No stability level'></a><code>flags</code></td><td></td></tr><tr><td id='structfield.opts'><a class='stability Unmarked' title='No stability level'></a><code>opts</code></td><td></td></tr><tr><td id='structfield.positionals'><a class='stability Unmarked' title='No stability level'></a><code>positionals</code></td><td></td></tr><tr><td id='structfield.subcommand'><a class='stability Unmarked' title='No stability level'></a><code>subcommand</code></td><td></td></tr><tr><td id='structfield.usage'><a class='stability Unmarked' title='No stability level'></a><code>usage</code></td><td></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;'a&gt; <a class='struct' href='../clap/struct.ArgMatches.html' title='clap::ArgMatches'>ArgMatches</a>&lt;'a&gt;</code></h3><div class='impl-items'><h4 id='method.new' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class='struct' href='../clap/struct.ArgMatches.html' title='clap::ArgMatches'>ArgMatches</a>&lt;'a&gt;</code></h4>
 <div class='docblock'><p>Creates a new instance of <code>ArgMatches</code>. This ins&#39;t called directly, but
 through the <code>.get_matches()</code> method of <code>App</code></p>
 
@@ -176,6 +177,24 @@ allow multiple occurrences, it will return <code>1</code> no matter how many tim
     <span class='prelude-val'>Some</span>(<span class='string'>&quot;config&quot;</span>) <span class='op'>=&gt;</span> {}, <span class='comment'>// config was used</span>
     _              <span class='op'>=&gt;</span> {}, <span class='comment'>// Either no subcommand or one not tested for...</span>
 }
+</pre>
+</div><h4 id='method.subcommand' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.subcommand' class='fnname'>subcommand</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(&amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../clap/struct.ArgMatches.html' title='clap::ArgMatches'>ArgMatches</a>&gt;)</a></code></h4>
+<div class='docblock'><p>If a subcommand was found, returns the name and matches associated with it</p>
+
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
+<span class='kw'>match</span> <span class='ident'>app_matches</span>.<span class='ident'>subcommand</span>() {
+    (<span class='string'>&quot;test&quot;</span>, <span class='prelude-val'>Some</span>(<span class='ident'>matches</span>))   <span class='op'>=&gt;</span> {}, <span class='comment'>// test was used</span>
+    (<span class='string'>&quot;config&quot;</span>, <span class='prelude-val'>Some</span>(<span class='ident'>matches</span>)) <span class='op'>=&gt;</span> {}, <span class='comment'>// config was used</span>
+    _                         <span class='op'>=&gt;</span> {}, <span class='comment'>// Either no subcommand or one not tested for...</span>
+}
+</pre>
+</div><h4 id='method.usage' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.usage' class='fnname'>usage</a>(&amp;self) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;</code></h4>
+<div class='docblock'><p>Returns a slice of the default usage for the <em>top level parent App only</em></p>
+
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
+<span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{}&quot;</span>,<span class='ident'>app_matches</span>.<span class='ident'>usage</span>().<span class='ident'>unwrap</span>());
 </pre>
 </div></div></section>
     <section id='search' class="content hidden"></section>
