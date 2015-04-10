@@ -1,3 +1,19 @@
+<a name="v0.5.14"></a>
+## v0.5.14 (2015-04-10)
+
+
+#### Bug Fixes
+
+* **usage**
+  *  remove unneeded space ([51372789](https://github.com/kbknapp/clap-rs/commit/5137278942121bc2593ce6e5dc224ec2682549e6))
+  *  remove warning about unused variables ([ba817b9d](https://github.com/kbknapp/clap-rs/commit/ba817b9d815e37320650973f1bea0e7af3030fd7))
+
+#### Features
+
+* **usage**  add ability to get usage string for subcommands too ([3636afc4](https://github.com/kbknapp/clap-rs/commit/3636afc401c2caa966efb5b1869ef4f1ed3384aa))
+
+
+
 <a name="v0.5.13"></a>
 ## v0.5.13 (2015-04-09)
 
