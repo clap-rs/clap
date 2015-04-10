@@ -5,6 +5,8 @@
 pub use args::{Arg, SubCommand, ArgMatches};
 pub use app::App;
 
+#[macro_use]
+mod macros;
 mod app;
 mod args;
 

@@ -266,7 +266,7 @@ impl<'a> ArgMatches<'a> {
         ("", None)
     }
 
-    /// Returns a slice of the default usage for the *top level parent App only*
+    /// Returns a slice of the usage
     ///
     ///
     /// # Example
@@ -274,12 +274,14 @@ impl<'a> ArgMatches<'a> {
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
     /// # let app_matches = App::new("myapp").subcommand(SubCommand::new("test")).get_matches();
-    /// println!("{}",app_matches.usage().unwrap());
+    /// println!("{}",app_matches.usage());
     /// ```
-    pub fn usage(&self) -> Option<&str> {
+    pub fn usage(&self) -> &str {
         if let Some( ref u ) = self.usage {
-            return Some(&u[..]);
+            return &u[..];
         }
-        None
+
+        // Should be un-reachable
+        ""
     }
 }
