@@ -464,7 +464,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                     } else if req_opts.is_empty() { 
                         "[OPTIONS]".to_owned()
                     } else {
-                        format!("{}", &req_opts[..])
+                        req_opts
                     });
             }
             if pos {
@@ -474,7 +474,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                     } else if req_pos.is_empty() { 
                         "[POSITIONAL]".to_owned()
                     } else {
-                        format!("{}", &req_pos[..])
+                        req_pos
                     } );
             }
             if subcmds {
