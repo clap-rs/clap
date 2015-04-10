@@ -706,7 +706,6 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                 }
             }
         }
-        matches.usage = Some(self.create_usage());
         self.get_matches_from(&mut matches, &mut it );
 
         matches
@@ -879,7 +878,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                         }
                     }
                 } else {
-                    self.report_error(format!("Positional argument \"{}\" was found, but {} wasn't expecting any", arg, self.name), true, true);
+                    self.report_error(format!("Argument \"{}\" isn't a valid argument for {}", arg, self.bin_name.clone().unwrap_or(self.name.clone())), true, true);
                 }
             }
         }
@@ -899,6 +898,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                     true, true);
         }
 
+        matches.usage = Some(self.create_usage());
 
         if let Some(sc_name) = subcmd_name {
             if let Some(ref mut sc) = self.subcommands.get_mut(&sc_name) {
