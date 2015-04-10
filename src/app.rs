@@ -427,7 +427,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                 }
             }
 
-            let req_pos = self.positionals_idx.values().filter_map(|ref x| if x.required || matched_pos_reqs.contains(x.name) { 
+            let mut req_pos = self.positionals_idx.values().filter_map(|ref x| if x.required || matched_pos_reqs.contains(x.name) { 
                 num_req_pos += 1;
                 if x.multiple {
                     Some(format!("<{}>...", x.name))
@@ -437,19 +437,21 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             } else {
                 None
             } )
-                                                       .fold(String::new(), |acc, ref name| acc + &format!("{} ", name)[..]);
+                                                       .fold(String::with_capacity(50), |acc, ref name| acc + &format!("{} ", name)[..]);
+            req_pos.shrink_to_fit();
             let mut num_req_opts = 0;
-            let req_opts = self.opts.values().filter_map(|x| if x.required  || self.matched_reqs.contains(x.name) {
+            let mut req_opts = self.opts.values().filter_map(|x| if x.required  || self.matched_reqs.contains(x.name) {
                 num_req_opts += 1;
                 Some(x)
             }else {
                 None
             })
-                                             .fold(String::new(), |acc, ref o| acc + &format!("-{}{} ",if let Some(l) = o.long {
+                                             .fold(String::with_capacity(50), |acc, ref o| acc + &format!("-{}{} ",if let Some(l) = o.long {
                                                                                                      format!("-{}=", l)
                                                                                                    } else {
                                                                                                        format!("{} ",o.short.unwrap())
                                                                                                    },o.name));
+            req_opts.shrink_to_fit();
 
             // usage.push_str(tab);
             usage.push_str(&self.bin_name.clone().unwrap_or(self.name.clone())[..]);
@@ -465,7 +467,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                         "[OPTIONS]".to_owned()
                     } else {
                         req_opts
-                    });
+                    }).unwrap_or_else(|e| self.report_error(format!("internal error: {}", e),false,true));
             }
             if pos {
                 write!(&mut usage, " {}",
@@ -475,7 +477,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                         "[POSITIONAL]".to_owned()
                     } else {
                         req_pos
-                    } );
+                    } ).unwrap_or_else(|e| self.report_error(format!("internal error: {}", e),false,true));
             }
             if subcmds {
                 usage.push_str(" [SUBCOMMANDS]");
@@ -589,16 +591,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                             // 7 is '--=' (3) + tab (4)
                             self.get_spaces((longest_opt + 6) - (v.name.len() + mult))
                         },
-                        if let Some(h) = v.help {
-                            format!("{}{}", h,
-                                if let Some(ref pv) = v.possible_vals {
-                                    format!(" [values:{}]", pv.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] ))
-                                }else{
-                                    "".to_owned()
-                                })
-                        } else {
-                            tab.to_owned()
-                        } );
+                        get_help!(v) );
             }
         }
         if pos {
@@ -609,15 +602,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                 println!("{}{}{}{}",tab,
                     if v.multiple {format!("{}...",v.name)} else {v.name.to_owned()},
                     self.get_spaces((longest_pos + 4) - (v.name.len() + mult)),
-                    if let Some(h) = v.help {
-                        format!("{}{}",
-                            h,
-                            if let Some(ref pv) = v.possible_vals {
-                                format!(" [values:{}]", pv.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] ))
-                            }else{"".to_owned()})
-                    } else {
-                        tab.to_owned()
-                    } );
+                    get_help!(v));
             }
         }
         if subcmds {
@@ -810,7 +795,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
 
                 if self.positionals_idx.is_empty() {
                     self.report_error(
-                        format!("Found positional argument {}, but {} doesn't accept any", arg, self.name),
+                        format!("Argument \"{}\" isn't a valid option for {}", arg, self.bin_name.clone().unwrap_or(self.name.clone())),
                         true, true);
                 }
                 // If we find that an argument requires a positiona, we need to update all the
