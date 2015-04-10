@@ -325,6 +325,8 @@
 <span id="283">283</span>
 <span id="284">284</span>
 <span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>HashMap</span>;
 
@@ -594,7 +596,7 @@
         (<span class='string'>&quot;&quot;</span>, <span class='prelude-val'>None</span>)
     }
 
-    <span class='doccomment'>/// Returns a slice of the default usage for the *top level parent App only*</span>
+    <span class='doccomment'>/// Returns a slice of the usage</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// # Example</span>
@@ -602,13 +604,15 @@
     <span class='doccomment'>/// ```no_run</span>
     <span class='doccomment'>/// # use clap::{App, Arg, SubCommand};</span>
     <span class='doccomment'>/// # let app_matches = App::new(&quot;myapp&quot;).subcommand(SubCommand::new(&quot;test&quot;)).get_matches();</span>
-    <span class='doccomment'>/// println!(&quot;{}&quot;,app_matches.usage().unwrap());</span>
+    <span class='doccomment'>/// println!(&quot;{}&quot;,app_matches.usage());</span>
     <span class='doccomment'>/// ```</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>usage</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>str</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>usage</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>str</span> {
         <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>( <span class='kw-2'>ref</span> <span class='ident'>u</span> ) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>usage</span> {
-            <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>&amp;</span><span class='ident'>u</span>[..]);
+            <span class='kw'>return</span> <span class='kw-2'>&amp;</span><span class='ident'>u</span>[..];
         }
-        <span class='prelude-val'>None</span>
+
+        <span class='comment'>// Should be un-reachable</span>
+        <span class='string'>&quot;&quot;</span>
     }
 }
 </pre>

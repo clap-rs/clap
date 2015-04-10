@@ -379,6 +379,8 @@
 <span id="337">337</span>
 <span id="338">338</span>
 <span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
 </pre><pre class='rust '>
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>crate_type</span><span class='op'>=</span> <span class='string'>&quot;lib&quot;</span>]</span>
 
@@ -613,6 +615,8 @@
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>args</span>::{<span class='ident'>Arg</span>, <span class='ident'>SubCommand</span>, <span class='ident'>ArgMatches</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>app</span>::<span class='ident'>App</span>;
 
+<span class='attribute'>#[<span class='ident'>macro_use</span>]</span>
+<span class='kw'>mod</span> <span class='ident'>macros</span>;
 <span class='kw'>mod</span> <span class='ident'>app</span>;
 <span class='kw'>mod</span> <span class='ident'>args</span>;
 
