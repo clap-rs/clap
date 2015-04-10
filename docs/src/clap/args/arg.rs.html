@@ -400,14 +400,25 @@
 <span id="358">358</span>
 <span id="359">359</span>
 <span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
 </pre><pre class='rust '>
 <span class='doccomment'>/// The abstract representation of a command line argument used by the consumer of the library.</span>
+<span class='doccomment'>/// Used to set all the options and relationships that define a valid argument for the program.</span>
 <span class='doccomment'>/// </span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// This struct is used by the library consumer and describes the command line arguments for </span>
-<span class='doccomment'>/// their program.</span>
-<span class='doccomment'>/// and then evaluates the settings the consumer provided and determines the concret</span>
-<span class='doccomment'>/// argument struct to use when parsing.</span>
+<span class='doccomment'>/// their program. Then evaluates the settings the consumer provided and determines the concret</span>
+<span class='doccomment'>/// argument type to use when parsing.</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// # Example</span>
 <span class='doccomment'>///</span>
@@ -423,37 +434,48 @@
 <span class='doccomment'>/// # ).get_matches();</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// The unique name of the argument, required</span>
+    <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
     <span class='kw'>pub</span> <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;n</span> <span class='ident'>str</span>,
     <span class='doccomment'>/// The short version (i.e. single character) of the argument, no preceding `-`</span>
     <span class='doccomment'>/// **NOTE:** `short` is mutually exclusive with `index`</span>
+    <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
     <span class='kw'>pub</span> <span class='ident'>short</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>char</span><span class='op'>&gt;</span>,
     <span class='doccomment'>/// The long version of the flag (i.e. word) without the preceding `--`</span>
     <span class='doccomment'>/// **NOTE:** `long` is mutually exclusive with `index`</span>
+    <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
     <span class='kw'>pub</span> <span class='ident'>long</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;l</span> <span class='ident'>str</span><span class='op'>&gt;</span>,
     <span class='doccomment'>/// The string of text that will displayed to the user when the application&#39;s</span>
     <span class='doccomment'>/// `help` text is displayed</span>
+    <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
     <span class='kw'>pub</span> <span class='ident'>help</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;h</span> <span class='ident'>str</span><span class='op'>&gt;</span>,
     <span class='doccomment'>/// If this is a required by default when using the command line program</span>
     <span class='doccomment'>/// i.e. a configuration file that&#39;s required for the program to function</span>
     <span class='doccomment'>/// **NOTE:** required by default means, it is required *until* mutually</span>
     <span class='doccomment'>/// exclusive arguments are evaluated.</span>
+    <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
     <span class='kw'>pub</span> <span class='ident'>required</span>: <span class='ident'>bool</span>,
     <span class='doccomment'>/// Determines if this argument is an option, vice a flag or positional and</span>
     <span class='doccomment'>/// is mutually exclusive with `index` and `multiple`</span>
+    <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
     <span class='kw'>pub</span> <span class='ident'>takes_value</span>: <span class='ident'>bool</span>,
     <span class='doccomment'>/// The index of the argument. `index` is mutually exclusive with `takes_value`</span>
     <span class='doccomment'>/// and `multiple`</span>
+    <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
     <span class='kw'>pub</span> <span class='ident'>index</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>,
     <span class='doccomment'>/// Determines if multiple instances of the same flag are allowed. `multiple` </span>
     <span class='doccomment'>/// is mutually exclusive with `index` and `takes_value`.</span>
     <span class='doccomment'>/// I.e. `-v -v -v` or `-vvv`</span>
+    <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
     <span class='kw'>pub</span> <span class='ident'>multiple</span>: <span class='ident'>bool</span>,
     <span class='doccomment'>/// A list of names for other arguments that *may not* be used with this flag</span>
+    <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
     <span class='kw'>pub</span> <span class='ident'>blacklist</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='ident'>str</span><span class='op'>&gt;&gt;</span>, 
     <span class='doccomment'>/// A list of possible values for an option or positional argument</span>
+    <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
     <span class='kw'>pub</span> <span class='ident'>possible_vals</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;p</span> <span class='ident'>str</span><span class='op'>&gt;&gt;</span>,
     <span class='doccomment'>/// A list of names of other arguments that are *required* to be used when </span>
     <span class='doccomment'>/// this flag is used</span>
+    <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
     <span class='kw'>pub</span> <span class='ident'>requires</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='ident'>str</span><span class='op'>&gt;&gt;</span>
 }
 

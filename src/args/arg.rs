@@ -1,10 +1,10 @@
 /// The abstract representation of a command line argument used by the consumer of the library.
+/// Used to set all the options and relationships that define a valid argument for the program.
 /// 
 ///
 /// This struct is used by the library consumer and describes the command line arguments for 
-/// their program.
-/// and then evaluates the settings the consumer provided and determines the concret
-/// argument struct to use when parsing.
+/// their program. Then evaluates the settings the consumer provided and determines the concret
+/// argument type to use when parsing.
 ///
 /// # Example
 ///
@@ -20,37 +20,48 @@
 /// # ).get_matches();
 pub struct Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// The unique name of the argument, required
+    #[doc(hidden)]
     pub name: &'n str,
     /// The short version (i.e. single character) of the argument, no preceding `-`
     /// **NOTE:** `short` is mutually exclusive with `index`
+    #[doc(hidden)]
     pub short: Option<char>,
     /// The long version of the flag (i.e. word) without the preceding `--`
     /// **NOTE:** `long` is mutually exclusive with `index`
+    #[doc(hidden)]
     pub long: Option<&'l str>,
     /// The string of text that will displayed to the user when the application's
     /// `help` text is displayed
+    #[doc(hidden)]
     pub help: Option<&'h str>,
     /// If this is a required by default when using the command line program
     /// i.e. a configuration file that's required for the program to function
     /// **NOTE:** required by default means, it is required *until* mutually
     /// exclusive arguments are evaluated.
+    #[doc(hidden)]
     pub required: bool,
     /// Determines if this argument is an option, vice a flag or positional and
     /// is mutually exclusive with `index` and `multiple`
+    #[doc(hidden)]
     pub takes_value: bool,
     /// The index of the argument. `index` is mutually exclusive with `takes_value`
     /// and `multiple`
+    #[doc(hidden)]
     pub index: Option<u8>,
     /// Determines if multiple instances of the same flag are allowed. `multiple` 
     /// is mutually exclusive with `index` and `takes_value`.
     /// I.e. `-v -v -v` or `-vvv`
+    #[doc(hidden)]
     pub multiple: bool,
     /// A list of names for other arguments that *may not* be used with this flag
+    #[doc(hidden)]
     pub blacklist: Option<Vec<&'b str>>, 
     /// A list of possible values for an option or positional argument
+    #[doc(hidden)]
     pub possible_vals: Option<Vec<&'p str>>,
     /// A list of names of other arguments that are *required* to be used when 
     /// this flag is used
+    #[doc(hidden)]
     pub requires: Option<Vec<&'r str>>
 }
 

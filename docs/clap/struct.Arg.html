@@ -43,25 +43,15 @@
     <section id='main' class="content struct">
 <h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>clap</a>::<wbr><a class='struct' href=''>Arg</a><wbr></span><span class='out-of-band'><span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-8370' href='../src/clap/args/arg.rs.html#21-55'>[src]</a></span></h1>
+        </span><a id='src-8370' href='../src/clap/args/arg.rs.html#21-66'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct Arg&lt;'n, 'l, 'h, 'b, 'p, 'r&gt; {
-    pub name: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>,
-    pub short: <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a href='http://doc.rust-lang.org/nightly/std/primitive.char.html'>char</a>&gt;,
-    pub long: <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;'l <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;,
-    pub help: <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;'h <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;,
-    pub required: <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>,
-    pub takes_value: <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>,
-    pub index: <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a href='http://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>&gt;,
-    pub multiple: <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>,
-    pub blacklist: <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'b <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;&gt;,
-    pub possible_vals: <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'p <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;&gt;,
-    pub requires: <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'r <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;&gt;,
-}</pre><div class='docblock'><p>The abstract representation of a command line argument used by the consumer of the library.</p>
+    // some fields omitted
+}</pre><div class='docblock'><p>The abstract representation of a command line argument used by the consumer of the library.
+Used to set all the options and relationships that define a valid argument for the program.</p>
 
 <p>This struct is used by the library consumer and describes the command line arguments for 
-their program.
-and then evaluates the settings the consumer provided and determines the concret
-argument struct to use when parsing.</p>
+their program. Then evaluates the settings the consumer provided and determines the concret
+argument type to use when parsing.</p>
 
 <h1 id="example" class='section-header'><a
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
@@ -71,30 +61,7 @@ argument struct to use when parsing.</p>
       .<span class='ident'>takes_value</span>(<span class='boolval'>true</span>)
       .<span class='ident'>help</span>(<span class='string'>&quot;Provides a config file to myprog&quot;</span>)
 </pre>
-</div><h2 class='fields'>Fields</h2>
-<table><tr><td id='structfield.name'><a class='stability Unmarked' title='No stability level'></a><code>name</code></td><td><div class='docblock'><p>The unique name of the argument, required</p>
-</div></td></tr><tr><td id='structfield.short'><a class='stability Unmarked' title='No stability level'></a><code>short</code></td><td><div class='docblock'><p>The short version (i.e. single character) of the argument, no preceding <code>-</code>
-<strong>NOTE:</strong> <code>short</code> is mutually exclusive with <code>index</code></p>
-</div></td></tr><tr><td id='structfield.long'><a class='stability Unmarked' title='No stability level'></a><code>long</code></td><td><div class='docblock'><p>The long version of the flag (i.e. word) without the preceding <code>--</code>
-<strong>NOTE:</strong> <code>long</code> is mutually exclusive with <code>index</code></p>
-</div></td></tr><tr><td id='structfield.help'><a class='stability Unmarked' title='No stability level'></a><code>help</code></td><td><div class='docblock'><p>The string of text that will displayed to the user when the application&#39;s
-<code>help</code> text is displayed</p>
-</div></td></tr><tr><td id='structfield.required'><a class='stability Unmarked' title='No stability level'></a><code>required</code></td><td><div class='docblock'><p>If this is a required by default when using the command line program
-i.e. a configuration file that&#39;s required for the program to function
-<strong>NOTE:</strong> required by default means, it is required <em>until</em> mutually
-exclusive arguments are evaluated.</p>
-</div></td></tr><tr><td id='structfield.takes_value'><a class='stability Unmarked' title='No stability level'></a><code>takes_value</code></td><td><div class='docblock'><p>Determines if this argument is an option, vice a flag or positional and
-is mutually exclusive with <code>index</code> and <code>multiple</code></p>
-</div></td></tr><tr><td id='structfield.index'><a class='stability Unmarked' title='No stability level'></a><code>index</code></td><td><div class='docblock'><p>The index of the argument. <code>index</code> is mutually exclusive with <code>takes_value</code>
-and <code>multiple</code></p>
-</div></td></tr><tr><td id='structfield.multiple'><a class='stability Unmarked' title='No stability level'></a><code>multiple</code></td><td><div class='docblock'><p>Determines if multiple instances of the same flag are allowed. <code>multiple</code>
-is mutually exclusive with <code>index</code> and <code>takes_value</code>.
-I.e. <code>-v -v -v</code> or <code>-vvv</code></p>
-</div></td></tr><tr><td id='structfield.blacklist'><a class='stability Unmarked' title='No stability level'></a><code>blacklist</code></td><td><div class='docblock'><p>A list of names for other arguments that <em>may not</em> be used with this flag</p>
-</div></td></tr><tr><td id='structfield.possible_vals'><a class='stability Unmarked' title='No stability level'></a><code>possible_vals</code></td><td><div class='docblock'><p>A list of possible values for an option or positional argument</p>
-</div></td></tr><tr><td id='structfield.requires'><a class='stability Unmarked' title='No stability level'></a><code>requires</code></td><td><div class='docblock'><p>A list of names of other arguments that are <em>required</em> to be used when
-this flag is used</p>
-</div></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;'n, 'l, 'h, 'b, 'p, 'r&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'b, 'p, 'r&gt;</code></h3><div class='impl-items'><h4 id='method.new' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.new' class='fnname'>new</a>(n: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'b, 'p, 'r&gt;</code></h4>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;'n, 'l, 'h, 'b, 'p, 'r&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'b, 'p, 'r&gt;</code></h3><div class='impl-items'><h4 id='method.new' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.new' class='fnname'>new</a>(n: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'b, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Creates a new instace of <code>Arg</code> using a unique string name.
 The name will be used by the library consumer to get information about
 whether or not the argument was used at runtime. </p>

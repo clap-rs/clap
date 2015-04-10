@@ -5,12 +5,9 @@ use args::flagarg::FlagArg;
 use args::optarg::OptArg;
 use args::posarg::PosArg;
 
-/// Used to get information about the arguments that
-/// where supplied to the program at runtime.
+/// Used to get information about the arguments that where supplied to the program at runtime by
+/// the user. To get a new instance of this struct you use `.get_matches()` of the `App` struct.
 ///
-///
-/// Fields of `ArgMatches` aren't designed to be used directly, only 
-/// the methods in order to query information.
 ///
 /// # Example
 ///
@@ -31,19 +28,17 @@ use args::posarg::PosArg;
 ///     println!("Value for output: {}", o);
 /// }
 ///
-/// // Although not advised, if you have a required argument
-/// // you can call .unwrap() because the program will exit long before
-/// // here at noticing the user didn't supply a required argument...
-/// // use at your own risk ;)
+/// // If you have a required argument you can call .unwrap() because the program will exit long
+/// // before this point if the user didn't specify it at runtime.
 /// println!("Config file: {}", matches.value_of("config").unwrap());
 ///
-/// // You can check the present of an argument
+/// // You can check the presence of an argument
 /// if matches.is_present("debug") {
-///     // Checking if "debug" was present was necessary,
-///     // as occurrences returns 0 if a flag isn't found
-///     // but we can check how many times "debug" was found
-///     // if we allow multiple (if multiple isn't allowed it always be 1 or 0)
-///     if matches.occurrences_of("debug") > 1 {
+///     // Another way to check if an argument was present, or if it occurred multiple times is to
+///     // use occurrences_of() which returns 0 if an argument isn't found at runtime, or the
+///     // number of times that it occurred, if it was. To allow an argument to appear more than
+///     // once, you must use the .multiple(true) method, otherwise it will only return 1 or 0.
+///     if matches.occurrences_of("debug") > 2 {
 ///         println!("Debug mode is REALLY on");
 ///     } else {
 ///         println!("Debug mode kind of on");
@@ -60,11 +55,15 @@ use args::posarg::PosArg;
 ///     }
 /// }
 pub struct ArgMatches<'a> {
-    // pub matches_of: &'static str,
+    #[doc(hidden)]
     pub flags: HashMap<&'a str, FlagArg>,
+    #[doc(hidden)]
     pub opts: HashMap<&'a str, OptArg>,
+    #[doc(hidden)]
     pub positionals: HashMap<&'a str, PosArg>,
+    #[doc(hidden)]
     pub subcommand: Option<Box<SubCommand<'a>>>,
+    #[doc(hidden)]
     pub usage: Option<String>
 }
 
@@ -78,6 +77,7 @@ impl<'a> ArgMatches<'a> {
     /// # use clap::{App, Arg};
     /// let matches = App::new("myprog").get_matches();
     /// ```
+    #[doc(hidden)]
     pub fn new() -> ArgMatches<'a> {
         ArgMatches {
             // matches_of: name,
@@ -120,7 +120,7 @@ impl<'a> ArgMatches<'a> {
     }
 
     /// Gets the values of a specific option or positional argument in a vector (i.e. an argument
-    /// that takes an additional value at runtime). If the option wasn't present at runtime it
+    /// that takes multiple values at runtime). If the option wasn't present at runtime it
     /// returns `None`
     ///
     /// # Example
@@ -151,8 +151,7 @@ impl<'a> ArgMatches<'a> {
         None
     }
 
-    /// Checks if a flag was argument was supplied at runtime. **DOES NOT** work for
-    /// option or positional arguments (use `.value_of()` instead)
+    /// Returns if an argument was present at runtime. 
     ///
     ///
     /// # Example
@@ -174,10 +173,9 @@ impl<'a> ArgMatches<'a> {
         false
     }
 
-    /// Checks the number of occurrences of an option, flag, or positional argument at runtime. 
-    /// If an option or flag isn't present it will return `0`, if the option or flag doesn't 
-    /// allow multiple occurrences, it will return `1` no matter how many times it occurred 
-    /// (unless it wasn't prsent) at all.
+    /// Returns the number of occurrences of an option, flag, or positional argument at runtime. 
+    /// If an argument isn't present it will return `0`. Can be used on arguments which *don't*
+    /// allow multiple occurrences, but will obviously only return `0` or `1`.
     ///
     ///
     /// # Example
@@ -204,7 +202,8 @@ impl<'a> ArgMatches<'a> {
         0
     }
 
-    /// If a subcommand was found, returns the ArgMatches struct associated with it's matches
+    /// Returns the `ArgMatches` for a particular subcommand or None if the subcommand wasn't
+    /// present at runtime.
     ///
     ///
     /// # Example
@@ -224,7 +223,10 @@ impl<'a> ArgMatches<'a> {
         None
     }
 
-    /// If a subcommand was found, returns the name associated with it
+    /// Returns the name of the subcommand used of the parent `App`, or `None` if one wasn't found
+    ///
+    /// *NOTE*: Only a single subcommand may be present per `App` at runtime, does *NOT* check for
+    /// the name of sub-subcommand's names
     ///
     ///
     /// # Example
@@ -245,7 +247,8 @@ impl<'a> ArgMatches<'a> {
         None
     }
 
-    /// If a subcommand was found, returns the name and matches associated with it
+    /// Returns the name and `ArgMatches` of the subcommand used at runtime or ("", None) if one
+    /// wasn't found.
     ///
     ///
     /// # Example
@@ -266,7 +269,7 @@ impl<'a> ArgMatches<'a> {
         ("", None)
     }
 
-    /// Returns a slice of the usage
+    /// Returns a string slice of the usage statement for the `App` (or `SubCommand`)
     ///
     ///
     /// # Example

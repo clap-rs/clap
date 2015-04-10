@@ -315,15 +315,16 @@ for parsing at runtime.</p>
                     <tr>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Arg.html'
                                title='clap::Arg'>Arg</a></td>
-                        <td class='docblock short'><p>The abstract representation of a command line argument used by the consumer of the library.</p>
+                        <td class='docblock short'><p>The abstract representation of a command line argument used by the consumer of the library.
+Used to set all the options and relationships that define a valid argument for the program.</p>
 </td>
                     </tr>
                 
                     <tr>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.ArgMatches.html'
                                title='clap::ArgMatches'>ArgMatches</a></td>
-                        <td class='docblock short'><p>Used to get information about the arguments that
-where supplied to the program at runtime.</p>
+                        <td class='docblock short'><p>Used to get information about the arguments that where supplied to the program at runtime by
+the user. To get a new instance of this struct you use <code>.get_matches()</code> of the <code>App</code> struct.</p>
 </td>
                     </tr>
                 

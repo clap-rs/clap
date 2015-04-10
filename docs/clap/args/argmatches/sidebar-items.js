@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ArgMatches","Used to get information about the arguments that where supplied to the program at runtime."]]});
+initSidebarItems({"struct":[["ArgMatches","Used to get information about the arguments that where supplied to the program at runtime by the user. To get a new instance of this struct you use `.get_matches()` of the `App` struct."]]});

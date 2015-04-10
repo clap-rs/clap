@@ -327,6 +327,9 @@
 <span id="285">285</span>
 <span id="286">286</span>
 <span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>HashMap</span>;
 
@@ -335,12 +338,9 @@
 <span class='kw'>use</span> <span class='ident'>args</span>::<span class='ident'>optarg</span>::<span class='ident'>OptArg</span>;
 <span class='kw'>use</span> <span class='ident'>args</span>::<span class='ident'>posarg</span>::<span class='ident'>PosArg</span>;
 
-<span class='doccomment'>/// Used to get information about the arguments that</span>
-<span class='doccomment'>/// where supplied to the program at runtime.</span>
+<span class='doccomment'>/// Used to get information about the arguments that where supplied to the program at runtime by</span>
+<span class='doccomment'>/// the user. To get a new instance of this struct you use `.get_matches()` of the `App` struct.</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// Fields of `ArgMatches` aren&#39;t designed to be used directly, only </span>
-<span class='doccomment'>/// the methods in order to query information.</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// # Example</span>
 <span class='doccomment'>///</span>
@@ -361,19 +361,17 @@
 <span class='doccomment'>///     println!(&quot;Value for output: {}&quot;, o);</span>
 <span class='doccomment'>/// }</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>/// // Although not advised, if you have a required argument</span>
-<span class='doccomment'>/// // you can call .unwrap() because the program will exit long before</span>
-<span class='doccomment'>/// // here at noticing the user didn&#39;t supply a required argument...</span>
-<span class='doccomment'>/// // use at your own risk ;)</span>
+<span class='doccomment'>/// // If you have a required argument you can call .unwrap() because the program will exit long</span>
+<span class='doccomment'>/// // before this point if the user didn&#39;t specify it at runtime.</span>
 <span class='doccomment'>/// println!(&quot;Config file: {}&quot;, matches.value_of(&quot;config&quot;).unwrap());</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>/// // You can check the present of an argument</span>
+<span class='doccomment'>/// // You can check the presence of an argument</span>
 <span class='doccomment'>/// if matches.is_present(&quot;debug&quot;) {</span>
-<span class='doccomment'>///     // Checking if &quot;debug&quot; was present was necessary,</span>
-<span class='doccomment'>///     // as occurrences returns 0 if a flag isn&#39;t found</span>
-<span class='doccomment'>///     // but we can check how many times &quot;debug&quot; was found</span>
-<span class='doccomment'>///     // if we allow multiple (if multiple isn&#39;t allowed it always be 1 or 0)</span>
-<span class='doccomment'>///     if matches.occurrences_of(&quot;debug&quot;) &gt; 1 {</span>
+<span class='doccomment'>///     // Another way to check if an argument was present, or if it occurred multiple times is to</span>
+<span class='doccomment'>///     // use occurrences_of() which returns 0 if an argument isn&#39;t found at runtime, or the</span>
+<span class='doccomment'>///     // number of times that it occurred, if it was. To allow an argument to appear more than</span>
+<span class='doccomment'>///     // once, you must use the .multiple(true) method, otherwise it will only return 1 or 0.</span>
+<span class='doccomment'>///     if matches.occurrences_of(&quot;debug&quot;) &gt; 2 {</span>
 <span class='doccomment'>///         println!(&quot;Debug mode is REALLY on&quot;);</span>
 <span class='doccomment'>///     } else {</span>
 <span class='doccomment'>///         println!(&quot;Debug mode kind of on&quot;);</span>
@@ -390,11 +388,15 @@
 <span class='doccomment'>///     }</span>
 <span class='doccomment'>/// }</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>ArgMatches</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-    <span class='comment'>// pub matches_of: &amp;&#39;static str,</span>
+    <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
     <span class='kw'>pub</span> <span class='ident'>flags</span>: <span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span>, <span class='ident'>FlagArg</span><span class='op'>&gt;</span>,
+    <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
     <span class='kw'>pub</span> <span class='ident'>opts</span>: <span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span>, <span class='ident'>OptArg</span><span class='op'>&gt;</span>,
+    <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
     <span class='kw'>pub</span> <span class='ident'>positionals</span>: <span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span>, <span class='ident'>PosArg</span><span class='op'>&gt;</span>,
+    <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
     <span class='kw'>pub</span> <span class='ident'>subcommand</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Box</span><span class='op'>&lt;</span><span class='ident'>SubCommand</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span>,
+    <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
     <span class='kw'>pub</span> <span class='ident'>usage</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>String</span><span class='op'>&gt;</span>
 }
 
@@ -408,6 +410,7 @@
     <span class='doccomment'>/// # use clap::{App, Arg};</span>
     <span class='doccomment'>/// let matches = App::new(&quot;myprog&quot;).get_matches();</span>
     <span class='doccomment'>/// ```</span>
+    <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>() <span class='op'>-&gt;</span> <span class='ident'>ArgMatches</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
         <span class='ident'>ArgMatches</span> {
             <span class='comment'>// matches_of: name,</span>
@@ -450,7 +453,7 @@
     }
 
     <span class='doccomment'>/// Gets the values of a specific option or positional argument in a vector (i.e. an argument</span>
-    <span class='doccomment'>/// that takes an additional value at runtime). If the option wasn&#39;t present at runtime it</span>
+    <span class='doccomment'>/// that takes multiple values at runtime). If the option wasn&#39;t present at runtime it</span>
     <span class='doccomment'>/// returns `None`</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// # Example</span>
@@ -481,8 +484,7 @@
         <span class='prelude-val'>None</span>
     }
 
-    <span class='doccomment'>/// Checks if a flag was argument was supplied at runtime. **DOES NOT** work for</span>
-    <span class='doccomment'>/// option or positional arguments (use `.value_of()` instead)</span>
+    <span class='doccomment'>/// Returns if an argument was present at runtime. </span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// # Example</span>
@@ -504,10 +506,9 @@
         <span class='boolval'>false</span>
     }
 
-    <span class='doccomment'>/// Checks the number of occurrences of an option, flag, or positional argument at runtime. </span>
-    <span class='doccomment'>/// If an option or flag isn&#39;t present it will return `0`, if the option or flag doesn&#39;t </span>
-    <span class='doccomment'>/// allow multiple occurrences, it will return `1` no matter how many times it occurred </span>
-    <span class='doccomment'>/// (unless it wasn&#39;t prsent) at all.</span>
+    <span class='doccomment'>/// Returns the number of occurrences of an option, flag, or positional argument at runtime. </span>
+    <span class='doccomment'>/// If an argument isn&#39;t present it will return `0`. Can be used on arguments which *don&#39;t*</span>
+    <span class='doccomment'>/// allow multiple occurrences, but will obviously only return `0` or `1`.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// # Example</span>
@@ -534,7 +535,8 @@
         <span class='number'>0</span>
     }
 
-    <span class='doccomment'>/// If a subcommand was found, returns the ArgMatches struct associated with it&#39;s matches</span>
+    <span class='doccomment'>/// Returns the `ArgMatches` for a particular subcommand or None if the subcommand wasn&#39;t</span>
+    <span class='doccomment'>/// present at runtime.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// # Example</span>
@@ -554,7 +556,10 @@
         <span class='prelude-val'>None</span>
     }
 
-    <span class='doccomment'>/// If a subcommand was found, returns the name associated with it</span>
+    <span class='doccomment'>/// Returns the name of the subcommand used of the parent `App`, or `None` if one wasn&#39;t found</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// *NOTE*: Only a single subcommand may be present per `App` at runtime, does *NOT* check for</span>
+    <span class='doccomment'>/// the name of sub-subcommand&#39;s names</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// # Example</span>
@@ -575,7 +580,8 @@
         <span class='prelude-val'>None</span>
     }
 
-    <span class='doccomment'>/// If a subcommand was found, returns the name and matches associated with it</span>
+    <span class='doccomment'>/// Returns the name and `ArgMatches` of the subcommand used at runtime or (&quot;&quot;, None) if one</span>
+    <span class='doccomment'>/// wasn&#39;t found.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// # Example</span>
@@ -596,7 +602,7 @@
         (<span class='string'>&quot;&quot;</span>, <span class='prelude-val'>None</span>)
     }
 
-    <span class='doccomment'>/// Returns a slice of the usage</span>
+    <span class='doccomment'>/// Returns a string slice of the usage statement for the `App` (or `SubCommand`)</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// # Example</span>
