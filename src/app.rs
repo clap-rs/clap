@@ -396,7 +396,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     /// ```
     pub fn args_from_usage(mut self, usage: &'ar str) -> App<'a, 'v, 'ab, 'u, 'ar> {
         for l in usage.lines() {
-            self = self.arg(Arg::from_usage(l));
+            self = self.arg(Arg::from_usage(l.trim()));
         }
         self
     }

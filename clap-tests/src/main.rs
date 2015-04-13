@@ -3,10 +3,9 @@ extern crate clap;
 use clap::{App, Arg, SubCommand};
 
 fn main() {
-    let args = 
-"-f --flag... 'tests flags'
--o --option=[opt]... 'tests options'
-[positional] 'tests positionals'";
+    let args = "-f --flag... 'tests flags'
+                -o --option=[opt]... 'tests options'
+                [positional] 'tests positionals'";
     // Test version from Cargo.toml
     let version = format!("{}.{}.{}{}",
                           env!("CARGO_PKG_VERSION_MAJOR"),
