@@ -10,6 +10,8 @@ It is a simple to use and efficient library for parsing command line arguments a
 
 I've been working on a few short video tutorials about using `clap`. They're located on [youtube](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv). 
 
+*Note*: The videos have not been updated to include the new `from_usage()` methods which make building args significantly less verbose. New videos will be added soon.
+
 *Note*: Apologies for the resolution of the first video, it will be updated to a better resolution soon. The other videos have a proper resolution.
 
 ## About
@@ -55,7 +57,58 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 
 ## Quick Example
  
-The following shows a quick example of some of the basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/docs/clap/index.html), or `examples/` directory of this repository.
+The following two examples (which are functionally equivilant, but show two different ways to use `clap`) show a quick example of some of the basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/docs/clap/index.html), or `examples/` directory of this repository.
+ 
+ ```rust
+// (Full example with comments in examples/01_QuickExample.rs)
+extern crate clap;
+use clap::{Arg, App, SubCommand};
+
+fn main() {
+    let matches = App::new("myapp")
+                          .version("1.0")
+                          .author("Kevin K. <kbknapp@gmail.com>")
+                          .about("Does awesome things")
+                          .args_from_usage(
+"-c --config=[CONFIG] 'Sets a custom config file'
+<INPUT> 'Sets the input file to use'
+[debug]... -d 'Sets the level of debugging information'")
+                          .subcommand(SubCommand::new("test")
+                                      .about("controls testing features")
+                                      .version("1.3")
+                                      .author("Someone E. <someone_else@other.com>")
+                                      .arg_from_usage("-v --verbose 'Print test information verbosely'"))
+                          .get_matches();
+
+    // Calling .unwrap() is safe here because "INPUT" is required (if "INPUT" wasn't
+    // required we could have used an 'if let' to conditionally get the value)
+    println!("Using input file: {}", matches.value_of("INPUT").unwrap());
+    
+    // Gets a value for config if supplied by user, or defaults to "default.conf"
+    let config = matches.value_of("CONFIG").unwrap_or("default.conf");
+    println!("Value for config: {}", config);
+    
+    // Vary the output based on how many times the user used the "debug" flag
+    // (i.e. 'myapp -d -d -d' or 'myapp -ddd' vs 'myapp -d'   
+    match matches.occurrences_of("debug") {
+        0 => println!("Debug mode is off"),
+        1 => println!("Debug mode is kind of on"),
+        2 => println!("Debug mode is on"),
+        3 | _ => println!("Don't be crazy"),
+    }
+
+    if let Some(matches) = matches.subcommand_matches("test") {
+        if matches.is_present("verbose") {
+            println!("Printing verbosely...");
+        } else {
+            println!("Printing normally...");
+        }
+    }
+
+    // more porgram logic goes here...
+}
+```
+While functionally the following example is functionally the same as above, this method allows more advanced configuration options, or even dynamically generating arguments when desired.
  
 ```rust
 // (Full example with comments in examples/01_QuickExample.rs)
@@ -79,7 +132,7 @@ fn main() {
                           .arg(Arg::new("debug")
                                .short("d")
                                .multiple(true)
-                               .help("Turn debugging information on"))
+                               .help("Sets the level of debugging information"))
                           .subcommand(SubCommand::new("test")
                                       .about("controls testing features")
                                       .version("1.3")
@@ -118,7 +171,7 @@ fn main() {
 }
 ```
 
-If you were to compile the above program and run it with the flag `--help` or `-h` (or `help` subcommand, since we defined `test` as a subcommand) the following would be output
+If you were to compile either of the above programs and run them with the flag `--help` or `-h` (or `help` subcommand, since we defined `test` as a subcommand) the following would be output
 
 ```sh
 $ myapp --help
