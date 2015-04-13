@@ -1,3 +1,5 @@
+use usageparser::{UsageParser, UsageToken};
+
 /// The abstract representation of a command line argument used by the consumer of the library.
 /// Used to set all the options and relationships that define a valid argument for the program.
 /// 
@@ -74,6 +76,9 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// and positional arguments (i.e. those without a `-` or `--`) the name will also 
     /// be displayed when the user prints the usage/help information of the program.
     ///
+    /// **NOTE:** this function is deprecated in favor of Arg::with_name() to stay in line with
+    /// Rust APIs
+    ///
     /// Example:
     ///
     /// ```no_run
@@ -83,6 +88,8 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// Arg::new("conifg")
     /// # .short("c")
     /// # ).get_matches();
+    #[deprecated(since  = "0.5.15",
+                 reason = "use Arg::with_name() instead")]
     pub fn new(n: &'n str) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
         Arg {
             name: n,
@@ -92,6 +99,103 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
             required: false,
             takes_value: false,
             multiple: false,
+            index: None,
+            possible_vals: None,
+            blacklist: None,
+            requires: None,
+        }
+    }
+
+    /// Creates a new instace of `Arg` using a unique string name. 
+    /// The name will be used by the library consumer to get information about
+    /// whether or not the argument was used at runtime. 
+    ///
+    /// **NOTE:** in the case of arguments that take values (i.e. `takes_value(true)`)
+    /// and positional arguments (i.e. those without a `-` or `--`) the name will also 
+    /// be displayed when the user prints the usage/help information of the program.
+    ///
+    /// Example:
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let matches = App::new("myprog")
+    /// #                 .arg(
+    /// Arg::with_name("conifg")
+    /// # .short("c")
+    /// # ).get_matches();
+    pub fn with_name(n: &'n str) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+        Arg {
+            name: n,
+            short: None,
+            long: None,
+            help: None,
+            required: false,
+            takes_value: false,
+            multiple: false,
+            index: None,
+            possible_vals: None,
+            blacklist: None,
+            requires: None,
+        }
+    }
+
+    pub fn from_usage(u: &'n str) -> Arg<'n, 'n, 'n, 'b, 'p, 'r> {
+        assert!(u.len() > 0, "Arg::from_usage() requires a non-zero-length usage string but none was provided");
+
+         let mut name = None;
+         let mut short = None;
+         let mut long = None;
+         let mut help = None;
+         let mut required = false;
+         let mut takes_value = false;
+         let mut multiple = false;
+        
+        let parser = UsageParser::with_usage(u);
+        for_match!{ parser,
+            UsageToken::Name(n, req) => {
+                if name.is_none() {
+                    name = Some(n);
+                    if let Some(m) = req {
+                        required = m;
+                    }
+                } 
+                if short.is_some() || long.is_some() {
+                    takes_value = true;
+                }
+                if let Some(l) = long {
+                    if n != name.unwrap() && name.unwrap() == l {
+                        name = Some(n);
+                        if let Some(m) = req {
+                            required = m;
+                        }
+                    }
+                }   
+            },
+            UsageToken::Short(s)     => { 
+                short = Some(s); 
+            },
+            UsageToken::Long(l)      => { 
+                long = Some(l); 
+                if name.is_none() {
+                    name = Some(l);
+                }
+            },
+            UsageToken::Help(h)      => {
+                help = Some(h);
+            },
+            UsageToken::Multiple     => {
+                multiple = true;
+            }
+        }
+
+        Arg {
+            name: name.unwrap(),
+            short: short,
+            long: long,
+            help: help,
+            required: required,
+            takes_value: takes_value,
+            multiple: multiple,
             index: None,
             possible_vals: None,
             blacklist: None,

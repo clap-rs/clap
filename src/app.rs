@@ -219,16 +219,20 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         if a.required {
             self.required.insert(a.name);
         }
-        if let Some(i) = a.index {
+        if a.index.is_some() || (a.short.is_none() && a.long.is_none()) {
+            let i = if a.index.is_none() {(self.positionals_idx.len() + 1) as u8 } else { a.index.unwrap() };
+
             if a.short.is_some() || a.long.is_some() {
                 panic!("Argument \"{}\" has conflicting requirements, both index() and short(), or long(), were supplied", a.name);
             }
+
             if self.positionals_idx.contains_key(&i) {
                 panic!("Argument \"{}\" has the same index as another positional argument", a.name);
             }
             if a.takes_value {
                 panic!("Argument \"{}\" has conflicting requirements, both index() and takes_value(true) were supplied", a.name);
             }
+
 
             // Create the Positional Arguemnt Builder with each HashSet = None to only allocate those that require it
             let mut pb = PosBuilder {
@@ -304,7 +308,8 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             self.opts.insert(a.name, ob);
         } else {
             if a.short.is_none() && a.long.is_none() {
-                panic!("Argument \"{}\" must have either a short() and/or long() supplied since no index() or takes_value() were found", a.name);
+                // Could be a posistional constructed from usage string
+
             }
             if a.required {
                 panic!("Argument \"{}\" cannot be required(true) because it has no index() or takes_value(true)", a.name);
