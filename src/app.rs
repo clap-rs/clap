@@ -365,6 +365,43 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         self
     }
 
+    /// Adds an argument from a usage string. See Arg::from_usage() for details
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let app = App::new("myprog")
+    /// .arg_from_usage("-c --conf=<config> 'Sets a configuration file to use'")
+    /// # .get_matches();
+    /// ```
+    pub fn arg_from_usage(mut self, usage: &'ar str) -> App<'a, 'v, 'ab, 'u, 'ar> {
+        self = self.arg(Arg::from_usage(usage));
+        self
+    }
+
+    /// Adds multiple arguments from a usage string, one per line. See Arg::from_usage() for
+    /// details
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let app = App::new("myprog")
+    /// .args_from_usage(
+    ///    "-c --conf=[config] 'Sets a configuration file to use'
+    ///    [debug]... -d 'Sets the debugging level'
+    ///    <input> 'The input file to use'")
+    /// # .get_matches();
+    /// ```
+    pub fn args_from_usage(mut self, usage: &'ar str) -> App<'a, 'v, 'ab, 'u, 'ar> {
+        for l in usage.lines() {
+            self = self.arg(Arg::from_usage(l));
+        }
+        self
+    }
+
+
     /// Adds a subcommand to the list of valid possibilties. Subcommands are effectively sub apps,
     /// because they can contain their own arguments, subcommands, version, usage, etc. They also
     /// function just like apps, in that they get their own auto generated help and version
