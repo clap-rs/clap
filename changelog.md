@@ -1,3 +1,13 @@
+<a name="v0.6.1"></a>
+## v0.6.1 (2015-04-13)
+
+
+#### Bug Fixes
+
+* **from_usage**  trim all whitespace before parsing ([91d29045](https://github.com/kbknapp/clap-rs/commit/91d2904599bd602deef2e515dfc65dc2863bdea0))
+
+
+
 <a name="v0.6.0"></a>
 ## v0.6.0 (2015-04-13)
 
