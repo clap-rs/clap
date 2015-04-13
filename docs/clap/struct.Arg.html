@@ -43,7 +43,7 @@
     <section id='main' class="content struct">
 <h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>clap</a>::<wbr><a class='struct' href=''>Arg</a><wbr></span><span class='out-of-band'><span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-8364' href='../src/clap/args/arg.rs.html#21-66'>[src]</a></span></h1>
+        </span><a id='src-8420' href='../src/clap/args/arg.rs.html#23-68'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct Arg&lt;'n, 'l, 'h, 'b, 'p, 'r&gt; {
     // some fields omitted
 }</pre><div class='docblock'><p>The abstract representation of a command line argument used by the consumer of the library.
@@ -70,9 +70,68 @@ whether or not the argument was used at runtime. </p>
 and positional arguments (i.e. those without a <code>-</code> or <code>--</code>) the name will also 
 be displayed when the user prints the usage/help information of the program.</p>
 
+<p><strong>NOTE:</strong> this function is deprecated in favor of Arg::with_name() to stay in line with
+Rust APIs</p>
+
 <p>Example:</p>
 <pre id='rust-example-rendered' class='rust '>
 <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;conifg&quot;</span>)
+</pre>
+</div><h4 id='method.with_name' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.with_name' class='fnname'>with_name</a>(n: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'b, 'p, 'r&gt;</code></h4>
+<div class='docblock'><p>Creates a new instace of <code>Arg</code> using a unique string name.
+The name will be used by the library consumer to get information about
+whether or not the argument was used at runtime. </p>
+
+<p><strong>NOTE:</strong> in the case of arguments that take values (i.e. <code>takes_value(true)</code>)
+and positional arguments (i.e. those without a <code>-</code> or <code>--</code>) the name will also 
+be displayed when the user prints the usage/help information of the program.</p>
+
+<p>Example:</p>
+<pre id='rust-example-rendered' class='rust '>
+<span class='ident'>Arg</span>::<span class='ident'>with_name</span>(<span class='string'>&quot;conifg&quot;</span>)
+</pre>
+</div><h4 id='method.from_usage' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.from_usage' class='fnname'>from_usage</a>(u: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'n, 'n, 'b, 'p, 'r&gt;</code></h4>
+<div class='docblock'><p>Creates a new instace of <code>Arg</code> using a usage string. Allows creation of basic settings
+for Arg (i.e. everything except relational rules). The syntax is flexible, but there are
+some rules to follow.</p>
+
+<p>The syntax should be as follows (only properties which you wish to set must be present):</p>
+
+<ol>
+<li>Name (arguments with a <code>long</code> or that take a value can ommit this if desired),
+use <code>[]</code> for non-required arguments, or <code>&lt;&gt;</code> for required arguments.</li>
+<li>Short preceded by a <code>-</code></li>
+<li>Long preceded by a <code>--</code> (this may be used as the name, if the name is omitted. If the
+name is <em>not</em> omittied, the name takes precedence)</li>
+<li>Value (this can be used as the name, if the name is not manually specified. If the name
+is manually specified, it takes precence. If this value is used as the name, it uses the
+same <code>[]</code> and <code>&lt;&gt;</code> requirement rules. If it is <em>not</em> used as the name, it still needs to
+be surrounded by either <code>[]</code> or <code>&lt;&gt;</code> but the effect is the same, as the requirement rule
+is determined by the name. The value may follow the <code>short</code> or <code>long</code>. If it
+follows the <code>long</code>, it may follow either a <code>=</code> or <code></code> with the same effect, personal
+preference only, but may only follow a <code></code> after a <code>short</code>)</li>
+<li>Multiple specifier <code>...</code> (for flags or positional arguments the <code>...</code> may follow the
+name or <code>short</code> or <code>long</code>)</li>
+<li>The help info surrounded by <code>&#39;</code></li>
+<li>The index of a positional argument will be the next available index (you don&#39;t need to
+specify one)</li>
+</ol>
+
+<p>Example:</p>
+<pre id='rust-example-rendered' class='rust '>
+                 .<span class='ident'>args</span>(<span class='macro'>vec</span><span class='macro'>!</span>[
+<span class='comment'>// A option argument with a long, named &quot;conf&quot; (note: because the name was specified</span>
+<span class='comment'>// the portion after the long can be called anything, only the first name will be displayed</span>
+<span class='comment'>// to the user. Also, requirement is set with the *name*, so the portion after the long could</span>
+<span class='comment'>// be either &lt;&gt; or [] and it wouldn&#39;t matter, so long as it&#39;s one of them. Had the name been</span>
+<span class='comment'>// omitted, the name would have been derived from the portion after the long and those rules</span>
+<span class='comment'>// would have mattered)</span>
+<span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;[conf] --config=[c] &#39;a required file for the configuration&#39;&quot;</span>),
+<span class='comment'>// A flag with a short, a long, named &quot;debug&quot;, and accepts multiple values</span>
+<span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;-d --debug... &#39;turns on debugging information&quot;</span>),
+<span class='comment'>// A required positional argument named &quot;input&quot;</span>
+<span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;&lt;input&gt; &#39;the input file to use&#39;&quot;</span>)
+])
 </pre>
 </div><h4 id='method.short' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.short' class='fnname'>short</a>(self, s: &amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'b, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Sets the short version of the argument without the preceding <code>-</code>.</p>

@@ -1301,6 +1301,48 @@
 <span id="1259">1259</span>
 <span id="1260">1260</span>
 <span id="1261">1261</span>
+<span id="1262">1262</span>
+<span id="1263">1263</span>
+<span id="1264">1264</span>
+<span id="1265">1265</span>
+<span id="1266">1266</span>
+<span id="1267">1267</span>
+<span id="1268">1268</span>
+<span id="1269">1269</span>
+<span id="1270">1270</span>
+<span id="1271">1271</span>
+<span id="1272">1272</span>
+<span id="1273">1273</span>
+<span id="1274">1274</span>
+<span id="1275">1275</span>
+<span id="1276">1276</span>
+<span id="1277">1277</span>
+<span id="1278">1278</span>
+<span id="1279">1279</span>
+<span id="1280">1280</span>
+<span id="1281">1281</span>
+<span id="1282">1282</span>
+<span id="1283">1283</span>
+<span id="1284">1284</span>
+<span id="1285">1285</span>
+<span id="1286">1286</span>
+<span id="1287">1287</span>
+<span id="1288">1288</span>
+<span id="1289">1289</span>
+<span id="1290">1290</span>
+<span id="1291">1291</span>
+<span id="1292">1292</span>
+<span id="1293">1293</span>
+<span id="1294">1294</span>
+<span id="1295">1295</span>
+<span id="1296">1296</span>
+<span id="1297">1297</span>
+<span id="1298">1298</span>
+<span id="1299">1299</span>
+<span id="1300">1300</span>
+<span id="1301">1301</span>
+<span id="1302">1302</span>
+<span id="1303">1303</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>BTreeMap</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>BTreeSet</span>;
@@ -1523,16 +1565,20 @@
         <span class='kw'>if</span> <span class='ident'>a</span>.<span class='ident'>required</span> {
             <span class='self'>self</span>.<span class='ident'>required</span>.<span class='ident'>insert</span>(<span class='ident'>a</span>.<span class='ident'>name</span>);
         }
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>i</span>) <span class='op'>=</span> <span class='ident'>a</span>.<span class='ident'>index</span> {
+        <span class='kw'>if</span> <span class='ident'>a</span>.<span class='ident'>index</span>.<span class='ident'>is_some</span>() <span class='op'>||</span> (<span class='ident'>a</span>.<span class='ident'>short</span>.<span class='ident'>is_none</span>() <span class='op'>&amp;&amp;</span> <span class='ident'>a</span>.<span class='ident'>long</span>.<span class='ident'>is_none</span>()) {
+            <span class='kw'>let</span> <span class='ident'>i</span> <span class='op'>=</span> <span class='kw'>if</span> <span class='ident'>a</span>.<span class='ident'>index</span>.<span class='ident'>is_none</span>() {(<span class='self'>self</span>.<span class='ident'>positionals_idx</span>.<span class='ident'>len</span>() <span class='op'>+</span> <span class='number'>1</span>) <span class='kw'>as</span> <span class='ident'>u8</span> } <span class='kw'>else</span> { <span class='ident'>a</span>.<span class='ident'>index</span>.<span class='ident'>unwrap</span>() };
+
             <span class='kw'>if</span> <span class='ident'>a</span>.<span class='ident'>short</span>.<span class='ident'>is_some</span>() <span class='op'>||</span> <span class='ident'>a</span>.<span class='ident'>long</span>.<span class='ident'>is_some</span>() {
                 <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Argument \&quot;{}\&quot; has conflicting requirements, both index() and short(), or long(), were supplied&quot;</span>, <span class='ident'>a</span>.<span class='ident'>name</span>);
             }
+
             <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>positionals_idx</span>.<span class='ident'>contains_key</span>(<span class='kw-2'>&amp;</span><span class='ident'>i</span>) {
                 <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Argument \&quot;{}\&quot; has the same index as another positional argument&quot;</span>, <span class='ident'>a</span>.<span class='ident'>name</span>);
             }
             <span class='kw'>if</span> <span class='ident'>a</span>.<span class='ident'>takes_value</span> {
                 <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Argument \&quot;{}\&quot; has conflicting requirements, both index() and takes_value(true) were supplied&quot;</span>, <span class='ident'>a</span>.<span class='ident'>name</span>);
             }
+
 
             <span class='comment'>// Create the Positional Arguemnt Builder with each HashSet = None to only allocate those that require it</span>
             <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>pb</span> <span class='op'>=</span> <span class='ident'>PosBuilder</span> {
@@ -1608,7 +1654,8 @@
             <span class='self'>self</span>.<span class='ident'>opts</span>.<span class='ident'>insert</span>(<span class='ident'>a</span>.<span class='ident'>name</span>, <span class='ident'>ob</span>);
         } <span class='kw'>else</span> {
             <span class='kw'>if</span> <span class='ident'>a</span>.<span class='ident'>short</span>.<span class='ident'>is_none</span>() <span class='op'>&amp;&amp;</span> <span class='ident'>a</span>.<span class='ident'>long</span>.<span class='ident'>is_none</span>() {
-                <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Argument \&quot;{}\&quot; must have either a short() and/or long() supplied since no index() or takes_value() were found&quot;</span>, <span class='ident'>a</span>.<span class='ident'>name</span>);
+                <span class='comment'>// Could be a posistional constructed from usage string</span>
+
             }
             <span class='kw'>if</span> <span class='ident'>a</span>.<span class='ident'>required</span> {
                 <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Argument \&quot;{}\&quot; cannot be required(true) because it has no index() or takes_value(true)&quot;</span>, <span class='ident'>a</span>.<span class='ident'>name</span>);
@@ -1663,6 +1710,43 @@
         }
         <span class='self'>self</span>
     }
+
+    <span class='doccomment'>/// Adds an argument from a usage string. See Arg::from_usage() for details</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let app = App::new(&quot;myprog&quot;)</span>
+    <span class='doccomment'>/// .arg_from_usage(&quot;-c --conf=&lt;config&gt; &#39;Sets a configuration file to use&#39;&quot;)</span>
+    <span class='doccomment'>/// # .get_matches();</span>
+    <span class='doccomment'>/// ```</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>arg_from_usage</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>usage</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;ar</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
+        <span class='self'>self</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='ident'>usage</span>));
+        <span class='self'>self</span>
+    }
+
+    <span class='doccomment'>/// Adds multiple arguments from a usage string, one per line. See Arg::from_usage() for</span>
+    <span class='doccomment'>/// details</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let app = App::new(&quot;myprog&quot;)</span>
+    <span class='doccomment'>/// .args_from_usage(</span>
+    <span class='doccomment'>///    &quot;-c --conf=[config] &#39;Sets a configuration file to use&#39;</span>
+    <span class='doccomment'>///    [debug]... -d &#39;Sets the debugging level&#39;</span>
+    <span class='doccomment'>///    &lt;input&gt; &#39;The input file to use&#39;&quot;)</span>
+    <span class='doccomment'>/// # .get_matches();</span>
+    <span class='doccomment'>/// ```</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>args_from_usage</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>usage</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;ar</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
+        <span class='kw'>for</span> <span class='ident'>l</span> <span class='kw'>in</span> <span class='ident'>usage</span>.<span class='ident'>lines</span>() {
+            <span class='self'>self</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='ident'>l</span>));
+        }
+        <span class='self'>self</span>
+    }
+
 
     <span class='doccomment'>/// Adds a subcommand to the list of valid possibilties. Subcommands are effectively sub apps,</span>
     <span class='doccomment'>/// because they can contain their own arguments, subcommands, version, usage, etc. They also</span>

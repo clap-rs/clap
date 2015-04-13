@@ -411,7 +411,158 @@
 <span id="369">369</span>
 <span id="370">370</span>
 <span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
 </pre><pre class='rust '>
+<span class='kw'>use</span> <span class='ident'>usageparser</span>::{<span class='ident'>UsageParser</span>, <span class='ident'>UsageToken</span>};
+
 <span class='doccomment'>/// The abstract representation of a command line argument used by the consumer of the library.</span>
 <span class='doccomment'>/// Used to set all the options and relationships that define a valid argument for the program.</span>
 <span class='doccomment'>/// </span>
@@ -488,6 +639,9 @@
     <span class='doccomment'>/// and positional arguments (i.e. those without a `-` or `--`) the name will also </span>
     <span class='doccomment'>/// be displayed when the user prints the usage/help information of the program.</span>
     <span class='doccomment'>///</span>
+    <span class='doccomment'>/// **NOTE:** this function is deprecated in favor of Arg::with_name() to stay in line with</span>
+    <span class='doccomment'>/// Rust APIs</span>
+    <span class='doccomment'>///</span>
     <span class='doccomment'>/// Example:</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// ```no_run</span>
@@ -497,6 +651,8 @@
     <span class='doccomment'>/// Arg::new(&quot;conifg&quot;)</span>
     <span class='doccomment'>/// # .short(&quot;c&quot;)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
+    <span class='attribute'>#[<span class='ident'>deprecated</span>(<span class='ident'>since</span>  <span class='op'>=</span> <span class='string'>&quot;0.5.15&quot;</span>,
+                 <span class='ident'>reason</span> <span class='op'>=</span> <span class='string'>&quot;use Arg::with_name() instead&quot;</span>)]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;n</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
         <span class='ident'>Arg</span> {
             <span class='ident'>name</span>: <span class='ident'>n</span>,
@@ -506,6 +662,148 @@
             <span class='ident'>required</span>: <span class='boolval'>false</span>,
             <span class='ident'>takes_value</span>: <span class='boolval'>false</span>,
             <span class='ident'>multiple</span>: <span class='boolval'>false</span>,
+            <span class='ident'>index</span>: <span class='prelude-val'>None</span>,
+            <span class='ident'>possible_vals</span>: <span class='prelude-val'>None</span>,
+            <span class='ident'>blacklist</span>: <span class='prelude-val'>None</span>,
+            <span class='ident'>requires</span>: <span class='prelude-val'>None</span>,
+        }
+    }
+
+    <span class='doccomment'>/// Creates a new instace of `Arg` using a unique string name. </span>
+    <span class='doccomment'>/// The name will be used by the library consumer to get information about</span>
+    <span class='doccomment'>/// whether or not the argument was used at runtime. </span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// **NOTE:** in the case of arguments that take values (i.e. `takes_value(true)`)</span>
+    <span class='doccomment'>/// and positional arguments (i.e. those without a `-` or `--`) the name will also </span>
+    <span class='doccomment'>/// be displayed when the user prints the usage/help information of the program.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
+    <span class='doccomment'>/// #                 .arg(</span>
+    <span class='doccomment'>/// Arg::with_name(&quot;conifg&quot;)</span>
+    <span class='doccomment'>/// # .short(&quot;c&quot;)</span>
+    <span class='doccomment'>/// # ).get_matches();</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>with_name</span>(<span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;n</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
+        <span class='ident'>Arg</span> {
+            <span class='ident'>name</span>: <span class='ident'>n</span>,
+            <span class='ident'>short</span>: <span class='prelude-val'>None</span>,
+            <span class='ident'>long</span>: <span class='prelude-val'>None</span>,
+            <span class='ident'>help</span>: <span class='prelude-val'>None</span>,
+            <span class='ident'>required</span>: <span class='boolval'>false</span>,
+            <span class='ident'>takes_value</span>: <span class='boolval'>false</span>,
+            <span class='ident'>multiple</span>: <span class='boolval'>false</span>,
+            <span class='ident'>index</span>: <span class='prelude-val'>None</span>,
+            <span class='ident'>possible_vals</span>: <span class='prelude-val'>None</span>,
+            <span class='ident'>blacklist</span>: <span class='prelude-val'>None</span>,
+            <span class='ident'>requires</span>: <span class='prelude-val'>None</span>,
+        }
+    }
+
+    <span class='doccomment'>/// Creates a new instace of `Arg` using a usage string. Allows creation of basic settings</span>
+    <span class='doccomment'>/// for Arg (i.e. everything except relational rules). The syntax is flexible, but there are</span>
+    <span class='doccomment'>/// some rules to follow.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// The syntax should be as follows (only properties which you wish to set must be present):</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// 1. Name (arguments with a `long` or that take a value can ommit this if desired),</span>
+    <span class='doccomment'>///    use `[]` for non-required arguments, or `&lt;&gt;` for required arguments.</span>
+    <span class='doccomment'>/// 2. Short preceded by a `-`</span>
+    <span class='doccomment'>/// 3. Long preceded by a `--` (this may be used as the name, if the name is omitted. If the</span>
+    <span class='doccomment'>///    name is *not* omittied, the name takes precedence)</span>
+    <span class='doccomment'>/// 4. Value (this can be used as the name, if the name is not manually specified. If the name</span>
+    <span class='doccomment'>///    is manually specified, it takes precence. If this value is used as the name, it uses the</span>
+    <span class='doccomment'>///    same `[]` and `&lt;&gt;` requirement rules. If it is *not* used as the name, it still needs to</span>
+    <span class='doccomment'>///    be surrounded by either `[]` or `&lt;&gt;` but the effect is the same, as the requirement rule</span>
+    <span class='doccomment'>///    is determined by the name. The value may follow the `short` or `long`. If it</span>
+    <span class='doccomment'>///    follows the `long`, it may follow either a `=` or ` ` with the same effect, personal</span>
+    <span class='doccomment'>///    preference only, but may only follow a ` ` after a `short`)</span>
+    <span class='doccomment'>/// 5. Multiple specifier `...` (for flags or positional arguments the `...` may follow the</span>
+    <span class='doccomment'>///    name or `short` or `long`)</span>
+    <span class='doccomment'>/// 6. The help info surrounded by `&#39;`</span>
+    <span class='doccomment'>/// 7. The index of a positional argument will be the next available index (you don&#39;t need to</span>
+    <span class='doccomment'>///    specify one)</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// </span>
+    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
+    <span class='doccomment'>///                  .args(vec![</span>
+    <span class='doccomment'>/// // A option argument with a long, named &quot;conf&quot; (note: because the name was specified</span>
+    <span class='doccomment'>/// // the portion after the long can be called anything, only the first name will be displayed</span>
+    <span class='doccomment'>/// // to the user. Also, requirement is set with the *name*, so the portion after the long could</span>
+    <span class='doccomment'>/// // be either &lt;&gt; or [] and it wouldn&#39;t matter, so long as it&#39;s one of them. Had the name been</span>
+    <span class='doccomment'>/// // omitted, the name would have been derived from the portion after the long and those rules</span>
+    <span class='doccomment'>/// // would have mattered)</span>
+    <span class='doccomment'>/// Arg::from_usage(&quot;[conf] --config=[c] &#39;a required file for the configuration&#39;&quot;),</span>
+    <span class='doccomment'>/// // A flag with a short, a long, named &quot;debug&quot;, and accepts multiple values</span>
+    <span class='doccomment'>/// Arg::from_usage(&quot;-d --debug... &#39;turns on debugging information&quot;),</span>
+    <span class='doccomment'>/// // A required positional argument named &quot;input&quot;</span>
+    <span class='doccomment'>/// Arg::from_usage(&quot;&lt;input&gt; &#39;the input file to use&#39;&quot;)</span>
+    <span class='doccomment'>/// ])</span>
+    <span class='doccomment'>/// # </span>
+    <span class='doccomment'>/// # .get_matches();</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>from_usage</span>(<span class='ident'>u</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;n</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
+        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>u</span>.<span class='ident'>len</span>() <span class='op'>&gt;</span> <span class='number'>0</span>, <span class='string'>&quot;Arg::from_usage() requires a non-zero-length usage string but none was provided&quot;</span>);
+
+         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>name</span> <span class='op'>=</span> <span class='prelude-val'>None</span>;
+         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>short</span> <span class='op'>=</span> <span class='prelude-val'>None</span>;
+         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>long</span> <span class='op'>=</span> <span class='prelude-val'>None</span>;
+         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>help</span> <span class='op'>=</span> <span class='prelude-val'>None</span>;
+         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>required</span> <span class='op'>=</span> <span class='boolval'>false</span>;
+         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>takes_value</span> <span class='op'>=</span> <span class='boolval'>false</span>;
+         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>multiple</span> <span class='op'>=</span> <span class='boolval'>false</span>;
+        
+        <span class='kw'>let</span> <span class='ident'>parser</span> <span class='op'>=</span> <span class='ident'>UsageParser</span>::<span class='ident'>with_usage</span>(<span class='ident'>u</span>);
+        <span class='macro'>for_match</span><span class='macro'>!</span>{ <span class='ident'>parser</span>,
+            <span class='ident'>UsageToken</span>::<span class='ident'>Name</span>(<span class='ident'>n</span>, <span class='ident'>req</span>) <span class='op'>=&gt;</span> {
+                <span class='kw'>if</span> <span class='ident'>name</span>.<span class='ident'>is_none</span>() {
+                    <span class='ident'>name</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>n</span>);
+                    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>m</span>) <span class='op'>=</span> <span class='ident'>req</span> {
+                        <span class='ident'>required</span> <span class='op'>=</span> <span class='ident'>m</span>;
+                    }
+                } 
+                <span class='kw'>if</span> <span class='ident'>short</span>.<span class='ident'>is_some</span>() <span class='op'>||</span> <span class='ident'>long</span>.<span class='ident'>is_some</span>() {
+                    <span class='ident'>takes_value</span> <span class='op'>=</span> <span class='boolval'>true</span>;
+                }
+                <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>l</span>) <span class='op'>=</span> <span class='ident'>long</span> {
+                    <span class='kw'>if</span> <span class='ident'>n</span> <span class='op'>!=</span> <span class='ident'>name</span>.<span class='ident'>unwrap</span>() <span class='op'>&amp;&amp;</span> <span class='ident'>name</span>.<span class='ident'>unwrap</span>() <span class='op'>==</span> <span class='ident'>l</span> {
+                        <span class='ident'>name</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>n</span>);
+                        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>m</span>) <span class='op'>=</span> <span class='ident'>req</span> {
+                            <span class='ident'>required</span> <span class='op'>=</span> <span class='ident'>m</span>;
+                        }
+                    }
+                }   
+            },
+            <span class='ident'>UsageToken</span>::<span class='ident'>Short</span>(<span class='ident'>s</span>)     <span class='op'>=&gt;</span> { 
+                <span class='ident'>short</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>s</span>); 
+            },
+            <span class='ident'>UsageToken</span>::<span class='ident'>Long</span>(<span class='ident'>l</span>)      <span class='op'>=&gt;</span> { 
+                <span class='ident'>long</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>l</span>); 
+                <span class='kw'>if</span> <span class='ident'>name</span>.<span class='ident'>is_none</span>() {
+                    <span class='ident'>name</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>l</span>);
+                }
+            },
+            <span class='ident'>UsageToken</span>::<span class='ident'>Help</span>(<span class='ident'>h</span>)      <span class='op'>=&gt;</span> {
+                <span class='ident'>help</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>h</span>);
+            },
+            <span class='ident'>UsageToken</span>::<span class='ident'>Multiple</span>     <span class='op'>=&gt;</span> {
+                <span class='ident'>multiple</span> <span class='op'>=</span> <span class='boolval'>true</span>;
+            }
+        }
+
+        <span class='ident'>Arg</span> {
+            <span class='ident'>name</span>: <span class='ident'>name</span>.<span class='ident'>unwrap</span>(),
+            <span class='ident'>short</span>: <span class='ident'>short</span>,
+            <span class='ident'>long</span>: <span class='ident'>long</span>,
+            <span class='ident'>help</span>: <span class='ident'>help</span>,
+            <span class='ident'>required</span>: <span class='ident'>required</span>,
+            <span class='ident'>takes_value</span>: <span class='ident'>takes_value</span>,
+            <span class='ident'>multiple</span>: <span class='ident'>multiple</span>,
             <span class='ident'>index</span>: <span class='prelude-val'>None</span>,
             <span class='ident'>possible_vals</span>: <span class='prelude-val'>None</span>,
             <span class='ident'>blacklist</span>: <span class='prelude-val'>None</span>,

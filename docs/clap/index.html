@@ -43,7 +43,7 @@
     <section id='main' class="content mod">
 <h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>clap</a><wbr></span><span class='out-of-band'><a href='stability.html'>[stability]</a> <span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-0' href='../src/clap/lib.rs.html#1-341'>[src]</a></span></h1>
+        </span><a id='src-0' href='../src/clap/lib.rs.html#1-901'>[src]</a></span></h1>
 <div class='docblock'>
 <h1 id="clap" class='section-header'><a
                            href="#clap">clap</a></h1>
@@ -56,6 +56,8 @@
 <h2 id="video-tutorials" class='section-header'><a
                            href="#video-tutorials">Video Tutorials</a></h2>
 <p>I&#39;ve been working on a few short video tutorials about using <code>clap</code>. They&#39;re located on <a href="https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv">youtube</a>. </p>
+
+<p><em>Note</em>: The videos have not been updated to include the new <code>from_usage()</code> methods which make building args significantly less verbose. New videos will be added soon.</p>
 
 <p><em>Note</em>: Apologies for the resolution of the first video, it will be updated to a better resolution soon. The other videos have a proper resolution.</p>
 
@@ -125,7 +127,58 @@
 
 <h2 id="quick-example" class='section-header'><a
                            href="#quick-example">Quick Example</a></h2>
-<p>The following shows a quick example of some of the basic functionality of <code>clap</code>. For more advanced usage, such as requirements, exclusions, multiple values and occurrences see the <a href="https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv">video tutorials</a>, <a href="http://kbknapp.github.io/clap-rs/docs/clap/index.html">documentation</a>, or <code>examples/</code> directory of this repository.</p>
+<p>The following two examples (which are functionally equivilant, but show two different ways to use <code>clap</code>) show a quick example of some of the basic functionality of <code>clap</code>. For more advanced usage, such as requirements, exclusions, multiple values and occurrences see the <a href="https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv">video tutorials</a>, <a href="http://kbknapp.github.io/clap-rs/docs/clap/index.html">documentation</a>, or <code>examples/</code> directory of this repository.</p>
+<pre id='rust-example-rendered' class='rust '>
+<span class='comment'>// (Full example with comments in examples/01_QuickExample.rs)</span>
+<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>clap</span>;
+<span class='kw'>use</span> <span class='ident'>clap</span>::{<span class='ident'>Arg</span>, <span class='ident'>App</span>, <span class='ident'>SubCommand</span>};
+ 
+<span class='kw'>fn</span> <span class='ident'>main</span>() {
+    <span class='kw'>let</span> <span class='ident'>matches</span> <span class='op'>=</span> <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;myapp&quot;</span>)
+                          .<span class='ident'>version</span>(<span class='string'>&quot;1.0&quot;</span>)
+                          .<span class='ident'>author</span>(<span class='string'>&quot;Kevin K. &lt;kbknapp@gmail.com&gt;&quot;</span>)
+                          .<span class='ident'>about</span>(<span class='string'>&quot;Does awesome things&quot;</span>)
+                          .<span class='ident'>args_from_usage</span>(
+<span class='string'>&quot;-c --config=[CONFIG] &#39;Sets a custom config file&#39;
+&lt;INPUT&gt; &#39;Sets the input file to use&#39;
+[debug]... -d &#39;Sets the level of debugging information&#39;&quot;</span>)
+                          .<span class='ident'>subcommand</span>(<span class='ident'>SubCommand</span>::<span class='ident'>new</span>(<span class='string'>&quot;test&quot;</span>)
+                                      .<span class='ident'>about</span>(<span class='string'>&quot;controls testing features&quot;</span>)
+                                      .<span class='ident'>version</span>(<span class='string'>&quot;1.3&quot;</span>)
+                                      .<span class='ident'>author</span>(<span class='string'>&quot;Someone E. &lt;someone_else@other.com&gt;&quot;</span>)
+                                      .<span class='ident'>arg_from_usage</span>(<span class='string'>&quot;-v --verbose &#39;Print test information verbosely&#39;&quot;</span>))
+                          .<span class='ident'>get_matches</span>();
+ 
+    <span class='comment'>// Calling .unwrap() is safe here because &quot;INPUT&quot; is required (if &quot;INPUT&quot; wasn&#39;t</span>
+    <span class='comment'>// required we could have used an &#39;if let&#39; to conditionally get the value)</span>
+    <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Using input file: {}&quot;</span>, <span class='ident'>matches</span>.<span class='ident'>value_of</span>(<span class='string'>&quot;INPUT&quot;</span>).<span class='ident'>unwrap</span>());
+     
+    <span class='comment'>// Gets a value for config if supplied by user, or defaults to &quot;default.conf&quot;</span>
+    <span class='kw'>let</span> <span class='ident'>config</span> <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>value_of</span>(<span class='string'>&quot;CONFIG&quot;</span>).<span class='ident'>unwrap_or</span>(<span class='string'>&quot;default.conf&quot;</span>);
+    <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Value for config: {}&quot;</span>, <span class='ident'>config</span>);
+     
+    <span class='comment'>// Vary the output based on how many times the user used the &quot;debug&quot; flag</span>
+    <span class='comment'>// (i.e. &#39;myapp -d -d -d&#39; or &#39;myapp -ddd&#39; vs &#39;myapp -d&#39;   </span>
+    <span class='kw'>match</span> <span class='ident'>matches</span>.<span class='ident'>occurrences_of</span>(<span class='string'>&quot;debug&quot;</span>) {
+        <span class='number'>0</span> <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Debug mode is off&quot;</span>),
+        <span class='number'>1</span> <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Debug mode is kind of on&quot;</span>),
+        <span class='number'>2</span> <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Debug mode is on&quot;</span>),
+        <span class='number'>3</span> <span class='op'>|</span> _ <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Don&#39;t be crazy&quot;</span>),
+    }
+ 
+    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>matches</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>subcommand_matches</span>(<span class='string'>&quot;test&quot;</span>) {
+        <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>is_present</span>(<span class='string'>&quot;verbose&quot;</span>) {
+            <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Printing verbosely...&quot;</span>);
+        } <span class='kw'>else</span> {
+            <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Printing normally...&quot;</span>);
+        }
+    }
+ 
+    <span class='comment'>// more porgram logic goes here...</span>
+}
+</pre>
+
+<p>While the following example is functionally the same as the one above, this method allows more advanced configuration options, or even dynamically generating arguments when desired. Both methods can be used together to get the best of both worlds (see the documentation).</p>
 <pre id='rust-example-rendered' class='rust '>
 <span class='comment'>// (Full example with comments in examples/01_QuickExample.rs)</span>
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>clap</span>;
@@ -148,7 +201,7 @@
                           .<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;debug&quot;</span>)
                                .<span class='ident'>short</span>(<span class='string'>&quot;d&quot;</span>)
                                .<span class='ident'>multiple</span>(<span class='boolval'>true</span>)
-                               .<span class='ident'>help</span>(<span class='string'>&quot;Turn debugging information on&quot;</span>))
+                               .<span class='ident'>help</span>(<span class='string'>&quot;Sets the level of debugging information&quot;</span>))
                           .<span class='ident'>subcommand</span>(<span class='ident'>SubCommand</span>::<span class='ident'>new</span>(<span class='string'>&quot;test&quot;</span>)
                                       .<span class='ident'>about</span>(<span class='string'>&quot;controls testing features&quot;</span>)
                                       .<span class='ident'>version</span>(<span class='string'>&quot;1.3&quot;</span>)
@@ -187,7 +240,7 @@
 }
 </pre>
 
-<p>If you were to compile the above program and run it with the flag <code>--help</code> or <code>-h</code> (or <code>help</code> subcommand, since we defined <code>test</code> as a subcommand) the following would be output</p>
+<p>If you were to compile either of the above programs and run them with the flag <code>--help</code> or <code>-h</code> (or <code>help</code> subcommand, since we defined <code>test</code> as a subcommand) the following would be output</p>
 
 <pre><code class="language-sh">$ myapp --help
 myapp 1.0

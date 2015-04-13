@@ -131,6 +131,24 @@ showing the usage.</p>
 .<span class='ident'>args</span>( <span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;config&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;c&quot;</span>),
                <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;debug&quot;</span>).<span class='ident'>short</span>(<span class='string'>&quot;d&quot;</span>)])
 </pre>
+</div><h4 id='method.arg_from_usage' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.arg_from_usage' class='fnname'>arg_from_usage</a>(self, usage: &amp;'ar <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u, 'ar&gt;</code></h4>
+<div class='docblock'><p>Adds an argument from a usage string. See Arg::from_usage() for details</p>
+
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
+.<span class='ident'>arg_from_usage</span>(<span class='string'>&quot;-c --conf=&lt;config&gt; &#39;Sets a configuration file to use&#39;&quot;</span>)
+</pre>
+</div><h4 id='method.args_from_usage' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.args_from_usage' class='fnname'>args_from_usage</a>(self, usage: &amp;'ar <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u, 'ar&gt;</code></h4>
+<div class='docblock'><p>Adds multiple arguments from a usage string, one per line. See Arg::from_usage() for
+details</p>
+
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
+.<span class='ident'>args_from_usage</span>(
+   <span class='string'>&quot;-c --conf=[config] &#39;Sets a configuration file to use&#39;
+   [debug]... -d &#39;Sets the debugging level&#39;
+   &lt;input&gt; &#39;The input file to use&#39;&quot;</span>)
+</pre>
 </div><h4 id='method.subcommand' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.subcommand' class='fnname'>subcommand</a>(self, subcmd: <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u, 'ar&gt;) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u, 'ar&gt;</code></h4>
 <div class='docblock'><p>Adds a subcommand to the list of valid possibilties. Subcommands are effectively sub apps,
 because they can contain their own arguments, subcommands, version, usage, etc. They also
