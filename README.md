@@ -108,6 +108,7 @@ fn main() {
     // more porgram logic goes here...
 }
 ```
+
 While the following example is functionally the same as the one above, this method allows more advanced configuration options, or even dynamically generating arguments when desired. Both methods can be used together to get the best of both worlds (see the documentation).
  
 ```rust
