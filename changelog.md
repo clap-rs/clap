@@ -1,3 +1,18 @@
+<a name="v0.6.0"></a>
+## v0.6.0 (2015-04-13)
+
+
+#### Bug Fixes
+
+* **tests**  fix failing doc tests ([3710cd69](https://github.com/kbknapp/clap-rs/commit/3710cd69162f87221a62464f63437c1ce843ad3c))
+
+#### Features
+
+* **app**  add support for building args from usage strings ([d5d48bcf](https://github.com/kbknapp/clap-rs/commit/d5d48bcf463a4e494ef758836bd69a4c220bbbb5))
+* **args**  add ability to create basic arguments from a usage string ([ab409a8f](https://github.com/kbknapp/clap-rs/commit/ab409a8f1db9e37cc70200f6f4a84a162692e618))
+
+
+
 <a name="v0.5.14"></a>
 ## v0.5.14 (2015-04-10)
 
