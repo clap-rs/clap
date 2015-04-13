@@ -3,6 +3,10 @@ extern crate clap;
 use clap::{App, Arg, SubCommand};
 
 fn main() {
+    let args = 
+"-f --flag... 'tests flags'
+-o --option=[opt]... 'tests options'
+[positional] 'tests positionals'";
     // Test version from Cargo.toml
     let version = format!("{}.{}.{}{}",
                           env!("CARGO_PKG_VERSION_MAJOR"),
@@ -13,45 +17,21 @@ fn main() {
                         .version(&version[..])
                         .about("tests clap library")
                         .author("Kevin K. <kbknapp@gmail.com>")
-                        .arg(Arg::new("flag")
-                                    .short("f")
-                                    .long("flag")
-                                    .help("tests flags")
-                                    .multiple(true))
-                        .arg(Arg::new("option")
-                                    .short("o")
-                                    .long("option")
-                                    .help("tests options")
-                                    .takes_value(true)
-                                    .multiple(true))
-                        .arg(Arg::new("positional")
-                                    .index(1)
-                                    .help("tests positionals"))
+                        .args_from_usage(args)
                         .args(vec![
-                            Arg::new("flag2").short("F").mutually_excludes("flag").help("tests flags with exclusions").requires("option2"),
-                            Arg::new("option2").takes_value(true).long("long-option-2").mutually_excludes("option").help("tests long options with exclusions and requirements").requires("positional2"),
-                            Arg::new("positional2").index(2).help("tests positionals with exclusions and multiple"),
-                            Arg::new("option3").takes_value(true).short("O").possible_values(vec!["fast", "slow"]).help("test options with specific value sets"),
-                            Arg::new("positional3").index(3).multiple(true).possible_values(vec!["vi", "emacs"]).help("tests positionals with specific value sets")
+                            Arg::from_usage("[flag2] -F 'tests flags with exclusions'").mutually_excludes("flag").requires("option2"),
+                            Arg::from_usage("--long-option-2 [option2] 'tests long options with exclusions'").mutually_excludes("option").requires("positional2"),
+                            Arg::from_usage("[positional2] 'tests positionals with exclusions'"),
+                            Arg::from_usage("-O [option3] 'tests options with specific value sets'").possible_values(vec!["fast", "slow"]),
+                            Arg::from_usage("[positional3]... 'tests positionals with specific values'").possible_values(vec!["vi", "emacs"])
                         ])
                         .subcommand(SubCommand::new("subcmd")
                                                 .about("tests subcommands")
                                                 .version("0.1")
                                                 .author("Kevin K. <kbknapp@gmail.com>")
-                                                .arg(Arg::new("scflag")
-                                                            .short("f")
-                                                            .long("flag")
-                                                            .help("tests flags")
-                                                            .multiple(true))
-                                                .arg(Arg::new("scoption")
-                                                            .short("o")
-                                                            .long("option")
-                                                            .help("tests options")
-                                                            .takes_value(true)
-                                                            .multiple(true))
-                                                .arg(Arg::new("scpositional")
-                                                            .index(1)
-                                                            .help("tests positionals")))
+                                                .arg_from_usage("[scflag] -f --flag... 'tests flags'")
+                                                .arg_from_usage("-o --option [scoption]... 'tests options'")
+                                                .arg_from_usage("[scpositional] 'tests positionals'"))
                         .get_matches();
 
     if matches.is_present("flag") {
@@ -60,11 +40,11 @@ fn main() {
         println!("flag NOT present");
     }
 
-    if matches.is_present("option") {
-        if let Some(v) = matches.value_of("option") {
-            println!("option present {} times with value: {}",matches.occurrences_of("option"), v);
+    if matches.is_present("opt") {
+        if let Some(v) = matches.value_of("opt") {
+            println!("option present {} times with value: {}",matches.occurrences_of("opt"), v);
         }
-        if let Some(ref ov) = matches.values_of("option") {
+        if let Some(ref ov) = matches.values_of("opt") {
             for o in ov {
                 println!("An option: {}", o);
             }
@@ -101,11 +81,11 @@ fn main() {
         _      => println!("positional3 NOT present")
     }
 
-    if matches.is_present("option") {
-        if let Some(v) = matches.value_of("option") {
-            println!("option present {} times with value: {}",matches.occurrences_of("option"), v);
+    if matches.is_present("opt") {
+        if let Some(v) = matches.value_of("opt") {
+            println!("option present {} times with value: {}",matches.occurrences_of("opt"), v);
         }
-        if let Some(ref ov) = matches.values_of("option") {
+        if let Some(ref ov) = matches.values_of("opt") {
             for o in ov {
                 println!("An option: {}", o);
             }

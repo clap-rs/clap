@@ -18,14 +18,14 @@ FLAGS:
     -v, --version    Prints version information
 
 OPTIONS:
-    -o, --option=option...          tests options
-        --long-option-2=option2     tests long options with exclusions and requirements
-    -O option3                      test options with specific value sets [values: fast slow]
+    -o, --option=opt...             tests options
+        --long-option-2=option2     tests long options with exclusions
+    -O option3                      tests options with specific value sets [values: fast slow]
 
 POSITIONAL ARGUMENTS:
     positional        tests positionals
-    positional2       tests positionals with exclusions and multiple
-    positional3...    tests positionals with specific value sets [values: emacs vi]
+    positional2       tests positionals with exclusions
+    positional3...    tests positionals with specific values [values: emacs vi]
 
 SUBCOMMANDS:
     help      Prints this message

@@ -5,5 +5,5 @@ version = "0.0.1"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
 
 [dependencies.clap]
-git = "https://github.com/kbknapp/clap-rs"
-branch = "master"
+git = "file:/home/kevin/Projects/clap-rs"
+branch = "from-usage"
