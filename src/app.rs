@@ -219,16 +219,20 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         if a.required {
             self.required.insert(a.name);
         }
-        if let Some(i) = a.index {
+        if a.index.is_some() || (a.short.is_none() && a.long.is_none()) {
+            let i = if a.index.is_none() {(self.positionals_idx.len() + 1) as u8 } else { a.index.unwrap() };
+
             if a.short.is_some() || a.long.is_some() {
                 panic!("Argument \"{}\" has conflicting requirements, both index() and short(), or long(), were supplied", a.name);
             }
+
             if self.positionals_idx.contains_key(&i) {
                 panic!("Argument \"{}\" has the same index as another positional argument", a.name);
             }
             if a.takes_value {
                 panic!("Argument \"{}\" has conflicting requirements, both index() and takes_value(true) were supplied", a.name);
             }
+
 
             // Create the Positional Arguemnt Builder with each HashSet = None to only allocate those that require it
             let mut pb = PosBuilder {
@@ -304,7 +308,8 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             self.opts.insert(a.name, ob);
         } else {
             if a.short.is_none() && a.long.is_none() {
-                panic!("Argument \"{}\" must have either a short() and/or long() supplied since no index() or takes_value() were found", a.name);
+                // Could be a posistional constructed from usage string
+
             }
             if a.required {
                 panic!("Argument \"{}\" cannot be required(true) because it has no index() or takes_value(true)", a.name);
@@ -359,6 +364,43 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
         }
         self
     }
+
+    /// Adds an argument from a usage string. See Arg::from_usage() for details
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let app = App::new("myprog")
+    /// .arg_from_usage("-c --conf=<config> 'Sets a configuration file to use'")
+    /// # .get_matches();
+    /// ```
+    pub fn arg_from_usage(mut self, usage: &'ar str) -> App<'a, 'v, 'ab, 'u, 'ar> {
+        self = self.arg(Arg::from_usage(usage));
+        self
+    }
+
+    /// Adds multiple arguments from a usage string, one per line. See Arg::from_usage() for
+    /// details
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let app = App::new("myprog")
+    /// .args_from_usage(
+    ///    "-c --conf=[config] 'Sets a configuration file to use'
+    ///    [debug]... -d 'Sets the debugging level'
+    ///    <input> 'The input file to use'")
+    /// # .get_matches();
+    /// ```
+    pub fn args_from_usage(mut self, usage: &'ar str) -> App<'a, 'v, 'ab, 'u, 'ar> {
+        for l in usage.lines() {
+            self = self.arg(Arg::from_usage(l));
+        }
+        self
+    }
+
 
     /// Adds a subcommand to the list of valid possibilties. Subcommands are effectively sub apps,
     /// because they can contain their own arguments, subcommands, version, usage, etc. They also

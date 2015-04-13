@@ -12,3 +12,16 @@ macro_rules! get_help {
 	    } 
 	};
 }
+
+// Thanks to bluss and flan3002 in #rust IRC
+macro_rules! for_match {
+	($it:ident, $($p:pat => $($e:expr);+),*) => {
+		for i in $it {
+			match i {
+			$(
+			    $p => { $($e)+ }
+			)*
+			}
+		}
+	};
+}

@@ -1,3 +1,5 @@
+use usageparser::{UsageParser, UsageToken};
+
 /// The abstract representation of a command line argument used by the consumer of the library.
 /// Used to set all the options and relationships that define a valid argument for the program.
 /// 
@@ -74,6 +76,9 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// and positional arguments (i.e. those without a `-` or `--`) the name will also 
     /// be displayed when the user prints the usage/help information of the program.
     ///
+    /// **NOTE:** this function is deprecated in favor of Arg::with_name() to stay in line with
+    /// Rust APIs
+    ///
     /// Example:
     ///
     /// ```no_run
@@ -83,6 +88,8 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// Arg::new("conifg")
     /// # .short("c")
     /// # ).get_matches();
+    #[deprecated(since  = "0.5.15",
+                 reason = "use Arg::with_name() instead")]
     pub fn new(n: &'n str) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
         Arg {
             name: n,
@@ -92,6 +99,148 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
             required: false,
             takes_value: false,
             multiple: false,
+            index: None,
+            possible_vals: None,
+            blacklist: None,
+            requires: None,
+        }
+    }
+
+    /// Creates a new instace of `Arg` using a unique string name. 
+    /// The name will be used by the library consumer to get information about
+    /// whether or not the argument was used at runtime. 
+    ///
+    /// **NOTE:** in the case of arguments that take values (i.e. `takes_value(true)`)
+    /// and positional arguments (i.e. those without a `-` or `--`) the name will also 
+    /// be displayed when the user prints the usage/help information of the program.
+    ///
+    /// Example:
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let matches = App::new("myprog")
+    /// #                 .arg(
+    /// Arg::with_name("conifg")
+    /// # .short("c")
+    /// # ).get_matches();
+    pub fn with_name(n: &'n str) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+        Arg {
+            name: n,
+            short: None,
+            long: None,
+            help: None,
+            required: false,
+            takes_value: false,
+            multiple: false,
+            index: None,
+            possible_vals: None,
+            blacklist: None,
+            requires: None,
+        }
+    }
+
+    /// Creates a new instace of `Arg` using a usage string. Allows creation of basic settings
+    /// for Arg (i.e. everything except relational rules). The syntax is flexible, but there are
+    /// some rules to follow.
+    ///
+    /// The syntax should be as follows (only properties which you wish to set must be present):
+    ///
+    /// 1. Name (arguments with a `long` or that take a value can ommit this if desired),
+    ///    use `[]` for non-required arguments, or `<>` for required arguments.
+    /// 2. Short preceded by a `-`
+    /// 3. Long preceded by a `--` (this may be used as the name, if the name is omitted. If the
+    ///    name is *not* omittied, the name takes precedence)
+    /// 4. Value (this can be used as the name, if the name is not manually specified. If the name
+    ///    is manually specified, it takes precence. If this value is used as the name, it uses the
+    ///    same `[]` and `<>` requirement rules. If it is *not* used as the name, it still needs to
+    ///    be surrounded by either `[]` or `<>` but the effect is the same, as the requirement rule
+    ///    is determined by the name. The value may follow the `short` or `long`. If it
+    ///    follows the `long`, it may follow either a `=` or ` ` with the same effect, personal
+    ///    preference only, but may only follow a ` ` after a `short`)
+    /// 5. Multiple specifier `...` (for flags or positional arguments the `...` may follow the
+    ///    name or `short` or `long`)
+    /// 6. The help info surrounded by `'`
+    /// 7. The index of a positional argument will be the next available index (you don't need to
+    ///    specify one)
+    ///
+    /// 
+    /// Example:
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let matches = App::new("myprog")
+    ///                  .args(vec![
+    /// // A option argument with a long, named "conf" (note: because the name was specified
+    /// // the portion after the long can be called anything, only the first name will be displayed
+    /// // to the user. Also, requirement is set with the *name*, so the portion after the long could
+    /// // be either <> or [] and it wouldn't matter, so long as it's one of them. Had the name been
+    /// // omitted, the name would have been derived from the portion after the long and those rules
+    /// // would have mattered)
+    /// Arg::from_usage("[conf] --config=[c] 'a required file for the configuration'"),
+    /// // A flag with a short, a long, named "debug", and accepts multiple values
+    /// Arg::from_usage("-d --debug... 'turns on debugging information"),
+    /// // A required positional argument named "input"
+    /// Arg::from_usage("<input> 'the input file to use'")
+    /// ])
+    /// # 
+    /// # .get_matches();
+    pub fn from_usage(u: &'n str) -> Arg<'n, 'n, 'n, 'b, 'p, 'r> {
+        assert!(u.len() > 0, "Arg::from_usage() requires a non-zero-length usage string but none was provided");
+
+         let mut name = None;
+         let mut short = None;
+         let mut long = None;
+         let mut help = None;
+         let mut required = false;
+         let mut takes_value = false;
+         let mut multiple = false;
+        
+        let parser = UsageParser::with_usage(u);
+        for_match!{ parser,
+            UsageToken::Name(n, req) => {
+                if name.is_none() {
+                    name = Some(n);
+                    if let Some(m) = req {
+                        required = m;
+                    }
+                } 
+                if short.is_some() || long.is_some() {
+                    takes_value = true;
+                }
+                if let Some(l) = long {
+                    if n != name.unwrap() && name.unwrap() == l {
+                        name = Some(n);
+                        if let Some(m) = req {
+                            required = m;
+                        }
+                    }
+                }   
+            },
+            UsageToken::Short(s)     => { 
+                short = Some(s); 
+            },
+            UsageToken::Long(l)      => { 
+                long = Some(l); 
+                if name.is_none() {
+                    name = Some(l);
+                }
+            },
+            UsageToken::Help(h)      => {
+                help = Some(h);
+            },
+            UsageToken::Multiple     => {
+                multiple = true;
+            }
+        }
+
+        Arg {
+            name: name.unwrap(),
+            short: short,
+            long: long,
+            help: help,
+            required: required,
+            takes_value: takes_value,
+            multiple: multiple,
             index: None,
             possible_vals: None,
             blacklist: None,
