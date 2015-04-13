@@ -70,9 +70,9 @@ fn main() {
                           .author("Kevin K. <kbknapp@gmail.com>")
                           .about("Does awesome things")
                           .args_from_usage(
-"-c --config=[CONFIG] 'Sets a custom config file'
-<INPUT> 'Sets the input file to use'
-[debug]... -d 'Sets the level of debugging information'")
+                              "-c --config=[CONFIG] 'Sets a custom config file'
+                              <INPUT> 'Sets the input file to use'
+                              [debug]... -d 'Sets the level of debugging information'")
                           .subcommand(SubCommand::new("test")
                                       .about("controls testing features")
                                       .version("1.3")
