@@ -59,7 +59,7 @@ Below are a few of the features which `clap` supports, full descriptions and usa
  
 The following two examples (which are functionally equivilant, but show two different ways to use `clap`) show a quick example of some of the basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/docs/clap/index.html), or `examples/` directory of this repository.
  
- ```rust
+```rust
 // (Full example with comments in examples/01_QuickExample.rs)
 extern crate clap;
 use clap::{Arg, App, SubCommand};
