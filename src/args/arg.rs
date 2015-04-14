@@ -196,7 +196,6 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// // A required positional argument named "input"
     /// Arg::from_usage("<input> 'the input file to use'")
     /// ])
-    /// # 
     /// # .get_matches();
     pub fn from_usage(u: &'n str) -> Arg<'n, 'n, 'n, 'b, 'p, 'r> {
         assert!(u.len() > 0, "Arg::from_usage() requires a non-zero-length usage string but none was provided");

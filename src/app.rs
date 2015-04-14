@@ -446,7 +446,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     /// # let app = App::new("myprog")
     /// .subcommand(SubCommand::new("config")
     ///                .about("Controls configuration features")
-    ///                .arg_from_usage("<config> 'Required configuration file to use'")))
+    ///                .arg_from_usage("<config> 'Required configuration file to use'"))
     ///             // Additional subcommand configuration goes here, such as other arguments...
     /// # .get_matches();
     /// ```
