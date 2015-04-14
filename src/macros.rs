@@ -87,4 +87,25 @@ macro_rules! value_t_or_exit {
 			}
 		}
 	};
+	($m:ident.values_of($v:expr), $t:ty) => {
+		match $m.values_of($v) {
+			Some(ref v) => {
+				let mut tmp = Vec::with_capacity(v.len());
+				for pv in v {
+					match pv.parse::<$t>() {
+						Ok(rv) => tmp.push(rv),
+						Err(_)  => {
+							println!("{} isn't a valid {}\n{}\nPlease re-run with --help for more information",pv,stringify!($t), $m.usage());
+							::std::process::exit(1);
+						}
+					}
+				}
+				tmp
+			},
+			None => {
+				println!("Argument \"{}\" not found or is not valid\n{}\nPlease re-run with --help for more information",$v, $m.usage());
+				::std::process::exit(1);
+			}
+		}
+	};
 }
