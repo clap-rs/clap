@@ -237,6 +237,24 @@
 <span id="195">195</span>
 <span id="196">196</span>
 <span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
 </pre><pre class='rust '>
 <span class='comment'>// De-duplication macro used in src/app.rs</span>
 <span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>get_help</span> {
@@ -288,9 +306,13 @@
 <span class='doccomment'>/// # use clap::App;</span>
 <span class='doccomment'>/// # fn main() {</span>
 <span class='doccomment'>/// let matches = App::new(&quot;myapp&quot;)</span>
-<span class='doccomment'>///                   .arg_from_usage(&quot;[length] &#39;Set the length to use as a positive whole number, i.e. 20&#39;&quot;)</span>
-<span class='doccomment'>///					  .get_matches();</span>
-<span class='doccomment'>/// let len = value_t!(matches.value_of(&quot;length&quot;), u32).unwrap_or_else(|e|{println!(&quot;{}&quot;,e); std::process::exit(1)});</span>
+<span class='doccomment'>///               .arg_from_usage(&quot;[length] &#39;Set the length to use as a pos whole num, i.e. 20&#39;&quot;)</span>
+<span class='doccomment'>///				  .get_matches();</span>
+<span class='doccomment'>/// let len = value_t!(matches.value_of(&quot;length&quot;), u32)</span>
+<span class='doccomment'>/// 				.unwrap_or_else(|e|{</span>
+<span class='doccomment'>///						println!(&quot;{}&quot;,e); </span>
+<span class='doccomment'>///						std::process::exit(1)</span>
+<span class='doccomment'>///					});</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// println!(&quot;{} + 2: {}&quot;, len, len + 2);</span>
 <span class='doccomment'>/// # }</span>
@@ -305,9 +327,13 @@
 <span class='doccomment'>/// # use clap::App;</span>
 <span class='doccomment'>/// # fn main() {</span>
 <span class='doccomment'>/// let matches = App::new(&quot;myapp&quot;)</span>
-<span class='doccomment'>///                   .arg_from_usage(&quot;[seq]... &#39;A sequence of positive whole numbers, i.e. 20 30 45&#39;&quot;)</span>
-<span class='doccomment'>///					  .get_matches();</span>
-<span class='doccomment'>/// for v in value_t!(matches.values_of(&quot;seq&quot;), u32).unwrap_or_else(|e|{println!(&quot;{}&quot;,e); std::process::exit(1)}) {</span>
+<span class='doccomment'>///               .arg_from_usage(&quot;[seq]... &#39;A sequence of pos whole nums, i.e. 20 45&#39;&quot;)</span>
+<span class='doccomment'>///				  .get_matches();</span>
+<span class='doccomment'>/// for v in value_t!(matches.values_of(&quot;seq&quot;), u32)</span>
+<span class='doccomment'>///				.unwrap_or_else(|e|{</span>
+<span class='doccomment'>///					println!(&quot;{}&quot;,e); </span>
+<span class='doccomment'>///					std::process::exit(1)</span>
+<span class='doccomment'>///				}) {</span>
 <span class='doccomment'>/// 	println!(&quot;{} + 2: {}&quot;, v, v + 2);</span>
 <span class='doccomment'>///	}</span>
 <span class='doccomment'>/// # }</span>
@@ -370,8 +396,8 @@
 <span class='doccomment'>/// # use clap::App;</span>
 <span class='doccomment'>/// # fn main() {</span>
 <span class='doccomment'>/// let matches = App::new(&quot;myapp&quot;)</span>
-<span class='doccomment'>///                   .arg_from_usage(&quot;[length] &#39;Set the length to use as a positive whole number, i.e. 20&#39;&quot;)</span>
-<span class='doccomment'>///					  .get_matches();</span>
+<span class='doccomment'>///               .arg_from_usage(&quot;[length] &#39;Set the length to use as a pos whole num, i.e. 20&#39;&quot;)</span>
+<span class='doccomment'>///				  .get_matches();</span>
 <span class='doccomment'>/// let len = value_t_or_exit!(matches.value_of(&quot;length&quot;), u32);</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// println!(&quot;{} + 2: {}&quot;, len, len + 2);</span>
@@ -387,7 +413,7 @@
 <span class='doccomment'>/// # use clap::App;</span>
 <span class='doccomment'>/// # fn main() {</span>
 <span class='doccomment'>/// let matches = App::new(&quot;myapp&quot;)</span>
-<span class='doccomment'>///                   .arg_from_usage(&quot;[seq]... &#39;A sequence of positive whole numbers, i.e. 20 30 45&#39;&quot;)</span>
+<span class='doccomment'>///                   .arg_from_usage(&quot;[seq]... &#39;A sequence of pos whole nums, i.e. 20 45&#39;&quot;)</span>
 <span class='doccomment'>///					  .get_matches();</span>
 <span class='doccomment'>/// for v in value_t_or_exit!(matches.values_of(&quot;seq&quot;), u32) {</span>
 <span class='doccomment'>/// 	println!(&quot;{} + 2: {}&quot;, v, v + 2);</span>
@@ -402,13 +428,18 @@
 				<span class='kw'>match</span> <span class='ident'>v</span>.<span class='ident'>parse</span>::<span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span><span class='op'>&gt;</span>() {
 					<span class='prelude-val'>Ok</span>(<span class='ident'>val</span>) <span class='op'>=&gt;</span> <span class='ident'>val</span>,
 					<span class='prelude-val'>Err</span>(_)  <span class='op'>=&gt;</span> {
-						<span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{} isn&#39;t a valid {}\n{}\nPlease re-run with --help for more information&quot;</span>,<span class='ident'>v</span>,<span class='macro'>stringify</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span>), <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>m</span>.<span class='ident'>usage</span>());
+						<span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{} isn&#39;t a valid {}\n{}\nPlease re-run with --help for more information&quot;</span>,
+							<span class='ident'>v</span>,
+							<span class='macro'>stringify</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span>), 
+							<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>m</span>.<span class='ident'>usage</span>());
 						::<span class='ident'>std</span>::<span class='ident'>process</span>::<span class='ident'>exit</span>(<span class='number'>1</span>);
 					}
 				}
 			},
 			<span class='prelude-val'>None</span> <span class='op'>=&gt;</span> {
-				<span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Argument \&quot;{}\&quot; not found or is not valid\n{}\nPlease re-run with --help for more information&quot;</span>,<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>v</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>m</span>.<span class='ident'>usage</span>());
+				<span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Argument \&quot;{}\&quot; not found or is not valid\n{}\nPlease re-run with --help for more information&quot;</span>,
+					<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>v</span>, 
+					<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>m</span>.<span class='ident'>usage</span>());
 				::<span class='ident'>std</span>::<span class='ident'>process</span>::<span class='ident'>exit</span>(<span class='number'>1</span>);
 			}
 		}
@@ -421,7 +452,10 @@
 					<span class='kw'>match</span> <span class='ident'>pv</span>.<span class='ident'>parse</span>::<span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span><span class='op'>&gt;</span>() {
 						<span class='prelude-val'>Ok</span>(<span class='ident'>rv</span>) <span class='op'>=&gt;</span> <span class='ident'>tmp</span>.<span class='ident'>push</span>(<span class='ident'>rv</span>),
 						<span class='prelude-val'>Err</span>(_)  <span class='op'>=&gt;</span> {
-							<span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{} isn&#39;t a valid {}\n{}\nPlease re-run with --help for more information&quot;</span>,<span class='ident'>pv</span>,<span class='macro'>stringify</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span>), <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>m</span>.<span class='ident'>usage</span>());
+							<span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{} isn&#39;t a valid {}\n{}\nPlease re-run with --help for more information&quot;</span>,
+								<span class='ident'>pv</span>,
+								<span class='macro'>stringify</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span>), 
+								<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>m</span>.<span class='ident'>usage</span>()); 
 							::<span class='ident'>std</span>::<span class='ident'>process</span>::<span class='ident'>exit</span>(<span class='number'>1</span>);
 						}
 					}
@@ -429,7 +463,9 @@
 				<span class='ident'>tmp</span>
 			},
 			<span class='prelude-val'>None</span> <span class='op'>=&gt;</span> {
-				<span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Argument \&quot;{}\&quot; not found or is not valid\n{}\nPlease re-run with --help for more information&quot;</span>,<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>v</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>m</span>.<span class='ident'>usage</span>());
+				<span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Argument \&quot;{}\&quot; not found or is not valid\n{}\nPlease re-run with --help for more information&quot;</span>,
+					<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>v</span>, 
+					<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>m</span>.<span class='ident'>usage</span>());
 				::<span class='ident'>std</span>::<span class='ident'>process</span>::<span class='ident'>exit</span>(<span class='number'>1</span>);
 			}
 		}

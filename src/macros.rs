@@ -48,9 +48,13 @@ macro_rules! for_match {
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
-///                   .arg_from_usage("[length] 'Set the length to use as a positive whole number, i.e. 20'")
-///					  .get_matches();
-/// let len = value_t!(matches.value_of("length"), u32).unwrap_or_else(|e|{println!("{}",e); std::process::exit(1)});
+///               .arg_from_usage("[length] 'Set the length to use as a pos whole num, i.e. 20'")
+///				  .get_matches();
+/// let len = value_t!(matches.value_of("length"), u32)
+/// 				.unwrap_or_else(|e|{
+///						println!("{}",e); 
+///						std::process::exit(1)
+///					});
 ///
 /// println!("{} + 2: {}", len, len + 2);
 /// # }
@@ -65,9 +69,13 @@ macro_rules! for_match {
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
-///                   .arg_from_usage("[seq]... 'A sequence of positive whole numbers, i.e. 20 30 45'")
-///					  .get_matches();
-/// for v in value_t!(matches.values_of("seq"), u32).unwrap_or_else(|e|{println!("{}",e); std::process::exit(1)}) {
+///               .arg_from_usage("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
+///				  .get_matches();
+/// for v in value_t!(matches.values_of("seq"), u32)
+///				.unwrap_or_else(|e|{
+///					println!("{}",e); 
+///					std::process::exit(1)
+///				}) {
 /// 	println!("{} + 2: {}", v, v + 2);
 ///	}
 /// # }
@@ -130,8 +138,8 @@ macro_rules! value_t {
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
-///                   .arg_from_usage("[length] 'Set the length to use as a positive whole number, i.e. 20'")
-///					  .get_matches();
+///               .arg_from_usage("[length] 'Set the length to use as a pos whole num, i.e. 20'")
+///				  .get_matches();
 /// let len = value_t_or_exit!(matches.value_of("length"), u32);
 ///
 /// println!("{} + 2: {}", len, len + 2);
@@ -147,7 +155,7 @@ macro_rules! value_t {
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
-///                   .arg_from_usage("[seq]... 'A sequence of positive whole numbers, i.e. 20 30 45'")
+///                   .arg_from_usage("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
 ///					  .get_matches();
 /// for v in value_t_or_exit!(matches.values_of("seq"), u32) {
 /// 	println!("{} + 2: {}", v, v + 2);
@@ -162,13 +170,18 @@ macro_rules! value_t_or_exit {
 				match v.parse::<$t>() {
 					Ok(val) => val,
 					Err(_)  => {
-						println!("{} isn't a valid {}\n{}\nPlease re-run with --help for more information",v,stringify!($t), $m.usage());
+						println!("{} isn't a valid {}\n{}\nPlease re-run with --help for more information",
+							v,
+							stringify!($t), 
+							$m.usage());
 						::std::process::exit(1);
 					}
 				}
 			},
 			None => {
-				println!("Argument \"{}\" not found or is not valid\n{}\nPlease re-run with --help for more information",$v, $m.usage());
+				println!("Argument \"{}\" not found or is not valid\n{}\nPlease re-run with --help for more information",
+					$v, 
+					$m.usage());
 				::std::process::exit(1);
 			}
 		}
@@ -181,7 +194,10 @@ macro_rules! value_t_or_exit {
 					match pv.parse::<$t>() {
 						Ok(rv) => tmp.push(rv),
 						Err(_)  => {
-							println!("{} isn't a valid {}\n{}\nPlease re-run with --help for more information",pv,stringify!($t), $m.usage());
+							println!("{} isn't a valid {}\n{}\nPlease re-run with --help for more information",
+								pv,
+								stringify!($t), 
+								$m.usage()); 
 							::std::process::exit(1);
 						}
 					}
@@ -189,7 +205,9 @@ macro_rules! value_t_or_exit {
 				tmp
 			},
 			None => {
-				println!("Argument \"{}\" not found or is not valid\n{}\nPlease re-run with --help for more information",$v, $m.usage());
+				println!("Argument \"{}\" not found or is not valid\n{}\nPlease re-run with --help for more information",
+					$v, 
+					$m.usage());
 				::std::process::exit(1);
 			}
 		}

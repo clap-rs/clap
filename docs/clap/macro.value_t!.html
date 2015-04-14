@@ -43,7 +43,7 @@
     <section id='main' class="content macro">
 <h1 class='fqn'><span class='in-band'><a href='index.html'>clap</a>::<wbr><a class='macro' href=''>value_t!</a><wbr></span><span class='out-of-band'><span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-10464' href='../src/clap/macros.rs.html#76-110'>[src]</a></span></h1>
+        </span><a id='src-10458' href='../src/clap/macros.rs.html#84-118'>[src]</a></span></h1>
 <pre class='rust macro'>
 <span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>value_t</span> {
 	(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>m</span>:<span class='ident'>ident</span>.<span class='ident'>value_of</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>v</span>:<span class='ident'>expr</span>), <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span>:<span class='ident'>ty</span>) <span class='op'>=&gt;</span> {
@@ -94,9 +94,13 @@
 <p># Example single value</p>
 <pre id='rust-example-rendered' class='rust '>
  <span class='kw'>let</span> <span class='ident'>matches</span> <span class='op'>=</span> <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;myapp&quot;</span>)
-                   .<span class='ident'>arg_from_usage</span>(<span class='string'>&quot;[length] &#39;Set the length to use as a positive whole number, i.e. 20&#39;&quot;</span>)
-                      .<span class='ident'>get_matches</span>();
- <span class='kw'>let</span> <span class='ident'>len</span> <span class='op'>=</span> <span class='macro'>value_t</span><span class='macro'>!</span>(<span class='ident'>matches</span>.<span class='ident'>value_of</span>(<span class='string'>&quot;length&quot;</span>), <span class='ident'>u32</span>).<span class='ident'>unwrap_or_else</span>(<span class='op'>|</span><span class='ident'>e</span><span class='op'>|</span>{<span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{}&quot;</span>,<span class='ident'>e</span>); <span class='ident'>std</span>::<span class='ident'>process</span>::<span class='ident'>exit</span>(<span class='number'>1</span>)});
+               .<span class='ident'>arg_from_usage</span>(<span class='string'>&quot;[length] &#39;Set the length to use as a pos whole num, i.e. 20&#39;&quot;</span>)
+                  .<span class='ident'>get_matches</span>();
+ <span class='kw'>let</span> <span class='ident'>len</span> <span class='op'>=</span> <span class='macro'>value_t</span><span class='macro'>!</span>(<span class='ident'>matches</span>.<span class='ident'>value_of</span>(<span class='string'>&quot;length&quot;</span>), <span class='ident'>u32</span>)
+                .<span class='ident'>unwrap_or_else</span>(<span class='op'>|</span><span class='ident'>e</span><span class='op'>|</span>{
+                        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{}&quot;</span>,<span class='ident'>e</span>); 
+                        <span class='ident'>std</span>::<span class='ident'>process</span>::<span class='ident'>exit</span>(<span class='number'>1</span>)
+                    });
 
  <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{} + 2: {}&quot;</span>, <span class='ident'>len</span>, <span class='ident'>len</span> <span class='op'>+</span> <span class='number'>2</span>);
 </pre>
@@ -104,9 +108,13 @@
 <p># Example multiple values</p>
 <pre id='rust-example-rendered' class='rust '>
  <span class='kw'>let</span> <span class='ident'>matches</span> <span class='op'>=</span> <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;myapp&quot;</span>)
-                   .<span class='ident'>arg_from_usage</span>(<span class='string'>&quot;[seq]... &#39;A sequence of positive whole numbers, i.e. 20 30 45&#39;&quot;</span>)
-                      .<span class='ident'>get_matches</span>();
- <span class='kw'>for</span> <span class='ident'>v</span> <span class='kw'>in</span> <span class='macro'>value_t</span><span class='macro'>!</span>(<span class='ident'>matches</span>.<span class='ident'>values_of</span>(<span class='string'>&quot;seq&quot;</span>), <span class='ident'>u32</span>).<span class='ident'>unwrap_or_else</span>(<span class='op'>|</span><span class='ident'>e</span><span class='op'>|</span>{<span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{}&quot;</span>,<span class='ident'>e</span>); <span class='ident'>std</span>::<span class='ident'>process</span>::<span class='ident'>exit</span>(<span class='number'>1</span>)}) {
+               .<span class='ident'>arg_from_usage</span>(<span class='string'>&quot;[seq]... &#39;A sequence of pos whole nums, i.e. 20 45&#39;&quot;</span>)
+                  .<span class='ident'>get_matches</span>();
+ <span class='kw'>for</span> <span class='ident'>v</span> <span class='kw'>in</span> <span class='macro'>value_t</span><span class='macro'>!</span>(<span class='ident'>matches</span>.<span class='ident'>values_of</span>(<span class='string'>&quot;seq&quot;</span>), <span class='ident'>u32</span>)
+                .<span class='ident'>unwrap_or_else</span>(<span class='op'>|</span><span class='ident'>e</span><span class='op'>|</span>{
+                    <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{}&quot;</span>,<span class='ident'>e</span>); 
+                    <span class='ident'>std</span>::<span class='ident'>process</span>::<span class='ident'>exit</span>(<span class='number'>1</span>)
+                }) {
     <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{} + 2: {}&quot;</span>, <span class='ident'>v</span>, <span class='ident'>v</span> <span class='op'>+</span> <span class='number'>2</span>);
     }
 </pre>
