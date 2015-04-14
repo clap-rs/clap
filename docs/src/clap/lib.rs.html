@@ -941,6 +941,7 @@
 <span id="899">899</span>
 <span id="900">900</span>
 <span id="901">901</span>
+<span id="902">902</span>
 </pre><pre class='rust '>
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>crate_type</span><span class='op'>=</span> <span class='string'>&quot;lib&quot;</span>]</span>
 
@@ -1001,6 +1002,7 @@
 <span class='doccomment'>//! * **Specific Value Sets**: Positional or Option Arguments can optionally define a specific set of allowed values (i.e. imagine a `--mode` option which may *only* have one of two values `fast` or `slow` such as `--mode fast` or `--mode slow`)</span>
 <span class='doccomment'>//! * **Default Values**: Although not specifically provided by `clap` you can achieve this exact functionality from Rust&#39;s `Option&lt;&amp;str&gt;.unwrap_or(&quot;some default&quot;)` method</span>
 <span class='doccomment'>//! * **Get Version from Cargo.toml**: `clap` is fully compatible with Rust&#39;s `env!()` macro for automatically getting the version from your Cargo.toml. See `examples/09_AutoVersion.rs` for how to do this (Thanks to [jhelwig](https://github.com/jhelwig) for pointing this out)</span>
+<span class='doccomment'>//! * **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) so long as the type you request implements `std::fmt::FrmStr` See the `examples/12_TypedValues.rs` or the documentation for more information.</span>
 <span class='doccomment'>//! </span>
 <span class='doccomment'>//! ## Quick Example</span>
 <span class='doccomment'>//!  </span>

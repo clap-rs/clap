@@ -43,7 +43,7 @@
     <section id='main' class="content mod">
 <h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>clap</a><wbr></span><span class='out-of-band'><a href='stability.html'>[stability]</a> <span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-0' href='../src/clap/lib.rs.html#1-901'>[src]</a></span></h1>
+        </span><a id='src-0' href='../src/clap/lib.rs.html#1-902'>[src]</a></span></h1>
 <div class='docblock'>
 <h1 id="clap" class='section-header'><a
                            href="#clap">clap</a></h1>
@@ -123,6 +123,7 @@
 <li><strong>Specific Value Sets</strong>: Positional or Option Arguments can optionally define a specific set of allowed values (i.e. imagine a <code>--mode</code> option which may <em>only</em> have one of two values <code>fast</code> or <code>slow</code> such as <code>--mode fast</code> or <code>--mode slow</code>)</li>
 <li><strong>Default Values</strong>: Although not specifically provided by <code>clap</code> you can achieve this exact functionality from Rust&#39;s <code>Option&lt;&amp;str&gt;.unwrap_or(&quot;some default&quot;)</code> method</li>
 <li><strong>Get Version from Cargo.toml</strong>: <code>clap</code> is fully compatible with Rust&#39;s <code>env!()</code> macro for automatically getting the version from your Cargo.toml. See <code>examples/09_AutoVersion.rs</code> for how to do this (Thanks to <a href="https://github.com/jhelwig">jhelwig</a> for pointing this out)</li>
+<li><strong>Typed Values</strong>: You can use several convenience macros provided by <code>clap</code> to get typed values (i.e. <code>i32</code>, <code>u8</code>, etc.) so long as the type you request implements <code>std::fmt::FrmStr</code> See the <code>examples/12_TypedValues.rs</code> or the documentation for more information.</li>
 </ul>
 
 <h2 id="quick-example" class='section-header'><a
@@ -355,7 +356,27 @@ SUBCOMMANDS:
 <h2 id="license" class='section-header'><a
                            href="#license">License</a></h2>
 <p><code>clap</code> is licensed under the MIT license. Please the LICENSE-MIT file in this repository for more information.</p>
-</div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+</div><h2 id='macros' class='section-header'><a href="#macros">Macros</a></h2>
+<table>
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='macro' href='macro.value_t!.html'
+                               title='clap::value_t!'>value_t!</a></td>
+                        <td class='docblock short'><p>Convenience macro getting a typed value <code>T</code> where <code>T</code> implements <code>std::fmt::FrmStr</code>
+ This macro returns a <code>Result&lt;T,String&gt;</code> which allows you as the developer to decide
+ what you&#39;d like to do on a failed parse. There are two types of errors, parse failures
+ and those where the argument wasn&#39;t present (such as a non-required argument). </p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='macro' href='macro.value_t_or_exit!.html'
+                               title='clap::value_t_or_exit!'>value_t_or_exit!</a></td>
+                        <td class='docblock short'><p>Convenience macro getting a typed value <code>T</code> where <code>T</code> implements <code>std::fmt::FrmStr</code>
+ This macro returns a <code>T</code> or <code>Vec&lt;T&gt;</code> or exits with a usage string upon failure. This
+ removes some of the boiler plate to handle failures from value_t! above. </p>
+</td>
+                    </tr>
+                </table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
                     <tr>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.App.html'

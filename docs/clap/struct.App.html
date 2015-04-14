@@ -181,7 +181,7 @@ function just like apps, in that they get their own auto generated help, version
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>subcommand</span>(<span class='ident'>SubCommand</span>::<span class='ident'>new</span>(<span class='string'>&quot;config&quot;</span>)
                .<span class='ident'>about</span>(<span class='string'>&quot;Controls configuration features&quot;</span>)
-               .<span class='ident'>arg_from_usage</span>(<span class='string'>&quot;&lt;config&gt; &#39;Required configuration file to use&#39;&quot;</span>)))
+               .<span class='ident'>arg_from_usage</span>(<span class='string'>&quot;&lt;config&gt; &#39;Required configuration file to use&#39;&quot;</span>))
             <span class='comment'>// Additional subcommand configuration goes here, such as other arguments...</span>
 </pre>
 </div><h4 id='method.subcommands' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.subcommands' class='fnname'>subcommands</a>(self, subcmds: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u, 'ar&gt;&gt;) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'a, 'v, 'ab, 'u, 'ar&gt;</code></h4>

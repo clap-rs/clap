@@ -584,7 +584,6 @@
 <span id="542">542</span>
 <span id="543">543</span>
 <span id="544">544</span>
-<span id="545">545</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>usageparser</span>::{<span class='ident'>UsageParser</span>, <span class='ident'>UsageToken</span>};
 
@@ -784,7 +783,6 @@
     <span class='doccomment'>/// // A required positional argument named &quot;input&quot;</span>
     <span class='doccomment'>/// Arg::from_usage(&quot;&lt;input&gt; &#39;the input file to use&#39;&quot;)</span>
     <span class='doccomment'>/// ])</span>
-    <span class='doccomment'>/// # </span>
     <span class='doccomment'>/// # .get_matches();</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>from_usage</span>(<span class='ident'>u</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;n</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
         <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>u</span>.<span class='ident'>len</span>() <span class='op'>&gt;</span> <span class='number'>0</span>, <span class='string'>&quot;Arg::from_usage() requires a non-zero-length usage string but none was provided&quot;</span>);
