@@ -17,7 +17,7 @@ fn main() {
     					// I'll explain each possible setting that "flags" accept. Keep in mind
     					// that you DO NOT need to set each of these for every flag, only the ones
     					// you want for your individual case.
-                        .arg(Arg::new("awesome")
+                        .arg(Arg::with_name("awesome")
                                     .help("turns up the awesome") // Displayed when showing help info
                                     .short("a")					  // Trigger this arg with "-a"
                                     .long("awesome")			  // Trigger this arg with "--awesome"

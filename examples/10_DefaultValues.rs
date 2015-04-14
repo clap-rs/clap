@@ -8,7 +8,7 @@ fn main() {
     // Let's assume you have -c <config> argument to allow users to specify a configuration file
     // but you also want to support a default file, if none is specified.
     let matches = App::new("myapp").about("does awesome things")
-                        .arg(Arg::new("CONFIG")
+                        .arg(Arg::with_name("CONFIG")
                                 .help("The config file to use (default is \"config.json\")")
                                 .short("c")
                                 .takes_value(true))

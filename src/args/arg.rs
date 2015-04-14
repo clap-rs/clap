@@ -2,11 +2,15 @@ use usageparser::{UsageParser, UsageToken};
 
 /// The abstract representation of a command line argument used by the consumer of the library.
 /// Used to set all the options and relationships that define a valid argument for the program.
-/// 
 ///
 /// This struct is used by the library consumer and describes the command line arguments for 
 /// their program. Then evaluates the settings the consumer provided and determines the concret
 /// argument type to use when parsing.
+///
+/// There are two methods for constructing `Arg`s, using the builder pattern and setting options
+/// manually, or using a usage string which is far less verbose. You can also use a combination
+/// of the two methods to achieve the best of both worlds.
+///
 ///
 /// # Example
 ///
@@ -14,11 +18,15 @@ use usageparser::{UsageParser, UsageToken};
 /// # use clap::{App, Arg};
 /// # let matches = App::new("myprog")
 /// #                 .arg(
-/// Arg::new("conifg")
+/// // Using the traditional builder pattern and setting each option manually
+/// Arg::with_name("conifg")
 ///       .short("c")
 ///       .long("config")
 ///       .takes_value(true)
 ///       .help("Provides a config file to myprog")
+/// # ).arg(
+/// // Using a usage string (setting a similar argument to the one above)
+/// Arg::from_usage("-i --input=[input] 'Provides an input file to the program'")
 /// # ).get_matches();
 pub struct Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// The unique name of the argument, required
@@ -76,10 +84,11 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// and positional arguments (i.e. those without a `-` or `--`) the name will also 
     /// be displayed when the user prints the usage/help information of the program.
     ///
-    /// **NOTE:** this function is deprecated in favor of Arg::with_name() to stay in line with
+    /// **NOTE:** this function is deprecated in favor of Arg::with_name() to stay consistant with
     /// Rust APIs
     ///
-    /// Example:
+    ///
+    /// # Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -114,7 +123,8 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// and positional arguments (i.e. those without a `-` or `--`) the name will also 
     /// be displayed when the user prints the usage/help information of the program.
     ///
-    /// Example:
+    ///
+    /// # Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -139,37 +149,39 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
         }
     }
 
-    /// Creates a new instace of `Arg` using a usage string. Allows creation of basic settings
+    /// Creates a new instace of `Arg` from a usage string. Allows creation of basic settings
     /// for Arg (i.e. everything except relational rules). The syntax is flexible, but there are
     /// some rules to follow.
     ///
-    /// The syntax should be as follows (only properties which you wish to set must be present):
+    /// **NOTE**: only properties which you wish to set must be present
     ///
     /// 1. Name (arguments with a `long` or that take a value can ommit this if desired),
     ///    use `[]` for non-required arguments, or `<>` for required arguments.
     /// 2. Short preceded by a `-`
     /// 3. Long preceded by a `--` (this may be used as the name, if the name is omitted. If the
-    ///    name is *not* omittied, the name takes precedence)
-    /// 4. Value (this can be used as the name, if the name is not manually specified. If the name
-    ///    is manually specified, it takes precence. If this value is used as the name, it uses the
-    ///    same `[]` and `<>` requirement rules. If it is *not* used as the name, it still needs to
-    ///    be surrounded by either `[]` or `<>` but the effect is the same, as the requirement rule
-    ///    is determined by the name. The value may follow the `short` or `long`. If it
-    ///    follows the `long`, it may follow either a `=` or ` ` with the same effect, personal
-    ///    preference only, but may only follow a ` ` after a `short`)
-    /// 5. Multiple specifier `...` (for flags or positional arguments the `...` may follow the
-    ///    name or `short` or `long`)
-    /// 6. The help info surrounded by `'`
+    ///    name is *not* omittied, the name takes precedence over the `long`)
+    /// 4. Value (this can be used as the name if the name is not manually specified. If the name
+    ///    is manually specified, it takes precedence. If this value is used as the name, it uses the
+    ///    same `[]` and `<>` requirement specification rules. If it is *not* used as the name, it 
+    ///    still needs to be surrounded by either `[]` or `<>` but there is no requirement effect, 
+    ///    as the requirement rule is determined by the real name. This value may follow the `short` 
+    ///    or `long`, it doesn't matter. If it follows the `long`, it may follow either a `=` or ` `
+    ///    there is no difference, just personal preference. If this follows a `short` it can only
+    ///    be after a ` `) i.e. `-c [name]`, `--config [name]`, `--config=[name]`, etc.
+    /// 5. Multiple specifier `...` (the `...` may follow the name, `short`, `long`, or value *without*
+    ///    a ` ` space) i.e. `<name>... -c`, `--config <name>...`, `[name] -c...`, etc.
+    /// 6. The help info surrounded by `'`s (single quotes)
     /// 7. The index of a positional argument will be the next available index (you don't need to
-    ///    specify one)
+    ///    specify one) i.e. all arguments without a `short` or `long` will be treated as positional
     ///
     /// 
-    /// Example:
+    /// # Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
     /// # let matches = App::new("myprog")
     ///                  .args(vec![
+    ///
     /// // A option argument with a long, named "conf" (note: because the name was specified
     /// // the portion after the long can be called anything, only the first name will be displayed
     /// // to the user. Also, requirement is set with the *name*, so the portion after the long could
@@ -177,8 +189,10 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// // omitted, the name would have been derived from the portion after the long and those rules
     /// // would have mattered)
     /// Arg::from_usage("[conf] --config=[c] 'a required file for the configuration'"),
+    ///
     /// // A flag with a short, a long, named "debug", and accepts multiple values
     /// Arg::from_usage("-d --debug... 'turns on debugging information"),
+    ///
     /// // A required positional argument named "input"
     /// Arg::from_usage("<input> 'the input file to use'")
     /// ])
@@ -256,9 +270,10 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// will not asign those to the displaying of version or help.
     ///
     /// **NOTE:** Any leading `-` characters will be stripped, and only the first
-    /// non `-` chacter will be used as the `short` version, i.e. for when the user
-    /// mistakenly sets the short to `-o` or the like.
-    /// Example:
+    /// non `-` chacter will be used as the `short` version
+    ///
+    ///
+    /// # Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -279,10 +294,10 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// will not asign those to the displaying of version or help automatically, and you will have to do
     /// so manually.
     ///
-    /// **NOTE:** Any leading `-` characters will be stripped i.e. for 
-    /// when the user mistakenly sets the short to `--out` or the like.
+    /// **NOTE:** Any leading `-` characters will be stripped
     ///
-    /// Example:
+    ///
+    /// # Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -299,7 +314,8 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// Sets the help text of the argument that will be displayed to the user
     /// when they print the usage/help information. 
     ///
-    /// Example:
+    ///
+    /// # Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -322,13 +338,14 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// cannot be required by default.
     /// when they print the usage/help information. 
     ///
-    /// Example:
+    ///
+    /// #Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
     /// # let matches = App::new("myprog")
     /// #                 .arg(
-    /// # Arg::new("conifg")
+    /// # Arg::with_name("conifg")
     /// .required(true)
     /// # ).get_matches();
     pub fn required(mut self, r: bool) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
@@ -343,11 +360,12 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// by default. Mutually exclusive rules only need to be set for one of the two
     /// arguments, they do not need to be set for each.
     ///
-    /// Example:
+    ///
+    /// # Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let myprog = App::new("myprog").arg(Arg::new("conifg")
+    /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
     /// .mutually_excludes("debug")
     /// # ).get_matches();
     pub fn mutually_excludes(mut self, name: &'b str) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
@@ -366,11 +384,12 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// by default. Mutually exclusive rules only need to be set for one of the two
     /// arguments, they do not need to be set for each.
     ///
-    /// Example:
+    ///
+    /// # Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let myprog = App::new("myprog").arg(Arg::new("conifg")
+    /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
     /// .mutually_excludes_all(
     ///        vec!["debug", "input"])
     /// # ).get_matches();
@@ -390,11 +409,12 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     ///
     /// **NOTE:** Mutually exclusive rules take precedence over being required
     ///
-    /// Example:
+    ///
+    /// # Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let myprog = App::new("myprog").arg(Arg::new("conifg")
+    /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
     /// .requires("debug")
     /// # ).get_matches();
     pub fn requires(mut self, name: &'r str) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
@@ -412,11 +432,12 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// **NOTE:** Mutually exclusive rules take precedence over being required
     /// by default. 
     ///
-    /// Example:
+    ///
+    /// # Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let myprog = App::new("myprog").arg(Arg::new("conifg")
+    /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
     /// .requires_all(
     ///        vec!["debug", "input"])
     /// # ).get_matches();
@@ -436,13 +457,14 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// **NOTE:** When setting this to `true` the `name` of the argument
     /// will be used when printing the help/usage information to the user. 
     ///
-    /// Example:
+    ///
+    /// # Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
     /// # let matches = App::new("myprog")
     /// #                 .arg(
-    /// # Arg::new("conifg")
+    /// # Arg::with_name("conifg")
     /// .takes_value(true)
     /// # ).get_matches();
     pub fn takes_value(mut self, tv: bool) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
@@ -457,13 +479,14 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// Also, the name will be used when printing the help/usage information 
     /// to the user. 
     ///
-    /// Example:
+    ///
+    /// # Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
     /// # let matches = App::new("myprog")
     /// #                 .arg(
-    /// # Arg::new("conifg")
+    /// # Arg::with_name("conifg")
     /// .index(1)
     /// # ).get_matches();
     pub fn index(mut self, idx: u8) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
@@ -479,13 +502,14 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// **NOTE:** When setting this,  any `takes_value` or `index` values you set
     /// are ignored as flags cannot have a values or an `index`.
     ///
-    /// Example:
+    ///
+    /// # Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
     /// # let matches = App::new("myprog")
     /// #                 .arg(
-    /// # Arg::new("debug")
+    /// # Arg::with_name("debug")
     /// .multiple(true)
     /// # ).get_matches();
     pub fn multiple(mut self, multi: bool) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
@@ -498,13 +522,14 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// 
     /// **NOTE:** This setting only applies to options and positional arguments 
     ///
-    /// Example:
+    ///
+    /// # Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
     /// # let matches = App::new("myprog")
     /// #                 .arg(
-    /// # Arg::new("debug").index(1)
+    /// # Arg::with_name("debug").index(1)
     /// .possible_values(vec!["fast", "slow"])
     /// # ).get_matches();
     pub fn possible_values(mut self, names: Vec<&'p str>) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {

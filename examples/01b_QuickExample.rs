@@ -4,6 +4,14 @@ use clap::{App, Arg, SubCommand};
 
 fn main() {
 
+    // This method shows the traditional, and slightly more configurable way to set up arguments. This method is
+    // more verbose, but allows setting more configuration options, and even supports easier dynamic generation.
+    //
+    // The example below is functionally identical to the one in 01a_QuickExample.rs
+    //
+    // *NOTE:* You can actually acheive the best of both worlds by using Arg::from_usage() (instead of Arg::with_name())
+    // and *then* setting any additional properties.
+    //
     // Create an application with 5 possible arguments (2 auto generated) and 2 subcommands (1 auto generated)
     //    - A config file
     //        + Uses "-c filename" or "--config filename"
@@ -30,21 +38,21 @@ fn main() {
                         .version("1.0")
                         .author("Kevin K. <kbknapp@gmail.com>")
                         .about("Does awesome things")
-                        .arg(Arg::new("config")
+                        .arg(Arg::with_name("config")
                                     .short("c")
                                     .long("config")
                                     .help("Sets a custom config file")
                                     .takes_value(true))
-                        .arg(Arg::new("output")
+                        .arg(Arg::with_name("output")
                                     .help("Sets an optional output file")
                                     .index(1))
-                        .arg(Arg::new("debug")
+                        .arg(Arg::with_name("debug")
                                     .short("d")
                                     .multiple(true)
                                     .help("Turn debugging information on"))
                         .subcommand(SubCommand::new("test")
                                                 .about("does testing things")
-                                                .arg(Arg::new("list")
+                                                .arg(Arg::with_name("list")
                                                     .short("l")
                                                     .help("lists test values")))
                         .get_matches();
