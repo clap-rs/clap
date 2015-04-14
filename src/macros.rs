@@ -40,7 +40,29 @@ macro_rules! value_t {
 					Err(_)  => Err(format!("{} isn't a valid {}",v,stringify!($t))),
 				}
 			},
-			None => Err(format!("Argument not found"))
+			None => Err(format!("Argument \"{}\" not found", $v))
+		}
+	};
+	($m:ident.values_of($v:expr), $t:ty) => {
+		match $m.values_of($v) {
+			Some(ref v) => {
+				let mut tmp = Vec::with_capacity(v.len());
+				let mut err = None;
+				for pv in v {
+					match pv.parse::<$t>() {
+						Ok(rv) => tmp.push(rv),
+						Err(_) => {
+							err = Some(format!("{} isn't a valid {}",pv,stringify!($t)));
+							break
+						}
+					}
+				}
+				match err {
+					Some(e) => Err(e),
+					None => Ok(tmp)
+				}
+			},
+			None => Err(format!("Argument \"{}\" not found", $v))
 		}
 	};
 }
@@ -60,7 +82,7 @@ macro_rules! value_t_or_exit {
 				}
 			},
 			None => {
-				println!("Argument not found\n{}\nPlease re-run with --help for more information", $m.usage());
+				println!("Argument \"{}\" not found or is not valid\n{}\nPlease re-run with --help for more information",$v, $m.usage());
 				::std::process::exit(1);
 			}
 		}
