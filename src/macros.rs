@@ -44,3 +44,25 @@ macro_rules! value_t {
 		}
 	};
 }
+
+/// Convenience macro getting a typed value or exiting on failure
+#[macro_export]
+macro_rules! value_t_or_exit {
+	($m:ident.value_of($v:expr), $t:ty) => {
+		match $m.value_of($v) {
+			Some(v) => {
+				match v.parse::<$t>() {
+					Ok(val) => val,
+					Err(_)  => {
+						println!("{} isn't a valid {}\n{}\nPlease re-run with --help for more information",v,stringify!($t), $m.usage());
+						::std::process::exit(1);
+					}
+				}
+			},
+			None => {
+				println!("Argument not found\n{}\nPlease re-run with --help for more information", $m.usage());
+				::std::process::exit(1);
+			}
+		}
+	};
+}
