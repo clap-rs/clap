@@ -1,6 +1,6 @@
 extern crate clap;
 
-use clap::{App, Arg, SubCommand};
+use clap::{App, SubCommand};
 
 fn main() {
 
