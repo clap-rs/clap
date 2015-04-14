@@ -29,7 +29,49 @@ macro_rules! for_match {
 	};
 }
 
-/// Convenience macro getting a typed value
+/// Convenience macro getting a typed value `T` where `T` implements `std::fmt::FrmStr`
+/// This macro returns a `Result<T,String>` which allows you as the developer to decide
+/// what you'd like to do on a failed parse. There are two types of errors, parse failures
+/// and those where the argument wasn't present (such as a non-required argument). 
+///
+/// You can use it to get a single value, or a `Vec<T>` with the `values_of()`
+/// 
+/// **NOTE:** Be cautious, as since this a macro invocation it's not exactly like
+/// standard syntax.
+///
+///
+/// # Example single value
+///
+/// ```no_run
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::App;
+/// # fn main() {
+/// let matches = App::new("myapp")
+///                   .arg_from_usage("[length] 'Set the length to use as a positive whole number, i.e. 20'")
+///					  .get_matches();
+/// let len = value_t!(matches.value_of("length"), u32).unwrap_or_else(|e|{println!("{}",e); std::process::exit(1)});
+///
+/// println!("{} + 2: {}", len, len + 2);
+/// # }
+/// ```
+///
+///
+/// # Example multiple values
+///
+/// ```no_run
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::App;
+/// # fn main() {
+/// let matches = App::new("myapp")
+///                   .arg_from_usage("[seq]... 'A sequence of positive whole numbers, i.e. 20 30 45'")
+///					  .get_matches();
+/// for v in value_t!(matches.values_of("seq"), u32).unwrap_or_else(|e|{println!("{}",e); std::process::exit(1)}) {
+/// 	println!("{} + 2: {}", v, v + 2);
+///	}
+/// # }
+/// ```
 #[macro_export]
 macro_rules! value_t {
 	($m:ident.value_of($v:expr), $t:ty) => {
@@ -67,7 +109,51 @@ macro_rules! value_t {
 	};
 }
 
-/// Convenience macro getting a typed value or exiting on failure
+/// Convenience macro getting a typed value `T` where `T` implements `std::fmt::FrmStr`
+/// This macro returns a `T` or `Vec<T>` or exits with a usage string upon failure. This
+/// removes some of the boiler plate to handle failures from value_t! above. 
+///
+/// You can use it to get a single value `T`, or a `Vec<T>` with the `values_of()`
+/// 
+/// **NOTE:** This should only be used on required arguments, as it can be confusing to the user
+/// why they are getting error messages when it appears they're entering all required argumetns.
+///
+/// **NOTE:** Be cautious, as since this a macro invocation it's not exactly like
+/// standard syntax.
+///
+///
+/// # Example single value
+///
+/// ```no_run
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::App;
+/// # fn main() {
+/// let matches = App::new("myapp")
+///                   .arg_from_usage("[length] 'Set the length to use as a positive whole number, i.e. 20'")
+///					  .get_matches();
+/// let len = value_t_or_exit!(matches.value_of("length"), u32);
+///
+/// println!("{} + 2: {}", len, len + 2);
+/// # }
+/// ```
+///
+///
+/// # Example multiple values
+///
+/// ```no_run
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::App;
+/// # fn main() {
+/// let matches = App::new("myapp")
+///                   .arg_from_usage("[seq]... 'A sequence of positive whole numbers, i.e. 20 30 45'")
+///					  .get_matches();
+/// for v in value_t_or_exit!(matches.values_of("seq"), u32) {
+/// 	println!("{} + 2: {}", v, v + 2);
+///	}
+/// # }
+/// ```
 #[macro_export]
 macro_rules! value_t_or_exit {
 	($m:ident.value_of($v:expr), $t:ty) => {
