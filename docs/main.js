@@ -468,8 +468,6 @@
                     if ($active.length) {
                         document.location.href = $active.find('a').prop('href');
                     }
-                } else {
-                  $active.removeClass('highlighted');
                 }
             });
         }
@@ -715,12 +713,10 @@
                 if (crates[i] == window.currentCrate) {
                     klass += ' current';
                 }
-                if (rawSearchIndex[crates[i]].items[0]) {
-                    var desc = rawSearchIndex[crates[i]].items[0][3];
-                    div.append($('<a>', {'href': '../' + crates[i] + '/index.html',
-                                         'title': plainSummaryLine(desc),
-                                         'class': klass}).text(crates[i]));
-                }
+                var desc = rawSearchIndex[crates[i]].items[0][3];
+                div.append($('<a>', {'href': '../' + crates[i] + '/index.html',
+                                     'title': plainSummaryLine(desc),
+                                     'class': klass}).text(crates[i]));
             }
             sidebar.append(div);
         }

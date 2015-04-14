@@ -43,7 +43,7 @@
     <section id='main' class="content struct">
 <h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>clap</a>::<wbr><a class='struct' href=''>Arg</a><wbr></span><span class='out-of-band'><span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-8420' href='../src/clap/args/arg.rs.html#23-68'>[src]</a></span></h1>
+        </span><a id='src-8427' href='../src/clap/args/arg.rs.html#31-76'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct Arg&lt;'n, 'l, 'h, 'b, 'p, 'r&gt; {
     // some fields omitted
 }</pre><div class='docblock'><p>The abstract representation of a command line argument used by the consumer of the library.
@@ -53,13 +53,20 @@ Used to set all the options and relationships that define a valid argument for t
 their program. Then evaluates the settings the consumer provided and determines the concret
 argument type to use when parsing.</p>
 
+<p>There are two methods for constructing <code>Arg</code>s, using the builder pattern and setting options
+manually, or using a usage string which is far less verbose. You can also use a combination
+of the two methods to achieve the best of both worlds.</p>
+
 <h1 id="example" class='section-header'><a
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
-<span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;conifg&quot;</span>)
+<span class='comment'>// Using the traditional builder pattern and setting each option manually</span>
+<span class='ident'>Arg</span>::<span class='ident'>with_name</span>(<span class='string'>&quot;conifg&quot;</span>)
       .<span class='ident'>short</span>(<span class='string'>&quot;c&quot;</span>)
       .<span class='ident'>long</span>(<span class='string'>&quot;config&quot;</span>)
       .<span class='ident'>takes_value</span>(<span class='boolval'>true</span>)
       .<span class='ident'>help</span>(<span class='string'>&quot;Provides a config file to myprog&quot;</span>)
+<span class='comment'>// Using a usage string (setting a similar argument to the one above)</span>
+<span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;-i --input=[input] &#39;Provides an input file to the program&#39;&quot;</span>)
 </pre>
 </div><h2 id='methods'>Methods</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;'n, 'l, 'h, 'b, 'p, 'r&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'b, 'p, 'r&gt;</code></h3><div class='impl-items'><h4 id='method.new' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.new' class='fnname'>new</a>(n: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'b, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Creates a new instace of <code>Arg</code> using a unique string name.
@@ -70,11 +77,11 @@ whether or not the argument was used at runtime. </p>
 and positional arguments (i.e. those without a <code>-</code> or <code>--</code>) the name will also 
 be displayed when the user prints the usage/help information of the program.</p>
 
-<p><strong>NOTE:</strong> this function is deprecated in favor of Arg::with_name() to stay in line with
+<p><strong>NOTE:</strong> this function is deprecated in favor of Arg::with_name() to stay consistant with
 Rust APIs</p>
 
-<p>Example:</p>
-<pre id='rust-example-rendered' class='rust '>
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;conifg&quot;</span>)
 </pre>
 </div><h4 id='method.with_name' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.with_name' class='fnname'>with_name</a>(n: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'b, 'p, 'r&gt;</code></h4>
@@ -86,40 +93,42 @@ whether or not the argument was used at runtime. </p>
 and positional arguments (i.e. those without a <code>-</code> or <code>--</code>) the name will also 
 be displayed when the user prints the usage/help information of the program.</p>
 
-<p>Example:</p>
-<pre id='rust-example-rendered' class='rust '>
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 <span class='ident'>Arg</span>::<span class='ident'>with_name</span>(<span class='string'>&quot;conifg&quot;</span>)
 </pre>
 </div><h4 id='method.from_usage' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.from_usage' class='fnname'>from_usage</a>(u: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'n, 'n, 'b, 'p, 'r&gt;</code></h4>
-<div class='docblock'><p>Creates a new instace of <code>Arg</code> using a usage string. Allows creation of basic settings
+<div class='docblock'><p>Creates a new instace of <code>Arg</code> from a usage string. Allows creation of basic settings
 for Arg (i.e. everything except relational rules). The syntax is flexible, but there are
 some rules to follow.</p>
 
-<p>The syntax should be as follows (only properties which you wish to set must be present):</p>
+<p><strong>NOTE</strong>: only properties which you wish to set must be present</p>
 
 <ol>
 <li>Name (arguments with a <code>long</code> or that take a value can ommit this if desired),
 use <code>[]</code> for non-required arguments, or <code>&lt;&gt;</code> for required arguments.</li>
 <li>Short preceded by a <code>-</code></li>
 <li>Long preceded by a <code>--</code> (this may be used as the name, if the name is omitted. If the
-name is <em>not</em> omittied, the name takes precedence)</li>
-<li>Value (this can be used as the name, if the name is not manually specified. If the name
-is manually specified, it takes precence. If this value is used as the name, it uses the
-same <code>[]</code> and <code>&lt;&gt;</code> requirement rules. If it is <em>not</em> used as the name, it still needs to
-be surrounded by either <code>[]</code> or <code>&lt;&gt;</code> but the effect is the same, as the requirement rule
-is determined by the name. The value may follow the <code>short</code> or <code>long</code>. If it
-follows the <code>long</code>, it may follow either a <code>=</code> or <code></code> with the same effect, personal
-preference only, but may only follow a <code></code> after a <code>short</code>)</li>
-<li>Multiple specifier <code>...</code> (for flags or positional arguments the <code>...</code> may follow the
-name or <code>short</code> or <code>long</code>)</li>
-<li>The help info surrounded by <code>&#39;</code></li>
+name is <em>not</em> omittied, the name takes precedence over the <code>long</code>)</li>
+<li>Value (this can be used as the name if the name is not manually specified. If the name
+is manually specified, it takes precedence. If this value is used as the name, it uses the
+same <code>[]</code> and <code>&lt;&gt;</code> requirement specification rules. If it is <em>not</em> used as the name, it 
+still needs to be surrounded by either <code>[]</code> or <code>&lt;&gt;</code> but there is no requirement effect, 
+as the requirement rule is determined by the real name. This value may follow the <code>short</code> 
+or <code>long</code>, it doesn&#39;t matter. If it follows the <code>long</code>, it may follow either a <code>=</code> or <code></code>
+there is no difference, just personal preference. If this follows a <code>short</code> it can only
+be after a <code></code>) i.e. <code>-c [name]</code>, <code>--config [name]</code>, <code>--config=[name]</code>, etc.</li>
+<li>Multiple specifier <code>...</code> (the <code>...</code> may follow the name, <code>short</code>, <code>long</code>, or value <em>without</em>
+a <code></code> space) i.e. <code>&lt;name&gt;... -c</code>, <code>--config &lt;name&gt;...</code>, <code>[name] -c...</code>, etc.</li>
+<li>The help info surrounded by <code>&#39;</code>s (single quotes)</li>
 <li>The index of a positional argument will be the next available index (you don&#39;t need to
-specify one)</li>
+specify one) i.e. all arguments without a <code>short</code> or <code>long</code> will be treated as positional</li>
 </ol>
 
-<p>Example:</p>
-<pre id='rust-example-rendered' class='rust '>
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
                  .<span class='ident'>args</span>(<span class='macro'>vec</span><span class='macro'>!</span>[
+
 <span class='comment'>// A option argument with a long, named &quot;conf&quot; (note: because the name was specified</span>
 <span class='comment'>// the portion after the long can be called anything, only the first name will be displayed</span>
 <span class='comment'>// to the user. Also, requirement is set with the *name*, so the portion after the long could</span>
@@ -127,11 +136,14 @@ specify one)</li>
 <span class='comment'>// omitted, the name would have been derived from the portion after the long and those rules</span>
 <span class='comment'>// would have mattered)</span>
 <span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;[conf] --config=[c] &#39;a required file for the configuration&#39;&quot;</span>),
+
 <span class='comment'>// A flag with a short, a long, named &quot;debug&quot;, and accepts multiple values</span>
 <span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;-d --debug... &#39;turns on debugging information&quot;</span>),
+
 <span class='comment'>// A required positional argument named &quot;input&quot;</span>
 <span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;&lt;input&gt; &#39;the input file to use&#39;&quot;</span>)
 ])
+<span class='attribute'># 
 </pre>
 </div><h4 id='method.short' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.short' class='fnname'>short</a>(self, s: &amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'b, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Sets the short version of the argument without the preceding <code>-</code>.</p>
@@ -141,10 +153,10 @@ respectivly. You may use <code>v</code> or <code>h</code> for your own purposes,
 will not asign those to the displaying of version or help.</p>
 
 <p><strong>NOTE:</strong> Any leading <code>-</code> characters will be stripped, and only the first
-non <code>-</code> chacter will be used as the <code>short</code> version, i.e. for when the user
-mistakenly sets the short to <code>-o</code> or the like.
-Example:</p>
-<pre id='rust-example-rendered' class='rust '>
+non <code>-</code> chacter will be used as the <code>short</code> version</p>
+
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>short</span>(<span class='string'>&quot;c&quot;</span>)
 </pre>
 </div><h4 id='method.long' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.long' class='fnname'>long</a>(self, l: &amp;'l <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'b, 'p, 'r&gt;</code></h4>
@@ -155,19 +167,18 @@ respectivly. You may use <code>version</code> or <code>help</code> for your own 
 will not asign those to the displaying of version or help automatically, and you will have to do
 so manually.</p>
 
-<p><strong>NOTE:</strong> Any leading <code>-</code> characters will be stripped i.e. for 
-when the user mistakenly sets the short to <code>--out</code> or the like.</p>
+<p><strong>NOTE:</strong> Any leading <code>-</code> characters will be stripped</p>
 
-<p>Example:</p>
-<pre id='rust-example-rendered' class='rust '>
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>long</span>(<span class='string'>&quot;config&quot;</span>)
 </pre>
 </div><h4 id='method.help' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.help' class='fnname'>help</a>(self, h: &amp;'h <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'b, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Sets the help text of the argument that will be displayed to the user
 when they print the usage/help information. </p>
 
-<p>Example:</p>
-<pre id='rust-example-rendered' class='rust '>
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>help</span>(<span class='string'>&quot;The config file used by the myprog&quot;</span>)
 </pre>
 </div><h4 id='method.required' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.required' class='fnname'>required</a>(self, r: <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'b, 'p, 'r&gt;</code></h4>
@@ -180,8 +191,8 @@ by default.</p>
 cannot be required by default.
 when they print the usage/help information. </p>
 
-<p>Example:</p>
-<pre id='rust-example-rendered' class='rust '>
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>required</span>(<span class='boolval'>true</span>)
 </pre>
 </div><h4 id='method.mutually_excludes' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.mutually_excludes' class='fnname'>mutually_excludes</a>(self, name: &amp;'b <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'b, 'p, 'r&gt;</code></h4>
@@ -192,8 +203,8 @@ the following argument can&#39;t be present.</p>
 by default. Mutually exclusive rules only need to be set for one of the two
 arguments, they do not need to be set for each.</p>
 
-<p>Example:</p>
-<pre id='rust-example-rendered' class='rust '>
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>mutually_excludes</span>(<span class='string'>&quot;debug&quot;</span>)
 </pre>
 </div><h4 id='method.mutually_excludes_all' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.mutually_excludes_all' class='fnname'>mutually_excludes_all</a>(self, names: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'b <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'b, 'p, 'r&gt;</code></h4>
@@ -204,8 +215,8 @@ the following argument can&#39;t be present.</p>
 by default. Mutually exclusive rules only need to be set for one of the two
 arguments, they do not need to be set for each.</p>
 
-<p>Example:</p>
-<pre id='rust-example-rendered' class='rust '>
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>mutually_excludes_all</span>(
        <span class='macro'>vec</span><span class='macro'>!</span>[<span class='string'>&quot;debug&quot;</span>, <span class='string'>&quot;input&quot;</span>])
 </pre>
@@ -215,8 +226,8 @@ using this argument, the following argument <em>must</em> be present.</p>
 
 <p><strong>NOTE:</strong> Mutually exclusive rules take precedence over being required</p>
 
-<p>Example:</p>
-<pre id='rust-example-rendered' class='rust '>
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>requires</span>(<span class='string'>&quot;debug&quot;</span>)
 </pre>
 </div><h4 id='method.requires_all' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.requires_all' class='fnname'>requires_all</a>(self, names: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'r <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'b, 'p, 'r&gt;</code></h4>
@@ -226,8 +237,8 @@ using this argument, the following arguments <em>must</em> be present.</p>
 <p><strong>NOTE:</strong> Mutually exclusive rules take precedence over being required
 by default. </p>
 
-<p>Example:</p>
-<pre id='rust-example-rendered' class='rust '>
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>requires_all</span>(
        <span class='macro'>vec</span><span class='macro'>!</span>[<span class='string'>&quot;debug&quot;</span>, <span class='string'>&quot;input&quot;</span>])
 </pre>
@@ -237,8 +248,8 @@ by default. </p>
 <p><strong>NOTE:</strong> When setting this to <code>true</code> the <code>name</code> of the argument
 will be used when printing the help/usage information to the user. </p>
 
-<p>Example:</p>
-<pre id='rust-example-rendered' class='rust '>
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>takes_value</span>(<span class='boolval'>true</span>)
 </pre>
 </div><h4 id='method.index' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.index' class='fnname'>index</a>(self, idx: <a href='http://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'b, 'p, 'r&gt;</code></h4>
@@ -249,8 +260,8 @@ are ignored as positional arguments cannot have a <code>short</code> or <code>lo
 Also, the name will be used when printing the help/usage information 
 to the user. </p>
 
-<p>Example:</p>
-<pre id='rust-example-rendered' class='rust '>
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>index</span>(<span class='number'>1</span>)
 </pre>
 </div><h4 id='method.multiple' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.multiple' class='fnname'>multiple</a>(self, multi: <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'b, 'p, 'r&gt;</code></h4>
@@ -262,8 +273,8 @@ of a particular flag at runtime.</p>
 <p><strong>NOTE:</strong> When setting this,  any <code>takes_value</code> or <code>index</code> values you set
 are ignored as flags cannot have a values or an <code>index</code>.</p>
 
-<p>Example:</p>
-<pre id='rust-example-rendered' class='rust '>
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>multiple</span>(<span class='boolval'>true</span>)
 </pre>
 </div><h4 id='method.possible_values' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.possible_values' class='fnname'>possible_values</a>(self, names: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'p <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'b, 'p, 'r&gt;</code></h4>
@@ -272,8 +283,8 @@ one of the specified values was used, or fails with a usage string.</p>
 
 <p><strong>NOTE:</strong> This setting only applies to options and positional arguments </p>
 
-<p>Example:</p>
-<pre id='rust-example-rendered' class='rust '>
+<h1 id="example" class='section-header'><a
+                           href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>possible_values</span>(<span class='macro'>vec</span><span class='macro'>!</span>[<span class='string'>&quot;fast&quot;</span>, <span class='string'>&quot;slow&quot;</span>])
 </pre>
 </div></div></section>

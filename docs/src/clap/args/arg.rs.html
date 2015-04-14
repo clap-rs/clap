@@ -560,16 +560,45 @@
 <span id="518">518</span>
 <span id="519">519</span>
 <span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>usageparser</span>::{<span class='ident'>UsageParser</span>, <span class='ident'>UsageToken</span>};
 
 <span class='doccomment'>/// The abstract representation of a command line argument used by the consumer of the library.</span>
 <span class='doccomment'>/// Used to set all the options and relationships that define a valid argument for the program.</span>
-<span class='doccomment'>/// </span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// This struct is used by the library consumer and describes the command line arguments for </span>
 <span class='doccomment'>/// their program. Then evaluates the settings the consumer provided and determines the concret</span>
 <span class='doccomment'>/// argument type to use when parsing.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// There are two methods for constructing `Arg`s, using the builder pattern and setting options</span>
+<span class='doccomment'>/// manually, or using a usage string which is far less verbose. You can also use a combination</span>
+<span class='doccomment'>/// of the two methods to achieve the best of both worlds.</span>
+<span class='doccomment'>///</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// # Example</span>
 <span class='doccomment'>///</span>
@@ -577,11 +606,15 @@
 <span class='doccomment'>/// # use clap::{App, Arg};</span>
 <span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
 <span class='doccomment'>/// #                 .arg(</span>
-<span class='doccomment'>/// Arg::new(&quot;conifg&quot;)</span>
+<span class='doccomment'>/// // Using the traditional builder pattern and setting each option manually</span>
+<span class='doccomment'>/// Arg::with_name(&quot;conifg&quot;)</span>
 <span class='doccomment'>///       .short(&quot;c&quot;)</span>
 <span class='doccomment'>///       .long(&quot;config&quot;)</span>
 <span class='doccomment'>///       .takes_value(true)</span>
 <span class='doccomment'>///       .help(&quot;Provides a config file to myprog&quot;)</span>
+<span class='doccomment'>/// # ).arg(</span>
+<span class='doccomment'>/// // Using a usage string (setting a similar argument to the one above)</span>
+<span class='doccomment'>/// Arg::from_usage(&quot;-i --input=[input] &#39;Provides an input file to the program&#39;&quot;)</span>
 <span class='doccomment'>/// # ).get_matches();</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// The unique name of the argument, required</span>
@@ -639,10 +672,11 @@
     <span class='doccomment'>/// and positional arguments (i.e. those without a `-` or `--`) the name will also </span>
     <span class='doccomment'>/// be displayed when the user prints the usage/help information of the program.</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// **NOTE:** this function is deprecated in favor of Arg::with_name() to stay in line with</span>
+    <span class='doccomment'>/// **NOTE:** this function is deprecated in favor of Arg::with_name() to stay consistant with</span>
     <span class='doccomment'>/// Rust APIs</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// ```no_run</span>
     <span class='doccomment'>/// # use clap::{App, Arg};</span>
@@ -677,7 +711,8 @@
     <span class='doccomment'>/// and positional arguments (i.e. those without a `-` or `--`) the name will also </span>
     <span class='doccomment'>/// be displayed when the user prints the usage/help information of the program.</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// ```no_run</span>
     <span class='doccomment'>/// # use clap::{App, Arg};</span>
@@ -702,37 +737,39 @@
         }
     }
 
-    <span class='doccomment'>/// Creates a new instace of `Arg` using a usage string. Allows creation of basic settings</span>
+    <span class='doccomment'>/// Creates a new instace of `Arg` from a usage string. Allows creation of basic settings</span>
     <span class='doccomment'>/// for Arg (i.e. everything except relational rules). The syntax is flexible, but there are</span>
     <span class='doccomment'>/// some rules to follow.</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The syntax should be as follows (only properties which you wish to set must be present):</span>
+    <span class='doccomment'>/// **NOTE**: only properties which you wish to set must be present</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// 1. Name (arguments with a `long` or that take a value can ommit this if desired),</span>
     <span class='doccomment'>///    use `[]` for non-required arguments, or `&lt;&gt;` for required arguments.</span>
     <span class='doccomment'>/// 2. Short preceded by a `-`</span>
     <span class='doccomment'>/// 3. Long preceded by a `--` (this may be used as the name, if the name is omitted. If the</span>
-    <span class='doccomment'>///    name is *not* omittied, the name takes precedence)</span>
-    <span class='doccomment'>/// 4. Value (this can be used as the name, if the name is not manually specified. If the name</span>
-    <span class='doccomment'>///    is manually specified, it takes precence. If this value is used as the name, it uses the</span>
-    <span class='doccomment'>///    same `[]` and `&lt;&gt;` requirement rules. If it is *not* used as the name, it still needs to</span>
-    <span class='doccomment'>///    be surrounded by either `[]` or `&lt;&gt;` but the effect is the same, as the requirement rule</span>
-    <span class='doccomment'>///    is determined by the name. The value may follow the `short` or `long`. If it</span>
-    <span class='doccomment'>///    follows the `long`, it may follow either a `=` or ` ` with the same effect, personal</span>
-    <span class='doccomment'>///    preference only, but may only follow a ` ` after a `short`)</span>
-    <span class='doccomment'>/// 5. Multiple specifier `...` (for flags or positional arguments the `...` may follow the</span>
-    <span class='doccomment'>///    name or `short` or `long`)</span>
-    <span class='doccomment'>/// 6. The help info surrounded by `&#39;`</span>
+    <span class='doccomment'>///    name is *not* omittied, the name takes precedence over the `long`)</span>
+    <span class='doccomment'>/// 4. Value (this can be used as the name if the name is not manually specified. If the name</span>
+    <span class='doccomment'>///    is manually specified, it takes precedence. If this value is used as the name, it uses the</span>
+    <span class='doccomment'>///    same `[]` and `&lt;&gt;` requirement specification rules. If it is *not* used as the name, it </span>
+    <span class='doccomment'>///    still needs to be surrounded by either `[]` or `&lt;&gt;` but there is no requirement effect, </span>
+    <span class='doccomment'>///    as the requirement rule is determined by the real name. This value may follow the `short` </span>
+    <span class='doccomment'>///    or `long`, it doesn&#39;t matter. If it follows the `long`, it may follow either a `=` or ` `</span>
+    <span class='doccomment'>///    there is no difference, just personal preference. If this follows a `short` it can only</span>
+    <span class='doccomment'>///    be after a ` `) i.e. `-c [name]`, `--config [name]`, `--config=[name]`, etc.</span>
+    <span class='doccomment'>/// 5. Multiple specifier `...` (the `...` may follow the name, `short`, `long`, or value *without*</span>
+    <span class='doccomment'>///    a ` ` space) i.e. `&lt;name&gt;... -c`, `--config &lt;name&gt;...`, `[name] -c...`, etc.</span>
+    <span class='doccomment'>/// 6. The help info surrounded by `&#39;`s (single quotes)</span>
     <span class='doccomment'>/// 7. The index of a positional argument will be the next available index (you don&#39;t need to</span>
-    <span class='doccomment'>///    specify one)</span>
+    <span class='doccomment'>///    specify one) i.e. all arguments without a `short` or `long` will be treated as positional</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// </span>
-    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>/// # Example</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// ```no_run</span>
     <span class='doccomment'>/// # use clap::{App, Arg};</span>
     <span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
     <span class='doccomment'>///                  .args(vec![</span>
+    <span class='doccomment'>///</span>
     <span class='doccomment'>/// // A option argument with a long, named &quot;conf&quot; (note: because the name was specified</span>
     <span class='doccomment'>/// // the portion after the long can be called anything, only the first name will be displayed</span>
     <span class='doccomment'>/// // to the user. Also, requirement is set with the *name*, so the portion after the long could</span>
@@ -740,8 +777,10 @@
     <span class='doccomment'>/// // omitted, the name would have been derived from the portion after the long and those rules</span>
     <span class='doccomment'>/// // would have mattered)</span>
     <span class='doccomment'>/// Arg::from_usage(&quot;[conf] --config=[c] &#39;a required file for the configuration&#39;&quot;),</span>
+    <span class='doccomment'>///</span>
     <span class='doccomment'>/// // A flag with a short, a long, named &quot;debug&quot;, and accepts multiple values</span>
     <span class='doccomment'>/// Arg::from_usage(&quot;-d --debug... &#39;turns on debugging information&quot;),</span>
+    <span class='doccomment'>///</span>
     <span class='doccomment'>/// // A required positional argument named &quot;input&quot;</span>
     <span class='doccomment'>/// Arg::from_usage(&quot;&lt;input&gt; &#39;the input file to use&#39;&quot;)</span>
     <span class='doccomment'>/// ])</span>
@@ -819,9 +858,10 @@
     <span class='doccomment'>/// will not asign those to the displaying of version or help.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// **NOTE:** Any leading `-` characters will be stripped, and only the first</span>
-    <span class='doccomment'>/// non `-` chacter will be used as the `short` version, i.e. for when the user</span>
-    <span class='doccomment'>/// mistakenly sets the short to `-o` or the like.</span>
-    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>/// non `-` chacter will be used as the `short` version</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// ```no_run</span>
     <span class='doccomment'>/// # use clap::{App, Arg};</span>
@@ -842,10 +882,10 @@
     <span class='doccomment'>/// will not asign those to the displaying of version or help automatically, and you will have to do</span>
     <span class='doccomment'>/// so manually.</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// **NOTE:** Any leading `-` characters will be stripped i.e. for </span>
-    <span class='doccomment'>/// when the user mistakenly sets the short to `--out` or the like.</span>
+    <span class='doccomment'>/// **NOTE:** Any leading `-` characters will be stripped</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// ```no_run</span>
     <span class='doccomment'>/// # use clap::{App, Arg};</span>
@@ -862,7 +902,8 @@
     <span class='doccomment'>/// Sets the help text of the argument that will be displayed to the user</span>
     <span class='doccomment'>/// when they print the usage/help information. </span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// ```no_run</span>
     <span class='doccomment'>/// # use clap::{App, Arg};</span>
@@ -885,13 +926,14 @@
     <span class='doccomment'>/// cannot be required by default.</span>
     <span class='doccomment'>/// when they print the usage/help information. </span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// #Example</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// ```no_run</span>
     <span class='doccomment'>/// # use clap::{App, Arg};</span>
     <span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
     <span class='doccomment'>/// #                 .arg(</span>
-    <span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
+    <span class='doccomment'>/// # Arg::with_name(&quot;conifg&quot;)</span>
     <span class='doccomment'>/// .required(true)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>required</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>r</span>: <span class='ident'>bool</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
@@ -906,11 +948,12 @@
     <span class='doccomment'>/// by default. Mutually exclusive rules only need to be set for one of the two</span>
     <span class='doccomment'>/// arguments, they do not need to be set for each.</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// ```no_run</span>
     <span class='doccomment'>/// # use clap::{App, Arg};</span>
-    <span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::new(&quot;conifg&quot;)</span>
+    <span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::with_name(&quot;conifg&quot;)</span>
     <span class='doccomment'>/// .mutually_excludes(&quot;debug&quot;)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>mutually_excludes</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
@@ -929,11 +972,12 @@
     <span class='doccomment'>/// by default. Mutually exclusive rules only need to be set for one of the two</span>
     <span class='doccomment'>/// arguments, they do not need to be set for each.</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// ```no_run</span>
     <span class='doccomment'>/// # use clap::{App, Arg};</span>
-    <span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::new(&quot;conifg&quot;)</span>
+    <span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::with_name(&quot;conifg&quot;)</span>
     <span class='doccomment'>/// .mutually_excludes_all(</span>
     <span class='doccomment'>///        vec![&quot;debug&quot;, &quot;input&quot;])</span>
     <span class='doccomment'>/// # ).get_matches();</span>
@@ -953,11 +997,12 @@
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// **NOTE:** Mutually exclusive rules take precedence over being required</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// ```no_run</span>
     <span class='doccomment'>/// # use clap::{App, Arg};</span>
-    <span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::new(&quot;conifg&quot;)</span>
+    <span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::with_name(&quot;conifg&quot;)</span>
     <span class='doccomment'>/// .requires(&quot;debug&quot;)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>requires</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
@@ -975,11 +1020,12 @@
     <span class='doccomment'>/// **NOTE:** Mutually exclusive rules take precedence over being required</span>
     <span class='doccomment'>/// by default. </span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// ```no_run</span>
     <span class='doccomment'>/// # use clap::{App, Arg};</span>
-    <span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::new(&quot;conifg&quot;)</span>
+    <span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::with_name(&quot;conifg&quot;)</span>
     <span class='doccomment'>/// .requires_all(</span>
     <span class='doccomment'>///        vec![&quot;debug&quot;, &quot;input&quot;])</span>
     <span class='doccomment'>/// # ).get_matches();</span>
@@ -999,13 +1045,14 @@
     <span class='doccomment'>/// **NOTE:** When setting this to `true` the `name` of the argument</span>
     <span class='doccomment'>/// will be used when printing the help/usage information to the user. </span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// ```no_run</span>
     <span class='doccomment'>/// # use clap::{App, Arg};</span>
     <span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
     <span class='doccomment'>/// #                 .arg(</span>
-    <span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
+    <span class='doccomment'>/// # Arg::with_name(&quot;conifg&quot;)</span>
     <span class='doccomment'>/// .takes_value(true)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>takes_value</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>tv</span>: <span class='ident'>bool</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
@@ -1020,13 +1067,14 @@
     <span class='doccomment'>/// Also, the name will be used when printing the help/usage information </span>
     <span class='doccomment'>/// to the user. </span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// ```no_run</span>
     <span class='doccomment'>/// # use clap::{App, Arg};</span>
     <span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
     <span class='doccomment'>/// #                 .arg(</span>
-    <span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
+    <span class='doccomment'>/// # Arg::with_name(&quot;conifg&quot;)</span>
     <span class='doccomment'>/// .index(1)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>index</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>idx</span>: <span class='ident'>u8</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
@@ -1042,13 +1090,14 @@
     <span class='doccomment'>/// **NOTE:** When setting this,  any `takes_value` or `index` values you set</span>
     <span class='doccomment'>/// are ignored as flags cannot have a values or an `index`.</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// ```no_run</span>
     <span class='doccomment'>/// # use clap::{App, Arg};</span>
     <span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
     <span class='doccomment'>/// #                 .arg(</span>
-    <span class='doccomment'>/// # Arg::new(&quot;debug&quot;)</span>
+    <span class='doccomment'>/// # Arg::with_name(&quot;debug&quot;)</span>
     <span class='doccomment'>/// .multiple(true)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>multiple</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>multi</span>: <span class='ident'>bool</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
@@ -1061,13 +1110,14 @@
     <span class='doccomment'>/// </span>
     <span class='doccomment'>/// **NOTE:** This setting only applies to options and positional arguments </span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Example:</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// ```no_run</span>
     <span class='doccomment'>/// # use clap::{App, Arg};</span>
     <span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
     <span class='doccomment'>/// #                 .arg(</span>
-    <span class='doccomment'>/// # Arg::new(&quot;debug&quot;).index(1)</span>
+    <span class='doccomment'>/// # Arg::with_name(&quot;debug&quot;).index(1)</span>
     <span class='doccomment'>/// .possible_values(vec![&quot;fast&quot;, &quot;slow&quot;])</span>
     <span class='doccomment'>/// # ).get_matches();</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>possible_values</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>names</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;p</span> <span class='ident'>str</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
