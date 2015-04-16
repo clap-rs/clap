@@ -1,3 +1,13 @@
+<a name="v0.6.3"></a>
+## v0.6.3 (2015-04-16)
+
+
+#### Features
+
+* **macros**  add macro to create custom enums to use as types ([fb672aff](https://github.com/kbknapp/clap-rs/commit/fb672aff561c29db2e343d6c607138f141aca8b6))
+
+
+
 <a name="v0.6.2"></a>
 ## v0.6.2 (2015-04-14)
 
