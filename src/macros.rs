@@ -29,7 +29,7 @@ macro_rules! for_match {
 	};
 }
 
-/// Convenience macro getting a typed value `T` where `T` implements `std::fmt::FrmStr`
+/// Convenience macro getting a typed value `T` where `T` implements `std::str::FromStr`
 /// This macro returns a `Result<T,String>` which allows you as the developer to decide
 /// what you'd like to do on a failed parse. There are two types of errors, parse failures
 /// and those where the argument wasn't present (such as a non-required argument). 
@@ -117,7 +117,7 @@ macro_rules! value_t {
 	};
 }
 
-/// Convenience macro getting a typed value `T` where `T` implements `std::fmt::FrmStr`
+/// Convenience macro getting a typed value `T` where `T` implements `std::str::FromStr`
 /// This macro returns a `T` or `Vec<T>` or exits with a usage string upon failure. This
 /// removes some of the boiler plate to handle failures from value_t! above. 
 ///

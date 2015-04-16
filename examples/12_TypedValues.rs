@@ -5,7 +5,7 @@ use clap::App;
 
 fn main() {
 	// You can use some convenience macros provided by clap to get typed values, so long as the
-	// type you specify implements core::str::FromStr
+	// type you specify implements std::str::FromStr
 	//
 	// This works for both single, and multiple values (multiple values returns a Vec<T>)
 	//
