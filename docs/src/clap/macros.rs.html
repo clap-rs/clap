@@ -287,7 +287,7 @@
 	};
 }
 
-<span class='doccomment'>/// Convenience macro getting a typed value `T` where `T` implements `std::fmt::FrmStr`</span>
+<span class='doccomment'>/// Convenience macro getting a typed value `T` where `T` implements `std::str::FromStr`</span>
 <span class='doccomment'>/// This macro returns a `Result&lt;T,String&gt;` which allows you as the developer to decide</span>
 <span class='doccomment'>/// what you&#39;d like to do on a failed parse. There are two types of errors, parse failures</span>
 <span class='doccomment'>/// and those where the argument wasn&#39;t present (such as a non-required argument). </span>
@@ -375,7 +375,7 @@
 	};
 }
 
-<span class='doccomment'>/// Convenience macro getting a typed value `T` where `T` implements `std::fmt::FrmStr`</span>
+<span class='doccomment'>/// Convenience macro getting a typed value `T` where `T` implements `std::str::FromStr`</span>
 <span class='doccomment'>/// This macro returns a `T` or `Vec&lt;T&gt;` or exits with a usage string upon failure. This</span>
 <span class='doccomment'>/// removes some of the boiler plate to handle failures from value_t! above. </span>
 <span class='doccomment'>///</span>

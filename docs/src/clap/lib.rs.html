@@ -942,6 +942,11 @@
 <span id="900">900</span>
 <span id="901">901</span>
 <span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
 </pre><pre class='rust '>
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>crate_type</span><span class='op'>=</span> <span class='string'>&quot;lib&quot;</span>]</span>
 
@@ -950,34 +955,24 @@
 <span class='doccomment'>//! </span>
 <span class='doccomment'>//! ![Travis-CI](https://travis-ci.org/kbknapp/clap-rs.svg?branch=master) [![Join the chat at https://gitter.im/kbknapp/clap-rs](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kbknapp/clap-rs?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge)</span>
 <span class='doccomment'>//! </span>
-<span class='doccomment'>//! Command Line Argument Parser written in Rust</span>
+<span class='doccomment'>//! Command Line Argument Parser for Rust</span>
 <span class='doccomment'>//! </span>
 <span class='doccomment'>//! It is a simple to use and efficient library for parsing command line arguments and subcommands when writing console, or terminal applications.</span>
 <span class='doccomment'>//! </span>
-<span class='doccomment'>//! ## Video Tutorials</span>
-<span class='doccomment'>//! </span>
-<span class='doccomment'>//! I&#39;ve been working on a few short video tutorials about using `clap`. They&#39;re located on [youtube](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv). </span>
-<span class='doccomment'>//! </span>
-<span class='doccomment'>//! *Note*: The videos have not been updated to include the new `from_usage()` methods which make building args significantly less verbose. New videos will be added soon.</span>
-<span class='doccomment'>//! </span>
-<span class='doccomment'>//! *Note*: Apologies for the resolution of the first video, it will be updated to a better resolution soon. The other videos have a proper resolution.</span>
-<span class='doccomment'>//! </span>
 <span class='doccomment'>//! ## About</span>
 <span class='doccomment'>//! </span>
-<span class='doccomment'>//! You can use `clap` to lay out a list of possible valid command line arguments and subcommands, then let `clap` parse *and validate* the string given by the user at runtime. This means you focus on your applications functionality, not parsing and validating arguments.</span>
+<span class='doccomment'>//! `clap` is used to parse *and validate* the string of command line arguments provided by the user at runtime. You simply provide the list of valid possibilities, and `clap` handles the rest. This means you focus on your *applications* functionality, and less on the parsing and validating of arguments.</span>
 <span class='doccomment'>//! </span>
-<span class='doccomment'>//! What is different about `clap` from other options available is the very simple almost &#39;Pythonic&#39; style in which you define the valid available arguments for your program, while still giving advanced features. `clap` allows you express complex relationships between arguments in a very simple manner. This means you don&#39;t have to spend tons time learning an entirely new library&#39;s structures and use. The basics of `clap` can be learned almost intuitively.</span>
+<span class='doccomment'>//! `clap` also provides all the traditional version and help switches (or flags) &#39;for free.&#39; It does this by checking list of valid possibilities you supplied and if you haven&#39;t defined those flags already (or only defined some of them), `clap` will auto-generate the applicable ones (as well as a &quot;help&quot; subcommand so long as other subcommands have been manually defined as well).</span>
 <span class='doccomment'>//! </span>
-<span class='doccomment'>//! `clap` also provides all the traditional version and help switches (or flags) &#39;for free&#39; by parsing the list of developer supplied arguments. If the developer hasn&#39;t defined them already (or only defined some of them), `clap` will auto-generate the applicable &quot;help&quot; and &quot;version&quot; switches (as well as a &quot;help&quot; subcommand so long as other subcommands have been manually defined as well).</span>
-<span class='doccomment'>//! </span>
-<span class='doccomment'>//! After defining a list of possible valid arguments and subcommands, `clap` parses the string given by the end-user at runtime then gives you a list of the valid matches and their values. If the user made an error or typo, `clap` informs them and exits gracefully. This means that you can simply use these matches and values to determine the functioning of your program.</span>
+<span class='doccomment'>//! After `clap` finishes parsing the user provided string, it returns all the matches along with any applicable values. If the user made an error or typo, `clap` informs them of the mistake and exits gracefully. Because of this, you can make reasonable assumptions in your code, and worry less about error handling.</span>
 <span class='doccomment'>//! </span>
 <span class='doccomment'>//! ## Features</span>
 <span class='doccomment'>//! </span>
 <span class='doccomment'>//! Below are a few of the features which `clap` supports, full descriptions and usage can be found in the [documentation](http://kbknapp.github.io/clap-rs/docs/clap/index.html) and `examples/` directory</span>
 <span class='doccomment'>//! </span>
 <span class='doccomment'>//! * **Auto-generated Help, Version, and Usage information**</span>
-<span class='doccomment'>//!   - Can optionally be fully, or partially overridden if you want a custom help, version, or usage</span>
+<span class='doccomment'>//!   - Can optionally be fully, or partially overridden if you want a custom help, version, or usag</span>
 <span class='doccomment'>//! * **Flags / Switches** (i.e. bool fields)</span>
 <span class='doccomment'>//!   - Both short and long versions supported (i.e. `-f` and `--flag` respectively)</span>
 <span class='doccomment'>//!   - Supports combining short versions (i.e. `-fBgoZ` is the same as `-f -B -g -o -Z`)</span>
@@ -985,12 +980,13 @@
 <span class='doccomment'>//! * **Positional Arguments** (i.e. those which are based off an index from the program name)</span>
 <span class='doccomment'>//!   - Optionally supports multiple values (i.e. `myprog &lt;file&gt;...` such as `myprog file1.txt file2.txt` being two values for the same &quot;file&quot; argument)</span>
 <span class='doccomment'>//!   - Optionally supports Specific Value Sets (See below)</span>
+<span class='doccomment'>//!   - Supports the unix `--` meaning, only positional arguments follow</span>
 <span class='doccomment'>//! * **Option Arguments** (i.e. those that take values as options)</span>
 <span class='doccomment'>//!   - Both short and long versions supported (i.e. `-o value` and `--option value` or `--option=value` respectively)</span>
-<span class='doccomment'>//!   - Optionally supports multiple values (i.e. `myprog --option &lt;value&gt; --option &lt;other_value&gt;`)</span>
+<span class='doccomment'>//!   - Optionally supports multiple values (i.e. `myprog -o &lt;value&gt; -o &lt;other_value&gt;`)</span>
 <span class='doccomment'>//!   - Optionally supports Specific Value Sets (See below)</span>
 <span class='doccomment'>//! * **Sub-Commands** (i.e. `git add &lt;file&gt;` where `add` is a sub-command of `git`)</span>
-<span class='doccomment'>//!   - Support their own sub-arguments, and sub-commands independant of the parent</span>
+<span class='doccomment'>//!   - Support their own sub-arguments, and sub-sub-commands independant of the parent</span>
 <span class='doccomment'>//!   - Get their own auto-generated Help, Version, and Usage independant of parent</span>
 <span class='doccomment'>//! * **Requirement Rules**: Arguments can optionally define the following types of requirement rules</span>
 <span class='doccomment'>//!   - Required by default</span>
@@ -1000,16 +996,18 @@
 <span class='doccomment'>//!   - Can be disallowed when certain arguments are present</span>
 <span class='doccomment'>//!   - Can disallow use of other arguments when present</span>
 <span class='doccomment'>//! * **Specific Value Sets**: Positional or Option Arguments can optionally define a specific set of allowed values (i.e. imagine a `--mode` option which may *only* have one of two values `fast` or `slow` such as `--mode fast` or `--mode slow`)</span>
-<span class='doccomment'>//! * **Default Values**: Although not specifically provided by `clap` you can achieve this exact functionality from Rust&#39;s `Option&lt;&amp;str&gt;.unwrap_or(&quot;some default&quot;)` method</span>
-<span class='doccomment'>//! * **Get Version from Cargo.toml**: `clap` is fully compatible with Rust&#39;s `env!()` macro for automatically getting the version from your Cargo.toml. See `examples/09_AutoVersion.rs` for how to do this (Thanks to [jhelwig](https://github.com/jhelwig) for pointing this out)</span>
-<span class='doccomment'>//! * **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) so long as the type you request implements `std::fmt::FrmStr` See the `examples/12_TypedValues.rs` or the documentation for more information.</span>
+<span class='doccomment'>//! * **Default Values**: Although not specifically provided by `clap` you can achieve this exact functionality from Rust&#39;s `Option&lt;&amp;str&gt;.unwrap_or(&quot;some default&quot;)` method (or `Result&lt;T,String&gt;.unwrap_or(T)` when using typed values)</span>
+<span class='doccomment'>//! * **Automatic Version from Cargo.toml**: `clap` is fully compatible with Rust&#39;s `env!()` macro for automatically setting the version of your application to the version in your Cargo.toml. See `examples/09_AutoVersion.rs` for how to do this (Thanks to [jhelwig](https://github.com/jhelwig) for pointing this out)</span>
+<span class='doccomment'>//! * **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) from positional or option arguments so long as the type you request implements `std::str::FromStr` See the `examples/12_TypedValues.rs` or the [documentation](http://kbknapp.github.io/clap-rs/docs/clap/index.html) for more information.</span>
 <span class='doccomment'>//! </span>
 <span class='doccomment'>//! ## Quick Example</span>
 <span class='doccomment'>//!  </span>
-<span class='doccomment'>//! The following two examples (which are functionally equivilant, but show two different ways to use `clap`) show a quick example of some of the basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/docs/clap/index.html), or `examples/` directory of this repository.</span>
+<span class='doccomment'>//! The following two examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/docs/clap/index.html), or `examples/` directory of this repository.</span>
+<span class='doccomment'>//!  </span>
+<span class='doccomment'>//!  *NOTE:* Both examples are functionally the same, but show two different ways to use `clap`</span>
 <span class='doccomment'>//!  </span>
 <span class='doccomment'>//! ```rust</span>
-<span class='doccomment'>//! // (Full example with comments in examples/01_QuickExample.rs)</span>
+<span class='doccomment'>//! // (Full example with detailed comments in examples/01a_QuickExample.rs)</span>
 <span class='doccomment'>//! extern crate clap;</span>
 <span class='doccomment'>//! use clap::{Arg, App, SubCommand};</span>
 <span class='doccomment'>//! </span>
@@ -1046,6 +1044,8 @@
 <span class='doccomment'>//!         3 | _ =&gt; println!(&quot;Don&#39;t be crazy&quot;),</span>
 <span class='doccomment'>//!     }</span>
 <span class='doccomment'>//! </span>
+<span class='doccomment'>//!     // You can information about subcommands by requesting their matches by name </span>
+<span class='doccomment'>//!     // (as below), requesting just the name used, or both at the same time</span>
 <span class='doccomment'>//!     if let Some(matches) = matches.subcommand_matches(&quot;test&quot;) {</span>
 <span class='doccomment'>//!         if matches.is_present(&quot;verbose&quot;) {</span>
 <span class='doccomment'>//!             println!(&quot;Printing verbosely...&quot;);</span>
@@ -1058,10 +1058,10 @@
 <span class='doccomment'>//! }</span>
 <span class='doccomment'>//! ```</span>
 <span class='doccomment'>//! </span>
-<span class='doccomment'>//! While the following example is functionally the same as the one above, this method allows more advanced configuration options, or even dynamically generating arguments when desired. Both methods can be used together to get the best of both worlds (see the documentation).</span>
+<span class='doccomment'>//! The following example is functionally the same as the one above, but this method allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired. Both methods can be used together to get the best of both worlds (see the documentation, examples, or video tutorials).</span>
 <span class='doccomment'>//!  </span>
 <span class='doccomment'>//! ```rust</span>
-<span class='doccomment'>//! // (Full example with comments in examples/01_QuickExample.rs)</span>
+<span class='doccomment'>//! // (Full example with detailed comments in examples/01b_QuickExample.rs)</span>
 <span class='doccomment'>//! extern crate clap;</span>
 <span class='doccomment'>//! use clap::{Arg, App, SubCommand};</span>
 <span class='doccomment'>//! </span>
@@ -1108,7 +1108,9 @@
 <span class='doccomment'>//!         2 =&gt; println!(&quot;Debug mode is on&quot;),</span>
 <span class='doccomment'>//!         3 | _ =&gt; println!(&quot;Don&#39;t be crazy&quot;),</span>
 <span class='doccomment'>//!     }</span>
-<span class='doccomment'>//! </span>
+<span class='doccomment'>//!     </span>
+<span class='doccomment'>//!     // You can information about subcommands by requesting their matches by name </span>
+<span class='doccomment'>//!     // (as below), requesting just the name used, or both at the same time</span>
 <span class='doccomment'>//!     if let Some(matches) = matches.subcommand_matches(&quot;test&quot;) {</span>
 <span class='doccomment'>//!         if matches.is_present(&quot;verbose&quot;) {</span>
 <span class='doccomment'>//!             println!(&quot;Printing verbosely...&quot;);</span>
@@ -1176,6 +1178,14 @@
 <span class='doccomment'>//! You can find complete documentation on the [github-pages site](http://kbknapp.github.io/clap-rs/docs/clap/index.html) for this project.</span>
 <span class='doccomment'>//! </span>
 <span class='doccomment'>//! You can also find usage examples in the `examples/` directory of this repo.</span>
+<span class='doccomment'>//! </span>
+<span class='doccomment'>//! #### Video Tutorials</span>
+<span class='doccomment'>//! </span>
+<span class='doccomment'>//! There&#39;s also the video tutorial series [Argument Parsing with Rust](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv) that I&#39;ve been working on.</span>
+<span class='doccomment'>//! </span>
+<span class='doccomment'>//! *Note*: Two new videos have just been added ([08 From Usage](https://youtu.be/xc6VdedFrG0), and [09 Typed Values](https://youtu.be/mZn3C1DnD90)), if you&#39;re already familiar with `clap` but want to know more about these two details you can check out those videos without watching the previous few.</span>
+<span class='doccomment'>//! </span>
+<span class='doccomment'>//! *Note*: Apologies for the resolution of the first video, it will be updated to a better resolution soon. The other videos have a proper resolution.</span>
 <span class='doccomment'>//! </span>
 <span class='doccomment'>//! ## How to Contribute</span>
 <span class='doccomment'>//! </span>

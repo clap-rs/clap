@@ -43,33 +43,23 @@
     <section id='main' class="content mod">
 <h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>clap</a><wbr></span><span class='out-of-band'><a href='stability.html'>[stability]</a> <span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-0' href='../src/clap/lib.rs.html#1-902'>[src]</a></span></h1>
+        </span><a id='src-0' href='../src/clap/lib.rs.html#1-907'>[src]</a></span></h1>
 <div class='docblock'>
 <h1 id="clap" class='section-header'><a
                            href="#clap">clap</a></h1>
 <p><img src="https://travis-ci.org/kbknapp/clap-rs.svg?branch=master" alt="Travis-CI"> <a href="https://gitter.im/kbknapp/clap-rs?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" alt="Join the chat at https://gitter.im/kbknapp/clap-rs"></a></p>
 
-<p>Command Line Argument Parser written in Rust</p>
+<p>Command Line Argument Parser for Rust</p>
 
 <p>It is a simple to use and efficient library for parsing command line arguments and subcommands when writing console, or terminal applications.</p>
 
-<h2 id="video-tutorials" class='section-header'><a
-                           href="#video-tutorials">Video Tutorials</a></h2>
-<p>I&#39;ve been working on a few short video tutorials about using <code>clap</code>. They&#39;re located on <a href="https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv">youtube</a>. </p>
-
-<p><em>Note</em>: The videos have not been updated to include the new <code>from_usage()</code> methods which make building args significantly less verbose. New videos will be added soon.</p>
-
-<p><em>Note</em>: Apologies for the resolution of the first video, it will be updated to a better resolution soon. The other videos have a proper resolution.</p>
-
 <h2 id="about" class='section-header'><a
                            href="#about">About</a></h2>
-<p>You can use <code>clap</code> to lay out a list of possible valid command line arguments and subcommands, then let <code>clap</code> parse <em>and validate</em> the string given by the user at runtime. This means you focus on your applications functionality, not parsing and validating arguments.</p>
+<p><code>clap</code> is used to parse <em>and validate</em> the string of command line arguments provided by the user at runtime. You simply provide the list of valid possibilities, and <code>clap</code> handles the rest. This means you focus on your <em>applications</em> functionality, and less on the parsing and validating of arguments.</p>
 
-<p>What is different about <code>clap</code> from other options available is the very simple almost &#39;Pythonic&#39; style in which you define the valid available arguments for your program, while still giving advanced features. <code>clap</code> allows you express complex relationships between arguments in a very simple manner. This means you don&#39;t have to spend tons time learning an entirely new library&#39;s structures and use. The basics of <code>clap</code> can be learned almost intuitively.</p>
+<p><code>clap</code> also provides all the traditional version and help switches (or flags) &#39;for free.&#39; It does this by checking list of valid possibilities you supplied and if you haven&#39;t defined those flags already (or only defined some of them), <code>clap</code> will auto-generate the applicable ones (as well as a &quot;help&quot; subcommand so long as other subcommands have been manually defined as well).</p>
 
-<p><code>clap</code> also provides all the traditional version and help switches (or flags) &#39;for free&#39; by parsing the list of developer supplied arguments. If the developer hasn&#39;t defined them already (or only defined some of them), <code>clap</code> will auto-generate the applicable &quot;help&quot; and &quot;version&quot; switches (as well as a &quot;help&quot; subcommand so long as other subcommands have been manually defined as well).</p>
-
-<p>After defining a list of possible valid arguments and subcommands, <code>clap</code> parses the string given by the end-user at runtime then gives you a list of the valid matches and their values. If the user made an error or typo, <code>clap</code> informs them and exits gracefully. This means that you can simply use these matches and values to determine the functioning of your program.</p>
+<p>After <code>clap</code> finishes parsing the user provided string, it returns all the matches along with any applicable values. If the user made an error or typo, <code>clap</code> informs them of the mistake and exits gracefully. Because of this, you can make reasonable assumptions in your code, and worry less about error handling.</p>
 
 <h2 id="features" class='section-header'><a
                            href="#features">Features</a></h2>
@@ -79,7 +69,7 @@
 <li><strong>Auto-generated Help, Version, and Usage information</strong>
 
 <ul>
-<li>Can optionally be fully, or partially overridden if you want a custom help, version, or usage</li>
+<li>Can optionally be fully, or partially overridden if you want a custom help, version, or usag</li>
 </ul></li>
 <li><strong>Flags / Switches</strong> (i.e. bool fields)
 
@@ -93,18 +83,19 @@
 <ul>
 <li>Optionally supports multiple values (i.e. <code>myprog &lt;file&gt;...</code> such as <code>myprog file1.txt file2.txt</code> being two values for the same &quot;file&quot; argument)</li>
 <li>Optionally supports Specific Value Sets (See below)</li>
+<li>Supports the unix <code>--</code> meaning, only positional arguments follow</li>
 </ul></li>
 <li><strong>Option Arguments</strong> (i.e. those that take values as options)
 
 <ul>
 <li>Both short and long versions supported (i.e. <code>-o value</code> and <code>--option value</code> or <code>--option=value</code> respectively)</li>
-<li>Optionally supports multiple values (i.e. <code>myprog --option &lt;value&gt; --option &lt;other_value&gt;</code>)</li>
+<li>Optionally supports multiple values (i.e. <code>myprog -o &lt;value&gt; -o &lt;other_value&gt;</code>)</li>
 <li>Optionally supports Specific Value Sets (See below)</li>
 </ul></li>
 <li><strong>Sub-Commands</strong> (i.e. <code>git add &lt;file&gt;</code> where <code>add</code> is a sub-command of <code>git</code>)
 
 <ul>
-<li>Support their own sub-arguments, and sub-commands independant of the parent</li>
+<li>Support their own sub-arguments, and sub-sub-commands independant of the parent</li>
 <li>Get their own auto-generated Help, Version, and Usage independant of parent</li>
 </ul></li>
 <li><strong>Requirement Rules</strong>: Arguments can optionally define the following types of requirement rules
@@ -121,16 +112,18 @@
 <li>Can disallow use of other arguments when present</li>
 </ul></li>
 <li><strong>Specific Value Sets</strong>: Positional or Option Arguments can optionally define a specific set of allowed values (i.e. imagine a <code>--mode</code> option which may <em>only</em> have one of two values <code>fast</code> or <code>slow</code> such as <code>--mode fast</code> or <code>--mode slow</code>)</li>
-<li><strong>Default Values</strong>: Although not specifically provided by <code>clap</code> you can achieve this exact functionality from Rust&#39;s <code>Option&lt;&amp;str&gt;.unwrap_or(&quot;some default&quot;)</code> method</li>
-<li><strong>Get Version from Cargo.toml</strong>: <code>clap</code> is fully compatible with Rust&#39;s <code>env!()</code> macro for automatically getting the version from your Cargo.toml. See <code>examples/09_AutoVersion.rs</code> for how to do this (Thanks to <a href="https://github.com/jhelwig">jhelwig</a> for pointing this out)</li>
-<li><strong>Typed Values</strong>: You can use several convenience macros provided by <code>clap</code> to get typed values (i.e. <code>i32</code>, <code>u8</code>, etc.) so long as the type you request implements <code>std::fmt::FrmStr</code> See the <code>examples/12_TypedValues.rs</code> or the documentation for more information.</li>
+<li><strong>Default Values</strong>: Although not specifically provided by <code>clap</code> you can achieve this exact functionality from Rust&#39;s <code>Option&lt;&amp;str&gt;.unwrap_or(&quot;some default&quot;)</code> method (or <code>Result&lt;T,String&gt;.unwrap_or(T)</code> when using typed values)</li>
+<li><strong>Automatic Version from Cargo.toml</strong>: <code>clap</code> is fully compatible with Rust&#39;s <code>env!()</code> macro for automatically setting the version of your application to the version in your Cargo.toml. See <code>examples/09_AutoVersion.rs</code> for how to do this (Thanks to <a href="https://github.com/jhelwig">jhelwig</a> for pointing this out)</li>
+<li><strong>Typed Values</strong>: You can use several convenience macros provided by <code>clap</code> to get typed values (i.e. <code>i32</code>, <code>u8</code>, etc.) from positional or option arguments so long as the type you request implements <code>std::str::FromStr</code> See the <code>examples/12_TypedValues.rs</code> or the <a href="http://kbknapp.github.io/clap-rs/docs/clap/index.html">documentation</a> for more information.</li>
 </ul>
 
 <h2 id="quick-example" class='section-header'><a
                            href="#quick-example">Quick Example</a></h2>
-<p>The following two examples (which are functionally equivilant, but show two different ways to use <code>clap</code>) show a quick example of some of the basic functionality of <code>clap</code>. For more advanced usage, such as requirements, exclusions, multiple values and occurrences see the <a href="https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv">video tutorials</a>, <a href="http://kbknapp.github.io/clap-rs/docs/clap/index.html">documentation</a>, or <code>examples/</code> directory of this repository.</p>
+<p>The following two examples show a quick example of some of the very basic functionality of <code>clap</code>. For more advanced usage, such as requirements, exclusions, multiple values and occurrences see the <a href="https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv">video tutorials</a>, <a href="http://kbknapp.github.io/clap-rs/docs/clap/index.html">documentation</a>, or <code>examples/</code> directory of this repository.</p>
+
+<p><em>NOTE:</em> Both examples are functionally the same, but show two different ways to use <code>clap</code></p>
 <pre id='rust-example-rendered' class='rust '>
-<span class='comment'>// (Full example with comments in examples/01_QuickExample.rs)</span>
+<span class='comment'>// (Full example with detailed comments in examples/01a_QuickExample.rs)</span>
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>clap</span>;
 <span class='kw'>use</span> <span class='ident'>clap</span>::{<span class='ident'>Arg</span>, <span class='ident'>App</span>, <span class='ident'>SubCommand</span>};
  
@@ -167,6 +160,8 @@
         <span class='number'>3</span> <span class='op'>|</span> _ <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Don&#39;t be crazy&quot;</span>),
     }
  
+    <span class='comment'>// You can information about subcommands by requesting their matches by name </span>
+    <span class='comment'>// (as below), requesting just the name used, or both at the same time</span>
     <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>matches</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>subcommand_matches</span>(<span class='string'>&quot;test&quot;</span>) {
         <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>is_present</span>(<span class='string'>&quot;verbose&quot;</span>) {
             <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Printing verbosely...&quot;</span>);
@@ -179,9 +174,9 @@
 }
 </pre>
 
-<p>While the following example is functionally the same as the one above, this method allows more advanced configuration options, or even dynamically generating arguments when desired. Both methods can be used together to get the best of both worlds (see the documentation).</p>
+<p>The following example is functionally the same as the one above, but this method allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired. Both methods can be used together to get the best of both worlds (see the documentation, examples, or video tutorials).</p>
 <pre id='rust-example-rendered' class='rust '>
-<span class='comment'>// (Full example with comments in examples/01_QuickExample.rs)</span>
+<span class='comment'>// (Full example with detailed comments in examples/01b_QuickExample.rs)</span>
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>clap</span>;
 <span class='kw'>use</span> <span class='ident'>clap</span>::{<span class='ident'>Arg</span>, <span class='ident'>App</span>, <span class='ident'>SubCommand</span>};
  
@@ -228,7 +223,9 @@
         <span class='number'>2</span> <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Debug mode is on&quot;</span>),
         <span class='number'>3</span> <span class='op'>|</span> _ <span class='op'>=&gt;</span> <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Don&#39;t be crazy&quot;</span>),
     }
- 
+     
+    <span class='comment'>// You can information about subcommands by requesting their matches by name </span>
+    <span class='comment'>// (as below), requesting just the name used, or both at the same time</span>
     <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>matches</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>subcommand_matches</span>(<span class='string'>&quot;test&quot;</span>) {
         <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>is_present</span>(<span class='string'>&quot;verbose&quot;</span>) {
             <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Printing verbosely...&quot;</span>);
@@ -294,6 +291,14 @@ SUBCOMMANDS:
 <p>You can find complete documentation on the <a href="http://kbknapp.github.io/clap-rs/docs/clap/index.html">github-pages site</a> for this project.</p>
 
 <p>You can also find usage examples in the <code>examples/</code> directory of this repo.</p>
+
+<h4 id="video-tutorials" class='section-header'><a
+                           href="#video-tutorials">Video Tutorials</a></h4>
+<p>There&#39;s also the video tutorial series <a href="https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv">Argument Parsing with Rust</a> that I&#39;ve been working on.</p>
+
+<p><em>Note</em>: Two new videos have just been added (<a href="https://youtu.be/xc6VdedFrG0">08 From Usage</a>, and <a href="https://youtu.be/mZn3C1DnD90">09 Typed Values</a>), if you&#39;re already familiar with <code>clap</code> but want to know more about these two details you can check out those videos without watching the previous few.</p>
+
+<p><em>Note</em>: Apologies for the resolution of the first video, it will be updated to a better resolution soon. The other videos have a proper resolution.</p>
 
 <h2 id="how-to-contribute" class='section-header'><a
                            href="#how-to-contribute">How to Contribute</a></h2>
@@ -361,7 +366,7 @@ SUBCOMMANDS:
                     <tr>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='macro' href='macro.value_t!.html'
                                title='clap::value_t!'>value_t!</a></td>
-                        <td class='docblock short'><p>Convenience macro getting a typed value <code>T</code> where <code>T</code> implements <code>std::fmt::FrmStr</code>
+                        <td class='docblock short'><p>Convenience macro getting a typed value <code>T</code> where <code>T</code> implements <code>std::str::FromStr</code>
  This macro returns a <code>Result&lt;T,String&gt;</code> which allows you as the developer to decide
  what you&#39;d like to do on a failed parse. There are two types of errors, parse failures
  and those where the argument wasn&#39;t present (such as a non-required argument). </p>
@@ -371,7 +376,7 @@ SUBCOMMANDS:
                     <tr>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='macro' href='macro.value_t_or_exit!.html'
                                title='clap::value_t_or_exit!'>value_t_or_exit!</a></td>
-                        <td class='docblock short'><p>Convenience macro getting a typed value <code>T</code> where <code>T</code> implements <code>std::fmt::FrmStr</code>
+                        <td class='docblock short'><p>Convenience macro getting a typed value <code>T</code> where <code>T</code> implements <code>std::str::FromStr</code>
  This macro returns a <code>T</code> or <code>Vec&lt;T&gt;</code> or exits with a usage string upon failure. This
  removes some of the boiler plate to handle failures from value_t! above. </p>
 </td>

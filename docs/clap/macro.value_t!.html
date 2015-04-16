@@ -43,7 +43,7 @@
     <section id='main' class="content macro">
 <h1 class='fqn'><span class='in-band'><a href='index.html'>clap</a>::<wbr><a class='macro' href=''>value_t!</a><wbr></span><span class='out-of-band'><span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-10458' href='../src/clap/macros.rs.html#84-118'>[src]</a></span></h1>
+        </span><a id='src-10428' href='../src/clap/macros.rs.html#84-118'>[src]</a></span></h1>
 <pre class='rust macro'>
 <span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>value_t</span> {
 	(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>m</span>:<span class='ident'>ident</span>.<span class='ident'>value_of</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>v</span>:<span class='ident'>expr</span>), <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span>:<span class='ident'>ty</span>) <span class='op'>=&gt;</span> {
@@ -81,7 +81,7 @@
 	};
 }
 </pre>
-<div class='docblock'><p>Convenience macro getting a typed value <code>T</code> where <code>T</code> implements <code>std::fmt::FrmStr</code>
+<div class='docblock'><p>Convenience macro getting a typed value <code>T</code> where <code>T</code> implements <code>std::str::FromStr</code>
  This macro returns a <code>Result&lt;T,String&gt;</code> which allows you as the developer to decide
  what you&#39;d like to do on a failed parse. There are two types of errors, parse failures
  and those where the argument wasn&#39;t present (such as a non-required argument). </p>
