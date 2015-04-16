@@ -2,7 +2,7 @@
 
 ![Travis-CI](https://travis-ci.org/kbknapp/clap-rs.svg?branch=master) [![Join the chat at https://gitter.im/kbknapp/clap-rs](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kbknapp/clap-rs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Command Line Argument Parser written in Rust
+Command Line Argument Parser for Rust
 
 It is a simple to use and efficient library for parsing command line arguments and subcommands when writing console, or terminal applications.
 
@@ -16,20 +16,18 @@ I've been working on a few short video tutorials about using `clap`. They're loc
 
 ## About
 
-You can use `clap` to lay out a list of possible valid command line arguments and subcommands, then let `clap` parse *and validate* the string given by the user at runtime. This means you focus on your applications functionality, not parsing and validating arguments.
+`clap` is used to parse *and validate* the string of command line arguments provided by the user at runtime. You simply provide the list of valid possibilities, and `clap` handles the rest. This means you focus on your *applications* functionality, and less on the parsing and validating of arguments.
 
-What is different about `clap` from other options available is the very simple almost 'Pythonic' style in which you define the valid available arguments for your program, while still giving advanced features. `clap` allows you express complex relationships between arguments in a very simple manner. This means you don't have to spend tons time learning an entirely new library's structures and use. The basics of `clap` can be learned almost intuitively.
+`clap` also provides all the traditional version and help switches (or flags) 'for free.' It does this by checking list of valid possibilities you supplied and if you haven't defined those flags already (or only defined some of them), `clap` will auto-generate the applicable ones (as well as a "help" subcommand so long as other subcommands have been manually defined as well).
 
-`clap` also provides all the traditional version and help switches (or flags) 'for free' by parsing the list of developer supplied arguments. If the developer hasn't defined them already (or only defined some of them), `clap` will auto-generate the applicable "help" and "version" switches (as well as a "help" subcommand so long as other subcommands have been manually defined as well).
-
-After defining a list of possible valid arguments and subcommands, `clap` parses the string given by the end-user at runtime then gives you a list of the valid matches and their values. If the user made an error or typo, `clap` informs them and exits gracefully. This means that you can simply use these matches and values to determine the functioning of your program.
+After `clap` finishes parsing the user provided string, it returns all the matches along with any applicable values. If the user made an error or typo, `clap` informs them of the mistake and exits gracefully. Because of this, you can make reasonable assumptions in your code, and worry less about error handling.
 
 ## Features
 
 Below are a few of the features which `clap` supports, full descriptions and usage can be found in the [documentation](http://kbknapp.github.io/clap-rs/docs/clap/index.html) and `examples/` directory
 
 * **Auto-generated Help, Version, and Usage information**
-  - Can optionally be fully, or partially overridden if you want a custom help, version, or usage
+  - Can optionally be fully, or partially overridden if you want a custom help, version, or usag
 * **Flags / Switches** (i.e. bool fields)
   - Both short and long versions supported (i.e. `-f` and `--flag` respectively)
   - Supports combining short versions (i.e. `-fBgoZ` is the same as `-f -B -g -o -Z`)
@@ -37,12 +35,13 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 * **Positional Arguments** (i.e. those which are based off an index from the program name)
   - Optionally supports multiple values (i.e. `myprog <file>...` such as `myprog file1.txt file2.txt` being two values for the same "file" argument)
   - Optionally supports Specific Value Sets (See below)
+  - Supports the unix `--` meaning, only positional arguments follow
 * **Option Arguments** (i.e. those that take values as options)
   - Both short and long versions supported (i.e. `-o value` and `--option value` or `--option=value` respectively)
-  - Optionally supports multiple values (i.e. `myprog --option <value> --option <other_value>`)
+  - Optionally supports multiple values (i.e. `myprog -o <value> -o <other_value>`)
   - Optionally supports Specific Value Sets (See below)
 * **Sub-Commands** (i.e. `git add <file>` where `add` is a sub-command of `git`)
-  - Support their own sub-arguments, and sub-commands independant of the parent
+  - Support their own sub-arguments, and sub-sub-commands independant of the parent
   - Get their own auto-generated Help, Version, and Usage independant of parent
 * **Requirement Rules**: Arguments can optionally define the following types of requirement rules
   - Required by default
@@ -52,16 +51,18 @@ Below are a few of the features which `clap` supports, full descriptions and usa
   - Can be disallowed when certain arguments are present
   - Can disallow use of other arguments when present
 * **Specific Value Sets**: Positional or Option Arguments can optionally define a specific set of allowed values (i.e. imagine a `--mode` option which may *only* have one of two values `fast` or `slow` such as `--mode fast` or `--mode slow`)
-* **Default Values**: Although not specifically provided by `clap` you can achieve this exact functionality from Rust's `Option<&str>.unwrap_or("some default")` method
-* **Get Version from Cargo.toml**: `clap` is fully compatible with Rust's `env!()` macro for automatically getting the version from your Cargo.toml. See `examples/09_AutoVersion.rs` for how to do this (Thanks to [jhelwig](https://github.com/jhelwig) for pointing this out)
-* **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) so long as the type you request implements `std::fmt::FrmStr` See the `examples/12_TypedValues.rs` or the documentation for more information.
+* **Default Values**: Although not specifically provided by `clap` you can achieve this exact functionality from Rust's `Option<&str>.unwrap_or("some default")` method (or `Result<T,String>.unwrap_or(T)` when using typed values)
+* **Automatic Version from Cargo.toml**: `clap` is fully compatible with Rust's `env!()` macro for automatically setting the version of your application to the version in your Cargo.toml. See `examples/09_AutoVersion.rs` for how to do this (Thanks to [jhelwig](https://github.com/jhelwig) for pointing this out)
+* **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) from positional or option arguments so long as the type you request implements `std::fmt::FrmStr` See the `examples/12_TypedValues.rs` or the [documentation](http://kbknapp.github.io/clap-rs/docs/clap/index.html) for more information.
 
 ## Quick Example
  
-The following two examples (which are functionally equivilant, but show two different ways to use `clap`) show a quick example of some of the basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/docs/clap/index.html), or `examples/` directory of this repository.
+The following two examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/docs/clap/index.html), or `examples/` directory of this repository.
+ 
+ *NOTE:* Both examples are functionally the same, but show two different ways to use `clap`
  
 ```rust
-// (Full example with comments in examples/01_QuickExample.rs)
+// (Full example with detailed comments in examples/01a_QuickExample.rs)
 extern crate clap;
 use clap::{Arg, App, SubCommand};
 
@@ -98,6 +99,8 @@ fn main() {
         3 | _ => println!("Don't be crazy"),
     }
 
+    // You can information about subcommands by requesting their matches by name 
+    // (as below), requesting just the name used, or both at the same time
     if let Some(matches) = matches.subcommand_matches("test") {
         if matches.is_present("verbose") {
             println!("Printing verbosely...");
@@ -110,10 +113,10 @@ fn main() {
 }
 ```
 
-While the following example is functionally the same as the one above, this method allows more advanced configuration options, or even dynamically generating arguments when desired. Both methods can be used together to get the best of both worlds (see the documentation).
+The following example is functionally the same as the one above, but this method allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired. Both methods can be used together to get the best of both worlds (see the documentation, examples, or video tutorials).
  
 ```rust
-// (Full example with comments in examples/01_QuickExample.rs)
+// (Full example with detailed comments in examples/01b_QuickExample.rs)
 extern crate clap;
 use clap::{Arg, App, SubCommand};
 
@@ -160,7 +163,9 @@ fn main() {
         2 => println!("Debug mode is on"),
         3 | _ => println!("Don't be crazy"),
     }
-
+    
+    // You can information about subcommands by requesting their matches by name 
+    // (as below), requesting just the name used, or both at the same time
     if let Some(matches) = matches.subcommand_matches("test") {
         if matches.is_present("verbose") {
             println!("Printing verbosely...");
@@ -228,6 +233,8 @@ Then run `cargo build` or `cargo update && cargo build` for your project.
 You can find complete documentation on the [github-pages site](http://kbknapp.github.io/clap-rs/docs/clap/index.html) for this project.
 
 You can also find usage examples in the `examples/` directory of this repo.
+
+There's also the video tutorial series [Argument Parsing with Rust](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv) that I've been working on.
 
 ## How to Contribute
 
