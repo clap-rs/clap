@@ -6,14 +6,6 @@ Command Line Argument Parser for Rust
 
 It is a simple to use and efficient library for parsing command line arguments and subcommands when writing console, or terminal applications.
 
-## Video Tutorials
-
-I've been working on a few short video tutorials about using `clap`. They're located on [youtube](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv). 
-
-*Note*: Two new videos have just been added ([08 From Usage](https://youtu.be/xc6VdedFrG0), and [09 Typed Values](https://youtu.be/mZn3C1DnD90)), if you're already familiar with `clap` but want to know more about these two details you can check out those videos without watching the previous few.
-
-*Note*: Apologies for the resolution of the first video, it will be updated to a better resolution soon. The other videos have a proper resolution.
-
 ## About
 
 `clap` is used to parse *and validate* the string of command line arguments provided by the user at runtime. You simply provide the list of valid possibilities, and `clap` handles the rest. This means you focus on your *applications* functionality, and less on the parsing and validating of arguments.
@@ -234,7 +226,13 @@ You can find complete documentation on the [github-pages site](http://kbknapp.gi
 
 You can also find usage examples in the `examples/` directory of this repo.
 
+#### Video Tutorials
+
 There's also the video tutorial series [Argument Parsing with Rust](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv) that I've been working on.
+
+*Note*: Two new videos have just been added ([08 From Usage](https://youtu.be/xc6VdedFrG0), and [09 Typed Values](https://youtu.be/mZn3C1DnD90)), if you're already familiar with `clap` but want to know more about these two details you can check out those videos without watching the previous few.
+
+*Note*: Apologies for the resolution of the first video, it will be updated to a better resolution soon. The other videos have a proper resolution.
 
 ## How to Contribute
 
