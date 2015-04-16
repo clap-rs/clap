@@ -213,3 +213,45 @@ macro_rules! value_t_or_exit {
 		}
 	};
 }
+
+/// Convenience macro generated a simple enum with variants to be used as a type when parsing
+/// arguments.
+///
+/// # Example
+///
+/// ```no_run
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::{App, Arg};
+/// simple_enum!{Foo => Bar, Baz, Qux}
+/// // Foo enum can now be used via Foo::Bar, or Foo::Baz, etc
+/// // and implements std::str::FromStr to use with the value_t! macros
+/// fn main() {
+/// 	let m = App::new("app")
+///					.arg(Arg::from_usage("<foo> 'the foo'")
+///						.possible_values(vec!["Bar", "Baz", "Qux"]))
+///					.get_matches();
+/// 	let f = value_t_or_exit!(m.value_of("foo"), Foo);
+///
+///		// Use f like any other Foo variant...
+/// }
+/// ```
+#[macro_export]
+macro_rules! simple_enum {
+	($e:ident => $($v:ident),+) => {
+		enum $e {
+			$($v),+
+		}
+
+		impl<'a> std::str::FromStr for $e {
+			type Err = &'a str;
+
+			fn from_str(s: &str) -> Result<Self,<Self as std::str::FromStr>::Err> {
+				match s {
+					$(stringify!($v) => Ok($e::$v),)+
+					_                => Err("no match")
+				}
+			}
+		}
+	};
+}

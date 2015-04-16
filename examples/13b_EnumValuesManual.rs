@@ -1,5 +1,5 @@
-// You can use clap's value_t! macro with a custom enum by implementing the std::str::FromStr
-// trait which is very straight forward.
+// If you require more complex configuration than simple_enum! provides, you can implement the
+// trait manually, as in the following example.
 //
 // In the following example we will create an enum with 4 values, assign a positional argument
 // that accepts only one of those values, and use clap to parse the argument.
