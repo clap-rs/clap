@@ -10,7 +10,7 @@ It is a simple to use and efficient library for parsing command line arguments a
 
 I've been working on a few short video tutorials about using `clap`. They're located on [youtube](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv). 
 
-*Note*: Two new videos have just been added (08 From Usage, and 09 Typed Values), if you're already familiar with `clap` but want to know more about these two details you can check out those videos without watching the previous few.
+*Note*: Two new videos have just been added ([08 From Usage](https://youtu.be/xc6VdedFrG0), and 09 Typed Values), if you're already familiar with `clap` but want to know more about these two details you can check out those videos without watching the previous few.
 
 *Note*: Apologies for the resolution of the first video, it will be updated to a better resolution soon. The other videos have a proper resolution.
 
