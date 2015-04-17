@@ -1369,10 +1369,6 @@
 <span id="1327">1327</span>
 <span id="1328">1328</span>
 <span id="1329">1329</span>
-<span id="1330">1330</span>
-<span id="1331">1331</span>
-<span id="1332">1332</span>
-<span id="1333">1333</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>BTreeMap</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>BTreeSet</span>;
@@ -1384,10 +1380,8 @@
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>process</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>fmt</span>::<span class='ident'>Write</span>;
 
-<span class='kw'>use</span> <span class='ident'>args</span>::{ <span class='ident'>ArgMatches</span>, <span class='ident'>Arg</span>, <span class='ident'>SubCommand</span> };
-<span class='kw'>use</span> <span class='ident'>args</span>::{<span class='ident'>FlagArg</span>, <span class='ident'>FlagBuilder</span>};
-<span class='kw'>use</span> <span class='ident'>args</span>::{<span class='ident'>OptArg</span>, <span class='ident'>OptBuilder</span>};
-<span class='kw'>use</span> <span class='ident'>args</span>::{<span class='ident'>PosArg</span>, <span class='ident'>PosBuilder</span>};
+<span class='kw'>use</span> <span class='ident'>args</span>::{ <span class='ident'>ArgMatches</span>, <span class='ident'>Arg</span>, <span class='ident'>SubCommand</span>, <span class='ident'>MatchedArg</span>};
+<span class='kw'>use</span> <span class='ident'>args</span>::{ <span class='ident'>FlagBuilder</span>, <span class='ident'>OptBuilder</span>, <span class='ident'>PosBuilder</span>};
 
 <span class='doccomment'>/// Used to create a representation of a command line program and all possible command line</span>
 <span class='doccomment'>/// arguments for parsing at runtime.</span>
@@ -2223,8 +2217,12 @@
                                 }
                             }
                         }
-                        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>o</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>opts</span>.<span class='ident'>get_mut</span>(<span class='ident'>opt</span>.<span class='ident'>name</span>) {
-                            <span class='ident'>o</span>.<span class='ident'>values</span>.<span class='ident'>push</span>(<span class='ident'>arg</span>.<span class='ident'>clone</span>());
+                        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>o</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>args</span>.<span class='ident'>get_mut</span>(<span class='ident'>opt</span>.<span class='ident'>name</span>) {
+                            <span class='comment'>// Options have values, so we can unwrap()</span>
+                            <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>vals</span>) <span class='op'>=</span> <span class='ident'>o</span>.<span class='ident'>values</span> {
+                                <span class='ident'>vals</span>.<span class='ident'>push</span>(<span class='ident'>arg</span>.<span class='ident'>clone</span>());
+                            }
+     
                             <span class='comment'>// if it&#39;s multiple the occurrences are increased when originall found</span>
                             <span class='ident'>o</span>.<span class='ident'>occurrences</span> <span class='op'>=</span> <span class='kw'>if</span> <span class='ident'>opt</span>.<span class='ident'>multiple</span> { <span class='ident'>o</span>.<span class='ident'>occurrences</span> <span class='op'>+</span> <span class='number'>1</span> } <span class='kw'>else</span> { <span class='number'>1</span> };
                         }
@@ -2285,10 +2283,12 @@
                     <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>done</span> <span class='op'>=</span> <span class='boolval'>false</span>;
                     <span class='kw'>if</span> <span class='ident'>p</span>.<span class='ident'>multiple</span> {
                         <span class='comment'>// Check if it&#39;s already existing and update if so...</span>
-                        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>pa</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>positionals</span>.<span class='ident'>get_mut</span>(<span class='ident'>p</span>.<span class='ident'>name</span>) {
+                        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>pos</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>args</span>.<span class='ident'>get_mut</span>(<span class='ident'>p</span>.<span class='ident'>name</span>) {
                             <span class='ident'>done</span> <span class='op'>=</span> <span class='boolval'>true</span>;
-                            <span class='ident'>pa</span>.<span class='ident'>occurrences</span> <span class='op'>+=</span> <span class='number'>1</span>;
-                            <span class='ident'>pa</span>.<span class='ident'>values</span>.<span class='ident'>push</span>(<span class='ident'>arg</span>.<span class='ident'>clone</span>());
+                            <span class='ident'>pos</span>.<span class='ident'>occurrences</span> <span class='op'>+=</span> <span class='number'>1</span>;
+                            <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>vals</span>) <span class='op'>=</span> <span class='ident'>pos</span>.<span class='ident'>values</span> {
+                                <span class='ident'>vals</span>.<span class='ident'>push</span>(<span class='ident'>arg</span>.<span class='ident'>clone</span>());
+                            }
                         }
                     } <span class='kw'>else</span> {
                         <span class='comment'>// Only increment the positional counter if it doesn&#39;t allow multiples</span>
@@ -2296,10 +2296,10 @@
                     }
                     <span class='comment'>// Was an update made, or is this the first occurrence?</span>
                     <span class='kw'>if</span> <span class='op'>!</span><span class='ident'>done</span> {
-                        <span class='ident'>matches</span>.<span class='ident'>positionals</span>.<span class='ident'>insert</span>(<span class='ident'>p</span>.<span class='ident'>name</span>, <span class='ident'>PosArg</span>{
+                        <span class='ident'>matches</span>.<span class='ident'>args</span>.<span class='ident'>insert</span>(<span class='ident'>p</span>.<span class='ident'>name</span>, <span class='ident'>MatchedArg</span>{
                             <span class='ident'>name</span>: <span class='ident'>p</span>.<span class='ident'>name</span>.<span class='ident'>to_owned</span>(),
                             <span class='ident'>occurrences</span>: <span class='number'>1</span>,
-                            <span class='ident'>values</span>: <span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>arg</span>.<span class='ident'>clone</span>()],
+                            <span class='ident'>values</span>: <span class='prelude-val'>Some</span>(<span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>arg</span>.<span class='ident'>clone</span>()]),
                         });
                     }
 
@@ -2319,9 +2319,7 @@
                         <span class='comment'>// final required list</span>
                         <span class='kw'>for</span> <span class='ident'>n</span> <span class='kw'>in</span> <span class='ident'>reqs</span> {
                             <span class='self'>self</span>.<span class='ident'>matched_reqs</span>.<span class='ident'>insert</span>(<span class='ident'>n</span>);
-                            <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>positionals</span>.<span class='ident'>contains_key</span>(<span class='ident'>n</span>) {<span class='kw'>continue</span>;}
-                            <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>opts</span>.<span class='ident'>contains_key</span>(<span class='ident'>n</span>) {<span class='kw'>continue</span>;}
-                            <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>flags</span>.<span class='ident'>contains_key</span>(<span class='ident'>n</span>) {<span class='kw'>continue</span>;}
+                            <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>args</span>.<span class='ident'>contains_key</span>(<span class='ident'>n</span>) {<span class='kw'>continue</span>;}
 
                             <span class='self'>self</span>.<span class='ident'>required</span>.<span class='ident'>insert</span>(<span class='ident'>n</span>);
                         }
@@ -2436,7 +2434,7 @@
                     <span class='boolval'>true</span>, <span class='boolval'>true</span>);
             }
 
-            <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>opts</span>.<span class='ident'>contains_key</span>(<span class='ident'>v</span>.<span class='ident'>name</span>) {
+            <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>args</span>.<span class='ident'>contains_key</span>(<span class='ident'>v</span>.<span class='ident'>name</span>) {
                 <span class='kw'>if</span> <span class='op'>!</span><span class='ident'>v</span>.<span class='ident'>multiple</span> {
                     <span class='self'>self</span>.<span class='ident'>report_error</span>(<span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;Argument --{} was supplied more than once, but does not support multiple values&quot;</span>, <span class='ident'>arg</span>), <span class='boolval'>true</span>, <span class='boolval'>true</span>);
                 }
@@ -2455,16 +2453,18 @@
                     }
                 }
                 <span class='kw'>if</span> <span class='ident'>arg_val</span>.<span class='ident'>is_some</span>() {
-                    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>o</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>opts</span>.<span class='ident'>get_mut</span>(<span class='ident'>v</span>.<span class='ident'>name</span>) {
+                    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>o</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>args</span>.<span class='ident'>get_mut</span>(<span class='ident'>v</span>.<span class='ident'>name</span>) {
                         <span class='ident'>o</span>.<span class='ident'>occurrences</span> <span class='op'>+=</span> <span class='number'>1</span>;
-                        <span class='ident'>o</span>.<span class='ident'>values</span>.<span class='ident'>push</span>(<span class='ident'>arg_val</span>.<span class='ident'>clone</span>().<span class='ident'>unwrap</span>());
+                        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>vals</span>) <span class='op'>=</span> <span class='ident'>o</span>.<span class='ident'>values</span> {
+                            <span class='ident'>vals</span>.<span class='ident'>push</span>(<span class='ident'>arg_val</span>.<span class='ident'>clone</span>().<span class='ident'>unwrap</span>());
+                        }
                     }
                 }
             } <span class='kw'>else</span> {
-                <span class='ident'>matches</span>.<span class='ident'>opts</span>.<span class='ident'>insert</span>(<span class='ident'>v</span>.<span class='ident'>name</span>, <span class='ident'>OptArg</span>{
+                <span class='ident'>matches</span>.<span class='ident'>args</span>.<span class='ident'>insert</span>(<span class='ident'>v</span>.<span class='ident'>name</span>, <span class='ident'>MatchedArg</span>{
                     <span class='ident'>name</span>: <span class='ident'>v</span>.<span class='ident'>name</span>.<span class='ident'>to_owned</span>(),
                     <span class='ident'>occurrences</span>: <span class='kw'>if</span> <span class='ident'>arg_val</span>.<span class='ident'>is_some</span>() { <span class='number'>1</span> } <span class='kw'>else</span> { <span class='number'>0</span> },
-                    <span class='ident'>values</span>: <span class='kw'>if</span> <span class='ident'>arg_val</span>.<span class='ident'>is_some</span>() { <span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>arg_val</span>.<span class='ident'>clone</span>().<span class='ident'>unwrap</span>()]} <span class='kw'>else</span> {<span class='macro'>vec</span><span class='macro'>!</span>[]} 
+                    <span class='ident'>values</span>: <span class='kw'>if</span> <span class='ident'>arg_val</span>.<span class='ident'>is_some</span>() { <span class='prelude-val'>Some</span>(<span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>arg_val</span>.<span class='ident'>clone</span>().<span class='ident'>unwrap</span>()])} <span class='kw'>else</span> { <span class='prelude-val'>Some</span>(<span class='macro'>vec</span><span class='macro'>!</span>[]) }
                 });
             }
             
@@ -2482,9 +2482,7 @@
                 <span class='comment'>// final required list</span>
                 <span class='kw'>for</span> <span class='ident'>n</span> <span class='kw'>in</span> <span class='ident'>reqs</span> {
                     <span class='self'>self</span>.<span class='ident'>matched_reqs</span>.<span class='ident'>insert</span>(<span class='ident'>n</span>);
-                    <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>opts</span>.<span class='ident'>contains_key</span>(<span class='ident'>n</span>) { <span class='kw'>continue</span>; }
-                    <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>flags</span>.<span class='ident'>contains_key</span>(<span class='ident'>n</span>) { <span class='kw'>continue</span>; }
-                    <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>positionals</span>.<span class='ident'>contains_key</span>(<span class='ident'>n</span>) { <span class='kw'>continue</span>; }
+                    <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>args</span>.<span class='ident'>contains_key</span>(<span class='ident'>n</span>) { <span class='kw'>continue</span>; }
 
                     <span class='self'>self</span>.<span class='ident'>required</span>.<span class='ident'>insert</span>(<span class='ident'>n</span>);
                 }
@@ -2503,20 +2501,21 @@
             }
             
             <span class='comment'>// Make sure this isn&#39;t one being added multiple times if it doesn&#39;t suppor it</span>
-            <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>flags</span>.<span class='ident'>contains_key</span>(<span class='ident'>v</span>.<span class='ident'>name</span>) <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='ident'>v</span>.<span class='ident'>multiple</span> {
+            <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>args</span>.<span class='ident'>contains_key</span>(<span class='ident'>v</span>.<span class='ident'>name</span>) <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='ident'>v</span>.<span class='ident'>multiple</span> {
                 <span class='self'>self</span>.<span class='ident'>report_error</span>(<span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;Argument --{} was supplied more than once, but does not support multiple values&quot;</span>, <span class='ident'>arg</span>), <span class='boolval'>true</span>, <span class='boolval'>true</span>);
             }
 
             <span class='kw'>let</span> <span class='kw-2'>mut</span> 
             <span class='ident'>done</span> <span class='op'>=</span> <span class='boolval'>false</span>;
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>f</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>flags</span>.<span class='ident'>get_mut</span>(<span class='ident'>v</span>.<span class='ident'>name</span>) {
+            <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>f</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>args</span>.<span class='ident'>get_mut</span>(<span class='ident'>v</span>.<span class='ident'>name</span>) {
                 <span class='ident'>done</span> <span class='op'>=</span> <span class='boolval'>true</span>;
                 <span class='ident'>f</span>.<span class='ident'>occurrences</span> <span class='op'>=</span> <span class='kw'>if</span> <span class='ident'>v</span>.<span class='ident'>multiple</span> { <span class='ident'>f</span>.<span class='ident'>occurrences</span> <span class='op'>+</span> <span class='number'>1</span> } <span class='kw'>else</span> { <span class='number'>1</span> };
             }
             <span class='kw'>if</span> <span class='op'>!</span><span class='ident'>done</span> { 
-                <span class='ident'>matches</span>.<span class='ident'>flags</span>.<span class='ident'>insert</span>(<span class='ident'>v</span>.<span class='ident'>name</span>, <span class='ident'>FlagArg</span>{
+                <span class='ident'>matches</span>.<span class='ident'>args</span>.<span class='ident'>insert</span>(<span class='ident'>v</span>.<span class='ident'>name</span>, <span class='ident'>MatchedArg</span>{
                     <span class='ident'>name</span>: <span class='ident'>v</span>.<span class='ident'>name</span>.<span class='ident'>to_owned</span>(),
-                    <span class='ident'>occurrences</span>: <span class='number'>1</span>
+                    <span class='ident'>occurrences</span>: <span class='number'>1</span>,
+                    <span class='ident'>values</span>: <span class='prelude-val'>None</span>
                 });
             }
 
@@ -2536,9 +2535,7 @@
             <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>reqs</span>) <span class='op'>=</span> <span class='ident'>v</span>.<span class='ident'>requires</span> {
                 <span class='kw'>for</span> <span class='ident'>n</span> <span class='kw'>in</span> <span class='ident'>reqs</span> {
                     <span class='self'>self</span>.<span class='ident'>matched_reqs</span>.<span class='ident'>insert</span>(<span class='ident'>n</span>);
-                    <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>flags</span>.<span class='ident'>contains_key</span>(<span class='ident'>n</span>) { <span class='kw'>continue</span>; }
-                    <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>opts</span>.<span class='ident'>contains_key</span>(<span class='ident'>n</span>) { <span class='kw'>continue</span>; }
-                    <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>positionals</span>.<span class='ident'>contains_key</span>(<span class='ident'>n</span>) { <span class='kw'>continue</span>; }
+                    <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>args</span>.<span class='ident'>contains_key</span>(<span class='ident'>n</span>) { <span class='kw'>continue</span>; }
 
                     <span class='self'>self</span>.<span class='ident'>required</span>.<span class='ident'>insert</span>(<span class='ident'>n</span>);
                 }
@@ -2582,16 +2579,16 @@
                     <span class='boolval'>true</span>, <span class='boolval'>true</span>);
             }
 
-            <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>opts</span>.<span class='ident'>contains_key</span>(<span class='ident'>v</span>.<span class='ident'>name</span>) {
+            <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>args</span>.<span class='ident'>contains_key</span>(<span class='ident'>v</span>.<span class='ident'>name</span>) {
                 <span class='kw'>if</span> <span class='op'>!</span><span class='ident'>v</span>.<span class='ident'>multiple</span> {
                     <span class='self'>self</span>.<span class='ident'>report_error</span>(<span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;Argument -{} was supplied more than once, but does not support multiple values&quot;</span>, <span class='ident'>arg</span>), <span class='boolval'>true</span>, <span class='boolval'>true</span>);
                 }
             } <span class='kw'>else</span> {
-                <span class='ident'>matches</span>.<span class='ident'>opts</span>.<span class='ident'>insert</span>(<span class='ident'>v</span>.<span class='ident'>name</span>, <span class='ident'>OptArg</span>{
+                <span class='ident'>matches</span>.<span class='ident'>args</span>.<span class='ident'>insert</span>(<span class='ident'>v</span>.<span class='ident'>name</span>, <span class='ident'>MatchedArg</span>{
                     <span class='ident'>name</span>: <span class='ident'>v</span>.<span class='ident'>name</span>.<span class='ident'>to_owned</span>(),
                     <span class='comment'>// occurrences will be incremented on getting a value</span>
                     <span class='ident'>occurrences</span>: <span class='number'>0</span>,
-                    <span class='ident'>values</span>: <span class='macro'>vec</span><span class='macro'>!</span>[]
+                    <span class='ident'>values</span>: <span class='prelude-val'>Some</span>(<span class='macro'>vec</span><span class='macro'>!</span>[]) 
                 });
             }
             <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>bl</span>) <span class='op'>=</span> <span class='ident'>v</span>.<span class='ident'>blacklist</span> {
@@ -2608,9 +2605,7 @@
                 <span class='comment'>// final required list</span>
                 <span class='kw'>for</span> <span class='ident'>n</span> <span class='kw'>in</span> <span class='ident'>reqs</span> {
                     <span class='self'>self</span>.<span class='ident'>matched_reqs</span>.<span class='ident'>insert</span>(<span class='ident'>n</span>);
-                    <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>opts</span>.<span class='ident'>contains_key</span>(<span class='ident'>n</span>) { <span class='kw'>continue</span>; }
-                    <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>flags</span>.<span class='ident'>contains_key</span>(<span class='ident'>n</span>) { <span class='kw'>continue</span>; }
-                    <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>positionals</span>.<span class='ident'>contains_key</span>(<span class='ident'>n</span>) { <span class='kw'>continue</span>; }
+                    <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>args</span>.<span class='ident'>contains_key</span>(<span class='ident'>n</span>) { <span class='kw'>continue</span>; }
 
                     <span class='self'>self</span>.<span class='ident'>required</span>.<span class='ident'>insert</span>(<span class='ident'>n</span>);
                 }
@@ -2633,19 +2628,20 @@
             }
 
             <span class='comment'>// Make sure this isn&#39;t one being added multiple times if it doesn&#39;t suppor it</span>
-            <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>flags</span>.<span class='ident'>contains_key</span>(<span class='ident'>v</span>.<span class='ident'>name</span>) <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='ident'>v</span>.<span class='ident'>multiple</span> {
+            <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>args</span>.<span class='ident'>contains_key</span>(<span class='ident'>v</span>.<span class='ident'>name</span>) <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='ident'>v</span>.<span class='ident'>multiple</span> {
                 <span class='self'>self</span>.<span class='ident'>report_error</span>(<span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;Argument -{} was supplied more than once, but does not support multiple values&quot;</span>, <span class='ident'>arg</span>), <span class='boolval'>true</span>, <span class='boolval'>true</span>);
             }
 
             <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>done</span> <span class='op'>=</span> <span class='boolval'>false</span>;
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>f</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>flags</span>.<span class='ident'>get_mut</span>(<span class='ident'>v</span>.<span class='ident'>name</span>) {
+            <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>f</span>) <span class='op'>=</span> <span class='ident'>matches</span>.<span class='ident'>args</span>.<span class='ident'>get_mut</span>(<span class='ident'>v</span>.<span class='ident'>name</span>) {
                 <span class='ident'>done</span> <span class='op'>=</span> <span class='boolval'>true</span>;
                 <span class='ident'>f</span>.<span class='ident'>occurrences</span> <span class='op'>=</span> <span class='kw'>if</span> <span class='ident'>v</span>.<span class='ident'>multiple</span> { <span class='ident'>f</span>.<span class='ident'>occurrences</span> <span class='op'>+</span> <span class='number'>1</span> } <span class='kw'>else</span> { <span class='number'>1</span> };
             } 
             <span class='kw'>if</span> <span class='op'>!</span><span class='ident'>done</span> {
-                <span class='ident'>matches</span>.<span class='ident'>flags</span>.<span class='ident'>insert</span>(<span class='ident'>v</span>.<span class='ident'>name</span>, <span class='ident'>FlagArg</span>{
+                <span class='ident'>matches</span>.<span class='ident'>args</span>.<span class='ident'>insert</span>(<span class='ident'>v</span>.<span class='ident'>name</span>, <span class='ident'>MatchedArg</span>{
                     <span class='ident'>name</span>: <span class='ident'>v</span>.<span class='ident'>name</span>.<span class='ident'>to_owned</span>(),
-                    <span class='ident'>occurrences</span>: <span class='number'>1</span>
+                    <span class='ident'>occurrences</span>: <span class='number'>1</span>,
+                    <span class='ident'>values</span>: <span class='prelude-val'>None</span>
                 });
             }
 
@@ -2665,9 +2661,7 @@
             <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>reqs</span>) <span class='op'>=</span> <span class='ident'>v</span>.<span class='ident'>requires</span> {
                 <span class='kw'>for</span> <span class='ident'>n</span> <span class='kw'>in</span> <span class='ident'>reqs</span> {
                     <span class='self'>self</span>.<span class='ident'>matched_reqs</span>.<span class='ident'>insert</span>(<span class='ident'>n</span>);
-                    <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>flags</span>.<span class='ident'>contains_key</span>(<span class='ident'>n</span>) { <span class='kw'>continue</span>; }
-                    <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>opts</span>.<span class='ident'>contains_key</span>(<span class='ident'>n</span>) { <span class='kw'>continue</span>; }
-                    <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>positionals</span>.<span class='ident'>contains_key</span>(<span class='ident'>n</span>) { <span class='kw'>continue</span>; }
+                    <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>args</span>.<span class='ident'>contains_key</span>(<span class='ident'>n</span>) { <span class='kw'>continue</span>; }
 
                     <span class='self'>self</span>.<span class='ident'>required</span>.<span class='ident'>insert</span>(<span class='ident'>n</span>);
                 }
@@ -2679,29 +2673,27 @@
 
     <span class='kw'>fn</span> <span class='ident'>validate_blacklist</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>matches</span>: <span class='kw-2'>&amp;</span><span class='ident'>ArgMatches</span><span class='op'>&lt;</span><span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span>) {
         <span class='kw'>for</span> <span class='ident'>name</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>blacklist</span>.<span class='ident'>iter</span>() {
-            <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>flags</span>.<span class='ident'>contains_key</span>(<span class='ident'>name</span>) {
+            <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>args</span>.<span class='ident'>contains_key</span>(<span class='ident'>name</span>) {
                 <span class='self'>self</span>.<span class='ident'>report_error</span>(<span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;The argument {} cannot be used with one or more of the other specified arguments&quot;</span>,
-                    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>s</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>flags</span>.<span class='ident'>get</span>(<span class='ident'>name</span>).<span class='ident'>unwrap</span>().<span class='ident'>short</span> {
-                        <span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;-{}&quot;</span>, <span class='ident'>s</span>)
-                    } <span class='kw'>else</span> <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>l</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>flags</span>.<span class='ident'>get</span>(<span class='ident'>name</span>).<span class='ident'>unwrap</span>().<span class='ident'>long</span> {
-                        <span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;--{}&quot;</span>, <span class='ident'>l</span>)
+                    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>flag</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>flags</span>.<span class='ident'>get</span>(<span class='ident'>name</span>) {
+                        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>short</span>) <span class='op'>=</span> <span class='ident'>flag</span>.<span class='ident'>short</span> {
+                            <span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;-{}&quot;</span>, <span class='ident'>short</span>)
+                        } <span class='kw'>else</span> <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>long</span>) <span class='op'>=</span> <span class='ident'>flag</span>.<span class='ident'>long</span> {
+                            <span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;--{}&quot;</span>, <span class='ident'>long</span>)
+                        } <span class='kw'>else</span> {
+                            <span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;\&quot;{}\&quot;&quot;</span>, <span class='ident'>flag</span>.<span class='ident'>name</span>)
+                        }
+                    } <span class='kw'>else</span> <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>opt</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>opts</span>.<span class='ident'>get</span>(<span class='ident'>name</span>) {
+                        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>short</span>) <span class='op'>=</span> <span class='ident'>opt</span>.<span class='ident'>short</span> {
+                            <span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;-{}&quot;</span>, <span class='ident'>short</span>)
+                        } <span class='kw'>else</span> <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>long</span>) <span class='op'>=</span> <span class='ident'>opt</span>.<span class='ident'>long</span> {
+                            <span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;--{}&quot;</span>, <span class='ident'>long</span>)
+                        } <span class='kw'>else</span> {
+                            <span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;\&quot;{}\&quot;&quot;</span>, <span class='ident'>opt</span>.<span class='ident'>name</span>)
+                        }
                     } <span class='kw'>else</span> {
                         <span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;\&quot;{}\&quot;&quot;</span>, <span class='ident'>name</span>)
                     }), <span class='boolval'>true</span>, <span class='boolval'>true</span>);
-            }
-            <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>opts</span>.<span class='ident'>contains_key</span>(<span class='ident'>name</span>) {
-                <span class='self'>self</span>.<span class='ident'>report_error</span>(<span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;The argument {} cannot be used with one or more of the other specified arguments&quot;</span>,
-                    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>s</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>opts</span>.<span class='ident'>get</span>(<span class='ident'>name</span>).<span class='ident'>unwrap</span>().<span class='ident'>long</span> {
-                        <span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;--{}&quot;</span>, <span class='ident'>s</span>)
-                    } <span class='kw'>else</span> <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>l</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>opts</span>.<span class='ident'>get</span>(<span class='ident'>name</span>).<span class='ident'>unwrap</span>().<span class='ident'>short</span> {
-                        <span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;-{}&quot;</span>, <span class='ident'>l</span>)
-                    } <span class='kw'>else</span> {
-                        <span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;\&quot;{}\&quot;&quot;</span>, <span class='ident'>name</span>)
-                    }), <span class='boolval'>true</span>, <span class='boolval'>true</span>);
-            }
-            <span class='kw'>if</span> <span class='ident'>matches</span>.<span class='ident'>positionals</span>.<span class='ident'>contains_key</span>(<span class='ident'>name</span>) {
-                <span class='self'>self</span>.<span class='ident'>report_error</span>(<span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;The argument \&quot;{}\&quot; cannot be used with one or more of the other specified arguments&quot;</span>,<span class='ident'>name</span>),
-                    <span class='boolval'>false</span>, <span class='boolval'>true</span>);
             }
         }
     }

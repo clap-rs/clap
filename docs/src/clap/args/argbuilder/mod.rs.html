@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/args/mod.rs`.">
+    <meta name="description" content="Source to the Rust file `src/args/argbuilder/mod.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>mod.rs.html -- source</title>
 
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../../main.css">
 
     
     
@@ -40,29 +40,21 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1"> 1</span>
-<span id="2"> 2</span>
-<span id="3"> 3</span>
-<span id="4"> 4</span>
-<span id="5"> 5</span>
-<span id="6"> 6</span>
-<span id="7"> 7</span>
-<span id="8"> 8</span>
-<span id="9"> 9</span>
-<span id="10">10</span>
-<span id="11">11</span>
+    <section id='main' class="content source"><pre class="line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
 </pre><pre class='rust '>
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>arg</span>::<span class='ident'>Arg</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>argmatches</span>::<span class='ident'>ArgMatches</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>subcommand</span>::<span class='ident'>SubCommand</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>argbuilder</span>::{<span class='ident'>FlagBuilder</span>, <span class='ident'>OptBuilder</span>, <span class='ident'>PosBuilder</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>matchedarg</span>::<span class='ident'>MatchedArg</span>;
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>flag</span>::<span class='ident'>FlagBuilder</span>;
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>option</span>::<span class='ident'>OptBuilder</span>;
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>positional</span>::<span class='ident'>PosBuilder</span>;
 
-<span class='kw'>mod</span> <span class='ident'>arg</span>;
-<span class='kw'>mod</span> <span class='ident'>argmatches</span>;
-<span class='kw'>mod</span> <span class='ident'>subcommand</span>;
-<span class='kw'>mod</span> <span class='ident'>argbuilder</span>;
-<span class='kw'>mod</span> <span class='ident'>matchedarg</span>;
+<span class='kw'>mod</span> <span class='ident'>flag</span>;
+<span class='kw'>mod</span> <span class='ident'>positional</span>;
+<span class='kw'>mod</span> <span class='ident'>option</span>;
 </pre>
 </section>
     <section id='search' class="content hidden"></section>
@@ -103,13 +95,13 @@
     
 
     <script>
-        window.rootPath = "../../../";
+        window.rootPath = "../../../../";
         window.currentCrate = "clap";
         window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
-    <script src="../../../main.js"></script>
+    <script src="../../../../jquery.js"></script>
+    <script src="../../../../main.js"></script>
     
-    <script async src="../../../search-index.js"></script>
+    <script async src="../../../../search-index.js"></script>
 </body>
 </html>
