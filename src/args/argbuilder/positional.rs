@@ -1,28 +1,6 @@
 use std::collections::HashSet;
 use std::collections::BTreeSet;
 
-/// `PosArg` represents a positional argument, i.e. one that isn't preceded 
-/// by a `-` or `--`. `PosArg` isn't directly used by the end application
-/// writer, only internally to the `clap` library.
-///
-/// # Example 
-///
-/// ```sh
-/// $ myprog some_file
-/// ```
-///
-/// where `some_file` is the first positional argument to `myprog`
-///
-/// **NOTE:** The index starts at `1` **NOT** `0`
-pub struct PosArg {
-    /// The unique name of the argument, required
-    pub name: String,
-    /// How many occurences of this option have been found when parsing
-    pub occurrences: u8,
-    /// The value provided to the argument by the user
-    pub values: Vec<String>
-}
-
 pub struct PosBuilder<'n> {
     pub name: &'n str,
     /// The string of text that will displayed to the user when the application's

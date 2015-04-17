@@ -1,28 +1,6 @@
 use std::collections::HashSet;
 use std::collections::BTreeSet;
 
-/// `OptArg` represents a option argument for command line applications, which is one that
-/// takes an additional value. Option arguments are always preceded by either a `-` 
-/// (single character) or `--` (single word, no spaces) then followed by a space and the
-/// value.  `OptArg` isn't directly used by the end application
-/// writer, only internally to the `clap` library.
-///
-/// # Example
-///
-/// ```sh
-/// $ myprog -a some --test other --third=file
-/// ```
-///
-/// **NOTE:** The long version may also use the `--argument=value` version too
-pub struct OptArg {
-    /// The unique name of the argument, required
-    pub name: String,
-    /// How many occurences of this option have been found when parsing
-    pub occurrences: u8,
-    /// The value provided to the argument by the user
-    pub values: Vec<String>
-}
-
 pub struct OptBuilder<'n> {
     pub name: &'n str,
     /// The short version (i.e. single character) of the argument, no preceding `-`

@@ -1,9 +1,7 @@
 use std::collections::HashMap;
 
 use args::SubCommand;
-use args::flagarg::FlagArg;
-use args::optarg::OptArg;
-use args::posarg::PosArg;
+use args::MatchedArg;
 
 /// Used to get information about the arguments that where supplied to the program at runtime by
 /// the user. To get a new instance of this struct you use `.get_matches()` of the `App` struct.
@@ -56,11 +54,7 @@ use args::posarg::PosArg;
 /// }
 pub struct ArgMatches<'a> {
     #[doc(hidden)]
-    pub flags: HashMap<&'a str, FlagArg>,
-    #[doc(hidden)]
-    pub opts: HashMap<&'a str, OptArg>,
-    #[doc(hidden)]
-    pub positionals: HashMap<&'a str, PosArg>,
+    pub args: HashMap<&'a str, MatchedArg>,
     #[doc(hidden)]
     pub subcommand: Option<Box<SubCommand<'a>>>,
     #[doc(hidden)]
@@ -80,10 +74,7 @@ impl<'a> ArgMatches<'a> {
     #[doc(hidden)]
     pub fn new() -> ArgMatches<'a> {
         ArgMatches {
-            // matches_of: name,
-            flags: HashMap::new(),
-            opts: HashMap::new(),
-            positionals: HashMap::new(),
+            args: HashMap::new(),
             subcommand: None,
             usage: None
         }
@@ -106,14 +97,11 @@ impl<'a> ArgMatches<'a> {
     /// }
     /// ```
     pub fn value_of<'n>(&self, name: &'n str) -> Option<&str> {
-        if let Some(ref opt) = self.opts.get(name) {
-            if let Some(ref s) = opt.values.iter().nth(0) {
-                return Some(&s[..]);
-            }
-        }
-        if let Some(ref pos) = self.positionals.get(name) {
-            if let Some(ref s) = pos.values.iter().nth(0) {
-                return Some(&s[..]);
+        if let Some(ref arg) = self.args.get(name) {
+            if let Some(ref vals) = arg.values {
+                if let Some(ref val) = vals.iter().nth(0) {
+                    return Some(&val[..]);
+                }
             }
         }
         None
@@ -137,16 +125,11 @@ impl<'a> ArgMatches<'a> {
     ///        }
     /// }
     /// ```
-    pub fn values_of<'n>(&self, name: &'n str) -> Option<Vec<&str>> {
-        if let Some(ref opt) = self.opts.get(name) {
-            if opt.values.is_empty() { return None; } 
-
-            return Some(opt.values.iter().map(|s| &s[..]).collect::<Vec<_>>());
-        }
-        if let Some(ref pos) = self.positionals.get(name) {
-            if pos.values.is_empty() { return None; } 
-
-            return Some(pos.values.iter().map(|s| &s[..]).collect::<Vec<_>>());
+    pub fn values_of<'n>(&'a self, name: &'n str) -> Option<Vec<&'a str>> {
+        if let Some(ref arg) = self.args.get(name) {
+            if let Some(ref vals) = arg.values {
+                return Some(vals.iter().map(|s| &s[..]).collect::<Vec<_>>());
+            }
         }
         None
     }
@@ -167,9 +150,7 @@ impl<'a> ArgMatches<'a> {
         if let Some(ref sc) = self.subcommand {
             if sc.name == name { return true; } 
         }
-        if self.flags.contains_key(name) {return true;}
-        if self.opts.contains_key(name) {return true;}
-        if self.positionals.contains_key(name) {return true;}
+        if self.args.contains_key(name) {return true;}
         false
     }
 
@@ -190,14 +171,8 @@ impl<'a> ArgMatches<'a> {
     /// }
     /// ```
     pub fn occurrences_of<'n>(&self, name: &'n str) -> u8 {
-        if let Some(ref f) = self.flags.get(name) {
-            return f.occurrences;
-        }
-        if let Some(ref o) = self.opts.get(name) {
-            return o.occurrences;
-        }
-        if let Some(ref p) = self.positionals.get(name) {
-            return p.occurrences;
+        if let Some(ref arg) = self.args.get(name) {
+            return arg.occurrences;
         }
         0
     }

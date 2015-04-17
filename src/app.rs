@@ -8,10 +8,8 @@ use std::borrow::ToOwned;
 use std::process;
 use std::fmt::Write;
 
-use args::{ ArgMatches, Arg, SubCommand };
-use args::{FlagArg, FlagBuilder};
-use args::{OptArg, OptBuilder};
-use args::{PosArg, PosBuilder};
+use args::{ ArgMatches, Arg, SubCommand, MatchedArg};
+use args::{ FlagBuilder, OptBuilder, PosBuilder};
 
 /// Used to create a representation of a command line program and all possible command line
 /// arguments for parsing at runtime.
@@ -847,8 +845,12 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                                 }
                             }
                         }
-                        if let Some(ref mut o) = matches.opts.get_mut(opt.name) {
-                            o.values.push(arg.clone());
+                        if let Some(ref mut o) = matches.args.get_mut(opt.name) {
+                            // Options have values, so we can unwrap()
+                            if let Some(ref mut vals) = o.values {
+                                vals.push(arg.clone());
+                            }
+     
                             // if it's multiple the occurrences are increased when originall found
                             o.occurrences = if opt.multiple { o.occurrences + 1 } else { 1 };
                         }
@@ -909,10 +911,12 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                     let mut done = false;
                     if p.multiple {
                         // Check if it's already existing and update if so...
-                        if let Some(ref mut pa) = matches.positionals.get_mut(p.name) {
+                        if let Some(ref mut pos) = matches.args.get_mut(p.name) {
                             done = true;
-                            pa.occurrences += 1;
-                            pa.values.push(arg.clone());
+                            pos.occurrences += 1;
+                            if let Some(ref mut vals) = pos.values {
+                                vals.push(arg.clone());
+                            }
                         }
                     } else {
                         // Only increment the positional counter if it doesn't allow multiples
@@ -920,10 +924,10 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                     }
                     // Was an update made, or is this the first occurrence?
                     if !done {
-                        matches.positionals.insert(p.name, PosArg{
+                        matches.args.insert(p.name, MatchedArg{
                             name: p.name.to_owned(),
                             occurrences: 1,
-                            values: vec![arg.clone()],
+                            values: Some(vec![arg.clone()]),
                         });
                     }
 
@@ -943,9 +947,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                         // final required list
                         for n in reqs {
                             self.matched_reqs.insert(n);
-                            if matches.positionals.contains_key(n) {continue;}
-                            if matches.opts.contains_key(n) {continue;}
-                            if matches.flags.contains_key(n) {continue;}
+                            if matches.args.contains_key(n) {continue;}
 
                             self.required.insert(n);
                         }
@@ -1060,7 +1062,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                     true, true);
             }
 
-            if matches.opts.contains_key(v.name) {
+            if matches.args.contains_key(v.name) {
                 if !v.multiple {
                     self.report_error(format!("Argument --{} was supplied more than once, but does not support multiple values", arg), true, true);
                 }
@@ -1079,16 +1081,18 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                     }
                 }
                 if arg_val.is_some() {
-                    if let Some(ref mut o) = matches.opts.get_mut(v.name) {
+                    if let Some(ref mut o) = matches.args.get_mut(v.name) {
                         o.occurrences += 1;
-                        o.values.push(arg_val.clone().unwrap());
+                        if let Some(ref mut vals) = o.values {
+                            vals.push(arg_val.clone().unwrap());
+                        }
                     }
                 }
             } else {
-                matches.opts.insert(v.name, OptArg{
+                matches.args.insert(v.name, MatchedArg{
                     name: v.name.to_owned(),
                     occurrences: if arg_val.is_some() { 1 } else { 0 },
-                    values: if arg_val.is_some() { vec![arg_val.clone().unwrap()]} else {vec![]} 
+                    values: if arg_val.is_some() { Some(vec![arg_val.clone().unwrap()])} else { Some(vec![]) }
                 });
             }
             
@@ -1106,9 +1110,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                 // final required list
                 for n in reqs {
                     self.matched_reqs.insert(n);
-                    if matches.opts.contains_key(n) { continue; }
-                    if matches.flags.contains_key(n) { continue; }
-                    if matches.positionals.contains_key(n) { continue; }
+                    if matches.args.contains_key(n) { continue; }
 
                     self.required.insert(n);
                 }
@@ -1127,20 +1129,21 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             }
             
             // Make sure this isn't one being added multiple times if it doesn't suppor it
-            if matches.flags.contains_key(v.name) && !v.multiple {
+            if matches.args.contains_key(v.name) && !v.multiple {
                 self.report_error(format!("Argument --{} was supplied more than once, but does not support multiple values", arg), true, true);
             }
 
             let mut 
             done = false;
-            if let Some(ref mut f) = matches.flags.get_mut(v.name) {
+            if let Some(ref mut f) = matches.args.get_mut(v.name) {
                 done = true;
                 f.occurrences = if v.multiple { f.occurrences + 1 } else { 1 };
             }
             if !done { 
-                matches.flags.insert(v.name, FlagArg{
+                matches.args.insert(v.name, MatchedArg{
                     name: v.name.to_owned(),
-                    occurrences: 1
+                    occurrences: 1,
+                    values: None
                 });
             }
 
@@ -1160,9 +1163,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             if let Some(ref reqs) = v.requires {
                 for n in reqs {
                     self.matched_reqs.insert(n);
-                    if matches.flags.contains_key(n) { continue; }
-                    if matches.opts.contains_key(n) { continue; }
-                    if matches.positionals.contains_key(n) { continue; }
+                    if matches.args.contains_key(n) { continue; }
 
                     self.required.insert(n);
                 }
@@ -1206,16 +1207,16 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                     true, true);
             }
 
-            if matches.opts.contains_key(v.name) {
+            if matches.args.contains_key(v.name) {
                 if !v.multiple {
                     self.report_error(format!("Argument -{} was supplied more than once, but does not support multiple values", arg), true, true);
                 }
             } else {
-                matches.opts.insert(v.name, OptArg{
+                matches.args.insert(v.name, MatchedArg{
                     name: v.name.to_owned(),
                     // occurrences will be incremented on getting a value
                     occurrences: 0,
-                    values: vec![]
+                    values: Some(vec![]) 
                 });
             }
             if let Some(ref bl) = v.blacklist {
@@ -1232,9 +1233,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                 // final required list
                 for n in reqs {
                     self.matched_reqs.insert(n);
-                    if matches.opts.contains_key(n) { continue; }
-                    if matches.flags.contains_key(n) { continue; }
-                    if matches.positionals.contains_key(n) { continue; }
+                    if matches.args.contains_key(n) { continue; }
 
                     self.required.insert(n);
                 }
@@ -1257,19 +1256,20 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             }
 
             // Make sure this isn't one being added multiple times if it doesn't suppor it
-            if matches.flags.contains_key(v.name) && !v.multiple {
+            if matches.args.contains_key(v.name) && !v.multiple {
                 self.report_error(format!("Argument -{} was supplied more than once, but does not support multiple values", arg), true, true);
             }
 
             let mut done = false;
-            if let Some(ref mut f) = matches.flags.get_mut(v.name) {
+            if let Some(ref mut f) = matches.args.get_mut(v.name) {
                 done = true;
                 f.occurrences = if v.multiple { f.occurrences + 1 } else { 1 };
             } 
             if !done {
-                matches.flags.insert(v.name, FlagArg{
+                matches.args.insert(v.name, MatchedArg{
                     name: v.name.to_owned(),
-                    occurrences: 1
+                    occurrences: 1,
+                    values: None
                 });
             }
 
@@ -1289,9 +1289,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
             if let Some(ref reqs) = v.requires {
                 for n in reqs {
                     self.matched_reqs.insert(n);
-                    if matches.flags.contains_key(n) { continue; }
-                    if matches.opts.contains_key(n) { continue; }
-                    if matches.positionals.contains_key(n) { continue; }
+                    if matches.args.contains_key(n) { continue; }
 
                     self.required.insert(n);
                 }
@@ -1303,29 +1301,27 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
 
     fn validate_blacklist(&self, matches: &ArgMatches<'ar>) {
         for name in self.blacklist.iter() {
-            if matches.flags.contains_key(name) {
+            if matches.args.contains_key(name) {
                 self.report_error(format!("The argument {} cannot be used with one or more of the other specified arguments",
-                    if let Some(s) = self.flags.get(name).unwrap().short {
-                        format!("-{}", s)
-                    } else if let Some(l) = self.flags.get(name).unwrap().long {
-                        format!("--{}", l)
+                    if let Some(ref flag) = self.flags.get(name) {
+                        if let Some(short) = flag.short {
+                            format!("-{}", short)
+                        } else if let Some(long) = flag.long {
+                            format!("--{}", long)
+                        } else {
+                            format!("\"{}\"", flag.name)
+                        }
+                    } else if let Some(ref opt) = self.opts.get(name) {
+                        if let Some(short) = opt.short {
+                            format!("-{}", short)
+                        } else if let Some(long) = opt.long {
+                            format!("--{}", long)
+                        } else {
+                            format!("\"{}\"", opt.name)
+                        }
                     } else {
                         format!("\"{}\"", name)
                     }), true, true);
-            }
-            if matches.opts.contains_key(name) {
-                self.report_error(format!("The argument {} cannot be used with one or more of the other specified arguments",
-                    if let Some(s) = self.opts.get(name).unwrap().long {
-                        format!("--{}", s)
-                    } else if let Some(l) = self.opts.get(name).unwrap().short {
-                        format!("-{}", l)
-                    } else {
-                        format!("\"{}\"", name)
-                    }), true, true);
-            }
-            if matches.positionals.contains_key(name) {
-                self.report_error(format!("The argument \"{}\" cannot be used with one or more of the other specified arguments",name),
-                    false, true);
             }
         }
     }
