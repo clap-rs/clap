@@ -1,3 +1,13 @@
+<a name="v0.6.4"></a>
+## v0.6.4 (2015-04-17)
+
+
+#### Features
+
+* **macros**  add ability to create enums pub or priv with derives ([2c499f80](https://github.com/kbknapp/clap-rs/commit/2c499f8015a199827cdf1fa3ec4f6f171722f8c7))
+
+
+
 <a name="v0.6.3"></a>
 ## v0.6.3 (2015-04-16)
 
