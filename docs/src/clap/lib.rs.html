@@ -953,7 +953,7 @@
 <span class='comment'>// DOCS</span>
 <span class='doccomment'>//! # clap</span>
 <span class='doccomment'>//! </span>
-<span class='doccomment'>//! ![Travis-CI](https://travis-ci.org/kbknapp/clap-rs.svg?branch=master) [![Join the chat at https://gitter.im/kbknapp/clap-rs](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kbknapp/clap-rs?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge)</span>
+<span class='doccomment'>//! ![Travis-CI](https://travis-ci.org/kbknapp/clap-rs.svg?branch=master) [![](http://meritbadge.herokuapp.com/clap)](https://crates.io/crates/clap) [![Join the chat at https://gitter.im/kbknapp/clap-rs](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kbknapp/clap-rs?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge)</span>
 <span class='doccomment'>//! </span>
 <span class='doccomment'>//! Command Line Argument Parser for Rust</span>
 <span class='doccomment'>//! </span>
@@ -998,7 +998,7 @@
 <span class='doccomment'>//! * **Specific Value Sets**: Positional or Option Arguments can optionally define a specific set of allowed values (i.e. imagine a `--mode` option which may *only* have one of two values `fast` or `slow` such as `--mode fast` or `--mode slow`)</span>
 <span class='doccomment'>//! * **Default Values**: Although not specifically provided by `clap` you can achieve this exact functionality from Rust&#39;s `Option&lt;&amp;str&gt;.unwrap_or(&quot;some default&quot;)` method (or `Result&lt;T,String&gt;.unwrap_or(T)` when using typed values)</span>
 <span class='doccomment'>//! * **Automatic Version from Cargo.toml**: `clap` is fully compatible with Rust&#39;s `env!()` macro for automatically setting the version of your application to the version in your Cargo.toml. See `examples/09_AutoVersion.rs` for how to do this (Thanks to [jhelwig](https://github.com/jhelwig) for pointing this out)</span>
-<span class='doccomment'>//! * **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) from positional or option arguments so long as the type you request implements `std::str::FromStr` See the `examples/12_TypedValues.rs` or the [documentation](http://kbknapp.github.io/clap-rs/docs/clap/index.html) for more information.</span>
+<span class='doccomment'>//! * **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) from positional or option arguments so long as the type you request implements `std::str::FromStr` See the `examples/12_TypedValues.rs`. You can also use `clap`s `simple_enum!` macro to create an enum with variants that automatically implements `std::str::FromStr` in order to use with the other `clap` macros. See `examples/13a_EnumValuesAutomatic.rs` for details.</span>
 <span class='doccomment'>//! </span>
 <span class='doccomment'>//! ## Quick Example</span>
 <span class='doccomment'>//!  </span>

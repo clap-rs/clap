@@ -43,7 +43,7 @@
     <section id='main' class="content macro">
 <h1 class='fqn'><span class='in-band'><a href='index.html'>clap</a>::<wbr><a class='macro' href=''>value_t!</a><wbr></span><span class='out-of-band'><span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-10428' href='../src/clap/macros.rs.html#84-118'>[src]</a></span></h1>
+        </span><a id='src-10464' href='../src/clap/macros.rs.html#84-118'>[src]</a></span></h1>
 <pre class='rust macro'>
 <span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>value_t</span> {
 	(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>m</span>:<span class='ident'>ident</span>.<span class='ident'>value_of</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>v</span>:<span class='ident'>expr</span>), <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span>:<span class='ident'>ty</span>) <span class='op'>=&gt;</span> {
@@ -65,8 +65,8 @@
 				<span class='kw'>for</span> <span class='ident'>pv</span> <span class='kw'>in</span> <span class='ident'>v</span> {
 					<span class='kw'>match</span> <span class='ident'>pv</span>.<span class='ident'>parse</span>::<span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span><span class='op'>&gt;</span>() {
 						<span class='prelude-val'>Ok</span>(<span class='ident'>rv</span>) <span class='op'>=&gt;</span> <span class='ident'>tmp</span>.<span class='ident'>push</span>(<span class='ident'>rv</span>),
-						<span class='prelude-val'>Err</span>(_) <span class='op'>=&gt;</span> {
-							<span class='ident'>err</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;{} isn&#39;t a valid {}&quot;</span>,<span class='ident'>pv</span>,<span class='macro'>stringify</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span>)));
+						<span class='prelude-val'>Err</span>(<span class='ident'>e</span>) <span class='op'>=&gt;</span> {
+							<span class='ident'>err</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;{} isn&#39;t a valid {}\n{}&quot;</span>,<span class='ident'>pv</span>,<span class='macro'>stringify</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span>),<span class='ident'>e</span>));
 							<span class='kw'>break</span>
 						}
 					}
