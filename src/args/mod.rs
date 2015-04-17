@@ -1,13 +1,11 @@
 pub use self::arg::Arg;
 pub use self::argmatches::ArgMatches;
 pub use self::subcommand::SubCommand;
-pub use self::flagarg::{FlagArg, FlagBuilder};
-pub use self::optarg::{OptArg, OptBuilder};
-pub use self::posarg::{PosArg, PosBuilder};
+pub use self::argbuilder::{FlagBuilder, OptBuilder, PosBuilder};
+pub use self::matchedarg::MatchedArg;
 
 mod arg;
 mod argmatches;
 mod subcommand;
-mod flagarg;
-mod optarg;
-mod posarg;
+mod argbuilder;
+mod matchedarg;

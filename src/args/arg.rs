@@ -97,7 +97,7 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// Arg::new("conifg")
     /// # .short("c")
     /// # ).get_matches();
-    #[deprecated(since  = "0.5.15",
+    #[deprecated(since  = "0.6.0",
                  reason = "use Arg::with_name() instead")]
     pub fn new(n: &'n str) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
         Arg {
