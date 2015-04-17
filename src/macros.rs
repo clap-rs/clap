@@ -101,8 +101,8 @@ macro_rules! value_t {
 				for pv in v {
 					match pv.parse::<$t>() {
 						Ok(rv) => tmp.push(rv),
-						Err(_) => {
-							err = Some(format!("{} isn't a valid {}",pv,stringify!($t)));
+						Err(e) => {
+							err = Some(format!("{} isn't a valid {}\n{}",pv,stringify!($t),e));
 							break
 						}
 					}
@@ -169,10 +169,11 @@ macro_rules! value_t_or_exit {
 			Some(v) => {
 				match v.parse::<$t>() {
 					Ok(val) => val,
-					Err(_)  => {
-						println!("{} isn't a valid {}\n{}\nPlease re-run with --help for more information",
+					Err(e)  => {
+						println!("{} isn't a valid {}\n{}\n{}\nPlease re-run with --help for more information",
 							v,
 							stringify!($t), 
+							e,
 							$m.usage());
 						::std::process::exit(1);
 					}
@@ -243,13 +244,139 @@ macro_rules! simple_enum {
 			$($v),+
 		}
 
-		impl<'a> std::str::FromStr for $e {
-			type Err = &'a str;
+		impl std::str::FromStr for $e {
+			type Err = String; 
 
 			fn from_str(s: &str) -> Result<Self,<Self as std::str::FromStr>::Err> {
 				match s {
 					$(stringify!($v) => Ok($e::$v),)+
-					_                => Err("no match")
+					_                => Err({
+											let v = vec![
+								        		$(stringify!($v),)+
+								    		];
+								    		format!("valid:{}", v.iter().fold(String::new(),|a, i| a + &format!(" {}", i)[..]))
+										})
+				}
+			}
+		}
+	};
+}
+
+/// Convenience macro to generate more complete enums with variants to be used as a type when parsing
+/// arguments.
+///
+/// These enums support pub (or not) and use of the #[derive()] traits
+///
+///
+/// # Example
+///
+/// ```no_run
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::{App, Arg};
+/// arg_enum!{
+/// 	#[derive(Debug)]
+///		pub enum Foo {
+///			Bar,
+///			Baz,
+///			Qux
+///		}
+/// }
+/// // Foo enum can now be used via Foo::Bar, or Foo::Baz, etc
+/// // and implements std::str::FromStr to use with the value_t! macros
+/// fn main() {
+/// 	let m = App::new("app")
+///					.arg_from_usage("<foo> 'the foo'")
+///					.get_matches();
+/// 	let f = value_t_or_exit!(m.value_of("foo"), Foo);
+///
+///		// Use f like any other Foo variant...
+/// }
+/// ```
+#[macro_export]
+macro_rules! arg_enum {
+	(enum $e:ident { $($v:ident),+ } ) => {
+		enum $e {
+			$($v),+
+		}
+
+		impl std::str::FromStr for $e {
+			type Err = String;
+
+			fn from_str(s: &str) -> Result<Self,<Self as std::str::FromStr>::Err> {
+				match s {
+					$(stringify!($v) => Ok($e::$v),)+
+					_                => Err({
+											let v = vec![
+								        		$(stringify!($v),)+
+								    		];
+								    		format!("valid:{}", v.iter().fold(String::new(),|a, i| a + &format!(" {}", i)[..]))
+										})
+				}
+			}
+		}
+	};
+	(pub enum $e:ident { $($v:ident),+ } ) => {
+		pub enum $e {
+			$($v),+
+		}
+
+		impl std::str::FromStr for $e {
+			type Err = String;
+
+			fn from_str(s: &str) -> Result<Self,<Self as std::str::FromStr>::Err> {
+				match s {
+					$(stringify!($v) => Ok($e::$v),)+
+					_                => Err({
+											let v = vec![
+								        		$(stringify!($v),)+
+								    		];
+								    		format!("valid:{}", v.iter().fold(String::new(),|a, i| a + &format!(" {}", i)[..]))
+										})
+				}
+			}
+		}
+	};
+	(#[derive($($d:ident),+)] enum $e:ident { $($v:ident),+ } ) => {
+		#[derive($($d,)+)]
+		enum $e {
+			$($v),+
+		}
+
+		impl std::str::FromStr for $e {
+			type Err = String;
+
+			fn from_str(s: &str) -> Result<Self,<Self as std::str::FromStr>::Err> {
+				match s {
+					$(stringify!($v) => Ok($e::$v),)+
+					_                => Err({
+											let v = vec![
+								        		$(stringify!($v),)+
+								    		];
+								    		format!("valid:{}", v.iter().fold(String::new(),|a, i| a + &format!(" {}", i)[..]))
+										})
+				}
+			}
+		}
+	};
+	(#[derive($($d:ident),+)] pub enum $e:ident { $($v:ident),+ } ) => {
+		#[derive($($d,)+)]
+		pub enum $e {
+			$($v),+
+		}
+
+		impl std::str::FromStr for $e {
+			type Err = String;
+
+			fn from_str(s: &str) -> Result<Self,<Self as std::str::FromStr>::Err> {
+				match s {
+					$(stringify!($v) => Ok($e::$v),)+
+					_                => Err({
+											let v = vec![
+								        		$(stringify!($v),)+
+								    		];
+								    		format!("valid:{}", v.iter().fold(String::new(),|a, i| a + &format!(" {}", i)[..]))
+										})
 				}
 			}
 		}

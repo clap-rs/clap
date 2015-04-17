@@ -1,12 +1,13 @@
 // You can use clap's value_t! macro with a custom enum by implementing the std::str::FromStr
-// trait which is very straight forward. There are two ways to do this, for simple enums you
-// can use clap's simple_enum! macro, but if you require additional functionality you can
-// create and implement the trait manually.
+// trait which is very straight forward. There are three ways to do this, for simple enums 
+// meaning those that don't require 'pub' or any '#[derive()]' directives you can use clas's
+// simple_enum! macro. For those that require 'pub' or any '#[derive()]'s you can use clap's
+// arg_enum! macro. The third way is to implement std::str::FromStr manually. 
 //
-// In the following example we will create an enum with 4 values, assign a positional argument
+// In most circumstances using either simple_enum! or arg_enum! is fine.
+//
+// In the following example we will create two enums using macros, assign a positional argument
 // that accepts only one of those values, and use clap to parse the argument.
-//
-// Start with bringing the trait into scope.
 
 // Add clap like normal
 #[macro_use]
@@ -16,24 +17,44 @@ use clap::{App, Arg};
 
 // Define your enum, the simple_num! macro takes a enum name followed by => and each value
 // separated by a ','
-simple_enum!{ Vals => Foo, Bar, Baz, Qux }
+simple_enum!{ Foo => Bar, Baz, Qux }
+
+// Using arg_enum! is more like traditional enum declarations
+//
+// **NOTE:** Only bare variants are supported
+arg_enum!{
+    #[derive(Debug)]
+    pub enum Oof {
+        Rab,
+        Zab,
+        Xuq
+    }
+}
 
 fn main() {
     // Create the application like normal
     let m = App::new("myapp")
                     // Use a single positional argument that is required
-                    .arg(Arg::from_usage("<type> 'The type to use'")
-                            // Define the list of possible values
-                            .possible_values(vec!["Foo", "Bar", "Baz", "Qux"]))
+                    .arg(Arg::from_usage("<type> 'The Foo to use'")
+                            // You can define a list of possible values if you want the values to be
+                            // displayed in the help information. Whether you use possible_values() or
+                            // not, the valid values will ALWAYS be displayed on a failed parse.
+                            .possible_values(vec!["Bar", "Baz", "Qux"]))
+                    // For the second positional, lets not use possible_values() just to show the difference
+                    .arg_from_usage("<type2> 'The Oof to use'")
                     .get_matches();
 
-    let t = value_t_or_exit!(m.value_of("type"), Vals);
+    let t = value_t_or_exit!(m.value_of("type"), Foo);
+    let t2 = value_t_or_exit!(m.value_of("type2"), Oof);
+
 
     // Now we can use our enum like normal.
     match t {
-        Vals::Foo => println!("Found a Foo"),
-        Vals::Bar => println!("Found a Bar"),
-        Vals::Baz => println!("Found a Baz"),
-        Vals::Qux => println!("Found a Qux")
+        Foo::Bar => println!("Found a Bar"),
+        Foo::Baz => println!("Found a Baz"),
+        Foo::Qux => println!("Found a Qux")
     }
+
+    // Since our Oof derives Debug, we can do this:
+    println!("Oof: {:?}", t2);
 }
