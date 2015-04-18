@@ -22,10 +22,10 @@ enum Vals {
 }
 
 // Implement the trait
-impl<'a> FromStr for Vals {
-    type Err = &'a str;
+impl FromStr for Vals {
+    type Err = &'static str;
     
-    fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "Foo" => Ok(Vals::Foo),
             "Bar" => Ok(Vals::Bar),
