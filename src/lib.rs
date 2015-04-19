@@ -128,6 +128,33 @@ mod tests {
 	}
 
 	#[test]
+	fn create_args_tabs_usage() {
+		let a = Arg::from_usage("[pos]\t'some help info'");
+		assert_eq!(a.name, "pos");
+		assert_eq!(a.help.unwrap(), "some help info");
+		assert!(!a.multiple);
+		assert!(!a.required);
+
+		let b = Arg::from_usage("<pos>\t'some help info'");
+		assert_eq!(b.name, "pos");
+		assert_eq!(b.help.unwrap(), "some help info");
+		assert!(!b.multiple);
+		assert!(b.required);
+
+		let c = Arg::from_usage("[pos]...\t'some help info'");
+		assert_eq!(c.name, "pos");
+		assert_eq!(c.help.unwrap(), "some help info");
+		assert!(c.multiple);
+		assert!(!c.required);
+
+		let d = Arg::from_usage("<pos>...\t'some help info'");
+		assert_eq!(d.name, "pos");
+		assert_eq!(d.help.unwrap(), "some help info");
+		assert!(d.multiple);
+		assert!(d.required);
+	}
+
+	#[test]
 	fn create_option() {
 	    let _ = App::new("test")
 	                .arg(Arg::new("test")
