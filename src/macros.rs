@@ -244,7 +244,7 @@ macro_rules! simple_enum {
 			$($v),+
 		}
 
-		impl std::str::FromStr for $e {
+		impl ::std::str::FromStr for $e {
 			type Err = String; 
 
 			fn from_str(s: &str) -> Result<Self,Self::Err> {
@@ -300,7 +300,7 @@ macro_rules! arg_enum {
 			$($v),+
 		}
 
-		impl std::str::FromStr for $e {
+		impl ::std::str::FromStr for $e {
 			type Err = String;
 
 			fn from_str(s: &str) -> Result<Self,Self::Err> {
@@ -321,7 +321,7 @@ macro_rules! arg_enum {
 			$($v),+
 		}
 
-		impl std::str::FromStr for $e {
+		impl ::std::str::FromStr for $e {
 			type Err = String;
 
 			fn from_str(s: &str) -> Result<Self,Self::Err> {
@@ -343,7 +343,7 @@ macro_rules! arg_enum {
 			$($v),+
 		}
 
-		impl std::str::FromStr for $e {
+		impl ::std::str::FromStr for $e {
 			type Err = String;
 
 			fn from_str(s: &str) -> Result<Self,Self::Err> {
@@ -365,7 +365,7 @@ macro_rules! arg_enum {
 			$($v),+
 		}
 
-		impl std::str::FromStr for $e {
+		impl ::std::str::FromStr for $e {
 			type Err = String;
 
 			fn from_str(s: &str) -> Result<Self,Self::Err> {
