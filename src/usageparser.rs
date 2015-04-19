@@ -113,7 +113,7 @@ impl<'u> Iterator for UsageParser<'u> {
                     }
                     if mult { return Some(UsageToken::Multiple) }
                 },
-                Some(' ') | Some('=') | Some(']') | Some('>') => {
+                Some(' ') | Some('=') | Some(']') | Some('>') | Some('\t') => {
                     self.e += 1;
                     continue
                 },                
