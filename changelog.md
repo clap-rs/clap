@@ -1,3 +1,17 @@
+<a name="v0.6.6"></a>
+## v0.6.6 (2015-04-19)
+
+
+#### Bug Fixes
+
+* **from_usage**  tabs and spaces should be treated equally ([4fd44181](https://github.com/kbknapp/clap-rs/commit/4fd44181d55d8eb88caab1e625231cfa3129e347))
+
+#### Features
+
+* **macros.rs**  add macro to get version from Cargo.toml ([c630969a](https://github.com/kbknapp/clap-rs/commit/c630969aa3bbd386379219cae27ba1305b117f3e))
+
+
+
 <a name="v0.6.5"></a>
 ## v0.6.5 (2015-04-19)
 
