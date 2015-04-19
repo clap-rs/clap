@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="API stability overview for the Rust `clap` crate.">
-    <meta name="keywords" content="rust, rustlang, rust-lang">
+    <meta name="description" content="API documentation for the Rust `crate_version!` macro in crate `clap`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, crate_version!">
 
-    <title>clap - Stability dashboard</title>
+    <title>clap::crate_version! - Rust</title>
 
     <link rel="stylesheet" type="text/css" href="../main.css">
 
@@ -26,7 +26,7 @@
 
     <section class="sidebar">
         
-        <p class='location'></p><script>window.sidebarCurrent = {name: 'clap', ty: 'mod', relpath: '../'};</script>
+        <p class='location'><a href='index.html'>clap</a></p><script>window.sidebarCurrent = {name: 'crate_version!', ty: 'macro', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </section>
 
     <nav class="sub">
@@ -40,18 +40,26 @@
         </form>
     </nav>
 
-    <section id='main' class="content mod"><h1 class='fqn'>Stability dashboard: crate <a class='mod' href='index.html'>clap</a></h1>
-This dashboard summarizes the stability levels for all of the public modules of
-the crate, according to the total number of items at each level in the module and
-its children (percentages total for clap):
-<blockquote>
-<a class='stability Stable'></a> stable (0%),<br/>
-<a class='stability Unstable'></a> unstable (0%),<br/>
-<a class='stability Deprecated'></a> deprecated (0%),<br/>
-<a class='stability Unmarked'></a> unmarked (100%)
-</blockquote>
-The counts do not include methods or trait
-implementations that are visible only through a re-exported type.<table><tr><td><a href='index.html'>clap</a></td><td class='summary-column'><span class='summary Stable' style='width: 0.0000%; display: inline-block'>&nbsp</span><span class='summary Unstable' style='width: 0.0000%; display: inline-block'>&nbsp</span><span class='summary Deprecated' style='width: 0.0000%; display: inline-block'>&nbsp</span><span class='summary Unmarked' style='width: 100.0000%; display: inline-block'>&nbsp</span></td></tr></table></section>
+    <section id='main' class="content macro">
+<h1 class='fqn'><span class='in-band'><a href='index.html'>clap</a>::<wbr><a class='macro' href=''>crate_version!</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-10185' class='srclink' href='../src/clap/macros.rs.html#400-408'>[src]</a></span></h1>
+<pre class='rust macro'>
+<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>crate_version</span> {
+	() <span class='op'>=&gt;</span> {
+		<span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;{}.{}.{}{}&quot;</span>,
+      		<span class='macro'>env</span><span class='macro'>!</span>(<span class='string'>&quot;CARGO_PKG_VERSION_MAJOR&quot;</span>),
+      		<span class='macro'>env</span><span class='macro'>!</span>(<span class='string'>&quot;CARGO_PKG_VERSION_MINOR&quot;</span>),
+      		<span class='macro'>env</span><span class='macro'>!</span>(<span class='string'>&quot;CARGO_PKG_VERSION_PATCH&quot;</span>),
+      		<span class='macro'>option_env</span><span class='macro'>!</span>(<span class='string'>&quot;CARGO_PKG_VERSION_PRE&quot;</span>).<span class='ident'>unwrap_or</span>(<span class='string'>&quot;&quot;</span>))
+	}
+}
+</pre>
+<div class='docblock'><p>Allows you pull the version for an from your Cargo.toml as MAJOR.MINOR.PATCH_PKGVERSION_PRE</p>
+
+<p># Example
+ <code>no_run # #[macro_use] # extern crate clap; # use clap::App; # fn main() { let m = App::new(&quot;app&quot;) .version(crate_version!()) .get_matches(); # }</code></p>
+</div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>

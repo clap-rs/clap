@@ -947,6 +947,33 @@
 <span id="905">905</span>
 <span id="906">906</span>
 <span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
 </pre><pre class='rust '>
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>crate_type</span><span class='op'>=</span> <span class='string'>&quot;lib&quot;</span>]</span>
 
@@ -1357,6 +1384,33 @@
 		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='op'>!</span><span class='ident'>c</span>.<span class='ident'>required</span>);
 
 		<span class='kw'>let</span> <span class='ident'>d</span> <span class='op'>=</span> <span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;&lt;pos&gt;... &#39;some help info&#39;&quot;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>name</span>, <span class='string'>&quot;pos&quot;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>help</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;some help info&quot;</span>);
+		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>multiple</span>);
+		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>required</span>);
+	}
+
+	<span class='attribute'>#[<span class='ident'>test</span>]</span>
+	<span class='kw'>fn</span> <span class='ident'>create_args_tabs_usage</span>() {
+		<span class='kw'>let</span> <span class='ident'>a</span> <span class='op'>=</span> <span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;[pos]\t&#39;some help info&#39;&quot;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>name</span>, <span class='string'>&quot;pos&quot;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>help</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;some help info&quot;</span>);
+		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='op'>!</span><span class='ident'>a</span>.<span class='ident'>multiple</span>);
+		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='op'>!</span><span class='ident'>a</span>.<span class='ident'>required</span>);
+
+		<span class='kw'>let</span> <span class='ident'>b</span> <span class='op'>=</span> <span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;&lt;pos&gt;\t&#39;some help info&#39;&quot;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>name</span>, <span class='string'>&quot;pos&quot;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>help</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;some help info&quot;</span>);
+		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='op'>!</span><span class='ident'>b</span>.<span class='ident'>multiple</span>);
+		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>required</span>);
+
+		<span class='kw'>let</span> <span class='ident'>c</span> <span class='op'>=</span> <span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;[pos]...\t&#39;some help info&#39;&quot;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>name</span>, <span class='string'>&quot;pos&quot;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>help</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;some help info&quot;</span>);
+		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>multiple</span>);
+		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='op'>!</span><span class='ident'>c</span>.<span class='ident'>required</span>);
+
+		<span class='kw'>let</span> <span class='ident'>d</span> <span class='op'>=</span> <span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;&lt;pos&gt;...\t&#39;some help info&#39;&quot;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>name</span>, <span class='string'>&quot;pos&quot;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>help</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;some help info&quot;</span>);
 		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>multiple</span>);
