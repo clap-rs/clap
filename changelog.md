@@ -1,3 +1,13 @@
+<a name="v0.6.5"></a>
+## v0.6.5 (2015-04-19)
+
+
+#### Bug Fixes
+
+* **macros.rs**  fix use statements for trait impls ([86e4075e](https://github.com/kbknapp/clap-rs/commit/86e4075eb111937c8a7bdb344e866e350429f042))
+
+
+
 <a name="v0.6.4"></a>
 ## v0.6.4 (2015-04-17)
 
