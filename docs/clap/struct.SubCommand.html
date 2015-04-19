@@ -41,9 +41,9 @@
     </nav>
 
     <section id='main' class="content struct">
-<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>clap</a>::<wbr><a class='struct' href=''>SubCommand</a><wbr></span><span class='out-of-band'><span id='render-detail'>
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>clap</a>::<wbr><a class='struct' href=''>SubCommand</a></span><span class='out-of-band'><span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-9501' href='../src/clap/args/subcommand.rs.html#23-26'>[src]</a></span></h1>
+        </span><a id='src-9501' class='srclink' href='../src/clap/args/subcommand.rs.html#23-26'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct SubCommand&lt;'a&gt; {
     pub name: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
     pub matches: <a class='struct' href='../clap/struct.ArgMatches.html' title='clap::ArgMatches'>ArgMatches</a>&lt;'a&gt;,
@@ -62,7 +62,9 @@ their own arguments and subcommands).</p>
                           .<span class='ident'>index</span>(<span class='number'>1</span>))
 </pre>
 </div><h2 class='fields'>Fields</h2>
-<table><tr><td id='structfield.name'><a class='stability Unmarked' title='No stability level'></a><code>name</code></td><td></td></tr><tr><td id='structfield.matches'><a class='stability Unmarked' title='No stability level'></a><code>matches</code></td><td></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;'a&gt; <a class='struct' href='../clap/struct.SubCommand.html' title='clap::SubCommand'>SubCommand</a>&lt;'a&gt;</code></h3><div class='impl-items'><h4 id='method.new' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.new' class='fnname'>new</a>&lt;'n, 'au, 'v, 'ab, 'u, 'ar&gt;(name: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'au, 'v, 'ab, 'u, 'ar&gt;</code></h4>
+<table><tr class='stab '>
+                                  <td id='structfield.name'><code>name</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.matches'><code>matches</code></td><td></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;'a&gt; <a class='struct' href='../clap/struct.SubCommand.html' title='clap::SubCommand'>SubCommand</a>&lt;'a&gt;</code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>&lt;'n, 'au, 'v, 'ab, 'u, 'ar&gt;(name: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.App.html' title='clap::App'>App</a>&lt;'au, 'v, 'ab, 'u, 'ar&gt;</code></h4>
 <div class='docblock'><p>Creates a new instance of a subcommand requiring a name. Will be displayed
 to the user when they print version or help and usage information.</p>
 

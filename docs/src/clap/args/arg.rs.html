@@ -582,8 +582,6 @@
 <span id="540">540</span>
 <span id="541">541</span>
 <span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>usageparser</span>::{<span class='ident'>UsageParser</span>, <span class='ident'>UsageToken</span>};
 
@@ -684,8 +682,6 @@
     <span class='doccomment'>/// Arg::new(&quot;conifg&quot;)</span>
     <span class='doccomment'>/// # .short(&quot;c&quot;)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
-    <span class='attribute'>#[<span class='ident'>deprecated</span>(<span class='ident'>since</span>  <span class='op'>=</span> <span class='string'>&quot;0.6.0&quot;</span>,
-                 <span class='ident'>reason</span> <span class='op'>=</span> <span class='string'>&quot;use Arg::with_name() instead&quot;</span>)]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;n</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
         <span class='ident'>Arg</span> {
             <span class='ident'>name</span>: <span class='ident'>n</span>,

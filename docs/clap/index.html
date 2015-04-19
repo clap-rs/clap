@@ -41,9 +41,9 @@
     </nav>
 
     <section id='main' class="content mod">
-<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>clap</a><wbr></span><span class='out-of-band'><a href='stability.html'>[stability]</a> <span id='render-detail'>
+<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>clap</a></span><span class='out-of-band'><span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-0' href='../src/clap/lib.rs.html#1-907'>[src]</a></span></h1>
+        </span><a id='src-0' class='srclink' href='../src/clap/lib.rs.html#1-907'>[src]</a></span></h1>
 <div class='docblock'>
 <h1 id="clap" class='section-header'><a
                            href="#clap">clap</a></h1>
@@ -363,71 +363,87 @@ SUBCOMMANDS:
 <p><code>clap</code> is licensed under the MIT license. Please the LICENSE-MIT file in this repository for more information.</p>
 </div><h2 id='macros' class='section-header'><a href="#macros">Macros</a></h2>
 <table>
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='macro' href='macro.arg_enum!.html'
+                    <tr class=' module-item'>
+                        <td><a class='macro' href='macro.arg_enum!.html'
                                title='clap::arg_enum!'>arg_enum!</a></td>
-                        <td class='docblock short'><p>Convenience macro to generate more complete enums with variants to be used as a type when parsing
+                        <td class='docblock short'>
+                             <p>Convenience macro to generate more complete enums with variants to be used as a type when parsing
  arguments.</p>
-</td>
+
+                        </td>
                     </tr>
                 
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='macro' href='macro.simple_enum!.html'
+                    <tr class=' module-item'>
+                        <td><a class='macro' href='macro.simple_enum!.html'
                                title='clap::simple_enum!'>simple_enum!</a></td>
-                        <td class='docblock short'><p>Convenience macro generated a simple enum with variants to be used as a type when parsing
+                        <td class='docblock short'>
+                             <p>Convenience macro generated a simple enum with variants to be used as a type when parsing
  arguments.</p>
-</td>
+
+                        </td>
                     </tr>
                 
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='macro' href='macro.value_t!.html'
+                    <tr class=' module-item'>
+                        <td><a class='macro' href='macro.value_t!.html'
                                title='clap::value_t!'>value_t!</a></td>
-                        <td class='docblock short'><p>Convenience macro getting a typed value <code>T</code> where <code>T</code> implements <code>std::str::FromStr</code>
+                        <td class='docblock short'>
+                             <p>Convenience macro getting a typed value <code>T</code> where <code>T</code> implements <code>std::str::FromStr</code>
  This macro returns a <code>Result&lt;T,String&gt;</code> which allows you as the developer to decide
  what you&#39;d like to do on a failed parse. There are two types of errors, parse failures
  and those where the argument wasn&#39;t present (such as a non-required argument). </p>
-</td>
+
+                        </td>
                     </tr>
                 
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='macro' href='macro.value_t_or_exit!.html'
+                    <tr class=' module-item'>
+                        <td><a class='macro' href='macro.value_t_or_exit!.html'
                                title='clap::value_t_or_exit!'>value_t_or_exit!</a></td>
-                        <td class='docblock short'><p>Convenience macro getting a typed value <code>T</code> where <code>T</code> implements <code>std::str::FromStr</code>
+                        <td class='docblock short'>
+                             <p>Convenience macro getting a typed value <code>T</code> where <code>T</code> implements <code>std::str::FromStr</code>
  This macro returns a <code>T</code> or <code>Vec&lt;T&gt;</code> or exits with a usage string upon failure. This
  removes some of the boiler plate to handle failures from value_t! above. </p>
-</td>
+
+                        </td>
                     </tr>
                 </table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.App.html'
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.App.html'
                                title='clap::App'>App</a></td>
-                        <td class='docblock short'><p>Used to create a representation of a command line program and all possible command line
+                        <td class='docblock short'>
+                             <p>Used to create a representation of a command line program and all possible command line
 arguments for parsing at runtime.</p>
-</td>
+
+                        </td>
                     </tr>
                 
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Arg.html'
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Arg.html'
                                title='clap::Arg'>Arg</a></td>
-                        <td class='docblock short'><p>The abstract representation of a command line argument used by the consumer of the library.
+                        <td class='docblock short'>
+                             <p>The abstract representation of a command line argument used by the consumer of the library.
 Used to set all the options and relationships that define a valid argument for the program.</p>
-</td>
+
+                        </td>
                     </tr>
                 
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.ArgMatches.html'
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.ArgMatches.html'
                                title='clap::ArgMatches'>ArgMatches</a></td>
-                        <td class='docblock short'><p>Used to get information about the arguments that where supplied to the program at runtime by
+                        <td class='docblock short'>
+                             <p>Used to get information about the arguments that where supplied to the program at runtime by
 the user. To get a new instance of this struct you use <code>.get_matches()</code> of the <code>App</code> struct.</p>
-</td>
+
+                        </td>
                     </tr>
                 
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.SubCommand.html'
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.SubCommand.html'
                                title='clap::SubCommand'>SubCommand</a></td>
-                        <td class='docblock short'><p>The abstract representation of a command line subcommand used by the consumer of the library.</p>
-</td>
+                        <td class='docblock short'>
+                             <p>The abstract representation of a command line subcommand used by the consumer of the library.</p>
+
+                        </td>
                     </tr>
                 </table></section>
     <section id='search' class="content hidden"></section>

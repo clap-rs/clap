@@ -41,9 +41,9 @@
     </nav>
 
     <section id='main' class="content struct">
-<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>clap</a>::<wbr><a class='struct' href=''>ArgMatches</a><wbr></span><span class='out-of-band'><span id='render-detail'>
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>clap</a>::<wbr><a class='struct' href=''>ArgMatches</a></span><span class='out-of-band'><span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-9142' href='../src/clap/args/argmatches.rs.html#55-62'>[src]</a></span></h1>
+        </span><a id='src-9142' class='srclink' href='../src/clap/args/argmatches.rs.html#55-62'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct ArgMatches&lt;'a&gt; {
     // some fields omitted
 }</pre><div class='docblock'><p>Used to get information about the arguments that where supplied to the program at runtime by
@@ -86,7 +86,7 @@ the user. To get a new instance of this struct you use <code>.get_matches()</cod
     }
 }
 </pre>
-</div><h2 id='methods'>Methods</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;'a&gt; <a class='struct' href='../clap/struct.ArgMatches.html' title='clap::ArgMatches'>ArgMatches</a>&lt;'a&gt;</code></h3><div class='impl-items'><h4 id='method.value_of' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.value_of' class='fnname'>value_of</a>&lt;'n&gt;(&amp;self, name: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;</code></h4>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;'a&gt; <a class='struct' href='../clap/struct.ArgMatches.html' title='clap::ArgMatches'>ArgMatches</a>&lt;'a&gt;</code></h3><div class='impl-items'><h4 id='method.value_of' class='method'><code>fn <a href='#method.value_of' class='fnname'>value_of</a>&lt;'n&gt;(&amp;self, name: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;</code></h4>
 <div class='docblock'><p>Gets the value of a specific option or positional argument (i.e. an argument that takes
 an additional value at runtime). If the option wasn&#39;t present at runtime
 it returns <code>None</code>. </p>
@@ -100,7 +100,7 @@ prefer <code>values_of()</code> as <code>value_of()</code> will only return the 
        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Value for output: {}&quot;</span>, <span class='ident'>o</span>);
 }
 </pre>
-</div><h4 id='method.values_of' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.values_of' class='fnname'>values_of</a>&lt;'n&gt;(&amp;'a self, name: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'a <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;&gt;</code></h4>
+</div><h4 id='method.values_of' class='method'><code>fn <a href='#method.values_of' class='fnname'>values_of</a>&lt;'n&gt;(&amp;'a self, name: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'a <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;&gt;</code></h4>
 <div class='docblock'><p>Gets the values of a specific option or positional argument in a vector (i.e. an argument
 that takes multiple values at runtime). If the option wasn&#39;t present at runtime it
 returns <code>None</code></p>
@@ -116,7 +116,7 @@ returns <code>None</code></p>
        }
 }
 </pre>
-</div><h4 id='method.is_present' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.is_present' class='fnname'>is_present</a>&lt;'n&gt;(&amp;self, name: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div><h4 id='method.is_present' class='method'><code>fn <a href='#method.is_present' class='fnname'>is_present</a>&lt;'n&gt;(&amp;self, name: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
 <div class='docblock'><p>Returns if an argument was present at runtime.</p>
 
 <h1 id="example" class='section-header'><a
@@ -125,7 +125,7 @@ returns <code>None</code></p>
        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;The output argument was used!&quot;</span>);
 }
 </pre>
-</div><h4 id='method.occurrences_of' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.occurrences_of' class='fnname'>occurrences_of</a>&lt;'n&gt;(&amp;self, name: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a></code></h4>
+</div><h4 id='method.occurrences_of' class='method'><code>fn <a href='#method.occurrences_of' class='fnname'>occurrences_of</a>&lt;'n&gt;(&amp;self, name: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a></code></h4>
 <div class='docblock'><p>Returns the number of occurrences of an option, flag, or positional argument at runtime.
 If an argument isn&#39;t present it will return <code>0</code>. Can be used on arguments which <em>don&#39;t</em>
 allow multiple occurrences, but will obviously only return <code>0</code> or <code>1</code>.</p>
@@ -138,7 +138,7 @@ allow multiple occurrences, but will obviously only return <code>0</code> or <co
     <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Debug mode kind of on&quot;</span>);
 }
 </pre>
-</div><h4 id='method.subcommand_matches' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.subcommand_matches' class='fnname'>subcommand_matches</a>&lt;'n&gt;(&amp;self, name: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../clap/struct.ArgMatches.html' title='clap::ArgMatches'>ArgMatches</a>&gt;</code></h4>
+</div><h4 id='method.subcommand_matches' class='method'><code>fn <a href='#method.subcommand_matches' class='fnname'>subcommand_matches</a>&lt;'n&gt;(&amp;self, name: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../clap/struct.ArgMatches.html' title='clap::ArgMatches'>ArgMatches</a>&gt;</code></h4>
 <div class='docblock'><p>Returns the <code>ArgMatches</code> for a particular subcommand or None if the subcommand wasn&#39;t
 present at runtime.</p>
 
@@ -148,7 +148,7 @@ present at runtime.</p>
     <span class='comment'>// Use matches as normal</span>
 }
 </pre>
-</div><h4 id='method.subcommand_name' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.subcommand_name' class='fnname'>subcommand_name</a>(&amp;self) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;</code></h4>
+</div><h4 id='method.subcommand_name' class='method'><code>fn <a href='#method.subcommand_name' class='fnname'>subcommand_name</a>(&amp;self) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;</code></h4>
 <div class='docblock'><p>Returns the name of the subcommand used of the parent <code>App</code>, or <code>None</code> if one wasn&#39;t found</p>
 
 <p><em>NOTE</em>: Only a single subcommand may be present per <code>App</code> at runtime, does <em>NOT</em> check for
@@ -162,7 +162,7 @@ the name of sub-subcommand&#39;s names</p>
     _              <span class='op'>=&gt;</span> {}, <span class='comment'>// Either no subcommand or one not tested for...</span>
 }
 </pre>
-</div><h4 id='method.subcommand' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.subcommand' class='fnname'>subcommand</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(&amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../clap/struct.ArgMatches.html' title='clap::ArgMatches'>ArgMatches</a>&gt;)</a></code></h4>
+</div><h4 id='method.subcommand' class='method'><code>fn <a href='#method.subcommand' class='fnname'>subcommand</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(&amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../clap/struct.ArgMatches.html' title='clap::ArgMatches'>ArgMatches</a>&gt;)</a></code></h4>
 <div class='docblock'><p>Returns the name and <code>ArgMatches</code> of the subcommand used at runtime or (&quot;&quot;, None) if one
 wasn&#39;t found.</p>
 
@@ -174,7 +174,7 @@ wasn&#39;t found.</p>
     _                         <span class='op'>=&gt;</span> {}, <span class='comment'>// Either no subcommand or one not tested for...</span>
 }
 </pre>
-</div><h4 id='method.usage' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.usage' class='fnname'>usage</a>(&amp;self) -&gt; &amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a></code></h4>
+</div><h4 id='method.usage' class='method'><code>fn <a href='#method.usage' class='fnname'>usage</a>(&amp;self) -&gt; &amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a></code></h4>
 <div class='docblock'><p>Returns a string slice of the usage statement for the <code>App</code> (or <code>SubCommand</code>)</p>
 
 <h1 id="example" class='section-header'><a
