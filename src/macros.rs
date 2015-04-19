@@ -247,7 +247,7 @@ macro_rules! simple_enum {
 		impl std::str::FromStr for $e {
 			type Err = String; 
 
-			fn from_str(s: &str) -> Result<Self,<Self as std::str::FromStr>::Err> {
+			fn from_str(s: &str) -> Result<Self,Self::Err> {
 				match s {
 					$(stringify!($v) => Ok($e::$v),)+
 					_                => Err({
@@ -303,7 +303,7 @@ macro_rules! arg_enum {
 		impl std::str::FromStr for $e {
 			type Err = String;
 
-			fn from_str(s: &str) -> Result<Self,<Self as std::str::FromStr>::Err> {
+			fn from_str(s: &str) -> Result<Self,Self::Err> {
 				match s {
 					$(stringify!($v) => Ok($e::$v),)+
 					_                => Err({
@@ -324,7 +324,7 @@ macro_rules! arg_enum {
 		impl std::str::FromStr for $e {
 			type Err = String;
 
-			fn from_str(s: &str) -> Result<Self,<Self as std::str::FromStr>::Err> {
+			fn from_str(s: &str) -> Result<Self,Self::Err> {
 				match s {
 					$(stringify!($v) => Ok($e::$v),)+
 					_                => Err({
@@ -346,7 +346,7 @@ macro_rules! arg_enum {
 		impl std::str::FromStr for $e {
 			type Err = String;
 
-			fn from_str(s: &str) -> Result<Self,<Self as std::str::FromStr>::Err> {
+			fn from_str(s: &str) -> Result<Self,Self::Err> {
 				match s {
 					$(stringify!($v) => Ok($e::$v),)+
 					_                => Err({
@@ -368,7 +368,7 @@ macro_rules! arg_enum {
 		impl std::str::FromStr for $e {
 			type Err = String;
 
-			fn from_str(s: &str) -> Result<Self,<Self as std::str::FromStr>::Err> {
+			fn from_str(s: &str) -> Result<Self,Self::Err> {
 				match s {
 					$(stringify!($v) => Ok($e::$v),)+
 					_                => Err({
