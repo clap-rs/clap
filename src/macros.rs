@@ -382,3 +382,27 @@ macro_rules! arg_enum {
 		}
 	};
 }
+
+/// Allows you pull the version for an from your Cargo.toml as MAJOR.MINOR.PATCH_PKGVERSION_PRE
+///
+/// # Example
+/// ```no_run
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::App;
+/// # fn main() {
+/// 	let m = App::new("app")
+///					.version(crate_version!())
+///					.get_matches();
+/// # }
+/// ```
+#[macro_export]
+macro_rules! crate_version {
+	() => {
+		format!("{}.{}.{}{}",
+      		env!("CARGO_PKG_VERSION_MAJOR"),
+      		env!("CARGO_PKG_VERSION_MINOR"),
+      		env!("CARGO_PKG_VERSION_PATCH"),
+      		option_env!("CARGO_PKG_VERSION_PRE").unwrap_or(""))
+	}
+}
