@@ -37,7 +37,7 @@ impl<'a> SubCommand<'a> {
     /// SubCommand::new("config")
     /// # ).get_matches();
     /// ```
-    pub fn new<'n, 'au, 'v, 'ab, 'u, 'ar>(name: &'n str) -> App<'au, 'v, 'ab, 'u, 'ar> {
+    pub fn new<'n, 'au, 'v, 'ab, 'u, 'h, 'ar>(name: &'n str) -> App<'au, 'v, 'ab, 'u, 'h, 'ar> {
         App::new(name)
     }
 }

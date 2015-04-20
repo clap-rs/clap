@@ -38,7 +38,7 @@ use args::{ FlagBuilder, OptBuilder, PosBuilder};
 ///
 /// // Your pogram logic starts here...
 /// ```
-pub struct App<'a, 'v, 'ab, 'u, 'ar> {
+pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     // The name displayed to the user when showing version and help/usage information
     name: String,
     // A string of author(s) if desired. Displayed when showing help/usage information
@@ -47,6 +47,8 @@ pub struct App<'a, 'v, 'ab, 'u, 'ar> {
     version: Option<&'v str>,
     // A brief explaination of the program that gets displayed to the user when shown help/usage information
     about: Option<&'ab str>,
+    // Additional help information
+    more_help: Option<&'h str>,
     // A list of possible flags
     flags: BTreeMap<&'ar str, FlagBuilder<'ar>>,
     // A list of possible options
@@ -54,7 +56,7 @@ pub struct App<'a, 'v, 'ab, 'u, 'ar> {
     // A list of positional arguments
     positionals_idx: BTreeMap<u8, PosBuilder<'ar>>,
     // A list of subcommands
-    subcommands: BTreeMap<String, App<'a, 'v, 'ab, 'u, 'ar>>,
+    subcommands: BTreeMap<String, App<'a, 'v, 'ab, 'u, 'h, 'ar>>,
     needs_long_help: bool,
     needs_long_version: bool,
     needs_short_help: bool,
@@ -71,7 +73,7 @@ pub struct App<'a, 'v, 'ab, 'u, 'ar> {
 
 }
 
-impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
+impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Creates a new instance of an application requiring a name (such as the binary). The name
     /// will be displayed to the user when they request to print version or help and usage
     /// information. The name should not contain spaces (hyphens '-' are ok).
@@ -84,11 +86,12 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     /// let prog = App::new("myprog")
     /// # .get_matches();
     /// ```
-    pub fn new<'n>(n: &'n str) -> App<'a, 'v, 'ab, 'u, 'ar> {
+    pub fn new<'n>(n: &'n str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         App {
             name: n.to_owned(),
             author: None,
             about: None,
+            more_help: None,
             version: None,
             flags: BTreeMap::new(),
             opts: BTreeMap::new(),
@@ -121,7 +124,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     /// .author("Kevin <kbknapp@gmail.com>")
     /// # .get_matches();
     /// ```
-    pub fn author(mut self, a: &'a str) -> App<'a, 'v, 'ab, 'u, 'ar> {
+    pub fn author(mut self, a: &'a str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.author = Some(a);
         self
     }
@@ -137,8 +140,25 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     /// .about("Does really amazing things to great people")
     /// # .get_matches();
     /// ```
-    pub fn about(mut self, a: &'ab str) -> App<'a, 'v, 'ab, 'u, 'ar> {
+    pub fn about(mut self, a: &'ab str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.about = Some(a);
+        self
+    }
+
+    /// Adds additional help information to be displayed in addition to auto-generated help. This
+    /// information is displayed **after** the auto-generated help information. This additional
+    /// help is often used to describe how to use the arguments, or caveats to be noted.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::App;
+    /// # let app = App::new("myprog")
+    /// .more_help("Does really amazing things to great people")
+    /// # .get_matches();
+    /// ```
+    pub fn more_help(mut self, h: &'h str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        self.more_help = Some(h);
         self
     }
 
@@ -153,7 +173,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     /// .version("v0.1.24")
     /// # .get_matches();
     /// ```
-    pub fn version(mut self, v: &'v str) -> App<'a, 'v, 'ab, 'u, 'ar>  {
+    pub fn version(mut self, v: &'v str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar>  {
         self.version = Some(v);
         self
     }
@@ -178,7 +198,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     /// .usage("myapp [-clDas] <some_file>")
     /// # .get_matches();
     /// ```
-    pub fn usage(mut self, u: &'u str) -> App<'a, 'v, 'ab, 'u, 'ar> {
+    pub fn usage(mut self, u: &'u str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.usage_str = Some(u);
         self
     }
@@ -205,7 +225,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     /// .arg(Arg::from_usage("-c --config=[CONFIG] 'Optionally sets a configuration file to use'"))
     /// # .get_matches();
     /// ```
-    pub fn arg<'l, 'h, 'b, 'r>(mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) -> App<'a, 'v, 'ab, 'u, 'ar> {
+    pub fn arg(mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         if self.arg_list.contains(a.name) {
             panic!("Argument name must be unique, \"{}\" is already in use", a.name);
         } else {
@@ -378,7 +398,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     ///             Arg::with_name("input").index(1).help("the input file to use")])
     /// # .get_matches();
     /// ```
-    pub fn args(mut self, args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>) -> App<'a, 'v, 'ab, 'u, 'ar> {
+    pub fn args(mut self, args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         for arg in args.into_iter() {
             self = self.arg(arg);
         }
@@ -400,7 +420,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     /// .arg_from_usage("-c --conf=<config> 'Sets a configuration file to use'")
     /// # .get_matches();
     /// ```
-    pub fn arg_from_usage(mut self, usage: &'ar str) -> App<'a, 'v, 'ab, 'u, 'ar> {
+    pub fn arg_from_usage(mut self, usage: &'ar str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self = self.arg(Arg::from_usage(usage));
         self
     }
@@ -424,7 +444,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     ///    <input> 'The input file to use'")
     /// # .get_matches();
     /// ```
-    pub fn args_from_usage(mut self, usage: &'ar str) -> App<'a, 'v, 'ab, 'u, 'ar> {
+    pub fn args_from_usage(mut self, usage: &'ar str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         for l in usage.lines() {
             self = self.arg(Arg::from_usage(l.trim()));
         }
@@ -448,7 +468,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     ///             // Additional subcommand configuration goes here, such as other arguments...
     /// # .get_matches();
     /// ```
-    pub fn subcommand(mut self, subcmd: App<'a, 'v, 'ab, 'u, 'ar>) -> App<'a, 'v, 'ab, 'u, 'ar> {
+    pub fn subcommand(mut self, subcmd: App<'a, 'v, 'ab, 'u, 'h, 'ar>) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         if subcmd.name == "help" { self.needs_subcmd_help = false; }
         self.subcommands.insert(subcmd.name.clone(), subcmd);
         self
@@ -467,7 +487,7 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
     ///        SubCommand::new("debug").about("Controls debug functionality")])
     /// # .get_matches();
     /// ```
-    pub fn subcommands(mut self, subcmds: Vec<App<'a, 'v, 'ab, 'u, 'ar>>) -> App<'a, 'v, 'ab, 'u, 'ar> {
+    pub fn subcommands(mut self, subcmds: Vec<App<'a, 'v, 'ab, 'u, 'h, 'ar>>) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         for subcmd in subcmds.into_iter() {
             self = self.subcommand(subcmd);
         }
@@ -693,6 +713,11 @@ impl<'a, 'v, 'ab, 'u, 'ar> App<'a, 'v, 'ab, 'u, 'ar>{
                  self.get_spaces((longest_sc + 4) - (sc.name.len())),
                  if let Some(a) = sc.about {a} else {tab} );
             }
+        }
+
+        if let Some(h) = self.more_help {
+            println!("");
+            println!("{}", h);
         }
 
         self.exit(0);
