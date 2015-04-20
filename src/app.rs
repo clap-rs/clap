@@ -145,19 +145,20 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
-    /// Adds additional help information to be displayed in addition to auto-generated help. This
-    /// information is displayed **after** the auto-generated help information. This additional
-    /// help is often used to describe how to use the arguments, or caveats to be noted.
+    /// Adds additional help information to be displayed in addition to and directly after
+    /// auto-generated help. This information is displayed **after** the auto-generated help
+    /// information. This additional help is often used to describe how to use the arguments,
+    /// or caveats to be noted.
     ///
     /// # Example
     ///
     /// ```no_run
     /// # use clap::App;
     /// # let app = App::new("myprog")
-    /// .more_help("Does really amazing things to great people")
+    /// .after_help("Does really amazing things to great people")
     /// # .get_matches();
     /// ```
-    pub fn more_help(mut self, h: &'h str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn after_help(mut self, h: &'h str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.more_help = Some(h);
         self
     }
