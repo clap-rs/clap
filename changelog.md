@@ -1,3 +1,17 @@
+<a name="v0.6.7"></a>
+## v0.6.7 (2015-04-22)
+
+
+#### Bug Fixes
+
+* **from_usage**  fix bug causing args to not be required ([b76129e9](https://github.com/kbknapp/clap-rs/commit/b76129e9b71a63365d5c77a7f57b58dbd1e94d49))
+
+#### Features
+
+* **apps**  add ability to display additional help info after auto-gen'ed help msg ([65cc259e](https://github.com/kbknapp/clap-rs/commit/65cc259e4559cbe3653c865ec0c4b1e42a389b07))
+
+
+
 <a name="v0.6.6"></a>
 ## v0.6.6 (2015-04-19)
 
