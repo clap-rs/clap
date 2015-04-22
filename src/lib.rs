@@ -455,7 +455,7 @@ mod tests {
 
 		let b = Arg::from_usage("-o --opt [option] 'some help info'");
 		assert_eq!(b.name, "option");
-		assert_eq!(a.long.unwrap(), "opt");
+		assert_eq!(b.long.unwrap(), "opt");
 		assert_eq!(b.short.unwrap(), 'o');
 		assert_eq!(b.help.unwrap(), "some help info");
 		assert!(!b.multiple);
@@ -464,8 +464,8 @@ mod tests {
 
 		let c = Arg::from_usage("<option> -o --opt <opt> 'some help info'");
 		assert_eq!(c.name, "option");
-		assert_eq!(a.long.unwrap(), "opt");
-		assert_eq!(a.short.unwrap(), 'o');
+		assert_eq!(c.long.unwrap(), "opt");
+		assert_eq!(c.short.unwrap(), 'o');
 		assert_eq!(c.help.unwrap(), "some help info");
 		assert!(!c.multiple);
 		assert!(c.takes_value);
@@ -473,8 +473,8 @@ mod tests {
 
 		let d = Arg::from_usage("-o --opt <option> 'some help info'");
 		assert_eq!(d.name, "option");
-		assert_eq!(a.long.unwrap(), "opt");
-		assert_eq!(a.short.unwrap(), 'o');
+		assert_eq!(d.long.unwrap(), "opt");
+		assert_eq!(d.short.unwrap(), 'o');
 		assert_eq!(d.help.unwrap(), "some help info");
 		assert!(!d.multiple);
 		assert!(d.takes_value);
@@ -491,7 +491,7 @@ mod tests {
 
 		let b = Arg::from_usage("-o --opt [option]... 'some help info'");
 		assert_eq!(b.name, "option");
-		assert_eq!(a.long.unwrap(), "opt");
+		assert_eq!(b.long.unwrap(), "opt");
 		assert_eq!(b.short.unwrap(), 'o');
 		assert_eq!(b.help.unwrap(), "some help info");
 		assert!(b.multiple);
@@ -500,8 +500,8 @@ mod tests {
 
 		let c = Arg::from_usage("<option>... -o --opt <opt> 'some help info'");
 		assert_eq!(c.name, "option");
-		assert_eq!(a.long.unwrap(), "opt");
-		assert_eq!(a.short.unwrap(), 'o');
+		assert_eq!(c.long.unwrap(), "opt");
+		assert_eq!(c.short.unwrap(), 'o');
 		assert_eq!(c.help.unwrap(), "some help info");
 		assert!(c.multiple);
 		assert!(c.takes_value);
@@ -509,8 +509,8 @@ mod tests {
 
 		let d = Arg::from_usage("-o --opt <option>... 'some help info'");
 		assert_eq!(d.name, "option");
-		assert_eq!(a.long.unwrap(), "opt");
-		assert_eq!(a.short.unwrap(), 'o');
+		assert_eq!(d.long.unwrap(), "opt");
+		assert_eq!(d.short.unwrap(), 'o');
 		assert_eq!(d.help.unwrap(), "some help info");
 		assert!(d.multiple);
 		assert!(d.takes_value);
@@ -529,7 +529,7 @@ mod tests {
 
 		let b = Arg::from_usage("-o --opt=[option] 'some help info'");
 		assert_eq!(b.name, "option");
-		assert_eq!(a.long.unwrap(), "opt");
+		assert_eq!(b.long.unwrap(), "opt");
 		assert_eq!(b.short.unwrap(), 'o');
 		assert_eq!(b.help.unwrap(), "some help info");
 		assert!(!b.multiple);
@@ -538,8 +538,8 @@ mod tests {
 
 		let c = Arg::from_usage("<option> -o --opt=<opt> 'some help info'");
 		assert_eq!(c.name, "option");
-		assert_eq!(a.long.unwrap(), "opt");
-		assert_eq!(a.short.unwrap(), 'o');
+		assert_eq!(c.long.unwrap(), "opt");
+		assert_eq!(c.short.unwrap(), 'o');
 		assert_eq!(c.help.unwrap(), "some help info");
 		assert!(!c.multiple);
 		assert!(c.takes_value);
@@ -547,8 +547,8 @@ mod tests {
 
 		let d = Arg::from_usage("-o --opt=<option> 'some help info'");
 		assert_eq!(d.name, "option");
-		assert_eq!(a.long.unwrap(), "opt");
-		assert_eq!(a.short.unwrap(), 'o');
+		assert_eq!(d.long.unwrap(), "opt");
+		assert_eq!(d.short.unwrap(), 'o');
 		assert_eq!(d.help.unwrap(), "some help info");
 		assert!(!d.multiple);
 		assert!(d.takes_value);
@@ -565,7 +565,7 @@ mod tests {
 
 		let b = Arg::from_usage("-o --opt=[option]... 'some help info'");
 		assert_eq!(b.name, "option");
-		assert_eq!(a.long.unwrap(), "opt");
+		assert_eq!(b.long.unwrap(), "opt");
 		assert_eq!(b.short.unwrap(), 'o');
 		assert_eq!(b.help.unwrap(), "some help info");
 		assert!(b.multiple);
@@ -574,8 +574,8 @@ mod tests {
 
 		let c = Arg::from_usage("<option>... -o --opt=<opt> 'some help info'");
 		assert_eq!(c.name, "option");
-		assert_eq!(a.long.unwrap(), "opt");
-		assert_eq!(a.short.unwrap(), 'o');
+		assert_eq!(c.long.unwrap(), "opt");
+		assert_eq!(c.short.unwrap(), 'o');
 		assert_eq!(c.help.unwrap(), "some help info");
 		assert!(c.multiple);
 		assert!(c.takes_value);
@@ -583,8 +583,8 @@ mod tests {
 
 		let d = Arg::from_usage("-o --opt=<option>... 'some help info'");
 		assert_eq!(d.name, "option");
-		assert_eq!(a.long.unwrap(), "opt");
-		assert_eq!(a.short.unwrap(), 'o');
+		assert_eq!(d.long.unwrap(), "opt");
+		assert_eq!(d.short.unwrap(), 'o');
 		assert_eq!(d.help.unwrap(), "some help info");
 		assert!(d.multiple);
 		assert!(d.takes_value);
