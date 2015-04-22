@@ -1369,6 +1369,32 @@
 <span id="1327">1327</span>
 <span id="1328">1328</span>
 <span id="1329">1329</span>
+<span id="1330">1330</span>
+<span id="1331">1331</span>
+<span id="1332">1332</span>
+<span id="1333">1333</span>
+<span id="1334">1334</span>
+<span id="1335">1335</span>
+<span id="1336">1336</span>
+<span id="1337">1337</span>
+<span id="1338">1338</span>
+<span id="1339">1339</span>
+<span id="1340">1340</span>
+<span id="1341">1341</span>
+<span id="1342">1342</span>
+<span id="1343">1343</span>
+<span id="1344">1344</span>
+<span id="1345">1345</span>
+<span id="1346">1346</span>
+<span id="1347">1347</span>
+<span id="1348">1348</span>
+<span id="1349">1349</span>
+<span id="1350">1350</span>
+<span id="1351">1351</span>
+<span id="1352">1352</span>
+<span id="1353">1353</span>
+<span id="1354">1354</span>
+<span id="1355">1355</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>BTreeMap</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>BTreeSet</span>;
@@ -1410,7 +1436,7 @@
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// // Your pogram logic starts here...</span>
 <span class='doccomment'>/// ```</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
     <span class='comment'>// The name displayed to the user when showing version and help/usage information</span>
     <span class='ident'>name</span>: <span class='ident'>String</span>,
     <span class='comment'>// A string of author(s) if desired. Displayed when showing help/usage information</span>
@@ -1419,6 +1445,8 @@
     <span class='ident'>version</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;v</span> <span class='ident'>str</span><span class='op'>&gt;</span>,
     <span class='comment'>// A brief explaination of the program that gets displayed to the user when shown help/usage information</span>
     <span class='ident'>about</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;ab</span> <span class='ident'>str</span><span class='op'>&gt;</span>,
+    <span class='comment'>// Additional help information</span>
+    <span class='ident'>more_help</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;h</span> <span class='ident'>str</span><span class='op'>&gt;</span>,
     <span class='comment'>// A list of possible flags</span>
     <span class='ident'>flags</span>: <span class='ident'>BTreeMap</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;ar</span> <span class='ident'>str</span>, <span class='ident'>FlagBuilder</span><span class='op'>&lt;</span><span class='lifetime'>&#39;ar</span><span class='op'>&gt;&gt;</span>,
     <span class='comment'>// A list of possible options</span>
@@ -1426,7 +1454,7 @@
     <span class='comment'>// A list of positional arguments</span>
     <span class='ident'>positionals_idx</span>: <span class='ident'>BTreeMap</span><span class='op'>&lt;</span><span class='ident'>u8</span>, <span class='ident'>PosBuilder</span><span class='op'>&lt;</span><span class='lifetime'>&#39;ar</span><span class='op'>&gt;&gt;</span>,
     <span class='comment'>// A list of subcommands</span>
-    <span class='ident'>subcommands</span>: <span class='ident'>BTreeMap</span><span class='op'>&lt;</span><span class='ident'>String</span>, <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;&gt;</span>,
+    <span class='ident'>subcommands</span>: <span class='ident'>BTreeMap</span><span class='op'>&lt;</span><span class='ident'>String</span>, <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;&gt;</span>,
     <span class='ident'>needs_long_help</span>: <span class='ident'>bool</span>,
     <span class='ident'>needs_long_version</span>: <span class='ident'>bool</span>,
     <span class='ident'>needs_short_help</span>: <span class='ident'>bool</span>,
@@ -1443,7 +1471,7 @@
 
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span>{
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span>{
     <span class='doccomment'>/// Creates a new instance of an application requiring a name (such as the binary). The name</span>
     <span class='doccomment'>/// will be displayed to the user when they request to print version or help and usage</span>
     <span class='doccomment'>/// information. The name should not contain spaces (hyphens &#39;-&#39; are ok).</span>
@@ -1456,11 +1484,12 @@
     <span class='doccomment'>/// let prog = App::new(&quot;myprog&quot;)</span>
     <span class='doccomment'>/// # .get_matches();</span>
     <span class='doccomment'>/// ```</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span><span class='op'>&gt;</span>(<span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;n</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span><span class='op'>&gt;</span>(<span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;n</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
         <span class='ident'>App</span> {
             <span class='ident'>name</span>: <span class='ident'>n</span>.<span class='ident'>to_owned</span>(),
             <span class='ident'>author</span>: <span class='prelude-val'>None</span>,
             <span class='ident'>about</span>: <span class='prelude-val'>None</span>,
+            <span class='ident'>more_help</span>: <span class='prelude-val'>None</span>,
             <span class='ident'>version</span>: <span class='prelude-val'>None</span>,
             <span class='ident'>flags</span>: <span class='ident'>BTreeMap</span>::<span class='ident'>new</span>(),
             <span class='ident'>opts</span>: <span class='ident'>BTreeMap</span>::<span class='ident'>new</span>(),
@@ -1493,7 +1522,7 @@
     <span class='doccomment'>/// .author(&quot;Kevin &lt;kbknapp@gmail.com&gt;&quot;)</span>
     <span class='doccomment'>/// # .get_matches();</span>
     <span class='doccomment'>/// ```</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>author</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>author</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
         <span class='self'>self</span>.<span class='ident'>author</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>a</span>);
         <span class='self'>self</span>
     }
@@ -1509,8 +1538,26 @@
     <span class='doccomment'>/// .about(&quot;Does really amazing things to great people&quot;)</span>
     <span class='doccomment'>/// # .get_matches();</span>
     <span class='doccomment'>/// ```</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>about</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;ab</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>about</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;ab</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
         <span class='self'>self</span>.<span class='ident'>about</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>a</span>);
+        <span class='self'>self</span>
+    }
+
+    <span class='doccomment'>/// Adds additional help information to be displayed in addition to and directly after</span>
+    <span class='doccomment'>/// auto-generated help. This information is displayed **after** the auto-generated help</span>
+    <span class='doccomment'>/// information. This additional help is often used to describe how to use the arguments,</span>
+    <span class='doccomment'>/// or caveats to be noted.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::App;</span>
+    <span class='doccomment'>/// # let app = App::new(&quot;myprog&quot;)</span>
+    <span class='doccomment'>/// .after_help(&quot;Does really amazing things to great people&quot;)</span>
+    <span class='doccomment'>/// # .get_matches();</span>
+    <span class='doccomment'>/// ```</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>after_help</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>h</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;h</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
+        <span class='self'>self</span>.<span class='ident'>more_help</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>h</span>);
         <span class='self'>self</span>
     }
 
@@ -1525,7 +1572,7 @@
     <span class='doccomment'>/// .version(&quot;v0.1.24&quot;)</span>
     <span class='doccomment'>/// # .get_matches();</span>
     <span class='doccomment'>/// ```</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>version</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;v</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span>  {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>version</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;v</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span>  {
         <span class='self'>self</span>.<span class='ident'>version</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>v</span>);
         <span class='self'>self</span>
     }
@@ -1550,7 +1597,7 @@
     <span class='doccomment'>/// .usage(&quot;myapp [-clDas] &lt;some_file&gt;&quot;)</span>
     <span class='doccomment'>/// # .get_matches();</span>
     <span class='doccomment'>/// ```</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>usage</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>u</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;u</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>usage</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>u</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;u</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
         <span class='self'>self</span>.<span class='ident'>usage_str</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>u</span>);
         <span class='self'>self</span>
     }
@@ -1577,7 +1624,7 @@
     <span class='doccomment'>/// .arg(Arg::from_usage(&quot;-c --config=[CONFIG] &#39;Optionally sets a configuration file to use&#39;&quot;))</span>
     <span class='doccomment'>/// # .get_matches();</span>
     <span class='doccomment'>/// ```</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>a</span>: <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;ar</span>, <span class='lifetime'>&#39;ar</span>, <span class='lifetime'>&#39;ar</span>, <span class='lifetime'>&#39;ar</span>, <span class='lifetime'>&#39;ar</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>arg</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>a</span>: <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;ar</span>, <span class='lifetime'>&#39;ar</span>, <span class='lifetime'>&#39;ar</span>, <span class='lifetime'>&#39;ar</span>, <span class='lifetime'>&#39;ar</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
         <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>arg_list</span>.<span class='ident'>contains</span>(<span class='ident'>a</span>.<span class='ident'>name</span>) {
             <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Argument name must be unique, \&quot;{}\&quot; is already in use&quot;</span>, <span class='ident'>a</span>.<span class='ident'>name</span>);
         } <span class='kw'>else</span> {
@@ -1750,7 +1797,7 @@
     <span class='doccomment'>///             Arg::with_name(&quot;input&quot;).index(1).help(&quot;the input file to use&quot;)])</span>
     <span class='doccomment'>/// # .get_matches();</span>
     <span class='doccomment'>/// ```</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>args</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>args</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;ar</span>, <span class='lifetime'>&#39;ar</span>, <span class='lifetime'>&#39;ar</span>, <span class='lifetime'>&#39;ar</span>, <span class='lifetime'>&#39;ar</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>args</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>args</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;ar</span>, <span class='lifetime'>&#39;ar</span>, <span class='lifetime'>&#39;ar</span>, <span class='lifetime'>&#39;ar</span>, <span class='lifetime'>&#39;ar</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
         <span class='kw'>for</span> <span class='ident'>arg</span> <span class='kw'>in</span> <span class='ident'>args</span>.<span class='ident'>into_iter</span>() {
             <span class='self'>self</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>arg</span>(<span class='ident'>arg</span>);
         }
@@ -1772,7 +1819,7 @@
     <span class='doccomment'>/// .arg_from_usage(&quot;-c --conf=&lt;config&gt; &#39;Sets a configuration file to use&#39;&quot;)</span>
     <span class='doccomment'>/// # .get_matches();</span>
     <span class='doccomment'>/// ```</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>arg_from_usage</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>usage</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;ar</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>arg_from_usage</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>usage</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;ar</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
         <span class='self'>self</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='ident'>usage</span>));
         <span class='self'>self</span>
     }
@@ -1796,7 +1843,7 @@
     <span class='doccomment'>///    &lt;input&gt; &#39;The input file to use&#39;&quot;)</span>
     <span class='doccomment'>/// # .get_matches();</span>
     <span class='doccomment'>/// ```</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>args_from_usage</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>usage</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;ar</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>args_from_usage</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>usage</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;ar</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
         <span class='kw'>for</span> <span class='ident'>l</span> <span class='kw'>in</span> <span class='ident'>usage</span>.<span class='ident'>lines</span>() {
             <span class='self'>self</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>arg</span>(<span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='ident'>l</span>.<span class='ident'>trim</span>()));
         }
@@ -1820,7 +1867,7 @@
     <span class='doccomment'>///             // Additional subcommand configuration goes here, such as other arguments...</span>
     <span class='doccomment'>/// # .get_matches();</span>
     <span class='doccomment'>/// ```</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>subcommand</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>subcmd</span>: <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>subcommand</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>subcmd</span>: <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
         <span class='kw'>if</span> <span class='ident'>subcmd</span>.<span class='ident'>name</span> <span class='op'>==</span> <span class='string'>&quot;help&quot;</span> { <span class='self'>self</span>.<span class='ident'>needs_subcmd_help</span> <span class='op'>=</span> <span class='boolval'>false</span>; }
         <span class='self'>self</span>.<span class='ident'>subcommands</span>.<span class='ident'>insert</span>(<span class='ident'>subcmd</span>.<span class='ident'>name</span>.<span class='ident'>clone</span>(), <span class='ident'>subcmd</span>);
         <span class='self'>self</span>
@@ -1839,7 +1886,7 @@
     <span class='doccomment'>///        SubCommand::new(&quot;debug&quot;).about(&quot;Controls debug functionality&quot;)])</span>
     <span class='doccomment'>/// # .get_matches();</span>
     <span class='doccomment'>/// ```</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>subcommands</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>subcmds</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>subcommands</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>subcmds</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
         <span class='kw'>for</span> <span class='ident'>subcmd</span> <span class='kw'>in</span> <span class='ident'>subcmds</span>.<span class='ident'>into_iter</span>() {
             <span class='self'>self</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>subcommand</span>(<span class='ident'>subcmd</span>);
         }
@@ -2065,6 +2112,11 @@
                  <span class='self'>self</span>.<span class='ident'>get_spaces</span>((<span class='ident'>longest_sc</span> <span class='op'>+</span> <span class='number'>4</span>) <span class='op'>-</span> (<span class='ident'>sc</span>.<span class='ident'>name</span>.<span class='ident'>len</span>())),
                  <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>a</span>) <span class='op'>=</span> <span class='ident'>sc</span>.<span class='ident'>about</span> {<span class='ident'>a</span>} <span class='kw'>else</span> {<span class='ident'>tab</span>} );
             }
+        }
+
+        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>h</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>more_help</span> {
+            <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;&quot;</span>);
+            <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{}&quot;</span>, <span class='ident'>h</span>);
         }
 
         <span class='self'>self</span>.<span class='ident'>exit</span>(<span class='number'>0</span>);

@@ -582,6 +582,16 @@
 <span id="540">540</span>
 <span id="541">541</span>
 <span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>usageparser</span>::{<span class='ident'>UsageParser</span>, <span class='ident'>UsageToken</span>};
 
@@ -796,21 +806,31 @@
             <span class='ident'>UsageToken</span>::<span class='ident'>Name</span>(<span class='ident'>n</span>, <span class='ident'>req</span>) <span class='op'>=&gt;</span> {
                 <span class='kw'>if</span> <span class='ident'>name</span>.<span class='ident'>is_none</span>() {
                     <span class='ident'>name</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>n</span>);
-                    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>m</span>) <span class='op'>=</span> <span class='ident'>req</span> {
-                        <span class='ident'>required</span> <span class='op'>=</span> <span class='ident'>m</span>;
+                    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>r</span>) <span class='op'>=</span> <span class='ident'>req</span> {
+                        <span class='ident'>required</span> <span class='op'>=</span> <span class='ident'>r</span>;
                     }
-                } 
+                } <span class='kw'>else</span> <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>l</span>) <span class='op'>=</span> <span class='ident'>long</span> {
+                    <span class='kw'>if</span> <span class='ident'>l</span> <span class='op'>==</span> <span class='ident'>name</span>.<span class='ident'>unwrap</span>() {
+                        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>r</span>) <span class='op'>=</span> <span class='ident'>req</span> {
+                            <span class='ident'>required</span> <span class='op'>=</span> <span class='ident'>r</span>;
+                        } 
+                        <span class='ident'>name</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>n</span>);
+                    } <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>n</span> <span class='op'>!=</span> <span class='ident'>l</span> {
+                        <span class='ident'>name</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>n</span>);
+                    }
+
+                }
                 <span class='kw'>if</span> <span class='ident'>short</span>.<span class='ident'>is_some</span>() <span class='op'>||</span> <span class='ident'>long</span>.<span class='ident'>is_some</span>() {
                     <span class='ident'>takes_value</span> <span class='op'>=</span> <span class='boolval'>true</span>;
                 }
-                <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>l</span>) <span class='op'>=</span> <span class='ident'>long</span> {
-                    <span class='kw'>if</span> <span class='ident'>n</span> <span class='op'>!=</span> <span class='ident'>name</span>.<span class='ident'>unwrap</span>() <span class='op'>&amp;&amp;</span> <span class='ident'>name</span>.<span class='ident'>unwrap</span>() <span class='op'>==</span> <span class='ident'>l</span> {
-                        <span class='ident'>name</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>n</span>);
-                        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>m</span>) <span class='op'>=</span> <span class='ident'>req</span> {
-                            <span class='ident'>required</span> <span class='op'>=</span> <span class='ident'>m</span>;
-                        }
-                    }
-                }   
+                <span class='comment'>// if let Some(l) = long {</span>
+                <span class='comment'>//     if n != name.unwrap() &amp;&amp; name.unwrap() == l {</span>
+                <span class='comment'>//         name = Some(n);</span>
+                <span class='comment'>//         if let Some(r) = req {</span>
+                <span class='comment'>//             required = r;</span>
+                <span class='comment'>//         }</span>
+                <span class='comment'>//     }</span>
+                <span class='comment'>// }   </span>
             },
             <span class='ident'>UsageToken</span>::<span class='ident'>Short</span>(<span class='ident'>s</span>)     <span class='op'>=&gt;</span> { 
                 <span class='ident'>short</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>s</span>); 

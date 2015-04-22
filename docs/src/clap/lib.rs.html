@@ -980,7 +980,7 @@
 <span class='comment'>// DOCS</span>
 <span class='doccomment'>//! # clap</span>
 <span class='doccomment'>//! </span>
-<span class='doccomment'>//! ![Travis-CI](https://travis-ci.org/kbknapp/clap-rs.svg?branch=master) [![](http://meritbadge.herokuapp.com/clap)](https://crates.io/crates/clap) [![Join the chat at https://gitter.im/kbknapp/clap-rs](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kbknapp/clap-rs?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge)</span>
+<span class='doccomment'>//! ![Travis-CI](https://travis-ci.org/kbknapp/clap-rs.svg?branch=master) [![Crates.io](https://img.shields.io/crates/v/clap.svg)]() [![Crates.io](https://img.shields.io/crates/l/clap.svg)]() [![Join the chat at https://gitter.im/kbknapp/clap-rs](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kbknapp/clap-rs?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge)</span>
 <span class='doccomment'>//! </span>
 <span class='doccomment'>//! Command Line Argument Parser for Rust</span>
 <span class='doccomment'>//! </span>
@@ -1718,7 +1718,7 @@
 
 		<span class='kw'>let</span> <span class='ident'>b</span> <span class='op'>=</span> <span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;-o --opt [option] &#39;some help info&#39;&quot;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>name</span>, <span class='string'>&quot;option&quot;</span>);
-		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>short</span>.<span class='ident'>unwrap</span>(), <span class='string'>&#39;o&#39;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>help</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;some help info&quot;</span>);
 		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='op'>!</span><span class='ident'>b</span>.<span class='ident'>multiple</span>);
@@ -1727,8 +1727,8 @@
 
 		<span class='kw'>let</span> <span class='ident'>c</span> <span class='op'>=</span> <span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;&lt;option&gt; -o --opt &lt;opt&gt; &#39;some help info&#39;&quot;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>name</span>, <span class='string'>&quot;option&quot;</span>);
-		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
-		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>short</span>.<span class='ident'>unwrap</span>(), <span class='string'>&#39;o&#39;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>short</span>.<span class='ident'>unwrap</span>(), <span class='string'>&#39;o&#39;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>help</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;some help info&quot;</span>);
 		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='op'>!</span><span class='ident'>c</span>.<span class='ident'>multiple</span>);
 		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>takes_value</span>);
@@ -1736,8 +1736,8 @@
 
 		<span class='kw'>let</span> <span class='ident'>d</span> <span class='op'>=</span> <span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;-o --opt &lt;option&gt; &#39;some help info&#39;&quot;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>name</span>, <span class='string'>&quot;option&quot;</span>);
-		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
-		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>short</span>.<span class='ident'>unwrap</span>(), <span class='string'>&#39;o&#39;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>short</span>.<span class='ident'>unwrap</span>(), <span class='string'>&#39;o&#39;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>help</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;some help info&quot;</span>);
 		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='op'>!</span><span class='ident'>d</span>.<span class='ident'>multiple</span>);
 		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>takes_value</span>);
@@ -1754,7 +1754,7 @@
 
 		<span class='kw'>let</span> <span class='ident'>b</span> <span class='op'>=</span> <span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;-o --opt [option]... &#39;some help info&#39;&quot;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>name</span>, <span class='string'>&quot;option&quot;</span>);
-		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>short</span>.<span class='ident'>unwrap</span>(), <span class='string'>&#39;o&#39;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>help</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;some help info&quot;</span>);
 		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>multiple</span>);
@@ -1763,8 +1763,8 @@
 
 		<span class='kw'>let</span> <span class='ident'>c</span> <span class='op'>=</span> <span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;&lt;option&gt;... -o --opt &lt;opt&gt; &#39;some help info&#39;&quot;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>name</span>, <span class='string'>&quot;option&quot;</span>);
-		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
-		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>short</span>.<span class='ident'>unwrap</span>(), <span class='string'>&#39;o&#39;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>short</span>.<span class='ident'>unwrap</span>(), <span class='string'>&#39;o&#39;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>help</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;some help info&quot;</span>);
 		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>multiple</span>);
 		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>takes_value</span>);
@@ -1772,8 +1772,8 @@
 
 		<span class='kw'>let</span> <span class='ident'>d</span> <span class='op'>=</span> <span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;-o --opt &lt;option&gt;... &#39;some help info&#39;&quot;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>name</span>, <span class='string'>&quot;option&quot;</span>);
-		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
-		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>short</span>.<span class='ident'>unwrap</span>(), <span class='string'>&#39;o&#39;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>short</span>.<span class='ident'>unwrap</span>(), <span class='string'>&#39;o&#39;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>help</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;some help info&quot;</span>);
 		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>multiple</span>);
 		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>takes_value</span>);
@@ -1792,7 +1792,7 @@
 
 		<span class='kw'>let</span> <span class='ident'>b</span> <span class='op'>=</span> <span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;-o --opt=[option] &#39;some help info&#39;&quot;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>name</span>, <span class='string'>&quot;option&quot;</span>);
-		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>short</span>.<span class='ident'>unwrap</span>(), <span class='string'>&#39;o&#39;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>help</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;some help info&quot;</span>);
 		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='op'>!</span><span class='ident'>b</span>.<span class='ident'>multiple</span>);
@@ -1801,8 +1801,8 @@
 
 		<span class='kw'>let</span> <span class='ident'>c</span> <span class='op'>=</span> <span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;&lt;option&gt; -o --opt=&lt;opt&gt; &#39;some help info&#39;&quot;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>name</span>, <span class='string'>&quot;option&quot;</span>);
-		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
-		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>short</span>.<span class='ident'>unwrap</span>(), <span class='string'>&#39;o&#39;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>short</span>.<span class='ident'>unwrap</span>(), <span class='string'>&#39;o&#39;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>help</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;some help info&quot;</span>);
 		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='op'>!</span><span class='ident'>c</span>.<span class='ident'>multiple</span>);
 		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>takes_value</span>);
@@ -1810,8 +1810,8 @@
 
 		<span class='kw'>let</span> <span class='ident'>d</span> <span class='op'>=</span> <span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;-o --opt=&lt;option&gt; &#39;some help info&#39;&quot;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>name</span>, <span class='string'>&quot;option&quot;</span>);
-		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
-		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>short</span>.<span class='ident'>unwrap</span>(), <span class='string'>&#39;o&#39;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>short</span>.<span class='ident'>unwrap</span>(), <span class='string'>&#39;o&#39;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>help</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;some help info&quot;</span>);
 		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='op'>!</span><span class='ident'>d</span>.<span class='ident'>multiple</span>);
 		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>takes_value</span>);
@@ -1828,7 +1828,7 @@
 
 		<span class='kw'>let</span> <span class='ident'>b</span> <span class='op'>=</span> <span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;-o --opt=[option]... &#39;some help info&#39;&quot;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>name</span>, <span class='string'>&quot;option&quot;</span>);
-		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>short</span>.<span class='ident'>unwrap</span>(), <span class='string'>&#39;o&#39;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>help</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;some help info&quot;</span>);
 		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>multiple</span>);
@@ -1837,8 +1837,8 @@
 
 		<span class='kw'>let</span> <span class='ident'>c</span> <span class='op'>=</span> <span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;&lt;option&gt;... -o --opt=&lt;opt&gt; &#39;some help info&#39;&quot;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>name</span>, <span class='string'>&quot;option&quot;</span>);
-		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
-		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>short</span>.<span class='ident'>unwrap</span>(), <span class='string'>&#39;o&#39;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>short</span>.<span class='ident'>unwrap</span>(), <span class='string'>&#39;o&#39;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>help</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;some help info&quot;</span>);
 		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>multiple</span>);
 		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>takes_value</span>);
@@ -1846,8 +1846,8 @@
 
 		<span class='kw'>let</span> <span class='ident'>d</span> <span class='op'>=</span> <span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;-o --opt=&lt;option&gt;... &#39;some help info&#39;&quot;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>name</span>, <span class='string'>&quot;option&quot;</span>);
-		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
-		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>short</span>.<span class='ident'>unwrap</span>(), <span class='string'>&#39;o&#39;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>long</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;opt&quot;</span>);
+		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>short</span>.<span class='ident'>unwrap</span>(), <span class='string'>&#39;o&#39;</span>);
 		<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>help</span>.<span class='ident'>unwrap</span>(), <span class='string'>&quot;some help info&quot;</span>);
 		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>multiple</span>);
 		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>d</span>.<span class='ident'>takes_value</span>);
