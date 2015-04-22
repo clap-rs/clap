@@ -211,21 +211,31 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
             UsageToken::Name(n, req) => {
                 if name.is_none() {
                     name = Some(n);
-                    if let Some(m) = req {
-                        required = m;
+                    if let Some(r) = req {
+                        required = r;
                     }
-                } 
+                } else if let Some(l) = long {
+                    if l == name.unwrap() {
+                        if let Some(r) = req {
+                            required = r;
+                        } 
+                        name = Some(n);
+                    } else if n != l {
+                        name = Some(n);
+                    }
+
+                }
                 if short.is_some() || long.is_some() {
                     takes_value = true;
                 }
-                if let Some(l) = long {
-                    if n != name.unwrap() && name.unwrap() == l {
-                        name = Some(n);
-                        if let Some(m) = req {
-                            required = m;
-                        }
-                    }
-                }   
+                // if let Some(l) = long {
+                //     if n != name.unwrap() && name.unwrap() == l {
+                //         name = Some(n);
+                //         if let Some(r) = req {
+                //             required = r;
+                //         }
+                //     }
+                // }   
             },
             UsageToken::Short(s)     => { 
                 short = Some(s); 
