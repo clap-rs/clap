@@ -1,3 +1,4 @@
+#[macro_use]
 extern crate clap;
 
 use clap::{App, Arg, SubCommand};
@@ -6,14 +7,9 @@ fn main() {
     let args = "-f --flag... 'tests flags'
                 -o --option=[opt]... 'tests options'
                 [positional] 'tests positionals'";
-    // Test version from Cargo.toml
-    let version = format!("{}.{}.{}{}",
-                          env!("CARGO_PKG_VERSION_MAJOR"),
-                          env!("CARGO_PKG_VERSION_MINOR"),
-                          env!("CARGO_PKG_VERSION_PATCH"),
-                          option_env!("CARGO_PKG_VERSION_PRE").unwrap_or(""));  
     let matches = App::new("claptests")
-                        .version(&version[..])
+                        // Test version from Cargo.toml
+                        .version(&crate_version!()[..])
                         .about("tests clap library")
                         .author("Kevin K. <kbknapp@gmail.com>")
                         .args_from_usage(args)
