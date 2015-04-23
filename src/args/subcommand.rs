@@ -20,12 +20,12 @@ use ArgMatches;
 ///                           .help("The configuration file to use")
 ///                           .index(1))
 /// # ).get_matches();
-pub struct SubCommand<'a> {
-       pub name: String,
-       pub matches: ArgMatches<'a>
+pub struct SubCommand<'n, 'a> {
+       pub name: &'n str,
+       pub matches: ArgMatches<'n, 'a>
 }
 
-impl<'a> SubCommand<'a> {
+impl<'n, 'a> SubCommand<'n, 'a> {
     /// Creates a new instance of a subcommand requiring a name. Will be displayed
     /// to the user when they print version or help and usage information.
     ///
@@ -37,7 +37,7 @@ impl<'a> SubCommand<'a> {
     /// SubCommand::new("config")
     /// # ).get_matches();
     /// ```
-    pub fn new<'n, 'au, 'v, 'ab, 'u, 'h, 'ar>(name: &'n str) -> App<'au, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn new<'au, 'v, 'ab, 'u, 'h, 'ar>(name: &'ar str) -> App<'au, 'v, 'ab, 'u, 'h, 'ar> {
         App::new(name)
     }
 }
