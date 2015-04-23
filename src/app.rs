@@ -41,6 +41,7 @@ use args::{ FlagBuilder, OptBuilder, PosBuilder};
 pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     // The name displayed to the user when showing version and help/usage information
     name: String,
+    name_slice: &'ar str,
     // A string of author(s) if desired. Displayed when showing help/usage information
     author: Option<&'a str>,
     // The version displayed to the user
@@ -86,9 +87,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// let prog = App::new("myprog")
     /// # .get_matches();
     /// ```
-    pub fn new<'n>(n: &'n str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn new(n: &'ar str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         App {
             name: n.to_owned(),
+            name_slice: n,
             author: None,
             about: None,
             more_help: None,
@@ -725,7 +727,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     // Used when spacing arguments and their help message when displaying help information
-    #[inline(always)]
     fn get_spaces(&self, num: usize) -> &'static str {
         match num {
             0 => "",
@@ -785,7 +786,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     // Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
     // the real parsing function for subcommands
-    pub fn get_matches(mut self) -> ArgMatches<'ar> {
+    pub fn get_matches(mut self) -> ArgMatches<'ar, 'ar> {
         self.verify_positionals();
         for (_,sc) in self.subcommands.iter_mut() {
             sc.verify_positionals();
@@ -844,7 +845,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
     }
 
-    fn get_matches_from(&mut self, matches: &mut ArgMatches<'ar>, it: &mut IntoIter<String>) {
+    fn get_matches_from(&mut self, matches: &mut ArgMatches<'ar, 'ar>, it: &mut IntoIter<String>) {
         self.create_help_and_version();
 
         let mut pos_only = false;
@@ -951,7 +952,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     // Was an update made, or is this the first occurrence?
                     if !done {
                         matches.args.insert(p.name, MatchedArg{
-                            name: p.name.to_owned(),
+                            // name: p.name.to_owned(),
                             occurrences: 1,
                             values: Some(vec![arg.clone()]),
                         });
@@ -1008,7 +1009,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 sc.bin_name = Some(format!("{}{}{}", self.bin_name.clone().unwrap_or("".to_owned()),if self.bin_name.is_some() {" "} else {""}, sc.name.clone()));
                 sc.get_matches_from(&mut new_matches, it);
                 matches.subcommand = Some(Box::new(SubCommand{
-                    name: sc.name.clone(),
+                    name: sc.name_slice,
                     matches: new_matches}));
             }
         }    
@@ -1060,7 +1061,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
     }
 
-    fn parse_long_arg(&mut self, matches: &mut ArgMatches<'ar> ,full_arg: &String) -> Option<&'ar str> {
+    fn parse_long_arg(&mut self, matches: &mut ArgMatches<'ar, 'ar> ,full_arg: &String) -> Option<&'ar str> {
         let mut arg = full_arg.trim_left_matches(|c| c == '-');
 
         if arg == "help" && self.needs_long_help {
@@ -1116,7 +1117,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 }
             } else {
                 matches.args.insert(v.name, MatchedArg{
-                    name: v.name.to_owned(),
+                    // name: v.name.to_owned(),
                     occurrences: if arg_val.is_some() { 1 } else { 0 },
                     values: if arg_val.is_some() { Some(vec![arg_val.clone().unwrap()])} else { Some(vec![]) }
                 });
@@ -1167,7 +1168,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
             if !done { 
                 matches.args.insert(v.name, MatchedArg{
-                    name: v.name.to_owned(),
+                    // name: v.name.to_owned(),
                     occurrences: 1,
                     values: None
                 });
@@ -1203,7 +1204,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         unreachable!();
     }
 
-    fn parse_short_arg(&mut self, matches: &mut ArgMatches<'ar> ,full_arg: &String) -> Option<&'ar str> {
+    fn parse_short_arg(&mut self, matches: &mut ArgMatches<'ar, 'ar> ,full_arg: &String) -> Option<&'ar str> {
         let arg = &full_arg[..].trim_left_matches(|c| c == '-');
         if arg.len() > 1 { 
             // Multiple flags using short i.e. -bgHlS
@@ -1239,7 +1240,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 }
             } else {
                 matches.args.insert(v.name, MatchedArg{
-                    name: v.name.to_owned(),
+                    // name: v.name.to_owned(),
                     // occurrences will be incremented on getting a value
                     occurrences: 0,
                     values: Some(vec![]) 
@@ -1273,7 +1274,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         unreachable!();
     }
 
-    fn parse_single_short_flag(&mut self, matches: &mut ArgMatches<'ar>, arg: char) -> bool {
+    fn parse_single_short_flag(&mut self, matches: &mut ArgMatches<'ar, 'ar>, arg: char) -> bool {
         for v in self.flags.values().filter(|&v| v.short.is_some()).filter(|&v| v.short.unwrap() == arg) {
             // Ensure this flag isn't on the mutually excludes list
             if self.blacklist.contains(v.name) {
@@ -1293,7 +1294,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             } 
             if !done {
                 matches.args.insert(v.name, MatchedArg{
-                    name: v.name.to_owned(),
+                    // name: v.name.to_owned(),
                     occurrences: 1,
                     values: None
                 });
@@ -1325,7 +1326,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         false
     }
 
-    fn validate_blacklist(&self, matches: &ArgMatches<'ar>) {
+    fn validate_blacklist(&self, matches: &ArgMatches<'ar, 'ar>) {
         for name in self.blacklist.iter() {
             if matches.args.contains_key(name) {
                 self.report_error(format!("The argument {} cannot be used with one or more of the other specified arguments",

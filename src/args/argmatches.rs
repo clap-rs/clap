@@ -52,16 +52,16 @@ use args::MatchedArg;
 ///         println!("Not printing testing lists...");
 ///     }
 /// }
-pub struct ArgMatches<'a> {
+pub struct ArgMatches<'n, 'a> {
     #[doc(hidden)]
     pub args: HashMap<&'a str, MatchedArg>,
     #[doc(hidden)]
-    pub subcommand: Option<Box<SubCommand<'a>>>,
+    pub subcommand: Option<Box<SubCommand<'n, 'a>>>,
     #[doc(hidden)]
     pub usage: Option<String>
 }
 
-impl<'a> ArgMatches<'a> {
+impl<'n, 'a> ArgMatches<'n, 'a> {
     /// Creates a new instance of `ArgMatches`. This ins't called directly, but
     /// through the `.get_matches()` method of `App`
     ///
@@ -72,7 +72,7 @@ impl<'a> ArgMatches<'a> {
     /// let matches = App::new("myprog").get_matches();
     /// ```
     #[doc(hidden)]
-    pub fn new() -> ArgMatches<'a> {
+    pub fn new() -> ArgMatches<'n, 'a> {
         ArgMatches {
             args: HashMap::new(),
             subcommand: None,
@@ -96,7 +96,7 @@ impl<'a> ArgMatches<'a> {
     ///        println!("Value for output: {}", o);
     /// }
     /// ```
-    pub fn value_of<'n>(&self, name: &'n str) -> Option<&str> {
+    pub fn value_of<'na>(&self, name: &'na str) -> Option<&str> {
         if let Some(ref arg) = self.args.get(name) {
             if let Some(ref vals) = arg.values {
                 if let Some(ref val) = vals.iter().nth(0) {
@@ -125,7 +125,7 @@ impl<'a> ArgMatches<'a> {
     ///        }
     /// }
     /// ```
-    pub fn values_of<'n>(&'a self, name: &'n str) -> Option<Vec<&'a str>> {
+    pub fn values_of<'na>(&'a self, name: &'na str) -> Option<Vec<&'a str>> {
         if let Some(ref arg) = self.args.get(name) {
             if let Some(ref vals) = arg.values {
                 return Some(vals.iter().map(|s| &s[..]).collect::<Vec<_>>());
@@ -146,7 +146,7 @@ impl<'a> ArgMatches<'a> {
     ///        println!("The output argument was used!");
     /// }
     /// ```
-    pub fn is_present<'n>(&self, name: &'n str) -> bool {
+    pub fn is_present<'na>(&self, name: &'na str) -> bool {
         if let Some(ref sc) = self.subcommand {
             if sc.name == name { return true; } 
         }
@@ -170,7 +170,7 @@ impl<'a> ArgMatches<'a> {
     ///     println!("Debug mode kind of on");
     /// }
     /// ```
-    pub fn occurrences_of<'n>(&self, name: &'n str) -> u8 {
+    pub fn occurrences_of<'na>(&self, name: &'na str) -> u8 {
         if let Some(ref arg) = self.args.get(name) {
             return arg.occurrences;
         }
@@ -190,7 +190,7 @@ impl<'a> ArgMatches<'a> {
     ///     // Use matches as normal
     /// }
     /// ```
-    pub fn subcommand_matches<'n>(&self, name: &'n str) -> Option<&ArgMatches> {
+    pub fn subcommand_matches<'na>(&self, name: &'na str) -> Option<&ArgMatches> {
         if let Some( ref sc) = self.subcommand {
             if sc.name != name { return None; }
             return Some(&sc.matches);
