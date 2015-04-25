@@ -1,0 +1,3 @@
+[clog]
+repository = "https://github.com/kbknapp/clap-rs"
+from-latest-tag = true
