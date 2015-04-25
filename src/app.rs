@@ -547,10 +547,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 None
             })
                                              .fold(String::with_capacity(50), |acc, ref o| acc + &format!("-{}{} ",if let Some(l) = o.long {
-                                                                                                     format!("-{}=", l)
+                                                                                                     format!("-{} ", l)
                                                                                                    } else {
-                                                                                                       format!("{} ",o.short.unwrap())
-                                                                                                   },o.name));
+                                                                                                       format!("{}=",o.short.unwrap())
+                                                                                                   },format!("<{}>", o.name)));
             req_opts.shrink_to_fit();
 
             // usage.push_str(tab);
@@ -607,21 +607,27 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut longest_flag = 0;
         for fl in self.flags
             .values()
-            .filter_map(|ref f| f.long)
-            .map(|ref l| l.len() + 2) {
+            .filter(|ref f| f.long.is_some())
+            // 2='--'
+            .map(|ref a| a.long.unwrap().len() + 2) {
             if fl > longest_flag { longest_flag = fl; }
         }
         let mut longest_opt= 0;
         for ol in self.opts
             .values()
-            .filter_map(|ref f| if f.long.is_some() {let mult = if f.multiple { 3 } else { 0 }; Some(f.long.unwrap().len() + mult + f.name.len() + 3)}else {None}) {
+            .filter(|ref o| o.long.is_some())
+            // 3='...'
+            // 5='-- <>'
+            .map(|ref a| if a.multiple { 3 } else { 0 } + a.long.unwrap().len() + 5 + a.name.len() ) {
             if ol > longest_opt {longest_opt = ol;}
         }
         if longest_opt == 0 {
             for ol in self.opts
                 .values()
-                .map(|ref f| 
-                    f.name.len() + if f.multiple { 3 } else { 0 } + 2 ){
+                .filter(|ref o| o.short.is_some())
+                // 3='...'
+                // 4='- <>'
+                .map(|ref a| if a.multiple { 3 } else { 0 } + a.name.len() + 4) {
                 if ol > longest_opt {longest_opt = ol;}
             }
         }
@@ -661,11 +667,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             format!("{}--{}{}", 
                                 if v.short.is_some() { ", " } else {""}, 
                                 l, 
-                                // +2 accounts for the ', ' +4 for tab = 6
+                                // 2='--'
                                 self.get_spaces((longest_flag + 4) - (v.long.unwrap().len() + 2)))
                         } else {
                             // 6 is tab (4) + -- (2)
-                            self.get_spaces(longest_flag+6).to_owned()
+                            self.get_spaces(longest_flag + 6).to_owned()
                         },
                         v.help.unwrap_or(tab) );
             }
@@ -676,22 +682,19 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             for v in self.opts.values() {
                 // if it supports multiple we add '...' i.e. 3 to the name length
                 let mult = if v.multiple { 3 } else { 0 };
-                // let long_len = if v.long.is_some() { v.long.unwrap().len() + 3}else{0};
-                // let mut needs_tab = false;
                 println!("{}{}{}{}{}{}",tab,
                         if let Some(s) = v.short{format!("-{}",s)}else{tab.to_owned()},
                         if let Some(l) = v.long {
-                            format!("{}--{}=", 
+                            format!("{}--{} ", 
                                 if v.short.is_some() {", "} else {""},l)
                         } else {
                             " ".to_owned()
                         },
-                        format!("{}{}", v.name, if v.multiple{"..."} else {""}),
+                        format!("<{}>{}", v.name, if v.multiple{"..."} else {""}),
                         if v.long.is_some() {
-                            self.get_spaces((longest_opt + 4) - (v.long.unwrap().len() + v.name.len() + 2 + mult))
+                            self.get_spaces((longest_opt) - (v.long.unwrap().len() + v.name.len() + mult + 1))
                         } else {
-                            // 7 is '--=' (3) + tab (4)
-                            self.get_spaces((longest_opt + 6) - (v.name.len() + mult))
+                            self.get_spaces((longest_opt + 3) - (v.name.len() + mult))
                         },
                         get_help!(v) );
             }
