@@ -18,9 +18,9 @@ FLAGS:
     -v, --version    Prints version information
 
 OPTIONS:
-    -o, --option=opt...             tests options
-        --long-option-2=option2     tests long options with exclusions
-    -O option3                      tests options with specific value sets [values: fast slow]
+    -o, --option <opt>...            tests options
+        --long-option-2 <option2>    tests long options with exclusions
+    -O <option3>                     tests options with specific value sets [values: fast slow]
 
 POSITIONAL ARGUMENTS:
     positional        tests positionals
@@ -33,12 +33,12 @@ SUBCOMMANDS:
 
 _excluded = '''The argument -f cannot be used with one or more of the other specified arguments
 USAGE:
-    claptests [FLAGS] [OPTIONS] --long-option-2=option2  [POSITIONAL] [SUBCOMMANDS]
+    claptests [FLAGS] [OPTIONS] --long-option-2 <option2>  [POSITIONAL] [SUBCOMMANDS]
 For more information try --help'''
 
 _required = '''One or more required arguments were not supplied
 USAGE:
-    claptests [FLAGS] [OPTIONS] --long-option-2=option2  [POSITIONAL] [SUBCOMMANDS]
+    claptests [FLAGS] [OPTIONS] --long-option-2 <option2>  [POSITIONAL] [SUBCOMMANDS]
 For more information try --help'''
 
 _fop = '''flag present 1 times
@@ -98,7 +98,7 @@ FLAGS:
     -v, --version    Prints version information
 
 OPTIONS:
-    -o, --option=scoption...     tests options
+    -o, --option <scoption>...    tests options
 
 POSITIONAL ARGUMENTS:
     scpositional    tests positionals'''
