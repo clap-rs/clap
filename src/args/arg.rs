@@ -228,14 +228,6 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
                 if short.is_some() || long.is_some() {
                     takes_value = true;
                 }
-                // if let Some(l) = long {
-                //     if n != name.unwrap() && name.unwrap() == l {
-                //         name = Some(n);
-                //         if let Some(r) = req {
-                //             required = r;
-                //         }
-                //     }
-                // }   
             },
             UsageToken::Short(s)     => { 
                 short = Some(s); 

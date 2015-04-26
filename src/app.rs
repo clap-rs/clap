@@ -553,9 +553,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                                                                                    },format!("<{}>", o.name)));
             req_opts.shrink_to_fit();
 
-            // usage.push_str(tab);
             usage.push_str(&self.bin_name.clone().unwrap_or(self.name.clone())[..]);
-            // usage.push_str(tab);
             if flags {
                 usage.push_str(" [FLAGS]");
             }
