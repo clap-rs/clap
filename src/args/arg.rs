@@ -367,6 +367,8 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// by default. Mutually exclusive rules only need to be set for one of the two
     /// arguments, they do not need to be set for each.
     ///
+    /// **NOTE:** This method is deprecated in favor of `conflicts_with()`
+    ///
     ///
     /// # Example
     ///
@@ -391,6 +393,8 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// by default. Mutually exclusive rules only need to be set for one of the two
     /// arguments, they do not need to be set for each.
     ///
+    /// **NOTE:** This method is deprecated in favor of `conflicts_with_all()`
+    ///
     ///
     /// # Example
     ///
@@ -401,6 +405,57 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     ///        vec!["debug", "input"])
     /// # ).get_matches();
     pub fn mutually_excludes_all(mut self, names: Vec<&'b str>) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+        if let Some(ref mut vec) = self.blacklist {
+            for n in names {
+                vec.push(n);
+            }
+        } else {
+            self.blacklist = Some(names);
+        }
+        self
+    }
+
+    /// Sets a mutually exclusive argument by name. I.e. when using this argument, 
+    /// the following argument can't be present.
+    ///
+    /// **NOTE:** Mutually exclusive rules take precedence over being required
+    /// by default. Mutually exclusive rules only need to be set for one of the two
+    /// arguments, they do not need to be set for each.
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
+    /// .conflicts_with("debug")
+    /// # ).get_matches();
+    pub fn conflicts_with(mut self, name: &'b str) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+        if let Some(ref mut vec) = self.blacklist {
+            vec.push(name);
+        } else {
+            self.blacklist = Some(vec![name]);
+        }
+        self
+    }
+
+    /// Sets mutually exclusive arguments by names. I.e. when using this argument, 
+    /// the following argument can't be present.
+    ///
+    /// **NOTE:** Mutually exclusive rules take precedence over being required
+    /// by default. Mutually exclusive rules only need to be set for one of the two
+    /// arguments, they do not need to be set for each.
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
+    /// .conflicts_with_all(
+    ///        vec!["debug", "input"])
+    /// # ).get_matches();
+    pub fn conflicts_with_all(mut self, names: Vec<&'b str>) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
         if let Some(ref mut vec) = self.blacklist {
             for n in names {
                 vec.push(n);
