@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
 use std::collections::HashSet;
+use std::collections::HashMap;
 use std::env;
 use std::path::Path;
 use std::vec::IntoIter;
@@ -10,6 +11,7 @@ use std::fmt::Write;
 
 use args::{ ArgMatches, Arg, SubCommand, MatchedArg};
 use args::{ FlagBuilder, OptBuilder, PosBuilder};
+use args::ArgGroup;
 
 /// Used to create a representation of a command line program and all possible command line
 /// arguments for parsing at runtime.
@@ -70,8 +72,8 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     long_list: HashSet<&'ar str>,
     blacklist: HashSet<&'ar str>,
     usage_str: Option<&'u str>,
-    bin_name: Option<String>
-
+    bin_name: Option<String>,
+    groups: HashMap<&'ar str, ArgGroup<'ar, 'ar>>
 }
 
 impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
@@ -112,6 +114,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             usage_str: None,
             blacklist: HashSet::new(),
             bin_name: None,
+            groups: HashMap::new(),
         }
     }
 
@@ -230,13 +233,21 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// ```
     pub fn arg(mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         if self.arg_list.contains(a.name) {
-            panic!("Argument name must be unique, \"{}\" is already in use", a.name);
+            panic!("Argument name must be unique\n\n\t\"{}\" is already in use", a.name);
         } else {
             self.arg_list.insert(a.name);
         }
+        if let Some(grp) = a.group {
+            let ag = self.groups.entry(grp).or_insert(ArgGroup::with_name(grp));
+            ag.args.insert(a.name);
+            // Leaving this commented out for now...I'm not sure if having a required argument in
+            // a in required group is bad...It has it's uses
+            // assert!(!a.required, 
+            //     format!("Arguments may not be required AND part of a required group\n\n\t{} is required and also part of the {} group\n\n\tEither remove the requirement from the group, or the argument.", a.name, grp));
+        }
         if let Some(s) = a.short {
             if self.short_list.contains(&s) {
-                panic!("Argument short must be unique, -{} is already in use", s);
+                panic!("Argument short must be unique\n\n\t-{} is already in use", s);
             } else {
                 self.short_list.insert(s);
             }
@@ -248,7 +259,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
         if let Some(l) = a.long {
             if self.long_list.contains(l) {
-                panic!("Argument long must be unique, --{} is already in use", l);
+                panic!("Argument long must be unique\n\n\t--{} is already in use", l);
             } else {
                 self.long_list.insert(l);
             }
@@ -269,10 +280,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
 
             if self.positionals_idx.contains_key(&i) {
-                panic!("Argument \"{}\" has the same index as another positional argument", a.name);
+                panic!("Argument \"{}\" has the same index as another positional argument\n\n\tPerhaps try .multiple(true) to allow one positional argument to take multiple values", a.name);
             }
             if a.takes_value {
-                panic!("Argument \"{}\" has conflicting requirements, both index() and takes_value(true) were supplied", a.name);
+                panic!("Argument \"{}\" has conflicting requirements, both index() and takes_value(true) were supplied\n\n\tArguments with an index automatically take a value, you do not need to specify it manually", a.name);
             }
 
 
@@ -454,6 +465,106 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
+    /// Adds an ArgGroup to the application. ArgGroups are a family of related arguments. By 
+    /// placing them in a logical group, you make easier requirement and exclusion rules. For 
+    /// instance, you can make an ArgGroup required, this means that one (and *only* one) argument
+    /// from that group must be present. Using more than one argument from an ArgGroup causes a 
+    /// failure (graceful exit).
+    /// 
+    /// You can also do things such as name an ArgGroup as a confliction, meaning any of the
+    /// arguments that belong to that group will cause a failure if present.
+    ///
+    /// Perhaps the most common use of ArgGroups is to require one and *only* one argument to be 
+    /// present out of a given set. For example, lets say that you were building an application
+    /// where one could set a given version number by supplying a string using an option argument,
+    /// such as `--set-ver v1.2.3`, you also wanted to support automatically using a previous
+    /// version numer and simply incrementing one of the three numbers, so you create three flags
+    /// `--major`, `--minor`, and `--patch`. All of these arguments shouldn't be used at one time
+    /// but perhaps you want to specify that *at least one* of them is used. You can create a
+    /// group
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, ArgGroup};
+    /// # let _ = App::new("app")
+    /// .args_from_usage("--set-ver [ver] 'set the version manually'
+    ///                   --major         'auto increase major'
+    ///                   --minor         'auto increase minor'
+    ///                   --patch         'auto increase patch")
+    /// .arg_group(ArgGroup::with_name("vers")
+    ///                     .add_all(vec!["ver", "major", "minor","patch"])
+    ///                     .required(true))
+    /// # .get_matches();
+    pub fn arg_group(mut self, group: ArgGroup<'ar, 'ar>) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        if group.required {
+            self.required.insert(group.name);
+            if let Some(ref reqs) = group.requires {
+                for r in reqs {
+                    self.required.insert(r);
+                }
+            }
+            if let Some(ref bl) = group.conflicts {
+                for b in bl {
+                    self.blacklist.insert(b);
+                }
+            }
+        }
+        let mut found = false;
+        if let Some(ref mut grp) = self.groups.get_mut(group.name) {
+            for a in group.args.iter() {
+                grp.args.insert(a);
+            }
+            grp.requires = group.requires.clone();
+            grp.conflicts = group.conflicts.clone();
+            grp.required = group.required;
+            found = true;
+        }  
+        if !found {
+            self.groups.insert(group.name, group);
+        }
+        self
+    }
+
+    /// Adds a ArgGroups to the application. ArgGroups are a family of related arguments. By 
+    /// placing them in a logical group, you make easier requirement and exclusion rules. For 
+    /// instance, you can make an ArgGroup required, this means that one (and *only* one) argument
+    /// from that group must be present. Using more than one argument from an ArgGroup causes a 
+    /// failure (graceful exit).
+    /// 
+    /// You can also do things such as name an ArgGroup as a confliction, meaning any of the
+    /// arguments that belong to that group will cause a failure if present.
+    ///
+    /// Perhaps the most common use of ArgGroups is to require one and *only* one argument to be 
+    /// present out of a given set. For example, lets say that you were building an application
+    /// where one could set a given version number by supplying a string using an option argument,
+    /// such as `--set-ver v1.2.3`, you also wanted to support automatically using a previous
+    /// version numer and simply incrementing one of the three numbers, so you create three flags
+    /// `--major`, `--minor`, and `--patch`. All of these arguments shouldn't be used at one time
+    /// but perhaps you want to specify that *at least one* of them is used. You can create a
+    /// group
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, ArgGroup};
+    /// # let _ = App::new("app")
+    /// .args_from_usage("--set-ver [ver] 'set the version manually'
+    ///                   --major         'auto increase major'
+    ///                   --minor         'auto increase minor'
+    ///                   --patch         'auto increase patch")
+    /// .arg_group(ArgGroup::with_name("vers")
+    ///                     .add_all(vec!["ver", "major", "minor","patch"])
+    ///                     .required(true))
+    /// # .get_matches();
+    pub fn arg_groups(mut self, groups: Vec<ArgGroup<'ar, 'ar>>) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        for g in groups {
+            self = self.arg_group(g);
+        }
+        self
+    }
 
     /// Adds a subcommand to the list of valid possibilties. Subcommands are effectively sub apps,
     /// because they can contain their own arguments, subcommands, version, usage, etc. They also
@@ -512,6 +623,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             let pos = !self.positionals_idx.is_empty();
             let opts = !self.opts.is_empty();
             let subcmds = !self.subcommands.is_empty();
+            let groups = !self.groups.is_empty();
             let mut num_req_pos = 0;
             let mut matched_pos_reqs = HashSet::new();
             // If it's required we also need to ensure all previous positionals are required too
@@ -529,11 +641,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
             let mut req_pos = self.positionals_idx.values().filter_map(|ref x| if x.required || matched_pos_reqs.contains(x.name) { 
                 num_req_pos += 1;
-                if x.multiple {
-                    Some(format!("<{}>...", x.name))
-                } else {
-                    Some(format!("<{}>", x.name))
-                } 
+                Some(format!("{}", x))
             } else {
                 None
             } )
@@ -546,11 +654,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }else {
                 None
             })
-                                             .fold(String::with_capacity(50), |acc, ref o| acc + &format!("-{}{} ",if let Some(l) = o.long {
-                                                                                                     format!("-{} ", l)
-                                                                                                   } else {
-                                                                                                       format!("{}=",o.short.unwrap())
-                                                                                                   },format!("<{}>", o.name)));
+                                                 .fold(String::with_capacity(50), |acc, ref o| acc + &format!("{} ",o));
             req_opts.shrink_to_fit();
 
             usage.push_str(&self.bin_name.clone().unwrap_or(self.name.clone())[..]);
@@ -576,6 +680,30 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     } else {
                         req_pos
                     } ).unwrap_or_else(|e| self.report_error(format!("internal error: {}", e),false,true));
+            }
+            if groups {
+                let req_grps = self.groups.values()                                                         // Iterator<Item=ArgGroup>
+                                          .filter_map(|g| if g.required {Some(g.args.clone())} else {None}) // Iterator<Item=HashSet<&str>>
+                                          .map(|hs| hs.into_iter().collect::<Vec<_>>() )                    // Iterator<Item=Vec<&str>>
+                                          .fold(vec![], |acc, n| acc + &n[..])                              // Vec<&str>
+                                          .iter()                                                           // Iterator<Item=&str>
+                                          .fold(String::new(), |acc, n| {
+                                                if let Some(ref o) = self.opts.get(n) {
+                                                    acc + &format!("{}|", o)[..]
+                                                } else if let Some(ref f) = self.flags.get(n) {
+                                                    acc + &format!("{}|", f)[..]
+                                                } else {
+                                                    acc + &format!("{}|", match self.positionals_idx.values().rev().filter_map(|ref p| if &p.name == n {Some(format!("{}", p))}else{None}).next(){
+                                                        Some(name) => name,
+                                                        None       => panic!(format!("Error parsing a required group which contains argument \"{}\"\n\n\tArgument couldn't be found. Check the arguments settings.", n)) 
+                                                    })[..]
+                                                }
+                                          });
+
+                // There may be no required groups, so we check
+                if req_grps.len() > 0 {
+                    write!(&mut usage, " [{}]", &req_grps[..req_grps.len() - 1]).unwrap_or_else(|e| self.report_error(format!("internal error: {}", e),false,true));
+                }
             }
             if subcmds {
                 usage.push_str(" [SUBCOMMANDS]");
@@ -921,7 +1049,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 // let mut req_pos_from_name = None;
                 if let Some(p) = self.positionals_idx.get(&pos_counter) {
                     if self.blacklist.contains(p.name) {
-                        self.report_error(format!("The argument \"{}\" cannot be used with one or more of the other specified arguments", arg),
+                        self.report_error(format!("The argument \"{}\" cannot be used with one or more of the other specified arguments", p),
                             true, true);
                     }
 
@@ -930,8 +1058,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             if !p_vals.contains(arg_slice) {
                                 self.report_error(format!("\"{}\" isn't a valid value for {}{}", 
                                     arg_slice, 
-                                    p.name,
-                                    format!("\n    [valid values:{}]", p_vals.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] )) ), true, true);
+                                    p,
+                                    format!("\n\t[valid values:{}]", p_vals.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] )) ), true, true);
                             }
                         }
                     }
@@ -953,7 +1081,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     // Was an update made, or is this the first occurrence?
                     if !done {
                         matches.args.insert(p.name, MatchedArg{
-                            // name: p.name.to_owned(),
                             occurrences: 1,
                             values: Some(vec![arg.clone()]),
                         });
@@ -966,10 +1093,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         }
                     }
 
-                    // No need to check for existance, returns None if not found
-                    // if self.required.contains(p.name) {
-                        self.required.remove(p.name);
-                    // }
+                    self.required.remove(p.name);
                     if let Some(ref reqs) = p.requires {
                         // Add all required args which aren't already found in matches to the
                         // final required list
@@ -980,6 +1104,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             self.required.insert(n);
                         }
                     }
+
+                    parse_group_reqs!(self, p);
+
                 } else {
                     self.report_error(format!("Argument \"{}\" isn't a valid argument for {}", arg, self.bin_name.clone().unwrap_or(self.name.clone())), true, true);
                 }
@@ -997,8 +1124,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self.validate_blacklist(&matches);
 
         if !self.required.is_empty() {
-            self.report_error("One or more required arguments were not supplied".to_owned(),
-                    true, true);
+            // println!("reqs: {:?}", self.required);
+            // println!("bls:  {:?}", self.blacklist);
+            // println!("grps: {:?}", self.groups);
+            if self.validate_required(&matches) {
+                self.report_error("One or more required arguments were not supplied".to_owned(),
+                        true, true);
+            }
         }
 
         matches.usage = Some(self.create_usage());
@@ -1142,7 +1274,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
                     self.required.insert(n);
                 }
-            } 
+            }
+
+            parse_group_reqs!(self, v);
+
             match arg_val {
                 None => { return Some(v.name); },
                 _    => { return None; }
@@ -1152,13 +1287,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         if let Some(v) = self.flags.values().filter(|&v| v.long.is_some()).filter(|&v| v.long.unwrap() == arg).nth(0) {
             // Ensure this flag isn't on the mutually excludes list
             if self.blacklist.contains(v.name) {
-                self.report_error(format!("The argument --{} cannot be used with one or more of the other specified arguments", arg),
+                self.report_error(format!("The argument {} cannot be used with one or more of the other specified arguments", v),
                     true, true);
             }
             
             // Make sure this isn't one being added multiple times if it doesn't suppor it
             if matches.args.contains_key(v.name) && !v.multiple {
-                self.report_error(format!("Argument --{} was supplied more than once, but does not support multiple values", arg), true, true);
+                self.report_error(format!("Argument {} was supplied more than once, but does not support multiple values", v), true, true);
             }
 
             let mut 
@@ -1196,6 +1331,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     self.required.insert(n);
                 }
             }
+
+            parse_group_reqs!(self, v);
+
             return None;
         }
 
@@ -1266,6 +1404,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     self.required.insert(n);
                 }
             } 
+
+            parse_group_reqs!(self, v);
+
             return Some(v.name)
         } 
 
@@ -1322,6 +1463,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     self.required.insert(n);
                 }
             }
+
+            parse_group_reqs!(self, v);
+
             return true;
         }
         false
@@ -1332,26 +1476,63 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             if matches.args.contains_key(name) {
                 self.report_error(format!("The argument {} cannot be used with one or more of the other specified arguments",
                     if let Some(ref flag) = self.flags.get(name) {
-                        if let Some(short) = flag.short {
-                            format!("-{}", short)
-                        } else if let Some(long) = flag.long {
-                            format!("--{}", long)
-                        } else {
-                            format!("\"{}\"", flag.name)
-                        }
+                        format!("{}", flag)
                     } else if let Some(ref opt) = self.opts.get(name) {
-                        if let Some(short) = opt.short {
-                            format!("-{}", short)
-                        } else if let Some(long) = opt.long {
-                            format!("--{}", long)
-                        } else {
-                            format!("\"{}\"", opt.name)
-                        }
+                        format!("{}", opt)
                     } else {
-                        format!("\"{}\"", name)
+                        match self.positionals_idx.values().filter(|p| p.name == *name).next() {
+                            Some(pos) => format!("{}", pos),
+                            None      => format!("\"{}\"", name)
+                        }
                     }), true, true);
+            } else if self.groups.contains_key(name) {
+                let grp = self.groups.get(name).unwrap();
+                for n in grp.args.iter() {
+                    if matches.args.contains_key(n) {
+                        self.report_error(format!("The argument {} cannot be used with one or more of the other specified arguments",
+                            if let Some(ref flag) = self.flags.get(n) {
+                                format!("{}", flag)
+                            } else if let Some(ref opt) = self.opts.get(n) {
+                                format!("{}", opt)
+                            } else {
+                                match self.positionals_idx.values().filter(|p| p.name == *name).next() {
+                                    Some(pos) => format!("{}", pos),
+                                    None      => format!("\"{}\"", n)
+                                }
+                            }), true, true);
+                    }
+                } 
             }
         }
     }
 
+    fn validate_required(&self, matches: &ArgMatches<'ar, 'ar>) -> bool{
+        for name in self.required.iter() {
+            validate_reqs!(self, flags, matches, name);
+
+            validate_reqs!(self, opts, matches, name);
+
+            // because positions use different keys, we dont use the macro
+            match self.positionals_idx.values().filter(|ref p| &p.name == name).next() {
+                Some(p) =>{
+                    if let Some(ref bl) = p.blacklist {
+                        for n in bl.iter() {
+                            if matches.args.contains_key(n) {
+                                return false
+                            } else if self.groups.contains_key(n) {
+                                let grp = self.groups.get(n).unwrap();
+                                for an in grp.args.iter() {
+                                    if matches.args.contains_key(an) {
+                                        return false
+                                    }
+                                }
+                            }
+                        } 
+                    }
+                },
+                None    =>(),
+            }
+        }
+        true
+    }
 }

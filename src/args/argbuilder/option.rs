@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 use std::collections::BTreeSet;
+use std::fmt::{ Display, Formatter, Result };
 
 pub struct OptBuilder<'n> {
     pub name: &'n str,
@@ -24,4 +25,10 @@ pub struct OptBuilder<'n> {
     /// A list of names of other arguments that are *required* to be used when 
     /// this flag is used
     pub requires: Option<HashSet<&'n str>>,
+}
+
+impl<'n> Display for OptBuilder<'n> {
+    fn fmt(&self, f: &mut Formatter) -> Result {
+        write!(f, "{} <{}>{}", if self.long.is_some() { format!("--{}", self.long.unwrap())} else {format!("-{}", self.short.unwrap())}, self.name, if self.multiple{"..."}else{""})
+    }
 }

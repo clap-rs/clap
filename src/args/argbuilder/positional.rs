@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 use std::collections::BTreeSet;
+use std::fmt::{ Display, Formatter, Result };
 
 pub struct PosBuilder<'n> {
     pub name: &'n str,
@@ -22,4 +23,10 @@ pub struct PosBuilder<'n> {
     pub possible_vals: Option<BTreeSet<&'n str>>,
     /// The index of the argument
     pub index: u8 
+}
+
+impl<'n> Display for PosBuilder<'n> {
+    fn fmt(&self, f: &mut Formatter) -> Result {
+        write!(f, "{}{}{}{}", if self.required { "<" } else {"["}, self.name,if self.required { ">" } else {"]"}, if self.multiple {"..."}else{""})
+    }
 }

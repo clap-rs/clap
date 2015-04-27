@@ -31,7 +31,12 @@ SUBCOMMANDS:
     help      Prints this message
     subcmd    tests subcommands'''
 
-_excluded = '''The argument -f cannot be used with one or more of the other specified arguments
+_excluded = '''The argument --flag cannot be used with one or more of the other specified arguments
+USAGE:
+    claptests [FLAGS] [OPTIONS] --long-option-2 <option2>  [POSITIONAL] [SUBCOMMANDS]
+For more information try --help'''
+
+_excluded_l = '''The argument -f cannot be used with one or more of the other specified arguments
 USAGE:
     claptests [FLAGS] [OPTIONS] --long-option-2 <option2>  [POSITIONAL] [SUBCOMMANDS]
 For more information try --help'''
@@ -141,7 +146,7 @@ cmds = {'help short:         ': ['{} -h'.format(_bin), _help],
 		'help long:          ': ['{} --help'.format(_bin), _help],
 		'help subcmd:        ': ['{} help'.format(_bin), _help],
 		'excluded first:     ': ['{} -f -F'.format(_bin), _excluded],
-		'excluded last:      ': ['{} -F -f'.format(_bin), _excluded],
+		'excluded last:      ': ['{} -F -f'.format(_bin), _excluded_l],
 		'missing required:   ': ['{} -F'.format(_bin), _required],
 		'F2(ll),O(s),P:      ': ['{} --flag --flag -o some value'.format(_bin), _f2op],
 		'F2(ss),O(s),P:      ': ['{} -f -f -o some value'.format(_bin), _f2op],
