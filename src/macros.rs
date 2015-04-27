@@ -47,6 +47,28 @@ macro_rules! parse_group_reqs {
     };
 }
 
+// De-duplication macro used in src/app.rs
+macro_rules! validate_reqs {
+	($me:ident, $t:ident, $m:ident, $n:ident) => {
+        if let Some(a) = $me.$t.get($n) {
+            if let Some(ref bl) = a.blacklist {
+                for n in bl.iter() {
+                    if $m.args.contains_key(n) {
+                        return false
+                    } else if $me.groups.contains_key(n) {
+                        let grp = $me.groups.get(n).unwrap();
+                        for an in grp.args.iter() {
+                            if $m.args.contains_key(an) {
+                                return false
+                            }
+                        }
+                    }
+                } 
+            }
+        }
+	};
+}
+
 // Thanks to bluss and flan3002 in #rust IRC
 //
 // Helps with rightward drift when iterating over something and matching each item.

@@ -1124,11 +1124,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self.validate_blacklist(&matches);
 
         if !self.required.is_empty() {
-            println!("reqs: {:?}", self.required);
-            println!("bls:  {:?}", self.blacklist);
-            println!("grps: {:?}", self.groups);
-            self.report_error("One or more required arguments were not supplied".to_owned(),
-                    true, true);
+            // println!("reqs: {:?}", self.required);
+            // println!("bls:  {:?}", self.blacklist);
+            // println!("grps: {:?}", self.groups);
+            if self.validate_required(&matches) {
+                self.report_error("One or more required arguments were not supplied".to_owned(),
+                        true, true);
+            }
         }
 
         matches.usage = Some(self.create_usage());
@@ -1504,4 +1506,33 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
     }
 
+    fn validate_required(&self, matches: &ArgMatches<'ar, 'ar>) -> bool{
+        for name in self.required.iter() {
+            validate_reqs!(self, flags, matches, name);
+
+            validate_reqs!(self, opts, matches, name);
+
+            // because positions use different keys, we dont use the macro
+            match self.positionals_idx.values().filter(|ref p| &p.name == name).next() {
+                Some(p) =>{
+                    if let Some(ref bl) = p.blacklist {
+                        for n in bl.iter() {
+                            if matches.args.contains_key(n) {
+                                return false
+                            } else if self.groups.contains_key(n) {
+                                let grp = self.groups.get(n).unwrap();
+                                for an in grp.args.iter() {
+                                    if matches.args.contains_key(an) {
+                                        return false
+                                    }
+                                }
+                            }
+                        } 
+                    }
+                },
+                None    =>(),
+            }
+        }
+        true
+    }
 }
