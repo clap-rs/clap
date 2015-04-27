@@ -802,9 +802,6 @@
     if (query['gotosrc']) {
         window.location = $('#src-' + query['gotosrc']).attr('href');
     }
-    if (query['gotomacrosrc']) {
-        window.location = $('.srclink').attr('href');
-    }
 
     $("#expand-all").on("click", function() {
         $(".docblock").show();

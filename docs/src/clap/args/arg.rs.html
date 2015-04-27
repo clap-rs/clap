@@ -592,6 +592,76 @@
 <span id="550">550</span>
 <span id="551">551</span>
 <span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>usageparser</span>::{<span class='ident'>UsageParser</span>, <span class='ident'>UsageToken</span>};
 
@@ -623,7 +693,7 @@
 <span class='doccomment'>/// // Using a usage string (setting a similar argument to the one above)</span>
 <span class='doccomment'>/// Arg::from_usage(&quot;-i --input=[input] &#39;Provides an input file to the program&#39;&quot;)</span>
 <span class='doccomment'>/// # ).get_matches();</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;g</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// The unique name of the argument, required</span>
     <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
     <span class='kw'>pub</span> <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;n</span> <span class='ident'>str</span>,
@@ -660,17 +730,20 @@
     <span class='kw'>pub</span> <span class='ident'>multiple</span>: <span class='ident'>bool</span>,
     <span class='doccomment'>/// A list of names for other arguments that *may not* be used with this flag</span>
     <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
-    <span class='kw'>pub</span> <span class='ident'>blacklist</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='ident'>str</span><span class='op'>&gt;&gt;</span>, 
+    <span class='kw'>pub</span> <span class='ident'>blacklist</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='ident'>str</span><span class='op'>&gt;&gt;</span>, 
     <span class='doccomment'>/// A list of possible values for an option or positional argument</span>
     <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
     <span class='kw'>pub</span> <span class='ident'>possible_vals</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;p</span> <span class='ident'>str</span><span class='op'>&gt;&gt;</span>,
     <span class='doccomment'>/// A list of names of other arguments that are *required* to be used when </span>
     <span class='doccomment'>/// this flag is used</span>
     <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
-    <span class='kw'>pub</span> <span class='ident'>requires</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='ident'>str</span><span class='op'>&gt;&gt;</span>
+    <span class='kw'>pub</span> <span class='ident'>requires</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='ident'>str</span><span class='op'>&gt;&gt;</span>,
+    <span class='doccomment'>/// A name of the group the argument belongs to</span>
+    <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
+    <span class='kw'>pub</span> <span class='ident'>group</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;g</span> <span class='ident'>str</span><span class='op'>&gt;</span>
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;g</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;g</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Creates a new instace of `Arg` using a unique string name. </span>
     <span class='doccomment'>/// The name will be used by the library consumer to get information about</span>
     <span class='doccomment'>/// whether or not the argument was used at runtime. </span>
@@ -692,7 +765,7 @@
     <span class='doccomment'>/// Arg::new(&quot;conifg&quot;)</span>
     <span class='doccomment'>/// # .short(&quot;c&quot;)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;n</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;n</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;g</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
         <span class='ident'>Arg</span> {
             <span class='ident'>name</span>: <span class='ident'>n</span>,
             <span class='ident'>short</span>: <span class='prelude-val'>None</span>,
@@ -705,6 +778,7 @@
             <span class='ident'>possible_vals</span>: <span class='prelude-val'>None</span>,
             <span class='ident'>blacklist</span>: <span class='prelude-val'>None</span>,
             <span class='ident'>requires</span>: <span class='prelude-val'>None</span>,
+            <span class='ident'>group</span>: <span class='prelude-val'>None</span>,
         }
     }
 
@@ -726,7 +800,7 @@
     <span class='doccomment'>/// Arg::with_name(&quot;conifg&quot;)</span>
     <span class='doccomment'>/// # .short(&quot;c&quot;)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>with_name</span>(<span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;n</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>with_name</span>(<span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;n</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;g</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
         <span class='ident'>Arg</span> {
             <span class='ident'>name</span>: <span class='ident'>n</span>,
             <span class='ident'>short</span>: <span class='prelude-val'>None</span>,
@@ -739,6 +813,7 @@
             <span class='ident'>possible_vals</span>: <span class='prelude-val'>None</span>,
             <span class='ident'>blacklist</span>: <span class='prelude-val'>None</span>,
             <span class='ident'>requires</span>: <span class='prelude-val'>None</span>,
+            <span class='ident'>group</span>: <span class='prelude-val'>None</span>,
         }
     }
 
@@ -790,7 +865,7 @@
     <span class='doccomment'>/// Arg::from_usage(&quot;&lt;input&gt; &#39;the input file to use&#39;&quot;)</span>
     <span class='doccomment'>/// ])</span>
     <span class='doccomment'>/// # .get_matches();</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>from_usage</span>(<span class='ident'>u</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;n</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>from_usage</span>(<span class='ident'>u</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;n</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;g</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
         <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>u</span>.<span class='ident'>len</span>() <span class='op'>&gt;</span> <span class='number'>0</span>, <span class='string'>&quot;Arg::from_usage() requires a non-zero-length usage string but none was provided&quot;</span>);
 
          <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>name</span> <span class='op'>=</span> <span class='prelude-val'>None</span>;
@@ -823,14 +898,6 @@
                 <span class='kw'>if</span> <span class='ident'>short</span>.<span class='ident'>is_some</span>() <span class='op'>||</span> <span class='ident'>long</span>.<span class='ident'>is_some</span>() {
                     <span class='ident'>takes_value</span> <span class='op'>=</span> <span class='boolval'>true</span>;
                 }
-                <span class='comment'>// if let Some(l) = long {</span>
-                <span class='comment'>//     if n != name.unwrap() &amp;&amp; name.unwrap() == l {</span>
-                <span class='comment'>//         name = Some(n);</span>
-                <span class='comment'>//         if let Some(r) = req {</span>
-                <span class='comment'>//             required = r;</span>
-                <span class='comment'>//         }</span>
-                <span class='comment'>//     }</span>
-                <span class='comment'>// }   </span>
             },
             <span class='ident'>UsageToken</span>::<span class='ident'>Short</span>(<span class='ident'>s</span>)     <span class='op'>=&gt;</span> { 
                 <span class='ident'>short</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>s</span>); 
@@ -861,6 +928,7 @@
             <span class='ident'>possible_vals</span>: <span class='prelude-val'>None</span>,
             <span class='ident'>blacklist</span>: <span class='prelude-val'>None</span>,
             <span class='ident'>requires</span>: <span class='prelude-val'>None</span>,
+            <span class='ident'>group</span>: <span class='prelude-val'>None</span>,
         }
     }
 
@@ -884,7 +952,7 @@
     <span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
     <span class='doccomment'>/// .short(&quot;c&quot;)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>short</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>s</span>: <span class='kw-2'>&amp;</span><span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>short</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>s</span>: <span class='kw-2'>&amp;</span><span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;g</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
         <span class='self'>self</span>.<span class='ident'>short</span> <span class='op'>=</span> <span class='ident'>s</span>.<span class='ident'>trim_left_matches</span>(<span class='op'>|</span><span class='ident'>c</span><span class='op'>|</span> <span class='ident'>c</span> <span class='op'>==</span> <span class='string'>&#39;-&#39;</span>).<span class='ident'>chars</span>().<span class='ident'>nth</span>(<span class='number'>0</span>);
         <span class='self'>self</span>
     }
@@ -908,7 +976,7 @@
     <span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
     <span class='doccomment'>/// .long(&quot;config&quot;)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>long</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>l</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;l</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>long</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>l</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;l</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;g</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
         <span class='self'>self</span>.<span class='ident'>long</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>l</span>.<span class='ident'>trim_left_matches</span>(<span class='op'>|</span><span class='ident'>c</span><span class='op'>|</span> <span class='ident'>c</span> <span class='op'>==</span> <span class='string'>&#39;-&#39;</span>));
         <span class='self'>self</span>
     }
@@ -926,7 +994,7 @@
     <span class='doccomment'>/// # Arg::new(&quot;conifg&quot;)</span>
     <span class='doccomment'>/// .help(&quot;The config file used by the myprog&quot;)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>help</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>h</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;h</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>help</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>h</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;h</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;g</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
         <span class='self'>self</span>.<span class='ident'>help</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>h</span>);
         <span class='self'>self</span>
     }
@@ -950,8 +1018,63 @@
     <span class='doccomment'>/// # Arg::with_name(&quot;conifg&quot;)</span>
     <span class='doccomment'>/// .required(true)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>required</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>r</span>: <span class='ident'>bool</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>required</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>r</span>: <span class='ident'>bool</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;g</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
         <span class='self'>self</span>.<span class='ident'>required</span> <span class='op'>=</span> <span class='ident'>r</span>;
+        <span class='self'>self</span>
+    }
+
+    <span class='doccomment'>/// Sets a mutually exclusive argument by name. I.e. when using this argument, </span>
+    <span class='doccomment'>/// the following argument can&#39;t be present.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// **NOTE:** Mutually exclusive rules take precedence over being required</span>
+    <span class='doccomment'>/// by default. Mutually exclusive rules only need to be set for one of the two</span>
+    <span class='doccomment'>/// arguments, they do not need to be set for each.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// **NOTE:** This method is deprecated in favor of `conflicts_with()`</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::with_name(&quot;conifg&quot;)</span>
+    <span class='doccomment'>/// .mutually_excludes(&quot;debug&quot;)</span>
+    <span class='doccomment'>/// # ).get_matches();</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>mutually_excludes</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;g</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
+        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>vec</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>blacklist</span> {
+            <span class='ident'>vec</span>.<span class='ident'>push</span>(<span class='ident'>name</span>);
+        } <span class='kw'>else</span> {
+            <span class='self'>self</span>.<span class='ident'>blacklist</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>name</span>]);
+        }
+        <span class='self'>self</span>
+    }
+
+    <span class='doccomment'>/// Sets a mutually exclusive arguments by names. I.e. when using this argument, </span>
+    <span class='doccomment'>/// the following argument can&#39;t be present.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// **NOTE:** Mutually exclusive rules take precedence over being required</span>
+    <span class='doccomment'>/// by default. Mutually exclusive rules only need to be set for one of the two</span>
+    <span class='doccomment'>/// arguments, they do not need to be set for each.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// **NOTE:** This method is deprecated in favor of `conflicts_with_all()`</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::with_name(&quot;conifg&quot;)</span>
+    <span class='doccomment'>/// .mutually_excludes_all(</span>
+    <span class='doccomment'>///        vec![&quot;debug&quot;, &quot;input&quot;])</span>
+    <span class='doccomment'>/// # ).get_matches();</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>mutually_excludes_all</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>names</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='ident'>str</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;g</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
+        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>vec</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>blacklist</span> {
+            <span class='kw'>for</span> <span class='ident'>n</span> <span class='kw'>in</span> <span class='ident'>names</span> {
+                <span class='ident'>vec</span>.<span class='ident'>push</span>(<span class='ident'>n</span>);
+            }
+        } <span class='kw'>else</span> {
+            <span class='self'>self</span>.<span class='ident'>blacklist</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>names</span>);
+        }
         <span class='self'>self</span>
     }
 
@@ -968,9 +1091,9 @@
     <span class='doccomment'>/// ```no_run</span>
     <span class='doccomment'>/// # use clap::{App, Arg};</span>
     <span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::with_name(&quot;conifg&quot;)</span>
-    <span class='doccomment'>/// .mutually_excludes(&quot;debug&quot;)</span>
+    <span class='doccomment'>/// .conflicts_with(&quot;debug&quot;)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>mutually_excludes</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>conflicts_with</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;g</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
         <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>vec</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>blacklist</span> {
             <span class='ident'>vec</span>.<span class='ident'>push</span>(<span class='ident'>name</span>);
         } <span class='kw'>else</span> {
@@ -979,7 +1102,7 @@
         <span class='self'>self</span>
     }
 
-    <span class='doccomment'>/// Sets a mutually exclusive arguments by names. I.e. when using this argument, </span>
+    <span class='doccomment'>/// Sets mutually exclusive arguments by names. I.e. when using this argument, </span>
     <span class='doccomment'>/// the following argument can&#39;t be present.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// **NOTE:** Mutually exclusive rules take precedence over being required</span>
@@ -992,10 +1115,10 @@
     <span class='doccomment'>/// ```no_run</span>
     <span class='doccomment'>/// # use clap::{App, Arg};</span>
     <span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::with_name(&quot;conifg&quot;)</span>
-    <span class='doccomment'>/// .mutually_excludes_all(</span>
+    <span class='doccomment'>/// .conflicts_with_all(</span>
     <span class='doccomment'>///        vec![&quot;debug&quot;, &quot;input&quot;])</span>
     <span class='doccomment'>/// # ).get_matches();</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>mutually_excludes_all</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>names</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='ident'>str</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>conflicts_with_all</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>names</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='ident'>str</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;g</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
         <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>vec</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>blacklist</span> {
             <span class='kw'>for</span> <span class='ident'>n</span> <span class='kw'>in</span> <span class='ident'>names</span> {
                 <span class='ident'>vec</span>.<span class='ident'>push</span>(<span class='ident'>n</span>);
@@ -1019,7 +1142,7 @@
     <span class='doccomment'>/// # let myprog = App::new(&quot;myprog&quot;).arg(Arg::with_name(&quot;conifg&quot;)</span>
     <span class='doccomment'>/// .requires(&quot;debug&quot;)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>requires</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>requires</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;g</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
         <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>vec</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>requires</span> {
             <span class='ident'>vec</span>.<span class='ident'>push</span>(<span class='ident'>name</span>);
         } <span class='kw'>else</span> {
@@ -1043,7 +1166,7 @@
     <span class='doccomment'>/// .requires_all(</span>
     <span class='doccomment'>///        vec![&quot;debug&quot;, &quot;input&quot;])</span>
     <span class='doccomment'>/// # ).get_matches();</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>requires_all</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>names</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='ident'>str</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>requires_all</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>names</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='ident'>str</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;g</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
         <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>vec</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>requires</span> {
             <span class='kw'>for</span> <span class='ident'>n</span> <span class='kw'>in</span> <span class='ident'>names</span> {
                 <span class='ident'>vec</span>.<span class='ident'>push</span>(<span class='ident'>n</span>);
@@ -1069,7 +1192,7 @@
     <span class='doccomment'>/// # Arg::with_name(&quot;conifg&quot;)</span>
     <span class='doccomment'>/// .takes_value(true)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>takes_value</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>tv</span>: <span class='ident'>bool</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>takes_value</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>tv</span>: <span class='ident'>bool</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;g</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
         <span class='self'>self</span>.<span class='ident'>takes_value</span> <span class='op'>=</span> <span class='ident'>tv</span>;
         <span class='self'>self</span>
     }
@@ -1091,7 +1214,7 @@
     <span class='doccomment'>/// # Arg::with_name(&quot;conifg&quot;)</span>
     <span class='doccomment'>/// .index(1)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>index</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>idx</span>: <span class='ident'>u8</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>index</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>idx</span>: <span class='ident'>u8</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;g</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
         <span class='self'>self</span>.<span class='ident'>index</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>idx</span>);
         <span class='self'>self</span>
     }
@@ -1114,7 +1237,7 @@
     <span class='doccomment'>/// # Arg::with_name(&quot;debug&quot;)</span>
     <span class='doccomment'>/// .multiple(true)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>multiple</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>multi</span>: <span class='ident'>bool</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>multiple</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>multi</span>: <span class='ident'>bool</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;g</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
         <span class='self'>self</span>.<span class='ident'>multiple</span> <span class='op'>=</span> <span class='ident'>multi</span>;
         <span class='self'>self</span>
     }
@@ -1134,7 +1257,7 @@
     <span class='doccomment'>/// # Arg::with_name(&quot;debug&quot;).index(1)</span>
     <span class='doccomment'>/// .possible_values(vec![&quot;fast&quot;, &quot;slow&quot;])</span>
     <span class='doccomment'>/// # ).get_matches();</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>possible_values</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>names</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;p</span> <span class='ident'>str</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;b</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>possible_values</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>names</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;p</span> <span class='ident'>str</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;g</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
         <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>vec</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>possible_vals</span> {
             <span class='kw'>for</span> <span class='ident'>n</span> <span class='kw'>in</span> <span class='ident'>names</span> {
                 <span class='ident'>vec</span>.<span class='ident'>push</span>(<span class='ident'>n</span>);
@@ -1142,6 +1265,23 @@
         } <span class='kw'>else</span> {
             <span class='self'>self</span>.<span class='ident'>possible_vals</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>names</span>);
         }
+        <span class='self'>self</span>
+    }
+
+    <span class='doccomment'>/// Specifies the name of the group the argument belongs to.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Example</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ```no_run</span>
+    <span class='doccomment'>/// # use clap::{App, Arg};</span>
+    <span class='doccomment'>/// # let matches = App::new(&quot;myprog&quot;)</span>
+    <span class='doccomment'>/// #                 .arg(</span>
+    <span class='doccomment'>/// # Arg::with_name(&quot;debug&quot;).index(1)</span>
+    <span class='doccomment'>/// .group(&quot;mode&quot;)</span>
+    <span class='doccomment'>/// # ).get_matches();</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>group</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;g</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Arg</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;l</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;g</span>, <span class='lifetime'>&#39;p</span>, <span class='lifetime'>&#39;r</span><span class='op'>&gt;</span> {
+        <span class='self'>self</span>.<span class='ident'>group</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>name</span>);
         <span class='self'>self</span>
     }
 }

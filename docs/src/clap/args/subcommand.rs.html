@@ -106,12 +106,12 @@
 <span class='doccomment'>///                           .help(&quot;The configuration file to use&quot;)</span>
 <span class='doccomment'>///                           .index(1))</span>
 <span class='doccomment'>/// # ).get_matches();</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>SubCommand</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-       <span class='kw'>pub</span> <span class='ident'>name</span>: <span class='ident'>String</span>,
-       <span class='kw'>pub</span> <span class='ident'>matches</span>: <span class='ident'>ArgMatches</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>SubCommand</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
+       <span class='kw'>pub</span> <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;n</span> <span class='ident'>str</span>,
+       <span class='kw'>pub</span> <span class='ident'>matches</span>: <span class='ident'>ArgMatches</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>SubCommand</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>SubCommand</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Creates a new instance of a subcommand requiring a name. Will be displayed</span>
     <span class='doccomment'>/// to the user when they print version or help and usage information.</span>
     <span class='doccomment'>///</span>
@@ -123,7 +123,7 @@
     <span class='doccomment'>/// SubCommand::new(&quot;config&quot;)</span>
     <span class='doccomment'>/// # ).get_matches();</span>
     <span class='doccomment'>/// ```</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span><span class='op'>&lt;</span><span class='lifetime'>&#39;n</span>, <span class='lifetime'>&#39;au</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span>(<span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;n</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;au</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span><span class='op'>&lt;</span><span class='lifetime'>&#39;au</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span>(<span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;ar</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>App</span><span class='op'>&lt;</span><span class='lifetime'>&#39;au</span>, <span class='lifetime'>&#39;v</span>, <span class='lifetime'>&#39;ab</span>, <span class='lifetime'>&#39;u</span>, <span class='lifetime'>&#39;h</span>, <span class='lifetime'>&#39;ar</span><span class='op'>&gt;</span> {
         <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='ident'>name</span>)
     }
 }
