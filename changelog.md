@@ -1,3 +1,18 @@
+<a name="0.6.8"></a>
+## 0.6.8 (2015-04-27)
+
+
+#### Bug Fixes
+
+* **help**  change long help --long=long -> --long <long> ([1e25abfc](https://github.com/kbknapp/clap-rs/commit/1e25abfc36679ab89eae71bf98ced4de81992d00))
+* **RequiredArgs**  required by default args should no longer be required when their exclusions are present ([4bb4c3cc](https://github.com/kbknapp/clap-rs/commit/4bb4c3cc076b49e86720e882bf8c489877199f2d))
+
+#### Features
+
+* **ArgGroups**  add ability to create arg groups ([09eb4d98](https://github.com/kbknapp/clap-rs/commit/09eb4d9893af40c347e50e2b717e1adef552357d))
+
+
+
 <a name="v0.6.7"></a>
 ## v0.6.7 (2015-04-22)
 
