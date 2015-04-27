@@ -14,6 +14,39 @@ macro_rules! get_help {
 	};
 }
 
+// De-duplication macro used in src/app.rs
+macro_rules! parse_group_reqs {
+	($me:ident, $arg:ident) => {
+	    for ag in $me.groups.values() {
+	        let mut found = false;
+	        for name in ag.args.iter() {
+	            if name == &$arg.name {
+	                $me.required.remove(ag.name);
+		            if let Some(ref reqs) = ag.requires {
+		                for r in reqs {
+		                    $me.required.insert(r);
+		                }
+		            }
+		            if let Some(ref bl) = ag.conflicts {
+		                for b in bl {
+		                    $me.blacklist.insert(b);
+		                }
+		            }
+	                found = true;
+	                break;
+	            }
+	        }
+	        if found {
+	            for name in ag.args.iter() {
+	                if name == &$arg.name { continue }
+	                $me.required.remove(name);
+	                $me.blacklist.insert(name);
+	            }
+	        } 
+	    }
+    };
+}
+
 // Thanks to bluss and flan3002 in #rust IRC
 //
 // Helps with rightward drift when iterating over something and matching each item.

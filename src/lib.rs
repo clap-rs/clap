@@ -2,7 +2,7 @@
 
 // DOCS
 
-pub use args::{Arg, SubCommand, ArgMatches};
+pub use args::{Arg, SubCommand, ArgMatches, ArgGroup};
 pub use app::App;
 
 #[macro_use]

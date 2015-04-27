@@ -28,7 +28,7 @@ use usageparser::{UsageParser, UsageToken};
 /// // Using a usage string (setting a similar argument to the one above)
 /// Arg::from_usage("-i --input=[input] 'Provides an input file to the program'")
 /// # ).get_matches();
-pub struct Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// The unique name of the argument, required
     #[doc(hidden)]
     pub name: &'n str,
@@ -65,17 +65,20 @@ pub struct Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     pub multiple: bool,
     /// A list of names for other arguments that *may not* be used with this flag
     #[doc(hidden)]
-    pub blacklist: Option<Vec<&'b str>>, 
+    pub blacklist: Option<Vec<&'r str>>, 
     /// A list of possible values for an option or positional argument
     #[doc(hidden)]
     pub possible_vals: Option<Vec<&'p str>>,
     /// A list of names of other arguments that are *required* to be used when 
     /// this flag is used
     #[doc(hidden)]
-    pub requires: Option<Vec<&'r str>>
+    pub requires: Option<Vec<&'r str>>,
+    /// A name of the group the argument belongs to
+    #[doc(hidden)]
+    pub group: Option<&'g str>
 }
 
-impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// Creates a new instace of `Arg` using a unique string name. 
     /// The name will be used by the library consumer to get information about
     /// whether or not the argument was used at runtime. 
@@ -97,7 +100,7 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// Arg::new("conifg")
     /// # .short("c")
     /// # ).get_matches();
-    pub fn new(n: &'n str) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+    pub fn new(n: &'n str) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         Arg {
             name: n,
             short: None,
@@ -110,6 +113,7 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
             possible_vals: None,
             blacklist: None,
             requires: None,
+            group: None,
         }
     }
 
@@ -131,7 +135,7 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// Arg::with_name("conifg")
     /// # .short("c")
     /// # ).get_matches();
-    pub fn with_name(n: &'n str) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+    pub fn with_name(n: &'n str) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         Arg {
             name: n,
             short: None,
@@ -144,6 +148,7 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
             possible_vals: None,
             blacklist: None,
             requires: None,
+            group: None,
         }
     }
 
@@ -195,7 +200,7 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// Arg::from_usage("<input> 'the input file to use'")
     /// ])
     /// # .get_matches();
-    pub fn from_usage(u: &'n str) -> Arg<'n, 'n, 'n, 'b, 'p, 'r> {
+    pub fn from_usage(u: &'n str) -> Arg<'n, 'n, 'n, 'g, 'p, 'r> {
         assert!(u.len() > 0, "Arg::from_usage() requires a non-zero-length usage string but none was provided");
 
          let mut name = None;
@@ -258,6 +263,7 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
             possible_vals: None,
             blacklist: None,
             requires: None,
+            group: None,
         }
     }
 
@@ -281,7 +287,7 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// # Arg::new("conifg")
     /// .short("c")
     /// # ).get_matches();
-    pub fn short(mut self, s: &str) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+    pub fn short(mut self, s: &str) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self.short = s.trim_left_matches(|c| c == '-').chars().nth(0);
         self
     }
@@ -305,7 +311,7 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// # Arg::new("conifg")
     /// .long("config")
     /// # ).get_matches();
-    pub fn long(mut self, l: &'l str) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+    pub fn long(mut self, l: &'l str) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self.long = Some(l.trim_left_matches(|c| c == '-'));
         self
     }
@@ -323,7 +329,7 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// # Arg::new("conifg")
     /// .help("The config file used by the myprog")
     /// # ).get_matches();
-    pub fn help(mut self, h: &'h str) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+    pub fn help(mut self, h: &'h str) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self.help = Some(h);
         self
     }
@@ -347,7 +353,7 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// # Arg::with_name("conifg")
     /// .required(true)
     /// # ).get_matches();
-    pub fn required(mut self, r: bool) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+    pub fn required(mut self, r: bool) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self.required = r;
         self
     }
@@ -369,7 +375,7 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
     /// .mutually_excludes("debug")
     /// # ).get_matches();
-    pub fn mutually_excludes(mut self, name: &'b str) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+    pub fn mutually_excludes(mut self, name: &'r str) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         if let Some(ref mut vec) = self.blacklist {
             vec.push(name);
         } else {
@@ -396,7 +402,7 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// .mutually_excludes_all(
     ///        vec!["debug", "input"])
     /// # ).get_matches();
-    pub fn mutually_excludes_all(mut self, names: Vec<&'b str>) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+    pub fn mutually_excludes_all(mut self, names: Vec<&'r str>) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         if let Some(ref mut vec) = self.blacklist {
             for n in names {
                 vec.push(n);
@@ -422,7 +428,7 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
     /// .conflicts_with("debug")
     /// # ).get_matches();
-    pub fn conflicts_with(mut self, name: &'b str) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+    pub fn conflicts_with(mut self, name: &'r str) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         if let Some(ref mut vec) = self.blacklist {
             vec.push(name);
         } else {
@@ -447,7 +453,7 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// .conflicts_with_all(
     ///        vec!["debug", "input"])
     /// # ).get_matches();
-    pub fn conflicts_with_all(mut self, names: Vec<&'b str>) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+    pub fn conflicts_with_all(mut self, names: Vec<&'r str>) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         if let Some(ref mut vec) = self.blacklist {
             for n in names {
                 vec.push(n);
@@ -471,7 +477,7 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
     /// .requires("debug")
     /// # ).get_matches();
-    pub fn requires(mut self, name: &'r str) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+    pub fn requires(mut self, name: &'r str) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         if let Some(ref mut vec) = self.requires {
             vec.push(name);
         } else {
@@ -495,7 +501,7 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// .requires_all(
     ///        vec!["debug", "input"])
     /// # ).get_matches();
-    pub fn requires_all(mut self, names: Vec<&'r str>) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+    pub fn requires_all(mut self, names: Vec<&'r str>) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         if let Some(ref mut vec) = self.requires {
             for n in names {
                 vec.push(n);
@@ -521,7 +527,7 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// # Arg::with_name("conifg")
     /// .takes_value(true)
     /// # ).get_matches();
-    pub fn takes_value(mut self, tv: bool) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+    pub fn takes_value(mut self, tv: bool) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self.takes_value = tv;
         self
     }
@@ -543,7 +549,7 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// # Arg::with_name("conifg")
     /// .index(1)
     /// # ).get_matches();
-    pub fn index(mut self, idx: u8) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+    pub fn index(mut self, idx: u8) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self.index = Some(idx);
         self
     }
@@ -566,7 +572,7 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// # Arg::with_name("debug")
     /// .multiple(true)
     /// # ).get_matches();
-    pub fn multiple(mut self, multi: bool) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+    pub fn multiple(mut self, multi: bool) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self.multiple = multi;
         self
     }
@@ -586,7 +592,7 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
     /// # Arg::with_name("debug").index(1)
     /// .possible_values(vec!["fast", "slow"])
     /// # ).get_matches();
-    pub fn possible_values(mut self, names: Vec<&'p str>) -> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
+    pub fn possible_values(mut self, names: Vec<&'p str>) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         if let Some(ref mut vec) = self.possible_vals {
             for n in names {
                 vec.push(n);
@@ -594,6 +600,23 @@ impl<'n, 'l, 'h, 'b, 'p, 'r> Arg<'n, 'l, 'h, 'b, 'p, 'r> {
         } else {
             self.possible_vals = Some(names);
         }
+        self
+    }
+
+    /// Specifies the name of the group the argument belongs to.
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let matches = App::new("myprog")
+    /// #                 .arg(
+    /// # Arg::with_name("debug").index(1)
+    /// .group("mode")
+    /// # ).get_matches();
+    pub fn group(mut self, name: &'g str) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
+        self.group = Some(name);
         self
     }
 }
