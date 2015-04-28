@@ -1,1 +1,4 @@
 language: rust
+rust: ["nightly", "1.0.0-beta.3"]
+script:
+    - cargo build --verbose && cargo test --verbose
