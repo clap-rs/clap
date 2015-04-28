@@ -221,9 +221,15 @@ To try out the pre-built example use the following stes:
 
 ### BYOB (Build Your Own Binary)
 
-To test out `clap`'s default auto-generated help/version follow these steps
+To test out `clap`'s default auto-generated help/version follow these steps:
 * Create a new cargo project `$ cargo new fake --bin && cd fake`
-* Add `clap` to your `Cargo.toml` `$ echo '[dependencies]\nclap = "*"' >> Cargo.toml`
+* Add `clap` to your `Cargo.toml`
+* 
+```toml
+[dependencies]
+clap = "*"
+```
+
 * Add the following to your `src/main.rs`
 
 ```rust
@@ -234,6 +240,7 @@ fn main() {
   let _ = App::new("fake").version("v1.0-beta").get_matches();
 }
 ```
+
 * Build your program `$ cargo build --release`
 * Run with help or version `$ ./target/release/fake --help` or `$ ./target/release/fake --version`
 
@@ -241,13 +248,13 @@ fn main() {
 
 For full usage, add `clap` as a dependecy in your `Cargo.toml` file to use from crates.io:
 
- ```
+ ```toml
  [dependencies]
  clap = "*"
  ```
  Or track the latest on the master branch at github:
 
-```
+```toml
 [dependencies.clap]
 git = "https://github.com/kbknapp/clap-rs.git"
 ```
