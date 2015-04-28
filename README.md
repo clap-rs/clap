@@ -4,15 +4,15 @@
 
 Command Line Argument Parser for Rust
 
-It is a simple to use and efficient library for parsing command line arguments and subcommands when writing console, or terminal applications.
+It is a simple to use, efficient, and full featured library for parsing command line arguments and subcommands when writing console, or terminal applications.
 
 ## About
 
-`clap` is used to parse *and validate* the string of command line arguments provided by the user at runtime. You simply provide the list of valid possibilities, and `clap` handles the rest. This means you focus on your *applications* functionality, and less on the parsing and validating of arguments.
+`clap` is used to parse *and validate* the string of command line arguments provided by the user at runtime. You provide the list of valid possibilities, and `clap` handles the rest. This means you focus on your *applications* functionality, and less on the parsing and validating of arguments.
 
-`clap` also provides all the traditional version and help switches (or flags) 'for free.' It does this by checking list of valid possibilities you supplied and if you haven't defined those flags already (or only defined some of them), `clap` will auto-generate the applicable ones (as well as a "help" subcommand so long as other subcommands have been manually defined as well).
+`clap` also provides the traditional version and help switches (or flags) 'for free' meaning automatically with no configuration. It does this by checking list of valid possibilities you supplied and if you haven't them already (or only defined some of them), `clap` will auto-generate the applicable ones. If you are using subcommands, `clap` will also auto-generate a `help` subcommand for you in addition to the traditional flags.
 
-After `clap` finishes parsing the user provided string, it returns all the matches along with any applicable values. If the user made an error or typo, `clap` informs them of the mistake and exits gracefully. Because of this, you can make reasonable assumptions in your code, and worry less about error handling.
+Once `clap` parses the user provided string of arguments, it returns the matches along with any applicable values. If the user made an error or typo, `clap` informs them of the mistake and exits gracefully. Because of this, you can make reasonable assumptions in your code about the validity of the arguments.
 
 ## Features
 
@@ -23,14 +23,14 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 * **Flags / Switches** (i.e. bool fields)
   - Both short and long versions supported (i.e. `-f` and `--flag` respectively)
   - Supports combining short versions (i.e. `-fBgoZ` is the same as `-f -B -g -o -Z`)
-  - Optionally supports multiple occurrences (i.e. `myprog -vvv` or `myprog -v -v -v`)
+  - Optionally supports multiple occurrences (i.e. `-vvv` or `-v -v -v`)
 * **Positional Arguments** (i.e. those which are based off an index from the program name)
   - Optionally supports multiple values (i.e. `myprog <file>...` such as `myprog file1.txt file2.txt` being two values for the same "file" argument)
   - Optionally supports Specific Value Sets (See below)
   - Supports the unix `--` meaning, only positional arguments follow
 * **Option Arguments** (i.e. those that take values as options)
   - Both short and long versions supported (i.e. `-o value` and `--option value` or `--option=value` respectively)
-  - Optionally supports multiple values (i.e. `myprog -o <value> -o <other_value>`)
+  - Optionally supports multiple values (i.e. `-o <value> -o <other_value>`)
   - Optionally supports Specific Value Sets (See below)
 * **Sub-Commands** (i.e. `git add <file>` where `add` is a sub-command of `git`)
   - Support their own sub-arguments, and sub-sub-commands independant of the parent
@@ -39,9 +39,11 @@ Below are a few of the features which `clap` supports, full descriptions and usa
   - Required by default
   - Required only if certain arguments are present
   - Can require other arguments to be present
-* **Exclusion Rules**: Arguments can optionally define the following types of exclusion rules
+* **Exclusion/Confliction Rules**: Arguments can optionally define the following types of exclusion rules
   - Can be disallowed when certain arguments are present
   - Can disallow use of other arguments when present
+* **Groups**: Arguments can optionally be made part of a group which means one, and only one argument from this "group" may be present at runtime
+  - Fully compatible with other relational rules (requirements and exclusions) which allows things like requiring the use of a group, or denying the use of a group conditionally
 * **Specific Value Sets**: Positional or Option Arguments can optionally define a specific set of allowed values (i.e. imagine a `--mode` option which may *only* have one of two values `fast` or `slow` such as `--mode fast` or `--mode slow`)
 * **Default Values**: Although not specifically provided by `clap` you can achieve this exact functionality from Rust's `Option<&str>.unwrap_or("some default")` method (or `Result<T,String>.unwrap_or(T)` when using typed values)
 * **Automatic Version from Cargo.toml**: `clap` is fully compatible with Rust's `env!()` macro for automatically setting the version of your application to the version in your Cargo.toml. See `examples/09_AutoVersion.rs` for how to do this (Thanks to [jhelwig](https://github.com/jhelwig) for pointing this out)
@@ -49,12 +51,15 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 
 ## Quick Example
  
-The following two examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/docs/clap/index.html), or `examples/` directory of this repository.
+The following two examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, groups, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/docs/clap/index.html), or `examples/` directory of this repository.
  
- *NOTE:* Both examples are functionally the same, but show two different ways to use `clap`
+ *NOTE:* Both examples are functionally the same, but show two different styles in which to use `clap`
  
 ```rust
 // (Full example with detailed comments in examples/01a_QuickExample.rs)
+//
+// This example demonstrates clap's "usage strings" method of creating arguments which is less
+// less verbose
 extern crate clap;
 use clap::{Arg, App, SubCommand};
 
@@ -109,6 +114,10 @@ The following example is functionally the same as the one above, but this method
  
 ```rust
 // (Full example with detailed comments in examples/01b_QuickExample.rs)
+//
+// This example demonstrates clap's full 'builder pattern' style of creating arguments which is 
+// more verbose, but allows easier editting, and at times more advanced options, or the possibility
+// to generate arguments dynamically.
 extern crate clap;
 use clap::{Arg, App, SubCommand};
 
@@ -187,7 +196,7 @@ FLAGS:
     -v, --version    Prints version information
  
 OPTIONS:
-    -c, --config=CONFIG    Sets a custom config file
+    -c, --config <CONFIG>    Sets a custom config file
 
 POSITIONAL ARGUMENTS:
     INPUT    The input file to use
@@ -199,9 +208,38 @@ SUBCOMMANDS:
 
 *NOTE:* You could also run `myapp test --help` to see similar output and options for the `test` subcommand.
 
-## Installation
+## Try it!
 
-Add `clap` as a dependecy in your `Cargo.toml` file to use from crates.io:
+### Pre-Built Test
+
+To try out the pre-built example use the following stes:
+
+* Clone the repostiory `$ git clone https://github.com/kbknapp/clap-rs && cd clap-rs/clap-tests`
+* Compile the example `$ cargo build --release`
+* Run the help info `$ ./target/release/claptests --help`
+* Play with the arguments!
+
+### BYOB (Build Your Own Binary)
+
+To test out `clap`'s default auto-generated help/version follow these steps
+* Create a new cargo project `$ cargo new fake --bin && cd fake`
+* Add `clap` to your `Cargo.toml` `$ echo '[dependencies]\nclap = "*"' >> Cargo.toml`
+* Add the following to your `src/main.rs`
+
+```rust
+extern crate clap;
+use clap::App;
+
+fn main() {
+  let _ = App::new("fake").version("v1.0-beta").get_matches();
+}
+```
+* Build your program `$ cargo build --release`
+* Run with help or version `$ ./target/release/fake --help` or `$ ./target/release/fake --version`
+
+## Usage
+
+For full usage, add `clap` as a dependecy in your `Cargo.toml` file to use from crates.io:
 
  ```
  [dependencies]
