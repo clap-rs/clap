@@ -280,34 +280,44 @@
 <span id="238">238</span>
 <span id="239">239</span>
 <span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>HashSet</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>fmt</span>::{<span class='ident'>Debug</span>, <span class='ident'>Formatter</span>, <span class='prelude-ty'>Result</span>};
 
-<span class='doccomment'>/// ArgGroups are a family of related arguments and provide a few useful features for you. By </span>
-<span class='doccomment'>/// placing arguments in a logical group, you can make easier requirement and exclusion rules. For </span>
-<span class='doccomment'>/// instance, you can make an ArgGroup required, this means that one (and *only* one) argument</span>
-<span class='doccomment'>/// from that group must be present. Using more than one argument from an ArgGroup causes a </span>
-<span class='doccomment'>/// failure (graceful exit).</span>
+<span class='doccomment'>/// `ArgGroup`s are a family of related arguments and way for you to say, &quot;Any of these arguments&quot;.</span>
+<span class='doccomment'>/// By placing arguments in a logical group, you can make easier requirement and exclusion rules</span>
+<span class='doccomment'>/// intead of having to list each individually, or when you want a rule to apply &quot;any but not all&quot;</span>
+<span class='doccomment'>/// arguments. </span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// For instance, you can make an entire ArgGroup required, this means that one (and *only* one)</span>
+<span class='doccomment'>/// argument. from that group must be present. Using more than one argument from an ArgGroup causes</span>
+<span class='doccomment'>/// a failure (graceful exit).</span>
 <span class='doccomment'>/// </span>
 <span class='doccomment'>/// You can also do things such as name an ArgGroup as a confliction or requirement, meaning any </span>
 <span class='doccomment'>/// of the arguments that belong to that group will cause a failure if present, or must present</span>
 <span class='doccomment'>/// respectively.</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>/// Perhaps the most common use of ArgGroups is to require one and *only* one argument to be </span>
-<span class='doccomment'>/// present out of a given set. For example, lets say that you were building an application</span>
-<span class='doccomment'>/// where one could set a given version number by supplying a string using an option argument,</span>
-<span class='doccomment'>/// such as `--set-ver v1.2.3`, you also wanted to support automatically using a previous</span>
-<span class='doccomment'>/// version numer and simply incrementing one of the three numbers, so you create three flags</span>
-<span class='doccomment'>/// `--major`, `--minor`, and `--patch`. All of these arguments shouldn&#39;t be used at one time</span>
-<span class='doccomment'>/// but perhaps you want to specify that *at least one* of them is used. You can create a</span>
-<span class='doccomment'>/// group</span>
+<span class='doccomment'>/// Perhaps the most common use of `ArgGroup`s is to require one and *only* one argument to be </span>
+<span class='doccomment'>/// present out of a given set. Imagine that you had multiple arguments, and you want one of them to</span>
+<span class='doccomment'>/// be required, but making all of them required isn&#39;t feasible because perhaps they conflict with</span>
+<span class='doccomment'>/// each other. For example, lets say that you were building an application where one could set a</span>
+<span class='doccomment'>/// given version number by supplying a string with an option argument, i.e. `--set-ver v1.2.3`, you </span>
+<span class='doccomment'>/// also wanted to support automatically using a previous version number and simply incrementing one</span>
+<span class='doccomment'>/// of the three numbers. So you create three flags `--major`, `--minor`, and `--patch`. All of</span>
+<span class='doccomment'>/// these arguments shouldn&#39;t be used at one time but you want to specify that *at least one* of</span>
+<span class='doccomment'>/// them is used. For this, you can create a group.</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// # Example</span>
+<span class='doccomment'>///</span>
 <span class='doccomment'>/// ```no_run</span>
 <span class='doccomment'>/// # use clap::{App, ArgGroup};</span>
-<span class='doccomment'>/// # let _ = App::new(&quot;app&quot;)</span>
+<span class='doccomment'>/// let _ = App::new(&quot;app&quot;)</span>
 <span class='doccomment'>/// .args_from_usage(&quot;--set-ver [ver] &#39;set the version manually&#39;</span>
 <span class='doccomment'>///                   --major         &#39;auto increase major&#39;</span>
 <span class='doccomment'>///                   --minor         &#39;auto increase minor&#39;</span>
@@ -369,7 +379,7 @@
         <span class='self'>self</span>
     }
 
-    <span class='doccomment'>/// Adds multiple arguments to this group by name inside a Vec</span>
+    <span class='doccomment'>/// Adds multiple arguments to this group by name using a Vec</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// # Example</span>
@@ -409,8 +419,8 @@
     }
 
     <span class='doccomment'>/// Sets the requirement rules of this group. This is not to be confused with a required group.</span>
-    <span class='doccomment'>/// Requirement rules function just like argument requirement rules, you can name other arguments</span>
-    <span class='doccomment'>/// or groups that must be present when one of the arguments from this group is used.</span>
+    <span class='doccomment'>/// Requirement rules function just like argument requirement rules, you can name other</span>
+    <span class='doccomment'>/// arguments or groups that must be present when one of the arguments from this group is used.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// **NOTE:** The name provided may be an argument, or group name</span>
     <span class='doccomment'>///</span>
@@ -436,8 +446,8 @@
     }
 
     <span class='doccomment'>/// Sets the requirement rules of this group. This is not to be confused with a required group.</span>
-    <span class='doccomment'>/// Requirement rules function just like argument requirement rules, you can name other arguments</span>
-    <span class='doccomment'>/// or groups that must be present when one of the arguments from this group is used.</span>
+    <span class='doccomment'>/// Requirement rules function just like argument requirement rules, you can name other</span>
+    <span class='doccomment'>/// arguments or groups that must be present when one of the arguments from this group is used.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// **NOTE:** The names provided may be an argument, or group name</span>
     <span class='doccomment'>///</span>
@@ -458,9 +468,9 @@
         <span class='self'>self</span>
     }
 
-    <span class='doccomment'>/// Sets the exclusion rules of this group. Exclusion rules function just like argument exclusion </span>
-    <span class='doccomment'>/// rules, you can name other arguments or groups that must not be present when one of the arguments</span>
-    <span class='doccomment'>/// from this group are used.</span>
+    <span class='doccomment'>/// Sets the exclusion rules of this group. Exclusion rules function just like argument </span>
+    <span class='doccomment'>/// exclusion rules, you can name other arguments or groups that must not be present when one</span>
+    <span class='doccomment'>/// of the arguments from this group are used.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// **NOTE:** The name provided may be an argument, or group name</span>
     <span class='doccomment'>///</span>
@@ -485,9 +495,9 @@
         <span class='self'>self</span>
     }
 
-    <span class='doccomment'>/// Sets the exclusion rules of this group. Exclusion rules function just like argument exclusion </span>
-    <span class='doccomment'>/// rules, you can name other arguments or groups that must not be present when one of the arguments</span>
-    <span class='doccomment'>/// from this group are used.</span>
+    <span class='doccomment'>/// Sets the exclusion rules of this group. Exclusion rules function just like argument</span>
+    <span class='doccomment'>/// exclusion rules, you can name other arguments or groups that must not be present when one</span>
+    <span class='doccomment'>/// of the arguments from this group are used.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// **NOTE:** The names provided may be an argument, or group name</span>
     <span class='doccomment'>///</span>

@@ -41,9 +41,9 @@
     </nav>
 
     <section id='main' class="content mod">
-<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>clap</a><wbr></span><span class='out-of-band'><a href='stability.html'>[stability]</a> <span id='render-detail'>
-            <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-0' href='../src/clap/lib.rs.html#1-934'>[src]</a></span></h1>
+<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>clap</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="#" title="collapse all docs">[-]</a>
+        </span><a id='src-0' class='srclink' href='../src/clap/lib.rs.html#1-972' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'>
 <h1 id="clap" class='section-header'><a
                            href="#clap">clap</a></h1>
@@ -51,15 +51,15 @@
 
 <p>Command Line Argument Parser for Rust</p>
 
-<p>It is a simple to use and efficient library for parsing command line arguments and subcommands when writing console, or terminal applications.</p>
+<p>It is a simple to use, efficient, and full featured library for parsing command line arguments and subcommands when writing console, or terminal applications.</p>
 
 <h2 id="about" class='section-header'><a
                            href="#about">About</a></h2>
-<p><code>clap</code> is used to parse <em>and validate</em> the string of command line arguments provided by the user at runtime. You simply provide the list of valid possibilities, and <code>clap</code> handles the rest. This means you focus on your <em>applications</em> functionality, and less on the parsing and validating of arguments.</p>
+<p><code>clap</code> is used to parse <em>and validate</em> the string of command line arguments provided by the user at runtime. You provide the list of valid possibilities, and <code>clap</code> handles the rest. This means you focus on your <em>applications</em> functionality, and less on the parsing and validating of arguments.</p>
 
-<p><code>clap</code> also provides all the traditional version and help switches (or flags) &#39;for free.&#39; It does this by checking list of valid possibilities you supplied and if you haven&#39;t defined those flags already (or only defined some of them), <code>clap</code> will auto-generate the applicable ones (as well as a &quot;help&quot; subcommand so long as other subcommands have been manually defined as well).</p>
+<p><code>clap</code> also provides the traditional version and help switches (or flags) &#39;for free&#39; meaning automatically with no configuration. It does this by checking list of valid possibilities you supplied and if you haven&#39;t them already (or only defined some of them), <code>clap</code> will auto-generate the applicable ones. If you are using subcommands, <code>clap</code> will also auto-generate a <code>help</code> subcommand for you in addition to the traditional flags.</p>
 
-<p>After <code>clap</code> finishes parsing the user provided string, it returns all the matches along with any applicable values. If the user made an error or typo, <code>clap</code> informs them of the mistake and exits gracefully. Because of this, you can make reasonable assumptions in your code, and worry less about error handling.</p>
+<p>Once <code>clap</code> parses the user provided string of arguments, it returns the matches along with any applicable values. If the user made an error or typo, <code>clap</code> informs them of the mistake and exits gracefully. Because of this, you can make reasonable assumptions in your code about the validity of the arguments.</p>
 
 <h2 id="features" class='section-header'><a
                            href="#features">Features</a></h2>
@@ -76,7 +76,7 @@
 <ul>
 <li>Both short and long versions supported (i.e. <code>-f</code> and <code>--flag</code> respectively)</li>
 <li>Supports combining short versions (i.e. <code>-fBgoZ</code> is the same as <code>-f -B -g -o -Z</code>)</li>
-<li>Optionally supports multiple occurrences (i.e. <code>myprog -vvv</code> or <code>myprog -v -v -v</code>)</li>
+<li>Optionally supports multiple occurrences (i.e. <code>-vvv</code> or <code>-v -v -v</code>)</li>
 </ul></li>
 <li><strong>Positional Arguments</strong> (i.e. those which are based off an index from the program name)
 
@@ -89,7 +89,7 @@
 
 <ul>
 <li>Both short and long versions supported (i.e. <code>-o value</code> and <code>--option value</code> or <code>--option=value</code> respectively)</li>
-<li>Optionally supports multiple values (i.e. <code>myprog -o &lt;value&gt; -o &lt;other_value&gt;</code>)</li>
+<li>Optionally supports multiple values (i.e. <code>-o &lt;value&gt; -o &lt;other_value&gt;</code>)</li>
 <li>Optionally supports Specific Value Sets (See below)</li>
 </ul></li>
 <li><strong>Sub-Commands</strong> (i.e. <code>git add &lt;file&gt;</code> where <code>add</code> is a sub-command of <code>git</code>)
@@ -105,11 +105,16 @@
 <li>Required only if certain arguments are present</li>
 <li>Can require other arguments to be present</li>
 </ul></li>
-<li><strong>Exclusion Rules</strong>: Arguments can optionally define the following types of exclusion rules
+<li><strong>Exclusion/Confliction Rules</strong>: Arguments can optionally define the following types of exclusion rules
 
 <ul>
 <li>Can be disallowed when certain arguments are present</li>
 <li>Can disallow use of other arguments when present</li>
+</ul></li>
+<li><strong>Groups</strong>: Arguments can optionally be made part of a group which means one, and only one argument from this &quot;group&quot; may be present at runtime
+
+<ul>
+<li>Fully compatible with other relational rules (requirements and exclusions) which allows things like requiring the use of a group, or denying the use of a group conditionally</li>
 </ul></li>
 <li><strong>Specific Value Sets</strong>: Positional or Option Arguments can optionally define a specific set of allowed values (i.e. imagine a <code>--mode</code> option which may <em>only</em> have one of two values <code>fast</code> or <code>slow</code> such as <code>--mode fast</code> or <code>--mode slow</code>)</li>
 <li><strong>Default Values</strong>: Although not specifically provided by <code>clap</code> you can achieve this exact functionality from Rust&#39;s <code>Option&lt;&amp;str&gt;.unwrap_or(&quot;some default&quot;)</code> method (or <code>Result&lt;T,String&gt;.unwrap_or(T)</code> when using typed values)</li>
@@ -119,11 +124,14 @@
 
 <h2 id="quick-example" class='section-header'><a
                            href="#quick-example">Quick Example</a></h2>
-<p>The following two examples show a quick example of some of the very basic functionality of <code>clap</code>. For more advanced usage, such as requirements, exclusions, multiple values and occurrences see the <a href="https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv">video tutorials</a>, <a href="http://kbknapp.github.io/clap-rs/docs/clap/index.html">documentation</a>, or <code>examples/</code> directory of this repository.</p>
+<p>The following two examples show a quick example of some of the very basic functionality of <code>clap</code>. For more advanced usage, such as requirements, exclusions, groups, multiple values and occurrences see the <a href="https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv">video tutorials</a>, <a href="http://kbknapp.github.io/clap-rs/docs/clap/index.html">documentation</a>, or <code>examples/</code> directory of this repository.</p>
 
-<p><em>NOTE:</em> Both examples are functionally the same, but show two different ways to use <code>clap</code></p>
+<p><em>NOTE:</em> Both examples are functionally the same, but show two different styles in which to use <code>clap</code></p>
 <pre id='rust-example-rendered' class='rust '>
 <span class='comment'>// (Full example with detailed comments in examples/01a_QuickExample.rs)</span>
+<span class='comment'>//</span>
+<span class='comment'>// This example demonstrates clap&#39;s &quot;usage strings&quot; method of creating arguments which is less</span>
+<span class='comment'>// less verbose</span>
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>clap</span>;
 <span class='kw'>use</span> <span class='ident'>clap</span>::{<span class='ident'>Arg</span>, <span class='ident'>App</span>, <span class='ident'>SubCommand</span>};
  
@@ -177,6 +185,10 @@
 <p>The following example is functionally the same as the one above, but this method allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired. Both methods can be used together to get the best of both worlds (see the documentation, examples, or video tutorials).</p>
 <pre id='rust-example-rendered' class='rust '>
 <span class='comment'>// (Full example with detailed comments in examples/01b_QuickExample.rs)</span>
+<span class='comment'>//</span>
+<span class='comment'>// This example demonstrates clap&#39;s full &#39;builder pattern&#39; style of creating arguments which is </span>
+<span class='comment'>// more verbose, but allows easier editting, and at times more advanced options, or the possibility</span>
+<span class='comment'>// to generate arguments dynamically.</span>
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>clap</span>;
 <span class='kw'>use</span> <span class='ident'>clap</span>::{<span class='ident'>Arg</span>, <span class='ident'>App</span>, <span class='ident'>SubCommand</span>};
  
@@ -254,7 +266,7 @@ FLAGS:
     -v, --version    Prints version information
   
 OPTIONS:
-    -c, --config=CONFIG    Sets a custom config file
+    -c, --config &lt;CONFIG&gt;    Sets a custom config file
  
 POSITIONAL ARGUMENTS:
     INPUT    The input file to use
@@ -266,9 +278,42 @@ SUBCOMMANDS:
 
 <p><em>NOTE:</em> You could also run <code>myapp test --help</code> to see similar output and options for the <code>test</code> subcommand.</p>
 
-<h2 id="installation" class='section-header'><a
-                           href="#installation">Installation</a></h2>
-<p>Add <code>clap</code> as a dependecy in your <code>Cargo.toml</code> file to use from crates.io:</p>
+<h2 id="try-it!" class='section-header'><a
+                           href="#try-it!">Try it!</a></h2>
+<h3 id="pre-built-test" class='section-header'><a
+                           href="#pre-built-test">Pre-Built Test</a></h3>
+<p>To try out the pre-built example use the following stes:</p>
+
+<ul>
+<li>Clone the repostiory <code>$ git clone https://github.com/kbknapp/clap-rs &amp;&amp; cd clap-rs/clap-tests</code></li>
+<li>Compile the example <code>$ cargo build --release</code></li>
+<li>Run the help info <code>$ ./target/release/claptests --help</code></li>
+<li>Play with the arguments!</li>
+</ul>
+
+<h3 id="byob-(build-your-own-binary)" class='section-header'><a
+                           href="#byob-(build-your-own-binary)">BYOB (Build Your Own Binary)</a></h3>
+<p>To test out <code>clap</code>&#39;s default auto-generated help/version follow these steps
+* Create a new cargo project <code>$ cargo new fake --bin &amp;&amp; cd fake</code>
+* Add <code>clap</code> to your <code>Cargo.toml</code> <code>$ echo &#39;[dependencies]\nclap = &quot;*&quot;&#39; &gt;&gt; Cargo.toml</code>
+* Add the following to your <code>src/main.rs</code></p>
+<pre id='rust-example-rendered' class='rust '>
+<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>clap</span>;
+<span class='kw'>use</span> <span class='ident'>clap</span>::<span class='ident'>App</span>;
+ 
+<span class='kw'>fn</span> <span class='ident'>main</span>() {
+  <span class='kw'>let</span> _ <span class='op'>=</span> <span class='ident'>App</span>::<span class='ident'>new</span>(<span class='string'>&quot;fake&quot;</span>).<span class='ident'>version</span>(<span class='string'>&quot;v1.0-beta&quot;</span>).<span class='ident'>get_matches</span>();
+}
+</pre>
+
+<ul>
+<li>Build your program <code>$ cargo build --release</code></li>
+<li>Run with help or version <code>$ ./target/release/fake --help</code> or <code>$ ./target/release/fake --version</code></li>
+</ul>
+
+<h2 id="usage" class='section-header'><a
+                           href="#usage">Usage</a></h2>
+<p>For full usage, add <code>clap</code> as a dependecy in your <code>Cargo.toml</code> file to use from crates.io:</p>
 <pre id='rust-example-rendered' class='rust '>
  [<span class='ident'>dependencies</span>]
  <span class='ident'>clap</span> <span class='op'>=</span> <span class='string'>&quot;*&quot;</span>
@@ -363,89 +408,108 @@ SUBCOMMANDS:
 <p><code>clap</code> is licensed under the MIT license. Please the LICENSE-MIT file in this repository for more information.</p>
 </div><h2 id='macros' class='section-header'><a href="#macros">Macros</a></h2>
 <table>
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='macro' href='macro.arg_enum!.html'
+                    <tr class=' module-item'>
+                        <td><a class='macro' href='macro.arg_enum!.html'
                                title='clap::arg_enum!'>arg_enum!</a></td>
-                        <td class='docblock short'><p>Convenience macro to generate more complete enums with variants to be used as a type when parsing
+                        <td class='docblock short'>
+                             <p>Convenience macro to generate more complete enums with variants to be used as a type when parsing
  arguments.</p>
-</td>
+
+                        </td>
                     </tr>
                 
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='macro' href='macro.crate_version!.html'
+                    <tr class=' module-item'>
+                        <td><a class='macro' href='macro.crate_version!.html'
                                title='clap::crate_version!'>crate_version!</a></td>
-                        <td class='docblock short'><p>Allows you pull the version for an from your Cargo.toml as MAJOR.MINOR.PATCH_PKGVERSION_PRE</p>
-</td>
+                        <td class='docblock short'>
+                             <p>Allows you pull the version for an from your Cargo.toml as MAJOR.MINOR.PATCH_PKGVERSION_PRE</p>
+
+                        </td>
                     </tr>
                 
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='macro' href='macro.simple_enum!.html'
+                    <tr class=' module-item'>
+                        <td><a class='macro' href='macro.simple_enum!.html'
                                title='clap::simple_enum!'>simple_enum!</a></td>
-                        <td class='docblock short'><p>Convenience macro generated a simple enum with variants to be used as a type when parsing
+                        <td class='docblock short'>
+                             <p>Convenience macro generated a simple enum with variants to be used as a type when parsing
  arguments.</p>
-</td>
+
+                        </td>
                     </tr>
                 
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='macro' href='macro.value_t!.html'
+                    <tr class=' module-item'>
+                        <td><a class='macro' href='macro.value_t!.html'
                                title='clap::value_t!'>value_t!</a></td>
-                        <td class='docblock short'><p>Convenience macro getting a typed value <code>T</code> where <code>T</code> implements <code>std::str::FromStr</code>
+                        <td class='docblock short'>
+                             <p>Convenience macro getting a typed value <code>T</code> where <code>T</code> implements <code>std::str::FromStr</code>
  This macro returns a <code>Result&lt;T,String&gt;</code> which allows you as the developer to decide
  what you&#39;d like to do on a failed parse. There are two types of errors, parse failures
  and those where the argument wasn&#39;t present (such as a non-required argument). </p>
-</td>
+
+                        </td>
                     </tr>
                 
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='macro' href='macro.value_t_or_exit!.html'
+                    <tr class=' module-item'>
+                        <td><a class='macro' href='macro.value_t_or_exit!.html'
                                title='clap::value_t_or_exit!'>value_t_or_exit!</a></td>
-                        <td class='docblock short'><p>Convenience macro getting a typed value <code>T</code> where <code>T</code> implements <code>std::str::FromStr</code>
+                        <td class='docblock short'>
+                             <p>Convenience macro getting a typed value <code>T</code> where <code>T</code> implements <code>std::str::FromStr</code>
  This macro returns a <code>T</code> or <code>Vec&lt;T&gt;</code> or exits with a usage string upon failure. This
  removes some of the boiler plate to handle failures from value_t! above. </p>
-</td>
+
+                        </td>
                     </tr>
                 </table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.App.html'
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.App.html'
                                title='clap::App'>App</a></td>
-                        <td class='docblock short'><p>Used to create a representation of a command line program and all possible command line
+                        <td class='docblock short'>
+                             <p>Used to create a representation of a command line program and all possible command line
 arguments for parsing at runtime.</p>
-</td>
+
+                        </td>
                     </tr>
                 
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Arg.html'
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Arg.html'
                                title='clap::Arg'>Arg</a></td>
-                        <td class='docblock short'><p>The abstract representation of a command line argument used by the consumer of the library.
+                        <td class='docblock short'>
+                             <p>The abstract representation of a command line argument used by the consumer of the library.
 Used to set all the options and relationships that define a valid argument for the program.</p>
-</td>
+
+                        </td>
                     </tr>
                 
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.ArgGroup.html'
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.ArgGroup.html'
                                title='clap::ArgGroup'>ArgGroup</a></td>
-                        <td class='docblock short'><p>ArgGroups are a family of related arguments and provide a few useful features for you. By
-placing arguments in a logical group, you can make easier requirement and exclusion rules. For 
-instance, you can make an ArgGroup required, this means that one (and <em>only</em> one) argument
-from that group must be present. Using more than one argument from an ArgGroup causes a 
-failure (graceful exit).</p>
-</td>
+                        <td class='docblock short'>
+                             <p><code>ArgGroup</code>s are a family of related arguments and way for you to say, &quot;Any of these arguments&quot;.
+By placing arguments in a logical group, you can make easier requirement and exclusion rules
+intead of having to list each individually, or when you want a rule to apply &quot;any but not all&quot;
+arguments. </p>
+
+                        </td>
                     </tr>
                 
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.ArgMatches.html'
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.ArgMatches.html'
                                title='clap::ArgMatches'>ArgMatches</a></td>
-                        <td class='docblock short'><p>Used to get information about the arguments that where supplied to the program at runtime by
+                        <td class='docblock short'>
+                             <p>Used to get information about the arguments that where supplied to the program at runtime by
 the user. To get a new instance of this struct you use <code>.get_matches()</code> of the <code>App</code> struct.</p>
-</td>
+
+                        </td>
                     </tr>
                 
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.SubCommand.html'
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.SubCommand.html'
                                title='clap::SubCommand'>SubCommand</a></td>
-                        <td class='docblock short'><p>The abstract representation of a command line subcommand used by the consumer of the library.</p>
-</td>
+                        <td class='docblock short'>
+                             <p>The abstract representation of a command line subcommand used by the consumer of the library.</p>
+
+                        </td>
                     </tr>
                 </table></section>
     <section id='search' class="content hidden"></section>

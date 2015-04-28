@@ -41,9 +41,9 @@
     </nav>
 
     <section id='main' class="content struct">
-<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>clap</a>::<wbr><a class='struct' href=''>Arg</a><wbr></span><span class='out-of-band'><span id='render-detail'>
-            <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-10470' href='../src/clap/args/arg.rs.html#31-79'>[src]</a></span></h1>
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>clap</a>::<wbr><a class='struct' href=''>Arg</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="#" title="collapse all docs">[-]</a>
+        </span><a id='src-10470' class='srclink' href='../src/clap/args/arg.rs.html#31-79' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct Arg&lt;'n, 'l, 'h, 'g, 'p, 'r&gt; {
     // some fields omitted
 }</pre><div class='docblock'><p>The abstract representation of a command line argument used by the consumer of the library.
@@ -68,7 +68,7 @@ of the two methods to achieve the best of both worlds.</p>
 <span class='comment'>// Using a usage string (setting a similar argument to the one above)</span>
 <span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;-i --input=[input] &#39;Provides an input file to the program&#39;&quot;</span>)
 </pre>
-</div><h2 id='methods'>Methods</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;'n, 'l, 'h, 'g, 'p, 'r&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h3><div class='impl-items'><h4 id='method.new' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.new' class='fnname'>new</a>(n: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;'n, 'l, 'h, 'g, 'p, 'r&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(n: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Creates a new instace of <code>Arg</code> using a unique string name.
 The name will be used by the library consumer to get information about
 whether or not the argument was used at runtime. </p>
@@ -84,7 +84,7 @@ Rust APIs</p>
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 <span class='ident'>Arg</span>::<span class='ident'>new</span>(<span class='string'>&quot;conifg&quot;</span>)
 </pre>
-</div><h4 id='method.with_name' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.with_name' class='fnname'>with_name</a>(n: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
+</div><h4 id='method.with_name' class='method'><code>fn <a href='#method.with_name' class='fnname'>with_name</a>(n: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Creates a new instace of <code>Arg</code> using a unique string name.
 The name will be used by the library consumer to get information about
 whether or not the argument was used at runtime. </p>
@@ -97,7 +97,7 @@ be displayed when the user prints the usage/help information of the program.</p>
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 <span class='ident'>Arg</span>::<span class='ident'>with_name</span>(<span class='string'>&quot;conifg&quot;</span>)
 </pre>
-</div><h4 id='method.from_usage' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.from_usage' class='fnname'>from_usage</a>(u: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'n, 'n, 'g, 'p, 'r&gt;</code></h4>
+</div><h4 id='method.from_usage' class='method'><code>fn <a href='#method.from_usage' class='fnname'>from_usage</a>(u: &amp;'n <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'n, 'n, 'g, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Creates a new instace of <code>Arg</code> from a usage string. Allows creation of basic settings
 for Arg (i.e. everything except relational rules). The syntax is flexible, but there are
 some rules to follow.</p>
@@ -144,7 +144,7 @@ specify one) i.e. all arguments without a <code>short</code> or <code>long</code
 <span class='ident'>Arg</span>::<span class='ident'>from_usage</span>(<span class='string'>&quot;&lt;input&gt; &#39;the input file to use&#39;&quot;</span>)
 ])
 </pre>
-</div><h4 id='method.short' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.short' class='fnname'>short</a>(self, s: &amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
+</div><h4 id='method.short' class='method'><code>fn <a href='#method.short' class='fnname'>short</a>(self, s: &amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Sets the short version of the argument without the preceding <code>-</code>.</p>
 
 <p>By default <code>clap</code> automatically assigns <code>v</code> and <code>h</code> to display version and help information 
@@ -158,7 +158,7 @@ non <code>-</code> chacter will be used as the <code>short</code> version</p>
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>short</span>(<span class='string'>&quot;c&quot;</span>)
 </pre>
-</div><h4 id='method.long' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.long' class='fnname'>long</a>(self, l: &amp;'l <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
+</div><h4 id='method.long' class='method'><code>fn <a href='#method.long' class='fnname'>long</a>(self, l: &amp;'l <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Sets the long version of the argument without the preceding <code>--</code>.</p>
 
 <p>By default <code>clap</code> automatically assigns <code>version</code> and <code>help</code> to display version and help information 
@@ -172,7 +172,7 @@ so manually.</p>
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>long</span>(<span class='string'>&quot;config&quot;</span>)
 </pre>
-</div><h4 id='method.help' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.help' class='fnname'>help</a>(self, h: &amp;'h <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
+</div><h4 id='method.help' class='method'><code>fn <a href='#method.help' class='fnname'>help</a>(self, h: &amp;'h <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Sets the help text of the argument that will be displayed to the user
 when they print the usage/help information. </p>
 
@@ -180,7 +180,7 @@ when they print the usage/help information. </p>
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>help</span>(<span class='string'>&quot;The config file used by the myprog&quot;</span>)
 </pre>
-</div><h4 id='method.required' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.required' class='fnname'>required</a>(self, r: <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
+</div><h4 id='method.required' class='method'><code>fn <a href='#method.required' class='fnname'>required</a>(self, r: <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Sets whether or not the argument is required by default. Required by
 default means it is required, when no other mutually exlusive rules have
 been evaluated. Mutually exclusive rules take precedence over being required
@@ -194,7 +194,7 @@ when they print the usage/help information. </p>
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>required</span>(<span class='boolval'>true</span>)
 </pre>
-</div><h4 id='method.mutually_excludes' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.mutually_excludes' class='fnname'>mutually_excludes</a>(self, name: &amp;'r <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
+</div><h4 id='method.mutually_excludes' class='method'><code>fn <a href='#method.mutually_excludes' class='fnname'>mutually_excludes</a>(self, name: &amp;'r <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Sets a mutually exclusive argument by name. I.e. when using this argument,
 the following argument can&#39;t be present.</p>
 
@@ -208,7 +208,7 @@ arguments, they do not need to be set for each.</p>
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>mutually_excludes</span>(<span class='string'>&quot;debug&quot;</span>)
 </pre>
-</div><h4 id='method.mutually_excludes_all' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.mutually_excludes_all' class='fnname'>mutually_excludes_all</a>(self, names: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'r <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
+</div><h4 id='method.mutually_excludes_all' class='method'><code>fn <a href='#method.mutually_excludes_all' class='fnname'>mutually_excludes_all</a>(self, names: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'r <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Sets a mutually exclusive arguments by names. I.e. when using this argument,
 the following argument can&#39;t be present.</p>
 
@@ -223,7 +223,7 @@ arguments, they do not need to be set for each.</p>
 .<span class='ident'>mutually_excludes_all</span>(
        <span class='macro'>vec</span><span class='macro'>!</span>[<span class='string'>&quot;debug&quot;</span>, <span class='string'>&quot;input&quot;</span>])
 </pre>
-</div><h4 id='method.conflicts_with' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.conflicts_with' class='fnname'>conflicts_with</a>(self, name: &amp;'r <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
+</div><h4 id='method.conflicts_with' class='method'><code>fn <a href='#method.conflicts_with' class='fnname'>conflicts_with</a>(self, name: &amp;'r <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Sets a mutually exclusive argument by name. I.e. when using this argument,
 the following argument can&#39;t be present.</p>
 
@@ -235,7 +235,7 @@ arguments, they do not need to be set for each.</p>
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>conflicts_with</span>(<span class='string'>&quot;debug&quot;</span>)
 </pre>
-</div><h4 id='method.conflicts_with_all' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.conflicts_with_all' class='fnname'>conflicts_with_all</a>(self, names: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'r <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
+</div><h4 id='method.conflicts_with_all' class='method'><code>fn <a href='#method.conflicts_with_all' class='fnname'>conflicts_with_all</a>(self, names: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'r <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Sets mutually exclusive arguments by names. I.e. when using this argument,
 the following argument can&#39;t be present.</p>
 
@@ -248,7 +248,7 @@ arguments, they do not need to be set for each.</p>
 .<span class='ident'>conflicts_with_all</span>(
        <span class='macro'>vec</span><span class='macro'>!</span>[<span class='string'>&quot;debug&quot;</span>, <span class='string'>&quot;input&quot;</span>])
 </pre>
-</div><h4 id='method.requires' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.requires' class='fnname'>requires</a>(self, name: &amp;'r <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
+</div><h4 id='method.requires' class='method'><code>fn <a href='#method.requires' class='fnname'>requires</a>(self, name: &amp;'r <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Sets an argument by name that is required when this one is presnet I.e. when
 using this argument, the following argument <em>must</em> be present.</p>
 
@@ -258,7 +258,7 @@ using this argument, the following argument <em>must</em> be present.</p>
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>requires</span>(<span class='string'>&quot;debug&quot;</span>)
 </pre>
-</div><h4 id='method.requires_all' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.requires_all' class='fnname'>requires_all</a>(self, names: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'r <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
+</div><h4 id='method.requires_all' class='method'><code>fn <a href='#method.requires_all' class='fnname'>requires_all</a>(self, names: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'r <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Sets arguments by names that are required when this one is presnet I.e. when
 using this argument, the following arguments <em>must</em> be present.</p>
 
@@ -270,7 +270,7 @@ by default. </p>
 .<span class='ident'>requires_all</span>(
        <span class='macro'>vec</span><span class='macro'>!</span>[<span class='string'>&quot;debug&quot;</span>, <span class='string'>&quot;input&quot;</span>])
 </pre>
-</div><h4 id='method.takes_value' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.takes_value' class='fnname'>takes_value</a>(self, tv: <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
+</div><h4 id='method.takes_value' class='method'><code>fn <a href='#method.takes_value' class='fnname'>takes_value</a>(self, tv: <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Specifies that the argument takes an additional value at run time.</p>
 
 <p><strong>NOTE:</strong> When setting this to <code>true</code> the <code>name</code> of the argument
@@ -280,7 +280,7 @@ will be used when printing the help/usage information to the user. </p>
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>takes_value</span>(<span class='boolval'>true</span>)
 </pre>
-</div><h4 id='method.index' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.index' class='fnname'>index</a>(self, idx: <a href='http://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
+</div><h4 id='method.index' class='method'><code>fn <a href='#method.index' class='fnname'>index</a>(self, idx: <a href='http://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Specifies the index of a positional argument starting at 1.</p>
 
 <p><strong>NOTE:</strong> When setting this,  any <code>short</code> or <code>long</code> values you set
@@ -292,7 +292,7 @@ to the user. </p>
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>index</span>(<span class='number'>1</span>)
 </pre>
-</div><h4 id='method.multiple' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.multiple' class='fnname'>multiple</a>(self, multi: <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
+</div><h4 id='method.multiple' class='method'><code>fn <a href='#method.multiple' class='fnname'>multiple</a>(self, multi: <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Specifies if the flag may appear more than once such as for multiple debugging
 levels (as an example). <code>-ddd</code> for three levels of debugging, or <code>-d -d -d</code>. 
 When this is set to <code>true</code> you recieve the number of occurances the user supplied
@@ -305,7 +305,7 @@ are ignored as flags cannot have a values or an <code>index</code>.</p>
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>multiple</span>(<span class='boolval'>true</span>)
 </pre>
-</div><h4 id='method.possible_values' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.possible_values' class='fnname'>possible_values</a>(self, names: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'p <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
+</div><h4 id='method.possible_values' class='method'><code>fn <a href='#method.possible_values' class='fnname'>possible_values</a>(self, names: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'p <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Specifies a list of possible values for this argument. At runtime, clap verifies that only
 one of the specified values was used, or fails with a usage string.</p>
 
@@ -315,7 +315,7 @@ one of the specified values was used, or fails with a usage string.</p>
                            href="#example">Example</a></h1><pre id='rust-example-rendered' class='rust '>
 .<span class='ident'>possible_values</span>(<span class='macro'>vec</span><span class='macro'>!</span>[<span class='string'>&quot;fast&quot;</span>, <span class='string'>&quot;slow&quot;</span>])
 </pre>
-</div><h4 id='method.group' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.group' class='fnname'>group</a>(self, name: &amp;'g <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
+</div><h4 id='method.group' class='method'><code>fn <a href='#method.group' class='fnname'>group</a>(self, name: &amp;'g <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../clap/struct.Arg.html' title='clap::Arg'>Arg</a>&lt;'n, 'l, 'h, 'g, 'p, 'r&gt;</code></h4>
 <div class='docblock'><p>Specifies the name of the group the argument belongs to.</p>
 
 <h1 id="example" class='section-header'><a

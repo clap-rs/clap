@@ -802,24 +802,35 @@
     if (query['gotosrc']) {
         window.location = $('#src-' + query['gotosrc']).attr('href');
     }
+    if (query['gotomacrosrc']) {
+        window.location = $('.srclink').attr('href');
+    }
 
-    $("#expand-all").on("click", function() {
-        $(".docblock").show();
-        $(".toggle-label").hide();
-        $(".toggle-wrapper").removeClass("collapsed");
-        $(".collapse-toggle").children(".inner").html("-");
-    });
-
-    $("#collapse-all").on("click", function() {
-        $(".docblock").hide();
-        $(".toggle-label").show();
-        $(".toggle-wrapper").addClass("collapsed");
-        $(".collapse-toggle").children(".inner").html("+");
+    $("#toggle-all-docs").on("click", function() {
+        var toggle = $("#toggle-all-docs");
+        if (toggle.html() == "[-]") {
+            toggle.html("[+]");
+            toggle.attr("title", "expand all docs");
+            $(".docblock").hide();
+            $(".toggle-label").show();
+            $(".toggle-wrapper").addClass("collapsed");
+            $(".collapse-toggle").children(".inner").html("+");
+        } else {
+            toggle.html("[-]");
+            toggle.attr("title", "collapse all docs");
+            $(".docblock").show();
+            $(".toggle-label").hide();
+            $(".toggle-wrapper").removeClass("collapsed");
+            $(".collapse-toggle").children(".inner").html("-");
+        }
     });
 
     $(document).on("click", ".collapse-toggle", function() {
         var toggle = $(this);
         var relatedDoc = toggle.parent().next();
+        if (relatedDoc.is(".stability")) {
+            relatedDoc = relatedDoc.next();
+        }
         if (relatedDoc.is(".docblock")) {
             if (relatedDoc.is(":visible")) {
                 relatedDoc.slideUp({duration:'fast', easing:'linear'});
@@ -840,9 +851,10 @@
             .html("[<span class='inner'>-</span>]");
 
         $(".method").each(function() {
-           if ($(this).next().is(".docblock")) {
-               $(this).children().first().after(toggle.clone());
-           }
+            if ($(this).next().is(".docblock") ||
+                ($(this).next().is(".stability") && $(this).next().next().is(".docblock"))) {
+                    $(this).children().first().after(toggle.clone());
+            }
         });
 
         var mainToggle =
