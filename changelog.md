@@ -1,3 +1,13 @@
+<a name="v0.6.9"></a>
+## v0.6.9 (2015-04-29)
+
+
+#### Bug Fixes
+
+* **from_usage**  removes bug where usage strings have no help text ([ad4e5451](https://github.com/kbknapp/clap-rs/commit/ad4e54510739aeabf75f0da3278fb0952db531b3), closes [#83](https://github.com/kbknapp/clap-rs/issues/83))
+
+
+
 <a name="0.6.8"></a>
 ## 0.6.8 (2015-04-27)
 
