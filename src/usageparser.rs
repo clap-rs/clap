@@ -82,6 +82,9 @@ impl<'u> Iterator for UsageParser<'u> {
                             } 
                             if self.e > self.usage.len() { return None }
 
+                            if self.e == self.usage.len() - 1 {
+                                return Some(UsageToken::Long(&self.usage[self.s..]))
+                            }
                             return Some(UsageToken::Long(&self.usage[self.s..self.e]))
                         },
                         Some(c)  => {
@@ -108,7 +111,13 @@ impl<'u> Iterator for UsageParser<'u> {
                         match self.chars.next() {
                             // longs consume one '.' so they match '.. ' whereas shorts can match '...'
                             Some('.') | Some(' ')  => { mult = true; },
-                            _          => { mult = false; break; }
+                            _          => { 
+                                // if there is no help or following space all we can match is '..'
+                                if self.e == self.usage.len() - 1 {
+                                    mult = true;
+                                }
+                                break; 
+                            }
                         }
                     }
                     if mult { return Some(UsageToken::Multiple) }

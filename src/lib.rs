@@ -89,6 +89,24 @@ mod tests {
 		assert_eq!(e.short.unwrap(), 'f');
 		assert_eq!(e.help.unwrap(), "some help info");
 		assert!(e.multiple);
+
+		let e = Arg::from_usage("--flags");
+		assert_eq!(e.name, "flags");
+		assert_eq!(e.long.unwrap(), "flags");
+
+		let e = Arg::from_usage("--flags...");
+		assert_eq!(e.name, "flags");
+		assert_eq!(e.long.unwrap(), "flags");
+		assert!(e.multiple);
+
+		let e = Arg::from_usage("[flags] -f");
+		assert_eq!(e.name, "flags");
+		assert_eq!(e.short.unwrap(), 'f');
+		
+		let e = Arg::from_usage("[flags] -f...");
+		assert_eq!(e.name, "flags");
+		assert_eq!(e.short.unwrap(), 'f');
+		assert!(e.multiple);
 	}
 
 	#[test]
@@ -125,6 +143,16 @@ mod tests {
 		assert_eq!(d.help.unwrap(), "some help info");
 		assert!(d.multiple);
 		assert!(d.required);
+
+		let b = Arg::from_usage("<pos>");
+		assert_eq!(b.name, "pos");
+		assert!(!b.multiple);
+		assert!(b.required);
+
+		let c = Arg::from_usage("[pos]...");
+		assert_eq!(c.name, "pos");
+		assert!(c.multiple);
+		assert!(!c.required);
 	}
 
 	#[test]
