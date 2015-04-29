@@ -302,16 +302,6 @@ cd clap-rs && cargo test
 cd clap-tests && make test
 ```
 
-### Building the documentation
-
-If your changes require re-building the documentation, run this instead of `cargo doc` to generate the proper module docstring:
-
-```
-cd clap-rs && make doc
-```
-
-Then browse to `clap-rs/docs/clap/index.html` in your web-browser of choice to check it out.
-
 ### Goals
 
 There are a few goals of `clap` that I'd like to maintain throughout contributions. If your proposed changes break, or go against any of these goals we'll discuss the changes further before merging (but will *not* be ignored, all contributes are welcome!). These are by no means hard-and-fast rules, as I'm no expert and break them myself from time to time (even if by mistake or ignorance :P).

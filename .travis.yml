@@ -9,7 +9,7 @@ script:
 - |
   ./tc cargo build &&
   ./tc cargo test &&
-  make doc
+  ./tc cargo doc
 after_success:
 - "./tc --only beta doc-upload"
 env:
