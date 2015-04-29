@@ -1,3 +1,5 @@
+use std::iter::IntoIterator;
+
 use usageparser::{UsageParser, UsageToken};
 
 /// The abstract representation of a command line argument used by the consumer of the library.
@@ -379,7 +381,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         if let Some(ref mut vec) = self.blacklist {
             vec.push(name);
         } else {
-            self.blacklist = Some(vec![name]);
+            let v = vec![name];
+            self.blacklist = Some(v);
         }
         self
     }
@@ -398,17 +401,18 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
+    /// let conf_excludes = ["debug", "input"];
     /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
-    /// .mutually_excludes_all(
-    ///        vec!["debug", "input"])
+    /// .mutually_excludes_all(&conf_excludes)
     /// # ).get_matches();
-    pub fn mutually_excludes_all(mut self, names: Vec<&'r str>) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
+    pub fn mutually_excludes_all<T, I>(mut self, names: I)
+                                       -> Arg<'n, 'l, 'h, 'g, 'p, 'r>
+                                       where T: AsRef<str> + 'r,
+                                             I: IntoIterator<Item=&'r T> {
         if let Some(ref mut vec) = self.blacklist {
-            for n in names {
-                vec.push(n);
-            }
+            names.into_iter().map(|s| vec.push(s.as_ref())).collect::<Vec<_>>();
         } else {
-            self.blacklist = Some(names);
+            self.blacklist = Some(names.into_iter().map(|s| s.as_ref()).collect::<Vec<_>>());
         }
         self
     }
@@ -449,17 +453,18 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
+    /// let config_conflicts = ["debug", "input"];
     /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
-    /// .conflicts_with_all(
-    ///        vec!["debug", "input"])
+    /// .conflicts_with_all(&config_conflicts)
     /// # ).get_matches();
-    pub fn conflicts_with_all(mut self, names: Vec<&'r str>) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
+    pub fn conflicts_with_all<T, I>(mut self, names: I)
+                                    -> Arg<'n, 'l, 'h, 'g, 'p, 'r> 
+                                    where T: AsRef<str> + 'r,
+                                          I: IntoIterator<Item=&'r T> {
         if let Some(ref mut vec) = self.blacklist {
-            for n in names {
-                vec.push(n);
-            }
+            names.into_iter().map(|s| vec.push(s.as_ref())).collect::<Vec<_>>();
         } else {
-            self.blacklist = Some(names);
+            self.blacklist = Some(names.into_iter().map(|s| s.as_ref()).collect::<Vec<_>>());
         }
         self
     }
@@ -497,17 +502,18 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
+    /// let config_reqs = ["debug", "input"];
     /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
-    /// .requires_all(
-    ///        vec!["debug", "input"])
+    /// .requires_all(&config_reqs)
     /// # ).get_matches();
-    pub fn requires_all(mut self, names: Vec<&'r str>) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
+    pub fn requires_all<T, I>(mut self, names: I)
+                              -> Arg<'n, 'l, 'h, 'g, 'p, 'r> 
+                              where T: AsRef<str> + 'r,
+                                    I: IntoIterator<Item=&'r T> {
         if let Some(ref mut vec) = self.requires {
-            for n in names {
-                vec.push(n);
-            }
+            names.into_iter().map(|s| vec.push(s.as_ref())).collect::<Vec<_>>();
         } else {
-            self.requires = Some(names);
+            self.requires = Some(names.into_iter().map(|s| s.as_ref()).collect::<Vec<_>>());
         }
         self
     }
@@ -587,18 +593,20 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
+    /// let mode_vals = ["fast", "slow"];
     /// # let matches = App::new("myprog")
     /// #                 .arg(
     /// # Arg::with_name("debug").index(1)
-    /// .possible_values(vec!["fast", "slow"])
+    /// .possible_values(&mode_vals)
     /// # ).get_matches();
-    pub fn possible_values(mut self, names: Vec<&'p str>) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
+    pub fn possible_values<T, I>(mut self, names: I)
+                                 -> Arg<'n, 'l, 'h, 'g, 'p, 'r> 
+                                 where T: AsRef<str> + 'p,
+                                       I: IntoIterator<Item=&'p T> {
         if let Some(ref mut vec) = self.possible_vals {
-            for n in names {
-                vec.push(n);
-            }
+            names.into_iter().map(|s| vec.push(s.as_ref())).collect::<Vec<_>>();
         } else {
-            self.possible_vals = Some(names);
+            self.possible_vals = Some(names.into_iter().map(|s| s.as_ref()).collect::<Vec<_>>());
         }
         self
     }

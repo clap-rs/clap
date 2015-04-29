@@ -12,11 +12,12 @@ fn main() {
     //
     // For this example, assume you want one positional argument of either "fast" or "slow"
     // i.e. the only possible ways to run the program are "myprog fast" or "myprog slow"
+    let mode_vals = ["fast", "slow"];
     let matches = App::new("myapp").about("does awesome things")
                         .arg(Arg::with_name("MODE")
                                 .help("What mode to run the program in")
                                 .index(1)
-                                .possible_values(vec!["fast", "slow"])
+                                .possible_values(&mode_vals)
                                 .required(true))
                         .get_matches();
 

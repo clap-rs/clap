@@ -38,11 +38,12 @@ impl FromStr for Vals {
 
 fn main() {
     // Create the application like normal
+    let enum_vals = ["Foo", "Bar", "Baz", "Qux"];
     let m = App::new("myapp")
                     // Use a single positional argument that is required
                     .arg(Arg::from_usage("<type> 'The type to use'")
                             // Define the list of possible values
-                            .possible_values(vec!["Foo", "Bar", "Baz", "Qux"]))
+                            .possible_values(&enum_vals))
                     .get_matches();
 
     let t = value_t_or_exit!(m.value_of("type"), Vals);

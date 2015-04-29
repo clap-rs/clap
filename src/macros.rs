@@ -283,9 +283,10 @@ macro_rules! value_t_or_exit {
 /// // Foo enum can now be used via Foo::Bar, or Foo::Baz, etc
 /// // and implements std::str::FromStr to use with the value_t! macros
 /// fn main() {
+///		let enum_vals = ["Bar", "Baz", "Qux"];
 /// 	let m = App::new("app")
 ///					.arg(Arg::from_usage("<foo> 'the foo'")
-///						.possible_values(vec!["Bar", "Baz", "Qux"]))
+///						.possible_values(&enum_vals))
 ///					.get_matches();
 /// 	let f = value_t_or_exit!(m.value_of("foo"), Foo);
 ///

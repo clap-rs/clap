@@ -3,10 +3,13 @@ extern crate clap;
 
 use clap::{App, Arg, SubCommand};
 
+
 fn main() {
     let args = "-f --flag... 'tests flags'
                 -o --option=[opt]... 'tests options'
                 [positional] 'tests positionals'";
+    let opt3_vals = ["fast", "slow"];
+    let pos3_vals = ["vi", "emacs"];
     let matches = App::new("claptests")
                         // Test version from Cargo.toml
                         .version(&crate_version!()[..])
@@ -17,8 +20,8 @@ fn main() {
                             Arg::from_usage("[flag2] -F 'tests flags with exclusions'").mutually_excludes("flag").requires("option2"),
                             Arg::from_usage("--long-option-2 [option2] 'tests long options with exclusions'").mutually_excludes("option").requires("positional2"),
                             Arg::from_usage("[positional2] 'tests positionals with exclusions'"),
-                            Arg::from_usage("-O [option3] 'tests options with specific value sets'").possible_values(vec!["fast", "slow"]),
-                            Arg::from_usage("[positional3]... 'tests positionals with specific values'").possible_values(vec!["vi", "emacs"])
+                            Arg::from_usage("-O [option3] 'tests options with specific value sets'").possible_values(&opt3_vals),
+                            Arg::from_usage("[positional3]... 'tests positionals with specific values'").possible_values(&pos3_vals)
                         ])
                         .subcommand(SubCommand::new("subcmd")
                                                 .about("tests subcommands")

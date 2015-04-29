@@ -33,13 +33,14 @@ arg_enum!{
 
 fn main() {
     // Create the application like normal
+    let enum_vals = ["fast", "slow"];
     let m = App::new("myapp")
                     // Use a single positional argument that is required
                     .arg(Arg::from_usage("<type> 'The Foo to use'")
                             // You can define a list of possible values if you want the values to be
                             // displayed in the help information. Whether you use possible_values() or
                             // not, the valid values will ALWAYS be displayed on a failed parse.
-                            .possible_values(vec!["Bar", "Baz", "Qux"]))
+                            .possible_values(&enum_vals))
                     // For the second positional, lets not use possible_values() just to show the difference
                     .arg_from_usage("<type2> 'The Oof to use'")
                     .get_matches();
