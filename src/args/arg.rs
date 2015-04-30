@@ -77,7 +77,11 @@ pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     pub requires: Option<Vec<&'r str>>,
     /// A name of the group the argument belongs to
     #[doc(hidden)]
-    pub group: Option<&'g str>
+    pub group: Option<&'g str>,
+    #[doc(hidden)]
+    pub val_names: Option<Vec<&'p str>>,
+    #[doc(hidden)]
+    pub num_vals: Option<u8>,
 }
 
 impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
@@ -116,6 +120,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             blacklist: None,
             requires: None,
             group: None,
+            num_vals: None,
+            val_names: None
         }
     }
 
@@ -150,6 +156,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             possible_vals: None,
             blacklist: None,
             requires: None,
+            num_vals: None,
+            val_names: None,
             group: None,
         }
     }
@@ -265,6 +273,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             possible_vals: None,
             blacklist: None,
             requires: None,
+            num_vals: None,
+            val_names: None,
             group: None,
         }
     }
@@ -625,6 +635,23 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # ).get_matches();
     pub fn group(mut self, name: &'g str) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self.group = Some(name);
+        self
+    }
+
+    pub fn number_of_values(mut self, qty: u8) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
+        self.num_vals = Some(qty);
+        self
+    }
+
+    pub fn value_names<T, I>(mut self, names: I)
+                                 -> Arg<'n, 'l, 'h, 'g, 'p, 'r> 
+                                 where T: AsRef<str> + 'p,
+                                       I: IntoIterator<Item=&'p T> {
+        if let Some(ref mut vec) = self.val_names {
+            names.into_iter().map(|s| vec.push(s.as_ref())).collect::<Vec<_>>();
+        } else {
+            self.val_names = Some(names.into_iter().map(|s| s.as_ref()).collect::<Vec<_>>());
+        }
         self
     }
 }
