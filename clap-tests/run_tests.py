@@ -31,19 +31,16 @@ SUBCOMMANDS:
     help      Prints this message
     subcmd    tests subcommands'''
 
-_excluded = '''The argument --flag cannot be used with one or more of the other specified arguments
-USAGE:
-    claptests [FLAGS] [OPTIONS] --long-option-2 <option2>  [POSITIONAL] [SUBCOMMANDS]
+_excluded = '''The argument --flag cannot be used with -F
+	USAGE: claptests  -F  --long-option-2 <option2>  [positional2] 
 For more information try --help'''
 
-_excluded_l = '''The argument -f cannot be used with one or more of the other specified arguments
-USAGE:
-    claptests [FLAGS] [OPTIONS] --long-option-2 <option2>  [POSITIONAL] [SUBCOMMANDS]
+_excluded_l = '''The argument -f cannot be used -F
+	USAGE: claptests  -F  --long-option-2 <option2>  [positional2] 
 For more information try --help'''
 
 _required = '''One or more required arguments were not supplied
-USAGE:
-    claptests [FLAGS] [OPTIONS] --long-option-2 <option2>  [POSITIONAL] [SUBCOMMANDS]
+	USAGE: claptests  -F  --long-option-2 <option2>  [positional2] 
 For more information try --help'''
 
 _fop = '''flag present 1 times
