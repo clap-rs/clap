@@ -22,11 +22,18 @@ pub struct PosBuilder<'n> {
     /// A list of possible values for this argument
     pub possible_vals: Option<BTreeSet<&'n str>>,
     /// The index of the argument
-    pub index: u8 
+    pub index: u8,
+    pub num_vals: Option<u8>,
+    pub max_vals: Option<u8>,
+    pub min_vals: Option<u8>,
 }
 
 impl<'n> Display for PosBuilder<'n> {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        write!(f, "{}{}{}{}", if self.required { "<" } else {"["}, self.name,if self.required { ">" } else {"]"}, if self.multiple {"..."}else{""})
+        write!(f, "{}{}{}{}",
+                if self.required { "<" } else {"["}, 
+                self.name,
+                if self.required { ">" } else {"]"}, 
+                if self.multiple {"..."}else{""})
     }
 }

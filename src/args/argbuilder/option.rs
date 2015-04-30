@@ -25,10 +25,32 @@ pub struct OptBuilder<'n> {
     /// A list of names of other arguments that are *required* to be used when 
     /// this flag is used
     pub requires: Option<HashSet<&'n str>>,
+    pub num_vals: Option<u8>,
+    pub min_vals: Option<u8>,
+    pub max_vals: Option<u8>,
+    pub val_names: Option<Vec<&'n str>>
 }
 
 impl<'n> Display for OptBuilder<'n> {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        write!(f, "{} <{}>{}", if self.long.is_some() { format!("--{}", self.long.unwrap())} else {format!("-{}", self.short.unwrap())}, self.name, if self.multiple{"..."}else{""})
+        write!(f, "{}", 
+            if let Some(ref vec) = self.val_names {
+                format!("[ {} {}]",
+                    if self.long.is_some() { 
+                        format!("--{}", self.long.unwrap())
+                    } else {
+                        format!("-{}", self.short.unwrap())
+                    }, 
+                    vec.iter().fold(String::new(),|acc, i| acc + &format!("<{}> ",i)[..]) )
+            } else { 
+                format!("{} <{}>{}",
+                    if self.long.is_some() { 
+                        format!("--{}", self.long.unwrap())
+                    } else {
+                        format!("-{}", self.short.unwrap())
+                    }, 
+                    self.name, 
+                    if self.multiple{"..."}else{""})
+            })
     }
 }

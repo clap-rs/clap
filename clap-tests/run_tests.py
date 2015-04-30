@@ -9,7 +9,7 @@ Kevin K. <kbknapp@gmail.com>
 tests clap library
 
 USAGE:
-    claptests [FLAGS] [OPTIONS] [POSITIONAL] [SUBCOMMANDS]
+    claptests [POSITIONAL] [FLAGS] [OPTIONS] [SUBCOMMANDS]
 
 FLAGS:
     -f, --flag       tests flags
@@ -32,15 +32,18 @@ SUBCOMMANDS:
     subcmd    tests subcommands'''
 
 _excluded = '''The argument --flag cannot be used with -F
-	USAGE: claptests  -F  --long-option-2 <option2>  [positional2] 
+USAGE:
+    claptests  [positional2]  -F  --long-option-2 <option2> 
 For more information try --help'''
 
 _excluded_l = '''The argument -f cannot be used -F
-	USAGE: claptests  -F  --long-option-2 <option2>  [positional2] 
+USAGE:
+    claptests  [positional2]  -F  --long-option-2 <option2> 
 For more information try --help'''
 
 _required = '''One or more required arguments were not supplied
-	USAGE: claptests  -F  --long-option-2 <option2>  [positional2] 
+USAGE:
+    claptests  [positional2]  -F  --long-option-2 <option2> 
 For more information try --help'''
 
 _fop = '''flag present 1 times
@@ -92,7 +95,7 @@ Kevin K. <kbknapp@gmail.com>
 tests subcommands
 
 USAGE:
-    claptests subcmd [FLAGS] [OPTIONS] [POSITIONAL]
+    claptests subcmd [POSITIONAL] [FLAGS] [OPTIONS]
 
 FLAGS:
     -h, --help       Prints help information
@@ -145,32 +148,32 @@ cmds = {'help short:         ': ['{} -h'.format(_bin), _help],
 		'excluded first:     ': ['{} -f -F'.format(_bin), _excluded],
 		'excluded last:      ': ['{} -F -f'.format(_bin), _excluded_l],
 		'missing required:   ': ['{} -F'.format(_bin), _required],
-		'F2(ll),O(s),P:      ': ['{} --flag --flag -o some value'.format(_bin), _f2op],
-		'F2(ss),O(s),P:      ': ['{} -f -f -o some value'.format(_bin), _f2op],
-		'O2(ll)P:            ': ['{} --option some --option other value'.format(_bin), _o2p],
-		'O2(l=l=)P:          ': ['{} --option=some --option=other value'.format(_bin), _o2p],
-		'O2(ss)P:            ': ['{} -o some -o other value'.format(_bin), _o2p],
-		'F2(s2),O(s),P:      ': ['{} -ff -o some value'.format(_bin), _f2op],
-		'F(s),O(s),P:        ': ['{} -f -o some value'.format(_bin), _fop],
-		'F(l),O(l),P:        ': ['{} --flag --option some value'.format(_bin), _fop],
-		'F(l),O(l=),P:       ': ['{} --flag --option=some value'.format(_bin), _fop],
+		'F2(ll),O(s),P:      ': ['{} value --flag --flag -o some'.format(_bin), _f2op],
+		'F2(ss),O(s),P:      ': ['{} value -f -f -o some'.format(_bin), _f2op],
+		'O2(ll)P:            ': ['{} value --option some --option other'.format(_bin), _o2p],
+		'O2(l=l=)P:          ': ['{} value --option=some --option=other'.format(_bin), _o2p],
+		'O2(ss)P:            ': ['{} value -o some -o other'.format(_bin), _o2p],
+		'F2(s2),O(s),P:      ': ['{} value -ff -o some'.format(_bin), _f2op],
+		'F(s),O(s),P:        ': ['{} value -f -o some'.format(_bin), _fop],
+		'F(l),O(l),P:        ': ['{} value --flag --option some'.format(_bin), _fop],
+		'F(l),O(l=),P:       ': ['{} value --flag --option=some'.format(_bin), _fop],
 		'sc help short:      ': ['{} subcmd -h'.format(_bin), _schelp],
 		'sc help long:       ': ['{} subcmd --help'.format(_bin), _schelp],
-		'scF(l),O(l),P:      ': ['{} subcmd --flag --option some value'.format(_bin), _scfop],
-		'scF(l),O(s),P:      ': ['{} subcmd --flag -o some value'.format(_bin), _scfop],
-		'scF(l),O(l=),P:     ': ['{} subcmd --flag --option=some value'.format(_bin), _scfop],
-		'scF(s),O(l),P:      ': ['{} subcmd -f --option some value'.format(_bin), _scfop],
-		'scF(s),O(s),P:      ': ['{} subcmd -f -o some value'.format(_bin), _scfop],
-		'scF(s),O(l=),P:     ': ['{} subcmd -f --option=some value'.format(_bin), _scfop],
-		'scF2(s),O(l),P:     ': ['{} subcmd -ff --option some value'.format(_bin), _scf2op],
-		'scF2(s),O(s),P:     ': ['{} subcmd -ff -o some value'.format(_bin), _scf2op],
-		'scF2(s),O(l=),P:    ': ['{} subcmd -ff --option=some value'.format(_bin), _scf2op],
-		'scF2(l2),O(l),P:    ': ['{} subcmd --flag --flag --option some value'.format(_bin), _scf2op],
-		'scF2(l2),O(s),P:    ': ['{} subcmd --flag --flag -o some value'.format(_bin), _scf2op],
-		'scF2(l2),O(l=),P:   ': ['{} subcmd --flag --flag --option=some value'.format(_bin), _scf2op],
-		'scF2(s2),O(l),P:    ': ['{} subcmd -f -f --option some value'.format(_bin), _scf2op],
-		'scF2(s2),O(s),P:    ': ['{} subcmd -f -f -o some value'.format(_bin), _scf2op],
-		'scF2(s2),O(l=),P:   ': ['{} subcmd -f -f --option=some value'.format(_bin), _scf2op]
+		'scF(l),O(l),P:      ': ['{} subcmd value --flag --option some'.format(_bin), _scfop],
+		'scF(l),O(s),P:      ': ['{} subcmd value --flag -o some'.format(_bin), _scfop],
+		'scF(l),O(l=),P:     ': ['{} subcmd value --flag --option=some'.format(_bin), _scfop],
+		'scF(s),O(l),P:      ': ['{} subcmd value -f --option some'.format(_bin), _scfop],
+		'scF(s),O(s),P:      ': ['{} subcmd value -f -o some'.format(_bin), _scfop],
+		'scF(s),O(l=),P:     ': ['{} subcmd value -f --option=some'.format(_bin), _scfop],
+		'scF2(s),O(l),P:     ': ['{} subcmd value -ff --option some'.format(_bin), _scf2op],
+		'scF2(s),O(s),P:     ': ['{} subcmd value -ff -o some'.format(_bin), _scf2op],
+		'scF2(s),O(l=),P:    ': ['{} subcmd value -ff --option=some'.format(_bin), _scf2op],
+		'scF2(l2),O(l),P:    ': ['{} subcmd value --flag --flag --option some'.format(_bin), _scf2op],
+		'scF2(l2),O(s),P:    ': ['{} subcmd value --flag --flag -o some'.format(_bin), _scf2op],
+		'scF2(l2),O(l=),P:   ': ['{} subcmd value --flag --flag --option=some'.format(_bin), _scf2op],
+		'scF2(s2),O(l),P:    ': ['{} subcmd value -f -f --option some'.format(_bin), _scf2op],
+		'scF2(s2),O(s),P:    ': ['{} subcmd value -f -f -o some'.format(_bin), _scf2op],
+		'scF2(s2),O(l=),P:   ': ['{} subcmd value -f -f --option=some'.format(_bin), _scf2op]
 		}
 
 def pass_fail(name, check, good):
@@ -180,7 +183,7 @@ def pass_fail(name, check, good):
 		print('Pass')
 		return
 	failed = True
-	print('Fail\n\tShould be: {}\n\tBut is:    {}'.format(good, check))
+	print('Fail\n\tShould be: \n{}\n\tBut is:    \n{}'.format(good, check))
 
 
 def main():
