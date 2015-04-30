@@ -726,7 +726,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             let o_string = c_opt.iter().map(|f| format!("{}", f)).fold(String::new(),|acc, i| acc + &format!(" {}", i));
             let p_string = c_pos.iter().map(|f| format!("{}", f)).fold(String::new(),|acc, i| acc + &format!(" {}", i));
             let g_string = grps.iter().map(|f| format!(" {}", f)).fold(String::new(), |acc, i| acc + &format!("{}", i));
-            return format!("\tUSAGE: {} {} {} {} {}", self.bin_name.clone().unwrap_or(self.name.clone()), f_string, o_string, p_string, g_string)
+            return format!("\tUSAGE: {} {} {} {} {}", self.bin_name.clone().unwrap_or(self.name.clone()), p_string, f_string, o_string, g_string)
         } else {
             let flags = !self.flags.is_empty();
             let pos = !self.positionals_idx.is_empty();
@@ -767,6 +767,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             req_opts.shrink_to_fit();
 
             usage.push_str(&self.bin_name.clone().unwrap_or(self.name.clone())[..]);
+            if pos {
+                write!(&mut usage, " {}",
+                    if num_req_pos != self.positionals_idx.len() && !req_pos.is_empty() { 
+                        format!("[POSITIONAL] {}", &req_pos[..])
+                    } else if req_pos.is_empty() { 
+                        "[POSITIONAL]".to_owned()
+                    } else {
+                        req_pos
+                    } ).unwrap_or_else(|e| self.report_error(format!("internal error: {}", e),false,true, None));
+            }
             if flags {
                 usage.push_str(" [FLAGS]");
             }
@@ -779,16 +789,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     } else {
                         req_opts
                     }).unwrap_or_else(|e| self.report_error(format!("internal error: {}", e),false,true, None));
-            }
-            if pos {
-                write!(&mut usage, " {}",
-                    if num_req_pos != self.positionals_idx.len() && !req_pos.is_empty() { 
-                        format!("[POSITIONAL] {}", &req_pos[..])
-                    } else if req_pos.is_empty() { 
-                        "[POSITIONAL]".to_owned()
-                    } else {
-                        req_pos
-                    } ).unwrap_or_else(|e| self.report_error(format!("internal error: {}", e),false,true, None));
             }
             if groups {
                 let req_grps = self.groups.values()                                                         // Iterator<Item=ArgGroup>
@@ -1093,7 +1093,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         while let Some(arg) = it.next() {
             let arg_slice = &arg[..];
             let mut skip = false;
-            if !pos_only {
+            if !pos_only && !arg_slice.starts_with("-") {
                 if let Some(nvo) = needs_val_of {
                     if let Some(ref opt) = self.opts.get(nvo) {
                         if let Some(ref p_vals) = opt.possible_vals {
@@ -1102,7 +1102,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     self.report_error(format!("\"{}\" isn't a valid value for {}{}", 
                                                                 arg_slice, 
                                                                 opt,
-                                                                format!("\n    [valid values:{}]", p_vals.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] )) ), true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                                                                format!("\n\t[valid values:{}]\n", p_vals.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] )) ), true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
                                 }
                             }
                         }
@@ -1113,9 +1113,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             }
      
                             // if it's multiple the occurrences are increased when originall found
-                            o.occurrences = if opt.multiple { o.occurrences + 1 } else { 1 };
-                        }
-                        
+                            o.occurrences = if opt.multiple { 
+                                o.occurrences + 1 
+                            } else { 
+                                skip = true;
+                                1 
+                            };
+                            if !skip {
+                                continue;
+                            }
+                        }  
                         skip = true;
                     }
                 }
@@ -1222,15 +1229,23 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
         match needs_val_of {
             Some(ref a) => {
-                self.report_error(
-                    format!("Argument {} requires a value but none was supplied", if let Some(f) = self.flags.get(a) {
-                        format!("{}", f)
-                    } else if let Some(o) = self.opts.get(a) {
-                        format!("{}", o)
-                    } else {
-                        format!("{}", self.positionals_idx.get(self.positionals_name.get(a).unwrap()).unwrap())
-                    }),
-                    true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                if let Some(o) = self.opts.get(a) {
+                    if o.multiple && self.required.is_empty() { return }
+                    else {
+                        self.report_error("One or more required arguments were not supplied".to_owned(),
+                                true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                    }
+                } else {
+                    self.report_error(
+                        format!("Argument {} requires a value but none was supplied", if let Some(f) = self.flags.get(a) {
+                            format!("{}", f)
+                        } else if let Some(o) = self.opts.get(a) {
+                            format!("{}", o)
+                        } else {
+                            format!("{}", self.positionals_idx.get(self.positionals_name.get(a).unwrap()).unwrap())
+                        }),
+                        true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                }
             }
             _ => {}
         }
