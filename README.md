@@ -28,10 +28,13 @@ Below are a few of the features which `clap` supports, full descriptions and usa
   - Optionally supports multiple values (i.e. `myprog <file>...` such as `myprog file1.txt file2.txt` being two values for the same "file" argument)
   - Optionally supports Specific Value Sets (See below)
   - Supports the unix `--` meaning, only positional arguments follow
+  - Optionally sets value parameters (such as the minimum number of values, the maximum number of values, or the exact number of values)
 * **Option Arguments** (i.e. those that take values as options)
   - Both short and long versions supported (i.e. `-o value` and `--option value` or `--option=value` respectively)
-  - Optionally supports multiple values (i.e. `-o <value> -o <other_value>`)
+  - Optionally supports multiple values (i.e. `-o <value> -o <other_value>` or the shorthand `-o <value> <other_value>`)
   - Optionally supports Specific Value Sets (See below)
+  - Optionally supports named values so that the usage/help info appears as `-o <name> <other_name>` etc. for when you require specific multiple values
+  - Optionally sets value parameters (such as the minimum number of values, the maximum number of values, or the exact number of values)
 * **Sub-Commands** (i.e. `git add <file>` where `add` is a sub-command of `git`)
   - Support their own sub-arguments, and sub-sub-commands independant of the parent
   - Get their own auto-generated Help, Version, and Usage independant of parent
@@ -319,3 +322,27 @@ There are a few goals of `clap` that I'd like to maintain throughout contributio
 ## License
 
 `clap` is licensed under the MIT license. Please the LICENSE-MIT file in this repository for more information.
+
+## Recent Breaking Changes
+
+Although I do my best to keep breaking changes to a minimum, being that this a sub 1.0 library, there are breaking changes from time to time in order to support better features or implementation. For the full details see the changelog.md
+
+* As of 0.7.0
+  - `Arg::possible_values()`, `Arg::value_names()`, `Arg::requires_all()`, `Arg::mutually_excludes_all()` [deprecated], `Arg::conflicts_with_all()`
+    + No longer take a `Vec<&str>`, instead they take a generic `IntoIterator<Item=AsRef<str>>` which means you cannot use an inline `vec![]` but it means the methods are now far more flexible, especially for dynamic value generation.
+    + Instead use something that conforms to the `IntoIterator` trait, or something like:
+    
+    ```rust
+    let my_vals = ["value1", "value2", "value3"];
+    ...
+    .possible_values(&my_vals)
+    ```
+
+### Deprecations
+
+Old method names will be left around for some time.
+
+* As of 0.6.8
+  - `Arg::new()` -> `Arg::with_name()`
+  - `Arg::mutually_excludes()` -> `Arg::conflicts_with()`
+  - `Arg::mutually_excludes_all()` -> `Arg::conflicts_with_all()`
