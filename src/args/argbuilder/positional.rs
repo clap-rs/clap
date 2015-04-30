@@ -24,6 +24,8 @@ pub struct PosBuilder<'n> {
     /// The index of the argument
     pub index: u8,
     pub num_vals: Option<u8>,
+    pub max_vals: Option<u8>,
+    pub min_vals: Option<u8>,
 }
 
 impl<'n> Display for PosBuilder<'n> {

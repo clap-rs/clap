@@ -300,6 +300,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 requires: None,
                 possible_vals: None,
                 num_vals: a.num_vals,
+                min_vals: a.min_vals,
+                max_vals: a.max_vals,
                 help: a.help,
             };
             if pb.num_vals.unwrap_or(0) > 1 && !pb.multiple {
@@ -342,6 +344,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 help: a.help,
                 possible_vals: None,
                 num_vals: a.num_vals,
+                min_vals: a.min_vals,
+                max_vals: a.max_vals,
                 val_names: a.val_names,
                 requires: None,
                 required: a.required,
@@ -1138,7 +1142,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if let Some(ref mut o) = matches.args.get_mut(opt.name) {
                             // Options have values, so we can unwrap()
                             if let Some(ref mut vals) = o.values {
-                                vals.push(arg.clone());
+                                let len = vals.len() as u8 + 1;
+                                vals.insert(len, arg.clone());
                             }
      
                             // if it's multiple the occurrences are increased when originall found
@@ -1227,7 +1232,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             done = true;
                             pos.occurrences += 1;
                             if let Some(ref mut vals) = pos.values {
-                                vals.push(arg.clone());
+                                let len = (vals.len() + 1) as u8;
+                                vals.insert(len, arg.clone());
                             }
                         }
                     } else {
@@ -1236,9 +1242,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                     // Was an update made, or is this the first occurrence?
                     if !done {
+                        let mut bm = BTreeMap::new();
+                        bm.insert(1, arg.clone());
                         matches.args.insert(p.name, MatchedArg{
                             occurrences: 1,
-                            values: Some(vec![arg.clone()]),
+                            values: Some(bm),
                         });
                     }
 
@@ -1438,15 +1446,21 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     if let Some(ref mut o) = matches.args.get_mut(v.name) {
                         o.occurrences += 1;
                         if let Some(ref mut vals) = o.values {
-                            vals.push(arg_val.clone().unwrap());
+                            let len = (vals.len() + 1) as u8;
+                            vals.insert(len, arg_val.clone().unwrap());
                         }
                     }
                 }
             } else {
                 matches.args.insert(v.name, MatchedArg{
-                    // name: v.name.to_owned(),
                     occurrences: if arg_val.is_some() { 1 } else { 0 },
-                    values: if arg_val.is_some() { Some(vec![arg_val.clone().unwrap()])} else { Some(vec![]) }
+                    values: if arg_val.is_some() { 
+                        let mut bm = BTreeMap::new();
+                        bm.insert(1, arg_val.clone().unwrap());
+                        Some(bm)
+                    } else { 
+                        Some(BTreeMap::new()) 
+                    }
                 });
             }
             
@@ -1584,7 +1598,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     // name: v.name.to_owned(),
                     // occurrences will be incremented on getting a value
                     occurrences: 0,
-                    values: Some(vec![]) 
+                    values: Some(BTreeMap::new()) 
                 });
             }
             if let Some(ref bl) = v.blacklist {
@@ -1727,10 +1741,34 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
                         }
                     }
+                    if let Some(num) = f.max_vals {
+                        if num > vals.len() as u8 {
+                            self.report_error(format!("The argument {} requires no more than {} values, but {} w{} provided", f, num, vals.len(), if vals.len() == 1 {"as"}else{"ere"}),
+                                true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                        }
+                    }
+                    if let Some(num) = f.min_vals {
+                        if num < vals.len() as u8 {
+                            self.report_error(format!("The argument {} requires at least {} values, but {} w{} provided", f, num, vals.len(), if vals.len() == 1 {"as"}else{"ere"}),
+                                true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                        }
+                    }
                 } else if let Some(f) = self.positionals_idx.get(self.positionals_name.get(name).unwrap()) {
                     if let Some(num) = f.num_vals {
                         if num != vals.len() as u8 {
                             self.report_error(format!("The argument {} requires {} values, but {} w{} provided", f, num, vals.len(), if vals.len() == 1 {"as"}else{"ere"}),
+                                true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                        }
+                    }
+                    if let Some(num) = f.max_vals {
+                        if num > vals.len() as u8 {
+                            self.report_error(format!("The argument {} requires no more than {} values, but {} w{} provided", f, num, vals.len(), if vals.len() == 1 {"as"}else{"ere"}),
+                                true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                        }
+                    }
+                    if let Some(num) = f.min_vals {
+                        if num < vals.len() as u8 {
+                            self.report_error(format!("The argument {} requires at least {} values, but {} w{} provided", f, num, vals.len(), if vals.len() == 1 {"as"}else{"ere"}),
                                 true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
                         }
                     }

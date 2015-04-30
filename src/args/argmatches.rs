@@ -99,7 +99,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     pub fn value_of<'na>(&self, name: &'na str) -> Option<&str> {
         if let Some(ref arg) = self.args.get(name) {
             if let Some(ref vals) = arg.values {
-                if let Some(ref val) = vals.iter().nth(0) {
+                if let Some(ref val) = vals.values().nth(0) {
                     return Some(&val[..]);
                 }
             }
@@ -128,7 +128,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     pub fn values_of<'na>(&'a self, name: &'na str) -> Option<Vec<&'a str>> {
         if let Some(ref arg) = self.args.get(name) {
             if let Some(ref vals) = arg.values {
-                return Some(vals.iter().map(|s| &s[..]).collect::<Vec<_>>());
+                return Some(vals.values().map(|s| &s[..]).collect::<Vec<_>>());
             }
         }
         None

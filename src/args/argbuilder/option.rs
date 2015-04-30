@@ -26,6 +26,8 @@ pub struct OptBuilder<'n> {
     /// this flag is used
     pub requires: Option<HashSet<&'n str>>,
     pub num_vals: Option<u8>,
+    pub min_vals: Option<u8>,
+    pub max_vals: Option<u8>,
     pub val_names: Option<Vec<&'n str>>
 }
 

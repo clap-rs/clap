@@ -82,6 +82,10 @@ pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     pub val_names: Option<Vec<&'p str>>,
     #[doc(hidden)]
     pub num_vals: Option<u8>,
+    #[doc(hidden)]
+    pub max_vals: Option<u8>,
+    #[doc(hidden)]
+    pub min_vals: Option<u8>,
 }
 
 impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
@@ -121,7 +125,9 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             requires: None,
             group: None,
             num_vals: None,
-            val_names: None
+            val_names: None,
+            max_vals: None,
+            min_vals: None,
         }
     }
 
@@ -157,6 +163,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             blacklist: None,
             requires: None,
             num_vals: None,
+            min_vals: None,
+            max_vals: None,
             val_names: None,
             group: None,
         }
@@ -275,6 +283,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             requires: None,
             num_vals: None,
             val_names: None,
+            max_vals: None,
+            min_vals: None,
             group: None,
         }
     }
@@ -638,11 +648,85 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self
     }
 
+    /// Specifies how many values are required to satisfy this argument. For example, if you had a
+    /// `-f <file>` argument where you wanted exactly 3 'files' you would set 
+    /// `.number_of_values(3)`, and this argument wouldn't be satisfied unless the user provided
+    /// 3 and only 3 values.
+    ///
+    /// **NOTE:** The argument *must* have `.multiple(true)` or `...` to use this setting.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let matches = App::new("myprog")
+    /// #                 .arg(
+    /// # Arg::with_name("debug").index(1)
+    /// .number_of_values(3)
+    /// # ).get_matches();
     pub fn number_of_values(mut self, qty: u8) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self.num_vals = Some(qty);
         self
     }
 
+    /// Specifies the *maximum* number of values are for this argument. For example, if you had a
+    /// `-f <file>` argument where you wanted up to 3 'files' you would set 
+    /// `.max_values(3)`, and this argument would be satisfied if the user provided, 1, 2, or 3
+    /// values.
+    ///
+    /// **NOTE:** The argument *must* have `.multiple(true)` or `...` to use this setting.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let matches = App::new("myprog")
+    /// #                 .arg(
+    /// # Arg::with_name("debug").index(1)
+    /// .max_values(3)
+    /// # ).get_matches();
+    pub fn max_values(mut self, qty: u8) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
+        self.max_vals = Some(qty);
+        self
+    }
+
+    /// Specifies the *minimum* number of values are for this argument. For example, if you had a
+    /// `-f <file>` argument where you wanted at least 2 'files' you would set 
+    /// `.min_values(2)`, and this argument would be satisfied if the user provided, 2 or more 
+    /// values.
+    ///
+    /// **NOTE:** The argument *must* have `.multiple(true)` or `...` to use this setting.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let matches = App::new("myprog")
+    /// #                 .arg(
+    /// # Arg::with_name("debug").index(1)
+    /// .min_values(2)
+    /// # ).get_matches();
+    pub fn min_values(mut self, qty: u8) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
+        self.min_vals = Some(qty);
+        self
+    }
+
+    /// Specifies names for values of option arguments. These names are cosmetic only, used for
+    /// help and usage strings only. The names are **not** used to access arguments. THe values of
+    /// the arguments are accessed in numeric order (i.e. if you specify two names `one` and `two`
+    /// `one` will be the first matched value, `two` will be the second).
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let val_names = ["one", "two"];
+    /// # let matches = App::new("myprog")
+    /// #                 .arg(
+    /// # Arg::with_name("debug").index(1)
+    /// .value_names(&val_names)
+    /// # ).get_matches();
     pub fn value_names<T, I>(mut self, names: I)
                                  -> Arg<'n, 'l, 'h, 'g, 'p, 'r> 
                                  where T: AsRef<str> + 'p,
