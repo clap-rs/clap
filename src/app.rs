@@ -58,6 +58,7 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     opts: BTreeMap<&'ar str, OptBuilder<'ar>>,
     // A list of positional arguments
     positionals_idx: BTreeMap<u8, PosBuilder<'ar>>,
+    positionals_name: HashMap<&'ar str, u8>,
     // A list of subcommands
     subcommands: BTreeMap<String, App<'a, 'v, 'ab, 'u, 'h, 'ar>>,
     needs_long_help: bool,
@@ -67,7 +68,6 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     needs_subcmd_help: bool,
     required: HashSet<&'ar str>,
     matched_reqs: HashSet<&'ar  str>,
-    arg_list: HashSet<&'ar str>,
     short_list: HashSet<char>,
     long_list: HashSet<&'ar str>,
     blacklist: HashSet<&'ar str>,
@@ -100,6 +100,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             flags: BTreeMap::new(),
             opts: BTreeMap::new(),
             positionals_idx: BTreeMap::new(),
+            positionals_name: HashMap::new(),
             subcommands: BTreeMap::new(),
             needs_long_version: true,
             needs_long_help: true,
@@ -108,7 +109,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             needs_short_version: true,
             required: HashSet::new(), 
             matched_reqs: HashSet::new(),
-            arg_list: HashSet::new(),
             short_list: HashSet::new(),
             long_list: HashSet::new(),
             usage_str: None,
@@ -232,11 +232,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # .get_matches();
     /// ```
     pub fn arg(mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
-        if self.arg_list.contains(a.name) {
+        if self.flags.contains_key(a.name) ||
+           self.opts.contains_key(a.name) ||
+           self.positionals_name.contains_key(a.name) {
             panic!("Argument name must be unique\n\n\t\"{}\" is already in use", a.name);
-        } else {
-            self.arg_list.insert(a.name);
-        }
+        } 
         if let Some(grp) = a.group {
             let ag = self.groups.entry(grp).or_insert(ArgGroup::with_name(grp));
             ag.args.insert(a.name);
@@ -286,7 +286,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 panic!("Argument \"{}\" has conflicting requirements, both index() and takes_value(true) were supplied\n\n\tArguments with an index automatically take a value, you do not need to specify it manually", a.name);
             }
 
-
+            self.positionals_name.insert(a.name, i);
             // Create the Positional Arguemnt Builder with each HashSet = None to only allocate those that require it
             let mut pb = PosBuilder {
                 name: a.name,
@@ -608,16 +608,125 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
+    fn group_string(&self, g: &ArgGroup, r: &str, vec: &Vec<&str>) -> Option<Vec<String>> {
+        let mut g_vec = vec![]; 
+        for a in g.args.iter() {
+            if vec.contains(&a) { return None }
+            if let Some(f) = self.flags.get(r) {
+                g_vec.push(format!("{}", f));
+            } else if let Some(o) = self.opts.get(r) {
+                g_vec.push(format!("{}", o));
+            } else if let Some(g) = self.groups.get(r) {
+                if let Some(vec) = self.group_string(g, r, vec) {
+                    vec.iter().map(|s| g_vec.push(s.clone())).collect::<Vec<_>>();
+                }
+            } else {
+                g_vec.push(format!("|{}", self.positionals_idx.get(self.positionals_name.get(r).unwrap()).unwrap()));
+            }
+        } 
+        Some(g_vec)
+    }
+
     // Creates a usage string if one was not provided by the user manually. This happens just
     // after all arguments were parsed, but before any subcommands have been parsed (so as to
     // give subcommands their own usage recursively)
-    fn create_usage(&self) -> String {
+    fn create_usage(&self, matches: Option<Vec<&str>>) -> String {
         let tab = "    ";
         let mut usage = String::with_capacity(75);
         usage.push_str("USAGE:\n");
         usage.push_str(tab);
         if let Some(u) = self.usage_str {
             usage.push_str(u);
+        } else if let Some(vec) = matches {
+            // FIXME: Add groups
+            let mut c_flags = vec![];
+            let mut c_pos = vec![];
+            let mut c_opt = vec![];
+            let mut grps = vec![];
+            vec.iter().map(|name| if let Some(f) = self.flags.get(name) {
+                c_flags.push(f);
+            } else if let Some(o) = self.opts.get(name) {
+                c_opt.push(o);
+            } else {
+                c_pos.push(self.positionals_idx.get(self.positionals_name.get(name).unwrap()).unwrap());
+            }).collect::<Vec<_>>();
+            let mut tmp_f = vec![];
+            for f in c_flags.iter_mut() {
+                if let Some(ref rl) = f.requires {
+                    for r in rl {
+                        if !vec.contains(&&r) {
+                            if let Some(f) = self.flags.get(r) {
+                                tmp_f.push(f);
+                            } else if let Some(o) = self.opts.get(r) {
+                                c_opt.push(o);
+                            } else if let Some(g) = self.groups.get(r) {
+                                if let Some(vec) = self.group_string(g, r, &vec) {
+                                    let g_string = vec.iter().map(|s| format!("{}|", s)).fold(String::new(), |acc, i| acc + &format!("{}",i)[..]);
+                                    grps.push(format!("[{}]", &g_string[..g_string.len()-1]));
+                                }
+                            } else {
+                                c_pos.push(self.positionals_idx.get(self.positionals_name.get(r).unwrap()).unwrap());
+                            }
+                        }
+                    }
+                }
+            }
+            for f in tmp_f {
+                c_flags.push(f);
+            }
+            let mut tmp_o = vec![];
+            for o in c_opt.iter_mut() {
+                if let Some(ref rl) = o.requires {
+                    for r in rl {
+                        if !vec.contains(&&r) {
+                            if let Some(f) = self.flags.get(r) {
+                                c_flags.push(f);
+                            } else if let Some(o) = self.opts.get(r) {
+                                tmp_o.push(o);
+                            } else if let Some(g) = self.groups.get(r) {
+                                if let Some(vec) = self.group_string(g, r, &vec) {
+                                    let g_string = vec.iter().map(|s| format!("{}|", s)).fold(String::new(), |acc, i| acc + &format!("{}",i)[..]);
+                                    grps.push(format!("[{}]", &g_string[..g_string.len()-1]));
+                                }
+                            } else {
+                                c_pos.push(self.positionals_idx.get(self.positionals_name.get(r).unwrap()).unwrap());
+                            }
+                        }
+                    }
+                }
+            }
+            for o in tmp_o {
+                c_opt.push(o);
+            }
+            let mut tmp_p = vec![];
+            for p in c_pos.iter_mut() {
+                if let Some(ref rl) = p.requires {
+                    for r in rl {
+                        if !vec.contains(&&r) {
+                            if let Some(f) = self.flags.get(r) {
+                                c_flags.push(f);
+                            } else if let Some(o) = self.opts.get(r) {
+                                c_opt.push(o);
+                            } else if let Some(g) = self.groups.get(r) {
+                                if let Some(vec) = self.group_string(g, r, &vec) {
+                                    let g_string = vec.iter().map(|s| format!("{}|", s)).fold(String::new(), |acc, i| acc + &format!("{}",i)[..]);
+                                    grps.push(format!("[{}]", &g_string[..g_string.len()-1]));
+                                }
+                            } else {
+                                tmp_p.push(self.positionals_idx.get(self.positionals_name.get(r).unwrap()).unwrap());
+                            }
+                        }
+                    }
+                }
+            }
+            for p in tmp_p {
+                c_pos.push(p);
+            }
+            let f_string = c_flags.iter().map(|f| format!("{}", f)).fold(String::new(),|acc, i| acc + &format!(" {}", i));
+            let o_string = c_opt.iter().map(|f| format!("{}", f)).fold(String::new(),|acc, i| acc + &format!(" {}", i));
+            let p_string = c_pos.iter().map(|f| format!("{}", f)).fold(String::new(),|acc, i| acc + &format!(" {}", i));
+            let g_string = grps.iter().map(|f| format!(" {}", f)).fold(String::new(), |acc, i| acc + &format!("{}", i));
+            return format!("\tUSAGE: {} {} {} {} {}", self.bin_name.clone().unwrap_or(self.name.clone()), f_string, o_string, p_string, g_string)
         } else {
             let flags = !self.flags.is_empty();
             let pos = !self.positionals_idx.is_empty();
@@ -669,7 +778,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         "[OPTIONS]".to_owned()
                     } else {
                         req_opts
-                    }).unwrap_or_else(|e| self.report_error(format!("internal error: {}", e),false,true));
+                    }).unwrap_or_else(|e| self.report_error(format!("internal error: {}", e),false,true, None));
             }
             if pos {
                 write!(&mut usage, " {}",
@@ -679,7 +788,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         "[POSITIONAL]".to_owned()
                     } else {
                         req_pos
-                    } ).unwrap_or_else(|e| self.report_error(format!("internal error: {}", e),false,true));
+                    } ).unwrap_or_else(|e| self.report_error(format!("internal error: {}", e),false,true, None));
             }
             if groups {
                 let req_grps = self.groups.values()                                                         // Iterator<Item=ArgGroup>
@@ -702,7 +811,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
                 // There may be no required groups, so we check
                 if req_grps.len() > 0 {
-                    write!(&mut usage, " [{}]", &req_grps[..req_grps.len() - 1]).unwrap_or_else(|e| self.report_error(format!("internal error: {}", e),false,true));
+                    write!(&mut usage, " [{}]", &req_grps[..req_grps.len() - 1]).unwrap_or_else(|e| self.report_error(format!("internal error: {}", e),false,true, None));
                 }
             }
             if subcmds {
@@ -715,8 +824,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     // Prints the usage statement to the user
-    fn print_usage(&self, more_info: bool) {
-        print!("{}",self.create_usage());
+    fn print_usage(&self, more_info: bool, matches: Option<Vec<&str>>) {
+        print!("{}",self.create_usage(matches));
         if more_info {
             println!("\nFor more information try --help");
         }
@@ -777,7 +886,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             println!("{}", about);
         }
         println!("");
-        self.print_usage(false);
+        self.print_usage(false, None);
         if flags || opts || pos || subcmds {
             println!("");
         }
@@ -907,9 +1016,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     // Reports and error to the users screen along with an optional usage statement and quits
-    fn report_error(&self, msg: String, usage: bool, quit: bool) {
+    fn report_error(&self, msg: String, usage: bool, quit: bool, matches: Option<Vec<&str>>) {
         println!("{}", msg);
-        if usage { self.print_usage(true); }
+        if usage { self.print_usage(true, matches); }
         if quit { self.exit(1); }
     }
 
@@ -992,12 +1101,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 if !p_vals.contains(arg_slice) {
                                     self.report_error(format!("\"{}\" isn't a valid value for {}{}", 
                                                                 arg_slice, 
-                                                                if opt.long.is_some() {
-                                                                    format!("--{}",opt.long.unwrap())
-                                                                }else{
-                                                                    format!("-{}", opt.short.unwrap())
-                                                                },
-                                                                format!("\n    [valid values:{}]", p_vals.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] )) ), true, true);
+                                                                opt,
+                                                                format!("\n    [valid values:{}]", p_vals.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] )) ), true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
                                 }
                             }
                         }
@@ -1041,16 +1146,19 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
                 if self.positionals_idx.is_empty() {
                     self.report_error(
-                        format!("Argument \"{}\" isn't a valid option for {}", arg, self.bin_name.clone().unwrap_or(self.name.clone())),
-                        true, true);
+                        format!("Found argument \"{}\", but {} wasn't expecting any", arg, self.bin_name.clone().unwrap_or(self.name.clone())),
+                        true, true,Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
                 }
                 // If we find that an argument requires a positiona, we need to update all the
                 // previous positionals too. This will denote where to start
                 // let mut req_pos_from_name = None;
                 if let Some(p) = self.positionals_idx.get(&pos_counter) {
                     if self.blacklist.contains(p.name) {
-                        self.report_error(format!("The argument \"{}\" cannot be used with one or more of the other specified arguments", p),
-                            true, true);
+                        matches.args.remove(p.name);
+                        self.report_error(format!("The argument \"{}\" cannot be used with {}", p, match self.blacklisted_from(p.name, &matches) {
+                            Some(name) => name,
+                            None       => "one or more of the other specified arguments".to_owned()
+                        } ), true, true,Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
                     }
 
                     if let Some(ref p_vals) = p.possible_vals {
@@ -1059,7 +1167,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 self.report_error(format!("\"{}\" isn't a valid value for {}{}", 
                                     arg_slice, 
                                     p,
-                                    format!("\n\t[valid values:{}]", p_vals.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] )) ), true, true);
+                                    format!("\n\t[valid values:{}]", p_vals.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] )) ), true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
                             }
                         }
                     }
@@ -1108,32 +1216,35 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     parse_group_reqs!(self, p);
 
                 } else {
-                    self.report_error(format!("Argument \"{}\" isn't a valid argument for {}", arg, self.bin_name.clone().unwrap_or(self.name.clone())), true, true);
+                    self.report_error(format!("The argument \"{}\" was found, but {} wasn't expecting any", arg, self.bin_name.clone().unwrap_or(self.name.clone())), true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
                 }
             }
         }
         match needs_val_of {
             Some(ref a) => {
                 self.report_error(
-                    format!("Argument \"{}\" requires a value but none was supplied", a),
-                    true, true);
+                    format!("Argument {} requires a value but none was supplied", if let Some(f) = self.flags.get(a) {
+                        format!("{}", f)
+                    } else if let Some(o) = self.opts.get(a) {
+                        format!("{}", o)
+                    } else {
+                        format!("{}", self.positionals_idx.get(self.positionals_name.get(a).unwrap()).unwrap())
+                    }),
+                    true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
             }
             _ => {}
         }
 
-        self.validate_blacklist(&matches);
+        self.validate_blacklist(matches);
 
         if !self.required.is_empty() {
-            // println!("reqs: {:?}", self.required);
-            // println!("bls:  {:?}", self.blacklist);
-            // println!("grps: {:?}", self.groups);
             if self.validate_required(&matches) {
                 self.report_error("One or more required arguments were not supplied".to_owned(),
-                        true, true);
+                        true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
             }
         }
 
-        matches.usage = Some(self.create_usage());
+        matches.usage = Some(self.create_usage(None));
 
         if let Some(sc_name) = subcmd_name {
             if let Some(ref mut sc) = self.subcommands.get_mut(&sc_name) {
@@ -1146,6 +1257,35 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     matches: new_matches}));
             }
         }    
+    }
+
+    fn blacklisted_from(&self, name: &str, matches: &ArgMatches) -> Option<String> {
+        for k in matches.args.keys() {
+            if let Some(f) = self.flags.get(k) {
+                if let Some(ref bl) = f.blacklist {
+                    if bl.contains(name) {
+                        return Some(format!("{}", f))
+                    }
+                }
+            }
+            if let Some(o) = self.opts.get(k) {
+                if let Some(ref bl) = o.blacklist {
+                    if bl.contains(name) {
+                        return Some(format!("{}", o))
+                    }
+                }
+            } 
+            if let Some(idx) = self.positionals_name.get(k) {
+                if let Some(pos) = self.positionals_idx.get(idx) {
+                    if let Some(ref bl) = pos.blacklist {
+                        if bl.contains(name) {
+                            return Some(format!("{}", pos))
+                        }
+                    }
+                }
+            }
+         } 
+        None
     }
 
     fn create_help_and_version(&mut self) {
@@ -1210,7 +1350,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             arg = arg_vec[0];
             // prevents "--config= value" typo
             if arg_vec[1].len() == 0 {
-                self.report_error(format!("Argument --{} requires a value, but none was supplied", arg), true, true);
+                self.report_error(format!("Argument --{} requires a value, but none was supplied", arg), true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
             }
             arg_val = Some(arg_vec[1].to_owned());
         } 
@@ -1218,25 +1358,22 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         if let Some(v) = self.opts.values().filter(|&v| v.long.is_some()).filter(|&v| v.long.unwrap() == arg).nth(0) {
             // Ensure this option isn't on the master mutually excludes list
             if self.blacklist.contains(v.name) {
+                matches.args.remove(v.name);
                 self.report_error(format!("The argument --{} cannot be used with one or more of the other specified arguments", arg),
-                    true, true);
+                    true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
             }
 
             if matches.args.contains_key(v.name) {
                 if !v.multiple {
-                    self.report_error(format!("Argument --{} was supplied more than once, but does not support multiple values", arg), true, true);
+                    self.report_error(format!("Argument --{} was supplied more than once, but does not support multiple values", arg), true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
                 }
                 if let Some(ref p_vals) = v.possible_vals {
                     if let Some(ref av) = arg_val {
                         if !p_vals.contains(&av[..]) {
                             self.report_error(format!("\"{}\" isn't a valid value for {}{}", 
                                                         arg_val.clone().unwrap_or(arg.to_owned()), 
-                                                        if v.long.is_some() {
-                                                            format!("--{}", v.long.unwrap())
-                                                        }else{
-                                                            format!("-{}", v.short.unwrap())
-                                                        },
-                                                        format!("\n    [valid values:{}]", p_vals.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] )) ), true, true);
+                                                        v,
+                                                        format!("\n    [valid values:{}]", p_vals.iter().fold(String::new(), |acc, name| acc + &format!(" {}",name)[..] )) ), true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
                         }
                     }
                 }
@@ -1287,13 +1424,17 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         if let Some(v) = self.flags.values().filter(|&v| v.long.is_some()).filter(|&v| v.long.unwrap() == arg).nth(0) {
             // Ensure this flag isn't on the mutually excludes list
             if self.blacklist.contains(v.name) {
-                self.report_error(format!("The argument {} cannot be used with one or more of the other specified arguments", v),
-                    true, true);
+                matches.args.remove(v.name);
+                self.report_error(format!("The argument {} cannot be used with {}", v, match self.blacklisted_from(v.name, matches) {
+                    Some(name) => name,
+                    None       => "one or more of the specified arguments".to_owned()
+                }),
+                    true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
             }
             
             // Make sure this isn't one being added multiple times if it doesn't suppor it
             if matches.args.contains_key(v.name) && !v.multiple {
-                self.report_error(format!("Argument {} was supplied more than once, but does not support multiple values", v), true, true);
+                self.report_error(format!("Argument {} was supplied more than once, but does not support multiple values", v), true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
             }
 
             let mut 
@@ -1338,7 +1479,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
 
         // Shouldn't reach here
-        self.report_error(format!("Argument --{} isn't valid", arg), true, true);
+        self.report_error(format!("Argument --{} isn't valid", arg), true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
         // Can't reach here...
         unreachable!();
     }
@@ -1350,7 +1491,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             for c in arg.chars() {
                 self.check_for_help_and_version(c);
                 if !self.parse_single_short_flag(matches, c) { 
-                    self.report_error(format!("Argument -{} isn't valid",arg), true, true);
+                    self.report_error(format!("Argument -{} isn't valid",arg), true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
                 }
             }
             return None;
@@ -1369,13 +1510,17 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         if let Some(v) = self.opts.values().filter(|&v| v.short.is_some()).filter(|&v| v.short.unwrap() == arg_c).nth(0) {
             // Ensure this option isn't on the master mutually excludes list
             if self.blacklist.contains(v.name) {
-                self.report_error(format!("The argument -{} cannot be used with one or more of the other specified arguments", arg),
-                    true, true);
+                matches.args.remove(v.name);
+                self.report_error(format!("The argument -{} cannot be used with {}", arg, match self.blacklisted_from(v.name, matches) {
+                    Some(name) => name,
+                    None       => "one or more of the other specified arguments".to_owned()
+                }),
+                    true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
             }
 
             if matches.args.contains_key(v.name) {
                 if !v.multiple {
-                    self.report_error(format!("Argument -{} was supplied more than once, but does not support multiple values", arg), true, true);
+                    self.report_error(format!("Argument -{} was supplied more than once, but does not support multiple values", arg), true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
                 }
             } else {
                 matches.args.insert(v.name, MatchedArg{
@@ -1411,7 +1556,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         } 
 
         // Didn't match a flag or option, must be invalid
-        self.report_error( format!("Argument -{} isn't valid",arg_c), true, true);
+        self.report_error( format!("Argument -{} isn't valid",arg_c), true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
 
         unreachable!();
     }
@@ -1420,13 +1565,17 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         for v in self.flags.values().filter(|&v| v.short.is_some()).filter(|&v| v.short.unwrap() == arg) {
             // Ensure this flag isn't on the mutually excludes list
             if self.blacklist.contains(v.name) {
-                self.report_error(format!("The argument -{} cannot be used with one or more of the other specified arguments", arg),
-                    true, true);
+                matches.args.remove(v.name);
+                self.report_error(format!("The argument -{} cannot be used {}", arg, match self.blacklisted_from(v.name, matches) {
+                    Some(name) => name,
+                    None       => "with one or more of the other specified arguments".to_owned()
+                }),
+                    true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
             }
 
             // Make sure this isn't one being added multiple times if it doesn't suppor it
             if matches.args.contains_key(v.name) && !v.multiple {
-                self.report_error(format!("Argument -{} was supplied more than once, but does not support multiple values", arg), true, true);
+                self.report_error(format!("Argument -{} was supplied more than once, but does not support multiple values", arg), true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
             }
 
             let mut done = false;
@@ -1471,10 +1620,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         false
     }
 
-    fn validate_blacklist(&self, matches: &ArgMatches<'ar, 'ar>) {
+    fn validate_blacklist(&self, matches: &mut ArgMatches<'ar, 'ar>) {
         for name in self.blacklist.iter() {
             if matches.args.contains_key(name) {
-                self.report_error(format!("The argument {} cannot be used with one or more of the other specified arguments",
+                matches.args.remove(name);
+                self.report_error(format!("The argument {} cannot be used with {}",
                     if let Some(ref flag) = self.flags.get(name) {
                         format!("{}", flag)
                     } else if let Some(ref opt) = self.opts.get(name) {
@@ -1484,11 +1634,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             Some(pos) => format!("{}", pos),
                             None      => format!("\"{}\"", name)
                         }
-                    }), true, true);
+                    }, match self.blacklisted_from(name, matches) {
+                        Some(name) => name,
+                        None       => "one or more of the other specified arguments".to_owned()
+                    }), true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
             } else if self.groups.contains_key(name) {
                 let grp = self.groups.get(name).unwrap();
                 for n in grp.args.iter() {
                     if matches.args.contains_key(n) {
+                        matches.args.remove(n);
                         self.report_error(format!("The argument {} cannot be used with one or more of the other specified arguments",
                             if let Some(ref flag) = self.flags.get(n) {
                                 format!("{}", flag)
@@ -1499,7 +1653,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     Some(pos) => format!("{}", pos),
                                     None      => format!("\"{}\"", n)
                                 }
-                            }), true, true);
+                            }), true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
                     }
                 } 
             }
