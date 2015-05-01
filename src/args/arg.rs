@@ -653,7 +653,9 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// `.number_of_values(3)`, and this argument wouldn't be satisfied unless the user provided
     /// 3 and only 3 values.
     ///
-    /// **NOTE:** The argument *must* have `.multiple(true)` or `...` to use this setting.
+    /// **NOTE:** The argument *must* have `.multiple(true)` or `...` to use this setting. Which
+    /// implies that `qty` must be > 1 (i.e. setting `.number_of_values(1)` would be unnecessary) 
+    ///
     ///
     /// # Example
     ///
@@ -674,7 +676,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// `.max_values(3)`, and this argument would be satisfied if the user provided, 1, 2, or 3
     /// values.
     ///
-    /// **NOTE:** The argument *must* have `.multiple(true)` or `...` to use this setting.
+    /// **NOTE:** The argument *must* have `.multiple(true)` or `...` to use this setting. Which
+    /// implies that `qty` must be > 1 (i.e. setting `.max_values(1)` would be unnecessary) 
     ///
     /// # Example
     ///
@@ -697,6 +700,9 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     ///
     /// **NOTE:** The argument *must* have `.multiple(true)` or `...` to use this setting.
     ///
+    /// **NOTE:** `qty` *must* be > 0. If you wish to have an argument with 0 or more values prefer
+    /// two seperate arguments (a flag, and an option with multiple values).
+    ///
     /// # Example
     ///
     /// ```no_run
@@ -712,10 +718,13 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     }
 
     /// Specifies names for values of option arguments. These names are cosmetic only, used for
-    /// help and usage strings only. The names are **not** used to access arguments. THe values of
+    /// help and usage strings only. The names are **not** used to access arguments. The values of
     /// the arguments are accessed in numeric order (i.e. if you specify two names `one` and `two`
     /// `one` will be the first matched value, `two` will be the second).
     ///
+    /// **NOTE:** This implicitly sets `.number_of_values()` so there is no need to set that, but
+    /// be aware that the number of "names" you set for the values, will be the *exact* number of
+    /// values required to satisfy this argument
     ///
     /// # Example
     ///
@@ -725,6 +734,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # let matches = App::new("myprog")
     /// #                 .arg(
     /// # Arg::with_name("debug").index(1)
+    /// // ...
     /// .value_names(&val_names)
     /// # ).get_matches();
     pub fn value_names<T, I>(mut self, names: I)
