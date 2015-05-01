@@ -469,7 +469,7 @@ macro_rules! arg_enum {
 /// # use clap::App;
 /// # fn main() {
 ///     let m = App::new("app")
-///                 .version(crate_version!())
+///                 .version(&crate_version!()[..])
 ///                 .get_matches();
 /// # }
 /// ```
