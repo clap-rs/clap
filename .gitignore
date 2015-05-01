@@ -15,3 +15,7 @@ Cargo.lock
 
 # Temp files
 .*~
+
+# Backup files
+*.bak
+*.bk
