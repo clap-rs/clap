@@ -21,8 +21,10 @@ use ArgMatches;
 ///                           .index(1))
 /// # ).get_matches();
 pub struct SubCommand<'n, 'a> {
-       pub name: &'n str,
-       pub matches: ArgMatches<'n, 'a>
+    #[doc(hidden)]
+    pub name: &'n str,
+    #[doc(hidden)]
+    pub matches: ArgMatches<'n, 'a>
 }
 
 impl<'n, 'a> SubCommand<'n, 'a> {
