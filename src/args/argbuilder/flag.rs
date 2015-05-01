@@ -28,6 +28,10 @@ pub struct FlagBuilder<'n> {
 
 impl<'n> Display for FlagBuilder<'n> {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        write!(f, "{}", if self.long.is_some() { format!("--{}", self.long.unwrap())} else {format!("-{}", self.short.unwrap())})
+        write!(f, "{}", if self.long.is_some() { 
+            format!("--{}", self.long.unwrap())
+        } else {
+            format!("-{}", self.short.unwrap())
+        })
     }
 }

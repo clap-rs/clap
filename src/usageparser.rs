@@ -56,7 +56,7 @@ impl<'u> Iterator for UsageParser<'u> {
                     let name = &self.usage[self.s..self.e];
 
                     
-                    return Some(UsageToken::Name(name, if c == '<' { Some(true)} else {None}));
+                    return Some(UsageToken::Name(name, if c == '<' { Some(true) } else { None }));
                 },
                 Some('\'') => {
                     self.s = self.e + 2;
@@ -109,7 +109,8 @@ impl<'u> Iterator for UsageParser<'u> {
                     for _ in 0..2 {
                         self.e += 1;
                         match self.chars.next() {
-                            // longs consume one '.' so they match '.. ' whereas shorts can match '...'
+                            // longs consume one '.' so they match '.. ' whereas shorts can 
+                            // match '...'
                             Some('.') | Some(' ')  => { mult = true; },
                             _          => { 
                                 // if there is no help or following space all we can match is '..'

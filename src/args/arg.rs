@@ -182,20 +182,20 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// 3. Long preceded by a `--` (this may be used as the name, if the name is omitted. If the
     ///    name is *not* omittied, the name takes precedence over the `long`)
     /// 4. Value (this can be used as the name if the name is not manually specified. If the name
-    ///    is manually specified, it takes precedence. If this value is used as the name, it uses the
-    ///    same `[]` and `<>` requirement specification rules. If it is *not* used as the name, it 
-    ///    still needs to be surrounded by either `[]` or `<>` but there is no requirement effect, 
-    ///    as the requirement rule is determined by the real name. This value may follow the `short` 
-    ///    or `long`, it doesn't matter. If it follows the `long`, it may follow either a `=` or ` `
-    ///    there is no difference, just personal preference. If this follows a `short` it can only
-    ///    be after a ` `) i.e. `-c [name]`, `--config [name]`, `--config=[name]`, etc.
-    /// 5. Multiple specifier `...` (the `...` may follow the name, `short`, `long`, or value *without*
-    ///    a ` ` space) i.e. `<name>... -c`, `--config <name>...`, `[name] -c...`, etc.
+    ///    is manually specified, it takes precedence. If this value is used as the name, it uses 
+    ///    the same `[]` and `<>` requirement specification rules. If it is *not* used as the name,
+    ///    it still needs to be surrounded by either `[]` or `<>` but there is no requirement 
+    ///    effect, as the requirement rule is determined by the real name. This value may follow 
+    ///    the `short` or `long`, it doesn't matter. If it follows the `long`, it may follow either
+    ///    a `=` or ` ` there is no difference, just personal preference. If this follows a `short`
+    ///    it can only be after a ` `) i.e. `-c [name]`, `--config [name]`, `--config=[name]`, etc.
+    /// 5. Multiple specifier `...` (the `...` may follow the name, `short`, `long`, or value 
+    ///    *without* a ` ` space) i.e. `<name>... -c`, `--config <name>...`, `[name] -c...`, etc.
     /// 6. The help info surrounded by `'`s (single quotes)
     /// 7. The index of a positional argument will be the next available index (you don't need to
-    ///    specify one) i.e. all arguments without a `short` or `long` will be treated as positional
+    ///    specify one) i.e. all arguments without a `short` or `long` will be treated as 
+    ///    positional
     ///
-    /// 
     /// # Example
     ///
     /// ```no_run
@@ -205,10 +205,10 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     ///
     /// // A option argument with a long, named "conf" (note: because the name was specified
     /// // the portion after the long can be called anything, only the first name will be displayed
-    /// // to the user. Also, requirement is set with the *name*, so the portion after the long could
-    /// // be either <> or [] and it wouldn't matter, so long as it's one of them. Had the name been
-    /// // omitted, the name would have been derived from the portion after the long and those rules
-    /// // would have mattered)
+    /// // to the user. Also, requirement is set with the *name*, so the portion after the long 
+    /// // could be either <> or [] and it wouldn't matter, so long as it's one of them. Had the 
+    /// // name been omitted, the name would have been derived from the portion after the long and
+    /// // those rules would have mattered)
     /// Arg::from_usage("[conf] --config=[c] 'a required file for the configuration'"),
     ///
     /// // A flag with a short, a long, named "debug", and accepts multiple values
@@ -219,7 +219,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// ])
     /// # .get_matches();
     pub fn from_usage(u: &'n str) -> Arg<'n, 'n, 'n, 'g, 'p, 'r> {
-        assert!(u.len() > 0, "Arg::from_usage() requires a non-zero-length usage string but none was provided");
+        assert!(u.len() > 0, "Arg::from_usage() requires a non-zero-length usage string but none \
+            was provided");
 
          let mut name = None;
          let mut short = None;
@@ -316,10 +317,10 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
 
     /// Sets the long version of the argument without the preceding `--`.
     ///
-    /// By default `clap` automatically assigns `version` and `help` to display version and help information 
-    /// respectivly. You may use `version` or `help` for your own purposes, in which case `clap` simply
-    /// will not asign those to the displaying of version or help automatically, and you will have to do
-    /// so manually.
+    /// By default `clap` automatically assigns `version` and `help` to display version and help 
+    /// information respectivly. You may use `version` or `help` for your own purposes, in which 
+    /// case `clap` simply will not asign those to the displaying of version or help automatically,
+    /// and you will have to do so manually.
     ///
     /// **NOTE:** Any leading `-` characters will be stripped
     ///

@@ -15,15 +15,14 @@ use std::fmt::{Debug, Formatter, Result};
 /// respectively.
 ///
 /// Perhaps the most common use of `ArgGroup`s is to require one and *only* one argument to be 
-/// present out of a given set. Imagine that you had multiple arguments, and you want one of them to
-/// be required, but making all of them required isn't feasible because perhaps they conflict with
-/// each other. For example, lets say that you were building an application where one could set a
-/// given version number by supplying a string with an option argument, i.e. `--set-ver v1.2.3`, you 
-/// also wanted to support automatically using a previous version number and simply incrementing one
-/// of the three numbers. So you create three flags `--major`, `--minor`, and `--patch`. All of
-/// these arguments shouldn't be used at one time but you want to specify that *at least one* of
-/// them is used. For this, you can create a group.
-///
+/// present out of a given set. Imagine that you had multiple arguments, and you want one of them 
+/// to be required, but making all of them required isn't feasible because perhaps they conflict 
+/// with each other. For example, lets say that you were building an application where one could 
+/// set a given version number by supplying a string with an option argument, i.e. 
+/// `--set-ver v1.2.3`, you also wanted to support automatically using a previous version number 
+/// and simply incrementing one of the three numbers. So you create three flags `--major`, 
+/// `--minor`, and `--patch`. All of these arguments shouldn't be used at one time but you want to 
+/// specify that *at least one* of them is used. For this, you can create a group.
 ///
 /// # Example
 ///
@@ -53,8 +52,7 @@ pub struct ArgGroup<'n, 'ar> {
 
 impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// Creates a new instace of `ArgGroup` using a unique string name. 
-    /// The name will only be used by the library consumer and not displayed to the user
-    ///
+    /// The name will only be used by the library consumer and not displayed to the use.
     ///
     /// # Example
     ///
