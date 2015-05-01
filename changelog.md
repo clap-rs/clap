@@ -1,3 +1,13 @@
+<a name="v0.7.1"></a>
+## v0.7.1 (2015-05-01)
+
+
+#### Bug Fixes
+
+* **MultipleValues**  stops evaluating values if the max or exact number of values was reached ([86d92c9f](https://github.com/kbknapp/clap-rs/commit/86d92c9fdbf9f422442e9562977bbaf268dbbae1))
+
+
+
 <a name="v0.7.0"></a>
 ## v0.7.0 (2015-04-30)
 
