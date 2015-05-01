@@ -60,7 +60,7 @@
 //!  
 //!  *NOTE:* Both examples are functionally the same, but show two different styles in which to use `clap`
 //!  
-//! ```rust
+//! ```no_run
 //! // (Full example with detailed comments in examples/01a_QuickExample.rs)
 //! //
 //! // This example demonstrates clap's "usage strings" method of creating arguments which is less
@@ -117,7 +117,7 @@
 //! 
 //! The following example is functionally the same as the one above, but this method allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired. Both methods can be used together to get the best of both worlds (see the documentation, examples, or video tutorials).
 //!  
-//! ```rust
+//! ```no_run
 //! // (Full example with detailed comments in examples/01b_QuickExample.rs)
 //! //
 //! // This example demonstrates clap's full 'builder pattern' style of creating arguments which is 
@@ -186,7 +186,7 @@
 //! 
 //! If you were to compile either of the above programs and run them with the flag `--help` or `-h` (or `help` subcommand, since we defined `test` as a subcommand) the following would be output
 //! 
-//! ```sh
+//! ```ignore
 //! $ myapp --help
 //! myapp 1.0
 //! Kevin K. <kbknapp@gmail.com>
@@ -230,14 +230,14 @@
 //! * Create a new cargo project `$ cargo new fake --bin && cd fake`
 //! * Add `clap` to your `Cargo.toml`
 //! * 
-//! ```toml
+//! ```ignore
 //! [dependencies]
 //! clap = "*"
 //! ```
 //! 
 //! * Add the following to your `src/main.rs`
 //! 
-//! ```rust
+//! ```no_run
 //! extern crate clap;
 //! use clap::App;
 //! 
@@ -253,13 +253,13 @@
 //! 
 //! For full usage, add `clap` as a dependecy in your `Cargo.toml` file to use from crates.io:
 //! 
-//!  ```toml
+//!  ```ignore
 //!  [dependencies]
 //!  clap = "*"
 //!  ```
 //!  Or track the latest on the master branch at github:
 //! 
-//! ```toml
+//! ```ignore
 //! [dependencies.clap]
 //! git = "https://github.com/kbknapp/clap-rs.git"
 //! ```
@@ -302,7 +302,7 @@
 //! 
 //! If contributing, you can run the tests as follows (assuming you've cloned the repo to `clap-rs/`
 //! 
-//! ```
+//! ```ignore
 //! cd clap-rs && cargo test
 //! cd clap-tests && make test
 //! ```
@@ -334,7 +334,7 @@
 //!     + No longer take a `Vec<&str>`, instead they take a generic `IntoIterator<Item=AsRef<str>>` which means you cannot use an inline `vec![]` but it means the methods are now far more flexible, especially for dynamic value generation.
 //!     + Instead use something that conforms to the `IntoIterator` trait, or something like:
 //!     
-//!     ```rust
+//!     ```ignore
 //!     let my_vals = ["value1", "value2", "value3"];
 //!     ...
 //!     .possible_values(&my_vals)
