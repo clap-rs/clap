@@ -6,7 +6,7 @@ authors = ["Kevin K. <kbknapp@gmail.com>"]
 exclude = ["docs/*", "examples/*", "claptests/*"]
 description = "A simple to use, efficient, and full featured  Command Line Argument Parser"
 repository = "https://github.com/kbknapp/clap-rs.git"
-documentation = "http://kbknapp.github.io/clap-rs/docs/clap/index.html"
+documentation = "http://kbknapp.github.io/clap-rs"
 readme = "README.md"
 
 keywords = ["argument", "command", "arg", "parser", "parse"]
