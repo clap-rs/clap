@@ -6,8 +6,8 @@ pub struct FlagBuilder<'n> {
     /// The long version of the flag (i.e. word)
     /// without the preceding `--`
     pub long: Option<&'n str>,
-    /// The string of text that will displayed to 
-    /// the user when the application's `help` 
+    /// The string of text that will displayed to
+    /// the user when the application's `help`
     /// text is displayed
     pub help: Option<&'n str>,
     /// Determines if multiple instances of the same
@@ -17,7 +17,7 @@ pub struct FlagBuilder<'n> {
     /// A list of names for other arguments that
     /// *may not* be used with this flag
     pub blacklist: Option<HashSet<&'n str>>,
-    /// A list of names of other arguments that 
+    /// A list of names of other arguments that
     /// are *required* to be used when this
     /// flag is used
     pub requires: Option<HashSet<&'n str>>,
@@ -28,6 +28,10 @@ pub struct FlagBuilder<'n> {
 
 impl<'n> Display for FlagBuilder<'n> {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        write!(f, "{}", if self.long.is_some() { format!("--{}", self.long.unwrap())} else {format!("-{}", self.short.unwrap())})
+        write!(f, "{}", if self.long.is_some() {
+            format!("--{}", self.long.unwrap())
+        } else {
+            format!("-{}", self.short.unwrap())
+        })
     }
 }

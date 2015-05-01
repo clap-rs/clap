@@ -22,7 +22,7 @@ pub struct OptBuilder<'n> {
     pub required: bool,
     /// A list of possible values for this argument
     pub possible_vals: Option<BTreeSet<&'n str>>,
-    /// A list of names of other arguments that are *required* to be used when 
+    /// A list of names of other arguments that are *required* to be used when
     /// this flag is used
     pub requires: Option<HashSet<&'n str>>,
     pub num_vals: Option<u8>,
@@ -33,23 +33,23 @@ pub struct OptBuilder<'n> {
 
 impl<'n> Display for OptBuilder<'n> {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        write!(f, "{}", 
+        write!(f, "{}",
             if let Some(ref vec) = self.val_names {
                 format!("[ {} {}]",
-                    if self.long.is_some() { 
+                    if self.long.is_some() {
                         format!("--{}", self.long.unwrap())
                     } else {
                         format!("-{}", self.short.unwrap())
-                    }, 
+                    },
                     vec.iter().fold(String::new(),|acc, i| acc + &format!("<{}> ",i)[..]) )
-            } else { 
+            } else {
                 format!("{} <{}>{}",
-                    if self.long.is_some() { 
+                    if self.long.is_some() {
                         format!("--{}", self.long.unwrap())
                     } else {
                         format!("-{}", self.short.unwrap())
-                    }, 
-                    self.name, 
+                    },
+                    self.name,
                     if self.multiple{"..."}else{""})
             })
     }
