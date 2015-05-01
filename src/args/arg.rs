@@ -5,7 +5,7 @@ use usageparser::{UsageParser, UsageToken};
 /// The abstract representation of a command line argument used by the consumer of the library.
 /// Used to set all the options and relationships that define a valid argument for the program.
 ///
-/// This struct is used by the library consumer and describes the command line arguments for 
+/// This struct is used by the library consumer and describes the command line arguments for
 /// their program. Then evaluates the settings the consumer provided and determines the concret
 /// argument type to use when parsing.
 ///
@@ -60,18 +60,18 @@ pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// and `multiple`
     #[doc(hidden)]
     pub index: Option<u8>,
-    /// Determines if multiple instances of the same flag are allowed. `multiple` 
+    /// Determines if multiple instances of the same flag are allowed. `multiple`
     /// is mutually exclusive with `index` and `takes_value`.
     /// I.e. `-v -v -v` or `-vvv`
     #[doc(hidden)]
     pub multiple: bool,
     /// A list of names for other arguments that *may not* be used with this flag
     #[doc(hidden)]
-    pub blacklist: Option<Vec<&'r str>>, 
+    pub blacklist: Option<Vec<&'r str>>,
     /// A list of possible values for an option or positional argument
     #[doc(hidden)]
     pub possible_vals: Option<Vec<&'p str>>,
-    /// A list of names of other arguments that are *required* to be used when 
+    /// A list of names of other arguments that are *required* to be used when
     /// this flag is used
     #[doc(hidden)]
     pub requires: Option<Vec<&'r str>>,
@@ -89,12 +89,12 @@ pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
 }
 
 impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
-    /// Creates a new instace of `Arg` using a unique string name. 
+    /// Creates a new instace of `Arg` using a unique string name.
     /// The name will be used by the library consumer to get information about
-    /// whether or not the argument was used at runtime. 
+    /// whether or not the argument was used at runtime.
     ///
     /// **NOTE:** in the case of arguments that take values (i.e. `takes_value(true)`)
-    /// and positional arguments (i.e. those without a `-` or `--`) the name will also 
+    /// and positional arguments (i.e. those without a `-` or `--`) the name will also
     /// be displayed when the user prints the usage/help information of the program.
     ///
     /// **NOTE:** this function is deprecated in favor of Arg::with_name() to stay consistant with
@@ -131,12 +131,12 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         }
     }
 
-    /// Creates a new instace of `Arg` using a unique string name. 
+    /// Creates a new instace of `Arg` using a unique string name.
     /// The name will be used by the library consumer to get information about
-    /// whether or not the argument was used at runtime. 
+    /// whether or not the argument was used at runtime.
     ///
     /// **NOTE:** in the case of arguments that take values (i.e. `takes_value(true)`)
-    /// and positional arguments (i.e. those without a `-` or `--`) the name will also 
+    /// and positional arguments (i.e. those without a `-` or `--`) the name will also
     /// be displayed when the user prints the usage/help information of the program.
     ///
     ///
@@ -182,18 +182,18 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// 3. Long preceded by a `--` (this may be used as the name, if the name is omitted. If the
     ///    name is *not* omittied, the name takes precedence over the `long`)
     /// 4. Value (this can be used as the name if the name is not manually specified. If the name
-    ///    is manually specified, it takes precedence. If this value is used as the name, it uses 
+    ///    is manually specified, it takes precedence. If this value is used as the name, it uses
     ///    the same `[]` and `<>` requirement specification rules. If it is *not* used as the name,
-    ///    it still needs to be surrounded by either `[]` or `<>` but there is no requirement 
-    ///    effect, as the requirement rule is determined by the real name. This value may follow 
+    ///    it still needs to be surrounded by either `[]` or `<>` but there is no requirement
+    ///    effect, as the requirement rule is determined by the real name. This value may follow
     ///    the `short` or `long`, it doesn't matter. If it follows the `long`, it may follow either
     ///    a `=` or ` ` there is no difference, just personal preference. If this follows a `short`
     ///    it can only be after a ` `) i.e. `-c [name]`, `--config [name]`, `--config=[name]`, etc.
-    /// 5. Multiple specifier `...` (the `...` may follow the name, `short`, `long`, or value 
+    /// 5. Multiple specifier `...` (the `...` may follow the name, `short`, `long`, or value
     ///    *without* a ` ` space) i.e. `<name>... -c`, `--config <name>...`, `[name] -c...`, etc.
     /// 6. The help info surrounded by `'`s (single quotes)
     /// 7. The index of a positional argument will be the next available index (you don't need to
-    ///    specify one) i.e. all arguments without a `short` or `long` will be treated as 
+    ///    specify one) i.e. all arguments without a `short` or `long` will be treated as
     ///    positional
     ///
     /// # Example
@@ -205,8 +205,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     ///
     /// // A option argument with a long, named "conf" (note: because the name was specified
     /// // the portion after the long can be called anything, only the first name will be displayed
-    /// // to the user. Also, requirement is set with the *name*, so the portion after the long 
-    /// // could be either <> or [] and it wouldn't matter, so long as it's one of them. Had the 
+    /// // to the user. Also, requirement is set with the *name*, so the portion after the long
+    /// // could be either <> or [] and it wouldn't matter, so long as it's one of them. Had the
     /// // name been omitted, the name would have been derived from the portion after the long and
     /// // those rules would have mattered)
     /// Arg::from_usage("[conf] --config=[c] 'a required file for the configuration'"),
@@ -229,7 +229,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
          let mut required = false;
          let mut takes_value = false;
          let mut multiple = false;
-        
+
         let parser = UsageParser::with_usage(u);
         for_match!{ parser,
             UsageToken::Name(n, req) => {
@@ -242,7 +242,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
                     if l == name.unwrap() {
                         if let Some(r) = req {
                             required = r;
-                        } 
+                        }
                         name = Some(n);
                     } else if n != l {
                         name = Some(n);
@@ -253,11 +253,11 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
                     takes_value = true;
                 }
             },
-            UsageToken::Short(s)     => { 
-                short = Some(s); 
+            UsageToken::Short(s)     => {
+                short = Some(s);
             },
-            UsageToken::Long(l)      => { 
-                long = Some(l); 
+            UsageToken::Long(l)      => {
+                long = Some(l);
                 if name.is_none() {
                     name = Some(l);
                 }
@@ -293,7 +293,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// Sets the short version of the argument without the preceding `-`.
     ///
     ///
-    /// By default `clap` automatically assigns `v` and `h` to display version and help information 
+    /// By default `clap` automatically assigns `v` and `h` to display version and help information
     /// respectivly. You may use `v` or `h` for your own purposes, in which case `clap` simply
     /// will not asign those to the displaying of version or help.
     ///
@@ -317,8 +317,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
 
     /// Sets the long version of the argument without the preceding `--`.
     ///
-    /// By default `clap` automatically assigns `version` and `help` to display version and help 
-    /// information respectivly. You may use `version` or `help` for your own purposes, in which 
+    /// By default `clap` automatically assigns `version` and `help` to display version and help
+    /// information respectivly. You may use `version` or `help` for your own purposes, in which
     /// case `clap` simply will not asign those to the displaying of version or help automatically,
     /// and you will have to do so manually.
     ///
@@ -340,7 +340,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     }
 
     /// Sets the help text of the argument that will be displayed to the user
-    /// when they print the usage/help information. 
+    /// when they print the usage/help information.
     ///
     ///
     /// # Example
@@ -364,7 +364,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     ///
     /// **NOTE:** Flags (i.e. not positional, or arguments that take values)
     /// cannot be required by default.
-    /// when they print the usage/help information. 
+    /// when they print the usage/help information.
     ///
     ///
     /// #Example
@@ -381,7 +381,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self
     }
 
-    /// Sets a mutually exclusive argument by name. I.e. when using this argument, 
+    /// Sets a mutually exclusive argument by name. I.e. when using this argument,
     /// the following argument can't be present.
     ///
     /// **NOTE:** Mutually exclusive rules take precedence over being required
@@ -408,7 +408,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self
     }
 
-    /// Sets a mutually exclusive arguments by names. I.e. when using this argument, 
+    /// Sets a mutually exclusive arguments by names. I.e. when using this argument,
     /// the following argument can't be present.
     ///
     /// **NOTE:** Mutually exclusive rules take precedence over being required
@@ -438,7 +438,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self
     }
 
-    /// Sets a mutually exclusive argument by name. I.e. when using this argument, 
+    /// Sets a mutually exclusive argument by name. I.e. when using this argument,
     /// the following argument can't be present.
     ///
     /// **NOTE:** Mutually exclusive rules take precedence over being required
@@ -462,7 +462,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self
     }
 
-    /// Sets mutually exclusive arguments by names. I.e. when using this argument, 
+    /// Sets mutually exclusive arguments by names. I.e. when using this argument,
     /// the following argument can't be present.
     ///
     /// **NOTE:** Mutually exclusive rules take precedence over being required
@@ -479,7 +479,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// .conflicts_with_all(&config_conflicts)
     /// # ).get_matches();
     pub fn conflicts_with_all<T, I>(mut self, names: I)
-                                    -> Arg<'n, 'l, 'h, 'g, 'p, 'r> 
+                                    -> Arg<'n, 'l, 'h, 'g, 'p, 'r>
                                     where T: AsRef<str> + 'r,
                                           I: IntoIterator<Item=&'r T> {
         if let Some(ref mut vec) = self.blacklist {
@@ -516,7 +516,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// using this argument, the following arguments *must* be present.
     ///
     /// **NOTE:** Mutually exclusive rules take precedence over being required
-    /// by default. 
+    /// by default.
     ///
     ///
     /// # Example
@@ -528,7 +528,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// .requires_all(&config_reqs)
     /// # ).get_matches();
     pub fn requires_all<T, I>(mut self, names: I)
-                              -> Arg<'n, 'l, 'h, 'g, 'p, 'r> 
+                              -> Arg<'n, 'l, 'h, 'g, 'p, 'r>
                               where T: AsRef<str> + 'r,
                                     I: IntoIterator<Item=&'r T> {
         if let Some(ref mut vec) = self.requires {
@@ -540,9 +540,9 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     }
 
     /// Specifies that the argument takes an additional value at run time.
-    /// 
+    ///
     /// **NOTE:** When setting this to `true` the `name` of the argument
-    /// will be used when printing the help/usage information to the user. 
+    /// will be used when printing the help/usage information to the user.
     ///
     ///
     /// # Example
@@ -560,11 +560,11 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     }
 
     /// Specifies the index of a positional argument starting at 1.
-    /// 
+    ///
     /// **NOTE:** When setting this,  any `short` or `long` values you set
     /// are ignored as positional arguments cannot have a `short` or `long`.
-    /// Also, the name will be used when printing the help/usage information 
-    /// to the user. 
+    /// Also, the name will be used when printing the help/usage information
+    /// to the user.
     ///
     ///
     /// # Example
@@ -582,10 +582,10 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     }
 
     /// Specifies if the flag may appear more than once such as for multiple debugging
-    /// levels (as an example). `-ddd` for three levels of debugging, or `-d -d -d`. 
+    /// levels (as an example). `-ddd` for three levels of debugging, or `-d -d -d`.
     /// When this is set to `true` you recieve the number of occurances the user supplied
     /// of a particular flag at runtime.
-    /// 
+    ///
     /// **NOTE:** When setting this,  any `takes_value` or `index` values you set
     /// are ignored as flags cannot have a values or an `index`.
     ///
@@ -606,8 +606,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
 
     /// Specifies a list of possible values for this argument. At runtime, clap verifies that only
     /// one of the specified values was used, or fails with a usage string.
-    /// 
-    /// **NOTE:** This setting only applies to options and positional arguments 
+    ///
+    /// **NOTE:** This setting only applies to options and positional arguments
     ///
     ///
     /// # Example
@@ -621,7 +621,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// .possible_values(&mode_vals)
     /// # ).get_matches();
     pub fn possible_values<T, I>(mut self, names: I)
-                                 -> Arg<'n, 'l, 'h, 'g, 'p, 'r> 
+                                 -> Arg<'n, 'l, 'h, 'g, 'p, 'r>
                                  where T: AsRef<str> + 'p,
                                        I: IntoIterator<Item=&'p T> {
         if let Some(ref mut vec) = self.possible_vals {
@@ -650,12 +650,12 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     }
 
     /// Specifies how many values are required to satisfy this argument. For example, if you had a
-    /// `-f <file>` argument where you wanted exactly 3 'files' you would set 
+    /// `-f <file>` argument where you wanted exactly 3 'files' you would set
     /// `.number_of_values(3)`, and this argument wouldn't be satisfied unless the user provided
     /// 3 and only 3 values.
     ///
     /// **NOTE:** The argument *must* have `.multiple(true)` or `...` to use this setting. Which
-    /// implies that `qty` must be > 1 (i.e. setting `.number_of_values(1)` would be unnecessary) 
+    /// implies that `qty` must be > 1 (i.e. setting `.number_of_values(1)` would be unnecessary)
     ///
     ///
     /// # Example
@@ -673,12 +673,12 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     }
 
     /// Specifies the *maximum* number of values are for this argument. For example, if you had a
-    /// `-f <file>` argument where you wanted up to 3 'files' you would set 
+    /// `-f <file>` argument where you wanted up to 3 'files' you would set
     /// `.max_values(3)`, and this argument would be satisfied if the user provided, 1, 2, or 3
     /// values.
     ///
     /// **NOTE:** The argument *must* have `.multiple(true)` or `...` to use this setting. Which
-    /// implies that `qty` must be > 1 (i.e. setting `.max_values(1)` would be unnecessary) 
+    /// implies that `qty` must be > 1 (i.e. setting `.max_values(1)` would be unnecessary)
     ///
     /// # Example
     ///
@@ -695,8 +695,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     }
 
     /// Specifies the *minimum* number of values are for this argument. For example, if you had a
-    /// `-f <file>` argument where you wanted at least 2 'files' you would set 
-    /// `.min_values(2)`, and this argument would be satisfied if the user provided, 2 or more 
+    /// `-f <file>` argument where you wanted at least 2 'files' you would set
+    /// `.min_values(2)`, and this argument would be satisfied if the user provided, 2 or more
     /// values.
     ///
     /// **NOTE:** The argument *must* have `.multiple(true)` or `...` to use this setting.
@@ -739,7 +739,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// .value_names(&val_names)
     /// # ).get_matches();
     pub fn value_names<T, I>(mut self, names: I)
-                                 -> Arg<'n, 'l, 'h, 'g, 'p, 'r> 
+                                 -> Arg<'n, 'l, 'h, 'g, 'p, 'r>
                                  where T: AsRef<str> + 'p,
                                        I: IntoIterator<Item=&'p T> {
         if let Some(ref mut vec) = self.val_names {

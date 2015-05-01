@@ -12,7 +12,7 @@ macro_rules! get_help {
                 }else{"".to_owned()})
         } else {
             "    ".to_owned()
-        } 
+        }
     };
 }
 
@@ -44,7 +44,7 @@ macro_rules! parse_group_reqs {
                     $me.required.remove(name);
                     $me.blacklist.insert(name);
                 }
-            } 
+            }
         }
     };
 }
@@ -65,7 +65,7 @@ macro_rules! validate_reqs {
                             }
                         }
                     }
-                } 
+                }
             }
         }
     };
@@ -89,10 +89,10 @@ macro_rules! for_match {
 /// Convenience macro getting a typed value `T` where `T` implements `std::str::FromStr`
 /// This macro returns a `Result<T,String>` which allows you as the developer to decide
 /// what you'd like to do on a failed parse. There are two types of errors, parse failures
-/// and those where the argument wasn't present (such as a non-required argument). 
+/// and those where the argument wasn't present (such as a non-required argument).
 ///
 /// You can use it to get a single value, or a `Vec<T>` with the `values_of()`
-/// 
+///
 /// **NOTE:** Be cautious, as since this a macro invocation it's not exactly like
 /// standard syntax.
 ///
@@ -109,7 +109,7 @@ macro_rules! for_match {
 ///               .get_matches();
 /// let len = value_t!(matches.value_of("length"), u32)
 ///                 .unwrap_or_else(|e|{
-///                     println!("{}",e); 
+///                     println!("{}",e);
 ///                     std::process::exit(1)
 ///                 });
 ///
@@ -130,7 +130,7 @@ macro_rules! for_match {
 ///               .get_matches();
 /// for v in value_t!(matches.values_of("seq"), u32)
 ///             .unwrap_or_else(|e|{
-///                 println!("{}",e); 
+///                 println!("{}",e);
 ///                 std::process::exit(1)
 ///             }) {
 ///     println!("{} + 2: {}", v, v + 2);
@@ -176,10 +176,10 @@ macro_rules! value_t {
 
 /// Convenience macro getting a typed value `T` where `T` implements `std::str::FromStr`
 /// This macro returns a `T` or `Vec<T>` or exits with a usage string upon failure. This
-/// removes some of the boiler plate to handle failures from value_t! above. 
+/// removes some of the boiler plate to handle failures from value_t! above.
 ///
 /// You can use it to get a single value `T`, or a `Vec<T>` with the `values_of()`
-/// 
+///
 /// **NOTE:** This should only be used on required arguments, as it can be confusing to the user
 /// why they are getting error messages when it appears they're entering all required argumetns.
 ///
@@ -230,7 +230,7 @@ macro_rules! value_t_or_exit {
                         println!("{} isn't a valid {}\n{}\n{}\nPlease re-run with --help for \
                             more information",
                             v,
-                            stringify!($t), 
+                            stringify!($t),
                             e,
                             $m.usage());
                         ::std::process::exit(1);
@@ -240,7 +240,7 @@ macro_rules! value_t_or_exit {
             None => {
                 println!("Argument \"{}\" not found or is not valid\n{}\nPlease re-run with \
                     --help for more information",
-                    $v, 
+                    $v,
                     $m.usage());
                 ::std::process::exit(1);
             }
@@ -257,8 +257,8 @@ macro_rules! value_t_or_exit {
                             println!("{} isn't a valid {}\n{}\nPlease re-run with --help for more \
                                 information",
                                 pv,
-                                stringify!($t), 
-                                $m.usage()); 
+                                stringify!($t),
+                                $m.usage());
                             ::std::process::exit(1);
                         }
                     }
@@ -268,7 +268,7 @@ macro_rules! value_t_or_exit {
             None => {
                 println!("Argument \"{}\" not found or is not valid\n{}\nPlease re-run with \
                     --help for more information",
-                    $v, 
+                    $v,
                     $m.usage());
                 ::std::process::exit(1);
             }
@@ -307,7 +307,7 @@ macro_rules! simple_enum {
         }
 
         impl ::std::str::FromStr for $e {
-            type Err = String; 
+            type Err = String;
 
             fn from_str(s: &str) -> Result<Self,Self::Err> {
                 match s {
@@ -316,7 +316,7 @@ macro_rules! simple_enum {
                                             let v = vec![
                                                 $(stringify!($v),)+
                                             ];
-                                            format!("valid:{}", 
+                                            format!("valid:{}",
                                                 v.iter().fold(String::new(), |a, i| {
                                                     a + &format!(" {}", i)[..]
                                                 }))
@@ -375,7 +375,7 @@ macro_rules! arg_enum {
                                             let v = vec![
                                                 $(stringify!($v),)+
                                             ];
-                                            format!("valid:{}", 
+                                            format!("valid:{}",
                                                 v.iter().fold(String::new(), |a, i| {
                                                     a + &format!(" {}", i)[..]
                                                 }))
@@ -399,7 +399,7 @@ macro_rules! arg_enum {
                                             let v = vec![
                                                 $(stringify!($v),)+
                                             ];
-                                            format!("valid:{}", 
+                                            format!("valid:{}",
                                                 v.iter().fold(String::new(), |a, i| {
                                                     a + &format!(" {}", i)[..]
                                                 }))
@@ -424,7 +424,7 @@ macro_rules! arg_enum {
                                             let v = vec![
                                                 $(stringify!($v),)+
                                             ];
-                                            format!("valid:{}", 
+                                            format!("valid:{}",
                                                 v.iter().fold(String::new(), |a, i| {
                                                     a + &format!(" {}", i)[..]
                                                 }))
@@ -449,7 +449,7 @@ macro_rules! arg_enum {
                                             let v = vec![
                                                 $(stringify!($v),)+
                                             ];
-                                            format!("valid:{}", 
+                                            format!("valid:{}",
                                                 v.iter().fold(String::new(), |a, i| {
                                                     a + &format!(" {}", i)[..]
                                                 }))

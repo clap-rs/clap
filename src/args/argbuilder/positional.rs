@@ -14,7 +14,7 @@ pub struct PosBuilder<'n> {
     pub required: bool,
     /// Allow multiple occurrences of an option argument such as "-c some -c other"
     pub multiple: bool,
-    /// A list of names of other arguments that are *required* to be used when 
+    /// A list of names of other arguments that are *required* to be used when
     /// this flag is used
     pub requires: Option<HashSet<&'n str>>,
     /// A list of names for other arguments that *may not* be used with this flag
@@ -31,9 +31,9 @@ pub struct PosBuilder<'n> {
 impl<'n> Display for PosBuilder<'n> {
     fn fmt(&self, f: &mut Formatter) -> Result {
         write!(f, "{}{}{}{}",
-                if self.required { "<" } else {"["}, 
+                if self.required { "<" } else {"["},
                 self.name,
-                if self.required { ">" } else {"]"}, 
+                if self.required { ">" } else {"]"},
                 if self.multiple {"..."}else{""})
     }
 }

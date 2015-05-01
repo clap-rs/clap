@@ -21,7 +21,7 @@ use args::MatchedArg;
 /// #                                   .short("d")
 /// #                                   .multiple(true))
 ///                     .get_matches();
-/// // if you had an argument named "output" that takes a value 
+/// // if you had an argument named "output" that takes a value
 /// if let Some(o) = matches.value_of("output") {
 ///     println!("Value for output: {}", o);
 /// }
@@ -82,7 +82,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
 
     /// Gets the value of a specific option or positional argument (i.e. an argument that takes
     /// an additional value at runtime). If the option wasn't present at runtime
-    /// it returns `None`. 
+    /// it returns `None`.
     ///
     /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
     /// prefer `values_of()` as `value_of()` will only return the _*first*_ value.
@@ -134,7 +134,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
         None
     }
 
-    /// Returns if an argument was present at runtime. 
+    /// Returns if an argument was present at runtime.
     ///
     ///
     /// # Example
@@ -148,13 +148,13 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     /// ```
     pub fn is_present<'na>(&self, name: &'na str) -> bool {
         if let Some(ref sc) = self.subcommand {
-            if sc.name == name { return true; } 
+            if sc.name == name { return true; }
         }
         if self.args.contains_key(name) {return true;}
         false
     }
 
-    /// Returns the number of occurrences of an option, flag, or positional argument at runtime. 
+    /// Returns the number of occurrences of an option, flag, or positional argument at runtime.
     /// If an argument isn't present it will return `0`. Can be used on arguments which *don't*
     /// allow multiple occurrences, but will obviously only return `0` or `1`.
     ///

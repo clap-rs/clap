@@ -25,7 +25,7 @@ impl<'u> UsageParser<'u> {
         }
     }
 
- 
+
 }
 
 impl<'u> Iterator for UsageParser<'u> {
@@ -48,20 +48,20 @@ impl<'u> Iterator for UsageParser<'u> {
                     while let Some(c) =  self.chars.next() {
                         self.e += 1;
                         if c == closing { break }
-                    } 
+                    }
                     if self.e > self.usage.len() { return None }
 
                     // self.e += 1;
 
                     let name = &self.usage[self.s..self.e];
 
-                    
+
                     return Some(UsageToken::Name(name, if c == '<' { Some(true) } else { None }));
                 },
                 Some('\'') => {
                     self.s = self.e + 2;
                     self.e = self.usage.len() - 1;
-                    
+
                     while let Some(_) = self.chars.next() { continue }
 
                     return Some(UsageToken::Help(&self.usage[self.s..self.e]));
@@ -73,13 +73,13 @@ impl<'u> Iterator for UsageParser<'u> {
                             if self.e != 1 {
                                 self.e += 1;
                             }
-                            
+
                             self.s = self.e + 1;
 
                             while let Some(c) = self.chars.next() {
                                 self.e += 1;
                                 if c == ' ' || c == '=' || c == '.' { break }
-                            } 
+                            }
                             if self.e > self.usage.len() { return None }
 
                             if self.e == self.usage.len() - 1 {
@@ -109,15 +109,15 @@ impl<'u> Iterator for UsageParser<'u> {
                     for _ in 0..2 {
                         self.e += 1;
                         match self.chars.next() {
-                            // longs consume one '.' so they match '.. ' whereas shorts can 
+                            // longs consume one '.' so they match '.. ' whereas shorts can
                             // match '...'
                             Some('.') | Some(' ')  => { mult = true; },
-                            _          => { 
+                            _          => {
                                 // if there is no help or following space all we can match is '..'
                                 if self.e == self.usage.len() - 1 {
                                     mult = true;
                                 }
-                                break; 
+                                break;
                             }
                         }
                     }
@@ -126,7 +126,7 @@ impl<'u> Iterator for UsageParser<'u> {
                 Some(' ') | Some('=') | Some(']') | Some('>') | Some('\t') => {
                     self.e += 1;
                     continue
-                },                
+                },
                 _  => {
                     return None
                 }
