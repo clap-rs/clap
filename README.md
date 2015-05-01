@@ -16,7 +16,7 @@ Once `clap` parses the user provided string of arguments, it returns the matches
 
 ## Features
 
-Below are a few of the features which `clap` supports, full descriptions and usage can be found in the [documentation](http://kbknapp.github.io/clap-rs/docs/clap/index.html) and `examples/` directory
+Below are a few of the features which `clap` supports, full descriptions and usage can be found in the [documentation](http://kbknapp.github.io/clap-rs/clap/index.html) and `examples/` directory
 
 * **Auto-generated Help, Version, and Usage information**
   - Can optionally be fully, or partially overridden if you want a custom help, version, or usag
@@ -54,7 +54,7 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 
 ## Quick Example
  
-The following two examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, groups, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/docs/clap/index.html), or `examples/` directory of this repository.
+The following two examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, groups, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/clap/index.html), or `examples/` directory of this repository.
  
  *NOTE:* Both examples are functionally the same, but show two different styles in which to use `clap`
  
@@ -270,7 +270,7 @@ Then run `cargo build` or `cargo update && cargo build` for your project.
 
 ### More Information
 
-You can find complete documentation on the [github-pages site](http://kbknapp.github.io/clap-rs/docs/clap/index.html) for this project.
+You can find complete documentation on the [github-pages site](http://kbknapp.github.io/clap-rs/clap/index.html) for this project.
 
 You can also find usage examples in the `examples/` directory of this repo.
 
