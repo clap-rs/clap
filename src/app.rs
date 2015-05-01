@@ -1153,8 +1153,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 skip = true;
                                 1 
                             };
-                            if !skip {
-                                continue;
+                            if let Some(ref mut vals) = o.values {
+                                let len = vals.len() as u8;
+                                if let Some(num) = opt.max_vals {
+                                    if len != num { continue }
+                                } else if let Some(num) = opt.num_vals {
+                                    if len != num { continue }
+                                } else if !skip {
+                                    continue
+                                }
                             }
                         }  
                         skip = true;
@@ -1742,13 +1749,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         }
                     }
                     if let Some(num) = f.max_vals {
-                        if num > vals.len() as u8 {
+                        if (vals.len() as u8) > num {
                             self.report_error(format!("The argument {} requires no more than {} values, but {} w{} provided", f, num, vals.len(), if vals.len() == 1 {"as"}else{"ere"}),
                                 true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
                         }
                     }
                     if let Some(num) = f.min_vals {
-                        if num < vals.len() as u8 {
+                        if (vals.len() as u8) < num {
                             self.report_error(format!("The argument {} requires at least {} values, but {} w{} provided", f, num, vals.len(), if vals.len() == 1 {"as"}else{"ere"}),
                                 true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
                         }
