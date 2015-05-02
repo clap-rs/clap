@@ -5,9 +5,7 @@ use std::collections::HashMap;
 use std::env;
 use std::path::Path;
 use std::vec::IntoIter;
-use std::borrow::ToOwned;
 use std::process;
-use std::fmt::Write;
 
 use args::{ ArgMatches, Arg, SubCommand, MatchedArg};
 use args::{ FlagBuilder, OptBuilder, PosBuilder};
@@ -336,7 +334,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 let mut rhs = HashSet::new();
                 // without derefing n = &&str
                 for n in r {
-                    rhs.insert(*n); }
+                    rhs.insert(*n); 
+                    if pb.required {
+                        self.required.insert(*n);
+                    }
+                }
                 pb.requires = Some(rhs);
             }
             // Check if there is anything in the possible values and add those as well
@@ -387,7 +389,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             if let Some(ref r) = a.requires {
                 let mut rhs = HashSet::new();
                 // without derefing n = &&str
-                for n in r { rhs.insert(*n); }
+                for n in r { 
+                    rhs.insert(*n); 
+                    if ob.required {
+                        self.required.insert(*n);
+                    }
+                }
                 ob.requires = Some(rhs);
             }
             // Check if there is anything in the possible values and add those as well
@@ -657,10 +664,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
-    fn group_string(&self, g: &ArgGroup, r: &str, vec: &Vec<&str>) -> Option<Vec<String>> {
+    fn group_string(&self, g: &ArgGroup, r: &str, vec: &HashSet<&'ar str>) -> Option<Vec<String>> {
         let mut g_vec = vec![];
         for a in g.args.iter() {
-            if vec.contains(&a) { return None }
+            if vec.contains(a) { return None }
             if let Some(f) = self.flags.get(r) {
                 g_vec.push(format!("{}", f));
             } else if let Some(o) = self.opts.get(r) {
@@ -677,141 +684,149 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         Some(g_vec)
     }
 
+    fn get_required_from(&self, reqs: HashSet<&'ar str>) -> Vec<String> {
+        let mut c_flags = vec![];
+        let mut c_pos = vec![];
+        let mut c_opt = vec![];
+        let mut grps = vec![];
+        reqs.iter().map(|name| if let Some(f) = self.flags.get(name) {
+            c_flags.push(f);
+        } else if let Some(o) = self.opts.get(name) {
+            c_opt.push(o);
+        } else {
+            c_pos.push(
+                self.positionals_idx.get(self.positionals_name.get(name)
+                                                              .unwrap())
+                                    .unwrap()
+            );
+        }).collect::<Vec<_>>();
+        let mut tmp_f = vec![];
+        for f in c_flags.iter_mut() {
+            if let Some(ref rl) = f.requires {
+                for r in rl {
+                    if !reqs.contains(r) {
+                        if let Some(f) = self.flags.get(r) {
+                            tmp_f.push(f);
+                        } else if let Some(o) = self.opts.get(r) {
+                            c_opt.push(o);
+                        } else if let Some(g) = self.groups.get(r) {
+                            if let Some(vec) = self.group_string(g, r, &reqs) {
+                                let g_string = vec.iter()
+                                                  .map(|s| format!("{}|", s))
+                                                  .fold(String::new(), |acc, i| {
+                                                      acc + &format!("{}",i)[..]
+                                                  });
+                                grps.push(format!("[{}]", &g_string[..g_string.len()-1]));
+                            }
+                        } else {
+                            c_pos.push(
+                                self.positionals_idx.get(self.positionals_name.get(r)
+                                                                              .unwrap())
+                                                    .unwrap());
+                        }
+                    }
+                }
+            }
+        }
+        for f in tmp_f {
+            c_flags.push(f);
+        }
+        let mut tmp_o = vec![];
+        for o in c_opt.iter_mut() {
+            if let Some(ref rl) = o.requires {
+                for r in rl {
+                    if !reqs.contains(r) {
+                        if let Some(f) = self.flags.get(r) {
+                            c_flags.push(f);
+                        } else if let Some(o) = self.opts.get(r) {
+                            tmp_o.push(o);
+                        } else if let Some(g) = self.groups.get(r) {
+                            if let Some(vec) = self.group_string(g, r, &reqs) {
+                                let g_string = vec.iter()
+                                                  .map(|s| format!("{}|", s))
+                                                  .fold(String::new(), |acc, i| {
+                                                      acc + &format!("{}",i)[..]
+                                                  });
+                                grps.push(format!("[{}]", &g_string[..g_string.len()-1]));
+                            }
+                        } else {
+                            c_pos.push(self.positionals_idx.get(self.positionals_name.get(r)
+                                                                                     .unwrap())
+                                                           .unwrap());
+                        }
+                    }
+                }
+            }
+        }
+        for o in tmp_o {
+            c_opt.push(o);
+        }
+        let mut tmp_p = vec![];
+        for p in c_pos.iter_mut() {
+            if let Some(ref rl) = p.requires {
+                for r in rl {
+                    if !reqs.contains(r) {
+                        if let Some(f) = self.flags.get(r) {
+                            c_flags.push(f);
+                        } else if let Some(o) = self.opts.get(r) {
+                            c_opt.push(o);
+                        } else if let Some(g) = self.groups.get(r) {
+                            if let Some(vec) = self.group_string(g, r, &reqs) {
+                                let g_string = vec.iter()
+                                                  .map(|s| format!("{}|", s))
+                                                  .fold(String::new(), |acc, i| {
+                                                      acc + &format!("{}",i)[..]
+                                                  });
+                                grps.push(format!("[{}]", &g_string[..g_string.len()-1]));
+                            }
+                        } else {
+                            tmp_p.push(self.positionals_idx.get(self.positionals_name.get(r)
+                                                                                     .unwrap())
+                                 .unwrap());
+                        }
+                    }
+                }
+            }
+        }
+        for p in tmp_p {
+            c_pos.push(p);
+        }
+        let mut ret_val = vec![];
+
+        c_pos.iter()
+             .map(|f| ret_val.push(format!("{}", f))).collect::<Vec<_>>();
+        c_flags.iter()
+               .map(|f| ret_val.push(format!("{}", f))).collect::<Vec<_>>();
+        c_opt.iter()
+             .map(|f| ret_val.push(format!("{}", f))).collect::<Vec<_>>();
+        grps.iter()
+            .map(|f| ret_val.push(format!("{}", f))).collect::<Vec<_>>();
+
+        ret_val
+
+    }
+
     // Creates a usage string if one was not provided by the user manually. This happens just
     // after all arguments were parsed, but before any subcommands have been parsed (so as to
     // give subcommands their own usage recursively)
-    fn create_usage(&self, matches: Option<Vec<&str>>) -> String {
+    fn create_usage(&self, matches: Option<Vec<&'ar str>>) -> String {
         let tab = "    ";
         let mut usage = String::with_capacity(75);
         usage.push_str("USAGE:\n");
         usage.push_str(tab);
         if let Some(u) = self.usage_str {
             usage.push_str(u);
-        } else if let Some(vec) = matches {
-            let mut c_flags = vec![];
-            let mut c_pos = vec![];
-            let mut c_opt = vec![];
-            let mut grps = vec![];
-            vec.iter().map(|name| if let Some(f) = self.flags.get(name) {
-                c_flags.push(f);
-            } else if let Some(o) = self.opts.get(name) {
-                c_opt.push(o);
-            } else {
-                c_pos.push(
-                    self.positionals_idx.get(self.positionals_name.get(name)
-                                                                  .unwrap())
-                                        .unwrap()
-                );
-            }).collect::<Vec<_>>();
-            let mut tmp_f = vec![];
-            for f in c_flags.iter_mut() {
-                if let Some(ref rl) = f.requires {
-                    for r in rl {
-                        if !vec.contains(&&r) {
-                            if let Some(f) = self.flags.get(r) {
-                                tmp_f.push(f);
-                            } else if let Some(o) = self.opts.get(r) {
-                                c_opt.push(o);
-                            } else if let Some(g) = self.groups.get(r) {
-                                if let Some(vec) = self.group_string(g, r, &vec) {
-                                    let g_string = vec.iter()
-                                                      .map(|s| format!("{}|", s))
-                                                      .fold(String::new(), |acc, i| {
-                                                          acc + &format!("{}",i)[..]
-                                                      });
-                                    grps.push(format!("[{}]", &g_string[..g_string.len()-1]));
-                                }
-                            } else {
-                                c_pos.push(
-                                    self.positionals_idx.get(self.positionals_name.get(r)
-                                                                                  .unwrap())
-                                                        .unwrap());
-                            }
-                        }
-                    }
-                }
-            }
-            for f in tmp_f {
-                c_flags.push(f);
-            }
-            let mut tmp_o = vec![];
-            for o in c_opt.iter_mut() {
-                if let Some(ref rl) = o.requires {
-                    for r in rl {
-                        if !vec.contains(&&r) {
-                            if let Some(f) = self.flags.get(r) {
-                                c_flags.push(f);
-                            } else if let Some(o) = self.opts.get(r) {
-                                tmp_o.push(o);
-                            } else if let Some(g) = self.groups.get(r) {
-                                if let Some(vec) = self.group_string(g, r, &vec) {
-                                    let g_string = vec.iter()
-                                                      .map(|s| format!("{}|", s))
-                                                      .fold(String::new(), |acc, i| {
-                                                          acc + &format!("{}",i)[..]
-                                                      });
-                                    grps.push(format!("[{}]", &g_string[..g_string.len()-1]));
-                                }
-                            } else {
-                                c_pos.push(self.positionals_idx.get(self.positionals_name.get(r)
-                                                                                         .unwrap())
-                                                               .unwrap());
-                            }
-                        }
-                    }
-                }
-            }
-            for o in tmp_o {
-                c_opt.push(o);
-            }
-            let mut tmp_p = vec![];
-            for p in c_pos.iter_mut() {
-                if let Some(ref rl) = p.requires {
-                    for r in rl {
-                        if !vec.contains(&&r) {
-                            if let Some(f) = self.flags.get(r) {
-                                c_flags.push(f);
-                            } else if let Some(o) = self.opts.get(r) {
-                                c_opt.push(o);
-                            } else if let Some(g) = self.groups.get(r) {
-                                if let Some(vec) = self.group_string(g, r, &vec) {
-                                    let g_string = vec.iter()
-                                                      .map(|s| format!("{}|", s))
-                                                      .fold(String::new(), |acc, i| {
-                                                          acc + &format!("{}",i)[..]
-                                                      });
-                                    grps.push(format!("[{}]", &g_string[..g_string.len()-1]));
-                                }
-                            } else {
-                                tmp_p.push(self.positionals_idx.get(self.positionals_name.get(r)
-                                                                                         .unwrap())
-                                     .unwrap());
-                            }
-                        }
-                    }
-                }
-            }
-            for p in tmp_p {
-                c_pos.push(p);
-            }
-            let f_string = c_flags.iter()
-                                  .map(|f| format!("{}", f))
-                                  .fold(String::new(),|acc, i| acc + &format!(" {}", i));
-            let o_string = c_opt.iter()
-                                .map(|f| format!("{}", f))
-                                .fold(String::new(),|acc, i| acc + &format!(" {}", i));
-            let p_string = c_pos.iter()
-                                .map(|f| format!("{}", f))
-                                .fold(String::new(),|acc, i| acc + &format!(" {}", i));
-            let g_string = grps.iter()
-                                .map(|f| format!(" {}", f))
-                                .fold(String::new(), |acc, i| acc + &format!("{}", i));
-            usage.push_str(&format!("{} {} {} {} {}",
+        } else if let Some(tmp_vec) = matches {
+            let mut hs = HashSet::new();
+            self.required.iter().map(|n| hs.insert(*n)).collect::<Vec<_>>();
+            tmp_vec.iter().map(|n| hs.insert(*n)).collect::<Vec<_>>();
+            let reqs = self.get_required_from(hs);
+            
+            let r_string = reqs.iter().fold(String::new(), |acc, s| acc + &format!(" {}", s)[..]);
+
+            usage.push_str(&format!("{}{}",
                 self.bin_name.clone().unwrap_or(self.name.clone()),
-                p_string,
-                f_string,
-                o_string,
-                g_string)[..]);
+                r_string)[..]);
         } else {
             let flags = !self.flags.is_empty();
             let pos = !self.positionals_idx.is_empty();
@@ -1448,10 +1463,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 if let Some(o) = self.opts.get(a) {
                     if o.multiple && self.required.is_empty() { () }
                     else {
-                        self.report_error("One or more required arguments were not \
-                            supplied".to_owned(),
-                            true,
-                            true,
+                        self.report_error(format!("The following required arguments were not \
+                            supplied:\n{}", 
+                            self.get_required_from(self.required.iter()
+                                                                .map(|s| *s)
+                                                                .collect::<HashSet<_>>())
+                                .iter()
+                                .fold(String::new(), |acc, s| acc + &format!("\t{}\n",s)[..])),
+                            true, 
+                            true, 
                             Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
                     }
                 } else {
@@ -1478,8 +1498,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
         if !self.required.is_empty() {
             if self.validate_required(&matches) {
-                self.report_error("One or more required arguments were not supplied".to_owned(),
-                        true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                self.report_error(format!("The following required arguments were not \
+                    supplied:\n{}", 
+                    self.get_required_from(self.required.iter()
+                                                        .map(|s| *s)
+                                                        .collect::<HashSet<_>>())
+                        .iter()
+                        .fold(String::new(), |acc, s| acc + &format!("\t{}\n",s)[..])),
+                    true, 
+                    true, 
+                    Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
             }
         }
 
