@@ -1,3 +1,13 @@
+<a name="v0.7.2"></a>
+## v0.7.2 (2015-05-03)
+
+
+#### Bug Fixes
+
+* **RequiredArgs**  fixes bug where required-by-default arguments are not listed in usage ([12aea961](https://github.com/kbknapp/clap-rs/commit/12aea9612d290845ba86515c240aeeb0a21198db), closes [#96](https://github.com/kbknapp/clap-rs/issues/96))
+
+
+
 <a name="v0.7.1"></a>
 ## v0.7.1 (2015-05-01)
 
