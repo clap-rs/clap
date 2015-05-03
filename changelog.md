@@ -1,3 +1,18 @@
+<a name="v0.7.3"></a>
+## v0.7.3 (2015-05-03)
+
+
+#### Bug Fixes
+
+* **RequiredValues**  fixes a bug where missing values are parsed as missing arguments ([93c4a723](https://github.com/kbknapp/clap-rs/commit/93c4a7231ba1a08152648598f7aa4503ea82e4de))
+
+#### Improvements
+
+* **ErrorMessages**  improves error messages and corrections ([a29c3983](https://github.com/kbknapp/clap-rs/commit/a29c3983c4229906655a29146ec15a0e46dd942d))
+* **ArgGroups**  improves requirment and confliction support for groups ([c236dc5f](https://github.com/kbknapp/clap-rs/commit/c236dc5ff475110d2a1b80e62903f80296163ad3))
+
+
+
 <a name="v0.7.2"></a>
 ## v0.7.2 (2015-05-03)
 
