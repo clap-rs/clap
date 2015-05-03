@@ -1,3 +1,9 @@
 [clog]
 repository = "https://github.com/kbknapp/clap-rs"
 from-latest-tag = true
+
+[sections]
+Performance = ["perf"]
+Improvements = ["impr", "im"]
+Documentation = ["docs"]
+
