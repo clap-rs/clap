@@ -1253,7 +1253,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
                     if self.blacklist.contains(p.name) {
                         matches.args.remove(p.name);
-                        self.report_error(format!("The argument \"{}\" cannot be used with {}",
+                        self.report_error(format!("The argument '{}' cannot be used with {}",
                             p,
                             match self.blacklisted_from(p.name, &matches) {
                                 Some(name) => name,
@@ -1290,7 +1290,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 if let Some(ref vals) = ma.values {
                                     if vals.len() as u8 == num {
                                         self.report_error(format!("The argument \"{}\" was found, \
-                                            but {} doesn't expect any more values", arg, p),
+                                            but '{}' wasn't expecting any more values", arg, p),
                                             true,
                                             true,
                                             Some(matches.args.keys()
@@ -1343,7 +1343,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     parse_group_reqs!(self, p);
 
                 } else {
-                    self.report_error(format!("The argument \"{}\" was found, but {} wasn't \
+                    self.report_error(format!("The argument \"{}\" was found, but '{}' wasn't \
                         expecting any", arg,
                             self.bin_name.clone().unwrap_or(self.name.clone())),
                         true,
@@ -1370,7 +1370,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                                                 .map(|s| *s)
                                                                 .collect::<HashSet<_>>())
                                 .iter()
-                                .fold(String::new(), |acc, s| acc + &format!("\t{}\n",s)[..])),
+                                .fold(String::new(), |acc, s| acc + &format!("\t'{}'\n",s)[..])),
                             true, 
                             true, 
                             Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
@@ -1399,7 +1399,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                                         .map(|s| *s)
                                                         .collect::<HashSet<_>>())
                         .iter()
-                        .fold(String::new(), |acc, s| acc + &format!("\t{}\n",s)[..])),
+                        .fold(String::new(), |acc, s| acc + &format!("\t'{}'\n",s)[..])),
                     true, 
                     true, 
                     Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
@@ -1622,7 +1622,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             // Ensure this flag isn't on the mutually excludes list
             if self.blacklist.contains(v.name) {
                 matches.args.remove(v.name);
-                self.report_error(format!("The argument {} cannot be used with {}",
+                self.report_error(format!("The argument '{}' cannot be used with {}",
                     v,
                     match self.blacklisted_from(v.name, matches) {
                         Some(name) => name,
@@ -1857,7 +1857,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         for name in self.blacklist.iter() {
             if matches.args.contains_key(name) {
                 matches.args.remove(name);
-                self.report_error(format!("The argument {} cannot be used with {}",
+                self.report_error(format!("The argument '{}' cannot be used with {}",
                     if let Some(ref flag) = self.flags.get(name) {
                         format!("{}", flag)
                     } else if let Some(ref opt) = self.opts.get(name) {
@@ -1876,7 +1876,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 for n in grp.args.iter() {
                     if matches.args.contains_key(n) {
                         matches.args.remove(n);
-                        self.report_error(format!("The argument {} cannot be used with one or \
+                        self.report_error(format!("The argument '{}' cannot be used with one or \
                                 more of the other specified arguments",
                                 if let Some(ref flag) = self.flags.get(n) {
                                     format!("{}", flag)
@@ -1905,7 +1905,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 if let Some(f) = self.opts.get(name) {
                     if let Some(num) = f.num_vals {
                         if num != vals.len() as u8 {
-                            self.report_error(format!("The argument {} requires {} values, \
+                            self.report_error(format!("The argument '{}' requires {} values, \
                                     but {} w{} provided",
                                     f,
                                     num,
@@ -1918,7 +1918,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                     if let Some(num) = f.max_vals {
                         if (vals.len() as u8) > num {
-                            self.report_error(format!("The argument {} requires no more than {} \
+                            self.report_error(format!("The argument '{}' requires no more than {} \
                                     values, but {} w{} provided",
                                     f,
                                     num,
@@ -1931,7 +1931,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                     if let Some(num) = f.min_vals {
                         if (vals.len() as u8) < num {
-                            self.report_error(format!("The argument {} requires at least {} \
+                            self.report_error(format!("The argument '{}' requires at least {} \
                                     values, but {} w{} provided",
                                     f,
                                     num,
@@ -1946,7 +1946,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     self.positionals_name.get(name).unwrap()) {
                     if let Some(num) = f.num_vals {
                         if num != vals.len() as u8 {
-                            self.report_error(format!("The argument {} requires {} values, \
+                            self.report_error(format!("The argument '{}' requires {} values, \
                                     but {} w{} provided",
                                     f,
                                     num,
@@ -1959,7 +1959,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                     if let Some(num) = f.max_vals {
                         if num > vals.len() as u8 {
-                            self.report_error(format!("The argument {} requires no more than {} \
+                            self.report_error(format!("The argument '{}' requires no more than {} \
                                     values, but {} w{} provided",
                                     f,
                                     num,
@@ -1972,7 +1972,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                     if let Some(num) = f.min_vals {
                         if num < vals.len() as u8 {
-                            self.report_error(format!("The argument {} requires at least {} \
+                            self.report_error(format!("The argument '{}' requires at least {} \
                                     values, but {} w{} provided",
                                     f,
                                     num,
