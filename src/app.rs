@@ -1356,6 +1356,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             Some(ref a) => {
                 if let Some(o) = self.opts.get(a) {
                     if o.multiple && self.required.is_empty() { () }
+                    else if !o.multiple {
+                        self.report_error(
+                            format!("Argument {} requires a value but none was supplied", o),
+                            true,
+                            true,
+                            Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>() ) );
+                    }
                     else {
                         self.report_error(format!("The following required arguments were not \
                             supplied:\n{}", 
@@ -1371,14 +1378,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 } else {
                     self.report_error(
                         format!("Argument {} requires a value but none was supplied",
-                            if let Some(f) = self.flags.get(a) {
-                                format!("{}", f)
-                            } else if let Some(o) = self.opts.get(a) {
-                                format!("{}", o)
-                            } else {
-                                format!("{}", self.positionals_idx.get(
-                                    self.positionals_name.get(a).unwrap()).unwrap())
-                            }),
+                            format!("{}", self.positionals_idx.get(
+                                self.positionals_name.get(a).unwrap()).unwrap())),
                             true,
                             true,
                             Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
