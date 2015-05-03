@@ -1251,6 +1251,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             if skip {
                 needs_val_of = None;
                 continue;
+            } else if let Some(ref name) = needs_val_of {
+                if let Some(ref o) = self.opts.get(name) {
+                    if !o.multiple {
+                        self.report_error(
+                            format!("Argument '{}' requires a value but none was supplied", o),
+                            true,
+                            true,
+                            Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>() ) );
+                    }
+                }
             }
 
             if arg_slice.starts_with("--") && !pos_only {
