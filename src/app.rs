@@ -5,9 +5,7 @@ use std::collections::HashMap;
 use std::env;
 use std::path::Path;
 use std::vec::IntoIter;
-use std::borrow::ToOwned;
 use std::process;
-use std::fmt::Write;
 
 use args::{ ArgMatches, Arg, SubCommand, MatchedArg};
 use args::{ FlagBuilder, OptBuilder, PosBuilder};
@@ -68,7 +66,6 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     needs_short_version: bool,
     needs_subcmd_help: bool,
     required: HashSet<&'ar str>,
-    matched_reqs: HashSet<&'ar  str>,
     short_list: HashSet<char>,
     long_list: HashSet<&'ar str>,
     blacklist: HashSet<&'ar str>,
@@ -109,7 +106,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             needs_subcmd_help: true,
             needs_short_version: true,
             required: HashSet::new(),
-            matched_reqs: HashSet::new(),
             short_list: HashSet::new(),
             long_list: HashSet::new(),
             usage_str: None,
@@ -336,7 +332,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 let mut rhs = HashSet::new();
                 // without derefing n = &&str
                 for n in r {
-                    rhs.insert(*n); }
+                    rhs.insert(*n); 
+                    if pb.required {
+                        self.required.insert(*n);
+                    }
+                }
                 pb.requires = Some(rhs);
             }
             // Check if there is anything in the possible values and add those as well
@@ -387,7 +387,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             if let Some(ref r) = a.requires {
                 let mut rhs = HashSet::new();
                 // without derefing n = &&str
-                for n in r { rhs.insert(*n); }
+                for n in r { 
+                    rhs.insert(*n); 
+                    if ob.required {
+                        self.required.insert(*n);
+                    }
+                }
                 ob.requires = Some(rhs);
             }
             // Check if there is anything in the possible values and add those as well
@@ -657,288 +662,193 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
-    fn group_string(&self, g: &ArgGroup, r: &str, vec: &Vec<&str>) -> Option<Vec<String>> {
-        let mut g_vec = vec![];
-        for a in g.args.iter() {
-            if vec.contains(&a) { return None }
-            if let Some(f) = self.flags.get(r) {
-                g_vec.push(format!("{}", f));
-            } else if let Some(o) = self.opts.get(r) {
-                g_vec.push(format!("{}", o));
-            } else if let Some(g) = self.groups.get(r) {
-                if let Some(vec) = self.group_string(g, r, vec) {
-                    vec.iter().map(|s| g_vec.push(s.clone())).collect::<Vec<_>>();
-                }
+    fn get_group_members(&self, group: &str) -> Vec<String> {
+        let mut g_vec = HashSet::new();
+        let mut args = HashSet::new();
+
+        for n in self.groups.get(group).unwrap().args.iter() {
+            if let Some(ref f) = self.flags.get(n) {
+                args.insert(format!("{}", f));
+            } else if let Some(ref f) = self.opts.get(n) {
+                args.insert(format!("{}", f));
+            } else if self.groups.contains_key(n) {
+                g_vec.insert(*n);
             } else {
-                g_vec.push(format!("|{}",
-                    self.positionals_idx.get(self.positionals_name.get(r).unwrap()).unwrap()));
+                if let Some(idx) = self.positionals_name.get(n) {
+                    if let Some(ref p) = self.positionals_idx.get(&idx) {
+                        args.insert(format!("{}", p));
+                    }
+                }
             }
         }
-        Some(g_vec)
+
+        if g_vec.is_empty() {
+            return args.iter().map(|s| s.to_owned()).collect::<Vec<_>>() 
+        }         
+        return g_vec.iter().map(|g| self.get_group_members(g)).fold(vec![], |acc, v| acc + &v)
+    }
+
+    fn get_required_from(&self, reqs: HashSet<&'ar str>) -> Vec<String> {
+        let mut c_flags = HashSet::new();
+        let mut c_pos = HashSet::new();
+        let mut c_opt = HashSet::new();
+        let mut grps = HashSet::new();
+        for name in &reqs {
+            if self.flags.contains_key(*name) {
+                c_flags.insert(*name);
+            } else if self.opts.contains_key(*name) {
+                c_opt.insert(*name);
+            } else if self.groups.contains_key(*name) {
+                grps.insert(*name);
+            } else {
+                c_pos.insert(*name);
+            }
+        }
+        let mut tmp_f = vec![];
+        for f in &c_flags {
+            if let Some(ref f) = self.flags.get(f) {
+                if let Some(ref rl) = f.requires {
+                    for r in rl {
+                        if !reqs.contains(r) {
+                            if self.flags.contains_key(r) {
+                                tmp_f.push(r);
+                            } else if self.opts.contains_key(r) {
+                                c_opt.insert(r);
+                            } else if self.groups.contains_key(r) {
+                                grps.insert(*r);
+                            } else {
+                                c_pos.insert(r);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for f in tmp_f {
+            c_flags.insert(f);
+        }
+        let mut tmp_o = vec![];
+        for f in &c_opt {
+            if let Some(ref f) = self.opts.get(f) {
+                if let Some(ref rl) = f.requires {
+                    for r in rl {
+                        if !reqs.contains(r) {
+                            if self.flags.contains_key(r) {
+                                c_flags.insert(r);
+                            } else if self.opts.contains_key(r) {
+                                tmp_o.push(r);
+                            } else if self.groups.contains_key(r) {
+                                grps.insert(*r);
+                            } else {
+                                c_pos.insert(r);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for f in tmp_o {
+            c_opt.insert(f);
+        }
+        let mut tmp_p = vec![];
+        for f in &c_pos {
+            if let Some(ref f) = self.flags.get(f) {
+                if let Some(ref rl) = f.requires {
+                    for r in rl {
+                        if !reqs.contains(r) {
+                            if self.flags.contains_key(r) {
+                                c_flags.insert(r);
+                            } else if self.opts.contains_key(r) {
+                                c_opt.insert(r);
+                            } else if self.groups.contains_key(r) {
+                                grps.insert(*r);
+                            } else {
+                                tmp_p.push(r);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for f in tmp_p {
+            c_flags.insert(f);
+        }
+
+
+        let mut ret_val = vec![];
+
+        for p in &c_pos {
+            if let Some(idx) = self.positionals_name.get(p) {
+                if let Some(ref p) = self.positionals_idx.get(&idx) {
+                    ret_val.push(format!("{}", p));
+                }
+            }
+        }
+        for f in &c_flags {
+             ret_val.push(format!("{}", self.flags.get(*f).unwrap()));
+        }
+        for o in &c_opt {
+             ret_val.push(format!("{}", self.opts.get(*o).unwrap()));
+        }
+        for g in grps {
+            let g_string = self.get_group_members(g).iter().fold(String::new(), |acc, s| acc + &format!(" {} |",s)[..]);
+            ret_val.push(format!("[{}]", &g_string[..g_string.len()-1]));
+        }
+
+        ret_val
+
     }
 
     // Creates a usage string if one was not provided by the user manually. This happens just
     // after all arguments were parsed, but before any subcommands have been parsed (so as to
     // give subcommands their own usage recursively)
-    fn create_usage(&self, matches: Option<Vec<&str>>) -> String {
-        let tab = "    ";
+    fn create_usage(&self, matches: Option<Vec<&'ar str>>) -> String {
         let mut usage = String::with_capacity(75);
         usage.push_str("USAGE:\n");
-        usage.push_str(tab);
+        usage.push_str("\t");
         if let Some(u) = self.usage_str {
             usage.push_str(u);
-        } else if let Some(vec) = matches {
-            let mut c_flags = vec![];
-            let mut c_pos = vec![];
-            let mut c_opt = vec![];
-            let mut grps = vec![];
-            vec.iter().map(|name| if let Some(f) = self.flags.get(name) {
-                c_flags.push(f);
-            } else if let Some(o) = self.opts.get(name) {
-                c_opt.push(o);
-            } else {
-                c_pos.push(
-                    self.positionals_idx.get(self.positionals_name.get(name)
-                                                                  .unwrap())
-                                        .unwrap()
-                );
-            }).collect::<Vec<_>>();
-            let mut tmp_f = vec![];
-            for f in c_flags.iter_mut() {
-                if let Some(ref rl) = f.requires {
-                    for r in rl {
-                        if !vec.contains(&&r) {
-                            if let Some(f) = self.flags.get(r) {
-                                tmp_f.push(f);
-                            } else if let Some(o) = self.opts.get(r) {
-                                c_opt.push(o);
-                            } else if let Some(g) = self.groups.get(r) {
-                                if let Some(vec) = self.group_string(g, r, &vec) {
-                                    let g_string = vec.iter()
-                                                      .map(|s| format!("{}|", s))
-                                                      .fold(String::new(), |acc, i| {
-                                                          acc + &format!("{}",i)[..]
-                                                      });
-                                    grps.push(format!("[{}]", &g_string[..g_string.len()-1]));
-                                }
-                            } else {
-                                c_pos.push(
-                                    self.positionals_idx.get(self.positionals_name.get(r)
-                                                                                  .unwrap())
-                                                        .unwrap());
-                            }
-                        }
-                    }
-                }
-            }
-            for f in tmp_f {
-                c_flags.push(f);
-            }
-            let mut tmp_o = vec![];
-            for o in c_opt.iter_mut() {
-                if let Some(ref rl) = o.requires {
-                    for r in rl {
-                        if !vec.contains(&&r) {
-                            if let Some(f) = self.flags.get(r) {
-                                c_flags.push(f);
-                            } else if let Some(o) = self.opts.get(r) {
-                                tmp_o.push(o);
-                            } else if let Some(g) = self.groups.get(r) {
-                                if let Some(vec) = self.group_string(g, r, &vec) {
-                                    let g_string = vec.iter()
-                                                      .map(|s| format!("{}|", s))
-                                                      .fold(String::new(), |acc, i| {
-                                                          acc + &format!("{}",i)[..]
-                                                      });
-                                    grps.push(format!("[{}]", &g_string[..g_string.len()-1]));
-                                }
-                            } else {
-                                c_pos.push(self.positionals_idx.get(self.positionals_name.get(r)
-                                                                                         .unwrap())
-                                                               .unwrap());
-                            }
-                        }
-                    }
-                }
-            }
-            for o in tmp_o {
-                c_opt.push(o);
-            }
-            let mut tmp_p = vec![];
-            for p in c_pos.iter_mut() {
-                if let Some(ref rl) = p.requires {
-                    for r in rl {
-                        if !vec.contains(&&r) {
-                            if let Some(f) = self.flags.get(r) {
-                                c_flags.push(f);
-                            } else if let Some(o) = self.opts.get(r) {
-                                c_opt.push(o);
-                            } else if let Some(g) = self.groups.get(r) {
-                                if let Some(vec) = self.group_string(g, r, &vec) {
-                                    let g_string = vec.iter()
-                                                      .map(|s| format!("{}|", s))
-                                                      .fold(String::new(), |acc, i| {
-                                                          acc + &format!("{}",i)[..]
-                                                      });
-                                    grps.push(format!("[{}]", &g_string[..g_string.len()-1]));
-                                }
-                            } else {
-                                tmp_p.push(self.positionals_idx.get(self.positionals_name.get(r)
-                                                                                         .unwrap())
-                                     .unwrap());
-                            }
-                        }
-                    }
-                }
-            }
-            for p in tmp_p {
-                c_pos.push(p);
-            }
-            let f_string = c_flags.iter()
-                                  .map(|f| format!("{}", f))
-                                  .fold(String::new(),|acc, i| acc + &format!(" {}", i));
-            let o_string = c_opt.iter()
-                                .map(|f| format!("{}", f))
-                                .fold(String::new(),|acc, i| acc + &format!(" {}", i));
-            let p_string = c_pos.iter()
-                                .map(|f| format!("{}", f))
-                                .fold(String::new(),|acc, i| acc + &format!(" {}", i));
-            let g_string = grps.iter()
-                                .map(|f| format!(" {}", f))
-                                .fold(String::new(), |acc, i| acc + &format!("{}", i));
-            usage.push_str(&format!("{} {} {} {} {}",
+        } else if let Some(tmp_vec) = matches {
+            let mut hs = self.required.iter().map(|n| *n).collect::<HashSet<_>>();
+            tmp_vec.iter().map(|n| hs.insert(*n)).collect::<Vec<_>>();
+            let reqs = self.get_required_from(hs);
+            
+            let r_string = reqs.iter().fold(String::new(), |acc, s| acc + &format!(" {}", s)[..]);
+
+            usage.push_str(&format!("{}{}",
                 self.bin_name.clone().unwrap_or(self.name.clone()),
-                p_string,
-                f_string,
-                o_string,
-                g_string)[..]);
+                r_string)[..]);
         } else {
-            let flags = !self.flags.is_empty();
-            let pos = !self.positionals_idx.is_empty();
-            let opts = !self.opts.is_empty();
-            let subcmds = !self.subcommands.is_empty();
-            let groups = !self.groups.is_empty();
-            let mut num_req_pos = 0;
-            let mut matched_pos_reqs = HashSet::new();
+            usage.push_str(&self.bin_name.clone().unwrap_or(self.name.clone())[..]);
+
+            let mut reqs = self.required.iter().map(|n| *n).collect::<HashSet<_>>();
             // If it's required we also need to ensure all previous positionals are required too
             let mut found = false;
             for p in self.positionals_idx.values().rev() {
                 if found {
-                    matched_pos_reqs.insert(p.name);
+                    reqs.insert(p.name);
                     continue;
                 }
-                if self.matched_reqs.contains(p.name) {
-                    matched_pos_reqs.insert(p.name);
+                if p.required {
                     found = true;
+                    reqs.insert(p.name);
                 }
             }
+            let req_strings = self.get_required_from(reqs);
+            let req_string = req_strings.iter().fold(String::new(), |acc, s| acc + &format!(" {}", s)[..]);
+            usage.push_str(&req_string[..]);
 
-            let mut req_pos = self.positionals_idx
-                                  .values()
-                                  .filter_map(|ref x| {
-                                      if x.required || matched_pos_reqs.contains(x.name) {
-                                          num_req_pos += 1;
-                                          Some(format!("{}", x))
-                                      } else {
-                                          None
-                                      }
-                                  })
-                                  .fold(String::with_capacity(50), |acc, ref name| {
-                                      acc + &format!("{} ", name)[..]
-                                  });
-            req_pos.shrink_to_fit();
-            let mut num_req_opts = 0;
-            let mut req_opts = self.opts.values()
-                                        .filter_map(|x| {
-                                            if x.required || self.matched_reqs.contains(x.name) {
-                                                num_req_opts += 1;
-                                                Some(x)
-                                            } else {
-                                                None
-                                            }
-                                        })
-                                        .fold(String::with_capacity(50), |acc, ref o| {
-                                            acc + &format!("{} ",o)
-                                        });
-            req_opts.shrink_to_fit();
 
-            usage.push_str(&self.bin_name.clone().unwrap_or(self.name.clone())[..]);
-            if pos {
-                write!(&mut usage, " {}",
-                    if num_req_pos != self.positionals_idx.len() && !req_pos.is_empty() {
-                        format!("[POSITIONAL] {}", &req_pos[..])
-                    } else if req_pos.is_empty() {
-                        "[POSITIONAL]".to_owned()
-                    } else {
-                        req_pos
-                    } ).unwrap_or_else(|e| self.report_error(format!("internal error: {}", e),
-                        false,
-                        true,
-                        None));
+            if !self.positionals_idx.is_empty() && self.positionals_idx.values().any(|a| !a.required) {
+                usage.push_str(" [POSITIONAL]");
             }
-            if flags {
+            if !self.flags.is_empty() {
                 usage.push_str(" [FLAGS]");
             }
-            if opts {
-                write!(&mut usage," {}",
-                    if num_req_opts != self.opts.len() && !req_opts.is_empty() {
-                        format!("[OPTIONS] {}", &req_opts[..])
-                    } else if req_opts.is_empty() {
-                        "[OPTIONS]".to_owned()
-                    } else {
-                        req_opts
-                    }).unwrap_or_else(|e| self.report_error(format!("internal error: {}", e),
-                        false,
-                        true,
-                        None));
+            if !self.opts.is_empty() && self.opts.values().any(|a| !a.required) {
+                usage.push_str(" [OPTIONS]");
             }
-            if groups {
-                let req_grps = self.groups.values()
-                                          .filter_map(|g| if g.required {
-                                              Some(g.args.clone())
-                                           } else {
-                                              None
-                                           })
-                                          .map(|hs| hs.into_iter().collect::<Vec<_>>())
-                                          .fold(vec![], |acc, n| acc + &n[..])
-                                          .iter()
-                                          .fold(String::new(), |acc, n| {
-                                                if let Some(ref o) = self.opts.get(n) {
-                                                    acc + &format!("{}|", o)[..]
-                                                } else if let Some(ref f) = self.flags.get(n) {
-                                                    acc + &format!("{}|", f)[..]
-                                                } else {
-                                                    acc + &format!("{}|",
-                                                        match self.positionals_idx.values()
-                                                                .rev()
-                                                                .filter_map(
-                                                                    |ref p| {
-                                                                        if &p.name == n {
-                                                                            Some(format!("{}", p))
-                                                                        } else {
-                                                                            None
-                                                                        }
-                                                                    }).next() {
-                                                        Some(name) => name,
-                                                        None       => panic!(
-                                                            format!("Error parsing a required \
-                                                                group which contains argument \
-                                                                \"{}\"\n\n\tArgument couldn't \
-                                                                be found. Check the arguments \
-                                                                settings.", n))
-                                                    })[..]
-                                                }
-                                          });
-
-                // There may be no required groups, so we check
-                if req_grps.len() > 0 {
-                    write!(&mut usage,
-                        " [{}]", &req_grps[..req_grps.len() - 1]).unwrap_or_else(|e| {
-                            self.report_error(format!("internal error: {}", e),false,true, None)
-                        });
-                }
-            }
-            if subcmds {
+            if !self.subcommands.is_empty() {
                 usage.push_str(" [SUBCOMMANDS]");
             }
         }
@@ -1424,7 +1334,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         // Add all required args which aren't already found in matches to the
                         // final required list
                         for n in reqs {
-                            self.matched_reqs.insert(n);
                             if matches.args.contains_key(n) {continue;}
 
                             self.required.insert(n);
@@ -1448,10 +1357,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 if let Some(o) = self.opts.get(a) {
                     if o.multiple && self.required.is_empty() { () }
                     else {
-                        self.report_error("One or more required arguments were not \
-                            supplied".to_owned(),
-                            true,
-                            true,
+                        self.report_error(format!("The following required arguments were not \
+                            supplied:\n{}", 
+                            self.get_required_from(self.required.iter()
+                                                                .map(|s| *s)
+                                                                .collect::<HashSet<_>>())
+                                .iter()
+                                .fold(String::new(), |acc, s| acc + &format!("\t{}\n",s)[..])),
+                            true, 
+                            true, 
                             Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
                     }
                 } else {
@@ -1478,8 +1392,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
         if !self.required.is_empty() {
             if self.validate_required(&matches) {
-                self.report_error("One or more required arguments were not supplied".to_owned(),
-                        true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                self.report_error(format!("The following required arguments were not \
+                    supplied:\n{}", 
+                    self.get_required_from(self.required.iter()
+                                                        .map(|s| *s)
+                                                        .collect::<HashSet<_>>())
+                        .iter()
+                        .fold(String::new(), |acc, s| acc + &format!("\t{}\n",s)[..])),
+                    true, 
+                    true, 
+                    Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
             }
         }
 
@@ -1679,7 +1601,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 // Add all required args which aren't already found in matches to the
                 // final required list
                 for n in reqs {
-                    self.matched_reqs.insert(n);
                     if matches.args.contains_key(n) { continue; }
 
                     self.required.insert(n);
@@ -1749,7 +1670,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             // Add all required args which aren't already found in matches to the master list
             if let Some(ref reqs) = v.requires {
                 for n in reqs {
-                    self.matched_reqs.insert(n);
                     if matches.args.contains_key(n) { continue; }
 
                     self.required.insert(n);
@@ -1843,7 +1763,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 // Add all required args which aren't already found in matches to the
                 // final required list
                 for n in reqs {
-                    self.matched_reqs.insert(n);
                     if matches.args.contains_key(n) { continue; }
 
                     self.required.insert(n);
@@ -1920,7 +1839,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             // Add all required args which aren't already found in matches to the master list
             if let Some(ref reqs) = v.requires {
                 for n in reqs {
-                    self.matched_reqs.insert(n);
                     if matches.args.contains_key(n) { continue; }
 
                     self.required.insert(n);

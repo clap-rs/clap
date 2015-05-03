@@ -35,13 +35,13 @@ impl<'n> Display for OptBuilder<'n> {
     fn fmt(&self, f: &mut Formatter) -> Result {
         write!(f, "{}",
             if let Some(ref vec) = self.val_names {
-                format!("[ {} {}]",
+                format!("{}{}",
                     if self.long.is_some() {
                         format!("--{}", self.long.unwrap())
                     } else {
                         format!("-{}", self.short.unwrap())
                     },
-                    vec.iter().fold(String::new(),|acc, i| acc + &format!("<{}> ",i)[..]) )
+                    vec.iter().fold(String::new(),|acc, i| acc + &format!(" <{}>",i)[..]) )
             } else {
                 format!("{} <{}>{}",
                     if self.long.is_some() {

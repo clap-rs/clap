@@ -9,7 +9,7 @@ Kevin K. <kbknapp@gmail.com>
 tests clap library
 
 USAGE:
-    claptests [POSITIONAL] [FLAGS] [OPTIONS] [SUBCOMMANDS]
+\tclaptests [POSITIONAL] [FLAGS] [OPTIONS] [SUBCOMMANDS]
 
 FLAGS:
     -f, --flag       tests flags
@@ -33,17 +33,20 @@ SUBCOMMANDS:
 
 _excluded = '''The argument --flag cannot be used with -F
 USAGE:
-    claptests  [positional2]  -F  --long-option-2 <option2> 
+\tclaptests [positional2] -F --long-option-2 <option2>
 For more information try --help'''
 
 _excluded_l = '''The argument -f cannot be used -F
 USAGE:
-    claptests  [positional2]  -F  --long-option-2 <option2> 
+\tclaptests [positional2] -F --long-option-2 <option2>
 For more information try --help'''
 
-_required = '''One or more required arguments were not supplied
+_required = '''The following required arguments were not supplied:
+\t[positional2]
+\t--long-option-2 <option2>
+
 USAGE:
-    claptests  [positional2]  -F  --long-option-2 <option2> 
+\tclaptests [positional2] -F --long-option-2 <option2>
 For more information try --help'''
 
 _fop = '''flag present 1 times
@@ -95,7 +98,7 @@ Kevin K. <kbknapp@gmail.com>
 tests subcommands
 
 USAGE:
-    claptests subcmd [POSITIONAL] [FLAGS] [OPTIONS]
+\tclaptests subcmd [POSITIONAL] [FLAGS] [OPTIONS]
 
 FLAGS:
     -h, --help       Prints help information
