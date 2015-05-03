@@ -709,7 +709,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         if g_vec.is_empty() {
             return args.iter().map(|s| *s).collect::<Vec<_>>() 
         }         
-        return g_vec.iter().map(|g| self.get_group_members_names(g)).fold(vec![], |acc, v| acc + &v)
+        return g_vec.iter()
+                    .map(|g| self.get_group_members_names(g))
+                    .fold(vec![], |acc, v| acc + &v)
     }
 
     fn get_required_from(&self, reqs: HashSet<&'ar str>) -> Vec<String> {
@@ -815,7 +817,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
              ret_val.push(format!("{}", self.opts.get(*o).unwrap()));
         }
         for g in grps {
-            let g_string = self.get_group_members(g).iter().fold(String::new(), |acc, s| acc + &format!(" {} |",s)[..]);
+            let g_string = self.get_group_members(g).iter()
+                                                    .fold(String::new(), |acc, s| {
+                                                        acc + &format!(" {} |",s)[..]
+                                                    });
             ret_val.push(format!("[{}]", &g_string[..g_string.len()-1]));
         }
 
@@ -859,11 +864,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 }
             }
             let req_strings = self.get_required_from(reqs);
-            let req_string = req_strings.iter().fold(String::new(), |acc, s| acc + &format!(" {}", s)[..]);
+            let req_string = req_strings.iter()
+                                        .fold(String::new(), |acc, s| {
+                                            acc + &format!(" {}", s)[..]
+                                        });
             usage.push_str(&req_string[..]);
 
 
-            if !self.positionals_idx.is_empty() && self.positionals_idx.values().any(|a| !a.required) {
+            if !self.positionals_idx.is_empty() && self.positionals_idx.values()
+                                                                       .any(|a| !a.required) {
                 usage.push_str(" [POSITIONAL]");
             }
             if !self.flags.is_empty() {
