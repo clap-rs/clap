@@ -31,19 +31,19 @@ SUBCOMMANDS:
     help      Prints this message
     subcmd    tests subcommands'''
 
-_excluded = '''The argument --flag cannot be used with -F
+_excluded = '''The argument '--flag' cannot be used with '-F'
 USAGE:
 \tclaptests [positional2] -F --long-option-2 <option2>
 For more information try --help'''
 
-_excluded_l = '''The argument -f cannot be used -F
+_excluded_l = '''The argument -f cannot be used '-F'
 USAGE:
 \tclaptests [positional2] -F --long-option-2 <option2>
 For more information try --help'''
 
 _required = '''The following required arguments were not supplied:
-\t[positional2]
-\t--long-option-2 <option2>
+\t'[positional2]'
+\t'--long-option-2 <option2>'
 
 USAGE:
 \tclaptests [positional2] -F --long-option-2 <option2>
