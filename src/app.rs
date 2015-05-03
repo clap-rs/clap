@@ -688,6 +688,30 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         return g_vec.iter().map(|g| self.get_group_members(g)).fold(vec![], |acc, v| acc + &v)
     }
 
+    fn get_group_members_names(&self, group: &'ar str) -> Vec<&'ar str> {
+        let mut g_vec = HashSet::new();
+        let mut args = HashSet::new();
+
+        for n in self.groups.get(group).unwrap().args.iter() {
+            if self.flags.contains_key(n) {
+                args.insert(*n);
+            } else if self.opts.contains_key(n) {
+                args.insert(*n);
+            } else if self.groups.contains_key(n) {
+                g_vec.insert(*n);
+            } else {
+                if self.positionals_name.contains_key(n) {
+                    args.insert(*n);
+                }
+            }
+        }
+
+        if g_vec.is_empty() {
+            return args.iter().map(|s| *s).collect::<Vec<_>>() 
+        }         
+        return g_vec.iter().map(|g| self.get_group_members_names(g)).fold(vec![], |acc, v| acc + &v)
+    }
+
     fn get_required_from(&self, reqs: HashSet<&'ar str>) -> Vec<String> {
         let mut c_flags = HashSet::new();
         let mut c_pos = HashSet::new();
@@ -1172,7 +1196,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 if let Some(ref vals) = ma.values {
                                     if num == vals.len() as u8 {
                                         self.report_error(format!("The argument \"{}\" was found, \
-                                            but {} only expects {} values", arg, opt, vals.len()),
+                                            but '{}' only expects {} values", 
+                                                arg, 
+                                                opt, 
+                                                vals.len()),
                                             true,
                                             true,
                                             Some(
@@ -1256,7 +1283,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         self.report_error(format!("The argument '{}' cannot be used with {}",
                             p,
                             match self.blacklisted_from(p.name, &matches) {
-                                Some(name) => name,
+                                Some(name) => format!("'{}'", name),
                                 None       => "one or more of the other specified \
                                                arguments".to_owned()
                             }),
@@ -1268,7 +1295,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     if let Some(ref p_vals) = p.possible_vals {
                         if !p_vals.is_empty() {
                             if !p_vals.contains(arg_slice) {
-                                self.report_error(format!("\"{}\" isn't a valid value for {}{}",
+                                self.report_error(format!("\"{}\" isn't a valid value for '{}'{}",
                                     arg_slice,
                                     p,
                                     format!("\n\t[valid values:{}]",
@@ -1358,7 +1385,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     if o.multiple && self.required.is_empty() { () }
                     else if !o.multiple {
                         self.report_error(
-                            format!("Argument {} requires a value but none was supplied", o),
+                            format!("Argument '{}' requires a value but none was supplied", o),
                             true,
                             true,
                             Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>() ) );
@@ -1377,7 +1404,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                 } else {
                     self.report_error(
-                        format!("Argument {} requires a value but none was supplied",
+                        format!("Argument '{}' requires a value but none was supplied",
                             format!("{}", self.positionals_idx.get(
                                 self.positionals_name.get(a).unwrap()).unwrap())),
                             true,
@@ -1552,7 +1579,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 if let Some(ref p_vals) = v.possible_vals {
                     if let Some(ref av) = arg_val {
                         if !p_vals.contains(&av[..]) {
-                            self.report_error(format!("\"{}\" isn't a valid value for {}{}",
+                            self.report_error(format!("\"{}\" isn't a valid value for '{}'{}",
                                                     arg_val.clone().unwrap_or(arg.to_owned()),
                                                     v,
                                                     format!("\n\t[valid values:{}]",
@@ -1625,7 +1652,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 self.report_error(format!("The argument '{}' cannot be used with {}",
                     v,
                     match self.blacklisted_from(v.name, matches) {
-                        Some(name) => name,
+                        Some(name) => format!("'{}'", name),
                         None       => "one or more of the specified arguments".to_owned()
                     }),
                     true,
@@ -1635,8 +1662,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
             // Make sure this isn't one being added multiple times if it doesn't suppor it
             if matches.args.contains_key(v.name) && !v.multiple {
-                self.report_error(format!("Argument {} was supplied more than once, but does not \
-                        support multiple values", v),
+                self.report_error(format!("Argument '{}' was supplied more than once, but does \
+                    not support multiple values", v),
                     true,
                     true,
                     Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
@@ -1727,7 +1754,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 self.report_error(format!("The argument -{} cannot be used with {}",
                         arg,
                         match self.blacklisted_from(v.name, matches) {
-                            Some(name) => name,
+                            Some(name) => format!("'{}'", name),
                             None       => "one or more of the other specified arguments".to_owned()
                         }),
                     true,
@@ -1794,7 +1821,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 self.report_error(format!("The argument -{} cannot be used {}",
                         arg,
                         match self.blacklisted_from(v.name, matches) {
-                            Some(name) => name,
+                            Some(name) => format!("'{}'", name),
                             None       => "with one or more of the other specified \
                                 arguments".to_owned()
                         }),
@@ -1868,12 +1895,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             None      => format!("\"{}\"", name)
                         }
                     }, match self.blacklisted_from(name, matches) {
-                        Some(name) => name,
+                        Some(name) => format!("'{}'", name),
                         None       => "one or more of the other specified arguments".to_owned()
                     }), true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
             } else if self.groups.contains_key(name) {
-                let grp = self.groups.get(name).unwrap();
-                for n in grp.args.iter() {
+                for n in self.get_group_members_names(name) {
                     if matches.args.contains_key(n) {
                         matches.args.remove(n);
                         self.report_error(format!("The argument '{}' cannot be used with one or \
