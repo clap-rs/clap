@@ -1,3 +1,13 @@
+<a name="v0.7.4"></a>
+## v0.7.4 (2015-05-03)
+
+
+#### Bug Fixes
+
+* **Options**  fixes a bug where option arguments in succession get their values skipped ([f66334d0](https://github.com/kbknapp/clap-rs/commit/f66334d0ce984e2b56e5c19abb1dd536fae9342a))
+
+
+
 <a name="v0.7.3"></a>
 ## v0.7.3 (2015-05-03)
 
