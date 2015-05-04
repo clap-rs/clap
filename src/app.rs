@@ -1401,7 +1401,19 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         match needs_val_of {
             Some(ref a) => {
                 if let Some(o) = self.opts.get(a) {
-                    if o.multiple && self.required.is_empty() { () }
+                    if o.multiple && self.required.is_empty() { 
+                        let should_err = match matches.values_of(o.name) {
+                            Some(ref v) => if v.len() == 0 { true } else { false },
+                            None        => true, 
+                        };
+                        if should_err {
+                            self.report_error(
+                                format!("Argument '{}' requires a value but none was supplied", o),
+                                true,
+                                true,
+                                Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>() ) );
+                        }
+                    }
                     else if !o.multiple {
                         self.report_error(
                             format!("Argument '{}' requires a value but none was supplied", o),
