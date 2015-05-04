@@ -1,3 +1,13 @@
+<a name="v0.7.5"></a>
+## v0.7.5 (2015-05-04)
+
+
+#### Bug Fixes
+
+* **Options**  fixes bug where options with no value don't error out ([a1fb94be](https://github.com/kbknapp/clap-rs/commit/a1fb94be53141572ffd97aad037295d4ffec82d0))
+
+
+
 <a name="v0.7.4"></a>
 ## v0.7.4 (2015-05-03)
 
