@@ -1,9 +1,9 @@
 [clog]
 repository = "https://github.com/kbknapp/clap-rs"
+outfile = "CHANGELOG.md"
 from-latest-tag = true
 
 [sections]
 Performance = ["perf"]
-Improvements = ["impr", "im"]
+Improvements = ["impr", "im", "imp"]
 Documentation = ["docs"]
-
