@@ -17,9 +17,9 @@ use strsim;
 /// the passed in value `v` with a certain confidence.
 /// Thus in a list of possible values like ["foo", "bar"], the value "fop" will yield
 /// `Some("foo")`, whereas "blark" would yield `None`.
-fn did_you_mean<'a, I, T>(v: &str, possible_values: I) -> Option<&'a str> 
+fn did_you_mean<'a, T, I>(v: &str, possible_values: I) -> Option<&'a str> 
     where       T: AsRef<str> + 'a,
-                I: IntoIterator<Item=&'a T>{
+                I: IntoIterator<Item=&'a T> {
 
     let mut candidate: Option<(f64, &str)> = None;
     for pv in possible_values.into_iter() {
@@ -33,6 +33,14 @@ fn did_you_mean<'a, I, T>(v: &str, possible_values: I) -> Option<&'a str>
         None => None,
         Some((_, candidate)) => Some(candidate),
     }
+}
+
+/// A helper to determine message formatting
+enum DidYouMeanMessageStyle {
+    /// Suggested value is a long flag
+    LongFlag,
+    /// Suggested value is one of various possible values
+    EnumValue,
 }
 
 /// Used to create a representation of a command line program and all possible command line
@@ -1207,16 +1215,43 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
     }
 
+    /// Returns a suffix that can be empty, or is the standard 'did you mean phrase 
+    fn did_you_mean_suffix<'z, T, I>(arg: &str, values: I, style: DidYouMeanMessageStyle)
+                                                     -> String 
+                                                        where       T: AsRef<str> + 'z,
+                                                                    I: IntoIterator<Item=&'z T> {
+        match did_you_mean(arg, values) {
+                Some(candidate) => {
+                    let mut suffix = ". Did you mean ".to_string();
+                    match style {
+                        DidYouMeanMessageStyle::LongFlag => suffix.push_str("--"),
+                        DidYouMeanMessageStyle::EnumValue => suffix.push('"'),
+                    }
+                    suffix.push_str(candidate);
+                    if let DidYouMeanMessageStyle::EnumValue = style {
+                        suffix.push('"');
+                    }
+                    suffix.push_str(" ?");
+                    suffix
+                },
+                None => String::new(),
+        }
+    }
+
     fn possible_values_error(&self, arg: &str, opt: &str, p_vals: &BTreeSet<&str>, 
                                                    matches: &ArgMatches<'ar, 'ar>) {
-        self.report_error(format!("\"{}\" isn't a valid value for '{}'{}",
+        let suffix = App::did_you_mean_suffix(arg, p_vals.iter(), 
+                                              DidYouMeanMessageStyle::EnumValue);
+
+        self.report_error(format!("\"{}\" isn't a valid value for '{}'{}{}",
                                     arg,
                                     opt,
                                     format!("\n\t[valid values:{}]",
                                         p_vals.iter()
                                               .fold(String::new(), |acc, name| {
                                                   acc + &format!(" {}",name)[..]
-                                              }))),
+                                              })),
+                                    suffix),
                                         true,
                                         true,
                                         Some(matches.args.keys().map(|k| *k).collect()));
@@ -1775,21 +1810,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             return None;
         }
 
-        let suffix =
-            match did_you_mean(arg, self.opts.values()
+        let suffix = App::did_you_mean_suffix(arg, self.opts.values()
                                              .filter_map(|v|
                                                 if let Some(ref l) = v.long {
                                                     Some(l)
                                                 } else {
                                                     None
                                                 }
-                                              )) {
-                Some(candidate_flag) => {
-                    format!(". Did you mean --{} ?", candidate_flag)
-                },
-                None => String::new()
-            };
-
+                                              ), DidYouMeanMessageStyle::LongFlag);
         self.report_error(format!("The argument --{} isn't valid{}", arg, suffix),
             true,
             true,
