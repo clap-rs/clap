@@ -1788,12 +1788,27 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             return None;
         }
 
-        // Shouldn't reach here
-        self.report_error(format!("The argument --{} isn't valid", arg),
-            true,
-            true,
-            Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
-        // Can't reach here...
+        match did_you_mean(arg, self.opts.values()
+                                         .filter_map(|v| 
+                                                if let Some(l) = v.long {Some(l)} else {None}
+                                          )
+                                         .collect::<Vec<_>>().iter()) {
+            Some(candidate_flag) => {
+                self.report_error(format!("The argument --{} is unknown. Did you mean --{} ?", 
+                                                                                arg, 
+                                                                                candidate_flag),
+                    true,
+                    true,
+                    None);
+            },
+            None => {
+                self.report_error(format!("The argument --{} isn't valid", arg),
+                    true,
+                    true,
+                    Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+            }
+        }
+
         unreachable!();
     }
 
@@ -1882,7 +1897,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
 
         // Didn't match a flag or option, must be invalid
-        self.report_error( format!("The argument -{} isn't valid",arg_c),
+        self.report_error(format!("The argument -{} isn't valid",arg_c),
             true,
             true,
             Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));

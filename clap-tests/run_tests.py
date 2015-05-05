@@ -40,6 +40,11 @@ USAGE:
 \tclaptests [POSITIONAL] [FLAGS] [OPTIONS] [SUBCOMMANDS]
 For more information try --help'''
 
+_arg_dym_usage = '''The argument --optio is unknown. Did you mean --option ?
+USAGE:
+\tclaptests [POSITIONAL] [FLAGS] [OPTIONS] [SUBCOMMANDS]
+For more information try --help'''
+
 _excluded = '''The argument '--flag' cannot be used with '-F'
 USAGE:
 \tclaptests [positional2] -F --long-option-2 <option2>
@@ -218,6 +223,7 @@ cmds = {'help short:         ': ['{} -h'.format(_bin), _help],
 		'mult_valsmo x2-1:   ': ['{} --multvalsmo some other --multvalsmo some'.format(_bin), _mult_vals_2m1],
 		'mult_valsmo x1:     ': ['{} --multvalsmo some other'.format(_bin), _exact],
 		'F2(ss),O(s),P:      ': ['{} value -f -f -o some'.format(_bin), _f2op],
+        'arg dym:            ': ['{} --optio=foo'.format(_bin), _arg_dym_usage],
 		'O2(ll)P:            ': ['{} value --option some --option other'.format(_bin), _o2p],
 		'O2(l=l=)P:          ': ['{} value --option=some --option=other'.format(_bin), _o2p],
 		'O2(ss)P:            ': ['{} value -o some -o other'.format(_bin), _o2p],
