@@ -24,7 +24,7 @@ OPTIONS:
         --multvalsmo  <one> <two>        Tests mutliple values, not mult occs
     -o, --option  <opt>...               tests options
         --long-option-2  <option2>       tests long options with exclusions
-    -O <option3>                         tests options with specific value sets [values: fast slow]
+    -O, --Option  <option3>              tests options with specific value sets [values: fast slow]
 
 POSITIONAL ARGUMENTS:
     positional        tests positionals
@@ -34,6 +34,25 @@ POSITIONAL ARGUMENTS:
 SUBCOMMANDS:
     help      Prints this message
     subcmd    tests subcommands'''
+
+_sc_dym_usage = '''Subcommand "subcm" isn't valid
+\tDid you mean "subcmd" ?
+USAGE:
+\tclaptests [POSITIONAL] [FLAGS] [OPTIONS] [SUBCOMMANDS]
+For more information try --help'''
+
+_arg_dym_usage = '''The argument --optio isn't valid
+\tDid you mean --option ?
+USAGE:
+\tclaptests
+For more information try --help'''
+
+_pv_dym_usage = '''"slo" isn't a valid value for '--Option <option3>'
+\t[valid values: fast slow]
+\tDid you mean "slow" ?
+USAGE:
+\tclaptests --Option <option3>
+For more information try --help'''
 
 _excluded = '''The argument '--flag' cannot be used with '-F'
 USAGE:
@@ -213,6 +232,8 @@ cmds = {'help short:         ': ['{} -h'.format(_bin), _help],
 		'mult_valsmo x2-1:   ': ['{} --multvalsmo some other --multvalsmo some'.format(_bin), _mult_vals_2m1],
 		'mult_valsmo x1:     ': ['{} --multvalsmo some other'.format(_bin), _exact],
 		'F2(ss),O(s),P:      ': ['{} value -f -f -o some'.format(_bin), _f2op],
+        'arg dym:            ': ['{} --optio=foo'.format(_bin), _arg_dym_usage],
+        'pv dym:             ': ['{} --Option slo'.format(_bin), _pv_dym_usage],
 		'O2(ll)P:            ': ['{} value --option some --option other'.format(_bin), _o2p],
 		'O2(l=l=)P:          ': ['{} value --option=some --option=other'.format(_bin), _o2p],
 		'O2(ss)P:            ': ['{} value -o some -o other'.format(_bin), _o2p],
@@ -220,6 +241,7 @@ cmds = {'help short:         ': ['{} -h'.format(_bin), _help],
 		'F(s),O(s),P:        ': ['{} value -f -o some'.format(_bin), _fop],
 		'F(l),O(l),P:        ': ['{} value --flag --option some'.format(_bin), _fop],
 		'F(l),O(l=),P:       ': ['{} value --flag --option=some'.format(_bin), _fop],
+        'sc dym:             ': ['{} subcm'.format(_bin), _sc_dym_usage],
 		'sc help short:      ': ['{} subcmd -h'.format(_bin), _schelp],
 		'sc help long:       ': ['{} subcmd --help'.format(_bin), _schelp],
 		'scF(l),O(l),P:      ': ['{} subcmd value --flag --option some'.format(_bin), _scfop],
@@ -241,7 +263,7 @@ cmds = {'help short:         ': ['{} -h'.format(_bin), _help],
 
 def pass_fail(name, check, good):
 	global failed
-	print(name, end='')
+	sys.stdout.write(name)
 	if check == good:
 		print('Pass')
 		return
@@ -251,9 +273,9 @@ def pass_fail(name, check, good):
 
 def main():
 	for cmd, cmd_v in cmds.items():
-		with subprocess.Popen(cmd_v[0], shell=True, stdout=subprocess.PIPE, universal_newlines=True) as proc:
-			out = proc.communicate()[0].strip()
-			pass_fail(cmd, out, cmd_v[1])
+		proc = subprocess.Popen(cmd_v[0], shell=True, stdout=subprocess.PIPE, universal_newlines=True)
+		out = proc.communicate()[0].strip()
+		pass_fail(cmd, out, cmd_v[1])
 	if failed:
 		print('One or more tests failed')
 		return 1

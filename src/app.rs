@@ -11,6 +11,47 @@ use args::{ ArgMatches, Arg, SubCommand, MatchedArg};
 use args::{ FlagBuilder, OptBuilder, PosBuilder};
 use args::ArgGroup;
 
+#[cfg(feature = "suggestions")]
+use strsim;
+
+/// Produces a string from a given list of possible values which is similar to 
+/// the passed in value `v` with a certain confidence.
+/// Thus in a list of possible values like ["foo", "bar"], the value "fop" will yield
+/// `Some("foo")`, whereas "blark" would yield `None`.
+#[cfg(feature = "suggestions")]
+fn did_you_mean<'a, T, I>(v: &str, possible_values: I) -> Option<&'a str> 
+    where       T: AsRef<str> + 'a,
+                I: IntoIterator<Item=&'a T> {
+
+    let mut candidate: Option<(f64, &str)> = None;
+    for pv in possible_values.into_iter() {
+        let confidence = strsim::jaro_winkler(v, pv.as_ref());
+        if confidence > 0.8 && (candidate.is_none() || 
+                               (candidate.as_ref().unwrap().0 < confidence)) {
+            candidate = Some((confidence, pv.as_ref()));
+        }
+    }
+    match candidate {
+        None => None,
+        Some((_, candidate)) => Some(candidate),
+    }
+}
+
+#[cfg(not(feature = "suggestions"))]
+fn did_you_mean<'a, T, I>(_: &str, _: I) -> Option<&'a str> 
+    where       T: AsRef<str> + 'a,
+                I: IntoIterator<Item=&'a T> {   
+    None
+}
+
+/// A helper to determine message formatting
+enum DidYouMeanMessageStyle {
+    /// Suggested value is a long flag
+    LongFlag,
+    /// Suggested value is one of various possible values
+    EnumValue,
+}
+
 /// Used to create a representation of a command line program and all possible command line
 /// arguments for parsing at runtime.
 ///
@@ -691,7 +732,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
 
         if g_vec.is_empty() {
-            return args.iter().map(|s| s.to_owned()).collect::<Vec<_>>()
+            return args.iter().map(|s| s.to_owned()).collect()
         }
         return g_vec.iter().map(|g| self.get_group_members(g)).fold(vec![], |acc, v| acc + &v)
     }
@@ -715,7 +756,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
 
         if g_vec.is_empty() {
-            return args.iter().map(|s| *s).collect::<Vec<_>>()
+            return args.iter().map(|s| *s).collect()
         }
         return g_vec.iter()
                     .map(|g| self.get_group_members_names(g))
@@ -1129,7 +1170,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
         let mut matches = ArgMatches::new();
 
-        let args = env::args().collect::<Vec<_>>();
+        let args: Vec<_> = env::args().collect();
         let mut it = args.into_iter();
         if let Some(name) = it.next() {
             let p = Path::new(&name[..]);
@@ -1183,6 +1224,48 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
     }
 
+    /// Returns a suffix that can be empty, or is the standard 'did you mean phrase 
+    fn did_you_mean_suffix<'z, T, I>(arg: &str, values: I, style: DidYouMeanMessageStyle)
+                                                     -> String 
+                                                        where       T: AsRef<str> + 'z,
+                                                                    I: IntoIterator<Item=&'z T> {
+        match did_you_mean(arg, values) {
+                Some(candidate) => {
+                    let mut suffix = "\n\tDid you mean ".to_string();
+                    match style {
+                        DidYouMeanMessageStyle::LongFlag => suffix.push_str("--"),
+                        DidYouMeanMessageStyle::EnumValue => suffix.push('"'),
+                    }
+                    suffix.push_str(candidate);
+                    if let DidYouMeanMessageStyle::EnumValue = style {
+                        suffix.push('"');
+                    }
+                    suffix.push_str(" ?");
+                    suffix
+                },
+                None => String::new(),
+        }
+    }
+
+    fn possible_values_error(&self, arg: &str, opt: &str, p_vals: &BTreeSet<&str>, 
+                                                   matches: &ArgMatches<'ar, 'ar>) {
+        let suffix = App::did_you_mean_suffix(arg, p_vals.iter(), 
+                                              DidYouMeanMessageStyle::EnumValue);
+
+        self.report_error(format!("\"{}\" isn't a valid value for '{}'{}{}",
+                                    arg,
+                                    opt,
+                                    format!("\n\t[valid values:{}]",
+                                        p_vals.iter()
+                                              .fold(String::new(), |acc, name| {
+                                                  acc + &format!(" {}",name)[..]
+                                              })),
+                                    suffix),
+                                        true,
+                                        true,
+                                        Some(matches.args.keys().map(|k| *k).collect()));
+    }
+
     fn get_matches_from(&mut self, matches: &mut ArgMatches<'ar, 'ar>, it: &mut IntoIter<String>) {
         self.create_help_and_version();
 
@@ -1199,18 +1282,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if let Some(ref p_vals) = opt.possible_vals {
                             if !p_vals.is_empty() {
                                 if !p_vals.contains(arg_slice) {
-                                    self.report_error(
-                                        format!("\"{}\" isn't a valid value for {}{}",
-                                        arg_slice,
-                                        opt,
-                                        format!("\n\t[valid values:{}]\n",
-                                            p_vals.iter()
-                                                  .fold(String::new(), |acc, name| {
-                                                    acc + &format!(" {}",name)[..]
-                                                  }))),
-                                        true,
-                                        true,
-                                        Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                                    self.possible_values_error(arg_slice, &opt.to_string(), 
+                                                                          p_vals, matches);
                                 }
                             }
                         }
@@ -1226,7 +1299,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                             true,
                                             true,
                                             Some(
-                                                matches.args.keys().map(|k| *k).collect::<Vec<_>>()
+                                                matches.args.keys().map(|k| *k).collect()
                                             )
                                         );
                                     }
@@ -1272,7 +1345,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             format!("Argument '{}' requires a value but none was supplied", o),
                             true,
                             true,
-                            Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>() ) );
+                            Some(matches.args.keys().map(|k| *k).collect() ) );
                     }
                 }
             }
@@ -1296,6 +1369,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     break;
                 }
 
+                if let Some(candidate_subcommand) = did_you_mean(&arg, self.subcommands.keys()) {
+                    self.report_error(
+                        format!("Subcommand \"{}\" isn't valid\n\tDid you mean \"{}\" ?",
+                            arg,
+                            candidate_subcommand),
+                        true,
+                        true,
+                        None);
+                }
+
                 if self.positionals_idx.is_empty() {
                     self.report_error(
                         format!("Found argument \"{}\", but {} wasn't expecting any",
@@ -1303,7 +1386,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             self.bin_name.clone().unwrap_or(self.name.clone())),
                         true,
                         true,
-                        Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                        Some(matches.args.keys().map(|k| *k).collect()));
                 }
                 // If we find that an argument requires a positiona, we need to update all the
                 // previous positionals too. This will denote where to start
@@ -1322,23 +1405,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             }),
                             true,
                             true,
-                            Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                            Some(matches.args.keys().map(|k| *k).collect()));
                     }
 
                     if let Some(ref p_vals) = p.possible_vals {
                         if !p_vals.is_empty() {
                             if !p_vals.contains(arg_slice) {
-                                self.report_error(format!("\"{}\" isn't a valid value for '{}'{}",
-                                    arg_slice,
-                                    p,
-                                    format!("\n\t[valid values:{}]",
-                                        p_vals.iter()
-                                              .fold(String::new(), |acc, name| {
-                                                  acc + &format!(" {}",name)[..]
-                                              }))),
-                                        true,
-                                        true,
-                                        Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                                self.possible_values_error(arg_slice, &p.to_string(), 
+                                                                       p_vals, matches);
                             }
                         }
                     }
@@ -1354,7 +1428,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                             true,
                                             true,
                                             Some(matches.args.keys()
-                                                             .map(|k| *k).collect::<Vec<_>>()));
+                                                             .map(|k| *k).collect()));
                                     }
                                 }
                             }
@@ -1408,7 +1482,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             self.bin_name.clone().unwrap_or(self.name.clone())),
                         true,
                         true,
-                        Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                        Some(matches.args.keys().map(|k| *k).collect()));
                 }
             }
         }
@@ -1425,7 +1499,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 format!("Argument '{}' requires a value but none was supplied", o),
                                 true,
                                 true,
-                                Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>() ) );
+                                Some(matches.args.keys().map(|k| *k).collect() ) );
                         }
                     }
                     else if !o.multiple {
@@ -1433,7 +1507,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             format!("Argument '{}' requires a value but none was supplied", o),
                             true,
                             true,
-                            Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>() ) );
+                            Some(matches.args.keys().map(|k| *k).collect() ) );
                     }
                     else {
                         self.report_error(format!("The following required arguments were not \
@@ -1445,7 +1519,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 .fold(String::new(), |acc, s| acc + &format!("\t'{}'\n",s)[..])),
                             true,
                             true,
-                            Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                            Some(matches.args.keys().map(|k| *k).collect()));
                     }
                 } else {
                     self.report_error(
@@ -1454,7 +1528,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 self.positionals_name.get(a).unwrap()).unwrap())),
                             true,
                             true,
-                            Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                            Some(matches.args.keys().map(|k| *k).collect()));
                 }
             }
             _ => {}
@@ -1474,7 +1548,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         .fold(String::new(), |acc, s| acc + &format!("\t'{}'\n",s)[..])),
                     true,
                     true,
-                    Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                    Some(matches.args.keys().map(|k| *k).collect()));
             }
         }
 
@@ -1597,7 +1671,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         arg),
                     true,
                     true,
-                    Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                    Some(matches.args.keys().map(|k| *k).collect()));
             }
             arg_val = Some(arg_vec[1].to_owned());
         }
@@ -1610,7 +1684,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 matches.args.remove(v.name);
                 self.report_error(format!("The argument --{} cannot be used with one or more of \
                     the other specified arguments", arg),
-                    true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                    true, true, Some(matches.args.keys().map(|k| *k).collect()));
             }
 
             if matches.args.contains_key(v.name) {
@@ -1619,23 +1693,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         does not support multiple values", arg),
                         true,
                         true,
-                        Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                        Some(matches.args.keys().map(|k| *k).collect()));
                 }
                 if let Some(ref p_vals) = v.possible_vals {
                     if let Some(ref av) = arg_val {
                         if !p_vals.contains(&av[..]) {
-                            self.report_error(format!("\"{}\" isn't a valid value for '{}'{}",
-                                                    arg_val.clone().unwrap_or(arg.to_owned()),
-                                                    v,
-                                                    format!("\n\t[valid values:{}]",
-                                                        p_vals.iter()
-                                                              .fold(String::new(), |acc, name| {
-                                                                acc + &format!(" {}",name)[..]
-                                                                }))
-                                              ),
-                                    true,
-                                    true,
-                                    Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                            self.possible_values_error(
+                                    arg_val.as_ref().map(|v| &**v).unwrap_or(arg), 
+                                    &v.to_string(), p_vals, matches);
                         }
                     }
                 }
@@ -1702,7 +1767,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }),
                     true,
                     true,
-                    Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                    Some(matches.args.keys().map(|k| *k).collect()));
             }
 
             // Make sure this isn't one being added multiple times if it doesn't suppor it
@@ -1711,7 +1776,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     not support multiple values", v),
                     true,
                     true,
-                    Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                    Some(matches.args.keys().map(|k| *k).collect()));
             }
 
             let mut
@@ -1754,12 +1819,19 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             return None;
         }
 
-        // Shouldn't reach here
-        self.report_error(format!("The argument --{} isn't valid", arg),
+        let suffix = App::did_you_mean_suffix(arg, self.opts.values()
+                                             .filter_map(|v|
+                                                if let Some(ref l) = v.long {
+                                                    Some(l)
+                                                } else {
+                                                    None
+                                                }
+                                              ), DidYouMeanMessageStyle::LongFlag);
+        self.report_error(format!("The argument --{} isn't valid{}", arg, suffix),
             true,
             true,
-            Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
-        // Can't reach here...
+            Some(matches.args.keys().map(|k| *k).collect()));
+
         unreachable!();
     }
 
@@ -1774,7 +1846,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     self.report_error(format!("The argument -{} isn't valid",arg),
                         true,
                         true,
-                        Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                        Some(matches.args.keys().map(|k| *k).collect()));
                 }
             }
             return None;
@@ -1804,7 +1876,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         }),
                     true,
                     true,
-                    Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                    Some(matches.args.keys().map(|k| *k).collect()));
             }
 
             if matches.args.contains_key(v.name) {
@@ -1813,7 +1885,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         does not support multiple values", arg),
                         true,
                         true,
-                        Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                        Some(matches.args.keys().map(|k| *k).collect()));
                 }
             } else {
                 matches.args.insert(v.name, MatchedArg{
@@ -1848,10 +1920,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
 
         // Didn't match a flag or option, must be invalid
-        self.report_error( format!("The argument -{} isn't valid",arg_c),
+        self.report_error(format!("The argument -{} isn't valid",arg_c),
             true,
             true,
-            Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+            Some(matches.args.keys().map(|k| *k).collect()));
 
         unreachable!();
     }
@@ -1872,7 +1944,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         }),
                     true,
                     true,
-                    Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                    Some(matches.args.keys().map(|k| *k).collect()));
             }
 
             // Make sure this isn't one being added multiple times if it doesn't suppor it
@@ -1881,7 +1953,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         not support multiple values", arg),
                     true,
                     true,
-                    Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                    Some(matches.args.keys().map(|k| *k).collect()));
             }
 
             let mut done = false;
@@ -1942,7 +2014,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }, match self.blacklisted_from(name, matches) {
                         Some(name) => format!("'{}'", name),
                         None       => "one or more of the other specified arguments".to_owned()
-                    }), true, true, Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                    }), true, true, Some(matches.args.keys().map(|k| *k).collect()));
             } else if self.groups.contains_key(name) {
                 for n in self.get_group_members_names(name) {
                     if matches.args.contains_key(n) {
@@ -1963,7 +2035,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 }),
                             true,
                             true,
-                            Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                            Some(matches.args.keys().map(|k| *k).collect()));
                     }
                 }
             }
@@ -1995,7 +2067,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                             ( vals.len() % num as usize) == 1) {"as"}else{"ere"}),
                                 true,
                                 true,
-                                Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                                Some(matches.args.keys().map(|k| *k).collect()));
                         }
                     }
                     if let Some(num) = f.max_vals {
@@ -2008,7 +2080,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     if vals.len() == 1 {"as"}else{"ere"}),
                                 true,
                                 true,
-                                Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                                Some(matches.args.keys().map(|k| *k).collect()));
                         }
                     }
                     if let Some(num) = f.min_vals {
@@ -2021,7 +2093,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     if vals.len() == 1 {"as"}else{"ere"}),
                                 true,
                                 true,
-                                Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                                Some(matches.args.keys().map(|k| *k).collect()));
                         }
                     }
                 } else if let Some(f) = self.positionals_idx.get(
@@ -2036,7 +2108,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     if vals.len() == 1 {"as"}else{"ere"}),
                                 true,
                                 true,
-                                Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                                Some(matches.args.keys().map(|k| *k).collect()));
                         }
                     }
                     if let Some(num) = f.max_vals {
@@ -2049,7 +2121,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     if vals.len() == 1 {"as"}else{"ere"}),
                                 true,
                                 true,
-                                Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                                Some(matches.args.keys().map(|k| *k).collect()));
                         }
                     }
                     if let Some(num) = f.min_vals {
@@ -2062,7 +2134,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     if vals.len() == 1 {"as"}else{"ere"}),
                                 true,
                                 true,
-                                Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
+                                Some(matches.args.keys().map(|k| *k).collect()));
                         }
                     }
                 }

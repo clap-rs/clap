@@ -1,17 +1,16 @@
 language: rust
 rust:
-- nightly
-- beta
+  - nightly
+  - beta
 before_script:
-- git clone --depth 1 https://github.com/kbknapp/travis-cargo
-- ln -s ./travis-cargo/travis-cargo.py tc
+  - pip install 'travis-cargo<0.2' --user && export PATH=$HOME/.local/bin:$PATH
 script:
-- |
-  ./tc cargo build &&
-  ./tc cargo test &&
-  ./tc cargo doc
+  - travis-cargo build
+  - travis-cargo test
+  - make -C clap-tests test
+  - travis-cargo doc
 after_success:
-- "./tc --only beta doc-upload"
+  - travis-cargo --only beta doc-upload
 env:
   global:
     secure: JLBlgHY6OEmhJ8woewNJHmuBokTNUv7/WvLkJGV8xk0t6bXBwSU0jNloXwlH7FiQTc4TccX0PumPDD4MrMgxIAVFPmmmlQOCmdpYP4tqZJ8xo189E5zk8lKF5OyaVYCs5SMmFC3cxCsKjfwGIexNu3ck5Uhwe9jI0tqgkgM3URA=
