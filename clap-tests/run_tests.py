@@ -24,7 +24,7 @@ OPTIONS:
         --multvalsmo  <one> <two>        Tests mutliple values, not mult occs
     -o, --option  <opt>...               tests options
         --long-option-2  <option2>       tests long options with exclusions
-    -O <option3>                         tests options with specific value sets [values: fast slow]
+    -O, --Option  <option3>              tests options with specific value sets [values: fast slow]
 
 POSITIONAL ARGUMENTS:
     positional        tests positionals
