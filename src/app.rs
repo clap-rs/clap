@@ -11,12 +11,14 @@ use args::{ ArgMatches, Arg, SubCommand, MatchedArg};
 use args::{ FlagBuilder, OptBuilder, PosBuilder};
 use args::ArgGroup;
 
+#[cfg(feature = "suggestions")]
 use strsim;
 
 /// Produces a string from a given list of possible values which is similar to 
 /// the passed in value `v` with a certain confidence.
 /// Thus in a list of possible values like ["foo", "bar"], the value "fop" will yield
 /// `Some("foo")`, whereas "blark" would yield `None`.
+#[cfg(feature = "suggestions")]
 fn did_you_mean<'a, T, I>(v: &str, possible_values: I) -> Option<&'a str> 
     where       T: AsRef<str> + 'a,
                 I: IntoIterator<Item=&'a T> {
@@ -33,6 +35,13 @@ fn did_you_mean<'a, T, I>(v: &str, possible_values: I) -> Option<&'a str>
         None => None,
         Some((_, candidate)) => Some(candidate),
     }
+}
+
+#[cfg(not(feature = "suggestions"))]
+fn did_you_mean<'a, T, I>(_: &str, _: I) -> Option<&'a str> 
+    where       T: AsRef<str> + 'a,
+                I: IntoIterator<Item=&'a T> {   
+    None
 }
 
 /// A helper to determine message formatting

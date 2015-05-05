@@ -13,11 +13,14 @@ keywords = ["argument", "command", "arg", "parser", "parse"]
 
 license = "MIT"
 
-[dependencies]
-strsim = "*"
-
 [features]
-default=[]
+default=["suggestions"]
+suggestions=["strsim"]
 
 # for building with nightly and unstable features
 unstable=[]
+
+[dependencies.strsim]
+version = "*"
+optional = true
+
