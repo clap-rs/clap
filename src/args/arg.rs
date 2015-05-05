@@ -654,9 +654,11 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// `.number_of_values(3)`, and this argument wouldn't be satisfied unless the user provided
     /// 3 and only 3 values.
     ///
-    /// **NOTE:** The argument *must* have `.multiple(true)` or `...` to use this setting. Which
-    /// implies that `qty` must be > 1 (i.e. setting `.number_of_values(1)` would be unnecessary)
+    /// **NOTE:** `qty` must be > 1
     ///
+    /// **NOTE:** Does *not* require `.multiple(true)` to be set. Setting `.multiple(true)` would
+    /// allow `-f <file> <file> <file> -f <file> <file> <file>` where as *not* setting
+    /// `.multiple(true)` would only allow one occurrence of this argument.
     ///
     /// # Example
     ///
@@ -668,6 +670,11 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// .number_of_values(3)
     /// # ).get_matches();
     pub fn number_of_values(mut self, qty: u8) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
+        if qty < 2 {
+            panic!("Arguments with number_of_values(qty) qty must be > 1. Prefer \
+                takes_value(true) for arguments with onyl one value, or flags for arguments \
+                with 0 values.");
+        }
         self.num_vals = Some(qty);
         self
     }
@@ -677,8 +684,9 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// `.max_values(3)`, and this argument would be satisfied if the user provided, 1, 2, or 3
     /// values.
     ///
-    /// **NOTE:** The argument *must* have `.multiple(true)` or `...` to use this setting. Which
-    /// implies that `qty` must be > 1 (i.e. setting `.max_values(1)` would be unnecessary)
+    /// **NOTE:** `qty` must be > 1
+    ///
+    /// **NOTE:** This implicity sets `.multiple(true)`
     ///
     /// # Example
     ///
@@ -690,7 +698,13 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// .max_values(3)
     /// # ).get_matches();
     pub fn max_values(mut self, qty: u8) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
+        if qty < 2 {
+            panic!("Arguments with max_values(qty) qty must be > 1. Prefer \
+                takes_value(true) for arguments with onyl one value, or flags for arguments \
+                with 0 values.");
+        }
         self.max_vals = Some(qty);
+        self.multiple = true;
         self
     }
 
@@ -699,7 +713,9 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// `.min_values(2)`, and this argument would be satisfied if the user provided, 2 or more
     /// values.
     ///
-    /// **NOTE:** The argument *must* have `.multiple(true)` or `...` to use this setting.
+    /// **NOTE:** This implicity sets `.multiple(true)`
+    ///
+    /// **NOTE:** `qty` must be > 0
     ///
     /// **NOTE:** `qty` *must* be > 0. If you wish to have an argument with 0 or more values prefer
     /// two seperate arguments (a flag, and an option with multiple values).
@@ -714,7 +730,12 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// .min_values(2)
     /// # ).get_matches();
     pub fn min_values(mut self, qty: u8) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
+        if qty < 1 {
+            panic!("Arguments with min_values(qty) qty must be > 0. Prefer flags for arguments \
+                with 0 values.");
+        }
         self.min_vals = Some(qty);
+        self.multiple = true;
         self
     }
 
@@ -726,6 +747,10 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// **NOTE:** This implicitly sets `.number_of_values()` so there is no need to set that, but
     /// be aware that the number of "names" you set for the values, will be the *exact* number of
     /// values required to satisfy this argument
+    ///
+    /// **NOTE:** Does *not* require `.multiple(true)` to be set. Setting `.multiple(true)` would
+    /// allow `-f <file> <file> <file> -f <file> <file> <file>` where as *not* setting
+    /// `.multiple(true)` would only allow one occurrence of this argument.
     ///
     /// # Example
     ///

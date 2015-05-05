@@ -42,6 +42,14 @@ impl<'n> Display for OptBuilder<'n> {
                         format!("-{}", self.short.unwrap())
                     },
                     vec.iter().fold(String::new(),|acc, i| acc + &format!(" <{}>",i)[..]) )
+            } else if let Some(num) = self.num_vals {
+                format!("{}{}",
+                    if self.long.is_some() {
+                        format!("--{}", self.long.unwrap())
+                    } else {
+                        format!("-{}", self.short.unwrap())
+                    },
+                    (0..num).fold(String::new(), |acc, _| acc + &format!(" <{}>", self.name)[..]) )
             } else {
                 format!("{} <{}>{}",
                     if self.long.is_some() {

@@ -5,6 +5,7 @@ use clap::{App, Arg, SubCommand};
 
 
 fn main() {
+    let m_val_names = ["one", "two"];
     let args = "-f --flag... 'tests flags'
                 -o --option=[opt]... 'tests options'
                 [positional] 'tests positionals'";
@@ -21,7 +22,11 @@ fn main() {
                             Arg::from_usage("--long-option-2 [option2] 'tests long options with exclusions'").mutually_excludes("option").requires("positional2"),
                             Arg::from_usage("[positional2] 'tests positionals with exclusions'"),
                             Arg::from_usage("-O [option3] 'tests options with specific value sets'").possible_values(&opt3_vals),
-                            Arg::from_usage("[positional3]... 'tests positionals with specific values'").possible_values(&pos3_vals)
+                            Arg::from_usage("[positional3]... 'tests positionals with specific values'").possible_values(&pos3_vals),
+                            Arg::from_usage("--multvals [multvals] 'Tests mutliple values, not mult occs'").value_names(&m_val_names),
+                            Arg::from_usage("--multvalsmo [multvalsmo]... 'Tests mutliple values, not mult occs'").value_names(&m_val_names),
+                            Arg::from_usage("--minvals2 [minvals]... 'Tests 2 min vals'").min_values(2),
+                            Arg::from_usage("--maxvals3 [maxvals]... 'Tests 3 max vals'").max_values(3)
                         ])
                         .subcommand(SubCommand::new("subcmd")
                                                 .about("tests subcommands")
