@@ -1238,7 +1238,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                                                     I: IntoIterator<Item=&'z T> {
         match did_you_mean(arg, values) {
                 Some(candidate) => {
-                    let mut suffix = "\n\tDid you mean ".to_owned();
+                    let mut suffix = "\n\tDid you mean ".to_string();
                     match style {
                         DidYouMeanMessageStyle::LongFlag => suffix.push_str("--"),
                         DidYouMeanMessageStyle::EnumValue => suffix.push('\''),
@@ -1368,7 +1368,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 needs_val_of = self.parse_short_arg(matches, &arg);
             } else {
                 // Positional or Subcommand
-
                 // If the user pased `--` we don't check for subcommands, because the argument they
                 // may be trying to pass might match a subcommand name
                 if !pos_only {
@@ -1836,7 +1835,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             return None;
         }
 
-        let mut suffix = App::did_you_mean_suffix(arg, self.opts.values()
+        let suffix = App::did_you_mean_suffix(arg, self.opts.values()
                                              .filter_map(|v|
                                                 if let Some(ref l) = v.long {
                                                     Some(l)
@@ -1844,18 +1843,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                                     None
                                                 }
                                               ), DidYouMeanMessageStyle::LongFlag);
-
-        // If it didn't find a good match for opts, try flags
-        if suffix.is_empty() {
-            suffix = App::did_you_mean_suffix(arg, self.flags.values()
-                                                 .filter_map(|v|
-                                                    if let Some(ref l) = v.long {
-                                                        Some(l)
-                                                    } else {
-                                                        None
-                                                    }
-                                                  ), DidYouMeanMessageStyle::LongFlag);
-        }
         self.report_error(format!("The argument --{} isn't valid{}", arg, suffix),
             true,
             true,
