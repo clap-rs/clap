@@ -350,6 +350,8 @@
 //!   - `Arg::mutually_excludes_all()` -> `Arg::conflicts_with_all()`
 #[cfg(feature = "suggestions")]
 extern crate strsim;
+#[cfg(feature = "color")]
+extern crate ansi_term;
 
 pub use args::{Arg, SubCommand, ArgMatches, ArgGroup};
 pub use app::App;

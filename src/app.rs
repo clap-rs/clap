@@ -13,20 +13,22 @@ use args::ArgGroup;
 
 #[cfg(feature = "suggestions")]
 use strsim;
+#[cfg(feature = "color")]
+use ansi_term::Colour::Red;
 
-/// Produces a string from a given list of possible values which is similar to 
+/// Produces a string from a given list of possible values which is similar to
 /// the passed in value `v` with a certain confidence.
 /// Thus in a list of possible values like ["foo", "bar"], the value "fop" will yield
 /// `Some("foo")`, whereas "blark" would yield `None`.
 #[cfg(feature = "suggestions")]
-fn did_you_mean<'a, T, I>(v: &str, possible_values: I) -> Option<&'a str> 
+fn did_you_mean<'a, T, I>(v: &str, possible_values: I) -> Option<&'a str>
     where       T: AsRef<str> + 'a,
                 I: IntoIterator<Item=&'a T> {
 
     let mut candidate: Option<(f64, &str)> = None;
     for pv in possible_values.into_iter() {
         let confidence = strsim::jaro_winkler(v, pv.as_ref());
-        if confidence > 0.8 && (candidate.is_none() || 
+        if confidence > 0.8 && (candidate.is_none() ||
                                (candidate.as_ref().unwrap().0 < confidence)) {
             candidate = Some((confidence, pv.as_ref()));
         }
@@ -38,9 +40,9 @@ fn did_you_mean<'a, T, I>(v: &str, possible_values: I) -> Option<&'a str>
 }
 
 #[cfg(not(feature = "suggestions"))]
-fn did_you_mean<'a, T, I>(_: &str, _: I) -> Option<&'a str> 
+fn did_you_mean<'a, T, I>(_: &str, _: I) -> Option<&'a str>
     where       T: AsRef<str> + 'a,
-                I: IntoIterator<Item=&'a T> {   
+                I: IntoIterator<Item=&'a T> {
     None
 }
 
@@ -1154,9 +1156,20 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     // Reports and error to the users screen along with an optional usage statement and quits
+    #[cfg(not(feature = "color"))]
     fn report_error(&self, msg: String, usage: bool, quit: bool, matches: Option<Vec<&str>>) {
         println!("{}", msg);
         if usage { self.print_usage(true, matches); }
+        if quit { self.exit(1); }
+    }
+
+    #[cfg(feature = "color")]
+    fn report_error(&self, msg: String, usage: bool, quit: bool, matches: Option<Vec<&str>>) {
+        println!("{}", Red.paint(&msg[..]));
+        if usage {
+            print!("{}",Red.paint(&self.create_usage(matches)[..]));
+            println!("{}",Red.paint("\nFor more information try --help"));
+        }
         if quit { self.exit(1); }
     }
 
@@ -1224,9 +1237,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
     }
 
-    /// Returns a suffix that can be empty, or is the standard 'did you mean phrase 
+    /// Returns a suffix that can be empty, or is the standard 'did you mean phrase
     fn did_you_mean_suffix<'z, T, I>(arg: &str, values: I, style: DidYouMeanMessageStyle)
-                                                     -> String 
+                                                     -> String
                                                         where       T: AsRef<str> + 'z,
                                                                     I: IntoIterator<Item=&'z T> {
         match did_you_mean(arg, values) {
@@ -1247,9 +1260,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
     }
 
-    fn possible_values_error(&self, arg: &str, opt: &str, p_vals: &BTreeSet<&str>, 
+    fn possible_values_error(&self, arg: &str, opt: &str, p_vals: &BTreeSet<&str>,
                                                    matches: &ArgMatches<'ar, 'ar>) {
-        let suffix = App::did_you_mean_suffix(arg, p_vals.iter(), 
+        let suffix = App::did_you_mean_suffix(arg, p_vals.iter(),
                                               DidYouMeanMessageStyle::EnumValue);
 
         self.report_error(format!("\"{}\" isn't a valid value for '{}'{}{}",
@@ -1282,7 +1295,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if let Some(ref p_vals) = opt.possible_vals {
                             if !p_vals.is_empty() {
                                 if !p_vals.contains(arg_slice) {
-                                    self.possible_values_error(arg_slice, &opt.to_string(), 
+                                    self.possible_values_error(arg_slice, &opt.to_string(),
                                                                           p_vals, matches);
                                 }
                             }
@@ -1411,7 +1424,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     if let Some(ref p_vals) = p.possible_vals {
                         if !p_vals.is_empty() {
                             if !p_vals.contains(arg_slice) {
-                                self.possible_values_error(arg_slice, &p.to_string(), 
+                                self.possible_values_error(arg_slice, &p.to_string(),
                                                                        p_vals, matches);
                             }
                         }
@@ -1699,7 +1712,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     if let Some(ref av) = arg_val {
                         if !p_vals.contains(&av[..]) {
                             self.possible_values_error(
-                                    arg_val.as_ref().map(|v| &**v).unwrap_or(arg), 
+                                    arg_val.as_ref().map(|v| &**v).unwrap_or(arg),
                                     &v.to_string(), p_vals, matches);
                         }
                     }
