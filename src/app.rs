@@ -941,7 +941,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 .filter(|ref o| o.short.is_some())
                 // 3='...'
                 // 4='- <>'
-                .map(|ref a| if a.multiple { 3 } else { 0 } + a.name.len() + 4) {
+                .map(|ref a| format!("{}",a).len() + if a.short.is_some() &&
+                                                        a.long.is_some() { 4 }
+                                                     else { 0 }) {
                 if ol > longest_opt {longest_opt = ol;}
             }
         }
@@ -995,33 +997,33 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             println!("OPTIONS:");
             for v in self.opts.values() {
                 // if it supports multiple we add '...' i.e. 3 to the name length
-                let mult = if v.multiple { 3 } else { 0 };
                 println!("{}{}{}{}{}{}",tab,
                         if let Some(s) = v.short{format!("-{}",s)}else{tab.to_owned()},
                         if let Some(l) = v.long {
                             format!("{}--{} ",
                                 if v.short.is_some() {", "} else {""},l)
                         } else {
-                            " ".to_owned()
+                            "".to_owned()
                         },
                         format!("{}",
                             if let Some(ref vec) = v.val_names {
                                 vec.iter().fold(String::new(), |acc, s| {
-                                    acc + &format!("<{}> ", s)[..]
+                                    acc + &format!(" <{}>", s)[..]
                                 })
                             } else if let Some(num) = v.num_vals {
                                 (0..num).fold(String::new(), |acc, _| {
-                                    acc + &format!("<{}> ", v.name)[..]
+                                    acc + &format!(" <{}>", v.name)[..]
                                 })
                             } else {
-                                format!("<{}>{}", v.name, if v.multiple{"..."} else {""})
+                                format!(" <{}>{}", v.name, if v.multiple{"..."} else {""})
                             }),
                             if v.long.is_some() {
                                 self.get_spaces(
-                                    (longest_opt) - (v.long.unwrap().len() + v.name.len() + mult + 1)
+                                    (longest_opt + 4) - (format!("{}",v).len())
                                 )
                             } else {
-                                self.get_spaces((longest_opt + 3) - (v.name.len() + mult))
+                                // 8 = tab + '-a, '.len()
+                                self.get_spaces((longest_opt + 9) - (format!("{}", v).len()))
                             },
                         get_help!(v) );
             }
