@@ -1,3 +1,26 @@
+<a name="v0.7.6"></a>
+## v0.7.6 (2015-05-05)
+
+
+#### Improvements
+
+* **Options**  adds number of values to options in help/usage ([c1c993c4](https://github.com/kbknapp/clap-rs/commit/c1c993c419d18e35c443785053d8de9a2ef88073))
+
+#### Features
+
+* **from_usage**  adds ability to add value names or num of vals in usage string ([ad55748c](https://github.com/kbknapp/clap-rs/commit/ad55748c265cf27935c7b210307d2040b6a09125), closes [#98](https://github.com/kbknapp/clap-rs/issues/98))
+
+#### Bug Fixes
+
+* **MultipleValues**  properly distinguishes between multiple values and multiple occurrences ([dd2a7564](https://github.com/kbknapp/clap-rs/commit/dd2a75640ca68a91b973faad15f04df891356cef), closes [#99](https://github.com/kbknapp/clap-rs/issues/99))
+* **help**  fixes tab alignment with multiple values ([847001ff](https://github.com/kbknapp/clap-rs/commit/847001ff6d8f4d9518e810fefb8edf746dd0f31e))
+
+#### Documentation
+
+* **from_usage**  explains new usage strings with multiple values ([5a3a42df](https://github.com/kbknapp/clap-rs/commit/5a3a42dfa3a783537f88dedc0fd5f0edcb8ea372))
+
+
+
 <a name="v0.7.5"></a>
 ## v0.7.5 (2015-05-04)
 
