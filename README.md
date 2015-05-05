@@ -50,14 +50,16 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 * **Specific Value Sets**: Positional or Option Arguments can optionally define a specific set of allowed values (i.e. imagine a `--mode` option which may *only* have one of two values `fast` or `slow` such as `--mode fast` or `--mode slow`)
 * **Default Values**: Although not specifically provided by `clap` you can achieve this exact functionality from Rust's `Option<&str>.unwrap_or("some default")` method (or `Result<T,String>.unwrap_or(T)` when using typed values)
 * **Automatic Version from Cargo.toml**: `clap` is fully compatible with Rust's `env!()` macro for automatically setting the version of your application to the version in your Cargo.toml. See `examples/09_AutoVersion.rs` for how to do this (Thanks to [jhelwig](https://github.com/jhelwig) for pointing this out)
-* **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) from positional or option arguments so long as the type you request implements `std::str::FromStr` See the `examples/12_TypedValues.rs`. You can also use `clap`s `simple_enum!` or `arg_enum!` macro to create an enum with variants that automatically implements `std::str::FromStr`. See `examples/13a_EnumValuesAutomatic.rs` for details.
+* **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) from positional or option arguments so long as the type you request implements `std::str::FromStr` See the `examples/12_TypedValues.rs`. You can also use `clap`s `simple_enum!` or `arg_enum!` macro to create an enum with variants that automatically implements `std::str::FromStr`. See `examples/13a_EnumValuesAutomatic.rs` for details and performs an ascii case insensitive parse from a `string`->`enum`.
+* **Suggestions**: Suggests corrections when the user enter's a typo. For example, if you defined a `--myoption <value>` argument, and the user mistakenly typed `--moyption value` (notice `y` and `o` switched), they would receive a `Did you mean '--myoption' ?` error and exit gracefully. This also works for subcommands and flags. (Thanks to [Byron](https://github.com/Byron) for the implementation) (This feature can optionally be disabled, see 'Optional Dependencies / Features')
+* **Colorized (Red) Errors**: Error message are printed in red text (this feature can optionally be disabled, see 'Optional Dependencies / Features').
 
 ## Quick Example
- 
+
 The following two examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, groups, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/clap/index.html), or `examples/` directory of this repository.
- 
+
  *NOTE:* Both examples are functionally the same, but show two different styles in which to use `clap`
- 
+
 ```rust
 // (Full example with detailed comments in examples/01a_QuickExample.rs)
 //
@@ -85,13 +87,13 @@ fn main() {
     // Calling .unwrap() is safe here because "INPUT" is required (if "INPUT" wasn't
     // required we could have used an 'if let' to conditionally get the value)
     println!("Using input file: {}", matches.value_of("INPUT").unwrap());
-    
+
     // Gets a value for config if supplied by user, or defaults to "default.conf"
     let config = matches.value_of("CONFIG").unwrap_or("default.conf");
     println!("Value for config: {}", config);
-    
+
     // Vary the output based on how many times the user used the "debug" flag
-    // (i.e. 'myapp -d -d -d' or 'myapp -ddd' vs 'myapp -d'   
+    // (i.e. 'myapp -d -d -d' or 'myapp -ddd' vs 'myapp -d'
     match matches.occurrences_of("debug") {
         0 => println!("Debug mode is off"),
         1 => println!("Debug mode is kind of on"),
@@ -99,7 +101,7 @@ fn main() {
         3 | _ => println!("Don't be crazy"),
     }
 
-    // You can information about subcommands by requesting their matches by name 
+    // You can information about subcommands by requesting their matches by name
     // (as below), requesting just the name used, or both at the same time
     if let Some(matches) = matches.subcommand_matches("test") {
         if matches.is_present("verbose") {
@@ -114,11 +116,11 @@ fn main() {
 ```
 
 The following example is functionally the same as the one above, but this method allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired. Both methods can be used together to get the best of both worlds (see the documentation, examples, or video tutorials).
- 
+
 ```rust
 // (Full example with detailed comments in examples/01b_QuickExample.rs)
 //
-// This example demonstrates clap's full 'builder pattern' style of creating arguments which is 
+// This example demonstrates clap's full 'builder pattern' style of creating arguments which is
 // more verbose, but allows easier editting, and at times more advanced options, or the possibility
 // to generate arguments dynamically.
 extern crate clap;
@@ -154,21 +156,21 @@ fn main() {
     // Calling .unwrap() is safe here because "INPUT" is required (if "INPUT" wasn't
     // required we could have used an 'if let' to conditionally get the value)
     println!("Using input file: {}", matches.value_of("INPUT").unwrap());
-    
+
     // Gets a value for config if supplied by user, or defaults to "default.conf"
     let config = matches.value_of("CONFIG").unwrap_or("default.conf");
     println!("Value for config: {}", config);
-    
+
     // Vary the output based on how many times the user used the "debug" flag
-    // (i.e. 'myapp -d -d -d' or 'myapp -ddd' vs 'myapp -d'   
+    // (i.e. 'myapp -d -d -d' or 'myapp -ddd' vs 'myapp -d'
     match matches.occurrences_of("debug") {
         0 => println!("Debug mode is off"),
         1 => println!("Debug mode is kind of on"),
         2 => println!("Debug mode is on"),
         3 | _ => println!("Don't be crazy"),
     }
-    
-    // You can information about subcommands by requesting their matches by name 
+
+    // You can information about subcommands by requesting their matches by name
     // (as below), requesting just the name used, or both at the same time
     if let Some(matches) = matches.subcommand_matches("test") {
         if matches.is_present("verbose") {
@@ -197,7 +199,7 @@ FLAGS:
     -d               Turn debugging information on
     -h, --help       Prints this message
     -v, --version    Prints version information
- 
+
 OPTIONS:
     -c, --config <CONFIG>    Sets a custom config file
 
@@ -227,7 +229,7 @@ To try out the pre-built example use the following stes:
 To test out `clap`'s default auto-generated help/version follow these steps:
 * Create a new cargo project `$ cargo new fake --bin && cd fake`
 * Add `clap` to your `Cargo.toml`
-* 
+*
 ```toml
 [dependencies]
 clap = "*"
@@ -268,6 +270,32 @@ Define a list of valid arguments for your program (see the [documentation](https
 
 Then run `cargo build` or `cargo update && cargo build` for your project.
 
+### Optional Dependencies / Features
+
+If you'd like to keep your dependency list to **only** `clap`, you can disable any features that require an additional dependency. To do this, add this to your `Cargo.toml`:
+
+```toml
+[dependencies.clap]
+version = "*"
+default-features = false
+```
+
+You can also selectively enable only the features you'd like to include, by adding:
+
+```toml
+[dependencies.clap]
+version = "*"
+default-features = false
+
+# Cherry-pick the features you'd like to use
+features = [ "suggestions", "color" ]
+```
+
+The following is a list of optional `clap` features:
+
+* **"suggestions"**: Turns on the `Did you mean '--myoption' ?` feature for when users make typos.
+* **"color"**: Turns on red error messages.
+
 ### More Information
 
 You can find complete documentation on the [github-pages site](http://kbknapp.github.io/clap-rs/clap/index.html) for this project.
@@ -292,17 +320,16 @@ Contributions are always welcome! And there is a multitude of ways in which you 
 4. Make your changes, and commit (`git commit -am "your message"`) (I try to use a [conventional](https://github.com/ajoslin/conventional-changelog/blob/master/CONVENTIONS.md) changelog format so I can update it using [clog](https://github.com/thoughtram/clog))
 5. If applicable, run the tests (See below)
 6. Push your changes back to your fork (`git push origin your-branch`)
-7. Create a pull request! (You can also create the pull request right away, and we'll merge when ready. This a good way to discuss proposed changes.) 
+7. Create a pull request! (You can also create the pull request right away, and we'll merge when ready. This a good way to discuss proposed changes.)
 
 Another really great way to help is if you find an interesting, or helpful way in which to use `clap`. You can either add it to the `examples/` directory, or file an issue and tell me. I'm all about giving credit where credit is due :)
 
 ### Running the tests
 
-If contributing, you can run the tests as follows (assuming you've cloned the repo to `clap-rs/`
+If contributing, you can run the tests as follows (assuming you're in the `clap-rs` directory)
 
 ```
-cd clap-rs && cargo test
-cd clap-tests && make test
+cargo test && make -C clap-tests test
 ```
 
 ### Goals
@@ -331,7 +358,7 @@ Although I do my best to keep breaking changes to a minimum, being that this a s
   - `Arg::possible_values()`, `Arg::value_names()`, `Arg::requires_all()`, `Arg::mutually_excludes_all()` [deprecated], `Arg::conflicts_with_all()`
     + No longer take a `Vec<&str>`, instead they take a generic `IntoIterator<Item=AsRef<str>>` which means you cannot use an inline `vec![]` but it means the methods are now far more flexible, especially for dynamic value generation.
     + Instead use something that conforms to the `IntoIterator` trait, or something like:
-    
+
     ```rust
     let my_vals = ["value1", "value2", "value3"];
     ...
