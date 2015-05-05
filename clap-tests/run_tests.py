@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 import sys
 import subprocess
 
@@ -260,7 +260,7 @@ cmds = {'help short:         ': ['{} -h'.format(_bin), _help],
 
 def pass_fail(name, check, good):
 	global failed
-	print(name, end='')
+	sys.stdout.write(name)
 	if check == good:
 		print('Pass')
 		return
@@ -270,9 +270,9 @@ def pass_fail(name, check, good):
 
 def main():
 	for cmd, cmd_v in cmds.items():
-		with subprocess.Popen(cmd_v[0], shell=True, stdout=subprocess.PIPE, universal_newlines=True) as proc:
-			out = proc.communicate()[0].strip()
-			pass_fail(cmd, out, cmd_v[1])
+		proc = subprocess.Popen(cmd_v[0], shell=True, stdout=subprocess.PIPE, universal_newlines=True)
+		out = proc.communicate()[0].strip()
+		pass_fail(cmd, out, cmd_v[1])
 	if failed:
 		print('One or more tests failed')
 		return 1
