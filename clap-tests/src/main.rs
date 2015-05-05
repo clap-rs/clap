@@ -21,7 +21,7 @@ fn main() {
                             Arg::from_usage("[flag2] -F 'tests flags with exclusions'").mutually_excludes("flag").requires("option2"),
                             Arg::from_usage("--long-option-2 [option2] 'tests long options with exclusions'").mutually_excludes("option").requires("positional2"),
                             Arg::from_usage("[positional2] 'tests positionals with exclusions'"),
-                            Arg::from_usage("-O [option3] 'tests options with specific value sets'").possible_values(&opt3_vals),
+                            Arg::from_usage("-O --Option [option3] 'tests options with specific value sets'").possible_values(&opt3_vals),
                             Arg::from_usage("[positional3]... 'tests positionals with specific values'").possible_values(&pos3_vals),
                             Arg::from_usage("--multvals [multvals] 'Tests mutliple values, not mult occs'").value_names(&m_val_names),
                             Arg::from_usage("--multvalsmo [multvalsmo]... 'Tests mutliple values, not mult occs'").value_names(&m_val_names),
