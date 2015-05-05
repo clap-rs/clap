@@ -1009,16 +1009,20 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 vec.iter().fold(String::new(), |acc, s| {
                                     acc + &format!("<{}> ", s)[..]
                                 })
+                            } else if let Some(num) = v.num_vals {
+                                (0..num).fold(String::new(), |acc, _| {
+                                    acc + &format!("<{}> ", v.name)[..]
+                                })
                             } else {
                                 format!("<{}>{}", v.name, if v.multiple{"..."} else {""})
                             }),
-                        if v.long.is_some() {
-                            self.get_spaces(
-                                (longest_opt) - (v.long.unwrap().len() + v.name.len() + mult + 1)
-                            )
-                        } else {
-                            self.get_spaces((longest_opt + 3) - (v.name.len() + mult))
-                        },
+                            if v.long.is_some() {
+                                self.get_spaces(
+                                    (longest_opt) - (v.long.unwrap().len() + v.name.len() + mult + 1)
+                                )
+                            } else {
+                                self.get_spaces((longest_opt + 3) - (v.name.len() + mult))
+                            },
                         get_help!(v) );
             }
         }
