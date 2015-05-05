@@ -348,6 +348,7 @@
 //!   - `Arg::new()` -> `Arg::with_name()`
 //!   - `Arg::mutually_excludes()` -> `Arg::conflicts_with()`
 //!   - `Arg::mutually_excludes_all()` -> `Arg::conflicts_with_all()`
+#[cfg(feature = "suggestions")]
 extern crate strsim;
 
 pub use args::{Arg, SubCommand, ArgMatches, ArgGroup};
