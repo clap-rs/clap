@@ -1231,7 +1231,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                                                     I: IntoIterator<Item=&'z T> {
         match did_you_mean(arg, values) {
                 Some(candidate) => {
-                    let mut suffix = ". Did you mean ".to_string();
+                    let mut suffix = "\n\tDid you mean ".to_string();
                     match style {
                         DidYouMeanMessageStyle::LongFlag => suffix.push_str("--"),
                         DidYouMeanMessageStyle::EnumValue => suffix.push('"'),
@@ -1371,7 +1371,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
                 if let Some(candidate_subcommand) = did_you_mean(&arg, self.subcommands.keys()) {
                     self.report_error(
-                        format!("Subcommand \"{}\" is unknown. Did you mean \"{}\" ?",
+                        format!("Subcommand \"{}\" isn't valid\n\tDid you mean \"{}\" ?",
                             arg,
                             candidate_subcommand),
                         true,
