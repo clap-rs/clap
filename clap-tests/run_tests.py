@@ -40,9 +40,9 @@ USAGE:
 \tclaptests [POSITIONAL] [FLAGS] [OPTIONS] [SUBCOMMANDS]
 For more information try --help'''
 
-_arg_dym_usage = '''The argument --optio is unknown. Did you mean --option ?
+_arg_dym_usage = '''The argument --optio isn't valid. Did you mean --option ?
 USAGE:
-\tclaptests [POSITIONAL] [FLAGS] [OPTIONS] [SUBCOMMANDS]
+\tclaptests
 For more information try --help'''
 
 _excluded = '''The argument '--flag' cannot be used with '-F'
