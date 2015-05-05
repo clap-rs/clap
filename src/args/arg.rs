@@ -1,4 +1,5 @@
 use std::iter::IntoIterator;
+use std::collections::HashSet;
 
 use usageparser::{UsageParser, UsageToken};
 
@@ -79,7 +80,7 @@ pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     #[doc(hidden)]
     pub group: Option<&'g str>,
     #[doc(hidden)]
-    pub val_names: Option<Vec<&'p str>>,
+    pub val_names: Option<Vec<&'n str>>,
     #[doc(hidden)]
     pub num_vals: Option<u8>,
     #[doc(hidden)]
@@ -229,34 +230,57 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
          let mut required = false;
          let mut takes_value = false;
          let mut multiple = false;
+         let mut num_names = 1;
+         let mut name_first = false;
+         let mut consec_names = false;
+         let mut val_names = HashSet::new();
 
         let parser = UsageParser::with_usage(u);
         for_match!{ parser,
             UsageToken::Name(n, req) => {
-                if name.is_none() {
+                if consec_names {
+                    num_names += 1;
+                }
+                let mut use_req = false;
+                let mut use_name = false;
+                if name.is_none() && long.is_none() && short.is_none() {
+                    name_first = true;
+                    use_name = true;
+                    use_req = true;
+                } else if let Some(l) = long {
+                    if l == name.unwrap_or("") {
+                        if !name_first {
+                            use_name = true;
+                            use_req = true;
+                        }
+                    }
+                } else {
+                    // starting with short
+                    if !name_first {
+                        use_name = true;
+                        use_req = true;
+                    }
+                }
+                if use_name && !consec_names {
                     name = Some(n);
+                }
+                if use_req && !consec_names {
                     if let Some(r) = req {
                         required = r;
                     }
-                } else if let Some(l) = long {
-                    if l == name.unwrap() {
-                        if let Some(r) = req {
-                            required = r;
-                        }
-                        name = Some(n);
-                    } else if n != l {
-                        name = Some(n);
-                    }
-
                 }
                 if short.is_some() || long.is_some() {
+                    val_names.insert(n);
                     takes_value = true;
                 }
+                consec_names = true;
             },
             UsageToken::Short(s)     => {
+                consec_names = false;
                 short = Some(s);
             },
             UsageToken::Long(l)      => {
+                consec_names = false;
                 long = Some(l);
                 if name.is_none() {
                     name = Some(l);
@@ -267,6 +291,15 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             },
             UsageToken::Multiple     => {
                 multiple = true;
+            }
+        }
+
+        if let Some(l) = long {
+            val_names.remove(l);
+            if val_names.len() > 1 {
+                if name.unwrap() != l && !name_first {
+                    name = Some(l);
+                }
             }
         }
 
@@ -282,8 +315,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             possible_vals: None,
             blacklist: None,
             requires: None,
-            num_vals: None,
-            val_names: None,
+            num_vals: if num_names > 1 { Some(num_names) } else { None },
+            val_names: if val_names.len() > 1 {Some(val_names.iter().map(|s| *s).collect::<Vec<_>>())}else{None},
             max_vals: None,
             min_vals: None,
             group: None,
@@ -765,8 +798,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # ).get_matches();
     pub fn value_names<T, I>(mut self, names: I)
                                  -> Arg<'n, 'l, 'h, 'g, 'p, 'r>
-                                 where T: AsRef<str> + 'p,
-                                       I: IntoIterator<Item=&'p T> {
+                                 where T: AsRef<str> + 'n,
+                                       I: IntoIterator<Item=&'n T> {
         if let Some(ref mut vec) = self.val_names {
             names.into_iter().map(|s| vec.push(s.as_ref())).collect::<Vec<_>>();
         } else {
