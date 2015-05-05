@@ -397,13 +397,15 @@ macro_rules! arg_enum {
             type Err = String;
 
             fn from_str(s: &str) -> Result<Self,Self::Err> {
+                use ::std::ascii::AsciiExt;
                 match s {
-                    $(stringify!($v) => Ok($e::$v),)+
+                    $(stringify!($v) |
+                    _ if s.eq_ignore_ascii_case(stringify!($v)) => Ok($e::$v),)+
                     _                => Err({
                                             let v = vec![
                                                 $(stringify!($v),)+
                                             ];
-                                            format!("valid:{}",
+                                            format!("valid values:{}",
                                                 v.iter().fold(String::new(), |a, i| {
                                                     a + &format!(" {}", i)[..]
                                                 }))
@@ -422,13 +424,15 @@ macro_rules! arg_enum {
             type Err = String;
 
             fn from_str(s: &str) -> Result<Self,Self::Err> {
+                use ::std::ascii::AsciiExt;
                 match s {
-                    $(stringify!($v) => Ok($e::$v),)+
+                    $(stringify!($v) |
+                    _ if s.eq_ignore_ascii_case(stringify!($v)) => Ok($e::$v),)+
                     _                => Err({
                                             let v = vec![
                                                 $(stringify!($v),)+
                                             ];
-                                            format!("valid:{}",
+                                            format!("valid values:{}",
                                                 v.iter().fold(String::new(), |a, i| {
                                                     a + &format!(" {}", i)[..]
                                                 }))
@@ -447,13 +451,15 @@ macro_rules! arg_enum {
             type Err = String;
 
             fn from_str(s: &str) -> Result<Self,Self::Err> {
+                use ::std::ascii::AsciiExt;
                 match s {
-                    $(stringify!($v) => Ok($e::$v),)+
+                    $(stringify!($v) |
+                    _ if s.eq_ignore_ascii_case(stringify!($v)) => Ok($e::$v),)+
                     _                => Err({
                                             let v = vec![
                                                 $(stringify!($v),)+
                                             ];
-                                            format!("valid:{}",
+                                            format!("valid values:{}",
                                                 v.iter().fold(String::new(), |a, i| {
                                                     a + &format!(" {}", i)[..]
                                                 }))
