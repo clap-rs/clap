@@ -35,18 +35,21 @@ SUBCOMMANDS:
     help      Prints this message
     subcmd    tests subcommands'''
 
-_sc_dym_usage = '''Subcommand "subcm" is unknown. Did you mean "subcmd" ?
+_sc_dym_usage = '''Subcommand "subcm" isn't valid
+\tDid you mean "subcmd" ?
 USAGE:
 \tclaptests [POSITIONAL] [FLAGS] [OPTIONS] [SUBCOMMANDS]
 For more information try --help'''
 
-_arg_dym_usage = '''The argument --optio isn't valid. Did you mean --option ?
+_arg_dym_usage = '''The argument --optio isn't valid
+\tDid you mean --option ?
 USAGE:
 \tclaptests
 For more information try --help'''
 
 _pv_dym_usage = '''"slo" isn't a valid value for '--Option <option3>'
-\t[valid values: fast slow]. Did you mean "slow" ?
+\t[valid values: fast slow]
+\tDid you mean "slow" ?
 USAGE:
 \tclaptests --Option <option3>
 For more information try --help'''
