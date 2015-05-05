@@ -13,6 +13,9 @@ keywords = ["argument", "command", "arg", "parser", "parse"]
 
 license = "MIT"
 
+[dependencies]
+strsim = "*"
+
 [features]
 default=[]
 

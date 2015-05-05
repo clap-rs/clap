@@ -35,6 +35,11 @@ SUBCOMMANDS:
     help      Prints this message
     subcmd    tests subcommands'''
 
+_sc_dym_usage = '''Subcommand "subcm" is unknown. Did you mean "subcmd" ?
+USAGE:
+\tclaptests [POSITIONAL] [FLAGS] [OPTIONS] [SUBCOMMANDS]
+For more information try --help'''
+
 _excluded = '''The argument '--flag' cannot be used with '-F'
 USAGE:
 \tclaptests [positional2] -F --long-option-2 <option2>
@@ -220,6 +225,7 @@ cmds = {'help short:         ': ['{} -h'.format(_bin), _help],
 		'F(s),O(s),P:        ': ['{} value -f -o some'.format(_bin), _fop],
 		'F(l),O(l),P:        ': ['{} value --flag --option some'.format(_bin), _fop],
 		'F(l),O(l=),P:       ': ['{} value --flag --option=some'.format(_bin), _fop],
+        'sc dym:             ': ['{} subcm'.format(_bin), _sc_dym_usage],
 		'sc help short:      ': ['{} subcmd -h'.format(_bin), _schelp],
 		'sc help long:       ': ['{} subcmd --help'.format(_bin), _schelp],
 		'scF(l),O(l),P:      ': ['{} subcmd value --flag --option some'.format(_bin), _scfop],

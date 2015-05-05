@@ -11,6 +11,30 @@ use args::{ ArgMatches, Arg, SubCommand, MatchedArg};
 use args::{ FlagBuilder, OptBuilder, PosBuilder};
 use args::ArgGroup;
 
+use strsim;
+
+/// Produces a string from a given list of possible values which is similar to 
+/// the passed in value `v` with a certain confidence.
+/// Thus in a list of possible values like ["foo", "bar"], the value "fop" will yield
+/// `Some("foo")`, whereas "blark" would yield `None`.
+fn did_you_mean<'a, I, T>(v: &str, possible_values: I) -> Option<&'a str> 
+    where       T: AsRef<str> + 'a,
+                I: IntoIterator<Item=&'a T>{
+
+    let mut candidate: Option<(f64, &str)> = None;
+    for pv in possible_values.into_iter() {
+        let confidence = strsim::jaro_winkler(v, pv.as_ref());
+        if confidence > 0.8 && (candidate.is_none() || 
+                               (candidate.as_ref().unwrap().0 < confidence)) {
+            candidate = Some((confidence, pv.as_ref()));
+        }
+    }
+    match candidate {
+        None => None,
+        Some((_, candidate)) => Some(candidate),
+    }
+}
+
 /// Used to create a representation of a command line program and all possible command line
 /// arguments for parsing at runtime.
 ///
@@ -1294,6 +1318,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                     subcmd_name = Some(arg.clone());
                     break;
+                }
+
+                if let Some(candidate_subcommand) = did_you_mean(&arg, self.subcommands.keys()) {
+                    self.report_error(
+                        format!("Subcommand \"{}\" is unknown. Did you mean \"{}\" ?",
+                            arg,
+                            candidate_subcommand),
+                        true,
+                        true,
+                        None);
                 }
 
                 if self.positionals_idx.is_empty() {
