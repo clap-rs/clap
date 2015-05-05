@@ -1788,26 +1788,25 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             return None;
         }
 
-        match did_you_mean(arg, self.opts.values()
-                                         .filter_map(|v| 
-                                                if let Some(l) = v.long {Some(l)} else {None}
-                                          )
-                                         .collect::<Vec<_>>().iter()) {
-            Some(candidate_flag) => {
-                self.report_error(format!("The argument --{} is unknown. Did you mean --{} ?", 
-                                                                                arg, 
-                                                                                candidate_flag),
-                    true,
-                    true,
-                    None);
-            },
-            None => {
-                self.report_error(format!("The argument --{} isn't valid", arg),
-                    true,
-                    true,
-                    Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
-            }
-        }
+        let suffix =
+            match did_you_mean(arg, self.opts.values()
+                                             .filter_map(|v|
+                                                if let Some(ref l) = v.long {
+                                                    Some(l)
+                                                } else {
+                                                    None
+                                                }
+                                              )) {
+                Some(candidate_flag) => {
+                    format!(". Did you mean --{} ?", candidate_flag)
+                },
+                None => String::new()
+            };
+
+        self.report_error(format!("The argument --{} isn't valid{}", arg, suffix),
+            true,
+            true,
+            Some(matches.args.keys().map(|k| *k).collect::<Vec<_>>()));
 
         unreachable!();
     }
