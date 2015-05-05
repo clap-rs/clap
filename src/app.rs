@@ -1207,6 +1207,21 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
     }
 
+    fn possible_values_error(&self, arg: &str, opt: &str, p_vals: &BTreeSet<&str>, 
+                                                   matches: &ArgMatches<'ar, 'ar>) {
+        self.report_error(format!("\"{}\" isn't a valid value for '{}'{}",
+                                    arg,
+                                    opt,
+                                    format!("\n\t[valid values:{}]",
+                                        p_vals.iter()
+                                              .fold(String::new(), |acc, name| {
+                                                  acc + &format!(" {}",name)[..]
+                                              }))),
+                                        true,
+                                        true,
+                                        Some(matches.args.keys().map(|k| *k).collect()));
+    }
+
     fn get_matches_from(&mut self, matches: &mut ArgMatches<'ar, 'ar>, it: &mut IntoIter<String>) {
         self.create_help_and_version();
 
@@ -1223,18 +1238,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if let Some(ref p_vals) = opt.possible_vals {
                             if !p_vals.is_empty() {
                                 if !p_vals.contains(arg_slice) {
-                                    self.report_error(
-                                        format!("\"{}\" isn't a valid value for {}{}",
-                                        arg_slice,
-                                        opt,
-                                        format!("\n\t[valid values:{}]\n",
-                                            p_vals.iter()
-                                                  .fold(String::new(), |acc, name| {
-                                                    acc + &format!(" {}",name)[..]
-                                                  }))),
-                                        true,
-                                        true,
-                                        Some(matches.args.keys().map(|k| *k).collect()));
+                                    self.possible_values_error(arg_slice, &opt.to_string(), 
+                                                                          p_vals, matches);
                                 }
                             }
                         }
@@ -1362,17 +1367,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     if let Some(ref p_vals) = p.possible_vals {
                         if !p_vals.is_empty() {
                             if !p_vals.contains(arg_slice) {
-                                self.report_error(format!("\"{}\" isn't a valid value for '{}'{}",
-                                    arg_slice,
-                                    p,
-                                    format!("\n\t[valid values:{}]",
-                                        p_vals.iter()
-                                              .fold(String::new(), |acc, name| {
-                                                  acc + &format!(" {}",name)[..]
-                                              }))),
-                                        true,
-                                        true,
-                                        Some(matches.args.keys().map(|k| *k).collect()));
+                                self.possible_values_error(arg_slice, &p.to_string(), 
+                                                                       p_vals, matches);
                             }
                         }
                     }
@@ -1658,18 +1654,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 if let Some(ref p_vals) = v.possible_vals {
                     if let Some(ref av) = arg_val {
                         if !p_vals.contains(&av[..]) {
-                            self.report_error(format!("\"{}\" isn't a valid value for '{}'{}",
-                                                    arg_val.clone().unwrap_or(arg.to_owned()),
-                                                    v,
-                                                    format!("\n\t[valid values:{}]",
-                                                        p_vals.iter()
-                                                              .fold(String::new(), |acc, name| {
-                                                                acc + &format!(" {}",name)[..]
-                                                                }))
-                                              ),
-                                    true,
-                                    true,
-                                    Some(matches.args.keys().map(|k| *k).collect()));
+                            self.possible_values_error(
+                                    arg_val.as_ref().map(|v| &**v).unwrap_or(arg), 
+                                    &v.to_string(), p_vals, matches);
                         }
                     }
                 }
