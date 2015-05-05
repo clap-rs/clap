@@ -876,7 +876,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
 
         ret_val
-
     }
 
     // Creates a usage string if one was not provided by the user manually. This happens just
@@ -1239,14 +1238,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                                                     I: IntoIterator<Item=&'z T> {
         match did_you_mean(arg, values) {
                 Some(candidate) => {
-                    let mut suffix = "\n\tDid you mean ".to_string();
+                    let mut suffix = "\n\tDid you mean ".to_owned();
                     match style {
                         DidYouMeanMessageStyle::LongFlag => suffix.push_str("--"),
-                        DidYouMeanMessageStyle::EnumValue => suffix.push('"'),
+                        DidYouMeanMessageStyle::EnumValue => suffix.push('\''),
                     }
                     suffix.push_str(candidate);
                     if let DidYouMeanMessageStyle::EnumValue = style {
-                        suffix.push('"');
+                        suffix.push('\'');
                     }
                     suffix.push_str(" ?");
                     suffix
@@ -1369,22 +1368,32 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 needs_val_of = self.parse_short_arg(matches, &arg);
             } else {
                 // Positional or Subcommand
-                if self.subcommands.contains_key(&arg) {
-                    if arg_slice == "help" {
-                        self.print_help();
-                    }
-                    subcmd_name = Some(arg.clone());
-                    break;
-                }
 
-                if let Some(candidate_subcommand) = did_you_mean(&arg, self.subcommands.keys()) {
-                    self.report_error(
-                        format!("Subcommand \"{}\" isn't valid\n\tDid you mean \"{}\" ?",
-                            arg,
-                            candidate_subcommand),
-                        true,
-                        true,
-                        None);
+                // If the user pased `--` we don't check for subcommands, because the argument they
+                // may be trying to pass might match a subcommand name
+                if !pos_only {
+                    if self.subcommands.contains_key(&arg) {
+                        if arg_slice == "help" {
+                            self.print_help();
+                        }
+                        subcmd_name = Some(arg.clone());
+                        break;
+                    }
+
+                    if let Some(candidate_subcommand) = did_you_mean(&arg,
+                                                                    self.subcommands.keys()) {
+                        self.report_error(
+                            format!("The subcommand '{}' isn't valid\n\tDid you mean '{}' ?\n\n\
+                            If you received this message in error, try \
+                            re-running with '{} -- {}'\n",
+                                arg,
+                                candidate_subcommand,
+                                self.bin_name.clone().unwrap_or(self.name.clone()),
+                                arg),
+                            true,
+                            true,
+                            None);
+                    }
                 }
 
                 if self.positionals_idx.is_empty() {
@@ -1827,7 +1836,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             return None;
         }
 
-        let suffix = App::did_you_mean_suffix(arg, self.opts.values()
+        let mut suffix = App::did_you_mean_suffix(arg, self.opts.values()
                                              .filter_map(|v|
                                                 if let Some(ref l) = v.long {
                                                     Some(l)
@@ -1835,6 +1844,18 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                                     None
                                                 }
                                               ), DidYouMeanMessageStyle::LongFlag);
+
+        // If it didn't find a good match for opts, try flags
+        if suffix.is_empty() {
+            suffix = App::did_you_mean_suffix(arg, self.flags.values()
+                                                 .filter_map(|v|
+                                                    if let Some(ref l) = v.long {
+                                                        Some(l)
+                                                    } else {
+                                                        None
+                                                    }
+                                                  ), DidYouMeanMessageStyle::LongFlag);
+        }
         self.report_error(format!("The argument --{} isn't valid{}", arg, suffix),
             true,
             true,

@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 import sys
 import subprocess
+import re
 
 failed = False
+
+_ansi = re.compile(r'\x1b[^m]*m')
 
 _help = '''claptests 0.0.1
 Kevin K. <kbknapp@gmail.com>
@@ -18,27 +21,30 @@ FLAGS:
     -v, --version    Prints version information
 
 OPTIONS:
-        --maxvals3  <maxvals>...         Tests 3 max vals
-        --minvals2  <minvals>...         Tests 2 min vals
-        --multvals  <one> <two>          Tests mutliple values, not mult occs
-        --multvalsmo  <one> <two>        Tests mutliple values, not mult occs
-    -o, --option  <opt>...               tests options
-        --long-option-2  <option2>       tests long options with exclusions
-    -O, --Option  <option3>              tests options with specific value sets [values: fast slow]
+        --maxvals3 <maxvals>...      Tests 3 max vals
+        --minvals2 <minvals>...      Tests 2 min vals
+        --multvals <one> <two>       Tests mutliple values, not mult occs
+        --multvalsmo <one> <two>     Tests mutliple values, not mult occs
+    -o, --option <opt>...            tests options
+        --long-option-2 <option2>    tests long options with exclusions
+    -O, --Option <option3>           tests options with specific value sets [values: fast slow]
 
 POSITIONAL ARGUMENTS:
-    positional        tests positionals
-    positional2       tests positionals with exclusions
-    positional3...    tests positionals with specific values [values: emacs vi]
+    positional          tests positionals
+    positional2         tests positionals with exclusions
+    positional3...      tests positionals with specific values [values: emacs vi]
 
 SUBCOMMANDS:
     help      Prints this message
     subcmd    tests subcommands'''
 
-_sc_dym_usage = '''Subcommand "subcm" isn't valid
-\tDid you mean "subcmd" ?
+_sc_dym_usage = '''The subcommand 'subcm' isn't valid
+	Did you mean 'subcmd' ?
+
+If you received this message in error, try re-running with 'claptests -- subcm'
+
 USAGE:
-\tclaptests [POSITIONAL] [FLAGS] [OPTIONS] [SUBCOMMANDS]
+	claptests [POSITIONAL] [FLAGS] [OPTIONS] [SUBCOMMANDS]
 For more information try --help'''
 
 _arg_dym_usage = '''The argument --optio isn't valid
@@ -48,10 +54,10 @@ USAGE:
 For more information try --help'''
 
 _pv_dym_usage = '''"slo" isn't a valid value for '--Option <option3>'
-\t[valid values: fast slow]
-\tDid you mean "slow" ?
+	[valid values: fast slow]
+	Did you mean 'slow' ?
 USAGE:
-\tclaptests --Option <option3>
+	claptests --Option <option3>
 For more information try --help'''
 
 _excluded = '''The argument '--flag' cannot be used with '-F'
@@ -61,7 +67,7 @@ For more information try --help'''
 
 _excluded_l = '''The argument -f cannot be used '-F'
 USAGE:
-\tclaptests [positional2] -F --long-option-2 <option2>
+	claptests [positional2] -F --long-option-2 <option2>
 For more information try --help'''
 
 _required = '''The following required arguments were not supplied:
@@ -129,10 +135,10 @@ FLAGS:
     -v, --version    Prints version information
 
 OPTIONS:
-    -o, --option  <scoption>...    tests options
+    -o, --option <scoption>...        tests options
 
 POSITIONAL ARGUMENTS:
-    scpositional    tests positionals'''
+    scpositional      tests positionals'''
 
 _scfop = '''flag NOT present
 option NOT present
@@ -207,7 +213,7 @@ For more information try --help'''
 
 _mult_vals_2m1 = '''The argument '--multvalsmo <one> <two>' requires 2 values, but 1 was provided
 USAGE:
-\tclaptests --multvalsmo <one> <two>
+	claptests --multvalsmo <one> <two>
 For more information try --help'''
 
 _bin = './target/release/claptests'
@@ -274,7 +280,7 @@ def pass_fail(name, check, good):
 def main():
 	for cmd, cmd_v in cmds.items():
 		proc = subprocess.Popen(cmd_v[0], shell=True, stdout=subprocess.PIPE, universal_newlines=True)
-		out = proc.communicate()[0].strip()
+		out = _ansi.sub('', proc.communicate()[0].strip())
 		pass_fail(cmd, out, cmd_v[1])
 	if failed:
 		print('One or more tests failed')
