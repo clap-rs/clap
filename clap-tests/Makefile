@@ -1,30 +1,14 @@
-THIS_MAKEFILE_PATH:=$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
-THIS_DIR:=$(shell cd $(dir $(THIS_MAKEFILE_PATH));pwd)
-URL:=
-BRANCH:=
+.PHONY: build test clean
 
 build:
-	cargo update
+	# It may be that this project was never built, and no Cargo.lock exists.
+	# Thus it may be ignored
+	cargo update 2>/dev/null || :
 	cargo build --release
 
 test:
-	cd "$(THIS_DIR)"
-	cp Cargo.toml cargo.bak
-	@read -p "Fork URL: " URL; \
-	sed "/^git/c\git = \"$$URL\"" cargo.bak > Cargo.toml
-	@read -p "Branch [master]: " BRANCH; \
-	$(if $(strip $(BRANCH)), \
-		sed -i "/^branch/c\branch = \"master\"" Cargo.toml, \
-		sed -i "/^branch/c\branch = \"$$BRANCH\"" Cargo.toml)
-	(make clean) || (make clean && false)
-	cd "$(THIS_DIR)"
-	(make build) || (make clean && false)
-	cd "$(THIS_DIR)"
-	(./run_tests.py) || (make clean && false)
-	mv cargo.bak Cargo.toml
-	make clean
-
+	$(MAKE) build || ($(MAKE) clean && false)
+	./run_tests.py
 
 clean:
-	cd "$(THIS_DIR)"
 	cargo clean
