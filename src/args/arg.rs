@@ -196,6 +196,10 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// 7. The index of a positional argument will be the next available index (you don't need to
     ///    specify one) i.e. all arguments without a `short` or `long` will be treated as
     ///    positional
+    /// 8. If the value names are all the same, and their multiple ones (i.e `-o <val> <val>`)
+    ///    they are counted and used as the number of values. If they are different, they are used
+    ///    as the value names (i.e. `--opt <file> <mode>`). In this case, if no name was specified
+    ///    prior to the value names, the long is used as the name by which to access the argument.
     ///
     /// # Example
     ///
