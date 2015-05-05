@@ -18,13 +18,13 @@ FLAGS:
     -v, --version    Prints version information
 
 OPTIONS:
-        --maxvals3 <maxvals>...         Tests 3 max vals
-        --minvals2 <minvals>...         Tests 2 min vals
-        --multvals <one> <two>            Tests mutliple values, not mult occs
-        --multvalsmo <one> <two>     Tests mutliple values, not mult occs
-    -o, --option <opt>...               tests options
-        --long-option-2 <option2>       tests long options with exclusions
-    -O <option3>                        tests options with specific value sets [values: fast slow]
+        --maxvals3  <maxvals>...         Tests 3 max vals
+        --minvals2  <minvals>...         Tests 2 min vals
+        --multvals  <one> <two>          Tests mutliple values, not mult occs
+        --multvalsmo  <one> <two>        Tests mutliple values, not mult occs
+    -o, --option  <opt>...               tests options
+        --long-option-2  <option2>       tests long options with exclusions
+    -O <option3>                         tests options with specific value sets [values: fast slow]
 
 POSITIONAL ARGUMENTS:
     positional        tests positionals
@@ -102,7 +102,7 @@ Kevin K. <kbknapp@gmail.com>
 tests subcommands
 
 USAGE:
-\tclaptests subcmd [POSITIONAL] [FLAGS] [OPTIONS]
+	claptests subcmd [POSITIONAL] [FLAGS] [OPTIONS]
 
 FLAGS:
     -h, --help       Prints help information
@@ -110,7 +110,7 @@ FLAGS:
     -v, --version    Prints version information
 
 OPTIONS:
-    -o, --option <scoption>...    tests options
+    -o, --option  <scoption>...    tests options
 
 POSITIONAL ARGUMENTS:
     scpositional    tests positionals'''
