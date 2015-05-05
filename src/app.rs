@@ -962,17 +962,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             .values()
             .filter(|ref f| f.long.is_some())
             // 2='--'
-            .map(|ref a| a.long.unwrap().len() + 2) {
+            .map(|ref a| a.to_string().len() ) {
             if fl > longest_flag { longest_flag = fl; }
         }
         let mut longest_opt= 0;
         for ol in self.opts
             .values()
             .filter(|ref o| o.long.is_some())
-            // 3='...'
-            // 5='-- <>'
             .map(|ref a|
-                if a.multiple { 3 } else { 0 } + a.long.unwrap().len() + 5 + a.name.len()
+                a.to_string().len() + if a.short.is_some() { 4 } else { 0 }
             ) {
             if ol > longest_opt {
                 longest_opt = ol;
@@ -984,16 +982,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 .filter(|ref o| o.short.is_some())
                 // 3='...'
                 // 4='- <>'
-                .map(|ref a| format!("{}",a).len() + if a.short.is_some() &&
-                                                        a.long.is_some() { 4 }
-                                                     else { 0 }) {
+                .map(|ref a| a.to_string().len() + if a.long.is_some() { 4 } else { 0 }) {
                 if ol > longest_opt {longest_opt = ol;}
             }
         }
         let mut longest_pos = 0;
         for pl in self.positionals_idx
             .values()
-            .map(|ref f| if f.multiple { f.name.len() + 3 } else { f.name.len() } ) {
+            .map(|ref f| f.to_string().len() ) {
             if pl > longest_pos {longest_pos = pl;}
         }
         let mut longest_sc = 0;
@@ -1026,7 +1022,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             format!("{}--{}{}",
                                 if v.short.is_some() { ", " } else {""},
                                 l,
-                                // 2='--'
                                 self.get_spaces((longest_flag + 4) - (v.long.unwrap().len() + 2)))
                         } else {
                             // 6 is tab (4) + -- (2)
@@ -1043,7 +1038,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 println!("{}{}{}{}{}{}",tab,
                         if let Some(s) = v.short{format!("-{}",s)}else{tab.to_owned()},
                         if let Some(l) = v.long {
-                            format!("{}--{} ",
+                            format!("{}--{}",
                                 if v.short.is_some() {", "} else {""},l)
                         } else {
                             "".to_owned()
@@ -1062,11 +1057,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             }),
                             if v.long.is_some() {
                                 self.get_spaces(
-                                    (longest_opt + 4) - (format!("{}",v).len())
+                                    (longest_opt + 4) - (v.to_string().len())
                                 )
                             } else {
                                 // 8 = tab + '-a, '.len()
-                                self.get_spaces((longest_opt + 9) - (format!("{}", v).len()))
+                                self.get_spaces((longest_opt + 9) - (v.to_string().len()))
                             },
                         get_help!(v) );
             }
