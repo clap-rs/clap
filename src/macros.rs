@@ -227,7 +227,7 @@ macro_rules! value_t_or_exit {
                 match v.parse::<$t>() {
                     Ok(val) => val,
                     Err(e)  => {
-                        println!("{} isn't a valid {}\n{}\n{}\nPlease re-run with --help for \
+                        println!("{} isn't a valid {}\n\t{}\n{}\nPlease re-run with --help for \
                             more information",
                             v,
                             stringify!($t),
@@ -254,7 +254,7 @@ macro_rules! value_t_or_exit {
                     match pv.parse::<$t>() {
                         Ok(rv) => tmp.push(rv),
                         Err(_)  => {
-                            println!("{} isn't a valid {}\n{}\nPlease re-run with --help for more \
+                            println!("{} isn't a valid {}\n\t{}\nPlease re-run with --help for more \
                                 information",
                                 pv,
                                 stringify!($t),
@@ -330,6 +330,8 @@ macro_rules! simple_enum {
 /// Convenience macro to generate more complete enums with variants to be used as a type when
 /// parsing arguments.
 ///
+/// **NOTE:** Case insensitivity is supported for ASCII characters
+///
 /// These enums support pub (or not) and use of the #[derive()] traits
 ///
 ///
@@ -369,13 +371,15 @@ macro_rules! arg_enum {
             type Err = String;
 
             fn from_str(s: &str) -> Result<Self,Self::Err> {
+                use ::std::ascii::AsciiExt;
                 match s {
-                    $(stringify!($v) => Ok($e::$v),)+
+                    $(stringify!($v) |
+                    _ if s.eq_ignore_ascii_case(stringify!($v)) => Ok($e::$v),)+
                     _                => Err({
                                             let v = vec![
                                                 $(stringify!($v),)+
                                             ];
-                                            format!("valid:{}",
+                                            format!("valid values:{}",
                                                 v.iter().fold(String::new(), |a, i| {
                                                     a + &format!(" {}", i)[..]
                                                 }))
