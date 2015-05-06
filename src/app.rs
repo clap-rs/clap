@@ -1152,17 +1152,17 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     // Reports and error to the users screen along with an optional usage statement and quits
     #[cfg(not(feature = "color"))]
     fn report_error(&self, msg: String, usage: bool, quit: bool, matches: Option<Vec<&str>>) {
-        println!("{}", msg);
+        println!("{}\n", msg);
         if usage { self.print_usage(true, matches); }
         if quit { self.exit(1); }
     }
 
     #[cfg(feature = "color")]
     fn report_error(&self, msg: String, usage: bool, quit: bool, matches: Option<Vec<&str>>) {
-        println!("{}", Red.paint(&msg[..]));
+        println!("{}\n", Red.paint(&msg[..]));
         if usage {
-            print!("{}",Red.paint(&self.create_usage(matches)[..]));
-            println!("{}",Red.paint("\nFor more information try --help"));
+            print!("{}",&self.create_usage(matches)[..]);
+            println!("{}","\n\nFor more information try --help");
         }
         if quit { self.exit(1); }
     }
@@ -1233,7 +1233,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     /// Returns a suffix that can be empty, or is the standard 'did you mean phrase
     fn did_you_mean_suffix<'z, T, I>(arg: &str, values: I, style: DidYouMeanMessageStyle)
-                                                     -> String
+                                                     -> (String, Option<&'z str>)
                                                         where       T: AsRef<str> + 'z,
                                                                     I: IntoIterator<Item=&'z T> {
         match did_you_mean(arg, values) {
@@ -1248,9 +1248,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         suffix.push('\'');
                     }
                     suffix.push_str(" ?");
-                    suffix
+                    (suffix, Some(candidate))
                 },
-                None => String::new(),
+                None => (String::new(), None),
         }
     }
 
@@ -1267,7 +1267,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                               .fold(String::new(), |acc, name| {
                                                   acc + &format!(" {}",name)[..]
                                               })),
-                                    suffix),
+                                    suffix.0),
                                         true,
                                         true,
                                         Some(matches.args.keys().map(|k| *k).collect()));
@@ -1283,7 +1283,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         while let Some(arg) = it.next() {
             let arg_slice = &arg[..];
             let mut skip = false;
-            if !pos_only && !arg_slice.starts_with("-") {
+            if !pos_only && !arg_slice.starts_with("-") && !self.subcommands.contains_key(arg_slice) {
                 if let Some(nvo) = needs_val_of {
                     if let Some(ref opt) = self.opts.get(nvo) {
                         if let Some(ref p_vals) = opt.possible_vals {
@@ -1349,7 +1349,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 if let Some(ref o) = self.opts.get(name) {
                     if !o.multiple {
                         self.report_error(
-                            format!("Argument '{}' requires a value but none was supplied", o),
+                            format!("The argument '{}' requires a value but none was supplied", o),
                             true,
                             true,
                             Some(matches.args.keys().map(|k| *k).collect() ) );
@@ -1384,7 +1384,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         self.report_error(
                             format!("The subcommand '{}' isn't valid\n\tDid you mean '{}' ?\n\n\
                             If you received this message in error, try \
-                            re-running with '{} -- {}'\n",
+                            re-running with '{} -- {}'",
                                 arg,
                                 candidate_subcommand,
                                 self.bin_name.clone().unwrap_or(self.name.clone()),
@@ -1512,7 +1512,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         };
                         if should_err {
                             self.report_error(
-                                format!("Argument '{}' requires a value but none was supplied", o),
+                                format!("The argument '{}' requires a value but none was \
+                                supplied", o),
                                 true,
                                 true,
                                 Some(matches.args.keys().map(|k| *k).collect() ) );
@@ -1520,26 +1521,26 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                     else if !o.multiple {
                         self.report_error(
-                            format!("Argument '{}' requires a value but none was supplied", o),
+                            format!("The argument '{}' requires a value but none was supplied", o),
                             true,
                             true,
                             Some(matches.args.keys().map(|k| *k).collect() ) );
                     }
                     else {
                         self.report_error(format!("The following required arguments were not \
-                            supplied:\n{}",
+                            supplied:{}",
                             self.get_required_from(self.required.iter()
                                                                 .map(|s| *s)
                                                                 .collect::<HashSet<_>>())
                                 .iter()
-                                .fold(String::new(), |acc, s| acc + &format!("\t'{}'\n",s)[..])),
+                                .fold(String::new(), |acc, s| acc + &format!("\n\t'{}'",s)[..])),
                             true,
                             true,
                             Some(matches.args.keys().map(|k| *k).collect()));
                     }
                 } else {
                     self.report_error(
-                        format!("Argument '{}' requires a value but none was supplied",
+                        format!("The argument '{}' requires a value but none was supplied",
                             format!("{}", self.positionals_idx.get(
                                 self.positionals_name.get(a).unwrap()).unwrap())),
                             true,
@@ -1556,12 +1557,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         if !self.required.is_empty() {
             if self.validate_required(&matches) {
                 self.report_error(format!("The following required arguments were not \
-                    supplied:\n{}",
+                    supplied:{}",
                     self.get_required_from(self.required.iter()
                                                         .map(|s| *s)
                                                         .collect::<HashSet<_>>())
                         .iter()
-                        .fold(String::new(), |acc, s| acc + &format!("\t'{}'\n",s)[..])),
+                        .fold(String::new(), |acc, s| acc + &format!("\n\t'{}'",s)[..])),
                     true,
                     true,
                     Some(matches.args.keys().map(|k| *k).collect()));
@@ -1683,8 +1684,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             arg = arg_vec[0];
             // prevents "--config= value" typo
             if arg_vec[1].len() == 0 {
-                self.report_error(format!("Argument --{} requires a value, but none was supplied",
-                        arg),
+                self.report_error(format!("The argument --{} requires a value, but none was \
+                    supplied", arg),
                     true,
                     true,
                     Some(matches.args.keys().map(|k| *k).collect()));
@@ -1705,7 +1706,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
             if matches.args.contains_key(v.name) {
                 if !v.multiple {
-                    self.report_error(format!("Argument --{} was supplied more than once, but \
+                    self.report_error(format!("The argument --{} was supplied more than once, but \
                         does not support multiple values", arg),
                         true,
                         true,
@@ -1788,7 +1789,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
             // Make sure this isn't one being added multiple times if it doesn't suppor it
             if matches.args.contains_key(v.name) && !v.multiple {
-                self.report_error(format!("Argument '{}' was supplied more than once, but does \
+                self.report_error(format!("The argument '{}' was supplied more than once, but does \
                     not support multiple values", v),
                     true,
                     true,
@@ -1835,27 +1836,40 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             return None;
         }
 
-        let mut suffix = App::did_you_mean_suffix(arg, self.opts.values()
-                                             .filter_map(|v|
-                                                if let Some(ref l) = v.long {
-                                                    Some(l)
-                                                } else {
-                                                    None
-                                                }
-                                              ), DidYouMeanMessageStyle::LongFlag);
-
-        // If it didn't find a good match for opts, try flags
-        if suffix.is_empty() {
-            suffix = App::did_you_mean_suffix(arg, self.flags.values()
-                                                 .filter_map(|v|
-                                                    if let Some(ref l) = v.long {
-                                                        Some(l)
-                                                    } else {
-                                                        None
-                                                    }
-                                                  ), DidYouMeanMessageStyle::LongFlag);
+        let suffix = App::did_you_mean_suffix(arg,
+                                              self.long_list.iter(),
+                                              DidYouMeanMessageStyle::LongFlag);
+        if let Some(name) = suffix.1 {
+            if let Some(ref opt) = self.opts.values()
+                                          .filter_map(|ref o| {
+                                              if o.long.is_some() && o.long.unwrap() == name {
+                                                  Some(o.name)
+                                              } else {
+                                                  None
+                                              }
+                                          })
+                                          .next() {
+                matches.args.insert(opt, MatchedArg {
+                    occurrences: 0,
+                    values: None
+                });
+            } else if let Some(ref flg) = self.flags.values()
+                                          .filter_map(|ref f| {
+                                              if f.long.is_some() && f.long.unwrap() == name {
+                                                  Some(f.name)
+                                              } else {
+                                                  None
+                                              }
+                                          })
+                                          .next() {
+                matches.args.insert(flg, MatchedArg {
+                    occurrences: 0,
+                    values: None
+                });
+            }
         }
-        self.report_error(format!("The argument --{} isn't valid{}", arg, suffix),
+
+        self.report_error(format!("The argument --{} isn't valid{}", arg, suffix.0),
             true,
             true,
             Some(matches.args.keys().map(|k| *k).collect()));

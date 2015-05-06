@@ -45,29 +45,38 @@ If you received this message in error, try re-running with 'claptests -- subcm'
 
 USAGE:
 	claptests [POSITIONAL] [FLAGS] [OPTIONS] [SUBCOMMANDS]
+
 For more information try --help'''
 
 _arg_dym_usage = '''The argument --optio isn't valid
-\tDid you mean --option ?
+	Did you mean --option ?
+
 USAGE:
-\tclaptests
+	claptests --option <opt>...
+
 For more information try --help'''
 
 _pv_dym_usage = '''"slo" isn't a valid value for '--Option <option3>'
 	[valid values: fast slow]
 	Did you mean 'slow' ?
+
 USAGE:
 	claptests --Option <option3>
+
 For more information try --help'''
 
 _excluded = '''The argument '--flag' cannot be used with '-F'
+
 USAGE:
 \tclaptests [positional2] -F --long-option-2 <option2>
+
 For more information try --help'''
 
 _excluded_l = '''The argument -f cannot be used '-F'
+
 USAGE:
 	claptests [positional2] -F --long-option-2 <option2>
+
 For more information try --help'''
 
 _required = '''The following required arguments were not supplied:
@@ -76,6 +85,7 @@ _required = '''The following required arguments were not supplied:
 
 USAGE:
 \tclaptests [positional2] -F --long-option-2 <option2>
+
 For more information try --help'''
 
 _fop = '''flag present 1 times
@@ -173,8 +183,10 @@ An scoption: some
 scpositional present with value: value'''
 
 _min_vals_few = '''The argument '--minvals2 <minvals>...' requires at least 2 values, but 1 was provided
+
 USAGE:
 \tclaptests --minvals2 <minvals>...
+
 For more information try --help'''
 
 _exact = '''flag NOT present
@@ -201,19 +213,25 @@ option NOT present
 positional present with value: too
 subcmd NOT present'''
 
-_mult_vals_more = '''Argument --multvals was supplied more than once, but does not support multiple values
+_mult_vals_more = '''The argument --multvals was supplied more than once, but does not support multiple values
+
 USAGE:
 \tclaptests --multvals <one> <two>
+
 For more information try --help'''
 
-_mult_vals_few = '''Argument '--multvals <one> <two>' requires a value but none was supplied
+_mult_vals_few = '''The argument '--multvals <one> <two>' requires a value but none was supplied
+
 USAGE:
 \tclaptests --multvals <one> <two>
+
 For more information try --help'''
 
 _mult_vals_2m1 = '''The argument '--multvalsmo <one> <two>' requires 2 values, but 1 was provided
+
 USAGE:
 	claptests --multvalsmo <one> <two>
+
 For more information try --help'''
 
 _bin = './target/release/claptests'
