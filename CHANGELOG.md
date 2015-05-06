@@ -1,3 +1,18 @@
+<a name="v0.8.1"></a>
+## v0.8.1 (2015-05-06)
+
+
+#### Bug Fixes
+
+* **subcommands**  stops parsing multiple values when subcommands are found ([fc79017e](https://github.com/kbknapp/clap-rs/commit/fc79017eced04fd41cc1801331e5054df41fac17), closes [#109](https://github.com/kbknapp/clap-rs/issues/109))
+
+#### Improvements
+
+* **color**  reduces color in error messages ([aab44cca](https://github.com/kbknapp/clap-rs/commit/aab44cca6352f47e280c296e50c535f5d752dd46), closes [#110](https://github.com/kbknapp/clap-rs/issues/110))
+* **suggestions**  adds suggested arguments to usage strings ([99447414](https://github.com/kbknapp/clap-rs/commit/994474146e9fb8b701af773a52da71553d74d4b7))
+
+
+
 <a name="v0.8.0"></a>
 ## v0.8.0 (2015-05-06)
 
