@@ -1,5 +1,6 @@
 #![crate_type= "lib"]
 
+// DOCS
 //! # clap
 //!
 //! ![Travis-CI](https://travis-ci.org/kbknapp/clap-rs.svg?branch=master) [![Crates.io](https://img.shields.io/crates/v/clap.svg)]() [![Crates.io](https://img.shields.io/crates/l/clap.svg)]() [![Join the chat at https://gitter.im/kbknapp/clap-rs](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kbknapp/clap-rs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -18,7 +19,7 @@
 //!
 //! ## Features
 //!
-//! Below are a few of the features which `clap` supports, full descriptions and usage can be found in the [documentation](http://kbknapp.github.io/clap-rs/docs/clap/index.html) and `examples/` directory
+//! Below are a few of the features which `clap` supports, full descriptions and usage can be found in the [documentation](http://kbknapp.github.io/clap-rs/clap/index.html) and `examples/` directory
 //!
 //! * **Auto-generated Help, Version, and Usage information**
 //!   - Can optionally be fully, or partially overridden if you want a custom help, version, or usag
@@ -52,11 +53,13 @@
 //! * **Specific Value Sets**: Positional or Option Arguments can optionally define a specific set of allowed values (i.e. imagine a `--mode` option which may *only* have one of two values `fast` or `slow` such as `--mode fast` or `--mode slow`)
 //! * **Default Values**: Although not specifically provided by `clap` you can achieve this exact functionality from Rust's `Option<&str>.unwrap_or("some default")` method (or `Result<T,String>.unwrap_or(T)` when using typed values)
 //! * **Automatic Version from Cargo.toml**: `clap` is fully compatible with Rust's `env!()` macro for automatically setting the version of your application to the version in your Cargo.toml. See `examples/09_AutoVersion.rs` for how to do this (Thanks to [jhelwig](https://github.com/jhelwig) for pointing this out)
-//! * **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) from positional or option arguments so long as the type you request implements `std::str::FromStr` See the `examples/12_TypedValues.rs`. You can also use `clap`s `simple_enum!` or `arg_enum!` macro to create an enum with variants that automatically implements `std::str::FromStr`. See `examples/13a_EnumValuesAutomatic.rs` for details.
+//! * **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) from positional or option arguments so long as the type you request implements `std::str::FromStr` See the `examples/12_TypedValues.rs`. You can also use `clap`s `simple_enum!` or `arg_enum!` macro to create an enum with variants that automatically implements `std::str::FromStr`. See `examples/13a_EnumValuesAutomatic.rs` for details and performs an ascii case insensitive parse from a `string`->`enum`.
+//! * **Suggestions**: Suggests corrections when the user enter's a typo. For example, if you defined a `--myoption <value>` argument, and the user mistakenly typed `--moyption value` (notice `y` and `o` switched), they would receive a `Did you mean '--myoption' ?` error and exit gracefully. This also works for subcommands and flags. (Thanks to [Byron](https://github.com/Byron) for the implementation) (This feature can optionally be disabled, see 'Optional Dependencies / Features')
+//! * **Colorized (Red) Errors**: Error message are printed in red text (this feature can optionally be disabled, see 'Optional Dependencies / Features').
 //!
 //! ## Quick Example
 //!
-//! The following two examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, groups, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/docs/clap/index.html), or `examples/` directory of this repository.
+//! The following two examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, groups, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/clap/index.html), or `examples/` directory of this repository.
 //!
 //!  *NOTE:* Both examples are functionally the same, but show two different styles in which to use `clap`
 //!
@@ -270,9 +273,35 @@
 //!
 //! Then run `cargo build` or `cargo update && cargo build` for your project.
 //!
+//! ### Optional Dependencies / Features
+//!
+//! If you'd like to keep your dependency list to **only** `clap`, you can disable any features that require an additional dependency. To do this, add this to your `Cargo.toml`:
+//!
+//! ```ignore
+//! [dependencies.clap]
+//! version = "*"
+//! default-features = false
+//! ```
+//!
+//! You can also selectively enable only the features you'd like to include, by adding:
+//!
+//! ```ignore
+//! [dependencies.clap]
+//! version = "*"
+//! default-features = false
+//!
+//! # Cherry-pick the features you'd like to use
+//! features = [ "suggestions", "color" ]
+//! ```
+//!
+//! The following is a list of optional `clap` features:
+//!
+//! * **"suggestions"**: Turns on the `Did you mean '--myoption' ?` feature for when users make typos.
+//! * **"color"**: Turns on red error messages.
+//!
 //! ### More Information
 //!
-//! You can find complete documentation on the [github-pages site](http://kbknapp.github.io/clap-rs/docs/clap/index.html) for this project.
+//! You can find complete documentation on the [github-pages site](http://kbknapp.github.io/clap-rs/clap/index.html) for this project.
 //!
 //! You can also find usage examples in the `examples/` directory of this repo.
 //!
@@ -300,11 +329,10 @@
 //!
 //! ### Running the tests
 //!
-//! If contributing, you can run the tests as follows (assuming you've cloned the repo to `clap-rs/`
+//! If contributing, you can run the tests as follows (assuming you're in the `clap-rs/` directory)
 //!
 //! ```ignore
-//! cd clap-rs && cargo test
-//! cd clap-tests && make test
+//! cargo test && make -C clap-tests test
 //! ```
 //!
 //! ### Goals
@@ -350,6 +378,8 @@
 //!   - `Arg::mutually_excludes_all()` -> `Arg::conflicts_with_all()`
 #[cfg(feature = "suggestions")]
 extern crate strsim;
+#[cfg(feature = "color")]
+extern crate ansi_term;
 
 pub use args::{Arg, SubCommand, ArgMatches, ArgGroup};
 pub use app::App;
@@ -364,6 +394,80 @@ mod usageparser;
 mod tests {
     use super::{App, Arg, SubCommand};
     use std::collections::HashSet;
+
+    arg_enum!{
+        #[derive(Debug)]
+        enum Val1 {
+            ValOne,
+            ValTwo
+        }
+    }
+    arg_enum!{
+        #[derive(Debug)]
+        pub enum Val2 {
+            ValOne,
+            ValTwo
+        }
+    }
+    arg_enum!{
+        enum Val3 {
+            ValOne,
+            ValTwo
+        }
+    }
+    arg_enum!{
+        pub enum Val4 {
+            ValOne,
+            ValTwo
+        }
+    }
+
+    #[test]
+    fn test_enums() {
+        let v1_lower = "valone";
+        let v1_camel = "ValOne";
+
+        let v1_lp = v1_lower.parse::<Val1>().unwrap();
+        let v1_cp = v1_camel.parse::<Val1>().unwrap();
+        match v1_lp {
+            Val1::ValOne => (),
+            _ => panic!("Val1 didn't parse correctly"),
+        }
+        match v1_cp {
+            Val1::ValOne => (),
+            _ => panic!("Val1 didn't parse correctly"),
+        }
+        let v1_lp = v1_lower.parse::<Val2>().unwrap();
+        let v1_cp = v1_camel.parse::<Val2>().unwrap();
+        match v1_lp {
+            Val2::ValOne => (),
+            _ => panic!("Val1 didn't parse correctly"),
+        }
+        match v1_cp {
+            Val2::ValOne => (),
+            _ => panic!("Val1 didn't parse correctly"),
+        }
+        let v1_lp = v1_lower.parse::<Val3>().unwrap();
+        let v1_cp = v1_camel.parse::<Val3>().unwrap();
+        match v1_lp {
+            Val3::ValOne => (),
+            _ => panic!("Val1 didn't parse correctly"),
+        }
+        match v1_cp {
+            Val3::ValOne => (),
+            _ => panic!("Val1 didn't parse correctly"),
+        }
+        let v1_lp = v1_lower.parse::<Val4>().unwrap();
+        let v1_cp = v1_camel.parse::<Val4>().unwrap();
+        match v1_lp {
+            Val4::ValOne => (),
+            _ => panic!("Val1 didn't parse correctly"),
+        }
+        match v1_cp {
+            Val4::ValOne => (),
+            _ => panic!("Val1 didn't parse correctly"),
+        }
+    }
 
     #[test]
 	fn create_app() {

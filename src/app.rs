@@ -13,20 +13,22 @@ use args::ArgGroup;
 
 #[cfg(feature = "suggestions")]
 use strsim;
+#[cfg(feature = "color")]
+use ansi_term::Colour::Red;
 
-/// Produces a string from a given list of possible values which is similar to 
+/// Produces a string from a given list of possible values which is similar to
 /// the passed in value `v` with a certain confidence.
 /// Thus in a list of possible values like ["foo", "bar"], the value "fop" will yield
 /// `Some("foo")`, whereas "blark" would yield `None`.
 #[cfg(feature = "suggestions")]
-fn did_you_mean<'a, T, I>(v: &str, possible_values: I) -> Option<&'a str> 
+fn did_you_mean<'a, T, I>(v: &str, possible_values: I) -> Option<&'a str>
     where       T: AsRef<str> + 'a,
                 I: IntoIterator<Item=&'a T> {
 
     let mut candidate: Option<(f64, &str)> = None;
     for pv in possible_values.into_iter() {
         let confidence = strsim::jaro_winkler(v, pv.as_ref());
-        if confidence > 0.8 && (candidate.is_none() || 
+        if confidence > 0.8 && (candidate.is_none() ||
                                (candidate.as_ref().unwrap().0 < confidence)) {
             candidate = Some((confidence, pv.as_ref()));
         }
@@ -38,9 +40,9 @@ fn did_you_mean<'a, T, I>(v: &str, possible_values: I) -> Option<&'a str>
 }
 
 #[cfg(not(feature = "suggestions"))]
-fn did_you_mean<'a, T, I>(_: &str, _: I) -> Option<&'a str> 
+fn did_you_mean<'a, T, I>(_: &str, _: I) -> Option<&'a str>
     where       T: AsRef<str> + 'a,
-                I: IntoIterator<Item=&'a T> {   
+                I: IntoIterator<Item=&'a T> {
     None
 }
 
@@ -874,7 +876,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
 
         ret_val
-
     }
 
     // Creates a usage string if one was not provided by the user manually. This happens just
@@ -960,17 +961,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             .values()
             .filter(|ref f| f.long.is_some())
             // 2='--'
-            .map(|ref a| a.long.unwrap().len() + 2) {
+            .map(|ref a| a.to_string().len() ) {
             if fl > longest_flag { longest_flag = fl; }
         }
         let mut longest_opt= 0;
         for ol in self.opts
             .values()
             .filter(|ref o| o.long.is_some())
-            // 3='...'
-            // 5='-- <>'
             .map(|ref a|
-                if a.multiple { 3 } else { 0 } + a.long.unwrap().len() + 5 + a.name.len()
+                a.to_string().len() + if a.short.is_some() { 4 } else { 0 }
             ) {
             if ol > longest_opt {
                 longest_opt = ol;
@@ -982,16 +981,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 .filter(|ref o| o.short.is_some())
                 // 3='...'
                 // 4='- <>'
-                .map(|ref a| format!("{}",a).len() + if a.short.is_some() &&
-                                                        a.long.is_some() { 4 }
-                                                     else { 0 }) {
+                .map(|ref a| a.to_string().len() + if a.long.is_some() { 4 } else { 0 }) {
                 if ol > longest_opt {longest_opt = ol;}
             }
         }
         let mut longest_pos = 0;
         for pl in self.positionals_idx
             .values()
-            .map(|ref f| if f.multiple { f.name.len() + 3 } else { f.name.len() } ) {
+            .map(|ref f| f.to_string().len() ) {
             if pl > longest_pos {longest_pos = pl;}
         }
         let mut longest_sc = 0;
@@ -1024,7 +1021,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             format!("{}--{}{}",
                                 if v.short.is_some() { ", " } else {""},
                                 l,
-                                // 2='--'
                                 self.get_spaces((longest_flag + 4) - (v.long.unwrap().len() + 2)))
                         } else {
                             // 6 is tab (4) + -- (2)
@@ -1041,7 +1037,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 println!("{}{}{}{}{}{}",tab,
                         if let Some(s) = v.short{format!("-{}",s)}else{tab.to_owned()},
                         if let Some(l) = v.long {
-                            format!("{}--{} ",
+                            format!("{}--{}",
                                 if v.short.is_some() {", "} else {""},l)
                         } else {
                             "".to_owned()
@@ -1060,11 +1056,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             }),
                             if v.long.is_some() {
                                 self.get_spaces(
-                                    (longest_opt + 4) - (format!("{}",v).len())
+                                    (longest_opt + 4) - (v.to_string().len())
                                 )
                             } else {
                                 // 8 = tab + '-a, '.len()
-                                self.get_spaces((longest_opt + 9) - (format!("{}", v).len()))
+                                self.get_spaces((longest_opt + 9) - (v.to_string().len()))
                             },
                         get_help!(v) );
             }
@@ -1154,9 +1150,20 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     // Reports and error to the users screen along with an optional usage statement and quits
+    #[cfg(not(feature = "color"))]
     fn report_error(&self, msg: String, usage: bool, quit: bool, matches: Option<Vec<&str>>) {
         println!("{}", msg);
         if usage { self.print_usage(true, matches); }
+        if quit { self.exit(1); }
+    }
+
+    #[cfg(feature = "color")]
+    fn report_error(&self, msg: String, usage: bool, quit: bool, matches: Option<Vec<&str>>) {
+        println!("{}", Red.paint(&msg[..]));
+        if usage {
+            print!("{}",Red.paint(&self.create_usage(matches)[..]));
+            println!("{}",Red.paint("\nFor more information try --help"));
+        }
         if quit { self.exit(1); }
     }
 
@@ -1224,9 +1231,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
     }
 
-    /// Returns a suffix that can be empty, or is the standard 'did you mean phrase 
+    /// Returns a suffix that can be empty, or is the standard 'did you mean phrase
     fn did_you_mean_suffix<'z, T, I>(arg: &str, values: I, style: DidYouMeanMessageStyle)
-                                                     -> String 
+                                                     -> String
                                                         where       T: AsRef<str> + 'z,
                                                                     I: IntoIterator<Item=&'z T> {
         match did_you_mean(arg, values) {
@@ -1234,11 +1241,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     let mut suffix = "\n\tDid you mean ".to_string();
                     match style {
                         DidYouMeanMessageStyle::LongFlag => suffix.push_str("--"),
-                        DidYouMeanMessageStyle::EnumValue => suffix.push('"'),
+                        DidYouMeanMessageStyle::EnumValue => suffix.push('\''),
                     }
                     suffix.push_str(candidate);
                     if let DidYouMeanMessageStyle::EnumValue = style {
-                        suffix.push('"');
+                        suffix.push('\'');
                     }
                     suffix.push_str(" ?");
                     suffix
@@ -1247,9 +1254,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
     }
 
-    fn possible_values_error(&self, arg: &str, opt: &str, p_vals: &BTreeSet<&str>, 
+    fn possible_values_error(&self, arg: &str, opt: &str, p_vals: &BTreeSet<&str>,
                                                    matches: &ArgMatches<'ar, 'ar>) {
-        let suffix = App::did_you_mean_suffix(arg, p_vals.iter(), 
+        let suffix = App::did_you_mean_suffix(arg, p_vals.iter(),
                                               DidYouMeanMessageStyle::EnumValue);
 
         self.report_error(format!("\"{}\" isn't a valid value for '{}'{}{}",
@@ -1282,7 +1289,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if let Some(ref p_vals) = opt.possible_vals {
                             if !p_vals.is_empty() {
                                 if !p_vals.contains(arg_slice) {
-                                    self.possible_values_error(arg_slice, &opt.to_string(), 
+                                    self.possible_values_error(arg_slice, &opt.to_string(),
                                                                           p_vals, matches);
                                 }
                             }
@@ -1361,22 +1368,31 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 needs_val_of = self.parse_short_arg(matches, &arg);
             } else {
                 // Positional or Subcommand
-                if self.subcommands.contains_key(&arg) {
-                    if arg_slice == "help" {
-                        self.print_help();
+                // If the user pased `--` we don't check for subcommands, because the argument they
+                // may be trying to pass might match a subcommand name
+                if !pos_only {
+                    if self.subcommands.contains_key(&arg) {
+                        if arg_slice == "help" {
+                            self.print_help();
+                        }
+                        subcmd_name = Some(arg.clone());
+                        break;
                     }
-                    subcmd_name = Some(arg.clone());
-                    break;
-                }
 
-                if let Some(candidate_subcommand) = did_you_mean(&arg, self.subcommands.keys()) {
-                    self.report_error(
-                        format!("Subcommand \"{}\" isn't valid\n\tDid you mean \"{}\" ?",
-                            arg,
-                            candidate_subcommand),
-                        true,
-                        true,
-                        None);
+                    if let Some(candidate_subcommand) = did_you_mean(&arg,
+                                                                    self.subcommands.keys()) {
+                        self.report_error(
+                            format!("The subcommand '{}' isn't valid\n\tDid you mean '{}' ?\n\n\
+                            If you received this message in error, try \
+                            re-running with '{} -- {}'\n",
+                                arg,
+                                candidate_subcommand,
+                                self.bin_name.clone().unwrap_or(self.name.clone()),
+                                arg),
+                            true,
+                            true,
+                            None);
+                    }
                 }
 
                 if self.positionals_idx.is_empty() {
@@ -1411,7 +1427,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     if let Some(ref p_vals) = p.possible_vals {
                         if !p_vals.is_empty() {
                             if !p_vals.contains(arg_slice) {
-                                self.possible_values_error(arg_slice, &p.to_string(), 
+                                self.possible_values_error(arg_slice, &p.to_string(),
                                                                        p_vals, matches);
                             }
                         }
@@ -1699,7 +1715,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     if let Some(ref av) = arg_val {
                         if !p_vals.contains(&av[..]) {
                             self.possible_values_error(
-                                    arg_val.as_ref().map(|v| &**v).unwrap_or(arg), 
+                                    arg_val.as_ref().map(|v| &**v).unwrap_or(arg),
                                     &v.to_string(), p_vals, matches);
                         }
                     }
@@ -1819,7 +1835,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             return None;
         }
 
-        let suffix = App::did_you_mean_suffix(arg, self.opts.values()
+        let mut suffix = App::did_you_mean_suffix(arg, self.opts.values()
                                              .filter_map(|v|
                                                 if let Some(ref l) = v.long {
                                                     Some(l)
@@ -1827,6 +1843,18 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                                     None
                                                 }
                                               ), DidYouMeanMessageStyle::LongFlag);
+
+        // If it didn't find a good match for opts, try flags
+        if suffix.is_empty() {
+            suffix = App::did_you_mean_suffix(arg, self.flags.values()
+                                                 .filter_map(|v|
+                                                    if let Some(ref l) = v.long {
+                                                        Some(l)
+                                                    } else {
+                                                        None
+                                                    }
+                                                  ), DidYouMeanMessageStyle::LongFlag);
+        }
         self.report_error(format!("The argument --{} isn't valid{}", arg, suffix),
             true,
             true,
