@@ -1,3 +1,37 @@
+<a name="v0.8.0"></a>
+## v0.8.0 (2015-05-06)
+
+
+#### Bug Fixes
+
+* **did-you-mean**  for review ([0535cfb0](https://github.com/kbknapp/clap-rs/commit/0535cfb0c711331568b4de8080eeef80bd254b68))
+* **Positional**  positionals were ignored if they matched a subcmd, even after '--' ([90e7b081](https://github.com/kbknapp/clap-rs/commit/90e7b0818741668b47cbe3becd029bab588e3553))
+* **help**  fixes bug where space between arg and help is too long ([632fb115](https://github.com/kbknapp/clap-rs/commit/632fb11514c504999ea86bdce47cdd34f8ebf646))
+
+#### Features
+
+* **from_usage**  adds ability to add value names or num of vals in usage string ([3d581976](https://github.com/kbknapp/clap-rs/commit/3d58197674ed7886ca315efb76e411608a327501), closes [#98](https://github.com/kbknapp/clap-rs/issues/98))
+* **did-you-mean**
+  *  gate it behind 'suggestions' ([c0e38351](https://github.com/kbknapp/clap-rs/commit/c0e383515d01bdd5ca459af9c2f7e2cf49e2488b))
+  *  for possible values ([1cc2deb2](https://github.com/kbknapp/clap-rs/commit/1cc2deb29158e0e4e8b434e4ce26b3d819301a7d))
+  *  for long flags (i.e. --long) ([52a0b850](https://github.com/kbknapp/clap-rs/commit/52a0b8505c99354bdf5fd1cd256cf41197ac2d81))
+  *  for subcommands ([06e869b5](https://github.com/kbknapp/clap-rs/commit/06e869b5180258047ed3c60ba099de818dd25fff))
+* **Flags**  adds sugestions functionality ([8745071c](https://github.com/kbknapp/clap-rs/commit/8745071c3257dd327c497013516f12a823df9530))
+* **errors**  colorizes output red on error ([f8b26b13](https://github.com/kbknapp/clap-rs/commit/f8b26b13da82ba3ba9a932d3d1ab4ea45d1ab036))
+
+#### Improvements
+
+* **arg_enum**  allows ascii case insensitivity for enum variants ([b249f965](https://github.com/kbknapp/clap-rs/commit/b249f9657c6921c004764bd80d13ebca81585eec), closes [#104](https://github.com/kbknapp/clap-rs/issues/104))
+* **clap-test**  simplified `make test` invocation ([d17dcb29](https://github.com/kbknapp/clap-rs/commit/d17dcb2920637a1f58c61c596b7bd362fd53047c))
+
+#### Documentation
+
+* **README**  adds details about optional and new features ([960389de](https://github.com/kbknapp/clap-rs/commit/960389de02c9872aaee9adabe86987f71f986e39))
+* **clap**  fix typos caught by codespell ([8891d929](https://github.com/kbknapp/clap-rs/commit/8891d92917aa1a069cca67272be41b99e548356e))
+* **from_usage**  explains new usage strings with multiple values ([05476fc6](https://github.com/kbknapp/clap-rs/commit/05476fc61cd1e5f4a4e750d258c878732a3a9c64))
+
+
+
 <a name="v0.7.6"></a>
 ## v0.7.6 (2015-05-05)
 
