@@ -49,10 +49,10 @@ USAGE:
 For more information try --help'''
 
 _arg_dym_usage = '''The argument --optio isn't valid
-\tDid you mean --option ?
+	Did you mean --option ?
 
 USAGE:
-\tclaptests
+	claptests --option <opt>...
 
 For more information try --help'''
 
