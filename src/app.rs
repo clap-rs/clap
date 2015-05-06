@@ -1152,17 +1152,17 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     // Reports and error to the users screen along with an optional usage statement and quits
     #[cfg(not(feature = "color"))]
     fn report_error(&self, msg: String, usage: bool, quit: bool, matches: Option<Vec<&str>>) {
-        println!("{}", msg);
+        println!("{}\n", msg);
         if usage { self.print_usage(true, matches); }
         if quit { self.exit(1); }
     }
 
     #[cfg(feature = "color")]
     fn report_error(&self, msg: String, usage: bool, quit: bool, matches: Option<Vec<&str>>) {
-        println!("{}", Red.paint(&msg[..]));
+        println!("{}\n", Red.paint(&msg[..]));
         if usage {
-            print!("{}",Red.paint(&self.create_usage(matches)[..]));
-            println!("{}",Red.paint("\nFor more information try --help"));
+            print!("{}",&self.create_usage(matches)[..]);
+            println!("{}","\n\nFor more information try --help");
         }
         if quit { self.exit(1); }
     }
@@ -1384,7 +1384,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         self.report_error(
                             format!("The subcommand '{}' isn't valid\n\tDid you mean '{}' ?\n\n\
                             If you received this message in error, try \
-                            re-running with '{} -- {}'\n",
+                            re-running with '{} -- {}'",
                                 arg,
                                 candidate_subcommand,
                                 self.bin_name.clone().unwrap_or(self.name.clone()),
@@ -1512,7 +1512,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         };
                         if should_err {
                             self.report_error(
-                                format!("Argument '{}' requires a value but none was supplied", o),
+                                format!("The argument '{}' requires a value but none was \
+                                supplied", o),
                                 true,
                                 true,
                                 Some(matches.args.keys().map(|k| *k).collect() ) );
@@ -1520,19 +1521,19 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                     else if !o.multiple {
                         self.report_error(
-                            format!("Argument '{}' requires a value but none was supplied", o),
+                            format!("The argument '{}' requires a value but none was supplied", o),
                             true,
                             true,
                             Some(matches.args.keys().map(|k| *k).collect() ) );
                     }
                     else {
                         self.report_error(format!("The following required arguments were not \
-                            supplied:\n{}",
+                            supplied:{}",
                             self.get_required_from(self.required.iter()
                                                                 .map(|s| *s)
                                                                 .collect::<HashSet<_>>())
                                 .iter()
-                                .fold(String::new(), |acc, s| acc + &format!("\t'{}'\n",s)[..])),
+                                .fold(String::new(), |acc, s| acc + &format!("\n\t'{}'",s)[..])),
                             true,
                             true,
                             Some(matches.args.keys().map(|k| *k).collect()));
@@ -1556,12 +1557,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         if !self.required.is_empty() {
             if self.validate_required(&matches) {
                 self.report_error(format!("The following required arguments were not \
-                    supplied:\n{}",
+                    supplied:{}",
                     self.get_required_from(self.required.iter()
                                                         .map(|s| *s)
                                                         .collect::<HashSet<_>>())
                         .iter()
-                        .fold(String::new(), |acc, s| acc + &format!("\t'{}'\n",s)[..])),
+                        .fold(String::new(), |acc, s| acc + &format!("\n\t'{}'",s)[..])),
                     true,
                     true,
                     Some(matches.args.keys().map(|k| *k).collect()));
@@ -1683,8 +1684,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             arg = arg_vec[0];
             // prevents "--config= value" typo
             if arg_vec[1].len() == 0 {
-                self.report_error(format!("Argument --{} requires a value, but none was supplied",
-                        arg),
+                self.report_error(format!("The argument --{} requires a value, but none was \
+                    supplied", arg),
                     true,
                     true,
                     Some(matches.args.keys().map(|k| *k).collect()));
@@ -1705,7 +1706,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
             if matches.args.contains_key(v.name) {
                 if !v.multiple {
-                    self.report_error(format!("Argument --{} was supplied more than once, but \
+                    self.report_error(format!("The argument --{} was supplied more than once, but \
                         does not support multiple values", arg),
                         true,
                         true,
