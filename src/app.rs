@@ -1283,7 +1283,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         while let Some(arg) = it.next() {
             let arg_slice = &arg[..];
             let mut skip = false;
-            if !pos_only && !arg_slice.starts_with("-") {
+            if !pos_only && !arg_slice.starts_with("-") && !self.subcommands.contains_key(arg_slice) {
                 if let Some(nvo) = needs_val_of {
                     if let Some(ref opt) = self.opts.get(nvo) {
                         if let Some(ref p_vals) = opt.possible_vals {
