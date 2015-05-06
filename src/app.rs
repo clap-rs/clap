@@ -1349,7 +1349,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 if let Some(ref o) = self.opts.get(name) {
                     if !o.multiple {
                         self.report_error(
-                            format!("Argument '{}' requires a value but none was supplied", o),
+                            format!("The argument '{}' requires a value but none was supplied", o),
                             true,
                             true,
                             Some(matches.args.keys().map(|k| *k).collect() ) );
@@ -1540,7 +1540,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                 } else {
                     self.report_error(
-                        format!("Argument '{}' requires a value but none was supplied",
+                        format!("The argument '{}' requires a value but none was supplied",
                             format!("{}", self.positionals_idx.get(
                                 self.positionals_name.get(a).unwrap()).unwrap())),
                             true,
@@ -1789,7 +1789,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
             // Make sure this isn't one being added multiple times if it doesn't suppor it
             if matches.args.contains_key(v.name) && !v.multiple {
-                self.report_error(format!("Argument '{}' was supplied more than once, but does \
+                self.report_error(format!("The argument '{}' was supplied more than once, but does \
                     not support multiple values", v),
                     true,
                     true,
