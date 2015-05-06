@@ -38,8 +38,8 @@
 //!   - Optionally supports named values so that the usage/help info appears as `-o <name> <other_name>` etc. for when you require specific multiple values
 //!   - Optionally sets value parameters (such as the minimum number of values, the maximum number of values, or the exact number of values)
 //! * **Sub-Commands** (i.e. `git add <file>` where `add` is a sub-command of `git`)
-//!   - Support their own sub-arguments, and sub-sub-commands independant of the parent
-//!   - Get their own auto-generated Help, Version, and Usage independant of parent
+//!   - Support their own sub-arguments, and sub-sub-commands independent of the parent
+//!   - Get their own auto-generated Help, Version, and Usage independent of parent
 //! * **Requirement Rules**: Arguments can optionally define the following types of requirement rules
 //!   - Required by default
 //!   - Required only if certain arguments are present

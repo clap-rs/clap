@@ -87,7 +87,7 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     author: Option<&'a str>,
     // The version displayed to the user
     version: Option<&'v str>,
-    // A brief explaination of the program that gets displayed to the user when shown help/usage
+    // A brief explanation of the program that gets displayed to the user when shown help/usage
     // information
     about: Option<&'ab str>,
     // Additional help information
@@ -1557,7 +1557,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         if let Some(sc_name) = subcmd_name {
             if let Some(ref mut sc) = self.subcommands.get_mut(&sc_name) {
                 let mut new_matches = ArgMatches::new();
-                // bin_name should be parent's bin_name + the sc's name seperated by a space
+                // bin_name should be parent's bin_name + the sc's name separated by a space
                 sc.bin_name = Some(format!("{}{}{}",
                     self.bin_name.clone().unwrap_or("".to_owned()),
                     if self.bin_name.is_some() {

@@ -9,7 +9,7 @@ fn main() {
     //
     // The example below is functionally identical to the one in 01a_QuickExample.rs
     //
-    // *NOTE:* You can actually acheive the best of both worlds by using Arg::from_usage() (instead of Arg::with_name())
+    // *NOTE:* You can actually achieve the best of both worlds by using Arg::from_usage() (instead of Arg::with_name())
     // and *then* setting any additional properties.
     //
     // Create an application with 5 possible arguments (2 auto generated) and 2 subcommands (1 auto generated)
@@ -75,7 +75,7 @@ fn main() {
         3 | _ => println!("Don't be crazy"),
      }
 
-    // You can check for the existance of subcommands, and if found use their
+    // You can check for the existence of subcommands, and if found use their
     // matches just as you would the top level app
      if let Some(ref matches) = matches.subcommand_matches("test") {
          // "$ myapp test" was run

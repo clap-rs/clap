@@ -8,7 +8,7 @@ fn main() {
 	// support three types of specification, those with short() as "-o some", or those with long()
 	// as "--option value" or "--option=value"
 	//
-	// Options also support a multiple setting, which is dicussed in the example below.
+	// Options also support a multiple setting, which is discussed in the example below.
     let matches = App::new("MyApp")
     					// Regular App configuration goes here...
 
