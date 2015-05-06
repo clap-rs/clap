@@ -60,7 +60,7 @@ fn main() {
         3 | _ => println!("Don't be crazy"),
      }
 
-    // You can check for the existance of subcommands, and if found use their
+    // You can check for the existence of subcommands, and if found use their
     // matches just as you would the top level app
      if let Some(ref matches) = matches.subcommand_matches("test") {
          // "$ myapp test" was run

@@ -11,7 +11,7 @@ fn main() {
 	//
 	// There are also two ways in which to get types, those where failures cause the program to exit
 	// with an error and usage string, and those which return a Result<T,String> or Result<Vec<T>,String>
-	// respectivly. Both methods support single and multiple values.
+	// respectively. Both methods support single and multiple values.
 	//
 	// The macro which returns a Result allows you decide what to do upon a failure, exit, provide a
 	// default value, etc. You have control. But it also means you have to write the code or boiler plate

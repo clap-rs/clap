@@ -27,7 +27,7 @@ fn main() {
     					.subcommand(SubCommand::new("add")								// The name we call argument with 
     											.about("Adds files to myapp")		    // The message displayed in "myapp -h"
     																					// or "myapp help"
-    											.version("0.1")							// Subcommands can have independant version
+    											.version("0.1")							// Subcommands can have independent version
     											.author("Kevin K.")						// And authors
     											.arg(Arg::with_name("input")			// And their own arguments
     														.help("the file to add")
@@ -40,9 +40,9 @@ fn main() {
     	println!("'myapp add' was run.");
     }
     
-    // You can get the independant subcommand matches (which function exactly like App matches)
+    // You can get the independent subcommand matches (which function exactly like App matches)
     if let Some(ref matches) = matches.subcommand_matches("add") {
-    	// Safe to use unwrap() becasue of the required() option
+    	// Safe to use unwrap() because of the required() option
     	println!("Adding file: {}", matches.value_of("input").unwrap());
     }
 

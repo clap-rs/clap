@@ -98,7 +98,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// and positional arguments (i.e. those without a `-` or `--`) the name will also
     /// be displayed when the user prints the usage/help information of the program.
     ///
-    /// **NOTE:** this function is deprecated in favor of Arg::with_name() to stay consistant with
+    /// **NOTE:** this function is deprecated in favor of Arg::with_name() to stay consistent with
     /// Rust APIs
     ///
     ///
@@ -331,8 +331,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     ///
     ///
     /// By default `clap` automatically assigns `v` and `h` to display version and help information
-    /// respectivly. You may use `v` or `h` for your own purposes, in which case `clap` simply
-    /// will not asign those to the displaying of version or help.
+    /// respectively. You may use `v` or `h` for your own purposes, in which case `clap` simply
+    /// will not assign those to the displaying of version or help.
     ///
     /// **NOTE:** Any leading `-` characters will be stripped, and only the first
     /// non `-` chacter will be used as the `short` version
@@ -355,8 +355,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// Sets the long version of the argument without the preceding `--`.
     ///
     /// By default `clap` automatically assigns `version` and `help` to display version and help
-    /// information respectivly. You may use `version` or `help` for your own purposes, in which
-    /// case `clap` simply will not asign those to the displaying of version or help automatically,
+    /// information respectively. You may use `version` or `help` for your own purposes, in which
+    /// case `clap` simply will not assign those to the displaying of version or help automatically,
     /// and you will have to do so manually.
     ///
     /// **NOTE:** Any leading `-` characters will be stripped
@@ -620,7 +620,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
 
     /// Specifies if the flag may appear more than once such as for multiple debugging
     /// levels (as an example). `-ddd` for three levels of debugging, or `-d -d -d`.
-    /// When this is set to `true` you recieve the number of occurances the user supplied
+    /// When this is set to `true` you receive the number of occurrences the user supplied
     /// of a particular flag at runtime.
     ///
     /// **NOTE:** When setting this,  any `takes_value` or `index` values you set
@@ -709,7 +709,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     pub fn number_of_values(mut self, qty: u8) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         if qty < 2 {
             panic!("Arguments with number_of_values(qty) qty must be > 1. Prefer \
-                takes_value(true) for arguments with onyl one value, or flags for arguments \
+                takes_value(true) for arguments with only one value, or flags for arguments \
                 with 0 values.");
         }
         self.num_vals = Some(qty);
@@ -737,7 +737,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     pub fn max_values(mut self, qty: u8) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         if qty < 2 {
             panic!("Arguments with max_values(qty) qty must be > 1. Prefer \
-                takes_value(true) for arguments with onyl one value, or flags for arguments \
+                takes_value(true) for arguments with only one value, or flags for arguments \
                 with 0 values.");
         }
         self.max_vals = Some(qty);
@@ -755,7 +755,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// **NOTE:** `qty` must be > 0
     ///
     /// **NOTE:** `qty` *must* be > 0. If you wish to have an argument with 0 or more values prefer
-    /// two seperate arguments (a flag, and an option with multiple values).
+    /// two separate arguments (a flag, and an option with multiple values).
     ///
     /// # Example
     ///

@@ -4,7 +4,7 @@ use clap::{App, Arg};
 
 fn main() {
 
-	// Positional arguments are those values after the program name which are not preceeded by any
+	// Positional arguments are those values after the program name which are not preceded by any
 	// identifier (such as "myapp some_file"). Positionals support many of the same options as
 	// flags, as well as a few additional ones.
     let matches = App::new("MyApp")
