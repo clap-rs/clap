@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 use std::collections::BTreeSet;
 use std::collections::HashSet;
 use std::collections::HashMap;
+use std::collections::VecDeque;
 use std::env;
 use std::path::Path;
 use std::vec::IntoIter;
@@ -765,7 +766,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     .fold(vec![], |acc, v| acc + &v)
     }
 
-    fn get_required_from(&self, reqs: HashSet<&'ar str>) -> Vec<String> {
+    fn get_required_from(&self, reqs: HashSet<&'ar str>) -> VecDeque<String> {
         let mut c_flags = HashSet::new();
         let mut c_pos = HashSet::new();
         let mut c_opt = HashSet::new();
@@ -852,27 +853,29 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
 
 
-        let mut ret_val = vec![];
+        let mut ret_val = VecDeque::new();
 
+        let mut pmap = BTreeMap::new();
         for p in &c_pos {
             if let Some(idx) = self.positionals_name.get(p) {
                 if let Some(ref p) = self.positionals_idx.get(&idx) {
-                    ret_val.push(format!("{}", p));
+                    pmap.insert(p.index, format!("{}", p));
                 }
             }
         }
+        pmap.into_iter().map(|(_, s)| ret_val.push_back(s)).collect::<Vec<_>>();
         for f in &c_flags {
-             ret_val.push(format!("{}", self.flags.get(*f).unwrap()));
+             ret_val.push_back(format!("{}", self.flags.get(*f).unwrap()));
         }
         for o in &c_opt {
-             ret_val.push(format!("{}", self.opts.get(*o).unwrap()));
+             ret_val.push_back(format!("{}", self.opts.get(*o).unwrap()));
         }
         for g in grps {
             let g_string = self.get_group_members(g).iter()
                                                     .fold(String::new(), |acc, s| {
                                                         acc + &format!(" {} |",s)[..]
                                                     });
-            ret_val.push(format!("[{}]", &g_string[..g_string.len()-1]));
+            ret_val.push_back(format!("[{}]", &g_string[..g_string.len()-1]));
         }
 
         ret_val
