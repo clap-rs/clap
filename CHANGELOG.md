@@ -1,3 +1,13 @@
+<a name="v0.8.2"></a>
+## v0.8.2 (2015-05-08)
+
+
+#### Bug Fixes
+
+* **usage strings**  positional arguments are presented in index order ([eb0e374e](https://github.com/kbknapp/clap-rs/commit/eb0e374ecf952f1eefbc73113f21e0705936e40b), closes [#112](https://github.com/kbknapp/clap-rs/issues/112))
+
+
+
 <a name="v0.8.1"></a>
 ## v0.8.1 (2015-05-06)
 
