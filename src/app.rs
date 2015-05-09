@@ -737,7 +737,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         if g_vec.is_empty() {
             return args.iter().map(|s| s.to_owned()).collect()
         }
-        return g_vec.iter().map(|g| self.get_group_members(g)).fold(vec![], |acc, v| acc + &v)
+        return g_vec.iter()
+             .map(|g| self.get_group_members(g))
+             .fold(vec![], |mut acc, v| {
+                 v.into_iter().map(|i| acc.push(i)).collect::<Vec<_>>();
+                 acc
+             })
+
     }
 
     fn get_group_members_names(&self, group: &'ar str) -> Vec<&'ar str> {
@@ -763,7 +769,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
         return g_vec.iter()
                     .map(|g| self.get_group_members_names(g))
-                    .fold(vec![], |acc, v| acc + &v)
+                    .fold(vec![], |mut acc, v| {
+                        v.into_iter().map(|i| acc.push(i)).collect::<Vec<_>>();
+                        acc
+                    })
     }
 
     fn get_required_from(&self, reqs: HashSet<&'ar str>) -> VecDeque<String> {
