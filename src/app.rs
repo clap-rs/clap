@@ -715,140 +715,142 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     fn get_group_members(&self, group: &str) -> Vec<String> {
-        let mut g_vec = HashSet::new();
-        let mut args = HashSet::new();
+        let mut g_vec = vec![];
+        let mut args = vec![];
 
         for n in self.groups.get(group).unwrap().args.iter() {
-            if let Some(ref f) = self.flags.get(n) {
-                args.insert(format!("{}", f));
-            } else if let Some(ref f) = self.opts.get(n) {
-                args.insert(format!("{}", f));
+            if let Some(f) = self.flags.get(n) {
+                args.push(f.to_string());
+            } else if let Some(f) = self.opts.get(n) {
+                args.push(f.to_string());
             } else if self.groups.contains_key(n) {
-                g_vec.insert(*n);
+                g_vec.push(*n);
             } else {
                 if let Some(idx) = self.positionals_name.get(n) {
-                    if let Some(ref p) = self.positionals_idx.get(&idx) {
-                        args.insert(format!("{}", p));
+                    if let Some(p) = self.positionals_idx.get(&idx) {
+                        args.push(p.to_string());
                     }
                 }
             }
         }
 
-        if g_vec.is_empty() {
-            return args.iter().map(|s| s.to_owned()).collect()
+        g_vec.dedup();
+        if !g_vec.is_empty() {
+            for av in g_vec.iter().map(|g| self.get_group_members(g)) {
+                for a in av {
+                    args.push(a);
+                }
+            }
         }
-        return g_vec.iter()
-             .map(|g| self.get_group_members(g))
-             .fold(vec![], |mut acc, v| {
-                 v.into_iter().map(|i| acc.push(i)).collect::<Vec<_>>();
-                 acc
-             })
-
+        args.dedup();
+        args.iter().map(ToOwned::to_owned).collect()
     }
 
     fn get_group_members_names(&self, group: &'ar str) -> Vec<&'ar str> {
-        let mut g_vec = HashSet::new();
-        let mut args = HashSet::new();
+        let mut g_vec = vec![];
+        let mut args = vec![];
 
         for n in self.groups.get(group).unwrap().args.iter() {
             if self.flags.contains_key(n) {
-                args.insert(*n);
+                args.push(*n);
             } else if self.opts.contains_key(n) {
-                args.insert(*n);
+                args.push(*n);
             } else if self.groups.contains_key(n) {
-                g_vec.insert(*n);
+                g_vec.push(*n);
             } else {
                 if self.positionals_name.contains_key(n) {
-                    args.insert(*n);
+                    args.push(*n);
                 }
             }
         }
 
-        if g_vec.is_empty() {
-            return args.iter().map(|s| *s).collect()
+        g_vec.dedup();
+        if !g_vec.is_empty() {
+            for av in g_vec.iter().map(|g| self.get_group_members_names(g)) {
+                for a in av {
+                    args.push(a);
+                }
+            }
         }
-        return g_vec.iter()
-                    .map(|g| self.get_group_members_names(g))
-                    .fold(vec![], |mut acc, v| {
-                        v.into_iter().map(|i| acc.push(i)).collect::<Vec<_>>();
-                        acc
-                    })
+        args.dedup();
+        args.iter().map(|s| *s).collect()
     }
 
-    fn get_required_from(&self, reqs: HashSet<&'ar str>) -> VecDeque<String> {
-        let mut c_flags = HashSet::new();
-        let mut c_pos = HashSet::new();
-        let mut c_opt = HashSet::new();
-        let mut grps = HashSet::new();
-        for name in &reqs {
-            if self.flags.contains_key(*name) {
-                c_flags.insert(*name);
-            } else if self.opts.contains_key(*name) {
-                c_opt.insert(*name);
-            } else if self.groups.contains_key(*name) {
-                grps.insert(*name);
+    fn get_required_from(&self, mut reqs: Vec<&'ar str>) -> VecDeque<String> {
+        reqs.dedup();
+        let mut c_flags = vec![];
+        let mut c_pos = vec![];
+        let mut c_opt = vec![];
+        let mut grps = vec![];
+        for name in reqs.iter() {
+            if self.flags.contains_key(name) {
+                c_flags.push(name);
+            } else if self.opts.contains_key(name) {
+                c_opt.push(name);
+            } else if self.groups.contains_key(name) {
+                grps.push(*name);
             } else {
-                c_pos.insert(*name);
+                c_pos.push(name);
             }
         }
         let mut tmp_f = vec![];
-        for f in &c_flags {
-            if let Some(ref f) = self.flags.get(f) {
+        for f in c_flags.iter() {
+            if let Some(f) = self.flags.get(*f) {
                 if let Some(ref rl) = f.requires {
-                    for r in rl {
+                    for r in rl.iter() {
                         if !reqs.contains(r) {
                             if self.flags.contains_key(r) {
                                 tmp_f.push(r);
                             } else if self.opts.contains_key(r) {
-                                c_opt.insert(r);
+                                c_opt.push(r);
                             } else if self.groups.contains_key(r) {
-                                grps.insert(*r);
+                                grps.push(*r);
                             } else {
-                                c_pos.insert(r);
+                                c_pos.push(r);
                             }
                         }
                     }
                 }
             }
         }
-        for f in tmp_f {
-            c_flags.insert(f);
+        for f in tmp_f.into_iter() {
+            c_flags.push(f);
         }
         let mut tmp_o = vec![];
         for f in &c_opt {
-            if let Some(ref f) = self.opts.get(f) {
+            if let Some(f) = self.opts.get(*f) {
                 if let Some(ref rl) = f.requires {
-                    for r in rl {
+                    for r in rl.iter() {
                         if !reqs.contains(r) {
                             if self.flags.contains_key(r) {
-                                c_flags.insert(r);
+                                c_flags.push(r);
                             } else if self.opts.contains_key(r) {
                                 tmp_o.push(r);
                             } else if self.groups.contains_key(r) {
-                                grps.insert(*r);
+                                grps.push(*r);
                             } else {
-                                c_pos.insert(r);
+                                c_pos.push(r);
                             }
                         }
                     }
                 }
             }
         }
-        for f in tmp_o {
-            c_opt.insert(f);
+        for f in tmp_o.into_iter() {
+            c_opt.push(f);
         }
         let mut tmp_p = vec![];
-        for f in &c_pos {
-            if let Some(ref f) = self.flags.get(f) {
+        for f in c_pos.iter() {
+            if let Some(f) = self.flags.get(*f) {
                 if let Some(ref rl) = f.requires {
-                    for r in rl {
+                    for r in rl.iter() {
                         if !reqs.contains(r) {
                             if self.flags.contains_key(r) {
-                                c_flags.insert(r);
+                                c_flags.push(r);
                             } else if self.opts.contains_key(r) {
-                                c_opt.insert(r);
+                                c_opt.push(r);
                             } else if self.groups.contains_key(r) {
-                                grps.insert(*r);
+                                grps.push(*r);
                             } else {
                                 tmp_p.push(r);
                             }
@@ -857,15 +859,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 }
             }
         }
-        for f in tmp_p {
-            c_flags.insert(f);
+        for f in tmp_p.into_iter() {
+            c_flags.push(f);
         }
 
 
         let mut ret_val = VecDeque::new();
 
         let mut pmap = BTreeMap::new();
-        for p in &c_pos {
+        for p in c_pos.into_iter() {
             if let Some(idx) = self.positionals_name.get(p) {
                 if let Some(ref p) = self.positionals_idx.get(&idx) {
                     pmap.insert(p.index, format!("{}", p));
@@ -873,13 +875,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
         }
         pmap.into_iter().map(|(_, s)| ret_val.push_back(s)).collect::<Vec<_>>();
-        for f in &c_flags {
+        for f in c_flags.into_iter() {
              ret_val.push_back(format!("{}", self.flags.get(*f).unwrap()));
         }
-        for o in &c_opt {
+        for o in c_opt.into_iter() {
              ret_val.push_back(format!("{}", self.opts.get(*o).unwrap()));
         }
-        for g in grps {
+        for g in grps.into_iter() {
             let g_string = self.get_group_members(g).iter()
                                                     .fold(String::new(), |acc, s| {
                                                         acc + &format!(" {} |",s)[..]
@@ -895,13 +897,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     // give subcommands their own usage recursively)
     fn create_usage(&self, matches: Option<Vec<&'ar str>>) -> String {
         let mut usage = String::with_capacity(75);
-        usage.push_str("USAGE:\n");
-        usage.push_str("\t");
+        usage.push_str("USAGE:\n\t");
         if let Some(u) = self.usage_str {
             usage.push_str(u);
         } else if let Some(tmp_vec) = matches {
-            let mut hs = self.required.iter().map(|n| *n).collect::<HashSet<_>>();
-            tmp_vec.iter().map(|n| hs.insert(*n)).collect::<Vec<_>>();
+            let mut hs = self.required.iter().map(|n| *n).collect::<Vec<_>>();
+            tmp_vec.iter().map(|n| hs.push(*n)).collect::<Vec<_>>();
             let reqs = self.get_required_from(hs);
 
             let r_string = reqs.iter().fold(String::new(), |acc, s| acc + &format!(" {}", s)[..]);
@@ -912,17 +913,17 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         } else {
             usage.push_str(&self.bin_name.clone().unwrap_or(self.name.clone())[..]);
 
-            let mut reqs = self.required.iter().map(|n| *n).collect::<HashSet<_>>();
+            let mut reqs = self.required.iter().map(|n| *n).collect::<Vec<_>>();
             // If it's required we also need to ensure all previous positionals are required too
             let mut found = false;
             for p in self.positionals_idx.values().rev() {
                 if found {
-                    reqs.insert(p.name);
+                    reqs.push(p.name);
                     continue;
                 }
                 if p.required {
                     found = true;
-                    reqs.insert(p.name);
+                    reqs.push(p.name);
                 }
             }
             let req_strings = self.get_required_from(reqs);
@@ -1543,7 +1544,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             supplied:{}",
                             self.get_required_from(self.required.iter()
                                                                 .map(|s| *s)
-                                                                .collect::<HashSet<_>>())
+                                                                .collect::<Vec<_>>())
                                 .iter()
                                 .fold(String::new(), |acc, s| acc + &format!("\n\t'{}'",s)[..])),
                             true,
@@ -1572,7 +1573,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     supplied:{}",
                     self.get_required_from(self.required.iter()
                                                         .map(|s| *s)
-                                                        .collect::<HashSet<_>>())
+                                                        .collect::<Vec<_>>())
                         .iter()
                         .fold(String::new(), |acc, s| acc + &format!("\n\t'{}'",s)[..])),
                     true,
