@@ -1,3 +1,17 @@
+<a name="v0.8.3"></a>
+## v0.8.3 (2015-05-10)
+
+
+#### Bug Fixes
+
+* **usage**  groups unfold their members in usage strings ([55d15582](https://github.com/kbknapp/clap-rs/commit/55d155827ea4a6b077a83669701e797ce1ad68f4), closes [#114](https://github.com/kbknapp/clap-rs/issues/114))
+
+#### Performance
+
+* **usage**  removes unneeded allocations ([fd53cd18](https://github.com/kbknapp/clap-rs/commit/fd53cd188555f5c3dc8bc341c5d7eb04b761a70f))
+
+
+
 <a name="v0.8.2"></a>
 ## v0.8.2 (2015-05-08)
 

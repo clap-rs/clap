@@ -317,7 +317,7 @@ Contributions are always welcome! And there is a multitude of ways in which you 
 1. Fork the project
 2. Clone your fork (`git clone https://github.com/$YOUR_USERNAME/clap-rs && cd clap-rs`)
 3. Create new branch (`git checkout -b new-branch`)
-4. Make your changes, and commit (`git commit -am "your message"`) (I try to use a [conventional](https://github.com/ajoslin/conventional-changelog/blob/master/CONVENTIONS.md) changelog format so I can update it using [clog](https://github.com/thoughtram/clog))
+4. Make your changes, and commit (`git commit -am "your message"`) (I use a [conventional](https://github.com/ajoslin/conventional-changelog/blob/master/CONVENTIONS.md) changelog format so I can update my changelog using [clog](https://github.com/thoughtram/clog))
 5. If applicable, run the tests (See below)
 6. Push your changes back to your fork (`git push origin your-branch`)
 7. Create a pull request! (You can also create the pull request right away, and we'll merge when ready. This a good way to discuss proposed changes.)
