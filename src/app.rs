@@ -734,18 +734,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
         }
 
-        if g_vec.is_empty() {
-            args.dedup();
-            return args.iter().map(ToOwned::to_owned).collect()
-        }
         g_vec.dedup();
-        return g_vec.iter()
-                    .map(|g| self.get_group_members(g))
-                    .fold(vec![], |mut acc, v| {
-                        v.into_iter().map(|i| acc.push(i)).collect::<Vec<_>>();
-                        acc
-                    })
-
+        if !g_vec.is_empty() {
+            for av in g_vec.iter().map(|g| self.get_group_members(g)) {
+                for a in av {
+                    args.push(a);
+                }
+            }
+        }
+        args.dedup();
+        args.iter().map(ToOwned::to_owned).collect()
     }
 
     fn get_group_members_names(&self, group: &'ar str) -> Vec<&'ar str> {
@@ -767,16 +765,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
 
         g_vec.dedup();
-        if g_vec.is_empty() {
-            args.dedup();
-            return args.iter().map(|s| *s).collect()
+        if !g_vec.is_empty() {
+            for av in g_vec.iter().map(|g| self.get_group_members_names(g)) {
+                for a in av {
+                    args.push(a);
+                }
+            }
         }
-        return g_vec.iter()
-                    .map(|g| self.get_group_members_names(g))
-                    .fold(vec![], |mut acc, v| {
-                        v.into_iter().map(|i| acc.push(i)).collect::<Vec<_>>();
-                        acc
-                    })
+        args.dedup();
+        args.iter().map(|s| *s).collect()
     }
 
     fn get_required_from(&self, mut reqs: Vec<&'ar str>) -> VecDeque<String> {
