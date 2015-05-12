@@ -1648,6 +1648,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             if self.needs_short_help {
                 arg.short = Some('h');
             }
+            self.long_list.insert("help");
             self.flags.insert("hclap_help", arg);
         }
         if self.needs_long_version {
@@ -1664,6 +1665,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             if self.needs_short_version {
                 arg.short = Some('v');
             }
+            self.long_list.insert("version");
             self.flags.insert("vclap_version", arg);
         }
         if self.needs_subcmd_help && !self.subcommands.is_empty() {
