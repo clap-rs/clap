@@ -1,3 +1,13 @@
+<a name="v0.8.4"></a>
+## v0.8.4 (2015-05-12)
+
+
+#### Bug Fixes
+
+* **suggestions**  --help and --version now get suggestions ([d2b3b1fa](https://github.com/kbknapp/clap-rs/commit/d2b3b1faa0bdc1c5d2350cc4635aba81e02e9d96), closes [#116](https://github.com/kbknapp/clap-rs/issues/116))
+
+
+
 <a name="v0.8.3"></a>
 ## v0.8.3 (2015-05-10)
 
