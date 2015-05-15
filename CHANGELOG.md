@@ -1,3 +1,19 @@
+<a name="v0.8.5"></a>
+## v0.8.5 (2015-05-15)
+
+
+#### Bug Fixes
+
+* **macros**  makes macro errors consistent with others ([0c264a8c](https://github.com/kbknapp/clap-rs/commit/0c264a8ca57ec1cfdcb74dae79145d766cdc9b97), closes [#118](https://github.com/kbknapp/clap-rs/issues/118))
+
+#### Features
+
+* **macros**
+  *  arg_enum! and simple_enum! provide a Vec<&str> of variant names ([30fa87ba](https://github.com/kbknapp/clap-rs/commit/30fa87ba4e0f3189351d8f4f78b72e616a30d0bd), closes [#119](https://github.com/kbknapp/clap-rs/issues/119))
+  *  arg_enum! and simple_enum! auto-implement Display ([d1219f0d](https://github.com/kbknapp/clap-rs/commit/d1219f0d1371d872061bd0718057eca4ef47b739), closes [#120](https://github.com/kbknapp/clap-rs/issues/120))
+
+
+
 <a name="v0.8.4"></a>
 ## v0.8.4 (2015-05-12)
 
