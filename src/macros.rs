@@ -144,10 +144,10 @@ macro_rules! value_t {
             Some(v) => {
                 match v.parse::<$t>() {
                     Ok(val) => Ok(val),
-                    Err(_)  => Err(format!("{} isn't a valid {}",v,stringify!($t))),
+                    Err(_)  => Err(format!("'{}' isn't a valid value",v)),
                 }
             },
-            None => Err(format!("Argument \"{}\" not found", $v))
+            None => Err(format!("The argument '{}' not found", $v))
         }
     };
     ($m:ident.values_of($v:expr), $t:ty) => {
@@ -159,7 +159,7 @@ macro_rules! value_t {
                     match pv.parse::<$t>() {
                         Ok(rv) => tmp.push(rv),
                         Err(e) => {
-                            err = Some(format!("{} isn't a valid {}\n{}",pv,stringify!($t),e));
+                            err = Some(format!("'{}' isn't a valid value\n\t{}",pv,e));
                             break
                         }
                     }
@@ -169,7 +169,7 @@ macro_rules! value_t {
                     None => Ok(tmp)
                 }
             },
-            None => Err(format!("Argument \"{}\" not found", $v))
+            None => Err(format!("The argument '{}' was not found", $v))
         }
     };
 }
@@ -227,10 +227,9 @@ macro_rules! value_t_or_exit {
                 match v.parse::<$t>() {
                     Ok(val) => val,
                     Err(e)  => {
-                        println!("{} isn't a valid {}\n\t{}\n{}\nPlease re-run with --help for \
+                        println!("'{}' isn't a valid value\n\t{}\n\n{}\n\nPlease re-run with --help for \
                             more information",
                             v,
-                            stringify!($t),
                             e,
                             $m.usage());
                         ::std::process::exit(1);
@@ -238,7 +237,7 @@ macro_rules! value_t_or_exit {
                 }
             },
             None => {
-                println!("Argument \"{}\" not found or is not valid\n{}\nPlease re-run with \
+                println!("The argument '{}' was not found or is not valid\n\n{}\n\nPlease re-run with \
                     --help for more information",
                     $v,
                     $m.usage());
@@ -254,10 +253,9 @@ macro_rules! value_t_or_exit {
                     match pv.parse::<$t>() {
                         Ok(rv) => tmp.push(rv),
                         Err(_)  => {
-                            println!("{} isn't a valid {}\n\t{}\nPlease re-run with --help for more \
+                            println!("'{}' isn't a valid value\n\t{}\n\nPlease re-run with --help for more \
                                 information",
                                 pv,
-                                stringify!($t),
                                 $m.usage());
                             ::std::process::exit(1);
                         }
@@ -266,7 +264,7 @@ macro_rules! value_t_or_exit {
                 tmp
             },
             None => {
-                println!("Argument \"{}\" not found or is not valid\n{}\nPlease re-run with \
+                println!("The argument '{}' not found or is not valid\n\n{}\n\nPlease re-run with \
                     --help for more information",
                     $v,
                     $m.usage());
