@@ -277,6 +277,8 @@ macro_rules! value_t_or_exit {
 /// Convenience macro generated a simple enum with variants to be used as a type when parsing
 /// arguments.
 ///
+/// **NOTE:** This macro automaically implements std::str::FromStr and std::fmt::Display
+///
 /// # Example
 ///
 /// ```no_run
@@ -322,6 +324,14 @@ macro_rules! simple_enum {
                 }
             }
         }
+
+        impl ::std::fmt::Display for $e {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                match *self {
+                    $($e::$v => write!(f, stringify!($v)),)+
+                }
+            }
+        }
     };
 }
 
@@ -329,6 +339,8 @@ macro_rules! simple_enum {
 /// parsing arguments.
 ///
 /// **NOTE:** Case insensitivity is supported for ASCII characters
+///
+/// **NOTE:** This macro automaically implements std::str::FromStr and std::fmt::Display
 ///
 /// These enums support pub (or not) and use of the #[derive()] traits
 ///
@@ -385,6 +397,14 @@ macro_rules! arg_enum {
                 }
             }
         }
+
+        impl ::std::fmt::Display for $e {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                match *self {
+                    $($e::$v => write!(f, stringify!($v)),)+
+                }
+            }
+        }
     };
     (pub enum $e:ident { $($v:ident),+ } ) => {
         pub enum $e {
@@ -408,6 +428,14 @@ macro_rules! arg_enum {
                                                     a + &format!(" {}", i)[..]
                                                 }))
                                         })
+                }
+            }
+        }
+
+        impl ::std::fmt::Display for $e {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                match *self {
+                    $($e::$v => write!(f, stringify!($v)),)+
                 }
             }
         }
@@ -438,6 +466,14 @@ macro_rules! arg_enum {
                 }
             }
         }
+
+        impl ::std::fmt::Display for $e {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                match *self {
+                    $($e::$v => write!(f, stringify!($v)),)+
+                }
+            }
+        }
     };
     (#[derive($($d:ident),+)] pub enum $e:ident { $($v:ident),+ } ) => {
         #[derive($($d,)+)]
@@ -462,6 +498,14 @@ macro_rules! arg_enum {
                                                     a + &format!(" {}", i)[..]
                                                 }))
                                         })
+                }
+            }
+        }
+
+        impl ::std::fmt::Display for $e {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                match *self {
+                    $($e::$v => write!(f, stringify!($v)),)+
                 }
             }
         }
