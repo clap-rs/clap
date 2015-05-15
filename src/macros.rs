@@ -275,7 +275,8 @@ macro_rules! value_t_or_exit {
 }
 
 /// Convenience macro generated a simple enum with variants to be used as a type when parsing
-/// arguments.
+/// arguments. This enum also provides a `variants()` function which can be used to retrieve a
+/// `Vec<&'static str>` of the variant names.
 ///
 /// **NOTE:** This macro automaically implements std::str::FromStr and std::fmt::Display
 ///
@@ -332,11 +333,20 @@ macro_rules! simple_enum {
                 }
             }
         }
+
+        impl $e {
+            pub fn variants() -> Vec<&'static str> {
+                vec![
+                    $(stringify!($v),)+
+                ]
+            }
+        }
     };
 }
 
 /// Convenience macro to generate more complete enums with variants to be used as a type when
-/// parsing arguments.
+/// parsing arguments. This enum also provides a `variants()` function which can be used to retrieve a
+/// `Vec<&'static str>` of the variant names.
 ///
 /// **NOTE:** Case insensitivity is supported for ASCII characters
 ///
@@ -405,6 +415,14 @@ macro_rules! arg_enum {
                 }
             }
         }
+
+        impl $e {
+            fn variants() -> Vec<&'static str> {
+                vec![
+                    $(stringify!($v),)+
+                ]
+            }
+        }
     };
     (pub enum $e:ident { $($v:ident),+ } ) => {
         pub enum $e {
@@ -437,6 +455,14 @@ macro_rules! arg_enum {
                 match *self {
                     $($e::$v => write!(f, stringify!($v)),)+
                 }
+            }
+        }
+
+        impl $e {
+            pub fn variants() -> Vec<&'static str> {
+                vec![
+                    $(stringify!($v),)+
+                ]
             }
         }
     };
@@ -474,6 +500,14 @@ macro_rules! arg_enum {
                 }
             }
         }
+
+        impl $e {
+            pub fn variants() -> Vec<&'static str> {
+                vec![
+                    $(stringify!($v),)+
+                ]
+            }
+        }
     };
     (#[derive($($d:ident),+)] pub enum $e:ident { $($v:ident),+ } ) => {
         #[derive($($d,)+)]
@@ -507,6 +541,14 @@ macro_rules! arg_enum {
                 match *self {
                     $($e::$v => write!(f, stringify!($v)),)+
                 }
+            }
+        }
+
+        impl $e {
+            pub fn variants() -> Vec<&'static str> {
+                vec![
+                    $(stringify!($v),)+
+                ]
             }
         }
     };
