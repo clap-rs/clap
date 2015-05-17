@@ -1,17 +1,16 @@
 [package]
 
 name = "clap"
-version = "0.8.6"
+version = "0.9.0"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
 exclude = ["examples/*", "clap-tests/*"]
 description = "A simple to use, efficient, and full featured  Command Line Argument Parser"
 repository = "https://github.com/kbknapp/clap-rs.git"
 documentation = "http://kbknapp.github.io/clap-rs"
 readme = "README.md"
-
+license = "MIT"
 keywords = ["argument", "command", "arg", "parser", "parse"]
 
-license = "MIT"
 
 [features]
 default=["suggestions", "color"]

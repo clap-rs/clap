@@ -1,3 +1,20 @@
+<a name="v0.9.0"></a>
+## v0.9.0 (2015-05-17)
+
+
+#### Improvements
+
+* **usage**  usage strings now include parent command requirements ([dd8f21c7](https://github.com/kbknapp/clap-rs/commit/dd8f21c7c15cde348fdcf44fa7c205f0e98d2e4a), closes [#125](https://github.com/kbknapp/clap-rs/issues/125))
+* **args**  allows consumer of clap to decide if empty values are allowed or not ([ab4ec609](https://github.com/kbknapp/clap-rs/commit/ab4ec609ccf692b9b72cccef5c9f74f5577e360d), closes [#122](https://github.com/kbknapp/clap-rs/issues/122))
+
+#### Features
+
+* **subcommands**
+  *  allows optionally specifying that no subcommand is an error ([7554f238](https://github.com/kbknapp/clap-rs/commit/7554f238fd3afdd60b7e4dcf00ff4a9eccf842c1), closes [#126](https://github.com/kbknapp/clap-rs/issues/126))
+  *  subcommands can optionally negate parent requirements ([4a4229f5](https://github.com/kbknapp/clap-rs/commit/4a4229f500e21c350e1ef78dd09ef27559653288), closes [#123](https://github.com/kbknapp/clap-rs/issues/123))
+
+
+
 <a name="v0.8.6"></a>
 ## v0.8.6 (2015-05-17)
 
