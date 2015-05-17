@@ -358,6 +358,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 min_vals: a.min_vals,
                 max_vals: a.max_vals,
                 help: a.help,
+                empty_vals: a.empty_vals
             };
             if pb.min_vals.is_some() && !pb.multiple {
                 panic!("Argument \"{}\" does not allow multiple values, yet it is expecting {} \
@@ -415,6 +416,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 val_names: a.val_names,
                 requires: None,
                 required: a.required,
+                empty_vals: a.empty_vals
             };
             if let Some(ref vec) = ob.val_names {
                 ob.num_vals = Some(vec.len() as u8);
@@ -456,17 +458,18 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
             self.opts.insert(a.name, ob);
         } else {
-            if a.short.is_none() && a.long.is_none() {
-                // Could be a posistional constructed from usage string
-
+            if !a.empty_vals {
+                // Empty vals defaults to true, so if it's false it was manually set
+                panic!("The argument '{}' cannot have empty_values() set because it is a flag. \
+                    Perhaps you mean't to set takes_value(true) as well?", a.name);
             }
             if a.required {
-                panic!("Argument \"{}\" cannot be required(true) because it has no index() or \
+                panic!("The argument '{}' cannot be required(true) because it has no index() or \
                     takes_value(true)", a.name);
             }
             if a.possible_vals.is_some() {
-                panic!("Argument \"{}\" cannot have a specific value set because it doesn't have \
-                    takes_value(true) set", a.name);
+                panic!("The argument '{}' cannot have a specific value set because it doesn't \
+                have takes_value(true) set", a.name);
             }
             // No need to check for index() or takes_value() as that is handled above
 
@@ -1316,7 +1319,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             if let Some(ref ma) = matches.args.get(opt.name) {
                                 if let Some(ref vals) = ma.values {
                                     if num == vals.len() as u8 && !opt.multiple {
-                                        self.report_error(format!("The argument \"{}\" was found, \
+                                        self.report_error(format!("The argument '{}' was found, \
                                             but '{}' only expects {} values",
                                                 arg,
                                                 opt,
@@ -1330,6 +1333,17 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     }
                                 }
                             }
+                        }
+
+                        if !opt.empty_vals &&
+                            matches.args.contains_key(opt.name) &&
+                            arg.is_empty() {
+                            self.report_error(format!("The argument '{}' does not allow empty \
+                                values, but one was found.", opt),
+                                true,
+                                true,
+                                Some(matches.args.keys()
+                                                 .map(|k| *k).collect()));
                         }
                         if let Some(ref mut o) = matches.args.get_mut(opt.name) {
                             // Options have values, so we can unwrap()
@@ -1457,7 +1471,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             if let Some(ref ma) = matches.args.get(p.name) {
                                 if let Some(ref vals) = ma.values {
                                     if vals.len() as u8 == num {
-                                        self.report_error(format!("The argument \"{}\" was found, \
+                                        self.report_error(format!("The argument '{}' was found, \
                                             but '{}' wasn't expecting any more values", arg, p),
                                             true,
                                             true,
@@ -1466,6 +1480,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     }
                                 }
                             }
+                        }
+                        if !p.empty_vals && matches.args.contains_key(p.name) && arg.is_empty()  {
+                            self.report_error(format!("The argument '{}' does not allow empty \
+                                values, but one was found.", p),
+                                true,
+                                true,
+                                Some(matches.args.keys()
+                                                 .map(|k| *k).collect()));
                         }
                         // Check if it's already existing and update if so...
                         if let Some(ref mut pos) = matches.args.get_mut(p.name) {
@@ -1483,6 +1505,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     // Was an update made, or is this the first occurrence?
                     if !done {
                         let mut bm = BTreeMap::new();
+                        if !p.empty_vals && arg.is_empty() {
+                            self.report_error(format!("The argument '{}' does not allow empty \
+                                values, but one was found.", p),
+                                true,
+                                true,
+                                Some(matches.args.keys()
+                                                 .map(|k| *k).collect()));
+                        }
                         bm.insert(1, arg.clone());
                         matches.args.insert(p.name, MatchedArg{
                             occurrences: 1,
@@ -1742,6 +1772,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                 }
                 if arg_val.is_some() {
+                    if !v.empty_vals && arg.is_empty() && matches.args.contains_key(v.name) {
+                        self.report_error(format!("The argument '{}' does not allow empty \
+                            values, but one was found.", v),
+                            true,
+                            true,
+                            Some(matches.args.keys()
+                                             .map(|k| *k).collect()));
+                    }
                     if let Some(ref mut o) = matches.args.get_mut(v.name) {
                         o.occurrences += 1;
                         if let Some(ref mut vals) = o.values {
@@ -1751,6 +1789,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                 }
             } else {
+                if !v.empty_vals && arg_val.is_some() && arg_val.clone().unwrap().is_empty() {
+                    self.report_error(format!("The argument '{}' does not allow empty \
+                        values, but one was found.", v),
+                        true,
+                        true,
+                        Some(matches.args.keys()
+                                         .map(|k| *k).collect()));
+                }
                 matches.args.insert(v.name, MatchedArg{
                     occurrences: if arg_val.is_some() { 1 } else { 0 },
                     values: if arg_val.is_some() {
@@ -1951,7 +1997,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 }
             } else {
                 matches.args.insert(v.name, MatchedArg{
-                    // name: v.name.to_owned(),
                     // occurrences will be incremented on getting a value
                     occurrences: 0,
                     values: Some(BTreeMap::new())
