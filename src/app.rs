@@ -109,6 +109,7 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     needs_short_help: bool,
     needs_short_version: bool,
     needs_subcmd_help: bool,
+    subcmds_neg_reqs: bool,
     required: HashSet<&'ar str>,
     short_list: HashSet<char>,
     long_list: HashSet<&'ar str>,
@@ -156,6 +157,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             blacklist: HashSet::new(),
             bin_name: None,
             groups: HashMap::new(),
+            subcmds_neg_reqs: false
         }
     }
 
@@ -206,6 +208,25 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// ```
     pub fn after_help(mut self, h: &'h str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.more_help = Some(h);
+        self
+    }
+
+    /// Allows subcommands to override all requirements of the parent (this command). For example
+    /// if you had a subcommand or even top level application which had a required arguments that
+    /// is only required if no subcommand is used.
+    ///
+    /// **NOTE:** This defaults to false (using subcommand does *not* negate requirements)
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::App;
+    /// # let app = App::new("myprog")
+    /// .subcommands_negate_reqs(true)
+    /// # .get_matches();
+    /// ```
+    pub fn subcommands_negate_reqs(mut self, n: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        self.subcmds_neg_reqs = n;
         self
     }
 
@@ -1602,7 +1623,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self.validate_blacklist(matches);
         self.validate_num_args(matches);
 
-        if !self.required.is_empty() {
+        if !self.required.is_empty() && !self.subcmds_neg_reqs {
             if self.validate_required(&matches) {
                 self.report_error(format!("The following required arguments were not \
                     supplied:{}",
