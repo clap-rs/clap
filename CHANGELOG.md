@@ -1,3 +1,13 @@
+<a name="v0.8.6"></a>
+## v0.8.6 (2015-05-17)
+
+
+#### Bug Fixes
+
+* **args**  `-` can now be parsed as a value for an argument ([bc12e78e](https://github.com/kbknapp/clap-rs/commit/bc12e78eadd7eaf9d008a8469fdd2dfd7990cb5d), closes [#121](https://github.com/kbknapp/clap-rs/issues/121))
+
+
+
 <a name="v0.8.5"></a>
 ## v0.8.5 (2015-05-15)
 
