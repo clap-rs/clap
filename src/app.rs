@@ -1461,8 +1461,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 // previous positionals too. This will denote where to start
                 // let mut req_pos_from_name = None;
                 if let Some(p) = self.positionals_idx.get(&pos_counter) {
-
-
                     if self.blacklist.contains(p.name) {
                         matches.args.remove(p.name);
                         self.report_error(format!("The argument '{}' cannot be used with {}",
@@ -1641,15 +1639,25 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         matches.usage = Some(self.create_usage(None));
 
         if let Some(sc_name) = subcmd_name {
+            let mut mid_string = String::new();
+            if !self.subcmds_neg_reqs {
+                let mut hs = self.required.iter().map(|n| *n).collect::<Vec<_>>();
+                matches.args.keys().map(|k| hs.push(*k)).collect::<Vec<_>>();
+                let reqs = self.get_required_from(hs);
+
+                mid_string.push_str(&reqs.iter().fold(String::new(), |acc, s| acc + &format!(" {}", s)[..])[..])
+            }
+            mid_string.push_str(" ");
             if let Some(ref mut sc) = self.subcommands.get_mut(&sc_name) {
                 let mut new_matches = ArgMatches::new();
-                // bin_name should be parent's bin_name + the sc's name separated by a space
+                // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by a
+                // space
                 sc.bin_name = Some(format!("{}{}{}",
                     self.bin_name.clone().unwrap_or("".to_owned()),
                     if self.bin_name.is_some() {
-                        " "
+                        mid_string
                     } else {
-                        ""
+                        "".to_owned()
                     },
                     sc.name.clone()));
                 sc.get_matches_from(&mut new_matches, it);
