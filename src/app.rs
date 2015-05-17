@@ -109,13 +109,15 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     needs_short_help: bool,
     needs_short_version: bool,
     needs_subcmd_help: bool,
+    subcmds_neg_reqs: bool,
     required: HashSet<&'ar str>,
     short_list: HashSet<char>,
     long_list: HashSet<&'ar str>,
     blacklist: HashSet<&'ar str>,
     usage_str: Option<&'u str>,
     bin_name: Option<String>,
-    groups: HashMap<&'ar str, ArgGroup<'ar, 'ar>>
+    groups: HashMap<&'ar str, ArgGroup<'ar, 'ar>>,
+    no_sc_error: bool
 }
 
 impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
@@ -156,6 +158,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             blacklist: HashSet::new(),
             bin_name: None,
             groups: HashMap::new(),
+            subcmds_neg_reqs: false,
+            no_sc_error: false
         }
     }
 
@@ -206,6 +210,42 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// ```
     pub fn after_help(mut self, h: &'h str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.more_help = Some(h);
+        self
+    }
+
+    /// Allows subcommands to override all requirements of the parent (this command). For example
+    /// if you had a subcommand or even top level application which had a required arguments that
+    /// is only required if no subcommand is used.
+    ///
+    /// **NOTE:** This defaults to false (using subcommand does *not* negate requirements)
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::App;
+    /// # let app = App::new("myprog")
+    /// .subcommands_negate_reqs(true)
+    /// # .get_matches();
+    /// ```
+    pub fn subcommands_negate_reqs(mut self, n: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        self.subcmds_neg_reqs = n;
+        self
+    }
+
+    /// Allows specifying that if no subcommand is present at runtime, error and exit gracefully
+    ///
+    /// **NOTE:** This defaults to false (subcommands do *not* need to be present)
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::App;
+    /// # let app = App::new("myprog")
+    /// .subcommands_negate_reqs(true)
+    /// # .get_matches();
+    /// ```
+    pub fn error_on_no_subcommand(mut self, n: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        self.no_sc_error = n;
         self
     }
 
@@ -358,6 +398,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 min_vals: a.min_vals,
                 max_vals: a.max_vals,
                 help: a.help,
+                empty_vals: a.empty_vals
             };
             if pb.min_vals.is_some() && !pb.multiple {
                 panic!("Argument \"{}\" does not allow multiple values, yet it is expecting {} \
@@ -415,6 +456,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 val_names: a.val_names,
                 requires: None,
                 required: a.required,
+                empty_vals: a.empty_vals
             };
             if let Some(ref vec) = ob.val_names {
                 ob.num_vals = Some(vec.len() as u8);
@@ -456,17 +498,18 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
             self.opts.insert(a.name, ob);
         } else {
-            if a.short.is_none() && a.long.is_none() {
-                // Could be a posistional constructed from usage string
-
+            if !a.empty_vals {
+                // Empty vals defaults to true, so if it's false it was manually set
+                panic!("The argument '{}' cannot have empty_values() set because it is a flag. \
+                    Perhaps you mean't to set takes_value(true) as well?", a.name);
             }
             if a.required {
-                panic!("Argument \"{}\" cannot be required(true) because it has no index() or \
+                panic!("The argument '{}' cannot be required(true) because it has no index() or \
                     takes_value(true)", a.name);
             }
             if a.possible_vals.is_some() {
-                panic!("Argument \"{}\" cannot have a specific value set because it doesn't have \
-                    takes_value(true) set", a.name);
+                panic!("The argument '{}' cannot have a specific value set because it doesn't \
+                have takes_value(true) set", a.name);
             }
             // No need to check for index() or takes_value() as that is handled above
 
@@ -957,7 +1000,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     fn print_usage(&self, more_info: bool, matches: Option<Vec<&str>>) {
         print!("{}",self.create_usage(matches));
         if more_info {
-            println!("\nFor more information try --help");
+            println!("\n\nFor more information try --help");
         }
     }
 
@@ -1173,10 +1216,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     #[cfg(feature = "color")]
     fn report_error(&self, msg: String, usage: bool, quit: bool, matches: Option<Vec<&str>>) {
         println!("{}\n", Red.paint(&msg[..]));
-        if usage {
-            print!("{}",&self.create_usage(matches)[..]);
-            println!("{}","\n\nFor more information try --help");
-        }
+        if usage { self.print_usage(true, matches); }
         if quit { self.exit(1); }
     }
 
@@ -1316,7 +1356,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             if let Some(ref ma) = matches.args.get(opt.name) {
                                 if let Some(ref vals) = ma.values {
                                     if num == vals.len() as u8 && !opt.multiple {
-                                        self.report_error(format!("The argument \"{}\" was found, \
+                                        self.report_error(format!("The argument '{}' was found, \
                                             but '{}' only expects {} values",
                                                 arg,
                                                 opt,
@@ -1330,6 +1370,17 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     }
                                 }
                             }
+                        }
+
+                        if !opt.empty_vals &&
+                            matches.args.contains_key(opt.name) &&
+                            arg.is_empty() {
+                            self.report_error(format!("The argument '{}' does not allow empty \
+                                values, but one was found.", opt),
+                                true,
+                                true,
+                                Some(matches.args.keys()
+                                                 .map(|k| *k).collect()));
                         }
                         if let Some(ref mut o) = matches.args.get_mut(opt.name) {
                             // Options have values, so we can unwrap()
@@ -1426,8 +1477,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 // previous positionals too. This will denote where to start
                 // let mut req_pos_from_name = None;
                 if let Some(p) = self.positionals_idx.get(&pos_counter) {
-
-
                     if self.blacklist.contains(p.name) {
                         matches.args.remove(p.name);
                         self.report_error(format!("The argument '{}' cannot be used with {}",
@@ -1457,7 +1506,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             if let Some(ref ma) = matches.args.get(p.name) {
                                 if let Some(ref vals) = ma.values {
                                     if vals.len() as u8 == num {
-                                        self.report_error(format!("The argument \"{}\" was found, \
+                                        self.report_error(format!("The argument '{}' was found, \
                                             but '{}' wasn't expecting any more values", arg, p),
                                             true,
                                             true,
@@ -1466,6 +1515,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     }
                                 }
                             }
+                        }
+                        if !p.empty_vals && matches.args.contains_key(p.name) && arg.is_empty()  {
+                            self.report_error(format!("The argument '{}' does not allow empty \
+                                values, but one was found.", p),
+                                true,
+                                true,
+                                Some(matches.args.keys()
+                                                 .map(|k| *k).collect()));
                         }
                         // Check if it's already existing and update if so...
                         if let Some(ref mut pos) = matches.args.get_mut(p.name) {
@@ -1483,6 +1540,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     // Was an update made, or is this the first occurrence?
                     if !done {
                         let mut bm = BTreeMap::new();
+                        if !p.empty_vals && arg.is_empty() {
+                            self.report_error(format!("The argument '{}' does not allow empty \
+                                values, but one was found.", p),
+                                true,
+                                true,
+                                Some(matches.args.keys()
+                                                 .map(|k| *k).collect()));
+                        }
                         bm.insert(1, arg.clone());
                         matches.args.insert(p.name, MatchedArg{
                             occurrences: 1,
@@ -1511,7 +1576,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     parse_group_reqs!(self, p);
 
                 } else {
-                    self.report_error(format!("The argument \"{}\" was found, but '{}' wasn't \
+                    self.report_error(format!("The argument '{}' was found, but '{}' wasn't \
                         expecting any", arg,
                             self.bin_name.clone().unwrap_or(self.name.clone())),
                         true,
@@ -1572,7 +1637,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self.validate_blacklist(matches);
         self.validate_num_args(matches);
 
-        if !self.required.is_empty() {
+        if !self.required.is_empty() && !self.subcmds_neg_reqs {
             if self.validate_required(&matches) {
                 self.report_error(format!("The following required arguments were not \
                     supplied:{}",
@@ -1590,22 +1655,43 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         matches.usage = Some(self.create_usage(None));
 
         if let Some(sc_name) = subcmd_name {
+            let mut mid_string = String::new();
+            if !self.subcmds_neg_reqs {
+                let mut hs = self.required.iter().map(|n| *n).collect::<Vec<_>>();
+                matches.args.keys().map(|k| hs.push(*k)).collect::<Vec<_>>();
+                let reqs = self.get_required_from(hs);
+
+                mid_string.push_str(&reqs.iter().fold(String::new(), |acc, s| acc + &format!(" {}", s)[..])[..])
+            }
+            mid_string.push_str(" ");
             if let Some(ref mut sc) = self.subcommands.get_mut(&sc_name) {
                 let mut new_matches = ArgMatches::new();
-                // bin_name should be parent's bin_name + the sc's name separated by a space
+                // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by a
+                // space
                 sc.bin_name = Some(format!("{}{}{}",
                     self.bin_name.clone().unwrap_or("".to_owned()),
                     if self.bin_name.is_some() {
-                        " "
+                        mid_string
                     } else {
-                        ""
+                        "".to_owned()
                     },
                     sc.name.clone()));
                 sc.get_matches_from(&mut new_matches, it);
-                matches.subcommand = Some(Box::new(SubCommand{
+                matches.subcommand = Some(Box::new(SubCommand {
                     name: sc.name_slice,
-                    matches: new_matches}));
+                    matches: new_matches
+                }));
             }
+        } else if self.no_sc_error {
+            let bn = self.bin_name.clone().unwrap_or(self.name.clone());
+            self.report_error(format!("'{}' requires a subcommand but none was provided", &bn[..]),
+                if self.usage_str.is_some() { true } else { false },
+                if self.usage_str.is_some() { true } else { false },
+                Some(matches.args.keys().map(|k| *k).collect()));
+
+            println!("USAGE:\n\t{} [SUBCOMMAND]\n\nFor more information re-run with '--help' or \
+                'help'", &bn[..]);
+            self.exit(1);
         }
     }
 
@@ -1742,6 +1828,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                 }
                 if arg_val.is_some() {
+                    if !v.empty_vals && arg.is_empty() && matches.args.contains_key(v.name) {
+                        self.report_error(format!("The argument '{}' does not allow empty \
+                            values, but one was found.", v),
+                            true,
+                            true,
+                            Some(matches.args.keys()
+                                             .map(|k| *k).collect()));
+                    }
                     if let Some(ref mut o) = matches.args.get_mut(v.name) {
                         o.occurrences += 1;
                         if let Some(ref mut vals) = o.values {
@@ -1751,6 +1845,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                 }
             } else {
+                if !v.empty_vals && arg_val.is_some() && arg_val.clone().unwrap().is_empty() {
+                    self.report_error(format!("The argument '{}' does not allow empty \
+                        values, but one was found.", v),
+                        true,
+                        true,
+                        Some(matches.args.keys()
+                                         .map(|k| *k).collect()));
+                }
                 matches.args.insert(v.name, MatchedArg{
                     occurrences: if arg_val.is_some() { 1 } else { 0 },
                     values: if arg_val.is_some() {
@@ -1951,7 +2053,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 }
             } else {
                 matches.args.insert(v.name, MatchedArg{
-                    // name: v.name.to_owned(),
                     // occurrences will be incremented on getting a value
                     occurrences: 0,
                     values: Some(BTreeMap::new())

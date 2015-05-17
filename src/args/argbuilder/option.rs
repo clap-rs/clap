@@ -28,7 +28,8 @@ pub struct OptBuilder<'n> {
     pub num_vals: Option<u8>,
     pub min_vals: Option<u8>,
     pub max_vals: Option<u8>,
-    pub val_names: Option<Vec<&'n str>>
+    pub val_names: Option<Vec<&'n str>>,
+    pub empty_vals: bool
 }
 
 impl<'n> Display for OptBuilder<'n> {

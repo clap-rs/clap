@@ -87,6 +87,8 @@ pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     pub max_vals: Option<u8>,
     #[doc(hidden)]
     pub min_vals: Option<u8>,
+    #[doc(hidden)]
+    pub empty_vals: bool
 }
 
 impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
@@ -129,6 +131,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             val_names: None,
             max_vals: None,
             min_vals: None,
+            empty_vals: true,
         }
     }
 
@@ -168,6 +171,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             max_vals: None,
             val_names: None,
             group: None,
+            empty_vals: true
         }
     }
 
@@ -324,6 +328,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             max_vals: None,
             min_vals: None,
             group: None,
+            empty_vals: true
         }
     }
 
@@ -638,6 +643,26 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # ).get_matches();
     pub fn multiple(mut self, multi: bool) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self.multiple = multi;
+        self
+    }
+
+    /// Allows an argument to accept explicit empty values. An empty value must be specified at the
+    /// command line with an explicit `""`, or `''`
+    ///
+    /// **NOTE:** Defaults to `true` (Explicit empty values are allowed)
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let matches = App::new("myprog")
+    /// #                 .arg(
+    /// # Arg::with_name("debug")
+    /// .empty_values(true)
+    /// # ).get_matches();
+    pub fn empty_values(mut self, ev: bool) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
+        self.empty_vals = ev;
         self
     }
 
