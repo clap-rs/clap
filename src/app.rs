@@ -116,7 +116,8 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     blacklist: HashSet<&'ar str>,
     usage_str: Option<&'u str>,
     bin_name: Option<String>,
-    groups: HashMap<&'ar str, ArgGroup<'ar, 'ar>>
+    groups: HashMap<&'ar str, ArgGroup<'ar, 'ar>>,
+    no_sc_error: bool
 }
 
 impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
@@ -157,7 +158,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             blacklist: HashSet::new(),
             bin_name: None,
             groups: HashMap::new(),
-            subcmds_neg_reqs: false
+            subcmds_neg_reqs: false,
+            no_sc_error: false
         }
     }
 
@@ -227,6 +229,23 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// ```
     pub fn subcommands_negate_reqs(mut self, n: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.subcmds_neg_reqs = n;
+        self
+    }
+
+    /// Allows specifying that if no subcommand is present at runtime, error and exit gracefully
+    ///
+    /// **NOTE:** This defaults to false (subcommands do *not* need to be present)
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::App;
+    /// # let app = App::new("myprog")
+    /// .subcommands_negate_reqs(true)
+    /// # .get_matches();
+    /// ```
+    pub fn error_on_no_subcommand(mut self, n: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        self.no_sc_error = n;
         self
     }
 
@@ -981,7 +1000,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     fn print_usage(&self, more_info: bool, matches: Option<Vec<&str>>) {
         print!("{}",self.create_usage(matches));
         if more_info {
-            println!("\nFor more information try --help");
+            println!("\n\nFor more information try --help");
         }
     }
 
@@ -1197,10 +1216,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     #[cfg(feature = "color")]
     fn report_error(&self, msg: String, usage: bool, quit: bool, matches: Option<Vec<&str>>) {
         println!("{}\n", Red.paint(&msg[..]));
-        if usage {
-            print!("{}",&self.create_usage(matches)[..]);
-            println!("{}","\n\nFor more information try --help");
-        }
+        if usage { self.print_usage(true, matches); }
         if quit { self.exit(1); }
     }
 
@@ -1560,7 +1576,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     parse_group_reqs!(self, p);
 
                 } else {
-                    self.report_error(format!("The argument \"{}\" was found, but '{}' wasn't \
+                    self.report_error(format!("The argument '{}' was found, but '{}' wasn't \
                         expecting any", arg,
                             self.bin_name.clone().unwrap_or(self.name.clone())),
                         true,
@@ -1661,10 +1677,21 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     },
                     sc.name.clone()));
                 sc.get_matches_from(&mut new_matches, it);
-                matches.subcommand = Some(Box::new(SubCommand{
+                matches.subcommand = Some(Box::new(SubCommand {
                     name: sc.name_slice,
-                    matches: new_matches}));
+                    matches: new_matches
+                }));
             }
+        } else if self.no_sc_error {
+            let bn = self.bin_name.clone().unwrap_or(self.name.clone());
+            self.report_error(format!("'{}' requires a subcommand but none was provided", &bn[..]),
+                if self.usage_str.is_some() { true } else { false },
+                if self.usage_str.is_some() { true } else { false },
+                Some(matches.args.keys().map(|k| *k).collect()));
+
+            println!("USAGE:\n\t{} [SUBCOMMAND]\n\nFor more information re-run with '--help' or \
+                'help'", &bn[..]);
+            self.exit(1);
         }
     }
 
