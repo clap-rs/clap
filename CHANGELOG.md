@@ -1,3 +1,13 @@
+<a name="v0.9.1"></a>
+## v0.9.1 (2015-05-18)
+
+
+#### Bug Fixes
+
+* **help**  fixes a bug where requirements are included as program name in help and version ([08ba3f25](https://github.com/kbknapp/clap-rs/commit/08ba3f25cf38b149229ba8b9cb37a5804fe6b789))
+
+
+
 <a name="v0.9.0"></a>
 ## v0.9.0 (2015-05-17)
 
