@@ -116,6 +116,7 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     blacklist: HashSet<&'ar str>,
     usage_str: Option<&'u str>,
     bin_name: Option<String>,
+    usage: Option<String>,
     groups: HashMap<&'ar str, ArgGroup<'ar, 'ar>>,
     no_sc_error: bool
 }
@@ -155,6 +156,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             short_list: HashSet::new(),
             long_list: HashSet::new(),
             usage_str: None,
+            usage: None,
             blacklist: HashSet::new(),
             bin_name: None,
             groups: HashMap::new(),
@@ -951,10 +953,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             let r_string = reqs.iter().fold(String::new(), |acc, s| acc + &format!(" {}", s)[..]);
 
             usage.push_str(&format!("{}{}",
-                self.bin_name.clone().unwrap_or(self.name.clone()),
+                self.usage.clone().unwrap_or(self.bin_name.clone().unwrap_or(self.name.clone())),
                 r_string)[..]);
         } else {
-            usage.push_str(&self.bin_name.clone().unwrap_or(self.name.clone())[..]);
+            usage.push_str(&self.usage.clone().unwrap_or(self.bin_name.clone().unwrap_or(self.name.clone()))[..]);
 
             let mut reqs = self.required.iter().map(|n| *n).collect::<Vec<_>>();
             // If it's required we also need to ensure all previous positionals are required too
@@ -1668,12 +1670,20 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 let mut new_matches = ArgMatches::new();
                 // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by a
                 // space
-                sc.bin_name = Some(format!("{}{}{}",
+                sc.usage = Some(format!("{}{}{}",
                     self.bin_name.clone().unwrap_or("".to_owned()),
                     if self.bin_name.is_some() {
                         mid_string
                     } else {
                         "".to_owned()
+                    },
+                    sc.name.clone()));
+                sc.bin_name = Some(format!("{}{}{}",
+                    self.bin_name.clone().unwrap_or("".to_owned()),
+                    if self.bin_name.is_some() {
+                        " "
+                    } else {
+                        ""
                     },
                     sc.name.clone()));
                 sc.get_matches_from(&mut new_matches, it);
