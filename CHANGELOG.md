@@ -1,3 +1,13 @@
+<a name="v0.9.2"></a>
+## v0.9.2 (2015-05-20)
+
+
+#### Bug Fixes
+
+* **help**  allows parent requirements to be ignored with help and version ([52218cc1](https://github.com/kbknapp/clap-rs/commit/52218cc1fdb06a42456c964d98cc2c7ac3432412), closes [#124](https://github.com/kbknapp/clap-rs/issues/124))
+
+
+
 <a name="v0.9.1"></a>
 ## v0.9.1 (2015-05-18)
 
