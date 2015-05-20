@@ -1639,20 +1639,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self.validate_blacklist(matches);
         self.validate_num_args(matches);
 
-        if !self.required.is_empty() && !self.subcmds_neg_reqs {
-            if self.validate_required(&matches) {
-                self.report_error(format!("The following required arguments were not \
-                    supplied:{}",
-                    self.get_required_from(self.required.iter()
-                                                        .map(|s| *s)
-                                                        .collect::<Vec<_>>())
-                        .iter()
-                        .fold(String::new(), |acc, s| acc + &format!("\n\t'{}'",s)[..])),
-                    true,
-                    true,
-                    Some(matches.args.keys().map(|k| *k).collect()));
-            }
-        }
 
         matches.usage = Some(self.create_usage(None));
 
@@ -1702,6 +1688,20 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             println!("USAGE:\n\t{} [SUBCOMMAND]\n\nFor more information re-run with '--help' or \
                 'help'", &bn[..]);
             self.exit(1);
+        }
+        if !self.required.is_empty() && !self.subcmds_neg_reqs {
+            if self.validate_required(&matches) {
+                self.report_error(format!("The following required arguments were not \
+                    supplied:{}",
+                    self.get_required_from(self.required.iter()
+                                                        .map(|s| *s)
+                                                        .collect::<Vec<_>>())
+                        .iter()
+                        .fold(String::new(), |acc, s| acc + &format!("\n\t'{}'",s)[..])),
+                    true,
+                    true,
+                    Some(matches.args.keys().map(|k| *k).collect()));
+            }
         }
     }
 
