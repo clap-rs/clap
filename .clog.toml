@@ -7,3 +7,4 @@ from-latest-tag = true
 Performance = ["perf"]
 Improvements = ["impr", "im", "imp"]
 Documentation = ["docs"]
+Deprecations = ["depr"]
