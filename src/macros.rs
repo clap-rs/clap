@@ -5,10 +5,12 @@ macro_rules! get_help {
             format!("{}{}", h,
                 if let Some(ref pv) = $opt.possible_vals {
                     let mut pv_s = pv.iter().fold(String::with_capacity(50), |acc, name| {
-                        acc + &format!(" {}",name)[..]
+                        acc + &format!(" {},",name)[..]
                     });
                     pv_s.shrink_to_fit();
-                    format!(" [values:{}]", &pv_s[..])
+                    // pv_s = one, two, three, four,
+                    // Needs to remove trailing comma (',')
+                    format!(" [values:{}]", &pv_s[..pv_s.len()-1])
                 }else{"".to_owned()})
         } else {
             "    ".to_owned()
@@ -144,10 +146,10 @@ macro_rules! value_t {
             Some(v) => {
                 match v.parse::<$t>() {
                     Ok(val) => Ok(val),
-                    Err(_)  => Err(format!("'{}' isn't a valid value",v)),
+                    Err(_)  => Err(format!("'{}' isn't a valid value", ::clap::Format::Warning(v))),
                 }
             },
-            None => Err(format!("The argument '{}' not found", $v))
+            None => Err(format!("The argument '{}' not found", ::clap::Format::Warning($v)))
         }
     };
     ($m:ident.values_of($v:expr), $t:ty) => {
@@ -159,7 +161,7 @@ macro_rules! value_t {
                     match pv.parse::<$t>() {
                         Ok(rv) => tmp.push(rv),
                         Err(e) => {
-                            err = Some(format!("'{}' isn't a valid value\n\t{}",pv,e));
+                            err = Some(format!("'{}' isn't a valid value\n\t{}", ::clap::Format::Warning(pv),e));
                             break
                         }
                     }
@@ -169,7 +171,7 @@ macro_rules! value_t {
                     None => Ok(tmp)
                 }
             },
-            None => Err(format!("The argument '{}' was not found", $v))
+            None => Err(format!("The argument '{}' was not found", ::clap::Format::Warning($v)))
         }
     };
 }
@@ -227,20 +229,24 @@ macro_rules! value_t_or_exit {
                 match v.parse::<$t>() {
                     Ok(val) => val,
                     Err(e)  => {
-                        println!("'{}' isn't a valid value\n\t{}\n\n{}\n\nPlease re-run with --help for \
+                        println!("{} '{}' isn't a valid value\n\t{}\n\n{}\n\nPlease re-run with {} for \
                             more information",
-                            v,
+                            ::clap::Format::Error("error:"),
+                            ::clap::Format::Warning(v.to_string()),
                             e,
-                            $m.usage());
+                            $m.usage(),
+                            ::clap::Format::Good("--help"));
                         ::std::process::exit(1);
                     }
                 }
             },
             None => {
-                println!("The argument '{}' was not found or is not valid\n\n{}\n\nPlease re-run with \
-                    --help for more information",
-                    $v,
-                    $m.usage());
+                println!("{} The argument '{}' was not found or is not valid\n\n{}\n\nPlease re-run with \
+                    {} for more information",
+                    ::clap::Format::Error("error:"),
+                    ::clap::Format::Warning($v.to_string()),
+                    $m.usage(),
+                    ::clap::Format::Good("--help"));
                 ::std::process::exit(1);
             }
         }
@@ -253,10 +259,12 @@ macro_rules! value_t_or_exit {
                     match pv.parse::<$t>() {
                         Ok(rv) => tmp.push(rv),
                         Err(_)  => {
-                            println!("'{}' isn't a valid value\n\t{}\n\nPlease re-run with --help for more \
+                            println!("{} '{}' isn't a valid value\n\t{}\n\nPlease re-run with {} for more \
                                 information",
-                                pv,
-                                $m.usage());
+                                ::clap::Format::Error("error:"),
+                                ::clap::Format::Warning(pv),
+                                $m.usage(),
+                                ::clap::Format::Good("--help"));
                             ::std::process::exit(1);
                         }
                     }
@@ -264,10 +272,12 @@ macro_rules! value_t_or_exit {
                 tmp
             },
             None => {
-                println!("The argument '{}' not found or is not valid\n\n{}\n\nPlease re-run with \
-                    --help for more information",
-                    $v,
-                    $m.usage());
+                println!("{} The argument '{}' not found or is not valid\n\n{}\n\nPlease re-run with \
+                    {} for more information",
+                    ::clap::Format::Error("error:"),
+                    ::clap::Format::Warning($v.to_string()),
+                    $m.usage(),
+                    ::clap::Format::Good("--help"));
                 ::std::process::exit(1);
             }
         }

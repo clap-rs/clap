@@ -383,12 +383,14 @@ extern crate ansi_term;
 
 pub use args::{Arg, SubCommand, ArgMatches, ArgGroup};
 pub use app::App;
+pub use fmt::Format;
 
 #[macro_use]
 mod macros;
 mod app;
 mod args;
 mod usageparser;
+mod fmt;
 
 #[cfg(test)]
 mod tests {

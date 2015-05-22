@@ -27,18 +27,18 @@ OPTIONS:
         --multvalsmo <one> <two>     Tests mutliple values, not mult occs
     -o, --option <opt>...            tests options
         --long-option-2 <option2>    tests long options with exclusions
-    -O, --Option <option3>           tests options with specific value sets [values: fast slow]
+    -O, --Option <option3>           tests options with specific value sets [values: fast, slow]
 
 POSITIONAL ARGUMENTS:
     positional          tests positionals
     positional2         tests positionals with exclusions
-    positional3...      tests positionals with specific values [values: emacs vi]
+    positional3...      tests positionals with specific values [values: emacs, vi]
 
 SUBCOMMANDS:
     help      Prints this message
     subcmd    tests subcommands'''
 
-_sc_dym_usage = '''The subcommand 'subcm' isn't valid
+_sc_dym_usage = '''error: The subcommand 'subcm' isn't valid
 	Did you mean 'subcmd' ?
 
 If you received this message in error, try re-running with 'claptests -- subcm'
@@ -48,7 +48,7 @@ USAGE:
 
 For more information try --help'''
 
-_arg_dym_usage = '''The argument --optio isn't valid
+_arg_dym_usage = '''error: The argument '--optio' isn't valid
 	Did you mean --option ?
 
 USAGE:
@@ -56,8 +56,9 @@ USAGE:
 
 For more information try --help'''
 
-_pv_dym_usage = '''"slo" isn't a valid value for '--Option <option3>'
+_pv_dym_usage = '''error: 'slo' isn't a valid value for '--Option <option3>'
 	[valid values: fast slow]
+
 	Did you mean 'slow' ?
 
 USAGE:
@@ -65,21 +66,21 @@ USAGE:
 
 For more information try --help'''
 
-_excluded = '''The argument '--flag' cannot be used with '-F'
+_excluded = '''error: The argument '--flag' cannot be used with '-F'
 
 USAGE:
 \tclaptests [positional2] -F --long-option-2 <option2>
 
 For more information try --help'''
 
-_excluded_l = '''The argument -f cannot be used '-F'
+_excluded_l = '''error: The argument '-f' cannot be used '-F'
 
 USAGE:
 	claptests [positional2] -F --long-option-2 <option2>
 
 For more information try --help'''
 
-_required = '''The following required arguments were not supplied:
+_required = '''error: The following required arguments were not supplied:
 \t'[positional2]'
 \t'--long-option-2 <option2>'
 
@@ -182,7 +183,7 @@ scoption present with value: some
 An scoption: some
 scpositional present with value: value'''
 
-_min_vals_few = '''The argument '--minvals2 <minvals>...' requires at least 2 values, but 1 was provided
+_min_vals_few = '''error: The argument '--minvals2 <minvals>...' requires at least 2 values, but 1 was provided
 
 USAGE:
 \tclaptests --minvals2 <minvals>...
@@ -213,21 +214,21 @@ option NOT present
 positional present with value: too
 subcmd NOT present'''
 
-_mult_vals_more = '''The argument --multvals was supplied more than once, but does not support multiple values
+_mult_vals_more = '''error: The argument '--multvals' was supplied more than once, but does not support multiple values
 
 USAGE:
 \tclaptests --multvals <one> <two>
 
 For more information try --help'''
 
-_mult_vals_few = '''The argument '--multvals <one> <two>' requires a value but none was supplied
+_mult_vals_few = '''error: The argument '--multvals <one> <two>' requires a value but none was supplied
 
 USAGE:
 \tclaptests --multvals <one> <two>
 
 For more information try --help'''
 
-_mult_vals_2m1 = '''The argument '--multvalsmo <one> <two>' requires 2 values, but 1 was provided
+_mult_vals_2m1 = '''error: The argument '--multvalsmo <one> <two>' requires 2 values, but 1 was provided
 
 USAGE:
 	claptests --multvalsmo <one> <two>
