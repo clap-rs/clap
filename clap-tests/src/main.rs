@@ -6,8 +6,7 @@ use clap::{App, Arg, SubCommand};
 
 fn main() {
     let m_val_names = ["one", "two"];
-    let args = "-f --flag... 'tests flags'
-                -o --option=[opt]... 'tests options'
+    let args = "-o --option=[opt]... 'tests options'
                 [positional] 'tests positionals'";
     let opt3_vals = ["fast", "slow"];
     let pos3_vals = ["vi", "emacs"];
@@ -17,6 +16,8 @@ fn main() {
                         .about("tests clap library")
                         .author("Kevin K. <kbknapp@gmail.com>")
                         .args_from_usage(args)
+                        .arg(Arg::from_usage("-f --flag... 'tests flags'")
+                            .global(true))
                         .args(vec![
                             Arg::from_usage("[flag2] -F 'tests flags with exclusions'").mutually_excludes("flag").requires("option2"),
                             Arg::from_usage("--long-option-2 [option2] 'tests long options with exclusions'").mutually_excludes("option").requires("positional2"),
@@ -32,7 +33,6 @@ fn main() {
                                                 .about("tests subcommands")
                                                 .version("0.1")
                                                 .author("Kevin K. <kbknapp@gmail.com>")
-                                                .arg_from_usage("[scflag] -f --flag... 'tests flags'")
                                                 .arg_from_usage("-o --option [scoption]... 'tests options'")
                                                 .arg_from_usage("[scpositional] 'tests positionals'"))
                         .get_matches();
@@ -105,10 +105,10 @@ fn main() {
     if matches.is_present("subcmd") {
         println!("subcmd present");
         if let Some(matches) = matches.subcommand_matches("subcmd") {
-            if matches.is_present("scflag") {
-                println!("scflag present {} times", matches.occurrences_of("scflag"));
+            if matches.is_present("flag") {
+                println!("flag present {} times", matches.occurrences_of("flag"));
             } else {
-                println!("scflag NOT present");
+                println!("flag NOT present");
             }
 
             if matches.is_present("scoption") {

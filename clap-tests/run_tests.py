@@ -140,8 +140,8 @@ USAGE:
 	claptests subcmd [POSITIONAL] [FLAGS] [OPTIONS]
 
 FLAGS:
-    -h, --help       Prints help information
     -f, --flag       tests flags
+    -h, --help       Prints help information
     -v, --version    Prints version information
 
 OPTIONS:
@@ -161,7 +161,7 @@ positional3 NOT present
 option NOT present
 positional NOT present
 subcmd present
-scflag present 1 times
+flag present 1 times
 scoption present with value: some
 An scoption: some
 scpositional present with value: value'''
@@ -177,7 +177,7 @@ positional3 NOT present
 option NOT present
 positional NOT present
 subcmd present
-scflag present 2 times
+flag present 2 times
 scoption present with value: some
 An scoption: some
 scpositional present with value: value'''
