@@ -234,6 +234,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
+    /// **WARNING:** This method is deprecated. Use `.subcommand_required(true)` instead.
+    ///
     /// Allows specifying that if no subcommand is present at runtime, error and exit gracefully
     ///
     /// **NOTE:** This defaults to false (subcommands do *not* need to be present)
@@ -247,6 +249,23 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # .get_matches();
     /// ```
     pub fn error_on_no_subcommand(mut self, n: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        self.no_sc_error = n;
+        self
+    }
+
+    /// Allows specifying that if no subcommand is present at runtime, error and exit gracefully
+    ///
+    /// **NOTE:** This defaults to false (subcommands do *not* need to be present)
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::App;
+    /// # let app = App::new("myprog")
+    /// .subcommands_negate_reqs(true)
+    /// # .get_matches();
+    /// ```
+    pub fn subcommand_required(mut self, n: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.no_sc_error = n;
         self
     }

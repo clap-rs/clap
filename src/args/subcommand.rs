@@ -39,6 +39,23 @@ impl<'n, 'a> SubCommand<'n, 'a> {
     /// SubCommand::new("config")
     /// # ).get_matches();
     /// ```
+    pub fn with_name<'au, 'v, 'ab, 'u, 'h, 'ar>(name: &'ar str) -> App<'au, 'v, 'ab, 'u, 'h, 'ar> {
+        App::new(name)
+    }
+
+    /// **WARNING:** This function is deprecated. Use `SubCommand::with_name()` instead.
+    ///
+    /// Creates a new instance of a subcommand requiring a name. Will be displayed
+    /// to the user when they print version or help and usage information.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, SubCommand};
+    /// # let prog = App::new("myprog").subcommand(
+    /// SubCommand::new("config")
+    /// # ).get_matches();
+    /// ```
     pub fn new<'au, 'v, 'ab, 'u, 'h, 'ar>(name: &'ar str) -> App<'au, 'v, 'ab, 'u, 'h, 'ar> {
         App::new(name)
     }

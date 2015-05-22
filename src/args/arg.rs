@@ -88,10 +88,14 @@ pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     #[doc(hidden)]
     pub min_vals: Option<u8>,
     #[doc(hidden)]
-    pub empty_vals: bool
+    pub empty_vals: bool,
+    #[doc(hidden)]
+    pub global: bool
 }
 
 impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
+    /// **WARNING:** This function is deprecated. Use `Arg::with_name()` instead.
+    ///
     /// Creates a new instace of `Arg` using a unique string name.
     /// The name will be used by the library consumer to get information about
     /// whether or not the argument was used at runtime.
@@ -100,8 +104,6 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// and positional arguments (i.e. those without a `-` or `--`) the name will also
     /// be displayed when the user prints the usage/help information of the program.
     ///
-    /// **NOTE:** this function is deprecated in favor of Arg::with_name() to stay consistent with
-    /// Rust APIs
     ///
     ///
     /// # Example
@@ -423,15 +425,14 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self
     }
 
+    /// **WARNING:** This method is deprecated. Use `.conflicts_with()` instead.
+    ///
     /// Sets a mutually exclusive argument by name. I.e. when using this argument,
     /// the following argument can't be present.
     ///
     /// **NOTE:** Mutually exclusive rules take precedence over being required
     /// by default. Mutually exclusive rules only need to be set for one of the two
     /// arguments, they do not need to be set for each.
-    ///
-    /// **NOTE:** This method is deprecated in favor of `conflicts_with()`
-    ///
     ///
     /// # Example
     ///
@@ -450,15 +451,14 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self
     }
 
+    /// **WARNING:** This method is deprecated. Use `conflicts_with_all()` instead.
+    ///
     /// Sets a mutually exclusive arguments by names. I.e. when using this argument,
     /// the following argument can't be present.
     ///
     /// **NOTE:** Mutually exclusive rules take precedence over being required
     /// by default. Mutually exclusive rules only need to be set for one of the two
     /// arguments, they do not need to be set for each.
-    ///
-    /// **NOTE:** This method is deprecated in favor of `conflicts_with_all()`
-    ///
     ///
     /// # Example
     ///
@@ -643,6 +643,25 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # ).get_matches();
     pub fn multiple(mut self, multi: bool) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self.multiple = multi;
+        self
+    }
+
+    /// Specifies that an argument applies to and will be available to all subcommands, both
+    /// children, and parent commands.
+    ///
+    /// **NOTE:** Global arguments *cannot* be required.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let matches = App::new("myprog")
+    /// #                 .arg(
+    /// # Arg::with_name("debug")
+    /// .global(true)
+    /// # ).get_matches();
+    pub fn global(mut self, g: bool) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
+        self.global = g;
         self
     }
 
