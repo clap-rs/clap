@@ -118,6 +118,7 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     bin_name: Option<String>,
     usage: Option<String>,
     groups: HashMap<&'ar str, ArgGroup<'ar, 'ar>>,
+    global_args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>,
     no_sc_error: bool
 }
 
@@ -161,6 +162,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             bin_name: None,
             groups: HashMap::new(),
             subcmds_neg_reqs: false,
+            global_args: vec![],
             no_sc_error: false
         }
     }
@@ -419,6 +421,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 min_vals: a.min_vals,
                 max_vals: a.max_vals,
                 help: a.help,
+                global: a.global,
                 empty_vals: a.empty_vals
             };
             if pb.min_vals.is_some() && !pb.multiple {
@@ -470,11 +473,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 multiple: a.multiple,
                 blacklist: None,
                 help: a.help,
+                global: a.global,
                 possible_vals: None,
                 num_vals: a.num_vals,
                 min_vals: a.min_vals,
                 max_vals: a.max_vals,
-                val_names: a.val_names,
+                val_names: a.val_names.clone(),
                 requires: None,
                 required: a.required,
                 empty_vals: a.empty_vals
@@ -540,6 +544,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 long: a.long,
                 help: a.help,
                 blacklist: None,
+                global: a.global,
                 multiple: a.multiple,
                 requires: None,
             };
@@ -559,6 +564,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 fb.requires = Some(rhs);
             }
             self.flags.insert(a.name, fb);
+        }
+        if a.global {
+            if a.required {
+                panic!("Global arguments cannot be required.\n\n\t'{}' is marked as global and required", a.name);
+            }
+            self.global_args.push(a);
         }
         self
     }
@@ -749,9 +760,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///             // Additional subcommand configuration goes here, such as other arguments...
     /// # .get_matches();
     /// ```
-    pub fn subcommand(mut self, subcmd: App<'a, 'v, 'ab, 'u, 'h, 'ar>)
+    pub fn subcommand(mut self, mut subcmd: App<'a, 'v, 'ab, 'u, 'h, 'ar>)
                       -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         if subcmd.name == "help" { self.needs_subcmd_help = false; }
+        {
+            while let Some(a) = self.global_args.pop() {
+                subcmd = subcmd.arg(a);
+            }
+        }
         self.subcommands.insert(subcmd.name.clone(), subcmd);
         self
     }
@@ -1763,6 +1779,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 help: Some("Prints help information"),
                 blacklist: None,
                 multiple: false,
+                global: false,
                 requires: None,
             };
             if self.needs_short_help {
@@ -1780,6 +1797,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 help: Some("Prints version information"),
                 blacklist: None,
                 multiple: false,
+                global: false,
                 requires: None,
             };
             if self.needs_short_version {

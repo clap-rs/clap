@@ -26,7 +26,8 @@ pub struct PosBuilder<'n> {
     pub num_vals: Option<u8>,
     pub max_vals: Option<u8>,
     pub min_vals: Option<u8>,
-    pub empty_vals: bool
+    pub empty_vals: bool,
+    pub global: bool
 }
 
 impl<'n> Display for PosBuilder<'n> {

@@ -133,6 +133,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             val_names: None,
             max_vals: None,
             min_vals: None,
+            global: false,
             empty_vals: true,
         }
     }
@@ -173,6 +174,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             max_vals: None,
             val_names: None,
             group: None,
+            global: false,
             empty_vals: true
         }
     }
@@ -330,6 +332,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             max_vals: None,
             min_vals: None,
             group: None,
+            global: false,
             empty_vals: true
         }
     }
@@ -646,8 +649,9 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self
     }
 
-    /// Specifies that an argument applies to and will be available to all subcommands, both
-    /// children, and parent commands.
+    /// Specifies that an argument applies to and will be available to all child subcommands.
+    ///
+    /// **NOTE:** Global arguments *only* propagate down, **not** up (to parent commands)
     ///
     /// **NOTE:** Global arguments *cannot* be required.
     ///
