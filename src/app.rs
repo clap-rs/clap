@@ -11,11 +11,10 @@ use std::process;
 use args::{ ArgMatches, Arg, SubCommand, MatchedArg};
 use args::{ FlagBuilder, OptBuilder, PosBuilder};
 use args::ArgGroup;
+use fmt::Format;
 
 #[cfg(feature = "suggestions")]
 use strsim;
-#[cfg(feature = "color")]
-use ansi_term::Colour::Red;
 
 /// Produces a string from a given list of possible values which is similar to
 /// the passed in value `v` with a certain confidence.
@@ -118,6 +117,7 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     bin_name: Option<String>,
     usage: Option<String>,
     groups: HashMap<&'ar str, ArgGroup<'ar, 'ar>>,
+    global_args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>,
     no_sc_error: bool
 }
 
@@ -161,6 +161,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             bin_name: None,
             groups: HashMap::new(),
             subcmds_neg_reqs: false,
+            global_args: vec![],
             no_sc_error: false
         }
     }
@@ -234,6 +235,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
+    /// **WARNING:** This method is deprecated. Use `.subcommand_required(true)` instead.
+    ///
     /// Allows specifying that if no subcommand is present at runtime, error and exit gracefully
     ///
     /// **NOTE:** This defaults to false (subcommands do *not* need to be present)
@@ -247,6 +250,23 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # .get_matches();
     /// ```
     pub fn error_on_no_subcommand(mut self, n: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        self.no_sc_error = n;
+        self
+    }
+
+    /// Allows specifying that if no subcommand is present at runtime, error and exit gracefully
+    ///
+    /// **NOTE:** This defaults to false (subcommands do *not* need to be present)
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::App;
+    /// # let app = App::new("myprog")
+    /// .subcommands_negate_reqs(true)
+    /// # .get_matches();
+    /// ```
+    pub fn subcommand_required(mut self, n: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.no_sc_error = n;
         self
     }
@@ -400,6 +420,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 min_vals: a.min_vals,
                 max_vals: a.max_vals,
                 help: a.help,
+                global: a.global,
                 empty_vals: a.empty_vals
             };
             if pb.min_vals.is_some() && !pb.multiple {
@@ -451,11 +472,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 multiple: a.multiple,
                 blacklist: None,
                 help: a.help,
+                global: a.global,
                 possible_vals: None,
                 num_vals: a.num_vals,
                 min_vals: a.min_vals,
                 max_vals: a.max_vals,
-                val_names: a.val_names,
+                val_names: a.val_names.clone(),
                 requires: None,
                 required: a.required,
                 empty_vals: a.empty_vals
@@ -521,6 +543,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 long: a.long,
                 help: a.help,
                 blacklist: None,
+                global: a.global,
                 multiple: a.multiple,
                 requires: None,
             };
@@ -540,6 +563,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 fb.requires = Some(rhs);
             }
             self.flags.insert(a.name, fb);
+        }
+        if a.global {
+            if a.required {
+                panic!("Global arguments cannot be required.\n\n\t'{}' is marked as global and required", a.name);
+            }
+            self.global_args.push(a);
         }
         self
     }
@@ -730,9 +759,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///             // Additional subcommand configuration goes here, such as other arguments...
     /// # .get_matches();
     /// ```
-    pub fn subcommand(mut self, subcmd: App<'a, 'v, 'ab, 'u, 'h, 'ar>)
+    pub fn subcommand(mut self, mut subcmd: App<'a, 'v, 'ab, 'u, 'h, 'ar>)
                       -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         if subcmd.name == "help" { self.needs_subcmd_help = false; }
+        {
+            while let Some(a) = self.global_args.pop() {
+                subcmd = subcmd.arg(a);
+            }
+        }
         self.subcommands.insert(subcmd.name.clone(), subcmd);
         self
     }
@@ -1002,7 +1036,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     fn print_usage(&self, more_info: bool, matches: Option<Vec<&str>>) {
         print!("{}",self.create_usage(matches));
         if more_info {
-            println!("\n\nFor more information try --help");
+            println!("\n\nFor more information try {}", Format::Good("--help"));
         }
     }
 
@@ -1208,16 +1242,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     // Reports and error to the users screen along with an optional usage statement and quits
-    #[cfg(not(feature = "color"))]
     fn report_error(&self, msg: String, usage: bool, quit: bool, matches: Option<Vec<&str>>) {
-        println!("{}\n", msg);
-        if usage { self.print_usage(true, matches); }
-        if quit { self.exit(1); }
-    }
-
-    #[cfg(feature = "color")]
-    fn report_error(&self, msg: String, usage: bool, quit: bool, matches: Option<Vec<&str>>) {
-        println!("{}\n", Red.paint(&msg[..]));
+        println!("{} {}\n", Format::Error("error:"), msg);
         if usage { self.print_usage(true, matches); }
         if quit { self.exit(1); }
     }
@@ -1295,10 +1321,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 Some(candidate) => {
                     let mut suffix = "\n\tDid you mean ".to_string();
                     match style {
-                        DidYouMeanMessageStyle::LongFlag => suffix.push_str("--"),
+                        DidYouMeanMessageStyle::LongFlag => suffix.push_str(&Format::Good("--").to_string()[..]),
                         DidYouMeanMessageStyle::EnumValue => suffix.push('\''),
                     }
-                    suffix.push_str(candidate);
+                    suffix.push_str(&Format::Good(candidate).to_string()[..]);
                     if let DidYouMeanMessageStyle::EnumValue = style {
                         suffix.push('\'');
                     }
@@ -1314,10 +1340,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let suffix = App::did_you_mean_suffix(arg, p_vals.iter(),
                                               DidYouMeanMessageStyle::EnumValue);
 
-        self.report_error(format!("\"{}\" isn't a valid value for '{}'{}{}",
-                                    arg,
-                                    opt,
-                                    format!("\n\t[valid values:{}]",
+        self.report_error(format!("'{}' isn't a valid value for '{}'{}{}",
+                                    Format::Warning(arg),
+                                    Format::Warning(opt),
+                                    format!("\n\t[valid values:{}]\n",
                                         p_vals.iter()
                                               .fold(String::new(), |acc, name| {
                                                   acc + &format!(" {}",name)[..]
@@ -1360,9 +1386,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     if num == vals.len() as u8 && !opt.multiple {
                                         self.report_error(format!("The argument '{}' was found, \
                                             but '{}' only expects {} values",
-                                                arg,
-                                                opt,
-                                                vals.len()),
+                                                Format::Warning(&arg),
+                                                Format::Warning(opt.to_string()),
+                                                Format::Good(vals.len().to_string())),
                                             true,
                                             true,
                                             Some(
@@ -1378,7 +1404,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             matches.args.contains_key(opt.name) &&
                             arg.is_empty() {
                             self.report_error(format!("The argument '{}' does not allow empty \
-                                values, but one was found.", opt),
+                                    values, but one was found.", Format::Warning(opt.to_string())),
                                 true,
                                 true,
                                 Some(matches.args.keys()
@@ -1420,7 +1446,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 if let Some(ref o) = self.opts.get(name) {
                     if !o.multiple {
                         self.report_error(
-                            format!("The argument '{}' requires a value but none was supplied", o),
+                            format!("The argument '{}' requires a value but none was supplied",
+                                Format::Warning(o.to_string())),
                             true,
                             true,
                             Some(matches.args.keys().map(|k| *k).collect() ) );
@@ -1455,10 +1482,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         self.report_error(
                             format!("The subcommand '{}' isn't valid\n\tDid you mean '{}' ?\n\n\
                             If you received this message in error, try \
-                            re-running with '{} -- {}'",
-                                arg,
-                                candidate_subcommand,
+                            re-running with '{} {} {}'",
+                                Format::Warning(&arg),
+                                Format::Good(candidate_subcommand),
                                 self.bin_name.clone().unwrap_or(self.name.clone()),
+                                Format::Good("--"),
                                 arg),
                             true,
                             true,
@@ -1468,8 +1496,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
                 if self.positionals_idx.is_empty() {
                     self.report_error(
-                        format!("Found argument \"{}\", but {} wasn't expecting any",
-                            arg,
+                        format!("Found argument '{}', but {} wasn't expecting any",
+                            Format::Warning(&arg),
                             self.bin_name.clone().unwrap_or(self.name.clone())),
                         true,
                         true,
@@ -1482,9 +1510,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     if self.blacklist.contains(p.name) {
                         matches.args.remove(p.name);
                         self.report_error(format!("The argument '{}' cannot be used with {}",
-                            p,
+                            Format::Warning(p.to_string()),
                             match self.blacklisted_from(p.name, &matches) {
-                                Some(name) => format!("'{}'", name),
+                                Some(name) => format!("'{}'", Format::Warning(name)),
                                 None       => "one or more of the other specified \
                                                arguments".to_owned()
                             }),
@@ -1509,7 +1537,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 if let Some(ref vals) = ma.values {
                                     if vals.len() as u8 == num {
                                         self.report_error(format!("The argument '{}' was found, \
-                                            but '{}' wasn't expecting any more values", arg, p),
+                                            but '{}' wasn't expecting any more values",
+                                                Format::Warning(&arg),
+                                                Format::Warning(p.to_string())),
                                             true,
                                             true,
                                             Some(matches.args.keys()
@@ -1520,7 +1550,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         }
                         if !p.empty_vals && matches.args.contains_key(p.name) && arg.is_empty()  {
                             self.report_error(format!("The argument '{}' does not allow empty \
-                                values, but one was found.", p),
+                                    values, but one was found.", Format::Warning(p.to_string())),
                                 true,
                                 true,
                                 Some(matches.args.keys()
@@ -1544,7 +1574,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         let mut bm = BTreeMap::new();
                         if !p.empty_vals && arg.is_empty() {
                             self.report_error(format!("The argument '{}' does not allow empty \
-                                values, but one was found.", p),
+                                values, but one was found.", Format::Warning(p.to_string())),
                                 true,
                                 true,
                                 Some(matches.args.keys()
@@ -1579,7 +1609,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
                 } else {
                     self.report_error(format!("The argument '{}' was found, but '{}' wasn't \
-                        expecting any", arg,
+                        expecting any", Format::Warning(&arg),
                             self.bin_name.clone().unwrap_or(self.name.clone())),
                         true,
                         true,
@@ -1597,8 +1627,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         };
                         if should_err {
                             self.report_error(
-                                format!("The argument '{}' requires a value but none was \
-                                supplied", o),
+                                format!("The argument '{}' requires a value but there wasn't any \
+                                supplied", Format::Warning(o.to_string())),
                                 true,
                                 true,
                                 Some(matches.args.keys().map(|k| *k).collect() ) );
@@ -1606,7 +1636,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                     else if !o.multiple {
                         self.report_error(
-                            format!("The argument '{}' requires a value but none was supplied", o),
+                            format!("The argument '{}' requires a value but none was supplied",
+                                Format::Warning(o.to_string())),
                             true,
                             true,
                             Some(matches.args.keys().map(|k| *k).collect() ) );
@@ -1618,7 +1649,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                                                 .map(|s| *s)
                                                                 .collect::<Vec<_>>())
                                 .iter()
-                                .fold(String::new(), |acc, s| acc + &format!("\n\t'{}'",s)[..])),
+                                .fold(String::new(), |acc, s| acc + &format!("\n\t'{}'",
+                                    Format::Error(s.to_string()))[..])),
                             true,
                             true,
                             Some(matches.args.keys().map(|k| *k).collect()));
@@ -1626,8 +1658,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 } else {
                     self.report_error(
                         format!("The argument '{}' requires a value but none was supplied",
-                            format!("{}", self.positionals_idx.get(
-                                self.positionals_name.get(a).unwrap()).unwrap())),
+                            Format::Warning(format!("{}", self.positionals_idx.get(
+                                self.positionals_name.get(a).unwrap()).unwrap()))),
                             true,
                             true,
                             Some(matches.args.keys().map(|k| *k).collect()));
@@ -1680,13 +1712,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
         } else if self.no_sc_error {
             let bn = self.bin_name.clone().unwrap_or(self.name.clone());
-            self.report_error(format!("'{}' requires a subcommand but none was provided", &bn[..]),
+            self.report_error(format!("'{}' requires a subcommand but none was provided",
+                    Format::Warning(&bn[..])),
                 if self.usage_str.is_some() { true } else { false },
                 if self.usage_str.is_some() { true } else { false },
                 Some(matches.args.keys().map(|k| *k).collect()));
 
-            println!("USAGE:\n\t{} [SUBCOMMAND]\n\nFor more information re-run with '--help' or \
-                'help'", &bn[..]);
+            println!("USAGE:\n\t{} [SUBCOMMAND]\n\nFor more information re-run with {} or \
+                '{}'", &bn[..], Format::Good("--help"), Format::Good("help"));
             self.exit(1);
         }
         if !self.required.is_empty() && !self.subcmds_neg_reqs {
@@ -1697,7 +1730,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                                         .map(|s| *s)
                                                         .collect::<Vec<_>>())
                         .iter()
-                        .fold(String::new(), |acc, s| acc + &format!("\n\t'{}'",s)[..])),
+                        .fold(String::new(), |acc, s| acc + &format!("\n\t'{}'",
+                            Format::Error(s))[..])),
                     true,
                     true,
                     Some(matches.args.keys().map(|k| *k).collect()));
@@ -1744,6 +1778,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 help: Some("Prints help information"),
                 blacklist: None,
                 multiple: false,
+                global: false,
                 requires: None,
             };
             if self.needs_short_help {
@@ -1761,6 +1796,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 help: Some("Prints version information"),
                 blacklist: None,
                 multiple: false,
+                global: false,
                 requires: None,
             };
             if self.needs_short_version {
@@ -1800,8 +1836,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             arg = arg_vec[0];
             // prevents "--config= value" typo
             if arg_vec[1].len() == 0 {
-                self.report_error(format!("The argument --{} requires a value, but none was \
-                    supplied", arg),
+                self.report_error(format!("The argument '{}' requires a value, but none was \
+                        supplied", Format::Warning(format!("--{}", arg))),
                     true,
                     true,
                     Some(matches.args.keys().map(|k| *k).collect()));
@@ -1815,15 +1851,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             // Ensure this option isn't on the master mutually excludes list
             if self.blacklist.contains(v.name) {
                 matches.args.remove(v.name);
-                self.report_error(format!("The argument --{} cannot be used with one or more of \
-                    the other specified arguments", arg),
+                self.report_error(format!("The argument '{}' cannot be used with one or more of \
+                    the other specified arguments", Format::Warning(format!("--{}", arg))),
                     true, true, Some(matches.args.keys().map(|k| *k).collect()));
             }
 
             if matches.args.contains_key(v.name) {
                 if !v.multiple {
-                    self.report_error(format!("The argument --{} was supplied more than once, but \
-                        does not support multiple values", arg),
+                    self.report_error(format!("The argument '{}' was supplied more than once, but \
+                            does not support multiple values",
+                            Format::Warning(format!("--{}", arg))),
                         true,
                         true,
                         Some(matches.args.keys().map(|k| *k).collect()));
@@ -1840,7 +1877,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 if arg_val.is_some() {
                     if !v.empty_vals && arg.is_empty() && matches.args.contains_key(v.name) {
                         self.report_error(format!("The argument '{}' does not allow empty \
-                            values, but one was found.", v),
+                                values, but one was found.", Format::Warning(v.to_string())),
                             true,
                             true,
                             Some(matches.args.keys()
@@ -1857,7 +1894,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             } else {
                 if !v.empty_vals && arg_val.is_some() && arg_val.clone().unwrap().is_empty() {
                     self.report_error(format!("The argument '{}' does not allow empty \
-                        values, but one was found.", v),
+                            values, but one was found.", Format::Warning(v.to_string())),
                         true,
                         true,
                         Some(matches.args.keys()
@@ -1909,11 +1946,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             if self.blacklist.contains(v.name) {
                 matches.args.remove(v.name);
                 self.report_error(format!("The argument '{}' cannot be used with {}",
-                    v,
-                    match self.blacklisted_from(v.name, matches) {
-                        Some(name) => format!("'{}'", name),
-                        None       => "one or more of the specified arguments".to_owned()
-                    }),
+                        Format::Warning(v.to_string()),
+                        match self.blacklisted_from(v.name, matches) {
+                            Some(name) => format!("'{}'", Format::Warning(name)),
+                            None       => "one or more of the specified arguments".to_owned()
+                        }),
                     true,
                     true,
                     Some(matches.args.keys().map(|k| *k).collect()));
@@ -1922,7 +1959,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             // Make sure this isn't one being added multiple times if it doesn't suppor it
             if matches.args.contains_key(v.name) && !v.multiple {
                 self.report_error(format!("The argument '{}' was supplied more than once, but does \
-                    not support multiple values", v),
+                        not support multiple values", Format::Warning(v.to_string())),
                     true,
                     true,
                     Some(matches.args.keys().map(|k| *k).collect()));
@@ -2001,7 +2038,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
         }
 
-        self.report_error(format!("The argument --{} isn't valid{}", arg, suffix.0),
+        self.report_error(format!("The argument '{}' isn't valid{}",
+                Format::Warning(format!("--{}", arg)), 
+                suffix.0),
             true,
             true,
             Some(matches.args.keys().map(|k| *k).collect()));
@@ -2017,7 +2056,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             for c in arg.chars() {
                 self.check_for_help_and_version(c);
                 if !self.parse_single_short_flag(matches, c) {
-                    self.report_error(format!("The argument -{} isn't valid",arg),
+                    self.report_error(format!("The argument '{}' isn't valid",
+                            Format::Warning(format!("-{}", c))),
                         true,
                         true,
                         Some(matches.args.keys().map(|k| *k).collect()));
@@ -2042,10 +2082,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             // Ensure this option isn't on the master mutually excludes list
             if self.blacklist.contains(v.name) {
                 matches.args.remove(v.name);
-                self.report_error(format!("The argument -{} cannot be used with {}",
-                        arg,
+                self.report_error(format!("The argument '{}' cannot be used with {}",
+                            Format::Warning(format!("-{}", arg)),
                         match self.blacklisted_from(v.name, matches) {
-                            Some(name) => format!("'{}'", name),
+                            Some(name) => format!("'{}'", Format::Warning(name)),
                             None       => "one or more of the other specified arguments".to_owned()
                         }),
                     true,
@@ -2055,8 +2095,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
             if matches.args.contains_key(v.name) {
                 if !v.multiple {
-                    self.report_error(format!("The argument -{} was supplied more than once, but \
-                        does not support multiple values", arg),
+                    self.report_error(format!("The argument '{}' was supplied more than once, but \
+                        does not support multiple values",
+                            Format::Warning(format!("-{}", arg))),
                         true,
                         true,
                         Some(matches.args.keys().map(|k| *k).collect()));
@@ -2093,7 +2134,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
 
         // Didn't match a flag or option, must be invalid
-        self.report_error(format!("The argument -{} isn't valid",arg_c),
+        self.report_error(format!("The argument '{}' isn't valid",
+                            Format::Warning(format!("-{}", arg_c))),
             true,
             true,
             Some(matches.args.keys().map(|k| *k).collect()));
@@ -2108,10 +2150,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             // Ensure this flag isn't on the mutually excludes list
             if self.blacklist.contains(v.name) {
                 matches.args.remove(v.name);
-                self.report_error(format!("The argument -{} cannot be used {}",
-                        arg,
+                self.report_error(format!("The argument '{}' cannot be used {}",
+                            Format::Warning(format!("-{}", arg)),
                         match self.blacklisted_from(v.name, matches) {
-                            Some(name) => format!("'{}'", name),
+                            Some(name) => format!("'{}'", Format::Warning(name)),
                             None       => "with one or more of the other specified \
                                 arguments".to_owned()
                         }),
@@ -2122,8 +2164,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
             // Make sure this isn't one being added multiple times if it doesn't suppor it
             if matches.args.contains_key(v.name) && !v.multiple {
-                self.report_error(format!("The argument -{} was supplied more than once, but does \
-                        not support multiple values", arg),
+                self.report_error(format!("The argument '{}' was supplied more than once, but does \
+                        not support multiple values",
+                            Format::Warning(format!("-{}", arg))),
                     true,
                     true,
                     Some(matches.args.keys().map(|k| *k).collect()));
@@ -2176,16 +2219,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 matches.args.remove(name);
                 self.report_error(format!("The argument '{}' cannot be used with {}",
                     if let Some(ref flag) = self.flags.get(name) {
-                        format!("{}", flag)
+                        format!("{}", Format::Warning(flag.to_string()))
                     } else if let Some(ref opt) = self.opts.get(name) {
-                        format!("{}", opt)
+                        format!("{}", Format::Warning(opt.to_string()))
                     } else {
                         match self.positionals_idx.values().filter(|p| p.name == *name).next() {
-                            Some(pos) => format!("{}", pos),
-                            None      => format!("\"{}\"", name)
+                            Some(pos) => format!("{}", Format::Warning(pos.to_string())),
+                            None      => format!("\"{}\"", Format::Warning(name))
                         }
                     }, match self.blacklisted_from(name, matches) {
-                        Some(name) => format!("'{}'", name),
+                        Some(name) => format!("'{}'", Format::Warning(name)),
                         None       => "one or more of the other specified arguments".to_owned()
                     }), true, true, Some(matches.args.keys().map(|k| *k).collect()));
             } else if self.groups.contains_key(name) {
@@ -2195,15 +2238,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         self.report_error(format!("The argument '{}' cannot be used with one or \
                                 more of the other specified arguments",
                                 if let Some(ref flag) = self.flags.get(n) {
-                                    format!("{}", flag)
+                                    format!("{}", Format::Warning(flag.to_string()))
                                 } else if let Some(ref opt) = self.opts.get(n) {
-                                    format!("{}", opt)
+                                    format!("{}", Format::Warning(opt.to_string()))
                                 } else {
                                     match self.positionals_idx.values()
                                                               .filter(|p| p.name == *name)
                                                               .next() {
-                                        Some(pos) => format!("{}", pos),
-                                        None      => format!("\"{}\"", n)
+                                        Some(pos) => format!("{}", Format::Warning(pos.to_string())),
+                                        None      => format!("\"{}\"", Format::Warning(n))
                                     }
                                 }),
                             true,
@@ -2228,13 +2271,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if should_err {
                             self.report_error(format!("The argument '{}' requires {} values, \
                                     but {} w{} provided",
-                                    f,
-                                    num,
-                                    if f.multiple {
-                                        vals.len() % num as usize
+                                    Format::Warning(f.to_string()),
+                                    Format::Good(num.to_string()),
+                                    Format::Error(if f.multiple {
+                                        (vals.len() % num as usize).to_string()
                                     } else {
-                                        vals.len()
-                                    },
+                                        vals.len().to_string()
+                                    }),
                                     if vals.len() == 1 ||
                                         ( f.multiple &&
                                             ( vals.len() % num as usize) == 1) {"as"}else{"ere"}),
@@ -2247,9 +2290,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if (vals.len() as u8) > num {
                             self.report_error(format!("The argument '{}' requires no more than {} \
                                     values, but {} w{} provided",
-                                    f,
-                                    num,
-                                    vals.len(),
+                                    Format::Warning(f.to_string()),
+                                    Format::Good(num.to_string()),
+                                    Format::Error(vals.len().to_string()),
                                     if vals.len() == 1 {"as"}else{"ere"}),
                                 true,
                                 true,
@@ -2260,9 +2303,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if (vals.len() as u8) < num {
                             self.report_error(format!("The argument '{}' requires at least {} \
                                     values, but {} w{} provided",
-                                    f,
-                                    num,
-                                    vals.len(),
+                                    Format::Warning(f.to_string()),
+                                    Format::Good(num.to_string()),
+                                    Format::Error(vals.len().to_string()),
                                     if vals.len() == 1 {"as"}else{"ere"}),
                                 true,
                                 true,
@@ -2275,9 +2318,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if num != vals.len() as u8 {
                             self.report_error(format!("The argument '{}' requires {} values, \
                                     but {} w{} provided",
-                                    f,
-                                    num,
-                                    vals.len(),
+                                    Format::Warning(f.to_string()),
+                                    Format::Good(num.to_string()),
+                                    Format::Error(vals.len().to_string()),
                                     if vals.len() == 1 {"as"}else{"ere"}),
                                 true,
                                 true,
@@ -2288,9 +2331,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if num > vals.len() as u8 {
                             self.report_error(format!("The argument '{}' requires no more than {} \
                                     values, but {} w{} provided",
-                                    f,
-                                    num,
-                                    vals.len(),
+                                    Format::Warning(f.to_string()),
+                                    Format::Good(num.to_string()),
+                                    Format::Error(vals.len().to_string()),
                                     if vals.len() == 1 {"as"}else{"ere"}),
                                 true,
                                 true,
@@ -2301,9 +2344,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if num < vals.len() as u8 {
                             self.report_error(format!("The argument '{}' requires at least {} \
                                     values, but {} w{} provided",
-                                    f,
-                                    num,
-                                    vals.len(),
+                                    Format::Warning(f.to_string()),
+                                    Format::Good(num.to_string()),
+                                    Format::Error(vals.len().to_string()),
                                     if vals.len() == 1 {"as"}else{"ere"}),
                                 true,
                                 true,

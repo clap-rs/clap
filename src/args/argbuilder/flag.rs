@@ -24,6 +24,7 @@ pub struct FlagBuilder<'n> {
     /// The short version (i.e. single character)
     /// of the argument, no preceding `-`
     pub short: Option<char>,
+    pub global: bool,
 }
 
 impl<'n> Display for FlagBuilder<'n> {

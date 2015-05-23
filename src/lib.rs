@@ -56,6 +56,7 @@
 //! * **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) from positional or option arguments so long as the type you request implements `std::str::FromStr` See the `examples/12_TypedValues.rs`. You can also use `clap`s `simple_enum!` or `arg_enum!` macro to create an enum with variants that automatically implements `std::str::FromStr`. See `examples/13a_EnumValuesAutomatic.rs` for details and performs an ascii case insensitive parse from a `string`->`enum`.
 //! * **Suggestions**: Suggests corrections when the user enter's a typo. For example, if you defined a `--myoption <value>` argument, and the user mistakenly typed `--moyption value` (notice `y` and `o` switched), they would receive a `Did you mean '--myoption' ?` error and exit gracefully. This also works for subcommands and flags. (Thanks to [Byron](https://github.com/Byron) for the implementation) (This feature can optionally be disabled, see 'Optional Dependencies / Features')
 //! * **Colorized (Red) Errors**: Error message are printed in red text (this feature can optionally be disabled, see 'Optional Dependencies / Features').
+//! * **Global Arguments**: Arguments can optionally be defined once, and be available to all child subcommands.
 //!
 //! ## Quick Example
 //!
@@ -372,6 +373,9 @@
 //!
 //! Old method names will be left around for some time.
 //!
+//! * As of 0.10.0
+//!  - `SubCommand::new()` -> `SubCommand::with_name()`
+//!  - `App::error_on_no_subcommand()` -> `App::subcommand_required()`
 //! * As of 0.6.8
 //!   - `Arg::new()` -> `Arg::with_name()`
 //!   - `Arg::mutually_excludes()` -> `Arg::conflicts_with()`
@@ -383,12 +387,14 @@ extern crate ansi_term;
 
 pub use args::{Arg, SubCommand, ArgMatches, ArgGroup};
 pub use app::App;
+pub use fmt::Format;
 
 #[macro_use]
 mod macros;
 mod app;
 mod args;
 mod usageparser;
+mod fmt;
 
 #[cfg(test)]
 mod tests {
