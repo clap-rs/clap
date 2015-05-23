@@ -649,11 +649,16 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self
     }
 
-    /// Specifies that an argument applies to and will be available to all child subcommands.
+    /// Specifies that an argument can be matched to all child subcommands.
     ///
     /// **NOTE:** Global arguments *only* propagate down, **not** up (to parent commands)
     ///
     /// **NOTE:** Global arguments *cannot* be required.
+    ///
+    /// **NOTE:** Global arguments, when matched, *only* exist in the command's matches that they
+    /// were matched to. For example, if you defined a `--flag` global argument in the top most
+    /// parent command, but the user supplied the arguments `top cmd1 cmd2 --flag` *only* `cmd2`'s
+    /// `ArgMatches` would return `true` if tested for `.is_present("flag")`.
     ///
     /// # Example
     ///
