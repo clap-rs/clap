@@ -1,3 +1,25 @@
+<a name="v0.10.0"></a>
+## v0.10.0 (2015-05-23)
+
+
+#### Features
+
+* **Global Args**  allows args that propagate down to child commands ([2bcc6137](https://github.com/kbknapp/clap-rs/commit/2bcc6137a83cb07757771a0afea953e68e692f0b), closes [#131](https://github.com/kbknapp/clap-rs/issues/131))
+
+#### Improvements
+
+* **Colors**  implements more structured colored output ([d6c3ed54](https://github.com/kbknapp/clap-rs/commit/d6c3ed54d21cf7b40d9f130d4280ff5448522fc5), closes [#129](https://github.com/kbknapp/clap-rs/issues/129))
+
+#### Deprecations
+
+* **SubCommand/App**  several methods and functions for stable release ([28b73855](https://github.com/kbknapp/clap-rs/commit/28b73855523ad170544afdb20665db98702fbe70))
+
+#### Documentation
+
+*   updates for deprecations and new features ([743eefe8](https://github.com/kbknapp/clap-rs/commit/743eefe8dd40c1260065ce086d572e9e9358bc4c))
+
+
+
 <a name="v0.9.2"></a>
 ## v0.9.2 (2015-05-20)
 
