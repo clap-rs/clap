@@ -1,3 +1,13 @@
+<a name="v0.10.1"></a>
+### v0.10.1 (2015-05-26)
+
+
+#### Features
+
+*   can now specify that an app or subcommand should display help on no args or subcommands ([29ca7b2f](https://github.com/kbknapp/clap-rs/commit/29ca7b2f74376ca0cdb9d8ee3bfa99f7640cc404), closes [#133](https://github.com/kbknapp/clap-rs/issues/133))
+
+
+
 <a name="v0.10.0"></a>
 ## v0.10.0 (2015-05-23)
 
