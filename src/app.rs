@@ -118,7 +118,9 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     usage: Option<String>,
     groups: HashMap<&'ar str, ArgGroup<'ar, 'ar>>,
     global_args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>,
-    no_sc_error: bool
+    no_sc_error: bool,
+    help_on_no_args: bool,
+    help_on_no_sc: bool
 }
 
 impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
@@ -162,7 +164,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             groups: HashMap::new(),
             subcmds_neg_reqs: false,
             global_args: vec![],
-            no_sc_error: false
+            no_sc_error: false,
+            help_on_no_args: false,
+            help_on_no_sc: false 
         }
     }
 
@@ -309,6 +313,48 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// ```
     pub fn usage(mut self, u: &'u str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.usage_str = Some(u);
+        self
+    }
+
+    /// Specifies that the help text sould be displayed (and then exit gracefully), if no
+    /// arguments are present at runtime (i.e. an empty run such as, `$ myprog`.
+    ///
+    /// *NOTE:* Subcommands count as arguments
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let app = App::new("myprog")
+    /// .arg_required_else_help(true)
+    /// # .get_matches();
+    /// ```
+    pub fn arg_required_else_help(mut self, tf: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        self.help_on_no_args = tf;
+        self
+    }
+
+    /// Specifies that the help text sould be displayed (and then exit gracefully), if no
+    /// subcommands are present at runtime (i.e. an empty run such as, `$ myprog`.
+    ///
+    /// *NOTE:* This should *not* be used with `.subcommand_required()` as they do the same thing,
+    /// except one prints the help text, and one prints an error.
+    ///
+    /// *NOTE:* If the user specifies arguments at runtime, but no subcommand the help text will 
+    /// still be displayed and exit. If this is *not* the desired result, consider using
+    /// `.arg_required_else_help()`
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let app = App::new("myprog")
+    /// .subcommand_required_else_help(true)
+    /// # .get_matches();
+    /// ```
+    pub fn subcommand_required_else_help(mut self, tf: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        self.help_on_no_sc = tf;
         self
     }
 
@@ -1721,6 +1767,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             println!("USAGE:\n\t{} [SUBCOMMAND]\n\nFor more information re-run with {} or \
                 '{}'", &bn[..], Format::Good("--help"), Format::Good("help"));
             self.exit(1);
+        } else if self.help_on_no_sc {
+            self.print_help();
+            self.exit(1);
         }
         if !self.required.is_empty() && !self.subcmds_neg_reqs {
             if self.validate_required(&matches) {
@@ -1736,6 +1785,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     true,
                     Some(matches.args.keys().map(|k| *k).collect()));
             }
+        }
+        if matches.args.is_empty() && matches.subcommand_name().is_none() && self.help_on_no_args {
+            self.print_help();
+            self.exit(1);
         }
     }
 
