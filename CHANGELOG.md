@@ -1,3 +1,17 @@
+<a name="v0.10.2"></a>
+### v0.10.2 (2015-05-30)
+
+
+#### Improvements
+
+* **Binary Names**  allows users to override the system determined bin name ([2191fe94](https://github.com/kbknapp/clap-rs/commit/2191fe94bda35771383b52872fb7f5421b178be1), closes [#134](https://github.com/kbknapp/clap-rs/issues/134))
+
+#### Documentation
+
+*   adds contributing guidelines ([6f76bd0a](https://github.com/kbknapp/clap-rs/commit/6f76bd0a07e8b7419b391243ab2d6687cd8a9c5f))
+
+
+
 <a name="v0.10.1"></a>
 ### v0.10.1 (2015-05-26)
 
