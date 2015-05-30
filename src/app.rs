@@ -186,6 +186,25 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
+    /// Overrides the system-determined binary name. This should only be used when absolutely
+    /// neccessary, such as the binary name for your application is misleading, or perhaps *not*
+    /// how the user should invoke your program.
+    ///
+    /// **NOTE:** This command __**should not**__ be used for SubCommands.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let app = App::new("myprog")
+    /// .bin_name("my_binary")
+    /// # .get_matches();
+    /// ```
+    pub fn bin_name(mut self, a: &str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        self.bin_name = Some(a.to_owned());
+        self
+    }
+
     /// Sets a string briefly describing what the program does and will be displayed when
     /// displaying help information.
     ///
@@ -1310,7 +1329,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             let p = Path::new(&name[..]);
             if let Some(f) = p.file_name() {
                 if let Ok(s) = f.to_os_string().into_string() {
-                    self.bin_name = Some(s);
+                    if let None = self.bin_name {
+                        self.bin_name = Some(s);
+                    }
                 }
             }
         }
