@@ -828,8 +828,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                       -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         if subcmd.name == "help" { self.needs_subcmd_help = false; }
         {
-            while let Some(a) = self.global_args.pop() {
-                subcmd = subcmd.arg(a);
+            for a in self.global_args.iter() {
+                subcmd = subcmd.arg(a.into());
             }
         }
         self.subcommands.insert(subcmd.name.clone(), subcmd);

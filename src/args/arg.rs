@@ -865,3 +865,28 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self
     }
 }
+
+impl<'n, 'l, 'h, 'g, 'p, 'r, 'z> From<&'z Arg<'n, 'l, 'h, 'g, 'p, 'r>> for Arg<'n, 'l, 'h, 'g, 'p, 'r> {
+    fn from(a: &'z Arg<'n, 'l, 'h, 'g, 'p, 'r>) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
+        Arg {
+            name: a.name,
+            short: a.short,
+            long: a.long,
+            help: a.help,
+            required: a.required,
+            takes_value: a.takes_value,
+            multiple: a.multiple,
+            index: a.index,
+            possible_vals: a.possible_vals.clone(),
+            blacklist: a.blacklist.clone(),
+            requires: a.requires.clone(),
+            num_vals: a.num_vals,
+            min_vals: a.min_vals,
+            max_vals: a.max_vals,
+            val_names: a.val_names.clone(),
+            group: a.group,
+            global: a.global,
+            empty_vals: a.empty_vals 
+        }
+    }
+}
