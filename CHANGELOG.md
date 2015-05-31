@@ -1,3 +1,13 @@
+<a name="v0.10.3"></a>
+### v0.10.3 (2015-05-31)
+
+
+#### Bug Fixes
+
+* **Global Args**  fixes a bug where globals only transfer to one subcommand ([a37842ee](https://github.com/kbknapp/clap-rs/commit/a37842eec1ee3162b86fdbda23420b221cdb1e3b), closes [#135](https://github.com/kbknapp/clap-rs/issues/135))
+
+
+
 <a name="v0.10.2"></a>
 ### v0.10.2 (2015-05-30)
 
