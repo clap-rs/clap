@@ -1,3 +1,13 @@
+<a name="v0.10.5"></a>
+### v0.10.5 (2015-06-06)
+
+
+#### Bug Fixes
+
+* **Global Args**  global arguments propogate fully now ([1f377960](https://github.com/kbknapp/clap-rs/commit/1f377960a48c82f54ca5f39eb56bcb393140b046), closes [#137](https://github.com/kbknapp/clap-rs/issues/137))
+
+
+
 <a name="v0.10.4"></a>
 ### v0.10.4 (2015-06-06)
 
