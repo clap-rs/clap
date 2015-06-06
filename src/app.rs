@@ -401,6 +401,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # .get_matches();
     /// ```
     pub fn arg(mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        self.add_arg(a);
+        self
+    }
+
+    fn add_arg(&mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) {
         if self.flags.contains_key(a.name) ||
            self.opts.contains_key(a.name) ||
            self.positionals_name.contains_key(a.name) {
@@ -635,7 +640,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
             self.global_args.push(a);
         }
-        self
     }
 
     /// Adds multiple arguments to the list of valid possibilties by iterating over a Vec of Args
@@ -824,14 +828,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///             // Additional subcommand configuration goes here, such as other arguments...
     /// # .get_matches();
     /// ```
-    pub fn subcommand(mut self, mut subcmd: App<'a, 'v, 'ab, 'u, 'h, 'ar>)
+    pub fn subcommand(mut self, subcmd: App<'a, 'v, 'ab, 'u, 'h, 'ar>)
                       -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         if subcmd.name == "help" { self.needs_subcmd_help = false; }
-        {
-            for a in self.global_args.iter() {
-                subcmd = subcmd.arg(a.into());
-            }
-        }
         self.subcommands.insert(subcmd.name.clone(), subcmd);
         self
     }
@@ -1317,9 +1316,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     // the real parsing function for subcommands
     pub fn get_matches(mut self) -> ArgMatches<'ar, 'ar> {
         self.verify_positionals();
-        for (_,sc) in self.subcommands.iter_mut() {
-            sc.verify_positionals();
-        }
+        self.propogate_globals();
 
         let mut matches = ArgMatches::new();
 
@@ -1376,6 +1373,17 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             if p.required {
                 found = true;
             }
+        }
+    }
+
+    fn propogate_globals(&mut self) {
+        for (_,sc) in self.subcommands.iter_mut() {
+            {
+                for a in self.global_args.iter() {
+                    sc.add_arg(a.into());
+                }
+            }
+            sc.propogate_globals();
         }
     }
 
