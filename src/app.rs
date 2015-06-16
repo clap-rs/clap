@@ -105,8 +105,8 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     subcommands: BTreeMap<String, App<'a, 'v, 'ab, 'u, 'h, 'ar>>,
     needs_long_help: bool,
     needs_long_version: bool,
-    needs_short_help: bool,
-    needs_short_version: bool,
+    help_short: Option<char>,
+    version_short: Option<char>,
     needs_subcmd_help: bool,
     subcmds_neg_reqs: bool,
     required: HashSet<&'ar str>,
@@ -151,9 +151,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             subcommands: BTreeMap::new(),
             needs_long_version: true,
             needs_long_help: true,
-            needs_short_help: true,
             needs_subcmd_help: true,
-            needs_short_version: true,
+            help_short: None,
+            version_short: None,
             required: HashSet::new(),
             short_list: HashSet::new(),
             long_list: HashSet::new(),
@@ -335,6 +335,60 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
+    /// Sets the short version of the argument without the preceding `-`.
+    ///
+    ///
+    /// By default `clap` automatically assigns `v` and `h` to display version and help information
+    /// respectively. You may use `v` or `h` for your own purposes, in which case `clap` simply
+    /// will not assign those to the displaying of version or help.
+    ///
+    /// **NOTE:** Any leading `-` characters will be stripped, and only the first
+    /// non `-` chacter will be used as the `short` version
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let matches = App::new("myprog")
+    /// #                 .arg(
+    /// # Arg::new("conifg")
+    /// .short("c")
+    /// # ).get_matches();
+    pub fn help_short(mut self, s: &str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        self.help_short = s.trim_left_matches(|c| c == '-')
+                           .chars()
+                           .nth(0);
+        self
+    }
+
+    /// Sets the short version of the argument without the preceding `-`.
+    ///
+    ///
+    /// By default `clap` automatically assigns `v` and `h` to display version and help information
+    /// respectively. You may use `v` or `h` for your own purposes, in which case `clap` simply
+    /// will not assign those to the displaying of version or help.
+    ///
+    /// **NOTE:** Any leading `-` characters will be stripped, and only the first
+    /// non `-` chacter will be used as the `short` version
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let matches = App::new("myprog")
+    /// #                 .arg(
+    /// # Arg::new("conifg")
+    /// .short("c")
+    /// # ).get_matches();
+    pub fn version_short(mut self, s: &str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        self.version_short = s.trim_left_matches(|c| c == '-')
+                           .chars()
+                           .nth(0);
+        self
+    }
+
     /// Specifies that the help text sould be displayed (and then exit gracefully), if no
     /// arguments are present at runtime (i.e. an empty run such as, `$ myprog`.
     ///
@@ -422,15 +476,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             //         from the group, or the argument.", a.name, grp));
         }
         if let Some(s) = a.short {
+            // if s == 'V' {
+            //     self.version_short = None;
+            // } else if s == 'h' {
+            //     self.help_short = None;
+            // }
             if self.short_list.contains(&s) {
                 panic!("Argument short must be unique\n\n\t-{} is already in use", s);
             } else {
                 self.short_list.insert(s);
-            }
-            if s == 'h' {
-                self.needs_short_help = false;
-            } else if s == 'v' {
-                self.needs_short_version = false;
             }
         }
         if let Some(l) = a.long {
@@ -1853,9 +1907,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     fn create_help_and_version(&mut self) {
         // name is "hclap_help" because flags are sorted by name
         if self.needs_long_help {
-            let mut arg = FlagBuilder {
+            if self.help_short.is_none() && !self.short_list.contains(&'h') {
+                self.help_short = Some('h');
+            }
+            let arg = FlagBuilder {
                 name: "hclap_help",
-                short: None,
+                short: self.help_short,
                 long: Some("help"),
                 help: Some("Prints help information"),
                 blacklist: None,
@@ -1863,17 +1920,17 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 global: false,
                 requires: None,
             };
-            if self.needs_short_help {
-                arg.short = Some('h');
-            }
             self.long_list.insert("help");
             self.flags.insert("hclap_help", arg);
         }
         if self.needs_long_version {
+            if self.version_short.is_none() && !self.short_list.contains(&'V') {
+                self.version_short = Some('V');
+            }
             // name is "vclap_version" because flags are sorted by name
-            let mut arg = FlagBuilder {
+            let arg = FlagBuilder {
                 name: "vclap_version",
-                short: None,
+                short: self.version_short,
                 long: Some("version"),
                 help: Some("Prints version information"),
                 blacklist: None,
@@ -1881,9 +1938,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 global: false,
                 requires: None,
             };
-            if self.needs_short_version {
-                arg.short = Some('v');
-            }
             self.long_list.insert("version");
             self.flags.insert("vclap_version", arg);
         }
@@ -1894,10 +1948,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     fn check_for_help_and_version(&self, arg: char) {
-        if arg == 'h' && self.needs_short_help {
-            self.print_help();
-        } else if arg == 'v' && self.needs_short_version {
-            self.print_version(true);
+        if let Some(h) = self.help_short {
+            if h == arg { self.print_help(); }
+        } 
+        if let Some(v) = self.version_short {
+            if v == arg { self.print_version(true); }
         }
     }
 
