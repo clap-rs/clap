@@ -55,28 +55,29 @@ enum DidYouMeanMessageStyle {
 }
 
 /// Used to create a representation of a command line program and all possible command line
-/// arguments for parsing at runtime.
+/// arguments.
 ///
 /// Application settings are set using the "builder pattern" with `.get_matches()` being the
 /// terminal method that starts the runtime-parsing process and returns information about
 /// the user supplied arguments (or lack there of).
 ///
-/// The options set for the application are not mandatory, and may appear in any order (so
-/// long as `.get_matches()` is last).
+/// There aren't any mandatory "options" that one must set. The "options" may also appear in any
+/// order (so long as `.get_matches()` is the last method called).
 ///
 ///
 /// # Example
 ///
 /// ```no_run
 /// # use clap::{App, Arg};
-/// let myprog = App::new("myprog")
+/// let matches = App::new("myprog")
 ///                   .author("Me, me@mail.com")
 ///                   .version("1.0.2")
 ///                   .about("Explains in brief what the program does")
 ///                   .arg(
 ///                            Arg::with_name("in_file").index(1)
-///                        // Add other possible command line argument options here...
 ///                    )
+///                   .after_help("Longer explaination to appear after the options when \
+///                                displaying the help information from --help or -h")
 ///                   .get_matches();
 ///
 /// // Your pogram logic starts here...
@@ -170,16 +171,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
     }
 
-    /// Sets a string of author(s) and will be displayed to the user when they request the version
-    /// or help information.
+    /// Sets a string of author(s) and will be displayed to the user when they request the help
+    /// information with `--help` or `-h`.
     ///
     /// # Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let app = App::new("myprog")
-    /// .author("Kevin <kbknapp@gmail.com>")
-    /// # .get_matches();
+    /// App::new("myprog")
+    ///      .author("Me, me@mymain.com")
+    /// # ;
     /// ```
     pub fn author(mut self, a: &'a str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.author = Some(a);
@@ -190,15 +191,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// neccessary, such as the binary name for your application is misleading, or perhaps *not*
     /// how the user should invoke your program.
     ///
-    /// **NOTE:** This command __**should not**__ be used for SubCommands.
+    /// **NOTE:** This command **should not** be used for SubCommands.
     ///
     /// # Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let app = App::new("myprog")
-    /// .bin_name("my_binary")
-    /// # .get_matches();
+    /// App::new("myprog")
+    ///      .bin_name("my_binary")
+    /// # ;
     /// ```
     pub fn bin_name(mut self, a: &str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.bin_name = Some(a.to_owned());
@@ -212,9 +213,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let app = App::new("myprog")
-    /// .about("Does really amazing things to great people")
-    /// # .get_matches();
+    /// App::new("myprog")
+    ///     .about("Does really amazing things to great people")
+    /// # ;
     /// ```
     pub fn about(mut self, a: &'ab str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.about = Some(a);
@@ -230,9 +231,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// ```no_run
     /// # use clap::App;
-    /// # let app = App::new("myprog")
-    /// .after_help("Does really amazing things to great people")
-    /// # .get_matches();
+    /// App::new("myprog")
+    ///     .after_help("Does really amazing things to great people")
+    /// # ;
     /// ```
     pub fn after_help(mut self, h: &'h str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.more_help = Some(h);
@@ -241,7 +242,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     /// Allows subcommands to override all requirements of the parent (this command). For example
     /// if you had a subcommand or even top level application which had a required arguments that
-    /// is only required if no subcommand is used.
+    /// are only required as long as there is no subcommand present.
     ///
     /// **NOTE:** This defaults to false (using subcommand does *not* negate requirements)
     ///
@@ -249,9 +250,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// ```no_run
     /// # use clap::App;
-    /// # let app = App::new("myprog")
-    /// .subcommands_negate_reqs(true)
-    /// # .get_matches();
+    /// App::new("myprog")
+    ///     .subcommands_negate_reqs(true)
+    /// # ;
     /// ```
     pub fn subcommands_negate_reqs(mut self, n: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.subcmds_neg_reqs = n;
@@ -268,9 +269,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// ```no_run
     /// # use clap::App;
-    /// # let app = App::new("myprog")
-    /// .subcommands_negate_reqs(true)
-    /// # .get_matches();
+    /// App::new("myprog")
+    ///     .subcommands_negate_reqs(true)
+    /// # ;
     /// ```
     pub fn error_on_no_subcommand(mut self, n: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.no_sc_error = n;
@@ -285,9 +286,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// ```no_run
     /// # use clap::App;
-    /// # let app = App::new("myprog")
-    /// .subcommands_negate_reqs(true)
-    /// # .get_matches();
+    /// App::new("myprog")
+    ///     .subcommands_negate_reqs(true)
+    /// # ;
     /// ```
     pub fn subcommand_required(mut self, n: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.no_sc_error = n;
@@ -301,24 +302,25 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let app = App::new("myprog")
-    /// .version("v0.1.24")
-    /// # .get_matches();
+    /// App::new("myprog")
+    ///     .version("v0.1.24")
+    /// # ;
     /// ```
     pub fn version(mut self, v: &'v str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar>  {
         self.version = Some(v);
         self
     }
 
-    /// Sets a custom usage string to over-ride the auto-generated usage string. Will be
-    /// displayed to the user when errors are found in argument parsing, or when you call
-    /// `ArgMatches::usage()`
+    /// Sets a custom usage string to override the auto-generated usage string. 
     ///
-    /// *NOTE:* You do not need to specify the "USAGE: \n\t" portion, as that will
+    /// This will be displayed to the user when errors are found in argument parsing, or when you 
+    /// call `ArgMatches::usage()`
+    ///
+    /// **NOTE:** You do not need to specify the "USAGE: \n\t" portion, as that will
     /// still be applied by `clap`, you only need to specify the portion starting
     /// with the binary name.
     ///
-    /// *NOTE:* This will not replace the entire help message, *only* the portion
+    /// **NOTE:** This will not replace the entire help message, *only* the portion
     /// showing the usage.
     ///
     ///
@@ -326,21 +328,18 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let app = App::new("myprog")
-    /// .usage("myapp [-clDas] <some_file>")
-    /// # .get_matches();
+    /// App::new("myprog")
+    ///     .usage("myapp [-clDas] <some_file>")
+    /// # ;
     /// ```
     pub fn usage(mut self, u: &'u str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.usage_str = Some(u);
         self
     }
 
-    /// Sets the short version of the argument without the preceding `-`.
+    /// Sets the short version of the `help` argument without the preceding `-`.
     ///
-    ///
-    /// By default `clap` automatically assigns `v` and `h` to display version and help information
-    /// respectively. You may use `v` or `h` for your own purposes, in which case `clap` simply
-    /// will not assign those to the displaying of version or help.
+    /// By default `clap` automatically assigns `h`, but this can be overridden
     ///
     /// **NOTE:** Any leading `-` characters will be stripped, and only the first
     /// non `-` chacter will be used as the `short` version
@@ -350,11 +349,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let matches = App::new("myprog")
-    /// #                 .arg(
-    /// # Arg::new("conifg")
-    /// .short("c")
-    /// # ).get_matches();
+    /// App::new("myprog")
+    ///     // Using an uppercase `H` instead of the default lowercase `h`
+    ///     .help_short("H")
+    /// # ;
     pub fn help_short(mut self, s: &str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.help_short = s.trim_left_matches(|c| c == '-')
                            .chars()
@@ -362,12 +360,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
-    /// Sets the short version of the argument without the preceding `-`.
+    /// Sets the short version of the `version` argument without the preceding `-`.
     ///
-    ///
-    /// By default `clap` automatically assigns `v` and `h` to display version and help information
-    /// respectively. You may use `v` or `h` for your own purposes, in which case `clap` simply
-    /// will not assign those to the displaying of version or help.
+    /// By default `clap` automatically assigns `V`, but this can be overridden
     ///
     /// **NOTE:** Any leading `-` characters will be stripped, and only the first
     /// non `-` chacter will be used as the `short` version
@@ -377,11 +372,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let matches = App::new("myprog")
-    /// #                 .arg(
-    /// # Arg::new("conifg")
-    /// .short("c")
-    /// # ).get_matches();
+    /// App::new("myprog")
+    ///     // Using a lowercase `v` instead of the default capital `V`
+    ///     .version_short("v")
+    /// # ;
     pub fn version_short(mut self, s: &str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.version_short = s.trim_left_matches(|c| c == '-')
                            .chars()
@@ -392,16 +386,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Specifies that the help text sould be displayed (and then exit gracefully), if no
     /// arguments are present at runtime (i.e. an empty run such as, `$ myprog`.
     ///
-    /// *NOTE:* Subcommands count as arguments
+    /// **NOTE:** Subcommands count as arguments
     ///
     ///
     /// # Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let app = App::new("myprog")
-    /// .arg_required_else_help(true)
-    /// # .get_matches();
+    /// App::new("myprog")
+    ///     .arg_required_else_help(true)
+    /// # ;
     /// ```
     pub fn arg_required_else_help(mut self, tf: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.help_on_no_args = tf;
@@ -411,10 +405,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Specifies that the help text sould be displayed (and then exit gracefully), if no
     /// subcommands are present at runtime (i.e. an empty run such as, `$ myprog`.
     ///
-    /// *NOTE:* This should *not* be used with `.subcommand_required()` as they do the same thing,
-    /// except one prints the help text, and one prints an error.
+    /// **NOTE:** This should *not* be used with `.subcommand_required()` as they do the same 
+    /// thing, except one prints the help text, and one prints an error.
     ///
-    /// *NOTE:* If the user specifies arguments at runtime, but no subcommand the help text will 
+    /// **NOTE:** If the user specifies arguments at runtime, but no subcommand the help text will 
     /// still be displayed and exit. If this is *not* the desired result, consider using
     /// `.arg_required_else_help()`
     ///
@@ -422,9 +416,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let app = App::new("myprog")
-    /// .subcommand_required_else_help(true)
-    /// # .get_matches();
+    /// App::new("myprog")
+    ///     .subcommand_required_else_help(true)
+    /// # ;
     /// ```
     pub fn subcommand_required_else_help(mut self, tf: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.help_on_no_sc = tf;
@@ -444,15 +438,19 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let app = App::new("myprog")
-    /// // Adding a single "flag" argument with a short and help text, using Arg::with_name()
-    /// .arg(Arg::with_name("debug")
-    ///                .short("d")
-    ///                .help("turns on debugging mode"))
-    /// // Adding a single "option" argument with a short, a long, and help text using the less
-    /// // verbose Arg::from_usage()
-    /// .arg(Arg::from_usage("-c --config=[CONFIG] 'Optionally sets a configuration file to use'"))
-    /// # .get_matches();
+    /// App::new("myprog")
+    ///     // Adding a single "flag" argument with a short and help text, using Arg::with_name()
+    ///     .arg(
+    ///         Arg::with_name("debug")
+    ///            .short("d")
+    ///            .help("turns on debugging mode")
+    ///     )
+    ///     // Adding a single "option" argument with a short, a long, and help text using the less
+    ///     // verbose Arg::from_usage()
+    ///     .arg(
+    ///         Arg::from_usage("-c --config=[CONFIG] 'Optionally sets a config file to use'")
+    ///     )
+    /// # ;
     /// ```
     pub fn arg(mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.add_arg(a);
@@ -703,10 +701,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let app = App::new("myprog")
-    /// .args( vec![Arg::from_usage("[debug] -d 'turns on debugging info"),
-    ///             Arg::with_name("input").index(1).help("the input file to use")])
-    /// # .get_matches();
+    /// App::new("myprog")
+    ///     .args( 
+    ///         vec![Arg::from_usage("[debug] -d 'turns on debugging info"),
+    ///              Arg::with_name("input").index(1).help("the input file to use")]
+    ///     )
+    /// # ;
     /// ```
     pub fn args(mut self, args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>)
                 -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
@@ -728,9 +728,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let app = App::new("myprog")
-    /// .arg_from_usage("-c --conf=<config> 'Sets a configuration file to use'")
-    /// # .get_matches();
+    /// App::new("myprog")
+    ///     .arg_from_usage("-c --conf=<config> 'Sets a configuration file to use'")
+    /// # ;
     /// ```
     pub fn arg_from_usage(mut self, usage: &'ar str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self = self.arg(Arg::from_usage(usage));
@@ -750,12 +750,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let app = App::new("myprog")
-    /// .args_from_usage(
-    ///    "-c --conf=[config] 'Sets a configuration file to use'
-    ///    [debug]... -d 'Sets the debugging level'
-    ///    <input> 'The input file to use'")
-    /// # .get_matches();
+    /// App::new("myprog")
+    ///     .args_from_usage(
+    ///         "-c --conf=[config] 'Sets a configuration file to use'
+    ///          [debug]... -d 'Sets the debugging level'
+    ///          <input> 'The input file to use'"
+    ///     )
+    /// # ;
     /// ```
     pub fn args_from_usage(mut self, usage: &'ar str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         for l in usage.lines() {
@@ -787,7 +788,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// ```no_run
     /// # use clap::{App, ArgGroup};
-    /// # let _ = App::new("app")
+    /// # App::new("app")
     /// .args_from_usage("--set-ver [ver] 'set the version manually'
     ///                   --major         'auto increase major'
     ///                   --minor         'auto increase minor'
@@ -795,7 +796,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// .arg_group(ArgGroup::with_name("vers")
     ///                     .add_all(vec!["ver", "major", "minor","patch"])
     ///                     .required(true))
-    /// # .get_matches();
+    /// # ;
     pub fn arg_group(mut self, group: ArgGroup<'ar, 'ar>) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         if group.required {
             self.required.insert(group.name);
@@ -849,7 +850,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// ```no_run
     /// # use clap::{App, ArgGroup};
-    /// # let _ = App::new("app")
+    /// # App::new("app")
     /// .args_from_usage("--set-ver [ver] 'set the version manually'
     ///                   --major         'auto increase major'
     ///                   --minor         'auto increase minor'
@@ -857,7 +858,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// .arg_group(ArgGroup::with_name("vers")
     ///                     .add_all(vec!["ver", "major", "minor","patch"])
     ///                     .required(true))
-    /// # .get_matches();
+    /// # ;
     pub fn arg_groups(mut self, groups: Vec<ArgGroup<'ar, 'ar>>) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         for g in groups {
             self = self.arg_group(g);
@@ -875,12 +876,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
-    /// # let app = App::new("myprog")
+    /// # App::new("myprog")
     /// .subcommand(SubCommand::new("config")
     ///                .about("Controls configuration features")
     ///                .arg_from_usage("<config> 'Required configuration file to use'"))
     ///             // Additional subcommand configuration goes here, such as other arguments...
-    /// # .get_matches();
+    /// # ;
     /// ```
     pub fn subcommand(mut self, subcmd: App<'a, 'v, 'ab, 'u, 'h, 'ar>)
                       -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
@@ -896,12 +897,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
-    /// # let app = App::new("myprog")
+    /// # App::new("myprog")
     /// .subcommands( vec![
     ///        SubCommand::new("config").about("Controls configuration functionality")
     ///                                 .arg(Arg::with_name("config_file").index(1)),
     ///        SubCommand::new("debug").about("Controls debug functionality")])
-    /// # .get_matches();
+    /// # ;
     /// ```
     pub fn subcommands(mut self, subcmds: Vec<App<'a, 'v, 'ab, 'u, 'h, 'ar>>)
                        -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {

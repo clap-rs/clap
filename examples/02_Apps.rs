@@ -25,7 +25,7 @@ fn main() {
                         .about("Does awesome things")
                         .get_matches();
 
-    // This example doesn't do much, but it *does* give automatic -h, --help, -v, and --version functionality ;)
+    // This example doesn't do much, but it *does* give automatic -h, --help, -V, and --version functionality ;)
      
     // Continued program logic goes here...
 }
