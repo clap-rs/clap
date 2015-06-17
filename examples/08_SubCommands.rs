@@ -10,7 +10,7 @@ fn main() {
 	//
 	// # Help and Version
 	// Just like Apps, each subcommand will get it's own "help" and "version" flags automatically
-	// generated. Also, like Apps, you can override "-v" or "-h" safely and still get "--help" and
+	// generated. Also, like Apps, you can override "-V" or "-h" safely and still get "--help" and
 	// "--version" auto generated.
 	//
 	// NOTE: If you specify a subcommand for your App, clap will also autogenerate a "help" 

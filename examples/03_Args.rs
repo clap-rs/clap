@@ -23,8 +23,8 @@ fn main() {
     //
     // # Help and Version
     // clap automatically generates a help and version flag for you, unless you specificy your
-    // own. By default help uses "-h" and "--help", and version uses "-v" and "--version". You can
-    // safely overide "-v" and "-h" to your own arguments, and "--help" and "--version" will stil
+    // own. By default help uses "-h" and "--help", and version uses "-V" and "--version". You can
+    // safely overide "-V" and "-h" to your own arguments, and "--help" and "--version" will stil
     // be automatically generated for you.
     let matches = App::new("MyApp")
                         // All application settings go here...

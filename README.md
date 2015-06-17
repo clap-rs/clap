@@ -199,7 +199,7 @@ USAGE:
 FLAGS:
     -d               Turn debugging information on
     -h, --help       Prints this message
-    -v, --version    Prints version information
+    -V, --version    Prints version information
 
 OPTIONS:
     -c, --config <CONFIG>    Sets a custom config file
@@ -369,6 +369,7 @@ There are a few goals of `clap` that I'd like to maintain throughout contributio
 
 Although I do my best to keep breaking changes to a minimum, being that this a sub 1.0 library, there are breaking changes from time to time in order to support better features or implementation. For the full details see the changelog.md
 
+* As of 0.11.0: The default short flag for `version` has changed from `-v` to `-V` (Uppercase). Although you can also now override the short flag for `help` and `version` using `App::help_short()` and `App::version_short()`
 * As of 0.7.0
   - `Arg::possible_values()`, `Arg::value_names()`, `Arg::requires_all()`, `Arg::mutually_excludes_all()` [deprecated], `Arg::conflicts_with_all()`
     + No longer take a `Vec<&str>`, instead they take a generic `IntoIterator<Item=AsRef<str>>` which means you cannot use an inline `vec![]` but it means the methods are now far more flexible, especially for dynamic value generation.

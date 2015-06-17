@@ -18,7 +18,7 @@ FLAGS:
     -f, --flag       tests flags
     -F               tests flags with exclusions
     -h, --help       Prints help information
-    -v, --version    Prints version information
+    -V, --version    Prints version information
 
 OPTIONS:
         --maxvals3 <maxvals>...      Tests 3 max vals
@@ -143,7 +143,7 @@ USAGE:
 FLAGS:
     -f, --flag       tests flags
     -h, --help       Prints help information
-    -v, --version    Prints version information
+    -V, --version    Prints version information
 
 OPTIONS:
     -o, --option <scoption>...        tests options
