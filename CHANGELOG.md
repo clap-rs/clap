@@ -1,3 +1,17 @@
+<a name="v0.11.0"></a>
+## v0.11.0 (2015-06-17) - BREAKING CHANGE
+
+
+#### Documentation
+
+*   updates docs to new version flag defaults ([ebf442eb](https://github.com/kbknapp/clap-rs/commit/ebf442ebebbcd2ec6bfe2c06566c9d362bccb112))
+
+#### Features
+
+* **Help and Version**  default short for version is now `-V` but can be overridden (only breaks manual documentation) (**BREAKING CHANGE** [eb1d9320](https://github.com/kbknapp/clap-rs/commit/eb1d9320c509c1e4e57d7c7959da82bcfe06ada0))
+
+
+
 <a name="v0.10.5"></a>
 ### v0.10.5 (2015-06-06)
 
@@ -299,7 +313,7 @@
 
 
 <a name="v0.7.0"></a>
-## v0.7.0 (2015-04-30)
+## v0.7.0 (2015-04-30) - BREAKING CHANGE
 
 
 #### Bug Fixes
@@ -312,7 +326,7 @@
   *  add support for minimum and maximum number of values ([53f6b8c9](https://github.com/kbknapp/clap-rs/commit/53f6b8c9d8dc408b4fa9f833fc3a63683873c42f))
   *  adds support limited number and named values ([ae09f05e](https://github.com/kbknapp/clap-rs/commit/ae09f05e92251c1b39a83d372736fcc7b504e432))
   *  implement shorthand for options with multiple values ([6669f0a9](https://github.com/kbknapp/clap-rs/commit/6669f0a9687d4f668523145d7bd5c007d1eb59a8))
-* **arg**  allow other types besides Vec for multiple value settings ([0cc2f698](https://github.com/kbknapp/clap-rs/commit/0cc2f69839b9b1db5d06330771b494783049a88e), closes [#87](https://github.com/kbknapp/clap-rs/issues/87))
+* **arg**  allow other types besides Vec for multiple value settings (**BREAKING CHANGE** [0cc2f698](https://github.com/kbknapp/clap-rs/commit/0cc2f69839b9b1db5d06330771b494783049a88e), closes [#87](https://github.com/kbknapp/clap-rs/issues/87))
 * **usage**  implement smart usage strings on errors ([d77048ef](https://github.com/kbknapp/clap-rs/commit/d77048efb1e595ffe831f1a2bea2f2700db53b9f), closes [#88](https://github.com/kbknapp/clap-rs/issues/88))
 
 
