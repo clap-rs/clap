@@ -363,7 +363,7 @@ There are a few goals of `clap` that I'd like to maintain throughout contributio
 
 ## License
 
-`clap` is licensed under the MIT license. Please the LICENSE-MIT file in this repository for more information.
+`clap` is licensed under the MIT license. Please read the LICENSE-MIT file in this repository for more information.
 
 ## Recent Breaking Changes
 
