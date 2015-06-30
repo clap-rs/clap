@@ -6,6 +6,16 @@ Command Line Argument Parser for Rust
 
 It is a simple to use, efficient, and full featured library for parsing command line arguments and subcommands when writing console, or terminal applications.
 
+## What's New
+
+If you're already familiar with `clap` but just want to see some new highlights as of **1.0.0-beta**
+
+* **Deprecated Functions Removed** - In an effort to start a 1.x all deprecated functions have been removed, see the deprecations sections below to update your code (very minimal)
+* **Can fully override help** - This allows you fully override the auto-generated help if you so choose
+* **Can wait for user input on error** - This is helpful mainly on Windows if a user mistakenly opens your application via double-click, or you'd like to provide a GUI shortcut to run your application
+
+For full details see the [changelog](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md)
+
 ## About
 
 `clap` is used to parse *and validate* the string of command line arguments provided by the user at runtime. You provide the list of valid possibilities, and `clap` handles the rest. This means you focus on your *applications* functionality, and less on the parsing and validating of arguments.
