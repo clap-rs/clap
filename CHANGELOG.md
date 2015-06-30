@@ -1,3 +1,22 @@
+<a name="v1.0.0"></a>
+## v1.0.0-beta (2015-06-30)
+
+
+#### Features
+
+*   allows waiting for user input on error ([d0da3bdd](https://github.com/kbknapp/clap-rs/commit/d0da3bdd9d1871541907ea9c645322a74d260e07), closes [#140](https://github.com/kbknapp/clap-rs/issues/140))
+* **Help**  allows one to fully override the auto-generated help message ([26d5ae3e](https://github.com/kbknapp/clap-rs/commit/26d5ae3e330d1e150811d5b60b2b01a8f8df854e), closes [#141](https://github.com/kbknapp/clap-rs/issues/141))
+
+#### Documentation
+
+*   adds "whats new" section to readme ([ff149a29](https://github.com/kbknapp/clap-rs/commit/ff149a29dd9e179865e6d577cd7dc87c54f8f95c))
+
+#### Improvements
+
+*   removes deprecated functions in prep for 1.0 ([274484df](https://github.com/kbknapp/clap-rs/commit/274484dfd08fff4859cefd7e9bef3b73d3a9cb5f))
+
+
+
 <a name="v0.11.0"></a>
 ## v0.11.0 (2015-06-17) - BREAKING CHANGE
 
