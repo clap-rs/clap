@@ -81,7 +81,7 @@ enum DidYouMeanMessageStyle {
 ///                                displaying the help information from --help or -h")
 ///                   .get_matches();
 ///
-/// // Your pogram logic starts here...
+/// // Your program logic starts here...
 /// ```
 pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     // The name displayed to the user when showing version and help/usage information
