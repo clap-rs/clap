@@ -13,11 +13,11 @@ use args::MatchedArg;
 /// # use clap::{App, Arg};
 /// let matches = App::new("MyApp")
 /// // adding of arguments and configuration goes here...
-/// #                    .arg(Arg::new("config")
+/// #                    .arg(Arg::with_name("config")
 /// #                               .long("config")
 /// #                               .required(true)
 /// #                               .takes_value(true))
-/// #                    .arg(Arg::new("debug")
+/// #                    .arg(Arg::with_name("debug")
 /// #                                   .short("d")
 /// #                                   .multiple(true))
 ///                     .get_matches();
@@ -91,7 +91,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let matches = App::new("myapp").arg(Arg::new("output").takes_value(true)).get_matches();
+    /// # let matches = App::new("myapp").arg(Arg::with_name("output").takes_value(true)).get_matches();
     /// if let Some(o) = matches.value_of("output") {
     ///        println!("Value for output: {}", o);
     /// }
@@ -115,7 +115,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let matches = App::new("myapp").arg(Arg::new("output").takes_value(true)).get_matches();
+    /// # let matches = App::new("myapp").arg(Arg::with_name("output").takes_value(true)).get_matches();
     /// // If the program had option "-c" that took a value and was run
     /// // via "myapp -o some -o other -o file"
     /// // values_of() would return a [&str; 3] ("some", "other", "file")
@@ -141,7 +141,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let matches = App::new("myapp").arg(Arg::new("output").takes_value(true)).get_matches();
+    /// # let matches = App::new("myapp").arg(Arg::with_name("output").takes_value(true)).get_matches();
     /// if matches.is_present("output") {
     ///        println!("The output argument was used!");
     /// }
@@ -163,7 +163,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let matches = App::new("myapp").arg(Arg::new("output").takes_value(true)).get_matches();
+    /// # let matches = App::new("myapp").arg(Arg::with_name("output").takes_value(true)).get_matches();
     /// if matches.occurrences_of("debug") > 1 {
     ///     println!("Debug mode is REALLY on");
     /// } else {
@@ -185,7 +185,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
-    /// # let app_matches = App::new("myapp").subcommand(SubCommand::new("test")).get_matches();
+    /// # let app_matches = App::new("myapp").subcommand(SubCommand::with_name("test")).get_matches();
     /// if let Some(matches) = app_matches.subcommand_matches("test") {
     ///     // Use matches as normal
     /// }
@@ -208,7 +208,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
-    /// # let app_matches = App::new("myapp").subcommand(SubCommand::new("test")).get_matches();
+    /// # let app_matches = App::new("myapp").subcommand(SubCommand::with_name("test")).get_matches();
     /// match app_matches.subcommand_name() {
     ///     Some("test")   => {}, // test was used
     ///     Some("config") => {}, // config was used
@@ -230,7 +230,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
-    /// # let app_matches = App::new("myapp").subcommand(SubCommand::new("test")).get_matches();
+    /// # let app_matches = App::new("myapp").subcommand(SubCommand::with_name("test")).get_matches();
     /// match app_matches.subcommand() {
     ///     ("test", Some(matches))   => {}, // test was used
     ///     ("config", Some(matches)) => {}, // config was used
@@ -251,7 +251,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
-    /// # let app_matches = App::new("myapp").subcommand(SubCommand::new("test")).get_matches();
+    /// # let app_matches = App::new("myapp").subcommand(SubCommand::with_name("test")).get_matches();
     /// println!("{}",app_matches.usage());
     /// ```
     pub fn usage(&self) -> &str {

@@ -927,7 +927,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
     /// # App::new("myprog")
-    /// .subcommand(SubCommand::new("config")
+    /// .subcommand(SubCommand::with_name("config")
     ///                .about("Controls configuration features")
     ///                .arg_from_usage("<config> 'Required configuration file to use'"))
     ///             // Additional subcommand configuration goes here, such as other arguments...
@@ -949,9 +949,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # use clap::{App, Arg, SubCommand};
     /// # App::new("myprog")
     /// .subcommands( vec![
-    ///        SubCommand::new("config").about("Controls configuration functionality")
+    ///        SubCommand::with_name("config").about("Controls configuration functionality")
     ///                                 .arg(Arg::with_name("config_file").index(1)),
-    ///        SubCommand::new("debug").about("Controls debug functionality")])
+    ///        SubCommand::with_name("debug").about("Controls debug functionality")])
     /// # ;
     /// ```
     pub fn subcommands(mut self, subcmds: Vec<App<'a, 'v, 'ab, 'u, 'h, 'ar>>)

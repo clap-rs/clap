@@ -14,9 +14,9 @@ use ArgMatches;
 /// # use clap::{App, Arg, SubCommand};
 /// # let matches = App::new("myprog")
 /// #                    .subcommand(
-/// SubCommand::new("conifg")
+/// SubCommand::with_name("conifg")
 ///                .about("Used for configuration")
-///                .arg(Arg::new("config_file")
+///                .arg(Arg::with_name("config_file")
 ///                           .help("The configuration file to use")
 ///                           .index(1))
 /// # ).get_matches();
@@ -36,7 +36,7 @@ impl<'n, 'a> SubCommand<'n, 'a> {
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
     /// # let prog = App::new("myprog").subcommand(
-    /// SubCommand::new("config")
+    /// SubCommand::with_name("config")
     /// # ).get_matches();
     /// ```
     pub fn with_name<'au, 'v, 'ab, 'u, 'h, 'ar>(name: &'ar str) -> App<'au, 'v, 'ab, 'u, 'h, 'ar> {

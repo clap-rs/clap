@@ -31,11 +31,11 @@ fn main() {
                                     							   // also use this other 'config' arg too"
                                     							   // Can also specifiy a list using 
                                     							   // requires_all(Vec<&str>)
-                                    .mutually_excludes("output")   // Opposite of requires(), says "if the
+                                    .conflicts_with("output")      // Opposite of requires(), says "if the
                                     							   // user uses -a, they CANNOT use 'output'"
-                                    							   // also has a mutually_excludes_all(Vec<&str>)
+                                    							   // also has a conflicts_with_all(Vec<&str>)
                         )
-						// NOTE: In order to compile this example, comment out mutually_excludes()
+						// NOTE: In order to compile this example, comment out conflicts_with()
 						// and requires() because we have not defined an "output" or "config"
 						// argument.
                         .get_matches();

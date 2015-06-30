@@ -310,7 +310,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # use clap::{App, Arg};
     /// # let matches = App::new("myprog")
     /// #                 .arg(
-    /// # Arg::new("conifg")
+    /// # Arg::with_name("conifg")
     /// .short("c")
     /// # ).get_matches();
     pub fn short(mut self, s: &str) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
@@ -334,7 +334,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # use clap::{App, Arg};
     /// # let matches = App::new("myprog")
     /// #                 .arg(
-    /// # Arg::new("conifg")
+    /// # Arg::with_name("conifg")
     /// .long("config")
     /// # ).get_matches();
     pub fn long(mut self, l: &'l str) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
@@ -352,7 +352,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # use clap::{App, Arg};
     /// # let matches = App::new("myprog")
     /// #                 .arg(
-    /// # Arg::new("conifg")
+    /// # Arg::with_name("conifg")
     /// .help("The config file used by the myprog")
     /// # ).get_matches();
     pub fn help(mut self, h: &'h str) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {

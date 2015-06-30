@@ -50,7 +50,7 @@ fn main() {
                                     .short("d")
                                     .multiple(true)
                                     .help("Turn debugging information on"))
-                        .subcommand(SubCommand::new("test")
+                        .subcommand(SubCommand::with_name("test")
                                                 .about("does testing things")
                                                 .arg(Arg::with_name("list")
                                                     .short("l")
