@@ -324,14 +324,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     /// Sets a custom help message and overrides the auto-generated one. This should only be used
-    /// when the auto-gererated message does not suffice. 
+    /// when the auto-generated message does not suffice. 
     ///
-    /// This will be displayed to the user when they use the defailt `--help` or `-h`
+    /// This will be displayed to the user when they use the default `--help` or `-h`
     ///
-    /// **NOTE:** This replaces the **entire** help message, so nothing will be auto-gererated.
+    /// **NOTE:** This replaces the **entire** help message, so nothing will be auto-generated.
     ///
     /// **NOTE:** This **only** replaces the help message for the current command, meaning if you
-    /// are using subcommands, those help messages will still be auto-gererated unless you
+    /// are using subcommands, those help messages will still be auto-generated unless you
     /// specify a `.help()` for them as well.
     ///
     ///
