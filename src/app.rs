@@ -4,6 +4,7 @@ use std::collections::HashSet;
 use std::collections::HashMap;
 use std::collections::VecDeque;
 use std::env;
+use std::io::{self, BufRead};
 use std::path::Path;
 use std::vec::IntoIter;
 use std::process;
@@ -120,6 +121,7 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     groups: HashMap<&'ar str, ArgGroup<'ar, 'ar>>,
     global_args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>,
     no_sc_error: bool,
+    wait_on_error: bool,
     help_on_no_args: bool,
     help_str: Option<&'u str>,
     help_on_no_sc: bool
@@ -168,6 +170,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             global_args: vec![],
             no_sc_error: false,
             help_str: None,
+            wait_on_error: false,
             help_on_no_args: false,
             help_on_no_sc: false 
         }
@@ -440,6 +443,31 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// ```
     pub fn arg_required_else_help(mut self, tf: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.help_on_no_args = tf;
+        self
+    }
+
+    /// Will display a message "Press [ENTER]/[RETURN] to continue..." and wait user before
+    /// exiting
+    ///
+    /// This is most useful when writing an application which is run from a GUI shortcut, or on
+    /// Windows where a user tries to open the binary by double-clicking instead of using the 
+    /// command line (i.e. set `.arg_required_else_help(true)` and `.wait_on_error(true)` to 
+    /// display the help in such a case).
+    ///
+    /// **NOTE:** This setting is **not** recursive with subcommands, meaning if you wish this
+    /// behavior for all subcommands, you must set this on each command (needing this is extremely
+    /// rare)
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .arg_required_else_help(true)
+    /// # ;
+    /// ```
+    pub fn wait_on_error(mut self, w: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        self.wait_on_error = w;
         self
     }
 
@@ -1402,6 +1430,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     // Exits with a status code passed to the OS
     // This is legacy from before std::process::exit() and may be removed evenutally
     fn exit(&self, status: i32) {
+        if self.wait_on_error {
+            println!("\nPress [ENTER] / [RETURN] to continue...");
+            let mut s = String::new();
+            let i = io::stdin();
+            i.lock().read_line(&mut s).unwrap();
+        }
         process::exit(status);
     }
 
