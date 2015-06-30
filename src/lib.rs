@@ -81,7 +81,7 @@
 //!                               "-c --config=[CONFIG] 'Sets a custom config file'
 //!                               <INPUT> 'Sets the input file to use'
 //!                               [debug]... -d 'Sets the level of debugging information'")
-//!                           .subcommand(SubCommand::new("test")
+//!                           .subcommand(SubCommand::with_name("test")
 //!                                       .about("controls testing features")
 //!                                       .version("1.3")
 //!                                       .author("Someone E. <someone_else@other.com>")
@@ -148,7 +148,7 @@
 //!                                .short("d")
 //!                                .multiple(true)
 //!                                .help("Sets the level of debugging information"))
-//!                           .subcommand(SubCommand::new("test")
+//!                           .subcommand(SubCommand::with_name("test")
 //!                                       .about("controls testing features")
 //!                                       .version("1.3")
 //!                                       .author("Someone E. <someone_else@other.com>")
@@ -374,10 +374,10 @@
 //! Old method names will be left around for some time.
 //!
 //! * As of 0.10.0
-//!  - `SubCommand::new()` -> `SubCommand::with_name()`
+//!  - `SubCommand::with_name()` -> `SubCommand::with_name()`
 //!  - `App::error_on_no_subcommand()` -> `App::subcommand_required()`
 //! * As of 0.6.8
-//!   - `Arg::new()` -> `Arg::with_name()`
+//!   - `Arg::with_name()` -> `Arg::with_name()`
 //!   - `Arg::mutually_excludes()` -> `Arg::conflicts_with()`
 //!   - `Arg::mutually_excludes_all()` -> `Arg::conflicts_with_all()`
 #[cfg(feature = "suggestions")]
@@ -484,15 +484,15 @@ mod tests {
 	fn add_multiple_arg() {
         let _ = App::new("test")
 	                .args( vec![
-	                    Arg::new("test").short("s"),
-	                    Arg::new("test2").short("l")])
+	                    Arg::with_name("test").short("s"),
+	                    Arg::with_name("test2").short("l")])
 	                .get_matches();
     }
 
     #[test]
 	fn create_flag() {
         let _ = App::new("test")
-	                .arg(Arg::new("test")
+	                .arg(Arg::with_name("test")
 	                            .short("t")
 	                            .long("test")
 	                            .help("testing testing"))
@@ -594,7 +594,7 @@ mod tests {
     #[test]
 	fn create_positional() {
         let _ = App::new("test")
-	                .arg(Arg::new("test")
+	                .arg(Arg::with_name("test")
 	                            .index(1)
 	                            .help("testing testing"))
 	                .get_matches();
@@ -687,7 +687,7 @@ mod tests {
     #[test]
 	fn create_option() {
         let _ = App::new("test")
-	                .arg(Arg::new("test")
+	                .arg(Arg::with_name("test")
 	                            .short("t")
 	                            .long("test")
 	                            .takes_value(true)
@@ -1281,28 +1281,28 @@ mod tests {
     #[test]
 	fn create_subcommand() {
         let _ = App::new("test")
-	                .subcommand(SubCommand::new("some")
-	                                        .arg(Arg::new("test")
+	                .subcommand(SubCommand::with_name("some")
+	                                        .arg(Arg::with_name("test")
 	                                            .short("t")
 	                                            .long("test")
 	                                            .takes_value(true)
 	                                            .help("testing testing")))
-	                .arg(Arg::new("other").long("other"))
+	                .arg(Arg::with_name("other").long("other"))
 	                .get_matches();
     }
 
     #[test]
 	fn create_multiple_subcommands() {
         let _ = App::new("test")
-	                .subcommands(vec![ SubCommand::new("some")
-	                                        .arg(Arg::new("test")
+	                .subcommands(vec![ SubCommand::with_name("some")
+	                                        .arg(Arg::with_name("test")
 	                                            .short("t")
 	                                            .long("test")
 	                                            .takes_value(true)
 	                                            .help("testing testing")),
-	                                    SubCommand::new("add")
-	                                        .arg(Arg::new("roster").short("r"))])
-	                .arg(Arg::new("other").long("other"))
+	                                    SubCommand::with_name("add")
+	                                        .arg(Arg::with_name("roster").short("r"))])
+	                .arg(Arg::with_name("other").long("other"))
 	                .get_matches();
     }
 
@@ -1310,8 +1310,8 @@ mod tests {
     #[should_panic]
 	fn unique_arg_names() {
         App::new("some").args(vec![
-	        Arg::new("arg").short("a"),
-	        Arg::new("arg").short("b")
+	        Arg::with_name("arg").short("a"),
+	        Arg::with_name("arg").short("b")
 	    ]);
     }
 
@@ -1319,8 +1319,8 @@ mod tests {
     #[should_panic]
 	fn unique_arg_shorts() {
         App::new("some").args(vec![
-	        Arg::new("arg1").short("a"),
-	        Arg::new("arg2").short("a")
+	        Arg::with_name("arg1").short("a"),
+	        Arg::with_name("arg2").short("a")
 	    ]);
     }
 
@@ -1328,8 +1328,8 @@ mod tests {
     #[should_panic]
 	fn unique_arg_longs() {
         App::new("some").args(vec![
-	        Arg::new("arg1").long("long"),
-	        Arg::new("arg2").long("long")
+	        Arg::with_name("arg1").long("long"),
+	        Arg::with_name("arg2").long("long")
 	    ]);
     }
 }

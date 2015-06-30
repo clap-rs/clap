@@ -27,7 +27,7 @@ fn main() {
                                     							  // also use this other 'config' arg too"
                                     							  // Can also specifiy a list using 
                                     							  // requires_all(Vec<&str>)
-                                    .mutually_excludes("output")  // Opposite of requires(), says "if the
+                                    .conflicts_with("output")     // Opposite of requires(), says "if the
                                     							  // user uses -a, they CANNOT use 'output'"
                                     							  // also has a mutually_excludes_all(Vec<&str>)
                         )

@@ -94,50 +94,6 @@ pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
 }
 
 impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
-    /// **WARNING:** This function is deprecated. Use `Arg::with_name()` instead.
-    ///
-    /// Creates a new instace of `Arg` using a unique string name.
-    /// The name will be used by the library consumer to get information about
-    /// whether or not the argument was used at runtime.
-    ///
-    /// **NOTE:** in the case of arguments that take values (i.e. `takes_value(true)`)
-    /// and positional arguments (i.e. those without a `-` or `--`) the name will also
-    /// be displayed when the user prints the usage/help information of the program.
-    ///
-    ///
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// # let matches = App::new("myprog")
-    /// #                 .arg(
-    /// Arg::new("conifg")
-    /// # .short("c")
-    /// # ).get_matches();
-    pub fn new(n: &'n str) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
-        Arg {
-            name: n,
-            short: None,
-            long: None,
-            help: None,
-            required: false,
-            takes_value: false,
-            multiple: false,
-            index: None,
-            possible_vals: None,
-            blacklist: None,
-            requires: None,
-            group: None,
-            num_vals: None,
-            val_names: None,
-            max_vals: None,
-            min_vals: None,
-            global: false,
-            empty_vals: true,
-        }
-    }
-
     /// Creates a new instace of `Arg` using a unique string name.
     /// The name will be used by the library consumer to get information about
     /// whether or not the argument was used at runtime.
@@ -354,7 +310,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # use clap::{App, Arg};
     /// # let matches = App::new("myprog")
     /// #                 .arg(
-    /// # Arg::new("conifg")
+    /// # Arg::with_name("conifg")
     /// .short("c")
     /// # ).get_matches();
     pub fn short(mut self, s: &str) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
@@ -378,7 +334,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # use clap::{App, Arg};
     /// # let matches = App::new("myprog")
     /// #                 .arg(
-    /// # Arg::new("conifg")
+    /// # Arg::with_name("conifg")
     /// .long("config")
     /// # ).get_matches();
     pub fn long(mut self, l: &'l str) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
@@ -396,7 +352,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # use clap::{App, Arg};
     /// # let matches = App::new("myprog")
     /// #                 .arg(
-    /// # Arg::new("conifg")
+    /// # Arg::with_name("conifg")
     /// .help("The config file used by the myprog")
     /// # ).get_matches();
     pub fn help(mut self, h: &'h str) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
@@ -425,61 +381,6 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # ).get_matches();
     pub fn required(mut self, r: bool) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self.required = r;
-        self
-    }
-
-    /// **WARNING:** This method is deprecated. Use `.conflicts_with()` instead.
-    ///
-    /// Sets a mutually exclusive argument by name. I.e. when using this argument,
-    /// the following argument can't be present.
-    ///
-    /// **NOTE:** Mutually exclusive rules take precedence over being required
-    /// by default. Mutually exclusive rules only need to be set for one of the two
-    /// arguments, they do not need to be set for each.
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
-    /// .mutually_excludes("debug")
-    /// # ).get_matches();
-    pub fn mutually_excludes(mut self, name: &'r str) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
-        if let Some(ref mut vec) = self.blacklist {
-            vec.push(name);
-        } else {
-            let v = vec![name];
-            self.blacklist = Some(v);
-        }
-        self
-    }
-
-    /// **WARNING:** This method is deprecated. Use `conflicts_with_all()` instead.
-    ///
-    /// Sets a mutually exclusive arguments by names. I.e. when using this argument,
-    /// the following argument can't be present.
-    ///
-    /// **NOTE:** Mutually exclusive rules take precedence over being required
-    /// by default. Mutually exclusive rules only need to be set for one of the two
-    /// arguments, they do not need to be set for each.
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// let conf_excludes = ["debug", "input"];
-    /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
-    /// .mutually_excludes_all(&conf_excludes)
-    /// # ).get_matches();
-    pub fn mutually_excludes_all<T, I>(mut self, names: I)
-                                       -> Arg<'n, 'l, 'h, 'g, 'p, 'r>
-                                       where T: AsRef<str> + 'r,
-                                             I: IntoIterator<Item=&'r T> {
-        if let Some(ref mut vec) = self.blacklist {
-            names.into_iter().map(|s| vec.push(s.as_ref())).collect::<Vec<_>>();
-        } else {
-            self.blacklist = Some(names.into_iter().map(|s| s.as_ref()).collect::<Vec<_>>());
-        }
         self
     }
 

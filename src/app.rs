@@ -4,6 +4,7 @@ use std::collections::HashSet;
 use std::collections::HashMap;
 use std::collections::VecDeque;
 use std::env;
+use std::io::{self, BufRead};
 use std::path::Path;
 use std::vec::IntoIter;
 use std::process;
@@ -120,7 +121,9 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     groups: HashMap<&'ar str, ArgGroup<'ar, 'ar>>,
     global_args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>,
     no_sc_error: bool,
+    wait_on_error: bool,
     help_on_no_args: bool,
+    help_str: Option<&'u str>,
     help_on_no_sc: bool
 }
 
@@ -166,6 +169,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             subcmds_neg_reqs: false,
             global_args: vec![],
             no_sc_error: false,
+            help_str: None,
+            wait_on_error: false,
             help_on_no_args: false,
             help_on_no_sc: false 
         }
@@ -259,25 +264,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
-    /// **WARNING:** This method is deprecated. Use `.subcommand_required(true)` instead.
-    ///
-    /// Allows specifying that if no subcommand is present at runtime, error and exit gracefully
-    ///
-    /// **NOTE:** This defaults to false (subcommands do *not* need to be present)
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use clap::App;
-    /// App::new("myprog")
-    ///     .subcommands_negate_reqs(true)
-    /// # ;
-    /// ```
-    pub fn error_on_no_subcommand(mut self, n: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
-        self.no_sc_error = n;
-        self
-    }
-
     /// Allows specifying that if no subcommand is present at runtime, error and exit gracefully
     ///
     /// **NOTE:** This defaults to false (subcommands do *not* need to be present)
@@ -334,6 +320,45 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// ```
     pub fn usage(mut self, u: &'u str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.usage_str = Some(u);
+        self
+    }
+
+    /// Sets a custom help message and overrides the auto-generated one. This should only be used
+    /// when the auto-gererated message does not suffice. 
+    ///
+    /// This will be displayed to the user when they use the defailt `--help` or `-h`
+    ///
+    /// **NOTE:** This replaces the **entire** help message, so nothing will be auto-gererated.
+    ///
+    /// **NOTE:** This **only** replaces the help message for the current command, meaning if you
+    /// are using subcommands, those help messages will still be auto-gererated unless you
+    /// specify a `.help()` for them as well.
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myapp")
+    ///     .help("myapp v1.0\n\
+    ///            Does awesome things\n\
+    ///            (C) me@mail.com\n\n\
+    ///
+    ///            USAGE: myapp <opts> <comamnd>\n\n\
+    ///
+    ///            Options:\n\
+    ///            -h, --helpe      Dispay this message\n\
+    ///            -V, --version    Display version info\n\
+    ///            -s <stuff>       Do something with stuff\n\
+    ///            -v               Be verbose\n\n\
+    ///
+    ///            Commmands:\n\
+    ///            help             Prints this message\n\
+    ///            work             Do some work")
+    /// # ;
+    /// ```
+    pub fn help(mut self, h: &'u str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        self.help_str = Some(h);
         self
     }
 
@@ -399,6 +424,31 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// ```
     pub fn arg_required_else_help(mut self, tf: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.help_on_no_args = tf;
+        self
+    }
+
+    /// Will display a message "Press [ENTER]/[RETURN] to continue..." and wait user before
+    /// exiting
+    ///
+    /// This is most useful when writing an application which is run from a GUI shortcut, or on
+    /// Windows where a user tries to open the binary by double-clicking instead of using the 
+    /// command line (i.e. set `.arg_required_else_help(true)` and `.wait_on_error(true)` to 
+    /// display the help in such a case).
+    ///
+    /// **NOTE:** This setting is **not** recursive with subcommands, meaning if you wish this
+    /// behavior for all subcommands, you must set this on each command (needing this is extremely
+    /// rare)
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .arg_required_else_help(true)
+    /// # ;
+    /// ```
+    pub fn wait_on_error(mut self, w: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        self.wait_on_error = w;
         self
     }
 
@@ -877,7 +927,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
     /// # App::new("myprog")
-    /// .subcommand(SubCommand::new("config")
+    /// .subcommand(SubCommand::with_name("config")
     ///                .about("Controls configuration features")
     ///                .arg_from_usage("<config> 'Required configuration file to use'"))
     ///             // Additional subcommand configuration goes here, such as other arguments...
@@ -899,9 +949,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # use clap::{App, Arg, SubCommand};
     /// # App::new("myprog")
     /// .subcommands( vec![
-    ///        SubCommand::new("config").about("Controls configuration functionality")
+    ///        SubCommand::with_name("config").about("Controls configuration functionality")
     ///                                 .arg(Arg::with_name("config_file").index(1)),
-    ///        SubCommand::new("debug").about("Controls debug functionality")])
+    ///        SubCommand::with_name("debug").about("Controls debug functionality")])
     /// # ;
     /// ```
     pub fn subcommands(mut self, subcmds: Vec<App<'a, 'v, 'ab, 'u, 'h, 'ar>>)
@@ -1161,6 +1211,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     // Prints the full help message to the user
     fn print_help(&self) {
+        if let Some(h) = self.help_str {
+            println!("{}", h);
+            return
+        }
         self.print_version(false);
         let flags = !self.flags.is_empty();
         let pos = !self.positionals_idx.is_empty();
@@ -1357,6 +1411,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     // Exits with a status code passed to the OS
     // This is legacy from before std::process::exit() and may be removed evenutally
     fn exit(&self, status: i32) {
+        if self.wait_on_error {
+            println!("\nPress [ENTER] / [RETURN] to continue...");
+            let mut s = String::new();
+            let i = io::stdin();
+            i.lock().read_line(&mut s).unwrap();
+        }
         process::exit(status);
     }
 
