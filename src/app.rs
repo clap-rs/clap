@@ -121,6 +121,7 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     global_args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>,
     no_sc_error: bool,
     help_on_no_args: bool,
+    help_str: Option<&'u str>,
     help_on_no_sc: bool
 }
 
@@ -166,6 +167,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             subcmds_neg_reqs: false,
             global_args: vec![],
             no_sc_error: false,
+            help_str: None,
             help_on_no_args: false,
             help_on_no_sc: false 
         }
@@ -334,6 +336,45 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// ```
     pub fn usage(mut self, u: &'u str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.usage_str = Some(u);
+        self
+    }
+
+    /// Sets a custom help message and overrides the auto-generated one. This should only be used
+    /// when the auto-gererated message does not suffice. 
+    ///
+    /// This will be displayed to the user when they use the defailt `--help` or `-h`
+    ///
+    /// **NOTE:** This replaces the **entire** help message, so nothing will be auto-gererated.
+    ///
+    /// **NOTE:** This **only** replaces the help message for the current command, meaning if you
+    /// are using subcommands, those help messages will still be auto-gererated unless you
+    /// specify a `.help()` for them as well.
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myapp")
+    ///     .help("myapp v1.0\n\
+    ///            Does awesome things\n\
+    ///            (C) me@mail.com\n\n\
+    ///
+    ///            USAGE: myapp <opts> <comamnd>\n\n\
+    ///
+    ///            Options:\n\
+    ///            -h, --helpe      Dispay this message\n\
+    ///            -V, --version    Display version info\n\
+    ///            -s <stuff>       Do something with stuff\n\
+    ///            -v               Be verbose\n\n\
+    ///
+    ///            Commmands:\n\
+    ///            help             Prints this message\n\
+    ///            work             Do some work")
+    /// # ;
+    /// ```
+    pub fn help(mut self, h: &'u str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        self.help_str = Some(h);
         self
     }
 
@@ -1161,6 +1202,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     // Prints the full help message to the user
     fn print_help(&self) {
+        if let Some(h) = self.help_str {
+            println!("{}", h);
+            return
+        }
         self.print_version(false);
         let flags = !self.flags.is_empty();
         let pos = !self.positionals_idx.is_empty();
