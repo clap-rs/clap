@@ -88,7 +88,7 @@ fn main() {
                               "-c --config=[CONFIG] 'Sets a custom config file'
                               <INPUT> 'Sets the input file to use'
                               [debug]... -d 'Sets the level of debugging information'")
-                          .subcommand(SubCommand::new("test")
+                          .subcommand(SubCommand::with_name("test")
                                       .about("controls testing features")
                                       .version("1.3")
                                       .author("Someone E. <someone_else@other.com>")
@@ -155,7 +155,7 @@ fn main() {
                                .short("d")
                                .multiple(true)
                                .help("Sets the level of debugging information"))
-                          .subcommand(SubCommand::new("test")
+                          .subcommand(SubCommand::with_name("test")
                                       .about("controls testing features")
                                       .version("1.3")
                                       .author("Someone E. <someone_else@other.com>")
@@ -191,7 +191,7 @@ fn main() {
         }
     }
 
-    // more porgram logic goes here...
+    // more program logic goes here...
 }
 ```
 
