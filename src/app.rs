@@ -2052,20 +2052,28 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut arg_val: Option<String> = None;
 
         if arg.contains("=") {
-            let arg_vec: Vec<&str> = arg.split("=").collect();
+            let arg_vec: Vec<_> = arg.split("=").collect();
             arg = arg_vec[0];
-            // prevents "--config= value" typo
-            if arg_vec[1].len() == 0 {
-                self.report_error(format!("The argument '{}' requires a value, but none was \
-                        supplied", Format::Warning(format!("--{}", arg))),
-                    true,
-                    true,
-                    Some(matches.args.keys().map(|k| *k).collect()));
+            if let Some(ref v) = self.opts.values()
+                                      .filter(|&v| v.long.is_some())
+                                      .filter(|&v| v.long.unwrap() == arg).nth(0) {
+                // prevents "--config= value" typo
+                if arg_vec[1].len() == 0 && !v.empty_vals {
+                    matches.args.insert(v.name, MatchedArg {
+                        occurrences: 1,
+                        values: None
+                    });
+                    self.report_error(format!("The argument '{}' requires a value, but none was \
+                            supplied", Format::Warning(format!("--{}", arg))),
+                        true,
+                        true,
+                        Some(matches.args.keys().map(|k| *k).collect()));
+                }
+                arg_val = Some(arg_vec[1].to_owned());
             }
-            arg_val = Some(arg_vec[1].to_owned());
         }
 
-        if let Some(v) = self.opts.values()
+        if let Some(ref v) = self.opts.values()
                                   .filter(|&v| v.long.is_some())
                                   .filter(|&v| v.long.unwrap() == arg).nth(0) {
             // Ensure this option isn't on the master mutually excludes list
