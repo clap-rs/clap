@@ -1,3 +1,13 @@
+<a name="v1.0.1"></a>
+### v1.0.1 (2015-07-08)
+
+
+#### Bug Fixes
+
+*   allows empty values when using --long='' syntax ([083f82d3](https://github.com/kbknapp/clap-rs/commit/083f82d333b69720a6ef30074875310921d964d1), closes [#151](https://github.com/kbknapp/clap-rs/issues/151))
+
+
+
 <a name="v1.0.0"></a>
 ## v1.0.0 (2015-07-08)
 
