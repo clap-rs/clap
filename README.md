@@ -8,7 +8,22 @@ It is a simple to use, efficient, and full featured library for parsing command 
 
 ## What's New
 
-If you're already familiar with `clap` but just want to see some new highlights as of **1.0.0-beta**
+If you're already familiar with `clap` but just want to see some new highlights as of **1.0.0**
+
+* **Args can now be parsed from arbitrary locations!** This makes testing immensly easier. Thanks to [cristicbz](https://github.com/cristicbz) for the idea! 
+
+Example...
+
+```rust
+let v = vec!["my_prog", "some_arg", "-f"];
+let m = App::new("my_prog")
+            // Normal configuration goes here...
+            .get_matches_from(v);
+
+// Use matches like normal...
+```
+
+As of **1.0.0-beta**
 
 * **Deprecated Functions Removed** - In an effort to start a 1.x all deprecated functions have been removed, see the deprecations sections below to update your code (very minimal)
 * **Can fully override help** - This allows you fully override the auto-generated help if you so choose

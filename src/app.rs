@@ -6,7 +6,6 @@ use std::collections::VecDeque;
 use std::env;
 use std::io::{self, BufRead};
 use std::path::Path;
-use std::vec::IntoIter;
 use std::process;
 
 use args::{ ArgMatches, Arg, SubCommand, MatchedArg};
@@ -1427,18 +1426,56 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         if quit { self.exit(1); }
     }
 
-    // Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
-    // the real parsing function for subcommands
-    pub fn get_matches(mut self) -> ArgMatches<'ar, 'ar> {
+    /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
+    /// the real parsing function for all subcommands
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let matches = App::new("myprog")
+    ///     // Args and options go here...
+    ///     .get_matches();
+    /// ```
+    pub fn get_matches(self) -> ArgMatches<'ar, 'ar> {
+        let args: Vec<_> = env::args().collect();
+
+        self.get_matches_from(args)
+    }
+
+    /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
+    /// the real parsing function for all subcommands
+    ///
+    /// **NOTE:** The first argument will be parsed as the binary name.
+    ///
+    /// **NOTE:** This method should only be used when absolutely necessary, such as needing to
+    /// parse arguments from something other than `std::env::args()`. If you are unsure, use
+    /// `App::get_matches()`
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let arg_vec = vec!["my_prog", "some", "args", "to", "parse"];
+    ///
+    /// let matches = App::new("myprog")
+    ///     // Args and options go here...
+    ///     .get_matches_from(arg_vec);
+    /// ```
+    pub fn get_matches_from<I, T>(mut self, itr: I)
+                                  -> ArgMatches<'ar, 'ar>
+                                  where I: IntoIterator<Item=T>,
+                                        T: AsRef<str> {
         self.verify_positionals();
         self.propogate_globals();
 
         let mut matches = ArgMatches::new();
 
-        let args: Vec<_> = env::args().collect();
-        let mut it = args.into_iter();
+        let mut it = itr.into_iter();
         if let Some(name) = it.next() {
-            let p = Path::new(&name[..]);
+            let p = Path::new(name.as_ref());
             if let Some(f) = p.file_name() {
                 if let Ok(s) = f.to_os_string().into_string() {
                     if let None = self.bin_name {
@@ -1447,7 +1484,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 }
             }
         }
-        self.get_matches_from(&mut matches, &mut it );
+        self.get_matches_with(&mut matches, &mut it);
 
         matches
     }
@@ -1502,31 +1539,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
     }
 
-    /// Returns a suffix that can be empty, or is the standard 'did you mean phrase
-    fn did_you_mean_suffix<'z, T, I>(arg: &str, values: I, style: DidYouMeanMessageStyle)
-                                                     -> (String, Option<&'z str>)
-                                                        where       T: AsRef<str> + 'z,
-                                                                    I: IntoIterator<Item=&'z T> {
-        match did_you_mean(arg, values) {
-                Some(candidate) => {
-                    let mut suffix = "\n\tDid you mean ".to_string();
-                    match style {
-                        DidYouMeanMessageStyle::LongFlag => suffix.push_str(&Format::Good("--").to_string()[..]),
-                        DidYouMeanMessageStyle::EnumValue => suffix.push('\''),
-                    }
-                    suffix.push_str(&Format::Good(candidate).to_string()[..]);
-                    if let DidYouMeanMessageStyle::EnumValue = style {
-                        suffix.push('\'');
-                    }
-                    suffix.push_str(" ?");
-                    (suffix, Some(candidate))
-                },
-                None => (String::new(), None),
-        }
-    }
 
-    fn possible_values_error(&self, arg: &str, opt: &str, p_vals: &BTreeSet<&str>,
-                                                   matches: &ArgMatches<'ar, 'ar>) {
+    fn possible_values_error(&self, 
+                             arg: &str, 
+                             opt: &str, 
+                             p_vals: &BTreeSet<&str>,
+                             matches: &ArgMatches<'ar, 'ar>) {
         let suffix = App::did_you_mean_suffix(arg, p_vals.iter(),
                                               DidYouMeanMessageStyle::EnumValue);
 
@@ -1544,7 +1562,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                         Some(matches.args.keys().map(|k| *k).collect()));
     }
 
-    fn get_matches_from(&mut self, matches: &mut ArgMatches<'ar, 'ar>, it: &mut IntoIter<String>) {
+    // The actual parsing function
+    fn get_matches_with<I, T>(&mut self, matches: &mut ArgMatches<'ar, 'ar>, it: &mut I) 
+                        where I: Iterator<Item=T>,
+                              T: AsRef<str> {
         self.create_help_and_version();
 
         let mut pos_only = false;
@@ -1552,7 +1573,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut needs_val_of: Option<&str> = None;
         let mut pos_counter = 1;
         while let Some(arg) = it.next() {
-            let arg_slice = &arg[..];
+            let arg_slice = arg.as_ref();
             let mut skip = false;
             let new_arg = if arg_slice.starts_with("-") {
                 if arg_slice.len() == 1 { false } else { true }
@@ -1592,7 +1613,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
                         if !opt.empty_vals &&
                             matches.args.contains_key(opt.name) &&
-                            arg.is_empty() {
+                            arg_slice.is_empty() {
                             self.report_error(format!("The argument '{}' does not allow empty \
                                     values, but one was found.", Format::Warning(opt.to_string())),
                                 true,
@@ -1604,7 +1625,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             // Options have values, so we can unwrap()
                             if let Some(ref mut vals) = o.values {
                                 let len = vals.len() as u8 + 1;
-                                vals.insert(len, arg.clone());
+                                vals.insert(len, arg_slice.to_owned());
                             }
 
                             // if it's multiple the occurrences are increased when originall found
@@ -1651,24 +1672,24 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     continue;
                 }
                 // Single flag, or option long version
-                needs_val_of = self.parse_long_arg(matches, &arg);
+                needs_val_of = self.parse_long_arg(matches, arg_slice);
             } else if arg_slice.starts_with("-") && arg_slice.len() != 1 && ! pos_only {
-                needs_val_of = self.parse_short_arg(matches, &arg);
+                needs_val_of = self.parse_short_arg(matches, arg_slice);
             } else {
                 // Positional or Subcommand
                 // If the user pased `--` we don't check for subcommands, because the argument they
                 // may be trying to pass might match a subcommand name
                 if !pos_only {
-                    if self.subcommands.contains_key(&arg) {
+                    if self.subcommands.contains_key(arg_slice) {
                         if arg_slice == "help" {
                             self.print_help();
                         }
-                        subcmd_name = Some(arg.clone());
+                        subcmd_name = Some(arg_slice.to_owned());
                         break;
                     }
 
-                    if let Some(candidate_subcommand) = did_you_mean(&arg,
-                                                                    self.subcommands.keys()) {
+                    if let Some(candidate_subcommand) = did_you_mean(arg_slice,
+                                                                     self.subcommands.keys()) {
                         self.report_error(
                             format!("The subcommand '{}' isn't valid\n\tDid you mean '{}' ?\n\n\
                             If you received this message in error, try \
@@ -1677,7 +1698,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 Format::Good(candidate_subcommand),
                                 self.bin_name.clone().unwrap_or(self.name.clone()),
                                 Format::Good("--"),
-                                arg),
+                                arg_slice),
                             true,
                             true,
                             None);
@@ -1738,7 +1759,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 }
                             }
                         }
-                        if !p.empty_vals && matches.args.contains_key(p.name) && arg.is_empty()  {
+                        if !p.empty_vals && matches.args.contains_key(p.name) 
+                            && arg_slice.is_empty()  {
                             self.report_error(format!("The argument '{}' does not allow empty \
                                     values, but one was found.", Format::Warning(p.to_string())),
                                 true,
@@ -1752,7 +1774,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             pos.occurrences += 1;
                             if let Some(ref mut vals) = pos.values {
                                 let len = (vals.len() + 1) as u8;
-                                vals.insert(len, arg.clone());
+                                vals.insert(len, arg_slice.to_owned());
                             }
                         }
                     } else {
@@ -1762,7 +1784,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     // Was an update made, or is this the first occurrence?
                     if !done {
                         let mut bm = BTreeMap::new();
-                        if !p.empty_vals && arg.is_empty() {
+                        if !p.empty_vals && arg_slice.is_empty() {
                             self.report_error(format!("The argument '{}' does not allow empty \
                                 values, but one was found.", Format::Warning(p.to_string())),
                                 true,
@@ -1770,7 +1792,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 Some(matches.args.keys()
                                                  .map(|k| *k).collect()));
                         }
-                        bm.insert(1, arg.clone());
+                        bm.insert(1, arg_slice.to_owned());
                         matches.args.insert(p.name, MatchedArg{
                             occurrences: 1,
                             values: Some(bm),
@@ -1894,7 +1916,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         ""
                     },
                     sc.name.clone()));
-                sc.get_matches_from(&mut new_matches, it);
+                sc.get_matches_with(&mut new_matches, it);
                 matches.subcommand = Some(Box::new(SubCommand {
                     name: sc.name_slice,
                     matches: new_matches
@@ -2017,7 +2039,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
     }
 
-    fn parse_long_arg(&mut self, matches: &mut ArgMatches<'ar, 'ar> ,full_arg: &String)
+    fn parse_long_arg(&mut self, matches: &mut ArgMatches<'ar, 'ar> ,full_arg: &str)
                       -> Option<&'ar str> {
         let mut arg = full_arg.trim_left_matches(|c| c == '-');
 
@@ -2246,7 +2268,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         unreachable!();
     }
 
-    fn parse_short_arg(&mut self, matches: &mut ArgMatches<'ar, 'ar> ,full_arg: &String)
+    fn parse_short_arg(&mut self, matches: &mut ArgMatches<'ar, 'ar> ,full_arg: &str)
                        -> Option<&'ar str> {
         let arg = &full_arg[..].trim_left_matches(|c| c == '-');
         if arg.len() > 1 {
@@ -2584,5 +2606,28 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
         }
         true
+    }
+
+    /// Returns a suffix that can be empty, or is the standard 'did you mean phrase
+    fn did_you_mean_suffix<'z, T, I>(arg: &str, values: I, style: DidYouMeanMessageStyle)
+                                                     -> (String, Option<&'z str>)
+                                                        where       T: AsRef<str> + 'z,
+                                                                    I: IntoIterator<Item=&'z T> {
+        match did_you_mean(arg, values) {
+                Some(candidate) => {
+                    let mut suffix = "\n\tDid you mean ".to_string();
+                    match style {
+                        DidYouMeanMessageStyle::LongFlag => suffix.push_str(&Format::Good("--").to_string()[..]),
+                        DidYouMeanMessageStyle::EnumValue => suffix.push('\''),
+                    }
+                    suffix.push_str(&Format::Good(candidate).to_string()[..]);
+                    if let DidYouMeanMessageStyle::EnumValue = style {
+                        suffix.push('\'');
+                    }
+                    suffix.push_str(" ?");
+                    (suffix, Some(candidate))
+                },
+                None => (String::new(), None),
+        }
     }
 }
