@@ -1,4 +1,19 @@
 <a name="v1.0.0"></a>
+## v1.0.0 (2015-07-08)
+
+
+#### Documentation
+
+* **README.md**  adds new features to what's new list ([938f7f01](https://github.com/kbknapp/clap-rs/commit/938f7f01340f521969376cf4e2e3d9436bca21f7))
+* **README.md**  use with_name for subcommands ([28b7e316](https://github.com/kbknapp/clap-rs/commit/28b7e3161fb772e5309042648fe8c3a420645bac))
+
+#### Features
+
+*   args can now be parsed from arbitrary locations, not just std::env::args() ([75312528](https://github.com/kbknapp/clap-rs/commit/753125282b1b9bfff875f1557ce27610edcc59e1))
+
+
+
+<a name="v1.0.0"></a>
 ## v1.0.0-beta (2015-06-30)
 
 
