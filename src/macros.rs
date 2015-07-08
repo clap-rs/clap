@@ -345,6 +345,7 @@ macro_rules! simple_enum {
         }
 
         impl $e {
+            #[allow(dead_code)]
             pub fn variants() -> Vec<&'static str> {
                 vec![
                     $(stringify!($v),)+
@@ -427,6 +428,7 @@ macro_rules! arg_enum {
         }
 
         impl $e {
+            #[allow(dead_code)]
             fn variants() -> Vec<&'static str> {
                 vec![
                     $(stringify!($v),)+
@@ -469,6 +471,7 @@ macro_rules! arg_enum {
         }
 
         impl $e {
+            #[allow(dead_code)]
             pub fn variants() -> Vec<&'static str> {
                 vec![
                     $(stringify!($v),)+
@@ -512,6 +515,7 @@ macro_rules! arg_enum {
         }
 
         impl $e {
+            #[allow(dead_code)]
             pub fn variants() -> Vec<&'static str> {
                 vec![
                     $(stringify!($v),)+
@@ -555,6 +559,7 @@ macro_rules! arg_enum {
         }
 
         impl $e {
+            #[allow(dead_code)]
             pub fn variants() -> Vec<&'static str> {
                 vec![
                     $(stringify!($v),)+
