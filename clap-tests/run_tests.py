@@ -12,7 +12,7 @@ Kevin K. <kbknapp@gmail.com>
 tests clap library
 
 USAGE:
-	claptests [POSITIONAL] [FLAGS] [OPTIONS] [SUBCOMMANDS]
+	claptests [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
 
 FLAGS:
     -f, --flag       tests flags
@@ -29,7 +29,7 @@ OPTIONS:
         --long-option-2 <option2>    tests long options with exclusions
     -O, --Option <option3>           tests options with specific value sets [values: fast, slow]
 
-POSITIONAL ARGUMENTS:
+ARGS:
     positional          tests positionals
     positional2         tests positionals with exclusions
     positional3...      tests positionals with specific values [values: emacs, vi]
@@ -44,7 +44,7 @@ _sc_dym_usage = '''error: The subcommand 'subcm' isn't valid
 If you received this message in error, try re-running with 'claptests -- subcm'
 
 USAGE:
-	claptests [POSITIONAL] [FLAGS] [OPTIONS] [SUBCOMMANDS]
+	claptests [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
 
 For more information try --help'''
 
@@ -138,7 +138,7 @@ Kevin K. <kbknapp@gmail.com>
 tests subcommands
 
 USAGE:
-	claptests subcmd [POSITIONAL] [FLAGS] [OPTIONS]
+	claptests subcmd [FLAGS] [OPTIONS] [ARGS]
 
 FLAGS:
     -f, --flag       tests flags
@@ -148,7 +148,7 @@ FLAGS:
 OPTIONS:
     -o, --option <scoption>...        tests options
 
-POSITIONAL ARGUMENTS:
+ARGS:
     scpositional      tests positionals'''
 
 _scfop = '''flag NOT present
