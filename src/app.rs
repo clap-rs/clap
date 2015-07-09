@@ -1178,21 +1178,23 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                         .fold(String::new(), |acc, s| {
                                             acc + &format!(" {}", s)[..]
                                         });
-            usage.push_str(&req_string[..]);
 
 
-            if !self.positionals_idx.is_empty() && self.positionals_idx.values()
-                                                                       .any(|a| !a.required) {
-                usage.push_str(" [POSITIONAL]");
-            }
             if !self.flags.is_empty() {
                 usage.push_str(" [FLAGS]");
             }
             if !self.opts.is_empty() && self.opts.values().any(|a| !a.required) {
                 usage.push_str(" [OPTIONS]");
             }
+            if !self.positionals_idx.is_empty() && self.positionals_idx.values()
+                                                                       .any(|a| !a.required) {
+                usage.push_str(" [ARGS]");
+            }
+
+            usage.push_str(&req_string[..]);
+
             if !self.subcommands.is_empty() {
-                usage.push_str(" [SUBCOMMANDS]");
+                usage.push_str(" [SUBCOMMAND]");
             }
         }
 
@@ -1331,7 +1333,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
         if pos {
             println!("");
-            println!("POSITIONAL ARGUMENTS:");
+            println!("ARGS:");
             for v in self.positionals_idx.values() {
                 let mult = if v.multiple { 3 } else { 0 };
                 println!("{}{}{}{}",tab,
