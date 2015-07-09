@@ -219,7 +219,7 @@ Kevin K. <kbknapp@gmail.com>
 Does awesome things
 
 USAGE:
-    MyApp [FLAGS] [OPTIONS] <INPUT> [SUBCOMMANDS]
+    MyApp [FLAGS] [OPTIONS] <INPUT> [SUBCOMMAND]
 
 FLAGS:
     -d               Turn debugging information on
@@ -229,7 +229,7 @@ FLAGS:
 OPTIONS:
     -c, --config <CONFIG>    Sets a custom config file
 
-POSITIONAL ARGUMENTS:
+ARGS:
     INPUT    The input file to use
 
 SUBCOMMANDS:
