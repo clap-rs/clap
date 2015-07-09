@@ -1,3 +1,13 @@
+<a name="v1.0.2"></a>
+### v1.0.2 (2015-07-09)
+
+
+#### Improvements
+
+* **Usage**  re-orders optional arguments and required to natural standard ([dc7e1fce](https://github.com/kbknapp/clap-rs/commit/dc7e1fcea5c85d317018fb201d2a9262249131b4), closes [#147](https://github.com/kbknapp/clap-rs/issues/147))
+
+
+
 <a name="v1.0.1"></a>
 ### v1.0.1 (2015-07-08)
 
