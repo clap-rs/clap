@@ -20,6 +20,9 @@ color = ["ansi_term"]
 # for building with nightly and unstable features
 unstable=[]
 
+# for building with debug messages
+debug=[]
+
 [dependencies.strsim]
 version = "0.4.0"
 optional = true
