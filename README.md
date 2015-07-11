@@ -8,9 +8,13 @@ It is a simple to use, efficient, and full featured library for parsing command 
 
 ## What's New
 
-If you're already familiar with `clap` but just want to see some new highlights as of **1.0.0**
+If you're already familiar with `clap` but just want to see some new highlights as of **1.0.3**
 
-* **Args can now be parsed from arbitrary locations!** This makes testing immensly easier. Thanks to [cristicbz](https://github.com/cristicbz) for the idea! 
+* **Errors are written to stderr** - In order to follow good standards, errors are now written to stderr
+* **Deprecated Functions Removed** - In an effort to start a 1.x all deprecated functions have been removed, see the deprecations sections below to update your code (very minimal)
+* **Can fully override help** - This allows you fully override the auto-generated help if you so choose
+* **Can wait for user input on error** - This is helpful mainly on Windows if a user mistakenly opens your application via double-click, or you'd like to provide a GUI shortcut to run your application
+* **Args can now be parsed from arbitrary locations** This makes testing immensly easier. Thanks to [cristicbz](https://github.com/cristicbz) for the idea! 
 
 Example...
 
@@ -22,12 +26,6 @@ let m = App::new("my_prog")
 
 // Use matches like normal...
 ```
-
-As of **1.0.0-beta**
-
-* **Deprecated Functions Removed** - In an effort to start a 1.x all deprecated functions have been removed, see the deprecations sections below to update your code (very minimal)
-* **Can fully override help** - This allows you fully override the auto-generated help if you so choose
-* **Can wait for user input on error** - This is helpful mainly on Windows if a user mistakenly opens your application via double-click, or you'd like to provide a GUI shortcut to run your application
 
 For full details see the [changelog](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md)
 

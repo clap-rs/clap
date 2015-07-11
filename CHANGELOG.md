@@ -1,3 +1,17 @@
+<a name="v1.0.3"></a>
+### v1.0.3 (2015-07-11)
+
+
+#### Improvements
+
+* **Errors**  writes errors to stderr ([cc76ab8c](https://github.com/kbknapp/clap-rs/commit/cc76ab8c2b77c67b42f4717ded530df7806142cf), closes [#154](https://github.com/kbknapp/clap-rs/issues/154))
+
+#### Documentation
+
+* **README.md**  updates example help message to new format ([0aca29bd](https://github.com/kbknapp/clap-rs/commit/0aca29bd5d6d1a4e9971bdc88d946ffa58606efa))
+
+
+
 <a name="v1.0.2"></a>
 ### v1.0.2 (2015-07-09)
 
