@@ -166,7 +166,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             help_str: None,
             wait_on_error: false,
             help_on_no_args: false,
-            help_on_no_sc: false 
+            help_on_no_sc: false
         }
     }
 
@@ -267,7 +267,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// ```no_run
     /// # use clap::App;
     /// App::new("myprog")
-    ///     .subcommands_negate_reqs(true)
+    ///     .subcommand_required(true)
     /// # ;
     /// ```
     pub fn subcommand_required(mut self, n: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
@@ -291,9 +291,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
-    /// Sets a custom usage string to override the auto-generated usage string. 
+    /// Sets a custom usage string to override the auto-generated usage string.
     ///
-    /// This will be displayed to the user when errors are found in argument parsing, or when you 
+    /// This will be displayed to the user when errors are found in argument parsing, or when you
     /// call `ArgMatches::usage()`
     ///
     /// **NOTE:** You do not need to specify the "USAGE: \n\t" portion, as that will
@@ -318,7 +318,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     /// Sets a custom help message and overrides the auto-generated one. This should only be used
-    /// when the auto-generated message does not suffice. 
+    /// when the auto-generated message does not suffice.
     ///
     /// This will be displayed to the user when they use the default `--help` or `-h`
     ///
@@ -425,8 +425,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// exiting
     ///
     /// This is most useful when writing an application which is run from a GUI shortcut, or on
-    /// Windows where a user tries to open the binary by double-clicking instead of using the 
-    /// command line (i.e. set `.arg_required_else_help(true)` and `.wait_on_error(true)` to 
+    /// Windows where a user tries to open the binary by double-clicking instead of using the
+    /// command line (i.e. set `.arg_required_else_help(true)` and `.wait_on_error(true)` to
     /// display the help in such a case).
     ///
     /// **NOTE:** This setting is **not** recursive with subcommands, meaning if you wish this
@@ -449,10 +449,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Specifies that the help text sould be displayed (and then exit gracefully), if no
     /// subcommands are present at runtime (i.e. an empty run such as, `$ myprog`.
     ///
-    /// **NOTE:** This should *not* be used with `.subcommand_required()` as they do the same 
+    /// **NOTE:** This should *not* be used with `.subcommand_required()` as they do the same
     /// thing, except one prints the help text, and one prints an error.
     ///
-    /// **NOTE:** If the user specifies arguments at runtime, but no subcommand the help text will 
+    /// **NOTE:** If the user specifies arguments at runtime, but no subcommand the help text will
     /// still be displayed and exit. If this is *not* the desired result, consider using
     /// `.arg_required_else_help()`
     ///
@@ -746,7 +746,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// ```no_run
     /// # use clap::{App, Arg};
     /// App::new("myprog")
-    ///     .args( 
+    ///     .args(
     ///         vec![Arg::from_usage("[debug] -d 'turns on debugging info"),
     ///              Arg::with_name("input").index(1).help("the input file to use")]
     ///     )
@@ -1426,7 +1426,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     // Reports and error to stderr along with an optional usage statement and optionally quits
     fn report_error(&self, msg: String, quit: bool, matches: Option<Vec<&str>>) {
-        wlnerr!("{} {}\n\n{}\n\nFor more information try {}", 
+        wlnerr!("{} {}\n\n{}\n\nFor more information try {}",
             Format::Error(&format!("error:")[..]),
             msg,
             self.create_usage(matches),
@@ -1549,9 +1549,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
 
-    fn possible_values_error(&self, 
-                             arg: &str, 
-                             opt: &str, 
+    fn possible_values_error(&self,
+                             arg: &str,
+                             opt: &str,
                              p_vals: &BTreeSet<&str>,
                              matches: &ArgMatches<'ar, 'ar>) {
         let suffix = App::did_you_mean_suffix(arg, p_vals.iter(),
@@ -1571,7 +1571,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     // The actual parsing function
-    fn get_matches_with<I, T>(&mut self, matches: &mut ArgMatches<'ar, 'ar>, it: &mut I) 
+    fn get_matches_with<I, T>(&mut self, matches: &mut ArgMatches<'ar, 'ar>, it: &mut I)
                         where I: Iterator<Item=T>,
                               T: AsRef<str> {
         self.create_help_and_version();
@@ -1760,7 +1760,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 }
                             }
                         }
-                        if !p.empty_vals && matches.args.contains_key(p.name) 
+                        if !p.empty_vals && matches.args.contains_key(p.name)
                             && arg_slice.is_empty()  {
                             self.report_error(format!("The argument '{}' does not allow empty \
                                     values, but one was found.", Format::Warning(p.to_string())),
@@ -2025,7 +2025,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     fn check_for_help_and_version(&self, arg: char) {
         if let Some(h) = self.help_short {
             if h == arg { self.print_help(); }
-        } 
+        }
         if let Some(v) = self.version_short {
             if v == arg { self.print_version(true); }
         }
@@ -2072,7 +2072,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 matches.args.remove(v.name);
                 self.report_error(format!("The argument '{}' cannot be used with one or more of \
                     the other specified arguments", Format::Warning(format!("--{}", arg))),
-                    true, 
+                    true,
                     Some(matches.args.keys().map(|k| *k).collect()));
             }
 
@@ -2254,7 +2254,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
 
         self.report_error(format!("The argument '{}' isn't valid{}",
-                Format::Warning(format!("--{}", arg)), 
+                Format::Warning(format!("--{}", arg)),
                 suffix.0),
             true,
             Some(matches.args.keys().map(|k| *k).collect()));
@@ -2438,8 +2438,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }, match self.blacklisted_from(name, matches) {
                         Some(name) => format!("'{}'", Format::Warning(name)),
                         None       => "one or more of the other specified arguments".to_owned()
-                    }), 
-                true, 
+                    }),
+                true,
                 Some(matches.args.keys().map(|k| *k).collect()));
             } else if self.groups.contains_key(name) {
                 for n in self.get_group_members_names(name) {
