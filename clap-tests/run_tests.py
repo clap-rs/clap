@@ -12,7 +12,7 @@ Kevin K. <kbknapp@gmail.com>
 tests clap library
 
 USAGE:
-	claptests [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
+\tclaptests [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
 
 FLAGS:
     -f, --flag       tests flags
@@ -27,12 +27,12 @@ OPTIONS:
         --multvalsmo <one> <two>     Tests mutliple values, not mult occs
     -o, --option <opt>...            tests options
         --long-option-2 <option2>    tests long options with exclusions
-    -O, --Option <option3>           tests options with specific value sets [values: fast, slow]
+    -O, --Option <option3>           tests options with specific value sets [values: fast slow]
 
 ARGS:
-    positional          tests positionals
-    positional2         tests positionals with exclusions
-    positional3...      tests positionals with specific values [values: emacs, vi]
+    positional        tests positionals
+    positional2       tests positionals with exclusions
+    positional3...    tests positionals with specific values [values: emacs vi]
 
 SUBCOMMANDS:
     help      Prints this message
@@ -138,7 +138,7 @@ Kevin K. <kbknapp@gmail.com>
 tests subcommands
 
 USAGE:
-	claptests subcmd [FLAGS] [OPTIONS] [ARGS]
+\tclaptests subcmd [FLAGS] [OPTIONS] [ARGS]
 
 FLAGS:
     -f, --flag       tests flags
@@ -146,10 +146,10 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-    -o, --option <scoption>...        tests options
+    -o, --option <scoption>...    tests options
 
 ARGS:
-    scpositional      tests positionals'''
+    scpositional    tests positionals'''
 
 _scfop = '''flag NOT present
 option NOT present
