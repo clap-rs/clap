@@ -120,6 +120,8 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     subcmds_neg_reqs: bool,
     help_on_no_sc: bool,
     global_ver: bool,
+    // None = not set, Some(true) set for all children, Some(false) = disable version
+    versionless_scs: Option<bool>
 }
 
 impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
@@ -169,6 +171,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             help_on_no_args: false,
             help_on_no_sc: false,
             global_ver: false,
+            versionless_scs: None
         }
     }
 
@@ -409,7 +412,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// **NOTE:** Subcommands count as arguments
     ///
-    ///
     /// # Example
     ///
     /// ```no_run
@@ -423,9 +425,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
-    /// Uses version of the current command for all subcommands.
+    /// Uses version of the current command for all subcommands. (Defaults to false; subcommands
+    /// have independant version strings)
     ///
-    /// **NOTE:** The version for the current command must be set **prior** adding any subcommands
+    /// **NOTE:** The version for the current command and this setting must be set **prior** to
+    /// adding any subcommands
     ///
     /// # Example
     ///
@@ -441,6 +445,29 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// ```
     pub fn global_version(mut self, gv: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.global_ver = gv;
+        self
+    }
+
+    /// Disables `-V` and `--version` for all subcommands (Defaults to false; subcommands have
+    /// version flags)
+    ///
+    /// **NOTE:** This setting must be set **prior** adding any subcommands
+    ///
+    /// **NOTE:** Do not set this value to false, it will have undesired results!
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, SubCommand};
+    /// App::new("myprog")
+    ///     .version("v1.1")
+    ///     .versionless_subcommands(true)
+    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .get_matches();
+    /// // running `myprog test --version` will display unknown argument error
+    /// ```
+    pub fn versionless_subcommands(mut self, vers: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        self.versionless_scs = Some(vers);
         self
     }
 
@@ -953,6 +980,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     pub fn subcommand(mut self, mut subcmd: App<'a, 'v, 'ab, 'u, 'h, 'ar>)
                       -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         if subcmd.name == "help" { self.needs_subcmd_help = false; }
+        if self.versionless_scs.is_some() && self.versionless_scs.unwrap() {
+            subcmd.versionless_scs = Some(false);
+        }
         if self.global_ver && subcmd.version.is_none() && self.version.is_some() {
             subcmd.version = Some(self.version.unwrap());
         }
@@ -2024,7 +2054,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             self.long_list.insert("help");
             self.flags.insert("hclap_help", arg);
         }
-        if self.needs_long_version {
+        if self.needs_long_version 
+            && self.versionless_scs.is_some() 
+            && (self.versionless_scs.unwrap()) {
             if self.version_short.is_none() && !self.short_list.contains(&'V') {
                 self.version_short = Some('V');
             }
