@@ -1,3 +1,28 @@
+<a name="v1.1.0"></a>
+## v1.1.0 (2015-07-16)
+
+
+#### Features
+
+*   allows creating unified help messages, a la docopt or getopts ([52bcd892](https://github.com/kbknapp/clap-rs/commit/52bcd892ea51564ce463bc5865acd64f8fe91cb1), closes [#158](https://github.com/kbknapp/clap-rs/issues/158))
+*   allows stating all subcommands should *not* have --version flags ([336c476f](https://github.com/kbknapp/clap-rs/commit/336c476f631d512b54ac56fdca6f29ebdc2c00c5), closes [#156](https://github.com/kbknapp/clap-rs/issues/156))
+*   allows setting version number to auto-propagate through subcommands ([bc66d3c6](https://github.com/kbknapp/clap-rs/commit/bc66d3c6deedeca62463fff95369ab1cfcdd366b), closes [#157](https://github.com/kbknapp/clap-rs/issues/157))
+
+#### Improvements
+
+* **Help Strings**  properly aligns and handles newlines in long help strings ([f9800a29](https://github.com/kbknapp/clap-rs/commit/f9800a29696dd2cc0b0284bf693b3011831e556f), closes [#145](https://github.com/kbknapp/clap-rs/issues/145))
+
+
+#### Performance
+
+* **Help Messages**  big performance improvements when printing help messages ([52bcd892](https://github.com/kbknapp/clap-rs/commit/52bcd892ea51564ce463bc5865acd64f8fe91cb1))
+
+#### Documentation
+
+*   updates readme with new features ([8232f7bb](https://github.com/kbknapp/clap-rs/commit/8232f7bb52e88862bc13c3d4f99ee4f56cfe4bc0))
+*   fix incorrect code example for `App::subcommand_required` ([8889689d](https://github.com/kbknapp/clap-rs/commit/8889689dc6336ccc45b2c9f2cf8e2e483a639e93))
+
+
 <a name="v1.0.3"></a>
 ### v1.0.3 (2015-07-11)
 
