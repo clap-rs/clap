@@ -99,12 +99,8 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     positionals_name: HashMap<&'ar str, u8>,
     // A list of subcommands
     subcommands: BTreeMap<String, App<'a, 'v, 'ab, 'u, 'h, 'ar>>,
-    needs_long_help: bool,
-    needs_long_version: bool,
     help_short: Option<char>,
     version_short: Option<char>,
-    needs_subcmd_help: bool,
-    subcmds_neg_reqs: bool,
     required: HashSet<&'ar str>,
     short_list: HashSet<char>,
     long_list: HashSet<&'ar str>,
@@ -114,11 +110,16 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     usage: Option<String>,
     groups: HashMap<&'ar str, ArgGroup<'ar, 'ar>>,
     global_args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>,
+    help_str: Option<&'u str>,
     no_sc_error: bool,
     wait_on_error: bool,
     help_on_no_args: bool,
-    help_str: Option<&'u str>,
-    help_on_no_sc: bool
+    needs_long_help: bool,
+    needs_long_version: bool,
+    needs_subcmd_help: bool,
+    subcmds_neg_reqs: bool,
+    help_on_no_sc: bool,
+    global_ver: bool,
 }
 
 impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
@@ -166,7 +167,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             help_str: None,
             wait_on_error: false,
             help_on_no_args: false,
-            help_on_no_sc: false
+            help_on_no_sc: false,
+            global_ver: false,
         }
     }
 
@@ -418,6 +420,27 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// ```
     pub fn arg_required_else_help(mut self, tf: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.help_on_no_args = tf;
+        self
+    }
+
+    /// Uses version of the current command for all subcommands.
+    ///
+    /// **NOTE:** The version for the current command must be set **prior** adding any subcommands
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, SubCommand};
+    /// App::new("myprog")
+    ///     .version("v1.1")
+    ///     .global_version(true)
+    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .get_matches();
+    /// // running `myprog test --version` will display
+    /// // "myprog-test v1.1"
+    /// ```
+    pub fn global_version(mut self, gv: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        self.global_ver = gv;
         self
     }
 
@@ -927,9 +950,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///             // Additional subcommand configuration goes here, such as other arguments...
     /// # ;
     /// ```
-    pub fn subcommand(mut self, subcmd: App<'a, 'v, 'ab, 'u, 'h, 'ar>)
+    pub fn subcommand(mut self, mut subcmd: App<'a, 'v, 'ab, 'u, 'h, 'ar>)
                       -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         if subcmd.name == "help" { self.needs_subcmd_help = false; }
+        if self.global_ver && subcmd.version.is_none() && self.version.is_some() {
+            subcmd.version = Some(self.version.unwrap());
+        }
         self.subcommands.insert(subcmd.name.clone(), subcmd);
         self
     }
