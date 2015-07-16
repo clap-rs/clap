@@ -37,22 +37,18 @@ macro_rules! debug {
 }
 
 // De-duplication macro used in src/app.rs
-macro_rules! get_help {
+macro_rules! print_opt_help {
     ($opt:ident) => {
         if let Some(h) = $opt.help {
-            format!("{}{}", h,
-                if let Some(ref pv) = $opt.possible_vals {
-                    let mut pv_s = pv.iter().fold(String::with_capacity(50), |acc, name| {
-                        acc + &format!(" {},",name)[..]
-                    });
-                    pv_s.shrink_to_fit();
-                    // pv_s = one, two, three, four,
-                    // Needs to remove trailing comma (',')
-                    format!(" [values:{}]", &pv_s[..pv_s.len()-1])
-                }else{"".to_owned()})
-        } else {
-            "    ".to_owned()
-        }
+            print!("{}", h);
+            if let Some(ref pv) = $opt.possible_vals {
+                print!(" [values:");
+                for pv_s in pv.iter() {
+                    print!(" {}", pv_s);
+                }
+                print!("]");
+            }
+        } 
     };
 }
 
