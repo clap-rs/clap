@@ -1373,28 +1373,45 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     print!("{}", tab);
                 }
                 if let Some(l) = v.long {
-                    print!("{}--{}{}",
+                    print!("{}--{}",
                         if v.short.is_some() { ", " } else {""},
-                        l,
-                        self.get_spaces(
+                        l
+                    );
+                    self.print_spaces(
                             if !self.unified_help {
                                 (longest_flag + 4)
                             } else {
                                 (longest_opt + 4)
                             } - (l.len() + 2)
-                        )
                     );
                 } else {
                     // 6 is tab (4) + -- (2)
-                    print!("{}", self.get_spaces(
+                    self.print_spaces(
                         if !self.unified_help {
                             (longest_flag + 6)
                         } else {
                             (longest_opt + 6)
                         }
-                    ));
+                    );
                 }
-                print!("{}\n", v.help.unwrap_or(tab));
+                if let Some(h) = v.help {
+                    if h.contains("{n}") {
+                        let mut hel = h.split("{n}");
+                        while let Some(part) = hel.next() {
+                            print!("{}\n", part);
+                            self.print_spaces(
+                                if !self.unified_help {
+                                    longest_flag
+                                } else {
+                                    longest_opt
+                                } + 12);
+                            print!("{}", hel.next().unwrap_or(""));
+                        }
+                    } else {
+                        print!("{}", h);
+                    }
+                }
+                print!("\n");
             }
         }
         if opts {
@@ -1425,17 +1442,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 } else {
                     print!(" <{}>{}", v.name, if v.multiple{"..."} else {""});
                 }
-                print!("{}",
-                    if v.long.is_some() {
-                        self.get_spaces(
-                            (longest_opt + 4) - (v.to_string().len())
-                        )
-                    } else {
-                        // 8 = tab + '-a, '.len()
-                        self.get_spaces((longest_opt + 8) - (v.to_string().len()))
-                    }
-                );
-                print_opt_help!(v);
+                if v.long.is_some() {
+                    self.print_spaces(
+                        (longest_opt + 4) - (v.to_string().len())
+                    );
+                } else {
+                    // 8 = tab + '-a, '.len()
+                    self.print_spaces((longest_opt + 8) - (v.to_string().len()));
+                };
+                print_opt_help!(self, v, longest_opt + 12);
                 print!("\n");
             }
         }
@@ -1448,19 +1463,29 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 if v.multiple {
                     print!("...");
                 }
-                print!("{}", self.get_spaces((longest_pos + 4) - (v.to_string().len())));
-                print_opt_help!(v);
+                self.print_spaces((longest_pos + 4) - (v.to_string().len()));
+                print_opt_help!(self, v, longest_pos + 12);
                 print!("\n");
             }
         }
         if subcmds {
             print!("\nSUBCOMMANDS:\n");
             for sc in self.subcommands.values() {
-                print!("{}{}{}{}\n",tab,
-                    sc.name,
-                    self.get_spaces((longest_sc + 4) - (sc.name.len())),
-                    if let Some(a) = sc.about {a} else {tab}
-                );
+                print!("{}{}", tab, sc.name);
+                self.print_spaces((longest_sc + 4) - (sc.name.len()));
+                if let Some(a) = sc.about {
+                    if a.contains("{n}") {
+                        let mut ab = a.split("{n}");
+                        while let Some(part) = ab.next() {
+                            print!("{}\n", part);
+                            self.print_spaces(longest_sc + 8);
+                            print!("{}", ab.next().unwrap_or(""));
+                        }
+                    } else {
+                        print!("{}", a);
+                    }
+                } 
+                print!("\n");
             }
         }
 
@@ -1475,39 +1500,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     // Used when spacing arguments and their help message when displaying help information
-    fn get_spaces(&self, num: usize) -> &'static str {
-        match num {
-            0 => "",
-            1 => " ",
-            2 => "  ",
-            3 => "   ",
-            4 => "    ",
-            5 => "     ",
-            6 => "      ",
-            7 => "       ",
-            8 => "        ",
-            9 => "         ",
-            10=> "          ",
-            11=> "           ",
-            12=> "            ",
-            13=> "             ",
-            14=> "              ",
-            15=> "               ",
-            16=> "                ",
-            17=> "                 ",
-            18=> "                  ",
-            19=> "                   ",
-            20=> "                    ",
-            21=> "                     ",
-            22=> "                      ",
-            23=> "                       ",
-            24=> "                        ",
-            25=> "                         ",
-            26=> "                          ",
-            27=> "                           ",
-            28=> "                            ",
-            29=> "                             ",
-            30|_=> "                             "
+    fn print_spaces(&self, num: usize) {
+        for _ in (0..num) {
+            print!(" ");
         }
     }
 

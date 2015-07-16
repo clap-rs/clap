@@ -38,9 +38,18 @@ macro_rules! debug {
 
 // De-duplication macro used in src/app.rs
 macro_rules! print_opt_help {
-    ($opt:ident) => {
+    ($me:ident, $opt:ident, $spc:expr) => {
         if let Some(h) = $opt.help {
-            print!("{}", h);
+            if h.contains("{n}") {
+                let mut hel = h.split("{n}");
+                while let Some(part) = hel.next() {
+                    print!("{}\n", part);
+                    $me.print_spaces($spc);
+                    print!("{}", hel.next().unwrap_or(""));
+                }
+            } else {
+                print!("{}", h);
+            }
             if let Some(ref pv) = $opt.possible_vals {
                 print!(" [values:");
                 for pv_s in pv.iter() {
