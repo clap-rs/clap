@@ -99,12 +99,8 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     positionals_name: HashMap<&'ar str, u8>,
     // A list of subcommands
     subcommands: BTreeMap<String, App<'a, 'v, 'ab, 'u, 'h, 'ar>>,
-    needs_long_help: bool,
-    needs_long_version: bool,
     help_short: Option<char>,
     version_short: Option<char>,
-    needs_subcmd_help: bool,
-    subcmds_neg_reqs: bool,
     required: HashSet<&'ar str>,
     short_list: HashSet<char>,
     long_list: HashSet<&'ar str>,
@@ -114,11 +110,19 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     usage: Option<String>,
     groups: HashMap<&'ar str, ArgGroup<'ar, 'ar>>,
     global_args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>,
+    help_str: Option<&'u str>,
     no_sc_error: bool,
     wait_on_error: bool,
     help_on_no_args: bool,
-    help_str: Option<&'u str>,
-    help_on_no_sc: bool
+    needs_long_help: bool,
+    needs_long_version: bool,
+    needs_subcmd_help: bool,
+    subcmds_neg_reqs: bool,
+    help_on_no_sc: bool,
+    global_ver: bool,
+    // None = not set, Some(true) set for all children, Some(false) = disable version
+    versionless_scs: Option<bool>,
+    unified_help: bool
 }
 
 impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
@@ -166,7 +170,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             help_str: None,
             wait_on_error: false,
             help_on_no_args: false,
-            help_on_no_sc: false
+            help_on_no_sc: false,
+            global_ver: false,
+            versionless_scs: None,
+            unified_help: false
         }
     }
 
@@ -407,7 +414,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// **NOTE:** Subcommands count as arguments
     ///
-    ///
     /// # Example
     ///
     /// ```no_run
@@ -418,6 +424,72 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// ```
     pub fn arg_required_else_help(mut self, tf: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.help_on_no_args = tf;
+        self
+    }
+
+    /// Uses version of the current command for all subcommands. (Defaults to false; subcommands
+    /// have independant version strings)
+    ///
+    /// **NOTE:** The version for the current command and this setting must be set **prior** to
+    /// adding any subcommands
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, SubCommand};
+    /// App::new("myprog")
+    ///     .version("v1.1")
+    ///     .global_version(true)
+    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .get_matches();
+    /// // running `myprog test --version` will display
+    /// // "myprog-test v1.1"
+    /// ```
+    pub fn global_version(mut self, gv: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        self.global_ver = gv;
+        self
+    }
+
+    /// Disables `-V` and `--version` for all subcommands (Defaults to false; subcommands have
+    /// version flags)
+    ///
+    /// **NOTE:** This setting must be set **prior** adding any subcommands
+    ///
+    /// **NOTE:** Do not set this value to false, it will have undesired results!
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, SubCommand};
+    /// App::new("myprog")
+    ///     .version("v1.1")
+    ///     .versionless_subcommands(true)
+    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .get_matches();
+    /// // running `myprog test --version` will display unknown argument error
+    /// ```
+    pub fn versionless_subcommands(mut self, vers: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        self.versionless_scs = Some(vers);
+        self
+    }
+
+    /// By default the auto-generated help message groups flags, options, and positional arguments
+    /// separately. This setting disable that and groups flags and options together presenting a
+    /// more unified help message (a la getopts or docopt style).
+    ///
+    /// **NOTE:** This setting is cosmetic only and does not affect any functionality.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, SubCommand};
+    /// App::new("myprog")
+    ///     .unified_help_message(true)
+    ///     .get_matches();
+    /// // running `myprog --help` will display a unified "docopt" or "getopts" style help message
+    /// ```
+    pub fn unified_help_message(mut self, uni_help: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+        self.unified_help = uni_help;
         self
     }
 
@@ -927,9 +999,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///             // Additional subcommand configuration goes here, such as other arguments...
     /// # ;
     /// ```
-    pub fn subcommand(mut self, subcmd: App<'a, 'v, 'ab, 'u, 'h, 'ar>)
+    pub fn subcommand(mut self, mut subcmd: App<'a, 'v, 'ab, 'u, 'h, 'ar>)
                       -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         if subcmd.name == "help" { self.needs_subcmd_help = false; }
+        if self.versionless_scs.is_some() && self.versionless_scs.unwrap() {
+            subcmd.versionless_scs = Some(false);
+        }
+        if self.global_ver && subcmd.version.is_none() && self.version.is_some() {
+            subcmd.version = Some(self.version.unwrap());
+        }
         self.subcommands.insert(subcmd.name.clone(), subcmd);
         self
     }
@@ -1175,10 +1253,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                         });
 
 
-            if !self.flags.is_empty() {
+            if !self.flags.is_empty() && !self.unified_help {
                 usage.push_str(" [FLAGS]");
+            } else {
+                usage.push_str(" [OPTIONS]");
             }
-            if !self.opts.is_empty() && self.opts.values().any(|a| !a.required) {
+            if !self.unified_help 
+                && !self.opts.is_empty() && self.opts.values().any(|a| !a.required) {
                 usage.push_str(" [OPTIONS]");
             }
             if !self.positionals_idx.is_empty() && self.positionals_idx.values()
@@ -1233,24 +1314,24 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut longest_opt= 0;
         for ol in self.opts
             .values()
-            .filter(|ref o| o.long.is_some())
+            // .filter(|ref o| o.long.is_some())
             .map(|ref a|
-                a.to_string().len() + if a.short.is_some() { 4 } else { 0 }
+                a.to_string().len() // + if a.short.is_some() { 4 } else { 0 }
             ) {
             if ol > longest_opt {
                 longest_opt = ol;
             }
         }
-        if longest_opt == 0 {
-            for ol in self.opts
-                .values()
-                .filter(|ref o| o.short.is_some())
-                // 3='...'
-                // 4='- <>'
-                .map(|ref a| a.to_string().len() + if a.long.is_some() { 4 } else { 0 }) {
-                if ol > longest_opt {longest_opt = ol;}
-            }
-        }
+        // if longest_opt == 0 {
+        //     for ol in self.opts
+        //         .values()
+        //         .filter(|ref o| o.short.is_some())
+        //         // 3='...'
+        //         // 4='- <>'
+        //         .map(|ref a| a.to_string().len() + if a.long.is_some() { 4 } else { 0 }) {
+        //         if ol > longest_opt {longest_opt = ol;}
+        //     }
+        // }
         let mut longest_pos = 0;
         for pl in self.positionals_idx
             .values()
@@ -1270,9 +1351,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         if let Some(about) = self.about {
             print!("{}\n", about);
         }
-        print!("\n");
 
-        print!("{}", self.create_usage(None));
+        print!("\n{}", self.create_usage(None));
 
         if flags || opts || pos || subcmds {
             print!("\n");
@@ -1280,78 +1360,132 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
         let tab = "    ";
         if flags {
-            print!("\nFLAGS:\n");
+            if !self.unified_help {
+                print!("\nFLAGS:\n"); 
+            } else {
+                print!("\nOPTIONS:\n")
+            }
             for v in self.flags.values() {
-                print!("{}{}{}{}\n",tab,
-                    if let Some(s) = v.short{format!("-{}",s)}else{tab.to_owned()},
-                    if let Some(l) = v.long {
-                        format!("{}--{}{}",
-                            if v.short.is_some() { ", " } else {""},
-                            l,
-                            self.get_spaces((longest_flag + 4) - (v.long.unwrap().len() + 2)))
+                print!("{}", tab);
+                if let Some(s) = v.short {
+                    print!("-{}",s);
+                } else { 
+                    print!("{}", tab);
+                }
+                if let Some(l) = v.long {
+                    print!("{}--{}",
+                        if v.short.is_some() { ", " } else {""},
+                        l
+                    );
+                    self.print_spaces(
+                            if !self.unified_help {
+                                (longest_flag + 4)
+                            } else {
+                                (longest_opt + 4)
+                            } - (l.len() + 2)
+                    );
+                } else {
+                    // 6 is tab (4) + -- (2)
+                    self.print_spaces(
+                        if !self.unified_help {
+                            (longest_flag + 6)
+                        } else {
+                            (longest_opt + 6)
+                        }
+                    );
+                }
+                if let Some(h) = v.help {
+                    if h.contains("{n}") {
+                        let mut hel = h.split("{n}");
+                        while let Some(part) = hel.next() {
+                            print!("{}\n", part);
+                            self.print_spaces(
+                                if !self.unified_help {
+                                    longest_flag
+                                } else {
+                                    longest_opt
+                                } + 12);
+                            print!("{}", hel.next().unwrap_or(""));
+                        }
                     } else {
-                        // 6 is tab (4) + -- (2)
-                        self.get_spaces(longest_flag + 6).to_owned()
-                    },
-                    v.help.unwrap_or(tab)
-                );
+                        print!("{}", h);
+                    }
+                }
+                print!("\n");
             }
         }
         if opts {
-            print!("\nOPTIONS:\n");
+            if !self.unified_help {
+                print!("\nOPTIONS:\n"); 
+            } else {
+                // maybe erase
+            }
             for v in self.opts.values() {
                 // if it supports multiple we add '...' i.e. 3 to the name length
-                print!("{}{}{}{}{}{}\n",tab,
-                    if let Some(s) = v.short{format!("-{}",s)}else{tab.to_owned()},
-                    if let Some(l) = v.long {
-                        format!("{}--{}",
-                            if v.short.is_some() {", "} else {""},l)
-                    } else {
-                        "".to_owned()
-                    },
-                    format!("{}",
-                        if let Some(ref vec) = v.val_names {
-                            vec.iter().fold(String::new(), |acc, s| {
-                                acc + &format!(" <{}>", s)[..]
-                            })
-                        } else if let Some(num) = v.num_vals {
-                            (0..num).fold(String::new(), |acc, _| {
-                                acc + &format!(" <{}>", v.name)[..]
-                            })
-                        } else {
-                            format!(" <{}>{}", v.name, if v.multiple{"..."} else {""})
-                        }),
-                        if v.long.is_some() {
-                            self.get_spaces(
-                                (longest_opt + 4) - (v.to_string().len())
-                            )
-                        } else {
-                            // 8 = tab + '-a, '.len()
-                            self.get_spaces((longest_opt + 9) - (v.to_string().len()))
-                        },
-                    get_help!(v)
-                );
+                print!("{}", tab);
+                if let Some(s) = v.short {
+                    print!("-{}",s);
+                } else {
+                    print!("{}", tab);
+                }
+                if let Some(l) = v.long {
+                    print!("{}--{}", if v.short.is_some() {", "} else {""}, l);
+                } 
+                if let Some(ref vec) = v.val_names {
+                    for val in vec.iter() {
+                        print!(" <{}>", val);
+                    }
+                } else if let Some(num) = v.num_vals {
+                    for _ in (0..num) {
+                        print!(" <{}>", v.name);
+                    }
+                } else {
+                    print!(" <{}>{}", v.name, if v.multiple{"..."} else {""});
+                }
+                if v.long.is_some() {
+                    self.print_spaces(
+                        (longest_opt + 4) - (v.to_string().len())
+                    );
+                } else {
+                    // 8 = tab + '-a, '.len()
+                    self.print_spaces((longest_opt + 8) - (v.to_string().len()));
+                };
+                print_opt_help!(self, v, longest_opt + 12);
+                print!("\n");
             }
         }
         if pos {
             print!("\nARGS:\n");
             for v in self.positionals_idx.values() {
-                let mult = if v.multiple { 3 } else { 0 };
-                print!("{}{}{}{}\n",tab,
-                    if v.multiple {format!("{}...",v.name)} else {v.name.to_owned()},
-                    self.get_spaces((longest_pos + 4) - (v.name.len() + mult)),
-                    get_help!(v)
-                );
+                // let mult = if v.multiple { 3 } else { 0 };
+                print!("{}", tab);
+                print!("{}", v.name);
+                if v.multiple {
+                    print!("...");
+                }
+                self.print_spaces((longest_pos + 4) - (v.to_string().len()));
+                print_opt_help!(self, v, longest_pos + 12);
+                print!("\n");
             }
         }
         if subcmds {
             print!("\nSUBCOMMANDS:\n");
             for sc in self.subcommands.values() {
-                print!("{}{}{}{}\n",tab,
-                    sc.name,
-                    self.get_spaces((longest_sc + 4) - (sc.name.len())),
-                    if let Some(a) = sc.about {a} else {tab}
-                );
+                print!("{}{}", tab, sc.name);
+                self.print_spaces((longest_sc + 4) - (sc.name.len()));
+                if let Some(a) = sc.about {
+                    if a.contains("{n}") {
+                        let mut ab = a.split("{n}");
+                        while let Some(part) = ab.next() {
+                            print!("{}\n", part);
+                            self.print_spaces(longest_sc + 8);
+                            print!("{}", ab.next().unwrap_or(""));
+                        }
+                    } else {
+                        print!("{}", a);
+                    }
+                } 
+                print!("\n");
             }
         }
 
@@ -1359,45 +1493,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             print!("\n{}", h);
         }
 
+        // flush the buffer
         println!("");
 
         self.exit(0);
     }
 
     // Used when spacing arguments and their help message when displaying help information
-    fn get_spaces(&self, num: usize) -> &'static str {
-        match num {
-            0 => "",
-            1 => " ",
-            2 => "  ",
-            3 => "   ",
-            4 => "    ",
-            5 => "     ",
-            6 => "      ",
-            7 => "       ",
-            8 => "        ",
-            9 => "         ",
-            10=> "          ",
-            11=> "           ",
-            12=> "            ",
-            13=> "             ",
-            14=> "              ",
-            15=> "               ",
-            16=> "                ",
-            17=> "                 ",
-            18=> "                  ",
-            19=> "                   ",
-            20=> "                    ",
-            21=> "                     ",
-            22=> "                      ",
-            23=> "                       ",
-            24=> "                        ",
-            25=> "                         ",
-            26=> "                          ",
-            27=> "                           ",
-            28=> "                            ",
-            29=> "                             ",
-            30|_=> "                             "
+    fn print_spaces(&self, num: usize) {
+        for _ in (0..num) {
+            print!(" ");
         }
     }
 
@@ -1998,7 +2103,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             self.long_list.insert("help");
             self.flags.insert("hclap_help", arg);
         }
-        if self.needs_long_version {
+        if self.needs_long_version 
+            && self.versionless_scs.is_none() 
+            || (self.versionless_scs.unwrap()) {
             if self.version_short.is_none() && !self.short_list.contains(&'V') {
                 self.version_short = Some('V');
             }

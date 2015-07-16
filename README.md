@@ -8,24 +8,14 @@ It is a simple to use, efficient, and full featured library for parsing command 
 
 ## What's New
 
-If you're already familiar with `clap` but just want to see some new highlights as of **1.0.3**
+If you're already familiar with `clap` but just want to see some new highlights as of **1.1.0**
 
-* **Errors are written to stderr** - In order to follow good standards, errors are now written to stderr
-* **Deprecated Functions Removed** - In an effort to start a 1.x all deprecated functions have been removed, see the deprecations sections below to update your code (very minimal)
-* **Can fully override help** - This allows you fully override the auto-generated help if you so choose
-* **Can wait for user input on error** - This is helpful mainly on Windows if a user mistakenly opens your application via double-click, or you'd like to provide a GUI shortcut to run your application
-* **Args can now be parsed from arbitrary locations** This makes testing immensly easier. Thanks to [cristicbz](https://github.com/cristicbz) for the idea! 
-
-Example...
-
-```rust
-let v = vec!["my_prog", "some_arg", "-f"];
-let m = App::new("my_prog")
-            // Normal configuration goes here...
-            .get_matches_from(v);
-
-// Use matches like normal...
-```
+* **Newlines properly aligned in help strings!** - Allows one to specify a newline in long help strings. **Note:** Specify the newlines in help strings via `{n}` and *not* `\n` due to how `clap` handles help parsing.
+* **Unified Help Format** - This is cosmetic only, but allows a help message formated similiar to `docopt` or `getopts` where what `clap` calls "options" and "flags" are combined into a single group (and still properly aligned and formatted)
+* **Can propogate versions through subcommands auto-matically** - This allows all subcommands to handle `--version` or `-V` with the same version as the parent application
+* **Can specify that subcommands disable version** - Can now say `--version` and `-V` won't be valid flags for subcommands
+* **Big performacne improvement when printing help messages** - While printing help messages wasn't slow before, it's now super fast ;)
+* **PSA: Deprecated Functions Removed as of 1.0** - In an effort to start a 1.x all deprecated functions have been removed, see the deprecations sections below to update your code (very minimal)
 
 For full details see the [changelog](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md)
 
