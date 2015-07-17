@@ -1,3 +1,13 @@
+<a name="v1.1.2"></a>
+### v1.1.2 (2015-07-17)
+
+
+#### Bug Fixes
+
+*   fixes a bug when parsing multiple {n} newlines inside help strings ([6d214b54](https://github.com/kbknapp/clap-rs/commit/6d214b549a9b7e189a94e5fa2b7c92cc333ca637))
+
+
+
 <a name="v1.1.1"></a>
 ## v1.1.1 (2015-07-17)
 
