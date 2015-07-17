@@ -1,3 +1,13 @@
+<a name="v1.1.1"></a>
+## v1.1.1 (2015-07-17)
+
+
+#### Bug Fixes
+
+*   fixes a logic bug and allows setting Arg::number_of_values() < 2 ([42b6d1fc](https://github.com/kbknapp/clap-rs/commit/42b6d1fc3c519c92dfb3af15276e7d3b635e6cfe), closes [#161](https://github.com/kbknapp/clap-rs/issues/161))
+
+
+
 <a name="v1.1.0"></a>
 ## v1.1.0 (2015-07-16)
 
