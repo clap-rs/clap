@@ -42,10 +42,14 @@ macro_rules! print_opt_help {
         if let Some(h) = $opt.help {
             if h.contains("{n}") {
                 let mut hel = h.split("{n}");
+                if let Some(part) = hel.next() {
+                    print!("{}", part);
+                }
                 while let Some(part) = hel.next() {
-                    print!("{}\n", part);
+                    print!("\n");
                     $me.print_spaces($spc);
-                    print!("{}", hel.next().unwrap_or(""));
+                    print!("{}", part);
+                    // print!("{}", hel.next().unwrap_or(""));
                 }
             } else {
                 print!("{}", h);
