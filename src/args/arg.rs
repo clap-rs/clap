@@ -645,8 +645,6 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// `.number_of_values(3)`, and this argument wouldn't be satisfied unless the user provided
     /// 3 and only 3 values.
     ///
-    /// **NOTE:** `qty` must be > 1
-    ///
     /// **NOTE:** Does *not* require `.multiple(true)` to be set. Setting `.multiple(true)` would
     /// allow `-f <file> <file> <file> -f <file> <file> <file>` where as *not* setting
     /// `.multiple(true)` would only allow one occurrence of this argument.
@@ -661,11 +659,6 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// .number_of_values(3)
     /// # ).get_matches();
     pub fn number_of_values(mut self, qty: u8) -> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
-        if qty < 2 {
-            panic!("Arguments with number_of_values(qty) qty must be > 1. Prefer \
-                takes_value(true) for arguments with only one value, or flags for arguments \
-                with 0 values.");
-        }
         self.num_vals = Some(qty);
         self
     }

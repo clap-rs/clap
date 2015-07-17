@@ -1685,6 +1685,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut subcmd_name: Option<String> = None;
         let mut needs_val_of: Option<&str> = None;
         let mut pos_counter = 1;
+        let mut val_counter = 0;
         while let Some(arg) = it.next() {
             let arg_slice = arg.as_ref();
             let mut skip = false;
@@ -1746,12 +1747,21 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 skip = true;
                                 1
                             };
-                            if let Some(ref mut vals) = o.values {
+                            if let Some(ref vals) = o.values {
                                 let len = vals.len() as u8;
                                 if let Some(num) = opt.max_vals {
                                     if len != num { continue }
                                 } else if let Some(num) = opt.num_vals {
-                                    if len != num { continue }
+                                    if opt.multiple {
+                                        val_counter += 1;
+                                        if val_counter != num { 
+                                            continue 
+                                        } else {
+                                            val_counter = 0;
+                                        }
+                                    } else {
+                                        if len != num { continue }
+                                    }
                                 } else if !skip {
                                     continue
                                 }
