@@ -1711,7 +1711,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     if num == vals.len() as u8 && !opt.multiple {
                                         self.report_error(format!("The argument '{}' was found, \
                                             but '{}' only expects {} values",
-                                                Format::Warning(&arg),
+                                                Format::Warning(arg.as_ref()),
                                                 Format::Warning(opt.to_string()),
                                                 Format::Good(vals.len().to_string())),
                                             true,
@@ -1814,7 +1814,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             format!("The subcommand '{}' isn't valid\n\tDid you mean '{}' ?\n\n\
                             If you received this message in error, try \
                             re-running with '{} {} {}'",
-                                Format::Warning(&arg),
+                                Format::Warning(arg.as_ref()),
                                 Format::Good(candidate_subcommand),
                                 self.bin_name.clone().unwrap_or(self.name.clone()),
                                 Format::Good("--"),
@@ -1827,7 +1827,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 if self.positionals_idx.is_empty() {
                     self.report_error(
                         format!("Found argument '{}', but {} wasn't expecting any",
-                            Format::Warning(&arg),
+                            Format::Warning(arg.as_ref()),
                             self.bin_name.clone().unwrap_or(self.name.clone())),
                         true,
                         Some(matches.args.keys().map(|k| *k).collect()));
@@ -1866,7 +1866,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     if vals.len() as u8 == num {
                                         self.report_error(format!("The argument '{}' was found, \
                                             but '{}' wasn't expecting any more values",
-                                                Format::Warning(&arg),
+                                                Format::Warning(arg.as_ref()),
                                                 Format::Warning(p.to_string())),
                                             true,
                                             Some(matches.args.keys()
@@ -1935,7 +1935,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
                 } else {
                     self.report_error(format!("The argument '{}' was found, but '{}' wasn't \
-                        expecting any", Format::Warning(&arg),
+                        expecting any", Format::Warning(arg.as_ref()),
                             self.bin_name.clone().unwrap_or(self.name.clone())),
                         true,
                         Some(matches.args.keys().map(|k| *k).collect()));
