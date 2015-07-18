@@ -1,8 +1,8 @@
 use std::fmt;
 
-#[cfg(feature = "color")]
+#[cfg(all(feature = "color", not(target_os = "windows")))]
 use ansi_term::Colour::{Red, Green, Yellow};
-#[cfg(feature = "color")]
+#[cfg(all(feature = "color", not(target_os = "windows")))]
 use ansi_term::ANSIString;
 
 
@@ -12,7 +12,7 @@ pub enum Format<T> {
      Good(T),
 }
 
-#[cfg(feature = "color")]
+#[cfg(all(feature = "color", not(target_os = "windows")))]
 impl<T: AsRef<str>> Format<T> {
     fn format(&self) -> ANSIString {
         match *self {
@@ -24,14 +24,14 @@ impl<T: AsRef<str>> Format<T> {
 
 }
 
-#[cfg(feature = "color")]
+#[cfg(all(feature = "color", not(target_os = "windows")))]
 impl<T: AsRef<str>> fmt::Display for Format<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", &self.format())
     }
 }
 
-#[cfg(not(feature = "color"))]
+#[cfg(any(not(feature = "color"), target_os = "windows"))]
 impl<T: fmt::Display> Format<T> {
     fn format(&self) -> &T {
         match *self {
@@ -42,7 +42,7 @@ impl<T: fmt::Display> Format<T> {
     }
 }
 
-#[cfg(not(feature = "color"))]
+#[cfg(any(not(feature = "color"), target_os = "windows"))]
 impl<T: fmt::Display> fmt::Display for Format<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", &self.format())
