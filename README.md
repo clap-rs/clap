@@ -8,8 +8,9 @@ It is a simple to use, efficient, and full featured library for parsing command 
 
 ## What's New
 
-If you're already familiar with `clap` but just want to see some new highlights as of **1.1.0**
+If you're already familiar with `clap` but just want to see some new highlights as of **1.1.3**
 
+* **Works on Windows again!** - You can now use `clap` on Windows again!
 * **Newlines properly aligned in help strings!** - Allows one to specify a newline in long help strings. **Note:** Specify the newlines in help strings via `{n}` and *not* `\n` due to how `clap` handles help parsing.
 * **Unified Help Format** - This is cosmetic only, but allows a help message formated similiar to `docopt` or `getopts` where what `clap` calls "options" and "flags" are combined into a single group (and still properly aligned and formatted)
 * **Can propogate versions through subcommands auto-matically** - This allows all subcommands to handle `--version` or `-V` with the same version as the parent application
@@ -65,7 +66,7 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 * **Automatic Version from Cargo.toml**: `clap` is fully compatible with Rust's `env!()` macro for automatically setting the version of your application to the version in your Cargo.toml. See `examples/09_AutoVersion.rs` for how to do this (Thanks to [jhelwig](https://github.com/jhelwig) for pointing this out)
 * **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) from positional or option arguments so long as the type you request implements `std::str::FromStr` See the `examples/12_TypedValues.rs`. You can also use `clap`s `simple_enum!` or `arg_enum!` macro to create an enum with variants that automatically implements `std::str::FromStr`. See `examples/13a_EnumValuesAutomatic.rs` for details and performs an ascii case insensitive parse from a `string`->`enum`.
 * **Suggestions**: Suggests corrections when the user enter's a typo. For example, if you defined a `--myoption <value>` argument, and the user mistakenly typed `--moyption value` (notice `y` and `o` switched), they would receive a `Did you mean '--myoption' ?` error and exit gracefully. This also works for subcommands and flags. (Thanks to [Byron](https://github.com/Byron) for the implementation) (This feature can optionally be disabled, see 'Optional Dependencies / Features')
-* **Colorized (Red) Errors**: Error message are printed in red text (this feature can optionally be disabled, see 'Optional Dependencies / Features').
+* **Colorized (Red) Errors (Non Windows OS only)**: Error message are printed in red text (this feature can optionally be disabled, see 'Optional Dependencies / Features').
 * **Global Arguments**: Arguments can optionally be defined once, and be available to all child subcommands.
 
 ## Quick Example
@@ -308,7 +309,7 @@ features = [ "suggestions", "color" ]
 The following is a list of optional `clap` features:
 
 * **"suggestions"**: Turns on the `Did you mean '--myoption' ?` feature for when users make typos.
-* **"color"**: Turns on red error messages.
+* **"color"**: Turns on red error messages. This feature only works on non-Windows OSs.
 
 ### More Information
 
