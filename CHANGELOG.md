@@ -1,3 +1,17 @@
+<a name="v1.1.3"></a>
+### v1.1.3 (2015-07-18)
+
+
+#### Documentation
+
+*   updates README.md to include lack of color support on Windows ([52f81e17](https://github.com/kbknapp/clap-rs/commit/52f81e17377b18d2bd0f34693b642b7f358998ee))
+
+#### Bug Fixes
+
+*   fixes formatting bug which prevented compiling on windows ([9cb5dceb](https://github.com/kbknapp/clap-rs/commit/9cb5dceb3e5fe5e0e7b24619ff77e5040672b723), closes [#163](https://github.com/kbknapp/clap-rs/issues/163))
+
+
+
 <a name="v1.1.2"></a>
 ### v1.1.2 (2015-07-17)
 
