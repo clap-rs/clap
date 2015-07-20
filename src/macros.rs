@@ -275,12 +275,11 @@ macro_rules! value_t_or_exit {
             Some(v) => {
                 match v.parse::<$t>() {
                     Ok(val) => val,
-                    Err(e)  => {
-                        println!("{} '{}' isn't a valid value\n\t{}\n\n{}\n\nPlease re-run with {} for \
+                    Err(..)  => {
+                        println!("{} '{}' isn't a valid value\n\n{}\n\nPlease re-run with {} for \
                             more information",
                             ::clap::Format::Error("error:"),
                             ::clap::Format::Warning(v.to_string()),
-                            e,
                             $m.usage(),
                             ::clap::Format::Good("--help"));
                         ::std::process::exit(1);
@@ -306,7 +305,7 @@ macro_rules! value_t_or_exit {
                     match pv.parse::<$t>() {
                         Ok(rv) => tmp.push(rv),
                         Err(_)  => {
-                            println!("{} '{}' isn't a valid value\n\t{}\n\nPlease re-run with {} for more \
+                            println!("{} '{}' isn't a valid value\n\n{}\n\nPlease re-run with {} for more \
                                 information",
                                 ::clap::Format::Error("error:"),
                                 ::clap::Format::Warning(pv),
