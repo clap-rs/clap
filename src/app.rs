@@ -1262,6 +1262,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 && !self.opts.is_empty() && self.opts.values().any(|a| !a.required) {
                 usage.push_str(" [OPTIONS]");
             }
+            // places a '--' in the usage string if there are args and options 
+            // supporting multiple values
+            if !self.positionals_idx.is_empty()
+                && self.opts.values().any(|a| a.multiple )
+                && !self.opts.values().any(|a| a.required)
+                && self.subcommands.is_empty() {
+                usage.push_str(" [--]")
+            }
             if !self.positionals_idx.is_empty() && self.positionals_idx.values()
                                                                        .any(|a| !a.required) {
                 usage.push_str(" [ARGS]");
@@ -1322,16 +1330,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 longest_opt = ol;
             }
         }
-        // if longest_opt == 0 {
-        //     for ol in self.opts
-        //         .values()
-        //         .filter(|ref o| o.short.is_some())
-        //         // 3='...'
-        //         // 4='- <>'
-        //         .map(|ref a| a.to_string().len() + if a.long.is_some() { 4 } else { 0 }) {
-        //         if ol > longest_opt {longest_opt = ol;}
-        //     }
-        // }
         let mut longest_pos = 0;
         for pl in self.positionals_idx
             .values()
