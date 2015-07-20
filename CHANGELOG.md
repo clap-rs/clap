@@ -1,3 +1,18 @@
+<a name="v1.1.4"></a>
+### v1.1.4 (2015-07-20)
+
+
+#### Improvements
+
+* **Usage Strings**  displays a [--] when it may be helpful ([86c3be85](https://github.com/kbknapp/clap-rs/commit/86c3be85fb6f77f83b5a6d2df40ae60937486984))
+
+#### Bug Fixes
+
+* **Macros**  fixes a typo in a macro generated error message ([c9195c5f](https://github.com/kbknapp/clap-rs/commit/c9195c5f92abb8cd6a37b4f4fbb2f1fee2a8e368))
+* **Type Errors**  fixes formatting of error output when failed type parsing ([fe5d95c6](https://github.com/kbknapp/clap-rs/commit/fe5d95c64f3296e6eddcbec0cb8b86659800145f))
+
+
+
 <a name="v1.1.3"></a>
 ### v1.1.3 (2015-07-18)
 
