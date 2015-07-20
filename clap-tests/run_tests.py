@@ -138,7 +138,7 @@ Kevin K. <kbknapp@gmail.com>
 tests subcommands
 
 USAGE:
-\tclaptests subcmd [FLAGS] [OPTIONS] [ARGS]
+\tclaptests subcmd [FLAGS] [OPTIONS] [--] [ARGS]
 
 FLAGS:
     -f, --flag       tests flags
