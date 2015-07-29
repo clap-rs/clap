@@ -32,10 +32,15 @@ pub struct PosBuilder<'n> {
 
 impl<'n> Display for PosBuilder<'n> {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        write!(f, "{}{}{}{}",
-                if self.required { "<" } else {"["},
-                self.name,
-                if self.required { ">" } else {"]"},
-                if self.multiple {"..."}else{""})
+        if self.required { 
+            try!(write!(f, "<{}>", self.name));
+        } else {
+            try!(write!(f, "[{}]", self.name));
+        }
+        if self.multiple {
+            try!(write!(f, "..."));
+        }
+
+        Ok(())
     }
 }

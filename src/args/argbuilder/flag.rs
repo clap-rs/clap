@@ -29,10 +29,10 @@ pub struct FlagBuilder<'n> {
 
 impl<'n> Display for FlagBuilder<'n> {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        write!(f, "{}", if self.long.is_some() {
-            format!("--{}", self.long.unwrap())
+        if let Some(l) = self.long {
+            write!(f, "--{}", l)
         } else {
-            format!("-{}", self.short.unwrap())
-        })
+            write!(f, "-{}", self.short.unwrap())
+        }
     }
 }

@@ -35,32 +35,28 @@ pub struct OptBuilder<'n> {
 
 impl<'n> Display for OptBuilder<'n> {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        write!(f, "{}",
-            if let Some(ref vec) = self.val_names {
-                format!("{}{}",
-                    if self.long.is_some() {
-                        format!("--{}", self.long.unwrap())
-                    } else {
-                        format!("-{}", self.short.unwrap())
-                    },
-                    vec.iter().fold(String::new(),|acc, i| acc + &format!(" <{}>",i)[..]) )
-            } else if let Some(num) = self.num_vals {
-                format!("{}{}",
-                    if self.long.is_some() {
-                        format!("--{}", self.long.unwrap())
-                    } else {
-                        format!("-{}", self.short.unwrap())
-                    },
-                    (0..num).fold(String::new(), |acc, _| acc + &format!(" <{}>", self.name)[..]) )
-            } else {
-                format!("{} <{}>{}",
-                    if self.long.is_some() {
-                        format!("--{}", self.long.unwrap())
-                    } else {
-                        format!("-{}", self.short.unwrap())
-                    },
-                    self.name,
-                    if self.multiple{"..."}else{""})
-            })
+        // Write the name such --long or -l
+        if let Some(l) = self.long {
+            try!(write!(f, "--{}", l));
+        } else {
+            try!(write!(f, "-{}", self.short.unwrap()));
+        }
+
+        // Write the values such as <name1> <name2>
+        if let Some(ref vec) = self.val_names {
+            for n in vec.iter() {
+                try!(write!(f, " <{}>", n));
+            }
+        } else {
+            let num = self.num_vals.unwrap_or(1);
+            for _ in (0..num) {
+                try!(write!(f, " <{}>", self.name));
+            }
+            if self.multiple && num == 1 { 
+                try!(write!(f, "..."));
+            }
+        } 
+
+        Ok(())
     }
 }

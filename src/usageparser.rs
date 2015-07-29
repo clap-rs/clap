@@ -51,10 +51,7 @@ impl<'u> Iterator for UsageParser<'u> {
                     }
                     if self.e > self.usage.len() { return None }
 
-                    // self.e += 1;
-
                     let name = &self.usage[self.s..self.e];
-
 
                     return Some(UsageToken::Name(name, if c == '<' { Some(true) } else { None }));
                 },
