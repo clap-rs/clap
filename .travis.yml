@@ -1,14 +1,18 @@
 language: rust
 rust:
   - nightly
+  - beta
   - stable
 before_script:
-  - pip install 'travis-cargo<0.2' --user && export PATH=$HOME/.local/bin:$PATH
+  - |
+    pip install 'travis-cargo<0.2' --user &&
+    export PATH=$HOME/.local/bin:$PATH
 script:
-  - travis-cargo build
-  - travis-cargo test
-  - make -C clap-tests test
-  - travis-cargo doc
+  - |
+    travis-cargo build &&
+    travis-cargo test &&
+    make -C clap-tests test &&
+    travis-cargo --only stable doc
 after_success:
   - travis-cargo --only stable doc-upload
 env:
