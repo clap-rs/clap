@@ -11,6 +11,9 @@ use fmt::Format;
 #[cfg(feature = "suggestions")]
 use strsim;
 
+const INTERNAL_ERROR_MSG: &'static str = "Internal Error: Failed to write string. Please \
+                                          consider filing a bug report!";
+
 /// Produces a string from a given list of possible values which is similar to
 /// the passed in value `v` with a certain confidence.
 /// Thus in a list of possible values like ["foo", "bar"], the value "fop" will yield
@@ -138,7 +141,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// let prog = App::new("myprog")
     /// # .get_matches();
     /// ```
-    pub fn new(n: &'ar str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn new(n: &'ar str) -> Self {
         App {
             name: n.to_owned(),
             name_slice: n,
@@ -188,7 +191,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///      .author("Me, me@mymain.com")
     /// # ;
     /// ```
-    pub fn author(mut self, a: &'a str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn author(mut self, a: &'a str) -> Self {
         self.author = Some(a);
         self
     }
@@ -207,7 +210,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///      .bin_name("my_binary")
     /// # ;
     /// ```
-    pub fn bin_name(mut self, a: &str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn bin_name(mut self, a: &str) -> Self {
         self.bin_name = Some(a.to_owned());
         self
     }
@@ -223,7 +226,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .about("Does really amazing things to great people")
     /// # ;
     /// ```
-    pub fn about(mut self, a: &'ab str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn about(mut self, a: &'ab str) -> Self {
         self.about = Some(a);
         self
     }
@@ -241,7 +244,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .after_help("Does really amazing things to great people")
     /// # ;
     /// ```
-    pub fn after_help(mut self, h: &'h str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn after_help(mut self, h: &'h str) -> Self {
         self.more_help = Some(h);
         self
     }
@@ -260,7 +263,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .subcommands_negate_reqs(true)
     /// # ;
     /// ```
-    pub fn subcommands_negate_reqs(mut self, n: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn subcommands_negate_reqs(mut self, n: bool) -> Self {
         self.subcmds_neg_reqs = n;
         self
     }
@@ -277,7 +280,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .subcommand_required(true)
     /// # ;
     /// ```
-    pub fn subcommand_required(mut self, n: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn subcommand_required(mut self, n: bool) -> Self {
         self.no_sc_error = n;
         self
     }
@@ -293,7 +296,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .version("v0.1.24")
     /// # ;
     /// ```
-    pub fn version(mut self, v: &'v str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar>  {
+    pub fn version(mut self, v: &'v str) -> Self {
         self.version = Some(v);
         self
     }
@@ -319,7 +322,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .usage("myapp [-clDas] <some_file>")
     /// # ;
     /// ```
-    pub fn usage(mut self, u: &'u str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn usage(mut self, u: &'u str) -> Self {
         self.usage_str = Some(u);
         self
     }
@@ -358,7 +361,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///            work             Do some work")
     /// # ;
     /// ```
-    pub fn help(mut self, h: &'u str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn help(mut self, h: &'u str) -> Self {
         self.help_str = Some(h);
         self
     }
@@ -379,7 +382,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     // Using an uppercase `H` instead of the default lowercase `h`
     ///     .help_short("H")
     /// # ;
-    pub fn help_short(mut self, s: &str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn help_short(mut self, s: &str) -> Self {
         self.help_short = s.trim_left_matches(|c| c == '-')
                            .chars()
                            .nth(0);
@@ -402,7 +405,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     // Using a lowercase `v` instead of the default capital `V`
     ///     .version_short("v")
     /// # ;
-    pub fn version_short(mut self, s: &str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn version_short(mut self, s: &str) -> Self {
         self.version_short = s.trim_left_matches(|c| c == '-')
                            .chars()
                            .nth(0);
@@ -422,7 +425,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .arg_required_else_help(true)
     /// # ;
     /// ```
-    pub fn arg_required_else_help(mut self, tf: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn arg_required_else_help(mut self, tf: bool) -> Self {
         self.help_on_no_args = tf;
         self
     }
@@ -445,7 +448,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// // running `myprog test --version` will display
     /// // "myprog-test v1.1"
     /// ```
-    pub fn global_version(mut self, gv: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn global_version(mut self, gv: bool) -> Self {
         self.global_ver = gv;
         self
     }
@@ -468,7 +471,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .get_matches();
     /// // running `myprog test --version` will display unknown argument error
     /// ```
-    pub fn versionless_subcommands(mut self, vers: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn versionless_subcommands(mut self, vers: bool) -> Self {
         self.versionless_scs = Some(vers);
         self
     }
@@ -488,7 +491,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .get_matches();
     /// // running `myprog --help` will display a unified "docopt" or "getopts" style help message
     /// ```
-    pub fn unified_help_message(mut self, uni_help: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn unified_help_message(mut self, uni_help: bool) -> Self {
         self.unified_help = uni_help;
         self
     }
@@ -513,7 +516,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .arg_required_else_help(true)
     /// # ;
     /// ```
-    pub fn wait_on_error(mut self, w: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn wait_on_error(mut self, w: bool) -> Self {
         self.wait_on_error = w;
         self
     }
@@ -536,7 +539,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .subcommand_required_else_help(true)
     /// # ;
     /// ```
-    pub fn subcommand_required_else_help(mut self, tf: bool) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn subcommand_required_else_help(mut self, tf: bool) -> Self {
         self.help_on_no_sc = tf;
         self
     }
@@ -568,7 +571,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     )
     /// # ;
     /// ```
-    pub fn arg(mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn arg(mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) -> Self {
         self.add_arg(a);
         self
     }
@@ -825,7 +828,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     /// ```
     pub fn args(mut self, args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>)
-                -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+                -> Self {
         for arg in args.into_iter() {
             self = self.arg(arg);
         }
@@ -848,7 +851,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .arg_from_usage("-c --conf=<config> 'Sets a configuration file to use'")
     /// # ;
     /// ```
-    pub fn arg_from_usage(mut self, usage: &'ar str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn arg_from_usage(mut self, usage: &'ar str) -> Self {
         self = self.arg(Arg::from_usage(usage));
         self
     }
@@ -874,7 +877,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     )
     /// # ;
     /// ```
-    pub fn args_from_usage(mut self, usage: &'ar str) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn args_from_usage(mut self, usage: &'ar str) -> Self {
         for l in usage.lines() {
             self = self.arg(Arg::from_usage(l.trim()));
         }
@@ -913,7 +916,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///                     .add_all(vec!["ver", "major", "minor","patch"])
     ///                     .required(true))
     /// # ;
-    pub fn arg_group(mut self, group: ArgGroup<'ar, 'ar>) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn arg_group(mut self, group: ArgGroup<'ar, 'ar>) -> Self {
         if group.required {
             self.required.insert(group.name);
             if let Some(ref reqs) = group.requires {
@@ -975,7 +978,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///                     .add_all(vec!["ver", "major", "minor","patch"])
     ///                     .required(true))
     /// # ;
-    pub fn arg_groups(mut self, groups: Vec<ArgGroup<'ar, 'ar>>) -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn arg_groups(mut self, groups: Vec<ArgGroup<'ar, 'ar>>) -> Self {
         for g in groups {
             self = self.arg_group(g);
         }
@@ -1000,7 +1003,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     /// ```
     pub fn subcommand(mut self, mut subcmd: App<'a, 'v, 'ab, 'u, 'h, 'ar>)
-                      -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+                      -> Self {
         if subcmd.name == "help" { self.needs_subcmd_help = false; }
         if self.versionless_scs.is_some() && self.versionless_scs.unwrap() {
             subcmd.versionless_scs = Some(false);
@@ -1027,7 +1030,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     /// ```
     pub fn subcommands(mut self, subcmds: Vec<App<'a, 'v, 'ab, 'u, 'h, 'ar>>)
-                       -> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+                       -> Self {
         for subcmd in subcmds.into_iter() {
             self = self.subcommand(subcmd);
         }
@@ -1216,6 +1219,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     // after all arguments were parsed, but before any subcommands have been parsed (so as to
     // give subcommands their own usage recursively)
     fn create_usage(&self, matches: Option<Vec<&'ar str>>) -> String {
+        use ::std::fmt::Write;
         let mut usage = String::with_capacity(75);
         usage.push_str("USAGE:\n\t");
         if let Some(u) = self.usage_str {
@@ -1227,11 +1231,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
             let r_string = reqs.iter().fold(String::new(), |acc, s| acc + &format!(" {}", s)[..]);
 
-            usage.push_str(&format!("{}{}",
+            write!(&mut usage, "{}{}",
                 self.usage.clone().unwrap_or(self.bin_name.clone().unwrap_or(self.name.clone())),
-                r_string)[..]);
+                r_string
+            ).ok().expect(INTERNAL_ERROR_MSG)
         } else {
-            usage.push_str(&self.usage.clone().unwrap_or(self.bin_name.clone().unwrap_or(self.name.clone()))[..]);
+            usage.push_str(&*self.usage.clone()
+                                       .unwrap_or(self.bin_name.clone()
+                                                               .unwrap_or(self.name.clone())));
 
             let mut reqs = self.required.iter().map(|n| *n).collect::<Vec<_>>();
             // If it's required we also need to ensure all previous positionals are required too
@@ -1994,13 +2001,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         matches.usage = Some(self.create_usage(None));
 
         if let Some(sc_name) = subcmd_name {
+            use ::std::fmt::Write;
             let mut mid_string = String::new();
             if !self.subcmds_neg_reqs {
                 let mut hs = self.required.iter().map(|n| *n).collect::<Vec<_>>();
                 matches.args.keys().map(|k| hs.push(*k)).collect::<Vec<_>>();
                 let reqs = self.get_required_from(hs);
 
-                mid_string.push_str(&reqs.iter().fold(String::new(), |acc, s| acc + &format!(" {}", s)[..])[..])
+                for s in reqs.iter() {
+                    write!(&mut mid_string, " {}", s).ok().expect(INTERNAL_ERROR_MSG);
+                }
             }
             mid_string.push_str(" ");
             if let Some(ref mut sc) = self.subcommands.get_mut(&sc_name) {

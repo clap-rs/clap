@@ -62,7 +62,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// #                 .arg_group(
     /// ArgGroup::with_name("conifg")
     /// # ).get_matches();
-    pub fn with_name(n: &'n str) -> ArgGroup<'n, 'ar> {
+    pub fn with_name(n: &'n str) -> Self {
         ArgGroup {
             name: n,
             required: false,
@@ -84,7 +84,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # ArgGroup::with_name("conifg")
     /// .add("config")
     /// # ).get_matches();
-    pub fn add(mut self, n: &'ar str) -> ArgGroup<'n, 'ar> {
+    pub fn add(mut self, n: &'ar str) -> Self {
         self.args.insert(n);
         self
     }
@@ -101,7 +101,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # ArgGroup::with_name("conifg")
     /// .add_all(vec!["config", "input", "output"])
     /// # ).get_matches();
-    pub fn add_all(mut self, ns: Vec<&'ar str>) -> ArgGroup<'n, 'ar> {
+    pub fn add_all(mut self, ns: Vec<&'ar str>) -> Self {
         for n in ns {
             self = self.add(n);
         }
@@ -123,7 +123,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # ArgGroup::with_name("conifg")
     /// .required(true)
     /// # ).get_matches();
-    pub fn required(mut self, r: bool) -> ArgGroup<'n, 'ar> {
+    pub fn required(mut self, r: bool) -> Self {
         self.required = r;
         self
     }
@@ -144,7 +144,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # ArgGroup::with_name("conifg")
     /// .requires("config")
     /// # ).get_matches();
-    pub fn requires(mut self, n: &'ar str) -> ArgGroup<'n, 'ar> {
+    pub fn requires(mut self, n: &'ar str) -> Self {
         if let Some(ref mut reqs) = self.requires {
             reqs.insert(n);
         } else {
@@ -171,7 +171,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # ArgGroup::with_name("conifg")
     /// .requires_all(vec!["config", "input"])
     /// # ).get_matches();
-    pub fn requires_all(mut self, ns: Vec<&'ar str>) -> ArgGroup<'n, 'ar> {
+    pub fn requires_all(mut self, ns: Vec<&'ar str>) -> Self {
         for n in ns {
             self = self.requires(n);
         }
@@ -194,7 +194,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # ArgGroup::with_name("conifg")
     /// .conflicts_with("config")
     /// # ).get_matches();
-    pub fn conflicts_with(mut self, n: &'ar str) -> ArgGroup<'n, 'ar> {
+    pub fn conflicts_with(mut self, n: &'ar str) -> Self {
         if let Some(ref mut confs) = self.conflicts {
             confs.insert(n);
         } else {
@@ -221,7 +221,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # ArgGroup::with_name("conifg")
     /// .conflicts_with_all(vec!["config", "input"])
     /// # ).get_matches();
-    pub fn conflicts_with_all(mut self, ns: Vec<&'ar str>) -> ArgGroup<'n, 'ar> {
+    pub fn conflicts_with_all(mut self, ns: Vec<&'ar str>) -> Self {
         for n in ns {
             self = self.conflicts_with(n);
         }
