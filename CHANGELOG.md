@@ -1,3 +1,10 @@
+<a name="v1.1.5"></a>
+### v1.1.5 (2015-07-29)
+
+#### Performance
+
+*   removes some unneeded allocations ([93e915df](https://github.com/kbknapp/clap-rs/commit/93e915dfe300f7b7d6209ca93323c6a46f89a8c1))
+
 <a name="v1.1.4"></a>
 ### v1.1.4 (2015-07-20)
 
