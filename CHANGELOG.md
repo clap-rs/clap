@@ -1,3 +1,13 @@
+<a name="v1.1.6"></a>
+### v1.1.6 (2015-08-01)
+
+
+#### Bug Fixes
+
+*   fixes two bugs in App when printing newlines in help and subcommands required error ([d63c0136](https://github.com/kbknapp/clap-rs/commit/d63c0136310db9dd2b1c7b4745938311601d8938))
+
+
+
 <a name="v1.1.5"></a>
 ### v1.1.5 (2015-07-29)
 
