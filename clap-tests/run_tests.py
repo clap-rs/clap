@@ -32,7 +32,7 @@ OPTIONS:
 ARGS:
     positional        tests positionals
     positional2       tests positionals with exclusions
-    positional3...    tests positionals with specific values [values: emacs vi]
+    positional3...    tests positionals with specific values
 
 SUBCOMMANDS:
     help      Prints this message
