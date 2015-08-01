@@ -1234,7 +1234,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             write!(&mut usage, "{}{}",
                 self.usage.clone().unwrap_or(self.bin_name.clone().unwrap_or(self.name.clone())),
                 r_string
-            ).ok().expect(INTERNAL_ERROR_MSG)
+            ).ok().expect(INTERNAL_ERROR_MSG);
+            if self.no_sc_error {
+                write!(&mut usage, " <SUBCOMMAND>").ok().expect(INTERNAL_ERROR_MSG);
+            }
         } else {
             usage.push_str(&*self.usage.clone()
                                        .unwrap_or(self.bin_name.clone()
@@ -1284,8 +1287,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
             usage.push_str(&req_string[..]);
 
-            if !self.subcommands.is_empty() {
+            if !self.subcommands.is_empty() && !self.no_sc_error {
                 usage.push_str(" [SUBCOMMAND]");
+            } else if self.no_sc_error && !self.subcommands.is_empty() {
+                usage.push_str(" <SUBCOMMAND>");
             }
         }
 
@@ -1469,7 +1474,18 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     print!("...");
                 }
                 self.print_spaces((longest_pos + 4) - (v.to_string().len()));
-                print_opt_help!(self, v, longest_pos + 12);
+                if let Some(h) = v.help {
+                    if h.contains("{n}") {
+                        let mut hel = h.split("{n}");
+                        while let Some(part) = hel.next() {
+                            print!("{}\n", part);
+                            self.print_spaces(longest_pos + 6);
+                            print!("{}", hel.next().unwrap_or(""));
+                        }
+                    } else {
+                        print!("{}", h);
+                    }
+                }
                 print!("\n");
             }
         }
@@ -2043,12 +2059,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             let bn = self.bin_name.clone().unwrap_or(self.name.clone());
             self.report_error(format!("'{}' requires a subcommand but none was provided",
                     Format::Warning(&bn[..])),
-                if self.usage_str.is_some() { true } else { false },
+                true,
                 Some(matches.args.keys().map(|k| *k).collect()));
-
-            println!("USAGE:\n\t{} [SUBCOMMAND]\n\nFor more information re-run with {} or \
-                '{}'", &bn[..], Format::Good("--help"), Format::Good("help"));
-            self.exit(1);
         } else if self.help_on_no_sc {
             self.print_help();
             self.exit(1);
