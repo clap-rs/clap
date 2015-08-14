@@ -61,7 +61,7 @@ macro_rules! print_opt_help {
                 }
                 print!("]");
             }
-        } 
+        }
     };
 }
 
