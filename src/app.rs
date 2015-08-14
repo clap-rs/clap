@@ -53,6 +53,18 @@ enum DidYouMeanMessageStyle {
     EnumValue,
 }
 
+/// Some application options 
+pub enum AppOptions {
+    SubcommandsNagateReqs,
+    SubcommandRequired,
+    ArgRequiredElseHelp,
+    GlobalVersion,
+    VersionlessSubcommands,
+    UnifiedHelpMessage,
+    WaitOnError,
+    SubcommandRequiredElseHelp,
+}
+
 /// Used to create a representation of a command line program and all possible command line
 /// arguments.
 ///
@@ -542,6 +554,31 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// ```
     pub fn subcommand_required_else_help(mut self, tf: bool) -> Self {
         self.help_on_no_sc = tf;
+        self
+    }
+
+    /// Enables Application Option, passed as argument
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .setting(AppOptions::SubcommandRequired)
+    ///		.setting(AppOptions::WaitOnError)
+    /// # ;
+    /// ```
+    pub fn setting(mut self, option: AppOptions) -> Self {
+        match option {
+            AppOptions::SubcommandsNagateReqs      => self.subcmds_neg_reqs = true,
+            AppOptions::SubcommandRequired         => self.no_sc_error = true,
+            AppOptions::ArgRequiredElseHelp        => self.help_on_no_args = true,
+            AppOptions::GlobalVersion              => self.global_ver = true,
+            AppOptions::VersionlessSubcommands     => self.versionless_scs = Some(true),
+            AppOptions::UnifiedHelpMessage         => self.unified_help = true,
+            AppOptions::WaitOnError                => self.wait_on_error = true,
+            AppOptions::SubcommandRequiredElseHelp => self.help_on_no_sc = true,
+        }
         self
     }
 
