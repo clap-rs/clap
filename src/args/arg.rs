@@ -1,5 +1,6 @@
 use std::iter::IntoIterator;
 use std::collections::HashSet;
+use std::rc::Rc;
 
 use usageparser::{UsageParser, UsageToken};
 
@@ -90,7 +91,9 @@ pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     #[doc(hidden)]
     pub empty_vals: bool,
     #[doc(hidden)]
-    pub global: bool
+    pub global: bool,
+    #[doc(hidden)]
+    pub validator: Option<Rc<Fn(String) -> Result<(), String>>>
 }
 
 impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
@@ -131,7 +134,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             val_names: None,
             group: None,
             global: false,
-            empty_vals: true
+            empty_vals: true,
+            validator: None
         }
     }
 
@@ -289,7 +293,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             min_vals: None,
             group: None,
             global: false,
-            empty_vals: true
+            empty_vals: true,
+            validator: None,
         }
     }
 
@@ -663,6 +668,37 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self
     }
 
+    /// Allows one to perform a validation on the argument value. You provide a closure which
+    /// accepts a `String` value, a `Result` where the `Err(String)` is a message displayed to the
+    /// user.
+    ///
+    /// **NOTE:** The error message does *not* need to contain the `error:` portion, only the
+    /// message.
+    ///
+    /// **NOTE:** There is a small performance hit for using validators, as they are implemented
+    /// with `Rc` pointers. And the value to be checked will be allocated an extra time in order to
+    /// to be passed to the closure.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let matches = App::new("myprog")
+    /// #                 .arg(
+    /// # Arg::with_name("debug").index(1)
+    /// .validator(|val| {
+    ///     if val.contains("@") {
+    ///         Ok(())
+    ///     } else {
+    ///         Err(String::from("the value must contain at lesat one '@' character"))
+    ///     }
+    /// })
+    /// # ).get_matches();
+    pub fn validator<F>(mut self, f: F) -> Self where F: Fn(String) -> Result<(), String> + 'static {
+        self.validator = Some(Rc::new(f));
+        self
+    }
+
     /// Specifies the *maximum* number of values are for this argument. For example, if you had a
     /// `-f <file>` argument where you wanted up to 3 'files' you would set
     /// `.max_values(3)`, and this argument would be satisfied if the user provided, 1, 2, or 3
@@ -780,7 +816,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r, 'z> From<&'z Arg<'n, 'l, 'h, 'g, 'p, 'r>> for Arg<'
             val_names: a.val_names.clone(),
             group: a.group,
             global: a.global,
-            empty_vals: a.empty_vals 
+            empty_vals: a.empty_vals,
+            validator: a.validator.clone()
         }
     }
 }

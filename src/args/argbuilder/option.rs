@@ -1,6 +1,8 @@
+use std::rc::Rc;
 use std::collections::HashSet;
 use std::collections::BTreeSet;
 use std::fmt::{ Display, Formatter, Result };
+use std::result::Result as StdResult;
 
 pub struct OptBuilder<'n> {
     pub name: &'n str,
@@ -31,6 +33,7 @@ pub struct OptBuilder<'n> {
     pub val_names: Option<Vec<&'n str>>,
     pub empty_vals: bool,
     pub global: bool,
+    pub validator: Option<Rc<Fn(String) -> StdResult<(), String>>>
 }
 
 impl<'n> Display for OptBuilder<'n> {

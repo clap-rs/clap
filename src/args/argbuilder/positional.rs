@@ -1,6 +1,8 @@
 use std::collections::HashSet;
 use std::collections::BTreeSet;
 use std::fmt::{ Display, Formatter, Result };
+use std::result::Result as StdResult;
+use std::rc::Rc;
 
 pub struct PosBuilder<'n> {
     pub name: &'n str,
@@ -27,12 +29,13 @@ pub struct PosBuilder<'n> {
     pub max_vals: Option<u8>,
     pub min_vals: Option<u8>,
     pub empty_vals: bool,
-    pub global: bool
+    pub global: bool,
+    pub validator: Option<Rc<Fn(String) -> StdResult<(), String>>>
 }
 
 impl<'n> Display for PosBuilder<'n> {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        if self.required { 
+        if self.required {
             try!(write!(f, "<{}>", self.name));
         } else {
             try!(write!(f, "[{}]", self.name));
