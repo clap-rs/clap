@@ -391,7 +391,7 @@ extern crate strsim;
 extern crate ansi_term;
 
 pub use args::{Arg, SubCommand, ArgMatches, ArgGroup};
-pub use app::App;
+pub use app::{App, AppOptions};
 pub use fmt::Format;
 
 #[macro_use]
