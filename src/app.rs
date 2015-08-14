@@ -54,7 +54,7 @@ enum DidYouMeanMessageStyle {
 }
 
 /// Some application options 
-pub enum AppOptions {
+pub enum AppSettings {
     /// Allows subcommands to override all requirements of the parent (this command). For example
     /// if you had a subcommand or even top level application which had a required arguments that
     /// are only required as long as there is no subcommand present.
@@ -64,12 +64,12 @@ pub enum AppOptions {
     /// # Example
     ///
     /// ```no_run
-    /// # use clap::{App, AppOptions};
+    /// # use clap::{App, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppOptions::SubcommandsNagateReqs)
+    ///     .setting(AppSettings::SubcommandsNegateReqs)
     /// # ;
     /// ```
-    SubcommandsNagateReqs,
+    SubcommandsNegateReqs,
     /// Allows specifying that if no subcommand is present at runtime, error and exit gracefully
     ///
     /// **NOTE:** This defaults to false (subcommands do *not* need to be present)
@@ -77,9 +77,9 @@ pub enum AppOptions {
     /// # Example
     ///
     /// ```no_run
-    /// # use clap::{App, AppOptions};
+    /// # use clap::{App, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppOptions::SubcommandRequired)
+    ///     .setting(AppSettings::SubcommandRequired)
     /// # ;
     /// ```
     SubcommandRequired,
@@ -91,9 +91,9 @@ pub enum AppOptions {
     /// # Example
     ///
     /// ```no_run
-    /// # use clap::{App, AppOptions};
+    /// # use clap::{App, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppOptions::ArgRequiredElseHelp)
+    ///     .setting(AppSettings::ArgRequiredElseHelp)
     /// # ;
     /// ```
     ArgRequiredElseHelp,
@@ -106,10 +106,10 @@ pub enum AppOptions {
     /// # Example
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, SubCommand, AppOptions};
+    /// # use clap::{App, Arg, SubCommand, AppSettings};
     /// App::new("myprog")
     ///     .version("v1.1")
-    ///     .setting(AppOptions::GlobalVersion)
+    ///     .setting(AppSettings::GlobalVersion)
     ///     .subcommand(SubCommand::with_name("test"))
     ///     .get_matches();
     /// // running `myprog test --version` will display
@@ -126,10 +126,10 @@ pub enum AppOptions {
     /// # Example
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, SubCommand, AppOptions};
+    /// # use clap::{App, Arg, SubCommand, AppSettings};
     /// App::new("myprog")
     ///     .version("v1.1")
-    ///     .setting(AppOptions::VersionlessSubcommands)
+    ///     .setting(AppSettings::VersionlessSubcommands)
     ///     .subcommand(SubCommand::with_name("test"))
     ///     .get_matches();
     /// // running `myprog test --version` will display unknown argument error
@@ -144,9 +144,9 @@ pub enum AppOptions {
     /// # Example
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, SubCommand, AppOptions};
+    /// # use clap::{App, Arg, SubCommand, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppOptions::UnifiedHelpMessage)
+    ///     .setting(AppSettings::UnifiedHelpMessage)
     ///     .get_matches();
     /// // running `myprog --help` will display a unified "docopt" or "getopts" style help message
     /// ```
@@ -166,9 +166,9 @@ pub enum AppOptions {
     /// # Example
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, AppOptions};
+    /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppOptions::WaitOnError)
+    ///     .setting(AppSettings::WaitOnError)
     /// # ;
     /// ```
     WaitOnError,
@@ -185,9 +185,9 @@ pub enum AppOptions {
     /// # Example
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, AppOptions};
+    /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppOptions::SubcommandRequiredElseHelp)
+    ///     .setting(AppSettings::SubcommandRequiredElseHelp)
     /// # ;
     /// ```
     SubcommandRequiredElseHelp,
@@ -692,22 +692,22 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # Example
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, AppOptions};
+    /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppOptions::SubcommandRequired)
-    ///     .setting(AppOptions::WaitOnError)
+    ///     .setting(AppSettings::SubcommandRequired)
+    ///     .setting(AppSettings::WaitOnError)
     /// # ;
     /// ```
-    pub fn setting(mut self, option: AppOptions) -> Self {
+    pub fn setting(mut self, option: AppSettings) -> Self {
         match option {
-            AppOptions::SubcommandsNagateReqs      => self.subcmds_neg_reqs = true,
-            AppOptions::SubcommandRequired         => self.no_sc_error = true,
-            AppOptions::ArgRequiredElseHelp        => self.help_on_no_args = true,
-            AppOptions::GlobalVersion              => self.global_ver = true,
-            AppOptions::VersionlessSubcommands     => self.versionless_scs = Some(true),
-            AppOptions::UnifiedHelpMessage         => self.unified_help = true,
-            AppOptions::WaitOnError                => self.wait_on_error = true,
-            AppOptions::SubcommandRequiredElseHelp => self.help_on_no_sc = true,
+            AppSettings::SubcommandsNegateReqs      => self.subcmds_neg_reqs = true,
+            AppSettings::SubcommandRequired         => self.no_sc_error = true,
+            AppSettings::ArgRequiredElseHelp        => self.help_on_no_args = true,
+            AppSettings::GlobalVersion              => self.global_ver = true,
+            AppSettings::VersionlessSubcommands     => self.versionless_scs = Some(true),
+            AppSettings::UnifiedHelpMessage         => self.unified_help = true,
+            AppSettings::WaitOnError                => self.wait_on_error = true,
+            AppSettings::SubcommandRequiredElseHelp => self.help_on_no_sc = true,
         }
         self
     }
