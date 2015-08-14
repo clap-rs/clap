@@ -52,10 +52,10 @@ impl<'n> Display for OptBuilder<'n> {
             for _ in (0..num) {
                 try!(write!(f, " <{}>", self.name));
             }
-            if self.multiple && num == 1 { 
+            if self.multiple && num == 1 {
                 try!(write!(f, "..."));
             }
-        } 
+        }
 
         Ok(())
     }

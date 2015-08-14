@@ -1,4 +1,9 @@
 #![crate_type= "lib"]
+#![cfg_attr(feature = "lints", feature(plugin))]
+#![cfg_attr(feature = "lints", plugin(clippy))]
+#![cfg_attr(feature = "lints", allow(option_unwrap_used))]
+#![cfg_attr(feature = "lints", allow(explicit_iter_loop))]
+#![cfg_attr(feature = "lints", deny(warnings))]
 
 // DOCS
 //! # clap
@@ -429,6 +434,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(feature = "lints", allow(single_match))]
     fn test_enums() {
         let v1_lower = "valone";
         let v1_camel = "ValOne";

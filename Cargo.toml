@@ -16,9 +16,10 @@ keywords = ["argument", "command", "arg", "parser", "parse"]
 default=["suggestions", "color"]
 suggestions=["strsim"]
 color = ["ansi_term"]
+lints = ["clippy"]
 
 # for building with nightly and unstable features
-unstable=[]
+unstable=["lints"]
 
 # for building with debug messages
 debug=[]
@@ -29,4 +30,9 @@ optional = true
 
 [dependencies.ansi_term]
 version = "0.6.3"
+optional = true
+
+[dependencies.clippy]
+git = "https://github.com/Manishearth/rust-clippy"
+version = "~0.0.11"
 optional = true
