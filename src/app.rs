@@ -663,7 +663,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 max_vals: a.max_vals,
                 help: a.help,
                 global: a.global,
-                empty_vals: a.empty_vals
+                empty_vals: a.empty_vals,
+                validator: None
             };
             if pb.min_vals.is_some() && !pb.multiple {
                 panic!("Argument \"{}\" does not allow multiple values, yet it is expecting {} \
@@ -700,6 +701,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 for n in p { phs.insert(*n); }
                 pb.possible_vals = Some(phs);
             }
+            if let Some(ref p) = a.validator {
+                pb.validator = Some(p.clone());
+            }
             self.positionals_idx.insert(i, pb);
         } else if a.takes_value {
             if a.short.is_none() && a.long.is_none() {
@@ -722,7 +726,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 val_names: a.val_names.clone(),
                 requires: None,
                 required: a.required,
-                empty_vals: a.empty_vals
+                empty_vals: a.empty_vals,
+                validator: None
             };
             if let Some(ref vec) = ob.val_names {
                 ob.num_vals = Some(vec.len() as u8);
@@ -742,6 +747,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 // without derefing n = &&str
                 for n in bl { bhs.insert(*n); }
                 ob.blacklist = Some(bhs);
+            }
+            if let Some(ref p) = a.validator {
+                ob.validator = Some(p.clone());
             }
             // Check if there is anything in the requires list and add any values
             if let Some(ref r) = a.requires {
@@ -764,6 +772,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
             self.opts.insert(a.name, ob);
         } else {
+            if a.validator.is_some() {
+                panic!("The argument '{}' has a validator set, yet was parsed as a flag. Ensure \
+                        .takes_value(true) or .index(u8) is set.")
+            }
             if !a.empty_vals {
                 // Empty vals defaults to true, so if it's false it was manually set
                 panic!("The argument '{}' cannot have empty_values() set because it is a flag. \
@@ -1758,6 +1770,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if let Some(ref mut o) = matches.args.get_mut(opt.name) {
                             // Options have values, so we can unwrap()
                             if let Some(ref mut vals) = o.values {
+                                if let Some(ref vtor) = opt.validator {
+                                    if let Err(e) = vtor(arg_slice.to_owned()) {
+                                        self.report_error(e,
+                                            true,
+                                            Some(vec![opt.name]));
+                                    }
+                                }
                                 let len = vals.len() as u8 + 1;
                                 vals.insert(len, arg_slice.to_owned());
                             }
@@ -1927,6 +1946,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 true,
                                 Some(matches.args.keys()
                                                  .map(|k| *k).collect()));
+                        }
+                        if let Some(ref vtor) = p.validator {
+                            let f = &*vtor;
+                            if let Err(ref e) = f(arg_slice.to_owned()) {
+                                self.report_error(e.clone(),
+                                    true,
+                                    Some(matches.args.keys().map(|k| *k).collect()));
+                            }
                         }
                         bm.insert(1, arg_slice.to_owned());
                         matches.args.insert(p.name, MatchedArg{
@@ -2234,6 +2261,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             Some(matches.args.keys()
                                              .map(|k| *k).collect()));
                     }
+                    if let Some(ref vtor) = v.validator {
+                        if let Err(e) = vtor(arg_val.clone().unwrap()) {
+                            self.report_error(e,
+                                true,
+                                Some(matches.args.keys().map(|k| *k).collect()));
+                        }
+                    }
                     if let Some(ref mut o) = matches.args.get_mut(v.name) {
                         o.occurrences += 1;
                         if let Some(ref mut vals) = o.values {
@@ -2249,6 +2283,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         true,
                         Some(matches.args.keys()
                                          .map(|k| *k).collect()));
+                }
+                if let Some(ref val) = arg_val {
+                    if let Some(ref vtor) = v.validator {
+                        if let Err(e) = vtor(val.clone()) {
+                            self.report_error(e,
+                                true,
+                                Some(matches.args.keys().map(|k| *k).collect()));
+                        }
+                    }
                 }
                 matches.args.insert(v.name, MatchedArg{
                     occurrences: if arg_val.is_some() { 1 } else { 0 },
