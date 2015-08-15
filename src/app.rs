@@ -53,7 +53,7 @@ enum DidYouMeanMessageStyle {
     EnumValue,
 }
 
-/// Some application options 
+/// Some application options
 pub enum AppSettings {
     /// Allows subcommands to override all requirements of the parent (this command). For example
     /// if you had a subcommand or even top level application which had a required arguments that
@@ -685,9 +685,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
-    /// Enables Application Option, passed as argument
-    ///
-    /// 
+    /// Enables Application level settings, passed as argument
     ///
     /// # Example
     ///
@@ -698,8 +696,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .setting(AppSettings::WaitOnError)
     /// # ;
     /// ```
-    pub fn setting(mut self, option: AppSettings) -> Self {
-        match option {
+    pub fn setting(mut self, setting: AppSettings) -> Self {
+        self.add_setting(&setting);
+        self
+    }
+
+    fn add_setting(&mut self, s: &AppSettings) {
+        match *s {
             AppSettings::SubcommandsNegateReqs      => self.subcmds_neg_reqs = true,
             AppSettings::SubcommandRequired         => self.no_sc_error = true,
             AppSettings::ArgRequiredElseHelp        => self.help_on_no_args = true,
@@ -708,6 +711,23 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             AppSettings::UnifiedHelpMessage         => self.unified_help = true,
             AppSettings::WaitOnError                => self.wait_on_error = true,
             AppSettings::SubcommandRequiredElseHelp => self.help_on_no_sc = true,
+        }
+    }
+
+    /// Enables multiple Application level settings, passed as argument
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, AppSettings};
+    /// App::new("myprog")
+    ///     .settings( &[AppSettings::SubcommandRequired,
+    ///                  AppSettings::WaitOnError])
+    /// # ;
+    /// ```
+    pub fn settings(mut self, settings: &[AppSettings]) -> Self {
+        for s in settings {
+            self.add_setting(s);
         }
         self
     }
