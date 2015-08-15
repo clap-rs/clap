@@ -8,15 +8,10 @@ It is a simple to use, efficient, and full featured library for parsing command 
 
 ## What's New
 
-If you're already familiar with `clap` but just want to see some new highlights as of **1.1.3**
+If you're already familiar with `clap` but just want to see some new highlights as of **1.2.0**
 
-* **Works on Windows again!** - You can now use `clap` on Windows again!
-* **Newlines properly aligned in help strings!** - Allows one to specify a newline in long help strings. **Note:** Specify the newlines in help strings via `{n}` and *not* `\n` due to how `clap` handles help parsing.
-* **Unified Help Format** - This is cosmetic only, but allows a help message formated similiar to `docopt` or `getopts` where what `clap` calls "options" and "flags" are combined into a single group (and still properly aligned and formatted)
-* **Can propogate versions through subcommands auto-matically** - This allows all subcommands to handle `--version` or `-V` with the same version as the parent application
-* **Can specify that subcommands disable version** - Can now say `--version` and `-V` won't be valid flags for subcommands
-* **Big performacne improvement when printing help messages** - While printing help messages wasn't slow before, it's now super fast ;)
-* **PSA: Deprecated Functions Removed as of 1.0** - In an effort to start a 1.x all deprecated functions have been removed, see the deprecations sections below to update your code (very minimal)
+* Custom validations are now supported! You can define a function to validate argument values, or fail parsing with a custom error message. Meaning your application logic can focus soley on *using* values.
+* Improved ergonomics - Some `App` methods have been deprecated (won't be removed until 2.x) to support a more ergonomic `.setting()` method which takes an `AppSettings` enum value. This makes it easier to find `App` settings (just view all variants of the enum).
 
 For full details see the [changelog](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md)
 
@@ -68,6 +63,7 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 * **Suggestions**: Suggests corrections when the user enter's a typo. For example, if you defined a `--myoption <value>` argument, and the user mistakenly typed `--moyption value` (notice `y` and `o` switched), they would receive a `Did you mean '--myoption' ?` error and exit gracefully. This also works for subcommands and flags. (Thanks to [Byron](https://github.com/Byron) for the implementation) (This feature can optionally be disabled, see 'Optional Dependencies / Features')
 * **Colorized (Red) Errors (Non Windows OS only)**: Error message are printed in red text (this feature can optionally be disabled, see 'Optional Dependencies / Features').
 * **Global Arguments**: Arguments can optionally be defined once, and be available to all child subcommands.
+* **Custom Validations**: You can define a function to use as a validator of argument values. Imagine defining a function to validate IP addresses, or fail parsing upon error. This means your application logic can be soley focused on *using* values.
 
 ## Quick Example
 

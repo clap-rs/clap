@@ -394,6 +394,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// if you had a subcommand or even top level application which had a required arguments that
     /// are only required as long as there is no subcommand present.
     ///
+    /// **Deprecated:** Use `App::setting()` with `AppSettings::SubcommandsNegateReqs` instead. This
+    /// method will be removed at 2.x
+    ///
     /// **NOTE:** This defaults to false (using subcommand does *not* negate requirements)
     ///
     /// # Example
@@ -410,6 +413,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     /// Allows specifying that if no subcommand is present at runtime, error and exit gracefully
+    ///
+    /// **Deprecated:** Use `App::setting()` with `AppSettings::SubcommandRequired` instead. This
+    /// method will be removed at 2.x
     ///
     /// **NOTE:** This defaults to false (subcommands do *not* need to be present)
     ///
@@ -556,6 +562,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Specifies that the help text sould be displayed (and then exit gracefully), if no
     /// arguments are present at runtime (i.e. an empty run such as, `$ myprog`.
     ///
+    /// **Deprecated:** Use `App::setting()` with `AppSettings::ArgRequiredElseHelp` instead. This
+    /// method will be removed at 2.x
+    ///
     /// **NOTE:** Subcommands count as arguments
     ///
     /// # Example
@@ -573,6 +582,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     /// Uses version of the current command for all subcommands. (Defaults to false; subcommands
     /// have independant version strings)
+    ///
+    /// **Deprecated:** Use `App::setting()` with `AppSettings::GlobalVersion` instead. This
+    /// method will be removed at 2.x
     ///
     /// **NOTE:** The version for the current command and this setting must be set **prior** to
     /// adding any subcommands
@@ -596,6 +608,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     /// Disables `-V` and `--version` for all subcommands (Defaults to false; subcommands have
     /// version flags)
+    ///
+    /// **Deprecated:** Use `App::setting()` with `AppSettings::VersionlessSubcommands` instead. This
+    /// method will be removed at 2.x
     ///
     /// **NOTE:** This setting must be set **prior** adding any subcommands
     ///
@@ -621,6 +636,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// separately. This setting disable that and groups flags and options together presenting a
     /// more unified help message (a la getopts or docopt style).
     ///
+    /// **Deprecated:** Use `App::setting()` with `AppSettings::UnifiedHelpMessage` instead. This
+    /// method will be removed at 2.x
+    ///
     /// **NOTE:** This setting is cosmetic only and does not affect any functionality.
     ///
     /// # Example
@@ -645,6 +663,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// command line (i.e. set `.arg_required_else_help(true)` and `.wait_on_error(true)` to
     /// display the help in such a case).
     ///
+    /// **Deprecated:** Use `App::setting()` with `AppSettings::WaitOnError` instead. This
+    /// method will be removed at 2.x
+    ///
     /// **NOTE:** This setting is **not** recursive with subcommands, meaning if you wish this
     /// behavior for all subcommands, you must set this on each command (needing this is extremely
     /// rare)
@@ -664,6 +685,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     /// Specifies that the help text sould be displayed (and then exit gracefully), if no
     /// subcommands are present at runtime (i.e. an empty run such as, `$ myprog`.
+    ///
+    /// **Deprecated:** Use `App::setting()` with `AppSettings::SubcommandRequiredElseHelp` instead. This
+    /// method will be removed at 2.x
     ///
     /// **NOTE:** This should *not* be used with `.subcommand_required()` as they do the same
     /// thing, except one prints the help text, and one prints an error.
@@ -701,6 +725,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
+    // actually adds the settings
     fn add_setting(&mut self, s: &AppSettings) {
         match *s {
             AppSettings::SubcommandsNegateReqs      => self.subcmds_neg_reqs = true,
@@ -764,6 +789,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
+    // actually adds the arguments
     fn add_arg(&mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) {
         if self.flags.contains_key(a.name) ||
            self.opts.contains_key(a.name) ||
@@ -781,11 +807,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             //         from the group, or the argument.", a.name, grp));
         }
         if let Some(s) = a.short {
-            // if s == 'V' {
-            //     self.version_short = None;
-            // } else if s == 'h' {
-            //     self.help_short = None;
-            // }
             if self.short_list.contains(&s) {
                 panic!("Argument short must be unique\n\n\t-{} is already in use", s);
             } else {
