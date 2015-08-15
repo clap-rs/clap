@@ -1,3 +1,28 @@
+<a name="v1.1.7"></a>
+### v1.1.7 (2015-08-15)
+
+
+#### Bug Fixes
+
+*   fixed misspell and enum name ([7df170d7](https://github.com/kbknapp/clap-rs/commit/7df170d7f4ecff06608317655d1e0c4298f62076))
+*   fixed use for clap crate ([dc3ada73](https://github.com/kbknapp/clap-rs/commit/dc3ada738667d4b689678f79d14251ee82004ece))
+
+#### Documentation
+
+*   updates docs for new features ([03496547](https://github.com/kbknapp/clap-rs/commit/034965471782d872ca495045b58d34b31807c5b1))
+*   fixed docs for previous changes ([ade36778](https://github.com/kbknapp/clap-rs/commit/ade367780c366425de462506d256e0f554ed3b9c))
+
+#### Improvements
+
+* **AppSettings:**  adds ability to add multiple settings at once ([4a00e251](https://github.com/kbknapp/clap-rs/commit/4a00e2510d0ca8d095d5257d51691ba3b61c1374))
+
+#### Features
+
+*   Replace application level settings with enum variants ([618dc4e2](https://github.com/kbknapp/clap-rs/commit/618dc4e2c205bf26bc43146164e65eb1f6b920ed))
+* **Args:**  allows for custom argument value validations to be defined ([84ae2ddb](https://github.com/kbknapp/clap-rs/commit/84ae2ddbceda34b5cbda98a6959edaa52fde2e1a), closes [#170](https://github.com/kbknapp/clap-rs/issues/170))
+
+
+
 <a name="v1.1.6"></a>
 ### v1.1.6 (2015-08-01)
 
