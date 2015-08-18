@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+// use std::collections::HashSet;
 use std::fmt::{ Display, Formatter, Result };
 
 pub struct FlagBuilder<'n> {
@@ -16,11 +16,11 @@ pub struct FlagBuilder<'n> {
     pub multiple: bool,
     /// A list of names for other arguments that
     /// *may not* be used with this flag
-    pub blacklist: Option<HashSet<&'n str>>,
+    pub blacklist: Option<Vec<&'n str>>,
     /// A list of names of other arguments that
     /// are *required* to be used when this
     /// flag is used
-    pub requires: Option<HashSet<&'n str>>,
+    pub requires: Option<Vec<&'n str>>,
     /// The short version (i.e. single character)
     /// of the argument, no preceding `-`
     pub short: Option<char>,
