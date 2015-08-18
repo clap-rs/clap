@@ -32,7 +32,7 @@ use usageparser::{UsageParser, UsageToken};
 /// // Using a usage string (setting a similar argument to the one above)
 /// Arg::from_usage("-i --input=[input] 'Provides an input file to the program'")
 /// # ).get_matches();
-pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r, 'o> {
+pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// The unique name of the argument, required
     #[doc(hidden)]
     pub name: &'n str,
@@ -96,10 +96,10 @@ pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r, 'o> {
     pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
     /// A list of names for other arguments that *mutually override* this flag
     #[doc(hidden)] 
-    pub overrides: Option<Vec<&'o str>>
+    pub overrides: Option<Vec<&'r str>>
 }
 
-impl<'n, 'l, 'h, 'g, 'p, 'r, 'o> Arg<'n, 'l, 'h, 'g, 'p, 'r, 'o> {
+impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// Creates a new instace of `Arg` using a unique string name.
     /// The name will be used by the library consumer to get information about
     /// whether or not the argument was used at runtime.
@@ -195,7 +195,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r, 'o> Arg<'n, 'l, 'h, 'g, 'p, 'r, 'o> {
     /// Arg::from_usage("<input> 'the input file to use'")
     /// ])
     /// # .get_matches();
-    pub fn from_usage(u: &'n str) -> Arg<'n, 'n, 'n, 'g, 'p, 'r, 'o> {
+    pub fn from_usage(u: &'n str) -> Arg<'n, 'n, 'n, 'g, 'p, 'r> {
         assert!(u.len() > 0, "Arg::from_usage() requires a non-zero-length usage string but none \
             was provided");
 
@@ -459,7 +459,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r, 'o> Arg<'n, 'l, 'h, 'g, 'p, 'r, 'o> {
     /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
     /// .mutually_overrides_with("debug")
     /// # ).get_matches();
-    pub fn mutually_overrides_with(mut self, name: &'o str) -> Self {
+    pub fn mutually_overrides_with(mut self, name: &'r str) -> Self {
         if let Some(ref mut vec) = self.overrides {
             vec.push(name);
         } else {
@@ -823,8 +823,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r, 'o> Arg<'n, 'l, 'h, 'g, 'p, 'r, 'o> {
     }
 }
 
-impl<'n, 'l, 'h, 'g, 'p, 'r, 'z, 'o> From<&'z Arg<'n, 'l, 'h, 'g, 'p, 'r, 'o>> for Arg<'n, 'l, 'h, 'g, 'p, 'r, 'o> {
-    fn from(a: &'z Arg<'n, 'l, 'h, 'g, 'p, 'r, 'o>) -> Self {
+impl<'n, 'l, 'h, 'g, 'p, 'r, 'z> From<&'z Arg<'n, 'l, 'h, 'g, 'p, 'r>> for Arg<'n, 'l, 'h, 'g, 'p, 'r> {
+    fn from(a: &'z Arg<'n, 'l, 'h, 'g, 'p, 'r>) -> Self {
         Arg {
             name: a.name,
             short: a.short,

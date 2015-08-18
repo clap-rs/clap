@@ -253,7 +253,7 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     bin_name: Option<String>,
     usage: Option<String>,
     groups: HashMap<&'ar str, ArgGroup<'ar, 'ar>>,
-    global_args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>,
+    global_args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>,
     help_str: Option<&'u str>,
     no_sc_error: bool,
     wait_on_error: bool,
@@ -786,13 +786,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     )
     /// # ;
     /// ```
-    pub fn arg(mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) -> Self {
+    pub fn arg(mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) -> Self {
         self.add_arg(a);
         self
     }
 
     // actually adds the arguments
-    fn add_arg(&mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) {
+    fn add_arg(&mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) {
         if self.flags.contains_key(a.name) ||
            self.opts.contains_key(a.name) ||
            self.positionals_name.contains_key(a.name) {
@@ -1053,7 +1053,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     )
     /// # ;
     /// ```
-    pub fn args(mut self, args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>)
+    pub fn args(mut self, args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>)
                 -> Self {
         for arg in args.into_iter() {
             self = self.arg(arg);
