@@ -30,7 +30,9 @@ pub struct PosBuilder<'n> {
     pub min_vals: Option<u8>,
     pub empty_vals: bool,
     pub global: bool,
-    pub validator: Option<Rc<Fn(String) -> StdResult<(), String>>>
+    pub validator: Option<Rc<Fn(String) -> StdResult<(), String>>>,
+    /// A list of names for other arguments that *mutually override* this flag
+    pub overrides: Option<HashSet<&'n str>>,
 }
 
 impl<'n> Display for PosBuilder<'n> {

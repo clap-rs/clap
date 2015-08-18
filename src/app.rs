@@ -253,7 +253,7 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     bin_name: Option<String>,
     usage: Option<String>,
     groups: HashMap<&'ar str, ArgGroup<'ar, 'ar>>,
-    global_args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>,
+    global_args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>,
     help_str: Option<&'u str>,
     no_sc_error: bool,
     wait_on_error: bool,
@@ -266,7 +266,8 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     global_ver: bool,
     // None = not set, Some(true) set for all children, Some(false) = disable version
     versionless_scs: Option<bool>,
-    unified_help: bool
+    unified_help: bool,
+    overrides: HashSet<&'ar str>, 
 }
 
 impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
@@ -317,7 +318,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             help_on_no_sc: false,
             global_ver: false,
             versionless_scs: None,
-            unified_help: false
+            unified_help: false,
+            overrides: HashSet::new()
         }
     }
 
@@ -784,13 +786,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     )
     /// # ;
     /// ```
-    pub fn arg(mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) -> Self {
+    pub fn arg(mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) -> Self {
         self.add_arg(a);
         self
     }
 
     // actually adds the arguments
-    fn add_arg(&mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) {
+    fn add_arg(&mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) {
         if self.flags.contains_key(a.name) ||
            self.opts.contains_key(a.name) ||
            self.positionals_name.contains_key(a.name) {
@@ -872,7 +874,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 help: a.help,
                 global: a.global,
                 empty_vals: a.empty_vals,
-                validator: None
+                validator: None,
+                overrides: None
             };
             if pb.min_vals.is_some() && !pb.multiple {
                 panic!("Argument \"{}\" does not allow multiple values, yet it is expecting {} \
@@ -935,7 +938,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 requires: None,
                 required: a.required,
                 empty_vals: a.empty_vals,
-                validator: None
+                validator: None,
+                overrides: None
             };
             if let Some(ref vec) = ob.val_names {
                 ob.num_vals = Some(vec.len() as u8);
@@ -1008,6 +1012,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 global: a.global,
                 multiple: a.multiple,
                 requires: None,
+                overrides: None
             };
             // Check if there is anything in the blacklist (mutually excludes list) and add any
             // values
@@ -1048,7 +1053,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     )
     /// # ;
     /// ```
-    pub fn args(mut self, args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>)
+    pub fn args(mut self, args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>)
                 -> Self {
         for arg in args.into_iter() {
             self = self.arg(arg);
@@ -2360,6 +2365,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 multiple: false,
                 global: false,
                 requires: None,
+                overrides: None
             };
             self.long_list.insert("help");
             self.flags.insert("hclap_help", arg);
@@ -2380,6 +2386,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 multiple: false,
                 global: false,
                 requires: None,
+                overrides: None
             };
             self.long_list.insert("version");
             self.flags.insert("vclap_version", arg);
@@ -2442,6 +2449,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     the other specified arguments", Format::Warning(format!("--{}", arg))),
                     true,
                     Some(matches.args.keys().map(|k| *k).collect()));
+            }
+            if self.overrides.contains(v.name) {
+                matches.args.remove(v.name);
             }
 
             if matches.args.contains_key(v.name) {
@@ -2512,10 +2522,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                 });
             }
-
+            if let Some(ref ov) = v.overrides {
+                for name in ov {
+                    self.overrides.insert(name);
+                    self.required.remove(name);
+                }
+            }
             if let Some(ref bl) = v.blacklist {
                 for name in bl {
                     self.blacklist.insert(name);
+                    self.overrides.remove(name);
                     self.required.remove(name);
                 }
             }
@@ -2555,6 +2571,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     true,
                     Some(matches.args.keys().map(|k| *k).collect()));
             }
+            if self.overrides.contains(v.name) {
+                matches.args.remove(v.name);
+            }
 
             // Make sure this isn't one being added multiple times if it doesn't suppor it
             if matches.args.contains_key(v.name) && !v.multiple {
@@ -2583,9 +2602,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             self.required.remove(v.name);
 
             // Add all of this flags "mutually excludes" list to the master list
+            if let Some(ref ov) = v.overrides {
+                for name in ov {
+                    self.overrides.insert(name);
+                    self.required.remove(name);
+                }
+            }
             if let Some(ref bl) = v.blacklist {
                 for name in bl {
                     self.blacklist.insert(name);
+                    self.overrides.remove(name);
                     self.required.remove(name);
                 }
             }
@@ -2688,6 +2714,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     true,
                     Some(matches.args.keys().map(|k| *k).collect()));
             }
+            if self.overrides.contains(v.name) {
+                matches.args.remove(v.name);
+            }
 
             if matches.args.contains_key(v.name) {
                 if !v.multiple {
@@ -2704,9 +2733,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     values: Some(BTreeMap::new())
                 });
             }
+            if let Some(ref ov) = v.overrides {
+                for name in ov {
+                    self.overrides.insert(name);
+                    self.required.remove(name);
+                }
+            }
             if let Some(ref bl) = v.blacklist {
                 for name in bl {
                     self.blacklist.insert(name);
+                    self.overrides.remove(name);
                     self.required.remove(name);
                 }
             }
@@ -2754,6 +2790,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     true,
                     Some(matches.args.keys().map(|k| *k).collect()));
             }
+            if self.overrides.contains(v.name) {
+                matches.args.remove(v.name);
+            }
 
             // Make sure this isn't one being added multiple times if it doesn't suppor it
             if matches.args.contains_key(v.name) && !v.multiple {
@@ -2782,9 +2821,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             self.required.remove(v.name);
 
             // Add all of this flags "mutually excludes" list to the master list
+            if let Some(ref ov) = v.overrides {
+                for name in ov {
+                    self.overrides.insert(name);
+                    self.required.remove(name);
+                }
+            }
             if let Some(ref bl) = v.blacklist {
                 for name in bl {
                     self.blacklist.insert(name);
+                    self.overrides.remove(name);
                     self.required.remove(name);
                 }
             }
@@ -2998,4 +3044,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 None => (String::new(), None),
         }
     }
+}
+
+#[cfg(tests)]
+mod tests {
+    use clap::{App, Arg, SubCommand};
 }

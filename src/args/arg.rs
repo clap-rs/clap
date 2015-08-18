@@ -32,7 +32,7 @@ use usageparser::{UsageParser, UsageToken};
 /// // Using a usage string (setting a similar argument to the one above)
 /// Arg::from_usage("-i --input=[input] 'Provides an input file to the program'")
 /// # ).get_matches();
-pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
+pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r, 'o> {
     /// The unique name of the argument, required
     #[doc(hidden)]
     pub name: &'n str,
@@ -93,10 +93,13 @@ pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     #[doc(hidden)]
     pub global: bool,
     #[doc(hidden)]
-    pub validator: Option<Rc<Fn(String) -> Result<(), String>>>
+    pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
+    /// A list of names for other arguments that *mutually override* this flag
+    #[doc(hidden)] 
+    pub overrides: Option<Vec<&'o str>>
 }
 
-impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
+impl<'n, 'l, 'h, 'g, 'p, 'r, 'o> Arg<'n, 'l, 'h, 'g, 'p, 'r, 'o> {
     /// Creates a new instace of `Arg` using a unique string name.
     /// The name will be used by the library consumer to get information about
     /// whether or not the argument was used at runtime.
@@ -135,7 +138,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             group: None,
             global: false,
             empty_vals: true,
-            validator: None
+            validator: None,
+            overrides: None
         }
     }
 
@@ -191,7 +195,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// Arg::from_usage("<input> 'the input file to use'")
     /// ])
     /// # .get_matches();
-    pub fn from_usage(u: &'n str) -> Arg<'n, 'n, 'n, 'g, 'p, 'r> {
+    pub fn from_usage(u: &'n str) -> Arg<'n, 'n, 'n, 'g, 'p, 'r, 'o> {
         assert!(u.len() > 0, "Arg::from_usage() requires a non-zero-length usage string but none \
             was provided");
 
@@ -295,6 +299,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             global: false,
             empty_vals: true,
             validator: None,
+            overrides: None,
         }
     }
 
@@ -437,6 +442,26 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             names.into_iter().map(|s| vec.push(s.as_ref())).collect::<Vec<_>>();
         } else {
             self.blacklist = Some(names.into_iter().map(|s| s.as_ref()).collect::<Vec<_>>());
+        }
+        self
+    }
+
+    /// Sets a mutually overridable argument by name. I.e. this argument and
+    /// the following argument will override each other in POSIX style
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
+    /// .mutually_overrides_with("debug")
+    /// # ).get_matches();
+    pub fn mutually_overrides_with(mut self, name: &'o str) -> Self {
+        if let Some(ref mut vec) = self.overrides {
+            vec.push(name);
+        } else {
+            self.overrides = Some(vec![name]);
         }
         self
     }
@@ -796,8 +821,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     }
 }
 
-impl<'n, 'l, 'h, 'g, 'p, 'r, 'z> From<&'z Arg<'n, 'l, 'h, 'g, 'p, 'r>> for Arg<'n, 'l, 'h, 'g, 'p, 'r> {
-    fn from(a: &'z Arg<'n, 'l, 'h, 'g, 'p, 'r>) -> Self {
+impl<'n, 'l, 'h, 'g, 'p, 'r, 'z, 'o> From<&'z Arg<'n, 'l, 'h, 'g, 'p, 'r, 'o>> for Arg<'n, 'l, 'h, 'g, 'p, 'r, 'o> {
+    fn from(a: &'z Arg<'n, 'l, 'h, 'g, 'p, 'r, 'o>) -> Self {
         Arg {
             name: a.name,
             short: a.short,
@@ -817,7 +842,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r, 'z> From<&'z Arg<'n, 'l, 'h, 'g, 'p, 'r>> for Arg<'
             group: a.group,
             global: a.global,
             empty_vals: a.empty_vals,
-            validator: a.validator.clone()
+            validator: a.validator.clone(),
+            overrides: a.overrides.clone()
         }
     }
 }

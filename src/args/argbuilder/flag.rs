@@ -25,6 +25,8 @@ pub struct FlagBuilder<'n> {
     /// of the argument, no preceding `-`
     pub short: Option<char>,
     pub global: bool,
+    /// A list of names for other arguments that *mutually override* this flag
+    pub overrides: Option<Vec<&'n str>>
 }
 
 impl<'n> Display for FlagBuilder<'n> {
