@@ -3045,8 +3045,3 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
     }
 }
-
-#[cfg(tests)]
-mod tests {
-    use clap::{App, Arg, SubCommand};
-}

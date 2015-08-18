@@ -397,7 +397,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r, 'o> Arg<'n, 'l, 'h, 'g, 'p, 'r, 'o> {
     /// Sets a mutually exclusive argument by name. I.e. when using this argument,
     /// the following argument can't be present.
     ///
-    /// **NOTE:** Mutually exclusive rules take precedence over being required
+    /// **NOTE:** Mutually exclusive rules take precedence over being overridden and required
     /// by default. Mutually exclusive rules only need to be set for one of the two
     /// arguments, they do not need to be set for each.
     ///
@@ -421,7 +421,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r, 'o> Arg<'n, 'l, 'h, 'g, 'p, 'r, 'o> {
     /// Sets mutually exclusive arguments by names. I.e. when using this argument,
     /// the following argument can't be present.
     ///
-    /// **NOTE:** Mutually exclusive rules take precedence over being required
+    /// **NOTE:** Mutually exclusive rules take precedence over being overridden and required
     /// by default. Mutually exclusive rules only need to be set for one of the two
     /// arguments, they do not need to be set for each.
     ///
@@ -449,6 +449,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r, 'o> Arg<'n, 'l, 'h, 'g, 'p, 'r, 'o> {
     /// Sets a mutually overridable argument by name. I.e. this argument and
     /// the following argument will override each other in POSIX style
     ///
+    /// **NOTE:** Mutually override rules take precedence over being required
+    /// by default. Mutually exclusive rules take precedence over being overridden.
     ///
     /// # Example
     ///
@@ -469,7 +471,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r, 'o> Arg<'n, 'l, 'h, 'g, 'p, 'r, 'o> {
     /// Sets an argument by name that is required when this one is presnet I.e. when
     /// using this argument, the following argument *must* be present.
     ///
-    /// **NOTE:** Mutually exclusive rules take precedence over being required
+    /// **NOTE:** Mutually exclusive and override rules take precedence over being required
     ///
     ///
     /// # Example
@@ -491,7 +493,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r, 'o> Arg<'n, 'l, 'h, 'g, 'p, 'r, 'o> {
     /// Sets arguments by names that are required when this one is presnet I.e. when
     /// using this argument, the following arguments *must* be present.
     ///
-    /// **NOTE:** Mutually exclusive rules take precedence over being required
+    /// **NOTE:** Mutually exclusive and override rules take precedence over being required
     /// by default.
     ///
     ///
