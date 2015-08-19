@@ -1,4 +1,3 @@
-use std::collections::HashSet;
 use std::collections::BTreeSet;
 use std::fmt::{ Display, Formatter, Result };
 use std::result::Result as StdResult;
@@ -18,9 +17,9 @@ pub struct PosBuilder<'n> {
     pub multiple: bool,
     /// A list of names of other arguments that are *required* to be used when
     /// this flag is used
-    pub requires: Option<HashSet<&'n str>>,
+    pub requires: Option<Vec<&'n str>>,
     /// A list of names for other arguments that *may not* be used with this flag
-    pub blacklist: Option<HashSet<&'n str>>,
+    pub blacklist: Option<Vec<&'n str>>,
     /// A list of possible values for this argument
     pub possible_vals: Option<BTreeSet<&'n str>>,
     /// The index of the argument
@@ -32,7 +31,7 @@ pub struct PosBuilder<'n> {
     pub global: bool,
     pub validator: Option<Rc<Fn(String) -> StdResult<(), String>>>,
     /// A list of names for other arguments that *mutually override* this flag
-    pub overrides: Option<HashSet<&'n str>>,
+    pub overrides: Option<Vec<&'n str>>,
 }
 
 impl<'n> Display for PosBuilder<'n> {

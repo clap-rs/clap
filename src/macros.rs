@@ -36,6 +36,80 @@ macro_rules! debug {
     ($fmt:expr, $($arg:tt)*) => ();
 }
 
+// convienience macro for remove an item from a vec
+macro_rules! vec_remove {
+    ($vec:expr, $to_rem:ident) => {
+        {
+            let mut ix = None;
+            for (i, val) in $vec.iter().enumerate() {
+                if val == $to_rem {
+                    ix = Some(i);
+                    break;
+                }
+            }
+            if let Some(i) = ix {
+                $vec.remove(i);
+            }
+        }
+    }
+}
+
+macro_rules! remove_override {
+    ($me:ident, $name:expr) => ({
+        if let Some(ref o) = $me.opts.get($name) {
+            if let Some(ref ora) = o.requires {
+                for a in ora {
+                    vec_remove!($me.required, a);
+                }
+            }
+            if let Some(ref ora) = o.blacklist {
+                for a in ora {
+                    vec_remove!($me.blacklist, a);
+                }
+            }
+            if let Some(ref ora) = o.overrides {
+                for a in ora {
+                    vec_remove!($me.overrides, a);
+                }
+            }
+        } else if let Some(ref o) = $me.flags.get($name) {
+            if let Some(ref ora) = o.requires {
+                for a in ora {
+                    vec_remove!($me.required, a);
+                }
+            }
+            if let Some(ref ora) = o.blacklist {
+                for a in ora {
+                    vec_remove!($me.blacklist, a);
+                }
+            }
+            if let Some(ref ora) = o.overrides {
+                for a in ora {
+                    vec_remove!($me.overrides, a);
+                }
+            }
+        } else if let Some(p) = $me.positionals_name.get($name) {
+            if let Some(ref o) = $me.positionals_idx.get(p) {
+                if let Some(ref ora) = o.requires {
+                    for a in ora {
+                        vec_remove!($me.required, a);
+                    }
+                }
+                if let Some(ref ora) = o.blacklist {
+                    for a in ora {
+                        vec_remove!($me.blacklist, a);
+                    }
+                }
+                if let Some(ref ora) = o.overrides {
+                    for a in ora {
+                        vec_remove!($me.overrides, a);
+                    }
+                }
+            }
+        }
+    })
+}
+
 // De-duplication macro used in src/app.rs
 macro_rules! print_opt_help {
     ($me:ident, $opt:ident, $spc:expr) => {
@@ -72,15 +146,24 @@ macro_rules! parse_group_reqs {
             let mut found = false;
             for name in ag.args.iter() {
                 if name == &$arg.name {
-                    $me.required.remove(ag.name);
+                    let mut ix = None;
+                    for (i, val) in $me.required.iter().enumerate() {
+                        if val == &ag.name {
+                            ix = Some(i);
+                            break;
+                        }
+                    }
+                    if let Some(i) = ix {
+                        $me.required.remove(i);
+                    }
                     if let Some(ref reqs) = ag.requires {
                         for r in reqs {
-                            $me.required.insert(r);
+                            $me.required.push(r);
                         }
                     }
                     if let Some(ref bl) = ag.conflicts {
                         for b in bl {
-                            $me.blacklist.insert(b);
+                            $me.blacklist.push(b);
                         }
                     }
                     found = true;
@@ -90,8 +173,18 @@ macro_rules! parse_group_reqs {
             if found {
                 for name in ag.args.iter() {
                     if name == &$arg.name { continue }
-                    $me.required.remove(name);
-                    $me.blacklist.insert(name);
+                    let mut ix = None;
+                    for (i, val) in $me.required.iter().enumerate() {
+                        if val == name {
+                            ix = Some(i);
+                            break;
+                        }
+                    }
+                    if let Some(i) = ix {
+                        $me.required.remove(i);
+                    }
+
+                    $me.blacklist.push(name);
                 }
             }
         }
