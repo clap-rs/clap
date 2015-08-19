@@ -54,6 +54,62 @@ macro_rules! vec_remove {
     }
 }
 
+macro_rules! remove_override {
+    ($me:ident, $name:expr) => ({
+        if let Some(ref o) = $me.opts.get($name) {
+            if let Some(ref ora) = o.requires {
+                for a in ora {
+                    vec_remove!($me.required, a);
+                }
+            }
+            if let Some(ref ora) = o.blacklist {
+                for a in ora {
+                    vec_remove!($me.blacklist, a);
+                }
+            }
+            if let Some(ref ora) = o.overrides {
+                for a in ora {
+                    vec_remove!($me.overrides, a);
+                }
+            }
+        } else if let Some(ref o) = $me.flags.get($name) {
+            if let Some(ref ora) = o.requires {
+                for a in ora {
+                    vec_remove!($me.required, a);
+                }
+            }
+            if let Some(ref ora) = o.blacklist {
+                for a in ora {
+                    vec_remove!($me.blacklist, a);
+                }
+            }
+            if let Some(ref ora) = o.overrides {
+                for a in ora {
+                    vec_remove!($me.overrides, a);
+                }
+            }
+        } else if let Some(p) = $me.positionals_name.get($name) {
+            if let Some(ref o) = $me.positionals_idx.get(p) {
+                if let Some(ref ora) = o.requires {
+                    for a in ora {
+                        vec_remove!($me.required, a);
+                    }
+                }
+                if let Some(ref ora) = o.blacklist {
+                    for a in ora {
+                        vec_remove!($me.blacklist, a);
+                    }
+                }
+                if let Some(ref ora) = o.overrides {
+                    for a in ora {
+                        vec_remove!($me.overrides, a);
+                    }
+                }
+            }
+        }
+    })
+}
+
 // De-duplication macro used in src/app.rs
 macro_rules! print_opt_help {
     ($me:ident, $opt:ident, $spc:expr) => {
