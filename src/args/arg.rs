@@ -397,7 +397,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// Sets a mutually exclusive argument by name. I.e. when using this argument,
     /// the following argument can't be present.
     ///
-    /// **NOTE:** Mutually exclusive rules take precedence over being overridden and required
+    /// **NOTE:** Mutually exclusive rules take precedence over being required
     /// by default. Mutually exclusive rules only need to be set for one of the two
     /// arguments, they do not need to be set for each.
     ///
@@ -421,7 +421,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// Sets mutually exclusive arguments by names. I.e. when using this argument,
     /// the following argument can't be present.
     ///
-    /// **NOTE:** Mutually exclusive rules take precedence over being overridden and required
+    /// **NOTE:** Mutually exclusive rules take precedence over being required
     /// by default. Mutually exclusive rules only need to be set for one of the two
     /// arguments, they do not need to be set for each.
     ///
@@ -449,9 +449,6 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// Sets a mutually overridable argument by name. I.e. this argument and
     /// the following argument will override each other in POSIX style
     ///
-    /// **NOTE:** Mutually override rules take precedence over being required
-    /// by default. Mutually exclusive rules take precedence over being overridden.
-    ///
     /// # Example
     ///
     /// ```no_run
@@ -464,6 +461,29 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             vec.push(name);
         } else {
             self.overrides = Some(vec![name]);
+        }
+        self
+    }
+
+    /// Sets a mutually overridable arguments by name. I.e. this argument and
+    /// the following argument will override each other in POSIX style
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let config_overrides = ["debug", "input"];
+    /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
+    /// .mutually_overrides_with_all(&config_overrides)
+    /// # ).get_matches();
+    pub fn mutually_overrides_with_all<T, I>(mut self, names: I)
+                                    -> Self
+                                    where T: AsRef<str> + 'r,
+                                          I: IntoIterator<Item=&'r T> {
+        if let Some(ref mut vec) = self.overrides {
+            names.into_iter().map(|s| vec.push(s.as_ref())).collect::<Vec<_>>();
+        } else {
+            self.overrides = Some(names.into_iter().map(|s| s.as_ref()).collect::<Vec<_>>());
         }
         self
     }
