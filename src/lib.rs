@@ -964,156 +964,65 @@ mod tests {
 	    ]);
     }
 
-    fn run_app_test(test: Vec<&'static str>) -> Vec<String> {
-        let m_val_names = ["one", "two"];
-        let args = "-o --option=[opt]... 'tests options'
-                    [positional] 'tests positionals'";
-        let opt3_vals = ["fast", "slow"];
-        let pos3_vals = ["vi", "emacs"];
-        let matches = App::new("claptests")
-                            // Test version from Cargo.toml
-                            .version(&crate_version!()[..])
-                            .about("tests clap library")
-                            .author("Kevin K. <kbknapp@gmail.com>")
-                            .args_from_usage(args)
-                            .arg(Arg::from_usage("-f --flag... 'tests flags'")
-                                .global(true))
-                            .args(vec![
-                                Arg::from_usage("[flag2] -F 'tests flags with exclusions'").conflicts_with("flag").requires("option2"),
-                                Arg::from_usage("--long-option-2 [option2] 'tests long options with exclusions'").conflicts_with("option").requires("positional2"),
-                                Arg::from_usage("[positional2] 'tests positionals with exclusions'"),
-                                Arg::from_usage("-O --Option [option3] 'tests options with specific value sets'").possible_values(&opt3_vals),
-                                Arg::from_usage("[positional3]... 'tests positionals with specific values'").possible_values(&pos3_vals),
-                                Arg::from_usage("--multvals [multvals] 'Tests mutliple values, not mult occs'").value_names(&m_val_names),
-                                Arg::from_usage("--multvalsmo [multvalsmo]... 'Tests mutliple values, not mult occs'").value_names(&m_val_names),
-                                Arg::from_usage("--minvals2 [minvals]... 'Tests 2 min vals'").min_values(2),
-                                Arg::from_usage("--maxvals3 [maxvals]... 'Tests 3 max vals'").max_values(3)
-                            ])
-                            .subcommand(SubCommand::with_name("subcmd")
-                                                    .about("tests subcommands")
-                                                    .version("0.1")
-                                                    .author("Kevin K. <kbknapp@gmail.com>")
-                                                    .arg_from_usage("-o --option [scoption]... 'tests options'")
-                                                    .arg_from_usage("[scpositional] 'tests positionals'"))
-                            .get_matches_from(test);
-
-
-        let mut result = Vec::<String>::new();
-
-        if matches.is_present("flag") {
-            result.push(format!("flag present {} times", matches.occurrences_of("flag")));
-        } else {
-            result.push(format!("flag NOT present"));
-        }
-
-        if matches.is_present("opt") {
-            if let Some(v) = matches.value_of("opt") {
-                result.push(format!("option present {} times with value: {}",matches.occurrences_of("opt"), v));
-            }
-            if let Some(ref ov) = matches.values_of("opt") {
-                for o in ov {
-                    result.push(format!("An option: {}", o));
-                }
-            }
-        } else {
-            result.push(format!("option NOT present"));
-        }
-
-        if let Some(p) = matches.value_of("positional") {
-            result.push(format!("positional present with value: {}", p));
-        } else {
-            result.push(format!("positional NOT present"));
-        }
-
-        if matches.is_present("flag2") {
-            result.push(format!("flag2 present"));
-            result.push(format!("option2 present with value of: {}", matches.value_of("option2").unwrap()));
-            result.push(format!("positional2 present with value of: {}", matches.value_of("positional2").unwrap()));
-        } else {
-            result.push(format!("flag2 NOT present"));
-            result.push(format!("option2 maybe present with value of: {}", matches.value_of("option2").unwrap_or("Nothing")));
-            result.push(format!("positional2 maybe present with value of: {}", matches.value_of("positional2").unwrap_or("Nothing")));
-        }
-
-        match matches.value_of("option3").unwrap_or("") {
-            "fast" => result.push(format!("option3 present quickly")),
-            "slow" => result.push(format!("option3 present slowly")),
-            _      => result.push(format!("option3 NOT present"))
-        }
-
-        match matches.value_of("positional3").unwrap_or("") {
-            "vi" => result.push(format!("positional3 present in vi mode")),
-            "emacs" => result.push(format!("positional3 present in emacs mode")),
-            _      => result.push(format!("positional3 NOT present"))
-        }
-
-        if matches.is_present("opt") {
-            if let Some(v) = matches.value_of("opt") {
-                result.push(format!("option present {} times with value: {}",matches.occurrences_of("opt"), v));
-            }
-            if let Some(ref ov) = matches.values_of("opt") {
-                for o in ov {
-                    result.push(format!("An option: {}", o));
-                }
-            }
-        } else {
-            result.push(format!("option NOT present"));
-        }
-
-        if let Some(p) = matches.value_of("positional") {
-            result.push(format!("positional present with value: {}", p));
-        } else {
-            result.push(format!("positional NOT present"));
-        }
-        if matches.is_present("subcmd") {
-            result.push(format!("subcmd present"));
-            if let Some(matches) = matches.subcommand_matches("subcmd") {
-                if matches.is_present("flag") {
-                    result.push(format!("flag present {} times", matches.occurrences_of("flag")));
-                } else {
-                    result.push(format!("flag NOT present"));
-                }
-
-                if matches.is_present("scoption") {
-                    if let Some(v) = matches.value_of("scoption") {
-                        result.push(format!("scoption present with value: {}", v));
-                    }
-                    if let Some(ref ov) = matches.values_of("scoption") {
-                        for o in ov {
-                            result.push(format!("An scoption: {}", o));
-                        }
-                    }
-                } else {
-                    result.push(format!("scoption NOT present"));
-                }
-
-                if let Some(p) = matches.value_of("scpositional") {
-                    result.push(format!("scpositional present with value: {}", p));
-                }
-            }
-        } else {
-            result.push(format!("subcmd NOT present"));
-        }
-        result
+    #[test]
+    fn multiple_occurrences_of_flags_long() {
+        let m = App::new("multiple_occurrences")
+                    .arg(Arg::from_usage("--multflag 'allowed multiple flag'")
+                        .multiple(true))
+                    .arg(Arg::from_usage("--flag 'disallowed multiple flag'"))
+                    .get_matches_from(vec![
+                        "",
+                        "--multflag",
+                        "--flag",
+                        "--multflag"
+                        ]);
+        assert!(m.is_present("multflag"));
+        assert_eq!(m.occurrences_of("multflag"), 2);
+        assert!(m.is_present("flag"));
+        assert_eq!(m.occurrences_of("flag"), 1)
     }
 
     #[test]
-    fn multiple_occurrences_of_flags() {
-        assert_eq!(run_app_test(vec!["","value","--flag","--flag","-o", "some"]),
-            vec!["flag present 2 times",
-                "option present 1 times with value: some",
-                "An option: some",
-                "positional present with value: value",
-                "flag2 NOT present",
-                "option2 maybe present with value of: Nothing",
-                "positional2 maybe present with value of: Nothing",
-                "option3 NOT present",
-                "positional3 NOT present",
-                "option present 1 times with value: some",
-                "An option: some",
-                "positional present with value: value",
-                "subcmd NOT present"
-                ]);
+    fn multiple_occurrences_of_flags_short() {
+        let m = App::new("multiple_occurrences")
+                    .arg(Arg::from_usage("-m --multflag 'allowed multiple flag'")
+                        .multiple(true))
+                    .arg(Arg::from_usage("-f --flag 'disallowed multiple flag'"))
+                    .get_matches_from(vec![
+                        "",
+                        "-m",
+                        "-f",
+                        "-m"
+                        ]);
+        assert!(m.is_present("multflag"));
+        assert_eq!(m.occurrences_of("multflag"), 2);
+        assert!(m.is_present("flag"));
+        assert_eq!(m.occurrences_of("flag"), 1);
+    }
+
+    #[test]
+    fn multiple_occurrences_of_flags_mixed() {
+        let m = App::new("multiple_occurrences")
+                    .arg(Arg::from_usage("-m, --multflag1 'allowed multiple flag'")
+                        .multiple(true))
+                    .arg(Arg::from_usage("-n, --multflag2 'another allowed multiple flag'")
+                        .multiple(true))
+                    .arg(Arg::from_usage("-f, --flag 'disallowed multiple flag'"))
+                    .get_matches_from(vec![
+                        "",
+                        "-m",
+                        "-f",
+                        "-n",
+                        "--multflag1",
+                        "-m",
+                        "--multflag2"
+                        ]);
+        assert!(m.is_present("multflag1"));
+        assert_eq!(m.occurrences_of("multflag1"), 3);
+        assert!(m.is_present("multflag2"));
+        assert_eq!(m.occurrences_of("multflag2"), 2);
+        assert!(m.is_present("flag"));
+        assert_eq!(m.occurrences_of("flag"), 1);
     }
 
     #[test]
