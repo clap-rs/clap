@@ -1,3 +1,27 @@
+<a name="v1.2.1"></a>
+### v1.2.1 (2015-08-20)
+
+
+#### Documentation
+
+* **README.md:**  updates for new features ([16cf9245](https://github.com/kbknapp/clap-rs/commit/16cf9245fb5fc4cf6face898e358368bf9961cbb))
+
+#### Features
+
+*   implements posix compatible conflicts for long args ([8c2d48ac](https://github.com/kbknapp/clap-rs/commit/8c2d48acf5473feebd721a9049a9c9b7051e70f9))
+*   added overrides to support conflicts in POSIX compatible manner ([0b916a00](https://github.com/kbknapp/clap-rs/commit/0b916a00de26f6941538f6bc5f3365fa302083c1))
+* **Args:**  allows defining POSIX compatible argument conflicts ([d715646e](https://github.com/kbknapp/clap-rs/commit/d715646e69759ccd95e01f49b04f489827ecf502))
+
+#### Bug Fixes
+
+*   fixed links in cargo and license buttons ([6d9837ad](https://github.com/kbknapp/clap-rs/commit/6d9837ad9a9e006117cd7372fdc60f9a3889c7e2))
+
+#### Performance
+
+* **Args and Apps:**  changes HashSet->Vec in some instances for increased performance ([d0c3b379](https://github.com/kbknapp/clap-rs/commit/d0c3b379700757e0a9b0c40af709f8af1f5b4949))
+
+
+
 <a name="v1.2.0"></a>
 ### v1.2.0 (2015-08-15)
 
