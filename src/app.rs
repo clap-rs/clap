@@ -2570,6 +2570,17 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     true,
                     Some(matches.args.keys().map(|k| *k).collect()));
             }
+            self.overrides.dedup();
+            debugln!("checking if {} is in overrides", v.name);
+            if self.overrides.contains(&v.name) {
+                debugln!("it is...");
+                debugln!("checking who defined it...");
+                if let Some(name) = self.overriden_from(v.name, matches) {
+                    debugln!("found {}", name);
+                    matches.args.remove(name);
+                    remove_override!(self, name);
+                }
+            }
             if let Some(ref or) = v.overrides {
                 for pa in or {
                     matches.args.remove(pa);
@@ -2690,6 +2701,17 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         }),
                     true,
                     Some(matches.args.keys().map(|k| *k).collect()));
+            }
+            self.overrides.dedup();
+            debugln!("checking if {} is in overrides", v.name);
+            if self.overrides.contains(&v.name) {
+                debugln!("it is...");
+                debugln!("checking who defined it...");
+                if let Some(name) = self.overriden_from(v.name, matches) {
+                    debugln!("found {}", name);
+                    matches.args.remove(name);
+                    remove_override!(self, name);
+                }
             }
             if let Some(ref or) = v.overrides {
                 for pa in or {
