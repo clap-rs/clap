@@ -8,10 +8,12 @@ It is a simple to use, efficient, and full featured library for parsing command 
 
 ## What's New
 
-If you're already familiar with `clap` but just want to see some new highlights as of **1.2.0**
+If you're already familiar with `clap` but just want to see some new highlights as of **1.2.1**
 
-* Custom validations are now supported! You can define a function to validate argument values, or fail parsing with a custom error message. Meaning your application logic can focus soley on *using* values.
-* Improved ergonomics - Some `App` methods have been deprecated (won't be removed until 2.x) to support a more ergonomic `.setting()` method which takes an `AppSettings` enum value. This makes it easier to find `App` settings (just view all variants of the enum). (Thanks to [Vinatorul](https://github.com/Vinatorul)!)
+* **Performance Improvements**
+* **POSIX Compatible Conflicts** are not supported! In POSIX args can be conflicting, but not fail parsing because whichever arg comes *last* "wins" to to speak. This allows things such as aliases (i.e. `alias ls='ls -l'` but then using `ls -C` in your terminal which ends up passing `ls -l -C` as the final arguments. Since `-l` and `-C` aren't compatible, this effectively runs `ls -C`). (Thanks to [Vinatorul](https://github.com/Vinatorul)!)
+* **Custom validations** are now supported! You can define a function to validate argument values, or fail parsing with a custom error message. Meaning your application logic can focus soley on *using* values.
+* **Improved ergonomics** - Some `App` methods have been deprecated (won't be removed until 2.x) to support a more ergonomic `.setting()` method which takes an `AppSettings` enum value. This makes it easier to find `App` settings (just view all variants of the enum). (Thanks to [Vinatorul](https://github.com/Vinatorul)!)
 
 For full details see the [changelog](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md)
 
@@ -64,6 +66,7 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 * **Colorized (Red) Errors (Non Windows OS only)**: Error message are printed in red text (this feature can optionally be disabled, see 'Optional Dependencies / Features').
 * **Global Arguments**: Arguments can optionally be defined once, and be available to all child subcommands.
 * **Custom Validations**: You can define a function to use as a validator of argument values. Imagine defining a function to validate IP addresses, or fail parsing upon error. This means your application logic can be soley focused on *using* values.
+* **POSIX Compatible Conflicts** - In POSIX args can be conflicting, but not fail parsing because whichever arg comes *last* "wins" to to speak. This allows things such as aliases (i.e. `alias ls='ls -l'` but then using `ls -C` in your terminal which ends up passing `ls -l -C` as the final arguments. Since `-l` and `-C` aren't compatible, this effectively runs `ls -C` in `clap` if you choose...`clap` also supports hard conflicts that fail parsing). (Thanks to [Vinatorul](https://github.com/Vinatorul)!)
 
 ## Quick Example
 
@@ -395,10 +398,20 @@ Although I do my best to keep breaking changes to a minimum, being that this a s
 
 Old method names will be left around for some time.
 
+* As of 1.2.0 (Will **not** be removed until 2.x)
+ - `App::subcommands_negate_reqs(bool)` -> `AppSettings::SubcommandsNegateReqs` passed to `App::setting()`
+ - `App::subcommand_required(bool)` -> `AppSettings::SubcommandRequired` passed to `App::setting()`
+ - `App::arg_required_else_help(bool)` -> `AppSettings::ArgRequiredElseHelp` passed to `App::setting()`
+ - `App::global_version(bool)` -> `AppSettings::GlobalVersion` passed to `App::setting()`
+ - `App::versionless_subcommands(bool)` -> `AppSettings::VersionlessSubcommands` passed to `App::setting()`
+ - `App::unified_help_messages(bool)` -> `AppSettings::UnifiedHelpMessages` passed to `App::setting()`
+ - `App::wait_on_error(bool)` -> `AppSettings::WaitOnError` passed to `App::setting()`
+ - `App::subcommand_required_else_help(bool)` -> `AppSettings::SubcommandRequiredElseHelp` passed to `App::setting()`
+
 * As of 0.10.0
- - `SubCommand::new()` -> `SubCommand::with_name()`
- - `App::error_on_no_subcommand()` -> `App::subcommand_required()`
+ - `SubCommand::new()` -> `SubCommand::with_name()` (Removed as of 1.0.0)
+ - `App::error_on_no_subcommand()` -> `App::subcommand_required()` (Removed as of 1.0.0)
 * As of 0.6.8
- - `Arg::new()` -> `Arg::with_name()`
- - `Arg::mutually_excludes()` -> `Arg::conflicts_with()`
- - `Arg::mutually_excludes_all()` -> `Arg::conflicts_with_all()`
+ - `Arg::new()` -> `Arg::with_name()` (Removed as of 1.0.0)
+ - `Arg::mutually_excludes()` -> `Arg::conflicts_with()` (Removed as of 1.0.0)
+ - `Arg::mutually_excludes_all()` -> `Arg::conflicts_with_all()` (Removed as of 1.0.0)
