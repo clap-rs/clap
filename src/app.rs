@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet, HashSet, HashMap, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, HashMap, VecDeque};
 use std::env;
 use std::io::{self, BufRead, Write};
 use std::path::Path;
@@ -53,7 +53,7 @@ enum DidYouMeanMessageStyle {
     EnumValue,
 }
 
-/// Some application options
+/// Application level settings, which affect how `App` operates
 pub enum AppSettings {
     /// Allows subcommands to override all requirements of the parent (this command). For example
     /// if you had a subcommand or even top level application which had a required arguments that
@@ -245,10 +245,10 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     subcommands: BTreeMap<String, App<'a, 'v, 'ab, 'u, 'h, 'ar>>,
     help_short: Option<char>,
     version_short: Option<char>,
-    required: HashSet<&'ar str>,
-    short_list: HashSet<char>,
-    long_list: HashSet<&'ar str>,
-    blacklist: HashSet<&'ar str>,
+    required: Vec<&'ar str>,
+    short_list: Vec<char>,
+    long_list: Vec<&'ar str>,
+    blacklist: Vec<&'ar str>,
     usage_str: Option<&'u str>,
     bin_name: Option<String>,
     usage: Option<String>,
@@ -266,7 +266,8 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     global_ver: bool,
     // None = not set, Some(true) set for all children, Some(false) = disable version
     versionless_scs: Option<bool>,
-    unified_help: bool
+    unified_help: bool,
+    overrides: Vec<&'ar str>,
 }
 
 impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
@@ -300,12 +301,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             needs_subcmd_help: true,
             help_short: None,
             version_short: None,
-            required: HashSet::new(),
-            short_list: HashSet::new(),
-            long_list: HashSet::new(),
+            required: vec![],
+            short_list: vec![],
+            long_list: vec![],
             usage_str: None,
             usage: None,
-            blacklist: HashSet::new(),
+            blacklist: vec![],
             bin_name: None,
             groups: HashMap::new(),
             subcmds_neg_reqs: false,
@@ -317,7 +318,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             help_on_no_sc: false,
             global_ver: false,
             versionless_scs: None,
-            unified_help: false
+            unified_help: false,
+            overrides: vec![]
         }
     }
 
@@ -799,25 +801,20 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         if let Some(grp) = a.group {
             let ag = self.groups.entry(grp).or_insert(ArgGroup::with_name(grp));
             ag.args.insert(a.name);
-            // Leaving this commented out for now...I'm not sure if having a required argument in
-            // a in required group is bad...It has it's uses
-            // assert!(!a.required,
-            //     format!("Arguments may not be required AND part of a required group\n\n\t{} is \
-            //         required and also part of the {} group\n\n\tEither remove the requirement \
-            //         from the group, or the argument.", a.name, grp));
         }
         if let Some(s) = a.short {
             if self.short_list.contains(&s) {
                 panic!("Argument short must be unique\n\n\t-{} is already in use", s);
             } else {
-                self.short_list.insert(s);
+                self.short_list.push(s);
             }
         }
         if let Some(l) = a.long {
-            if self.long_list.contains(l) {
+            self.long_list.dedup();
+            if self.long_list.contains(&l) {
                 panic!("Argument long must be unique\n\n\t--{} is already in use", l);
             } else {
-                self.long_list.insert(l);
+                self.long_list.push(l);
             }
             if l == "help" {
                 self.needs_long_help = false;
@@ -826,7 +823,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
         }
         if a.required {
-            self.required.insert(a.name);
+            self.required.push(a.name);
         }
         if a.index.is_some() || (a.short.is_none() && a.long.is_none()) {
             let i = if a.index.is_none() {
@@ -872,7 +869,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 help: a.help,
                 global: a.global,
                 empty_vals: a.empty_vals,
-                validator: None
+                validator: None,
+                overrides: None
             };
             if pb.min_vals.is_some() && !pb.multiple {
                 panic!("Argument \"{}\" does not allow multiple values, yet it is expecting {} \
@@ -885,21 +883,30 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             // Check if there is anything in the blacklist (mutually excludes list) and add any
             // values
             if let Some(ref bl) = a.blacklist {
-                let mut bhs = HashSet::new();
+                let mut bhs = vec![];
                 // without derefing n = &&str
-                for n in bl { bhs.insert(*n); }
+                for n in bl { bhs.push(*n); }
+                bhs.dedup();
                 pb.blacklist = Some(bhs);
+            }
+            if let Some(ref or) = a.overrides {
+                let mut bhs = vec![];
+                // without derefing n = &&str
+                for n in or { bhs.push(*n); }
+                bhs.dedup();
+                pb.overrides = Some(bhs);
             }
             // Check if there is anything in the requires list and add any values
             if let Some(ref r) = a.requires {
-                let mut rhs = HashSet::new();
+                let mut rhs = vec![];
                 // without derefing n = &&str
                 for n in r {
-                    rhs.insert(*n);
+                    rhs.push(*n);
                     if pb.required {
-                        self.required.insert(*n);
+                        self.required.push(*n);
                     }
                 }
+                rhs.dedup();
                 pb.requires = Some(rhs);
             }
             // Check if there is anything in the possible values and add those as well
@@ -935,7 +942,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 requires: None,
                 required: a.required,
                 empty_vals: a.empty_vals,
-                validator: None
+                validator: None,
+                overrides: None
             };
             if let Some(ref vec) = ob.val_names {
                 ob.num_vals = Some(vec.len() as u8);
@@ -951,9 +959,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             // Check if there is anything in the blacklist (mutually excludes list) and add any
             // values
             if let Some(ref bl) = a.blacklist {
-                let mut bhs = HashSet::new();
+                let mut bhs = vec![];
                 // without derefing n = &&str
-                for n in bl { bhs.insert(*n); }
+                for n in bl { bhs.push(*n); }
+                bhs.dedup();
                 ob.blacklist = Some(bhs);
             }
             if let Some(ref p) = a.validator {
@@ -961,15 +970,23 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
             // Check if there is anything in the requires list and add any values
             if let Some(ref r) = a.requires {
-                let mut rhs = HashSet::new();
+                let mut rhs = vec![];
                 // without derefing n = &&str
                 for n in r {
-                    rhs.insert(*n);
+                    rhs.push(*n);
                     if ob.required {
-                        self.required.insert(*n);
+                        self.required.push(*n);
                     }
                 }
+                rhs.dedup();
                 ob.requires = Some(rhs);
+            }
+            if let Some(ref or) = a.overrides {
+                let mut bhs = vec![];
+                // without derefing n = &&str
+                for n in or { bhs.push(*n); }
+                bhs.dedup();
+                ob.overrides = Some(bhs);
             }
             // Check if there is anything in the possible values and add those as well
             if let Some(ref p) = a.possible_vals {
@@ -1008,21 +1025,31 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 global: a.global,
                 multiple: a.multiple,
                 requires: None,
+                overrides: None
             };
             // Check if there is anything in the blacklist (mutually excludes list) and add any
             // values
             if let Some(ref bl) = a.blacklist {
-                let mut bhs = HashSet::new();
+                let mut bhs = vec![];
                 // without derefing n = &&str
-                for n in bl { bhs.insert(*n); }
+                for n in bl { bhs.push(*n); }
+                bhs.dedup();
                 fb.blacklist = Some(bhs);
             }
             // Check if there is anything in the requires list and add any values
             if let Some(ref r) = a.requires {
-                let mut rhs = HashSet::new();
+                let mut rhs = vec![];
                 // without derefing n = &&str
-                for n in r { rhs.insert(*n); }
+                for n in r { rhs.push(*n); }
+                rhs.dedup();
                 fb.requires = Some(rhs);
+            }
+            if let Some(ref or) = a.overrides {
+                let mut bhs = vec![];
+                // without derefing n = &&str
+                for n in or { bhs.push(*n); }
+                bhs.dedup();
+                fb.overrides = Some(bhs);
             }
             self.flags.insert(a.name, fb);
         }
@@ -1139,15 +1166,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     pub fn arg_group(mut self, group: ArgGroup<'ar, 'ar>) -> Self {
         if group.required {
-            self.required.insert(group.name);
+            self.required.push(group.name);
             if let Some(ref reqs) = group.requires {
                 for r in reqs {
-                    self.required.insert(r);
+                    self.required.push(r);
                 }
             }
             if let Some(ref bl) = group.conflicts {
                 for b in bl {
-                    self.blacklist.insert(b);
+                    self.blacklist.push(b);
                 }
             }
         }
@@ -1795,9 +1822,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .get_matches();
     /// ```
     pub fn get_matches(self) -> ArgMatches<'ar, 'ar> {
-        let args: Vec<_> = env::args().collect();
-
-        self.get_matches_from(args)
+        // Start the parsing
+        self.get_matches_from(env::args())
     }
 
     /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
@@ -1824,12 +1850,20 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                   -> ArgMatches<'ar, 'ar>
                                   where I: IntoIterator<Item=T>,
                                         T: AsRef<str> {
+        // Verify all positional assertions pass
         self.verify_positionals();
+        // If there are global arguments, we need to propgate them down to subcommands before
+        // parsing incase we run into a subcommand
         self.propogate_globals();
 
         let mut matches = ArgMatches::new();
 
         let mut it = itr.into_iter();
+        // Get the name of the program (argument 1 of env::args()) and determine the actual file
+        // that was used to execute the program. This is because a program called
+        // ./target/release/my_prog -a
+        // will have two arguments, './target/release/my_prog', '-a' but we don't want to display
+        // the full path when displaying help messages and such
         if let Some(name) = it.next() {
             let p = Path::new(name.as_ref());
             if let Some(f) = p.file_name() {
@@ -1840,6 +1874,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 }
             }
         }
+
+        // do the real parsing
         self.get_matches_with(&mut matches, &mut it);
 
         matches
@@ -1875,7 +1911,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         for (_, p) in self.positionals_idx.iter_mut().rev() {
             if found {
                 p.required = true;
-                self.required.insert(p.name);
+                self.required.push(p.name);
                 continue;
             }
             if p.required {
@@ -1886,6 +1922,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     fn propogate_globals(&mut self) {
         for (_,sc) in self.subcommands.iter_mut() {
+            // We have to create a new scope in order to tell rustc the borrow of `sc` is done and
+            // to recursively call this method
             {
                 for a in self.global_args.iter() {
                     sc.add_arg(a.into());
@@ -1921,6 +1959,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     fn get_matches_with<I, T>(&mut self, matches: &mut ArgMatches<'ar, 'ar>, it: &mut I)
                         where I: Iterator<Item=T>,
                               T: AsRef<str> {
+
+        // First we create the `--help` and `--version` arguments and add them if necessary
         self.create_help_and_version();
 
         let mut pos_only = false;
@@ -1931,14 +1971,26 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         while let Some(arg) = it.next() {
             let arg_slice = arg.as_ref();
             let mut skip = false;
+
+            // we need to know if we're parsing a new argument, or the value of previous argument,
+            // perhaps one with multiple values such as --option val1 val2. We determine when to
+            // stop parsing multiple values by finding a '-'
             let new_arg = if arg_slice.starts_with("-") {
+                // If we come to a single `-` it's a value, not a new argument...this happens when
+                // one wants to use the Unix standard of '-' to mean 'stdin'
                 !(arg_slice.len() == 1)
             } else {
                 false
             };
+
+            // pos_only is determined later, and set true when a user uses the Unix standard of '--'
+            // to mean only positionals follow
             if !pos_only && !new_arg && !self.subcommands.contains_key(arg_slice) {
+                // Check to see if parsing a value from an option
                 if let Some(nvo) = needs_val_of {
+                    // get the OptBuilder so we can check the settings
                     if let Some(ref opt) = self.opts.get(nvo) {
+                        // Check the possible values
                         if let Some(ref p_vals) = opt.possible_vals {
                             if !p_vals.is_empty() {
                                 if !p_vals.contains(arg_slice) {
@@ -1947,6 +1999,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 }
                             }
                         }
+                        // Check the required number of values
                         if let Some(num) = opt.num_vals {
                             if let Some(ref ma) = matches.args.get(opt.name) {
                                 if let Some(ref vals) = ma.values {
@@ -1966,6 +2019,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             }
                         }
 
+                        // if it's an empty value, and we don't allow that, report the error
                         if !opt.empty_vals &&
                             matches.args.contains_key(opt.name) &&
                             arg_slice.is_empty() {
@@ -1975,8 +2029,18 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 Some(matches.args.keys()
                                                  .map(|k| *k).collect()));
                         }
+
+                        // save the value to matched option
                         if let Some(ref mut o) = matches.args.get_mut(opt.name) {
-                            // Options have values, so we can unwrap()
+                            // if it's multiple; the occurrences are increased when originally found
+                            o.occurrences = if opt.multiple {
+                                o.occurrences + 1
+                            } else {
+                                skip = true;
+                                1
+                            };
+
+                            // Options always have values, even if it's empty, so we can unwrap()
                             if let Some(ref mut vals) = o.values {
                                 if let Some(ref vtor) = opt.validator {
                                     if let Err(e) = vtor(arg_slice.to_owned()) {
@@ -1985,19 +2049,21 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                             Some(vec![opt.name]));
                                     }
                                 }
+
+                                // Values must be inserted in order...the user may care about that!
                                 let len = vals.len() as u8 + 1;
                                 vals.insert(len, arg_slice.to_owned());
-                            }
 
-                            // if it's multiple the occurrences are increased when originall found
-                            o.occurrences = if opt.multiple {
-                                o.occurrences + 1
-                            } else {
-                                skip = true;
-                                1
-                            };
-                            if let Some(ref vals) = o.values {
-                                let len = vals.len() as u8;
+                                // Now that the values have been added, we can ensure we haven't gone
+                                // over any max_limits, or if we've reached the exact number of values
+                                // we can stop parsing values, and go back to arguments.
+                                //
+                                // For example, if we define an option with exactly 2 values and the
+                                // users passes:
+                                // $ my_prog --option val1 val2 pos1
+                                // we stop parsing values of --option after val2, if the user hadn't
+                                // defined an exact or max value, pos1 would be parsed as a value of
+                                // --option
                                 if let Some(num) = opt.max_vals {
                                     if len != num { continue }
                                 } else if let Some(num) = opt.num_vals {
@@ -2009,9 +2075,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                             val_counter = 0;
                                         }
                                     } else {
+                                        // if we need more values, get the next value
                                         if len != num { continue }
                                     }
                                 } else if !skip {
+                                    // get the next value from the iterator
                                     continue
                                 }
                             }
@@ -2020,10 +2088,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                 }
             }
+
+            // if we're done getting values from an option, get the next arg from the iterator
             if skip {
                 needs_val_of = None;
                 continue;
             } else if let Some(ref name) = needs_val_of {
+                // We've reached more values for an option than it possibly accepts
                 if let Some(ref o) = self.opts.get(name) {
                     if !o.multiple {
                         self.report_error(
@@ -2035,17 +2106,23 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 }
             }
 
+
             if arg_slice.starts_with("--") && !pos_only {
                 if arg_slice.len() == 2 {
+                    // The user has passed '--' which means only positional args follow no matter
+                    // what they start with
                     pos_only = true;
                     continue;
                 }
-                // Single flag, or option long version
+
+                // This arg is either an option or flag using a long (i.e. '--something')
                 needs_val_of = self.parse_long_arg(matches, arg_slice);
             } else if arg_slice.starts_with("-") && arg_slice.len() != 1 && ! pos_only {
+                // Multiple or single flag(s), or single option (could be '-SbG' or '-o')
                 needs_val_of = self.parse_short_arg(matches, arg_slice);
             } else {
                 // Positional or Subcommand
+                //
                 // If the user pased `--` we don't check for subcommands, because the argument they
                 // may be trying to pass might match a subcommand name
                 if !pos_only {
@@ -2055,9 +2132,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         }
                         subcmd_name = Some(arg_slice.to_owned());
                         break;
-                    }
-
-                    if let Some(candidate_subcommand) = did_you_mean(arg_slice,
+                    } else if let Some(candidate_subcommand) = did_you_mean(arg_slice,
                                                                      self.subcommands.keys()) {
                         self.report_error(
                             format!("The subcommand '{}' isn't valid\n\tDid you mean '{}' ?\n\n\
@@ -2073,6 +2148,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                 }
 
+                // Did the developer even define any valid positionals? Since we reached this far,
+                // it's not a subcommand
                 if self.positionals_idx.is_empty() {
                     self.report_error(
                         format!("Found argument '{}', but {} wasn't expecting any",
@@ -2080,13 +2157,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             self.bin_name.clone().unwrap_or(self.name.clone())),
                         true,
                         Some(matches.args.keys().map(|k| *k).collect()));
-                }
-                // If we find that an argument requires a positiona, we need to update all the
-                // previous positionals too. This will denote where to start
-                // let mut req_pos_from_name = None;
-                if let Some(p) = self.positionals_idx.get(&pos_counter) {
-                    if self.blacklist.contains(p.name) {
-                        matches.args.remove(p.name);
+                } else if let Some(p) = self.positionals_idx.get(&pos_counter) {
+                    // Make sure this one doesn't conflict with anything
+                    self.blacklist.dedup();
+                    if self.blacklist.contains(&p.name) {
+                        // we shouldn't need to remove this arg...since it should be matched yet
+                        // anyways
+                        // matches.args.remove(p.name);
+
                         self.report_error(format!("The argument '{}' cannot be used with {}",
                             Format::Warning(p.to_string()),
                             match self.blacklisted_from(p.name, &matches) {
@@ -2098,6 +2176,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             Some(matches.args.keys().map(|k| *k).collect()));
                     }
 
+
                     if let Some(ref p_vals) = p.possible_vals {
                         if !p_vals.is_empty() {
                             if !p_vals.contains(arg_slice) {
@@ -2106,6 +2185,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             }
                         }
                     }
+
                     // Have we made the update yet?
                     let mut done = false;
                     if p.multiple {
@@ -2141,12 +2221,27 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 vals.insert(len, arg_slice.to_owned());
                             }
                         }
+
                     } else {
                         // Only increment the positional counter if it doesn't allow multiples
                         pos_counter += 1;
                     }
                     // Was an update made, or is this the first occurrence?
                     if !done {
+                        self.overrides.dedup();
+                        if self.overrides.contains(&p.name) {
+                            if let Some(name) = self.overriden_from(p.name, matches) {
+                                matches.args.remove(&*name);
+                                remove_override!(self, &*name);
+                            }
+                        }
+                        if let Some(ref or) = p.overrides {
+                            for pa in or {
+                                matches.args.remove(pa);
+                                remove_override!(self, pa);
+                                self.overrides.push(pa);
+                            }
+                        }
                         let mut bm = BTreeMap::new();
                         if !p.empty_vals && arg_slice.is_empty() {
                             self.report_error(format!("The argument '{}' does not allow empty \
@@ -2168,27 +2263,29 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             occurrences: 1,
                             values: Some(bm),
                         });
-                    }
 
-                    if let Some(ref bl) = p.blacklist {
-                        for name in bl {
-                            self.blacklist.insert(name);
-                            self.required.remove(name);
+                        if let Some(ref bl) = p.blacklist {
+                            for name in bl {
+                                self.blacklist.push(name);
+                                vec_remove!(self.required, name);
+                            }
                         }
-                    }
 
-                    self.required.remove(p.name);
-                    if let Some(ref reqs) = p.requires {
-                        // Add all required args which aren't already found in matches to the
-                        // final required list
-                        for n in reqs {
-                            if matches.args.contains_key(n) {continue;}
+                        // Because of the macro call, we have to create a temp variable
+                        let pname = &p.name;
+                        vec_remove!(self.required, pname);
+                        if let Some(ref reqs) = p.requires {
+                            // Add all required args which aren't already found in matches to the
+                            // final required list
+                            for n in reqs {
+                                if matches.args.contains_key(n) {continue;}
 
-                            self.required.insert(n);
+                                self.required.push(n);
+                            }
                         }
-                    }
 
-                    parse_group_reqs!(self, p);
+                        parse_group_reqs!(self, p);
+                    }
 
                 } else {
                     self.report_error(format!("The argument '{}' was found, but '{}' wasn't \
@@ -2245,7 +2342,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
         self.validate_blacklist(matches);
         self.validate_num_args(matches);
-
 
         matches.usage = Some(self.create_usage(None));
 
@@ -2320,14 +2416,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         for k in matches.args.keys() {
             if let Some(f) = self.flags.get(k) {
                 if let Some(ref bl) = f.blacklist {
-                    if bl.contains(name) {
+                    if bl.contains(&name) {
                         return Some(format!("{}", f))
                     }
                 }
             }
             if let Some(o) = self.opts.get(k) {
                 if let Some(ref bl) = o.blacklist {
-                    if bl.contains(name) {
+                    if bl.contains(&name) {
                         return Some(format!("{}", o))
                     }
                 }
@@ -2335,8 +2431,37 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             if let Some(idx) = self.positionals_name.get(k) {
                 if let Some(pos) = self.positionals_idx.get(idx) {
                     if let Some(ref bl) = pos.blacklist {
-                        if bl.contains(name) {
+                        if bl.contains(&name) {
                             return Some(format!("{}", pos))
+                        }
+                    }
+                }
+            }
+         }
+        None
+    }
+
+    fn overriden_from(&self, name: &'ar str, matches: &ArgMatches) -> Option<&'ar str> {
+        for k in matches.args.keys() {
+            if let Some(f) = self.flags.get(k) {
+                if let Some(ref bl) = f.overrides {
+                    if bl.contains(&name) {
+                        return Some(f.name)
+                    }
+                }
+            }
+            if let Some(o) = self.opts.get(k) {
+                if let Some(ref bl) = o.overrides {
+                    if bl.contains(&name) {
+                        return Some(o.name)
+                    }
+                }
+            }
+            if let Some(idx) = self.positionals_name.get(k) {
+                if let Some(pos) = self.positionals_idx.get(idx) {
+                    if let Some(ref bl) = pos.overrides {
+                        if bl.contains(&name) {
+                            return Some(pos.name)
                         }
                     }
                 }
@@ -2360,8 +2485,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 multiple: false,
                 global: false,
                 requires: None,
+                overrides: None
             };
-            self.long_list.insert("help");
+            self.long_list.push("help");
             self.flags.insert("hclap_help", arg);
         }
         if self.needs_long_version
@@ -2380,8 +2506,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 multiple: false,
                 global: false,
                 requires: None,
+                overrides: None
             };
-            self.long_list.insert("version");
+            self.long_list.push("version");
             self.flags.insert("vclap_version", arg);
         }
         if self.needs_subcmd_help && !self.subcommands.is_empty() {
@@ -2436,12 +2563,19 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                   .filter(|&v| v.long.is_some())
                                   .filter(|&v| v.long.unwrap() == arg).nth(0) {
             // Ensure this option isn't on the master mutually excludes list
-            if self.blacklist.contains(v.name) {
+            if self.blacklist.contains(&v.name) {
                 matches.args.remove(v.name);
                 self.report_error(format!("The argument '{}' cannot be used with one or more of \
                     the other specified arguments", Format::Warning(format!("--{}", arg))),
                     true,
                     Some(matches.args.keys().map(|k| *k).collect()));
+            }
+            if let Some(ref or) = v.overrides {
+                for pa in or {
+                    matches.args.remove(pa);
+                    remove_override!(self, pa);
+                    self.overrides.push(pa);
+                }
             }
 
             if matches.args.contains_key(v.name) {
@@ -2512,15 +2646,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                 });
             }
-
             if let Some(ref bl) = v.blacklist {
                 for name in bl {
-                    self.blacklist.insert(name);
-                    self.required.remove(name);
+                    self.blacklist.push(name);
+                    vec_remove!(self.overrides, name);
+                    vec_remove!(self.required, name);
                 }
             }
 
-            self.required.remove(v.name);
+            let vname = &v.name;
+            vec_remove!(self.required, vname);
 
             if let Some(ref reqs) = v.requires {
                 // Add all required args which aren't already found in matches to the
@@ -2528,7 +2663,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 for n in reqs {
                     if matches.args.contains_key(n) { continue; }
 
-                    self.required.insert(n);
+                    self.required.push(n);
                 }
             }
 
@@ -2544,7 +2679,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                    .filter(|&v| v.long.is_some())
                                    .filter(|&v| v.long.unwrap() == arg).nth(0) {
             // Ensure this flag isn't on the mutually excludes list
-            if self.blacklist.contains(v.name) {
+            self.blacklist.dedup();
+            if self.blacklist.contains(&v.name) {
                 matches.args.remove(v.name);
                 self.report_error(format!("The argument '{}' cannot be used with {}",
                         Format::Warning(v.to_string()),
@@ -2554,6 +2690,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         }),
                     true,
                     Some(matches.args.keys().map(|k| *k).collect()));
+            }
+            if let Some(ref or) = v.overrides {
+                for pa in or {
+                    matches.args.remove(pa);
+                    remove_override!(self, pa);
+                    self.overrides.push(pa);
+                }
             }
 
             // Make sure this isn't one being added multiple times if it doesn't suppor it
@@ -2580,13 +2723,21 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
             // If this flag was requierd, remove it
             // .. even though Flags shouldn't be required
-            self.required.remove(v.name);
+            let vname = &v.name;
+            vec_remove!(self.required, vname);
 
             // Add all of this flags "mutually excludes" list to the master list
+            if let Some(ref ov) = v.overrides {
+                for name in ov {
+                    self.overrides.push(name);
+                    vec_remove!(self.required, name);
+                }
+            }
             if let Some(ref bl) = v.blacklist {
                 for name in bl {
-                    self.blacklist.insert(name);
-                    self.required.remove(name);
+                    self.blacklist.push(name);
+                    vec_remove!(self.overrides, name);
+                    vec_remove!(self.required, name);
                 }
             }
 
@@ -2595,7 +2746,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 for n in reqs {
                     if matches.args.contains_key(n) { continue; }
 
-                    self.required.insert(n);
+                    self.required.push(n);
                 }
             }
 
@@ -2677,7 +2828,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                              .filter(|&v| v.short.is_some())
                              .filter(|&v| v.short.unwrap() == arg_c).nth(0) {
             // Ensure this option isn't on the master mutually excludes list
-            if self.blacklist.contains(v.name) {
+            self.blacklist.dedup();
+            if self.blacklist.contains(&v.name) {
                 matches.args.remove(v.name);
                 self.report_error(format!("The argument '{}' cannot be used with {}",
                             Format::Warning(format!("-{}", arg)),
@@ -2687,6 +2839,20 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         }),
                     true,
                     Some(matches.args.keys().map(|k| *k).collect()));
+            }
+            self.overrides.dedup();
+            if self.overrides.contains(&v.name) {
+                if let Some(name) = self.overriden_from(v.name, matches) {
+                    matches.args.remove(&*name);
+                    remove_override!(self, &*name);
+                }
+            }
+            if let Some(ref or) = v.overrides {
+                for pa in or {
+                    matches.args.remove(pa);
+                    remove_override!(self, pa);
+                    self.overrides.push(pa);
+                }
             }
 
             if matches.args.contains_key(v.name) {
@@ -2706,12 +2872,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
             if let Some(ref bl) = v.blacklist {
                 for name in bl {
-                    self.blacklist.insert(name);
-                    self.required.remove(name);
+                    self.blacklist.push(name);
+                    vec_remove!(self.overrides, name);
+                    vec_remove!(self.required, name);
                 }
             }
 
-            self.required.remove(v.name);
+            let vname = &v.name;
+            vec_remove!(self.required, vname);
 
             if let Some(ref reqs) = v.requires {
                 // Add all required args which aren't already found in matches to the
@@ -2719,7 +2887,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 for n in reqs {
                     if matches.args.contains_key(n) { continue; }
 
-                    self.required.insert(n);
+                    self.required.push(n);
                 }
             }
 
@@ -2738,11 +2906,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     fn parse_single_short_flag(&mut self, matches: &mut ArgMatches<'ar, 'ar>, arg: char) -> bool {
-        for v in self.flags.values()
+        if let Some(v) = self.flags.values()
                            .filter(|&v| v.short.is_some())
-                           .filter(|&v| v.short.unwrap() == arg) {
+                           .filter(|&v| v.short.unwrap() == arg).nth(0) {
             // Ensure this flag isn't on the mutually excludes list
-            if self.blacklist.contains(v.name) {
+            self.blacklist.dedup();
+            if self.blacklist.contains(&v.name) {
                 matches.args.remove(v.name);
                 self.report_error(format!("The argument '{}' cannot be used {}",
                             Format::Warning(format!("-{}", arg)),
@@ -2753,6 +2922,24 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         }),
                     true,
                     Some(matches.args.keys().map(|k| *k).collect()));
+            }
+            self.overrides.dedup();
+            debugln!("checking if {} is in overrides", v.name);
+            if self.overrides.contains(&v.name) {
+                debugln!("it is...");
+                debugln!("checking who defined it...");
+                if let Some(name) = self.overriden_from(v.name, matches) {
+                    debugln!("found {}", name);
+                    matches.args.remove(name);
+                    remove_override!(self, name);
+                }
+            }
+            if let Some(ref or) = v.overrides {
+                for pa in or {
+                    matches.args.remove(pa);
+                    remove_override!(self, pa);
+                    self.overrides.push(pa);
+                }
             }
 
             // Make sure this isn't one being added multiple times if it doesn't suppor it
@@ -2779,13 +2966,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
             // If this flag was requierd, remove it
             // .. even though Flags shouldn't be required
-            self.required.remove(v.name);
+            let vname = &v.name;
+            vec_remove!(self.required, vname);
 
-            // Add all of this flags "mutually excludes" list to the master list
             if let Some(ref bl) = v.blacklist {
                 for name in bl {
-                    self.blacklist.insert(name);
-                    self.required.remove(name);
+                    self.blacklist.push(name);
+                    vec_remove!(self.overrides, name);
+                    vec_remove!(self.required, name);
                 }
             }
 
@@ -2794,7 +2982,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 for n in reqs {
                     if matches.args.contains_key(n) { continue; }
 
-                    self.required.insert(n);
+                    self.required.push(n);
                 }
             }
 
@@ -2948,7 +3136,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     fn validate_required(&self, matches: &ArgMatches<'ar, 'ar>) -> bool{
         for name in self.required.iter() {
             validate_reqs!(self, flags, matches, name);
-
             validate_reqs!(self, opts, matches, name);
 
             // because positions use different keys, we dont use the macro
@@ -2998,4 +3185,5 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 None => (String::new(), None),
         }
     }
+
 }

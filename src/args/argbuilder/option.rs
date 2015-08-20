@@ -1,5 +1,4 @@
 use std::rc::Rc;
-use std::collections::HashSet;
 use std::collections::BTreeSet;
 use std::fmt::{ Display, Formatter, Result };
 use std::result::Result as StdResult;
@@ -16,7 +15,7 @@ pub struct OptBuilder<'n> {
     /// Allow multiple occurrences of an option argument such as "-c some -c other"
     pub multiple: bool,
     /// A list of names for other arguments that *may not* be used with this flag
-    pub blacklist: Option<HashSet<&'n str>>,
+    pub blacklist: Option<Vec<&'n str>>,
     /// If this is a required by default when using the command line program
     /// i.e. a configuration file that's required for the program to function
     /// **NOTE:** required by default means, it is required *until* mutually
@@ -26,14 +25,16 @@ pub struct OptBuilder<'n> {
     pub possible_vals: Option<BTreeSet<&'n str>>,
     /// A list of names of other arguments that are *required* to be used when
     /// this flag is used
-    pub requires: Option<HashSet<&'n str>>,
+    pub requires: Option<Vec<&'n str>>,
     pub num_vals: Option<u8>,
     pub min_vals: Option<u8>,
     pub max_vals: Option<u8>,
     pub val_names: Option<Vec<&'n str>>,
     pub empty_vals: bool,
     pub global: bool,
-    pub validator: Option<Rc<Fn(String) -> StdResult<(), String>>>
+    pub validator: Option<Rc<Fn(String) -> StdResult<(), String>>>,
+    /// A list of names for other arguments that *mutually override* this flag
+    pub overrides: Option<Vec<&'n str>>
 }
 
 impl<'n> Display for OptBuilder<'n> {

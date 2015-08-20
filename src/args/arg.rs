@@ -93,7 +93,10 @@ pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     #[doc(hidden)]
     pub global: bool,
     #[doc(hidden)]
-    pub validator: Option<Rc<Fn(String) -> Result<(), String>>>
+    pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
+    /// A list of names for other arguments that *mutually override* this flag
+    #[doc(hidden)] 
+    pub overrides: Option<Vec<&'r str>>
 }
 
 impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
@@ -135,7 +138,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             group: None,
             global: false,
             empty_vals: true,
-            validator: None
+            validator: None,
+            overrides: None
         }
     }
 
@@ -295,6 +299,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             global: false,
             empty_vals: true,
             validator: None,
+            overrides: None,
         }
     }
 
@@ -441,10 +446,52 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self
     }
 
+    /// Sets a mutually overridable argument by name. I.e. this argument and
+    /// the following argument will override each other in POSIX style
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
+    /// .mutually_overrides_with("debug")
+    /// # ).get_matches();
+    pub fn mutually_overrides_with(mut self, name: &'r str) -> Self {
+        if let Some(ref mut vec) = self.overrides {
+            vec.push(name);
+        } else {
+            self.overrides = Some(vec![name]);
+        }
+        self
+    }
+
+    /// Sets a mutually overridable arguments by name. I.e. this argument and
+    /// the following argument will override each other in POSIX style
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let config_overrides = ["debug", "input"];
+    /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
+    /// .mutually_overrides_with_all(&config_overrides)
+    /// # ).get_matches();
+    pub fn mutually_overrides_with_all<T, I>(mut self, names: I)
+                                    -> Self
+                                    where T: AsRef<str> + 'r,
+                                          I: IntoIterator<Item=&'r T> {
+        if let Some(ref mut vec) = self.overrides {
+            names.into_iter().map(|s| vec.push(s.as_ref())).collect::<Vec<_>>();
+        } else {
+            self.overrides = Some(names.into_iter().map(|s| s.as_ref()).collect::<Vec<_>>());
+        }
+        self
+    }
+
     /// Sets an argument by name that is required when this one is presnet I.e. when
     /// using this argument, the following argument *must* be present.
     ///
-    /// **NOTE:** Mutually exclusive rules take precedence over being required
+    /// **NOTE:** Mutually exclusive and override rules take precedence over being required
     ///
     ///
     /// # Example
@@ -466,7 +513,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// Sets arguments by names that are required when this one is presnet I.e. when
     /// using this argument, the following arguments *must* be present.
     ///
-    /// **NOTE:** Mutually exclusive rules take precedence over being required
+    /// **NOTE:** Mutually exclusive and override rules take precedence over being required
     /// by default.
     ///
     ///
@@ -817,7 +864,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r, 'z> From<&'z Arg<'n, 'l, 'h, 'g, 'p, 'r>> for Arg<'
             group: a.group,
             global: a.global,
             empty_vals: a.empty_vals,
-            validator: a.validator.clone()
+            validator: a.validator.clone(),
+            overrides: a.overrides.clone()
         }
     }
 }
