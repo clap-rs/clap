@@ -1066,6 +1066,7 @@ mod tests {
                     .arg(Arg::from_usage("--color [color] 'some other flag'"))
                     .get_matches_from(vec!["", "--flag", "some" ,"--color", "other"]);
         assert!(m.is_present("color"));
+        assert_eq!(m.value_of("color").unwrap(), "other");
         assert!(!m.is_present("flag"));
 
         let m = App::new("posix")
@@ -1074,6 +1075,7 @@ mod tests {
                     .get_matches_from(vec!["", "--color", "some" ,"--flag", "other"]);
         assert!(!m.is_present("color"));
         assert!(m.is_present("flag"));
+        assert_eq!(m.value_of("flag").unwrap(), "other");
     }
 
     #[test]
@@ -1083,6 +1085,7 @@ mod tests {
                     .arg(Arg::from_usage("--color [color] 'some other flag'"))
                     .get_matches_from(vec!["", "--flag=some" ,"--color=other"]);
         assert!(m.is_present("color"));
+        assert_eq!(m.value_of("color").unwrap(), "other");
         assert!(!m.is_present("flag"));
 
         let m = App::new("posix")
@@ -1091,6 +1094,7 @@ mod tests {
                     .get_matches_from(vec!["", "--color=some" ,"--flag=other"]);
         assert!(!m.is_present("color"));
         assert!(m.is_present("flag"));
+        assert_eq!(m.value_of("flag").unwrap(), "other");
     }
 
     #[test]
@@ -1100,6 +1104,7 @@ mod tests {
                     .arg(Arg::from_usage("-c [color] 'some other flag'"))
                     .get_matches_from(vec!["", "-f", "some", "-c", "other"]);
         assert!(m.is_present("color"));
+        assert_eq!(m.value_of("color").unwrap(), "other");
         assert!(!m.is_present("flag"));
 
         let m = App::new("posix")
@@ -1108,6 +1113,7 @@ mod tests {
                     .get_matches_from(vec!["", "-c", "some", "-f", "other"]);
         assert!(!m.is_present("color"));
         assert!(m.is_present("flag"));
+        assert_eq!(m.value_of("flag").unwrap(), "other");
     }
 
     #[test]
@@ -1119,7 +1125,9 @@ mod tests {
                 ])
             .get_matches_from(vec!["", "-f", "some", "-c", "other"]);
         assert!(m.is_present("flag"));
+        assert_eq!(m.value_of("flag").unwrap(), "some");
         assert!(m.is_present("color"));
+        assert_eq!(m.value_of("color").unwrap(), "other");
     }
 
     #[test]
