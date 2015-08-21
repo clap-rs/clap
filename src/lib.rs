@@ -1183,5 +1183,50 @@ mod tests {
         assert_eq!(m.value_of("color").unwrap(), "other");
     }
 
+    #[test]
+    fn flag_using_short() {
+        let m = App::new("flag")
+            .args(vec![
+                Arg::from_usage("-f, --flag 'some flag'"),
+                Arg::from_usage("-c, --color 'some other flag'")
+                ])
+            .get_matches_from(vec!["", "-f", "-c"]);
+        assert!(m.is_present("flag"));
+        assert!(m.is_present("color"));
+    }
+
+    #[test]
+    fn flag_using_long() {
+        let m = App::new("flag")
+            .args(vec![
+                Arg::from_usage("--flag 'some flag'"),
+                Arg::from_usage("--color 'some other flag'")
+                ])
+            .get_matches_from(vec!["", "--flag", "--color"]);
+        assert!(m.is_present("flag"));
+        assert!(m.is_present("color"));
+    }
+
+    #[test]
+    fn flag_using_mixed() {
+        let m = App::new("flag")
+            .args(vec![
+                Arg::from_usage("-f, --flag 'some flag'"),
+                Arg::from_usage("-c, --color 'some other flag'")
+                ])
+            .get_matches_from(vec!["", "-f", "--color"]);
+        assert!(m.is_present("flag"));
+        assert!(m.is_present("color"));
+
+        let m = App::new("flag")
+            .args(vec![
+                Arg::from_usage("-f, --flag 'some flag'"),
+                Arg::from_usage("-c, --color 'some other flag'")
+                ])
+            .get_matches_from(vec!["", "--flag", "-c"]);
+        assert!(m.is_present("flag"));
+        assert!(m.is_present("color"));
+    }
+
 
 }
