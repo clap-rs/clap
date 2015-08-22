@@ -1242,4 +1242,19 @@ mod tests {
         assert!(m.is_present("debug"));
     }
 
+    #[test]
+    fn required_argument_overridden() {
+        let m = App::new("req_overridden")
+            .arg(Arg::from_usage("-f, --flag 'some flag'")
+                .requires("color"))
+            .arg(Arg::from_usage("-c, --color 'some other flag'")
+                .mutually_overrides_with("debug"))
+            .arg(Arg::from_usage("-d, --debug 'another other flag'"))
+            .get_matches_from(vec!["", "--flag", "-c", "-d"]);
+
+        assert!(m.is_present("flag"));
+        assert!(!m.is_present("color"));
+        assert!(m.is_present("debug"));
+    }
+
 }
