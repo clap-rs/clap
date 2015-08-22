@@ -2024,11 +2024,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 // We've reached more values for an option than it possibly accepts
                 if let Some(ref o) = self.opts.get(name) {
                     if !o.multiple {
-                        self.report_error(
-                            format!("The argument '{}' requires a value but none was supplied",
-                                Format::Warning(o.to_string())),
-                            true,
-                            Some(matches.args.keys().map(|k| *k).collect() ) );
+                        self.report_require_value(o.to_string(), matches);
                     }
                 }
             }
@@ -2220,19 +2216,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         None        => true,
                     };
                     if should_err {
-                        self.report_error(
-                            format!("The argument '{}' requires a value but there wasn't any \
-                            supplied", Format::Warning(o.to_string())),
-                            true,
-                            Some(matches.args.keys().map(|k| *k).collect() ) );
+                        self.report_require_value(o.to_string(), matches);
                     }
                 }
                 else if !o.multiple {
-                    self.report_error(
-                        format!("The argument '{}' requires a value but none was supplied",
-                            Format::Warning(o.to_string())),
-                        true,
-                        Some(matches.args.keys().map(|k| *k).collect() ) );
+                    self.report_require_value(o.to_string(), matches);
                 }
                 else {
                     self.report_error(format!("The following required arguments were not \
@@ -2247,12 +2235,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         Some(matches.args.keys().map(|k| *k).collect()));
                 }
             } else {
-                self.report_error(
-                    format!("The argument '{}' requires a value but none was supplied",
-                        Format::Warning(format!("{}", self.positionals_idx.get(
-                            self.positionals_name.get(a).unwrap()).unwrap()))),
-                        true,
-                        Some(matches.args.keys().map(|k| *k).collect()));
+                self.report_require_value(format!("{}", self.positionals_idx.get(
+                        self.positionals_name.get(a).unwrap()).unwrap()), matches);
             }
         }
 
@@ -2378,6 +2362,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 Some(matches.args.keys()
                                  .map(|k| *k).collect()));
         }
+    }
+
+    fn report_require_value(&self,
+                            arg: String,
+                            matches: &ArgMatches<'ar, 'ar>) {
+        self.report_error(
+            format!("The argument '{}' requires a value but none was supplied",
+                Format::Warning(arg)),
+                true,
+                Some(matches.args.keys().map(|k| *k).collect()));
     }
 
     fn save_value_to_option(&self,
