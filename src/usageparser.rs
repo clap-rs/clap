@@ -124,8 +124,11 @@ impl<'u> Iterator for UsageParser<'u> {
                     self.e += 1;
                     continue
                 },
-                _  => {
+                None => {
                     return None
+                },
+                Some(c) => {
+                    panic!("Usage parser error, unexpected \"{}\" at \"{}\", check from_usage call", c, self.usage);
                 }
             }
         }

@@ -280,7 +280,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         }
 
         Arg {
-            name: name.unwrap(),
+            name: name.unwrap_or_else(|| panic!("Missing flag name in \"{}\", check from_usage call", u)),
             short: short,
             long: long,
             help: help,

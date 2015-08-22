@@ -1242,4 +1242,17 @@ mod tests {
         assert!(m.is_present("debug"));
     }
 
+    #[test]
+    #[should_panic]
+    fn short_flag_misspel() {
+        App::new("short_flag")
+            .arg(Arg::from_usage("-f1, --flag 'some flag'"));
+    }
+
+    #[test]
+    #[should_panic]
+    fn short_flag_name_missing() {
+        App::new("short_flag")
+            .arg(Arg::from_usage("-f 'some flag'"));
+    }
 }
