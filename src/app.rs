@@ -2267,13 +2267,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if let Some(ref bl) = p.blacklist {
                             for name in bl {
                                 self.blacklist.push(name);
-                                vec_remove!(self.required, name);
                             }
                         }
 
                         // Because of the macro call, we have to create a temp variable
-                        let pname = &p.name;
-                        vec_remove!(self.required, pname);
                         if let Some(ref reqs) = p.requires {
                             // Add all required args which aren't already found in matches to the
                             // final required list
@@ -2394,7 +2391,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             self.print_help();
             self.exit(1);
         }
-        if (!self.required.is_empty() && !self.subcmds_neg_reqs) && self.validate_required(&matches) {
+        if (!self.subcmds_neg_reqs) && self.validate_required(&matches) {
             self.report_error(format!("The following required arguments were not \
                 supplied:{}",
                 self.get_required_from(self.required.iter()
@@ -2661,12 +2658,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 for name in bl {
                     self.blacklist.push(name);
                     vec_remove!(self.overrides, name);
-                    vec_remove!(self.required, name);
                 }
             }
-
-            let vname = &v.name;
-            vec_remove!(self.required, vname);
 
             if let Some(ref reqs) = v.requires {
                 // Add all required args which aren't already found in matches to the
@@ -2743,23 +2736,17 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 });
             }
 
-            // If this flag was requierd, remove it
-            // .. even though Flags shouldn't be required
-            let vname = &v.name;
-            vec_remove!(self.required, vname);
 
             // Add all of this flags "mutually excludes" list to the master list
             if let Some(ref ov) = v.overrides {
                 for name in ov {
                     self.overrides.push(name);
-                    vec_remove!(self.required, name);
                 }
             }
             if let Some(ref bl) = v.blacklist {
                 for name in bl {
                     self.blacklist.push(name);
                     vec_remove!(self.overrides, name);
-                    vec_remove!(self.required, name);
                 }
             }
 
@@ -2896,12 +2883,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 for name in bl {
                     self.blacklist.push(name);
                     vec_remove!(self.overrides, name);
-                    vec_remove!(self.required, name);
                 }
             }
-
-            let vname = &v.name;
-            vec_remove!(self.required, vname);
 
             if let Some(ref reqs) = v.requires {
                 // Add all required args which aren't already found in matches to the
@@ -2986,16 +2969,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 });
             }
 
-            // If this flag was requierd, remove it
-            // .. even though Flags shouldn't be required
-            let vname = &v.name;
-            vec_remove!(self.required, vname);
-
             if let Some(ref bl) = v.blacklist {
                 for name in bl {
                     self.blacklist.push(name);
                     vec_remove!(self.overrides, name);
-                    vec_remove!(self.required, name);
                 }
             }
 
@@ -3156,22 +3133,59 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     fn validate_required(&self, matches: &ArgMatches<'ar, 'ar>) -> bool{
-        for name in self.required.iter() {
-            validate_reqs!(self, flags, matches, name);
-            validate_reqs!(self, opts, matches, name);
-
+        'outer: for name in self.required.iter() {
+            if matches.args.contains_key(name) {
+                continue 'outer;
+            }
+            for grp in self.groups.values() {
+                if grp.args.contains(name) {
+                    continue 'outer;
+                }
+            }
+            if let Some(a) = self.flags.get(name) {
+                if let Some(ref bl) = a.blacklist {
+                    for n in bl.iter() {
+                        if matches.args.contains_key(n) {
+                            continue 'outer
+                        } else if self.groups.contains_key(n) {
+                            let grp = self.groups.get(n).unwrap();
+                            for an in grp.args.iter() {
+                                if matches.args.contains_key(an) {
+                                    continue 'outer
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if let Some(a) = self.opts.get(name) {
+                if let Some(ref bl) = a.blacklist {
+                    for n in bl.iter() {
+                        if matches.args.contains_key(n) {
+                            continue 'outer
+                        } else if self.groups.contains_key(n) {
+                            let grp = self.groups.get(n).unwrap();
+                            for an in grp.args.iter() {
+                                if matches.args.contains_key(an) {
+                                    continue 'outer
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             // because positions use different keys, we dont use the macro
             match self.positionals_idx.values().filter(|p| &p.name == name).next() {
                 Some(p) =>{
                     if let Some(ref bl) = p.blacklist {
                         for n in bl.iter() {
                             if matches.args.contains_key(n) {
-                                return false
+                                continue 'outer;
                             } else if self.groups.contains_key(n) {
                                 let grp = self.groups.get(n).unwrap();
                                 for an in grp.args.iter() {
                                     if matches.args.contains_key(an) {
-                                        return false
+                                        continue 'outer;
                                     }
                                 }
                             }
@@ -3180,8 +3194,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 },
                 None    =>(),
             }
+            return true;
         }
-        true
+        false
     }
 
     /// Returns a suffix that can be empty, or is the standard 'did you mean phrase
