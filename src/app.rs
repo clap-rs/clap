@@ -2000,89 +2000,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             }
                         }
                         // Check the required number of values
-                        if let Some(num) = opt.num_vals {
-                            if let Some(ref ma) = matches.args.get(opt.name) {
-                                if let Some(ref vals) = ma.values {
-                                    if num == vals.len() as u8 && !opt.multiple {
-                                        self.report_error(format!("The argument '{}' was found, \
-                                            but '{}' only expects {} values",
-                                                Format::Warning(arg.as_ref()),
-                                                Format::Warning(opt.to_string()),
-                                                Format::Good(vals.len().to_string())),
-                                            true,
-                                            Some(
-                                                matches.args.keys().map(|k| *k).collect()
-                                            )
-                                        );
-                                    }
-                                }
-                            }
-                        }
+                        self.check_required_number_of_values(arg_slice, matches, &opt);
 
                         // if it's an empty value, and we don't allow that, report the error
-                        if !opt.empty_vals &&
-                            matches.args.contains_key(opt.name) &&
-                            arg_slice.is_empty() {
-                            self.report_error(format!("The argument '{}' does not allow empty \
-                                    values, but one was found.", Format::Warning(opt.to_string())),
-                                true,
-                                Some(matches.args.keys()
-                                                 .map(|k| *k).collect()));
+                        if arg_slice.is_empty() {
+                            self.check_empty_vals(matches, &opt);
                         }
 
                         // save the value to matched option
-                        if let Some(ref mut o) = matches.args.get_mut(opt.name) {
-                            // if it's multiple; the occurrences are increased when originally found
-                            o.occurrences = if opt.multiple {
-                                o.occurrences + 1
-                            } else {
-                                skip = true;
-                                1
-                            };
-
-                            // Options always have values, even if it's empty, so we can unwrap()
-                            if let Some(ref mut vals) = o.values {
-                                if let Some(ref vtor) = opt.validator {
-                                    if let Err(e) = vtor(arg_slice.to_owned()) {
-                                        self.report_error(e,
-                                            true,
-                                            Some(vec![opt.name]));
-                                    }
-                                }
-
-                                // Values must be inserted in order...the user may care about that!
-                                let len = vals.len() as u8 + 1;
-                                vals.insert(len, arg_slice.to_owned());
-
-                                // Now that the values have been added, we can ensure we haven't gone
-                                // over any max_limits, or if we've reached the exact number of values
-                                // we can stop parsing values, and go back to arguments.
-                                //
-                                // For example, if we define an option with exactly 2 values and the
-                                // users passes:
-                                // $ my_prog --option val1 val2 pos1
-                                // we stop parsing values of --option after val2, if the user hadn't
-                                // defined an exact or max value, pos1 would be parsed as a value of
-                                // --option
-                                if let Some(num) = opt.max_vals {
-                                    if len != num { continue }
-                                } else if let Some(num) = opt.num_vals {
-                                    if opt.multiple {
-                                        val_counter += 1;
-                                        if val_counter != num {
-                                            continue
-                                        } else {
-                                            val_counter = 0;
-                                        }
-                                    } else {
-                                        // if we need more values, get the next value
-                                        if len != num { continue }
-                                    }
-                                } else if !skip {
-                                    // get the next value from the iterator
-                                    continue
-                                }
-                            }
+                        if !self.save_value_to_option(matches, &opt, &mut skip, arg_slice, &mut val_counter) {
+                            continue;
                         }
                         skip = true;
                     }
@@ -2410,6 +2337,105 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             self.print_help();
             self.exit(1);
         }
+    }
+
+    fn check_required_number_of_values(&self,
+                                       arg: &str,
+                                       matches: &ArgMatches<'ar, 'ar>,
+                                       opt: &OptBuilder<'ar>) {
+        if let Some(num) = opt.num_vals {
+            if let Some(ref ma) = matches.args.get(opt.name) {
+                if let Some(ref vals) = ma.values {
+                    if num == vals.len() as u8 && !opt.multiple {
+                        self.report_error(format!("The argument '{}' was found, \
+                            but '{}' only expects {} values",
+                                Format::Warning(arg),
+                                Format::Warning(opt.to_string()),
+                                Format::Good(vals.len().to_string())),
+                            true,
+                            Some(
+                                matches.args.keys().map(|k| *k).collect()
+                            )
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    fn check_empty_vals(&self,
+                        matches: &ArgMatches<'ar, 'ar>,
+                        opt: &OptBuilder<'ar>) {
+        if !opt.empty_vals &&
+            matches.args.contains_key(opt.name) {
+            self.report_error(format!("The argument '{}' does not allow empty \
+                    values, but one was found.", Format::Warning(opt.to_string())),
+                true,
+                Some(matches.args.keys()
+                                 .map(|k| *k).collect()));
+        }
+    }
+
+    fn save_value_to_option(&self,
+                            matches: &mut ArgMatches<'ar, 'ar>,
+                            opt: &OptBuilder<'ar>,
+                            skip:&mut bool,
+                            arg: &str,
+                            val_counter: &mut u8) -> bool {
+        if let Some(ref mut o) = matches.args.get_mut(opt.name) {
+            // if it's multiple; the occurrences are increased when originally found
+            o.occurrences = if opt.multiple {
+                o.occurrences + 1
+            } else {
+                *skip = true;
+                1
+            };
+
+            // Options always have values, even if it's empty, so we can unwrap()
+            if let Some(ref mut vals) = o.values {
+                if let Some(ref vtor) = opt.validator {
+                    if let Err(e) = vtor(arg.to_owned()) {
+                        self.report_error(e,
+                            true,
+                            Some(vec![opt.name]));
+                    }
+                }
+
+                // Values must be inserted in order...the user may care about that!
+                let len = vals.len() as u8 + 1;
+                vals.insert(len, arg.to_owned());
+
+                // Now that the values have been added, we can ensure we haven't gone
+                // over any max_limits, or if we've reached the exact number of values
+                // we can stop parsing values, and go back to arguments.
+                //
+                // For example, if we define an option with exactly 2 values and the
+                // users passes:
+                // $ my_prog --option val1 val2 pos1
+                // we stop parsing values of --option after val2, if the user hadn't
+                // defined an exact or max value, pos1 would be parsed as a value of
+                // --option
+                if let Some(num) = opt.max_vals {
+                    if len != num { return false; }
+                } else if let Some(num) = opt.num_vals {
+                    if opt.multiple {
+                        *val_counter += 1;
+                        if *val_counter != num {
+                            return false;
+                        } else {
+                            *val_counter = 0;
+                        }
+                    } else {
+                        // if we need more values, get the next value
+                        if len != num { return false; }
+                    }
+                } else if !*skip {
+                    // get the next value from the iterator
+                    return false;
+                }
+            }
+        }
+        true
     }
 
     fn blacklisted_from(&self, name: &str, matches: &ArgMatches) -> Option<String> {
