@@ -2003,8 +2003,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         self.check_required_number_of_values(arg_slice, matches, &opt);
 
                         // if it's an empty value, and we don't allow that, report the error
-                        if arg_slice.is_empty() {
-                            self.check_empty_vals(matches, &opt);
+                        if matches.args.contains_key(opt.name) {
+                            self.check_empty_vals_opt(arg_slice, matches, &opt);
                         }
 
                         // save the value to matched option
@@ -2131,13 +2131,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 }
                             }
                         }
-                        if !p.empty_vals && matches.args.contains_key(p.name)
-                            && arg_slice.is_empty()  {
-                            self.report_error(format!("The argument '{}' does not allow empty \
-                                    values, but one was found.", Format::Warning(p.to_string())),
-                                true,
-                                Some(matches.args.keys()
-                                                 .map(|k| *k).collect()));
+                        if matches.args.contains_key(p.name) {
+                            self.check_empty_vals_pos(arg_slice, matches, p);
                         }
                         // Check if it's already existing and update if so...
                         if let Some(ref mut pos) = matches.args.get_mut(p.name) {
@@ -2169,14 +2164,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 self.overrides.push(pa);
                             }
                         }
+                        self.check_empty_vals_pos(arg_slice, matches, &p);
                         let mut bm = BTreeMap::new();
-                        if !p.empty_vals && arg_slice.is_empty() {
-                            self.report_error(format!("The argument '{}' does not allow empty \
-                                values, but one was found.", Format::Warning(p.to_string())),
-                                true,
-                                Some(matches.args.keys()
-                                                 .map(|k| *k).collect()));
-                        }
                         if let Some(ref vtor) = p.validator {
                             let f = &*vtor;
                             if let Err(ref e) = f(arg_slice.to_owned()) {
@@ -2363,13 +2352,28 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
     }
 
-    fn check_empty_vals(&self,
-                        matches: &ArgMatches<'ar, 'ar>,
-                        opt: &OptBuilder<'ar>) {
+    fn check_empty_vals_opt(&self,
+                            arg: &str,
+                            matches: &ArgMatches<'ar, 'ar>,
+                            opt: &OptBuilder<'ar>) {
         if !opt.empty_vals &&
-            matches.args.contains_key(opt.name) {
+            arg.is_empty() {
             self.report_error(format!("The argument '{}' does not allow empty \
                     values, but one was found.", Format::Warning(opt.to_string())),
+                true,
+                Some(matches.args.keys()
+                                 .map(|k| *k).collect()));
+        }
+    }
+
+    fn check_empty_vals_pos(&self,
+                            arg: &str,
+                            matches: &ArgMatches<'ar, 'ar>,
+                            p: &PosBuilder<'ar>) {
+        if !p.empty_vals &&
+            arg.is_empty() {
+            self.report_error(format!("The argument '{}' does not allow empty \
+                    values, but one was found.", Format::Warning(p.to_string())),
                 true,
                 Some(matches.args.keys()
                                  .map(|k| *k).collect()));
@@ -2633,13 +2637,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                 }
                 if arg_val.is_some() {
-                    if !v.empty_vals && arg.is_empty() && matches.args.contains_key(v.name) {
-                        self.report_error(format!("The argument '{}' does not allow empty \
-                                values, but one was found.", Format::Warning(v.to_string())),
-                            true,
-                            Some(matches.args.keys()
-                                             .map(|k| *k).collect()));
-                    }
+                    self.check_empty_vals_opt(arg, matches, &v);
                     if let Some(ref vtor) = v.validator {
                         if let Err(e) = vtor(arg_val.clone().unwrap()) {
                             self.report_error(e,
@@ -2656,12 +2654,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                 }
             } else {
-                if !v.empty_vals && arg_val.is_some() && arg_val.clone().unwrap().is_empty() {
-                    self.report_error(format!("The argument '{}' does not allow empty \
-                            values, but one was found.", Format::Warning(v.to_string())),
-                        true,
-                        Some(matches.args.keys()
-                                         .map(|k| *k).collect()));
+                if arg_val.is_some(){
+                    self.check_empty_vals_opt(&*arg_val.clone().unwrap(), matches, &v);
                 }
                 if let Some(ref val) = arg_val {
                     if let Some(ref vtor) = v.validator {
