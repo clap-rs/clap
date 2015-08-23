@@ -1,3 +1,14 @@
+<a name="v1.2.2"></a>
+### v1.2.2 (2015-08-23)
+
+
+#### Bug Fixes
+
+*   fixed confusing error message, also added test for it ([fc7a31a7](https://github.com/kbknapp/clap-rs/commit/fc7a31a745efbf1768ee2c62cd3bb72bfe30c708))
+* **App:**  fixed requirmets overriding ([9c135eb7](https://github.com/kbknapp/clap-rs/commit/9c135eb790fa16183e5bdb2009ddc3cf9e25f99f))
+
+
+
 <a name="v1.2.1"></a>
 ### v1.2.1 (2015-08-20)
 
