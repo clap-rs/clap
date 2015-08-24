@@ -27,7 +27,7 @@ mod fmt;
 
 #[cfg(test)]
 mod tests {
-    use super::{App, Arg, SubCommand};
+    use super::{App, Arg, SubCommand, AppSettings};
     use std::collections::HashSet;
     use std::vec::Vec;
 
@@ -1254,5 +1254,17 @@ mod tests {
     fn short_flag_name_missing() {
         App::new("short_flag")
             .arg(Arg::from_usage("-f 'some flag'"));
+    }
+
+    #[test]
+    fn sub_command_negate_requred() {
+        App::new("sub_command_negate")
+            .setting(AppSettings::SubcommandsNegateReqs)
+            .arg(Arg::with_name("test")
+                   .required(true)
+                   .index(1))
+            .subcommand(SubCommand::with_name("sub1"))
+            .subcommand(SubCommand::with_name("sub1"))
+            .get_matches_from(vec!["", "sub1"]);
     }
 }
