@@ -2391,7 +2391,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             self.print_help();
             self.exit(1);
         }
-        if (!self.subcmds_neg_reqs) && self.validate_required(&matches) {
+        if ((!self.subcmds_neg_reqs) || matches.subcommand_name().is_none()) && self.validate_required(&matches) {
             self.report_error(format!("The following required arguments were not \
                 supplied:{}",
                 self.get_required_from(self.required.iter()
