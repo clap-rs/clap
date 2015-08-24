@@ -2000,89 +2000,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             }
                         }
                         // Check the required number of values
-                        if let Some(num) = opt.num_vals {
-                            if let Some(ref ma) = matches.args.get(opt.name) {
-                                if let Some(ref vals) = ma.values {
-                                    if num == vals.len() as u8 && !opt.multiple {
-                                        self.report_error(format!("The argument '{}' was found, \
-                                            but '{}' only expects {} values",
-                                                Format::Warning(arg.as_ref()),
-                                                Format::Warning(opt.to_string()),
-                                                Format::Good(vals.len().to_string())),
-                                            true,
-                                            Some(
-                                                matches.args.keys().map(|k| *k).collect()
-                                            )
-                                        );
-                                    }
-                                }
-                            }
-                        }
+                        self.check_required_number_of_values(arg_slice, matches, &opt);
 
                         // if it's an empty value, and we don't allow that, report the error
-                        if !opt.empty_vals &&
-                            matches.args.contains_key(opt.name) &&
-                            arg_slice.is_empty() {
-                            self.report_error(format!("The argument '{}' does not allow empty \
-                                    values, but one was found.", Format::Warning(opt.to_string())),
-                                true,
-                                Some(matches.args.keys()
-                                                 .map(|k| *k).collect()));
+                        if matches.args.contains_key(opt.name) {
+                            self.check_empty_vals_opt(arg_slice, matches, &opt);
                         }
 
                         // save the value to matched option
-                        if let Some(ref mut o) = matches.args.get_mut(opt.name) {
-                            // if it's multiple; the occurrences are increased when originally found
-                            o.occurrences = if opt.multiple {
-                                o.occurrences + 1
-                            } else {
-                                skip = true;
-                                1
-                            };
-
-                            // Options always have values, even if it's empty, so we can unwrap()
-                            if let Some(ref mut vals) = o.values {
-                                if let Some(ref vtor) = opt.validator {
-                                    if let Err(e) = vtor(arg_slice.to_owned()) {
-                                        self.report_error(e,
-                                            true,
-                                            Some(vec![opt.name]));
-                                    }
-                                }
-
-                                // Values must be inserted in order...the user may care about that!
-                                let len = vals.len() as u8 + 1;
-                                vals.insert(len, arg_slice.to_owned());
-
-                                // Now that the values have been added, we can ensure we haven't gone
-                                // over any max_limits, or if we've reached the exact number of values
-                                // we can stop parsing values, and go back to arguments.
-                                //
-                                // For example, if we define an option with exactly 2 values and the
-                                // users passes:
-                                // $ my_prog --option val1 val2 pos1
-                                // we stop parsing values of --option after val2, if the user hadn't
-                                // defined an exact or max value, pos1 would be parsed as a value of
-                                // --option
-                                if let Some(num) = opt.max_vals {
-                                    if len != num { continue }
-                                } else if let Some(num) = opt.num_vals {
-                                    if opt.multiple {
-                                        val_counter += 1;
-                                        if val_counter != num {
-                                            continue
-                                        } else {
-                                            val_counter = 0;
-                                        }
-                                    } else {
-                                        // if we need more values, get the next value
-                                        if len != num { continue }
-                                    }
-                                } else if !skip {
-                                    // get the next value from the iterator
-                                    continue
-                                }
-                            }
+                        if !self.save_value_to_option(matches, &opt, &mut skip, arg_slice, &mut val_counter) {
+                            continue;
                         }
                         skip = true;
                     }
@@ -2097,11 +2024,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 // We've reached more values for an option than it possibly accepts
                 if let Some(ref o) = self.opts.get(name) {
                     if !o.multiple {
-                        self.report_error(
-                            format!("The argument '{}' requires a value but none was supplied",
-                                Format::Warning(o.to_string())),
-                            true,
-                            Some(matches.args.keys().map(|k| *k).collect() ) );
+                        self.report_require_value(o.to_string(), matches);
                     }
                 }
             }
@@ -2204,13 +2127,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 }
                             }
                         }
-                        if !p.empty_vals && matches.args.contains_key(p.name)
-                            && arg_slice.is_empty()  {
-                            self.report_error(format!("The argument '{}' does not allow empty \
-                                    values, but one was found.", Format::Warning(p.to_string())),
-                                true,
-                                Some(matches.args.keys()
-                                                 .map(|k| *k).collect()));
+                        if matches.args.contains_key(p.name) {
+                            self.check_empty_vals_pos(arg_slice, matches, p);
                         }
                         // Check if it's already existing and update if so...
                         if let Some(ref mut pos) = matches.args.get_mut(p.name) {
@@ -2242,14 +2160,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 self.overrides.push(pa);
                             }
                         }
+                        self.check_empty_vals_pos(arg_slice, matches, &p);
                         let mut bm = BTreeMap::new();
-                        if !p.empty_vals && arg_slice.is_empty() {
-                            self.report_error(format!("The argument '{}' does not allow empty \
-                                values, but one was found.", Format::Warning(p.to_string())),
-                                true,
-                                Some(matches.args.keys()
-                                                 .map(|k| *k).collect()));
-                        }
                         if let Some(ref vtor) = p.validator {
                             let f = &*vtor;
                             if let Err(ref e) = f(arg_slice.to_owned()) {
@@ -2301,19 +2213,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         None        => true,
                     };
                     if should_err {
-                        self.report_error(
-                            format!("The argument '{}' requires a value but there wasn't any \
-                            supplied", Format::Warning(o.to_string())),
-                            true,
-                            Some(matches.args.keys().map(|k| *k).collect() ) );
+                        self.report_require_value(o.to_string(), matches);
                     }
                 }
                 else if !o.multiple {
-                    self.report_error(
-                        format!("The argument '{}' requires a value but none was supplied",
-                            Format::Warning(o.to_string())),
-                        true,
-                        Some(matches.args.keys().map(|k| *k).collect() ) );
+                    self.report_require_value(o.to_string(), matches);
                 }
                 else {
                     self.report_error(format!("The following required arguments were not \
@@ -2328,12 +2232,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         Some(matches.args.keys().map(|k| *k).collect()));
                 }
             } else {
-                self.report_error(
-                    format!("The argument '{}' requires a value but none was supplied",
-                        Format::Warning(format!("{}", self.positionals_idx.get(
-                            self.positionals_name.get(a).unwrap()).unwrap()))),
-                        true,
-                        Some(matches.args.keys().map(|k| *k).collect()));
+                self.report_require_value(format!("{}", self.positionals_idx.get(
+                        self.positionals_name.get(a).unwrap()).unwrap()), matches);
             }
         }
 
@@ -2407,6 +2307,130 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             self.print_help();
             self.exit(1);
         }
+    }
+
+    fn check_required_number_of_values(&self,
+                                       arg: &str,
+                                       matches: &ArgMatches<'ar, 'ar>,
+                                       opt: &OptBuilder<'ar>) {
+        if let Some(num) = opt.num_vals {
+            if let Some(ref ma) = matches.args.get(opt.name) {
+                if let Some(ref vals) = ma.values {
+                    if num == vals.len() as u8 && !opt.multiple {
+                        self.report_error(format!("The argument '{}' was found, \
+                            but '{}' only expects {} values",
+                                Format::Warning(arg),
+                                Format::Warning(opt.to_string()),
+                                Format::Good(vals.len().to_string())),
+                            true,
+                            Some(
+                                matches.args.keys().map(|k| *k).collect()
+                            )
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    fn check_empty_vals_opt(&self,
+                            arg: &str,
+                            matches: &ArgMatches<'ar, 'ar>,
+                            opt: &OptBuilder<'ar>) {
+        if !opt.empty_vals &&
+            arg.is_empty() {
+            self.report_error(format!("The argument '{}' does not allow empty \
+                    values, but one was found.", Format::Warning(opt.to_string())),
+                true,
+                Some(matches.args.keys()
+                                 .map(|k| *k).collect()));
+        }
+    }
+
+    fn check_empty_vals_pos(&self,
+                            arg: &str,
+                            matches: &ArgMatches<'ar, 'ar>,
+                            p: &PosBuilder<'ar>) {
+        if !p.empty_vals &&
+            arg.is_empty() {
+            self.report_error(format!("The argument '{}' does not allow empty \
+                    values, but one was found.", Format::Warning(p.to_string())),
+                true,
+                Some(matches.args.keys()
+                                 .map(|k| *k).collect()));
+        }
+    }
+
+    fn report_require_value(&self,
+                            arg: String,
+                            matches: &ArgMatches<'ar, 'ar>) {
+        self.report_error(
+            format!("The argument '{}' requires a value but none was supplied",
+                Format::Warning(arg)),
+                true,
+                Some(matches.args.keys().map(|k| *k).collect()));
+    }
+
+    fn save_value_to_option(&self,
+                            matches: &mut ArgMatches<'ar, 'ar>,
+                            opt: &OptBuilder<'ar>,
+                            skip:&mut bool,
+                            arg: &str,
+                            val_counter: &mut u8) -> bool {
+        if let Some(ref mut o) = matches.args.get_mut(opt.name) {
+            // if it's multiple; the occurrences are increased when originally found
+            o.occurrences = if opt.multiple {
+                o.occurrences + 1
+            } else {
+                *skip = true;
+                1
+            };
+
+            // Options always have values, even if it's empty, so we can unwrap()
+            if let Some(ref mut vals) = o.values {
+                if let Some(ref vtor) = opt.validator {
+                    if let Err(e) = vtor(arg.to_owned()) {
+                        self.report_error(e,
+                            true,
+                            Some(vec![opt.name]));
+                    }
+                }
+
+                // Values must be inserted in order...the user may care about that!
+                let len = vals.len() as u8 + 1;
+                vals.insert(len, arg.to_owned());
+
+                // Now that the values have been added, we can ensure we haven't gone
+                // over any max_limits, or if we've reached the exact number of values
+                // we can stop parsing values, and go back to arguments.
+                //
+                // For example, if we define an option with exactly 2 values and the
+                // users passes:
+                // $ my_prog --option val1 val2 pos1
+                // we stop parsing values of --option after val2, if the user hadn't
+                // defined an exact or max value, pos1 would be parsed as a value of
+                // --option
+                if let Some(num) = opt.max_vals {
+                    if len != num { return false; }
+                } else if let Some(num) = opt.num_vals {
+                    if opt.multiple {
+                        *val_counter += 1;
+                        if *val_counter != num {
+                            return false;
+                        } else {
+                            *val_counter = 0;
+                        }
+                    } else {
+                        // if we need more values, get the next value
+                        if len != num { return false; }
+                    }
+                } else if !*skip {
+                    // get the next value from the iterator
+                    return false;
+                }
+            }
+        }
+        true
     }
 
     fn blacklisted_from(&self, name: &str, matches: &ArgMatches) -> Option<String> {
@@ -2604,13 +2628,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                 }
                 if arg_val.is_some() {
-                    if !v.empty_vals && arg.is_empty() && matches.args.contains_key(v.name) {
-                        self.report_error(format!("The argument '{}' does not allow empty \
-                                values, but one was found.", Format::Warning(v.to_string())),
-                            true,
-                            Some(matches.args.keys()
-                                             .map(|k| *k).collect()));
-                    }
+                    self.check_empty_vals_opt(arg, matches, &v);
                     if let Some(ref vtor) = v.validator {
                         if let Err(e) = vtor(arg_val.clone().unwrap()) {
                             self.report_error(e,
@@ -2627,12 +2645,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                 }
             } else {
-                if !v.empty_vals && arg_val.is_some() && arg_val.clone().unwrap().is_empty() {
-                    self.report_error(format!("The argument '{}' does not allow empty \
-                            values, but one was found.", Format::Warning(v.to_string())),
-                        true,
-                        Some(matches.args.keys()
-                                         .map(|k| *k).collect()));
+                if arg_val.is_some(){
+                    self.check_empty_vals_opt(&*arg_val.clone().unwrap(), matches, &v);
                 }
                 if let Some(ref val) = arg_val {
                     if let Some(ref vtor) = v.validator {
