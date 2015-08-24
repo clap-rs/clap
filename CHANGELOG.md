@@ -1,3 +1,13 @@
+<a name="v1.2.3"></a>
+### v1.2.3 (2015-08-24)
+
+
+#### Bug Fixes
+
+* **App, Args:**  fixed subcommand reqs negation ([b41afa8c](https://github.com/kbknapp/clap-rs/commit/b41afa8c3ded3d1be12f7a2f8ea06cc44afc9458), closes [#188](https://github.com/kbknapp/clap-rs/issues/188))
+
+
+
 <a name="v1.2.2"></a>
 ### v1.2.2 (2015-08-23)
 
