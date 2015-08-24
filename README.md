@@ -310,6 +310,9 @@ The following is a list of optional `clap` features:
 * **"suggestions"**: Turns on the `Did you mean '--myoption' ?` feature for when users make typos.
 * **"color"**: Turns on red error messages. This feature only works on non-Windows OSs.
 
+### Dependencies Tree
+![clap dependencies](clap.png)
+
 ### More Information
 
 You can find complete documentation on the [github-pages site](http://kbknapp.github.io/clap-rs/clap/index.html) for this project.
