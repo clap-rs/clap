@@ -1,5 +1,5 @@
 #![crate_type= "lib"]
-#![cfg_attr(feature = "lints", feature(plugin))]
+#![cfg_attr(feature = "nightly", feature(plugin))]
 #![cfg_attr(feature = "lints", plugin(clippy))]
 #![cfg_attr(feature = "lints", allow(option_unwrap_used))]
 #![cfg_attr(feature = "lints", allow(explicit_iter_loop))]
