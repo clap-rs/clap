@@ -19,21 +19,22 @@ optional = true
 version = "~0.6.3"
 optional = true
 
-[dependencies.clippy]
-version = "~0.0.11"
-optional = true
+#[dependencies.clippy]
+#version = "~0.0.12"
+#optional = true
 
 [features]
 default=["suggestions", "color"]
 suggestions=["strsim"]
 color = ["ansi_term"]
-lints = ["clippy", "nightly"]
+#lints = ["clippy", "nightly"]
 
 # for building with nightly and unstable features
 nightly = []
 
 # for building with travis-cargo
-unstable = ["lints", "nightly"]
+#unstable = ["lints", "nightly"]
+unstable = ["nightly"]
 
 # for building with debug messages
 debug = []

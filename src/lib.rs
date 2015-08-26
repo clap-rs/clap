@@ -1,11 +1,11 @@
 #![crate_type= "lib"]
 #![cfg_attr(feature = "nightly", feature(plugin))]
-#![cfg_attr(feature = "lints", plugin(clippy))]
-#![cfg_attr(feature = "lints", allow(option_unwrap_used))]
-#![cfg_attr(feature = "lints", allow(explicit_iter_loop))]
-#![cfg_attr(feature = "lints", deny(warnings))]
+//#![cfg_attr(feature = "lints", plugin(clippy))]
+//#![cfg_attr(feature = "lints", allow(option_unwrap_used))]
+//#![cfg_attr(feature = "lints", allow(explicit_iter_loop))]
+//#![cfg_attr(feature = "lints", deny(warnings))]
 // Fix until clippy on crates.io is updated to include needless_lifetimes lint
-#![cfg_attr(feature = "lints", allow(unknown_lints))]
+//#![cfg_attr(feature = "lints", allow(unknown_lints))]
 
 // DOCS
 
