@@ -1,3 +1,13 @@
+<a name="v1.2.4"></a>
+### v1.2.4 (2015-08-26)
+
+
+#### Bug Fixes
+
+* **Possible Values:**  fixes a bug where suggestions arent made when using --long=value format ([3d5e9a6c](https://github.com/kbknapp/clap-rs/commit/3d5e9a6cedb26668839b481c9978e2fbbab8be6f), closes [#192](https://github.com/kbknapp/clap-rs/issues/192))
+
+
+
 <a name="v1.2.3"></a>
 ### v1.2.3 (2015-08-24)
 
