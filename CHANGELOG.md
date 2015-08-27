@@ -1,3 +1,13 @@
+<a name="v1.2.5"></a>
+### v1.2.5 (2015-08-27)
+
+
+#### Features
+
+* **Args:**  allows opts and args to define a name for help and usage msgs ([ad962ec4](https://github.com/kbknapp/clap-rs/commit/ad962ec478da999c7dba0afdb84c266f4d09b1bd))
+
+
+
 <a name="v1.2.4"></a>
 ### v1.2.4 (2015-08-26)
 
