@@ -841,6 +841,29 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         }
         self
     }
+
+    /// Specifies the name for value of option or positional arguments. This name is cosmetic only,
+    /// used for help and usage strings. The name is **not** used to access arguments.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let matches = App::new("myprog")
+    /// #                 .arg(
+    /// Arg::with_name("debug")
+    ///     .index(1)
+    ///     .value_name("file")
+    /// # ).get_matches();
+    pub fn value_name(mut self, name: &'n str)
+                      -> Self {
+        if let Some(ref mut vec) = self.val_names {
+            vec.push(name);
+        } else {
+            self.val_names = Some(vec![name]);
+        }
+        self
+    }
 }
 
 impl<'n, 'l, 'h, 'g, 'p, 'r, 'z> From<&'z Arg<'n, 'l, 'h, 'g, 'p, 'r>> for Arg<'n, 'l, 'h, 'g, 'p, 'r> {
