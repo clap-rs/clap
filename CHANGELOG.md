@@ -2,6 +2,11 @@
 ### v1.2.5 (2015-08-27)
 
 
+#### Examples
+
+*   add custom validator example ([b9997d1f](https://github.com/kbknapp/clap-rs/commit/b9997d1fca74d4d8f93971f2a01bdf9798f913d5))
+*   fix indentation ([d4f1b740](https://github.com/kbknapp/clap-rs/commit/d4f1b740ede410fd2528b9ecd89592c2fd8b1e20))
+
 #### Features
 
 * **Args:**  allows opts and args to define a name for help and usage msgs ([ad962ec4](https://github.com/kbknapp/clap-rs/commit/ad962ec478da999c7dba0afdb84c266f4d09b1bd))
