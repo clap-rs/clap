@@ -18,6 +18,7 @@ Contributions are always welcome! Please use the following guidelines when contr
     - `style` - Stylistic changes only, no functionality changes
     - `wip` - A work in progress commit (Should typically be `git rebase`'ed away)
     - `chore` - Catch all or things that have to do with the build system, etc
+    - `examples` - Changes to exosting example, or a new example
  * The `COMPONENT` is optional, and may be a single file, directory, or logical component. Can be omitted if commit applies globally
 5. Run the tests (`cargo test && make -C clap-tests test`)
 6. `git rebase` into concise commits and remove `--fixup`s (`git rebase -i HEAD~NUM` where `NUM` is number of commits back)
