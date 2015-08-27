@@ -1992,11 +1992,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     if let Some(ref opt) = self.opts.get(nvo) {
                         // Check the possible values
                         if let Some(ref p_vals) = opt.possible_vals {
-                            if !p_vals.is_empty() {
-                                if !p_vals.contains(arg_slice) {
-                                    self.possible_values_error(arg_slice, &opt.to_string(),
-                                                                          p_vals, matches);
-                                }
+                            if !p_vals.contains(arg_slice) {
+                                self.possible_values_error(arg_slice, &opt.to_string(),
+                                                                      p_vals, matches);
                             }
                         }
                         // Check the required number of values
@@ -2178,11 +2176,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
 
                     if let Some(ref p_vals) = p.possible_vals {
-                        if !p_vals.is_empty() {
-                            if !p_vals.contains(arg_slice) {
-                                self.possible_values_error(arg_slice, &p.to_string(),
-                                                                       p_vals, matches);
-                            }
+                        if !p_vals.contains(arg_slice) {
+                            self.possible_values_error(arg_slice, &p.to_string(),
+                                                                   p_vals, matches);
                         }
                     }
 
@@ -2523,7 +2519,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
     }
 
-    fn parse_long_arg(&mut self, matches: &mut ArgMatches<'ar, 'ar> ,full_arg: &str)
+    fn parse_long_arg<'av>(&mut self, matches: &mut ArgMatches<'ar, 'ar> ,full_arg: &'av str)
                       -> Option<&'ar str> {
         let mut arg = full_arg.trim_left_matches(|c| c == '-');
 
@@ -2533,7 +2529,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             self.print_version(true);
         }
 
-        let mut arg_val: Option<String> = None;
+        let mut arg_val: Option<&'av str> = None;
 
         if arg.contains("=") {
             let arg_vec: Vec<_> = arg.split("=").collect();
@@ -2552,7 +2548,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         true,
                         Some(matches.args.keys().map(|k| *k).collect()));
                 }
-                arg_val = Some(arg_vec[1].to_owned());
+                arg_val = Some(arg_vec[1]);
             }
         }
 
@@ -2594,65 +2590,35 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         true,
                         Some(matches.args.keys().map(|k| *k).collect()));
                 }
-                if let Some(ref p_vals) = v.possible_vals {
-                    if let Some(ref av) = arg_val {
-                        if !p_vals.contains(&av[..]) {
-                            self.possible_values_error(
-                                    arg_val.as_ref().map(|v| &**v).unwrap_or(arg),
-                                    &v.to_string(), p_vals, matches);
-                        }
-                    }
-                }
-                if arg_val.is_some() {
-                    if !v.empty_vals && arg.is_empty() && matches.args.contains_key(v.name) {
-                        self.report_error(format!("The argument '{}' does not allow empty \
-                                values, but one was found.", Format::Warning(v.to_string())),
-                            true,
-                            Some(matches.args.keys()
-                                             .map(|k| *k).collect()));
-                    }
-                    if let Some(ref vtor) = v.validator {
-                        if let Err(e) = vtor(arg_val.clone().unwrap()) {
-                            self.report_error(e,
-                                true,
-                                Some(matches.args.keys().map(|k| *k).collect()));
-                        }
-                    }
+                if let Some(av) = arg_val {
                     if let Some(ref mut o) = matches.args.get_mut(v.name) {
                         o.occurrences += 1;
                         if let Some(ref mut vals) = o.values {
                             let len = (vals.len() + 1) as u8;
-                            vals.insert(len, arg_val.clone().unwrap());
+                            vals.insert(len, av.to_owned());
                         }
                     }
+                    // The validation must come AFTER inserting into 'matches' or the usage string
+                    // can't be built
+                    self.validate_value(v, av, matches);
                 }
             } else {
-                if !v.empty_vals && arg_val.is_some() && arg_val.clone().unwrap().is_empty() {
-                    self.report_error(format!("The argument '{}' does not allow empty \
-                            values, but one was found.", Format::Warning(v.to_string())),
-                        true,
-                        Some(matches.args.keys()
-                                         .map(|k| *k).collect()));
+                let mut bm = BTreeMap::new();
+                if let Some(val) = arg_val {
+                    bm.insert(1, val.to_owned());
+                    matches.args.insert(v.name, MatchedArg{
+                        occurrences: 1,
+                        values: Some(bm)
+                    });
+                    // The validation must come AFTER inserting into 'matches' or the usage string
+                    // can't be built
+                    self.validate_value(v, val, matches);
+                } else {
+                    matches.args.insert(v.name, MatchedArg{
+                        occurrences: 0,
+                        values: Some(bm)
+                    });
                 }
-                if let Some(ref val) = arg_val {
-                    if let Some(ref vtor) = v.validator {
-                        if let Err(e) = vtor(val.clone()) {
-                            self.report_error(e,
-                                true,
-                                Some(matches.args.keys().map(|k| *k).collect()));
-                        }
-                    }
-                }
-                matches.args.insert(v.name, MatchedArg{
-                    occurrences: if arg_val.is_some() { 1 } else { 0 },
-                    values: if arg_val.is_some() {
-                        let mut bm = BTreeMap::new();
-                        bm.insert(1, arg_val.clone().unwrap());
-                        Some(bm)
-                    } else {
-                        Some(BTreeMap::new())
-                    }
-                });
             }
             if let Some(ref bl) = v.blacklist {
                 for name in bl {
@@ -2804,6 +2770,28 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             Some(matches.args.keys().map(|k| *k).collect()));
 
         unreachable!();
+    }
+
+    fn validate_value(&self, v: &OptBuilder, av: &str, matches: &ArgMatches) {
+        if let Some(ref p_vals) = v.possible_vals {
+            if !p_vals.contains(av) {
+                self.possible_values_error(av, &v.to_string(), p_vals, matches);
+            }
+        }
+        if !v.empty_vals && av.is_empty() && matches.args.contains_key(v.name) {
+            self.report_error(format!("The argument '{}' does not allow empty \
+                    values, but one was found.", Format::Warning(v.to_string())),
+                true,
+                Some(matches.args.keys()
+                                 .map(|k| *k).collect()));
+        }
+        if let Some(ref vtor) = v.validator {
+            if let Err(e) = vtor(av.to_owned()) {
+                self.report_error(e,
+                    true,
+                    Some(matches.args.keys().map(|k| *k).collect()));
+            }
+        }
     }
 
     fn parse_short_arg(&mut self, matches: &mut ArgMatches<'ar, 'ar> ,full_arg: &str)
