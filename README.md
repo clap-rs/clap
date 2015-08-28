@@ -11,7 +11,7 @@ It is a simple to use, efficient, and full featured library for parsing command 
 If you're already familiar with `clap` but just want to see some new highlights as of **1.2.1**
 
 * **Performance Improvements**
-* **POSIX Compatible Conflicts** are not supported! In POSIX args can be conflicting, but not fail parsing because whichever arg comes *last* "wins" to to speak. This allows things such as aliases (i.e. `alias ls='ls -l'` but then using `ls -C` in your terminal which ends up passing `ls -l -C` as the final arguments. Since `-l` and `-C` aren't compatible, this effectively runs `ls -C`). (Thanks to [Vinatorul](https://github.com/Vinatorul)!)
+* **POSIX Compatible Conflicts** are now supported! In POSIX args can be conflicting, but not fail parsing because whichever arg comes *last* "wins" to to speak. This allows things such as aliases (i.e. `alias ls='ls -l'` but then using `ls -C` in your terminal which ends up passing `ls -l -C` as the final arguments. Since `-l` and `-C` aren't compatible, this effectively runs `ls -C`). (Thanks to [Vinatorul](https://github.com/Vinatorul)!)
 * **Custom validations** are now supported! You can define a function to validate argument values, or fail parsing with a custom error message. Meaning your application logic can focus soley on *using* values.
 * **Improved ergonomics** - Some `App` methods have been deprecated (won't be removed until 2.x) to support a more ergonomic `.setting()` method which takes an `AppSettings` enum value. This makes it easier to find `App` settings (just view all variants of the enum). (Thanks to [Vinatorul](https://github.com/Vinatorul)!)
 
