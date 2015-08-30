@@ -3,7 +3,7 @@
 name = "clap"
 version = "1.2.5"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
-exclude = ["examples/*", "clap-tests/*"]
+exclude = ["examples/*", "clap-tests/*", "tests/*", "benches/*", "clap.png"]
 description = "A simple to use, efficient, and full featured  Command Line Argument Parser"
 repository = "https://github.com/kbknapp/clap-rs.git"
 documentation = "http://kbknapp.github.io/clap-rs"
