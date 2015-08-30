@@ -2,8 +2,8 @@ extern crate clap;
 
 use clap::{App, Arg};
 
+#[allow(unused_variables)]
 fn main() {
-
     // Args describe a possible valid argument which may be supplied by the user at runtime. There
     // are three different types of arguments (flags, options, and positional) as well as a fourth
     // special type of argument, called SubCommands (which will be discussed separately).

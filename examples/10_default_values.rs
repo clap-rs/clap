@@ -2,6 +2,7 @@ extern crate clap;
 
 use clap::{App, Arg};
 
+#[allow(unused_variables)]
 fn main() {
     // You can get a "default value" like feature by using Option<T>'s .unwrap_or() method
     //

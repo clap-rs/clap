@@ -2,6 +2,7 @@ extern crate clap;
 
 use clap::{App, Arg};
 
+#[allow(unused_variables)]
 fn main() {
     // You can define a function (or a closure) to use as a validator to argument values. The
     // function must accept a String and return Result<(), String> where Err(String) is the message

@@ -2,8 +2,8 @@ extern crate clap;
 
 use clap::{App};
 
+#[allow(unused_variables)]
 fn main() {
-
     // Apps describe the top level application
     //
     // You create an App and set various options on that App using the "builder pattern"

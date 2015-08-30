@@ -2,6 +2,7 @@ extern crate clap;
 
 use clap::{App, AppSettings, SubCommand};
 
+#[allow(unused_variables)]
 fn main() {
     // You can use AppSettings to change the application level behavior of clap. .setting() function
     // of App struct takes AppSettings enum as argument. There is also .settings() function which

@@ -3,6 +3,7 @@ extern crate clap;
 
 use clap::App;
 
+#[allow(unused_variables)]
 fn main() {
     // You can have clap pull the application version directly from your Cargo.toml starting with
     // clap v0.4.14 on crates.io (or master#a81f915 on github). Using Rust's env! macro like this:
