@@ -19,13 +19,23 @@ fn main() {
                                             // Required positional argument called input.  This
                                             // will be only required if subcommand is not present.
 
-                        .subcommand(SubCommand::with_name("help")
-                                                .about("shows help message"))
+                        .subcommand(SubCommand::with_name("test")
+                                                .about("does some testing"))
                                             // if program is invoked with subcommand, you do not
                                             // need to specify the <input> argument anymore due to
                                             // the AppSettings::SubcommandsNegateReqs setting.
 
                         .get_matches();
 
-    // Contiued program logic goes here...
+    // Calling unwrap() on "input" would not be advised here, because although it's required,
+    // if the user uses a subcommand, those requirements are no longer required. Hence, we should
+    // use some sort of 'if let' construct
+    if let Some(inp) = matches.value_of("input") {
+        println!("The input file is: {}", inp);
+    }
+
+    match matches.subcommand() {
+        ("test", _) => println!("The 'test' subcommand was used"),
+        _           => unreachable!()
+    }
 }

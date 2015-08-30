@@ -1,4 +1,4 @@
-use super::{App, Arg, SubCommand, AppSettings};
+use super::{App, Arg, SubCommand};
 use std::collections::HashSet;
 use std::vec::Vec;
 

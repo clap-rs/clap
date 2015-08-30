@@ -16,5 +16,6 @@ fn main() {
 
     let config_file = matches.value_of("CONFIG").unwrap_or("config.json");
 
-    // use config_file here...
+    // If the user passed in a -c <file> we'll see that value, if not we'll see 'config.json'
+    println!("The config file is: {}", config_file);
 }

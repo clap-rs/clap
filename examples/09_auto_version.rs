@@ -18,11 +18,11 @@ fn main() {
     // the version.
     //
     // Thanks to https://github.com/jhelwig for pointing this out
-    let matches = App::new("myapp")
-                      .about("does awesome things")
-                      // use crate_version! to pull the version number
-                      .version(&crate_version!()[..])
-                      .get_matches();
+    App::new("myapp")
+        .about("does awesome things")
+       // use crate_version! to pull the version number
+       .version(&crate_version!()[..])
+       .get_matches();
 
     // running the this app with the -V or --version will display whatever version is in your
     // Cargo.toml, the default being: myapp 0.0.1

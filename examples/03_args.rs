@@ -3,7 +3,6 @@ extern crate clap;
 use clap::{App, Arg};
 
 fn main() {
-
     // Args describe a possible valid argument which may be supplied by the user at runtime. There
     // are three different types of arguments (flags, options, and positional) as well as a fourth
     // special type of argument, called SubCommands (which will be discussed separately).
@@ -39,6 +38,7 @@ fn main() {
                         .args( vec![
                             Arg::with_name("config")
                                     .help("sets the config file to use")
+                                    .takes_value(true)
                                     .short("c")
                                     .long("config"),
                             Arg::with_name("input")
@@ -61,5 +61,24 @@ fn main() {
                                           -i --int=[interface] 'Set an interface to use'")
                         .get_matches();
      
-    // Continued program logic goes here...
+    // Here are some examples of using the arguments defined above. Keep in mind that this is only
+    // an example, and may be somewhat contrived
+    //
+    // First we check if debugging should be on or not
+    println!("Debugging mode is: {}", if matches.is_present("debug") { "ON" } else { "OFF" });
+
+    // Next we print the config file we're using, if any was defined with either -c <file> or 
+    // --config <file>
+    if let Some(config) = matches.value_of("config") {
+        println!("A config file was passed in: {}", config);
+    }
+
+    // Let's print the <INPUT> file the user passed in. We can use .unwrap() here becase the arg is
+    // required, and parsing would have failed if the user forgot it
+    println!("Using input file: {}", matches.value_of("input").unwrap());
+
+    // We could continue checking for and using arguments in this manner, such as "license",
+    // "output", and "interface". Keep in mind that "output" and "interface" are optional, so you
+    // shouldn't call .unwrap(), instead prefer using an 'if let' expression as we did with 
+    // "config"
 }

@@ -32,5 +32,6 @@ fn main() {
                                      }))
                         .get_matches();
 
-    // Continued program logic here...
+    // Here we can call .unwrap() because the argument is required.
+    println!("The .PNG file is: {}", matches.value_of("input").unwrap());
 }
