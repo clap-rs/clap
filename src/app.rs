@@ -1161,7 +1161,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///                   --minor         'auto increase minor'
     ///                   --patch         'auto increase patch")
     /// .arg_group(ArgGroup::with_name("vers")
-    ///                     .add_all(vec!["ver", "major", "minor","patch"])
+    ///                     .add_all(&["ver", "major", "minor","patch"])
     ///                     .required(true))
     /// # ;
     pub fn arg_group(mut self, group: ArgGroup<'ar, 'ar>) -> Self {
@@ -1223,7 +1223,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///                   --minor         'auto increase minor'
     ///                   --patch         'auto increase patch")
     /// .arg_group(ArgGroup::with_name("vers")
-    ///                     .add_all(vec!["ver", "major", "minor","patch"])
+    ///                     .add_all(&["ver", "major", "minor","patch"])
     ///                     .required(true))
     /// # ;
     pub fn arg_groups(mut self, groups: Vec<ArgGroup<'ar, 'ar>>) -> Self {
