@@ -7,191 +7,13 @@ use args::{ArgMatches, Arg, SubCommand, MatchedArg};
 use args::{FlagBuilder, OptBuilder, PosBuilder};
 use args::ArgGroup;
 use fmt::Format;
+use super::settings::AppSettings;
 
-#[cfg(feature = "suggestions")]
-use strsim;
+use super::suggestions::{DidYouMeanMessageStyle, did_you_mean};
+
 
 const INTERNAL_ERROR_MSG: &'static str = "Internal Error: Failed to write string. Please \
                                           consider filing a bug report!";
-
-/// Produces a string from a given list of possible values which is similar to
-/// the passed in value `v` with a certain confidence.
-/// Thus in a list of possible values like ["foo", "bar"], the value "fop" will yield
-/// `Some("foo")`, whereas "blark" would yield `None`.
-#[cfg(feature = "suggestions")]
-#[cfg_attr(feature = "lints", allow(needless_lifetimes))]
-fn did_you_mean<'a, T, I>(v: &str, possible_values: I) -> Option<&'a str>
-                    where T: AsRef<str> + 'a,
-                          I: IntoIterator<Item=&'a T> {
-
-    let mut candidate: Option<(f64, &str)> = None;
-    for pv in possible_values.into_iter() {
-        let confidence = strsim::jaro_winkler(v, pv.as_ref());
-        if confidence > 0.8 && (candidate.is_none() ||
-                               (candidate.as_ref().unwrap().0 < confidence)) {
-            candidate = Some((confidence, pv.as_ref()));
-        }
-    }
-    match candidate {
-        None => None,
-        Some((_, candidate)) => Some(candidate),
-    }
-}
-
-#[cfg(not(feature = "suggestions"))]
-fn did_you_mean<'a, T, I>(_: &str, _: I) -> Option<&'a str>
-                    where T: AsRef<str> + 'a,
-                          I: IntoIterator<Item=&'a T> {
-    None
-}
-
-/// A helper to determine message formatting
-enum DidYouMeanMessageStyle {
-    /// Suggested value is a long flag
-    LongFlag,
-    /// Suggested value is one of various possible values
-    EnumValue,
-}
-
-/// Application level settings, which affect how `App` operates
-pub enum AppSettings {
-    /// Allows subcommands to override all requirements of the parent (this command). For example
-    /// if you had a subcommand or even top level application which had a required arguments that
-    /// are only required as long as there is no subcommand present.
-    ///
-    /// **NOTE:** This defaults to false (using subcommand does *not* negate requirements)
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use clap::{App, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::SubcommandsNegateReqs)
-    /// # ;
-    /// ```
-    SubcommandsNegateReqs,
-    /// Allows specifying that if no subcommand is present at runtime, error and exit gracefully
-    ///
-    /// **NOTE:** This defaults to false (subcommands do *not* need to be present)
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use clap::{App, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::SubcommandRequired)
-    /// # ;
-    /// ```
-    SubcommandRequired,
-    /// Specifies that the help text sould be displayed (and then exit gracefully), if no
-    /// arguments are present at runtime (i.e. an empty run such as, `$ myprog`.
-    ///
-    /// **NOTE:** Subcommands count as arguments
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use clap::{App, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::ArgRequiredElseHelp)
-    /// # ;
-    /// ```
-    ArgRequiredElseHelp,
-    /// Uses version of the current command for all subcommands. (Defaults to false; subcommands
-    /// have independant version strings)
-    ///
-    /// **NOTE:** The version for the current command and this setting must be set **prior** to
-    /// adding any subcommands
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, SubCommand, AppSettings};
-    /// App::new("myprog")
-    ///     .version("v1.1")
-    ///     .setting(AppSettings::GlobalVersion)
-    ///     .subcommand(SubCommand::with_name("test"))
-    ///     .get_matches();
-    /// // running `myprog test --version` will display
-    /// // "myprog-test v1.1"
-    /// ```
-    GlobalVersion,
-    /// Disables `-V` and `--version` for all subcommands (Defaults to false; subcommands have
-    /// version flags)
-    ///
-    /// **NOTE:** This setting must be set **prior** adding any subcommands
-    ///
-    /// **NOTE:** Do not set this value to false, it will have undesired results!
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, SubCommand, AppSettings};
-    /// App::new("myprog")
-    ///     .version("v1.1")
-    ///     .setting(AppSettings::VersionlessSubcommands)
-    ///     .subcommand(SubCommand::with_name("test"))
-    ///     .get_matches();
-    /// // running `myprog test --version` will display unknown argument error
-    /// ```
-    VersionlessSubcommands,
-    /// By default the auto-generated help message groups flags, options, and positional arguments
-    /// separately. This setting disable that and groups flags and options together presenting a
-    /// more unified help message (a la getopts or docopt style).
-    ///
-    /// **NOTE:** This setting is cosmetic only and does not affect any functionality.
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, SubCommand, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::UnifiedHelpMessage)
-    ///     .get_matches();
-    /// // running `myprog --help` will display a unified "docopt" or "getopts" style help message
-    /// ```
-    UnifiedHelpMessage,
-    /// Will display a message "Press [ENTER]/[RETURN] to continue..." and wait user before
-    /// exiting
-    ///
-    /// This is most useful when writing an application which is run from a GUI shortcut, or on
-    /// Windows where a user tries to open the binary by double-clicking instead of using the
-    /// command line (i.e. set `.arg_required_else_help(true)` and `.wait_on_error(true)` to
-    /// display the help in such a case).
-    ///
-    /// **NOTE:** This setting is **not** recursive with subcommands, meaning if you wish this
-    /// behavior for all subcommands, you must set this on each command (needing this is extremely
-    /// rare)
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::WaitOnError)
-    /// # ;
-    /// ```
-    WaitOnError,
-    /// Specifies that the help text sould be displayed (and then exit gracefully), if no
-    /// subcommands are present at runtime (i.e. an empty run such as, `$ myprog`.
-    ///
-    /// **NOTE:** This should *not* be used with `.subcommand_required()` as they do the same
-    /// thing, except one prints the help text, and one prints an error.
-    ///
-    /// **NOTE:** If the user specifies arguments at runtime, but no subcommand the help text will
-    /// still be displayed and exit. If this is *not* the desired result, consider using
-    /// `.arg_required_else_help()`
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::SubcommandRequiredElseHelp)
-    /// # ;
-    /// ```
-    SubcommandRequiredElseHelp,
-}
 
 /// Used to create a representation of a command line program and all possible command line
 /// arguments.
@@ -284,6 +106,56 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # .get_matches();
     /// ```
     pub fn new(n: &'ar str) -> Self {
+        App {
+            name: n.to_owned(),
+            name_slice: n,
+            author: None,
+            about: None,
+            more_help: None,
+            version: None,
+            flags: BTreeMap::new(),
+            opts: BTreeMap::new(),
+            positionals_idx: BTreeMap::new(),
+            positionals_name: HashMap::new(),
+            subcommands: BTreeMap::new(),
+            needs_long_version: true,
+            needs_long_help: true,
+            needs_subcmd_help: true,
+            help_short: None,
+            version_short: None,
+            required: vec![],
+            short_list: vec![],
+            long_list: vec![],
+            usage_str: None,
+            usage: None,
+            blacklist: vec![],
+            bin_name: None,
+            groups: HashMap::new(),
+            subcmds_neg_reqs: false,
+            global_args: vec![],
+            no_sc_error: false,
+            help_str: None,
+            wait_on_error: false,
+            help_on_no_args: false,
+            help_on_no_sc: false,
+            global_ver: false,
+            versionless_scs: None,
+            unified_help: false,
+            overrides: vec![]
+        }
+    }
+
+    /// Creates a new instace of `App` from a .yml (YAML) file.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let prog = App::from_yaml(include!("my_app.yml"));
+    /// ```
+    #[cfg(feature = "yaml")]
+    pub fn from_yaml(n: &'ar str) -> Self {
+
         App {
             name: n.to_owned(),
             name_slice: n,
