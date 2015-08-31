@@ -1,6 +1,11 @@
 use std::iter::IntoIterator;
 use std::collections::HashSet;
+#[cfg(feature = "yaml")]
+use std::collections::BTreeMap;
 use std::rc::Rc;
+
+#[cfg(feature = "yaml")]
+use yaml_rust::Yaml;
 
 use usageparser::{UsageParser, UsageToken};
 
@@ -141,6 +146,87 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             validator: None,
             overrides: None
         }
+    }
+
+    /// Creates a new instace of `App` from a .yml (YAML) file.
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// # use clap::App;
+    /// let yml = load_yaml!("app.yml");
+    /// let app = App::from_yaml(yml);
+    /// ```
+    #[cfg(feature = "yaml")]
+    pub fn from_yaml<'y>(y: &'y BTreeMap<Yaml, Yaml>) -> Arg<'y, 'y, 'y, 'y, 'y, 'y> {
+        debugln!("arg_yaml={:#?}", y);
+        // We WANT this to panic on error...so expect() is good.
+        let name_yml = y.keys().nth(0).unwrap();
+        let name_str = name_yml.as_str().unwrap();
+        let mut a = Arg::with_name(name_str);
+        let arg_settings = y.get(name_yml).unwrap().as_hash().unwrap();
+
+        for (k, v) in arg_settings.iter() {
+            a = match k.as_str().unwrap() {
+                "short"                   => a.short(v.as_str().unwrap()),
+                "long"                    => a.long(v.as_str().unwrap()),
+                "help"                    => a.help(v.as_str().unwrap()),
+                "required"                => a.required(v.as_bool().unwrap()),
+                "takes_value"             => a.takes_value(v.as_bool().unwrap()),
+                "index"                   => a.index(v.as_i64().unwrap() as u8),
+                "global"                  => a.global(v.as_bool().unwrap()),
+                "multiple"                => a.multiple(v.as_bool().unwrap()),
+                "empty_values"            => a.empty_values(v.as_bool().unwrap()),
+                "group"                   => a.group(v.as_str().unwrap()),
+                "number_of_values"        => a.number_of_values(v.as_i64().unwrap() as u8),
+                "max_values"              => a.max_values(v.as_i64().unwrap() as u8),
+                "min_values"              => a.min_values(v.as_i64().unwrap() as u8),
+                "value_name"              => a.value_name(v.as_str().unwrap()),
+                "value_names"             => {
+                    for ys in v.as_vec().unwrap() {
+                        if let Some(s) = ys.as_str() {
+                            a = a.value_name(s);
+                        }
+                    }
+                    a
+                },
+                "requires"                => {
+                    for ys in v.as_vec().unwrap() {
+                        if let Some(s) = ys.as_str() {
+                            a = a.requires(s);
+                        }
+                    }
+                    a
+                },
+                "conflicts_with"          => {
+                    for ys in v.as_vec().unwrap() {
+                        if let Some(s) = ys.as_str() {
+                            a = a.conflicts_with(s);
+                        }
+                    }
+                    a
+                },
+                "mutually_overrides_with" => {
+                    for ys in v.as_vec().unwrap() {
+                        if let Some(s) = ys.as_str() {
+                            a = a.mutually_overrides_with(s);
+                        }
+                    }
+                    a
+                },
+                "possible_values"         => {
+                    for ys in v.as_vec().unwrap() {
+                        if let Some(s) = ys.as_str() {
+                            a = a.possible_value(s);
+                        }
+                    }
+                    a
+                },
+                s => panic!("Unknown Arg setting '{}' in YAML file for arg '{}'", s, name_str)
+            }
+        }
+
+        a
     }
 
     /// Creates a new instace of `Arg` from a usage string. Allows creation of basic settings
@@ -671,6 +757,31 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             names.into_iter().map(|s| vec.push(s.as_ref())).collect::<Vec<_>>();
         } else {
             self.possible_vals = Some(names.into_iter().map(|s| s.as_ref()).collect::<Vec<_>>());
+        }
+        self
+    }
+
+    /// Specifies a possible value for this argument. At runtime, clap verifies that only
+    /// one of the specified values was used, or fails with a usage string.
+    ///
+    /// **NOTE:** This setting only applies to options and positional arguments
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let matches = App::new("myprog")
+    /// #                 .arg(
+    /// # Arg::with_name("debug").index(1)
+    /// .possible_value("fast")
+    /// .possible_value("slow")
+    /// # ).get_matches();
+    pub fn possible_value(mut self, name: &'p str) -> Self {
+        if let Some(ref mut vec) = self.possible_vals {
+            vec.push(name);
+        } else {
+            self.possible_vals = Some(vec![name]);
         }
         self
     }

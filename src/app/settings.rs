@@ -1,3 +1,6 @@
+use std::str::FromStr;
+use std::ascii::AsciiExt;
+
 /// Application level settings, which affect how `App` operates
 pub enum AppSettings {
     /// Allows subcommands to override all requirements of the parent (this command). For example
@@ -136,4 +139,21 @@ pub enum AppSettings {
     /// # ;
     /// ```
     SubcommandRequiredElseHelp,
+}
+
+impl FromStr for AppSettings {
+    type Err = String;
+    fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
+        match &*s.to_ascii_lowercase() {
+            "subcommandsnegatereqs"  => Ok(AppSettings::SubcommandsNegateReqs),
+            "subcommandsrequired"    => Ok(AppSettings::SubcommandRequired),
+            "argrequiredelsehelp"    => Ok(AppSettings::ArgRequiredElseHelp),
+            "globalversion"          => Ok(AppSettings::GlobalVersion),
+            "versionlesssubcommands" => Ok(AppSettings::VersionlessSubcommands),
+            "unifiedhelpmessage"     => Ok(AppSettings::UnifiedHelpMessage),
+            "waitonerror"            => Ok(AppSettings::WaitOnError),
+            "subcommandrequiredelsehelp" => Ok(AppSettings::SubcommandRequiredElseHelp),
+            _                        => Err("unknown AppSetting, cannot convert from str".to_owned())
+        }
+    }
 }

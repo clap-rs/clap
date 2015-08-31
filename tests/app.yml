@@ -1,0 +1,84 @@
+name: claptests
+version: 1.0
+about: tests clap library
+author: Kevin K. <kbknapp@gmail.com>
+args:
+    - opt:
+        short: o
+        long: option
+        multiple: true
+        help: tests options
+    - positional:
+        help: tests positionals
+        takes_value: true
+    - positional2:
+        help: tests positionals with exclusions
+        takes_value: true
+    - flag:
+        short: f
+        long: flag
+        multiple: true
+        help: tests flags
+        global: true
+    - flag2:
+        short: F
+        help: tests flags with exclusions
+        conflicts_with:
+            - flag
+        requires:
+            - option2
+    - option2:
+        long: long-option-2
+        help: tests long options with exclusions
+        conflicts_with: 
+            - option
+        requires: 
+            - positional2
+    - option3:
+        short: O
+        long: Option
+        help: tests options with specific value sets
+        takes_value: true
+        possible_values:
+            - fast
+            - slow
+    - positional3:
+        takes_value: true
+        help: tests positionals with specific values
+        possible_values: [ vi, emacs ]
+    - multvals:
+        long: multvals
+        help: Tests mutliple values, not mult occs
+        value_names:
+            - one
+            - two
+    - multvalsmo:
+        long: multvalsmo
+        multiple: true
+        help: Tests mutliple values, not mult occs
+        value_names: [one, two]
+    - minvals2:
+        long: minvals2
+        multiple: true
+        help: Tests 2 min vals
+        min_values: 2
+    - maxvals3:
+        long: maxvals3
+        multiple: true
+        help: Tests 3 max vals
+        max_values: 3
+subcommands:
+    - subcmd:
+        about: tests subcommands
+        version: 0.1
+        author: Kevin K. <kbknapp@gmail.com>
+        args:
+            - scoption:
+                short: o
+                long: option
+                multiple: true
+                help: tests options
+                takes_value: true
+            - scpositional:
+                help: tests positionals
+                takes_value: true

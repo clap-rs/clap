@@ -13,7 +13,11 @@
 extern crate strsim;
 #[cfg(feature = "color")]
 extern crate ansi_term;
+#[cfg(feature = "yaml")]
+extern crate yaml_rust;
 
+#[cfg(feature = "yaml")]
+pub use yaml_rust::YamlLoader;
 pub use args::{Arg, SubCommand, ArgMatches, ArgGroup};
 pub use app::{App, AppSettings};
 pub use fmt::Format;

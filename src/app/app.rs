@@ -3,6 +3,9 @@ use std::env;
 use std::io::{self, BufRead, Write};
 use std::path::Path;
 
+#[cfg(feature = "yaml")]
+use yaml_rust::Yaml;
+
 use args::{ArgMatches, Arg, SubCommand, MatchedArg};
 use args::{FlagBuilder, OptBuilder, PosBuilder};
 use args::ArgGroup;
@@ -149,50 +152,51 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// # Example
     ///
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// let prog = App::from_yaml(include!("my_app.yml"));
+    /// ```ignore
+    /// # use clap::App;
+    /// let yml = load_yaml!("app.yml");
+    /// let app = App::from_yaml(yml);
     /// ```
     #[cfg(feature = "yaml")]
-    pub fn from_yaml(n: &'ar str) -> Self {
-
-        App {
-            name: n.to_owned(),
-            name_slice: n,
-            author: None,
-            about: None,
-            more_help: None,
-            version: None,
-            flags: BTreeMap::new(),
-            opts: BTreeMap::new(),
-            positionals_idx: BTreeMap::new(),
-            positionals_name: HashMap::new(),
-            subcommands: BTreeMap::new(),
-            needs_long_version: true,
-            needs_long_help: true,
-            needs_subcmd_help: true,
-            help_short: None,
-            version_short: None,
-            required: vec![],
-            short_list: vec![],
-            long_list: vec![],
-            usage_str: None,
-            usage: None,
-            blacklist: vec![],
-            bin_name: None,
-            groups: HashMap::new(),
-            subcmds_neg_reqs: false,
-            global_args: vec![],
-            no_sc_error: false,
-            help_str: None,
-            wait_on_error: false,
-            help_on_no_args: false,
-            help_on_no_sc: false,
-            global_ver: false,
-            versionless_scs: None,
-            unified_help: false,
-            overrides: vec![]
+    pub fn from_yaml<'y>(doc: &'y Yaml) -> App<'y, 'y, 'y, 'y, 'y, 'y> {
+        // We WANT this to panic on error...so expect() is good.
+        let mut a = App::new(doc["name"].as_str().unwrap());
+        if let Some(v) = doc["version"].as_str() {
+            a = a.version(v);
         }
+        if let Some(v) = doc["author"].as_str() {
+            a = a.author(v);
+        }
+        if let Some(v) = doc["bin_name"].as_str() {
+            a = a.bin_name(v);
+        }
+        if let Some(v) = doc["about"].as_str() {
+            a = a.about(v);
+        }
+        if let Some(v) = doc["after_help"].as_str() {
+            a = a.after_help(v);
+        }
+        if let Some(v) = doc["usage"].as_str() {
+            a = a.usage(v);
+        }
+        if let Some(v) = doc["help"].as_str() {
+            a = a.help(v);
+        }
+        if let Some(v) = doc["help_short"].as_str() {
+            a = a.help_short(v);
+        }
+        if let Some(v) = doc["version_short"].as_str() {
+            a = a.version_short(v);
+        }
+        if let Some(v) = doc["settings"].as_vec() {
+            for ys in v {
+                if let Some(s) = ys.as_str() {
+                    a = a.setting(s.parse().ok().expect("unknown AppSetting found in YAML file"));
+                }
+            }
+        }
+
+        a
     }
 
     /// Sets a string of author(s) and will be displayed to the user when they request the help
