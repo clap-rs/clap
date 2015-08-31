@@ -1636,7 +1636,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         l
                     );
                     self.print_spaces(
-                            if !self.unified_help {
+                            if !self.unified_help || longest_opt == 0 {
                                 (longest_flag + 4)
                             } else {
                                 (longest_opt + 4)
