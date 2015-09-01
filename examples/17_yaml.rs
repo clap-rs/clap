@@ -36,7 +36,7 @@ fn main() {
     if let Some(mode) = m.value_of("mode") {
         match mode {
             "fast" => println!("We're really going now!"),
-            "slow" => println!("Awwww, too slow :(")
+            "slow" => println!("Awwww, too slow :("),
             _      => unreachable!()
         }
     } else {

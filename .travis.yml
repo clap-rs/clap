@@ -9,8 +9,8 @@ before_script:
     export PATH=$HOME/.local/bin:$PATH
 script:
   - |
-    travis-cargo build &&
-    travis-cargo test &&
+    cargo build --features yaml &&
+    cargo test --features yaml &&
     make -C clap-tests test &&
     travis-cargo --only stable doc
 after_success:
