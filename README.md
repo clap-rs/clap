@@ -8,12 +8,11 @@ It is a simple to use, efficient, and full featured library for parsing command 
 
 ## What's New
 
-If you're already familiar with `clap` but just want to see some new highlights as of **1.2.1**
+If you're already familiar with `clap` but just want to see some new highlights as of **1.3.0**
 
-* **Performance Improvements**
-* **POSIX Compatible Conflicts** are now supported! In POSIX args can be conflicting, but not fail parsing because whichever arg comes *last* "wins" to to speak. This allows things such as aliases (i.e. `alias ls='ls -l'` but then using `ls -C` in your terminal which ends up passing `ls -l -C` as the final arguments. Since `-l` and `-C` aren't compatible, this effectively runs `ls -C`). (Thanks to [Vinatorul](https://github.com/Vinatorul)!)
-* **Custom validations** are now supported! You can define a function to validate argument values, or fail parsing with a custom error message. Meaning your application logic can focus soley on *using* values.
-* **Improved ergonomics** - Some `App` methods have been deprecated (won't be removed until 2.x) to support a more ergonomic `.setting()` method which takes an `AppSettings` enum value. This makes it easier to find `App` settings (just view all variants of the enum). (Thanks to [Vinatorul](https://github.com/Vinatorul)!)
+* You can now **build a CLI from YAML** - This keeps your Rust source nice and tidy :) Full details can be found in [examples/17_yaml.rs](https://github.com/kbknapp/clap-rs/blob/master/examples/17_yaml.rs)
+* A very minor "breaking" change which should affect very, very few people. If you're using `ArgGroup::*_all`, they no longer take a `Vec<&str>`, but now takes a far more versatile `&[&str]`. If you were using code such as `.add_all(vec!["arg1", "arg2"])` you only need to change the `vec!`->`&` and it should work again. This also has the added benefit of not needlessly allocating the `Vec`!
+* Some other minor bug fixes and improvements
 
 For full details see the [changelog](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md)
 
@@ -67,12 +66,13 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 * **Global Arguments**: Arguments can optionally be defined once, and be available to all child subcommands.
 * **Custom Validations**: You can define a function to use as a validator of argument values. Imagine defining a function to validate IP addresses, or fail parsing upon error. This means your application logic can be soley focused on *using* values.
 * **POSIX Compatible Conflicts** - In POSIX args can be conflicting, but not fail parsing because whichever arg comes *last* "wins" to to speak. This allows things such as aliases (i.e. `alias ls='ls -l'` but then using `ls -C` in your terminal which ends up passing `ls -l -C` as the final arguments. Since `-l` and `-C` aren't compatible, this effectively runs `ls -C` in `clap` if you choose...`clap` also supports hard conflicts that fail parsing). (Thanks to [Vinatorul](https://github.com/Vinatorul)!)
+* **Support for building CLIs from YAML** - This keeps your Rust source nice and tidy!
 
 ## Quick Example
 
 The following two examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, groups, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/clap/index.html), or `examples/` directory of this repository.
 
- *NOTE:* Both examples are functionally the same, but show two different styles in which to use `clap`
+ *NOTE:* All these examples are functionally the same, but show three different styles in which to use `clap`
 
 ```rust
 // (Full example with detailed comments in examples/01a_QuickExample.rs)
@@ -198,7 +198,88 @@ fn main() {
 }
 ```
 
-If you were to compile either of the above programs and run them with the flag `--help` or `-h` (or `help` subcommand, since we defined `test` as a subcommand) the following would be output
+This final method shows how you can use a YAML file to build your CLI and keep your Rust source tidy. First, create the `cli.yml` file to hold your CLI options, but it could be called anything we like (we'll use the same both examples above to keep it functionally equivilant):
+
+```yaml
+name: myapp
+version: 1.0
+author: Kevin K. <kbknapp@gmail.com>
+about: Does awesome things
+args:
+    - CONFIG:
+        short: c
+        long: config
+        help: Sets a custom config file
+        takes_value: true
+    - INPUT:
+        help: Sets the input file to use
+        required: true
+        index: 1
+    - debug
+        short: d
+        multiple: true
+        help: Sets the level of debugging information
+subcommands:
+    - test:
+        about: controls testing features
+        version: 1.3
+        author: Someone E. <someone_else@other.com>
+        args:
+            - verbose
+                short: v
+                help: print test information verbosely
+```
+
+Now we create our `main.rs` file just like we would have with the previous two examples:
+
+```rust
+// (Full example with detailed comments in examples/17_yaml.rs)
+//
+// This example demonstrates clap's building from YAML style of creating arguments which is far
+// more clean, but takes a very small performance hit compared to the other two methods.
+#[macro_use]
+extern crate clap;
+use clap::App;
+
+fn main() {
+    // The YAML file is found relative to the current file, similar to how modules are found
+    let yaml = load_yaml!("cli.yml");
+    let matches = App::from_yaml(yaml).get_mathes();
+
+    // Calling .unwrap() is safe here because "INPUT" is required (if "INPUT" wasn't
+    // required we could have used an 'if let' to conditionally get the value)
+    println!("Using input file: {}", matches.value_of("INPUT").unwrap());
+
+    // Gets a value for config if supplied by user, or defaults to "default.conf"
+    let config = matches.value_of("CONFIG").unwrap_or("default.conf");
+    println!("Value for config: {}", config);
+
+    // Vary the output based on how many times the user used the "debug" flag
+    // (i.e. 'myapp -d -d -d' or 'myapp -ddd' vs 'myapp -d'
+    match matches.occurrences_of("debug") {
+        0 => println!("Debug mode is off"),
+        1 => println!("Debug mode is kind of on"),
+        2 => println!("Debug mode is on"),
+        3 | _ => println!("Don't be crazy"),
+    }
+
+    // You can information about subcommands by requesting their matches by name
+    // (as below), requesting just the name used, or both at the same time
+    if let Some(matches) = matches.subcommand_matches("test") {
+        if matches.is_present("verbose") {
+            println!("Printing verbosely...");
+        } else {
+            println!("Printing normally...");
+        }
+    }
+
+    // more program logic goes here...
+}
+```
+
+If you were to compile any of the above programs and run them with the flag `--help` or `-h` (or `help` subcommand, since we defined `test` as a subcommand) the following would be output
+
+**NOTE**: The YAML option requires adding a special `features` flag when compiling `clap` because it is not compiled by default since it takes additional dependencies that some people may not need. Simply change your `clap = "*"` to `clap = {version = "*", features = ["yaml"]}` in your `Cargo.toml` to use the YAML version.
 
 ```sh
 $ myapp --help
@@ -410,6 +491,10 @@ Although I do my best to keep breaking changes to a minimum, being that this a s
 
 Old method names will be left around for some time.
 
+* As of 1.3.0
+ - `ArgGroup::add_all` now takes `&[&str]` instead of a `Vec<&str>`
+ - `ArgGroup::requires_all` now takes `&[&str]` instead of a `Vec<&str>`
+ - `ArgGroup::conflicts_with_all` now takes `&[&str]` instead of a `Vec<&str>`
 * As of 1.2.0 (Will **not** be removed until 2.x)
  - `App::subcommands_negate_reqs(bool)` -> `AppSettings::SubcommandsNegateReqs` passed to `App::setting()`
  - `App::subcommand_required(bool)` -> `AppSettings::SubcommandRequired` passed to `App::setting()`
