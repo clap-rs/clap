@@ -218,6 +218,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 a = a.subcommand(SubCommand::from_yaml(&sc_yaml));
             }
         }
+        if let Some(v) = yaml["arg_groups"].as_vec() {
+            for ag_yaml in v {
+                a = a.arg_group(ArgGroup::from_yaml(&ag_yaml.as_hash().unwrap()));
+            }
+        }
 
         a
     }
