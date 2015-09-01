@@ -1,3 +1,29 @@
+<a name="v1.3.0"></a>
+## v1.3.0 (2015-09-01)
+
+
+#### Features
+
+* **YAML:**  allows building a CLI from YAML files ([86cf4c45](https://github.com/kbknapp/clap-rs/commit/86cf4c45626a36b8115446952f9069f73c1debc3))
+* **ArgGroups:**  adds support for building ArgGroups from yaml ([ecf88665](https://github.com/kbknapp/clap-rs/commit/ecf88665cbff367018b29161a1b75d44a212707d))
+* **Subcommands:**  adds support for subcommands from yaml ([e415cf78](https://github.com/kbknapp/clap-rs/commit/e415cf78ba916052d118a8648deba2b9c16b1530))
+
+#### Documentation
+
+* **YAML:**  adds examples for using YAML to build a CLI ([ab41d7f3](https://github.com/kbknapp/clap-rs/commit/ab41d7f38219544750e6e1426076dc498073191b))
+* **Args from YAML:**  fixes doc examples ([19b348a1](https://github.com/kbknapp/clap-rs/commit/19b348a10050404cd93888dbbbe4f396681b67d0))
+* **Examples:**  adds better usage examples instead of having unused variables ([8cbacd88](https://github.com/kbknapp/clap-rs/commit/8cbacd8883004fe71a8ea036ec4391c7dd8efe94))
+
+#### Examples
+
+*   Add AppSettings example ([12705079](https://github.com/kbknapp/clap-rs/commit/12705079ca96a709b4dd94f7ddd20a833b26838c))
+
+#### Bug Fixes
+
+* **Unified Help Messages:**  fixes a crash from this setting and no opts ([169ffec1](https://github.com/kbknapp/clap-rs/commit/169ffec1003d58d105d7ef2585b3425e57980000), closes [#210](https://github.com/kbknapp/clap-rs/issues/210))
+
+
+
 <a name="v1.2.5"></a>
 ### v1.2.5 (2015-08-27)
 
