@@ -148,7 +148,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
     }
 
-    /// Creates a new instace of `App` from a .yml (YAML) file.
+    /// Creates a new instace of `App` from a .yml (YAML) file. The YAML file must be properly
+    /// formatted or this function will panic!(). A full example of supported YAML objects can be
+    /// found in `examples/17_yaml.rs` and `examples/17_yaml.yml`.
+    ///
+    /// In order to use this function you must compile with the `features = ["yaml"]` in your
+    /// settings for `[dependencies.clap]` table of your `Cargo.toml`
+    ///
+    /// Note, due to how the YAML objects are built there is a convienience macro for loading the
+    /// YAML file (relative to the current file, like modules work). That YAML object can then be
+    /// passed to this function.
     ///
     /// # Example
     ///

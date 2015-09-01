@@ -2,7 +2,8 @@ name: claptests
 version: 1.0
 about: tests clap library
 author: Kevin K. <kbknapp@gmail.com>
-settings: ArgRequiredElseHelp
+settings: 
+    - ArgRequiredElseHelp
 args:
     - opt:
         short: o
