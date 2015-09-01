@@ -36,7 +36,7 @@ fn main() {
                       // Create a group, make it required, and add the above arguments
                       .arg_group(ArgGroup::with_name("vers")
                                           .required(true)
-                                          .add_all(vec!["vers", "major", "minor", "patch"]))
+                                          .add_all(&["vers", "major", "minor", "patch"]))
                       // Arguments can also be added to a group individually, these two arguments
                       // are part of the "input" group which is not required
                       .arg(Arg::from_usage("[INPUT_FILE] 'some regular input'").group("input"))
