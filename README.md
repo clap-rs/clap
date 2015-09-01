@@ -215,7 +215,7 @@ args:
         help: Sets the input file to use
         required: true
         index: 1
-    - debug
+    - debug:
         short: d
         multiple: true
         help: Sets the level of debugging information
@@ -225,7 +225,7 @@ subcommands:
         version: 1.3
         author: Someone E. <someone_else@other.com>
         args:
-            - verbose
+            - verbose:
                 short: v
                 help: print test information verbosely
 ```
