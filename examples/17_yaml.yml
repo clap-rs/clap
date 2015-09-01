@@ -41,6 +41,7 @@ args:
         help: shows an option with specific values
         # possible_values can also be defined in this list format
         possible_values: [ vi, emacs ]
+        takes_value: true
     - mvals:
         long: mult-vals
         help: demos an option which has two named values
