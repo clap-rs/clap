@@ -148,18 +148,17 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         }
     }
 
-    /// Creates a new instace of `App` from a .yml (YAML) file.
+    /// Creates a new instace of `Arg` from a .yml (YAML) file.
     ///
     /// # Example
     ///
     /// ```ignore
-    /// # use clap::App;
-    /// let yml = load_yaml!("app.yml");
-    /// let app = App::from_yaml(yml);
+    /// # use clap::Arg;
+    /// let yml = load_yaml!("arg.yml");
+    /// let arg = Arg::from_yaml(yml);
     /// ```
     #[cfg(feature = "yaml")]
     pub fn from_yaml<'y>(y: &'y BTreeMap<Yaml, Yaml>) -> Arg<'y, 'y, 'y, 'y, 'y, 'y> {
-        debugln!("arg_yaml={:#?}", y);
         // We WANT this to panic on error...so expect() is good.
         let name_yml = y.keys().nth(0).unwrap();
         let name_str = name_yml.as_str().unwrap();
