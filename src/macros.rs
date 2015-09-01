@@ -36,6 +36,14 @@ macro_rules! debug {
     ($fmt:expr, $($arg:tt)*) => ();
 }
 
+#[cfg(feature = "yaml")]
+#[macro_export]
+macro_rules! load_yaml {
+    ($yml:expr) => (
+        &::clap::YamlLoader::load_from_str(include_str!($yml)).ok().expect("failed to load YAML file")[0]
+    );
+}
+
 // convienience macro for remove an item from a vec
 macro_rules! vec_remove {
     ($vec:expr, $to_rem:ident) => {

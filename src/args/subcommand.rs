@@ -1,3 +1,6 @@
+#[cfg(feature = "yaml")]
+use yaml_rust::Yaml;
+
 use App;
 use ArgMatches;
 
@@ -41,5 +44,19 @@ impl<'n, 'a> SubCommand<'n, 'a> {
     /// ```
     pub fn with_name<'au, 'v, 'ab, 'u, 'h, 'ar>(name: &'ar str) -> App<'au, 'v, 'ab, 'u, 'h, 'ar> {
         App::new(name)
+    }
+
+    /// Creates a new instance of a subcommand from a YAML (.yml) document
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// # use clap::{App, Arg, SubCommand};
+    /// let sc_yaml = load_yaml!("test_subcommand.yml");
+    /// let sc = SubCommand::from_yaml(sc_yaml);
+    /// ```
+    #[cfg(feature = "yaml")]
+    pub fn from_yaml<'y>(yaml: &'y Yaml) -> App<'y, 'y, 'y, 'y, 'y, 'y> {
+        App::from_yaml(yaml)
     }
 }

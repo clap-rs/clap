@@ -3,195 +3,20 @@ use std::env;
 use std::io::{self, BufRead, Write};
 use std::path::Path;
 
+#[cfg(feature = "yaml")]
+use yaml_rust::Yaml;
+
 use args::{ArgMatches, Arg, SubCommand, MatchedArg};
 use args::{FlagBuilder, OptBuilder, PosBuilder};
 use args::ArgGroup;
 use fmt::Format;
+use super::settings::AppSettings;
 
-#[cfg(feature = "suggestions")]
-use strsim;
+use super::suggestions::{DidYouMeanMessageStyle, did_you_mean};
+
 
 const INTERNAL_ERROR_MSG: &'static str = "Internal Error: Failed to write string. Please \
                                           consider filing a bug report!";
-
-/// Produces a string from a given list of possible values which is similar to
-/// the passed in value `v` with a certain confidence.
-/// Thus in a list of possible values like ["foo", "bar"], the value "fop" will yield
-/// `Some("foo")`, whereas "blark" would yield `None`.
-#[cfg(feature = "suggestions")]
-#[cfg_attr(feature = "lints", allow(needless_lifetimes))]
-fn did_you_mean<'a, T, I>(v: &str, possible_values: I) -> Option<&'a str>
-                    where T: AsRef<str> + 'a,
-                          I: IntoIterator<Item=&'a T> {
-
-    let mut candidate: Option<(f64, &str)> = None;
-    for pv in possible_values.into_iter() {
-        let confidence = strsim::jaro_winkler(v, pv.as_ref());
-        if confidence > 0.8 && (candidate.is_none() ||
-                               (candidate.as_ref().unwrap().0 < confidence)) {
-            candidate = Some((confidence, pv.as_ref()));
-        }
-    }
-    match candidate {
-        None => None,
-        Some((_, candidate)) => Some(candidate),
-    }
-}
-
-#[cfg(not(feature = "suggestions"))]
-fn did_you_mean<'a, T, I>(_: &str, _: I) -> Option<&'a str>
-                    where T: AsRef<str> + 'a,
-                          I: IntoIterator<Item=&'a T> {
-    None
-}
-
-/// A helper to determine message formatting
-enum DidYouMeanMessageStyle {
-    /// Suggested value is a long flag
-    LongFlag,
-    /// Suggested value is one of various possible values
-    EnumValue,
-}
-
-/// Application level settings, which affect how `App` operates
-pub enum AppSettings {
-    /// Allows subcommands to override all requirements of the parent (this command). For example
-    /// if you had a subcommand or even top level application which had a required arguments that
-    /// are only required as long as there is no subcommand present.
-    ///
-    /// **NOTE:** This defaults to false (using subcommand does *not* negate requirements)
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use clap::{App, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::SubcommandsNegateReqs)
-    /// # ;
-    /// ```
-    SubcommandsNegateReqs,
-    /// Allows specifying that if no subcommand is present at runtime, error and exit gracefully
-    ///
-    /// **NOTE:** This defaults to false (subcommands do *not* need to be present)
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use clap::{App, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::SubcommandRequired)
-    /// # ;
-    /// ```
-    SubcommandRequired,
-    /// Specifies that the help text sould be displayed (and then exit gracefully), if no
-    /// arguments are present at runtime (i.e. an empty run such as, `$ myprog`.
-    ///
-    /// **NOTE:** Subcommands count as arguments
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use clap::{App, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::ArgRequiredElseHelp)
-    /// # ;
-    /// ```
-    ArgRequiredElseHelp,
-    /// Uses version of the current command for all subcommands. (Defaults to false; subcommands
-    /// have independant version strings)
-    ///
-    /// **NOTE:** The version for the current command and this setting must be set **prior** to
-    /// adding any subcommands
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, SubCommand, AppSettings};
-    /// App::new("myprog")
-    ///     .version("v1.1")
-    ///     .setting(AppSettings::GlobalVersion)
-    ///     .subcommand(SubCommand::with_name("test"))
-    ///     .get_matches();
-    /// // running `myprog test --version` will display
-    /// // "myprog-test v1.1"
-    /// ```
-    GlobalVersion,
-    /// Disables `-V` and `--version` for all subcommands (Defaults to false; subcommands have
-    /// version flags)
-    ///
-    /// **NOTE:** This setting must be set **prior** adding any subcommands
-    ///
-    /// **NOTE:** Do not set this value to false, it will have undesired results!
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, SubCommand, AppSettings};
-    /// App::new("myprog")
-    ///     .version("v1.1")
-    ///     .setting(AppSettings::VersionlessSubcommands)
-    ///     .subcommand(SubCommand::with_name("test"))
-    ///     .get_matches();
-    /// // running `myprog test --version` will display unknown argument error
-    /// ```
-    VersionlessSubcommands,
-    /// By default the auto-generated help message groups flags, options, and positional arguments
-    /// separately. This setting disable that and groups flags and options together presenting a
-    /// more unified help message (a la getopts or docopt style).
-    ///
-    /// **NOTE:** This setting is cosmetic only and does not affect any functionality.
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, SubCommand, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::UnifiedHelpMessage)
-    ///     .get_matches();
-    /// // running `myprog --help` will display a unified "docopt" or "getopts" style help message
-    /// ```
-    UnifiedHelpMessage,
-    /// Will display a message "Press [ENTER]/[RETURN] to continue..." and wait user before
-    /// exiting
-    ///
-    /// This is most useful when writing an application which is run from a GUI shortcut, or on
-    /// Windows where a user tries to open the binary by double-clicking instead of using the
-    /// command line (i.e. set `.arg_required_else_help(true)` and `.wait_on_error(true)` to
-    /// display the help in such a case).
-    ///
-    /// **NOTE:** This setting is **not** recursive with subcommands, meaning if you wish this
-    /// behavior for all subcommands, you must set this on each command (needing this is extremely
-    /// rare)
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::WaitOnError)
-    /// # ;
-    /// ```
-    WaitOnError,
-    /// Specifies that the help text sould be displayed (and then exit gracefully), if no
-    /// subcommands are present at runtime (i.e. an empty run such as, `$ myprog`.
-    ///
-    /// **NOTE:** This should *not* be used with `.subcommand_required()` as they do the same
-    /// thing, except one prints the help text, and one prints an error.
-    ///
-    /// **NOTE:** If the user specifies arguments at runtime, but no subcommand the help text will
-    /// still be displayed and exit. If this is *not* the desired result, consider using
-    /// `.arg_required_else_help()`
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::SubcommandRequiredElseHelp)
-    /// # ;
-    /// ```
-    SubcommandRequiredElseHelp,
-}
 
 /// Used to create a representation of a command line program and all possible command line
 /// arguments.
@@ -321,6 +146,94 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             unified_help: false,
             overrides: vec![]
         }
+    }
+
+    /// Creates a new instace of `App` from a .yml (YAML) file. The YAML file must be properly
+    /// formatted or this function will panic!(). A full example of supported YAML objects can be
+    /// found in `examples/17_yaml.rs` and `examples/17_yaml.yml`.
+    ///
+    /// In order to use this function you must compile with the `features = ["yaml"]` in your
+    /// settings for `[dependencies.clap]` table of your `Cargo.toml`
+    ///
+    /// Note, due to how the YAML objects are built there is a convienience macro for loading the
+    /// YAML file (relative to the current file, like modules work). That YAML object can then be
+    /// passed to this function.
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// # use clap::App;
+    /// let yml = load_yaml!("app.yml");
+    /// let app = App::from_yaml(yml);
+    /// ```
+    #[cfg(feature = "yaml")]
+    pub fn from_yaml<'y>(mut yaml: &'y Yaml) -> App<'y, 'y, 'y, 'y, 'y, 'y> {
+        // We WANT this to panic on error...so expect() is good.
+        let mut is_sc = None;
+        let mut a = if let Some(name) = yaml["name"].as_str() {
+            App::new(name)
+        } else {
+            let yaml_hash = yaml.as_hash().unwrap();
+            let sc_key = yaml_hash.keys().nth(0).unwrap();
+            is_sc = Some(yaml_hash.get(sc_key).unwrap());
+            App::new(sc_key.as_str().unwrap())
+        };
+        yaml = if let Some(sc) = is_sc {
+            sc
+        } else {
+            yaml
+        };
+        if let Some(v) = yaml["version"].as_str() {
+            a = a.version(v);
+        }
+        if let Some(v) = yaml["author"].as_str() {
+            a = a.author(v);
+        }
+        if let Some(v) = yaml["bin_name"].as_str() {
+            a = a.bin_name(v);
+        }
+        if let Some(v) = yaml["about"].as_str() {
+            a = a.about(v);
+        }
+        if let Some(v) = yaml["after_help"].as_str() {
+            a = a.after_help(v);
+        }
+        if let Some(v) = yaml["usage"].as_str() {
+            a = a.usage(v);
+        }
+        if let Some(v) = yaml["help"].as_str() {
+            a = a.help(v);
+        }
+        if let Some(v) = yaml["help_short"].as_str() {
+            a = a.help_short(v);
+        }
+        if let Some(v) = yaml["version_short"].as_str() {
+            a = a.version_short(v);
+        }
+        if let Some(v) = yaml["settings"].as_vec() {
+            for ys in v {
+                if let Some(s) = ys.as_str() {
+                    a = a.setting(s.parse().ok().expect("unknown AppSetting found in YAML file"));
+                }
+            }
+        }
+        if let Some(v) = yaml["args"].as_vec() {
+            for arg_yaml in v {
+                a = a.arg(Arg::from_yaml(&arg_yaml.as_hash().unwrap()));
+            }
+        }
+        if let Some(v) = yaml["subcommands"].as_vec() {
+            for sc_yaml in v {
+                a = a.subcommand(SubCommand::from_yaml(&sc_yaml));
+            }
+        }
+        if let Some(v) = yaml["arg_groups"].as_vec() {
+            for ag_yaml in v {
+                a = a.arg_group(ArgGroup::from_yaml(&ag_yaml.as_hash().unwrap()));
+            }
+        }
+
+        a
     }
 
     /// Sets a string of author(s) and will be displayed to the user when they request the help

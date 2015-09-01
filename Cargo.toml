@@ -19,6 +19,10 @@ optional = true
 version = "~0.6.3"
 optional = true
 
+[dependencies.yaml-rust]
+version = "~0.2.1"
+optional = true
+
 #[dependencies.clippy]
 #version = "~0.0.12"
 #optional = true
@@ -27,6 +31,7 @@ optional = true
 default=["suggestions", "color"]
 suggestions=["strsim"]
 color = ["ansi_term"]
+yaml = ["yaml-rust"]
 #lints = ["clippy", "nightly"]
 
 # for building with nightly and unstable features

@@ -1,5 +1,10 @@
+#[cfg(feature = "yaml")]
+use std::collections::BTreeMap;
 use std::collections::HashSet;
 use std::fmt::{Debug, Formatter, Result};
+
+#[cfg(feature = "yaml")]
+use yaml_rust::Yaml;
 
 /// `ArgGroup`s are a family of related arguments and way for you to say, "Any of these arguments".
 /// By placing arguments in a logical group, you can make easier requirement and exclusion rules
@@ -70,6 +75,57 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
             requires: None,
             conflicts: None
         }
+    }
+
+    /// Creates a new instace of `ArgGroup` from a .yml (YAML) file.
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// # use clap::ArgGroup;
+    /// let yml = load_yaml!("group.yml");
+    /// let ag = ArgGroup::from_yaml(yml);
+    /// ```
+    #[cfg(feature = "yaml")]
+    pub fn from_yaml<'y>(y: &'y BTreeMap<Yaml, Yaml>) -> ArgGroup<'y, 'y> {
+        // We WANT this to panic on error...so expect() is good.
+        let name_yml = y.keys().nth(0).unwrap();
+        let name_str = name_yml.as_str().unwrap();
+        let mut a = ArgGroup::with_name(name_str);
+        let group_settings = y.get(name_yml).unwrap().as_hash().unwrap();
+
+        for (k, v) in group_settings.iter() {
+            a = match k.as_str().unwrap() {
+                "required" => a.required(v.as_bool().unwrap()),
+                "args"     => {
+                    for ys in v.as_vec().unwrap() {
+                        if let Some(s) = ys.as_str() {
+                            a = a.add(s);
+                        }
+                    }
+                    a
+                },
+                "requires" => {
+                    for ys in v.as_vec().unwrap() {
+                        if let Some(s) = ys.as_str() {
+                            a = a.requires(s);
+                        }
+                    }
+                    a
+                },
+                "conflicts_with" => {
+                    for ys in v.as_vec().unwrap() {
+                        if let Some(s) = ys.as_str() {
+                            a = a.conflicts_with(s);
+                        }
+                    }
+                    a
+                },
+                s => panic!("Unknown ArgGroup setting '{}' in YAML file for ArgGroup '{}'", s, name_str)
+            }
+        }
+
+        a
     }
 
     /// Adds an argument to this group by name
