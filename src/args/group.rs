@@ -39,7 +39,7 @@ use yaml_rust::Yaml;
 ///                   --minor         'auto increase minor'
 ///                   --patch         'auto increase patch")
 /// .arg_group(ArgGroup::with_name("vers")
-///                     .add_all(vec!["ver", "major", "minor","patch"])
+///                     .add_all(&["ver", "major", "minor","patch"])
 ///                     .required(true))
 /// # .get_matches();
 pub struct ArgGroup<'n, 'ar> {
@@ -145,7 +145,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
         self
     }
 
-    /// Adds multiple arguments to this group by name using a Vec
+    /// Adds multiple arguments to this group by name
     ///
     ///
     /// # Example
@@ -155,9 +155,9 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # let matches = App::new("myprog")
     /// #                 .arg_group(
     /// # ArgGroup::with_name("conifg")
-    /// .add_all(vec!["config", "input", "output"])
+    /// .add_all(&["config", "input", "output"])
     /// # ).get_matches();
-    pub fn add_all(mut self, ns: Vec<&'ar str>) -> Self {
+    pub fn add_all(mut self, ns: &[&'ar str]) -> Self {
         for n in ns {
             self = self.add(n);
         }
@@ -225,9 +225,9 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # let matches = App::new("myprog")
     /// #                 .arg_group(
     /// # ArgGroup::with_name("conifg")
-    /// .requires_all(vec!["config", "input"])
+    /// .requires_all(&["config", "input"])
     /// # ).get_matches();
-    pub fn requires_all(mut self, ns: Vec<&'ar str>) -> Self {
+    pub fn requires_all(mut self, ns: &[&'ar str]) -> Self {
         for n in ns {
             self = self.requires(n);
         }
@@ -275,9 +275,9 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # let matches = App::new("myprog")
     /// #                 .arg_group(
     /// # ArgGroup::with_name("conifg")
-    /// .conflicts_with_all(vec!["config", "input"])
+    /// .conflicts_with_all(&["config", "input"])
     /// # ).get_matches();
-    pub fn conflicts_with_all(mut self, ns: Vec<&'ar str>) -> Self {
+    pub fn conflicts_with_all(mut self, ns: &[&'ar str]) -> Self {
         for n in ns {
             self = self.conflicts_with(n);
         }
