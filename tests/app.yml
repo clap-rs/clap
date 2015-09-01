@@ -2,6 +2,7 @@ name: claptests
 version: 1.0
 about: tests clap library
 author: Kevin K. <kbknapp@gmail.com>
+settings: ArgRequiredElseHelp
 args:
     - opt:
         short: o
@@ -10,10 +11,10 @@ args:
         help: tests options
     - positional:
         help: tests positionals
-        takes_value: true
+        index: 1
     - positional2:
         help: tests positionals with exclusions
-        takes_value: true
+        index: 2
     - flag:
         short: f
         long: flag
@@ -43,7 +44,7 @@ args:
             - fast
             - slow
     - positional3:
-        takes_value: true
+        index: 3
         help: tests positionals with specific values
         possible_values: [ vi, emacs ]
     - multvals:
@@ -81,4 +82,4 @@ subcommands:
                 takes_value: true
             - scpositional:
                 help: tests positionals
-                takes_value: true
+                index: 1
