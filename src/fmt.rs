@@ -48,3 +48,19 @@ impl<T: fmt::Display> fmt::Display for Format<T> {
         write!(f, "{}", &self.format())
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::Format;
+    use ansi_term::Colour::{Red, Green, Yellow};
+
+    #[test]
+    fn colored_output() {
+        let err = Format::Error("error");
+        assert_eq!(&*format!("{}", err), &*format!("{}", Red.bold().paint("error")));
+        let good = Format::Good("good");
+        assert_eq!(&*format!("{}", good), &*format!("{}", Green.paint("good")));
+        let warn = Format::Warning("warn");
+        assert_eq!(&*format!("{}", warn), &*format!("{}", Yellow.paint("warn")));
+    }
+}

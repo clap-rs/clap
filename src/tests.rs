@@ -1,5 +1,6 @@
-use super::{App, Arg, SubCommand};
 use std::collections::HashSet;
+
+use super::{App, Arg, SubCommand};
 use std::vec::Vec;
 
 arg_enum!{
@@ -907,3 +908,5 @@ fn create_multiple_subcommands() {
                 .arg(Arg::with_name("other").long("other"))
                 .get_matches();
 }
+
+
