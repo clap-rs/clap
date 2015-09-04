@@ -1,7 +1,7 @@
 use std::iter::IntoIterator;
-use std::collections::HashSet;
 #[cfg(feature = "yaml")]
 use std::collections::BTreeMap;
+use std::collections::BTreeSet;
 use std::rc::Rc;
 
 #[cfg(feature = "yaml")]
@@ -86,7 +86,7 @@ pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     #[doc(hidden)]
     pub group: Option<&'g str>,
     #[doc(hidden)]
-    pub val_names: Option<Vec<&'n str>>,
+    pub val_names: Option<BTreeSet<&'n str>>,
     #[doc(hidden)]
     pub num_vals: Option<u8>,
     #[doc(hidden)]
@@ -294,7 +294,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
          let mut num_names = 1;
          let mut name_first = false;
          let mut consec_names = false;
-         let mut val_names = HashSet::new();
+         let mut val_names = BTreeSet::new();
 
         let parser = UsageParser::with_usage(u);
         for_match!{ parser,
@@ -377,7 +377,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             blacklist: None,
             requires: None,
             num_vals: if num_names > 1 { Some(num_names) } else { None },
-            val_names: if val_names.len() > 1 {Some(val_names.iter().map(|s| *s).collect::<Vec<_>>())}else{None},
+            val_names: if val_names.len() > 1 {Some(val_names)}else{None},
             max_vals: None,
             min_vals: None,
             group: None,
@@ -945,9 +945,9 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
                                  where T: AsRef<str> + 'n,
                                        I: IntoIterator<Item=&'n T> {
         if let Some(ref mut vec) = self.val_names {
-            names.into_iter().map(|s| vec.push(s.as_ref())).collect::<Vec<_>>();
+            names.into_iter().map(|s| vec.insert(s.as_ref())).collect::<Vec<_>>();
         } else {
-            self.val_names = Some(names.into_iter().map(|s| s.as_ref()).collect::<Vec<_>>());
+            self.val_names = Some(names.into_iter().map(|s| s.as_ref()).collect::<BTreeSet<_>>());
         }
         self
     }
@@ -968,9 +968,11 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     pub fn value_name(mut self, name: &'n str)
                       -> Self {
         if let Some(ref mut vec) = self.val_names {
-            vec.push(name);
+            vec.insert(name);
         } else {
-            self.val_names = Some(vec![name]);
+            let mut bts = BTreeSet::new();
+            bts.insert(name);
+            self.val_names = Some(bts);
         }
         self
     }

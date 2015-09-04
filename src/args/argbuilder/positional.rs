@@ -1,4 +1,3 @@
-use std::collections::BTreeSet;
 use std::fmt::{ Display, Formatter, Result };
 use std::result::Result as StdResult;
 use std::rc::Rc;
@@ -21,7 +20,7 @@ pub struct PosBuilder<'n> {
     /// A list of names for other arguments that *may not* be used with this flag
     pub blacklist: Option<Vec<&'n str>>,
     /// A list of possible values for this argument
-    pub possible_vals: Option<BTreeSet<&'n str>>,
+    pub possible_vals: Option<Vec<&'n str>>,
     /// The index of the argument
     pub index: u8,
     pub num_vals: Option<u8>,
@@ -46,5 +45,52 @@ impl<'n> Display for PosBuilder<'n> {
         }
 
         Ok(())
+    }
+}
+#[cfg(test)]
+mod test {
+    use super::PosBuilder;
+
+    #[test]
+    fn posbuilder_display() {
+        let p = PosBuilder {
+            name: "pos",
+            help: None,
+            multiple: true,
+            blacklist: None,
+            required: false,
+            possible_vals: None,
+            requires: None,
+            num_vals: None,
+            min_vals: None,
+            max_vals: None,
+            index: 1,
+            empty_vals: true,
+            global: false,
+            validator: None,
+            overrides: None
+        };
+
+        assert_eq!(&*format!("{}", p), "[pos]...");
+
+        let p2 = PosBuilder {
+            name: "pos",
+            help: None,
+            multiple: false,
+            blacklist: None,
+            required: true,
+            possible_vals: None,
+            requires: None,
+            num_vals: None,
+            min_vals: None,
+            max_vals: None,
+            index: 1,
+            empty_vals: true,
+            global: false,
+            validator: None,
+            overrides: None
+        };
+
+        assert_eq!(&*format!("{}", p2), "<pos>");
     }
 }
