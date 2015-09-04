@@ -69,6 +69,15 @@ args:
         multiple: true
         help: Tests 3 max vals
         max_values: 3
+groups:
+    - test:
+        args: 
+            - maxvals3
+            - minmals2
+        conflicts_with:
+            - option3
+        requires:
+            - multvals
 subcommands:
     - subcmd:
         about: tests subcommands

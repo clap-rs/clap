@@ -296,3 +296,48 @@ impl<'n, 'ar> Debug for ArgGroup<'n, 'ar> {
 }}", self.name, self.args, self.required, self.requires, self.conflicts)
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::ArgGroup;
+    use std::collections::HashSet;
+
+    #[test]
+    fn groups() {
+        let g = ArgGroup::with_name("test")
+            .add("a1")
+            .add_all(&["a2", "a3"])
+            .add("a4")
+            .required(true)
+            .conflicts_with("c1")
+            .conflicts_with_all(&["c2", "c3"])
+            .conflicts_with("c4")
+            .requires("r1")
+            .requires_all(&["r2", "r3"])
+            .requires("r4");
+
+        let mut args = HashSet::new();
+        args.insert("a1");
+        args.insert("a2");
+        args.insert("a3");
+        args.insert("a4");
+
+        let mut reqs = HashSet::new();
+        reqs.insert("r1");
+        reqs.insert("r2");
+        reqs.insert("r3");
+        reqs.insert("r4");
+
+        let mut confs = HashSet::new();
+        confs.insert("c1");
+        confs.insert("c2");
+        confs.insert("c3");
+        confs.insert("c4");
+
+
+        assert_eq!(g.args, args);
+        assert_eq!(g.requires.unwrap(), reqs);
+        assert_eq!(g.conflicts.unwrap(), confs);
+
+    }
+}
