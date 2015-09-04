@@ -22,14 +22,14 @@ pub struct OptBuilder<'n> {
     /// exclusive arguments are evaluated.
     pub required: bool,
     /// A list of possible values for this argument
-    pub possible_vals: Option<BTreeSet<&'n str>>,
+    pub possible_vals: Option<Vec<&'n str>>,
     /// A list of names of other arguments that are *required* to be used when
     /// this flag is used
     pub requires: Option<Vec<&'n str>>,
     pub num_vals: Option<u8>,
     pub min_vals: Option<u8>,
     pub max_vals: Option<u8>,
-    pub val_names: Option<Vec<&'n str>>,
+    pub val_names: Option<BTreeSet<&'n str>>,
     pub empty_vals: bool,
     pub global: bool,
     pub validator: Option<Rc<Fn(String) -> StdResult<(), String>>>,
@@ -62,5 +62,62 @@ impl<'n> Display for OptBuilder<'n> {
         }
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::OptBuilder;
+    use std::collections::BTreeSet;
+
+    #[test]
+    fn optbuilder_display() {
+        let o = OptBuilder {
+            name: "opt",
+            short: None,
+            long: Some("option"),
+            help: None,
+            multiple: true,
+            blacklist: None,
+            required: false,
+            possible_vals: None,
+            requires: None,
+            num_vals: None,
+            min_vals: None,
+            max_vals: None,
+            val_names: None,
+            empty_vals: true,
+            global: false,
+            validator: None,
+            overrides: None
+        };
+
+        assert_eq!(&*format!("{}", o), "--option <opt>...");
+
+        let mut v_names = BTreeSet::new();
+        v_names.insert("file");
+        v_names.insert("name");
+
+        let o2 = OptBuilder {
+            name: "opt",
+            short: Some('o'),
+            long: None,
+            help: None,
+            multiple: false,
+            blacklist: None,
+            required: false,
+            possible_vals: None,
+            requires: None,
+            num_vals: None,
+            min_vals: None,
+            max_vals: None,
+            val_names: Some(v_names),
+            empty_vals: true,
+            global: false,
+            validator: None,
+            overrides: None
+        };
+
+        assert_eq!(&*format!("{}", o2), "-o <file> <name>");
     }
 }

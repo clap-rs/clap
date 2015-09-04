@@ -1,4 +1,3 @@
-use std::collections::BTreeSet;
 use std::fmt::{ Display, Formatter, Result };
 use std::result::Result as StdResult;
 use std::rc::Rc;
@@ -21,7 +20,7 @@ pub struct PosBuilder<'n> {
     /// A list of names for other arguments that *may not* be used with this flag
     pub blacklist: Option<Vec<&'n str>>,
     /// A list of possible values for this argument
-    pub possible_vals: Option<BTreeSet<&'n str>>,
+    pub possible_vals: Option<Vec<&'n str>>,
     /// The index of the argument
     pub index: u8,
     pub num_vals: Option<u8>,
