@@ -1,7 +1,10 @@
-use args::ArgMatches;
-
-pub enum ArgNames<'ar, 'a> {
-    Matches(&'ar ArgMatches<'ar, 'ar>),
-    Opt(&'a str),
+pub enum ClapErrorType {
+    Matches,
+    Opt,
     None
+}
+
+pub struct ClapError {
+	pub error: String,
+	pub error_type: ClapErrorType,
 }
