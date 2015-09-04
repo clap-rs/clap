@@ -47,3 +47,50 @@ impl<'n> Display for PosBuilder<'n> {
         Ok(())
     }
 }
+#[cfg(test)]
+mod test {
+    use super::PosBuilder;
+
+    #[test]
+    fn posbuilder_display() {
+        let p = PosBuilder {
+            name: "pos",
+            help: None,
+            multiple: true,
+            blacklist: None,
+            required: false,
+            possible_vals: None,
+            requires: None,
+            num_vals: None,
+            min_vals: None,
+            max_vals: None,
+            index: 1,
+            empty_vals: true,
+            global: false,
+            validator: None,
+            overrides: None
+        };
+
+        assert_eq!(&*format!("{}", p), "[pos]...");
+
+        let p2 = PosBuilder {
+            name: "pos",
+            help: None,
+            multiple: false,
+            blacklist: None,
+            required: true,
+            possible_vals: None,
+            requires: None,
+            num_vals: None,
+            min_vals: None,
+            max_vals: None,
+            index: 1,
+            empty_vals: true,
+            global: false,
+            validator: None,
+            overrides: None
+        };
+
+        assert_eq!(&*format!("{}", p2), "<pos>");
+    }
+}
