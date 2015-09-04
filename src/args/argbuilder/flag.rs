@@ -38,3 +38,38 @@ impl<'n> Display for FlagBuilder<'n> {
         }
     }
 }
+#[cfg(test)]
+mod test {
+    use super::FlagBuilder;
+
+    #[test]
+    fn flagbuilder_display() {
+        let f = FlagBuilder {
+            name: "flg",
+            short: None,
+            long: Some("flag"),
+            help: None,
+            multiple: true,
+            blacklist: None,
+            requires: None,
+            global: false,
+            overrides: None
+        };
+
+        assert_eq!(&*format!("{}", f), "--flag");
+
+        let f2 = FlagBuilder {
+            name: "flg",
+            short: Some('f'),
+            long: None,
+            help: None,
+            multiple: false,
+            blacklist: None,
+            requires: None,
+            global: false,
+            overrides: None
+        };
+
+        assert_eq!(&*format!("{}", f2), "-f");
+    }
+}

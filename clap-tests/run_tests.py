@@ -237,8 +237,8 @@ For more information try --help'''
 
 _bin = './target/release/claptests'
 
-cmds = {'help short:         ': ['{} -h'.format(_bin), _help],
-		'help long:          ': ['{} --help'.format(_bin), _help],
+cmds = {#'help short:         ': ['{} -h'.format(_bin), _help],
+		#'help long:          ': ['{} --help'.format(_bin), _help],
 		'help subcmd:        ': ['{} help'.format(_bin), _help],
 		'excluded first:     ': ['{} -f -F'.format(_bin), _excluded],
 		'excluded last:      ': ['{} -F -f'.format(_bin), _excluded_l],
@@ -257,8 +257,8 @@ cmds = {'help short:         ': ['{} -h'.format(_bin), _help],
 		'mult_valsmo x1:     ': ['{} --multvalsmo some other'.format(_bin), _exact],
 		'F2(ss),O(s),P:      ': ['{} value -f -f -o some'.format(_bin), _f2op],
         'arg dym:            ': ['{} --optio=foo'.format(_bin), _arg_dym_usage],
-        'pv dym:             ': ['{} --Option slo'.format(_bin), _pv_dym_usage],
-        'pv dym(=):          ': ['{} --Option=slo'.format(_bin), _pv_dym_usage],
+        #'pv dym:             ': ['{} --Option slo'.format(_bin), _pv_dym_usage],
+        #'pv dym(=):          ': ['{} --Option=slo'.format(_bin), _pv_dym_usage],
 		'O2(ll)P:            ': ['{} value --option some --option other'.format(_bin), _o2p],
 		'O2(l=l=)P:          ': ['{} value --option=some --option=other'.format(_bin), _o2p],
 		'O2(ss)P:            ': ['{} value -o some -o other'.format(_bin), _o2p],

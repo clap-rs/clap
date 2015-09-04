@@ -1,3 +1,18 @@
+<a name="v1.3.1"></a>
+### v1.3.1 (2015-09-04)
+
+
+#### Examples
+
+* **17_yaml:**  fixed example ([9b848622](https://github.com/kbknapp/clap-rs/commit/9b848622296c8c5c7b9a39b93ddd41f51df790b5))
+
+#### Performance
+
+*   changes ArgGroup HashSets to Vec ([3cb4a48e](https://github.com/kbknapp/clap-rs/commit/3cb4a48ebd15c20692f4f3a2a924284dc7fd5e10))
+*   changes BTreeSet for Vec in some instances ([baab2e3f](https://github.com/kbknapp/clap-rs/commit/baab2e3f4060e811abee14b1654cbcd5cf3b5fea))
+
+
+
 <a name="v1.3.0"></a>
 ## v1.3.0 (2015-09-01)
 

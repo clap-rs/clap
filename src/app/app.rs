@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet, HashMap, VecDeque};
+use std::collections::{BTreeMap, HashMap, VecDeque};
 use std::env;
 use std::io::{self, BufRead, Write};
 use std::path::Path;
@@ -714,7 +714,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
         if let Some(grp) = a.group {
             let ag = self.groups.entry(grp).or_insert(ArgGroup::with_name(grp));
-            ag.args.insert(a.name);
+            ag.args.push(a.name);
         }
         if let Some(s) = a.short {
             if self.short_list.contains(&s) {
@@ -825,9 +825,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
             // Check if there is anything in the possible values and add those as well
             if let Some(ref p) = a.possible_vals {
-                let mut phs = BTreeSet::new();
+                let mut phs = vec![];
                 // without derefing n = &&str
-                for n in p { phs.insert(*n); }
+                for n in p { phs.push(*n); }
                 pb.possible_vals = Some(phs);
             }
             if let Some(ref p) = a.validator {
@@ -904,9 +904,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
             // Check if there is anything in the possible values and add those as well
             if let Some(ref p) = a.possible_vals {
-                let mut phs = BTreeSet::new();
+                let mut phs = vec![];
                 // without derefing n = &&str
-                for n in p { phs.insert(*n); }
+                for n in p { phs.push(*n); }
                 ob.possible_vals = Some(phs);
             }
             self.opts.insert(a.name, ob);
@@ -1095,7 +1095,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut found = false;
         if let Some(ref mut grp) = self.groups.get_mut(group.name) {
             for a in &group.args {
-                grp.args.insert(a);
+                grp.args.push(a);
             }
             grp.requires = group.requires.clone();
             grp.conflicts = group.conflicts.clone();
@@ -1856,19 +1856,25 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     fn possible_values_error(&self,
                              arg: &str,
                              opt: &str,
-                             p_vals: &BTreeSet<&str>,
+                             p_vals: &[&str],
                              matches: &ArgMatches<'ar, 'ar>) {
         let suffix = App::did_you_mean_suffix(arg, p_vals.iter(),
                                               DidYouMeanMessageStyle::EnumValue);
 
+        let mut sorted = vec![];
+        for v in p_vals {
+            sorted.push(v.clone());
+        }
+        sorted.sort();
+        let valid_values = sorted.iter()
+                                 .fold(String::new(), |acc, name| {
+                                     acc + &format!(" {}",name)[..]
+                                 });
+
         self.report_error(format!("'{}' isn't a valid value for '{}'{}{}",
                                     Format::Warning(arg),
                                     Format::Warning(opt),
-                                    format!("\n\t[valid values:{}]\n",
-                                        p_vals.iter()
-                                              .fold(String::new(), |acc, name| {
-                                                  acc + &format!(" {}",name)[..]
-                                              })),
+                                    format!("\n\t[valid values:{}]\n", valid_values),
                                     suffix.0),
                                         true,
                                         errors::ArgNames::Matches(&matches));
@@ -1911,7 +1917,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     if let Some(ref opt) = self.opts.get(nvo) {
                         // Check the possible values
                         if let Some(ref p_vals) = opt.possible_vals {
-                            if !p_vals.contains(arg_slice) {
+                            if !p_vals.contains(&arg_slice) {
                                 self.possible_values_error(arg_slice, &opt.to_string(),
                                                                       p_vals, matches);
                             }
@@ -2092,7 +2098,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
 
                     if let Some(ref p_vals) = p.possible_vals {
-                        if !p_vals.contains(arg_slice) {
+                        if !p_vals.contains(&arg_slice) {
                             self.possible_values_error(arg_slice, &p.to_string(),
                                                                    p_vals, matches);
                         }
@@ -2687,7 +2693,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     fn validate_value(&self, v: &OptBuilder, av: &str, matches: &ArgMatches) {
         if let Some(ref p_vals) = v.possible_vals {
-            if !p_vals.contains(av) {
+            if !p_vals.contains(&av) {
                 self.possible_values_error(av, &v.to_string(), p_vals, matches);
             }
         }

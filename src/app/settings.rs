@@ -2,6 +2,7 @@ use std::str::FromStr;
 use std::ascii::AsciiExt;
 
 /// Application level settings, which affect how `App` operates
+#[derive(PartialEq, Debug)]
 pub enum AppSettings {
     /// Allows subcommands to override all requirements of the parent (this command). For example
     /// if you had a subcommand or even top level application which had a required arguments that

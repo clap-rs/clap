@@ -39,3 +39,16 @@ pub enum DidYouMeanMessageStyle {
     /// Suggested value is one of various possible values
     EnumValue,
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn did_you_mean_possible_values() {
+        let p_vals = ["test", "possible", "values"];
+        assert_eq!(did_you_mean("tst", p_vals.iter()), Some("test"));
+        assert!(did_you_mean("hahaahahah", p_vals.iter()).is_none());
+
+    }
+}
