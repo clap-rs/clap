@@ -1,6 +1,5 @@
 #[cfg(feature = "yaml")]
 use std::collections::BTreeMap;
-use std::collections::HashSet;
 use std::fmt::{Debug, Formatter, Result};
 
 #[cfg(feature = "yaml")]
@@ -46,13 +45,13 @@ pub struct ArgGroup<'n, 'ar> {
     #[doc(hidden)]
     pub name: &'n str,
     #[doc(hidden)]
-    pub args: HashSet<&'ar str>,
+    pub args: Vec<&'ar str>,
     #[doc(hidden)]
     pub required: bool,
     #[doc(hidden)]
-    pub requires: Option<HashSet<&'ar str>>,
+    pub requires: Option<Vec<&'ar str>>,
     #[doc(hidden)]
-    pub conflicts: Option<HashSet<&'ar str>>
+    pub conflicts: Option<Vec<&'ar str>>
 }
 
 impl<'n, 'ar> ArgGroup<'n, 'ar> {
@@ -71,7 +70,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
         ArgGroup {
             name: n,
             required: false,
-            args: HashSet::new(),
+            args: vec![],
             requires: None,
             conflicts: None
         }
@@ -141,7 +140,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// .add("config")
     /// # ).get_matches();
     pub fn add(mut self, n: &'ar str) -> Self {
-        self.args.insert(n);
+        self.args.push(n);
         self
     }
 
@@ -202,11 +201,9 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # ).get_matches();
     pub fn requires(mut self, n: &'ar str) -> Self {
         if let Some(ref mut reqs) = self.requires {
-            reqs.insert(n);
+            reqs.push(n);
         } else {
-            let mut hs = HashSet::new();
-            hs.insert(n);
-            self.requires = Some(hs);
+            self.requires = Some(vec![n]);
         }
         self
     }
@@ -252,11 +249,9 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # ).get_matches();
     pub fn conflicts_with(mut self, n: &'ar str) -> Self {
         if let Some(ref mut confs) = self.conflicts {
-            confs.insert(n);
+            confs.push(n);
         } else {
-            let mut hs = HashSet::new();
-            hs.insert(n);
-            self.conflicts = Some(hs);
+            self.conflicts = Some(vec![n]);
         }
         self
     }
@@ -300,7 +295,6 @@ impl<'n, 'ar> Debug for ArgGroup<'n, 'ar> {
 #[cfg(test)]
 mod test {
     use super::ArgGroup;
-    use std::collections::HashSet;
 
     #[test]
     fn groups() {
@@ -316,24 +310,9 @@ mod test {
             .requires_all(&["r2", "r3"])
             .requires("r4");
 
-        let mut args = HashSet::new();
-        args.insert("a1");
-        args.insert("a2");
-        args.insert("a3");
-        args.insert("a4");
-
-        let mut reqs = HashSet::new();
-        reqs.insert("r1");
-        reqs.insert("r2");
-        reqs.insert("r3");
-        reqs.insert("r4");
-
-        let mut confs = HashSet::new();
-        confs.insert("c1");
-        confs.insert("c2");
-        confs.insert("c3");
-        confs.insert("c4");
-
+        let args  = vec!["a1", "a2", "a3", "a4"];
+        let reqs  = vec!["r1", "r2", "r3", "r4"];
+        let confs = vec!["c1", "c2", "c3", "c4"];
 
         assert_eq!(g.args, args);
         assert_eq!(g.requires.unwrap(), reqs);

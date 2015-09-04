@@ -713,7 +713,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
         if let Some(grp) = a.group {
             let ag = self.groups.entry(grp).or_insert(ArgGroup::with_name(grp));
-            ag.args.insert(a.name);
+            ag.args.push(a.name);
         }
         if let Some(s) = a.short {
             if self.short_list.contains(&s) {
@@ -1094,7 +1094,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut found = false;
         if let Some(ref mut grp) = self.groups.get_mut(group.name) {
             for a in &group.args {
-                grp.args.insert(a);
+                grp.args.push(a);
             }
             grp.requires = group.requires.clone();
             grp.conflicts = group.conflicts.clone();
