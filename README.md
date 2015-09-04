@@ -396,8 +396,8 @@ The following is a list of optional `clap` features:
 
 The following graphic depicts `clap`s dependency graph.
 
- * **Solid** Line: Optional dep
- * **Dashed** Line: Development only dep
+ * **Dashed** Line: Optional dependency
+ * **Red** Color: **NOT** included by default (must use cargo `features` to enable)
 
 ![clap dependencies](clap.png)
 
