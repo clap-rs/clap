@@ -19,7 +19,7 @@ extern crate yaml_rust;
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;
 pub use args::{Arg, SubCommand, ArgMatches, ArgGroup};
-pub use app::{App, AppSettings};
+pub use app::{App, AppSettings, ClapError, ClapErrorType};
 pub use fmt::Format;
 
 #[macro_use]
