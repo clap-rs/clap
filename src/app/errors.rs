@@ -11,12 +11,11 @@ pub enum ClapErrorType {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let result = App::new("myprog")
-    /// #                 .arg(
-    /// # Arg::with_name("debug").index(1)
-    /// .possible_value("fast")
-    /// .possible_value("slow")
-    /// # ).get_matches_from_safe(vec!["", "other"]);
+    /// let result = App::new("myprog")
+    ///     .arg(Arg::with_name("debug").index(1)
+    ///         .possible_value("fast")
+    ///         .possible_value("slow"))
+    ///     .get_matches_from_safe(vec!["", "other"]);
     /// ```
     InvalidValue,
     /// Error occurs when clap found unexpected flag or option
@@ -26,10 +25,9 @@ pub enum ClapErrorType {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let result = App::new("myprog")
-    /// #                 .arg(
-    /// # Arg::from_usage("-f, --flag 'some flag'")
-    /// # ).get_matches_from_safe(vec!["", "--other"]);
+    /// let result = App::new("myprog")
+    ///     .arg(Arg::from_usage("-f, --flag 'some flag'"))
+    ///     .get_matches_from_safe(vec!["", "--other"]);
     /// ```
     InvalidArgument,
     /// Error occurs when clap found unexpected subcommand
@@ -39,14 +37,13 @@ pub enum ClapErrorType {
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
-    /// # let result = App::new("myprog")
-    /// #                    .subcommand(
-    /// SubCommand::with_name("conifg")
-    ///                .about("Used for configuration")
-    ///                .arg(Arg::with_name("config_file")
-    ///                           .help("The configuration file to use")
-    ///                           .index(1))
-    /// # ).get_matches_from_safe(vec!["", "other"]);
+    /// let result = App::new("myprog")
+    ///     .subcommand(SubCommand::with_name("conifg")
+    ///         .about("Used for configuration")
+    ///         .arg(Arg::with_name("config_file")
+    ///             .help("The configuration file to use")
+    ///             .index(1)))
+    ///     .get_matches_from_safe(vec!["", "other"]);
     /// ```
     InvalidSubcommand,
     /// Error occurs when option does not allow empty values but some was found
@@ -56,13 +53,11 @@ pub enum ClapErrorType {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let result = App::new("myprog")
-    /// #                 .arg(
-    /// # Arg::with_name("debug")
-    /// .empty_values(false))
-    /// #                 .arg(
-    /// # Arg::with_name("color")
-    /// # ).get_matches_from_safe(vec!["", "--debug", "--color"]);
+    /// let result = App::new("myprog")
+    ///     .arg(Arg::with_name("debug")
+    ///          .empty_values(false))
+    ///     .arg(Arg::with_name("color"))
+    ///     .get_matches_from_safe(vec!["", "--debug", "--color"]);
     /// ```
     EmptyValue,
     /// Parser inner error
@@ -78,11 +73,10 @@ pub enum ClapErrorType {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let result = App::new("myprog")
-    /// #                 .arg(
-    /// # Arg::with_name("debug").index(1)
-    /// .max_values(2)
-    /// # ).get_matches_from_safe(vec!["", "too", "much", "values"]);
+    /// let result = App::new("myprog")
+    ///     .arg(Arg::with_name("debug").index(1)
+    ///         .max_values(2))
+    ///     .get_matches_from_safe(vec!["", "too", "much", "values"]);
     /// ```
     TooMuchValues,
     /// Error occurs when argument got less values then were expected
@@ -92,11 +86,10 @@ pub enum ClapErrorType {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let result = App::new("myprog")
-    /// #                 .arg(
-    /// # Arg::with_name("debug").index(1)
-    /// .min_values(3)
-    /// # ).get_matches_from_safe(vec!["", "too", "few"]);
+    /// let result = App::new("myprog")
+    ///     .arg(Arg::with_name("debug").index(1)
+    ///         .min_values(3))
+    ///     .get_matches_from_safe(vec!["", "too", "few"]);
     /// ```
     TooFewValues,
     /// Error occurs when clap find two ore more conflicting arguments
@@ -106,11 +99,10 @@ pub enum ClapErrorType {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let result = App::new("myprog")
-    /// #                 .arg(
-    /// # Arg::with_name("debug")
-    /// .conflicts_with("color")
-    /// # ).get_matches_from_safe(vec!["", "--debug", "--color"]);
+    /// let result = App::new("myprog")
+    ///     .arg(Arg::with_name("debug")
+    ///         .conflicts_with("color"))
+    ///     .get_matches_from_safe(vec!["", "--debug", "--color"]);
     /// ```
     ArgumentConflict,
     /// Error occurs when one or more required arguments missing
@@ -120,11 +112,10 @@ pub enum ClapErrorType {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let result = App::new("myprog")
-    /// #                 .arg(
-    /// # Arg::with_name("debug")
-    /// .required(true)
-    /// # ).get_matches_from_safe(vec![""]);
+    /// let result = App::new("myprog")
+    ///     .arg(Arg::with_name("debug")
+    ///         .required(true))
+    ///     .get_matches_from_safe(vec![""]);
     /// ```
     MissingRequiredArgument,
     /// Error occurs when required subcommand missing
@@ -134,15 +125,14 @@ pub enum ClapErrorType {
     ///
     /// ```no_run
     /// # use clap::{App, Arg, AppSettings, SubCommand};
-    /// # let result = App::new("myprog")
-    /// #                    .setting(AppSettings::SubcommandRequired)
-    /// #                    .subcommand(
-    /// SubCommand::with_name("conifg")
-    ///                .about("Used for configuration")
-    ///                .arg(Arg::with_name("config_file")
-    ///                           .help("The configuration file to use")
-    ///                           .index(1))
-    /// # ).get_matches_from_safe(vec![""]);
+    /// let result = App::new("myprog")
+    ///     .setting(AppSettings::SubcommandRequired)
+    ///     .subcommand(SubCommand::with_name("conifg")
+    ///         .about("Used for configuration")
+    ///         .arg(Arg::with_name("config_file")
+    ///             .help("The configuration file to use")
+    ///             .index(1)))
+    ///     .get_matches_from_safe(vec![""]);
     /// ```
     MissingSubcommand,
     /// Error occurs when clap find argument while is was not expecting any
@@ -152,7 +142,8 @@ pub enum ClapErrorType {
     ///
     /// ```no_run
     /// # use clap::{App};
-    /// # let result = App::new("myprog").get_matches_from_safe(vec!["", "--arg"]);
+    /// let result = App::new("myprog")
+    ///     .get_matches_from_safe(vec!["", "--arg"]);
     /// ```
     UnexpectedArgument,
     /// Error occurs when argument was used multiple times and was not set as multiple.
@@ -162,11 +153,10 @@ pub enum ClapErrorType {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let result = App::new("myprog")
-    /// #                 .arg(
-    /// # Arg::with_name("debug")
-    /// .multiple(false)
-    /// # ).get_matches_from_safe(vec!["", "--debug", "--debug"]);
+    /// let result = App::new("myprog")
+    ///     .arg(Arg::with_name("debug")
+    ///         .multiple(false))
+    ///     .get_matches_from_safe(vec!["", "--debug", "--debug"]);
     /// ```
     UnexpectedMultipleUsage
 }
