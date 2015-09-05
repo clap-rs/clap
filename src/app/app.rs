@@ -13,6 +13,7 @@ use fmt::Format;
 use super::settings::AppSettings;
 
 use super::suggestions::{DidYouMeanMessageStyle, did_you_mean};
+use super::errors::{ClapErrorType, ClapError};
 
 
 const INTERNAL_ERROR_MSG: &'static str = "Internal Error: Failed to write string. Please \
@@ -1712,14 +1713,23 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     // Reports and error to stderr along with an optional usage statement and optionally quits
-    fn report_error(&self, msg: String, quit: bool, matches: Option<Vec<&str>>) {
-        wlnerr!("{} {}\n\n{}\n\nFor more information try {}",
-            Format::Error(&format!("error:")[..]),
-            msg,
-            self.create_usage(matches),
-            Format::Good("--help")
-        );
-       if quit { self.exit(1); }
+    fn report_error(&self,
+                    msg: String,
+                    error_type: ClapErrorType,
+                    usage_vec: Option<Vec<&'a str>>) -> ClapError {
+        ClapError {
+            error: format!("{} {}\n\n{}\n\nFor more information try {}",
+                            Format::Error(&format!("error:")[..]),
+                            msg,
+                            self.create_usage(usage_vec),
+                            Format::Good("--help")
+                        ),
+            error_type: error_type
+        }
+    }
+
+    fn get_args(matches: &ArgMatches<'ar, 'ar>) -> Option<Vec<&'ar str>> {
+        Some(matches.args.keys().map(|k| *k).collect())
     }
 
     /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
@@ -1789,7 +1799,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
 
         // do the real parsing
-        self.get_matches_with(&mut matches, &mut it);
+        if let Err(e) = self.get_matches_with(&mut matches, &mut it) {
+            wlnerr!("{}", e.error);
+            self.exit(1);
+        }
 
         matches
     }
@@ -1851,7 +1864,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                              arg: &str,
                              opt: &str,
                              p_vals: &[&str],
-                             matches: &ArgMatches<'ar, 'ar>) {
+                             matches: &ArgMatches<'ar, 'ar>) -> ClapError {
         let suffix = App::did_you_mean_suffix(arg, p_vals.iter(),
                                               DidYouMeanMessageStyle::EnumValue);
 
@@ -1865,17 +1878,17 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                      acc + &format!(" {}",name)[..]
                                  });
 
-        self.report_error(format!("'{}' isn't a valid value for '{}'{}{}",
+        return self.report_error(format!("'{}' isn't a valid value for '{}'{}{}",
                                     Format::Warning(arg),
                                     Format::Warning(opt),
                                     format!("\n\t[valid values:{}]\n", valid_values),
                                     suffix.0),
-                                        true,
-                                        Some(matches.args.keys().map(|k| *k).collect()));
+                                        ClapErrorType::Matches,
+                                        App::get_args(matches));
     }
 
     // The actual parsing function
-    fn get_matches_with<I, T>(&mut self, matches: &mut ArgMatches<'ar, 'ar>, it: &mut I)
+    fn get_matches_with<I, T>(&mut self, matches: &mut ArgMatches<'ar, 'ar>, it: &mut I) -> Result<(), ClapError>
                         where I: Iterator<Item=T>,
                               T: AsRef<str> {
 
@@ -1921,15 +1934,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             if let Some(ref ma) = matches.args.get(opt.name) {
                                 if let Some(ref vals) = ma.values {
                                     if num == vals.len() as u8 && !opt.multiple {
-                                        self.report_error(format!("The argument '{}' was found, \
+                                        return Err(self.report_error(format!("The argument '{}' was found, \
                                             but '{}' only expects {} values",
                                                 Format::Warning(arg.as_ref()),
                                                 Format::Warning(opt.to_string()),
                                                 Format::Good(vals.len().to_string())),
-                                            true,
-                                            Some(
-                                                matches.args.keys().map(|k| *k).collect()
-                                            )
+                                            ClapErrorType::Matches,
+                                            App::get_args(matches))
                                         );
                                     }
                                 }
@@ -1940,11 +1951,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if !opt.empty_vals &&
                             matches.args.contains_key(opt.name) &&
                             arg_slice.is_empty() {
-                            self.report_error(format!("The argument '{}' does not allow empty \
+                            return Err(self.report_error(format!("The argument '{}' does not allow empty \
                                     values, but one was found.", Format::Warning(opt.to_string())),
-                                true,
-                                Some(matches.args.keys()
-                                                 .map(|k| *k).collect()));
+                                ClapErrorType::Matches,
+                                App::get_args(matches)));
                         }
 
                         // save the value to matched option
@@ -1961,9 +1971,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             if let Some(ref mut vals) = o.values {
                                 if let Some(ref vtor) = opt.validator {
                                     if let Err(e) = vtor(arg_slice.to_owned()) {
-                                        self.report_error(e,
-                                            true,
-                                            Some(vec![opt.name]));
+                                        return Err(self.report_error(e,
+                                            ClapErrorType::Opt,
+                                            Some(vec![opt.name])));
                                     }
                                 }
 
@@ -2014,11 +2024,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 // We've reached more values for an option than it possibly accepts
                 if let Some(ref o) = self.opts.get(name) {
                     if !o.multiple {
-                        self.report_error(
+                        return Err(self.report_error(
                             format!("The argument '{}' requires a value but none was supplied",
                                 Format::Warning(o.to_string())),
-                            true,
-                            Some(matches.args.keys().map(|k| *k).collect() ) );
+                            ClapErrorType::Matches,
+                            App::get_args(matches)));
                     }
                 }
             }
@@ -2033,10 +2043,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 }
 
                 // This arg is either an option or flag using a long (i.e. '--something')
-                needs_val_of = self.parse_long_arg(matches, arg_slice);
+                match self.parse_long_arg(matches, arg_slice) {
+                    Ok(r) => needs_val_of = r,
+                    Err(e) => return Err(e)
+                }
             } else if arg_slice.starts_with("-") && arg_slice.len() != 1 && ! pos_only {
                 // Multiple or single flag(s), or single option (could be '-SbG' or '-o')
-                needs_val_of = self.parse_short_arg(matches, arg_slice);
+                match self.parse_short_arg(matches, arg_slice) {
+                    Ok(r) => needs_val_of = r,
+                    Err(e) => return Err(e)
+                }
             } else {
                 // Positional or Subcommand
                 //
@@ -2051,7 +2067,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         break;
                     } else if let Some(candidate_subcommand) = did_you_mean(arg_slice,
                                                                      self.subcommands.keys()) {
-                        self.report_error(
+                        return Err(self.report_error(
                             format!("The subcommand '{}' isn't valid\n\tDid you mean '{}' ?\n\n\
                             If you received this message in error, try \
                             re-running with '{} {} {}'",
@@ -2060,20 +2076,20 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 self.bin_name.clone().unwrap_or(self.name.clone()),
                                 Format::Good("--"),
                                 arg_slice),
-                            true,
-                            None);
+                            ClapErrorType::None,
+                            None));
                     }
                 }
 
                 // Did the developer even define any valid positionals? Since we reached this far,
                 // it's not a subcommand
                 if self.positionals_idx.is_empty() {
-                    self.report_error(
+                    return Err(self.report_error(
                         format!("Found argument '{}', but {} wasn't expecting any",
                             Format::Warning(arg.as_ref()),
                             self.bin_name.clone().unwrap_or(self.name.clone())),
-                        true,
-                        Some(matches.args.keys().map(|k| *k).collect()));
+                        ClapErrorType::Matches,
+                        App::get_args(matches)));
                 } else if let Some(p) = self.positionals_idx.get(&pos_counter) {
                     // Make sure this one doesn't conflict with anything
                     self.blacklist.dedup();
@@ -2082,15 +2098,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         // anyways
                         // matches.args.remove(p.name);
 
-                        self.report_error(format!("The argument '{}' cannot be used with {}",
+                        return Err(self.report_error(format!("The argument '{}' cannot be used with {}",
                             Format::Warning(p.to_string()),
                             match self.blacklisted_from(p.name, &matches) {
                                 Some(name) => format!("'{}'", Format::Warning(name)),
                                 None       => "one or more of the other specified \
                                                arguments".to_owned()
                             }),
-                            true,
-                            Some(matches.args.keys().map(|k| *k).collect()));
+                            ClapErrorType::Matches,
+                            App::get_args(matches)));
                     }
 
 
@@ -2108,24 +2124,22 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             if let Some(ref ma) = matches.args.get(p.name) {
                                 if let Some(ref vals) = ma.values {
                                     if vals.len() as u8 == num {
-                                        self.report_error(format!("The argument '{}' was found, \
+                                        return Err(self.report_error(format!("The argument '{}' was found, \
                                             but '{}' wasn't expecting any more values",
                                                 Format::Warning(arg.as_ref()),
                                                 Format::Warning(p.to_string())),
-                                            true,
-                                            Some(matches.args.keys()
-                                                             .map(|k| *k).collect()));
+                                            ClapErrorType::Matches,
+                                            App::get_args(matches)));
                                     }
                                 }
                             }
                         }
                         if !p.empty_vals && matches.args.contains_key(p.name)
                             && arg_slice.is_empty()  {
-                            self.report_error(format!("The argument '{}' does not allow empty \
+                            return Err(self.report_error(format!("The argument '{}' does not allow empty \
                                     values, but one was found.", Format::Warning(p.to_string())),
-                                true,
-                                Some(matches.args.keys()
-                                                 .map(|k| *k).collect()));
+                                ClapErrorType::Matches,
+                                App::get_args(matches)));
                         }
                         // Check if it's already existing and update if so...
                         if let Some(ref mut pos) = matches.args.get_mut(p.name) {
@@ -2159,18 +2173,17 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         }
                         let mut bm = BTreeMap::new();
                         if !p.empty_vals && arg_slice.is_empty() {
-                            self.report_error(format!("The argument '{}' does not allow empty \
+                            return Err(self.report_error(format!("The argument '{}' does not allow empty \
                                 values, but one was found.", Format::Warning(p.to_string())),
-                                true,
-                                Some(matches.args.keys()
-                                                 .map(|k| *k).collect()));
+                                ClapErrorType::Matches,
+                                App::get_args(matches)));
                         }
                         if let Some(ref vtor) = p.validator {
                             let f = &*vtor;
                             if let Err(ref e) = f(arg_slice.to_owned()) {
-                                self.report_error(e.clone(),
-                                    true,
-                                    Some(matches.args.keys().map(|k| *k).collect()));
+                                return Err(self.report_error(e.clone(),
+                                    ClapErrorType::Matches,
+                                    App::get_args(matches)));
                             }
                         }
                         bm.insert(1, arg_slice.to_owned());
@@ -2200,11 +2213,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
 
                 } else {
-                    self.report_error(format!("The argument '{}' was found, but '{}' wasn't \
+                    return Err(self.report_error(format!("The argument '{}' was found, but '{}' wasn't \
                         expecting any", Format::Warning(arg.as_ref()),
                             self.bin_name.clone().unwrap_or(self.name.clone())),
-                        true,
-                        Some(matches.args.keys().map(|k| *k).collect()));
+                        ClapErrorType::Matches,
+                        App::get_args(matches)));
                 }
             }
         }
@@ -2216,22 +2229,22 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         None        => true,
                     };
                     if should_err {
-                        self.report_error(
+                        return Err(self.report_error(
                             format!("The argument '{}' requires a value but there wasn't any \
                             supplied", Format::Warning(o.to_string())),
-                            true,
-                            Some(matches.args.keys().map(|k| *k).collect() ) );
+                                ClapErrorType::Matches,
+                                App::get_args(matches)));
                     }
                 }
                 else if !o.multiple {
-                    self.report_error(
+                    return Err(self.report_error(
                         format!("The argument '{}' requires a value but none was supplied",
                             Format::Warning(o.to_string())),
-                        true,
-                        Some(matches.args.keys().map(|k| *k).collect() ) );
+                        ClapErrorType::Matches,
+                        App::get_args(matches)));
                 }
                 else {
-                    self.report_error(format!("The following required arguments were not \
+                    return Err(self.report_error(format!("The following required arguments were not \
                         supplied:{}",
                         self.get_required_from(self.required.iter()
                                                             .map(|s| *s)
@@ -2239,21 +2252,28 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             .iter()
                             .fold(String::new(), |acc, s| acc + &format!("\n\t'{}'",
                                 Format::Error(s))[..])),
-                        true,
-                        Some(matches.args.keys().map(|k| *k).collect()));
+                        ClapErrorType::Matches,
+                        App::get_args(matches)));
                 }
             } else {
-                self.report_error(
+                return Err(self.report_error(
                     format!("The argument '{}' requires a value but none was supplied",
                         Format::Warning(format!("{}", self.positionals_idx.get(
                             self.positionals_name.get(a).unwrap()).unwrap()))),
-                        true,
-                        Some(matches.args.keys().map(|k| *k).collect()));
+                        ClapErrorType::Matches,
+                        App::get_args(matches)));
             }
         }
 
-        self.validate_blacklist(matches);
-        self.validate_num_args(matches);
+        let res = self.validate_blacklist(matches);
+        if res.is_err() {
+            return res;
+        }
+
+        let res = self.validate_num_args(matches);
+        if res.is_err() {
+            return res;
+        }
 
         matches.usage = Some(self.create_usage(None));
 
@@ -2290,7 +2310,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         ""
                     },
                     sc.name.clone()));
-                sc.get_matches_with(&mut new_matches, it);
+                if let Err(e) = sc.get_matches_with(&mut new_matches, it) {
+                    wlnerr!("{}", e.error);
+                    sc.exit(1);
+                }
                 matches.subcommand = Some(Box::new(SubCommand {
                     name: sc.name_slice,
                     matches: new_matches
@@ -2298,16 +2321,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
         } else if self.no_sc_error {
             let bn = self.bin_name.clone().unwrap_or(self.name.clone());
-            self.report_error(format!("'{}' requires a subcommand but none was provided",
+            return Err(self.report_error(format!("'{}' requires a subcommand but none was provided",
                     Format::Warning(&bn[..])),
-                true,
-                Some(matches.args.keys().map(|k| *k).collect()));
+                ClapErrorType::Matches,
+                App::get_args(matches)));
         } else if self.help_on_no_sc {
             self.print_help();
             self.exit(1);
         }
         if ((!self.subcmds_neg_reqs) || matches.subcommand_name().is_none()) && self.validate_required(&matches) {
-            self.report_error(format!("The following required arguments were not \
+            return Err(self.report_error(format!("The following required arguments were not \
                 supplied:{}",
                 self.get_required_from(self.required.iter()
                                                     .map(|s| *s)
@@ -2315,13 +2338,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     .iter()
                     .fold(String::new(), |acc, s| acc + &format!("\n\t'{}'",
                         Format::Error(s))[..])),
-                true,
-                Some(matches.args.keys().map(|k| *k).collect()));
+                ClapErrorType::Matches,
+                App::get_args(matches)));
         }
         if matches.args.is_empty() && matches.subcommand_name().is_none() && self.help_on_no_args {
             self.print_help();
             self.exit(1);
         }
+        Ok(())
     }
 
     fn blacklisted_from(&self, name: &str, matches: &ArgMatches) -> Option<String> {
@@ -2439,7 +2463,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     fn parse_long_arg<'av>(&mut self, matches: &mut ArgMatches<'ar, 'ar> ,full_arg: &'av str)
-                      -> Option<&'ar str> {
+                      -> Result<Option<&'ar str>, ClapError> {
         let mut arg = full_arg.trim_left_matches(|c| c == '-');
 
         if arg == "help" && self.needs_long_help {
@@ -2462,10 +2486,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         occurrences: 1,
                         values: None
                     });
-                    self.report_error(format!("The argument '{}' requires a value, but none was \
+                    return Err(self.report_error(format!("The argument '{}' requires a value, but none was \
                             supplied", Format::Warning(format!("--{}", arg))),
-                        true,
-                        Some(matches.args.keys().map(|k| *k).collect()));
+                        ClapErrorType::Matches,
+                        App::get_args(matches)));
                 }
                 arg_val = Some(arg_vec[1]);
             }
@@ -2477,10 +2501,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             // Ensure this option isn't on the master mutually excludes list
             if self.blacklist.contains(&v.name) {
                 matches.args.remove(v.name);
-                self.report_error(format!("The argument '{}' cannot be used with one or more of \
+                return Err(self.report_error(format!("The argument '{}' cannot be used with one or more of \
                     the other specified arguments", Format::Warning(format!("--{}", arg))),
-                    true,
-                    Some(matches.args.keys().map(|k| *k).collect()));
+                        ClapErrorType::Matches,
+                        App::get_args(matches)));
             }
             self.overrides.dedup();
             debugln!("checking if {} is in overrides", v.name);
@@ -2503,11 +2527,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
             if matches.args.contains_key(v.name) {
                 if !v.multiple {
-                    self.report_error(format!("The argument '{}' was supplied more than once, but \
+                    return Err(self.report_error(format!("The argument '{}' was supplied more than once, but \
                             does not support multiple values",
                             Format::Warning(format!("--{}", arg))),
-                        true,
-                        Some(matches.args.keys().map(|k| *k).collect()));
+                        ClapErrorType::Matches,
+                        App::get_args(matches)));
                 }
                 if let Some(av) = arg_val {
                     if let Some(ref mut o) = matches.args.get_mut(v.name) {
@@ -2519,7 +2543,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                     // The validation must come AFTER inserting into 'matches' or the usage string
                     // can't be built
-                    self.validate_value(v, av, matches);
+                    if let Err(e) = self.validate_value(v, av, matches) {
+                        return Err(e);
+                    }
                 }
             } else {
                 let mut bm = BTreeMap::new();
@@ -2531,7 +2557,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     });
                     // The validation must come AFTER inserting into 'matches' or the usage string
                     // can't be built
-                    self.validate_value(v, val, matches);
+                    if let Err(e) = self.validate_value(v, val, matches) {
+                        return Err(e);
+                    }
                 } else {
                     matches.args.insert(v.name, MatchedArg{
                         occurrences: 0,
@@ -2559,8 +2587,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             parse_group_reqs!(self, v);
 
             match arg_val {
-                None => { return Some(v.name); },
-                _    => { return None; }
+                None => { return Ok(Some(v.name)); },
+                _    => { return Ok(None); }
             }
         }
 
@@ -2571,14 +2599,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             self.blacklist.dedup();
             if self.blacklist.contains(&v.name) {
                 matches.args.remove(v.name);
-                self.report_error(format!("The argument '{}' cannot be used with {}",
+                return Err(self.report_error(format!("The argument '{}' cannot be used with {}",
                         Format::Warning(v.to_string()),
                         match self.blacklisted_from(v.name, matches) {
                             Some(name) => format!("'{}'", Format::Warning(name)),
                             None       => "one or more of the specified arguments".to_owned()
                         }),
-                    true,
-                    Some(matches.args.keys().map(|k| *k).collect()));
+                    ClapErrorType::Matches,
+                    App::get_args(matches)));
             }
             self.overrides.dedup();
             debugln!("checking if {} is in overrides", v.name);
@@ -2601,10 +2629,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
             // Make sure this isn't one being added multiple times if it doesn't suppor it
             if matches.args.contains_key(v.name) && !v.multiple {
-                self.report_error(format!("The argument '{}' was supplied more than once, but does \
+                return Err(self.report_error(format!("The argument '{}' was supplied more than once, but does \
                         not support multiple values", Format::Warning(v.to_string())),
-                    true,
-                    Some(matches.args.keys().map(|k| *k).collect()));
+                    ClapErrorType::Matches,
+                    App::get_args(matches)));
             }
 
             let mut
@@ -2646,7 +2674,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
             parse_group_reqs!(self, v);
 
-            return None;
+            return Ok(None);
         }
 
         let suffix = App::did_you_mean_suffix(arg,
@@ -2682,52 +2710,55 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
         }
 
-        self.report_error(format!("The argument '{}' isn't valid{}",
+        Err(self.report_error(format!("The argument '{}' isn't valid{}",
                 Format::Warning(format!("--{}", arg)),
                 suffix.0),
-            true,
-            Some(matches.args.keys().map(|k| *k).collect()));
-
-        unreachable!();
+            ClapErrorType::Matches,
+            App::get_args(matches)))
     }
 
-    fn validate_value(&self, v: &OptBuilder, av: &str, matches: &ArgMatches) {
+    fn validate_value(&self, v: &OptBuilder, av: &str, matches: &ArgMatches) -> Result<(), ClapError> {
         if let Some(ref p_vals) = v.possible_vals {
             if !p_vals.contains(&av) {
                 self.possible_values_error(av, &v.to_string(), p_vals, matches);
             }
         }
         if !v.empty_vals && av.is_empty() && matches.args.contains_key(v.name) {
-            self.report_error(format!("The argument '{}' does not allow empty \
+            return Err(self.report_error(format!("The argument '{}' does not allow empty \
                     values, but one was found.", Format::Warning(v.to_string())),
-                true,
-                Some(matches.args.keys()
-                                 .map(|k| *k).collect()));
+                ClapErrorType::Matches,
+                App::get_args(matches)));
         }
         if let Some(ref vtor) = v.validator {
             if let Err(e) = vtor(av.to_owned()) {
-                self.report_error(e,
-                    true,
-                    Some(matches.args.keys().map(|k| *k).collect()));
+                return Err(self.report_error(e,
+                    ClapErrorType::Matches,
+                    App::get_args(matches)));
             }
         }
+        Ok(())
     }
 
     fn parse_short_arg(&mut self, matches: &mut ArgMatches<'ar, 'ar> ,full_arg: &str)
-                       -> Option<&'ar str> {
+                       -> Result<Option<&'ar str>, ClapError> {
         let arg = &full_arg[..].trim_left_matches(|c| c == '-');
         if arg.len() > 1 {
             // Multiple flags using short i.e. -bgHlS
             for c in arg.chars() {
                 self.check_for_help_and_version(c);
-                if !self.parse_single_short_flag(matches, c) {
-                    self.report_error(format!("The argument '{}' isn't valid",
-                            Format::Warning(format!("-{}", c))),
-                        true,
-                        Some(matches.args.keys().map(|k| *k).collect()));
+                match self.parse_single_short_flag(matches, c) {
+                    Ok(b) => {
+                        if !b {
+                            return Err(self.report_error(format!("The argument '{}' isn't valid",
+                                    Format::Warning(format!("-{}", c))),
+                                ClapErrorType::Matches,
+                                App::get_args(matches))); 
+                        }
+                    },
+                    Err(e) => return Err(e)                    
                 }
             }
-            return None;
+            return Ok(None);
         }
         // Short flag or opt
         let arg_c = arg.chars().nth(0).unwrap();
@@ -2736,7 +2767,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self.check_for_help_and_version(arg_c);
 
         // Check for a matching flag, and return none if found
-        if self.parse_single_short_flag(matches, arg_c) { return None; }
+        match self.parse_single_short_flag(matches, arg_c) {
+            Ok(b) => {
+                if b {
+                    return Ok(None);
+                }
+            },
+            Err(e) => return Err(e)
+        }
 
         // Check for matching short in options, and return the name
         // (only ones with shorts, of course)
@@ -2747,14 +2785,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             self.blacklist.dedup();
             if self.blacklist.contains(&v.name) {
                 matches.args.remove(v.name);
-                self.report_error(format!("The argument '{}' cannot be used with {}",
+                return Err(self.report_error(format!("The argument '{}' cannot be used with {}",
                             Format::Warning(format!("-{}", arg)),
                         match self.blacklisted_from(v.name, matches) {
                             Some(name) => format!("'{}'", Format::Warning(name)),
                             None       => "one or more of the other specified arguments".to_owned()
                         }),
-                    true,
-                    Some(matches.args.keys().map(|k| *k).collect()));
+                    ClapErrorType::Matches,
+                    App::get_args(matches)));
             }
             self.overrides.dedup();
             if self.overrides.contains(&v.name) {
@@ -2773,11 +2811,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
             if matches.args.contains_key(v.name) {
                 if !v.multiple {
-                    self.report_error(format!("The argument '{}' was supplied more than once, but \
+                    return Err(self.report_error(format!("The argument '{}' was supplied more than once, but \
                         does not support multiple values",
                             Format::Warning(format!("-{}", arg))),
-                        true,
-                        Some(matches.args.keys().map(|k| *k).collect()));
+                        ClapErrorType::Matches,
+                        App::get_args(matches)));
                 }
             } else {
                 matches.args.insert(v.name, MatchedArg{
@@ -2805,19 +2843,17 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
             parse_group_reqs!(self, v);
 
-            return Some(v.name)
+            return Ok(Some(v.name))
         }
 
         // Didn't match a flag or option, must be invalid
-        self.report_error(format!("The argument '{}' isn't valid",
+        Err(self.report_error(format!("The argument '{}' isn't valid",
                             Format::Warning(format!("-{}", arg_c))),
-            true,
-            Some(matches.args.keys().map(|k| *k).collect()));
-
-        unreachable!();
+            ClapErrorType::Matches,
+            App::get_args(matches)))
     }
 
-    fn parse_single_short_flag(&mut self, matches: &mut ArgMatches<'ar, 'ar>, arg: char) -> bool {
+    fn parse_single_short_flag(&mut self, matches: &mut ArgMatches<'ar, 'ar>, arg: char) -> Result<bool, ClapError> {
         if let Some(v) = self.flags.values()
                            .filter(|&v| v.short.is_some())
                            .filter(|&v| v.short.unwrap() == arg).nth(0) {
@@ -2825,15 +2861,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             self.blacklist.dedup();
             if self.blacklist.contains(&v.name) {
                 matches.args.remove(v.name);
-                self.report_error(format!("The argument '{}' cannot be used {}",
+                return Err(self.report_error(format!("The argument '{}' cannot be used {}",
                             Format::Warning(format!("-{}", arg)),
                         match self.blacklisted_from(v.name, matches) {
                             Some(name) => format!("'{}'", Format::Warning(name)),
                             None       => "with one or more of the other specified \
                                 arguments".to_owned()
                         }),
-                    true,
-                    Some(matches.args.keys().map(|k| *k).collect()));
+                    ClapErrorType::Matches,
+                    App::get_args(matches)));
             }
             self.overrides.dedup();
             debugln!("checking if {} is in overrides", v.name);
@@ -2856,11 +2892,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
             // Make sure this isn't one being added multiple times if it doesn't suppor it
             if matches.args.contains_key(v.name) && !v.multiple {
-                self.report_error(format!("The argument '{}' was supplied more than once, but does \
+                return Err(self.report_error(format!("The argument '{}' was supplied more than once, but does \
                         not support multiple values",
                             Format::Warning(format!("-{}", arg))),
-                    true,
-                    Some(matches.args.keys().map(|k| *k).collect()));
+                    ClapErrorType::Matches,
+                    App::get_args(matches)));
             }
 
             let mut done = false;
@@ -2894,16 +2930,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
             parse_group_reqs!(self, v);
 
-            return true;
+            return Ok(true);
         }
-        false
+        Ok(false)
     }
 
-    fn validate_blacklist(&self, matches: &mut ArgMatches<'ar, 'ar>) {
+    fn validate_blacklist(&self, matches: &mut ArgMatches<'ar, 'ar>) -> Result<(), ClapError> {
         for name in self.blacklist.iter() {
             if matches.args.contains_key(name) {
                 matches.args.remove(name);
-                self.report_error(format!("The argument '{}' cannot be used with {}",
+                return Err(self.report_error(format!("The argument '{}' cannot be used with {}",
                     if let Some(ref flag) = self.flags.get(name) {
                         format!("{}", Format::Warning(flag.to_string()))
                     } else if let Some(ref opt) = self.opts.get(name) {
@@ -2917,13 +2953,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         Some(name) => format!("'{}'", Format::Warning(name)),
                         None       => "one or more of the other specified arguments".to_owned()
                     }),
-                true,
-                Some(matches.args.keys().map(|k| *k).collect()));
+                ClapErrorType::Matches,
+                App::get_args(matches)));
             } else if self.groups.contains_key(name) {
                 for n in self.get_group_members_names(name) {
                     if matches.args.contains_key(n) {
                         matches.args.remove(n);
-                        self.report_error(format!("The argument '{}' cannot be used with one or \
+                        return Err(self.report_error(format!("The argument '{}' cannot be used with one or \
                                 more of the other specified arguments",
                                 if let Some(ref flag) = self.flags.get(n) {
                                     format!("{}", Format::Warning(flag.to_string()))
@@ -2937,15 +2973,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                         None      => format!("\"{}\"", Format::Warning(n))
                                     }
                                 }),
-                            true,
-                            Some(matches.args.keys().map(|k| *k).collect()));
+                            ClapErrorType::Matches,
+                            App::get_args(matches)));
                     }
                 }
             }
         }
+        Ok(())
     }
 
-    fn validate_num_args(&self, matches: &mut ArgMatches<'ar, 'ar>) {
+    fn validate_num_args(&self, matches: &mut ArgMatches<'ar, 'ar>) -> Result<(), ClapError> {
         for (name, ma) in matches.args.iter() {
             if let Some(ref vals) = ma.values {
                 if let Some(f) = self.opts.get(name) {
@@ -2956,7 +2993,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             num != (vals.len() as u8)
                         };
                         if should_err {
-                            self.report_error(format!("The argument '{}' requires {} values, \
+                            return Err(self.report_error(format!("The argument '{}' requires {} values, \
                                     but {} w{} provided",
                                     Format::Warning(f.to_string()),
                                     Format::Good(num.to_string()),
@@ -2968,78 +3005,79 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     if vals.len() == 1 ||
                                         ( f.multiple &&
                                             ( vals.len() % num as usize) == 1) {"as"}else{"ere"}),
-                                true,
-                                Some(matches.args.keys().map(|k| *k).collect()));
+                                ClapErrorType::Matches,
+                                App::get_args(matches)));
                         }
                     }
                     if let Some(num) = f.max_vals {
                         if (vals.len() as u8) > num {
-                            self.report_error(format!("The argument '{}' requires no more than {} \
+                            return Err(self.report_error(format!("The argument '{}' requires no more than {} \
                                     values, but {} w{} provided",
                                     Format::Warning(f.to_string()),
                                     Format::Good(num.to_string()),
                                     Format::Error(vals.len().to_string()),
                                     if vals.len() == 1 {"as"}else{"ere"}),
-                                true,
-                                Some(matches.args.keys().map(|k| *k).collect()));
+                                ClapErrorType::Matches,
+                                App::get_args(matches)));
                         }
                     }
                     if let Some(num) = f.min_vals {
                         if (vals.len() as u8) < num {
-                            self.report_error(format!("The argument '{}' requires at least {} \
+                            return Err(self.report_error(format!("The argument '{}' requires at least {} \
                                     values, but {} w{} provided",
                                     Format::Warning(f.to_string()),
                                     Format::Good(num.to_string()),
                                     Format::Error(vals.len().to_string()),
                                     if vals.len() == 1 {"as"}else{"ere"}),
-                                true,
-                                Some(matches.args.keys().map(|k| *k).collect()));
+                                ClapErrorType::Matches,
+                                App::get_args(matches)));
                         }
                     }
                 } else if let Some(f) = self.positionals_idx.get(
                     self.positionals_name.get(name).unwrap()) {
                     if let Some(num) = f.num_vals {
                         if num != vals.len() as u8 {
-                            self.report_error(format!("The argument '{}' requires {} values, \
+                            return Err(self.report_error(format!("The argument '{}' requires {} values, \
                                     but {} w{} provided",
                                     Format::Warning(f.to_string()),
                                     Format::Good(num.to_string()),
                                     Format::Error(vals.len().to_string()),
                                     if vals.len() == 1 {"as"}else{"ere"}),
-                                true,
-                                Some(matches.args.keys().map(|k| *k).collect()));
+                                ClapErrorType::Matches,
+                                App::get_args(matches)));
                         }
                     }
                     if let Some(num) = f.max_vals {
                         if num > vals.len() as u8 {
-                            self.report_error(format!("The argument '{}' requires no more than {} \
+                            return Err(self.report_error(format!("The argument '{}' requires no more than {} \
                                     values, but {} w{} provided",
                                     Format::Warning(f.to_string()),
                                     Format::Good(num.to_string()),
                                     Format::Error(vals.len().to_string()),
                                     if vals.len() == 1 {"as"}else{"ere"}),
-                                true,
-                                Some(matches.args.keys().map(|k| *k).collect()));
+                                ClapErrorType::Matches,
+                                App::get_args(matches)));
                         }
                     }
                     if let Some(num) = f.min_vals {
                         if num < vals.len() as u8 {
-                            self.report_error(format!("The argument '{}' requires at least {} \
+                            return Err(self.report_error(format!("The argument '{}' requires at least {} \
                                     values, but {} w{} provided",
                                     Format::Warning(f.to_string()),
                                     Format::Good(num.to_string()),
                                     Format::Error(vals.len().to_string()),
                                     if vals.len() == 1 {"as"}else{"ere"}),
-                                true,
-                                Some(matches.args.keys().map(|k| *k).collect()));
+                                ClapErrorType::Matches,
+                                App::get_args(matches)));
                         }
                     }
                 }
             }
         }
+        Ok(())
     }
 
-    fn validate_required(&self, matches: &ArgMatches<'ar, 'ar>) -> bool{
+    fn validate_required(&self, matches: &ArgMatches<'ar, 'ar>) -> bool {
         'outer: for name in self.required.iter() {
             if matches.args.contains_key(name) {
                 continue 'outer;
