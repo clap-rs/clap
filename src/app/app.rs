@@ -1752,6 +1752,26 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
     /// the real parsing function for all subcommands
     ///
+    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors manually.
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let matches = App::new("myprog")
+    ///     // Args and options go here...
+    ///     .get_matches_safe()
+    ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
+    /// ```
+    pub fn get_matches_safe(self) -> Result<ArgMatches<'ar, 'ar>, ClapError> {
+        // Start the parsing
+        self.get_matches_from_safe(env::args())
+    }
+
+    /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
+    /// the real parsing function for all subcommands
+    ///
     /// **NOTE:** The first argument will be parsed as the binary name.
     ///
     /// **NOTE:** This method should only be used when absolutely necessary, such as needing to
@@ -1805,6 +1825,66 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
 
         matches
+    }
+
+    /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
+    /// the real parsing function for all subcommands
+    ///
+    /// **NOTE:** The first argument will be parsed as the binary name.
+    ///
+    /// **NOTE:** This method should only be used when absolutely necessary, such as needing to
+    /// parse arguments from something other than `std::env::args()`. If you are unsure, use
+    /// `App::get_matches_safe()`
+    ///
+    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors manually.
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let arg_vec = vec!["my_prog", "some", "args", "to", "parse"];
+    ///
+    /// let matches = App::new("myprog")
+    ///     // Args and options go here...
+    ///     .get_matches_from_safe(arg_vec)
+    ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
+    /// ```
+    pub fn get_matches_from_safe<I, T>(mut self, itr: I)
+                                  -> Result<ArgMatches<'ar, 'ar>, ClapError>
+                                  where I: IntoIterator<Item=T>,
+                                        T: AsRef<str> {
+        // Verify all positional assertions pass
+        self.verify_positionals();
+        // If there are global arguments, we need to propgate them down to subcommands before
+        // parsing incase we run into a subcommand
+        self.propogate_globals();
+
+        let mut matches = ArgMatches::new();
+
+        let mut it = itr.into_iter();
+        // Get the name of the program (argument 1 of env::args()) and determine the actual file
+        // that was used to execute the program. This is because a program called
+        // ./target/release/my_prog -a
+        // will have two arguments, './target/release/my_prog', '-a' but we don't want to display
+        // the full path when displaying help messages and such
+        if let Some(name) = it.next() {
+            let p = Path::new(name.as_ref());
+            if let Some(f) = p.file_name() {
+                if let Ok(s) = f.to_os_string().into_string() {
+                    if let None = self.bin_name {
+                        self.bin_name = Some(s);
+                    }
+                }
+            }
+        }
+
+        // do the real parsing
+        if let Err(e) = self.get_matches_with(&mut matches, &mut it) {
+            return Err(e);
+        }
+
+        Ok(matches)
     }
 
     fn verify_positionals(&mut self) {
@@ -1883,7 +1963,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     Format::Warning(opt),
                                     format!("\n\t[valid values:{}]\n", valid_values),
                                     suffix.0),
-                                        ClapErrorType::Matches,
+                                        ClapErrorType::InvalidValue,
                                         App::get_args(matches));
     }
 
@@ -1939,7 +2019,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                                 Format::Warning(arg.as_ref()),
                                                 Format::Warning(opt.to_string()),
                                                 Format::Good(vals.len().to_string())),
-                                            ClapErrorType::Matches,
+                                            ClapErrorType::InvalidValue,
                                             App::get_args(matches))
                                         );
                                     }
@@ -1953,7 +2033,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             arg_slice.is_empty() {
                             return Err(self.report_error(format!("The argument '{}' does not allow empty \
                                     values, but one was found.", Format::Warning(opt.to_string())),
-                                ClapErrorType::Matches,
+                                ClapErrorType::EmptyValue,
                                 App::get_args(matches)));
                         }
 
@@ -1972,7 +2052,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 if let Some(ref vtor) = opt.validator {
                                     if let Err(e) = vtor(arg_slice.to_owned()) {
                                         return Err(self.report_error(e,
-                                            ClapErrorType::Opt,
+                                            ClapErrorType::OptionError,
                                             Some(vec![opt.name])));
                                     }
                                 }
@@ -2027,7 +2107,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         return Err(self.report_error(
                             format!("The argument '{}' requires a value but none was supplied",
                                 Format::Warning(o.to_string())),
-                            ClapErrorType::Matches,
+                            ClapErrorType::EmptyValue,
                             App::get_args(matches)));
                     }
                 }
@@ -2076,7 +2156,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 self.bin_name.clone().unwrap_or(self.name.clone()),
                                 Format::Good("--"),
                                 arg_slice),
-                            ClapErrorType::None,
+                            ClapErrorType::InvalidSubcommand,
                             None));
                     }
                 }
@@ -2088,7 +2168,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         format!("Found argument '{}', but {} wasn't expecting any",
                             Format::Warning(arg.as_ref()),
                             self.bin_name.clone().unwrap_or(self.name.clone())),
-                        ClapErrorType::Matches,
+                        ClapErrorType::UnexpectedArgument,
                         App::get_args(matches)));
                 } else if let Some(p) = self.positionals_idx.get(&pos_counter) {
                     // Make sure this one doesn't conflict with anything
@@ -2105,7 +2185,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 None       => "one or more of the other specified \
                                                arguments".to_owned()
                             }),
-                            ClapErrorType::Matches,
+                            ClapErrorType::ArgumentConflict,
                             App::get_args(matches)));
                     }
 
@@ -2128,7 +2208,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                             but '{}' wasn't expecting any more values",
                                                 Format::Warning(arg.as_ref()),
                                                 Format::Warning(p.to_string())),
-                                            ClapErrorType::Matches,
+                                            ClapErrorType::TooMuchValues,
                                             App::get_args(matches)));
                                     }
                                 }
@@ -2138,7 +2218,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             && arg_slice.is_empty()  {
                             return Err(self.report_error(format!("The argument '{}' does not allow empty \
                                     values, but one was found.", Format::Warning(p.to_string())),
-                                ClapErrorType::Matches,
+                                ClapErrorType::EmptyValue,
                                 App::get_args(matches)));
                         }
                         // Check if it's already existing and update if so...
@@ -2175,14 +2255,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if !p.empty_vals && arg_slice.is_empty() {
                             return Err(self.report_error(format!("The argument '{}' does not allow empty \
                                 values, but one was found.", Format::Warning(p.to_string())),
-                                ClapErrorType::Matches,
+                                ClapErrorType::EmptyValue,
                                 App::get_args(matches)));
                         }
                         if let Some(ref vtor) = p.validator {
                             let f = &*vtor;
                             if let Err(ref e) = f(arg_slice.to_owned()) {
                                 return Err(self.report_error(e.clone(),
-                                    ClapErrorType::Matches,
+                                    ClapErrorType::ValueError,
                                     App::get_args(matches)));
                             }
                         }
@@ -2216,7 +2296,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     return Err(self.report_error(format!("The argument '{}' was found, but '{}' wasn't \
                         expecting any", Format::Warning(arg.as_ref()),
                             self.bin_name.clone().unwrap_or(self.name.clone())),
-                        ClapErrorType::Matches,
+                        ClapErrorType::UnexpectedArgument,
                         App::get_args(matches)));
                 }
             }
@@ -2232,7 +2312,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         return Err(self.report_error(
                             format!("The argument '{}' requires a value but there wasn't any \
                             supplied", Format::Warning(o.to_string())),
-                                ClapErrorType::Matches,
+                                ClapErrorType::EmptyValue,
                                 App::get_args(matches)));
                     }
                 }
@@ -2240,7 +2320,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     return Err(self.report_error(
                         format!("The argument '{}' requires a value but none was supplied",
                             Format::Warning(o.to_string())),
-                        ClapErrorType::Matches,
+                        ClapErrorType::EmptyValue,
                         App::get_args(matches)));
                 }
                 else {
@@ -2252,7 +2332,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             .iter()
                             .fold(String::new(), |acc, s| acc + &format!("\n\t'{}'",
                                 Format::Error(s))[..])),
-                        ClapErrorType::Matches,
+                        ClapErrorType::MissingRequiredArgument,
                         App::get_args(matches)));
                 }
             } else {
@@ -2260,7 +2340,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     format!("The argument '{}' requires a value but none was supplied",
                         Format::Warning(format!("{}", self.positionals_idx.get(
                             self.positionals_name.get(a).unwrap()).unwrap()))),
-                        ClapErrorType::Matches,
+                        ClapErrorType::EmptyValue,
                         App::get_args(matches)));
             }
         }
@@ -2323,7 +2403,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             let bn = self.bin_name.clone().unwrap_or(self.name.clone());
             return Err(self.report_error(format!("'{}' requires a subcommand but none was provided",
                     Format::Warning(&bn[..])),
-                ClapErrorType::Matches,
+                ClapErrorType::MissingSubcommand,
                 App::get_args(matches)));
         } else if self.help_on_no_sc {
             self.print_help();
@@ -2338,7 +2418,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     .iter()
                     .fold(String::new(), |acc, s| acc + &format!("\n\t'{}'",
                         Format::Error(s))[..])),
-                ClapErrorType::Matches,
+                ClapErrorType::MissingRequiredArgument,
                 App::get_args(matches)));
         }
         if matches.args.is_empty() && matches.subcommand_name().is_none() && self.help_on_no_args {
@@ -2488,7 +2568,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     });
                     return Err(self.report_error(format!("The argument '{}' requires a value, but none was \
                             supplied", Format::Warning(format!("--{}", arg))),
-                        ClapErrorType::Matches,
+                        ClapErrorType::EmptyValue,
                         App::get_args(matches)));
                 }
                 arg_val = Some(arg_vec[1]);
@@ -2503,7 +2583,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 matches.args.remove(v.name);
                 return Err(self.report_error(format!("The argument '{}' cannot be used with one or more of \
                     the other specified arguments", Format::Warning(format!("--{}", arg))),
-                        ClapErrorType::Matches,
+                        ClapErrorType::ArgumentConflict,
                         App::get_args(matches)));
             }
             self.overrides.dedup();
@@ -2530,7 +2610,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     return Err(self.report_error(format!("The argument '{}' was supplied more than once, but \
                             does not support multiple values",
                             Format::Warning(format!("--{}", arg))),
-                        ClapErrorType::Matches,
+                        ClapErrorType::UnexpectedMultipleUsage,
                         App::get_args(matches)));
                 }
                 if let Some(av) = arg_val {
@@ -2605,7 +2685,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             Some(name) => format!("'{}'", Format::Warning(name)),
                             None       => "one or more of the specified arguments".to_owned()
                         }),
-                    ClapErrorType::Matches,
+                    ClapErrorType::ArgumentConflict,
                     App::get_args(matches)));
             }
             self.overrides.dedup();
@@ -2631,7 +2711,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             if matches.args.contains_key(v.name) && !v.multiple {
                 return Err(self.report_error(format!("The argument '{}' was supplied more than once, but does \
                         not support multiple values", Format::Warning(v.to_string())),
-                    ClapErrorType::Matches,
+                    ClapErrorType::UnexpectedMultipleUsage,
                     App::get_args(matches)));
             }
 
@@ -2713,7 +2793,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         Err(self.report_error(format!("The argument '{}' isn't valid{}",
                 Format::Warning(format!("--{}", arg)),
                 suffix.0),
-            ClapErrorType::Matches,
+            ClapErrorType::InvalidArgument,
             App::get_args(matches)))
     }
 
@@ -2726,13 +2806,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         if !v.empty_vals && av.is_empty() && matches.args.contains_key(v.name) {
             return Err(self.report_error(format!("The argument '{}' does not allow empty \
                     values, but one was found.", Format::Warning(v.to_string())),
-                ClapErrorType::Matches,
+                ClapErrorType::EmptyValue,
                 App::get_args(matches)));
         }
         if let Some(ref vtor) = v.validator {
             if let Err(e) = vtor(av.to_owned()) {
                 return Err(self.report_error(e,
-                    ClapErrorType::Matches,
+                    ClapErrorType::ArgumentError,
                     App::get_args(matches)));
             }
         }
@@ -2751,7 +2831,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if !b {
                             return Err(self.report_error(format!("The argument '{}' isn't valid",
                                     Format::Warning(format!("-{}", c))),
-                                ClapErrorType::Matches,
+                                ClapErrorType::InvalidArgument,
                                 App::get_args(matches))); 
                         }
                     },
@@ -2791,7 +2871,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             Some(name) => format!("'{}'", Format::Warning(name)),
                             None       => "one or more of the other specified arguments".to_owned()
                         }),
-                    ClapErrorType::Matches,
+                    ClapErrorType::ArgumentConflict,
                     App::get_args(matches)));
             }
             self.overrides.dedup();
@@ -2814,7 +2894,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     return Err(self.report_error(format!("The argument '{}' was supplied more than once, but \
                         does not support multiple values",
                             Format::Warning(format!("-{}", arg))),
-                        ClapErrorType::Matches,
+                        ClapErrorType::UnexpectedMultipleUsage,
                         App::get_args(matches)));
                 }
             } else {
@@ -2849,7 +2929,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         // Didn't match a flag or option, must be invalid
         Err(self.report_error(format!("The argument '{}' isn't valid",
                             Format::Warning(format!("-{}", arg_c))),
-            ClapErrorType::Matches,
+            ClapErrorType::InvalidArgument,
             App::get_args(matches)))
     }
 
@@ -2868,7 +2948,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             None       => "with one or more of the other specified \
                                 arguments".to_owned()
                         }),
-                    ClapErrorType::Matches,
+                    ClapErrorType::ArgumentConflict,
                     App::get_args(matches)));
             }
             self.overrides.dedup();
@@ -2895,7 +2975,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 return Err(self.report_error(format!("The argument '{}' was supplied more than once, but does \
                         not support multiple values",
                             Format::Warning(format!("-{}", arg))),
-                    ClapErrorType::Matches,
+                    ClapErrorType::UnexpectedMultipleUsage,
                     App::get_args(matches)));
             }
 
@@ -2953,7 +3033,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         Some(name) => format!("'{}'", Format::Warning(name)),
                         None       => "one or more of the other specified arguments".to_owned()
                     }),
-                ClapErrorType::Matches,
+                ClapErrorType::ArgumentConflict,
                 App::get_args(matches)));
             } else if self.groups.contains_key(name) {
                 for n in self.get_group_members_names(name) {
@@ -2973,7 +3053,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                         None      => format!("\"{}\"", Format::Warning(n))
                                     }
                                 }),
-                            ClapErrorType::Matches,
+                            ClapErrorType::ArgumentConflict,
                             App::get_args(matches)));
                     }
                 }
@@ -3005,7 +3085,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     if vals.len() == 1 ||
                                         ( f.multiple &&
                                             ( vals.len() % num as usize) == 1) {"as"}else{"ere"}),
-                                ClapErrorType::Matches,
+                                ClapErrorType::EmptyValue,
                                 App::get_args(matches)));
                         }
                     }
@@ -3017,7 +3097,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     Format::Good(num.to_string()),
                                     Format::Error(vals.len().to_string()),
                                     if vals.len() == 1 {"as"}else{"ere"}),
-                                ClapErrorType::Matches,
+                                ClapErrorType::TooMuchValues,
                                 App::get_args(matches)));
                         }
                     }
@@ -3029,7 +3109,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     Format::Good(num.to_string()),
                                     Format::Error(vals.len().to_string()),
                                     if vals.len() == 1 {"as"}else{"ere"}),
-                                ClapErrorType::Matches,
+                                ClapErrorType::TooFewValues,
                                 App::get_args(matches)));
                         }
                     }
@@ -3043,7 +3123,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     Format::Good(num.to_string()),
                                     Format::Error(vals.len().to_string()),
                                     if vals.len() == 1 {"as"}else{"ere"}),
-                                ClapErrorType::Matches,
+                                if num > vals.len() as u8 {
+                                  ClapErrorType::TooMuchValues 
+                                } else {
+                                   ClapErrorType::TooFewValues 
+                                },                               
                                 App::get_args(matches)));
                         }
                     }
@@ -3055,7 +3139,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     Format::Good(num.to_string()),
                                     Format::Error(vals.len().to_string()),
                                     if vals.len() == 1 {"as"}else{"ere"}),
-                                ClapErrorType::Matches,
+                                ClapErrorType::TooMuchValues,
                                 App::get_args(matches)));
                         }
                     }
@@ -3067,7 +3151,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     Format::Good(num.to_string()),
                                     Format::Error(vals.len().to_string()),
                                     if vals.len() == 1 {"as"}else{"ere"}),
-                                ClapErrorType::Matches,
+                                ClapErrorType::TooFewValues,
                                 App::get_args(matches)));
                         }
                     }
