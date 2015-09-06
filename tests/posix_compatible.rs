@@ -1,6 +1,6 @@
 extern crate clap;
 
-use clap::{App, Arg};
+use clap::{App, Arg, ClapErrorType  };
 
 #[test]
 fn posix_compatible_flags_long() {
@@ -91,4 +91,60 @@ fn posix_compatible_opts_short() {
     assert!(!m.is_present("color"));
     assert!(m.is_present("flag"));
     assert_eq!(m.value_of("flag").unwrap(), "other");
+}
+
+#[test]
+fn conflict_overriden() {
+    let m = App::new("conflict_overriden")
+        .arg(Arg::from_usage("-f, --flag 'some flag'")
+            .conflicts_with("debug"))
+        .arg(Arg::from_usage("-d, --debug 'other flag'"))
+        .arg(Arg::from_usage("-c, --color 'third flag'")
+            .mutually_overrides_with("flag"))
+        .get_matches_from(vec!["", "-f", "-c", "-d"]);
+    assert!(m.is_present("color"));
+    assert!(!m.is_present("flag"));
+    assert!(m.is_present("debug"));
+}
+
+#[test]
+fn conflict_overriden_2() {
+    let result = App::new("conflict_overriden")
+        .arg(Arg::from_usage("-f, --flag 'some flag'")
+            .conflicts_with("debug"))
+        .arg(Arg::from_usage("-d, --debug 'other flag'"))
+        .arg(Arg::from_usage("-c, --color 'third flag'")
+            .mutually_overrides_with("flag"))
+        .get_matches_from_safe(vec!["", "-f", "-d", "-c"]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.error_type, ClapErrorType::ArgumentConflict);
+}
+
+#[test]
+fn conflict_overriden_3() {
+    let result = App::new("conflict_overriden")
+        .arg(Arg::from_usage("-f, --flag 'some flag'")
+            .conflicts_with("debug"))
+        .arg(Arg::from_usage("-d, --debug 'other flag'"))
+        .arg(Arg::from_usage("-c, --color 'third flag'")
+            .mutually_overrides_with("flag"))
+        .get_matches_from_safe(vec!["", "-d", "-c", "-f"]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.error_type, ClapErrorType::ArgumentConflict);
+}
+
+#[test]
+fn conflict_overriden_4() {
+    let m = App::new("conflict_overriden")
+        .arg(Arg::from_usage("-f, --flag 'some flag'")
+            .conflicts_with("debug"))
+        .arg(Arg::from_usage("-d, --debug 'other flag'"))
+        .arg(Arg::from_usage("-c, --color 'third flag'")
+            .mutually_overrides_with("flag"))
+        .get_matches_from(vec!["", "-d", "-f", "-c"]);
+    assert!(m.is_present("color"));
+    assert!(!m.is_present("flag"));
+    assert!(m.is_present("debug"));
 }
