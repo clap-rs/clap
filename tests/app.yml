@@ -69,7 +69,7 @@ args:
         multiple: true
         help: Tests 3 max vals
         max_values: 3
-groups:
+arg_groups:
     - test:
         args: 
             - maxvals3

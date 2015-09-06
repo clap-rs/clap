@@ -1,6 +1,6 @@
 extern crate clap;
 
-use clap::{App, Arg, SubCommand, AppSettings};
+use clap::{App, Arg, SubCommand, AppSettings, ClapErrorType};
 
 #[test]
 fn sub_command_negate_requred() {
@@ -10,8 +10,21 @@ fn sub_command_negate_requred() {
                .required(true)
                .index(1))
         .subcommand(SubCommand::with_name("sub1"))
-        .subcommand(SubCommand::with_name("sub1"))
         .get_matches_from(vec!["", "sub1"]);
+}
+
+#[test]
+fn sub_command_negate_requred_2() {
+    let result = App::new("sub_command_negate")
+        .setting(AppSettings::SubcommandsNegateReqs)
+        .arg(Arg::with_name("test")
+               .required(true)
+               .index(1))
+        .subcommand(SubCommand::with_name("sub1"))
+        .get_matches_from_safe(vec![""]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.error_type, ClapErrorType::MissingRequiredArgument);
 }
 
 #[test]
