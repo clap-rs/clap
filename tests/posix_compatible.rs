@@ -1,6 +1,6 @@
 extern crate clap;
 
-use clap::{App, Arg, ClapErrorType  };
+use clap::{App, Arg, ClapErrorType};
 
 #[test]
 fn posix_compatible_flags_long() {
