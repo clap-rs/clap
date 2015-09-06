@@ -438,7 +438,7 @@ Contributions are always welcome! And there is a multitude of ways in which you 
     - `chore` - Catch all or things that have to do with the build system, etc
     - `examples` - Changes to existing example, or a new example
  * The `COMPONENT` is optional, and may be a single file, directory, or logical component. Can be omitted if commit applies globally
-5. Run the tests (`cargo test && make -C clap-tests test`)
+5. Run the tests (`cargo test --features yaml && make -C clap-tests test`)
 6. `git rebase` into concise commits and remove `--fixup`s (`git rebase -i HEAD~NUM` where `NUM` is number of commits back)
 7. Push your changes back to your fork (`git push origin $your-branch`)
 8. Create a pull request! (You can also create the pull request first, and we'll merge when ready. This a good way to discuss proposed changes.)
@@ -450,7 +450,7 @@ Another really great way to help is if you find an interesting, or helpful way i
 If contributing, you can run the tests as follows (assuming you're in the `clap-rs` directory)
 
 ```
-cargo test && make -C clap-tests test
+cargo test --features yaml && make -C clap-tests test
 ```
 
 ### Goals
