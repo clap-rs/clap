@@ -148,3 +148,58 @@ fn conflict_overriden_4() {
     assert!(!m.is_present("flag"));
     assert!(m.is_present("debug"));
 }
+
+#[test]
+fn require_overriden() {
+    let result = App::new("require_overriden")
+        .arg(Arg::with_name("flag")
+            .index(1)
+            .required(true))
+        .arg(Arg::from_usage("-c, --color 'other flag'")
+            .mutually_overrides_with("flag"))
+        .get_matches_from_safe(vec!["", "flag", "-c"]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.error_type, ClapErrorType::MissingRequiredArgument);
+}
+
+#[test]
+fn require_overriden_2() {
+    let m = App::new("require_overriden")
+        .arg(Arg::with_name("flag")
+            .index(1)
+            .required(true))
+        .arg(Arg::from_usage("-c, --color 'other flag'")
+            .mutually_overrides_with("flag"))
+        .get_matches_from(vec!["", "-c", "flag"]);
+    assert!(!m.is_present("color"));
+    assert!(m.is_present("flag"));
+}
+
+#[test]
+fn require_overriden_3() {
+    let m = App::new("require_overriden")
+        .arg(Arg::from_usage("-f, --flag 'some flag'")
+            .requires("debug"))
+        .arg(Arg::from_usage("-d, --debug 'other flag'"))
+        .arg(Arg::from_usage("-c, --color 'third flag'")
+            .mutually_overrides_with("flag"))
+        .get_matches_from(vec!["", "-f", "-c"]);
+    assert!(m.is_present("color"));
+    assert!(!m.is_present("flag"));
+    assert!(!m.is_present("debug"));
+}
+
+#[test]
+fn require_overriden_4() {
+    let result = App::new("require_overriden")
+        .arg(Arg::from_usage("-f, --flag 'some flag'")
+            .requires("debug"))
+        .arg(Arg::from_usage("-d, --debug 'other flag'"))
+        .arg(Arg::from_usage("-c, --color 'third flag'")
+            .mutually_overrides_with("flag"))
+        .get_matches_from_safe(vec!["", "-c", "-f"]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.error_type, ClapErrorType::MissingRequiredArgument);
+}
