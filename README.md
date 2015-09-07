@@ -244,7 +244,7 @@ use clap::App;
 fn main() {
     // The YAML file is found relative to the current file, similar to how modules are found
     let yaml = load_yaml!("cli.yml");
-    let matches = App::from_yaml(yaml).get_mathes();
+    let matches = App::from_yaml(yaml).get_matches();
 
     // Calling .unwrap() is safe here because "INPUT" is required (if "INPUT" wasn't
     // required we could have used an 'if let' to conditionally get the value)
