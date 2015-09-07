@@ -1,4 +1,4 @@
-use std::fmt::{ Display, Formatter, Result };
+use std::fmt::{Display, Formatter, Result};
 use std::result::Result as StdResult;
 use std::rc::Rc;
 
@@ -34,7 +34,9 @@ pub struct PosBuilder<'n> {
 }
 
 impl<'n> Display for PosBuilder<'n> {
-    fn fmt(&self, f: &mut Formatter) -> Result {
+    fn fmt(&self,
+           f: &mut Formatter) 
+           -> Result {
         if self.required {
             try!(write!(f, "<{}>", self.name));
         } else {
@@ -68,7 +70,7 @@ mod test {
             empty_vals: true,
             global: false,
             validator: None,
-            overrides: None
+            overrides: None,
         };
 
         assert_eq!(&*format!("{}", p), "[pos]...");
@@ -88,7 +90,7 @@ mod test {
             empty_vals: true,
             global: false,
             validator: None,
-            overrides: None
+            overrides: None,
         };
 
         assert_eq!(&*format!("{}", p2), "<pos>");

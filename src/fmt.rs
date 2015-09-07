@@ -7,9 +7,9 @@ use ansi_term::ANSIString;
 
 
 pub enum Format<T> {
-     Error(T),
-     Warning(T),
-     Good(T),
+    Error(T),
+    Warning(T),
+    Good(T),
 }
 
 #[cfg(all(feature = "color", not(target_os = "windows")))]
@@ -26,7 +26,8 @@ impl<T: AsRef<str>> Format<T> {
 
 #[cfg(all(feature = "color", not(target_os = "windows")))]
 impl<T: AsRef<str>> fmt::Display for Format<T> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self,
+           f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", &self.format())
     }
 }
@@ -44,7 +45,8 @@ impl<T: fmt::Display> Format<T> {
 
 #[cfg(any(not(feature = "color"), target_os = "windows"))]
 impl<T: fmt::Display> fmt::Display for Format<T> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self,
+           f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", &self.format())
     }
 }

@@ -58,7 +58,7 @@ pub struct ArgMatches<'n, 'a> {
     #[doc(hidden)]
     pub subcommand: Option<Box<SubCommand<'n, 'a>>>,
     #[doc(hidden)]
-    pub usage: Option<String>
+    pub usage: Option<String>,
 }
 
 impl<'n, 'a> ArgMatches<'n, 'a> {
@@ -91,12 +91,17 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let matches = App::new("myapp").arg(Arg::with_name("output").takes_value(true)).get_matches();
+    /// # let matches = App::new("myapp")
+    /// #     .arg(Arg::with_name("output")
+    /// #         .takes_value(true))
+    /// #     .get_matches();
     /// if let Some(o) = matches.value_of("output") {
     ///        println!("Value for output: {}", o);
     /// }
     /// ```
-    pub fn value_of(&self, name: &str) -> Option<&str> {
+    pub fn value_of(&self,
+                    name: &str)
+                    -> Option<&str> {
         if let Some(ref arg) = self.args.get(name) {
             if let Some(ref vals) = arg.values {
                 if let Some(ref val) = vals.values().nth(0) {
@@ -115,7 +120,8 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let matches = App::new("myapp").arg(Arg::with_name("output").takes_value(true)).get_matches();
+    /// # let matches = App::new("myapp")
+    /// #     .arg(Arg::with_name("output").takes_value(true)).get_matches();
     /// // If the program had option "-c" that took a value and was run
     /// // via "myapp -o some -o other -o file"
     /// // values_of() would return a [&str; 3] ("some", "other", "file")
@@ -125,7 +131,9 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///        }
     /// }
     /// ```
-    pub fn values_of(&'a self, name: &str) -> Option<Vec<&'a str>> {
+    pub fn values_of(&'a self,
+                     name: &str)
+                     -> Option<Vec<&'a str>> {
         if let Some(ref arg) = self.args.get(name) {
             if let Some(ref vals) = arg.values {
                 return Some(vals.values().map(|s| &s[..]).collect::<Vec<_>>());
@@ -141,16 +149,23 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let matches = App::new("myapp").arg(Arg::with_name("output").takes_value(true)).get_matches();
+    /// # let matches = App::new("myapp")
+    /// #     .arg(Arg::with_name("output").takes_value(true)).get_matches();
     /// if matches.is_present("output") {
     ///        println!("The output argument was used!");
     /// }
     /// ```
-    pub fn is_present(&self, name: &str) -> bool {
+    pub fn is_present(&self,
+                      name: &str)
+                      -> bool {
         if let Some(ref sc) = self.subcommand {
-            if sc.name == name { return true; }
+            if sc.name == name {
+                return true;
+            }
         }
-        if self.args.contains_key(name) {return true;}
+        if self.args.contains_key(name) {
+            return true;
+        }
         false
     }
 
@@ -163,14 +178,17 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let matches = App::new("myapp").arg(Arg::with_name("output").takes_value(true)).get_matches();
+    /// # let matches = App::new("myapp")
+    /// #     .arg(Arg::with_name("output").takes_value(true)).get_matches();
     /// if matches.occurrences_of("debug") > 1 {
     ///     println!("Debug mode is REALLY on");
     /// } else {
     ///     println!("Debug mode kind of on");
     /// }
     /// ```
-    pub fn occurrences_of(&self, name: &str) -> u8 {
+    pub fn occurrences_of(&self,
+                          name: &str)
+                          -> u8 {
         if let Some(ref arg) = self.args.get(name) {
             return arg.occurrences;
         }
@@ -185,14 +203,19 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
-    /// # let app_matches = App::new("myapp").subcommand(SubCommand::with_name("test")).get_matches();
+    /// # let app_matches = App::new("myapp")
+    /// #     .subcommand(SubCommand::with_name("test")).get_matches();
     /// if let Some(matches) = app_matches.subcommand_matches("test") {
     ///     // Use matches as normal
     /// }
     /// ```
-    pub fn subcommand_matches<'na>(&self, name: &'na str) -> Option<&ArgMatches> {
+    pub fn subcommand_matches<'na>(&self,
+                                   name: &'na str)
+                                   -> Option<&ArgMatches> {
         if let Some( ref sc) = self.subcommand {
-            if sc.name != name { return None; }
+            if sc.name != name {
+                return None;
+            }
             return Some(&sc.matches);
         }
         None
@@ -208,7 +231,8 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
-    /// # let app_matches = App::new("myapp").subcommand(SubCommand::with_name("test")).get_matches();
+    /// # let app_matches = App::new("myapp")
+    /// #     .subcommand(SubCommand::with_name("test")).get_matches();
     /// match app_matches.subcommand_name() {
     ///     Some("test")   => {}, // test was used
     ///     Some("config") => {}, // config was used
@@ -230,7 +254,8 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
-    /// # let app_matches = App::new("myapp").subcommand(SubCommand::with_name("test")).get_matches();
+    /// # let app_matches = App::new("myapp")
+    /// #     .subcommand(SubCommand::with_name("test")).get_matches();
     /// match app_matches.subcommand() {
     ///     ("test", Some(matches))   => {}, // test was used
     ///     ("config", Some(matches)) => {}, // config was used
@@ -251,7 +276,8 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
-    /// # let app_matches = App::new("myapp").subcommand(SubCommand::with_name("test")).get_matches();
+    /// # let app_matches = App::new("myapp")
+    /// #     .subcommand(SubCommand::with_name("test")).get_matches();
     /// println!("{}",app_matches.usage());
     /// ```
     pub fn usage(&self) -> &str {

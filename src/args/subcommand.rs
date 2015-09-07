@@ -27,7 +27,7 @@ pub struct SubCommand<'n, 'a> {
     #[doc(hidden)]
     pub name: &'n str,
     #[doc(hidden)]
-    pub matches: ArgMatches<'n, 'a>
+    pub matches: ArgMatches<'n, 'a>,
 }
 
 impl<'n, 'a> SubCommand<'n, 'a> {
