@@ -1924,8 +1924,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         matches
     }
 
-    /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
-    /// the real parsing function for all subcommands
+    /// Starts the parsing process without consuming the `App` struct `self`. This is normally not
+    /// the desired functionality, instead prefer `App::get_matches_from_safe` which *does*
+    /// consume `self`. 
     ///
     /// **NOTE:** The first argument will be parsed as the binary name.
     ///
@@ -1936,21 +1937,20 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// **NOTE:** This method should only be used when is absolutely necessary to handle errors 
     /// manually.
     ///
-    ///
     /// # Example
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
     /// let arg_vec = vec!["my_prog", "some", "args", "to", "parse"];
     ///
-    /// let matches = App::new("myprog")
+    /// let mut app = App::new("myprog");
     ///     // Args and options go here...
-    ///     .get_matches_from_safe(arg_vec)
+    /// let matches = app.get_matches_from_safe_borrow(arg_vec)
     ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
     /// ```
-    pub fn get_matches_from_safe<I, T>(mut self,
-                                       itr: I) 
-                                       -> Result<ArgMatches<'ar, 'ar>, ClapError>
+    pub fn get_matches_from_safe_borrow<I, T>(&mut self,
+                                              itr: I) 
+                                              -> Result<ArgMatches<'ar, 'ar>, ClapError>
         where I: IntoIterator<Item = T>,
               T: AsRef<str>
     {
@@ -1985,6 +1985,39 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
 
         Ok(matches)
+    }
+
+    /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
+    /// the real parsing function for all subcommands
+    ///
+    /// **NOTE:** The first argument will be parsed as the binary name.
+    ///
+    /// **NOTE:** This method should only be used when absolutely necessary, such as needing to
+    /// parse arguments from something other than `std::env::args()`. If you are unsure, use
+    /// `App::get_matches_safe()`
+    ///
+    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors 
+    /// manually.
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let arg_vec = vec!["my_prog", "some", "args", "to", "parse"];
+    ///
+    /// let matches = App::new("myprog")
+    ///     // Args and options go here...
+    ///     .get_matches_from_safe(arg_vec)
+    ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
+    /// ```
+    pub fn get_matches_from_safe<I, T>(mut self,
+                                       itr: I) 
+                                       -> Result<ArgMatches<'ar, 'ar>, ClapError>
+        where I: IntoIterator<Item = T>,
+              T: AsRef<str>
+    {
+        self.get_matches_from_safe_borrow(itr)
     }
 
     fn verify_positionals(&mut self) {
@@ -2251,7 +2284,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 // may be trying to pass might match a subcommand name
                 if !pos_only {
                     if self.subcommands.contains_key(arg_slice) {
-                        if arg_slice == "help" {
+                        if arg_slice == "help" && self.needs_subcmd_help {
                             self.print_help();
                         }
                         subcmd_name = Some(arg_slice.to_owned());
@@ -2343,7 +2376,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 vals.insert(len, arg_slice.to_owned());
                             }
                         }
-
                     } else {
                         // Only increment the positional counter if it doesn't allow multiples
                         pos_counter += 1;
@@ -2407,7 +2439,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
                         parse_group_reqs!(self, p);
                     }
-
                 } else {
                     return Err(self.report_error(format!("The argument '{}' was found, but '{}' \
                         wasn't expecting any", Format::Warning(arg.as_ref()),
