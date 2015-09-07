@@ -34,7 +34,7 @@ impl<'u> Iterator for UsageParser<'u> {
     fn next(&mut self) -> Option<UsageToken<'u>> {
         loop {
             match self.chars.next() {
-                Some(c) if c == '[' || c == '<'  => {
+                Some(c) if c == '[' || c == '<' => {
                     // self.s = self.e + 1;
                     if self.e != 0 {
                         self.e += 1;
@@ -43,27 +43,33 @@ impl<'u> Iterator for UsageParser<'u> {
                     let closing = match c {
                         '[' => ']',
                         '<' => '>',
-                        _   => unreachable!()
+                        _ => unreachable!(),
                     };
-                    while let Some(c) =  self.chars.next() {
+                    while let Some(c) = self.chars.next() {
                         self.e += 1;
-                        if c == closing { break }
+                        if c == closing {
+                            break
+                        }
                     }
-                    if self.e > self.usage.len() { return None }
+                    if self.e > self.usage.len() {
+                        return None
+                    }
 
                     let name = &self.usage[self.s..self.e];
 
                     return Some(UsageToken::Name(name, if c == '<' { Some(true) } else { None }));
-                },
+                }
                 Some('\'') => {
                     self.s = self.e + 2;
                     self.e = self.usage.len() - 1;
 
-                    while let Some(_) = self.chars.next() { continue }
+                    while let Some(_) = self.chars.next() {
+                        continue
+                    }
 
                     return Some(UsageToken::Help(&self.usage[self.s..self.e]));
-                },
-                Some('-')  => {
+                }
+                Some('-') => {
                     self.e += 1;
                     match self.chars.next() {
                         Some('-') => {
@@ -75,16 +81,20 @@ impl<'u> Iterator for UsageParser<'u> {
 
                             while let Some(c) = self.chars.next() {
                                 self.e += 1;
-                                if c == ' ' || c == '=' || c == '.' { break }
+                                if c == ' ' || c == '=' || c == '.' {
+                                    break
+                                }
                             }
-                            if self.e > self.usage.len() { return None }
+                            if self.e > self.usage.len() {
+                                return None
+                            }
 
                             if self.e == self.usage.len() - 1 {
                                 return Some(UsageToken::Long(&self.usage[self.s..]))
                             }
                             return Some(UsageToken::Long(&self.usage[self.s..self.e]))
-                        },
-                        Some(c)  => {
+                        }
+                        Some(c) => {
                             // When short is first don't increment e
                             if self.e != 1 {
                                 self.e += 1;
@@ -94,12 +104,12 @@ impl<'u> Iterator for UsageParser<'u> {
                                 return None
                             }
                             return Some(UsageToken::Short(c))
-                        },
-                        _      => {
+                        }
+                        _ => {
                             return None
                         }
                     }
-                },
+                }
                 Some('.') => {
                     self.e += 1;
                     let mut mult = false;
@@ -108,8 +118,10 @@ impl<'u> Iterator for UsageParser<'u> {
                         match self.chars.next() {
                             // longs consume one '.' so they match '.. ' whereas shorts can
                             // match '...'
-                            Some('.') | Some(' ')  => { mult = true; },
-                            _          => {
+                            Some('.') | Some(' ') => {
+                                mult = true;
+                            }
+                            _ => {
                                 // if there is no help or following space all we can match is '..'
                                 if self.e == self.usage.len() - 1 {
                                     mult = true;
@@ -118,18 +130,19 @@ impl<'u> Iterator for UsageParser<'u> {
                             }
                         }
                     }
-                    if mult { return Some(UsageToken::Multiple) }
-                },
+                    if mult {
+                        return Some(UsageToken::Multiple)
+                    }
+                }
                 Some(' ') | Some('=') | Some(']') | Some('>') | Some('\t') | Some(',') => {
                     self.e += 1;
                     continue
-                },
+                }
                 None => {
                     return None
-                },
-                Some(c) => {
-                    panic!("Usage parser error, unexpected \"{}\" at \"{}\", check from_usage call", c, self.usage);
                 }
+                Some(c) => panic!("Usage parser error, unexpected \
+                                  \"{}\" at \"{}\", check from_usage call", c, self.usage),
             }
         }
     }

@@ -80,7 +80,8 @@ fn test_enums() {
 
 #[test]
 fn create_app() {
-    let _ = App::new("test").version("1.0").author("kevin").about("does awesome things").get_matches();
+    let _ =
+        App::new("test").version("1.0").author("kevin").about("does awesome things").get_matches();
 }
 
 #[test]
@@ -908,5 +909,3 @@ fn create_multiple_subcommands() {
                 .arg(Arg::with_name("other").long("other"))
                 .get_matches();
 }
-
-

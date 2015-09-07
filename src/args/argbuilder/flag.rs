@@ -1,5 +1,5 @@
 // use std::collections::HashSet;
-use std::fmt::{ Display, Formatter, Result };
+use std::fmt::{Display, Formatter, Result};
 
 pub struct FlagBuilder<'n> {
     pub name: &'n str,
@@ -26,11 +26,13 @@ pub struct FlagBuilder<'n> {
     pub short: Option<char>,
     pub global: bool,
     /// A list of names for other arguments that *mutually override* this flag
-    pub overrides: Option<Vec<&'n str>>
+    pub overrides: Option<Vec<&'n str>>,
 }
 
 impl<'n> Display for FlagBuilder<'n> {
-    fn fmt(&self, f: &mut Formatter) -> Result {
+    fn fmt(&self,
+           f: &mut Formatter) 
+           -> Result {
         if let Some(l) = self.long {
             write!(f, "--{}", l)
         } else {
@@ -53,7 +55,7 @@ mod test {
             blacklist: None,
             requires: None,
             global: false,
-            overrides: None
+            overrides: None,
         };
 
         assert_eq!(&*format!("{}", f), "--flag");
@@ -67,7 +69,7 @@ mod test {
             blacklist: None,
             requires: None,
             global: false,
-            overrides: None
+            overrides: None,
         };
 
         assert_eq!(&*format!("{}", f2), "-f");

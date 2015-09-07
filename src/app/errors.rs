@@ -158,7 +158,7 @@ pub enum ClapErrorType {
     ///         .multiple(false))
     ///     .get_matches_from_safe(vec!["", "--debug", "--debug"]);
     /// ```
-    UnexpectedMultipleUsage
+    UnexpectedMultipleUsage,
 }
 
 /// Command line argument parser error
@@ -167,7 +167,7 @@ pub struct ClapError {
     /// Formated error message
     pub error: String,
     /// Command line argument parser error type
-    pub error_type: ClapErrorType
+    pub error_type: ClapErrorType,
 }
 
 impl Error for ClapError {
@@ -177,7 +177,9 @@ impl Error for ClapError {
 }
 
 impl fmt::Display for ClapError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self,
+           f: &mut fmt::Formatter) 
+           -> fmt::Result {
         write!(f, "{}", self.error)
     }
 }

@@ -1,6 +1,6 @@
 use std::rc::Rc;
 use std::collections::BTreeSet;
-use std::fmt::{ Display, Formatter, Result };
+use std::fmt::{Display, Formatter, Result};
 use std::result::Result as StdResult;
 
 pub struct OptBuilder<'n> {
@@ -34,11 +34,13 @@ pub struct OptBuilder<'n> {
     pub global: bool,
     pub validator: Option<Rc<Fn(String) -> StdResult<(), String>>>,
     /// A list of names for other arguments that *mutually override* this flag
-    pub overrides: Option<Vec<&'n str>>
+    pub overrides: Option<Vec<&'n str>>,
 }
 
 impl<'n> Display for OptBuilder<'n> {
-    fn fmt(&self, f: &mut Formatter) -> Result {
+    fn fmt(&self,
+           f: &mut Formatter) 
+           -> Result {
         // Write the name such --long or -l
         if let Some(l) = self.long {
             try!(write!(f, "--{}", l));
@@ -89,7 +91,7 @@ mod test {
             empty_vals: true,
             global: false,
             validator: None,
-            overrides: None
+            overrides: None,
         };
 
         assert_eq!(&*format!("{}", o), "--option <opt>...");
@@ -115,7 +117,7 @@ mod test {
             empty_vals: true,
             global: false,
             validator: None,
-            overrides: None
+            overrides: None,
         };
 
         assert_eq!(&*format!("{}", o2), "-o <file> <name>");

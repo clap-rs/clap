@@ -2,10 +2,11 @@ use std::collections::BTreeMap;
 
 #[doc(hidden)]
 pub struct MatchedArg {
-	// #[doc(hidden)]
+    // #[doc(hidden)]
     // pub name: String,
-	#[doc(hidden)]
+    #[doc(hidden)]
     pub occurrences: u8,
-	#[doc(hidden)]
-    pub values: Option<BTreeMap<u8, String>>
+    #[doc(hidden)]
+    // Consider VecMap<String> once stablized
+    pub values: Option<BTreeMap<u8, String>>,
 }
