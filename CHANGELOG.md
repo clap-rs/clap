@@ -1,3 +1,23 @@
+<a name="v1.3.2"></a>
+### v1.3.2 (2015-09-08)
+
+
+#### Documentation
+
+*   fixed ClapErrorType docs ([dd057843](https://github.com/kbknapp/clap-rs/commit/dd05784327fa070eb6ce5ce89a8507e011d8db94))
+* **ClapErrorType:**  changed examples content ([b9ca2616](https://github.com/kbknapp/clap-rs/commit/b9ca261634b89613bbf3d98fd74d55cefbb31a8c))
+
+#### Bug Fixes
+
+*   fixes a bug where the help subcommand wasn't overridable ([94003db4](https://github.com/kbknapp/clap-rs/commit/94003db4b5eebe552ca337521c1c001295822745))
+
+#### Features
+
+*   adds abiltiy not consume self when parsing matches and/or exit on help ([94003db4](https://github.com/kbknapp/clap-rs/commit/94003db4b5eebe552ca337521c1c001295822745))
+* **App:**  Added ability for users to handle errors themselves ([934e6fbb](https://github.com/kbknapp/clap-rs/commit/934e6fbb643b2385efc23444fe6fce31494dc288))
+
+
+
 <a name="v1.3.1"></a>
 ### v1.3.1 (2015-09-04)
 

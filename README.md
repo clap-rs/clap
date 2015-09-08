@@ -8,8 +8,11 @@ It is a simple to use, efficient, and full featured library for parsing command 
 
 ## What's New
 
-If you're already familiar with `clap` but just want to see some new highlights as of **1.3.0**
+If you're already familiar with `clap` but just want to see some new highlights as of **1.3.2**
 
+* Code Coverage has now been added, and is slowly going up (See the badge at the top of this page)! Thanks to [Vinatorul](https://github.com/vinatorul) for the leg work!
+* You can now call `get_matches_*` to *not* consume the `App` struct (See those ending in `_borrow`)
+* You can now handle get a `Result` from the `get_matches_*` methods in order to handle errors if you so choose (see those ending in `_safe`)
 * You can now **build a CLI from YAML** - This keeps your Rust source nice and tidy :) Full details can be found in [examples/17_yaml.rs](https://github.com/kbknapp/clap-rs/blob/master/examples/17_yaml.rs)
 * A very minor "breaking" change which should affect very, very few people. If you're using `ArgGroup::*_all`, they no longer take a `Vec<&str>`, but now takes a far more versatile `&[&str]`. If you were using code such as `.add_all(vec!["arg1", "arg2"])` you only need to change the `vec!`->`&` and it should work again. This also has the added benefit of not needlessly allocating the `Vec`!
 * Some other minor bug fixes and improvements
@@ -475,6 +478,11 @@ There are a few goals of `clap` that I'd like to maintain throughout contributio
 
 Although I do my best to keep breaking changes to a minimum, being that this a sub 1.0 library, there are breaking changes from time to time in order to support better features or implementation. For the full details see the changelog.md
 
+* As of 1.3.0
+ - `ArgGroup::add_all` now takes `&[&str]` instead of a `Vec<&str>`
+ - `ArgGroup::requires_all` now takes `&[&str]` instead of a `Vec<&str>`
+ - `ArgGroup::conflicts_with_all` now takes `&[&str]` instead of a `Vec<&str>`
+
 * As of 0.11.0: The default short flag for `version` has changed from `-v` to `-V` (Uppercase). Although you can also now override the short flag for `help` and `version` using `App::help_short()` and `App::version_short()`
 * As of 0.7.0
   - `Arg::possible_values()`, `Arg::value_names()`, `Arg::requires_all()`, `Arg::mutually_excludes_all()` [deprecated], `Arg::conflicts_with_all()`
@@ -491,10 +499,6 @@ Although I do my best to keep breaking changes to a minimum, being that this a s
 
 Old method names will be left around for some time.
 
-* As of 1.3.0
- - `ArgGroup::add_all` now takes `&[&str]` instead of a `Vec<&str>`
- - `ArgGroup::requires_all` now takes `&[&str]` instead of a `Vec<&str>`
- - `ArgGroup::conflicts_with_all` now takes `&[&str]` instead of a `Vec<&str>`
 * As of 1.2.0 (Will **not** be removed until 2.x)
  - `App::subcommands_negate_reqs(bool)` -> `AppSettings::SubcommandsNegateReqs` passed to `App::setting()`
  - `App::subcommand_required(bool)` -> `AppSettings::SubcommandRequired` passed to `App::setting()`
