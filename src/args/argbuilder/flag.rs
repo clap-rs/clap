@@ -57,6 +57,7 @@ mod test {
             requires: None,
             global: false,
             overrides: None,
+            hidden: false,
         };
 
         assert_eq!(&*format!("{}", f), "--flag");
@@ -71,6 +72,7 @@ mod test {
             requires: None,
             global: false,
             overrides: None,
+            hidden: false,
         };
 
         assert_eq!(&*format!("{}", f2), "-f");

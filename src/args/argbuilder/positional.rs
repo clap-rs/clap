@@ -72,6 +72,7 @@ mod test {
             global: false,
             validator: None,
             overrides: None,
+            hidden: false,
         };
 
         assert_eq!(&*format!("{}", p), "[pos]...");
@@ -92,6 +93,7 @@ mod test {
             global: false,
             validator: None,
             overrides: None,
+            hidden: false,
         };
 
         assert_eq!(&*format!("{}", p2), "<pos>");

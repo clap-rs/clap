@@ -93,6 +93,7 @@ mod test {
             global: false,
             validator: None,
             overrides: None,
+            hidden: false,
         };
 
         assert_eq!(&*format!("{}", o), "--option <opt>...");
@@ -119,6 +120,7 @@ mod test {
             global: false,
             validator: None,
             overrides: None,
+            hidden: false,
         };
 
         assert_eq!(&*format!("{}", o2), "-o <file> <name>");
