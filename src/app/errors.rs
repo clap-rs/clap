@@ -1,3 +1,4 @@
+use std::process;
 use std::error::Error;
 use std::fmt;
 
@@ -135,6 +136,24 @@ pub enum ClapErrorType {
     ///     .get_matches_from_safe(vec![""]);
     /// ```
     MissingSubcommand,
+    /// Occurs when no argument or subcommand has been supplied and 
+    /// `AppSettings::ArgRequiredElseHelp` was used
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, AppSettings, SubCommand};
+    /// let result = App::new("myprog")
+    ///     .setting(AppSettings::ArgRequiredElseHelp)
+    ///     .subcommand(SubCommand::with_name("conifg")
+    ///         .about("Used for configuration")
+    ///         .arg(Arg::with_name("config_file")
+    ///             .help("The configuration file to use")
+    ///             .index(1)))
+    ///     .get_matches_from_safe(vec![""]);
+    /// ```
+    MissingArgumentOrSubcommand,
     /// Error occurs when clap find argument while is was not expecting any
     ///
     ///
@@ -168,6 +187,14 @@ pub struct ClapError {
     pub error: String,
     /// Command line argument parser error type
     pub error_type: ClapErrorType,
+}
+
+impl ClapError {
+    /// Prints the error to `stderr` and exits with a status of `1`
+    pub fn exit(&self) -> ! {
+        wlnerr!("{}", self.error);
+        process::exit(1);
+    }
 }
 
 impl Error for ClapError {

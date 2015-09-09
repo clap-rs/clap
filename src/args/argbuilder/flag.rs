@@ -27,6 +27,7 @@ pub struct FlagBuilder<'n> {
     pub global: bool,
     /// A list of names for other arguments that *mutually override* this flag
     pub overrides: Option<Vec<&'n str>>,
+    pub hidden: bool
 }
 
 impl<'n> Display for FlagBuilder<'n> {
@@ -56,6 +57,7 @@ mod test {
             requires: None,
             global: false,
             overrides: None,
+            hidden: false,
         };
 
         assert_eq!(&*format!("{}", f), "--flag");
@@ -70,6 +72,7 @@ mod test {
             requires: None,
             global: false,
             overrides: None,
+            hidden: false,
         };
 
         assert_eq!(&*format!("{}", f2), "-f");

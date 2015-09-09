@@ -102,6 +102,8 @@ pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// A list of names for other arguments that *mutually override* this flag
     #[doc(hidden)]
     pub overrides: Option<Vec<&'r str>>,
+    #[doc(hidden)]
+    pub hidden: bool
 }
 
 impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
@@ -145,6 +147,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             empty_vals: true,
             validator: None,
             overrides: None,
+            hidden: false,
         }
     }
 
@@ -395,6 +398,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             empty_vals: true,
             validator: None,
             overrides: None,
+            hidden: false,
         }
     }
 
@@ -772,6 +776,26 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self
     }
 
+    /// Hides an argument from help message output.
+    ///
+    /// **NOTE:** This does **not** hide the argument from usage strings on error
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # let matches = App::new("myprog")
+    /// #                 .arg(
+    /// # Arg::with_name("debug")
+    /// .hidden(true)
+    /// # ).get_matches();
+    pub fn hidden(mut self,
+                  h: bool) 
+                  -> Self {
+        self.hidden = h;
+        self
+    }
+
     /// Specifies a list of possible values for this argument. At runtime, clap verifies that only
     /// one of the specified values was used, or fails with a usage string.
     ///
@@ -1061,6 +1085,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r, 'z> From<&'z Arg<'n, 'l, 'h, 'g, 'p, 'r>>
             empty_vals: a.empty_vals,
             validator: a.validator.clone(),
             overrides: a.overrides.clone(),
+            hidden: a.hidden
         }
     }
 }

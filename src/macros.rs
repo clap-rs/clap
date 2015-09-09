@@ -120,28 +120,28 @@ macro_rules! remove_override {
 
 // De-duplication macro used in src/app.rs
 macro_rules! print_opt_help {
-    ($me:ident, $opt:ident, $spc:expr) => {
+    ($me:ident, $opt:ident, $spc:expr, $w:ident) => {
         if let Some(h) = $opt.help {
             if h.contains("{n}") {
                 let mut hel = h.split("{n}");
                 if let Some(part) = hel.next() {
-                    print!("{}", part);
+                    try!(write!($w, "{}", part));
                 }
                 while let Some(part) = hel.next() {
-                    print!("\n");
-                    $me.print_spaces($spc);
-                    print!("{}", part);
-                    // print!("{}", hel.next().unwrap_or(""));
+                    try!(write!($w, "\n"));
+                    try!($me.print_spaces($spc, $w));
+                    try!(write!($w, "{}", part));
+                    // try!(write!($w, "{}", hel.next().unwrap_or("")));
                 }
             } else {
-                print!("{}", h);
+                try!(write!($w, "{}", h));
             }
             if let Some(ref pv) = $opt.possible_vals {
-                print!(" [values:");
+                try!(write!($w, " [values:"));
                 for pv_s in pv.iter() {
-                    print!(" {}", pv_s);
+                    try!(write!($w, " {}", pv_s));
                 }
-                print!("]");
+                try!(write!($w, "]"));
             }
         }
     };

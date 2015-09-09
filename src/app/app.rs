@@ -1,7 +1,9 @@
 use std::collections::{BTreeMap, HashMap, VecDeque};
 use std::env;
-use std::io::{self, BufRead, Write};
+use std::io::{self, BufRead, BufWriter, Write};
 use std::path::Path;
+use std::process;
+use std::error::Error;
 
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
@@ -16,8 +18,8 @@ use super::suggestions::{DidYouMeanMessageStyle, did_you_mean};
 use super::errors::{ClapErrorType, ClapError};
 
 
-const INTERNAL_ERROR_MSG: &'static str = "Internal Error: Failed to write string. Please consider \
-                                          filing a bug report!";
+const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider filing a bug \
+                                          report at https://github.com/kbknapp/clap-rs/issues";
 
 /// Used to create a representation of a command line program and all possible command line
 /// arguments.
@@ -95,6 +97,7 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     versionless_scs: Option<bool>,
     unified_help: bool,
     overrides: Vec<&'ar str>,
+    hidden: bool
 }
 
 impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
@@ -146,7 +149,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             global_ver: false,
             versionless_scs: None,
             unified_help: false,
-            overrides: vec![],
+            hidden: false,
+            overrides: vec![]
         }
     }
 
@@ -521,6 +525,26 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
+    /// Hides a subcommand from help message output.
+    ///
+    /// **NOTE:** This does **not** hide the subcommand from usage strings on error
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, SubCommand};
+    /// # let matches = App::new("myprog")
+    /// #                 .subcommand(
+    /// # SubCommand::with_name("debug")
+    /// .hidden(true)
+    /// # ).get_matches();
+    pub fn hidden(mut self,
+                  h: bool) 
+                  -> Self {
+        self.hidden = h;
+        self
+    }
+
     /// Uses version of the current command for all subcommands. (Defaults to false; subcommands
     /// have independant version strings)
     ///
@@ -827,6 +851,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 empty_vals: a.empty_vals,
                 validator: None,
                 overrides: None,
+                hidden: a.hidden
             };
             if pb.min_vals.is_some() && !pb.multiple {
                 panic!("Argument \"{}\" does not allow multiple values, yet it is expecting {} \
@@ -906,6 +931,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 empty_vals: a.empty_vals,
                 validator: None,
                 overrides: None,
+                hidden: a.hidden
             };
             if let Some(ref vec) = ob.val_names {
                 ob.num_vals = Some(vec.len() as u8);
@@ -994,6 +1020,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 multiple: a.multiple,
                 requires: None,
                 overrides: None,
+                hidden: a.hidden
             };
             // Check if there is anything in the blacklist (mutually excludes list) and add any
             // values
@@ -1542,26 +1569,43 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         usage
     }
 
-    // // Prints the usage statement to the user
-    // fn print_usage(&self, more_info: bool, matches: Option<Vec<&str>>) {
-    //     print!("{}",self.create_usage(matches));
-    //     if more_info {
-    //         println!("\n\nFor more information try {}", Format::Good("--help"));
-    //     }
-    // }
+    /// Prints the full help message to `io::stdout()` using a `BufWriter`
+    ///
+    /// # Examples
+    /// ```no_run
+    /// # use clap::App;
+    /// # use std::io;
+    /// let mut app = App::new("myprog");
+    /// let mut out = io::stdout();
+    /// app.write_help(&mut out).ok().expect("failed to write to stdout");
+    /// ```
+    pub fn print_help(&self) -> io::Result<()> {
+        let out = io::stdout();
+        let mut buf_w = BufWriter::new(out.lock());
+        self.write_help(&mut buf_w)
+    }
 
-    // Prints the full help message to the user
-    fn print_help(&self) {
+    /// Writes the full help message to the user to a `io::Write` object
+    ///
+    /// ```no_run
+    /// # use clap::App;
+    /// # use std::io;
+    /// let mut app = App::new("myprog");
+    /// let mut out = io::stdout();
+    /// app.write_help(&mut out).ok().expect("failed to write to stdout");
+    /// ```
+    pub fn write_help<W: Write>(&self,
+                            w: &mut W)
+                            -> io::Result<()> {
         if let Some(h) = self.help_str {
-            println!("{}", h);
-            return
+            return writeln!(w, "{}", h)
         }
 
         // Print the version
-        print!("{} {}\n", &self.bin_name.clone().unwrap_or(
+        try!(write!(w, "{} {}\n", &self.bin_name.clone().unwrap_or(
             self.name.clone())[..].replace(" ", "-"),
             self.version.unwrap_or("")
-        );
+        ));
         let flags = !self.flags.is_empty();
         let pos = !self.positionals_idx.is_empty();
         let opts = !self.opts.is_empty();
@@ -1570,7 +1614,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut longest_flag = 0;
         for fl in self.flags
             .values()
-            .filter(|f| f.long.is_some())
+            .filter(|f| f.long.is_some() && !f.hidden)
             // 2='--'
             .map(|a| a.to_string().len() ) {
             if fl > longest_flag {
@@ -1580,7 +1624,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut longest_opt = 0;
         for ol in self.opts
             .values()
-            // .filter(|ref o| o.long.is_some())
+            .filter(|o| !o.hidden)
             .map(|a|
                 a.to_string().len() // + if a.short.is_some() { 4 } else { 0 }
             ) {
@@ -1591,6 +1635,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut longest_pos = 0;
         for pl in self.positionals_idx
             .values()
+            .filter(|p| !p.hidden)
             .map(|f| f.to_string().len() ) {
             if pl > longest_pos {
                 longest_pos = pl;
@@ -1599,6 +1644,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut longest_sc = 0;
         for scl in self.subcommands
             .values()
+            .filter(|s| !s.hidden)
             .map(|f| f.name.len() ) {
             if scl > longest_sc {
                 longest_sc = scl;
@@ -1606,203 +1652,203 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
 
         if let Some(author) = self.author {
-            print!("{}\n", author);
+            try!(write!(w, "{}\n", author));
         }
         if let Some(about) = self.about {
-            print!("{}\n", about);
+            try!(write!(w, "{}\n", about));
         }
 
-        print!("\n{}", self.create_usage(None));
+        try!(write!(w, "\n{}", self.create_usage(None)));
 
         if flags || opts || pos || subcmds {
-            print!("\n");
+            try!(write!(w, "\n"));
         }
 
         let tab = "    ";
         if flags {
             if !self.unified_help {
-                print!("\nFLAGS:\n");
+                try!(write!(w, "\nFLAGS:\n"));
             } else {
-                print!("\nOPTIONS:\n")
+                try!(write!(w, "\nOPTIONS:\n"))
             }
-            for v in self.flags.values() {
-                print!("{}", tab);
+            for v in self.flags
+                         .values() 
+                         .filter(|f| !f.hidden) {
+                try!(write!(w, "{}", tab));
                 if let Some(s) = v.short {
-                    print!("-{}",s);
+                    try!(write!(w, "-{}",s));
                 } else {
-                    print!("{}", tab);
+                    try!(write!(w, "{}", tab));
                 }
                 if let Some(l) = v.long {
-                    print!("{}--{}",
+                    try!(write!(w, "{}--{}",
                         if v.short.is_some() { ", " } else {""},
                         l
-                    );
-                    self.print_spaces(
+                    ));
+                    try!(self.print_spaces(
                             if !self.unified_help || longest_opt == 0 {
                                 (longest_flag + 4)
                             } else {
                                 (longest_opt + 4)
-                            } - (l.len() + 2)
-                    );
+                            } - (l.len() + 2),
+                            w
+                    ));
                 } else {
                     // 6 is tab (4) + -- (2)
-                    self.print_spaces(
+                    try!(self.print_spaces(
                         if !self.unified_help {
                             (longest_flag + 6)
                         } else {
                             (longest_opt + 6)
-                        }
-                    );
+                        },
+                        w
+                    ));
                 }
                 if let Some(h) = v.help {
                     if h.contains("{n}") {
                         let mut hel = h.split("{n}");
                         while let Some(part) = hel.next() {
-                            print!("{}\n", part);
-                            self.print_spaces(
+                            try!(write!(w, "{}\n", part));
+                            try!(self.print_spaces(
                                 if !self.unified_help {
                                     longest_flag
                                 } else {
                                     longest_opt
-                                } + 12);
-                            print!("{}", hel.next().unwrap_or(""));
+                                } + 12, w));
+                            try!(write!(w, "{}", hel.next().unwrap_or("")));
                         }
                     } else {
-                        print!("{}", h);
+                        try!(write!(w, "{}", h));
                     }
                 }
-                print!("\n");
+                try!(write!(w, "\n"));
             }
         }
         if opts {
             if !self.unified_help {
-                print!("\nOPTIONS:\n");
+                try!(write!(w, "\nOPTIONS:\n"));
             } else {
                 // maybe erase
             }
-            for v in self.opts.values() {
+            for v in self.opts
+                         .values() 
+                         .filter(|o| !o.hidden) {
                 // if it supports multiple we add '...' i.e. 3 to the name length
-                print!("{}", tab);
+                try!(write!(w, "{}", tab));
                 if let Some(s) = v.short {
-                    print!("-{}",s);
+                    try!(write!(w, "-{}",s));
                 } else {
-                    print!("{}", tab);
+                    try!(write!(w, "{}", tab));
                 }
                 if let Some(l) = v.long {
-                    print!("{}--{}", if v.short.is_some() {", "} else {""}, l);
+                    try!(write!(w, "{}--{}", if v.short.is_some() {", "} else {""}, l));
                 }
                 if let Some(ref vec) = v.val_names {
                     for val in vec {
-                        print!(" <{}>", val);
+                        try!(write!(w, " <{}>", val));
                     }
                 } else if let Some(num) = v.num_vals {
                     for _ in (0..num) {
-                        print!(" <{}>", v.name);
+                        try!(write!(w, " <{}>", v.name));
                     }
                 } else {
-                    print!(" <{}>{}", v.name, if v.multiple{"..."} else {""});
+                    try!(write!(w, " <{}>{}", v.name, if v.multiple{"..."} else {""}));
                 }
                 if v.long.is_some() {
-                    self.print_spaces(
-                        (longest_opt + 4) - (v.to_string().len())
-                    );
+                    try!(self.print_spaces(
+                        (longest_opt + 4) - (v.to_string().len()), w
+                    ));
                 } else {
                     // 8 = tab + '-a, '.len()
-                    self.print_spaces((longest_opt + 8) - (v.to_string().len()));
+                    try!(self.print_spaces((longest_opt + 8) - (v.to_string().len()), w));
                 };
-                print_opt_help!(self, v, longest_opt + 12);
-                print!("\n");
+                print_opt_help!(self, v, longest_opt + 12, w);
+                try!(write!(w, "\n"));
             }
         }
         if pos {
-            print!("\nARGS:\n");
-            for v in self.positionals_idx.values() {
+            try!(write!(w, "\nARGS:\n"));
+            for v in self.positionals_idx
+                         .values() 
+                         .filter(|p| !p.hidden) {
                 // let mult = if v.multiple { 3 } else { 0 };
-                print!("{}", tab);
-                print!("{}", v.name);
+                try!(write!(w, "{}", tab));
+                try!(write!(w, "{}", v.name));
                 if v.multiple {
-                    print!("...");
+                    try!(write!(w, "..."));
                 }
-                self.print_spaces((longest_pos + 4) - (v.to_string().len()));
+                try!(self.print_spaces((longest_pos + 4) - (v.to_string().len()), w));
                 if let Some(h) = v.help {
                     if h.contains("{n}") {
                         let mut hel = h.split("{n}");
                         while let Some(part) = hel.next() {
-                            print!("{}\n", part);
-                            self.print_spaces(longest_pos + 6);
-                            print!("{}", hel.next().unwrap_or(""));
+                            try!(write!(w, "{}\n", part));
+                            try!(self.print_spaces(longest_pos + 6, w));
+                            try!(write!(w, "{}", hel.next().unwrap_or("")));
                         }
                     } else {
-                        print!("{}", h);
+                        try!(write!(w, "{}", h));
                     }
                 }
-                print!("\n");
+                try!(write!(w, "\n"));
             }
         }
         if subcmds {
-            print!("\nSUBCOMMANDS:\n");
-            for sc in self.subcommands.values() {
-                print!("{}{}", tab, sc.name);
-                self.print_spaces((longest_sc + 4) - (sc.name.len()));
+            try!(write!(w, "\nSUBCOMMANDS:\n"));
+            for sc in self.subcommands
+                          .values()
+                          .filter(|s| !s.hidden) {
+                try!(write!(w, "{}{}", tab, sc.name));
+                try!(self.print_spaces((longest_sc + 4) - (sc.name.len()), w));
                 if let Some(a) = sc.about {
                     if a.contains("{n}") {
                         let mut ab = a.split("{n}");
                         while let Some(part) = ab.next() {
-                            print!("{}\n", part);
-                            self.print_spaces(longest_sc + 8);
-                            print!("{}", ab.next().unwrap_or(""));
+                            try!(write!(w, "{}\n", part));
+                            try!(self.print_spaces(longest_sc + 8, w));
+                            try!(write!(w, "{}", ab.next().unwrap_or("")));
                         }
                     } else {
-                        print!("{}", a);
+                        try!(write!(w, "{}", a));
                     }
                 }
-                print!("\n");
+                try!(write!(w, "\n"));
             }
         }
 
         if let Some(h) = self.more_help {
-            print!("\n{}", h);
+            try!(write!(w, "\n{}", h));
         }
 
         // flush the buffer
-        println!("");
-
-        self.exit(0);
+        w.flush()
     }
 
     // Used when spacing arguments and their help message when displaying help information
-    fn print_spaces(&self,
-                    num: usize) {
+    fn print_spaces<W: Write>(&self,
+                    num: usize,
+                    w: &mut W)
+                    -> io::Result<()> {
         for _ in (0..num) {
-            print!(" ");
+            try!(write!(w, " "));
         }
+
+        // Flush? or let parent print_help flush?
+        // w.flush()
+
+        Ok(())
     }
 
     // Prints the version to the user and exits if quit=true
-    fn print_version(&self,
-                     quit: bool) {
+    fn print_version<W: Write>(&self,
+                               w: &mut W)
+                               -> io::Result<()> {
         // Print the binary name if existing, but replace all spaces with hyphens in case we're
         // dealing with subcommands i.e. git mv is translated to git-mv
-        println!("{} {}", &self.bin_name.clone().unwrap_or(
+        writeln!(w, "{} {}", &self.bin_name.clone().unwrap_or(
             self.name.clone())[..].replace(" ", "-"),
             self.version.unwrap_or("")
-        );
-        if quit {
-            self.exit(0);
-        }
-    }
-
-    // Exits with a status code passed to the OS
-    // This is legacy from before std::process::exit() and may be removed evenutally
-    fn exit(&self,
-            status: i32) {
-        if self.wait_on_error {
-            wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
-            let mut s = String::new();
-            let i = io::stdin();
-            i.lock().read_line(&mut s).unwrap();
-        }
-        ::std::process::exit(status);
+        )
     }
 
     // Reports and error to stderr along with an optional usage statement and optionally quits
@@ -1890,38 +1936,52 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         where I: IntoIterator<Item = T>,
               T: AsRef<str>
     {
-        // Verify all positional assertions pass
-        self.verify_positionals();
-        // If there are global arguments, we need to propgate them down to subcommands before
-        // parsing incase we run into a subcommand
-        self.propogate_globals();
-
-        let mut matches = ArgMatches::new();
-
-        let mut it = itr.into_iter();
-        // Get the name of the program (argument 1 of env::args()) and determine the actual file
-        // that was used to execute the program. This is because a program called
-        // ./target/release/my_prog -a
-        // will have two arguments, './target/release/my_prog', '-a' but we don't want to display
-        // the full path when displaying help messages and such
-        if let Some(name) = it.next() {
-            let p = Path::new(name.as_ref());
-            if let Some(f) = p.file_name() {
-                if let Ok(s) = f.to_os_string().into_string() {
-                    if let None = self.bin_name {
-                        self.bin_name = Some(s);
-                    }
+        match self.get_matches_from_safe_borrow(itr) {
+            Ok(m) => return m,
+            Err(e) => {
+                wlnerr!("{}", e.error);
+                if self.wait_on_error {
+                    wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
+                    let mut s = String::new();
+                    let i = io::stdin();
+                    i.lock().read_line(&mut s).unwrap();
                 }
+                process::exit(1);
             }
         }
+    }
 
-        // do the real parsing
-        if let Err(e) = self.get_matches_with(&mut matches, &mut it) {
-            wlnerr!("{}", e.error);
-            self.exit(1);
-        }
-
-        matches
+    /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
+    /// the real parsing function for all subcommands
+    ///
+    /// **NOTE:** The first argument will be parsed as the binary name.
+    ///
+    /// **NOTE:** This method should only be used when absolutely necessary, such as needing to
+    /// parse arguments from something other than `std::env::args()`. If you are unsure, use
+    /// `App::get_matches_safe()`
+    ///
+    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors 
+    /// manually.
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let arg_vec = vec!["my_prog", "some", "args", "to", "parse"];
+    ///
+    /// let matches = App::new("myprog")
+    ///     // Args and options go here...
+    ///     .get_matches_from_safe(arg_vec)
+    ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
+    /// ```
+    pub fn get_matches_from_safe<I, T>(mut self,
+                                       itr: I) 
+                                       -> Result<ArgMatches<'ar, 'ar>, ClapError>
+        where I: IntoIterator<Item = T>,
+              T: AsRef<str>
+    {
+        self.get_matches_from_safe_borrow(itr)
     }
 
     /// Starts the parsing process without consuming the `App` struct `self`. This is normally not
@@ -1987,38 +2047,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         Ok(matches)
     }
 
-    /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
-    /// the real parsing function for all subcommands
-    ///
-    /// **NOTE:** The first argument will be parsed as the binary name.
-    ///
-    /// **NOTE:** This method should only be used when absolutely necessary, such as needing to
-    /// parse arguments from something other than `std::env::args()`. If you are unsure, use
-    /// `App::get_matches_safe()`
-    ///
-    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors 
-    /// manually.
-    ///
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// let arg_vec = vec!["my_prog", "some", "args", "to", "parse"];
-    ///
-    /// let matches = App::new("myprog")
-    ///     // Args and options go here...
-    ///     .get_matches_from_safe(arg_vec)
-    ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
-    /// ```
-    pub fn get_matches_from_safe<I, T>(mut self,
-                                       itr: I) 
-                                       -> Result<ArgMatches<'ar, 'ar>, ClapError>
-        where I: IntoIterator<Item = T>,
-              T: AsRef<str>
-    {
-        self.get_matches_from_safe_borrow(itr)
-    }
 
     fn verify_positionals(&mut self) {
         // Because you must wait until all arguments have been supplied, this is the first chance
@@ -2285,7 +2313,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 if !pos_only {
                     if self.subcommands.contains_key(arg_slice) {
                         if arg_slice == "help" && self.needs_subcmd_help {
-                            self.print_help();
+                            if let Err(e) = self.print_help() {
+                                return Err(ClapError{
+                                    error: format!("{} {}\n\terror message: {}\n", 
+                                                    Format::Error("error:"),
+                                                    INTERNAL_ERROR_MSG, e.description()),
+                                    error_type: ClapErrorType::MissingSubcommand
+                                });
+                            } 
+                            process::exit(0);
                         }
                         subcmd_name = Some(arg_slice.to_owned());
                         break;
@@ -2536,8 +2572,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     },
                     sc.name.clone()));
                 if let Err(e) = sc.get_matches_with(&mut new_matches, it) {
-                    wlnerr!("{}", e.error);
-                    sc.exit(1);
+                    e.exit();
                 }
                 matches.subcommand = Some(Box::new(SubCommand {
                     name: sc.name_slice,
@@ -2552,8 +2587,19 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 ClapErrorType::MissingSubcommand,
                 App::get_args(matches)));
         } else if self.help_on_no_sc {
-            self.print_help();
-            self.exit(1);
+            let mut out = vec![];
+            match self.write_help(&mut out) {
+                Ok(..) => return Err(ClapError{
+                    error: String::from_utf8_lossy(&*out).into_owned(),
+                    error_type: ClapErrorType::MissingSubcommand
+                }),
+                Err(e) => return Err(ClapError{
+                    error: format!("{} {}\n\terror message: {}\n", 
+                                    Format::Error("error:"),
+                                    INTERNAL_ERROR_MSG, e.description()),
+                    error_type: ClapErrorType::MissingSubcommand
+                }),
+            }
         }
         if ((!self.subcmds_neg_reqs) || matches.subcommand_name().is_none()) &&
            self.validate_required(&matches) {
@@ -2569,8 +2615,19 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 App::get_args(matches)));
         }
         if matches.args.is_empty() && matches.subcommand_name().is_none() && self.help_on_no_args {
-            self.print_help();
-            self.exit(1);
+            let mut out = vec![];
+            match self.write_help(&mut out) {
+                Ok(..) => return Err(ClapError{
+                    error: String::from_utf8_lossy(&*out).into_owned(),
+                    error_type: ClapErrorType::MissingSubcommand
+                }),
+                Err(e) => return Err(ClapError{
+                    error: format!("{} {}\n\terror message: {}\n", 
+                                    Format::Error("error:"),
+                                    INTERNAL_ERROR_MSG, e.description()),
+                    error_type: ClapErrorType::MissingSubcommand
+                }),
+            }
         }
         Ok(())
     }
@@ -2655,6 +2712,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 global: false,
                 requires: None,
                 overrides: None,
+                hidden: false,
             };
             self.long_list.push("help");
             self.flags.insert("hclap_help", arg);
@@ -2675,6 +2733,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 global: false,
                 requires: None,
                 overrides: None,
+                hidden: false,
             };
             self.long_list.push("version");
             self.flags.insert("vclap_version", arg);
@@ -2686,17 +2745,24 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     fn check_for_help_and_version(&self,
-                                  arg: char) {
+                                  arg: char)
+                                  -> io::Result<()> {
         if let Some(h) = self.help_short {
             if h == arg {
-                self.print_help();
+                try!(self.print_help());
+                process::exit(0);
             }
         }
         if let Some(v) = self.version_short {
             if v == arg {
-                self.print_version(true);
+                let out = io::stdout();
+                let mut buf_w = BufWriter::new(out.lock());
+                try!(self.print_version(&mut buf_w));
+                process::exit(0);
             }
         }
+
+        Ok(())
     }
 
     fn parse_long_arg<'av>(&mut self,
@@ -2706,9 +2772,27 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut arg = full_arg.trim_left_matches(|c| c == '-');
 
         if arg == "help" && self.needs_long_help {
-            self.print_help();
+            if let Err(e) = self.print_help() {
+                return Err(ClapError{
+                    error: format!("{} {}\n\terror message: {}\n", 
+                                    Format::Error("error:"),
+                                    INTERNAL_ERROR_MSG, e.description()),
+                    error_type: ClapErrorType::MissingSubcommand
+                });
+            } 
+            process::exit(0);
         } else if arg == "version" && self.needs_long_version {
-            self.print_version(true);
+            let out = io::stdout();
+            let mut buf_w = BufWriter::new(out.lock());
+            if let Err(e) = self.print_version(&mut buf_w) {
+                return Err(ClapError{
+                    error: format!("{} {}\n\terror message: {}\n", 
+                                    Format::Error("error:"),
+                                    INTERNAL_ERROR_MSG, e.description()),
+                    error_type: ClapErrorType::MissingSubcommand
+                });
+            }
+            process::exit(0);
         }
 
         let mut arg_val: Option<&'av str> = None;
@@ -3004,7 +3088,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         if arg.len() > 1 {
             // Multiple flags using short i.e. -bgHlS
             for c in arg.chars() {
-                self.check_for_help_and_version(c);
+                if let Err(e) = self.check_for_help_and_version(c) {
+                    return Err(ClapError{
+                        error: format!("{} {}\n\terror message: {}\n", 
+                                        Format::Error("error:"),
+                                        INTERNAL_ERROR_MSG, e.description()),
+                        error_type: ClapErrorType::MissingSubcommand
+                    });
+                } 
                 match self.parse_single_short_flag(matches, c) {
                     Ok(b) => {
                         if !b {
@@ -3023,7 +3114,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let arg_c = arg.chars().nth(0).unwrap();
 
         // Ensure the arg in question isn't a help or version flag
-        self.check_for_help_and_version(arg_c);
+        if let Err(e) = self.check_for_help_and_version(arg_c) {
+            return Err(ClapError{
+                error: format!("{} {}\n\terror message: {}\n", 
+                                Format::Error("error:"),
+                                INTERNAL_ERROR_MSG, e.description()),
+                error_type: ClapErrorType::MissingSubcommand
+            });
+        } 
 
         // Check for a matching flag, and return none if found
         match self.parse_single_short_flag(matches, arg_c) {
