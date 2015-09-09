@@ -74,10 +74,10 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 
 The following examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, groups, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/clap/index.html), or `examples/` directory of this repository.
 
- **NOTE:** All these examples are functionally the same, but show four different styles in which to use `clap`
+ *NOTE:* All these examples are functionally the same, but show three different styles in which to use `clap`
 
 ```rust
-// (Full example with detailed comments in examples/01a_QuickExample.rs)
+// (Full example with detailed comments in examples/01a_quick_example.rs)
 //
 // This example demonstrates clap's "usage strings" method of creating arguments which is less
 // less verbose
@@ -134,7 +134,7 @@ fn main() {
 The following example is functionally the same as the one above, but this method allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired. Both methods can be used together to get the best of both worlds (see the documentation, examples, or video tutorials).
 
 ```rust
-// (Full example with detailed comments in examples/01b_QuickExample.rs)
+// (Full example with detailed comments in examples/01b_quick_example.rs)
 //
 // This example demonstrates clap's full 'builder pattern' style of creating arguments which is
 // more verbose, but allows easier editting, and at times more advanced options, or the possibility
@@ -203,12 +203,13 @@ fn main() {
 The following combines the previous two examples by using the simplicity of the `from_usage` methods and the performance of the Builder Pattern.
 
 ```rust
-// (Full example with detailed comments in examples/01c_QuickExample.rs)
+// (Full example with detailed comments in examples/01c_quick_example.rs)
 //
 // This example demonstrates clap's "usage strings" method of creating arguments which is less
 // less verbose
 #[macro_use]
 extern crate clap;
+use clap::{Arg, App, SubCommand};
 
 fn main() {
     let matches = clap_app!(myapp =>
@@ -365,7 +366,7 @@ SUBCOMMANDS:
     test    Controls testing features
 ```
 
-**NOTE:** You could also run `myapp test --help` to see similar output and options for the `test` subcommand.
+*NOTE:* You could also run `myapp test --help` to see similar output and options for the `test` subcommand.
 
 ## Try it!
 
