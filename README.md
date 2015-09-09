@@ -6,6 +6,30 @@ Command Line Argument Parser for Rust
 
 It is a simple to use, efficient, and full featured library for parsing command line arguments and subcommands when writing console, or terminal applications.
 
+Table of Contents
+=================
+
+* [What's New](#whats-new)
+* [About](#about)
+* [Features](#features)
+* [Quick Example](#quick-example)
+* [Try it!](#try-it)
+  * [Pre-Built Test](#pre-built-test)
+  * [BYOB (Build Your Own Binary)](#byob-build-your-own-binary)
+* [Usage](#usage)
+  * [Optional Dependencies / Features](#optional-dependencies--features)
+  * [Dependencies Tree](#dependencies-tree)
+  * [More Information](#more-information)
+    * [Video Tutorials](#video-tutorials)
+* [How to Contribute](#how-to-contribute)
+  * [Running the tests](#running-the-tests)
+  * [Goals](#goals)
+* [License](#license)
+* [Recent Breaking Changes](#recent-breaking-changes)
+  * [Deprecations](#deprecations)
+
+Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
+
 ## What's New
 
 If you're already familiar with `clap` but just want to see some new highlights as of **1.4.0**
@@ -481,7 +505,7 @@ Contributions are always welcome! And there is a multitude of ways in which you 
 
 Another really great way to help is if you find an interesting, or helpful way in which to use `clap`. You can either add it to the `examples/` directory, or file an issue and tell me. I'm all about giving credit where credit is due :)
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before start contributing.
 
 ### Running the tests
 
