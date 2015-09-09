@@ -3491,3 +3491,33 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
 }
+
+#[cfg(test)]
+mod test {
+    use super::App;
+
+    #[test]
+    fn print_app_help() {
+        let app = App::new("test")
+            .author("Kevin K.")
+            .about("tests stuff")
+            .args_from_usage("-f, --flag 'some flag'
+                              --option [opt] 'some option'");
+        let mut help = vec![];
+        app.print_help(&mut help).ok().expect("failed to print help");
+        assert_eq!(String::from_utf8_lossy(help), String::from("test
+Kevin K.
+tests stuff
+
+USAGE:
+    fake [FLAGS] [OPTIONS] [SUBCOMMAND]
+
+FLAGS:
+    -f, --flag       some flag
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+        --option <opt>    some option"));
+    }
+}
