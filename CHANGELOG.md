@@ -1,3 +1,16 @@
+<a name="v1.4.0"></a>
+## v1.4.0 (2015-09-09)
+
+
+#### Features
+
+*   allows printing help message by library consumers ([56b95f32](https://github.com/kbknapp/clap-rs/commit/56b95f320875c62dda82cb91b29059671e120ed1))
+*   allows defining hidden args and subcmds ([2cab4d03](https://github.com/kbknapp/clap-rs/commit/2cab4d0334ea3c2439a1d4bfca5bf9905c7ea9ac), closes [#231](https://github.com/kbknapp/clap-rs/issues/231))
+*   Builder macro to assist with App/Arg/Group/SubCommand building ([443841b0](https://github.com/kbknapp/clap-rs/commit/443841b012a8d795cd5c2bd69ae6e23ef9b16477))
+* **Errors:**  allows consumers to write to stderr and exit on error ([1e6403b6](https://github.com/kbknapp/clap-rs/commit/1e6403b6a863574fa3cb6946b1fb58f034e8664c))
+
+
+
 <a name="v1.3.2"></a>
 ### v1.3.2 (2015-09-08)
 
