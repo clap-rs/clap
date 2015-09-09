@@ -85,8 +85,8 @@ Below are a few of the features which `clap` supports, full descriptions and usa
   - Fully compatible with other relational rules (requirements and exclusions) which allows things like requiring the use of a group, or denying the use of a group conditionally
 * **Specific Value Sets**: Positional or Option Arguments can optionally define a specific set of allowed values (i.e. imagine a `--mode` option which may *only* have one of two values `fast` or `slow` such as `--mode fast` or `--mode slow`)
 * **Default Values**: Although not specifically provided by `clap` you can achieve this exact functionality from Rust's `Option<&str>.unwrap_or("some default")` method (or `Result<T,String>.unwrap_or(T)` when using typed values)
-* **Automatic Version from Cargo.toml**: `clap` is fully compatible with Rust's `env!()` macro for automatically setting the version of your application to the version in your Cargo.toml. See `examples/09_AutoVersion.rs` for how to do this (Thanks to [jhelwig](https://github.com/jhelwig) for pointing this out)
-* **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) from positional or option arguments so long as the type you request implements `std::str::FromStr` See the `examples/12_TypedValues.rs`. You can also use `clap`s `simple_enum!` or `arg_enum!` macro to create an enum with variants that automatically implements `std::str::FromStr`. See `examples/13a_EnumValuesAutomatic.rs` for details and performs an ascii case insensitive parse from a `string`->`enum`.
+* **Automatic Version from Cargo.toml**: `clap` is fully compatible with Rust's `env!()` macro for automatically setting the version of your application to the version in your Cargo.toml. See `examples/09_auto_version.rs` for how to do this (Thanks to [jhelwig](https://github.com/jhelwig) for pointing this out)
+* **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) from positional or option arguments so long as the type you request implements `std::str::FromStr` See the `examples/12_typed_values.rs`. You can also use `clap`s `simple_enum!` or `arg_enum!` macro to create an enum with variants that automatically implements `std::str::FromStr`. See `examples/13a_enum_values_automatic.rs` for details and performs an ascii case insensitive parse from a `string`->`enum`.
 * **Suggestions**: Suggests corrections when the user enter's a typo. For example, if you defined a `--myoption <value>` argument, and the user mistakenly typed `--moyption value` (notice `y` and `o` switched), they would receive a `Did you mean '--myoption' ?` error and exit gracefully. This also works for subcommands and flags. (Thanks to [Byron](https://github.com/Byron) for the implementation) (This feature can optionally be disabled, see 'Optional Dependencies / Features')
 * **Colorized (Red) Errors (Non Windows OS only)**: Error message are printed in red text (this feature can optionally be disabled, see 'Optional Dependencies / Features').
 * **Global Arguments**: Arguments can optionally be defined once, and be available to all child subcommands.
@@ -98,10 +98,10 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 
 The following examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, groups, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/clap/index.html), or `examples/` directory of this repository.
 
- *NOTE:* All these examples are functionally the same, but show three different styles in which to use `clap`
+ **NOTE:** All these examples are functionally the same, but show three different styles in which to use `clap`
 
 ```rust
-// (Full example with detailed comments in examples/01a_QuickExample.rs)
+// (Full example with detailed comments in examples/01a_quick_example.rs)
 //
 // This example demonstrates clap's "usage strings" method of creating arguments which is less
 // less verbose
@@ -158,7 +158,7 @@ fn main() {
 The following example is functionally the same as the one above, but this method allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired. Both methods can be used together to get the best of both worlds (see the documentation, examples, or video tutorials).
 
 ```rust
-// (Full example with detailed comments in examples/01b_QuickExample.rs)
+// (Full example with detailed comments in examples/01b_quick_example.rs)
 //
 // This example demonstrates clap's full 'builder pattern' style of creating arguments which is
 // more verbose, but allows easier editting, and at times more advanced options, or the possibility
@@ -227,13 +227,12 @@ fn main() {
 The following combines the previous two examples by using the simplicity of the `from_usage` methods and the performance of the Builder Pattern.
 
 ```rust
-// (Full example with detailed comments in examples/01c_QuickExample.rs)
+// (Full example with detailed comments in examples/01c_quick_example.rs)
 //
 // This example demonstrates clap's "usage strings" method of creating arguments which is less
 // less verbose
 #[macro_use]
 extern crate clap;
-use clap::{Arg, App, SubCommand};
 
 fn main() {
     let matches = clap_app!(myapp =>
@@ -390,7 +389,7 @@ SUBCOMMANDS:
     test    Controls testing features
 ```
 
-*NOTE:* You could also run `myapp test --help` to see similar output and options for the `test` subcommand.
+**NOTE:** You could also run `myapp test --help` to see similar output and options for the `test` subcommand.
 
 ## Try it!
 
