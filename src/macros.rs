@@ -739,3 +739,121 @@ macro_rules! crate_version {
             option_env!("CARGO_PKG_VERSION_PRE").unwrap_or(""))
     }
 }
+
+/// App, Arg, SubCommand and Group builder macro (Usage-string like input)
+#[macro_export]
+macro_rules! clap_app {
+    (@app ($builder:expr)) => { $builder };
+    (@app ($builder:expr) (@arg $name:ident: $($tail:tt)*) $($tt:tt)*) => {
+        clap_app!{ @app
+            ($builder.arg(clap_app!{ @arg ($crate::Arg::with_name(stringify!($name))) (-) $($tail)* }))
+            $($tt)*
+        }
+    };
+    (@app ($builder:expr) (@setting $setting:ident) $($tt:tt)*) => {
+        clap_app!{ @app
+            ($builder.setting($crate::AppSettings::$setting))
+            $($tt)*
+        }
+    };
+    // Treat the application builder as an argument to set it's attributes
+    (@app ($builder:expr) (@attributes $($attr:tt)*) $($tt:tt)*) => {
+        clap_app!{ @app (clap_app!{ @arg ($builder) $($attr)* }) $($tt)* }
+    };
+    (@app ($builder:expr) (@group $name:ident => $($tail:tt)*) $($tt:tt)*) => {
+        clap_app!{ @app
+            (clap_app!{ @group ($builder, $crate::ArgGroup::with_name(stringify!($name))) $($tail)* })
+            $($tt)*
+        }
+    };
+    // Handle subcommand creation
+    (@app ($builder:expr) (@subcommand $name:ident => $($tail:tt)*) $($tt:tt)*) => {
+        clap_app!{ @app
+            ($builder.subcommand(
+                clap_app!{ @app ($crate::SubCommand::with_name(stringify!($name))) $($tail)* }
+            ))
+            $($tt)*
+        }
+    };
+    // Yaml like function calls - used for setting varous meta directly against the app
+    (@app ($builder:expr) ($ident:ident: $($v:expr),*) $($tt:tt)*) => {
+        clap_app!{ @app ($builder.$ident($($v),*)) $($tt)* }
+    };
+
+    // Add members to group and continue argument handling with the parent builder
+    (@group ($builder:expr, $group:expr)) => { $builder.arg_group($group) };
+    (@group ($builder:expr, $group:expr) (@attributes $($attr:tt)*) $($tt:tt)*) => {
+        clap_app!{ @group ($builder, clap_app!{ @arg ($group) (-) $($attr)* }) $($tt)* }
+    };
+    (@group ($builder:expr, $group:expr) (@arg $name:ident: $($tail:tt)*) $($tt:tt)*) => {
+        clap_app!{ @group
+            (clap_app!{ @app ($builder) (@arg $name: $($tail)*) },
+             $group.add(stringify!($name)))
+            $($tt)*
+        }
+    };
+
+    // No more tokens to munch
+    (@arg ($arg:expr) $modes:tt) => { $arg };
+    // Shorthand tokens influenced by the usage_string
+    (@arg ($arg:expr) $modes:tt --$long:ident $($tail:tt)*) => {
+        clap_app!{ @arg ($arg.long(stringify!($long))) $modes $($tail)* }
+    };
+    (@arg ($arg:expr) $modes:tt -$short:ident $($tail:tt)*) => {
+        clap_app!{ @arg ($arg.short(stringify!($short))) $modes $($tail)* }
+    };
+    (@arg ($arg:expr) (-) <$var:ident> $($tail:tt)*) => {
+        clap_app!{ @arg ($arg.value_name(stringify!($var))) (+) +takes_value +required $($tail)* }
+    };
+    (@arg ($arg:expr) (+) <$var:ident> $($tail:tt)*) => {
+        clap_app!{ @arg ($arg.value_name(stringify!($var))) (+) $($tail)* }
+    };
+    (@arg ($arg:expr) (-) [$var:ident] $($tail:tt)*) => {
+        clap_app!{ @arg ($arg.value_name(stringify!($var))) +takes_value (+) $($tail)* }
+    };
+    (@arg ($arg:expr) (+) [$var:ident] $($tail:tt)*) => {
+        clap_app!{ @arg ($arg.value_name(stringify!($var))) (+) $($tail)* }
+    };
+    (@arg ($arg:expr) $modes:tt ... $($tail:tt)*) => {
+        clap_app!{ @arg ($arg) $modes +multiple $($tail)* }
+    };
+    // Shorthand magic
+    (@arg ($arg:expr) $modes:tt #{$n:expr, $m:expr} $($tail:tt)*) => {
+        clap_app!{ @arg ($arg) $modes min_values($n) max_values($m) $($tail)* }
+    };
+    (@arg ($arg:expr) $modes:tt * $($tail:tt)*) => {
+        clap_app!{ @arg ($arg) $modes +required $($tail)* }
+    };
+    // !foo -> .foo(false)
+    (@arg ($arg:expr) $modes:tt !$ident $($tail:tt)*) => {
+        clap_app!{ @arg ($arg.$ident(false)) $modes $($tail)* }
+    };
+    // foo -> .foo(true)
+    (@arg ($arg:expr) $modes:tt +$ident:ident $($tail:tt)*) => {
+        clap_app!{ @arg ($arg.$ident(true)) $modes $($tail)* }
+    };
+    // Validator
+    (@arg ($arg:expr) $modes:tt {$fn_:expr} $($tail:tt)*) => {
+        clap_app!{ @arg ($arg.validator($fn_)) $modes $($tail)* }
+    };
+    (@as_expr $expr:expr) => { $expr };
+    // Help
+    (@arg ($arg:expr) $modes:tt $desc:tt) => { $arg.help(clap_app!{ @as_expr $desc }) };
+    // Handle functions that need to be called multiple times for each argument
+    (@arg ($arg:expr) $modes:tt $ident:ident[$($target:ident)*] $($tail:tt)*) => {
+        clap_app!{ @arg ($arg $( .$ident(stringify!($target)) )*) $modes $($tail)* }
+    };
+    // Inherit builder's functions
+    (@arg ($arg:expr) $modes:tt $ident:ident($($expr:expr)*) $($tail:tt)*) => {
+        clap_app!{ @arg ($arg.$ident($($expr)*)) $modes $($tail)* }
+    };
+
+    // Build a subcommand outside of an app.
+    (@subcommand $name:ident => $($tail:tt)*) => {
+        clap_app!{ @app ($crate::SubCommand::with_name(stringify!($name))) $($tail)* }
+    };
+    // Start the magic
+    ($name:ident => $($tail:tt)*) => {{
+        clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)*}
+    }};
+}
