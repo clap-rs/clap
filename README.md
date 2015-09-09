@@ -74,7 +74,7 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 
 The following examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, groups, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/clap/index.html), or `examples/` directory of this repository.
 
- *NOTE:* All these examples are functionally the same, but show three different styles in which to use `clap`
+ **NOTE:** All these examples are functionally the same, but show four different styles in which to use `clap`
 
 ```rust
 // (Full example with detailed comments in examples/01a_QuickExample.rs)
@@ -209,7 +209,6 @@ The following combines the previous two examples by using the simplicity of the 
 // less verbose
 #[macro_use]
 extern crate clap;
-use clap::{Arg, App, SubCommand};
 
 fn main() {
     let matches = clap_app!(myapp =>
@@ -366,7 +365,7 @@ SUBCOMMANDS:
     test    Controls testing features
 ```
 
-*NOTE:* You could also run `myapp test --help` to see similar output and options for the `test` subcommand.
+**NOTE:** You could also run `myapp test --help` to see similar output and options for the `test` subcommand.
 
 ## Try it!
 
