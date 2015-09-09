@@ -95,6 +95,7 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     versionless_scs: Option<bool>,
     unified_help: bool,
     overrides: Vec<&'ar str>,
+    hidden: bool
 }
 
 impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
@@ -146,7 +147,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             global_ver: false,
             versionless_scs: None,
             unified_help: false,
-            overrides: vec![],
+            hidden: false,
+            overrides: vec![]
         }
     }
 
@@ -521,6 +523,26 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
+    /// Hides a subcommand from help message output.
+    ///
+    /// **NOTE:** This does **not** hide the subcommand from usage strings on error
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, SubCommand};
+    /// # let matches = App::new("myprog")
+    /// #                 .subcommand(
+    /// # SubCommand::with_name("debug")
+    /// .hidden(true)
+    /// # ).get_matches();
+    pub fn hidden(mut self,
+                  h: bool) 
+                  -> Self {
+        self.hidden = h;
+        self
+    }
+
     /// Uses version of the current command for all subcommands. (Defaults to false; subcommands
     /// have independant version strings)
     ///
@@ -827,6 +849,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 empty_vals: a.empty_vals,
                 validator: None,
                 overrides: None,
+                hidden: a.hidden
             };
             if pb.min_vals.is_some() && !pb.multiple {
                 panic!("Argument \"{}\" does not allow multiple values, yet it is expecting {} \
@@ -906,6 +929,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 empty_vals: a.empty_vals,
                 validator: None,
                 overrides: None,
+                hidden: a.hidden
             };
             if let Some(ref vec) = ob.val_names {
                 ob.num_vals = Some(vec.len() as u8);
@@ -994,6 +1018,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 multiple: a.multiple,
                 requires: None,
                 overrides: None,
+                hidden: a.hidden
             };
             // Check if there is anything in the blacklist (mutually excludes list) and add any
             // values
@@ -1570,7 +1595,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut longest_flag = 0;
         for fl in self.flags
             .values()
-            .filter(|f| f.long.is_some())
+            .filter(|f| f.long.is_some() && !f.hidden)
             // 2='--'
             .map(|a| a.to_string().len() ) {
             if fl > longest_flag {
@@ -1580,7 +1605,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut longest_opt = 0;
         for ol in self.opts
             .values()
-            // .filter(|ref o| o.long.is_some())
+            .filter(|o| !o.hidden)
             .map(|a|
                 a.to_string().len() // + if a.short.is_some() { 4 } else { 0 }
             ) {
@@ -1591,6 +1616,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut longest_pos = 0;
         for pl in self.positionals_idx
             .values()
+            .filter(|p| !p.hidden)
             .map(|f| f.to_string().len() ) {
             if pl > longest_pos {
                 longest_pos = pl;
@@ -1599,6 +1625,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut longest_sc = 0;
         for scl in self.subcommands
             .values()
+            .filter(|s| !s.hidden)
             .map(|f| f.name.len() ) {
             if scl > longest_sc {
                 longest_sc = scl;
@@ -1625,7 +1652,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             } else {
                 print!("\nOPTIONS:\n")
             }
-            for v in self.flags.values() {
+            for v in self.flags
+                         .values() 
+                         .filter(|f| !f.hidden) {
                 print!("{}", tab);
                 if let Some(s) = v.short {
                     print!("-{}",s);
@@ -1680,7 +1709,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             } else {
                 // maybe erase
             }
-            for v in self.opts.values() {
+            for v in self.opts
+                         .values() 
+                         .filter(|o| !o.hidden) {
                 // if it supports multiple we add '...' i.e. 3 to the name length
                 print!("{}", tab);
                 if let Some(s) = v.short {
@@ -1716,7 +1747,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
         if pos {
             print!("\nARGS:\n");
-            for v in self.positionals_idx.values() {
+            for v in self.positionals_idx
+                         .values() 
+                         .filter(|p| !p.hidden) {
                 // let mult = if v.multiple { 3 } else { 0 };
                 print!("{}", tab);
                 print!("{}", v.name);
@@ -1741,7 +1774,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
         if subcmds {
             print!("\nSUBCOMMANDS:\n");
-            for sc in self.subcommands.values() {
+            for sc in self.subcommands
+                          .values()
+                          .filter(|s| !s.hidden) {
                 print!("{}{}", tab, sc.name);
                 self.print_spaces((longest_sc + 4) - (sc.name.len()));
                 if let Some(a) = sc.about {
@@ -2655,6 +2690,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 global: false,
                 requires: None,
                 overrides: None,
+                hidden: false,
             };
             self.long_list.push("help");
             self.flags.insert("hclap_help", arg);
@@ -2675,6 +2711,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 global: false,
                 requires: None,
                 overrides: None,
+                hidden: false,
             };
             self.long_list.push("version");
             self.flags.insert("vclap_version", arg);

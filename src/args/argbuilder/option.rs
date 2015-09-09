@@ -35,6 +35,7 @@ pub struct OptBuilder<'n> {
     pub validator: Option<Rc<Fn(String) -> StdResult<(), String>>>,
     /// A list of names for other arguments that *mutually override* this flag
     pub overrides: Option<Vec<&'n str>>,
+    pub hidden: bool
 }
 
 impl<'n> Display for OptBuilder<'n> {
