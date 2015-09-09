@@ -8,13 +8,12 @@ It is a simple to use, efficient, and full featured library for parsing command 
 
 ## What's New
 
-If you're already familiar with `clap` but just want to see some new highlights as of **1.3.2**
+If you're already familiar with `clap` but just want to see some new highlights as of **1.4.0**
 
-* Code Coverage has now been added, and is slowly going up (See the badge at the top of this page)! Thanks to [Vinatorul](https://github.com/vinatorul) for the leg work!
-* You can now call `get_matches_*` to *not* consume the `App` struct (See those ending in `_borrow`)
-* You can now handle get a `Result` from the `get_matches_*` methods in order to handle errors if you so choose (see those ending in `_safe`)
-* You can now **build a CLI from YAML** - This keeps your Rust source nice and tidy :) Full details can be found in [examples/17_yaml.rs](https://github.com/kbknapp/clap-rs/blob/master/examples/17_yaml.rs)
-* A very minor "breaking" change which should affect very, very few people. If you're using `ArgGroup::*_all`, they no longer take a `Vec<&str>`, but now takes a far more versatile `&[&str]`. If you were using code such as `.add_all(vec!["arg1", "arg2"])` you only need to change the `vec!`->`&` and it should work again. This also has the added benefit of not needlessly allocating the `Vec`!
+* A new macro has been designed by [james-darkfox](https://github.com/james-darkfox) to give the simplicity of `from_usage` methods, but the performance of the Builder Pattern. Huge thanks to him! Fair warning this is very new, and may still have some kinks and tweaks left as we experiment ;)
+* Users can now print the help message programatically using `App::write_help(io::Write)` and `App::print_help()`.
+* Users can now simply print the error message to `stderr` and exit gracefully programmatically using `ClapError::exit()`
+* You can now get argument matches **without** consuming your `App` struct using `App::get_matches_from_safe_borrow()`
 * Some other minor bug fixes and improvements
 
 For full details see the [changelog](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md)
@@ -73,7 +72,7 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 
 ## Quick Example
 
-The following two examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, groups, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/clap/index.html), or `examples/` directory of this repository.
+The following examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, groups, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/clap/index.html), or `examples/` directory of this repository.
 
  *NOTE:* All these examples are functionally the same, but show three different styles in which to use `clap`
 
@@ -198,6 +197,64 @@ fn main() {
     }
 
     // more program logic goes here...
+}
+```
+
+The following combines the previous two examples by using the simplicity of the `from_usage` methods and the performance of the Builder Pattern.
+
+```rust
+// (Full example with detailed comments in examples/01c_QuickExample.rs)
+//
+// This example demonstrates clap's "usage strings" method of creating arguments which is less
+// less verbose
+#[macro_use]
+extern crate clap;
+use clap::{Arg, App, SubCommand};
+
+fn main() {
+    let matches = clap_app!(myapp =>
+        (version: "1.0")
+        (author: "Kevin K. <kbknapp@gmail.com>")
+        (about: "Does awesome things")
+        (@arg CONFIG: -c --config +takes_value "Sets a custom config file")
+        (@arg INPUT: +required "Sets the input file to use")
+        (@arg debug: -d ... "Sets the level of debugging information")
+        (@subcommand test =>
+            (about: "controls testing features")
+            (version: "1.3")
+            (author: "Someone E. <someone_else@other.com>")
+            (@arg verbose: -v --verbose "Print test information verbosely")
+        )
+    ).get_matches();
+
+    // Calling .unwrap() is safe here because "INPUT" is required (if "INPUT" wasn't
+    // required we could have used an 'if let' to conditionally get the value)
+    println!("Using input file: {}", matches.value_of("INPUT").unwrap());
+
+    // Gets a value for config if supplied by user, or defaults to "default.conf"
+    let config = matches.value_of("CONFIG").unwrap_or("default.conf");
+    println!("Value for config: {}", config);
+
+    // Vary the output based on how many times the user used the "debug" flag
+    // (i.e. 'myapp -d -d -d' or 'myapp -ddd' vs 'myapp -d'
+    match matches.occurrences_of("debug") {
+        0 => println!("Debug mode is off"),
+        1 => println!("Debug mode is kind of on"),
+        2 => println!("Debug mode is on"),
+        3 | _ => println!("Don't be crazy"),
+    }
+
+    // You can information about subcommands by requesting their matches by name
+    // (as below), requesting just the name used, or both at the same time
+    if let Some(matches) = matches.subcommand_matches("test") {
+        if matches.is_present("verbose") {
+            println!("Printing verbosely...");
+        } else {
+            println!("Printing normally...");
+        }
+    }
+
+    // more porgram logic goes here...
 }
 ```
 

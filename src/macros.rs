@@ -777,7 +777,11 @@ macro_rules! clap_app {
     };
     // Yaml like function calls - used for setting varous meta directly against the app
     (@app ($builder:expr) ($ident:ident: $($v:expr),*) $($tt:tt)*) => {
-        clap_app!{ @app ($builder.$ident($($v),*)) $($tt)* }
+        // clap_app!{ @app ($builder.$ident($($v),*)) $($tt)* }
+        clap_app!{ @app
+            ($builder.$ident($($v),*))
+            $($tt)*
+        }
     };
 
     // Add members to group and continue argument handling with the parent builder
