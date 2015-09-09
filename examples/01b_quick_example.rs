@@ -7,7 +7,7 @@ fn main() {
     // This method shows the traditional, and slightly more configurable way to set up arguments. This method is
     // more verbose, but allows setting more configuration options, and even supports easier dynamic generation.
     //
-    // The example below is functionally identical to the one in 01a_QuickExample.rs
+    // The example below is functionally identical to the 01a_quick_example.rs and 01c_quick_example.rs
     //
     // *NOTE:* You can actually achieve the best of both worlds by using Arg::from_usage() (instead of Arg::with_name())
     // and *then* setting any additional properties.
