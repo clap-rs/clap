@@ -37,10 +37,10 @@ use usageparser::{UsageParser, UsageToken};
 /// // Using a usage string (setting a similar argument to the one above)
 /// Arg::from_usage("-i --input=[input] 'Provides an input file to the program'")
 /// # ).get_matches();
-pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
+pub struct Arg<'a> {
     /// The unique name of the argument, required
     #[doc(hidden)]
-    pub name: &'n str,
+    pub name: &'a str,
     /// The short version (i.e. single character) of the argument, no preceding `-`
     /// **NOTE:** `short` is mutually exclusive with `index`
     #[doc(hidden)]
@@ -48,11 +48,11 @@ pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// The long version of the flag (i.e. word) without the preceding `--`
     /// **NOTE:** `long` is mutually exclusive with `index`
     #[doc(hidden)]
-    pub long: Option<&'l str>,
+    pub long: Option<&'a str>,
     /// The string of text that will displayed to the user when the application's
     /// `help` text is displayed
     #[doc(hidden)]
-    pub help: Option<&'h str>,
+    pub help: Option<&'a str>,
     /// If this is a required by default when using the command line program
     /// i.e. a configuration file that's required for the program to function
     /// **NOTE:** required by default means, it is required *until* mutually
@@ -74,19 +74,19 @@ pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     pub multiple: bool,
     /// A list of names for other arguments that *may not* be used with this flag
     #[doc(hidden)]
-    pub blacklist: Option<Vec<&'r str>>,
+    pub blacklist: Option<Vec<&'a str>>,
     /// A list of possible values for an option or positional argument
     #[doc(hidden)]
-    pub possible_vals: Option<Vec<&'p str>>,
+    pub possible_vals: Option<Vec<&'a str>>,
     /// A list of names of other arguments that are *required* to be used when
     /// this flag is used
     #[doc(hidden)]
-    pub requires: Option<Vec<&'r str>>,
+    pub requires: Option<Vec<&'a str>>,
     /// A name of the group the argument belongs to
     #[doc(hidden)]
-    pub group: Option<&'g str>,
+    pub group: Option<&'a str>,
     #[doc(hidden)]
-    pub val_names: Option<BTreeSet<&'n str>>,
+    pub val_names: Option<BTreeSet<&'a str>>,
     #[doc(hidden)]
     pub num_vals: Option<u8>,
     #[doc(hidden)]
@@ -101,10 +101,10 @@ pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
     /// A list of names for other arguments that *mutually override* this flag
     #[doc(hidden)]
-    pub overrides: Option<Vec<&'r str>>,
+    pub overrides: Option<Vec<&'a str>>,
 }
 
-impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
+impl<'a> Arg<'a> {
     /// Creates a new instace of `Arg` using a unique string name.
     /// The name will be used by the library consumer to get information about
     /// whether or not the argument was used at runtime.
@@ -123,7 +123,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// Arg::with_name("conifg")
     /// # .short("c")
     /// # ).get_matches();
-    pub fn with_name(n: &'n str) -> Self {
+    pub fn with_name(n: &'a str) -> Self {
         Arg {
             name: n,
             short: None,
@@ -158,7 +158,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// let arg = Arg::from_yaml(yml);
     /// ```
     #[cfg(feature = "yaml")]
-    pub fn from_yaml<'y>(y: &'y BTreeMap<Yaml, Yaml>) -> Arg<'y, 'y, 'y, 'y, 'y, 'y> {
+    pub fn from_yaml(y: &'a BTreeMap<Yaml, Yaml>) -> Arg<'a> {
         // We WANT this to panic on error...so expect() is good.
         let name_yml = y.keys().nth(0).unwrap();
         let name_str = name_yml.as_str().unwrap();
@@ -280,7 +280,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// Arg::from_usage("<input> 'the input file to use'")
     /// ])
     /// # .get_matches();
-    pub fn from_usage(u: &'n str) -> Arg<'n, 'n, 'n, 'g, 'p, 'r> {
+    pub fn from_usage(u: &'a str) -> Arg<'a> {
         assert!(u.len() > 0, "Arg::from_usage() requires a non-zero-length usage string but none \
             was provided");
 
@@ -418,9 +418,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # Arg::with_name("conifg")
     /// .short("c")
     /// # ).get_matches();
-    pub fn short(mut self,
-                 s: &str)
-                 -> Self {
+    pub fn short(mut self, s: &str) -> Self {
         self.short = s.trim_left_matches(|c| c == '-').chars().nth(0);
         self
     }
@@ -444,9 +442,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # Arg::with_name("conifg")
     /// .long("config")
     /// # ).get_matches();
-    pub fn long(mut self,
-                l: &'l str) 
-                -> Self {
+    pub fn long(mut self, l: &'a str) -> Self {
         self.long = Some(l.trim_left_matches(|c| c == '-'));
         self
     }
@@ -464,9 +460,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # Arg::with_name("conifg")
     /// .help("The config file used by the myprog")
     /// # ).get_matches();
-    pub fn help(mut self,
-                h: &'h str) 
-                -> Self {
+    pub fn help(mut self, h: &'a str) -> Self {
         self.help = Some(h);
         self
     }
@@ -490,9 +484,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # Arg::with_name("conifg")
     /// .required(true)
     /// # ).get_matches();
-    pub fn required(mut self,
-                    r: bool) 
-                    -> Self {
+    pub fn required(mut self, r: bool) -> Self {
         self.required = r;
         self
     }
@@ -512,9 +504,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
     /// .conflicts_with("debug")
     /// # ).get_matches();
-    pub fn conflicts_with(mut self,
-                          name: &'r str) 
-                          -> Self {
+    pub fn conflicts_with(mut self, name: &'a str) -> Self {
         if let Some(ref mut vec) = self.blacklist {
             vec.push(name);
         } else {
@@ -539,11 +529,9 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
     /// .conflicts_with_all(&config_conflicts)
     /// # ).get_matches();
-    pub fn conflicts_with_all<T, I>(mut self,
-                                    names: I) 
-                                    -> Self
-        where T: AsRef<str> + 'r,
-              I: IntoIterator<Item = &'r T>
+    pub fn conflicts_with_all<T, I>(mut self, names: I) -> Self
+        where T: AsRef<str> + 'a,
+              I: IntoIterator<Item = &'a T>
     {
         if let Some(ref mut vec) = self.blacklist {
             names.into_iter().map(|s| vec.push(s.as_ref())).collect::<Vec<_>>();
@@ -563,9 +551,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
     /// .mutually_overrides_with("debug")
     /// # ).get_matches();
-    pub fn mutually_overrides_with(mut self,
-                                   name: &'r str) 
-                                   -> Self {
+    pub fn mutually_overrides_with(mut self, name: &'a str) -> Self {
         if let Some(ref mut vec) = self.overrides {
             vec.push(name);
         } else {
@@ -585,11 +571,9 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
     /// .mutually_overrides_with_all(&config_overrides)
     /// # ).get_matches();
-    pub fn mutually_overrides_with_all<T, I>(mut self,
-                                             names: I) 
-                                             -> Self
-        where T: AsRef<str> + 'r,
-              I: IntoIterator<Item = &'r T>
+    pub fn mutually_overrides_with_all<T, I>(mut self, names: I) -> Self
+        where T: AsRef<str> + 'a,
+              I: IntoIterator<Item = &'a T>
     {
         if let Some(ref mut vec) = self.overrides {
             names.into_iter().map(|s| vec.push(s.as_ref())).collect::<Vec<_>>();
@@ -612,9 +596,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
     /// .requires("debug")
     /// # ).get_matches();
-    pub fn requires(mut self,
-                    name: &'r str) 
-                    -> Self {
+    pub fn requires(mut self, name: &'a str) -> Self {
         if let Some(ref mut vec) = self.requires {
             vec.push(name);
         } else {
@@ -638,11 +620,9 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
     /// .requires_all(&config_reqs)
     /// # ).get_matches();
-    pub fn requires_all<T, I>(mut self,
-                              names: I) 
-                              -> Self
-        where T: AsRef<str> + 'r,
-              I: IntoIterator<Item = &'r T>
+    pub fn requires_all<T, I>(mut self, names: I) -> Self
+        where T: AsRef<str> + 'a,
+              I: IntoIterator<Item = &'a T>
     {
         if let Some(ref mut vec) = self.requires {
             names.into_iter().map(|s| vec.push(s.as_ref())).collect::<Vec<_>>();
@@ -667,9 +647,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # Arg::with_name("conifg")
     /// .takes_value(true)
     /// # ).get_matches();
-    pub fn takes_value(mut self,
-                       tv: bool) 
-                       -> Self {
+    pub fn takes_value(mut self, tv: bool) -> Self {
         self.takes_value = tv;
         self
     }
@@ -691,9 +669,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # Arg::with_name("conifg")
     /// .index(1)
     /// # ).get_matches();
-    pub fn index(mut self,
-                 idx: u8) 
-                 -> Self {
+    pub fn index(mut self, idx: u8) -> Self {
         self.index = Some(idx);
         self
     }
@@ -716,9 +692,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # Arg::with_name("debug")
     /// .multiple(true)
     /// # ).get_matches();
-    pub fn multiple(mut self,
-                    multi: bool) 
-                    -> Self {
+    pub fn multiple(mut self, multi: bool) -> Self {
         self.multiple = multi;
         self
     }
@@ -743,9 +717,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # Arg::with_name("debug")
     /// .global(true)
     /// # ).get_matches();
-    pub fn global(mut self,
-                  g: bool) 
-                  -> Self {
+    pub fn global(mut self, g: bool) -> Self {
         self.global = g;
         self
     }
@@ -765,9 +737,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # Arg::with_name("debug")
     /// .empty_values(true)
     /// # ).get_matches();
-    pub fn empty_values(mut self,
-                        ev: bool) 
-                        -> Self {
+    pub fn empty_values(mut self, ev: bool) -> Self {
         self.empty_vals = ev;
         self
     }
@@ -788,11 +758,9 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # Arg::with_name("debug").index(1)
     /// .possible_values(&mode_vals)
     /// # ).get_matches();
-    pub fn possible_values<T, I>(mut self,
-                                 names: I) 
-                                 -> Self
-        where T: AsRef<str> + 'p,
-              I: IntoIterator<Item = &'p T>
+    pub fn possible_values<T, I>(mut self, names: I) -> Self
+        where T: AsRef<str> + 'a,
+              I: IntoIterator<Item = &'a T>
     {
         if let Some(ref mut vec) = self.possible_vals {
             names.into_iter().map(|s| vec.push(s.as_ref())).collect::<Vec<_>>();
@@ -818,9 +786,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// .possible_value("fast")
     /// .possible_value("slow")
     /// # ).get_matches();
-    pub fn possible_value(mut self,
-                          name: &'p str) 
-                          -> Self {
+    pub fn possible_value(mut self, name: &'a str) -> Self {
         if let Some(ref mut vec) = self.possible_vals {
             vec.push(name);
         } else {
@@ -841,9 +807,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # Arg::with_name("debug").index(1)
     /// .group("mode")
     /// # ).get_matches();
-    pub fn group(mut self,
-                 name: &'g str) 
-                 -> Self {
+    pub fn group(mut self, name: &'a str) -> Self {
         self.group = Some(name);
         self
     }
@@ -866,9 +830,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # Arg::with_name("debug").index(1)
     /// .number_of_values(3)
     /// # ).get_matches();
-    pub fn number_of_values(mut self,
-                            qty: u8) 
-                            -> Self {
+    pub fn number_of_values(mut self, qty: u8) -> Self {
         self.num_vals = Some(qty);
         self
     }
@@ -899,9 +861,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     ///     }
     /// })
     /// # ).get_matches();
-    pub fn validator<F>(mut self,
-                        f: F) 
-                        -> Self
+    pub fn validator<F>(mut self, f: F) -> Self
         where F: Fn(String) -> Result<(), String> + 'static
     {
         self.validator = Some(Rc::new(f));
@@ -926,9 +886,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # Arg::with_name("debug").index(1)
     /// .max_values(3)
     /// # ).get_matches();
-    pub fn max_values(mut self,
-                      qty: u8) 
-                      -> Self {
+    pub fn max_values(mut self, qty: u8) -> Self {
         if qty < 2 {
             panic!("Arguments with max_values(qty) qty must be > 1. Prefer \
                 takes_value(true) for arguments with only one value, or flags for arguments \
@@ -960,9 +918,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # Arg::with_name("debug").index(1)
     /// .min_values(2)
     /// # ).get_matches();
-    pub fn min_values(mut self,
-                      qty: u8) 
-                      -> Self {
+    pub fn min_values(mut self, qty: u8) -> Self {
         if qty < 1 {
             panic!("Arguments with min_values(qty) qty must be > 0. Prefer flags for arguments \
                 with 0 values.");
@@ -996,11 +952,9 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// // ...
     /// .value_names(&val_names)
     /// # ).get_matches();
-    pub fn value_names<T, I>(mut self,
-                             names: I) 
-                             -> Self
-        where T: AsRef<str> + 'n,
-              I: IntoIterator<Item = &'n T>
+    pub fn value_names<T, I>(mut self, names: I) -> Self
+        where T: AsRef<str> + 'a,
+              I: IntoIterator<Item = &'a T>
     {
         if let Some(ref mut vec) = self.val_names {
             names.into_iter().map(|s| vec.insert(s.as_ref())).collect::<Vec<_>>();
@@ -1023,9 +977,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     ///     .index(1)
     ///     .value_name("file")
     /// # ).get_matches();
-    pub fn value_name(mut self,
-                      name: &'n str) 
-                      -> Self {
+    pub fn value_name(mut self, name: &'a str) -> Self {
         if let Some(ref mut vec) = self.val_names {
             vec.insert(name);
         } else {
@@ -1037,9 +989,9 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     }
 }
 
-impl<'n, 'l, 'h, 'g, 'p, 'r, 'z> From<&'z Arg<'n, 'l, 'h, 'g, 'p, 'r>>
-    for Arg<'n, 'l, 'h, 'g, 'p, 'r> {
-    fn from(a: &'z Arg<'n, 'l, 'h, 'g, 'p, 'r>) -> Self {
+impl<'a> From<&'a Arg<'a>>
+    for Arg<'a> {
+    fn from(a: &'a Arg<'a>) -> Self {
         Arg {
             name: a.name,
             short: a.short,

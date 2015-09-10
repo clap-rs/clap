@@ -42,7 +42,7 @@ impl<'n, 'a> SubCommand<'n, 'a> {
     /// SubCommand::with_name("config")
     /// # ).get_matches();
     /// ```
-    pub fn with_name<'au, 'v, 'ab, 'u, 'h, 'ar>(name: &'ar str) -> App<'au, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn with_name(name: &'a str) -> App<'a> {
         App::new(name)
     }
 
@@ -56,7 +56,7 @@ impl<'n, 'a> SubCommand<'n, 'a> {
     /// let sc = SubCommand::from_yaml(sc_yaml);
     /// ```
     #[cfg(feature = "yaml")]
-    pub fn from_yaml<'y>(yaml: &'y Yaml) -> App<'y, 'y, 'y, 'y, 'y, 'y> {
+    pub fn from_yaml(yaml: &'a Yaml) -> App<'a> {
         App::from_yaml(yaml)
     }
 }

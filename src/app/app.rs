@@ -47,41 +47,41 @@ const INTERNAL_ERROR_MSG: &'static str = "Internal Error: Failed to write string
 ///
 /// // Your program logic starts here...
 /// ```
-pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
+pub struct App<'a> {
     // The name displayed to the user when showing version and help/usage information
     name: String,
-    name_slice: &'ar str,
+    name_slice: &'a str,
     // A string of author(s) if desired. Displayed when showing help/usage information
     author: Option<&'a str>,
     // The version displayed to the user
-    version: Option<&'v str>,
+    version: Option<&'a str>,
     // A brief explanation of the program that gets displayed to the user when shown
     // help/usage
     // information
-    about: Option<&'ab str>,
+    about: Option<&'a str>,
     // Additional help information
-    more_help: Option<&'h str>,
+    more_help: Option<&'a str>,
     // A list of possible flags
-    flags: BTreeMap<&'ar str, FlagBuilder<'ar>>,
+    flags: BTreeMap<&'a str, FlagBuilder<'a>>,
     // A list of possible options
-    opts: BTreeMap<&'ar str, OptBuilder<'ar>>,
+    opts: BTreeMap<&'a str, OptBuilder<'a>>,
     // A list of positional arguments
-    positionals_idx: BTreeMap<u8, PosBuilder<'ar>>,
-    positionals_name: HashMap<&'ar str, u8>,
+    positionals_idx: BTreeMap<u8, PosBuilder<'a>>,
+    positionals_name: HashMap<&'a str, u8>,
     // A list of subcommands
-    subcommands: BTreeMap<String, App<'a, 'v, 'ab, 'u, 'h, 'ar>>,
+    subcommands: BTreeMap<String, App<'a>>,
     help_short: Option<char>,
     version_short: Option<char>,
-    required: Vec<&'ar str>,
+    required: Vec<&'a str>,
     short_list: Vec<char>,
-    long_list: Vec<&'ar str>,
-    blacklist: Vec<&'ar str>,
-    usage_str: Option<&'u str>,
+    long_list: Vec<&'a str>,
+    blacklist: Vec<&'a str>,
+    usage_str: Option<&'a str>,
     bin_name: Option<String>,
     usage: Option<String>,
-    groups: HashMap<&'ar str, ArgGroup<'ar, 'ar>>,
-    global_args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>,
-    help_str: Option<&'u str>,
+    groups: HashMap<&'a str, ArgGroup<'a, 'a>>,
+    global_args: Vec<Arg<'a>>,
+    help_str: Option<&'a str>,
     no_sc_error: bool,
     wait_on_error: bool,
     help_on_no_args: bool,
@@ -94,10 +94,10 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     // None = not set, Some(true) set for all children, Some(false) = disable version
     versionless_scs: Option<bool>,
     unified_help: bool,
-    overrides: Vec<&'ar str>,
+    overrides: Vec<&'a str>,
 }
 
-impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
+impl<'a> App<'a>{
     /// Creates a new instance of an application requiring a name (such as the binary). The name
     /// will be displayed to the user when they request to print version or help and usage
     /// information. The name should not contain spaces (hyphens '-' are ok).
@@ -110,7 +110,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// let prog = App::new("myprog")
     /// # .get_matches();
     /// ```
-    pub fn new(n: &'ar str) -> Self {
+    pub fn new(n: &'a str) -> Self {
         App {
             name: n.to_owned(),
             name_slice: n,
@@ -169,7 +169,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// let app = App::from_yaml(yml);
     /// ```
     #[cfg(feature = "yaml")]
-    pub fn from_yaml<'y>(mut yaml: &'y Yaml) -> App<'y, 'y, 'y, 'y, 'y, 'y> {
+    pub fn from_yaml(mut yaml: &'a Yaml) -> App<'a> {
         // We WANT this to panic on error...so expect() is good.
         let mut is_sc = None;
         let mut a = if let Some(name) = yaml["name"].as_str() {
@@ -249,9 +249,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///      .author("Me, me@mymain.com")
     /// # ;
     /// ```
-    pub fn author(mut self,
-                  a: &'a str) 
-                  -> Self {
+    pub fn author(mut self, a: &'a str) -> Self {
         self.author = Some(a);
         self
     }
@@ -270,9 +268,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///      .bin_name("my_binary")
     /// # ;
     /// ```
-    pub fn bin_name(mut self,
-                    a: &str) 
-                    -> Self {
+    pub fn bin_name(mut self, a: &str) -> Self {
         self.bin_name = Some(a.to_owned());
         self
     }
@@ -288,9 +284,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .about("Does really amazing things to great people")
     /// # ;
     /// ```
-    pub fn about(mut self,
-                 a: &'ab str) 
-                 -> Self {
+    pub fn about(mut self, a: &'a str) -> Self {
         self.about = Some(a);
         self
     }
@@ -308,9 +302,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .after_help("Does really amazing things to great people")
     /// # ;
     /// ```
-    pub fn after_help(mut self,
-                      h: &'h str) 
-                      -> Self {
+    pub fn after_help(mut self, h: &'a str) -> Self {
         self.more_help = Some(h);
         self
     }
@@ -332,9 +324,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .subcommands_negate_reqs(true)
     /// # ;
     /// ```
-    pub fn subcommands_negate_reqs(mut self,
-                                   n: bool) 
-                                   -> Self {
+    pub fn subcommands_negate_reqs(mut self, n: bool) -> Self {
         self.subcmds_neg_reqs = n;
         self
     }
@@ -354,9 +344,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .subcommand_required(true)
     /// # ;
     /// ```
-    pub fn subcommand_required(mut self,
-                               n: bool) 
-                               -> Self {
+    pub fn subcommand_required(mut self, n: bool) -> Self {
         self.no_sc_error = n;
         self
     }
@@ -372,9 +360,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .version("v0.1.24")
     /// # ;
     /// ```
-    pub fn version(mut self,
-                   v: &'v str) 
-                   -> Self {
+    pub fn version(mut self, v: &'a str) -> Self {
         self.version = Some(v);
         self
     }
@@ -400,9 +386,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .usage("myapp [-clDas] <some_file>")
     /// # ;
     /// ```
-    pub fn usage(mut self,
-                 u: &'u str) 
-                 -> Self {
+    pub fn usage(mut self, u: &'a str) -> Self {
         self.usage_str = Some(u);
         self
     }
@@ -441,9 +425,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///            work             Do some work")
     /// # ;
     /// ```
-    pub fn help(mut self,
-                h: &'u str) 
-                -> Self {
+    pub fn help(mut self, h: &'a str) -> Self {
         self.help_str = Some(h);
         self
     }
@@ -464,9 +446,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     // Using an uppercase `H` instead of the default lowercase `h`
     ///     .help_short("H")
     /// # ;
-    pub fn help_short(mut self,
-                      s: &str) 
-                      -> Self {
+    pub fn help_short(mut self, s: &str) -> Self {
         self.help_short = s.trim_left_matches(|c| c == '-')
                            .chars()
                            .nth(0);
@@ -489,9 +469,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     // Using a lowercase `v` instead of the default capital `V`
     ///     .version_short("v")
     /// # ;
-    pub fn version_short(mut self, 
-                         s: &str) 
-                         -> Self {
+    pub fn version_short(mut self, s: &str) -> Self {
         self.version_short = s.trim_left_matches(|c| c == '-')
                            .chars()
                            .nth(0);
@@ -514,9 +492,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .arg_required_else_help(true)
     /// # ;
     /// ```
-    pub fn arg_required_else_help(mut self,
-                                  tf: bool) 
-                                  -> Self {
+    pub fn arg_required_else_help(mut self, tf: bool) -> Self {
         self.help_on_no_args = tf;
         self
     }
@@ -542,9 +518,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// // running `myprog test --version` will display
     /// // "myprog-test v1.1"
     /// ```
-    pub fn global_version(mut self,
-                          gv: bool) 
-                          -> Self {
+    pub fn global_version(mut self, gv: bool) -> Self {
         self.global_ver = gv;
         self
     }
@@ -552,7 +526,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Disables `-V` and `--version` for all subcommands (Defaults to false; subcommands have
     /// version flags)
     ///
-    /// **Deprecated:** Use `App::setting()` with `AppSettings::VersionlessSubcommands` instead. 
+    /// **Deprecated:** Use `App::setting()` with `AppSettings::VersionlessSubcommands` instead.
     /// This method will be removed at 2.x
     ///
     /// **NOTE:** This setting must be set **prior** adding any subcommands
@@ -570,9 +544,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .get_matches();
     /// // running `myprog test --version` will display unknown argument error
     /// ```
-    pub fn versionless_subcommands(mut self,
-                                   vers: bool) 
-                                   -> Self {
+    pub fn versionless_subcommands(mut self, vers: bool) -> Self {
         self.versionless_scs = Some(vers);
         self
     }
@@ -595,9 +567,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .get_matches();
     /// // running `myprog --help` will display a unified "docopt" or "getopts" style help message
     /// ```
-    pub fn unified_help_message(mut self,
-                                uni_help: bool) 
-                                -> Self {
+    pub fn unified_help_message(mut self, uni_help: bool) -> Self {
         self.unified_help = uni_help;
         self
     }
@@ -625,9 +595,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .arg_required_else_help(true)
     /// # ;
     /// ```
-    pub fn wait_on_error(mut self,
-                         w: bool) 
-                         -> Self {
+    pub fn wait_on_error(mut self, w: bool) -> Self {
         self.wait_on_error = w;
         self
     }
@@ -635,7 +603,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Specifies that the help text sould be displayed (and then exit gracefully), if no
     /// subcommands are present at runtime (i.e. an empty run such as, `$ myprog`.
     ///
-    /// **Deprecated:** Use `App::setting()` with `AppSettings::SubcommandRequiredElseHelp` 
+    /// **Deprecated:** Use `App::setting()` with `AppSettings::SubcommandRequiredElseHelp`
     /// instead. This method will be removed at 2.x
     ///
     /// **NOTE:** This should *not* be used with `.subcommand_required()` as they do the same
@@ -653,9 +621,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .subcommand_required_else_help(true)
     /// # ;
     /// ```
-    pub fn subcommand_required_else_help(mut self,
-                                         tf: bool) 
-                                         -> Self {
+    pub fn subcommand_required_else_help(mut self, tf: bool) -> Self {
         self.help_on_no_sc = tf;
         self
     }
@@ -671,16 +637,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .setting(AppSettings::WaitOnError)
     /// # ;
     /// ```
-    pub fn setting(mut self,
-                   setting: AppSettings) 
-                   -> Self {
+    pub fn setting(mut self, setting: AppSettings) -> Self {
         self.add_setting(&setting);
         self
     }
 
     // actually adds the settings
-    fn add_setting(&mut self,
-                   s: &AppSettings) {
+    fn add_setting(&mut self, s: &AppSettings) {
         match *s {
             AppSettings::SubcommandsNegateReqs      => self.subcmds_neg_reqs = true,
             AppSettings::SubcommandRequired         => self.no_sc_error = true,
@@ -704,9 +667,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///                  AppSettings::WaitOnError])
     /// # ;
     /// ```
-    pub fn settings(mut self, 
-                    settings: &[AppSettings]) 
-                    -> Self {
+    pub fn settings(mut self, settings: &[AppSettings]) -> Self {
         for s in settings {
             self.add_setting(s);
         }
@@ -740,16 +701,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     )
     /// # ;
     /// ```
-    pub fn arg(mut self,
-               a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) 
-               -> Self {
+    pub fn arg(mut self, a: Arg<'a>) -> Self {
         self.add_arg(a);
         self
     }
 
     // actually adds the arguments
-    fn add_arg(&mut self,
-               a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) {
+    fn add_arg(&mut self, a: Arg<'a>) {
         if self.flags.contains_key(a.name) || self.opts.contains_key(a.name) ||
            self.positionals_name.contains_key(a.name) {
             panic!("Argument name must be unique\n\n\t\"{}\" is already in use", a.name);
@@ -1050,9 +1008,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     )
     /// # ;
     /// ```
-    pub fn args(mut self,
-                args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>) 
-                -> Self {
+    pub fn args(mut self, args: Vec<Arg<'a>>) -> Self {
         for arg in args.into_iter() {
             self = self.arg(arg);
         }
@@ -1075,9 +1031,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .arg_from_usage("-c --conf=<config> 'Sets a configuration file to use'")
     /// # ;
     /// ```
-    pub fn arg_from_usage(mut self,
-                          usage: &'ar str) 
-                          -> Self {
+    pub fn arg_from_usage(mut self, usage: &'a str) -> Self {
         self = self.arg(Arg::from_usage(usage));
         self
     }
@@ -1103,9 +1057,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     )
     /// # ;
     /// ```
-    pub fn args_from_usage(mut self,
-                           usage: &'ar str) 
-                           -> Self {
+    pub fn args_from_usage(mut self, usage: &'a str) -> Self {
         for l in usage.lines() {
             self = self.arg(Arg::from_usage(l.trim()));
         }
@@ -1144,9 +1096,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///                     .add_all(&["ver", "major", "minor","patch"])
     ///                     .required(true))
     /// # ;
-    pub fn arg_group(mut self,
-                     group: ArgGroup<'ar, 'ar>) 
-                     -> Self {
+    pub fn arg_group(mut self, group: ArgGroup<'a, 'a>) -> Self {
         if group.required {
             self.required.push(group.name);
             if let Some(ref reqs) = group.requires {
@@ -1208,9 +1158,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///                     .add_all(&["ver", "major", "minor","patch"])
     ///                     .required(true))
     /// # ;
-    pub fn arg_groups(mut self,
-                      groups: Vec<ArgGroup<'ar, 'ar>>) 
-                      -> Self {
+    pub fn arg_groups(mut self, groups: Vec<ArgGroup<'a, 'a>>) -> Self {
         for g in groups {
             self = self.arg_group(g);
         }
@@ -1234,9 +1182,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///             // Additional subcommand configuration goes here, such as other arguments...
     /// # ;
     /// ```
-    pub fn subcommand(mut self,
-                      mut subcmd: App<'a, 'v, 'ab, 'u, 'h, 'ar>) 
-                      -> Self {
+    pub fn subcommand(mut self, mut subcmd: App<'a>) -> Self {
         if subcmd.name == "help" {
             self.needs_subcmd_help = false;
         }
@@ -1264,18 +1210,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///        SubCommand::with_name("debug").about("Controls debug functionality")])
     /// # ;
     /// ```
-    pub fn subcommands(mut self,
-                       subcmds: Vec<App<'a, 'v, 'ab, 'u, 'h, 'ar>>) 
-                       -> Self {
+    pub fn subcommands(mut self, subcmds: Vec<App<'a>>) -> Self {
         for subcmd in subcmds.into_iter() {
             self = self.subcommand(subcmd);
         }
         self
     }
 
-    fn get_group_members(&self,
-                         group: &str) 
-                         -> Vec<String> {
+    fn get_group_members(&self, group: &str) -> Vec<String> {
         let mut g_vec = vec![];
         let mut args = vec![];
 
@@ -1307,9 +1249,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         args.iter().map(ToOwned::to_owned).collect()
     }
 
-    fn get_group_members_names(&self,
-                               group: &'ar str) 
-                               -> Vec<&'ar str> {
+    fn get_group_members_names(&self, group: &'a str) -> Vec<&'a str> {
         let mut g_vec = vec![];
         let mut args = vec![];
 
@@ -1339,9 +1279,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         args.iter().map(|s| *s).collect()
     }
 
-    fn get_required_from(&self,
-                         mut reqs: Vec<&'ar str>) 
-                         -> VecDeque<String> {
+    fn get_required_from(&self, mut reqs: Vec<&'a str>) -> VecDeque<String> {
         reqs.dedup();
         let mut c_flags = vec![];
         let mut c_pos = vec![];
@@ -1460,9 +1398,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     // Creates a usage string if one was not provided by the user manually. This happens just
     // after all arguments were parsed, but before any subcommands have been parsed (so as to
     // give subcommands their own usage recursively)
-    fn create_usage(&self,
-                    matches: Option<Vec<&'ar str>>) 
-                    -> String {
+    fn create_usage(&self, matches: Option<Vec<&'a str>>) -> String {
         use std::fmt::Write;
         let mut usage = String::with_capacity(75);
         usage.push_str("USAGE:\n\t");
@@ -1771,16 +1707,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     // Used when spacing arguments and their help message when displaying help information
-    fn print_spaces(&self,
-                    num: usize) {
+    fn print_spaces(&self, num: usize) {
         for _ in (0..num) {
             print!(" ");
         }
     }
 
     // Prints the version to the user and exits if quit=true
-    fn print_version(&self,
-                     quit: bool) {
+    fn print_version(&self, quit: bool) {
         // Print the binary name if existing, but replace all spaces with hyphens in case we're
         // dealing with subcommands i.e. git mv is translated to git-mv
         println!("{} {}", &self.bin_name.clone().unwrap_or(
@@ -1794,8 +1728,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     // Exits with a status code passed to the OS
     // This is legacy from before std::process::exit() and may be removed evenutally
-    fn exit(&self,
-            status: i32) {
+    fn exit(&self, status: i32) {
         if self.wait_on_error {
             wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
             let mut s = String::new();
@@ -1822,7 +1755,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
     }
 
-    fn get_args(matches: &ArgMatches<'ar, 'ar>) -> Option<Vec<&'ar str>> {
+    fn get_args(matches: &ArgMatches<'a, 'a>) -> Option<Vec<&'a str>> {
         Some(matches.args.keys().map(|k| *k).collect())
     }
 
@@ -1838,7 +1771,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     // Args and options go here...
     ///     .get_matches();
     /// ```
-    pub fn get_matches(self) -> ArgMatches<'ar, 'ar> {
+    pub fn get_matches(self) -> ArgMatches<'a, 'a> {
         // Start the parsing
         self.get_matches_from(env::args())
     }
@@ -1846,7 +1779,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
     /// the real parsing function for all subcommands
     ///
-    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors 
+    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors
     /// manually.
     ///
     ///
@@ -1859,7 +1792,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .get_matches_safe()
     ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
     /// ```
-    pub fn get_matches_safe(self) -> Result<ArgMatches<'ar, 'ar>, ClapError> {
+    pub fn get_matches_safe(self) -> Result<ArgMatches<'a, 'a>, ClapError> {
         // Start the parsing
         self.get_matches_from_safe(env::args())
     }
@@ -1885,8 +1818,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .get_matches_from(arg_vec);
     /// ```
     pub fn get_matches_from<I, T>(mut self,
-                                  itr: I) 
-                                  -> ArgMatches<'ar, 'ar>
+                                  itr: I)
+                                  -> ArgMatches<'a, 'a>
         where I: IntoIterator<Item = T>,
               T: AsRef<str>
     {
@@ -1926,7 +1859,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     /// Starts the parsing process without consuming the `App` struct `self`. This is normally not
     /// the desired functionality, instead prefer `App::get_matches_from_safe` which *does*
-    /// consume `self`. 
+    /// consume `self`.
     ///
     /// **NOTE:** The first argument will be parsed as the binary name.
     ///
@@ -1934,7 +1867,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// parse arguments from something other than `std::env::args()`. If you are unsure, use
     /// `App::get_matches_safe()`
     ///
-    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors 
+    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors
     /// manually.
     ///
     /// # Example
@@ -1949,8 +1882,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
     /// ```
     pub fn get_matches_from_safe_borrow<I, T>(&mut self,
-                                              itr: I) 
-                                              -> Result<ArgMatches<'ar, 'ar>, ClapError>
+                                              itr: I)
+                                              -> Result<ArgMatches<'a, 'a>, ClapError>
         where I: IntoIterator<Item = T>,
               T: AsRef<str>
     {
@@ -1996,7 +1929,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// parse arguments from something other than `std::env::args()`. If you are unsure, use
     /// `App::get_matches_safe()`
     ///
-    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors 
+    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors
     /// manually.
     ///
     ///
@@ -2012,8 +1945,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
     /// ```
     pub fn get_matches_from_safe<I, T>(mut self,
-                                       itr: I) 
-                                       -> Result<ArgMatches<'ar, 'ar>, ClapError>
+                                       itr: I)
+                                       -> Result<ArgMatches<'a, 'a>, ClapError>
         where I: IntoIterator<Item = T>,
               T: AsRef<str>
     {
@@ -2077,7 +2010,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                              arg: &str,
                              opt: &str,
                              p_vals: &[&str],
-                             matches: &ArgMatches<'ar, 'ar>)
+                             matches: &ArgMatches<'a, 'a>)
                              -> ClapError {
         let suffix = App::did_you_mean_suffix(arg,
                                               p_vals.iter(),
@@ -2104,7 +2037,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     // The actual parsing function
     fn get_matches_with<I, T>(&mut self,
-                              matches: &mut ArgMatches<'ar, 'ar>,
+                              matches: &mut ArgMatches<'a, 'a>,
                               it: &mut I)
                               -> Result<(), ClapError>
         where I: Iterator<Item = T>,
@@ -2362,7 +2295,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if !p.empty_vals && matches.args.contains_key(p.name) &&
                            arg_slice.is_empty() {
                             return Err(self.report_error(format!("The argument '{}' does not \
-                                    allow empty values, but one was found.", 
+                                    allow empty values, but one was found.",
                                         Format::Warning(p.to_string())),
                                 ClapErrorType::EmptyValue,
                                 App::get_args(matches)));
@@ -2399,7 +2332,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         let mut bm = BTreeMap::new();
                         if !p.empty_vals && arg_slice.is_empty() {
                             return Err(self.report_error(format!("The argument '{}' does not \
-                                allow empty values, but one was found.", 
+                                allow empty values, but one was found.",
                                     Format::Warning(p.to_string())),
                                 ClapErrorType::EmptyValue,
                                 App::get_args(matches)));
@@ -2576,8 +2509,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     fn blacklisted_from(&self,
-                        name: &str, 
-                        matches: &ArgMatches) 
+                        name: &str,
+                        matches: &ArgMatches)
                         -> Option<String> {
         for k in matches.args.keys() {
             if let Some(f) = self.flags.get(k) {
@@ -2608,9 +2541,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     fn overriden_from(&self,
-                      name: &'ar str,
-                      matches: &ArgMatches) 
-                      -> Option<&'ar str> {
+                      name: &'a str,
+                      matches: &ArgMatches)
+                      -> Option<&'a str> {
         for k in matches.args.keys() {
             if let Some(f) = self.flags.get(k) {
                 if let Some(ref bl) = f.overrides {
@@ -2700,9 +2633,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     fn parse_long_arg<'av>(&mut self,
-                           matches: &mut ArgMatches<'ar, 'ar>,
+                           matches: &mut ArgMatches<'a, 'a>,
                            full_arg: &'av str)
-                           -> Result<Option<&'ar str>, ClapError> {
+                           -> Result<Option<&'a str>, ClapError> {
         let mut arg = full_arg.trim_left_matches(|c| c == '-');
 
         if arg == "help" && self.needs_long_help {
@@ -2741,7 +2674,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             if self.blacklist.contains(&v.name) {
                 matches.args.remove(v.name);
                 return Err(self.report_error(format!("The argument '{}' cannot be used with one \
-                    or more of the other specified arguments", 
+                    or more of the other specified arguments",
                         Format::Warning(format!("--{}", arg))),
                         ClapErrorType::ArgumentConflict,
                         App::get_args(matches)));
@@ -2876,7 +2809,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             // Make sure this isn't one being added multiple times if it doesn't suppor it
             if matches.args.contains_key(v.name) && !v.multiple {
                 return Err(self.report_error(format!("The argument '{}' was supplied more than \
-                    once, but does not support multiple values", 
+                    once, but does not support multiple values",
                     Format::Warning(v.to_string())),
                     ClapErrorType::UnexpectedMultipleUsage,
                     App::get_args(matches)));
@@ -2997,9 +2930,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     fn parse_short_arg(&mut self,
-                       matches: &mut ArgMatches<'ar, 'ar>,
+                       matches: &mut ArgMatches<'a, 'a>,
                        full_arg: &str)
-                       -> Result<Option<&'ar str>, ClapError> {
+                       -> Result<Option<&'a str>, ClapError> {
         let arg = &full_arg[..].trim_left_matches(|c| c == '-');
         if arg.len() > 1 {
             // Multiple flags using short i.e. -bgHlS
@@ -3115,7 +3048,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     fn parse_single_short_flag(&mut self,
-                               matches: &mut ArgMatches<'ar, 'ar>,
+                               matches: &mut ArgMatches<'a, 'a>,
                                arg: char)
                                -> Result<bool, ClapError> {
         if let Some(v) = self.flags.values()
@@ -3206,7 +3139,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     fn validate_blacklist(&self,
-                          matches: &mut ArgMatches<'ar, 'ar>) 
+                          matches: &mut ArgMatches<'a, 'a>)
                           -> Result<(), ClapError> {
         for name in self.blacklist.iter() {
             if matches.args.contains_key(name) {
@@ -3255,7 +3188,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     fn validate_num_args(&self,
-                         matches: &mut ArgMatches<'ar, 'ar>) 
+                         matches: &mut ArgMatches<'a, 'a>)
                          -> Result<(), ClapError> {
         for (name, ma) in matches.args.iter() {
             if let Some(ref vals) = ma.values {
@@ -3318,10 +3251,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     Format::Error(vals.len().to_string()),
                                     if vals.len() == 1 {"as"}else{"ere"}),
                                 if num > vals.len() as u8 {
-                                  ClapErrorType::TooMuchValues 
+                                  ClapErrorType::TooMuchValues
                                 } else {
-                                   ClapErrorType::TooFewValues 
-                                },                               
+                                   ClapErrorType::TooFewValues
+                                },
                                 App::get_args(matches)));
                         }
                     }
@@ -3355,9 +3288,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         Ok(())
     }
 
-    fn validate_required(&self,
-                         matches: &ArgMatches<'ar, 'ar>) 
-                         -> bool {
+    fn validate_required(&self, matches: &ArgMatches<'a, 'a>) -> bool {
         'outer: for name in self.required.iter() {
             if matches.args.contains_key(name) {
                 continue 'outer;
@@ -3426,9 +3357,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     /// Returns a suffix that can be empty, or is the standard 'did you mean phrase
     #[cfg_attr(feature = "lints", allow(needless_lifetimes))]
-    fn did_you_mean_suffix<'z, T, I>(arg: &str,
-                                     values: I,
-                                     style: DidYouMeanMessageStyle)
+    fn did_you_mean_suffix<'z, T, I>(arg: &str, values: I, style: DidYouMeanMessageStyle)
                                      -> (String, Option<&'z str>)
         where T: AsRef<str> + 'z,
               I: IntoIterator<Item = &'z T>

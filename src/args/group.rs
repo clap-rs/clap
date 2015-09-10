@@ -41,20 +41,20 @@ use yaml_rust::Yaml;
 ///                     .add_all(&["ver", "major", "minor","patch"])
 ///                     .required(true))
 /// # .get_matches();
-pub struct ArgGroup<'n, 'ar> {
+pub struct ArgGroup<'n, 'a> {
     #[doc(hidden)]
     pub name: &'n str,
     #[doc(hidden)]
-    pub args: Vec<&'ar str>,
+    pub args: Vec<&'a str>,
     #[doc(hidden)]
     pub required: bool,
     #[doc(hidden)]
-    pub requires: Option<Vec<&'ar str>>,
+    pub requires: Option<Vec<&'a str>>,
     #[doc(hidden)]
-    pub conflicts: Option<Vec<&'ar str>>,
+    pub conflicts: Option<Vec<&'a str>>,
 }
 
-impl<'n, 'ar> ArgGroup<'n, 'ar> {
+impl<'n, 'a> ArgGroup<'n, 'a> {
     /// Creates a new instace of `ArgGroup` using a unique string name.
     /// The name will only be used by the library consumer and not displayed to the use.
     ///
@@ -140,9 +140,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # ArgGroup::with_name("conifg")
     /// .add("config")
     /// # ).get_matches();
-    pub fn add(mut self,
-               n: &'ar str)
-               -> Self {
+    pub fn add(mut self, n: &'a str) -> Self {
         self.args.push(n);
         self
     }
@@ -159,9 +157,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # ArgGroup::with_name("conifg")
     /// .add_all(&["config", "input", "output"])
     /// # ).get_matches();
-    pub fn add_all(mut self,
-                   ns: &[&'ar str])
-                   -> Self {
+    pub fn add_all(mut self, ns: &[&'a str]) -> Self {
         for n in ns {
             self = self.add(n);
         }
@@ -183,9 +179,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # ArgGroup::with_name("conifg")
     /// .required(true)
     /// # ).get_matches();
-    pub fn required(mut self,
-                    r: bool)
-                    -> Self {
+    pub fn required(mut self, r: bool) -> Self {
         self.required = r;
         self
     }
@@ -206,9 +200,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # ArgGroup::with_name("conifg")
     /// .requires("config")
     /// # ).get_matches();
-    pub fn requires(mut self,
-                    n: &'ar str)
-                    -> Self {
+    pub fn requires(mut self, n: &'a str) -> Self {
         if let Some(ref mut reqs) = self.requires {
             reqs.push(n);
         } else {
@@ -233,9 +225,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # ArgGroup::with_name("conifg")
     /// .requires_all(&["config", "input"])
     /// # ).get_matches();
-    pub fn requires_all(mut self,
-                        ns: &[&'ar str])
-                        -> Self {
+    pub fn requires_all(mut self, ns: &[&'a str]) -> Self {
         for n in ns {
             self = self.requires(n);
         }
@@ -258,9 +248,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # ArgGroup::with_name("conifg")
     /// .conflicts_with("config")
     /// # ).get_matches();
-    pub fn conflicts_with(mut self,
-                          n: &'ar str)
-                          -> Self {
+    pub fn conflicts_with(mut self, n: &'a str) -> Self {
         if let Some(ref mut confs) = self.conflicts {
             confs.push(n);
         } else {
@@ -285,9 +273,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # ArgGroup::with_name("conifg")
     /// .conflicts_with_all(&["config", "input"])
     /// # ).get_matches();
-    pub fn conflicts_with_all(mut self,
-                              ns: &[&'ar str])
-                              -> Self {
+    pub fn conflicts_with_all(mut self, ns: &[&'a str]) -> Self {
         for n in ns {
             self = self.conflicts_with(n);
         }
@@ -295,10 +281,8 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     }
 }
 
-impl<'n, 'ar> Debug for ArgGroup<'n, 'ar> {
-    fn fmt(&self,
-           f: &mut Formatter)
-           -> Result {
+impl<'n, 'a> Debug for ArgGroup<'n, 'a> {
+    fn fmt(&self, f: &mut Formatter) -> Result {
         write!(f, "{{
             name:{:?},
             args: {:?},
