@@ -6,6 +6,30 @@ Command Line Argument Parser for Rust
 
 It is a simple to use, efficient, and full featured library for parsing command line arguments and subcommands when writing console, or terminal applications.
 
+Table of Contents
+=================
+
+* [What's New](#whats-new)
+* [About](#about)
+* [Features](#features)
+* [Quick Example](#quick-example)
+* [Try it!](#try-it)
+  * [Pre-Built Test](#pre-built-test)
+  * [BYOB (Build Your Own Binary)](#byob-build-your-own-binary)
+* [Usage](#usage)
+  * [Optional Dependencies / Features](#optional-dependencies--features)
+  * [Dependencies Tree](#dependencies-tree)
+  * [More Information](#more-information)
+    * [Video Tutorials](#video-tutorials)
+* [How to Contribute](#how-to-contribute)
+  * [Running the tests](#running-the-tests)
+  * [Goals](#goals)
+* [License](#license)
+* [Recent Breaking Changes](#recent-breaking-changes)
+  * [Deprecations](#deprecations)
+
+Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
+
 ## What's New
 
 If you're already familiar with `clap` but just want to see some new highlights as of **1.4.0**
@@ -61,8 +85,8 @@ Below are a few of the features which `clap` supports, full descriptions and usa
   - Fully compatible with other relational rules (requirements and exclusions) which allows things like requiring the use of a group, or denying the use of a group conditionally
 * **Specific Value Sets**: Positional or Option Arguments can optionally define a specific set of allowed values (i.e. imagine a `--mode` option which may *only* have one of two values `fast` or `slow` such as `--mode fast` or `--mode slow`)
 * **Default Values**: Although not specifically provided by `clap` you can achieve this exact functionality from Rust's `Option<&str>.unwrap_or("some default")` method (or `Result<T,String>.unwrap_or(T)` when using typed values)
-* **Automatic Version from Cargo.toml**: `clap` is fully compatible with Rust's `env!()` macro for automatically setting the version of your application to the version in your Cargo.toml. See `examples/09_AutoVersion.rs` for how to do this (Thanks to [jhelwig](https://github.com/jhelwig) for pointing this out)
-* **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) from positional or option arguments so long as the type you request implements `std::str::FromStr` See the `examples/12_TypedValues.rs`. You can also use `clap`s `simple_enum!` or `arg_enum!` macro to create an enum with variants that automatically implements `std::str::FromStr`. See `examples/13a_EnumValuesAutomatic.rs` for details and performs an ascii case insensitive parse from a `string`->`enum`.
+* **Automatic Version from Cargo.toml**: `clap` is fully compatible with Rust's `env!()` macro for automatically setting the version of your application to the version in your Cargo.toml. See `examples/09_auto_version.rs` for how to do this (Thanks to [jhelwig](https://github.com/jhelwig) for pointing this out)
+* **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) from positional or option arguments so long as the type you request implements `std::str::FromStr` See the `examples/12_typed_values.rs`. You can also use `clap`s `simple_enum!` or `arg_enum!` macro to create an enum with variants that automatically implements `std::str::FromStr`. See `examples/13a_enum_values_automatic.rs` for details and performs an ascii case insensitive parse from a `string`->`enum`.
 * **Suggestions**: Suggests corrections when the user enter's a typo. For example, if you defined a `--myoption <value>` argument, and the user mistakenly typed `--moyption value` (notice `y` and `o` switched), they would receive a `Did you mean '--myoption' ?` error and exit gracefully. This also works for subcommands and flags. (Thanks to [Byron](https://github.com/Byron) for the implementation) (This feature can optionally be disabled, see 'Optional Dependencies / Features')
 * **Colorized (Red) Errors (Non Windows OS only)**: Error message are printed in red text (this feature can optionally be disabled, see 'Optional Dependencies / Features').
 * **Global Arguments**: Arguments can optionally be defined once, and be available to all child subcommands.
@@ -74,10 +98,10 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 
 The following examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, groups, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/clap/index.html), or `examples/` directory of this repository.
 
- *NOTE:* All these examples are functionally the same, but show three different styles in which to use `clap`
+ **NOTE:** All these examples are functionally the same, but show three different styles in which to use `clap`
 
 ```rust
-// (Full example with detailed comments in examples/01a_QuickExample.rs)
+// (Full example with detailed comments in examples/01a_quick_example.rs)
 //
 // This example demonstrates clap's "usage strings" method of creating arguments which is less
 // less verbose
@@ -134,7 +158,7 @@ fn main() {
 The following example is functionally the same as the one above, but this method allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired. Both methods can be used together to get the best of both worlds (see the documentation, examples, or video tutorials).
 
 ```rust
-// (Full example with detailed comments in examples/01b_QuickExample.rs)
+// (Full example with detailed comments in examples/01b_quick_example.rs)
 //
 // This example demonstrates clap's full 'builder pattern' style of creating arguments which is
 // more verbose, but allows easier editting, and at times more advanced options, or the possibility
@@ -203,13 +227,12 @@ fn main() {
 The following combines the previous two examples by using the simplicity of the `from_usage` methods and the performance of the Builder Pattern.
 
 ```rust
-// (Full example with detailed comments in examples/01c_QuickExample.rs)
+// (Full example with detailed comments in examples/01c_quick_example.rs)
 //
 // This example demonstrates clap's "usage strings" method of creating arguments which is less
 // less verbose
 #[macro_use]
 extern crate clap;
-use clap::{Arg, App, SubCommand};
 
 fn main() {
     let matches = clap_app!(myapp =>
@@ -366,7 +389,7 @@ SUBCOMMANDS:
     test    Controls testing features
 ```
 
-*NOTE:* You could also run `myapp test --help` to see similar output and options for the `test` subcommand.
+**NOTE:** You could also run `myapp test --help` to see similar output and options for the `test` subcommand.
 
 ## Try it!
 
@@ -475,35 +498,13 @@ There's also the video tutorial series [Argument Parsing with Rust](https://www.
 
 *Note*: Apologies for the resolution of the first video, it will be updated to a better resolution soon. The other videos have a proper resolution.
 
-## [How to Contribute](https://github.com/kbknapp/clap-rs/blob/master/CONTRIBUTING.md)
+## How to Contribute
 
 Contributions are always welcome! And there is a multitude of ways in which you can help depending on what you like to do, or are good at. Anything from documentation, code cleanup, issue completion, new features, you name it, even filing issues is contributing and greatly appreciated!
 
-1. Fork `clap`
-2. Clone your fork (`git clone https://github.com/$YOUR_USERNAME/clap-rs && cd clap-rs`)
-3. Create new branch (`git checkout -b new-branch`)
-4. Make your changes, and commit (`git commit -am "your message"`)
- * I use a [conventional](https://github.com/ajoslin/conventional-changelog/blob/a5505865ff3dd710cf757f50530e73ef0ca641da/conventions/angular.md) changelog format so I can update my changelog using [clog](https://github.com/thoughtram/clog)
- * In addition to the conventions defined above, I also use `imp`, `wip`, `examples`.
- * Format your commit subject line using the following format: `TYPE(COMPONENT): MESSAGE` where `TYPE` is one of the following:
-    - `feat` - A new feature
-    - `imp` - An improvement to an existing feature
-    - `perf` - A performance improvement
-    - `docs` - Changes to documentation only
-    - `tests` - Changes to the testing framework or tests only
-    - `fix` - A bug fix
-    - `refactor` - Code functionality doesn't change, but underlying structure may
-    - `style` - Stylistic changes only, no functionality changes
-    - `wip` - A work in progress commit (Should typically be `git rebase`'ed away)
-    - `chore` - Catch all or things that have to do with the build system, etc
-    - `examples` - Changes to existing example, or a new example
- * The `COMPONENT` is optional, and may be a single file, directory, or logical component. Can be omitted if commit applies globally
-5. Run the tests (`cargo test --features yaml && make -C clap-tests test`)
-6. `git rebase` into concise commits and remove `--fixup`s (`git rebase -i HEAD~NUM` where `NUM` is number of commits back)
-7. Push your changes back to your fork (`git push origin $your-branch`)
-8. Create a pull request! (You can also create the pull request first, and we'll merge when ready. This a good way to discuss proposed changes.)
-
 Another really great way to help is if you find an interesting, or helpful way in which to use `clap`. You can either add it to the `examples/` directory, or file an issue and tell me. I'm all about giving credit where credit is due :)
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before start contributing.
 
 ### Running the tests
 
