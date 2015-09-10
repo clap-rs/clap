@@ -813,7 +813,7 @@ macro_rules! clap_app {
         clap_app!{ @arg ($arg.value_name(stringify!($var))) (+) $($tail)* }
     };
     (@arg ($arg:expr) (-) [$var:ident] $($tail:tt)*) => {
-        clap_app!{ @arg ($arg.value_name(stringify!($var))) +takes_value (+) $($tail)* }
+        clap_app!{ @arg ($arg.value_name(stringify!($var))) (+) +takes_value $($tail)* }
     };
     (@arg ($arg:expr) (+) [$var:ident] $($tail:tt)*) => {
         clap_app!{ @arg ($arg.value_name(stringify!($var))) (+) $($tail)* }
