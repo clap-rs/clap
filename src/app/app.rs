@@ -1845,10 +1845,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                -> io::Result<()> {
         // Print the binary name if existing, but replace all spaces with hyphens in case we're
         // dealing with subcommands i.e. git mv is translated to git-mv
-        writeln!(w, "{} {}", &self.bin_name.clone().unwrap_or(
+        try!(writeln!(w, "{} {}", &self.bin_name.clone().unwrap_or(
             self.name.clone())[..].replace(" ", "-"),
             self.version.unwrap_or("")
-        )
+        ));
+
+        w.flush()
     }
 
     // Reports and error to stderr along with an optional usage statement and optionally quits
