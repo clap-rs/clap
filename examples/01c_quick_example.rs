@@ -71,5 +71,5 @@ fn main() {
         }
     }
 
-    // more porgram logic goes here...
+    // more program logic goes here...
 }
