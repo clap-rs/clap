@@ -1,6 +1,8 @@
 The following is a list of contributors to the [clap](https://github.com/kbknapp/clap-rs) project, in alphabetical order:
 
  * [Alexander Kuvaev](https://github.com/Vinatorul) <<alexander@kuvaev.me>>
+ * [Alex Gulyás](https://github.com/alex-gulyas)
+ * [Dabo Ross](https://github.com/daboross) <<daboross@daboross.net>>
  * [Ivan Dmitrievsky](https://github.com/idmit) <<ivan.dmitrievsky@gmail.com>>
  * [J/A](https://github.com/archer884)
  * [Jacob Helwig](https://github.com/jhelwig) <<jacob@technosorcery.net>>
