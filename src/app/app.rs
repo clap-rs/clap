@@ -1330,6 +1330,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 }
             }
         }
+        assert!(args.len() > 0, "ArgGroup '{}' doesn't contain any args", group);
         args.dedup();
         args.iter().map(ToOwned::to_owned).collect()
     }
@@ -1362,6 +1363,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 }
             }
         }
+        assert!(args.len() > 0, "ArgGroup '{}' doesn't contain any args", group);
         args.dedup();
         args.iter().map(|s| *s).collect()
     }
