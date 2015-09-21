@@ -7,6 +7,7 @@ The following is a list of contributors to the [clap](https://github.com/kbknapp
  * [James McGlashan](https://github.com/james-darkfox)
  * [Kevin K.](https://github.com/kbknapp) <<kbknapp@gmail.com>>
  * [Markus Unterwaditzer](https://github.com/untitaker) <<markus@Unterwaditzer.net>>
+ * [Nelson Chen](https://github.com/nelsonjchen)
  * [Sebastian Thiel](https://github.com/Byron) <<byronimo@gmail.com>>
  * [Severen Redwood](https://github.com/SShrike) <<severen.redwood@gmail.com>>
  * [SungRim Huh](https://github.com/sru) <<sungrimhuh@gmail.com>>

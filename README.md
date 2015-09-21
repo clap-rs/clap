@@ -35,12 +35,12 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 If you're already familiar with `clap` but just want to see some new highlights as of **1.4.0**
 
 * A new macro has been designed by [james-darkfox](https://github.com/james-darkfox) to give the simplicity of `from_usage` methods, but the performance of the Builder Pattern. Huge thanks to him! Fair warning this is very new, and may still have some kinks and tweaks left as we experiment ;)
-* Users can now print the help message programatically using `App::write_help(io::Write)` and `App::print_help()`.
+* Users can now print the help message programmatically using `App::write_help(io::Write)` and `App::print_help()`.
 * Users can now simply print the error message to `stderr` and exit gracefully programmatically using `ClapError::exit()`
 * You can now get argument matches **without** consuming your `App` struct using `App::get_matches_from_safe_borrow()`
 * Some other minor bug fixes and improvements
 
-For full details see the [changelog](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md)
+For full details, see [CHANGELOG.md](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md)
 
 ## About
 
@@ -55,7 +55,7 @@ Once `clap` parses the user provided string of arguments, it returns the matches
 Below are a few of the features which `clap` supports, full descriptions and usage can be found in the [documentation](http://kbknapp.github.io/clap-rs/clap/index.html) and `examples/` directory
 
 * **Auto-generated Help, Version, and Usage information**
-  - Can optionally be fully, or partially overridden if you want a custom help, version, or usag
+  - Can optionally be fully, or partially overridden if you want a custom help, version, or usage
 * **Flags / Switches** (i.e. bool fields)
   - Both short and long versions supported (i.e. `-f` and `--flag` respectively)
   - Supports combining short versions (i.e. `-fBgoZ` is the same as `-f -B -g -o -Z`)
@@ -90,7 +90,7 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 * **Suggestions**: Suggests corrections when the user enter's a typo. For example, if you defined a `--myoption <value>` argument, and the user mistakenly typed `--moyption value` (notice `y` and `o` switched), they would receive a `Did you mean '--myoption' ?` error and exit gracefully. This also works for subcommands and flags. (Thanks to [Byron](https://github.com/Byron) for the implementation) (This feature can optionally be disabled, see 'Optional Dependencies / Features')
 * **Colorized (Red) Errors (Non Windows OS only)**: Error message are printed in red text (this feature can optionally be disabled, see 'Optional Dependencies / Features').
 * **Global Arguments**: Arguments can optionally be defined once, and be available to all child subcommands.
-* **Custom Validations**: You can define a function to use as a validator of argument values. Imagine defining a function to validate IP addresses, or fail parsing upon error. This means your application logic can be soley focused on *using* values.
+* **Custom Validations**: You can define a function to use as a validator of argument values. Imagine defining a function to validate IP addresses, or fail parsing upon error. This means your application logic can be solely focused on *using* values.
 * **POSIX Compatible Conflicts** - In POSIX args can be conflicting, but not fail parsing because whichever arg comes *last* "wins" to to speak. This allows things such as aliases (i.e. `alias ls='ls -l'` but then using `ls -C` in your terminal which ends up passing `ls -l -C` as the final arguments. Since `-l` and `-C` aren't compatible, this effectively runs `ls -C` in `clap` if you choose...`clap` also supports hard conflicts that fail parsing). (Thanks to [Vinatorul](https://github.com/Vinatorul)!)
 * **Support for building CLIs from YAML** - This keeps your Rust source nice and tidy!
 
@@ -151,7 +151,7 @@ fn main() {
         }
     }
 
-    // more porgram logic goes here...
+    // more program logic goes here...
 }
 ```
 
@@ -161,7 +161,7 @@ The following example is functionally the same as the one above, but this method
 // (Full example with detailed comments in examples/01b_quick_example.rs)
 //
 // This example demonstrates clap's full 'builder pattern' style of creating arguments which is
-// more verbose, but allows easier editting, and at times more advanced options, or the possibility
+// more verbose, but allows easier editing, and at times more advanced options, or the possibility
 // to generate arguments dynamically.
 extern crate clap;
 use clap::{Arg, App, SubCommand};
@@ -277,7 +277,7 @@ fn main() {
         }
     }
 
-    // more porgram logic goes here...
+    // more program logic goes here...
 }
 ```
 
@@ -395,9 +395,9 @@ SUBCOMMANDS:
 
 ### Pre-Built Test
 
-To try out the pre-built example use the following stes:
+To try out the pre-built example, use the following steps:
 
-* Clone the repostiory `$ git clone https://github.com/kbknapp/clap-rs && cd clap-rs/clap-tests`
+* Clone the repository `$ git clone https://github.com/kbknapp/clap-rs && cd clap-rs/clap-tests`
 * Compile the example `$ cargo build --release`
 * Run the help info `$ ./target/release/claptests --help`
 * Play with the arguments!
@@ -429,7 +429,7 @@ fn main() {
 
 ## Usage
 
-For full usage, add `clap` as a dependecy in your `Cargo.toml` file to use from crates.io:
+For full usage, add `clap` as a dependency in your `Cargo.toml` file to use from crates.io:
 
  ```toml
  [dependencies]
@@ -504,7 +504,7 @@ Contributions are always welcome! And there is a multitude of ways in which you 
 
 Another really great way to help is if you find an interesting, or helpful way in which to use `clap`. You can either add it to the `examples/` directory, or file an issue and tell me. I'm all about giving credit where credit is due :)
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) before start contributing.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before you start contributing.
 
 ### Running the tests
 
@@ -534,7 +534,7 @@ There are a few goals of `clap` that I'd like to maintain throughout contributio
 
 ## Recent Breaking Changes
 
-Although I do my best to keep breaking changes to a minimum, being that this a sub 1.0 library, there are breaking changes from time to time in order to support better features or implementation. For the full details see the changelog.md
+Although I do my best to keep breaking changes to a minimum, there are breaking changes from time to time in order to support better features or implementation. For the full details, see [CHANGELOG.md](./CHANGELOG.md).
 
 * As of 1.3.0
  - `ArgGroup::add_all` now takes `&[&str]` instead of a `Vec<&str>`
