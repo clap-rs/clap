@@ -20,6 +20,8 @@ use usageparser::{UsageParser, UsageToken};
 /// manually, or using a usage string which is far less verbose. You can also use a combination
 /// of the two methods to achieve the best of both worlds.
 ///
+/// **NOTE*: Fields of this struct are **not** meant to be used directly unless absolutely
+/// required. 99.9% of the tasks can be performed without accessing these fields directly.
 ///
 /// # Example
 ///
@@ -38,71 +40,60 @@ use usageparser::{UsageParser, UsageToken};
 /// Arg::from_usage("-i --input=[input] 'Provides an input file to the program'")
 /// # ).get_matches();
 pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
-    /// The unique name of the argument, required
-    #[doc(hidden)]
+    /// The unique name of the argument 
     pub name: &'n str,
     /// The short version (i.e. single character) of the argument, no preceding `-`
     /// **NOTE:** `short` is mutually exclusive with `index`
-    #[doc(hidden)]
     pub short: Option<char>,
     /// The long version of the flag (i.e. word) without the preceding `--`
     /// **NOTE:** `long` is mutually exclusive with `index`
-    #[doc(hidden)]
     pub long: Option<&'l str>,
     /// The string of text that will displayed to the user when the application's
     /// `help` text is displayed
-    #[doc(hidden)]
     pub help: Option<&'h str>,
     /// If this is a required by default when using the command line program
     /// i.e. a configuration file that's required for the program to function
     /// **NOTE:** required by default means, it is required *until* mutually
     /// exclusive arguments are evaluated.
-    #[doc(hidden)]
     pub required: bool,
     /// Determines if this argument is an option, vice a flag or positional and
     /// is mutually exclusive with `index` and `multiple`
-    #[doc(hidden)]
     pub takes_value: bool,
     /// The index of the argument. `index` is mutually exclusive with `takes_value`
     /// and `multiple`
-    #[doc(hidden)]
     pub index: Option<u8>,
     /// Determines if multiple instances of the same flag are allowed. `multiple`
     /// is mutually exclusive with `index` and `takes_value`.
     /// I.e. `-v -v -v` or `-vvv`
-    #[doc(hidden)]
     pub multiple: bool,
     /// A list of names for other arguments that *may not* be used with this flag
-    #[doc(hidden)]
     pub blacklist: Option<Vec<&'r str>>,
     /// A list of possible values for an option or positional argument
-    #[doc(hidden)]
     pub possible_vals: Option<Vec<&'p str>>,
     /// A list of names of other arguments that are *required* to be used when
     /// this flag is used
-    #[doc(hidden)]
     pub requires: Option<Vec<&'r str>>,
     /// A name of the group the argument belongs to
-    #[doc(hidden)]
     pub group: Option<&'g str>,
-    #[doc(hidden)]
+    /// A set of names (ordered) for the values to be displayed with the help message
     pub val_names: Option<BTreeSet<&'n str>>,
-    #[doc(hidden)]
+    /// The exact number of values to satisfy this argument
     pub num_vals: Option<u8>,
-    #[doc(hidden)]
+    /// The maximum number of values possible for this argument
     pub max_vals: Option<u8>,
-    #[doc(hidden)]
+    /// The minimum number of values possible to satisfy this argument
     pub min_vals: Option<u8>,
-    #[doc(hidden)]
+    /// Specifies whether or not this argument accepts explicit empty values such as `--option ""`
     pub empty_vals: bool,
-    #[doc(hidden)]
+    /// Specifies whether or not this argument is global and should be propogated through all 
+    /// child subcommands
     pub global: bool,
-    #[doc(hidden)]
+    /// A function used to check the validity of an argument value. Failing this validation results
+    /// in failed argument parsing.
     pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
     /// A list of names for other arguments that *mutually override* this flag
-    #[doc(hidden)]
     pub overrides: Option<Vec<&'r str>>,
-    #[doc(hidden)]
+    /// Specifies whether the argument should show up in the help message
     pub hidden: bool
 }
 
