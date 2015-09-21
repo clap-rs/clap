@@ -143,6 +143,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     pub fn add(mut self,
                n: &'ar str)
                -> Self {
+        assert!(self.name != n, "ArgGroup '{}' can not have same name as arg inside it", self.name);
         self.args.push(n);
         self
     }

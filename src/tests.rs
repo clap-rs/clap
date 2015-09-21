@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use super::{App, Arg, SubCommand};
+use super::{App, Arg, ArgGroup, SubCommand};
 use std::vec::Vec;
 
 arg_enum!{
@@ -908,4 +908,36 @@ fn create_multiple_subcommands() {
                                         .arg(Arg::with_name("roster").short("r"))])
                 .arg(Arg::with_name("other").long("other"))
                 .get_matches();
+}
+
+#[test]
+#[should_panic]
+fn empty_group() {
+    let _ = App::new("empty_group")
+        .arg(Arg::from_usage("-f, --flag 'some flag'"))
+        .arg_group(ArgGroup::with_name("vers")
+            .required(true))
+        .get_matches();
+}
+
+#[test]
+#[should_panic]
+fn empty_group_2() {
+    let _ = App::new("empty_group")
+        .arg(Arg::from_usage("-f, --flag 'some flag'"))
+        .arg_group(ArgGroup::with_name("vers")
+            .required(true)
+            .add_all(&["ver", "major"]))
+        .get_matches();
+}
+
+#[test]
+#[should_panic]
+fn errous_group() {
+    let _ = App::new("errous_group")
+        .arg(Arg::from_usage("-f, --flag 'some flag'"))
+        .arg_group(ArgGroup::with_name("vers")
+            .add("vers")
+            .required(true))
+        .get_matches();
 }
