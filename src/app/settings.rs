@@ -10,7 +10,7 @@ pub enum AppSettings {
     ///
     /// **NOTE:** This defaults to false (using subcommand does *not* negate requirements)
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, AppSettings};
@@ -23,7 +23,7 @@ pub enum AppSettings {
     ///
     /// **NOTE:** This defaults to false (subcommands do *not* need to be present)
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, AppSettings};
@@ -37,7 +37,7 @@ pub enum AppSettings {
     ///
     /// **NOTE:** Subcommands count as arguments
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, AppSettings};
@@ -52,7 +52,7 @@ pub enum AppSettings {
     /// **NOTE:** The version for the current command and this setting must be set **prior** to
     /// adding any subcommands
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand, AppSettings};
@@ -72,7 +72,7 @@ pub enum AppSettings {
     ///
     /// **NOTE:** Do not set this value to false, it will have undesired results!
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand, AppSettings};
@@ -90,7 +90,7 @@ pub enum AppSettings {
     ///
     /// **NOTE:** This setting is cosmetic only and does not affect any functionality.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand, AppSettings};
@@ -112,7 +112,7 @@ pub enum AppSettings {
     /// behavior for all subcommands, you must set this on each command (needing this is extremely
     /// rare)
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, AppSettings};
@@ -131,7 +131,7 @@ pub enum AppSettings {
     /// still be displayed and exit. If this is *not* the desired result, consider using
     /// `.arg_required_else_help()`
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, AppSettings};

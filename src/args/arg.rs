@@ -23,7 +23,7 @@ use usageparser::{UsageParser, UsageToken};
 /// **NOTE*: Fields of this struct are **not** meant to be used directly unless absolutely
 /// required. 99.9% of the tasks can be performed without accessing these fields directly.
 ///
-/// # Example
+/// # Examples
 ///
 /// ```no_run
 /// # use clap::{App, Arg};
@@ -107,7 +107,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// be displayed when the user prints the usage/help information of the program.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -144,7 +144,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
 
     /// Creates a new instace of `Arg` from a .yml (YAML) file.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```ignore
     /// # use clap::Arg;
@@ -252,7 +252,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     ///    as the value names (i.e. `--opt <file> <mode>`). In this case, if no name was specified
     ///    prior to the value names, the long is used as the name by which to access the argument.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -404,7 +404,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// non `-` chacter will be used as the `short` version
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -430,7 +430,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// **NOTE:** Any leading `-` characters will be stripped
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -450,7 +450,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// when they print the usage/help information.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -500,7 +500,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// arguments, they do not need to be set for each.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -526,7 +526,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// arguments, they do not need to be set for each.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -551,7 +551,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// Sets a mutually overridable argument by name. I.e. this argument and
     /// the following argument will override each other in POSIX style
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -572,7 +572,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// Sets a mutually overridable arguments by name. I.e. this argument and
     /// the following argument will override each other in POSIX style
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -600,7 +600,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// **NOTE:** Mutually exclusive and override rules take precedence over being required
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -625,7 +625,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// by default.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -653,7 +653,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// will be used when printing the help/usage information to the user.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -677,7 +677,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// to the user.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -702,7 +702,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// are ignored as flags cannot have a values or an `index`.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -729,7 +729,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// parent command, but the user supplied the arguments `top cmd1 cmd2 --flag` *only* `cmd2`'s
     /// `ArgMatches` would return `true` if tested for `.is_present("flag")`.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -751,7 +751,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// **NOTE:** Defaults to `true` (Explicit empty values are allowed)
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -771,7 +771,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     ///
     /// **NOTE:** This does **not** hide the argument from usage strings on error
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -793,7 +793,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// **NOTE:** This setting only applies to options and positional arguments
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -823,7 +823,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// **NOTE:** This setting only applies to options and positional arguments
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -847,7 +847,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// Specifies the name of the group the argument belongs to.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -872,7 +872,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// allow `-f <file> <file> <file> -f <file> <file> <file>` where as *not* setting
     /// `.multiple(true)` would only allow one occurrence of this argument.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -899,7 +899,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// with `Rc` pointers. And the value to be checked will be allocated an extra time in order to
     /// to be passed to the closure.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -932,7 +932,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     ///
     /// **NOTE:** This implicity sets `.multiple(true)`
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -966,7 +966,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// **NOTE:** `qty` *must* be > 0. If you wish to have an argument with 0 or more values prefer
     /// two separate arguments (a flag, and an option with multiple values).
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -1000,7 +1000,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// allow `-f <file> <file> <file> -f <file> <file> <file>` where as *not* setting
     /// `.multiple(true)` would only allow one occurrence of this argument.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -1028,7 +1028,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// Specifies the name for value of option or positional arguments. This name is cosmetic only,
     /// used for help and usage strings. The name is **not** used to access arguments.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};

@@ -4,6 +4,8 @@ use std::io::{self, BufRead, BufWriter, Write};
 use std::path::Path;
 use std::process;
 use std::error::Error;
+use std::ffi::OsStr;
+use std::borrow::Borrow;
 
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
@@ -32,7 +34,7 @@ const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider 
 /// order (so long as `.get_matches()` is the last method called).
 ///
 ///
-/// # Example
+/// # Examples
 ///
 /// ```no_run
 /// # use clap::{App, Arg};
@@ -106,7 +108,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// information. The name should not contain spaces (hyphens '-' are ok).
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -165,7 +167,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// YAML file (relative to the current file, like modules work). That YAML object can then be
     /// passed to this function.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```ignore
     /// # use clap::App;
@@ -245,7 +247,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Sets a string of author(s) and will be displayed to the user when they request the help
     /// information with `--help` or `-h`.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -266,7 +268,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// **NOTE:** This command **should not** be used for SubCommands.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -284,7 +286,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Sets a string briefly describing what the program does and will be displayed when
     /// displaying help information.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -304,7 +306,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// information. This additional help is often used to describe how to use the arguments,
     /// or caveats to be noted.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::App;
@@ -328,7 +330,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// **NOTE:** This defaults to false (using subcommand does *not* negate requirements)
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::App;
@@ -350,7 +352,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// **NOTE:** This defaults to false (subcommands do *not* need to be present)
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::App;
@@ -368,7 +370,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Sets a string of the version number to be displayed when displaying version or help
     /// information.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -396,7 +398,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// showing the usage.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -423,7 +425,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// specify a `.help()` for them as well.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -460,7 +462,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// non `-` chacter will be used as the `short` version
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -485,7 +487,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// non `-` chacter will be used as the `short` version
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -510,7 +512,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// **NOTE:** Subcommands count as arguments
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -529,7 +531,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// **NOTE:** This does **not** hide the subcommand from usage strings on error
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, SubCommand};
@@ -554,7 +556,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// **NOTE:** The version for the current command and this setting must be set **prior** to
     /// adding any subcommands
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
@@ -583,7 +585,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// **NOTE:** Do not set this value to false, it will have undesired results!
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
@@ -610,7 +612,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// **NOTE:** This setting is cosmetic only and does not affect any functionality.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
@@ -641,7 +643,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// behavior for all subcommands, you must set this on each command (needing this is extremely
     /// rare)
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -669,7 +671,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// still be displayed and exit. If this is *not* the desired result, consider using
     /// `.arg_required_else_help()`
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -686,7 +688,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     /// Enables Application level settings, passed as argument
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, AppSettings};
@@ -719,7 +721,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     /// Enables multiple Application level settings, passed as argument
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, AppSettings};
@@ -746,7 +748,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// one at a time. Using `Arg::from_usage` helps with the verbosity, and still allows full
     /// control over the advanced configuration options.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -1066,7 +1068,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Adds multiple arguments to the list of valid possibilties by iterating over a Vec of Args
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -1094,7 +1096,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// `Arg` other than what `Arg::from_usage()` supports.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -1118,7 +1120,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// options.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -1158,7 +1160,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// group
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, ArgGroup};
@@ -1222,7 +1224,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// group
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, ArgGroup};
@@ -1250,7 +1252,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// usage.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
@@ -1280,7 +1282,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Adds multiple subcommands to the list of valid possibilties by iterating over a Vec of
     /// `SubCommand`s
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
@@ -1573,7 +1575,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     /// Prints the full help message to `io::stdout()` using a `BufWriter`
     ///
-    /// # Examples
+    /// # Exampless
     /// ```no_run
     /// # use clap::App;
     /// # use std::io;
@@ -1879,8 +1881,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
     /// the real parsing function for all subcommands
     ///
+    /// # Panics
     ///
-    /// # Example
+    /// If any arguments contain invalid unicode characters. If this is not desired it is
+    /// recommended to use the `*_safe()` or `*_lossy()` versions of this method.
+    ///
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -1894,13 +1900,30 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
+    /// the real parsing function for all subcommands. Invalid unicode characters are replaced with
+    /// `U+FFFD REPLACEMENT CHARACTER`
+    ///
+    /// # Exampless
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let matches = App::new("myprog")
+    ///     // Args and options go here...
+    ///     .get_matches();
+    /// ```
+    pub fn get_matches_lossy(self) -> ArgMatches<'ar, 'ar> {
+        // Start the parsing
+        self.get_matches_from_lossy(env::args_os())
+    }
+
+    /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
     /// the real parsing function for all subcommands
     ///
     /// **NOTE:** This method should only be used when is absolutely necessary to handle errors 
     /// manually.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -1911,7 +1934,29 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// ```
     pub fn get_matches_safe(self) -> Result<ArgMatches<'ar, 'ar>, ClapError> {
         // Start the parsing
-        self.get_matches_from_safe(env::args())
+        self.get_matches_from_safe(env::args_os())
+    }
+
+    /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
+    /// the real parsing function for all subcommands. Invalid unicode characters are replaced with
+    /// `U+FFFD REPLACEMENT CHARACTER`
+    ///
+    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors 
+    /// manually.
+    ///
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let matches = App::new("myprog")
+    ///     // Args and options go here...
+    ///     .get_matches_safe()
+    ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
+    /// ```
+    pub fn get_matches_safe_lossy(self) -> Result<ArgMatches<'ar, 'ar>, ClapError> {
+        // Start the parsing
+        self.get_matches_from_safe_lossy(env::args_os())
     }
 
     /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
@@ -1924,7 +1969,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// `App::get_matches()`
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -1938,9 +1983,49 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                   itr: I) 
                                   -> ArgMatches<'ar, 'ar>
         where I: IntoIterator<Item = T>,
-              T: AsRef<str>
-    {
+              T: AsRef<OsStr> {
         match self.get_matches_from_safe_borrow(itr) {
+            Ok(m) => return m,
+            Err(e) => {
+                wlnerr!("{}", e.error);
+                if self.wait_on_error {
+                    wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
+                    let mut s = String::new();
+                    let i = io::stdin();
+                    i.lock().read_line(&mut s).unwrap();
+                }
+                process::exit(1);
+            }
+        }
+    }
+
+    /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
+    /// the real parsing function for all subcommands. Invalid unicode characters are replaced with
+    /// `U+FFFD REPLACEMENT CHARACTER`
+    ///
+    /// **NOTE:** The first argument will be parsed as the binary name.
+    ///
+    /// **NOTE:** This method should only be used when absolutely necessary, such as needing to
+    /// parse arguments from something other than `std::env::args()`. If you are unsure, use
+    /// `App::get_matches()`
+    ///
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let arg_vec = vec!["my_prog", "some", "args", "to", "parse"];
+    ///
+    /// let matches = App::new("myprog")
+    ///     // Args and options go here...
+    ///     .get_matches_from(arg_vec);
+    /// ```
+    pub fn get_matches_from_lossy<I, T>(mut self,
+                                  itr: I) 
+                                  -> ArgMatches<'ar, 'ar>
+        where I: IntoIterator<Item = T>,
+              T: AsRef<OsStr> {
+        match self.get_matches_from_safe_borrow_lossy(itr) {
             Ok(m) => return m,
             Err(e) => {
                 wlnerr!("{}", e.error);
@@ -1967,8 +2052,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// **NOTE:** This method should only be used when is absolutely necessary to handle errors 
     /// manually.
     ///
+    /// **NOTE:** Invalid unicode characters will result in an `Err` with type 
+    /// `ClapErrorType::InvalidUnicode`
     ///
-    /// # Example
+    ///
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -1983,14 +2071,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                        itr: I) 
                                        -> Result<ArgMatches<'ar, 'ar>, ClapError>
         where I: IntoIterator<Item = T>,
-              T: AsRef<str>
-    {
+              T: AsRef<OsStr> {
         self.get_matches_from_safe_borrow(itr)
     }
 
-    /// Starts the parsing process without consuming the `App` struct `self`. This is normally not
-    /// the desired functionality, instead prefer `App::get_matches_from_safe` which *does*
-    /// consume `self`. 
+    /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
+    /// the real parsing function for all subcommands. Invalid unicode characters are replaced with
+    /// `U+FFFD REPLACEMENT CHARACTER`
     ///
     /// **NOTE:** The first argument will be parsed as the binary name.
     ///
@@ -2001,23 +2088,32 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// **NOTE:** This method should only be used when is absolutely necessary to handle errors 
     /// manually.
     ///
-    /// # Example
+    ///
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
     /// let arg_vec = vec!["my_prog", "some", "args", "to", "parse"];
     ///
-    /// let mut app = App::new("myprog");
+    /// let matches = App::new("myprog")
     ///     // Args and options go here...
-    /// let matches = app.get_matches_from_safe_borrow(arg_vec)
+    ///     .get_matches_from_safe(arg_vec)
     ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
     /// ```
-    pub fn get_matches_from_safe_borrow<I, T>(&mut self,
-                                              itr: I) 
+    pub fn get_matches_from_safe_lossy<I, T>(mut self,
+                                       itr: I) 
+                                       -> Result<ArgMatches<'ar, 'ar>, ClapError>
+        where I: IntoIterator<Item = T>,
+              T: AsRef<OsStr> {
+        self._get_matches_from_safe_borrow(itr, true)
+    }
+
+    fn _get_matches_from_safe_borrow<I, T>(&mut self,
+                                              itr: I,
+                                              lossy: bool) 
                                               -> Result<ArgMatches<'ar, 'ar>, ClapError>
         where I: IntoIterator<Item = T>,
-              T: AsRef<str>
-    {
+              T: AsRef<OsStr> {
         // Verify all positional assertions pass
         self.verify_positionals();
         // If there are global arguments, we need to propgate them down to subcommands before
@@ -2044,11 +2140,81 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
 
         // do the real parsing
-        if let Err(e) = self.get_matches_with(&mut matches, &mut it) {
+        if let Err(e) = self.get_matches_with(&mut matches, &mut it, lossy) {
             return Err(e);
         }
 
         Ok(matches)
+    }
+
+    /// Starts the parsing process without consuming the `App` struct `self`. This is normally not
+    /// the desired functionality, instead prefer `App::get_matches_from_safe` which *does*
+    /// consume `self`. 
+    ///
+    /// **NOTE:** The first argument will be parsed as the binary name.
+    ///
+    /// **NOTE:** This method should only be used when absolutely necessary, such as needing to
+    /// parse arguments from something other than `std::env::args()`. If you are unsure, use
+    /// `App::get_matches_safe()`
+    ///
+    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors 
+    /// manually.
+    ///
+    /// **NOTE:** Invalid unicode characters will result in an `Err` with type 
+    /// `ClapErrorType::InvalidUnicode`
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let arg_vec = vec!["my_prog", "some", "args", "to", "parse"];
+    ///
+    /// let mut app = App::new("myprog");
+    ///     // Args and options go here...
+    /// let matches = app.get_matches_from_safe_borrow(arg_vec)
+    ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
+    /// ```
+    pub fn get_matches_from_safe_borrow<I, T>(&mut self,
+                                              itr: I) 
+                                              -> Result<ArgMatches<'ar, 'ar>, ClapError>
+        where I: IntoIterator<Item = T>,
+              T: AsRef<OsStr> {
+        self._get_matches_from_safe_borrow(itr, false)
+    }
+
+    /// Starts the parsing process without consuming the `App` struct `self`. This is normally not
+    /// the desired functionality, instead prefer `App::get_matches_from_safe` which *does*
+    /// consume `self`. Invalid unicode characters are replaced with `U+FFFD REPLACEMENT CHARACTER`
+    ///
+    /// **NOTE:** The first argument will be parsed as the binary name.
+    ///
+    /// **NOTE:** This method should only be used when absolutely necessary, such as needing to
+    /// parse arguments from something other than `std::env::args()`. If you are unsure, use
+    /// `App::get_matches_safe()`
+    ///
+    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors 
+    /// manually.
+    ///
+    /// **NOTE:** Invalid unicode characters will result in an `Err` with type 
+    /// `ClapErrorType::InvalidUnicode`
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let arg_vec = vec!["my_prog", "some", "args", "to", "parse"];
+    ///
+    /// let mut app = App::new("myprog");
+    ///     // Args and options go here...
+    /// let matches = app.get_matches_from_safe_borrow(arg_vec)
+    ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
+    /// ```
+    pub fn get_matches_from_safe_borrow_lossy<I, T>(&mut self,
+                                              itr: I) 
+                                              -> Result<ArgMatches<'ar, 'ar>, ClapError>
+        where I: IntoIterator<Item = T>,
+              T: AsRef<OsStr> {
+        self._get_matches_from_safe_borrow(itr, true)
     }
 
 
@@ -2137,11 +2303,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     // The actual parsing function
     fn get_matches_with<I, T>(&mut self,
                               matches: &mut ArgMatches<'ar, 'ar>,
-                              it: &mut I)
+                              it: &mut I,
+                              lossy: bool)
                               -> Result<(), ClapError>
         where I: Iterator<Item = T>,
-              T: AsRef<str>
-    {
+              T: AsRef<OsStr> {
         // First we create the `--help` and `--version` arguments and add them if necessary
         self.create_help_and_version();
 
@@ -2151,7 +2317,20 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut pos_counter = 1;
         let mut val_counter = 0;
         while let Some(arg) = it.next() {
-            let arg_slice = arg.as_ref();
+            let arg_cow = match arg.as_ref().to_str() {
+                Some(s) => s.into(),
+                None    => {
+                    if !lossy {
+                        return Err(ClapError{
+                            error: format!("{} Invalid unicode character in one or more arguments",
+                                Format::Error("error:")),
+                            error_type: ClapErrorType::InvalidUnicode
+                        });
+                    }
+                    arg.as_ref().to_string_lossy()
+               }
+            };
+            let arg_slice: &str = arg_cow.borrow();
             let mut skip = false;
 
             // we need to know if we're parsing a new argument, or the value of previous argument,
@@ -2186,7 +2365,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     if num == vals.len() as u8 && !opt.multiple {
                                         return Err(self.report_error(format!("The argument '{}' \
                                             was found, but '{}' only expects {} values",
-                                                Format::Warning(arg.as_ref()),
+                                                Format::Warning(arg_slice),
                                                 Format::Warning(opt.to_string()),
                                                 Format::Good(vals.len().to_string())),
                                             ClapErrorType::InvalidValue,
@@ -2335,7 +2514,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             format!("The subcommand '{}' isn't valid\n\tDid you mean '{}' ?\n\n\
                             If you received this message in error, try \
                             re-running with '{} {} {}'",
-                                Format::Warning(arg.as_ref()),
+                                Format::Warning(arg_slice),
                                 Format::Good(candidate_subcommand),
                                 self.bin_name.clone().unwrap_or(self.name.clone()),
                                 Format::Good("--"),
@@ -2350,7 +2529,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 if self.positionals_idx.is_empty() {
                     return Err(self.report_error(
                         format!("Found argument '{}', but {} wasn't expecting any",
-                            Format::Warning(arg.as_ref()),
+                            Format::Warning(arg_slice),
                             self.bin_name.clone().unwrap_or(self.name.clone())),
                         ClapErrorType::UnexpectedArgument,
                         App::get_args(matches)));
@@ -2391,7 +2570,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     if vals.len() as u8 == num {
                                         return Err(self.report_error(format!("The argument '{}' \
                                             was found, but '{}' wasn't expecting any more values",
-                                                Format::Warning(arg.as_ref()),
+                                                Format::Warning(arg_slice),
                                                 Format::Warning(p.to_string())),
                                             ClapErrorType::TooMuchValues,
                                             App::get_args(matches)));
@@ -2481,7 +2660,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                 } else {
                     return Err(self.report_error(format!("The argument '{}' was found, but '{}' \
-                        wasn't expecting any", Format::Warning(arg.as_ref()),
+                        wasn't expecting any", Format::Warning(arg_slice),
                             self.bin_name.clone().unwrap_or(self.name.clone())),
                         ClapErrorType::UnexpectedArgument,
                         App::get_args(matches)));
@@ -2575,7 +2754,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         ""
                     },
                     sc.name.clone()));
-                if let Err(e) = sc.get_matches_with(&mut new_matches, it) {
+                if let Err(e) = sc.get_matches_with(&mut new_matches, it, lossy) {
                     e.exit();
                 }
                 matches.subcommand = Some(Box::new(SubCommand {
@@ -3554,5 +3733,4 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             None => (String::new(), None),
         }
     }
-
 }

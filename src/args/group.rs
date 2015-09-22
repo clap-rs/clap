@@ -28,7 +28,7 @@ use yaml_rust::Yaml;
 /// `--minor`, and `--patch`. All of these arguments shouldn't be used at one time but you want to
 /// specify that *at least one* of them is used. For this, you can create a group.
 ///
-/// # Example
+/// # Examples
 ///
 /// ```no_run
 /// # use clap::{App, ArgGroup};
@@ -58,7 +58,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// Creates a new instace of `ArgGroup` using a unique string name.
     /// The name will only be used by the library consumer and not displayed to the use.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, ArgGroup};
@@ -78,7 +78,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
 
     /// Creates a new instace of `ArgGroup` from a .yml (YAML) file.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```ignore
     /// # use clap::ArgGroup;
@@ -131,7 +131,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// Adds an argument to this group by name
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, ArgGroup};
@@ -151,7 +151,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// Adds multiple arguments to this group by name
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, ArgGroup};
@@ -175,7 +175,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// conflicting with another argument).
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, ArgGroup};
@@ -198,7 +198,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// **NOTE:** The name provided may be an argument, or group name
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, ArgGroup};
@@ -225,7 +225,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// **NOTE:** The names provided may be an argument, or group name
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, ArgGroup};
@@ -250,7 +250,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// **NOTE:** The name provided may be an argument, or group name
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, ArgGroup};
@@ -277,7 +277,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// **NOTE:** The names provided may be an argument, or group name
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, ArgGroup};

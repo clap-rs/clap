@@ -7,7 +7,7 @@ use args::MatchedArg;
 /// the user. To get a new instance of this struct you use `.get_matches()` of the `App` struct.
 ///
 ///
-/// # Example
+/// # Examples
 ///
 /// ```no_run
 /// # use clap::{App, Arg};
@@ -65,7 +65,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     /// Creates a new instance of `ArgMatches`. This ins't called directly, but
     /// through the `.get_matches()` method of `App`
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -87,7 +87,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
     /// prefer `values_of()` as `value_of()` will only return the _*first*_ value.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -116,7 +116,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     /// that takes multiple values at runtime). If the option wasn't present at runtime it
     /// returns `None`
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -145,7 +145,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     /// Returns if an argument was present at runtime.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -174,7 +174,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     /// allow multiple occurrences, but will obviously only return `0` or `1`.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -199,7 +199,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     /// present at runtime.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
@@ -227,7 +227,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     /// the name of sub-subcommand's names
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
@@ -250,7 +250,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     /// wasn't found.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
@@ -272,7 +272,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     /// Returns a string slice of the usage statement for the `App` (or `SubCommand`)
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
