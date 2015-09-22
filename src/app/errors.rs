@@ -178,6 +178,24 @@ pub enum ClapErrorType {
     ///     .get_matches_from_safe(vec!["", "--debug", "--debug"]);
     /// ```
     UnexpectedMultipleUsage,
+    /// Error occurs when argument contains invalid unicode characters
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # use std::os::unix::ffi::OsStringExt;
+    /// # use std::ffi::OsString;
+    /// let result = App::new("myprog")
+    ///     .arg(Arg::with_name("debug")
+    ///         .short("u")
+    ///         .takes_value(true))
+    ///     .get_matches_from_safe(vec![OsString::from_vec(vec![0x20]), 
+    ///                                 OsString::from_vec(vec![0xE9])]);
+    /// assert!(result.is_err());
+    /// ```
+    InvalidUnicode
 }
 
 /// Command line argument parser error
