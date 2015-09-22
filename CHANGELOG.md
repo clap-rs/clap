@@ -1,3 +1,28 @@
+<a name="v1.4.1"></a>
+### v1.4.1 (2015-09-22)
+
+
+#### Examples
+
+*   add clap_app quick example ([4ba6249c](https://github.com/kbknapp/clap-rs/commit/4ba6249c3cf4d2e083370d1fe4dcc7025282c28a))
+
+#### Features
+
+* **Unicode:**  allows non-panicing on invalid unicode characters ([c5bf7ddc](https://github.com/kbknapp/clap-rs/commit/c5bf7ddc8cfb876ec928a5aaf5591232bbb32e5d))
+
+#### Documentation
+
+*   properly names Examples section for rustdoc ([87ba5445](https://github.com/kbknapp/clap-rs/commit/87ba54451d7ec7b1c9b9ef134f90bbe39e6fac69))
+*   fixes various typos and spelling ([f85640f9](https://github.com/kbknapp/clap-rs/commit/f85640f9f6d8fd3821a40e9b8b7a34fabb789d02))
+* **Arg:**  unhides fields of the Arg struct ([931aea88](https://github.com/kbknapp/clap-rs/commit/931aea88427edf43a3da90d5a500c1ff2b2c3614))
+
+#### Bug Fixes
+
+*   flush the buffer in App::print_version() ([cbc42a37](https://github.com/kbknapp/clap-rs/commit/cbc42a37d212d84d22b1777d08e584ff191934e7))
+*   Macro benchmarks ([13712da1](https://github.com/kbknapp/clap-rs/commit/13712da1d36dc7614eec3a10ad488257ba615751))
+
+
+
 <a name="v1.4.0"></a>
 ## v1.4.0 (2015-09-09)
 

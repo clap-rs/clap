@@ -32,8 +32,11 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-If you're already familiar with `clap` but just want to see some new highlights as of **1.4.0**
+If you're already familiar with `clap` but just want to see some new highlights as of **1.4.1**
 
+* You now have the option to **not** `panic!` on invalid unicode. The `*_safe()` family of `get_matches` will return an `Err` with `ClapErrorType::InvalidUnicode`.
+* You have the option to get lossy unicode values. By using the `*_lossy()` versions of the `get_matches` family of methods all invalid unicode will be replaced with `U+FFFD` and **not** `panic!` or fail parsing.
+* Some documentation improvements
 * A new macro has been designed by [james-darkfox](https://github.com/james-darkfox) to give the simplicity of `from_usage` methods, but the performance of the Builder Pattern. Huge thanks to him! Fair warning this is very new, and may still have some kinks and tweaks left as we experiment ;)
 * Users can now print the help message programmatically using `App::write_help(io::Write)` and `App::print_help()`.
 * Users can now simply print the error message to `stderr` and exit gracefully programmatically using `ClapError::exit()`
