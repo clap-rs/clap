@@ -11,7 +11,7 @@ use ArgMatches;
 /// subcommand for their program. SubCommands are treated like "sub apps" and contain all the same
 /// possibilities (such as their own arguments and subcommands).
 ///
-/// # Example
+/// # Examples
 ///
 /// ```no_run
 /// # use clap::{App, Arg, SubCommand};
@@ -34,7 +34,7 @@ impl<'n, 'a> SubCommand<'n, 'a> {
     /// Creates a new instance of a subcommand requiring a name. Will be displayed
     /// to the user when they print version or help and usage information.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
@@ -48,7 +48,7 @@ impl<'n, 'a> SubCommand<'n, 'a> {
 
     /// Creates a new instance of a subcommand from a YAML (.yml) document
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```ignore
     /// # use clap::{App, Arg, SubCommand};

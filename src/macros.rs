@@ -247,7 +247,7 @@ macro_rules! for_match {
 /// standard syntax.
 ///
 ///
-/// # Example single value
+/// # Examples single value
 ///
 /// ```no_run
 /// # #[macro_use]
@@ -268,7 +268,7 @@ macro_rules! for_match {
 /// ```
 ///
 ///
-/// # Example multiple values
+/// # Examples multiple values
 ///
 /// ```no_run
 /// # #[macro_use]
@@ -337,7 +337,7 @@ macro_rules! value_t {
 /// standard syntax.
 ///
 ///
-/// # Example single value
+/// # Examples single value
 ///
 /// ```no_run
 /// # #[macro_use]
@@ -354,7 +354,7 @@ macro_rules! value_t {
 /// ```
 ///
 ///
-/// # Example multiple values
+/// # Examples multiple values
 ///
 /// ```no_run
 /// # #[macro_use]
@@ -437,7 +437,7 @@ macro_rules! value_t_or_exit {
 ///
 /// **NOTE:** This macro automaically implements std::str::FromStr and std::fmt::Display
 ///
-/// # Example
+/// # Examples
 ///
 /// ```no_run
 /// # #[macro_use]
@@ -513,7 +513,7 @@ macro_rules! simple_enum {
 /// These enums support pub (or not) and use of the #[derive()] traits
 ///
 ///
-/// # Example
+/// # Examples
 ///
 /// ```no_run
 /// # #[macro_use]
@@ -718,7 +718,7 @@ macro_rules! arg_enum {
 
 /// Allows you pull the version for an from your Cargo.toml as MAJOR.MINOR.PATCH_PKGVERSION_PRE
 ///
-/// # Example
+/// # Examples
 /// ```no_run
 /// # #[macro_use]
 /// # extern crate clap;

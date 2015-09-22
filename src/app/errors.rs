@@ -8,7 +8,7 @@ pub enum ClapErrorType {
     /// Error occurs when some possible values were set, but clap found unexpected value
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -22,7 +22,7 @@ pub enum ClapErrorType {
     /// Error occurs when clap found unexpected flag or option
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -34,7 +34,7 @@ pub enum ClapErrorType {
     /// Error occurs when clap found unexpected subcommand
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
@@ -50,7 +50,7 @@ pub enum ClapErrorType {
     /// Error occurs when option does not allow empty values but some was found
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -70,7 +70,7 @@ pub enum ClapErrorType {
     /// Error occurs when argument got more values then were expected
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -83,7 +83,7 @@ pub enum ClapErrorType {
     /// Error occurs when argument got less values then were expected
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -96,7 +96,7 @@ pub enum ClapErrorType {
     /// Error occurs when clap find two ore more conflicting arguments
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -109,7 +109,7 @@ pub enum ClapErrorType {
     /// Error occurs when one or more required arguments missing
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -122,7 +122,7 @@ pub enum ClapErrorType {
     /// Error occurs when required subcommand missing
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, AppSettings, SubCommand};
@@ -140,7 +140,7 @@ pub enum ClapErrorType {
     /// `AppSettings::ArgRequiredElseHelp` was used
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, AppSettings, SubCommand};
@@ -157,7 +157,7 @@ pub enum ClapErrorType {
     /// Error occurs when clap find argument while is was not expecting any
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App};
@@ -168,7 +168,7 @@ pub enum ClapErrorType {
     /// Error occurs when argument was used multiple times and was not set as multiple.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -181,7 +181,7 @@ pub enum ClapErrorType {
     /// Error occurs when argument contains invalid unicode characters
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};

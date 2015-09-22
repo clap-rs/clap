@@ -34,7 +34,7 @@ const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider 
 /// order (so long as `.get_matches()` is the last method called).
 ///
 ///
-/// # Example
+/// # Examples
 ///
 /// ```no_run
 /// # use clap::{App, Arg};
@@ -108,7 +108,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// information. The name should not contain spaces (hyphens '-' are ok).
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -167,7 +167,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// YAML file (relative to the current file, like modules work). That YAML object can then be
     /// passed to this function.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```ignore
     /// # use clap::App;
@@ -247,7 +247,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Sets a string of author(s) and will be displayed to the user when they request the help
     /// information with `--help` or `-h`.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -268,7 +268,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// **NOTE:** This command **should not** be used for SubCommands.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -286,7 +286,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Sets a string briefly describing what the program does and will be displayed when
     /// displaying help information.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -306,7 +306,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// information. This additional help is often used to describe how to use the arguments,
     /// or caveats to be noted.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::App;
@@ -330,7 +330,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// **NOTE:** This defaults to false (using subcommand does *not* negate requirements)
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::App;
@@ -352,7 +352,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// **NOTE:** This defaults to false (subcommands do *not* need to be present)
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::App;
@@ -370,7 +370,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Sets a string of the version number to be displayed when displaying version or help
     /// information.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -398,7 +398,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// showing the usage.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -425,7 +425,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// specify a `.help()` for them as well.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -462,7 +462,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// non `-` chacter will be used as the `short` version
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -487,7 +487,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// non `-` chacter will be used as the `short` version
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -512,7 +512,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// **NOTE:** Subcommands count as arguments
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -531,7 +531,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// **NOTE:** This does **not** hide the subcommand from usage strings on error
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, SubCommand};
@@ -556,7 +556,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// **NOTE:** The version for the current command and this setting must be set **prior** to
     /// adding any subcommands
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
@@ -585,7 +585,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// **NOTE:** Do not set this value to false, it will have undesired results!
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
@@ -612,7 +612,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///
     /// **NOTE:** This setting is cosmetic only and does not affect any functionality.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
@@ -643,7 +643,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// behavior for all subcommands, you must set this on each command (needing this is extremely
     /// rare)
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -671,7 +671,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// still be displayed and exit. If this is *not* the desired result, consider using
     /// `.arg_required_else_help()`
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -688,7 +688,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     /// Enables Application level settings, passed as argument
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, AppSettings};
@@ -721,7 +721,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     /// Enables multiple Application level settings, passed as argument
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, AppSettings};
@@ -748,7 +748,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// one at a time. Using `Arg::from_usage` helps with the verbosity, and still allows full
     /// control over the advanced configuration options.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -1068,7 +1068,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Adds multiple arguments to the list of valid possibilties by iterating over a Vec of Args
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -1096,7 +1096,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// `Arg` other than what `Arg::from_usage()` supports.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -1120,7 +1120,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// options.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -1160,7 +1160,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// group
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, ArgGroup};
@@ -1224,7 +1224,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// group
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, ArgGroup};
@@ -1252,7 +1252,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// usage.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
@@ -1282,7 +1282,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Adds multiple subcommands to the list of valid possibilties by iterating over a Vec of
     /// `SubCommand`s
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
@@ -1575,7 +1575,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     /// Prints the full help message to `io::stdout()` using a `BufWriter`
     ///
-    /// # Examples
+    /// # Exampless
     /// ```no_run
     /// # use clap::App;
     /// # use std::io;
@@ -1886,7 +1886,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// If any arguments contain invalid unicode characters. If this is not desired it is
     /// recommended to use the `*_safe()` or `*_lossy()` versions of this method.
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -1903,7 +1903,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// the real parsing function for all subcommands. Invalid unicode characters are replaced with
     /// `U+FFFD REPLACEMENT CHARACTER`
     ///
-    /// # Examples
+    /// # Exampless
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -1923,7 +1923,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// manually.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -1945,7 +1945,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// manually.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -1969,7 +1969,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// `App::get_matches()`
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -2010,7 +2010,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// `App::get_matches()`
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -2056,7 +2056,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// `ClapErrorType::InvalidUnicode`
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -2089,7 +2089,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// manually.
     ///
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -2163,7 +2163,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// **NOTE:** Invalid unicode characters will result in an `Err` with type 
     /// `ClapErrorType::InvalidUnicode`
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -2198,7 +2198,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// **NOTE:** Invalid unicode characters will result in an `Err` with type 
     /// `ClapErrorType::InvalidUnicode`
     ///
-    /// # Example
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
