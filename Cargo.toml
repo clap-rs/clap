@@ -1,0 +1,4 @@
+[package]
+name = "clap"
+version = "2.0.0"
+authors = ["James McGlashan <github@darkfox.id.au>"]
