@@ -1,4 +1,32 @@
 [package]
 name = "clap"
 version = "2.0.0"
-authors = ["James McGlashan <github@darkfox.id.au>"]
+authors = [
+    "Kevin K. <kbknapp@gmail.com>",
+    "Alexander Kuvaev <alexander@kuvaev.me>",
+    "SungRim Huh <sungrimhuh@gmail.com>",
+    "James McGlashan <github@darkfox.id.au>",
+]
+description = "A simple to use, efficient, and full featured Command Line Argument Parser"
+repository = "https://github.com/kbknapp/clap-rs.git"
+documentation = "http://kbknapp.github.io/clap-rs"
+readme = "README.md"
+license = "MIT"
+keywords = ["argument", "command", "arg", "parser", "parse"]
+
+[dependencies.yaml-rust]
+version = "~0.2.2"
+optional = true
+
+[features]
+default = []
+yaml = ["yaml-rust"]
+
+# for building with nightly and unstable features
+nightly = []
+
+# for building with travis-cargo
+unstable = ["nightly"]
+
+# for building with debug messages
+debug = []
