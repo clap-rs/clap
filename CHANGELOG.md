@@ -1,3 +1,13 @@
+<a name="v1.4.2"></a>
+### v1.4.2 (2015-09-23)
+
+
+#### Bug Fixes
+
+* **Conflicts:**  fixes bug with conflicts not removing required args ([e17fcec5](https://github.com/kbknapp/clap-rs/commit/e17fcec53b3216ad047a13dddc6f740473fad1a1), closes [#271](https://github.com/kbknapp/clap-rs/issues/271))
+
+
+
 <a name="v1.4.1"></a>
 ### v1.4.1 (2015-09-22)
 
