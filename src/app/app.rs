@@ -3078,6 +3078,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 for name in bl {
                     self.blacklist.push(name);
                     vec_remove!(self.overrides, name);
+                    vec_remove!(self.required, name);
                 }
             }
 
@@ -3178,6 +3179,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 for name in bl {
                     self.blacklist.push(name);
                     vec_remove!(self.overrides, name);
+                    vec_remove!(self.required, name);
                 }
             }
 
@@ -3368,6 +3370,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 for name in bl {
                     self.blacklist.push(name);
                     vec_remove!(self.overrides, name);
+                    vec_remove!(self.required, name);
                 }
             }
 
@@ -3465,6 +3468,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 for name in bl {
                     self.blacklist.push(name);
                     vec_remove!(self.overrides, name);
+                    vec_remove!(self.required, name);
                 }
             }
 
