@@ -40,12 +40,22 @@ pub trait CollectionMatcher<'a> {
         while let Some(word) = it.next() {
             match word.as_ref() {
                 "--" if !positional_only => positional_only = true,
-                x if !positional_only && x.starts_with("--") => { // --foo=val ?
-                    let long = &x[2..];
-                    match index.get(&Index::Long(long)) {
-                        Some(i) => try!(matches[*i].handle(it)),
-                        None => return Err(ClapError::UnexpectedLong(long.to_owned())),
+                x if !positional_only && x.starts_with("--") => {
+                    let mut splitn = (&x[2..]).splitn(2, '=');
+                    let long = splitn.next().unwrap(); // there's always first one
+                    if let Some(list) = splitn.next() {
+                        // --foo=val,val2...
+                        match index.get(&Index::Long(long)) {
+                            Some(i) => try!(matches[*i].handle(&mut list.split(','))),
+                            None => return Err(ClapError::UnexpectedLong(long.to_owned())),
+                        }
                     }
+                    else {
+                        match index.get(&Index::Long(long)) {
+                            Some(i) => try!(matches[*i].handle(it)),
+                            None => return Err(ClapError::UnexpectedLong(long.to_owned())),
+                        }
+                    };
                 },
                 x if !positional_only && x.starts_with("-") =>
                     for short in (x[1..]).chars() {
