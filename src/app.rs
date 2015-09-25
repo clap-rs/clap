@@ -11,25 +11,32 @@ use arg::Matcher;
 pub trait CollectionMatcher<'a> {
     fn iter_rules(&self) -> &Vec<Rule>;
 
-    fn matches<I, T: 'a>(&'a self, it: &'a mut I) -> Result<CollectedMatches<'a>, ClapError<'a>>
+    fn get_matches<I, T: 'a>(&'a self, it: &'a mut I) -> Result<CollectedMatches<'a>, ClapError<'a>>
         where I: Iterator<Item=T>, T: AsRef<str>
     {
         let rules = self.iter_rules().iter();
         let mut index: HashMap<Index, usize> = HashMap::new();
         let mut matches: Vec<Matcher> = Vec::with_capacity(rules.len());
         let mut positional_counter = 0;
+
         for (i, r) in rules.enumerate() {
             r.long.map(|l| index.insert(Index::Long(l), i));
             r.short.map(|s| index.insert(Index::Short(s), i));
+
             if r.long.is_none() && r.short.is_none() {
+                // positional argument
                 assert!(r.max_occurrences == 1); // repeating would be useful
                 assert!(r.values_collected.len() == 1);
+
                 index.insert(Index::Positional(positional_counter), i);
                 positional_counter += 1;
             }
             matches.push(Matcher::with_rule(r));
         }
-        let mut positional_only = false; positional_counter = 0;
+
+        let mut positional_only = false;
+        positional_counter = 0;
+
         while let Some(word) = it.next() {
             match word.as_ref() {
                 "--" if !positional_only => positional_only = true,

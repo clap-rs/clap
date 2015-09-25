@@ -8,7 +8,7 @@ fn unknown_long_config() {
     let ac = App::with_rules(vec![
             Rule::with_name("verbose").short('v').max_occurrences(3)
         ]);
-    match ac.matches(sample) {
+    match ac.get_matches(sample) {
         Err(ClapError::UnexpectedLong(_config)) => (),
             // Found unexpected argument: "config"
         _ => unreachable!(),
@@ -21,7 +21,7 @@ fn flag_verbose_found_3_times() {
     let ac = App::with_rules(vec![
             Rule::with_name("verbose").short('v').long("verbose").max_occurrences(3),
         ]);
-    let matches = ac.matches(sample).unwrap();
+    let matches = ac.get_matches(sample).unwrap();
     assert_eq!(matches.get("verbose").unwrap().get_occurrences(), 3)
 }
 
@@ -33,7 +33,7 @@ fn collect_short_values() {
             Rule::with_name("b").short('b').multiple(),
             Rule::with_name("c").short('c').takes_value_unnamed_n_times(2),
         ]);
-    let matches = ac.matches(sample).unwrap();
+    let matches = ac.get_matches(sample).unwrap();
     assert_eq!(&*matches.get("a").unwrap().get_vec(), &["1"]);
     assert_eq!(matches.get("b").unwrap().get_occurrences(), 3);
     assert_eq!(&*matches.get("c").unwrap().get_vec(), &["2", "3"]);
@@ -47,7 +47,7 @@ fn positionals() {
             Rule::with_name("pos1").required().takes_value_unnamed(),
             Rule::with_name("pos2").takes_value_unnamed(),
         ]);
-    let matches = ac.matches(sample).unwrap();
+    let matches = ac.get_matches(sample).unwrap();
     assert_eq!(matches.get("verbose").unwrap().get_occurrences(), 3);
     assert_eq!(&*matches.get("pos1").unwrap().get_vec(), &["pos1"]);
     assert_eq!(&*matches.get("pos2").unwrap().get_vec(), &["pos2"]);

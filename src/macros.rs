@@ -73,5 +73,5 @@ fn testapp() {
     }.into();
 
     let ref mut sample = vec!["-vvv", "--config", "config.conf", "input"].into_iter();
-    assert!(ac.matches(sample).is_ok());
+    assert!(ac.get_matches(sample).is_ok());
 }
