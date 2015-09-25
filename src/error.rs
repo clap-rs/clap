@@ -9,6 +9,7 @@ pub enum ClapError<'a> {
     UnexpectedLong(String) ,       // unknown long provided
     UnexpectedShort(char),         // unknown short provided
     UnexpectedPositional(String),  // unknown positional provided
+    UnexpectedValue(String),       // unexpected value provided
 }
 
 impl<'a> fmt::Display for ClapError<'a> {
@@ -26,6 +27,7 @@ impl<'a> Error for ClapError<'a> {
             UnexpectedLong(_) => "unexpected long argument provided",
             UnexpectedShort(_) => "unexpected short argument provided",
             UnexpectedPositional(_) => "unexpected positional provided",
+            UnexpectedValue(_) => "unexpected value provided",
         }
     }
 }
