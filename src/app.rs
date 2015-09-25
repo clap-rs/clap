@@ -43,18 +43,20 @@ pub trait CollectionMatcher<'a> {
                 x if !positional_only && x.starts_with("--") => {
                     let mut splitn = (&x[2..]).splitn(2, '=');
                     let long = splitn.next().unwrap(); // there's always first one
-                    if let Some(list) = splitn.next() {
-                        // --foo=val,val2...
-                        match index.get(&Index::Long(long)) {
-                            Some(i) => try!(matches[*i].handle(&mut list.split(','))),
-                            None => return Err(ClapError::UnexpectedLong(long.to_owned())),
-                        }
-                    }
-                    else {
-                        match index.get(&Index::Long(long)) {
-                            Some(i) => try!(matches[*i].handle(it)),
-                            None => return Err(ClapError::UnexpectedLong(long.to_owned())),
-                        }
+                    match index.get(&Index::Long(long)) {
+                        Some(i) =>
+                            match splitn.next() {
+                                Some(list) =>
+                                    for item in list.split(',') {
+                                        let ref mut item_it = vec![item].into_iter();
+                                        try!(matches[*i].handle(item_it));
+                                        if let Some(remaining) = item_it.next() {
+                                            return Err(ClapError::UnexpectedValue(remaining.to_owned()));
+                                        }
+                                    },
+                                None => try!(matches[*i].handle(it)),
+                            },
+                        None => return Err(ClapError::UnexpectedLong(long.to_owned())),
                     };
                 },
                 x if !positional_only && x.starts_with("-") =>

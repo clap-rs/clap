@@ -68,9 +68,9 @@ fn long_with_equal_sign() {
 fn long_with_equal_sign_multiple() {
     let ref mut sample = vec!["--foo=val1,val2,val3"].into_iter();
     let ac = App::with_rules(vec![
-        Rule::with_name("foo").long("foo").takes_value_unnamed_n_times(3),
+        Rule::with_name("foo").long("foo").takes_value_unnamed().multiple(),
     ]);
     let matches = ac.get_matches(sample).unwrap();
-    assert_eq!(matches.get("foo").unwrap().get_occurrences(), 1);
+    assert_eq!(matches.get("foo").unwrap().get_occurrences(), 3);
     assert_eq!(&*matches.get("foo").unwrap().get_vec(), &["val1", "val2", "val3"]);
 }
