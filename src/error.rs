@@ -10,6 +10,7 @@ pub enum ClapError<'a> {
     UnexpectedShort(char),         // unknown short provided
     UnexpectedPositional(String),  // unknown positional provided
     UnexpectedValue(String),       // unexpected value provided
+    ValidationFail(&'a str, String),   // error on validation
 }
 
 impl<'a> fmt::Display for ClapError<'a> {
@@ -28,6 +29,7 @@ impl<'a> Error for ClapError<'a> {
             UnexpectedShort(_) => "unexpected short argument provided",
             UnexpectedPositional(_) => "unexpected positional provided",
             UnexpectedValue(_) => "unexpected value provided",
+            ValidationFail(..) => "validation failed",
         }
     }
 }

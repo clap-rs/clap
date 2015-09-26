@@ -6,8 +6,6 @@
 
 use ClapError;
 
-//
-
 pub struct Rule<'a> {
     pub name: &'a str,
     pub short: Option<char>,
@@ -17,6 +15,10 @@ pub struct Rule<'a> {
     pub max_occurrences: usize,  // -vvv 3 occurrences of -v
     pub required: bool,          // <foo>
     pub values_collected: Vec<&'a str>, // --foo a b c; foo takes 3 arguments
+
+    // validator function
+    pub validators: Vec<Box<Fn(&str) -> Result<(), String> + 'a>>,
+
 //  conflicts: Vec<CowStr>,  // -fb foo and bar conflict
 //  requires: Vec<CowStr>,   // --dump-config requires --config
 }
@@ -32,6 +34,8 @@ impl<'a> Rule<'a> {
             max_occurrences: 1,
             required: false,
             values_collected: Vec::new(),
+
+            validators: Vec::new(),
         }
     }
 
@@ -87,6 +91,26 @@ impl<'a> Rule<'a> {
         self.max_occurrences = n;
         self
     }
+
+    pub fn validate<F>(mut self, f: F) -> Self
+        where F: Fn(&str) -> Result<(), String> + 'a
+    {
+        self.validators.push(Box::new(f));
+        self
+    }
+
+    // use Cow<[&str]>?
+    pub fn possible_values(mut self, vals: Vec<&'a str>) -> Self {
+        self.validators.push(Box::new(move |val| {
+            if vals.contains(&val) {
+                Ok(())
+            }
+            else {
+                Err(format!("{} not in possible values", val))
+            }
+        }));
+        self
+    }
 }
 
 // Accumulated matches
@@ -123,6 +147,15 @@ impl<'a> Matcher<'a> {
         }
     }
 
+    pub fn validate(&self, arg: &'a str) -> Result<(), String> {
+        for validator in self.rule.validators.iter() {
+            if let Err(e) = validator(arg) {
+                return Err(e);
+            }
+        }
+        Ok(())
+    }
+
     // Call whenever found
     pub fn handle<I, T>(&mut self, it: &mut I) -> Result<(), ClapError<'a>>
         where I: Iterator<Item=T>, T: AsRef<str>
@@ -135,7 +168,12 @@ impl<'a> Matcher<'a> {
 
         for _ in self.rule.values_collected.iter() {
             match it.next() {
-                Some(val) => self.accumulator.values.push(val.as_ref().to_owned()),
+                Some(val) => {
+                    match self.validate(val.as_ref()) {
+                        Ok(_) => self.accumulator.values.push(val.as_ref().to_owned()),
+                        Err(e) => return Err(ClapError::ValidationFail(self.rule.name, e)),
+                    }
+                },
                 None => return Err(ClapError::ExpectedValue(self.rule.name)),
             }
         }
@@ -170,5 +208,43 @@ fn arg_found_3_times() {
     assert_eq!(it.len(), 1); // iterator is almost starved
     assert!(am.handle(it).is_ok());
     assert_eq!(&*am.accumulator.get_vec(), &["foo", "bar", "baz"]);
+    assert_eq!(it.len(), 0); // iterator has been starved
+}
+
+#[test]
+fn arg_validator() {
+    let ref ar = Rule::with_name("foo").takes_value_unnamed().multiple().validate(|val| {
+        if val.contains("@") {
+            Ok(())
+        }
+        else {
+            Err("expected the argument to contain \"@\"".into())
+        }
+    });
+    let mut am = Matcher::with_rule(ar);
+    let ref mut it = vec!["@foo", "bar"].into_iter();
+    assert_eq!(it.len(), 2);
+    assert!(am.handle(it).is_ok());
+    assert_eq!(&*am.accumulator.get_vec(), &["@foo"]);
+    assert!(am.handle(it).is_err());
+    assert_eq!(it.len(), 0); // iterator has been starved
+}
+
+#[test]
+fn arg_possible_values() {
+    let ref ar = Rule::with_name("foo")
+        .takes_value_unnamed()
+        .multiple()
+        .possible_values(vec!["foo", "bar"]);
+    let mut am = Matcher::with_rule(ar);
+    let ref mut it = vec!["foo", "bar", "baz"].into_iter();
+    assert_eq!(it.len(), 3); // iterator contains 3 entries.
+    assert!(am.handle(it).is_ok());
+    assert_eq!(&*am.accumulator.get_vec(), &["foo"]);
+    assert!(am.handle(it).is_ok());
+    assert_eq!(&*am.accumulator.get_vec(), &["foo", "bar"]);
+    assert_eq!(it.len(), 1); // iterator is almost starved
+    assert!(am.handle(it).is_err()); // baz is not in possible values
+    assert_eq!(&*am.accumulator.get_vec(), &["foo", "bar"]);
     assert_eq!(it.len(), 0); // iterator has been starved
 }
