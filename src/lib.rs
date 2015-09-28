@@ -28,6 +28,3 @@ mod app;
 mod args;
 mod usageparser;
 mod fmt;
-
-#[cfg(test)]
-mod tests;
