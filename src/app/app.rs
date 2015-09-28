@@ -1302,6 +1302,22 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
+    fn groups_for(&self, name: &str) -> Option<Vec<&'ar str>> {
+        if self.groups.is_empty() { return None; }
+        let mut res = vec![];
+        for (g_name, grp) in &self.groups {
+            for a in &grp.args {
+                if a == &name {
+                    res.push(*g_name);
+                }
+            }
+        }
+        res.dedup();
+        if res.is_empty() { return None }
+        
+        Some(res)
+    }
+
     fn get_group_members(&self,
                          group: &str) 
                          -> Vec<String> {
@@ -2387,6 +2403,23 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             ));
                         }
 
+                        if let Some(ref vec) = self.groups_for(opt.name) {
+                            for grp in vec {
+                                if let Some(ref mut o) = matches.args.get_mut(grp) {
+                                    o.occurrences = if opt.multiple {
+                                        o.occurrences + 1
+                                    } else {
+                                        1
+                                    };
+                                    // Values must be inserted in order...the user may care about that!
+                                    if let Some(ref mut vals) = o.values {
+                                        let len = vals.len() as u8 + 1;
+                                        vals.insert(len, arg_slice.to_owned());
+                                    }
+                                }
+
+                            }
+                        }
                         // save the value to matched option
                         if let Some(ref mut o) = matches.args.get_mut(opt.name) {
                             // if it's multiple; the occurrences are increased when originally
@@ -2632,6 +2665,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             }
                         }
                         bm.insert(1, arg_slice.to_owned());
+                        if let Some(ref vec) = self.groups_for(p.name) {
+                            for grp in vec {
+                                matches.args.insert(grp, MatchedArg{
+                                    occurrences: 1,
+                                    values: Some(bm.clone()),
+                                });
+                            }
+                        }
                         matches.args.insert(p.name, MatchedArg{
                             occurrences: 1,
                             values: Some(bm),
@@ -2988,6 +3029,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                       .filter(|&v| v.long.unwrap() == arg).nth(0) {
                 // prevents "--config= value" typo
                 if arg_vec[1].len() == 0 && !v.empty_vals {
+                    if let Some(ref vec) = self.groups_for(v.name) {
+                        for grp in vec {
+                            matches.args.insert(grp, MatchedArg{
+                                occurrences: 1,
+                                values: None,
+                            });
+                        }
+                    }
                     matches.args.insert(v.name, MatchedArg {
                         occurrences: 1,
                         values: None
@@ -3020,12 +3069,22 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 debugln!("checking who defined it...");
                 if let Some(name) = self.overriden_from(v.name, matches) {
                     debugln!("found {}", name);
+                    if let Some(ref vec) = self.groups_for(v.name) {
+                        for grp in vec {
+                            matches.args.remove(grp);
+                        }
+                    }
                     matches.args.remove(name);
                     remove_override!(self, name);
                 }
             }
             if let Some(ref or) = v.overrides {
                 for pa in or {
+                    if let Some(ref vec) = self.groups_for(v.name) {
+                        for grp in vec {
+                            matches.args.remove(grp);
+                        }
+                    }
                     matches.args.remove(pa);
                     remove_override!(self, pa);
                     self.overrides.push(pa);
@@ -3041,6 +3100,17 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         App::get_args(matches)));
                 }
                 if let Some(av) = arg_val {
+                    if let Some(ref vec) = self.groups_for(v.name) {
+                        for grp in vec {
+                            if let Some(ref mut o) = matches.args.get_mut(grp) {
+                                o.occurrences += 1;
+                                if let Some(ref mut vals) = o.values {
+                                    let len = (vals.len() + 1) as u8;
+                                    vals.insert(len, av.to_owned());
+                                }
+                            }
+                        }
+                    }
                     if let Some(ref mut o) = matches.args.get_mut(v.name) {
                         o.occurrences += 1;
                         if let Some(ref mut vals) = o.values {
@@ -3058,6 +3128,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 let mut bm = BTreeMap::new();
                 if let Some(val) = arg_val {
                     bm.insert(1, val.to_owned());
+                    if let Some(ref vec) = self.groups_for(v.name) {
+                        for grp in vec {
+                            matches.args.insert(grp, MatchedArg{
+                                occurrences: 1,
+                                values: Some(bm.clone()),
+                            });
+                        }
+                    }
                     matches.args.insert(v.name, MatchedArg{
                         occurrences: 1,
                         values: Some(bm)
@@ -3068,6 +3146,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         return Err(e);
                     }
                 } else {
+                    if let Some(ref vec) = self.groups_for(v.name) {
+                        for grp in vec {
+                            matches.args.insert(grp, MatchedArg{
+                                occurrences: 1,
+                                values: Some(bm.clone()),
+                            });
+                        }
+                    }
                     matches.args.insert(v.name, MatchedArg{
                         occurrences: 0,
                         values: Some(bm)
@@ -3161,6 +3247,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 };
             }
             if !done {
+                if let Some(ref vec) = self.groups_for(v.name) {
+                    for grp in vec {
+                        matches.args.insert(grp, MatchedArg{
+                            occurrences: 1,
+                            values: None, 
+                        });
+                    }
+                }
                 matches.args.insert(v.name, MatchedArg{
                     // name: v.name.to_owned(),
                     occurrences: 1,
@@ -3212,6 +3306,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                               }
                                           })
                                           .next() {
+                if let Some(ref vec) = self.groups_for(opt) {
+                    for grp in vec {
+                        matches.args.insert(grp, MatchedArg{
+                            occurrences: 1,
+                            values: None, 
+                        });
+                    }
+                }
                 matches.args.insert(opt, MatchedArg {
                     occurrences: 0,
                     values: None
@@ -3225,6 +3327,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                               }
                                           })
                                           .next() {
+                if let Some(ref vec) = self.groups_for(flg) {
+                    for grp in vec {
+                        matches.args.insert(grp, MatchedArg{
+                            occurrences: 1,
+                            values: None, 
+                        });
+                    }
+                }
                 matches.args.insert(flg, MatchedArg {
                     occurrences: 0,
                     values: None
@@ -3360,6 +3470,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         App::get_args(matches)));
                 }
             } else {
+                if let Some(ref vec) = self.groups_for(v.name) {
+                    for grp in vec {
+                        matches.args.insert(grp, MatchedArg{
+                            occurrences: 1,
+                            values: Some(BTreeMap::new()), 
+                        });
+                    }
+                }
                 matches.args.insert(v.name, MatchedArg{
                     // occurrences will be incremented on getting a value
                     occurrences: 0,
@@ -3447,6 +3565,17 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     App::get_args(matches)));
             }
 
+            if let Some(ref vec) = self.groups_for(v.name) {
+                for grp in vec {
+                    if let Some(ref mut f) = matches.args.get_mut(grp) {
+                        f.occurrences = if v.multiple {
+                            f.occurrences + 1
+                        } else {
+                            1
+                        };
+                    }
+                }
+            }
             let mut done = false;
             if let Some(ref mut f) = matches.args.get_mut(v.name) {
                 done = true;
@@ -3457,6 +3586,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 };
             }
             if !done {
+                if let Some(ref vec) = self.groups_for(v.name) {
+                    for grp in vec {
+                        matches.args.insert(grp, MatchedArg{
+                            occurrences: 1,
+                            values: None,
+                        });
+                    }
+                }
                 matches.args.insert(v.name, MatchedArg{
                     // name: v.name.to_owned(),
                     occurrences: 1,
@@ -3543,7 +3680,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                          matches: &mut ArgMatches<'ar, 'ar>) 
                          -> Result<(), ClapError> {
         for (name, ma) in matches.args.iter() {
-            if let Some(ref vals) = ma.values {
+            if self.groups.contains_key(name) {
+                continue;
+            } else if let Some(ref vals) = ma.values {
                 if let Some(f) = self.opts.get(name) {
                     if let Some(num) = f.num_vals {
                         let should_err = if f.multiple {
