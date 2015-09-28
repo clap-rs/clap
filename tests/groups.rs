@@ -1,17 +1,19 @@
 extern crate clap;
 
-use clap::{App, ArgGroup};
+use clap::{App, ArgGroup, ClapErrorType};
 
 #[test]
 fn required_group_missing_arg() {
-    let m = App::new("group")
+    let result = App::new("group")
         .args_from_usage("-f, --flag 'some flag'
                           -c, --color 'some other flag'")
         .arg_group(ArgGroup::with_name("req")
             .add_all(&["flag", "color"])
             .required(true))
         .get_matches_from_safe(vec![""]);
-    assert!(m.is_err());
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.error_type, ClapErrorType::MissingRequiredArgument);
 }
 
 #[test]
