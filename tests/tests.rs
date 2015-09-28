@@ -1,6 +1,9 @@
+#[macro_use]
+extern crate clap;
+
 use std::collections::HashSet;
 
-use super::{App, Arg, ArgGroup, SubCommand};
+use clap::{App, Arg, ArgGroup, SubCommand};
 use std::vec::Vec;
 
 arg_enum!{
