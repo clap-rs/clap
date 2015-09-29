@@ -55,7 +55,7 @@ Once `clap` parses the user provided string of arguments, it returns the matches
 
 ## Features
 
-Below are a few of the features which `clap` supports, full descriptions and usage can be found in the [documentation](http://kbknapp.github.io/clap-rs/clap/index.html) and `examples/` directory
+Below are a few of the features which `clap` supports, full descriptions and usage can be found in the [documentation](http://kbknapp.github.io/clap-rs/clap/index.html) and [examples/](examples) directory
 
 * **Auto-generated Help, Version, and Usage information**
   - Can optionally be fully, or partially overridden if you want a custom help, version, or usage
@@ -88,8 +88,8 @@ Below are a few of the features which `clap` supports, full descriptions and usa
   - Fully compatible with other relational rules (requirements and exclusions) which allows things like requiring the use of a group, or denying the use of a group conditionally
 * **Specific Value Sets**: Positional or Option Arguments can optionally define a specific set of allowed values (i.e. imagine a `--mode` option which may *only* have one of two values `fast` or `slow` such as `--mode fast` or `--mode slow`)
 * **Default Values**: Although not specifically provided by `clap` you can achieve this exact functionality from Rust's `Option<&str>.unwrap_or("some default")` method (or `Result<T,String>.unwrap_or(T)` when using typed values)
-* **Automatic Version from Cargo.toml**: `clap` is fully compatible with Rust's `env!()` macro for automatically setting the version of your application to the version in your Cargo.toml. See `examples/09_auto_version.rs` for how to do this (Thanks to [jhelwig](https://github.com/jhelwig) for pointing this out)
-* **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) from positional or option arguments so long as the type you request implements `std::str::FromStr` See the `examples/12_typed_values.rs`. You can also use `clap`s `simple_enum!` or `arg_enum!` macro to create an enum with variants that automatically implements `std::str::FromStr`. See `examples/13a_enum_values_automatic.rs` for details and performs an ascii case insensitive parse from a `string`->`enum`.
+* **Automatic Version from Cargo.toml**: `clap` is fully compatible with Rust's `env!()` macro for automatically setting the version of your application to the version in your Cargo.toml. See [09_auto_version example](examples/09_auto_version.rs) for how to do this (Thanks to [jhelwig](https://github.com/jhelwig) for pointing this out)
+* **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) from positional or option arguments so long as the type you request implements `std::str::FromStr` See the [12_typed_values example](examples/12_typed_values.rs). You can also use `clap`s `simple_enum!` or `arg_enum!` macro to create an enum with variants that automatically implements `std::str::FromStr`. See [13a_enum_values_automatic example](examples/13a_enum_values_automatic.rs) for details and performs an ascii case insensitive parse from a `string`->`enum`.
 * **Suggestions**: Suggests corrections when the user enter's a typo. For example, if you defined a `--myoption <value>` argument, and the user mistakenly typed `--moyption value` (notice `y` and `o` switched), they would receive a `Did you mean '--myoption' ?` error and exit gracefully. This also works for subcommands and flags. (Thanks to [Byron](https://github.com/Byron) for the implementation) (This feature can optionally be disabled, see 'Optional Dependencies / Features')
 * **Colorized (Red) Errors (Non Windows OS only)**: Error message are printed in red text (this feature can optionally be disabled, see 'Optional Dependencies / Features').
 * **Global Arguments**: Arguments can optionally be defined once, and be available to all child subcommands.
@@ -99,7 +99,7 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 
 ## Quick Example
 
-The following examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, groups, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/clap/index.html), or `examples/` directory of this repository.
+The following examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, groups, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/clap/index.html), or [examples/](examples) directory of this repository.
 
  **NOTE:** All these examples are functionally the same, but show three different styles in which to use `clap`
 
@@ -447,7 +447,7 @@ git = "https://github.com/kbknapp/clap-rs.git"
 
 Add `extern crate clap;` to your crate root.
 
-Define a list of valid arguments for your program (see the [documentation](https://kbknapp.github.io/clap-rs/index.html) or `examples/` directory of this repo)
+Define a list of valid arguments for your program (see the [documentation](https://kbknapp.github.io/clap-rs/index.html) or [examples/](examples) directory of this repo)
 
 Then run `cargo build` or `cargo update && cargo build` for your project.
 
@@ -491,7 +491,7 @@ The following graphic depicts `clap`s dependency graph.
 
 You can find complete documentation on the [github-pages site](http://kbknapp.github.io/clap-rs/clap/index.html) for this project.
 
-You can also find usage examples in the `examples/` directory of this repo.
+You can also find usage examples in the [examples/](examples) directory of this repo.
 
 #### Video Tutorials
 
@@ -505,7 +505,7 @@ There's also the video tutorial series [Argument Parsing with Rust](https://www.
 
 Contributions are always welcome! And there is a multitude of ways in which you can help depending on what you like to do, or are good at. Anything from documentation, code cleanup, issue completion, new features, you name it, even filing issues is contributing and greatly appreciated!
 
-Another really great way to help is if you find an interesting, or helpful way in which to use `clap`. You can either add it to the `examples/` directory, or file an issue and tell me. I'm all about giving credit where credit is due :)
+Another really great way to help is if you find an interesting, or helpful way in which to use `clap`. You can either add it to the [examples/](examples) directory, or file an issue and tell me. I'm all about giving credit where credit is due :)
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) before you start contributing.
 
@@ -533,7 +533,7 @@ There are a few goals of `clap` that I'd like to maintain throughout contributio
 
 ## License
 
-`clap` is licensed under the MIT license. Please read the LICENSE-MIT file in this repository for more information.
+`clap` is licensed under the MIT license. Please read the [LICENSE-MIT](LICENSE-MIT) file in this repository for more information.
 
 ## Recent Breaking Changes
 
