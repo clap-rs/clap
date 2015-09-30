@@ -3,7 +3,9 @@ The following is a list of contributors to the [clap](https://github.com/kbknapp
  * [Alexander Kuvaev](https://github.com/Vinatorul) <<alexander@kuvaev.me>>
  * [Alex Gulyás](https://github.com/alex-gulyas)
  * [Dabo Ross](https://github.com/daboross) <<daboross@daboross.net>>
+ * [grossws](https://github.com/grossws)
  * [Ivan Dmitrievsky](https://github.com/idmit) <<ivan.dmitrievsky@gmail.com>>
+ * [Homu](https://github.com/homu)
  * [J/A](https://github.com/archer884)
  * [Jacob Helwig](https://github.com/jhelwig) <<jacob@technosorcery.net>>
  * [James McGlashan](https://github.com/james-darkfox)
@@ -15,3 +17,4 @@ The following is a list of contributors to the [clap](https://github.com/kbknapp
  * [SungRim Huh](https://github.com/sru) <<sungrimhuh@gmail.com>>
  * [Tshepang Lekhonkhobe](https://github.com/tshepang) <<Tshepang@gmail.com>>
  * [Vincent Prouillet](https://github.com/Keats)
+ * [Yo-Bot](https://github.com/yo-bot)
