@@ -1387,7 +1387,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     fn get_required_from(&self,
-                         mut reqs: Vec<&'ar str>) 
+                         mut reqs: Vec<&'ar str>,
+                         matches: Option<&ArgMatches>)
                          -> VecDeque<String> {
         reqs.dedup();
         let mut c_flags = vec![];
@@ -1480,6 +1481,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
         let mut pmap = BTreeMap::new();
         for p in c_pos.into_iter() {
+            if matches.is_some() && matches.as_ref().unwrap().is_present(p) { continue }
             if let Some(idx) = self.positionals_name.get(p) {
                 if let Some(ref p) = self.positionals_idx.get(&idx) {
                     pmap.insert(p.index, format!("{}", p));
@@ -1488,9 +1490,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
         pmap.into_iter().map(|(_, s)| ret_val.push_back(s)).collect::<Vec<_>>();
         for f in c_flags.into_iter() {
+            if matches.is_some() && matches.as_ref().unwrap().is_present(f) { continue }
             ret_val.push_back(format!("{}", self.flags.get(*f).unwrap()));
         }
         for o in c_opt.into_iter() {
+            if matches.is_some() && matches.as_ref().unwrap().is_present(o) { continue }
             ret_val.push_back(format!("{}", self.opts.get(*o).unwrap()));
         }
         for g in grps.into_iter() {
@@ -1518,7 +1522,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         } else if let Some(tmp_vec) = matches {
             let mut hs = self.required.iter().map(|n| *n).collect::<Vec<_>>();
             tmp_vec.iter().map(|n| hs.push(*n)).collect::<Vec<_>>();
-            let reqs = self.get_required_from(hs);
+            let reqs = self.get_required_from(hs, None);
 
             let r_string = reqs.iter().fold(String::new(), |acc, s| acc + &format!(" {}", s)[..]);
 
@@ -1547,7 +1551,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     reqs.push(p.name);
                 }
             }
-            let req_strings = self.get_required_from(reqs);
+            let req_strings = self.get_required_from(reqs, None);
             let req_string = req_strings.iter()
                                         .fold(String::new(), |acc, s| {
                                             acc + &format!(" {}", s)[..]
@@ -1888,10 +1892,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         ),
             error_type: error_type,
         }
-    }
-
-    fn get_args(matches: &ArgMatches<'ar, 'ar>) -> Option<Vec<&'ar str>> {
-        Some(matches.args.keys().map(|k| *k).collect())
     }
 
     /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
@@ -2312,8 +2312,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     Format::Warning(opt),
                                     format!("\n\t[valid values:{}]\n", valid_values),
                                     suffix.0),
-                                        ClapErrorType::InvalidValue,
-                                        App::get_args(matches));
+                                ClapErrorType::InvalidValue,
+                                Some(matches.args.keys().map(|k| *k).collect()));
     }
 
     // The actual parsing function
@@ -2385,8 +2385,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                                 Format::Warning(opt.to_string()),
                                                 Format::Good(vals.len().to_string())),
                                             ClapErrorType::InvalidValue,
-                                            App::get_args(matches))
-                                        );
+                                            Some(matches.args.keys().map(|k| *k).collect())));
                                     }
                                 }
                             }
@@ -2399,8 +2398,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 format!("The argument '{}' does not allow empty values, but one \
                                          was found.", Format::Warning(opt.to_string())),
                                 ClapErrorType::EmptyValue,
-                                App::get_args(matches)
-                            ));
+                                Some(matches.args.keys().map(|k| *k).collect())));
                         }
 
                         if let Some(ref vec) = self.groups_for(opt.name) {
@@ -2496,7 +2494,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             format!("The argument '{}' requires a value but none was supplied",
                                 Format::Warning(o.to_string())),
                             ClapErrorType::EmptyValue,
-                            App::get_args(matches)));
+                            Some(matches.args.keys().map(|k| *k).collect())));
                     }
                 }
             }
@@ -2565,7 +2563,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             Format::Warning(arg_slice),
                             self.bin_name.clone().unwrap_or(self.name.clone())),
                         ClapErrorType::UnexpectedArgument,
-                        App::get_args(matches)));
+                        Some(matches.args.keys().map(|k| *k).collect())));
                 } else if let Some(p) = self.positionals_idx.get(&pos_counter) {
                     // Make sure this one doesn't conflict with anything
                     self.blacklist.dedup();
@@ -2583,7 +2581,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                                arguments".to_owned()
                             }),
                             ClapErrorType::ArgumentConflict,
-                            App::get_args(matches)));
+                            Some(matches.args.keys().map(|k| *k).collect())));
                     }
 
 
@@ -2607,7 +2605,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                                 Format::Warning(arg_slice),
                                                 Format::Warning(p.to_string())),
                                             ClapErrorType::TooMuchValues,
-                                            App::get_args(matches)));
+                                            Some(matches.args.keys().map(|k| *k).collect())));
                                     }
                                 }
                             }
@@ -2618,7 +2616,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     allow empty values, but one was found.", 
                                         Format::Warning(p.to_string())),
                                 ClapErrorType::EmptyValue,
-                                App::get_args(matches)));
+                                Some(matches.args.keys().map(|k| *k).collect())));
                         }
                         // Check if it's already existing and update if so...
                         if let Some(ref mut pos) = matches.args.get_mut(p.name) {
@@ -2655,14 +2653,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 allow empty values, but one was found.", 
                                     Format::Warning(p.to_string())),
                                 ClapErrorType::EmptyValue,
-                                App::get_args(matches)));
+                                Some(matches.args.keys().map(|k| *k).collect())));
                         }
                         if let Some(ref vtor) = p.validator {
                             let f = &*vtor;
                             if let Err(ref e) = f(arg_slice.to_owned()) {
                                 return Err(self.report_error(e.clone(),
                                     ClapErrorType::ValueError,
-                                    App::get_args(matches)));
+                                    Some(matches.args.keys().map(|k| *k).collect())));
                             }
                         }
                         bm.insert(1, arg_slice.to_owned());
@@ -2705,7 +2703,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         wasn't expecting any", Format::Warning(arg_slice),
                             self.bin_name.clone().unwrap_or(self.name.clone())),
                         ClapErrorType::UnexpectedArgument,
-                        App::get_args(matches)));
+                        Some(matches.args.keys().map(|k| *k).collect())));
                 }
             }
         }
@@ -2721,25 +2719,42 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             format!("The argument '{}' requires a value but there wasn't any \
                             supplied", Format::Warning(o.to_string())),
                                 ClapErrorType::EmptyValue,
-                                App::get_args(matches)));
+                                Some(matches.args.keys().map(|k| *k).collect())));
                     }
                 } else if !o.multiple {
                     return Err(self.report_error(
                         format!("The argument '{}' requires a value but none was supplied",
                             Format::Warning(o.to_string())),
                         ClapErrorType::EmptyValue,
-                        App::get_args(matches)));
+                        Some(matches.args.keys().map(|k| *k).collect())));
                 } else {
                     return Err(self.report_error(format!("The following required arguments were \
                         not supplied:{}",
                         self.get_required_from(self.required.iter()
                                                             .map(|s| *s)
-                                                            .collect::<Vec<_>>())
+                                                            .collect(),
+                                                            Some(matches))
                             .iter()
                             .fold(String::new(), |acc, s| acc + &format!("\n\t'{}'",
                                 Format::Error(s))[..])),
                         ClapErrorType::MissingRequiredArgument,
-                        App::get_args(matches)));
+                        Some(matches.args
+                                    .keys()
+                                    .map(|k| *k)
+                                    .filter(|k| {
+                                        if let Some(o) = self.opts.get(k) {
+                                            !o.required
+                                        } else if let Some(p) = self.positionals_name.get(k) {
+                                            if let Some(p) = self.positionals_idx.get(p) {
+                                                !p.required
+                                            } else {
+                                                true
+                                            }
+                                        } else {
+                                            true
+                                        }
+                                    })
+                                    .collect())));
                 }
             } else {
                 return Err(self.report_error(
@@ -2747,7 +2762,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         Format::Warning(format!("{}", self.positionals_idx.get(
                             self.positionals_name.get(a).unwrap()).unwrap()))),
                         ClapErrorType::EmptyValue,
-                        App::get_args(matches)));
+                        Some(matches.args.keys().map(|k| *k).collect())));
             }
         }
 
@@ -2769,7 +2784,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             if !self.subcmds_neg_reqs {
                 let mut hs = self.required.iter().map(|n| *n).collect::<Vec<_>>();
                 matches.args.keys().map(|k| hs.push(*k)).collect::<Vec<_>>();
-                let reqs = self.get_required_from(hs);
+                let reqs = self.get_required_from(hs, Some(matches));
 
                 for s in reqs.iter() {
                     write!(&mut mid_string, " {}", s).ok().expect(INTERNAL_ERROR_MSG);
@@ -2810,7 +2825,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 format!("'{}' requires a subcommand but none was provided",
                     Format::Warning(&bn[..])),
                 ClapErrorType::MissingSubcommand,
-                App::get_args(matches)));
+                Some(matches.args.keys().map(|k| *k).collect())));
         } else if self.help_on_no_sc {
             let mut out = vec![];
             match self.write_help(&mut out) {
@@ -2832,12 +2847,29 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 supplied:{}",
                 self.get_required_from(self.required.iter()
                                                     .map(|s| *s)
-                                                    .collect::<Vec<_>>())
+                                                    .collect(),
+                                       Some(matches))
                     .iter()
                     .fold(String::new(), |acc, s| acc + &format!("\n\t'{}'",
                         Format::Error(s))[..])),
                 ClapErrorType::MissingRequiredArgument,
-                App::get_args(matches)));
+                Some(matches.args
+                            .keys()
+                            .map(|k| *k)
+                            .filter(|k| {
+                                if let Some(o) = self.opts.get(k) {
+                                    !o.required
+                                } else if let Some(p) = self.positionals_name.get(k) {
+                                    if let Some(p) = self.positionals_idx.get(p) {
+                                        !p.required
+                                    } else {
+                                        true
+                                    }
+                                } else {
+                                    true
+                                }
+                            })
+                            .collect())));
         }
         if matches.args.is_empty() && matches.subcommand_name().is_none() && self.help_on_no_args {
             let mut out = vec![];
@@ -3045,7 +3077,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     return Err(self.report_error(format!("The argument '{}' requires a value, \
                         but none was supplied", Format::Warning(format!("--{}", arg))),
                         ClapErrorType::EmptyValue,
-                        App::get_args(matches)));
+                        Some(matches.args.keys().map(|k| *k).collect())));
                 }
                 arg_val = Some(arg_vec[1]);
             }
@@ -3061,7 +3093,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     or more of the other specified arguments", 
                         Format::Warning(format!("--{}", arg))),
                         ClapErrorType::ArgumentConflict,
-                        App::get_args(matches)));
+                        Some(matches.args.keys().map(|k| *k).collect())));
             }
             self.overrides.dedup();
             debugln!("checking if {} is in overrides", v.name);
@@ -3098,7 +3130,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         than once, but does not support multiple values",
                             Format::Warning(format!("--{}", arg))),
                         ClapErrorType::UnexpectedMultipleUsage,
-                        App::get_args(matches)));
+                        Some(matches.args.keys().map(|k| *k).collect())));
                 }
                 if let Some(av) = arg_val {
                     if let Some(ref vec) = self.groups_for(v.name) {
@@ -3207,7 +3239,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             None       => "one or more of the specified arguments".to_owned()
                         }),
                     ClapErrorType::ArgumentConflict,
-                    App::get_args(matches)));
+                    Some(matches.args.keys().map(|k| *k).collect())));
             }
             self.overrides.dedup();
             debugln!("checking if {} is in overrides", v.name);
@@ -3234,7 +3266,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     once, but does not support multiple values", 
                     Format::Warning(v.to_string())),
                     ClapErrorType::UnexpectedMultipleUsage,
-                    App::get_args(matches)));
+                    Some(matches.args.keys().map(|k| *k).collect())));
             }
 
             let mut
@@ -3347,7 +3379,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 Format::Warning(format!("--{}", arg)),
                 suffix.0),
             ClapErrorType::InvalidArgument,
-            App::get_args(matches)))
+            Some(matches.args.keys().map(|k| *k).collect())))
     }
 
     fn validate_value(&self,
@@ -3364,13 +3396,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             return Err(self.report_error(format!("The argument '{}' does not allow empty \
                     values, but one was found.", Format::Warning(v.to_string())),
                 ClapErrorType::EmptyValue,
-                App::get_args(matches)));
+                Some(matches.args.keys().map(|k| *k).collect())));
         }
         if let Some(ref vtor) = v.validator {
             if let Err(e) = vtor(av.to_owned()) {
                 return Err(self.report_error(e,
                     ClapErrorType::ArgumentError,
-                    App::get_args(matches)));
+                    Some(matches.args.keys().map(|k| *k).collect())));
             }
         }
         Ok(())
@@ -3398,7 +3430,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             return Err(self.report_error(format!("The argument '{}' isn't valid",
                                     Format::Warning(format!("-{}", c))),
                                 ClapErrorType::InvalidArgument,
-                                App::get_args(matches)));
+                                Some(matches.args.keys().map(|k| *k).collect())));
                         }
                     }
                     Err(e) => return Err(e),
@@ -3445,7 +3477,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             None       => "one or more of the other specified arguments".to_owned()
                         }),
                     ClapErrorType::ArgumentConflict,
-                    App::get_args(matches)));
+                    Some(matches.args.keys().map(|k| *k).collect())));
             }
             self.overrides.dedup();
             if self.overrides.contains(&v.name) {
@@ -3468,7 +3500,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         than once, but does not support multiple values",
                             Format::Warning(format!("-{}", arg))),
                         ClapErrorType::UnexpectedMultipleUsage,
-                        App::get_args(matches)));
+                        Some(matches.args.keys().map(|k| *k).collect())));
                 }
             } else {
                 if let Some(ref vec) = self.groups_for(v.name) {
@@ -3514,7 +3546,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         Err(self.report_error(format!("The argument '{}' isn't valid",
                             Format::Warning(format!("-{}", arg_c))),
             ClapErrorType::InvalidArgument,
-            App::get_args(matches)))
+            Some(matches.args.keys().map(|k| *k).collect())))
     }
 
     fn parse_single_short_flag(&mut self,
@@ -3536,7 +3568,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 arguments".to_owned()
                         }),
                     ClapErrorType::ArgumentConflict,
-                    App::get_args(matches)));
+                    Some(matches.args.keys().map(|k| *k).collect())));
             }
             self.overrides.dedup();
             debugln!("checking if {} is in overrides", v.name);
@@ -3563,7 +3595,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     once, but does not support multiple values",
                             Format::Warning(format!("-{}", arg))),
                     ClapErrorType::UnexpectedMultipleUsage,
-                    App::get_args(matches)));
+                    Some(matches.args.keys().map(|k| *k).collect())));
             }
 
             if let Some(ref vec) = self.groups_for(v.name) {
@@ -3649,7 +3681,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         None       => "one or more of the other specified arguments".to_owned()
                     }),
                 ClapErrorType::ArgumentConflict,
-                App::get_args(matches)));
+                Some(matches.args.keys().map(|k| *k).collect())));
             } else if self.groups.contains_key(name) {
                 for n in self.get_group_members_names(name) {
                     if matches.args.contains_key(n) {
@@ -3669,7 +3701,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     }
                                 }),
                             ClapErrorType::ArgumentConflict,
-                            App::get_args(matches)));
+                            Some(matches.args.keys().map(|k| *k).collect())));
                     }
                 }
             }
@@ -3705,7 +3737,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                         ( f.multiple &&
                                             ( vals.len() % num as usize) == 1) {"as"}else{"ere"}),
                                 ClapErrorType::EmptyValue,
-                                App::get_args(matches)));
+                                Some(matches.args.keys().map(|k| *k).collect())));
                         }
                     }
                     if let Some(num) = f.max_vals {
@@ -3717,7 +3749,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     Format::Error(vals.len().to_string()),
                                     if vals.len() == 1 {"as"}else{"ere"}),
                                 ClapErrorType::TooMuchValues,
-                                App::get_args(matches)));
+                                Some(matches.args.keys().map(|k| *k).collect())));
                         }
                     }
                     if let Some(num) = f.min_vals {
@@ -3729,7 +3761,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     Format::Error(vals.len().to_string()),
                                     if vals.len() == 1 {"as"}else{"ere"}),
                                 ClapErrorType::TooFewValues,
-                                App::get_args(matches)));
+                                Some(matches.args.keys().map(|k| *k).collect())));
                         }
                     }
                 } else if let Some(f) = self.positionals_idx.get(
@@ -3747,7 +3779,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 } else {
                                    ClapErrorType::TooFewValues 
                                 },                               
-                                App::get_args(matches)));
+                                Some(matches.args.keys().map(|k| *k).collect())));
                         }
                     }
                     if let Some(num) = f.max_vals {
@@ -3759,7 +3791,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     Format::Error(vals.len().to_string()),
                                     if vals.len() == 1 {"as"}else{"ere"}),
                                 ClapErrorType::TooMuchValues,
-                                App::get_args(matches)));
+                                Some(matches.args.keys().map(|k| *k).collect())));
                         }
                     }
                     if let Some(num) = f.min_vals {
@@ -3771,7 +3803,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     Format::Error(vals.len().to_string()),
                                     if vals.len() == 1 {"as"}else{"ere"}),
                                 ClapErrorType::TooFewValues,
-                                App::get_args(matches)));
+                                Some(matches.args.keys().map(|k| *k).collect())));
                         }
                     }
                 }
