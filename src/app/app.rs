@@ -792,7 +792,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
         }
         if let Some(l) = a.long {
-            self.long_list.dedup();
+            // self.long_list.dedup();
             if self.long_list.contains(&l) {
                 panic!("Argument long must be unique\n\n\t--{} is already in use", l);
             } else {
@@ -813,248 +813,20 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             } else {
                 a.index.unwrap()
             };
-
-            if a.short.is_some() || a.long.is_some() {
-                panic!("Argument \"{}\" has conflicting requirements, both index() and short(), \
-                    or long(), were supplied", a.name);
-            }
-
             if self.positionals_idx.contains_key(&i) {
                 panic!("Argument \"{}\" has the same index as another positional \
                     argument\n\n\tPerhaps try .multiple(true) to allow one positional argument \
                     to take multiple values", a.name);
             }
-            if a.takes_value {
-                panic!("Argument \"{}\" has conflicting requirements, both index() and \
-                    takes_value(true) were supplied\n\n\tArguments with an index automatically \
-                    take a value, you do not need to specify it manually", a.name);
-            }
-            if a.val_names.is_some() {
-                panic!("Positional arguments (\"{}\") do not support named values, instead \
-                    consider multiple positional arguments", a.name);
-            }
-
-            self.positionals_name.insert(a.name, i);
-            // Create the Positional Arguemnt Builder with each HashSet = None to only allocate
-            // those that require it
-            let mut pb = PosBuilder {
-                name: a.name,
-                index: i,
-                required: a.required,
-                multiple: a.multiple,
-                blacklist: None,
-                requires: None,
-                possible_vals: None,
-                num_vals: a.num_vals,
-                min_vals: a.min_vals,
-                max_vals: a.max_vals,
-                help: a.help,
-                global: a.global,
-                empty_vals: a.empty_vals,
-                validator: None,
-                overrides: None,
-                hidden: a.hidden
-            };
-            if pb.min_vals.is_some() && !pb.multiple {
-                panic!("Argument \"{}\" does not allow multiple values, yet it is expecting {} \
-                    values", pb.name, pb.num_vals.unwrap());
-            }
-            if pb.max_vals.is_some() && !pb.multiple {
-                panic!("Argument \"{}\" does not allow multiple values, yet it is expecting {} \
-                    values", pb.name, pb.num_vals.unwrap());
-            }
-            // Check if there is anything in the blacklist (mutually excludes list) and add any
-            // values
-            if let Some(ref bl) = a.blacklist {
-                let mut bhs = vec![];
-                // without derefing n = &&str
-                for n in bl {
-                    bhs.push(*n);
-                }
-                bhs.dedup();
-                pb.blacklist = Some(bhs);
-            }
-            if let Some(ref or) = a.overrides {
-                let mut bhs = vec![];
-                // without derefing n = &&str
-                for n in or {
-                    bhs.push(*n);
-                }
-                bhs.dedup();
-                pb.overrides = Some(bhs);
-            }
-            // Check if there is anything in the requires list and add any values
-            if let Some(ref r) = a.requires {
-                let mut rhs = vec![];
-                // without derefing n = &&str
-                for n in r {
-                    rhs.push(*n);
-                    if pb.required {
-                        self.required.push(*n);
-                    }
-                }
-                rhs.dedup();
-                pb.requires = Some(rhs);
-            }
-            // Check if there is anything in the possible values and add those as well
-            if let Some(ref p) = a.possible_vals {
-                let mut phs = vec![];
-                // without derefing n = &&str
-                for n in p {
-                    phs.push(*n);
-                }
-                pb.possible_vals = Some(phs);
-            }
-            if let Some(ref p) = a.validator {
-                pb.validator = Some(p.clone());
-            }
+            let pb = PosBuilder::from_arg(&a, i, &mut self.required);
+            self.positionals_name.insert(pb.name, i);
             self.positionals_idx.insert(i, pb);
         } else if a.takes_value {
-            if a.short.is_none() && a.long.is_none() {
-                panic!("Argument \"{}\" has take_value(true), yet neither a short() or long() \
-                    were supplied", a.name);
-            }
-            // No need to check for .index() as that is handled above
-            let mut ob = OptBuilder {
-                name: a.name,
-                short: a.short,
-                long: a.long,
-                multiple: a.multiple,
-                blacklist: None,
-                help: a.help,
-                global: a.global,
-                possible_vals: None,
-                num_vals: a.num_vals,
-                min_vals: a.min_vals,
-                max_vals: a.max_vals,
-                val_names: a.val_names.clone(),
-                requires: None,
-                required: a.required,
-                empty_vals: a.empty_vals,
-                validator: None,
-                overrides: None,
-                hidden: a.hidden
-            };
-            if let Some(ref vec) = ob.val_names {
-                ob.num_vals = Some(vec.len() as u8);
-            }
-            if ob.min_vals.is_some() && !ob.multiple {
-                panic!("Argument \"{}\" does not allow multiple values, yet it is expecting {} \
-                    values", ob.name, ob.num_vals.unwrap());
-            }
-            if ob.max_vals.is_some() && !ob.multiple {
-                panic!("Argument \"{}\" does not allow multiple values, yet it is expecting {} \
-                    values", ob.name, ob.num_vals.unwrap());
-            }
-            // Check if there is anything in the blacklist (mutually excludes list) and add any
-            // values
-            if let Some(ref bl) = a.blacklist {
-                let mut bhs = vec![];
-                // without derefing n = &&str
-                for n in bl {
-                    bhs.push(*n);
-                }
-                bhs.dedup();
-                ob.blacklist = Some(bhs);
-            }
-            if let Some(ref p) = a.validator {
-                ob.validator = Some(p.clone());
-            }
-            // Check if there is anything in the requires list and add any values
-            if let Some(ref r) = a.requires {
-                let mut rhs = vec![];
-                // without derefing n = &&str
-                for n in r {
-                    rhs.push(*n);
-                    if ob.required {
-                        self.required.push(*n);
-                    }
-                }
-                rhs.dedup();
-                ob.requires = Some(rhs);
-            }
-            if let Some(ref or) = a.overrides {
-                let mut bhs = vec![];
-                // without derefing n = &&str
-                for n in or {
-                    bhs.push(*n);
-                }
-                bhs.dedup();
-                ob.overrides = Some(bhs);
-            }
-            // Check if there is anything in the possible values and add those as well
-            if let Some(ref p) = a.possible_vals {
-                let mut phs = vec![];
-                // without derefing n = &&str
-                for n in p {
-                    phs.push(*n);
-                }
-                ob.possible_vals = Some(phs);
-            }
-            self.opts.insert(a.name, ob);
+            let ob = OptBuilder::from_arg(&a, &mut self.required);
+            self.opts.insert(ob.name, ob);
         } else {
-            if a.validator.is_some() {
-                panic!("The argument '{}' has a validator set, yet was parsed as a flag. Ensure \
-                        .takes_value(true) or .index(u8) is set.")
-            }
-            if !a.empty_vals {
-                // Empty vals defaults to true, so if it's false it was manually set
-                panic!("The argument '{}' cannot have empty_values() set because it is a flag. \
-                    Perhaps you mean't to set takes_value(true) as well?", a.name);
-            }
-            if a.required {
-                panic!("The argument '{}' cannot be required(true) because it has no index() or \
-                    takes_value(true)", a.name);
-            }
-            if a.possible_vals.is_some() {
-                panic!("The argument '{}' cannot have a specific value set because it doesn't \
-                have takes_value(true) set", a.name);
-            }
-            // No need to check for index() or takes_value() as that is handled above
-
-            let mut fb = FlagBuilder {
-                name: a.name,
-                short: a.short,
-                long: a.long,
-                help: a.help,
-                blacklist: None,
-                global: a.global,
-                multiple: a.multiple,
-                requires: None,
-                overrides: None,
-                hidden: a.hidden
-            };
-            // Check if there is anything in the blacklist (mutually excludes list) and add any
-            // values
-            if let Some(ref bl) = a.blacklist {
-                let mut bhs = vec![];
-                // without derefing n = &&str
-                for n in bl {
-                    bhs.push(*n);
-                }
-                bhs.dedup();
-                fb.blacklist = Some(bhs);
-            }
-            // Check if there is anything in the requires list and add any values
-            if let Some(ref r) = a.requires {
-                let mut rhs = vec![];
-                // without derefing n = &&str
-                for n in r {
-                    rhs.push(*n);
-                }
-                rhs.dedup();
-                fb.requires = Some(rhs);
-            }
-            if let Some(ref or) = a.overrides {
-                let mut bhs = vec![];
-                // without derefing n = &&str
-                for n in or {
-                    bhs.push(*n);
-                }
-                bhs.dedup();
-                fb.overrides = Some(bhs);
-            }
-            self.flags.insert(a.name, fb);
+            let fb = FlagBuilder::from(&a);
+            self.flags.insert(fb.name, fb);
         }
         if a.global {
             if a.required {

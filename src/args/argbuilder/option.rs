@@ -3,6 +3,8 @@ use std::collections::BTreeSet;
 use std::fmt::{Display, Formatter, Result};
 use std::result::Result as StdResult;
 
+use Arg;
+
 pub struct OptBuilder<'n> {
     pub name: &'n str,
     /// The short version (i.e. single character) of the argument, no preceding `-`
@@ -36,6 +38,95 @@ pub struct OptBuilder<'n> {
     /// A list of names for other arguments that *mutually override* this flag
     pub overrides: Option<Vec<&'n str>>,
     pub hidden: bool
+}
+
+impl<'n> OptBuilder<'n> {
+    pub fn from_arg(a: &Arg<'n, 'n, 'n, 'n, 'n,'n>,
+                    reqs: &mut Vec<&'n str>) -> Self {
+        if a.short.is_none() && a.long.is_none() {
+            panic!("Argument \"{}\" has take_value(true), yet neither a short() or long() \
+                were supplied", a.name);
+        }
+        // No need to check for .index() as that is handled above
+        let mut ob = OptBuilder {
+            name: a.name,
+            short: a.short,
+            long: a.long,
+            multiple: a.multiple,
+            blacklist: None,
+            help: a.help,
+            global: a.global,
+            possible_vals: None,
+            num_vals: a.num_vals,
+            min_vals: a.min_vals,
+            max_vals: a.max_vals,
+            val_names: a.val_names.clone(),
+            requires: None,
+            required: a.required,
+            empty_vals: a.empty_vals,
+            validator: None,
+            overrides: None,
+            hidden: a.hidden
+        };
+        if let Some(ref vec) = ob.val_names {
+            ob.num_vals = Some(vec.len() as u8);
+        }
+        if ob.min_vals.is_some() && !ob.multiple {
+            panic!("Argument \"{}\" does not allow multiple values, yet it is expecting {} \
+                values", ob.name, ob.num_vals.unwrap());
+        }
+        if ob.max_vals.is_some() && !ob.multiple {
+            panic!("Argument \"{}\" does not allow multiple values, yet it is expecting {} \
+                values", ob.name, ob.num_vals.unwrap());
+        }
+        // Check if there is anything in the blacklist (mutually excludes list) and add any
+        // values
+        if let Some(ref bl) = a.blacklist {
+            let mut bhs = vec![];
+            // without derefing n = &&str
+            for n in bl {
+                bhs.push(*n);
+            }
+            bhs.dedup();
+            ob.blacklist = Some(bhs);
+        }
+        if let Some(ref p) = a.validator {
+            ob.validator = Some(p.clone());
+        }
+        // Check if there is anything in the requires list and add any values
+        if let Some(ref r) = a.requires {
+            let mut rhs = vec![];
+            // without derefing n = &&str
+            for n in r {
+                rhs.push(*n);
+                if ob.required {
+                    reqs.push(*n);
+                }
+            }
+            rhs.dedup();
+            ob.requires = Some(rhs);
+        }
+        if let Some(ref or) = a.overrides {
+            let mut bhs = vec![];
+            // without derefing n = &&str
+            for n in or {
+                bhs.push(*n);
+            }
+            bhs.dedup();
+            ob.overrides = Some(bhs);
+        }
+        // Check if there is anything in the possible values and add those as well
+        if let Some(ref p) = a.possible_vals {
+            let mut phs = vec![];
+            // without derefing n = &&str
+            for n in p {
+                phs.push(*n);
+            }
+            ob.possible_vals = Some(phs);
+        }
+
+        ob
+    }
 }
 
 impl<'n> Display for OptBuilder<'n> {
