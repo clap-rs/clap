@@ -2370,8 +2370,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         // Check the possible values
                         if let Some(ref p_vals) = opt.possible_vals {
                             if !p_vals.contains(&arg_slice) {
-                                self.possible_values_error(arg_slice, &opt.to_string(),
-                                                                      p_vals, matches);
+                                return Err(self.possible_values_error(arg_slice, &opt.to_string(),
+                                                                      p_vals, matches));
                             }
                         }
                         // Check the required number of values
@@ -2588,9 +2588,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
 
                     if let Some(ref p_vals) = p.possible_vals {
+
                         if !p_vals.contains(&arg_slice) {
-                            self.possible_values_error(arg_slice, &p.to_string(),
-                                                                   p_vals, matches);
+                            return Err(self.possible_values_error(arg_slice, &p.to_string(),
+                                                                   p_vals, matches));
                         }
                     }
 
@@ -3356,7 +3357,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                       -> Result<(), ClapError> {
         if let Some(ref p_vals) = v.possible_vals {
             if !p_vals.contains(&av) {
-                self.possible_values_error(av, &v.to_string(), p_vals, matches);
+                return Err(self.possible_values_error(av, &v.to_string(), p_vals, matches));
             }
         }
         if !v.empty_vals && av.is_empty() && matches.args.contains_key(v.name) {
