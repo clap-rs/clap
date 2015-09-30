@@ -1,3 +1,22 @@
+<a name="v1.4.3"></a>
+### v1.4.3 (2015-09-30)
+
+
+#### Features
+
+*   allows accessing arg values by group name ([c92a4b9e](https://github.com/kbknapp/clap-rs/commit/c92a4b9eff2d679957f61c0c41ff404b40d38a91))
+
+#### Documentation
+
+*   use links to examples instead of plain text ([bb4fe237](https://github.com/kbknapp/clap-rs/commit/bb4fe237858535627271465147add537e4556b43))
+
+#### Bug Fixes
+
+* **Help Message:**  required args no longer double list in usage ([1412e639](https://github.com/kbknapp/clap-rs/commit/1412e639e0a79df84936d1101a837f90077d1c83), closes [#277](https://github.com/kbknapp/clap-rs/issues/277))
+* **Possible Values:**  possible value validation is restored ([f121ae74](https://github.com/kbknapp/clap-rs/commit/f121ae749f8f4bfe754ef2e8a6dfc286504b5b75), closes [#287](https://github.com/kbknapp/clap-rs/issues/287))
+
+
+
 <a name="v1.4.2"></a>
 ### v1.4.2 (2015-09-23)
 
