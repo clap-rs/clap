@@ -14,7 +14,7 @@ use args::{ArgMatches, Arg, SubCommand, MatchedArg};
 use args::{FlagBuilder, OptBuilder, PosBuilder};
 use args::ArgGroup;
 use fmt::Format;
-use super::settings::AppSettings;
+use super::settings::{AppSettings, AppFlags};
 
 use super::suggestions::{DidYouMeanMessageStyle, did_you_mean};
 use super::errors::{ClapErrorType, ClapError};
@@ -86,18 +86,7 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     groups: HashMap<&'ar str, ArgGroup<'ar, 'ar>>,
     global_args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>,
     help_str: Option<&'u str>,
-    no_sc_error: bool,
-    wait_on_error: bool,
-    help_on_no_args: bool,
-    needs_long_help: bool,
-    needs_long_version: bool,
-    needs_subcmd_help: bool,
-    subcmds_neg_reqs: bool,
-    help_on_no_sc: bool,
-    global_ver: bool,
-    // None = not set, Some(true) set for all children, Some(false) = disable version
-    versionless_scs: Option<bool>,
-    unified_help: bool,
+    settings: AppFlags,
     overrides: Vec<&'ar str>,
     hidden: bool
 }
@@ -128,9 +117,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             positionals_idx: BTreeMap::new(),
             positionals_name: HashMap::new(),
             subcommands: BTreeMap::new(),
-            needs_long_version: true,
-            needs_long_help: true,
-            needs_subcmd_help: true,
             help_short: None,
             version_short: None,
             required: vec![],
@@ -141,18 +127,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             blacklist: vec![],
             bin_name: None,
             groups: HashMap::new(),
-            subcmds_neg_reqs: false,
             global_args: vec![],
-            no_sc_error: false,
             help_str: None,
-            wait_on_error: false,
-            help_on_no_args: false,
-            help_on_no_sc: false,
-            global_ver: false,
-            versionless_scs: None,
-            unified_help: false,
+            overrides: vec![],
+            settings: AppFlags::new(),
             hidden: false,
-            overrides: vec![]
         }
     }
 
@@ -341,7 +320,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     pub fn subcommands_negate_reqs(mut self,
                                    n: bool) 
                                    -> Self {
-        self.subcmds_neg_reqs = n;
+        if n {
+            self.settings.set(&AppSettings::SubcommandsNegateReqs);
+        } else {
+            self.settings.unset(&AppSettings::SubcommandsNegateReqs);
+        }
         self
     }
 
@@ -363,7 +346,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     pub fn subcommand_required(mut self,
                                n: bool) 
                                -> Self {
-        self.no_sc_error = n;
+        if n {
+            self.settings.set(&AppSettings::SubcommandRequired);
+        } else {
+            self.settings.unset(&AppSettings::SubcommandRequired);
+        }
         self
     }
 
@@ -523,7 +510,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     pub fn arg_required_else_help(mut self,
                                   tf: bool) 
                                   -> Self {
-        self.help_on_no_args = tf;
+        if tf {
+            self.settings.set(&AppSettings::ArgRequiredElseHelp);
+        } else {
+            self.settings.unset(&AppSettings::ArgRequiredElseHelp);
+        }
         self
     }
 
@@ -571,7 +562,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     pub fn global_version(mut self,
                           gv: bool) 
                           -> Self {
-        self.global_ver = gv;
+        if gv {
+            self.settings.set(&AppSettings::GlobalVersion);
+        } else {
+            self.settings.unset(&AppSettings::GlobalVersion);
+        }
         self
     }
 
@@ -599,7 +594,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     pub fn versionless_subcommands(mut self,
                                    vers: bool) 
                                    -> Self {
-        self.versionless_scs = Some(vers);
+        if vers {
+            self.settings.set(&AppSettings::VersionlessSubcommands);
+        } else {
+            self.settings.unset(&AppSettings::VersionlessSubcommands);
+        }
         self
     }
 
@@ -624,7 +623,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     pub fn unified_help_message(mut self,
                                 uni_help: bool) 
                                 -> Self {
-        self.unified_help = uni_help;
+        if uni_help {
+            self.settings.set(&AppSettings::UnifiedHelpMessage);
+        } else {
+            self.settings.unset(&AppSettings::UnifiedHelpMessage);
+        }
         self
     }
 
@@ -654,7 +657,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     pub fn wait_on_error(mut self,
                          w: bool) 
                          -> Self {
-        self.wait_on_error = w;
+        if w {
+            self.settings.set(&AppSettings::WaitOnError);
+        } else {
+            self.settings.unset(&AppSettings::WaitOnError);
+        }
         self
     }
 
@@ -682,7 +689,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     pub fn subcommand_required_else_help(mut self,
                                          tf: bool) 
                                          -> Self {
-        self.help_on_no_sc = tf;
+        if tf {
+            self.settings.set(&AppSettings::SubcommandRequiredElseHelp);
+        } else {
+            self.settings.unset(&AppSettings::SubcommandRequiredElseHelp);
+        }
         self
     }
 
@@ -700,23 +711,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     pub fn setting(mut self,
                    setting: AppSettings) 
                    -> Self {
-        self.add_setting(&setting);
+        self.settings.set(&setting);
         self
-    }
-
-    // actually adds the settings
-    fn add_setting(&mut self,
-                   s: &AppSettings) {
-        match *s {
-            AppSettings::SubcommandsNegateReqs      => self.subcmds_neg_reqs = true,
-            AppSettings::SubcommandRequired         => self.no_sc_error = true,
-            AppSettings::ArgRequiredElseHelp        => self.help_on_no_args = true,
-            AppSettings::GlobalVersion              => self.global_ver = true,
-            AppSettings::VersionlessSubcommands     => self.versionless_scs = Some(true),
-            AppSettings::UnifiedHelpMessage         => self.unified_help = true,
-            AppSettings::WaitOnError                => self.wait_on_error = true,
-            AppSettings::SubcommandRequiredElseHelp => self.help_on_no_sc = true,
-        }
     }
 
     /// Enables multiple Application level settings, passed as argument
@@ -734,7 +730,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     settings: &[AppSettings]) 
                     -> Self {
         for s in settings {
-            self.add_setting(s);
+            self.settings.set(s);
         }
         self
     }
@@ -799,9 +795,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 self.long_list.push(l);
             }
             if l == "help" {
-                self.needs_long_help = false;
+                self.settings.set(&AppSettings::NeedsLongHelp);
             } else if l == "version" {
-                self.needs_long_version = false;
+                self.settings.set(&AppSettings::NeedsLongVersion);
             }
         }
         if a.required {
@@ -1039,12 +1035,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                       mut subcmd: App<'a, 'v, 'ab, 'u, 'h, 'ar>) 
                       -> Self {
         if subcmd.name == "help" {
-            self.needs_subcmd_help = false;
+            self.settings.set(&AppSettings::NeedsSubcommandHelp);
         }
-        if self.versionless_scs.is_some() && self.versionless_scs.unwrap() {
-            subcmd.versionless_scs = Some(false);
+        if self.settings.is_set(&AppSettings::VersionlessSubcommands) {
+            self.settings.set(&AppSettings::DisableVersion);
         }
-        if self.global_ver && subcmd.version.is_none() && self.version.is_some() {
+        if self.settings.is_set(&AppSettings::GlobalVersion) && 
+            subcmd.version.is_none() && 
+            self.version.is_some() {
             subcmd.version = Some(self.version.unwrap());
         }
         self.subcommands.insert(subcmd.name.clone(), subcmd);
@@ -1302,7 +1300,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 self.usage.clone().unwrap_or(self.bin_name.clone().unwrap_or(self.name.clone())),
                 r_string
             ).ok().expect(INTERNAL_ERROR_MSG);
-            if self.no_sc_error {
+            if self.settings.is_set(&AppSettings::SubcommandRequired) {
                 write!(&mut usage, " <SUBCOMMAND>").ok().expect(INTERNAL_ERROR_MSG);
             }
         } else {
@@ -1330,12 +1328,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                         });
 
 
-            if !self.flags.is_empty() && !self.unified_help {
+            if !self.flags.is_empty() && !self.settings.is_set(&AppSettings::UnifiedHelpMessage) {
                 usage.push_str(" [FLAGS]");
             } else {
                 usage.push_str(" [OPTIONS]");
             }
-            if !self.unified_help && !self.opts.is_empty() &&
+            if !self.settings.is_set(&AppSettings::UnifiedHelpMessage) && !self.opts.is_empty() &&
                self.opts.values().any(|a| !a.required) {
                 usage.push_str(" [OPTIONS]");
             }
@@ -1354,9 +1352,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
             usage.push_str(&req_string[..]);
 
-            if !self.subcommands.is_empty() && !self.no_sc_error {
+            if !self.subcommands.is_empty() && !self.settings.is_set(&AppSettings::SubcommandRequired) {
                 usage.push_str(" [SUBCOMMAND]");
-            } else if self.no_sc_error && !self.subcommands.is_empty() {
+            } else if self.settings.is_set(&AppSettings::SubcommandRequired) && 
+                !self.subcommands.is_empty() {
                 usage.push_str(" <SUBCOMMAND>");
             }
         }
@@ -1406,6 +1405,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let pos = !self.positionals_idx.is_empty();
         let opts = !self.opts.is_empty();
         let subcmds = !self.subcommands.is_empty();
+        let unified_help = self.settings.is_set(&AppSettings::UnifiedHelpMessage);
 
         let mut longest_flag = 0;
         for fl in self.flags
@@ -1422,7 +1422,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             .values()
             .filter(|o| !o.hidden)
             .map(|a|
-                a.to_string().len() // + if a.short.is_some() { 4 } else { 0 }
+                a.to_string().len() 
             ) {
             if ol > longest_opt {
                 longest_opt = ol;
@@ -1462,7 +1462,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
         let tab = "    ";
         if flags {
-            if !self.unified_help {
+            if !unified_help {
                 try!(write!(w, "\nFLAGS:\n"));
             } else {
                 try!(write!(w, "\nOPTIONS:\n"))
@@ -1482,7 +1482,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         l
                     ));
                     try!(self.print_spaces(
-                            if !self.unified_help || longest_opt == 0 {
+                            if !unified_help || longest_opt == 0 {
                                 (longest_flag + 4)
                             } else {
                                 (longest_opt + 4)
@@ -1492,7 +1492,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 } else {
                     // 6 is tab (4) + -- (2)
                     try!(self.print_spaces(
-                        if !self.unified_help {
+                        if !unified_help {
                             (longest_flag + 6)
                         } else {
                             (longest_opt + 6)
@@ -1506,7 +1506,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         while let Some(part) = hel.next() {
                             try!(write!(w, "{}\n", part));
                             try!(self.print_spaces(
-                                if !self.unified_help {
+                                if !unified_help {
                                     longest_flag
                                 } else {
                                     longest_opt
@@ -1521,7 +1521,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
         }
         if opts {
-            if !self.unified_help {
+            if !unified_help {
                 try!(write!(w, "\nOPTIONS:\n"));
             } else {
                 // maybe erase
@@ -1776,7 +1776,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             Ok(m) => return m,
             Err(e) => {
                 wlnerr!("{}", e.error);
-                if self.wait_on_error {
+                if self.settings.is_set(&AppSettings::WaitOnError) {
                     wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
                     let mut s = String::new();
                     let i = io::stdin();
@@ -1817,7 +1817,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             Ok(m) => return m,
             Err(e) => {
                 wlnerr!("{}", e.error);
-                if self.wait_on_error {
+                if self.settings.is_set(&AppSettings::WaitOnError) {
                     wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
                     let mut s = String::new();
                     let i = io::stdin();
@@ -2298,7 +2298,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 // may be trying to pass might match a subcommand name
                 if !pos_only {
                     if self.subcommands.contains_key(arg_slice) {
-                        if arg_slice == "help" && self.needs_subcmd_help {
+                        if arg_slice == "help" && self.settings.is_set(&AppSettings::NeedsSubcommandHelp) {
                             if let Err(e) = self.print_help() {
                                 return Err(ClapError{
                                     error: format!("{} {}\n\terror message: {}\n", 
@@ -2553,7 +2553,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         if let Some(sc_name) = subcmd_name {
             use std::fmt::Write;
             let mut mid_string = String::new();
-            if !self.subcmds_neg_reqs {
+            if !self.settings.is_set(&AppSettings::SubcommandsNegateReqs) {
                 let mut hs = self.required.iter().map(|n| *n).collect::<Vec<_>>();
                 matches.args.keys().map(|k| hs.push(*k)).collect::<Vec<_>>();
                 let reqs = self.get_required_from(hs, Some(matches));
@@ -2591,14 +2591,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     matches: new_matches,
                 }));
             }
-        } else if self.no_sc_error {
+        } else if self.settings.is_set(&AppSettings::SubcommandRequired) {
             let bn = self.bin_name.clone().unwrap_or(self.name.clone());
             return Err(self.report_error(
                 format!("'{}' requires a subcommand but none was provided",
                     Format::Warning(&bn[..])),
                 ClapErrorType::MissingSubcommand,
                 Some(matches.args.keys().map(|k| *k).collect())));
-        } else if self.help_on_no_sc {
+        } else if self.settings.is_set(&AppSettings::SubcommandRequiredElseHelp) {
             let mut out = vec![];
             match self.write_help(&mut out) {
                 Ok(..) => return Err(ClapError{
@@ -2613,7 +2613,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 }),
             }
         }
-        if ((!self.subcmds_neg_reqs) || matches.subcommand_name().is_none()) &&
+        if (!self.settings.is_set(&AppSettings::SubcommandsNegateReqs) || matches.subcommand_name().is_none()) &&
            self.validate_required(&matches) {
             return Err(self.report_error(format!("The following required arguments were not \
                 supplied:{}",
@@ -2643,7 +2643,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             })
                             .collect())));
         }
-        if matches.args.is_empty() && matches.subcommand_name().is_none() && self.help_on_no_args {
+        if matches.args.is_empty() && matches.subcommand_name().is_none() && 
+            self.settings.is_set(&AppSettings::ArgRequiredElseHelp) {
             let mut out = vec![];
             match self.write_help(&mut out) {
                 Ok(..) => return Err(ClapError{
@@ -2727,7 +2728,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     fn create_help_and_version(&mut self) {
         // name is "hclap_help" because flags are sorted by name
-        if self.needs_long_help {
+        if self.settings.is_set(&AppSettings::NeedsLongHelp) {
             if self.help_short.is_none() && !self.short_list.contains(&'h') {
                 self.help_short = Some('h');
             }
@@ -2746,8 +2747,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             self.long_list.push("help");
             self.flags.insert("hclap_help", arg);
         }
-        if self.needs_long_version && self.versionless_scs.is_none() ||
-           (self.versionless_scs.unwrap()) {
+        if self.settings.is_set(&AppSettings::NeedsLongVersion) && 
+            !self.settings.is_set(&AppSettings::VersionlessSubcommands) ||
+           (self.settings.is_set(&AppSettings::VersionlessSubcommands) &&
+            self.settings.is_set(&AppSettings::DisableVersion)) {
             if self.version_short.is_none() && !self.short_list.contains(&'V') {
                 self.version_short = Some('V');
             }
@@ -2767,7 +2770,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             self.long_list.push("version");
             self.flags.insert("vclap_version", arg);
         }
-        if self.needs_subcmd_help && !self.subcommands.is_empty() {
+        if self.settings.is_set(&AppSettings::NeedsSubcommandHelp) && !self.subcommands.is_empty() {
             self.subcommands.insert("help".to_owned(), App::new("help")
                                                             .about("Prints this message"));
         }
@@ -2800,7 +2803,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                            -> Result<Option<&'ar str>, ClapError> {
         let mut arg = full_arg.trim_left_matches(|c| c == '-');
 
-        if arg == "help" && self.needs_long_help {
+        if arg == "help" && self.settings.is_set(&AppSettings::NeedsLongHelp) {
             if let Err(e) = self.print_help() {
                 return Err(ClapError{
                     error: format!("{} {}\n\terror message: {}\n", 
@@ -2810,7 +2813,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 });
             } 
             process::exit(0);
-        } else if arg == "version" && self.needs_long_version {
+        } else if arg == "version" && self.settings.is_set(&AppSettings::NeedsLongVersion) {
             let out = io::stdout();
             let mut buf_w = BufWriter::new(out.lock());
             if let Err(e) = self.print_version(&mut buf_w) {
