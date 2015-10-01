@@ -37,7 +37,7 @@ pub struct PosBuilder<'n> {
 }
 
 impl<'n> PosBuilder<'n> {
-    pub fn from_arg(a: &Arg<'n, 'n, 'n, 'n, 'n, 'n>, 
+    pub fn from_arg(a: &Arg<'n, 'n, 'n, 'n, 'n, 'n>,
                 idx: u8,
                 reqs: &mut Vec<&'n str>) -> Self {
         if a.short.is_some() || a.long.is_some() {
@@ -136,7 +136,7 @@ impl<'n> PosBuilder<'n> {
 
 impl<'n> Display for PosBuilder<'n> {
     fn fmt(&self,
-           f: &mut Formatter) 
+           f: &mut Formatter)
            -> Result {
         if self.required {
             try!(write!(f, "<{}>", self.name));

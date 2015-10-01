@@ -8,7 +8,7 @@ use clap::{App, Arg, ClapErrorType};
 fn invalid_unicode_safe() {
     let m = App::new("bad_unicode")
         .arg(Arg::from_usage("<arg> 'some arg'"))
-        .get_matches_from_safe(vec![OsString::from_vec(vec![0x20]), 
+        .get_matches_from_safe(vec![OsString::from_vec(vec![0x20]),
                                     OsString::from_vec(vec![0xe9])]);
     assert!(m.is_err());
     if let Err(e) = m {
@@ -20,7 +20,7 @@ fn invalid_unicode_safe() {
 fn invalid_unicode_lossy() {
     if let Ok(m) = App::new("bad_unicode")
         .arg(Arg::from_usage("<arg> 'some arg'"))
-        .get_matches_from_safe_lossy(vec![OsString::from_vec(vec![0x20]), 
+        .get_matches_from_safe_lossy(vec![OsString::from_vec(vec![0x20]),
                                           OsString::from_vec(vec![0xe9])]) {
         assert!(m.is_present("arg"));
         assert_eq!(m.value_of("arg").unwrap(), "\u{FFFD}");

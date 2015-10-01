@@ -10,7 +10,7 @@ fn flag_conflict() {
         .arg(Arg::from_usage("-o, --other 'some flag'"))
         .get_matches_from_safe(vec!["", "-f", "-o"]);
     assert!(result.is_err());
-    let err = result.err().unwrap(); 
+    let err = result.err().unwrap();
     assert_eq!(err.error_type, ClapErrorType::ArgumentConflict);
 }
 
@@ -22,7 +22,7 @@ fn flag_conflict_2() {
         .arg(Arg::from_usage("-o, --other 'some flag'"))
         .get_matches_from_safe(vec!["", "-o", "-f"]);
     assert!(result.is_err());
-    let err = result.err().unwrap(); 
+    let err = result.err().unwrap();
     assert_eq!(err.error_type, ClapErrorType::ArgumentConflict);
 }
 

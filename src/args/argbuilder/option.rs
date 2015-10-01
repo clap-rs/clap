@@ -131,7 +131,7 @@ impl<'n> OptBuilder<'n> {
 
 impl<'n> Display for OptBuilder<'n> {
     fn fmt(&self,
-           f: &mut Formatter) 
+           f: &mut Formatter)
            -> Result {
         // Write the name such --long or -l
         if let Some(l) = self.long {

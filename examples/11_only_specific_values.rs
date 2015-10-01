@@ -3,7 +3,7 @@ extern crate clap;
 use clap::{App, Arg};
 
 fn main() {
-    // If you have arguments of specific values you want to test for, you can use the 
+    // If you have arguments of specific values you want to test for, you can use the
     // .possible_values() method of Arg
     //
     // This allows you specify the valid values for that argument. If the user does not use one of

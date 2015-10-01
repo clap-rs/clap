@@ -103,7 +103,7 @@ impl<'n, 'a> From<&'a Arg<'n, 'n, 'n, 'n, 'n, 'n>> for FlagBuilder<'n> {
 
 impl<'n> Display for FlagBuilder<'n> {
     fn fmt(&self,
-           f: &mut Formatter) 
+           f: &mut Formatter)
            -> Result {
         if let Some(l) = self.long {
             write!(f, "--{}", l)
