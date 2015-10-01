@@ -1325,7 +1325,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                             acc + &format!(" {}", s)[..]
                                         });
 
-
             if !self.flags.is_empty() && !self.settings.is_set(&AppSettings::UnifiedHelpMessage) {
                 usage.push_str(" [FLAGS]");
             } else {
@@ -1335,11 +1334,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                self.opts.values().any(|a| !a.settings.is_set(&ArgSettings::Required)) {
                 usage.push_str(" [OPTIONS]");
             }
+
+            usage.push_str(&req_string[..]);
+            
             // places a '--' in the usage string if there are args and options
             // supporting multiple values
-            if !self.positionals_idx.is_empty() && self.opts.values().any(|a| a.settings.is_set(&ArgSettings::Multiple)) &&
-               !self.opts.values().any(|a| a.settings.is_set(&ArgSettings::Required)) &&
-               self.subcommands.is_empty() {
+            if !self.positionals_idx.is_empty() && 
+                (self.opts.values().any(|a| a.settings.is_set(&ArgSettings::Multiple)) ||
+                    self.positionals_idx.values().any(|a| a.settings.is_set(&ArgSettings::Multiple))) &&
+                !self.opts.values().any(|a| a.settings.is_set(&ArgSettings::Required)) &&
+                self.subcommands.is_empty() {
                 usage.push_str(" [--]")
             }
             if !self.positionals_idx.is_empty() &&
@@ -1348,7 +1352,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 usage.push_str(" [ARGS]");
             }
 
-            usage.push_str(&req_string[..]);
 
             if !self.subcommands.is_empty() && !self.settings.is_set(&AppSettings::SubcommandRequired) {
                 usage.push_str(" [SUBCOMMAND]");
