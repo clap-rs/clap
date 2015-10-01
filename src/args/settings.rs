@@ -3,11 +3,11 @@ use std::ascii::AsciiExt;
 
 bitflags! {
     flags Flags: u8 {
-        const REQUIRED   = 0b000001,
-        const MULTIPLE   = 0b000100,
-        const EMPTY_VALS = 0b001000,
-        const GLOBAL     = 0b010000,
-        const HIDDEN     = 0b100000,
+        const REQUIRED   = 0b00001,
+        const MULTIPLE   = 0b00010,
+        const EMPTY_VALS = 0b00100,
+        const GLOBAL     = 0b01000,
+        const HIDDEN     = 0b10000,
     }
 }
 
