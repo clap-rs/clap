@@ -6,6 +6,7 @@ The following is a list of contributors to the [clap](https://github.com/kbknapp
  * [grossws](https://github.com/grossws)
  * [Ivan Dmitrievsky](https://github.com/idmit) <<ivan.dmitrievsky@gmail.com>>
  * [Homu](https://github.com/homu)
+ * [Huon Wilson](https://github.com/huonw)
  * [J/A](https://github.com/archer884)
  * [Jacob Helwig](https://github.com/jhelwig) <<jacob@technosorcery.net>>
  * [James McGlashan](https://github.com/james-darkfox)
