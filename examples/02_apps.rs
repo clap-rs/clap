@@ -25,6 +25,6 @@ fn main() {
        .get_matches();
 
     // This example doesn't do much, but it *does* give automatic -h, --help, -V, and --version functionality ;)
-     
+
     // Continued program logic goes here...
 }

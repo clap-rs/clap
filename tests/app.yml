@@ -2,7 +2,7 @@ name: claptests
 version: 1.0
 about: tests clap library
 author: Kevin K. <kbknapp@gmail.com>
-settings: 
+settings:
     - ArgRequiredElseHelp
 args:
     - opt:
@@ -32,9 +32,9 @@ args:
     - option2:
         long: long-option-2
         help: tests long options with exclusions
-        conflicts_with: 
+        conflicts_with:
             - option
-        requires: 
+        requires:
             - positional2
     - option3:
         short: O
@@ -71,7 +71,7 @@ args:
         max_values: 3
 arg_groups:
     - test:
-        args: 
+        args:
             - maxvals3
             - minmals2
         conflicts_with:

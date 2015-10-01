@@ -11,9 +11,9 @@ fn main() {
     //                  env!("CARGO_PKG_VERSION_MAJOR"),
     //                  env!("CARGO_PKG_VERSION_MINOR"),
     //                  env!("CARGO_PKG_VERSION_PATCH"),
-    //                  option_env!("CARGO_PKG_VERSION_PRE").unwrap_or("")); 
+    //                  option_env!("CARGO_PKG_VERSION_PRE").unwrap_or(""));
     //
-    // Starting from v0.6.6 on crates.io you can also use the crate_version!() macro instead of 
+    // Starting from v0.6.6 on crates.io you can also use the crate_version!() macro instead of
     // manually using the env!() macros. Under the hood, the macro uses this exact method to get
     // the version.
     //

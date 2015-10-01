@@ -1,8 +1,88 @@
 use std::str::FromStr;
 use std::ascii::AsciiExt;
 
+bitflags! {
+    flags Flags: u32 {
+        const SC_NEGATE_REQS       = 0b0000000000001,
+        const SC_REQUIRED          = 0b0000000000010,
+        const A_REQUIRED_ELSE_HELP = 0b0000000000100,
+        const GLOBAL_VERSION       = 0b0000000001000,
+        const VERSIONLESS_SC       = 0b0000000010000,
+        const UNIFIED_HELP         = 0b0000000100000,
+        const WAIT_ON_ERROR        = 0b0000001000000,
+        const SC_REQUIRED_ELSE_HELP= 0b0000010000000,
+        const NEEDS_LONG_HELP      = 0b0000100000000,
+        const NEEDS_LONG_VERSION   = 0b0001000000000,
+        const NEEDS_SC_HELP        = 0b0010000000000,
+        const DISABLE_VERSION      = 0b0100000000000,
+        const HIDDEN               = 0b1000000000000,
+    }
+}
+
+pub struct AppFlags(Flags);
+
+impl AppFlags {
+    pub fn new() -> Self {
+        AppFlags(NEEDS_LONG_VERSION | NEEDS_LONG_HELP | NEEDS_SC_HELP)
+    }
+
+    pub fn set(&mut self, s: &AppSettings) {
+        match *s {
+            AppSettings::SubcommandsNegateReqs      => self.0.insert(SC_NEGATE_REQS),
+            AppSettings::VersionlessSubcommands     => self.0.insert(VERSIONLESS_SC),
+            AppSettings::SubcommandRequired         => self.0.insert(SC_REQUIRED),
+            AppSettings::ArgRequiredElseHelp        => self.0.insert(A_REQUIRED_ELSE_HELP),
+            AppSettings::GlobalVersion              => self.0.insert(GLOBAL_VERSION),
+            AppSettings::UnifiedHelpMessage         => self.0.insert(UNIFIED_HELP),
+            AppSettings::WaitOnError                => self.0.insert(WAIT_ON_ERROR),
+            AppSettings::SubcommandRequiredElseHelp => self.0.insert(SC_REQUIRED_ELSE_HELP),
+            AppSettings::NeedsLongHelp              => self.0.insert(NEEDS_LONG_HELP),
+            AppSettings::NeedsLongVersion           => self.0.insert(NEEDS_LONG_VERSION),
+            AppSettings::NeedsSubcommandHelp        => self.0.insert(NEEDS_SC_HELP),
+            AppSettings::DisableVersion             => self.0.insert(DISABLE_VERSION),
+            AppSettings::Hidden                     => self.0.insert(HIDDEN),
+        }
+    }
+
+    pub fn unset(&mut self, s: &AppSettings) {
+        match *s {
+            AppSettings::SubcommandsNegateReqs      => self.0.remove(SC_NEGATE_REQS),
+            AppSettings::VersionlessSubcommands     => self.0.remove(VERSIONLESS_SC),
+            AppSettings::SubcommandRequired         => self.0.remove(SC_REQUIRED),
+            AppSettings::ArgRequiredElseHelp        => self.0.remove(A_REQUIRED_ELSE_HELP),
+            AppSettings::GlobalVersion              => self.0.remove(GLOBAL_VERSION),
+            AppSettings::UnifiedHelpMessage         => self.0.remove(UNIFIED_HELP),
+            AppSettings::WaitOnError                => self.0.remove(WAIT_ON_ERROR),
+            AppSettings::SubcommandRequiredElseHelp => self.0.remove(SC_REQUIRED_ELSE_HELP),
+            AppSettings::NeedsLongHelp              => self.0.remove(NEEDS_LONG_HELP),
+            AppSettings::NeedsLongVersion           => self.0.remove(NEEDS_LONG_VERSION),
+            AppSettings::NeedsSubcommandHelp        => self.0.remove(NEEDS_SC_HELP),
+            AppSettings::DisableVersion             => self.0.remove(DISABLE_VERSION),
+            AppSettings::Hidden                     => self.0.remove(HIDDEN),
+        }
+    }
+
+    pub fn is_set(&self, s: &AppSettings) -> bool {
+        match *s {
+            AppSettings::SubcommandsNegateReqs      => self.0.contains(SC_NEGATE_REQS),
+            AppSettings::VersionlessSubcommands     => self.0.contains(VERSIONLESS_SC),
+            AppSettings::SubcommandRequired         => self.0.contains(SC_REQUIRED),
+            AppSettings::ArgRequiredElseHelp        => self.0.contains(A_REQUIRED_ELSE_HELP),
+            AppSettings::GlobalVersion              => self.0.contains(GLOBAL_VERSION),
+            AppSettings::UnifiedHelpMessage         => self.0.contains(UNIFIED_HELP),
+            AppSettings::WaitOnError                => self.0.contains(WAIT_ON_ERROR),
+            AppSettings::SubcommandRequiredElseHelp => self.0.contains(SC_REQUIRED_ELSE_HELP),
+            AppSettings::NeedsLongHelp              => self.0.contains(NEEDS_LONG_HELP),
+            AppSettings::NeedsLongVersion           => self.0.contains(NEEDS_LONG_VERSION),
+            AppSettings::NeedsSubcommandHelp        => self.0.contains(NEEDS_SC_HELP),
+            AppSettings::DisableVersion             => self.0.contains(DISABLE_VERSION),
+            AppSettings::Hidden                     => self.0.contains(HIDDEN),
+        }
+    }
+}
+
 /// Application level settings, which affect how `App` operates
-#[derive(PartialEq, Debug)]
+#[derive(Debug, PartialEq)]
 pub enum AppSettings {
     /// Allows subcommands to override all requirements of the parent (this command). For example
     /// if you had a subcommand or even top level application which had a required arguments that
@@ -140,6 +220,26 @@ pub enum AppSettings {
     /// # ;
     /// ```
     SubcommandRequiredElseHelp,
+    /// Specifies that this subcommand should be hidden from help messages
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, AppSettings, SubCommand};
+    /// App::new("myprog")
+    ///     .subcommand(SubCommand::with_name("test")
+        ///     .setting(AppSettings::Hidden))
+    /// # ;
+    /// ```
+    Hidden,
+    #[doc(hidden)]
+    NeedsLongVersion,
+    #[doc(hidden)]
+    NeedsLongHelp,
+    #[doc(hidden)]
+    NeedsSubcommandHelp,
+    #[doc(hidden)]
+    DisableVersion,
 }
 
 impl FromStr for AppSettings {
@@ -154,6 +254,7 @@ impl FromStr for AppSettings {
             "unifiedhelpmessage"     => Ok(AppSettings::UnifiedHelpMessage),
             "waitonerror"            => Ok(AppSettings::WaitOnError),
             "subcommandrequiredelsehelp" => Ok(AppSettings::SubcommandRequiredElseHelp),
+            "hidden"                 => Ok(AppSettings::Hidden),
             _                        => Err("unknown AppSetting, cannot convert from str".to_owned())
         }
     }

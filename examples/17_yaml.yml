@@ -4,7 +4,7 @@ about: an example using a .yml file to build a CLI
 author: Kevin K. <kbknapp@gmail.com>
 
 # AppSettings can be defined as a list and are **not** ascii case sensitive
-settings: 
+settings:
     - ArgRequiredElseHelp
 
 # All Args must be defined in the 'args:' list where the name of the arg, is the

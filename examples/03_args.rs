@@ -16,9 +16,9 @@ fn main() {
     // or a single &str describing multiple Args (one per line) supplied to args_from_usage().
     //
     // There are various options which can be set for a given argument, some apply to any of the
-    // three types of arguments, some only apply one or two of the types. *NOTE* if you set 
+    // three types of arguments, some only apply one or two of the types. *NOTE* if you set
     // incompatible options on a single argument, clap will panic! at runtime. This is by design,
-    // so that you know right away an error was made by the developer, not the end user. 
+    // so that you know right away an error was made by the developer, not the end user.
     //
     // # Help and Version
     // clap automatically generates a help and version flag for you, unless you specificy your
@@ -27,7 +27,7 @@ fn main() {
     // be automatically generated for you.
     let matches = App::new("MyApp")
                         // All application settings go here...
-                        
+
                         // A simple "Flag" argument example (i.e. "-d") using the builder pattern
                         .arg(Arg::with_name("debug")
                                     .help("turn on debugging information")
@@ -60,14 +60,14 @@ fn main() {
                         .args_from_usage("[output] 'Supply an output file to use'
                                           -i --int=[interface] 'Set an interface to use'")
                         .get_matches();
-     
+
     // Here are some examples of using the arguments defined above. Keep in mind that this is only
     // an example, and may be somewhat contrived
     //
     // First we check if debugging should be on or not
     println!("Debugging mode is: {}", if matches.is_present("debug") { "ON" } else { "OFF" });
 
-    // Next we print the config file we're using, if any was defined with either -c <file> or 
+    // Next we print the config file we're using, if any was defined with either -c <file> or
     // --config <file>
     if let Some(config) = matches.value_of("config") {
         println!("A config file was passed in: {}", config);
@@ -79,6 +79,6 @@ fn main() {
 
     // We could continue checking for and using arguments in this manner, such as "license",
     // "output", and "interface". Keep in mind that "output" and "interface" are optional, so you
-    // shouldn't call .unwrap(), instead prefer using an 'if let' expression as we did with 
+    // shouldn't call .unwrap(), instead prefer using an 'if let' expression as we did with
     // "config"
 }

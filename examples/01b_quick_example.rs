@@ -61,7 +61,7 @@ fn main() {
     if let Some(o) = matches.value_of("output") {
         println!("Value for output: {}", o);
     }
- 
+
     if let Some(c) = matches.value_of("config") {
         println!("Value for config: {}", c);
     }
@@ -86,7 +86,7 @@ fn main() {
              println!("Not printing testing lists...");
          }
      }
-     
-     
+
+
     // Continued program logic goes here...
 }

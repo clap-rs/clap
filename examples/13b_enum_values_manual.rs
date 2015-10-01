@@ -24,7 +24,7 @@ enum Vals {
 // Implement the trait
 impl FromStr for Vals {
     type Err = &'static str;
-    
+
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "Foo" => Ok(Vals::Foo),
