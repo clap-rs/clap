@@ -2357,9 +2357,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             Some(matches.args.keys().map(|k| *k).collect())));
                     }
 
-
                     if let Some(ref p_vals) = p.possible_vals {
-
                         if !p_vals.contains(&arg_slice) {
                             return Err(self.possible_values_error(arg_slice, &p.to_string(),
                                                                    p_vals, matches));
@@ -2383,14 +2381,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 }
                             }
                         }
-                        if !p.settings.is_set(&ArgSettings::EmptyValues) && matches.args.contains_key(p.name) &&
-                           arg_slice.is_empty() {
-                            return Err(self.report_error(format!("The argument '{}' does not \
-                                    allow empty values, but one was found.",
-                                        Format::Warning(p.to_string())),
-                                ClapErrorType::EmptyValue,
-                                Some(matches.args.keys().map(|k| *k).collect())));
-                        }
                         // Check if it's already existing and update if so...
                         if let Some(ref mut pos) = matches.args.get_mut(p.name) {
                             done = true;
@@ -2399,6 +2389,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 let len = (vals.len() + 1) as u8;
                                 vals.insert(len, arg_slice.to_owned());
                             }
+                        }
+
+                        if !pos_only && (self.settings.is_set(&AppSettings::TrailingVarArg) &&
+                            pos_counter == self.positionals_idx.len() as u8) {
+                                pos_only = true;
                         }
                     } else {
                         // Only increment the positional counter if it doesn't allow multiples
@@ -2420,13 +2415,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             }
                         }
                         let mut bm = BTreeMap::new();
-                        if !p.settings.is_set(&ArgSettings::EmptyValues) && arg_slice.is_empty() {
-                            return Err(self.report_error(format!("The argument '{}' does not \
-                                allow empty values, but one was found.",
-                                    Format::Warning(p.to_string())),
-                                ClapErrorType::EmptyValue,
-                                Some(matches.args.keys().map(|k| *k).collect())));
-                        }
                         if let Some(ref vtor) = p.validator {
                             let f = &*vtor;
                             if let Err(ref e) = f(arg_slice.to_owned()) {
