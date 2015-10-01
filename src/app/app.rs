@@ -88,7 +88,6 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     help_str: Option<&'u str>,
     settings: AppFlags,
     overrides: Vec<&'ar str>,
-    hidden: bool
 }
 
 impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
@@ -131,7 +130,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             help_str: None,
             overrides: vec![],
             settings: AppFlags::new(),
-            hidden: false,
         }
     }
 
@@ -235,7 +233,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     /// ```
     pub fn author(mut self,
-                  a: &'a str) 
+                  a: &'a str)
                   -> Self {
         self.author = Some(a);
         self
@@ -256,7 +254,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     /// ```
     pub fn bin_name(mut self,
-                    a: &str) 
+                    a: &str)
                     -> Self {
         self.bin_name = Some(a.to_owned());
         self
@@ -274,7 +272,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     /// ```
     pub fn about(mut self,
-                 a: &'ab str) 
+                 a: &'ab str)
                  -> Self {
         self.about = Some(a);
         self
@@ -294,7 +292,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     /// ```
     pub fn after_help(mut self,
-                      h: &'h str) 
+                      h: &'h str)
                       -> Self {
         self.more_help = Some(h);
         self
@@ -318,7 +316,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     /// ```
     pub fn subcommands_negate_reqs(mut self,
-                                   n: bool) 
+                                   n: bool)
                                    -> Self {
         if n {
             self.settings.set(&AppSettings::SubcommandsNegateReqs);
@@ -344,7 +342,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     /// ```
     pub fn subcommand_required(mut self,
-                               n: bool) 
+                               n: bool)
                                -> Self {
         if n {
             self.settings.set(&AppSettings::SubcommandRequired);
@@ -366,7 +364,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     /// ```
     pub fn version(mut self,
-                   v: &'v str) 
+                   v: &'v str)
                    -> Self {
         self.version = Some(v);
         self
@@ -394,7 +392,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     /// ```
     pub fn usage(mut self,
-                 u: &'u str) 
+                 u: &'u str)
                  -> Self {
         self.usage_str = Some(u);
         self
@@ -435,7 +433,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     /// ```
     pub fn help(mut self,
-                h: &'u str) 
+                h: &'u str)
                 -> Self {
         self.help_str = Some(h);
         self
@@ -458,7 +456,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .help_short("H")
     /// # ;
     pub fn help_short(mut self,
-                      s: &str) 
+                      s: &str)
                       -> Self {
         self.help_short = s.trim_left_matches(|c| c == '-')
                            .chars()
@@ -482,8 +480,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     // Using a lowercase `v` instead of the default capital `V`
     ///     .version_short("v")
     /// # ;
-    pub fn version_short(mut self, 
-                         s: &str) 
+    pub fn version_short(mut self,
+                         s: &str)
                          -> Self {
         self.version_short = s.trim_left_matches(|c| c == '-')
                            .chars()
@@ -508,7 +506,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     /// ```
     pub fn arg_required_else_help(mut self,
-                                  tf: bool) 
+                                  tf: bool)
                                   -> Self {
         if tf {
             self.settings.set(&AppSettings::ArgRequiredElseHelp);
@@ -532,9 +530,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// .hidden(true)
     /// # ).get_matches();
     pub fn hidden(mut self,
-                  h: bool) 
+                  h: bool)
                   -> Self {
-        self.hidden = h;
+        if h {
+            self.settings.set(&AppSettings::Hidden);
+        } else {
+            self.settings.unset(&AppSettings::Hidden);
+        }
         self
     }
 
@@ -560,7 +562,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// // "myprog-test v1.1"
     /// ```
     pub fn global_version(mut self,
-                          gv: bool) 
+                          gv: bool)
                           -> Self {
         if gv {
             self.settings.set(&AppSettings::GlobalVersion);
@@ -573,7 +575,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Disables `-V` and `--version` for all subcommands (Defaults to false; subcommands have
     /// version flags)
     ///
-    /// **Deprecated:** Use `App::setting()` with `AppSettings::VersionlessSubcommands` instead. 
+    /// **Deprecated:** Use `App::setting()` with `AppSettings::VersionlessSubcommands` instead.
     /// This method will be removed at 2.x
     ///
     /// **NOTE:** This setting must be set **prior** adding any subcommands
@@ -592,7 +594,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// // running `myprog test --version` will display unknown argument error
     /// ```
     pub fn versionless_subcommands(mut self,
-                                   vers: bool) 
+                                   vers: bool)
                                    -> Self {
         if vers {
             self.settings.set(&AppSettings::VersionlessSubcommands);
@@ -621,7 +623,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// // running `myprog --help` will display a unified "docopt" or "getopts" style help message
     /// ```
     pub fn unified_help_message(mut self,
-                                uni_help: bool) 
+                                uni_help: bool)
                                 -> Self {
         if uni_help {
             self.settings.set(&AppSettings::UnifiedHelpMessage);
@@ -655,7 +657,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     /// ```
     pub fn wait_on_error(mut self,
-                         w: bool) 
+                         w: bool)
                          -> Self {
         if w {
             self.settings.set(&AppSettings::WaitOnError);
@@ -668,7 +670,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Specifies that the help text sould be displayed (and then exit gracefully), if no
     /// subcommands are present at runtime (i.e. an empty run such as, `$ myprog`.
     ///
-    /// **Deprecated:** Use `App::setting()` with `AppSettings::SubcommandRequiredElseHelp` 
+    /// **Deprecated:** Use `App::setting()` with `AppSettings::SubcommandRequiredElseHelp`
     /// instead. This method will be removed at 2.x
     ///
     /// **NOTE:** This should *not* be used with `.subcommand_required()` as they do the same
@@ -687,7 +689,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     /// ```
     pub fn subcommand_required_else_help(mut self,
-                                         tf: bool) 
+                                         tf: bool)
                                          -> Self {
         if tf {
             self.settings.set(&AppSettings::SubcommandRequiredElseHelp);
@@ -709,7 +711,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     /// ```
     pub fn setting(mut self,
-                   setting: AppSettings) 
+                   setting: AppSettings)
                    -> Self {
         self.settings.set(&setting);
         self
@@ -726,8 +728,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///                  AppSettings::WaitOnError])
     /// # ;
     /// ```
-    pub fn settings(mut self, 
-                    settings: &[AppSettings]) 
+    pub fn settings(mut self,
+                    settings: &[AppSettings])
                     -> Self {
         for s in settings {
             self.settings.set(s);
@@ -763,7 +765,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     /// ```
     pub fn arg(mut self,
-               a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) 
+               a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>)
                -> Self {
         self.add_arg(a);
         self
@@ -848,7 +850,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     /// ```
     pub fn args(mut self,
-                args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>) 
+                args: Vec<Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>>)
                 -> Self {
         for arg in args.into_iter() {
             self = self.arg(arg);
@@ -873,7 +875,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     /// ```
     pub fn arg_from_usage(mut self,
-                          usage: &'ar str) 
+                          usage: &'ar str)
                           -> Self {
         self = self.arg(Arg::from_usage(usage));
         self
@@ -901,7 +903,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     /// ```
     pub fn args_from_usage(mut self,
-                           usage: &'ar str) 
+                           usage: &'ar str)
                            -> Self {
         for l in usage.lines() {
             self = self.arg(Arg::from_usage(l.trim()));
@@ -942,7 +944,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///                     .required(true))
     /// # ;
     pub fn arg_group(mut self,
-                     group: ArgGroup<'ar, 'ar>) 
+                     group: ArgGroup<'ar, 'ar>)
                      -> Self {
         if group.required {
             self.required.push(group.name);
@@ -1006,7 +1008,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///                     .required(true))
     /// # ;
     pub fn arg_groups(mut self,
-                      groups: Vec<ArgGroup<'ar, 'ar>>) 
+                      groups: Vec<ArgGroup<'ar, 'ar>>)
                       -> Self {
         for g in groups {
             self = self.arg_group(g);
@@ -1032,7 +1034,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     /// ```
     pub fn subcommand(mut self,
-                      mut subcmd: App<'a, 'v, 'ab, 'u, 'h, 'ar>) 
+                      mut subcmd: App<'a, 'v, 'ab, 'u, 'h, 'ar>)
                       -> Self {
         if subcmd.name == "help" {
             self.settings.set(&AppSettings::NeedsSubcommandHelp);
@@ -1040,8 +1042,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         if self.settings.is_set(&AppSettings::VersionlessSubcommands) {
             self.settings.set(&AppSettings::DisableVersion);
         }
-        if self.settings.is_set(&AppSettings::GlobalVersion) && 
-            subcmd.version.is_none() && 
+        if self.settings.is_set(&AppSettings::GlobalVersion) &&
+            subcmd.version.is_none() &&
             self.version.is_some() {
             subcmd.version = Some(self.version.unwrap());
         }
@@ -1064,7 +1066,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// # ;
     /// ```
     pub fn subcommands(mut self,
-                       subcmds: Vec<App<'a, 'v, 'ab, 'u, 'h, 'ar>>) 
+                       subcmds: Vec<App<'a, 'v, 'ab, 'u, 'h, 'ar>>)
                        -> Self {
         for subcmd in subcmds.into_iter() {
             self = self.subcommand(subcmd);
@@ -1084,12 +1086,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
         res.dedup();
         if res.is_empty() { return None }
-        
+
         Some(res)
     }
 
     fn get_group_members(&self,
-                         group: &str) 
+                         group: &str)
                          -> Vec<String> {
         let mut g_vec = vec![];
         let mut args = vec![];
@@ -1124,7 +1126,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     fn get_group_members_names(&self,
-                               group: &'ar str) 
+                               group: &'ar str)
                                -> Vec<&'ar str> {
         let mut g_vec = vec![];
         let mut args = vec![];
@@ -1282,7 +1284,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     // after all arguments were parsed, but before any subcommands have been parsed (so as to
     // give subcommands their own usage recursively)
     fn create_usage(&self,
-                    matches: Option<Vec<&'ar str>>) 
+                    matches: Option<Vec<&'ar str>>)
                     -> String {
         use std::fmt::Write;
         let mut usage = String::with_capacity(75);
@@ -1354,7 +1356,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
             if !self.subcommands.is_empty() && !self.settings.is_set(&AppSettings::SubcommandRequired) {
                 usage.push_str(" [SUBCOMMAND]");
-            } else if self.settings.is_set(&AppSettings::SubcommandRequired) && 
+            } else if self.settings.is_set(&AppSettings::SubcommandRequired) &&
                 !self.subcommands.is_empty() {
                 usage.push_str(" <SUBCOMMAND>");
             }
@@ -1422,7 +1424,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             .values()
             .filter(|o| !o.hidden)
             .map(|a|
-                a.to_string().len() 
+                a.to_string().len()
             ) {
             if ol > longest_opt {
                 longest_opt = ol;
@@ -1440,7 +1442,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut longest_sc = 0;
         for scl in self.subcommands
             .values()
-            .filter(|s| !s.hidden)
+            .filter(|s| !s.settings.is_set(&AppSettings::Hidden))
             .map(|f| f.name.len() ) {
             if scl > longest_sc {
                 longest_sc = scl;
@@ -1468,7 +1470,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 try!(write!(w, "\nOPTIONS:\n"))
             }
             for v in self.flags
-                         .values() 
+                         .values()
                          .filter(|f| !f.hidden) {
                 try!(write!(w, "{}", tab));
                 if let Some(s) = v.short {
@@ -1527,7 +1529,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 // maybe erase
             }
             for v in self.opts
-                         .values() 
+                         .values()
                          .filter(|o| !o.hidden) {
                 // if it supports multiple we add '...' i.e. 3 to the name length
                 try!(write!(w, "{}", tab));
@@ -1565,7 +1567,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         if pos {
             try!(write!(w, "\nARGS:\n"));
             for v in self.positionals_idx
-                         .values() 
+                         .values()
                          .filter(|p| !p.hidden) {
                 // let mult = if v.multiple { 3 } else { 0 };
                 try!(write!(w, "{}", tab));
@@ -1593,7 +1595,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             try!(write!(w, "\nSUBCOMMANDS:\n"));
             for sc in self.subcommands
                           .values()
-                          .filter(|s| !s.hidden) {
+                          .filter(|s| !s.settings.is_set(&AppSettings::Hidden)) {
                 try!(write!(w, "{}{}", tab, sc.name));
                 try!(self.print_spaces((longest_sc + 4) - (sc.name.len()), w));
                 if let Some(a) = sc.about {
@@ -1707,7 +1709,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
     /// the real parsing function for all subcommands
     ///
-    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors 
+    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors
     /// manually.
     ///
     ///
@@ -1729,7 +1731,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// the real parsing function for all subcommands. Invalid unicode characters are replaced with
     /// `U+FFFD REPLACEMENT CHARACTER`
     ///
-    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors 
+    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors
     /// manually.
     ///
     ///
@@ -1768,7 +1770,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .get_matches_from(arg_vec);
     /// ```
     pub fn get_matches_from<I, T>(mut self,
-                                  itr: I) 
+                                  itr: I)
                                   -> ArgMatches<'ar, 'ar>
         where I: IntoIterator<Item = T>,
               T: AsRef<OsStr> {
@@ -1809,7 +1811,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .get_matches_from(arg_vec);
     /// ```
     pub fn get_matches_from_lossy<I, T>(mut self,
-                                  itr: I) 
+                                  itr: I)
                                   -> ArgMatches<'ar, 'ar>
         where I: IntoIterator<Item = T>,
               T: AsRef<OsStr> {
@@ -1837,10 +1839,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// parse arguments from something other than `std::env::args()`. If you are unsure, use
     /// `App::get_matches_safe()`
     ///
-    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors 
+    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors
     /// manually.
     ///
-    /// **NOTE:** Invalid unicode characters will result in an `Err` with type 
+    /// **NOTE:** Invalid unicode characters will result in an `Err` with type
     /// `ClapErrorType::InvalidUnicode`
     ///
     ///
@@ -1856,7 +1858,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
     /// ```
     pub fn get_matches_from_safe<I, T>(mut self,
-                                       itr: I) 
+                                       itr: I)
                                        -> Result<ArgMatches<'ar, 'ar>, ClapError>
         where I: IntoIterator<Item = T>,
               T: AsRef<OsStr> {
@@ -1873,7 +1875,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// parse arguments from something other than `std::env::args()`. If you are unsure, use
     /// `App::get_matches_safe()`
     ///
-    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors 
+    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors
     /// manually.
     ///
     ///
@@ -1889,7 +1891,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
     /// ```
     pub fn get_matches_from_safe_lossy<I, T>(mut self,
-                                       itr: I) 
+                                       itr: I)
                                        -> Result<ArgMatches<'ar, 'ar>, ClapError>
         where I: IntoIterator<Item = T>,
               T: AsRef<OsStr> {
@@ -1898,7 +1900,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     fn _get_matches_from_safe_borrow<I, T>(&mut self,
                                               itr: I,
-                                              lossy: bool) 
+                                              lossy: bool)
                                               -> Result<ArgMatches<'ar, 'ar>, ClapError>
         where I: IntoIterator<Item = T>,
               T: AsRef<OsStr> {
@@ -1937,7 +1939,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     /// Starts the parsing process without consuming the `App` struct `self`. This is normally not
     /// the desired functionality, instead prefer `App::get_matches_from_safe` which *does*
-    /// consume `self`. 
+    /// consume `self`.
     ///
     /// **NOTE:** The first argument will be parsed as the binary name.
     ///
@@ -1945,10 +1947,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// parse arguments from something other than `std::env::args()`. If you are unsure, use
     /// `App::get_matches_safe()`
     ///
-    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors 
+    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors
     /// manually.
     ///
-    /// **NOTE:** Invalid unicode characters will result in an `Err` with type 
+    /// **NOTE:** Invalid unicode characters will result in an `Err` with type
     /// `ClapErrorType::InvalidUnicode`
     ///
     /// # Examples
@@ -1963,7 +1965,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
     /// ```
     pub fn get_matches_from_safe_borrow<I, T>(&mut self,
-                                              itr: I) 
+                                              itr: I)
                                               -> Result<ArgMatches<'ar, 'ar>, ClapError>
         where I: IntoIterator<Item = T>,
               T: AsRef<OsStr> {
@@ -1980,10 +1982,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// parse arguments from something other than `std::env::args()`. If you are unsure, use
     /// `App::get_matches_safe()`
     ///
-    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors 
+    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors
     /// manually.
     ///
-    /// **NOTE:** Invalid unicode characters will result in an `Err` with type 
+    /// **NOTE:** Invalid unicode characters will result in an `Err` with type
     /// `ClapErrorType::InvalidUnicode`
     ///
     /// # Examples
@@ -1998,7 +2000,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
     /// ```
     pub fn get_matches_from_safe_borrow_lossy<I, T>(&mut self,
-                                              itr: I) 
+                                              itr: I)
                                               -> Result<ArgMatches<'ar, 'ar>, ClapError>
         where I: IntoIterator<Item = T>,
               T: AsRef<OsStr> {
@@ -2301,12 +2303,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if arg_slice == "help" && self.settings.is_set(&AppSettings::NeedsSubcommandHelp) {
                             if let Err(e) = self.print_help() {
                                 return Err(ClapError{
-                                    error: format!("{} {}\n\terror message: {}\n", 
+                                    error: format!("{} {}\n\terror message: {}\n",
                                                     Format::Error("error:"),
                                                     INTERNAL_ERROR_MSG, e.description()),
                                     error_type: ClapErrorType::MissingSubcommand
                                 });
-                            } 
+                            }
                             process::exit(0);
                         }
                         subcmd_name = Some(arg_slice.to_owned());
@@ -2385,7 +2387,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if !p.empty_vals && matches.args.contains_key(p.name) &&
                            arg_slice.is_empty() {
                             return Err(self.report_error(format!("The argument '{}' does not \
-                                    allow empty values, but one was found.", 
+                                    allow empty values, but one was found.",
                                         Format::Warning(p.to_string())),
                                 ClapErrorType::EmptyValue,
                                 Some(matches.args.keys().map(|k| *k).collect())));
@@ -2422,7 +2424,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         let mut bm = BTreeMap::new();
                         if !p.empty_vals && arg_slice.is_empty() {
                             return Err(self.report_error(format!("The argument '{}' does not \
-                                allow empty values, but one was found.", 
+                                allow empty values, but one was found.",
                                     Format::Warning(p.to_string())),
                                 ClapErrorType::EmptyValue,
                                 Some(matches.args.keys().map(|k| *k).collect())));
@@ -2606,7 +2608,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     error_type: ClapErrorType::MissingSubcommand
                 }),
                 Err(e) => return Err(ClapError{
-                    error: format!("{} {}\n\terror message: {}\n", 
+                    error: format!("{} {}\n\terror message: {}\n",
                                     Format::Error("error:"),
                                     INTERNAL_ERROR_MSG, e.description()),
                     error_type: ClapErrorType::MissingSubcommand
@@ -2643,7 +2645,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             })
                             .collect())));
         }
-        if matches.args.is_empty() && matches.subcommand_name().is_none() && 
+        if matches.args.is_empty() && matches.subcommand_name().is_none() &&
             self.settings.is_set(&AppSettings::ArgRequiredElseHelp) {
             let mut out = vec![];
             match self.write_help(&mut out) {
@@ -2652,7 +2654,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     error_type: ClapErrorType::MissingSubcommand
                 }),
                 Err(e) => return Err(ClapError{
-                    error: format!("{} {}\n\terror message: {}\n", 
+                    error: format!("{} {}\n\terror message: {}\n",
                                     Format::Error("error:"),
                                     INTERNAL_ERROR_MSG, e.description()),
                     error_type: ClapErrorType::MissingSubcommand
@@ -2663,8 +2665,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     fn blacklisted_from(&self,
-                        name: &str, 
-                        matches: &ArgMatches) 
+                        name: &str,
+                        matches: &ArgMatches)
                         -> Option<String> {
         for k in matches.args.keys() {
             if let Some(f) = self.flags.get(k) {
@@ -2696,7 +2698,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     fn overriden_from(&self,
                       name: &'ar str,
-                      matches: &ArgMatches) 
+                      matches: &ArgMatches)
                       -> Option<&'ar str> {
         for k in matches.args.keys() {
             if let Some(f) = self.flags.get(k) {
@@ -2747,7 +2749,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             self.long_list.push("help");
             self.flags.insert("hclap_help", arg);
         }
-        if self.settings.is_set(&AppSettings::NeedsLongVersion) && 
+        if self.settings.is_set(&AppSettings::NeedsLongVersion) &&
             !self.settings.is_set(&AppSettings::VersionlessSubcommands) ||
            (self.settings.is_set(&AppSettings::VersionlessSubcommands) &&
             self.settings.is_set(&AppSettings::DisableVersion)) {
@@ -2806,19 +2808,19 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         if arg == "help" && self.settings.is_set(&AppSettings::NeedsLongHelp) {
             if let Err(e) = self.print_help() {
                 return Err(ClapError{
-                    error: format!("{} {}\n\terror message: {}\n", 
+                    error: format!("{} {}\n\terror message: {}\n",
                                     Format::Error("error:"),
                                     INTERNAL_ERROR_MSG, e.description()),
                     error_type: ClapErrorType::MissingSubcommand
                 });
-            } 
+            }
             process::exit(0);
         } else if arg == "version" && self.settings.is_set(&AppSettings::NeedsLongVersion) {
             let out = io::stdout();
             let mut buf_w = BufWriter::new(out.lock());
             if let Err(e) = self.print_version(&mut buf_w) {
                 return Err(ClapError{
-                    error: format!("{} {}\n\terror message: {}\n", 
+                    error: format!("{} {}\n\terror message: {}\n",
                                     Format::Error("error:"),
                                     INTERNAL_ERROR_MSG, e.description()),
                     error_type: ClapErrorType::MissingSubcommand
@@ -2865,7 +2867,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             if self.blacklist.contains(&v.name) {
                 matches.args.remove(v.name);
                 return Err(self.report_error(format!("The argument '{}' cannot be used with one \
-                    or more of the other specified arguments", 
+                    or more of the other specified arguments",
                         Format::Warning(format!("--{}", arg))),
                         ClapErrorType::ArgumentConflict,
                         Some(matches.args.keys().map(|k| *k).collect())));
@@ -3038,7 +3040,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             // Make sure this isn't one being added multiple times if it doesn't suppor it
             if matches.args.contains_key(v.name) && !v.multiple {
                 return Err(self.report_error(format!("The argument '{}' was supplied more than \
-                    once, but does not support multiple values", 
+                    once, but does not support multiple values",
                     Format::Warning(v.to_string())),
                     ClapErrorType::UnexpectedMultipleUsage,
                     Some(matches.args.keys().map(|k| *k).collect())));
@@ -3059,7 +3061,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     for grp in vec {
                         matches.args.insert(grp, MatchedArg{
                             occurrences: 1,
-                            values: None, 
+                            values: None,
                         });
                     }
                 }
@@ -3118,7 +3120,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     for grp in vec {
                         matches.args.insert(grp, MatchedArg{
                             occurrences: 1,
-                            values: None, 
+                            values: None,
                         });
                     }
                 }
@@ -3139,7 +3141,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     for grp in vec {
                         matches.args.insert(grp, MatchedArg{
                             occurrences: 1,
-                            values: None, 
+                            values: None,
                         });
                     }
                 }
@@ -3193,12 +3195,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             for c in arg.chars() {
                 if let Err(e) = self.check_for_help_and_version(c) {
                     return Err(ClapError{
-                        error: format!("{} {}\n\terror message: {}\n", 
+                        error: format!("{} {}\n\terror message: {}\n",
                                         Format::Error("error:"),
                                         INTERNAL_ERROR_MSG, e.description()),
                         error_type: ClapErrorType::MissingSubcommand
                     });
-                } 
+                }
                 match self.parse_single_short_flag(matches, c) {
                     Ok(b) => {
                         if !b {
@@ -3219,12 +3221,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         // Ensure the arg in question isn't a help or version flag
         if let Err(e) = self.check_for_help_and_version(arg_c) {
             return Err(ClapError{
-                error: format!("{} {}\n\terror message: {}\n", 
+                error: format!("{} {}\n\terror message: {}\n",
                                 Format::Error("error:"),
                                 INTERNAL_ERROR_MSG, e.description()),
                 error_type: ClapErrorType::MissingSubcommand
             });
-        } 
+        }
 
         // Check for a matching flag, and return none if found
         match self.parse_single_short_flag(matches, arg_c) {
@@ -3282,7 +3284,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     for grp in vec {
                         matches.args.insert(grp, MatchedArg{
                             occurrences: 1,
-                            values: Some(BTreeMap::new()), 
+                            values: Some(BTreeMap::new()),
                         });
                     }
                 }
@@ -3436,7 +3438,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     fn validate_blacklist(&self,
-                          matches: &mut ArgMatches<'ar, 'ar>) 
+                          matches: &mut ArgMatches<'ar, 'ar>)
                           -> Result<(), ClapError> {
         for name in self.blacklist.iter() {
             if matches.args.contains_key(name) {
@@ -3485,7 +3487,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     fn validate_num_args(&self,
-                         matches: &mut ArgMatches<'ar, 'ar>) 
+                         matches: &mut ArgMatches<'ar, 'ar>)
                          -> Result<(), ClapError> {
         for (name, ma) in matches.args.iter() {
             if self.groups.contains_key(name) {
@@ -3550,10 +3552,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     Format::Error(vals.len().to_string()),
                                     if vals.len() == 1 {"as"}else{"ere"}),
                                 if num > vals.len() as u8 {
-                                  ClapErrorType::TooMuchValues 
+                                  ClapErrorType::TooMuchValues
                                 } else {
-                                   ClapErrorType::TooFewValues 
-                                },                               
+                                   ClapErrorType::TooFewValues
+                                },
                                 Some(matches.args.keys().map(|k| *k).collect())));
                         }
                     }
@@ -3588,7 +3590,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     fn validate_required(&self,
-                         matches: &ArgMatches<'ar, 'ar>) 
+                         matches: &ArgMatches<'ar, 'ar>)
                          -> bool {
         'outer: for name in self.required.iter() {
             if matches.args.contains_key(name) {
