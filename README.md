@@ -32,8 +32,9 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-If you're already familiar with `clap` but just want to see some new highlights as of **1.4.1**
+If you're already familiar with `clap` but just want to see some new highlights as of **1.4.3**
 
+* You can now access values from an argument in a group via the group name, instead of having to check each arg name individually to find out which one was used. The same applies for checking if an arg from a group `is_present()`
 * You now have the option to **not** `panic!` on invalid unicode. The `*_safe()` family of `get_matches` will return an `Err` with `ClapErrorType::InvalidUnicode`.
 * You have the option to get lossy unicode values. By using the `*_lossy()` versions of the `get_matches` family of methods all invalid unicode will be replaced with `U+FFFD` and **not** `panic!` or fail parsing.
 * Some documentation improvements
