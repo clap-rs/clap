@@ -93,14 +93,6 @@ impl<'n> PosBuilder<'n> {
         if a.hidden {
             pb.settings.set(&ArgSettings::Hidden);
         }
-        if pb.min_vals.is_some() && !a.multiple {
-            panic!("Argument \"{}\" does not allow multiple values, yet it is expecting {} \
-                values", pb.name, pb.num_vals.unwrap());
-        }
-        if pb.max_vals.is_some() && !a.multiple {
-            panic!("Argument \"{}\" does not allow multiple values, yet it is expecting {} \
-                values", pb.name, pb.num_vals.unwrap());
-        }
         // Check if there is anything in the blacklist (mutually excludes list) and add any
         // values
         if let Some(ref bl) = a.blacklist {

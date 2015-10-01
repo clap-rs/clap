@@ -55,8 +55,8 @@ impl<'n> OptBuilder<'n> {
     pub fn from_arg(a: &Arg<'n, 'n, 'n, 'n, 'n,'n>,
                     reqs: &mut Vec<&'n str>) -> Self {
         if a.short.is_none() && a.long.is_none() {
-            panic!("Argument \"{}\" has take_value(true), yet neither a short() or long() \
-                were supplied", a.name);
+            panic!("Argument \"{}\" has takes_value(true), yet neither a short() or long() \
+                was supplied", a.name);
         }
         // No need to check for .index() as that is handled above
         let mut ob = OptBuilder {
@@ -92,14 +92,6 @@ impl<'n> OptBuilder<'n> {
         }
         if let Some(ref vec) = ob.val_names {
             ob.num_vals = Some(vec.len() as u8);
-        }
-        if ob.min_vals.is_some() && !a.multiple {
-            panic!("Argument \"{}\" does not allow multiple values, yet it is expecting {} \
-                values", ob.name, ob.num_vals.unwrap());
-        }
-        if ob.max_vals.is_some() && !a.multiple {
-            panic!("Argument \"{}\" does not allow multiple values, yet it is expecting {} \
-                values", ob.name, ob.num_vals.unwrap());
         }
         // Check if there is anything in the blacklist (mutually excludes list) and add any
         // values
