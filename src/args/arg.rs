@@ -85,7 +85,7 @@ pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     pub min_vals: Option<u8>,
     /// Specifies whether or not this argument accepts explicit empty values such as `--option ""`
     pub empty_vals: bool,
-    /// Specifies whether or not this argument is global and should be propogated through all
+    /// Specifies whether or not this argument is global and should be propagated through all
     /// child subcommands
     pub global: bool,
     /// A function used to check the validity of an argument value. Failing this validation results

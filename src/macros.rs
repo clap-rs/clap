@@ -56,6 +56,7 @@ macro_rules! vec_remove {
                 }
             }
             if let Some(i) = ix {
+                $vec.dedup();
                 $vec.remove(i);
             }
         }

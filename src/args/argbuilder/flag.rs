@@ -3,6 +3,7 @@ use std::fmt::{Display, Formatter, Result};
 use std::convert::From;
 
 use Arg;
+use args::settings::{ArgFlags, ArgSettings};
 
 pub struct FlagBuilder<'n> {
     pub name: &'n str,
@@ -13,10 +14,6 @@ pub struct FlagBuilder<'n> {
     /// the user when the application's `help`
     /// text is displayed
     pub help: Option<&'n str>,
-    /// Determines if multiple instances of the same
-    /// flag are allowed
-    /// I.e. `-v -v -v` or `-vvv`
-    pub multiple: bool,
     /// A list of names for other arguments that
     /// *may not* be used with this flag
     pub blacklist: Option<Vec<&'n str>>,
@@ -27,10 +24,24 @@ pub struct FlagBuilder<'n> {
     /// The short version (i.e. single character)
     /// of the argument, no preceding `-`
     pub short: Option<char>,
-    pub global: bool,
     /// A list of names for other arguments that *mutually override* this flag
     pub overrides: Option<Vec<&'n str>>,
-    pub hidden: bool
+    pub settings: ArgFlags,
+}
+
+impl<'n> FlagBuilder<'n> {
+    pub fn new(name: &'n str) -> Self {
+        FlagBuilder {
+            name: name,
+            short: None,
+            long: None,
+            help: None,
+            blacklist: None,
+            requires: None,
+            overrides: None,
+            settings: ArgFlags::new()
+        }
+    }
 }
 
 impl<'n, 'a> From<&'a Arg<'n, 'n, 'n, 'n, 'n, 'n>> for FlagBuilder<'n> {
@@ -60,12 +71,19 @@ impl<'n, 'a> From<&'a Arg<'n, 'n, 'n, 'n, 'n, 'n>> for FlagBuilder<'n> {
             long: a.long,
             help: a.help,
             blacklist: None,
-            global: a.global,
-            multiple: a.multiple,
             requires: None,
             overrides: None,
-            hidden: a.hidden
+            settings: ArgFlags::new()
         };
+        if a.multiple {
+            fb.settings.set(&ArgSettings::Multiple);
+        }
+        if a.global {
+            fb.settings.set(&ArgSettings::Global);
+        }
+        if a.hidden {
+            fb.settings.set(&ArgSettings::Hidden);
+        }
         // Check if there is anything in the blacklist (mutually excludes list) and add any
         // values
         if let Some(ref bl) = a.blacklist {
@@ -74,7 +92,6 @@ impl<'n, 'a> From<&'a Arg<'n, 'n, 'n, 'n, 'n, 'n>> for FlagBuilder<'n> {
             for n in bl {
                 bhs.push(*n);
             }
-            bhs.dedup();
             fb.blacklist = Some(bhs);
         }
         // Check if there is anything in the requires list and add any values
@@ -84,7 +101,6 @@ impl<'n, 'a> From<&'a Arg<'n, 'n, 'n, 'n, 'n, 'n>> for FlagBuilder<'n> {
             for n in r {
                 rhs.push(*n);
             }
-            rhs.dedup();
             fb.requires = Some(rhs);
         }
         if let Some(ref or) = a.overrides {
@@ -93,7 +109,6 @@ impl<'n, 'a> From<&'a Arg<'n, 'n, 'n, 'n, 'n, 'n>> for FlagBuilder<'n> {
             for n in or {
                 bhs.push(*n);
             }
-            bhs.dedup();
             fb.overrides = Some(bhs);
         }
 
@@ -115,36 +130,18 @@ impl<'n> Display for FlagBuilder<'n> {
 #[cfg(test)]
 mod test {
     use super::FlagBuilder;
+    use args::settings::ArgSettings;
 
     #[test]
     fn flagbuilder_display() {
-        let f = FlagBuilder {
-            name: "flg",
-            short: None,
-            long: Some("flag"),
-            help: None,
-            multiple: true,
-            blacklist: None,
-            requires: None,
-            global: false,
-            overrides: None,
-            hidden: false,
-        };
+        let mut f = FlagBuilder::new("flg");
+        f.settings.set(&ArgSettings::Multiple);
+        f.long = Some("flag");
 
         assert_eq!(&*format!("{}", f), "--flag");
 
-        let f2 = FlagBuilder {
-            name: "flg",
-            short: Some('f'),
-            long: None,
-            help: None,
-            multiple: false,
-            blacklist: None,
-            requires: None,
-            global: false,
-            overrides: None,
-            hidden: false,
-        };
+        let mut f2 = FlagBuilder::new("flg");
+        f2.short = Some('f');
 
         assert_eq!(&*format!("{}", f2), "-f");
     }

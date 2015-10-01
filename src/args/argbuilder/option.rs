@@ -4,6 +4,7 @@ use std::fmt::{Display, Formatter, Result};
 use std::result::Result as StdResult;
 
 use Arg;
+use args::settings::{ArgFlags, ArgSettings};
 
 pub struct OptBuilder<'n> {
     pub name: &'n str,
@@ -14,15 +15,8 @@ pub struct OptBuilder<'n> {
     /// The string of text that will displayed to the user when the application's
     /// `help` text is displayed
     pub help: Option<&'n str>,
-    /// Allow multiple occurrences of an option argument such as "-c some -c other"
-    pub multiple: bool,
     /// A list of names for other arguments that *may not* be used with this flag
     pub blacklist: Option<Vec<&'n str>>,
-    /// If this is a required by default when using the command line program
-    /// i.e. a configuration file that's required for the program to function
-    /// **NOTE:** required by default means, it is required *until* mutually
-    /// exclusive arguments are evaluated.
-    pub required: bool,
     /// A list of possible values for this argument
     pub possible_vals: Option<Vec<&'n str>>,
     /// A list of names of other arguments that are *required* to be used when
@@ -32,15 +26,32 @@ pub struct OptBuilder<'n> {
     pub min_vals: Option<u8>,
     pub max_vals: Option<u8>,
     pub val_names: Option<BTreeSet<&'n str>>,
-    pub empty_vals: bool,
-    pub global: bool,
     pub validator: Option<Rc<Fn(String) -> StdResult<(), String>>>,
     /// A list of names for other arguments that *mutually override* this flag
     pub overrides: Option<Vec<&'n str>>,
-    pub hidden: bool
+    pub settings: ArgFlags,
 }
 
 impl<'n> OptBuilder<'n> {
+    pub fn new(name: &'n str) -> Self {
+        OptBuilder {
+            name: name,
+            short: None,
+            long: None,
+            help: None,
+            blacklist: None,
+            possible_vals: None,
+            requires: None,
+            num_vals: None,
+            min_vals: None,
+            max_vals: None,
+            val_names: None,
+            validator: None,
+            overrides: None,
+            settings: ArgFlags::new()
+        }
+    }
+
     pub fn from_arg(a: &Arg<'n, 'n, 'n, 'n, 'n,'n>,
                     reqs: &mut Vec<&'n str>) -> Self {
         if a.short.is_none() && a.long.is_none() {
@@ -52,30 +63,41 @@ impl<'n> OptBuilder<'n> {
             name: a.name,
             short: a.short,
             long: a.long,
-            multiple: a.multiple,
             blacklist: None,
             help: a.help,
-            global: a.global,
             possible_vals: None,
             num_vals: a.num_vals,
             min_vals: a.min_vals,
             max_vals: a.max_vals,
             val_names: a.val_names.clone(),
             requires: None,
-            required: a.required,
-            empty_vals: a.empty_vals,
             validator: None,
             overrides: None,
-            hidden: a.hidden
+            settings: ArgFlags::new()
         };
+        if a.multiple {
+            ob.settings.set(&ArgSettings::Multiple);
+        }
+        if a.required {
+            ob.settings.set(&ArgSettings::Required);
+        }
+        if a.global {
+            ob.settings.set(&ArgSettings::Global);
+        }
+        if !a.empty_vals {
+            ob.settings.unset(&ArgSettings::Global);
+        }
+        if a.hidden {
+            ob.settings.set(&ArgSettings::Hidden);
+        }
         if let Some(ref vec) = ob.val_names {
             ob.num_vals = Some(vec.len() as u8);
         }
-        if ob.min_vals.is_some() && !ob.multiple {
+        if ob.min_vals.is_some() && !a.multiple {
             panic!("Argument \"{}\" does not allow multiple values, yet it is expecting {} \
                 values", ob.name, ob.num_vals.unwrap());
         }
-        if ob.max_vals.is_some() && !ob.multiple {
+        if ob.max_vals.is_some() && !a.multiple {
             panic!("Argument \"{}\" does not allow multiple values, yet it is expecting {} \
                 values", ob.name, ob.num_vals.unwrap());
         }
@@ -87,7 +109,6 @@ impl<'n> OptBuilder<'n> {
             for n in bl {
                 bhs.push(*n);
             }
-            bhs.dedup();
             ob.blacklist = Some(bhs);
         }
         if let Some(ref p) = a.validator {
@@ -99,11 +120,10 @@ impl<'n> OptBuilder<'n> {
             // without derefing n = &&str
             for n in r {
                 rhs.push(*n);
-                if ob.required {
+                if a.required {
                     reqs.push(*n);
                 }
             }
-            rhs.dedup();
             ob.requires = Some(rhs);
         }
         if let Some(ref or) = a.overrides {
@@ -112,7 +132,6 @@ impl<'n> OptBuilder<'n> {
             for n in or {
                 bhs.push(*n);
             }
-            bhs.dedup();
             ob.overrides = Some(bhs);
         }
         // Check if there is anything in the possible values and add those as well
@@ -150,7 +169,7 @@ impl<'n> Display for OptBuilder<'n> {
             for _ in (0..num) {
                 try!(write!(f, " <{}>", self.name));
             }
-            if self.multiple && num == 1 {
+            if self.settings.is_set(&ArgSettings::Multiple) && num == 1 {
                 try!(write!(f, "..."));
             }
         }
@@ -163,29 +182,13 @@ impl<'n> Display for OptBuilder<'n> {
 mod test {
     use super::OptBuilder;
     use std::collections::BTreeSet;
+    use args::settings::ArgSettings;
 
     #[test]
     fn optbuilder_display() {
-        let o = OptBuilder {
-            name: "opt",
-            short: None,
-            long: Some("option"),
-            help: None,
-            multiple: true,
-            blacklist: None,
-            required: false,
-            possible_vals: None,
-            requires: None,
-            num_vals: None,
-            min_vals: None,
-            max_vals: None,
-            val_names: None,
-            empty_vals: true,
-            global: false,
-            validator: None,
-            overrides: None,
-            hidden: false,
-        };
+        let mut o = OptBuilder::new("opt");
+        o.long = Some("option");
+        o.settings.set(&ArgSettings::Multiple);
 
         assert_eq!(&*format!("{}", o), "--option <opt>...");
 
@@ -193,26 +196,9 @@ mod test {
         v_names.insert("file");
         v_names.insert("name");
 
-        let o2 = OptBuilder {
-            name: "opt",
-            short: Some('o'),
-            long: None,
-            help: None,
-            multiple: false,
-            blacklist: None,
-            required: false,
-            possible_vals: None,
-            requires: None,
-            num_vals: None,
-            min_vals: None,
-            max_vals: None,
-            val_names: Some(v_names),
-            empty_vals: true,
-            global: false,
-            validator: None,
-            overrides: None,
-            hidden: false,
-        };
+        let mut o2 = OptBuilder::new("opt");
+        o2.short = Some('o');
+        o2.val_names = Some(v_names);
 
         assert_eq!(&*format!("{}", o2), "-o <file> <name>");
     }

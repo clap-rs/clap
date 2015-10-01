@@ -12,6 +12,7 @@ use yaml_rust::Yaml;
 
 use args::{ArgMatches, Arg, SubCommand, MatchedArg};
 use args::{FlagBuilder, OptBuilder, PosBuilder};
+use args::settings::{ArgSettings, ArgFlags};
 use args::ArgGroup;
 use fmt::Format;
 use super::settings::{AppSettings, AppFlags};
@@ -790,7 +791,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
         }
         if let Some(l) = a.long {
-            // self.long_list.dedup();
             if self.long_list.contains(&l) {
                 panic!("Argument long must be unique\n\n\t--{} is already in use", l);
             } else {
@@ -1084,7 +1084,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 }
             }
         }
-        res.dedup();
         if res.is_empty() { return None }
 
         Some(res)
@@ -1112,7 +1111,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
         }
 
-        g_vec.dedup();
         if !g_vec.is_empty() {
             for av in g_vec.iter().map(|g| self.get_group_members(g)) {
                 for a in av {
@@ -1145,7 +1143,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
         }
 
-        g_vec.dedup();
         if !g_vec.is_empty() {
             for av in g_vec.iter().map(|g| self.get_group_members_names(g)) {
                 for a in av {
@@ -1159,10 +1156,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     fn get_required_from(&self,
-                         mut reqs: Vec<&'ar str>,
+                         reqs: Vec<&'ar str>,
                          matches: Option<&ArgMatches>)
                          -> VecDeque<String> {
-        reqs.dedup();
         let mut c_flags = vec![];
         let mut c_pos = vec![];
         let mut c_opt = vec![];
@@ -1318,7 +1314,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     reqs.push(p.name);
                     continue;
                 }
-                if p.required {
+                if p.settings.is_set(&ArgSettings::Required) {
                     found = true;
                     reqs.push(p.name);
                 }
@@ -1336,19 +1332,19 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 usage.push_str(" [OPTIONS]");
             }
             if !self.settings.is_set(&AppSettings::UnifiedHelpMessage) && !self.opts.is_empty() &&
-               self.opts.values().any(|a| !a.required) {
+               self.opts.values().any(|a| !a.settings.is_set(&ArgSettings::Required)) {
                 usage.push_str(" [OPTIONS]");
             }
             // places a '--' in the usage string if there are args and options
             // supporting multiple values
-            if !self.positionals_idx.is_empty() && self.opts.values().any(|a| a.multiple ) &&
-               !self.opts.values().any(|a| a.required) &&
+            if !self.positionals_idx.is_empty() && self.opts.values().any(|a| a.settings.is_set(&ArgSettings::Multiple)) &&
+               !self.opts.values().any(|a| a.settings.is_set(&ArgSettings::Required)) &&
                self.subcommands.is_empty() {
                 usage.push_str(" [--]")
             }
             if !self.positionals_idx.is_empty() &&
                self.positionals_idx.values()
-                                                                       .any(|a| !a.required) {
+                                                                       .any(|a| !a.settings.is_set(&ArgSettings::Required)) {
                 usage.push_str(" [ARGS]");
             }
 
@@ -1412,7 +1408,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut longest_flag = 0;
         for fl in self.flags
             .values()
-            .filter(|f| f.long.is_some() && !f.hidden)
+            .filter(|f| f.long.is_some() && !f.settings.is_set(&ArgSettings::Hidden))
             // 2='--'
             .map(|a| a.to_string().len() ) {
             if fl > longest_flag {
@@ -1422,7 +1418,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut longest_opt = 0;
         for ol in self.opts
             .values()
-            .filter(|o| !o.hidden)
+            .filter(|o| !o.settings.is_set(&ArgSettings::Hidden))
             .map(|a|
                 a.to_string().len()
             ) {
@@ -1433,7 +1429,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut longest_pos = 0;
         for pl in self.positionals_idx
             .values()
-            .filter(|p| !p.hidden)
+            .filter(|p| !p.settings.is_set(&ArgSettings::Hidden))
             .map(|f| f.to_string().len() ) {
             if pl > longest_pos {
                 longest_pos = pl;
@@ -1471,7 +1467,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
             for v in self.flags
                          .values()
-                         .filter(|f| !f.hidden) {
+                         .filter(|f| !f.settings.is_set(&ArgSettings::Hidden)) {
                 try!(write!(w, "{}", tab));
                 if let Some(s) = v.short {
                     try!(write!(w, "-{}",s));
@@ -1530,7 +1526,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
             for v in self.opts
                          .values()
-                         .filter(|o| !o.hidden) {
+                         .filter(|o| !o.settings.is_set(&ArgSettings::Hidden)) {
                 // if it supports multiple we add '...' i.e. 3 to the name length
                 try!(write!(w, "{}", tab));
                 if let Some(s) = v.short {
@@ -1550,7 +1546,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         try!(write!(w, " <{}>", v.name));
                     }
                 } else {
-                    try!(write!(w, " <{}>{}", v.name, if v.multiple{"..."} else {""}));
+                    try!(write!(w, " <{}>{}", v.name,
+                        if v.settings.is_set(&ArgSettings::Multiple) {
+                            "..."
+                        } else {
+                            ""
+                        }
+                    ));
                 }
                 if v.long.is_some() {
                     try!(self.print_spaces(
@@ -1568,11 +1570,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             try!(write!(w, "\nARGS:\n"));
             for v in self.positionals_idx
                          .values()
-                         .filter(|p| !p.hidden) {
-                // let mult = if v.multiple { 3 } else { 0 };
+                         .filter(|p| !p.settings.is_set(&ArgSettings::Hidden)) {
                 try!(write!(w, "{}", tab));
                 try!(write!(w, "{}", v.name));
-                if v.multiple {
+                if v.settings.is_set(&ArgSettings::Multiple) {
                     try!(write!(w, "..."));
                 }
                 try!(self.print_spaces((longest_pos + 4) - (v.to_string().len()), w));
@@ -2024,7 +2025,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
         }
         if let Some(ref p) = self.positionals_idx.values()
-                                                 .filter(|a| a.multiple)
+                                                 .filter(|a| a.settings.is_set(&ArgSettings::Multiple))
                                                  .filter(|a| {
                                                     a.index as usize != self.positionals_idx.len()
                                                 })
@@ -2037,11 +2038,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut found = false;
         for (_, p) in self.positionals_idx.iter_mut().rev() {
             if found {
-                p.required = true;
+                p.settings.set(&ArgSettings::Required);
                 self.required.push(p.name);
                 continue;
             }
-            if p.required {
+            if p.settings.is_set(&ArgSettings::Required) {
                 found = true;
             }
         }
@@ -2152,7 +2153,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if let Some(num) = opt.num_vals {
                             if let Some(ref ma) = matches.args.get(opt.name) {
                                 if let Some(ref vals) = ma.values {
-                                    if num == vals.len() as u8 && !opt.multiple {
+                                    if num == vals.len() as u8 && !opt.settings.is_set(&ArgSettings::Multiple) {
                                         return Err(self.report_error(format!("The argument '{}' \
                                             was found, but '{}' only expects {} values",
                                                 Format::Warning(arg_slice),
@@ -2166,7 +2167,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         }
 
                         // if it's an empty value, and we don't allow that, report the error
-                        if !opt.empty_vals && matches.args.contains_key(opt.name) &&
+                        if !opt.settings.is_set(&ArgSettings::EmptyValues) && matches.args.contains_key(opt.name) &&
                            arg_slice.is_empty() {
                             return Err(self.report_error(
                                 format!("The argument '{}' does not allow empty values, but one \
@@ -2178,7 +2179,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if let Some(ref vec) = self.groups_for(opt.name) {
                             for grp in vec {
                                 if let Some(ref mut o) = matches.args.get_mut(grp) {
-                                    o.occurrences = if opt.multiple {
+                                    o.occurrences = if opt.settings.is_set(&ArgSettings::Multiple) {
                                         o.occurrences + 1
                                     } else {
                                         1
@@ -2196,7 +2197,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if let Some(ref mut o) = matches.args.get_mut(opt.name) {
                             // if it's multiple; the occurrences are increased when originally
                             // found
-                            o.occurrences = if opt.multiple {
+                            o.occurrences = if opt.settings.is_set(&ArgSettings::Multiple) {
                                 o.occurrences + 1
                             } else {
                                 skip = true;
@@ -2232,7 +2233,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                         continue
                                     }
                                 } else if let Some(num) = opt.num_vals {
-                                    if opt.multiple {
+                                    if opt.settings.is_set(&ArgSettings::Multiple) {
                                         val_counter += 1;
                                         if val_counter != num {
                                             continue
@@ -2263,7 +2264,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             } else if let Some(ref name) = needs_val_of {
                 // We've reached more values for an option than it possibly accepts
                 if let Some(ref o) = self.opts.get(name) {
-                    if !o.multiple {
+                    if !o.settings.is_set(&ArgSettings::Multiple) {
                         return Err(self.report_error(
                             format!("The argument '{}' requires a value but none was supplied",
                                 Format::Warning(o.to_string())),
@@ -2340,12 +2341,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         Some(matches.args.keys().map(|k| *k).collect())));
                 } else if let Some(p) = self.positionals_idx.get(&pos_counter) {
                     // Make sure this one doesn't conflict with anything
-                    self.blacklist.dedup();
                     if self.blacklist.contains(&p.name) {
-                        // we shouldn't need to remove this arg...since it should be matched yet
-                        // anyways
-                        // matches.args.remove(p.name);
-
                         return Err(self.report_error(format!("The argument '{}' cannot be used \
                                                               with {}",
                             Format::Warning(p.to_string()),
@@ -2369,7 +2365,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
                     // Have we made the update yet?
                     let mut done = false;
-                    if p.multiple {
+                    if p.settings.is_set(&ArgSettings::Multiple) {
                         if let Some(num) = p.num_vals {
                             if let Some(ref ma) = matches.args.get(p.name) {
                                 if let Some(ref vals) = ma.values {
@@ -2384,7 +2380,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 }
                             }
                         }
-                        if !p.empty_vals && matches.args.contains_key(p.name) &&
+                        if !p.settings.is_set(&ArgSettings::EmptyValues) && matches.args.contains_key(p.name) &&
                            arg_slice.is_empty() {
                             return Err(self.report_error(format!("The argument '{}' does not \
                                     allow empty values, but one was found.",
@@ -2407,7 +2403,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                     // Was an update made, or is this the first occurrence?
                     if !done {
-                        self.overrides.dedup();
                         if self.overrides.contains(&p.name) {
                             if let Some(name) = self.overriden_from(p.name, matches) {
                                 matches.args.remove(&*name);
@@ -2422,7 +2417,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             }
                         }
                         let mut bm = BTreeMap::new();
-                        if !p.empty_vals && arg_slice.is_empty() {
+                        if !p.settings.is_set(&ArgSettings::EmptyValues) && arg_slice.is_empty() {
                             return Err(self.report_error(format!("The argument '{}' does not \
                                 allow empty values, but one was found.",
                                     Format::Warning(p.to_string())),
@@ -2483,7 +2478,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
         if let Some(ref a) = needs_val_of {
             if let Some(o) = self.opts.get(a) {
-                if o.multiple && self.required.is_empty() {
+                if o.settings.is_set(&ArgSettings::Multiple) && self.required.is_empty() {
                     let should_err = match matches.values_of(o.name) {
                         Some(ref v) => v.is_empty(),
                         None => true,
@@ -2495,7 +2490,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 ClapErrorType::EmptyValue,
                                 Some(matches.args.keys().map(|k| *k).collect())));
                     }
-                } else if !o.multiple {
+                } else if !o.settings.is_set(&ArgSettings::Multiple) {
                     return Err(self.report_error(
                         format!("The argument '{}' requires a value but none was supplied",
                             Format::Warning(o.to_string())),
@@ -2517,10 +2512,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     .map(|k| *k)
                                     .filter(|k| {
                                         if let Some(o) = self.opts.get(k) {
-                                            !o.required
+                                            !o.settings.is_set(&ArgSettings::Required)
                                         } else if let Some(p) = self.positionals_name.get(k) {
                                             if let Some(p) = self.positionals_idx.get(p) {
-                                                !p.required
+                                                !p.settings.is_set(&ArgSettings::Required)
                                             } else {
                                                 true
                                             }
@@ -2632,10 +2627,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             .map(|k| *k)
                             .filter(|k| {
                                 if let Some(o) = self.opts.get(k) {
-                                    !o.required
+                                    !o.settings.is_set(&ArgSettings::Required)
                                 } else if let Some(p) = self.positionals_name.get(k) {
                                     if let Some(p) = self.positionals_idx.get(p) {
-                                        !p.required
+                                        !p.settings.is_set(&ArgSettings::Required)
                                     } else {
                                         true
                                     }
@@ -2740,11 +2735,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 long: Some("help"),
                 help: Some("Prints help information"),
                 blacklist: None,
-                multiple: false,
-                global: false,
                 requires: None,
                 overrides: None,
-                hidden: false,
+                settings: ArgFlags::new()
             };
             self.long_list.push("help");
             self.flags.insert("hclap_help", arg);
@@ -2763,11 +2756,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 long: Some("version"),
                 help: Some("Prints version information"),
                 blacklist: None,
-                multiple: false,
-                global: false,
                 requires: None,
                 overrides: None,
-                hidden: false,
+                settings: ArgFlags::new()
             };
             self.long_list.push("version");
             self.flags.insert("vclap_version", arg);
@@ -2838,7 +2829,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                       .filter(|&v| v.long.is_some())
                                       .filter(|&v| v.long.unwrap() == arg).nth(0) {
                 // prevents "--config= value" typo
-                if arg_vec[1].len() == 0 && !v.empty_vals {
+                if arg_vec[1].len() == 0 && !v.settings.is_set(&ArgSettings::EmptyValues) {
                     if let Some(ref vec) = self.groups_for(v.name) {
                         for grp in vec {
                             matches.args.insert(grp, MatchedArg{
@@ -2872,8 +2863,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         ClapErrorType::ArgumentConflict,
                         Some(matches.args.keys().map(|k| *k).collect())));
             }
-            self.overrides.dedup();
-            debugln!("checking if {} is in overrides", v.name);
             if self.overrides.contains(&v.name) {
                 debugln!("it is...");
                 debugln!("checking who defined it...");
@@ -2902,7 +2891,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
 
             if matches.args.contains_key(v.name) {
-                if !v.multiple {
+                if !v.settings.is_set(&ArgSettings::Multiple) {
                     return Err(self.report_error(format!("The argument '{}' was supplied more \
                         than once, but does not support multiple values",
                             Format::Warning(format!("--{}", arg))),
@@ -3006,7 +2995,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                    .filter(|&v| v.long.is_some())
                                    .filter(|&v| v.long.unwrap() == arg).nth(0) {
             // Ensure this flag isn't on the mutually excludes list
-            self.blacklist.dedup();
             if self.blacklist.contains(&v.name) {
                 matches.args.remove(v.name);
                 return Err(self.report_error(format!("The argument '{}' cannot be used with {}",
@@ -3018,8 +3006,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     ClapErrorType::ArgumentConflict,
                     Some(matches.args.keys().map(|k| *k).collect())));
             }
-            self.overrides.dedup();
-            debugln!("checking if {} is in overrides", v.name);
             if self.overrides.contains(&v.name) {
                 debugln!("it is...");
                 debugln!("checking who defined it...");
@@ -3038,7 +3024,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
 
             // Make sure this isn't one being added multiple times if it doesn't suppor it
-            if matches.args.contains_key(v.name) && !v.multiple {
+            if matches.args.contains_key(v.name) && !v.settings.is_set(&ArgSettings::Multiple) {
                 return Err(self.report_error(format!("The argument '{}' was supplied more than \
                     once, but does not support multiple values",
                     Format::Warning(v.to_string())),
@@ -3050,7 +3036,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             done = false;
             if let Some(ref mut f) = matches.args.get_mut(v.name) {
                 done = true;
-                f.occurrences = if v.multiple {
+                f.occurrences = if v.settings.is_set(&ArgSettings::Multiple) {
                     f.occurrences + 1
                 } else {
                     1
@@ -3169,7 +3155,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 return Err(self.possible_values_error(av, &v.to_string(), p_vals, matches));
             }
         }
-        if !v.empty_vals && av.is_empty() && matches.args.contains_key(v.name) {
+        if !v.settings.is_set(&ArgSettings::EmptyValues) && av.is_empty() && matches.args.contains_key(v.name) {
             return Err(self.report_error(format!("The argument '{}' does not allow empty \
                     values, but one was found.", Format::Warning(v.to_string())),
                 ClapErrorType::EmptyValue,
@@ -3244,7 +3230,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                              .filter(|&v| v.short.is_some())
                              .filter(|&v| v.short.unwrap() == arg_c).nth(0) {
             // Ensure this option isn't on the master mutually excludes list
-            self.blacklist.dedup();
             if self.blacklist.contains(&v.name) {
                 matches.args.remove(v.name);
                 return Err(self.report_error(format!("The argument '{}' cannot be used with {}",
@@ -3256,7 +3241,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     ClapErrorType::ArgumentConflict,
                     Some(matches.args.keys().map(|k| *k).collect())));
             }
-            self.overrides.dedup();
             if self.overrides.contains(&v.name) {
                 if let Some(name) = self.overriden_from(v.name, matches) {
                     matches.args.remove(&*name);
@@ -3272,7 +3256,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
 
             if matches.args.contains_key(v.name) {
-                if !v.multiple {
+                if !v.settings.is_set(&ArgSettings::Multiple) {
                     return Err(self.report_error(format!("The argument '{}' was supplied more \
                         than once, but does not support multiple values",
                             Format::Warning(format!("-{}", arg))),
@@ -3334,7 +3318,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                            .filter(|&v| v.short.is_some())
                            .filter(|&v| v.short.unwrap() == arg).nth(0) {
             // Ensure this flag isn't on the mutually excludes list
-            self.blacklist.dedup();
             if self.blacklist.contains(&v.name) {
                 matches.args.remove(v.name);
                 return Err(self.report_error(format!("The argument '{}' cannot be used {}",
@@ -3347,8 +3330,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     ClapErrorType::ArgumentConflict,
                     Some(matches.args.keys().map(|k| *k).collect())));
             }
-            self.overrides.dedup();
-            debugln!("checking if {} is in overrides", v.name);
             if self.overrides.contains(&v.name) {
                 debugln!("it is...");
                 debugln!("checking who defined it...");
@@ -3367,7 +3348,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
 
             // Make sure this isn't one being added multiple times if it doesn't suppor it
-            if matches.args.contains_key(v.name) && !v.multiple {
+            if matches.args.contains_key(v.name) && !v.settings.is_set(&ArgSettings::Multiple) {
                 return Err(self.report_error(format!("The argument '{}' was supplied more than \
                     once, but does not support multiple values",
                             Format::Warning(format!("-{}", arg))),
@@ -3378,7 +3359,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             if let Some(ref vec) = self.groups_for(v.name) {
                 for grp in vec {
                     if let Some(ref mut f) = matches.args.get_mut(grp) {
-                        f.occurrences = if v.multiple {
+                        f.occurrences = if v.settings.is_set(&ArgSettings::Multiple) {
                             f.occurrences + 1
                         } else {
                             1
@@ -3389,7 +3370,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             let mut done = false;
             if let Some(ref mut f) = matches.args.get_mut(v.name) {
                 done = true;
-                f.occurrences = if v.multiple {
+                f.occurrences = if v.settings.is_set(&ArgSettings::Multiple) {
                     f.occurrences + 1
                 } else {
                     1
@@ -3495,7 +3476,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             } else if let Some(ref vals) = ma.values {
                 if let Some(f) = self.opts.get(name) {
                     if let Some(num) = f.num_vals {
-                        let should_err = if f.multiple {
+                        let should_err = if f.settings.is_set(&ArgSettings::Multiple) {
                             ((vals.len() as u8) % num) != 0
                         } else {
                             num != (vals.len() as u8)
@@ -3505,13 +3486,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 values, but {} w{} provided",
                                     Format::Warning(f.to_string()),
                                     Format::Good(num.to_string()),
-                                    Format::Error(if f.multiple {
+                                    Format::Error(if f.settings.is_set(&ArgSettings::Multiple) {
                                         (vals.len() % num as usize).to_string()
                                     } else {
                                         vals.len().to_string()
                                     }),
                                     if vals.len() == 1 ||
-                                        ( f.multiple &&
+                                        ( f.settings.is_set(&ArgSettings::Multiple) &&
                                             ( vals.len() % num as usize) == 1) {"as"}else{"ere"}),
                                 ClapErrorType::EmptyValue,
                                 Some(matches.args.keys().map(|k| *k).collect())));
