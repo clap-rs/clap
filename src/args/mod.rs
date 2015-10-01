@@ -11,3 +11,5 @@ mod subcommand;
 mod argbuilder;
 mod matchedarg;
 mod group;
+#[allow(dead_code)]
+pub mod settings;

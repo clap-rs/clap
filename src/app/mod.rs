@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 mod settings;
 mod app;
 mod suggestions;

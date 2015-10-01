@@ -15,6 +15,8 @@ extern crate strsim;
 extern crate ansi_term;
 #[cfg(feature = "yaml")]
 extern crate yaml_rust;
+#[macro_use]
+extern crate bitflags;
 
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;

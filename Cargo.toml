@@ -11,6 +11,9 @@ readme = "README.md"
 license = "MIT"
 keywords = ["argument", "command", "arg", "parser", "parse"]
 
+[dependencies]
+bitflags = "0.3.2"
+
 [dependencies.strsim]
 version = "~0.4.0"
 optional = true

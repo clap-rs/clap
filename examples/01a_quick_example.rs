@@ -7,7 +7,7 @@ fn main() {
     // This example shows how to create an application with several arguments using usage strings, which can be
     // far less verbose that shown in 01b_QuickExample.rs, but is more readable. The downside is you cannot set
     // the more advanced configuration options using this method (well...actually you can, you'll see ;) )
-    // 
+    //
     // The example below is functionally identical to the 01b_quick_example.rs and 01c_quick_example.rs
     //
     // Create an application with 5 possible arguments (2 auto generated) and 2 subcommands (1 auto generated)
@@ -48,7 +48,7 @@ fn main() {
     if let Some(o) = matches.value_of("output") {
         println!("Value for output: {}", o);
     }
- 
+
     if let Some(c) = matches.value_of("config") {
         println!("Value for config: {}", c);
     }
@@ -73,7 +73,7 @@ fn main() {
              println!("Not printing testing lists...");
          }
      }
-     
-     
+
+
     // Continued program logic goes here...
 }

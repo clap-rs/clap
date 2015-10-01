@@ -136,7 +136,7 @@ pub enum ClapErrorType {
     ///     .get_matches_from_safe(vec![""]);
     /// ```
     MissingSubcommand,
-    /// Occurs when no argument or subcommand has been supplied and 
+    /// Occurs when no argument or subcommand has been supplied and
     /// `AppSettings::ArgRequiredElseHelp` was used
     ///
     ///
@@ -191,7 +191,7 @@ pub enum ClapErrorType {
     ///     .arg(Arg::with_name("debug")
     ///         .short("u")
     ///         .takes_value(true))
-    ///     .get_matches_from_safe(vec![OsString::from_vec(vec![0x20]), 
+    ///     .get_matches_from_safe(vec![OsString::from_vec(vec![0x20]),
     ///                                 OsString::from_vec(vec![0xE9])]);
     /// assert!(result.is_err());
     /// ```
@@ -223,7 +223,7 @@ impl Error for ClapError {
 
 impl fmt::Display for ClapError {
     fn fmt(&self,
-           f: &mut fmt::Formatter) 
+           f: &mut fmt::Formatter)
            -> fmt::Result {
         write!(f, "{}", self.error)
     }
