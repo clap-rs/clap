@@ -15,7 +15,7 @@ bitflags! {
         const NEEDS_LONG_VERSION   = 0b0001000000000,
         const NEEDS_SC_HELP        = 0b0010000000000,
         const DISABLE_VERSION      = 0b0100000000000,
-        const HIDDEN               = 0b0100000000000,
+        const HIDDEN               = 0b1000000000000,
     }
 }
 
