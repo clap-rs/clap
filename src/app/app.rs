@@ -3272,13 +3272,28 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         return Err(self.report_error(format!("The argument '{}' isn't valid",
                                 Format::Warning(format!("-{}", c))),
                             ClapErrorType::InvalidArgument,
-                            Some(matches.args.keys().map(|k| *k).collect())));
+                            Some(matches.args.keys()
+                                             .map(|k| *k)
+                                            .filter(|k| {
+                                                if let Some(o) = self.opts.get(k) {
+                                                    !o.settings.is_set(&ArgSettings::Required)
+                                                } else if let Some(p) = self.positionals_name.get(k) {
+                                                    if let Some(p) = self.positionals_idx.get(p) {
+                                                        !p.settings.is_set(&ArgSettings::Required)
+                                                    } else {
+                                                        true
+                                                    }
+                                                } else {
+                                                    true
+                                                }
+                                            })
+                                             .collect())));
                     }
                 }
                 Err(e) => return Err(e),
             }
         }
-        unreachable!();
+        return Ok(None);
     }
 
     fn parse_single_short_flag(&mut self,
