@@ -32,8 +32,9 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-If you're already familiar with `clap` but just want to see some new highlights as of **1.4.1**
+If you're already familiar with `clap` but just want to see some new highlights as of **1.4.3**
 
+* You can now access values from an argument in a group via the group name, instead of having to check each arg name individually to find out which one was used. The same applies for checking if an arg from a group `is_present()`
 * You now have the option to **not** `panic!` on invalid unicode. The `*_safe()` family of `get_matches` will return an `Err` with `ClapErrorType::InvalidUnicode`.
 * You have the option to get lossy unicode values. By using the `*_lossy()` versions of the `get_matches` family of methods all invalid unicode will be replaced with `U+FFFD` and **not** `panic!` or fail parsing.
 * Some documentation improvements
@@ -365,7 +366,7 @@ fn main() {
 
 If you were to compile any of the above programs and run them with the flag `--help` or `-h` (or `help` subcommand, since we defined `test` as a subcommand) the following would be output
 
-**NOTE**: The YAML option requires adding a special `features` flag when compiling `clap` because it is not compiled by default since it takes additional dependencies that some people may not need. Simply change your `clap = "*"` to `clap = {version = "*", features = ["yaml"]}` in your `Cargo.toml` to use the YAML version.
+**NOTE**: The YAML option requires adding a special `features` flag when compiling `clap` because it is not compiled by default since it takes additional dependencies that some people may not need. Simply change your `clap = "1"` to `clap = {version = "1", features = ["yaml"]}` in your `Cargo.toml` to use the YAML version.
 
 ```sh
 $ myapp --help
@@ -413,7 +414,7 @@ To test out `clap`'s default auto-generated help/version follow these steps:
 *
 ```toml
 [dependencies]
-clap = "*"
+clap = "1"
 ```
 
 * Add the following to your `src/main.rs`
@@ -436,7 +437,7 @@ For full usage, add `clap` as a dependency in your `Cargo.toml` file to use from
 
  ```toml
  [dependencies]
- clap = "*"
+ clap = "1"
  ```
  Or track the latest on the master branch at github:
 
@@ -457,7 +458,7 @@ If you'd like to keep your dependency list to **only** `clap`, you can disable a
 
 ```toml
 [dependencies.clap]
-version = "*"
+version = "1"
 default-features = false
 ```
 
@@ -465,7 +466,7 @@ You can also selectively enable only the features you'd like to include, by addi
 
 ```toml
 [dependencies.clap]
-version = "*"
+version = "1"
 default-features = false
 
 # Cherry-pick the features you'd like to use

@@ -3,19 +3,20 @@ use std::ascii::AsciiExt;
 
 bitflags! {
     flags Flags: u32 {
-        const SC_NEGATE_REQS       = 0b0000000000001,
-        const SC_REQUIRED          = 0b0000000000010,
-        const A_REQUIRED_ELSE_HELP = 0b0000000000100,
-        const GLOBAL_VERSION       = 0b0000000001000,
-        const VERSIONLESS_SC       = 0b0000000010000,
-        const UNIFIED_HELP         = 0b0000000100000,
-        const WAIT_ON_ERROR        = 0b0000001000000,
-        const SC_REQUIRED_ELSE_HELP= 0b0000010000000,
-        const NEEDS_LONG_HELP      = 0b0000100000000,
-        const NEEDS_LONG_VERSION   = 0b0001000000000,
-        const NEEDS_SC_HELP        = 0b0010000000000,
-        const DISABLE_VERSION      = 0b0100000000000,
-        const HIDDEN               = 0b1000000000000,
+        const SC_NEGATE_REQS       = 0b00000000000001,
+        const SC_REQUIRED          = 0b00000000000010,
+        const A_REQUIRED_ELSE_HELP = 0b00000000000100,
+        const GLOBAL_VERSION       = 0b00000000001000,
+        const VERSIONLESS_SC       = 0b00000000010000,
+        const UNIFIED_HELP         = 0b00000000100000,
+        const WAIT_ON_ERROR        = 0b00000001000000,
+        const SC_REQUIRED_ELSE_HELP= 0b00000010000000,
+        const NEEDS_LONG_HELP      = 0b00000100000000,
+        const NEEDS_LONG_VERSION   = 0b00001000000000,
+        const NEEDS_SC_HELP        = 0b00010000000000,
+        const DISABLE_VERSION      = 0b00100000000000,
+        const HIDDEN               = 0b01000000000000,
+        const TRAILING_VARARG      = 0b10000000000000,
     }
 }
 
@@ -41,6 +42,7 @@ impl AppFlags {
             AppSettings::NeedsSubcommandHelp        => self.0.insert(NEEDS_SC_HELP),
             AppSettings::DisableVersion             => self.0.insert(DISABLE_VERSION),
             AppSettings::Hidden                     => self.0.insert(HIDDEN),
+            AppSettings::TrailingVarArg             => self.0.insert(TRAILING_VARARG),
         }
     }
 
@@ -59,6 +61,7 @@ impl AppFlags {
             AppSettings::NeedsSubcommandHelp        => self.0.remove(NEEDS_SC_HELP),
             AppSettings::DisableVersion             => self.0.remove(DISABLE_VERSION),
             AppSettings::Hidden                     => self.0.remove(HIDDEN),
+            AppSettings::TrailingVarArg             => self.0.remove(TRAILING_VARARG),
         }
     }
 
@@ -77,6 +80,7 @@ impl AppFlags {
             AppSettings::NeedsSubcommandHelp        => self.0.contains(NEEDS_SC_HELP),
             AppSettings::DisableVersion             => self.0.contains(DISABLE_VERSION),
             AppSettings::Hidden                     => self.0.contains(HIDDEN),
+            AppSettings::TrailingVarArg             => self.0.contains(TRAILING_VARARG),
         }
     }
 }
@@ -232,6 +236,26 @@ pub enum AppSettings {
     /// # ;
     /// ```
     Hidden,
+    /// Specifies that the final positional argument is a vararg and that `clap` should not attempt
+    /// to parse any further args.
+    ///
+    /// The values of the trailing positional argument will contain all args from itself on.
+    ///
+    /// **NOTE:** The final positional argument **must** have `.multiple(true)` or usage token
+    /// equivilant.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, AppSettings};
+    /// let m = App::new("myprog")
+    ///     .setting(AppSettings::TrailingVarArg)
+    ///     .arg(Arg::from_usage("<cmd>... 'commands to run'"))
+    ///     .get_matches_from(vec!["myprog", "some_command", "-r", "set"]);
+    ///
+    /// assert_eq!(m.values_of("cmd").unwrap(), &["some_command", "-r", "set"]);
+    /// ```
+    TrailingVarArg,
     #[doc(hidden)]
     NeedsLongVersion,
     #[doc(hidden)]
