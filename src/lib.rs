@@ -25,9 +25,8 @@
 //!
 //! The following examples show a quick example of some of the very basic functionality of `clap`.
 //! For more advanced usage, such as requirements, exclusions, groups, multiple values and
-//! occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv),
-//! [documentation](http://kbknapp.github.io/clap-rs/clap/index.html), or [examples/](https://github.com/kbknapp/clap-rs/tree/master/examples)
-//! directory of this repository.
+//! occurrences see the [video tutorials][video tutorials], [documentation][docs], or
+//! [examples/][examples] directory of this crate's repository.
 //!
 //!  **NOTE:** All these examples are functionally the same, but show three different styles in
 //! which to use `clap`
@@ -90,8 +89,7 @@
 //! The following example is functionally the same as the one above, but this method allows more
 //! advanced configuration options (not shown in this small example), or even dynamically
 //! generating arguments when desired. Both methods can be used together to get the best of both
-//! worlds (see the documentation, [examples/](https://github.com/kbknapp/clap-rs/tree/master/examples),
-//! or video tutorials).
+//! worlds (see the documentation, [examples/][examples], or video tutorials).
 //!
 //! ```no_run
 //! // (Full example with detailed comments in examples/01b_quick_example.rs)
@@ -222,7 +220,7 @@
 //! tidy. First, create the `cli.yml` file to hold your CLI options, but it could be called
 //! anything we like (we'll use the same both examples above to keep it functionally equivilant):
 //!
-//! ```ignore
+//! ```yaml
 //! name: myapp
 //! version: 1.0
 //! author: Kevin K. <kbknapp@gmail.com>
@@ -307,7 +305,7 @@
 //! may not need. Simply change your `clap = "1"` to `clap = {version = "1", features = ["yaml"]}`
 //! in your `Cargo.toml` to use the YAML version.
 //!
-//! ```ignore
+//! ```text
 //! $ myapp --help
 //! myapp 1.0
 //! Kevin K. <kbknapp@gmail.com>
@@ -352,7 +350,7 @@
 //! * Create a new cargo project `$ cargo new fake --bin && cd fake`
 //! * Add `clap` to your `Cargo.toml`
 //! *
-//! ```ignore
+//! ```toml
 //! [dependencies]
 //! clap = "1"
 //! ```
@@ -375,21 +373,21 @@
 //!
 //! For full usage, add `clap` as a dependency in your `Cargo.toml` file to use from crates.io:
 //!
-//!  ```ignore
+//!  ```toml
 //!  [dependencies]
 //!  clap = "1"
 //!  ```
 //!  Or track the latest on the master branch at github:
 //!
-//! ```ignore
+//! ```toml
 //! [dependencies.clap]
 //! git = "https://github.com/kbknapp/clap-rs.git"
 //! ```
 //!
 //! Add `extern crate clap;` to your crate root.
 //!
-//! Define a list of valid arguments for your program (see the [documentation](https://kbknapp.github.io/clap-rs/index.html)
-//! or [examples/](https://github.com/kbknapp/clap-rs/tree/master/examples) directory of this repo)
+//! Define a list of valid arguments for your program (see the [documentation][docs] or
+//! [examples/][examples] directory of this repo)
 //!
 //! Then run `cargo build` or `cargo update && cargo build` for your project.
 //!
@@ -398,7 +396,7 @@
 //! If you'd like to keep your dependency list to **only** `clap`, you can disable any features
 //! that require an additional dependency. To do this, add this to your `Cargo.toml`:
 //!
-//! ```ignore
+//! ```toml
 //! [dependencies.clap]
 //! version = "1"
 //! default-features = false
@@ -406,7 +404,7 @@
 //!
 //! You can also selectively enable only the features you'd like to include, by adding:
 //!
-//! ```ignore
+//! ```toml
 //! [dependencies.clap]
 //! version = "1"
 //! default-features = false
@@ -434,16 +432,14 @@
 //!
 //! ### More Information
 //!
-//! You can find complete documentation on the [github-pages site](http://kbknapp.github.io/clap-rs/clap/index.html)
-//! for this project.
+//! You can find complete documentation on the [github-pages site][docs] for this project.
 //!
-//! You can also find usage examples in the [examples/](https://github.com/kbknapp/clap-rs/tree/master/examples)
-//! directory of this repo.
+//! You can also find usage examples in the [examples/][examples] directory of this repo.
 //!
 //! #### Video Tutorials
 //!
-//! There's also the video tutorial series [Argument Parsing with Rust](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv)
-//! that I've been working on.
+//! There's also the video tutorial series [Argument Parsing with Rust][video tutorials] that I've
+//! been working on.
 //!
 //! *Note*: Two new videos have just been added ([08 From Usage](https://youtu.be/xc6VdedFrG0), and
 //! [09 Typed Values](https://youtu.be/mZn3C1DnD90)), if you're already familiar with `clap` but
@@ -457,15 +453,20 @@
 //!
 //! If contributing, you can run the tests as follows (assuming you're in the `clap-rs` directory)
 //!
-//! ```ignore
+//! ```sh
 //! cargo test --features yaml && make -C clap-tests test
 //! ```
 //!
 //! ## License
 //!
-//! `clap` is licensed under the MIT license. Please read the [LICENSE-MIT](https://raw.githubusercontent.com/kbknapp/clap-rs/master/LICENSE-MIT)
+//! `clap` is licensed under the MIT license. Please read the [LICENSE-MIT][license]
 //! file in
 //! this repository for more information.
+//!
+//! [examples]: https://github.com/kbknapp/clap-rs/tree/master/examples
+//! [docs]: http://kbknapp.github.io/clap-rs/clap/index.html
+//! [video tutorials]: https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv
+//! [license]: https://raw.githubusercontent.com/kbknapp/clap-rs/master/LICENSE-MIT
 
 #![crate_type= "lib"]
 #![cfg_attr(feature = "nightly", feature(plugin))]
