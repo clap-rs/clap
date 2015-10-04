@@ -73,7 +73,7 @@ USAGE:
 
 For more information try --help'''
 
-_excluded_l = '''error: The argument '-f' cannot be used '-F'
+_excluded_l = '''error: The argument '-f' cannot be used with '-F'
 
 USAGE:
 	claptests [positional2] -F --long-option-2 <option2>
