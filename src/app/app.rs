@@ -3306,7 +3306,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             // Ensure this flag isn't on the mutually excludes list
             if self.blacklist.contains(&v.name) {
                 matches.args.remove(v.name);
-                return Err(self.report_error(format!("The argument '{}' cannot be used {}",
+                return Err(self.report_error(format!("The argument '{}' cannot be used with {}",
                             Format::Warning(format!("-{}", arg)),
                         match self.blacklisted_from(v.name, matches) {
                             Some(name) => format!("'{}'", Format::Warning(name)),
