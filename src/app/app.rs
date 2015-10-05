@@ -1336,10 +1336,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
 
             usage.push_str(&req_string[..]);
-            
+
             // places a '--' in the usage string if there are args and options
             // supporting multiple values
-            if !self.positionals_idx.is_empty() && 
+            if !self.positionals_idx.is_empty() &&
                 (self.opts.values().any(|a| a.settings.is_set(&ArgSettings::Multiple)) ||
                     self.positionals_idx.values().any(|a| a.settings.is_set(&ArgSettings::Multiple))) &&
                 !self.opts.values().any(|a| a.settings.is_set(&ArgSettings::Required)) &&
@@ -3167,138 +3167,133 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                        full_arg: &str)
                        -> Result<Option<&'ar str>, ClapError> {
         let arg = &full_arg[..].trim_left_matches(|c| c == '-');
-        if arg.len() > 1 {
-            // Multiple flags using short i.e. -bgHlS
-            for c in arg.chars() {
-                if let Err(e) = self.check_for_help_and_version(c) {
-                    return Err(ClapError{
-                        error: format!("{} {}\n\terror message: {}\n",
-                                        Format::Error("error:"),
-                                        INTERNAL_ERROR_MSG, e.description()),
-                        error_type: ClapErrorType::MissingSubcommand
-                    });
-                }
-                match self.parse_single_short_flag(matches, c) {
-                    Ok(b) => {
-                        if !b {
-                            return Err(self.report_error(format!("The argument '{}' isn't valid",
-                                    Format::Warning(format!("-{}", c))),
-                                ClapErrorType::InvalidArgument,
-                                Some(matches.args.keys().map(|k| *k).collect())));
-                        }
-                    }
-                    Err(e) => return Err(e),
-                }
-            }
-            return Ok(None);
-        }
-        // Short flag or opt
-        let arg_c = arg.chars().nth(0).unwrap();
-
-        // Ensure the arg in question isn't a help or version flag
-        if let Err(e) = self.check_for_help_and_version(arg_c) {
-            return Err(ClapError{
-                error: format!("{} {}\n\terror message: {}\n",
-                                Format::Error("error:"),
-                                INTERNAL_ERROR_MSG, e.description()),
-                error_type: ClapErrorType::MissingSubcommand
-            });
-        }
-
-        // Check for a matching flag, and return none if found
-        match self.parse_single_short_flag(matches, arg_c) {
-            Ok(b) => {
-                if b {
-                    return Ok(None);
-                }
-            }
-            Err(e) => return Err(e),
-        }
-
-        // Check for matching short in options, and return the name
-        // (only ones with shorts, of course)
-        if let Some(v) = self.opts.values()
-                             .filter(|&v| v.short.is_some())
-                             .filter(|&v| v.short.unwrap() == arg_c).nth(0) {
-            // Ensure this option isn't on the master mutually excludes list
-            if self.blacklist.contains(&v.name) {
-                matches.args.remove(v.name);
-                return Err(self.report_error(format!("The argument '{}' cannot be used with {}",
-                            Format::Warning(format!("-{}", arg)),
-                        match self.blacklisted_from(v.name, matches) {
-                            Some(name) => format!("'{}'", Format::Warning(name)),
-                            None       => "one or more of the other specified arguments".to_owned()
-                        }),
-                    ClapErrorType::ArgumentConflict,
-                    Some(matches.args.keys().map(|k| *k).collect())));
-            }
-            if self.overrides.contains(&v.name) {
-                if let Some(name) = self.overriden_from(v.name, matches) {
-                    matches.args.remove(&*name);
-                    remove_override!(self, &*name);
-                }
-            }
-            if let Some(ref or) = v.overrides {
-                for pa in or {
-                    matches.args.remove(pa);
-                    remove_override!(self, pa);
-                    self.overrides.push(pa);
-                }
-            }
-
-            if matches.args.contains_key(v.name) {
-                if !v.settings.is_set(&ArgSettings::Multiple) {
-                    return Err(self.report_error(format!("The argument '{}' was supplied more \
-                        than once, but does not support multiple values",
-                            Format::Warning(format!("-{}", arg))),
-                        ClapErrorType::UnexpectedMultipleUsage,
-                        Some(matches.args.keys().map(|k| *k).collect())));
-                }
-            } else {
-                if let Some(ref vec) = self.groups_for(v.name) {
-                    for grp in vec {
-                        matches.args.insert(grp, MatchedArg{
-                            occurrences: 1,
-                            values: Some(BTreeMap::new()),
-                        });
-                    }
-                }
-                matches.args.insert(v.name, MatchedArg{
-                    // occurrences will be incremented on getting a value
-                    occurrences: 0,
-                    values: Some(BTreeMap::new())
+        for c in arg.chars() {
+            if let Err(e) = self.check_for_help_and_version(c) {
+                return Err(ClapError{
+                    error: format!("{} {}\n\terror message: {}\n",
+                                    Format::Error("error:"),
+                                    INTERNAL_ERROR_MSG, e.description()),
+                    error_type: ClapErrorType::MissingSubcommand
                 });
             }
-            if let Some(ref bl) = v.blacklist {
-                for name in bl {
-                    self.blacklist.push(name);
-                    vec_remove!(self.overrides, name);
-                    vec_remove!(self.required, name);
-                }
-            }
 
-            if let Some(ref reqs) = v.requires {
-                // Add all required args which aren't already found in matches to the
-                // final required list
-                for n in reqs {
-                    if matches.args.contains_key(n) {
-                        continue;
+            // Check for matching short in options, and return the name
+            // (only ones with shorts, of course)
+            if let Some(v) = self.opts.values()
+                                 .filter(|&v| v.short.is_some())
+                                 .filter(|&v| v.short == Some(c)).nth(0) {
+                let mut ret = Some(v.name);
+                // Ensure this option isn't on the master mutually excludes list
+                if self.blacklist.contains(&v.name) {
+                    matches.args.remove(v.name);
+                    return Err(self.report_error(format!("The argument '{}' cannot be used with {}",
+                                Format::Warning(format!("-{}", arg)),
+                            match self.blacklisted_from(v.name, matches) {
+                                Some(name) => format!("'{}'", Format::Warning(name)),
+                                None       => "one or more of the other specified arguments".to_owned()
+                            }),
+                        ClapErrorType::ArgumentConflict,
+                        Some(matches.args.keys().map(|k| *k).collect())));
+                }
+                if self.overrides.contains(&v.name) {
+                    if let Some(name) = self.overriden_from(v.name, matches) {
+                        matches.args.remove(&*name);
+                        remove_override!(self, &*name);
                     }
-
-                    self.required.push(n);
                 }
+                if let Some(ref or) = v.overrides {
+                    for pa in or {
+                        matches.args.remove(pa);
+                        remove_override!(self, pa);
+                        self.overrides.push(pa);
+                    }
+                }
+
+                if matches.args.contains_key(v.name) {
+                    if !v.settings.is_set(&ArgSettings::Multiple) {
+                        return Err(self.report_error(format!("The argument '{}' was supplied more \
+                            than once, but does not support multiple values",
+                                Format::Warning(format!("-{}", arg))),
+                            ClapErrorType::UnexpectedMultipleUsage,
+                            Some(matches.args.keys().map(|k| *k).collect())));
+                    }
+                } else {
+                    let val: Vec<&str> = arg.splitn(2, c).collect();
+                    let bm = if val[1].is_empty() {
+                        BTreeMap::new()
+                    } else {
+                        ret = None;
+                        let mut bm = BTreeMap::new();
+                        bm.insert(0, val[1].to_owned());
+                        bm
+                    };
+                    if let Some(ref vec) = self.groups_for(v.name) {
+                        for grp in vec {
+                            matches.args.insert(grp, MatchedArg{
+                                occurrences: 1,
+                                values: Some(bm.clone()),
+                            });
+                        }
+                    }
+                    matches.args.insert(v.name, MatchedArg{
+                        // occurrences will be incremented on getting a value
+                        occurrences: 0,
+                        values: Some(bm)
+                    });
+                }
+                if let Some(ref bl) = v.blacklist {
+                    for name in bl {
+                        self.blacklist.push(name);
+                        vec_remove!(self.overrides, name);
+                        vec_remove!(self.required, name);
+                    }
+                }
+
+                if let Some(ref reqs) = v.requires {
+                    // Add all required args which aren't already found in matches to the
+                    // final required list
+                    for n in reqs {
+                        if matches.args.contains_key(n) {
+                            continue;
+                        }
+
+                        self.required.push(n);
+                    }
+                }
+
+                parse_group_reqs!(self, v);
+
+                return Ok(ret);
             }
 
-            parse_group_reqs!(self, v);
-
-            return Ok(Some(v.name))
+            match self.parse_single_short_flag(matches, c) {
+                Ok(b) => {
+                    if !b {
+                        return Err(self.report_error(format!("The argument '{}' isn't valid",
+                                Format::Warning(format!("-{}", c))),
+                            ClapErrorType::InvalidArgument,
+                            Some(matches.args.keys()
+                                             .map(|k| *k)
+                                            .filter(|k| {
+                                                if let Some(o) = self.opts.get(k) {
+                                                    !o.settings.is_set(&ArgSettings::Required)
+                                                } else if let Some(p) = self.positionals_name.get(k) {
+                                                    if let Some(p) = self.positionals_idx.get(p) {
+                                                        !p.settings.is_set(&ArgSettings::Required)
+                                                    } else {
+                                                        true
+                                                    }
+                                                } else {
+                                                    true
+                                                }
+                                            })
+                                             .collect())));
+                    }
+                }
+                Err(e) => return Err(e),
+            }
         }
-
-        // Didn't match a flag or option, must be invalid
-        Err(self.report_error(format!("The argument '{}' isn't valid",
-                            Format::Warning(format!("-{}", arg_c))),
-            ClapErrorType::InvalidArgument,
-            Some(matches.args.keys().map(|k| *k).collect())))
+        return Ok(None);
     }
 
     fn parse_single_short_flag(&mut self,
@@ -3311,7 +3306,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             // Ensure this flag isn't on the mutually excludes list
             if self.blacklist.contains(&v.name) {
                 matches.args.remove(v.name);
-                return Err(self.report_error(format!("The argument '{}' cannot be used {}",
+                return Err(self.report_error(format!("The argument '{}' cannot be used with {}",
                             Format::Warning(format!("-{}", arg)),
                         match self.blacklisted_from(v.name, matches) {
                             Some(name) => format!("'{}'", Format::Warning(name)),
