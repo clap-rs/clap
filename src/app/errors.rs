@@ -61,12 +61,23 @@ pub enum ClapErrorType {
     ///     .get_matches_from_safe(vec!["", "--debug", "--color"]);
     /// ```
     EmptyValue,
-    /// Parser inner error
-    OptionError,
+    /// Option fails validation of a custom validator
+    ValueValidationError,
     /// Parser inner error
     ArgumentError,
-    /// Parser inner error
-    ValueError,
+    /// Error occurs when an application got more arguments then were expected
+    ///
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let result = App::new("myprog")
+    ///     .arg(Arg::with_name("debug").index(1)
+    ///         .max_values(2))
+    ///     .get_matches_from_safe(vec!["", "too", "much", "values"]);
+    /// ```
+    TooManyArgs,
     /// Error occurs when argument got more values then were expected
     ///
     ///
@@ -79,7 +90,7 @@ pub enum ClapErrorType {
     ///         .max_values(2))
     ///     .get_matches_from_safe(vec!["", "too", "much", "values"]);
     /// ```
-    TooMuchValues,
+    TooManyValues,
     /// Error occurs when argument got less values then were expected
     ///
     ///
@@ -93,6 +104,19 @@ pub enum ClapErrorType {
     ///     .get_matches_from_safe(vec!["", "too", "few"]);
     /// ```
     TooFewValues,
+    /// Error occurs when argument got a different number of values then were expected
+    ///
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let result = App::new("myprog")
+    ///     .arg(Arg::with_name("debug").index(1)
+    ///         .max_values(2))
+    ///     .get_matches_from_safe(vec!["", "too", "much", "values"]);
+    /// ```
+    WrongNumValues,
     /// Error occurs when clap find two ore more conflicting arguments
     ///
     ///
