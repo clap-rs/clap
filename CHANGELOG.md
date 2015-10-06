@@ -1,3 +1,13 @@
+<a name="v1.4.5"></a>
+### v1.4.5 (2015-10-06)
+
+
+#### Bug Fixes
+
+*   fixes crash on invalid arg error ([c78ce128](https://github.com/kbknapp/clap-rs/commit/c78ce128ebbe7b8f730815f8176c29d76f4ade8c))
+
+
+
 <a name="v1.4.4"></a>
 ### v1.4.4 (2015-10-06)
 
