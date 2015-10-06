@@ -1559,9 +1559,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     -> ClapError {
         let msg = match error_type {
             ClapErrorType::ArgumentError => {
+                assert_eq!(data.len(), 1);
                 format!("{}", data[0].as_ref())
             },
             ClapErrorType::InvalidValue => {
+                assert_eq!(data.len(), 4);
                 format!("'{}' isn't a valid value for '{}'{}{}",
                     Format::Warning(data[0].as_ref()),
                     Format::Warning(data[1].as_ref()),
@@ -1569,11 +1571,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     data[3].as_ref())
             },
             ClapErrorType::InvalidArgument => {
+                assert_eq!(data.len(), 2);
                 format!("The argument '{}' isn't valid{}",
                     Format::Warning(data[0].as_ref()),
                     data[1].as_ref())
             },
             ClapErrorType::InvalidSubcommand => {
+                assert_eq!(data.len(), 2);
                 format!("The subcommand '{}' isn't valid\n\tDid you mean '{}' ?\n\n\
                          If you received this message in error, try \
                          re-running with '{} {} {}'",
@@ -1584,16 +1588,22 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     data[0].as_ref())
             },
             ClapErrorType::EmptyValue => {
+                assert_eq!(data.len(), 1);
                 format!("The argument '{}' requires a value but none was supplied",
                     Format::Warning(data[0].as_ref()))
             },
-            ClapErrorType::ValueValidationError => data[0].as_ref().to_owned(),
+            ClapErrorType::ValueValidationError => {
+                assert_eq!(data.len(), 1);
+                data[0].as_ref().to_owned()
+            },
             ClapErrorType::TooManyArgs => {
+                assert_eq!(data.len(), 2);
                 format!("The argument '{}' was found, but '{}' wasn't expecting any more values",
                     Format::Warning(data[0].as_ref()),
                     Format::Warning(data[1].as_ref()))
             },
             ClapErrorType::TooFewValues => {
+                assert_eq!(data.len(), 4);
                 format!("The argument '{}' requires at least {} values, but {} w{} provided",
                     Format::Warning(data[0].as_ref()),
                     Format::Good(data[1].as_ref()),
@@ -1601,6 +1611,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     data[3].as_ref())
             },
             ClapErrorType::TooManyValues => {
+                assert_eq!(data.len(), 4);
                 format!("The argument '{}' only requires {} values, but {} w{} provided",
                     Format::Warning(data[0].as_ref()),
                     Format::Good(data[1].as_ref()),
@@ -1608,6 +1619,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     data[3].as_ref())
             },
             ClapErrorType::WrongNumValues => {
+                assert_eq!(data.len(), 4);
                 format!("The argument '{}' requires {} values, but {} w{} provided",
                     Format::Warning(data[0].as_ref()),
                     Format::Good(data[1].as_ref()),
@@ -1615,6 +1627,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     data[3].as_ref())
             },
             ClapErrorType::ArgumentConflict => {
+                assert_eq!(data.len(), 2);
                 format!("The argument '{}' cannot be used with {}",
                     Format::Warning(data[0].as_ref()),
                     match self.blacklisted_from(data[1].as_ref(), &matches) {
@@ -1624,6 +1637,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     })
             },
             ClapErrorType::MissingRequiredArgument => {
+                // Callers still use &[""]
+                assert_eq!(data.len(), 1);
                 format!("The following required arguments were not supplied:{}",
                         self.get_required_from(self.required.iter()
                                                             .map(|s| *s)
@@ -1634,21 +1649,26 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 Format::Error(s))[..]))
             },
             ClapErrorType::MissingSubcommand => {
+                assert_eq!(data.len(), 1);
                 format!("'{}' requires a subcommand but none was provided",
                         Format::Warning(data[0].as_ref()))
             },
             ClapErrorType::MissingArgumentOrSubcommand => "".to_owned(),
             ClapErrorType::UnexpectedArgument => {
+                assert_eq!(data.len(), 1);
                 format!("Found argument '{}', but {} wasn't expecting any",
                     Format::Warning(data[0].as_ref()),
                     self.bin_name.as_ref().unwrap_or(&self.name))
             },
             ClapErrorType::UnexpectedMultipleUsage => {
+                assert_eq!(data.len(), 1);
                 format!("The argument '{}' was supplied more \
                         than once, but does not support multiple values",
                             Format::Warning(data[0].as_ref()))
             },
             ClapErrorType::InvalidUnicode => {
+                // Callers still use &[""]
+                assert_eq!(data.len(), 1);
                 "Invalid unicode character in one or more arguments".to_owned()
             }
         };
@@ -3173,7 +3193,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     if !b {
                         return Err(
                             self.create_error(
-                                &[&*format!("-{}", c)],
+                                &[&*format!("-{}", c), ""],
                                 ClapErrorType::InvalidArgument,
                                 matches));
                     }
