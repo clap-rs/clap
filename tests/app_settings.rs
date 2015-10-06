@@ -77,8 +77,8 @@ USAGE:
 OPTIONS:
     -f, --flag            some flag
     -h, --help            Prints help information
-    -V, --version         Prints version information
         --option <opt>    some option
+    -V, --version         Prints version information
 
 ARGS:
     arg1    some pos arg\n"));
