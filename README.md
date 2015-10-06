@@ -32,8 +32,10 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-If you're already familiar with `clap` but just want to see some new highlights as of **1.4.3**
+If you're already familiar with `clap` but just want to see some new highlights as of **1.4.4**
 
+* `-Lvalue` style options are **now supported**! (i.e. `-L` is the short, and `value` is the value being passed. Equivilant to `-L value`). This can be combined with flag expansion. Example: `-lF2` could be parsed as `-l -F 2` where `-l` is a flag and `-F` is an option that takes a number.
+* There is a **new opt-in setting** (`AppSettings::TrailingVarArg`) to allow the final positional argument to be a vararg and have `clap` not interpret the remaining arguments (i.e. useful when final argument should be a list of arguments for another command or process)
 * You can now access values from an argument in a group via the group name, instead of having to check each arg name individually to find out which one was used. The same applies for checking if an arg from a group `is_present()`
 * You now have the option to **not** `panic!` on invalid unicode. The `*_safe()` family of `get_matches` will return an `Err` with `ClapErrorType::InvalidUnicode`.
 * You have the option to get lossy unicode values. By using the `*_lossy()` versions of the `get_matches` family of methods all invalid unicode will be replaced with `U+FFFD` and **not** `panic!` or fail parsing.
@@ -70,7 +72,7 @@ Below are a few of the features which `clap` supports, full descriptions and usa
   - Supports the unix `--` meaning, only positional arguments follow
   - Optionally sets value parameters (such as the minimum number of values, the maximum number of values, or the exact number of values)
 * **Option Arguments** (i.e. those that take values as options)
-  - Both short and long versions supported (i.e. `-o value` and `--option value` or `--option=value` respectively)
+  - Both short and long versions supported (i.e. `-o value` or `-ovalue` and `--option value` or `--option=value` respectively)
   - Optionally supports multiple values (i.e. `-o <value> -o <other_value>` or the shorthand `-o <value> <other_value>`)
   - Optionally supports Specific Value Sets (See below)
   - Optionally supports named values so that the usage/help info appears as `-o <name> <other_name>` etc. for when you require specific multiple values
