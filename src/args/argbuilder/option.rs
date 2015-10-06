@@ -2,6 +2,7 @@ use std::rc::Rc;
 use std::collections::BTreeSet;
 use std::fmt::{Display, Formatter, Result};
 use std::result::Result as StdResult;
+use std::io;
 
 use Arg;
 use args::settings::{ArgFlags, ArgSettings};
@@ -137,6 +138,46 @@ impl<'n> OptBuilder<'n> {
         }
 
         ob
+    }
+
+    pub fn write_help<W: io::Write>(&self, w: &mut W, tab: &str, longest: usize) -> io::Result<()> {
+        // if it supports multiple we add '...' i.e. 3 to the name length
+        try!(write!(w, "{}", tab));
+        if let Some(s) = self.short {
+            try!(write!(w, "-{}",s));
+        } else {
+            try!(write!(w, "{}", tab));
+        }
+        if let Some(l) = self.long {
+            try!(write!(w, "{}--{}", if self.short.is_some() {", "} else {""}, l));
+        }
+        if let Some(ref vec) = self.val_names {
+            for val in vec {
+                try!(write!(w, " <{}>", val));
+            }
+        } else if let Some(num) = self.num_vals {
+            for _ in (0..num) {
+                try!(write!(w, " <{}>", self.name));
+            }
+        } else {
+            try!(write!(w, " <{}>{}", self.name,
+                if self.settings.is_set(&ArgSettings::Multiple) {
+                    "..."
+                } else {
+                    ""
+                }
+            ));
+        }
+        if self.long.is_some() {
+            write_spaces!(
+                (longest + 4) - (self.to_string().len()), w
+            );
+        } else {
+            // 8 = tab + '-a, '.len()
+            write_spaces!((longest + 8) - (self.to_string().len()), w);
+        };
+        print_opt_help!(self, longest + 12, w);
+        write!(w, "\n")
     }
 }
 

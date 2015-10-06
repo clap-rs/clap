@@ -1,6 +1,7 @@
 use std::fmt::{Display, Formatter, Result};
 use std::result::Result as StdResult;
 use std::rc::Rc;
+use std::io;
 
 use Arg;
 use args::settings::{ArgFlags, ArgSettings};
@@ -137,6 +138,28 @@ impl<'n> PosBuilder<'n> {
         }
 
         pb
+    }
+
+    pub fn write_help<W: io::Write>(&self, w: &mut W, tab: &str, longest: usize) -> io::Result<()> {
+        try!(write!(w, "{}", tab));
+        try!(write!(w, "{}", self.name));
+        if self.settings.is_set(&ArgSettings::Multiple) {
+            try!(write!(w, "..."));
+        }
+        write_spaces!((longest + 4) - (self.to_string().len()), w);
+        if let Some(h) = self.help {
+            if h.contains("{n}") {
+                let mut hel = h.split("{n}");
+                while let Some(part) = hel.next() {
+                    try!(write!(w, "{}\n", part));
+                    write_spaces!(longest + 6, w);
+                    try!(write!(w, "{}", hel.next().unwrap_or("")));
+                }
+            } else {
+                try!(write!(w, "{}", h));
+            }
+        }
+        write!(w, "\n")
     }
 }
 
