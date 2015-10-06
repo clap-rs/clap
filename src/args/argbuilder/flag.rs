@@ -1,6 +1,7 @@
 // use std::collections::HashSet;
 use std::fmt::{Display, Formatter, Result};
 use std::convert::From;
+use std::io;
 
 use Arg;
 use args::settings::{ArgFlags, ArgSettings};
@@ -41,6 +42,41 @@ impl<'n> FlagBuilder<'n> {
             overrides: None,
             settings: ArgFlags::new()
         }
+    }
+
+    pub fn write_help<W: io::Write>(&self,
+                                    w: &mut W,
+                                    tab: &str,
+                                    longest: usize) -> io::Result<()> {
+        try!(write!(w, "{}", tab));
+        if let Some(s) = self.short {
+            try!(write!(w, "-{}", s));
+        } else {
+            try!(write!(w, "{}", tab));
+        }
+        if let Some(l) = self.long {
+            try!(write!(w, "{}--{}",
+                if self.short.is_some() { ", " } else { "" },
+                l
+            ));
+            write_spaces!((longest + 4) - (l.len() + 2), w);
+        } else {
+            // 6 is tab (4) + -- (2)
+            write_spaces!((longest + 6), w);
+        }
+        if let Some(h) = self.help {
+            if h.contains("{n}") {
+                let mut hel = h.split("{n}");
+                while let Some(part) = hel.next() {
+                    try!(write!(w, "{}\n", part));
+                    write_spaces!((longest + 12), w);
+                    try!(write!(w, "{}", hel.next().unwrap_or("")));
+                }
+            } else {
+                try!(write!(w, "{}", h));
+            }
+        }
+        write!(w, "\n")
     }
 }
 

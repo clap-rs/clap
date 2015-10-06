@@ -1462,111 +1462,38 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
 
         let tab = "    ";
-        if flags {
-            if !unified_help {
+        if unified_help && (flags || opts) {
+            try!(write!(w, "\nOPTIONS:\n"));
+            let mut combined = vec![];
+            for f in self.flags.values().filter(|f| !f.settings.is_set(&ArgSettings::Hidden)) {
+                combined.push(f.name);
+            }
+            for o in self.opts.values().filter(|o| !o.settings.is_set(&ArgSettings::Hidden)) {
+                combined.push(o.name);
+            }
+            combined.sort();
+            for a in combined {
+                if let Some(a) = self.flags.get(a) {
+                    try!(a.write_help(w, tab, if !unified_help || longest_opt == 0 { longest_flag } else { longest_opt }));
+                } else if let Some(a) = self.opts.get(a) {
+                    try!(a.write_help(w, tab, if !unified_help || longest_opt == 0 { longest_flag } else { longest_opt }));
+                }
+            }
+        } else {
+            if flags {
                 try!(write!(w, "\nFLAGS:\n"));
-            } else {
-                try!(write!(w, "\nOPTIONS:\n"))
+                for v in self.flags.values()
+                                   .filter(|f| !f.settings.is_set(&ArgSettings::Hidden)) {
+                    try!(v.write_help(w, tab, if !unified_help || longest_opt == 0 { longest_flag } else { longest_opt }));
+                }
             }
-            for v in self.flags
-                         .values()
-                         .filter(|f| !f.settings.is_set(&ArgSettings::Hidden)) {
-                try!(write!(w, "{}", tab));
-                if let Some(s) = v.short {
-                    try!(write!(w, "-{}",s));
-                } else {
-                    try!(write!(w, "{}", tab));
-                }
-                if let Some(l) = v.long {
-                    try!(write!(w, "{}--{}",
-                        if v.short.is_some() { ", " } else {""},
-                        l
-                    ));
-                    try!(self.print_spaces(
-                            if !unified_help || longest_opt == 0 {
-                                (longest_flag + 4)
-                            } else {
-                                (longest_opt + 4)
-                            } - (l.len() + 2),
-                            w
-                    ));
-                } else {
-                    // 6 is tab (4) + -- (2)
-                    try!(self.print_spaces(
-                        if !unified_help {
-                            (longest_flag + 6)
-                        } else {
-                            (longest_opt + 6)
-                        },
-                        w
-                    ));
-                }
-                if let Some(h) = v.help {
-                    if h.contains("{n}") {
-                        let mut hel = h.split("{n}");
-                        while let Some(part) = hel.next() {
-                            try!(write!(w, "{}\n", part));
-                            try!(self.print_spaces(
-                                if !unified_help {
-                                    longest_flag
-                                } else {
-                                    longest_opt
-                                } + 12, w));
-                            try!(write!(w, "{}", hel.next().unwrap_or("")));
-                        }
-                    } else {
-                        try!(write!(w, "{}", h));
-                    }
-                }
-                try!(write!(w, "\n"));
-            }
-        }
-        if opts {
-            if !unified_help {
+            if opts {
                 try!(write!(w, "\nOPTIONS:\n"));
-            } else {
-                // maybe erase
-            }
-            for v in self.opts
-                         .values()
-                         .filter(|o| !o.settings.is_set(&ArgSettings::Hidden)) {
-                // if it supports multiple we add '...' i.e. 3 to the name length
-                try!(write!(w, "{}", tab));
-                if let Some(s) = v.short {
-                    try!(write!(w, "-{}",s));
-                } else {
-                    try!(write!(w, "{}", tab));
+                for v in self.opts
+                             .values()
+                             .filter(|o| !o.settings.is_set(&ArgSettings::Hidden)) {
+                    try!(v.write_help(w, tab, longest_opt));
                 }
-                if let Some(l) = v.long {
-                    try!(write!(w, "{}--{}", if v.short.is_some() {", "} else {""}, l));
-                }
-                if let Some(ref vec) = v.val_names {
-                    for val in vec {
-                        try!(write!(w, " <{}>", val));
-                    }
-                } else if let Some(num) = v.num_vals {
-                    for _ in (0..num) {
-                        try!(write!(w, " <{}>", v.name));
-                    }
-                } else {
-                    try!(write!(w, " <{}>{}", v.name,
-                        if v.settings.is_set(&ArgSettings::Multiple) {
-                            "..."
-                        } else {
-                            ""
-                        }
-                    ));
-                }
-                if v.long.is_some() {
-                    try!(self.print_spaces(
-                        (longest_opt + 4) - (v.to_string().len()), w
-                    ));
-                } else {
-                    // 8 = tab + '-a, '.len()
-                    try!(self.print_spaces((longest_opt + 8) - (v.to_string().len()), w));
-                };
-                print_opt_help!(self, v, longest_opt + 12, w);
-                try!(write!(w, "\n"));
             }
         }
         if pos {
@@ -1574,25 +1501,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             for v in self.positionals_idx
                          .values()
                          .filter(|p| !p.settings.is_set(&ArgSettings::Hidden)) {
-                try!(write!(w, "{}", tab));
-                try!(write!(w, "{}", v.name));
-                if v.settings.is_set(&ArgSettings::Multiple) {
-                    try!(write!(w, "..."));
-                }
-                try!(self.print_spaces((longest_pos + 4) - (v.to_string().len()), w));
-                if let Some(h) = v.help {
-                    if h.contains("{n}") {
-                        let mut hel = h.split("{n}");
-                        while let Some(part) = hel.next() {
-                            try!(write!(w, "{}\n", part));
-                            try!(self.print_spaces(longest_pos + 6, w));
-                            try!(write!(w, "{}", hel.next().unwrap_or("")));
-                        }
-                    } else {
-                        try!(write!(w, "{}", h));
-                    }
-                }
-                try!(write!(w, "\n"));
+                try!(v.write_help(w, tab, longest_pos));
             }
         }
         if subcmds {
@@ -1601,13 +1510,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                           .values()
                           .filter(|s| !s.settings.is_set(&AppSettings::Hidden)) {
                 try!(write!(w, "{}{}", tab, sc.name));
-                try!(self.print_spaces((longest_sc + 4) - (sc.name.len()), w));
+                write_spaces!((longest_sc + 4) - (sc.name.len()), w);
                 if let Some(a) = sc.about {
                     if a.contains("{n}") {
                         let mut ab = a.split("{n}");
                         while let Some(part) = ab.next() {
                             try!(write!(w, "{}\n", part));
-                            try!(self.print_spaces(longest_sc + 8, w));
+                            write_spaces!(longest_sc + 8, w);
                             try!(write!(w, "{}", ab.next().unwrap_or("")));
                         }
                     } else {
@@ -1624,21 +1533,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
         // flush the buffer
         w.flush()
-    }
-
-    // Used when spacing arguments and their help message when displaying help information
-    fn print_spaces<W: Write>(&self,
-                    num: usize,
-                    w: &mut W)
-                    -> io::Result<()> {
-        for _ in (0..num) {
-            try!(write!(w, " "));
-        }
-
-        // Flush? or let parent print_help flush?
-        // w.flush()
-
-        Ok(())
     }
 
     // Prints the version to the user and exits if quit=true

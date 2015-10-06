@@ -44,6 +44,14 @@ macro_rules! load_yaml {
     );
 }
 
+macro_rules! write_spaces {
+    ($num:expr, $w:ident) => ({
+        for _ in (0..$num) {
+            try!(write!($w, " "));
+        }
+    })
+}
+
 // convienience macro for remove an item from a vec
 macro_rules! vec_remove {
     ($vec:expr, $to_rem:ident) => {
@@ -121,7 +129,7 @@ macro_rules! remove_override {
 
 // De-duplication macro used in src/app.rs
 macro_rules! print_opt_help {
-    ($me:ident, $opt:ident, $spc:expr, $w:ident) => {
+    ($opt:ident, $spc:expr, $w:ident) => {
         if let Some(h) = $opt.help {
             if h.contains("{n}") {
                 let mut hel = h.split("{n}");
@@ -130,9 +138,8 @@ macro_rules! print_opt_help {
                 }
                 while let Some(part) = hel.next() {
                     try!(write!($w, "\n"));
-                    try!($me.print_spaces($spc, $w));
+                    write_spaces!($spc, $w);
                     try!(write!($w, "{}", part));
-                    // try!(write!($w, "{}", hel.next().unwrap_or("")));
                 }
             } else {
                 try!(write!($w, "{}", h));
