@@ -1,3 +1,30 @@
+<a name="v1.4.4"></a>
+### v1.4.4 (2015-10-06)
+
+
+#### Documentation
+
+*   clean up some formatting ([b7df92d7](https://github.com/kbknapp/clap-rs/commit/b7df92d7ea25835701dd22ddff984b9749f48a00))
+*   move the crate-level docs to top of the lib.rs file ([d7233bf1](https://github.com/kbknapp/clap-rs/commit/d7233bf122dbf80ba8fc79e5641be2df8af10e7a))
+*   changes doc comments to rustdoc comments ([34b601be](https://github.com/kbknapp/clap-rs/commit/34b601be5fdde76c1a0859385b359b96d66b8732))
+*   fixes panic in 14_groups example ([945b00a0](https://github.com/kbknapp/clap-rs/commit/945b00a0c27714b63bdca48d003fe205fcfdc578), closes [#295](https://github.com/kbknapp/clap-rs/issues/295))
+*   avoid suggesting star dependencies. ([d33228f4](https://github.com/kbknapp/clap-rs/commit/d33228f40b5fefb84cf3dd51546bfb340dcd9f5a))
+* **Rustdoc:**  adds portions of the readme to main rustdoc page ([6f9ee181](https://github.com/kbknapp/clap-rs/commit/6f9ee181e69d90bd4206290e59d6f3f1e8f0cbb2), closes [#293](https://github.com/kbknapp/clap-rs/issues/293))
+
+#### Bug Fixes
+
+*   grammar error in some conflicting option errors ([e73b07e1](https://github.com/kbknapp/clap-rs/commit/e73b07e19474323ad2260da66abbf6a6d4ecbd4f))
+* **Unified Help:**  sorts both flags and options as a unified category ([2a223dad](https://github.com/kbknapp/clap-rs/commit/2a223dad82901fa2e74baad3bfc4c7b94509300f))
+* **Usage:**  fixes a bug where required args aren't filtered properly ([72b453dc](https://github.com/kbknapp/clap-rs/commit/72b453dc170af3050bb123d35364f6da77fc06d7), closes [#277](https://github.com/kbknapp/clap-rs/issues/277))
+* **Usage Strings:**  fixes a bug ordering of elements in usage strings ([aaf0d6fe](https://github.com/kbknapp/clap-rs/commit/aaf0d6fe7aa2403e76096c16204d254a9ee61ee2), closes [#298](https://github.com/kbknapp/clap-rs/issues/298))
+
+#### Features
+
+*   supports -aValue style options ([0e3733e4](https://github.com/kbknapp/clap-rs/commit/0e3733e4fec2015c2d566a51432dcd92cb69cad3))
+* **Trailing VarArg:**  adds opt-in setting for final arg being vararg ([27018b18](https://github.com/kbknapp/clap-rs/commit/27018b1821a4bcd5235cfe92abe71b3c99efc24d), closes [#278](https://github.com/kbknapp/clap-rs/issues/278))
+
+
+
 <a name="v1.4.3"></a>
 ### v1.4.3 (2015-09-30)
 

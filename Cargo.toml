@@ -1,7 +1,7 @@
 [package]
 
 name = "clap"
-version = "1.4.3"
+version = "1.4.4"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
 exclude = ["examples/*", "clap-tests/*", "tests/*", "benches/*", "clap.png"]
 description = "A simple to use, efficient, and full featured  Command Line Argument Parser"
