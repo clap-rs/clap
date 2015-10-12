@@ -13,22 +13,10 @@ keywords = ["argument", "command", "arg", "parser", "parse"]
 
 [dependencies]
 bitflags = "0.3.2"
-
-[dependencies.strsim]
-version = "~0.4.0"
-optional = true
-
-[dependencies.ansi_term]
-version = "~0.6.3"
-optional = true
-
-[dependencies.yaml-rust]
-version = "~0.2.2"
-optional = true
-
-#[dependencies.clippy]
-#version = "~0.0.12"
-#optional = true
+ansi_term = { version = "~0.6.3", optional = true }
+strsim = { version = "~0.4.0", optional = true }
+yaml-rust = { version = "~0.2.2", optional = true }
+#clippy = { version = "~0.0.12", optional = true }
 
 [features]
 default=["suggestions", "color"]
