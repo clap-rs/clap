@@ -1645,7 +1645,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                                             .collect(),
                                                             Some(matches))
                             .iter()
-                            .fold(String::new(), |acc, s| acc + &format!("\n\t'{}'",
+                            .fold(String::new(), |acc, s| acc + &format!("\n\t{}",
                                 Format::Error(s))[..]))
             },
             ClapErrorType::MissingSubcommand => {
