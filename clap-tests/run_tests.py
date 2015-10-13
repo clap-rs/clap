@@ -81,8 +81,8 @@ USAGE:
 For more information try --help'''
 
 _required = '''error: The following required arguments were not supplied:
-\t'[positional2]'
-\t'--long-option-2 <option2>'
+\t[positional2]
+\t--long-option-2 <option2>
 
 USAGE:
 \tclaptests [positional2] -F --long-option-2 <option2>
