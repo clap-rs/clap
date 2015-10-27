@@ -14,6 +14,12 @@ script:
     cargo test --features yaml &&
     make -C clap-tests test &&
     travis-cargo --only stable doc -- --features yaml
+addons:
+  apt:
+    packages:
+    - libcurl4-openssl-dev
+    - libelf-dev
+    - libdw-dev
 after_success:
   - |
     travis-cargo --only stable doc-upload &&
