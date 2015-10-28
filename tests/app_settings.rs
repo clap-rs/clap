@@ -52,6 +52,19 @@ fn arg_required_else_help() {
 }
 
 #[test]
+fn no_bin_name() {
+    let result = App::new("arg_required")
+        .setting(AppSettings::NoBinaryName)
+        .arg(Arg::with_name("test")
+               .required(true)
+               .index(1))
+        .get_matches_from_safe(vec!["testing"]);
+    assert!(result.is_ok());
+    let matches = result.unwrap();
+    assert_eq!(matches.value_of("test").unwrap(), "testing");
+}
+
+#[test]
 fn unified_help() {
     let mut app = App::new("test")
         .author("Kevin K.")

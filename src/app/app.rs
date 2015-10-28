@@ -1980,12 +1980,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         // ./target/release/my_prog -a
         // will have two arguments, './target/release/my_prog', '-a' but we don't want to display
         // the full path when displaying help messages and such
-        if let Some(name) = it.next() {
-            let p = Path::new(name.as_ref());
-            if let Some(f) = p.file_name() {
-                if let Ok(s) = f.to_os_string().into_string() {
-                    if let None = self.bin_name {
-                        self.bin_name = Some(s);
+        if !self.settings.is_set(&AppSettings::NoBinaryName) {
+            if let Some(name) = it.next() {
+                let p = Path::new(name.as_ref());
+                if let Some(f) = p.file_name() {
+                    if let Ok(s) = f.to_os_string().into_string() {
+                        if let None = self.bin_name {
+                            self.bin_name = Some(s);
+                        }
                     }
                 }
             }
