@@ -23,6 +23,7 @@ use ArgMatches;
 ///                           .help("The configuration file to use")
 ///                           .index(1))
 /// # ).get_matches();
+#[derive(Debug)]
 pub struct SubCommand<'n, 'a> {
     #[doc(hidden)]
     pub name: &'n str,

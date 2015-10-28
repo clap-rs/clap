@@ -57,6 +57,7 @@ macro_rules! vec_remove {
     ($vec:expr, $to_rem:ident) => {
         {
             let mut ix = None;
+            $vec.dedup();
             for (i, val) in $vec.iter().enumerate() {
                 if val == $to_rem {
                     ix = Some(i);
@@ -64,14 +65,13 @@ macro_rules! vec_remove {
                 }
             }
             if let Some(i) = ix {
-                $vec.dedup();
                 $vec.remove(i);
             }
         }
     }
 }
 
-macro_rules! remove_override {
+macro_rules! remove_overriden {
     ($me:ident, $name:expr) => ({
         if let Some(ref o) = $me.opts.get($name) {
             if let Some(ref ora) = o.requires {
@@ -162,16 +162,7 @@ macro_rules! parse_group_reqs {
             let mut found = false;
             for name in ag.args.iter() {
                 if name == &$arg.name {
-                    let mut ix = None;
-                    for (i, val) in $me.required.iter().enumerate() {
-                        if val == &ag.name {
-                            ix = Some(i);
-                            break;
-                        }
-                    }
-                    if let Some(i) = ix {
-                        $me.required.remove(i);
-                    }
+                    vec_remove!($me.required, name);
                     if let Some(ref reqs) = ag.requires {
                         for r in reqs {
                             $me.required.push(r);
@@ -189,16 +180,7 @@ macro_rules! parse_group_reqs {
             if found {
                 for name in ag.args.iter() {
                     if name == &$arg.name { continue }
-                    let mut ix = None;
-                    for (i, val) in $me.required.iter().enumerate() {
-                        if val == name {
-                            ix = Some(i);
-                            break;
-                        }
-                    }
-                    if let Some(i) = ix {
-                        $me.required.remove(i);
-                    }
+                    vec_remove!($me.required, name);
 
                     $me.blacklist.push(name);
                 }
@@ -208,26 +190,26 @@ macro_rules! parse_group_reqs {
 }
 
 // De-duplication macro used in src/app.rs
-macro_rules! validate_reqs {
-    ($me:ident, $t:ident, $m:ident, $n:ident) => {
-        if let Some(a) = $me.$t.get($n) {
-            if let Some(ref bl) = a.blacklist {
-                for n in bl.iter() {
-                    if $m.args.contains_key(n) {
-                        return false
-                    } else if $me.groups.contains_key(n) {
-                        let grp = $me.groups.get(n).unwrap();
-                        for an in grp.args.iter() {
-                            if $m.args.contains_key(an) {
-                                return false
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    };
-}
+// macro_rules! validate_reqs {
+//     ($me:ident, $t:ident, $m:ident, $n:ident) => {
+//         if let Some(a) = $me.$t.get($n) {
+//             if let Some(ref bl) = a.blacklist {
+//                 for n in bl.iter() {
+//                     if $m.args.contains_key(n) {
+//                         return false
+//                     } else if $me.groups.contains_key(n) {
+//                         let grp = $me.groups.get(n).unwrap();
+//                         for an in grp.args.iter() {
+//                             if $m.args.contains_key(an) {
+//                                 return false
+//                             }
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+//     };
+// }
 
 // Thanks to bluss and flan3002 in #rust IRC
 //

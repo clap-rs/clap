@@ -158,9 +158,9 @@ fn require_overriden() {
         .arg(Arg::from_usage("-c, --color 'other flag'")
             .mutually_overrides_with("flag"))
         .get_matches_from_safe(vec!["", "flag", "-c"]);
-    assert!(result.is_err());
-    let err = result.err().unwrap();
-    assert_eq!(err.error_type, ClapErrorType::MissingRequiredArgument);
+    assert!(result.is_ok());
+    // let err = result.err().unwrap();
+    // assert_eq!(err.error_type, ClapErrorType::MissingRequiredArgument);
 }
 
 #[test]

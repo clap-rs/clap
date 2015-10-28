@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
 
 #[doc(hidden)]
+#[derive(Debug)]
 pub struct MatchedArg {
     // #[doc(hidden)]
     // pub name: String,
