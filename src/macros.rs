@@ -213,7 +213,8 @@ macro_rules! parse_group_reqs {
 
 // Thanks to bluss and flan3002 in #rust IRC
 //
-// Helps with rightward drift when iterating over something and matching each item.
+// Helps with rightward drift when iterating over something and matching each
+// item.
 macro_rules! for_match {
     ($it:ident, $($p:pat => $($e:expr);+),*) => {
         for i in $it {

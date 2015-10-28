@@ -31,61 +31,61 @@ impl AppFlags {
 
     pub fn set(&mut self, s: &AppSettings) {
         match *s {
-            AppSettings::SubcommandsNegateReqs      => self.0.insert(SC_NEGATE_REQS),
-            AppSettings::VersionlessSubcommands     => self.0.insert(VERSIONLESS_SC),
-            AppSettings::SubcommandRequired         => self.0.insert(SC_REQUIRED),
-            AppSettings::ArgRequiredElseHelp        => self.0.insert(A_REQUIRED_ELSE_HELP),
-            AppSettings::GlobalVersion              => self.0.insert(GLOBAL_VERSION),
-            AppSettings::UnifiedHelpMessage         => self.0.insert(UNIFIED_HELP),
-            AppSettings::WaitOnError                => self.0.insert(WAIT_ON_ERROR),
+            AppSettings::SubcommandsNegateReqs => self.0.insert(SC_NEGATE_REQS),
+            AppSettings::VersionlessSubcommands => self.0.insert(VERSIONLESS_SC),
+            AppSettings::SubcommandRequired => self.0.insert(SC_REQUIRED),
+            AppSettings::ArgRequiredElseHelp => self.0.insert(A_REQUIRED_ELSE_HELP),
+            AppSettings::GlobalVersion => self.0.insert(GLOBAL_VERSION),
+            AppSettings::UnifiedHelpMessage => self.0.insert(UNIFIED_HELP),
+            AppSettings::WaitOnError => self.0.insert(WAIT_ON_ERROR),
             AppSettings::SubcommandRequiredElseHelp => self.0.insert(SC_REQUIRED_ELSE_HELP),
-            AppSettings::NeedsLongHelp              => self.0.insert(NEEDS_LONG_HELP),
-            AppSettings::NeedsLongVersion           => self.0.insert(NEEDS_LONG_VERSION),
-            AppSettings::NeedsSubcommandHelp        => self.0.insert(NEEDS_SC_HELP),
-            AppSettings::DisableVersion             => self.0.insert(DISABLE_VERSION),
-            AppSettings::Hidden                     => self.0.insert(HIDDEN),
-            AppSettings::TrailingVarArg             => self.0.insert(TRAILING_VARARG),
-            AppSettings::NoBinaryName               => self.0.insert(NO_BIN_NAME),
+            AppSettings::NeedsLongHelp => self.0.insert(NEEDS_LONG_HELP),
+            AppSettings::NeedsLongVersion => self.0.insert(NEEDS_LONG_VERSION),
+            AppSettings::NeedsSubcommandHelp => self.0.insert(NEEDS_SC_HELP),
+            AppSettings::DisableVersion => self.0.insert(DISABLE_VERSION),
+            AppSettings::Hidden => self.0.insert(HIDDEN),
+            AppSettings::TrailingVarArg => self.0.insert(TRAILING_VARARG),
+            AppSettings::NoBinaryName => self.0.insert(NO_BIN_NAME),
         }
     }
 
     pub fn unset(&mut self, s: &AppSettings) {
         match *s {
-            AppSettings::SubcommandsNegateReqs      => self.0.remove(SC_NEGATE_REQS),
-            AppSettings::VersionlessSubcommands     => self.0.remove(VERSIONLESS_SC),
-            AppSettings::SubcommandRequired         => self.0.remove(SC_REQUIRED),
-            AppSettings::ArgRequiredElseHelp        => self.0.remove(A_REQUIRED_ELSE_HELP),
-            AppSettings::GlobalVersion              => self.0.remove(GLOBAL_VERSION),
-            AppSettings::UnifiedHelpMessage         => self.0.remove(UNIFIED_HELP),
-            AppSettings::WaitOnError                => self.0.remove(WAIT_ON_ERROR),
+            AppSettings::SubcommandsNegateReqs => self.0.remove(SC_NEGATE_REQS),
+            AppSettings::VersionlessSubcommands => self.0.remove(VERSIONLESS_SC),
+            AppSettings::SubcommandRequired => self.0.remove(SC_REQUIRED),
+            AppSettings::ArgRequiredElseHelp => self.0.remove(A_REQUIRED_ELSE_HELP),
+            AppSettings::GlobalVersion => self.0.remove(GLOBAL_VERSION),
+            AppSettings::UnifiedHelpMessage => self.0.remove(UNIFIED_HELP),
+            AppSettings::WaitOnError => self.0.remove(WAIT_ON_ERROR),
             AppSettings::SubcommandRequiredElseHelp => self.0.remove(SC_REQUIRED_ELSE_HELP),
-            AppSettings::NeedsLongHelp              => self.0.remove(NEEDS_LONG_HELP),
-            AppSettings::NeedsLongVersion           => self.0.remove(NEEDS_LONG_VERSION),
-            AppSettings::NeedsSubcommandHelp        => self.0.remove(NEEDS_SC_HELP),
-            AppSettings::DisableVersion             => self.0.remove(DISABLE_VERSION),
-            AppSettings::Hidden                     => self.0.remove(HIDDEN),
-            AppSettings::TrailingVarArg             => self.0.remove(TRAILING_VARARG),
-            AppSettings::NoBinaryName               => self.0.remove(NO_BIN_NAME),
+            AppSettings::NeedsLongHelp => self.0.remove(NEEDS_LONG_HELP),
+            AppSettings::NeedsLongVersion => self.0.remove(NEEDS_LONG_VERSION),
+            AppSettings::NeedsSubcommandHelp => self.0.remove(NEEDS_SC_HELP),
+            AppSettings::DisableVersion => self.0.remove(DISABLE_VERSION),
+            AppSettings::Hidden => self.0.remove(HIDDEN),
+            AppSettings::TrailingVarArg => self.0.remove(TRAILING_VARARG),
+            AppSettings::NoBinaryName => self.0.remove(NO_BIN_NAME),
         }
     }
 
     pub fn is_set(&self, s: &AppSettings) -> bool {
         match *s {
-            AppSettings::SubcommandsNegateReqs      => self.0.contains(SC_NEGATE_REQS),
-            AppSettings::VersionlessSubcommands     => self.0.contains(VERSIONLESS_SC),
-            AppSettings::SubcommandRequired         => self.0.contains(SC_REQUIRED),
-            AppSettings::ArgRequiredElseHelp        => self.0.contains(A_REQUIRED_ELSE_HELP),
-            AppSettings::GlobalVersion              => self.0.contains(GLOBAL_VERSION),
-            AppSettings::UnifiedHelpMessage         => self.0.contains(UNIFIED_HELP),
-            AppSettings::WaitOnError                => self.0.contains(WAIT_ON_ERROR),
+            AppSettings::SubcommandsNegateReqs => self.0.contains(SC_NEGATE_REQS),
+            AppSettings::VersionlessSubcommands => self.0.contains(VERSIONLESS_SC),
+            AppSettings::SubcommandRequired => self.0.contains(SC_REQUIRED),
+            AppSettings::ArgRequiredElseHelp => self.0.contains(A_REQUIRED_ELSE_HELP),
+            AppSettings::GlobalVersion => self.0.contains(GLOBAL_VERSION),
+            AppSettings::UnifiedHelpMessage => self.0.contains(UNIFIED_HELP),
+            AppSettings::WaitOnError => self.0.contains(WAIT_ON_ERROR),
             AppSettings::SubcommandRequiredElseHelp => self.0.contains(SC_REQUIRED_ELSE_HELP),
-            AppSettings::NeedsLongHelp              => self.0.contains(NEEDS_LONG_HELP),
-            AppSettings::NeedsLongVersion           => self.0.contains(NEEDS_LONG_VERSION),
-            AppSettings::NeedsSubcommandHelp        => self.0.contains(NEEDS_SC_HELP),
-            AppSettings::DisableVersion             => self.0.contains(DISABLE_VERSION),
-            AppSettings::Hidden                     => self.0.contains(HIDDEN),
-            AppSettings::TrailingVarArg             => self.0.contains(TRAILING_VARARG),
-            AppSettings::NoBinaryName               => self.0.contains(NO_BIN_NAME),
+            AppSettings::NeedsLongHelp => self.0.contains(NEEDS_LONG_HELP),
+            AppSettings::NeedsLongVersion => self.0.contains(NEEDS_LONG_VERSION),
+            AppSettings::NeedsSubcommandHelp => self.0.contains(NEEDS_SC_HELP),
+            AppSettings::DisableVersion => self.0.contains(DISABLE_VERSION),
+            AppSettings::Hidden => self.0.contains(HIDDEN),
+            AppSettings::TrailingVarArg => self.0.contains(TRAILING_VARARG),
+            AppSettings::NoBinaryName => self.0.contains(NO_BIN_NAME),
         }
     }
 }
@@ -237,7 +237,7 @@ pub enum AppSettings {
     /// # use clap::{App, Arg, AppSettings, SubCommand};
     /// App::new("myprog")
     ///     .subcommand(SubCommand::with_name("test")
-        ///     .setting(AppSettings::Hidden))
+    ///     .setting(AppSettings::Hidden))
     /// # ;
     /// ```
     Hidden,
@@ -294,16 +294,16 @@ impl FromStr for AppSettings {
     type Err = String;
     fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
         match &*s.to_ascii_lowercase() {
-            "subcommandsnegatereqs"  => Ok(AppSettings::SubcommandsNegateReqs),
-            "subcommandsrequired"    => Ok(AppSettings::SubcommandRequired),
-            "argrequiredelsehelp"    => Ok(AppSettings::ArgRequiredElseHelp),
-            "globalversion"          => Ok(AppSettings::GlobalVersion),
+            "subcommandsnegatereqs" => Ok(AppSettings::SubcommandsNegateReqs),
+            "subcommandsrequired" => Ok(AppSettings::SubcommandRequired),
+            "argrequiredelsehelp" => Ok(AppSettings::ArgRequiredElseHelp),
+            "globalversion" => Ok(AppSettings::GlobalVersion),
             "versionlesssubcommands" => Ok(AppSettings::VersionlessSubcommands),
-            "unifiedhelpmessage"     => Ok(AppSettings::UnifiedHelpMessage),
-            "waitonerror"            => Ok(AppSettings::WaitOnError),
+            "unifiedhelpmessage" => Ok(AppSettings::UnifiedHelpMessage),
+            "waitonerror" => Ok(AppSettings::WaitOnError),
             "subcommandrequiredelsehelp" => Ok(AppSettings::SubcommandRequiredElseHelp),
-            "hidden"                 => Ok(AppSettings::Hidden),
-            _                        => Err("unknown AppSetting, cannot convert from str".to_owned())
+            "hidden" => Ok(AppSettings::Hidden),
+            _ => Err("unknown AppSetting, cannot convert from str".to_owned()),
         }
     }
 }

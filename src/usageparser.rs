@@ -48,23 +48,28 @@ impl<'u> Iterator for UsageParser<'u> {
                     while let Some(c) = self.chars.next() {
                         self.e += 1;
                         if c == closing {
-                            break
+                            break;
                         }
                     }
                     if self.e > self.usage.len() {
-                        return None
+                        return None;
                     }
 
                     let name = &self.usage[self.s..self.e];
 
-                    return Some(UsageToken::Name(name, if c == '<' { Some(true) } else { None }));
+                    return Some(UsageToken::Name(name,
+                                                 if c == '<' {
+                                                     Some(true)
+                                                 } else {
+                                                     None
+                                                 }));
                 }
                 Some('\'') => {
                     self.s = self.e + 2;
                     self.e = self.usage.len() - 1;
 
                     while let Some(_) = self.chars.next() {
-                        continue
+                        continue;
                     }
 
                     return Some(UsageToken::Help(&self.usage[self.s..self.e]));
@@ -82,17 +87,17 @@ impl<'u> Iterator for UsageParser<'u> {
                             while let Some(c) = self.chars.next() {
                                 self.e += 1;
                                 if c == ' ' || c == '=' || c == '.' {
-                                    break
+                                    break;
                                 }
                             }
                             if self.e > self.usage.len() {
-                                return None
+                                return None;
                             }
 
                             if self.e == self.usage.len() - 1 {
-                                return Some(UsageToken::Long(&self.usage[self.s..]))
+                                return Some(UsageToken::Long(&self.usage[self.s..]));
                             }
-                            return Some(UsageToken::Long(&self.usage[self.s..self.e]))
+                            return Some(UsageToken::Long(&self.usage[self.s..self.e]));
                         }
                         Some(c) => {
                             // When short is first don't increment e
@@ -101,12 +106,12 @@ impl<'u> Iterator for UsageParser<'u> {
                             }
                             // Short
                             if !c.is_alphanumeric() {
-                                return None
+                                return None;
                             }
-                            return Some(UsageToken::Short(c))
+                            return Some(UsageToken::Short(c));
                         }
                         _ => {
-                            return None
+                            return None;
                         }
                     }
                 }
@@ -131,18 +136,20 @@ impl<'u> Iterator for UsageParser<'u> {
                         }
                     }
                     if mult {
-                        return Some(UsageToken::Multiple)
+                        return Some(UsageToken::Multiple);
                     }
                 }
                 Some(' ') | Some('=') | Some(']') | Some('>') | Some('\t') | Some(',') => {
                     self.e += 1;
-                    continue
+                    continue;
                 }
                 None => {
-                    return None
+                    return None;
                 }
                 Some(c) => panic!("Usage parser error, unexpected \
-                                  \"{}\" at \"{}\", check from_usage call", c, self.usage),
+                                  \"{}\" at \"{}\", check from_usage call",
+                                  c,
+                                  self.usage),
             }
         }
     }

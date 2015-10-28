@@ -1,7 +1,7 @@
 use std::fmt;
 
 #[cfg(all(feature = "color", not(target_os = "windows")))]
-use ansi_term::Colour::{Red, Green, Yellow};
+use ansi_term::Colour::{Green, Red, Yellow};
 #[cfg(all(feature = "color", not(target_os = "windows")))]
 use ansi_term::ANSIString;
 
@@ -32,8 +32,7 @@ impl<T: AsRef<str>> Format<T> {
 
 #[cfg(all(feature = "color", not(target_os = "windows")))]
 impl<T: AsRef<str>> fmt::Display for Format<T> {
-    fn fmt(&self,
-           f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", &self.format())
     }
 }
@@ -51,8 +50,7 @@ impl<T: fmt::Display> Format<T> {
 
 #[cfg(any(not(feature = "color"), target_os = "windows"))]
 impl<T: fmt::Display> fmt::Display for Format<T> {
-    fn fmt(&self,
-           f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", &self.format())
     }
 }
@@ -60,12 +58,13 @@ impl<T: fmt::Display> fmt::Display for Format<T> {
 #[cfg(test)]
 mod test {
     use super::Format;
-    use ansi_term::Colour::{Red, Green, Yellow};
+    use ansi_term::Colour::{Green, Red, Yellow};
 
     #[test]
     fn colored_output() {
         let err = Format::Error("error");
-        assert_eq!(&*format!("{}", err), &*format!("{}", Red.bold().paint("error")));
+        assert_eq!(&*format!("{}", err),
+                   &*format!("{}", Red.bold().paint("error")));
         let good = Format::Good("good");
         assert_eq!(&*format!("{}", good), &*format!("{}", Green.paint("good")));
         let warn = Format::Warning("warn");

@@ -44,30 +44,32 @@ impl<'n> PosBuilder<'n> {
             max_vals: None,
             validator: None,
             overrides: None,
-            settings: ArgFlags::new()
+            settings: ArgFlags::new(),
         }
     }
 
-    pub fn from_arg(a: &Arg<'n, 'n, 'n, 'n, 'n, 'n>,
-                idx: u8,
-                reqs: &mut Vec<&'n str>) -> Self {
+    pub fn from_arg(a: &Arg<'n, 'n, 'n, 'n, 'n, 'n>, idx: u8, reqs: &mut Vec<&'n str>) -> Self {
         if a.short.is_some() || a.long.is_some() {
             panic!("Argument \"{}\" has conflicting requirements, both index() and short(), \
-                or long(), were supplied", a.name);
+                or long(), were supplied",
+                   a.name);
         }
 
         if a.takes_value {
             panic!("Argument \"{}\" has conflicting requirements, both index() and \
                 takes_value(true) were supplied\n\n\tArguments with an index automatically \
-                take a value, you do not need to specify it manually", a.name);
+                take a value, you do not need to specify it manually",
+                   a.name);
         }
 
         if a.val_names.is_some() {
             panic!("Positional arguments (\"{}\") do not support named values, instead \
-                consider multiple positional arguments", a.name);
+                consider multiple positional arguments",
+                   a.name);
         }
 
-        // Create the Positional Arguemnt Builder with each HashSet = None to only allocate
+        // Create the Positional Arguemnt Builder with each HashSet = None to only
+        // allocate
         // those that require it
         let mut pb = PosBuilder {
             name: a.name,
@@ -81,7 +83,7 @@ impl<'n> PosBuilder<'n> {
             help: a.help,
             validator: None,
             overrides: None,
-            settings: ArgFlags::new()
+            settings: ArgFlags::new(),
         };
         if a.multiple {
             pb.settings.set(&ArgSettings::Multiple);
@@ -95,7 +97,8 @@ impl<'n> PosBuilder<'n> {
         if a.hidden {
             pb.settings.set(&ArgSettings::Hidden);
         }
-        // Check if there is anything in the blacklist (mutually excludes list) and add any
+        // Check if there is anything in the blacklist (mutually excludes list) and add
+        // any
         // values
         if let Some(ref bl) = a.blacklist {
             let mut bhs = vec![];
@@ -165,9 +168,7 @@ impl<'n> PosBuilder<'n> {
 }
 
 impl<'n> Display for PosBuilder<'n> {
-    fn fmt(&self,
-           f: &mut Formatter)
-           -> Result {
+    fn fmt(&self, f: &mut Formatter) -> Result {
         if self.settings.is_set(&ArgSettings::Required) {
             try!(write!(f, "<{}>", self.name));
         } else {
