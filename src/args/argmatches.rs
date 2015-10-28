@@ -52,6 +52,7 @@ use args::MatchedArg;
 ///         println!("Not printing testing lists...");
 ///     }
 /// }
+#[derive(Debug)]
 pub struct ArgMatches<'n, 'a> {
     #[doc(hidden)]
     pub args: HashMap<&'a str, MatchedArg>,

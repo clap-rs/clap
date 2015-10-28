@@ -3,20 +3,21 @@ use std::ascii::AsciiExt;
 
 bitflags! {
     flags Flags: u32 {
-        const SC_NEGATE_REQS       = 0b00000000000001,
-        const SC_REQUIRED          = 0b00000000000010,
-        const A_REQUIRED_ELSE_HELP = 0b00000000000100,
-        const GLOBAL_VERSION       = 0b00000000001000,
-        const VERSIONLESS_SC       = 0b00000000010000,
-        const UNIFIED_HELP         = 0b00000000100000,
-        const WAIT_ON_ERROR        = 0b00000001000000,
-        const SC_REQUIRED_ELSE_HELP= 0b00000010000000,
-        const NEEDS_LONG_HELP      = 0b00000100000000,
-        const NEEDS_LONG_VERSION   = 0b00001000000000,
-        const NEEDS_SC_HELP        = 0b00010000000000,
-        const DISABLE_VERSION      = 0b00100000000000,
-        const HIDDEN               = 0b01000000000000,
-        const TRAILING_VARARG      = 0b10000000000000,
+        const SC_NEGATE_REQS       = 0b000000000000001,
+        const SC_REQUIRED          = 0b000000000000010,
+        const A_REQUIRED_ELSE_HELP = 0b000000000000100,
+        const GLOBAL_VERSION       = 0b000000000001000,
+        const VERSIONLESS_SC       = 0b000000000010000,
+        const UNIFIED_HELP         = 0b000000000100000,
+        const WAIT_ON_ERROR        = 0b000000001000000,
+        const SC_REQUIRED_ELSE_HELP= 0b000000010000000,
+        const NEEDS_LONG_HELP      = 0b000000100000000,
+        const NEEDS_LONG_VERSION   = 0b000001000000000,
+        const NEEDS_SC_HELP        = 0b000010000000000,
+        const DISABLE_VERSION      = 0b000100000000000,
+        const HIDDEN               = 0b001000000000000,
+        const TRAILING_VARARG      = 0b010000000000000,
+        const NO_BIN_NAME          = 0b100000000000000,
     }
 }
 
@@ -43,6 +44,7 @@ impl AppFlags {
             AppSettings::DisableVersion             => self.0.insert(DISABLE_VERSION),
             AppSettings::Hidden                     => self.0.insert(HIDDEN),
             AppSettings::TrailingVarArg             => self.0.insert(TRAILING_VARARG),
+            AppSettings::NoBinaryName               => self.0.insert(NO_BIN_NAME),
         }
     }
 
@@ -62,6 +64,7 @@ impl AppFlags {
             AppSettings::DisableVersion             => self.0.remove(DISABLE_VERSION),
             AppSettings::Hidden                     => self.0.remove(HIDDEN),
             AppSettings::TrailingVarArg             => self.0.remove(TRAILING_VARARG),
+            AppSettings::NoBinaryName               => self.0.remove(NO_BIN_NAME),
         }
     }
 
@@ -81,6 +84,7 @@ impl AppFlags {
             AppSettings::DisableVersion             => self.0.contains(DISABLE_VERSION),
             AppSettings::Hidden                     => self.0.contains(HIDDEN),
             AppSettings::TrailingVarArg             => self.0.contains(TRAILING_VARARG),
+            AppSettings::NoBinaryName               => self.0.contains(NO_BIN_NAME),
         }
     }
 }
@@ -256,6 +260,25 @@ pub enum AppSettings {
     /// assert_eq!(m.values_of("cmd").unwrap(), &["some_command", "-r", "set"]);
     /// ```
     TrailingVarArg,
+    /// Specifies that the parser should not assume the first argument passed is the binary name.
+    /// This is normally the case when using a "daemon" style mode, or an interactive CLI where one
+    /// one would not normally type the binary or program name for each command.
+    ///
+    /// **NOTE:** This should only be used when you absolutely know it's what you need. 99% of the
+    /// cases out there don't need this setting.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, AppSettings};
+    /// let m = App::new("myprog")
+    ///     .setting(AppSettings::NoBinaryName)
+    ///     .arg(Arg::from_usage("<cmd>... 'commands to run'"))
+    ///     .get_matches_from(vec!["some_command", "-r", "set"]);
+    ///
+    /// assert_eq!(m.values_of("cmd").unwrap(), &["some_command", "-r", "set"]);
+    /// ```
+    NoBinaryName,
     #[doc(hidden)]
     NeedsLongVersion,
     #[doc(hidden)]

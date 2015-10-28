@@ -1670,7 +1670,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 // Callers still use &[""]
                 assert_eq!(data.len(), 1);
                 "Invalid unicode character in one or more arguments".to_owned()
-            }
+            },
+            // HelpDisplayed, VersionDisplayed
+            _ => unreachable!()
         };
 
         ClapError {
@@ -1741,6 +1743,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
     /// the real parsing function for all subcommands
     ///
+    /// **NOTE:** This method WILL NOT exit when `--help` or `--version` (or short versions) are
+    /// used. It will return an error, where the `error_type` is a `ClapErrorType::HelpDisplayed`
+    /// or `ClapErrorType::VersionDisplayed` respectively. You must call `error.exit()` or
+    /// perform a `std::process::exit` yourself.
+    ///
     /// **NOTE:** This method should only be used when is absolutely necessary to handle errors
     /// manually.
     ///
@@ -1762,6 +1769,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
     /// the real parsing function for all subcommands. Invalid unicode characters are replaced with
     /// `U+FFFD REPLACEMENT CHARACTER`
+    ///
+    /// **NOTE:** This method WILL NOT exit when `--help` or `--version` (or short versions) are
+    /// used. It will return an error, where the `error_type` is a `ClapErrorType::HelpDisplayed`
+    /// or `ClapErrorType::VersionDisplayed` respectively. You must call `error.exit()` or
+    /// perform a `std::process::exit` yourself.
     ///
     /// **NOTE:** This method should only be used when is absolutely necessary to handle errors
     /// manually.
@@ -1809,6 +1821,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         match self.get_matches_from_safe_borrow(itr) {
             Ok(m) => return m,
             Err(e) => {
+                match e.error_type {
+                    ClapErrorType::HelpDisplayed | ClapErrorType::VersionDisplayed => e.exit(),
+                    _ => ()
+                }
                 wlnerr!("{}", e.error);
                 if self.settings.is_set(&AppSettings::WaitOnError) {
                     wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
@@ -1850,6 +1866,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         match self.get_matches_from_safe_borrow_lossy(itr) {
             Ok(m) => return m,
             Err(e) => {
+                match e.error_type {
+                    ClapErrorType::HelpDisplayed | ClapErrorType::VersionDisplayed => e.exit(),
+                    _ => ()
+                }
                 wlnerr!("{}", e.error);
                 if self.settings.is_set(&AppSettings::WaitOnError) {
                     wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
@@ -1864,6 +1884,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
     /// the real parsing function for all subcommands
+    ///
+    /// **NOTE:** This method WILL NOT exit when `--help` or `--version` (or short versions) are
+    /// used. It will return an error, where the `error_type` is a `ClapErrorType::HelpDisplayed`
+    /// or `ClapErrorType::VersionDisplayed` respectively. You must call `error.exit()` or
+    /// perform a `std::process::exit` yourself.
     ///
     /// **NOTE:** The first argument will be parsed as the binary name.
     ///
@@ -1900,6 +1925,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
     /// the real parsing function for all subcommands. Invalid unicode characters are replaced with
     /// `U+FFFD REPLACEMENT CHARACTER`
+    ///
+    /// **NOTE:** This method WILL NOT exit when `--help` or `--version` (or short versions) are
+    /// used. It will return an error, where the `error_type` is a `ClapErrorType::HelpDisplayed`
+    /// or `ClapErrorType::VersionDisplayed` respectively. You must call `error.exit()` or
+    /// perform a `std::process::exit` yourself.
     ///
     /// **NOTE:** The first argument will be parsed as the binary name.
     ///
@@ -1950,12 +1980,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         // ./target/release/my_prog -a
         // will have two arguments, './target/release/my_prog', '-a' but we don't want to display
         // the full path when displaying help messages and such
-        if let Some(name) = it.next() {
-            let p = Path::new(name.as_ref());
-            if let Some(f) = p.file_name() {
-                if let Ok(s) = f.to_os_string().into_string() {
-                    if let None = self.bin_name {
-                        self.bin_name = Some(s);
+        if !self.settings.is_set(&AppSettings::NoBinaryName) {
+            if let Some(name) = it.next() {
+                let p = Path::new(name.as_ref());
+                if let Some(f) = p.file_name() {
+                    if let Ok(s) = f.to_os_string().into_string() {
+                        if let None = self.bin_name {
+                            self.bin_name = Some(s);
+                        }
                     }
                 }
             }
@@ -2257,7 +2289,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 }
             }
 
-
             if arg_slice.starts_with("--") && !pos_only {
                 if arg_slice.len() == 2 {
                     // The user has passed '--' which means only positional args follow no matter
@@ -2293,7 +2324,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                     error_type: ClapErrorType::MissingSubcommand
                                 });
                             }
-                            process::exit(0);
+                            // process::exit(0);
+                            return Err(ClapError{
+                                error: String::new(),
+                                error_type: ClapErrorType::HelpDisplayed
+                            })
                         }
                         subcmd_name = Some(arg_slice.to_owned());
                         break;
@@ -2370,13 +2405,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if self.overrides.contains(&p.name) {
                             if let Some(name) = self.overriden_from(p.name, matches) {
                                 matches.args.remove(&*name);
-                                remove_override!(self, &*name);
+                                remove_overriden!(self, &*name);
                             }
                         }
                         if let Some(ref or) = p.overrides {
                             for pa in or {
                                 matches.args.remove(pa);
-                                remove_override!(self, pa);
+                                remove_overriden!(self, pa);
                                 self.overrides.push(pa);
                             }
                         }
@@ -2424,6 +2459,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             }
                         }
 
+                        if p.settings.is_set(&ArgSettings::Required) {
+                            // for macro call
+                            let name = &p.name;
+                            vec_remove!(self.required, name);
+                        }
+
                         parse_group_reqs!(self, p);
                     }
                 } else {
@@ -2456,6 +2497,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 ClapErrorType::EmptyValue,
                                 matches));
                 } else {
+                    debugln!("Remaining Required Arg...");
+                    debugln!("required={:#?}", self.required);
                     return Err(
                         self.create_error(
                             &[""],
@@ -2640,7 +2683,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     fn create_help_and_version(&mut self) {
         // name is "hclap_help" because flags are sorted by name
-        if self.settings.is_set(&AppSettings::NeedsLongHelp) {
+        if !self.flags.values().any(|a| a.long.is_some() && a.long.unwrap() == "help") {
             if self.help_short.is_none() && !self.short_list.contains(&'h') {
                 self.help_short = Some('h');
             }
@@ -2656,11 +2699,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             };
             self.long_list.push("help");
             self.flags.insert("hclap_help", arg);
+            // self.settings.unset(&AppSettings::NeedsLongHelp);
         }
-        if self.settings.is_set(&AppSettings::NeedsLongVersion) &&
-            !self.settings.is_set(&AppSettings::VersionlessSubcommands) ||
+        if !self.settings.is_set(&AppSettings::VersionlessSubcommands) ||
            (self.settings.is_set(&AppSettings::VersionlessSubcommands) &&
-            self.settings.is_set(&AppSettings::DisableVersion)) {
+                self.settings.is_set(&AppSettings::DisableVersion)) &&
+           !self.flags.values().any(|a| a.long.is_some() && a.long.unwrap() == "version") {
             if self.version_short.is_none() && !self.short_list.contains(&'V') {
                 self.version_short = Some('V');
             }
@@ -2677,28 +2721,52 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             };
             self.long_list.push("version");
             self.flags.insert("vclap_version", arg);
+            // self.settings.unset(&AppSettings::NeedsLongVersion);
         }
-        if self.settings.is_set(&AppSettings::NeedsSubcommandHelp) && !self.subcommands.is_empty() {
+        if !self.subcommands.is_empty() && !self.subcommands.keys().any(|a| a == "help") {
             self.subcommands.insert("help".to_owned(), App::new("help")
                                                             .about("Prints this message"));
+            // self.settings.unset(&AppSettings::NeedsSubcommandHelp);
         }
     }
 
     fn check_for_help_and_version(&self,
                                   arg: char)
-                                  -> io::Result<()> {
+                                  -> Result<(), ClapError> {
         if let Some(h) = self.help_short {
             if h == arg {
-                try!(self.print_help());
-                process::exit(0);
+                if let Err(e) = self.print_help() {
+                    return Err(ClapError{
+                        error: format!("{} {}\n\terror message: {}\n",
+                                        Format::Error("error:"),
+                                        INTERNAL_ERROR_MSG, e.description()),
+                        error_type: ClapErrorType::MissingSubcommand
+                    });
+                }
+                // process::exit(0);
+                return Err(ClapError{
+                    error: String::new(),
+                    error_type: ClapErrorType::HelpDisplayed
+                })
             }
         }
         if let Some(v) = self.version_short {
             if v == arg {
                 let out = io::stdout();
                 let mut buf_w = BufWriter::new(out.lock());
-                try!(self.print_version(&mut buf_w));
-                process::exit(0);
+                if let Err(e) = self.print_version(&mut buf_w) {
+                    return Err(ClapError{
+                        error: format!("{} {}\n\terror message: {}\n",
+                                        Format::Error("error:"),
+                                        INTERNAL_ERROR_MSG, e.description()),
+                        error_type: ClapErrorType::MissingSubcommand
+                    });
+                }
+                // process::exit(0);
+                return Err(ClapError{
+                    error: String::new(),
+                    error_type: ClapErrorType::VersionDisplayed
+                })
             }
         }
 
@@ -2720,7 +2788,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     error_type: ClapErrorType::MissingSubcommand
                 });
             }
-            process::exit(0);
+            return Err(ClapError{
+                error: String::new(),
+                error_type: ClapErrorType::HelpDisplayed
+            })
+            // process::exit(0);
         } else if arg == "version" && self.settings.is_set(&AppSettings::NeedsLongVersion) {
             let out = io::stdout();
             let mut buf_w = BufWriter::new(out.lock());
@@ -2732,7 +2804,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     error_type: ClapErrorType::MissingSubcommand
                 });
             }
-            process::exit(0);
+            return Err(ClapError{
+                error: String::new(),
+                error_type: ClapErrorType::VersionDisplayed
+            })
+            // process::exit(0);
         }
 
         let mut arg_val: Option<&'av str> = None;
@@ -2790,7 +2866,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         }
                     }
                     matches.args.remove(name);
-                    remove_override!(self, name);
+                    remove_overriden!(self, name);
                 }
             }
             if let Some(ref or) = v.overrides {
@@ -2801,7 +2877,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         }
                     }
                     matches.args.remove(pa);
-                    remove_override!(self, pa);
+                    remove_overriden!(self, pa);
                     self.overrides.push(pa);
                 }
             }
@@ -2925,13 +3001,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 if let Some(name) = self.overriden_from(v.name, matches) {
                     debugln!("found {}", name);
                     matches.args.remove(name);
-                    remove_override!(self, name);
+                    remove_overriden!(self, name);
                 }
             }
             if let Some(ref or) = v.overrides {
                 for pa in or {
                     matches.args.remove(pa);
-                    remove_override!(self, pa);
+                    remove_overriden!(self, pa);
                     self.overrides.push(pa);
                 }
             }
@@ -3120,49 +3196,63 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 if self.overrides.contains(&v.name) {
                     if let Some(name) = self.overriden_from(v.name, matches) {
                         matches.args.remove(&*name);
-                        remove_override!(self, &*name);
+                        remove_overriden!(self, &*name);
                     }
                 }
                 if let Some(ref or) = v.overrides {
                     for pa in or {
                         matches.args.remove(pa);
-                        remove_override!(self, pa);
+                        remove_overriden!(self, pa);
                         self.overrides.push(pa);
                     }
                 }
 
-                if matches.args.contains_key(v.name) {
-                    if !v.settings.is_set(&ArgSettings::Multiple) {
-                        return Err(
-                            self.create_error(
-                                &[&*format!("-{}", arg)],
-                                ClapErrorType::UnexpectedMultipleUsage,
-                                matches));
-                    }
-                } else {
-                    let val: Vec<&str> = arg.splitn(2, c).collect();
-                    let bm = if val[1].is_empty() {
-                        BTreeMap::new()
-                    } else {
-                        ret = None;
-                        let mut bm = BTreeMap::new();
-                        bm.insert(0, val[1].to_owned());
-                        bm
-                    };
-                    if let Some(ref vec) = self.groups_for(v.name) {
-                        for grp in vec {
-                            matches.args.insert(grp, MatchedArg{
-                                occurrences: 1,
-                                values: Some(bm.clone()),
+                if matches.args.contains_key(v.name) && 
+                    !v.settings.is_set(&ArgSettings::Multiple) {
+                    return Err(
+                        self.create_error(
+                            &[&*format!("-{}", arg)],
+                            ClapErrorType::UnexpectedMultipleUsage,
+                            matches));
+                } 
+
+                // New scope for lifetimes
+                let val: Vec<&str> = arg.splitn(2, c).collect();
+                {
+                    let ma = matches.args.entry(v.name).or_insert(
+                            MatchedArg{
+                                // occurrences will be incremented on getting a value
+                                occurrences: 0,
+                                values: Some(BTreeMap::new())
                             });
+                    if !val[1].is_empty() {
+                        if !v.settings.is_set(&ArgSettings::Multiple) {
+                            ret = None;
+                        }
+                        if let Some(ref mut vals) = ma.values {
+                            let len = vals.len() as u8 + 1;
+                            vals.insert(len, val[1].to_owned());
+                        }
+                        ma.occurrences += 1;
+                    }
+                }
+
+                if let Some(ref vec) = self.groups_for(v.name) {
+                    for grp in vec {
+                        let ma_g = matches.args.entry(grp).or_insert(MatchedArg{
+                            occurrences: 0,
+                            values: Some(BTreeMap::new()),
+                        });
+                        if !val[1].is_empty() {
+                            if let Some(ref mut vals) = ma_g.values {
+                                let len = vals.len() as u8 + 1;
+                                vals.insert(len, val[1].to_owned());
+                            }
+                            ma_g.occurrences += 1;
                         }
                     }
-                    matches.args.insert(v.name, MatchedArg{
-                        // occurrences will be incremented on getting a value
-                        occurrences: 0,
-                        values: Some(bm)
-                    });
                 }
+
                 if let Some(ref bl) = v.blacklist {
                     for name in bl {
                         self.blacklist.push(name);
@@ -3226,13 +3316,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 if let Some(name) = self.overriden_from(v.name, matches) {
                     debugln!("found {}", name);
                     matches.args.remove(name);
-                    remove_override!(self, name);
+                    remove_overriden!(self, name);
                 }
             }
             if let Some(ref or) = v.overrides {
                 for pa in or {
                     matches.args.remove(pa);
-                    remove_override!(self, pa);
+                    remove_overriden!(self, pa);
                     self.overrides.push(pa);
                 }
             }
