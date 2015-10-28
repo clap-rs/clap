@@ -219,7 +219,38 @@ pub enum ClapErrorType {
     ///                                 OsString::from_vec(vec![0xE9])]);
     /// assert!(result.is_err());
     /// ```
-    InvalidUnicode
+    InvalidUnicode,
+    /// Not a true 'error' as it means `--help` or similar was used. The help message will be sent
+    /// to `stdout` unless the help is displayed due to an error (such as missing subcommands) at
+    /// which point it will be sent to `stderr`
+    ///
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # use clap::ClapErrorType;
+    /// let result = App::new("myprog")
+    ///     .get_matches_from_safe(vec!["", "--help"]);
+    /// assert!(result.is_err());
+    /// assert_eq!(result.unwrap_err().error_type, ClapErrorType::HelpDisplayed);
+    /// ```
+    HelpDisplayed,
+    /// Not a true 'error' as it means `--version` or similar was used. The message will be sent
+    /// to `stdout` 
+    ///
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// # use clap::ClapErrorType;
+    /// let result = App::new("myprog")
+    ///     .get_matches_from_safe(vec!["", "--version"]);
+    /// assert!(result.is_err());
+    /// assert_eq!(result.unwrap_err().error_type, ClapErrorType::VersionDisplayed);
+    /// ```
+    VersionDisplayed
 }
 
 /// Command line argument parser error
