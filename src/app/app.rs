@@ -2656,6 +2656,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             };
             self.long_list.push("help");
             self.flags.insert("hclap_help", arg);
+            self.settings.unset(&AppSettings::NeedsLongHelp);
         }
         if self.settings.is_set(&AppSettings::NeedsLongVersion) &&
             !self.settings.is_set(&AppSettings::VersionlessSubcommands) ||
@@ -2677,10 +2678,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             };
             self.long_list.push("version");
             self.flags.insert("vclap_version", arg);
+            self.settings.unset(&AppSettings::NeedsLongVersion);
         }
         if self.settings.is_set(&AppSettings::NeedsSubcommandHelp) && !self.subcommands.is_empty() {
             self.subcommands.insert("help".to_owned(), App::new("help")
                                                             .about("Prints this message"));
+            self.settings.unset(&AppSettings::NeedsSubcommandHelp);
         }
     }
 
