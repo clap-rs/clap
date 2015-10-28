@@ -21,6 +21,7 @@ bitflags! {
     }
 }
 
+#[derive(Debug)]
 pub struct AppFlags(Flags);
 
 impl AppFlags {
@@ -90,7 +91,7 @@ impl AppFlags {
 }
 
 /// Application level settings, which affect how `App` operates
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub enum AppSettings {
     /// Allows subcommands to override all requirements of the parent (this command). For example
     /// if you had a subcommand or even top level application which had a required arguments that

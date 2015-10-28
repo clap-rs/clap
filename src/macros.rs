@@ -46,7 +46,7 @@ macro_rules! load_yaml {
 
 macro_rules! write_spaces {
     ($num:expr, $w:ident) => ({
-        for _ in (0..$num) {
+        for _ in 0..$num {
             try!(write!($w, " "));
         }
     })

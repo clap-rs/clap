@@ -39,6 +39,7 @@ use usageparser::{UsageParser, UsageToken};
 /// // Using a usage string (setting a similar argument to the one above)
 /// Arg::from_usage("-i --input=[input] 'Provides an input file to the program'")
 /// # ).get_matches();
+#[allow(missing_debug_implementations)]
 pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// The unique name of the argument
     pub name: &'n str,
@@ -351,10 +352,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
 
         if let Some(l) = long {
             val_names.remove(l);
-            if val_names.len() > 1 {
-                if name.unwrap() != l && !name_first {
-                    name = Some(l);
-                }
+            if (val_names.len() > 1) && (name.unwrap() != l && !name_first) {
+                name = Some(l);
             }
         }
 
@@ -541,7 +540,9 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
               I: IntoIterator<Item = &'r T>
     {
         if let Some(ref mut vec) = self.blacklist {
-            names.into_iter().map(|s| vec.push(s.as_ref())).collect::<Vec<_>>();
+            for s in names {
+                vec.push(s.as_ref());
+            }
         } else {
             self.blacklist = Some(names.into_iter().map(|s| s.as_ref()).collect::<Vec<_>>());
         }
@@ -587,7 +588,9 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
               I: IntoIterator<Item = &'r T>
     {
         if let Some(ref mut vec) = self.overrides {
-            names.into_iter().map(|s| vec.push(s.as_ref())).collect::<Vec<_>>();
+            for s in names {
+                vec.push(s.as_ref());
+            }
         } else {
             self.overrides = Some(names.into_iter().map(|s| s.as_ref()).collect::<Vec<_>>());
         }
@@ -640,7 +643,9 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
               I: IntoIterator<Item = &'r T>
     {
         if let Some(ref mut vec) = self.requires {
-            names.into_iter().map(|s| vec.push(s.as_ref())).collect::<Vec<_>>();
+            for s in names {
+                vec.push(s.as_ref());
+            }
         } else {
             self.requires = Some(names.into_iter().map(|s| s.as_ref()).collect::<Vec<_>>());
         }
@@ -810,7 +815,9 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
               I: IntoIterator<Item = &'p T>
     {
         if let Some(ref mut vec) = self.possible_vals {
-            names.into_iter().map(|s| vec.push(s.as_ref())).collect::<Vec<_>>();
+            for s in names {
+                vec.push(s.as_ref());
+            }
         } else {
             self.possible_vals = Some(names.into_iter().map(|s| s.as_ref()).collect::<Vec<_>>());
         }
@@ -1018,7 +1025,9 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
               I: IntoIterator<Item = &'n T>
     {
         if let Some(ref mut vec) = self.val_names {
-            names.into_iter().map(|s| vec.insert(s.as_ref())).collect::<Vec<_>>();
+            for s in names {
+                vec.insert(s.as_ref());
+            }
         } else {
             self.val_names = Some(names.into_iter().map(|s| s.as_ref()).collect::<BTreeSet<_>>());
         }

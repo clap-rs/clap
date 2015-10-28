@@ -6,6 +6,7 @@ use std::io;
 use Arg;
 use args::settings::{ArgFlags, ArgSettings};
 
+#[derive(Debug)]
 pub struct FlagBuilder<'n> {
     pub name: &'n str,
     /// The long version of the flag (i.e. word)

@@ -7,6 +7,7 @@ use std::io;
 use Arg;
 use args::settings::{ArgFlags, ArgSettings};
 
+#[allow(missing_debug_implementations)]
 pub struct OptBuilder<'n> {
     pub name: &'n str,
     /// The short version (i.e. single character) of the argument, no preceding `-`
@@ -156,7 +157,7 @@ impl<'n> OptBuilder<'n> {
                 try!(write!(w, " <{}>", val));
             }
         } else if let Some(num) = self.num_vals {
-            for _ in (0..num) {
+            for _ in 0..num {
                 try!(write!(w, " <{}>", self.name));
             }
         } else {
@@ -199,7 +200,7 @@ impl<'n> Display for OptBuilder<'n> {
             }
         } else {
             let num = self.num_vals.unwrap_or(1);
-            for _ in (0..num) {
+            for _ in 0..num {
                 try!(write!(f, " <{}>", self.name));
             }
             if self.settings.is_set(&ArgSettings::Multiple) && num == 1 {

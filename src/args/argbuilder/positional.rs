@@ -6,6 +6,7 @@ use std::io;
 use Arg;
 use args::settings::{ArgFlags, ArgSettings};
 
+#[allow(missing_debug_implementations)]
 pub struct PosBuilder<'n> {
     pub name: &'n str,
     /// The string of text that will displayed to the user when the application's

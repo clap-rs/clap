@@ -3,7 +3,7 @@ use std::error::Error;
 use std::fmt;
 
 /// Command line argument parser error types
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub enum ClapErrorType {
     /// Error occurs when some possible values were set, but clap found unexpected value
     ///
@@ -237,7 +237,7 @@ pub enum ClapErrorType {
     /// ```
     HelpDisplayed,
     /// Not a true 'error' as it means `--version` or similar was used. The message will be sent
-    /// to `stdout` 
+    /// to `stdout`
     ///
     ///
     /// # Examples

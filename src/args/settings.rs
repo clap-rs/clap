@@ -11,6 +11,7 @@ bitflags! {
     }
 }
 
+#[derive(Debug)]
 pub struct ArgFlags(Flags);
 
 impl ArgFlags {
