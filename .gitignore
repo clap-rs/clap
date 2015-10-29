@@ -19,3 +19,4 @@ Cargo.lock
 # Backup files
 *.bak
 *.bk
+*.orig

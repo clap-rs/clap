@@ -11,6 +11,7 @@ bitflags! {
     }
 }
 
+#[derive(Debug)]
 pub struct ArgFlags(Flags);
 
 impl ArgFlags {
@@ -20,31 +21,31 @@ impl ArgFlags {
 
     pub fn set(&mut self, s: &ArgSettings) {
         match *s {
-            ArgSettings::Required    => self.0.insert(REQUIRED),
-            ArgSettings::Multiple    => self.0.insert(MULTIPLE),
+            ArgSettings::Required => self.0.insert(REQUIRED),
+            ArgSettings::Multiple => self.0.insert(MULTIPLE),
             ArgSettings::EmptyValues => self.0.insert(EMPTY_VALS),
-            ArgSettings::Global      => self.0.insert(GLOBAL),
-            ArgSettings::Hidden      => self.0.insert(HIDDEN),
+            ArgSettings::Global => self.0.insert(GLOBAL),
+            ArgSettings::Hidden => self.0.insert(HIDDEN),
         }
     }
 
     pub fn unset(&mut self, s: &ArgSettings) {
         match *s {
-            ArgSettings::Required    => self.0.remove(REQUIRED),
-            ArgSettings::Multiple    => self.0.remove(MULTIPLE),
+            ArgSettings::Required => self.0.remove(REQUIRED),
+            ArgSettings::Multiple => self.0.remove(MULTIPLE),
             ArgSettings::EmptyValues => self.0.remove(EMPTY_VALS),
-            ArgSettings::Global      => self.0.remove(GLOBAL),
-            ArgSettings::Hidden      => self.0.remove(HIDDEN),
+            ArgSettings::Global => self.0.remove(GLOBAL),
+            ArgSettings::Hidden => self.0.remove(HIDDEN),
         }
     }
 
     pub fn is_set(&self, s: &ArgSettings) -> bool {
         match *s {
-            ArgSettings::Required    => self.0.contains(REQUIRED),
-            ArgSettings::Multiple    => self.0.contains(MULTIPLE),
+            ArgSettings::Required => self.0.contains(REQUIRED),
+            ArgSettings::Multiple => self.0.contains(MULTIPLE),
             ArgSettings::EmptyValues => self.0.contains(EMPTY_VALS),
-            ArgSettings::Global      => self.0.contains(GLOBAL),
-            ArgSettings::Hidden      => self.0.contains(HIDDEN),
+            ArgSettings::Global => self.0.contains(GLOBAL),
+            ArgSettings::Hidden => self.0.contains(HIDDEN),
         }
     }
 }
@@ -63,12 +64,12 @@ impl FromStr for ArgSettings {
     type Err = String;
     fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
         match &*s.to_ascii_lowercase() {
-            "required"    => Ok(ArgSettings::Required),
-            "multiple"    => Ok(ArgSettings::Multiple),
-            "global"      => Ok(ArgSettings::Global),
+            "required" => Ok(ArgSettings::Required),
+            "multiple" => Ok(ArgSettings::Multiple),
+            "global" => Ok(ArgSettings::Global),
             "emptyvalues" => Ok(ArgSettings::EmptyValues),
-            "hidden"      => Ok(ArgSettings::Hidden),
-            _             => Err("unknown ArgSetting, cannot convert from str".to_owned())
+            "hidden" => Ok(ArgSettings::Hidden),
+            _ => Err("unknown ArgSetting, cannot convert from str".to_owned()),
         }
     }
 }

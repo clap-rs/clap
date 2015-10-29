@@ -52,6 +52,7 @@ use args::MatchedArg;
 ///         println!("Not printing testing lists...");
 ///     }
 /// }
+#[derive(Debug)]
 pub struct ArgMatches<'n, 'a> {
     #[doc(hidden)]
     pub args: HashMap<&'a str, MatchedArg>,
@@ -76,7 +77,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
         ArgMatches {
             args: HashMap::new(),
             subcommand: None,
-            usage: None
+            usage: None,
         }
     }
 
@@ -99,9 +100,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///        println!("Value for output: {}", o);
     /// }
     /// ```
-    pub fn value_of(&self,
-                    name: &str)
-                    -> Option<&str> {
+    pub fn value_of(&self, name: &str) -> Option<&str> {
         if let Some(ref arg) = self.args.get(name) {
             if let Some(ref vals) = arg.values {
                 if let Some(ref val) = vals.values().nth(0) {
@@ -131,9 +130,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///        }
     /// }
     /// ```
-    pub fn values_of(&'a self,
-                     name: &str)
-                     -> Option<Vec<&'a str>> {
+    pub fn values_of(&'a self, name: &str) -> Option<Vec<&'a str>> {
         if let Some(ref arg) = self.args.get(name) {
             if let Some(ref vals) = arg.values {
                 return Some(vals.values().map(|s| &s[..]).collect::<Vec<_>>());
@@ -155,9 +152,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///        println!("The output argument was used!");
     /// }
     /// ```
-    pub fn is_present(&self,
-                      name: &str)
-                      -> bool {
+    pub fn is_present(&self, name: &str) -> bool {
         if let Some(ref sc) = self.subcommand {
             if sc.name == name {
                 return true;
@@ -186,9 +181,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///     println!("Debug mode kind of on");
     /// }
     /// ```
-    pub fn occurrences_of(&self,
-                          name: &str)
-                          -> u8 {
+    pub fn occurrences_of(&self, name: &str) -> u8 {
         if let Some(ref arg) = self.args.get(name) {
             return arg.occurrences;
         }
@@ -209,10 +202,8 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///     // Use matches as normal
     /// }
     /// ```
-    pub fn subcommand_matches<'na>(&self,
-                                   name: &'na str)
-                                   -> Option<&ArgMatches> {
-        if let Some( ref sc) = self.subcommand {
+    pub fn subcommand_matches<'na>(&self, name: &'na str) -> Option<&ArgMatches> {
+        if let Some(ref sc) = self.subcommand {
             if sc.name != name {
                 return None;
             }
@@ -240,7 +231,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     /// }
     /// ```
     pub fn subcommand_name(&self) -> Option<&str> {
-        if let Some( ref sc ) = self.subcommand {
+        if let Some(ref sc) = self.subcommand {
             return Some(&sc.name[..]);
         }
         None
@@ -263,7 +254,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     /// }
     /// ```
     pub fn subcommand(&self) -> (&str, Option<&ArgMatches>) {
-        if let Some( ref sc ) = self.subcommand {
+        if let Some(ref sc) = self.subcommand {
             return (&sc.name[..], Some(&sc.matches));
         }
         ("", None)
@@ -281,7 +272,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     /// println!("{}",app_matches.usage());
     /// ```
     pub fn usage(&self) -> &str {
-        if let Some( ref u ) = self.usage {
+        if let Some(ref u) = self.usage {
             return &u[..];
         }
 

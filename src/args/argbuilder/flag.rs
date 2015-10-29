@@ -6,6 +6,7 @@ use std::io;
 use Arg;
 use args::settings::{ArgFlags, ArgSettings};
 
+#[derive(Debug)]
 pub struct FlagBuilder<'n> {
     pub name: &'n str,
     /// The long version of the flag (i.e. word)
@@ -40,14 +41,11 @@ impl<'n> FlagBuilder<'n> {
             blacklist: None,
             requires: None,
             overrides: None,
-            settings: ArgFlags::new()
+            settings: ArgFlags::new(),
         }
     }
 
-    pub fn write_help<W: io::Write>(&self,
-                                    w: &mut W,
-                                    tab: &str,
-                                    longest: usize) -> io::Result<()> {
+    pub fn write_help<W: io::Write>(&self, w: &mut W, tab: &str, longest: usize) -> io::Result<()> {
         try!(write!(w, "{}", tab));
         if let Some(s) = self.short {
             try!(write!(w, "-{}", s));
@@ -55,10 +53,14 @@ impl<'n> FlagBuilder<'n> {
             try!(write!(w, "{}", tab));
         }
         if let Some(l) = self.long {
-            try!(write!(w, "{}--{}",
-                if self.short.is_some() { ", " } else { "" },
-                l
-            ));
+            try!(write!(w,
+                        "{}--{}",
+                        if self.short.is_some() {
+                            ", "
+                        } else {
+                            ""
+                        },
+                        l));
             write_spaces!((longest + 4) - (l.len() + 2), w);
         } else {
             // 6 is tab (4) + -- (2)
@@ -89,15 +91,18 @@ impl<'n, 'a> From<&'a Arg<'n, 'n, 'n, 'n, 'n, 'n>> for FlagBuilder<'n> {
         if !a.empty_vals {
             // Empty vals defaults to true, so if it's false it was manually set
             panic!("The argument '{}' cannot have empty_values() set because it is a flag. \
-                Perhaps you mean't to set takes_value(true) as well?", a.name);
+                Perhaps you mean't to set takes_value(true) as well?",
+                   a.name);
         }
         if a.required {
             panic!("The argument '{}' cannot be required(true) because it has no index() or \
-                takes_value(true)", a.name);
+                takes_value(true)",
+                   a.name);
         }
         if a.possible_vals.is_some() {
             panic!("The argument '{}' cannot have a specific value set because it doesn't \
-                have takes_value(true) set", a.name);
+                have takes_value(true) set",
+                   a.name);
         }
         // No need to check for index() or takes_value() as that is handled above
 
@@ -109,7 +114,7 @@ impl<'n, 'a> From<&'a Arg<'n, 'n, 'n, 'n, 'n, 'n>> for FlagBuilder<'n> {
             blacklist: None,
             requires: None,
             overrides: None,
-            settings: ArgFlags::new()
+            settings: ArgFlags::new(),
         };
         if a.multiple {
             fb.settings.set(&ArgSettings::Multiple);
@@ -120,7 +125,8 @@ impl<'n, 'a> From<&'a Arg<'n, 'n, 'n, 'n, 'n, 'n>> for FlagBuilder<'n> {
         if a.hidden {
             fb.settings.set(&ArgSettings::Hidden);
         }
-        // Check if there is anything in the blacklist (mutually excludes list) and add any
+        // Check if there is anything in the blacklist (mutually excludes list) and add
+        // any
         // values
         if let Some(ref bl) = a.blacklist {
             let mut bhs = vec![];
@@ -153,9 +159,7 @@ impl<'n, 'a> From<&'a Arg<'n, 'n, 'n, 'n, 'n, 'n>> for FlagBuilder<'n> {
 }
 
 impl<'n> Display for FlagBuilder<'n> {
-    fn fmt(&self,
-           f: &mut Formatter)
-           -> Result {
+    fn fmt(&self, f: &mut Formatter) -> Result {
         if let Some(l) = self.long {
             write!(f, "--{}", l)
         } else {

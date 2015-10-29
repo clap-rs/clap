@@ -7,6 +7,7 @@ use std::io;
 use Arg;
 use args::settings::{ArgFlags, ArgSettings};
 
+#[allow(missing_debug_implementations)]
 pub struct OptBuilder<'n> {
     pub name: &'n str,
     /// The short version (i.e. single character) of the argument, no preceding `-`
@@ -49,15 +50,15 @@ impl<'n> OptBuilder<'n> {
             val_names: None,
             validator: None,
             overrides: None,
-            settings: ArgFlags::new()
+            settings: ArgFlags::new(),
         }
     }
 
-    pub fn from_arg(a: &Arg<'n, 'n, 'n, 'n, 'n,'n>,
-                    reqs: &mut Vec<&'n str>) -> Self {
+    pub fn from_arg(a: &Arg<'n, 'n, 'n, 'n, 'n, 'n>, reqs: &mut Vec<&'n str>) -> Self {
         if a.short.is_none() && a.long.is_none() {
             panic!("Argument \"{}\" has takes_value(true), yet neither a short() or long() \
-                was supplied", a.name);
+                was supplied",
+                   a.name);
         }
         // No need to check for .index() as that is handled above
         let mut ob = OptBuilder {
@@ -74,7 +75,7 @@ impl<'n> OptBuilder<'n> {
             requires: None,
             validator: None,
             overrides: None,
-            settings: ArgFlags::new()
+            settings: ArgFlags::new(),
         };
         if a.multiple {
             ob.settings.set(&ArgSettings::Multiple);
@@ -94,7 +95,8 @@ impl<'n> OptBuilder<'n> {
         if let Some(ref vec) = ob.val_names {
             ob.num_vals = Some(vec.len() as u8);
         }
-        // Check if there is anything in the blacklist (mutually excludes list) and add any
+        // Check if there is anything in the blacklist (mutually excludes list) and add
+        // any
         // values
         if let Some(ref bl) = a.blacklist {
             let mut bhs = vec![];
@@ -144,47 +146,51 @@ impl<'n> OptBuilder<'n> {
         // if it supports multiple we add '...' i.e. 3 to the name length
         try!(write!(w, "{}", tab));
         if let Some(s) = self.short {
-            try!(write!(w, "-{}",s));
+            try!(write!(w, "-{}", s));
         } else {
             try!(write!(w, "{}", tab));
         }
         if let Some(l) = self.long {
-            try!(write!(w, "{}--{}", if self.short.is_some() {", "} else {""}, l));
+            try!(write!(w,
+                        "{}--{}",
+                        if self.short.is_some() {
+                            ", "
+                        } else {
+                            ""
+                        },
+                        l));
         }
         if let Some(ref vec) = self.val_names {
             for val in vec {
                 try!(write!(w, " <{}>", val));
             }
         } else if let Some(num) = self.num_vals {
-            for _ in (0..num) {
+            for _ in 0..num {
                 try!(write!(w, " <{}>", self.name));
             }
         } else {
-            try!(write!(w, " <{}>{}", self.name,
-                if self.settings.is_set(&ArgSettings::Multiple) {
-                    "..."
-                } else {
-                    ""
-                }
-            ));
+            try!(write!(w,
+                        " <{}>{}",
+                        self.name,
+                        if self.settings.is_set(&ArgSettings::Multiple) {
+                            "..."
+                        } else {
+                            ""
+                        }));
         }
         if self.long.is_some() {
-            write_spaces!(
-                (longest + 4) - (self.to_string().len()), w
-            );
+            write_spaces!((longest + 4) - (self.to_string().len()), w);
         } else {
             // 8 = tab + '-a, '.len()
             write_spaces!((longest + 8) - (self.to_string().len()), w);
-        };
+        }
         print_opt_help!(self, longest + 12, w);
         write!(w, "\n")
     }
 }
 
 impl<'n> Display for OptBuilder<'n> {
-    fn fmt(&self,
-           f: &mut Formatter)
-           -> Result {
+    fn fmt(&self, f: &mut Formatter) -> Result {
         // Write the name such --long or -l
         if let Some(l) = self.long {
             try!(write!(f, "--{}", l));
@@ -199,7 +205,7 @@ impl<'n> Display for OptBuilder<'n> {
             }
         } else {
             let num = self.num_vals.unwrap_or(1);
-            for _ in (0..num) {
+            for _ in 0..num {
                 try!(write!(f, " <{}>", self.name));
             }
             if self.settings.is_set(&ArgSettings::Multiple) && num == 1 {
