@@ -991,7 +991,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             self.settings.set(&AppSettings::NeedsSubcommandHelp);
         }
         if self.settings.is_set(&AppSettings::VersionlessSubcommands) {
-            self.settings.set(&AppSettings::DisableVersion);
+            subcmd.settings.set(&AppSettings::DisableVersion);
         }
         if self.settings.is_set(&AppSettings::GlobalVersion) && subcmd.version.is_none() &&
            self.version.is_some() {
@@ -1514,6 +1514,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
 
         // flush the buffer
+        debugln!("Flushing the buffer...");
         w.flush()
     }
 
@@ -2325,7 +2326,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                                    Format::Error("error:"),
                                                    INTERNAL_ERROR_MSG,
                                                    e.description()),
-                                    error_type: ClapErrorType::MissingSubcommand,
+                                    error_type: ClapErrorType::InternalError,
                                 });
                             }
                             // process::exit(0);
@@ -2582,7 +2583,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                    Format::Error("error:"),
                                    INTERNAL_ERROR_MSG,
                                    e.description()),
-                    error_type: ClapErrorType::MissingSubcommand,
+                    error_type: ClapErrorType::InternalError,
                 }),
             }
         }
@@ -2603,7 +2604,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                    Format::Error("error:"),
                                    INTERNAL_ERROR_MSG,
                                    e.description()),
-                    error_type: ClapErrorType::MissingSubcommand,
+                    error_type: ClapErrorType::InternalError,
                 }),
             }
         }
@@ -2686,11 +2687,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             };
             self.long_list.push("help");
             self.flags.insert("hclap_help", arg);
-            // self.settings.unset(&AppSettings::NeedsLongHelp);
         }
-        if !self.settings.is_set(&AppSettings::VersionlessSubcommands) ||
-           (self.settings.is_set(&AppSettings::VersionlessSubcommands) &&
-            self.settings.is_set(&AppSettings::DisableVersion)) &&
+        if !self.settings.is_set(&AppSettings::DisableVersion) &&
            !self.flags.values().any(|a| a.long.is_some() && a.long.unwrap() == "version") {
             if self.version_short.is_none() && !self.short_list.contains(&'V') {
                 self.version_short = Some('V');
@@ -2724,7 +2722,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                        Format::Error("error:"),
                                        INTERNAL_ERROR_MSG,
                                        e.description()),
-                        error_type: ClapErrorType::MissingSubcommand,
+                        error_type: ClapErrorType::InternalError,
                     });
                 }
                 return Err(ClapError {
@@ -2743,7 +2741,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                        Format::Error("error:"),
                                        INTERNAL_ERROR_MSG,
                                        e.description()),
-                        error_type: ClapErrorType::MissingSubcommand,
+                        error_type: ClapErrorType::InternalError,
                     });
                 }
                 return Err(ClapError {
@@ -2769,7 +2767,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                    Format::Error("error:"),
                                    INTERNAL_ERROR_MSG,
                                    e.description()),
-                    error_type: ClapErrorType::MissingSubcommand,
+                    error_type: ClapErrorType::InternalError,
                 });
             }
             return Err(ClapError {
@@ -2785,7 +2783,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                    Format::Error("error:"),
                                    INTERNAL_ERROR_MSG,
                                    e.description()),
-                    error_type: ClapErrorType::MissingSubcommand,
+                    error_type: ClapErrorType::InternalError,
                 });
             }
             return Err(ClapError {
@@ -3153,15 +3151,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                        -> Result<Option<&'ar str>, ClapError> {
         let arg = &full_arg[..].trim_left_matches(|c| c == '-');
         for c in arg.chars() {
-            if let Err(e) = self.check_for_help_and_version(c) {
-                return Err(ClapError {
-                    error: format!("{} {}\n\terror message: {}\n",
-                                   Format::Error("error:"),
-                                   INTERNAL_ERROR_MSG,
-                                   e.description()),
-                    error_type: ClapErrorType::MissingSubcommand,
-                });
-            }
+            try!(self.check_for_help_and_version(c));
 
             // Check for matching short in options, and return the name
             // (only ones with shorts, of course)
