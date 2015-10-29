@@ -37,6 +37,7 @@ If you're already familiar with `clap` but just want to see some new highlights 
 
 * **Major Bug Fixes in 1.4.6** We recommend everyone upgrade as soon as possible. See the [the changelog](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md) for details.
 * Using `get_matches_safe_*` family of methods no longer exits the process when help or version is displayed, instead it returns an `ClapError` with an `error_type` field set to `ClapErrorType::HelpDisplayed` or `ClapErrorType::VersionDisplayed` respectively. You must then call `ClapError::exit` or `std::process::exit` giving you the control.
+* Allows parsing without a binary name preceeding (useful for daemon modes and interactive CLIs)
 * `-Lvalue` style options are **now supported**! (i.e. `-L` is the short, and `value` is the value being passed. Equivilant to `-L value`). This can be combined with flag expansion. Example: `-lF2` could be parsed as `-l -F 2` where `-l` is a flag and `-F` is an option that takes a number.
 * There is a **new opt-in setting** (`AppSettings::TrailingVarArg`) to allow the final positional argument to be a vararg and have `clap` not interpret the remaining arguments (i.e. useful when final argument should be a list of arguments for another command or process)
 * You can now access values from an argument in a group via the group name, instead of having to check each arg name individually to find out which one was used. The same applies for checking if an arg from a group `is_present()`
@@ -93,7 +94,7 @@ Reasons to use `docopt` instead of `clap`
  * Performance isn't a concern
  * You don't have any complex relationships between arguments
 
-#### All else being equal, whare are some reasons to use `clap`?
+#### All else being equal, what are some reasons to use `clap`?
 
 `clap` is fast, and as lightweight as possible while still giving all the features you'd expect from a modern argument parser. If you use `clap` when just need some simple arguments parsed, you'll find it a walk in the park. But `clap` also makes it possible to represent extremely complex, and advanced requirements, without too much thought. `clap` aims to be intuitive, easy to use, and fully capable for wide variety use cases and needs.
 

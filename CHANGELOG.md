@@ -1,3 +1,26 @@
+<a name="v1.4.6"></a>
+### v1.4.6 (2015-10-29)
+
+
+#### Features
+
+*   allows parsing without a binary name for daemons and interactive CLIs ([aff89d57](https://github.com/kbknapp/clap-rs/commit/aff89d579b5b85c3dc81b64f16d5865299ec39a2), closes [#318](https://github.com/kbknapp/clap-rs/issues/318))
+
+#### Bug Fixes
+
+* **Errors:**  tones down quoting in some error messages ([34ce59ed](https://github.com/kbknapp/clap-rs/commit/34ce59ede53bfa2eef722c74881cdba7419fd9c7), closes [#309](https://github.com/kbknapp/clap-rs/issues/309))
+* **Help and Version:**  only builds help and version once ([e3be87cf](https://github.com/kbknapp/clap-rs/commit/e3be87cfc095fc41c9811adcdc6d2b079f237d5e))
+* **Option Args:**  fixes bug with args and multiple values ([c9a9548a](https://github.com/kbknapp/clap-rs/commit/c9a9548a8f96cef8a3dd9a980948325fbbc1b91b), closes [#323](https://github.com/kbknapp/clap-rs/issues/323))
+* **POSIX Overrides:**  fixes bug where required args are overridden ([40ed2b50](https://github.com/kbknapp/clap-rs/commit/40ed2b50c3a9fe88bfdbaa43cef9fd6493ecaa8e))
+* **Safe Matches:**  using 'safe' forms of the get_matches family no longer exit the process ([c47025dc](https://github.com/kbknapp/clap-rs/commit/c47025dca2b3305dea0a0acfdd741b09af0c0d05), closes [#256](https://github.com/kbknapp/clap-rs/issues/256))
+* **Versionless SubCommands:**  fixes a bug where the -V flag was needlessly built ([27df8b9d](https://github.com/kbknapp/clap-rs/commit/27df8b9d98d13709dad3929a009f40ebff089a1a), closes [#329](https://github.com/kbknapp/clap-rs/issues/329))
+
+#### Documentation
+
+*   adds comparison in readme ([1a8bf31e](https://github.com/kbknapp/clap-rs/commit/1a8bf31e7a6b87ce48a66af2cde1645b2dd5bc95), closes [#325](https://github.com/kbknapp/clap-rs/issues/325))
+
+
+
 <a name="v1.4.5"></a>
 ### v1.4.5 (2015-10-06)
 
