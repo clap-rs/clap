@@ -11,6 +11,7 @@ Table of Contents
 
 * [What's New](#whats-new)
 * [About](#about)
+* [FAQ](#faq)
 * [Features](#features)
 * [Quick Example](#quick-example)
 * [Try it!](#try-it)
@@ -32,8 +33,10 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-If you're already familiar with `clap` but just want to see some new highlights as of **1.4.4**
+If you're already familiar with `clap` but just want to see some new highlights as of **1.4.6**
 
+* **Major Bug Fixes in 1.4.6** We recommend everyone upgrade as soon as possible. See the [the changelog](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md) for details.
+* Using `get_matches_safe_*` family of methods no longer exits the process when help or version is displayed, instead it returns an `ClapError` with an `error_type` field set to `ClapErrorType::HelpDisplayed` or `ClapErrorType::VersionDisplayed` respectively. You must then call `ClapError::exit` or `std::process::exit` giving you the control.
 * `-Lvalue` style options are **now supported**! (i.e. `-L` is the short, and `value` is the value being passed. Equivilant to `-L value`). This can be combined with flag expansion. Example: `-lF2` could be parsed as `-l -F 2` where `-l` is a flag and `-F` is an option that takes a number.
 * There is a **new opt-in setting** (`AppSettings::TrailingVarArg`) to allow the final positional argument to be a vararg and have `clap` not interpret the remaining arguments (i.e. useful when final argument should be a list of arguments for another command or process)
 * You can now access values from an argument in a group via the group name, instead of having to check each arg name individually to find out which one was used. The same applies for checking if an arg from a group `is_present()`
@@ -55,6 +58,44 @@ For full details, see [CHANGELOG.md](https://github.com/kbknapp/clap-rs/blob/mas
 `clap` also provides the traditional version and help switches (or flags) 'for free' meaning automatically with no configuration. It does this by checking list of valid possibilities you supplied and if you haven't them already (or only defined some of them), `clap` will auto-generate the applicable ones. If you are using subcommands, `clap` will also auto-generate a `help` subcommand for you in addition to the traditional flags.
 
 Once `clap` parses the user provided string of arguments, it returns the matches along with any applicable values. If the user made an error or typo, `clap` informs them of the mistake and exits gracefully. Because of this, you can make reasonable assumptions in your code about the validity of the arguments.
+
+## FAQ
+
+For a full FAQ and more in depth details, see [the wiki page](https://github.com/kbknapp/clap-rs/wiki/FAQ)
+
+### Comparisons
+
+First, let me say that these comparisons are highly subjective, and not meant in a critical or harsh manner. All the argument parsing libraries out there (to include `clap`) have their own strengths and weaknesses. Sometimes it just comes down to personal taste when all other factors are equal. When in doubt, try them all and pick one that you enjoy :) There's plenty of room in the Rust community for multiple implementations!
+
+#### How does `clap` compare to [getopts](https://github.com/rust-lang-nursery/getopts)?
+
+`getopts` is a very basic, fairly minimalist argument parsing library. This isn't a bad thing, sometimes you don't need tons of features, you just want to parse some simple arguments, and have some help text generated for you based on valid arguments you specify. When using `getopts` you must manually implement most of the common features (such as checking to display help messages, usage strings, etc.). If you want a highly custom argument parser, and don't mind writing most the argument parser yourself, `getopts` is an excellent base.
+
+Due to it's lack of features, `getopts` also doesn't allocate much, or at all. This gives it somewhat of a performance boost. Although, as you start implementing those features you need manually, that boost quickly dissapears.
+
+Personally, I find many, many people that use `getopts` are manually implementing features that `clap` has by default. Using `clap` simplifies your codebase allowing you to focus on your application, and not argument parsing.
+
+Reasons to use `getopts` instead of `clap`
+
+ * You need a few allocations as possible, don't plan on implmenting any additional features
+ * You want a highly custom argument parser, but want to use an established parser as a base
+
+#### How does `clap` compare to [docopt.rs](https://github.com/docopt/docopt.rs)?
+
+I first want to say I'm a big a fan of BurntSuhsi's work, the creator of `Docopt.rs`. I aspire to produce the quality of libraries that this man does! When it comes to comparing these two libraries they are very different. `docopt` tasks you with writing a help message, and then it parsers that message for you to determine all valid arguments and their use. Some people LOVE this, others not so much. If you're willing to write a detailed help message, it's nice that you can stick that in your program and have `docopt` do the rest. On the downside, it's somewhat less flexible than other options out there, and requires the help message change if you need to make changes.
+
+`docopt` is also excellent at translating arguments into Rust types automatically. There is even a syntax extension which will do all this for you, if you're willing to use a nightly compiler (use of a stable compiler requires you to manually translate from arguments to Rust types). To use BurntSushi's words, `docopt` is also somewhat of a black box. You get what you get, and it's hard to tweak implmementation or customise your experience for your use case.
+
+Because `docopt` is doing a ton of work to parse your help messages and determine what you were trying to communicate as valid arguments, it's also one of the more heavy weight parsers performance-wise. For most applications this isn't a concern, but it's something to keep in mind.
+
+Reasons to use `docopt` instead of `clap`
+ * You want automatic translation from arguments to Rust types, and are using a nightly compiler
+ * Performance isn't a concern
+ * You don't have any complex relationships between arguments
+
+#### All else being equal, whare are some reasons to use `clap`?
+
+`clap` is fast, and as lightweight as possible while still giving all the features you'd expect from a modern argument parser. If you use `clap` when just need some simple arguments parsed, you'll find it a walk in the park. But `clap` also makes it possible to represent extremely complex, and advanced requirements, without too much thought. `clap` aims to be intuitive, easy to use, and fully capable for wide variety use cases and needs.
 
 ## Features
 

@@ -251,6 +251,8 @@ pub enum ClapErrorType {
     /// assert_eq!(result.unwrap_err().error_type, ClapErrorType::VersionDisplayed);
     /// ```
     VersionDisplayed,
+    /// Represents an internal error, please consider filing a bug report if this happens!
+    InternalError,
 }
 
 /// Command line argument parser error
