@@ -30,7 +30,7 @@ use usageparser::{UsageParser, UsageToken};
 /// # let matches = App::new("myprog")
 /// #                 .arg(
 /// // Using the traditional builder pattern and setting each option manually
-/// Arg::with_name("conifg")
+/// Arg::with_name("config")
 ///       .short("c")
 ///       .long("config")
 ///       .takes_value(true)
@@ -52,20 +52,20 @@ pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// The string of text that will displayed to the user when the application's
     /// `help` text is displayed
     pub help: Option<&'h str>,
-    /// If this is a required by default when using the command line program
-    /// i.e. a configuration file that's required for the program to function
-    /// **NOTE:** required by default means, it is required *until* mutually
+    /// If this is a required by default when using the command line program,
+    /// e.g. a configuration file that's required for the program to function
+    /// **NOTE:** required by default means it is required *until* mutually
     /// exclusive arguments are evaluated.
     pub required: bool,
-    /// Determines if this argument is an option, vice a flag or positional and
+    /// Determines if this argument is an option (as opposed to flag or positional) and
     /// is mutually exclusive with `index` and `multiple`
     pub takes_value: bool,
     /// The index of the argument. `index` is mutually exclusive with `takes_value`
     /// and `multiple`
     pub index: Option<u8>,
     /// Determines if multiple instances of the same flag are allowed. `multiple`
-    /// is mutually exclusive with `index` and `takes_value`.
-    /// I.e. `-v -v -v` or `-vvv`
+    /// is mutually exclusive with `index`.
+    /// e.g. `-v -v -v` or `-vvv` or `--option foo --option bar`
     pub multiple: bool,
     /// A list of names for other arguments that *may not* be used with this flag
     pub blacklist: Option<Vec<&'r str>>,
@@ -114,7 +114,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # use clap::{App, Arg};
     /// # let matches = App::new("myprog")
     /// #                 .arg(
-    /// Arg::with_name("conifg")
+    /// Arg::with_name("config")
     /// # .short("c")
     /// # ).get_matches();
     pub fn with_name(n: &'n str) -> Self {
@@ -398,8 +398,8 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// Sets the short version of the argument without the preceding `-`.
     ///
     ///
-    /// By default `clap` automatically assigns `v` and `h` to display version and help information
-    /// respectively. You may use `v` or `h` for your own purposes, in which case `clap` simply
+    /// By default `clap` automatically assigns `V` and `h` to display version and help information
+    /// respectively. You may use `V` or `h` for your own purposes, in which case `clap` simply
     /// will not assign those to the displaying of version or help.
     ///
     /// **NOTE:** Any leading `-` characters will be stripped, and only the first
@@ -412,7 +412,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # use clap::{App, Arg};
     /// # let matches = App::new("myprog")
     /// #                 .arg(
-    /// # Arg::with_name("conifg")
+    /// # Arg::with_name("config")
     /// .short("c")
     /// # ).get_matches();
     pub fn short(mut self, s: &str) -> Self {
@@ -436,7 +436,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # use clap::{App, Arg};
     /// # let matches = App::new("myprog")
     /// #                 .arg(
-    /// # Arg::with_name("conifg")
+    /// # Arg::with_name("config")
     /// .long("config")
     /// # ).get_matches();
     pub fn long(mut self, l: &'l str) -> Self {
@@ -454,7 +454,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # use clap::{App, Arg};
     /// # let matches = App::new("myprog")
     /// #                 .arg(
-    /// # Arg::with_name("conifg")
+    /// # Arg::with_name("config")
     /// .help("The config file used by the myprog")
     /// # ).get_matches();
     pub fn help(mut self, h: &'h str) -> Self {
@@ -478,7 +478,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # use clap::{App, Arg};
     /// # let matches = App::new("myprog")
     /// #                 .arg(
-    /// # Arg::with_name("conifg")
+    /// # Arg::with_name("config")
     /// .required(true)
     /// # ).get_matches();
     pub fn required(mut self, r: bool) -> Self {
@@ -498,7 +498,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
+    /// # let myprog = App::new("myprog").arg(Arg::with_name("config")
     /// .conflicts_with("debug")
     /// # ).get_matches();
     pub fn conflicts_with(mut self, name: &'r str) -> Self {
@@ -523,7 +523,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// ```no_run
     /// # use clap::{App, Arg};
     /// let config_conflicts = ["debug", "input"];
-    /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
+    /// # let myprog = App::new("myprog").arg(Arg::with_name("config")
     /// .conflicts_with_all(&config_conflicts)
     /// # ).get_matches();
     pub fn conflicts_with_all<T, I>(mut self, names: I) -> Self
@@ -547,7 +547,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
+    /// # let myprog = App::new("myprog").arg(Arg::with_name("config")
     /// .mutually_overrides_with("debug")
     /// # ).get_matches();
     pub fn mutually_overrides_with(mut self, name: &'r str) -> Self {
@@ -567,7 +567,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// ```no_run
     /// # use clap::{App, Arg};
     /// let config_overrides = ["debug", "input"];
-    /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
+    /// # let myprog = App::new("myprog").arg(Arg::with_name("config")
     /// .mutually_overrides_with_all(&config_overrides)
     /// # ).get_matches();
     pub fn mutually_overrides_with_all<T, I>(mut self, names: I) -> Self
@@ -594,7 +594,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
+    /// # let myprog = App::new("myprog").arg(Arg::with_name("config")
     /// .requires("debug")
     /// # ).get_matches();
     pub fn requires(mut self, name: &'r str) -> Self {
@@ -618,7 +618,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// ```no_run
     /// # use clap::{App, Arg};
     /// let config_reqs = ["debug", "input"];
-    /// # let myprog = App::new("myprog").arg(Arg::with_name("conifg")
+    /// # let myprog = App::new("myprog").arg(Arg::with_name("config")
     /// .requires_all(&config_reqs)
     /// # ).get_matches();
     pub fn requires_all<T, I>(mut self, names: I) -> Self
@@ -647,7 +647,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # use clap::{App, Arg};
     /// # let matches = App::new("myprog")
     /// #                 .arg(
-    /// # Arg::with_name("conifg")
+    /// # Arg::with_name("config")
     /// .takes_value(true)
     /// # ).get_matches();
     pub fn takes_value(mut self, tv: bool) -> Self {
@@ -669,7 +669,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// # use clap::{App, Arg};
     /// # let matches = App::new("myprog")
     /// #                 .arg(
-    /// # Arg::with_name("conifg")
+    /// # Arg::with_name("config")
     /// .index(1)
     /// # ).get_matches();
     pub fn index(mut self, idx: u8) -> Self {
