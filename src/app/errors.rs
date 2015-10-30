@@ -1,6 +1,12 @@
 use std::process;
 use std::error::Error;
-use std::fmt;
+use std::fmt as std_fmt;
+use std::io::{self, Write};
+use std::convert::From;
+
+use fmt::Format;
+
+pub type ClapResult<T> = Result<T, ClapError>;
 
 /// Command line argument parser error types
 #[derive(PartialEq, Debug, Copy, Clone)]
@@ -267,19 +273,13 @@ pub struct ClapError {
 impl ClapError {
     /// Prints the error to `stderr` and exits with a status of `1`
     pub fn exit(&self) -> ! {
-        if self.use_stderr() {
+        if self.std_err {
             wlnerr!("{}", self.error);
             process::exit(1);
         }
-        println!("{}", self.error);
+        let out = io::stdout();
+        writeln!(&mut out.lock(), "{}", self.error).expect("Error writing ClapError to stdout");
         process::exit(0);
-    }
-
-    fn use_stderr(&self) -> bool {
-        match self.error_type {
-            ClapErrorType::HelpDisplayed | ClapErrorType::VersionDisplayed => false,
-            _ => true
-        }
     }
 }
 
@@ -287,10 +287,17 @@ impl Error for ClapError {
     fn description(&self) -> &str {
         &*self.error
     }
+
+    fn cause(&self) -> Option<&Error> {
+        match self.error_type {
+            ClapErrorType::Io(ref e) => Some(e),
+            _ => None
+        }
+    }
 }
 
-impl fmt::Display for ClapError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl std_fmt::Display for ClapError {
+    fn fmt(&self, f: &mut std_fmt::Formatter) -> std_fmt::Result {
         write!(f, "{}", self.error)
     }
 }

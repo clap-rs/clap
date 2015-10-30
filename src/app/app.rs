@@ -3,7 +3,6 @@ use std::env;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::path::Path;
 use std::process;
-use std::error::Error;
 use std::ffi::OsStr;
 use std::borrow::Borrow;
 
@@ -18,7 +17,7 @@ use fmt::Format;
 use super::settings::{AppFlags, AppSettings};
 
 use super::suggestions::{DidYouMeanMessageStyle, did_you_mean};
-use super::errors::{ClapError, ClapErrorType};
+use super::errors::{ClapError, ClapResult, ClapErrorType};
 
 
 const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider filing a bug \
@@ -1130,7 +1129,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// let mut out = io::stdout();
     /// app.write_help(&mut out).ok().expect("failed to write to stdout");
     /// ```
-    pub fn print_help(&self) -> io::Result<()> {
+    pub fn print_help(&self) -> ClapResult<()> {
         let out = io::stdout();
         let mut buf_w = BufWriter::new(out.lock());
         self.write_help(&mut buf_w)
@@ -1145,9 +1144,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// let mut out = io::stdout();
     /// app.write_help(&mut out).ok().expect("failed to write to stdout");
     /// ```
-    pub fn write_help<W: Write>(&self, w: &mut W) -> io::Result<()> {
+    pub fn write_help<W: Write>(&self, w: &mut W) -> ClapResult<()> {
         if let Some(h) = self.help_str {
-            return writeln!(w, "{}", h);
+            return writeln!(w, "{}", h).map_err(ClapError::from);
         }
 
         // Print the version
@@ -1302,7 +1301,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
         // flush the buffer
         debugln!("Flushing the buffer...");
-        w.flush()
+        w.flush().map_err(ClapError::from)
     }
 
     /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
@@ -1364,7 +1363,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .get_matches_safe()
     ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
     /// ```
-    pub fn get_matches_safe(self) -> Result<ArgMatches<'ar, 'ar>, ClapError> {
+    pub fn get_matches_safe(self) -> ClapResult<ArgMatches<'ar, 'ar>> {
         // Start the parsing
         self.get_matches_from_safe(env::args_os())
     }
@@ -1391,7 +1390,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .get_matches_safe()
     ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
     /// ```
-    pub fn get_matches_safe_lossy(self) -> Result<ArgMatches<'ar, 'ar>, ClapError> {
+    pub fn get_matches_safe_lossy(self) -> ClapResult<ArgMatches<'ar, 'ar>> {
         // Start the parsing
         self.get_matches_from_safe_lossy(env::args_os())
     }
@@ -1420,23 +1419,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         where I: IntoIterator<Item = T>,
               T: AsRef<OsStr>
     {
-        match self.get_matches_from_safe_borrow(itr) {
-            Ok(m) => m,
-            Err(e) => {
-                match e.error_type {
-                    ClapErrorType::HelpDisplayed | ClapErrorType::VersionDisplayed => e.exit(),
-                    _ => (),
-                }
-                wlnerr!("{}", e.error);
-                if self.settings.is_set(&AppSettings::WaitOnError) {
-                    wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
-                    let mut s = String::new();
-                    let i = io::stdin();
-                    i.lock().read_line(&mut s).unwrap();
-                }
-                process::exit(1);
+        self.get_matches_from_safe_borrow(itr).unwrap_or_else(|e| {
+            // If it's not true error, such as one being written to stdout, just do that and exit
+            if !e.std_err {
+                e.exit();
             }
-        }
+
+            // Otherwise, write to stderr and exit
+            self.maybe_wait_for_exit(e);
+        })
     }
 
     /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
@@ -1464,23 +1455,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         where I: IntoIterator<Item = T>,
               T: AsRef<OsStr>
     {
-        match self.get_matches_from_safe_borrow_lossy(itr) {
-            Ok(m) => m,
-            Err(e) => {
-                match e.error_type {
-                    ClapErrorType::HelpDisplayed | ClapErrorType::VersionDisplayed => e.exit(),
-                    _ => (),
-                }
-                wlnerr!("{}", e.error);
-                if self.settings.is_set(&AppSettings::WaitOnError) {
-                    wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
-                    let mut s = String::new();
-                    let i = io::stdin();
-                    i.lock().read_line(&mut s).unwrap();
-                }
-                process::exit(1);
+        self.get_matches_from_safe_borrow_lossy(itr).unwrap_or_else(|e| {
+            // If it's not true error, such as one being written to stdout, just do that and exit
+            if !e.std_err {
+                e.exit();
             }
-        }
+
+            // Otherwise, write to stderr and exit
+            self.maybe_wait_for_exit(e);
+        })
     }
 
     /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
@@ -1515,7 +1498,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///     .get_matches_from_safe(arg_vec)
     ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
     /// ```
-    pub fn get_matches_from_safe<I, T>(mut self, itr: I) -> Result<ArgMatches<'ar, 'ar>, ClapError>
+    pub fn get_matches_from_safe<I, T>(mut self, itr: I) -> ClapResult<ArgMatches<'ar, 'ar>>
         where I: IntoIterator<Item = T>,
               T: AsRef<OsStr>
     {
@@ -1554,7 +1537,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// ```
     pub fn get_matches_from_safe_lossy<I, T>(mut self,
                                              itr: I)
-                                             -> Result<ArgMatches<'ar, 'ar>, ClapError>
+                                             -> ClapResult<ArgMatches<'ar, 'ar>>
         where I: IntoIterator<Item = T>,
               T: AsRef<OsStr>
     {
@@ -1590,7 +1573,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// ```
     pub fn get_matches_from_safe_borrow<I, T>(&mut self,
                                               itr: I)
-                                              -> Result<ArgMatches<'ar, 'ar>, ClapError>
+                                              -> ClapResult<ArgMatches<'ar, 'ar>>
         where I: IntoIterator<Item = T>,
               T: AsRef<OsStr>
     {
@@ -1626,7 +1609,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// ```
     pub fn get_matches_from_safe_borrow_lossy<I, T>(&mut self,
                                                     itr: I)
-                                                    -> Result<ArgMatches<'ar, 'ar>, ClapError>
+                                                    -> ClapResult<ArgMatches<'ar, 'ar>>
         where I: IntoIterator<Item = T>,
               T: AsRef<OsStr>
     {
@@ -1636,7 +1619,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     fn _get_matches_from_safe_borrow<I, T>(&mut self,
                                            itr: I,
                                            lossy: bool)
-                                           -> Result<ArgMatches<'ar, 'ar>, ClapError>
+                                           -> ClapResult<ArgMatches<'ar, 'ar>>
         where I: IntoIterator<Item = T>,
               T: AsRef<OsStr>
     {
@@ -1683,7 +1666,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                               matches: &mut ArgMatches<'ar, 'ar>,
                               it: &mut I,
                               lossy: bool)
-                              -> Result<(), ClapError>
+                              -> ClapResult<()>
         where I: Iterator<Item = T>,
               T: AsRef<OsStr>
     {
@@ -1856,19 +1839,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     if self.subcommands.contains_key(arg_slice) {
                         if arg_slice == "help" &&
                            self.settings.is_set(&AppSettings::NeedsSubcommandHelp) {
-                            if let Err(e) = self.print_help() {
-                                return Err(ClapError {
-                                    error: format!("{} {}\n\terror message: {}\n",
-                                                   Format::Error("error:"),
-                                                   INTERNAL_ERROR_MSG,
-                                                   e.description()),
-                                    error_type: ClapErrorType::InternalError,
-                                });
-                            }
-                            // process::exit(0);
+                            try!(self.print_help());
                             return Err(ClapError {
                                 error: String::new(),
                                 error_type: ClapErrorType::HelpDisplayed,
+                                std_err: false
                             });
                         }
                         subcmd_name = Some(arg_slice.to_owned());
@@ -2109,19 +2084,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             return Err(self.create_error(&[&*bn], ClapErrorType::MissingSubcommand, matches));
         } else if self.settings.is_set(&AppSettings::SubcommandRequiredElseHelp) {
             let mut out = vec![];
-            match self.write_help(&mut out) {
-                Ok(..) => return Err(ClapError {
+            try!(self.write_help(&mut out));
+            return Err(
+                ClapError {
                     error: String::from_utf8_lossy(&*out).into_owned(),
                     error_type: ClapErrorType::MissingSubcommand,
-                }),
-                Err(e) => return Err(ClapError {
-                    error: format!("{} {}\n\terror message: {}\n",
-                                   Format::Error("error:"),
-                                   INTERNAL_ERROR_MSG,
-                                   e.description()),
-                    error_type: ClapErrorType::InternalError,
-                }),
-            }
+                    std_err: true
+            });
         }
         if (!self.settings.is_set(&AppSettings::SubcommandsNegateReqs) ||
             matches.subcommand_name().is_none()) && self.validate_required(&matches) {
@@ -2130,25 +2099,33 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         if matches.args.is_empty() && matches.subcommand_name().is_none() &&
            self.settings.is_set(&AppSettings::ArgRequiredElseHelp) {
             let mut out = vec![];
-            match self.write_help(&mut out) {
-                Ok(..) => return Err(ClapError {
+            try!(self.write_help(&mut out));
+            return Err(
+                ClapError {
                     error: String::from_utf8_lossy(&*out).into_owned(),
-                    error_type: ClapErrorType::MissingSubcommand,
-                }),
-                Err(e) => return Err(ClapError {
-                    error: format!("{} {}\n\terror message: {}\n",
-                                   Format::Error("error:"),
-                                   INTERNAL_ERROR_MSG,
-                                   e.description()),
-                    error_type: ClapErrorType::InternalError,
-                }),
-            }
+                    error_type: ClapErrorType::MissingArgumentOrSubcommand,
+                    std_err: true
+            });
         }
         Ok(())
     }
 
+    // basically re-implements ClapError::exit except it checks if we should wait for input before
+    // exiting since ClapError doesn't have that info and the error message must be printed before
+    // exiting
+    fn maybe_wait_for_exit(&self, e: ClapError) -> ! {
+        wlnerr!("{}", e.error);
+        if self.settings.is_set(&AppSettings::WaitOnError) {
+            wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
+            let mut s = String::new();
+            let i = io::stdin();
+            i.lock().read_line(&mut s).unwrap();
+        }
+        process::exit(1);
+    }
+
     // Prints the version to the user and exits if quit=true
-    fn print_version<W: Write>(&self, w: &mut W) -> io::Result<()> {
+    fn print_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
         // Print the binary name if existing, but replace all spaces with hyphens in
         // case we're
         // dealing with subcommands i.e. git mv is translated to git-mv
@@ -2157,7 +2134,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                       &self.bin_name.as_ref().unwrap_or(&self.name)[..].replace(" ", "-"),
                       self.version.unwrap_or("")));
 
-        w.flush()
+        w.flush().map_err(ClapError::from)
     }
 
     // Reports and error to stderr along with an optional usage statement and
@@ -2169,10 +2146,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                    -> ClapError
     {
         let msg = match error_type {
-            ClapErrorType::ArgumentError => {
-                assert_eq!(data.len(), 1);
-                format!("{}", data[0].as_ref())
-            }
             ClapErrorType::InvalidValue => {
                 assert_eq!(data.len(), 4);
                 format!("'{}' isn't a valid value for '{}'{}{}",
@@ -2291,11 +2264,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                             msg,
                             self.create_usage(
                             &matches.args.keys()
-                                        .map(|k| *k)
                                         .filter(|k| {
-                                            if let Some(o) = self.opts.get(k) {
+                                            if let Some(o) = self.opts.get(*k) {
                                                 !o.settings.is_set(&ArgSettings::Required)
-                                            } else if let Some(p) = self.positionals_name.get(k) {
+                                            } else if let Some(p) = self.positionals_name.get(*k) {
                                                 if let Some(p) = self.positionals_idx.get(p) {
                                                     !p.settings.is_set(&ArgSettings::Required)
                                                 } else {
@@ -2305,10 +2277,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                                 true
                                             }
                                         })
+                                        .map(|k| *k)
                                         .collect::<Vec<_>>()),
                             Format::Good("--help")
                         ),
             error_type: error_type,
+            std_err: true
         }
     }
 
@@ -2546,15 +2520,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                        self.positionals_idx.len());
             }
         }
-        if let Some(ref p) = self.positionals_idx
-                                 .values()
-                                 .filter(|a| a.settings.is_set(&ArgSettings::Multiple))
-                                 .filter(|a| a.index as usize != self.positionals_idx.len())
-                                 .next() {
-            panic!("Found positional argument \"{}\" which accepts multiple values but it's not \
-                the last positional argument (i.e. others have a higher index)",
-                   p.name);
-        }
+        assert!(!self.positionals_idx
+                     .values()
+                     .any(|a| a.settings.is_set(&ArgSettings::Multiple) &&
+                                    (a.index as usize != self.positionals_idx.len())),
+                "Found positional argument which accepts multiple values but is not \
+                    the last positional argument (i.e. others have a higher index)");
 
         // If it's required we also need to ensure all previous positionals are
         // required too
@@ -2711,21 +2682,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
     }
 
-    fn check_for_help_and_version(&self, arg: char) -> Result<(), ClapError> {
+    fn check_for_help_and_version(&self, arg: char) -> ClapResult<()> {
         if let Some(h) = self.help_short {
             if h == arg {
-                if let Err(e) = self.print_help() {
-                    return Err(ClapError {
-                        error: format!("{} {}\n\terror message: {}\n",
-                                       Format::Error("error:"),
-                                       INTERNAL_ERROR_MSG,
-                                       e.description()),
-                        error_type: ClapErrorType::InternalError,
-                    });
-                }
-                return Err(ClapError {
-                    error: String::new(),
-                    error_type: ClapErrorType::HelpDisplayed,
+                try!(self.print_help());
+                return Err(
+                    ClapError {
+                        error: String::new(),
+                        error_type: ClapErrorType::HelpDisplayed,
+                        std_err: false
                 });
             }
         }
@@ -2733,18 +2698,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             if v == arg {
                 let out = io::stdout();
                 let mut buf_w = BufWriter::new(out.lock());
-                if let Err(e) = self.print_version(&mut buf_w) {
-                    return Err(ClapError {
-                        error: format!("{} {}\n\terror message: {}\n",
-                                       Format::Error("error:"),
-                                       INTERNAL_ERROR_MSG,
-                                       e.description()),
-                        error_type: ClapErrorType::InternalError,
-                    });
-                }
-                return Err(ClapError {
-                    error: String::new(),
-                    error_type: ClapErrorType::VersionDisplayed,
+                try!(self.print_version(&mut buf_w));
+                return Err(
+                    ClapError {
+                        error: String::new(),
+                        error_type: ClapErrorType::VersionDisplayed,
+                        std_err: false,
                 });
             }
         }
@@ -2755,39 +2714,27 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     fn parse_long_arg<'av>(&mut self,
                            matches: &mut ArgMatches<'ar, 'ar>,
                            full_arg: &'av str)
-                           -> Result<Option<&'ar str>, ClapError>
+                           -> ClapResult<Option<&'ar str>>
     {
         let mut arg = full_arg.trim_left_matches(|c| c == '-');
 
         if arg == "help" && self.settings.is_set(&AppSettings::NeedsLongHelp) {
-            if let Err(e) = self.print_help() {
-                return Err(ClapError {
-                    error: format!("{} {}\n\terror message: {}\n",
-                                   Format::Error("error:"),
-                                   INTERNAL_ERROR_MSG,
-                                   e.description()),
-                    error_type: ClapErrorType::InternalError,
-                });
-            }
-            return Err(ClapError {
-                error: String::new(),
-                error_type: ClapErrorType::HelpDisplayed,
+            try!(self.print_help());
+            return Err(
+                ClapError {
+                    error: String::new(),
+                    error_type: ClapErrorType::HelpDisplayed,
+                    std_err: false
             });
         } else if arg == "version" && self.settings.is_set(&AppSettings::NeedsLongVersion) {
             let out = io::stdout();
             let mut buf_w = BufWriter::new(out.lock());
-            if let Err(e) = self.print_version(&mut buf_w) {
-                return Err(ClapError {
-                    error: format!("{} {}\n\terror message: {}\n",
-                                   Format::Error("error:"),
-                                   INTERNAL_ERROR_MSG,
-                                   e.description()),
-                    error_type: ClapErrorType::InternalError,
-                });
-            }
-            return Err(ClapError {
-                error: String::new(),
-                error_type: ClapErrorType::VersionDisplayed,
+            try!(self.print_version(&mut buf_w));
+            return Err(
+                ClapError {
+                    error: String::new(),
+                    error_type: ClapErrorType::VersionDisplayed,
+                    std_err: false
             });
         }
 
@@ -3126,7 +3073,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                       v: &OptBuilder,
                       av: &str,
                       matches: &ArgMatches)
-                      -> Result<(), ClapError>
+                      -> ClapResult<()>
     {
         if let Some(ref p_vals) = v.possible_vals {
             if !p_vals.contains(&av) {
@@ -3139,7 +3086,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
         if let Some(ref vtor) = v.validator {
             if let Err(e) = vtor(av.to_owned()) {
-                return Err(self.create_error(&[&*e], ClapErrorType::ArgumentError, matches));
+                return Err(self.create_error(&[&*e], ClapErrorType::ValueValidationError, matches));
             }
         }
         Ok(())
@@ -3148,7 +3095,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     fn parse_short_arg(&mut self,
                        matches: &mut ArgMatches<'ar, 'ar>,
                        full_arg: &str)
-                       -> Result<Option<&'ar str>, ClapError>
+                       -> ClapResult<Option<&'ar str>>
     {
         let arg = &full_arg[..].trim_left_matches(|c| c == '-');
         for c in arg.chars() {
@@ -3267,7 +3214,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     fn parse_single_short_flag(&mut self,
                                matches: &mut ArgMatches<'ar, 'ar>,
                                arg: char)
-                               -> Result<bool, ClapError>
+                               -> ClapResult<bool>
     {
         if let Some(v) = self.flags
                              .values()
@@ -3369,7 +3316,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         Ok(false)
     }
 
-    fn validate_blacklist(&self, matches: &mut ArgMatches<'ar, 'ar>) -> Result<(), ClapError> {
+    fn validate_blacklist(&self, matches: &mut ArgMatches<'ar, 'ar>) -> ClapResult<()> {
         for name in self.blacklist.iter() {
             if matches.args.contains_key(name) {
                 matches.args.remove(name);
@@ -3426,7 +3373,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         Ok(())
     }
 
-    fn validate_num_args(&self, matches: &mut ArgMatches<'ar, 'ar>) -> Result<(), ClapError> {
+    fn validate_num_args(&self, matches: &mut ArgMatches<'ar, 'ar>) -> ClapResult<()> {
         for (name, ma) in matches.args.iter() {
             if self.groups.contains_key(name) {
                 continue;
@@ -3638,7 +3585,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                        opt: &OptBuilder,
                        arg_slice: &str,
                        matches: &ArgMatches)
-                       -> Result<(), ClapError>
+                       -> ClapResult<()>
     {
         // Check the possible values
         if let Some(ref p_vals) = opt.possible_vals {
