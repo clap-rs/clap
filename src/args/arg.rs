@@ -677,13 +677,15 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self
     }
 
-    /// Specifies if the flag may appear more than once such as for multiple debugging
-    /// levels (as an example). `-ddd` for three levels of debugging, or `-d -d -d`.
-    /// When this is set to `true` you receive the number of occurrences the user supplied
-    /// of a particular flag at runtime.
+    /// Specifies that the flag or option may appear more than once. For flags, this results
+    /// in the number of occurrences of the flag being recorded. For example `-ddd` would count as
+    /// three occurrences. The form `-d -d -d` would also be recognized as three occurrences. For
+    /// options, more than one value may be provided. The forms `--optional foo --optional bar`,
+    /// `--optional foo bar` and `-ofoo -obar` are all recognized, assuming the relevant `short`
+    /// and `long` option names have been set.
     ///
-    /// **NOTE:** When setting this,  any `takes_value` or `index` values you set
-    /// are ignored as flags cannot have a values or an `index`.
+    /// **NOTE:** When setting this, `index` is ignored as it only makes sense for positional
+    /// arguments.
     ///
     ///
     /// # Examples
