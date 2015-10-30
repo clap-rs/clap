@@ -159,8 +159,6 @@ fn require_overriden() {
             .mutually_overrides_with("flag"))
         .get_matches_from_safe(vec!["", "flag", "-c"]);
     assert!(result.is_ok());
-    // let err = result.err().unwrap();
-    // assert_eq!(err.error_type, ClapErrorType::MissingRequiredArgument);
 }
 
 #[test]
