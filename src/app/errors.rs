@@ -8,8 +8,264 @@ use fmt::Format;
 
 pub type ClapResult<T> = Result<T, ClapError>;
 
+#[doc(hidden)]
+#[allow(non_snake_case)]
+pub mod error_builder {
+    use super::ClapError;
+    use super::ClapErrorType as cet;
+    use fmt::Format;
+
+    /// Error occurs when clap find two ore more conflicting arguments
+    pub fn ArgumentConflict<S>(arg: S, other: Option<S>, usage: S) -> ClapError where S: AsRef<str> {
+        ClapError {
+            error: format!("{} The argument '{}' cannot be used with {}\n\n\
+                            {}\n\n\
+                            For more information try {}",
+                    Format::Error("error:"),
+                    Format::Warning(arg.as_ref()),
+                    match other {
+                        Some(name) => format!("'{}'", Format::Warning(name)),
+                        None => "one or more of the other specified arguments".to_owned(),
+                    },
+                    usage.as_ref(),
+                    Format::Good("--help")),
+            error_type: cet::ArgumentConflict,
+        }
+    }
+
+    /// Error occurs when option does not allow empty values but some was found
+    pub fn EmptyValue<S>(arg: S, usage: S) -> ClapError where S: AsRef<str> {
+        ClapError {
+            error: format!("{} The argument '{}' requires a value but none was supplied\
+                            \n\n\
+                            {}\n\n\
+                            For more information try {}",
+                    Format::Error("error:"),
+                    Format::Warning(arg.as_ref()),
+                    usage.as_ref(),
+                    Format::Good("--help")),
+            error_type: cet::InvalidValue,
+        }
+    }
+
+    /// Error occurs when some possible values were set, but clap found unexpected value
+    pub fn InvalidValue<S>(bad_val: S,
+                       arg: S,
+                       valid_vals: S,
+                       did_you_mean: S,
+                       usage: S) -> ClapError where S: AsRef<str>
+    {
+        ClapError {
+            error: format!("{} '{}' isn't a valid value for '{}'\n\t\
+                            [valid values:{}]\n\
+                            {}\n\n\
+                            {}\n\n\
+                            For more information try {}",
+                    Format::Error("error:"),
+                    Format::Warning(bad_val.as_ref()),
+                    Format::Warning(arg.as_ref()),
+                    valid_vals.as_ref(),
+                    did_you_mean.as_ref(),
+                    usage.as_ref(),
+                    Format::Good("--help")),
+            error_type: cet::InvalidValue,
+        }
+    }
+
+    /// Error occurs when clap found unexpected flag or option
+    pub fn InvalidArgument<S>(arg: S,
+                          did_you_mean: Option<S>,
+                          usage: S) -> ClapError where S: AsRef<str>
+    {
+        ClapError {
+            error: format!("{} The argument '{}' isn't valid{}\n\
+                            {}\n\n\
+                            For more information try {}",
+                            Format::Error("error:"),
+                            Format::Warning(arg),
+                            if did_you_mean.is_some() {
+                                format!("{}\n", did_you_mean.unwrap().as_ref())
+                            } else {
+                                "".to_owned()
+                            },
+                            usage.as_ref(),
+                            Format::Good("--help")),
+            error_type: cet::InvalidArgument,
+        }
+    }
+
+    /// Error occurs when clap found unexpected subcommand
+    pub fn InvalidSubcommand<S>(subcmd: S,
+                            did_you_mean: S,
+                            name: S,
+                            usage: S) -> ClapError where S: AsRef<str>
+    {
+        ClapError {
+            error: format!("{} The subcommand '{}' isn't valid\n\t\
+                            Did you mean '{}' ?\n\n\
+                            If you received this message in error, try \
+                            re-running with '{} {} {}'\n\n\
+                            {}\n\n\
+                            For more information try {}",
+                    Format::Error("error:"),
+                    Format::Warning(subcmd.as_ref()),
+                    Format::Good(did_you_mean.as_ref()),
+                    name.as_ref(),
+                    Format::Good("--"),
+                    subcmd.as_ref(),
+                    usage.as_ref(),
+                    Format::Good("--help")),
+            error_type: cet::InvalidSubcommand,
+        }
+    }
+
+    /// Error occurs when one or more required arguments missing
+    pub fn MissingRequiredArgument<S>(required: S, usage: S) -> ClapError where S: AsRef<str> {
+        ClapError {
+            error: format!("{} The following required arguments were not supplied:{}\n\n\
+                            {}\n\n\
+                            For more information try {}",
+                    Format::Error("error:"),
+                    required.as_ref(),
+                    usage.as_ref(),
+                    Format::Good("--help")),
+            error_type: cet::MissingRequiredArgument,
+        }
+    }
+
+    /// Error occurs when required subcommand missing
+    pub fn MissingSubcommand<S>(name: S,  usage: S) -> ClapError where S: AsRef<str> {
+        ClapError {
+            error: format!("{} '{}' requires a subcommand but none was provided\n\n\
+                            {}\n\n\
+                            For more information try {}",
+                    Format::Error("error:"),
+                    Format::Warning(name),
+                    usage.as_ref(),
+                    Format::Good("--help")),
+            error_type: cet::MissingSubcommand,
+        }
+    }
+
+
+    /// Error occurs when argument contains invalid unicode characters
+    pub fn InvalidUnicode<S>(usage: S) -> ClapError where S: AsRef<str> {
+        ClapError {
+            error: format!("{} Invalid unicode character in one or more arguments\n\n\
+                            {}\n\n\
+                            For more information try {}",
+                    Format::Error("error:"),
+                    usage.as_ref(),
+                    Format::Good("--help")),
+            error_type: cet::InvalidUnicode,
+        }
+    }
+
+    /// Error occurs when argument got more values then were expected
+    pub fn TooManyValues<S>(val: S, arg: S, usage: S) -> ClapError where S: AsRef<str> {
+        ClapError {
+            error: format!("{} The argument '{}' was found, but '{}' wasn't expecting \
+                            any more values\n\n\
+                            {}\n\n\
+                            For more information try {}",
+                            Format::Error("error:"),
+                            Format::Warning(val),
+                            Format::Warning(arg),
+                            usage.as_ref(),
+                            Format::Good("--help")),
+            error_type: cet::TooManyValues,
+        }
+    }
+
+    /// Error occurs when argument got less values then were expected
+    pub fn TooFewValues<S>(arg: S,
+                       min_vals: u8,
+                       curr_vals: usize,
+                       usage: S) -> ClapError where S: AsRef<str>
+    {
+        ClapError {
+            error: format!("{} The argument '{}' requires at least {} values, but {} w{} \
+                            provided\n\n\
+                            {}\n\n\
+                            For more information try {}",
+                    Format::Error("error:"),
+                    Format::Warning(arg.as_ref()),
+                    Format::Warning(min_vals.to_string()),
+                    Format::Warning(curr_vals.to_string()),
+                    if curr_vals > 1 { "ere" } else { "as" },
+                    usage.as_ref(),
+                    Format::Good("--help")),
+            error_type: cet::TooFewValues,
+        }
+    }
+
+    /// Option fails validation of a custom validator
+    pub fn ValueValidationError<S>(err: S) -> ClapError where S: AsRef<str> {
+        ClapError {
+            error: format!("{} {}",
+                    Format::Error("error:"),
+                    err.as_ref()),
+            error_type: cet::ValueValidationError,
+        }
+    }
+
+    /// Error occurs when argument got a different number of values then were expected
+    pub fn WrongNumValues<S>(arg: S,
+                         num_vals: u8,
+                         curr_vals: usize,
+                         suffix: S,
+                         usage: S) -> ClapError where S: AsRef<str>
+    {
+        ClapError {
+            error: format!("{} The argument '{}' requires {} values, but {} w{} \
+                            provided\n\n\
+                            {}\n\n\
+                            For more information try {}",
+                    Format::Error("error:"),
+                    Format::Warning(arg.as_ref()),
+                    Format::Warning(num_vals.to_string()),
+                    Format::Warning(curr_vals.to_string()),
+                    suffix.as_ref(),
+                    usage.as_ref(),
+                    Format::Good("--help")),
+            error_type: cet::InvalidSubcommand,
+        }
+    }
+
+    /// Error occurs when clap find argument while is was not expecting any
+    pub fn UnexpectedArgument<S>(arg: S, name: S, usage: S) -> ClapError where S: AsRef<str> {
+        ClapError {
+            error: format!("{} Found argument '{}', but {} wasn't expecting any\n\n\
+                            {}\n\n\
+                            For more information try {}",
+                    Format::Error("error:"),
+                    Format::Warning(arg),
+                    Format::Warning(name),
+                    usage.as_ref(),
+                    Format::Good("--help")),
+            error_type: cet::UnexpectedArgument,
+        }
+    }
+
+    /// Error occurs when argument was used multiple times and was not set as multiple.
+    pub fn UnexpectedMultipleUsage<S>(arg: S, usage: S) -> ClapError where S: AsRef<str> {
+        ClapError {
+            error: format!("{} The argument '{}' was supplied more than once, but does \
+                            not support multiple values\n\n\
+                            {}\n\n\
+                            For more information try {}",
+                    Format::Error("error:"),
+                    Format::Warning(arg),
+                    usage.as_ref(),
+                    Format::Good("--help")),
+            error_type: cet::UnexpectedMultipleUsage,
+        }
+    }
+
+}
+
 /// Command line argument parser error types
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum ClapErrorType {
     /// Error occurs when some possible values were set, but clap found unexpected value
     ///
@@ -259,6 +515,8 @@ pub enum ClapErrorType {
     VersionDisplayed,
     /// Represents an internal error, please consider filing a bug report if this happens!
     InternalError,
+    /// Represents an I/O error, typically white writing to stderr or stdout
+    Io,
 }
 
 /// Command line argument parser error
@@ -266,15 +524,22 @@ pub enum ClapErrorType {
 pub struct ClapError {
     /// Formated error message
     pub error: String,
-    /// Command line argument parser error type
+    /// The type of error
     pub error_type: ClapErrorType,
 }
 
 impl ClapError {
+    /// Should the message be written to `stdout` or not
+    pub fn use_stderr(&self) -> bool {
+        match self.error_type {
+            ClapErrorType::HelpDisplayed | ClapErrorType::VersionDisplayed => false,
+            _ => true
+        }
+    }
     /// Prints the error to `stderr` and exits with a status of `1`
     pub fn exit(&self) -> ! {
-        if self.std_err {
-            wlnerr!("{}", self.error);
+        if self.use_stderr() {
+            werr!("{}", self.error);
             process::exit(1);
         }
         let out = io::stdout();
@@ -290,7 +555,6 @@ impl Error for ClapError {
 
     fn cause(&self) -> Option<&Error> {
         match self.error_type {
-            ClapErrorType::Io(ref e) => Some(e),
             _ => None
         }
     }
@@ -299,5 +563,14 @@ impl Error for ClapError {
 impl std_fmt::Display for ClapError {
     fn fmt(&self, f: &mut std_fmt::Formatter) -> std_fmt::Result {
         write!(f, "{}", self.error)
+    }
+}
+
+impl From<io::Error> for ClapError {
+    fn from(e: io::Error) -> Self {
+        ClapError {
+            error: format!("{} {}", Format::Error("error:"), e.description()),
+            error_type: ClapErrorType::Io,
+        }
     }
 }
