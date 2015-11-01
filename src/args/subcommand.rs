@@ -17,7 +17,7 @@ use ArgMatches;
 /// # use clap::{App, Arg, SubCommand};
 /// # let matches = App::new("myprog")
 /// #                    .subcommand(
-/// SubCommand::with_name("conifg")
+/// SubCommand::with_name("config")
 ///                .about("Used for configuration")
 ///                .arg(Arg::with_name("config_file")
 ///                           .help("The configuration file to use")

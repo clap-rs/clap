@@ -99,7 +99,7 @@ pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
 }
 
 impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
-    /// Creates a new instace of `Arg` using a unique string name.
+    /// Creates a new instance of `Arg` using a unique string name.
     /// The name will be used by the library consumer to get information about
     /// whether or not the argument was used at runtime.
     ///
@@ -143,7 +143,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         }
     }
 
-    /// Creates a new instace of `Arg` from a .yml (YAML) file.
+    /// Creates a new instance of `Arg` from a .yml (YAML) file.
     ///
     /// # Examples
     ///
@@ -225,17 +225,17 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         a
     }
 
-    /// Creates a new instace of `Arg` from a usage string. Allows creation of basic settings
+    /// Creates a new instance of `Arg` from a usage string. Allows creation of basic settings
     /// for Arg (i.e. everything except relational rules). The syntax is flexible, but there are
     /// some rules to follow.
     ///
     /// **NOTE**: only properties which you wish to set must be present
     ///
-    /// 1. Name (arguments with a `long` or that take a value can ommit this if desired),
+    /// 1. Name (arguments with a `long` or that take a value can omit this if desired),
     ///    use `[]` for non-required arguments, or `<>` for required arguments.
     /// 2. Short preceded by a `-`
     /// 3. Long preceded by a `--` (this may be used as the name, if the name is omitted. If the
-    ///    name is *not* omittied, the name takes precedence over the `long`)
+    ///    name is *not* omitted, the name takes precedence over the `long`)
     /// 4. Value (this can be used as the name if the name is not manually specified. If the name
     ///    is manually specified, it takes precedence. If this value is used as the name, it uses
     ///    the same `[]` and `<>` requirement specification rules. If it is *not* used as the name,
@@ -403,7 +403,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// will not assign those to the displaying of version or help.
     ///
     /// **NOTE:** Any leading `-` characters will be stripped, and only the first
-    /// non `-` chacter will be used as the `short` version
+    /// non `-` character will be used as the `short` version
     ///
     ///
     /// # Examples
@@ -463,7 +463,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     }
 
     /// Sets whether or not the argument is required by default. Required by
-    /// default means it is required, when no other mutually exlusive rules have
+    /// default means it is required, when no other mutually exclusive rules have
     /// been evaluated. Mutually exclusive rules take precedence over being required
     /// by default.
     ///
@@ -584,7 +584,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self
     }
 
-    /// Sets an argument by name that is required when this one is presnet I.e. when
+    /// Sets an argument by name that is required when this one is present I.e. when
     /// using this argument, the following argument *must* be present.
     ///
     /// **NOTE:** Mutually exclusive and override rules take precedence over being required
@@ -606,7 +606,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
         self
     }
 
-    /// Sets arguments by names that are required when this one is presnet I.e. when
+    /// Sets arguments by names that are required when this one is present I.e. when
     /// using this argument, the following arguments *must* be present.
     ///
     /// **NOTE:** Mutually exclusive and override rules take precedence over being required
@@ -882,7 +882,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     ///     if val.contains("@") {
     ///         Ok(())
     ///     } else {
-    ///         Err(String::from("the value must contain at lesat one '@' character"))
+    ///         Err(String::from("the value must contain at least one '@' character"))
     ///     }
     /// })
     /// # ).get_matches();
@@ -900,7 +900,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     ///
     /// **NOTE:** `qty` must be > 1
     ///
-    /// **NOTE:** This implicity sets `.multiple(true)`
+    /// **NOTE:** This implicitly sets `.multiple(true)`
     ///
     /// # Examples
     ///
@@ -927,7 +927,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// `.min_values(2)`, and this argument would be satisfied if the user provided, 2 or more
     /// values.
     ///
-    /// **NOTE:** This implicity sets `.multiple(true)`
+    /// **NOTE:** This implicitly sets `.multiple(true)`
     ///
     /// **NOTE:** `qty` must be > 0
     ///

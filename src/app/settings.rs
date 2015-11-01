@@ -121,7 +121,7 @@ pub enum AppSettings {
     /// # ;
     /// ```
     SubcommandRequired,
-    /// Specifies that the help text sould be displayed (and then exit gracefully), if no
+    /// Specifies that the help text should be displayed (and then exit gracefully), if no
     /// arguments are present at runtime (i.e. an empty run such as, `$ myprog`.
     ///
     /// **NOTE:** Subcommands count as arguments
@@ -210,7 +210,7 @@ pub enum AppSettings {
     /// # ;
     /// ```
     WaitOnError,
-    /// Specifies that the help text sould be displayed (and then exit gracefully), if no
+    /// Specifies that the help text should be displayed (and then exit gracefully), if no
     /// subcommands are present at runtime (i.e. an empty run such as, `$ myprog`.
     ///
     /// **NOTE:** This should *not* be used with `.subcommand_required()` as they do the same
@@ -247,7 +247,7 @@ pub enum AppSettings {
     /// The values of the trailing positional argument will contain all args from itself on.
     ///
     /// **NOTE:** The final positional argument **must** have `.multiple(true)` or usage token
-    /// equivilant.
+    /// equivalent.
     ///
     /// # Examples
     ///

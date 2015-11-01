@@ -37,8 +37,8 @@ If you're already familiar with `clap` but just want to see some new highlights 
 
 * **Major Bug Fixes in 1.4.6** We recommend everyone upgrade as soon as possible. See the [the changelog](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md) for details.
 * Using `get_matches_safe_*` family of methods no longer exits the process when help or version is displayed, instead it returns an `ClapError` with an `error_type` field set to `ClapErrorType::HelpDisplayed` or `ClapErrorType::VersionDisplayed` respectively. You must then call `ClapError::exit` or `std::process::exit` giving you the control.
-* Allows parsing without a binary name preceeding (useful for daemon modes and interactive CLIs)
-* `-Lvalue` style options are **now supported**! (i.e. `-L` is the short, and `value` is the value being passed. Equivilant to `-L value`). This can be combined with flag expansion. Example: `-lF2` could be parsed as `-l -F 2` where `-l` is a flag and `-F` is an option that takes a number.
+* Allows parsing without a binary name preceding (useful for daemon modes and interactive CLIs)
+* `-Lvalue` style options are **now supported**! (i.e. `-L` is the short, and `value` is the value being passed. Equivalent to `-L value`). This can be combined with flag expansion. Example: `-lF2` could be parsed as `-l -F 2` where `-l` is a flag and `-F` is an option that takes a number.
 * There is a **new opt-in setting** (`AppSettings::TrailingVarArg`) to allow the final positional argument to be a vararg and have `clap` not interpret the remaining arguments (i.e. useful when final argument should be a list of arguments for another command or process)
 * You can now access values from an argument in a group via the group name, instead of having to check each arg name individually to find out which one was used. The same applies for checking if an arg from a group `is_present()`
 * You now have the option to **not** `panic!` on invalid unicode. The `*_safe()` family of `get_matches` will return an `Err` with `ClapErrorType::InvalidUnicode`.
@@ -72,20 +72,20 @@ First, let me say that these comparisons are highly subjective, and not meant in
 
 `getopts` is a very basic, fairly minimalist argument parsing library. This isn't a bad thing, sometimes you don't need tons of features, you just want to parse some simple arguments, and have some help text generated for you based on valid arguments you specify. When using `getopts` you must manually implement most of the common features (such as checking to display help messages, usage strings, etc.). If you want a highly custom argument parser, and don't mind writing most the argument parser yourself, `getopts` is an excellent base.
 
-Due to it's lack of features, `getopts` also doesn't allocate much, or at all. This gives it somewhat of a performance boost. Although, as you start implementing those features you need manually, that boost quickly dissapears.
+Due to it's lack of features, `getopts` also doesn't allocate much, or at all. This gives it somewhat of a performance boost. Although, as you start implementing those features you need manually, that boost quickly disappears.
 
 Personally, I find many, many people that use `getopts` are manually implementing features that `clap` has by default. Using `clap` simplifies your codebase allowing you to focus on your application, and not argument parsing.
 
 Reasons to use `getopts` instead of `clap`
 
- * You need a few allocations as possible, don't plan on implmenting any additional features
+ * You need a few allocations as possible, don't plan on implementing any additional features
  * You want a highly custom argument parser, but want to use an established parser as a base
 
 #### How does `clap` compare to [docopt.rs](https://github.com/docopt/docopt.rs)?
 
-I first want to say I'm a big a fan of BurntSuhsi's work, the creator of `Docopt.rs`. I aspire to produce the quality of libraries that this man does! When it comes to comparing these two libraries they are very different. `docopt` tasks you with writing a help message, and then it parsers that message for you to determine all valid arguments and their use. Some people LOVE this, others not so much. If you're willing to write a detailed help message, it's nice that you can stick that in your program and have `docopt` do the rest. On the downside, it's somewhat less flexible than other options out there, and requires the help message change if you need to make changes.
+I first want to say I'm a big a fan of BurntSushi's work, the creator of `Docopt.rs`. I aspire to produce the quality of libraries that this man does! When it comes to comparing these two libraries they are very different. `docopt` tasks you with writing a help message, and then it parsers that message for you to determine all valid arguments and their use. Some people LOVE this, others not so much. If you're willing to write a detailed help message, it's nice that you can stick that in your program and have `docopt` do the rest. On the downside, it's somewhat less flexible than other options out there, and requires the help message change if you need to make changes.
 
-`docopt` is also excellent at translating arguments into Rust types automatically. There is even a syntax extension which will do all this for you, if you're willing to use a nightly compiler (use of a stable compiler requires you to manually translate from arguments to Rust types). To use BurntSushi's words, `docopt` is also somewhat of a black box. You get what you get, and it's hard to tweak implmementation or customise your experience for your use case.
+`docopt` is also excellent at translating arguments into Rust types automatically. There is even a syntax extension which will do all this for you, if you're willing to use a nightly compiler (use of a stable compiler requires you to manually translate from arguments to Rust types). To use BurntSushi's words, `docopt` is also somewhat of a black box. You get what you get, and it's hard to tweak implementation or customise your experience for your use case.
 
 Because `docopt` is doing a ton of work to parse your help messages and determine what you were trying to communicate as valid arguments, it's also one of the more heavy weight parsers performance-wise. For most applications this isn't a concern, but it's something to keep in mind.
 
@@ -329,7 +329,7 @@ fn main() {
 }
 ```
 
-This final method shows how you can use a YAML file to build your CLI and keep your Rust source tidy. First, create the `cli.yml` file to hold your CLI options, but it could be called anything we like (we'll use the same both examples above to keep it functionally equivilant):
+This final method shows how you can use a YAML file to build your CLI and keep your Rust source tidy. First, create the `cli.yml` file to hold your CLI options, but it could be called anything we like (we'll use the same both examples above to keep it functionally equivalent):
 
 ```yaml
 name: myapp

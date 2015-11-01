@@ -7,7 +7,7 @@ use yaml_rust::Yaml;
 
 /// `ArgGroup`s are a family of related arguments and way for you to say, "Any of these arguments".
 /// By placing arguments in a logical group, you can make easier requirement and exclusion rules
-/// intead of having to list each individually, or when you want a rule to apply "any but not all"
+/// instead of having to list each individually, or when you want a rule to apply "any but not all"
 /// arguments.
 ///
 /// For instance, you can make an entire ArgGroup required, this means that one (and *only* one)
@@ -55,7 +55,7 @@ pub struct ArgGroup<'n, 'ar> {
 }
 
 impl<'n, 'ar> ArgGroup<'n, 'ar> {
-    /// Creates a new instace of `ArgGroup` using a unique string name.
+    /// Creates a new instance of `ArgGroup` using a unique string name.
     /// The name will only be used by the library consumer and not displayed to the use.
     ///
     /// # Examples
@@ -64,7 +64,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # use clap::{App, ArgGroup};
     /// # let matches = App::new("myprog")
     /// #                 .arg_group(
-    /// ArgGroup::with_name("conifg")
+    /// ArgGroup::with_name("config")
     /// # ).get_matches();
     pub fn with_name(n: &'n str) -> Self {
         ArgGroup {
@@ -76,7 +76,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
         }
     }
 
-    /// Creates a new instace of `ArgGroup` from a .yml (YAML) file.
+    /// Creates a new instance of `ArgGroup` from a .yml (YAML) file.
     ///
     /// # Examples
     ///
@@ -139,7 +139,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # use clap::{App, ArgGroup};
     /// # let matches = App::new("myprog")
     /// #                 .arg_group(
-    /// # ArgGroup::with_name("conifg")
+    /// # ArgGroup::with_name("config")
     /// .add("config")
     /// # ).get_matches();
     pub fn add(mut self, n: &'ar str) -> Self {
@@ -159,7 +159,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # use clap::{App, ArgGroup};
     /// # let matches = App::new("myprog")
     /// #                 .arg_group(
-    /// # ArgGroup::with_name("conifg")
+    /// # ArgGroup::with_name("config")
     /// .add_all(&["config", "input", "output"])
     /// # ).get_matches();
     pub fn add_all(mut self, ns: &[&'ar str]) -> Self {
@@ -181,7 +181,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # use clap::{App, ArgGroup};
     /// # let matches = App::new("myprog")
     /// #                 .arg_group(
-    /// # ArgGroup::with_name("conifg")
+    /// # ArgGroup::with_name("config")
     /// .required(true)
     /// # ).get_matches();
     pub fn required(mut self, r: bool) -> Self {
@@ -202,7 +202,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # use clap::{App, ArgGroup};
     /// # let matches = App::new("myprog")
     /// #                 .arg_group(
-    /// # ArgGroup::with_name("conifg")
+    /// # ArgGroup::with_name("config")
     /// .requires("config")
     /// # ).get_matches();
     pub fn requires(mut self, n: &'ar str) -> Self {
@@ -227,7 +227,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # use clap::{App, ArgGroup};
     /// # let matches = App::new("myprog")
     /// #                 .arg_group(
-    /// # ArgGroup::with_name("conifg")
+    /// # ArgGroup::with_name("config")
     /// .requires_all(&["config", "input"])
     /// # ).get_matches();
     pub fn requires_all(mut self, ns: &[&'ar str]) -> Self {
@@ -250,7 +250,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # use clap::{App, ArgGroup};
     /// # let matches = App::new("myprog")
     /// #                 .arg_group(
-    /// # ArgGroup::with_name("conifg")
+    /// # ArgGroup::with_name("config")
     /// .conflicts_with("config")
     /// # ).get_matches();
     pub fn conflicts_with(mut self, n: &'ar str) -> Self {
@@ -275,7 +275,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # use clap::{App, ArgGroup};
     /// # let matches = App::new("myprog")
     /// #                 .arg_group(
-    /// # ArgGroup::with_name("conifg")
+    /// # ArgGroup::with_name("config")
     /// .conflicts_with_all(&["config", "input"])
     /// # ).get_matches();
     pub fn conflicts_with_all(mut self, ns: &[&'ar str]) -> Self {

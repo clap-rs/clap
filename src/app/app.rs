@@ -46,7 +46,7 @@ const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider 
 ///                   .arg(
 ///                            Arg::with_name("in_file").index(1)
 ///                    )
-///                   .after_help("Longer explaination to appear after the options when \
+///                   .after_help("Longer explanation to appear after the options when \
 ///                                displaying the help information from --help or -h")
 ///                   .get_matches();
 ///
@@ -135,14 +135,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
     }
 
-    /// Creates a new instace of `App` from a .yml (YAML) file. The YAML file must be properly
+    /// Creates a new instance of `App` from a .yml (YAML) file. The YAML file must be properly
     /// formatted or this function will panic!(). A full example of supported YAML objects can be
     /// found in `examples/17_yaml.rs` and `examples/17_yaml.yml`.
     ///
     /// In order to use this function you must compile with the `features = ["yaml"]` in your
     /// settings for `[dependencies.clap]` table of your `Cargo.toml`
     ///
-    /// Note, due to how the YAML objects are built there is a convienience macro for loading the
+    /// Note, due to how the YAML objects are built there is a convenience macro for loading the
     /// YAML file (relative to the current file, like modules work). That YAML object can then be
     /// passed to this function.
     ///
@@ -240,7 +240,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     /// Overrides the system-determined binary name. This should only be used when absolutely
-    /// neccessary, such as the binary name for your application is misleading, or perhaps *not*
+    /// necessary, such as the binary name for your application is misleading, or perhaps *not*
     /// how the user should invoke your program.
     ///
     /// **NOTE:** This command **should not** be used for SubCommands.
@@ -405,10 +405,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     ///            Does awesome things\n\
     ///            (C) me@mail.com\n\n\
     ///
-    ///            USAGE: myapp <opts> <comamnd>\n\n\
+    ///            USAGE: myapp <opts> <command>\n\n\
     ///
     ///            Options:\n\
-    ///            -h, --helpe      Dispay this message\n\
+    ///            -h, --help       Display this message\n\
     ///            -V, --version    Display version info\n\
     ///            -s <stuff>       Do something with stuff\n\
     ///            -v               Be verbose\n\n\
@@ -428,7 +428,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// By default `clap` automatically assigns `h`, but this can be overridden
     ///
     /// **NOTE:** Any leading `-` characters will be stripped, and only the first
-    /// non `-` chacter will be used as the `short` version
+    /// non `-` character will be used as the `short` version
     ///
     ///
     /// # Examples
@@ -451,7 +451,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// By default `clap` automatically assigns `V`, but this can be overridden
     ///
     /// **NOTE:** Any leading `-` characters will be stripped, and only the first
-    /// non `-` chacter will be used as the `short` version
+    /// non `-` character will be used as the `short` version
     ///
     ///
     /// # Examples
@@ -469,7 +469,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
-    /// Specifies that the help text sould be displayed (and then exit gracefully), if no
+    /// Specifies that the help text should be displayed (and then exit gracefully), if no
     /// arguments are present at runtime (i.e. an empty run such as, `$ myprog`.
     ///
     /// **Deprecated:** Use `App::setting()` with `AppSettings::ArgRequiredElseHelp` instead. This
@@ -635,7 +635,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
-    /// Specifies that the help text sould be displayed (and then exit gracefully), if no
+    /// Specifies that the help text should be displayed (and then exit gracefully), if no
     /// subcommands are present at runtime (i.e. an empty run such as, `$ myprog`.
     ///
     /// **Deprecated:** Use `App::setting()` with `AppSettings::SubcommandRequiredElseHelp`
@@ -699,7 +699,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
-    /// Adds an argument to the list of valid possibilties manually. This method allows you full
+    /// Adds an argument to the list of valid possibilities manually. This method allows you full
     /// control over the arguments settings and options (as well as dynamic generation). It also
     /// allows you specify several more advanced configuration options such as relational rules
     /// (exclusions and requirements).
@@ -798,7 +798,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
     }
 
-    /// Adds multiple arguments to the list of valid possibilties by iterating over a Vec of Args
+    /// Adds multiple arguments to the list of valid possibilities by iterating over a Vec of Args
     ///
     ///
     /// # Examples
@@ -819,7 +819,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
-    /// A convienience method for adding a single basic argument (one without advanced
+    /// A convenience method for adding a single basic argument (one without advanced
     /// relational rules) from a usage type string. The string used follows the same rules and
     /// syntax as `Arg::from_usage()`
     ///
@@ -969,7 +969,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
-    /// Adds a subcommand to the list of valid possibilties. Subcommands are effectively sub apps,
+    /// Adds a subcommand to the list of valid possibilities. Subcommands are effectively sub apps,
     /// because they can contain their own arguments, subcommands, version, usage, etc. They also
     /// function just like apps, in that they get their own auto generated help, version, and
     /// usage.
@@ -1001,7 +1001,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self
     }
 
-    /// Adds multiple subcommands to the list of valid possibilties by iterating over a Vec of
+    /// Adds multiple subcommands to the list of valid possibilities by iterating over a Vec of
     /// `SubCommand`s
     ///
     /// # Examples
@@ -1335,7 +1335,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     /// Prints the full help message to `io::stdout()` using a `BufWriter`
     ///
-    /// # Exampless
+    /// # Examples
     /// ```no_run
     /// # use clap::App;
     /// # use std::io;
@@ -1710,7 +1710,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     /// the real parsing function for all subcommands. Invalid unicode characters are replaced with
     /// `U+FFFD REPLACEMENT CHARACTER`
     ///
-    /// # Exampless
+    /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
@@ -2313,7 +2313,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             } else {
                 // Positional or Subcommand
                 //
-                // If the user pased `--` we don't check for subcommands, because the argument
+                // If the user passed `--` we don't check for subcommands, because the argument
                 // they
                 // may be trying to pass might match a subcommand name
                 if !pos_only {

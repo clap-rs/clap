@@ -68,7 +68,7 @@ impl<'n> PosBuilder<'n> {
                    a.name);
         }
 
-        // Create the Positional Arguemnt Builder with each HashSet = None to only
+        // Create the Positional Argument Builder with each HashSet = None to only
         // allocate
         // those that require it
         let mut pb = PosBuilder {
