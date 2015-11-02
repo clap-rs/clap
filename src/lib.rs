@@ -58,7 +58,7 @@
 //!
 //! Due to it's lack of features, `getopts` also doesn't allocate much, or at all.
 //! This gives it somewhat of a performance boost. Although, as you start
-//! implementing those features you need manually, that boost quickly dissapears.
+//! implementing those features you need manually, that boost quickly disappears.
 //!
 //! Personally, I find many, many people that use `getopts` are manually
 //! implementing features that `clap` has by default. Using `clap` simplifies your
@@ -66,14 +66,14 @@
 //!
 //! Reasons to use `getopts` instead of `clap`
 //!
-//!  * You need a few allocations as possible, don't plan on implmenting any
+//!  * You need a few allocations as possible, don't plan on implementing any
 //!    additional features
 //!  * You want a highly custom argument parser, but want to use an established
 //!    parser as a base
 //!
 //! #### How does `clap` compare to `docopt.rs`?
 //!
-//! I first want to say I'm a big a fan of BurntSuhsi's work, the creator of
+//! I first want to say I'm a big a fan of BurntSushi's work, the creator of
 //! [Docopt.rs](https://github.com/docopt/docopt.rs). I aspire to produce the
 //! quality of libraries that this man does! When it comes to comparing these two
 //! libraries they are very different. `docopt` tasks you with writing a help
@@ -88,7 +88,7 @@
 //! automatically. There is even a syntax extension which will do all this for you,
 //! ifou to manually translate from arguments to Rust types). To use BurntSushi's
 //! words, `docopt` is also somewhat of a black box. You get what you get, and it's
-//! hard to tweak implmementation or customise your experience for your use case.
+//! hard to tweak implementation or customise your experience for your use case.
 //!
 //! Because `docopt` is doing a ton of work to parse your help messages and
 //! determine what you were trying to communicate as valid arguments, it's also one
@@ -330,7 +330,7 @@
 //! tidy. First, create the `cli.yml` file to hold your CLI options, but it
 //! could be called
 //! anything we like (we'll use the same both examples above to keep it
-//! functionally equivilant):
+//! functionally equivalent):
 //!
 //! ```yaml
 //! name: myapp

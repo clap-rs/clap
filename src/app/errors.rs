@@ -39,7 +39,7 @@ pub enum ClapErrorType {
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
     /// let result = App::new("myprog")
-    ///     .subcommand(SubCommand::with_name("conifg")
+    ///     .subcommand(SubCommand::with_name("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::with_name("config_file")
     ///             .help("The configuration file to use")
@@ -152,7 +152,7 @@ pub enum ClapErrorType {
     /// # use clap::{App, Arg, AppSettings, SubCommand};
     /// let result = App::new("myprog")
     ///     .setting(AppSettings::SubcommandRequired)
-    ///     .subcommand(SubCommand::with_name("conifg")
+    ///     .subcommand(SubCommand::with_name("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::with_name("config_file")
     ///             .help("The configuration file to use")
@@ -170,7 +170,7 @@ pub enum ClapErrorType {
     /// # use clap::{App, Arg, AppSettings, SubCommand};
     /// let result = App::new("myprog")
     ///     .setting(AppSettings::ArgRequiredElseHelp)
-    ///     .subcommand(SubCommand::with_name("conifg")
+    ///     .subcommand(SubCommand::with_name("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::with_name("config_file")
     ///             .help("The configuration file to use")

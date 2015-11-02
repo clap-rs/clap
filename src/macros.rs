@@ -52,7 +52,7 @@ macro_rules! write_spaces {
     })
 }
 
-// convienience macro for remove an item from a vec
+// convenience macro for remove an item from a vec
 macro_rules! vec_remove {
     ($vec:expr, $to_rem:ident) => {
         {
@@ -300,7 +300,7 @@ macro_rules! value_t {
 /// You can use it to get a single value `T`, or a `Vec<T>` with the `values_of()`
 ///
 /// **NOTE:** This should only be used on required arguments, as it can be confusing to the user
-/// why they are getting error messages when it appears they're entering all required argumetns.
+/// why they are getting error messages when it appears they're entering all required arguments.
 ///
 /// **NOTE:** Be cautious, as since this a macro invocation it's not exactly like
 /// standard syntax.
@@ -404,7 +404,7 @@ macro_rules! value_t_or_exit {
 /// arguments. This enum also provides a `variants()` function which can be used to retrieve a
 /// `Vec<&'static str>` of the variant names.
 ///
-/// **NOTE:** This macro automaically implements std::str::FromStr and std::fmt::Display
+/// **NOTE:** This macro automatically implements std::str::FromStr and std::fmt::Display
 ///
 /// # Examples
 ///
@@ -477,7 +477,7 @@ macro_rules! simple_enum {
 ///
 /// **NOTE:** Case insensitivity is supported for ASCII characters
 ///
-/// **NOTE:** This macro automaically implements std::str::FromStr and std::fmt::Display
+/// **NOTE:** This macro automatically implements std::str::FromStr and std::fmt::Display
 ///
 /// These enums support pub (or not) and use of the #[derive()] traits
 ///
@@ -740,7 +740,7 @@ macro_rules! clap_app {
             $($tt)*
         }
     };
-    // Yaml like function calls - used for setting varous meta directly against the app
+    // Yaml like function calls - used for setting various meta directly against the app
     (@app ($builder:expr) ($ident:ident: $($v:expr),*) $($tt:tt)*) => {
         // clap_app!{ @app ($builder.$ident($($v),*)) $($tt)* }
         clap_app!{ @app
