@@ -11,8 +11,7 @@ fn main() {
     let opt3_vals = ["fast", "slow"];
     let pos3_vals = ["vi", "emacs"];
     let matches = App::new("claptests")
-                        // Test version from Cargo.toml
-                        .version(&crate_version!()[..])
+                        .version("v1.4.8")
                         .about("tests clap library")
                         .author("Kevin K. <kbknapp@gmail.com>")
                         .args_from_usage(args)
