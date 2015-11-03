@@ -1,3 +1,18 @@
+<a name="v1.4.7"></a>
+### v1.4.7 (2015-11-03)
+
+
+#### Documentation
+
+*   Clarify behavior of Arg::multiple with options. ([434f497a](https://github.com/kbknapp/clap-rs/commit/434f497ab6d831f8145cf09278c97ca6ee6c6fe7))
+*   Fix typos and improve grammar. ([c1f66b5d](https://github.com/kbknapp/clap-rs/commit/c1f66b5de7b5269fbf8760a005ef8c645edd3229))
+
+#### Bug Fixes
+
+* **Error Status:**  fixes bug where --help and --version return non-zero exit code ([89b51fdf](https://github.com/kbknapp/clap-rs/commit/89b51fdf8b1ab67607567344e2317ff1a757cb12))
+
+
+
 <a name="v1.4.6"></a>
 ### v1.4.6 (2015-10-29)
 
