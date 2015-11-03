@@ -267,8 +267,19 @@ pub struct ClapError {
 impl ClapError {
     /// Prints the error to `stderr` and exits with a status of `1`
     pub fn exit(&self) -> ! {
-        wlnerr!("{}", self.error);
-        process::exit(1);
+        if self.use_stderr() {
+            wlnerr!("{}", self.error);
+            process::exit(1);
+        }
+        println!("{}", self.error);
+        process::exit(0);
+    }
+
+    fn use_stderr(&self) -> bool {
+        match self.error_type {
+            ClapErrorType::HelpDisplayed | ClapErrorType::VersionDisplayed => false,
+            _ => true
+        }
     }
 }
 
