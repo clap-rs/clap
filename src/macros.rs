@@ -136,7 +136,7 @@ macro_rules! print_opt_help {
                 if let Some(part) = hel.next() {
                     try!(write!($w, "{}", part));
                 }
-                while let Some(part) = hel.next() {
+                for part in hel {
                     try!(write!($w, "\n"));
                     write_spaces!($spc, $w);
                     try!(write!($w, "{}", part));

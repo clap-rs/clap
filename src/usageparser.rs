@@ -25,6 +25,7 @@ impl<'u> UsageParser<'u> {
         }
     }
 
+    #[cfg_attr(feature = "lints", allow(while_let_on_iterator))]
     fn name(&mut self, c: char) -> Option<UsageToken<'u>> {
         if self.e != 0 {
             self.e += 1;
@@ -55,6 +56,7 @@ impl<'u> UsageParser<'u> {
                               }))
     }
 
+    #[cfg_attr(feature = "lints", allow(while_let_on_iterator))]
     fn help(&mut self) -> Option<UsageToken<'u>> {
         self.s = self.e + 2;
         self.e = self.usage.len() - 1;
@@ -66,6 +68,7 @@ impl<'u> UsageParser<'u> {
         Some(UsageToken::Help(&self.usage[self.s..self.e]))
     }
 
+    #[cfg_attr(feature = "lints", allow(while_let_on_iterator))]
     fn long_arg(&mut self) -> Option<UsageToken<'u>> {
         if self.e != 1 {
             self.e += 1;

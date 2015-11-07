@@ -1652,6 +1652,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     // The actual parsing function
+    #[cfg_attr(feature="lints", allow(while_let_on_iterator))]
     fn get_matches_with<I, T>(&mut self,
                               matches: &mut ArgMatches<'ar, 'ar>,
                               it: &mut I,
