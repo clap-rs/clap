@@ -8,6 +8,7 @@ use std::borrow::Borrow;
 
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
+use vec_map::VecMap;
 
 use args::{Arg, ArgMatches, MatchedArg, SubCommand};
 use args::{FlagBuilder, OptBuilder, PosBuilder};
@@ -71,8 +72,8 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     // A list of possible options
     opts: BTreeMap<&'ar str, OptBuilder<'ar>>,
     // A list of positional arguments
-    positionals_idx: BTreeMap<u8, PosBuilder<'ar>>,
-    positionals_name: HashMap<&'ar str, u8>,
+    positionals_idx: VecMap<PosBuilder<'ar>>,
+    positionals_name: HashMap<&'ar str, usize>,
     // A list of subcommands
     subcommands: BTreeMap<String, App<'a, 'v, 'ab, 'u, 'h, 'ar>>,
     help_short: Option<char>,
@@ -114,7 +115,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             version: None,
             flags: BTreeMap::new(),
             opts: BTreeMap::new(),
-            positionals_idx: BTreeMap::new(),
+            positionals_idx: VecMap::new(),
             positionals_name: HashMap::new(),
             subcommands: BTreeMap::new(),
             help_short: None,
@@ -767,9 +768,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
         if a.index.is_some() || (a.short.is_none() && a.long.is_none()) {
             let i = if a.index.is_none() {
-                (self.positionals_idx.len() + 1) as u8
+                (self.positionals_idx.len() + 1)
             } else {
-                a.index.unwrap()
+                a.index.unwrap() as usize
             };
             if self.positionals_idx.contains_key(&i) {
                 panic!("Argument \"{}\" has the same index as another positional \
@@ -777,7 +778,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     to take multiple values",
                        a.name);
             }
-            let pb = PosBuilder::from_arg(&a, i, &mut self.required);
+            let pb = PosBuilder::from_arg(&a, i as u8, &mut self.required);
             self.positionals_name.insert(pb.name, i);
             self.positionals_idx.insert(i, pb);
         } else if a.takes_value {
@@ -1901,7 +1902,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
                         if !pos_only &&
                            (self.settings.is_set(&AppSettings::TrailingVarArg) &&
-                            pos_counter == self.positionals_idx.len() as u8) {
+                            pos_counter == self.positionals_idx.len()) {
                             pos_only = true;
                         }
                     } else {
@@ -2388,7 +2389,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         //
         // Next we verify that only the highest index has a .multiple(true) (if any)
         if let Some((idx, ref p)) = self.positionals_idx.iter().rev().next() {
-            if *idx as usize != self.positionals_idx.len() {
+            if idx != self.positionals_idx.len() {
                 panic!("Found positional argument \"{}\" who's index is {} but there are only {} \
                     positional arguments defined",
                        p.name,

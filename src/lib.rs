@@ -641,6 +641,7 @@ extern crate ansi_term;
 extern crate yaml_rust;
 #[macro_use]
 extern crate bitflags;
+extern crate vec_map;
 
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;
