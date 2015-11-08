@@ -73,7 +73,7 @@ macro_rules! vec_remove {
 
 macro_rules! remove_overriden {
     ($me:ident, $name:expr) => ({
-        if let Some(ref o) = $me.opts.get($name) {
+        if let Some(ref o) = $me.opts.iter().filter(|o| &o.name == $name).next() {
             if let Some(ref ora) = o.requires {
                 for a in ora {
                     vec_remove!($me.required, a);

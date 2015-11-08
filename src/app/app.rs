@@ -70,11 +70,11 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     // A list of possible flags
     flags: Vec<FlagBuilder<'ar>>,
     // A list of possible options
-    opts: BTreeMap<&'ar str, OptBuilder<'ar>>,
+    opts: Vec<OptBuilder<'ar>>,
     // A list of positional arguments
     positionals: VecMap<PosBuilder<'ar>>,
     // A list of subcommands
-    subcommands: BTreeMap<String, App<'a, 'v, 'ab, 'u, 'h, 'ar>>,
+    subcommands: Vec<App<'a, 'v, 'ab, 'u, 'h, 'ar>>,
     help_short: Option<char>,
     version_short: Option<char>,
     required: Vec<&'ar str>,
@@ -91,7 +91,7 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     overrides: Vec<&'ar str>,
 }
 
-impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
+impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     /// Creates a new instance of an application requiring a name (such as the binary). The name
     /// will be displayed to the user when they request to print version or help and usage
     /// information. The name should not contain spaces (hyphens '-' are ok).
@@ -113,9 +113,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             more_help: None,
             version: None,
             flags: vec![],
-            opts: BTreeMap::new(),
+            opts: vec![],
             positionals: VecMap::new(),
-            subcommands: BTreeMap::new(),
+            subcommands: vec![],
             help_short: None,
             version_short: None,
             required: vec![],
@@ -731,8 +731,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     // actually adds the arguments
     fn add_arg(&mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) {
-        if self.flags.iter().any(|f| &f.name == &a.name) || self.opts.contains_key(a.name) ||
-           self.positionals.values().any(|p| p.name == a.name) {
+        if self.flags.iter().any(|f| &f.name == &a.name) ||
+            self.opts.iter().any(|o| o.name == a.name) ||
+            self.positionals.values().any(|p| p.name == a.name) {
             panic!("Argument name must be unique\n\n\t\"{}\" is already in use",
                    a.name);
         }
@@ -781,7 +782,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             self.positionals.insert(i, pb);
         } else if a.takes_value {
             let ob = OptBuilder::from_arg(&a, &mut self.required);
-            self.opts.insert(ob.name, ob);
+            self.opts.push(ob);
         } else {
             let fb = FlagBuilder::from(&a);
             self.flags.push(fb);
@@ -995,7 +996,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
            self.version.is_some() {
             subcmd.version = Some(self.version.unwrap());
         }
-        self.subcommands.insert(subcmd.name.clone(), subcmd);
+        self.subcommands.push(subcmd);
         self
     }
 
@@ -1082,7 +1083,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 usage.push_str(" [OPTIONS]");
             }
             if !self.settings.is_set(&AppSettings::UnifiedHelpMessage) && !self.opts.is_empty() &&
-               self.opts.values().any(|a| !a.settings.is_set(&ArgSettings::Required)) {
+               self.opts.iter().any(|a| !a.settings.is_set(&ArgSettings::Required)) {
                 usage.push_str(" [OPTIONS]");
             }
 
@@ -1091,9 +1092,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             // places a '--' in the usage string if there are args and options
             // supporting multiple values
             if !self.positionals.is_empty() &&
-               (self.opts.values().any(|a| a.settings.is_set(&ArgSettings::Multiple)) ||
+               (self.opts.iter().any(|a| a.settings.is_set(&ArgSettings::Multiple)) ||
                 self.positionals.values().any(|a| a.settings.is_set(&ArgSettings::Multiple))) &&
-               !self.opts.values().any(|a| a.settings.is_set(&ArgSettings::Required)) &&
+               !self.opts.iter().any(|a| a.settings.is_set(&ArgSettings::Required)) &&
                self.subcommands.is_empty() {
                 usage.push_str(" [--]")
             }
@@ -1170,7 +1171,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
         let mut longest_opt = 0;
         for ol in self.opts
-                      .values()
+                      .iter()
                       .filter(|o| !o.settings.is_set(&ArgSettings::Hidden))
                       .map(|a| a.to_string().len()) {
             if ol > longest_opt {
@@ -1188,7 +1189,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
         let mut longest_sc = 0;
         for scl in self.subcommands
-                       .values()
+                       .iter()
                        .filter(|s| !s.settings.is_set(&AppSettings::Hidden))
                        .map(|f| f.name.len()) {
             if scl > longest_sc {
@@ -1219,47 +1220,49 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 try!(f.write_help(&mut v, tab, longest));
                 combined.insert(f.name, v);
             }
-            for o in self.opts.values().filter(|o| !o.settings.is_set(&ArgSettings::Hidden)) {
+            for o in self.opts.iter().filter(|o| !o.settings.is_set(&ArgSettings::Hidden)) {
                 let mut v = vec![];
                 try!(o.write_help(&mut v, tab, longest));
                 combined.insert(o.name, v);
             }
             for (_, a) in combined {
-                try!(write!(w, "{}", unsafe { String::from_utf8_unchecked(a) } ));
+                try!(write!(w, "{}", String::from_utf8_lossy(&*a)));
             }
         } else {
             if flags {
                 try!(write!(w, "\nFLAGS:\n"));
-                for v in self.flags
-                             .iter()
-                             .filter(|f| !f.settings.is_set(&ArgSettings::Hidden)) {
-                    try!(v.write_help(w, tab, longest));
+                for (_, f) in self.flags.iter()
+                                  .filter(|f| !f.settings.is_set(&ArgSettings::Hidden))
+                                  .map(|f| (f.name, f))
+                                  .collect::<BTreeMap<_,_>>() {
+                    try!(f.write_help(w, tab, longest));
                 }
             }
             if opts {
                 try!(write!(w, "\nOPTIONS:\n"));
-                for v in self.opts
-                             .values()
-                             .filter(|o| !o.settings.is_set(&ArgSettings::Hidden)) {
-                    try!(v.write_help(w, tab, longest_opt));
+                for (_, o) in self.opts.iter()
+                                       .filter(|o| !o.settings.is_set(&ArgSettings::Hidden))
+                                       .map(|o| (o.name, o))
+                                       .collect::<BTreeMap<_,_>>() {
+                    try!(o.write_help(w, tab, longest_opt));
                 }
             }
         }
         if pos {
             try!(write!(w, "\nARGS:\n"));
-            for v in self.positionals
-                         .values()
-                         .filter(|p| !p.settings.is_set(&ArgSettings::Hidden)) {
+            for v in self.positionals.values()
+                                     .filter(|p| !p.settings.is_set(&ArgSettings::Hidden)) {
                 try!(v.write_help(w, tab, longest_pos));
             }
         }
         if subcmds {
             try!(write!(w, "\nSUBCOMMANDS:\n"));
-            for sc in self.subcommands
-                          .values()
-                          .filter(|s| !s.settings.is_set(&AppSettings::Hidden)) {
-                try!(write!(w, "{}{}", tab, sc.name));
-                write_spaces!((longest_sc + 4) - (sc.name.len()), w);
+            for (name, sc) in self.subcommands.iter()
+                                              .filter(|s| !s.settings.is_set(&AppSettings::Hidden))
+                                              .map(|s| (s.name_slice, s))
+                                              .collect::<BTreeMap<_,_>>() {
+                try!(write!(w, "{}{}", tab, name));
+                write_spaces!((longest_sc + 4) - (name.len()), w);
                 if let Some(a) = sc.about {
                     if a.contains("{n}") {
                         let mut ab = a.split("{n}");
@@ -1683,11 +1686,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             // pos_only is determined later, and set true when a user uses the Unix
             // standard of
             // '--' to mean only positionals follow
-            if !pos_only && !new_arg && !self.subcommands.contains_key(arg_slice) {
+            if !pos_only && !new_arg && !self.subcommands.iter().any(|s| s.name_slice == arg_slice) {
                 // Check to see if parsing a value from an option
                 if let Some(nvo) = needs_val_of {
                     // get the OptBuilder so we can check the settings
-                    if let Some(ref opt) = self.opts.get(nvo) {
+                    if let Some(ref opt) = self.opts.iter().filter(|o| &o.name == &nvo).next() {
                         try!(self.validate_option(opt, arg_slice, matches));
 
                         if let Some(ref vec) = self.groups_for_arg(opt.name) {
@@ -1773,7 +1776,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 continue;
             } else if let Some(ref name) = needs_val_of {
                 // We've reached more values for an option than it possibly accepts
-                if let Some(ref o) = self.opts.get(name) {
+                if let Some(ref o) = self.opts.iter().filter(|o| &o.name == name).next() {
                     if !o.settings.is_set(&ArgSettings::Multiple) {
                         return Err(error_builder::EmptyValue(
                             &*o.to_string(),
@@ -1809,7 +1812,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 // they
                 // may be trying to pass might match a subcommand name
                 if !pos_only {
-                    if self.subcommands.contains_key(arg_slice) {
+                    if self.subcommands.iter().any(|s| s.name_slice == arg_slice) {
                         if arg_slice == "help" &&
                            self.settings.is_set(&AppSettings::NeedsSubcommandHelp) {
                             try!(self.print_help());
@@ -1820,8 +1823,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         }
                         subcmd_name = Some(arg_slice.to_owned());
                         break;
-                    } else if let Some(candidate_subcommand) = did_you_mean(arg_slice,
-                                                                     self.subcommands.keys()) {
+                    } else if let Some(candidate_subcommand) = did_you_mean(
+                        arg_slice,
+                        self.subcommands.iter().map(|s| &s.name)) {
                         return Err(error_builder::InvalidSubcommand(
                             arg_slice,
                             candidate_subcommand,
@@ -1964,7 +1968,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
 
         if let Some(ref a) = needs_val_of {
-            if let Some(o) = self.opts.get(a) {
+            if let Some(o) = self.opts.iter().filter(|o| &o.name == a).next() {
                 if o.settings.is_set(&ArgSettings::Multiple) && self.required.is_empty() {
                     let should_err = match matches.values_of(o.name) {
                         Some(ref v) => v.is_empty(),
@@ -2029,7 +2033,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 }
             }
             mid_string.push_str(" ");
-            if let Some(ref mut sc) = self.subcommands.get_mut(&sc_name) {
+            if let Some(ref mut sc) = self.subcommands.iter_mut()
+                                                      .filter(|s| s.name_slice == &sc_name)
+                                                      .next() {
                 let mut new_matches = ArgMatches::new();
                 // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
                 // a space
@@ -2128,11 +2134,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         self.create_usage(
             &matches.args.keys()
                          .filter(|k| {
-                             if let Some(o) = self.opts.get(*k) {
+                             if let Some(o) = self.opts.iter().filter(|o| &&o.name == k).next() {
                                  !o.settings.is_set(&ArgSettings::Required)
                              } else if let Some(p) = self.positionals.values()
-                                                                         .filter(|p| &&p.name == k)
-                                                                         .next() {
+                                                                     .filter(|p| &&p.name == k)
+                                                                     .next() {
                                  !p.settings.is_set(&ArgSettings::Required)
                              } else {
                                  true
@@ -2169,7 +2175,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         for n in &self.groups.get(group).unwrap().args {
             if let Some(f) = self.flags.iter().filter(|f| &f.name == n).next() {
                 args.push(f.to_string());
-            } else if let Some(f) = self.opts.get(n) {
+            } else if let Some(f) = self.opts.iter().filter(|o| &o.name == n).next() {
                 args.push(f.to_string());
             } else if self.groups.contains_key(n) {
                 g_vec.push(*n);
@@ -2203,7 +2209,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         for n in &self.groups.get(group).unwrap().args {
             if self.flags.iter().any(|f| &f.name == n) {
                 args.push(*n);
-            } else if self.opts.contains_key(n) {
+            } else if self.opts.iter().any(|o| &o.name == n) {
                 args.push(*n);
             } else if self.groups.contains_key(n) {
                 g_vec.push(*n);
@@ -2238,7 +2244,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         for name in reqs {
             if self.flags.iter().any(|f| &f.name == name) {
                 c_flags.push(name);
-            } else if self.opts.contains_key(name) {
+            } else if self.opts.iter().any(|o| &o.name == name) {
                 c_opt.push(name);
             } else if self.groups.contains_key(name) {
                 grps.push(*name);
@@ -2254,7 +2260,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if !reqs.contains(r) {
                             if self.flags.iter().any(|f| &f.name == r) {
                                 tmp_f.push(r);
-                            } else if self.opts.contains_key(r) {
+                            } else if self.opts.iter().any(|o| &o.name == r) {
                                 c_opt.push(r);
                             } else if self.groups.contains_key(r) {
                                 grps.push(*r);
@@ -2271,13 +2277,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
         let mut tmp_o = vec![];
         for f in &c_opt {
-            if let Some(f) = self.opts.get(*f) {
+            if let Some(f) = self.opts.iter().filter(|o| &&o.name == f).next() {
                 if let Some(ref rl) = f.requires {
                     for r in rl.iter() {
                         if !reqs.contains(r) {
                             if self.flags.iter().any(|f| &f.name == r) {
                                 c_flags.push(r);
-                            } else if self.opts.contains_key(r) {
+                            } else if self.opts.iter().any(|o| &o.name == r) {
                                 tmp_o.push(r);
                             } else if self.groups.contains_key(r) {
                                 grps.push(*r);
@@ -2300,7 +2306,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         if !reqs.contains(r) {
                             if self.flags.iter().any(|f| &f.name == r) {
                                 c_flags.push(r);
-                            } else if self.opts.contains_key(r) {
+                            } else if self.opts.iter().any(|o| &o.name == r) {
                                 c_opt.push(r);
                             } else if self.groups.contains_key(r) {
                                 grps.push(*r);
@@ -2343,7 +2349,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             if matches.is_some() && matches.as_ref().unwrap().is_present(o) {
                 continue;
             }
-            ret_val.push_back(format!("{}", self.opts.get(*o).unwrap()));
+            ret_val.push_back(format!("{}", self.opts.iter()
+                                                     .filter(|opt| &opt.name == o)
+                                                     .next()
+                                                     .unwrap()));
         }
         for g in grps.into_iter() {
             let g_string = self.args_in_group(g)
@@ -2399,7 +2408,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     }
 
     fn propogate_globals(&mut self) {
-        for (_, sc) in self.subcommands.iter_mut() {
+        for sc in self.subcommands.iter_mut() {
             // We have to create a new scope in order to tell rustc the borrow of `sc` is
             // done and
             // to recursively call this method
@@ -2448,7 +2457,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                 }
             }
-            if let Some(o) = self.opts.get(k) {
+            if let Some(o) = self.opts.iter().filter(|o| &o.name == k).next() {
                 if let Some(ref bl) = o.blacklist {
                     if bl.contains(&name) {
                         return Some(format!("{}", o));
@@ -2475,7 +2484,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                 }
             }
-            if let Some(o) = self.opts.get(k) {
+            if let Some(o) = self.opts.iter().filter(|o| &o.name == k).next() {
                 if let Some(ref bl) = o.overrides {
                     if bl.contains(&name) {
                         return Some(o.name);
@@ -2531,9 +2540,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             self.long_list.push("version");
             self.flags.push(arg);
         }
-        if !self.subcommands.is_empty() && !self.subcommands.keys().any(|a| a == "help") {
-            self.subcommands.insert("help".to_owned(),
-                                    App::new("help").about("Prints this message"));
+        if !self.subcommands.is_empty() && !self.subcommands.iter()
+                                                            .any(|a| a.name_slice == "help") {
+            self.subcommands.push(App::new("help").about("Prints this message"));
         }
     }
 
@@ -2595,10 +2604,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             let arg_vec: Vec<_> = arg.split("=").collect();
             arg = arg_vec[0];
             if let Some(ref v) = self.opts
-                                     .values()
-                                     .filter(|&v| v.long.is_some())
-                                     .filter(|&v| v.long.unwrap() == arg)
-                                     .nth(0) {
+                                     .iter()
+                                     .filter(|&v| v.long.is_some() && v.long.unwrap() == arg)
+                                     .next() {
                 // prevents "--config= value" typo
                 if arg_vec[1].len() == 0 && !v.settings.is_set(&ArgSettings::EmptyValues) {
                     if let Some(ref vec) = self.groups_for_arg(v.name) {
@@ -2625,10 +2633,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
 
         if let Some(ref v) = self.opts
-                                 .values()
-                                 .filter(|&v| v.long.is_some())
-                                 .filter(|&v| v.long.unwrap() == arg)
-                                 .nth(0) {
+                                 .iter()
+                                 .filter(|&v| v.long.is_some() && v.long.unwrap() == arg)
+                                 .next() {
             // Ensure this option isn't on the master mutually excludes list
             if self.blacklist.contains(&v.name) {
                 matches.args.remove(v.name);
@@ -2866,7 +2873,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                               DidYouMeanMessageStyle::LongFlag);
         if let Some(name) = suffix.1 {
             if let Some(ref opt) = self.opts
-                                       .values()
+                                       .iter()
                                        .filter_map(|o| {
                                            if o.long.is_some() && o.long.unwrap() == name {
                                                Some(o.name)
@@ -2959,10 +2966,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             // Check for matching short in options, and return the name
             // (only ones with shorts, of course)
             if let Some(v) = self.opts
-                                 .values()
-                                 .filter(|&v| v.short.is_some())
-                                 .filter(|&v| v.short == Some(c))
-                                 .nth(0) {
+                                 .iter()
+                                 .filter(|&v| v.short.is_some() && v.short == Some(c))
+                                 .next() {
                 let mut ret = Some(v.name);
                 // Ensure this option isn't on the master mutually excludes list
                 if self.blacklist.contains(&v.name) {
@@ -2975,7 +2981,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 if self.overrides.contains(&v.name) {
                     if let Some(ref name) = self.overriden_from(v.name, matches) {
                         matches.args.remove(&*name);
-                        remove_overriden!(self, &*name);
+                        remove_overriden!(self, name);
                     }
                 }
                 if let Some(ref or) = v.overrides {
@@ -3181,7 +3187,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     format!("{}", Format::Warning(
                         if let Some(f) = self.flags.iter().filter(|f| &f.name == name).next() {
                             f.to_string()
-                        } else if let Some(o) = self.opts.get(name) {
+                        } else if let Some(o) = self.opts.iter()
+                                                         .filter(|o| &o.name == name)
+                                                         .next() {
                             o.to_string()
                         } else {
                             match self.positionals.values()
@@ -3204,7 +3212,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                                            .filter(|f| &f.name == name)
                                                            .next() {
                                     f.to_string()
-                                } else if let Some(o) = self.opts.get(name) {
+                                } else if let Some(o) = self.opts
+                                                         .iter()
+                                                         .filter(|o| &o.name == name)
+                                                         .next() {
                                     o.to_string()
                                 } else {
                                     match self.positionals.values()
@@ -3229,7 +3240,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             if self.groups.contains_key(name) {
                 continue;
             } else if let Some(ref vals) = ma.values {
-                if let Some(f) = self.opts.get(name) {
+                if let Some(f) = self.opts.iter()
+                                          .filter(|o| &o.name == name)
+                                          .next() {
                     if let Some(num) = f.num_vals {
                         let should_err = if f.settings.is_set(&ArgSettings::Multiple) {
                             ((vals.len() as u8) % num) != 0
@@ -3344,7 +3357,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                 }
             }
-            if let Some(a) = self.opts.get(name) {
+            if let Some(a) = self.opts.iter().filter(|o| &o.name == name).next() {
                 if let Some(ref bl) = a.blacklist {
                     for n in bl.iter() {
                         if matches.args.contains_key(n) {
