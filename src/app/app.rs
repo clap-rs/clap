@@ -734,8 +734,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         if self.flags.iter().any(|f| &f.name == &a.name) ||
             self.opts.iter().any(|o| o.name == a.name) ||
             self.positionals.values().any(|p| p.name == a.name) {
-            panic!("Argument name must be unique\n\n\t\"{}\" is already in use",
-                   a.name);
+            panic!("Non-unique argument name: {} is already in use", a.name);
         }
         if let Some(grp) = a.group {
             let ag = self.groups.entry(grp).or_insert(ArgGroup::with_name(grp));
@@ -1026,32 +1025,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     // after all arguments were parsed, but before any subcommands have been parsed
     // (so as to
     // give subcommands their own usage recursively)
-    fn create_usage(&self, matches: &[&'ar str]) -> String {
+    fn create_usage(&self, matches: &[&'ar str]) -> ClapResult<String> {
         use std::fmt::Write;
         let mut usage = String::with_capacity(75);
         usage.push_str("USAGE:\n\t");
         if let Some(u) = self.usage_str {
             usage.push_str(u);
         } else if !matches.is_empty() {
-            let mut hs: Vec<&str> = self.required.iter().map(|n| *n).collect();
-            for n in matches {
-                hs.push(*n);
-            }
-            let reqs = self.get_required_from(&hs, None);
-
-            let r_string = reqs.iter().fold(String::new(), |acc, s| acc + &format!(" {}", s)[..]);
-
-            write!(&mut usage,
-                   "{}{}",
-                   self.usage
-                       .as_ref()
-                       .unwrap_or(self.bin_name.as_ref().unwrap_or(&self.name)),
-                   r_string)
-                .ok()
-                .expect(INTERNAL_ERROR_MSG);
-            if self.settings.is_set(&AppSettings::SubcommandRequired) {
-                write!(&mut usage, " <SUBCOMMAND>").ok().expect(INTERNAL_ERROR_MSG);
-            }
+            try!(self.usage_from_matches(&mut usage, matches));
         } else {
             usage.push_str(&*self.usage
                                  .as_ref()
@@ -1059,21 +1040,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                                                 .as_ref()
                                                 .unwrap_or(&self.name)));
 
-            let mut reqs = self.required.iter().map(|n| *n).collect::<Vec<_>>();
-            // If it's required we also need to ensure all previous positionals are
-            // required too
-            let mut found = false;
-            for p in self.positionals.values().rev() {
-                if found {
-                    reqs.push(p.name);
-                    continue;
-                }
-                if p.settings.is_set(&ArgSettings::Required) {
-                    found = true;
-                    reqs.push(p.name);
-                }
-            }
-            let req_strings = self.get_required_from(&reqs, None);
+            let req_strings = self.get_required_from(None);
             let req_string = req_strings.iter()
                                         .fold(String::new(), |acc, s| acc + &format!(" {}", s)[..]);
 
@@ -1116,7 +1083,31 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         }
 
         usage.shrink_to_fit();
-        usage
+        Ok(usage)
+    }
+
+    // Creates a context aware usage string, or "smart usage" from currently used args, and
+    // requirements
+    fn usage_from_matches(&self, usage: &mut String, matches: &[&'ar str]) -> ClapResult<()> {
+        // let mut hs: Vec<&str> = self.required.iter().map(|n| *n).collect();
+        for n in matches {
+            self.required.push(*n);
+        }
+        let reqs = self.get_required_from(None);
+
+        let r_string = reqs.iter().fold(String::new(), |acc, s| acc + &format!(" {}", s)[..]);
+
+        try!(write!(usage,
+               "{}{}",
+               self.usage
+                   .as_ref()
+                   .unwrap_or(self.bin_name.as_ref().unwrap_or(&self.name)),
+               r_string));
+        if self.settings.is_set(&AppSettings::SubcommandRequired) {
+            try!(write!(usage, " <SUBCOMMAND>"));
+        }
+
+        Ok(())
     }
 
     /// Prints the full help message to `io::stdout()` using a `BufWriter`
@@ -1204,7 +1195,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
             try!(write!(w, "{}\n", about));
         }
 
-        try!(write!(w, "\n{}", self.create_usage(&[])));
+        try!(write!(w, "\n{}", try!(self.create_usage(&[]))));
 
         if flags || opts || pos || subcmds {
             try!(write!(w, "\n"));
@@ -1660,7 +1651,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                 None => {
                     if !lossy {
                         return Err(
-                            error_builder::InvalidUnicode(&*self.create_current_usage(matches))
+                            error_builder::InvalidUnicode(&*try!(self.create_current_usage(matches)))
                         );
                     }
                     arg.as_ref().to_string_lossy()
@@ -1780,7 +1771,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                     if !o.settings.is_set(&ArgSettings::Multiple) {
                         return Err(error_builder::EmptyValue(
                             &*o.to_string(),
-                            &*self.create_current_usage(matches)
+                            &*try!(self.create_current_usage(matches))
                         ));
                     }
                 }
@@ -1830,7 +1821,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                             arg_slice,
                             candidate_subcommand,
                             self.bin_name.as_ref().unwrap_or(&self.name),
-                            &*self.create_current_usage(matches)));
+                            &*try!(self.create_current_usage(matches))));
                     }
                 }
 
@@ -1840,14 +1831,14 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                     return Err(error_builder::UnexpectedArgument(
                         arg_slice,
                         self.bin_name.as_ref().unwrap_or(&self.name),
-                        &*self.create_current_usage(matches)));
+                        &*try!(self.create_current_usage(matches))));
                 } else if let Some(p) = self.positionals.get(&pos_counter) {
                     // Make sure this one doesn't conflict with anything
                     if self.blacklist.contains(&p.name) {
                         return Err(error_builder::ArgumentConflict(
                             p.to_string(),
                             self.blacklisted_from(p.name, &matches),
-                            self.create_current_usage(matches)));
+                            try!(self.create_current_usage(matches))));
                     }
 
                     if let Some(ref p_vals) = p.possible_vals {
@@ -1869,7 +1860,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                                         return Err(error_builder::TooManyValues(
                                             arg_slice,
                                             &*p.to_string(),
-                                            &*self.create_current_usage(matches)));
+                                            &*try!(self.create_current_usage(matches))));
                                     }
                                 }
                             }
@@ -1962,7 +1953,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                     return Err(error_builder::UnexpectedArgument(
                         arg_slice,
                         self.bin_name.as_ref().unwrap_or(&self.name),
-                        &*self.create_current_usage(matches)));
+                        &*try!(self.create_current_usage(matches))));
                 }
             }
         }
@@ -1977,23 +1968,23 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                     if should_err {
                         return Err(error_builder::EmptyValue(
                             &*o.to_string(),
-                            &*self.create_current_usage(matches)
+                            &*try!(self.create_current_usage(matches))
                         ));
                     }
                 } else if !o.settings.is_set(&ArgSettings::Multiple) {
                     return Err(error_builder::EmptyValue(
                         &*o.to_string(),
-                        &*self.create_current_usage(matches)
+                        &*try!(self.create_current_usage(matches))
                     ));
                 } else {
                     debugln!("Remaining Required Arg...");
                     debugln!("required={:#?}", self.required);
                     return Err(error_builder::MissingRequiredArgument(
-                        self.get_required_from(&self.required, Some(matches))
+                        self.get_required_from(Some(matches))
                             .iter()
                             .fold(String::new(),
                                 |acc, s| acc + &format!("\n\t{}", Format::Error(s))[..]),
-                        self.create_current_usage(matches)));
+                        try!(self.create_current_usage(matches))));
                 }
             } else {
                 return Err(error_builder::EmptyValue(
@@ -2001,7 +1992,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                                                         .filter(|p| &p.name == a)
                                                         .next()
                                                         .unwrap()),
-                    &*self.create_current_usage(matches)
+                    &*try!(self.create_current_usage(matches))
                 ));
             }
         }
@@ -2016,17 +2007,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
             return res;
         }
 
-        matches.usage = Some(self.create_usage(&[]));
+        matches.usage = Some(try!(self.create_usage(&[])));
 
         if let Some(sc_name) = subcmd_name {
             use std::fmt::Write;
             let mut mid_string = String::new();
             if !self.settings.is_set(&AppSettings::SubcommandsNegateReqs) {
-                let mut hs = self.required.iter().map(|n| *n).collect::<Vec<_>>();
                 for k in matches.args.keys() {
-                    hs.push(*k);
+                    self.required.push(*k);
                 }
-                let reqs = self.get_required_from(&hs, Some(matches));
+                let reqs = self.get_required_from(Some(matches));
 
                 for s in reqs.iter() {
                     write!(&mut mid_string, " {}", s).ok().expect(INTERNAL_ERROR_MSG);
@@ -2067,7 +2057,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
             let bn = self.bin_name.as_ref().unwrap_or(&self.name);
             return Err(error_builder::MissingSubcommand(
                 bn,
-                &self.create_current_usage(matches)));
+                &try!(self.create_current_usage(matches))));
         } else if self.settings.is_set(&AppSettings::SubcommandRequiredElseHelp) {
             let mut out = vec![];
             try!(self.write_help(&mut out));
@@ -2080,11 +2070,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         if (!self.settings.is_set(&AppSettings::SubcommandsNegateReqs) ||
             matches.subcommand_name().is_none()) && self.validate_required(&matches) {
             return Err(error_builder::MissingRequiredArgument(
-                &*self.get_required_from(&self.required, Some(matches))
+                &*self.get_required_from(Some(matches))
                     .iter()
                     .fold(String::new(),
                         |acc, s| acc + &format!("\n\t{}", Format::Error(s))[..]),
-                &*self.create_current_usage(matches)));
+                &*try!(self.create_current_usage(matches))));
         }
         if matches.args.is_empty() && matches.subcommand_name().is_none() &&
            self.settings.is_set(&AppSettings::ArgRequiredElseHelp) {
@@ -2130,7 +2120,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         w.flush().map_err(ClapError::from)
     }
 
-    fn create_current_usage(&self, matches: &ArgMatches) -> String {
+    fn create_current_usage(&self, matches: &ArgMatches) -> ClapResult<String> {
         self.create_usage(
             &matches.args.keys()
                          .filter(|k| {
@@ -2147,7 +2137,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                          .map(|k| *k)
                          .collect::<Vec<_>>())
     }
-
 
     fn groups_for_arg(&self, name: &str) -> Option<Vec<&'ar str>> {
         if self.groups.is_empty() {
@@ -2232,16 +2221,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         args.iter().map(|s| *s).collect()
     }
 
-    fn get_required_from(&self,
-                         reqs: &[&'ar str],
-                         matches: Option<&ArgMatches>)
-                         -> VecDeque<String>
-    {
+    fn get_required_from(&self, matches: Option<&ArgMatches>) -> VecDeque<String> {
         let mut c_flags = vec![];
         let mut c_pos = vec![];
         let mut c_opt = vec![];
         let mut grps = vec![];
-        for name in reqs {
+        for name in &self.required {
             if self.flags.iter().any(|f| &f.name == name) {
                 c_flags.push(name);
             } else if self.opts.iter().any(|o| &o.name == name) {
@@ -2257,7 +2242,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
             if let Some(f) = self.flags.iter().filter(|flg| &&flg.name == f).next() {
                 if let Some(ref rl) = f.requires {
                     for r in rl.iter() {
-                        if !reqs.contains(r) {
+                        if !self.required.contains(r) {
                             if self.flags.iter().any(|f| &f.name == r) {
                                 tmp_f.push(r);
                             } else if self.opts.iter().any(|o| &o.name == r) {
@@ -2280,7 +2265,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
             if let Some(f) = self.opts.iter().filter(|o| &&o.name == f).next() {
                 if let Some(ref rl) = f.requires {
                     for r in rl.iter() {
-                        if !reqs.contains(r) {
+                        if !self.required.contains(r) {
                             if self.flags.iter().any(|f| &f.name == r) {
                                 c_flags.push(r);
                             } else if self.opts.iter().any(|o| &o.name == r) {
@@ -2299,11 +2284,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
             c_opt.push(f);
         }
         let mut tmp_p = vec![];
-        for f in c_pos.iter() {
-            if let Some(f) = self.flags.iter().filter(|flg| &&flg.name == f).next() {
-                if let Some(ref rl) = f.requires {
+        for p in c_pos.iter() {
+            if let Some(p) = self.positionals.values().filter(|pos| &&pos.name == p).next() {
+                if let Some(ref rl) = p.requires {
                     for r in rl.iter() {
-                        if !reqs.contains(r) {
+                        if !self.required.contains(r) {
                             if self.flags.iter().any(|f| &f.name == r) {
                                 c_flags.push(r);
                             } else if self.opts.iter().any(|o| &o.name == r) {
@@ -2319,7 +2304,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
             }
         }
         for f in tmp_p.into_iter() {
-            c_flags.push(f);
+            c_pos.push(f);
         }
 
         let mut ret_val = VecDeque::new();
@@ -2366,16 +2351,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
 
     fn verify_positionals(&mut self) {
         // Because you must wait until all arguments have been supplied, this is the
-        // first chance
-        // to make assertions on positional argument indexes
+        // first chance to make assertions on positional argument indexes
         //
         // Firt we verify that the index highest supplied index, is equal to the number
-        // of
-        // positional arguments to verify there are no gaps (i.e. supplying an index of
-        // 1 and 3
-        // but no 2)
-        //
-        // Next we verify that only the highest index has a .multiple(true) (if any)
+        // of positional arguments to verify there are no gaps (i.e. supplying an index of
+        // 1 and 3 but no 2)
         if let Some((idx, ref p)) = self.positionals.iter().rev().next() {
             if idx != self.positionals.len() {
                 panic!("Found positional argument \"{}\" who's index is {} but there are only {} \
@@ -2385,24 +2365,22 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                        self.positionals.len());
             }
         }
-        assert!(!self.positionals
-                     .values()
-                     .any(|a| a.settings.is_set(&ArgSettings::Multiple) &&
-                                    (a.index as usize != self.positionals.len())),
-                "Found positional argument which accepts multiple values but is not \
-                    the last positional argument (i.e. others have a higher index)");
 
-        // If it's required we also need to ensure all previous positionals are
-        // required too
+        // Next we verify that only the highest index has a .multiple(true) (if any)
+        assert!(!self.positionals.values()
+                                 .any(|a| a.settings.is_set(&ArgSettings::Multiple) &&
+                                    (a.index as usize != self.positionals.len())),
+                "Only the positional argument with the highest index may accept multiple values");
+
+        // If it's required we also need to ensure all previous positionals are required too
         let mut found = false;
-        for (_, p) in self.positionals.iter_mut().rev() {
-            if found {
-                p.settings.set(&ArgSettings::Required);
-                self.required.push(p.name);
-                continue;
-            }
-            if p.settings.is_set(&ArgSettings::Required) {
-                found = true;
+        for p in self.positionals.values().rev() {
+            if !found {
+                if p.settings.is_set(&ArgSettings::Required) { found = true; continue; }
+            } else {
+                assert!(p.settings.is_set(&ArgSettings::Required),
+                    "Found positional argument which is not required with a lower index than a \
+                    required positional argument: {:?} index {}", p.name, p.index);
             }
         }
     }
@@ -2445,7 +2423,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
             opt,
             &*valid_values,
             &*suffix.0,
-            &*self.create_current_usage(matches))
+            &*try!(self.create_current_usage(matches)))
     }
 
     fn blacklisted_from(&self, name: &str, matches: &ArgMatches) -> Option<String> {
@@ -2625,7 +2603,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                                         });
                     return Err(error_builder::EmptyValue(
                         &*format!("--{}", arg),
-                        &*self.create_current_usage(matches)
+                        &*try!(self.create_current_usage(matches))
                     ));
                 }
                 arg_val = Some(arg_vec[1]);
@@ -2642,7 +2620,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                 return Err(error_builder::ArgumentConflict(
                     format!("--{}", arg),
                     self.blacklisted_from(v.name, &matches),
-                    self.create_current_usage(matches)));
+                    try!(self.create_current_usage(matches))));
             }
             if self.overrides.contains(&v.name) {
                 debugln!("it is...");
@@ -2675,7 +2653,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                 if !v.settings.is_set(&ArgSettings::Multiple) {
                     return Err(error_builder::UnexpectedMultipleUsage(
                         &*format!("--{}", arg),
-                        &*self.create_current_usage(matches)));
+                        &*try!(self.create_current_usage(matches))));
                 }
                 if let Some(av) = arg_val {
                     if let Some(ref vec) = self.groups_for_arg(v.name) {
@@ -2784,7 +2762,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                     return Err(error_builder::ArgumentConflict(
                         v.to_string(),
                         self.blacklisted_from(v.name, &matches),
-                        self.create_current_usage(matches)));
+                        try!(self.create_current_usage(matches))));
             }
             if self.overrides.contains(&v.name) {
                 debugln!("it is...");
@@ -2807,7 +2785,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
             if matches.args.contains_key(v.name) && !v.settings.is_set(&ArgSettings::Multiple) {
                 return Err(error_builder::UnexpectedMultipleUsage(
                     &*v.to_string(),
-                    &*self.create_current_usage(matches)));
+                    &*try!(self.create_current_usage(matches))));
             }
 
             let mut done = false;
@@ -2926,7 +2904,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         Err(error_builder::InvalidArgument(
             &*format!("--{}", arg),
             Some(&*suffix.0),
-            &*self.create_current_usage(matches)))
+            &*try!(self.create_current_usage(matches))))
     }
 
     fn validate_value(&self,
@@ -2944,7 +2922,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
            matches.args.contains_key(v.name) {
             return Err(error_builder::EmptyValue(
                 &*v.to_string(),
-                &*self.create_current_usage(matches)));
+                &*try!(self.create_current_usage(matches))));
         }
         if let Some(ref vtor) = v.validator {
             if let Err(e) = vtor(av.to_owned()) {
@@ -2976,7 +2954,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                     return Err(error_builder::ArgumentConflict(
                         v.to_string(),
                         self.blacklisted_from(v.name, &matches),
-                        self.create_current_usage(matches)));
+                        try!(self.create_current_usage(matches))));
                 }
                 if self.overrides.contains(&v.name) {
                     if let Some(ref name) = self.overriden_from(v.name, matches) {
@@ -2995,7 +2973,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                 if matches.args.contains_key(v.name) && !v.settings.is_set(&ArgSettings::Multiple) {
                     return Err(error_builder::UnexpectedMultipleUsage(
                         &*format!("-{}", arg),
-                        &*self.create_current_usage(matches)));
+                        &*try!(self.create_current_usage(matches))));
                 }
 
                 // New scope for lifetimes
@@ -3065,7 +3043,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                         return Err(error_builder::InvalidArgument(
                             &*format!("-{}", c),
                             None,
-                            &*self.create_current_usage(matches)));
+                            &*try!(self.create_current_usage(matches))));
                     }
                 }
                 Err(e) => return Err(e),
@@ -3089,7 +3067,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                 return Err(error_builder::ArgumentConflict(
                     v.to_string(),
                     self.blacklisted_from(v.name, &matches),
-                    self.create_current_usage(matches)));
+                    try!(self.create_current_usage(matches))));
             }
             if self.overrides.contains(&v.name) {
                 debugln!("it is...");
@@ -3112,7 +3090,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
             if matches.args.contains_key(v.name) && !v.settings.is_set(&ArgSettings::Multiple) {
                 return Err(error_builder::UnexpectedMultipleUsage(
                     &*format!("-{}", arg),
-                    &*self.create_current_usage(matches)));
+                    &*try!(self.create_current_usage(matches))));
             }
 
             if let Some(ref vec) = self.groups_for_arg(v.name) {
@@ -3201,7 +3179,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                         }
                     )),
                     self.blacklisted_from(name, &matches),
-                    self.create_current_usage(matches)));
+                    try!(self.create_current_usage(matches))));
             } else if self.groups.contains_key(name) {
                 for n in self.arg_names_in_group(name) {
                     if matches.args.contains_key(n) {
@@ -3227,7 +3205,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                                 }
                             )),
                             self.blacklisted_from(name, &matches),
-                            self.create_current_usage(matches)));
+                            try!(self.create_current_usage(matches))));
                     }
                 }
             }
@@ -3265,7 +3243,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                                 } else {
                                     "ere"
                                 },
-                                &*self.create_current_usage(matches)));
+                                &*try!(self.create_current_usage(matches))));
                         }
                     }
                     if let Some(num) = f.max_vals {
@@ -3276,7 +3254,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                                              .expect("error getting last key. This is a bug"))
                                     .expect("failed to retrieve last value. This is a bug"),
                                 &f.to_string(),
-                                &self.create_current_usage(matches)));
+                                &try!(self.create_current_usage(matches))));
                         }
                     }
                     if let Some(num) = f.min_vals {
@@ -3285,7 +3263,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                                 &*f.to_string(),
                                 num,
                                 vals.len(),
-                                &*self.create_current_usage(matches)));
+                                &*try!(self.create_current_usage(matches))));
                         }
                     }
                 } else if let Some(f) = self.positionals.values()
@@ -3302,7 +3280,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                                 } else {
                                     "ere"
                                 },
-                                &*self.create_current_usage(matches)));
+                                &*try!(self.create_current_usage(matches))));
                         }
                     }
                     if let Some(max) = f.max_vals {
@@ -3313,7 +3291,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                                              .expect("error getting last key. This is a bug"))
                                     .expect("failed to retrieve last value. This is a bug"),
                                 &f.to_string(),
-                                &self.create_current_usage(matches)));
+                                &try!(self.create_current_usage(matches))));
                         }
                     }
                     if let Some(min) = f.min_vals {
@@ -3322,7 +3300,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                                 &*f.to_string(),
                                 min,
                                 vals.len(),
-                                &*self.create_current_usage(matches)));
+                                &*try!(self.create_current_usage(matches))));
                         }
                     }
                 }
@@ -3452,7 +3430,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                                          .expect("error getting last key. This is a bug"))
                                 .expect("failed to retrieve last value. This is a bug"),
                             &opt.to_string(),
-                            &self.create_current_usage(matches)));
+                            &try!(self.create_current_usage(matches))));
                     }
                 }
             }
@@ -3463,7 +3441,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
            matches.args.contains_key(opt.name) && arg_slice.is_empty() {
             return Err(error_builder::EmptyValue(
                 &*opt.to_string(),
-                &*self.create_current_usage(matches)));
+                &*try!(self.create_current_usage(matches))));
         }
 
         if let Some(ref vtor) = opt.validator {
