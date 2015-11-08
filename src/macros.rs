@@ -59,7 +59,7 @@ macro_rules! vec_remove {
             let mut ix = None;
             $vec.dedup();
             for (i, val) in $vec.iter().enumerate() {
-                if val == $to_rem {
+                if &val == &$to_rem {
                     ix = Some(i);
                     break;
                 }
@@ -89,7 +89,7 @@ macro_rules! remove_overriden {
                     vec_remove!($me.overrides, a);
                 }
             }
-        } else if let Some(ref o) = $me.flags.get($name) {
+        } else if let Some(ref o) = $me.flags.iter().filter(|f| &f.name == $name).next() {
             if let Some(ref ora) = o.requires {
                 for a in ora {
                     vec_remove!($me.required, a);

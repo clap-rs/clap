@@ -68,7 +68,7 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     // Additional help information
     more_help: Option<&'h str>,
     // A list of possible flags
-    flags: BTreeMap<&'ar str, FlagBuilder<'ar>>,
+    flags: Vec<FlagBuilder<'ar>>,
     // A list of possible options
     opts: BTreeMap<&'ar str, OptBuilder<'ar>>,
     // A list of positional arguments
@@ -112,7 +112,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             about: None,
             more_help: None,
             version: None,
-            flags: BTreeMap::new(),
+            flags: vec![],
             opts: BTreeMap::new(),
             positionals: VecMap::new(),
             subcommands: BTreeMap::new(),
@@ -731,7 +731,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     // actually adds the arguments
     fn add_arg(&mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) {
-        if self.flags.contains_key(a.name) || self.opts.contains_key(a.name) ||
+        if self.flags.iter().any(|f| &f.name == &a.name) || self.opts.contains_key(a.name) ||
            self.positionals.values().any(|p| p.name == a.name) {
             panic!("Argument name must be unique\n\n\t\"{}\" is already in use",
                    a.name);
@@ -784,7 +784,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             self.opts.insert(ob.name, ob);
         } else {
             let fb = FlagBuilder::from(&a);
-            self.flags.insert(fb.name, fb);
+            self.flags.push(fb);
         }
         if a.global {
             if a.required {
@@ -1161,7 +1161,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
         let mut longest_flag = 0;
         for fl in self.flags
-                      .values()
+                      .iter()
                       .filter(|f| f.long.is_some() && !f.settings.is_set(&ArgSettings::Hidden))
                       .map(|a| a.to_string().len()) {
             if fl > longest_flag {
@@ -1210,48 +1210,30 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
 
         let tab = "    ";
+        let longest = if !unified_help || longest_opt == 0 { longest_flag } else { longest_opt };
         if unified_help && (flags || opts) {
             try!(write!(w, "\nOPTIONS:\n"));
-            let mut combined = vec![];
-            for f in self.flags.values().filter(|f| !f.settings.is_set(&ArgSettings::Hidden)) {
-                combined.push(f.name);
+            let mut combined = BTreeMap::new();
+            for f in self.flags.iter().filter(|f| !f.settings.is_set(&ArgSettings::Hidden)) {
+                let mut v = vec![];
+                try!(f.write_help(&mut v, tab, longest));
+                combined.insert(f.name, v);
             }
             for o in self.opts.values().filter(|o| !o.settings.is_set(&ArgSettings::Hidden)) {
-                combined.push(o.name);
+                let mut v = vec![];
+                try!(o.write_help(&mut v, tab, longest));
+                combined.insert(o.name, v);
             }
-            combined.sort();
-            for a in combined {
-                if let Some(a) = self.flags.get(a) {
-                    try!(a.write_help(w,
-                                      tab,
-                                      if !unified_help || longest_opt == 0 {
-                                          longest_flag
-                                      } else {
-                                          longest_opt
-                                      }));
-                } else if let Some(a) = self.opts.get(a) {
-                    try!(a.write_help(w,
-                                      tab,
-                                      if !unified_help || longest_opt == 0 {
-                                          longest_flag
-                                      } else {
-                                          longest_opt
-                                      }));
-                }
+            for (_, a) in combined {
+                try!(write!(w, "{}", unsafe { String::from_utf8_unchecked(a) } ));
             }
         } else {
             if flags {
                 try!(write!(w, "\nFLAGS:\n"));
                 for v in self.flags
-                             .values()
+                             .iter()
                              .filter(|f| !f.settings.is_set(&ArgSettings::Hidden)) {
-                    try!(v.write_help(w,
-                                      tab,
-                                      if !unified_help || longest_opt == 0 {
-                                          longest_flag
-                                      } else {
-                                          longest_opt
-                                      }));
+                    try!(v.write_help(w, tab, longest));
                 }
             }
             if opts {
@@ -2185,7 +2167,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut args = vec![];
 
         for n in &self.groups.get(group).unwrap().args {
-            if let Some(f) = self.flags.get(n) {
+            if let Some(f) = self.flags.iter().filter(|f| &f.name == n).next() {
                 args.push(f.to_string());
             } else if let Some(f) = self.opts.get(n) {
                 args.push(f.to_string());
@@ -2219,7 +2201,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut args = vec![];
 
         for n in &self.groups.get(group).unwrap().args {
-            if self.flags.contains_key(n) {
+            if self.flags.iter().any(|f| &f.name == n) {
                 args.push(*n);
             } else if self.opts.contains_key(n) {
                 args.push(*n);
@@ -2254,7 +2236,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         let mut c_opt = vec![];
         let mut grps = vec![];
         for name in reqs {
-            if self.flags.contains_key(name) {
+            if self.flags.iter().any(|f| &f.name == name) {
                 c_flags.push(name);
             } else if self.opts.contains_key(name) {
                 c_opt.push(name);
@@ -2266,11 +2248,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
         let mut tmp_f = vec![];
         for f in &c_flags {
-            if let Some(f) = self.flags.get(*f) {
+            if let Some(f) = self.flags.iter().filter(|flg| &&flg.name == f).next() {
                 if let Some(ref rl) = f.requires {
                     for r in rl.iter() {
                         if !reqs.contains(r) {
-                            if self.flags.contains_key(r) {
+                            if self.flags.iter().any(|f| &f.name == r) {
                                 tmp_f.push(r);
                             } else if self.opts.contains_key(r) {
                                 c_opt.push(r);
@@ -2293,7 +2275,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 if let Some(ref rl) = f.requires {
                     for r in rl.iter() {
                         if !reqs.contains(r) {
-                            if self.flags.contains_key(r) {
+                            if self.flags.iter().any(|f| &f.name == r) {
                                 c_flags.push(r);
                             } else if self.opts.contains_key(r) {
                                 tmp_o.push(r);
@@ -2312,11 +2294,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
         let mut tmp_p = vec![];
         for f in c_pos.iter() {
-            if let Some(f) = self.flags.get(*f) {
+            if let Some(f) = self.flags.iter().filter(|flg| &&flg.name == f).next() {
                 if let Some(ref rl) = f.requires {
                     for r in rl.iter() {
                         if !reqs.contains(r) {
-                            if self.flags.contains_key(r) {
+                            if self.flags.iter().any(|f| &f.name == r) {
                                 c_flags.push(r);
                             } else if self.opts.contains_key(r) {
                                 c_opt.push(r);
@@ -2352,7 +2334,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             if matches.is_some() && matches.as_ref().unwrap().is_present(f) {
                 continue;
             }
-            ret_val.push_back(format!("{}", self.flags.get(*f).unwrap()));
+            ret_val.push_back(format!("{}", self.flags.iter()
+                                                      .filter(|flg| &flg.name == f)
+                                                      .next()
+                                                      .unwrap()));
         }
         for o in c_opt.into_iter() {
             if matches.is_some() && matches.as_ref().unwrap().is_present(o) {
@@ -2456,7 +2441,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     fn blacklisted_from(&self, name: &str, matches: &ArgMatches) -> Option<String> {
         for k in matches.args.keys() {
-            if let Some(f) = self.flags.get(k) {
+            if let Some(f) = self.flags.iter().filter(|f| &f.name == k).next() {
                 if let Some(ref bl) = f.blacklist {
                     if bl.contains(&name) {
                         return Some(format!("{}", f));
@@ -2483,7 +2468,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     fn overriden_from(&self, name: &'ar str, matches: &ArgMatches) -> Option<&'ar str> {
         for k in matches.args.keys() {
-            if let Some(f) = self.flags.get(k) {
+            if let Some(f) = self.flags.iter().filter(|f| &f.name == k).next() {
                 if let Some(ref bl) = f.overrides {
                     if bl.contains(&name) {
                         return Some(f.name);
@@ -2510,7 +2495,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
     fn create_help_and_version(&mut self) {
         // name is "hclap_help" because flags are sorted by name
-        if !self.flags.values().any(|a| a.long.is_some() && a.long.unwrap() == "help") {
+        if !self.flags.iter().any(|a| a.long.is_some() && a.long.unwrap() == "help") {
             if self.help_short.is_none() && !self.short_list.contains(&'h') {
                 self.help_short = Some('h');
             }
@@ -2525,10 +2510,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 settings: ArgFlags::new(),
             };
             self.long_list.push("help");
-            self.flags.insert("hclap_help", arg);
+            self.flags.push(arg);
         }
         if !self.settings.is_set(&AppSettings::DisableVersion) &&
-           !self.flags.values().any(|a| a.long.is_some() && a.long.unwrap() == "version") {
+           !self.flags.iter().any(|a| a.long.is_some() && a.long.unwrap() == "version") {
             if self.version_short.is_none() && !self.short_list.contains(&'V') {
                 self.version_short = Some('V');
             }
@@ -2544,7 +2529,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 settings: ArgFlags::new(),
             };
             self.long_list.push("version");
-            self.flags.insert("vclap_version", arg);
+            self.flags.push(arg);
         }
         if !self.subcommands.is_empty() && !self.subcommands.keys().any(|a| a == "help") {
             self.subcommands.insert("help".to_owned(),
@@ -2783,10 +2768,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
 
         if let Some(v) = self.flags
-                             .values()
-                             .filter(|&v| v.long.is_some())
-                             .filter(|&v| v.long.unwrap() == arg)
-                             .nth(0) {
+                             .iter()
+                             .filter(|&v| v.long.is_some() && v.long.unwrap() == arg)
+                             .next() {
             // Ensure this flag isn't on the mutually excludes list
             if self.blacklist.contains(&v.name) {
                 matches.args.remove(v.name);
@@ -2906,7 +2890,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                         values: None,
                                     });
             } else if let Some(ref flg) = self.flags
-                                       .values()
+                                       .iter()
                                        .filter_map(|f| {
                                            if f.long.is_some() && f.long.unwrap() == name {
                                                Some(f.name)
@@ -3090,10 +3074,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                -> ClapResult<bool>
     {
         if let Some(v) = self.flags
-                             .values()
-                             .filter(|&v| v.short.is_some())
-                             .filter(|&v| v.short.unwrap() == arg)
-                             .nth(0) {
+                             .iter()
+                             .filter(|&v| v.short.is_some() && v.short.unwrap() == arg)
+                             .next() {
             // Ensure this flag isn't on the mutually excludes list
             if self.blacklist.contains(&v.name) {
                 matches.args.remove(v.name);
@@ -3196,7 +3179,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 matches.args.remove(name);
                 return Err(error_builder::ArgumentConflict(
                     format!("{}", Format::Warning(
-                        if let Some(f) = self.flags.get(name) {
+                        if let Some(f) = self.flags.iter().filter(|f| &f.name == name).next() {
                             f.to_string()
                         } else if let Some(o) = self.opts.get(name) {
                             o.to_string()
@@ -3217,7 +3200,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         matches.args.remove(n);
                         return Err(error_builder::ArgumentConflict(
                             format!("{}", Format::Warning(
-                                if let Some(f) = self.flags.get(name) {
+                                if let Some(f) = self.flags.iter()
+                                                           .filter(|f| &f.name == name)
+                                                           .next() {
                                     f.to_string()
                                 } else if let Some(o) = self.opts.get(name) {
                                     o.to_string()
@@ -3343,7 +3328,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     continue 'outer;
                 }
             }
-            if let Some(a) = self.flags.get(name) {
+            if let Some(a) = self.flags.iter().filter(|f| &f.name == name).next() {
                 if let Some(ref bl) = a.blacklist {
                     for n in bl.iter() {
                         if matches.args.contains_key(n) {
