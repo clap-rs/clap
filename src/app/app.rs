@@ -72,8 +72,7 @@ pub struct App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     // A list of possible options
     opts: BTreeMap<&'ar str, OptBuilder<'ar>>,
     // A list of positional arguments
-    positionals_idx: VecMap<PosBuilder<'ar>>,
-    positionals_name: HashMap<&'ar str, usize>,
+    positionals: VecMap<PosBuilder<'ar>>,
     // A list of subcommands
     subcommands: BTreeMap<String, App<'a, 'v, 'ab, 'u, 'h, 'ar>>,
     help_short: Option<char>,
@@ -115,8 +114,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             version: None,
             flags: BTreeMap::new(),
             opts: BTreeMap::new(),
-            positionals_idx: VecMap::new(),
-            positionals_name: HashMap::new(),
+            positionals: VecMap::new(),
             subcommands: BTreeMap::new(),
             help_short: None,
             version_short: None,
@@ -734,7 +732,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
     // actually adds the arguments
     fn add_arg(&mut self, a: Arg<'ar, 'ar, 'ar, 'ar, 'ar, 'ar>) {
         if self.flags.contains_key(a.name) || self.opts.contains_key(a.name) ||
-           self.positionals_name.contains_key(a.name) {
+           self.positionals.values().any(|p| p.name == a.name) {
             panic!("Argument name must be unique\n\n\t\"{}\" is already in use",
                    a.name);
         }
@@ -768,19 +766,19 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
         if a.index.is_some() || (a.short.is_none() && a.long.is_none()) {
             let i = if a.index.is_none() {
-                (self.positionals_idx.len() + 1)
+                (self.positionals.len() + 1)
             } else {
                 a.index.unwrap() as usize
             };
-            if self.positionals_idx.contains_key(&i) {
+            if self.positionals.contains_key(&i) {
                 panic!("Argument \"{}\" has the same index as another positional \
                     argument\n\n\tPerhaps try .multiple(true) to allow one positional argument \
                     to take multiple values",
                        a.name);
             }
             let pb = PosBuilder::from_arg(&a, i as u8, &mut self.required);
-            self.positionals_name.insert(pb.name, i);
-            self.positionals_idx.insert(i, pb);
+            // self.positionals_name.insert(pb.name, i);
+            self.positionals.insert(i, pb);
         } else if a.takes_value {
             let ob = OptBuilder::from_arg(&a, &mut self.required);
             self.opts.insert(ob.name, ob);
@@ -1064,7 +1062,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             // If it's required we also need to ensure all previous positionals are
             // required too
             let mut found = false;
-            for p in self.positionals_idx.values().rev() {
+            for p in self.positionals.values().rev() {
                 if found {
                     reqs.push(p.name);
                     continue;
@@ -1092,15 +1090,15 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
             // places a '--' in the usage string if there are args and options
             // supporting multiple values
-            if !self.positionals_idx.is_empty() &&
+            if !self.positionals.is_empty() &&
                (self.opts.values().any(|a| a.settings.is_set(&ArgSettings::Multiple)) ||
-                self.positionals_idx.values().any(|a| a.settings.is_set(&ArgSettings::Multiple))) &&
+                self.positionals.values().any(|a| a.settings.is_set(&ArgSettings::Multiple))) &&
                !self.opts.values().any(|a| a.settings.is_set(&ArgSettings::Required)) &&
                self.subcommands.is_empty() {
                 usage.push_str(" [--]")
             }
-            if !self.positionals_idx.is_empty() &&
-               self.positionals_idx
+            if !self.positionals.is_empty() &&
+               self.positionals
                    .values()
                    .any(|a| !a.settings.is_set(&ArgSettings::Required)) {
                 usage.push_str(" [ARGS]");
@@ -1156,7 +1154,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     &self.bin_name.as_ref().unwrap_or(&self.name)[..].replace(" ", "-"),
                     self.version.unwrap_or("")));
         let flags = !self.flags.is_empty();
-        let pos = !self.positionals_idx.is_empty();
+        let pos = !self.positionals.is_empty();
         let opts = !self.opts.is_empty();
         let subcmds = !self.subcommands.is_empty();
         let unified_help = self.settings.is_set(&AppSettings::UnifiedHelpMessage);
@@ -1180,7 +1178,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             }
         }
         let mut longest_pos = 0;
-        for pl in self.positionals_idx
+        for pl in self.positionals
                       .values()
                       .filter(|p| !p.settings.is_set(&ArgSettings::Hidden))
                       .map(|f| f.to_string().len()) {
@@ -1267,7 +1265,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         }
         if pos {
             try!(write!(w, "\nARGS:\n"));
-            for v in self.positionals_idx
+            for v in self.positionals
                          .values()
                          .filter(|p| !p.settings.is_set(&ArgSettings::Hidden)) {
                 try!(v.write_help(w, tab, longest_pos));
@@ -1852,12 +1850,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
                 // Did the developer even define any valid positionals? Since we reached this
                 // far, it's not a subcommand
-                if self.positionals_idx.is_empty() {
+                if self.positionals.is_empty() {
                     return Err(error_builder::UnexpectedArgument(
                         arg_slice,
                         self.bin_name.as_ref().unwrap_or(&self.name),
                         &*self.create_current_usage(matches)));
-                } else if let Some(p) = self.positionals_idx.get(&pos_counter) {
+                } else if let Some(p) = self.positionals.get(&pos_counter) {
                     // Make sure this one doesn't conflict with anything
                     if self.blacklist.contains(&p.name) {
                         return Err(error_builder::ArgumentConflict(
@@ -1902,7 +1900,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
 
                         if !pos_only &&
                            (self.settings.is_set(&AppSettings::TrailingVarArg) &&
-                            pos_counter == self.positionals_idx.len()) {
+                            pos_counter == self.positionals.len()) {
                             pos_only = true;
                         }
                     } else {
@@ -1912,9 +1910,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     // Was an update made, or is this the first occurrence?
                     if !done {
                         if self.overrides.contains(&p.name) {
-                            if let Some(name) = self.overriden_from(p.name, matches) {
-                                matches.args.remove(&*name);
-                                remove_overriden!(self, &*name);
+                            if let Some(ref name) = self.overriden_from(p.name, matches) {
+                                matches.args.remove(name);
+                                remove_overriden!(self, name);
                             }
                         }
                         if let Some(ref or) = p.overrides {
@@ -2013,7 +2011,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 }
             } else {
                 return Err(error_builder::EmptyValue(
-                    &*format!("{}", self.positionals_idx.get(self.positionals_name.get(a).unwrap())
+                    &*format!("{}", self.positionals.values()
+                                                        .filter(|p| &p.name == a)
+                                                        .next()
                                                         .unwrap()),
                     &*self.create_current_usage(matches)
                 ));
@@ -2148,12 +2148,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                          .filter(|k| {
                              if let Some(o) = self.opts.get(*k) {
                                  !o.settings.is_set(&ArgSettings::Required)
-                             } else if let Some(p) = self.positionals_name.get(*k) {
-                                 if let Some(p) = self.positionals_idx.get(p) {
+                             } else if let Some(p) = self.positionals.values()
+                                                                         .filter(|p| &&p.name == k)
+                                                                         .next() {
                                  !p.settings.is_set(&ArgSettings::Required)
-                                 } else {
-                                     true
-                                 }
                              } else {
                                  true
                              }
@@ -2194,10 +2192,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             } else if self.groups.contains_key(n) {
                 g_vec.push(*n);
             } else {
-                if let Some(idx) = self.positionals_name.get(n) {
-                    if let Some(p) = self.positionals_idx.get(&idx) {
-                        args.push(p.to_string());
-                    }
+                if let Some(p) = self.positionals.values()
+                                                     .filter(|p| &p.name == n)
+                                                     .next() {
+                    args.push(p.to_string());
                 }
             }
         }
@@ -2227,10 +2225,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 args.push(*n);
             } else if self.groups.contains_key(n) {
                 g_vec.push(*n);
-            } else {
-                if self.positionals_name.contains_key(n) {
-                    args.push(*n);
-                }
+            } else if self.positionals.values().any(|p| &p.name == n) {
+                args.push(*n);
             }
         }
 
@@ -2345,10 +2341,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             if matches.is_some() && matches.as_ref().unwrap().is_present(p) {
                 continue;
             }
-            if let Some(idx) = self.positionals_name.get(p) {
-                if let Some(ref p) = self.positionals_idx.get(&idx) {
-                    pmap.insert(p.index, format!("{}", p));
-                }
+            if let Some(p) = self.positionals.values().filter(|x| &x.name == p).next() {
+                pmap.insert(p.index, format!("{}", p));
             }
         }
         for (_, s) in pmap {
@@ -2388,26 +2382,26 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
         // but no 2)
         //
         // Next we verify that only the highest index has a .multiple(true) (if any)
-        if let Some((idx, ref p)) = self.positionals_idx.iter().rev().next() {
-            if idx != self.positionals_idx.len() {
+        if let Some((idx, ref p)) = self.positionals.iter().rev().next() {
+            if idx != self.positionals.len() {
                 panic!("Found positional argument \"{}\" who's index is {} but there are only {} \
                     positional arguments defined",
                        p.name,
                        idx,
-                       self.positionals_idx.len());
+                       self.positionals.len());
             }
         }
-        assert!(!self.positionals_idx
+        assert!(!self.positionals
                      .values()
                      .any(|a| a.settings.is_set(&ArgSettings::Multiple) &&
-                                    (a.index as usize != self.positionals_idx.len())),
+                                    (a.index as usize != self.positionals.len())),
                 "Found positional argument which accepts multiple values but is not \
                     the last positional argument (i.e. others have a higher index)");
 
         // If it's required we also need to ensure all previous positionals are
         // required too
         let mut found = false;
-        for (_, p) in self.positionals_idx.iter_mut().rev() {
+        for (_, p) in self.positionals.iter_mut().rev() {
             if found {
                 p.settings.set(&ArgSettings::Required);
                 self.required.push(p.name);
@@ -2476,12 +2470,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                 }
             }
-            if let Some(idx) = self.positionals_name.get(k) {
-                if let Some(pos) = self.positionals_idx.get(idx) {
-                    if let Some(ref bl) = pos.blacklist {
-                        if bl.contains(&name) {
-                            return Some(format!("{}", pos));
-                        }
+            if let Some(pos) = self.positionals.values().filter(|p| &p.name == k).next() {
+                if let Some(ref bl) = pos.blacklist {
+                    if bl.contains(&name) {
+                        return Some(format!("{}", pos));
                     }
                 }
             }
@@ -2505,12 +2497,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                     }
                 }
             }
-            if let Some(idx) = self.positionals_name.get(k) {
-                if let Some(pos) = self.positionals_idx.get(idx) {
-                    if let Some(ref bl) = pos.overrides {
-                        if bl.contains(&name) {
-                            return Some(pos.name);
-                        }
+            if let Some(pos) = self.positionals.values().filter(|p| &p.name == k).next() {
+                if let Some(ref bl) = pos.overrides {
+                    if bl.contains(&name) {
+                        return Some(pos.name);
                     }
                 }
             }
@@ -2665,7 +2655,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             if self.overrides.contains(&v.name) {
                 debugln!("it is...");
                 debugln!("checking who defined it...");
-                if let Some(name) = self.overriden_from(v.name, matches) {
+                if let Some(ref name) = self.overriden_from(v.name, matches) {
                     debugln!("found {}", name);
                     if let Some(ref vec) = self.groups_for_arg(v.name) {
                         for grp in vec {
@@ -2808,7 +2798,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             if self.overrides.contains(&v.name) {
                 debugln!("it is...");
                 debugln!("checking who defined it...");
-                if let Some(name) = self.overriden_from(v.name, matches) {
+                if let Some(ref name) = self.overriden_from(v.name, matches) {
                     debugln!("found {}", name);
                     matches.args.remove(name);
                     remove_overriden!(self, name);
@@ -2999,7 +2989,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         self.create_current_usage(matches)));
                 }
                 if self.overrides.contains(&v.name) {
-                    if let Some(name) = self.overriden_from(v.name, matches) {
+                    if let Some(ref name) = self.overriden_from(v.name, matches) {
                         matches.args.remove(&*name);
                         remove_overriden!(self, &*name);
                     }
@@ -3115,7 +3105,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
             if self.overrides.contains(&v.name) {
                 debugln!("it is...");
                 debugln!("checking who defined it...");
-                if let Some(name) = self.overriden_from(v.name, matches) {
+                if let Some(ref name) = self.overriden_from(v.name, matches) {
                     debugln!("found {}", name);
                     matches.args.remove(name);
                     remove_overriden!(self, name);
@@ -3211,7 +3201,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                         } else if let Some(o) = self.opts.get(name) {
                             o.to_string()
                         } else {
-                            match self.positionals_idx.values()
+                            match self.positionals.values()
                                                     .filter(|p| p.name == *name)
                                                     .next() {
                                 Some(p) => p.to_string(),
@@ -3232,7 +3222,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 } else if let Some(o) = self.opts.get(name) {
                                     o.to_string()
                                 } else {
-                                    match self.positionals_idx.values()
+                                    match self.positionals.values()
                                                             .filter(|p| p.name == n)
                                                             .next() {
                                         Some(p) => p.to_string(),
@@ -3300,8 +3290,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                                 &*self.create_current_usage(matches)));
                         }
                     }
-                } else if let Some(f) = self.positionals_idx
-                                     .get(self.positionals_name.get(name).unwrap()) {
+                } else if let Some(f) = self.positionals.values()
+                                                            .filter(|p| &p.name == name)
+                                                            .next() {
                     if let Some(num) = f.num_vals {
                         if num != vals.len() as u8 {
                             return Err(error_builder::WrongNumValues(
@@ -3385,7 +3376,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar>{
                 }
             }
             // because positions use different keys, we dont use the macro
-            match self.positionals_idx.values().filter(|p| &p.name == name).next() {
+            match self.positionals.values().filter(|p| &p.name == name).next() {
                 Some(p) => {
                     if let Some(ref bl) = p.blacklist {
                         for n in bl.iter() {

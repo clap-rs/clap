@@ -105,22 +105,20 @@ macro_rules! remove_overriden {
                     vec_remove!($me.overrides, a);
                 }
             }
-        } else if let Some(p) = $me.positionals_name.get($name) {
-            if let Some(ref o) = $me.positionals_idx.get(p) {
-                if let Some(ref ora) = o.requires {
-                    for a in ora {
-                        vec_remove!($me.required, a);
-                    }
+        } else if let Some(p) = $me.positionals.values().filter(|p| &&p.name == &$name).next() {
+            if let Some(ref ora) = p.requires {
+                for a in ora {
+                    vec_remove!($me.required, a);
                 }
-                if let Some(ref ora) = o.blacklist {
-                    for a in ora {
-                        vec_remove!($me.blacklist, a);
-                    }
+            }
+            if let Some(ref ora) = p.blacklist {
+                for a in ora {
+                    vec_remove!($me.blacklist, a);
                 }
-                if let Some(ref ora) = o.overrides {
-                    for a in ora {
-                        vec_remove!($me.overrides, a);
-                    }
+            }
+            if let Some(ref ora) = p.overrides {
+                for a in ora {
+                    vec_remove!($me.overrides, a);
                 }
             }
         }
