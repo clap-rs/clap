@@ -517,6 +517,8 @@ pub enum ClapErrorType {
     InternalError,
     /// Represents an I/O error, typically white writing to stderr or stdout
     Io,
+    /// Represents an Rust Display Format error, typically white writing to stderr or stdout
+    Format,
 }
 
 /// Command line argument parser error
@@ -571,6 +573,15 @@ impl From<io::Error> for ClapError {
         ClapError {
             error: format!("{} {}", Format::Error("error:"), e.description()),
             error_type: ClapErrorType::Io,
+        }
+    }
+}
+
+impl From<std_fmt::Error> for ClapError {
+    fn from(e: std_fmt::Error) -> Self {
+        ClapError {
+            error: format!("{} {}", Format::Error("error:"), e),
+            error_type: ClapErrorType::Format,
         }
     }
 }

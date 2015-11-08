@@ -1026,7 +1026,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     // (so as to
     // give subcommands their own usage recursively)
     fn create_usage(&self, matches: &[&'ar str]) -> ClapResult<String> {
-        use std::fmt::Write;
         let mut usage = String::with_capacity(75);
         usage.push_str("USAGE:\n\t");
         if let Some(u) = self.usage_str {
@@ -1040,7 +1039,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                                                 .as_ref()
                                                 .unwrap_or(&self.name)));
 
-            let req_strings = self.get_required_from(None);
+            let reqs = self.required.iter().map(|n| *n).collect::<Vec<_>>();
+            let req_strings = self.get_required_from(&reqs, None);
             let req_string = req_strings.iter()
                                         .fold(String::new(), |acc, s| acc + &format!(" {}", s)[..]);
 
@@ -1089,11 +1089,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     // Creates a context aware usage string, or "smart usage" from currently used args, and
     // requirements
     fn usage_from_matches(&self, usage: &mut String, matches: &[&'ar str]) -> ClapResult<()> {
-        // let mut hs: Vec<&str> = self.required.iter().map(|n| *n).collect();
+        use std::fmt::Write;
+        let mut hs: Vec<&str> = self.required.iter().map(|n| *n).collect();
         for n in matches {
-            self.required.push(*n);
+            hs.push(*n);
         }
-        let reqs = self.get_required_from(None);
+        let reqs = self.get_required_from(&hs, None);
 
         let r_string = reqs.iter().fold(String::new(), |acc, s| acc + &format!(" {}", s)[..]);
 
@@ -1591,8 +1592,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         // Verify all positional assertions pass
         self.verify_positionals();
         // If there are global arguments, we need to propgate them down to subcommands
-        // before
-        // parsing incase we run into a subcommand
+        // before parsing incase we run into a subcommand
         self.propogate_globals();
 
         let mut matches = ArgMatches::new();
@@ -1980,7 +1980,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                     debugln!("Remaining Required Arg...");
                     debugln!("required={:#?}", self.required);
                     return Err(error_builder::MissingRequiredArgument(
-                        self.get_required_from(Some(matches))
+                        self.get_required_from(&self.required, Some(matches))
                             .iter()
                             .fold(String::new(),
                                 |acc, s| acc + &format!("\n\t{}", Format::Error(s))[..]),
@@ -2013,10 +2013,11 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
             use std::fmt::Write;
             let mut mid_string = String::new();
             if !self.settings.is_set(&AppSettings::SubcommandsNegateReqs) {
+                let mut hs = self.required.iter().map(|n| *n).collect::<Vec<_>>();
                 for k in matches.args.keys() {
-                    self.required.push(*k);
+                    hs.push(*k);
                 }
-                let reqs = self.get_required_from(Some(matches));
+                let reqs = self.get_required_from(&hs, Some(matches));
 
                 for s in reqs.iter() {
                     write!(&mut mid_string, " {}", s).ok().expect(INTERNAL_ERROR_MSG);
@@ -2070,7 +2071,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         if (!self.settings.is_set(&AppSettings::SubcommandsNegateReqs) ||
             matches.subcommand_name().is_none()) && self.validate_required(&matches) {
             return Err(error_builder::MissingRequiredArgument(
-                &*self.get_required_from(Some(matches))
+                &*self.get_required_from(&self.required, Some(matches))
                     .iter()
                     .fold(String::new(),
                         |acc, s| acc + &format!("\n\t{}", Format::Error(s))[..]),
@@ -2221,12 +2222,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         args.iter().map(|s| *s).collect()
     }
 
-    fn get_required_from(&self, matches: Option<&ArgMatches>) -> VecDeque<String> {
+    fn get_required_from(&self,
+                         reqs: &[&'ar str],
+                         matches: Option<&ArgMatches>)
+                         -> VecDeque<String>
+    {
         let mut c_flags = vec![];
         let mut c_pos = vec![];
         let mut c_opt = vec![];
         let mut grps = vec![];
-        for name in &self.required {
+        for name in reqs {
             if self.flags.iter().any(|f| &f.name == name) {
                 c_flags.push(name);
             } else if self.opts.iter().any(|o| &o.name == name) {
@@ -2242,7 +2247,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
             if let Some(f) = self.flags.iter().filter(|flg| &&flg.name == f).next() {
                 if let Some(ref rl) = f.requires {
                     for r in rl.iter() {
-                        if !self.required.contains(r) {
+                        if !reqs.contains(r) {
                             if self.flags.iter().any(|f| &f.name == r) {
                                 tmp_f.push(r);
                             } else if self.opts.iter().any(|o| &o.name == r) {
@@ -2265,7 +2270,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
             if let Some(f) = self.opts.iter().filter(|o| &&o.name == f).next() {
                 if let Some(ref rl) = f.requires {
                     for r in rl.iter() {
-                        if !self.required.contains(r) {
+                        if !reqs.contains(r) {
                             if self.flags.iter().any(|f| &f.name == r) {
                                 c_flags.push(r);
                             } else if self.opts.iter().any(|o| &o.name == r) {
@@ -2288,7 +2293,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
             if let Some(p) = self.positionals.values().filter(|pos| &&pos.name == p).next() {
                 if let Some(ref rl) = p.requires {
                     for r in rl.iter() {
-                        if !self.required.contains(r) {
+                        if !reqs.contains(r) {
                             if self.flags.iter().any(|f| &f.name == r) {
                                 c_flags.push(r);
                             } else if self.opts.iter().any(|o| &o.name == r) {
@@ -2418,12 +2423,16 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         sorted.sort();
         let valid_values = sorted.iter()
                                  .fold(String::new(), |acc, name| acc + &format!(" {}", name)[..]);
+        let usage = match self.create_current_usage(matches) {
+            Ok(s) => s,
+            Err(e) => return e
+        };
         error_builder::InvalidValue(
             arg,
             opt,
             &*valid_values,
             &*suffix.0,
-            &*try!(self.create_current_usage(matches)))
+            &*usage)
     }
 
     fn blacklisted_from(&self, name: &str, matches: &ArgMatches) -> Option<String> {
@@ -3407,9 +3416,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     fn validate_option(&self,
                        opt: &OptBuilder,
                        arg_slice: &str,
-                       matches: &ArgMatches)
-                       -> ClapResult<()>
-    {
+                       matches: &ArgMatches) -> ClapResult<()> {
         // Check the possible values
         if let Some(ref p_vals) = opt.possible_vals {
             if !p_vals.contains(&arg_slice) {
