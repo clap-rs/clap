@@ -2,6 +2,7 @@
 import sys
 import subprocess
 import re
+import difflib
 
 failed = False
 
@@ -293,6 +294,9 @@ def pass_fail(name, cmd, check, good):
 		return 0
 	print('Fail')
 	print('\n\n{}\n# Should be:\n$ {}\n{}\n\n{}\n# But is:\n$ {}\n{}\n\n'.format('#'*25, cmd, good, '#'*25, cmd, check))
+	for line in difflib.context_diff(good.splitlines(), check.splitlines(), fromfile="Should Be", tofile="Currently Is", lineterm=""):
+		print(line)
+	print()
 	return 1
 
 
