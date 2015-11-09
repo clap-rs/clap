@@ -4,8 +4,10 @@ use std::fmt::{Display, Formatter, Result};
 use std::result::Result as StdResult;
 use std::io;
 
-use Arg;
+use args::{ArgMatches, Arg};
 use args::settings::{ArgFlags, ArgSettings};
+use errors::{ClapResult, error_builder};
+use app::App;
 
 #[allow(missing_debug_implementations)]
 pub struct OptBuilder<'n> {
@@ -186,6 +188,50 @@ impl<'n> OptBuilder<'n> {
         }
         print_opt_help!(self, longest + 12, w);
         write!(w, "\n")
+    }
+
+    pub fn validate_value(&self,
+                       val: &str,
+                       matches: &ArgMatches,
+                       app: &App)
+                       -> ClapResult<()> {
+        // Check the possible values
+        if let Some(ref p_vals) = self.possible_vals {
+            if !p_vals.contains(&val) {
+                let usage = try!(app.create_current_usage(matches));
+                return Err(error_builder::InvalidValue(val, p_vals, &self.to_string(), &usage));
+            }
+        }
+
+        // Check the required number of values
+        if let Some(num) = self.num_vals {
+            if let Some(ref ma) = matches.args.get(self.name) {
+                if let Some(ref vals) = ma.values {
+                    if (vals.len() as u8) > num && !self.settings.is_set(&ArgSettings::Multiple) {
+                        return Err(error_builder::TooManyValues(
+                            val,
+                            &self.to_string(),
+                            &*try!(app.create_current_usage(matches))));
+                    }
+                }
+            }
+        }
+
+        // if it's an empty value, and we don't allow that, report the error
+        if !self.settings.is_set(&ArgSettings::EmptyValues) &&
+            matches.args.contains_key(self.name) &&
+            val.is_empty() {
+            return Err(error_builder::EmptyValue(&*self.to_string(),
+                                                 &*try!(app.create_current_usage(matches))));
+        }
+
+        if let Some(ref vtor) = self.validator {
+            if let Err(e) = vtor(val.to_owned()) {
+                return Err(error_builder::ValueValidationError(&*e));
+            }
+        }
+
+        Ok(())
     }
 }
 
