@@ -671,8 +671,9 @@ extern crate vec_map;
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;
 pub use args::{Arg, ArgGroup, ArgMatches, SubCommand};
-pub use app::{App, AppSettings, ClapError, ClapErrorType};
+pub use app::{App, AppSettings};
 pub use fmt::Format;
+pub use errors::{ClapError, ClapErrorType};
 
 #[macro_use]
 mod macros;
@@ -680,3 +681,5 @@ mod app;
 mod args;
 mod usageparser;
 mod fmt;
+mod suggestions;
+mod errors;

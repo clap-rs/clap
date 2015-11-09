@@ -11,6 +11,7 @@ pub type ClapResult<T> = Result<T, ClapError>;
 #[doc(hidden)]
 #[allow(non_snake_case)]
 pub mod error_builder {
+    use suggestions;
     use super::ClapError;
     use super::ClapErrorType as cet;
     use fmt::Format;
@@ -48,19 +49,29 @@ pub mod error_builder {
                            Format::Warning(arg.as_ref()),
                            usage.as_ref(),
                            Format::Good("--help")),
-            error_type: cet::InvalidValue,
+            error_type: cet::EmptyValue,
         }
     }
 
     /// Error occurs when some possible values were set, but clap found unexpected value
     pub fn InvalidValue<S>(bad_val: S,
+                           good_vals: &[S],
                            arg: S,
-                           valid_vals: S,
-                           did_you_mean: S,
                            usage: S)
                            -> ClapError
         where S: AsRef<str>
     {
+        let suffix = suggestions::did_you_mean_suffix(arg.as_ref(),
+                                                      good_vals.iter(),
+                                                      suggestions::DidYouMeanMessageStyle::EnumValue);
+
+        let mut sorted = vec![];
+        for v in good_vals {
+            sorted.push(v.as_ref());
+        }
+        sorted.sort();
+        let valid_values = sorted.iter()
+                                 .fold(String::new(), |a, name| a + &format!( " {}", name)[..]);
         ClapError {
             error: format!("{} '{}' isn't a valid value for '{}'\n\t\
                             [valid values:{}]\n\
@@ -70,8 +81,8 @@ pub mod error_builder {
                            Format::Error("error:"),
                            Format::Warning(bad_val.as_ref()),
                            Format::Warning(arg.as_ref()),
-                           valid_vals.as_ref(),
-                           did_you_mean.as_ref(),
+                           valid_values,
+                           suffix.0,
                            usage.as_ref(),
                            Format::Good("--help")),
             error_type: cet::InvalidValue,
@@ -280,7 +291,6 @@ pub mod error_builder {
             error_type: cet::UnexpectedMultipleUsage,
         }
     }
-
 }
 
 /// Command line argument parser error types
