@@ -10,6 +10,7 @@ use std::path::Path;
 use std::process;
 use std::ffi::OsStr;
 use std::borrow::Borrow;
+use std::fmt::Display;
 
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
@@ -18,7 +19,7 @@ use vec_map::VecMap;
 use args::{Arg, ArgMatches, MatchedArg, SubCommand};
 use args::{FlagBuilder, OptBuilder, PosBuilder};
 use args::settings::{ArgFlags, ArgSettings};
-use args::ArgGroup;
+use args::{ArgGroup, AnyArg};
 use fmt::Format;
 use self::settings::AppFlags;
 use suggestions;
@@ -3059,43 +3060,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                                matches: &mut ArgMatches<'ar, 'ar>,
                                arg: char)
                                -> ClapResult<bool> {
-        if let Some(v) = self.flags
-                             .iter()
-                             .filter(|&v| v.short.is_some() && v.short.unwrap() == arg)
-                             .next() {
-            // Ensure this flag isn't on the mutually excludes list
-            if self.blacklist.contains(&v.name) {
-                matches.args.remove(v.name);
-                return Err(error_builder::ArgumentConflict(
-                    v.to_string(),
-                    self.blacklisted_from(v.name, &matches),
-                    try!(self.create_current_usage(matches))));
-            }
-            if self.overrides.contains(&v.name) {
-                debugln!("it is...");
-                debugln!("checking who defined it...");
-                if let Some(ref name) = self.overriden_from(v.name, matches) {
-                    debugln!("found {}", name);
-                    matches.args.remove(name);
-                    remove_overriden!(self, name);
-                }
-            }
-            if let Some(ref or) = v.overrides {
-                for pa in or {
-                    matches.args.remove(pa);
-                    remove_overriden!(self, pa);
-                    self.overrides.push(pa);
-                }
-            }
+        let v = self.flags.iter().filter(|&v| v.short.is_some() && v.short.unwrap() == arg).next();
+        if v.is_some() {
+            let flag = v.unwrap();
+            try!(self.validate_arg(flag, matches));
 
-            // Make sure this isn't one being added multiple times if it doesn't suppor it
-            if matches.args.contains_key(v.name) && !v.settings.is_set(&ArgSettings::Multiple) {
-                return Err(error_builder::UnexpectedMultipleUsage(
-                    &*format!("-{}", arg),
-                    &*try!(self.create_current_usage(matches))));
-            }
-
-            if let Some(ref vec) = self.groups_for_arg(v.name) {
+            if let Some(ref vec) = self.groups_for_arg(flag.name) {
                 for grp in vec {
                     if let Some(ref mut f) = matches.args.get_mut(grp) {
                         f.occurrences = if v.settings.is_set(&ArgSettings::Multiple) {
@@ -3157,6 +3127,40 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
             return Ok(true);
         }
         Ok(false)
+    }
+
+    fn validate_arg<A>(&mut self, arg: &A, matches: &mut ArgMatches<'ar, 'ar>) -> ClapResult<()>
+        where A: AnyArg<'ar> + Display {
+        // Ensure this arg isn't on the mutually excludes list
+        if self.blacklist.contains(&arg.name()) {
+            matches.args.remove(arg.name());
+            return Err(error_builder::ArgumentConflict(
+                arg.to_string(),
+                self.blacklisted_from(arg.name(), &matches),
+                try!(self.create_current_usage(matches))));
+        }
+        if self.overrides.contains(&arg.name()) {
+            if let Some(ref name) = self.overriden_from(arg.name(), matches) {
+                matches.args.remove(name);
+                remove_overriden!(self, name);
+            }
+        }
+        if let Some(or) = arg.overrides() {
+            for pa in or {
+                matches.args.remove(pa);
+                remove_overriden!(self, pa);
+                self.overrides.push(pa);
+            }
+        }
+
+        // Make sure this isn't one being added multiple times if it doesn't suppor it
+        if matches.args.contains_key(arg.name()) && !arg.is_set(&ArgSettings::Multiple) {
+            return Err(error_builder::UnexpectedMultipleUsage(
+                &*format!("-{}", arg),
+                &*try!(self.create_current_usage(matches))));
+        }
+
+        Ok(())
     }
 
     fn validate_blacklist(&self, matches: &mut ArgMatches<'ar, 'ar>) -> ClapResult<()> {
@@ -3254,8 +3258,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                             return Err(error_builder::TooManyValues(
                                 vals.get(vals.keys()
                                              .last()
-                                             .expect("error getting last key. This is a bug"))
-                                    .expect("failed to retrieve last value. This is a bug"),
+                                             .expect(INTERNAL_ERROR_MSG))
+                                    .expect(INTERNAL_ERROR_MSG),
                                 &f.to_string(),
                                 &try!(self.create_current_usage(matches))));
                         }

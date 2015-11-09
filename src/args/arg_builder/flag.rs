@@ -4,6 +4,7 @@ use std::convert::From;
 use std::io;
 
 use Arg;
+use args::AnyArg;
 use args::settings::{ArgFlags, ArgSettings};
 
 #[derive(Debug)]
@@ -167,6 +168,25 @@ impl<'n> Display for FlagBuilder<'n> {
         }
     }
 }
+
+impl<'n> AnyArg<'n> for FlagBuilder<'n> {
+    fn name(&self) -> &'n str {
+        self.name
+    }
+
+    fn overrides(&self) -> Option<&[&'n str]> {
+        self.overrides.as_ref().map(|o| &o[..])
+    }
+
+    fn is_set(&self, s: &ArgSettings) -> bool {
+        self.settings.is_set(s)
+    }
+
+    fn set(&mut self, s: &ArgSettings) {
+        self.settings.set(s)
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::FlagBuilder;
