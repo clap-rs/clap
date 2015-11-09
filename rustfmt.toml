@@ -1,2 +1,4 @@
 format_strings = false
 reorder_imports = true
+chain_overflow_last = false
+same_line_if_else = true
