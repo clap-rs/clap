@@ -217,14 +217,14 @@ option NOT present
 positional present with value: too
 subcmd NOT present'''
 
-_mult_vals_more = '''error: The argument '--multvals' was supplied more than once, but does not support multiple values
+_mult_vals_more = '''error: The argument '--multvals <one> <two>' was supplied more than once, but does not support multiple occurrences
 
 USAGE:
 \tclaptests --multvals <one> <two>
 
 For more information try --help'''
 
-_mult_vals_few = '''error: The argument '--multvals <one> <two>' requires a value but none was supplied
+_mult_vals_few = '''error: The argument '--multvals <one> <two>' requires 2 values, but 1 was provided
 
 USAGE:
 \tclaptests --multvals <one> <two>

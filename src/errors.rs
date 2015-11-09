@@ -281,7 +281,7 @@ pub mod error_builder {
     {
         ClapError {
             error: format!("{} The argument '{}' was supplied more than once, but does \
-                            not support multiple values\n\n\
+                            not support multiple occurrences\n\n\
                             {}\n\n\
                             For more information try {}",
                            Format::Error("error:"),

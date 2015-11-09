@@ -1,5 +1,6 @@
 pub use self::arg::Arg;
 pub use self::arg_matches::ArgMatches;
+pub use self::arg_matcher::ArgMatcher;
 pub use self::subcommand::SubCommand;
 pub use self::arg_builder::{FlagBuilder, OptBuilder, PosBuilder};
 pub use self::matched_arg::MatchedArg;

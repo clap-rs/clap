@@ -98,6 +98,34 @@ pub struct Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     pub hidden: bool,
 }
 
+impl<'n, 'l, 'h, 'g, 'p, 'r> Default for Arg<'n, 'l, 'h, 'g, 'p, 'r> {
+    fn default() -> Self {
+        Arg {
+            name: "",
+            short: None,
+            long: None,
+            help: None,
+            required: false,
+            takes_value: false,
+            multiple: false,
+            index: None,
+            possible_vals: None,
+            blacklist: None,
+            requires: None,
+            num_vals: None,
+            min_vals: None,
+            max_vals: None,
+            val_names: None,
+            group: None,
+            global: false,
+            empty_vals: true,
+            validator: None,
+            overrides: None,
+            hidden: false,
+        }
+    }
+}
+
 impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     /// Creates a new instance of `Arg` using a unique string name.
     /// The name will be used by the library consumer to get information about
@@ -120,26 +148,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
     pub fn with_name(n: &'n str) -> Self {
         Arg {
             name: n,
-            short: None,
-            long: None,
-            help: None,
-            required: false,
-            takes_value: false,
-            multiple: false,
-            index: None,
-            possible_vals: None,
-            blacklist: None,
-            requires: None,
-            num_vals: None,
-            min_vals: None,
-            max_vals: None,
-            val_names: None,
-            group: None,
-            global: false,
-            empty_vals: true,
-            validator: None,
-            overrides: None,
-            hidden: false,
+            ..Default::default()
         }
     }
 
@@ -370,10 +379,6 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             required: required,
             takes_value: takes_value,
             multiple: multiple,
-            index: None,
-            possible_vals: None,
-            blacklist: None,
-            requires: None,
             num_vals: if num_names > 1 {
                 Some(num_names)
             } else {
@@ -384,14 +389,7 @@ impl<'n, 'l, 'h, 'g, 'p, 'r> Arg<'n, 'l, 'h, 'g, 'p, 'r> {
             } else {
                 None
             },
-            max_vals: None,
-            min_vals: None,
-            group: None,
-            global: false,
-            empty_vals: true,
-            validator: None,
-            overrides: None,
-            hidden: false,
+            ..Default::default()
         }
     }
 

@@ -44,88 +44,7 @@ macro_rules! load_yaml {
     );
 }
 
-macro_rules! write_spaces {
-    ($num:expr, $w:ident) => ({
-        for _ in 0..$num {
-            try!(write!($w, " "));
-        }
-    })
-}
-
-// convenience macro for remove an item from a vec
-macro_rules! vec_remove {
-    ($vec:expr, $to_rem:ident) => {
-        {
-            let mut ix = None;
-            $vec.dedup();
-            for (i, val) in $vec.iter().enumerate() {
-                if &val == &$to_rem {
-                    ix = Some(i);
-                    break;
-                }
-            }
-            if let Some(i) = ix {
-                $vec.remove(i);
-            }
-        }
-    }
-}
-
-macro_rules! remove_overriden {
-    ($me:ident, $name:expr) => ({
-        if let Some(ref o) = $me.opts.iter().filter(|o| &o.name == $name).next() {
-            if let Some(ref ora) = o.requires {
-                for a in ora {
-                    vec_remove!($me.required, a);
-                }
-            }
-            if let Some(ref ora) = o.blacklist {
-                for a in ora {
-                    vec_remove!($me.blacklist, a);
-                }
-            }
-            if let Some(ref ora) = o.overrides {
-                for a in ora {
-                    vec_remove!($me.overrides, a);
-                }
-            }
-        } else if let Some(ref o) = $me.flags.iter().filter(|f| &f.name == $name).next() {
-            if let Some(ref ora) = o.requires {
-                for a in ora {
-                    vec_remove!($me.required, a);
-                }
-            }
-            if let Some(ref ora) = o.blacklist {
-                for a in ora {
-                    vec_remove!($me.blacklist, a);
-                }
-            }
-            if let Some(ref ora) = o.overrides {
-                for a in ora {
-                    vec_remove!($me.overrides, a);
-                }
-            }
-        } else if let Some(p) = $me.positionals.values().filter(|p| &&p.name == &$name).next() {
-            if let Some(ref ora) = p.requires {
-                for a in ora {
-                    vec_remove!($me.required, a);
-                }
-            }
-            if let Some(ref ora) = p.blacklist {
-                for a in ora {
-                    vec_remove!($me.blacklist, a);
-                }
-            }
-            if let Some(ref ora) = p.overrides {
-                for a in ora {
-                    vec_remove!($me.overrides, a);
-                }
-            }
-        }
-    })
-}
-
-// De-duplication macro used in src/app.rs
+// used in src/args/arg_builder/option.rs
 macro_rules! print_opt_help {
     ($opt:ident, $spc:expr, $w:ident) => {
         if let Some(h) = $opt.help {
@@ -153,38 +72,35 @@ macro_rules! print_opt_help {
     };
 }
 
-// De-duplication macro used in src/app.rs
-macro_rules! parse_group_reqs {
-    ($me:ident, $arg:ident) => {
-        for ag in $me.groups.values() {
-            let mut found = false;
-            for name in ag.args.iter() {
-                if name == &$arg.name {
-                    vec_remove!($me.required, name);
-                    if let Some(ref reqs) = ag.requires {
-                        for r in reqs {
-                            $me.required.push(r);
-                        }
-                    }
-                    if let Some(ref bl) = ag.conflicts {
-                        for b in bl {
-                            $me.blacklist.push(b);
-                        }
-                    }
-                    found = true;
+// Helper/deduplication macro for printing the correct number of spaces in help messages
+// used in:
+//    src/args/arg_builder/*.rs
+//    src/app/mod.rs
+macro_rules! write_spaces {
+    ($num:expr, $w:ident) => ({
+        for _ in 0..$num {
+            try!(write!($w, " "));
+        }
+    })
+}
+
+// convenience macro for remove an item from a vec
+macro_rules! vec_remove {
+    ($vec:expr, $to_rem:ident) => {
+        {
+            let mut ix = None;
+            $vec.dedup();
+            for (i, val) in $vec.iter().enumerate() {
+                if &val == &$to_rem {
+                    ix = Some(i);
                     break;
                 }
             }
-            if found {
-                for name in ag.args.iter() {
-                    if name == &$arg.name { continue }
-                    vec_remove!($me.required, name);
-
-                    $me.blacklist.push(name);
-                }
+            if let Some(i) = ix {
+                $vec.remove(i);
             }
         }
-    };
+    }
 }
 
 // Thanks to bluss and flan3002 in #rust IRC

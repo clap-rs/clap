@@ -1,5 +1,7 @@
 #[allow(dead_code)]
 mod settings;
+#[macro_use]
+mod macros;
 
 pub use self::settings::AppSettings;
 
@@ -16,15 +18,13 @@ use std::fmt::Display;
 use yaml_rust::Yaml;
 use vec_map::VecMap;
 
-use args::{Arg, ArgMatches, MatchedArg, SubCommand};
+use args::{Arg, AnyArg, ArgGroup, ArgMatches, ArgMatcher, SubCommand};
 use args::{FlagBuilder, OptBuilder, PosBuilder};
 use args::settings::{ArgFlags, ArgSettings};
-use args::{ArgGroup, AnyArg};
 use fmt::Format;
 use self::settings::AppFlags;
 use suggestions;
 use errors::{ClapError, ClapErrorType, ClapResult, error_builder};
-
 
 const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider filing a bug \
                                           report at https://github.com/kbknapp/clap-rs/issues";
@@ -364,7 +364,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     /// Sets a custom usage string to override the auto-generated usage string.
     ///
     /// This will be displayed to the user when errors are found in argument parsing, or when you
-    /// call `ArgMatches::usage()`
+    /// call `ArgMatcher::usage()`
     ///
     /// **NOTE:** You do not need to specify the "USAGE: \n\t" portion, as that will
     /// still be applied by `clap`, you only need to specify the portion starting
@@ -1030,13 +1030,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     // after all arguments were parsed, but before any subcommands have been parsed
     // (so as to
     // give subcommands their own usage recursively)
-    fn create_usage(&self, matches: &[&'ar str]) -> ClapResult<String> {
+    fn create_usage(&self, matcher: &[&'ar str]) -> ClapResult<String> {
         let mut usage = String::with_capacity(75);
         usage.push_str("USAGE:\n\t");
         if let Some(u) = self.usage_str {
             usage.push_str(u);
-        } else if !matches.is_empty() {
-            try!(self.usage_from_matches(&mut usage, matches));
+        } else if !matcher.is_empty() {
+            try!(self.usage_from_matcher(&mut usage, matcher));
         } else {
             usage.push_str(&*self.usage
                                  .as_ref()
@@ -1094,10 +1094,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     // Creates a context aware usage string, or "smart usage" from currently used
     // args, and
     // requirements
-    fn usage_from_matches(&self, usage: &mut String, matches: &[&'ar str]) -> ClapResult<()> {
+    fn usage_from_matcher(&self, usage: &mut String, matcher: &[&'ar str]) -> ClapResult<()> {
         use std::fmt::Write;
         let mut hs: Vec<&str> = self.required.iter().map(|n| *n).collect();
-        for n in matches {
+        for n in matcher {
             hs.push(*n);
         }
         let reqs = self.get_required_from(&hs, None);
@@ -1605,7 +1605,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         // before parsing incase we run into a subcommand
         self.propogate_globals();
 
-        let mut matches = ArgMatches::new();
+        let mut matcher = ArgMatcher::new();
 
         let mut it = itr.into_iter();
         // Get the name of the program (argument 1 of env::args()) and determine the
@@ -1629,17 +1629,17 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         }
 
         // do the real parsing
-        if let Err(e) = self.get_matches_with(&mut matches, &mut it, lossy) {
+        if let Err(e) = self.get_matches_with(&mut matcher, &mut it, lossy) {
             return Err(e);
         }
 
-        Ok(matches)
+        Ok(matcher.into())
     }
 
     // The actual parsing function
     #[cfg_attr(feature="lints", allow(while_let_on_iterator))]
     fn get_matches_with<I, T>(&mut self,
-                              matches: &mut ArgMatches<'ar, 'ar>,
+                              matcher: &mut ArgMatcher<'ar>,
                               it: &mut I,
                               lossy: bool)
                               -> ClapResult<()>
@@ -1654,7 +1654,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         let mut subcmd_name: Option<String> = None;
         let mut needs_val_of: Option<&str> = None;
         let mut pos_counter = 1;
-        let mut val_counter = 0;
         while let Some(arg) = it.next() {
             let arg_cow = match arg.as_ref().to_str() {
                 Some(s) => s.into(),
@@ -1662,377 +1661,166 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                     if !lossy {
                         return Err(
                             error_builder::InvalidUnicode(
-                                &*try!(self.create_current_usage(matches)))
+                                &*try!(self.create_current_usage(matcher)))
                         );
                     }
                     arg.as_ref().to_string_lossy()
                 }
             };
             let arg_slice: &str = arg_cow.borrow();
-            let mut skip = false;
 
             // we need to know if we're parsing a new argument, or the value of previous
             // argument,
             // perhaps one with multiple values such as --option val1 val2. We determine
             // when to
             // stop parsing multiple values by finding a '-'
-            let new_arg = if arg_slice.starts_with("-") {
-                // If we come to a single `-` it's a value, not a new argument...this happens
-                // when
-                // one wants to use the Unix standard of '-' to mean 'stdin'
-                !(arg_slice.len() == 1)
-            } else {
-                false
-            };
+            // let new_arg = if arg_slice.starts_with("-") {
+            //     // If we come to a single `-` it's a value, not a new argument...this happens
+            //     // when
+            //     // one wants to use the Unix standard of '-' to mean 'stdin'
+            //     arg_slice.len() > 1
+            // } else {
+            //     true
+            // };
 
             // pos_only is determined later, and set true when a user uses the Unix
             // standard of
             // '--' to mean only positionals follow
-            if !pos_only && !new_arg &&
-               !self.subcommands.iter().any(|s| s.name_slice == arg_slice) {
-                // Check to see if parsing a value from an option
-                if let Some(nvo) = needs_val_of {
-                    // get the OptBuilder so we can check the settings
-                    if let Some(ref opt) = self.opts.iter().filter(|o| &o.name == &nvo).next() {
-                        try!(opt.validate_value(arg_slice, matches, self));
+            // If the user passed `--` we don't check for subcommands, because the argument
+            // they
+            // may be trying to pass might match a subcommand name
 
-                        if let Some(ref vec) = self.groups_for_arg(opt.name) {
-                            for grp in vec {
-                                if let Some(ref mut o) = matches.args.get_mut(grp) {
-                                    o.occurrences = if opt.settings
-                                                          .is_set(&ArgSettings::Multiple) {
-                                        o.occurrences + 1
-                                    } else {
-                                        1
-                                    };
-                                    // Values must be inserted in order...the user may care about
-                                    // that!
-                                    if let Some(ref mut vals) = o.values {
-                                        let len = vals.len() as u8 + 1;
-                                        vals.insert(len, arg_slice.to_owned());
-                                    }
-                                }
-
-                            }
+            let starts_new_arg = if arg_slice.starts_with("-") {
+                !(arg_slice.len() == 1)
+            } else {
+                false
+            };
+            if !pos_only {
+                if !starts_new_arg {
+                    // Check to see if parsing a value from an option
+                    if let Some(nvo) = needs_val_of {
+                        // get the OptBuilder so we can check the settings
+                        if let Some(opt) = self.opts.iter().filter(|o| &o.name == &nvo).next() {
+                            needs_val_of = try!(self.add_val_to_arg(opt, arg_slice, matcher));
+                            // get the next value from the iterator
+                            continue;
                         }
-                        // save the value to matched option
-                        if let Some(ref mut o) = matches.args.get_mut(opt.name) {
-                            // if it's multiple; the occurrences are increased when originally
-                            // found
-                            o.occurrences = if opt.settings.is_set(&ArgSettings::Multiple) {
-                                o.occurrences + 1
-                            } else {
-                                skip = true;
-                                1
-                            };
-
-                            // Options always have values, even if it's empty, so we can unwrap()
-                            if let Some(ref mut vals) = o.values {
-
-                                // Values must be inserted in order...the user may care about that!
-                                let len = vals.len() as u8 + 1;
-                                vals.insert(len, arg_slice.to_owned());
-
-                                // Now that the values have been added, we can ensure we haven't
-                                // gone over any max_limits, or if we've reached the exact number
-                                // of values we can stop parsing values, and go back to arguments.
-                                //
-                                // For example, if we define an option with exactly 2 values and
-                                // the users passes:
-                                // $ my_prog --option val1 val2 pos1
-                                // we stop parsing values of --option after val2, if the user
-                                // hadn't defined an exact or max value, pos1 would be parsed as a
-                                // value of --option
-                                if let Some(num) = opt.max_vals {
-                                    if len != num {
-                                        continue;
-                                    }
-                                } else if let Some(num) = opt.num_vals {
-                                    if opt.settings.is_set(&ArgSettings::Multiple) {
-                                        val_counter += 1;
-                                        if val_counter != num {
-                                            continue;
-                                        } else {
-                                            val_counter = 0;
-                                        }
-                                    } else {
-                                        // if we need more values, get the next value
-                                        if len != num {
-                                            continue;
-                                        }
-                                    }
-                                } else if !skip {
-                                    // get the next value from the iterator
-                                    continue;
-                                }
-                            }
-                        }
-                        skip = true;
                     }
+                }
+                let mut skip = false;
+                if arg_slice.starts_with("--") {
+                    if arg_slice.len() == 2 {
+                        // The user has passed '--' which means only positional args follow no matter
+                        // what they start with
+                        pos_only = true;
+                        continue;
+                    }
+
+                    needs_val_of = try!(self.parse_long_arg(matcher, arg_slice));
+                } else if arg_slice.starts_with("-") && arg_slice.len() != 1 {
+                    needs_val_of = try!(self.parse_short_arg(matcher, arg_slice));
+                } else {
+                    skip = true;
+                }
+                if !skip { continue; }
+                if self.subcommands.iter().any(|s| s.name_slice == arg_slice) {
+                    if arg_slice == "help" &&
+                       self.settings.is_set(&AppSettings::NeedsSubcommandHelp) {
+                        return self._help();
+                    }
+                    subcmd_name = Some(arg_slice.to_owned());
+                    break;
+                } else if let Some(candidate) = suggestions::did_you_mean(
+                                                        arg_slice,
+                                                        self.subcommands.iter().map(|s| &s.name)) {
+                    return Err(error_builder::InvalidSubcommand(
+                                                        arg_slice,
+                                                        candidate,
+                                                        self.bin_name.as_ref().unwrap_or(&self.name),
+                                                        &*try!(self.create_current_usage(matcher))));
                 }
             }
 
-            // if we're done getting values from an option, get the next arg from the
-            // iterator
-            if skip {
-                needs_val_of = None;
-                continue;
-            } else if let Some(ref name) = needs_val_of {
-                // We've reached more values for an option than it possibly accepts
-                if let Some(ref o) = self.opts.iter().filter(|o| &o.name == name).next() {
-                    if !o.settings.is_set(&ArgSettings::Multiple) {
-                        return Err(error_builder::EmptyValue(
-                            &*o.to_string(),
-                            &*try!(self.create_current_usage(matches))
-                        ));
-                    }
-                }
-            }
 
-            if arg_slice.starts_with("--") && !pos_only {
-                if arg_slice.len() == 2 {
-                    // The user has passed '--' which means only positional args follow no matter
-                    // what they start with
+            if let Some(p) = self.positionals.get(&pos_counter) {
+                try!(self.validate_arg(p, matcher));
+
+                try!(self.add_val_to_arg(p, arg_slice, matcher));
+
+                if !pos_only &&
+                   (self.settings.is_set(&AppSettings::TrailingVarArg) &&
+                    pos_counter == self.positionals.len()) {
                     pos_only = true;
-                    continue;
                 }
+                arg_post_processing!(self, p, matcher);
 
-                // This arg is either an option or flag using a long (i.e. '--something')
-                match self.parse_long_arg(matches, arg_slice) {
-                    Ok(r) => needs_val_of = r,
-                    Err(e) => return Err(e),
-                }
-            } else if arg_slice.starts_with("-") && arg_slice.len() != 1 && !pos_only {
-                // Multiple or single flag(s), or single option (could be '-SbG' or '-o')
-                match self.parse_short_arg(matches, arg_slice) {
-                    Ok(r) => needs_val_of = r,
-                    Err(e) => return Err(e),
+                // Only increment the positional counter if it doesn't allow multiples
+                if !p.settings.is_set(&ArgSettings::Multiple) {
+                    pos_counter += 1;
                 }
             } else {
-                // Positional or Subcommand
-                //
-                // If the user passed `--` we don't check for subcommands, because the argument
-                // they
-                // may be trying to pass might match a subcommand name
-                if !pos_only {
-                    if self.subcommands.iter().any(|s| s.name_slice == arg_slice) {
-                        if arg_slice == "help" &&
-                           self.settings.is_set(&AppSettings::NeedsSubcommandHelp) {
-                            try!(self.print_help());
-                            return Err(ClapError {
-                                error: String::new(),
-                                error_type: ClapErrorType::HelpDisplayed,
-                            });
-                        }
-                        subcmd_name = Some(arg_slice.to_owned());
-                        break;
-                    } else if let Some(candidate) = suggestions::did_you_mean(
-                                                                           arg_slice,
-                                                                           self.subcommands
-                                                                               .iter()
-                                                                               .map(|s| &s.name)) {
-                        return Err(error_builder::InvalidSubcommand(
-                            arg_slice,
-                            candidate,
-                            self.bin_name.as_ref().unwrap_or(&self.name),
-                            &*try!(self.create_current_usage(matches))));
-                    }
-                }
-
-                // Did the developer even define any valid positionals? Since we reached this
-                // far, it's not a subcommand
-                if self.positionals.is_empty() {
-                    return Err(error_builder::UnexpectedArgument(
-                        arg_slice,
-                        self.bin_name.as_ref().unwrap_or(&self.name),
-                        &*try!(self.create_current_usage(matches))));
-                } else if let Some(p) = self.positionals.get(&pos_counter) {
-                    // Make sure this one doesn't conflict with anything
-                    if self.blacklist.contains(&p.name) {
-                        return Err(error_builder::ArgumentConflict(
-                            p.to_string(),
-                            self.blacklisted_from(p.name, &matches),
-                            try!(self.create_current_usage(matches))));
-                    }
-
-                    if let Some(ref p_vals) = p.possible_vals {
-                        if !p_vals.contains(&arg_slice) {
-                            return Err(
-                                error_builder::InvalidValue(arg_slice,
-                                                        p_vals,
-                                                        &p.to_string(),
-                                                        &*try!(self.create_current_usage(matches))));
-                        }
-                    }
-
-                    // Have we made the update yet?
-                    let mut done = false;
-                    if p.settings.is_set(&ArgSettings::Multiple) {
-                        if let Some(num) = p.num_vals {
-                            if let Some(ref ma) = matches.args.get(p.name) {
-                                if let Some(ref vals) = ma.values {
-                                    if vals.len() as u8 == num {
-                                        return Err(error_builder::TooManyValues(
-                                            arg_slice,
-                                            &*p.to_string(),
-                                            &*try!(self.create_current_usage(matches))));
-                                    }
-                                }
-                            }
-                        }
-                        // Check if it's already existing and update if so...
-                        if let Some(ref mut pos) = matches.args.get_mut(p.name) {
-                            done = true;
-                            pos.occurrences += 1;
-                            if let Some(ref mut vals) = pos.values {
-                                let len = (vals.len() + 1) as u8;
-                                vals.insert(len, arg_slice.to_owned());
-                            }
-                        }
-
-                        if !pos_only &&
-                           (self.settings.is_set(&AppSettings::TrailingVarArg) &&
-                            pos_counter == self.positionals.len()) {
-                            pos_only = true;
-                        }
-                    } else {
-                        // Only increment the positional counter if it doesn't allow multiples
-                        pos_counter += 1;
-                    }
-                    // Was an update made, or is this the first occurrence?
-                    if !done {
-                        if self.overrides.contains(&p.name) {
-                            if let Some(ref name) = self.overriden_from(p.name, matches) {
-                                matches.args.remove(name);
-                                remove_overriden!(self, name);
-                            }
-                        }
-                        if let Some(ref or) = p.overrides {
-                            for pa in or {
-                                matches.args.remove(pa);
-                                remove_overriden!(self, pa);
-                                self.overrides.push(pa);
-                            }
-                        }
-                        let mut bm = BTreeMap::new();
-                        if let Some(ref vtor) = p.validator {
-                            let f = &*vtor;
-                            if let Err(ref e) = f(arg_slice.to_owned()) {
-                                return Err(error_builder::ValueValidationError(&*e));
-                            }
-                        }
-                        bm.insert(1, arg_slice.to_owned());
-                        if let Some(ref vec) = self.groups_for_arg(p.name) {
-                            for grp in vec {
-                                matches.args.insert(grp,
-                                                    MatchedArg {
-                                                        occurrences: 1,
-                                                        values: Some(bm.clone()),
-                                                    });
-                            }
-                        }
-                        matches.args.insert(p.name,
-                                            MatchedArg {
-                                                occurrences: 1,
-                                                values: Some(bm),
-                                            });
-
-                        if let Some(ref bl) = p.blacklist {
-                            for name in bl {
-                                self.blacklist.push(name);
-                            }
-                        }
-
-                        // Because of the macro call, we have to create a temp variable
-                        if let Some(ref reqs) = p.requires {
-                            // Add all required args which aren't already found in matches to the
-                            // final required list
-                            for n in reqs {
-                                if matches.args.contains_key(n) {
-                                    continue;
-                                }
-
-                                self.required.push(n);
-                            }
-                        }
-
-                        if p.settings.is_set(&ArgSettings::Required) {
-                            // for macro call
-                            let name = &p.name;
-                            vec_remove!(self.required, name);
-                        }
-
-                        parse_group_reqs!(self, p);
-                    }
-                } else {
-                    return Err(error_builder::UnexpectedArgument(
-                        arg_slice,
-                        self.bin_name.as_ref().unwrap_or(&self.name),
-                        &*try!(self.create_current_usage(matches))));
-                }
+                return Err(error_builder::UnexpectedArgument(
+                    arg_slice,
+                    self.bin_name.as_ref().unwrap_or(&self.name),
+                    &*try!(self.create_current_usage(matcher))));
             }
         }
 
-        if let Some(ref a) = needs_val_of {
-            if let Some(o) = self.opts.iter().filter(|o| &o.name == a).next() {
-                if o.settings.is_set(&ArgSettings::Multiple) && self.required.is_empty() {
-                    let should_err = match matches.values_of(o.name) {
+        if let Some(a) = needs_val_of {
+            if let Some(o) = self.opts.iter().filter(|o| &o.name == &a).next() {
+                if (o.settings.is_set(&ArgSettings::Multiple) && self.required.is_empty()) ||
+                    !o.settings.is_set(&ArgSettings::Multiple){
+                    let should_err = match matcher.values_of(o.name) {
                         Some(ref v) => v.is_empty(),
                         None => true,
                     };
                     if should_err {
                         return Err(error_builder::EmptyValue(
                             &*o.to_string(),
-                            &*try!(self.create_current_usage(matches))
+                            &*try!(self.create_current_usage(matcher))
                         ));
                     }
-                } else if !o.settings.is_set(&ArgSettings::Multiple) {
-                    return Err(error_builder::EmptyValue(
-                        &*o.to_string(),
-                        &*try!(self.create_current_usage(matches))
-                    ));
                 } else {
-                    debugln!("Remaining Required Arg...");
-                    debugln!("required={:#?}", self.required);
                     return Err(error_builder::MissingRequiredArgument(
-                        self.get_required_from(&self.required, Some(matches))
+                        &*self.get_required_from(&self.required, Some(matcher))
                             .iter()
                             .fold(String::new(),
                                 |acc, s| acc + &format!("\n\t{}", Format::Error(s))[..]),
-                        try!(self.create_current_usage(matches))));
+                        &*try!(self.create_current_usage(matcher))));
                 }
             } else {
                 return Err(error_builder::EmptyValue(&*format!("{}",
                                                                self.positionals
                                                                    .values()
-                                                                   .filter(|p| &p.name == a)
+                                                                   .filter(|p| &p.name == &a)
                                                                    .next()
-                                                                   .unwrap()),
-                                                     &*try!(self.create_current_usage(matches))));
+                                                                   .expect(INTERNAL_ERROR_MSG)),
+                                                     &*try!(self.create_current_usage(matcher))));
             }
         }
 
-        let res = self.validate_blacklist(matches);
-        if res.is_err() {
-            return res;
+        if let Err(e) = self.validate_blacklist(matcher) {
+            return Err(e);
         }
 
-        let res = self.validate_num_args(matches);
-        if res.is_err() {
-            return res;
+        if let Err(e) = self.validate_num_args(matcher) {
+            return Err(e);
         }
 
-        matches.usage = Some(try!(self.create_usage(&[])));
+        matcher.usage(try!(self.create_usage(&[])));
 
+        if !(self.settings.is_set(&AppSettings::SubcommandsNegateReqs) && subcmd_name.is_some()) {
+                try!(self.validate_required(&matcher));
+        }
         if let Some(sc_name) = subcmd_name {
             use std::fmt::Write;
             let mut mid_string = String::new();
             if !self.settings.is_set(&AppSettings::SubcommandsNegateReqs) {
                 let mut hs = self.required.iter().map(|n| *n).collect::<Vec<_>>();
-                for k in matches.args.keys() {
+                for k in matcher.arg_names() {
                     hs.push(*k);
                 }
-                let reqs = self.get_required_from(&hs, Some(matches));
+                let reqs = self.get_required_from(&hs, Some(matcher));
 
                 for s in reqs.iter() {
                     write!(&mut mid_string, " {}", s).ok().expect(INTERNAL_ERROR_MSG);
@@ -2043,7 +1831,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                                           .iter_mut()
                                           .filter(|s| s.name_slice == &sc_name)
                                           .next() {
-                let mut new_matches = ArgMatches::new();
+                let mut sc_matcher = ArgMatcher::new();
                 // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
                 // a space
                 sc.usage = Some(format!("{}{}{}",
@@ -2062,18 +1850,18 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                                                ""
                                            },
                                            &*sc.name));
-                if let Err(e) = sc.get_matches_with(&mut new_matches, it, lossy) {
+                if let Err(e) = sc.get_matches_with(&mut sc_matcher, it, lossy) {
                     e.exit();
                 }
-                matches.subcommand = Some(Box::new(SubCommand {
+                matcher.subcommand(SubCommand {
                     name: sc.name_slice,
-                    matches: new_matches,
-                }));
+                    matches: sc_matcher.into(),
+                });
             }
         } else if self.settings.is_set(&AppSettings::SubcommandRequired) {
             let bn = self.bin_name.as_ref().unwrap_or(&self.name);
             return Err(error_builder::MissingSubcommand(bn,
-                                                        &try!(self.create_current_usage(matches))));
+                                                        &try!(self.create_current_usage(matcher))));
         } else if self.settings.is_set(&AppSettings::SubcommandRequiredElseHelp) {
             let mut out = vec![];
             try!(self.write_help(&mut out));
@@ -2082,16 +1870,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                 error_type: ClapErrorType::MissingArgumentOrSubcommand,
             });
         }
-        if (!self.settings.is_set(&AppSettings::SubcommandsNegateReqs) ||
-            matches.subcommand_name().is_none()) && self.validate_required(&matches) {
-            return Err(error_builder::MissingRequiredArgument(
-                &*self.get_required_from(&self.required, Some(matches))
-                    .iter()
-                    .fold(String::new(),
-                        |acc, s| acc + &format!("\n\t{}", Format::Error(s))[..]),
-                &*try!(self.create_current_usage(matches))));
-        }
-        if matches.args.is_empty() && matches.subcommand_name().is_none() &&
+        if matcher.is_empty() && matcher.subcommand_name().is_none() &&
            self.settings.is_set(&AppSettings::ArgRequiredElseHelp) {
             let mut out = vec![];
             try!(self.write_help(&mut out));
@@ -2137,9 +1916,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     }
 
     #[doc(hidden)]
-    pub fn create_current_usage(&self, matches: &ArgMatches) -> ClapResult<String> {
-        self.create_usage(&matches.args
-                                  .keys()
+    pub fn create_current_usage(&self, matcher: &ArgMatcher) -> ClapResult<String> {
+        self.create_usage(&matcher.arg_names()
                                   .filter(|k| {
                                       if let Some(o) = self.opts
                                                            .iter()
@@ -2245,7 +2023,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
 
     fn get_required_from(&self,
                          reqs: &[&'ar str],
-                         matches: Option<&ArgMatches>)
+                         matcher: Option<&ArgMatcher>)
                          -> VecDeque<String> {
         let mut c_flags = vec![];
         let mut c_pos = vec![];
@@ -2336,7 +2114,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
 
         let mut pmap = BTreeMap::new();
         for p in c_pos.into_iter() {
-            if matches.is_some() && matches.as_ref().unwrap().is_present(p) {
+            if matcher.is_some() && matcher.as_ref().unwrap().contains(p) {
                 continue;
             }
             if let Some(p) = self.positionals.values().filter(|x| &x.name == p).next() {
@@ -2347,7 +2125,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
             ret_val.push_back(s);
         }
         for f in c_flags.into_iter() {
-            if matches.is_some() && matches.as_ref().unwrap().is_present(f) {
+            if matcher.is_some() && matcher.as_ref().unwrap().contains(f) {
                 continue;
             }
             ret_val.push_back(format!("{}",
@@ -2358,7 +2136,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                                           .unwrap()));
         }
         for o in c_opt.into_iter() {
-            if matches.is_some() && matches.as_ref().unwrap().is_present(o) {
+            if matcher.is_some() && matcher.as_ref().unwrap().contains(o) {
                 continue;
             }
             ret_val.push_back(format!("{}",
@@ -2437,8 +2215,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         }
     }
 
-    fn blacklisted_from(&self, name: &str, matches: &ArgMatches) -> Option<String> {
-        for k in matches.args.keys() {
+    fn blacklisted_from(&self, name: &str, matcher: &ArgMatcher) -> Option<String> {
+        for k in matcher.arg_names() {
             if let Some(f) = self.flags.iter().filter(|f| &f.name == k).next() {
                 if let Some(ref bl) = f.blacklist {
                     if bl.contains(&name) {
@@ -2464,8 +2242,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         None
     }
 
-    fn overriden_from(&self, name: &'ar str, matches: &ArgMatches) -> Option<&'ar str> {
-        for k in matches.args.keys() {
+    fn overriden_from(&self, name: &'ar str, matcher: &ArgMatcher) -> Option<&'ar str> {
+        for k in matcher.arg_names() {
             if let Some(f) = self.flags.iter().filter(|f| &f.name == k).next() {
                 if let Some(ref bl) = f.overrides {
                     if bl.contains(&name) {
@@ -2537,636 +2315,279 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         }
     }
 
-    fn check_for_help_and_version(&self, arg: char) -> ClapResult<()> {
-        if let Some(h) = self.help_short {
-            if h == arg {
-                try!(self.print_help());
-                return Err(ClapError {
-                    error: String::new(),
-                    error_type: ClapErrorType::HelpDisplayed,
-                });
-            }
+    fn check_for_help_and_version_str(&self, arg: &str) -> ClapResult<()> {
+        if arg == "help" && self.settings.is_set(&AppSettings::NeedsLongHelp) {
+            try!(self._help());
         }
-        if let Some(v) = self.version_short {
-            if v == arg {
-                let out = io::stdout();
-                let mut buf_w = BufWriter::new(out.lock());
-                try!(self.print_version(&mut buf_w));
-                return Err(ClapError {
-                    error: String::new(),
-                    error_type: ClapErrorType::VersionDisplayed,
-                });
-            }
+        if arg == "version" && self.settings.is_set(&AppSettings::NeedsLongVersion) {
+            try!(self._version());
         }
 
         Ok(())
     }
 
+    fn check_for_help_and_version_char(&self, arg: char) -> ClapResult<()> {
+        if let Some(h) = self.help_short { if arg == h { try!(self._help()); } }
+        if let Some(v) = self.version_short { if arg == v { try!(self._version()); } }
+        Ok(())
+    }
+
+    fn _help(&self) -> ClapResult<()> {
+        try!(self.print_help());
+        Err(ClapError {
+            error: String::new(),
+            error_type: ClapErrorType::HelpDisplayed,
+        })
+    }
+
+    fn _version(&self) -> ClapResult<()> {
+        let out = io::stdout();
+        let mut buf_w = BufWriter::new(out.lock());
+        try!(self.print_version(&mut buf_w));
+        Err(ClapError {
+            error: String::new(),
+            error_type: ClapErrorType::VersionDisplayed,
+        })
+    }
+
     fn parse_long_arg<'av>(&mut self,
-                           matches: &mut ArgMatches<'ar, 'ar>,
+                           matcher: &mut ArgMatcher<'ar>,
                            full_arg: &'av str)
                            -> ClapResult<Option<&'ar str>> {
-        let mut arg = full_arg.trim_left_matches(|c| c == '-');
+        let mut val = "";
+        let arg = if full_arg.contains("=") {
+            let parts: Vec<_> = full_arg.trim_left_matches(|c| c == '-').splitn(2, "=").collect();
+            val = parts[1];
+            parts[0]
+        } else {
+            full_arg.trim_left_matches(|c| c == '-')
+        };
 
-        if arg == "help" && self.settings.is_set(&AppSettings::NeedsLongHelp) {
-            try!(self.print_help());
-            return Err(ClapError {
-                error: String::new(),
-                error_type: ClapErrorType::HelpDisplayed,
-            });
-        } else if arg == "version" && self.settings.is_set(&AppSettings::NeedsLongVersion) {
-            let out = io::stdout();
-            let mut buf_w = BufWriter::new(out.lock());
-            try!(self.print_version(&mut buf_w));
-            return Err(ClapError {
-                error: String::new(),
-                error_type: ClapErrorType::VersionDisplayed,
-            });
-        }
+        if let Some(opt) = self.opts
+                    .iter()
+                    .filter(|v| v.long.is_some() && v.long.unwrap() == arg)
+                    .next() {
+            let ret = try!(self.parse_opt(val, opt, matcher));
+            arg_post_processing!(self, opt, matcher);
 
-        let mut arg_val: Option<&'av str> = None;
+            return Ok(ret);
+        } else if let Some(flag) = self.flags
+                    .iter()
+                    .filter(|v| v.long.is_some() && v.long.unwrap() == arg)
+                    .next() {
+            // Only flags could be help or version, and we need to check the raw long
+            // so this is the first point to check
+            try!(self.check_for_help_and_version_str(arg));
 
-        if arg.contains("=") {
-            let arg_vec: Vec<_> = arg.split("=").collect();
-            arg = arg_vec[0];
-            if let Some(ref v) = self.opts
-                                     .iter()
-                                     .filter(|&v| v.long.is_some() && v.long.unwrap() == arg)
-                                     .next() {
-                // prevents "--config= value" typo
-                if arg_vec[1].len() == 0 && !v.settings.is_set(&ArgSettings::EmptyValues) {
-                    if let Some(ref vec) = self.groups_for_arg(v.name) {
-                        for grp in vec {
-                            matches.args.insert(grp,
-                                                MatchedArg {
-                                                    occurrences: 1,
-                                                    values: None,
-                                                });
-                        }
-                    }
-                    matches.args.insert(v.name,
-                                        MatchedArg {
-                                            occurrences: 1,
-                                            values: None,
-                                        });
-                    return Err(error_builder::EmptyValue(
-                        &*format!("--{}", arg),
-                        &*try!(self.create_current_usage(matches))
-                    ));
-                }
-                arg_val = Some(arg_vec[1]);
-            }
-        }
+            try!(self.parse_flag(flag, matcher));
 
-        if let Some(ref v) = self.opts
-                                 .iter()
-                                 .filter(|&v| v.long.is_some() && v.long.unwrap() == arg)
-                                 .next() {
-            // Ensure this option isn't on the master mutually excludes list
-            if self.blacklist.contains(&v.name) {
-                matches.args.remove(v.name);
-                return Err(error_builder::ArgumentConflict(
-                    format!("--{}", arg),
-                    self.blacklisted_from(v.name, &matches),
-                    try!(self.create_current_usage(matches))));
-            }
-            if self.overrides.contains(&v.name) {
-                debugln!("it is...");
-                debugln!("checking who defined it...");
-                if let Some(ref name) = self.overriden_from(v.name, matches) {
-                    debugln!("found {}", name);
-                    if let Some(ref vec) = self.groups_for_arg(v.name) {
-                        for grp in vec {
-                            matches.args.remove(grp);
-                        }
-                    }
-                    matches.args.remove(name);
-                    remove_overriden!(self, name);
-                }
-            }
-            if let Some(ref or) = v.overrides {
-                for pa in or {
-                    if let Some(ref vec) = self.groups_for_arg(v.name) {
-                        for grp in vec {
-                            matches.args.remove(grp);
-                        }
-                    }
-                    matches.args.remove(pa);
-                    remove_overriden!(self, pa);
-                    self.overrides.push(pa);
-                }
-            }
-
-            if matches.args.contains_key(v.name) {
-                if !v.settings.is_set(&ArgSettings::Multiple) {
-                    return Err(error_builder::UnexpectedMultipleUsage(
-                        &*format!("--{}", arg),
-                        &*try!(self.create_current_usage(matches))));
-                }
-                if let Some(av) = arg_val {
-                    if let Some(ref vec) = self.groups_for_arg(v.name) {
-                        for grp in vec {
-                            if let Some(ref mut o) = matches.args.get_mut(grp) {
-                                o.occurrences += 1;
-                                if let Some(ref mut vals) = o.values {
-                                    let len = (vals.len() + 1) as u8;
-                                    vals.insert(len, av.to_owned());
-                                }
-                            }
-                        }
-                    }
-                    if let Some(ref mut o) = matches.args.get_mut(v.name) {
-                        o.occurrences += 1;
-                        if let Some(ref mut vals) = o.values {
-                            let len = (vals.len() + 1) as u8;
-                            vals.insert(len, av.to_owned());
-                        }
-                    }
-                    // The validation must come AFTER inserting into 'matches' or the usage string
-                    // can't be built
-                    if let Err(e) = self.validate_value(v, av, matches) {
-                        return Err(e);
-                    }
-                }
-            } else {
-                let mut bm = BTreeMap::new();
-                if let Some(val) = arg_val {
-                    bm.insert(1, val.to_owned());
-                    if let Some(ref vec) = self.groups_for_arg(v.name) {
-                        for grp in vec {
-                            matches.args.insert(grp,
-                                                MatchedArg {
-                                                    occurrences: 1,
-                                                    values: Some(bm.clone()),
-                                                });
-                        }
-                    }
-                    matches.args.insert(v.name,
-                                        MatchedArg {
-                                            occurrences: 1,
-                                            values: Some(bm),
-                                        });
-                    // The validation must come AFTER inserting into 'matches' or the usage string
-                    // can't be built
-                    if let Err(e) = self.validate_value(v, val, matches) {
-                        return Err(e);
-                    }
-                } else {
-                    if let Some(ref vec) = self.groups_for_arg(v.name) {
-                        for grp in vec {
-                            matches.args.insert(grp,
-                                                MatchedArg {
-                                                    occurrences: 1,
-                                                    values: Some(bm.clone()),
-                                                });
-                        }
-                    }
-                    matches.args.insert(v.name,
-                                        MatchedArg {
-                                            occurrences: 0,
-                                            values: Some(bm),
-                                        });
-                }
-            }
-            if let Some(ref bl) = v.blacklist {
-                for name in bl {
-                    self.blacklist.push(name);
-                    vec_remove!(self.overrides, name);
-                    vec_remove!(self.required, name);
-                }
-            }
-
-            if let Some(ref reqs) = v.requires {
-                // Add all required args which aren't already found in matches to the
-                // final required list
-                for n in reqs {
-                    if matches.args.contains_key(n) {
-                        continue;
-                    }
-
-                    self.required.push(n);
-                }
-            }
-
-            parse_group_reqs!(self, v);
-
-            match arg_val {
-                None => {
-                    return Ok(Some(v.name));
-                }
-                _ => {
-                    return Ok(None);
-                }
-            }
-        }
-
-        if let Some(v) = self.flags
-                             .iter()
-                             .filter(|&v| v.long.is_some() && v.long.unwrap() == arg)
-                             .next() {
-            // Ensure this flag isn't on the mutually excludes list
-            if self.blacklist.contains(&v.name) {
-                matches.args.remove(v.name);
-                return Err(error_builder::ArgumentConflict(
-                        v.to_string(),
-                        self.blacklisted_from(v.name, &matches),
-                        try!(self.create_current_usage(matches))));
-            }
-            if self.overrides.contains(&v.name) {
-                debugln!("it is...");
-                debugln!("checking who defined it...");
-                if let Some(ref name) = self.overriden_from(v.name, matches) {
-                    debugln!("found {}", name);
-                    matches.args.remove(name);
-                    remove_overriden!(self, name);
-                }
-            }
-            if let Some(ref or) = v.overrides {
-                for pa in or {
-                    matches.args.remove(pa);
-                    remove_overriden!(self, pa);
-                    self.overrides.push(pa);
-                }
-            }
-
-            // Make sure this isn't one being added multiple times if it doesn't suppor it
-            if matches.args.contains_key(v.name) && !v.settings.is_set(&ArgSettings::Multiple) {
-                return Err(error_builder::UnexpectedMultipleUsage(
-                    &*v.to_string(),
-                    &*try!(self.create_current_usage(matches))));
-            }
-
-            let mut done = false;
-            if let Some(ref mut f) = matches.args.get_mut(v.name) {
-                done = true;
-                f.occurrences = if v.settings.is_set(&ArgSettings::Multiple) {
-                    f.occurrences + 1
-                } else {
-                    1
-                };
-            }
-            if !done {
-                if let Some(ref vec) = self.groups_for_arg(v.name) {
-                    for grp in vec {
-                        matches.args.insert(grp,
-                                            MatchedArg {
-                                                occurrences: 1,
-                                                values: None,
-                                            });
-                    }
-                }
-                matches.args.insert(v.name,
-                                    MatchedArg {
-                                        occurrences: 1,
-                                        values: None,
-                                    });
-            }
-
-
-            // Add all of this flags "mutually excludes" list to the master list
-            if let Some(ref ov) = v.overrides {
-                for name in ov {
-                    self.overrides.push(name);
-                }
-            }
-            if let Some(ref bl) = v.blacklist {
-                for name in bl {
-                    self.blacklist.push(name);
-                    vec_remove!(self.overrides, name);
-                    vec_remove!(self.required, name);
-                }
-            }
-
-            // Add all required args which aren't already found in matches to the master
-            // list
-            if let Some(ref reqs) = v.requires {
-                for n in reqs {
-                    if matches.args.contains_key(n) {
-                        continue;
-                    }
-
-                    self.required.push(n);
-                }
-            }
-
-            parse_group_reqs!(self, v);
+            // Handle conflicts, requirements, etc.
+            arg_post_processing!(self, flag, matcher);
 
             return Ok(None);
         }
 
-        let suffix = suggestions::did_you_mean_suffix(arg,
-                                              self.long_list.iter(),
-                                              suggestions::DidYouMeanMessageStyle::LongFlag);
-        if let Some(name) = suffix.1 {
-            if let Some(ref opt) = self.opts
-                                       .iter()
-                                       .filter_map(|o| {
-                                           if o.long.is_some() && o.long.unwrap() == name {
-                                               Some(o.name)
-                                           } else {
-                                               None
-                                           }
-                                       })
-                                       .next() {
-                if let Some(ref vec) = self.groups_for_arg(opt) {
-                    for grp in vec {
-                        matches.args.insert(grp,
-                                            MatchedArg {
-                                                occurrences: 1,
-                                                values: None,
-                                            });
-                    }
-                }
-                matches.args.insert(opt,
-                                    MatchedArg {
-                                        occurrences: 0,
-                                        values: None,
-                                    });
-            } else if let Some(ref flg) = self.flags
-                                       .iter()
-                                       .filter_map(|f| {
-                                           if f.long.is_some() && f.long.unwrap() == name {
-                                               Some(f.name)
-                                           } else {
-                                               None
-                                           }
-                                       })
-                                       .next() {
-                if let Some(ref vec) = self.groups_for_arg(flg) {
-                    for grp in vec {
-                        matches.args.insert(grp,
-                                            MatchedArg {
-                                                occurrences: 1,
-                                                values: None,
-                                            });
-                    }
-                }
-                matches.args.insert(flg,
-                                    MatchedArg {
-                                        occurrences: 0,
-                                        values: None,
-                                    });
-            }
-        }
-
-        Err(error_builder::InvalidArgument(&*format!("--{}", arg),
-                                           Some(&*suffix.0),
-                                           &*try!(self.create_current_usage(matches))))
-    }
-
-    fn validate_value(&self, v: &OptBuilder, av: &str, matches: &ArgMatches) -> ClapResult<()> {
-        if let Some(ref p_vals) = v.possible_vals {
-            if !p_vals.contains(&av) {
-                return Err(
-                    error_builder::InvalidValue(av,
-                                                p_vals,
-                                                &v.to_string(),
-                                                &*try!(self.create_current_usage(matches))));
-            }
-        }
-        if !v.settings.is_set(&ArgSettings::EmptyValues) && av.is_empty() &&
-           matches.args.contains_key(v.name) {
-            return Err(error_builder::EmptyValue(&*v.to_string(),
-                                                 &*try!(self.create_current_usage(matches))));
-        }
-        if let Some(ref vtor) = v.validator {
-            if let Err(e) = vtor(av.to_owned()) {
-                return Err(error_builder::ValueValidationError(&*e));
-            }
-        }
-        Ok(())
+        self.did_you_mean_error(arg, matcher).map(|_| None)
     }
 
     fn parse_short_arg(&mut self,
-                       matches: &mut ArgMatches<'ar, 'ar>,
+                       matcher: &mut ArgMatcher<'ar>,
                        full_arg: &str)
                        -> ClapResult<Option<&'ar str>> {
-        let arg = &full_arg[..].trim_left_matches(|c| c == '-');
+        let arg = &*full_arg.trim_left_matches(|c| c == '-');
         for c in arg.chars() {
-            try!(self.check_for_help_and_version(c));
+            // Check for matching short options, and return the name if there is no trailing
+            // concatenated value: -oval
+            // Option: -o
+            // Value: val
+            if let Some(opt) = self.opts
+                        .iter()
+                        .filter(|&v| v.short.is_some() && v.short.unwrap() == c)
+                        .next() {
+                // Check for trailing concatenated value
+                let val = arg.splitn(2, c).collect::<Vec<_>>()[1];
 
-            // Check for matching short in options, and return the name
-            // (only ones with shorts, of course)
-            if let Some(v) = self.opts
-                                 .iter()
-                                 .filter(|&v| v.short.is_some() && v.short == Some(c))
-                                 .next() {
-                let mut ret = Some(v.name);
-                // Ensure this option isn't on the master mutually excludes list
-                if self.blacklist.contains(&v.name) {
-                    matches.args.remove(v.name);
-                    return Err(error_builder::ArgumentConflict(
-                        v.to_string(),
-                        self.blacklisted_from(v.name, &matches),
-                        try!(self.create_current_usage(matches))));
-                }
-                if self.overrides.contains(&v.name) {
-                    if let Some(ref name) = self.overriden_from(v.name, matches) {
-                        matches.args.remove(&*name);
-                        remove_overriden!(self, name);
-                    }
-                }
-                if let Some(ref or) = v.overrides {
-                    for pa in or {
-                        matches.args.remove(pa);
-                        remove_overriden!(self, pa);
-                        self.overrides.push(pa);
-                    }
-                }
+                // Default to "we're expecting a value later"
+                let ret = try!(self.parse_opt(val, opt, matcher));
 
-                if matches.args.contains_key(v.name) && !v.settings.is_set(&ArgSettings::Multiple) {
-                    return Err(error_builder::UnexpectedMultipleUsage(
-                        &*format!("-{}", arg),
-                        &*try!(self.create_current_usage(matches))));
-                }
-
-                // New scope for lifetimes
-                let val: Vec<&str> = arg.splitn(2, c).collect();
-                {
-                    let ma = matches.args.entry(v.name).or_insert(MatchedArg {
-                        // occurrences will be incremented on getting a value
-                        occurrences: 0,
-                        values: Some(BTreeMap::new()),
-                    });
-                    if !val[1].is_empty() {
-                        if !v.settings.is_set(&ArgSettings::Multiple) {
-                            ret = None;
-                        }
-                        if let Some(ref mut vals) = ma.values {
-                            let len = vals.len() as u8 + 1;
-                            vals.insert(len, val[1].to_owned());
-                        }
-                        ma.occurrences += 1;
-                    }
-                }
-
-                if let Some(ref vec) = self.groups_for_arg(v.name) {
-                    for grp in vec {
-                        let ma_g = matches.args.entry(grp).or_insert(MatchedArg {
-                            occurrences: 0,
-                            values: Some(BTreeMap::new()),
-                        });
-                        if !val[1].is_empty() {
-                            if let Some(ref mut vals) = ma_g.values {
-                                let len = vals.len() as u8 + 1;
-                                vals.insert(len, val[1].to_owned());
-                            }
-                            ma_g.occurrences += 1;
-                        }
-                    }
-                }
-
-                if let Some(ref bl) = v.blacklist {
-                    for name in bl {
-                        self.blacklist.push(name);
-                        vec_remove!(self.overrides, name);
-                        vec_remove!(self.required, name);
-                    }
-                }
-
-                if let Some(ref reqs) = v.requires {
-                    // Add all required args which aren't already found in matches to the
-                    // final required list
-                    for n in reqs {
-                        if matches.args.contains_key(n) {
-                            continue;
-                        }
-
-                        self.required.push(n);
-                    }
-                }
-
-                parse_group_reqs!(self, v);
+                arg_post_processing!(self, opt, matcher);
 
                 return Ok(ret);
             }
 
-            match self.parse_single_short_flag(matches, c) {
-                Ok(b) => {
-                    if !b {
-                        return Err(error_builder::InvalidArgument(
-                            &*format!("-{}", c),
-                            None,
-                            &*try!(self.create_current_usage(matches))));
-                    }
-                }
-                Err(e) => return Err(e),
+            try!(self.check_for_help_and_version_char(c));
+            if let Some(flag) = self.flags.iter().filter(|&v| v.short.is_some() && v.short.unwrap() == c).next() {
+                // Only flags can be help or version
+                try!(self.parse_flag(flag, matcher));
+                // Handle conflicts, requirements, overrides, etc.
+                // Must be called here due to mutablilty
+                arg_post_processing!(self, flag, matcher);
             }
         }
         Ok(None)
     }
 
-    fn parse_single_short_flag(&mut self,
-                               matches: &mut ArgMatches<'ar, 'ar>,
-                               arg: char)
-                               -> ClapResult<bool> {
-        let v = self.flags.iter().filter(|&v| v.short.is_some() && v.short.unwrap() == arg).next();
-        if v.is_some() {
-            let flag = v.unwrap();
-            try!(self.validate_arg(flag, matches));
+    fn parse_opt(&self, val: &str, opt: &OptBuilder<'ar>, matcher: &mut ArgMatcher<'ar>) -> ClapResult<Option<&'ar str>> {
+        try!(self.validate_arg(opt, matcher));
 
-            if let Some(ref vec) = self.groups_for_arg(flag.name) {
-                for grp in vec {
-                    if let Some(ref mut f) = matches.args.get_mut(grp) {
-                        f.occurrences = if v.settings.is_set(&ArgSettings::Multiple) {
-                            f.occurrences + 1
-                        } else {
-                            1
-                        };
-                    }
-                }
-            }
-            let mut done = false;
-            if let Some(ref mut f) = matches.args.get_mut(v.name) {
-                done = true;
-                f.occurrences = if v.settings.is_set(&ArgSettings::Multiple) {
-                    f.occurrences + 1
-                } else {
-                    1
-                };
-            }
-            if !done {
-                if let Some(ref vec) = self.groups_for_arg(v.name) {
-                    for grp in vec {
-                        matches.args.insert(grp,
-                                            MatchedArg {
-                                                occurrences: 1,
-                                                values: None,
-                                            });
-                    }
-                }
-                matches.args.insert(v.name,
-                                    MatchedArg {
-                                        occurrences: 1,
-                                        values: None,
-                                    });
-            }
-
-            if let Some(ref bl) = v.blacklist {
-                for name in bl {
-                    self.blacklist.push(name);
-                    vec_remove!(self.overrides, name);
-                    vec_remove!(self.required, name);
-                }
-            }
-
-            // Add all required args which aren't already found in matches to the master
-            // list
-            if let Some(ref reqs) = v.requires {
-                for n in reqs {
-                    if matches.args.contains_key(n) {
-                        continue;
-                    }
-
-                    self.required.push(n);
-                }
-            }
-
-            parse_group_reqs!(self, v);
-
-            return Ok(true);
+        if matcher.contains(opt.name) && !opt.settings.is_set(&ArgSettings::Multiple) {
+            // Not the first time, but we don't allow multiples
+            return Err(error_builder::UnexpectedMultipleUsage(
+                &*opt.to_string(),
+                &*try!(self.create_current_usage(matcher))));
         }
-        Ok(false)
+
+        if val.len() != 0 {
+            if opt.is_set(ArgSettings::EmptyValues) {
+                try!(self.add_val_to_arg(opt, val, matcher));
+                return Ok(None);
+            }
+            return Err(error_builder::EmptyValue(
+                &*opt.to_string(),
+                &*try!(self.create_current_usage(matcher))));
+        }
+
+        // If it doesn't allow mutliples, (or a specific number of values), or we don't have any
+        // values yet, we want to return the name of this arg so the next arg is parsed as a value
+        // otherwise we're done getting values
+        if opt.settings.is_set(&ArgSettings::Multiple) || opt.num_vals.is_some() || !matcher.contains(opt.name) {
+            return Ok(Some(opt.name));
+        }
+        Ok(None)
     }
 
-    fn validate_arg<A>(&mut self, arg: &A, matches: &mut ArgMatches<'ar, 'ar>) -> ClapResult<()>
+    fn add_val_to_arg<A>(&self,
+                        arg: &A,
+                        val: &str,
+                        matcher: &mut ArgMatcher<'ar>)
+                        -> ClapResult<Option<&'ar str>>
         where A: AnyArg<'ar> + Display {
-        // Ensure this arg isn't on the mutually excludes list
-        if self.blacklist.contains(&arg.name()) {
-            matches.args.remove(arg.name());
-            return Err(error_builder::ArgumentConflict(
-                arg.to_string(),
-                self.blacklisted_from(arg.name(), &matches),
-                try!(self.create_current_usage(matches))));
-        }
-        if self.overrides.contains(&arg.name()) {
-            if let Some(ref name) = self.overriden_from(arg.name(), matches) {
-                matches.args.remove(name);
-                remove_overriden!(self, name);
-            }
-        }
-        if let Some(or) = arg.overrides() {
-            for pa in or {
-                matches.args.remove(pa);
-                remove_overriden!(self, pa);
-                self.overrides.push(pa);
+        matcher.add_val_to(arg.name(), val.to_owned());
+
+        // Increment or create the group "args"
+        if let Some(grps) = self.groups_for_arg(arg.name()) {
+            for grp in grps {
+                matcher.add_val_to(grp, val.to_owned());
             }
         }
 
-        // Make sure this isn't one being added multiple times if it doesn't suppor it
-        if matches.args.contains_key(arg.name()) && !arg.is_set(&ArgSettings::Multiple) {
+        // The validation must come AFTER inserting into 'matcher' or the usage string
+        // can't be built
+        self.validate_value(arg, val, matcher)
+    }
+
+    fn validate_value<A>(&self, arg: &A, val: &str, matcher: &ArgMatcher<'ar>) -> ClapResult<Option<&'ar str>>
+        where A: AnyArg<'ar> + Display {
+        if let Some(ref p_vals) = arg.possible_vals() {
+            if !p_vals.contains(&val) {
+                return Err(
+                    error_builder::InvalidValue(val,
+                                                p_vals,
+                                                &arg.to_string(),
+                                                &*try!(self.create_current_usage(matcher))));
+            }
+        }
+        if !arg.is_set(ArgSettings::EmptyValues) &&
+            val.is_empty() &&
+            matcher.contains(arg.name()) {
+            return Err(error_builder::EmptyValue(&*arg.to_string(),
+                                                 &*try!(self.create_current_usage(matcher))));
+        }
+        if let Some(ref vtor) = arg.validator() {
+            if let Err(e) = vtor(val.to_owned()) {
+                return Err(error_builder::ValueValidationError(&*e));
+            }
+        }
+        let vals = matcher.get(arg.name())
+                          .expect(INTERNAL_ERROR_MSG)
+                          .values.as_ref()
+                                 .expect(INTERNAL_ERROR_MSG)
+                                 .len();
+        if let Some(max) = arg.max_vals() {
+            if (vals as u8) < max {
+                return Ok(Some(arg.name()));
+            } else {
+                return Ok(None);
+            }
+        }
+        if let Some(..) = arg.min_vals() {
+            return Ok(Some(arg.name()));
+        }
+        if let Some(num) = arg.num_vals() {
+            if arg.is_set(ArgSettings::Multiple) {
+                if (vals as u8) < num {
+                    return Ok(Some(arg.name()));
+                } 
+            } else {
+                if (vals as u8 % num) != 0 {
+                    return Ok(Some(arg.name()));
+                }
+            }
+        }
+        if arg.is_set(ArgSettings::Multiple) {
+            return Ok(Some(arg.name()));
+        }
+        Ok(None)
+    }
+
+    fn parse_flag(&self, flag: &FlagBuilder<'ar>, matcher: &mut ArgMatcher<'ar>) -> ClapResult<()> {
+        // Validate that we can actually accept this arg
+        try!(self.validate_arg(flag, matcher));
+
+        // First occurrence or not?
+        if !matcher.contains(flag.name) {
+            // If this is the first, then add this flag itself
+            matcher.insert(flag.name);
+        } else if !flag.settings.is_set(&ArgSettings::Multiple) {
+            // Not the first time, but we don't allow multiples
             return Err(error_builder::UnexpectedMultipleUsage(
-                &*format!("-{}", arg),
-                &*try!(self.create_current_usage(matches))));
+                &*flag.to_string(),
+                &*try!(self.create_current_usage(matcher))));
+        } else {
+            matcher.inc_occurrence_of(flag.name);
+        }
+
+        // Increment or create the group "args"
+        self.groups_for_arg(flag.name).and_then(|vec| Some(matcher.inc_occurrences_of(&vec)));
+
+        Ok(())
+    }
+
+    fn validate_arg<A>(&self, arg: &A, matcher: &mut ArgMatcher<'ar>) -> ClapResult<()>
+        where A: AnyArg<'ar> + Display {
+        // May not be needed since we can't get here without being an Arg of some type
+        //
+        // if arg.has_switch() && (!self.flags.iter().any(|f| f.name == arg.name()) &&
+        //     !self.opts.iter().any(|f| f.name == arg.name())) {
+        //     return Err(error_builder::InvalidArgument(
+        //         &*format!("{}", arg),
+        //         None,
+        //         &*try!(self.create_current_usage(matcher))));
+        // }
+
+        // Ensure this arg isn't on the mutually excludes list
+        if self.blacklist.contains(&arg.name()) {
+            matcher.remove(arg.name());
+            return Err(error_builder::ArgumentConflict(
+                arg.to_string(),
+                self.blacklisted_from(arg.name(), &matcher),
+                try!(self.create_current_usage(matcher))));
+        }
+
+        // Make sure this isn't one being added multiple times if it doesn't support it
+        if matcher.contains(arg.name()) && !arg.is_set(ArgSettings::Multiple) {
+            return Err(error_builder::UnexpectedMultipleUsage(
+                &*format!("{}", arg),
+                &*try!(self.create_current_usage(matcher))));
         }
 
         Ok(())
     }
 
-    fn validate_blacklist(&self, matches: &mut ArgMatches<'ar, 'ar>) -> ClapResult<()> {
+    fn validate_blacklist(&self, matcher: &mut ArgMatcher<'ar>) -> ClapResult<()> {
         for name in self.blacklist.iter() {
-            if matches.args.contains_key(name) {
-                matches.args.remove(name);
+            if matcher.contains(name) {
+                matcher.remove(name);
                 return Err(error_builder::ArgumentConflict(
                     format!("{}", Format::Warning(
                         if let Some(f) = self.flags.iter().filter(|f| &f.name == name).next() {
@@ -3184,12 +2605,12 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                             }
                         }
                     )),
-                    self.blacklisted_from(name, &matches),
-                    try!(self.create_current_usage(matches))));
+                    self.blacklisted_from(name, &matcher),
+                    try!(self.create_current_usage(matcher))));
             } else if self.groups.contains_key(name) {
                 for n in self.arg_names_in_group(name) {
-                    if matches.args.contains_key(n) {
-                        matches.args.remove(n);
+                    if matcher.contains(n) {
+                        matcher.remove(n);
                         return Err(error_builder::ArgumentConflict(
                             format!("{}", Format::Warning(
                                 if let Some(f) = self.flags.iter()
@@ -3210,8 +2631,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                                     }
                                 }
                             )),
-                            self.blacklisted_from(name, &matches),
-                            try!(self.create_current_usage(matches))));
+                            self.blacklisted_from(name, &matcher),
+                            try!(self.create_current_usage(matcher))));
                     }
                 }
             }
@@ -3219,8 +2640,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         Ok(())
     }
 
-    fn validate_num_args(&self, matches: &mut ArgMatches<'ar, 'ar>) -> ClapResult<()> {
-        for (name, ma) in matches.args.iter() {
+    fn validate_num_args(&self, matcher: &mut ArgMatcher<'ar>) -> ClapResult<()> {
+        for (name, ma) in matcher.iter() {
             if self.groups.contains_key(name) {
                 continue;
             } else if let Some(ref vals) = ma.values {
@@ -3250,18 +2671,18 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                                 } else {
                                     "ere"
                                 },
-                                &*try!(self.create_current_usage(matches))));
+                                &*try!(self.create_current_usage(matcher))));
                         }
                     }
                     if let Some(num) = f.max_vals {
                         if (vals.len() as u8) > num {
                             return Err(error_builder::TooManyValues(
-                                vals.get(vals.keys()
+                                vals.get(&vals.keys()
                                              .last()
                                              .expect(INTERNAL_ERROR_MSG))
                                     .expect(INTERNAL_ERROR_MSG),
                                 &f.to_string(),
-                                &try!(self.create_current_usage(matches))));
+                                &try!(self.create_current_usage(matcher))));
                         }
                     }
                     if let Some(num) = f.min_vals {
@@ -3270,7 +2691,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                                 &*f.to_string(),
                                 num,
                                 vals.len(),
-                                &*try!(self.create_current_usage(matches))));
+                                &*try!(self.create_current_usage(matcher))));
                         }
                     }
                 } else if let Some(f) = self.positionals
@@ -3288,18 +2709,18 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                                 } else {
                                     "ere"
                                 },
-                                &*try!(self.create_current_usage(matches))));
+                                &*try!(self.create_current_usage(matcher))));
                         }
                     }
                     if let Some(max) = f.max_vals {
                         if (vals.len() as u8) > max {
                             return Err(error_builder::TooManyValues(
-                                vals.get(vals.keys()
+                                vals.get(&vals.keys()
                                              .last()
-                                             .expect("error getting last key. This is a bug"))
-                                    .expect("failed to retrieve last value. This is a bug"),
+                                             .expect(INTERNAL_ERROR_MSG))
+                                    .expect(INTERNAL_ERROR_MSG),
                                 &f.to_string(),
-                                &try!(self.create_current_usage(matches))));
+                                &try!(self.create_current_usage(matcher))));
                         }
                     }
                     if let Some(min) = f.min_vals {
@@ -3308,7 +2729,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                                 &*f.to_string(),
                                 min,
                                 vals.len(),
-                                &*try!(self.create_current_usage(matches))));
+                                &*try!(self.create_current_usage(matcher))));
                         }
                     }
                 }
@@ -3317,70 +2738,79 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         Ok(())
     }
 
-    fn validate_required(&self, matches: &ArgMatches<'ar, 'ar>) -> bool {
+    fn validate_required(&self, matcher: &ArgMatcher<'ar>) -> ClapResult<()> {
         'outer: for name in self.required.iter() {
-            if matches.args.contains_key(name) {
+            if matcher.contains(name) {
                 continue 'outer;
             }
-            for grp in self.groups.values() {
-                if grp.args.contains(name) {
-                    continue 'outer;
+            if let Some(grp) = self.groups.get(name) {
+                for arg in &grp.args {
+                    if matcher.contains(arg) { continue 'outer; }
                 }
+            }
+            if self.groups.values().any(|g| g.args.contains(name)) {
+                continue 'outer;
             }
             if let Some(a) = self.flags.iter().filter(|f| &f.name == name).next() {
-                if let Some(ref bl) = a.blacklist {
-                    for n in bl.iter() {
-                        if matches.args.contains_key(n) {
-                            continue 'outer;
-                        } else if self.groups.contains_key(n) {
-                            let grp = self.groups.get(n).unwrap();
-                            for an in grp.args.iter() {
-                                if matches.args.contains_key(an) {
-                                    continue 'outer;
-                                }
-                            }
-                        }
-                    }
-                }
+                if self._validate_blacklist_required(a, matcher) { continue 'outer; }
             }
             if let Some(a) = self.opts.iter().filter(|o| &o.name == name).next() {
-                if let Some(ref bl) = a.blacklist {
-                    for n in bl.iter() {
-                        if matches.args.contains_key(n) {
-                            continue 'outer;
-                        } else if self.groups.contains_key(n) {
-                            let grp = self.groups.get(n).unwrap();
-                            for an in grp.args.iter() {
-                                if matches.args.contains_key(an) {
-                                    continue 'outer;
-                                }
-                            }
-                        }
-                    }
+                if self._validate_blacklist_required(a, matcher) { continue 'outer; }
+            }
+            if let Some(a) = self.positionals.values().filter(|p| &p.name == name).next() {
+                if self._validate_blacklist_required(a, matcher) { continue 'outer; }
+            }
+            return Err(error_builder::MissingRequiredArgument(
+                &*self.get_required_from(&self.required, Some(matcher))
+                      .iter()
+                      .fold(String::new(),
+                          |acc, s| acc + &format!("\n\t{}", Format::Error(s))[..]),
+                &*try!(self.create_current_usage(matcher))));
+        }
+        Ok(())
+    }
+
+    fn _validate_blacklist_required<A>(&self, a: &A, matcher: &ArgMatcher) -> bool where A: AnyArg<'ar> {
+        if let Some(bl) = a.blacklist() {
+            for n in bl.iter() {
+                if matcher.contains(n) {
+                    return true;
+                } else if self.groups
+                              .get(n)
+                              .map(|g| g.args.iter().any(|an| matcher.contains(an)))
+                              .unwrap_or(false) {
+                    return true;
                 }
             }
-            // because positions use different keys, we dont use the macro
-            match self.positionals.values().filter(|p| &p.name == name).next() {
-                Some(p) => {
-                    if let Some(ref bl) = p.blacklist {
-                        for n in bl.iter() {
-                            if matches.args.contains_key(n) {
-                                continue 'outer;
-                            } else if self.groups.contains_key(n) {
-                                let grp = self.groups.get(n).unwrap();
-                                for an in grp.args.iter() {
-                                    if matches.args.contains_key(an) {
-                                        continue 'outer;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                None => (),
-            }
-            return true;
         }
         false
+    }
+
+    fn did_you_mean_error(&self, arg: &str, matcher: &mut ArgMatcher<'ar>) -> ClapResult<()> {
+        // Didn't match a flag or option...maybe it was a typo and close to one
+        let suffix = suggestions::did_you_mean_suffix(arg,
+                                              self.long_list.iter(),
+                                              suggestions::DidYouMeanMessageStyle::LongFlag);
+
+        // Add the arg to the matches to build a proper usage string
+        if let Some(name) = suffix.1 {
+            if let Some(opt) = self.opts
+                                       .iter()
+                                       .filter(|o| o.long.is_some() && o.long.unwrap() == name)
+                                       .next() {
+                self.groups_for_arg(opt.name).and_then(|grps| Some(matcher.inc_occurrences_of(&grps)));
+                matcher.insert(opt.name);
+            } else if let Some(flg) = self.flags
+                                       .iter()
+                                       .filter(|f| f.long.is_some() && f.long.unwrap() == name)
+                                       .next() {
+                self.groups_for_arg(flg.name).and_then(|grps| Some(matcher.inc_occurrences_of(&grps)));
+                matcher.insert(flg.name);
+            }
+        }
+
+        Err(error_builder::InvalidArgument(&*format!("--{}", arg),
+                                        Some(&*suffix.0),
+                                        &*try!(self.create_current_usage(matcher))))
     }
 }

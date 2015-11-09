@@ -43,12 +43,11 @@ fn arg_required_else_help() {
     let result = App::new("arg_required")
         .setting(AppSettings::ArgRequiredElseHelp)
         .arg(Arg::with_name("test")
-               .required(true)
                .index(1))
         .get_matches_from_safe(vec![""]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.error_type, ClapErrorType::MissingRequiredArgument);
+    assert_eq!(err.error_type, ClapErrorType::MissingArgumentOrSubcommand);
 }
 
 #[test]

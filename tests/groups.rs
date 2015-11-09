@@ -26,6 +26,10 @@ fn group_single_value() {
         .get_matches_from(vec!["", "-c", "blue"]);
     assert!(m.is_present("grp"));
     assert_eq!(m.value_of("grp").unwrap(), "blue");
+}
+
+#[test]
+fn group_single_flag() {
     let m = App::new("group")
         .args_from_usage("-f, --flag 'some flag'
                           -c, --color [color] 'some option'")
@@ -34,6 +38,10 @@ fn group_single_value() {
         .get_matches_from(vec!["", "-f"]);
     assert!(m.is_present("grp"));
     assert!(m.value_of("grp").is_none());
+}
+
+#[test]
+fn group_empty() {
     let m = App::new("group")
         .args_from_usage("-f, --flag 'some flag'
                           -c, --color [color] 'some option'")
@@ -42,6 +50,20 @@ fn group_single_value() {
         .get_matches_from(vec![""]);
     assert!(!m.is_present("grp"));
     assert!(m.value_of("grp").is_none());
+}
+
+#[test]
+fn group_reqired_flags_empty() {
+    let result = App::new("group")
+        .args_from_usage("-f, --flag 'some flag'
+                          -c, --color 'some option'")
+        .arg_group(ArgGroup::with_name("grp")
+            .required(true)
+            .add_all(&["flag", "color"]))
+        .get_matches_from_safe(vec![""]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.error_type, ClapErrorType::MissingRequiredArgument);
 }
 
 #[test]
