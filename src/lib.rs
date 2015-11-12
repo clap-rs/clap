@@ -38,31 +38,43 @@
 //!
 //! ### Comparisons
 //!
-//! First, let me say that these comparisons are highly subjective, and not meant
+//! First, let me say that these comparisons are highly subjective, and not
+//! meant
 //! in a critical or harsh manner. All the argument parsing libraries out there
-//! (to include `clap`) have their own strengths and weaknesses. Sometimes it just
-//! comes down to personal taste when all other factors are equal. When in doubt,
-//! try them all and pick one that you enjoy :) There's plenty of room in the Rust
+//! (to include `clap`) have their own strengths and weaknesses. Sometimes it
+//! just
+//! comes down to personal taste when all other factors are equal. When in
+//! doubt,
+//! try them all and pick one that you enjoy :) There's plenty of room in the
+//! Rust
 //! community for multiple implementations!
 //!
 //! #### How does `clap` compare to `getopts`?
 //!
-//! [getopts](https://github.com/rust-lang-nursery/getopts) is a very basic, fairly
+//! [getopts](https://github.com/rust-lang-nursery/getopts) is a very basic,
+//! fairly
 //! minimalist argument parsing library. This isn't a bad thing, sometimes you
-//! don't need tons of features, you just want to parse some simple arguments, and
+//! don't need tons of features, you just want to parse some simple arguments,
+//! and
 //! have some help text generated for you based on valid arguments you specify.
 //! When using `getopts` you must manually implement most of the common features
-//! (such as checking to display help messages, usage strings, etc.). If you want a
-//! highly custom argument parser, and don't mind writing most the argument parser
+//! (such as checking to display help messages, usage strings, etc.). If you
+//! want a
+//! highly custom argument parser, and don't mind writing most the argument
+//! parser
 //! yourself, `getopts` is an excellent base.
 //!
-//! Due to it's lack of features, `getopts` also doesn't allocate much, or at all.
+//! Due to it's lack of features, `getopts` also doesn't allocate much, or at
+//! all.
 //! This gives it somewhat of a performance boost. Although, as you start
-//! implementing those features you need manually, that boost quickly disappears.
+//! implementing those features you need manually, that boost quickly
+//! disappears.
 //!
 //! Personally, I find many, many people that use `getopts` are manually
-//! implementing features that `clap` has by default. Using `clap` simplifies your
-//! codebase allowing you to focus on your application, and not argument parsing.
+//! implementing features that `clap` has by default. Using `clap` simplifies
+//! your
+//! codebase allowing you to focus on your application, and not argument
+//! parsing.
 //!
 //! Reasons to use `getopts` instead of `clap`
 //!
@@ -75,28 +87,39 @@
 //!
 //! I first want to say I'm a big a fan of BurntSushi's work, the creator of
 //! [Docopt.rs](https://github.com/docopt/docopt.rs). I aspire to produce the
-//! quality of libraries that this man does! When it comes to comparing these two
+//! quality of libraries that this man does! When it comes to comparing these
+//! two
 //! libraries they are very different. `docopt` tasks you with writing a help
 //! message, and then it parsers that message for you to determine all valid
-//! arguments and their use. Some people LOVE this, others not so much. If you're
-//! willing to write a detailed help message, it's nice that you can stick that in
-//! your program and have `docopt` do the rest. On the downside, it's somewhat less
-//! flexible than other options out there, and requires the help message change if
+//! arguments and their use. Some people LOVE this, others not so much. If
+//! you're
+//! willing to write a detailed help message, it's nice that you can stick that
+//! in
+//! your program and have `docopt` do the rest. On the downside, it's somewhat
+//! less
+//! flexible than other options out there, and requires the help message change
+//! if
 //! you need to make changes.
 //!
 //! `docopt` is also excellent at translating arguments into Rust types
-//! automatically. There is even a syntax extension which will do all this for you,
-//! ifou to manually translate from arguments to Rust types). To use BurntSushi's
-//! words, `docopt` is also somewhat of a black box. You get what you get, and it's
+//! automatically. There is even a syntax extension which will do all this for
+//! you,
+//! ifou to manually translate from arguments to Rust types). To use
+//! BurntSushi's
+//! words, `docopt` is also somewhat of a black box. You get what you get, and
+//! it's
 //! hard to tweak implementation or customise your experience for your use case.
 //!
 //! Because `docopt` is doing a ton of work to parse your help messages and
-//! determine what you were trying to communicate as valid arguments, it's also one
-//! of the more heavy weight parsers performance-wise. For most applications this
+//! determine what you were trying to communicate as valid arguments, it's also
+//! one
+//! of the more heavy weight parsers performance-wise. For most applications
+//! this
 //! isn't a concern, but it's something to keep in mind.
 //!
 //! Reasons to use `docopt` instead of `clap`
-//!  * You want automatic translation from arguments to Rust types, and are using a
+//! * You want automatic translation from arguments to Rust types, and are
+//! using a
 //!    nightly compiler
 //!  * Performance isn't a concern
 //!  * You don't have any complex relationships between arguments
@@ -105,7 +128,8 @@
 //!
 //! `clap` is fast, and as lightweight as possible while still giving all the
 //! features you'd expect from a modern argument parser. If you use `clap` when
-//! just need some simple arguments parsed, you'll find it a walk in the park. But
+//! just need some simple arguments parsed, you'll find it a walk in the park.
+//! But
 //! `clap` also makes it possible to represent extremely complex, and advanced
 //! requirements, without too much thought. `clap` aims to be intuitive, easy to
 //! use, and fully capable for wide variety use cases and needs.
@@ -624,12 +648,13 @@
 #![cfg_attr(feature = "lints", allow(explicit_iter_loop))]
 #![cfg_attr(feature = "lints", allow(should_implement_trait))]
 #![cfg_attr(feature = "lints", deny(warnings))]
+#![cfg_attr(not(any(feature = "lints", feature = "nightly")), deny(unstable_features))]
 #![deny(missing_docs,
         missing_debug_implementations,
         missing_copy_implementations,
-        trivial_casts, trivial_numeric_casts,
+        trivial_casts,
+        trivial_numeric_casts,
         unsafe_code,
-        unstable_features,
         unused_import_braces,
         unused_qualifications)]
 
@@ -641,12 +666,14 @@ extern crate ansi_term;
 extern crate yaml_rust;
 #[macro_use]
 extern crate bitflags;
+extern crate vec_map;
 
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;
 pub use args::{Arg, ArgGroup, ArgMatches, SubCommand};
-pub use app::{App, AppSettings, ClapError, ClapErrorType};
+pub use app::{App, AppSettings};
 pub use fmt::Format;
+pub use errors::{ClapError, ClapErrorType};
 
 #[macro_use]
 mod macros;
@@ -654,3 +681,5 @@ mod app;
 mod args;
 mod usageparser;
 mod fmt;
+mod suggestions;
+mod errors;

@@ -150,17 +150,15 @@ fn conflict_overriden_4() {
 }
 
 #[test]
-fn require_overriden() {
+fn pos_required_overridden_by_flag() {
     let result = App::new("require_overriden")
-        .arg(Arg::with_name("flag")
+        .arg(Arg::with_name("pos")
             .index(1)
             .required(true))
-        .arg(Arg::from_usage("-c, --color 'other flag'")
-            .mutually_overrides_with("flag"))
-        .get_matches_from_safe(vec!["", "flag", "-c"]);
-    assert!(result.is_ok());
-    // let err = result.err().unwrap();
-    // assert_eq!(err.error_type, ClapErrorType::MissingRequiredArgument);
+        .arg(Arg::from_usage("-c, --color 'some flag'")
+            .mutually_overrides_with("pos"))
+        .get_matches_from_safe(vec!["", "test", "-c"]);
+    assert!(result.is_ok(), "{:?}", result.unwrap_err());
 }
 
 #[test]

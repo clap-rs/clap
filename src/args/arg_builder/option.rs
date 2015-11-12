@@ -4,8 +4,10 @@ use std::fmt::{Display, Formatter, Result};
 use std::result::Result as StdResult;
 use std::io;
 
-use Arg;
+use args::{AnyArg, ArgMatcher, Arg};
 use args::settings::{ArgFlags, ArgSettings};
+use errors::{ClapResult, error_builder};
+use app::App;
 
 #[allow(missing_debug_implementations)]
 pub struct OptBuilder<'n> {
@@ -34,10 +36,10 @@ pub struct OptBuilder<'n> {
     pub settings: ArgFlags,
 }
 
-impl<'n> OptBuilder<'n> {
-    pub fn new(name: &'n str) -> Self {
+impl<'n> Default for OptBuilder<'n> {
+    fn default() -> Self {
         OptBuilder {
-            name: name,
+            name: "",
             short: None,
             long: None,
             help: None,
@@ -53,6 +55,14 @@ impl<'n> OptBuilder<'n> {
             settings: ArgFlags::new(),
         }
     }
+}
+impl<'n> OptBuilder<'n> {
+    pub fn new(name: &'n str) -> Self {
+        OptBuilder {
+            name: name,
+            ..Default::default()
+        }
+    }
 
     pub fn from_arg(a: &Arg<'n, 'n, 'n, 'n, 'n, 'n>, reqs: &mut Vec<&'n str>) -> Self {
         if a.short.is_none() && a.long.is_none() {
@@ -65,17 +75,12 @@ impl<'n> OptBuilder<'n> {
             name: a.name,
             short: a.short,
             long: a.long,
-            blacklist: None,
             help: a.help,
-            possible_vals: None,
             num_vals: a.num_vals,
             min_vals: a.min_vals,
             max_vals: a.max_vals,
             val_names: a.val_names.clone(),
-            requires: None,
-            validator: None,
-            overrides: None,
-            settings: ArgFlags::new(),
+            ..Default::default()
         };
         if a.multiple {
             ob.settings.set(&ArgSettings::Multiple);
@@ -187,6 +192,50 @@ impl<'n> OptBuilder<'n> {
         print_opt_help!(self, longest + 12, w);
         write!(w, "\n")
     }
+
+    pub fn validate_value(&self,
+                       val: &str,
+                       matcher: &ArgMatcher,
+                       app: &App)
+                       -> ClapResult<()> {
+        // Check the possible values
+        if let Some(ref p_vals) = self.possible_vals {
+            if !p_vals.contains(&val) {
+                let usage = try!(app.create_current_usage(matcher));
+                return Err(error_builder::InvalidValue(val, p_vals, &self.to_string(), &usage));
+            }
+        }
+
+        // Check the required number of values
+        if let Some(num) = self.num_vals {
+            if let Some(ref ma) = matcher.get(self.name) {
+                if let Some(ref vals) = ma.values {
+                    if (vals.len() as u8) > num && !self.settings.is_set(&ArgSettings::Multiple) {
+                        return Err(error_builder::TooManyValues(
+                            val,
+                            &self.to_string(),
+                            &*try!(app.create_current_usage(matcher))));
+                    }
+                }
+            }
+        }
+
+        // if it's an empty value, and we don't allow that, report the error
+        if !self.settings.is_set(&ArgSettings::EmptyValues) &&
+            matcher.contains(self.name) &&
+            val.is_empty() {
+            return Err(error_builder::EmptyValue(&*self.to_string(),
+                                                 &*try!(app.create_current_usage(matcher))));
+        }
+
+        if let Some(ref vtor) = self.validator {
+            if let Err(e) = vtor(val.to_owned()) {
+                return Err(error_builder::ValueValidationError(&*e));
+            }
+        }
+
+        Ok(())
+    }
 }
 
 impl<'n> Display for OptBuilder<'n> {
@@ -214,6 +263,54 @@ impl<'n> Display for OptBuilder<'n> {
         }
 
         Ok(())
+    }
+}
+
+impl<'n> AnyArg<'n> for OptBuilder<'n> {
+    fn name(&self) -> &'n str {
+        self.name
+    }
+
+    fn overrides(&self) -> Option<&[&'n str]> {
+        self.overrides.as_ref().map(|o| &o[..])
+    }
+
+    fn requires(&self) -> Option<&[&'n str]> {
+        self.requires.as_ref().map(|o| &o[..])
+    }
+
+    fn blacklist(&self) -> Option<&[&'n str]> {
+        self.blacklist.as_ref().map(|o| &o[..])
+    }
+
+    fn is_set(&self, s: ArgSettings) -> bool {
+        self.settings.is_set(&s)
+    }
+
+    fn has_switch(&self) -> bool {
+        true
+    }
+
+    fn set(&mut self, s: ArgSettings) {
+        self.settings.set(&s)
+    }
+
+    fn max_vals(&self) -> Option<u8> {
+        self.max_vals
+    }
+    fn num_vals(&self) -> Option<u8> {
+        self.num_vals
+    }
+    fn possible_vals(&self) -> Option<&[&'n str]> {
+        self.possible_vals.as_ref().map(|o| &o[..])
+    }
+
+    fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> {
+        self.validator.as_ref()
+    }
+
+    fn min_vals(&self) -> Option<u8> {
+        self.min_vals
     }
 }
 

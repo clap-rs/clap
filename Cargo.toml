@@ -3,7 +3,7 @@
 name = "clap"
 version = "1.4.7"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
-exclude = ["examples/*", "clap-tests/*", "tests/*", "benches/*", "clap.png"]
+exclude = ["examples/*", "clap-tests/*", "tests/*", "benches/*", "*.png", "clap-perf/*"]
 description = "A simple to use, efficient, and full featured  Command Line Argument Parser"
 repository = "https://github.com/kbknapp/clap-rs.git"
 documentation = "http://kbknapp.github.io/clap-rs"
@@ -12,8 +12,9 @@ license = "MIT"
 keywords = ["argument", "command", "arg", "parser", "parse"]
 
 [dependencies]
-bitflags = "0.3.2"
-ansi_term = { version = "~0.6.3", optional = true }
+bitflags  = "0.3.2"
+vec_map   = "0.3"
+ansi_term = { version = "~0.7", optional = true }
 strsim    = { version = "~0.4.0", optional = true }
 yaml-rust = { version = "~0.2.2", optional = true }
 clippy    = { version = "~0.0.22", optional = true }

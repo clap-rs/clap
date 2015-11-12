@@ -1,6 +1,8 @@
 #[cfg(feature = "suggestions")]
 use strsim;
 
+use fmt::Format;
+
 /// Produces a string from a given list of possible values which is similar to
 /// the passed in value `v` with a certain confidence.
 /// Thus in a list of possible values like ["foo", "bar"], the value "fop" will yield
@@ -32,6 +34,34 @@ pub fn did_you_mean<'a, T, I>(_: &str, _: I) -> Option<&'a str>
           I: IntoIterator<Item = &'a T>
 {
     None
+}
+
+/// Returns a suffix that can be empty, or is the standard 'did you mean phrase
+#[cfg_attr(feature = "lints", allow(needless_lifetimes))]
+pub fn did_you_mean_suffix<'z, T, I>(arg: &str,
+                                 values: I,
+                                 style: DidYouMeanMessageStyle)
+                                 -> (String, Option<&'z str>)
+    where T: AsRef<str> + 'z,
+          I: IntoIterator<Item = &'z T>
+{
+    match did_you_mean(arg, values) {
+        Some(candidate) => {
+            let mut suffix = "\n\tDid you mean ".to_owned();
+            match style {
+                DidYouMeanMessageStyle::LongFlag =>
+                    suffix.push_str(&*format!("{}", Format::Good("--"))),
+                DidYouMeanMessageStyle::EnumValue => suffix.push('\''),
+            }
+            suffix.push_str(&Format::Good(candidate).to_string()[..]);
+            if let DidYouMeanMessageStyle::EnumValue = style {
+                suffix.push('\'');
+            }
+            suffix.push_str(" ?");
+            (suffix, Some(candidate))
+        }
+        None => (String::new(), None),
+    }
 }
 
 /// A helper to determine message formatting

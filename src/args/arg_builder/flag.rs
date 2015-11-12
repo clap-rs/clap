@@ -2,8 +2,11 @@
 use std::fmt::{Display, Formatter, Result};
 use std::convert::From;
 use std::io;
+use std::rc::Rc;
+use std::result::Result as StdResult;
 
 use Arg;
+use args::AnyArg;
 use args::settings::{ArgFlags, ArgSettings};
 
 #[derive(Debug)]
@@ -167,6 +170,33 @@ impl<'n> Display for FlagBuilder<'n> {
         }
     }
 }
+
+impl<'n> AnyArg<'n> for FlagBuilder<'n> {
+    fn name(&self) -> &'n str { self.name }
+
+    fn overrides(&self) -> Option<&[&'n str]> { self.overrides.as_ref().map(|o| &o[..]) }
+
+    fn requires(&self) -> Option<&[&'n str]> { self.requires.as_ref().map(|o| &o[..]) }
+
+    fn blacklist(&self) -> Option<&[&'n str]> { self.blacklist.as_ref().map(|o| &o[..]) }
+
+    fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(&s) }
+
+    fn has_switch(&self) -> bool { true }
+
+    fn set(&mut self, s: ArgSettings) { self.settings.set(&s) }
+
+    fn max_vals(&self) -> Option<u8> { None }
+
+    fn num_vals(&self) -> Option<u8> { None }
+
+    fn possible_vals(&self) -> Option<&[&'n str]> { None }
+
+    fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> { None }
+
+    fn min_vals(&self) -> Option<u8> { None }
+}
+
 #[cfg(test)]
 mod test {
     use super::FlagBuilder;

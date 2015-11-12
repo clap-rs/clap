@@ -4,6 +4,7 @@ use std::rc::Rc;
 use std::io;
 
 use Arg;
+use args::AnyArg;
 use args::settings::{ArgFlags, ArgSettings};
 
 #[allow(missing_debug_implementations)]
@@ -181,6 +182,53 @@ impl<'n> Display for PosBuilder<'n> {
         Ok(())
     }
 }
+
+impl<'n> AnyArg<'n> for PosBuilder<'n> {
+    fn name(&self) -> &'n str {
+        self.name
+    }
+
+    fn overrides(&self) -> Option<&[&'n str]> {
+        self.overrides.as_ref().map(|o| &o[..])
+    }
+
+    fn requires(&self) -> Option<&[&'n str]> {
+        self.requires.as_ref().map(|o| &o[..])
+    }
+
+    fn blacklist(&self) -> Option<&[&'n str]> {
+        self.blacklist.as_ref().map(|o| &o[..])
+    }
+
+    fn is_set(&self, s: ArgSettings) -> bool {
+        self.settings.is_set(&s)
+    }
+
+    fn set(&mut self, s: ArgSettings) {
+        self.settings.set(&s)
+    }
+
+    fn has_switch(&self) -> bool {
+        false
+    }
+    fn max_vals(&self) -> Option<u8> {
+        self.max_vals
+    }
+    fn num_vals(&self) -> Option<u8> {
+        self.num_vals
+    }
+    fn possible_vals(&self) -> Option<&[&'n str]> {
+        self.possible_vals.as_ref().map(|o| &o[..])
+    }
+    fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> {
+        self.validator.as_ref()
+    }
+
+    fn min_vals(&self) -> Option<u8> {
+        self.min_vals
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::PosBuilder;

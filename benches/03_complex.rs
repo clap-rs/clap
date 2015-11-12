@@ -212,7 +212,7 @@ fn parse_sc_positional(b: &mut Bencher) {
 
 #[bench]
 fn parse_complex1(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec!["", "-ff", "-o", "option1", "arg1", "-O", "fast", "arg2", "--multvals", "one", "two", "three"]));
+    b.iter(|| create_app!().get_matches_from(vec!["", "-ff", "-o", "option1", "arg1", "-O", "fast", "arg2", "--multvals", "one", "two", "emacs"]));
 }
 
 #[bench]

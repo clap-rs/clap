@@ -11,8 +11,8 @@ fn invalid_unicode_safe() {
         .get_matches_from_safe(vec![OsString::from_vec(vec![0x20]),
                                     OsString::from_vec(vec![0xe9])]);
     assert!(m.is_err());
-    if let Err(e) = m {
-        assert_eq!(e.error_type, ClapErrorType::InvalidUnicode);
+    if let Err(err) = m {
+        assert_eq!(err.error_type, ClapErrorType::InvalidUnicode);
     }
 }
 
