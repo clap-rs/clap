@@ -1669,27 +1669,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
             };
             let arg_slice: &str = arg_cow.borrow();
 
-            // we need to know if we're parsing a new argument, or the value of previous
-            // argument,
-            // perhaps one with multiple values such as --option val1 val2. We determine
-            // when to
-            // stop parsing multiple values by finding a '-'
-            // let new_arg = if arg_slice.starts_with("-") {
-            //     // If we come to a single `-` it's a value, not a new argument...this happens
-            //     // when
-            //     // one wants to use the Unix standard of '-' to mean 'stdin'
-            //     arg_slice.len() > 1
-            // } else {
-            //     true
-            // };
-
-            // pos_only is determined later, and set true when a user uses the Unix
-            // standard of
-            // '--' to mean only positionals follow
-            // If the user passed `--` we don't check for subcommands, because the argument
-            // they
-            // may be trying to pass might match a subcommand name
-
             let starts_new_arg = if arg_slice.starts_with("-") {
                 !(arg_slice.len() == 1)
             } else {
@@ -1766,10 +1745,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
             }
         }
 
+        let mut reqs_validated = false;
         if let Some(a) = needs_val_of {
             if let Some(o) = self.opts.iter().filter(|o| &o.name == &a).next() {
-                if (o.settings.is_set(&ArgSettings::Multiple) && self.required.is_empty()) ||
-                    !o.settings.is_set(&ArgSettings::Multiple){
+                try!(self.validate_required(matcher));
+                reqs_validated = true;
+                if (o.settings.is_set(&ArgSettings::Multiple) && reqs_validated) ||
+                    !o.settings.is_set(&ArgSettings::Multiple) {
                     let should_err = match matcher.values_of(o.name) {
                         Some(ref v) => v.is_empty(),
                         None => true,
@@ -1781,6 +1763,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                         ));
                     }
                 } else {
+                    debugln!("Required: {:#?}", self.required);
                     return Err(error_builder::MissingRequiredArgument(
                         &*self.get_required_from(&self.required, Some(matcher))
                             .iter()
@@ -1799,18 +1782,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
             }
         }
 
-        if let Err(e) = self.validate_blacklist(matcher) {
-            return Err(e);
-        }
-
-        if let Err(e) = self.validate_num_args(matcher) {
-            return Err(e);
-        }
-
+        try!(self.validate_blacklist(matcher));
+        try!(self.validate_num_args(matcher));
         matcher.usage(try!(self.create_usage(&[])));
 
-        if !(self.settings.is_set(&AppSettings::SubcommandsNegateReqs) && subcmd_name.is_some()) {
-                try!(self.validate_required(&matcher));
+        if !(self.settings.is_set(&AppSettings::SubcommandsNegateReqs) && subcmd_name.is_some()) &&
+            !reqs_validated {
+            try!(self.validate_required(matcher));
         }
         if let Some(sc_name) = subcmd_name {
             use std::fmt::Write;
@@ -2517,7 +2495,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
             if arg.is_set(ArgSettings::Multiple) {
                 if (vals as u8) < num {
                     return Ok(Some(arg.name()));
-                } 
+                }
             } else {
                 if (vals as u8 % num) != 0 {
                     return Ok(Some(arg.name()));
@@ -2555,16 +2533,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
 
     fn validate_arg<A>(&self, arg: &A, matcher: &mut ArgMatcher<'ar>) -> ClapResult<()>
         where A: AnyArg<'ar> + Display {
-        // May not be needed since we can't get here without being an Arg of some type
-        //
-        // if arg.has_switch() && (!self.flags.iter().any(|f| f.name == arg.name()) &&
-        //     !self.opts.iter().any(|f| f.name == arg.name())) {
-        //     return Err(error_builder::InvalidArgument(
-        //         &*format!("{}", arg),
-        //         None,
-        //         &*try!(self.create_current_usage(matcher))));
-        // }
-
         // Ensure this arg isn't on the mutually excludes list
         if self.blacklist.contains(&arg.name()) {
             matcher.remove(arg.name());
