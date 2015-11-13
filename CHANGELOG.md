@@ -1,3 +1,13 @@
+<a name="v1.5.1"></a>
+### v1.5.1 (2015-11-13)
+
+
+#### Bug Fixes
+
+* **Required Args:**  fixes a bug where required args are not correctly accounted for ([f03b88a9](https://github.com/kbknapp/clap-rs/commit/f03b88a9766b331a63879bcd747687f2e5a2661b), closes [#343](https://github.com/kbknapp/clap-rs/issues/343))
+
+
+
 <a name="v1.5.0"></a>
 ## v1.5.0 (2015-11-13)
 
