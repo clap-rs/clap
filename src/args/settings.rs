@@ -50,6 +50,12 @@ impl ArgFlags {
     }
 }
 
+impl Default for ArgFlags {
+    fn default() -> Self {
+        ArgFlags::new()
+    }
+}
+
 #[doc(hidden)]
 #[derive(Debug, PartialEq)]
 pub enum ArgSettings {

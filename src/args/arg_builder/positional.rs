@@ -8,6 +8,7 @@ use args::AnyArg;
 use args::settings::{ArgFlags, ArgSettings};
 
 #[allow(missing_debug_implementations)]
+#[derive(Default)]
 pub struct PosBuilder<'n> {
     pub name: &'n str,
     /// The string of text that will displayed to the user when the application's
@@ -36,16 +37,7 @@ impl<'n> PosBuilder<'n> {
         PosBuilder {
             name: name,
             index: idx,
-            help: None,
-            blacklist: None,
-            possible_vals: None,
-            requires: None,
-            num_vals: None,
-            min_vals: None,
-            max_vals: None,
-            validator: None,
-            overrides: None,
-            settings: ArgFlags::new(),
+            ..Default::default()
         }
     }
 
@@ -75,16 +67,11 @@ impl<'n> PosBuilder<'n> {
         let mut pb = PosBuilder {
             name: a.name,
             index: idx,
-            blacklist: None,
-            requires: None,
-            possible_vals: None,
             num_vals: a.num_vals,
             min_vals: a.min_vals,
             max_vals: a.max_vals,
             help: a.help,
-            validator: None,
-            overrides: None,
-            settings: ArgFlags::new(),
+            ..Default::default()
         };
         if a.multiple {
             pb.settings.set(&ArgSettings::Multiple);
