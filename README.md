@@ -33,22 +33,13 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-If you're already familiar with `clap` but just want to see some new highlights as of **1.4.6**
+If you're already familiar with `clap` but just want to see some new highlights as of **1.5**
 
-* **Major Bug Fixes in 1.4.6** We recommend everyone upgrade as soon as possible. See the [the changelog](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md) for details.
-* Using `get_matches_safe_*` family of methods no longer exits the process when help or version is displayed, instead it returns an `ClapError` with an `error_type` field set to `ClapErrorType::HelpDisplayed` or `ClapErrorType::VersionDisplayed` respectively. You must then call `ClapError::exit` or `std::process::exit` giving you the control.
-* Allows parsing without a binary name preceding (useful for daemon modes and interactive CLIs)
-* `-Lvalue` style options are **now supported**! (i.e. `-L` is the short, and `value` is the value being passed. Equivalent to `-L value`). This can be combined with flag expansion. Example: `-lF2` could be parsed as `-l -F 2` where `-l` is a flag and `-F` is an option that takes a number.
-* There is a **new opt-in setting** (`AppSettings::TrailingVarArg`) to allow the final positional argument to be a vararg and have `clap` not interpret the remaining arguments (i.e. useful when final argument should be a list of arguments for another command or process)
-* You can now access values from an argument in a group via the group name, instead of having to check each arg name individually to find out which one was used. The same applies for checking if an arg from a group `is_present()`
-* You now have the option to **not** `panic!` on invalid unicode. The `*_safe()` family of `get_matches` will return an `Err` with `ClapErrorType::InvalidUnicode`.
-* You have the option to get lossy unicode values. By using the `*_lossy()` versions of the `get_matches` family of methods all invalid unicode will be replaced with `U+FFFD` and **not** `panic!` or fail parsing.
-* Some documentation improvements
-* A new macro has been designed by [james-darkfox](https://github.com/james-darkfox) to give the simplicity of `from_usage` methods, but the performance of the Builder Pattern. Huge thanks to him! Fair warning this is very new, and may still have some kinks and tweaks left as we experiment ;)
-* Users can now print the help message programmatically using `App::write_help(io::Write)` and `App::print_help()`.
-* Users can now simply print the error message to `stderr` and exit gracefully programmatically using `ClapError::exit()`
-* You can now get argument matches **without** consuming your `App` struct using `App::get_matches_from_safe_borrow()`
-* Some other minor bug fixes and improvements
+* **huge performance boost** - parsing speed is literally half of what it used to be (and it was already fast). The following graph shows parsing speed, **to include** building the parser of valid arguments for a complex scenario with many arguments, relationships, and other restictions was parsed in ~10,000ns (~0.01 miliseconds)
+!(clap Performance Graph)[https://github.com/kbknapp/clap-rs/blob/master/clap-perf/clap_perf.png]
+* major refactor of code to de-dupilicate and reduce errors. This is a massive improvement and should make contributing to this project much easier.
+* massive errors overhaul thanks in part to the excellent read on [Error Handling](https://doc.rust-lang.org/book/error-handling.html) by [BurntSushi](https://github.com/burntsushi)
+* other minor bug fixes and improvements
 
 For full details, see [CHANGELOG.md](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md)
 
@@ -515,12 +506,12 @@ The following is a list of optional `clap` features:
 
 ### Dependencies Tree
 
-The following graphic depicts `clap`s dependency graph.
+The following graphic depicts `clap`s dependency graph (generated using [cargo-grpah](https://github.com/kbknapp/cargo-graph)).
 
  * **Dashed** Line: Optional dependency
  * **Red** Color: **NOT** included by default (must use cargo `features` to enable)
 
-![clap dependencies](clap.png)
+![clap dependencies](clap_dep_graph.png)
 
 ### More Information
 

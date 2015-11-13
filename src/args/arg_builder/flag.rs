@@ -9,7 +9,7 @@ use Arg;
 use args::AnyArg;
 use args::settings::{ArgFlags, ArgSettings};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct FlagBuilder<'n> {
     pub name: &'n str,
     /// The long version of the flag (i.e. word)
@@ -38,13 +38,7 @@ impl<'n> FlagBuilder<'n> {
     pub fn new(name: &'n str) -> Self {
         FlagBuilder {
             name: name,
-            short: None,
-            long: None,
-            help: None,
-            blacklist: None,
-            requires: None,
-            overrides: None,
-            settings: ArgFlags::new(),
+            ..Default::default()
         }
     }
 
@@ -114,10 +108,7 @@ impl<'n, 'a> From<&'a Arg<'n, 'n, 'n, 'n, 'n, 'n>> for FlagBuilder<'n> {
             short: a.short,
             long: a.long,
             help: a.help,
-            blacklist: None,
-            requires: None,
-            overrides: None,
-            settings: ArgFlags::new(),
+            ..Default::default()
         };
         if a.multiple {
             fb.settings.set(&ArgSettings::Multiple);

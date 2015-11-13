@@ -10,6 +10,7 @@ use errors::{ClapResult, error_builder};
 use app::App;
 
 #[allow(missing_debug_implementations)]
+#[derive(Default)]
 pub struct OptBuilder<'n> {
     pub name: &'n str,
     /// The short version (i.e. single character) of the argument, no preceding `-`
@@ -36,26 +37,6 @@ pub struct OptBuilder<'n> {
     pub settings: ArgFlags,
 }
 
-impl<'n> Default for OptBuilder<'n> {
-    fn default() -> Self {
-        OptBuilder {
-            name: "",
-            short: None,
-            long: None,
-            help: None,
-            blacklist: None,
-            possible_vals: None,
-            requires: None,
-            num_vals: None,
-            min_vals: None,
-            max_vals: None,
-            val_names: None,
-            validator: None,
-            overrides: None,
-            settings: ArgFlags::new(),
-        }
-    }
-}
 impl<'n> OptBuilder<'n> {
     pub fn new(name: &'n str) -> Self {
         OptBuilder {

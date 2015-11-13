@@ -1,3 +1,33 @@
+<a name="v1.5.0"></a>
+## v1.5.0 (2015-11-13)
+
+
+#### Bug Fixes
+
+*   fixes a bug with required positional args in usage strings ([c6858f78](https://github.com/kbknapp/clap-rs/commit/c6858f78755f8e860204323c828c8355a066dc83))
+
+#### Documentation
+
+* **FAQ:**  updates readme with slight changes to FAQ ([a4ef0fab](https://github.com/kbknapp/clap-rs/commit/a4ef0fab73c8dc68f1b138965d1340459c113398))
+
+#### Improvements
+
+*   massive errors overhaul ([cdc29175](https://github.com/kbknapp/clap-rs/commit/cdc29175bc9c53e5b4aec86cbc04c1743154dae6))
+* **ArgMatcher:**  huge refactor and deduplication of code ([8988853f](https://github.com/kbknapp/clap-rs/commit/8988853fb8825e8f841fde349834cc12cdbad081))
+* **Errors:**  errors have been vastly improved ([e59bc0c1](https://github.com/kbknapp/clap-rs/commit/e59bc0c16046db156a88ba71a037db05028e995c))
+* **Traits:**  refactoring some configuration into traits ([5800cdec](https://github.com/kbknapp/clap-rs/commit/5800cdec6dce3def4242b9f7bd136308afb19685))
+
+#### Performance
+
+* **App:**
+  *  more BTreeMap->Vec, Opts and SubCmds ([bc4495b3](https://github.com/kbknapp/clap-rs/commit/bc4495b32ec752b6c4b29719e831c043ef2a26ce))
+  *  changes flags BTreeMap->Vec ([d357640f](https://github.com/kbknapp/clap-rs/commit/d357640fab55e5964fe83efc3c771e53aa3222fd))
+  *  removed unneeded BTreeMap ([78971fd6](https://github.com/kbknapp/clap-rs/commit/78971fd68d7dc5c8e6811b4520cdc54e4188f733))
+  *  changes BTreeMap to VecMap in some instances ([64b921d0](https://github.com/kbknapp/clap-rs/commit/64b921d087fdd03775c95ba0bcf65d3f5d36f812))
+  *  removed excess clones ([ec0089d4](https://github.com/kbknapp/clap-rs/commit/ec0089d42ed715d293fb668d3a90b0db0aa3ec39))
+
+
+
 <a name="v1.4.7"></a>
 ### v1.4.7 (2015-11-03)
 
