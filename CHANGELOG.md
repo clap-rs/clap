@@ -1,3 +1,13 @@
+<a name="v1.5.2"></a>
+### v1.5.2 (2015-11-14)
+
+
+#### Bug Fixes
+
+* **Errors:**  fixes a compiling bug when built on Windows or without the color feature ([a35f7634](https://github.com/kbknapp/clap-rs/commit/a35f76346fe6ecc88dda6a1eb13627186e7ce185))
+
+
+
 <a name="v1.5.1"></a>
 ### v1.5.1 (2015-11-13)
 

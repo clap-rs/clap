@@ -13,8 +13,9 @@ script:
     cargo build --features yaml &&
     cargo test --features yaml &&
     make -C clap-tests test &&
-    travis-cargo --only stable doc -- --features yaml
-    travis-cargo --only nightly bench
+    travis-cargo --only stable doc -- --features yaml &&
+    travis-cargo --only nightly bench &&
+    cargo build --no-default-features
 addons:
   apt:
     packages:
