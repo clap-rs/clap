@@ -11,6 +11,8 @@ pub type ClapResult<T> = Result<T, ClapError>;
 #[doc(hidden)]
 #[allow(non_snake_case)]
 pub mod error_builder {
+    use std::fmt::Display;
+
     use suggestions;
     use super::ClapError;
     use super::ClapErrorType as cet;
@@ -18,7 +20,7 @@ pub mod error_builder {
 
     /// Error occurs when clap find two ore more conflicting arguments
     pub fn ArgumentConflict<S>(arg: S, other: Option<S>, usage: S) -> ClapError
-        where S: AsRef<str>
+        where S: AsRef<str> + Display
     {
         ClapError {
             error: format!("{} The argument '{}' cannot be used with {}\n\n\
@@ -38,7 +40,7 @@ pub mod error_builder {
 
     /// Error occurs when option does not allow empty values but some was found
     pub fn EmptyValue<S>(arg: S, usage: S) -> ClapError
-        where S: AsRef<str>
+        where S: AsRef<str> + Display
     {
         ClapError {
             error: format!("{} The argument '{}' requires a value but none was supplied\
@@ -59,7 +61,7 @@ pub mod error_builder {
                            arg: S,
                            usage: S)
                            -> ClapError
-        where S: AsRef<str>
+        where S: AsRef<str> + Display
     {
         let suffix = suggestions::did_you_mean_suffix(arg.as_ref(),
                                                       good_vals.iter(),
@@ -91,7 +93,7 @@ pub mod error_builder {
 
     /// Error occurs when clap found unexpected flag or option
     pub fn InvalidArgument<S>(arg: S, did_you_mean: Option<S>, usage: S) -> ClapError
-        where S: AsRef<str>
+        where S: AsRef<str> + Display
     {
         ClapError {
             error: format!("{} The argument '{}' isn't valid{}\n\
@@ -112,7 +114,7 @@ pub mod error_builder {
 
     /// Error occurs when clap found unexpected subcommand
     pub fn InvalidSubcommand<S>(subcmd: S, did_you_mean: S, name: S, usage: S) -> ClapError
-        where S: AsRef<str>
+        where S: AsRef<str> + Display
     {
         ClapError {
             error: format!("{} The subcommand '{}' isn't valid\n\t\
@@ -135,7 +137,7 @@ pub mod error_builder {
 
     /// Error occurs when one or more required arguments missing
     pub fn MissingRequiredArgument<S>(required: S, usage: S) -> ClapError
-        where S: AsRef<str>
+        where S: AsRef<str> + Display
     {
         ClapError {
             error: format!("{} The following required arguments were not supplied:{}\n\n\
@@ -151,7 +153,7 @@ pub mod error_builder {
 
     /// Error occurs when required subcommand missing
     pub fn MissingSubcommand<S>(name: S, usage: S) -> ClapError
-        where S: AsRef<str>
+        where S: AsRef<str> + Display
     {
         ClapError {
             error: format!("{} '{}' requires a subcommand but none was provided\n\n\
@@ -168,7 +170,7 @@ pub mod error_builder {
 
     /// Error occurs when argument contains invalid unicode characters
     pub fn InvalidUnicode<S>(usage: S) -> ClapError
-        where S: AsRef<str>
+        where S: AsRef<str> + Display
     {
         ClapError {
             error: format!("{} Invalid unicode character in one or more arguments\n\n\
@@ -183,7 +185,7 @@ pub mod error_builder {
 
     /// Error occurs when argument got more values then were expected
     pub fn TooManyValues<S>(val: S, arg: S, usage: S) -> ClapError
-        where S: AsRef<str>
+        where S: AsRef<str> + Display
     {
         ClapError {
             error: format!("{} The argument '{}' was found, but '{}' wasn't expecting \
@@ -201,7 +203,7 @@ pub mod error_builder {
 
     /// Error occurs when argument got less values then were expected
     pub fn TooFewValues<S>(arg: S, min_vals: u8, curr_vals: usize, usage: S) -> ClapError
-        where S: AsRef<str>
+        where S: AsRef<str> + Display
     {
         ClapError {
             error: format!("{} The argument '{}' requires at least {} values, but {} w{} \
@@ -225,7 +227,7 @@ pub mod error_builder {
 
     /// Option fails validation of a custom validator
     pub fn ValueValidationError<S>(err: S) -> ClapError
-        where S: AsRef<str>
+        where S: AsRef<str> + Display
     {
         ClapError {
             error: format!("{} {}", Format::Error("error:"), err.as_ref()),
@@ -240,7 +242,7 @@ pub mod error_builder {
                              suffix: S,
                              usage: S)
                              -> ClapError
-        where S: AsRef<str>
+        where S: AsRef<str> + Display
     {
         ClapError {
             error: format!("{} The argument '{}' requires {} values, but {} w{} \
@@ -260,7 +262,7 @@ pub mod error_builder {
 
     /// Error occurs when clap find argument while is was not expecting any
     pub fn UnexpectedArgument<S>(arg: S, name: S, usage: S) -> ClapError
-        where S: AsRef<str>
+        where S: AsRef<str> + Display
     {
         ClapError {
             error: format!("{} Found argument '{}', but {} wasn't expecting any\n\n\
@@ -277,7 +279,7 @@ pub mod error_builder {
 
     /// Error occurs when argument was used multiple times and was not set as multiple.
     pub fn UnexpectedMultipleUsage<S>(arg: S, usage: S) -> ClapError
-        where S: AsRef<str>
+        where S: AsRef<str> + Display
     {
         ClapError {
             error: format!("{} The argument '{}' was supplied more than once, but does \
