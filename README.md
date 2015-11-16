@@ -506,7 +506,7 @@ The following is a list of optional `clap` features:
 
 ### Dependencies Tree
 
-The following graphic depicts `clap`s dependency graph (generated using [cargo-grpah](https://github.com/kbknapp/cargo-graph)).
+The following graphic depicts `clap`s dependency graph (generated using [cargo-graph](https://github.com/kbknapp/cargo-graph)).
 
  * **Dashed** Line: Optional dependency
  * **Red** Color: **NOT** included by default (must use cargo `features` to enable)
