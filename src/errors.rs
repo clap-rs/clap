@@ -572,7 +572,7 @@ impl ClapError {
     /// Prints the error to `stderr` and exits with a status of `1`
     pub fn exit(&self) -> ! {
         if self.use_stderr() {
-            werr!("{}", self.error);
+            wlnerr!("{}", self.error);
             process::exit(1);
         }
         let out = io::stdout();
@@ -595,7 +595,7 @@ impl Error for ClapError {
 
 impl std_fmt::Display for ClapError {
     fn fmt(&self, f: &mut std_fmt::Formatter) -> std_fmt::Result {
-        write!(f, "{}", self.error)
+        writeln!(f, "{}", self.error)
     }
 }
 
