@@ -1,3 +1,14 @@
+<a name="v1.5.3"></a>
+### v1.5.3 (2015-11-20)
+
+
+#### Bug Fixes
+
+* **Errors:**  fixes some instances when errors are missing a final newline ([c4d2b171](https://github.com/kbknapp/clap-rs/commit/c4d2b1711994479ad64ee52b6b49d2ceccbf2118))
+
+
+
+
 <a name="v1.5.2"></a>
 ### v1.5.2 (2015-11-14)
 
