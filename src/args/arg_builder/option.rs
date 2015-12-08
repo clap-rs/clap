@@ -293,6 +293,14 @@ impl<'n> AnyArg<'n> for OptBuilder<'n> {
     fn min_vals(&self) -> Option<u8> {
         self.min_vals
     }
+
+    fn short(&self) -> Option<char> {
+        self.short
+    }
+
+    fn long(&self) -> Option<&'n str> {
+        self.long
+    }
 }
 
 #[cfg(test)]

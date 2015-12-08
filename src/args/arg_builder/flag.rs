@@ -186,6 +186,9 @@ impl<'n> AnyArg<'n> for FlagBuilder<'n> {
     fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> { None }
 
     fn min_vals(&self) -> Option<u8> { None }
+    fn short(&self) -> Option<char> { self.short }
+
+    fn long(&self) -> Option<&'n str> { self.long }
 }
 
 #[cfg(test)]

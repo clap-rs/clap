@@ -1637,7 +1637,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     }
 
     // The actual parsing function
-    #[cfg_attr(feature="lints", allow(while_let_on_iterator))]
+    #[cfg_attr(feature="lints", allow(while_let_on_iterator, cyclomatic_complexity))]
     fn get_matches_with<I, T>(&mut self,
                               matcher: &mut ArgMatcher<'ar>,
                               it: &mut I,
@@ -1801,7 +1801,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                 let reqs = self.get_required_from(&hs, Some(matcher));
 
                 for s in reqs.iter() {
-                    write!(&mut mid_string, " {}", s).ok().expect(INTERNAL_ERROR_MSG);
+                    write!(&mut mid_string, " {}", s).expect(INTERNAL_ERROR_MSG);
                 }
             }
             mid_string.push_str(" ");
@@ -2154,10 +2154,10 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         // Next we verify that only the highest index has a .multiple(true) (if any)
         assert!(!self.positionals
                      .values()
-                     .any(|a| {
+                     .any(|a|
                          a.settings.is_set(&ArgSettings::Multiple) &&
                          (a.index as usize != self.positionals.len())
-                     }),
+                     ),
                 "Only the positional argument with the highest index may accept multiple values");
 
         // If it's required we also need to ensure all previous positionals are
@@ -2328,6 +2328,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         })
     }
 
+    #[cfg_attr(feature = "lints", allow(cyclomatic_complexity))]
     fn parse_long_arg<'av>(&mut self,
                            matcher: &mut ArgMatcher<'ar>,
                            full_arg: &'av str)
@@ -2368,6 +2369,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.did_you_mean_error(arg, matcher).map(|_| None)
     }
 
+    #[cfg_attr(feature = "lints", allow(cyclomatic_complexity))]
     fn parse_short_arg(&mut self,
                        matcher: &mut ArgMatcher<'ar>,
                        full_arg: &str)
@@ -2391,11 +2393,9 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                 arg_post_processing!(self, opt, matcher);
 
                 return Ok(ret);
-            }
-
-            try!(self.check_for_help_and_version_char(c));
-            if let Some(flag) = self.flags.iter().filter(|&v| v.short.is_some() && v.short.unwrap() == c).next() {
+            } else if let Some(flag) = self.flags.iter().filter(|&v| v.short.is_some() && v.short.unwrap() == c).next() {
                 // Only flags can be help or version
+                try!(self.check_for_help_and_version_char(c));
                 try!(self.parse_flag(flag, matcher));
                 // Handle conflicts, requirements, overrides, etc.
                 // Must be called here due to mutablilty
@@ -2745,8 +2745,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                     return true;
                 } else if self.groups
                               .get(n)
-                              .map(|g| g.args.iter().any(|an| matcher.contains(an)))
-                              .unwrap_or(false) {
+                              .map_or(false, |g| g.args.iter().any(|an| matcher.contains(an))) {
                     return true;
                 }
             }

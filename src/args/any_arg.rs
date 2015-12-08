@@ -16,4 +16,6 @@ pub trait AnyArg<'n> {
     fn num_vals(&self) -> Option<u8>;
     fn possible_vals(&self) -> Option<&[&'n str]>;
     fn validator(&self) -> Option<&Rc<Fn(String) -> Result<(), String>>>;
+    fn short(&self) -> Option<char>;
+    fn long(&self) -> Option<&'n str>;
 }

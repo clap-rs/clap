@@ -214,6 +214,10 @@ impl<'n> AnyArg<'n> for PosBuilder<'n> {
     fn min_vals(&self) -> Option<u8> {
         self.min_vals
     }
+
+    fn short(&self) -> Option<char> { None }
+
+    fn long(&self) -> Option<&'n str> { None }
 }
 
 #[cfg(test)]
