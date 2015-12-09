@@ -19,6 +19,7 @@ extern crate clap;
 
 use clap::App;
 
+#[cfg(feature = "yaml")]
 fn main() {
     // To load a yaml file containing our CLI definition such as the example '17_yaml.yml' we can
     // use the convenience macro which loads the file at compile relative to the current file
@@ -42,4 +43,11 @@ fn main() {
     } else {
         println!("--mode <MODE> wasn't used...");
     }
+}
+
+#[cfg(not(feature = "yaml"))]
+fn main() {
+    // As stated above, if clap is not compiled with the YAML feature, it is disabled.
+    println!("YAML feature is disabled.");
+    println!("Pass --features yaml to cargo when trying this example.");
 }
