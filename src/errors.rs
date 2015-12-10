@@ -256,7 +256,7 @@ pub mod error_builder {
                            suffix.as_ref(),
                            usage.as_ref(),
                            Format::Good("--help")),
-            error_type: cet::InvalidSubcommand,
+            error_type: cet::WrongNumValues,
         }
     }
 
