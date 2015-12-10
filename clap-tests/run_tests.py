@@ -186,58 +186,6 @@ scoption present with value: some
 An scoption: some
 scpositional present with value: value'''
 
-_min_vals_few = '''error: The argument '--minvals2 <minvals>...' requires at least 2 values, but 1 was provided
-
-USAGE:
-\tclaptests --minvals2 <minvals>...
-
-For more information try --help'''
-
-_exact = '''flag NOT present
-option NOT present
-positional NOT present
-flag2 NOT present
-option2 maybe present with value of: Nothing
-positional2 maybe present with value of: Nothing
-option3 NOT present
-positional3 NOT present
-option NOT present
-positional NOT present
-subcmd NOT present'''
-
-_max_vals_more = '''flag NOT present
-option NOT present
-positional present with value: too
-flag2 NOT present
-option2 maybe present with value of: Nothing
-positional2 maybe present with value of: Nothing
-option3 NOT present
-positional3 NOT present
-option NOT present
-positional present with value: too
-subcmd NOT present'''
-
-_mult_vals_more = '''error: The argument '--multvals <one> <two>' was supplied more than once, but does not support multiple occurrences
-
-USAGE:
-\tclaptests --multvals <one> <two>
-
-For more information try --help'''
-
-_mult_vals_few = '''error: The argument '--multvals <one> <two>' requires 2 values, but 1 was provided
-
-USAGE:
-\tclaptests --multvals <one> <two>
-
-For more information try --help'''
-
-_mult_vals_2m1 = '''error: The argument '--multvalsmo <one> <two>' requires 2 values, but 1 was provided
-
-USAGE:
-\tclaptests --multvalsmo <one> <two>
-
-For more information try --help'''
-
 _bin = './target/release/claptests'
 
 cmds = {'help short:         ': ['{} -h'.format(_bin), _help, 0],
@@ -246,18 +194,6 @@ cmds = {'help short:         ': ['{} -h'.format(_bin), _help, 0],
 		'version long:       ': ['{} --version'.format(_bin), _version, 0],
 		'help subcmd:        ': ['{} help'.format(_bin), _help, 0],
 		'missing required:   ': ['{} -F'.format(_bin), _required, 1],
-		'max_vals too many:  ': ['{} --maxvals3 some other value too'.format(_bin), _max_vals_more, 0],
-		'max_vals exact:     ': ['{} --maxvals3 some other value'.format(_bin), _exact, 0],
-		'max_vals less:      ': ['{} --maxvals3 some other'.format(_bin), _exact, 0],
-		'min_vals more:      ': ['{} --minvals2 some other value too'.format(_bin), _exact, 0],
-		'min_vals exact:     ': ['{} --minvals2 some value'.format(_bin), _exact, 0],
-		'min_vals too few:   ': ['{} --minvals2 some'.format(_bin), _min_vals_few, 1],
-		'mult_vals too many: ': ['{} --multvals some other --multvals some other'.format(_bin), _mult_vals_more, 1],
-		'mult_vals too few:  ': ['{} --multvals some'.format(_bin), _mult_vals_few, 1],
-		'mult_vals exact:    ': ['{} --multvals some other'.format(_bin), _exact, 0],
-		'mult_valsmo x2:     ': ['{} --multvalsmo some other --multvalsmo some other'.format(_bin), _exact, 0],
-		'mult_valsmo x2-1:   ': ['{} --multvalsmo some other --multvalsmo some'.format(_bin), _mult_vals_2m1, 1],
-		'mult_valsmo x1:     ': ['{} --multvalsmo some other'.format(_bin), _exact, 0],
 		'F2(ss),O(s),P:      ': ['{} value -f -f -o some'.format(_bin), _f2op, 0],
 		'arg dym:            ': ['{} --optio=foo'.format(_bin), _arg_dym_usage, 1],
 		'O2(ll)P:            ': ['{} value --option some --option other'.format(_bin), _o2p, 0],
