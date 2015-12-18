@@ -2728,12 +2728,17 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
             if let Some(a) = self.positionals.values().filter(|p| &p.name == name).next() {
                 if self._validate_blacklist_required(a, matcher) { continue 'outer; }
             }
-            return Err(error_builder::MissingRequiredArgument(
+            let err = if self.settings.is_set(&AppSettings::ArgRequiredElseHelp) && matcher.is_empty() {
+                self._help().unwrap_err()
+            } else {
+                error_builder::MissingRequiredArgument(
                 &*self.get_required_from(&self.required, Some(matcher))
                       .iter()
                       .fold(String::new(),
                           |acc, s| acc + &format!("\n\t{}", Format::Error(s))[..]),
-                &*try!(self.create_current_usage(matcher))));
+                &*try!(self.create_current_usage(matcher)))
+            };
+            return Err(err);
         }
         Ok(())
     }
