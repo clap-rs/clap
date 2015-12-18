@@ -1,3 +1,22 @@
+<a name="v1.5.4"></a>
+### v1.5.4 (2015-12-18)
+
+
+#### Examples
+
+* **17_yaml:**  conditinonally compile 17_yaml example ([575de089](https://github.com/kbknapp/clap-rs/commit/575de089a3e240c398cb10e6cf5a5c6b68662c01))
+
+#### Improvements
+
+*   clippy improvements ([99cdebc2](https://github.com/kbknapp/clap-rs/commit/99cdebc23da3a45a165f14b27bebeb2ed828a2ce))
+
+#### Bug Fixes
+
+
+* **errors:**  return correct error type in WrongNumValues error builder ([5ba8ba9d](https://github.com/kbknapp/clap-rs/commit/5ba8ba9dcccdfa74dd1c44260e64b359bbb36be6))
+*   ArgRequiredElseHelp setting now takes precedence over missing required args ([faad83fb](https://github.com/kbknapp/clap-rs/commit/faad83fbef6752f3093b6e98fca09a9449b830f4), closes [#362](https://github.com/kbknapp/clap-rs/issues/362))
+
+
 <a name="v1.5.3"></a>
 ### v1.5.3 (2015-11-20)
 
