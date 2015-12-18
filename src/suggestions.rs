@@ -72,7 +72,7 @@ pub enum DidYouMeanMessageStyle {
     EnumValue,
 }
 
-#[cfg(test)]
+#[cfg(all(test, features = "suggestions"))]
 mod test {
     use super::*;
 
@@ -81,6 +81,5 @@ mod test {
         let p_vals = ["test", "possible", "values"];
         assert_eq!(did_you_mean("tst", p_vals.iter()), Some("test"));
         assert!(did_you_mean("hahaahahah", p_vals.iter()).is_none());
-
     }
 }

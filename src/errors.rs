@@ -497,10 +497,11 @@ pub enum ClapErrorType {
     UnexpectedMultipleUsage,
     /// Error occurs when argument contains invalid unicode characters
     ///
+    /// **Note:** Non-Windows OS only
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```ignore
     /// # use clap::{App, Arg};
     /// # use std::os::unix::ffi::OsStringExt;
     /// # use std::ffi::OsString;

@@ -9,5 +9,4 @@ build: false
 
 test_script:
   - cargo build --features yaml
-  - cargo test --features yaml
-  - cargo build --no-default-features
+  - cargo test --no-default-features --features yaml 
