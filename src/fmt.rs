@@ -55,7 +55,7 @@ impl<T: fmt::Display> fmt::Display for Format<T> {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "color", not(target_os = "windows")))]
 mod test {
     use super::Format;
     use ansi_term::Colour::{Green, Red, Yellow};
