@@ -1637,7 +1637,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     }
 
     // The actual parsing function
-    #[cfg_attr(feature="lints", allow(while_let_on_iterator, cyclomatic_complexity))]
+    #[cfg_attr(feature = "lints", allow(while_let_on_iterator))]
     fn get_matches_with<I, T>(&mut self,
                               matcher: &mut ArgMatcher<'ar>,
                               it: &mut I,
@@ -2328,7 +2328,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         })
     }
 
-    #[cfg_attr(feature = "lints", allow(cyclomatic_complexity))]
     fn parse_long_arg<'av>(&mut self,
                            matcher: &mut ArgMatcher<'ar>,
                            full_arg: &'av str)
@@ -2369,7 +2368,6 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         self.did_you_mean_error(arg, matcher).map(|_| None)
     }
 
-    #[cfg_attr(feature = "lints", allow(cyclomatic_complexity))]
     fn parse_short_arg(&mut self,
                        matcher: &mut ArgMatcher<'ar>,
                        full_arg: &str)
