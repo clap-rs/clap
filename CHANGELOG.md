@@ -1,3 +1,14 @@
+<a name="v1.5.5"></a>
+### v1.5.5 (2016-01-04)
+
+
+#### Bug Fixes
+
+*   fixes an issue where invalid short args didn't cause an error ([c9bf7e44](https://github.com/kbknapp/clap-rs/commit/c9bf7e4440bd2f9b524ea955311d433c40a7d1e0))
+*   prints the name in version and help instead of binary name ([8f3817f6](https://github.com/kbknapp/clap-rs/commit/8f3817f665c0cab6726bc16c56a53b6a61e44448), closes [#368](https://github.com/kbknapp/clap-rs/issues/368))
+*   fixes an intentional panic issue discovered via clippy ([ea83a3d4](https://github.com/kbknapp/clap-rs/commit/ea83a3d421ea8856d4cac763942834d108b71406))
+
+
 <a name="v1.5.4"></a>
 ### v1.5.4 (2015-12-18)
 
