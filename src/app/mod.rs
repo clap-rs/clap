@@ -1092,8 +1092,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     }
 
     // Creates a context aware usage string, or "smart usage" from currently used
-    // args, and
-    // requirements
+    // args, and requirements
     fn usage_from_matcher(&self, usage: &mut String, matcher: &[&'ar str]) -> ClapResult<()> {
         use std::fmt::Write;
         let mut hs: Vec<&str> = self.required.iter().map(|n| *n).collect();
@@ -1148,10 +1147,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
         }
 
         // Print the version
-        try!(write!(w,
-                    "{} {}\n",
-                    &self.bin_name.as_ref().unwrap_or(&self.name)[..].replace(" ", "-"),
-                    self.version.unwrap_or("")));
+        try!(self.write_version(w));
         let flags = !self.flags.is_empty();
         let pos = !self.positionals.is_empty();
         let opts = !self.opts.is_empty();
@@ -1882,15 +1878,21 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
 
     // Prints the version to the user and exits if quit=true
     fn print_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
-        // Print the binary name if existing, but replace all spaces with hyphens in
-        // case we're
-        // dealing with subcommands i.e. git mv is translated to git-mv
-        try!(writeln!(w,
-                      "{} {}",
-                      &self.bin_name.as_ref().unwrap_or(&self.name)[..].replace(" ", "-"),
-                      self.version.unwrap_or("")));
-
+        try!(self.write_version(w));
         w.flush().map_err(ClapError::from)
+    }
+
+    fn write_version<W: Write>(&self, w: &mut W) -> io::Result<()> {
+        if let Some(bn) = self.bin_name.as_ref() {
+            if bn.contains(" ") {
+                // Incase we're dealing with subcommands i.e. git mv is translated to git-mv
+                writeln!(w, "{} {}", bn.replace(" ", "-"), self.version.unwrap_or(""))
+            } else {
+                writeln!(w, "{} {}", &self.name[..], self.version.unwrap_or(""))
+            }
+        } else {
+            writeln!(w, "{} {}", &self.name[..], self.version.unwrap_or(""))
+        }
     }
 
     #[doc(hidden)]
