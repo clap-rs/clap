@@ -2400,6 +2400,13 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
                 // Handle conflicts, requirements, overrides, etc.
                 // Must be called here due to mutablilty
                 arg_post_processing!(self, flag, matcher);
+            } else {
+                let mut arg = String::new();
+                arg.push('-');
+                arg.push(c);
+                return Err(error_builder::InvalidArgument(arg,
+                    None,
+                    try!(self.create_current_usage(matcher))));
             }
         }
         Ok(None)
