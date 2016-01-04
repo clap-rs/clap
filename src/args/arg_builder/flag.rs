@@ -83,7 +83,7 @@ impl<'n, 'a> From<&'a Arg<'n, 'n, 'n, 'n, 'n, 'n>> for FlagBuilder<'n> {
     fn from(a: &Arg<'n, 'n, 'n, 'n, 'n, 'n>) -> Self {
         if a.validator.is_some() {
             panic!("The argument '{}' has a validator set, yet was parsed as a flag. Ensure \
-                .takes_value(true) or .index(u8) is set.")
+                .takes_value(true) or .index(u8) is set.", a.name)
         }
         if !a.empty_vals {
             // Empty vals defaults to true, so if it's false it was manually set
