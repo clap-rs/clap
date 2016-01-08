@@ -173,7 +173,7 @@ fn main() {
         3 | _ => println!("Don't be crazy"),
     }
 
-    // You can information about subcommands by requesting their matches by name
+    // You can handle subcommand flags by requesting their matches by name
     // (as below), requesting just the name used, or both at the same time
     if let Some(matches) = matches.subcommand_matches("test") {
         if matches.is_present("verbose") {
