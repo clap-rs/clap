@@ -1122,9 +1122,8 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
     /// ```no_run
     /// # use clap::App;
     /// # use std::io;
-    /// let mut app = App::new("myprog");
-    /// let mut out = io::stdout();
-    /// app.write_help(&mut out).ok().expect("failed to write to stdout");
+    /// let app = App::new("myprog");
+    /// app.print_help();
     /// ```
     pub fn print_help(&self) -> ClapResult<()> {
         let out = io::stdout();
