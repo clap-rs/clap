@@ -19,8 +19,8 @@ impl ArgFlags {
         ArgFlags(EMPTY_VALS)
     }
 
-    pub fn set(&mut self, s: &ArgSettings) {
-        match *s {
+    pub fn set(&mut self, s: ArgSettings) {
+        match s {
             ArgSettings::Required => self.0.insert(REQUIRED),
             ArgSettings::Multiple => self.0.insert(MULTIPLE),
             ArgSettings::EmptyValues => self.0.insert(EMPTY_VALS),
@@ -29,8 +29,8 @@ impl ArgFlags {
         }
     }
 
-    pub fn unset(&mut self, s: &ArgSettings) {
-        match *s {
+    pub fn unset(&mut self, s: ArgSettings) {
+        match s {
             ArgSettings::Required => self.0.remove(REQUIRED),
             ArgSettings::Multiple => self.0.remove(MULTIPLE),
             ArgSettings::EmptyValues => self.0.remove(EMPTY_VALS),
@@ -39,8 +39,8 @@ impl ArgFlags {
         }
     }
 
-    pub fn is_set(&self, s: &ArgSettings) -> bool {
-        match *s {
+    pub fn is_set(&self, s: ArgSettings) -> bool {
+        match s {
             ArgSettings::Required => self.0.contains(REQUIRED),
             ArgSettings::Multiple => self.0.contains(MULTIPLE),
             ArgSettings::EmptyValues => self.0.contains(EMPTY_VALS),

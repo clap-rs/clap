@@ -1,331 +1,52 @@
 use std::process;
-use std::error::Error;
+use std::error::Error as StdError;
 use std::fmt as std_fmt;
+use std::fmt::Display;
 use std::io::{self, Write};
 use std::convert::From;
+use std::result::Result as StdResult;
 
 use fmt::Format;
+use suggestions;
+use args::any_arg::AnyArg;
 
-pub type ClapResult<T> = Result<T, ClapError>;
+pub type Result<T> = StdResult<T, Error>;
 
-#[doc(hidden)]
-#[allow(non_snake_case)]
-pub mod error_builder {
-    use std::fmt::Display;
-
-    use suggestions;
-    use super::ClapError;
-    use super::ClapErrorType as cet;
-    use fmt::Format;
-
-    /// Error occurs when clap find two ore more conflicting arguments
-    pub fn ArgumentConflict<S>(arg: S, other: Option<S>, usage: S) -> ClapError
-        where S: AsRef<str> + Display
-    {
-        ClapError {
-            error: format!("{} The argument '{}' cannot be used with {}\n\n\
-                            {}\n\n\
-                            For more information try {}",
-                           Format::Error("error:"),
-                           Format::Warning(arg.as_ref()),
-                           match other {
-                               Some(name) => format!("'{}'", Format::Warning(name)),
-                               None => "one or more of the other specified arguments".to_owned(),
-                           },
-                           usage.as_ref(),
-                           Format::Good("--help")),
-            error_type: cet::ArgumentConflict,
-        }
-    }
-
-    /// Error occurs when option does not allow empty values but some was found
-    pub fn EmptyValue<S>(arg: S, usage: S) -> ClapError
-        where S: AsRef<str> + Display
-    {
-        ClapError {
-            error: format!("{} The argument '{}' requires a value but none was supplied\
-                            \n\n\
-                            {}\n\n\
-                            For more information try {}",
-                           Format::Error("error:"),
-                           Format::Warning(arg.as_ref()),
-                           usage.as_ref(),
-                           Format::Good("--help")),
-            error_type: cet::EmptyValue,
-        }
-    }
-
-    /// Error occurs when some possible values were set, but clap found unexpected value
-    pub fn InvalidValue<S>(bad_val: S,
-                           good_vals: &[S],
-                           arg: S,
-                           usage: S)
-                           -> ClapError
-        where S: AsRef<str> + Display
-    {
-        let suffix = suggestions::did_you_mean_suffix(arg.as_ref(),
-                                                      good_vals.iter(),
-                                                      suggestions::DidYouMeanMessageStyle::EnumValue);
-
-        let mut sorted = vec![];
-        for v in good_vals {
-            sorted.push(v.as_ref());
-        }
-        sorted.sort();
-        let valid_values = sorted.iter()
-                                 .fold(String::new(), |a, name| a + &format!( " {}", name)[..]);
-        ClapError {
-            error: format!("{} '{}' isn't a valid value for '{}'\n\t\
-                            [valid values:{}]\n\
-                            {}\n\n\
-                            {}\n\n\
-                            For more information try {}",
-                           Format::Error("error:"),
-                           Format::Warning(bad_val.as_ref()),
-                           Format::Warning(arg.as_ref()),
-                           valid_values,
-                           suffix.0,
-                           usage.as_ref(),
-                           Format::Good("--help")),
-            error_type: cet::InvalidValue,
-        }
-    }
-
-    /// Error occurs when clap found unexpected flag or option
-    pub fn InvalidArgument<S>(arg: S, did_you_mean: Option<S>, usage: S) -> ClapError
-        where S: AsRef<str> + Display
-    {
-        ClapError {
-            error: format!("{} The argument '{}' isn't valid{}\n\
-                            {}\n\n\
-                            For more information try {}",
-                           Format::Error("error:"),
-                           Format::Warning(arg),
-                           if did_you_mean.is_some() {
-                               format!("{}\n", did_you_mean.unwrap().as_ref())
-                           } else {
-                               "".to_owned()
-                           },
-                           usage.as_ref(),
-                           Format::Good("--help")),
-            error_type: cet::InvalidArgument,
-        }
-    }
-
-    /// Error occurs when clap found unexpected subcommand
-    pub fn InvalidSubcommand<S>(subcmd: S, did_you_mean: S, name: S, usage: S) -> ClapError
-        where S: AsRef<str> + Display
-    {
-        ClapError {
-            error: format!("{} The subcommand '{}' isn't valid\n\t\
-                            Did you mean '{}' ?\n\n\
-                            If you received this message in error, try \
-                            re-running with '{} {} {}'\n\n\
-                            {}\n\n\
-                            For more information try {}",
-                           Format::Error("error:"),
-                           Format::Warning(subcmd.as_ref()),
-                           Format::Good(did_you_mean.as_ref()),
-                           name.as_ref(),
-                           Format::Good("--"),
-                           subcmd.as_ref(),
-                           usage.as_ref(),
-                           Format::Good("--help")),
-            error_type: cet::InvalidSubcommand,
-        }
-    }
-
-    /// Error occurs when one or more required arguments missing
-    pub fn MissingRequiredArgument<S>(required: S, usage: S) -> ClapError
-        where S: AsRef<str> + Display
-    {
-        ClapError {
-            error: format!("{} The following required arguments were not supplied:{}\n\n\
-                            {}\n\n\
-                            For more information try {}",
-                           Format::Error("error:"),
-                           required.as_ref(),
-                           usage.as_ref(),
-                           Format::Good("--help")),
-            error_type: cet::MissingRequiredArgument,
-        }
-    }
-
-    /// Error occurs when required subcommand missing
-    pub fn MissingSubcommand<S>(name: S, usage: S) -> ClapError
-        where S: AsRef<str> + Display
-    {
-        ClapError {
-            error: format!("{} '{}' requires a subcommand but none was provided\n\n\
-                            {}\n\n\
-                            For more information try {}",
-                           Format::Error("error:"),
-                           Format::Warning(name),
-                           usage.as_ref(),
-                           Format::Good("--help")),
-            error_type: cet::MissingSubcommand,
-        }
-    }
-
-
-    /// Error occurs when argument contains invalid unicode characters
-    pub fn InvalidUnicode<S>(usage: S) -> ClapError
-        where S: AsRef<str> + Display
-    {
-        ClapError {
-            error: format!("{} Invalid unicode character in one or more arguments\n\n\
-                            {}\n\n\
-                            For more information try {}",
-                           Format::Error("error:"),
-                           usage.as_ref(),
-                           Format::Good("--help")),
-            error_type: cet::InvalidUnicode,
-        }
-    }
-
-    /// Error occurs when argument got more values then were expected
-    pub fn TooManyValues<S>(val: S, arg: S, usage: S) -> ClapError
-        where S: AsRef<str> + Display
-    {
-        ClapError {
-            error: format!("{} The argument '{}' was found, but '{}' wasn't expecting \
-                            any more values\n\n\
-                            {}\n\n\
-                            For more information try {}",
-                           Format::Error("error:"),
-                           Format::Warning(val),
-                           Format::Warning(arg),
-                           usage.as_ref(),
-                           Format::Good("--help")),
-            error_type: cet::TooManyValues,
-        }
-    }
-
-    /// Error occurs when argument got less values then were expected
-    pub fn TooFewValues<S>(arg: S, min_vals: u8, curr_vals: usize, usage: S) -> ClapError
-        where S: AsRef<str> + Display
-    {
-        ClapError {
-            error: format!("{} The argument '{}' requires at least {} values, but {} w{} \
-                            provided\n\n\
-                            {}\n\n\
-                            For more information try {}",
-                           Format::Error("error:"),
-                           Format::Warning(arg.as_ref()),
-                           Format::Warning(min_vals.to_string()),
-                           Format::Warning(curr_vals.to_string()),
-                           if curr_vals > 1 {
-                               "ere"
-                           } else {
-                               "as"
-                           },
-                           usage.as_ref(),
-                           Format::Good("--help")),
-            error_type: cet::TooFewValues,
-        }
-    }
-
-    /// Option fails validation of a custom validator
-    pub fn ValueValidationError<S>(err: S) -> ClapError
-        where S: AsRef<str> + Display
-    {
-        ClapError {
-            error: format!("{} {}", Format::Error("error:"), err.as_ref()),
-            error_type: cet::ValueValidationError,
-        }
-    }
-
-    /// Error occurs when argument got a different number of values then were expected
-    pub fn WrongNumValues<S>(arg: S,
-                             num_vals: u8,
-                             curr_vals: usize,
-                             suffix: S,
-                             usage: S)
-                             -> ClapError
-        where S: AsRef<str> + Display
-    {
-        ClapError {
-            error: format!("{} The argument '{}' requires {} values, but {} w{} \
-                            provided\n\n\
-                            {}\n\n\
-                            For more information try {}",
-                           Format::Error("error:"),
-                           Format::Warning(arg.as_ref()),
-                           Format::Warning(num_vals.to_string()),
-                           Format::Warning(curr_vals.to_string()),
-                           suffix.as_ref(),
-                           usage.as_ref(),
-                           Format::Good("--help")),
-            error_type: cet::WrongNumValues,
-        }
-    }
-
-    /// Error occurs when clap find argument while is was not expecting any
-    pub fn UnexpectedArgument<S>(arg: S, name: S, usage: S) -> ClapError
-        where S: AsRef<str> + Display
-    {
-        ClapError {
-            error: format!("{} Found argument '{}', but {} wasn't expecting any\n\n\
-                            {}\n\n\
-                            For more information try {}",
-                           Format::Error("error:"),
-                           Format::Warning(arg),
-                           Format::Warning(name),
-                           usage.as_ref(),
-                           Format::Good("--help")),
-            error_type: cet::UnexpectedArgument,
-        }
-    }
-
-    /// Error occurs when argument was used multiple times and was not set as multiple.
-    pub fn UnexpectedMultipleUsage<S>(arg: S, usage: S) -> ClapError
-        where S: AsRef<str> + Display
-    {
-        ClapError {
-            error: format!("{} The argument '{}' was supplied more than once, but does \
-                            not support multiple occurrences\n\n\
-                            {}\n\n\
-                            For more information try {}",
-                           Format::Error("error:"),
-                           Format::Warning(arg),
-                           usage.as_ref(),
-                           Format::Good("--help")),
-            error_type: cet::UnexpectedMultipleUsage,
-        }
-    }
-}
-
-/// Command line argument parser error types
+/// Command line argument parser error
 #[derive(Debug, Copy, Clone, PartialEq)]
-pub enum ClapErrorType {
-    /// Error occurs when some possible values were set, but clap found unexpected value
-    ///
+pub enum ErrorKind {
+    /// Occurs when an `Arg` has a set of possible values, and the user provides a value which
+    /// isn't in that set.
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("debug").index(1)
+    ///     .arg(Arg::with_name("speed")
     ///         .possible_value("fast")
     ///         .possible_value("slow"))
-    ///     .get_matches_from_safe(vec!["", "other"]);
+    ///     .get_matches_from_safe(vec!["myprog", "other"]);
+    /// assert!(result.is_err());
+    /// assert_eq!(result.unwrap_err(), Error::InvalidValue);
     /// ```
     InvalidValue,
-    /// Error occurs when clap found unexpected flag or option
-    ///
+    /// Occurs when a user provides a flag, option, or argument which wasn't defined
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::from_usage("-f, --flag 'some flag'"))
-    ///     .get_matches_from_safe(vec!["", "--other"]);
+    ///     .arg(Arg::from_usage("--flag 'some flag'"))
+    ///     .get_matches_from_safe(vec!["myprog", "--other"]);
+    /// assert!(result.is_err());
+    /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
-    InvalidArgument,
-    /// Error occurs when clap found unexpected subcommand
-    ///
+    UnknownArgument,
+    /// Occurs when the user provids an unrecognized subcommand which meets the threshold for being
+    /// similar enough to an existing subcommand so as to not cause the more general
+    /// `UnknownArgument` error
     ///
     /// # Examples
     ///
@@ -337,81 +58,98 @@ pub enum ClapErrorType {
     ///         .arg(Arg::with_name("config_file")
     ///             .help("The configuration file to use")
     ///             .index(1)))
-    ///     .get_matches_from_safe(vec!["", "other"]);
+    ///     .get_matches_from_safe(vec!["myprog", "other"]);
+    /// assert!(result.is_err());
+    /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidSubcommand);
     /// ```
     InvalidSubcommand,
-    /// Error occurs when option does not allow empty values but some was found
-    ///
+    /// Occurs when the user provides an empty value for an option that does not allow empty values
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::with_name("color")
     ///          .empty_values(false))
-    ///     .arg(Arg::with_name("color"))
-    ///     .get_matches_from_safe(vec!["", "--debug", "--color"]);
+    ///     .get_matches_from_safe(vec!["", "--debug", ""]);
+    /// assert!(result.is_err());
+    /// assert_eq!(result.unwrap_err().kind, ErrorKind::EmptyValue);
     /// ```
     EmptyValue,
-    /// Option fails validation of a custom validator
-    ValueValidationError,
-    /// Parser inner error
-    ArgumentError,
-    /// Error occurs when an application got more arguments then were expected
-    ///
+    /// Occurs when the user provides a value for an argument with a custom validation and the
+    /// value fails that validation.
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
+    /// fn is_numeric(val: String) -> Result<(), String> {
+    ///     match val.parse::<i64>() {
+    ///         Ok(..) => Ok(()),
+    ///         Err(..) => Err(String::from("Value wasn't a number!")),
+    ///     }
+    /// }
+    ///
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("debug").index(1)
-    ///         .max_values(2))
-    ///     .get_matches_from_safe(vec!["", "too", "much", "values"]);
+    ///     .arg(Arg::with_name("num")
+    ///          .validator(is_numeric))
+    ///     .get_matches_from_safe(vec!["myprog", "NotANumber"]);
+    /// assert!(result.is_err());
+    /// assert_eq!(result.unwrap_err().kind, ErrorKind::ValueValidation);
     /// ```
-    TooManyArgs,
-    /// Error occurs when argument got more values then were expected
-    ///
+    ValueValidation,
+    /// Occurs when a user provides more values for an argument than were defined by setting
+    /// `Arg::max_values`
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("debug").index(1)
+    ///     .arg(Arg::with_name("some_opt")
+    ///         .long("opt")
+    ///         .takes_value(true)
     ///         .max_values(2))
-    ///     .get_matches_from_safe(vec!["", "too", "much", "values"]);
+    ///     .get_matches_from_safe(vec!["myprog", "--opt", "too", "many", "values"]);
+    /// assert!(result.is_err());
+    /// assert_eq!(result.unwrap_err().kind, ErrorKind::TooManyValues);
     /// ```
     TooManyValues,
-    /// Error occurs when argument got less values then were expected
-    ///
+    /// Occurs when the user provides fewer values for an argument than were defined by setting
+    /// `Arg::min_values`
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("debug").index(1)
+    ///     .arg(Arg::with_name("some_opt")
+    ///         .long("opt")
     ///         .min_values(3))
-    ///     .get_matches_from_safe(vec!["", "too", "few"]);
+    ///     .get_matches_from_safe(vec!["myprog", "--opt", "too", "few"]);
+    /// assert!(result.is_err());
+    /// assert_eq!(result.unwrap_err().kind, ErrorKind::TooFewValues);
     /// ```
     TooFewValues,
-    /// Error occurs when argument got a different number of values then were expected
-    ///
+    /// Occurs when the user provides a different number of values for an argument than what's
+    /// been defined by setting `Arg::number_of_values`
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("debug").index(1)
-    ///         .max_values(2))
-    ///     .get_matches_from_safe(vec!["", "too", "much", "values"]);
+    ///     .arg(Arg::with_name("some_opt")
+    ///         .long("opt")
+    ///         .takes_value(true)
+    ///         .number_of_values(2))
+    ///     .get_matches_from_safe(vec!["myprog", "--opt", "wrong", "number", "of", "vals"]);
+    /// assert!(result.is_err());
+    /// assert_eq!(result.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
     /// ```
-    WrongNumValues,
-    /// Error occurs when clap find two ore more conflicting arguments
-    ///
+    WrongNumberOfValues,
+    /// Occurs when the user provides two values which conflict and can't be used together.
     ///
     /// # Examples
     ///
@@ -419,12 +157,16 @@ pub enum ClapErrorType {
     /// # use clap::{App, Arg};
     /// let result = App::new("myprog")
     ///     .arg(Arg::with_name("debug")
+    ///         .long("debug")
     ///         .conflicts_with("color"))
-    ///     .get_matches_from_safe(vec!["", "--debug", "--color"]);
+    ///     .arg(Arg::with_name("color")
+    ///         .long("color"))
+    ///     .get_matches_from_safe(vec!["myprog", "--debug", "--color"]);
+    /// assert!(result.is_err());
+    /// assert_eq!(result.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```
     ArgumentConflict,
-    /// Error occurs when one or more required arguments missing
-    ///
+    /// Occurs when the user does not provide one or more required arguments
     ///
     /// # Examples
     ///
@@ -433,11 +175,13 @@ pub enum ClapErrorType {
     /// let result = App::new("myprog")
     ///     .arg(Arg::with_name("debug")
     ///         .required(true))
-    ///     .get_matches_from_safe(vec![""]);
+    ///     .get_matches_from_safe(vec!["myprog"]);
+    /// assert!(result.is_err());
+    /// assert_eq!(result.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
     MissingRequiredArgument,
-    /// Error occurs when required subcommand missing
-    ///
+    /// Occurs when a subcommand is required (as defined by `AppSettings::SubcommandRequired`), but
+    /// the user does not provide one
     ///
     /// # Examples
     ///
@@ -448,14 +192,14 @@ pub enum ClapErrorType {
     ///     .subcommand(SubCommand::with_name("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::with_name("config_file")
-    ///             .help("The configuration file to use")
-    ///             .index(1)))
-    ///     .get_matches_from_safe(vec![""]);
+    ///             .help("The configuration file to use")))
+    ///     .get_matches_from_safe(vec!["myprog"]);
+    /// assert!(result.is_err());
+    /// assert_eq!(result.unwrap_err().kind, ErrorKind::MissingSubcommand);
     /// ```
     MissingSubcommand,
-    /// Occurs when no argument or subcommand has been supplied and
-    /// `AppSettings::ArgRequiredElseHelp` was used
-    ///
+    /// Occurs when either an argument or subcommand is required, as defined by
+    /// `AppSettings::ArgRequiredElseHelp` but the user did not provide one
     ///
     /// # Examples
     ///
@@ -466,24 +210,14 @@ pub enum ClapErrorType {
     ///     .subcommand(SubCommand::with_name("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::with_name("config_file")
-    ///             .help("The configuration file to use")
-    ///             .index(1)))
-    ///     .get_matches_from_safe(vec![""]);
+    ///             .help("The configuration file to use")))
+    ///     .get_matches_from_safe(vec!["myprog"]);
+    /// assert!(result.is_err());
+    /// assert_eq!(result.unwrap_err().kind, ErrorKind::MissingArgumentOrSubcommand);
     /// ```
     MissingArgumentOrSubcommand,
-    /// Error occurs when clap find argument while is was not expecting any
-    ///
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App};
-    /// let result = App::new("myprog")
-    ///     .get_matches_from_safe(vec!["", "--arg"]);
-    /// ```
-    UnexpectedArgument,
-    /// Error occurs when argument was used multiple times and was not set as multiple.
-    ///
+    /// Occurs when the user provides an argument multiple times which has not been set to allow
+    /// multiple uses.
     ///
     /// # Examples
     ///
@@ -492,12 +226,20 @@ pub enum ClapErrorType {
     /// let result = App::new("myprog")
     ///     .arg(Arg::with_name("debug")
     ///         .multiple(false))
-    ///     .get_matches_from_safe(vec!["", "--debug", "--debug"]);
+    ///     .get_matches_from_safe(vec!["myprog", "--debug", "--debug"]);
+    /// assert!(result.is_err());
+    /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnexpectedMultipleUsage);
     /// ```
     UnexpectedMultipleUsage,
-    /// Error occurs when argument contains invalid unicode characters
+    /// Occurs when the user provides a value containing invalid UTF-8 for an argument and
+    /// `AppSettings::StrictUtf8` is set.
     ///
-    /// **Note:** Non-Windows OS only
+    /// **Note:** This is the default setting and behavior. If you wish to *allow* invalid UTF-8 in
+    /// argument values, use `AppSettings::AllowInvalidUtf8`
+    ///
+    /// # Platform Speicific
+    ///
+    /// Non-Windows platforms only (such as Linux, Unix, OSX, etc.)
     ///
     /// # Examples
     ///
@@ -509,111 +251,403 @@ pub enum ClapErrorType {
     ///     .arg(Arg::with_name("debug")
     ///         .short("u")
     ///         .takes_value(true))
-    ///     .get_matches_from_safe(vec![OsString::from_vec(vec![0x20]),
-    ///                                 OsString::from_vec(vec![0xE9])]);
+    ///     .get_matches_from_safe(vec![OsString::from("myprog"),
+    ///                                 OsString::from("-u")
+    ///                                 OsString::from_vec(vec![0x20, 0xE9])]);
     /// assert!(result.is_err());
+    /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidUtf8);
     /// ```
-    InvalidUnicode,
-    /// Not a true 'error' as it means `--help` or similar was used. The help message will be sent
-    /// to `stdout` unless the help is displayed due to an error (such as missing subcommands) at
-    /// which point it will be sent to `stderr`
+    InvalidUtf8,
+    /// Not a true "error" as it means `--help` or similar was used. The help message will be sent
+    /// to `stdout`.
     ///
+    /// **Note**: If the help is displayed due to an error (such as missing subcommands) it will
+    /// be sent to `stderr` instead of `stdout`
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # use clap::ClapErrorType;
+    /// # use clap::ErrorType;
     /// let result = App::new("myprog")
-    ///     .get_matches_from_safe(vec!["", "--help"]);
+    ///     .get_matches_from_safe(vec!["myprog", "--help"]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().error_type, ClapErrorType::HelpDisplayed);
+    /// assert_eq!(result.unwrap_err().kind, ErrorType::HelpDisplayed);
     /// ```
     HelpDisplayed,
-    /// Not a true 'error' as it means `--version` or similar was used. The message will be sent
+    /// Not a true "error" as it means `--version` or similar was used. The message will be sent
     /// to `stdout`
-    ///
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # use clap::ClapErrorType;
+    /// # use clap::ErrorType;
     /// let result = App::new("myprog")
     ///     .get_matches_from_safe(vec!["", "--version"]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().error_type, ClapErrorType::VersionDisplayed);
+    /// assert_eq!(result.unwrap_err().kind, ErrorType::VersionDisplayed);
     /// ```
     VersionDisplayed,
-    /// Represents an internal error, please consider filing a bug report if this happens!
-    InternalError,
     /// Represents an I/O error, typically white writing to stderr or stdout
     Io,
     /// Represents an Rust Display Format error, typically white writing to stderr or stdout
     Format,
 }
 
-/// Command line argument parser error
+/// Command Line Argumetn Parser Error
 #[derive(Debug)]
-pub struct ClapError {
+pub struct Error {
     /// Formated error message
-    pub error: String,
+    pub message: String,
     /// The type of error
-    pub error_type: ClapErrorType,
+    pub kind: ErrorKind,
+    /// Any additional information passed along, such as the argument name that caused the error
+    pub info: Option<Vec<String>>,
 }
 
-impl ClapError {
+impl Error {
     /// Should the message be written to `stdout` or not
     pub fn use_stderr(&self) -> bool {
-        match self.error_type {
-            ClapErrorType::HelpDisplayed | ClapErrorType::VersionDisplayed => false,
+        match self.kind {
+            ErrorKind::HelpDisplayed | ErrorKind::VersionDisplayed => false,
             _ => true,
         }
     }
+
     /// Prints the error to `stderr` and exits with a status of `1`
     pub fn exit(&self) -> ! {
         if self.use_stderr() {
-            wlnerr!("{}", self.error);
+            wlnerr!("{}", self.message);
             process::exit(1);
         }
         let out = io::stdout();
-        writeln!(&mut out.lock(), "{}", self.error).expect("Error writing ClapError to stdout");
+        writeln!(&mut out.lock(), "{}", self.message).expect("Error writing Error to stdout");
         process::exit(0);
+    }
+
+    #[doc(hidden)]
+    pub fn argument_conflict<'a, 'b, A, O, U>(arg: &A, other: Option<O>, usage: U) -> Self
+        where A: AnyArg<'a, 'b>,
+              O: Into<String>,
+              U: Display
+    {
+        let mut v = vec![arg.name().to_owned()];
+        Error {
+            message: format!("{} The argument '{}' cannot be used with {}\n\n\
+                            {}\n\n\
+                            For more information try {}",
+                           Format::Error("error:"),
+                           Format::Warning(arg.to_string()),
+                           match other {
+                               Some(name) => {
+                                   let n = name.into();
+                                   v.push(n.clone());
+                                   format!("'{}'", Format::Warning(n))
+                               },
+                               None => "one or more of the other specified arguments".to_owned(),
+                           },
+                           usage,
+                           Format::Good("--help")),
+            kind: ErrorKind::ArgumentConflict,
+            info: Some(v),
+        }
+    }
+
+    #[doc(hidden)]
+    pub fn empty_value<'a, 'b, A, U>(arg: &A, usage: U) -> Self
+        where A: AnyArg<'a, 'b>,
+              U: Display
+    {
+        Error {
+            message: format!("{} The argument '{}' requires a value but none was supplied\
+                            \n\n\
+                            {}\n\n\
+                            For more information try {}",
+                           Format::Error("error:"),
+                           Format::Warning(arg.to_string()),
+                           usage,
+                           Format::Good("--help")),
+            kind: ErrorKind::EmptyValue,
+            info: Some(vec![arg.name().to_owned()]),
+        }
+    }
+
+    #[doc(hidden)]
+    pub fn invalid_value<'a, 'b, B, G, A, U>(bad_val: B, good_vals: &[G], arg: &A, usage: U) -> Self
+        where B: AsRef<str>,
+              G: AsRef<str> + Display,
+              A: AnyArg<'a, 'b>,
+              U: Display
+    {
+        let suffix = suggestions::did_you_mean_suffix(bad_val.as_ref(),
+                                                      good_vals.iter(),
+                                                      suggestions::DidYouMeanMessageStyle::EnumValue);
+
+        let mut sorted = vec![];
+        for v in good_vals {
+            sorted.push(v.as_ref());
+        }
+        sorted.sort();
+        let valid_values = sorted.iter()
+                                 .fold(String::new(), |a, name| a + &format!( " {}", name)[..]);
+        Error {
+            message: format!("{} '{}' isn't a valid value for '{}'\n\t\
+                            [values:{}]\n\
+                            {}\n\n\
+                            {}\n\n\
+                            For more information try {}",
+                           Format::Error("error:"),
+                           Format::Warning(bad_val.as_ref()),
+                           Format::Warning(arg.to_string()),
+                           valid_values,
+                           suffix.0,
+                           usage,
+                           Format::Good("--help")),
+            kind: ErrorKind::InvalidValue,
+            info: Some(vec![arg.name().to_owned(), bad_val.as_ref().to_owned()]),
+        }
+    }
+
+    #[doc(hidden)]
+    pub fn invalid_subcommand<S, D, N, U>(subcmd: S, did_you_mean: D, name: N, usage: U) -> Self
+        where S: Into<String>,
+              D: AsRef<str> + Display,
+              N: Display,
+              U: Display
+    {
+        let s = subcmd.into();
+        Error {
+            message: format!("{} The subcommand '{}' wasn't recognized\n\t\
+                            Did you mean '{}' ?\n\n\
+                            If you believe you received this message in error, try \
+                            re-running with '{} {} {}'\n\n\
+                            {}\n\n\
+                            For more information try {}",
+                           Format::Error("error:"),
+                           Format::Warning(&*s),
+                           Format::Good(did_you_mean.as_ref()),
+                           name,
+                           Format::Good("--"),
+                           &*s,
+                           usage,
+                           Format::Good("--help")),
+            kind: ErrorKind::InvalidSubcommand,
+            info: Some(vec![s]),
+        }
+    }
+
+    #[doc(hidden)]
+    pub fn missing_required_argument<R, U>(required: R, usage: U) -> Self
+        where R: Display,
+              U: Display
+    {
+        Error {
+            message: format!("{} The following required arguments were not provided:{}\n\n\
+                            {}\n\n\
+                            For more information try {}",
+                           Format::Error("error:"),
+                           required,
+                           usage,
+                           Format::Good("--help")),
+            kind: ErrorKind::MissingRequiredArgument,
+            info: None,
+        }
+    }
+
+    #[doc(hidden)]
+    pub fn missing_subcommand<N, U>(name: N, usage: U) -> Self
+        where N: AsRef<str> + Display,
+              U: Display
+    {
+        Error {
+            message: format!("{} '{}' requires a subcommand, but one was not provided\n\n\
+                            {}\n\n\
+                            For more information try {}",
+                           Format::Error("error:"),
+                           Format::Warning(name),
+                           usage,
+                           Format::Good("--help")),
+            kind: ErrorKind::MissingSubcommand,
+            info: None,
+        }
+    }
+
+
+    #[doc(hidden)]
+    pub fn invalid_utf8<U>(usage: U) -> Self
+        where U: Display
+    {
+        Error {
+            message: format!("{} Invalid UTF-8 was detected in one or more arguments\n\n\
+                            {}\n\n\
+                            For more information try {}",
+                           Format::Error("error:"),
+                           usage,
+                           Format::Good("--help")),
+            kind: ErrorKind::InvalidUtf8,
+            info: None,
+        }
+    }
+
+    #[doc(hidden)]
+    pub fn too_many_values<'a, 'b, V, A, U>(val: V, arg: &A, usage: U) -> Self
+        where V: AsRef<str> + Display + ToOwned,
+              A: AnyArg<'a, 'b>,
+              U: Display
+    {
+        let v = val.as_ref();
+        Error {
+            message: format!("{} The value '{}' was provided to '{}', but it wasn't expecting \
+                            any more values\n\n\
+                            {}\n\n\
+                            For more information try {}",
+                           Format::Error("error:"),
+                           Format::Warning(v),
+                           Format::Warning(arg.to_string()),
+                           usage,
+                           Format::Good("--help")),
+            kind: ErrorKind::TooManyValues,
+            info: Some(vec![arg.name().to_owned(), v.to_owned()]),
+        }
+    }
+
+    #[doc(hidden)]
+    pub fn too_few_values<'a, 'b, A, U>(arg: &A, min_vals: u8, curr_vals: usize, usage: U) -> Self
+        where A: AnyArg<'a, 'b>,
+              U: Display
+    {
+        Error {
+            message: format!("{} The argument '{}' requires at least {} values, but only {} w{} \
+                            provided\n\n\
+                            {}\n\n\
+                            For more information try {}",
+                           Format::Error("error:"),
+                           Format::Warning(arg.to_string()),
+                           Format::Warning(min_vals.to_string()),
+                           Format::Warning(curr_vals.to_string()),
+                           if curr_vals > 1 {
+                               "ere"
+                           } else {
+                               "as"
+                           },
+                           usage,
+                           Format::Good("--help")),
+            kind: ErrorKind::TooFewValues,
+            info: Some(vec![arg.name().to_owned()]),
+        }
+    }
+
+    #[doc(hidden)]
+    pub fn value_validation(err: String) -> Self {
+        Error {
+            message: format!("{} {}", Format::Error("error:"), err),
+            kind: ErrorKind::ValueValidation,
+            info: None,
+        }
+    }
+
+    #[doc(hidden)]
+    pub fn wrong_number_of_values<'a, 'b, A, S, U>(arg: &A, num_vals: u8, curr_vals: usize, suffix: S, usage: U) -> Self
+        where A: AnyArg<'a, 'b>,
+              S: Display,
+              U: Display
+    {
+        Error {
+            message: format!("{} The argument '{}' requires {} values, but {} w{} \
+                            provided\n\n\
+                            {}\n\n\
+                            For more information try {}",
+                           Format::Error("error:"),
+                           Format::Warning(arg.to_string()),
+                           Format::Warning(num_vals.to_string()),
+                           Format::Warning(curr_vals.to_string()),
+                           suffix,
+                           usage,
+                           Format::Good("--help")),
+            kind: ErrorKind::WrongNumberOfValues,
+            info: Some(vec![arg.name().to_owned()]),
+        }
+    }
+
+    #[doc(hidden)]
+    pub fn unexpected_multiple_usage<'a, 'b, A, U>(arg: &A, usage: U) -> Self
+        where A: AnyArg<'a, 'b>,
+              U: Display
+    {
+        Error {
+            message: format!("{} The argument '{}' was provided more than once, but cannot \
+                            be used multiple times\n\n\
+                            {}\n\n\
+                            For more information try {}",
+                           Format::Error("error:"),
+                           Format::Warning(arg.to_string()),
+                           usage,
+                           Format::Good("--help")),
+            kind: ErrorKind::UnexpectedMultipleUsage,
+            info: Some(vec![arg.name().to_owned()]),
+        }
+    }
+
+    #[doc(hidden)]
+    pub fn unknown_argument<A, U>(arg: A, did_you_mean: &str, usage: U) -> Self
+        where A: Into<String>,
+              U: Display
+    {
+        let a = arg.into();
+        Error {
+            message: format!("{} The argument '{}' wasn't recognized, or isn't valid{}\n\
+                            {}\n\n\
+                            For more information try {}",
+                           Format::Error("error:"),
+                           Format::Warning(&*a),
+                           if !did_you_mean.is_empty() {
+                               format!("{}\n", did_you_mean)
+                           } else {
+                               "".to_owned()
+                           },
+                           usage,
+                           Format::Good("--help")),
+            kind: ErrorKind::UnknownArgument,
+            info: Some(vec![a]),
+        }
     }
 }
 
-impl Error for ClapError {
+impl StdError for Error {
     fn description(&self) -> &str {
-        &*self.error
+        &*self.message
     }
 
-    fn cause(&self) -> Option<&Error> {
-        match self.error_type {
+    fn cause(&self) -> Option<&StdError> {
+        match self.kind {
             _ => None,
         }
     }
 }
 
-impl std_fmt::Display for ClapError {
+impl Display for Error {
     fn fmt(&self, f: &mut std_fmt::Formatter) -> std_fmt::Result {
-        writeln!(f, "{}", self.error)
+        writeln!(f, "{}", self.message)
     }
 }
 
-impl From<io::Error> for ClapError {
+impl From<io::Error> for Error {
     fn from(e: io::Error) -> Self {
-        ClapError {
-            error: format!("{} {}", Format::Error("error:"), e.description()),
-            error_type: ClapErrorType::Io,
+        Error {
+            message: format!("{} {}", Format::Error("error:"), e.description()),
+            kind: ErrorKind::Io,
+            info: None,
         }
     }
 }
 
-impl From<std_fmt::Error> for ClapError {
+impl From<std_fmt::Error> for Error {
     fn from(e: std_fmt::Error) -> Self {
-        ClapError {
-            error: format!("{} {}", Format::Error("error:"), e),
-            error_type: ClapErrorType::Format,
+        Error {
+            message: format!("{} {}", Format::Error("error:"), e),
+            kind: ErrorKind::Format,
+            info: None,
         }
     }
 }

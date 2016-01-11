@@ -8,19 +8,18 @@ use args::AnyArg;
 use args::settings::{ArgFlags, ArgSettings};
 
 #[allow(missing_debug_implementations)]
-#[derive(Default)]
-pub struct PosBuilder<'n> {
+pub struct PosBuilder<'n, 'e> {
     pub name: &'n str,
     /// The string of text that will displayed to the user when the application's
     /// `help` text is displayed
-    pub help: Option<&'n str>,
+    pub help: Option<&'e str>,
     /// A list of names of other arguments that are *required* to be used when
     /// this flag is used
-    pub requires: Option<Vec<&'n str>>,
+    pub requires: Option<Vec<&'e str>>,
     /// A list of names for other arguments that *may not* be used with this flag
-    pub blacklist: Option<Vec<&'n str>>,
+    pub blacklist: Option<Vec<&'e str>>,
     /// A list of possible values for this argument
-    pub possible_vals: Option<Vec<&'n str>>,
+    pub possible_vals: Option<Vec<&'e str>>,
     /// The index of the argument
     pub index: u8,
     pub num_vals: Option<u8>,
@@ -28,11 +27,30 @@ pub struct PosBuilder<'n> {
     pub min_vals: Option<u8>,
     pub validator: Option<Rc<Fn(String) -> StdResult<(), String>>>,
     /// A list of names for other arguments that *mutually override* this flag
-    pub overrides: Option<Vec<&'n str>>,
+    pub overrides: Option<Vec<&'e str>>,
     pub settings: ArgFlags,
 }
 
-impl<'n> PosBuilder<'n> {
+impl<'n, 'e> Default for PosBuilder<'n, 'e> {
+    fn default() -> Self {
+        PosBuilder {
+            name: "",
+            help: None,
+            requires: None,
+            blacklist: None,
+            possible_vals: None,
+            index: 0,
+            num_vals: None,
+            max_vals: None,
+            min_vals: None,
+            validator: None,
+            overrides: None,
+            settings: ArgFlags::new(),
+        }
+    }
+}
+
+impl<'n, 'e> PosBuilder<'n, 'e> {
     pub fn new(name: &'n str, idx: u8) -> Self {
         PosBuilder {
             name: name,
@@ -41,7 +59,7 @@ impl<'n> PosBuilder<'n> {
         }
     }
 
-    pub fn from_arg(a: &Arg<'n, 'n, 'n, 'n, 'n, 'n>, idx: u8, reqs: &mut Vec<&'n str>) -> Self {
+    pub fn from_arg(a: &Arg<'n, 'e>, idx: u8, reqs: &mut Vec<&'e str>) -> Self {
         if a.short.is_some() || a.long.is_some() {
             panic!("Argument \"{}\" has conflicting requirements, both index() and short(), \
                 or long(), were supplied",
@@ -74,16 +92,16 @@ impl<'n> PosBuilder<'n> {
             ..Default::default()
         };
         if a.multiple {
-            pb.settings.set(&ArgSettings::Multiple);
+            pb.settings.set(ArgSettings::Multiple);
         }
         if a.required {
-            pb.settings.set(&ArgSettings::Required);
+            pb.settings.set(ArgSettings::Required);
         }
         if a.global {
-            pb.settings.set(&ArgSettings::Global);
+            pb.settings.set(ArgSettings::Global);
         }
         if a.hidden {
-            pb.settings.set(&ArgSettings::Hidden);
+            pb.settings.set(ArgSettings::Hidden);
         }
         // Check if there is anything in the blacklist (mutually excludes list) and add
         // any
@@ -118,24 +136,23 @@ impl<'n> PosBuilder<'n> {
         }
         // Check if there is anything in the requires list and add any values
         if let Some(ref r) = a.requires {
-            let mut rhs = vec![];
+            let mut rhs: Vec<&'e str> = vec![];
             // without derefing n = &&str
             for n in r {
-                rhs.push(*n);
+                rhs.push(n);
                 if a.required {
-                    reqs.push(*n);
+                    reqs.push(n);
                 }
             }
             pb.requires = Some(rhs);
         }
-
         pb
     }
 
     pub fn write_help<W: io::Write>(&self, w: &mut W, tab: &str, longest: usize) -> io::Result<()> {
         try!(write!(w, "{}", tab));
         try!(write!(w, "{}", self.name));
-        if self.settings.is_set(&ArgSettings::Multiple) {
+        if self.settings.is_set(ArgSettings::Multiple) {
             try!(write!(w, "..."));
         }
         write_spaces!((longest + 4) - (self.to_string().len()), w);
@@ -155,14 +172,14 @@ impl<'n> PosBuilder<'n> {
     }
 }
 
-impl<'n> Display for PosBuilder<'n> {
+impl<'n, 'e> Display for PosBuilder<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        if self.settings.is_set(&ArgSettings::Required) {
+        if self.settings.is_set(ArgSettings::Required) {
             try!(write!(f, "<{}>", self.name));
         } else {
             try!(write!(f, "[{}]", self.name));
         }
-        if self.settings.is_set(&ArgSettings::Multiple) {
+        if self.settings.is_set(ArgSettings::Multiple) {
             try!(write!(f, "..."));
         }
 
@@ -170,54 +187,23 @@ impl<'n> Display for PosBuilder<'n> {
     }
 }
 
-impl<'n> AnyArg<'n> for PosBuilder<'n> {
-    fn name(&self) -> &'n str {
-        self.name
-    }
-
-    fn overrides(&self) -> Option<&[&'n str]> {
-        self.overrides.as_ref().map(|o| &o[..])
-    }
-
-    fn requires(&self) -> Option<&[&'n str]> {
-        self.requires.as_ref().map(|o| &o[..])
-    }
-
-    fn blacklist(&self) -> Option<&[&'n str]> {
-        self.blacklist.as_ref().map(|o| &o[..])
-    }
-
-    fn is_set(&self, s: ArgSettings) -> bool {
-        self.settings.is_set(&s)
-    }
-
-    fn set(&mut self, s: ArgSettings) {
-        self.settings.set(&s)
-    }
-
-    fn has_switch(&self) -> bool {
-        false
-    }
-    fn max_vals(&self) -> Option<u8> {
-        self.max_vals
-    }
-    fn num_vals(&self) -> Option<u8> {
-        self.num_vals
-    }
-    fn possible_vals(&self) -> Option<&[&'n str]> {
-        self.possible_vals.as_ref().map(|o| &o[..])
-    }
+impl<'n, 'e> AnyArg<'n, 'e> for PosBuilder<'n, 'e> {
+    fn name(&self) -> &'n str { self.name }
+    fn overrides(&self) -> Option<&[&'e str]> { self.overrides.as_ref().map(|o| &o[..]) }
+    fn requires(&self) -> Option<&[&'e str]> { self.requires.as_ref().map(|o| &o[..]) }
+    fn blacklist(&self) -> Option<&[&'e str]> { self.blacklist.as_ref().map(|o| &o[..]) }
+    fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(s) }
+    fn set(&mut self, s: ArgSettings) { self.settings.set(s) }
+    fn has_switch(&self) -> bool { false }
+    fn max_vals(&self) -> Option<u8> { self.max_vals }
+    fn num_vals(&self) -> Option<u8> { self.num_vals }
+    fn possible_vals(&self) -> Option<&[&'e str]> { self.possible_vals.as_ref().map(|o| &o[..]) }
     fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> {
         self.validator.as_ref()
     }
-
-    fn min_vals(&self) -> Option<u8> {
-        self.min_vals
-    }
-
+    fn min_vals(&self) -> Option<u8> { self.min_vals }
     fn short(&self) -> Option<char> { None }
-
-    fn long(&self) -> Option<&'n str> { None }
+    fn long(&self) -> Option<&'e str> { None }
 }
 
 #[cfg(test)]

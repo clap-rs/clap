@@ -9,32 +9,47 @@ use Arg;
 use args::AnyArg;
 use args::settings::{ArgFlags, ArgSettings};
 
-#[derive(Debug, Default)]
-pub struct FlagBuilder<'n> {
+#[derive(Debug)]
+pub struct FlagBuilder<'n, 'e> {
     pub name: &'n str,
     /// The long version of the flag (i.e. word)
     /// without the preceding `--`
-    pub long: Option<&'n str>,
+    pub long: Option<&'e str>,
     /// The string of text that will displayed to
     /// the user when the application's `help`
     /// text is displayed
-    pub help: Option<&'n str>,
+    pub help: Option<&'e str>,
     /// A list of names for other arguments that
     /// *may not* be used with this flag
-    pub blacklist: Option<Vec<&'n str>>,
+    pub blacklist: Option<Vec<&'e str>>,
     /// A list of names of other arguments that
     /// are *required* to be used when this
     /// flag is used
-    pub requires: Option<Vec<&'n str>>,
+    pub requires: Option<Vec<&'e str>>,
     /// The short version (i.e. single character)
     /// of the argument, no preceding `-`
     pub short: Option<char>,
     /// A list of names for other arguments that *mutually override* this flag
-    pub overrides: Option<Vec<&'n str>>,
+    pub overrides: Option<Vec<&'e str>>,
     pub settings: ArgFlags,
 }
 
-impl<'n> FlagBuilder<'n> {
+impl<'n, 'e> Default for FlagBuilder<'n, 'e> {
+    fn default() -> Self {
+        FlagBuilder {
+            name: "",
+            long: None,
+            help: None,
+            blacklist: None,
+            requires: None,
+            short: None,
+            overrides: None,
+            settings: ArgFlags::new(),
+        }
+    }
+}
+
+impl<'n, 'e> FlagBuilder<'n, 'e> {
     pub fn new(name: &'n str) -> Self {
         FlagBuilder {
             name: name,
@@ -79,8 +94,8 @@ impl<'n> FlagBuilder<'n> {
     }
 }
 
-impl<'n, 'a> From<&'a Arg<'n, 'n, 'n, 'n, 'n, 'n>> for FlagBuilder<'n> {
-    fn from(a: &Arg<'n, 'n, 'n, 'n, 'n, 'n>) -> Self {
+impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for FlagBuilder<'a, 'b> {
+    fn from(a: &'z Arg<'a, 'b>) -> Self {
         if a.validator.is_some() {
             panic!("The argument '{}' has a validator set, yet was parsed as a flag. Ensure \
                 .takes_value(true) or .index(u8) is set.", a.name)
@@ -111,13 +126,13 @@ impl<'n, 'a> From<&'a Arg<'n, 'n, 'n, 'n, 'n, 'n>> for FlagBuilder<'n> {
             ..Default::default()
         };
         if a.multiple {
-            fb.settings.set(&ArgSettings::Multiple);
+            fb.settings.set(ArgSettings::Multiple);
         }
         if a.global {
-            fb.settings.set(&ArgSettings::Global);
+            fb.settings.set(ArgSettings::Global);
         }
         if a.hidden {
-            fb.settings.set(&ArgSettings::Hidden);
+            fb.settings.set(ArgSettings::Hidden);
         }
         // Check if there is anything in the blacklist (mutually excludes list) and add
         // any
@@ -152,7 +167,7 @@ impl<'n, 'a> From<&'a Arg<'n, 'n, 'n, 'n, 'n, 'n>> for FlagBuilder<'n> {
     }
 }
 
-impl<'n> Display for FlagBuilder<'n> {
+impl<'n, 'e> Display for FlagBuilder<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> Result {
         if let Some(l) = self.long {
             write!(f, "--{}", l)
@@ -162,33 +177,21 @@ impl<'n> Display for FlagBuilder<'n> {
     }
 }
 
-impl<'n> AnyArg<'n> for FlagBuilder<'n> {
+impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn name(&self) -> &'n str { self.name }
-
-    fn overrides(&self) -> Option<&[&'n str]> { self.overrides.as_ref().map(|o| &o[..]) }
-
-    fn requires(&self) -> Option<&[&'n str]> { self.requires.as_ref().map(|o| &o[..]) }
-
-    fn blacklist(&self) -> Option<&[&'n str]> { self.blacklist.as_ref().map(|o| &o[..]) }
-
-    fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(&s) }
-
+    fn overrides(&self) -> Option<&[&'e str]> { self.overrides.as_ref().map(|o| &o[..]) }
+    fn requires(&self) -> Option<&[&'e str]> { self.requires.as_ref().map(|o| &o[..]) }
+    fn blacklist(&self) -> Option<&[&'e str]> { self.blacklist.as_ref().map(|o| &o[..]) }
+    fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(s) }
     fn has_switch(&self) -> bool { true }
-
-    fn set(&mut self, s: ArgSettings) { self.settings.set(&s) }
-
+    fn set(&mut self, s: ArgSettings) { self.settings.set(s) }
     fn max_vals(&self) -> Option<u8> { None }
-
     fn num_vals(&self) -> Option<u8> { None }
-
-    fn possible_vals(&self) -> Option<&[&'n str]> { None }
-
+    fn possible_vals(&self) -> Option<&[&'e str]> { None }
     fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> { None }
-
     fn min_vals(&self) -> Option<u8> { None }
     fn short(&self) -> Option<char> { self.short }
-
-    fn long(&self) -> Option<&'n str> { self.long }
+    fn long(&self) -> Option<&'e str> { self.long }
 }
 
 #[cfg(test)]

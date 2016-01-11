@@ -1,7 +1,7 @@
 [package]
 
 name = "clap"
-version = "1.5.5"
+version = "2.0.0"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
 exclude = ["examples/*", "clap-tests/*", "tests/*", "benches/*", "*.png", "clap-perf/*"]
 description = "A simple to use, efficient, and full featured  Command Line Argument Parser"
@@ -28,4 +28,3 @@ lints       = ["clippy", "nightly"]
 nightly     = [] # for building with nightly and unstable features
 unstable    = ["lints", "nightly"] # for building with travis-cargo
 debug       = [] # for building with debug messages
-

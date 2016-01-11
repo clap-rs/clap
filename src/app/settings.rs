@@ -3,21 +3,24 @@ use std::ascii::AsciiExt;
 
 bitflags! {
     flags Flags: u32 {
-        const SC_NEGATE_REQS       = 0b000000000000001,
-        const SC_REQUIRED          = 0b000000000000010,
-        const A_REQUIRED_ELSE_HELP = 0b000000000000100,
-        const GLOBAL_VERSION       = 0b000000000001000,
-        const VERSIONLESS_SC       = 0b000000000010000,
-        const UNIFIED_HELP         = 0b000000000100000,
-        const WAIT_ON_ERROR        = 0b000000001000000,
-        const SC_REQUIRED_ELSE_HELP= 0b000000010000000,
-        const NEEDS_LONG_HELP      = 0b000000100000000,
-        const NEEDS_LONG_VERSION   = 0b000001000000000,
-        const NEEDS_SC_HELP        = 0b000010000000000,
-        const DISABLE_VERSION      = 0b000100000000000,
-        const HIDDEN               = 0b001000000000000,
-        const TRAILING_VARARG      = 0b010000000000000,
-        const NO_BIN_NAME          = 0b100000000000000,
+        const SC_NEGATE_REQS       = 0b000000000000000001,
+        const SC_REQUIRED          = 0b000000000000000010,
+        const A_REQUIRED_ELSE_HELP = 0b000000000000000100,
+        const GLOBAL_VERSION       = 0b000000000000001000,
+        const VERSIONLESS_SC       = 0b000000000000010000,
+        const UNIFIED_HELP         = 0b000000000000100000,
+        const WAIT_ON_ERROR        = 0b000000000001000000,
+        const SC_REQUIRED_ELSE_HELP= 0b000000000010000000,
+        const NEEDS_LONG_HELP      = 0b000000000100000000,
+        const NEEDS_LONG_VERSION   = 0b000000001000000000,
+        const NEEDS_SC_HELP        = 0b000000010000000000,
+        const DISABLE_VERSION      = 0b000000100000000000,
+        const HIDDEN               = 0b000001000000000000,
+        const TRAILING_VARARG      = 0b000010000000000000,
+        const NO_BIN_NAME          = 0b000100000000000000,
+        const ALLOW_UNK_SC         = 0b001000000000000000,
+        const UTF8_STRICT          = 0b010000000000000000,
+        const UTF8_NONE            = 0b100000000000000000,
     }
 }
 
@@ -26,11 +29,11 @@ pub struct AppFlags(Flags);
 
 impl AppFlags {
     pub fn new() -> Self {
-        AppFlags(NEEDS_LONG_VERSION | NEEDS_LONG_HELP | NEEDS_SC_HELP)
+        AppFlags(NEEDS_LONG_VERSION | NEEDS_LONG_HELP | NEEDS_SC_HELP | UTF8_STRICT)
     }
 
-    pub fn set(&mut self, s: &AppSettings) {
-        match *s {
+    pub fn set(&mut self, s: AppSettings) {
+        match s {
             AppSettings::SubcommandsNegateReqs => self.0.insert(SC_NEGATE_REQS),
             AppSettings::VersionlessSubcommands => self.0.insert(VERSIONLESS_SC),
             AppSettings::SubcommandRequired => self.0.insert(SC_REQUIRED),
@@ -46,11 +49,14 @@ impl AppFlags {
             AppSettings::Hidden => self.0.insert(HIDDEN),
             AppSettings::TrailingVarArg => self.0.insert(TRAILING_VARARG),
             AppSettings::NoBinaryName => self.0.insert(NO_BIN_NAME),
+            AppSettings::AllowExternalSubcommands => self.0.insert(ALLOW_UNK_SC),
+            AppSettings::StrictUtf8 => self.0.insert(UTF8_STRICT),
+            AppSettings::AllowInvalidUtf8 => self.0.insert(UTF8_NONE),
         }
     }
 
-    pub fn unset(&mut self, s: &AppSettings) {
-        match *s {
+    pub fn unset(&mut self, s: AppSettings) {
+        match s {
             AppSettings::SubcommandsNegateReqs => self.0.remove(SC_NEGATE_REQS),
             AppSettings::VersionlessSubcommands => self.0.remove(VERSIONLESS_SC),
             AppSettings::SubcommandRequired => self.0.remove(SC_REQUIRED),
@@ -66,11 +72,14 @@ impl AppFlags {
             AppSettings::Hidden => self.0.remove(HIDDEN),
             AppSettings::TrailingVarArg => self.0.remove(TRAILING_VARARG),
             AppSettings::NoBinaryName => self.0.remove(NO_BIN_NAME),
+            AppSettings::AllowExternalSubcommands => self.0.remove(ALLOW_UNK_SC),
+            AppSettings::StrictUtf8 => self.0.remove(UTF8_STRICT),
+            AppSettings::AllowInvalidUtf8 => self.0.remove(UTF8_NONE),
         }
     }
 
-    pub fn is_set(&self, s: &AppSettings) -> bool {
-        match *s {
+    pub fn is_set(&self, s: AppSettings) -> bool {
+        match s {
             AppSettings::SubcommandsNegateReqs => self.0.contains(SC_NEGATE_REQS),
             AppSettings::VersionlessSubcommands => self.0.contains(VERSIONLESS_SC),
             AppSettings::SubcommandRequired => self.0.contains(SC_REQUIRED),
@@ -86,6 +95,9 @@ impl AppFlags {
             AppSettings::Hidden => self.0.contains(HIDDEN),
             AppSettings::TrailingVarArg => self.0.contains(TRAILING_VARARG),
             AppSettings::NoBinaryName => self.0.contains(NO_BIN_NAME),
+            AppSettings::AllowExternalSubcommands => self.0.contains(ALLOW_UNK_SC),
+            AppSettings::StrictUtf8 => self.0.contains(UTF8_STRICT),
+            AppSettings::AllowInvalidUtf8 => self.0.contains(UTF8_NONE),
         }
     }
 }
@@ -280,6 +292,41 @@ pub enum AppSettings {
     /// assert_eq!(m.values_of("cmd").unwrap(), &["some_command", "-r", "set"]);
     /// ```
     NoBinaryName,
+    /// Specifies that an unexpected argument positional arguments which would otherwise cause a
+    /// `ErrorKind::UnexpectedArgument` error, should instead be treated as a subcommand in the
+    /// `ArgMatches` struct.
+    ///
+    /// **NOTE:** Use this setting with caution, as a truly unexpected argument (i.e. one that is
+    /// **NOT** an external subcommand, will not cause an error, and you shoud inform the user
+    /// appropriatly)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, AppSettings};
+    /// # use std::process::Command;
+    /// // Assume there is a third party subcommand installed to $PATH named myprog-subcmd
+    /// let m = App::new("myprog")
+    ///     .setting(AppSettings::AllowExternalSubcommands)
+    ///     .get_matches_from(vec!["myprog", "subcmd", "--option", "value"]);
+    ///
+    /// match m.subcommand() {
+    ///     ("", Some(sub_m)) => {
+    ///         let unk_subcmd = sub_m.subcommand_name().unwrap();
+    ///         let cmd = Command::new(format!("myprog-{}", unk_subcmd))
+    ///             .args(sub_m.values_of(unk_subcmd).unwrap());
+    ///         let exit_status = cmd.status().unwrap_or_else(|e| {
+    ///             // Invalid subcommand. Here you would probably inform the user and list valid
+    ///             // subcommands for them to try...but in this example we just panic!
+    ///             panic!("failed to execute process: {}", e)
+    ///         });
+    ///     },
+    ///     _ => unreachable!()
+    /// }
+    /// ```
+    AllowExternalSubcommands,
+    StrictUtf8,
+    AllowInvalidUtf8,
     #[doc(hidden)]
     NeedsLongVersion,
     #[doc(hidden)]
@@ -303,6 +350,12 @@ impl FromStr for AppSettings {
             "waitonerror" => Ok(AppSettings::WaitOnError),
             "subcommandrequiredelsehelp" => Ok(AppSettings::SubcommandRequiredElseHelp),
             "hidden" => Ok(AppSettings::Hidden),
+            "AllowExternalSubcommands" => Ok(AppSettings::AllowExternalSubcommands),
+            "trailingvararg" => Ok(AppSettings::TrailingVarArg),
+            "nobinaryname" => Ok(AppSettings::NoBinaryName),
+            "allowexternalsubcommands" => Ok(AppSettings::AllowExternalSubcommands),
+            "strictutf8" => Ok(AppSettings::StrictUtf8),
+            "allowinvalidutf8" => Ok(AppSettings::AllowInvalidUtf8),
             _ => Err("unknown AppSetting, cannot convert from str".to_owned()),
         }
     }
