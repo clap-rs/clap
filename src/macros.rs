@@ -91,7 +91,7 @@ macro_rules! vec_remove {
             let mut ix = None;
             $vec.dedup();
             for (i, val) in $vec.iter().enumerate() {
-                if &val == &$to_rem {
+                if val == $to_rem {
                     ix = Some(i);
                     break;
                 }

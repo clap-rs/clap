@@ -647,12 +647,13 @@
 #![cfg_attr(feature = "lints", plugin(clippy))]
 #![cfg_attr(feature = "lints", deny(warnings))]
 #![cfg_attr(not(any(feature = "lints", feature = "nightly")), deny(unstable_features))]
-#![deny(missing_docs,
+#![deny(
+    //  missing_docs,
         missing_debug_implementations,
         missing_copy_implementations,
         trivial_casts,
         trivial_numeric_casts,
-        unsafe_code,
+    //  unsafe_code,
         unused_import_braces,
         unused_qualifications)]
 // clippy false positives, or ones we're ok with...
@@ -677,7 +678,7 @@ pub use yaml_rust::YamlLoader;
 pub use args::{Arg, ArgGroup, ArgMatches, SubCommand};
 pub use app::{App, AppSettings};
 pub use fmt::Format;
-pub use errors::{ClapError, ClapErrorType};
+pub use errors::{Error, ErrorKind};
 
 #[macro_use]
 mod macros;
@@ -687,3 +688,8 @@ mod usageparser;
 mod fmt;
 mod suggestions;
 mod errors;
+mod utf8;
+mod osstringext;
+
+const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider filing a bug \
+                                          report at https://github.com/kbknapp/clap-rs/issues";

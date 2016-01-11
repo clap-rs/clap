@@ -1,6 +1,6 @@
 macro_rules! remove_overriden {
     ($me:ident, $name:expr) => ({
-        if let Some(ref o) = $me.opts.iter().filter(|o| &o.name == $name).next() {
+        if let Some(ref o) = $me.opts.iter().filter(|o| o.name == *$name).next() {
             if let Some(ref ora) = o.requires {
                 for a in ora {
                     vec_remove!($me.required, a);
@@ -16,7 +16,7 @@ macro_rules! remove_overriden {
                     vec_remove!($me.overrides, a);
                 }
             }
-        } else if let Some(ref o) = $me.flags.iter().filter(|f| &f.name == $name).next() {
+        } else if let Some(ref o) = $me.flags.iter().filter(|f| f.name == *$name).next() {
             if let Some(ref ora) = o.requires {
                 for a in ora {
                     vec_remove!($me.required, a);
@@ -32,7 +32,7 @@ macro_rules! remove_overriden {
                     vec_remove!($me.overrides, a);
                 }
             }
-        } else if let Some(p) = $me.positionals.values().filter(|p| &&p.name == &$name).next() {
+        } else if let Some(p) = $me.positionals.values().filter(|p| p.name == *$name).next() {
             if let Some(ref ora) = p.requires {
                 for a in ora {
                     vec_remove!($me.required, a);
@@ -57,14 +57,14 @@ macro_rules! arg_post_processing(
         use args::AnyArg;
         // Handle POSIX overrides
         if $me.overrides.contains(&$arg.name()) {
-            if let Some(ref name) = $me.overriden_from($arg.name(), $matcher) {
+            if let Some(ref name) = $me.overriden_from(&*$arg.name(), $matcher) {
                 $matcher.remove(name);
                 remove_overriden!($me, name);
             }
         }
         if let Some(or) = $arg.overrides() {
             for pa in or {
-                $matcher.remove(pa);
+                $matcher.remove(&*pa);
                 remove_overriden!($me, pa);
                 $me.overrides.push(pa);
                 vec_remove!($me.required, pa);
@@ -83,7 +83,7 @@ macro_rules! arg_post_processing(
         // list
         if let Some(reqs) = $arg.requires() {
             for n in reqs {
-                if $matcher.contains(n) {
+                if $matcher.contains(&*n) {
                     continue;
                 }
 
@@ -109,7 +109,7 @@ macro_rules! _handle_group_reqs{
                         }
                     }
                     if let Some(ref bl) = grp.conflicts {
-                        for b in bl {
+                        for &b in bl {
                             $me.blacklist.push(b);
                         }
                     }
@@ -118,7 +118,7 @@ macro_rules! _handle_group_reqs{
                 }
             }
             if found {
-                for name in grp.args.iter() {
+                for name in &grp.args {
                     if name == &$arg.name() { continue }
                     vec_remove!($me.required, name);
 

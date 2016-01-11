@@ -1,7 +1,13 @@
+use std::ffi::{OsString, OsStr};
 use std::collections::HashMap;
+use std::iter::Map;
+use std::slice;
+
+use vec_map::{self, VecMap};
 
 use args::SubCommand;
 use args::MatchedArg;
+use utf8::INVALID_UTF8;
 
 /// Used to get information about the arguments that where supplied to the program at runtime by
 /// the user. To get a new instance of this struct you use `.get_matches()` of the `App` struct.
@@ -52,17 +58,34 @@ use args::MatchedArg;
 ///         println!("Not printing testing lists...");
 ///     }
 /// }
-#[derive(Debug)]
-pub struct ArgMatches<'n, 'a> {
+#[derive(Debug, Clone)]
+pub struct ArgMatches<'a> {
     #[doc(hidden)]
     pub args: HashMap<&'a str, MatchedArg>,
     #[doc(hidden)]
-    pub subcommand: Option<Box<SubCommand<'n, 'a>>>,
+    pub subcommand: Option<Box<SubCommand<'a>>>,
     #[doc(hidden)]
     pub usage: Option<String>,
+    #[doc(hidden)]
+    empty_v: VecMap<OsString>,
+    // utf8: Utf8,
 }
 
-impl<'n, 'a> ArgMatches<'n, 'a> {
+impl<'a> Default for ArgMatches<'a> {
+    fn default() -> Self {
+        ArgMatches {
+            args: HashMap::new(),
+            subcommand: None,
+            usage: None,
+            // utf8: Utf8::Strict,
+            // utf8_rule: PhantomData::<utf8::Strict>,
+            empty_v: VecMap::new(),
+            // empty_ov: VecMap::new(),
+        }
+    }
+}
+
+impl<'a> ArgMatches<'a> {
     /// Creates a new instance of `ArgMatches`. This ins't called directly, but
     /// through the `.get_matches()` method of `App`
     ///
@@ -73,13 +96,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     /// let matches = App::new("myprog").get_matches();
     /// ```
     #[doc(hidden)]
-    pub fn new() -> ArgMatches<'n, 'a> {
-        ArgMatches {
-            args: HashMap::new(),
-            subcommand: None,
-            usage: None,
-        }
-    }
+    pub fn new() -> Self { ArgMatches { ..Default::default() } }
 
     /// Gets the value of a specific option or positional argument (i.e. an argument that takes
     /// an additional value at runtime). If the option wasn't present at runtime
@@ -100,15 +117,17 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///        println!("Value for output: {}", o);
     /// }
     /// ```
-    pub fn value_of(&self, name: &str) -> Option<&str> {
-        if let Some(ref arg) = self.args.get(name) {
-            if let Some(ref vals) = arg.values {
-                if let Some(ref val) = vals.values().nth(0) {
-                    return Some(&val[..]);
-                }
+    pub fn value_of<S: AsRef<str>>(&self, name: S) -> Option<&str> {
+        if let Some(ref arg) = self.args.get(name.as_ref()) {
+            if let Some(v) = arg.vals.values().nth(0) {
+                return Some(v.to_str().expect(INVALID_UTF8));
             }
         }
         None
+    }
+
+    pub fn os_value_of<S: AsRef<str>>(&self, name: S) -> Option<&OsStr> {
+        self.args.get(name.as_ref()).map(|arg| arg.vals.values().nth(0).map(|v| v.as_os_str())).unwrap_or(None)
     }
 
     /// Gets the values of a specific option or positional argument in a vector (i.e. an argument
@@ -130,13 +149,34 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///        }
     /// }
     /// ```
-    pub fn values_of(&'a self, name: &str) -> Option<Vec<&'a str>> {
-        if let Some(ref arg) = self.args.get(name) {
-            if let Some(ref vals) = arg.values {
-                return Some(vals.values().map(|s| &s[..]).collect::<Vec<_>>());
-            }
+    pub fn values_of<S: AsRef<str>>(&'a self, name: S) -> Values<'a> {
+        if let Some(ref arg) = self.args.get(name.as_ref()) {
+            fn to_str_slice<'a>(o: &'a OsString) -> &'a str { o.to_str().expect(INVALID_UTF8) }
+            let to_str_slice: fn(&'a OsString) -> &'a str = to_str_slice; // coerce to fn pointer
+            return Values { iter: arg.vals.values().map(to_str_slice) };
         }
-        None
+        fn to_str_slice<'a>(o: &'a OsString) -> &'a str { o.to_str().expect(INVALID_UTF8) }
+        let to_str_slice: fn(&'a OsString) -> &'a str = to_str_slice; // coerce to fn pointer
+        Values { iter: self.empty_v.values().map(to_str_slice) }
+    }
+
+    pub fn lossy_values_of<S: AsRef<str>>(&'a self, name: S) -> Vec<String> {
+        if let Some(ref arg) = self.args.get(name.as_ref()) {
+            return arg.vals.values()
+                           .map(|v| v.to_string_lossy().into_owned())
+                        //    .map(ToOwned::to_owned)
+                           .collect();
+        }
+        vec![]
+    }
+
+    pub fn os_values_of<S: AsRef<str>>(&'a self, name: S) -> OsValues<'a> {
+        fn to_str_slice<'a>(o: &'a OsString) -> &'a OsStr { &*o }
+        let to_str_slice: fn(&'a OsString) -> &'a OsStr = to_str_slice; // coerce to fn pointer
+        if let Some(ref arg) = self.args.get(name.as_ref()) {
+            return OsValues { iter: arg.vals.values().map(to_str_slice) }
+        }
+        OsValues { iter: self.empty_v.values().map(to_str_slice) }
     }
 
     /// Returns if an argument was present at runtime.
@@ -152,16 +192,13 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///        println!("The output argument was used!");
     /// }
     /// ```
-    pub fn is_present(&self, name: &str) -> bool {
+    pub fn is_present<S: AsRef<str>>(&self, name: S) -> bool {
         if let Some(ref sc) = self.subcommand {
-            if sc.name == name {
+            if sc.name == name.as_ref() {
                 return true;
             }
         }
-        if self.args.contains_key(name) {
-            return true;
-        }
-        false
+        self.args.contains_key(name.as_ref())
     }
 
     /// Returns the number of occurrences of an option, flag, or positional argument at runtime.
@@ -181,11 +218,8 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///     println!("Debug mode kind of on");
     /// }
     /// ```
-    pub fn occurrences_of(&self, name: &str) -> u8 {
-        if let Some(ref arg) = self.args.get(name) {
-            return arg.occurrences;
-        }
-        0
+    pub fn occurrences_of<S: AsRef<str>>(&self, name: S) -> u8 {
+        self.args.get(name.as_ref()).map(|a| a.occurs).unwrap_or(0)
     }
 
     /// Returns the `ArgMatches` for a particular subcommand or None if the subcommand wasn't
@@ -202,14 +236,8 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///     // Use matches as normal
     /// }
     /// ```
-    pub fn subcommand_matches<'na>(&self, name: &'na str) -> Option<&ArgMatches> {
-        if let Some(ref sc) = self.subcommand {
-            if sc.name != name {
-                return None;
-            }
-            return Some(&sc.matches);
-        }
-        None
+    pub fn subcommand_matches<S: AsRef<str>>(&self, name: S) -> Option<&ArgMatches<'a>> {
+        self.subcommand.as_ref().map(|s| if s.name == name.as_ref() { Some(&s.matches) } else { None } ).unwrap()
     }
 
     /// Returns the name of the subcommand used of the parent `App`, or `None` if one wasn't found
@@ -231,10 +259,7 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     /// }
     /// ```
     pub fn subcommand_name(&self) -> Option<&str> {
-        if let Some(ref sc) = self.subcommand {
-            return Some(&sc.name[..]);
-        }
-        None
+        self.subcommand.as_ref().map(|sc| &sc.name[..])
     }
 
     /// Returns the name and `ArgMatches` of the subcommand used at runtime or ("", None) if one
@@ -253,11 +278,8 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     ///     _                         => {}, // Either no subcommand or one not tested for...
     /// }
     /// ```
-    pub fn subcommand(&self) -> (&str, Option<&ArgMatches>) {
-        if let Some(ref sc) = self.subcommand {
-            return (&sc.name[..], Some(&sc.matches));
-        }
-        ("", None)
+    pub fn subcommand(&self) -> (&str, Option<&ArgMatches<'a>>) {
+        self.subcommand.as_ref().map(|sc| (&sc.name[..], Some(&sc.matches))).unwrap_or(("", None))
     }
 
     /// Returns a string slice of the usage statement for the `App` (or `SubCommand`)
@@ -272,11 +294,104 @@ impl<'n, 'a> ArgMatches<'n, 'a> {
     /// println!("{}",app_matches.usage());
     /// ```
     pub fn usage(&self) -> &str {
-        if let Some(ref u) = self.usage {
-            return &u[..];
-        }
-
-        // Should be un-reachable
-        ""
+        self.usage.as_ref().map(|u| &u[..]).unwrap_or("")
     }
+}
+
+
+// The following were taken and adapated from vec_map source
+// repo: https://github.com/contain-rs/vec-map
+// commit: be5e1fa3c26e351761b33010ddbdaf5f05dbcc33
+// license: MIT - Copyright (c) 2015 The Rust Project Developers
+
+#[derive(Clone)]
+pub struct Values<'a> {
+    iter: Map<vec_map::Values<'a, OsString>, fn(&'a OsString) -> &'a str>
+}
+
+impl<'a> Iterator for Values<'a> {
+    type Item = &'a str;
+
+    fn next(&mut self) -> Option<&'a str> { self.iter.next() }
+    fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
+}
+
+impl<'a> DoubleEndedIterator for Values<'a> {
+    fn next_back(&mut self) -> Option<&'a str> { self.iter.next_back() }
+}
+
+/// An iterator over the key-value pairs of a map.
+#[derive(Clone)]
+pub struct Iter<'a, V:'a> {
+    front: usize,
+    back: usize,
+    iter: slice::Iter<'a, Option<V>>
+}
+
+impl<'a, V> Iterator for Iter<'a, V> {
+    type Item = &'a V;
+
+    #[inline]
+    fn next(&mut self) -> Option<&'a V> {
+        while self.front < self.back {
+            match self.iter.next() {
+                Some(elem) => {
+                    match elem.as_ref() {
+                        Some(x) => {
+                            // let index = self.front;
+                            self.front += 1;
+                            return Some(x);
+                        },
+                        None => {},
+                    }
+                }
+                _ => ()
+            }
+            self.front += 1;
+        }
+        None
+    }
+
+    #[inline]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (0, Some(self.back - self.front))
+    }
+}
+
+impl<'a, V> DoubleEndedIterator for Iter<'a, V> {
+    #[inline]
+    fn next_back(&mut self) -> Option<&'a V> {
+        while self.front < self.back {
+            match self.iter.next_back() {
+                Some(elem) => {
+                    match elem.as_ref() {
+                        Some(x) => {
+                            self.back -= 1;
+                            return Some(x);
+                        },
+                        None => {},
+                    }
+                }
+                _ => ()
+            }
+            self.back -= 1;
+        }
+        None
+    }
+}
+
+#[derive(Clone)]
+pub struct OsValues<'a> {
+    iter: Map<vec_map::Values<'a, OsString>, fn(&'a OsString) -> &'a OsStr>
+}
+
+impl<'a> Iterator for OsValues<'a> {
+    type Item = &'a OsStr;
+
+    fn next(&mut self) -> Option<&'a OsStr> { self.iter.next() }
+    fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
+}
+
+impl<'a> DoubleEndedIterator for OsValues<'a> {
+    fn next_back(&mut self) -> Option<&'a OsStr> { self.iter.next_back() }
 }

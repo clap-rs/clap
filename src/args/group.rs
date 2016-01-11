@@ -41,20 +41,20 @@ use yaml_rust::Yaml;
 ///                     .add_all(&["ver", "major", "minor","patch"])
 ///                     .required(true))
 /// # .get_matches();
-pub struct ArgGroup<'n, 'ar> {
+pub struct ArgGroup<'a> {
     #[doc(hidden)]
-    pub name: &'n str,
+    pub name: &'a str,
     #[doc(hidden)]
-    pub args: Vec<&'ar str>,
+    pub args: Vec<&'a str>,
     #[doc(hidden)]
     pub required: bool,
     #[doc(hidden)]
-    pub requires: Option<Vec<&'ar str>>,
+    pub requires: Option<Vec<&'a str>>,
     #[doc(hidden)]
-    pub conflicts: Option<Vec<&'ar str>>,
+    pub conflicts: Option<Vec<&'a str>>,
 }
 
-impl<'n, 'ar> ArgGroup<'n, 'ar> {
+impl<'a> ArgGroup<'a> {
     /// Creates a new instance of `ArgGroup` using a unique string name.
     /// The name will only be used by the library consumer and not displayed to the use.
     ///
@@ -66,7 +66,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// #                 .arg_group(
     /// ArgGroup::with_name("config")
     /// # ).get_matches();
-    pub fn with_name(n: &'n str) -> Self {
+    pub fn with_name(n: &'a str) -> Self {
         ArgGroup {
             name: n,
             required: false,
@@ -86,7 +86,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// let ag = ArgGroup::from_yaml(yml);
     /// ```
     #[cfg(feature = "yaml")]
-    pub fn from_yaml<'y>(y: &'y BTreeMap<Yaml, Yaml>) -> ArgGroup<'y, 'y> {
+    pub fn from_yaml<'y>(y: &'y BTreeMap<Yaml, Yaml>) -> ArgGroup<'y> {
         // We WANT this to panic on error...so expect() is good.
         let name_yml = y.keys().nth(0).unwrap();
         let name_str = name_yml.as_str().unwrap();
@@ -142,10 +142,10 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # ArgGroup::with_name("config")
     /// .add("config")
     /// # ).get_matches();
-    pub fn add(mut self, n: &'ar str) -> Self {
+    pub fn arg(mut self, n: &'a str) -> Self {
         assert!(self.name != n,
                 "ArgGroup '{}' can not have same name as arg inside it",
-                self.name);
+                &*self.name);
         self.args.push(n);
         self
     }
@@ -162,9 +162,9 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # ArgGroup::with_name("config")
     /// .add_all(&["config", "input", "output"])
     /// # ).get_matches();
-    pub fn add_all(mut self, ns: &[&'ar str]) -> Self {
+    pub fn args(mut self, ns: &[&'a str]) -> Self {
         for n in ns {
-            self = self.add(n);
+            self = self.arg(n);
         }
         self
     }
@@ -205,7 +205,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # ArgGroup::with_name("config")
     /// .requires("config")
     /// # ).get_matches();
-    pub fn requires(mut self, n: &'ar str) -> Self {
+    pub fn requires(mut self, n: &'a str) -> Self {
         if let Some(ref mut reqs) = self.requires {
             reqs.push(n);
         } else {
@@ -230,7 +230,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # ArgGroup::with_name("config")
     /// .requires_all(&["config", "input"])
     /// # ).get_matches();
-    pub fn requires_all(mut self, ns: &[&'ar str]) -> Self {
+    pub fn requires_all(mut self, ns: &[&'a str]) -> Self {
         for n in ns {
             self = self.requires(n);
         }
@@ -253,7 +253,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # ArgGroup::with_name("config")
     /// .conflicts_with("config")
     /// # ).get_matches();
-    pub fn conflicts_with(mut self, n: &'ar str) -> Self {
+    pub fn conflicts_with(mut self, n: &'a str) -> Self {
         if let Some(ref mut confs) = self.conflicts {
             confs.push(n);
         } else {
@@ -278,7 +278,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     /// # ArgGroup::with_name("config")
     /// .conflicts_with_all(&["config", "input"])
     /// # ).get_matches();
-    pub fn conflicts_with_all(mut self, ns: &[&'ar str]) -> Self {
+    pub fn conflicts_with_all(mut self, ns: &[&'a str]) -> Self {
         for n in ns {
             self = self.conflicts_with(n);
         }
@@ -286,7 +286,7 @@ impl<'n, 'ar> ArgGroup<'n, 'ar> {
     }
 }
 
-impl<'n, 'ar> Debug for ArgGroup<'n, 'ar> {
+impl<'a> Debug for ArgGroup<'a> {
     fn fmt(&self, f: &mut Formatter) -> Result {
         write!(f,
                "{{
@@ -295,12 +295,24 @@ impl<'n, 'ar> Debug for ArgGroup<'n, 'ar> {
             required: {:?},
             requires: {:?},
             conflicts: {:?},
-}}",
+            }}",
                self.name,
                self.args,
                self.required,
                self.requires,
                self.conflicts)
+    }
+}
+
+impl<'a, 'z> From<&'z ArgGroup<'a>> for ArgGroup<'a> {
+    fn from(g: &'z ArgGroup<'a>) -> Self {
+        ArgGroup {
+            name: g.name.clone(),
+            required: g.required,
+            args: g.args.clone(),
+            requires: g.requires.clone(),
+            conflicts: g.conflicts.clone(),
+        }
     }
 }
 

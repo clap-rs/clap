@@ -23,15 +23,15 @@ use ArgMatches;
 ///                           .help("The configuration file to use")
 ///                           .index(1))
 /// # ).get_matches();
-#[derive(Debug)]
-pub struct SubCommand<'n, 'a> {
+#[derive(Debug, Clone)]
+pub struct SubCommand<'a> {
     #[doc(hidden)]
-    pub name: &'n str,
+    pub name: String,
     #[doc(hidden)]
-    pub matches: ArgMatches<'n, 'a>,
+    pub matches: ArgMatches<'a>,
 }
 
-impl<'n, 'a> SubCommand<'n, 'a> {
+impl<'a> SubCommand<'a> {
     /// Creates a new instance of a subcommand requiring a name. Will be displayed
     /// to the user when they print version or help and usage information.
     ///
@@ -43,7 +43,7 @@ impl<'n, 'a> SubCommand<'n, 'a> {
     /// SubCommand::with_name("config")
     /// # ).get_matches();
     /// ```
-    pub fn with_name<'au, 'v, 'ab, 'u, 'h, 'ar>(name: &'ar str) -> App<'au, 'v, 'ab, 'u, 'h, 'ar> {
+    pub fn with_name<'b>(name: &str) -> App<'a, 'b> {
         App::new(name)
     }
 
@@ -57,7 +57,7 @@ impl<'n, 'a> SubCommand<'n, 'a> {
     /// let sc = SubCommand::from_yaml(sc_yaml);
     /// ```
     #[cfg(feature = "yaml")]
-    pub fn from_yaml<'y>(yaml: &'y Yaml) -> App<'y, 'y, 'y, 'y, 'y, 'y> {
+    pub fn from_yaml<'y>(yaml: &'y Yaml) -> App<'y> {
         App::from_yaml(yaml)
     }
 }
