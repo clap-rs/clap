@@ -1,12 +1,12 @@
+#![cfg(not(windows))]
+
 extern crate clap;
 
 use std::ffi::OsString;
-#[cfg(not(windows))]
 use std::os::unix::ffi::OsStringExt;
 use clap::{App, Arg, ClapErrorType};
 
-#[cfg_attr(not(windows), test)]
-#[cfg(not(windows))]
+#[test]
 fn invalid_unicode_safe() {
     let m = App::new("bad_unicode")
         .arg(Arg::from_usage("<arg> 'some arg'"))
@@ -18,8 +18,7 @@ fn invalid_unicode_safe() {
     }
 }
 
-#[cfg_attr(not(windows), test)]
-#[cfg(not(windows))]
+#[test]
 fn invalid_unicode_lossy() {
     if let Ok(m) = App::new("bad_unicode")
         .arg(Arg::from_usage("<arg> 'some arg'"))
