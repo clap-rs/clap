@@ -9,6 +9,8 @@ Command Line Argument Parser for Rust
 
 It is a simple to use, efficient, and full featured library for parsing command line arguments and subcommands when writing console, or terminal applications.
 
+## [documentation](http://kbknapp.github.io/clap-rs/clap/index.html)
+
 Table of Contents
 =================
 
@@ -38,7 +40,7 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 If you're already familiar with `clap` but just want to see some new highlights as of **1.5**
 
-* **huge performance boost** - parsing speed is literally half of what it used to be (and it was already fast). The following graph shows parsing speed, **to include** building the parser of valid arguments for a complex scenario with many arguments, relationships, and other restictions was parsed in ~10,000ns (~0.01 miliseconds)
+* **huge performance boost** - parsing speed is literally half of what it used to be (and it was already fast). The following graph shows parsing speed, **to include** building the parser of valid arguments for a complex scenario with many arguments, relationships, and other restictions was parsed in ~10,000ns (~0.01 milliseconds)
 ![clap Performance Graph](https://github.com/kbknapp/clap-rs/blob/master/clap-perf/clap_perf.png)
 * major refactor of code to de-dupilicate and reduce errors. This is a massive improvement and should make contributing to this project much easier.
 * massive errors overhaul thanks in part to the excellent read on [Error Handling](https://doc.rust-lang.org/book/error-handling.html) by [BurntSushi](https://github.com/burntsushi)
