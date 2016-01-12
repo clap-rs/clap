@@ -17,10 +17,10 @@
 #[macro_use]
 extern crate clap;
 
-use clap::App;
-
 #[cfg(feature = "yaml")]
 fn main() {
+    use clap::App;
+
     // To load a yaml file containing our CLI definition such as the example '17_yaml.yml' we can
     // use the convenience macro which loads the file at compile relative to the current file
     // similiar to how modules are found.
