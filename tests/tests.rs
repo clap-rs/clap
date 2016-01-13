@@ -3,7 +3,7 @@ extern crate clap;
 
 use std::collections::HashSet;
 
-use clap::{App, Arg, ArgGroup, SubCommand};
+use clap::{App, Arg, ArgGroup};
 use std::vec::Vec;
 
 arg_enum!{
@@ -883,34 +883,6 @@ fn create_option_with_vals() {
     assert!(d.takes_value);
     assert!(d.required);
     assert_eq!(d.num_vals.unwrap(), 2);
-}
-
-#[test]
-fn create_subcommand() {
-    let _ = App::new("test")
-                .subcommand(SubCommand::with_name("some")
-                                        .arg(Arg::with_name("test")
-                                            .short("t")
-                                            .long("test")
-                                            .takes_value(true)
-                                            .help("testing testing")))
-                .arg(Arg::with_name("other").long("other"))
-                .get_matches();
-}
-
-#[test]
-fn create_multiple_subcommands() {
-    let _ = App::new("test")
-                .subcommands(vec![ SubCommand::with_name("some")
-                                        .arg(Arg::with_name("test")
-                                            .short("t")
-                                            .long("test")
-                                            .takes_value(true)
-                                            .help("testing testing")),
-                                    SubCommand::with_name("add")
-                                        .arg(Arg::with_name("roster").short("r"))])
-                .arg(Arg::with_name("other").long("other"))
-                .get_matches();
 }
 
 #[test]
