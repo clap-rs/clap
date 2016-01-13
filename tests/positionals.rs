@@ -67,18 +67,3 @@ fn positional_multiple_2() {
     let err = result.err().unwrap();
     assert_eq!(err.error_type, ClapErrorType::UnexpectedArgument);
 }
-
-#[test]
-fn positional_possible_values() {
-    let m = App::new("positional_possible_values")
-        .args(vec![
-            Arg::from_usage("-f, --flag 'some flag'"),
-            Arg::with_name("positional")
-                .index(1)
-                .possible_value("test123")
-            ])
-        .get_matches_from(vec!["", "-f", "test123"]);
-    assert!(m.is_present("positional"));
-    assert!(m.is_present("flag"));
-    assert_eq!(m.values_of("positional").unwrap(), vec!["test123"]);
-}
