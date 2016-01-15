@@ -1,6 +1,6 @@
 extern crate clap;
 
-use clap::{App, ClapErrorType};
+use clap::{App, SubCommand, ClapErrorType};
 
 #[test]
 fn help_short() {
@@ -21,6 +21,33 @@ fn help_long() {
         .about("tests stuff")
         .version("1.3")
         .get_matches_from_safe(vec!["", "--help"]);
+
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().error_type, ClapErrorType::HelpDisplayed);
+}
+
+#[test]
+fn help_no_subcommand() {
+    let m = App::new("test")
+        .author("Kevin K.")
+        .about("tests stuff")
+        .version("1.3")
+        .get_matches_from_safe(vec!["", "help"]);
+
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().error_type, ClapErrorType::UnexpectedArgument);
+}
+
+#[test]
+fn help_subcommand() {
+    let m = App::new("test")
+        .author("Kevin K.")
+        .about("tests stuff")
+        .version("1.3")
+        .subcommand(SubCommand::with_name("test")
+            .about("tests things")
+            .arg_from_usage("-v --verbose 'with verbosity'"))
+        .get_matches_from_safe(vec!["", "help"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().error_type, ClapErrorType::HelpDisplayed);
