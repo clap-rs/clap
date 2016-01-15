@@ -1,6 +1,30 @@
 extern crate clap;
 
-use clap::App;
+use clap::{App, ClapErrorType};
+
+#[test]
+fn help_short() {
+    let m = App::new("test")
+        .author("Kevin K.")
+        .about("tests stuff")
+        .version("1.3")
+        .get_matches_from_safe(vec!["", "-h"]);
+
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().error_type, ClapErrorType::HelpDisplayed);
+}
+
+#[test]
+fn help_long() {
+    let m = App::new("test")
+        .author("Kevin K.")
+        .about("tests stuff")
+        .version("1.3")
+        .get_matches_from_safe(vec!["", "--help"]);
+
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().error_type, ClapErrorType::HelpDisplayed);
+}
 
 #[test]
 fn print_app_help() {
