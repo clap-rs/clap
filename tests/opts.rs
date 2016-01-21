@@ -5,11 +5,11 @@ use clap::{App, Arg};
 #[test]
 fn opts_using_short() {
     let m = App::new("opts")
-        .args(vec![
+        .args(&mut [
             Arg::from_usage("-f [flag] 'some flag'"),
             Arg::from_usage("-c [color] 'some other flag'")
             ])
-        .get_matches_from(vec!["", "-f", "some", "-c", "other"]);
+        .get_matches_from(vec!["myprog", "-f", "some", "-c", "other"]);
     assert!(m.is_present("flag"));
     assert_eq!(m.value_of("flag").unwrap(), "some");
     assert!(m.is_present("color"));
@@ -23,7 +23,7 @@ fn opts_using_long_space() {
             Arg::from_usage("--flag [flag] 'some flag'"),
             Arg::from_usage("--color [color] 'some other flag'")
             ])
-        .get_matches_from(vec!["", "--flag", "some", "--color", "other"]);
+        .get_matches_from(vec!["myprog", "--flag", "some", "--color", "other"]);
     assert!(m.is_present("flag"));
     assert_eq!(m.value_of("flag").unwrap(), "some");
     assert!(m.is_present("color"));
@@ -37,7 +37,7 @@ fn opts_using_long_equals() {
             Arg::from_usage("--flag [flag] 'some flag'"),
             Arg::from_usage("--color [color] 'some other flag'")
             ])
-        .get_matches_from(vec!["", "--flag=some", "--color=other"]);
+        .get_matches_from(vec!["myprog", "--flag=some", "--color=other"]);
     assert!(m.is_present("flag"));
     assert_eq!(m.value_of("flag").unwrap(), "some");
     assert!(m.is_present("color"));
@@ -51,7 +51,7 @@ fn opts_using_mixed() {
             Arg::from_usage("-f, --flag [flag] 'some flag'"),
             Arg::from_usage("-c, --color [color] 'some other flag'")
             ])
-        .get_matches_from(vec!["", "-f", "some", "--color", "other"]);
+        .get_matches_from(vec!["myprog", "-f", "some", "--color", "other"]);
     assert!(m.is_present("flag"));
     assert_eq!(m.value_of("flag").unwrap(), "some");
     assert!(m.is_present("color"));
@@ -62,7 +62,7 @@ fn opts_using_mixed() {
             Arg::from_usage("-f, --flag [flag] 'some flag'"),
             Arg::from_usage("-c, --color [color] 'some other flag'")
             ])
-        .get_matches_from(vec!["", "--flag=some", "-c", "other"]);
+        .get_matches_from(vec!["myprog", "--flag=some", "-c", "other"]);
     assert!(m.is_present("flag"));
     assert_eq!(m.value_of("flag").unwrap(), "some");
     assert!(m.is_present("color"));

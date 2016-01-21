@@ -37,8 +37,8 @@ use yaml_rust::Yaml;
 ///                   --major         'auto increase major'
 ///                   --minor         'auto increase minor'
 ///                   --patch         'auto increase patch")
-/// .arg_group(ArgGroup::with_name("vers")
-///                     .add_all(&["ver", "major", "minor","patch"])
+/// .group(ArgGroup::with_name("vers")
+///                     .args(&["ver", "major", "minor","patch"])
 ///                     .required(true))
 /// # .get_matches();
 pub struct ArgGroup<'a> {
@@ -63,7 +63,7 @@ impl<'a> ArgGroup<'a> {
     /// ```no_run
     /// # use clap::{App, ArgGroup};
     /// # let matches = App::new("myprog")
-    /// #                 .arg_group(
+    /// #                 .group(
     /// ArgGroup::with_name("config")
     /// # ).get_matches();
     pub fn with_name(n: &'a str) -> Self {
@@ -99,7 +99,7 @@ impl<'a> ArgGroup<'a> {
                 "args" => {
                     for ys in v.as_vec().unwrap() {
                         if let Some(s) = ys.as_str() {
-                            a = a.add(s);
+                            a = a.arg(s);
                         }
                     }
                     a
@@ -138,9 +138,9 @@ impl<'a> ArgGroup<'a> {
     /// ```no_run
     /// # use clap::{App, ArgGroup};
     /// # let matches = App::new("myprog")
-    /// #                 .arg_group(
+    /// #                 .group(
     /// # ArgGroup::with_name("config")
-    /// .add("config")
+    /// .arg("config")
     /// # ).get_matches();
     pub fn arg(mut self, n: &'a str) -> Self {
         assert!(self.name != n,
@@ -158,9 +158,9 @@ impl<'a> ArgGroup<'a> {
     /// ```no_run
     /// # use clap::{App, ArgGroup};
     /// # let matches = App::new("myprog")
-    /// #                 .arg_group(
+    /// #                 .group(
     /// # ArgGroup::with_name("config")
-    /// .add_all(&["config", "input", "output"])
+    /// .args(&["config", "input", "output"])
     /// # ).get_matches();
     pub fn args(mut self, ns: &[&'a str]) -> Self {
         for n in ns {
@@ -180,7 +180,7 @@ impl<'a> ArgGroup<'a> {
     /// ```no_run
     /// # use clap::{App, ArgGroup};
     /// # let matches = App::new("myprog")
-    /// #                 .arg_group(
+    /// #                 .group(
     /// # ArgGroup::with_name("config")
     /// .required(true)
     /// # ).get_matches();
@@ -201,7 +201,7 @@ impl<'a> ArgGroup<'a> {
     /// ```no_run
     /// # use clap::{App, ArgGroup};
     /// # let matches = App::new("myprog")
-    /// #                 .arg_group(
+    /// #                 .group(
     /// # ArgGroup::with_name("config")
     /// .requires("config")
     /// # ).get_matches();
@@ -226,7 +226,7 @@ impl<'a> ArgGroup<'a> {
     /// ```no_run
     /// # use clap::{App, ArgGroup};
     /// # let matches = App::new("myprog")
-    /// #                 .arg_group(
+    /// #                 .group(
     /// # ArgGroup::with_name("config")
     /// .requires_all(&["config", "input"])
     /// # ).get_matches();
@@ -249,7 +249,7 @@ impl<'a> ArgGroup<'a> {
     /// ```no_run
     /// # use clap::{App, ArgGroup};
     /// # let matches = App::new("myprog")
-    /// #                 .arg_group(
+    /// #                 .group(
     /// # ArgGroup::with_name("config")
     /// .conflicts_with("config")
     /// # ).get_matches();
@@ -274,7 +274,7 @@ impl<'a> ArgGroup<'a> {
     /// ```no_run
     /// # use clap::{App, ArgGroup};
     /// # let matches = App::new("myprog")
-    /// #                 .arg_group(
+    /// #                 .group(
     /// # ArgGroup::with_name("config")
     /// .conflicts_with_all(&["config", "input"])
     /// # ).get_matches();
@@ -323,9 +323,9 @@ mod test {
     #[test]
     fn groups() {
         let g = ArgGroup::with_name("test")
-                    .add("a1")
-                    .add_all(&["a2", "a3"])
-                    .add("a4")
+                    .arg("a1")
+                    .arg("a4")
+                    .args(&["a2", "a3"])
                     .required(true)
                     .conflicts_with("c1")
                     .conflicts_with_all(&["c2", "c3"])

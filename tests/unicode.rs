@@ -4,7 +4,7 @@ extern crate clap;
 
 use std::ffi::OsString;
 use std::os::unix::ffi::OsStringExt;
-use clap::{App, Arg, ClapErrorType};
+use clap::{App, Arg, ErrorKind};
 
 #[test]
 fn invalid_unicode_safe() {
@@ -14,7 +14,7 @@ fn invalid_unicode_safe() {
                                     OsString::from_vec(vec![0xe9])]);
     assert!(m.is_err());
     if let Err(err) = m {
-        assert_eq!(err.error_type, ClapErrorType::InvalidUnicode);
+        assert_eq!(err.kind, ErrorKind::InvalidUnicode);
     }
 }
 

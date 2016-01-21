@@ -9,7 +9,7 @@ fn flag_using_short() {
             Arg::from_usage("-f, --flag 'some flag'"),
             Arg::from_usage("-c, --color 'some other flag'")
             ])
-        .get_matches_from(vec!["", "-f", "-c"]);
+        .get_matches_from(vec!["myprog", "-f", "-c"]);
     assert!(m.is_present("flag"));
     assert!(m.is_present("color"));
 }
@@ -21,7 +21,7 @@ fn flag_using_long() {
             Arg::from_usage("--flag 'some flag'"),
             Arg::from_usage("--color 'some other flag'")
             ])
-        .get_matches_from(vec!["", "--flag", "--color"]);
+        .get_matches_from(vec!["myprog", "--flag", "--color"]);
     assert!(m.is_present("flag"));
     assert!(m.is_present("color"));
 }
@@ -33,7 +33,7 @@ fn flag_using_mixed() {
             Arg::from_usage("-f, --flag 'some flag'"),
             Arg::from_usage("-c, --color 'some other flag'")
             ])
-        .get_matches_from(vec!["", "-f", "--color"]);
+        .get_matches_from(vec!["myprog", "-f", "--color"]);
     assert!(m.is_present("flag"));
     assert!(m.is_present("color"));
 
@@ -42,7 +42,7 @@ fn flag_using_mixed() {
             Arg::from_usage("-f, --flag 'some flag'"),
             Arg::from_usage("-c, --color 'some other flag'")
             ])
-        .get_matches_from(vec!["", "--flag", "-c"]);
+        .get_matches_from(vec!["myprog", "--flag", "-c"]);
     assert!(m.is_present("flag"));
     assert!(m.is_present("color"));
 }
@@ -55,7 +55,7 @@ fn multiple_flags_in_single() {
             Arg::from_usage("-c, --color 'some other flag'"),
             Arg::from_usage("-d, --debug 'another other flag'")
             ])
-        .get_matches_from(vec!["", "-fcd"]);
+        .get_matches_from(vec!["myprog", "-fcd"]);
     assert!(m.is_present("flag"));
     assert!(m.is_present("color"));
     assert!(m.is_present("debug"));

@@ -90,7 +90,7 @@ fn create_app() {
 #[test]
 fn add_multiple_arg() {
     let _ = App::new("test")
-                .args( vec![
+                .args(&mut [
                     Arg::with_name("test").short("s"),
                     Arg::with_name("test2").short("l")])
                 .get_matches();
@@ -890,7 +890,7 @@ fn create_option_with_vals() {
 fn empty_group() {
     let _ = App::new("empty_group")
         .arg(Arg::from_usage("-f, --flag 'some flag'"))
-        .arg_group(ArgGroup::with_name("vers")
+        .group(ArgGroup::with_name("vers")
             .required(true))
         .get_matches();
 }
@@ -900,9 +900,9 @@ fn empty_group() {
 fn empty_group_2() {
     let _ = App::new("empty_group")
         .arg(Arg::from_usage("-f, --flag 'some flag'"))
-        .arg_group(ArgGroup::with_name("vers")
+        .group(ArgGroup::with_name("vers")
             .required(true)
-            .add_all(&["ver", "major"]))
+            .args(&["ver", "major"]))
         .get_matches();
 }
 
@@ -911,8 +911,8 @@ fn empty_group_2() {
 fn errous_group() {
     let _ = App::new("errous_group")
         .arg(Arg::from_usage("-f, --flag 'some flag'"))
-        .arg_group(ArgGroup::with_name("vers")
-            .add("vers")
+        .group(ArgGroup::with_name("vers")
+            .arg("vers")
             .required(true))
         .get_matches();
 }

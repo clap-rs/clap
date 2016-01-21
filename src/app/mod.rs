@@ -149,7 +149,7 @@ impl<'a, 'b> App<'a, 'b> {
         }
         if let Some(v) = yaml["arg_groups"].as_vec() {
             for ag_yaml in v {
-                a = a.arg_group(ArgGroup::from_yaml(&ag_yaml.as_hash().unwrap()));
+                a = a.group(ArgGroup::from_yaml(&ag_yaml.as_hash().unwrap()));
             }
         }
 
@@ -512,8 +512,8 @@ impl<'a, 'b> App<'a, 'b> {
     ///                   --major         'auto increase major'
     ///                   --minor         'auto increase minor'
     ///                   --patch         'auto increase patch")
-    /// .arg_group(ArgGroup::with_name("vers")
-    ///                     .add_all(&["ver", "major", "minor","patch"])
+    /// .group(ArgGroup::with_name("vers")
+    ///                     .args(&["ver", "major", "minor","patch"])
     ///                     .required(true))
     /// # ;
     pub fn group(mut self, group: ArgGroup<'a>) -> Self {
@@ -549,8 +549,8 @@ impl<'a, 'b> App<'a, 'b> {
     ///                   --major         'auto increase major'
     ///                   --minor         'auto increase minor'
     ///                   --patch         'auto increase patch")
-    /// .arg_group(ArgGroup::with_name("vers")
-    ///                     .add_all(&["ver", "major", "minor","patch"])
+    /// .group(ArgGroup::with_name("vers")
+    ///                     .args(&["ver", "major", "minor","patch"])
     ///                     .required(true))
     /// # ;
     pub fn groups(mut self, groups: &[ArgGroup<'a>]) -> Self {
@@ -648,7 +648,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///     // Args and options go here...
     ///     .get_matches();
     /// ```
-    pub fn get_matches<U>(self) -> ArgMatches<'a> {
+    pub fn get_matches(self) -> ArgMatches<'a> {
         // Start the parsing
         self.get_matches_from(&mut env::args_os())
     }

@@ -1,6 +1,6 @@
 extern crate clap;
 
-use clap::{App};
+use clap::App;
 
 fn main() {
     // Apps describe the top level application
@@ -20,9 +20,9 @@ fn main() {
     // when the version or help flags are used.
     App::new("MyApp")
         .version("1.0")
-       .author("Kevin K. <kbknapp@gmail.com>")
-       .about("Does awesome things")
-       .get_matches();
+        .author("Kevin K. <kbknapp@gmail.com>")
+        .about("Does awesome things")
+        .get_matches();
 
     // This example doesn't do much, but it *does* give automatic -h, --help, -V, and --version functionality ;)
 

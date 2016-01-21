@@ -268,7 +268,7 @@ pub enum AppSettings {
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::TrailingVarArg)
     ///     .arg(Arg::from_usage("<cmd>... 'commands to run'"))
-    ///     .get_matches_from(vec!["myprog", "some_command", "-r", "set"]);
+    ///     .get_matches_from(vec!vec!["myprog", "some_command", "-r", "set"]);
     ///
     /// assert_eq!(m.values_of("cmd").unwrap(), &["some_command", "-r", "set"]);
     /// ```
@@ -308,7 +308,7 @@ pub enum AppSettings {
     /// // Assume there is a third party subcommand installed to $PATH named myprog-subcmd
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::AllowExternalSubcommands)
-    ///     .get_matches_from(vec!["myprog", "subcmd", "--option", "value"]);
+    ///     .get_matches_from(vec!vec!["myprog", "subcmd", "--option", "value"]);
     ///
     /// match m.subcommand() {
     ///     ("", Some(sub_m)) => {

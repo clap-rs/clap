@@ -202,7 +202,7 @@ mod test {
     #[test]
     fn flagbuilder_display() {
         let mut f = FlagBuilder::new("flg");
-        f.settings.set(&ArgSettings::Multiple);
+        f.settings.set(ArgSettings::Multiple);
         f.long = Some("flag");
 
         assert_eq!(&*format!("{}", f), "--flag");

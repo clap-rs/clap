@@ -1,20 +1,20 @@
 extern crate clap;
 
-use clap::{App, Arg, ClapErrorType};
+use clap::{App, Arg, ErrorKind};
 
 #[test]
 fn posix_compatible_flags_long() {
     let m = App::new("posix")
                 .arg(Arg::from_usage("--flag  'some flag'").mutually_overrides_with("color"))
                 .arg(Arg::from_usage("--color 'some other flag'"))
-                .get_matches_from(vec!["", "--flag", "--color"]);
+                .get_matches_from(["", "--flag", "--color"]);
     assert!(m.is_present("color"));
     assert!(!m.is_present("flag"));
 
     let m = App::new("posix")
                 .arg(Arg::from_usage("--flag  'some flag'").mutually_overrides_with("color"))
                 .arg(Arg::from_usage("--color 'some other flag'"))
-                .get_matches_from(vec!["", "--color", "--flag"]);
+                .get_matches_from(vec!["myprog", "--color", "--flag"]);
     assert!(!m.is_present("color"));
     assert!(m.is_present("flag"));
 }
@@ -24,14 +24,14 @@ fn posix_compatible_flags_short() {
     let m = App::new("posix")
                 .arg(Arg::from_usage("-f, --flag  'some flag'").mutually_overrides_with("color"))
                 .arg(Arg::from_usage("-c, --color 'some other flag'"))
-                .get_matches_from(vec!["", "-f", "-c"]);
+                .get_matches_from(vec!["myprog", "-f", "-c"]);
     assert!(m.is_present("color"));
     assert!(!m.is_present("flag"));
 
     let m = App::new("posix")
                 .arg(Arg::from_usage("-f, --flag  'some flag'").mutually_overrides_with("color"))
                 .arg(Arg::from_usage("-c, --color 'some other flag'"))
-                .get_matches_from(vec!["", "-c", "-f"]);
+                .get_matches_from(vec!["myprog", "-c", "-f"]);
     assert!(!m.is_present("color"));
     assert!(m.is_present("flag"));
 }
@@ -41,7 +41,7 @@ fn posix_compatible_opts_long() {
     let m = App::new("posix")
                 .arg(Arg::from_usage("--flag [flag] 'some flag'").mutually_overrides_with("color"))
                 .arg(Arg::from_usage("--color [color] 'some other flag'"))
-                .get_matches_from(vec!["", "--flag", "some" ,"--color", "other"]);
+                .get_matches_from(vec!["myprog", "--flag", "some" ,"--color", "other"]);
     assert!(m.is_present("color"));
     assert_eq!(m.value_of("color").unwrap(), "other");
     assert!(!m.is_present("flag"));
@@ -49,7 +49,7 @@ fn posix_compatible_opts_long() {
     let m = App::new("posix")
                 .arg(Arg::from_usage("--flag [flag] 'some flag'").mutually_overrides_with("color"))
                 .arg(Arg::from_usage("--color [color] 'some other flag'"))
-                .get_matches_from(vec!["", "--color", "some" ,"--flag", "other"]);
+                .get_matches_from(vec!["myprog", "--color", "some" ,"--flag", "other"]);
     assert!(!m.is_present("color"));
     assert!(m.is_present("flag"));
     assert_eq!(m.value_of("flag").unwrap(), "other");
@@ -60,7 +60,7 @@ fn posix_compatible_opts_long_equals() {
     let m = App::new("posix")
                 .arg(Arg::from_usage("--flag [flag] 'some flag'").mutually_overrides_with("color"))
                 .arg(Arg::from_usage("--color [color] 'some other flag'"))
-                .get_matches_from(vec!["", "--flag=some" ,"--color=other"]);
+                .get_matches_from(vec!["myprog", "--flag=some" ,"--color=other"]);
     assert!(m.is_present("color"));
     assert_eq!(m.value_of("color").unwrap(), "other");
     assert!(!m.is_present("flag"));
@@ -68,7 +68,7 @@ fn posix_compatible_opts_long_equals() {
     let m = App::new("posix")
                 .arg(Arg::from_usage("--flag [flag] 'some flag'").mutually_overrides_with("color"))
                 .arg(Arg::from_usage("--color [color] 'some other flag'"))
-                .get_matches_from(vec!["", "--color=some" ,"--flag=other"]);
+                .get_matches_from(vec!["myprog", "--color=some" ,"--flag=other"]);
     assert!(!m.is_present("color"));
     assert!(m.is_present("flag"));
     assert_eq!(m.value_of("flag").unwrap(), "other");
@@ -79,7 +79,7 @@ fn posix_compatible_opts_short() {
     let m = App::new("posix")
                 .arg(Arg::from_usage("-f [flag]  'some flag'").mutually_overrides_with("color"))
                 .arg(Arg::from_usage("-c [color] 'some other flag'"))
-                .get_matches_from(vec!["", "-f", "some", "-c", "other"]);
+                .get_matches_from(vec!["myprog", "-f", "some", "-c", "other"]);
     assert!(m.is_present("color"));
     assert_eq!(m.value_of("color").unwrap(), "other");
     assert!(!m.is_present("flag"));
@@ -87,7 +87,7 @@ fn posix_compatible_opts_short() {
     let m = App::new("posix")
                 .arg(Arg::from_usage("-f [flag]  'some flag'").mutually_overrides_with("color"))
                 .arg(Arg::from_usage("-c [color] 'some other flag'"))
-                .get_matches_from(vec!["", "-c", "some", "-f", "other"]);
+                .get_matches_from(vec!["myprog", "-c", "some", "-f", "other"]);
     assert!(!m.is_present("color"));
     assert!(m.is_present("flag"));
     assert_eq!(m.value_of("flag").unwrap(), "other");
@@ -101,7 +101,7 @@ fn conflict_overriden() {
         .arg(Arg::from_usage("-d, --debug 'other flag'"))
         .arg(Arg::from_usage("-c, --color 'third flag'")
             .mutually_overrides_with("flag"))
-        .get_matches_from(vec!["", "-f", "-c", "-d"]);
+        .get_matches_from(vec!["myprog", "-f", "-c", "-d"]);
     assert!(m.is_present("color"));
     assert!(!m.is_present("flag"));
     assert!(m.is_present("debug"));
@@ -115,10 +115,10 @@ fn conflict_overriden_2() {
         .arg(Arg::from_usage("-d, --debug 'other flag'"))
         .arg(Arg::from_usage("-c, --color 'third flag'")
             .mutually_overrides_with("flag"))
-        .get_matches_from_safe(vec!["", "-f", "-d", "-c"]);
+        .get_matches_from_safe(vec!["myprog", "-f", "-d", "-c"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.error_type, ClapErrorType::ArgumentConflict);
+    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
 }
 
 #[test]
@@ -129,10 +129,10 @@ fn conflict_overriden_3() {
         .arg(Arg::from_usage("-d, --debug 'other flag'"))
         .arg(Arg::from_usage("-c, --color 'third flag'")
             .mutually_overrides_with("flag"))
-        .get_matches_from_safe(vec!["", "-d", "-c", "-f"]);
+        .get_matches_from_safe(vec!["myprog", "-d", "-c", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.error_type, ClapErrorType::ArgumentConflict);
+    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
 }
 
 #[test]
@@ -143,7 +143,7 @@ fn conflict_overriden_4() {
         .arg(Arg::from_usage("-d, --debug 'other flag'"))
         .arg(Arg::from_usage("-c, --color 'third flag'")
             .mutually_overrides_with("flag"))
-        .get_matches_from(vec!["", "-d", "-f", "-c"]);
+        .get_matches_from(vec!["myprog", "-d", "-f", "-c"]);
     assert!(m.is_present("color"));
     assert!(!m.is_present("flag"));
     assert!(m.is_present("debug"));
@@ -157,7 +157,7 @@ fn pos_required_overridden_by_flag() {
             .required(true))
         .arg(Arg::from_usage("-c, --color 'some flag'")
             .mutually_overrides_with("pos"))
-        .get_matches_from_safe(vec!["", "test", "-c"]);
+        .get_matches_from_safe(vec!["myprog", "test", "-c"]);
     assert!(result.is_ok(), "{:?}", result.unwrap_err());
 }
 
@@ -169,7 +169,7 @@ fn require_overriden_2() {
             .required(true))
         .arg(Arg::from_usage("-c, --color 'other flag'")
             .mutually_overrides_with("flag"))
-        .get_matches_from(vec!["", "-c", "flag"]);
+        .get_matches_from(vec!["myprog", "-c", "flag"]);
     assert!(!m.is_present("color"));
     assert!(m.is_present("flag"));
 }
@@ -182,7 +182,7 @@ fn require_overriden_3() {
         .arg(Arg::from_usage("-d, --debug 'other flag'"))
         .arg(Arg::from_usage("-c, --color 'third flag'")
             .mutually_overrides_with("flag"))
-        .get_matches_from(vec!["", "-f", "-c"]);
+        .get_matches_from(vec!["myprog", "-f", "-c"]);
     assert!(m.is_present("color"));
     assert!(!m.is_present("flag"));
     assert!(!m.is_present("debug"));
@@ -196,8 +196,8 @@ fn require_overriden_4() {
         .arg(Arg::from_usage("-d, --debug 'other flag'"))
         .arg(Arg::from_usage("-c, --color 'third flag'")
             .mutually_overrides_with("flag"))
-        .get_matches_from_safe(vec!["", "-c", "-f"]);
+        .get_matches_from_safe(vec!["myprog", "-c", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.error_type, ClapErrorType::MissingRequiredArgument);
+    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
 }
