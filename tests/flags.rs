@@ -5,7 +5,7 @@ use clap::{App, Arg};
 #[test]
 fn flag_using_short() {
     let m = App::new("flag")
-        .args(vec![
+        .args(&[
             Arg::from_usage("-f, --flag 'some flag'"),
             Arg::from_usage("-c, --color 'some other flag'")
             ])
@@ -17,7 +17,7 @@ fn flag_using_short() {
 #[test]
 fn flag_using_long() {
     let m = App::new("flag")
-        .args(vec![
+        .args(&[
             Arg::from_usage("--flag 'some flag'"),
             Arg::from_usage("--color 'some other flag'")
             ])
@@ -29,7 +29,7 @@ fn flag_using_long() {
 #[test]
 fn flag_using_mixed() {
     let m = App::new("flag")
-        .args(vec![
+        .args(&[
             Arg::from_usage("-f, --flag 'some flag'"),
             Arg::from_usage("-c, --color 'some other flag'")
             ])
@@ -38,7 +38,7 @@ fn flag_using_mixed() {
     assert!(m.is_present("color"));
 
     let m = App::new("flag")
-        .args(vec![
+        .args(&[
             Arg::from_usage("-f, --flag 'some flag'"),
             Arg::from_usage("-c, --color 'some other flag'")
             ])
@@ -50,7 +50,7 @@ fn flag_using_mixed() {
 #[test]
 fn multiple_flags_in_single() {
     let m = App::new("multe_flags")
-        .args(vec![
+        .args(&[
             Arg::from_usage("-f, --flag 'some flag'"),
             Arg::from_usage("-c, --color 'some other flag'"),
             Arg::from_usage("-d, --debug 'another other flag'")

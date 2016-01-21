@@ -75,5 +75,5 @@ fn group_multi_value_single_arg() {
             .args(&["flag", "color"]))
         .get_matches_from(vec!["myprog", "-c", "blue", "red", "green"]);
     assert!(m.is_present("grp"));
-    assert_eq!(m.values_of("grp").unwrap(), &["blue", "red", "green"]);
+    assert_eq!(m.values_of("grp").unwrap().collect::<Vec<_>>(), &["blue", "red", "green"]);
 }

@@ -35,7 +35,7 @@ fn help_no_subcommand() {
         .get_matches_from_safe(vec!["myprog", "help"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::UnexpectedArgument);
+    assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
 }
 
 #[test]

@@ -1,7 +1,10 @@
-#[macro_use] extern crate clap;
+#[macro_use]
+extern crate clap;
 
-// No use imports from clap. #[macro_use] gives us `clap_app!` which internally uses `$crate::`
+// Note, there isn't a need for "use clap::{ ... };" Because the clap_app! macro uses
+// $crate:: internally
 
+#[cfg(feature = "nightly")]
 fn main() {
 
     // Validation example testing that a file exists

@@ -19,7 +19,7 @@ fn opts_using_short() {
 #[test]
 fn opts_using_long_space() {
     let m = App::new("opts")
-        .args(vec![
+        .args(&[
             Arg::from_usage("--flag [flag] 'some flag'"),
             Arg::from_usage("--color [color] 'some other flag'")
             ])
@@ -33,7 +33,7 @@ fn opts_using_long_space() {
 #[test]
 fn opts_using_long_equals() {
     let m = App::new("opts")
-        .args(vec![
+        .args(&[
             Arg::from_usage("--flag [flag] 'some flag'"),
             Arg::from_usage("--color [color] 'some other flag'")
             ])
@@ -47,7 +47,7 @@ fn opts_using_long_equals() {
 #[test]
 fn opts_using_mixed() {
     let m = App::new("opts")
-        .args(vec![
+        .args(&[
             Arg::from_usage("-f, --flag [flag] 'some flag'"),
             Arg::from_usage("-c, --color [color] 'some other flag'")
             ])
@@ -58,7 +58,7 @@ fn opts_using_mixed() {
     assert_eq!(m.value_of("color").unwrap(), "other");
 
     let m = App::new("opts")
-        .args(vec![
+        .args(&[
             Arg::from_usage("-f, --flag [flag] 'some flag'"),
             Arg::from_usage("-c, --color [color] 'some other flag'")
             ])

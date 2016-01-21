@@ -7,7 +7,7 @@ fn posix_compatible_flags_long() {
     let m = App::new("posix")
                 .arg(Arg::from_usage("--flag  'some flag'").mutually_overrides_with("color"))
                 .arg(Arg::from_usage("--color 'some other flag'"))
-                .get_matches_from(["", "--flag", "--color"]);
+                .get_matches_from(vec!["", "--flag", "--color"]);
     assert!(m.is_present("color"));
     assert!(!m.is_present("flag"));
 

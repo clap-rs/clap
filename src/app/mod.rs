@@ -699,8 +699,8 @@ impl<'a, 'b> App<'a, 'b> {
     ///     // Args and options go here...
     ///     .get_matches_from(arg_vec);
     /// ```
-    pub fn get_matches_from<I, T>(mut self, itr: &mut I) -> ArgMatches<'a>
-        where I: Iterator<Item = T>,
+    pub fn get_matches_from<I, T>(mut self, itr: I) -> ArgMatches<'a>
+        where I: IntoIterator<Item = T>,
               T: Into<OsString>
     {
         self.get_matches_from_safe_borrow(itr).unwrap_or_else(|e| {
@@ -741,8 +741,8 @@ impl<'a, 'b> App<'a, 'b> {
     ///     .get_matches_from_safe(arg_vec)
     ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
     /// ```
-    pub fn get_matches_from_safe<I, T>(mut self, itr: &mut I) -> ClapResult<ArgMatches<'a>>
-        where I: Iterator<Item = T>,
+    pub fn get_matches_from_safe<I, T>(mut self, itr: I) -> ClapResult<ArgMatches<'a>>
+        where I: IntoIterator<Item = T>,
               T: Into<OsString>
     {
         self.get_matches_from_safe_borrow(itr)
@@ -775,8 +775,8 @@ impl<'a, 'b> App<'a, 'b> {
     /// let matches = app.get_matches_from_safe_borrow(arg_vec)
     ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
     /// ```
-    fn get_matches_from_safe_borrow<I, T>(&mut self, itr: &mut I) -> ClapResult<ArgMatches<'a>>
-        where I: Iterator<Item = T>,
+    pub fn get_matches_from_safe_borrow<I, T>(&mut self, itr: I) -> ClapResult<ArgMatches<'a>>
+        where I: IntoIterator<Item = T>,
               T: Into<OsString>
     {
         // Verify all positional assertions pass

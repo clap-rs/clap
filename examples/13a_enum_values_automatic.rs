@@ -15,10 +15,6 @@ extern crate clap;
 
 use clap::{App, Arg};
 
-// Define your enum, the simple_num! macro takes a enum name followed by => and each value
-// separated by a ','
-simple_enum!{ Foo => Bar, Baz, Qux }
-
 // Using arg_enum! is more like traditional enum declarations
 //
 // **NOTE:** Only bare variants are supported
@@ -31,22 +27,33 @@ arg_enum!{
     }
 }
 
+arg_enum!{
+    #[derive(Debug)]
+    enum Foo {
+        Bar,
+        Baz,
+        Qux
+    }
+}
+
 fn main() {
     // Create the application like normal
     let enum_vals = ["fast", "slow"];
     let m = App::new("myapp")
                     // Use a single positional argument that is required
-                    .arg(Arg::from_usage("<type> 'The Foo to use'")
+                    .arg(Arg::from_usage("<foo> 'The Foo to use'")
+                        .possible_values(&*Foo::variants()))
+                    .arg(Arg::from_usage("<speed> 'The speed to use'")
                             // You can define a list of possible values if you want the values to be
                             // displayed in the help information. Whether you use possible_values() or
                             // not, the valid values will ALWAYS be displayed on a failed parse.
                             .possible_values(&enum_vals))
                     // For the second positional, lets not use possible_values() just to show the difference
-                    .arg_from_usage("<type2> 'The Oof to use'")
+                    .arg_from_usage("<oof> 'The Oof to use'")
                     .get_matches();
 
-    let t = value_t_or_exit!(m.value_of("type"), Foo);
-    let t2 = value_t_or_exit!(m.value_of("type2"), Oof);
+    let t = value_t!(m.value_of("foo"), Foo).unwrap_or_else(|e| e.exit());
+    let t2 = value_t!(m.value_of("oof"), Oof).unwrap_or_else(|e| e.exit());
 
 
     // Now we can use our enum like normal.
