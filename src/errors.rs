@@ -26,7 +26,7 @@ pub enum ErrorKind {
     ///     .arg(Arg::with_name("speed")
     ///         .possible_value("fast")
     ///         .possible_value("slow"))
-    ///     .get_matches_from_safe(vec!["myprog", "other"]);
+    ///     .get_matches_from_safe(vec!vec!["myprog", "other"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err(), Error::InvalidValue);
     /// ```
@@ -39,7 +39,7 @@ pub enum ErrorKind {
     /// # use clap::{App, Arg};
     /// let result = App::new("myprog")
     ///     .arg(Arg::from_usage("--flag 'some flag'"))
-    ///     .get_matches_from_safe(vec!["myprog", "--other"]);
+    ///     .get_matches_from_safe(vec!vec!["myprog", "--other"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
@@ -58,7 +58,7 @@ pub enum ErrorKind {
     ///         .arg(Arg::with_name("config_file")
     ///             .help("The configuration file to use")
     ///             .index(1)))
-    ///     .get_matches_from_safe(vec!["myprog", "other"]);
+    ///     .get_matches_from_safe(vec!vec!["myprog", "other"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidSubcommand);
     /// ```
@@ -72,7 +72,7 @@ pub enum ErrorKind {
     /// let result = App::new("myprog")
     ///     .arg(Arg::with_name("color")
     ///          .empty_values(false))
-    ///     .get_matches_from_safe(vec!["", "--debug", ""]);
+    ///     .get_matches_from_safe(vec!["myprog", "--debug", ""]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::EmptyValue);
     /// ```
@@ -94,7 +94,7 @@ pub enum ErrorKind {
     /// let result = App::new("myprog")
     ///     .arg(Arg::with_name("num")
     ///          .validator(is_numeric))
-    ///     .get_matches_from_safe(vec!["myprog", "NotANumber"]);
+    ///     .get_matches_from_safe(vec!vec!["myprog", "NotANumber"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::ValueValidation);
     /// ```
@@ -111,7 +111,7 @@ pub enum ErrorKind {
     ///         .long("opt")
     ///         .takes_value(true)
     ///         .max_values(2))
-    ///     .get_matches_from_safe(vec!["myprog", "--opt", "too", "many", "values"]);
+    ///     .get_matches_from_safe(vec!vec!["myprog", "--opt", "too", "many", "values"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::TooManyValues);
     /// ```
@@ -127,7 +127,7 @@ pub enum ErrorKind {
     ///     .arg(Arg::with_name("some_opt")
     ///         .long("opt")
     ///         .min_values(3))
-    ///     .get_matches_from_safe(vec!["myprog", "--opt", "too", "few"]);
+    ///     .get_matches_from_safe(vec!vec!["myprog", "--opt", "too", "few"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::TooFewValues);
     /// ```
@@ -144,7 +144,7 @@ pub enum ErrorKind {
     ///         .long("opt")
     ///         .takes_value(true)
     ///         .number_of_values(2))
-    ///     .get_matches_from_safe(vec!["myprog", "--opt", "wrong", "number", "of", "vals"]);
+    ///     .get_matches_from_safe(vec!vec!["myprog", "--opt", "wrong", "number", "of", "vals"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
     /// ```
@@ -161,7 +161,7 @@ pub enum ErrorKind {
     ///         .conflicts_with("color"))
     ///     .arg(Arg::with_name("color")
     ///         .long("color"))
-    ///     .get_matches_from_safe(vec!["myprog", "--debug", "--color"]);
+    ///     .get_matches_from_safe(vec!vec!["myprog", "--debug", "--color"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```
@@ -226,7 +226,7 @@ pub enum ErrorKind {
     /// let result = App::new("myprog")
     ///     .arg(Arg::with_name("debug")
     ///         .multiple(false))
-    ///     .get_matches_from_safe(vec!["myprog", "--debug", "--debug"]);
+    ///     .get_matches_from_safe(vec!vec!["myprog", "--debug", "--debug"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnexpectedMultipleUsage);
     /// ```
@@ -270,7 +270,7 @@ pub enum ErrorKind {
     /// # use clap::{App, Arg};
     /// # use clap::ErrorType;
     /// let result = App::new("myprog")
-    ///     .get_matches_from_safe(vec!["myprog", "--help"]);
+    ///     .get_matches_from_safe(vec!vec!["myprog", "--help"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorType::HelpDisplayed);
     /// ```
@@ -284,7 +284,7 @@ pub enum ErrorKind {
     /// # use clap::{App, Arg};
     /// # use clap::ErrorType;
     /// let result = App::new("myprog")
-    ///     .get_matches_from_safe(vec!["", "--version"]);
+    ///     .get_matches_from_safe(vec!["myprog", "--version"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorType::VersionDisplayed);
     /// ```

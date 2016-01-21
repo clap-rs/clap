@@ -250,7 +250,7 @@ mod test {
     fn optbuilder_display() {
         let mut o = OptBuilder::new("opt");
         o.long = Some("option");
-        o.settings.set(&ArgSettings::Multiple);
+        o.settings.set(ArgSettings::Multiple);
 
         assert_eq!(&*format!("{}", o), "--option <opt>...");
 

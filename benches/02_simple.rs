@@ -32,20 +32,20 @@ fn parse_clean(b: &mut Bencher) {
 
 #[bench]
 fn parse_flag(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec!["", "-f"]));
+    b.iter(|| create_app!().get_matches_from(vec!["myprog", "-f"]));
 }
 
 #[bench]
 fn parse_option(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec!["", "-o", "option1"]));
+    b.iter(|| create_app!().get_matches_from(vec!["myprog", "-o", "option1"]));
 }
 
 #[bench]
 fn parse_positional(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec!["", "arg1"]));
+    b.iter(|| create_app!().get_matches_from(vec!["myprog", "arg1"]));
 }
 
 #[bench]
 fn parse_complex(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec!["", "-o", "option1", "-f", "arg1"]));
+    b.iter(|| create_app!().get_matches_from(vec!["myprog", "-o", "option1", "-f", "arg1"]));
 }

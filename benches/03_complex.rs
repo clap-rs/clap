@@ -177,51 +177,51 @@ fn parse_clean(b: &mut Bencher) {
 
 #[bench]
 fn parse_flag(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec!["", "-f"]));
+    b.iter(|| create_app!().get_matches_from(vec!["myprog", "-f"]));
 }
 
 #[bench]
 fn parse_option(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec!["", "-o", "option1"]));
+    b.iter(|| create_app!().get_matches_from(vec!["myprog", "-o", "option1"]));
 }
 
 #[bench]
 fn parse_positional(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec!["", "arg1"]));
+    b.iter(|| create_app!().get_matches_from(vec!["myprog", "arg1"]));
 }
 
 #[bench]
 fn parse_sc_clean(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec!["", "subcmd"]));
+    b.iter(|| create_app!().get_matches_from(vec!["myprog", "subcmd"]));
 }
 
 #[bench]
 fn parse_sc_flag(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec!["", "subcmd", "-f"]));
+    b.iter(|| create_app!().get_matches_from(vec!["myprog", "subcmd", "-f"]));
 }
 
 #[bench]
 fn parse_sc_option(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec!["", "subcmd", "-o", "option1"]));
+    b.iter(|| create_app!().get_matches_from(vec!["myprog", "subcmd", "-o", "option1"]));
 }
 
 #[bench]
 fn parse_sc_positional(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec!["", "subcmd", "arg1"]));
+    b.iter(|| create_app!().get_matches_from(vec!["myprog", "subcmd", "arg1"]));
 }
 
 #[bench]
 fn parse_complex1(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec!["", "-ff", "-o", "option1", "arg1", "-O", "fast", "arg2", "--multvals", "one", "two", "emacs"]));
+    b.iter(|| create_app!().get_matches_from(vec!["myprog", "-ff", "-o", "option1", "arg1", "-O", "fast", "arg2", "--multvals", "one", "two", "emacs"]));
 }
 
 #[bench]
 fn parse_complex2(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec!["", "arg1", "-f", "arg2", "--long-option-2", "some", "-O", "slow", "--multvalsmo", "one", "two", "--minvals2", "3", "2", "1"]));
+    b.iter(|| create_app!().get_matches_from(vec!["myprog", "arg1", "-f", "arg2", "--long-option-2", "some", "-O", "slow", "--multvalsmo", "one", "two", "--minvals2", "3", "2", "1"]));
 }
 
 
 #[bench]
 fn parse_sc_complex(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec!["", "subcmd", "-f", "-o", "option1", "arg1"]));
+    b.iter(|| create_app!().get_matches_from(vec!["myprog", "subcmd", "-f", "-o", "option1", "arg1"]));
 }

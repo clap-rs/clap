@@ -237,8 +237,8 @@
 
 #### Documentation
 
-*   fixed ClapErrorType docs ([dd057843](https://github.com/kbknapp/clap-rs/commit/dd05784327fa070eb6ce5ce89a8507e011d8db94))
-* **ClapErrorType:**  changed examples content ([b9ca2616](https://github.com/kbknapp/clap-rs/commit/b9ca261634b89613bbf3d98fd74d55cefbb31a8c))
+*   fixed ErrorKind docs ([dd057843](https://github.com/kbknapp/clap-rs/commit/dd05784327fa070eb6ce5ce89a8507e011d8db94))
+* **ErrorKind:**  changed examples content ([b9ca2616](https://github.com/kbknapp/clap-rs/commit/b9ca261634b89613bbf3d98fd74d55cefbb31a8c))
 
 #### Bug Fixes
 

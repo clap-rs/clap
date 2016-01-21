@@ -172,27 +172,35 @@ macro_rules! for_match {
 /// ```
 #[macro_export]
 macro_rules! value_t {
-    ($m:ident.value_of($v:expr), $t:ty) => {
-        match $m.value_of($v) {
+    ($m:expr, $t:ty) => {
+        match $m {
             Some(v) => {
                 match v.parse::<$t>() {
                     Ok(val) => Ok(val),
-                    Err(_)  => Err(format!("'{}' isn't a valid value", ::clap::Format::Warning(v))),
+                    Err(_)  =>
+                        Err(::clap::Error::value_validation(
+                            format!("The argument '{}' isn't a valid value", v))),
                 }
             },
-            None => Err(format!("The argument '{}' not found", ::clap::Format::Warning($v)))
+            None =>
+                Err(::clap::Error::value_validation(format!("The argument '{}' was not found", v)))
         }
     };
-    ($m:ident.values_of($v:expr), $t:ty) => {
-        match $m.values_of($v) {
+}
+
+#[macro_export]
+macro_rules! values_t {
+    ($m:expr, $t:ty) => {
+        match $m {
             Some(ref v) => {
                 let mut tmp = Vec::with_capacity(v.len());
                 let mut err = None;
-                for pv in v {
+                for pv in $m.iter() {
                     match pv.parse::<$t>() {
                         Ok(rv) => tmp.push(rv),
                         Err(e) => {
-                            err = Some(format!("'{}' isn't a valid value\n\t{}", ::clap::Format::Warning(pv),e));
+                            err = Some(::clap::Error::value_validation(
+                                    format!("The argument '{}' isn't a valid value", v)));
                             break
                         }
                     }
@@ -201,9 +209,8 @@ macro_rules! value_t {
                     Some(e) => Err(e),
                     None => Ok(tmp)
                 }
-            },
-            None => Err(format!("The argument '{}' was not found", ::clap::Format::Warning($v)))
-        }
+            None =>
+                Err(::clap::Error::value_validation(format!("The argument was not found", v))),
     };
 }
 
@@ -254,133 +261,50 @@ macro_rules! value_t {
 /// ```
 #[macro_export]
 macro_rules! value_t_or_exit {
-    ($m:ident.value_of($v:expr), $t:ty) => {
-        match $m.value_of($v) {
+    ($m:expr, $t:ty) => {
+        match $m {
             Some(v) => {
                 match v.parse::<$t>() {
                     Ok(val) => val,
-                    Err(..)  => {
-                        println!("{} '{}' isn't a valid value\n\n{}\n\nPlease re-run with {} for \
-                            more information",
+                    Err(..)  =>
+                        ::clap::Error::value_validation(format!("'{}' isn't a valid value", v)).exit(),
+
+                }
+            },
+            None =>
+                ::clap::Error::value_validation(format!("The argument '{}' was not found", v)).exit(),
+
+        }
+    };
+
+#[macro_export]
+macro_rules! values_t_or_exit {
+    ($m:expr, $t:ty) => {
+            let mut tmp = vec![];
+            for pv in v {
+                match pv.parse::<$t>() {
+                    Ok(rv) => tmp.push(rv),
+                    Err(_)  => {
+                        println!("{} '{}' isn't a valid value\n\n{}\n\nPlease re-run with {} for more \
+                            information",
                             ::clap::Format::Error("error:"),
-                            ::clap::Format::Warning(v.to_string()),
+                            ::clap::Format::Warning(pv),
                             $m.usage(),
                             ::clap::Format::Good("--help"));
                         ::std::process::exit(1);
                     }
                 }
-            },
-            None => {
-                println!("{} The argument '{}' was not found or is not valid\n\n{}\n\nPlease re-run with \
-                    {} for more information",
-                    ::clap::Format::Error("error:"),
-                    ::clap::Format::Warning($v.to_string()),
-                    $m.usage(),
-                    ::clap::Format::Good("--help"));
-                ::std::process::exit(1);
             }
-        }
-    };
-    ($m:ident.values_of($v:expr), $t:ty) => {
-        match $m.values_of($v) {
-            Some(ref v) => {
-                let mut tmp = Vec::with_capacity(v.len());
-                for pv in v {
-                    match pv.parse::<$t>() {
-                        Ok(rv) => tmp.push(rv),
-                        Err(_)  => {
-                            println!("{} '{}' isn't a valid value\n\n{}\n\nPlease re-run with {} for more \
-                                information",
-                                ::clap::Format::Error("error:"),
-                                ::clap::Format::Warning(pv),
-                                $m.usage(),
-                                ::clap::Format::Good("--help"));
-                            ::std::process::exit(1);
-                        }
-                    }
-                }
-                tmp
-            },
-            None => {
-                println!("{} The argument '{}' not found or is not valid\n\n{}\n\nPlease re-run with \
-                    {} for more information",
-                    ::clap::Format::Error("error:"),
-                    ::clap::Format::Warning($v.to_string()),
-                    $m.usage(),
-                    ::clap::Format::Good("--help"));
-                ::std::process::exit(1);
-            }
-        }
-    };
-}
-
-/// Convenience macro generated a simple enum with variants to be used as a type when parsing
-/// arguments. This enum also provides a `variants()` function which can be used to retrieve a
-/// `Vec<&'static str>` of the variant names.
-///
-/// **NOTE:** This macro automatically implements std::str::FromStr and std::fmt::Display
-///
-/// # Examples
-///
-/// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::{App, Arg};
-/// simple_enum!{Foo => Bar, Baz, Qux}
-/// // Foo enum can now be used via Foo::Bar, or Foo::Baz, etc
-/// // and implements std::str::FromStr to use with the value_t! macros
-/// fn main() {
-///     let enum_vals = ["Bar", "Baz", "Qux"];
-///     let m = App::new("app")
-///                 .arg(Arg::from_usage("<foo> 'the foo'")
-///                     .possible_values(&enum_vals))
-///                 .get_matches();
-///     let f = value_t_or_exit!(m.value_of("foo"), Foo);
-///
-///     // Use f like any other Foo variant...
-/// }
-/// ```
-#[macro_export]
-macro_rules! simple_enum {
-    ($e:ident => $($v:ident),+) => {
-        enum $e {
-            $($v),+
-        }
-
-        impl ::std::str::FromStr for $e {
-            type Err = String;
-
-            fn from_str(s: &str) -> Result<Self,Self::Err> {
-                match s {
-                    $(stringify!($v) => Ok($e::$v),)+
-                    _                => Err({
-                                            let v = vec![
-                                                $(stringify!($v),)+
-                                            ];
-                                            format!("valid values:{}",
-                                                v.iter().fold(String::new(), |a, i| {
-                                                    a + &format!(" {}", i)[..]
-                                                }))
-                                        })
-                }
-            }
-        }
-
-        impl ::std::fmt::Display for $e {
-            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                match *self {
-                    $($e::$v => write!(f, stringify!($v)),)+
-                }
-            }
-        }
-
-        impl $e {
-            #[allow(dead_code)]
-            pub fn variants() -> Vec<&'static str> {
-                vec![
-                    $(stringify!($v),)+
-                ]
-            }
+            tmp
+        },
+        None => {
+            println!("{} The argument '{}' not found or is not valid\n\n{}\n\nPlease re-run with \
+                {} for more information",
+                ::clap::Format::Error("error:"),
+                ::clap::Format::Warning($v.to_string()),
+                $m.usage(),
+                ::clap::Format::Good("--help"));
+            ::std::process::exit(1);
         }
     };
 }
@@ -608,19 +532,19 @@ macro_rules! arg_enum {
 /// # use clap::App;
 /// # fn main() {
 ///     let m = App::new("app")
-///                 .version(&crate_version!()[..])
+///                 .version(crate_version!())
 ///                 .get_matches();
 /// # }
 /// ```
 #[macro_export]
 macro_rules! crate_version {
     () => {
-        env!("CARGO_PKG_VERSION").to_owned()
+        stringify!(env!("CARGO_PKG_VERSION"))
     }
 }
 
 /// App, Arg, SubCommand and Group builder macro (Usage-string like input)
-#[macro_export]
+#[cfg_attr(feature = "nightly", macro_export)]
 macro_rules! clap_app {
     (@app ($builder:expr)) => { $builder };
     (@app ($builder:expr) (@arg $name:ident: $($tail:tt)*) $($tt:tt)*) => {
@@ -664,14 +588,14 @@ macro_rules! clap_app {
     };
 
     // Add members to group and continue argument handling with the parent builder
-    (@group ($builder:expr, $group:expr)) => { $builder.arg_group($group) };
+    (@group ($builder:expr, $group:expr)) => { $builder.group($group) };
     (@group ($builder:expr, $group:expr) (@attributes $($attr:tt)*) $($tt:tt)*) => {
         clap_app!{ @group ($builder, clap_app!{ @arg ($group) (-) $($attr)* }) $($tt)* }
     };
     (@group ($builder:expr, $group:expr) (@arg $name:ident: $($tail:tt)*) $($tt:tt)*) => {
         clap_app!{ @group
             (clap_app!{ @app ($builder) (@arg $name: $($tail)*) },
-             $group.add(stringify!($name)))
+             $group.arg(stringify!($name)))
             $($tt)*
         }
     };

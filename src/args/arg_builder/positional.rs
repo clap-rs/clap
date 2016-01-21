@@ -214,12 +214,12 @@ mod test {
     #[test]
     fn posbuilder_display() {
         let mut p = PosBuilder::new("pos", 1);
-        p.settings.set(&ArgSettings::Multiple);
+        p.settings.set(ArgSettings::Multiple);
 
         assert_eq!(&*format!("{}", p), "[pos]...");
 
         let mut p2 = PosBuilder::new("pos", 1);
-        p2.settings.set(&ArgSettings::Required);
+        p2.settings.set(ArgSettings::Required);
 
         assert_eq!(&*format!("{}", p2), "<pos>");
     }
