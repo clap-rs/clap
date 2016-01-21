@@ -43,7 +43,7 @@ fn possible_values_of_positional_multiple() {
     let m = m.unwrap();
 
     assert!(m.is_present("positional"));
-    assert_eq!(m.values_of("positional"), vec!["test123", "test321"]));
+    assert_eq!(m.values_of("positional").unwrap().collect::<Vec<_>>(), vec!["test123", "test321"]);
 }
 
 #[test]
@@ -111,7 +111,7 @@ fn possible_values_of_option_multiple() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.values_of("option"), vec!["test123", "test321"]));
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), vec!["test123", "test321"]);
 }
 
 #[test]

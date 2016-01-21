@@ -23,7 +23,7 @@ macro_rules! create_app {
                 .args_from_usage(ARGS)
                 .arg(Arg::from_usage("-f --flag... 'tests flags'")
                              .global(true))
-                .args(vec![
+                .args(&[
                           Arg::from_usage("[flag2] -F 'tests flags with exclusions'").conflicts_with("flag").requires("option2"),
                           Arg::from_usage("--long-option-2 [option2] 'tests long options with exclusions'").conflicts_with("option").requires("positional2"),
                           Arg::from_usage("[positional2] 'tests positionals with exclusions'"),

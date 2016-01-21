@@ -13,27 +13,45 @@ macro_rules! werr(
 );
 
 #[cfg(feature = "debug")]
-macro_rules! debugln {
-    ($fmt:expr) => (println!(concat!("**DEBUG** ", $fmt)));
-    ($fmt:expr, $($arg:tt)*) => (println!(concat!("**DEBUG** ",$fmt), $($arg)*));
-}
-
-#[cfg(feature = "debug")]
-macro_rules! debug {
-    ($fmt:expr) => (print!(concat!("**DEBUG** ", $fmt)));
-    ($fmt:expr, $($arg:tt)*) => (println!(concat!("**DEBUG** ",$fmt), $($arg)*));
+#[cfg_attr(feature = "debug", macro_use)]
+mod debug_macros {
+    macro_rules! debugln {
+        ($fmt:expr) => (println!(concat!("**DEBUG** ", $fmt)));
+        ($fmt:expr, $($arg:tt)*) => (println!(concat!("**DEBUG** ",$fmt), $($arg)*));
+    }
+    macro_rules! sdebugln {
+        ($fmt:expr) => (println!($fmt));
+        ($fmt:expr, $($arg:tt)*) => (println!($fmt, $($arg)*));
+    }
+    macro_rules! debug {
+        ($fmt:expr) => (print!(concat!("**DEBUG** ", $fmt)));
+        ($fmt:expr, $($arg:tt)*) => (print!(concat!("**DEBUG** ",$fmt), $($arg)*));
+    }
+    macro_rules! sdebug {
+        ($fmt:expr) => (print!($fmt));
+        ($fmt:expr, $($arg:tt)*) => (print!($fmt, $($arg)*));
+    }
 }
 
 #[cfg(not(feature = "debug"))]
-macro_rules! debugln {
-    ($fmt:expr) => ();
-    ($fmt:expr, $($arg:tt)*) => ();
-}
-
-#[cfg(not(feature = "debug"))]
-macro_rules! debug {
-    ($fmt:expr) => ();
-    ($fmt:expr, $($arg:tt)*) => ();
+#[cfg_attr(not(feature = "debug"), macro_use)]
+mod debug_macros {
+    macro_rules! debugln {
+        ($fmt:expr) => ();
+        ($fmt:expr, $($arg:tt)*) => ();
+    }
+    macro_rules! sdebugln {
+        ($fmt:expr) => ();
+        ($fmt:expr, $($arg:tt)*) => ();
+    }
+    macro_rules! sdebug {
+        ($fmt:expr) => ();
+        ($fmt:expr, $($arg:tt)*) => ();
+    }
+    macro_rules! debug {
+        ($fmt:expr) => ();
+        ($fmt:expr, $($arg:tt)*) => ();
+    }
 }
 
 #[cfg(feature = "yaml")]
@@ -130,7 +148,7 @@ macro_rules! for_match {
 /// standard syntax.
 ///
 ///
-/// # Examples single value
+/// # Examples
 ///
 /// ```no_run
 /// # #[macro_use]
@@ -149,9 +167,34 @@ macro_rules! for_match {
 /// println!("{} + 2: {}", len, len + 2);
 /// # }
 /// ```
+#[macro_export]
+macro_rules! value_t {
+    (@callback $c:ident $m:ident.value_of($v:expr), $t:ty) => {
+        $c!($m.value_of($e), $t);
+    };
+    ($m:ident, $v:expr, $t:ty) => {
+        value_t!(@callback value_t $m.value_of($v), $t)
+    };
+    ($m:ident.value_of($v:expr), $t:ty) => {
+        if let Some(v) = $m.value_of($v) {
+            match v.parse::<$t>() {
+                Ok(val) => Ok(val),
+                Err(_)  =>
+                    Err(::clap::Error::value_validation(
+                        format!("The argument '{}' isn't a valid value", v))),
+            }
+        } else {
+            Err(::clap::Error::value_validation(format!("The argument '{}' was not found", $v)))
+        }
+    };
+}
+
+/// Convenience macro getting a typed value `T` where `T` implements `std::str::FromStr`
+/// This macro returns a `Result<T,String>` which allows you as the developer to decide
+/// what you'd like to do on a failed parse. There are two types of errors, parse failures
+/// and those where the argument wasn't present (such as a non-required argument).
 ///
-///
-/// # Examples multiple values
+/// # Examples
 ///
 /// ```no_run
 /// # #[macro_use]
@@ -171,143 +214,37 @@ macro_rules! for_match {
 /// # }
 /// ```
 #[macro_export]
-macro_rules! value_t {
-    ($m:expr, $t:ty) => {
-        match $m {
-            Some(v) => {
-                match v.parse::<$t>() {
-                    Ok(val) => Ok(val),
-                    Err(_)  =>
-                        Err(::clap::Error::value_validation(
-                            format!("The argument '{}' isn't a valid value", v))),
-                }
-            },
-            None =>
-                Err(::clap::Error::value_validation(format!("The argument '{}' was not found", v)))
-        }
-    };
-}
-
-#[macro_export]
 macro_rules! values_t {
-    ($m:expr, $t:ty) => {
+    ($m:expr, $v:expr, $t:ty) => {
+        values_t!($m.values_of($v), $t)
+    };
+    ($m:ident.values_of($v:expr), $t:ty) => {
         match $m {
-            Some(ref v) => {
-                let mut tmp = Vec::with_capacity(v.len());
-                let mut err = None;
-                for pv in $m.iter() {
-                    match pv.parse::<$t>() {
-                        Ok(rv) => tmp.push(rv),
-                        Err(e) => {
-                            err = Some(::clap::Error::value_validation(
-                                    format!("The argument '{}' isn't a valid value", v)));
-                            break
-                        }
-                    }
-                }
-                match err {
-                    Some(e) => Err(e),
-                    None => Ok(tmp)
-                }
+            Some(ref v) => values_t!(v, $t),
             None =>
                 Err(::clap::Error::value_validation(format!("The argument was not found", v))),
-    };
-}
-
-/// Convenience macro getting a typed value `T` where `T` implements `std::str::FromStr`
-/// This macro returns a `T` or `Vec<T>` or exits with a usage string upon failure. This
-/// removes some of the boiler plate to handle failures from value_t! above.
-///
-/// You can use it to get a single value `T`, or a `Vec<T>` with the `values_of()`
-///
-/// **NOTE:** This should only be used on required arguments, as it can be confusing to the user
-/// why they are getting error messages when it appears they're entering all required arguments.
-///
-/// **NOTE:** Be cautious, as since this a macro invocation it's not exactly like
-/// standard syntax.
-///
-///
-/// # Examples single value
-///
-/// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::App;
-/// # fn main() {
-/// let matches = App::new("myapp")
-///               .arg_from_usage("[length] 'Set the length to use as a pos whole num, i.e. 20'")
-///               .get_matches();
-/// let len = value_t_or_exit!(matches.value_of("length"), u32);
-///
-/// println!("{} + 2: {}", len, len + 2);
-/// # }
-/// ```
-///
-///
-/// # Examples multiple values
-///
-/// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::App;
-/// # fn main() {
-/// let matches = App::new("myapp")
-///                   .arg_from_usage("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
-///                   .get_matches();
-/// for v in value_t_or_exit!(matches.values_of("seq"), u32) {
-///     println!("{} + 2: {}", v, v + 2);
-/// }
-/// # }
-/// ```
-#[macro_export]
-macro_rules! value_t_or_exit {
-    ($m:expr, $t:ty) => {
-        match $m {
-            Some(v) => {
-                match v.parse::<$t>() {
-                    Ok(val) => val,
-                    Err(..)  =>
-                        ::clap::Error::value_validation(format!("'{}' isn't a valid value", v)).exit(),
-
-                }
-            },
-            None =>
-                ::clap::Error::value_validation(format!("The argument '{}' was not found", v)).exit(),
-
         }
     };
-
-#[macro_export]
-macro_rules! values_t_or_exit {
-    ($m:expr, $t:ty) => {
-            let mut tmp = vec![];
-            for pv in v {
-                match pv.parse::<$t>() {
-                    Ok(rv) => tmp.push(rv),
-                    Err(_)  => {
-                        println!("{} '{}' isn't a valid value\n\n{}\n\nPlease re-run with {} for more \
-                            information",
-                            ::clap::Format::Error("error:"),
-                            ::clap::Format::Warning(pv),
-                            $m.usage(),
-                            ::clap::Format::Good("--help"));
-                        ::std::process::exit(1);
-                    }
+    ($v:ident, $t:ty) => {
+        let mut tmp = Vec::with_capacity($v.len());
+        let mut err = None;
+        for pv in &$v {
+            match pv.parse::<$t>() {
+                Ok(rv) => tmp.push(rv),
+                Err(e) => {
+                    err = Some(::clap::Error::value_validation(
+                            format!("The argument '{}' isn't a valid value", v)));
+                    break
                 }
             }
-            tmp
-        },
-        None => {
-            println!("{} The argument '{}' not found or is not valid\n\n{}\n\nPlease re-run with \
-                {} for more information",
-                ::clap::Format::Error("error:"),
-                ::clap::Format::Warning($v.to_string()),
-                $m.usage(),
-                ::clap::Format::Good("--help"));
-            ::std::process::exit(1);
+        }
+        match err {
+            Some(e) => Err(e),
+            None => Ok(tmp)
         }
     };
 }
+
 
 /// Convenience macro to generate more complete enums with variants to be used as a type when
 /// parsing arguments. This enum also provides a `variants()` function which can be used to retrieve a
@@ -347,10 +284,10 @@ macro_rules! values_t_or_exit {
 /// ```
 #[macro_export]
 macro_rules! arg_enum {
-    (enum $e:ident { $($v:ident),+ } ) => {
-        enum $e {
-            $($v),+
-        }
+    (@as_item $($i:item)*) => ($($i)*);
+    (@impls ( $($tts:tt)* ) -> ($e:ident, $($v:ident),+)) => {
+        arg_enum!(@as_item
+        $($tts)*
 
         impl ::std::str::FromStr for $e {
             type Err = String;
@@ -359,20 +296,19 @@ macro_rules! arg_enum {
                 use ::std::ascii::AsciiExt;
                 match s {
                     $(stringify!($v) |
-                    _ if s.eq_ignore_ascii_case(stringify!($v)) => Ok($e::$v),)+
-                    _                => Err({
-                                            let v = vec![
-                                                $(stringify!($v),)+
-                                            ];
-                                            format!("valid values:{}",
-                                                v.iter().fold(String::new(), |a, i| {
-                                                    a + &format!(" {}", i)[..]
-                                                }))
-                                        })
+                    _ if s.eq_ignore_ascii_case(stringify!($v)) => Ok($e::$v)),+,
+                    _ => Err({
+                        let v = vec![
+                            $(stringify!($v),)+
+                        ];
+                        format!("valid values:{}",
+                            v.iter().fold(String::new(), |a, i| {
+                                a + &format!(" {}", i)[..]
+                            }))
+                    }),
                 }
             }
         }
-
         impl ::std::fmt::Display for $e {
             fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
                 match *self {
@@ -380,146 +316,44 @@ macro_rules! arg_enum {
                 }
             }
         }
-
         impl $e {
             #[allow(dead_code)]
-            fn variants() -> Vec<&'static str> {
+            pub fn variants() -> Vec<&'static str> {
                 vec![
                     $(stringify!($v),)+
                 ]
             }
-        }
+        });
+    };
+    (#[$($m:meta),+] pub enum $e:ident { $($v:ident),+ } ) => {
+        arg_enum!(@impls
+            (#[$($m),+]
+            pub enum $e {
+                $($v),+
+            }) -> ($e, $($v),+)
+        );
+    };
+    (#[$($m:meta),+] enum $e:ident { $($v:ident),+ } ) => {
+        arg_enum!(@impls
+            (#[$($m),+]
+            enum $e {
+                $($v),+
+            }) -> ($e, $($v),+)
+        );
     };
     (pub enum $e:ident { $($v:ident),+ } ) => {
-        pub enum $e {
-            $($v),+
-        }
-
-        impl ::std::str::FromStr for $e {
-            type Err = String;
-
-            fn from_str(s: &str) -> Result<Self,Self::Err> {
-                use ::std::ascii::AsciiExt;
-                match s {
-                    $(stringify!($v) |
-                    _ if s.eq_ignore_ascii_case(stringify!($v)) => Ok($e::$v),)+
-                    _                => Err({
-                                            let v = vec![
-                                                $(stringify!($v),)+
-                                            ];
-                                            format!("valid values:{}",
-                                                v.iter().fold(String::new(), |a, i| {
-                                                    a + &format!(" {}", i)[..]
-                                                }))
-                                        })
-                }
-            }
-        }
-
-        impl ::std::fmt::Display for $e {
-            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                match *self {
-                    $($e::$v => write!(f, stringify!($v)),)+
-                }
-            }
-        }
-
-        impl $e {
-            #[allow(dead_code)]
-            pub fn variants() -> Vec<&'static str> {
-                vec![
-                    $(stringify!($v),)+
-                ]
-            }
-        }
+        arg_enum!(@impls
+            (pub enum $e {
+                $($v),+
+            }) -> ($e, $($v),+)
+        );
     };
-    (#[derive($($d:ident),+)] enum $e:ident { $($v:ident),+ } ) => {
-        #[derive($($d,)+)]
-        enum $e {
-            $($v),+
-        }
-
-        impl ::std::str::FromStr for $e {
-            type Err = String;
-
-            fn from_str(s: &str) -> Result<Self,Self::Err> {
-                use ::std::ascii::AsciiExt;
-                match s {
-                    $(stringify!($v) |
-                    _ if s.eq_ignore_ascii_case(stringify!($v)) => Ok($e::$v),)+
-                    _                => Err({
-                                            let v = vec![
-                                                $(stringify!($v),)+
-                                            ];
-                                            format!("valid values:{}",
-                                                v.iter().fold(String::new(), |a, i| {
-                                                    a + &format!(" {}", i)[..]
-                                                }))
-                                        })
-                }
-            }
-        }
-
-        impl ::std::fmt::Display for $e {
-            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                match *self {
-                    $($e::$v => write!(f, stringify!($v)),)+
-                }
-            }
-        }
-
-        impl $e {
-            #[allow(dead_code)]
-            pub fn variants() -> Vec<&'static str> {
-                vec![
-                    $(stringify!($v),)+
-                ]
-            }
-        }
-    };
-    (#[derive($($d:ident),+)] pub enum $e:ident { $($v:ident),+ } ) => {
-        #[derive($($d,)+)]
-        pub enum $e {
-            $($v),+
-        }
-
-        impl ::std::str::FromStr for $e {
-            type Err = String;
-
-            fn from_str(s: &str) -> Result<Self,Self::Err> {
-                use ::std::ascii::AsciiExt;
-                match s {
-                    $(stringify!($v) |
-                    _ if s.eq_ignore_ascii_case(stringify!($v)) => Ok($e::$v),)+
-                    _                => Err({
-                                            let v = vec![
-                                                $(stringify!($v),)+
-                                            ];
-                                            format!("valid values:{}",
-                                                v.iter().fold(String::new(), |a, i| {
-                                                    a + &format!(" {}", i)[..]
-                                                }))
-                                        })
-                }
-            }
-        }
-
-        impl ::std::fmt::Display for $e {
-            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                match *self {
-                    $($e::$v => write!(f, stringify!($v)),)+
-                }
-            }
-        }
-
-        impl $e {
-            #[allow(dead_code)]
-            pub fn variants() -> Vec<&'static str> {
-                vec![
-                    $(stringify!($v),)+
-                ]
-            }
-        }
+    (enum $e:ident { $($v:ident),+ } ) => {
+        arg_enum!(@impls
+            (enum $e {
+                $($v),+
+            }) -> ($e, $($v),+)
+        );
     };
 }
 
@@ -539,8 +373,8 @@ macro_rules! arg_enum {
 #[macro_export]
 macro_rules! crate_version {
     () => {
-        stringify!(env!("CARGO_PKG_VERSION"))
-    }
+        env!("CARGO_PKG_VERSION")
+    };
 }
 
 /// App, Arg, SubCommand and Group builder macro (Usage-string like input)

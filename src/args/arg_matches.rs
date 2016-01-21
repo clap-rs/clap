@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::iter::Map;
 use std::slice;
 
-use vec_map::{self, VecMap};
+use vec_map;
 
 use args::SubCommand;
 use args::MatchedArg;
@@ -66,9 +66,6 @@ pub struct ArgMatches<'a> {
     pub subcommand: Option<Box<SubCommand<'a>>>,
     #[doc(hidden)]
     pub usage: Option<String>,
-    #[doc(hidden)]
-    empty_v: VecMap<OsString>,
-    // utf8: Utf8,
 }
 
 impl<'a> Default for ArgMatches<'a> {
@@ -77,10 +74,6 @@ impl<'a> Default for ArgMatches<'a> {
             args: HashMap::new(),
             subcommand: None,
             usage: None,
-            // utf8: Utf8::Strict,
-            // utf8_rule: PhantomData::<utf8::Strict>,
-            empty_v: VecMap::new(),
-            // empty_ov: VecMap::new(),
         }
     }
 }
@@ -149,34 +142,31 @@ impl<'a> ArgMatches<'a> {
     ///        }
     /// }
     /// ```
-    pub fn values_of<S: AsRef<str>>(&'a self, name: S) -> Values<'a> {
+    pub fn values_of<S: AsRef<str>>(&'a self, name: S) -> Option<Values<'a>> {
         if let Some(ref arg) = self.args.get(name.as_ref()) {
             fn to_str_slice<'a>(o: &'a OsString) -> &'a str { o.to_str().expect(INVALID_UTF8) }
             let to_str_slice: fn(&'a OsString) -> &'a str = to_str_slice; // coerce to fn pointer
-            return Values { iter: arg.vals.values().map(to_str_slice) };
+            return Some(Values { iter: arg.vals.values().map(to_str_slice) });
         }
-        fn to_str_slice<'a>(o: &'a OsString) -> &'a str { o.to_str().expect(INVALID_UTF8) }
-        let to_str_slice: fn(&'a OsString) -> &'a str = to_str_slice; // coerce to fn pointer
-        Values { iter: self.empty_v.values().map(to_str_slice) }
+        None
     }
 
-    pub fn lossy_values_of<S: AsRef<str>>(&'a self, name: S) -> Vec<String> {
+    pub fn lossy_values_of<S: AsRef<str>>(&'a self, name: S) -> Option<Vec<String>> {
         if let Some(ref arg) = self.args.get(name.as_ref()) {
-            return arg.vals.values()
+            return Some(arg.vals.values()
                            .map(|v| v.to_string_lossy().into_owned())
-                        //    .map(ToOwned::to_owned)
-                           .collect();
+                           .collect());
         }
-        vec![]
+        None
     }
 
-    pub fn os_values_of<S: AsRef<str>>(&'a self, name: S) -> OsValues<'a> {
+    pub fn os_values_of<S: AsRef<str>>(&'a self, name: S) -> Option<OsValues<'a>> {
         fn to_str_slice<'a>(o: &'a OsString) -> &'a OsStr { &*o }
         let to_str_slice: fn(&'a OsString) -> &'a OsStr = to_str_slice; // coerce to fn pointer
         if let Some(ref arg) = self.args.get(name.as_ref()) {
-            return OsValues { iter: arg.vals.values().map(to_str_slice) }
+            return Some(OsValues { iter: arg.vals.values().map(to_str_slice) });
         }
-        OsValues { iter: self.empty_v.values().map(to_str_slice) }
+        None
     }
 
     /// Returns if an argument was present at runtime.

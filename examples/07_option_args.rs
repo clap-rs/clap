@@ -54,8 +54,8 @@ fn main() {
     }
 
     // If we specified the multiple() setting we can get all the values
-    if let Some(ref in_v) = matches.values_of("input") {
-        for in_file in in_v.iter() {
+    if let Some(in_v) = matches.values_of("input") {
+        for in_file in in_v {
             println!("An input file: {}", in_file);
         }
     }

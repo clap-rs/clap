@@ -270,7 +270,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```no_run
     /// # use clap::{App, Arg};
     /// # let matches = App::new("myprog")
-    ///                  .args(vec![
+    ///                  .args(&[
     ///
     /// // A option argument with a long, named "conf" (note: because the name was specified
     /// // the portion after the long can be called anything, only the first name will be displayed

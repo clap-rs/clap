@@ -14,19 +14,17 @@ fn invalid_unicode_safe() {
                                     OsString::from_vec(vec![0xe9])]);
     assert!(m.is_err());
     if let Err(err) = m {
-        assert_eq!(err.kind, ErrorKind::InvalidUnicode);
+        assert_eq!(err.kind, ErrorKind::InvalidUtf8);
     }
 }
 
 #[test]
 fn invalid_unicode_lossy() {
-    if let Ok(m) = App::new("bad_unicode")
+    App::new("bad_unicode")
         .arg(Arg::from_usage("<arg> 'some arg'"))
-        .get_matches_from_safe_lossy(vec![OsString::from_vec(vec![0x20]),
-                                          OsString::from_vec(vec![0xe9])]) {
-        assert!(m.is_present("arg"));
-        assert_eq!(m.value_of("arg").unwrap(), "\u{FFFD}");
-    } else {
-        panic!("FAILED")
-    }
+        .setting(AppSetting::AllowInvalidUtf8)
+        .get_matches_from_safe(vec![OsString::from_vec(vec![0x20]),
+                                    OsString::from_vec(vec![0xe9])]) {
+    assert!(m.is_present("arg"));
+    assert_eq!(m.value_of("arg").unwrap(), "\u{FFFD}");
 }
