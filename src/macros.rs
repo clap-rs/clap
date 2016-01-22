@@ -65,6 +65,7 @@ macro_rules! load_yaml {
 // used in src/args/arg_builder/option.rs
 macro_rules! print_opt_help {
     ($opt:ident, $spc:expr, $w:ident) => {
+        debugln!("macro=print_opt_help!;");
         if let Some(h) = $opt.help {
             if h.contains("{n}") {
                 let mut hel = h.split("{n}");
@@ -96,6 +97,7 @@ macro_rules! print_opt_help {
 //    src/app/mod.rs
 macro_rules! write_spaces {
     ($num:expr, $w:ident) => ({
+        debugln!("macro=write_spaces!;");
         for _ in 0..$num {
             try!(write!($w, " "));
         }
@@ -105,6 +107,7 @@ macro_rules! write_spaces {
 // convenience macro for remove an item from a vec
 macro_rules! vec_remove {
     ($vec:expr, $to_rem:ident) => {
+        debugln!("macro=write_spaces!;");
         {
             let mut ix = None;
             $vec.dedup();
@@ -127,6 +130,7 @@ macro_rules! vec_remove {
 // item.
 macro_rules! for_match {
     ($it:ident, $($p:pat => $($e:expr);+),*) => {
+        debugln!("macro=for_match!;");
         for i in $it {
             match i {
                 $(

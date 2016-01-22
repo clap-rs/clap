@@ -29,7 +29,7 @@ pub struct AppFlags(Flags);
 
 impl AppFlags {
     pub fn new() -> Self {
-        AppFlags(NEEDS_LONG_VERSION | NEEDS_LONG_HELP | NEEDS_SC_HELP | UTF8_STRICT)
+        AppFlags(NEEDS_LONG_VERSION | NEEDS_LONG_HELP | NEEDS_SC_HELP | UTF8_NONE)
     }
 
     pub fn set(&mut self, s: AppSettings) {
@@ -329,7 +329,61 @@ pub enum AppSettings {
     /// }
     /// ```
     AllowExternalSubcommands,
+    /// Specifies that any invalid UTF-8 code points should be treated as an error and fail
+    /// with a `ErrorKind::InvalidUtf8` error.
+    ///
+    /// **NOTE:** This rule only applies to  argument values, as flags, options, and subcommands
+    /// only allow valid UTF-8 code points.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// # use clap::{App, Arg, AppSettings, ErrorKind};
+    /// use std::ffi::OsString;
+    ///
+    /// let m = App::new("myprog")
+    ///     .setting(AppSettings::StrictUtf8)
+    ///     .arg_from_usage("<arg> 'some positional arg'")
+    ///     .get_matches_from_safe(
+    ///         vec![
+    ///             OsString::from("myprog"),
+    ///             OsString::from_vec(vec![0xe9])]);
+    ///
+    /// assert!(m.is_err());
+    /// assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidUtf8);
+    /// }
+    /// ```
     StrictUtf8,
+    /// Specifies that any invalid UTF-8 code points should *not* be treated as an error. This is
+    /// the default behavior of `clap`
+    ///
+    /// **NOTE:** Using argument values with invalid UTF-8 code points requires using Either
+    /// `ArgMatches::os_value(s)_of` or `ArgMatches::lossy_value(s)_of` for those particular
+    /// arguments which may have have invalid UTF-8 values
+    ///
+    /// **NOTE:** This rule only applies to  argument values, as flags, options, and subcommands
+    /// only allow valid UTF-8 code points.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// # use clap::{App, Arg, AppSettings};
+    /// use std::ffi::OsString;
+    /// use std::os::unix::ffi::OsStrExt;
+    ///
+    /// let r = App::new("myprog")
+    ///     .setting(AppSettings::StrictUtf8)
+    ///     .arg_from_usage("<arg> 'some positional arg'")
+    ///     .get_matches_from_safe(
+    ///         vec![
+    ///             OsString::from("myprog"),
+    ///             OsString::from_vec(vec![0xe9])]);
+    ///
+    /// assert!(r.is_ok());
+    /// let m = r.unwrap();
+    /// assert_eq!(m.os_value_of("arg").unwrap().as_bytes(), &[0xe9]);
+    /// }
+    /// ```
     AllowInvalidUtf8,
     #[doc(hidden)]
     NeedsLongVersion,

@@ -116,9 +116,11 @@ fn conflict_overriden_2() {
         .arg(Arg::from_usage("-c, --color 'third flag'")
             .mutually_overrides_with("flag"))
         .get_matches_from_safe(vec!["myprog", "-f", "-d", "-c"]);
-    assert!(result.is_err());
-    let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+    assert!(result.is_ok());
+    let m = result.unwrap();
+    assert!(m.is_present("color"));
+    assert!(m.is_present("debug"));
+    assert!(!m.is_present("flag"));
 }
 
 #[test]

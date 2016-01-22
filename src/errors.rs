@@ -234,9 +234,6 @@ pub enum ErrorKind {
     /// Occurs when the user provides a value containing invalid UTF-8 for an argument and
     /// `AppSettings::StrictUtf8` is set.
     ///
-    /// **Note:** This is the default setting and behavior. If you wish to *allow* invalid UTF-8 in
-    /// argument values, use `AppSettings::AllowInvalidUtf8`
-    ///
     /// # Platform Speicific
     ///
     /// Non-Windows platforms only (such as Linux, Unix, OSX, etc.)
@@ -244,16 +241,17 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```ignore
-    /// # use clap::{App, Arg, ErrorKind};
+    /// # use clap::{App, Arg, ErrorKind, AppSettings};
     /// # use std::os::unix::ffi::OsStringExt;
     /// # use std::ffi::OsString;
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("debug")
+    ///     .setting(AppSettings::StrictUtf8)
+    ///     .arg(Arg::with_name("utf8")
     ///         .short("u")
     ///         .takes_value(true))
     ///     .get_matches_from_safe(vec![OsString::from("myprog"),
     ///                                 OsString::from("-u")
-    ///                                 OsString::from_vec(vec![0x20, 0xE9])]);
+    ///                                 OsString::from_vec(vec![0xE9])]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidUtf8);
     /// ```
