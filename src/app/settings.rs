@@ -268,9 +268,9 @@ pub enum AppSettings {
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::TrailingVarArg)
     ///     .arg(Arg::from_usage("<cmd>... 'commands to run'"))
-    ///     .get_matches_from(vec!vec!["myprog", "some_command", "-r", "set"]);
+    ///     .get_matches_from(vec!["myprog", "some_command", "-r", "set"]);
     ///
-    /// assert_eq!(m.values_of("cmd").unwrap(), &["some_command", "-r", "set"]);
+    /// assert_eq!(m.values_of("cmd").unwrap().collect::<Vec<_>>(), &["some_command", "-r", "set"]);
     /// ```
     TrailingVarArg,
     /// Specifies that the parser should not assume the first argument passed is the binary name.
@@ -289,36 +289,40 @@ pub enum AppSettings {
     ///     .arg(Arg::from_usage("<cmd>... 'commands to run'"))
     ///     .get_matches_from(vec!["some_command", "-r", "set"]);
     ///
-    /// assert_eq!(m.values_of("cmd").unwrap(), &["some_command", "-r", "set"]);
+    /// assert_eq!(m.values_of("cmd").unwrap().collect::<Vec<_>>(), &["some_command", "-r", "set"]);
     /// ```
     NoBinaryName,
     /// Specifies that an unexpected argument positional arguments which would otherwise cause a
-    /// `ErrorKind::UnexpectedArgument` error, should instead be treated as a subcommand in the
+    /// `ErrorKind::UnknownArgument` error, should instead be treated as a subcommand in the
     /// `ArgMatches` struct.
     ///
     /// **NOTE:** Use this setting with caution, as a truly unexpected argument (i.e. one that is
-    /// **NOT** an external subcommand, will not cause an error, and you shoud inform the user
-    /// appropriatly)
+    /// *NOT* an external subcommand) will not cause an error and instead be treatd as a potential
+    /// subcommand. You shoud inform the user appropriatly.
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, AppSettings};
-    /// # use std::process::Command;
-    /// // Assume there is a third party subcommand installed to $PATH named myprog-subcmd
+    /// use std::process::{self, Command};
+    ///
+    /// // Assume there is a third party subcommand named myprog-subcmd
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::AllowExternalSubcommands)
-    ///     .get_matches_from(vec!vec!["myprog", "subcmd", "--option", "value"]);
+    ///     .get_matches_from(vec!["myprog", "subcmd", "--option", "value"]);
     ///
+    /// // All trailing arguments will be stored under the subcommands sub-matches under a value
+    /// // of their runtime name (in this case "subcmd")
     /// match m.subcommand() {
-    ///     ("", Some(sub_m)) => {
-    ///         let unk_subcmd = sub_m.subcommand_name().unwrap();
-    ///         let cmd = Command::new(format!("myprog-{}", unk_subcmd))
-    ///             .args(sub_m.values_of(unk_subcmd).unwrap());
-    ///         let exit_status = cmd.status().unwrap_or_else(|e| {
+    ///     (external, Some(ext_m)) => {
+    ///         let args: Vec<&str> = ext_m.values_of(external).unwrap().collect();
+    ///         let exit_status = Command::new(format!("myprog-{}", external))
+    ///             .args(&*args)
+    ///             .status()
+    ///             .unwrap_or_else(|e| {
     ///             // Invalid subcommand. Here you would probably inform the user and list valid
     ///             // subcommands for them to try...but in this example we just panic!
-    ///             panic!("failed to execute process: {}", e)
+    ///             process::exit(1);
     ///         });
     ///     },
     ///     _ => unreachable!()

@@ -21,14 +21,14 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("myprog")
     ///     .arg(Arg::with_name("speed")
     ///         .possible_value("fast")
     ///         .possible_value("slow"))
-    ///     .get_matches_from_safe(vec!vec!["myprog", "other"]);
+    ///     .get_matches_from_safe(vec!["myprog", "other"]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err(), Error::InvalidValue);
+    /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidValue);
     /// ```
     InvalidValue,
     /// Occurs when a user provides a flag, option, or argument which wasn't defined
@@ -36,10 +36,10 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("myprog")
     ///     .arg(Arg::from_usage("--flag 'some flag'"))
-    ///     .get_matches_from_safe(vec!vec!["myprog", "--other"]);
+    ///     .get_matches_from_safe(vec!["myprog", "--other"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
@@ -51,14 +51,14 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, SubCommand};
+    /// # use clap::{App, Arg, ErrorKind, SubCommand};
     /// let result = App::new("myprog")
     ///     .subcommand(SubCommand::with_name("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::with_name("config_file")
     ///             .help("The configuration file to use")
     ///             .index(1)))
-    ///     .get_matches_from_safe(vec!vec!["myprog", "other"]);
+    ///     .get_matches_from_safe(vec!["myprog", "other"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidSubcommand);
     /// ```
@@ -68,7 +68,7 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("myprog")
     ///     .arg(Arg::with_name("color")
     ///          .empty_values(false))
@@ -83,7 +83,7 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, Arg, ErrorKind};
     /// fn is_numeric(val: String) -> Result<(), String> {
     ///     match val.parse::<i64>() {
     ///         Ok(..) => Ok(()),
@@ -94,7 +94,7 @@ pub enum ErrorKind {
     /// let result = App::new("myprog")
     ///     .arg(Arg::with_name("num")
     ///          .validator(is_numeric))
-    ///     .get_matches_from_safe(vec!vec!["myprog", "NotANumber"]);
+    ///     .get_matches_from_safe(vec!["myprog", "NotANumber"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::ValueValidation);
     /// ```
@@ -105,13 +105,13 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("myprog")
     ///     .arg(Arg::with_name("some_opt")
     ///         .long("opt")
     ///         .takes_value(true)
     ///         .max_values(2))
-    ///     .get_matches_from_safe(vec!vec!["myprog", "--opt", "too", "many", "values"]);
+    ///     .get_matches_from_safe(vec!["myprog", "--opt", "too", "many", "values"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::TooManyValues);
     /// ```
@@ -122,12 +122,12 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("myprog")
     ///     .arg(Arg::with_name("some_opt")
     ///         .long("opt")
     ///         .min_values(3))
-    ///     .get_matches_from_safe(vec!vec!["myprog", "--opt", "too", "few"]);
+    ///     .get_matches_from_safe(vec!["myprog", "--opt", "too", "few"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::TooFewValues);
     /// ```
@@ -138,13 +138,13 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("myprog")
     ///     .arg(Arg::with_name("some_opt")
     ///         .long("opt")
     ///         .takes_value(true)
     ///         .number_of_values(2))
-    ///     .get_matches_from_safe(vec!vec!["myprog", "--opt", "wrong", "number", "of", "vals"]);
+    ///     .get_matches_from_safe(vec!["myprog", "--opt", "wrong", "number", "of", "vals"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
     /// ```
@@ -154,14 +154,14 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("myprog")
     ///     .arg(Arg::with_name("debug")
     ///         .long("debug")
     ///         .conflicts_with("color"))
     ///     .arg(Arg::with_name("color")
     ///         .long("color"))
-    ///     .get_matches_from_safe(vec!vec!["myprog", "--debug", "--color"]);
+    ///     .get_matches_from_safe(vec!["myprog", "--debug", "--color"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```
@@ -171,7 +171,7 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("myprog")
     ///     .arg(Arg::with_name("debug")
     ///         .required(true))
@@ -186,7 +186,7 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, AppSettings, SubCommand};
+    /// # use clap::{App, Arg, AppSettings, ErrorKind, SubCommand};
     /// let result = App::new("myprog")
     ///     .setting(AppSettings::SubcommandRequired)
     ///     .subcommand(SubCommand::with_name("config")
@@ -204,7 +204,7 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, AppSettings, SubCommand};
+    /// # use clap::{App, Arg, AppSettings, ErrorKind, SubCommand};
     /// let result = App::new("myprog")
     ///     .setting(AppSettings::ArgRequiredElseHelp)
     ///     .subcommand(SubCommand::with_name("config")
@@ -222,11 +222,11 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("myprog")
     ///     .arg(Arg::with_name("debug")
     ///         .multiple(false))
-    ///     .get_matches_from_safe(vec!vec!["myprog", "--debug", "--debug"]);
+    ///     .get_matches_from_safe(vec!["myprog", "--debug", "--debug"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnexpectedMultipleUsage);
     /// ```
@@ -244,7 +244,7 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```ignore
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, Arg, ErrorKind};
     /// # use std::os::unix::ffi::OsStringExt;
     /// # use std::ffi::OsString;
     /// let result = App::new("myprog")
@@ -267,12 +267,11 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg};
-    /// # use clap::ErrorType;
+    /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("myprog")
-    ///     .get_matches_from_safe(vec!vec!["myprog", "--help"]);
+    ///     .get_matches_from_safe(vec!["myprog", "--help"]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorType::HelpDisplayed);
+    /// assert_eq!(result.unwrap_err().kind, ErrorKind::HelpDisplayed);
     /// ```
     HelpDisplayed,
     /// Not a true "error" as it means `--version` or similar was used. The message will be sent
@@ -281,14 +280,17 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg};
-    /// # use clap::ErrorType;
+    /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("myprog")
     ///     .get_matches_from_safe(vec!["myprog", "--version"]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorType::VersionDisplayed);
+    /// assert_eq!(result.unwrap_err().kind, ErrorKind::VersionDisplayed);
     /// ```
     VersionDisplayed,
+    /// Occurs when using the `value_t!` and `values_t!` macros to convert an argument value into
+    /// type `T`, but the argument you requested wasn't used. I.e. you asked for an argument with
+    /// name `config` to be converted, but `config` wasn't used by the user.
+    ArgumentNotFound,
     /// Represents an I/O error, typically white writing to stderr or stdout
     Io,
     /// Represents an Rust Display Format error, typically white writing to stderr or stdout
@@ -609,6 +611,18 @@ impl Error {
                            usage,
                            Format::Good("--help")),
             kind: ErrorKind::UnknownArgument,
+            info: Some(vec![a]),
+        }
+    }
+
+    #[doc(hidden)]
+    pub fn argument_not_found<A>(arg: A) -> Self
+        where A: Into<String>,
+    {
+        let a = arg.into();
+        Error {
+            message: format!("{} The argument '{}' wasn't found", Format::Error("error:"), a.clone()),
+            kind: ErrorKind::ArgumentNotFound,
             info: Some(vec![a]),
         }
     }

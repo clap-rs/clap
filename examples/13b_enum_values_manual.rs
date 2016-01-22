@@ -43,7 +43,7 @@ fn main() {
                             .possible_values(&enum_vals))
                     .get_matches();
 
-    let t = value_t!(m.value_of("type"), Vals).or_else(|e| e.exit());
+    let t = value_t!(m, "type", Vals).unwrap_or_else(|e| e.exit());
 
     // Now we can use our enum like normal.
     match t {

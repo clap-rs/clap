@@ -13,7 +13,7 @@ fn positional() {
         .get_matches_from(vec!["myprog", "-f", "test"]);
     assert!(m.is_present("positional"));
     assert!(m.is_present("flag"));
-    assert_eq!(m.value_of("positional"), "test");
+    assert_eq!(m.value_of("positional"), Some("test"));
 
     let m = App::new("positional")
         .args(&[
@@ -24,7 +24,7 @@ fn positional() {
         .get_matches_from(vec!["myprog", "test", "--flag"]);
     assert!(m.is_present("positional"));
     assert!(m.is_present("flag"));
-    assert_eq!(m.value_of("positional"), "test");
+    assert_eq!(m.value_of("positional"), Some("test"));
 }
 
 #[test]
@@ -65,5 +65,5 @@ fn positional_multiple_2() {
         .get_matches_from_safe(vec!["myprog", "-f", "test1", "test2", "test3"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::UnexpectedArgument);
+    assert_eq!(err.kind, ErrorKind::UnknownArgument);
 }

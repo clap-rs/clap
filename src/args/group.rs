@@ -334,7 +334,7 @@ mod test {
                     .requires_all(&["r2", "r3"])
                     .requires("r4");
 
-        let args = vec!["a1", "a2", "a3", "a4"];
+        let args = vec!["a1", "a4", "a2", "a3"];
         let reqs = vec!["r1", "r2", "r3", "r4"];
         let confs = vec!["c1", "c2", "c3", "c4"];
 

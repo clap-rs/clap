@@ -129,9 +129,9 @@ macro_rules! for_match {
     ($it:ident, $($p:pat => $($e:expr);+),*) => {
         for i in $it {
             match i {
-            $(
-                $p => { $($e)+ }
-            )*
+                $(
+                    $p => { $($e)+ }
+                )*
             }
         }
     };
@@ -147,6 +147,47 @@ macro_rules! for_match {
 /// **NOTE:** Be cautious, as since this a macro invocation it's not exactly like
 /// standard syntax.
 ///
+/// # Examples
+///
+/// ```no_run
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::App;
+/// # fn main() {
+/// let matches = App::new("myapp")
+///               .arg_from_usage("[length] 'Set the length to use as a pos whole num, i.e. 20'")
+///               .get_matches();
+///
+/// let len      = value_t!(matches.value_of("length"), u32).unwrap_or_else(|e| e.exit());
+/// let also_len = value_t!(matches, "length", u32).unwrap_or_else(|e| e.exit());
+///
+/// println!("{} + 2: {}", len, len + 2);
+/// # }
+/// ```
+#[macro_export]
+macro_rules! value_t {
+    ($m:ident, $v:expr, $t:ty) => {
+        value_t!($m.value_of($v), $t)
+    };
+    ($m:ident.value_of($v:expr), $t:ty) => {
+        if let Some(v) = $m.value_of($v) {
+            match v.parse::<$t>() {
+                Ok(val) => Ok(val),
+                Err(_)  =>
+                    Err(::clap::Error::value_validation(
+                        format!("The argument '{}' isn't a valid value", v))),
+            }
+        } else {
+            Err(::clap::Error::argument_not_found($v))
+        }
+    };
+}
+
+/// Convenience macro getting a typed value `T` where `T` implements `std::str::FromStr` or
+/// exiting upon error.
+///
+/// **NOTE:** This macro is for backwards compatibility sake. Prefer
+/// `value_t!(/* ... */).unwrap_or_else(|e| e.exit())`
 ///
 /// # Examples
 ///
@@ -158,41 +199,35 @@ macro_rules! for_match {
 /// let matches = App::new("myapp")
 ///               .arg_from_usage("[length] 'Set the length to use as a pos whole num, i.e. 20'")
 ///               .get_matches();
-/// let len = value_t!(matches.value_of("length"), u32)
-///                 .unwrap_or_else(|e|{
-///                     println!("{}",e);
-///                     std::process::exit(1)
-///                 });
+///
+/// let len      = value_t_or_exit!(matches.value_of("length"), u32);
+/// let also_len = value_t_or_exit!(matches, "length", u32);
 ///
 /// println!("{} + 2: {}", len, len + 2);
 /// # }
 /// ```
 #[macro_export]
-macro_rules! value_t {
-    (@callback $c:ident $m:ident.value_of($v:expr), $t:ty) => {
-        $c!($m.value_of($e), $t);
-    };
+macro_rules! value_t_or_exit {
     ($m:ident, $v:expr, $t:ty) => {
-        value_t!(@callback value_t $m.value_of($v), $t)
+        value_t!($m.value_of($v), $t)
     };
     ($m:ident.value_of($v:expr), $t:ty) => {
         if let Some(v) = $m.value_of($v) {
             match v.parse::<$t>() {
-                Ok(val) => Ok(val),
+                Ok(val) => val,
                 Err(_)  =>
-                    Err(::clap::Error::value_validation(
-                        format!("The argument '{}' isn't a valid value", v))),
+                    ::clap::Error::value_validation(
+                        format!("The argument '{}' isn't a valid value", v)).exit(),
             }
         } else {
-            Err(::clap::Error::value_validation(format!("The argument '{}' was not found", $v)))
+            ::clap::Error::argument_not_found($v).exit()
         }
     };
 }
 
 /// Convenience macro getting a typed value `T` where `T` implements `std::str::FromStr`
-/// This macro returns a `Result<T,String>` which allows you as the developer to decide
-/// what you'd like to do on a failed parse. There are two types of errors, parse failures
-/// and those where the argument wasn't present (such as a non-required argument).
+/// This macro returns a `clap::Result<T>` (`Result<T, clap::Error>`) which allows you as the
+/// developer to decide what you'd like to do on a failed parse.
 ///
 /// # Examples
 ///
@@ -204,47 +239,92 @@ macro_rules! value_t {
 /// let matches = App::new("myapp")
 ///               .arg_from_usage("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
 ///               .get_matches();
-/// for v in value_t!(matches.values_of("seq"), u32)
-///             .unwrap_or_else(|e|{
-///                 println!("{}",e);
-///                 std::process::exit(1)
-///             }) {
+///
+/// let vals = values_t!(matches.values_of("seq"), u32).unwrap_or_else(|e| e.exit());
+/// for v in &vals {
+///     println!("{} + 2: {}", v, v + 2);
+/// }
+///
+/// let vals = values_t!(matches, "seq", u32).unwrap_or_else(|e| e.exit());
+/// for v in &vals {
 ///     println!("{} + 2: {}", v, v + 2);
 /// }
 /// # }
 /// ```
 #[macro_export]
 macro_rules! values_t {
-    ($m:expr, $v:expr, $t:ty) => {
+    ($m:ident, $v:expr, $t:ty) => {
         values_t!($m.values_of($v), $t)
     };
     ($m:ident.values_of($v:expr), $t:ty) => {
-        match $m {
-            Some(ref v) => values_t!(v, $t),
-            None =>
-                Err(::clap::Error::value_validation(format!("The argument was not found", v))),
-        }
-    };
-    ($v:ident, $t:ty) => {
-        let mut tmp = Vec::with_capacity($v.len());
-        let mut err = None;
-        for pv in &$v {
-            match pv.parse::<$t>() {
-                Ok(rv) => tmp.push(rv),
-                Err(e) => {
-                    err = Some(::clap::Error::value_validation(
-                            format!("The argument '{}' isn't a valid value", v)));
-                    break
+        if let Some(vals) = $m.values_of($v) {
+            let mut tmp = vec![];
+            let mut err = None;
+            for pv in vals {
+                match pv.parse::<$t>() {
+                    Ok(rv) => tmp.push(rv),
+                    Err(..) => {
+                        err = Some(::clap::Error::value_validation(
+                                format!("The argument '{}' isn't a valid value", pv)));
+                        break
+                    }
                 }
             }
-        }
-        match err {
-            Some(e) => Err(e),
-            None => Ok(tmp)
+            match err {
+                Some(e) => Err(e),
+                None => Ok(tmp),
+            }
+        } else {
+            Err(::clap::Error::argument_not_found($v))
         }
     };
 }
 
+/// Convenience macro getting a typed value `T` where `T` implements `std::str::FromStr` or
+/// exiting upon error.
+///
+/// **NOTE:** This macro is for backwards compatibility sake. Prefer
+/// `value_t!(/* ... */).unwrap_or_else(|e| e.exit())`
+///
+/// # Examples
+///
+/// ```no_run
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::App;
+/// # fn main() {
+/// let matches = App::new("myapp")
+///               .arg_from_usage("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
+///               .get_matches();
+///
+/// let vals = values_t_or_exit!(matches.values_of("seq"), u32);
+/// for v in &vals {
+///     println!("{} + 2: {}", v, v + 2);
+/// }
+///
+/// // type for example only
+/// let vals: Vec<u32> = values_t_or_exit!(matches, "seq", u32);
+/// for v in &vals {
+///     println!("{} + 2: {}", v, v + 2);
+/// }
+/// # }
+/// ```
+#[macro_export]
+macro_rules! values_t_or_exit {
+    ($m:ident, $v:expr, $t:ty) => {
+        values_t_or_exit!($m.values_of($v), $t)
+    };
+    ($m:ident.values_of($v:expr), $t:ty) => {
+        if let Some(vals) = $m.values_of($v) {
+            vals.map(|v| v.parse::<$t>().unwrap_or_else(|_|{
+                ::clap::Error::value_validation(
+                    format!("One or more arguments aren't valid values")).exit()
+            })).collect::<Vec<$t>>()
+        } else {
+            ::clap::Error::argument_not_found($v).exit()
+        }
+    };
+}
 
 /// Convenience macro to generate more complete enums with variants to be used as a type when
 /// parsing arguments. This enum also provides a `variants()` function which can be used to retrieve a
@@ -277,7 +357,7 @@ macro_rules! values_t {
 ///     let m = App::new("app")
 ///                 .arg_from_usage("<foo> 'the foo'")
 ///                 .get_matches();
-///     let f = value_t_or_exit!(m.value_of("foo"), Foo);
+///     let f = value_t!(m, "foo", Foo).unwrap_or_else(|e| e.exit());
 ///
 ///     // Use f like any other Foo variant...
 /// }

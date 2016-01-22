@@ -25,19 +25,15 @@ use usageparser::{UsageParser, UsageToken};
 /// # Examples
 ///
 /// ```no_run
-/// # use clap::{App, Arg};
-/// # let matches = App::new("myprog")
-/// #                 .arg(
+/// # use clap::Arg;
 /// // Using the traditional builder pattern and setting each option manually
-/// Arg::with_name("config")
+/// let cfg = Arg::with_name("config")
 ///       .short("c")
 ///       .long("config")
 ///       .takes_value(true)
-///       .help("Provides a config file to myprog")
-/// # ).arg(
+///       .help("Provides a config file to myprog");
 /// // Using a usage string (setting a similar argument to the one above)
-/// Arg::from_usage("-i --input=[input] 'Provides an input file to the program'")
-/// # ).get_matches();
+/// let input = Arg::from_usage("-i --input=[input] 'Provides an input file to the program'");
 #[allow(missing_debug_implementations)]
 pub struct Arg<'a, 'b> where 'a: 'b {
     /// The unique name of the argument

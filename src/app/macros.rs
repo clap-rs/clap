@@ -56,40 +56,51 @@ macro_rules! arg_post_processing(
     ($me:ident, $arg:ident, $matcher:ident) => ({
         use args::AnyArg;
         // Handle POSIX overrides
+        debug!("Is '{}' in overrides...", $arg.to_string());
         if $me.overrides.contains(&$arg.name()) {
-            if let Some(ref name) = $me.overriden_from(&*$arg.name(), $matcher) {
+            if let Some(ref name) = $me.overriden_from($arg.name(), $matcher) {
+                sdebugln!("Yes by {}", name);
                 $matcher.remove(name);
                 remove_overriden!($me, name);
             }
-        }
+        } else { sdebugln!("No"); }
+
+        // Add overrides
+        debug!("Does '{}' have overrides...", $arg.to_string());
         if let Some(or) = $arg.overrides() {
             for pa in or {
+                sdebugln!("\tYes '{}'", pa);
                 $matcher.remove(&*pa);
                 remove_overriden!($me, pa);
                 $me.overrides.push(pa);
                 vec_remove!($me.required, pa);
             }
-        }
+        } else { sdebugln!("No"); }
+
         // Handle conflicts
+        debugln!("Does '{}' have conflicts...", $arg.to_string());
         if let Some(bl) = $arg.blacklist() {
             for name in bl {
+                sdebugln!("\tYes '{}'", name);
                 $me.blacklist.push(name);
                 vec_remove!($me.overrides, name);
                 vec_remove!($me.required, name);
             }
-        }
+        } else { sdebugln!("No"); }
 
         // Add all required args which aren't already found in matcher to the master
         // list
+        debug!("Does '{}' have requirements...", $arg.to_string());
         if let Some(reqs) = $arg.requires() {
             for n in reqs {
-                if $matcher.contains(&*n) {
+                if $matcher.contains(&n) {
+                    sdebugln!("\tYes '{}' but it's already met", n);
                     continue;
-                }
+                } else { sdebugln!("\tYes '{}'", n); }
 
                 $me.required.push(n);
             }
-        }
+        } else { sdebugln!("No"); }
 
         _handle_group_reqs!($me, $arg);
     })
@@ -127,4 +138,13 @@ macro_rules! _handle_group_reqs{
             }
         }
     })
+}
+
+macro_rules! validate_multiples {
+    ($_self:ident, $a:ident, $m:ident) => {
+        if $m.contains(&$a.name) && !$a.settings.is_set(ArgSettings::Multiple) {
+            // Not the first time, and we don't allow multiples
+            return Err(Error::unexpected_multiple_usage($a, &*$_self.create_current_usage($m)))
+        }
+    };
 }

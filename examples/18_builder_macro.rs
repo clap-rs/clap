@@ -4,7 +4,7 @@ extern crate clap;
 // Note, there isn't a need for "use clap::{ ... };" Because the clap_app! macro uses
 // $crate:: internally
 
-#[cfg(feature = "nightly")]
+#[cfg(feature = "unstable")]
 fn main() {
 
     // Validation example testing that a file exists
@@ -80,6 +80,8 @@ fn main() {
         }
     }
 
-
     // Continued program logic goes here...
 }
+
+#[cfg(not(feature = "unstable"))]
+fn main() {}

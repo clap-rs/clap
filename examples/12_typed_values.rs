@@ -38,13 +38,13 @@ fn main() {
     //
     // Using other methods such as unwrap_or_else(|e| println!("{}",e))
     // are possible too.
-    let len = value_t!(matches.value_of("len"), u32).unwrap_or(10);
+    let len = value_t!(matches, "len", u32).unwrap_or(10);
 
     println!("len ({}) + 2 = {}", len, len + 2);
 
     // This code loops through all the values provided to "seq" and adds 2
     // If seq fails to parse, the program exits, you don't have an option
-    for v in value_t_or_exit!(matches.values_of("seq"), u32) {
+    for v in values_t!(matches, "seq", u32).unwrap_or_else(|e| e.exit()) {
         println!("Sequence part {} + 2: {}", v, v + 2);
     }
 }
