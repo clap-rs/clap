@@ -2,6 +2,7 @@ use std::ffi::{OsString, OsStr};
 use std::collections::HashMap;
 use std::iter::Map;
 use std::slice;
+use std::borrow::Cow;
 
 use vec_map;
 
@@ -114,6 +115,15 @@ impl<'a> ArgMatches<'a> {
         if let Some(ref arg) = self.args.get(name.as_ref()) {
             if let Some(v) = arg.vals.values().nth(0) {
                 return Some(v.to_str().expect(INVALID_UTF8));
+            }
+        }
+        None
+    }
+
+    pub fn lossy_value_of<S: AsRef<str>>(&'a self, name: S) -> Option<Cow<'a, str>> {
+        if let Some(arg) = self.args.get(name.as_ref()) {
+            if let Some(v) = arg.vals.values().nth(0) {
+                return Some(v.to_string_lossy());
             }
         }
         None

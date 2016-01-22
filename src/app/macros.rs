@@ -1,5 +1,6 @@
 macro_rules! remove_overriden {
     ($me:ident, $name:expr) => ({
+        debugln!("macro=remove_overriden!;");
         if let Some(ref o) = $me.opts.iter().filter(|o| o.name == *$name).next() {
             if let Some(ref ora) = o.requires {
                 for a in ora {
@@ -55,6 +56,7 @@ macro_rules! remove_overriden {
 macro_rules! arg_post_processing(
     ($me:ident, $arg:ident, $matcher:ident) => ({
         use args::AnyArg;
+        debugln!("macro=arg_post_processing!;");
         // Handle POSIX overrides
         debug!("Is '{}' in overrides...", $arg.to_string());
         if $me.overrides.contains(&$arg.name()) {
@@ -78,10 +80,10 @@ macro_rules! arg_post_processing(
         } else { sdebugln!("No"); }
 
         // Handle conflicts
-        debugln!("Does '{}' have conflicts...", $arg.to_string());
+        debug!("Does '{}' have conflicts...", $arg.to_string());
         if let Some(bl) = $arg.blacklist() {
             for name in bl {
-                sdebugln!("\tYes '{}'", name);
+                sdebugln!("\n\tYes '{}'", name);
                 $me.blacklist.push(name);
                 vec_remove!($me.overrides, name);
                 vec_remove!($me.required, name);
@@ -109,6 +111,7 @@ macro_rules! arg_post_processing(
 macro_rules! _handle_group_reqs{
     ($me:ident, $arg:ident) => ({
         use args::AnyArg;
+        debugln!("macro=_handle_group_reqs!;");
         for grp in $me.groups.values() {
             let mut found = false;
             for name in grp.args.iter() {
@@ -142,6 +145,7 @@ macro_rules! _handle_group_reqs{
 
 macro_rules! validate_multiples {
     ($_self:ident, $a:ident, $m:ident) => {
+        debugln!("macro=validate_multiples!;");
         if $m.contains(&$a.name) && !$a.settings.is_set(ArgSettings::Multiple) {
             // Not the first time, and we don't allow multiples
             return Err(Error::unexpected_multiple_usage($a, &*$_self.create_current_usage($m)))

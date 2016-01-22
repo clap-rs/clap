@@ -8,6 +8,7 @@ pub trait OsStrExt2 {
     fn trim_left_matches(&self, b: u8) -> &OsStr;
     fn len(&self) -> usize;
     fn contains_byte(&self, b: u8) -> bool;
+    fn is_empty(&self) -> bool;
 }
 
 impl OsStrExt2 for OsStr {
@@ -19,6 +20,10 @@ impl OsStrExt2 for OsStr {
             i += 1;
         }
         return true;
+    }
+
+    fn is_empty(&self) -> bool {
+        self.as_bytes().is_empty()
     }
 
     fn contains_byte(&self, byte: u8) -> bool {
