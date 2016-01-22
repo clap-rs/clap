@@ -18,12 +18,14 @@ fn required_group_missing_arg() {
 
 #[test]
 fn group_single_value() {
-    let m = App::new("group")
+    let r = App::new("group")
         .args_from_usage("-f, --flag 'some flag'
                           -c, --color [color] 'some option'")
         .group(ArgGroup::with_name("grp")
             .args(&["flag", "color"]))
-        .get_matches_from(vec!["myprog", "-c", "blue"]);
+        .get_matches_from_safe(vec!["myprog", "-c", "blue"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
     assert!(m.is_present("grp"));
     assert_eq!(m.value_of("grp").unwrap(), "blue");
 }
@@ -68,12 +70,14 @@ fn group_reqired_flags_empty() {
 
 #[test]
 fn group_multi_value_single_arg() {
-    let m = App::new("group")
+    let r = App::new("group")
         .args_from_usage("-f, --flag 'some flag'
                           -c, --color [color]... 'some option'")
         .group(ArgGroup::with_name("grp")
             .args(&["flag", "color"]))
-        .get_matches_from(vec!["myprog", "-c", "blue", "red", "green"]);
+        .get_matches_from_safe(vec!["myprog", "-c", "blue", "red", "green"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
     assert!(m.is_present("grp"));
     assert_eq!(m.values_of("grp").unwrap().collect::<Vec<_>>(), &["blue", "red", "green"]);
 }

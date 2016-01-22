@@ -291,7 +291,7 @@
 //! the `from_usage`
 //! methods and the performance of the Builder Pattern.
 //!
-//! ```no_run
+//! ```ignore
 //! // (Full example with detailed comments in examples/01c_quick_example.rs)
 //! //
 //! // This example demonstrates clap's "usage strings" method of creating

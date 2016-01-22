@@ -423,8 +423,8 @@ impl<'a, 'b> App<'a, 'b> {
     /// # use clap::{App, Arg};
     /// App::new("myprog")
     ///     .args(
-    ///         vec![Arg::from_usage("[debug] -d 'turns on debugging info"),
-    ///              Arg::with_name("input").index(1).help("the input file to use")]
+    ///         &[Arg::from_usage("[debug] -d 'turns on debugging info"),
+    ///          Arg::with_name("input").index(1).help("the input file to use")]
     ///     )
     /// # ;
     /// ```

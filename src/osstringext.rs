@@ -31,7 +31,7 @@ impl OsStrExt2 for OsStr {
     fn split_at_byte(&self, byte: u8) -> (&OsStr, &OsStr) {
         let mut i = 0;
         for b in self.as_bytes() {
-            if b == &byte { return (OsStr::from_bytes(&self.as_bytes()[..i]), OsStr::from_bytes(&self.as_bytes()[i..])); }
+            if b == &byte { return (OsStr::from_bytes(&self.as_bytes()[..i]), OsStr::from_bytes(&self.as_bytes()[i+1..])); }
             i += 1;
         }
         (&*self, OsStr::from_bytes(&self.as_bytes()[self.len()..self.len()]))

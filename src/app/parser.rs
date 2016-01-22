@@ -34,7 +34,7 @@ pub struct Parser<'a, 'b> where 'a: 'b {
     positionals: VecMap<PosBuilder<'a, 'b>>,
     // A list of subcommands
     subcommands: Vec<App<'a, 'b>>,
-    groups: HashMap<&'b str, ArgGroup<'a>>,
+    groups: HashMap<&'a str, ArgGroup<'a>>,
     global_args: Vec<Arg<'a, 'b>>,
     overrides: Vec<&'b str>,
     help_short: Option<char>,
@@ -491,7 +491,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
 
 
             if let Some(p) = self.positionals.get(&pos_counter) {
-                try!(self.validate_arg(p, matcher));
+                validate_multiples!(self, p, matcher);
 
                 try!(self.add_val_to_arg(p, &arg_os, matcher));
 
@@ -640,21 +640,21 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         for k in matcher.arg_names() {
             if let Some(f) = self.flags.iter().filter(|f| &f.name == &k).next() {
                 if let Some(ref bl) = f.blacklist {
-                    if bl.contains(&name.into()) {
+                    if bl.contains(&name) {
                         return Some(format!("{}", f));
                     }
                 }
             }
             if let Some(o) = self.opts.iter().filter(|o| &o.name == &k).next() {
                 if let Some(ref bl) = o.blacklist {
-                    if bl.contains(&name.into()) {
+                    if bl.contains(&name) {
                         return Some(format!("{}", o));
                     }
                 }
             }
             if let Some(pos) = self.positionals.values().filter(|p| &p.name == &k).next() {
                 if let Some(ref bl) = pos.blacklist {
-                    if bl.contains(&name.into()) {
+                    if bl.contains(&name) {
                         return Some(format!("{}", pos));
                     }
                 }
@@ -691,12 +691,21 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
     }
 
     fn groups_for_arg(&self, name: &str) -> Option<Vec<&'a str>> {
+        debugln!("fn=groups_for_arg;");
+
         if self.groups.is_empty() {
+            debugln!("No groups defined");
             return None;
         }
         let mut res = vec![];
-        for (_, grp) in &self.groups {
-            res.extend(grp.args.iter().filter(|&g| g == &name).map(|&g| g).collect::<Vec<_>>());
+        debugln!("Searching through groups...");
+        for (gn, grp) in &self.groups {
+            for a in &grp.args {
+                if a == &name {
+                    sdebugln!("\tFound '{}'", gn);
+                    res.push(*gn);
+                }
+            }
         }
         if res.is_empty() {
             return None;
@@ -841,19 +850,23 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
     }
 
     fn check_for_help_and_version_str(&self, arg: &OsStr) -> ClapResult<()> {
+        debug!("Checking if --{} is help or version...", arg.to_str().unwrap());
         if arg == "help" && self.settings.is_set(AppSettings::NeedsLongHelp) {
             try!(self._help());
         }
         if arg == "version" && self.settings.is_set(AppSettings::NeedsLongVersion) {
             try!(self._version());
         }
+        sdebugln!("Neither");
 
         Ok(())
     }
 
     fn check_for_help_and_version_char(&self, arg: char) -> ClapResult<()> {
+        debug!("Checking if -{} is help or version...", arg);
         if let Some(h) = self.help_short { if arg == h { try!(self._help()); } }
         if let Some(v) = self.version_short { if arg == v { try!(self._version()); } }
+        sdebugln!("Neither");
         Ok(())
     }
 
@@ -881,12 +894,16 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                       matcher: &mut ArgMatcher<'a>,
                       full_arg: &OsStr)
                       -> ClapResult<Option<&'b str>> { // maybe here lifetime should be 'a
+        debugln!("fn=parse_long_arg;");
         let mut val = None;
+        debug!("Does it contain '='...");
         let arg = if full_arg.contains_byte(b'=') {
             let (p0, p1) = full_arg.trim_left_matches(b'-').split_at_byte(b'=');
+            sdebugln!("Yes '{:?}'", p1);
             val = Some(p1);
             p0
         } else {
+            sdebugln!("No");
             full_arg.trim_left_matches(b'-')
         };
 
@@ -894,6 +911,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                     .iter()
                     .filter(|v| v.long.is_some() && &*v.long.unwrap() == arg)
                     .next() {
+            debugln!("Found valid opt '{}'", opt.to_string());
             let ret = try!(self.parse_opt(val, opt, matcher));
             arg_post_processing!(self, opt, matcher);
 
@@ -902,6 +920,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                     .iter()
                     .filter(|v| v.long.is_some() && &*v.long.unwrap() == arg)
                     .next() {
+            debugln!("Found valid flag '{}'", flag.to_string());
             // Only flags could be help or version, and we need to check the raw long
             // so this is the first point to check
             try!(self.check_for_help_and_version_str(&arg));
@@ -914,6 +933,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             return Ok(None);
         }
 
+        debugln!("Didn't match anything");
         self.did_you_mean_error(arg.to_str().expect(INVALID_UTF8), matcher).map(|_| None)
     }
 
@@ -921,6 +941,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                        matcher: &mut ArgMatcher<'a>,
                        full_arg: &OsStr)
                        -> ClapResult<Option<&'a str>> {
+        debugln!("fn=parse_short_arg;");
         // let mut utf8 = true;
         let arg_os = full_arg.trim_left_matches(b'-');
         let arg = arg_os.to_string_lossy();
@@ -934,19 +955,24 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                         .iter()
                         .filter(|&v| v.short.is_some() && v.short.unwrap() == c)
                         .next() {
+                debugln!("Found valid short opt -{} in '{}'", c, arg);
                 // Check for trailing concatenated value
-                let val = {
-                    let i = arg.splitn(2, c).next().unwrap().as_bytes().len() - 1;
-                    full_arg.split_at(i).1
+                let p: Vec<_> = arg.splitn(2, c).collect();
+                let i = p[0].as_bytes().len();
+                let val = if i != 0 {
+                    Some(full_arg.split_at(i + 1).1)
+                } else {
+                    None
                 };
 
                 // Default to "we're expecting a value later"
-                let ret = try!(self.parse_opt(Some(val), opt, matcher));
+                let ret = try!(self.parse_opt(val, opt, matcher));
 
                 arg_post_processing!(self, opt, matcher);
 
                 return Ok(ret);
             } else if let Some(flag) = self.flags.iter().filter(|&v| v.short.is_some() && v.short.unwrap() == c).next() {
+                debugln!("Found valid short flag -{}", c);
                 // Only flags can be help or version
                 try!(self.check_for_help_and_version_char(c));
                 try!(self.parse_flag(flag, matcher));
@@ -969,26 +995,21 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                  opt: &OptBuilder<'a, 'b>,
                  matcher: &mut ArgMatcher<'a>)
                  -> ClapResult<Option<&'a str>> {
-        try!(self.validate_arg(opt, matcher));
+        debugln!("fn=parse_opt;");
+        validate_multiples!(self, opt, matcher);
 
-        if matcher.contains(&*opt.name) && !opt.settings.is_set(ArgSettings::Multiple) {
-            // Not the first time, but we don't allow multiples
-            return Err(
-                Error::unexpected_multiple_usage(opt, &*self.create_current_usage(matcher)));
-        }
-
-        if val.is_none() || val.unwrap().len() == 0 {
-            if opt.is_set(ArgSettings::EmptyValues) {
-                try!(self.add_val_to_arg(opt, val.unwrap(), matcher));
-                return Ok(None);
+        debug!("Checking for val...");
+        if let Some(v) = val {
+            if !opt.is_set(ArgSettings::EmptyValues) && v.len() == 0 {
+                sdebugln!("Found Empty - Error");
+                return Err(Error::empty_value(opt, &*self.create_current_usage(matcher)));
             }
-            return Err(Error::empty_value(opt, &*self.create_current_usage(matcher)));
-        }
+            sdebugln!("Found");
+            try!(self.add_val_to_arg(opt, v, matcher));
+        } else { sdebugln!("None"); }
 
-        // If it doesn't allow mutliples, (or a specific number of values), or we don't have any
-        // values yet, we want to return the name of this arg so the next arg is parsed as a value
-        // otherwise we're done getting values
-        if opt.settings.is_set(ArgSettings::Multiple) || opt.num_vals.is_some() || !matcher.contains(&*opt.name) {
+        if (opt.is_set(ArgSettings::Multiple) || opt.num_vals().is_some())
+            || val.is_none() {
             return Ok(Some(opt.name));
         }
         Ok(None)
@@ -1077,79 +1098,88 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
     }
 
     fn parse_flag(&self, flag: &FlagBuilder<'a, 'b>, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
-        // Validate that we can actually accept this arg
-        try!(self.validate_arg(flag, matcher));
+        debugln!("fn=parse_flag;");
+        validate_multiples!(self, flag, matcher);
 
-        // First occurrence or not?
-        if !matcher.contains(&*flag.name) {
-            // If this is the first, then add this flag itself
-            matcher.insert(&*flag.name.clone());
-        } else if !flag.settings.is_set(ArgSettings::Multiple) {
-            // Not the first time, but we don't allow multiples
-            return Err(
-                Error::unexpected_multiple_usage(flag, &*self.create_current_usage(matcher)));
-        } else {
-            matcher.inc_occurrence_of(&*flag.name.clone());
-        }
+        matcher.inc_occurrence_of(&*flag.name.clone());
 
         // Increment or create the group "args"
-        self.groups_for_arg(&*flag.name).and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
+        self.groups_for_arg(flag.name).and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
 
         Ok(())
     }
 
-    fn validate_arg<A>(&self, arg: &A, matcher: &mut ArgMatcher) -> ClapResult<()>
-        where A: AnyArg<'a, 'b> + Display {
-        // Ensure this arg isn't on the mutually excludes list
-        if self.blacklist.contains(&arg.name()) {
-            matcher.remove(&*arg.name());
-            return Err(
-                Error::argument_conflict(arg,
-                    self.blacklisted_from(&*arg.name(), &matcher),
-                    &*self.create_current_usage(matcher)));
-        }
-
-        // Make sure this isn't one being added multiple times if it doesn't support it
-        if matcher.contains(&*arg.name()) && !arg.is_set(ArgSettings::Multiple) {
-            return Err(
-                Error::unexpected_multiple_usage(arg, &*self.create_current_usage(matcher)));
-        }
-
-        Ok(())
-    }
+    // fn validate_arg<A>(&self, arg: &A, matcher: &mut ArgMatcher) -> ClapResult<()>
+    //     where A: AnyArg<'a, 'b> + Display {
+    //     debugln!("fn=validate_arg;");
+    //
+    //     /*
+    //       Might not be required if we validate the blacklist later on as well too...
+    //
+    //     debug!("Can we use '{}'...", arg.to_string());
+    //     // Ensure this arg isn't on the mutually excludes list
+    //     if self.blacklist.contains(&arg.name()) {
+    //         sdebugln!("No");
+    //         matcher.remove(&*arg.name());
+    //         return Err(
+    //             Error::argument_conflict(arg,
+    //                 self.blacklisted_from(&*arg.name(), &matcher),
+    //                 &*self.create_current_usage(matcher)));
+    //     }
+    //     sdebugln!("Yes");
+    //     */
+    //
+    //     // Make sure this isn't one being added multiple times if it doesn't support it
+    //     if matcher.contains(&*arg.name()) && !arg.is_set(ArgSettings::Multiple) {
+    //         return Err(
+    //             Error::unexpected_multiple_usage(arg, &*self.create_current_usage(matcher)));
+    //     }
+    //
+    //     Ok(())
+    // }
 
 
     fn validate_blacklist(&self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         macro_rules! build_err {
-            ($me:ident, $name:ident, $matcher:ident) => ({
+            ($me:ident, $name:expr, $matcher:ident) => ({
                 let c_with = $me.blacklisted_from($name, &$matcher);
+                debugln!("'{:?}' conflicts with '{}'", c_with, $name);
                 let usg = $me.create_current_usage($matcher);
-                if let Some(f) = $me.flags.iter().filter(|f| &f.name == $name).next() {
-
+                if let Some(f) = $me.flags.iter().filter(|f| f.name == $name).next() {
+                    debugln!("It was a flag...");
                     Error::argument_conflict(f, c_with, &*usg)
                 } else if let Some(o) = $me.opts.iter()
-                                                 .filter(|o| &o.name == $name)
+                                                 .filter(|o| o.name == $name)
                                                  .next() {
+                    debugln!("It was an option...");
                     Error::argument_conflict(o, c_with, &*usg)
                 } else {
                     match $me.positionals.values()
-                                            .filter(|p| p.name == *$name)
+                                            .filter(|p| p.name == $name)
                                             .next() {
-                        Some(p) => Error::argument_conflict(p, c_with, &*usg),
+                        Some(p) => {
+                            debugln!("It was a positional...");
+                            Error::argument_conflict(p, c_with, &*usg)
+                        },
                         None    => panic!(INTERNAL_ERROR_MSG)
                     }
                 }
             });
         }
-        for name in self.blacklist.iter() {
-            if matcher.contains(name) {
-                return Err(build_err!(self, name, matcher));
-            } else if self.groups.contains_key(name) {
+        for name in &self.blacklist {
+            debugln!("Checking blacklisted name: {}", name);
+            if self.groups.contains_key(name) {
+                debugln!("groups contains it...");
                 for n in self.arg_names_in_group(name) {
-                    if matcher.contains(&*n) {
-                        return Err(build_err!(self, name, matcher));
+                    debugln!("Checking arg '{}' in group...", n);
+                    if matcher.contains(&n) {
+                        debugln!("matcher contains it...");
+                        return Err(build_err!(self, n, matcher));
                     }
                 }
+            } else if matcher.contains(name) {
+                debugln!("matcher contains it...");
+                return Err(build_err!(self, *name, matcher));
             }
         }
         Ok(())
