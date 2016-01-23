@@ -1081,7 +1081,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             }
         }
         if !arg.is_set(ArgSettings::EmptyValues) &&
-            val.is_empty() && 
+            val.is_empty() &&
             matcher.contains(&*arg.name()) {
             return Err(Error::empty_value(arg, &*self.create_current_usage(matcher)));
         }
@@ -1131,36 +1131,6 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
 
         Ok(())
     }
-
-    // fn validate_arg<A>(&self, arg: &A, matcher: &mut ArgMatcher) -> ClapResult<()>
-    //     where A: AnyArg<'a, 'b> + Display {
-    //     debugln!("fn=validate_arg;");
-    //
-    //     /*
-    //       Might not be required if we validate the blacklist later on as well too...
-    //
-    //     debug!("Can we use '{}'...", arg.to_string());
-    //     // Ensure this arg isn't on the mutually excludes list
-    //     if self.blacklist.contains(&arg.name()) {
-    //         sdebugln!("No");
-    //         matcher.remove(&*arg.name());
-    //         return Err(
-    //             Error::argument_conflict(arg,
-    //                 self.blacklisted_from(&*arg.name(), &matcher),
-    //                 &*self.create_current_usage(matcher)));
-    //     }
-    //     sdebugln!("Yes");
-    //     */
-    //
-    //     // Make sure this isn't one being added multiple times if it doesn't support it
-    //     if matcher.contains(&*arg.name()) && !arg.is_set(ArgSettings::Multiple) {
-    //         return Err(
-    //             Error::unexpected_multiple_usage(arg, &*self.create_current_usage(matcher)));
-    //     }
-    //
-    //     Ok(())
-    // }
-
 
     fn validate_blacklist(&self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debugln!("fn=validate_blacklist;");
