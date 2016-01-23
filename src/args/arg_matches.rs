@@ -92,26 +92,27 @@ impl<'a> ArgMatches<'a> {
     #[doc(hidden)]
     pub fn new() -> Self { ArgMatches { ..Default::default() } }
 
-    /// Gets the value of a specific option or positional argument (i.e. an argument that takes
-    /// an additional value at runtime). If the option wasn't present at runtime
-    /// it returns `None`.
-    ///
-    /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
-    /// prefer `values_of()` as `value_of()` will only return the _*first*_ value.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// # let matches = App::new("myapp")
-    /// #     .arg(Arg::with_name("output")
-    /// #         .takes_value(true))
-    /// #     .get_matches();
-    /// if let Some(o) = matches.value_of("output") {
-    ///        println!("Value for output: {}", o);
-    /// }
-    /// ```
     pub fn value_of<S: AsRef<str>>(&self, name: S) -> Option<&str> {
+    /*!
+    Gets the value of a specific option or positional argument (i.e. an argument that takes
+    an additional value at runtime). If the option wasn't present at runtime
+    it returns `None`.
+
+    *NOTE:* If getting a value for an option or positional argument that allows multiples,
+    prefer `values_of()` as `value_of()` will only return the _*first*_ value.
+
+    # Examples
+
+    ```no_run
+    # use clap::{App, Arg};
+    let m = App::new("myapp")
+        .arg(Arg::with_name("output")
+            .takes_value(true))
+        .get_matches_from(vec!["myapp", "something"]);
+
+    assert_eq!(m.value_of("output"), Some("something"));
+    ```
+    */
         if let Some(ref arg) = self.args.get(name.as_ref()) {
             if let Some(v) = arg.vals.values().nth(0) {
                 return Some(v.to_str().expect(INVALID_UTF8));
@@ -121,6 +122,27 @@ impl<'a> ArgMatches<'a> {
     }
 
     pub fn lossy_value_of<S: AsRef<str>>(&'a self, name: S) -> Option<Cow<'a, str>> {
+    /*!
+    Gets the lossy value of a specific argument If the option wasn't present at runtime
+    it returns `None`. A lossy value is one which contains invalid UTF-8 code points, those
+    invalid points will be replaced with `\u{FFFD}`
+
+    *NOTE:* If getting a value for an option or positional argument that allows multiples,
+    prefer `lossy_values_of()` as `lossy_value_of()` will only return the _*first*_ value.
+
+    # Examples
+
+    ```no_run
+    # use clap::{App, Arg};
+    use std::ffi::OsString;
+    let m = App::new("utf8")
+        .arg(Arg::from_usage("<arg> 'some arg'"))
+        .get_matches_from(vec![OsString::from("myprog"),
+                                // "Hi {0xe9}!"
+                                OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
+    assert_eq!(&*m.lossy_value_of("arg").unwrap(), "Hi \u{FFFD}!");
+    ```
+    */
         if let Some(arg) = self.args.get(name.as_ref()) {
             if let Some(v) = arg.vals.values().nth(0) {
                 return Some(v.to_string_lossy());
@@ -130,7 +152,35 @@ impl<'a> ArgMatches<'a> {
     }
 
     pub fn os_value_of<S: AsRef<str>>(&self, name: S) -> Option<&OsStr> {
-        self.args.get(name.as_ref()).map(|arg| arg.vals.values().nth(0).map(|v| v.as_os_str())).unwrap_or(None)
+    /*!
+    Gets the OS version of a string value of a specific argument If the option wasn't present at
+    runtime it returns `None`. An OS value on Unix-like systems is any series of bytes, regardless
+    of whether or not they contain valid UTF-8 code points. Since `String`s in Rust are
+    garunteed to be valid UTF-8, a valid filename as an argument value on Linux (for example) may
+    contain invalid UTF-8 code points. This would cause a `panic!` or only the abiltiy to get a
+    lossy version of the file name (i.e. one where the invalid code points were replaced with
+    `\u{FFFD}`). This method returns an `OsString` which allows one to represent those strings
+    which rightfully contain invalid UTF-8.
+
+    *NOTE:* If getting a value for an option or positional argument that allows multiples,
+    prefer `os_values_of()` as `os_value_of()` will only return the _*first*_ value.
+
+    # Examples
+
+    ```no_run
+    # use clap::{App, Arg};
+    use std::ffi::OsString;
+    use std::os::unix::ffi::OsStrExt;
+
+    let m = App::new("utf8")
+        .arg(Arg::from_usage("<arg> 'some arg'"))
+        .get_matches_from(vec![OsString::from("myprog"),
+                                // "Hi {0xe9}!"
+                                OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
+    assert_eq!(&*m.os_value_of("arg").unwrap().as_bytes(), &[b'H', b'i', b' ', 0xe9, b'!']);
+    ```
+    */
+        self.args.get(name.as_ref()).map_or(None, |arg| arg.vals.values().nth(0).map(|v| v.as_os_str()))
     }
 
     /// Gets the values of a specific option or positional argument in a vector (i.e. an argument
@@ -154,14 +204,35 @@ impl<'a> ArgMatches<'a> {
     /// ```
     pub fn values_of<S: AsRef<str>>(&'a self, name: S) -> Option<Values<'a>> {
         if let Some(ref arg) = self.args.get(name.as_ref()) {
-            fn to_str_slice<'a>(o: &'a OsString) -> &'a str { o.to_str().expect(INVALID_UTF8) }
-            let to_str_slice: fn(&'a OsString) -> &'a str = to_str_slice; // coerce to fn pointer
+            fn to_str_slice(o: &OsString) -> &str { o.to_str().expect(INVALID_UTF8) }
+            let to_str_slice: fn(&OsString) -> &str = to_str_slice; // coerce to fn pointer
             return Some(Values { iter: arg.vals.values().map(to_str_slice) });
         }
         None
     }
 
     pub fn lossy_values_of<S: AsRef<str>>(&'a self, name: S) -> Option<Vec<String>> {
+    /*!
+    Gets the lossy values of a specific argument If the option wasn't present at runtime
+    it returns `None`. A lossy value is one which contains invalid UTF-8 code points, those
+    invalid points will be replaced with `\u{FFFD}`
+
+    # Examples
+
+    ```no_run
+    # use clap::{App, Arg};
+    use std::ffi::OsString;
+    let m = App::new("utf8")
+        .arg(Arg::from_usage("<arg> 'some arg'"))
+        .get_matches_from(vec![OsString::from("myprog"),
+                                // "Hi {0xe9}!"
+                                OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
+    let itr = m.lossy_values_of("arg").unwrap();
+    assert_eq!(&*itr.next().unwrap(), "Hi");
+    assert_eq!(&*itr.next().unwrap(), "\u{FFFD}!");
+    assert_eq!(itr.next(), None);
+    ```
+    */
         if let Some(ref arg) = self.args.get(name.as_ref()) {
             return Some(arg.vals.values()
                            .map(|v| v.to_string_lossy().into_owned())
@@ -171,7 +242,37 @@ impl<'a> ArgMatches<'a> {
     }
 
     pub fn os_values_of<S: AsRef<str>>(&'a self, name: S) -> Option<OsValues<'a>> {
-        fn to_str_slice<'a>(o: &'a OsString) -> &'a OsStr { &*o }
+    /*!
+    Gets the OS version of a string value of a specific argument If the option wasn't present at
+    runtime it returns `None`. An OS value on Unix-like systems is any series of bytes, regardless
+    of whether or not they contain valid UTF-8 code points. Since `String`s in Rust are
+    garunteed to be valid UTF-8, a valid filename as an argument value on Linux (for example) may
+    contain invalid UTF-8 code points. This would cause a `panic!` or only the abiltiy to get a
+    lossy version of the file name (i.e. one where the invalid code points were replaced with
+    `\u{FFFD}`). This method returns an `OsString` which allows one to represent those strings
+    which rightfully contain invalid UTF-8.
+
+    # Examples
+
+    ```no_run
+    # use clap::{App, Arg};
+    use std::ffi::OsString;
+
+    let m = App::new("utf8")
+        .arg(Arg::from_usage("<arg> 'some arg'"))
+        .get_matches_from(vec![OsString::from("myprog"),
+                                    // "Hi"
+                                    OsString::from_vec(vec![b'H', b'i']),
+                                    // "{0xe9}!"
+                                    OsString::from_vec(vec![0xe9, b'!'])]);
+
+    let itr = m.os_values_of("arg").unwrap();
+    assert_eq!(itr.next(), Some(&*OsString::from("Hi")));
+    assert_eq!(itr.next(), Some(&*OsString::from_vec(vec![0xe9, b'!'])));
+    assert_eq!(itr.next(), None);
+    ```
+    */
+        fn to_str_slice(o: &OsString) -> &OsStr { &*o }
         let to_str_slice: fn(&'a OsString) -> &'a OsStr = to_str_slice; // coerce to fn pointer
         if let Some(ref arg) = self.args.get(name.as_ref()) {
             return Some(OsValues { iter: arg.vals.values().map(to_str_slice) });
@@ -219,7 +320,7 @@ impl<'a> ArgMatches<'a> {
     /// }
     /// ```
     pub fn occurrences_of<S: AsRef<str>>(&self, name: S) -> u8 {
-        self.args.get(name.as_ref()).map(|a| a.occurs).unwrap_or(0)
+        self.args.get(name.as_ref()).map_or(0, |a| a.occurs)
     }
 
     /// Returns the `ArgMatches` for a particular subcommand or None if the subcommand wasn't
@@ -279,7 +380,7 @@ impl<'a> ArgMatches<'a> {
     /// }
     /// ```
     pub fn subcommand(&self) -> (&str, Option<&ArgMatches<'a>>) {
-        self.subcommand.as_ref().map(|sc| (&sc.name[..], Some(&sc.matches))).unwrap_or(("", None))
+        self.subcommand.as_ref().map_or(("",None), |sc| (&sc.name[..], Some(&sc.matches)))
     }
 
     /// Returns a string slice of the usage statement for the `App` (or `SubCommand`)
@@ -294,7 +395,7 @@ impl<'a> ArgMatches<'a> {
     /// println!("{}",app_matches.usage());
     /// ```
     pub fn usage(&self) -> &str {
-        self.usage.as_ref().map(|u| &u[..]).unwrap_or("")
+        self.usage.as_ref().map_or("", |u| &u[..])
     }
 }
 
@@ -334,18 +435,11 @@ impl<'a, V> Iterator for Iter<'a, V> {
     #[inline]
     fn next(&mut self) -> Option<&'a V> {
         while self.front < self.back {
-            match self.iter.next() {
-                Some(elem) => {
-                    match elem.as_ref() {
-                        Some(x) => {
-                            // let index = self.front;
-                            self.front += 1;
-                            return Some(x);
-                        },
-                        None => {},
-                    }
+            if let Some(elem) = self.iter.next() {
+                if let Some(x) = elem.as_ref() {
+                    self.front += 1;
+                    return Some(x);
                 }
-                _ => ()
             }
             self.front += 1;
         }
@@ -362,17 +456,11 @@ impl<'a, V> DoubleEndedIterator for Iter<'a, V> {
     #[inline]
     fn next_back(&mut self) -> Option<&'a V> {
         while self.front < self.back {
-            match self.iter.next_back() {
-                Some(elem) => {
-                    match elem.as_ref() {
-                        Some(x) => {
-                            self.back -= 1;
-                            return Some(x);
-                        },
-                        None => {},
-                    }
+            if let Some(elem) = self.iter.next_back() {
+                if let Some(x) = elem.as_ref() {
+                    self.back -= 1;
+                    return Some(x);
                 }
-                _ => ()
             }
             self.back -= 1;
         }

@@ -96,7 +96,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         Parser { meta: AppMeta::with_name(n), ..Default::default() }
     }
 
-    pub fn help_short<'z>(&mut self, s: &'z str) {
+    pub fn help_short(&mut self, s: &str) {
         self.help_short = s.trim_left_matches(|c| c == '-')
                            .chars()
                            .nth(0);
@@ -116,7 +116,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             panic!("Non-unique argument name: {} is already in use", a.name);
         }
         if let Some(grp) = a.group {
-            let ag = self.groups.entry(grp).or_insert(ArgGroup::with_name(grp));
+            let ag = self.groups.entry(grp).or_insert_with(|| ArgGroup::with_name(grp));
             ag.args.push(a.name);
         }
         if let Some(s) = a.short {
@@ -288,7 +288,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             c_opt.push(f);
         }
         let mut tmp_p = vec![];
-        for p in c_pos.iter() {
+        for p in &c_pos {
             if let Some(p) = self.positionals.values().filter(|pos| &pos.name == p).next() {
                 if let Some(ref rl) = p.requires {
                     for r in rl {
@@ -426,11 +426,11 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
     }
 
     pub fn propogate_globals(&mut self) {
-        for sc in self.subcommands.iter_mut() {
+        for sc in &mut self.subcommands {
             // We have to create a new scope in order to tell rustc the borrow of `sc` is
             // done and to recursively call this method
             {
-                for a in self.global_args.iter() {
+                for a in &self.global_args {
                     sc.0.add_arg(a);
                 }
             }
@@ -621,7 +621,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             }
             let reqs = self.get_required_from(&hs, Some(matcher));
 
-            for s in reqs.iter() {
+            for s in &reqs {
                 write!(&mut mid_string, " {}", s).expect(INTERNAL_ERROR_MSG);
             }
         }
@@ -1281,7 +1281,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
     }
 
     fn validate_required(&self, matcher: &ArgMatcher) -> ClapResult<()> {
-        'outer: for name in self.required.iter() {
+        'outer: for name in &self.required {
             if matcher.contains(name) {
                 continue 'outer;
             }

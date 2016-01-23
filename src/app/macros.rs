@@ -114,7 +114,7 @@ macro_rules! _handle_group_reqs{
         debugln!("macro=_handle_group_reqs!;");
         for grp in $me.groups.values() {
             let mut found = false;
-            for name in grp.args.iter() {
+            for name in &grp.args {
                 if name == &$arg.name() {
                     vec_remove!($me.required, name);
                     if let Some(ref reqs) = grp.requires {
