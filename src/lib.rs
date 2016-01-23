@@ -648,20 +648,17 @@
 #![cfg_attr(feature = "lints", deny(warnings))]
 #![cfg_attr(not(any(feature = "lints", feature = "nightly")), deny(unstable_features))]
 #![deny(
-    //  missing_docs,
+        missing_docs,
         missing_debug_implementations,
         missing_copy_implementations,
         trivial_casts,
         trivial_numeric_casts,
-    //  unsafe_code,
         unused_import_braces,
         unused_qualifications)]
 // clippy false positives, or ones we're ok with...
-#![cfg_attr(feature = "lints", allow(explicit_iter_loop))]
-#![cfg_attr(feature = "lints", allow(should_implement_trait))]
 #![cfg_attr(feature = "lints", allow(cyclomatic_complexity))]
 // Only while bitflats uses "_first" inside it's macros
-#![cfg_attr(feature = "lints", allow(used_underscore_binding))]
+ #![cfg_attr(feature = "lints", allow(used_underscore_binding))]
 
 #[cfg(feature = "suggestions")]
 extern crate strsim;

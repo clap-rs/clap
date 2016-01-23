@@ -13,13 +13,11 @@ pub trait OsStrExt2 {
 
 impl OsStrExt2 for OsStr {
     fn starts_with(&self, s: &[u8]) -> bool {
-        let mut i = 0;
         let sab = self.as_bytes();
-        for b in s {
+        for (i, b) in s.iter().enumerate() {
             if *b != sab[i] { return false; }
-            i += 1;
         }
-        return true;
+        true
     }
 
     fn is_empty(&self) -> bool {
@@ -34,19 +32,15 @@ impl OsStrExt2 for OsStr {
     }
 
     fn split_at_byte(&self, byte: u8) -> (&OsStr, &OsStr) {
-        let mut i = 0;
-        for b in self.as_bytes() {
+        for (i, b) in self.as_bytes().iter().enumerate() {
             if b == &byte { return (OsStr::from_bytes(&self.as_bytes()[..i]), OsStr::from_bytes(&self.as_bytes()[i+1..])); }
-            i += 1;
         }
         (&*self, OsStr::from_bytes(&self.as_bytes()[self.len()..self.len()]))
     }
 
     fn trim_left_matches(&self, byte: u8) -> &OsStr {
-        let mut i = 0;
-        for b in self.as_bytes() {
+        for (i, b) in self.as_bytes().iter().enumerate() {
             if b != &byte { return OsStr::from_bytes(&self.as_bytes()[i..]); }
-            i += 1;
         }
         &*self
     }
