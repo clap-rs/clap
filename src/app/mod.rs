@@ -87,7 +87,8 @@ impl<'a, 'b> App<'a, 'b> {
     /// let app = App::from_yaml(yml);
     /// ```
     #[cfg(feature = "yaml")]
-    pub fn from_yaml<'y>(mut yaml: &'y Yaml) -> App<'y> {
+    pub fn from_yaml<'y>(mut yaml: &'y Yaml) -> App<'y, 'y> {
+        use args::SubCommand;
         // We WANT this to panic on error...so expect() is good.
         let mut is_sc = None;
         let mut a = if let Some(name) = yaml["name"].as_str() {
