@@ -51,7 +51,7 @@ USAGE:
 
 For more information try --help'''
 
-_arg_dym_usage = '''error: The argument '--optio' wasn't recognized, or isn't valid
+_arg_dym_usage = '''error: The argument '--optio' wasn't recognized, or isn't valid in this context
 \tDid you mean --option ?
 
 USAGE:
