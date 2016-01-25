@@ -132,9 +132,11 @@ impl<'a> ArgMatches<'a> {
 
     # Examples
 
-    ```no_run
+    ```ignore
     # use clap::{App, Arg};
     use std::ffi::OsString;
+    use std::os::unix::ffi::OsStrExt;
+
     let m = App::new("utf8")
         .arg(Arg::from_usage("<arg> 'some arg'"))
         .get_matches_from(vec![OsString::from("myprog"),
@@ -167,7 +169,7 @@ impl<'a> ArgMatches<'a> {
 
     # Examples
 
-    ```no_run
+    ```ignore
     # use clap::{App, Arg};
     use std::ffi::OsString;
     use std::os::unix::ffi::OsStrExt;
@@ -219,9 +221,11 @@ impl<'a> ArgMatches<'a> {
 
     # Examples
 
-    ```no_run
+    ```ignore
     # use clap::{App, Arg};
     use std::ffi::OsString;
+    use std::os::unix::ffi::OsStrExt;
+
     let m = App::new("utf8")
         .arg(Arg::from_usage("<arg> 'some arg'"))
         .get_matches_from(vec![OsString::from("myprog"),
@@ -254,9 +258,10 @@ impl<'a> ArgMatches<'a> {
 
     # Examples
 
-    ```no_run
+    ```ignore
     # use clap::{App, Arg};
     use std::ffi::OsString;
+    use std::os::unix::ffi::OsStrExt;
 
     let m = App::new("utf8")
         .arg(Arg::from_usage("<arg> 'some arg'"))

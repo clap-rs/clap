@@ -46,7 +46,7 @@ fn main() {
         if let Some(v) = matches.value_of("opt") {
             println!("option present {} times with value: {}",matches.occurrences_of("opt"), v);
         }
-        if let Some(ref ov) = matches.values_of("opt") {
+        if let Some(ov) = matches.values_of("opt") {
             for o in ov {
                 println!("An option: {}", o);
             }
@@ -87,7 +87,7 @@ fn main() {
         if let Some(v) = matches.value_of("opt") {
             println!("option present {} times with value: {}",matches.occurrences_of("opt"), v);
         }
-        if let Some(ref ov) = matches.values_of("opt") {
+        if let Some(ov) = matches.values_of("opt") {
             for o in ov {
                 println!("An option: {}", o);
             }
@@ -114,7 +114,7 @@ fn main() {
                 if let Some(v) = matches.value_of("scoption") {
                     println!("scoption present with value: {}", v);
                 }
-                if let Some(ref ov) = matches.values_of("scoption") {
+                if let Some(ov) = matches.values_of("scoption") {
                     for o in ov {
                         println!("An scoption: {}", o);
                     }
