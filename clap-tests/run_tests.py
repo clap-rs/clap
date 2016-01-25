@@ -22,13 +22,13 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
+    -O, --Option <option3>           tests options with specific value sets [values: fast slow]
+        --long-option-2 <option2>    tests long options with exclusions
         --maxvals3 <maxvals>...      Tests 3 max vals
         --minvals2 <minvals>...      Tests 2 min vals
         --multvals <one> <two>       Tests mutliple values, not mult occs
-        --multvalsmo <one> <two>     Tests mutliple values, not mult occs
+        --multvalsmo <one> <two>     Tests mutliple values, and mult occs
     -o, --option <opt>...            tests options
-        --long-option-2 <option2>    tests long options with exclusions
-    -O, --Option <option3>           tests options with specific value sets [values: fast slow]
 
 ARGS:
     positional        tests positionals
@@ -51,7 +51,7 @@ USAGE:
 
 For more information try --help'''
 
-_arg_dym_usage = '''error: The argument '--optio' wasn't recognized, or isn't valid in this context
+_arg_dym_usage = '''error: Found argument '--optio' which wasn't expected, or isn't valid in this context
 \tDid you mean --option ?
 
 USAGE:
