@@ -878,9 +878,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// `.max_values(3)`, and this argument would be satisfied if the user provided, 1, 2, or 3
     /// values.
     ///
-    /// **NOTE:** `qty` must be > 1
-    ///
-    /// **NOTE:** This implicitly sets `.multiple(true)`
+    /// **NOTE:** For positional arguments this implicitly sets `multiple(true)` but does *not*
+    /// for options. This is because `-o val -o val` is multiples occurrences but a single value
+    /// and `-o val1 val2` is a single occurence with multple values. For positional arguments
+    /// there is no way to determine the diffrence between multiple occureces and multiple values.
     ///
     /// # Examples
     ///
@@ -892,13 +893,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// .max_values(3)
     /// # ).get_matches();
     pub fn max_values(mut self, qty: u8) -> Self {
-        if qty < 2 {
-            panic!("Arguments with max_values(qty) qty must be > 1. Prefer \
-                takes_value(true) for arguments with only one value, or flags for arguments \
-                with 0 values.");
-        }
         self.max_vals = Some(qty);
-        self.multiple = true;
         self
     }
 
@@ -907,12 +902,11 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// `.min_values(2)`, and this argument would be satisfied if the user provided, 2 or more
     /// values.
     ///
-    /// **NOTE:** This implicitly sets `.multiple(true)`
+    /// **NOTE:** For positional arguments this implicitly sets `multiple(true)` but does *not*
+    /// for options. This is because `-o val -o val` is multiples occurrences but a single value
+    /// and `-o val1 val2` is a single occurence with multple values. For positional arguments
+    /// there is no way to determine the diffrence between multiple occureces and multiple values.
     ///
-    /// **NOTE:** `qty` must be > 0
-    ///
-    /// **NOTE:** `qty` *must* be > 0. If you wish to have an argument with 0 or more values prefer
-    /// two separate arguments (a flag, and an option with multiple values).
     ///
     /// # Examples
     ///
@@ -925,7 +919,6 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # ).get_matches();
     pub fn min_values(mut self, qty: u8) -> Self {
         self.min_vals = Some(qty);
-        self.multiple = true;
         self
     }
 
