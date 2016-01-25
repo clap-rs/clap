@@ -91,7 +91,7 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
             help: a.help,
             ..Default::default()
         };
-        if a.multiple {
+        if a.multiple || a.num_vals.is_some() || a.max_vals.is_some() || a.min_vals.is_some() {
             pb.settings.set(ArgSettings::Multiple);
         }
         if a.required {
