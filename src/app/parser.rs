@@ -143,7 +143,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 self.set(AppSettings::NeedsLongVersion);
             }
         }
-        if a.required {
+        if a.is_set(ArgSettings::Required) {
             self.required.push(a.name);
         }
         if a.index.is_some() || (a.short.is_none() && a.long.is_none()) {
@@ -160,15 +160,15 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             }
             let pb = PosBuilder::from_arg(&a, i as u8, &mut self.required);
             self.positionals.insert(i, pb);
-        } else if a.takes_value {
+        } else if a.is_set(ArgSettings::TakesValue) {
             let ob = OptBuilder::from_arg(&a, &mut self.required);
             self.opts.push(ob);
         } else {
             let fb = FlagBuilder::from(a);
             self.flags.push(fb);
         }
-        if a.global {
-            if a.required {
+        if a.is_set(ArgSettings::Global) {
+            if a.is_set(ArgSettings::Required) {
                 panic!("Global arguments cannot be required.\n\n\t'{}' is marked as global and \
                         required",
                        a.name);

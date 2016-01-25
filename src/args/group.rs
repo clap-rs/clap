@@ -95,7 +95,7 @@ impl<'a> ArgGroup<'a> {
 
         for (k, v) in group_settings.iter() {
             a = match k.as_str().unwrap() {
-                "required" => a.required(v.as_bool().unwrap()),
+                "required" => a.is_set(ArgSettings::Required)(v.as_bool().unwrap()),
                 "args" => {
                     for ys in v.as_vec().unwrap() {
                         if let Some(s) = ys.as_str() {

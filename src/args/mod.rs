@@ -6,6 +6,7 @@ pub use self::arg_builder::{FlagBuilder, OptBuilder, PosBuilder};
 pub use self::matched_arg::MatchedArg;
 pub use self::group::ArgGroup;
 pub use self::any_arg::AnyArg;
+pub use self::settings::ArgSettings;
 
 mod arg;
 pub mod any_arg;
