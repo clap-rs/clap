@@ -1355,7 +1355,8 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             }
         }
 
-        Err(Error::unknown_argument(arg, &*suffix.0, &*self.create_current_usage(matcher)))
+        let used_arg = format!("--{}", arg);
+        Err(Error::unknown_argument(&*used_arg, &*suffix.0, &*self.create_current_usage(matcher)))
     }
 
     // Creates a usage string if one was not provided by the user manually. This happens just
