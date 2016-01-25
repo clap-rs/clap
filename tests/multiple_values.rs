@@ -144,6 +144,7 @@ fn multiple_values_of_option_min_exact() {
             .short("o")
             .help("multiple options")
             .takes_value(true)
+            .multiple(true)
             .min_values(3))
         .get_matches_from_safe(vec![
             "",
@@ -167,6 +168,7 @@ fn multiple_values_of_option_min_less() {
             .short("o")
             .help("multiple options")
             .takes_value(true)
+            .multiple(true)
             .min_values(3))
         .get_matches_from_safe(vec![
             "",
@@ -185,6 +187,7 @@ fn multiple_values_of_option_min_more() {
             .short("o")
             .help("multiple options")
             .takes_value(true)
+            .multiple(true)
             .min_values(3))
         .get_matches_from_safe(vec![
             "",
@@ -209,6 +212,7 @@ fn multiple_values_of_option_max_exact() {
             .short("o")
             .help("multiple options")
             .takes_value(true)
+            .multiple(true)
             .max_values(3))
         .get_matches_from_safe(vec![
             "",
@@ -232,6 +236,7 @@ fn multiple_values_of_option_max_less() {
             .short("o")
             .help("multiple options")
             .takes_value(true)
+            .multiple(true)
             .max_values(3))
         .get_matches_from_safe(vec![
             "",
@@ -254,6 +259,7 @@ fn multiple_values_of_option_max_more() {
             .short("o")
             .help("multiple options")
             .takes_value(true)
+            .multiple(true)
             .max_values(3))
         .get_matches_from_safe(vec![
             "",
@@ -272,7 +278,6 @@ fn multiple_values_of_positional() {
     let m = App::new("multiple_values")
         .arg(Arg::with_name("pos")
             .help("multiple positionals")
-            .index(1)
             .multiple(true))
         .get_matches_from_safe(vec!["myprog", "val1", "val2", "val3"]);
 
@@ -289,8 +294,6 @@ fn multiple_values_of_positional_exact_exact() {
     let m = App::new("multiple_values")
         .arg(Arg::with_name("pos")
             .help("multiple positionals")
-            .index(1)
-            .multiple(true)
             .number_of_values(3))
         .get_matches_from_safe(vec!["myprog", "val1", "val2", "val3"]);
 
@@ -307,8 +310,6 @@ fn multiple_values_of_positional_exact_less() {
     let m = App::new("multiple_values")
         .arg(Arg::with_name("pos")
             .help("multiple positionals")
-            .index(1)
-            .multiple(true)
             .number_of_values(3))
         .get_matches_from_safe(vec!["myprog", "val1", "val2"]);
 
@@ -321,8 +322,6 @@ fn multiple_values_of_positional_exact_more() {
     let m = App::new("multiple_values")
         .arg(Arg::with_name("pos")
             .help("multiple positionals")
-            .index(1)
-            .multiple(true)
             .number_of_values(3))
         .get_matches_from_safe(vec!["myprog", "val1", "val2", "val3", "val4"]);
 
@@ -335,7 +334,6 @@ fn multiple_values_of_positional_min_exact() {
     let m = App::new("multiple_values")
         .arg(Arg::with_name("pos")
             .help("multiple positionals")
-            .index(1)
             .min_values(3))
         .get_matches_from_safe(vec!["myprog", "val1", "val2", "val3"]);
 
@@ -352,7 +350,6 @@ fn multiple_values_of_positional_min_less() {
     let m = App::new("multiple_values")
         .arg(Arg::with_name("pos")
             .help("multiple positionals")
-            .index(1)
             .min_values(3))
         .get_matches_from_safe(vec!["myprog", "val1", "val2"]);
 
@@ -365,7 +362,6 @@ fn multiple_values_of_positional_min_more() {
     let m = App::new("multiple_values")
         .arg(Arg::with_name("pos")
             .help("multiple positionals")
-            .index(1)
             .min_values(3))
         .get_matches_from_safe(vec!["myprog", "val1", "val2", "val3", "val4"]);
 
@@ -382,7 +378,6 @@ fn multiple_values_of_positional_max_exact() {
     let m = App::new("multiple_values")
         .arg(Arg::with_name("pos")
             .help("multiple positionals")
-            .index(1)
             .max_values(3))
         .get_matches_from_safe(vec!["myprog", "val1", "val2", "val3"]);
 
@@ -399,7 +394,6 @@ fn multiple_values_of_positional_max_less() {
     let m = App::new("multiple_values")
         .arg(Arg::with_name("pos")
             .help("multiple positionals")
-            .index(1)
             .max_values(3))
         .get_matches_from_safe(vec!["myprog", "val1", "val2"]);
 
@@ -416,7 +410,6 @@ fn multiple_values_of_positional_max_more() {
     let m = App::new("multiple_values")
         .arg(Arg::with_name("pos")
             .help("multiple positionals")
-            .index(1)
             .max_values(3))
         .get_matches_from_safe(vec!["myprog", "val1", "val2", "val3", "val4"]);
 
