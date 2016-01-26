@@ -1,16 +1,10 @@
+#[doc(hidden)]
 pub struct AppMeta<'b> {
-    // The name displayed to the user when showing version and help/usage information
     pub name: String,
     pub bin_name: Option<String>,
-    // A string of author(s) if desired. Displayed when showing help/usage information
     pub author: Option<&'b str>,
-    // The version displayed to the user
     pub version: Option<&'b str>,
-    // A brief explanation of the program that gets displayed to the user when shown
-    // help/usage
-    // information
     pub about: Option<&'b str>,
-    // Additional help information
     pub more_help: Option<&'b str>,
     pub usage_str: Option<&'b str>,
     pub usage: Option<String>,

@@ -25,6 +25,7 @@ bitflags! {
     }
 }
 
+#[doc(hidden)]
 #[derive(Debug)]
 pub struct AppFlags(Flags);
 
@@ -59,18 +60,45 @@ impl AppFlags {
 /// Application level settings, which affect how `App` operates
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum AppSettings {
-    /// Allows subcommands to override all requirements of the parent (this command). For example
-    /// if you had a subcommand or even top level application which had a required arguments that
-    /// are only required as long as there is no subcommand present.
+    /// Allows subcommands to override all requirements of the parent command. For example
+    /// if you had a subcommand or top level application which had a required argument that
+    /// are only required as long as there is no subcommand present, using this setting would allow
+    /// you set those arguments to `required(true)` and yet receive no error so long as the user
+    /// uses a valid subcommand instead.
     ///
     /// **NOTE:** This defaults to false (using subcommand does *not* negate requirements)
     ///
     /// # Examples
     ///
-    /// ```no_run
-    /// # use clap::{App, AppSettings};
-    /// App::new("myprog")
+    /// This first example shows that it is an error to not use a required argument
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, AppSettings, SubCommand, ErrorKind};
+    /// let err = App::new("myprog")
     ///     .setting(AppSettings::SubcommandsNegateReqs)
+    ///     .arg(Arg::with_name("opt").required(true))
+    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .get_matches_from_safe(vec![
+    ///         "myprog"
+    ///     ]);
+    /// assert!(err.is_err());
+    /// assert_eq!(err.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// # ;
+    /// ```
+    ///
+    /// This next example shows that it is no longer error to not use a required argument if a
+    /// valid subcommand is used.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, AppSettings, SubCommand, ErrorKind};
+    /// let noerr = App::new("myprog")
+    ///     .setting(AppSettings::SubcommandsNegateReqs)
+    ///     .arg(Arg::with_name("opt").required(true))
+    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .get_matches_from_safe(vec![
+    ///         "myprog", "test"
+    ///     ]);
+    /// assert!(noerr.is_ok());
     /// # ;
     /// ```
     SubcommandsNegateReqs,
@@ -80,10 +108,16 @@ pub enum AppSettings {
     ///
     /// # Examples
     ///
-    /// ```no_run
-    /// # use clap::{App, AppSettings};
-    /// App::new("myprog")
+    /// ```rust
+    /// # use clap::{App, AppSettings, SubCommand, ErrorKind};
+    /// let err = App::new("myprog")
     ///     .setting(AppSettings::SubcommandRequired)
+    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .get_matches_from_safe(vec![
+    ///         "myprog",
+    ///     ]);
+    /// assert!(err.is_err());
+    /// assert_eq!(err.unwrap_err().kind, ErrorKind::MissingSubcommand);
     /// # ;
     /// ```
     SubcommandRequired,
@@ -94,18 +128,18 @@ pub enum AppSettings {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, AppSettings};
     /// App::new("myprog")
     ///     .setting(AppSettings::ArgRequiredElseHelp)
     /// # ;
     /// ```
     ArgRequiredElseHelp,
-    /// Uses version of the current command for all subcommands. (Defaults to false; subcommands
-    /// have independant version strings)
+    /// Specifies to version of the current command for all child subcommands. (Defaults to false;
+    /// subcommands have independant version strings from their parents)
     ///
-    /// **NOTE:** The version for the current command and this setting must be set **prior** to
-    /// adding any subcommands
+    /// **NOTE:** The version for the current command **and** this setting must be set **prior** to
+    /// adding any child subcommands
     ///
     /// # Examples
     ///
@@ -116,7 +150,7 @@ pub enum AppSettings {
     ///     .setting(AppSettings::GlobalVersion)
     ///     .subcommand(SubCommand::with_name("test"))
     ///     .get_matches();
-    /// // running `myprog test --version` will display
+    /// // running `$ myprog test --version` will display
     /// // "myprog-test v1.1"
     /// ```
     GlobalVersion,
@@ -125,23 +159,24 @@ pub enum AppSettings {
     ///
     /// **NOTE:** This setting must be set **prior** adding any subcommands
     ///
-    /// **NOTE:** Do not set this value to false, it will have undesired results!
-    ///
     /// # Examples
     ///
-    /// ```no_run
-    /// # use clap::{App, Arg, SubCommand, AppSettings};
-    /// App::new("myprog")
+    /// ```rust
+    /// # use clap::{App, SubCommand, AppSettings, ErrorKind};
+    /// let res = App::new("myprog")
     ///     .version("v1.1")
     ///     .setting(AppSettings::VersionlessSubcommands)
     ///     .subcommand(SubCommand::with_name("test"))
-    ///     .get_matches();
-    /// // running `myprog test --version` will display unknown argument error
+    ///     .get_matches_from_safe(vec![
+    ///         "myprog", "test", "-V"
+    ///     ]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
     VersionlessSubcommands,
-    /// By default the auto-generated help message groups flags, options, and positional arguments
-    /// separately. This setting disable that and groups flags and options together presenting a
-    /// more unified help message (a la getopts or docopt style).
+    /// Groups flags and options together presenting a more unified help message (a la `getopts` or
+    /// `docopt` style). The default is the auto-generated help message groups flags, options
+    /// separately.
     ///
     /// **NOTE:** This setting is cosmetic only and does not affect any functionality.
     ///
@@ -160,8 +195,7 @@ pub enum AppSettings {
     ///
     /// This is most useful when writing an application which is run from a GUI shortcut, or on
     /// Windows where a user tries to open the binary by double-clicking instead of using the
-    /// command line (i.e. set `.arg_required_else_help(true)` and `.wait_on_error(true)` to
-    /// display the help in such a case).
+    /// command line.
     ///
     /// **NOTE:** This setting is **not** recursive with subcommands, meaning if you wish this
     /// behavior for all subcommands, you must set this on each command (needing this is extremely
@@ -169,7 +203,7 @@ pub enum AppSettings {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
     ///     .setting(AppSettings::WaitOnError)
@@ -180,15 +214,15 @@ pub enum AppSettings {
     /// subcommands are present at runtime (i.e. an empty run such as, `$ myprog`.
     ///
     /// **NOTE:** This should *not* be used with `.subcommand_required()` as they do the same
-    /// thing, except one prints the help text, and one prints an error.
+    /// thing, except this prints the help text, and the other prints an error.
     ///
     /// **NOTE:** If the user specifies arguments at runtime, but no subcommand the help text will
     /// still be displayed and exit. If this is *not* the desired result, consider using
-    /// `.arg_required_else_help()`
+    /// `ArgRequiredElseHelp` instead.
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
     ///     .setting(AppSettings::SubcommandRequiredElseHelp)
@@ -199,7 +233,7 @@ pub enum AppSettings {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, AppSettings, SubCommand};
     /// App::new("myprog")
     ///     .subcommand(SubCommand::with_name("test")
@@ -207,43 +241,42 @@ pub enum AppSettings {
     /// # ;
     /// ```
     Hidden,
-    /// Specifies that the final positional argument is a vararg and that `clap` should not attempt
-    /// to parse any further args.
+    /// Specifies that the final positional argument is a "VarArg" and that `clap` should not
+    /// attempt to parse any further args.
     ///
     /// The values of the trailing positional argument will contain all args from itself on.
     ///
-    /// **NOTE:** The final positional argument **must** have `.multiple(true)` or usage token
+    /// **NOTE:** The final positional argument **must** have `.multiple(true)` or the usage string
     /// equivalent.
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, AppSettings};
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::TrailingVarArg)
     ///     .arg(Arg::from_usage("<cmd>... 'commands to run'"))
-    ///     .get_matches_from(vec!["myprog", "some_command", "-r", "set"]);
+    ///     .get_matches_from(vec!["myprog", "arg1", "-r", "val1"]);
     ///
-    /// assert_eq!(m.values_of("cmd").unwrap().collect::<Vec<_>>(), &["some_command", "-r", "set"]);
+    /// let trail: Vec<&str> = m.values_of("cmd").unwrap().collect();
+    /// assert_eq!(trail, ["arg1", "-r", "val1"]);
     /// ```
     TrailingVarArg,
     /// Specifies that the parser should not assume the first argument passed is the binary name.
     /// This is normally the case when using a "daemon" style mode, or an interactive CLI where one
     /// one would not normally type the binary or program name for each command.
     ///
-    /// **NOTE:** This should only be used when you absolutely know it's what you need. 99% of the
-    /// cases out there don't need this setting.
-    ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, AppSettings};
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::NoBinaryName)
     ///     .arg(Arg::from_usage("<cmd>... 'commands to run'"))
-    ///     .get_matches_from(vec!["some_command", "-r", "set"]);
+    ///     .get_matches_from(vec!["command", "set"]);
     ///
-    /// assert_eq!(m.values_of("cmd").unwrap().collect::<Vec<_>>(), &["some_command", "-r", "set"]);
+    /// let cmds: Vec<&str> = m.values_of("cmd").unwrap().collect();
+    /// assert_eq!(cmds, ["command", "set"]);
     /// ```
     NoBinaryName,
     /// Specifies that an unexpected argument positional arguments which would otherwise cause a
@@ -256,30 +289,35 @@ pub enum AppSettings {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, AppSettings};
-    /// // Assume there is a third party subcommand named myprog-subcmd
+    /// // Assume there is an external subcommand named "subcmd"
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::AllowExternalSubcommands)
     ///     .get_matches_from(vec![
     ///         "myprog", "subcmd", "--option", "value", "-fff", "--flag"
     ///     ]);
-    /// // All trailing arguments will be stored under the subcommands sub-matches under a value
-    /// // of their runtime name (in this case "subcmd")
+    ///
+    /// // All trailing arguments will be stored under the subcommand's sub-matches using a value
+    /// // of the runtime subcommand name (in this case "subcmd")
     /// match m.subcommand() {
     ///     (external, Some(ext_m)) => {
     ///          let ext_args: Vec<&str> = ext_m.values_of(external).unwrap().collect();
     ///          assert_eq!(ext_args, ["--option", "value", "-fff", "--flag"]);
     ///     },
-    ///     _ => unreachable!()
+    ///     _ => {},
     /// }
     /// ```
     AllowExternalSubcommands,
     /// Specifies that any invalid UTF-8 code points should be treated as an error and fail
     /// with a `ErrorKind::InvalidUtf8` error.
     ///
-    /// **NOTE:** This rule only applies to  argument values, as flags, options, and subcommands
-    /// only allow valid UTF-8 code points.
+    /// **NOTE:** This rule only applies to argument values, as flags, options, and subcommands
+    /// themselves only allow valid UTF-8 code points.
+    ///
+    /// # Platform Specific
+    ///
+    /// Non Windows systems only
     ///
     /// # Examples
     ///
@@ -305,10 +343,14 @@ pub enum AppSettings {
     ///
     /// **NOTE:** Using argument values with invalid UTF-8 code points requires using Either
     /// `ArgMatches::os_value(s)_of` or `ArgMatches::lossy_value(s)_of` for those particular
-    /// arguments which may have have invalid UTF-8 values
+    /// arguments which may contain invalid UTF-8 values
     ///
     /// **NOTE:** This rule only applies to  argument values, as flags, options, and subcommands
-    /// only allow valid UTF-8 code points.
+    /// themselves only allow valid UTF-8 code points.
+    ///
+    /// # Platform Specific
+    ///
+    /// Non Windows systems only
     ///
     /// # Examples
     ///
@@ -330,13 +372,17 @@ pub enum AppSettings {
     /// assert_eq!(m.os_value_of("arg").unwrap().as_bytes(), &[0xe9]);
     /// ```
     AllowInvalidUtf8,
-    /// Specifies whether or not leading hyphens are allowed in argument values, such as `-10`
+    /// Specifies that leading hyphens are allowed in argument values, such as `-10`
     ///
-    /// **NOTE:** This can only be set application wide
+    /// **NOTE:** This can only be set application wide and not on a per argument basis.
+    ///
+    /// **NOTE:** Use this setting with caution as it silences certain circumstances which would
+    /// otherwise be an error (such as accidentally forgetting to specify a value for leading
+    /// option)
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{Arg, App, AppSettings};
     /// // Imagine you needed to represent negative numbers as well, such as -10
     /// let m = App::new("nums")
@@ -348,6 +394,7 @@ pub enum AppSettings {
     ///
     /// assert_eq!(m.value_of("neg"), Some("-20"));
     /// # ;
+    /// ```
     AllowLeadingHyphen,
     #[doc(hidden)]
     NeedsLongVersion,
@@ -372,10 +419,9 @@ impl FromStr for AppSettings {
             "waitonerror" => Ok(AppSettings::WaitOnError),
             "subcommandrequiredelsehelp" => Ok(AppSettings::SubcommandRequiredElseHelp),
             "hidden" => Ok(AppSettings::Hidden),
-            "AllowExternalSubcommands" => Ok(AppSettings::AllowExternalSubcommands),
+            "allowexternalsubcommands" => Ok(AppSettings::AllowExternalSubcommands),
             "trailingvararg" => Ok(AppSettings::TrailingVarArg),
             "nobinaryname" => Ok(AppSettings::NoBinaryName),
-            "allowexternalsubcommands" => Ok(AppSettings::AllowExternalSubcommands),
             "strictutf8" => Ok(AppSettings::StrictUtf8),
             "allowinvalidutf8" => Ok(AppSettings::AllowInvalidUtf8),
             "allowleadinghyphen" => Ok(AppSettings::AllowLeadingHyphen),

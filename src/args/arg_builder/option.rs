@@ -59,12 +59,10 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
     }
 
     pub fn from_arg(a: &Arg<'n, 'e>, reqs: &mut Vec<&'e str>) -> Self {
-        debugln!("fn=from_arg;");
-        if a.short.is_none() && a.long.is_none() {
-            panic!("Argument \"{}\" has takes_value(true), yet neither a short() or long() \
-                was supplied",
-                   a.name);
-        }
+        assert!(a.short.is_some() || a.long.is_some(),
+            format!("Argument \"{}\" has takes_value(true), yet neither a short() or long() \
+                was supplied", a.name));
+
         // No need to check for .index() as that is handled above
         let mut ob = OptBuilder {
             name: a.name,

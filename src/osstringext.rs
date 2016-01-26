@@ -34,6 +34,7 @@ impl OsStrExt3 for OsStr {
 impl OsStrExt2 for OsStr {
     fn starts_with(&self, s: &[u8]) -> bool {
         let sab = self.as_bytes();
+        if sab.is_empty() { return false; }
         for (i, b) in s.iter().enumerate() {
             if *b != sab[i] { return false; }
         }
@@ -78,6 +79,7 @@ impl OsStrExt2 for OsStr {
     }
 }
 
+#[doc(hidden)]
 #[derive(Clone, Debug)]
 pub struct OsSplit<'a> {
     sep: u8,

@@ -23,30 +23,29 @@ use errors::Error;
 use errors::Result as ClapResult;
 
 /// Used to create a representation of a command line program and all possible command line
-/// arguments.
+/// arguments. Application settings are set using the "builder pattern" with the
+/// `.get_matches()` family of methods being the terminal methods that starts the runtime-parsing
+/// process. These methods then return information about the user supplied arguments (or lack there
+/// of).
 ///
-/// Application settings are set using the "builder pattern" with `.get_matches()` being the
-/// terminal method that starts the runtime-parsing process and returns information about
-/// the user supplied arguments (or lack there of).
-///
-/// There aren't any mandatory "options" that one must set. The "options" may also appear in any
-/// order (so long as `.get_matches()` is the last method called).
-///
+/// **NOTE:** There aren't any mandatory "options" that one must set. The "options" may
+/// also appear in any order (so long as one of the `App::get_matches*` methods is the last method
+/// called).
 ///
 /// # Examples
 ///
 /// ```no_run
 /// # use clap::{App, Arg};
-/// let matches = App::new("myprog")
-///                   .author("Me, me@mail.com")
-///                   .version("1.0.2")
-///                   .about("Explains in brief what the program does")
-///                   .arg(
-///                            Arg::with_name("in_file").index(1)
-///                    )
-///                   .after_help("Longer explaination to appear after the options when \
-///                                displaying the help information from --help or -h")
-///                   .get_matches();
+/// let m = App::new("My Program")
+///     .author("Me, me@mail.com")
+///     .version("1.0.2")
+///     .about("Explains in brief what the program does")
+///     .arg(
+///         Arg::with_name("in_file").index(1)
+///     )
+///     .after_help("Longer explaination to appear after the options when \
+///                  displaying the help information from --help or -h")
+///     .get_matches();
 ///
 /// // Your program logic starts here...
 /// ```
@@ -54,37 +53,49 @@ use errors::Result as ClapResult;
 pub struct App<'a, 'b>(Parser<'a, 'b>) where 'a: 'b;
 
 impl<'a, 'b> App<'a, 'b> {
-    /// Creates a new instance of an application requiring a name (such as the binary). The name
-    /// will be displayed to the user when they request to print version or help and usage
-    /// information. The name should not contain spaces (hyphens '-' are ok).
-    ///
+    /// Creates a new instance of an application requiring a name. The name may be, but doesn't
+    /// have to be same as the binary. The name will be displayed to the user when they request to
+    /// print version or help and usage information.
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// let prog = App::new("myprog")
-    /// # .get_matches();
+    /// let prog = App::new("My Program")
+    /// # ;
     /// ```
     pub fn new<S: Into<String>>(n: S) -> Self { App(Parser::with_name(n.into())) }
 
-    /// Creates a new instace of `App` from a .yml (YAML) file. The YAML file must be properly
-    /// formatted or this function will panic!(). A full example of supported YAML objects can be
-    /// found in `examples/17_yaml.rs` and `examples/17_yaml.yml`.
+    /// Creates a new instace of `App` from a .yml (YAML) file. A full example of supported YAML
+    /// objects can be found in `examples/17_yaml.rs` and `examples/17_yaml.yml`. One great use for
+    /// using YAML is when supporting multiple languages and dialects, as each language could be a
+    /// distinct YAML file and determined at compiletime via `cargo` "features" in your
+    /// `Cargo.toml`
     ///
-    /// In order to use this function you must compile with the `features = ["yaml"]` in your
-    /// settings for `[dependencies.clap]` table of your `Cargo.toml`
+    /// In order to use this function you must compile `clap` with the `features = ["yaml"]` in
+    /// your settings for the `[dependencies.clap]` table of your `Cargo.toml`
     ///
-    /// Note, due to how the YAML objects are built there is a convienience macro for loading the
-    /// YAML file (relative to the current file, like modules work). That YAML object can then be
-    /// passed to this function.
+    /// **NOTE:** Due to how the YAML objects are built there is a convienience macro for loading
+    /// the YAML file at compile time (relative to the current file, like modules work). That YAML
+    /// object can then be passed to this function.
+    ///
+    /// # Panics
+    ///
+    /// The YAML file must be properly formatted or this function will panic!(). A good way to
+    /// ensure this doesn't happen is to run your program with the `--help` switch. If this passes
+    /// without error, you needn't worry because the YAML is properly formatted.
     ///
     /// # Examples
+    ///
+    /// The following example shows how to load a properly formatted YAML file to build an instnace
+    /// of an `App` struct.
     ///
     /// ```ignore
     /// # use clap::App;
     /// let yml = load_yaml!("app.yml");
     /// let app = App::from_yaml(yml);
+    ///
+    /// // continued logic goes here, such as `app.get_matches()` etc.
     /// ```
     #[cfg(feature = "yaml")]
     pub fn from_yaml<'y>(mut yaml: &'y Yaml) -> App<'y, 'y> {
@@ -148,7 +159,7 @@ impl<'a, 'b> App<'a, 'b> {
                 a = a.subcommand(SubCommand::from_yaml(&sc_yaml));
             }
         }
-        if let Some(v) = yaml["arg_groups"].as_vec() {
+        if let Some(v) = yaml["groups"].as_vec() {
             for ag_yaml in v {
                 a = a.group(ArgGroup::from_yaml(&ag_yaml.as_hash().unwrap()));
             }
@@ -157,7 +168,7 @@ impl<'a, 'b> App<'a, 'b> {
         a
     }
 
-    /// Sets a string of author(s) and will be displayed to the user when they request the help
+    /// Sets a string of author(s) that will be displayed to the user when they request the help
     /// information with `--help` or `-h`.
     ///
     /// # Examples
@@ -174,16 +185,19 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     /// Overrides the system-determined binary name. This should only be used when absolutely
-    /// neccessary, such as the binary name for your application is misleading, or perhaps *not*
-    /// how the user should invoke your program.
+    /// neccessary, such as when the binary name for your application is misleading, or perhaps
+    /// *not* how the user should invoke your program.
     ///
-    /// **NOTE:** This command **should not** be used for SubCommands.
+    /// **Pro-tip:** When building things such as third party `cargo` subcommands, this setting
+    /// **should** be used!
+    ///
+    /// **NOTE:** This command **should not** be used for `SubCommand`s.
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// App::new("myprog")
+    /// App::new("My Program")
     ///      .bin_name("my_binary")
     /// # ;
     /// ```
@@ -192,8 +206,8 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Sets a string briefly describing what the program does and will be displayed when
-    /// displaying help information.
+    /// Sets a string describing what the program does. This will be displayed when displaying help
+    /// information.
     ///
     /// # Examples
     ///
@@ -208,17 +222,16 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Adds additional help information to be displayed in addition to and directly after
-    /// auto-generated help. This information is displayed **after** the auto-generated help
-    /// information. This additional help is often used to describe how to use the arguments,
-    /// or caveats to be noted.
+    /// Adds additional help information to be displayed in addition to auto-generated help. This
+    /// information is displayed **after** the auto-generated help information. This is often used
+    /// to describe how to use the arguments, or caveats to be noted.
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::App;
     /// App::new("myprog")
-    ///     .after_help("Does really amazing things to great people")
+    ///     .after_help("Does really amazing things to great people...but be careful with -R")
     /// # ;
     /// ```
     pub fn after_help<S: Into<&'b str>>(mut self, help: S) -> Self {
@@ -228,6 +241,10 @@ impl<'a, 'b> App<'a, 'b> {
 
     /// Sets a string of the version number to be displayed when displaying version or help
     /// information.
+    ///
+    /// **Pro-tip:** Use `clap`s convienience macro `crate_version!` to automatically set your
+    /// application's version to the same thing as your crate at compile time. See the `examples/`
+    /// directory for more information
     ///
     /// # Examples
     ///
@@ -245,7 +262,10 @@ impl<'a, 'b> App<'a, 'b> {
     /// Sets a custom usage string to override the auto-generated usage string.
     ///
     /// This will be displayed to the user when errors are found in argument parsing, or when you
-    /// call `ArgMatcher::usage()`
+    /// call `ArgMatches::usage`
+    ///
+    /// **CAUTION:** Using this setting disables `clap`s "context-aware" usage strings. After this
+    /// setting is set, this will be the only usage string displayed to the user!
     ///
     /// **NOTE:** You do not need to specify the "USAGE: \n\t" portion, as that will
     /// still be applied by `clap`, you only need to specify the portion starting
@@ -253,7 +273,6 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// **NOTE:** This will not replace the entire help message, *only* the portion
     /// showing the usage.
-    ///
     ///
     /// # Examples
     ///
@@ -271,14 +290,13 @@ impl<'a, 'b> App<'a, 'b> {
     /// Sets a custom help message and overrides the auto-generated one. This should only be used
     /// when the auto-generated message does not suffice.
     ///
-    /// This will be displayed to the user when they use the default `--help` or `-h`
+    /// This will be displayed to the user when they use `--help` or `-h`
     ///
     /// **NOTE:** This replaces the **entire** help message, so nothing will be auto-generated.
     ///
     /// **NOTE:** This **only** replaces the help message for the current command, meaning if you
     /// are using subcommands, those help messages will still be auto-generated unless you
     /// specify a `.help()` for them as well.
-    ///
     ///
     /// # Examples
     ///
@@ -309,20 +327,21 @@ impl<'a, 'b> App<'a, 'b> {
 
     /// Sets the short version of the `help` argument without the preceding `-`.
     ///
-    /// By default `clap` automatically assigns `h`, but this can be overridden
+    /// By default `clap` automatically assigns `h`, but this can be overridden by defining your
+    /// own argument with a lowercase `h` as the `short`. `clap` lazily generates these help
+    /// arguments **after** you've defined any arguments of your own.
     ///
     /// **NOTE:** Any leading `-` characters will be stripped, and only the first
     /// non `-` chacter will be used as the `short` version
-    ///
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
     /// App::new("myprog")
-    ///     // Using an uppercase `H` instead of the default lowercase `h`
-    ///     .help_short("H")
+    ///     .help_short("H") // Using an uppercase `H` instead of the default lowercase `h`
     /// # ;
+    /// ```
     pub fn help_short<S: AsRef<str> + 'b>(mut self, s: S) -> Self {
         self.0.help_short(s.as_ref());
         self
@@ -330,26 +349,29 @@ impl<'a, 'b> App<'a, 'b> {
 
     /// Sets the short version of the `version` argument without the preceding `-`.
     ///
-    /// By default `clap` automatically assigns `V`, but this can be overridden
+    /// By default `clap` automatically assigns `V`, but this can be overridden by defining your
+    /// own argument with a uppercase `V` as the `short`. `clap` lazily generates these version
+    /// arguments **after** you've defined any arguments of your own.
     ///
     /// **NOTE:** Any leading `-` characters will be stripped, and only the first
     /// non `-` chacter will be used as the `short` version
-    ///
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
     /// App::new("myprog")
-    ///     // Using a lowercase `v` instead of the default capital `V`
-    ///     .version_short("v")
+    ///     .version_short("v") // Using a lowercase `v` instead of the default capital `V`
     /// # ;
+    /// ```
     pub fn version_short<S: AsRef<str>>(mut self, s: S) -> Self {
         self.0.version_short(s.as_ref());
         self
     }
 
-    /// Enables Application level settings, passed as argument
+    /// Enables a single Application level settings.
+    ///
+    /// See `AppSettings` for a full list of possibilities and examples.
     ///
     /// # Examples
     ///
@@ -365,14 +387,16 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Enables multiple Application level settings, passed as argument
+    /// Enables multiple Application level settings
+    ///
+    /// See `AppSettings` for a full list of possibilities and examples.
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
-    ///     .settings( &[AppSettings::SubcommandRequired,
+    ///     .settings(&[AppSettings::SubcommandRequired,
     ///                  AppSettings::WaitOnError])
     /// # ;
     /// ```
@@ -383,14 +407,7 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Adds an argument to the list of valid possibilties manually. This method allows you full
-    /// control over the arguments settings and options (as well as dynamic generation). It also
-    /// allows you specify several more advanced configuration options such as relational rules
-    /// (exclusions and requirements).
-    ///
-    /// The only disadvantage to this method is that it's more verbose, and arguments must be added
-    /// one at a time. Using `Arg::from_usage` helps with the verbosity, and still allows full
-    /// control over the advanced configuration options.
+    /// Adds an argument to the list of valid possibilties.
     ///
     /// # Examples
     ///
@@ -415,8 +432,7 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Adds multiple arguments to the list of valid possibilties by iterating over a Vec of Args
-    ///
+    /// Adds multiple arguments to the list of valid possibilties
     ///
     /// # Examples
     ///
@@ -424,7 +440,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # use clap::{App, Arg};
     /// App::new("myprog")
     ///     .args(
-    ///         &[Arg::from_usage("[debug] -d 'turns on debugging info"),
+    ///         &[Arg::from_usage("[debug] -d 'turns on debugging info'"),
     ///          Arg::with_name("input").index(1).help("the input file to use")]
     ///     )
     /// # ;
@@ -436,20 +452,18 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// A convienience method for adding a single basic argument (one without advanced
-    /// relational rules) from a usage type string. The string used follows the same rules and
-    /// syntax as `Arg::from_usage()`
+    /// A convienience method for adding a single argument from a usage type string. The string
+    /// used follows the same rules and syntax as `Arg::from_usage()`
     ///
-    /// The downside to using this method is that you can not set any additional properties of the
-    /// `Arg` other than what `Arg::from_usage()` supports.
-    ///
+    /// **NOTE:** The downside to using this method is that you can not set any additional
+    /// properties of the `Arg` other than what `Arg::from_usage()` supports.
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
     /// App::new("myprog")
-    ///     .arg_from_usage("-c --conf=<config> 'Sets a configuration file to use'")
+    ///     .arg_from_usage("-c --config=<FILE> 'Sets a configuration file to use'")
     /// # ;
     /// ```
     pub fn arg_from_usage(mut self, usage: &'a str) -> Self {
@@ -460,11 +474,8 @@ impl<'a, 'b> App<'a, 'b> {
     /// Adds multiple arguments at once from a usage string, one per line. See `Arg::from_usage()`
     /// for details on the syntax and rules supported.
     ///
-    /// Like `App::arg_from_usage()` the downside is you only set properties for the `Arg`s which
-    /// `Arg::from_usage()` supports. But here the benefit is pretty strong, as the readability is
-    /// greatly enhanced, especially if you don't need any of the more advanced configuration
-    /// options.
-    ///
+    /// **NOTE:** Like `App::arg_from_usage()` the downside is you only set properties for the
+    /// `Arg`s which `Arg::from_usage()` supports.
     ///
     /// # Examples
     ///
@@ -472,9 +483,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// # use clap::{App, Arg};
     /// App::new("myprog")
     ///     .args_from_usage(
-    ///         "-c --conf=[config] 'Sets a configuration file to use'
+    ///         "-c --config=[FILE] 'Sets a configuration file to use'
     ///          [debug]... -d 'Sets the debugging level'
-    ///          <input> 'The input file to use'"
+    ///          <FILE> 'The input file to use'"
     ///     )
     /// # ;
     /// ```
@@ -485,75 +496,66 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Adds an ArgGroup to the application. ArgGroups are a family of related arguments. By
-    /// placing them in a logical group, you make easier requirement and exclusion rules. For
-    /// instance, you can make an ArgGroup required, this means that one (and *only* one) argument
-    /// from that group must be present. Using more than one argument from an ArgGroup causes a
-    /// failure (graceful exit).
+    /// Adds an `ArgGroup` to the application. `ArgGroup`s are a family of related arguments. By
+    /// placing them in a logical group, you can build easier requirement and exclusion rules. For
+    /// instance, you can make an entire `ArgGroup` required, meaning that one (and *only* one) argument
+    /// from that group must be present at runtime.
     ///
-    /// You can also do things such as name an ArgGroup as a confliction, meaning any of the
-    /// arguments that belong to that group will cause a failure if present.
+    /// You can also do things such as name an `ArgGroup` as a conflict to another argument.
+    /// Meaning any of the arguments that belong to that group will cause a failure if present with
+    /// the conflicting argument.
     ///
-    /// Perhaps the most common use of ArgGroups is to require one and *only* one argument to be
-    /// present out of a given set. For example, lets say that you were building an application
-    /// where one could set a given version number by supplying a string using an option argument,
-    /// such as `--set-ver v1.2.3`, you also wanted to support automatically using a previous
-    /// version numer and simply incrementing one of the three numbers, so you create three flags
-    /// `--major`, `--minor`, and `--patch`. All of these arguments shouldn't be used at one time
-    /// but perhaps you want to specify that *at least one* of them is used. You can create a
-    /// group
+    /// Another added benfit of `ArgGroup`s is that you can extract a value from a group instead of
+    /// determining exactly which argument was used.
     ///
+    /// Finally, using `ArgGroup`s to ensure exclusion between arguments is another very common use
     ///
     /// # Examples
     ///
+    /// The following example demonstrates using an `ArgGroup` to ensure that one, and only one, of
+    /// the arguments from the specified group is present at runtime.
+    ///
     /// ```no_run
     /// # use clap::{App, ArgGroup};
-    /// # App::new("app")
-    /// .args_from_usage("--set-ver [ver] 'set the version manually'
-    ///                   --major         'auto increase major'
-    ///                   --minor         'auto increase minor'
-    ///                   --patch         'auto increase patch")
-    /// .group(ArgGroup::with_name("vers")
-    ///                     .args(&["ver", "major", "minor","patch"])
-    ///                     .required(true))
+    /// App::new("app")
+    ///     .args_from_usage(
+    ///         "--set-ver [ver] 'set the version manually'
+    ///          --major         'auto increase major'
+    ///          --minor         'auto increase minor'
+    ///          --patch         'auto increase patch'")
+    ///     .group(ArgGroup::with_name("vers")
+    ///          .args(&["set-ver", "major", "minor","patch"])
+    ///          .required(true))
     /// # ;
+    /// ```
     pub fn group(mut self, group: ArgGroup<'a>) -> Self {
         self.0.add_group(group);
         self
     }
 
-    /// Adds a ArgGroups to the application. ArgGroups are a family of related arguments. By
-    /// placing them in a logical group, you make easier requirement and exclusion rules. For
-    /// instance, you can make an ArgGroup required, this means that one (and *only* one) argument
-    /// from that group must be present. Using more than one argument from an ArgGroup causes a
-    /// failure (graceful exit).
-    ///
-    /// You can also do things such as name an ArgGroup as a confliction, meaning any of the
-    /// arguments that belong to that group will cause a failure if present.
-    ///
-    /// Perhaps the most common use of ArgGroups is to require one and *only* one argument to be
-    /// present out of a given set. For example, lets say that you were building an application
-    /// where one could set a given version number by supplying a string using an option argument,
-    /// such as `--set-ver v1.2.3`, you also wanted to support automatically using a previous
-    /// version numer and simply incrementing one of the three numbers, so you create three flags
-    /// `--major`, `--minor`, and `--patch`. All of these arguments shouldn't be used at one time
-    /// but perhaps you want to specify that *at least one* of them is used. You can create a
-    /// group
-    ///
+    /// Adds multiple `ArgGroup`s to the application at once.
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, ArgGroup};
-    /// # App::new("app")
-    /// .args_from_usage("--set-ver [ver] 'set the version manually'
-    ///                   --major         'auto increase major'
-    ///                   --minor         'auto increase minor'
-    ///                   --patch         'auto increase patch")
-    /// .group(ArgGroup::with_name("vers")
-    ///                     .args(&["ver", "major", "minor","patch"])
-    ///                     .required(true))
+    /// App::new("app")
+    ///     .args_from_usage(
+    ///         "--set-ver [ver] 'set the version manually'
+    ///          --major         'auto increase major'
+    ///          --minor         'auto increase minor'
+    ///          --patch         'auto increase patch'
+    ///          -c [FILE]       'a config file'
+    ///          -i [IFACE]      'an interface'")
+    ///     .groups(&[
+    ///         ArgGroup::with_name("vers")
+    ///             .args(&["set-ver", "major", "minor","patch"])
+    ///             .required(true),
+    ///         ArgGroup::with_name("input")
+    ///             .args(&["c", "i"])
+    ///     ])
     /// # ;
+    /// ```
     pub fn groups(mut self, groups: &[ArgGroup<'a>]) -> Self {
         for g in groups {
             self = self.group(g.into());
@@ -561,21 +563,19 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Adds a subcommand to the list of valid possibilties. Subcommands are effectively sub apps,
+    /// Adds a subcommand to the list of valid possibilties. Subcommands are effectively sub-apps,
     /// because they can contain their own arguments, subcommands, version, usage, etc. They also
     /// function just like apps, in that they get their own auto generated help, version, and
     /// usage.
-    ///
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
-    /// # App::new("myprog")
-    /// .subcommand(SubCommand::with_name("config")
-    ///                .about("Controls configuration features")
-    ///                .arg_from_usage("<config> 'Required configuration file to use'"))
-    ///             // Additional subcommand configuration goes here, such as other arguments...
+    /// App::new("myprog")
+    ///     .subcommand(SubCommand::with_name("config")
+    ///         .about("Controls configuration features")
+    ///         .arg_from_usage("<config> 'Required configuration file to use'"))
     /// # ;
     /// ```
     pub fn subcommand(mut self, subcmd: App<'a, 'b>) -> Self {
@@ -597,7 +597,9 @@ impl<'a, 'b> App<'a, 'b> {
     ///        SubCommand::with_name("debug").about("Controls debug functionality")])
     /// # ;
     /// ```
-    pub fn subcommands(mut self, subcmds: Vec<App<'a, 'b>>) -> Self {
+    pub fn subcommands<I>(mut self, subcmds: I) -> Self
+        where I: IntoIterator<Item = App<'a, 'b>>
+    {
         for subcmd in subcmds.into_iter() {
             self.0.add_subcommand(subcmd);
         }
@@ -608,9 +610,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// Prints the full help message to `io::stdout()` using a `BufWriter`
     ///
     /// # Examples
+    ///
     /// ```no_run
     /// # use clap::App;
-    /// # use std::io;
     /// let app = App::new("myprog");
     /// app.print_help();
     /// ```
@@ -622,9 +624,11 @@ impl<'a, 'b> App<'a, 'b> {
 
     /// Writes the full help message to the user to a `io::Write` object
     ///
+    /// # Examples
+    ///
     /// ```no_run
     /// # use clap::App;
-    /// # use std::io;
+    /// use std::io;
     /// let mut app = App::new("myprog");
     /// let mut out = io::stdout();
     /// app.write_help(&mut out).ok().expect("failed to write to stdout");
@@ -633,13 +637,9 @@ impl<'a, 'b> App<'a, 'b> {
         self.0.write_help(w)
     }
 
-    /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
-    /// the real parsing function for all subcommands
-    ///
-    /// # Panics
-    ///
-    /// If any arguments contain invalid unicode characters. If this is not desired it is
-    /// recommended to use the `*_safe()` or `*_lossy()` versions of this method.
+    /// Starts the parsing process, upon a failed parse an error will be displayed to the user and
+    /// the process with exit with the appropriate error code. By default this method gets matches
+    /// from `env::args_os`
     ///
     /// # Examples
     ///
@@ -650,21 +650,17 @@ impl<'a, 'b> App<'a, 'b> {
     ///     .get_matches();
     /// ```
     pub fn get_matches(self) -> ArgMatches<'a> {
-        // Start the parsing
         self.get_matches_from(&mut env::args_os())
     }
 
-    /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
-    /// the real parsing function for all subcommands
+    /// Starts the parsing process. This method will return a `Result` type instead of exiting the
+    /// the process on failed parse. By default this method gets matches
+    /// from `env::args_os`
     ///
     /// **NOTE:** This method WILL NOT exit when `--help` or `--version` (or short versions) are
     /// used. It will return an error, where the `kind` is a `ErrorKind::HelpDisplayed`
     /// or `ErrorKind::VersionDisplayed` respectively. You must call `error.exit()` or
-    /// perform a `std::process::exit` yourself.
-    ///
-    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors
-    /// manually.
-    ///
+    /// perform a `std::process::exit`.
     ///
     /// # Examples
     ///
@@ -673,22 +669,19 @@ impl<'a, 'b> App<'a, 'b> {
     /// let matches = App::new("myprog")
     ///     // Args and options go here...
     ///     .get_matches_safe()
-    ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
+    ///     .unwrap_or_else( |e| e.exit() );
     /// ```
     pub fn get_matches_safe(self) -> ClapResult<ArgMatches<'a>> {
         // Start the parsing
         self.get_matches_from_safe(&mut env::args_os())
     }
 
-    /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
-    /// the real parsing function for all subcommands
+    /// Starts the parsing process. Like `App::get_matches` this method does not return a `Result`
+    /// and will automatically exit with an error message. This method, however, lets you specify
+    /// what iterator to use when performing matches, such as a `Vec` of your making.
     ///
-    /// **NOTE:** The first argument will be parsed as the binary name.
-    ///
-    /// **NOTE:** This method should only be used when absolutely necessary, such as needing to
-    /// parse arguments from something other than `std::env::args()`. If you are unsure, use
-    /// `App::get_matches()`
-    ///
+    /// **NOTE:** The first argument will be parsed as the binary name unless
+    /// `AppSettings::NoBinaryName` is used
     ///
     /// # Examples
     ///
@@ -710,26 +703,16 @@ impl<'a, 'b> App<'a, 'b> {
         })
     }
 
-    /// Starts the parsing process. Called on top level parent app **ONLY** then recursively calls
-    /// the real parsing function for all subcommands
+    /// Starts the parsing process. A combination of `App::get_matches_from`, and
+    /// `App::get_matches_safe`
     ///
     /// **NOTE:** This method WILL NOT exit when `--help` or `--version` (or short versions) are
     /// used. It will return an error, where the `kind` is a `ErrorKind::HelpDisplayed`
     /// or `ErrorKind::VersionDisplayed` respectively. You must call `error.exit()` or
     /// perform a `std::process::exit` yourself.
     ///
-    /// **NOTE:** The first argument will be parsed as the binary name.
-    ///
-    /// **NOTE:** This method should only be used when absolutely necessary, such as needing to
-    /// parse arguments from something other than `std::env::args()`. If you are unsure, use
-    /// `App::get_matches_safe()`
-    ///
-    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors
-    /// manually.
-    ///
-    /// **NOTE:** Invalid unicode characters will result in an `Err` with type
-    /// `ErrorKind::InvalidUtf8`
-    ///
+    /// **NOTE:** The first argument will be parsed as the binary name unless
+    /// `AppSettings::NoBinaryName` is used
     ///
     /// # Examples
     ///
@@ -753,17 +736,8 @@ impl<'a, 'b> App<'a, 'b> {
     /// the desired functionality, instead prefer `App::get_matches_from_safe` which *does*
     /// consume `self`.
     ///
-    /// **NOTE:** The first argument will be parsed as the binary name.
-    ///
-    /// **NOTE:** This method should only be used when absolutely necessary, such as needing to
-    /// parse arguments from something other than `std::env::args()`. If you are unsure, use
-    /// `App::get_matches_safe()`
-    ///
-    /// **NOTE:** This method should only be used when is absolutely necessary to handle errors
-    /// manually.
-    ///
-    /// **NOTE:** Invalid unicode characters will result in an `Err` with type
-    /// `ErrorKind::InvalidUtf8`
+    /// **NOTE:** The first argument will be parsed as the binary name unless
+    /// `AppSettings::NoBinaryName` is used
     ///
     /// # Examples
     ///

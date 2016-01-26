@@ -6,6 +6,7 @@ use vec_map::VecMap;
 
 use args::{ArgMatches, MatchedArg, SubCommand};
 
+#[doc(hidden)]
 pub struct ArgMatcher<'a>(pub ArgMatches<'a>);
 
 impl<'a> ArgMatcher<'a> {

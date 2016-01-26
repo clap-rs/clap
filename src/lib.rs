@@ -675,7 +675,7 @@ pub use yaml_rust::YamlLoader;
 pub use args::{Arg, ArgGroup, ArgMatches, SubCommand, ArgSettings};
 pub use app::{App, AppSettings};
 pub use fmt::Format;
-pub use errors::{Error, ErrorKind};
+pub use errors::{Error, ErrorKind, Result};
 
 #[macro_use]
 mod macros;
@@ -685,8 +685,8 @@ mod usage_parser;
 mod fmt;
 mod suggestions;
 mod errors;
-mod utf8;
 mod osstringext;
 
 const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider filing a bug \
                                           report at https://github.com/kbknapp/clap-rs/issues";
+const INVALID_UTF8: &'static str = "unexpected invalid UTF-8 code point";

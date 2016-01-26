@@ -1,81 +1,24 @@
-macro_rules! impl_settings {
-    ($n:ident, $($v:ident => $c:ident),+) => {
-        pub fn set(&mut self, s: $n) {
-            match s {
-                $($n::$v => self.0.insert($c)),+
-            }
-        }
-
-        pub fn unset(&mut self, s: $n) {
-            match s {
-                $($n::$v => self.0.remove($c)),+
-            }
-        }
-
-        pub fn is_set(&self, s: $n) -> bool {
-            match s {
-                $($n::$v => self.0.contains($c)),+
-            }
-        }
-    };
-}
-
-// Convenience for writing to stderr thanks to https://github.com/BurntSushi
-macro_rules! wlnerr(
-    ($($arg:tt)*) => ({
-        use std::io::{Write, stderr};
-        writeln!(&mut stderr(), $($arg)*).ok();
-    })
-);
-macro_rules! werr(
-    ($($arg:tt)*) => ({
-        use std::io::{Write, stderr};
-        write!(&mut stderr(), $($arg)*).ok();
-    })
-);
-
-#[cfg(feature = "debug")]
-#[cfg_attr(feature = "debug", macro_use)]
-mod debug_macros {
-    macro_rules! debugln {
-        ($fmt:expr) => (println!(concat!("**DEBUG** ", $fmt)));
-        ($fmt:expr, $($arg:tt)*) => (println!(concat!("**DEBUG** ",$fmt), $($arg)*));
-    }
-    macro_rules! sdebugln {
-        ($fmt:expr) => (println!($fmt));
-        ($fmt:expr, $($arg:tt)*) => (println!($fmt, $($arg)*));
-    }
-    macro_rules! debug {
-        ($fmt:expr) => (print!(concat!("**DEBUG** ", $fmt)));
-        ($fmt:expr, $($arg:tt)*) => (print!(concat!("**DEBUG** ",$fmt), $($arg)*));
-    }
-    macro_rules! sdebug {
-        ($fmt:expr) => (print!($fmt));
-        ($fmt:expr, $($arg:tt)*) => (print!($fmt, $($arg)*));
-    }
-}
-
-#[cfg(not(feature = "debug"))]
-#[cfg_attr(not(feature = "debug"), macro_use)]
-mod debug_macros {
-    macro_rules! debugln {
-        ($fmt:expr) => ();
-        ($fmt:expr, $($arg:tt)*) => ();
-    }
-    macro_rules! sdebugln {
-        ($fmt:expr) => ();
-        ($fmt:expr, $($arg:tt)*) => ();
-    }
-    macro_rules! sdebug {
-        ($fmt:expr) => ();
-        ($fmt:expr, $($arg:tt)*) => ();
-    }
-    macro_rules! debug {
-        ($fmt:expr) => ();
-        ($fmt:expr, $($arg:tt)*) => ();
-    }
-}
-
+/// A convienience macro for loading the YAML file at compile time (relative to the current file,
+/// like modules work). That YAML object can then be passed to this function.
+///
+/// # Panics
+///
+/// The YAML file must be properly formatted or this function will panic!(). A good way to
+/// ensure this doesn't happen is to run your program with the `--help` switch. If this passes
+/// without error, you needn't worry because the YAML is properly formatted.
+///
+/// # Examples
+///
+/// The following example shows how to load a properly formatted YAML file to build an instnace
+/// of an `App` struct.
+///
+/// ```ignore
+/// # use clap::App;
+/// let yml = load_yaml!("app.yml");
+/// let app = App::from_yaml(yml);
+///
+/// // continued logic goes here, such as `app.get_matches()` etc.
+/// ```
 #[cfg(feature = "yaml")]
 #[macro_export]
 macro_rules! load_yaml {
@@ -84,77 +27,11 @@ macro_rules! load_yaml {
     );
 }
 
-// used in src/args/arg_builder/option.rs
-macro_rules! print_opt_help {
-    ($opt:ident, $spc:expr, $w:ident) => {
-        debugln!("macro=print_opt_help!;");
-        if let Some(h) = $opt.help {
-            if h.contains("{n}") {
-                let mut hel = h.split("{n}");
-                if let Some(part) = hel.next() {
-                    try!(write!($w, "{}", part));
-                }
-                for part in hel {
-                    try!(write!($w, "\n"));
-                    write_spaces!($spc, $w);
-                    try!(write!($w, "{}", part));
-                }
-            } else {
-                try!(write!($w, "{}", h));
-            }
-            if let Some(ref pv) = $opt.possible_vals {
-                try!(write!($w, " [values:"));
-                for pv_s in pv.iter() {
-                    try!(write!($w, " {}", pv_s));
-                }
-                try!(write!($w, "]"));
-            }
-        }
-    };
-}
-
-// Helper/deduplication macro for printing the correct number of spaces in help messages
-// used in:
-//    src/args/arg_builder/*.rs
-//    src/app/mod.rs
-macro_rules! write_spaces {
-    ($num:expr, $w:ident) => ({
-        debugln!("macro=write_spaces!;");
-        for _ in 0..$num {
-            try!(write!($w, " "));
-        }
-    })
-}
-
-// convenience macro for remove an item from a vec
-macro_rules! vec_remove {
-    ($vec:expr, $to_rem:ident) => {
-        debugln!("macro=write_spaces!;");
-        {
-            let mut ix = None;
-            $vec.dedup();
-            for (i, val) in $vec.iter().enumerate() {
-                if val == $to_rem {
-                    ix = Some(i);
-                    break;
-                }
-            }
-            if let Some(i) = ix {
-                $vec.remove(i);
-            }
-        }
-    }
-}
-
-/// Convenience macro getting a typed value `T` where `T` implements `std::str::FromStr`
-/// This macro returns a `Result<T,String>` which allows you as the developer to decide
-/// what you'd like to do on a failed parse. There are two types of errors, parse failures
-/// and those where the argument wasn't present (such as a non-required argument).
-///
-/// You can use it to get a single value, or a `Vec<T>` with the `values_of()`
-///
-/// **NOTE:** Be cautious, as since this a macro invocation it's not exactly like
-/// standard syntax.
+/// Convenience macro getting a typed value `T` where `T` implements `std::str::FromStr` from an
+/// argument value. This macro returns a `Result<T,String>` which allows you as the developer to
+/// decide what you'd like to do on a failed parse. There are two types of errors, parse failures
+/// and those where the argument wasn't present (such as a non-required argument). You can use
+/// it to get a single value, or a iterator as with the `ArgMatches::values_of`
 ///
 /// # Examples
 ///
@@ -193,7 +70,7 @@ macro_rules! value_t {
 }
 
 /// Convenience macro getting a typed value `T` where `T` implements `std::str::FromStr` or
-/// exiting upon error.
+/// exiting upon error instead of returning a `Result`
 ///
 /// **NOTE:** This macro is for backwards compatibility sake. Prefer
 /// `value_t!(/* ... */).unwrap_or_else(|e| e.exit())`
@@ -234,8 +111,8 @@ macro_rules! value_t_or_exit {
     };
 }
 
-/// Convenience macro getting a typed value `T` where `T` implements `std::str::FromStr`
-/// This macro returns a `clap::Result<T>` (`Result<T, clap::Error>`) which allows you as the
+/// Convenience macro getting a typed value `Vec<T>` where `T` implements `std::str::FromStr` This
+/// macro returns a `clap::Result<Vec<T>>` (`Result<Vec<T>, clap::Error>`) which allows you as the
 /// developer to decide what you'd like to do on a failed parse.
 ///
 /// # Examples
@@ -289,11 +166,11 @@ macro_rules! values_t {
     };
 }
 
-/// Convenience macro getting a typed value `T` where `T` implements `std::str::FromStr` or
+/// Convenience macro getting a typed value `Vec<T>` where `T` implements `std::str::FromStr` or
 /// exiting upon error.
 ///
 /// **NOTE:** This macro is for backwards compatibility sake. Prefer
-/// `value_t!(/* ... */).unwrap_or_else(|e| e.exit())`
+/// `values_t!(/* ... */).unwrap_or_else(|e| e.exit())`
 ///
 /// # Examples
 ///
@@ -336,15 +213,15 @@ macro_rules! values_t_or_exit {
 }
 
 /// Convenience macro to generate more complete enums with variants to be used as a type when
-/// parsing arguments. This enum also provides a `variants()` function which can be used to retrieve a
-/// `Vec<&'static str>` of the variant names.
+/// parsing arguments. This enum also provides a `variants()` function which can be used to
+/// retrieve a `Vec<&'static str>` of the variant names. As well as implementing `FromStr` and
+/// `Display` automatically.
 ///
-/// **NOTE:** Case insensitivity is supported for ASCII characters
+/// **NOTE:** Case insensitivity is supported for ASCII characters only
 ///
 /// **NOTE:** This macro automatically implements std::str::FromStr and std::fmt::Display
 ///
-/// These enums support pub (or not) and use of the #[derive()] traits
-///
+/// **NOTE:** These enums support pub (or not) and uses of the #[derive()] traits
 ///
 /// # Examples
 ///
@@ -446,9 +323,11 @@ macro_rules! arg_enum {
     };
 }
 
-/// Allows you pull the version for an from your Cargo.toml as MAJOR.MINOR.PATCH_PKGVERSION_PRE
+/// Allows you pull the version for an from your Cargo.toml at compile time as
+/// MAJOR.MINOR.PATCH_PKGVERSION_PRE
 ///
 /// # Examples
+///
 /// ```no_run
 /// # #[macro_use]
 /// # extern crate clap;
@@ -466,7 +345,8 @@ macro_rules! crate_version {
     };
 }
 
-/// App, Arg, SubCommand and Group builder macro (Usage-string like input)
+/// App, Arg, SubCommand and Group builder macro (Usage-string like input) must be compiled with
+/// the `unstable` feature in order to use.
 #[cfg_attr(feature = "nightly", macro_export)]
 macro_rules! clap_app {
     (@app ($builder:expr)) => { $builder };
@@ -586,4 +466,144 @@ macro_rules! clap_app {
     ($name:ident => $($tail:tt)*) => {{
         clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)*}
     }};
+}
+
+// used in src/args/arg_builder/option.rs
+macro_rules! print_opt_help {
+    ($opt:ident, $spc:expr, $w:ident) => {
+        debugln!("macro=print_opt_help!;");
+        if let Some(h) = $opt.help {
+            if h.contains("{n}") {
+                let mut hel = h.split("{n}");
+                if let Some(part) = hel.next() {
+                    try!(write!($w, "{}", part));
+                }
+                for part in hel {
+                    try!(write!($w, "\n"));
+                    write_spaces!($spc, $w);
+                    try!(write!($w, "{}", part));
+                }
+            } else {
+                try!(write!($w, "{}", h));
+            }
+            if let Some(ref pv) = $opt.possible_vals {
+                try!(write!($w, " [values:"));
+                for pv_s in pv.iter() {
+                    try!(write!($w, " {}", pv_s));
+                }
+                try!(write!($w, "]"));
+            }
+        }
+    };
+}
+
+macro_rules! impl_settings {
+    ($n:ident, $($v:ident => $c:ident),+) => {
+        pub fn set(&mut self, s: $n) {
+            match s {
+                $($n::$v => self.0.insert($c)),+
+            }
+        }
+
+        pub fn unset(&mut self, s: $n) {
+            match s {
+                $($n::$v => self.0.remove($c)),+
+            }
+        }
+
+        pub fn is_set(&self, s: $n) -> bool {
+            match s {
+                $($n::$v => self.0.contains($c)),+
+            }
+        }
+    };
+}
+
+// Convenience for writing to stderr thanks to https://github.com/BurntSushi
+macro_rules! wlnerr(
+    ($($arg:tt)*) => ({
+        use std::io::{Write, stderr};
+        writeln!(&mut stderr(), $($arg)*).ok();
+    })
+);
+macro_rules! werr(
+    ($($arg:tt)*) => ({
+        use std::io::{Write, stderr};
+        write!(&mut stderr(), $($arg)*).ok();
+    })
+);
+
+#[cfg(feature = "debug")]
+#[cfg_attr(feature = "debug", macro_use)]
+mod debug_macros {
+    macro_rules! debugln {
+        ($fmt:expr) => (println!(concat!("**DEBUG** ", $fmt)));
+        ($fmt:expr, $($arg:tt)*) => (println!(concat!("**DEBUG** ",$fmt), $($arg)*));
+    }
+    macro_rules! sdebugln {
+        ($fmt:expr) => (println!($fmt));
+        ($fmt:expr, $($arg:tt)*) => (println!($fmt, $($arg)*));
+    }
+    macro_rules! debug {
+        ($fmt:expr) => (print!(concat!("**DEBUG** ", $fmt)));
+        ($fmt:expr, $($arg:tt)*) => (print!(concat!("**DEBUG** ",$fmt), $($arg)*));
+    }
+    macro_rules! sdebug {
+        ($fmt:expr) => (print!($fmt));
+        ($fmt:expr, $($arg:tt)*) => (print!($fmt, $($arg)*));
+    }
+}
+
+#[cfg(not(feature = "debug"))]
+#[cfg_attr(not(feature = "debug"), macro_use)]
+mod debug_macros {
+    macro_rules! debugln {
+        ($fmt:expr) => ();
+        ($fmt:expr, $($arg:tt)*) => ();
+    }
+    macro_rules! sdebugln {
+        ($fmt:expr) => ();
+        ($fmt:expr, $($arg:tt)*) => ();
+    }
+    macro_rules! sdebug {
+        ($fmt:expr) => ();
+        ($fmt:expr, $($arg:tt)*) => ();
+    }
+    macro_rules! debug {
+        ($fmt:expr) => ();
+        ($fmt:expr, $($arg:tt)*) => ();
+    }
+}
+
+// Helper/deduplication macro for printing the correct number of spaces in help messages
+// used in:
+//    src/args/arg_builder/*.rs
+//    src/app/mod.rs
+macro_rules! write_spaces {
+    ($num:expr, $w:ident) => ({
+        debugln!("macro=write_spaces!;");
+        for _ in 0..$num {
+            try!(write!($w, " "));
+        }
+    })
+}
+
+// convenience macro for remove an item from a vec
+macro_rules! vec_remove {
+    ($vec:expr, $to_rem:ident) => {
+        debugln!("macro=write_spaces!;");
+        {
+            let mut ix = None;
+            $vec.dedup();
+            for (i, val) in $vec.iter().enumerate() {
+                if val == $to_rem {
+                    ix = Some(i);
+                    break;
+                }
+            }
+            if let Some(i) = ix {
+                $vec.remove(i);
+            }
+        }
+    }
 }
