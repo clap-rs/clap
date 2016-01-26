@@ -4,12 +4,14 @@ use clap::{App, Arg, ArgSettings};
 
 #[test]
 fn opts_using_short() {
-    let m = App::new("opts")
+    let r = App::new("opts")
         .args(&[
             Arg::from_usage("-f [flag] 'some flag'"),
             Arg::from_usage("-c [color] 'some other flag'")
             ])
-        .get_matches_from(vec!["", "-f", "some", "-c", "other"]);
+        .get_matches_from_safe(vec!["", "-f", "some", "-c", "other"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
     assert!(m.is_present("f"));
     assert_eq!(m.value_of("f").unwrap(), "some");
     assert!(m.is_present("c"));
@@ -18,12 +20,14 @@ fn opts_using_short() {
 
 #[test]
 fn opts_using_long_space() {
-    let m = App::new("opts")
+    let r = App::new("opts")
         .args(&[
             Arg::from_usage("--flag [flag] 'some flag'"),
             Arg::from_usage("--color [color] 'some other flag'")
             ])
-        .get_matches_from(vec!["", "--flag", "some", "--color", "other"]);
+        .get_matches_from_safe(vec!["", "--flag", "some", "--color", "other"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
     assert!(m.is_present("flag"));
     assert_eq!(m.value_of("flag").unwrap(), "some");
     assert!(m.is_present("color"));
@@ -32,12 +36,14 @@ fn opts_using_long_space() {
 
 #[test]
 fn opts_using_long_equals() {
-    let m = App::new("opts")
+    let r = App::new("opts")
         .args(&[
             Arg::from_usage("--flag [flag] 'some flag'"),
             Arg::from_usage("--color [color] 'some other flag'")
             ])
-        .get_matches_from(vec!["", "--flag=some", "--color=other"]);
+        .get_matches_from_safe(vec!["", "--flag=some", "--color=other"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
     assert!(m.is_present("flag"));
     assert_eq!(m.value_of("flag").unwrap(), "some");
     assert!(m.is_present("color"));
@@ -46,23 +52,14 @@ fn opts_using_long_equals() {
 
 #[test]
 fn opts_using_mixed() {
-    let m = App::new("opts")
+    let r = App::new("opts")
         .args(&[
             Arg::from_usage("-f, --flag [flag] 'some flag'"),
             Arg::from_usage("-c, --color [color] 'some other flag'")
             ])
-        .get_matches_from(vec!["", "-f", "some", "--color", "other"]);
-    assert!(m.is_present("flag"));
-    assert_eq!(m.value_of("flag").unwrap(), "some");
-    assert!(m.is_present("color"));
-    assert_eq!(m.value_of("color").unwrap(), "other");
-
-    let m = App::new("opts")
-        .args(&[
-            Arg::from_usage("-f, --flag [flag] 'some flag'"),
-            Arg::from_usage("-c, --color [color] 'some other flag'")
-            ])
-        .get_matches_from(vec!["", "--flag=some", "-c", "other"]);
+        .get_matches_from_safe(vec!["", "-f", "some", "--color", "other"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
     assert!(m.is_present("flag"));
     assert_eq!(m.value_of("flag").unwrap(), "some");
     assert!(m.is_present("color"));
@@ -70,14 +67,19 @@ fn opts_using_mixed() {
 }
 
 #[test]
-fn create_option() {
-    let _ = App::new("test")
-                .arg(Arg::with_name("test")
-                            .short("t")
-                            .long("test")
-                            .takes_value(true)
-                            .help("testing testing"))
-                .get_matches();
+fn opts_using_mixed2() {
+    let r = App::new("opts")
+        .args(&[
+            Arg::from_usage("-f, --flag [flag] 'some flag'"),
+            Arg::from_usage("-c, --color [color] 'some other flag'")
+            ])
+        .get_matches_from_safe(vec!["", "--flag=some", "-c", "other"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("flag"));
+    assert_eq!(m.value_of("flag").unwrap(), "some");
+    assert!(m.is_present("color"));
+    assert_eq!(m.value_of("color").unwrap(), "other");
 }
 
 #[test]
@@ -91,7 +93,7 @@ fn create_option_usage0() {
     assert!(!a.is_set(ArgSettings::Multiple));
     assert!(a.is_set(ArgSettings::TakesValue));
     assert!(!a.is_set(ArgSettings::Required));
-    assert_eq!(&a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(a.num_vals.is_none());
 }
 
@@ -105,7 +107,7 @@ fn create_option_usage1() {
     assert!(!b.is_set(ArgSettings::Multiple));
     assert!(b.is_set(ArgSettings::TakesValue));
     assert!(!b.is_set(ArgSettings::Required));
-    assert_eq!(&b.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(b.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(b.num_vals.is_none());
 }
 
@@ -119,7 +121,7 @@ fn create_option_usage2() {
     assert!(!c.is_set(ArgSettings::Multiple));
     assert!(c.is_set(ArgSettings::TakesValue));
     assert!(c.is_set(ArgSettings::Required));
-    assert_eq!(&c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(c.num_vals.is_none());
 }
 
@@ -133,7 +135,7 @@ fn create_option_usage3() {
     assert!(!d.is_set(ArgSettings::Multiple));
     assert!(d.is_set(ArgSettings::TakesValue));
     assert!(d.is_set(ArgSettings::Required));
-    assert_eq!(&d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(d.num_vals.is_none());
 }
 
@@ -147,7 +149,7 @@ fn create_option_usage4() {
     assert!(a.is_set(ArgSettings::Multiple));
     assert!(a.is_set(ArgSettings::TakesValue));
     assert!(!a.is_set(ArgSettings::Required));
-    assert_eq!(&a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(a.num_vals.is_none());
 }
 
@@ -161,7 +163,7 @@ fn create_option_usage5() {
     assert!(a.is_set(ArgSettings::Multiple));
     assert!(a.is_set(ArgSettings::TakesValue));
     assert!(!a.is_set(ArgSettings::Required));
-    assert_eq!(&a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(a.num_vals.is_none());
 }
 
@@ -175,7 +177,7 @@ fn create_option_usage6() {
     assert!(b.is_set(ArgSettings::Multiple));
     assert!(b.is_set(ArgSettings::TakesValue));
     assert!(!b.is_set(ArgSettings::Required));
-    assert_eq!(&b.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(b.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(b.num_vals.is_none());
 }
 
@@ -189,7 +191,7 @@ fn create_option_usage7() {
     assert!(c.is_set(ArgSettings::Multiple));
     assert!(c.is_set(ArgSettings::TakesValue));
     assert!(c.is_set(ArgSettings::Required));
-    assert_eq!(&c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(c.num_vals.is_none());
 }
 
@@ -203,7 +205,7 @@ fn create_option_usage8() {
     assert!(c.is_set(ArgSettings::Multiple));
     assert!(c.is_set(ArgSettings::TakesValue));
     assert!(c.is_set(ArgSettings::Required));
-    assert_eq!(&c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(c.num_vals.is_none());
 }
 
@@ -217,7 +219,7 @@ fn create_option_usage9() {
     assert!(d.is_set(ArgSettings::Multiple));
     assert!(d.is_set(ArgSettings::TakesValue));
     assert!(d.is_set(ArgSettings::Required));
-    assert_eq!(&d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(d.num_vals.is_none());
 }
 
@@ -231,7 +233,7 @@ fn create_option_usage_long1() {
     assert!(!a.is_set(ArgSettings::Multiple));
     assert!(a.is_set(ArgSettings::TakesValue));
     assert!(!a.is_set(ArgSettings::Required));
-    assert_eq!(&a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(a.num_vals.is_none());
 }
 
@@ -245,7 +247,7 @@ fn create_option_usage_long2() {
     assert!(!b.is_set(ArgSettings::Multiple));
     assert!(b.is_set(ArgSettings::TakesValue));
     assert!(!b.is_set(ArgSettings::Required));
-    assert_eq!(&b.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["option"]);
+    assert_eq!(b.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["option"]);
     assert!(b.num_vals.is_none());
 }
 
@@ -259,7 +261,7 @@ fn create_option_usage_long3() {
     assert!(!c.is_set(ArgSettings::Multiple));
     assert!(c.is_set(ArgSettings::TakesValue));
     assert!(c.is_set(ArgSettings::Required));
-    assert_eq!(&c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(c.num_vals.is_none());
 }
 
@@ -273,7 +275,7 @@ fn create_option_usage_long4() {
     assert!(!d.is_set(ArgSettings::Multiple));
     assert!(d.is_set(ArgSettings::TakesValue));
     assert!(d.is_set(ArgSettings::Required));
-    assert_eq!(&d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["option"]);
+    assert_eq!(d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["option"]);
     assert!(d.num_vals.is_none());
 }
 
@@ -287,7 +289,7 @@ fn create_option_usage_long5() {
     assert!(a.is_set(ArgSettings::Multiple));
     assert!(a.is_set(ArgSettings::TakesValue));
     assert!(!a.is_set(ArgSettings::Required));
-    assert_eq!(&a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(a.num_vals.is_none());
 }
 
@@ -301,7 +303,7 @@ fn create_option_usage_long6() {
     assert!(a.is_set(ArgSettings::Multiple));
     assert!(a.is_set(ArgSettings::TakesValue));
     assert!(!a.is_set(ArgSettings::Required));
-    assert_eq!(&a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(a.num_vals.is_none());
 }
 
@@ -315,7 +317,7 @@ fn create_option_usage_long7() {
     assert!(b.is_set(ArgSettings::Multiple));
     assert!(b.is_set(ArgSettings::TakesValue));
     assert!(!b.is_set(ArgSettings::Required));
-    assert_eq!(&b.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["option"]);
+    assert_eq!(b.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["option"]);
     assert!(b.num_vals.is_none());
 }
 
@@ -329,7 +331,7 @@ fn create_option_usage_long8() {
     assert!(c.is_set(ArgSettings::Multiple));
     assert!(c.is_set(ArgSettings::TakesValue));
     assert!(c.is_set(ArgSettings::Required));
-    assert_eq!(&c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(c.num_vals.is_none());
 }
 
@@ -343,7 +345,7 @@ fn create_option_usage_long9() {
     assert!(c.is_set(ArgSettings::Multiple));
     assert!(c.is_set(ArgSettings::TakesValue));
     assert!(c.is_set(ArgSettings::Required));
-    assert_eq!(&c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(c.num_vals.is_none());
 }
 
@@ -357,7 +359,7 @@ fn create_option_usage_long10() {
     assert!(d.is_set(ArgSettings::Multiple));
     assert!(d.is_set(ArgSettings::TakesValue));
     assert!(d.is_set(ArgSettings::Required));
-    assert_eq!(&d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["option"]);
+    assert_eq!(d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["option"]);
     assert!(d.num_vals.is_none());
 }
 
@@ -371,7 +373,7 @@ fn create_option_usage_long_equals1() {
     assert!(!a.is_set(ArgSettings::Multiple));
     assert!(a.is_set(ArgSettings::TakesValue));
     assert!(!a.is_set(ArgSettings::Required));
-    assert_eq!(&a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(a.num_vals.is_none());
 }
 
@@ -385,7 +387,7 @@ fn create_option_usage_long_equals2() {
     assert!(!b.is_set(ArgSettings::Multiple));
     assert!(b.is_set(ArgSettings::TakesValue));
     assert!(!b.is_set(ArgSettings::Required));
-    assert_eq!(&b.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["option"]);
+    assert_eq!(b.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["option"]);
     assert!(b.num_vals.is_none());
 }
 
@@ -399,7 +401,7 @@ fn create_option_usage_long_equals3() {
     assert!(!c.is_set(ArgSettings::Multiple));
     assert!(c.is_set(ArgSettings::TakesValue));
     assert!(c.is_set(ArgSettings::Required));
-    assert_eq!(&c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(c.num_vals.is_none());
 }
 
@@ -413,7 +415,7 @@ fn create_option_usage_long_equals4() {
     assert!(!d.is_set(ArgSettings::Multiple));
     assert!(d.is_set(ArgSettings::TakesValue));
     assert!(d.is_set(ArgSettings::Required));
-    assert_eq!(&d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["option"]);
+    assert_eq!(d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["option"]);
     assert!(d.num_vals.is_none());
 }
 
@@ -427,7 +429,7 @@ fn create_option_usage_long_equals5() {
     assert!(a.is_set(ArgSettings::Multiple));
     assert!(a.is_set(ArgSettings::TakesValue));
     assert!(!a.is_set(ArgSettings::Required));
-    assert_eq!(&a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(a.num_vals.is_none());
 }
 
@@ -441,7 +443,7 @@ fn create_option_usage_long_equals6() {
     assert!(a.is_set(ArgSettings::Multiple));
     assert!(a.is_set(ArgSettings::TakesValue));
     assert!(!a.is_set(ArgSettings::Required));
-    assert_eq!(&a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(a.num_vals.is_none());
 }
 
@@ -455,7 +457,7 @@ fn create_option_usage_long_equals7() {
     assert!(b.is_set(ArgSettings::Multiple));
     assert!(b.is_set(ArgSettings::TakesValue));
     assert!(!b.is_set(ArgSettings::Required));
-    assert_eq!(&b.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["option"]);
+    assert_eq!(b.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["option"]);
     assert!(b.num_vals.is_none());
 }
 
@@ -469,7 +471,7 @@ fn create_option_usage_long_equals8() {
     assert!(c.is_set(ArgSettings::Multiple));
     assert!(c.is_set(ArgSettings::TakesValue));
     assert!(c.is_set(ArgSettings::Required));
-    assert_eq!(&c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(c.num_vals.is_none());
 }
 
@@ -483,7 +485,7 @@ fn create_option_usage_long_equals9() {
     assert!(c.is_set(ArgSettings::Multiple));
     assert!(c.is_set(ArgSettings::TakesValue));
     assert!(c.is_set(ArgSettings::Required));
-    assert_eq!(&c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(c.num_vals.is_none());
 }
 
@@ -497,7 +499,7 @@ fn create_option_usage_long_equals10() {
     assert!(d.is_set(ArgSettings::Multiple));
     assert!(d.is_set(ArgSettings::TakesValue));
     assert!(d.is_set(ArgSettings::Required));
-    assert_eq!(&d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["option"]);
+    assert_eq!(d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["option"]);
     assert!(d.num_vals.is_none());
 }
 
@@ -511,7 +513,7 @@ fn create_option_usage_both1() {
     assert!(!a.is_set(ArgSettings::Multiple));
     assert!(a.is_set(ArgSettings::TakesValue));
     assert!(!a.is_set(ArgSettings::Required));
-    assert_eq!(&a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["option"]);
+    assert_eq!(a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["option"]);
     assert!(a.num_vals.is_none());
 }
 
@@ -525,7 +527,7 @@ fn create_option_usage_both2() {
     assert!(!b.is_set(ArgSettings::Multiple));
     assert!(b.is_set(ArgSettings::TakesValue));
     assert!(!b.is_set(ArgSettings::Required));
-    assert_eq!(&b.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["option"]);
+    assert_eq!(b.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["option"]);
     assert!(b.num_vals.is_none());
 }
 
@@ -539,7 +541,7 @@ fn create_option_usage_both3() {
     assert!(!c.is_set(ArgSettings::Multiple));
     assert!(c.is_set(ArgSettings::TakesValue));
     assert!(c.is_set(ArgSettings::Required));
-    assert_eq!(&c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(c.num_vals.is_none());
 }
 
@@ -553,7 +555,7 @@ fn create_option_usage_both4() {
     assert!(!d.is_set(ArgSettings::Multiple));
     assert!(d.is_set(ArgSettings::TakesValue));
     assert!(d.is_set(ArgSettings::Required));
-    assert_eq!(&d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["option"]);
+    assert_eq!(d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["option"]);
     assert!(d.num_vals.is_none());
 }
 
@@ -567,7 +569,7 @@ fn create_option_usage_both5() {
     assert!(a.is_set(ArgSettings::Multiple));
     assert!(a.is_set(ArgSettings::TakesValue));
     assert!(!a.is_set(ArgSettings::Required));
-    assert_eq!(&a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["option"]);
+    assert_eq!(a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["option"]);
     assert!(a.num_vals.is_none());
 }
 
@@ -581,7 +583,7 @@ fn create_option_usage_both6() {
     assert!(b.is_set(ArgSettings::Multiple));
     assert!(b.is_set(ArgSettings::TakesValue));
     assert!(!b.is_set(ArgSettings::Required));
-    assert_eq!(&b.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["option"]);
+    assert_eq!(b.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["option"]);
     assert!(b.num_vals.is_none());
 }
 
@@ -595,7 +597,7 @@ fn create_option_usage_both7() {
     assert!(c.is_set(ArgSettings::Multiple));
     assert!(c.is_set(ArgSettings::TakesValue));
     assert!(c.is_set(ArgSettings::Required));
-    assert_eq!(&c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(c.num_vals.is_none());
 }
 
@@ -609,7 +611,7 @@ fn create_option_usage_both8() {
     assert!(d.is_set(ArgSettings::Multiple));
     assert!(d.is_set(ArgSettings::TakesValue));
     assert!(d.is_set(ArgSettings::Required));
-    assert_eq!(&d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["option"]);
+    assert_eq!(d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["option"]);
     assert!(d.num_vals.is_none());
 }
 
@@ -623,7 +625,7 @@ fn create_option_usage_both_equals1() {
     assert!(!a.is_set(ArgSettings::Multiple));
     assert!(a.is_set(ArgSettings::TakesValue));
     assert!(!a.is_set(ArgSettings::Required));
-    assert_eq!(&a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["option"]);
+    assert_eq!(a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["option"]);
     assert!(a.num_vals.is_none());
 }
 
@@ -637,7 +639,7 @@ fn create_option_usage_both_equals2() {
     assert!(!b.is_set(ArgSettings::Multiple));
     assert!(b.is_set(ArgSettings::TakesValue));
     assert!(!b.is_set(ArgSettings::Required));
-    assert_eq!(&b.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["option"]);
+    assert_eq!(b.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["option"]);
     assert!(b.num_vals.is_none());
 }
 
@@ -651,7 +653,7 @@ fn create_option_usage_both_equals3() {
     assert!(!c.is_set(ArgSettings::Multiple));
     assert!(c.is_set(ArgSettings::TakesValue));
     assert!(c.is_set(ArgSettings::Required));
-    assert_eq!(&c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(c.num_vals.is_none());
 }
 
@@ -665,7 +667,7 @@ fn create_option_usage_both_equals4() {
     assert!(!d.is_set(ArgSettings::Multiple));
     assert!(d.is_set(ArgSettings::TakesValue));
     assert!(d.is_set(ArgSettings::Required));
-    assert_eq!(&d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["option"]);
+    assert_eq!(d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["option"]);
     assert!(d.num_vals.is_none());
 }
 
@@ -679,7 +681,7 @@ fn create_option_usage_both_equals5() {
     assert!(a.is_set(ArgSettings::Multiple));
     assert!(a.is_set(ArgSettings::TakesValue));
     assert!(!a.is_set(ArgSettings::Required));
-    assert_eq!(&a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["option"]);
+    assert_eq!(a.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["option"]);
     assert!(a.num_vals.is_none());
 }
 
@@ -693,7 +695,7 @@ fn create_option_usage_both_equals6() {
     assert!(b.is_set(ArgSettings::Multiple));
     assert!(b.is_set(ArgSettings::TakesValue));
     assert!(!b.is_set(ArgSettings::Required));
-    assert_eq!(&b.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["option"]);
+    assert_eq!(b.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["option"]);
     assert!(b.num_vals.is_none());
 }
 
@@ -707,7 +709,7 @@ fn create_option_usage_both_equals7() {
     assert!(c.is_set(ArgSettings::Multiple));
     assert!(c.is_set(ArgSettings::TakesValue));
     assert!(c.is_set(ArgSettings::Required));
-    assert_eq!(&c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["opt"]);
+    assert_eq!(c.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["opt"]);
     assert!(c.num_vals.is_none());
 }
 
@@ -721,12 +723,12 @@ fn create_option_usage_both_equals8() {
     assert!(d.is_set(ArgSettings::Multiple));
     assert!(d.is_set(ArgSettings::TakesValue));
     assert!(d.is_set(ArgSettings::Required));
-    assert_eq!(&d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["option"]);
+    assert_eq!(d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["option"]);
     assert!(d.num_vals.is_none());
 }
 
 #[test]
-fn create_option_with_vals() {
+fn create_option_with_vals1() {
     let d = Arg::from_usage("-o <file> <mode> 'some help info'");
     assert_eq!(d.name, "o");
     assert!(d.long.is_none());
@@ -735,9 +737,12 @@ fn create_option_with_vals() {
     assert!(!d.is_set(ArgSettings::Multiple));
     assert!(d.is_set(ArgSettings::TakesValue));
     assert!(d.is_set(ArgSettings::Required));
-    assert_eq!(&d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["file", "mode"]);
+    assert_eq!(d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["file", "mode"]);
     assert_eq!(d.num_vals.unwrap(), 2);
+}
 
+#[test]
+fn create_option_with_vals2() {
     let d = Arg::from_usage("-o <file> <mode>... 'some help info'");
     assert_eq!(d.name, "o");
     assert!(d.long.is_none());
@@ -746,9 +751,12 @@ fn create_option_with_vals() {
     assert!(d.is_set(ArgSettings::Multiple));
     assert!(d.is_set(ArgSettings::TakesValue));
     assert!(d.is_set(ArgSettings::Required));
-    assert_eq!(&d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["file", "mode"]);
+    assert_eq!(d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["file", "mode"]);
     assert_eq!(d.num_vals.unwrap(), 2);
+}
 
+#[test]
+fn create_option_with_vals3() {
     let d = Arg::from_usage("--opt <file> <mode>... 'some help info'");
     assert_eq!(d.name, "opt");
     assert!(d.short.is_none());
@@ -757,9 +765,12 @@ fn create_option_with_vals() {
     assert!(d.is_set(ArgSettings::Multiple));
     assert!(d.is_set(ArgSettings::TakesValue));
     assert!(d.is_set(ArgSettings::Required));
-    assert_eq!(&d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["file", "mode"]);
+    assert_eq!(d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["file", "mode"]);
     assert_eq!(d.num_vals.unwrap(), 2);
+}
 
+#[test]
+fn create_option_with_vals4() {
     let d = Arg::from_usage("[myopt] --opt <file> <mode> 'some help info'");
     assert_eq!(d.name, "myopt");
     assert!(d.short.is_none());
@@ -768,9 +779,12 @@ fn create_option_with_vals() {
     assert!(!d.is_set(ArgSettings::Multiple));
     assert!(d.is_set(ArgSettings::TakesValue));
     assert!(!d.is_set(ArgSettings::Required));
-    assert_eq!(&d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), &["file", "mode"]);
+    assert_eq!(d.val_names.unwrap().iter().map(|(_, &v)| v).collect::<Vec<_>>(), ["file", "mode"]);
     assert_eq!(d.num_vals.unwrap(), 2);
+}
 
+#[test]
+fn create_option_with_vals5() {
     let d = Arg::from_usage("--opt <file> <mode> 'some help info'");
     assert_eq!(d.name, "opt");
     assert!(d.short.is_none());
