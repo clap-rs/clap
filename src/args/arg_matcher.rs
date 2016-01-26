@@ -37,14 +37,6 @@ impl<'a> ArgMatcher<'a> {
         self.0.args.is_empty()
     }
 
-    // pub fn values_of(&'a self, arg: &str) -> Values<'a> {
-    //     self.0.values_of(arg)
-    // }
-
-    // pub fn os_values_of(&'a self, arg: &str) -> OsValues<'a> {
-    //     self.0.os_values_of(arg)
-    // }
-
     pub fn usage(&mut self, usage: String) {
         self.0.usage = Some(usage);
     }
@@ -71,6 +63,7 @@ impl<'a> ArgMatcher<'a> {
 
     pub fn inc_occurrence_of(&mut self, arg: &'a str) {
         if let Some(a) = self.get_mut(arg) {
+            debugln!("+1 to {}'s occurrences", arg);
             a.occurs += 1;
             return;
         }
@@ -85,13 +78,11 @@ impl<'a> ArgMatcher<'a> {
 
     pub fn add_val_to(&mut self, arg: &'a str, val: &OsStr) {
         let ma = self.entry(arg).or_insert(MatchedArg {
-            // occurrences will be incremented on getting a value
             occurs: 0,
             vals: VecMap::new(),
         });
         let len = ma.vals.len() + 1;
         ma.vals.insert(len, val.to_owned());
-        ma.occurs += 1;
     }
 }
 

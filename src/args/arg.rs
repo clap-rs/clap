@@ -1,12 +1,13 @@
 #[cfg(feature = "yaml")]
 use std::collections::BTreeMap;
-use std::collections::BTreeSet;
 use std::rc::Rc;
 
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
+use vec_map::VecMap;
 
-use usageparser::{UsageParser, UsageToken};
+use usage_parser::UsageParser;
+use args::settings::{ArgSettings, ArgFlags};
 
 /// The abstract representation of a command line argument used by the consumer of the library.
 /// Used to set all the options and relationships that define a valid argument for the program.
@@ -36,61 +37,59 @@ use usageparser::{UsageParser, UsageToken};
 /// let input = Arg::from_usage("-i --input=[input] 'Provides an input file to the program'");
 #[allow(missing_debug_implementations)]
 pub struct Arg<'a, 'b> where 'a: 'b {
-    /// The unique name of the argument
+    // The unique name of the argument
+    #[doc(hidden)]
     pub name: &'a str,
-    /// The short version (i.e. single character) of the argument, no preceding `-`
-    /// **NOTE:** `short` is mutually exclusive with `index`
+    // The short version (i.e. single character) of the argument, no preceding `-`
+    // **NOTE:** `short` is mutually exclusive with `index`
+    #[doc(hidden)]
     pub short: Option<char>,
-    /// The long version of the flag (i.e. word) without the preceding `--`
-    /// **NOTE:** `long` is mutually exclusive with `index`
+    // The long version of the flag (i.e. word) without the preceding `--`
+    // **NOTE:** `long` is mutually exclusive with `index`
+    #[doc(hidden)]
     pub long: Option<&'b str>,
-    /// The string of text that will displayed to the user when the application's
-    /// `help` text is displayed
+    // The string of text that will displayed to the user when the application's
+    // `help` text is displayed
+    #[doc(hidden)]
     pub help: Option<&'b str>,
-    /// If this is a required by default when using the command line program,
-    /// e.g. a configuration file that's required for the program to function
-    /// **NOTE:** required by default means it is required *until* mutually
-    /// exclusive arguments are evaluated.
-    pub required: bool,
-    /// Determines if this argument is an option (as opposed to flag or positional) and
-    /// is mutually exclusive with `index` and `multiple`
-    pub takes_value: bool,
-    /// The index of the argument. `index` is mutually exclusive with `takes_value`
-    /// and `multiple`
+    // The index of the argument. `index` is mutually exclusive with `takes_value`
+    // and `multiple`
+    #[doc(hidden)]
     pub index: Option<u8>,
-    /// Determines if multiple instances of the same flag are allowed. `multiple`
-    /// is mutually exclusive with `index`.
-    /// e.g. `-v -v -v` or `-vvv` or `--option foo --option bar`
-    pub multiple: bool,
-    /// A list of names for other arguments that *may not* be used with this flag
+    // A list of names for other arguments that *may not* be used with this flag
+    #[doc(hidden)]
     pub blacklist: Option<Vec<&'a str>>,
-    /// A list of possible values for an option or positional argument
+    // A list of possible values for an option or positional argument
+    #[doc(hidden)]
     pub possible_vals: Option<Vec<&'b str>>,
-    /// A list of names of other arguments that are *required* to be used when
-    /// this flag is used
+    // A list of names of other arguments that are *required* to be used when
+    // this flag is used
+    #[doc(hidden)]
     pub requires: Option<Vec<&'a str>>,
-    /// A name of the group the argument belongs to
+    // A name of the group the argument belongs to
+    #[doc(hidden)]
     pub group: Option<&'a str>,
-    /// A set of names (ordered) for the values to be displayed with the help message
-    pub val_names: Option<BTreeSet<&'b str>>,
-    /// The exact number of values to satisfy this argument
+    // A set of names (ordered) for the values to be displayed with the help message
+    #[doc(hidden)]
+    pub val_names: Option<VecMap<&'b str>>,
+    // The exact number of values to satisfy this argument
+    #[doc(hidden)]
     pub num_vals: Option<u8>,
-    /// The maximum number of values possible for this argument
+    // The maximum number of values possible for this argument
+    #[doc(hidden)]
     pub max_vals: Option<u8>,
-    /// The minimum number of values possible to satisfy this argument
+    // The minimum number of values possible to satisfy this argument
+    #[doc(hidden)]
     pub min_vals: Option<u8>,
-    /// Specifies whether or not this argument accepts explicit empty values such as `--option ""`
-    pub empty_vals: bool,
-    /// Specifies whether or not this argument is global and should be propagated through all
-    /// child subcommands
-    pub global: bool,
-    /// A function used to check the validity of an argument value. Failing this validation results
-    /// in failed argument parsing.
+    // A function used to check the validity of an argument value. Failing this validation results
+    // in failed argument parsing.
+    #[doc(hidden)]
     pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
-    /// A list of names for other arguments that *mutually override* this flag
+    // A list of names for other arguments that *mutually override* this flag
+    #[doc(hidden)]
     pub overrides: Option<Vec<&'a str>>,
-    /// Specifies whether the argument should show up in the help message
-    pub hidden: bool,
+    #[doc(hidden)]
+    pub settings: ArgFlags,
 }
 
 impl<'a, 'b> Default for Arg<'a, 'b> {
@@ -100,10 +99,7 @@ impl<'a, 'b> Default for Arg<'a, 'b> {
             short: None,
             long: None,
             help: None,
-            required: false,
-            takes_value: false,
             index: None,
-            multiple: false,
             blacklist: None,
             possible_vals: None,
             requires: None,
@@ -112,11 +108,9 @@ impl<'a, 'b> Default for Arg<'a, 'b> {
             num_vals: None,
             max_vals: None,
             min_vals: None,
-            empty_vals: true,
-            global: false,
             validator: None,
             overrides: None,
-            hidden: false,
+            settings: ArgFlags::new(),
         }
     }
 }
@@ -144,7 +138,6 @@ impl<'a, 'b> Arg<'a, 'b> {
     pub fn with_name(n: &'a str) -> Self {
         Arg {
             name: n,
-            empty_vals: true,
             ..Default::default()
         }
     }
@@ -284,107 +277,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ])
     /// # .get_matches();
     pub fn from_usage(u: &'a str) -> Self {
-        let mut name = None;
-        let mut short = None;
-        let mut long = None;
-        let mut help = None;
-        let mut required = false;
-        let mut takes_value = false;
-        let mut multiple = false;
-        let mut num_names = 1;
-        let mut name_first = false;
-        let mut consec_names = false;
-        let mut val_names: BTreeSet<&'a str> = BTreeSet::new();
-
-        let parser = UsageParser::with_usage(u);
-        for_match!{ parser,
-            UsageToken::Name(n, req) => {
-                if consec_names {
-                    num_names += 1;
-                }
-                let mut use_req = false;
-                let mut use_name = false;
-                if name.is_none() && long.is_none() && short.is_none() {
-                    name_first = true;
-                    use_name = true;
-                    use_req = true;
-                } else if let Some(l) = long {
-                    if l == name.unwrap_or("") {
-                        if !name_first {
-                            use_name = true;
-                            use_req = true;
-                        }
-                    }
-                } else {
-        // starting with short
-                    if !name_first {
-                        use_name = true;
-                        use_req = true;
-                    }
-                }
-                if use_name && !consec_names {
-                    name = Some(n);
-                }
-                if use_req && !consec_names {
-                    if let Some(r) = req {
-                        required = r;
-                    }
-                }
-                if short.is_some() || long.is_some() {
-                    val_names.insert(n.as_ref());
-                    takes_value = true;
-                }
-                consec_names = true;
-            },
-            UsageToken::Short(s)     => {
-                consec_names = false;
-                short = Some(s);
-            },
-            UsageToken::Long(l)      => {
-                consec_names = false;
-                long = Some(l);
-                if name.is_none() {
-                    name = Some(l);
-                }
-            },
-            UsageToken::Help(h)      => {
-                help = Some(h);
-            },
-            UsageToken::Multiple     => {
-                multiple = true;
-            }
-        }
-
-        if let Some(l) = long {
-            val_names.remove(l);
-            if (val_names.len() > 1) && (name.unwrap() != l && !name_first) {
-                name = Some(l);
-            }
-        }
-
-        Arg {
-            name: name.unwrap_or_else(|| {
-                panic!("Missing flag name in \"{}\", check from_usage call", u)
-            }).as_ref(),
-            short: short,
-            long: long,
-            help: help,
-            required: required,
-            takes_value: takes_value,
-            multiple: multiple,
-            empty_vals: true,
-            num_vals: if num_names > 1 {
-                Some(num_names)
-            } else {
-                None
-            },
-            val_names: if val_names.len() > 1 {
-                Some(val_names)
-            } else {
-                None
-            },
-            ..Default::default()
-        }
+        let parser = UsageParser::from_usage(u);
+        parser.parse()
     }
 
     /// Sets the short version of the argument without the preceding `-`.
@@ -473,9 +367,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # Arg::with_name("config")
     /// .required(true)
     /// # ).get_matches();
-    pub fn required(mut self, r: bool) -> Self {
-        self.required = r;
-        self
+    pub fn required(self, r: bool) -> Self {
+        if r { self.set(ArgSettings::Required) } else { self.unset(ArgSettings::Required) }
     }
 
     /// Sets a mutually exclusive argument by name. I.e. when using this argument,
@@ -633,9 +526,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # Arg::with_name("config")
     /// .takes_value(true)
     /// # ).get_matches();
-    pub fn takes_value(mut self, tv: bool) -> Self {
-        self.takes_value = tv;
-        self
+    pub fn takes_value(self, tv: bool) -> Self {
+        if tv { self.set(ArgSettings::TakesValue) } else { self.unset(ArgSettings::TakesValue) }
     }
 
     /// Specifies the index of a positional argument starting at 1.
@@ -680,9 +572,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # Arg::with_name("debug")
     /// .multiple(true)
     /// # ).get_matches();
-    pub fn multiple(mut self, multi: bool) -> Self {
-        self.multiple = multi;
-        self
+    pub fn multiple(self, multi: bool) -> Self {
+        if multi { self.set(ArgSettings::Multiple) } else { self.unset(ArgSettings::Multiple) }
     }
 
     /// Specifies that an argument can be matched to all child subcommands.
@@ -705,9 +596,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # Arg::with_name("debug")
     /// .global(true)
     /// # ).get_matches();
-    pub fn global(mut self, g: bool) -> Self {
-        self.global = g;
-        self
+    pub fn global(self, g: bool) -> Self {
+        if g { self.set(ArgSettings::Global) } else { self.unset(ArgSettings::Global) }
     }
 
     /// Allows an argument to accept explicit empty values. An empty value must be specified at the
@@ -725,9 +615,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # Arg::with_name("debug")
     /// .empty_values(true)
     /// # ).get_matches();
-    pub fn empty_values(mut self, ev: bool) -> Self {
-        self.empty_vals = ev;
-        self
+    pub fn empty_values(self, ev: bool) -> Self {
+        if ev { self.set(ArgSettings::EmptyValues) } else { self.unset(ArgSettings::EmptyValues) }
     }
 
     /// Hides an argument from help message output.
@@ -743,9 +632,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # Arg::with_name("debug")
     /// .hidden(true)
     /// # ).get_matches();
-    pub fn hidden(mut self, h: bool) -> Self {
-        self.hidden = h;
-        self
+    pub fn hidden(self, h: bool) -> Self {
+        if h { self.set(ArgSettings::Hidden) } else { self.unset(ArgSettings::Hidden) }
     }
 
     /// Specifies a list of possible values for this argument. At runtime, clap verifies that only
@@ -878,9 +766,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// `.max_values(3)`, and this argument would be satisfied if the user provided, 1, 2, or 3
     /// values.
     ///
-    /// **NOTE:** `qty` must be > 1
-    ///
-    /// **NOTE:** This implicitly sets `.multiple(true)`
+    /// **NOTE:** For positional arguments this implicitly sets `multiple(true)` but does *not*
+    /// for options. This is because `-o val -o val` is multiples occurrences but a single value
+    /// and `-o val1 val2` is a single occurence with multple values. For positional arguments
+    /// there is no way to determine the diffrence between multiple occureces and multiple values.
     ///
     /// # Examples
     ///
@@ -892,13 +781,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// .max_values(3)
     /// # ).get_matches();
     pub fn max_values(mut self, qty: u8) -> Self {
-        if qty < 2 {
-            panic!("Arguments with max_values(qty) qty must be > 1. Prefer \
-                takes_value(true) for arguments with only one value, or flags for arguments \
-                with 0 values.");
-        }
         self.max_vals = Some(qty);
-        self.multiple = true;
         self
     }
 
@@ -907,12 +790,11 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// `.min_values(2)`, and this argument would be satisfied if the user provided, 2 or more
     /// values.
     ///
-    /// **NOTE:** This implicitly sets `.multiple(true)`
+    /// **NOTE:** For positional arguments this implicitly sets `multiple(true)` but does *not*
+    /// for options. This is because `-o val -o val` is multiples occurrences but a single value
+    /// and `-o val1 val2` is a single occurence with multple values. For positional arguments
+    /// there is no way to determine the diffrence between multiple occureces and multiple values.
     ///
-    /// **NOTE:** `qty` must be > 0
-    ///
-    /// **NOTE:** `qty` *must* be > 0. If you wish to have an argument with 0 or more values prefer
-    /// two separate arguments (a flag, and an option with multiple values).
     ///
     /// # Examples
     ///
@@ -925,7 +807,6 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # ).get_matches();
     pub fn min_values(mut self, qty: u8) -> Self {
         self.min_vals = Some(qty);
-        self.multiple = true;
         self
     }
 
@@ -954,13 +835,46 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// .value_names(&val_names)
     /// # ).get_matches();
     pub fn value_names(mut self, names: &[&'b str]) -> Self {
-        if let Some(ref mut vec) = self.val_names {
+        if let Some(ref mut vals) = self.val_names {
+            let mut l =  vals.len();
             for s in names {
-                vec.insert(s);
+                vals.insert(l, s);
+                l += 1;
             }
         } else {
-            self.val_names = Some(names.iter().map(|s| *s).collect::<BTreeSet<_>>());
+            let mut vm = VecMap::new();
+            for (i, n) in names.iter().enumerate() {
+                vm.insert(i, *n);
+            }
+            self.val_names = Some(vm);
         }
+        self
+    }
+
+    #[doc(hidden)]
+    pub fn setb(&mut self, s: ArgSettings) {
+        self.settings.set(s);
+    }
+
+    #[doc(hidden)]
+    pub fn unsetb(&mut self, s: ArgSettings) {
+        self.settings.unset(s);
+    }
+
+    /// Checks if one of the `ArgSettings` settings is set for the argument
+    pub fn is_set(&self, s: ArgSettings) -> bool {
+        self.settings.is_set(s)
+    }
+
+    /// Sets one of the `ArgSettings` settings for the argument
+    pub fn set(mut self, s: ArgSettings) -> Self {
+        self.setb(s);
+        self
+    }
+
+    /// Unsets one of the `ArgSettings` settings for the argument
+    pub fn unset(mut self, s: ArgSettings) -> Self {
+        self.unsetb(s);
         self
     }
 
@@ -978,12 +892,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .value_name("file")
     /// # ).get_matches();
     pub fn value_name(mut self, name: &'b str) -> Self {
-        if let Some(ref mut vec) = self.val_names {
-            vec.insert(name);
+        if let Some(ref mut vals) = self.val_names {
+            let l = vals.len();
+            vals.insert(l, name);
         } else {
-            let mut bts = BTreeSet::new();
-            bts.insert(name);
-            self.val_names = Some(bts);
+            let mut vm = VecMap::new();
+            vm.insert(0, name);
+            self.val_names = Some(vm);
         }
         self
     }
@@ -997,9 +912,6 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>>
             short: a.short,
             long: a.long,
             help: a.help,
-            required: a.required,
-            takes_value: a.takes_value,
-            multiple: a.multiple,
             index: a.index,
             possible_vals: a.possible_vals.clone(),
             blacklist: a.blacklist.clone(),
@@ -1009,11 +921,9 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>>
             max_vals: a.max_vals,
             val_names: a.val_names.clone(),
             group: a.group,
-            global: a.global,
-            empty_vals: a.empty_vals,
             validator: a.validator.clone(),
             overrides: a.overrides.clone(),
-            hidden: a.hidden,
+            settings: a.settings.clone(),
         }
     }
 }

@@ -82,6 +82,9 @@ macro_rules! parse_positional {
             $pos_counter == $_self.positionals.len()) {
             $pos_only = true;
         }
+
+        $matcher.inc_occurrence_of($p.name);
+        let _ = $_self.groups_for_arg($p.name).and_then(|vec| Some($matcher.inc_occurrences_of(&*vec)));
         arg_post_processing!($_self, $p, $matcher);
         // Only increment the positional counter if it doesn't allow multiples
         if !$p.settings.is_set(ArgSettings::Multiple) {
@@ -140,7 +143,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 self.set(AppSettings::NeedsLongVersion);
             }
         }
-        if a.required {
+        if a.is_set(ArgSettings::Required) {
             self.required.push(a.name);
         }
         if a.index.is_some() || (a.short.is_none() && a.long.is_none()) {
@@ -156,17 +159,16 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                        a.name);
             }
             let pb = PosBuilder::from_arg(&a, i as u8, &mut self.required);
-            // self.positionals_name.insert(pb.name, i);
             self.positionals.insert(i, pb);
-        } else if a.takes_value {
+        } else if a.is_set(ArgSettings::TakesValue) {
             let ob = OptBuilder::from_arg(&a, &mut self.required);
             self.opts.push(ob);
         } else {
             let fb = FlagBuilder::from(a);
             self.flags.push(fb);
         }
-        if a.global {
-            if a.required {
+        if a.is_set(ArgSettings::Global) {
+            if a.is_set(ArgSettings::Required) {
                 panic!("Global arguments cannot be required.\n\n\t'{}' is marked as global and \
                         required",
                        a.name);
@@ -555,7 +557,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 try!(self.validate_required(matcher));
                 reqs_validated = true;
                 let should_err = if let Some(ref v) = matcher.0.args.get(&*o.name) {
-                    v.vals.is_empty()
+                    v.vals.is_empty() && !(o.min_vals.is_some() && o.min_vals.unwrap() == 0)
                 } else {
                     true
                 };
@@ -1037,6 +1039,10 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             try!(self.add_val_to_arg(opt, v, matcher));
         } else { sdebugln!("None"); }
 
+        matcher.inc_occurrence_of(opt.name);
+        // Increment or create the group "args"
+        self.groups_for_arg(opt.name).and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
+
         if (opt.is_set(ArgSettings::Multiple) || opt.num_vals().is_some())
             || val.is_none() {
             return Ok(Some(opt.name));
@@ -1124,8 +1130,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         debugln!("fn=parse_flag;");
         validate_multiples!(self, flag, matcher);
 
-        matcher.inc_occurrence_of(&*flag.name.clone());
-
+        matcher.inc_occurrence_of(flag.name);
         // Increment or create the group "args"
         self.groups_for_arg(flag.name).and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
 
@@ -1295,11 +1300,9 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             }
             if let Some(a) = self.flags.iter().filter(|f| &f.name == name).next() {
                 if self._validate_blacklist_required(a, matcher) { continue 'outer; }
-            }
-            if let Some(a) = self.opts.iter().filter(|o| &o.name == name).next() {
+            } else if let Some(a) = self.opts.iter().filter(|o| &o.name == name).next() {
                 if self._validate_blacklist_required(a, matcher) { continue 'outer; }
-            }
-            if let Some(a) = self.positionals.values().filter(|p| &p.name == name).next() {
+            } else if let Some(a) = self.positionals.values().filter(|p| &p.name == name).next() {
                 if self._validate_blacklist_required(a, matcher) { continue 'outer; }
             }
             let err = if self.settings.is_set(AppSettings::ArgRequiredElseHelp) && matcher.is_empty() {

@@ -100,13 +100,13 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for FlagBuilder<'a, 'b> {
             panic!("The argument '{}' has a validator set, yet was parsed as a flag. Ensure \
                 .takes_value(true) or .index(u8) is set.", a.name)
         }
-        if !a.empty_vals {
+        if !a.is_set(ArgSettings::EmptyValues) {
             // Empty vals defaults to true, so if it's false it was manually set
             panic!("The argument '{}' cannot have empty_values() set because it is a flag. \
                 Perhaps you mean't to set takes_value(true) as well?",
                    a.name);
         }
-        if a.required {
+        if a.is_set(ArgSettings::Required) {
             panic!("The argument '{}' cannot be required(true) because it has no index() or \
                 takes_value(true)",
                    a.name);
@@ -125,13 +125,13 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for FlagBuilder<'a, 'b> {
             help: a.help,
             ..Default::default()
         };
-        if a.multiple {
+        if a.is_set(ArgSettings::Multiple) {
             fb.settings.set(ArgSettings::Multiple);
         }
-        if a.global {
+        if a.is_set(ArgSettings::Global) {
             fb.settings.set(ArgSettings::Global);
         }
-        if a.hidden {
+        if a.is_set(ArgSettings::Hidden) {
             fb.settings.set(ArgSettings::Hidden);
         }
         // Check if there is anything in the blacklist (mutually excludes list) and add

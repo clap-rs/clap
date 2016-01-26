@@ -124,23 +124,6 @@ macro_rules! vec_remove {
     }
 }
 
-// Thanks to bluss and flan3002 in #rust IRC
-//
-// Helps with rightward drift when iterating over something and matching each
-// item.
-macro_rules! for_match {
-    ($it:ident, $($p:pat => $($e:expr);+),*) => {
-        debugln!("macro=for_match!;");
-        for i in $it {
-            match i {
-                $(
-                    $p => { $($e)+ }
-                )*
-            }
-        }
-    };
-}
-
 /// Convenience macro getting a typed value `T` where `T` implements `std::str::FromStr`
 /// This macro returns a `Result<T,String>` which allows you as the developer to decide
 /// what you'd like to do on a failed parse. There are two types of errors, parse failures

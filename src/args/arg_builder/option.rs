@@ -1,8 +1,9 @@
 use std::rc::Rc;
-use std::collections::BTreeSet;
 use std::fmt::{Display, Formatter, Result};
 use std::result::Result as StdResult;
 use std::io;
+
+use vec_map::VecMap;
 
 use args::{AnyArg, Arg};
 use args::settings::{ArgFlags, ArgSettings};
@@ -27,7 +28,7 @@ pub struct OptBuilder<'n, 'e> {
     pub num_vals: Option<u8>,
     pub min_vals: Option<u8>,
     pub max_vals: Option<u8>,
-    pub val_names: Option<BTreeSet<&'e str>>,
+    pub val_names: Option<VecMap<&'e str>>,
     pub validator: Option<Rc<Fn(String) -> StdResult<(), String>>>,
     /// A list of names for other arguments that *mutually override* this flag
     pub overrides: Option<Vec<&'e str>>,
@@ -64,6 +65,7 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
     }
 
     pub fn from_arg(a: &Arg<'n, 'e>, reqs: &mut Vec<&'e str>) -> Self {
+        debugln!("fn=from_arg;");
         if a.short.is_none() && a.long.is_none() {
             panic!("Argument \"{}\" has takes_value(true), yet neither a short() or long() \
                 was supplied",
@@ -81,19 +83,19 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
             val_names: a.val_names.clone(),
             ..Default::default()
         };
-        if a.multiple {
+        if a.is_set(ArgSettings::Multiple) {
             ob.settings.set(ArgSettings::Multiple);
         }
-        if a.required {
+        if a.is_set(ArgSettings::Required) {
             ob.settings.set(ArgSettings::Required);
         }
-        if a.global {
+        if a.is_set(ArgSettings::Global) {
             ob.settings.set(ArgSettings::Global);
         }
-        if !a.empty_vals {
+        if !a.is_set(ArgSettings::EmptyValues) {
             ob.settings.unset(ArgSettings::Global);
         }
-        if a.hidden {
+        if a.is_set(ArgSettings::Hidden) {
             ob.settings.set(ArgSettings::Hidden);
         }
         if let Some(ref vec) = ob.val_names {
@@ -119,7 +121,7 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
             // without derefing n = &&str
             for n in r {
                 rhs.push(*n);
-                if a.required {
+                if a.is_set(ArgSettings::Required) {
                     reqs.push(*n);
                 }
             }
@@ -147,6 +149,7 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
     }
 
     pub fn write_help<W: io::Write>(&self, w: &mut W, tab: &str, longest: usize) -> io::Result<()> {
+        debugln!("fn=write_help");
         // if it supports multiple we add '...' i.e. 3 to the name length
         try!(write!(w, "{}", tab));
         if let Some(s) = self.short {
@@ -165,8 +168,12 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
                         l));
         }
         if let Some(ref vec) = self.val_names {
-            for val in vec {
+            for (_, val) in vec {
                 try!(write!(w, " <{}>", val));
+            }
+            let num = vec.len();
+            if self.settings.is_set(ArgSettings::Multiple) && num == 1 {
+                try!(write!(w, "..."));
             }
         } else if let Some(num) = self.num_vals {
             for _ in 0..num {
@@ -195,6 +202,7 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
 
 impl<'n, 'e> Display for OptBuilder<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> Result {
+        debugln!("fn=fmt");
         // Write the name such --long or -l
         if let Some(l) = self.long {
             try!(write!(f, "--{}", l));
@@ -204,8 +212,13 @@ impl<'n, 'e> Display for OptBuilder<'n, 'e> {
 
         // Write the values such as <name1> <name2>
         if let Some(ref vec) = self.val_names {
-            for n in vec.iter() {
+            for (_, n) in vec {
+                debugln!("writing val_name: {}", n);
                 try!(write!(f, " <{}>", n));
+            }
+            let num = vec.len();
+            if self.settings.is_set(ArgSettings::Multiple) && num == 1 {
+                try!(write!(f, "..."));
             }
         } else {
             let num = self.num_vals.unwrap_or(1);
@@ -243,24 +256,41 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
 #[cfg(test)]
 mod test {
     use super::OptBuilder;
-    use std::collections::BTreeSet;
+    use vec_map::VecMap;
     use args::settings::ArgSettings;
 
     #[test]
-    fn optbuilder_display() {
+    fn optbuilder_display1() {
         let mut o = OptBuilder::new("opt");
         o.long = Some("option");
         o.settings.set(ArgSettings::Multiple);
 
         assert_eq!(&*format!("{}", o), "--option <opt>...");
+    }
 
-        let mut v_names = BTreeSet::new();
-        v_names.insert("file");
-        v_names.insert("name");
+    #[test]
+    fn optbuilder_display2() {
+        let mut v_names = VecMap::new();
+        v_names.insert(0, "file");
+        v_names.insert(1, "name");
 
         let mut o2 = OptBuilder::new("opt");
         o2.short = Some('o');
         o2.val_names = Some(v_names);
+
+        assert_eq!(&*format!("{}", o2), "-o <file> <name>");
+    }
+
+    #[test]
+    fn optbuilder_display3() {
+        let mut v_names = VecMap::new();
+        v_names.insert(0, "file");
+        v_names.insert(1, "name");
+
+        let mut o2 = OptBuilder::new("opt");
+        o2.short = Some('o');
+        o2.val_names = Some(v_names);
+        o2.settings.set(ArgSettings::Multiple);
 
         assert_eq!(&*format!("{}", o2), "-o <file> <name>");
     }

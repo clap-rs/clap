@@ -66,7 +66,7 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
                    a.name);
         }
 
-        if a.takes_value {
+        if a.is_set(ArgSettings::TakesValue) {
             panic!("Argument \"{}\" has conflicting requirements, both index() and \
                 takes_value(true) were supplied\n\n\tArguments with an index automatically \
                 take a value, you do not need to specify it manually",
@@ -91,16 +91,16 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
             help: a.help,
             ..Default::default()
         };
-        if a.multiple {
+        if a.is_set(ArgSettings::Multiple) || a.num_vals.is_some() || a.max_vals.is_some() || a.min_vals.is_some() {
             pb.settings.set(ArgSettings::Multiple);
         }
-        if a.required {
+        if a.is_set(ArgSettings::Required) {
             pb.settings.set(ArgSettings::Required);
         }
-        if a.global {
+        if a.is_set(ArgSettings::Global) {
             pb.settings.set(ArgSettings::Global);
         }
-        if a.hidden {
+        if a.is_set(ArgSettings::Hidden) {
             pb.settings.set(ArgSettings::Hidden);
         }
         // Check if there is anything in the blacklist (mutually excludes list) and add
@@ -140,7 +140,7 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
             // without derefing n = &&str
             for n in r {
                 rhs.push(n);
-                if a.required {
+                if a.is_set(ArgSettings::Required) {
                     reqs.push(n);
                 }
             }

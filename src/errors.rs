@@ -596,7 +596,7 @@ impl Error {
     {
         let a = arg.into();
         Error {
-            message: format!("{} The argument '{}' wasn't recognized, or isn't valid{}\n\
+            message: format!("{} Found argument '{}' which wasn't expected, or isn't valid in this context{}\n\
                             {}\n\n\
                             For more information try {}",
                            Format::Error("error:"),
