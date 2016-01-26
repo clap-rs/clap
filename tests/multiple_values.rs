@@ -542,3 +542,43 @@ fn multiple_values_sep_positional() {
     assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
 }
+
+#[test]
+fn multiple_values_different_sep() {
+    let m = App::new("multiple_values")
+        .arg(Arg::with_name("option")
+            .long("option")
+            .help("multiple options")
+            .takes_value(true)
+            .value_delimiter(";"))
+        .get_matches_from_safe(vec![
+            "",
+            "--option=val1;val2;val3",
+        ]);
+
+    assert!(m.is_ok());
+    let m = m.unwrap();
+
+    assert!(m.is_present("option"));
+    assert_eq!(m.occurrences_of("option"), 1);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
+}
+
+#[test]
+fn multiple_values_different_sep_positional() {
+    let m = App::new("multiple_values")
+        .arg(Arg::with_name("option")
+            .help("multiple options")
+            .value_delimiter(";"))
+        .get_matches_from_safe(vec![
+            "",
+            "val1;val2;val3",
+        ]);
+
+    assert!(m.is_ok());
+    let m = m.unwrap();
+
+    assert!(m.is_present("option"));
+    assert_eq!(m.occurrences_of("option"), 1);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
+}
