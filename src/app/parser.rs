@@ -1058,22 +1058,32 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         where A: AnyArg<'a, 'b> + Display {
         debugln!("fn=add_val_to_arg;");
         let mut ret = None;
-        for v in val.split(arg.val_delim().unwrap_or(',') as u32 as u8) {
-            debugln!("adding val: {:?}", v);
-            matcher.add_val_to(&*arg.name(), v);
-
-            // Increment or create the group "args"
-            if let Some(grps) = self.groups_for_arg(&*arg.name()) {
-                for grp in grps {
-                    matcher.add_val_to(&*grp, v);
-                }
+        if let Some(delim) = arg.val_delim() {
+            for v in val.split(delim as u32 as u8) {
+                ret = try!(self.add_single_val_to_arg(arg, v, matcher));
             }
-
-            // The validation must come AFTER inserting into 'matcher' or the usage string
-            // can't be built
-            ret = try!(self.validate_value(arg, v, matcher));
+        } else {
+            ret = try!(self.add_single_val_to_arg(arg, val, matcher));
         }
         Ok(ret)
+    }
+
+    fn add_single_val_to_arg<A>(&self, arg: &A, v: &OsStr, matcher: &mut ArgMatcher<'a>) -> ClapResult<Option<&'a str>>
+        where A: AnyArg<'a, 'b>
+    {
+        debugln!("adding val: {:?}", v);
+        matcher.add_val_to(arg.name(), v);
+
+        // Increment or create the group "args"
+        if let Some(grps) = self.groups_for_arg(arg.name()) {
+            for grp in grps {
+                matcher.add_val_to(&*grp, v);
+            }
+        }
+
+        // The validation must come AFTER inserting into 'matcher' or the usage string
+        // can't be built
+        self.validate_value(arg, v, matcher)
     }
 
     fn validate_value<A>(&self, arg: &A, val: &OsStr, matcher: &ArgMatcher<'a>) -> ClapResult<Option<&'a str>>
