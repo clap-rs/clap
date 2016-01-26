@@ -19,4 +19,5 @@ pub trait AnyArg<'n, 'e>: Display {
     fn validator(&self) -> Option<&Rc<Fn(String) -> Result<(), String>>>;
     fn short(&self) -> Option<char>;
     fn long(&self) -> Option<&'e str>;
+    fn val_delim(&self) -> Option<char>;
 }

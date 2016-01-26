@@ -90,6 +90,9 @@ pub struct Arg<'a, 'b> where 'a: 'b {
     pub overrides: Option<Vec<&'a str>>,
     #[doc(hidden)]
     pub settings: ArgFlags,
+    // Delimiting character for value separation
+    #[doc(hidden)]
+    pub val_delim: Option<char>,
 }
 
 impl<'a, 'b> Default for Arg<'a, 'b> {
@@ -111,6 +114,7 @@ impl<'a, 'b> Default for Arg<'a, 'b> {
             validator: None,
             overrides: None,
             settings: ArgFlags::new(),
+            val_delim: Some(','),
         }
     }
 }
@@ -175,6 +179,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 "max_values" => a.max_values(v.as_i64().unwrap() as u8),
                 "min_values" => a.min_values(v.as_i64().unwrap() as u8),
                 "value_name" => a.value_name(v.as_str().unwrap()),
+                "value_delimiter" => a.value_delimiter(v.as_str().unwrap()),
                 "value_names" => {
                     for ys in v.as_vec().unwrap() {
                         if let Some(s) = ys.as_str() {
@@ -199,10 +204,10 @@ impl<'a, 'b> Arg<'a, 'b> {
                     }
                     a
                 }
-                "mutually_overrides_with" => {
+                "overrides_with" => {
                     for ys in v.as_vec().unwrap() {
                         if let Some(s) = ys.as_str() {
-                            a = a.mutually_overrides_with(s);
+                            a = a.overrides_with(s);
                         }
                     }
                     a
@@ -430,9 +435,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```no_run
     /// # use clap::{App, Arg};
     /// # let myprog = App::new("myprog").arg(Arg::with_name("config")
-    /// .mutually_overrides_with("debug")
+    /// .overrides_with("debug")
     /// # ).get_matches();
-    pub fn mutually_overrides_with(mut self, name: &'a str) -> Self {
+    pub fn overrides_with(mut self, name: &'a str) -> Self {
         if let Some(ref mut vec) = self.overrides {
             vec.push(name.as_ref());
         } else {
@@ -450,9 +455,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg};
     /// let config_overrides = ["debug", "input"];
     /// # let myprog = App::new("myprog").arg(Arg::with_name("config")
-    /// .mutually_overrides_with_all(&config_overrides)
+    /// .overrides_with_all(&config_overrides)
     /// # ).get_matches();
-    pub fn mutually_overrides_with_all(mut self, names: &[&'a str]) -> Self {
+    pub fn overrides_with_all(mut self, names: &[&'a str]) -> Self {
         if let Some(ref mut vec) = self.overrides {
             for s in names {
                 vec.push(s);
@@ -810,31 +815,57 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Specifies names for values of option arguments. These names are cosmetic only, used for
-    /// help and usage strings only. The names are **not** used to access arguments. The values of
-    /// the arguments are accessed in numeric order (i.e. if you specify two names `one` and `two`
-    /// `one` will be the first matched value, `two` will be the second).
+    /// Specifies the separator to use when values are clumped together, defaults to `,` (comma).
     ///
-    /// **NOTE:** This implicitly sets `.number_of_values()` so there is no need to set that, but
-    /// be aware that the number of "names" you set for the values, will be the *exact* number of
-    /// values required to satisfy this argument
-    ///
-    /// **NOTE:** Does *not* require `.multiple(true)` to be set. Setting `.multiple(true)` would
-    /// allow `-f <file> <file> <file> -f <file> <file> <file>` where as *not* setting
-    /// `.multiple(true)` would only allow one occurrence of this argument.
+    /// **NOTE:** implicitly sets `Arg::takes_value(true)`
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// let val_names = ["one", "two"];
-    /// # let matches = App::new("myprog")
-    /// #                 .arg(
-    /// # Arg::with_name("debug").index(1)
-    /// // ...
-    /// .value_names(&val_names)
-    /// # ).get_matches();
+    /// let app = App::new("fake")
+    ///     .arg(Arg::with_name("config")
+    ///         .short("c")
+    ///         .long("config")
+    ///         .value_delimiter(";"));
+    ///
+    /// let m = app.get_matches_from(vec![
+    ///     "fake", "--config=val1;val2;val3"
+    /// ]);
+    ///
+    /// assert_eq!(m.values_of("config").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"])
+    /// ```
+    pub fn value_delimiter(mut self, d: &str) -> Self {
+        self = self.set(ArgSettings::TakesValue);
+        self.val_delim = Some(d.chars()
+                               .nth(0)
+                               .expect("Failed to get value_delimiter from arg"));
+        self
+    }
+
+    /// Specifies names for values of option arguments. These names are cosmetic only, used for
+    /// help and usage strings only. The names are **not** used to access arguments. The values of
+    /// the arguments are accessed in numeric order (i.e. if you specify two names `one` and `two`
+    /// `one` will be the first matched value, `two` will be the second).
+    ///
+    /// **NOTE:** This implicitly sets `.number_of_values()`, but be aware that the number of
+    /// "names" you set for the values, will be the *exact* number of values required to satisfy
+    /// this argument
+    ///
+    /// **NOTE:** implicitly sets `Arg::takes_value(true)`
+    ///
+    /// **NOTE:** Does *not* require or imply `.multiple(true)`.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// Arg::with_name("speed")
+    ///     .short("s")
+    ///     .value_names(&["fast", "slow"])
+    /// # ;
     pub fn value_names(mut self, names: &[&'b str]) -> Self {
+        self.setb(ArgSettings::TakesValue);
         if let Some(ref mut vals) = self.val_names {
             let mut l =  vals.len();
             for s in names {
@@ -878,20 +909,21 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Specifies the name for value of option or positional arguments. This name is cosmetic only,
-    /// used for help and usage strings. The name is **not** used to access arguments.
+    /// Specifies the name for value of option or positional arguments inside of help documenation.
+    /// This name is cosmetic only, the name is **not** used to access arguments.
+    ///
+    /// **NOTE:** implicitly sets `Arg::takes_value(true)`
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// # let matches = App::new("myprog")
-    /// #                 .arg(
-    /// Arg::with_name("debug")
+    /// Arg::with_name("input")
     ///     .index(1)
-    ///     .value_name("file")
-    /// # ).get_matches();
+    ///     .value_name("FILE")
+    /// # ;
     pub fn value_name(mut self, name: &'b str) -> Self {
+        self.setb(ArgSettings::TakesValue);
         if let Some(ref mut vals) = self.val_names {
             let l = vals.len();
             vals.insert(l, name);
@@ -924,6 +956,7 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>>
             validator: a.validator.clone(),
             overrides: a.overrides.clone(),
             settings: a.settings.clone(),
+            val_delim: a.val_delim,
         }
     }
 }

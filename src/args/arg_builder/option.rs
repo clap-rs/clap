@@ -9,30 +9,23 @@ use args::{AnyArg, Arg};
 use args::settings::{ArgFlags, ArgSettings};
 
 #[allow(missing_debug_implementations)]
+#[doc(hidden)]
 pub struct OptBuilder<'n, 'e> {
     pub name: &'n str,
-    /// The short version (i.e. single character) of the argument, no preceding `-`
     pub short: Option<char>,
-    /// The long version of the flag (i.e. word) without the preceding `--`
     pub long: Option<&'e str>,
-    /// The string of text that will displayed to the user when the application's
-    /// `help` text is displayed
     pub help: Option<&'e str>,
-    /// A list of names for other arguments that *may not* be used with this flag
     pub blacklist: Option<Vec<&'e str>>,
-    /// A list of possible values for this argument
     pub possible_vals: Option<Vec<&'e str>>,
-    /// A list of names of other arguments that are *required* to be used when
-    /// this flag is used
     pub requires: Option<Vec<&'e str>>,
     pub num_vals: Option<u8>,
     pub min_vals: Option<u8>,
     pub max_vals: Option<u8>,
     pub val_names: Option<VecMap<&'e str>>,
     pub validator: Option<Rc<Fn(String) -> StdResult<(), String>>>,
-    /// A list of names for other arguments that *mutually override* this flag
     pub overrides: Option<Vec<&'e str>>,
     pub settings: ArgFlags,
+    pub val_delim: Option<char>,
 }
 
 impl<'n, 'e> Default for OptBuilder<'n, 'e> {
@@ -52,6 +45,7 @@ impl<'n, 'e> Default for OptBuilder<'n, 'e> {
             validator: None,
             overrides: None,
             settings: ArgFlags::new(),
+            val_delim: Some(','),
         }
     }
 }
@@ -81,6 +75,7 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
             min_vals: a.min_vals,
             max_vals: a.max_vals,
             val_names: a.val_names.clone(),
+            val_delim: a.val_delim,
             ..Default::default()
         };
         if a.is_set(ArgSettings::Multiple) {
@@ -253,6 +248,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn min_vals(&self) -> Option<u8> { self.min_vals }
     fn short(&self) -> Option<char> { self.short }
     fn long(&self) -> Option<&'e str> { self.long }
+    fn val_delim(&self) -> Option<char> { self.val_delim }
 }
 
 #[cfg(test)]
