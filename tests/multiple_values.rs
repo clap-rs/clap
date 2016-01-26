@@ -22,7 +22,7 @@ fn multiple_values_of_option_long() {
 
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 3);
-    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), vec!["val1", "val2", "val3"]);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
 }
 
 #[test]
@@ -45,7 +45,7 @@ fn multiple_values_of_option_short() {
 
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 3);
-    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), vec!["val1", "val2", "val3"]);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
 }
 
 #[test]
@@ -70,7 +70,7 @@ fn multiple_values_of_option_mixed() {
 
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 4);
-    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), vec!["val1", "val2", "val3", "val4"]);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3", "val4"]);
 }
 
 #[test]
@@ -94,7 +94,7 @@ fn multiple_values_of_option_exact_exact() {
 
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 3);
-    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), vec!["val1", "val2", "val3"]);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
 }
 
 #[test]
@@ -158,7 +158,7 @@ fn multiple_values_of_option_min_exact() {
 
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 3);
-    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), vec!["val1", "val2", "val3"]);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
 }
 
 #[test]
@@ -202,7 +202,7 @@ fn multiple_values_of_option_min_more() {
 
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 4);
-    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), vec!["val1", "val2", "val3", "val4"]);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3", "val4"]);
 }
 
 #[test]
@@ -226,7 +226,7 @@ fn multiple_values_of_option_max_exact() {
 
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 3);
-    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), vec!["val1", "val2", "val3"]);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
 }
 
 #[test]
@@ -249,7 +249,7 @@ fn multiple_values_of_option_max_less() {
 
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 2);
-    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), vec!["val1", "val2"]);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2"]);
 }
 
 #[test]
@@ -286,7 +286,7 @@ fn multiple_values_of_positional() {
 
     assert!(m.is_present("pos"));
     assert_eq!(m.occurrences_of("pos"), 3);
-    assert_eq!(m.values_of("pos").unwrap().collect::<Vec<_>>(), vec!["val1", "val2", "val3"]);
+    assert_eq!(m.values_of("pos").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
 }
 
 #[test]
@@ -302,7 +302,7 @@ fn multiple_values_of_positional_exact_exact() {
 
     assert!(m.is_present("pos"));
     assert_eq!(m.occurrences_of("pos"), 3);
-    assert_eq!(m.values_of("pos").unwrap().collect::<Vec<_>>(), vec!["val1", "val2", "val3"]);
+    assert_eq!(m.values_of("pos").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
 }
 
 #[test]
@@ -342,7 +342,7 @@ fn multiple_values_of_positional_min_exact() {
 
     assert!(m.is_present("pos"));
     assert_eq!(m.occurrences_of("pos"), 3);
-    assert_eq!(m.values_of("pos").unwrap().collect::<Vec<_>>(), vec!["val1", "val2", "val3"]);
+    assert_eq!(m.values_of("pos").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
 }
 
 #[test]
@@ -370,7 +370,7 @@ fn multiple_values_of_positional_min_more() {
 
     assert!(m.is_present("pos"));
     assert_eq!(m.occurrences_of("pos"), 4);
-    assert_eq!(m.values_of("pos").unwrap().collect::<Vec<_>>(), vec!["val1", "val2", "val3", "val4"]);
+    assert_eq!(m.values_of("pos").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3", "val4"]);
 }
 
 #[test]
@@ -386,7 +386,7 @@ fn multiple_values_of_positional_max_exact() {
 
     assert!(m.is_present("pos"));
     assert_eq!(m.occurrences_of("pos"), 3);
-    assert_eq!(m.values_of("pos").unwrap().collect::<Vec<_>>(), vec!["val1", "val2", "val3"]);
+    assert_eq!(m.values_of("pos").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
 }
 
 #[test]
@@ -402,7 +402,7 @@ fn multiple_values_of_positional_max_less() {
 
     assert!(m.is_present("pos"));
     assert_eq!(m.occurrences_of("pos"), 2);
-    assert_eq!(m.values_of("pos").unwrap().collect::<Vec<_>>(), vec!["val1", "val2"]);
+    assert_eq!(m.values_of("pos").unwrap().collect::<Vec<_>>(), ["val1", "val2"]);
 }
 
 #[test]
@@ -415,4 +415,130 @@ fn multiple_values_of_positional_max_more() {
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::TooManyValues);
+}
+
+#[test]
+fn multiple_values_sep_long_equals() {
+    let m = App::new("multiple_values")
+        .arg(Arg::with_name("option")
+            .long("option")
+            .help("multiple options")
+            .takes_value(true)
+            .multiple(true))
+        .get_matches_from_safe(vec![
+            "",
+            "--option=val1,val2,val3",
+        ]);
+
+    assert!(m.is_ok());
+    let m = m.unwrap();
+
+    assert!(m.is_present("option"));
+    assert_eq!(m.occurrences_of("option"), 1);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
+}
+
+#[test]
+fn multiple_values_sep_long_space() {
+    let m = App::new("multiple_values")
+        .arg(Arg::with_name("option")
+            .long("option")
+            .help("multiple options")
+            .takes_value(true)
+            .multiple(true))
+        .get_matches_from_safe(vec![
+            "",
+            "--option",
+            "val1,val2,val3",
+        ]);
+
+    assert!(m.is_ok());
+    let m = m.unwrap();
+
+    assert!(m.is_present("option"));
+    assert_eq!(m.occurrences_of("option"), 1);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
+}
+
+#[test]
+fn multiple_values_sep_short_equals() {
+    let m = App::new("multiple_values")
+        .arg(Arg::with_name("option")
+            .short("o")
+            .help("multiple options")
+            .takes_value(true)
+            .multiple(true))
+        .get_matches_from_safe(vec![
+            "",
+            "-o=val1,val2,val3",
+        ]);
+
+    assert!(m.is_ok());
+    let m = m.unwrap();
+
+    assert!(m.is_present("option"));
+    assert_eq!(m.occurrences_of("option"), 1);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
+}
+
+#[test]
+fn multiple_values_sep_short_space() {
+    let m = App::new("multiple_values")
+        .arg(Arg::with_name("option")
+            .short("o")
+            .help("multiple options")
+            .takes_value(true)
+            .multiple(true))
+        .get_matches_from_safe(vec![
+            "",
+            "-o",
+            "val1,val2,val3",
+        ]);
+
+    assert!(m.is_ok());
+    let m = m.unwrap();
+
+    assert!(m.is_present("option"));
+    assert_eq!(m.occurrences_of("option"), 1);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
+}
+
+#[test]
+fn multiple_values_sep_short_no_space() {
+    let m = App::new("multiple_values")
+        .arg(Arg::with_name("option")
+            .short("o")
+            .help("multiple options")
+            .takes_value(true)
+            .multiple(true))
+        .get_matches_from_safe(vec![
+            "",
+            "-oval1,val2,val3",
+        ]);
+
+    assert!(m.is_ok());
+    let m = m.unwrap();
+
+    assert!(m.is_present("option"));
+    assert_eq!(m.occurrences_of("option"), 1);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
+}
+
+#[test]
+fn multiple_values_sep_positional() {
+    let m = App::new("multiple_values")
+        .arg(Arg::with_name("option")
+            .help("multiple options")
+            .multiple(true))
+        .get_matches_from_safe(vec![
+            "",
+            "val1,val2,val3",
+        ]);
+
+    assert!(m.is_ok());
+    let m = m.unwrap();
+
+    assert!(m.is_present("option"));
+    assert_eq!(m.occurrences_of("option"), 1);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
 }
