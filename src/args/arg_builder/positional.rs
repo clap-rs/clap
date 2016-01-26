@@ -3,32 +3,29 @@ use std::result::Result as StdResult;
 use std::rc::Rc;
 use std::io;
 
+use vec_map::VecMap;
+
 use Arg;
 use args::AnyArg;
 use args::settings::{ArgFlags, ArgSettings};
 
 #[allow(missing_debug_implementations)]
+#[doc(hidden)]
 pub struct PosBuilder<'n, 'e> {
     pub name: &'n str,
-    /// The string of text that will displayed to the user when the application's
-    /// `help` text is displayed
     pub help: Option<&'e str>,
-    /// A list of names of other arguments that are *required* to be used when
-    /// this flag is used
     pub requires: Option<Vec<&'e str>>,
-    /// A list of names for other arguments that *may not* be used with this flag
     pub blacklist: Option<Vec<&'e str>>,
-    /// A list of possible values for this argument
     pub possible_vals: Option<Vec<&'e str>>,
-    /// The index of the argument
     pub index: u8,
     pub num_vals: Option<u8>,
     pub max_vals: Option<u8>,
     pub min_vals: Option<u8>,
+    pub val_names: Option<VecMap<&'e str>>,
     pub validator: Option<Rc<Fn(String) -> StdResult<(), String>>>,
-    /// A list of names for other arguments that *mutually override* this flag
     pub overrides: Option<Vec<&'e str>>,
     pub settings: ArgFlags,
+    pub val_delim: Option<char>,
 }
 
 impl<'n, 'e> Default for PosBuilder<'n, 'e> {
@@ -41,11 +38,13 @@ impl<'n, 'e> Default for PosBuilder<'n, 'e> {
             possible_vals: None,
             index: 0,
             num_vals: None,
-            max_vals: None,
             min_vals: None,
+            max_vals: None,
+            val_names: None,
             validator: None,
             overrides: None,
             settings: ArgFlags::new(),
+            val_delim: Some(','),
         }
     }
 }
@@ -66,19 +65,6 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
                    a.name);
         }
 
-        if a.is_set(ArgSettings::TakesValue) {
-            panic!("Argument \"{}\" has conflicting requirements, both index() and \
-                takes_value(true) were supplied\n\n\tArguments with an index automatically \
-                take a value, you do not need to specify it manually",
-                   a.name);
-        }
-
-        if a.val_names.is_some() {
-            panic!("Positional arguments (\"{}\") do not support named values, instead \
-                consider multiple positional arguments",
-                   a.name);
-        }
-
         // Create the Positional Argument Builder with each HashSet = None to only
         // allocate
         // those that require it
@@ -88,7 +74,9 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
             num_vals: a.num_vals,
             min_vals: a.min_vals,
             max_vals: a.max_vals,
+            val_names: a.val_names.clone(),
             help: a.help,
+            val_delim: a.val_delim,
             ..Default::default()
         };
         if a.is_set(ArgSettings::Multiple) || a.num_vals.is_some() || a.max_vals.is_some() || a.min_vals.is_some() {
@@ -204,6 +192,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for PosBuilder<'n, 'e> {
     fn min_vals(&self) -> Option<u8> { self.min_vals }
     fn short(&self) -> Option<char> { None }
     fn long(&self) -> Option<&'e str> { None }
+    fn val_delim(&self) -> Option<char> { self.val_delim }
 }
 
 #[cfg(test)]

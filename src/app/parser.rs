@@ -1058,7 +1058,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         where A: AnyArg<'a, 'b> + Display {
         debugln!("fn=add_val_to_arg;");
         let mut ret = None;
-        for v in val.split(b',') {
+        for v in val.split(arg.val_delim().unwrap_or(',') as u32 as u8) {
             debugln!("adding val: {:?}", v);
             matcher.add_val_to(&*arg.name(), v);
 
