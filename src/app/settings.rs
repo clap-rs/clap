@@ -33,76 +33,26 @@ impl AppFlags {
         AppFlags(NEEDS_LONG_VERSION | NEEDS_LONG_HELP | NEEDS_SC_HELP | UTF8_NONE)
     }
 
-    pub fn set(&mut self, s: AppSettings) {
-        match s {
-            AppSettings::SubcommandsNegateReqs => self.0.insert(SC_NEGATE_REQS),
-            AppSettings::VersionlessSubcommands => self.0.insert(VERSIONLESS_SC),
-            AppSettings::SubcommandRequired => self.0.insert(SC_REQUIRED),
-            AppSettings::ArgRequiredElseHelp => self.0.insert(A_REQUIRED_ELSE_HELP),
-            AppSettings::GlobalVersion => self.0.insert(GLOBAL_VERSION),
-            AppSettings::UnifiedHelpMessage => self.0.insert(UNIFIED_HELP),
-            AppSettings::WaitOnError => self.0.insert(WAIT_ON_ERROR),
-            AppSettings::SubcommandRequiredElseHelp => self.0.insert(SC_REQUIRED_ELSE_HELP),
-            AppSettings::NeedsLongHelp => self.0.insert(NEEDS_LONG_HELP),
-            AppSettings::NeedsLongVersion => self.0.insert(NEEDS_LONG_VERSION),
-            AppSettings::NeedsSubcommandHelp => self.0.insert(NEEDS_SC_HELP),
-            AppSettings::DisableVersion => self.0.insert(DISABLE_VERSION),
-            AppSettings::Hidden => self.0.insert(HIDDEN),
-            AppSettings::TrailingVarArg => self.0.insert(TRAILING_VARARG),
-            AppSettings::NoBinaryName => self.0.insert(NO_BIN_NAME),
-            AppSettings::AllowExternalSubcommands => self.0.insert(ALLOW_UNK_SC),
-            AppSettings::StrictUtf8 => self.0.insert(UTF8_STRICT),
-            AppSettings::AllowInvalidUtf8 => self.0.insert(UTF8_NONE),
-            AppSettings::AllowLeadingHyphen => self.0.insert(LEADING_HYPHEN),
-        }
-    }
-
-    pub fn unset(&mut self, s: AppSettings) {
-        match s {
-            AppSettings::SubcommandsNegateReqs => self.0.remove(SC_NEGATE_REQS),
-            AppSettings::VersionlessSubcommands => self.0.remove(VERSIONLESS_SC),
-            AppSettings::SubcommandRequired => self.0.remove(SC_REQUIRED),
-            AppSettings::ArgRequiredElseHelp => self.0.remove(A_REQUIRED_ELSE_HELP),
-            AppSettings::GlobalVersion => self.0.remove(GLOBAL_VERSION),
-            AppSettings::UnifiedHelpMessage => self.0.remove(UNIFIED_HELP),
-            AppSettings::WaitOnError => self.0.remove(WAIT_ON_ERROR),
-            AppSettings::SubcommandRequiredElseHelp => self.0.remove(SC_REQUIRED_ELSE_HELP),
-            AppSettings::NeedsLongHelp => self.0.remove(NEEDS_LONG_HELP),
-            AppSettings::NeedsLongVersion => self.0.remove(NEEDS_LONG_VERSION),
-            AppSettings::NeedsSubcommandHelp => self.0.remove(NEEDS_SC_HELP),
-            AppSettings::DisableVersion => self.0.remove(DISABLE_VERSION),
-            AppSettings::Hidden => self.0.remove(HIDDEN),
-            AppSettings::TrailingVarArg => self.0.remove(TRAILING_VARARG),
-            AppSettings::NoBinaryName => self.0.remove(NO_BIN_NAME),
-            AppSettings::AllowExternalSubcommands => self.0.remove(ALLOW_UNK_SC),
-            AppSettings::StrictUtf8 => self.0.remove(UTF8_STRICT),
-            AppSettings::AllowInvalidUtf8 => self.0.remove(UTF8_NONE),
-            AppSettings::AllowLeadingHyphen => self.0.remove(LEADING_HYPHEN),
-        }
-    }
-
-    pub fn is_set(&self, s: AppSettings) -> bool {
-        match s {
-            AppSettings::SubcommandsNegateReqs => self.0.contains(SC_NEGATE_REQS),
-            AppSettings::VersionlessSubcommands => self.0.contains(VERSIONLESS_SC),
-            AppSettings::SubcommandRequired => self.0.contains(SC_REQUIRED),
-            AppSettings::ArgRequiredElseHelp => self.0.contains(A_REQUIRED_ELSE_HELP),
-            AppSettings::GlobalVersion => self.0.contains(GLOBAL_VERSION),
-            AppSettings::UnifiedHelpMessage => self.0.contains(UNIFIED_HELP),
-            AppSettings::WaitOnError => self.0.contains(WAIT_ON_ERROR),
-            AppSettings::SubcommandRequiredElseHelp => self.0.contains(SC_REQUIRED_ELSE_HELP),
-            AppSettings::NeedsLongHelp => self.0.contains(NEEDS_LONG_HELP),
-            AppSettings::NeedsLongVersion => self.0.contains(NEEDS_LONG_VERSION),
-            AppSettings::NeedsSubcommandHelp => self.0.contains(NEEDS_SC_HELP),
-            AppSettings::DisableVersion => self.0.contains(DISABLE_VERSION),
-            AppSettings::Hidden => self.0.contains(HIDDEN),
-            AppSettings::TrailingVarArg => self.0.contains(TRAILING_VARARG),
-            AppSettings::NoBinaryName => self.0.contains(NO_BIN_NAME),
-            AppSettings::AllowExternalSubcommands => self.0.contains(ALLOW_UNK_SC),
-            AppSettings::StrictUtf8 => self.0.contains(UTF8_STRICT),
-            AppSettings::AllowInvalidUtf8 => self.0.contains(UTF8_NONE),
-            AppSettings::AllowLeadingHyphen => self.0.contains(LEADING_HYPHEN),
-        }
+    impl_settings! { AppSettings,
+        SubcommandsNegateReqs => SC_NEGATE_REQS,
+        VersionlessSubcommands => VERSIONLESS_SC,
+        SubcommandRequired => SC_REQUIRED,
+        ArgRequiredElseHelp => A_REQUIRED_ELSE_HELP,
+        GlobalVersion => GLOBAL_VERSION,
+        UnifiedHelpMessage => UNIFIED_HELP,
+        WaitOnError => WAIT_ON_ERROR,
+        SubcommandRequiredElseHelp => SC_REQUIRED_ELSE_HELP,
+        NeedsLongHelp => NEEDS_LONG_HELP,
+        NeedsLongVersion => NEEDS_LONG_VERSION,
+        NeedsSubcommandHelp => NEEDS_SC_HELP,
+        DisableVersion => DISABLE_VERSION,
+        Hidden => HIDDEN,
+        TrailingVarArg => TRAILING_VARARG,
+        NoBinaryName => NO_BIN_NAME,
+        AllowExternalSubcommands => ALLOW_UNK_SC,
+        StrictUtf8 => UTF8_STRICT,
+        AllowInvalidUtf8 => UTF8_NONE,
+        AllowLeadingHyphen => LEADING_HYPHEN
     }
 }
 
@@ -307,27 +257,19 @@ pub enum AppSettings {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, AppSettings};
-    /// use std::process::{self, Command};
-    ///
+    /// # use clap::{App, AppSettings};
     /// // Assume there is a third party subcommand named myprog-subcmd
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::AllowExternalSubcommands)
-    ///     .get_matches_from(vec!["myprog", "subcmd", "--option", "value"]);
-    ///
+    ///     .get_matches_from(vec![
+    ///         "myprog", "subcmd", "--option", "value", "-fff", "--flag"
+    ///     ]);
     /// // All trailing arguments will be stored under the subcommands sub-matches under a value
     /// // of their runtime name (in this case "subcmd")
     /// match m.subcommand() {
     ///     (external, Some(ext_m)) => {
-    ///         let args: Vec<&str> = ext_m.values_of(external).unwrap().collect();
-    ///         let exit_status = Command::new(format!("myprog-{}", external))
-    ///             .args(&*args)
-    ///             .status()
-    ///             .unwrap_or_else(|e| {
-    ///             // Invalid subcommand. Here you would probably inform the user and list valid
-    ///             // subcommands for them to try...but in this example we just panic!
-    ///             process::exit(1);
-    ///         });
+    ///          let ext_args: Vec<&str> = ext_m.values_of(external).unwrap().collect();
+    ///          assert_eq!(ext_args, ["--option", "value", "-fff", "--flag"]);
     ///     },
     ///     _ => unreachable!()
     /// }
