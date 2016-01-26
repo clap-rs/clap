@@ -257,27 +257,19 @@ pub enum AppSettings {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, AppSettings};
-    /// use std::process::{self, Command};
-    ///
+    /// # use clap::{App, AppSettings};
     /// // Assume there is a third party subcommand named myprog-subcmd
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::AllowExternalSubcommands)
-    ///     .get_matches_from(vec!["myprog", "subcmd", "--option", "value"]);
-    ///
+    ///     .get_matches_from(vec![
+    ///         "myprog", "subcmd", "--option", "value", "-fff", "--flag"
+    ///     ]);
     /// // All trailing arguments will be stored under the subcommands sub-matches under a value
     /// // of their runtime name (in this case "subcmd")
     /// match m.subcommand() {
     ///     (external, Some(ext_m)) => {
-    ///         let args: Vec<&str> = ext_m.values_of(external).unwrap().collect();
-    ///         let exit_status = Command::new(format!("myprog-{}", external))
-    ///             .args(&*args)
-    ///             .status()
-    ///             .unwrap_or_else(|e| {
-    ///             // Invalid subcommand. Here you would probably inform the user and list valid
-    ///             // subcommands for them to try...but in this example we just panic!
-    ///             process::exit(1);
-    ///         });
+    ///          let ext_args: Vec<&str> = ext_m.values_of(external).unwrap().collect();
+    ///          assert_eq!(ext_args, ["--option", "value", "-fff", "--flag"]);
     ///     },
     ///     _ => unreachable!()
     /// }
