@@ -84,26 +84,13 @@ impl<'n, 'e> FlagBuilder<'n, 'e> {
 
 impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for FlagBuilder<'a, 'b> {
     fn from(a: &'z Arg<'a, 'b>) -> Self {
-        if a.validator.is_some() {
-            panic!("The argument '{}' has a validator set, yet was parsed as a flag. Ensure \
-                .takes_value(true) or .index(u8) is set.", a.name)
-        }
-        if !a.is_set(ArgSettings::EmptyValues) {
-            // Empty vals defaults to true, so if it's false it was manually set
-            panic!("The argument '{}' cannot have empty_values() set because it is a flag. \
-                Perhaps you mean't to set takes_value(true) as well?",
-                   a.name);
-        }
-        if a.is_set(ArgSettings::Required) {
-            panic!("The argument '{}' cannot be required(true) because it has no index() or \
-                takes_value(true)",
-                   a.name);
-        }
-        if a.possible_vals.is_some() {
-            panic!("The argument '{}' cannot have a specific value set because it doesn't \
+        assert!(a.validator.is_none(),
+            format!("The argument '{}' has a validator set, yet was parsed as a flag. Ensure \
+                .takes_value(true) or .index(u8) is set.", a.name));
+        assert!(a.possible_vals.is_none(),
+            format!("The argument '{}' cannot have a specific value set because it doesn't \
                 have takes_value(true) set",
-                   a.name);
-        }
+                   a.name));
         // No need to check for index() or takes_value() as that is handled above
 
         let mut fb = FlagBuilder {

@@ -15,7 +15,7 @@ use args::{AnyArg, ArgMatcher};
 use args::settings::{ArgSettings, ArgFlags};
 use errors::{ErrorKind, Error};
 use errors::Result as ClapResult;
-use utf8::INVALID_UTF8;
+use INVALID_UTF8;
 use suggestions;
 use INTERNAL_ERROR_MSG;
 use SubCommand;
@@ -24,6 +24,7 @@ use osstringext::OsStrExt2;
 use app::meta::AppMeta;
 use args::MatchedArg;
 
+#[doc(hidden)]
 pub struct Parser<'a, 'b> where 'a: 'b {
     required: Vec<&'b str>,
     short_list: Vec<char>,
@@ -114,30 +115,23 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
 
     // actually adds the arguments
     pub fn add_arg(&mut self, a: &Arg<'a, 'b>) {
-        if self.flags.iter().any(|f| &f.name == &a.name) ||
-           self.opts.iter().any(|o| o.name == a.name) ||
-           self.positionals.values().any(|p| p.name == a.name) {
-            panic!("Non-unique argument name: {} is already in use", a.name);
-        }
+        assert!(!(self.flags.iter().any(|f| &f.name == &a.name)
+            || self.opts.iter().any(|o| o.name == a.name)
+            || self.positionals.values().any(|p| p.name == a.name)),
+            format!("Non-unique argument name: {} is already in use", a.name));
         if let Some(grp) = a.group {
             let ag = self.groups.entry(grp).or_insert_with(|| ArgGroup::with_name(grp));
             ag.args.push(a.name);
         }
         if let Some(s) = a.short {
-            if self.short_list.contains(&s) {
-                panic!("Argument short must be unique\n\n\t-{} is already in use",
-                       s);
-            } else {
-                self.short_list.push(s);
-            }
+            assert!(!self.short_list.contains(&s),
+                format!("Argument short must be unique\n\n\t-{} is already in use", s));
+            self.short_list.push(s);
         }
         if let Some(l) = a.long {
-            if self.long_list.contains(&l) {
-                panic!("Argument long must be unique\n\n\t--{} is already in use",
-                       l);
-            } else {
-                self.long_list.push(l);
-            }
+            assert!(!self.long_list.contains(&l),
+                format!("Argument long must be unique\n\n\t--{} is already in use", l));
+            self.long_list.push(l);
             if l == "help" {
                 self.set(AppSettings::NeedsLongHelp);
             } else if l == "version" {
@@ -153,12 +147,10 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             } else {
                 a.index.unwrap() as usize
             };
-            if self.positionals.contains_key(&i) {
-                panic!("Argument \"{}\" has the same index as another positional \
+            assert!(!self.positionals.contains_key(&i),
+                format!("Argument \"{}\" has the same index as another positional \
                     argument\n\n\tPerhaps try .multiple(true) to allow one positional argument \
-                    to take multiple values",
-                       a.name);
-            }
+                    to take multiple values", a.name));
             let pb = PosBuilder::from_arg(&a, i as u8, &mut self.required);
             self.positionals.insert(i, pb);
         } else if a.is_set(ArgSettings::TakesValue) {
@@ -169,11 +161,9 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             self.flags.push(fb);
         }
         if a.is_set(ArgSettings::Global) {
-            if a.is_set(ArgSettings::Required) {
-                panic!("Global arguments cannot be required.\n\n\t'{}' is marked as global and \
-                        required",
-                       a.name);
-            }
+            assert!(!a.is_set(ArgSettings::Required),
+                format!("Global arguments cannot be required.\n\n\t'{}' is marked as global and \
+                        required", a.name));
             self.global_args.push(a.into());
         }
     }
@@ -383,7 +373,6 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         self.settings.set(s)
     }
 
-
     pub fn verify_positionals(&mut self) {
         // Because you must wait until all arguments have been supplied, this is the first chance
         // to make assertions on positional argument indexes
@@ -392,13 +381,9 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         // positional arguments to verify there are no gaps (i.e. supplying an index of 1 and 3
         // but no 2)
         if let Some((idx, ref p)) = self.positionals.iter().rev().next() {
-            if idx != self.positionals.len() {
-                panic!("Found positional argument \"{}\" who's index is {} but there are only {} \
-                    positional arguments defined",
-                       p.name,
-                       idx,
-                       self.positionals.len());
-            }
+            assert!(!(idx != self.positionals.len()),
+                format!("Found positional argument \"{}\" who's index is {} but there are only {} \
+                    positional arguments defined", p.name, idx, self.positionals.len()));
         }
 
         // Next we verify that only the highest index has a .multiple(true) (if any)

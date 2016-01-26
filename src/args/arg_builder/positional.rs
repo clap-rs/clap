@@ -59,11 +59,9 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
     }
 
     pub fn from_arg(a: &Arg<'n, 'e>, idx: u8, reqs: &mut Vec<&'e str>) -> Self {
-        if a.short.is_some() || a.long.is_some() {
-            panic!("Argument \"{}\" has conflicting requirements, both index() and short(), \
-                or long(), were supplied",
-                   a.name);
-        }
+        assert!(a.short.is_none() || a.long.is_none(),
+            format!("Argument \"{}\" has conflicting requirements, both index() and short(), \
+                or long(), were supplied", a.name));
 
         // Create the Positional Argument Builder with each HashSet = None to only
         // allocate
