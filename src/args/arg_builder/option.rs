@@ -99,7 +99,9 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
             ob.settings.set(ArgSettings::Hidden);
         }
         if let Some(ref vec) = ob.val_names {
-            ob.num_vals = Some(vec.len() as u8);
+            if vec.len() > 1 {
+                ob.num_vals = Some(vec.len() as u8);
+            }
         }
         // Check if there is anything in the blacklist (mutually excludes list) and add
         // any

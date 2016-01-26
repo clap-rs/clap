@@ -22,6 +22,7 @@ use SubCommand;
 use fmt::Format;
 use osstringext::OsStrExt2;
 use app::meta::AppMeta;
+use args::MatchedArg;
 
 pub struct Parser<'a, 'b> where 'a: 'b {
     required: Vec<&'b str>,
@@ -1043,8 +1044,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         // Increment or create the group "args"
         self.groups_for_arg(opt.name).and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
 
-        if (opt.is_set(ArgSettings::Multiple) || opt.num_vals().is_some())
-            || val.is_none() {
+        if val.is_none() || opt.is_set(ArgSettings::Multiple) {
             return Ok(Some(opt.name));
         }
         Ok(None)
@@ -1056,18 +1056,24 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                         matcher: &mut ArgMatcher<'a>)
                         -> ClapResult<Option<&'a str>>
         where A: AnyArg<'a, 'b> + Display {
-        matcher.add_val_to(&*arg.name(), val);
+        debugln!("fn=add_val_to_arg;");
+        let mut ret = None;
+        for v in val.split(b',') {
+            debugln!("adding val: {:?}", v);
+            matcher.add_val_to(&*arg.name(), v);
 
-        // Increment or create the group "args"
-        if let Some(grps) = self.groups_for_arg(&*arg.name()) {
-            for grp in grps {
-                matcher.add_val_to(&*grp, val);
+            // Increment or create the group "args"
+            if let Some(grps) = self.groups_for_arg(&*arg.name()) {
+                for grp in grps {
+                    matcher.add_val_to(&*grp, v);
+                }
             }
-        }
 
-        // The validation must come AFTER inserting into 'matcher' or the usage string
-        // can't be built
-        self.validate_value(arg, val, matcher)
+            // The validation must come AFTER inserting into 'matcher' or the usage string
+            // can't be built
+            ret = try!(self.validate_value(arg, v, matcher));
+        }
+        Ok(ret)
     }
 
     fn validate_value<A>(&self, arg: &A, val: &OsStr, matcher: &ArgMatcher<'a>) -> ClapResult<Option<&'a str>>
@@ -1186,6 +1192,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
     }
 
     fn validate_num_args(&self, matcher: &mut ArgMatcher) -> ClapResult<()> {
+        debugln!("fn=validate_num_args;");
         for (name, ma) in matcher.iter() {
             if self.groups.contains_key(&**name) {
                 continue;
@@ -1194,92 +1201,71 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                                      .iter()
                                      .filter(|o| &o.name == name)
                                      .next() {
-                    if let Some(num) = opt.num_vals {
-                        let should_err = if opt.settings.is_set(ArgSettings::Multiple) {
-                            ((ma.vals.len() as u8) % num) != 0
-                        } else {
-                            num != (ma.vals.len() as u8)
-                        };
-                        if should_err {
-                            return Err(Error::wrong_number_of_values(
-                                opt,
-                                num,
-                                if opt.settings.is_set(ArgSettings::Multiple) {
-                                    (ma.vals.len() % num as usize)
-                                } else {
-                                    ma.vals.len()
-                                },
-                                if ma.vals.len() == 1 ||
-                                    (opt.settings.is_set(ArgSettings::Multiple) &&
-                                        (ma.vals.len() % num as usize) == 1) {
-                                    "as"
-                                } else {
-                                    "ere"
-                                },
-                                &*self.create_current_usage(matcher)));
-                        }
-                    }
-                    if let Some(num) = opt.max_vals {
-                        if (ma.vals.len() as u8) > num {
-                            return Err(Error::too_many_values(
-                                ma.vals.get(&ma.vals.keys()
-                                             .last()
-                                             .expect(INTERNAL_ERROR_MSG))
-                                    .expect(INTERNAL_ERROR_MSG).to_str().expect(INVALID_UTF8),
-                                opt,
-                                &*self.create_current_usage(matcher)));
-                        }
-                    }
-                    if let Some(num) = opt.min_vals {
-                        if (ma.vals.len() as u8) < num {
-                            return Err(Error::too_few_values(
-                                opt,
-                                num,
-                                ma.vals.len(),
-                                &*self.create_current_usage(matcher)));
-                        }
-                    }
+                    try!(self._validate_num_vals(opt, ma, matcher));
                 } else if let Some(pos) = self.positionals
                                      .values()
                                      .filter(|p| &p.name == name)
                                      .next() {
-                    if let Some(num) = pos.num_vals {
-                        if num != ma.vals.len() as u8 {
-                            return Err(Error::wrong_number_of_values(
-                                pos,
-                                num,
-                                ma.vals.len(),
-                                if ma.vals.len() == 1 {
-                                    "as"
-                                } else {
-                                    "ere"
-                                },
-                                &*self.create_current_usage(matcher)));
-                        }
-                    } else if let Some(max) = pos.max_vals {
-                        if (ma.vals.len() as u8) > max {
-                            return Err(
-                                Error::too_many_values(
-                                    ma.vals.get(&ma.vals.keys()
-                                        .last()
-                                        .expect(INTERNAL_ERROR_MSG))
-                                    .expect(INTERNAL_ERROR_MSG)
-                                    .to_string_lossy()
-                                    .into_owned(),
-                                pos,
-                                &*self.create_current_usage(matcher)));
-                        }
-                    }
-                    if let Some(min) = pos.min_vals {
-                        if (ma.vals.len() as u8) < min {
-                            return Err(Error::too_few_values(
-                                pos,
-                                min,
-                                ma.vals.len(),
-                                &*self.create_current_usage(matcher)));
-                        }
-                    }
+                    try!(self._validate_num_vals(pos, ma, matcher));
                 }
+            }
+        }
+        Ok(())
+    }
+
+    fn _validate_num_vals<A>(&self, a: &A, ma: &MatchedArg, matcher: &ArgMatcher) -> ClapResult<()>
+        where A: AnyArg<'a, 'b>
+    {
+        debugln!("fn=_validate_num_vals;");
+        if let Some(num) = a.num_vals() {
+            debugln!("num_vals set: {}", num);
+            let should_err = if a.is_set(ArgSettings::Multiple) {
+                ((ma.vals.len() as u8) % num) != 0
+            } else {
+                num != (ma.vals.len() as u8)
+            };
+            if should_err {
+                debugln!("Sending error WrongNumberOfValues");
+                return Err(Error::wrong_number_of_values(
+                    a,
+                    num,
+                    if a.is_set(ArgSettings::Multiple) {
+                        (ma.vals.len() % num as usize)
+                    } else {
+                        ma.vals.len()
+                    },
+                    if ma.vals.len() == 1 ||
+                        (a.is_set(ArgSettings::Multiple) &&
+                            (ma.vals.len() % num as usize) == 1) {
+                        "as"
+                    } else {
+                        "ere"
+                    },
+                    &*self.create_current_usage(matcher)));
+            }
+        }
+        if let Some(num) = a.max_vals() {
+            debugln!("max_vals set: {}", num);
+            if (ma.vals.len() as u8) > num {
+                debugln!("Sending error TooManyValues");
+                return Err(Error::too_many_values(
+                    ma.vals.get(&ma.vals.keys()
+                                 .last()
+                                 .expect(INTERNAL_ERROR_MSG))
+                        .expect(INTERNAL_ERROR_MSG).to_str().expect(INVALID_UTF8),
+                    a,
+                    &*self.create_current_usage(matcher)));
+            }
+        }
+        if let Some(num) = a.min_vals() {
+            debugln!("min_vals set: {}", num);
+            if (ma.vals.len() as u8) < num {
+                debugln!("Sending error TooFewValues");
+                return Err(Error::too_few_values(
+                    a,
+                    num,
+                    ma.vals.len(),
+                    &*self.create_current_usage(matcher)));
             }
         }
         Ok(())
