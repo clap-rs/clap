@@ -10,26 +10,14 @@ use args::AnyArg;
 use args::settings::{ArgFlags, ArgSettings};
 
 #[derive(Debug)]
+#[doc(hidden)]
 pub struct FlagBuilder<'n, 'e> {
     pub name: &'n str,
-    /// The long version of the flag (i.e. word)
-    /// without the preceding `--`
     pub long: Option<&'e str>,
-    /// The string of text that will displayed to
-    /// the user when the application's `help`
-    /// text is displayed
     pub help: Option<&'e str>,
-    /// A list of names for other arguments that
-    /// *may not* be used with this flag
     pub blacklist: Option<Vec<&'e str>>,
-    /// A list of names of other arguments that
-    /// are *required* to be used when this
-    /// flag is used
     pub requires: Option<Vec<&'e str>>,
-    /// The short version (i.e. single character)
-    /// of the argument, no preceding `-`
     pub short: Option<char>,
-    /// A list of names for other arguments that *mutually override* this flag
     pub overrides: Option<Vec<&'e str>>,
     pub settings: ArgFlags,
 }
@@ -192,6 +180,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn min_vals(&self) -> Option<u8> { None }
     fn short(&self) -> Option<char> { self.short }
     fn long(&self) -> Option<&'e str> { self.long }
+    fn val_delim(&self) -> Option<char> { None }
 }
 
 #[cfg(test)]

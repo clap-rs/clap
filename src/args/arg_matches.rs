@@ -92,27 +92,25 @@ impl<'a> ArgMatches<'a> {
     #[doc(hidden)]
     pub fn new() -> Self { ArgMatches { ..Default::default() } }
 
+    /// Gets the value of a specific option or positional argument (i.e. an argument that takes
+    /// an additional value at runtime). If the option wasn't present at runtime
+    /// it returns `None`.
+    ///
+    /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
+    /// prefer `values_of()` as `value_of()` will only return the _*first*_ value.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myapp")
+    ///     .arg(Arg::with_name("output")
+    ///         .takes_value(true))
+    ///     .get_matches_from(vec!["myapp", "something"]);
+    ///
+    /// assert_eq!(m.value_of("output"), Some("something"));
+    /// ```
     pub fn value_of<S: AsRef<str>>(&self, name: S) -> Option<&str> {
-    /*!
-    Gets the value of a specific option or positional argument (i.e. an argument that takes
-    an additional value at runtime). If the option wasn't present at runtime
-    it returns `None`.
-
-    *NOTE:* If getting a value for an option or positional argument that allows multiples,
-    prefer `values_of()` as `value_of()` will only return the _*first*_ value.
-
-    # Examples
-
-    ```no_run
-    # use clap::{App, Arg};
-    let m = App::new("myapp")
-        .arg(Arg::with_name("output")
-            .takes_value(true))
-        .get_matches_from(vec!["myapp", "something"]);
-
-    assert_eq!(m.value_of("output"), Some("something"));
-    ```
-    */
         if let Some(ref arg) = self.args.get(name.as_ref()) {
             if let Some(v) = arg.vals.values().nth(0) {
                 return Some(v.to_str().expect(INVALID_UTF8));
@@ -121,30 +119,28 @@ impl<'a> ArgMatches<'a> {
         None
     }
 
+    /// Gets the lossy value of a specific argument If the option wasn't present at runtime
+    /// it returns `None`. A lossy value is one which contains invalid UTF-8 code points, those
+    /// invalid points will be replaced with `\u{FFFD}`
+    ///
+    /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
+    /// prefer `lossy_values_of()` as `lossy_value_of()` will only return the _*first*_ value.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// # use clap::{App, Arg};
+    /// use std::ffi::OsString;
+    /// use std::os::unix::ffi::OsStrExt;
+    ///
+    /// let m = App::new("utf8")
+    ///     .arg(Arg::from_usage("<arg> 'some arg'"))
+    ///     .get_matches_from(vec![OsString::from("myprog"),
+    ///                             // "Hi {0xe9}!"
+    ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
+    /// assert_eq!(&*m.lossy_value_of("arg").unwrap(), "Hi \u{FFFD}!");
+    /// ```
     pub fn lossy_value_of<S: AsRef<str>>(&'a self, name: S) -> Option<Cow<'a, str>> {
-    /*!
-    Gets the lossy value of a specific argument If the option wasn't present at runtime
-    it returns `None`. A lossy value is one which contains invalid UTF-8 code points, those
-    invalid points will be replaced with `\u{FFFD}`
-
-    *NOTE:* If getting a value for an option or positional argument that allows multiples,
-    prefer `lossy_values_of()` as `lossy_value_of()` will only return the _*first*_ value.
-
-    # Examples
-
-    ```ignore
-    # use clap::{App, Arg};
-    use std::ffi::OsString;
-    use std::os::unix::ffi::OsStrExt;
-
-    let m = App::new("utf8")
-        .arg(Arg::from_usage("<arg> 'some arg'"))
-        .get_matches_from(vec![OsString::from("myprog"),
-                                // "Hi {0xe9}!"
-                                OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
-    assert_eq!(&*m.lossy_value_of("arg").unwrap(), "Hi \u{FFFD}!");
-    ```
-    */
         if let Some(arg) = self.args.get(name.as_ref()) {
             if let Some(v) = arg.vals.values().nth(0) {
                 return Some(v.to_string_lossy());
@@ -153,35 +149,33 @@ impl<'a> ArgMatches<'a> {
         None
     }
 
+    /// Gets the OS version of a string value of a specific argument If the option wasn't present at
+    /// runtime it returns `None`. An OS value on Unix-like systems is any series of bytes, regardless
+    /// of whether or not they contain valid UTF-8 code points. Since `String`s in Rust are
+    /// garunteed to be valid UTF-8, a valid filename as an argument value on Linux (for example) may
+    /// contain invalid UTF-8 code points. This would cause a `panic!` or only the abiltiy to get a
+    /// lossy version of the file name (i.e. one where the invalid code points were replaced with
+    /// `\u{FFFD}`). This method returns an `OsString` which allows one to represent those strings
+    /// which rightfully contain invalid UTF-8.
+    ///
+    /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
+    /// prefer `os_values_of()` as `os_value_of()` will only return the _*first*_ value.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// # use clap::{App, Arg};
+    /// use std::ffi::OsString;
+    /// use std::os::unix::ffi::OsStrExt;
+    ///
+    /// let m = App::new("utf8")
+    ///     .arg(Arg::from_usage("<arg> 'some arg'"))
+    ///     .get_matches_from(vec![OsString::from("myprog"),
+    ///                             // "Hi {0xe9}!"
+    ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
+    /// assert_eq!(&*m.os_value_of("arg").unwrap().as_bytes(), &[b'H', b'i', b' ', 0xe9, b'!']);
+    /// ```
     pub fn os_value_of<S: AsRef<str>>(&self, name: S) -> Option<&OsStr> {
-    /*!
-    Gets the OS version of a string value of a specific argument If the option wasn't present at
-    runtime it returns `None`. An OS value on Unix-like systems is any series of bytes, regardless
-    of whether or not they contain valid UTF-8 code points. Since `String`s in Rust are
-    garunteed to be valid UTF-8, a valid filename as an argument value on Linux (for example) may
-    contain invalid UTF-8 code points. This would cause a `panic!` or only the abiltiy to get a
-    lossy version of the file name (i.e. one where the invalid code points were replaced with
-    `\u{FFFD}`). This method returns an `OsString` which allows one to represent those strings
-    which rightfully contain invalid UTF-8.
-
-    *NOTE:* If getting a value for an option or positional argument that allows multiples,
-    prefer `os_values_of()` as `os_value_of()` will only return the _*first*_ value.
-
-    # Examples
-
-    ```ignore
-    # use clap::{App, Arg};
-    use std::ffi::OsString;
-    use std::os::unix::ffi::OsStrExt;
-
-    let m = App::new("utf8")
-        .arg(Arg::from_usage("<arg> 'some arg'"))
-        .get_matches_from(vec![OsString::from("myprog"),
-                                // "Hi {0xe9}!"
-                                OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
-    assert_eq!(&*m.os_value_of("arg").unwrap().as_bytes(), &[b'H', b'i', b' ', 0xe9, b'!']);
-    ```
-    */
         self.args.get(name.as_ref()).map_or(None, |arg| arg.vals.values().nth(0).map(|v| v.as_os_str()))
     }
 
@@ -213,30 +207,28 @@ impl<'a> ArgMatches<'a> {
         None
     }
 
+    /// Gets the lossy values of a specific argument If the option wasn't present at runtime
+    /// it returns `None`. A lossy value is one which contains invalid UTF-8 code points, those
+    /// invalid points will be replaced with `\u{FFFD}`
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// # use clap::{App, Arg};
+    /// use std::ffi::OsString;
+    /// use std::os::unix::ffi::OsStrExt;
+    ///
+    /// let m = App::new("utf8")
+    ///     .arg(Arg::from_usage("<arg> 'some arg'"))
+    ///     .get_matches_from(vec![OsString::from("myprog"),
+    ///                             // "Hi {0xe9}!"
+    ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
+    /// let itr = m.lossy_values_of("arg").unwrap();
+    /// assert_eq!(&*itr.next().unwrap(), "Hi");
+    /// assert_eq!(&*itr.next().unwrap(), "\u{FFFD}!");
+    /// assert_eq!(itr.next(), None);
+    /// ```
     pub fn lossy_values_of<S: AsRef<str>>(&'a self, name: S) -> Option<Vec<String>> {
-    /*!
-    Gets the lossy values of a specific argument If the option wasn't present at runtime
-    it returns `None`. A lossy value is one which contains invalid UTF-8 code points, those
-    invalid points will be replaced with `\u{FFFD}`
-
-    # Examples
-
-    ```ignore
-    # use clap::{App, Arg};
-    use std::ffi::OsString;
-    use std::os::unix::ffi::OsStrExt;
-
-    let m = App::new("utf8")
-        .arg(Arg::from_usage("<arg> 'some arg'"))
-        .get_matches_from(vec![OsString::from("myprog"),
-                                // "Hi {0xe9}!"
-                                OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
-    let itr = m.lossy_values_of("arg").unwrap();
-    assert_eq!(&*itr.next().unwrap(), "Hi");
-    assert_eq!(&*itr.next().unwrap(), "\u{FFFD}!");
-    assert_eq!(itr.next(), None);
-    ```
-    */
         if let Some(ref arg) = self.args.get(name.as_ref()) {
             return Some(arg.vals.values()
                            .map(|v| v.to_string_lossy().into_owned())
@@ -245,38 +237,36 @@ impl<'a> ArgMatches<'a> {
         None
     }
 
+    /// Gets the OS version of a string value of a specific argument If the option wasn't present
+    /// at runtime it returns `None`. An OS value on Unix-like systems is any series of bytes,
+    /// regardless of whether or not they contain valid UTF-8 code points. Since `String`s in Rust
+    /// are garunteed to be valid UTF-8, a valid filename as an argument value on Linux (for
+    /// example) may contain invalid UTF-8 code points. This would cause a `panic!` or only the
+    /// abiltiy to get a lossy version of the file name (i.e. one where the invalid code points
+    /// were replaced with `\u{FFFD}`). This method returns an `OsString` which allows one to
+    /// represent those strings which rightfully contain invalid UTF-8.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// # use clap::{App, Arg};
+    /// use std::ffi::OsString;
+    /// use std::os::unix::ffi::OsStrExt;
+    ///
+    /// let m = App::new("utf8")
+    ///     .arg(Arg::from_usage("<arg> 'some arg'"))
+    ///     .get_matches_from(vec![OsString::from("myprog"),
+    ///                                 // "Hi"
+    ///                                 OsString::from_vec(vec![b'H', b'i']),
+    ///                                 // "{0xe9}!"
+    ///                                 OsString::from_vec(vec![0xe9, b'!'])]);
+    ///
+    /// let itr = m.os_values_of("arg").unwrap();
+    /// assert_eq!(itr.next(), Some(&*OsString::from("Hi")));
+    /// assert_eq!(itr.next(), Some(&*OsString::from_vec(vec![0xe9, b'!'])));
+    /// assert_eq!(itr.next(), None);
+    /// ```
     pub fn os_values_of<S: AsRef<str>>(&'a self, name: S) -> Option<OsValues<'a>> {
-    /*!
-    Gets the OS version of a string value of a specific argument If the option wasn't present at
-    runtime it returns `None`. An OS value on Unix-like systems is any series of bytes, regardless
-    of whether or not they contain valid UTF-8 code points. Since `String`s in Rust are
-    garunteed to be valid UTF-8, a valid filename as an argument value on Linux (for example) may
-    contain invalid UTF-8 code points. This would cause a `panic!` or only the abiltiy to get a
-    lossy version of the file name (i.e. one where the invalid code points were replaced with
-    `\u{FFFD}`). This method returns an `OsString` which allows one to represent those strings
-    which rightfully contain invalid UTF-8.
-
-    # Examples
-
-    ```ignore
-    # use clap::{App, Arg};
-    use std::ffi::OsString;
-    use std::os::unix::ffi::OsStrExt;
-
-    let m = App::new("utf8")
-        .arg(Arg::from_usage("<arg> 'some arg'"))
-        .get_matches_from(vec![OsString::from("myprog"),
-                                    // "Hi"
-                                    OsString::from_vec(vec![b'H', b'i']),
-                                    // "{0xe9}!"
-                                    OsString::from_vec(vec![0xe9, b'!'])]);
-
-    let itr = m.os_values_of("arg").unwrap();
-    assert_eq!(itr.next(), Some(&*OsString::from("Hi")));
-    assert_eq!(itr.next(), Some(&*OsString::from_vec(vec![0xe9, b'!'])));
-    assert_eq!(itr.next(), None);
-    ```
-    */
         fn to_str_slice(o: &OsString) -> &OsStr { &*o }
         let to_str_slice: fn(&'a OsString) -> &'a OsStr = to_str_slice; // coerce to fn pointer
         if let Some(ref arg) = self.args.get(name.as_ref()) {
