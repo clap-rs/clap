@@ -1,3 +1,25 @@
+macro_rules! impl_settings {
+    ($n:ident, $($v:ident => $c:ident),+) => {
+        pub fn set(&mut self, s: $n) {
+            match s {
+                $($n::$v => self.0.insert($c)),+
+            }
+        }
+
+        pub fn unset(&mut self, s: $n) {
+            match s {
+                $($n::$v => self.0.remove($c)),+
+            }
+        }
+
+        pub fn is_set(&self, s: $n) -> bool {
+            match s {
+                $($n::$v => self.0.contains($c)),+
+            }
+        }
+    };
+}
+
 // Convenience for writing to stderr thanks to https://github.com/BurntSushi
 macro_rules! wlnerr(
     ($($arg:tt)*) => ({

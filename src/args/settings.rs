@@ -21,40 +21,14 @@ impl ArgFlags {
         ArgFlags(EMPTY_VALS | USE_DELIM)
     }
 
-    pub fn set(&mut self, s: ArgSettings) {
-        match s {
-            ArgSettings::Required => self.0.insert(REQUIRED),
-            ArgSettings::Multiple => self.0.insert(MULTIPLE),
-            ArgSettings::EmptyValues => self.0.insert(EMPTY_VALS),
-            ArgSettings::Global => self.0.insert(GLOBAL),
-            ArgSettings::Hidden => self.0.insert(HIDDEN),
-            ArgSettings::TakesValue => self.0.insert(TAKES_VAL),
-            ArgSettings::UseValueDelimiter => self.0.insert(USE_DELIM),
-        }
-    }
-
-    pub fn unset(&mut self, s: ArgSettings) {
-        match s {
-            ArgSettings::Required => self.0.remove(REQUIRED),
-            ArgSettings::Multiple => self.0.remove(MULTIPLE),
-            ArgSettings::EmptyValues => self.0.remove(EMPTY_VALS),
-            ArgSettings::Global => self.0.remove(GLOBAL),
-            ArgSettings::Hidden => self.0.remove(HIDDEN),
-            ArgSettings::TakesValue => self.0.remove(TAKES_VAL),
-            ArgSettings::UseValueDelimiter => self.0.remove(USE_DELIM),
-        }
-    }
-
-    pub fn is_set(&self, s: ArgSettings) -> bool {
-        match s {
-            ArgSettings::Required => self.0.contains(REQUIRED),
-            ArgSettings::Multiple => self.0.contains(MULTIPLE),
-            ArgSettings::EmptyValues => self.0.contains(EMPTY_VALS),
-            ArgSettings::Global => self.0.contains(GLOBAL),
-            ArgSettings::Hidden => self.0.contains(HIDDEN),
-            ArgSettings::TakesValue => self.0.contains(TAKES_VAL),
-            ArgSettings::UseValueDelimiter => self.0.contains(USE_DELIM),
-        }
+    impl_settings!{ArgSettings,
+        Required => REQUIRED,
+        Multiple => MULTIPLE,
+        EmptyValues => EMPTY_VALS,
+        Global => GLOBAL,
+        Hidden => HIDDEN,
+        TakesValue => TAKES_VAL,
+        UseValueDelimiter => USE_DELIM
     }
 }
 
