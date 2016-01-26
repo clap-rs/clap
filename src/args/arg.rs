@@ -179,6 +179,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 "max_values" => a.max_values(v.as_i64().unwrap() as u8),
                 "min_values" => a.min_values(v.as_i64().unwrap() as u8),
                 "value_name" => a.value_name(v.as_str().unwrap()),
+                "use_delimiter" => a.use_delimiter(v.as_bool().unwrap()),
                 "value_delimiter" => a.value_delimiter(v.as_str().unwrap()),
                 "value_names" => {
                     for ys in v.as_vec().unwrap() {
@@ -815,7 +816,64 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
+    /// Specifies whether or not an arugment should allow grouping of multiple values via a
+    /// delimter. I.e. shoulde `--option=val1,val2,val3` be parsed as three values (`val1`, `val2`,
+    /// and `val3`) or as a single value (`val1,val2,val3`). Defaults to using `,` (comma) as the
+    /// value delimiter for all arguments that accept values (options and positional arguments)
+    ///
+    /// **NOTE:** The defalt is `true`. Setting the value to `true` will reset any previous use of
+    /// `Arg::value_delimiter` back to the default of `,` (comma).
+    ///
+    /// # Examples
+    ///
+    /// The following example shows the default behavior.
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let delims = App::new("delims")
+    ///     .arg(Arg::with_name("option")
+    ///         .long("option")
+    ///         .takes_value(true))
+    ///     .get_matches_from(vec![
+    ///         "delims",
+    ///         "--option=val1,val2,val3",
+    ///     ]);
+    ///
+    /// assert!(delims.is_present("option"));
+    /// assert_eq!(delims.occurrences_of("option"), 1);
+    /// assert_eq!(delims.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
+    /// ```
+    /// The next example shows the difference when turning delimiters off.
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let nodelims = App::new("nodelims")
+    ///     .arg(Arg::with_name("option")
+    ///         .long("option")
+    ///         .use_delimiter(false)
+    ///         .takes_value(true))
+    ///     .get_matches_from(vec![
+    ///         "nodelims",
+    ///         "--option=val1,val2,val3",
+    ///     ]);
+    ///
+    /// assert!(nodelims.is_present("option"));
+    /// assert_eq!(nodelims.occurrences_of("option"), 1);
+    /// assert_eq!(nodelims.value_of("option").unwrap(), "val1,val2,val3");
+    /// ```
+    pub fn use_delimiter(mut self, d: bool) -> Self {
+        if d {
+            self.val_delim = Some(',');
+            self.set(ArgSettings::UseValueDelimiter)
+        } else {
+            self.val_delim = None;
+            self.unset(ArgSettings::UseValueDelimiter)
+        }
+    }
+
     /// Specifies the separator to use when values are clumped together, defaults to `,` (comma).
+    ///
+    /// **NOTE:** implicitly sets `Arg::use_delimiter(true)`
     ///
     /// **NOTE:** implicitly sets `Arg::takes_value(true)`
     ///
@@ -837,6 +895,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     pub fn value_delimiter(mut self, d: &str) -> Self {
         self = self.set(ArgSettings::TakesValue);
+        self = self.set(ArgSettings::UseValueDelimiter);
         self.val_delim = Some(d.chars()
                                .nth(0)
                                .expect("Failed to get value_delimiter from arg"));

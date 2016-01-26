@@ -3,12 +3,13 @@ use std::ascii::AsciiExt;
 
 bitflags! {
     flags Flags: u8 {
-        const REQUIRED   = 0b000001,
-        const MULTIPLE   = 0b000010,
-        const EMPTY_VALS = 0b000100,
-        const GLOBAL     = 0b001000,
-        const HIDDEN     = 0b010000,
-        const TAKES_VAL  = 0b100000,
+        const REQUIRED   = 0b0000001,
+        const MULTIPLE   = 0b0000010,
+        const EMPTY_VALS = 0b0000100,
+        const GLOBAL     = 0b0001000,
+        const HIDDEN     = 0b0010000,
+        const TAKES_VAL  = 0b0100000,
+        const USE_DELIM  = 0b1000000,
     }
 }
 
@@ -17,7 +18,7 @@ pub struct ArgFlags(Flags);
 
 impl ArgFlags {
     pub fn new() -> Self {
-        ArgFlags(EMPTY_VALS)
+        ArgFlags(EMPTY_VALS | USE_DELIM)
     }
 
     pub fn set(&mut self, s: ArgSettings) {
@@ -28,6 +29,7 @@ impl ArgFlags {
             ArgSettings::Global => self.0.insert(GLOBAL),
             ArgSettings::Hidden => self.0.insert(HIDDEN),
             ArgSettings::TakesValue => self.0.insert(TAKES_VAL),
+            ArgSettings::UseValueDelimiter => self.0.insert(USE_DELIM),
         }
     }
 
@@ -39,6 +41,7 @@ impl ArgFlags {
             ArgSettings::Global => self.0.remove(GLOBAL),
             ArgSettings::Hidden => self.0.remove(HIDDEN),
             ArgSettings::TakesValue => self.0.remove(TAKES_VAL),
+            ArgSettings::UseValueDelimiter => self.0.remove(USE_DELIM),
         }
     }
 
@@ -50,6 +53,7 @@ impl ArgFlags {
             ArgSettings::Global => self.0.contains(GLOBAL),
             ArgSettings::Hidden => self.0.contains(HIDDEN),
             ArgSettings::TakesValue => self.0.contains(TAKES_VAL),
+            ArgSettings::UseValueDelimiter => self.0.contains(USE_DELIM),
         }
     }
 }
@@ -76,6 +80,8 @@ pub enum ArgSettings {
     Hidden,
     /// The argument accepts a value, such as `--option <value>`
     TakesValue,
+    /// Determines if the argument allows values to be grouped via a delimter
+    UseValueDelimiter,
 }
 
 impl FromStr for ArgSettings {
@@ -88,6 +94,7 @@ impl FromStr for ArgSettings {
             "emptyvalues" => Ok(ArgSettings::EmptyValues),
             "hidden" => Ok(ArgSettings::Hidden),
             "takesvalue" => Ok(ArgSettings::TakesValue),
+            "usevaluedelimiter" => Ok(ArgSettings::UseValueDelimiter),
             _ => Err("unknown ArgSetting, cannot convert from str".to_owned()),
         }
     }
