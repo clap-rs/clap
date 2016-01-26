@@ -475,7 +475,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
 
             // Has the user already passed '--'?
             if !pos_only {
-                if !starts_new_arg {
+                if !starts_new_arg || self.is_set(AppSettings::AllowLeadingHyphen) {
                     // Check to see if parsing a value from an option
                     if let Some(nvo) = needs_val_of {
                         // get the OptBuilder so we can check the settings
@@ -1010,7 +1010,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 // Handle conflicts, requirements, overrides, etc.
                 // Must be called here due to mutablilty
                 arg_post_processing!(self, flag, matcher);
-            } else {
+            } else if !self.is_set(AppSettings::AllowLeadingHyphen) {
                 let mut arg = String::new();
                 arg.push('-');
                 arg.push(c);

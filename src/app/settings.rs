@@ -3,24 +3,25 @@ use std::ascii::AsciiExt;
 
 bitflags! {
     flags Flags: u32 {
-        const SC_NEGATE_REQS       = 0b000000000000000001,
-        const SC_REQUIRED          = 0b000000000000000010,
-        const A_REQUIRED_ELSE_HELP = 0b000000000000000100,
-        const GLOBAL_VERSION       = 0b000000000000001000,
-        const VERSIONLESS_SC       = 0b000000000000010000,
-        const UNIFIED_HELP         = 0b000000000000100000,
-        const WAIT_ON_ERROR        = 0b000000000001000000,
-        const SC_REQUIRED_ELSE_HELP= 0b000000000010000000,
-        const NEEDS_LONG_HELP      = 0b000000000100000000,
-        const NEEDS_LONG_VERSION   = 0b000000001000000000,
-        const NEEDS_SC_HELP        = 0b000000010000000000,
-        const DISABLE_VERSION      = 0b000000100000000000,
-        const HIDDEN               = 0b000001000000000000,
-        const TRAILING_VARARG      = 0b000010000000000000,
-        const NO_BIN_NAME          = 0b000100000000000000,
-        const ALLOW_UNK_SC         = 0b001000000000000000,
-        const UTF8_STRICT          = 0b010000000000000000,
-        const UTF8_NONE            = 0b100000000000000000,
+        const SC_NEGATE_REQS       = 0b0000000000000000001,
+        const SC_REQUIRED          = 0b0000000000000000010,
+        const A_REQUIRED_ELSE_HELP = 0b0000000000000000100,
+        const GLOBAL_VERSION       = 0b0000000000000001000,
+        const VERSIONLESS_SC       = 0b0000000000000010000,
+        const UNIFIED_HELP         = 0b0000000000000100000,
+        const WAIT_ON_ERROR        = 0b0000000000001000000,
+        const SC_REQUIRED_ELSE_HELP= 0b0000000000010000000,
+        const NEEDS_LONG_HELP      = 0b0000000000100000000,
+        const NEEDS_LONG_VERSION   = 0b0000000001000000000,
+        const NEEDS_SC_HELP        = 0b0000000010000000000,
+        const DISABLE_VERSION      = 0b0000000100000000000,
+        const HIDDEN               = 0b0000001000000000000,
+        const TRAILING_VARARG      = 0b0000010000000000000,
+        const NO_BIN_NAME          = 0b0000100000000000000,
+        const ALLOW_UNK_SC         = 0b0001000000000000000,
+        const UTF8_STRICT          = 0b0010000000000000000,
+        const UTF8_NONE            = 0b0100000000000000000,
+        const LEADING_HYPHEN       = 0b1000000000000000000,
     }
 }
 
@@ -52,6 +53,7 @@ impl AppFlags {
             AppSettings::AllowExternalSubcommands => self.0.insert(ALLOW_UNK_SC),
             AppSettings::StrictUtf8 => self.0.insert(UTF8_STRICT),
             AppSettings::AllowInvalidUtf8 => self.0.insert(UTF8_NONE),
+            AppSettings::AllowLeadingHyphen => self.0.insert(LEADING_HYPHEN),
         }
     }
 
@@ -75,6 +77,7 @@ impl AppFlags {
             AppSettings::AllowExternalSubcommands => self.0.remove(ALLOW_UNK_SC),
             AppSettings::StrictUtf8 => self.0.remove(UTF8_STRICT),
             AppSettings::AllowInvalidUtf8 => self.0.remove(UTF8_NONE),
+            AppSettings::AllowLeadingHyphen => self.0.remove(LEADING_HYPHEN),
         }
     }
 
@@ -98,6 +101,7 @@ impl AppFlags {
             AppSettings::AllowExternalSubcommands => self.0.contains(ALLOW_UNK_SC),
             AppSettings::StrictUtf8 => self.0.contains(UTF8_STRICT),
             AppSettings::AllowInvalidUtf8 => self.0.contains(UTF8_NONE),
+            AppSettings::AllowLeadingHyphen => self.0.contains(LEADING_HYPHEN),
         }
     }
 }
@@ -382,9 +386,27 @@ pub enum AppSettings {
     /// assert!(r.is_ok());
     /// let m = r.unwrap();
     /// assert_eq!(m.os_value_of("arg").unwrap().as_bytes(), &[0xe9]);
-    /// }
     /// ```
     AllowInvalidUtf8,
+    /// Specifies whether or not leading hyphens are allowed in argument values, such as `-10`
+    ///
+    /// **NOTE:** This can only be set application wide
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{Arg, App, AppSettings};
+    /// // Imagine you needed to represent negative numbers as well, such as -10
+    /// let m = App::new("nums")
+    ///     .setting(AppSettings::AllowLeadingHyphen)
+    ///     .arg(Arg::with_name("neg"))
+    ///     .get_matches_from(vec![
+    ///         "nums", "-20"
+    ///     ]);
+    ///
+    /// assert_eq!(m.value_of("neg"), Some("-20"));
+    /// # ;
+    AllowLeadingHyphen,
     #[doc(hidden)]
     NeedsLongVersion,
     #[doc(hidden)]
@@ -414,6 +436,7 @@ impl FromStr for AppSettings {
             "allowexternalsubcommands" => Ok(AppSettings::AllowExternalSubcommands),
             "strictutf8" => Ok(AppSettings::StrictUtf8),
             "allowinvalidutf8" => Ok(AppSettings::AllowInvalidUtf8),
+            "allowleadinghyphen" => Ok(AppSettings::AllowLeadingHyphen),
             _ => Err("unknown AppSetting, cannot convert from str".to_owned()),
         }
     }
