@@ -742,7 +742,7 @@ impl<'a, 'v, 'ab, 'u, 'h, 'ar> App<'a, 'v, 'ab, 'u, 'h, 'ar> {
             panic!("Non-unique argument name: {} is already in use", a.name);
         }
         if let Some(grp) = a.group {
-            let ag = self.groups.entry(grp).or_insert(ArgGroup::with_name(grp));
+            let ag = self.groups.entry(grp).or_insert_with(|| ArgGroup::with_name(grp));
             ag.args.push(a.name);
         }
         if let Some(s) = a.short {
