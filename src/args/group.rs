@@ -112,7 +112,7 @@ impl<'a> ArgGroup<'a> {
                     a
                 }
                 "arg" => {
-                    if let Some(ys) = v.as_str().unwrap() {
+                    if let Some(ys) = v.as_str() {
                         a = a.arg(ys);
                     }
                     a
