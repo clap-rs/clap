@@ -608,7 +608,7 @@ impl Error {
                            if !did_you_mean.is_empty() {
                                format!("{}\n", did_you_mean)
                            } else {
-                               "".to_owned()
+                               "\n".to_owned()
                            },
                            usage,
                            Format::Good("--help")),

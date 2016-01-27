@@ -387,7 +387,7 @@ pub enum AppSettings {
     /// // Imagine you needed to represent negative numbers as well, such as -10
     /// let m = App::new("nums")
     ///     .setting(AppSettings::AllowLeadingHyphen)
-    ///     .arg(Arg::with_name("neg"))
+    ///     .arg(Arg::with_name("neg").index(1))
     ///     .get_matches_from(vec![
     ///         "nums", "-20"
     ///     ]);

@@ -483,7 +483,9 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                     continue;
                 } else if arg_os.starts_with(b"-") && arg_os.len() != 1 {
                     needs_val_of = try!(self.parse_short_arg(matcher, &arg_os));
-                    continue;
+                    if !(needs_val_of.is_none() && self.is_set(AppSettings::AllowLeadingHyphen)) {
+                        continue;
+                    }
                 }
 
                 // let arg_str = arg_os.to_str().expect(INVALID_UTF8);
@@ -637,9 +639,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                                            ""
                                        },
                                        &*sc.0.meta.name));
-            if let Err(e) = sc.0.get_matches_with(&mut sc_matcher, it) {
-                e.exit();
-            }
+            try!(sc.0.get_matches_with(&mut sc_matcher, it));
             matcher.subcommand(SubCommand {
                 name: sc.0.meta.name.clone(),
                 matches: sc_matcher.into(),
@@ -1015,13 +1015,13 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         validate_multiples!(self, opt, matcher);
 
         debug!("Checking for val...");
-        if let Some(mut v) = val {
-            v = v.trim_left_matches(b'=');
+        if let Some(fv) = val {
+            let v = fv.trim_left_matches(b'=');
             if !opt.is_set(ArgSettings::EmptyValues) && v.len() == 0 {
                 sdebugln!("Found Empty - Error");
                 return Err(Error::empty_value(opt, &*self.create_current_usage(matcher)));
             }
-            sdebugln!("Found");
+            sdebugln!("Found - {:?}, len: {}", v, v.len());
             try!(self.add_val_to_arg(opt, v, matcher));
         } else { sdebugln!("None"); }
 
