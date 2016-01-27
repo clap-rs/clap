@@ -375,7 +375,7 @@ impl<'a> ArgMatches<'a> {
     /// aware these aren't actually all subcommands in the real `git` interface, but it makes
     /// explaination easier)
     ///
-    /// ```ignore
+    /// ```notrust
     ///              Top Level App (git)                         TOP
     ///                              |
     ///       -----------------------------------------
