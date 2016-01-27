@@ -74,72 +74,27 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
             max_vals: a.max_vals,
             val_names: a.val_names.clone(),
             val_delim: a.val_delim,
+            blacklist: a.blacklist.clone(),
+            overrides: a.overrides.clone(),
+            requires: a.requires.clone(),
+            possible_vals: a.possible_vals.clone(),
+            settings: a.settings.clone(),
             ..Default::default()
         };
-        if a.is_set(ArgSettings::Multiple) {
-            ob.settings.set(ArgSettings::Multiple);
-        }
-        if a.is_set(ArgSettings::Required) {
-            ob.settings.set(ArgSettings::Required);
-        }
-        if a.is_set(ArgSettings::Global) {
-            ob.settings.set(ArgSettings::Global);
-        }
-        if !a.is_set(ArgSettings::EmptyValues) {
-            ob.settings.unset(ArgSettings::Global);
-        }
-        if a.is_set(ArgSettings::Hidden) {
-            ob.settings.set(ArgSettings::Hidden);
-        }
         if let Some(ref vec) = ob.val_names {
             if vec.len() > 1 {
                 ob.num_vals = Some(vec.len() as u8);
             }
         }
-        // Check if there is anything in the blacklist (mutually excludes list) and add
-        // any
-        // values
-        if let Some(ref bl) = a.blacklist {
-            let mut bhs = vec![];
-            // without derefing n = &&str
-            for n in bl {
-                bhs.push(*n);
-            }
-            ob.blacklist = Some(bhs);
-        }
         if let Some(ref p) = a.validator {
             ob.validator = Some(p.clone());
         }
-        // Check if there is anything in the requires list and add any values
-        if let Some(ref r) = a.requires {
-            let mut rhs = vec![];
-            // without derefing n = &&str
-            for n in r {
-                rhs.push(*n);
-                if a.is_set(ArgSettings::Required) {
-                    reqs.push(*n);
-                }
+        // If the arg is required, add all it's requirements to master required list
+        if a.is_set(ArgSettings::Required) {
+            if let Some(ref areqs) = a.requires {
+                for r in areqs { reqs.push(*r); }
             }
-            ob.requires = Some(rhs);
         }
-        if let Some(ref or) = a.overrides {
-            let mut bhs = vec![];
-            // without derefing n = &&str
-            for n in or {
-                bhs.push(*n);
-            }
-            ob.overrides = Some(bhs);
-        }
-        // Check if there is anything in the possible values and add those as well
-        if let Some(ref p) = a.possible_vals {
-            let mut phs = vec![];
-            // without derefing n = &&str
-            for n in p {
-                phs.push(*n);
-            }
-            ob.possible_vals = Some(phs);
-        }
-
         ob
     }
 
