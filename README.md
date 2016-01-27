@@ -60,6 +60,8 @@ Here are some key points about the 2.x release
  * Vastly improved ergonomics
  * Numerous bug fixes
 
+![clap Performance Graph](https://github.com/kbknapp/clap-rs/blob/master/clap-perf/clap_perf.png)
+
 #### Breaking Changes
 
 Below is a list of breaking changes between 1.x and 2.x and how you can change your code to update.
