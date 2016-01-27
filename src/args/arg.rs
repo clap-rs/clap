@@ -677,7 +677,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// **NOTE:** Defaults to `true` (Explicit empty values are allowed)
     ///
-    /// **NOTE:** Implicitly sets `takes_value(true)`
+    /// **NOTE:** Implicitly sets `takes_value(true)` when set to `false`
     ///
     /// # Examples
     ///
@@ -689,8 +689,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # ;
     /// ```
     pub fn empty_values(mut self, ev: bool) -> Self {
-        self = self.set(ArgSettings::TakesValue);
-        if ev { self.set(ArgSettings::EmptyValues) } else { self.unset(ArgSettings::EmptyValues) }
+        if ev {
+            self.set(ArgSettings::EmptyValues)
+        } else {
+            self = self.set(ArgSettings::TakesValue);
+            self.unset(ArgSettings::EmptyValues)
+        }
     }
 
     /// Hides an argument from help message output.
