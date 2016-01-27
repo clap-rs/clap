@@ -73,64 +73,28 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
             min_vals: a.min_vals,
             max_vals: a.max_vals,
             val_names: a.val_names.clone(),
+            blacklist: a.blacklist.clone(),
+            overrides: a.overrides.clone(),
+            requires: a.requires.clone(),
+            possible_vals: a.possible_vals.clone(),
             help: a.help,
             val_delim: a.val_delim,
+            settings: a.settings.clone(),
             ..Default::default()
         };
-        if a.is_set(ArgSettings::Multiple) || a.num_vals.is_some() || a.max_vals.is_some() || a.min_vals.is_some() {
+        if a.max_vals.is_some()
+            || a.min_vals.is_some()
+            || (a.num_vals.is_some() && a.num_vals.unwrap() > 1) {
             pb.settings.set(ArgSettings::Multiple);
-        }
-        if a.is_set(ArgSettings::Required) {
-            pb.settings.set(ArgSettings::Required);
-        }
-        if a.is_set(ArgSettings::Global) {
-            pb.settings.set(ArgSettings::Global);
-        }
-        if a.is_set(ArgSettings::Hidden) {
-            pb.settings.set(ArgSettings::Hidden);
-        }
-        // Check if there is anything in the blacklist (mutually excludes list) and add
-        // any
-        // values
-        if let Some(ref bl) = a.blacklist {
-            let mut bhs = vec![];
-            // without derefing n = &&str
-            for n in bl {
-                bhs.push(*n);
-            }
-            pb.blacklist = Some(bhs);
-        }
-        if let Some(ref or) = a.overrides {
-            let mut bhs = vec![];
-            // without derefing n = &&str
-            for n in or {
-                bhs.push(*n);
-            }
-            pb.overrides = Some(bhs);
-        }
-        // Check if there is anything in the possible values and add those as well
-        if let Some(ref p) = a.possible_vals {
-            let mut phs = vec![];
-            // without derefing n = &&str
-            for n in p {
-                phs.push(*n);
-            }
-            pb.possible_vals = Some(phs);
         }
         if let Some(ref p) = a.validator {
             pb.validator = Some(p.clone());
         }
-        // Check if there is anything in the requires list and add any values
-        if let Some(ref r) = a.requires {
-            let mut rhs: Vec<&'e str> = vec![];
-            // without derefing n = &&str
-            for n in r {
-                rhs.push(n);
-                if a.is_set(ArgSettings::Required) {
-                    reqs.push(n);
-                }
+        // If the arg is required, add all it's requirements to master required list
+        if a.is_set(ArgSettings::Required) {
+            if let Some(ref areqs) = a.requires {
+                for r in areqs { reqs.push(*r); }
             }
-            pb.requires = Some(rhs);
         }
         pb
     }

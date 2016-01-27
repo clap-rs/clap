@@ -91,54 +91,22 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for FlagBuilder<'a, 'b> {
             format!("The argument '{}' cannot have a specific value set because it doesn't \
                 have takes_value(true) set",
                    a.name));
+        assert!(!a.is_set(ArgSettings::Required),
+            format!("The argument '{}' cannot be required because it's a flag, perhaps you forgot \
+                takes_value(true)?", a.name));
         // No need to check for index() or takes_value() as that is handled above
 
-        let mut fb = FlagBuilder {
+        FlagBuilder {
             name: a.name,
             short: a.short,
             long: a.long,
             help: a.help,
+            blacklist: a.blacklist.clone(),
+            overrides: a.overrides.clone(),
+            requires: a.requires.clone(),
+            settings: a.settings.clone(),
             ..Default::default()
-        };
-        if a.is_set(ArgSettings::Multiple) {
-            fb.settings.set(ArgSettings::Multiple);
         }
-        if a.is_set(ArgSettings::Global) {
-            fb.settings.set(ArgSettings::Global);
-        }
-        if a.is_set(ArgSettings::Hidden) {
-            fb.settings.set(ArgSettings::Hidden);
-        }
-        // Check if there is anything in the blacklist (mutually excludes list) and add
-        // any
-        // values
-        if let Some(ref bl) = a.blacklist {
-            let mut bhs = vec![];
-            // without derefing n = &&str
-            for n in bl {
-                bhs.push(*n);
-            }
-            fb.blacklist = Some(bhs);
-        }
-        // Check if there is anything in the requires list and add any values
-        if let Some(ref r) = a.requires {
-            let mut rhs = vec![];
-            // without derefing n = &&str
-            for n in r {
-                rhs.push(*n);
-            }
-            fb.requires = Some(rhs);
-        }
-        if let Some(ref or) = a.overrides {
-            let mut bhs = vec![];
-            // without derefing n = &&str
-            for n in or {
-                bhs.push(*n);
-            }
-            fb.overrides = Some(bhs);
-        }
-
-        fb
     }
 }
 
