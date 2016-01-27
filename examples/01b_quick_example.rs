@@ -41,6 +41,7 @@ fn main() {
                         .arg(Arg::with_name("config")
                                     .short("c")
                                     .long("config")
+                                    .value_name("FILE")
                                     .help("Sets a custom config file")
                                     .takes_value(true))
                         .arg(Arg::with_name("output")

@@ -58,7 +58,7 @@ fn main() {
 
                         // Two args, one "Positional", and one "Option" using a usage string
                         .args_from_usage("[output] 'Supply an output file to use'
-                                          -i --int=[interface] 'Set an interface to use'")
+                                          -i, --int=[IFACE] 'Set an interface to use'")
                         .get_matches();
 
     // Here are some examples of using the arguments defined above. Keep in mind that this is only
