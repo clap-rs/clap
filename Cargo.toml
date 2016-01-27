@@ -12,11 +12,11 @@ license = "MIT"
 keywords = ["argument", "command", "arg", "parser", "parse"]
 
 [dependencies]
-bitflags  = "0.3.3"
-vec_map   = "0.4"
+bitflags  = "~0.4"
+vec_map   = "~0.4"
 ansi_term = { version = "~0.7", optional = true }
 strsim    = { version = "~0.4.0", optional = true }
-yaml-rust = { version = "~0.2.2", optional = true }
+yaml-rust = { version = "~0.3", optional = true }
 clippy    = { version = "~0.0.35", optional = true }
 
 [features]

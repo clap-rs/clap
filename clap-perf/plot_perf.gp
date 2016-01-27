@@ -4,12 +4,12 @@ set terminal png
 set output "clap_perf.png"
 
 set xlabel "Version"
-set xrange [0.9:1.6]
+set xrange [0.9:2.1]
 set ylabel "Time (ns)"
 set yrange [0:35000]
 
-set title "clap-rs Performance by Version"
-set key inside left bottom
+set title "clap-rs Performance (Parse Time - Lower is Better) by Version"
+set key inside right top
 set grid
 set style line 1 lc rgb '#0060ad' lt 1 lw 1 pt 7 ps .5   # --- blue
 set style line 2 lc rgb '#dd181f' lt 1 lw 1 pt 5 ps .5   # --- red
