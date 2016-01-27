@@ -3,8 +3,11 @@ use std::ffi::OsStr;
 use std::os::unix::ffi::OsStrExt;
 
 #[cfg(target_os = "windows")]
+use INVALID_UTF8;
+
+#[cfg(target_os = "windows")]
 trait OsStrExt3 {
-    fn from_bytes(b: &[u8]) -> Self;
+    fn from_bytes(b: &[u8]) -> &Self;
     fn as_bytes(&self) -> &[u8];
 }
 
@@ -22,12 +25,12 @@ pub trait OsStrExt2 {
 
 #[cfg(target_os = "windows")]
 impl OsStrExt3 for OsStr {
-    fn from_bytes(b: &[u8]) -> Self {
+    fn from_bytes(b: &[u8]) -> &Self {
         use ::std::mem;
         unsafe { mem::transmute(b) }
     }
     fn as_bytes(&self) -> &[u8] {
-        self.as_inner().inner
+        self.to_str().map(|s| s.as_bytes()).expect(INVALID_UTF8)
     }
 }
 
@@ -54,20 +57,20 @@ impl OsStrExt2 for OsStr {
 
     fn split_at_byte(&self, byte: u8) -> (&OsStr, &OsStr) {
         for (i, b) in self.as_bytes().iter().enumerate() {
-            if b == &byte { return (OsStr::from_bytes(&self.as_bytes()[..i]), OsStr::from_bytes(&self.as_bytes()[i+1..])); }
+            if b == &byte { return (&OsStr::from_bytes(&self.as_bytes()[..i]), &OsStr::from_bytes(&self.as_bytes()[i+1..])); }
         }
-        (&*self, OsStr::from_bytes(&self.as_bytes()[self.len()..self.len()]))
+        (&*self, &OsStr::from_bytes(&self.as_bytes()[self.len()..self.len()]))
     }
 
     fn trim_left_matches(&self, byte: u8) -> &OsStr {
         for (i, b) in self.as_bytes().iter().enumerate() {
-            if b != &byte { return OsStr::from_bytes(&self.as_bytes()[i..]); }
+            if b != &byte { return &OsStr::from_bytes(&self.as_bytes()[i..]); }
         }
         &*self
     }
 
     fn split_at(&self, i: usize) -> (&OsStr, &OsStr) {
-        (OsStr::from_bytes(&self.as_bytes()[..i]), OsStr::from_bytes(&self.as_bytes()[i..]))
+        (&OsStr::from_bytes(&self.as_bytes()[..i]), &OsStr::from_bytes(&self.as_bytes()[i..]))
     }
 
     fn len(&self) -> usize {
