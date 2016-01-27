@@ -495,9 +495,9 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Sets a mutually overridable arguments by name. I.e. this argument and
-    /// the following argument will override each other in POSIX styl (whichever argument was
-    /// specified at runtime **last** "wins")
+    /// Sets a mutually overridable argument by name. I.e. this argument and the following argument
+    /// will override each other in POSIX style (whichever argument was specified at runtime
+    /// **last** "wins")
     ///
     /// **NOTE:** When an argument is overriden it is essentially as if it never was used, any
     /// conflicts, requirements, etc. are evaluated **after** all "overrides" have been removed
