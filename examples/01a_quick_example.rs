@@ -36,12 +36,12 @@ fn main() {
                         .version("1.0")
                         .author("Kevin K. <kbknapp@gmail.com>")
                         .about("Does awesome things")
-                        .args_from_usage("-c --config=[conf] 'Sets a custom config file'
-                                         [output] 'Sets an optional output file'
-                                         [debug]... -d 'Turn debugging information on'")
+                        .args_from_usage("-c, --config=[FILE] 'Sets a custom config file'
+                                         <output> 'Sets an optional output file'
+                                         -d... 'Turn debugging information on'")
                         .subcommand(SubCommand::with_name("test")
                                                 .about("does testing things")
-                                                .arg_from_usage("[list] -l 'lists test values'"))
+                                                .arg_from_usage("-l, --list 'lists test values'"))
                         .get_matches();
 
     // You can check the value provided by positional arguments, or option arguments
@@ -55,7 +55,7 @@ fn main() {
 
     // You can see how many times a particular flag or argument occurred
     // Note, only flags can have multiple occurrences
-    match matches.occurrences_of("debug") {
+    match matches.occurrences_of("d") {
         0 => println!("Debug mode is off"),
         1 => println!("Debug mode is kind of on"),
         2 => println!("Debug mode is on"),

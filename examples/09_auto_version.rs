@@ -21,7 +21,7 @@ fn main() {
     App::new("myapp")
         .about("does awesome things")
        // use crate_version! to pull the version number
-       .version(&crate_version!()[..])
+       .version(crate_version!())
        .get_matches();
 
     // running the this app with the -V or --version will display whatever version is in your

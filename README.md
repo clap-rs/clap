@@ -38,13 +38,71 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-If you're already familiar with `clap` but just want to see some new highlights as of **1.5**
+v**2.0** has been released! This means fixing some pain points, new features, better documentation, improved ergonomics, and also some minor breaking changes if you're used to v1.x
 
-* **huge performance boost** - parsing speed is literally half of what it used to be (and it was already fast). The following graph shows parsing speed, **to include** building the parser of valid arguments for a complex scenario with many arguments, relationships, and other restictions was parsed in ~10,000ns (~0.01 milliseconds)
+#### New Features
+
+Here are some key points about the 2.x release
+
+ * Support for arguments with invalid UTF-8 values!: Helps with POSIX and Unix like OSs
+ * Even better performance boost!
+ * Far better documentation
+ * Support for delimited values
+ * Support for custom delimiter in values
+ * Support for external subcommands
+ * Support for options that act as flags (i.e. ones which optionally have no value)
+ * Support for negative numbers as arguments (i.e. `-10`, etc.)
+ * Better Errors and error handling
+ * Improved "from usage" strings
+ * Better support for generics, instead of being locked in to `Vec` at key points
+ * Improved macros
+ * Better regression testing
+ * Vastly improved ergonomics
+ * Numerous bug fixes
+
 ![clap Performance Graph](https://github.com/kbknapp/clap-rs/blob/master/clap-perf/clap_perf.png)
-* major refactor of code to de-dupilicate and reduce errors. This is a massive improvement and should make contributing to this project much easier.
-* massive errors overhaul thanks in part to the excellent read on [Error Handling](https://doc.rust-lang.org/book/error-handling.html) by [BurntSushi](https://github.com/burntsushi)
-* other minor bug fixes and improvements
+
+#### Breaking Changes
+
+Below is a list of breaking changes between 1.x and 2.x and how you can change your code to update.
+
+* **Fewer liftimes! Yay!**
+ * `App<'a, 'b, 'c, 'd, 'e, 'f>` => `App<'a, 'b>`
+ * `Arg<'a, 'b, 'c, 'd, 'e, 'f>` => `Arg<'a, 'b>`
+ * `ArgMatches<'a, 'b>` => `ArgMatches<'a>`
+* **Simply Renamed**
+ * `App::arg_group` => `App::group`
+ * `App::arg_groups` => `App::groups`
+ * `ArgGroup::add` => `ArgGroup::arg`
+ * `ArgGroup::add_all` => `ArgGroup::args`
+ * `ClapError` => `Error`
+ * `ClapResult` => `Result`
+ * `ClapErrorType` => `ErrorKind`
+  * struct field `ClapError::error_type` => `Error::kind`
+* **Removed Deprecated Functions and Methods**
+ * `App::subcommands_negate_reqs`
+ * `App::subcommand_required`
+ * `App::arg_required_else_help`
+ * `App::global_version(bool)`
+ * `App::versionless_subcommands`
+ * `App::unified_help_messages`
+ * `App::wait_on_error`
+ * `App::subcommand_required_else_help`
+ * `SubCommand::new`
+ * `App::error_on_no_subcommand`
+ * `Arg::new`
+ * `Arg::mutually_excludes`
+ * `Arg::mutually_excludes_all`
+ * `Arg::mutually_overrides_with`
+ * `simple_enum!`
+* **Renamed Errors Variants**
+  * `InvalidUnicode` => `InvalidUtf8`
+  * `InvalidArgument` => `UnknownArgument`
+* **Usage Parser**
+ * Value names can now be specified inline, i.e. `-o, --option <FILE> <FILE2> 'some option which takes two files'`
+ * **There is now a priority of order to determine the name** - This is perhaps the biggest breaking change. See the documentation for full details. Prior to this change, the value name took precedence. **Ensure your args are using the proper names (i.e. typically the long or short and NOT the value name) throughout the code**
+* `ArgMatches::values_of` returns an `Values` now which implements `Iterator` (should not break any code)
+* `crate_version!` returns `&'static str` instead of `String`
 
 For full details, see [CHANGELOG.md](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md)
 
@@ -52,9 +110,9 @@ For full details, see [CHANGELOG.md](https://github.com/kbknapp/clap-rs/blob/mas
 
 `clap` is used to parse *and validate* the string of command line arguments provided by the user at runtime. You provide the list of valid possibilities, and `clap` handles the rest. This means you focus on your *applications* functionality, and less on the parsing and validating of arguments.
 
-`clap` also provides the traditional version and help switches (or flags) 'for free' meaning automatically with no configuration. It does this by checking list of valid possibilities you supplied and if you haven't them already (or only defined some of them), `clap` will auto-generate the applicable ones. If you are using subcommands, `clap` will also auto-generate a `help` subcommand for you in addition to the traditional flags.
+`clap` also provides the traditional version and help switches (or flags) 'for free' meaning automatically with no configuration. It does this by checking list of valid possibilities you supplied and adding only the ones you haven't already defined. If you are using subcommands, `clap` will also auto-generate a `help` subcommand for you in addition to the traditional flags.
 
-Once `clap` parses the user provided string of arguments, it returns the matches along with any applicable values. If the user made an error or typo, `clap` informs them of the mistake and exits gracefully. Because of this, you can make reasonable assumptions in your code about the validity of the arguments.
+Once `clap` parses the user provided string of arguments, it returns the matches along with any applicable values. If the user made an error or typo, `clap` informs them of the mistake and exits gracefully (or returns a `Result` type and allows you to perform any clean up prior to exit). Because of this, you can make reasonable assumptions in your code about the validity of the arguments.
 
 ## FAQ
 
@@ -68,21 +126,21 @@ First, let me say that these comparisons are highly subjective, and not meant in
 
 `getopts` is a very basic, fairly minimalist argument parsing library. This isn't a bad thing, sometimes you don't need tons of features, you just want to parse some simple arguments, and have some help text generated for you based on valid arguments you specify. The downside to this approach is that you must manually implement most of the common features (such as checking to display help messages, usage strings, etc.). If you want a highly custom argument parser, and don't mind writing the majority of the functionality yourself, `getopts` is an excellent base.
 
-`getopts` also doesn't allocate much, or at all. This gives it somewhat of a performance boost. Although, as you start implementing additional features, that boost quickly disappears.
+`getopts` also doesn't allocate much, or at all. This gives it a very small performance boost. Although, as you start implementing additional features, that boost quickly disappears.
 
-Personally, I find many, many people that use `getopts` are manually implementing features that `clap` has by default. Using `clap` simplifies your codebase allowing you to focus on your application, and not argument parsing.
+Personally, I find many, many uses of `getopts` are manually implementing features that `clap` provides by default. Using `clap` simplifies your codebase allowing you to focus on your application, and not argument parsing.
 
 #### How does `clap` compare to [docopt.rs](https://github.com/docopt/docopt.rs)?
 
-I first want to say I'm a big a fan of BurntSushi's work, the creator of `Docopt.rs`. I aspire to produce the quality of libraries that this man does! When it comes to comparing these two libraries they are very different. `docopt` tasks you with writing a help message, and then it parsers that message for you to determine all valid arguments and their use. Some people LOVE this approach, others not so much. If you're willing to write a detailed help message, it's nice that you can stick that in your program and have `docopt` do the rest. On the downside, it's somewhat less flexible, and requires you to change the help message if you need to make changes.
+I first want to say I'm a big a fan of BurntSushi's work, the creator of `Docopt.rs`. I aspire to produce the quality of libraries that this man does! When it comes to comparing these two libraries they are very different. `docopt` tasks you with writing a help message, and then it parsers that message for you to determine all valid arguments and their use. Some people LOVE this approach, others do not. If you're willing to write a detailed help message, it's nice that you can stick that in your program and have `docopt` do the rest. On the downside, it's far less flexible.
 
-`docopt` is also excellent at translating arguments into Rust types automatically. There is even a syntax extension which will do all this for you, if you're willing to use a nightly compiler (use of a stable compiler requires you to somewhat manually translate from arguments to Rust types). To use BurntSushi's words, `docopt` is also a sort of black box. You get what you get, and it's hard to tweak implementation or customise the experience for your use case.
+`docopt` is also excellent at translating arguments into Rust types automatically. There is even a syntax extension which will do all this for you, if you're willing to use a nightly compiler (use of a stable compiler requires you to somewhat manually translate from arguments to Rust types). To use BurntSushi's words, `docopt` is also a sort of black box. You get what you get, and it's hard to tweak implementation or customize the experience for your use case.
 
 Because `docopt` is doing a ton of work to parse your help messages and determine what you were trying to communicate as valid arguments, it's also one of the more heavy weight parsers performance-wise. For most applications this isn't a concern and this isn't to say `docopt` is slow, in fact from it. This is just something to keep in mind while comparing.
 
 #### All else being equal, what are some reasons to use `clap`?
 
-`clap` is as fast, and as lightweight as possible while still giving all the features you'd expect from a modern argument parser. In fact, for the amount and type of features `clap` offers the fact it remains about as fast as `getopts` is great. If you use `clap` when just need some simple arguments parsed, you'll find it a walk in the park. But `clap` also makes it possible to represent extremely complex, and advanced requirements, without too much thought. `clap` aims to be intuitive, easy to use, and fully capable for wide variety use cases and needs.
+`clap` is as fast, and as lightweight as possible while still giving all the features you'd expect from a modern argument parser. In fact, for the amount and type of features `clap` offers it remains about as fast as `getopts`. If you use `clap` when just need some simple arguments parsed, you'll find its a walk in the park. `clap` also makes it possible to represent extremely complex, and advanced requirements, without too much thought. `clap` aims to be intuitive, easy to use, and fully capable for wide variety use cases and needs.
 
 ## Features
 
@@ -93,46 +151,122 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 * **Flags / Switches** (i.e. bool fields)
   - Both short and long versions supported (i.e. `-f` and `--flag` respectively)
   - Supports combining short versions (i.e. `-fBgoZ` is the same as `-f -B -g -o -Z`)
-  - Optionally supports multiple occurrences (i.e. `-vvv` or `-v -v -v`)
+  - Supports multiple occurrences (i.e. `-vvv` or `-v -v -v`)
 * **Positional Arguments** (i.e. those which are based off an index from the program name)
-  - Optionally supports multiple values (i.e. `myprog <file>...` such as `myprog file1.txt file2.txt` being two values for the same "file" argument)
-  - Optionally supports Specific Value Sets (See below)
-  - Supports the unix `--` meaning, only positional arguments follow
-  - Optionally sets value parameters (such as the minimum number of values, the maximum number of values, or the exact number of values)
-* **Option Arguments** (i.e. those that take values as options)
-  - Both short and long versions supported (i.e. `-o value` or `-ovalue` and `--option value` or `--option=value` respectively)
-  - Optionally supports multiple values (i.e. `-o <value> -o <other_value>` or the shorthand `-o <value> <other_value>`)
-  - Optionally supports Specific Value Sets (See below)
-  - Optionally supports named values so that the usage/help info appears as `-o <name> <other_name>` etc. for when you require specific multiple values
-  - Optionally sets value parameters (such as the minimum number of values, the maximum number of values, or the exact number of values)
+  - Supports multiple values (i.e. `myprog <file>...` such as `myprog file1.txt file2.txt` being two values for the same "file" argument)
+  - Supports Specific Value Sets (See below)
+  - Can set value parameters (such as the minimum number of values, the maximum number of values, or the exact number of values)
+  - Can set custom validations on values to extend the argument parsing capability to truly custom domains
+* **Option Arguments** (i.e. those that take values)
+  - Both short and long versions supported (i.e. `-o value`, `-ovalue`, `-o=value` and `--option value` or `--option=value` respectively)
+  - Supports multiple values (i.e. `-o <val1> -o <val2>` or `-o <val1> <val2>`)
+  - Supports delimited values (i.e. `-o=val1,val2,val3`, can also change the delimiter)
+  - Supports Specific Value Sets (See below)
+  - Supports named values so that the usage/help info appears as `-o <FILE> <INTERFACE>` etc. for when you require specific multiple values
+  - Can set value parameters (such as the minimum number of values, the maximum number of values, or the exact number of values)
+  - Can set custom validations on values to extend the argument parsing capability to truly custom domains
 * **Sub-Commands** (i.e. `git add <file>` where `add` is a sub-command of `git`)
   - Support their own sub-arguments, and sub-sub-commands independent of the parent
   - Get their own auto-generated Help, Version, and Usage independent of parent
-* **Requirement Rules**: Arguments can optionally define the following types of requirement rules
-  - Required by default
-  - Required only if certain arguments are present
+* **Support for building CLIs from YAML** - This keeps your Rust source nice and tidy and makes supporting localized translation very simple!
+* **Requirement Rules**: Arguments can define the following types of requirement rules
+  - Can be required by default
+  - Can be required only if certain arguments are present
   - Can require other arguments to be present
-* **Exclusion/Confliction Rules**: Arguments can optionally define the following types of exclusion rules
+* **Confliction Rules**: Arguments can optionally define the following types of exclusion rules
   - Can be disallowed when certain arguments are present
   - Can disallow use of other arguments when present
-* **Groups**: Arguments can optionally be made part of a group which means one, and only one argument from this "group" may be present at runtime
-  - Fully compatible with other relational rules (requirements and exclusions) which allows things like requiring the use of a group, or denying the use of a group conditionally
-* **Specific Value Sets**: Positional or Option Arguments can optionally define a specific set of allowed values (i.e. imagine a `--mode` option which may *only* have one of two values `fast` or `slow` such as `--mode fast` or `--mode slow`)
+* **POSIX Override Rules**: Arguments can define rules to support POSIX overriding
+* **Groups**: Arguments can be made part of a group
+  - Fully compatible with other relational rules (requirements, conflicts, and overrides) which allows things like requiring the use of any arg in a group, or denying the use of an entire group conditionally
+* **Specific Value Sets**: Positional or Option Arguments can define a specific set of allowed values (i.e. imagine a `--mode` option which may *only* have one of two values `fast` or `slow` such as `--mode fast` or `--mode slow`)
 * **Default Values**: Although not specifically provided by `clap` you can achieve this exact functionality from Rust's `Option<&str>.unwrap_or("some default")` method (or `Result<T,String>.unwrap_or(T)` when using typed values)
 * **Automatic Version from Cargo.toml**: `clap` is fully compatible with Rust's `env!()` macro for automatically setting the version of your application to the version in your Cargo.toml. See [09_auto_version example](examples/09_auto_version.rs) for how to do this (Thanks to [jhelwig](https://github.com/jhelwig) for pointing this out)
-* **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) from positional or option arguments so long as the type you request implements `std::str::FromStr` See the [12_typed_values example](examples/12_typed_values.rs). You can also use `clap`s `simple_enum!` or `arg_enum!` macro to create an enum with variants that automatically implements `std::str::FromStr`. See [13a_enum_values_automatic example](examples/13a_enum_values_automatic.rs) for details and performs an ascii case insensitive parse from a `string`->`enum`.
-* **Suggestions**: Suggests corrections when the user enter's a typo. For example, if you defined a `--myoption <value>` argument, and the user mistakenly typed `--moyption value` (notice `y` and `o` switched), they would receive a `Did you mean '--myoption' ?` error and exit gracefully. This also works for subcommands and flags. (Thanks to [Byron](https://github.com/Byron) for the implementation) (This feature can optionally be disabled, see 'Optional Dependencies / Features')
-* **Colorized (Red) Errors (Non Windows OS only)**: Error message are printed in red text (this feature can optionally be disabled, see 'Optional Dependencies / Features').
+* **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) from positional or option arguments so long as the type you request implements `std::str::FromStr` See the [12_typed_values example](examples/12_typed_values.rs). You can also use `clap`s `arg_enum!` macro to create an enum with variants that automatically implement `std::str::FromStr`. See [13a_enum_values_automatic example](examples/13a_enum_values_automatic.rs) for details
+* **Suggestions**: Suggests corrections when the user enters a typo. For example, if you defined a `--myoption` argument, and the user mistakenly typed `--moyption` (notice `y` and `o` transposed), they would receive a `Did you mean '--myoption' ?` error and exit gracefully. This also works for subcommands and flags. (Thanks to [Byron](https://github.com/Byron) for the implementation) (This feature can optionally be disabled, see 'Optional Dependencies / Features')
+* **Colorized Errors (Non Windows OS only)**: Error message are printed in in colored text (this feature can optionally be disabled, see 'Optional Dependencies / Features').
 * **Global Arguments**: Arguments can optionally be defined once, and be available to all child subcommands.
 * **Custom Validations**: You can define a function to use as a validator of argument values. Imagine defining a function to validate IP addresses, or fail parsing upon error. This means your application logic can be solely focused on *using* values.
 * **POSIX Compatible Conflicts** - In POSIX args can be conflicting, but not fail parsing because whichever arg comes *last* "wins" to to speak. This allows things such as aliases (i.e. `alias ls='ls -l'` but then using `ls -C` in your terminal which ends up passing `ls -l -C` as the final arguments. Since `-l` and `-C` aren't compatible, this effectively runs `ls -C` in `clap` if you choose...`clap` also supports hard conflicts that fail parsing). (Thanks to [Vinatorul](https://github.com/Vinatorul)!)
-* **Support for building CLIs from YAML** - This keeps your Rust source nice and tidy!
+* Supports the unix `--` meaning, only positional arguments follow
 
 ## Quick Example
 
-The following examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, exclusions, groups, multiple values and occurrences see the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv), [documentation](http://kbknapp.github.io/clap-rs/clap/index.html), or [examples/](examples) directory of this repository.
+The following examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, conflicts, groups, multiple values and occurrences see the [documentation](http://kbknapp.github.io/clap-rs/clap/index.html), [examples/](examples) directory of this repository or the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv) (which are quite outdated by now).
 
  **NOTE:** All these examples are functionally the same, but show three different styles in which to use `clap`
+
+The following example is show a method that allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired. The downside is it's more verbose.
+
+```rust
+// (Full example with detailed comments in examples/01b_quick_example.rs)
+//
+// This example demonstrates clap's full 'builder pattern' style of creating arguments which is
+// more verbose, but allows easier editing, and at times more advanced options, or the possibility
+// to generate arguments dynamically.
+extern crate clap;
+use clap::{Arg, App, SubCommand};
+
+fn main() {
+    let matches = App::new("My Super Program")
+                          .version("1.0")
+                          .author("Kevin K. <kbknapp@gmail.com>")
+                          .about("Does awesome things")
+                          .arg(Arg::with_name("config")
+                               .short("c")
+                               .long("config")
+                               .value_name("FILE")
+                               .help("Sets a custom config file")
+                               .takes_value(true))
+                          .arg(Arg::with_name("INPUT")
+                               .help("Sets the input file to use")
+                               .required(true)
+                               .index(1))
+                          .arg(Arg::with_name("v")
+                               .short("v")
+                               .multiple(true)
+                               .help("Sets the level of verbosity"))
+                          .subcommand(SubCommand::with_name("test")
+                                      .about("controls testing features")
+                                      .version("1.3")
+                                      .author("Someone E. <someone_else@other.com>")
+                                      .arg(Arg::with_name("debug")
+                                          .short("d")
+                                          .help("print debug information verbosely")))
+                          .get_matches();
+
+    // Gets a value for config if supplied by user, or defaults to "default.conf"
+    let config = matches.value_of("config").unwrap_or("default.conf");
+    println!("Value for config: {}", config);
+
+    // Calling .unwrap() is safe here because "INPUT" is required (if "INPUT" wasn't
+    // required we could have used an 'if let' to conditionally get the value)
+    println!("Using input file: {}", matches.value_of("INPUT").unwrap());
+
+    // Vary the output based on how many times the user used the "verbose" flag
+    // (i.e. 'myprog -v -v -v' or 'myprog -vvv' vs 'myprog -v'
+    match matches.occurrences_of("v") {
+        0 => println!("No verbose info"),
+        1 => println!("Some verbose info"),
+        2 => println!("Tons of verbose info"),
+        3 | _ => println!("Don't be crazy"),
+    }
+
+    // You can handle information about subcommands by requesting their matches by name
+    // (as below), requesting just the name used, or both at the same time
+    if let Some(matches) = matches.subcommand_matches("test") {
+        if matches.is_present("debug") {
+            println!("Printing debug info...");
+        } else {
+            println!("Printing normally...");
+        }
+    }
+
+    // more program logic goes here...
+}
+```
+
+The following example is functionally the same as the one above, but shows a far less verbose method but sacrifices some of the advanced configuration options (not shown in this small example).
 
 ```rust
 // (Full example with detailed comments in examples/01a_quick_example.rs)
@@ -148,120 +282,25 @@ fn main() {
                           .author("Kevin K. <kbknapp@gmail.com>")
                           .about("Does awesome things")
                           .args_from_usage(
-                              "-c --config=[CONFIG] 'Sets a custom config file'
-                              <INPUT> 'Sets the input file to use'
-                              [debug]... -d 'Sets the level of debugging information'")
+                              "-c, --config=[FILE] 'Sets a custom config file'
+                              <INPUT>              'Sets the input file to use'
+                              -v...                'Sets the level of verbosity'")
                           .subcommand(SubCommand::with_name("test")
                                       .about("controls testing features")
                                       .version("1.3")
                                       .author("Someone E. <someone_else@other.com>")
-                                      .arg_from_usage("-v --verbose 'Print test information verbosely'"))
+                                      .arg_from_usage("-d, --debug 'Print debug information'"))
                           .get_matches();
 
-    // Calling .unwrap() is safe here because "INPUT" is required (if "INPUT" wasn't
-    // required we could have used an 'if let' to conditionally get the value)
-    println!("Using input file: {}", matches.value_of("INPUT").unwrap());
-
-    // Gets a value for config if supplied by user, or defaults to "default.conf"
-    let config = matches.value_of("CONFIG").unwrap_or("default.conf");
-    println!("Value for config: {}", config);
-
-    // Vary the output based on how many times the user used the "debug" flag
-    // (i.e. 'myapp -d -d -d' or 'myapp -ddd' vs 'myapp -d'
-    match matches.occurrences_of("debug") {
-        0 => println!("Debug mode is off"),
-        1 => println!("Debug mode is kind of on"),
-        2 => println!("Debug mode is on"),
-        3 | _ => println!("Don't be crazy"),
-    }
-
-    // You can handle information about subcommands by requesting their matches by name
-    // (as below), requesting just the name used, or both at the same time
-    if let Some(matches) = matches.subcommand_matches("test") {
-        if matches.is_present("verbose") {
-            println!("Printing verbosely...");
-        } else {
-            println!("Printing normally...");
-        }
-    }
-
-    // more program logic goes here...
+    // Same as previous example...
 }
 ```
 
-The following example is functionally the same as the one above, but this method allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired. Both methods can be used together to get the best of both worlds (see the documentation, examples, or video tutorials).
-
-```rust
-// (Full example with detailed comments in examples/01b_quick_example.rs)
-//
-// This example demonstrates clap's full 'builder pattern' style of creating arguments which is
-// more verbose, but allows easier editing, and at times more advanced options, or the possibility
-// to generate arguments dynamically.
-extern crate clap;
-use clap::{Arg, App, SubCommand};
-
-fn main() {
-    let matches = App::new("myapp")
-                          .version("1.0")
-                          .author("Kevin K. <kbknapp@gmail.com>")
-                          .about("Does awesome things")
-                          .arg(Arg::with_name("CONFIG")
-                               .short("c")
-                               .long("config")
-                               .help("Sets a custom config file")
-                               .takes_value(true))
-                          .arg(Arg::with_name("INPUT")
-                               .help("Sets the input file to use")
-                               .required(true)
-                               .index(1))
-                          .arg(Arg::with_name("debug")
-                               .short("d")
-                               .multiple(true)
-                               .help("Sets the level of debugging information"))
-                          .subcommand(SubCommand::with_name("test")
-                                      .about("controls testing features")
-                                      .version("1.3")
-                                      .author("Someone E. <someone_else@other.com>")
-                                      .arg(Arg::with_name("verbose")
-                                          .short("v")
-                                          .help("print test information verbosely")))
-                          .get_matches();
-
-    // Calling .unwrap() is safe here because "INPUT" is required (if "INPUT" wasn't
-    // required we could have used an 'if let' to conditionally get the value)
-    println!("Using input file: {}", matches.value_of("INPUT").unwrap());
-
-    // Gets a value for config if supplied by user, or defaults to "default.conf"
-    let config = matches.value_of("CONFIG").unwrap_or("default.conf");
-    println!("Value for config: {}", config);
-
-    // Vary the output based on how many times the user used the "debug" flag
-    // (i.e. 'myapp -d -d -d' or 'myapp -ddd' vs 'myapp -d'
-    match matches.occurrences_of("debug") {
-        0 => println!("Debug mode is off"),
-        1 => println!("Debug mode is kind of on"),
-        2 => println!("Debug mode is on"),
-        3 | _ => println!("Don't be crazy"),
-    }
-
-    // You can handle information about subcommands by requesting their matches by name
-    // (as below), requesting just the name used, or both at the same time
-    if let Some(matches) = matches.subcommand_matches("test") {
-        if matches.is_present("verbose") {
-            println!("Printing verbosely...");
-        } else {
-            println!("Printing normally...");
-        }
-    }
-
-    // more program logic goes here...
-}
-```
-
-The following combines the previous two examples by using the simplicity of the `from_usage` methods and the performance of the Builder Pattern.
+The following combines the previous two examples by using the less verbose `from_usage` methods and the performance of the Builder Pattern.
 
 ```rust
 // (Full example with detailed comments in examples/01c_quick_example.rs)
+// Must be compiled with `--features unstable`
 //
 // This example demonstrates clap's "usage strings" method of creating arguments which is less
 // less verbose
@@ -273,49 +312,22 @@ fn main() {
         (version: "1.0")
         (author: "Kevin K. <kbknapp@gmail.com>")
         (about: "Does awesome things")
-        (@arg CONFIG: -c --config +takes_value "Sets a custom config file")
+        (@arg config: -c --config +takes_value "Sets a custom config file")
         (@arg INPUT: +required "Sets the input file to use")
-        (@arg debug: -d ... "Sets the level of debugging information")
+        (@arg verbose: -v ... "Sets the level of verbosity")
         (@subcommand test =>
             (about: "controls testing features")
             (version: "1.3")
             (author: "Someone E. <someone_else@other.com>")
-            (@arg verbose: -v --verbose "Print test information verbosely")
+            (@arg verbose: -d --debug "Print debug information")
         )
     ).get_matches();
 
-    // Calling .unwrap() is safe here because "INPUT" is required (if "INPUT" wasn't
-    // required we could have used an 'if let' to conditionally get the value)
-    println!("Using input file: {}", matches.value_of("INPUT").unwrap());
-
-    // Gets a value for config if supplied by user, or defaults to "default.conf"
-    let config = matches.value_of("CONFIG").unwrap_or("default.conf");
-    println!("Value for config: {}", config);
-
-    // Vary the output based on how many times the user used the "debug" flag
-    // (i.e. 'myapp -d -d -d' or 'myapp -ddd' vs 'myapp -d'
-    match matches.occurrences_of("debug") {
-        0 => println!("Debug mode is off"),
-        1 => println!("Debug mode is kind of on"),
-        2 => println!("Debug mode is on"),
-        3 | _ => println!("Don't be crazy"),
-    }
-
-    // You can handle information about subcommands by requesting their matches by name
-    // (as below), requesting just the name used, or both at the same time
-    if let Some(matches) = matches.subcommand_matches("test") {
-        if matches.is_present("verbose") {
-            println!("Printing verbosely...");
-        } else {
-            println!("Printing normally...");
-        }
-    }
-
-    // more program logic goes here...
+// Same as previous examples...
 }
 ```
 
-This final method shows how you can use a YAML file to build your CLI and keep your Rust source tidy. First, create the `cli.yml` file to hold your CLI options, but it could be called anything we like (we'll use the same both examples above to keep it functionally equivalent):
+This final method shows how you can use a YAML file to build your CLI and keep your Rust source tidy or support multiple localized translations by having different YAML files for each localization. First, create the `cli.yml` file to hold your CLI options, but it could be called anything we like (we'll use the same both examples above to keep it functionally equivalent):
 
 ```yaml
 name: myapp
@@ -323,28 +335,29 @@ version: 1.0
 author: Kevin K. <kbknapp@gmail.com>
 about: Does awesome things
 args:
-    - CONFIG:
+    - config:
         short: c
         long: config
+        value_name: FILE
         help: Sets a custom config file
         takes_value: true
     - INPUT:
         help: Sets the input file to use
         required: true
         index: 1
-    - debug:
-        short: d
+    - verbose:
+        short: v
         multiple: true
-        help: Sets the level of debugging information
+        help: Sets the level of verbosity
 subcommands:
     - test:
         about: controls testing features
         version: 1.3
         author: Someone E. <someone_else@other.com>
         args:
-            - verbose:
-                short: v
-                help: print test information verbosely
+            - debug:
+                short: d
+                help: print debug information
 ```
 
 Now we create our `main.rs` file just like we would have with the previous two examples:
@@ -363,44 +376,17 @@ fn main() {
     let yaml = load_yaml!("cli.yml");
     let matches = App::from_yaml(yaml).get_matches();
 
-    // Calling .unwrap() is safe here because "INPUT" is required (if "INPUT" wasn't
-    // required we could have used an 'if let' to conditionally get the value)
-    println!("Using input file: {}", matches.value_of("INPUT").unwrap());
-
-    // Gets a value for config if supplied by user, or defaults to "default.conf"
-    let config = matches.value_of("CONFIG").unwrap_or("default.conf");
-    println!("Value for config: {}", config);
-
-    // Vary the output based on how many times the user used the "debug" flag
-    // (i.e. 'myapp -d -d -d' or 'myapp -ddd' vs 'myapp -d'
-    match matches.occurrences_of("debug") {
-        0 => println!("Debug mode is off"),
-        1 => println!("Debug mode is kind of on"),
-        2 => println!("Debug mode is on"),
-        3 | _ => println!("Don't be crazy"),
-    }
-
-    // You can handle information about subcommands by requesting their matches by name
-    // (as below), requesting just the name used, or both at the same time
-    if let Some(matches) = matches.subcommand_matches("test") {
-        if matches.is_present("verbose") {
-            println!("Printing verbosely...");
-        } else {
-            println!("Printing normally...");
-        }
-    }
-
-    // more program logic goes here...
+    // Same as previous examples...
 }
 ```
 
+**NOTE**: The YAML and macro builder options require adding a special `features` flag when compiling `clap` because they are not compiled by default. Simply change your `clap = "2"` to `clap = {version = "2", features = ["yaml"]}` for YAML, or `features = ["unstable"]` for the macro builder, in your `Cargo.toml`.
+
 If you were to compile any of the above programs and run them with the flag `--help` or `-h` (or `help` subcommand, since we defined `test` as a subcommand) the following would be output
 
-**NOTE**: The YAML option requires adding a special `features` flag when compiling `clap` because it is not compiled by default since it takes additional dependencies that some people may not need. Simply change your `clap = "1"` to `clap = {version = "1", features = ["yaml"]}` in your `Cargo.toml` to use the YAML version.
-
 ```sh
-$ myapp --help
-myapp 1.0
+$ myprog --help
+My Super Program 1.0
 Kevin K. <kbknapp@gmail.com>
 Does awesome things
 
@@ -408,12 +394,12 @@ USAGE:
     MyApp [FLAGS] [OPTIONS] <INPUT> [SUBCOMMAND]
 
 FLAGS:
-    -d               Turn debugging information on
     -h, --help       Prints this message
+    -v               Sets the level of verbosity
     -V, --version    Prints version information
 
 OPTIONS:
-    -c, --config <CONFIG>    Sets a custom config file
+    -c, --config <FILE>    Sets a custom config file
 
 ARGS:
     INPUT    The input file to use
@@ -444,7 +430,7 @@ To test out `clap`'s default auto-generated help/version follow these steps:
 *
 ```toml
 [dependencies]
-clap = "1"
+clap = "2"
 ```
 
 * Add the following to your `src/main.rs`
@@ -454,7 +440,7 @@ extern crate clap;
 use clap::App;
 
 fn main() {
-  let _ = App::new("fake").version("v1.0-beta").get_matches();
+  App::new("fake").version("v1.0-beta").get_matches();
 }
 ```
 
@@ -467,7 +453,7 @@ For full usage, add `clap` as a dependency in your `Cargo.toml` file to use from
 
  ```toml
  [dependencies]
- clap = "1"
+ clap = "2"
  ```
  Or track the latest on the master branch at github:
 
@@ -488,7 +474,7 @@ If you'd like to keep your dependency list to **only** `clap`, you can disable a
 
 ```toml
 [dependencies.clap]
-version = "1"
+version = "2"
 default-features = false
 ```
 
@@ -496,7 +482,7 @@ You can also selectively enable only the features you'd like to include, by addi
 
 ```toml
 [dependencies.clap]
-version = "1"
+version = "2"
 default-features = false
 
 # Cherry-pick the features you'd like to use
@@ -506,8 +492,11 @@ features = [ "suggestions", "color" ]
 The following is a list of optional `clap` features:
 
 * **"suggestions"**: Turns on the `Did you mean '--myoption' ?` feature for when users make typos.
-* **"color"**: Turns on red error messages. This feature only works on non-Windows OSs.
+* **"color"**: Turns on colored error messages. This feature only works on non-Windows OSs.
 * **"lints"**: This is **not** included by default and should only be used while developing to run basic lints against changes. This can only be used on Rust nightly.
+* **"debug"**: This is **not** included by default and should only be used while developing to display debugging information.
+* **"yaml"**: This is **not** included by default. Enables building CLIs from YAML documents.
+* **"unstable"**: This is **not** included by default. Enables unstable features, unstable refers to whether or not they may change, not performance stability.
 
 ### Dependencies Tree
 
@@ -545,7 +534,11 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) before you start contributing.
 If contributing, you can run the tests as follows (assuming you're in the `clap-rs` directory)
 
 ```
-cargo test --features yaml && make -C clap-tests test
+$ cargo test && make -C clap-tests test
+$ cargo test --features yaml
+
+# Only on nightly compiler:
+$ cargo build --features lints
 ```
 
 ### Goals
@@ -568,43 +561,52 @@ There are a few goals of `clap` that I'd like to maintain throughout contributio
 
 ## Recent Breaking Changes
 
-Although I do my best to keep breaking changes to a minimum, there are breaking changes from time to time in order to support better features or implementation. For the full details, see [CHANGELOG.md](./CHANGELOG.md).
+`clap` follows semantic versioning, so breaking changes should only happen upon major version bumps. The only exception to this rule is breaking changes that happen due to implementation that was deemed to be a bug, security concerns, or it can be reasonably proved to affect no code. For the full details, see [CHANGELOG.md](./CHANGELOG.md).
 
-* As of 1.3.0
- - `ArgGroup::add_all` now takes `&[&str]` instead of a `Vec<&str>`
- - `ArgGroup::requires_all` now takes `&[&str]` instead of a `Vec<&str>`
- - `ArgGroup::conflicts_with_all` now takes `&[&str]` instead of a `Vec<&str>`
+As of 2.0.0 (From 1.x)
 
-* As of 0.11.0: The default short flag for `version` has changed from `-v` to `-V` (Uppercase). Although you can also now override the short flag for `help` and `version` using `App::help_short()` and `App::version_short()`
-* As of 0.7.0
-  - `Arg::possible_values()`, `Arg::value_names()`, `Arg::requires_all()`, `Arg::mutually_excludes_all()` [deprecated], `Arg::conflicts_with_all()`
-    + No longer take a `Vec<&str>`, instead they take a generic `IntoIterator<Item=AsRef<str>>` which means you cannot use an inline `vec![]` but it means the methods are now far more flexible, especially for dynamic value generation.
-    + Instead use something that conforms to the `IntoIterator` trait, or something like:
-
-    ```rust
-    let my_vals = ["value1", "value2", "value3"];
-    ...
-    .possible_values(&my_vals)
-    ```
+* **Fewer liftimes! Yay!**
+ * `App<'a, 'b, 'c, 'd, 'e, 'f>` => `App<'a, 'b>`
+ * `Arg<'a, 'b, 'c, 'd, 'e, 'f>` => `Arg<'a, 'b>`
+ * `ArgMatches<'a, 'b>` => `ArgMatches<'a>`
+* **Simply Renamed**
+ * `App::arg_group` => `App::group`
+ * `App::arg_groups` => `App::groups`
+ * `ArgGroup::add` => `ArgGroup::arg`
+ * `ArgGroup::add_all` => `ArgGroup::args`
+ * `ClapError` => `Error`
+  * struct field `ClapError::error_type` => `Error::kind`
+ * `ClapResult` => `Result`
+ * `ClapErrorType` => `ErrorKind`
+* **Removed Deprecated Functions and Methods**
+ * `App::subcommands_negate_reqs`
+ * `App::subcommand_required`
+ * `App::arg_required_else_help`
+ * `App::global_version(bool)`
+ * `App::versionless_subcommands`
+ * `App::unified_help_messages`
+ * `App::wait_on_error`
+ * `App::subcommand_required_else_help`
+ * `SubCommand::new`
+ * `App::error_on_no_subcommand`
+ * `Arg::new`
+ * `Arg::mutually_excludes`
+ * `Arg::mutually_excludes_all`
+ * `Arg::mutually_overrides_with`
+ * `simple_enum!`
+* **Renamed Error Variants**
+ * `InvalidUnicode` => `InvalidUtf8`
+ * `InvalidArgument` => `UnknownArgument`
+* **Usage Parser**
+ * Value names can now be specified inline, i.e. `-o, --option <FILE> <FILE2> 'some option which takes two files'`
+ * **There is now a priority of order to determine the name** - This is perhaps the biggest breaking change. See the documentation for full details. Prior to this change, the value name took precedence. **Ensure your args are using the proper names (i.e. typically the long or short and NOT the value name) throughout the code**
+* `ArgMatches::values_of` returns an `Values` now which implements `Iterator` (should not break any code)
+* `crate_version!` returns `&'static str` instead of `String`
 
 ### Deprecations
 
-Old method names will be left around for some time.
+Old method names will be left around for several minor version bumps, or one major version bump.
 
-* As of 1.2.0 (Will **not** be removed until 2.x)
- - `App::subcommands_negate_reqs(bool)` -> `AppSettings::SubcommandsNegateReqs` passed to `App::setting()`
- - `App::subcommand_required(bool)` -> `AppSettings::SubcommandRequired` passed to `App::setting()`
- - `App::arg_required_else_help(bool)` -> `AppSettings::ArgRequiredElseHelp` passed to `App::setting()`
- - `App::global_version(bool)` -> `AppSettings::GlobalVersion` passed to `App::setting()`
- - `App::versionless_subcommands(bool)` -> `AppSettings::VersionlessSubcommands` passed to `App::setting()`
- - `App::unified_help_messages(bool)` -> `AppSettings::UnifiedHelpMessages` passed to `App::setting()`
- - `App::wait_on_error(bool)` -> `AppSettings::WaitOnError` passed to `App::setting()`
- - `App::subcommand_required_else_help(bool)` -> `AppSettings::SubcommandRequiredElseHelp` passed to `App::setting()`
+As of 2.0.0:
 
-* As of 0.10.0
- - `SubCommand::new()` -> `SubCommand::with_name()` (Removed as of 1.0.0)
- - `App::error_on_no_subcommand()` -> `App::subcommand_required()` (Removed as of 1.0.0)
-* As of 0.6.8
- - `Arg::new()` -> `Arg::with_name()` (Removed as of 1.0.0)
- - `Arg::mutually_excludes()` -> `Arg::conflicts_with()` (Removed as of 1.0.0)
- - `Arg::mutually_excludes_all()` -> `Arg::conflicts_with_all()` (Removed as of 1.0.0)
+ * None!

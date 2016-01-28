@@ -8,57 +8,54 @@ use vec_map;
 
 use args::SubCommand;
 use args::MatchedArg;
-use utf8::INVALID_UTF8;
+use INVALID_UTF8;
 
 /// Used to get information about the arguments that where supplied to the program at runtime by
-/// the user. To get a new instance of this struct you use `.get_matches()` of the `App` struct.
-///
+/// the user. New instances of this struct are obtained by using the `App::get_matches` family of
+/// methods.
 ///
 /// # Examples
 ///
 /// ```no_run
 /// # use clap::{App, Arg};
 /// let matches = App::new("MyApp")
-/// // adding of arguments and configuration goes here...
-/// #                    .arg(Arg::with_name("config")
-/// #                               .long("config")
-/// #                               .required(true)
-/// #                               .takes_value(true))
-/// #                    .arg(Arg::with_name("debug")
-/// #                                   .short("d")
-/// #                                   .multiple(true))
-///                     .get_matches();
-/// // if you had an argument named "output" that takes a value
-/// if let Some(o) = matches.value_of("output") {
-///     println!("Value for output: {}", o);
+///     .arg(Arg::with_name("out")
+///         .long("output")
+///         .required(true)
+///         .takes_value(true))
+///     .arg(Arg::with_name("debug")
+///         .short("d")
+///         .multiple(true))
+///     .arg(Arg::with_name("cfg")
+///         .short("c")
+///         .takes_value(true))
+///     .get_matches(); // builds the instance of ArgMatches
+///
+/// // to get information about the "cfg" argument we created, such as the value supplied we use
+/// // various ArgMatches methods, such as ArgMatches::value_of
+/// if let Some(c) = matches.value_of("cfg") {
+///     println!("Value for -c: {}", c);
 /// }
 ///
-/// // If you have a required argument you can call .unwrap() because the program will exit long
-/// // before this point if the user didn't specify it at runtime.
-/// println!("Config file: {}", matches.value_of("config").unwrap());
+/// // The ArgMatches::value_of method returns an Option because the user may not have supplied
+/// // that argument at runtime. But if we specified that the argument was "required" as we did
+/// // with the "out" argument, we can safely unwrap because `clap` verifies that was actually
+/// // used at runtime.
+/// println!("Value for --output: {}", matches.value_of("out").unwrap());
 ///
 /// // You can check the presence of an argument
-/// if matches.is_present("debug") {
+/// if matches.is_present("out") {
 ///     // Another way to check if an argument was present, or if it occurred multiple times is to
 ///     // use occurrences_of() which returns 0 if an argument isn't found at runtime, or the
 ///     // number of times that it occurred, if it was. To allow an argument to appear more than
 ///     // once, you must use the .multiple(true) method, otherwise it will only return 1 or 0.
 ///     if matches.occurrences_of("debug") > 2 {
-///         println!("Debug mode is REALLY on");
+///         println!("Debug mode is REALLY on, don't be crazy");
 ///     } else {
 ///         println!("Debug mode kind of on");
 ///     }
 /// }
-///
-/// // You can get the sub-matches of a particular subcommand (in this case "test")
-/// // If "test" had it's own "-l" flag you could check for it's presence accordingly
-/// if let Some(ref matches) = matches.subcommand_matches("test") {
-///     if matches.is_present("list") {
-///         println!("Printing testing lists...");
-///     } else {
-///         println!("Not printing testing lists...");
-///     }
-/// }
+/// ```
 #[derive(Debug, Clone)]
 pub struct ArgMatches<'a> {
     #[doc(hidden)]
@@ -80,15 +77,6 @@ impl<'a> Default for ArgMatches<'a> {
 }
 
 impl<'a> ArgMatches<'a> {
-    /// Creates a new instance of `ArgMatches`. This ins't called directly, but
-    /// through the `.get_matches()` method of `App`
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// let matches = App::new("myprog").get_matches();
-    /// ```
     #[doc(hidden)]
     pub fn new() -> Self { ArgMatches { ..Default::default() } }
 
@@ -97,11 +85,15 @@ impl<'a> ArgMatches<'a> {
     /// it returns `None`.
     ///
     /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
-    /// prefer `values_of()` as `value_of()` will only return the _*first*_ value.
+    /// prefer `values_of()` as `value_of()` will only return the *first* value.
+    ///
+    /// # Panics
+    ///
+    /// This method will `panic!` if the value contains invalid UTF-8 code points.
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("myapp")
     ///     .arg(Arg::with_name("output")
@@ -119,12 +111,12 @@ impl<'a> ArgMatches<'a> {
         None
     }
 
-    /// Gets the lossy value of a specific argument If the option wasn't present at runtime
+    /// Gets the lossy value of a specific argument. If the argument wasn't present at runtime
     /// it returns `None`. A lossy value is one which contains invalid UTF-8 code points, those
     /// invalid points will be replaced with `\u{FFFD}`
     ///
     /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
-    /// prefer `lossy_values_of()` as `lossy_value_of()` will only return the _*first*_ value.
+    /// prefer `lossy_values_of()` as `lossy_value_of()` will only return the *first* value.
     ///
     /// # Examples
     ///
@@ -149,17 +141,14 @@ impl<'a> ArgMatches<'a> {
         None
     }
 
-    /// Gets the OS version of a string value of a specific argument If the option wasn't present at
-    /// runtime it returns `None`. An OS value on Unix-like systems is any series of bytes, regardless
-    /// of whether or not they contain valid UTF-8 code points. Since `String`s in Rust are
-    /// garunteed to be valid UTF-8, a valid filename as an argument value on Linux (for example) may
-    /// contain invalid UTF-8 code points. This would cause a `panic!` or only the abiltiy to get a
-    /// lossy version of the file name (i.e. one where the invalid code points were replaced with
-    /// `\u{FFFD}`). This method returns an `OsString` which allows one to represent those strings
-    /// which rightfully contain invalid UTF-8.
+    /// Gets the OS version of a string value of a specific argument. If the option wasn't present
+    /// at runtime it returns `None`. An OS value on Unix-like systems is any series of bytes,
+    /// regardless of whether or not they contain valid UTF-8 code points. Since `String`s in Rust
+    /// are garunteed to be valid UTF-8, a valid filename on a Unix system as an argument value may
+    /// contain invalid UTF-8 code points.
     ///
     /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
-    /// prefer `os_values_of()` as `os_value_of()` will only return the _*first*_ value.
+    /// prefer `os_values_of()` as `os_value_of()` will only return the *first* value.
     ///
     /// # Examples
     ///
@@ -173,30 +162,33 @@ impl<'a> ArgMatches<'a> {
     ///     .get_matches_from(vec![OsString::from("myprog"),
     ///                             // "Hi {0xe9}!"
     ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
-    /// assert_eq!(&*m.os_value_of("arg").unwrap().as_bytes(), &[b'H', b'i', b' ', 0xe9, b'!']);
+    /// assert_eq!(&*m.os_value_of("arg").unwrap().as_bytes(), [b'H', b'i', b' ', 0xe9, b'!']);
     /// ```
     pub fn os_value_of<S: AsRef<str>>(&self, name: S) -> Option<&OsStr> {
         self.args.get(name.as_ref()).map_or(None, |arg| arg.vals.values().nth(0).map(|v| v.as_os_str()))
     }
 
-    /// Gets the values of a specific option or positional argument in a vector (i.e. an argument
-    /// that takes multiple values at runtime). If the option wasn't present at runtime it
-    /// returns `None`
+    /// Gets an Iterator of values of a specific argument (i.e. an argument that takes multiple
+    /// values at runtime). If the option wasn't present at runtime it returns `None`
+    ///
+    /// # Panics
+    ///
+    /// This method will panic if any of the values contain invalid UTF-8 code points.
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg};
-    /// # let matches = App::new("myapp")
-    /// #     .arg(Arg::with_name("output").takes_value(true)).get_matches();
-    /// // If the program had option "-c" that took a value and was run
-    /// // via "myapp -o some -o other -o file"
-    /// // values_of() would return a [&str; 3] ("some", "other", "file")
-    /// if let Some(os) = matches.values_of("output") {
-    ///        for o in os {
-    ///            println!("A value for output: {}", o);
-    ///        }
-    /// }
+    /// let m = App::new("myprog")
+    ///     .arg(Arg::with_name("output")
+    ///         .multiple(true)
+    ///         .short("o")
+    ///         .takes_value(true))
+    ///     .get_matches_from(vec![
+    ///         "myprog", "-o", "val1", "val2", "val3"
+    ///     ]);
+    /// let vals: Vec<&str> = m.values_of("output").unwrap().collect();
+    /// assert_eq!(vals, ["val1", "val2", "val3"]);
     /// ```
     pub fn values_of<S: AsRef<str>>(&'a self, name: S) -> Option<Values<'a>> {
         if let Some(ref arg) = self.args.get(name.as_ref()) {
@@ -241,10 +233,7 @@ impl<'a> ArgMatches<'a> {
     /// at runtime it returns `None`. An OS value on Unix-like systems is any series of bytes,
     /// regardless of whether or not they contain valid UTF-8 code points. Since `String`s in Rust
     /// are garunteed to be valid UTF-8, a valid filename as an argument value on Linux (for
-    /// example) may contain invalid UTF-8 code points. This would cause a `panic!` or only the
-    /// abiltiy to get a lossy version of the file name (i.e. one where the invalid code points
-    /// were replaced with `\u{FFFD}`). This method returns an `OsString` which allows one to
-    /// represent those strings which rightfully contain invalid UTF-8.
+    /// example) may contain invalid UTF-8 code points.
     ///
     /// # Examples
     ///
@@ -275,18 +264,20 @@ impl<'a> ArgMatches<'a> {
         None
     }
 
-    /// Returns if an argument was present at runtime.
-    ///
+    /// Returns `true` if an argument was present at runtime, otherwise `false`.
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg};
-    /// # let matches = App::new("myapp")
-    /// #     .arg(Arg::with_name("output").takes_value(true)).get_matches();
-    /// if matches.is_present("output") {
-    ///        println!("The output argument was used!");
-    /// }
+    /// let m = App::new("myprog")
+    ///     .arg(Arg::with_name("debug")
+    ///         .short("d"))
+    ///     .get_matches_from(vec![
+    ///         "myprog", "-d"
+    ///     ]);
+    ///
+    /// assert!(m.is_present("debug"));
     /// ```
     pub fn is_present<S: AsRef<str>>(&self, name: S) -> bool {
         if let Some(ref sc) = self.subcommand {
@@ -297,60 +288,132 @@ impl<'a> ArgMatches<'a> {
         self.args.contains_key(name.as_ref())
     }
 
-    /// Returns the number of occurrences of an option, flag, or positional argument at runtime.
-    /// If an argument isn't present it will return `0`. Can be used on arguments which *don't*
-    /// allow multiple occurrences, but will obviously only return `0` or `1`.
+    /// Returns the number of times an argument was used at runtime. If an argument isn't present
+    /// it will return `0`.
     ///
+    /// **NOTE:** This returns the number of times the argument was used, *not* the number of
+    /// values. For example, `-o val1 val2 val3 -o val4` would return `2`.
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg};
-    /// # let matches = App::new("myapp")
-    /// #     .arg(Arg::with_name("output").takes_value(true)).get_matches();
-    /// if matches.occurrences_of("debug") > 1 {
-    ///     println!("Debug mode is REALLY on");
-    /// } else {
-    ///     println!("Debug mode kind of on");
-    /// }
+    /// let m = App::new("myprog")
+    ///     .arg(Arg::with_name("debug")
+    ///         .short("d")
+    ///         .multiple(true))
+    ///     .get_matches_from(vec![
+    ///         "myprog", "-d", "-d", "-d"
+    ///     ]);
+    ///
+    /// assert_eq!(m.occurrences_of("debug"), 3);
+    /// ```
+    ///
+    /// This next example shows that counts actual uses of the argument, not just `-`'s
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myprog")
+    ///     .arg(Arg::with_name("debug")
+    ///         .short("d")
+    ///         .multiple(true))
+    ///     .arg(Arg::with_name("flag")
+    ///         .short("f"))
+    ///     .get_matches_from(vec![
+    ///         "myprog", "-ddfd"
+    ///     ]);
+    ///
+    /// assert_eq!(m.occurrences_of("debug"), 3);
+    /// assert_eq!(m.occurrences_of("flag"), 1);
     /// ```
     pub fn occurrences_of<S: AsRef<str>>(&self, name: S) -> u8 {
         self.args.get(name.as_ref()).map_or(0, |a| a.occurs)
     }
 
-    /// Returns the `ArgMatches` for a particular subcommand or None if the subcommand wasn't
-    /// present at runtime.
-    ///
+    /// Because subcommands are essentially "sub-apps" they have their own `ArgMatches` as well.
+    /// This method returns the `ArgMatches` for a particular subcommand or None if the subcommand
+    /// wasn't present at runtime.
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, SubCommand};
-    /// # let app_matches = App::new("myapp")
-    /// #     .subcommand(SubCommand::with_name("test")).get_matches();
-    /// if let Some(matches) = app_matches.subcommand_matches("test") {
-    ///     // Use matches as normal
+    /// let app_m = App::new("myprog")
+    ///     .arg(Arg::with_name("debug")
+    ///         .short("d"))
+    ///     .subcommand(SubCommand::with_name("test")
+    ///         .arg(Arg::with_name("opt")
+    ///             .long("option")
+    ///             .takes_value(true)))
+    ///     .get_matches_from(vec![
+    ///         "myprog", "-d", "test", "--option", "val"
+    ///     ]);
+    ///
+    /// // Both parent commands, and child subcommands can have arguments present at the same times
+    /// assert!(app_m.is_present("debug"));
+    ///
+    /// // Get the subcommand's ArgMatches instance
+    /// if let Some(sub_m) = app_m.subcommand_matches("test") {
+    ///     // Use the struct like normal
+    ///     assert_eq!(sub_m.value_of("opt"), Some("val"));
     /// }
     /// ```
     pub fn subcommand_matches<S: AsRef<str>>(&self, name: S) -> Option<&ArgMatches<'a>> {
         self.subcommand.as_ref().map(|s| if s.name == name.as_ref() { Some(&s.matches) } else { None } ).unwrap()
     }
 
-    /// Returns the name of the subcommand used of the parent `App`, or `None` if one wasn't found
+    /// Because subcommands are essentially "sub-apps" they have their own `ArgMatches` as well.
+    /// But simply getting the sub-`ArgMatches` doesn't help much if we don't also know which
+    /// subcommand was actually used. This method returns the name of the subcommand that was used
+    /// at runtime, or `None` if one wasn't.
     ///
-    /// *NOTE*: Only a single subcommand may be present per `App` at runtime, does *NOT* check for
-    /// the name of sub-subcommand's names
+    /// *NOTE*: Subcommands form a hierarchy, where multiple subcommands can be used at runtime,
+    /// but only a single subcommand from any group of sibling commands may used at once.
     ///
+    /// An ASCII art depiction may help explain this better...Using a fictional version of `git` as
+    /// the demo subject. Imagine the following are all subcommands of `git` (note, the author is
+    /// aware these aren't actually all subcommands in the real `git` interface, but it makes
+    /// explaination easier)
+    ///
+    /// ```notrust
+    ///              Top Level App (git)                         TOP
+    ///                              |
+    ///       -----------------------------------------
+    ///      /             |                \          \
+    ///   clone          push              add       commit      LEVEL 1
+    ///     |           /    \            /    \       |
+    ///    url      origin   remote    ref    name   message     LEVEL 2
+    ///             /                  /\
+    ///          path            remote  local                   LEVEL 3
+    /// ```
+    ///
+    /// Given the above fictional subcommand hierarchy, valid runtime uses would be (not an all
+    /// inclusive list, and not including argument options per command for brevity and clarity):
+    ///
+    /// ```ignore
+    /// $ git clone url
+    /// $ git push origin path
+    /// $ git add ref local
+    /// $ git commit message
+    /// ```
+    ///
+    /// Notice only one command per "level" may be used. You could not, for example, do `$ git
+    /// clone url push origin path`
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
-    /// # let app_matches = App::new("myapp")
-    /// #     .subcommand(SubCommand::with_name("test")).get_matches();
-    /// match app_matches.subcommand_name() {
-    ///     Some("test")   => {}, // test was used
-    ///     Some("config") => {}, // config was used
+    ///  let app_m = App::new("git")
+    ///      .subcommand(SubCommand::with_name("clone"))
+    ///      .subcommand(SubCommand::with_name("push"))
+    ///      .subcommand(SubCommand::with_name("commit"))
+    ///      .get_matches();
+    ///
+    /// match app_m.subcommand_name() {
+    ///     Some("clone")  => {}, // clone was used
+    ///     Some("push")   => {}, // push was used
+    ///     Some("commit") => {}, // commit was used
     ///     _              => {}, // Either no subcommand or one not tested for...
     /// }
     /// ```
@@ -358,20 +421,48 @@ impl<'a> ArgMatches<'a> {
         self.subcommand.as_ref().map(|sc| &sc.name[..])
     }
 
-    /// Returns the name and `ArgMatches` of the subcommand used at runtime or ("", None) if one
-    /// wasn't found.
-    ///
+    /// This brings together `ArgMatches::subcommand_matches` and `ArgMatches::subcommand_name` by
+    /// returning a tuple with both pieces of information.
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
-    /// # let app_matches = App::new("myapp")
-    /// #     .subcommand(SubCommand::with_name("test")).get_matches();
-    /// match app_matches.subcommand() {
-    ///     ("test", Some(matches))   => {}, // test was used
-    ///     ("config", Some(matches)) => {}, // config was used
-    ///     _                         => {}, // Either no subcommand or one not tested for...
+    ///  let app_m = App::new("git")
+    ///      .subcommand(SubCommand::with_name("clone"))
+    ///      .subcommand(SubCommand::with_name("push"))
+    ///      .subcommand(SubCommand::with_name("commit"))
+    ///      .get_matches();
+    ///
+    /// match app_m.subcommand() {
+    ///     ("clone",  Some(sub_m)) => {}, // clone was used
+    ///     ("push",   Some(sub_m)) => {}, // push was used
+    ///     ("commit", Some(sub_m)) => {}, // commit was used
+    ///     _                       => {}, // Either no subcommand or one not tested for...
+    /// }
+    /// ```
+    ///
+    /// Another useful scenario is when you want to support third party, or external, subcommands.
+    /// In these cases you can't know the subcommand name ahead of time, so use a variable instead
+    /// with pattern matching!
+    ///
+    /// ```rust
+    /// # use clap::{App, AppSettings};
+    /// // Assume there is an external subcommand named "subcmd"
+    /// let app_m = App::new("myprog")
+    ///     .setting(AppSettings::AllowExternalSubcommands)
+    ///     .get_matches_from(vec![
+    ///         "myprog", "subcmd", "--option", "value", "-fff", "--flag"
+    ///     ]);
+    ///
+    /// // All trailing arguments will be stored under the subcommand's sub-matches using a value
+    /// // of the runtime subcommand name (in this case "subcmd")
+    /// match app_m.subcommand() {
+    ///     (external, Some(sub_m)) => {
+    ///          let ext_args: Vec<&str> = sub_m.values_of(external).unwrap().collect();
+    ///          assert_eq!(ext_args, ["--option", "value", "-fff", "--flag"]);
+    ///     },
+    ///     _ => {},
     /// }
     /// ```
     pub fn subcommand(&self) -> (&str, Option<&ArgMatches<'a>>) {
@@ -380,14 +471,15 @@ impl<'a> ArgMatches<'a> {
 
     /// Returns a string slice of the usage statement for the `App` (or `SubCommand`)
     ///
-    ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
-    /// # let app_matches = App::new("myapp")
-    /// #     .subcommand(SubCommand::with_name("test")).get_matches();
-    /// println!("{}",app_matches.usage());
+    /// let app_m = App::new("myprog")
+    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .get_matches();
+    ///
+    /// println!("{}", app_m.usage());
     /// ```
     pub fn usage(&self) -> &str {
         self.usage.as_ref().map_or("", |u| &u[..])

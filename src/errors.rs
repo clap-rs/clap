@@ -10,9 +10,10 @@ use fmt::Format;
 use suggestions;
 use args::any_arg::AnyArg;
 
+/// Short hand for result type
 pub type Result<T> = StdResult<T, Error>;
 
-/// Command line argument parser error
+/// Command line argument parser kind of error
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum ErrorKind {
     /// Occurs when an `Arg` has a set of possible values, and the user provides a value which
@@ -20,7 +21,7 @@ pub enum ErrorKind {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("myprog")
     ///     .arg(Arg::with_name("speed")
@@ -35,7 +36,7 @@ pub enum ErrorKind {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("myprog")
     ///     .arg(Arg::from_usage("--flag 'some flag'"))
@@ -50,7 +51,7 @@ pub enum ErrorKind {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, ErrorKind, SubCommand};
     /// let result = App::new("myprog")
     ///     .subcommand(SubCommand::with_name("config")
@@ -58,7 +59,7 @@ pub enum ErrorKind {
     ///         .arg(Arg::with_name("config_file")
     ///             .help("The configuration file to use")
     ///             .index(1)))
-    ///     .get_matches_from_safe(vec!["myprog", "other"]);
+    ///     .get_matches_from_safe(vec!["myprog", "confi"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidSubcommand);
     /// ```
@@ -67,14 +68,15 @@ pub enum ErrorKind {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let result = App::new("myprog")
+    /// let res = App::new("myprog")
     ///     .arg(Arg::with_name("color")
+    ///          .long("color")
     ///          .empty_values(false))
-    ///     .get_matches_from_safe(vec!["myprog", "--debug", ""]);
-    /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorKind::EmptyValue);
+    ///     .get_matches_from_safe(vec!["myprog", "--color="]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
     /// ```
     EmptyValue,
     /// Occurs when the user provides a value for an argument with a custom validation and the
@@ -82,7 +84,7 @@ pub enum ErrorKind {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// fn is_numeric(val: String) -> Result<(), String> {
     ///     match val.parse::<i64>() {
@@ -104,14 +106,13 @@ pub enum ErrorKind {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("some_opt")
-    ///         .long("opt")
-    ///         .takes_value(true)
+    ///     .arg(Arg::with_name("arg")
+    ///         .multiple(true)
     ///         .max_values(2))
-    ///     .get_matches_from_safe(vec!["myprog", "--opt", "too", "many", "values"]);
+    ///     .get_matches_from_safe(vec!["myprog", "too", "many", "values"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::TooManyValues);
     /// ```
@@ -121,7 +122,7 @@ pub enum ErrorKind {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("myprog")
     ///     .arg(Arg::with_name("some_opt")
@@ -133,27 +134,29 @@ pub enum ErrorKind {
     /// ```
     TooFewValues,
     /// Occurs when the user provides a different number of values for an argument than what's
-    /// been defined by setting `Arg::number_of_values`
+    /// been defined by setting `Arg::number_of_values` or than was implicitly set by
+    /// `Arg::value_names`
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("myprog")
     ///     .arg(Arg::with_name("some_opt")
     ///         .long("opt")
     ///         .takes_value(true)
     ///         .number_of_values(2))
-    ///     .get_matches_from_safe(vec!["myprog", "--opt", "wrong", "number", "of", "vals"]);
+    ///     .get_matches_from_safe(vec!["myprog", "--opt", "wrong"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
     /// ```
     WrongNumberOfValues,
-    /// Occurs when the user provides two values which conflict and can't be used together.
+    /// Occurs when the user provides two values which conflict with each other and can't be used
+    /// together.
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("myprog")
     ///     .arg(Arg::with_name("debug")
@@ -170,7 +173,7 @@ pub enum ErrorKind {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("myprog")
     ///     .arg(Arg::with_name("debug")
@@ -185,17 +188,17 @@ pub enum ErrorKind {
     ///
     /// # Examples
     ///
-    /// ```no_run
-    /// # use clap::{App, Arg, AppSettings, ErrorKind, SubCommand};
-    /// let result = App::new("myprog")
+    /// ```rust
+    /// # use clap::{App, AppSettings, SubCommand, ErrorKind};
+    /// let err = App::new("myprog")
     ///     .setting(AppSettings::SubcommandRequired)
-    ///     .subcommand(SubCommand::with_name("config")
-    ///         .about("Used for configuration")
-    ///         .arg(Arg::with_name("config_file")
-    ///             .help("The configuration file to use")))
-    ///     .get_matches_from_safe(vec!["myprog"]);
-    /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorKind::MissingSubcommand);
+    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .get_matches_from_safe(vec![
+    ///         "myprog",
+    ///     ]);
+    /// assert!(err.is_err());
+    /// assert_eq!(err.unwrap_err().kind, ErrorKind::MissingSubcommand);
+    /// # ;
     /// ```
     MissingSubcommand,
     /// Occurs when either an argument or subcommand is required, as defined by
@@ -203,7 +206,7 @@ pub enum ErrorKind {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, AppSettings, ErrorKind, SubCommand};
     /// let result = App::new("myprog")
     ///     .setting(AppSettings::ArgRequiredElseHelp)
@@ -221,10 +224,11 @@ pub enum ErrorKind {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("myprog")
     ///     .arg(Arg::with_name("debug")
+    ///         .long("debug")
     ///         .multiple(false))
     ///     .get_matches_from_safe(vec!["myprog", "--debug", "--debug"]);
     /// assert!(result.is_err());
@@ -264,7 +268,7 @@ pub enum ErrorKind {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("myprog")
     ///     .get_matches_from_safe(vec!["myprog", "--help"]);
@@ -277,7 +281,7 @@ pub enum ErrorKind {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("myprog")
     ///     .get_matches_from_safe(vec!["myprog", "--version"]);
@@ -289,9 +293,9 @@ pub enum ErrorKind {
     /// type `T`, but the argument you requested wasn't used. I.e. you asked for an argument with
     /// name `config` to be converted, but `config` wasn't used by the user.
     ArgumentNotFound,
-    /// Represents an I/O error, typically white writing to stderr or stdout
+    /// Represents an I/O error, typically while writing to `stderr` or `stdout`
     Io,
-    /// Represents an Rust Display Format error, typically white writing to stderr or stdout
+    /// Represents an Rust Display Format error, typically white writing to `stderr` or `stdout`
     Format,
 }
 
@@ -604,7 +608,7 @@ impl Error {
                            if !did_you_mean.is_empty() {
                                format!("{}\n", did_you_mean)
                            } else {
-                               "".to_owned()
+                               "\n".to_owned()
                            },
                            usage,
                            Format::Good("--help")),

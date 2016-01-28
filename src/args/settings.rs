@@ -13,6 +13,7 @@ bitflags! {
     }
 }
 
+#[doc(hidden)]
 #[derive(Debug, Clone)]
 pub struct ArgFlags(Flags);
 

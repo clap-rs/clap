@@ -17,6 +17,7 @@ enum UsageToken {
     Unknown
 }
 
+#[doc(hidden)]
 #[derive(Debug)]
 pub struct UsageParser<'a> {
     usage: &'a str,
@@ -60,7 +61,7 @@ impl<'a> UsageParser<'a> {
                 }
             } else { break; }
         }
-        if arg.name.is_empty() { panic!("No name found for Arg when parsing usage string: {}", self.usage) }
+        assert!(!arg.name.is_empty(), format!("No name found for Arg when parsing usage string: {}", self.usage));
         let n_vals = if let Some(ref v) = arg.val_names { v.len() } else { 0 };
         if n_vals > 1 {
             arg.num_vals = Some(n_vals as u8);
