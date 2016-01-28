@@ -6,6 +6,7 @@ The following is a list of contributors to the [clap](https://github.com/kbknapp
  * [Brad Urani](https://github.com/bradurani)
  * [Dabo Ross](https://github.com/daboross) <<daboross@daboross.net>>
  * [Georg Brandl](https://github.com/birkenfeld) <<georg@python.org>>
+ * [Paul Blouët](https://github.com/Georgi) <<paul@paulblouet.fr>>
  * [grossws](https://github.com/grossws)
  * [Ivan Dmitrievsky](https://github.com/idmit) <<ivan.dmitrievsky@gmail.com>>
  * [Homu](https://github.com/homu)
