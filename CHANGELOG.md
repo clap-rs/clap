@@ -1,3 +1,79 @@
+<a name="v2.0.0"></a>
+## v2.0.0 (2016-01-28)
+
+
+#### Improvements
+
+* **From Usage:**  vastly improves the usage parser ([fa3a2f86](https://github.com/kbknapp/clap-rs/commit/fa3a2f86bd674c5eb07128c95098fab7d1437247), closes [#350](https://github.com/kbknapp/clap-rs/issues/350))
+
+#### Features
+
+*   adds support for external subcommands ([177fe5cc](https://github.com/kbknapp/clap-rs/commit/177fe5cce745c2164a8e38c23be4c4460d2d7211), closes [#372](https://github.com/kbknapp/clap-rs/issues/372))
+*   adds support values with a leading hyphen ([e4d429b9](https://github.com/kbknapp/clap-rs/commit/e4d429b9d52e95197bd0b572d59efacecf305a59), closes [#385](https://github.com/kbknapp/clap-rs/issues/385))
+*   adds support for turning off the value delimiter ([508db850](https://github.com/kbknapp/clap-rs/commit/508db850a87c2e251cf6b6ddead9ad56b29f9e57), closes [#352](https://github.com/kbknapp/clap-rs/issues/352))
+*   adds support changing the value delimiter ([dafeae8a](https://github.com/kbknapp/clap-rs/commit/dafeae8a526162640f6a68da434370c64d190889), closes [#353](https://github.com/kbknapp/clap-rs/issues/353))
+*   adds support for comma separated values ([e69da6af](https://github.com/kbknapp/clap-rs/commit/e69da6afcd2fe48a3c458ca031db40997f860eda), closes [#348](https://github.com/kbknapp/clap-rs/issues/348))
+*   adds support with options with optional values ([4555736c](https://github.com/kbknapp/clap-rs/commit/4555736cad01441dcde4ea84a285227e0844c16e), closes [#367](https://github.com/kbknapp/clap-rs/issues/367))
+* **UTF-8:**  adds support for invalid utf8 in values ([c5c59dec](https://github.com/kbknapp/clap-rs/commit/c5c59dec0bc33b86b2e99d30741336f17ec84282), closes [#269](https://github.com/kbknapp/clap-rs/issues/269))
+* **v2:**  implementing the base of 2.x ([a3536054](https://github.com/kbknapp/clap-rs/commit/a3536054512ba833533dc56615ce3663d884381c))
+
+#### Bug Fixes
+
+*   fixes nightly build with new lints ([17599195](https://github.com/kbknapp/clap-rs/commit/175991956c37dc83ba9c49396e927a1cb65c5b11))
+*   fixes Windows build for 2x release ([674c9b48](https://github.com/kbknapp/clap-rs/commit/674c9b48c7c92079cb180cc650a9e39f34781c32), closes [#392](https://github.com/kbknapp/clap-rs/issues/392))
+*   fixes yaml build for 2x base ([adceae64](https://github.com/kbknapp/clap-rs/commit/adceae64c8556d00ab715677377b216f9f468ad7))
+
+#### Documentation
+
+*   updates examples for 2x release ([1303b360](https://github.com/kbknapp/clap-rs/commit/1303b3607468f362ab1b452d5614c1a064dc69b4), closes [#394](https://github.com/kbknapp/clap-rs/issues/394))
+*   updates examples for 2x release ([0a011f31](https://github.com/kbknapp/clap-rs/commit/0a011f3142aec338d388a6c8bfe22fa7036021bb), closes [#394](https://github.com/kbknapp/clap-rs/issues/394))
+*   updates documentation for v2 release ([8d51724e](https://github.com/kbknapp/clap-rs/commit/8d51724ef73dfde5bb94fb9466bc5463a1cc1502))
+*   updating docs for 2x release ([576d0e0e](https://github.com/kbknapp/clap-rs/commit/576d0e0e2c7b8f386589179bbf7419b93abacf1c))
+* **README.md:**
+  *  updates readme for v2 release ([acaba01a](https://github.com/kbknapp/clap-rs/commit/acaba01a353c12144b9cd9a3ce447400691849b0), closes [#393](https://github.com/kbknapp/clap-rs/issues/393))
+  *  fix typo and make documentation conspicuous ([07b9f614](https://github.com/kbknapp/clap-rs/commit/07b9f61495d927f69f7abe6c0d85253f0f4e6107))
+
+#### BREAKING CHANGES
+
+* **Fewer liftimes! Yay!**
+ * `App<'a, 'b, 'c, 'd, 'e, 'f>` => `App<'a, 'b>`
+ * `Arg<'a, 'b, 'c, 'd, 'e, 'f>` => `Arg<'a, 'b>`
+ * `ArgMatches<'a, 'b>` => `ArgMatches<'a>`
+* **Simply Renamed**
+ * `App::arg_group` => `App::group`
+ * `App::arg_groups` => `App::groups`
+ * `ArgGroup::add` => `ArgGroup::arg`
+ * `ArgGroup::add_all` => `ArgGroup::args`
+ * `ClapError` => `Error`
+  * struct field `ClapError::error_type` => `Error::kind`
+ * `ClapResult` => `Result`
+ * `ClapErrorType` => `ErrorKind`
+* **Removed Deprecated Functions and Methods**
+ * `App::subcommands_negate_reqs`
+ * `App::subcommand_required`
+ * `App::arg_required_else_help`
+ * `App::global_version(bool)`
+ * `App::versionless_subcommands`
+ * `App::unified_help_messages`
+ * `App::wait_on_error`
+ * `App::subcommand_required_else_help`
+ * `SubCommand::new`
+ * `App::error_on_no_subcommand`
+ * `Arg::new`
+ * `Arg::mutually_excludes`
+ * `Arg::mutually_excludes_all`
+ * `Arg::mutually_overrides_with`
+ * `simple_enum!`
+* **Renamed Error Variants**
+ * `InvalidUnicode` => `InvalidUtf8`
+ * `InvalidArgument` => `UnknownArgument`
+* **Usage Parser**
+ * Value names can now be specified inline, i.e. `-o, --option <FILE> <FILE2> 'some option which takes two files'`
+ * **There is now a priority of order to determine the name** - This is perhaps the biggest breaking change. See the documentation for full details. Prior to this change, the value name took precedence. **Ensure your args are using the proper names (i.e. typically the long or short and NOT the value name) throughout the code**
+* `ArgMatches::values_of` returns an `Values` now which implements `Iterator` (should not break any code)
+* `crate_version!` returns `&'static str` instead of `String`
+
+
 <a name="v1.5.5"></a>
 ### v1.5.5 (2016-01-04)
 
