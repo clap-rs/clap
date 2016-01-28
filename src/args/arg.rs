@@ -210,7 +210,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// Usage strings typically following the form:
     ///
-    /// ```ignore
+    /// ```notrust
     /// [explicit name] [short] [long] [value names] [help string]
     /// ```
     ///
@@ -238,7 +238,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// Example explicit names as follows (`ename` for an optional argument, and `rname` for a
     /// required argument):
     ///
-    /// ```ignore
+    /// ```notrust
     /// [ename] -s, --long 'some flag'
     /// <rname> -r, --longer 'some other flag'
     /// ```
@@ -254,7 +254,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// Example shorts are as follows (`-s`, and `-r`):
     ///
-    /// ```ignore
+    /// ```notrust
     /// -s, --long 'some flag'
     /// <rname> -r [val], --longer 'some option'
     /// ```
@@ -269,7 +269,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// Example longs are as follows (`--some`, and `--rapid`):
     ///
-    /// ```ignore
+    /// ```notrust
     /// -s, --some 'some flag'
     /// --rapid=[FILE] 'some option'
     /// ```
@@ -290,7 +290,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// Example values are as follows (`FILE`, and `SPEED`):
     ///
-    /// ```ignore
+    /// ```notrust
     /// -s, --some [FILE] 'some option'
     /// --rapid=<SPEED>... 'some required multiple option'
     /// ```
@@ -301,7 +301,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// Example help strings are as follows:
     ///
-    /// ```ignore
+    /// ```notrust
     /// -s, --some [FILE] 'some option'
     /// --rapid=<SPEED>... 'some required multiple option'
     /// ```
