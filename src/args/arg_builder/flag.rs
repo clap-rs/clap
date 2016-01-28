@@ -105,7 +105,6 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for FlagBuilder<'a, 'b> {
             overrides: a.overrides.clone(),
             requires: a.requires.clone(),
             settings: a.settings.clone(),
-            ..Default::default()
         }
     }
 }
