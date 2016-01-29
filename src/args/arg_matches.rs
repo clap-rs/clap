@@ -116,7 +116,7 @@ impl<'a> ArgMatches<'a> {
     /// invalid points will be replaced with `\u{FFFD}`
     ///
     /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
-    /// prefer `lossy_values_of()` as `lossy_value_of()` will only return the *first* value.
+    /// prefer `values_of_lossy()` as `value_of_lossy()` will only return the *first* value.
     ///
     /// # Examples
     ///
@@ -130,9 +130,9 @@ impl<'a> ArgMatches<'a> {
     ///     .get_matches_from(vec![OsString::from("myprog"),
     ///                             // "Hi {0xe9}!"
     ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
-    /// assert_eq!(&*m.lossy_value_of("arg").unwrap(), "Hi \u{FFFD}!");
+    /// assert_eq!(&*m.value_of_lossy("arg").unwrap(), "Hi \u{FFFD}!");
     /// ```
-    pub fn lossy_value_of<S: AsRef<str>>(&'a self, name: S) -> Option<Cow<'a, str>> {
+    pub fn value_of_lossy<S: AsRef<str>>(&'a self, name: S) -> Option<Cow<'a, str>> {
         if let Some(arg) = self.args.get(name.as_ref()) {
             if let Some(v) = arg.vals.values().nth(0) {
                 return Some(v.to_string_lossy());
@@ -144,11 +144,11 @@ impl<'a> ArgMatches<'a> {
     /// Gets the OS version of a string value of a specific argument. If the option wasn't present
     /// at runtime it returns `None`. An OS value on Unix-like systems is any series of bytes,
     /// regardless of whether or not they contain valid UTF-8 code points. Since `String`s in Rust
-    /// are garunteed to be valid UTF-8, a valid filename on a Unix system as an argument value may
+    /// are guaranteed to be valid UTF-8, a valid filename on a Unix system as an argument value may
     /// contain invalid UTF-8 code points.
     ///
     /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
-    /// prefer `os_values_of()` as `os_value_of()` will only return the *first* value.
+    /// prefer `values_of_os()` as `value_of_os()` will only return the *first* value.
     ///
     /// # Examples
     ///
@@ -162,9 +162,9 @@ impl<'a> ArgMatches<'a> {
     ///     .get_matches_from(vec![OsString::from("myprog"),
     ///                             // "Hi {0xe9}!"
     ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
-    /// assert_eq!(&*m.os_value_of("arg").unwrap().as_bytes(), [b'H', b'i', b' ', 0xe9, b'!']);
+    /// assert_eq!(&*m.value_of_os("arg").unwrap().as_bytes(), [b'H', b'i', b' ', 0xe9, b'!']);
     /// ```
-    pub fn os_value_of<S: AsRef<str>>(&self, name: S) -> Option<&OsStr> {
+    pub fn value_of_os<S: AsRef<str>>(&self, name: S) -> Option<&OsStr> {
         self.args.get(name.as_ref()).map_or(None, |arg| arg.vals.values().nth(0).map(|v| v.as_os_str()))
     }
 
@@ -215,12 +215,12 @@ impl<'a> ArgMatches<'a> {
     ///     .get_matches_from(vec![OsString::from("myprog"),
     ///                             // "Hi {0xe9}!"
     ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
-    /// let itr = m.lossy_values_of("arg").unwrap();
+    /// let itr = m.values_of_lossy("arg").unwrap();
     /// assert_eq!(&*itr.next().unwrap(), "Hi");
     /// assert_eq!(&*itr.next().unwrap(), "\u{FFFD}!");
     /// assert_eq!(itr.next(), None);
     /// ```
-    pub fn lossy_values_of<S: AsRef<str>>(&'a self, name: S) -> Option<Vec<String>> {
+    pub fn values_of_lossy<S: AsRef<str>>(&'a self, name: S) -> Option<Vec<String>> {
         if let Some(ref arg) = self.args.get(name.as_ref()) {
             return Some(arg.vals.values()
                            .map(|v| v.to_string_lossy().into_owned())
@@ -232,7 +232,7 @@ impl<'a> ArgMatches<'a> {
     /// Gets the OS version of a string value of a specific argument If the option wasn't present
     /// at runtime it returns `None`. An OS value on Unix-like systems is any series of bytes,
     /// regardless of whether or not they contain valid UTF-8 code points. Since `String`s in Rust
-    /// are garunteed to be valid UTF-8, a valid filename as an argument value on Linux (for
+    /// are guaranteed to be valid UTF-8, a valid filename as an argument value on Linux (for
     /// example) may contain invalid UTF-8 code points.
     ///
     /// # Examples
@@ -250,12 +250,12 @@ impl<'a> ArgMatches<'a> {
     ///                                 // "{0xe9}!"
     ///                                 OsString::from_vec(vec![0xe9, b'!'])]);
     ///
-    /// let itr = m.os_values_of("arg").unwrap();
+    /// let itr = m.values_of_os("arg").unwrap();
     /// assert_eq!(itr.next(), Some(&*OsString::from("Hi")));
     /// assert_eq!(itr.next(), Some(&*OsString::from_vec(vec![0xe9, b'!'])));
     /// assert_eq!(itr.next(), None);
     /// ```
-    pub fn os_values_of<S: AsRef<str>>(&'a self, name: S) -> Option<OsValues<'a>> {
+    pub fn values_of_os<S: AsRef<str>>(&'a self, name: S) -> Option<OsValues<'a>> {
         fn to_str_slice(o: &OsString) -> &OsStr { &*o }
         let to_str_slice: fn(&'a OsString) -> &'a OsStr = to_str_slice; // coerce to fn pointer
         if let Some(ref arg) = self.args.get(name.as_ref()) {
@@ -359,7 +359,10 @@ impl<'a> ArgMatches<'a> {
     /// }
     /// ```
     pub fn subcommand_matches<S: AsRef<str>>(&self, name: S) -> Option<&ArgMatches<'a>> {
-        self.subcommand.as_ref().map(|s| if s.name == name.as_ref() { Some(&s.matches) } else { None } ).unwrap()
+        if let Some(ref s) = self.subcommand {
+            if s.name == name.as_ref() { return Some(&s.matches) }
+        }
+        None
     }
 
     /// Because subcommands are essentially "sub-apps" they have their own `ArgMatches` as well.
@@ -466,7 +469,7 @@ impl<'a> ArgMatches<'a> {
     /// }
     /// ```
     pub fn subcommand(&self) -> (&str, Option<&ArgMatches<'a>>) {
-        self.subcommand.as_ref().map_or(("",None), |sc| (&sc.name[..], Some(&sc.matches)))
+        self.subcommand.as_ref().map_or(("", None), |sc| (&sc.name[..], Some(&sc.matches)))
     }
 
     /// Returns a string slice of the usage statement for the `App` (or `SubCommand`)

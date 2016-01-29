@@ -32,7 +32,7 @@ pub enum ErrorKind {
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidValue);
     /// ```
     InvalidValue,
-    /// Occurs when a user provides a flag, option, or argument which wasn't defined
+    /// Occurs when a user provides a flag, option, or argument which wasn't defined.
     ///
     /// # Examples
     ///
@@ -47,7 +47,7 @@ pub enum ErrorKind {
     UnknownArgument,
     /// Occurs when the user provids an unrecognized subcommand which meets the threshold for being
     /// similar enough to an existing subcommand so as to not cause the more general
-    /// `UnknownArgument` error
+    /// `UnknownArgument` error.
     ///
     /// # Examples
     ///
@@ -64,7 +64,8 @@ pub enum ErrorKind {
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidSubcommand);
     /// ```
     InvalidSubcommand,
-    /// Occurs when the user provides an empty value for an option that does not allow empty values
+    /// Occurs when the user provides an empty value for an option that does not allow empty
+    /// values.
     ///
     /// # Examples
     ///
@@ -102,7 +103,7 @@ pub enum ErrorKind {
     /// ```
     ValueValidation,
     /// Occurs when a user provides more values for an argument than were defined by setting
-    /// `Arg::max_values`
+    /// `Arg::max_values`.
     ///
     /// # Examples
     ///
@@ -118,7 +119,7 @@ pub enum ErrorKind {
     /// ```
     TooManyValues,
     /// Occurs when the user provides fewer values for an argument than were defined by setting
-    /// `Arg::min_values`
+    /// `Arg::min_values`.
     ///
     /// # Examples
     ///
@@ -135,7 +136,7 @@ pub enum ErrorKind {
     TooFewValues,
     /// Occurs when the user provides a different number of values for an argument than what's
     /// been defined by setting `Arg::number_of_values` or than was implicitly set by
-    /// `Arg::value_names`
+    /// `Arg::value_names`.
     ///
     /// # Examples
     ///
@@ -169,7 +170,7 @@ pub enum ErrorKind {
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```
     ArgumentConflict,
-    /// Occurs when the user does not provide one or more required arguments
+    /// Occurs when the user does not provide one or more required arguments.
     ///
     /// # Examples
     ///
@@ -184,7 +185,7 @@ pub enum ErrorKind {
     /// ```
     MissingRequiredArgument,
     /// Occurs when a subcommand is required (as defined by `AppSettings::SubcommandRequired`), but
-    /// the user does not provide one
+    /// the user does not provide one.
     ///
     /// # Examples
     ///
@@ -202,7 +203,7 @@ pub enum ErrorKind {
     /// ```
     MissingSubcommand,
     /// Occurs when either an argument or subcommand is required, as defined by
-    /// `AppSettings::ArgRequiredElseHelp` but the user did not provide one
+    /// `AppSettings::ArgRequiredElseHelp` but the user did not provide one.
     ///
     /// # Examples
     ///
@@ -264,7 +265,7 @@ pub enum ErrorKind {
     /// to `stdout`.
     ///
     /// **Note**: If the help is displayed due to an error (such as missing subcommands) it will
-    /// be sent to `stderr` instead of `stdout`
+    /// be sent to `stderr` instead of `stdout`.
     ///
     /// # Examples
     ///
@@ -277,7 +278,7 @@ pub enum ErrorKind {
     /// ```
     HelpDisplayed,
     /// Not a true "error" as it means `--version` or similar was used. The message will be sent
-    /// to `stdout`
+    /// to `stdout`.
     ///
     /// # Examples
     ///
@@ -293,13 +294,13 @@ pub enum ErrorKind {
     /// type `T`, but the argument you requested wasn't used. I.e. you asked for an argument with
     /// name `config` to be converted, but `config` wasn't used by the user.
     ArgumentNotFound,
-    /// Represents an I/O error, typically while writing to `stderr` or `stdout`
+    /// Represents an I/O error, typically while writing to `stderr` or `stdout`.
     Io,
-    /// Represents an Rust Display Format error, typically white writing to `stderr` or `stdout`
+    /// Represents an Rust Display Format error, typically white writing to `stderr` or `stdout`.
     Format,
 }
 
-/// Command Line Argumetn Parser Error
+/// Command Line Argument Parser Error
 #[derive(Debug)]
 pub struct Error {
     /// Formated error message
@@ -633,12 +634,6 @@ impl Error {
 impl StdError for Error {
     fn description(&self) -> &str {
         &*self.message
-    }
-
-    fn cause(&self) -> Option<&StdError> {
-        match self.kind {
-            _ => None,
-        }
     }
 }
 

@@ -83,7 +83,7 @@ fn invalid_utf8_lossy_positional() {
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(&*m.lossy_value_of("arg").unwrap(), "\u{FFFD}");
+    assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
 }
 
 #[test]
@@ -96,7 +96,7 @@ fn invalid_utf8_lossy_option_short_space() {
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(&*m.lossy_value_of("arg").unwrap(), "\u{FFFD}");
+    assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
 }
 
 #[test]
@@ -108,7 +108,7 @@ fn invalid_utf8_lossy_option_short_equals() {
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(&*m.lossy_value_of("arg").unwrap(), "\u{FFFD}");
+    assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
 }
 
 #[test]
@@ -120,7 +120,7 @@ fn invalid_utf8_lossy_option_short_no_space() {
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(&*m.lossy_value_of("arg").unwrap(), "\u{FFFD}");
+    assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
 }
 
 #[test]
@@ -133,7 +133,7 @@ fn invalid_utf8_lossy_option_long_space() {
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(&*m.lossy_value_of("arg").unwrap(), "\u{FFFD}");
+    assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
 }
 
 #[test]
@@ -145,7 +145,7 @@ fn invalid_utf8_lossy_option_long_equals() {
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(&*m.lossy_value_of("arg").unwrap(), "\u{FFFD}");
+    assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
 }
 
 #[test]
@@ -157,7 +157,7 @@ fn invalid_utf8_positional() {
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(&*m.os_value_of("arg").unwrap(), &*OsString::from_vec(vec![0xe9]));
+    assert_eq!(&*m.value_of_os("arg").unwrap(), &*OsString::from_vec(vec![0xe9]));
 }
 
 #[test]
@@ -170,7 +170,7 @@ fn invalid_utf8_option_short_space() {
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(&*m.os_value_of("arg").unwrap(), &*OsString::from_vec(vec![0xe9]));
+    assert_eq!(&*m.value_of_os("arg").unwrap(), &*OsString::from_vec(vec![0xe9]));
 }
 
 #[test]
@@ -182,7 +182,7 @@ fn invalid_utf8_option_short_equals() {
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(&*m.os_value_of("arg").unwrap(), &*OsString::from_vec(vec![0xe9]));
+    assert_eq!(&*m.value_of_os("arg").unwrap(), &*OsString::from_vec(vec![0xe9]));
 }
 
 #[test]
@@ -194,7 +194,7 @@ fn invalid_utf8_option_short_no_space() {
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(&*m.os_value_of("arg").unwrap(), &*OsString::from_vec(vec![0xe9]));
+    assert_eq!(&*m.value_of_os("arg").unwrap(), &*OsString::from_vec(vec![0xe9]));
 }
 
 #[test]
@@ -207,7 +207,7 @@ fn invalid_utf8_option_long_space() {
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(&*m.os_value_of("arg").unwrap(), &*OsString::from_vec(vec![0xe9]));
+    assert_eq!(&*m.value_of_os("arg").unwrap(), &*OsString::from_vec(vec![0xe9]));
 }
 
 #[test]
@@ -219,5 +219,5 @@ fn invalid_utf8_option_long_equals() {
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(&*m.os_value_of("arg").unwrap(), &*OsString::from_vec(vec![0xe9]));
+    assert_eq!(&*m.value_of_os("arg").unwrap(), &*OsString::from_vec(vec![0xe9]));
 }

@@ -369,7 +369,7 @@ pub enum AppSettings {
     ///
     /// assert!(r.is_ok());
     /// let m = r.unwrap();
-    /// assert_eq!(m.os_value_of("arg").unwrap().as_bytes(), &[0xe9]);
+    /// assert_eq!(m.value_of_os("arg").unwrap().as_bytes(), &[0xe9]);
     /// ```
     AllowInvalidUtf8,
     /// Specifies that leading hyphens are allowed in argument values, such as `-10`

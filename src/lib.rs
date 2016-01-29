@@ -1,108 +1,4 @@
-//! # clap
-//!
-//! [![Crates.io](https://img.shields.io/crates/v/clap.svg)](https://crates.io/crates/clap) [![Crates.io](https://img.shields.io/crates/d/clap.svg)](https://crates.io/crates/clap) [![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/kbknapp/clap-rs/blob/master/LICENSE-MIT) [![Coverage Status](https://coveralls.io/repos/kbknapp/clap-rs/badge.svg?branch=master&service=github)](https://coveralls.io/github/kbknapp/clap-rs?branch=master) [![Join the chat at https://gitter.im/kbknapp/clap-rs](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kbknapp/clap-rs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-//!
-//! Linux: [![Build Status](https://travis-ci.org/kbknapp/clap-rs.svg?branch=master)](https://travis-ci.org/kbknapp/clap-rs)
-//! Windows: [![Build status](https://ci.appveyor.com/api/projects/status/ejg8c33dn31nhv36/branch/master?svg=true)](https://ci.appveyor.com/project/kbknapp/clap-rs/branch/master)
-//!
-//! Command Line Argument Parser for Rust
-//!
-//! It is a simple to use, efficient, and full featured library for parsing command line arguments and subcommands when writing console, or terminal applications.
-//!
-//! Table of Contents
-//! =================
-//!
-//! * [What's New](#whats-new)
-//! * [About](#about)
-//! * [FAQ](#faq)
-//! * [Features](#features)
-//! * [Quick Example](#quick-example)
-//! * [Try it!](#try-it)
-//!   * [Pre-Built Test](#pre-built-test)
-//!   * [BYOB (Build Your Own Binary)](#byob-build-your-own-binary)
-//! * [Usage](#usage)
-//!   * [Optional Dependencies / Features](#optional-dependencies--features)
-//!   * [Dependencies Tree](#dependencies-tree)
-//!   * [More Information](#more-information)
-//!     * [Video Tutorials](#video-tutorials)
-//! * [How to Contribute](#how-to-contribute)
-//!   * [Running the tests](#running-the-tests)
-//!   * [Goals](#goals)
-//! * [License](#license)
-//! * [Recent Breaking Changes](#recent-breaking-changes)
-//!   * [Deprecations](#deprecations)
-//!
-//! Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
-//!
-//! ## What's New
-//!
-//! v**2.0** has been released! This means fixing some pain points, new features, better documentation, improved ergonomics, and also some minor breaking changes if you're used to v1.x
-//!
-//! #### New Features
-//!
-//! Here are some key points about the 2.x release
-//!
-//!  * Support for arguments with invalid UTF-8 values!: Helps with POSIX and Unix like OSs
-//!  * Even better performance boost!
-//!  * Far better documentation
-//!  * Support for delimited values
-//!  * Support for custom delimiter in values
-//!  * Support for external subcommands
-//!  * Support for options that act as flags (i.e. ones which optionally have no value)
-//!  * Support for negative numbers as arguments (i.e. `-10`, etc.)
-//!  * Better Errors and error handling
-//!  * Improved "from usage" strings
-//!  * Better support for generics, instead of being locked in to `Vec` at key points
-//!  * Improved macros
-//!  * Better regression testing
-//!  * Vastly improved ergonomics
-//!  * Numerous bug fixes
-//!
-//! ![clap Performance Graph](https://github.com/kbknapp/clap-rs/blob/master/clap-perf/clap_perf.png)
-//!
-//! #### Breaking Changes
-//!
-//! Below is a list of breaking changes between 1.x and 2.x and how you can change your code to update.
-//!
-//! * **Fewer liftimes! Yay!**
-//!  * `App<'a, 'b, 'c, 'd, 'e, 'f>` => `App<'a, 'b>`
-//!  * `Arg<'a, 'b, 'c, 'd, 'e, 'f>` => `Arg<'a, 'b>`
-//!  * `ArgMatches<'a, 'b>` => `ArgMatches<'a>`
-//! * **Simply Renamed**
-//!  * `App::arg_group` => `App::group`
-//!  * `App::arg_groups` => `App::groups`
-//!  * `ArgGroup::add` => `ArgGroup::arg`
-//!  * `ArgGroup::add_all` => `ArgGroup::args`
-//!  * `ClapError` => `Error`
-//!  * `ClapResult` => `Result`
-//!  * `ClapErrorType` => `ErrorKind`
-//!   * struct field `ClapError::error_type` => `Error::kind`
-//! * **Removed Deprecated Functions and Methods**
-//!  * `App::subcommands_negate_reqs`
-//!  * `App::subcommand_required`
-//!  * `App::arg_required_else_help`
-//!  * `App::global_version(bool)`
-//!  * `App::versionless_subcommands`
-//!  * `App::unified_help_messages`
-//!  * `App::wait_on_error`
-//!  * `App::subcommand_required_else_help`
-//!  * `SubCommand::new`
-//!  * `App::error_on_no_subcommand`
-//!  * `Arg::new`
-//!  * `Arg::mutually_excludes`
-//!  * `Arg::mutually_excludes_all`
-//!  * `Arg::mutually_overrides_with`
-//!  * `simple_enum!`
-//! * **Renamed Errors Variants**
-//!   * `InvalidUnicode` => `InvalidUtf8`
-//!   * `InvalidArgument` => `UnknownArgument`
-//! * **Usage Parser**
-//!  * Value names can now be specified inline, i.e. `-o, --option <FILE> <FILE2> 'some option which takes two files'`
-//!  * **There is now a priority of order to determine the name** - This is perhaps the biggest breaking change. See the documentation for full details. Prior to this change, the value name took precedence. **Ensure your args are using the proper names (i.e. typically the long or short and NOT the value name) throughout the code**
-//! * `ArgMatches::values_of` returns an `Values` now which implements `Iterator` (should not break any code)
-//! * `crate_version!` returns `&'static str` instead of `String`
-//!
-//! For full details, see [CHANGELOG.md](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md)
+//! A simple to use, efficient, and full featured library for parsing command line arguments and subcommands when writing console, or terminal applications.
 //!
 //! ## About
 //!
@@ -139,54 +35,6 @@
 //! #### All else being equal, what are some reasons to use `clap`?
 //!
 //! `clap` is as fast, and as lightweight as possible while still giving all the features you'd expect from a modern argument parser. In fact, for the amount and type of features `clap` offers it remains about as fast as `getopts`. If you use `clap` when just need some simple arguments parsed, you'll find its a walk in the park. `clap` also makes it possible to represent extremely complex, and advanced requirements, without too much thought. `clap` aims to be intuitive, easy to use, and fully capable for wide variety use cases and needs.
-//!
-//! ## Features
-//!
-//! Below are a few of the features which `clap` supports, full descriptions and usage can be found in the [documentation](http://kbknapp.github.io/clap-rs/clap/index.html) and [examples/](examples) directory
-//!
-//! * **Auto-generated Help, Version, and Usage information**
-//!   - Can optionally be fully, or partially overridden if you want a custom help, version, or usage
-//! * **Flags / Switches** (i.e. bool fields)
-//!   - Both short and long versions supported (i.e. `-f` and `--flag` respectively)
-//!   - Supports combining short versions (i.e. `-fBgoZ` is the same as `-f -B -g -o -Z`)
-//!   - Supports multiple occurrences (i.e. `-vvv` or `-v -v -v`)
-//! * **Positional Arguments** (i.e. those which are based off an index from the program name)
-//!   - Supports multiple values (i.e. `myprog <file>...` such as `myprog file1.txt file2.txt` being two values for the same "file" argument)
-//!   - Supports Specific Value Sets (See below)
-//!   - Can set value parameters (such as the minimum number of values, the maximum number of values, or the exact number of values)
-//!   - Can set custom validations on values to extend the argument parsing capability to truly custom domains
-//! * **Option Arguments** (i.e. those that take values)
-//!   - Both short and long versions supported (i.e. `-o value`, `-ovalue`, `-o=value` and `--option value` or `--option=value` respectively)
-//!   - Supports multiple values (i.e. `-o <val1> -o <val2>` or `-o <val1> <val2>`)
-//!   - Supports delimited values (i.e. `-o=val1,val2,val3`, can also change the delimiter)
-//!   - Supports Specific Value Sets (See below)
-//!   - Supports named values so that the usage/help info appears as `-o <FILE> <INTERFACE>` etc. for when you require specific multiple values
-//!   - Can set value parameters (such as the minimum number of values, the maximum number of values, or the exact number of values)
-//!   - Can set custom validations on values to extend the argument parsing capability to truly custom domains
-//! * **Sub-Commands** (i.e. `git add <file>` where `add` is a sub-command of `git`)
-//!   - Support their own sub-arguments, and sub-sub-commands independent of the parent
-//!   - Get their own auto-generated Help, Version, and Usage independent of parent
-//! * **Support for building CLIs from YAML** - This keeps your Rust source nice and tidy and makes supporting localized translation very simple!
-//! * **Requirement Rules**: Arguments can define the following types of requirement rules
-//!   - Can be required by default
-//!   - Can be required only if certain arguments are present
-//!   - Can require other arguments to be present
-//! * **Confliction Rules**: Arguments can optionally define the following types of exclusion rules
-//!   - Can be disallowed when certain arguments are present
-//!   - Can disallow use of other arguments when present
-//! * **POSIX Override Rules**: Arguments can define rules to support POSIX overriding
-//! * **Groups**: Arguments can be made part of a group
-//!   - Fully compatible with other relational rules (requirements, conflicts, and overrides) which allows things like requiring the use of any arg in a group, or denying the use of an entire group conditionally
-//! * **Specific Value Sets**: Positional or Option Arguments can define a specific set of allowed values (i.e. imagine a `--mode` option which may *only* have one of two values `fast` or `slow` such as `--mode fast` or `--mode slow`)
-//! * **Default Values**: Although not specifically provided by `clap` you can achieve this exact functionality from Rust's `Option<&str>.unwrap_or("some default")` method (or `Result<T,String>.unwrap_or(T)` when using typed values)
-//! * **Automatic Version from Cargo.toml**: `clap` is fully compatible with Rust's `env!()` macro for automatically setting the version of your application to the version in your Cargo.toml. See [09_auto_version example](examples/09_auto_version.rs) for how to do this (Thanks to [jhelwig](https://github.com/jhelwig) for pointing this out)
-//! * **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) from positional or option arguments so long as the type you request implements `std::str::FromStr` See the [12_typed_values example](examples/12_typed_values.rs). You can also use `clap`s `arg_enum!` macro to create an enum with variants that automatically implement `std::str::FromStr`. See [13a_enum_values_automatic example](examples/13a_enum_values_automatic.rs) for details
-//! * **Suggestions**: Suggests corrections when the user enters a typo. For example, if you defined a `--myoption` argument, and the user mistakenly typed `--moyption` (notice `y` and `o` transposed), they would receive a `Did you mean '--myoption' ?` error and exit gracefully. This also works for subcommands and flags. (Thanks to [Byron](https://github.com/Byron) for the implementation) (This feature can optionally be disabled, see 'Optional Dependencies / Features')
-//! * **Colorized Errors (Non Windows OS only)**: Error message are printed in in colored text (this feature can optionally be disabled, see 'Optional Dependencies / Features').
-//! * **Global Arguments**: Arguments can optionally be defined once, and be available to all child subcommands.
-//! * **Custom Validations**: You can define a function to use as a validator of argument values. Imagine defining a function to validate IP addresses, or fail parsing upon error. This means your application logic can be solely focused on *using* values.
-//! * **POSIX Compatible Conflicts** - In POSIX args can be conflicting, but not fail parsing because whichever arg comes *last* "wins" to to speak. This allows things such as aliases (i.e. `alias ls='ls -l'` but then using `ls -C` in your terminal which ends up passing `ls -l -C` as the final arguments. Since `-l` and `-C` aren't compatible, this effectively runs `ls -C` in `clap` if you choose...`clap` also supports hard conflicts that fail parsing). (Thanks to [Vinatorul](https://github.com/Vinatorul)!)
-//! * Supports the unix `--` meaning, only positional arguments follow
 //!
 //! ## Quick Example
 //!
@@ -496,15 +344,6 @@
 //! * **"yaml"**: This is **not** included by default. Enables building CLIs from YAML documents.
 //! * **"unstable"**: This is **not** included by default. Enables unstable features, unstable refers to whether or not they may change, not performance stability.
 //!
-//! ### Dependencies Tree
-//!
-//! The following graphic depicts `clap`s dependency graph (generated using [cargo-graph](https://github.com/kbknapp/cargo-graph)).
-//!
-//!  * **Dashed** Line: Optional dependency
-//!  * **Red** Color: **NOT** included by default (must use cargo `features` to enable)
-//!
-//! ![clap dependencies](clap_dep_graph.png)
-//!
 //! ### More Information
 //!
 //! You can find complete documentation on the [github-pages site](http://kbknapp.github.io/clap-rs/clap/index.html) for this project.
@@ -519,14 +358,6 @@
 //!
 //! *Note*: Apologies for the resolution of the first video, it will be updated to a better resolution soon. The other videos have a proper resolution.
 //!
-//! ## How to Contribute
-//!
-//! Contributions are always welcome! And there is a multitude of ways in which you can help depending on what you like to do, or are good at. Anything from documentation, code cleanup, issue completion, new features, you name it, even filing issues is contributing and greatly appreciated!
-//!
-//! Another really great way to help is if you find an interesting, or helpful way in which to use `clap`. You can either add it to the [examples/](examples) directory, or file an issue and tell me. I'm all about giving credit where credit is due :)
-//!
-//! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before you start contributing.
-//!
 //! ### Running the tests
 //!
 //! If contributing, you can run the tests as follows (assuming you're in the `clap-rs` directory)
@@ -539,75 +370,9 @@
 //! $ cargo build --features lints
 //! ```
 //!
-//! ### Goals
-//!
-//! There are a few goals of `clap` that I'd like to maintain throughout contributions. If your proposed changes break, or go against any of these goals we'll discuss the changes further before merging (but will *not* be ignored, all contributes are welcome!). These are by no means hard-and-fast rules, as I'm no expert and break them myself from time to time (even if by mistake or ignorance :P).
-//!
-//! * Remain backwards compatible when possible
-//!   - If backwards compatibility *must* be broken, use deprecation warnings if at all possible before removing legacy code
-//!   - This does not apply for security concerns
-//! * Parse arguments quickly
-//!   - Parsing of arguments shouldn't slow down usage of the main program
-//!   - This is also true of generating help and usage information (although *slightly* less stringent, as the program is about to exit)
-//! * Try to be cognizant of memory usage
-//!   - Once parsing is complete, the memory footprint of `clap` should be low since the  main program is the star of the show
-//! * `panic!` on *developer* error, exit gracefully on *end-user* error
-//!
 //! ## License
 //!
 //! `clap` is licensed under the MIT license. Please read the [LICENSE-MIT](LICENSE-MIT) file in this repository for more information.
-//!
-//! ## Recent Breaking Changes
-//!
-//! `clap` follows semantic versioning, so breaking changes should only happen upon major version bumps. The only exception to this rule is breaking changes that happen due to implementation that was deemed to be a bug, security concerns, or it can be reasonably proved to affect no code. For the full details, see [CHANGELOG.md](./CHANGELOG.md).
-//!
-//! As of 2.0.0 (From 1.x)
-//!
-//! * **Fewer liftimes! Yay!**
-//!  * `App<'a, 'b, 'c, 'd, 'e, 'f>` => `App<'a, 'b>`
-//!  * `Arg<'a, 'b, 'c, 'd, 'e, 'f>` => `Arg<'a, 'b>`
-//!  * `ArgMatches<'a, 'b>` => `ArgMatches<'a>`
-//! * **Simply Renamed**
-//!  * `App::arg_group` => `App::group`
-//!  * `App::arg_groups` => `App::groups`
-//!  * `ArgGroup::add` => `ArgGroup::arg`
-//!  * `ArgGroup::add_all` => `ArgGroup::args`
-//!  * `ClapError` => `Error`
-//!   * struct field `ClapError::error_type` => `Error::kind`
-//!  * `ClapResult` => `Result`
-//!  * `ClapErrorType` => `ErrorKind`
-//! * **Removed Deprecated Functions and Methods**
-//!  * `App::subcommands_negate_reqs`
-//!  * `App::subcommand_required`
-//!  * `App::arg_required_else_help`
-//!  * `App::global_version(bool)`
-//!  * `App::versionless_subcommands`
-//!  * `App::unified_help_messages`
-//!  * `App::wait_on_error`
-//!  * `App::subcommand_required_else_help`
-//!  * `SubCommand::new`
-//!  * `App::error_on_no_subcommand`
-//!  * `Arg::new`
-//!  * `Arg::mutually_excludes`
-//!  * `Arg::mutually_excludes_all`
-//!  * `Arg::mutually_overrides_with`
-//!  * `simple_enum!`
-//! * **Renamed Error Variants**
-//!  * `InvalidUnicode` => `InvalidUtf8`
-//!  * `InvalidArgument` => `UnknownArgument`
-//! * **Usage Parser**
-//!  * Value names can now be specified inline, i.e. `-o, --option <FILE> <FILE2> 'some option which takes two files'`
-//!  * **There is now a priority of order to determine the name** - This is perhaps the biggest breaking change. See the documentation for full details. Prior to this change, the value name took precedence. **Ensure your args are using the proper names (i.e. typically the long or short and NOT the value name) throughout the code**
-//! * `ArgMatches::values_of` returns an `Values` now which implements `Iterator` (should not break any code)
-//! * `crate_version!` returns `&'static str` instead of `String`
-//!
-//! ### Deprecations
-//!
-//! Old method names will be left around for several minor version bumps, or one major version bump.
-//!
-//! As of 2.0.0:
-//!
-//!  * None!
 
 #![crate_type= "lib"]
 #![cfg_attr(feature = "nightly", feature(plugin))]
@@ -625,7 +390,7 @@
 // clippy false positives, or ones we're ok with...
 #![cfg_attr(feature = "lints", allow(cyclomatic_complexity))]
 // Only while bitflats uses "_first" inside it's macros
- #![cfg_attr(feature = "lints", allow(used_underscore_binding))]
+#![cfg_attr(feature = "lints", allow(used_underscore_binding))]
 
 #[cfg(feature = "suggestions")]
 extern crate strsim;

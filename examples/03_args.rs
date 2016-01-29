@@ -35,7 +35,7 @@ fn main() {
 
                         // Two arguments, one "Option" argument (i.e. one that takes a value) such
                         // as "-c some", and one positional argument (i.e. "myapp some_file")
-                        .args( &[
+                        .args(&[
                             Arg::with_name("config")
                                     .help("sets the config file to use")
                                     .takes_value(true)

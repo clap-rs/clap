@@ -214,7 +214,7 @@ macro_rules! values_t_or_exit {
 
 /// Convenience macro to generate more complete enums with variants to be used as a type when
 /// parsing arguments. This enum also provides a `variants()` function which can be used to
-/// retrieve a `Vec<&'static str>` of the variant names. As well as implementing `FromStr` and
+/// retrieve a `Vec<&'static str>` of the variant names, as well as implementing `FromStr` and
 /// `Display` automatically.
 ///
 /// **NOTE:** Case insensitivity is supported for ASCII characters only
