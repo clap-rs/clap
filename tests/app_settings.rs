@@ -1,6 +1,6 @@
 extern crate clap;
 
-use clap::{App, Arg, SubCommand, AppSettings, ClapErrorType};
+use clap::{App, Arg, SubCommand, AppSettings, ErrorKind};
 
 #[test]
 fn sub_command_negate_required() {
@@ -10,7 +10,7 @@ fn sub_command_negate_required() {
                .required(true)
                .index(1))
         .subcommand(SubCommand::with_name("sub1"))
-        .get_matches_from(vec!["", "sub1"]);
+        .get_matches_from(vec!["myprog", "sub1"]);
 }
 
 #[test]
@@ -24,7 +24,7 @@ fn sub_command_negate_required_2() {
         .get_matches_from_safe(vec![""]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.error_type, ClapErrorType::MissingRequiredArgument);
+    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -35,7 +35,7 @@ fn sub_command_required() {
         .get_matches_from_safe(vec![""]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.error_type, ClapErrorType::MissingSubcommand);
+    assert_eq!(err.kind, ErrorKind::MissingSubcommand);
 }
 
 #[test]
@@ -47,7 +47,7 @@ fn arg_required_else_help() {
         .get_matches_from_safe(vec![""]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.error_type, ClapErrorType::MissingArgumentOrSubcommand);
+    assert_eq!(err.kind, ErrorKind::MissingArgumentOrSubcommand);
 }
 
 #[test]

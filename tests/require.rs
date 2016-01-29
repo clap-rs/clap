@@ -1,6 +1,6 @@
 extern crate clap;
 
-use clap::{App, Arg, ClapErrorType, ArgGroup};
+use clap::{App, Arg, ErrorKind, ArgGroup};
 
 #[test]
 fn flag_required() {
@@ -11,7 +11,7 @@ fn flag_required() {
         .get_matches_from_safe(vec!["", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.error_type, ClapErrorType::MissingRequiredArgument);
+    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -34,20 +34,20 @@ fn option_required() {
         .get_matches_from_safe(vec!["", "-f", "val"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.error_type, ClapErrorType::MissingRequiredArgument);
+    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
 fn option_required_2() {
     let m = App::new("option_required")
         .arg(Arg::from_usage("-f [flag] 'some flag'")
-            .requires("color"))
+            .requires("c"))
         .arg(Arg::from_usage("-c [color] 'third flag'"))
         .get_matches_from(vec!["", "-f", "val", "-c", "other_val"]);
-    assert!(m.is_present("color"));
-    assert_eq!(m.value_of("color").unwrap(), "other_val");
-    assert!(m.is_present("flag"));
-    assert_eq!(m.value_of("flag").unwrap(), "val");
+    assert!(m.is_present("c"));
+    assert_eq!(m.value_of("c").unwrap(), "other_val");
+    assert!(m.is_present("f"));
+    assert_eq!(m.value_of("f").unwrap(), "val");
 }
 
 #[test]
@@ -59,7 +59,7 @@ fn positional_required() {
         .get_matches_from_safe(vec![""]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.error_type, ClapErrorType::MissingRequiredArgument);
+    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -77,26 +77,26 @@ fn positional_required_2() {
 fn group_required() {
     let result = App::new("group_required")
         .arg(Arg::from_usage("-f, --flag 'some flag'"))
-        .arg_group(ArgGroup::with_name("gr")
+        .group(ArgGroup::with_name("gr")
             .required(true)
-            .add("some")
-            .add("other"))
+            .arg("some")
+            .arg("other"))
         .arg(Arg::from_usage("--some 'some arg'"))
         .arg(Arg::from_usage("--other 'other arg'"))
         .get_matches_from_safe(vec!["", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.error_type, ClapErrorType::MissingRequiredArgument);
+    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
 fn group_required_2() {
     let m = App::new("group_required")
         .arg(Arg::from_usage("-f, --flag 'some flag'"))
-        .arg_group(ArgGroup::with_name("gr")
+        .group(ArgGroup::with_name("gr")
             .required(true)
-            .add("some")
-            .add("other"))
+            .arg("some")
+            .arg("other"))
         .arg(Arg::from_usage("--some 'some arg'"))
         .arg(Arg::from_usage("--other 'other arg'"))
         .get_matches_from(vec!["", "-f", "--some"]);
@@ -109,10 +109,10 @@ fn group_required_2() {
 fn group_required_3() {
     let m = App::new("group_required")
         .arg(Arg::from_usage("-f, --flag 'some flag'"))
-        .arg_group(ArgGroup::with_name("gr")
+        .group(ArgGroup::with_name("gr")
             .required(true)
-            .add("some")
-            .add("other"))
+            .arg("some")
+            .arg("other"))
         .arg(Arg::from_usage("--some 'some arg'"))
         .arg(Arg::from_usage("--other 'other arg'"))
         .get_matches_from(vec!["", "-f", "--other"]);
@@ -126,15 +126,15 @@ fn arg_require_group() {
     let result = App::new("arg_require_group")
         .arg(Arg::from_usage("-f, --flag 'some flag'")
             .requires("gr"))
-        .arg_group(ArgGroup::with_name("gr")
-            .add("some")
-            .add("other"))
+        .group(ArgGroup::with_name("gr")
+            .arg("some")
+            .arg("other"))
         .arg(Arg::from_usage("--some 'some arg'"))
         .arg(Arg::from_usage("--other 'other arg'"))
         .get_matches_from_safe(vec!["", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.error_type, ClapErrorType::MissingRequiredArgument);
+    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -142,9 +142,9 @@ fn arg_require_group_2() {
     let m = App::new("arg_require_group")
         .arg(Arg::from_usage("-f, --flag 'some flag'")
             .requires("gr"))
-        .arg_group(ArgGroup::with_name("gr")
-            .add("some")
-            .add("other"))
+        .group(ArgGroup::with_name("gr")
+            .arg("some")
+            .arg("other"))
         .arg(Arg::from_usage("--some 'some arg'"))
         .arg(Arg::from_usage("--other 'other arg'"))
         .get_matches_from(vec!["", "-f", "--some"]);
@@ -158,9 +158,9 @@ fn arg_require_group_3() {
     let m = App::new("arg_require_group")
         .arg(Arg::from_usage("-f, --flag 'some flag'")
             .requires("gr"))
-        .arg_group(ArgGroup::with_name("gr")
-            .add("some")
-            .add("other"))
+        .group(ArgGroup::with_name("gr")
+            .arg("some")
+            .arg("other"))
         .arg(Arg::from_usage("--some 'some arg'"))
         .arg(Arg::from_usage("--other 'other arg'"))
         .get_matches_from(vec!["", "-f", "--other"]);

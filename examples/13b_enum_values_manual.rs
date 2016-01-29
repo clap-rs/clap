@@ -1,6 +1,3 @@
-// If you require more complex configuration than simple_enum! provides, you can implement the
-// trait manually, as in the following example.
-//
 // In the following example we will create an enum with 4 values, assign a positional argument
 // that accepts only one of those values, and use clap to parse the argument.
 //
@@ -38,15 +35,14 @@ impl FromStr for Vals {
 
 fn main() {
     // Create the application like normal
-    let enum_vals = ["Foo", "Bar", "Baz", "Qux"];
     let m = App::new("myapp")
                     // Use a single positional argument that is required
                     .arg(Arg::from_usage("<type> 'The type to use'")
                             // Define the list of possible values
-                            .possible_values(&enum_vals))
+                            .possible_values(&["Foo", "Bar", "Baz", "Qux"]))
                     .get_matches();
 
-    let t = value_t_or_exit!(m.value_of("type"), Vals);
+    let t = value_t!(m, "type", Vals).unwrap_or_else(|e| e.exit());
 
     // Now we can use our enum like normal.
     match t {

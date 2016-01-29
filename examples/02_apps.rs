@@ -1,6 +1,6 @@
 extern crate clap;
 
-use clap::{App};
+use clap::App;
 
 fn main() {
     // Apps describe the top level application
@@ -15,14 +15,14 @@ fn main() {
     // and args_from_usage() (as well as subcommands via the subcommand() and subcommands() methods) which
     // will be covered later.
     //
-    // Once all options have been set, call .get_matches() in order to start the parsing and find all valid
-    // command line arguments that supplied by the user at runtime. The name given to new() will be displayed
-    // when the version or help flags are used.
+    // Once all options have been set, call one of the .get_matches* family of methods in order to
+    // start the parsing and find all valid command line arguments that supplied by the user at
+    // runtime. The name given to new() will be displayed when the version or help flags are used.
     App::new("MyApp")
         .version("1.0")
-       .author("Kevin K. <kbknapp@gmail.com>")
-       .about("Does awesome things")
-       .get_matches();
+        .author("Kevin K. <kbknapp@gmail.com>")
+        .about("Does awesome things")
+        .get_matches();
 
     // This example doesn't do much, but it *does* give automatic -h, --help, -V, and --version functionality ;)
 

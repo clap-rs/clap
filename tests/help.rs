@@ -1,6 +1,6 @@
 extern crate clap;
 
-use clap::{App, SubCommand, ClapErrorType};
+use clap::{App, SubCommand, ErrorKind};
 
 #[test]
 fn help_short() {
@@ -8,10 +8,10 @@ fn help_short() {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
-        .get_matches_from_safe(vec!["", "-h"]);
+        .get_matches_from_safe(vec!["myprog", "-h"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().error_type, ClapErrorType::HelpDisplayed);
+    assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
 }
 
 #[test]
@@ -20,10 +20,10 @@ fn help_long() {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
-        .get_matches_from_safe(vec!["", "--help"]);
+        .get_matches_from_safe(vec!["myprog", "--help"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().error_type, ClapErrorType::HelpDisplayed);
+    assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
 }
 
 #[test]
@@ -32,10 +32,10 @@ fn help_no_subcommand() {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
-        .get_matches_from_safe(vec!["", "help"]);
+        .get_matches_from_safe(vec!["myprog", "help"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().error_type, ClapErrorType::UnexpectedArgument);
+    assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
 }
 
 #[test]
@@ -47,10 +47,10 @@ fn help_subcommand() {
         .subcommand(SubCommand::with_name("test")
             .about("tests things")
             .arg_from_usage("-v --verbose 'with verbosity'"))
-        .get_matches_from_safe(vec!["", "help"]);
+        .get_matches_from_safe(vec!["myprog", "help"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().error_type, ClapErrorType::HelpDisplayed);
+    assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
 }
 
 #[test]

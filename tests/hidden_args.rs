@@ -8,7 +8,7 @@ fn hidden_args() {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
-        .args(vec![Arg::from_usage("-f, --flag 'some flag'").hidden(true),
+        .args(&[Arg::from_usage("-f, --flag 'some flag'").hidden(true),
                     Arg::from_usage("-F, --flag2 'some other flag'"),
                     Arg::from_usage("--option [opt] 'some option'")]);
     // We call a get_matches method to cause --help and --version to be built

@@ -1,19 +1,25 @@
+use std::ffi::OsString;
+
 use vec_map::VecMap;
 
 #[doc(hidden)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MatchedArg {
     #[doc(hidden)]
-    pub occurrences: u8,
+    pub occurs: u8,
     #[doc(hidden)]
-    pub values: Option<VecMap<String>>,
+    pub vals: VecMap<OsString>,
+}
+
+impl Default for MatchedArg {
+    fn default() -> Self {
+        MatchedArg {
+            occurs: 1,
+            vals: VecMap::new(),
+        }
+    }
 }
 
 impl MatchedArg {
-    pub fn new() -> Self {
-        MatchedArg {
-            occurrences: 1,
-            values: None
-        }
-    }
+    pub fn new() -> Self { MatchedArg::default() }
 }

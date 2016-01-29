@@ -5,7 +5,6 @@ use clap::{App, Arg, SubCommand};
 
 
 fn main() {
-    let m_val_names = ["one", "two"];
     let args = "-o --option=[opt]... 'tests options'
                 [positional] 'tests positionals'";
     let opt3_vals = ["fast", "slow"];
@@ -17,14 +16,14 @@ fn main() {
                         .args_from_usage(args)
                         .arg(Arg::from_usage("-f --flag... 'tests flags'")
                             .global(true))
-                        .args(vec![
-                            Arg::from_usage("[flag2] -F 'tests flags with exclusions'").conflicts_with("flag").requires("option2"),
+                        .args(&[
+                            Arg::from_usage("[flag2] -F 'tests flags with exclusions'").conflicts_with("flag").requires("long-option-2"),
                             Arg::from_usage("--long-option-2 [option2] 'tests long options with exclusions'").conflicts_with("option").requires("positional2"),
                             Arg::from_usage("[positional2] 'tests positionals with exclusions'"),
                             Arg::from_usage("-O --Option [option3] 'tests options with specific value sets'").possible_values(&opt3_vals),
                             Arg::from_usage("[positional3]... 'tests positionals with specific values'").possible_values(&pos3_vals),
-                            Arg::from_usage("--multvals [multvals] 'Tests mutliple values, not mult occs'").value_names(&m_val_names),
-                            Arg::from_usage("--multvalsmo [multvalsmo]... 'Tests mutliple values, not mult occs'").value_names(&m_val_names),
+                            Arg::from_usage("--multvals [one] [two] 'Tests mutliple values, not mult occs'"),
+                            Arg::from_usage("--multvalsmo... [one] [two] 'Tests mutliple values, and mult occs'"),
                             Arg::from_usage("--minvals2 [minvals]... 'Tests 2 min vals'").min_values(2),
                             Arg::from_usage("--maxvals3 [maxvals]... 'Tests 3 max vals'").max_values(3)
                         ])
@@ -42,11 +41,11 @@ fn main() {
         println!("flag NOT present");
     }
 
-    if matches.is_present("opt") {
-        if let Some(v) = matches.value_of("opt") {
-            println!("option present {} times with value: {}",matches.occurrences_of("opt"), v);
+    if matches.is_present("option") {
+        if let Some(v) = matches.value_of("option") {
+            println!("option present {} times with value: {}",matches.occurrences_of("option"), v);
         }
-        if let Some(ref ov) = matches.values_of("opt") {
+        if let Some(ov) = matches.values_of("option") {
             for o in ov {
                 println!("An option: {}", o);
             }
@@ -63,15 +62,15 @@ fn main() {
 
     if matches.is_present("flag2") {
         println!("flag2 present");
-        println!("option2 present with value of: {}", matches.value_of("option2").unwrap());
+        println!("option2 present with value of: {}", matches.value_of("long-option-2").unwrap());
         println!("positional2 present with value of: {}", matches.value_of("positional2").unwrap());
     } else {
         println!("flag2 NOT present");
-        println!("option2 maybe present with value of: {}", matches.value_of("option2").unwrap_or("Nothing"));
+        println!("option2 maybe present with value of: {}", matches.value_of("long-option-2").unwrap_or("Nothing"));
         println!("positional2 maybe present with value of: {}", matches.value_of("positional2").unwrap_or("Nothing"));
     }
 
-    match matches.value_of("option3").unwrap_or("") {
+    match matches.value_of("Option3").unwrap_or("") {
         "fast" => println!("option3 present quickly"),
         "slow" => println!("option3 present slowly"),
         _      => println!("option3 NOT present")
@@ -83,11 +82,11 @@ fn main() {
         _      => println!("positional3 NOT present")
     }
 
-    if matches.is_present("opt") {
-        if let Some(v) = matches.value_of("opt") {
-            println!("option present {} times with value: {}",matches.occurrences_of("opt"), v);
+    if matches.is_present("option") {
+        if let Some(v) = matches.value_of("option") {
+            println!("option present {} times with value: {}",matches.occurrences_of("option"), v);
         }
-        if let Some(ref ov) = matches.values_of("opt") {
+        if let Some(ov) = matches.values_of("option") {
             for o in ov {
                 println!("An option: {}", o);
             }
@@ -110,11 +109,11 @@ fn main() {
                 println!("flag NOT present");
             }
 
-            if matches.is_present("scoption") {
-                if let Some(v) = matches.value_of("scoption") {
+            if matches.is_present("option") {
+                if let Some(v) = matches.value_of("option") {
                     println!("scoption present with value: {}", v);
                 }
-                if let Some(ref ov) = matches.values_of("scoption") {
+                if let Some(ov) = matches.values_of("option") {
                     for o in ov {
                         println!("An scoption: {}", o);
                     }

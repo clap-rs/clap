@@ -1,7 +1,7 @@
 [package]
 
 name = "clap"
-version = "1.5.5"
+version = "2.0.0"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
 exclude = ["examples/*", "clap-tests/*", "tests/*", "benches/*", "*.png", "clap-perf/*"]
 description = "A simple to use, efficient, and full featured  Command Line Argument Parser"
@@ -12,11 +12,11 @@ license = "MIT"
 keywords = ["argument", "command", "arg", "parser", "parse"]
 
 [dependencies]
-bitflags  = "0.4.0"
-vec_map   = "0.4"
+bitflags  = "~0.4"
+vec_map   = "~0.4"
 ansi_term = { version = "~0.7", optional = true }
 strsim    = { version = "~0.4.0", optional = true }
-yaml-rust = { version = "~0.3.0", optional = true }
+yaml-rust = { version = "~0.3", optional = true }
 clippy    = { version = "~0.0.35", optional = true }
 
 [features]
@@ -29,3 +29,41 @@ nightly     = [] # for building with nightly and unstable features
 unstable    = ["lints", "nightly"] # for building with travis-cargo
 debug       = [] # for building with debug messages
 
+[profile.release]
+opt-level = 3
+debug = false
+rpath = false
+lto = true
+debug-assertions = false
+# codegen-units ignored with lto=true
+
+[profile.dev]
+opt-level = 0
+debug = true
+rpath = false
+lto = false
+debug-assertions = true
+codegen-units = 4
+
+[profile.test]
+opt-level = 1
+debug = true
+rpath = false
+lto = false
+debug-assertions = true
+codegen-units = 2
+
+[profile.bench]
+opt-level = 3
+debug = false
+rpath = false
+lto = true
+debug-assertions = false
+
+[profile.doc]
+opt-level = 0
+debug = true
+rpath = false
+lto = false
+debug-assertions = true
+codegen-units = 4
