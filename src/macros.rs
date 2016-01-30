@@ -347,7 +347,7 @@ macro_rules! crate_version {
 
 /// App, Arg, SubCommand and Group builder macro (Usage-string like input) must be compiled with
 /// the `unstable` feature in order to use.
-#[cfg_attr(feature = "nightly", macro_export)]
+#[cfg_attr(feature = "unstable", macro_export)]
 macro_rules! clap_app {
     (@app ($builder:expr)) => { $builder };
     (@app ($builder:expr) (@arg $name:ident: $($tail:tt)*) $($tt:tt)*) => {
