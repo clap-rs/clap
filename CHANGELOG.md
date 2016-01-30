@@ -1,3 +1,12 @@
+<a name="v2.0.1"></a>
+### v2.0.1 (2016-01-30)
+
+
+#### Bug Fixes
+
+*   fixes cargo features to NOT require nightly with unstable features ([dcbcc60c](https://github.com/kbknapp/clap-rs/commit/dcbcc60c9ba17894be636472ea4b07a82d86a9db), closes [#402](https://github.com/kbknapp/clap-rs/issues/402))
+
+
 <a name="v2.0.0"></a>
 ## v2.0.0 (2016-01-28)
 
