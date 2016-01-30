@@ -1,3 +1,12 @@
+<a name="v2.0.1"></a>
+### v2.0.1 (2016-01-30)
+
+
+#### Bug Fixes
+
+*   fixes cargo features to NOT require nightly with unstable features ([dcbcc60c](https://github.com/kbknapp/clap-rs/commit/dcbcc60c9ba17894be636472ea4b07a82d86a9db), closes [#402](https://github.com/kbknapp/clap-rs/issues/402))
+
+
 <a name="v2.0.0"></a>
 ## v2.0.0 (2016-01-28)
 
@@ -72,6 +81,7 @@
  * **There is now a priority of order to determine the name** - This is perhaps the biggest breaking change. See the documentation for full details. Prior to this change, the value name took precedence. **Ensure your args are using the proper names (i.e. typically the long or short and NOT the value name) throughout the code**
 * `ArgMatches::values_of` returns an `Values` now which implements `Iterator` (should not break any code)
 * `crate_version!` returns `&'static str` instead of `String`
+* Using the `clap_app!` macro requires compiling with the `unstable` feature because the syntax could change slightly in the future
 
 
 <a name="v1.5.5"></a>

@@ -10,12 +10,13 @@ before_script:
     export PATH=$HOME/.local/bin:$PATH
 script:
   - |
-    cargo build --features yaml &&
-    cargo test --features yaml &&
+    cargo build --verbose --no-default-features &&
+    cargo build --verbose --features yaml &&
+    cargo test --verbose --features yaml &&
     make -C clap-tests test &&
-    travis-cargo --only stable doc -- --features yaml &&
+    travis-cargo --only nightly build -- --features travis &&
     travis-cargo --only nightly bench &&
-    cargo build --no-default-features
+    travis-cargo --only stable doc -- --features yaml
 addons:
   apt:
     packages:
@@ -28,4 +29,5 @@ after_success:
     travis-cargo --only stable coveralls --no-sudo -- --features yaml
 env:
   global:
-    secure: JLBlgHY6OEmhJ8woewNJHmuBokTNUv7/WvLkJGV8xk0t6bXBwSU0jNloXwlH7FiQTc4TccX0PumPDD4MrMgxIAVFPmmmlQOCmdpYP4tqZJ8xo189E5zk8lKF5OyaVYCs5SMmFC3cxCsKjfwGIexNu3ck5Uhwe9jI0tqgkgM3URA=
+    - TRAVIS_CARGO_NIGHTLY_FEATURE=travis
+    - secure: JLBlgHY6OEmhJ8woewNJHmuBokTNUv7/WvLkJGV8xk0t6bXBwSU0jNloXwlH7FiQTc4TccX0PumPDD4MrMgxIAVFPmmmlQOCmdpYP4tqZJ8xo189E5zk8lKF5OyaVYCs5SMmFC3cxCsKjfwGIexNu3ck5Uhwe9jI0tqgkgM3URA=
