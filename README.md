@@ -103,6 +103,7 @@ Below is a list of breaking changes between 1.x and 2.x and how you can change y
  * **There is now a priority of order to determine the name** - This is perhaps the biggest breaking change. See the documentation for full details. Prior to this change, the value name took precedence. **Ensure your args are using the proper names (i.e. typically the long or short and NOT the value name) throughout the code**
 * `ArgMatches::values_of` returns an `Values` now which implements `Iterator` (should not break any code)
 * `crate_version!` returns `&'static str` instead of `String`
+* Using the `clap_app!` macro requires compiling with the `unstable` feature because the syntax could change slightly in the future
 
 For full details, see [CHANGELOG.md](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md)
 
@@ -602,6 +603,7 @@ As of 2.0.0 (From 1.x)
  * **There is now a priority of order to determine the name** - This is perhaps the biggest breaking change. See the documentation for full details. Prior to this change, the value name took precedence. **Ensure your args are using the proper names (i.e. typically the long or short and NOT the value name) throughout the code**
 * `ArgMatches::values_of` returns an `Values` now which implements `Iterator` (should not break any code)
 * `crate_version!` returns `&'static str` instead of `String`
+* Using the `clap_app!` macro requires compiling with the `unstable` feature because the syntax could change slightly in the future
 
 ### Deprecations
 
