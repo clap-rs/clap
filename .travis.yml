@@ -10,12 +10,13 @@ before_script:
     export PATH=$HOME/.local/bin:$PATH
 script:
   - |
-    cargo build --features yaml &&
-    cargo test --features yaml &&
+    cargo build --verbose --no-default-features &&
+    cargo build --verbose --features yaml &&
+    cargo test --verbose --features yaml &&
     make -C clap-tests test &&
-    travis-cargo --only stable doc -- --features yaml &&
+    travis-cargo --only nightly build -- --features travis &&
     travis-cargo --only nightly bench &&
-    cargo build --no-default-features
+    travis-cargo --only stable doc -- --features yaml
 addons:
   apt:
     packages:
