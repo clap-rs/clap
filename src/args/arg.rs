@@ -206,6 +206,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// **NOTE**: Not all settings may be set using the usage string method. Some properties are
     /// only available via the builder pattern.
     ///
+    /// **NOTE**: Only ASCII values in `from_usage` strings are officially supported. Some UTF-8
+    /// codepoints may work just fine, but this is not guaranteed.
+    ///
     /// # Syntax
     ///
     /// Usage strings typically following the form:
