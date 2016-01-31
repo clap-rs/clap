@@ -1,3 +1,18 @@
+<a name="v2.0.2"></a>
+### v2.0.2 (2016-01-31)
+
+
+#### Improvements
+
+* **arg_enum:**  enum declared with arg_enum returns [&'static str; #] instead of Vec ([9c4b8a1a](https://github.com/kbknapp/clap-rs/commit/9c4b8a1a6b12949222f17d1074578ad7676b9c0d))
+
+#### Bug Fixes
+
+*   clap_app! should be gated by unstable, not nightly feature ([0c8b84af](https://github.com/kbknapp/clap-rs/commit/0c8b84af6161d5baf683688eafc00874846f83fa))
+* **SubCommands:**  fixed where subcmds weren't recognized after mult args ([c19c17a8](https://github.com/kbknapp/clap-rs/commit/c19c17a8850602990e24347aeb4427cf43316223), closes [#405](https://github.com/kbknapp/clap-rs/issues/405))
+* **Usage Parser:**  fixes a bug where literal single quotes weren't allowed in help strings ([0bcc7120](https://github.com/kbknapp/clap-rs/commit/0bcc71206478074769e311479b34a9f74fe80f5c), closes [#406](https://github.com/kbknapp/clap-rs/issues/406))
+
+
 <a name="v2.0.1"></a>
 ### v2.0.1 (2016-01-30)
 
