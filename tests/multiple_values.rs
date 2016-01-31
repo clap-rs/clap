@@ -1,6 +1,6 @@
 extern crate clap;
 
-use clap::{App, Arg, ErrorKind};
+use clap::{App, Arg, ErrorKind, SubCommand};
 
 #[test]
 fn multiple_values_of_option_long() {
@@ -23,6 +23,30 @@ fn multiple_values_of_option_long() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 3);
     assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
+}
+
+#[test]
+fn multiple_values_with_subcmd() {
+    let m = App::new("multiple_values")
+        .arg(Arg::with_name("option")
+            .long("option")
+            .help("multiple options")
+            .takes_value(true)
+            .multiple(true))
+        .subcommand(SubCommand::with_name("foo"))
+        .get_matches_from_safe(vec![
+            "",
+            "--option", "val1",
+            "val2", "foo"
+        ]);
+
+    assert!(m.is_ok());
+    let m = m.unwrap();
+
+    assert!(m.is_present("option"));
+    assert_eq!(m.occurrences_of("option"), 1);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2"]);
+    assert_eq!(m.subcommand_name(), Some("foo"));
 }
 
 #[test]
