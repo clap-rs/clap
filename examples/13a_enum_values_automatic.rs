@@ -42,7 +42,7 @@ fn main() {
     let m = App::new("myapp")
                     // Use a single positional argument that is required
                     .arg(Arg::from_usage("<foo> 'The Foo to use'")
-                        .possible_values(&*Foo::variants()))
+                        .possible_values(&Foo::variants()))
                     .arg(Arg::from_usage("<speed> 'The speed to use'")
                             // You can define a list of possible values if you want the values to be
                             // displayed in the help information. Whether you use possible_values() or
