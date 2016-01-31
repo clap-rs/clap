@@ -460,7 +460,8 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
 
             // Has the user already passed '--'?
             if !pos_only {
-                if !starts_new_arg || self.is_set(AppSettings::AllowLeadingHyphen) {
+                let pos_sc = self.subcommands.iter().any(|s| &s.0.meta.name[..] == &*arg_os);
+                if (!starts_new_arg || self.is_set(AppSettings::AllowLeadingHyphen)) && !pos_sc {
                     // Check to see if parsing a value from an option
                     if let Some(nvo) = needs_val_of {
                         // get the OptBuilder so we can check the settings
@@ -488,13 +489,11 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                     }
                 }
 
-                // let arg_str = arg_os.to_str().expect(INVALID_UTF8);
-                if self.subcommands.iter().any(|s| &s.0.meta.name[..] == &*arg_os) {
+                if pos_sc {
                     if &*arg_os == "help" &&
                        self.settings.is_set(AppSettings::NeedsSubcommandHelp) {
                         return self._help();
                     }
-                    // subcommands only support valid UTF-8
                     subcmd_name = Some(arg_os.to_str().expect(INVALID_UTF8).to_owned());
                     break;
                 } else if let Some(candidate) = suggestions::did_you_mean(
@@ -618,7 +617,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         mid_string.push_str(" ");
         if let Some(ref mut sc) = self.subcommands
                                       .iter_mut()
-                                      .filter(|s| &s.0.meta.name[..] == &sc_name)
+                                      .filter(|s| &s.0.meta.name == &sc_name)
                                       .next() {
             let mut sc_matcher = ArgMatcher::new();
             // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
