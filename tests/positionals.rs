@@ -1,6 +1,6 @@
 extern crate clap;
 
-use clap::{App, Arg, ErrorKind, ArgSettings};
+use clap::{App, Arg, ErrorKind};
 
 #[test]
 fn positional() {
@@ -90,53 +90,4 @@ fn create_positional() {
                             .index(1)
                             .help("testing testing"))
                 .get_matches();
-}
-
-#[test]
-fn create_positional_usage() {
-    let a = Arg::from_usage("[pos] 'some help info'");
-    assert_eq!(a.name, "pos");
-    assert_eq!(a.help.unwrap(), "some help info");
-    assert!(!a.is_set(ArgSettings::Multiple));
-    assert!(!a.is_set(ArgSettings::Required));
-    assert!(a.val_names.is_none());
-    assert!(a.num_vals.is_none());
-
-    let b = Arg::from_usage("<pos> 'some help info'");
-    assert_eq!(b.name, "pos");
-    assert_eq!(b.help.unwrap(), "some help info");
-    assert!(!b.is_set(ArgSettings::Multiple));
-    assert!(b.is_set(ArgSettings::Required));
-    assert!(b.val_names.is_none());
-    assert!(b.num_vals.is_none());
-
-    let c = Arg::from_usage("[pos]... 'some help info'");
-    assert_eq!(c.name, "pos");
-    assert_eq!(c.help.unwrap(), "some help info");
-    assert!(c.is_set(ArgSettings::Multiple));
-    assert!(!c.is_set(ArgSettings::Required));
-    assert!(c.val_names.is_none());
-    assert!(c.num_vals.is_none());
-
-    let d = Arg::from_usage("<pos>... 'some help info'");
-    assert_eq!(d.name, "pos");
-    assert_eq!(d.help.unwrap(), "some help info");
-    assert!(d.is_set(ArgSettings::Multiple));
-    assert!(d.is_set(ArgSettings::Required));
-    assert!(d.val_names.is_none());
-    assert!(d.num_vals.is_none());
-
-    let b = Arg::from_usage("<pos>");
-    assert_eq!(b.name, "pos");
-    assert!(!b.is_set(ArgSettings::Multiple));
-    assert!(b.is_set(ArgSettings::Required));
-    assert!(b.val_names.is_none());
-    assert!(b.num_vals.is_none());
-
-    let c = Arg::from_usage("[pos]...");
-    assert_eq!(c.name, "pos");
-    assert!(c.is_set(ArgSettings::Multiple));
-    assert!(!c.is_set(ArgSettings::Required));
-    assert!(c.val_names.is_none());
-    assert!(c.num_vals.is_none());
 }

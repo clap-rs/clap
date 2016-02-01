@@ -1,3 +1,8 @@
+// Copyright ⓒ 2015-2016 Kevin B. Knapp and clap-rs contributors.
+// Licensed under the MIT license
+// (see LICENSE or <http://opensource.org/licenses/MIT>) All files in the project carrying such
+// notice may not be copied, modified, or distributed except according to those terms.
+
 //! A simple to use, efficient, and full featured library for parsing command line arguments and subcommands when writing console, or terminal applications.
 //!
 //! ## About
