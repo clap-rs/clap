@@ -6,7 +6,7 @@ use vec_map::VecMap;
 #[derive(Debug, Clone)]
 pub struct MatchedArg {
     #[doc(hidden)]
-    pub occurs: u8,
+    pub occurs: u64,
     #[doc(hidden)]
     pub vals: VecMap<OsString>,
 }
