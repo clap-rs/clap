@@ -63,3 +63,14 @@ fn multiple_occurrences_of_flags_mixed() {
     assert!(m.is_present("flag"));
     assert_eq!(m.occurrences_of("flag"), 1);
 }
+
+#[test]
+fn multiple_occurrences_of_flags_large_quantity() {
+    let args : Vec<&str> = vec![""].into_iter().chain(vec!["-m"; 1024].into_iter()).collect();
+    let m = App::new("multiple_occurrences")
+                .arg(Arg::from_usage("-m --multflag 'allowed multiple flag'")
+                    .multiple(true))
+                .get_matches_from(args);
+    assert!(m.is_present("multflag"));
+    assert_eq!(m.occurrences_of("multflag"), 1024);
+}
