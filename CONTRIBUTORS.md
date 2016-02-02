@@ -4,6 +4,7 @@ The following is a list of contributors to the [clap](https://github.com/kbknapp
  * [Alex Gulyás](https://github.com/alex-gulyas)
  * [Benjamin Sago](https://github.com/ogham) <<ogham@bsago.me>>
  * [Brad Urani](https://github.com/bradurani)
+ * [Ceri Storey](https://github.com/cstorey)
  * [Dabo Ross](https://github.com/daboross) <<daboross@daboross.net>>
  * [Georg Brandl](https://github.com/birkenfeld) <<georg@python.org>>
  * [Paul Blouët](https://github.com/Georgi) <<paul@paulblouet.fr>>
