@@ -151,7 +151,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 format!("Argument \"{}\" has the same index as another positional \
                     argument\n\n\tPerhaps try .multiple(true) to allow one positional argument \
                     to take multiple values", a.name));
-            let pb = PosBuilder::from_arg(&a, i as u8, &mut self.required);
+            let pb = PosBuilder::from_arg(&a, i as u64, &mut self.required);
             self.positionals.insert(i, pb);
         } else if a.is_set(ArgSettings::TakesValue) {
             let ob = OptBuilder::from_arg(&a, &mut self.required);
@@ -1051,7 +1051,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                           .expect(INTERNAL_ERROR_MSG)
                           .vals.len();
         if let Some(max) = arg.max_vals() {
-            if (vals as u8) < max {
+            if (vals as u64) < max {
                 return Ok(Some(arg.name()));
             } else {
                 return Ok(None);
@@ -1062,11 +1062,11 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         }
         if let Some(num) = arg.num_vals() {
             if arg.is_set(ArgSettings::Multiple) {
-                if (vals as u8) < num {
+                if (vals as u64) < num {
                     return Ok(Some(arg.name()));
                 }
             } else {
-                if (vals as u8 % num) != 0 {
+                if (vals as u64 % num) != 0 {
                     return Ok(Some(arg.name()));
                 }
             }
@@ -1165,9 +1165,9 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         if let Some(num) = a.num_vals() {
             debugln!("num_vals set: {}", num);
             let should_err = if a.is_set(ArgSettings::Multiple) {
-                ((ma.vals.len() as u8) % num) != 0
+                ((ma.vals.len() as u64) % num) != 0
             } else {
-                num != (ma.vals.len() as u8)
+                num != (ma.vals.len() as u64)
             };
             if should_err {
                 debugln!("Sending error WrongNumberOfValues");
@@ -1191,7 +1191,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         }
         if let Some(num) = a.max_vals() {
             debugln!("max_vals set: {}", num);
-            if (ma.vals.len() as u8) > num {
+            if (ma.vals.len() as u64) > num {
                 debugln!("Sending error TooManyValues");
                 return Err(Error::too_many_values(
                     ma.vals.get(&ma.vals.keys()
@@ -1204,7 +1204,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         }
         if let Some(num) = a.min_vals() {
             debugln!("min_vals set: {}", num);
-            if (ma.vals.len() as u8) < num {
+            if (ma.vals.len() as u64) < num {
                 debugln!("Sending error TooFewValues");
                 return Err(Error::too_few_values(
                     a,

@@ -517,7 +517,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn too_few_values<'a, 'b, A, U>(arg: &A, min_vals: u8, curr_vals: usize, usage: U) -> Self
+    pub fn too_few_values<'a, 'b, A, U>(arg: &A, min_vals: u64, curr_vals: usize, usage: U) -> Self
         where A: AnyArg<'a, 'b>,
               U: Display
     {
@@ -552,7 +552,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn wrong_number_of_values<'a, 'b, A, S, U>(arg: &A, num_vals: u8, curr_vals: usize, suffix: S, usage: U) -> Self
+    pub fn wrong_number_of_values<'a, 'b, A, S, U>(arg: &A, num_vals: u64, curr_vals: usize, suffix: S, usage: U) -> Self
         where A: AnyArg<'a, 'b>,
               S: Display,
               U: Display

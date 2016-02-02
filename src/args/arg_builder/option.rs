@@ -18,9 +18,9 @@ pub struct OptBuilder<'n, 'e> {
     pub blacklist: Option<Vec<&'e str>>,
     pub possible_vals: Option<Vec<&'e str>>,
     pub requires: Option<Vec<&'e str>>,
-    pub num_vals: Option<u8>,
-    pub min_vals: Option<u8>,
-    pub max_vals: Option<u8>,
+    pub num_vals: Option<u64>,
+    pub min_vals: Option<u64>,
+    pub max_vals: Option<u64>,
     pub val_names: Option<VecMap<&'e str>>,
     pub validator: Option<Rc<Fn(String) -> StdResult<(), String>>>,
     pub overrides: Option<Vec<&'e str>>,
@@ -83,7 +83,7 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
         };
         if let Some(ref vec) = ob.val_names {
             if vec.len() > 1 {
-                ob.num_vals = Some(vec.len() as u8);
+                ob.num_vals = Some(vec.len() as u64);
             }
         }
         if let Some(ref p) = a.validator {
@@ -211,13 +211,13 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(s) }
     fn has_switch(&self) -> bool { true }
     fn set(&mut self, s: ArgSettings) { self.settings.set(s) }
-    fn max_vals(&self) -> Option<u8> { self.max_vals }
-    fn num_vals(&self) -> Option<u8> { self.num_vals }
+    fn max_vals(&self) -> Option<u64> { self.max_vals }
+    fn num_vals(&self) -> Option<u64> { self.num_vals }
     fn possible_vals(&self) -> Option<&[&'e str]> { self.possible_vals.as_ref().map(|o| &o[..]) }
     fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> {
         self.validator.as_ref()
     }
-    fn min_vals(&self) -> Option<u8> { self.min_vals }
+    fn min_vals(&self) -> Option<u64> { self.min_vals }
     fn short(&self) -> Option<char> { self.short }
     fn long(&self) -> Option<&'e str> { self.long }
     fn val_delim(&self) -> Option<char> { self.val_delim }
