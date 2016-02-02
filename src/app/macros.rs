@@ -86,26 +86,19 @@ macro_rules! _handle_group_reqs{
                 if name == &$arg.name() {
                     vec_remove!($me.required, name);
                     if let Some(ref reqs) = grp.requires {
-                        for r in reqs {
-                            $me.required.push(r);
-                        }
+                        $me.required.extend(reqs);
                     }
                     if let Some(ref bl) = grp.conflicts {
-                        for &b in bl {
-                            $me.blacklist.push(b);
-                        }
+                        $me.blacklist.extend(bl);
                     }
-                    found = true;
+                    found = true; // What if arg is in more than one group with different reqs?
                     break;
                 }
             }
             if found {
-                for name in &grp.args {
-                    if name == &$arg.name() { continue }
-                    vec_remove!($me.required, name);
-
-                    $me.blacklist.push(name);
-                }
+                vec_remove_all!($me.required, &grp.args);
+                $me.blacklist.extend(&grp.args);
+                vec_remove!($me.blacklist, &$arg.name());
             }
         }
     })
