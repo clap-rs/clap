@@ -99,7 +99,7 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
         pb
     }
 
-    pub fn write_help<W: io::Write>(&self, w: &mut W, tab: &str, longest: usize) -> io::Result<()> {
+    pub fn write_help<W: io::Write>(&self, w: &mut W, tab: &str, longest: usize, skip_pv: bool) -> io::Result<()> {
         try!(write!(w, "{}", tab));
         try!(write!(w, "{}", self.name));
         if self.settings.is_set(ArgSettings::Multiple) {
@@ -116,6 +116,11 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
                 }
             } else {
                 try!(write!(w, "{}", h));
+            }
+            if !skip_pv {
+                if let Some(ref pv) = self.possible_vals {
+                    try!(write!(w, " [values: {}]", pv.join(", ")));
+                }
             }
         }
         write!(w, "\n")

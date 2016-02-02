@@ -1523,7 +1523,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             }
             for o in self.opts.iter().filter(|o| !o.settings.is_set(ArgSettings::Hidden)) {
                 let mut v = vec![];
-                try!(o.write_help(&mut v, tab, longest));
+                try!(o.write_help(&mut v, tab, longest, self.is_set(AppSettings::HidePossibleValuesInHelp)));
                 combined.insert(o.name, v);
             }
             for (_, a) in combined {
@@ -1546,7 +1546,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                                   .filter(|o| !o.settings.is_set(ArgSettings::Hidden))
                                   .map(|o| (o.name, o))
                                   .collect::<BTreeMap<_, _>>() {
-                    try!(o.write_help(w, tab, longest_opt));
+                    try!(o.write_help(w, tab, longest_opt, self.is_set(AppSettings::HidePossibleValuesInHelp)));
                 }
             }
         }
@@ -1554,7 +1554,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             try!(write!(w, "\nARGS:\n"));
             for v in self.positionals.values()
                          .filter(|p| !p.settings.is_set(ArgSettings::Hidden)) {
-                try!(v.write_help(w, tab, longest_pos));
+                try!(v.write_help(w, tab, longest_pos, self.is_set(AppSettings::HidePossibleValuesInHelp)));
             }
         }
         if subcmds {

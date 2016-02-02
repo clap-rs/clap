@@ -98,7 +98,7 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
         ob
     }
 
-    pub fn write_help<W: io::Write>(&self, w: &mut W, tab: &str, longest: usize) -> io::Result<()> {
+    pub fn write_help<W: io::Write>(&self, w: &mut W, tab: &str, longest: usize, skip_pv: bool) -> io::Result<()> {
         debugln!("fn=write_help");
         // if it supports multiple we add '...' i.e. 3 to the name length
         try!(write!(w, "{}", tab));
@@ -145,7 +145,26 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
             // 8 = tab + '-a, '.len()
             write_spaces!((longest + 8) - (self.to_string().len()), w);
         }
-        print_opt_help!(self, longest + 12, w);
+        if let Some(h) = self.help {
+            if h.contains("{n}") {
+                let mut hel = h.split("{n}");
+                if let Some(part) = hel.next() {
+                    try!(write!(w, "{}", part));
+                }
+                for part in hel {
+                    try!(write!(w, "\n"));
+                    write_spaces!(longest + 12, w);
+                    try!(write!(w, "{}", part));
+                }
+            } else {
+                try!(write!(w, "{}", h));
+            }
+            if !skip_pv {
+                if let Some(ref pv) = self.possible_vals {
+                    try!(write!(w, " [values: {}]", pv.join(", ")));
+                }
+            }
+        }
         write!(w, "\n")
     }
 }

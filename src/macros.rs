@@ -497,35 +497,6 @@ macro_rules! clap_app {
     }};
 }
 
-// used in src/args/arg_builder/option.rs
-macro_rules! print_opt_help {
-    ($opt:ident, $spc:expr, $w:ident) => {
-        debugln!("macro=print_opt_help!;");
-        if let Some(h) = $opt.help {
-            if h.contains("{n}") {
-                let mut hel = h.split("{n}");
-                if let Some(part) = hel.next() {
-                    try!(write!($w, "{}", part));
-                }
-                for part in hel {
-                    try!(write!($w, "\n"));
-                    write_spaces!($spc, $w);
-                    try!(write!($w, "{}", part));
-                }
-            } else {
-                try!(write!($w, "{}", h));
-            }
-            if let Some(ref pv) = $opt.possible_vals {
-                try!(write!($w, " [values:"));
-                for pv_s in pv.iter() {
-                    try!(write!($w, " {}", pv_s));
-                }
-                try!(write!($w, "]"));
-            }
-        }
-    };
-}
-
 macro_rules! impl_settings {
     ($n:ident, $($v:ident => $c:ident),+) => {
         pub fn set(&mut self, s: $n) {
