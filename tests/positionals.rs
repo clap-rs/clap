@@ -28,6 +28,47 @@ fn positional() {
 }
 
 #[test]
+fn lots_o_vals() {
+    let r = App::new("opts")
+        .arg(
+            Arg::from_usage("[opt]... 'some pos'"),
+            )
+        .get_matches_from_safe(vec!["",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            ]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("opt"));
+    assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>().len(), 297); // i.e. more than u8
+}
+
+#[test]
 fn positional_multiple() {
     let m = App::new("positional_multiple")
         .args(&[

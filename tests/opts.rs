@@ -19,6 +19,47 @@ fn opts_using_short() {
 }
 
 #[test]
+fn lots_o_vals() {
+    let r = App::new("opts")
+        .arg(
+            Arg::from_usage("-o [opt]... 'some opt'"),
+            )
+        .get_matches_from_safe(vec!["", "-o", 
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+            ]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("o"));
+    assert_eq!(m.values_of("o").unwrap().collect::<Vec<_>>().len(), 297); // i.e. more than u8
+}
+
+#[test]
 fn opts_using_long_space() {
     let r = App::new("opts")
         .args(&[
