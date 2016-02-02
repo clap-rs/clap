@@ -95,7 +95,7 @@ macro_rules! value_t {
 #[macro_export]
 macro_rules! value_t_or_exit {
     ($m:ident, $v:expr, $t:ty) => {
-        value_t!($m.value_of($v), $t)
+        value_t_or_exit!($m.value_of($v), $t)
     };
     ($m:ident.value_of($v:expr), $t:ty) => {
         if let Some(v) = $m.value_of($v) {
