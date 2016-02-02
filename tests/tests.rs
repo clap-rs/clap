@@ -2,7 +2,6 @@
 extern crate clap;
 
 use clap::{App, Arg};
-use std::vec::Vec;
 
 arg_enum!{
     #[derive(Debug)]
