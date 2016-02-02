@@ -228,70 +228,57 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 c_pos.push(name);
             }
         }
-        let mut tmp_f = vec![];
-        for f in &c_flags {
-            if let Some(f) = self.flags.iter().filter(|flg| &flg.name == f).next() {
-                if let Some(ref rl) = f.requires {
-                    for r in rl {
-                        if !reqs.contains(r) {
-                            if self.flags.iter().any(|f| &f.name == r) {
-                                tmp_f.push(r);
-                            } else if self.opts.iter().any(|o| &o.name == r) {
-                                c_opt.push(r);
-                            } else if self.groups.contains_key(r) {
-                                grps.push(r);
-                            } else {
-                                c_pos.push(r);
+        macro_rules! fill_vecs {
+            ($_self:ident {
+                $t1:ident => $v1:ident => $i1:ident,
+                $t2:ident => $v2:ident => $i2:ident,
+                $t3:ident => $v3:ident => $i3:ident,
+                $gv:ident, $tmp:ident
+            }) => {
+                for a in &$v1 {
+                    if let Some(a) = self.$t1.$i1().filter(|arg| &arg.name == a).next() {
+                        if let Some(ref rl) = a.requires {
+                            for r in rl {
+                                if !reqs.contains(r) {
+                                    if $_self.$t1.$i1().any(|t| &t.name == r) {
+                                        $tmp.push(*r);
+                                    } else if $_self.$t2.$i2().any(|t| &t.name == r) {
+                                        $v2.push(r);
+                                    } else if $_self.$t3.$i3().any(|t| &t.name == r) {
+                                        $v3.push(r);
+                                    } else if $_self.groups.contains_key(r) {
+                                        $gv.push(r);
+                                    }
+                                }
                             }
                         }
                     }
                 }
-            }
+                $v1.extend(&$tmp);
+            };
         }
-        c_flags.extend(tmp_f);
-        let mut tmp_o = vec![];
-        for f in &c_opt {
-            if let Some(f) = self.opts.iter().filter(|o| &o.name == f).next() {
-                if let Some(ref rl) = f.requires {
-                    for r in rl {
-                        if !reqs.contains(&r) {
-                            if self.flags.iter().any(|f| &f.name == r) {
-                                c_flags.push(r);
-                            } else if self.opts.iter().any(|o| &o.name == r) {
-                                tmp_o.push(r);
-                            } else if self.groups.contains_key(r) {
-                                grps.push(&r);
-                            } else {
-                                c_pos.push(r);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        c_opt.extend(tmp_o);
-        let mut tmp_p = vec![];
-        for p in &c_pos {
-            if let Some(p) = self.positionals.values().filter(|pos| &pos.name == p).next() {
-                if let Some(ref rl) = p.requires {
-                    for r in rl {
-                        if !reqs.contains(&&**r) {
-                            if self.flags.iter().any(|f| &f.name == r) {
-                                c_flags.push(r);
-                            } else if self.opts.iter().any(|o| &o.name == r) {
-                                c_opt.push(r);
-                            } else if self.groups.contains_key(r) {
-                                grps.push(&&**r);
-                            } else {
-                                tmp_p.push(r);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        c_pos.extend(tmp_p);
 
+        let mut tmp = vec![];
+        fill_vecs!(self {
+            flags       => c_flags => iter,
+            opts        => c_opt   => iter,
+            positionals => c_pos   => values,
+            grps, tmp
+        });
+        tmp.clear();
+        fill_vecs!(self {
+            opts        => c_opt   => iter,
+            flags       => c_flags => iter,
+            positionals => c_pos   => values,
+            grps, tmp
+        });
+        tmp.clear();
+        fill_vecs!(self {
+            positionals => c_pos   => values,
+            opts        => c_opt   => iter,
+            flags       => c_flags => iter,
+            grps, tmp
+        });
         let mut ret_val = VecDeque::new();
 
         let mut pmap = BTreeMap::new();
@@ -306,27 +293,20 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         for (_, s) in pmap {
             ret_val.push_back(s);
         }
-        for f in c_flags.into_iter() {
-            if matcher.is_some() && matcher.as_ref().unwrap().contains(f) {
-                continue;
+        macro_rules! write_arg {
+            ($i:expr, $m:ident, $v:ident, $r:ident) => {
+                for f in $v.into_iter() {
+                    if $m.is_some() && $m.as_ref().unwrap().contains(f) {
+                        continue;
+                    }
+                    $r.push_back(format!("{}", $i.filter(|flg| &flg.name == &f)
+                                                 .next()
+                                                 .unwrap()));
+                }
             }
-            ret_val.push_back(format!("{}", self.flags
-                                                .iter()
-                                                .filter(|flg| &flg.name == &f)
-                                                .next()
-                                                .unwrap()));
         }
-        for o in c_opt.into_iter() {
-            if matcher.is_some() && matcher.as_ref().unwrap().contains(o) {
-                continue;
-            }
-            ret_val.push_back(format!("{}",
-                                      self.opts
-                                          .iter()
-                                          .filter(|opt| &opt.name == &o)
-                                          .next()
-                                          .unwrap()));
-        }
+        write_arg!(self.flags.iter(), matcher, c_flags, ret_val);
+        write_arg!(self.opts.iter(), matcher, c_opt, ret_val);
         for g in grps.into_iter() {
             let g_string = self.args_in_group(g)
                                .join("|");
