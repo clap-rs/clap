@@ -588,20 +588,22 @@ macro_rules! write_spaces {
 
 // convenience macro for remove an item from a vec
 macro_rules! vec_remove {
-    ($vec:expr, $to_rem:ident) => {
-        debugln!("macro=write_spaces!;");
-        {
-            let mut ix = None;
-            $vec.dedup();
-            for (i, val) in $vec.iter().enumerate() {
-                if val == $to_rem {
-                    ix = Some(i);
-                    break;
-                }
-            }
-            if let Some(i) = ix {
-                $vec.remove(i);
-            }
+    ($vec:expr, $to_rem:expr) => {
+        debugln!("macro=vec_remove!;");
+        for i in (0 .. $vec.len()).rev() {
+            let should_remove = &$vec[i] == $to_rem;
+            if should_remove { $vec.swap_remove(i); }
         }
-    }
+    };
+}
+
+// convenience macro for remove an item from a vec
+macro_rules! vec_remove_all {
+    ($vec:expr, $to_rem:expr) => {
+        debugln!("macro=vec_remove!;");
+        for i in (0 .. $vec.len()).rev() {
+            let should_remove = $to_rem.contains(&$vec[i]);
+            if should_remove { $vec.swap_remove(i); }
+        }
+    };
 }

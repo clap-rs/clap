@@ -1,56 +1,24 @@
 macro_rules! remove_overriden {
-    ($me:ident, $name:expr) => ({
-        debugln!("macro=remove_overriden!;");
-        if let Some(ref o) = $me.opts.iter().filter(|o| o.name == *$name).next() {
-            if let Some(ref ora) = o.requires {
-                for a in ora {
-                    vec_remove!($me.required, a);
-                }
-            }
-            if let Some(ref ora) = o.blacklist {
-                for a in ora {
-                    vec_remove!($me.blacklist, a);
-                }
-            }
-            if let Some(ref ora) = o.overrides {
-                for a in ora {
-                    vec_remove!($me.overrides, a);
-                }
-            }
-        } else if let Some(ref o) = $me.flags.iter().filter(|f| f.name == *$name).next() {
-            if let Some(ref ora) = o.requires {
-                for a in ora {
-                    vec_remove!($me.required, a);
-                }
-            }
-            if let Some(ref ora) = o.blacklist {
-                for a in ora {
-                    vec_remove!($me.blacklist, a);
-                }
-            }
-            if let Some(ref ora) = o.overrides {
-                for a in ora {
-                    vec_remove!($me.overrides, a);
-                }
-            }
-        } else if let Some(p) = $me.positionals.values().filter(|p| p.name == *$name).next() {
-            if let Some(ref ora) = p.requires {
-                for a in ora {
-                    vec_remove!($me.required, a);
-                }
-            }
-            if let Some(ref ora) = p.blacklist {
-                for a in ora {
-                    vec_remove!($me.blacklist, a);
-                }
-            }
-            if let Some(ref ora) = p.overrides {
-                for a in ora {
-                    vec_remove!($me.overrides, a);
-                }
-            }
+    (@remove $_self:ident, $v:ident, $a:ident.$ov:ident) => {
+        if let Some(ref ora) = $a.$ov {
+            vec_remove_all!($_self.$v, ora);
         }
-    })
+    };
+    (@arg $_self:ident, $arg:ident) => {
+        remove_overriden!(@remove $_self, required, $arg.requires);
+        remove_overriden!(@remove $_self, blacklist, $arg.blacklist);
+        remove_overriden!(@remove $_self, overrides, $arg.overrides);
+    };
+    ($_self:ident, $name:expr) => {
+        debugln!("macro=remove_overriden!;");
+        if let Some(ref o) = $_self.opts.iter().filter(|o| o.name == *$name).next() {
+            remove_overriden!(@arg $_self, o);
+        } else if let Some(ref f) = $_self.flags.iter().filter(|f| f.name == *$name).next() {
+            remove_overriden!(@arg $_self, f);
+        } else if let Some(p) = $_self.positionals.values().filter(|p| p.name == *$name).next() {
+            remove_overriden!(@arg $_self, p);
+        }
+    };
 }
 
 macro_rules! arg_post_processing(
