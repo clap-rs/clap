@@ -491,6 +491,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     pub fn args_from_usage(mut self, usage: &'a str) -> Self {
         for l in usage.lines() {
+            if l.len() == 0 { continue; }
             self.0.add_arg(&Arg::from_usage(l.trim()));
         }
         self
