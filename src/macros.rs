@@ -296,10 +296,8 @@ macro_rules! arg_enum {
                         let v = vec![
                             $(stringify!($v),)+
                         ];
-                        format!("valid values:{}",
-                            v.iter().fold(String::new(), |a, i| {
-                                a + &format!(" {}", i)[..]
-                            }))
+                        format!("valid values: {}",
+                            v.join(" ,"))
                     }),
                 }
             }

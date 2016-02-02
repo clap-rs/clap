@@ -394,8 +394,7 @@ impl Error {
             sorted.push(v.as_ref());
         }
         sorted.sort();
-        let valid_values = sorted.iter()
-                                 .fold(String::new(), |a, name| a + &format!( " {}", name)[..]);
+        let valid_values = sorted.join(" ");
         Error {
             message: format!("{} '{}' isn't a valid value for '{}'\n\t\
                             [values:{}]\n\

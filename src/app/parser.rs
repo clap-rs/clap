@@ -172,21 +172,15 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         if group.required {
             self.required.push(group.name.into());
             if let Some(ref reqs) = group.requires {
-                for &r in reqs {
-                    self.required.push(r.into());
-                }
+                self.required.extend(reqs);
             }
             if let Some(ref bl) = group.conflicts {
-                for &b in bl {
-                    self.blacklist.push(b.into());
-                }
+                self.blacklist.extend(bl);
             }
         }
         let mut found = false;
         if let Some(ref mut grp) = self.groups.get_mut(&group.name) {
-            for a in &group.args {
-                grp.args.push(a);
-            }
+            grp.args.extend(&group.args);
             grp.requires = group.requires.clone();
             grp.conflicts = group.conflicts.clone();
             grp.required = group.required;
@@ -254,9 +248,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 }
             }
         }
-        for f in tmp_f.into_iter() {
-            c_flags.push(f);
-        }
+        c_flags.extend(tmp_f);
         let mut tmp_o = vec![];
         for f in &c_opt {
             if let Some(f) = self.opts.iter().filter(|o| &o.name == f).next() {
@@ -277,9 +269,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 }
             }
         }
-        for f in tmp_o.into_iter() {
-            c_opt.push(f);
-        }
+        c_opt.extend(tmp_o);
         let mut tmp_p = vec![];
         for p in &c_pos {
             if let Some(p) = self.positionals.values().filter(|pos| &pos.name == p).next() {
@@ -300,9 +290,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 }
             }
         }
-        for f in tmp_p.into_iter() {
-            c_pos.push(f);
-        }
+        c_pos.extend(tmp_p);
 
         let mut ret_val = VecDeque::new();
 
@@ -341,8 +329,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         }
         for g in grps.into_iter() {
             let g_string = self.args_in_group(g)
-                               .iter()
-                               .fold(String::new(), |acc, s| acc + &format!(" {} |", s)[..]);
+                               .join(" |");
             ret_val.push_back(format!("[{}]", &g_string[..g_string.len() - 1]));
         }
 
@@ -736,26 +723,17 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 args.push(f.to_string());
             } else if self.groups.contains_key(&**n) {
                 g_vec.push(*n);
-            } else {
-                if let Some(p) = self.positionals
+            } else if let Some(p) = self.positionals
                                      .values()
                                      .filter(|p| &p.name == n)
                                      .next() {
-                    args.push(p.to_string());
-                }
+                args.push(p.to_string());
             }
         }
 
-        if !g_vec.is_empty() {
-            for av in g_vec.iter().map(|g| self.args_in_group(g)) {
-                for a in av {
-                    args.push(a);
-                }
-            }
+        for av in g_vec.iter().map(|g| self.args_in_group(g)) {
+            args.extend(av);
         }
-        assert!(!args.is_empty(),
-                "ArgGroup '{}' doesn't contain any args",
-                group);
         args.dedup();
         args.iter().map(ToOwned::to_owned).collect()
     }
@@ -776,16 +754,9 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             }
         }
 
-        if !g_vec.is_empty() {
-            for av in g_vec.iter().map(|g| self.arg_names_in_group(g)) {
-                for a in av {
-                    args.push(a.into());
-                }
-            }
+        for av in g_vec.iter().map(|g| self.arg_names_in_group(g)) {
+            args.extend(av);
         }
-        assert!(!args.is_empty(),
-                "ArgGroup '{}' doesn't contain any args",
-                group);
         args.dedup();
         args.iter().map(|s| *s).collect()
     }
@@ -1406,9 +1377,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
     // args, and requirements
     fn smart_usage(&self, usage: &mut String, used: &[&str]) {
         let mut hs: Vec<&str> = self.required().map(|s| &**s).collect();
-        for n in used {
-            hs.push(n);
-        }
+        hs.extend(used);
         let r_string = self.get_required_from(&hs, None)
                                      .iter()
                                      .fold(String::new(), |acc, s| acc + &format!(" {}", s)[..]);
