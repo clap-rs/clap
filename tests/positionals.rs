@@ -132,3 +132,10 @@ fn create_positional() {
                             .help("testing testing"))
                 .get_matches();
 }
+
+#[test]
+fn positional_hyphen_does_not_panic() {
+    let _ = App::new("test")
+        .arg(Arg::with_name("dummy"))
+        .get_matches_from(vec!["test", "-"]);
+}
