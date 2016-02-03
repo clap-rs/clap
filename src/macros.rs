@@ -95,7 +95,7 @@ macro_rules! value_t {
 #[macro_export]
 macro_rules! value_t_or_exit {
     ($m:ident, $v:expr, $t:ty) => {
-        value_t!($m.value_of($v), $t)
+        value_t_or_exit!($m.value_of($v), $t)
     };
     ($m:ident.value_of($v:expr), $t:ty) => {
         if let Some(v) = $m.value_of($v) {
@@ -296,10 +296,8 @@ macro_rules! arg_enum {
                         let v = vec![
                             $(stringify!($v),)+
                         ];
-                        format!("valid values:{}",
-                            v.iter().fold(String::new(), |a, i| {
-                                a + &format!(" {}", i)[..]
-                            }))
+                        format!("valid values: {}",
+                            v.join(" ,"))
                     }),
                 }
             }
@@ -497,35 +495,6 @@ macro_rules! clap_app {
     }};
 }
 
-// used in src/args/arg_builder/option.rs
-macro_rules! print_opt_help {
-    ($opt:ident, $spc:expr, $w:ident) => {
-        debugln!("macro=print_opt_help!;");
-        if let Some(h) = $opt.help {
-            if h.contains("{n}") {
-                let mut hel = h.split("{n}");
-                if let Some(part) = hel.next() {
-                    try!(write!($w, "{}", part));
-                }
-                for part in hel {
-                    try!(write!($w, "\n"));
-                    write_spaces!($spc, $w);
-                    try!(write!($w, "{}", part));
-                }
-            } else {
-                try!(write!($w, "{}", h));
-            }
-            if let Some(ref pv) = $opt.possible_vals {
-                try!(write!($w, " [values:"));
-                for pv_s in pv.iter() {
-                    try!(write!($w, " {}", pv_s));
-                }
-                try!(write!($w, "]"));
-            }
-        }
-    };
-}
-
 macro_rules! impl_settings {
     ($n:ident, $($v:ident => $c:ident),+) => {
         pub fn set(&mut self, s: $n) {
@@ -619,20 +588,22 @@ macro_rules! write_spaces {
 
 // convenience macro for remove an item from a vec
 macro_rules! vec_remove {
-    ($vec:expr, $to_rem:ident) => {
-        debugln!("macro=write_spaces!;");
-        {
-            let mut ix = None;
-            $vec.dedup();
-            for (i, val) in $vec.iter().enumerate() {
-                if val == $to_rem {
-                    ix = Some(i);
-                    break;
-                }
-            }
-            if let Some(i) = ix {
-                $vec.remove(i);
-            }
+    ($vec:expr, $to_rem:expr) => {
+        debugln!("macro=vec_remove!;");
+        for i in (0 .. $vec.len()).rev() {
+            let should_remove = &$vec[i] == $to_rem;
+            if should_remove { $vec.swap_remove(i); }
         }
-    }
+    };
+}
+
+// convenience macro for remove an item from a vec
+macro_rules! vec_remove_all {
+    ($vec:expr, $to_rem:expr) => {
+        debugln!("macro=vec_remove!;");
+        for i in (0 .. $vec.len()).rev() {
+            let should_remove = $to_rem.contains(&$vec[i]);
+            if should_remove { $vec.swap_remove(i); }
+        }
+    };
 }

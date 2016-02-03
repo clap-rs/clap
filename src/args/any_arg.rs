@@ -12,9 +12,9 @@ pub trait AnyArg<'n, 'e>: Display {
     fn is_set(&self, ArgSettings) -> bool;
     fn set(&mut self, ArgSettings);
     fn has_switch(&self) -> bool;
-    fn max_vals(&self) -> Option<u8>;
-    fn min_vals(&self) -> Option<u8>;
-    fn num_vals(&self) -> Option<u8>;
+    fn max_vals(&self) -> Option<u64>;
+    fn min_vals(&self) -> Option<u64>;
+    fn num_vals(&self) -> Option<u64>;
     fn possible_vals(&self) -> Option<&[&'e str]>;
     fn validator(&self) -> Option<&Rc<Fn(String) -> Result<(), String>>>;
     fn short(&self) -> Option<char>;

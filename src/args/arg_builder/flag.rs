@@ -86,7 +86,7 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for FlagBuilder<'a, 'b> {
     fn from(a: &'z Arg<'a, 'b>) -> Self {
         assert!(a.validator.is_none(),
             format!("The argument '{}' has a validator set, yet was parsed as a flag. Ensure \
-                .takes_value(true) or .index(u8) is set.", a.name));
+                .takes_value(true) or .index(u64) is set.", a.name));
         assert!(a.possible_vals.is_none(),
             format!("The argument '{}' cannot have a specific value set because it doesn't \
                 have takes_value(true) set",
@@ -127,11 +127,11 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(s) }
     fn has_switch(&self) -> bool { true }
     fn set(&mut self, s: ArgSettings) { self.settings.set(s) }
-    fn max_vals(&self) -> Option<u8> { None }
-    fn num_vals(&self) -> Option<u8> { None }
+    fn max_vals(&self) -> Option<u64> { None }
+    fn num_vals(&self) -> Option<u64> { None }
     fn possible_vals(&self) -> Option<&[&'e str]> { None }
     fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> { None }
-    fn min_vals(&self) -> Option<u8> { None }
+    fn min_vals(&self) -> Option<u64> { None }
     fn short(&self) -> Option<char> { self.short }
     fn long(&self) -> Option<&'e str> { self.long }
     fn val_delim(&self) -> Option<char> { None }

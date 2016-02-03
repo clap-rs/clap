@@ -22,7 +22,7 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-    -O, --Option <option3>           tests options with specific value sets [values: fast slow]
+    -O, --Option <option3>           tests options with specific value sets [values: fast, slow]
         --long-option-2 <option2>    tests long options with exclusions
         --maxvals3 <maxvals>...      Tests 3 max vals
         --minvals2 <minvals>...      Tests 2 min vals
@@ -33,7 +33,7 @@ OPTIONS:
 ARGS:
     positional        tests positionals
     positional2       tests positionals with exclusions
-    positional3...    tests positionals with specific values
+    positional3...    tests positionals with specific values [values: vi, emacs]
 
 SUBCOMMANDS:
     help      Prints this message

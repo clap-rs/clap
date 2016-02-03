@@ -41,7 +41,7 @@ pub struct Arg<'a, 'b> where 'a: 'b {
     #[doc(hidden)]
     pub help: Option<&'b str>,
     #[doc(hidden)]
-    pub index: Option<u8>,
+    pub index: Option<u64>,
     #[doc(hidden)]
     pub blacklist: Option<Vec<&'a str>>,
     #[doc(hidden)]
@@ -53,11 +53,11 @@ pub struct Arg<'a, 'b> where 'a: 'b {
     #[doc(hidden)]
     pub val_names: Option<VecMap<&'b str>>,
     #[doc(hidden)]
-    pub num_vals: Option<u8>,
+    pub num_vals: Option<u64>,
     #[doc(hidden)]
-    pub max_vals: Option<u8>,
+    pub max_vals: Option<u64>,
     #[doc(hidden)]
-    pub min_vals: Option<u8>,
+    pub min_vals: Option<u64>,
     #[doc(hidden)]
     pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
     #[doc(hidden)]
@@ -140,14 +140,14 @@ impl<'a, 'b> Arg<'a, 'b> {
                 "help" => a.help(v.as_str().unwrap()),
                 "required" => a.required(v.as_bool().unwrap()),
                 "takes_value" => a.takes_value(v.as_bool().unwrap()),
-                "index" => a.index(v.as_i64().unwrap() as u8),
+                "index" => a.index(v.as_i64().unwrap() as u64),
                 "global" => a.global(v.as_bool().unwrap()),
                 "multiple" => a.multiple(v.as_bool().unwrap()),
                 "empty_values" => a.empty_values(v.as_bool().unwrap()),
                 "group" => a.group(v.as_str().unwrap()),
-                "number_of_values" => a.number_of_values(v.as_i64().unwrap() as u8),
-                "max_values" => a.max_values(v.as_i64().unwrap() as u8),
-                "min_values" => a.min_values(v.as_i64().unwrap() as u8),
+                "number_of_values" => a.number_of_values(v.as_i64().unwrap() as u64),
+                "max_values" => a.max_values(v.as_i64().unwrap() as u64),
+                "min_values" => a.min_values(v.as_i64().unwrap() as u64),
                 "value_name" => a.value_name(v.as_str().unwrap()),
                 "use_delimiter" => a.use_delimiter(v.as_bool().unwrap()),
                 "value_delimiter" => a.value_delimiter(v.as_str().unwrap()),
@@ -621,7 +621,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// .index(1)
     /// # ;
     /// ```
-    pub fn index(mut self, idx: u8) -> Self {
+    pub fn index(mut self, idx: u64) -> Self {
         self.index = Some(idx);
         self
     }
@@ -844,7 +844,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .number_of_values(3)
     /// # ;
     /// ```
-    pub fn number_of_values(mut self, qty: u8) -> Self {
+    pub fn number_of_values(mut self, qty: u64) -> Self {
         self.num_vals = Some(qty);
         self
     }
@@ -905,7 +905,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .max_values(3)
     /// # ;
     /// ```
-    pub fn max_values(mut self, qty: u8) -> Self {
+    pub fn max_values(mut self, qty: u64) -> Self {
         self.max_vals = Some(qty);
         self
     }
@@ -929,7 +929,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .min_values(3)
     /// # ;
     /// ```
-    pub fn min_values(mut self, qty: u8) -> Self {
+    pub fn min_values(mut self, qty: u64) -> Self {
         self.min_vals = Some(qty);
         self.set(ArgSettings::TakesValue)
     }

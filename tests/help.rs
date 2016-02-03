@@ -1,6 +1,6 @@
 extern crate clap;
 
-use clap::{App, SubCommand, ErrorKind};
+use clap::{App, SubCommand, ErrorKind, Arg};
 
 #[test]
 fn help_short() {
@@ -81,4 +81,36 @@ FLAGS:
 
 OPTIONS:
         --option <opt>    some option\n"));
+}
+
+#[test]
+fn possible_values() {
+    let mut app = App::new("test")
+        .author("Kevin K.")
+        .about("tests stuff")
+        .version("1.3")
+        .args(&[Arg::from_usage("-o, --opt [opt] 'some option'").possible_values(&["one", "two"]),
+                Arg::from_usage("[arg1] 'some pos arg'").possible_values(&["three", "four"])]);
+    // We call a get_matches method to cause --help and --version to be built
+    let _ = app.get_matches_from_safe_borrow(vec![""]);
+
+    // Now we check the output of print_help()
+    let mut help = vec![];
+    app.write_help(&mut help).expect("failed to print help");
+    assert_eq!(&*String::from_utf8_lossy(&*help), &*String::from("test 1.3\n\
+Kevin K.
+tests stuff
+
+USAGE:
+\ttest [FLAGS] [OPTIONS] [ARGS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -o, --opt <opt>    some option [values: one, two]
+
+ARGS:
+    arg1    some pos arg [values: three, four]\n"));
 }
