@@ -3,6 +3,17 @@ extern crate clap;
 use clap::{App, Arg};
 
 #[test]
+fn stdin_char() {
+    let r = App::new("opts")
+        .arg( Arg::from_usage("-f [flag] 'some flag'") )
+        .get_matches_from_safe(vec!["", "-f", "-"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("f"));
+    assert_eq!(m.value_of("f").unwrap(), "-");
+}
+
+#[test]
 fn opts_using_short() {
     let r = App::new("opts")
         .args(&[
@@ -24,7 +35,7 @@ fn lots_o_vals() {
         .arg(
             Arg::from_usage("-o [opt]... 'some opt'"),
             )
-        .get_matches_from_safe(vec!["", "-o", 
+        .get_matches_from_safe(vec!["", "-o",
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
