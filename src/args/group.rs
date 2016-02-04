@@ -49,6 +49,7 @@ use yaml_rust::Yaml;
 ///          .required(true))
 /// # ;
 /// ```
+#[derive(Default)]
 pub struct ArgGroup<'a> {
     #[doc(hidden)]
     pub name: &'a str,
@@ -93,54 +94,8 @@ impl<'a> ArgGroup<'a> {
     /// let ag = ArgGroup::from_yaml(yml);
     /// ```
     #[cfg(feature = "yaml")]
-    pub fn from_yaml<'y>(y: &'y BTreeMap<Yaml, Yaml>) -> ArgGroup<'y> {
-        // We WANT this to panic on error...so expect() is good.
-        let name_yml = y.keys().nth(0).unwrap();
-        let name_str = name_yml.as_str().unwrap();
-        let mut a = ArgGroup::with_name(name_str);
-        let group_settings = y.get(name_yml).unwrap().as_hash().unwrap();
-
-        for (k, v) in group_settings.iter() {
-            a = match k.as_str().unwrap() {
-                "required" => a.required(v.as_bool().unwrap()),
-                "args" => {
-                    for ys in v.as_vec().unwrap() {
-                        if let Some(s) = ys.as_str() {
-                            a = a.arg(s);
-                        }
-                    }
-                    a
-                }
-                "arg" => {
-                    if let Some(ys) = v.as_str() {
-                        a = a.arg(ys);
-                    }
-                    a
-                }
-                "requires" => {
-                    for ys in v.as_vec().unwrap() {
-                        if let Some(s) = ys.as_str() {
-                            a = a.requires(s);
-                        }
-                    }
-                    a
-                }
-                "conflicts_with" => {
-                    for ys in v.as_vec().unwrap() {
-                        if let Some(s) = ys.as_str() {
-                            a = a.conflicts_with(s);
-                        }
-                    }
-                    a
-                }
-                s => panic!("Unknown ArgGroup setting '{}' in YAML file for \
-                             ArgGroup '{}'",
-                            s,
-                            name_str),
-            }
-        }
-
-        a
+    pub fn from_yaml(y: &'a Yaml) -> ArgGroup<'a> {
+        ArgGroup::from(y.as_hash().unwrap())
     }
 
     /// Adds an argument to this group by name
@@ -325,13 +280,13 @@ impl<'a> ArgGroup<'a> {
 impl<'a> Debug for ArgGroup<'a> {
     fn fmt(&self, f: &mut Formatter) -> Result {
         write!(f,
-               "{{
-            name:{:?},
-            args: {:?},
-            required: {:?},
-            requires: {:?},
-            conflicts: {:?},
-            }}",
+               "{{\n\
+                   \tname: {:?},\n\
+                   \targs: {:?},\n\
+                   \trequired: {:?},\n\
+                   \trequires: {:?},\n\
+                   \tconflicts: {:?},\n\
+                }}",
                self.name,
                self.args,
                self.required,
@@ -352,9 +307,75 @@ impl<'a, 'z> From<&'z ArgGroup<'a>> for ArgGroup<'a> {
     }
 }
 
+#[cfg(feature = "yaml")]
+impl<'a> From<&'a BTreeMap<Yaml, Yaml>> for ArgGroup<'a> {
+    fn from(b: &'a BTreeMap<Yaml, Yaml>) -> Self {
+        // We WANT this to panic on error...so expect() is good.
+        let mut a = ArgGroup::default();
+        let group_settings = if b.len() == 1 {
+            let name_yml = b.keys().nth(0).expect("failed to get name");
+            let name_str = name_yml.as_str().expect("failed to convert name to str");
+            a.name = name_str;
+            b.get(name_yml).expect("failed to get name_str").as_hash().expect("failed to convert to a hash")
+        } else {
+            b
+        };
+
+        for (k, v) in group_settings.iter() {
+            a = match k.as_str().unwrap() {
+                "required" => a.required(v.as_bool().unwrap()),
+                "args" => {
+                    for ys in v.as_vec().unwrap() {
+                        if let Some(s) = ys.as_str() {
+                            a = a.arg(s);
+                        }
+                    }
+                    a
+                }
+                "arg" => {
+                    if let Some(ys) = v.as_str() {
+                        a = a.arg(ys);
+                    }
+                    a
+                }
+                "requires" => {
+                    for ys in v.as_vec().unwrap() {
+                        if let Some(s) = ys.as_str() {
+                            a = a.requires(s);
+                        }
+                    }
+                    a
+                }
+                "conflicts_with" => {
+                    for ys in v.as_vec().unwrap() {
+                        if let Some(s) = ys.as_str() {
+                            a = a.conflicts_with(s);
+                        }
+                    }
+                    a
+                }
+                "name" => {
+                    if let Some(ys) = v.as_str() {
+                        a.name = ys;
+                    }
+                    a
+                }
+                s => panic!("Unknown ArgGroup setting '{}' in YAML file for \
+                             ArgGroup '{}'",
+                            s,
+                            a.name),
+            }
+        }
+
+        a
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::ArgGroup;
+    #[cfg(feature = "yaml")]
+    use yaml_rust::YamlLoader;
 
     #[test]
     fn groups() {
