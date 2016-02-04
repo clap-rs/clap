@@ -3,6 +3,19 @@ extern crate clap;
 use clap::{App, Arg, ErrorKind};
 
 #[test]
+fn only_pos_follow() {
+    let r = App::new("onlypos")
+        .args(&[Arg::from_usage("-f [flag] 'some opt'"),
+                Arg::from_usage("[arg] 'some arg'")])
+        .get_matches_from_safe(vec!["", "--", "-f"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("arg"));
+    assert!(!m.is_present("f"));
+    assert_eq!(m.value_of("arg").unwrap(), "-f");
+}
+
+#[test]
 fn positional() {
     let m = App::new("positional")
         .args(&[

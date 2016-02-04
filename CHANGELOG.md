@@ -1,3 +1,14 @@
+<a name="v2.0.4"></a>
+### v2.0.4 (2016-02-04)
+
+
+#### Bug Fixes
+
+*   adds support for building ArgGroups from standalone YAML ([bbed7388](https://github.com/kbknapp/clap-rs/commit/bbed73889d8f241d493c9ef18ac5926856df1c24))
+*   Stop lonely hyphens from causing panic ([85b11468](https://github.com/kbknapp/clap-rs/commit/85b11468b0189d5cc15f1cfac5db40d17a0077dc), closes [#410](https://github.com/kbknapp/clap-rs/issues/410))
+*   fixes cargo features to NOT require nightly with unstable features ([8c72e779](https://github.com/kbknapp/clap-rs/commit/8c72e77975e31fb8268cc2f34565f2e693eba935))
+
+
 <a name="v2.0.3"></a>
 ### v2.0.3 (2016-02-02)
 
