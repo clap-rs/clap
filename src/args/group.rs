@@ -396,8 +396,91 @@ mod test {
         let confs = vec!["c1", "c2", "c3", "c4"];
 
         assert_eq!(g.args, args);
-        assert_eq!(g.requires.unwrap(), reqs);
-        assert_eq!(g.conflicts.unwrap(), confs);
+        assert_eq!(g.requires, Some(reqs));
+        assert_eq!(g.conflicts, Some(confs));
+    }
 
+    #[test]
+    fn test_debug() {
+        let g = ArgGroup::with_name("test")
+                    .arg("a1")
+                    .arg("a4")
+                    .args(&["a2", "a3"])
+                    .required(true)
+                    .conflicts_with("c1")
+                    .conflicts_with_all(&["c2", "c3"])
+                    .conflicts_with("c4")
+                    .requires("r1")
+                    .requires_all(&["r2", "r3"])
+                    .requires("r4");
+
+        let args = vec!["a1", "a4", "a2", "a3"];
+        let reqs = vec!["r1", "r2", "r3", "r4"];
+        let confs = vec!["c1", "c2", "c3", "c4"];
+
+        let debug_str =
+               format!("{{\n\
+                   \tname: \"test\",\n\
+                   \targs: {:?},\n\
+                   \trequired: {:?},\n\
+                   \trequires: {:?},\n\
+                   \tconflicts: {:?},\n\
+               }}", args, true, Some(reqs), Some(confs));
+        assert_eq!(&*format!("{:?}", g), &*debug_str);
+    }
+
+    #[test]
+    fn test_from() {
+        let g = ArgGroup::with_name("test")
+                    .arg("a1")
+                    .arg("a4")
+                    .args(&["a2", "a3"])
+                    .required(true)
+                    .conflicts_with("c1")
+                    .conflicts_with_all(&["c2", "c3"])
+                    .conflicts_with("c4")
+                    .requires("r1")
+                    .requires_all(&["r2", "r3"])
+                    .requires("r4");
+
+        let args = vec!["a1", "a4", "a2", "a3"];
+        let reqs = vec!["r1", "r2", "r3", "r4"];
+        let confs = vec!["c1", "c2", "c3", "c4"];
+
+        let g2 = ArgGroup::from(&g);
+        assert_eq!(g2.args, args);
+        assert_eq!(g2.requires, Some(reqs));
+        assert_eq!(g2.conflicts, Some(confs));
+    }
+
+    #[cfg(feature="yaml")]
+    #[cfg_attr(feature = "yaml", test)]
+    fn test_yaml() {
+
+        let g_yaml =
+"name: test
+args:
+- a1
+- a4
+- a2
+- a3
+conflicts_with:
+- c1
+- c2
+- c3
+- c4
+requires:
+- r1
+- r2
+- r3
+- r4";
+        let yml = &YamlLoader::load_from_str(g_yaml).expect("failed to load YAML file")[0];
+        let g = ArgGroup::from_yaml(yml);
+        let args = vec!["a1", "a4", "a2", "a3"];
+        let reqs = vec!["r1", "r2", "r3", "r4"];
+        let confs = vec!["c1", "c2", "c3", "c4"];
+        assert_eq!(g.args, args);
+        assert_eq!(g.requires, Some(reqs));
+        assert_eq!(g.conflicts, Some(confs));
     }
 }
