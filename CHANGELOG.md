@@ -1,3 +1,21 @@
+<a name="v2.0.3"></a>
+### v2.0.3 (2016-02-02)
+
+
+#### Improvements
+
+* **values:**  adds support for up to u64::max values per arg ([c7abf7d7](https://github.com/kbknapp/clap-rs/commit/c7abf7d7611e317b0d31d97632e3d2e13570947c))
+* **occurrences:**  Allow for more than 256 occurrences of an argument. ([3731ddb3](https://github.com/kbknapp/clap-rs/commit/3731ddb361163f3d6b86844362871e48c80fa530))
+
+#### Features
+
+* **AppSettings:**  adds HidePossibleValuesInHelp to skip writing those values ([cdee7a0e](https://github.com/kbknapp/clap-rs/commit/cdee7a0eb2beeec723cb98acfacf03bf629c1da3))
+
+#### Bug Fixes
+
+* **value_t_or_exit:**  fixes typo which causes value_t_or_exit to return a Result ([ee96baff](https://github.com/kbknapp/clap-rs/commit/ee96baffd306cb8d20ddc5575cf739bb1a6354e8))
+
+
 <a name="v2.0.2"></a>
 ### v2.0.2 (2016-01-31)
 

@@ -97,15 +97,56 @@ ARGS:
 }
 
 #[test]
+fn skip_possible_values() {
+    let mut app = App::new("test")
+        .author("Kevin K.")
+        .about("tests stuff")
+        .version("1.3")
+        .setting(AppSettings::HidePossibleValuesInHelp)
+        .args(&[Arg::from_usage("-o, --opt [opt] 'some option'").possible_values(&["one", "two"]),
+                Arg::from_usage("[arg1] 'some pos arg'").possible_values(&["three", "four"])]);
+    // We call a get_matches method to cause --help and --version to be built
+    let _ = app.get_matches_from_safe_borrow(vec![""]);
+
+    // Now we check the output of print_help()
+    let mut help = vec![];
+    app.write_help(&mut help).expect("failed to print help");
+    assert_eq!(&*String::from_utf8_lossy(&*help), &*String::from("test 1.3\n\
+Kevin K.
+tests stuff
+
+USAGE:
+\ttest [FLAGS] [OPTIONS] [ARGS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -o, --opt <opt>    some option
+
+ARGS:
+    arg1    some pos arg\n"));
+}
+
+#[test]
 fn app_settings_fromstr() {
-    assert_eq!("subcommandsnegatereqs".parse::<AppSettings>().ok().unwrap(), AppSettings::SubcommandsNegateReqs);
-    assert_eq!("subcommandsrequired".parse::<AppSettings>().ok().unwrap(), AppSettings::SubcommandRequired);
-    assert_eq!("argrequiredelsehelp".parse::<AppSettings>().ok().unwrap(), AppSettings::ArgRequiredElseHelp);
-    assert_eq!("globalversion".parse::<AppSettings>().ok().unwrap(), AppSettings::GlobalVersion);
-    assert_eq!("versionlesssubcommands".parse::<AppSettings>().ok().unwrap(), AppSettings::VersionlessSubcommands);
-    assert_eq!("unifiedhelpmessage".parse::<AppSettings>().ok().unwrap(), AppSettings::UnifiedHelpMessage);
-    assert_eq!("waitonerror".parse::<AppSettings>().ok().unwrap(), AppSettings::WaitOnError);
-    assert_eq!("subcommandrequiredelsehelp".parse::<AppSettings>().ok().unwrap(), AppSettings::SubcommandRequiredElseHelp);
-    assert_eq!("hidden".parse::<AppSettings>().ok().unwrap(), AppSettings::Hidden);
+    assert_eq!("subcommandsnegatereqs".parse::<AppSettings>().unwrap(), AppSettings::SubcommandsNegateReqs);
+    assert_eq!("subcommandsrequired".parse::<AppSettings>().unwrap(), AppSettings::SubcommandRequired);
+    assert_eq!("argrequiredelsehelp".parse::<AppSettings>().unwrap(), AppSettings::ArgRequiredElseHelp);
+    assert_eq!("globalversion".parse::<AppSettings>().unwrap(), AppSettings::GlobalVersion);
+    assert_eq!("versionlesssubcommands".parse::<AppSettings>().unwrap(), AppSettings::VersionlessSubcommands);
+    assert_eq!("unifiedhelpmessage".parse::<AppSettings>().unwrap(), AppSettings::UnifiedHelpMessage);
+    assert_eq!("waitonerror".parse::<AppSettings>().unwrap(), AppSettings::WaitOnError);
+    assert_eq!("subcommandrequiredelsehelp".parse::<AppSettings>().unwrap(), AppSettings::SubcommandRequiredElseHelp);
+    assert_eq!("allowexternalsubcommands".parse::<AppSettings>().unwrap(), AppSettings::AllowExternalSubcommands);
+    assert_eq!("trailingvararg".parse::<AppSettings>().unwrap(), AppSettings::TrailingVarArg);
+    assert_eq!("nobinaryname".parse::<AppSettings>().unwrap(), AppSettings::NoBinaryName);
+    assert_eq!("strictutf8".parse::<AppSettings>().unwrap(), AppSettings::StrictUtf8);
+    assert_eq!("allowinvalidutf8".parse::<AppSettings>().unwrap(), AppSettings::AllowInvalidUtf8);
+    assert_eq!("allowleadinghyphen".parse::<AppSettings>().unwrap(), AppSettings::AllowLeadingHyphen);
+    assert_eq!("hidepossiblevaluesinhelp".parse::<AppSettings>().unwrap(), AppSettings::HidePossibleValuesInHelp);   
+    assert_eq!("hidden".parse::<AppSettings>().unwrap(), AppSettings::Hidden);
     assert!("hahahaha".parse::<AppSettings>().is_err());
 }
+

@@ -3,25 +3,26 @@ use std::ascii::AsciiExt;
 
 bitflags! {
     flags Flags: u32 {
-        const SC_NEGATE_REQS       = 0b0000000000000000001,
-        const SC_REQUIRED          = 0b0000000000000000010,
-        const A_REQUIRED_ELSE_HELP = 0b0000000000000000100,
-        const GLOBAL_VERSION       = 0b0000000000000001000,
-        const VERSIONLESS_SC       = 0b0000000000000010000,
-        const UNIFIED_HELP         = 0b0000000000000100000,
-        const WAIT_ON_ERROR        = 0b0000000000001000000,
-        const SC_REQUIRED_ELSE_HELP= 0b0000000000010000000,
-        const NEEDS_LONG_HELP      = 0b0000000000100000000,
-        const NEEDS_LONG_VERSION   = 0b0000000001000000000,
-        const NEEDS_SC_HELP        = 0b0000000010000000000,
-        const DISABLE_VERSION      = 0b0000000100000000000,
-        const HIDDEN               = 0b0000001000000000000,
-        const TRAILING_VARARG      = 0b0000010000000000000,
-        const NO_BIN_NAME          = 0b0000100000000000000,
-        const ALLOW_UNK_SC         = 0b0001000000000000000,
-        const UTF8_STRICT          = 0b0010000000000000000,
-        const UTF8_NONE            = 0b0100000000000000000,
-        const LEADING_HYPHEN       = 0b1000000000000000000,
+        const SC_NEGATE_REQS       = 0b00000000000000000001,
+        const SC_REQUIRED          = 0b00000000000000000010,
+        const A_REQUIRED_ELSE_HELP = 0b00000000000000000100,
+        const GLOBAL_VERSION       = 0b00000000000000001000,
+        const VERSIONLESS_SC       = 0b00000000000000010000,
+        const UNIFIED_HELP         = 0b00000000000000100000,
+        const WAIT_ON_ERROR        = 0b00000000000001000000,
+        const SC_REQUIRED_ELSE_HELP= 0b00000000000010000000,
+        const NEEDS_LONG_HELP      = 0b00000000000100000000,
+        const NEEDS_LONG_VERSION   = 0b00000000001000000000,
+        const NEEDS_SC_HELP        = 0b00000000010000000000,
+        const DISABLE_VERSION      = 0b00000000100000000000,
+        const HIDDEN               = 0b00000001000000000000,
+        const TRAILING_VARARG      = 0b00000010000000000000,
+        const NO_BIN_NAME          = 0b00000100000000000000,
+        const ALLOW_UNK_SC         = 0b00001000000000000000,
+        const UTF8_STRICT          = 0b00010000000000000000,
+        const UTF8_NONE            = 0b00100000000000000000,
+        const LEADING_HYPHEN       = 0b01000000000000000000,
+        const NO_POS_VALUES        = 0b10000000000000000000,
     }
 }
 
@@ -53,7 +54,8 @@ impl AppFlags {
         AllowExternalSubcommands => ALLOW_UNK_SC,
         StrictUtf8 => UTF8_STRICT,
         AllowInvalidUtf8 => UTF8_NONE,
-        AllowLeadingHyphen => LEADING_HYPHEN
+        AllowLeadingHyphen => LEADING_HYPHEN,
+        HidePossibleValuesInHelp => NO_POS_VALUES
     }
 }
 
@@ -396,6 +398,9 @@ pub enum AppSettings {
     /// # ;
     /// ```
     AllowLeadingHyphen,
+    /// Tells `clap` *not* to print possible values when displaying help information. This can be 
+    /// useful if there are many values, or they are explained elsewhere.
+    HidePossibleValuesInHelp,
     #[doc(hidden)]
     NeedsLongVersion,
     #[doc(hidden)]
@@ -425,6 +430,7 @@ impl FromStr for AppSettings {
             "strictutf8" => Ok(AppSettings::StrictUtf8),
             "allowinvalidutf8" => Ok(AppSettings::AllowInvalidUtf8),
             "allowleadinghyphen" => Ok(AppSettings::AllowLeadingHyphen),
+            "hidepossiblevaluesinhelp" => Ok(AppSettings::HidePossibleValuesInHelp),
             _ => Err("unknown AppSetting, cannot convert from str".to_owned()),
         }
     }

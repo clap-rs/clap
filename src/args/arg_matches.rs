@@ -326,7 +326,7 @@ impl<'a> ArgMatches<'a> {
     /// assert_eq!(m.occurrences_of("debug"), 3);
     /// assert_eq!(m.occurrences_of("flag"), 1);
     /// ```
-    pub fn occurrences_of<S: AsRef<str>>(&self, name: S) -> u8 {
+    pub fn occurrences_of<S: AsRef<str>>(&self, name: S) -> u64 {
         self.args.get(name.as_ref()).map_or(0, |a| a.occurs)
     }
 

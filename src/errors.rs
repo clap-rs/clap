@@ -394,8 +394,7 @@ impl Error {
             sorted.push(v.as_ref());
         }
         sorted.sort();
-        let valid_values = sorted.iter()
-                                 .fold(String::new(), |a, name| a + &format!( " {}", name)[..]);
+        let valid_values = sorted.join(" ");
         Error {
             message: format!("{} '{}' isn't a valid value for '{}'\n\t\
                             [values:{}]\n\
@@ -518,7 +517,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn too_few_values<'a, 'b, A, U>(arg: &A, min_vals: u8, curr_vals: usize, usage: U) -> Self
+    pub fn too_few_values<'a, 'b, A, U>(arg: &A, min_vals: u64, curr_vals: usize, usage: U) -> Self
         where A: AnyArg<'a, 'b>,
               U: Display
     {
@@ -553,7 +552,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn wrong_number_of_values<'a, 'b, A, S, U>(arg: &A, num_vals: u8, curr_vals: usize, suffix: S, usage: U) -> Self
+    pub fn wrong_number_of_values<'a, 'b, A, S, U>(arg: &A, num_vals: u64, curr_vals: usize, suffix: S, usage: U) -> Self
         where A: AnyArg<'a, 'b>,
               S: Display,
               U: Display

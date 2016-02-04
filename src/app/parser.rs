@@ -151,7 +151,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 format!("Argument \"{}\" has the same index as another positional \
                     argument\n\n\tPerhaps try .multiple(true) to allow one positional argument \
                     to take multiple values", a.name));
-            let pb = PosBuilder::from_arg(&a, i as u8, &mut self.required);
+            let pb = PosBuilder::from_arg(&a, i as u64, &mut self.required);
             self.positionals.insert(i, pb);
         } else if a.is_set(ArgSettings::TakesValue) {
             let ob = OptBuilder::from_arg(&a, &mut self.required);
@@ -172,21 +172,15 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         if group.required {
             self.required.push(group.name.into());
             if let Some(ref reqs) = group.requires {
-                for &r in reqs {
-                    self.required.push(r.into());
-                }
+                self.required.extend(reqs);
             }
             if let Some(ref bl) = group.conflicts {
-                for &b in bl {
-                    self.blacklist.push(b.into());
-                }
+                self.blacklist.extend(bl);
             }
         }
         let mut found = false;
         if let Some(ref mut grp) = self.groups.get_mut(&group.name) {
-            for a in &group.args {
-                grp.args.push(a);
-            }
+            grp.args.extend(&group.args);
             grp.requires = group.requires.clone();
             grp.conflicts = group.conflicts.clone();
             grp.required = group.required;
@@ -234,76 +228,57 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 c_pos.push(name);
             }
         }
-        let mut tmp_f = vec![];
-        for f in &c_flags {
-            if let Some(f) = self.flags.iter().filter(|flg| &flg.name == f).next() {
-                if let Some(ref rl) = f.requires {
-                    for r in rl {
-                        if !reqs.contains(r) {
-                            if self.flags.iter().any(|f| &f.name == r) {
-                                tmp_f.push(r);
-                            } else if self.opts.iter().any(|o| &o.name == r) {
-                                c_opt.push(r);
-                            } else if self.groups.contains_key(r) {
-                                grps.push(r);
-                            } else {
-                                c_pos.push(r);
+        macro_rules! fill_vecs {
+            ($_self:ident {
+                $t1:ident => $v1:ident => $i1:ident,
+                $t2:ident => $v2:ident => $i2:ident,
+                $t3:ident => $v3:ident => $i3:ident,
+                $gv:ident, $tmp:ident
+            }) => {
+                for a in &$v1 {
+                    if let Some(a) = self.$t1.$i1().filter(|arg| &arg.name == a).next() {
+                        if let Some(ref rl) = a.requires {
+                            for r in rl {
+                                if !reqs.contains(r) {
+                                    if $_self.$t1.$i1().any(|t| &t.name == r) {
+                                        $tmp.push(*r);
+                                    } else if $_self.$t2.$i2().any(|t| &t.name == r) {
+                                        $v2.push(r);
+                                    } else if $_self.$t3.$i3().any(|t| &t.name == r) {
+                                        $v3.push(r);
+                                    } else if $_self.groups.contains_key(r) {
+                                        $gv.push(r);
+                                    }
+                                }
                             }
                         }
                     }
                 }
-            }
-        }
-        for f in tmp_f.into_iter() {
-            c_flags.push(f);
-        }
-        let mut tmp_o = vec![];
-        for f in &c_opt {
-            if let Some(f) = self.opts.iter().filter(|o| &o.name == f).next() {
-                if let Some(ref rl) = f.requires {
-                    for r in rl {
-                        if !reqs.contains(&r) {
-                            if self.flags.iter().any(|f| &f.name == r) {
-                                c_flags.push(r);
-                            } else if self.opts.iter().any(|o| &o.name == r) {
-                                tmp_o.push(r);
-                            } else if self.groups.contains_key(r) {
-                                grps.push(&r);
-                            } else {
-                                c_pos.push(r);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        for f in tmp_o.into_iter() {
-            c_opt.push(f);
-        }
-        let mut tmp_p = vec![];
-        for p in &c_pos {
-            if let Some(p) = self.positionals.values().filter(|pos| &pos.name == p).next() {
-                if let Some(ref rl) = p.requires {
-                    for r in rl {
-                        if !reqs.contains(&&**r) {
-                            if self.flags.iter().any(|f| &f.name == r) {
-                                c_flags.push(r);
-                            } else if self.opts.iter().any(|o| &o.name == r) {
-                                c_opt.push(r);
-                            } else if self.groups.contains_key(r) {
-                                grps.push(&&**r);
-                            } else {
-                                tmp_p.push(r);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        for f in tmp_p.into_iter() {
-            c_pos.push(f);
+                $v1.extend(&$tmp);
+            };
         }
 
+        let mut tmp = vec![];
+        fill_vecs!(self {
+            flags       => c_flags => iter,
+            opts        => c_opt   => iter,
+            positionals => c_pos   => values,
+            grps, tmp
+        });
+        tmp.clear();
+        fill_vecs!(self {
+            opts        => c_opt   => iter,
+            flags       => c_flags => iter,
+            positionals => c_pos   => values,
+            grps, tmp
+        });
+        tmp.clear();
+        fill_vecs!(self {
+            positionals => c_pos   => values,
+            opts        => c_opt   => iter,
+            flags       => c_flags => iter,
+            grps, tmp
+        });
         let mut ret_val = VecDeque::new();
 
         let mut pmap = BTreeMap::new();
@@ -318,31 +293,23 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         for (_, s) in pmap {
             ret_val.push_back(s);
         }
-        for f in c_flags.into_iter() {
-            if matcher.is_some() && matcher.as_ref().unwrap().contains(f) {
-                continue;
+        macro_rules! write_arg {
+            ($i:expr, $m:ident, $v:ident, $r:ident) => {
+                for f in $v.into_iter() {
+                    if $m.is_some() && $m.as_ref().unwrap().contains(f) {
+                        continue;
+                    }
+                    $r.push_back(format!("{}", $i.filter(|flg| &flg.name == &f)
+                                                 .next()
+                                                 .unwrap()));
+                }
             }
-            ret_val.push_back(format!("{}", self.flags
-                                                .iter()
-                                                .filter(|flg| &flg.name == &f)
-                                                .next()
-                                                .unwrap()));
         }
-        for o in c_opt.into_iter() {
-            if matcher.is_some() && matcher.as_ref().unwrap().contains(o) {
-                continue;
-            }
-            ret_val.push_back(format!("{}",
-                                      self.opts
-                                          .iter()
-                                          .filter(|opt| &opt.name == &o)
-                                          .next()
-                                          .unwrap()));
-        }
+        write_arg!(self.flags.iter(), matcher, c_flags, ret_val);
+        write_arg!(self.opts.iter(), matcher, c_opt, ret_val);
         for g in grps.into_iter() {
             let g_string = self.args_in_group(g)
-                               .iter()
-                               .fold(String::new(), |acc, s| acc + &format!(" {} |", s)[..]);
+                               .join("|");
             ret_val.push_back(format!("[{}]", &g_string[..g_string.len() - 1]));
         }
 
@@ -736,26 +703,17 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 args.push(f.to_string());
             } else if self.groups.contains_key(&**n) {
                 g_vec.push(*n);
-            } else {
-                if let Some(p) = self.positionals
+            } else if let Some(p) = self.positionals
                                      .values()
                                      .filter(|p| &p.name == n)
                                      .next() {
-                    args.push(p.to_string());
-                }
+                args.push(p.to_string());
             }
         }
 
-        if !g_vec.is_empty() {
-            for av in g_vec.iter().map(|g| self.args_in_group(g)) {
-                for a in av {
-                    args.push(a);
-                }
-            }
+        for av in g_vec.iter().map(|g| self.args_in_group(g)) {
+            args.extend(av);
         }
-        assert!(!args.is_empty(),
-                "ArgGroup '{}' doesn't contain any args",
-                group);
         args.dedup();
         args.iter().map(ToOwned::to_owned).collect()
     }
@@ -776,16 +734,9 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             }
         }
 
-        if !g_vec.is_empty() {
-            for av in g_vec.iter().map(|g| self.arg_names_in_group(g)) {
-                for a in av {
-                    args.push(a.into());
-                }
-            }
+        for av in g_vec.iter().map(|g| self.arg_names_in_group(g)) {
+            args.extend(av);
         }
-        assert!(!args.is_empty(),
-                "ArgGroup '{}' doesn't contain any args",
-                group);
         args.dedup();
         args.iter().map(|s| *s).collect()
     }
@@ -1100,7 +1051,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                           .expect(INTERNAL_ERROR_MSG)
                           .vals.len();
         if let Some(max) = arg.max_vals() {
-            if (vals as u8) < max {
+            if (vals as u64) < max {
                 return Ok(Some(arg.name()));
             } else {
                 return Ok(None);
@@ -1111,11 +1062,11 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         }
         if let Some(num) = arg.num_vals() {
             if arg.is_set(ArgSettings::Multiple) {
-                if (vals as u8) < num {
+                if (vals as u64) < num {
                     return Ok(Some(arg.name()));
                 }
             } else {
-                if (vals as u8 % num) != 0 {
+                if (vals as u64 % num) != 0 {
                     return Ok(Some(arg.name()));
                 }
             }
@@ -1214,9 +1165,9 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         if let Some(num) = a.num_vals() {
             debugln!("num_vals set: {}", num);
             let should_err = if a.is_set(ArgSettings::Multiple) {
-                ((ma.vals.len() as u8) % num) != 0
+                ((ma.vals.len() as u64) % num) != 0
             } else {
-                num != (ma.vals.len() as u8)
+                num != (ma.vals.len() as u64)
             };
             if should_err {
                 debugln!("Sending error WrongNumberOfValues");
@@ -1240,7 +1191,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         }
         if let Some(num) = a.max_vals() {
             debugln!("max_vals set: {}", num);
-            if (ma.vals.len() as u8) > num {
+            if (ma.vals.len() as u64) > num {
                 debugln!("Sending error TooManyValues");
                 return Err(Error::too_many_values(
                     ma.vals.get(&ma.vals.keys()
@@ -1253,7 +1204,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         }
         if let Some(num) = a.min_vals() {
             debugln!("min_vals set: {}", num);
-            if (ma.vals.len() as u8) < num {
+            if (ma.vals.len() as u64) < num {
                 debugln!("Sending error TooFewValues");
                 return Err(Error::too_few_values(
                     a,
@@ -1406,9 +1357,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
     // args, and requirements
     fn smart_usage(&self, usage: &mut String, used: &[&str]) {
         let mut hs: Vec<&str> = self.required().map(|s| &**s).collect();
-        for n in used {
-            hs.push(n);
-        }
+        hs.extend(used);
         let r_string = self.get_required_from(&hs, None)
                                      .iter()
                                      .fold(String::new(), |acc, s| acc + &format!(" {}", s)[..]);
@@ -1523,7 +1472,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             }
             for o in self.opts.iter().filter(|o| !o.settings.is_set(ArgSettings::Hidden)) {
                 let mut v = vec![];
-                try!(o.write_help(&mut v, tab, longest));
+                try!(o.write_help(&mut v, tab, longest, self.is_set(AppSettings::HidePossibleValuesInHelp)));
                 combined.insert(o.name, v);
             }
             for (_, a) in combined {
@@ -1546,7 +1495,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                                   .filter(|o| !o.settings.is_set(ArgSettings::Hidden))
                                   .map(|o| (o.name, o))
                                   .collect::<BTreeMap<_, _>>() {
-                    try!(o.write_help(w, tab, longest_opt));
+                    try!(o.write_help(w, tab, longest_opt, self.is_set(AppSettings::HidePossibleValuesInHelp)));
                 }
             }
         }
@@ -1554,7 +1503,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             try!(write!(w, "\nARGS:\n"));
             for v in self.positionals.values()
                          .filter(|p| !p.settings.is_set(ArgSettings::Hidden)) {
-                try!(v.write_help(w, tab, longest_pos));
+                try!(v.write_help(w, tab, longest_pos, self.is_set(AppSettings::HidePossibleValuesInHelp)));
             }
         }
         if subcmds {

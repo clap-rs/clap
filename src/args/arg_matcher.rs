@@ -26,6 +26,12 @@ impl<'a> ArgMatcher<'a> {
         self.0.args.remove(arg);
     }
 
+    pub fn remove_all(&mut self, args: &[&str]) {
+        for &arg in args {
+            self.0.args.remove(arg);
+        }
+    }
+
     pub fn insert(&mut self, name: &'a str) {
         self.0.args.insert(name, MatchedArg::new());
     }
