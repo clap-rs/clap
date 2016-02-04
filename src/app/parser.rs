@@ -37,14 +37,14 @@ pub struct Parser<'a, 'b> where 'a: 'b {
     // A list of positional arguments
     positionals: VecMap<PosBuilder<'a, 'b>>,
     // A list of subcommands
-    subcommands: Vec<App<'a, 'b>>,
+    #[doc(hidden)]
+    pub subcommands: Vec<App<'a, 'b>>,
     groups: HashMap<&'a str, ArgGroup<'a>>,
     global_args: Vec<Arg<'a, 'b>>,
     overrides: Vec<&'b str>,
     help_short: Option<char>,
     version_short: Option<char>,
     settings: AppFlags,
-    version: Option<&'b str>,
     pub meta: AppMeta<'b>,
 }
 
@@ -65,7 +65,6 @@ impl<'a, 'b> Default for Parser<'a, 'b> {
             global_args: vec![],
             overrides: vec![],
             settings: AppFlags::new(),
-            version: None,
             meta: AppMeta::new(),
         }
     }
@@ -192,16 +191,24 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
     }
 
     pub fn add_subcommand(&mut self, mut subcmd: App<'a, 'b>) {
-        if subcmd.0.meta.name == "help" {
+        debugln!("fn=Parser::add_subcommand;");
+        debug!("Is help...");
+        if subcmd.p.meta.name == "help" {
+            sdebugln!("Yes");
             self.settings.set(AppSettings::NeedsSubcommandHelp);
-        }
+        } else { sdebugln!("No"); }
+        debug!("Using Setting VersionlessSubcommands...");
         if self.settings.is_set(AppSettings::VersionlessSubcommands) {
-            subcmd.0.settings.set(AppSettings::DisableVersion);
-        }
-        if self.settings.is_set(AppSettings::GlobalVersion) && subcmd.0.meta.version.is_none() &&
-           self.version.is_some() {
-            subcmd.0.meta.version = Some(self.version.unwrap());
-        }
+            sdebugln!("Yes");
+            subcmd.p.settings.set(AppSettings::DisableVersion);
+        } else { sdebugln!("No"); }
+        debug!("Using Setting GlobalVersion...");
+        if self.settings.is_set(AppSettings::GlobalVersion) && subcmd.p.meta.version.is_none() &&
+           self.meta.version.is_some() {
+            sdebugln!("Yes");
+            subcmd = subcmd.setting(AppSettings::GlobalVersion)
+                           .version(self.meta.version.unwrap());
+        } else { sdebugln!("No"); }
         self.subcommands.push(subcmd);
     }
 
@@ -386,10 +393,10 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             // done and to recursively call this method
             {
                 for a in &self.global_args {
-                    sc.0.add_arg(a);
+                    sc.p.add_arg(a);
                 }
             }
-            sc.0.propogate_globals();
+            sc.p.propogate_globals();
         }
     }
 
@@ -427,7 +434,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
 
             // Has the user already passed '--'?
             if !pos_only {
-                let pos_sc = self.subcommands.iter().any(|s| &s.0.meta.name[..] == &*arg_os);
+                let pos_sc = self.subcommands.iter().any(|s| &s.p.meta.name[..] == &*arg_os);
                 if (!starts_new_arg || self.is_set(AppSettings::AllowLeadingHyphen)) && !pos_sc {
                     // Check to see if parsing a value from an option
                     if let Some(nvo) = needs_val_of {
@@ -465,7 +472,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                     break;
                 } else if let Some(candidate) = suggestions::did_you_mean(
                                                         &*arg_os.to_string_lossy(),
-                                                        self.subcommands.iter().map(|s| &s.0.meta.name)) {
+                                                        self.subcommands.iter().map(|s| &s.p.meta.name)) {
                     return Err(
                         Error::invalid_subcommand(arg_os.to_string_lossy().into_owned(),
                                                 candidate,
@@ -584,30 +591,30 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         mid_string.push_str(" ");
         if let Some(ref mut sc) = self.subcommands
                                       .iter_mut()
-                                      .filter(|s| &s.0.meta.name == &sc_name)
+                                      .filter(|s| &s.p.meta.name == &sc_name)
                                       .next() {
             let mut sc_matcher = ArgMatcher::new();
             // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
             // a space
-            sc.0.meta.usage = Some(format!("{}{}{}",
+            sc.p.meta.usage = Some(format!("{}{}{}",
                                     self.meta.bin_name.as_ref().unwrap_or(&String::new()),
                                     if self.meta.bin_name.is_some() {
                                         &*mid_string
                                     } else {
                                         ""
                                     },
-                                    &*sc.0.meta.name));
-            sc.0.meta.bin_name = Some(format!("{}{}{}",
+                                    &*sc.p.meta.name));
+            sc.p.meta.bin_name = Some(format!("{}{}{}",
                                        self.meta.bin_name.as_ref().unwrap_or(&String::new()),
                                        if self.meta.bin_name.is_some() {
                                            " "
                                        } else {
                                            ""
                                        },
-                                       &*sc.0.meta.name));
-            try!(sc.0.get_matches_with(&mut sc_matcher, it));
+                                       &*sc.p.meta.name));
+            try!(sc.p.get_matches_with(&mut sc_matcher, it));
             matcher.subcommand(SubCommand {
-                name: sc.0.meta.name.clone(),
+                name: sc.p.meta.name.clone(),
                 matches: sc_matcher.into(),
             });
         }
@@ -783,7 +790,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         if !self.subcommands.is_empty() &&
            !self.subcommands
                 .iter()
-                .any(|s| &s.0.meta.name[..] == "help") {
+                .any(|s| &s.p.meta.name[..] == "help") {
             self.subcommands.push(App::new("help").about("Prints this message"));
         }
     }
@@ -1445,8 +1452,8 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         let mut longest_sc = 0;
         for scl in self.subcommands
                        .iter()
-                       .filter(|s| !s.0.is_set(AppSettings::Hidden))
-                       .map(|s| s.0.meta.name.len()) {
+                       .filter(|s| !s.p.is_set(AppSettings::Hidden))
+                       .map(|s| s.p.meta.name.len()) {
             if scl > longest_sc {
                 longest_sc = scl;
             }
@@ -1509,12 +1516,12 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         if subcmds {
             try!(write!(w, "\nSUBCOMMANDS:\n"));
             for (name, sc) in self.subcommands.iter()
-                                  .filter(|s| !s.0.is_set(AppSettings::Hidden))
-                                  .map(|s| (&s.0.meta.name[..], s))
+                                  .filter(|s| !s.p.is_set(AppSettings::Hidden))
+                                  .map(|s| (&s.p.meta.name[..], s))
                                   .collect::<BTreeMap<_, _>>() {
                 try!(write!(w, "{}{}", tab, name));
                 write_spaces!((longest_sc + 4) - (name.len()), w);
-                if let Some(a) = sc.0.meta.about {
+                if let Some(a) = sc.p.meta.about {
                     if a.contains("{n}") {
                         let mut ab = a.split("{n}");
                         while let Some(part) = ab.next() {
