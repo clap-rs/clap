@@ -77,9 +77,28 @@ mod test {
     use super::*;
 
     #[test]
-    fn did_you_mean_possible_values() {
+    fn possible_values_match() {
         let p_vals = ["test", "possible", "values"];
         assert_eq!(did_you_mean("tst", p_vals.iter()), Some("test"));
+    }
+
+    #[test]
+    fn possible_values_nomatch() {
+        let p_vals = ["test", "possible", "values"];
         assert!(did_you_mean("hahaahahah", p_vals.iter()).is_none());
+    }
+
+    #[test]
+    fn suffix_long() {
+        let p_vals = ["test", "possible", "values"];
+        let suffix = "\n\tDid you mean \'--test\' ?";
+        assert_eq!(did_you_mean_suffix("tst", p_vals.iter(), DidYouMeanMessageStyle::LongFlag), (suffix, Some("test")));
+    }
+
+    #[test]
+    fn suffix_enum() {
+        let p_vals = ["test", "possible", "values"];
+        let suffix = "\n\tDid you mean \'test\' ?";
+        assert_eq!(did_you_mean_suffix("tst", p_vals.iter(), DidYouMeanMessageStyle::EnumValue), (suffix, Some("test")));
     }
 }
