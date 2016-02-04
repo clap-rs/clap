@@ -23,7 +23,7 @@
 #[macro_export]
 macro_rules! load_yaml {
     ($yml:expr) => (
-        &::clap::YamlLoader::load_from_str(include_str!($yml)).ok().expect("failed to load YAML file")[0]
+        &::clap::YamlLoader::load_from_str(include_str!($yml)).expect("failed to load YAML file")[0]
     );
 }
 
