@@ -50,7 +50,11 @@ use errors::Result as ClapResult;
 /// // Your program logic starts here...
 /// ```
 #[allow(missing_debug_implementations)]
-pub struct App<'a, 'b>(Parser<'a, 'b>) where 'a: 'b;
+pub struct App<'a, 'b> where 'a: 'b {
+    #[doc(hidden)]
+    pub p: Parser<'a, 'b>
+}
+
 
 impl<'a, 'b> App<'a, 'b> {
     /// Creates a new instance of an application requiring a name. The name may be, but doesn't
@@ -64,7 +68,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// let prog = App::new("My Program")
     /// # ;
     /// ```
-    pub fn new<S: Into<String>>(n: S) -> Self { App(Parser::with_name(n.into())) }
+    pub fn new<S: Into<String>>(n: S) -> Self { App { p: Parser::with_name(n.into()) } }
 
     /// Creates a new instace of `App` from a .yml (YAML) file. A full example of supported YAML
     /// objects can be found in `examples/17_yaml.rs` and `examples/17_yaml.yml`. One great use for
@@ -114,7 +118,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn author<S: Into<&'b str>>(mut self, author: S) -> Self {
-        self.0.meta.author = Some(author.into());
+        self.p.meta.author = Some(author.into());
         self
     }
 
@@ -136,7 +140,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn bin_name<S: Into<String>>(mut self, name: S) -> Self {
-        self.0.meta.bin_name = Some(name.into());
+        self.p.meta.bin_name = Some(name.into());
         self
     }
 
@@ -152,7 +156,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn about<S: Into<&'b str>>(mut self, about: S) -> Self {
-        self.0.meta.about = Some(about.into());
+        self.p.meta.about = Some(about.into());
         self
     }
 
@@ -169,7 +173,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn after_help<S: Into<&'b str>>(mut self, help: S) -> Self {
-        self.0.meta.more_help = Some(help.into());
+        self.p.meta.more_help = Some(help.into());
         self
     }
 
@@ -189,7 +193,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn version<S: Into<&'b str>>(mut self, ver: S) -> Self {
-        self.0.meta.version = Some(ver.into());
+        self.p.meta.version = Some(ver.into());
         self
     }
 
@@ -217,7 +221,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn usage<S: Into<&'b str>>(mut self, usage: S) -> Self {
-        self.0.meta.usage_str = Some(usage.into());
+        self.p.meta.usage_str = Some(usage.into());
         self
     }
 
@@ -255,7 +259,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn help<S: Into<&'b str>>(mut self, help: S) -> Self {
-        self.0.meta.help_str = Some(help.into());
+        self.p.meta.help_str = Some(help.into());
         self
     }
 
@@ -277,7 +281,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn help_short<S: AsRef<str> + 'b>(mut self, s: S) -> Self {
-        self.0.help_short(s.as_ref());
+        self.p.help_short(s.as_ref());
         self
     }
 
@@ -299,7 +303,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn version_short<S: AsRef<str>>(mut self, s: S) -> Self {
-        self.0.version_short(s.as_ref());
+        self.p.version_short(s.as_ref());
         self
     }
 
@@ -317,7 +321,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn setting(mut self, setting: AppSettings) -> Self {
-        self.0.set(setting);
+        self.p.set(setting);
         self
     }
 
@@ -336,7 +340,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     pub fn settings(mut self, settings: &[AppSettings]) -> Self {
         for s in settings {
-            self.0.set(*s);
+            self.p.set(*s);
         }
         self
     }
@@ -362,7 +366,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn arg<A: Borrow<Arg<'a, 'b>> + 'a>(mut self, a: A) -> Self {
-        self.0.add_arg(a.borrow());
+        self.p.add_arg(a.borrow());
         self
     }
 
@@ -381,7 +385,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     pub fn args(mut self, args: &[Arg<'a, 'b>]) -> Self {
         for arg in args {
-            self.0.add_arg(arg);
+            self.p.add_arg(arg);
         }
         self
     }
@@ -401,7 +405,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn arg_from_usage(mut self, usage: &'a str) -> Self {
-        self.0.add_arg(&Arg::from_usage(usage));
+        self.p.add_arg(&Arg::from_usage(usage));
         self
     }
 
@@ -426,7 +430,7 @@ impl<'a, 'b> App<'a, 'b> {
     pub fn args_from_usage(mut self, usage: &'a str) -> Self {
         for l in usage.lines() {
             if l.len() == 0 { continue; }
-            self.0.add_arg(&Arg::from_usage(l.trim()));
+            self.p.add_arg(&Arg::from_usage(l.trim()));
         }
         self
     }
@@ -464,7 +468,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn group(mut self, group: ArgGroup<'a>) -> Self {
-        self.0.add_group(group);
+        self.p.add_group(group);
         self
     }
 
@@ -514,7 +518,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn subcommand(mut self, subcmd: App<'a, 'b>) -> Self {
-        self.0.add_subcommand(subcmd);
+        self.p.add_subcommand(subcmd);
         self
     }
 
@@ -536,7 +540,7 @@ impl<'a, 'b> App<'a, 'b> {
         where I: IntoIterator<Item = App<'a, 'b>>
     {
         for subcmd in subcmds.into_iter() {
-            self.0.add_subcommand(subcmd);
+            self.p.add_subcommand(subcmd);
         }
         self
     }
@@ -569,7 +573,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// app.write_help(&mut out).ok().expect("failed to write to stdout");
     /// ```
     pub fn write_help<W: Write>(&self, w: &mut W) -> ClapResult<()> {
-        self.0.write_help(w)
+        self.p.write_help(w)
     }
 
     /// Starts the parsing process, upon a failed parse an error will be displayed to the user and
@@ -690,10 +694,10 @@ impl<'a, 'b> App<'a, 'b> {
               T: Into<OsString>
     {
         // Verify all positional assertions pass
-        self.0.verify_positionals();
+        self.p.verify_positionals();
         // If there are global arguments, we need to propgate them down to subcommands
         // before parsing incase we run into a subcommand
-        self.0.propogate_globals();
+        self.p.propogate_globals();
 
         let mut matcher = ArgMatcher::new();
 
@@ -705,14 +709,14 @@ impl<'a, 'b> App<'a, 'b> {
         // will have two arguments, './target/release/my_prog', '-a' but we don't want
         // to display
         // the full path when displaying help messages and such
-        if !self.0.is_set(AppSettings::NoBinaryName) {
+        if !self.p.is_set(AppSettings::NoBinaryName) {
             if let Some(name) = it.next() {
                 let bn_os = name.into();
                 let p = Path::new(&*bn_os);
                 if let Some(f) = p.file_name() {
                     if let Some(s) = f.to_os_string().to_str() {
-                        if let None = self.0.meta.bin_name {
-                            self.0.meta.bin_name = Some(s.to_owned());
+                        if let None = self.p.meta.bin_name {
+                            self.p.meta.bin_name = Some(s.to_owned());
                         }
                     }
                 }
@@ -720,7 +724,7 @@ impl<'a, 'b> App<'a, 'b> {
         }
 
         // do the real parsing
-        if let Err(e) = self.0.get_matches_with(&mut matcher, &mut it) {
+        if let Err(e) = self.p.get_matches_with(&mut matcher, &mut it) {
             return Err(e);
         }
 
@@ -732,7 +736,7 @@ impl<'a, 'b> App<'a, 'b> {
     fn maybe_wait_for_exit(&self, e: Error) -> ! {
         if e.use_stderr() {
             wlnerr!("{}", e.message);
-            if self.0.is_set(AppSettings::WaitOnError) {
+            if self.p.is_set(AppSettings::WaitOnError) {
                 wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
                 let mut s = String::new();
                 let i = io::stdin();
