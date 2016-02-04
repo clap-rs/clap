@@ -14,6 +14,15 @@ fn sub_command_negate_required() {
 }
 
 #[test]
+fn global_version() {
+    let app = App::new("global_version")
+        .setting(AppSettings::GlobalVersion)
+        .version("1.1")
+        .subcommand(SubCommand::with_name("sub1"));
+    assert_eq!(app.p.subcommands[0].p.meta.version, Some("1.1"));
+}
+
+#[test]
 fn sub_command_negate_required_2() {
     let result = App::new("sub_command_negate")
         .setting(AppSettings::SubcommandsNegateReqs)
@@ -145,8 +154,7 @@ fn app_settings_fromstr() {
     assert_eq!("strictutf8".parse::<AppSettings>().unwrap(), AppSettings::StrictUtf8);
     assert_eq!("allowinvalidutf8".parse::<AppSettings>().unwrap(), AppSettings::AllowInvalidUtf8);
     assert_eq!("allowleadinghyphen".parse::<AppSettings>().unwrap(), AppSettings::AllowLeadingHyphen);
-    assert_eq!("hidepossiblevaluesinhelp".parse::<AppSettings>().unwrap(), AppSettings::HidePossibleValuesInHelp);   
+    assert_eq!("hidepossiblevaluesinhelp".parse::<AppSettings>().unwrap(), AppSettings::HidePossibleValuesInHelp);
     assert_eq!("hidden".parse::<AppSettings>().unwrap(), AppSettings::Hidden);
     assert!("hahahaha".parse::<AppSettings>().is_err());
 }
-
