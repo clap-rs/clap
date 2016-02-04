@@ -98,74 +98,8 @@ impl<'a, 'b> App<'a, 'b> {
     /// // continued logic goes here, such as `app.get_matches()` etc.
     /// ```
     #[cfg(feature = "yaml")]
-    pub fn from_yaml<'y>(mut yaml: &'y Yaml) -> App<'y, 'y> {
-        use args::SubCommand;
-        // We WANT this to panic on error...so expect() is good.
-        let mut is_sc = None;
-        let mut a = if let Some(name) = yaml["name"].as_str() {
-            App::new(name)
-        } else {
-            let yaml_hash = yaml.as_hash().unwrap();
-            let sc_key = yaml_hash.keys().nth(0).unwrap();
-            is_sc = Some(yaml_hash.get(sc_key).unwrap());
-            App::new(sc_key.as_str().unwrap())
-        };
-        yaml = if let Some(sc) = is_sc {
-            sc
-        } else {
-            yaml
-        };
-        if let Some(v) = yaml["version"].as_str() {
-            a = a.version(v);
-        }
-        if let Some(v) = yaml["author"].as_str() {
-            a = a.author(v);
-        }
-        if let Some(v) = yaml["bin_name"].as_str() {
-            a = a.bin_name(v);
-        }
-        if let Some(v) = yaml["about"].as_str() {
-            a = a.about(v);
-        }
-        if let Some(v) = yaml["after_help"].as_str() {
-            a = a.after_help(v);
-        }
-        if let Some(v) = yaml["usage"].as_str() {
-            a = a.usage(v);
-        }
-        if let Some(v) = yaml["help"].as_str() {
-            a = a.help(v);
-        }
-        if let Some(v) = yaml["help_short"].as_str() {
-            a = a.help_short(v);
-        }
-        if let Some(v) = yaml["version_short"].as_str() {
-            a = a.version_short(v);
-        }
-        if let Some(v) = yaml["settings"].as_vec() {
-            for ys in v {
-                if let Some(s) = ys.as_str() {
-                    a = a.setting(s.parse().ok().expect("unknown AppSetting found in YAML file"));
-                }
-            }
-        }
-        if let Some(v) = yaml["args"].as_vec() {
-            for arg_yaml in v {
-                a = a.arg(Arg::from_yaml(&arg_yaml.as_hash().unwrap()));
-            }
-        }
-        if let Some(v) = yaml["subcommands"].as_vec() {
-            for sc_yaml in v {
-                a = a.subcommand(SubCommand::from_yaml(&sc_yaml));
-            }
-        }
-        if let Some(v) = yaml["groups"].as_vec() {
-            for ag_yaml in v {
-                a = a.group(ArgGroup::from_yaml(&ag_yaml.as_hash().unwrap()));
-            }
-        }
-
-        a
+    pub fn from_yaml(yaml: &'a Yaml) -> App<'a, 'a> {
+        App::from(yaml)
     }
 
     /// Sets a string of author(s) that will be displayed to the user when they request the help
@@ -808,5 +742,78 @@ impl<'a, 'b> App<'a, 'b> {
         }
 
         e.exit()
+    }
+}
+
+#[cfg(feature = "yaml")]
+impl<'a> From<&'a Yaml> for App<'a, 'a> {
+    fn from(mut yaml: &'a Yaml) -> Self {
+        use args::SubCommand;
+        // We WANT this to panic on error...so expect() is good.
+        let mut is_sc = None;
+        let mut a = if let Some(name) = yaml["name"].as_str() {
+            App::new(name)
+        } else {
+            let yaml_hash = yaml.as_hash().unwrap();
+            let sc_key = yaml_hash.keys().nth(0).unwrap();
+            is_sc = Some(yaml_hash.get(sc_key).unwrap());
+            App::new(sc_key.as_str().unwrap())
+        };
+        yaml = if let Some(sc) = is_sc {
+            sc
+        } else {
+            yaml
+        };
+        if let Some(v) = yaml["version"].as_str() {
+            a = a.version(v);
+        }
+        if let Some(v) = yaml["author"].as_str() {
+            a = a.author(v);
+        }
+        if let Some(v) = yaml["bin_name"].as_str() {
+            a = a.bin_name(v);
+        }
+        if let Some(v) = yaml["about"].as_str() {
+            a = a.about(v);
+        }
+        if let Some(v) = yaml["after_help"].as_str() {
+            a = a.after_help(v);
+        }
+        if let Some(v) = yaml["usage"].as_str() {
+            a = a.usage(v);
+        }
+        if let Some(v) = yaml["help"].as_str() {
+            a = a.help(v);
+        }
+        if let Some(v) = yaml["help_short"].as_str() {
+            a = a.help_short(v);
+        }
+        if let Some(v) = yaml["version_short"].as_str() {
+            a = a.version_short(v);
+        }
+        if let Some(v) = yaml["settings"].as_vec() {
+            for ys in v {
+                if let Some(s) = ys.as_str() {
+                    a = a.setting(s.parse().ok().expect("unknown AppSetting found in YAML file"));
+                }
+            }
+        }
+        if let Some(v) = yaml["args"].as_vec() {
+            for arg_yaml in v {
+                a = a.arg(Arg::from_yaml(&arg_yaml.as_hash().unwrap()));
+            }
+        }
+        if let Some(v) = yaml["subcommands"].as_vec() {
+            for sc_yaml in v {
+                a = a.subcommand(SubCommand::from_yaml(&sc_yaml));
+            }
+        }
+        if let Some(v) = yaml["groups"].as_vec() {
+            for ag_yaml in v {
+                a = a.group(ArgGroup::from(ag_yaml.as_hash().unwrap()));
+            }
+        }
+
+        a
     }
 }
