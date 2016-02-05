@@ -5,6 +5,8 @@ use std::ops::Deref;
 use vec_map::VecMap;
 
 use args::{ArgMatches, MatchedArg, SubCommand};
+use args::settings::ArgSettings;
+use args::AnyArg;
 
 #[doc(hidden)]
 pub struct ArgMatcher<'a>(pub ArgMatches<'a>);
@@ -90,6 +92,25 @@ impl<'a> ArgMatcher<'a> {
         });
         let len = ma.vals.len() + 1;
         ma.vals.insert(len, val.to_owned());
+    }
+
+    pub fn needs_more_vals<'b, A>(&self, o: &A) -> bool
+        where A: AnyArg<'a, 'b> {
+        if let Some(ma) = self.get(o.name()) {
+            if let Some(num) = o.num_vals() {
+                return if o.is_set(ArgSettings::Multiple) {
+                    ((ma.vals.len() as u64) % num) != 0
+                } else {
+                    num != (ma.vals.len() as u64)
+                };
+            } else if let Some(num) = o.max_vals() {
+                return !((ma.vals.len() as u64) > num);
+            } else if let Some(num) = o.min_vals() {
+                return (ma.vals.len() as u64) < num;
+            }
+            return o.is_set(ArgSettings::Multiple);
+        }
+        true
     }
 }
 
