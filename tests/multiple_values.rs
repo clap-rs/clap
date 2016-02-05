@@ -249,8 +249,10 @@ fn multiple_values_of_option_min_less() {
 }
 
 #[test]
-fn multiple_values_of_option_min_more() {
+fn option_short_min_more_mult_occurs() {
     let m = App::new("multiple_values")
+        .arg(Arg::with_name("arg")
+            .required(true))
         .arg(Arg::with_name("option")
             .short("o")
             .help("multiple options")
@@ -259,18 +261,49 @@ fn multiple_values_of_option_min_more() {
             .min_values(3))
         .get_matches_from_safe(vec![
             "",
+            "pos",
             "-o", "val1",
             "-o", "val2",
             "-o", "val3",
             "-o", "val4",
         ]);
 
-    assert!(m.is_ok());
-    let m = m.unwrap();
+    let m = m.map_err(|e| println!("failed to unwrap err with error kind {:?}", e.kind)).unwrap();
 
     assert!(m.is_present("option"));
+    assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("option"), 4);
     assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3", "val4"]);
+    assert_eq!(m.value_of("arg"), Some("pos"));
+}
+
+#[test]
+fn option_short_min_more_single_occur() {
+    let m = App::new("multiple_values")
+        .arg(Arg::with_name("arg")
+            .required(true))
+        .arg(Arg::with_name("option")
+            .short("o")
+            .help("multiple options")
+            .takes_value(true)
+            .multiple(true)
+            .min_values(3))
+        .get_matches_from_safe(vec![
+            "",
+            "pos",
+            "-o", "val1",
+            "val2",
+            "val3",
+            "val4",
+        ]);
+
+    let m = m.map_err(|e| println!("failed to unwrap err with error kind {:#?}", e)).unwrap();
+
+    assert!(m.is_present("option"));
+    assert!(m.is_present("arg"));
+    assert_eq!(m.occurrences_of("option"), 1);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3", "val4"]);
+    assert_eq!(m.value_of("arg"), Some("pos"));
 }
 
 #[test]

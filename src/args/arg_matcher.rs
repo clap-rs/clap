@@ -105,8 +105,8 @@ impl<'a> ArgMatcher<'a> {
                 };
             } else if let Some(num) = o.max_vals() {
                 return !((ma.vals.len() as u64) > num);
-            } else if let Some(num) = o.min_vals() {
-                return (ma.vals.len() as u64) < num;
+            } else if o.min_vals().is_some() {
+                return true;
             }
             return o.is_set(ArgSettings::Multiple);
         }
