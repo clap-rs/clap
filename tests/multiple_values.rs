@@ -122,6 +122,50 @@ fn multiple_values_of_option_exact_exact() {
 }
 
 #[test]
+fn multiple_values_of_option_exact_exact_not_mult() {
+    let m = App::new("multiple_values")
+        .arg(Arg::with_name("option")
+            .short("o")
+            .help("multiple options")
+            .takes_value(true)
+            .number_of_values(3))
+        .get_matches_from_safe(vec![
+            "",
+            "-o", "val1", "val2", "val3",
+        ]);
+
+    assert!(m.is_ok());
+    let m = m.unwrap();
+
+    assert!(m.is_present("option"));
+    assert_eq!(m.occurrences_of("option"), 1);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
+}
+
+#[test]
+fn multiple_values_of_option_exact_exact_mult() {
+    let m = App::new("multiple_values")
+        .arg(Arg::with_name("option")
+            .short("o")
+            .help("multiple options")
+            .takes_value(true)
+            .multiple(true)
+            .number_of_values(3))
+        .get_matches_from_safe(vec![
+            "",
+            "-o", "val1", "val2", "val3",
+            "-o", "val4", "val5", "val6",
+        ]);
+
+    assert!(m.is_ok());
+    let m = m.unwrap();
+
+    assert!(m.is_present("option"));
+    assert_eq!(m.occurrences_of("option"), 2);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3", "val4", "val5", "val6"]);
+}
+
+#[test]
 fn multiple_values_of_option_exact_less() {
     let m = App::new("multiple_values")
         .arg(Arg::with_name("option")
