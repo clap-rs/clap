@@ -50,8 +50,8 @@ Here are some key points about the 2.x release
  * Support for delimited values
  * Support for custom delimiter in values
  * Support for external subcommands
- * Support for options that act as flags (i.e. ones which optionally have no value)
- * Support for negative numbers as arguments (i.e. `-10`, etc.)
+ * Support for options that act as flags (i.e., ones which optionally have no value)
+ * Support for negative numbers as arguments (i.e., `-10`, etc.)
  * Better Errors and error handling
  * Improved "from usage" strings
  * Better support for generics, instead of being locked in to `Vec` at key points
@@ -66,7 +66,7 @@ Here are some key points about the 2.x release
 
 Below is a list of breaking changes between 1.x and 2.x and how you can change your code to update.
 
-* **Fewer liftimes! Yay!**
+* **Fewer lifetimes! Yay!**
  * `App<'a, 'b, 'c, 'd, 'e, 'f>` => `App<'a, 'b>`
  * `Arg<'a, 'b, 'c, 'd, 'e, 'f>` => `Arg<'a, 'b>`
  * `ArgMatches<'a, 'b>` => `ArgMatches<'a>`
@@ -99,7 +99,7 @@ Below is a list of breaking changes between 1.x and 2.x and how you can change y
   * `InvalidUnicode` => `InvalidUtf8`
   * `InvalidArgument` => `UnknownArgument`
 * **Usage Parser**
- * Value names can now be specified inline, i.e. `-o, --option <FILE> <FILE2> 'some option which takes two files'`
+ * Value names can now be specified inline: `-o, --option <FILE> <FILE2> 'some option which takes two files'`
  * **There is now a priority of order to determine the name** - This is perhaps the biggest breaking change. See the documentation for full details. Prior to this change, the value name took precedence. **Ensure your args are using the proper names (i.e. typically the long or short and NOT the value name) throughout the code**
 * `ArgMatches::values_of` returns an `Values` now which implements `Iterator` (should not break any code)
 * `crate_version!` returns `&'static str` instead of `String`
