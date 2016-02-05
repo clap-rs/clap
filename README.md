@@ -566,7 +566,7 @@ There are a few goals of `clap` that I'd like to maintain throughout contributio
 
 As of 2.0.0 (From 1.x)
 
-* **Fewer liftimes! Yay!**
+* **Fewer lifetimes! Yay!**
  * `App<'a, 'b, 'c, 'd, 'e, 'f>` => `App<'a, 'b>`
  * `Arg<'a, 'b, 'c, 'd, 'e, 'f>` => `Arg<'a, 'b>`
  * `ArgMatches<'a, 'b>` => `ArgMatches<'a>`
