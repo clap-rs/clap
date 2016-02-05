@@ -986,7 +986,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         // Increment or create the group "args"
         self.groups_for_arg(opt.name).and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
 
-        if val.is_none() || opt.is_set(ArgSettings::Multiple) {
+        if val.is_none() || (opt.is_set(ArgSettings::Multiple) && matcher.needs_more_vals(opt)) {
             return Ok(Some(opt.name));
         }
         Ok(None)
@@ -1054,31 +1054,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 return Err(Error::value_validation(e));
             }
         }
-        let vals = matcher.get(&*arg.name())
-                          .expect(INTERNAL_ERROR_MSG)
-                          .vals.len();
-        if let Some(max) = arg.max_vals() {
-            if (vals as u64) < max {
-                return Ok(Some(arg.name()));
-            } else {
-                return Ok(None);
-            }
-        }
-        if let Some(..) = arg.min_vals() {
-            return Ok(Some(arg.name()));
-        }
-        if let Some(num) = arg.num_vals() {
-            if arg.is_set(ArgSettings::Multiple) {
-                if (vals as u64) < num {
-                    return Ok(Some(arg.name()));
-                }
-            } else {
-                if (vals as u64 % num) != 0 {
-                    return Ok(Some(arg.name()));
-                }
-            }
-        }
-        if arg.is_set(ArgSettings::Multiple) {
+        if matcher.needs_more_vals(arg) {
             return Ok(Some(arg.name()));
         }
         Ok(None)

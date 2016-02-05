@@ -1,3 +1,12 @@
+<a name="v2.0.5"></a>
+### v2.0.5 (2016-02-05)
+
+
+#### Bug Fixes
+
+* **Multiple Values:**  fixes bug where number_of_values wasnt respected ([72c387da](https://github.com/kbknapp/clap-rs/commit/72c387da0bb8a6f526f863770f08bb8ca0d3de03))
+
+
 <a name="v2.0.4"></a>
 ### v2.0.4 (2016-02-04)
 
