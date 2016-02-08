@@ -535,6 +535,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             }
         }
 
+        try!(self.add_defaults(matcher));
         try!(self.validate_blacklist(matcher));
         try!(self.validate_num_args(matcher));
         matcher.usage(self.create_usage(&[]));
@@ -1517,5 +1518,23 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             try!(write!(w, "\n{}", h));
         }
         w.flush().map_err(Error::from)
+    }
+
+    fn add_defaults(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
+        macro_rules! add_val {
+            ($_self:ident, $a:ident, $m:ident) => {
+                if $m.get($a.name).is_none() {
+                    try!($_self.add_val_to_arg($a, OsStr::new($a.default_val.as_ref().unwrap()), $m));
+                    arg_post_processing!($_self, $a, $m);
+                }
+            };
+        }
+        for o in self.opts.iter().filter(|o| o.default_val.is_some()) {
+            add_val!(self, o, matcher);
+        }
+        for p in self.positionals.values().filter(|p| p.default_val.is_some()) {
+            add_val!(self, p, matcher);
+        }
+        Ok(())
     }
 }

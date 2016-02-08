@@ -26,6 +26,7 @@ pub struct OptBuilder<'n, 'e> {
     pub overrides: Option<Vec<&'e str>>,
     pub settings: ArgFlags,
     pub val_delim: Option<char>,
+    pub default_val: Option<&'n str>,
 }
 
 impl<'n, 'e> Default for OptBuilder<'n, 'e> {
@@ -46,6 +47,7 @@ impl<'n, 'e> Default for OptBuilder<'n, 'e> {
             overrides: None,
             settings: ArgFlags::new(),
             val_delim: Some(','),
+            default_val: None,
         }
     }
 }
@@ -79,6 +81,7 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
             requires: a.requires.clone(),
             possible_vals: a.possible_vals.clone(),
             settings: a.settings.clone(),
+            default_val: a.default_val,
             ..Default::default()
         };
         if let Some(ref vec) = ob.val_names {
