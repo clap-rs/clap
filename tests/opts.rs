@@ -133,3 +133,27 @@ fn opts_using_mixed2() {
     assert!(m.is_present("color"));
     assert_eq!(m.value_of("color").unwrap(), "other");
 }
+
+#[test]
+fn default_values_default() {
+    let r = App::new("df")
+        .arg( Arg::from_usage("-o [opt] 'some opt'")
+            .default_value("default"))
+        .get_matches_from_safe(vec![""]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("o"));
+    assert_eq!(m.value_of("o").unwrap(), "default");
+}
+
+#[test]
+fn default_values_user_value() {
+    let r = App::new("df")
+        .arg( Arg::from_usage("-o [opt] 'some opt'")
+            .default_value("default"))
+        .get_matches_from_safe(vec!["", "-o", "value"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("o"));
+    assert_eq!(m.value_of("o").unwrap(), "value");
+}

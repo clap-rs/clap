@@ -152,3 +152,27 @@ fn positional_hyphen_does_not_panic() {
         .arg(Arg::with_name("dummy"))
         .get_matches_from(vec!["test", "-"]);
 }
+
+#[test]
+fn default_values_default() {
+    let r = App::new("df")
+        .arg( Arg::from_usage("[arg] 'some opt'")
+            .default_value("default"))
+        .get_matches_from_safe(vec![""]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("arg"));
+    assert_eq!(m.value_of("arg").unwrap(), "default");
+}
+
+#[test]
+fn default_values_user_value() {
+    let r = App::new("df")
+        .arg( Arg::from_usage("[arg] 'some arg'")
+            .default_value("default"))
+        .get_matches_from_safe(vec!["", "value"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("arg"));
+    assert_eq!(m.value_of("arg").unwrap(), "value");
+}
