@@ -130,11 +130,19 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
 impl<'n, 'e> Display for PosBuilder<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> Result {
         if self.settings.is_set(ArgSettings::Required) {
-            try!(write!(f, "<{}>", self.name));
+            if let Some(ref names) = self.val_names {
+                try!(write!(f, "{}", names.values().map(|n| format!("<{}>", n)).collect::<Vec<_>>().join(" ")));
+            } else {
+                try!(write!(f, "<{}>", self.name));
+            }
         } else {
-            try!(write!(f, "[{}]", self.name));
+            if let Some(ref names) = self.val_names {
+                try!(write!(f, "{}", names.values().map(|n| format!("[{}]", n)).collect::<Vec<_>>().join(" ")));
+            } else {
+                try!(write!(f, "[{}]", self.name));
+            }
         }
-        if self.settings.is_set(ArgSettings::Multiple) {
+        if self.settings.is_set(ArgSettings::Multiple) && self.val_names.is_none() {
             try!(write!(f, "..."));
         }
 
@@ -166,17 +174,44 @@ impl<'n, 'e> AnyArg<'n, 'e> for PosBuilder<'n, 'e> {
 mod test {
     use super::PosBuilder;
     use args::settings::ArgSettings;
+    use vec_map::VecMap;
 
     #[test]
-    fn posbuilder_display() {
+    fn display_mult() {
         let mut p = PosBuilder::new("pos", 1);
         p.settings.set(ArgSettings::Multiple);
 
         assert_eq!(&*format!("{}", p), "[pos]...");
+    }
 
+    #[test]
+    fn display_required() {
         let mut p2 = PosBuilder::new("pos", 1);
         p2.settings.set(ArgSettings::Required);
 
         assert_eq!(&*format!("{}", p2), "<pos>");
+    }
+
+    #[test]
+    fn display_val_names() {
+        let mut p2 = PosBuilder::new("pos", 1);
+        let mut vm = VecMap::new();
+        vm.insert(0, "file1");
+        vm.insert(1, "file2");
+        p2.val_names = Some(vm);
+
+        assert_eq!(&*format!("{}", p2), "[file1] [file2]");
+    }
+
+    #[test]
+    fn display_val_names_req() {
+        let mut p2 = PosBuilder::new("pos", 1);
+        p2.settings.set(ArgSettings::Required);
+        let mut vm = VecMap::new();
+        vm.insert(0, "file1");
+        vm.insert(1, "file2");
+        p2.val_names = Some(vm);
+
+        assert_eq!(&*format!("{}", p2), "<file1> <file2>");
     }
 }
