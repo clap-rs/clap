@@ -1,3 +1,12 @@
+<a name="v2.0.6"></a>
+### v2.0.6 (2016-02-09)
+
+
+#### Improvements
+
+* **Positional Arguments:**  now displays value name if appropriate ([f0a99916](https://github.com/kbknapp/clap-rs/commit/f0a99916c59ce675515c6dcdfe9a40b130510908), closes [#420](https://github.com/kbknapp/clap-rs/issues/420))
+
+
 <a name="v2.0.5"></a>
 ### v2.0.5 (2016-02-05)
 
