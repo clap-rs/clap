@@ -1,3 +1,16 @@
+<a name="v2.1.0"></a>
+## v2.1.0 (2016-02-10)
+
+
+#### Features
+
+* **Defult Values:**  adds support for default values in args ([73211952](https://github.com/kbknapp/clap-rs/commit/73211952964a79d97b434dd567e6d7d34be7feb5), closes [#418](https://github.com/kbknapp/clap-rs/issues/418))
+
+#### Documentation
+
+* **Default Values:**  adds better examples and notes for default values ([9facd74f](https://github.com/kbknapp/clap-rs/commit/9facd74f843ef3807c5d35259558a344e6c25905))
+
+
 <a name="v2.0.6"></a>
 ### v2.0.6 (2016-02-09)
 
