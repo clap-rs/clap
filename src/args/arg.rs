@@ -1090,18 +1090,33 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Specifies the value of the argument when *not* used at runtime.
+    /// Specifies the value of the argument when *not* specified at runtime.
     ///
-    /// **NOTE:** implicitly sets `Arg::takes_value(true)`
+    /// **NOTE:** If the user *does not* use this argument at runtime, `ArgMatches::occurrences_of`
+    /// will return `0` even though the `value_of` will return the default specified.
+    ///
+    /// **NOTE:** If the user *does not* use this argument at runtime `ArgMatches::is_present` will
+    /// still return `true`. If you wish to determine whether the argument was used at runtime or
+    /// not, consider `ArgMatches::occurrences_of` which will return `0` if the argument was *not*
+    /// used at runtmie.
+    ///
+    /// **NOTE:** This implicitly sets `Arg::takes_value(true)`.
     ///
     /// # Examples
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// Arg::with_name("input")
-    ///     .long("option")
-    ///     .default_value("myval")
-    /// # ;
+    /// let m = App::new("defvals")
+    ///     .arg(Arg::with_name("opt")
+    ///         .long("myopt")
+    ///         .default_value("myval"))
+    ///     .get_matches_from(vec![
+    ///         "defvals"
+    ///     ]);
+    ///
+    /// assert_eq!(m.value_of("opt"), Some("myval"));
+    /// assert!(m.is_present("opt"));
+    /// assert_eq!(m.occurrences_of("opt"), 0);
     /// ```
     pub fn default_value(mut self, val: &'a str) -> Self {
         self.setb(ArgSettings::TakesValue);
