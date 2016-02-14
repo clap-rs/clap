@@ -298,7 +298,7 @@ impl<'a> Debug for ArgGroup<'a> {
 impl<'a, 'z> From<&'z ArgGroup<'a>> for ArgGroup<'a> {
     fn from(g: &'z ArgGroup<'a>) -> Self {
         ArgGroup {
-            name: g.name.clone(),
+            name: g.name,
             required: g.required,
             args: g.args.clone(),
             requires: g.requires.clone(),
