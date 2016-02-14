@@ -162,6 +162,9 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
             } else {
                 try!(write!(w, "{}", h));
             }
+            if let Some(ref pv) = self.default_val {
+                try!(write!(w, " [default: {}]", pv));
+            }
             if !skip_pv {
                 if let Some(ref pv) = self.possible_vals {
                     try!(write!(w, " [values: {}]", pv.join(", ")));
