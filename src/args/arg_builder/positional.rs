@@ -26,6 +26,7 @@ pub struct PosBuilder<'n, 'e> {
     pub overrides: Option<Vec<&'e str>>,
     pub settings: ArgFlags,
     pub val_delim: Option<char>,
+    pub default_val: Option<&'n str>,
 }
 
 impl<'n, 'e> Default for PosBuilder<'n, 'e> {
@@ -45,6 +46,7 @@ impl<'n, 'e> Default for PosBuilder<'n, 'e> {
             overrides: None,
             settings: ArgFlags::new(),
             val_delim: Some(','),
+            default_val: None,
         }
     }
 }
@@ -80,6 +82,7 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
             help: a.help,
             val_delim: a.val_delim,
             settings: a.settings.clone(),
+            default_val: a.default_val,
             ..Default::default()
         };
         if a.max_vals.is_some()
@@ -116,6 +119,9 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
                 }
             } else {
                 try!(write!(w, "{}", h));
+            }
+            if let Some(ref pv) = self.default_val {
+                try!(write!(w, " [default: {}]", pv));
             }
             if !skip_pv {
                 if let Some(ref pv) = self.possible_vals {

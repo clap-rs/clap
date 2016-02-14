@@ -171,15 +171,15 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         if group.required {
             self.required.push(group.name.into());
             if let Some(ref reqs) = group.requires {
-                self.required.extend(reqs);
+                self.required.extend_from_slice(reqs);
             }
             if let Some(ref bl) = group.conflicts {
-                self.blacklist.extend(bl);
+                self.blacklist.extend_from_slice(bl);
             }
         }
         let mut found = false;
         if let Some(ref mut grp) = self.groups.get_mut(&group.name) {
-            grp.args.extend(&group.args);
+            grp.args.extend_from_slice(&group.args);
             grp.requires = group.requires.clone();
             grp.conflicts = group.conflicts.clone();
             grp.required = group.required;
@@ -216,6 +216,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         self.required.iter()
     }
 
+    #[cfg_attr(feature = "lints", allow(for_kv_map))]
     pub fn get_required_from(&self,
                          reqs: &[&'a str],
                          matcher: Option<&ArgMatcher<'a>>)
@@ -535,6 +536,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             }
         }
 
+        try!(self.add_defaults(matcher));
         try!(self.validate_blacklist(matcher));
         try!(self.validate_num_args(matcher));
         matcher.usage(self.create_usage(&[]));
@@ -730,13 +732,9 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         let mut args = vec![];
 
         for n in &self.groups.get(group).unwrap().args {
-            if self.flags.iter().any(|f| &f.name == n) {
-                args.push(*n);
-            } else if self.opts.iter().any(|o| &o.name == n) {
-                args.push(*n);
-            } else if self.groups.contains_key(&**n) {
+            if self.groups.contains_key(&*n) {
                 g_vec.push(*n);
-            } else if self.positionals.values().any(|p| &p.name == n) {
+            } else {
                 args.push(*n);
             }
         }
@@ -1237,11 +1235,10 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
     fn _validate_blacklist_required<A>(&self, a: &A, matcher: &ArgMatcher) -> bool where A: AnyArg<'a, 'b> {
         if let Some(bl) = a.blacklist() {
             for n in bl.iter() {
-                if matcher.contains(n) {
-                    return true;
-                } else if self.groups
-                              .get(n)
-                              .map_or(false, |g| g.args.iter().any(|an| matcher.contains(an))) {
+                if matcher.contains(n)
+                    || self.groups
+                            .get(n)
+                            .map_or(false, |g| g.args.iter().any(|an| matcher.contains(an))) {
                     return true;
                 }
             }
@@ -1262,13 +1259,13 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                                     .filter(|o| o.long.is_some() && o.long.unwrap() == name)
                                     .next() {
                 self.groups_for_arg(&*opt.name).and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
-                matcher.insert(&*opt.name.clone());
+                matcher.insert(&*opt.name);
             } else if let Some(flg) = self.flags
                                        .iter()
                                        .filter(|f| f.long.is_some() && f.long.unwrap() == name)
                                        .next() {
                 self.groups_for_arg(&*flg.name).and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
-                matcher.insert(&*flg.name.clone());
+                matcher.insert(&*flg.name);
             }
         }
 
@@ -1340,7 +1337,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
     // args, and requirements
     fn smart_usage(&self, usage: &mut String, used: &[&str]) {
         let mut hs: Vec<&str> = self.required().map(|s| &**s).collect();
-        hs.extend(used);
+        hs.extend_from_slice(used);
         let r_string = self.get_required_from(&hs, None)
                                      .iter()
                                      .fold(String::new(), |acc, s| acc + &format!(" {}", s)[..]);
@@ -1378,6 +1375,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         self.write_help(&mut buf_w)
     }
 
+    #[cfg_attr(feature = "lints", allow(for_kv_map))]
     pub fn write_help<W: Write>(&self, w: &mut W) -> ClapResult<()> {
         if let Some(h) = self.meta.help_str {
             return writeln!(w, "{}", h).map_err(Error::from);
@@ -1465,19 +1463,21 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         } else {
             if flags {
                 try!(write!(w, "\nFLAGS:\n"));
-                for (_, f) in self.flags.iter()
+                for f in self.flags.iter()
                                   .filter(|f| !f.settings.is_set(ArgSettings::Hidden))
                                   .map(|f| (f.name, f))
-                                  .collect::<BTreeMap<_, _>>() {
+                                  .collect::<BTreeMap<_, _>>()
+                                  .values() {
                     try!(f.write_help(w, tab, longest));
                 }
             }
             if opts {
                 try!(write!(w, "\nOPTIONS:\n"));
-                for (_, o) in self.opts.iter()
+                for o in self.opts.iter()
                                   .filter(|o| !o.settings.is_set(ArgSettings::Hidden))
                                   .map(|o| (o.name, o))
-                                  .collect::<BTreeMap<_, _>>() {
+                                  .collect::<BTreeMap<_, _>>()
+                                  .values() {
                     try!(o.write_help(w, tab, longest_opt, self.is_set(AppSettings::HidePossibleValuesInHelp)));
                 }
             }
@@ -1517,5 +1517,23 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             try!(write!(w, "\n{}", h));
         }
         w.flush().map_err(Error::from)
+    }
+
+    fn add_defaults(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
+        macro_rules! add_val {
+            ($_self:ident, $a:ident, $m:ident) => {
+                if $m.get($a.name).is_none() {
+                    try!($_self.add_val_to_arg($a, OsStr::new($a.default_val.as_ref().unwrap()), $m));
+                    arg_post_processing!($_self, $a, $m);
+                }
+            };
+        }
+        for o in self.opts.iter().filter(|o| o.default_val.is_some()) {
+            add_val!(self, o, matcher);
+        }
+        for p in self.positionals.values().filter(|p| p.default_val.is_some()) {
+            add_val!(self, p, matcher);
+        }
+        Ok(())
     }
 }

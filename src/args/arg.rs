@@ -66,6 +66,8 @@ pub struct Arg<'a, 'b> where 'a: 'b {
     pub settings: ArgFlags,
     #[doc(hidden)]
     pub val_delim: Option<char>,
+    #[doc(hidden)]
+    pub default_val: Option<&'a str>,
 }
 
 impl<'a, 'b> Default for Arg<'a, 'b> {
@@ -88,6 +90,7 @@ impl<'a, 'b> Default for Arg<'a, 'b> {
             overrides: None,
             settings: ArgFlags::new(),
             val_delim: Some(','),
+            default_val: None,
         }
     }
 }
@@ -1087,14 +1090,38 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    #[doc(hidden)]
-    pub fn setb(&mut self, s: ArgSettings) {
-        self.settings.set(s);
-    }
-
-    #[doc(hidden)]
-    pub fn unsetb(&mut self, s: ArgSettings) {
-        self.settings.unset(s);
+    /// Specifies the value of the argument when *not* specified at runtime.
+    ///
+    /// **NOTE:** If the user *does not* use this argument at runtime, `ArgMatches::occurrences_of`
+    /// will return `0` even though the `value_of` will return the default specified.
+    ///
+    /// **NOTE:** If the user *does not* use this argument at runtime `ArgMatches::is_present` will
+    /// still return `true`. If you wish to determine whether the argument was used at runtime or
+    /// not, consider `ArgMatches::occurrences_of` which will return `0` if the argument was *not*
+    /// used at runtmie.
+    ///
+    /// **NOTE:** This implicitly sets `Arg::takes_value(true)`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("defvals")
+    ///     .arg(Arg::with_name("opt")
+    ///         .long("myopt")
+    ///         .default_value("myval"))
+    ///     .get_matches_from(vec![
+    ///         "defvals"
+    ///     ]);
+    ///
+    /// assert_eq!(m.value_of("opt"), Some("myval"));
+    /// assert!(m.is_present("opt"));
+    /// assert_eq!(m.occurrences_of("opt"), 0);
+    /// ```
+    pub fn default_value(mut self, val: &'a str) -> Self {
+        self.setb(ArgSettings::TakesValue);
+        self.default_val = Some(val);
+        self
     }
 
     /// Checks if one of the `ArgSettings` settings is set for the argument
@@ -1112,6 +1139,16 @@ impl<'a, 'b> Arg<'a, 'b> {
     pub fn unset(mut self, s: ArgSettings) -> Self {
         self.unsetb(s);
         self
+    }
+
+    #[doc(hidden)]
+    pub fn setb(&mut self, s: ArgSettings) {
+        self.settings.set(s);
+    }
+
+    #[doc(hidden)]
+    pub fn unsetb(&mut self, s: ArgSettings) {
+        self.settings.unset(s);
     }
 }
 
@@ -1136,6 +1173,7 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>>
             overrides: a.overrides.clone(),
             settings: a.settings.clone(),
             val_delim: a.val_delim,
+            default_val: a.default_val,
         }
     }
 }
