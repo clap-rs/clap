@@ -101,76 +101,9 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
         ob
     }
 
-    pub fn write_help<W: io::Write>(&self, w: &mut W, tab: &str, longest: usize, skip_pv: bool) -> io::Result<()> {
+    pub fn write_help<W: io::Write>(&self, w: &mut W, tab: &str, longest: usize, skip_pv: bool, nlh: bool) -> io::Result<()> {
         debugln!("fn=write_help");
-        // if it supports multiple we add '...' i.e. 3 to the name length
-        try!(write!(w, "{}", tab));
-        if let Some(s) = self.short {
-            try!(write!(w, "-{}", s));
-        } else {
-            try!(write!(w, "{}", tab));
-        }
-        if let Some(l) = self.long {
-            try!(write!(w,
-                        "{}--{}",
-                        if self.short.is_some() {
-                            ", "
-                        } else {
-                            ""
-                        },
-                        l));
-        }
-        if let Some(ref vec) = self.val_names {
-            for (_, val) in vec {
-                try!(write!(w, " <{}>", val));
-            }
-            let num = vec.len();
-            if self.settings.is_set(ArgSettings::Multiple) && num == 1 {
-                try!(write!(w, "..."));
-            }
-        } else if let Some(num) = self.num_vals {
-            for _ in 0..num {
-                try!(write!(w, " <{}>", self.name));
-            }
-        } else {
-            try!(write!(w,
-                        " <{}>{}",
-                        self.name,
-                        if self.settings.is_set(ArgSettings::Multiple) {
-                            "..."
-                        } else {
-                            ""
-                        }));
-        }
-        if self.long.is_some() {
-            write_spaces!((longest + 4) - (self.to_string().len()), w);
-        } else {
-            // 8 = tab + '-a, '.len()
-            write_spaces!((longest + 8) - (self.to_string().len()), w);
-        }
-        if let Some(h) = self.help {
-            if h.contains("{n}") {
-                let mut hel = h.split("{n}");
-                if let Some(part) = hel.next() {
-                    try!(write!(w, "{}", part));
-                }
-                for part in hel {
-                    try!(write!(w, "\n"));
-                    write_spaces!(longest + 12, w);
-                    try!(write!(w, "{}", part));
-                }
-            } else {
-                try!(write!(w, "{}", h));
-            }
-            if let Some(ref pv) = self.default_val {
-                try!(write!(w, " [default: {}]", pv));
-            }
-            if !skip_pv {
-                if let Some(ref pv) = self.possible_vals {
-                    try!(write!(w, " [values: {}]", pv.join(", ")));
-                }
-            }
-        }
+        write_arg_help!(@opt self, w, tab, longest, skip_pv, nlh);
         write!(w, "\n")
     }
 }

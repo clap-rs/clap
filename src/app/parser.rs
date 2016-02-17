@@ -1400,7 +1400,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
 
         let mut longest_flag = 0;
         for fl in self.flags.iter()
-                      .filter(|f| f.long.is_some() && !f.settings.is_set(ArgSettings::Hidden))
+                      .filter(|f| f.long.is_some() && !(f.settings.is_set(ArgSettings::Hidden) || f.settings.is_set(ArgSettings::NextLineHelp)))
                       .map(|a| a.to_string().len()) {
             if fl > longest_flag {
                 longest_flag = fl;
@@ -1408,7 +1408,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         }
         let mut longest_opt = 0;
         for ol in self.opts.iter()
-                      .filter(|o| !o.settings.is_set(ArgSettings::Hidden))
+                      .filter(|o| !(o.settings.is_set(ArgSettings::Hidden) || o.settings.is_set(ArgSettings::NextLineHelp)))
                       .map(|a| a.to_string().len()) {
             if ol > longest_opt {
                 longest_opt = ol;
@@ -1417,7 +1417,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         let mut longest_pos = 0;
         for pl in self.positionals
                       .values()
-                      .filter(|p| !p.settings.is_set(ArgSettings::Hidden))
+                      .filter(|p| !(p.settings.is_set(ArgSettings::Hidden) || p.settings.is_set(ArgSettings::NextLineHelp)))
                       .map(|f| f.to_string().len()) {
             if pl > longest_pos {
                 longest_pos = pl;
@@ -1443,17 +1443,18 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         } else {
             longest_opt
         };
+        let nlh = self.settings.is_set(AppSettings::NextLineHelp);
         if unified_help && (flags || opts) {
             try!(write!(w, "\nOPTIONS:\n"));
             let mut combined = BTreeMap::new();
             for f in self.flags.iter().filter(|f| !f.settings.is_set(ArgSettings::Hidden)) {
                 let mut v = vec![];
-                try!(f.write_help(&mut v, tab, longest));
+                try!(f.write_help(&mut v, tab, longest, nlh));
                 combined.insert(f.name, v);
             }
             for o in self.opts.iter().filter(|o| !o.settings.is_set(ArgSettings::Hidden)) {
                 let mut v = vec![];
-                try!(o.write_help(&mut v, tab, longest, self.is_set(AppSettings::HidePossibleValuesInHelp)));
+                try!(o.write_help(&mut v, tab, longest, self.is_set(AppSettings::HidePossibleValuesInHelp), nlh));
                 combined.insert(o.name, v);
             }
             for (_, a) in combined {
@@ -1468,7 +1469,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                                   .map(|f| (f.name, f))
                                   .collect::<BTreeMap<_, _>>()
                                   .values() {
-                    try!(f.write_help(w, tab, longest));
+                    try!(f.write_help(w, tab, longest, nlh));
                 }
             }
             if opts {
@@ -1478,7 +1479,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                                   .map(|o| (o.name, o))
                                   .collect::<BTreeMap<_, _>>()
                                   .values() {
-                    try!(o.write_help(w, tab, longest_opt, self.is_set(AppSettings::HidePossibleValuesInHelp)));
+                    try!(o.write_help(w, tab, longest_opt, self.is_set(AppSettings::HidePossibleValuesInHelp), nlh));
                 }
             }
         }
@@ -1486,7 +1487,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             try!(write!(w, "\nARGS:\n"));
             for v in self.positionals.values()
                          .filter(|p| !p.settings.is_set(ArgSettings::Hidden)) {
-                try!(v.write_help(w, tab, longest_pos, self.is_set(AppSettings::HidePossibleValuesInHelp)));
+                try!(v.write_help(w, tab, longest_pos, self.is_set(AppSettings::HidePossibleValuesInHelp), nlh));
             }
         }
         if subcmds {

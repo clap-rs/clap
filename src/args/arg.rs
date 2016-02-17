@@ -1124,6 +1124,58 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
+    /// When set to `true` the help string will be displayed on the line after the argument and
+    /// indented once. This can be helpful for arguments with very long or complex help messages.
+    /// This can also be helpful for arguments with very long flag names, or many/long value names.
+    ///
+    /// **NOTE:** To apply this setting to all arguments consider using `AppSettings::NextLineHelp`
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("nlh")
+    ///     .arg(Arg::with_name("opt")
+    ///         .long("long-option-flag")
+    ///         .short("o")
+    ///         .takes_value(true)
+    ///         .value_names(&["value1", "value2"])
+    ///         .help("Some really long help and complex{n}\
+    ///                help that makes more sense to be{n}\
+    ///                on a line after the option")
+    ///         .next_line_help(true))
+    ///     .get_matches_from(vec![
+    ///         "nlh", "--help"
+    ///     ]);
+    /// ```
+    ///
+    /// The above example displays the following help message
+    ///
+    /// ```ignore
+    /// nlh
+    ///
+    /// USAGE:
+    ///     nlh [FLAGS] [OPTIONS]
+    ///
+    /// FLAGS:
+    ///     -h, --help       Prints help information
+    ///     -V, --version    Prints version information
+    ///
+    /// OPTIONS:
+    ///     -o, --long-option-flag <value1> <value2>
+    ///         Some really long help and complex
+    ///         help that makes more sense to be
+    ///         on a line after the option
+    /// ```
+    pub fn next_line_help(mut self, nlh: bool) -> Self {
+        if nlh {
+            self.setb(ArgSettings::NextLineHelp);
+        } else {
+            self.unsetb(ArgSettings::NextLineHelp);
+        }
+        self
+    }
+
     /// Checks if one of the `ArgSettings` settings is set for the argument
     pub fn is_set(&self, s: ArgSettings) -> bool {
         self.settings.is_set(s)
