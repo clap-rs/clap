@@ -112,5 +112,5 @@ OPTIONS:
     -o, --opt <opt>    some option [values: one, two]
 
 ARGS:
-    arg1    some pos arg [values: three, four]\n"));
+    <arg1>    some pos arg [values: three, four]\n"));
 }

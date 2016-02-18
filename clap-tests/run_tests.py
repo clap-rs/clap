@@ -31,9 +31,9 @@ OPTIONS:
     -o, --option <opt>...            tests options
 
 ARGS:
-    positional        tests positionals
-    positional2       tests positionals with exclusions
-    positional3...    tests positionals with specific values [values: vi, emacs]
+    <positional>        tests positionals
+    <positional2>       tests positionals with exclusions
+    <positional3>...    tests positionals with specific values [values: vi, emacs]
 
 SUBCOMMANDS:
     help      Prints this message
@@ -152,7 +152,7 @@ OPTIONS:
     -o, --option <scoption>...    tests options
 
 ARGS:
-    scpositional    tests positionals'''
+    <scpositional>    tests positionals'''
 
 _scfop = '''flag NOT present
 option NOT present
