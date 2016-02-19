@@ -62,6 +62,9 @@ impl AppFlags {
 }
 
 /// Application level settings, which affect how `App` operates
+///
+/// **NOTE:** When these settings are used, they apply only to current command, and are *not*
+/// propagated down or up through child or parent subcommands
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum AppSettings {
     /// Allows subcommands to override all requirements of the parent command. For example
@@ -376,7 +379,8 @@ pub enum AppSettings {
     /// assert_eq!(m.value_of_os("arg").unwrap().as_bytes(), &[0xe9]);
     /// ```
     AllowInvalidUtf8,
-    /// Specifies that leading hyphens are allowed in argument values, such as `-10`
+    /// Specifies that leading hyphens are allowed in argument *values*, such as negative numbers
+    /// `-10`
     ///
     /// **NOTE:** This can only be set application wide and not on a per argument basis.
     ///
