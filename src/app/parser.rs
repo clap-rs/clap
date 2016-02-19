@@ -1358,7 +1358,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
 
     fn write_version<W: Write>(&self, w: &mut W) -> io::Result<()> {
         if let Some(bn) = self.meta.bin_name.as_ref() {
-            if bn.contains(" ") {
+            if bn.contains(' ') {
                 // Incase we're dealing with subcommands i.e. git mv is translated to git-mv
                 writeln!(w, "{} {}", bn.replace(" ", "-"), self.meta.version.unwrap_or("".into()))
             } else {
