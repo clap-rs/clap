@@ -1,3 +1,17 @@
+<a name="v2.1.1"></a>
+### v2.1.1 (2016-02-19)
+
+
+#### Documentation
+
+* **AppSettings:**  clarifies that AppSettings do not propagate ([3c8db0e9](https://github.com/kbknapp/clap-rs/commit/3c8db0e9be1d24edaad364359513cbb02abb4186), closes [#429](https://github.com/kbknapp/clap-rs/issues/429))
+* **Arg Examples:**  adds better examples ([1e79cccc](https://github.com/kbknapp/clap-rs/commit/1e79cccc12937bc0e7cd2aad8e404410798e9fff))
+
+#### Improvements
+
+* **Help:**  adds setting for next line help by arg ([066df748](https://github.com/kbknapp/clap-rs/commit/066df7486e684cf50a8479a356a12ba972c34ce1), closes [#427](https://github.com/kbknapp/clap-rs/issues/427))
+
+
 <a name="v2.1.0"></a>
 ## v2.1.0 (2016-02-10)
 

@@ -3,13 +3,14 @@ use std::ascii::AsciiExt;
 
 bitflags! {
     flags Flags: u8 {
-        const REQUIRED   = 0b0000001,
-        const MULTIPLE   = 0b0000010,
-        const EMPTY_VALS = 0b0000100,
-        const GLOBAL     = 0b0001000,
-        const HIDDEN     = 0b0010000,
-        const TAKES_VAL  = 0b0100000,
-        const USE_DELIM  = 0b1000000,
+        const REQUIRED   = 0b00000001,
+        const MULTIPLE   = 0b00000010,
+        const EMPTY_VALS = 0b00000100,
+        const GLOBAL     = 0b00001000,
+        const HIDDEN     = 0b00010000,
+        const TAKES_VAL  = 0b00100000,
+        const USE_DELIM  = 0b01000000,
+        const NEXT_LINE_HELP = 0b10000000,
     }
 }
 
@@ -29,7 +30,8 @@ impl ArgFlags {
         Global => GLOBAL,
         Hidden => HIDDEN,
         TakesValue => TAKES_VAL,
-        UseValueDelimiter => USE_DELIM
+        UseValueDelimiter => USE_DELIM,
+        NextLineHelp => NEXT_LINE_HELP
     }
 }
 
@@ -42,6 +44,7 @@ impl Default for ArgFlags {
 /// Various settings that apply to arguments and may be set, unset, and checked via getter/setter
 /// methods `Arg::set`, `Arg::unset`, and `Arg::is_set`
 #[derive(Debug, PartialEq, Copy, Clone)]
+#[doc(hidden)]
 pub enum ArgSettings {
     /// The argument must be used
     Required,
@@ -57,6 +60,8 @@ pub enum ArgSettings {
     TakesValue,
     /// Determines if the argument allows values to be grouped via a delimter
     UseValueDelimiter,
+    /// Prints the help text on the line after the argument
+    NextLineHelp,
 }
 
 impl FromStr for ArgSettings {
@@ -70,6 +75,7 @@ impl FromStr for ArgSettings {
             "hidden" => Ok(ArgSettings::Hidden),
             "takesvalue" => Ok(ArgSettings::TakesValue),
             "usevaluedelimiter" => Ok(ArgSettings::UseValueDelimiter),
+            "nextlinehelp" => Ok(ArgSettings::NextLineHelp),
             _ => Err("unknown ArgSetting, cannot convert from str".to_owned()),
         }
     }

@@ -102,33 +102,8 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
         pb
     }
 
-    pub fn write_help<W: io::Write>(&self, w: &mut W, tab: &str, longest: usize, skip_pv: bool) -> io::Result<()> {
-        try!(write!(w, "{}", tab));
-        try!(write!(w, "{}", self.name));
-        if self.settings.is_set(ArgSettings::Multiple) {
-            try!(write!(w, "..."));
-        }
-        write_spaces!((longest + 4) - (self.to_string().len()), w);
-        if let Some(h) = self.help {
-            if h.contains("{n}") {
-                let mut hel = h.split("{n}");
-                while let Some(part) = hel.next() {
-                    try!(write!(w, "{}\n", part));
-                    write_spaces!(longest + 6, w);
-                    try!(write!(w, "{}", hel.next().unwrap_or("")));
-                }
-            } else {
-                try!(write!(w, "{}", h));
-            }
-            if let Some(ref pv) = self.default_val {
-                try!(write!(w, " [default: {}]", pv));
-            }
-            if !skip_pv {
-                if let Some(ref pv) = self.possible_vals {
-                    try!(write!(w, " [values: {}]", pv.join(", ")));
-                }
-            }
-        }
+    pub fn write_help<W: io::Write>(&self, w: &mut W, tab: &str, longest: usize, skip_pv: bool, nlh: bool) -> io::Result<()> {
+        write_arg_help!(@pos self, w, tab, longest, skip_pv, nlh);
         write!(w, "\n")
     }
 }

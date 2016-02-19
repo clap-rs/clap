@@ -3,26 +3,27 @@ use std::ascii::AsciiExt;
 
 bitflags! {
     flags Flags: u32 {
-        const SC_NEGATE_REQS       = 0b00000000000000000001,
-        const SC_REQUIRED          = 0b00000000000000000010,
-        const A_REQUIRED_ELSE_HELP = 0b00000000000000000100,
-        const GLOBAL_VERSION       = 0b00000000000000001000,
-        const VERSIONLESS_SC       = 0b00000000000000010000,
-        const UNIFIED_HELP         = 0b00000000000000100000,
-        const WAIT_ON_ERROR        = 0b00000000000001000000,
-        const SC_REQUIRED_ELSE_HELP= 0b00000000000010000000,
-        const NEEDS_LONG_HELP      = 0b00000000000100000000,
-        const NEEDS_LONG_VERSION   = 0b00000000001000000000,
-        const NEEDS_SC_HELP        = 0b00000000010000000000,
-        const DISABLE_VERSION      = 0b00000000100000000000,
-        const HIDDEN               = 0b00000001000000000000,
-        const TRAILING_VARARG      = 0b00000010000000000000,
-        const NO_BIN_NAME          = 0b00000100000000000000,
-        const ALLOW_UNK_SC         = 0b00001000000000000000,
-        const UTF8_STRICT          = 0b00010000000000000000,
-        const UTF8_NONE            = 0b00100000000000000000,
-        const LEADING_HYPHEN       = 0b01000000000000000000,
-        const NO_POS_VALUES        = 0b10000000000000000000,
+        const SC_NEGATE_REQS       = 0b000000000000000000001,
+        const SC_REQUIRED          = 0b000000000000000000010,
+        const A_REQUIRED_ELSE_HELP = 0b000000000000000000100,
+        const GLOBAL_VERSION       = 0b000000000000000001000,
+        const VERSIONLESS_SC       = 0b000000000000000010000,
+        const UNIFIED_HELP         = 0b000000000000000100000,
+        const WAIT_ON_ERROR        = 0b000000000000001000000,
+        const SC_REQUIRED_ELSE_HELP= 0b000000000000010000000,
+        const NEEDS_LONG_HELP      = 0b000000000000100000000,
+        const NEEDS_LONG_VERSION   = 0b000000000001000000000,
+        const NEEDS_SC_HELP        = 0b000000000010000000000,
+        const DISABLE_VERSION      = 0b000000000100000000000,
+        const HIDDEN               = 0b000000001000000000000,
+        const TRAILING_VARARG      = 0b000000010000000000000,
+        const NO_BIN_NAME          = 0b000000100000000000000,
+        const ALLOW_UNK_SC         = 0b000001000000000000000,
+        const UTF8_STRICT          = 0b000010000000000000000,
+        const UTF8_NONE            = 0b000100000000000000000,
+        const LEADING_HYPHEN       = 0b001000000000000000000,
+        const NO_POS_VALUES        = 0b010000000000000000000,
+        const NEXT_LINE_HELP       = 0b100000000000000000000,
     }
 }
 
@@ -55,11 +56,15 @@ impl AppFlags {
         StrictUtf8 => UTF8_STRICT,
         AllowInvalidUtf8 => UTF8_NONE,
         AllowLeadingHyphen => LEADING_HYPHEN,
-        HidePossibleValuesInHelp => NO_POS_VALUES
+        HidePossibleValuesInHelp => NO_POS_VALUES,
+        NextLineHelp => NEXT_LINE_HELP
     }
 }
 
 /// Application level settings, which affect how `App` operates
+///
+/// **NOTE:** When these settings are used, they apply only to current command, and are *not*
+/// propagated down or up through child or parent subcommands
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum AppSettings {
     /// Allows subcommands to override all requirements of the parent command. For example
@@ -374,7 +379,8 @@ pub enum AppSettings {
     /// assert_eq!(m.value_of_os("arg").unwrap().as_bytes(), &[0xe9]);
     /// ```
     AllowInvalidUtf8,
-    /// Specifies that leading hyphens are allowed in argument values, such as `-10`
+    /// Specifies that leading hyphens are allowed in argument *values*, such as negative numbers
+    /// `-10`
     ///
     /// **NOTE:** This can only be set application wide and not on a per argument basis.
     ///
@@ -398,9 +404,22 @@ pub enum AppSettings {
     /// # ;
     /// ```
     AllowLeadingHyphen,
-    /// Tells `clap` *not* to print possible values when displaying help information. This can be 
+    /// Tells `clap` *not* to print possible values when displaying help information. This can be
     /// useful if there are many values, or they are explained elsewhere.
     HidePossibleValuesInHelp,
+    /// Places the help string for all arguments on the line after the argument
+    ///
+    /// **NOTE:** This setting is cosmetic only and does not affect any functionality.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, SubCommand, AppSettings};
+    /// App::new("myprog")
+    ///     .setting(AppSettings::NextLineHelp)
+    ///     .get_matches();
+    /// ```
+    NextLineHelp,
     #[doc(hidden)]
     NeedsLongVersion,
     #[doc(hidden)]
@@ -431,6 +450,7 @@ impl FromStr for AppSettings {
             "allowinvalidutf8" => Ok(AppSettings::AllowInvalidUtf8),
             "allowleadinghyphen" => Ok(AppSettings::AllowLeadingHyphen),
             "hidepossiblevaluesinhelp" => Ok(AppSettings::HidePossibleValuesInHelp),
+            "nextlinehelp" => Ok(AppSettings::NextLineHelp),
             _ => Err("unknown AppSetting, cannot convert from str".to_owned()),
         }
     }

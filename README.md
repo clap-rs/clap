@@ -38,72 +38,16 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-v**2.0** has been released! This means fixing some pain points, new features, better documentation, improved ergonomics, and also some minor breaking changes if you're used to v1.x
+In v2.1.1
 
 #### New Features
 
-Here are some key points about the 2.x release
+ * **Default Values**: Args can now specify default values
+ * **Next Line Help**: Args can have help strings on the line following the argument (useful for long arguments, or those with many values). This can be set command-wide or for individual args
 
- * Support for arguments with invalid UTF-8 values!: Helps with POSIX and Unix like OSs
- * Even better performance boost!
- * Far better documentation
- * Support for delimited values
- * Support for custom delimiter in values
- * Support for external subcommands
- * Support for options that act as flags (i.e., ones which optionally have no value)
- * Support for negative numbers as arguments (i.e., `-10`, etc.)
- * Better Errors and error handling
- * Improved "from usage" strings
- * Better support for generics, instead of being locked in to `Vec` at key points
- * Improved macros
- * Better regression testing
- * Vastly improved ergonomics
- * Numerous bug fixes
+#### Improvements
 
-![clap Performance Graph](https://github.com/kbknapp/clap-rs/blob/master/clap-perf/clap_perf.png)
-
-#### Breaking Changes
-
-Below is a list of breaking changes between 1.x and 2.x and how you can change your code to update.
-
-* **Fewer lifetimes! Yay!**
- * `App<'a, 'b, 'c, 'd, 'e, 'f>` => `App<'a, 'b>`
- * `Arg<'a, 'b, 'c, 'd, 'e, 'f>` => `Arg<'a, 'b>`
- * `ArgMatches<'a, 'b>` => `ArgMatches<'a>`
-* **Simply Renamed**
- * `App::arg_group` => `App::group`
- * `App::arg_groups` => `App::groups`
- * `ArgGroup::add` => `ArgGroup::arg`
- * `ArgGroup::add_all` => `ArgGroup::args`
- * `ClapError` => `Error`
- * `ClapResult` => `Result`
- * `ClapErrorType` => `ErrorKind`
-  * struct field `ClapError::error_type` => `Error::kind`
-* **Removed Deprecated Functions and Methods**
- * `App::subcommands_negate_reqs`
- * `App::subcommand_required`
- * `App::arg_required_else_help`
- * `App::global_version(bool)`
- * `App::versionless_subcommands`
- * `App::unified_help_messages`
- * `App::wait_on_error`
- * `App::subcommand_required_else_help`
- * `SubCommand::new`
- * `App::error_on_no_subcommand`
- * `Arg::new`
- * `Arg::mutually_excludes`
- * `Arg::mutually_excludes_all`
- * `Arg::mutually_overrides_with`
- * `simple_enum!`
-* **Renamed Errors Variants**
-  * `InvalidUnicode` => `InvalidUtf8`
-  * `InvalidArgument` => `UnknownArgument`
-* **Usage Parser**
- * Value names can now be specified inline: `-o, --option <FILE> <FILE2> 'some option which takes two files'`
- * **There is now a priority of order to determine the name** - This is perhaps the biggest breaking change. See the documentation for full details. Prior to this change, the value name took precedence. **Ensure your args are using the proper names (i.e. typically the long or short and NOT the value name) throughout the code**
-* `ArgMatches::values_of` returns an `Values` now which implements `Iterator` (should not break any code)
-* `crate_version!` returns `&'static str` instead of `String`
-* Using the `clap_app!` macro requires compiling with the `unstable` feature because the syntax could change slightly in the future
+ * **Documenation Examples**: The examples in the documentation have been vastly improved
 
 For full details, see [CHANGELOG.md](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md)
 
@@ -609,6 +553,6 @@ As of 2.0.0 (From 1.x)
 
 Old method names will be left around for several minor version bumps, or one major version bump.
 
-As of 2.0.0:
+As of 2.1.1:
 
  * None!

@@ -347,11 +347,28 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// # Examples
     ///
+    /// To set `short` use a single valid UTF-8 codepoint. If you supply a leading `-` such as `-c`
+    /// it will be stripped.
+    ///
     /// ```rust
     /// # use clap::{App, Arg};
     /// Arg::with_name("config")
     ///     .short("c")
     /// # ;
+    /// ```
+    ///
+    /// Setting `short` allows using the argument via a single hyphen (`-`) such as `-c`
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("shorttest")
+    ///     .arg(Arg::with_name("config")
+    ///         .short("c"))
+    ///     .get_matches_from(vec![
+    ///         "shorttest", "-c"
+    ///     ]);
+    ///
+    /// assert!(m.is_present("config"));
     /// ```
     pub fn short<S: AsRef<str>>(mut self, s: S) -> Self {
         self.short = s.as_ref().trim_left_matches(|c| c == '-').chars().nth(0);
@@ -369,11 +386,29 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// # Examples
     ///
+    /// To set `long` use a word containing valid UTF-8 codepoints. If you supply a dobule leading
+    /// `--` such as `--config` they will be stripped. Hyphens in the middle of the word, however,
+    /// will *not* be stripped (i.e. `config-file` is allowed)
+    ///
     /// ```rust
     /// # use clap::{App, Arg};
     /// Arg::with_name("cfg")
     ///     .long("config")
     /// # ;
+    /// ```
+    ///
+    /// Setting `long` allows using the argument via a double hyphen (`--`) such as `--config`
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("longtest")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .long("config"))
+    ///     .get_matches_from(vec![
+    ///         "shorttest", "--config"
+    ///     ]);
+    ///
+    /// assert!(m.is_present("cfg"));
     /// ```
     pub fn long(mut self, l: &'b str) -> Self {
         self.long = Some(l.trim_left_matches(|c| c == '-'));
@@ -385,11 +420,45 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// # Examples
     ///
+    /// Any valid `String` slice is allowed as help (i.e. only valid UTF-8). The one exception is
+    /// one wishes to include a newline in the help text. To include a newline **and** be properly
+    /// aligned with all other arguments help text, it must be specified via `{n}` instead of `\n`.
+    ///
     /// ```rust
     /// # use clap::{App, Arg};
     /// Arg::with_name("config")
     ///     .help("The config file used by the myprog")
     /// # ;
+    /// ```
+    ///
+    /// Setting `help` displays a short message to the side of the argument when the user passes
+    /// `-h` or `--help` (by default).
+    ///
+    /// ```ignore
+    /// # use clap::{App, Arg};
+    /// let m = App::new("helptest")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .long("config")
+    ///         .help("Some help text describing the --config arg"))
+    ///     .get_matches_from(vec![
+    ///         "shorttest", "--help"
+    ///     ]);
+    ///
+    /// // ...
+    /// ```
+    ///
+    /// The above example displays
+    ///
+    /// ```notrust
+    /// helptest
+    ///
+    /// USAGE:
+	///    helptest [FLAGS]
+    ///
+    /// FLAGS:
+    ///     --config     Some help text describing the --config arg
+    /// -h, --help       Prints help information
+    /// -V, --version    Prints version information
     /// ```
     pub fn help(mut self, h: &'b str) -> Self {
         self.help = Some(h);
@@ -398,17 +467,50 @@ impl<'a, 'b> Arg<'a, 'b> {
 
     /// Sets whether or not the argument is required by default. Required by default means it is
     /// required, when no other conflicting rules have been evaluated. Conflicting rules take
-    /// precedence over being required.
+    /// precedence over being required. **Default:** `false`
     ///
     /// **NOTE:** Flags (i.e. not positional, or arguments that take values) cannot be required.
     ///
-    /// #Example
+    /// # Examples
     ///
     /// ```rust
     /// # use clap::Arg;
     /// Arg::with_name("config")
     ///     .required(true)
     /// # ;
+    /// ```
+    ///
+    /// Setting `required(true)` requires that the argument be used at runtime.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let res = App::new("longtest")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .required(true)
+    ///         .takes_value(true)
+    ///         .long("config"))
+    ///     .get_matches_from_safe(vec![
+    ///         "shorttest", "--config", "file.conf"
+    ///     ]);
+    ///
+    /// assert!(res.is_ok());
+    /// ```
+    ///
+    /// Setting `required(true)` and *not* supplying that argument is an error.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("longtest")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .required(true)
+    ///         .takes_value(true)
+    ///         .long("config"))
+    ///     .get_matches_from_safe(vec![
+    ///         "shorttest"
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
     pub fn required(self, r: bool) -> Self {
         if r { self.set(ArgSettings::Required) } else { self.unset(ArgSettings::Required) }
@@ -420,15 +522,36 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// **NOTE:** Conflicting rules take precedence over being required by default. Conflict rules
     /// only need to be set for one of the two arguments, they do not need to be set for each.
     ///
+    /// **NOTE:** Defining a conflict is two-way, but does *not* need to defined for both arguments
+    /// (i.e. if A conflicts with B, defining A.conflicts_with(B) is sufficient. You do not need
+    /// need to also do B.conflicts_with(A))
+    ///
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg};
-    /// Arg::with_name("debug");
-    /// // ...
+    /// # use clap::Arg;
     /// Arg::with_name("config")
     ///     .conflicts_with("debug")
     /// # ;
+    /// ```
+    ///
+    /// Setting conflicting argument, and having both arguments present at runtime is an error.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("conflictions")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .takes_value(true)
+    ///         .conflicts_with("debug")
+    ///         .long("config"))
+    ///     .arg(Arg::with_name("debug")
+    ///         .long("debug"))
+    ///     .get_matches_from_safe(vec![
+    ///         "conflictions", "--debug", "--config", "file.conf"
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```
     pub fn conflicts_with(mut self, name: &'a str) -> Self {
         if let Some(ref mut vec) = self.blacklist {
@@ -439,22 +562,45 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Sets multiple conflicting arguments by names. I.e. when using this argument,
-    /// the following arguments can't be present.
+    /// The same as `Arg::conflicts_with` but allows specifying multiple two-way conlicts per
+    /// argument.
     ///
     /// **NOTE:** Conflicting rules take precedence over being required by default. Conflict rules
     /// only need to be set for one of the two arguments, they do not need to be set for each.
     ///
+    /// **NOTE:** Defining a conflict is two-way, but does *not* need to defined for both arguments
+    /// (i.e. if A conflicts with B, defining A.conflicts_with(B) is sufficient. You do not need
+    /// need to also do B.conflicts_with(A))
+    ///
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg};
-    /// Arg::with_name("debug");
-    /// Arg::with_name("input");
-    /// // ...
+    /// # use clap::Arg;
     /// Arg::with_name("config")
     ///     .conflicts_with_all(&["debug", "input"])
     /// # ;
+    /// ```
+    ///
+    /// Setting conflicting argument, and having any of the arguments present at runtime with a
+    /// conflicting argument is an error.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("conflictions")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .takes_value(true)
+    ///         .conflicts_with_all(&["debug", "input"])
+    ///         .long("config"))
+    ///     .arg(Arg::with_name("debug")
+    ///         .long("debug"))
+    ///     .arg(Arg::with_name("input")
+    ///         .index(1))
+    ///     .get_matches_from_safe(vec![
+    ///         "conflictions", "--config", "file.conf", "file.txt"
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```
     pub fn conflicts_with_all(mut self, names: &[&'a str]) -> Self {
         if let Some(ref mut vec) = self.blacklist {
@@ -478,18 +624,18 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let res = App::new("posix")
+    /// let m = App::new("posix")
     ///     .arg(Arg::from_usage("-f, --flag 'some flag'")
     ///         .conflicts_with("debug"))
     ///     .arg(Arg::from_usage("-d, --debug 'other flag'"))
     ///     .arg(Arg::from_usage("-c, --color 'third flag'")
     ///         .overrides_with("flag"))
-    ///     .get_matches_from_safe(vec!["", "-f", "-d", "-c"]);
-    ///                                 //    ^~~~~~~~~~~~^~~~~ flag is overriden by --color
-    /// assert!(res.is_ok());
-    /// let m = res.unwrap();
+    ///     .get_matches_from(vec!["posix", "-f", "-d", "-c"]);
+    ///                                 //    ^~~~~~~~~~~~^~~~~ flag is overriden by color
+    ///
     /// assert!(m.is_present("color"));
-    /// assert!(m.is_present("debug"));
+    /// assert!(m.is_present("debug")); // even though flag conflicts with debug, it's as if flag
+    ///                                 // was never used because it was overriden with color
     /// assert!(!m.is_present("flag"));
     /// ```
     pub fn overrides_with(mut self, name: &'a str) -> Self {
@@ -501,9 +647,9 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Sets a mutually overridable argument by name. I.e. this argument and the following argument
-    /// will override each other in POSIX style (whichever argument was specified at runtime
-    /// **last** "wins")
+    /// Sets multiple mutually overridable arguments by name. I.e. this argument and the following
+    /// argument will override each other in POSIX style (whichever argument was specified at
+    /// runtime **last** "wins")
     ///
     /// **NOTE:** When an argument is overriden it is essentially as if it never was used, any
     /// conflicts, requirements, etc. are evaluated **after** all "overrides" have been removed
@@ -512,17 +658,18 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let res = App::new("posix")
+    /// let m = App::new("posix")
     ///     .arg(Arg::from_usage("-f, --flag 'some flag'")
-    ///         .conflicts_with("debug"))
+    ///         .conflicts_with("color"))
     ///     .arg(Arg::from_usage("-d, --debug 'other flag'"))
     ///     .arg(Arg::from_usage("-c, --color 'third flag'")
     ///         .overrides_with_all(&["flag", "debug"]))
-    ///     .get_matches_from_safe(vec!["posix", "-f", "-d", "-c"]);
-    ///                                 //        ^~~~~~^~~~~~^~~~~ flag and debug are overriden by --color
-    /// assert!(res.is_ok());
-    /// let m = res.unwrap();
-    /// assert!(m.is_present("color"));
+    ///     .get_matches_from(vec!["posix", "-f", "-d", "-c"]);
+    ///                                 //    ^~~~~~^~~~~~~~~ flag and debug are overriden by color
+    ///
+    /// assert!(m.is_present("color")); // even though flag conflicts with color, it's as if flag
+    ///                                 // and debug were never used because they were overriden
+    ///                                 // with color
     /// assert!(!m.is_present("debug"));
     /// assert!(!m.is_present("flag"));
     /// ```
@@ -545,19 +692,48 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ArgGroup};
-    /// let m = App::new("group_required")
-    ///     .arg(Arg::from_usage("-f, --flag 'some flag'"))
-    ///     .group(ArgGroup::with_name("gr")
-    ///         .required(true)
-    ///         .arg("some")
-    ///         .arg("other"))
-    ///     .arg(Arg::from_usage("--some 'some arg'"))
-    ///     .arg(Arg::from_usage("--other 'other arg'"))
-    ///     .get_matches_from(vec!["", "-f", "--some"]);
-    /// assert!(m.is_present("some"));
-    /// assert!(!m.is_present("other"));
-    /// assert!(m.is_present("flag"));
+    /// # use clap::Arg;
+    /// Arg::with_name("config")
+    ///     .requires("input")
+    /// # ;
+    /// ```
+    ///
+    /// Setting `requires("arg")` requires that the argument be used at runtime if the defining
+    /// argument is used. If the defining argument isn't used, the other arguemnt isn't required
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let res = App::new("reqtest")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .takes_value(true)
+    ///         .requires("input")
+    ///         .long("config"))
+    ///     .arg(Arg::with_name("input")
+    ///         .index(1))
+    ///     .get_matches_from_safe(vec![
+    ///         "reqtest"
+    ///     ]);
+    ///
+    /// assert!(res.is_ok()); // We didn't use cfg, so input wasn't required
+    /// ```
+    ///
+    /// Setting `requires("arg")` and *not* supplying that argument is an error.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("reqtest")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .takes_value(true)
+    ///         .requires("input")
+    ///         .long("config"))
+    ///     .arg(Arg::with_name("input")
+    ///         .index(1))
+    ///     .get_matches_from_safe(vec![
+    ///         "reqtest", "--config", "file.conf"
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
     pub fn requires(mut self, name: &'a str) -> Self {
         if let Some(ref mut vec) = self.requires {
@@ -568,7 +744,7 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Sets arguments by names that are required when this one is present I.e. when
+    /// Sets multiple arguments by names that are required when this one is present I.e. when
     /// using this argument, the following arguments *must* be present.
     ///
     /// **NOTE:** Mutually exclusive and override rules take precedence over being required
@@ -577,17 +753,54 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap::Arg;
+    /// Arg::with_name("config")
+    ///     .requires_all(&["input", "output"])
+    /// # ;
+    /// ```
+    ///
+    /// Setting `requires_all(&["arg", "arg2"])` requires that all the arguments be used at runtime
+    /// if the defining argument is used. If the defining argument isn't used, the other arguemnt
+    /// isn't required
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let res = App::new("reqtest")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .takes_value(true)
+    ///         .requires("input")
+    ///         .long("config"))
+    ///     .arg(Arg::with_name("input")
+    ///         .index(1))
+    ///     .arg(Arg::with_name("output")
+    ///         .index(2))
+    ///     .get_matches_from_safe(vec![
+    ///         "reqtest"
+    ///     ]);
+    ///
+    /// assert!(res.is_ok()); // We didn't use cfg, so input and output weren't required
+    /// ```
+    ///
+    /// Setting `requires_all(&["arg", "arg2"])` and *not* supplying all the arguments is an error.
+    ///
+    /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let result = App::new("flag_required")
-    ///     .arg(Arg::from_usage("-d 'debugging mode'"))
-    ///     .arg(Arg::from_usage("-f, --flag 'some flag'")
-    ///         .requires_all(&["color", "d"]))
-    ///     .arg(Arg::from_usage("-c, --color 'third flag'"))
-    ///     .get_matches_from_safe(vec!["flag_required", "-f"]);
-    /// assert!(result.is_err());
-    /// let err = result.err().unwrap();
-    /// assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
-    /// #
+    /// let res = App::new("reqtest")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .takes_value(true)
+    ///         .requires_all(&["input", "output"])
+    ///         .long("config"))
+    ///     .arg(Arg::with_name("input")
+    ///         .index(1))
+    ///     .arg(Arg::with_name("output")
+    ///         .index(2))
+    ///     .get_matches_from_safe(vec![
+    ///         "reqtest", "--config", "file.conf", "in.txt"
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// // We didn't use output
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
     pub fn requires_all(mut self, names: &[&'a str]) -> Self {
         if let Some(ref mut vec) = self.requires {
@@ -600,7 +813,18 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Specifies that the argument takes an additional value at run time.
+    /// Specifies that the argument takes a value at run time.
+    ///
+    /// **NOTE:** values for arguments may be specified in any of the following methods
+    ///
+    /// * Using a space such as `-o value` or `--option value`
+    /// * Using an equals and no space such as `-o=value` or `--option=value`
+    /// * Use a short and no space such as `-ovalue`
+    ///
+    /// **NOTE:** By default, values are delimted by commas, meaning `--option=val1,val2,val3` is
+    /// is three values for the `--option` argument. If you wish to change the delimiter to another
+    /// character you can use `Arg::value_delimiter(char)`, alternatively you can delimiting values
+    /// **OFF** by using `Arg::use_delimiter(false)`
     ///
     /// # Examples
     ///
@@ -610,36 +834,89 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .takes_value(true)
     /// # ;
     /// ```
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("posvals")
+    ///     .arg(Arg::with_name("mode")
+    ///         .long("mode")
+    ///         .takes_value(true))
+    ///     .get_matches_from(vec!["posvals", "--mode", "fast"]);
+    ///
+    /// assert!(m.is_present("mode"));
+    /// assert_eq!(m.value_of("mode"), Some("fast"));
+    /// ```
     pub fn takes_value(self, tv: bool) -> Self {
         if tv { self.set(ArgSettings::TakesValue) } else { self.unset(ArgSettings::TakesValue) }
     }
 
     /// Specifies the index of a positional argument **starting at** 1.
     ///
+    /// **NOTE:** The index refers to position according to **other positional argument**. It does
+    /// not define position in the argument list as a whole.
+    ///
+    /// **NOTE:** If no `short`, or `long` have been defined, you can optionally leave off the
+    /// `index` method, and the index will be assigned in order of evaluation. Utilizing the
+    /// `index` method allows for setting indexes out of order
+    ///
+    /// **NOTE:** When utilized with `multiple(true)`, only the **last** psoitional argument may
+    /// be defined as multiple (i.e. with the highest index)
+    ///
+    /// # Panics
+    ///
+    /// Although not in this method directly, `App` will `panic!` if indexes are skipped (such as
+    /// defining `index(1)` and `index(3)` but not `index(2)`, or a positional argument is defined
+    /// as multiple and is not the highest index
+    ///
     /// # Examples
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// Arg::with_name("file")
-    /// .index(1)
+    /// Arg::with_name("config")
+    ///     .index(1)
     /// # ;
+    /// ```
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("posvals")
+    ///     .arg(Arg::with_name("mode")
+    ///         .index(1))
+    ///     .arg(Arg::with_name("debug")
+    ///         .long("debug"))
+    ///     .get_matches_from(vec!["posvals", "--debug", "fast"]);
+    ///
+    /// assert!(m.is_present("mode"));
+    /// assert_eq!(m.value_of("mode"), Some("fast")); // notice index(1) means "first positional"
+    ///                                               // *not* first argument
     /// ```
     pub fn index(mut self, idx: u64) -> Self {
         self.index = Some(idx);
         self
     }
 
-    /// Specifies that the flag or option may appear more than once. For flags, this results
-    /// in the number of occurrences of the flag being recorded. For example `-ddd` would count as
-    /// three occurrences. The form `-d -d -d` would also be recognized as three occurrences. For
-    /// options there is a distinct difference in multiple occurrences vs multiple values.
+    /// Specifies that the argument may appear more than once. For flags, this results
+    /// in the number of occurrences of the flag being recorded. For example `-ddd` or `-d -d -d`
+    /// would count as three occurrences. For options there is a distinct difference in multiple
+    /// occurrences vs multiple values.
     ///
-    /// For example, `--opt val1 val2` is one occurrence, but multiple values. `--opt val1 --opt
-    /// val2` is multiple occurrences. This setting applies to occurrences and **not** values.
+    /// For example, `--opt val1 val2` is one occurrence, but two values. Whereas
+    /// `--opt val1 --opt val2` is two occurrences.
     ///
-    /// To specify that an option may receive multiple values, use `Arg::min_values`,
-    /// `Arg::max_values`, or `Arg::number_of_values` depending on your use case. Note also, that
-    /// `Arg::value_names` implicitly sets multiple values, but not multiple occurrences.
+    /// **WARNING:**
+    ///
+    /// Setting `multipe(true)` for an option allows multiple values **and** multiple occurrences
+    /// because it isn't possible to more occurrences than values for options. Because multiple
+    /// values are allowed, `--option val1 val2 val3` is perfectly valid, be careful when designing
+    /// a CLI where positional arguments are expectd after a option which accepts multiple values,
+    /// as `clap` will continue parsing *values* until it reaches the max or specific number of values defined, or another flag
+    /// or option.
+    ///
+    /// **Pro Tip**:
+    ///
+    /// It's possible to define an option which allows multiple occurrences, but only one value per
+    /// occurrence. To do this use `Arg::number_of_values(1)` in coordination with
+    /// `Arg::multiple(true)`.
     ///
     /// # Examples
     ///
@@ -649,6 +926,116 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .short("d")
     ///     .multiple(true)
     /// # ;
+    /// ```
+    /// An example with flags
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("mults")
+    ///     .arg(Arg::with_name("verbose")
+    ///         .multiple(true)
+    ///         .short("v"))
+    ///     .get_matches_from(vec!["mults", "-v", "-v", "-v"]); // note, -vvv would have same result
+    ///
+    /// assert!(m.is_present("verbose"));
+    /// assert_eq!(m.occurrences_of("verbose"), 3);
+    /// ```
+    ///
+    /// An example with options
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("mults")
+    ///     .arg(Arg::with_name("file")
+    ///         .multiple(true)
+    ///         .takes_value(true)
+    ///         .short("F"))
+    ///     .get_matches_from(vec!["mults", "-F", "file1", "file2", "file3"]);
+    ///
+    /// assert!(m.is_present("file"));
+    /// assert_eq!(m.occurrences_of("file"), 1); // notice only one occurrence
+    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
+    /// assert_eq!(files, ["file1", "file2", "file3"]);
+    /// ```
+    /// This is functionally equivilant to the example above
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("mults")
+    ///     .arg(Arg::with_name("file")
+    ///         .multiple(true)
+    ///         .takes_value(true)
+    ///         .short("F"))
+    ///     .get_matches_from(vec!["mults", "-F", "file1", "-F", "file2", "-F", "file3"]);
+    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
+    /// assert_eq!(files, ["file1", "file2", "file3"]);
+    ///
+    /// assert!(m.is_present("file"));
+    /// assert_eq!(m.occurrences_of("file"), 3); // Notice 3 occurrences
+    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
+    /// assert_eq!(files, ["file1", "file2", "file3"]);
+    /// ```
+    ///
+    /// A common mistake is to define an option which allows multiples, and a positional argument
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("mults")
+    ///     .arg(Arg::with_name("file")
+    ///         .multiple(true)
+    ///         .takes_value(true)
+    ///         .short("F"))
+    ///     .arg(Arg::with_name("word")
+    ///         .index(1))
+    ///     .get_matches_from(vec!["mults", "-F", "file1", "file2", "file3", "word"]);
+    ///
+    /// assert!(m.is_present("file"));
+    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
+    /// assert_eq!(files, ["file1", "file2", "file3", "word"]); // wait...what?!
+    /// assert!(!m.is_present("word")); // but we clearly used word!
+    /// ```
+    /// The problem is clap doesn't know when to stop parsing values for "files". This is further
+    /// compounded by if we'd said `word -F file1 file2` it would have worked fine, so it would
+    /// appear to only fail sometimes...not good!
+    ///
+    /// A solution for the example above is to specify that `-F` only accepts one value, but is
+    /// allowed to appear multiple times
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("mults")
+    ///     .arg(Arg::with_name("file")
+    ///         .multiple(true)
+    ///         .takes_value(true)
+    ///         .number_of_values(1)
+    ///         .short("F"))
+    ///     .arg(Arg::with_name("word")
+    ///         .index(1))
+    ///     .get_matches_from(vec!["mults", "-F", "file1", "-F", "file2", "-F", "file3", "word"]);
+    ///
+    /// assert!(m.is_present("file"));
+    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
+    /// assert_eq!(files, ["file1", "file2", "file3"]);
+    /// assert!(m.is_present("word"));
+    /// assert_eq!(m.value_of("word"), Some("word"));
+    /// ```
+    /// As a final example, notice if we define `number_of_values(1)` and try to run the problem
+    /// example above, it would have been a runtime error with a pretty message to the user :)
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("mults")
+    ///     .arg(Arg::with_name("file")
+    ///         .multiple(true)
+    ///         .takes_value(true)
+    ///         .number_of_values(1)
+    ///         .short("F"))
+    ///     .arg(Arg::with_name("word")
+    ///         .index(1))
+    ///     .get_matches_from_safe(vec!["mults", "-F", "file1", "file2", "file3", "word"]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
     pub fn multiple(self, multi: bool) -> Self {
         if multi { self.set(ArgSettings::Multiple) } else { self.unset(ArgSettings::Multiple) }
@@ -674,14 +1061,34 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .global(true)
     /// # ;
     /// ```
+    ///
+    /// For example, assume an appliction with two subcommands, and you'd like to define a
+    /// `--verbose` flag that can be called on any of the subcommands and parent, but you don't
+    /// want to clutter the source with three duplicate `Arg` definitions.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, SubCommand};
+    /// let m = App::new("mults")
+    ///     .arg(Arg::with_name("verb")
+    ///         .long("verbose")
+    ///         .short("v")
+    ///         .global(true))
+    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .subcommand(SubCommand::with_name("do-stuff"))
+    ///     .get_matches_from(vec!["mults", "do-stuff", "--verbose"]);
+    ///
+    /// assert_eq!(m.subcommand_name(), Some("do-stuff"));
+    /// let sub_m = m.subcommand_matches("do-stuff").unwrap();
+    /// assert!(sub_m.is_present("verb"));
+    /// ```
     pub fn global(self, g: bool) -> Self {
         if g { self.set(ArgSettings::Global) } else { self.unset(ArgSettings::Global) }
     }
 
-    /// Allows an argument to accept explicit empty values. An empty value must be specified at the
-    /// command line with an explicit `""`, or `''`
+    /// Allows an argument to accept explicitly empty values. An empty value must be specified at
+    /// the command line with an explicit `""`, or `''`
     ///
-    /// **NOTE:** Defaults to `true` (Explicit empty values are allowed)
+    /// **NOTE:** Defaults to `true` (Explicitly empty values are allowed)
     ///
     /// **NOTE:** Implicitly sets `takes_value(true)` when set to `false`
     ///
@@ -693,6 +1100,21 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .long("file")
     ///     .empty_values(false)
     /// # ;
+    /// ```
+    /// The default is to allow empty values, such as `--option ""` would be an empty value. But
+    /// we can change to make empty values become an error.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("evals")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .long("config")
+    ///         .short("v")
+    ///         .empty_values(false))
+    ///     .get_matches_from_safe(vec!["evals", "--config="]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
     /// ```
     pub fn empty_values(mut self, ev: bool) -> Self {
         if ev {
@@ -715,6 +1137,34 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .hidden(true)
     /// # ;
     /// ```
+    /// Setting `hidden(true)` will hide the argument when displaying help text
+    ///
+    /// ```ignore
+    /// # use clap::{App, Arg};
+    /// let m = App::new("helptest")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .long("config")
+    ///         .hidden(true)
+    ///         .help("Some help text describing the --config arg"))
+    ///     .get_matches_from(vec![
+    ///         "shorttest", "--help"
+    ///     ]);
+    ///
+    /// // ...
+    /// ```
+    ///
+    /// The above example displays
+    ///
+    /// ```notrust
+    /// helptest
+    ///
+    /// USAGE:
+	///    helptest [FLAGS]
+    ///
+    /// FLAGS:
+    /// -h, --help       Prints help information
+    /// -V, --version    Prints version information
+    /// ```
     pub fn hidden(self, h: bool) -> Self {
         if h { self.set(ArgSettings::Hidden) } else { self.unset(ArgSettings::Hidden) }
     }
@@ -728,33 +1178,37 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let res = App::new("possible_values")
-    ///     .arg(Arg::with_name("option")
-    ///         .short("-o")
-    ///         .long("--option")
-    ///         .takes_value(true)
-    ///         .possible_values(&["fast", "slow"]))
-    ///     .get_matches_from_safe(vec!["myprog", "--option", "fast"]);
-    /// assert!(res.is_ok());
-    /// let m = res.unwrap();
-    /// assert!(m.is_present("option"));
-    /// assert_eq!(m.value_of("option"), Some("fast"));
+    /// Arg::with_name("mode")
+    ///     .takes_value(true)
+    ///     .possible_values(&["fast", "slow", "medium"])
+    /// # ;
     /// ```
     ///
-    /// The next example shows a failed parse
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("posvals")
+    ///     .arg(Arg::with_name("mode")
+    ///         .long("mode")
+    ///         .takes_value(true)
+    ///         .possible_values(&["fast", "slow", "medium"]))
+    ///     .get_matches_from(vec!["posvals", "--mode", "fast"]);
+    /// assert!(m.is_present("mode"));
+    /// assert_eq!(m.value_of("mode"), Some("fast"));
+    /// ```
+    ///
+    /// The next example shows a failed parse from using a value which wasn't defined as one of the
+    /// possible values.
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("possible_values")
-    ///     .arg(Arg::with_name("option")
-    ///         .short("-o")
-    ///         .long("--option")
+    /// let res = App::new("posvals")
+    ///     .arg(Arg::with_name("mode")
+    ///         .long("mode")
     ///         .takes_value(true)
-    ///         .possible_values(&["fast", "slow"]))
-    ///     .get_matches_from_safe(vec!["myprog", "--option", "wrong"]);
+    ///         .possible_values(&["fast", "slow", "medium"]))
+    ///     .get_matches_from_safe(vec!["myprog", "--mode", "wrong"]);
     /// assert!(res.is_err());
-    /// let err = res.unwrap_err();
-    /// assert_eq!(err.kind, ErrorKind::InvalidValue);
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::InvalidValue);
     /// ```
     pub fn possible_values(mut self, names: &[&'b str]) -> Self {
         if let Some(ref mut vec) = self.possible_vals {
@@ -767,42 +1221,50 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Specifies a possible value for this argument. At runtime, `clap` verifies that only
-    /// one of the specified values was used, or fails with error message.
+    /// Specifies a possible value for this argument, one at a time. At runtime, `clap` verifies
+    /// that only one of the specified values was used, or fails with error message.
     ///
     /// # Examples
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let res = App::new("possible_values")
-    ///     .arg(Arg::with_name("option")
-    ///         .short("-o")
-    ///         .long("--option")
-    ///         .takes_value(true)
-    ///         .possible_value("slow")
-    ///         .possible_value("fast"))
-    ///     .get_matches_from_safe(vec!["myprog", "--option", "fast"]);
-    /// assert!(res.is_ok());
-    /// let m = res.unwrap();
-    /// assert!(m.is_present("option"));
-    /// assert_eq!(m.value_of("option"), Some("fast"));
+    /// Arg::with_name("mode")
+    ///     .takes_value(true)
+    ///     .possible_value("fast")
+    ///     .possible_value("slow")
+    ///     .possible_value("medium")
+    /// # ;
     /// ```
     ///
-    /// The next example shows a failed parse
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("posvals")
+    ///     .arg(Arg::with_name("mode")
+    ///         .long("mode")
+    ///         .takes_value(true)
+    ///         .possible_value("fast")
+    ///         .possible_value("slow")
+    ///         .possible_value("medium"))
+    ///     .get_matches_from(vec!["posvals", "--mode", "fast"]);
+    /// assert!(m.is_present("mode"));
+    /// assert_eq!(m.value_of("mode"), Some("fast"));
+    /// ```
+    ///
+    /// The next example shows a failed parse from using a value which wasn't defined as one of the
+    /// possible values.
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("possible_values")
-    ///     .arg(Arg::with_name("option")
-    ///         .short("-o")
-    ///         .long("--option")
+    /// let res = App::new("posvals")
+    ///     .arg(Arg::with_name("mode")
+    ///         .long("mode")
     ///         .takes_value(true)
+    ///         .possible_value("fast")
     ///         .possible_value("slow")
-    ///         .possible_value("fast"))
-    ///     .get_matches_from_safe(vec!["myprog", "--option", "wrong"]);
+    ///         .possible_value("medium"))
+    ///     .get_matches_from_safe(vec!["myprog", "--mode", "wrong"]);
     /// assert!(res.is_err());
-    /// let err = res.unwrap_err();
-    /// assert_eq!(err.kind, ErrorKind::InvalidValue);
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::InvalidValue);
     /// ```
     pub fn possible_value(mut self, name: &'b str) -> Self {
         if let Some(ref mut vec) = self.possible_vals {
@@ -820,9 +1282,25 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// Arg::with_name("debug")
-    ///     .index(1)
+    ///     .long("debug")
     ///     .group("mode")
     /// # ;
+    /// ```
+    ///
+    /// Multiple arguments can be a member of a single group and then the group checked as if it
+    /// was one of said arguments.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("groups")
+    ///     .arg(Arg::with_name("debug")
+    ///         .long("debug")
+    ///         .group("mode"))
+    ///     .arg(Arg::with_name("verbose")
+    ///         .long("verbose")
+    ///         .group("mode"))
+    ///     .get_matches_from(vec!["posvals", "--debug"]);
+    /// assert!(m.is_present("mode"));
     /// ```
     pub fn group(mut self, name: &'a str) -> Self {
         self.group = Some(name);
@@ -846,6 +1324,21 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .short("f")
     ///     .number_of_values(3)
     /// # ;
+    /// ```
+    ///
+    /// Not supplying the correct number of values is an error
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("numvals")
+    ///     .arg(Arg::with_name("file")
+    ///         .takes_value(true)
+    ///         .number_of_values(2)
+    ///         .short("F"))
+    ///     .get_matches_from_safe(vec!["mults", "-F", "file1"]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
     /// ```
     pub fn number_of_values(mut self, qty: u64) -> Self {
         self.num_vals = Some(qty);
@@ -908,6 +1401,38 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .max_values(3)
     /// # ;
     /// ```
+    ///
+    /// Supplying less than the maximum number of values is allowed
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let res = App::new("numvals")
+    ///     .arg(Arg::with_name("file")
+    ///         .takes_value(true)
+    ///         .max_values(3)
+    ///         .short("F"))
+    ///     .get_matches_from_safe(vec!["mults", "-F", "file1", "file2"]);
+    ///
+    /// assert!(res.is_ok());
+    /// let m = res.unwrap();
+    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
+    /// assert_eq!(files, ["file1", "file2"]);
+    /// ```
+    ///
+    /// Supplying more than the maximum number of values is an error
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("numvals")
+    ///     .arg(Arg::with_name("file")
+    ///         .takes_value(true)
+    ///         .max_values(2)
+    ///         .short("F"))
+    ///     .get_matches_from_safe(vec!["mults", "-F", "file1", "file2", "file3"]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::TooManyValues);
+    /// ```
     pub fn max_values(mut self, qty: u64) -> Self {
         self.max_vals = Some(qty);
         self
@@ -931,6 +1456,38 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .short("f")
     ///     .min_values(3)
     /// # ;
+    /// ```
+    ///
+    /// Supplying more than the minimum number of values is allowed
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let res = App::new("numvals")
+    ///     .arg(Arg::with_name("file")
+    ///         .takes_value(true)
+    ///         .min_values(2)
+    ///         .short("F"))
+    ///     .get_matches_from_safe(vec!["mults", "-F", "file1", "file2", "file3"]);
+    ///
+    /// assert!(res.is_ok());
+    /// let m = res.unwrap();
+    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
+    /// assert_eq!(files, ["file1", "file2", "file3"]);
+    /// ```
+    ///
+    /// Supplying less than the mainimum number of values is an error
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("numvals")
+    ///     .arg(Arg::with_name("file")
+    ///         .takes_value(true)
+    ///         .min_values(2)
+    ///         .short("F"))
+    ///     .get_matches_from_safe(vec!["mults", "-F", "file1"]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::TooFewValues);
     /// ```
     pub fn min_values(mut self, qty: u64) -> Self {
         self.min_vals = Some(qty);
@@ -1023,10 +1580,17 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Specifies names for values of option arguments. These names are cosmetic only, used for
-    /// help and usage strings only. The names are **not** used to access arguments. The values of
-    /// the arguments are accessed in numeric order (i.e. if you specify two names `one` and `two`
-    /// `one` will be the first matched value, `two` will be the second).
+    /// Specify multiple names for values of option arguments. These names are cosmetic only, used
+    /// for help and usage strings only. The names are **not** used to access arguments. The values
+    /// of the arguments are accessed in numeric order (i.e. if you specify two names `one` and
+    /// `two` `one` will be the first matched value, `two` will be the second).
+    ///
+    /// This setting can be very helpful when describing the type of input the user should be
+    /// using, such as `FILE`, `INTERFACE`, etc. Although not required, it's somewhat convention to
+    /// use all capital letters for the value name.
+    ///
+    /// **Pro Tip:** It may help to use `Arg::next_line_help(true)` if there are long, or multiple
+    /// value names in order to not throw off the help text alignment of all options.
     ///
     /// **NOTE:** This implicitly sets `.number_of_values()` if the number of value names is
     /// greater than one. I.e. be aware that the number of "names" you set for the values, will be
@@ -1044,6 +1608,32 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .short("s")
     ///     .value_names(&["fast", "slow"])
     /// # ;
+    /// ```
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let app = App::new("valnames")
+    ///     .arg(Arg::with_name("io")
+    ///         .long("io-files")
+    ///         .value_names(&["INFILE", "OUTFILE"]))
+    ///     .get_matches_from(vec![
+    ///         "valnames", "--help"
+    ///     ]);
+    /// ```
+    /// Running the above program produces the following output
+    ///
+    /// ```notrust
+    /// valnames
+    ///
+    /// USAGE:
+	///    valnames [FLAGS] [OPTIONS]
+    ///
+    /// FLAGS:
+    ///     -h, --help       Prints help information
+    ///     -V, --version    Prints version information
+    ///
+    /// OPTIONS:
+    ///     --io-files <INFILE> <OUTFILE>    Some help text
     /// ```
     pub fn value_names(mut self, names: &[&'b str]) -> Self {
         self.setb(ArgSettings::TakesValue);
@@ -1064,7 +1654,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Specifies the name for value of option or positional arguments inside of help documenation.
-    /// This name is cosmetic only, the name is **not** used to access arguments.
+    /// This name is cosmetic only, the name is **not** used to access arguments. This setting can
+    /// be very helpful when describing the type of input the user should be using, such as `FILE`,
+    /// `INTERFACE`, etc. Although not required, it's somewhat convention to use all capital
+    /// letters for the value name.
     ///
     /// **NOTE:** implicitly sets `Arg::takes_value(true)`
     ///
@@ -1072,10 +1665,36 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// Arg::with_name("input")
-    ///     .index(1)
+    /// Arg::with_name("cfg")
+    ///     .long("config")
     ///     .value_name("FILE")
     /// # ;
+    /// ```
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let app = App::new("valnames")
+    ///     .arg(Arg::with_name("config")
+    ///         .long("config")
+    ///         .value_name("FILE"))
+    ///     .get_matches_from(vec![
+    ///         "valnames", "--help"
+    ///     ]);
+    /// ```
+    /// Running the above program produces the following output
+    ///
+    /// ```notrust
+    /// valnames
+    ///
+    /// USAGE:
+	///    valnames [FLAGS] [OPTIONS]
+    ///
+    /// FLAGS:
+    ///     -h, --help       Prints help information
+    ///     -V, --version    Prints version information
+    ///
+    /// OPTIONS:
+    ///     --config <FILE>     Some help text
     /// ```
     pub fn value_name(mut self, name: &'b str) -> Self {
         self.setb(ArgSettings::TakesValue);
@@ -1121,6 +1740,58 @@ impl<'a, 'b> Arg<'a, 'b> {
     pub fn default_value(mut self, val: &'a str) -> Self {
         self.setb(ArgSettings::TakesValue);
         self.default_val = Some(val);
+        self
+    }
+
+    /// When set to `true` the help string will be displayed on the line after the argument and
+    /// indented once. This can be helpful for arguments with very long or complex help messages.
+    /// This can also be helpful for arguments with very long flag names, or many/long value names.
+    ///
+    /// **NOTE:** To apply this setting to all arguments consider using `AppSettings::NextLineHelp`
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("nlh")
+    ///     .arg(Arg::with_name("opt")
+    ///         .long("long-option-flag")
+    ///         .short("o")
+    ///         .takes_value(true)
+    ///         .value_names(&["value1", "value2"])
+    ///         .help("Some really long help and complex{n}\
+    ///                help that makes more sense to be{n}\
+    ///                on a line after the option")
+    ///         .next_line_help(true))
+    ///     .get_matches_from(vec![
+    ///         "nlh", "--help"
+    ///     ]);
+    /// ```
+    ///
+    /// The above example displays the following help message
+    ///
+    /// ```ignore
+    /// nlh
+    ///
+    /// USAGE:
+    ///     nlh [FLAGS] [OPTIONS]
+    ///
+    /// FLAGS:
+    ///     -h, --help       Prints help information
+    ///     -V, --version    Prints version information
+    ///
+    /// OPTIONS:
+    ///     -o, --long-option-flag <value1> <value2>
+    ///         Some really long help and complex
+    ///         help that makes more sense to be
+    ///         on a line after the option
+    /// ```
+    pub fn next_line_help(mut self, nlh: bool) -> Self {
+        if nlh {
+            self.setb(ArgSettings::NextLineHelp);
+        } else {
+            self.unsetb(ArgSettings::NextLineHelp);
+        }
         self
     }
 
