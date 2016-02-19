@@ -44,6 +44,7 @@ impl Default for ArgFlags {
 /// Various settings that apply to arguments and may be set, unset, and checked via getter/setter
 /// methods `Arg::set`, `Arg::unset`, and `Arg::is_set`
 #[derive(Debug, PartialEq, Copy, Clone)]
+#[doc(hidden)]
 pub enum ArgSettings {
     /// The argument must be used
     Required,
