@@ -1,4 +1,5 @@
 #[doc(hidden)]
+#[allow(missing_debug_implementations)]
 pub struct AppMeta<'b> {
     pub name: String,
     pub bin_name: Option<String>,

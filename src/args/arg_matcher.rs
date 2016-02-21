@@ -9,6 +9,7 @@ use args::settings::ArgSettings;
 use args::AnyArg;
 
 #[doc(hidden)]
+#[allow(missing_debug_implementations)]
 pub struct ArgMatcher<'a>(pub ArgMatches<'a>);
 
 impl<'a> ArgMatcher<'a> {

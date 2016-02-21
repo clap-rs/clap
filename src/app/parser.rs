@@ -24,6 +24,7 @@ use osstringext::OsStrExt2;
 use app::meta::AppMeta;
 use args::MatchedArg;
 
+#[allow(missing_debug_implementations)]
 #[doc(hidden)]
 pub struct Parser<'a, 'b> where 'a: 'b {
     required: Vec<&'b str>,

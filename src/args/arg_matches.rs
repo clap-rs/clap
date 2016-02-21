@@ -496,6 +496,7 @@ impl<'a> ArgMatches<'a> {
 // license: MIT - Copyright (c) 2015 The Rust Project Developers
 
 #[derive(Clone)]
+#[allow(missing_debug_implementations)]
 pub struct Values<'a> {
     iter: Map<vec_map::Values<'a, OsString>, fn(&'a OsString) -> &'a str>
 }
@@ -559,6 +560,7 @@ impl<'a, V> DoubleEndedIterator for Iter<'a, V> {
 }
 
 #[derive(Clone)]
+#[allow(missing_debug_implementations)]
 pub struct OsValues<'a> {
     iter: Map<vec_map::Values<'a, OsString>, fn(&'a OsString) -> &'a OsStr>
 }
