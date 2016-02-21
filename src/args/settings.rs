@@ -15,7 +15,7 @@ bitflags! {
 }
 
 #[doc(hidden)]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct ArgFlags(Flags);
 
 impl ArgFlags {
