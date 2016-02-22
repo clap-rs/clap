@@ -50,7 +50,7 @@ pub fn did_you_mean_suffix<'z, T, I>(arg: &str,
             let mut suffix = "\n\tDid you mean ".to_owned();
             match style {
                 DidYouMeanMessageStyle::LongFlag =>
-                    suffix.push_str(&*format!("{}", Format::Good("--"))),
+                    suffix.push_str(&Format::Good("--").to_string()),
                 DidYouMeanMessageStyle::EnumValue => suffix.push('\''),
             }
             suffix.push_str(&Format::Good(candidate).to_string()[..]);

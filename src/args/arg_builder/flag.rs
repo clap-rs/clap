@@ -73,7 +73,7 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for FlagBuilder<'a, 'b> {
             blacklist: a.blacklist.clone(),
             overrides: a.overrides.clone(),
             requires: a.requires.clone(),
-            settings: a.settings.clone(),
+            settings: a.settings,
         }
     }
 }

@@ -81,7 +81,7 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
             possible_vals: a.possible_vals.clone(),
             help: a.help,
             val_delim: a.val_delim,
-            settings: a.settings.clone(),
+            settings: a.settings,
             default_val: a.default_val,
             ..Default::default()
         };

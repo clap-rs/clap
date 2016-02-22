@@ -1842,7 +1842,7 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>>
             group: a.group,
             validator: a.validator.clone(),
             overrides: a.overrides.clone(),
-            settings: a.settings.clone(),
+            settings: a.settings,
             val_delim: a.val_delim,
             default_val: a.default_val,
         }

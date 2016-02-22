@@ -296,7 +296,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 continue;
             }
             if let Some(p) = self.positionals.values().filter(|x| &x.name == &p).next() {
-                pmap.insert(p.index, format!("{}", p));
+                pmap.insert(p.index, p.to_string());
             }
         }
         for (_, s) in pmap {
@@ -308,9 +308,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                     if $m.is_some() && $m.as_ref().unwrap().contains(f) {
                         continue;
                     }
-                    $r.push_back(format!("{}", $i.filter(|flg| &flg.name == &f)
-                                                 .next()
-                                                 .unwrap()));
+                    $r.push_back($i.filter(|flg| &flg.name == &f).next().unwrap().to_string());
                 }
             }
         }
@@ -629,21 +627,21 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             if let Some(f) = self.flags.iter().filter(|f| &f.name == &k).next() {
                 if let Some(ref bl) = f.blacklist {
                     if bl.contains(&name) {
-                        return Some(format!("{}", f));
+                        return Some(f.to_string());
                     }
                 }
             }
             if let Some(o) = self.opts.iter().filter(|o| &o.name == &k).next() {
                 if let Some(ref bl) = o.blacklist {
                     if bl.contains(&name) {
-                        return Some(format!("{}", o));
+                        return Some(o.to_string());
                     }
                 }
             }
             if let Some(pos) = self.positionals.values().filter(|p| &p.name == &k).next() {
                 if let Some(ref bl) = pos.blacklist {
                     if bl.contains(&name) {
-                        return Some(format!("{}", pos));
+                        return Some(pos.to_string());
                     }
                 }
             }
