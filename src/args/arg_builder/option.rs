@@ -80,7 +80,7 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
             overrides: a.overrides.clone(),
             requires: a.requires.clone(),
             possible_vals: a.possible_vals.clone(),
-            settings: a.settings.clone(),
+            settings: a.settings,
             default_val: a.default_val,
             ..Default::default()
         };

@@ -24,6 +24,7 @@ use osstringext::OsStrExt2;
 use app::meta::AppMeta;
 use args::MatchedArg;
 
+#[allow(missing_debug_implementations)]
 #[doc(hidden)]
 pub struct Parser<'a, 'b> where 'a: 'b {
     required: Vec<&'b str>,
@@ -295,7 +296,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 continue;
             }
             if let Some(p) = self.positionals.values().filter(|x| &x.name == &p).next() {
-                pmap.insert(p.index, format!("{}", p));
+                pmap.insert(p.index, p.to_string());
             }
         }
         for (_, s) in pmap {
@@ -307,9 +308,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                     if $m.is_some() && $m.as_ref().unwrap().contains(f) {
                         continue;
                     }
-                    $r.push_back(format!("{}", $i.filter(|flg| &flg.name == &f)
-                                                 .next()
-                                                 .unwrap()));
+                    $r.push_back($i.filter(|flg| &flg.name == &f).next().unwrap().to_string());
                 }
             }
         }
@@ -427,7 +426,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             debug!("Starts new arg...");
             let starts_new_arg = if arg_os.starts_with(b"-") {
                 sdebugln!("Yes");
-                !(arg_os.len() == 1)
+                !(arg_os.len_() == 1)
             } else {
                 sdebugln!("No");
                 false
@@ -448,7 +447,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                     }
                 }
                 if arg_os.starts_with(b"--") {
-                    if arg_os.len() == 2 {
+                    if arg_os.len_() == 2 {
                         // The user has passed '--' which means only positional args follow no matter
                         // what they start with
                         pos_only = true;
@@ -457,7 +456,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
 
                     needs_val_of = try!(self.parse_long_arg(matcher, &arg_os));
                     continue;
-                } else if arg_os.starts_with(b"-") && arg_os.len() != 1 {
+                } else if arg_os.starts_with(b"-") && arg_os.len_() != 1 {
                     needs_val_of = try!(self.parse_short_arg(matcher, &arg_os));
                     if !(needs_val_of.is_none() && self.is_set(AppSettings::AllowLeadingHyphen)) {
                         continue;
@@ -628,21 +627,21 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             if let Some(f) = self.flags.iter().filter(|f| &f.name == &k).next() {
                 if let Some(ref bl) = f.blacklist {
                     if bl.contains(&name) {
-                        return Some(format!("{}", f));
+                        return Some(f.to_string());
                     }
                 }
             }
             if let Some(o) = self.opts.iter().filter(|o| &o.name == &k).next() {
                 if let Some(ref bl) = o.blacklist {
                     if bl.contains(&name) {
-                        return Some(format!("{}", o));
+                        return Some(o.to_string());
                     }
                 }
             }
             if let Some(pos) = self.positionals.values().filter(|p| &p.name == &k).next() {
                 if let Some(ref bl) = pos.blacklist {
                     if bl.contains(&name) {
-                        return Some(format!("{}", pos));
+                        return Some(pos.to_string());
                     }
                 }
             }
@@ -972,7 +971,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         debug!("Checking for val...");
         if let Some(fv) = val {
             let v = fv.trim_left_matches(b'=');
-            if !opt.is_set(ArgSettings::EmptyValues) && v.len() == 0 {
+            if !opt.is_set(ArgSettings::EmptyValues) && v.len_() == 0 {
                 sdebugln!("Found Empty - Error");
                 return Err(Error::empty_value(opt, &*self.create_current_usage(matcher)));
             }
@@ -1043,7 +1042,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             }
         }
         if !arg.is_set(ArgSettings::EmptyValues) &&
-            val.is_empty() &&
+            val.is_empty_() &&
             matcher.contains(&*arg.name()) {
             return Err(Error::empty_value(arg, &*self.create_current_usage(matcher)));
         }

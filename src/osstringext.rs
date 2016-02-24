@@ -17,9 +17,9 @@ pub trait OsStrExt2 {
     fn split_at_byte(&self, b: u8) -> (&OsStr, &OsStr);
     fn split_at(&self, i: usize) -> (&OsStr, &OsStr);
     fn trim_left_matches(&self, b: u8) -> &OsStr;
-    fn len(&self) -> usize;
+    fn len_(&self) -> usize;
     fn contains_byte(&self, b: u8) -> bool;
-    fn is_empty(&self) -> bool;
+    fn is_empty_(&self) -> bool;
     fn split(&self, b: u8) -> OsSplit;
 }
 
@@ -39,7 +39,7 @@ impl OsStrExt2 for OsStr {
         self.as_bytes().starts_with(s)
     }
 
-    fn is_empty(&self) -> bool {
+    fn is_empty_(&self) -> bool {
         self.as_bytes().is_empty()
     }
 
@@ -54,7 +54,7 @@ impl OsStrExt2 for OsStr {
         for (i, b) in self.as_bytes().iter().enumerate() {
             if b == &byte { return (&OsStr::from_bytes(&self.as_bytes()[..i]), &OsStr::from_bytes(&self.as_bytes()[i+1..])); }
         }
-        (&*self, &OsStr::from_bytes(&self.as_bytes()[self.len()..self.len()]))
+        (&*self, &OsStr::from_bytes(&self.as_bytes()[self.len_()..self.len_()]))
     }
 
     fn trim_left_matches(&self, byte: u8) -> &OsStr {
@@ -68,7 +68,7 @@ impl OsStrExt2 for OsStr {
         (&OsStr::from_bytes(&self.as_bytes()[..i]), &OsStr::from_bytes(&self.as_bytes()[i..]))
     }
 
-    fn len(&self) -> usize {
+    fn len_(&self) -> usize {
         self.as_bytes().len()
     }
 
