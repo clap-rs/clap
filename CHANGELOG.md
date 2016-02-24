@@ -1,3 +1,11 @@
+<a name="v2.1.2"></a>
+### v2.1.2 (2016-02-24)
+
+#### Bug Fixes
+
+* **Nightly:**  fixes failing nightly build ([d752c170](https://github.com/kbknapp/clap-rs/commit/d752c17029598b19037710f204b7943f0830ae75), closes [#434](https://github.com/kbknapp/clap-rs/issues/434))
+
+
 <a name="v2.1.1"></a>
 ### v2.1.1 (2016-02-19)
 
