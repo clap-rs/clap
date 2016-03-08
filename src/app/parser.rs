@@ -372,17 +372,15 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         // required too
         let mut found = false;
         for p in self.positionals.values().rev() {
-            if !found {
-                if p.settings.is_set(ArgSettings::Required) {
-                    found = true;
-                    continue;
-                }
-            } else {
-                assert!(p.settings.is_set(ArgSettings::Required),
+            if found {
+                debug_assert!(p.settings.is_set(ArgSettings::Required),
                     "Found positional argument which is not required with a lower index than a \
                     required positional argument: {:?} index {}",
                     p.name,
                     p.index);
+            } else if p.settings.is_set(ArgSettings::Required) {
+                found = true;
+                continue;
             }
         }
     }
@@ -1281,9 +1279,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         usage.push_str("USAGE:\n\t");
         if let Some(u) = self.meta.usage_str {
             usage.push_str(&*u);
-        } else if !used.is_empty() {
-            self.smart_usage(&mut usage, used);
-        } else {
+        } else if used.is_empty() {
             usage.push_str(&*self.meta.usage
                                  .as_ref()
                                  .unwrap_or(self.meta.bin_name
@@ -1326,6 +1322,8 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             } else if self.is_set(AppSettings::SubcommandRequired) && !self.has_subcommands() {
                 usage.push_str(" <SUBCOMMAND>");
             }
+        } else {
+            self.smart_usage(&mut usage, used);
         }
 
         usage.shrink_to_fit();

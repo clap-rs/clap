@@ -605,10 +605,10 @@ impl Error {
                             For more information try {}",
                            Format::Error("error:"),
                            Format::Warning(&*a),
-                           if !did_you_mean.is_empty() {
-                               format!("{}\n", did_you_mean)
-                           } else {
+                           if did_you_mean.is_empty() {
                                "\n".to_owned()
+                           } else {
+                               format!("{}\n", did_you_mean)
                            },
                            usage,
                            Format::Good("--help")),
