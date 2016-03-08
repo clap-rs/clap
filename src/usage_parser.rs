@@ -76,7 +76,15 @@ impl<'a> UsageParser<'a> {
         self.pos += 1;
         self.stop_at(name_end);
         let name = &self.usage[self.start..self.pos];
-        if self.prev != UsageToken::Unknown {
+        if self.prev == UsageToken::Unknown {
+            debugln!("setting name: {}", name);
+            arg.name = name;
+            if arg.long.is_none() && arg.short.is_none() {
+                debugln!("explicit name set...");
+                self.explicit_name_set = true;
+                self.prev = UsageToken::Name;
+            }
+        } else {
             debugln!("setting val name: {}", name);
             if let Some(ref mut v) = arg.val_names {
                 let len = v.len();
@@ -88,14 +96,6 @@ impl<'a> UsageParser<'a> {
                 arg.setb(ArgSettings::TakesValue);
             }
             self.prev = UsageToken::ValName;
-        } else {
-            debugln!("setting name: {}", name);
-            arg.name = name;
-            if arg.long.is_none() && arg.short.is_none() {
-                debugln!("explicit name set...");
-                self.explicit_name_set = true;
-                self.prev = UsageToken::Name;
-            }
         }
     }
 

@@ -396,6 +396,8 @@
 #![cfg_attr(feature = "lints", allow(cyclomatic_complexity))]
 // Only while bitflats uses "_first" inside it's macros
 #![cfg_attr(feature = "lints", allow(used_underscore_binding))]
+// Only while bitflats fails this lint
+#![cfg_attr(feature = "lints", allow(if_not_else))]
 
 #[cfg(feature = "suggestions")]
 extern crate strsim;
