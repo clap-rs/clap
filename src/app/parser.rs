@@ -147,7 +147,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             } else {
                 a.index.unwrap() as usize
             };
-            assert!(!self.positionals.contains_key(&i),
+            assert!(!self.positionals.contains_key(i),
                 format!("Argument \"{}\" has the same index as another positional \
                     argument\n\n\tPerhaps try .multiple(true) to allow one positional argument \
                     to take multiple values", a.name));
@@ -479,7 +479,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 }
             }
 
-            if let Some(p) = self.positionals.get(&pos_counter) {
+            if let Some(p) = self.positionals.get(pos_counter) {
                 parse_positional!(self, p, arg_os, pos_only, pos_counter, matcher);
             } else {
                 if self.settings.is_set(AppSettings::AllowExternalSubcommands) {
@@ -1172,9 +1172,9 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             if (ma.vals.len() as u64) > num {
                 debugln!("Sending error TooManyValues");
                 return Err(Error::too_many_values(
-                    ma.vals.get(&ma.vals.keys()
-                                 .last()
-                                 .expect(INTERNAL_ERROR_MSG))
+                    ma.vals.get(ma.vals.keys()
+                                .last()
+                                .expect(INTERNAL_ERROR_MSG))
                         .expect(INTERNAL_ERROR_MSG).to_str().expect(INVALID_UTF8),
                     a,
                     &*self.create_current_usage(matcher)));
