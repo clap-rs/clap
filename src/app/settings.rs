@@ -31,9 +31,15 @@ bitflags! {
 #[derive(Debug)]
 pub struct AppFlags(Flags);
 
+impl Default for AppFlags {
+    fn default() -> Self {
+        AppFlags(NEEDS_LONG_VERSION | NEEDS_LONG_HELP | NEEDS_SC_HELP | UTF8_NONE)
+    }
+}
+
 impl AppFlags {
     pub fn new() -> Self {
-        AppFlags(NEEDS_LONG_VERSION | NEEDS_LONG_HELP | NEEDS_SC_HELP | UTF8_NONE)
+        AppFlags::default()
     }
 
     impl_settings! { AppSettings,

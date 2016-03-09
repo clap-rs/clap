@@ -20,7 +20,7 @@ pub struct ArgFlags(Flags);
 
 impl ArgFlags {
     pub fn new() -> Self {
-        ArgFlags(EMPTY_VALS | USE_DELIM)
+        ArgFlags::default()
     }
 
     impl_settings!{ArgSettings,
@@ -37,7 +37,7 @@ impl ArgFlags {
 
 impl Default for ArgFlags {
     fn default() -> Self {
-        ArgFlags::new()
+        ArgFlags(EMPTY_VALS | USE_DELIM)
     }
 }
 

@@ -747,47 +747,42 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         debugln!("fn=create_help_and_version;");
         // name is "hclap_help" because flags are sorted by name
         if !self.flags.iter().any(|a| a.long.is_some() && a.long.unwrap() == "help") {
+            debugln!("Building --help");
             if self.help_short.is_none() && !self.short_list.contains(&'h') {
                 self.help_short = Some('h');
             }
             let arg = FlagBuilder {
-                name: "hclap_help".into(),
+                name: "hclap_help",
                 short: self.help_short,
-                long: Some("help".into()),
-                help: Some("Prints help information".into()),
-                blacklist: None,
-                requires: None,
-                overrides: None,
-                settings: ArgFlags::new(),
-                disp_ord: 999,
+                long: Some("help"),
+                help: Some("Prints help information"),
+                ..Default::default()
             };
-            self.long_list.push("help".into());
+            self.long_list.push("help");
             self.flags.push(arg);
         }
         if !self.settings.is_set(AppSettings::DisableVersion) &&
            !self.flags.iter().any(|a| a.long.is_some() && a.long.unwrap() == "version") {
+            debugln!("Building --version");
             if self.version_short.is_none() && !self.short_list.contains(&'V') {
                 self.version_short = Some('V');
             }
             // name is "vclap_version" because flags are sorted by name
             let arg = FlagBuilder {
-                name: "vclap_version".into(),
+                name: "vclap_version",
                 short: self.version_short,
-                long: Some("version".into()),
-                help: Some("Prints version information".into()),
-                blacklist: None,
-                requires: None,
-                overrides: None,
-                settings: ArgFlags::new(),
-                disp_ord: 999,
+                long: Some("version"),
+                help: Some("Prints version information"),
+                ..Default::default()
             };
-            self.long_list.push("version".into());
+            self.long_list.push("version");
             self.flags.push(arg);
         }
         if !self.subcommands.is_empty() &&
            !self.subcommands
                 .iter()
                 .any(|s| &s.p.meta.name[..] == "help") {
+            debugln!("Building help");
             self.subcommands.push(App::new("help").about("Prints this message"));
         }
     }
@@ -975,7 +970,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 sdebugln!("Found Empty - Error");
                 return Err(Error::empty_value(opt, &*self.create_current_usage(matcher)));
             }
-            sdebugln!("Found - {:?}, len: {}", v, v.len());
+            sdebugln!("Found - {:?}, len: {}", v, v.len_());
             try!(self.add_val_to_arg(opt, v, matcher));
         } else { sdebugln!("None"); }
 
