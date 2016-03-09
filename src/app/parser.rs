@@ -12,7 +12,7 @@ use app::App;
 use args::{Arg, FlagBuilder, OptBuilder, ArgGroup, PosBuilder};
 use app::settings::{AppSettings, AppFlags};
 use args::{AnyArg, ArgMatcher};
-use args::settings::{ArgSettings, ArgFlags};
+use args::settings::ArgSettings;
 use errors::{ErrorKind, Error};
 use errors::Result as ClapResult;
 use INVALID_UTF8;
