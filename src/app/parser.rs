@@ -154,10 +154,24 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             let pb = PosBuilder::from_arg(&a, i as u64, &mut self.required);
             self.positionals.insert(i, pb);
         } else if a.is_set(ArgSettings::TakesValue) {
-            let ob = OptBuilder::from_arg(&a, &mut self.required);
+            let mut ob = OptBuilder::from_arg(&a, &mut self.required);
+            if self.settings.is_set(AppSettings::DeriveDisplayOrder) && a.disp_ord == 999 {
+                ob.disp_ord = if self.settings.is_set(AppSettings::UnifiedHelpMessage) {
+                    self.flags.len() + self.opts.len()
+                } else {
+                    self.opts.len()
+                };
+            }
             self.opts.push(ob);
         } else {
-            let fb = FlagBuilder::from(a);
+            let mut fb = FlagBuilder::from(a);
+            if self.settings.is_set(AppSettings::DeriveDisplayOrder) && a.disp_ord == 999 {
+                fb.disp_ord = if self.settings.is_set(AppSettings::UnifiedHelpMessage) {
+                    self.flags.len() + self.opts.len()
+                } else {
+                    self.flags.len()
+                };
+            }
             self.flags.push(fb);
         }
         if a.is_set(ArgSettings::Global) {
@@ -210,6 +224,9 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             subcmd = subcmd.setting(AppSettings::GlobalVersion)
                            .version(self.meta.version.unwrap());
         } else { sdebugln!("No"); }
+        if self.settings.is_set(AppSettings::DeriveDisplayOrder) {
+            subcmd.p.meta.disp_ord = self.subcommands.len();
+        }
         self.subcommands.push(subcmd);
     }
 
