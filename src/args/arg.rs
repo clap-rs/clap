@@ -157,7 +157,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 "value_name" => a.value_name(v.as_str().unwrap()),
                 "use_delimiter" => a.use_delimiter(v.as_bool().unwrap()),
                 "value_delimiter" => a.value_delimiter(v.as_str().unwrap()),
-                "display_order" => a.display_order(v.as_u32().unwrap()),
+                "display_order" => a.display_order(v.as_i64().unwrap() as usize),
                 "value_names" => {
                     for ys in v.as_vec().unwrap() {
                         if let Some(s) = ys.as_str() {

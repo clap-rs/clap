@@ -833,6 +833,9 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
         if let Some(v) = yaml["after_help"].as_str() {
             a = a.after_help(v);
         }
+        if let Some(v) = yaml["display_order"].as_i64() {
+            a = a.display_order(v as usize);
+        }
         if let Some(v) = yaml["usage"].as_str() {
             a = a.usage(v);
         }
