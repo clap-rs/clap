@@ -27,6 +27,7 @@ pub struct PosBuilder<'n, 'e> {
     pub settings: ArgFlags,
     pub val_delim: Option<char>,
     pub default_val: Option<&'n str>,
+    pub disp_ord: usize,
 }
 
 impl<'n, 'e> Default for PosBuilder<'n, 'e> {
@@ -47,6 +48,7 @@ impl<'n, 'e> Default for PosBuilder<'n, 'e> {
             settings: ArgFlags::new(),
             val_delim: Some(','),
             default_val: None,
+            disp_ord: 999,
         }
     }
 }
@@ -83,6 +85,7 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
             val_delim: a.val_delim,
             settings: a.settings,
             default_val: a.default_val,
+            disp_ord: a.disp_ord,
             ..Default::default()
         };
         if a.max_vals.is_some()

@@ -759,6 +759,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 requires: None,
                 overrides: None,
                 settings: ArgFlags::new(),
+                disp_ord: 999,
             };
             self.long_list.push("help".into());
             self.flags.push(arg);
@@ -778,6 +779,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 requires: None,
                 overrides: None,
                 settings: ArgFlags::new(),
+                disp_ord: 999,
             };
             self.long_list.push("version".into());
             self.flags.push(arg);
@@ -1443,40 +1445,50 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         let nlh = self.settings.is_set(AppSettings::NextLineHelp);
         if unified_help && (flags || opts) {
             try!(write!(w, "\nOPTIONS:\n"));
-            let mut combined = BTreeMap::new();
+            let mut ord_m = VecMap::new();
             for f in self.flags.iter().filter(|f| !f.settings.is_set(ArgSettings::Hidden)) {
+                let btm = ord_m.entry(f.disp_ord).or_insert(BTreeMap::new());
                 let mut v = vec![];
                 try!(f.write_help(&mut v, tab, longest, nlh));
-                combined.insert(f.name, v);
+                btm.insert(f.name, v);
             }
             for o in self.opts.iter().filter(|o| !o.settings.is_set(ArgSettings::Hidden)) {
+                let btm = ord_m.entry(o.disp_ord).or_insert(BTreeMap::new());
                 let mut v = vec![];
                 try!(o.write_help(&mut v, tab, longest, self.is_set(AppSettings::HidePossibleValuesInHelp), nlh));
-                combined.insert(o.name, v);
+                btm.insert(o.name, v);
             }
-            for (_, a) in combined {
-                // Only valid UTF-8 is supported, so panicing on invalid UTF-8 is ok
-                try!(write!(w, "{}", unsafe { String::from_utf8_unchecked(a) }));
+            for (_, btm) in ord_m.into_iter() {
+                for (_, a) in btm.into_iter() {
+                    // Only valid UTF-8 is supported, so panicing on invalid UTF-8 is ok
+                    try!(write!(w, "{}", unsafe { String::from_utf8_unchecked(a) }));
+                }
             }
         } else {
             if flags {
+                let mut ord_m = VecMap::new();
                 try!(write!(w, "\nFLAGS:\n"));
-                for f in self.flags.iter()
-                                  .filter(|f| !f.settings.is_set(ArgSettings::Hidden))
-                                  .map(|f| (f.name, f))
-                                  .collect::<BTreeMap<_, _>>()
-                                  .values() {
-                    try!(f.write_help(w, tab, longest, nlh));
+                for f in self.flags.iter().filter(|f| !f.settings.is_set(ArgSettings::Hidden)) {
+                    let btm = ord_m.entry(f.disp_ord).or_insert(BTreeMap::new());
+                    btm.insert(f.name, f);
+                }
+                for (_, btm) in ord_m.into_iter() {
+                    for (_, f) in btm.into_iter() {
+                        try!(f.write_help(w, tab, longest, nlh));
+                    }
                 }
             }
             if opts {
+                let mut ord_m = VecMap::new();
                 try!(write!(w, "\nOPTIONS:\n"));
-                for o in self.opts.iter()
-                                  .filter(|o| !o.settings.is_set(ArgSettings::Hidden))
-                                  .map(|o| (o.name, o))
-                                  .collect::<BTreeMap<_, _>>()
-                                  .values() {
-                    try!(o.write_help(w, tab, longest_opt, self.is_set(AppSettings::HidePossibleValuesInHelp), nlh));
+                for o in self.opts.iter().filter(|o| !o.settings.is_set(ArgSettings::Hidden)) {
+                    let btm = ord_m.entry(o.disp_ord).or_insert(BTreeMap::new());
+                    btm.insert(o.name, o);
+                }
+                for (_, btm) in ord_m.into_iter() {
+                    for (_, o) in btm.into_iter() {
+                        try!(o.write_help(w, tab, longest_opt, self.is_set(AppSettings::HidePossibleValuesInHelp), nlh));
+                    }
                 }
             }
         }
