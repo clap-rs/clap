@@ -115,7 +115,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
 
     // actually adds the arguments
     pub fn add_arg(&mut self, a: &Arg<'a, 'b>) {
-        assert!(!(self.flags.iter().any(|f| &f.name == &a.name)
+        debug_assert!(!(self.flags.iter().any(|f| &f.name == &a.name)
             || self.opts.iter().any(|o| o.name == a.name)
             || self.positionals.values().any(|p| p.name == a.name)),
             format!("Non-unique argument name: {} is already in use", a.name));
@@ -124,12 +124,12 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             ag.args.push(a.name);
         }
         if let Some(s) = a.short {
-            assert!(!self.short_list.contains(&s),
+            debug_assert!(!self.short_list.contains(&s),
                 format!("Argument short must be unique\n\n\t-{} is already in use", s));
             self.short_list.push(s);
         }
         if let Some(l) = a.long {
-            assert!(!self.long_list.contains(&l),
+            debug_assert!(!self.long_list.contains(&l),
                 format!("Argument long must be unique\n\n\t--{} is already in use", l));
             self.long_list.push(l);
             if l == "help" {
@@ -147,21 +147,35 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             } else {
                 a.index.unwrap() as usize
             };
-            assert!(!self.positionals.contains_key(i),
+            debug_assert!(!self.positionals.contains_key(i),
                 format!("Argument \"{}\" has the same index as another positional \
                     argument\n\n\tPerhaps try .multiple(true) to allow one positional argument \
                     to take multiple values", a.name));
             let pb = PosBuilder::from_arg(&a, i as u64, &mut self.required);
             self.positionals.insert(i, pb);
         } else if a.is_set(ArgSettings::TakesValue) {
-            let ob = OptBuilder::from_arg(&a, &mut self.required);
+            let mut ob = OptBuilder::from_arg(&a, &mut self.required);
+            if self.settings.is_set(AppSettings::DeriveDisplayOrder) && a.disp_ord == 999 {
+                ob.disp_ord = if self.settings.is_set(AppSettings::UnifiedHelpMessage) {
+                    self.flags.len() + self.opts.len()
+                } else {
+                    self.opts.len()
+                };
+            }
             self.opts.push(ob);
         } else {
-            let fb = FlagBuilder::from(a);
+            let mut fb = FlagBuilder::from(a);
+            if self.settings.is_set(AppSettings::DeriveDisplayOrder) && a.disp_ord == 999 {
+                fb.disp_ord = if self.settings.is_set(AppSettings::UnifiedHelpMessage) {
+                    self.flags.len() + self.opts.len()
+                } else {
+                    self.flags.len()
+                };
+            }
             self.flags.push(fb);
         }
         if a.is_set(ArgSettings::Global) {
-            assert!(!a.is_set(ArgSettings::Required),
+            debug_assert!(!a.is_set(ArgSettings::Required),
                 format!("Global arguments cannot be required.\n\n\t'{}' is marked as global and \
                         required", a.name));
             self.global_args.push(a.into());
@@ -210,6 +224,9 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             subcmd = subcmd.setting(AppSettings::GlobalVersion)
                            .version(self.meta.version.unwrap());
         } else { sdebugln!("No"); }
+        if self.settings.is_set(AppSettings::DeriveDisplayOrder) {
+            subcmd.p.meta.disp_ord = self.subcommands.len();
+        }
         self.subcommands.push(subcmd);
     }
 
