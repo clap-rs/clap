@@ -1500,26 +1500,30 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             }
         }
         if subcmds {
+            let mut ord_m = VecMap::new();
             try!(write!(w, "\nSUBCOMMANDS:\n"));
-            for (name, sc) in self.subcommands.iter()
-                                  .filter(|s| !s.p.is_set(AppSettings::Hidden))
-                                  .map(|s| (&s.p.meta.name[..], s))
-                                  .collect::<BTreeMap<_, _>>() {
-                try!(write!(w, "{}{}", tab, name));
-                write_spaces!((longest_sc + 4) - (name.len()), w);
-                if let Some(a) = sc.p.meta.about {
-                    if a.contains("{n}") {
-                        let mut ab = a.split("{n}");
-                        while let Some(part) = ab.next() {
-                            try!(write!(w, "{}\n", part));
-                            write_spaces!(longest_sc + 8, w);
-                            try!(write!(w, "{}", ab.next().unwrap_or("")));
+            for sc in self.subcommands.iter().filter(|s| !s.p.is_set(AppSettings::Hidden)) {
+                let btm = ord_m.entry(sc.p.meta.disp_ord).or_insert(BTreeMap::new());
+                btm.insert(sc.p.meta.name.clone(), sc);
+            }
+            for (_, btm) in ord_m.into_iter() {
+                for (name, sc) in btm.into_iter() {
+                    try!(write!(w, "{}{}", tab, name));
+                    write_spaces!((longest_sc + 4) - (name.len()), w);
+                    if let Some(a) = sc.p.meta.about {
+                        if a.contains("{n}") {
+                            let mut ab = a.split("{n}");
+                            while let Some(part) = ab.next() {
+                                try!(write!(w, "{}\n", part));
+                                write_spaces!(longest_sc + 8, w);
+                                try!(write!(w, "{}", ab.next().unwrap_or("")));
+                            }
+                        } else {
+                            try!(write!(w, "{}", a));
                         }
-                    } else {
-                        try!(write!(w, "{}", a));
                     }
+                    try!(write!(w, "\n"));
                 }
-                try!(write!(w, "\n"));
             }
         }
 

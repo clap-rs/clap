@@ -545,6 +545,56 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
+    /// Allows custom ordering of subcommands within the help message. Subcommands with a lower
+    /// value will be displayed first in the help message. This is helpful when one would like to
+    /// emphasise frequently used subcommands, or prioritize those towards the top of the list.
+    /// Duplicate values **are** allowed. Subcommands with duplicate display orders will be
+    /// displayed in alphabetical order.
+    ///
+    /// **NOTE:** The default is 999 for all subcommands.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, SubCommand};
+    /// let m = App::new("cust-ord")
+    ///     .subcommand(SubCommand::with_name("alpha") // typically subcommands are grouped
+    ///                                                // alphabetically by name. Subcommands
+    ///                                                // without a display_order have a value of
+    ///                                                // 999 and are displayed alphabetically with
+    ///                                                // all other 999 subcommands
+    ///         .about("Some help and text"))
+    ///     .subcommand(SubCommand::with_name("beta")
+    ///         .display_order(1)   // In order to force this subcommand to appear *first*
+    ///                             // all we have to do is give it a value lower than 999.
+    ///                             // Any other subcommands with a value of 1 will be displayed
+    ///                             // alphabetically with this one...then 2 values, then 3, etc.
+    ///         .about("I should be first!"))
+    ///     .get_matches_from(vec![
+    ///         "cust-ord", "--help"
+    ///     ]);
+    /// ```
+    ///
+    /// The above example displays the following help message
+    ///
+    /// ```ignore
+    /// cust-ord
+    ///
+    /// USAGE:
+    ///     cust-ord [FLAGS] [OPTIONS]
+    ///
+    /// FLAGS:
+    ///     -h, --help       Prints help information
+    ///     -V, --version    Prints version information
+    ///
+    /// SUBCOMMANDS:
+    ///     beta    I should be first!
+    ///     alpha   Some help and text
+    /// ```
+    pub fn display_order(mut self, ord: usize) -> Self {
+        self.p.meta.disp_ord = ord;
+        self
+    }
 
     /// Prints the full help message to `io::stdout()` using a `BufWriter`
     ///
