@@ -4,6 +4,10 @@ rust:
   - nightly
   - beta
   - stable
+# Only while clippy is failing
+matrix:
+    allow_failures:
+        - rust: nightly
 before_script:
   - |
     pip install 'travis-cargo<0.2' --user &&

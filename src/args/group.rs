@@ -143,6 +143,8 @@ impl<'a> ArgGroup<'a> {
     /// that one, and only one argument from this group *must* be present at runtime (unless
     /// conflicting with another argument).
     ///
+    /// **NOTE:** This setting only applies to the current `App` / `SubCommand`, and not globally.
+    ///
     /// # Examples
     ///
     /// ```rust

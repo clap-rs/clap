@@ -10,6 +10,7 @@ pub struct AppMeta<'b> {
     pub usage_str: Option<&'b str>,
     pub usage: Option<String>,
     pub help_str: Option<&'b str>,
+    pub disp_ord: usize,
 }
 
 impl<'b> Default for AppMeta<'b> {
@@ -24,6 +25,7 @@ impl<'b> Default for AppMeta<'b> {
             usage: None,
             bin_name: None,
             help_str: None,
+            disp_ord: 999,
         }
     }
 }

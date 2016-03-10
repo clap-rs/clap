@@ -68,6 +68,8 @@ pub struct Arg<'a, 'b> where 'a: 'b {
     pub val_delim: Option<char>,
     #[doc(hidden)]
     pub default_val: Option<&'a str>,
+    #[doc(hidden)]
+    pub disp_ord: usize,
 }
 
 impl<'a, 'b> Default for Arg<'a, 'b> {
@@ -91,6 +93,7 @@ impl<'a, 'b> Default for Arg<'a, 'b> {
             settings: ArgFlags::new(),
             val_delim: Some(','),
             default_val: None,
+            disp_ord: 999,
         }
     }
 }
@@ -154,6 +157,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 "value_name" => a.value_name(v.as_str().unwrap()),
                 "use_delimiter" => a.use_delimiter(v.as_bool().unwrap()),
                 "value_delimiter" => a.value_delimiter(v.as_str().unwrap()),
+                "display_order" => a.display_order(v.as_i64().unwrap() as usize),
                 "value_names" => {
                     for ys in v.as_vec().unwrap() {
                         if let Some(s) = ys.as_str() {
@@ -1795,6 +1799,64 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
+    /// Allows custom ordering of args within the help message. Args with a lower value will be
+    /// displayed first in the help message. This is helpful when one would like to emphasise
+    /// frequently used args, or prioritize those towards the top of the list. Duplicate values
+    /// **are** allowed. Args with duplicate display orders will be displayed in alphabetical
+    /// order.
+    ///
+    /// **NOTE:** The default is 999 for all arguments.
+    ///
+    /// **NOTE:** This setting is ignored for positional arguments which are always displayed in
+    /// index order.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("cust-ord")
+    ///     .arg(Arg::with_name("a") // Typically args are grouped alphabetically by name.
+    ///                              // Args without a display_order have a value of 999 and are
+    ///                              // displayed alphabetically with all other 999 valued args.
+    ///         .long("long-option")
+    ///         .short("o")
+    ///         .takes_value(true)
+    ///         .help("Some help and text"))
+    ///     .arg(Arg::with_name("b")
+    ///         .long("other-option")
+    ///         .short("O")
+    ///         .takes_value(true)
+    ///         .display_order(1)   // In order to force this arg to appear *first*
+    ///                             // all we have to do is give it a value lower than 999.
+    ///                             // Any other args with a value of 1 will be displayed
+    ///                             // alphabetically with this one...then 2 values, then 3, etc.
+    ///         .help("I should be first!"))
+    ///     .get_matches_from(vec![
+    ///         "cust-ord", "--help"
+    ///     ]);
+    /// ```
+    ///
+    /// The above example displays the following help message
+    ///
+    /// ```ignore
+    /// cust-ord
+    ///
+    /// USAGE:
+    ///     cust-ord [FLAGS] [OPTIONS]
+    ///
+    /// FLAGS:
+    ///     -h, --help       Prints help information
+    ///     -V, --version    Prints version information
+    ///
+    /// OPTIONS:
+    ///     -O, --other-option <b>    I should be first!
+    ///     -o, --long-option <a>     Some help and text
+    /// ```
+    pub fn display_order(mut self, ord: usize) -> Self {
+        self.disp_ord = ord;
+        self
+    }
+
     /// Checks if one of the `ArgSettings` settings is set for the argument
     pub fn is_set(&self, s: ArgSettings) -> bool {
         self.settings.is_set(s)
@@ -1845,6 +1907,7 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>>
             settings: a.settings,
             val_delim: a.val_delim,
             default_val: a.default_val,
+            disp_ord: a.disp_ord,
         }
     }
 }
