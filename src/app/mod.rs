@@ -428,9 +428,10 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn args_from_usage(mut self, usage: &'a str) -> Self {
-        for l in usage.lines() {
-            if l.len() == 0 { continue; }
-            self.p.add_arg(&Arg::from_usage(l.trim()));
+        for line in usage.lines() {
+            let l = line.trim();
+            if l.is_empty() { continue; }
+            self.p.add_arg(&Arg::from_usage(l));
         }
         self
     }
