@@ -5,8 +5,10 @@ use std::io;
 use std::rc::Rc;
 use std::result::Result as StdResult;
 
+use vec_map::VecMap;
+
 use Arg;
-use args::AnyArg;
+use args::{AnyArg, HelpWriter};
 use args::settings::{ArgFlags, ArgSettings};
 
 #[derive(Debug)]
@@ -47,9 +49,13 @@ impl<'n, 'e> FlagBuilder<'n, 'e> {
         }
     }
 
-    pub fn write_help<W: io::Write>(&self, w: &mut W, tab: &str, longest: usize, nlh: bool) -> io::Result<()> {
-        write_arg_help!(@flag self, w, tab, longest, nlh);
-        write!(w, "\n")
+    pub fn write_help<W: io::Write>(&self, w: &mut W, longest: usize, nlh: bool) -> io::Result<()> {
+        let hw = HelpWriter::new(
+            self,
+            longest,
+            nlh,
+        );
+        hw.write_to(w)
     }
 }
 
@@ -98,8 +104,10 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn blacklist(&self) -> Option<&[&'e str]> { self.blacklist.as_ref().map(|o| &o[..]) }
     fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(s) }
     fn has_switch(&self) -> bool { true }
+    fn takes_value(&self) -> bool { false }
     fn set(&mut self, s: ArgSettings) { self.settings.set(s) }
     fn max_vals(&self) -> Option<u64> { None }
+    fn val_names(&self) -> Option<&VecMap<&'e str>> { None }
     fn num_vals(&self) -> Option<u64> { None }
     fn possible_vals(&self) -> Option<&[&'e str]> { None }
     fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> { None }
@@ -107,6 +115,8 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn short(&self) -> Option<char> { self.short }
     fn long(&self) -> Option<&'e str> { self.long }
     fn val_delim(&self) -> Option<char> { None }
+    fn help(&self) -> Option<&'e str> { self.help }
+    fn default_val(&self) -> Option<&'n str> { None }
 }
 
 #[cfg(test)]

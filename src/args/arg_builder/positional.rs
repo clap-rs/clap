@@ -6,7 +6,7 @@ use std::io;
 use vec_map::VecMap;
 
 use Arg;
-use args::AnyArg;
+use args::{AnyArg, HelpWriter};
 use args::settings::{ArgFlags, ArgSettings};
 
 #[allow(missing_debug_implementations)]
@@ -63,7 +63,7 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
     }
 
     pub fn from_arg(a: &Arg<'n, 'e>, idx: u64, reqs: &mut Vec<&'e str>) -> Self {
-        assert!(a.short.is_none() || a.long.is_none(),
+        debug_assert!(a.short.is_none() || a.long.is_none(),
             format!("Argument \"{}\" has conflicting requirements, both index() and short(), \
                 or long(), were supplied", a.name));
 
@@ -105,9 +105,10 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
         pb
     }
 
-    pub fn write_help<W: io::Write>(&self, w: &mut W, tab: &str, longest: usize, skip_pv: bool, nlh: bool) -> io::Result<()> {
-        write_arg_help!(@pos self, w, tab, longest, skip_pv, nlh);
-        write!(w, "\n")
+    pub fn write_help<W: io::Write>(&self, w: &mut W, longest: usize, skip_pv: bool, nlh: bool) -> io::Result<()> {
+        let mut hw = HelpWriter::new(self, longest, nlh);
+        hw.skip_pv = skip_pv;
+        hw.write_to(w)
     }
 }
 
@@ -139,6 +140,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for PosBuilder<'n, 'e> {
     fn overrides(&self) -> Option<&[&'e str]> { self.overrides.as_ref().map(|o| &o[..]) }
     fn requires(&self) -> Option<&[&'e str]> { self.requires.as_ref().map(|o| &o[..]) }
     fn blacklist(&self) -> Option<&[&'e str]> { self.blacklist.as_ref().map(|o| &o[..]) }
+    fn val_names(&self) -> Option<&VecMap<&'e str>> { self.val_names.as_ref() }
     fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(s) }
     fn set(&mut self, s: ArgSettings) { self.settings.set(s) }
     fn has_switch(&self) -> bool { false }
@@ -152,6 +154,9 @@ impl<'n, 'e> AnyArg<'n, 'e> for PosBuilder<'n, 'e> {
     fn short(&self) -> Option<char> { None }
     fn long(&self) -> Option<&'e str> { None }
     fn val_delim(&self) -> Option<char> { self.val_delim }
+    fn takes_value(&self) -> bool { true }
+    fn help(&self) -> Option<&'e str> { self.help }
+    fn default_val(&self) -> Option<&'n str> { self.default_val }
 }
 
 #[cfg(test)]

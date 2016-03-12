@@ -5,7 +5,7 @@ use std::io;
 
 use vec_map::VecMap;
 
-use args::{AnyArg, Arg};
+use args::{AnyArg, Arg, HelpWriter};
 use args::settings::{ArgFlags, ArgSettings};
 
 #[allow(missing_debug_implementations)]
@@ -104,10 +104,10 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
         ob
     }
 
-    pub fn write_help<W: io::Write>(&self, w: &mut W, tab: &str, longest: usize, skip_pv: bool, nlh: bool) -> io::Result<()> {
-        debugln!("fn=write_help");
-        write_arg_help!(@opt self, w, tab, longest, skip_pv, nlh);
-        write!(w, "\n")
+    pub fn write_help<W: io::Write>(&self, w: &mut W, longest: usize, skip_pv: bool, nlh: bool) -> io::Result<()> {
+        let mut hw = HelpWriter::new(self, longest, nlh);
+        hw.skip_pv = skip_pv;
+        hw.write_to(w)
     }
 }
 
@@ -116,29 +116,30 @@ impl<'n, 'e> Display for OptBuilder<'n, 'e> {
         debugln!("fn=fmt");
         // Write the name such --long or -l
         if let Some(l) = self.long {
-            try!(write!(f, "--{}", l));
+            try!(write!(f, "--{} ", l));
         } else {
-            try!(write!(f, "-{}", self.short.unwrap()));
+            try!(write!(f, "-{} ", self.short.unwrap()));
         }
 
         // Write the values such as <name1> <name2>
         if let Some(ref vec) = self.val_names {
-            for (_, n) in vec {
-                debugln!("writing val_name: {}", n);
-                try!(write!(f, " <{}>", n));
+            let mut it = vec.iter().peekable();
+            while let Some((_, val)) = it.next() {
+                try!(write!(f, "<{}>", val));
+                if it.peek().is_some() { try!(write!(f, " ")); }
             }
             let num = vec.len();
-            if self.settings.is_set(ArgSettings::Multiple) && num == 1 {
+            if self.is_set(ArgSettings::Multiple) && num == 1 {
                 try!(write!(f, "..."));
+            }
+        } else if let Some(num) = self.num_vals {
+            let mut it = (0..num).peekable();
+            while let Some(_) = it.next() {
+                try!(write!(f, "<{}>", self.name));
+                if it.peek().is_some() { try!(write!(f, " ")); }
             }
         } else {
-            let num = self.num_vals.unwrap_or(1);
-            for _ in 0..num {
-                try!(write!(f, " <{}>", self.name));
-            }
-            if self.settings.is_set(ArgSettings::Multiple) && num == 1 {
-                try!(write!(f, "..."));
-            }
+            try!(write!(f, "<{}>{}", self.name, if self.is_set(ArgSettings::Multiple) { "..." } else { "" }));
         }
 
         Ok(())
@@ -150,6 +151,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn overrides(&self) -> Option<&[&'e str]> { self.overrides.as_ref().map(|o| &o[..]) }
     fn requires(&self) -> Option<&[&'e str]> { self.requires.as_ref().map(|o| &o[..]) }
     fn blacklist(&self) -> Option<&[&'e str]> { self.blacklist.as_ref().map(|o| &o[..]) }
+    fn val_names(&self) -> Option<&VecMap<&'e str>> { self.val_names.as_ref().map(|o| o) }
     fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(s) }
     fn has_switch(&self) -> bool { true }
     fn set(&mut self, s: ArgSettings) { self.settings.set(s) }
@@ -163,6 +165,9 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn short(&self) -> Option<char> { self.short }
     fn long(&self) -> Option<&'e str> { self.long }
     fn val_delim(&self) -> Option<char> { self.val_delim }
+    fn takes_value(&self) -> bool { true }
+    fn help(&self) -> Option<&'e str> { self.help }
+    fn default_val(&self) -> Option<&'n str> { self.default_val }
 }
 
 #[cfg(test)]
