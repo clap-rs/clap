@@ -38,7 +38,20 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-In v2.1.1
+Here's the highlights from v2.2.0
+
+#### Features
+
+* **Help text auto wraps and aligns at term width!** - Long help strings will now properly wrap and align to term width. This can be turned off as well.
+* **Can customize the order of opts, flags, and subcommands in help messages**  - Instead of using the default alphabetical order, you can now re-arange the order of your args and subcommands in help message. This helps to emphasize more popular or important options.
+ * **Can auto-derive the order from declaration order** - Have a bunch of args or subcommmands to re-order? You can now just derive the order from the declaration order!
+* Other minor bug fixes
+
+An example of the help text wrapping at term width:
+
+[!](http://i.imgur.com/PAJzJJG.png)
+
+In v2.1.2
 
 #### New Features
 
