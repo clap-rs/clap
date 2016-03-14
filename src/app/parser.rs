@@ -1235,7 +1235,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 &*self.get_required_from(&*self.required.iter().map(|&r| &*r).collect::<Vec<_>>(), Some(matcher))
                       .iter()
                       .fold(String::new(),
-                          |acc, s| acc + &format!("\n\t{}", Format::Error(s))[..]),
+                          |acc, s| acc + &format!("\n    {}", Format::Error(s))[..]),
                 &*self.create_current_usage(matcher))
             };
             return Err(err);
@@ -1290,7 +1290,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
     fn create_usage(&self, used: &[&str]) -> String {
         debugln!("fn=create_usage;");
         let mut usage = String::with_capacity(75);
-        usage.push_str("USAGE:\n\t");
+        usage.push_str("USAGE:\n    ");
         if let Some(u) = self.meta.usage_str {
             usage.push_str(&*u);
         } else if used.is_empty() {

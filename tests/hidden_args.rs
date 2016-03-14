@@ -22,7 +22,7 @@ Kevin K.
 tests stuff
 
 USAGE:
-\ttest [FLAGS] [OPTIONS]
+    test [FLAGS] [OPTIONS]
 
 FLAGS:
     -F, --flag2      some other flag
