@@ -1,6 +1,5 @@
 use std::io;
 
-
 use args::AnyArg;
 use args::settings::ArgSettings;
 use term;
@@ -218,8 +217,7 @@ impl<'a, 'n, 'e, A> HelpWriter<'a, A> where A: AnyArg<'n, 'e>  {
         Ok(())
     }
 
-    fn spec_vals(&self) -> String
-    {
+    fn spec_vals(&self) -> String {
         debugln!("fn=spec_vals;");
         if let Some(ref pv) = self.a.default_val() {
             debugln!("Writing defaults");

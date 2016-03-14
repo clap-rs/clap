@@ -50,11 +50,7 @@ impl<'n, 'e> FlagBuilder<'n, 'e> {
     }
 
     pub fn write_help<W: io::Write>(&self, w: &mut W, longest: usize, nlh: bool) -> io::Result<()> {
-        let hw = HelpWriter::new(
-            self,
-            longest,
-            nlh,
-        );
+        let hw = HelpWriter::new(self, longest, nlh);
         hw.write_to(w)
     }
 }
