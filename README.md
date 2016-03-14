@@ -49,7 +49,7 @@ Here's the highlights from v2.2.0
 
 An example of the help text wrapping at term width:
 
-[!](http://i.imgur.com/PAJzJJG.png)
+![screenshot](http://i.imgur.com/PAJzJJG.png)
 
 In v2.1.2
 
