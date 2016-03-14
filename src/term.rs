@@ -12,14 +12,14 @@
 //! The size is needed when the user wants the output formatted into columns:
 //! the default grid view, or the hybrid grid-details view.
 
-#[cfg(feature = "wrap_help")]
+#[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
 use std::mem::zeroed;
-#[cfg(feature = "wrap_help")]
+#[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
 use libc::{c_int, c_ushort, c_ulong, STDOUT_FILENO};
 
 
 /// The number of rows and columns of a terminal.
-#[cfg(feature = "wrap_help")]
+#[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
 struct Winsize {
     ws_row: c_ushort,
     ws_col: c_ushort,
@@ -42,14 +42,14 @@ static TIOCGWINSZ: c_ulong = 0x5413;
 static TIOCGWINSZ: c_ulong = 0x40087468;
 
 extern {
-    #[cfg(feature = "wrap_help")]
+#[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
     pub fn ioctl(fd: c_int, request: c_ulong, ...) -> c_int;
 }
 
 /// Runs the ioctl command. Returns (0, 0) if output is not to a terminal, or
 /// there is an error. (0, 0) is an invalid size to have anyway, which is why
 /// it can be used as a nil value.
-#[cfg(feature = "wrap_help")]
+#[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
 unsafe fn get_dimensions() -> Winsize {
     let mut window: Winsize = zeroed();
     let result = ioctl(STDOUT_FILENO, TIOCGWINSZ, &mut window);
@@ -64,7 +64,7 @@ unsafe fn get_dimensions() -> Winsize {
 
 /// Query the current processes's output, returning its width and height as a
 /// number of characters. Returns `None` if the output isn't to a terminal.
-#[cfg(feature = "wrap_help")]
+#[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
 pub fn dimensions() -> Option<(usize, usize)> {
     let w = unsafe { get_dimensions() };
 
@@ -76,7 +76,7 @@ pub fn dimensions() -> Option<(usize, usize)> {
     }
 }
 
-#[cfg(not(feature = "wrap_help"))]
+#[cfg(any(not(feature = "wrap_help"), target_os = "windows"))]
 pub fn dimensions() -> Option<(usize, usize)> {
     None
 }
