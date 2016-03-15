@@ -38,7 +38,20 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-In v2.1.1
+Here's the highlights from v2.2.0
+
+#### Features
+
+* **Help text auto wraps and aligns at term width!** - Long help strings will now properly wrap and align to term width on Linux and OSX (and resumably Unix too). This can be turned off as well.
+* **Can customize the order of opts, flags, and subcommands in help messages**  - Instead of using the default alphabetical order, you can now re-arange the order of your args and subcommands in help message. This helps to emphasize more popular or important options.
+ * **Can auto-derive the order from declaration order** - Have a bunch of args or subcommmands to re-order? You can now just derive the order from the declaration order!
+* Other minor bug fixes
+
+An example of the help text wrapping at term width:
+
+![screenshot](http://i.imgur.com/PAJzJJG.png)
+
+In v2.1.2
 
 #### New Features
 
@@ -47,7 +60,7 @@ In v2.1.1
 
 #### Improvements
 
- * **Documenation Examples**: The examples in the documentation have been vastly improved
+ * **Documentation Examples**: The examples in the documentation have been vastly improved
 
 For full details, see [CHANGELOG.md](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md)
 
@@ -433,14 +446,14 @@ default-features = false
 # Cherry-pick the features you'd like to use
 features = [ "suggestions", "color" ]
 ```
-
 The following is a list of optional `clap` features:
 
-* **"suggestions"**: Turns on the `Did you mean '--myoption' ?` feature for when users make typos.
-* **"color"**: Turns on colored error messages. This feature only works on non-Windows OSs.
-* **"lints"**: This is **not** included by default and should only be used while developing to run basic lints against changes. This can only be used on Rust nightly.
+* **"suggestions"**: Turns on the `Did you mean '--myoption' ?` feature for when users make typos. (builds dependency `strsim`)
+* **"color"**: Turns on colored error messages. This feature only works on non-Windows OSs. (builds dependency `ansi-term`)
+* **"wrap_help"**: Automatically detects terminal width and wraps long help text lines with proper indentation alignment (builds dependency `libc`)
+* **"lints"**: This is **not** included by default and should only be used while developing to run basic lints against changes. This can only be used on Rust nightly. (builds dependency `clippy`)
 * **"debug"**: This is **not** included by default and should only be used while developing to display debugging information.
-* **"yaml"**: This is **not** included by default. Enables building CLIs from YAML documents.
+* **"yaml"**: This is **not** included by default. Enables building CLIs from YAML documents. (builds dependency `yaml-rust`)
 * **"unstable"**: This is **not** included by default. Enables unstable features, unstable refers to whether or not they may change, not performance stability.
 
 ### Dependencies Tree
@@ -472,7 +485,7 @@ Contributions are always welcome! And there is a multitude of ways in which you 
 
 Another really great way to help is if you find an interesting, or helpful way in which to use `clap`. You can either add it to the [examples/](examples) directory, or file an issue and tell me. I'm all about giving credit where credit is due :)
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) before you start contributing.
+Please read [CONTRIBUTING.md](.github/CONTRIBUTING.md) before you start contributing.
 
 ### Running the tests
 
@@ -553,6 +566,6 @@ As of 2.0.0 (From 1.x)
 
 Old method names will be left around for several minor version bumps, or one major version bump.
 
-As of 2.1.1:
+As of 2.2.0:
 
  * None!

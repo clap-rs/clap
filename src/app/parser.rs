@@ -1235,7 +1235,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 &*self.get_required_from(&*self.required.iter().map(|&r| &*r).collect::<Vec<_>>(), Some(matcher))
                       .iter()
                       .fold(String::new(),
-                          |acc, s| acc + &format!("\n\t{}", Format::Error(s))[..]),
+                          |acc, s| acc + &format!("\n    {}", Format::Error(s))[..]),
                 &*self.create_current_usage(matcher))
             };
             return Err(err);
@@ -1290,7 +1290,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
     fn create_usage(&self, used: &[&str]) -> String {
         debugln!("fn=create_usage;");
         let mut usage = String::with_capacity(75);
-        usage.push_str("USAGE:\n\t");
+        usage.push_str("USAGE:\n    ");
         if let Some(u) = self.meta.usage_str {
             usage.push_str(&*u);
         } else if used.is_empty() {
@@ -1448,7 +1448,6 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             try!(write!(w, "\n"));
         }
 
-        let tab = "    ";
         let longest = if !unified_help || longest_opt == 0 {
             longest_flag
         } else {
@@ -1461,13 +1460,13 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             for f in self.flags.iter().filter(|f| !f.settings.is_set(ArgSettings::Hidden)) {
                 let btm = ord_m.entry(f.disp_ord).or_insert(BTreeMap::new());
                 let mut v = vec![];
-                try!(f.write_help(&mut v, tab, longest, nlh));
+                try!(f.write_help(&mut v, longest, nlh));
                 btm.insert(f.name, v);
             }
             for o in self.opts.iter().filter(|o| !o.settings.is_set(ArgSettings::Hidden)) {
                 let btm = ord_m.entry(o.disp_ord).or_insert(BTreeMap::new());
                 let mut v = vec![];
-                try!(o.write_help(&mut v, tab, longest, self.is_set(AppSettings::HidePossibleValuesInHelp), nlh));
+                try!(o.write_help(&mut v, longest, self.is_set(AppSettings::HidePossibleValuesInHelp), nlh));
                 btm.insert(o.name, v);
             }
             for (_, btm) in ord_m.into_iter() {
@@ -1486,7 +1485,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 }
                 for (_, btm) in ord_m.into_iter() {
                     for (_, f) in btm.into_iter() {
-                        try!(f.write_help(w, tab, longest, nlh));
+                        try!(f.write_help(w, longest, nlh));
                     }
                 }
             }
@@ -1499,7 +1498,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 }
                 for (_, btm) in ord_m.into_iter() {
                     for (_, o) in btm.into_iter() {
-                        try!(o.write_help(w, tab, longest_opt, self.is_set(AppSettings::HidePossibleValuesInHelp), nlh));
+                        try!(o.write_help(w, longest_opt, self.is_set(AppSettings::HidePossibleValuesInHelp), nlh));
                     }
                 }
             }
@@ -1508,7 +1507,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             try!(write!(w, "\nARGS:\n"));
             for v in self.positionals.values()
                          .filter(|p| !p.settings.is_set(ArgSettings::Hidden)) {
-                try!(v.write_help(w, tab, longest_pos, self.is_set(AppSettings::HidePossibleValuesInHelp), nlh));
+                try!(v.write_help(w, longest_pos, self.is_set(AppSettings::HidePossibleValuesInHelp), nlh));
             }
         }
         if subcmds {
@@ -1520,7 +1519,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             }
             for (_, btm) in ord_m.into_iter() {
                 for (name, sc) in btm.into_iter() {
-                    try!(write!(w, "{}{}", tab, name));
+                    try!(write!(w, "    {}", name));
                     write_spaces!((longest_sc + 4) - (name.len()), w);
                     if let Some(a) = sc.p.meta.about {
                         if a.contains("{n}") {

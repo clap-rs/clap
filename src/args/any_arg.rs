@@ -1,6 +1,8 @@
 use std::rc::Rc;
 use std::fmt::Display;
 
+use vec_map::VecMap;
+
 use args::settings::ArgSettings;
 
 #[doc(hidden)]
@@ -20,4 +22,8 @@ pub trait AnyArg<'n, 'e>: Display {
     fn short(&self) -> Option<char>;
     fn long(&self) -> Option<&'e str>;
     fn val_delim(&self) -> Option<char>;
+    fn takes_value(&self) -> bool;
+    fn val_names(&self) -> Option<&VecMap<&'e str>>;
+    fn help(&self) -> Option<&'e str>;
+    fn default_val(&self) -> Option<&'n str>;
 }

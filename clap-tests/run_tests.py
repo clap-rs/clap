@@ -13,7 +13,7 @@ Kevin K. <kbknapp@gmail.com>
 tests clap library
 
 USAGE:
-\tclaptests [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
+    claptests [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
 
 FLAGS:
     -f, --flag       tests flags
@@ -47,7 +47,7 @@ _sc_dym_usage = '''error: The subcommand 'subcm' wasn't recognized
 If you believe you received this message in error, try re-running with 'claptests -- subcm'
 
 USAGE:
-\tclaptests [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
+    claptests [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
 
 For more information try --help'''
 
@@ -55,7 +55,7 @@ _arg_dym_usage = '''error: Found argument '--optio' which wasn't expected, or is
 \tDid you mean --option ?
 
 USAGE:
-\tclaptests --option <opt>...
+    claptests --option <opt>...
 
 For more information try --help'''
 
@@ -65,30 +65,30 @@ _pv_dym_usage = '''error: 'slo' isn't a valid value for '--Option <option3>'
     Did you mean 'slow' ?
 
 USAGE:
-\tclaptests --Option <option3>
+    claptests --Option <option3>
 
 For more information try --help'''
 
 _excluded = '''error: The argument '--flag' cannot be used with '-F'
 
 USAGE:
-\tclaptests [positional2] -F --long-option-2 <option2>
+    claptests [positional2] -F --long-option-2 <option2>
 
 For more information try --help'''
 
 _excluded_l = '''error: The argument '-f' cannot be used with '-F'
 
 USAGE:
-\tclaptests [positional2] -F --long-option-2 <option2>
+    claptests [positional2] -F --long-option-2 <option2>
 
 For more information try --help'''
 
 _required = '''error: The following required arguments were not provided:
-\t[positional2]
-\t--long-option-2 <option2>
+    [positional2]
+    --long-option-2 <option2>
 
 USAGE:
-\tclaptests [positional2] -F --long-option-2 <option2>
+    claptests [positional2] -F --long-option-2 <option2>
 
 For more information try --help'''
 
@@ -141,7 +141,7 @@ Kevin K. <kbknapp@gmail.com>
 tests subcommands
 
 USAGE:
-\tclaptests subcmd [FLAGS] [OPTIONS] [--] [ARGS]
+    claptests subcmd [FLAGS] [OPTIONS] [--] [ARGS]
 
 FLAGS:
     -f, --flag       tests flags
