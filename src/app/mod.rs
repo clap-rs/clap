@@ -875,3 +875,11 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
         a
     }
 }
+
+impl<'a, 'b> Clone for App<'a, 'b> {
+    fn clone(&self) -> Self {
+        App {
+            p: self.p.clone(),
+        }
+    }
+}

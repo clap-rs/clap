@@ -481,7 +481,22 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 if pos_sc {
                     if &*arg_os == "help" &&
                        self.settings.is_set(AppSettings::NeedsSubcommandHelp) {
-                        return self._help();
+                        let cmds: Vec<OsString> = it.map(|c| c.into()).collect();
+                        let mut sc: &Parser = self;
+                        for (i, cmd) in cmds.iter().enumerate() {
+                            if let Some(c) = sc.subcommands.iter().filter(|s| &*s.p.meta.name == cmd).next().map(|sc| &sc.p) {
+                                sc = c;
+                                if i == cmds.len() - 1 {
+                                    break;
+                                }
+                            } else {
+                                return Err(
+                                    Error::unrecognized_subcommand(
+                                        cmd.to_string_lossy().into_owned(),
+                                        self.meta.bin_name.as_ref().unwrap_or(&self.meta.name)));
+                            }
+                        }
+                        return sc._help();
                     }
                     subcmd_name = Some(arg_os.to_str().expect(INVALID_UTF8).to_owned());
                     break;
@@ -500,7 +515,6 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 parse_positional!(self, p, arg_os, pos_only, pos_counter, matcher);
             } else {
                 if self.settings.is_set(AppSettings::AllowExternalSubcommands) {
-                    // let arg_str = arg_os.to_str().expect(INVALID_UTF8);
                     let mut sc_m = ArgMatcher::new();
                     while let Some(v) = it.next() {
                         let a = v.into();
@@ -521,7 +535,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 } else {
                     return Err(Error::unknown_argument(
                         &*arg_os.to_string_lossy(),
-                        "", //self.meta.bin_name.as_ref().unwrap_or(&self.meta.name),
+                        "",
                         &*self.create_current_usage(matcher)));
                 }
             }
@@ -800,7 +814,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 .iter()
                 .any(|s| &s.p.meta.name[..] == "help") {
             debugln!("Building help");
-            self.subcommands.push(App::new("help").about("Prints this message"));
+            self.subcommands.push(App::new("help").about("With no arguments it prints this message, otherwise it prints help information about other subcommands"));
         }
     }
 
@@ -1560,5 +1574,27 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             add_val!(self, p, matcher);
         }
         Ok(())
+    }
+}
+
+impl<'a, 'b> Clone for Parser<'a, 'b> where 'a: 'b {
+    fn clone(&self) -> Self {
+        Parser {
+            required: self.required.clone(),
+            short_list: self.short_list.clone(),
+            long_list: self.long_list.clone(),
+            blacklist: self.blacklist.clone(),
+            flags: self.flags.clone(),
+            opts: self.opts.clone(),
+            positionals: self.positionals.clone(),
+            subcommands: self.subcommands.clone(),
+            groups: self.groups.clone(),
+            global_args: self.global_args.clone(),
+            overrides: self.overrides.clone(),
+            help_short: self.help_short.clone(),
+            version_short: self.version_short.clone(),
+            settings: self.settings.clone(),
+            meta: self.meta.clone(),
+        }
     }
 }

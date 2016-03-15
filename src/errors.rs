@@ -64,6 +64,28 @@ pub enum ErrorKind {
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidSubcommand);
     /// ```
     InvalidSubcommand,
+    /// Occurs when the user provids an unrecognized subcommand which does not meet the threshold
+    /// for being similar enough to an existing subcommand so as to not cause the more detailed
+    /// `InvalidSubcommand` error.
+    ///
+    /// This error typically happens when passing additional subcommand names to the `help`
+    /// subcommand. Otherwise, the more general `UnknownArgument` error is used.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind, SubCommand};
+    /// let result = App::new("myprog")
+    ///     .subcommand(SubCommand::with_name("config")
+    ///         .about("Used for configuration")
+    ///         .arg(Arg::with_name("config_file")
+    ///             .help("The configuration file to use")
+    ///             .index(1)))
+    ///     .get_matches_from_safe(vec!["myprog", "help", "nothing"]);
+    /// assert!(result.is_err());
+    /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnrecognizedSubcommand);
+    /// ```
+    UnrecognizedSubcommand,
     /// Occurs when the user provides an empty value for an option that does not allow empty
     /// values.
     ///
@@ -437,6 +459,26 @@ impl Error {
                            usage,
                            Format::Good("--help")),
             kind: ErrorKind::InvalidSubcommand,
+            info: Some(vec![s]),
+        }
+    }
+
+    #[doc(hidden)]
+    pub fn unrecognized_subcommand<S, N>(subcmd: S, name: N) -> Self
+        where S: Into<String>,
+              N: Display
+    {
+        let s = subcmd.into();
+        Error {
+            message: format!("{} The subcommand '{}' wasn't recognized\n\n\
+                            USAGE:\n\t\
+                                {} help <subcommands>...\n\n\
+                            For more information try {}",
+                           Format::Error("error:"),
+                           Format::Warning(&*s),
+                           name,
+                           Format::Good("--help")),
+            kind: ErrorKind::UnrecognizedSubcommand,
             info: Some(vec![s]),
         }
     }

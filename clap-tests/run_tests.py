@@ -36,7 +36,7 @@ ARGS:
     <positional3>...    tests positionals with specific values [values: vi, emacs]
 
 SUBCOMMANDS:
-    help      Prints this message
+    help      With no arguments it prints this message, otherwise it prints help information about other subcommands
     subcmd    tests subcommands'''
 
 _version = "claptests v1.4.8"

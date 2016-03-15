@@ -486,3 +486,16 @@ requires:
         assert_eq!(g.conflicts, Some(confs));
     }
 }
+
+impl<'a> Clone for ArgGroup<'a> {
+    fn clone(&self) -> Self {
+        ArgGroup {
+            name: self.name,
+            required: self.required,
+            args: self.args.clone(),
+            requires: self.requires.clone(),
+            conflicts: self.conflicts.clone(),
+        }
+    }
+
+}

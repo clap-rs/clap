@@ -93,6 +93,22 @@ impl<'n, 'e> Display for FlagBuilder<'n, 'e> {
     }
 }
 
+impl<'n, 'e> Clone for FlagBuilder<'n, 'e> {
+    fn clone(&self) -> Self {
+        FlagBuilder {
+            name: self.name,
+            short: self.short,
+            long: self.long,
+            help: self.help,
+            blacklist: self.blacklist.clone(),
+            overrides: self.overrides.clone(),
+            requires: self.requires.clone(),
+            settings: self.settings,
+            disp_ord: self.disp_ord,
+        }
+    }
+}
+
 impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn name(&self) -> &'n str { self.name }
     fn overrides(&self) -> Option<&[&'e str]> { self.overrides.as_ref().map(|o| &o[..]) }

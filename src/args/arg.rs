@@ -1911,3 +1911,29 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>>
         }
     }
 }
+
+impl<'a, 'b> Clone for Arg<'a, 'b> {
+    fn clone(&self) -> Self {
+        Arg {
+            name: self.name,
+            short: self.short,
+            long: self.long,
+            help: self.help,
+            index: self.index,
+            possible_vals: self.possible_vals.clone(),
+            blacklist: self.blacklist.clone(),
+            requires: self.requires.clone(),
+            num_vals: self.num_vals,
+            min_vals: self.min_vals,
+            max_vals: self.max_vals,
+            val_names: self.val_names.clone(),
+            group: self.group,
+            validator: self.validator.clone(),
+            overrides: self.overrides.clone(),
+            settings: self.settings,
+            val_delim: self.val_delim,
+            default_val: self.default_val,
+            disp_ord: self.disp_ord,
+        }
+    }
+}
