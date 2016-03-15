@@ -32,6 +32,12 @@ bitflags! {
 #[derive(Debug)]
 pub struct AppFlags(Flags);
 
+impl Clone for AppFlags {
+    fn clone(&self) -> Self {
+        AppFlags(self.0)
+    }
+}
+
 impl Default for AppFlags {
     fn default() -> Self {
         AppFlags(NEEDS_LONG_VERSION | NEEDS_LONG_HELP | NEEDS_SC_HELP | UTF8_NONE)
@@ -480,7 +486,7 @@ impl FromStr for AppSettings {
 #[cfg(test)]
 mod test {
     use super::AppSettings;
-    
+
     #[test]
     fn app_settings_fromstr() {
         assert_eq!("subcommandsnegatereqs".parse::<AppSettings>().unwrap(), AppSettings::SubcommandsNegateReqs);

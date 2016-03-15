@@ -146,6 +146,30 @@ impl<'n, 'e> Display for OptBuilder<'n, 'e> {
     }
 }
 
+impl<'n, 'e> Clone for OptBuilder<'n, 'e> {
+    fn clone(&self) -> Self {
+        OptBuilder {
+            name: self.name,
+            short: self.short,
+            long: self.long,
+            help: self.help,
+            blacklist: self.blacklist.clone(),
+            overrides: self.overrides.clone(),
+            requires: self.requires.clone(),
+            settings: self.settings,
+            disp_ord: self.disp_ord,
+            num_vals: self.num_vals,
+            min_vals: self.min_vals,
+            max_vals: self.max_vals,
+            val_names: self.val_names.clone(),
+            val_delim: self.val_delim,
+            possible_vals: self.possible_vals.clone(),
+            default_val: self.default_val,
+            validator: self.validator.clone(),
+        }
+    }
+}
+
 impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn name(&self) -> &'n str { self.name }
     fn overrides(&self) -> Option<&[&'e str]> { self.overrides.as_ref().map(|o| &o[..]) }
