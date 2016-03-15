@@ -1,14 +1,11 @@
 <a name="v2.2.0"></a>
-## v2.2.0 (2016-03-14)
+## v2.2.0 (2016-03-15)
 
-
-#### Documentation
-
-* **Groups:**  explains required ArgGroups better ([4ff0205b](https://github.com/kbknapp/clap-rs/commit/4ff0205b85a45151b59bbaf090a89df13438380f), closes [#439](https://github.com/kbknapp/clap-rs/issues/439))
 
 #### Features
 
 * **Help Message:**  can auto wrap and aligning help text to term width ([e36af026](https://github.com/kbknapp/clap-rs/commit/e36af0266635f23e85e951b9088d561e9a5d1bf6), closes [#428](https://github.com/kbknapp/clap-rs/issues/428))
+* **Help Subcommand:**  adds support passing additional subcommands to help subcommand ([2c12757b](https://github.com/kbknapp/clap-rs/commit/2c12757bbdf34ce481f3446c074e24c09c2e60fd), closes [#416](https://github.com/kbknapp/clap-rs/issues/416))
 * **Opts and Flags:**  adds support for custom ordering in help messages ([9803b51e](https://github.com/kbknapp/clap-rs/commit/9803b51e799904c0befaac457418ee766ccc1ab9))
 * **Settings:**  adds support for automatically deriving custom display order of args ([ad86e433](https://github.com/kbknapp/clap-rs/commit/ad86e43334c4f70e86909689a088fb87e26ff95a), closes [#444](https://github.com/kbknapp/clap-rs/issues/444))
 * **Subcommands:**  adds support for custom ordering in help messages ([7d2a2ed4](https://github.com/kbknapp/clap-rs/commit/7d2a2ed413f5517d45988eef0765cdcd663b6372), closes [#442](https://github.com/kbknapp/clap-rs/issues/442))
@@ -17,7 +14,9 @@
 
 * **From Usage:**  fixes a bug where adding empty lines werent ignored ([c5c58c86](https://github.com/kbknapp/clap-rs/commit/c5c58c86b9c503d8de19da356a5a5cffb59fbe84))
 
+#### Documentation
 
+* **Groups:**  explains required ArgGroups better ([4ff0205b](https://github.com/kbknapp/clap-rs/commit/4ff0205b85a45151b59bbaf090a89df13438380f), closes [#439](https://github.com/kbknapp/clap-rs/issues/439))
 
 <a name="v2.1.2"></a>
 ### v2.1.2 (2016-02-24)
