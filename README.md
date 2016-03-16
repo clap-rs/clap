@@ -38,6 +38,11 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights from v2.2.1
+
+* **Help text auto wraps and aligns at for subcommands too!** - Long help strings of subcommands will now properly wrap and align to term width on Linux and OSX. This can be turned off as well.
+* Bug fixes
+
 Here's the highlights from v2.2.0
 
 #### Features

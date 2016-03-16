@@ -1,3 +1,16 @@
+<a name="2.2.1"></a>
+### 2.2.1 (2016-03-16)
+
+
+#### Features
+
+* **Help Message:**  wraps and aligns the help message of subcommands ([813d75d0](https://github.com/kbknapp/clap-rs/commit/813d75d06fbf077c65762608c0fa5e941cfc393c), closes [#452](https://github.com/kbknapp/clap-rs/issues/452))
+
+#### Bug Fixes
+
+* **Help Message:**  fixes a bug where small terminal sizes causing a loop ([1d73b035](https://github.com/kbknapp/clap-rs/commit/1d73b0355236923aeaf6799abc759762ded7e1d0), closes [#453](https://github.com/kbknapp/clap-rs/issues/453))
+
+
 <a name="v2.2.0"></a>
 ## v2.2.0 (2016-03-15)
 
