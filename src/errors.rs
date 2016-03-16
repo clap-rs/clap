@@ -355,7 +355,7 @@ impl Error {
 
     #[doc(hidden)]
     pub fn argument_conflict<'a, 'b, A, O, U>(arg: &A, other: Option<O>, usage: U) -> Self
-        where A: AnyArg<'a, 'b>,
+        where A: AnyArg<'a, 'b> + Display,
               O: Into<String>,
               U: Display
     {
@@ -383,7 +383,7 @@ impl Error {
 
     #[doc(hidden)]
     pub fn empty_value<'a, 'b, A, U>(arg: &A, usage: U) -> Self
-        where A: AnyArg<'a, 'b>,
+        where A: AnyArg<'a, 'b> + Display,
               U: Display
     {
         Error {
@@ -404,7 +404,7 @@ impl Error {
     pub fn invalid_value<'a, 'b, B, G, A, U>(bad_val: B, good_vals: &[G], arg: &A, usage: U) -> Self
         where B: AsRef<str>,
               G: AsRef<str> + Display,
-              A: AnyArg<'a, 'b>,
+              A: AnyArg<'a, 'b> + Display,
               U: Display
     {
         let suffix = suggestions::did_you_mean_suffix(bad_val.as_ref(),
@@ -539,7 +539,7 @@ impl Error {
     #[doc(hidden)]
     pub fn too_many_values<'a, 'b, V, A, U>(val: V, arg: &A, usage: U) -> Self
         where V: AsRef<str> + Display + ToOwned,
-              A: AnyArg<'a, 'b>,
+              A: AnyArg<'a, 'b> + Display,
               U: Display
     {
         let v = val.as_ref();
@@ -560,7 +560,7 @@ impl Error {
 
     #[doc(hidden)]
     pub fn too_few_values<'a, 'b, A, U>(arg: &A, min_vals: u64, curr_vals: usize, usage: U) -> Self
-        where A: AnyArg<'a, 'b>,
+        where A: AnyArg<'a, 'b> + Display,
               U: Display
     {
         Error {
@@ -595,7 +595,7 @@ impl Error {
 
     #[doc(hidden)]
     pub fn wrong_number_of_values<'a, 'b, A, S, U>(arg: &A, num_vals: u64, curr_vals: usize, suffix: S, usage: U) -> Self
-        where A: AnyArg<'a, 'b>,
+        where A: AnyArg<'a, 'b> + Display,
               S: Display,
               U: Display
     {
@@ -618,7 +618,7 @@ impl Error {
 
     #[doc(hidden)]
     pub fn unexpected_multiple_usage<'a, 'b, A, U>(arg: &A, usage: U) -> Self
-        where A: AnyArg<'a, 'b>,
+        where A: AnyArg<'a, 'b> + Display,
               U: Display
     {
         Error {

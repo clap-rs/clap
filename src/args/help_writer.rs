@@ -1,4 +1,5 @@
 use std::io;
+use std::fmt::Display;
 
 use args::AnyArg;
 use args::settings::ArgSettings;
@@ -14,7 +15,7 @@ pub struct HelpWriter<'a, A> where A: 'a {
     term_w: Option<usize>,
 }
 
-impl<'a, 'n, 'e, A> HelpWriter<'a, A> where A: AnyArg<'n, 'e>  {
+impl<'a, 'n, 'e, A> HelpWriter<'a, A> where A: AnyArg<'n, 'e> + Display {
     pub fn new(a: &'a A, l: usize, nlh: bool) -> Self {
         HelpWriter {
             a: a,
@@ -99,7 +100,7 @@ impl<'a, 'n, 'e, A> HelpWriter<'a, A> where A: AnyArg<'n, 'e>  {
                 if it.peek().is_some() { try!(write!(w, " ")); }
             }
         } else {
-            try!(write!(w, "<{}>{}", self.a.name(), if self.a.is_set(ArgSettings::Multiple) { "..." } else { "" }));
+            try!(write!(w, "{}", self.a));
         }
         if self.a.has_switch() {
             if !(self.nlh || self.a.is_set(ArgSettings::NextLineHelp)) {

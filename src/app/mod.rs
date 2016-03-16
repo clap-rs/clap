@@ -13,11 +13,15 @@ use std::path::Path;
 use std::process;
 use std::ffi::OsString;
 use std::borrow::Borrow;
+use std::result::Result as StdResult;
+use std::rc::Rc;
+use std::fmt;
 
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
+use vec_map::VecMap;
 
-use args::{Arg, AnyArg, ArgGroup, ArgMatches, ArgMatcher};
+use args::{Arg, HelpWriter, ArgSettings, AnyArg, ArgGroup, ArgMatches, ArgMatcher};
 use app::parser::Parser;
 use errors::Error;
 use errors::Result as ClapResult;
@@ -798,6 +802,30 @@ impl<'a, 'b> App<'a, 'b> {
 
         e.exit()
     }
+
+    #[doc(hidden)]
+    pub fn write_self_help<W>(&self, w: &mut W, longest: usize, nlh: bool) -> io::Result<()>
+        where W: Write
+    {
+        let hw = HelpWriter::new(self, longest, nlh);
+        hw.write_to(w)
+
+        // try!(write!(w, "    {}", self.p.meta.name));
+        // write_spaces!((longest_sc + 4) - (self.p.meta.name.len()), w);
+        // if let Some(a) = self.p.meta.about {
+        //     if a.contains("{n}") {
+        //         let mut ab = a.split("{n}");
+        //         while let Some(part) = ab.next() {
+        //             try!(write!(w, "{}\n", part));
+        //             write_spaces!(longest_sc + 8, w);
+        //             try!(write!(w, "{}", ab.next().unwrap_or("")));
+        //         }
+        //     } else {
+        //         try!(write!(w, "{}", a));
+        //     }
+        // }
+        // write!(w, "\n")
+    }
 }
 
 #[cfg(feature = "yaml")]
@@ -881,5 +909,37 @@ impl<'a, 'b> Clone for App<'a, 'b> {
         App {
             p: self.p.clone(),
         }
+    }
+}
+
+impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
+    fn name(&self) -> &'n str {
+        unreachable!("App struct does not support AnyArg::name, this is a bug!")
+    }
+    fn overrides(&self) -> Option<&[&'e str]> { None }
+    fn requires(&self) -> Option<&[&'e str]> { None }
+    fn blacklist(&self) -> Option<&[&'e str]> { None }
+    fn val_names(&self) -> Option<&VecMap<&'e str>> { None }
+    fn is_set(&self, _: ArgSettings) -> bool { false }
+    fn set(&mut self, _: ArgSettings) {
+        unreachable!("App struct does not support AnyArg::set, this is a bug!")
+    }
+    fn has_switch(&self) -> bool { false }
+    fn max_vals(&self) -> Option<u64> { None }
+    fn num_vals(&self) -> Option<u64> { None }
+    fn possible_vals(&self) -> Option<&[&'e str]> { None }
+    fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> { None }
+    fn min_vals(&self) -> Option<u64> { None }
+    fn short(&self) -> Option<char> { None }
+    fn long(&self) -> Option<&'e str> { None }
+    fn val_delim(&self) -> Option<char> { None }
+    fn takes_value(&self) -> bool { true }
+    fn help(&self) -> Option<&'e str> { self.p.meta.about }
+    fn default_val(&self) -> Option<&'n str> { None }
+}
+
+impl<'n, 'e> fmt::Display for App<'n, 'e> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.p.meta.name)
     }
 }

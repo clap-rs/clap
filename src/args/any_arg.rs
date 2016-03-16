@@ -1,12 +1,11 @@
 use std::rc::Rc;
-use std::fmt::Display;
 
 use vec_map::VecMap;
 
 use args::settings::ArgSettings;
 
 #[doc(hidden)]
-pub trait AnyArg<'n, 'e>: Display {
+pub trait AnyArg<'n, 'e> {
     fn name(&self) -> &'n str;
     fn overrides(&self) -> Option<&[&'e str]>;
     fn requires(&self) -> Option<&[&'e str]>;
