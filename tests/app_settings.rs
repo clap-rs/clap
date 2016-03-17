@@ -102,7 +102,7 @@ OPTIONS:
     -V, --version         Prints version information
 
 ARGS:
-    <arg1>    some pos arg\n"));
+    [arg1]    some pos arg\n"));
 }
 
 #[test]
@@ -135,5 +135,5 @@ OPTIONS:
     -o, --opt <opt>    some option
 
 ARGS:
-    <arg1>    some pos arg\n"));
+    [arg1]    some pos arg\n"));
 }

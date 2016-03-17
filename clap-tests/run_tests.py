@@ -31,12 +31,12 @@ OPTIONS:
     -o, --option <opt>...            tests options
 
 ARGS:
-    <positional>        tests positionals
-    <positional2>       tests positionals with exclusions
-    <positional3>...    tests positionals with specific values [values: vi, emacs]
+    [positional]        tests positionals
+    [positional2]       tests positionals with exclusions
+    [positional3]...    tests positionals with specific values [values: vi, emacs]
 
 SUBCOMMANDS:
-    help      With no arguments it prints this message, otherwise it prints help information about other subcommands
+    help      Prints this message or the help message of the given subcommand(s)
     subcmd    tests subcommands'''
 
 _version = "claptests v1.4.8"
@@ -152,7 +152,7 @@ OPTIONS:
     -o, --option <scoption>...    tests options
 
 ARGS:
-    <scpositional>    tests positionals'''
+    [scpositional]    tests positionals'''
 
 _scfop = '''flag NOT present
 option NOT present

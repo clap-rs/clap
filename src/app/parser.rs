@@ -814,7 +814,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 .iter()
                 .any(|s| &s.p.meta.name[..] == "help") {
             debugln!("Building help");
-            self.subcommands.push(App::new("help").about("With no arguments it prints this message, otherwise it prints help information about other subcommands"));
+            self.subcommands.push(App::new("help").about("Prints this message or the help message of the given subcommand(s)"));
         }
     }
 
@@ -1034,7 +1034,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
     }
 
     fn add_single_val_to_arg<A>(&self, arg: &A, v: &OsStr, matcher: &mut ArgMatcher<'a>) -> ClapResult<Option<&'a str>>
-        where A: AnyArg<'a, 'b>
+        where A: AnyArg<'a, 'b> + Display
     {
         debugln!("adding val: {:?}", v);
         matcher.add_val_to(arg.name(), v);
@@ -1052,7 +1052,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
     }
 
     fn validate_value<A>(&self, arg: &A, val: &OsStr, matcher: &ArgMatcher<'a>) -> ClapResult<Option<&'a str>>
-        where A: AnyArg<'a, 'b> {
+        where A: AnyArg<'a, 'b> + Display {
         debugln!("fn=validate_value; val={:?}", val);
         if self.is_set(AppSettings::StrictUtf8) && val.to_str().is_none() {
             return Err(Error::invalid_utf8(&*self.create_current_usage(matcher)));
@@ -1165,7 +1165,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
     }
 
     fn _validate_num_vals<A>(&self, a: &A, ma: &MatchedArg, matcher: &ArgMatcher) -> ClapResult<()>
-        where A: AnyArg<'a, 'b>
+        where A: AnyArg<'a, 'b> + Display
     {
         debugln!("fn=_validate_num_vals;");
         if let Some(num) = a.num_vals() {
@@ -1532,22 +1532,8 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 btm.insert(sc.p.meta.name.clone(), sc);
             }
             for (_, btm) in ord_m.into_iter() {
-                for (name, sc) in btm.into_iter() {
-                    try!(write!(w, "    {}", name));
-                    write_spaces!((longest_sc + 4) - (name.len()), w);
-                    if let Some(a) = sc.p.meta.about {
-                        if a.contains("{n}") {
-                            let mut ab = a.split("{n}");
-                            while let Some(part) = ab.next() {
-                                try!(write!(w, "{}\n", part));
-                                write_spaces!(longest_sc + 8, w);
-                                try!(write!(w, "{}", ab.next().unwrap_or("")));
-                            }
-                        } else {
-                            try!(write!(w, "{}", a));
-                        }
-                    }
-                    try!(write!(w, "\n"));
+                for (_, sc) in btm.into_iter() {
+                    try!(sc.write_self_help(w, longest_sc, nlh));
                 }
             }
         }

@@ -1,4 +1,5 @@
 use std::io;
+use std::fmt::Display;
 
 use args::AnyArg;
 use args::settings::ArgSettings;
@@ -14,7 +15,7 @@ pub struct HelpWriter<'a, A> where A: 'a {
     term_w: Option<usize>,
 }
 
-impl<'a, 'n, 'e, A> HelpWriter<'a, A> where A: AnyArg<'n, 'e>  {
+impl<'a, 'n, 'e, A> HelpWriter<'a, A> where A: AnyArg<'n, 'e> + Display {
     pub fn new(a: &'a A, l: usize, nlh: bool) -> Self {
         HelpWriter {
             a: a,
@@ -99,7 +100,7 @@ impl<'a, 'n, 'e, A> HelpWriter<'a, A> where A: AnyArg<'n, 'e>  {
                 if it.peek().is_some() { try!(write!(w, " ")); }
             }
         } else {
-            try!(write!(w, "<{}>{}", self.a.name(), if self.a.is_set(ArgSettings::Multiple) { "..." } else { "" }));
+            try!(write!(w, "{}", self.a));
         }
         if self.a.has_switch() {
             if !(self.nlh || self.a.is_set(ArgSettings::NextLineHelp)) {
@@ -138,7 +139,10 @@ impl<'a, 'n, 'e, A> HelpWriter<'a, A> where A: AnyArg<'n, 'e>  {
             self.l + 12
         };
         // determine if our help fits or needs to wrap
-        let too_long = self.term_w.is_some() && (spcs + h.len() + spec_vals.len() >= self.term_w.unwrap_or(0));
+        let width = self.term_w.unwrap_or(0);
+        debugln!("Term width...{}", width);
+        let too_long = self.term_w.is_some() && (spcs + h.len() + spec_vals.len() >= width);
+        debugln!("Too long...{:?}", too_long);
 
         // Is help on next line, if so newline + 2x tab
         if self.nlh || self.a.is_set(ArgSettings::NextLineHelp) {
@@ -148,15 +152,26 @@ impl<'a, 'n, 'e, A> HelpWriter<'a, A> where A: AnyArg<'n, 'e>  {
         debug!("Too long...");
         if too_long {
             sdebugln!("Yes");
-            if let Some(width) = self.term_w {
-                help.push_str(h);
-                help.push_str(&*spec_vals);
-                debugln!("term width: {}", width);
-                debugln!("help: {}", help);
-                debugln!("help len: {}", help.len());
-                // Determine how many newlines we need to insert
-                let avail_chars = width - spcs;
-                debugln!("Usable space: {}", avail_chars);
+            help.push_str(h);
+            help.push_str(&*spec_vals);
+            debugln!("help: {}", help);
+            debugln!("help len: {}", help.len());
+            // Determine how many newlines we need to insert
+            let avail_chars = width - spcs;
+            debugln!("Usable space: {}", avail_chars);
+            let longest_w = {
+                let mut lw = 0;
+                for l in help.split(' ').map(|s| s.len()) {
+                    if l > lw {
+                        lw = l;
+                    }
+                }
+                lw
+            };
+            debugln!("Longest word...{}", longest_w);
+            debug!("Enough space...");
+            if longest_w < avail_chars {
+                sdebugln!("Yes");
                 let mut indices = vec![];
                 let mut idx = 0;
                 loop {
@@ -183,6 +198,8 @@ impl<'a, 'n, 'e, A> HelpWriter<'a, A> where A: AnyArg<'n, 'e>  {
                     help.insert(j + 1 , 'n');
                     help.insert(j + 2, '}');
                 }
+            } else {
+                sdebugln!("No");
             }
         } else { sdebugln!("No"); }
         let help = if !help.is_empty() {
