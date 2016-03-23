@@ -12,9 +12,15 @@ use args::AnyArg;
 #[allow(missing_debug_implementations)]
 pub struct ArgMatcher<'a>(pub ArgMatches<'a>);
 
+impl<'a> Default for ArgMatcher<'a> {
+    fn default() -> Self {
+        ArgMatcher(ArgMatches::default())
+    }
+}
+
 impl<'a> ArgMatcher<'a> {
     pub fn new() -> Self {
-        ArgMatcher(ArgMatches::default())
+        ArgMatcher::default()
     }
 
     pub fn get_mut(&mut self, arg: &str) -> Option<&mut MatchedArg> {

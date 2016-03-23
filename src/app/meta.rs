@@ -44,14 +44,14 @@ impl<'b> Clone for AppMeta<'b> {
     fn clone(&self) -> Self {
         AppMeta {
             name: self.name.clone(),
-            author: self.author.clone(),
-            about: self.about.clone(),
-            more_help: self.more_help.clone(),
-            version: self.version.clone(),
-            usage_str: self.usage_str.clone(),
+            author: self.author,
+            about: self.about,
+            more_help: self.more_help,
+            version: self.version,
+            usage_str: self.usage_str,
             usage: self.usage.clone(),
             bin_name: self.bin_name.clone(),
-            help_str: self.help_str.clone(),
+            help_str: self.help_str,
             disp_ord: self.disp_ord,
         }
     }

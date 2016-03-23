@@ -118,10 +118,8 @@ impl<'a, 'n, 'e, A> HelpWriter<'a, A> where A: AnyArg<'n, 'e> + Display {
                 }
                 write_spaces!(spcs, w);
             }
-        } else {
-            if !(self.nlh || self.a.is_set(ArgSettings::NextLineHelp)) {
-                write_spaces!(self.l + 4 - (self.a.to_string().len()), w);
-            }
+        } else if !(self.nlh || self.a.is_set(ArgSettings::NextLineHelp)) {
+            write_spaces!(self.l + 4 - (self.a.to_string().len()), w);
         }
         Ok(())
     }
@@ -219,12 +217,10 @@ impl<'a, 'n, 'e, A> HelpWriter<'a, A> where A: AnyArg<'n, 'e> + Display {
                 try!(write!(w, "\n"));
                 if self.nlh || self.a.is_set(ArgSettings::NextLineHelp) {
                     try!(write!(w, "{}{}", TAB, TAB));
+                } else if self.a.has_switch() {
+                    write_spaces!(self.l + 12, w);
                 } else {
-                    if self.a.has_switch() {
-                        write_spaces!(self.l + 12, w);
-                    } else {
-                        write_spaces!(self.l + 8, w);
-                    }
+                    write_spaces!(self.l + 8, w);
                 }
                 try!(write!(w, "{}", part));
             }

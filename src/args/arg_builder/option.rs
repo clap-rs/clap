@@ -175,6 +175,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn overrides(&self) -> Option<&[&'e str]> { self.overrides.as_ref().map(|o| &o[..]) }
     fn requires(&self) -> Option<&[&'e str]> { self.requires.as_ref().map(|o| &o[..]) }
     fn blacklist(&self) -> Option<&[&'e str]> { self.blacklist.as_ref().map(|o| &o[..]) }
+    #[cfg_attr(feature = "lints", allow(map_clone))]
     fn val_names(&self) -> Option<&VecMap<&'e str>> { self.val_names.as_ref().map(|o| o) }
     fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(s) }
     fn has_switch(&self) -> bool { true }
