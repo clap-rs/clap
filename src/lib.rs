@@ -391,6 +391,7 @@
         trivial_casts,
         trivial_numeric_casts,
         unused_import_braces,
+        unused_allocation,
         unused_qualifications)]
 // clippy false positives, or ones we're ok with...
 #![cfg_attr(feature = "lints", allow(cyclomatic_complexity))]

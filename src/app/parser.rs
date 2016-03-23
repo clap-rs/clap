@@ -1577,8 +1577,8 @@ impl<'a, 'b> Clone for Parser<'a, 'b> where 'a: 'b {
             groups: self.groups.clone(),
             global_args: self.global_args.clone(),
             overrides: self.overrides.clone(),
-            help_short: self.help_short.clone(),
-            version_short: self.version_short.clone(),
+            help_short: self.help_short,
+            version_short: self.version_short,
             settings: self.settings.clone(),
             meta: self.meta.clone(),
         }
