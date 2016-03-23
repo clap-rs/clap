@@ -2,6 +2,7 @@ sudo: false
 language: rust
 rust:
   - nightly
+  - nightly-2016-03-22
   - beta
   - stable
 # Only while clippy is failing
