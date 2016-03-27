@@ -341,19 +341,19 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
     }
 
     pub fn has_flags(&self) -> bool {
-        self.flags.is_empty()
+        !self.flags.is_empty()
     }
 
     pub fn has_opts(&self) -> bool {
-        self.opts.is_empty()
+        !self.opts.is_empty()
     }
 
     pub fn has_positionals(&self) -> bool {
-        self.positionals.is_empty()
+        !self.positionals.is_empty()
     }
 
     pub fn has_subcommands(&self) -> bool {
-        self.subcommands.is_empty()
+        !self.subcommands.is_empty()
     }
 
     pub fn is_set(&self, s: AppSettings) -> bool {
@@ -1318,13 +1318,14 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                                  .iter()
                                  .fold(String::new(), |a, s| a + &format!(" {}", s)[..]);
 
-            if !self.has_flags() && !self.is_set(AppSettings::UnifiedHelpMessage) {
+            if self.has_flags() && !self.is_set(AppSettings::UnifiedHelpMessage) {
                 usage.push_str(" [FLAGS]");
             } else {
                 usage.push_str(" [OPTIONS]");
             }
-            if !self.is_set(AppSettings::UnifiedHelpMessage) && !self.has_opts() &&
-               self.opts.iter().any(|a| !a.settings.is_set(ArgSettings::Required)) {
+            if !self.is_set(AppSettings::UnifiedHelpMessage) 
+                && self.has_opts() 
+                && self.opts.iter().any(|a| !a.settings.is_set(ArgSettings::Required)) {
                 usage.push_str(" [OPTIONS]");
             }
 
@@ -1332,22 +1333,22 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
 
             // places a '--' in the usage string if there are args and options
             // supporting multiple values
-            if !self.has_positionals()
-                && (self.opts.iter().any(|a| a.settings.is_set(ArgSettings::Multiple))
-                    || self.positionals.values().any(|a| a.settings.is_set(ArgSettings::Multiple)))
-                && !self.opts.iter().any(|a| a.settings.is_set(ArgSettings::Required))
-                && self.has_subcommands() {
+            if self.has_positionals()
+                && self.opts.iter().any(|a| a.settings.is_set(ArgSettings::Multiple))
+                   // || self.positionals.values().any(|a| a.settings.is_set(ArgSettings::Multiple)))
+                && self.positionals.values().any(|a| !a.settings.is_set(ArgSettings::Required))
+                && !self.has_subcommands() {
                 usage.push_str(" [--]")
             }
-            if !self.has_positionals()
+            if self.has_positionals()
                 && self.positionals.values().any(|a| !a.settings.is_set(ArgSettings::Required)) {
                 usage.push_str(" [ARGS]");
             }
 
 
-            if !self.has_subcommands() && !self.is_set(AppSettings::SubcommandRequired) {
+            if self.has_subcommands() && !self.is_set(AppSettings::SubcommandRequired) {
                 usage.push_str(" [SUBCOMMAND]");
-            } else if self.is_set(AppSettings::SubcommandRequired) && !self.has_subcommands() {
+            } else if self.is_set(AppSettings::SubcommandRequired) && self.has_subcommands() {
                 usage.push_str(" <SUBCOMMAND>");
             }
         } else {
@@ -1417,10 +1418,10 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
 
         try!(write!(w, "\n{}", self.create_usage(&[])));
 
-        let flags = !self.has_flags();
-        let pos = !self.has_positionals();
-        let opts = !self.has_opts();
-        let subcmds = !self.has_subcommands();
+        let flags = self.has_flags();
+        let pos = self.has_positionals();
+        let opts = self.has_opts();
+        let subcmds = self.has_subcommands();
         let unified_help = self.is_set(AppSettings::UnifiedHelpMessage);
 
         let mut longest_flag = 0;
