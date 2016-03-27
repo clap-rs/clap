@@ -1,9 +1,23 @@
 use std::io;
 use std::fmt::Display;
 
+#[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
+use unicode_width::UnicodeWidthStr;
+
 use args::AnyArg;
 use args::settings::ArgSettings;
 use term;
+use strext::_StrExt;
+
+#[cfg(any(not(feature = "wrap_help"), target_os = "windows"))]
+fn str_width(s: &str) -> usize {
+    s.len()
+}
+
+#[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
+fn str_width(s: &str) -> usize {
+    UnicodeWidthStr::width(s)
+}
 
 const TAB: &'static str = "    ";
 
@@ -139,7 +153,7 @@ impl<'a, 'n, 'e, A> HelpWriter<'a, A> where A: AnyArg<'n, 'e> + Display {
         // determine if our help fits or needs to wrap
         let width = self.term_w.unwrap_or(0);
         debugln!("Term width...{}", width);
-        let too_long = self.term_w.is_some() && (spcs + h.len() + spec_vals.len() >= width);
+        let too_long = self.term_w.is_some() && (spcs + str_width(h) + str_width(&*spec_vals) >= width);
         debugln!("Too long...{:?}", too_long);
 
         // Is help on next line, if so newline + 2x tab
@@ -153,13 +167,13 @@ impl<'a, 'n, 'e, A> HelpWriter<'a, A> where A: AnyArg<'n, 'e> + Display {
             help.push_str(h);
             help.push_str(&*spec_vals);
             debugln!("help: {}", help);
-            debugln!("help len: {}", help.len());
+            debugln!("help width: {}", str_width(help));
             // Determine how many newlines we need to insert
             let avail_chars = width - spcs;
             debugln!("Usable space: {}", avail_chars);
             let longest_w = {
                 let mut lw = 0;
-                for l in help.split(' ').map(|s| s.len()) {
+                for l in help.split(' ').map(|s| str_width(s)) {
                     if l > lw {
                         lw = l;
                     }
@@ -167,7 +181,7 @@ impl<'a, 'n, 'e, A> HelpWriter<'a, A> where A: AnyArg<'n, 'e> + Display {
                 lw
             };
             debugln!("Longest word...{}", longest_w);
-            debug!("Enough space...");
+            debug!("Enough space to wrap...");
             if longest_w < avail_chars {
                 sdebugln!("Yes");
                 let mut indices = vec![];
@@ -182,13 +196,13 @@ impl<'a, 'n, 'e, A> HelpWriter<'a, A> where A: AnyArg<'n, 'e> + Display {
                     debugln!("Adding idx: {}", idx);
                     debugln!("At {}: {:?}", idx, help.chars().nth(idx));
                     indices.push(idx);
-                    if &help[idx..].len() <= &avail_chars {
+                    if str_width(&help[idx..]) <= avail_chars {
                         break;
                     }
                 }
                 for (i, idx) in indices.iter().enumerate() {
                     debugln!("iter;i={},idx={}", i, idx);
-                    let j = idx+(2*i);
+                    let j = idx + (2 * i);
                     debugln!("removing: {}", j);
                     debugln!("at {}: {:?}", j, help.chars().nth(j));
                     help.remove(j);
@@ -252,15 +266,20 @@ impl<'a, 'n, 'e, A> HelpWriter<'a, A> where A: AnyArg<'n, 'e> + Display {
     }
 }
 
-fn find_idx_of_space(full: &str, start: usize) -> usize {
+fn find_idx_of_space(full: &str, mut start: usize) -> usize {
     debugln!("fn=find_idx_of_space;");
-    let haystack = &full[..start];
+    let haystack = if full._is_char_boundary(start) {
+        &full[..start]
+    } else {
+        while !full._is_char_boundary(start) { start -= 1; }
+        &full[..start]
+    };
     debugln!("haystack: {}", haystack);
     for (i, c) in haystack.chars().rev().enumerate() {
         debugln!("iter;c={},i={}", c, i);
         if c == ' ' {
-            debugln!("Found space returning start-i...{}", start - (i+1));
-            return start - (i+1);
+            debugln!("Found space returning start-i...{}", start - (i + 1));
+            return start - (i + 1);
         }
     }
     0

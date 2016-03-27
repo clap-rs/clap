@@ -406,8 +406,10 @@ extern crate strsim;
 extern crate ansi_term;
 #[cfg(feature = "yaml")]
 extern crate yaml_rust;
-#[cfg(feature = "wrap_help")]
+#[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
 extern crate libc;
+#[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
+extern crate unicode_width;
 #[macro_use]
 extern crate bitflags;
 extern crate vec_map;
@@ -429,6 +431,7 @@ mod suggestions;
 mod errors;
 mod osstringext;
 mod term;
+mod strext;
 
 const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider filing a bug \
                                           report at https://github.com/kbknapp/clap-rs/issues";
