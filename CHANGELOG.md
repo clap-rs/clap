@@ -1,3 +1,13 @@
+<a name="v2.2.2"></a>
+### v2.2.2 (2016-03-27)
+
+
+#### Bug Fixes
+
+* **Help Message:**  fixes bug with wrapping in the middle of a unicode sequence ([05365ddc](https://github.com/kbknapp/clap-rs/commit/05365ddcc252e4b49e7a75e199d6001a430bd84d), closes [#456](https://github.com/kbknapp/clap-rs/issues/456))
+* **Usage Strings:**  fixes small bug where -- would appear needlessly in usage strings ([6933b849](https://github.com/kbknapp/clap-rs/commit/6933b8491c2a7e28cdb61b47dcf10caf33c2f78a), closes [#461](https://github.com/kbknapp/clap-rs/issues/461))
+
+
 <a name="2.2.1"></a>
 ### 2.2.1 (2016-03-16)
 
