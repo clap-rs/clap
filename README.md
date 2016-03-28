@@ -47,7 +47,7 @@ Here's the highlights from v2.2.0
 
 #### Features
 
-* **Help text auto wraps and aligns at term width!** - Long help strings will now properly wrap and align to term width on Linux and OSX (and resumably Unix too). This can be turned off as well.
+* **Help text auto wraps and aligns at term width!** - Long help strings will now properly wrap and align to term width on Linux and OSX (and presumably Unix too). This can be turned off as well.
 * **Can customize the order of opts, flags, and subcommands in help messages**  - Instead of using the default alphabetical order, you can now re-arange the order of your args and subcommands in help message. This helps to emphasize more popular or important options.
  * **Can auto-derive the order from declaration order** - Have a bunch of args or subcommmands to re-order? You can now just derive the order from the declaration order!
 * **Help subcommand now accepts other subcommands as arguments!** - Similar to other CLI precedents, the `help` subcommand can now accept other subcommands as arguments to display their help message. i.e. `$ myprog help mysubcmd` (*Note* these can even be nested heavily such as `$ myprog help subcmd1 subcmd2 subcmd3` etc.)
