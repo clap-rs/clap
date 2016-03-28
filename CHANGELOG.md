@@ -1,3 +1,11 @@
+<a name="v2.2.3"></a>
+### v2.2.3 (2016-03-28)
+
+
+#### Bug Fixes
+
+* **Help Subcommand:**  fixes issue where help and version flags weren't properly displayed ([205b07bf](https://github.com/kbknapp/clap-rs/commit/205b07bf2e6547851f1290f8cd6b169145e144f1), closes [#466](https://github.com/kbknapp/clap-rs/issues/466))
+
 <a name="v2.2.2"></a>
 ### v2.2.2 (2016-03-27)
 
