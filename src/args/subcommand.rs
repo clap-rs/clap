@@ -44,8 +44,8 @@ impl<'a> SubCommand<'a> {
     ///         SubCommand::with_name("config"))
     /// # ;
     /// ```
-    pub fn with_name<'b>(name: &str) -> App<'a, 'b> {
-        App::new(name)
+    pub fn with_name<'b, S: AsRef<str>>(name: S) -> App<'a, 'b> {
+        App::new(name.as_ref())
     }
 
     /// Creates a new instance of a subcommand from a YAML (.yml) document
@@ -60,5 +60,19 @@ impl<'a> SubCommand<'a> {
     #[cfg(feature = "yaml")]
     pub fn from_yaml<'y>(yaml: &'y Yaml) -> App<'y, 'y> {
         App::from_yaml(yaml)
+    }
+}
+
+pub trait SubCommandKey<'a> {
+    fn from_str(s: &'a str) -> Self;
+    fn none() -> Self;
+}
+
+impl<'a> SubCommandKey<'a> for &'a str {
+    fn from_str(s: &'a str) -> Self {
+        s
+    }
+    fn none() -> Self {
+        ""
     }
 }

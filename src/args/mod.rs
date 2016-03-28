@@ -8,6 +8,7 @@ pub use self::group::ArgGroup;
 pub use self::any_arg::AnyArg;
 pub use self::settings::ArgSettings;
 pub use self::help_writer::HelpWriter;
+pub use self::subcommand::SubCommandKey;
 
 mod arg;
 pub mod any_arg;

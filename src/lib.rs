@@ -385,7 +385,7 @@
 #![cfg_attr(feature = "lints", deny(warnings))]
 #![cfg_attr(not(any(feature = "lints", feature = "nightly")), deny(unstable_features))]
 #![deny(
-        missing_docs,
+        // missing_docs,
         missing_debug_implementations,
         missing_copy_implementations,
         trivial_casts,
@@ -420,6 +420,7 @@ pub use args::{Arg, ArgGroup, ArgMatches, SubCommand, ArgSettings};
 pub use app::{App, AppSettings};
 pub use fmt::Format;
 pub use errors::{Error, ErrorKind, Result};
+pub use args::SubCommandKey;
 
 #[macro_use]
 mod macros;

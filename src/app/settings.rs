@@ -322,6 +322,7 @@ pub enum AppSettings {
     /// // All trailing arguments will be stored under the subcommand's sub-matches using a value
     /// // of the runtime subcommand name (in this case "subcmd")
     /// match m.subcommand() {
+    ///     ("do-stuff", Some(sub_m)) => { /* do-stuff was used, internal subcommand */ },
     ///     (external, Some(ext_m)) => {
     ///          let ext_args: Vec<&str> = ext_m.values_of(external).unwrap().collect();
     ///          assert_eq!(ext_args, ["--option", "value", "-fff", "--flag"]);
