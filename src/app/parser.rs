@@ -482,20 +482,24 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                     if &*arg_os == "help" &&
                        self.settings.is_set(AppSettings::NeedsSubcommandHelp) {
                         let cmds: Vec<OsString> = it.map(|c| c.into()).collect();
-                        let mut sc: &Parser = self;
-                        for (i, cmd) in cmds.iter().enumerate() {
-                            if let Some(c) = sc.subcommands.iter().filter(|s| &*s.p.meta.name == cmd).next().map(|sc| &sc.p) {
-                                sc = c;
-                                if i == cmds.len() - 1 {
-                                    break;
+                        let mut sc = {
+                            let mut sc: &Parser = self;
+                            for (i, cmd) in cmds.iter().enumerate() {
+                                if let Some(c) = sc.subcommands.iter().filter(|s| &*s.p.meta.name == cmd).next().map(|sc| &sc.p) {
+                                    sc = c;
+                                    if i == cmds.len() - 1 {
+                                        break;
+                                    }
+                                } else {
+                                    return Err(
+                                        Error::unrecognized_subcommand(
+                                            cmd.to_string_lossy().into_owned(),
+                                            self.meta.bin_name.as_ref().unwrap_or(&self.meta.name)));
                                 }
-                            } else {
-                                return Err(
-                                    Error::unrecognized_subcommand(
-                                        cmd.to_string_lossy().into_owned(),
-                                        self.meta.bin_name.as_ref().unwrap_or(&self.meta.name)));
                             }
-                        }
+                            sc.clone()
+                        };
+                        sc.create_help_and_version();
                         return sc._help();
                     }
                     subcmd_name = Some(arg_os.to_str().expect(INVALID_UTF8).to_owned());
