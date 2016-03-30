@@ -1028,8 +1028,12 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         debugln!("fn=add_val_to_arg;");
         let mut ret = None;
         if let Some(delim) = arg.val_delim() {
-            for v in val.split(delim as u32 as u8) {
-                ret = try!(self.add_single_val_to_arg(arg, v, matcher));
+            if val.is_empty_() {
+                ret = try!(self.add_single_val_to_arg(arg, val, matcher));
+            } else {
+                for v in val.split(delim as u32 as u8) {
+                    ret = try!(self.add_single_val_to_arg(arg, v, matcher));
+                }
             }
         } else {
             ret = try!(self.add_single_val_to_arg(arg, val, matcher));
