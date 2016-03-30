@@ -167,7 +167,7 @@ impl<'a, 'n, 'e, A> HelpWriter<'a, A> where A: AnyArg<'n, 'e> + Display {
             help.push_str(h);
             help.push_str(&*spec_vals);
             debugln!("help: {}", help);
-            debugln!("help width: {}", str_width(help));
+            debugln!("help width: {}", str_width(&*help));
             // Determine how many newlines we need to insert
             let avail_chars = width - spcs;
             debugln!("Usable space: {}", avail_chars);
