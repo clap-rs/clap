@@ -87,6 +87,17 @@ fn opts_using_long_space() {
 }
 
 #[test]
+fn opts_with_empty_values() {
+    let r = App::new("opts")
+        .arg_from_usage("--flag [flag]... 'some flag'")
+        .get_matches_from_safe(vec!["", "--flag", "", "test"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("flag"));
+    assert_eq!(m.values_of("flag").unwrap().collect::<Vec<_>>(), ["", "test"]);
+}
+
+#[test]
 fn opts_using_long_equals() {
     let r = App::new("opts")
         .args(&[
