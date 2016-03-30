@@ -1,3 +1,14 @@
+<a name="v2.2.4"></a>
+### v2.2.4 (2016-03-30)
+
+
+#### Bug Fixes
+
+*   fixes compiling with debug cargo feature ([d4b55450](https://github.com/kbknapp/clap-rs/commit/d4b554509928031ac0808076178075bb21f8c1da))
+* **Empty Values:**  fixes bug where empty values weren't stored ([885d166f](https://github.com/kbknapp/clap-rs/commit/885d166f04eb3fb581898ae5818c6c8032e5a686), closes [#470](https://github.com/kbknapp/clap-rs/issues/470))
+
+
+
 <a name="v2.2.3"></a>
 ### v2.2.3 (2016-03-28)
 
