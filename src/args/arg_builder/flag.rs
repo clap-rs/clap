@@ -8,7 +8,7 @@ use std::result::Result as StdResult;
 use vec_map::VecMap;
 
 use Arg;
-use args::{AnyArg, HelpWriter};
+use args::{AnyArg, HelpWriter, DispOrder};
 use args::settings::{ArgFlags, ArgSettings};
 
 #[derive(Debug)]
@@ -129,6 +129,10 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn val_delim(&self) -> Option<char> { None }
     fn help(&self) -> Option<&'e str> { self.help }
     fn default_val(&self) -> Option<&'n str> { None }
+}
+
+impl<'n, 'e> DispOrder for FlagBuilder<'n, 'e> {
+    fn disp_ord(&self) -> usize { self.disp_ord }
 }
 
 #[cfg(test)]

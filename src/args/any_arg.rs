@@ -26,3 +26,7 @@ pub trait AnyArg<'n, 'e> {
     fn help(&self) -> Option<&'e str>;
     fn default_val(&self) -> Option<&'n str>;
 }
+
+pub trait DispOrder {
+    fn disp_ord(&self) -> usize;
+}

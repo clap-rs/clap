@@ -5,7 +5,7 @@ use std::io;
 
 use vec_map::VecMap;
 
-use args::{AnyArg, Arg, HelpWriter};
+use args::{AnyArg, Arg, HelpWriter, DispOrder};
 use args::settings::{ArgFlags, ArgSettings};
 
 #[allow(missing_debug_implementations)]
@@ -193,6 +193,10 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn takes_value(&self) -> bool { true }
     fn help(&self) -> Option<&'e str> { self.help }
     fn default_val(&self) -> Option<&'n str> { self.default_val }
+}
+
+impl<'n, 'e> DispOrder for OptBuilder<'n, 'e> {
+    fn disp_ord(&self) -> usize { self.disp_ord }
 }
 
 #[cfg(test)]
