@@ -936,6 +936,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn takes_value(&self) -> bool { true }
     fn help(&self) -> Option<&'e str> { self.p.meta.about }
     fn default_val(&self) -> Option<&'n str> { None }
+    fn longest_filter(&self) -> bool { true }
 }
 
 impl<'n, 'e> fmt::Display for App<'n, 'e> {

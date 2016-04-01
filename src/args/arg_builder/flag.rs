@@ -129,6 +129,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn val_delim(&self) -> Option<char> { None }
     fn help(&self) -> Option<&'e str> { self.help }
     fn default_val(&self) -> Option<&'n str> { None }
+    fn longest_filter(&self) -> bool { self.long.is_some() }
 }
 
 impl<'n, 'e> DispOrder for FlagBuilder<'n, 'e> {

@@ -193,6 +193,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn takes_value(&self) -> bool { true }
     fn help(&self) -> Option<&'e str> { self.help }
     fn default_val(&self) -> Option<&'n str> { self.default_val }
+    fn longest_filter(&self) -> bool { true }
 }
 
 impl<'n, 'e> DispOrder for OptBuilder<'n, 'e> {
