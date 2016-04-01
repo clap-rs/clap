@@ -6,7 +6,7 @@ use std::fmt::Display;
 #[cfg(feature = "debug")]
 use std::os::unix::ffi::OsStrExt;
 
-use vec_map::VecMap;
+use vec_map::{self, VecMap};
 
 use app::App;
 use args::{Arg, FlagBuilder, OptBuilder, ArgGroup, PosBuilder};
@@ -1569,6 +1569,18 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             add_val!(self, p, matcher);
         }
         Ok(())
+    }
+
+    pub fn iter_flags(&self) -> Iter<FlagBuilder> {
+        self.flags.iter()
+    }
+
+    pub fn iter_opts(&self) -> Iter<OptBuilder> {
+        self.opts.iter()
+    }
+
+    pub fn iter_positionals(&self) -> vec_map::Values<PosBuilder> {
+        self.positionals.values()
     }
 }
 
