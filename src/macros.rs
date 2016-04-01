@@ -287,7 +287,7 @@ macro_rules! arg_enum {
         impl ::std::str::FromStr for $e {
             type Err = String;
 
-            fn from_str(s: &str) -> Result<Self,Self::Err> {
+            fn from_str(s: &str) -> ::std::result::Result<Self,Self::Err> {
                 use ::std::ascii::AsciiExt;
                 match s {
                     $(stringify!($v) |
