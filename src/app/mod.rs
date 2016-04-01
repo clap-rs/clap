@@ -4,6 +4,7 @@ mod settings;
 mod macros;
 mod parser;
 mod meta;
+mod help;
 
 pub use self::settings::AppSettings;
 
@@ -23,6 +24,7 @@ use vec_map::VecMap;
 
 use args::{Arg, HelpWriter, ArgSettings, AnyArg, ArgGroup, ArgMatches, ArgMatcher};
 use app::parser::Parser;
+use app::help::Help;
 use errors::Error;
 use errors::Result as ClapResult;
 
@@ -629,6 +631,21 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     pub fn write_help<W: Write>(&self, w: &mut W) -> ClapResult<()> {
         self.p.write_help(w)
+    }
+
+    /// Writes the full help message to the user to a `io::Write` object
+    /// USING A NEW implementation.
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::App;
+    /// use std::io;
+    /// let mut app = App::new("myprog");
+    /// let mut out = io::stdout();
+    /// app.write_help(&mut out).ok().expect("failed to write to stdout");
+    /// ```
+    pub fn write_new_help<W: Write>(&self, w: &mut W) -> ClapResult<()> {
+        Help::write_app_help(w, &self)
     }
 
     /// Starts the parsing process, upon a failed parse an error will be displayed to the user and
