@@ -1309,7 +1309,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
     // Creates a usage string if one was not provided by the user manually. This happens just
     // after all arguments were parsed, but before any subcommands have been parsed
     // (so as to give subcommands their own usage recursively)
-    fn create_usage(&self, used: &[&str]) -> String {
+    pub fn create_usage(&self, used: &[&str]) -> String {
         debugln!("fn=create_usage;");
         let mut usage = String::with_capacity(75);
         usage.push_str("USAGE:\n    ");
