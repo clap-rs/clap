@@ -341,3 +341,27 @@ fn example10_new(b: &mut Bencher) {
     let app = example10();
     b.iter(|| build_new_help(&app));
 }
+
+#[bench]
+fn example4_template(b: &mut Bencher) {
+/*
+MyApp 1.0
+Kevin K. <kbknapp@gmail.com>
+Parses an input file to do awesome things
+
+USAGE:
+    test [FLAGS] <input>
+
+FLAGS:
+    -c, --config     sets the config file to use
+    -d, --debug      turn on debugging information
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+ARGS:
+    <input>    the input file to use
+*/
+
+    let app = example4().template("{bin} {version}\n{author}\n{about}\n\nUSAGE:\n    {usage}\n\nFLAGS:\n{flags}\n\nARGS:\n{args}\n");
+    b.iter(|| build_new_help(&app));
+}

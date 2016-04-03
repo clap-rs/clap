@@ -313,6 +313,39 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
+    /// Sets the help template to be used, overriding the default format.
+    ///
+    /// Tags arg given inside curly brackets:
+    /// Valid tags are:
+    ///     * `{bin}`         - Binary name.
+    ///     * `{version}`     - Version number.
+    ///     * `{author}`      - Author information.
+    ///     * `{usage}`       - Automatically generated or given usage string.
+    ///     * `{all-args}`    - Help for all arguments (options, flags, positionals arguments,
+    ///                         and subcommands) including titles.
+    ///     * `{unified}`     - Unified help for options and flags.
+    ///     * `{flags}`       - Help for flags.
+    ///     * `{options}`     - Help for options.
+    ///     * `{positionals}` - Help for positionals arguments.
+    ///     * `{subcommands}` - Help for subcommands.
+    ///     * `{after-help}`  - Help for flags.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .version("1.0")
+    ///     .template("{bin} ({version}) - {usage}")
+    /// # ;
+    /// ```
+    /// **NOTE:**The template system is, on purpose, very simple. Therefore the tags have to writen
+    /// in the lowercase and without spacing.
+    pub fn template<S: Into<&'b str>>(mut self, s: S) -> Self {
+        self.p.meta.template = Some(s.into());
+        self
+    }
+
     /// Enables a single Application level settings.
     ///
     /// See `AppSettings` for a full list of possibilities and examples.
@@ -642,7 +675,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// use std::io;
     /// let mut app = App::new("myprog");
     /// let mut out = io::stdout();
-    /// app.write_help(&mut out).ok().expect("failed to write to stdout");
+    /// app.write_new_help(&mut out).ok().expect("failed to write to stdout");
     /// ```
     pub fn write_new_help<W: Write>(&self, w: &mut W) -> ClapResult<()> {
         Help::write_app_help(w, &self)

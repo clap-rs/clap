@@ -1,12 +1,12 @@
 extern crate clap;
 
-extern crate test;
-use test::Bencher;
-
 use std::io::Cursor;
 
 use clap::App;
 use clap::{Arg, SubCommand};
+
+static EXAMPLE1_TMPL_S : &'static str = include_str!("example1_tmpl_simple.txt");
+static EXAMPLE1_TMPS_F : &'static str = include_str!("example1_tmpl_full.txt");
 
 fn build_old_help(app: &App) -> String {
     let mut buf = Cursor::new(Vec::with_capacity(50));
@@ -23,22 +23,41 @@ fn build_new_help(app: &App) -> String {
 }
 
 fn compare(app: &App) -> bool {
-    let old = build_old_help(&app);
-    let new = build_new_help(&app);
-    let b = old == new;
+    let hlp1f = build_old_help(&app);
+    let hlp1 = hlp1f.trim();
+    let hlp2f = build_new_help(&app);
+    let hlp2 = hlp2f.trim();
+    let b = hlp1 == hlp2;
     if !b {
         println!("");
         println!("--> old");
-        println!("{}", old);
+        println!("{}", hlp1);
         println!("--> new");
-        println!("{}", new);
+        println!("{}", hlp2);
+        println!("--")
+    }
+    b
+}
+
+fn compare2(app1: &App, app2: &App) -> bool {
+    let hlp1f = build_new_help(&app1);
+    let hlp1 = hlp1f.trim();
+    let hlp2f = build_new_help(&app2);
+    let hlp2 = hlp2f.trim();
+    let b = hlp1 == hlp2;
+    if !b {
+        println!("");
+        println!("--> hlp1");
+        println!("{}", hlp1);
+        println!("--> hlp2");
+        println!("{}", hlp2);
         println!("--")
     }
     b
 }
 
 #[test]
-fn test_new_help() {
+fn comparison_with_old_help() {
     assert!(compare(&example1()));
     assert!(compare(&example2()));
     assert!(compare(&example3()));
@@ -48,6 +67,52 @@ fn test_new_help() {
     assert!(compare(&example7()));
     assert!(compare(&example8()));
     assert!(compare(&example10()));
+}
+
+#[test]
+fn comparison_with_template() {
+    assert!(compare2(&example1(), &example1().template(EXAMPLE1_TMPL_S)));
+    assert!(compare2(&example1(), &example1().template(EXAMPLE1_TMPS_F)));
+}
+
+#[test]
+fn template_empty() {
+    let app = App::new("MyApp")
+                    .version("1.0")
+                    .author("Kevin K. <kbknapp@gmail.com>")
+                    .about("Does awesome things")
+                    .template("");
+    assert_eq!(build_new_help(&app), "");
+}
+
+#[test]
+fn template_notag() {
+    let app = App::new("MyApp")
+                    .version("1.0")
+                    .author("Kevin K. <kbknapp@gmail.com>")
+                    .about("Does awesome things")
+                    .template(" no tag ");
+    assert_eq!(build_new_help(&app), " no tag ");
+}
+
+#[test]
+fn template_unknowntag() {
+    let app = App::new("MyApp")
+                    .version("1.0")
+                    .author("Kevin K. <kbknapp@gmail.com>")
+                    .about("Does awesome things")
+                    .template(" {unknown_tag} ");
+    assert_eq!(build_new_help(&app), " {unknown_tag} ");
+}
+
+#[test]
+fn template_author_version() {
+    let app = App::new("MyApp")
+                    .version("1.0")
+                    .author("Kevin K. <kbknapp@gmail.com>")
+                    .about("Does awesome things")
+                    .template("{author}\n{version}\n{about}\n{bin}");
+    assert_eq!(build_new_help(&app), "Kevin K. <kbknapp@gmail.com>\n1.0\nDoes awesome things\nMyApp");
 }
 
 fn example1<'b, 'c>() -> App<'b, 'c> {
@@ -249,17 +314,4 @@ fn example10<'b, 'c>() -> App<'b, 'c> {
                  .help("The config file to use (default is \"config.json\")")
                  .short("c")
                  .takes_value(true))
-}
-
-
-#[bench]
-fn old_example1(b: &mut Bencher) {
-    let app = example1();
-    b.iter(|| build_old_help(&app));
-}
-
-#[bench]
-fn new_example1(b: &mut Bencher) {
-    let app = example1();
-    b.iter(|| build_new_help(&app));
 }
