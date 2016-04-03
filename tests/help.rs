@@ -60,7 +60,12 @@ fn print_app_help() {
         .about("tests stuff")
         .version("1.3")
         .args_from_usage("-f, --flag 'some flag'
-                          --option [opt] 'some option'");
+                          --option [opt] 'some option'")
+        .arg(Arg::with_name("other")
+            .short("O")
+            .long("other-opt")
+            .takes_value(true)
+            .help("some other opt"));
     // We call a get_matches method to cause --help and --version to be built
     let _ = app.get_matches_from_safe_borrow(vec![""]);
 
@@ -80,7 +85,8 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-        --option <opt>    some option\n"));
+        --option <opt>         some option
+    -O, --other-opt <other>    some other opt\n"));
 }
 
 #[test]
