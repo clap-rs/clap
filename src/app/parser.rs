@@ -1313,6 +1313,16 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         debugln!("fn=create_usage;");
         let mut usage = String::with_capacity(75);
         usage.push_str("USAGE:\n    ");
+        usage.push_str(&self.create_usage_no_title(&used));
+        usage
+    }
+
+    // Creates a usage string (*without title*) if one was not provided by the user
+    // manually. This happens just
+    // after all arguments were parsed, but before any subcommands have been parsed
+    // (so as to give subcommands their own usage recursively)
+    pub fn create_usage_no_title(&self, used: &[&str]) -> String {
+        let mut usage = String::with_capacity(75);
         if let Some(u) = self.meta.usage_str {
             usage.push_str(&*u);
         } else if used.is_empty() {
