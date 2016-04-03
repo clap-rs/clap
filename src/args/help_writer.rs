@@ -113,6 +113,8 @@ impl<'a, 'n, 'e, A> HelpWriter<'a, A> where A: AnyArg<'n, 'e> + Display {
                 try!(write!(w, "<{}>", self.a.name()));
                 if it.peek().is_some() { try!(write!(w, " ")); }
             }
+        } else if self.a.has_switch() {
+            try!(write!(w, "<{}>", self.a.name()));
         } else {
             try!(write!(w, "{}", self.a));
         }
