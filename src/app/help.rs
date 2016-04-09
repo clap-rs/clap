@@ -397,10 +397,10 @@ impl<'a> Help<'a> {
     /// including titles of a Parser Object to the wrapped stream.
     pub fn write_all_args(&mut self, parser: &Parser) -> ClapResult<()> {
 
-        let flags = !parser.has_flags();
-        let pos = !parser.has_positionals();
-        let opts = !parser.has_opts();
-        let subcmds = !parser.has_subcommands();
+        let flags = parser.has_flags();
+        let pos = parser.has_positionals();
+        let opts = parser.has_opts();
+        let subcmds = parser.has_subcommands();
 
         let unified_help = parser.is_set(AppSettings::UnifiedHelpMessage);
 
@@ -510,10 +510,10 @@ impl<'a> Help<'a> {
                     TAB,
                     parser.create_usage_no_title(&[])));
 
-        let flags = !parser.has_flags();
-        let pos = !parser.has_positionals();
-        let opts = !parser.has_opts();
-        let subcmds = !parser.has_subcommands();
+        let flags = parser.has_flags();
+        let pos = parser.has_positionals();
+        let opts = parser.has_opts();
+        let subcmds = parser.has_subcommands();
 
         if flags || opts || pos || subcmds {
             try!(self.write_all_args(&parser));
