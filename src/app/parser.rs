@@ -334,7 +334,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         for g in grps.into_iter() {
             let g_string = self.args_in_group(g)
                                .join("|");
-            ret_val.push_back(format!("[{}]", &g_string[..g_string.len() - 1]));
+            ret_val.push_back(format!("[{}]", &g_string[..g_string.len()]));
         }
 
         ret_val
