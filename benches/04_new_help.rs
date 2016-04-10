@@ -10,21 +10,14 @@ use std::io::Cursor;
 use clap::App;
 use clap::{Arg, SubCommand};
 
-fn build_old_help(app: &App) -> String {
+fn build_help(app: &App) -> String {
     let mut buf = Cursor::new(Vec::with_capacity(50));
     app.write_help(&mut buf).unwrap();
     let content = buf.into_inner();
     String::from_utf8(content).unwrap()
 }
 
-fn build_new_help(app: &App) -> String {
-    let mut buf = Cursor::new(Vec::with_capacity(50));
-    app.write_new_help(&mut buf).unwrap();
-    let content = buf.into_inner();
-    String::from_utf8(content).unwrap()
-}
-
-fn example1<'b, 'c>() -> App<'b, 'c> {
+fn app_example1<'b, 'c>() -> App<'b, 'c> {
     App::new("MyApp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
@@ -37,14 +30,14 @@ fn example1<'b, 'c>() -> App<'b, 'c> {
                         .arg_from_usage("-l, --list 'lists test values'"))
 }
 
-fn example2<'b, 'c>() -> App<'b, 'c> {
+fn app_example2<'b, 'c>() -> App<'b, 'c> {
     App::new("MyApp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
 }
 
-fn example3<'b, 'c>() -> App<'b, 'c> {
+fn app_example3<'b, 'c>() -> App<'b, 'c> {
     App::new("MyApp")
         // All application settings go here...
 
@@ -81,7 +74,7 @@ fn example3<'b, 'c>() -> App<'b, 'c> {
                           -i, --int=[IFACE] 'Set an interface to use'")
 }
 
-fn example4<'b, 'c>() -> App<'b, 'c> {
+fn app_example4<'b, 'c>() -> App<'b, 'c> {
     App::new("MyApp")
         .about("Parses an input file to do awesome things")
         .version("1.0")
@@ -100,7 +93,7 @@ fn example4<'b, 'c>() -> App<'b, 'c> {
                  .required(true))
 }
 
-fn example5<'b, 'c>() -> App<'b, 'c> {
+fn app_example5<'b, 'c>() -> App<'b, 'c> {
     App::new("MyApp")
         // Regular App configuration goes here...
 
@@ -125,7 +118,7 @@ fn example5<'b, 'c>() -> App<'b, 'c> {
         )
 }
 
-fn example6<'b, 'c>() -> App<'b, 'c> {
+fn app_example6<'b, 'c>() -> App<'b, 'c> {
     App::new("MyApp")
         // Regular App configuration goes here...
 
@@ -158,7 +151,7 @@ fn example6<'b, 'c>() -> App<'b, 'c> {
                                                    // because requires lists are automatically two-way
 }
 
-fn example7<'b, 'c>() -> App<'b, 'c> {
+fn app_example7<'b, 'c>() -> App<'b, 'c> {
     App::new("MyApp")
         // Regular App configuration goes here...
 
@@ -187,7 +180,7 @@ fn example7<'b, 'c>() -> App<'b, 'c> {
         )
 }
 
-fn example8<'b, 'c>() -> App<'b, 'c> {
+fn app_example8<'b, 'c>() -> App<'b, 'c> {
     App::new("MyApp")
                     // Regular App configuration goes here...
 
@@ -216,7 +209,7 @@ fn example8<'b, 'c>() -> App<'b, 'c> {
             )
 }
 
-fn example10<'b, 'c>() -> App<'b, 'c> {
+fn app_example10<'b, 'c>() -> App<'b, 'c> {
     App::new("myapp")
         .about("does awesome things")
         .arg(Arg::with_name("CONFIG")
@@ -225,121 +218,58 @@ fn example10<'b, 'c>() -> App<'b, 'c> {
                  .takes_value(true))
 }
 
-
 #[bench]
-fn example1_old(b: &mut Bencher) {
-    let app = example1();
-    b.iter(|| build_old_help(&app));
+fn example1(b: &mut Bencher) {
+    let app = app_example1();
+    b.iter(|| build_help(&app));
 }
 
 #[bench]
-fn example1_new(b: &mut Bencher) {
-    let app = example1();
-    b.iter(|| build_new_help(&app));
-}
-
-
-#[bench]
-fn example2_old(b: &mut Bencher) {
-    let app = example2();
-    b.iter(|| build_old_help(&app));
+fn example2(b: &mut Bencher) {
+    let app = app_example2();
+    b.iter(|| build_help(&app));
 }
 
 #[bench]
-fn example2_new(b: &mut Bencher) {
-    let app = example2();
-    b.iter(|| build_new_help(&app));
-}
-
-
-#[bench]
-fn example3_old(b: &mut Bencher) {
-    let app = example3();
-    b.iter(|| build_old_help(&app));
+fn example3(b: &mut Bencher) {
+    let app = app_example3();
+    b.iter(|| build_help(&app));
 }
 
 #[bench]
-fn example3_new(b: &mut Bencher) {
-    let app = example3();
-    b.iter(|| build_new_help(&app));
-}
-
-
-#[bench]
-fn example4_old(b: &mut Bencher) {
-    let app = example4();
-    b.iter(|| build_old_help(&app));
+fn example4(b: &mut Bencher) {
+    let app = app_example4();
+    b.iter(|| build_help(&app));
 }
 
 #[bench]
-fn example4_new(b: &mut Bencher) {
-    let app = example4();
-    b.iter(|| build_new_help(&app));
-}
-
-
-#[bench]
-fn example5_old(b: &mut Bencher) {
-    let app = example5();
-    b.iter(|| build_old_help(&app));
+fn example5(b: &mut Bencher) {
+    let app = app_example5();
+    b.iter(|| build_help(&app));
 }
 
 #[bench]
-fn example5_new(b: &mut Bencher) {
-    let app = example5();
-    b.iter(|| build_new_help(&app));
-}
-
-
-#[bench]
-fn example6_old(b: &mut Bencher) {
-    let app = example6();
-    b.iter(|| build_old_help(&app));
+fn example6(b: &mut Bencher) {
+    let app = app_example6();
+    b.iter(|| build_help(&app));
 }
 
 #[bench]
-fn example6_new(b: &mut Bencher) {
-    let app = example6();
-    b.iter(|| build_new_help(&app));
-}
-
-
-#[bench]
-fn example7_old(b: &mut Bencher) {
-    let app = example7();
-    b.iter(|| build_old_help(&app));
+fn example7(b: &mut Bencher) {
+    let app = app_example7();
+    b.iter(|| build_help(&app));
 }
 
 #[bench]
-fn example7_new(b: &mut Bencher) {
-    let app = example7();
-    b.iter(|| build_new_help(&app));
-}
-
-
-#[bench]
-fn example8_old(b: &mut Bencher) {
-    let app = example8();
-    b.iter(|| build_old_help(&app));
+fn example8(b: &mut Bencher) {
+    let app = app_example8();
+    b.iter(|| build_help(&app));
 }
 
 #[bench]
-fn example8_new(b: &mut Bencher) {
-    let app = example8();
-    b.iter(|| build_new_help(&app));
-}
-
-
-#[bench]
-fn example10_old(b: &mut Bencher) {
-    let app = example10();
-    b.iter(|| build_old_help(&app));
-}
-
-#[bench]
-fn example10_new(b: &mut Bencher) {
-    let app = example10();
-    b.iter(|| build_new_help(&app));
+fn example10(b: &mut Bencher) {
+    let app = app_example10();
+    b.iter(|| build_help(&app));
 }
 
 #[bench]
@@ -362,6 +292,6 @@ ARGS:
     <input>    the input file to use
 */
 
-    let app = example4().template("{bin} {version}\n{author}\n{about}\n\nUSAGE:\n    {usage}\n\nFLAGS:\n{flags}\n\nARGS:\n{args}\n");
-    b.iter(|| build_new_help(&app));
+    let app = app_example4().template("{bin} {version}\n{author}\n{about}\n\nUSAGE:\n    {usage}\n\nFLAGS:\n{flags}\n\nARGS:\n{args}\n");
+    b.iter(|| build_help(&app));
 }

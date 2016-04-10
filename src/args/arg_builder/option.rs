@@ -1,11 +1,10 @@
 use std::rc::Rc;
 use std::fmt::{Display, Formatter, Result};
 use std::result::Result as StdResult;
-use std::io;
 
 use vec_map::VecMap;
 
-use args::{AnyArg, Arg, HelpWriter, DispOrder};
+use args::{AnyArg, Arg, DispOrder};
 use args::settings::{ArgFlags, ArgSettings};
 
 #[allow(missing_debug_implementations)]
@@ -104,11 +103,6 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
         ob
     }
 
-    pub fn write_help<W: io::Write>(&self, w: &mut W, longest: usize, skip_pv: bool, nlh: bool) -> io::Result<()> {
-        let mut hw = HelpWriter::new(self, longest, nlh);
-        hw.skip_pv = skip_pv;
-        hw.write_to(w)
-    }
 }
 
 impl<'n, 'e> Display for OptBuilder<'n, 'e> {

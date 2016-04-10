@@ -15,6 +15,22 @@ use app::parser::Parser;
 
 use term;
 
+#[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
+use unicode_width::UnicodeWidthStr;
+
+use strext::_StrExt;
+
+#[cfg(any(not(feature = "wrap_help"), target_os = "windows"))]
+fn str_width(s: &str) -> usize {
+    s.len()
+}
+
+#[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
+fn str_width(s: &str) -> usize {
+    UnicodeWidthStr::width(s)
+}
+
+
 const TAB: &'static str = "    ";
 
 // These are just convenient traits to make the code easier to read.
@@ -68,9 +84,15 @@ impl<'a> Help<'a> {
     /// Reads help settings from an App
     /// and write its help to the wrapped stream.
     pub fn write_app_help(w: &'a mut Write, app: &App) -> ClapResult<()> {
-        let nlh = app.p.is_set(AppSettings::NextLineHelp);
-        let hide_v = app.p.is_set(AppSettings::HidePossibleValuesInHelp);
-        Self::new(w, nlh, hide_v).write_help(&app.p)
+        Self::write_parser_help(w, &app.p)
+    }
+
+    /// Reads help settings from a Parser
+    /// and write its help to the wrapped stream.
+    pub fn write_parser_help(w: &'a mut Write, parser: &Parser) -> ClapResult<()> {
+        let nlh = parser.is_set(AppSettings::NextLineHelp);
+        let hide_v = parser.is_set(AppSettings::HidePossibleValuesInHelp);
+        Self::new(w, nlh, hide_v).write_help(&parser)
     }
 
     /// Writes the parser help to the wrapped stream.
@@ -229,6 +251,8 @@ impl<'a> Help<'a> {
                     try!(write!(self.writer, " "));
                 }
             }
+        } else if arg.has_switch() {
+            try!(write!(self.writer, "<{}>", arg.name()));
         } else {
             try!(write!(self.writer, "{}", arg));
         }
@@ -269,7 +293,8 @@ impl<'a> Help<'a> {
         // determine if our help fits or needs to wrap
         let width = self.term_w.unwrap_or(0);
         debugln!("Term width...{}", width);
-        let too_long = self.term_w.is_some() && (spcs + h.len() + spec_vals.len() >= width);
+        let too_long = self.term_w.is_some() && (spcs + str_width(h) +
+                       str_width(&*spec_vals) >= width);
         debugln!("Too long...{:?}", too_long);
 
         // Is help on next line, if so newline + 2x tab
@@ -283,13 +308,13 @@ impl<'a> Help<'a> {
             help.push_str(h);
             help.push_str(&*spec_vals);
             debugln!("help: {}", help);
-            debugln!("help len: {}", help.len());
+            debugln!("help width: {}", str_width(&*help));
             // Determine how many newlines we need to insert
             let avail_chars = width - spcs;
             debugln!("Usable space: {}", avail_chars);
             let longest_w = {
                 let mut lw = 0;
-                for l in help.split(' ').map(|s| s.len()) {
+                for l in help.split(' ').map(|s| str_width(s)) {
                     if l > lw {
                         lw = l;
                     }
@@ -297,7 +322,7 @@ impl<'a> Help<'a> {
                 lw
             };
             debugln!("Longest word...{}", longest_w);
-            debug!("Enough space...");
+            debug!("Enough space to wrap...");
             if longest_w < avail_chars {
                 sdebugln!("Yes");
                 let mut indices = vec![];
@@ -314,7 +339,7 @@ impl<'a> Help<'a> {
                     debugln!("Adding idx: {}", idx);
                     debugln!("At {}: {:?}", idx, help.chars().nth(idx));
                     indices.push(idx);
-                    if &help[idx..].len() <= &avail_chars {
+                    if str_width(&help[idx..]) <= avail_chars {
                         break;
                     }
                 }
@@ -735,9 +760,14 @@ impl<'a> Help<'a> {
 }
 
 
-fn find_idx_of_space(full: &str, start: usize) -> usize {
+fn find_idx_of_space(full: &str, mut start: usize) -> usize {
     debugln!("fn=find_idx_of_space;");
-    let haystack = &full[..start];
+    let haystack = if full._is_char_boundary(start) {
+        &full[..start]
+    } else {
+        while !full._is_char_boundary(start) { start -= 1; }
+        &full[..start]
+    };
     debugln!("haystack: {}", haystack);
     for (i, c) in haystack.chars().rev().enumerate() {
         debugln!("iter;c={},i={}", c, i);

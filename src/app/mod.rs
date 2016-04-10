@@ -22,7 +22,7 @@ use std::fmt;
 use yaml_rust::Yaml;
 use vec_map::VecMap;
 
-use args::{Arg, HelpWriter, ArgSettings, AnyArg, ArgGroup, ArgMatches, ArgMatcher};
+use args::{Arg, ArgSettings, AnyArg, ArgGroup, ArgMatches, ArgMatcher};
 use app::parser::Parser;
 use app::help::Help;
 use errors::Error;
@@ -663,21 +663,6 @@ impl<'a, 'b> App<'a, 'b> {
     /// app.write_help(&mut out).ok().expect("failed to write to stdout");
     /// ```
     pub fn write_help<W: Write>(&self, w: &mut W) -> ClapResult<()> {
-        self.p.write_help(w)
-    }
-
-    /// Writes the full help message to the user to a `io::Write` object
-    /// USING A NEW implementation.
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::App;
-    /// use std::io;
-    /// let mut app = App::new("myprog");
-    /// let mut out = io::stdout();
-    /// app.write_new_help(&mut out).ok().expect("failed to write to stdout");
-    /// ```
-    pub fn write_new_help<W: Write>(&self, w: &mut W) -> ClapResult<()> {
         Help::write_app_help(w, &self)
     }
 
@@ -851,30 +836,6 @@ impl<'a, 'b> App<'a, 'b> {
         }
 
         e.exit()
-    }
-
-    #[doc(hidden)]
-    pub fn write_self_help<W>(&self, w: &mut W, longest: usize, nlh: bool) -> io::Result<()>
-        where W: Write
-    {
-        let hw = HelpWriter::new(self, longest, nlh);
-        hw.write_to(w)
-
-        // try!(write!(w, "    {}", self.p.meta.name));
-        // write_spaces!((longest_sc + 4) - (self.p.meta.name.len()), w);
-        // if let Some(a) = self.p.meta.about {
-        //     if a.contains("{n}") {
-        //         let mut ab = a.split("{n}");
-        //         while let Some(part) = ab.next() {
-        //             try!(write!(w, "{}\n", part));
-        //             write_spaces!(longest_sc + 8, w);
-        //             try!(write!(w, "{}", ab.next().unwrap_or("")));
-        //         }
-        //     } else {
-        //         try!(write!(w, "{}", a));
-        //     }
-        // }
-        // write!(w, "\n")
     }
 }
 

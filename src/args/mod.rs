@@ -7,7 +7,6 @@ pub use self::matched_arg::MatchedArg;
 pub use self::group::ArgGroup;
 pub use self::any_arg::{AnyArg, DispOrder};
 pub use self::settings::ArgSettings;
-pub use self::help_writer::HelpWriter;
 
 mod arg;
 pub mod any_arg;
@@ -19,4 +18,3 @@ mod matched_arg;
 mod group;
 #[allow(dead_code)]
 pub mod settings;
-mod help_writer;
