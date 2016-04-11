@@ -79,33 +79,13 @@ fn group_multi_value_single_arg() {
 }
 
 #[test]
-#[should_panic]
 fn empty_group() {
-    let _ = App::new("empty_group")
+    let r = App::new("empty_group")
         .arg(Arg::from_usage("-f, --flag 'some flag'"))
         .group(ArgGroup::with_name("vers")
             .required(true))
-        .get_matches();
-}
-
-#[test]
-#[should_panic]
-fn empty_group_2() {
-    let _ = App::new("empty_group")
-        .arg(Arg::from_usage("-f, --flag 'some flag'"))
-        .group(ArgGroup::with_name("vers")
-            .required(true)
-            .args(&["ver", "major"]))
-        .get_matches();
-}
-
-#[test]
-#[should_panic]
-fn errous_group() {
-    let _ = App::new("errous_group")
-        .arg(Arg::from_usage("-f, --flag 'some flag'"))
-        .group(ArgGroup::with_name("vers")
-            .arg("vers")
-            .required(true))
-        .get_matches();
+        .get_matches_from_safe(vec!["empty_prog"]);
+    assert!(r.is_err());
+    let err = r.err().unwrap();
+    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
 }
