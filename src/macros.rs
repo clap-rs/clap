@@ -350,6 +350,226 @@ macro_rules! arg_enum {
     };
 }
 
+/// A convienience macro for defining enums that can be used to access `SubCommand`s. By using this
+/// macro, all traits are implemented automatically. The traits implemented are, `SubCommandKey`,
+/// `Display`, and `AsRef<str>`. This macro also implements a `variants()` function which returns an
+/// array of `&'static str`s containing the variant names.
+/// 
+/// There are two ways to use this macro, in an as-is scenario where the variants one defines are
+/// exaclty how the subcommands are displayed to the end user. There is also an alternative way where
+/// the actual display of the subcommands can be changed. Examples of both are bellow.
+///
+/// This allows rustc to do some checking for you, i.e. if you add another
+/// subcommand later, but forget to check for it, rustc will complain about
+/// NonExaustive matches. Likewise, if you make a simple spelling or typing
+/// error.
+///
+/// **NOTE:** A final variant `None` is always added to define when no subcommand was used. You
+/// should not add this variant yourself.
+///
+/// **Pro Tip:** It's good practice to make the name of the enum the same as
+/// the parent command, and the variants the names of the actual subcommands
+///
+/// # Examples
+///     
+/// ```rust
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::{App, SubCommand};
+/// // Note lowercase variants, the subcommand will be exactly as typed here
+/// subcommands!{
+///     enum MyProg {
+///         show,
+///         delete,
+///         make
+///     }
+/// }
+/// 
+/// // Alternatively, if you wish to have variants which display
+/// // differently, or contain hyphens ("-") one can use this variation of
+/// // the macro
+/// subcommands!{
+///     enum MyProgAlt {
+///         Show => "show",
+///         Delete => "delete",
+///         DoStuff => "do-stuff"
+///     }
+/// }
+/// 
+/// fn main() {
+///     let m = App::new("myprog")
+///         .subcommand(SubCommand::with_name(MyProg::show))
+///         .subcommand(SubCommand::with_name(MyProg::delete))
+///         .subcommand(SubCommand::with_name(MyProg::make))
+///         .get_matches_from(vec!["myprog", "show"]);
+/// 
+///     match m.subcommand() {
+///         (MyProg::show, _) => println!("'myprog show' was used"),
+///         (MyProg::delete, _) => println!("'myprog delete' was used"),
+///         (MyProg::make, _) => println!("'myprog make' was used"),
+///         (MyProg::None, _) => println!("No subcommand was used"),
+///     }
+/// }
+/// ```
+#[macro_export]
+macro_rules! subcommands {
+    (@as_item $($i:item)*) => ($($i)*);
+    (@impls_s ( $($tts:tt)* ) -> ($e:ident, $($v:ident=>$s:expr),+)) => {
+        arg_enum!(@as_item
+
+        #[derive(PartialEq)]
+        #[allow(non_camel_case_types)]
+        $($tts)*
+
+        impl<'a> ::clap::SubCommandKey<'a> for $e {
+            fn from_str(s: &'a str) -> Self {
+                match s {
+                    $($s => $e::$v),+,
+                    _ => unreachable!(),
+                }
+            }
+            fn none() -> Self {
+                $e::None
+            }
+        }
+        impl ::std::fmt::Display for $e {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                match *self {
+                    $($e::$v => write!(f, $s),)+
+                    $e::None => write!(f, "none"),
+                }
+            }
+        }
+        impl ::std::convert::AsRef<str> for $e {
+            fn as_ref(&self) -> &'static str {
+                match *self {
+                    $($e::$v => $s,)+
+                    $e::None => "none",
+                }
+            }
+        }
+        impl $e {
+            #[allow(dead_code)]
+            pub fn variants() -> [&'static str; _clap_count_exprs!($(stringify!($v)),+)] {
+                [
+                    $(stringify!($s),)+
+                ]
+            }
+        });
+    };
+    (@impls ( $($tts:tt)* ) -> ($e:ident, $($v:ident),+)) => {
+        arg_enum!(@as_item
+
+        #[derive(PartialEq)]
+        #[allow(non_camel_case_types)]
+        $($tts)*
+
+        impl<'a> ::clap::SubCommandKey<'a> for $e {
+            fn from_str(s: &'a str) -> Self {
+                match s {
+                    $(stringify!($v) => $e::$v),+,
+                    _ => unreachable!(),
+                }
+            }
+            fn none() -> Self {
+                $e::None
+            }
+        }
+        impl ::std::fmt::Display for $e {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                match *self {
+                    $($e::$v => write!(f, stringify!($v)),)+
+                    $e::None => write!(f, "none"),
+                }
+            }
+        }
+        impl ::std::convert::AsRef<str> for $e {
+            fn as_ref(&self) -> &'static str {
+                match *self {
+                    $($e::$v => stringify!($v),)+
+                    $e::None => "none",
+                }
+            }
+        }
+        impl $e {
+            #[allow(dead_code)]
+            pub fn variants() -> [&'static str; _clap_count_exprs!($(stringify!($v)),+)] {
+                [
+                    $(stringify!($v),)+
+                ]
+            }
+        });
+    };
+    (#[$($m:meta),+] pub enum $e:ident { $($v:ident=>$s:expr),+ } ) => {
+        subcommands!(@impls_s
+            (#[$($m),+]
+            pub enum $e {
+                $($v),+,
+                None
+            }) -> ($e, $($v=>$s),+)
+        );
+    };
+    (#[$($m:meta),+] enum $e:ident { $($v:ident=>$s:expr),+ } ) => {
+        subcommands!(@impls_s
+            (#[$($m),+]
+            enum $e {
+                $($v),+,
+                None
+            }) -> ($e, $($v=>$s:expr),+)
+        );
+    };
+    (pub enum $e:ident { $($v:ident=>$s:expr),+ } ) => {
+        subcommands!(@impls_s
+            (pub enum $e {
+                $($v),+,
+                None
+            }) -> ($e, $($v=>$s),+)
+        );
+    };
+    (enum $e:ident { $($v:ident=>$s:expr),+ } ) => {
+        subcommands!(@impls_s
+            (enum $e {
+                $($v),+,
+                None
+            }) -> ($e, $($v=>$s),+)
+        );
+    };
+    (#[$($m:meta),+] pub enum $e:ident { $($v:ident),+ } ) => {
+        subcommands!(@impls
+            (#[$($m),+]
+            pub enum $e {
+                $($v),+,
+                None
+            }) -> ($e, $($v),+)
+        );
+    };
+    (#[$($m:meta),+] enum $e:ident { $($v:ident),+ } ) => {
+        subcommands!(@impls
+            (#[$($m),+]
+            enum $e {
+                $($v),+,
+                None
+            }) -> ($e, $($v),+)
+        );
+    };
+    (pub enum $e:ident { $($v:ident),+ } ) => {
+        subcommands!(@impls
+            (pub enum $e {
+                $($v),+,
+                None
+            }) -> ($e, $($v),+)
+        );
+    };
+    (enum $e:ident { $($v:ident),+ } ) => {
+        subcommands!(@impls
+            (enum $e {
+                $($v),+,
+                None
+            }) -> ($e, $($v),+)
+        );
+    };
+}
+
 /// Allows you pull the version for an from your Cargo.toml at compile time as
 /// MAJOR.MINOR.PATCH_PKGVERSION_PRE
 ///

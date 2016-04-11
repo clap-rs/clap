@@ -3,11 +3,13 @@ use std::collections::HashMap;
 use std::iter::Map;
 use std::slice;
 use std::borrow::Cow;
+use std::str::FromStr;
 
 use vec_map;
 
 use args::SubCommand;
 use args::MatchedArg;
+use args::SubCommandKey;
 use INVALID_UTF8;
 
 /// Used to get information about the arguments that where supplied to the program at runtime by
@@ -281,7 +283,7 @@ impl<'a> ArgMatches<'a> {
     /// ```
     pub fn is_present<S: AsRef<str>>(&self, name: S) -> bool {
         if let Some(ref sc) = self.subcommand {
-            if sc.name == name.as_ref() {
+            if &sc.name[..] == name.as_ref() {
                 return true;
             }
         }
@@ -360,7 +362,7 @@ impl<'a> ArgMatches<'a> {
     /// ```
     pub fn subcommand_matches<S: AsRef<str>>(&self, name: S) -> Option<&ArgMatches<'a>> {
         if let Some(ref s) = self.subcommand {
-            if s.name == name.as_ref() { return Some(&s.matches) }
+            if &s.name[..] == name.as_ref() { return Some(&s.matches) }
         }
         None
     }
@@ -400,10 +402,20 @@ impl<'a> ArgMatches<'a> {
     /// $ git commit message
     /// ```
     ///
-    /// Notice only one command per "level" may be used. You could not, for example, do `$ git
+    /// Notice only one command per "level" may be used. You could *not*, for example, do `$ git
     /// clone url push origin path`
     ///
     /// # Examples
+    ///
+    /// Subcommands can use either strings or enum variants as names and accessors. Using strings
+    /// is convienient, but can lead to simple typing errors and other such issues. This is
+    /// sometimes referred to as being, "stringly typed" and generally avoided if possible.
+    ///
+    /// This is why subcommands also have the option to use enum variants as their accessors, which
+    /// allows `rustc` to do some compile time checking for, to avoid all the common "stringly 
+    /// typed" issues.
+    ///
+    /// This first example shows a "stringly" typed version.
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
@@ -420,14 +432,47 @@ impl<'a> ArgMatches<'a> {
     ///     _              => {}, // Either no subcommand or one not tested for...
     /// }
     /// ```
-    pub fn subcommand_name(&self) -> Option<&str> {
-        self.subcommand.as_ref().map(|sc| &sc.name[..])
+    /// This next example shows a functionally equivolent strong typed version.
+    ///
+    /// ```no_run
+    /// # #[macro_use]
+    /// # extern crate clap;
+    /// # use clap::{App, Arg, SubCommand};
+    /// subcommands!{
+    ///     enum Git {
+    ///         clone,
+    ///         push,
+    ///         commit
+    ///     }
+    /// }
+    ///
+    /// fn main() {
+    ///     let app_m = App::new("git")
+    ///          .subcommand(SubCommand::with_name(Git::clone))
+    ///          .subcommand(SubCommand::with_name(Git::push))
+    ///          .subcommand(SubCommand::with_name(Git::commit))
+    ///          .get_matches();
+    ///
+    ///     match app_m.subcommand_name() {
+    ///         Some(Git::clone)  => {}, // clone was used
+    ///         Some(Git::push)   => {}, // push was used
+    ///         Some(Git::commit) => {}, // commit was used
+    ///         _                 => {}, // No subcommand was used
+    ///     }
+    /// }
+    /// ```
+    pub fn subcommand_name<'s, S>(&'s self) -> Option<S> where S: SubCommandKey<'s> {
+        self.subcommand.as_ref().map(|sc| S::from_str(&sc.name[..]))
     }
 
     /// This brings together `ArgMatches::subcommand_matches` and `ArgMatches::subcommand_name` by
     /// returning a tuple with both pieces of information.
     ///
+    /// Like the other methods, can either be stringly typed, or use enum variants.
+    ///
     /// # Examples
+    ///
+    /// An example using strings.
     ///
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
@@ -442,6 +487,37 @@ impl<'a> ArgMatches<'a> {
     ///     ("push",   Some(sub_m)) => {}, // push was used
     ///     ("commit", Some(sub_m)) => {}, // commit was used
     ///     _                       => {}, // Either no subcommand or one not tested for...
+    /// }
+    /// ```
+    ///
+    /// This next example shows a functionally equivolent strong typed version.
+    ///
+    /// ```no_run
+    /// # #[macro_use]
+    /// # extern crate clap;
+    /// # use clap::{App, Arg, SubCommand};
+    /// subcommands!{
+    ///     enum Git {
+    ///         clone,
+    ///         push,
+    ///         commit
+    ///     }
+    ///  }
+    ///
+    /// fn main() {
+    ///     let app_m = App::new("git")
+    ///          .subcommand(SubCommand::with_name(Git::clone))
+    ///          .subcommand(SubCommand::with_name(Git::push))
+    ///          .subcommand(SubCommand::with_name(Git::commit))
+    ///          .get_matches();
+    ///
+    ///     match app_m.subcommand() {
+    ///         (Git::clone, Some(sub_m))  => {}, // clone was used
+    ///         (Git::push, Some(sub_m))   => {}, // push was used
+    ///         (Git::commit, Some(sub_m)) => {}, // commit was used
+    ///         (Git::None, _)             => {}, // No subcommand was used
+    ///         (_, None)                  => {}, // Unreachable
+    ///     }
     /// }
     /// ```
     ///
@@ -461,6 +537,7 @@ impl<'a> ArgMatches<'a> {
     /// // All trailing arguments will be stored under the subcommand's sub-matches using a value
     /// // of the runtime subcommand name (in this case "subcmd")
     /// match app_m.subcommand() {
+    ///     ("do-stuff", Some(sub_m)) => { /* do-stuff was used, internal subcommand */ },
     ///     (external, Some(sub_m)) => {
     ///          let ext_args: Vec<&str> = sub_m.values_of(external).unwrap().collect();
     ///          assert_eq!(ext_args, ["--option", "value", "-fff", "--flag"]);
@@ -468,8 +545,8 @@ impl<'a> ArgMatches<'a> {
     ///     _ => {},
     /// }
     /// ```
-    pub fn subcommand(&self) -> (&str, Option<&ArgMatches<'a>>) {
-        self.subcommand.as_ref().map_or(("", None), |sc| (&sc.name[..], Some(&sc.matches)))
+    pub fn subcommand<'s, S>(&'s self) -> (S, Option<&ArgMatches<'a>>) where S: SubCommandKey<'s> {
+        self.subcommand.as_ref().map_or((S::none(), None), |sc| (S::from_str(&sc.name[..]), Some(&sc.matches)))
     }
 
     /// Returns a string slice of the usage statement for the `App` (or `SubCommand`)
@@ -575,3 +652,4 @@ impl<'a> Iterator for OsValues<'a> {
 impl<'a> DoubleEndedIterator for OsValues<'a> {
     fn next_back(&mut self) -> Option<&'a OsStr> { self.iter.next_back() }
 }
+
