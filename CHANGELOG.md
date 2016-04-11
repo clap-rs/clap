@@ -1,10 +1,18 @@
+<a name="v2.2.6"></a>
+### v2.2.6 (2016-04-11)
+
+#### Bug Fixes
+
+* **Arg Groups**: fixes bug where arg name isn't printed properly ([3019a685](https://github.com/kbknapp/clap-rs/commit/3019a685eee747ccbe6be09ad5dddce0b1d1d4db), closes [#476](https://github.com/kbknapp/clap-rs/issues/476))
+
+
 <a name="v2.2.5"></a>
 ### v2.2.5 (2016-04-03)
 
 
 #### Bug Fixes
 
-* **Empty Values:**  fixes bug where empty values weren't stored ([885d166f](https://github.com/kbknapp/clap-rs/commit/885d166f04eb3fb581898ae5818c6c8032e5a686), closes [#470](https://github.com/kbknapp/clap-rs/issues/470))
+* **Emphttps://github.com/kbknapp/clap-rs/commit/3019a685eee747ccbe6be09ad5dddce0b1d1d4dbty Values:**  fixes bug where empty values weren't stored ([885d166f](https://github.com/kbknapp/clap-rs/commit/885d166f04eb3fb581898ae5818c6c8032e5a686), closes [#470](https://github.com/kbknapp/clap-rs/issues/470))
 * **Help Message:**  fixes bug where arg name is printed twice ([71acf1d5](https://github.com/kbknapp/clap-rs/commit/71acf1d576946658b8bbdb5ae79e6716c43a030f), closes [#472](https://github.com/kbknapp/clap-rs/issues/472))
 
 
