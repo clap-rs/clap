@@ -1,10 +1,9 @@
 #[macro_use]
 extern crate clap;
 
-use clap::App;
-
 #[cfg(feature = "unstable")]
 fn main() {
+    use clap::App;
     App::new("myapp")
         .about("does awesome things")
        // use crate_authors! to pull the author(s) names from the Cargo.toml
