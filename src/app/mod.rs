@@ -110,9 +110,15 @@ impl<'a, 'b> App<'a, 'b> {
         App::from(yaml)
     }
 
-    /// Sets a string of author(s) that will be displayed to the user when they request the help
-    /// information with `--help` or `-h`.
+    /// Sets a string of author(s) that will be displayed to the user when they 
+    /// request the help information with `--help` or `-h`.
     ///
+    /// **Pro-tip:** If you turn on unstable features you can use `clap`s 
+    /// convienience macro `crate_authors!` to automatically set your
+    /// application's author to the same thing as your crate at compile time. 
+    /// See the `examples/`
+    /// directory for more information
+    ///    
     /// # Examples
     ///
     /// ```no_run
