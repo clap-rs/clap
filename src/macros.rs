@@ -350,7 +350,7 @@ macro_rules! arg_enum {
     };
 }
 
-/// Allows you pull the version from your Cargo.toml at compile time as
+/// Allows you to pull the version from your Cargo.toml at compile time as
 /// MAJOR.MINOR.PATCH_PKGVERSION_PRE
 ///
 /// # Examples
@@ -372,8 +372,10 @@ macro_rules! crate_version {
     };
 }
 
-/// Allows you pull the authors for the app from your Cargo.toml at compile time as 
-/// "author1 lastname. <author1@gmail.com>", "author2 lastname. <author1@gmail.com>"
+/// Allows you to pull the authors for the app from your Cargo.toml at 
+/// compile time as 
+/// "author1 lastname. <author1@example.com>",
+///     "author2 lastname. <author2@example.com>"
 ///
 /// # Examples
 ///
