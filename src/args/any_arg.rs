@@ -25,4 +25,9 @@ pub trait AnyArg<'n, 'e> {
     fn val_names(&self) -> Option<&VecMap<&'e str>>;
     fn help(&self) -> Option<&'e str>;
     fn default_val(&self) -> Option<&'n str>;
+    fn longest_filter(&self) -> bool;
+}
+
+pub trait DispOrder {
+    fn disp_ord(&self) -> usize;
 }

@@ -4,6 +4,7 @@ mod settings;
 mod macros;
 mod parser;
 mod meta;
+mod help;
 
 pub use self::settings::AppSettings;
 
@@ -21,8 +22,9 @@ use std::fmt;
 use yaml_rust::Yaml;
 use vec_map::VecMap;
 
-use args::{Arg, HelpWriter, ArgSettings, AnyArg, ArgGroup, ArgMatches, ArgMatcher};
+use args::{Arg, ArgSettings, AnyArg, ArgGroup, ArgMatches, ArgMatcher};
 use app::parser::Parser;
+use app::help::Help;
 use errors::Error;
 use errors::Result as ClapResult;
 
@@ -314,6 +316,39 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     pub fn version_short<S: AsRef<str>>(mut self, s: S) -> Self {
         self.p.version_short(s.as_ref());
+        self
+    }
+
+    /// Sets the help template to be used, overriding the default format.
+    ///
+    /// Tags arg given inside curly brackets:
+    /// Valid tags are:
+    ///     * `{bin}`         - Binary name.
+    ///     * `{version}`     - Version number.
+    ///     * `{author}`      - Author information.
+    ///     * `{usage}`       - Automatically generated or given usage string.
+    ///     * `{all-args}`    - Help for all arguments (options, flags, positionals arguments,
+    ///                         and subcommands) including titles.
+    ///     * `{unified}`     - Unified help for options and flags.
+    ///     * `{flags}`       - Help for flags.
+    ///     * `{options}`     - Help for options.
+    ///     * `{positionals}` - Help for positionals arguments.
+    ///     * `{subcommands}` - Help for subcommands.
+    ///     * `{after-help}`  - Help for flags.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .version("1.0")
+    ///     .template("{bin} ({version}) - {usage}")
+    /// # ;
+    /// ```
+    /// **NOTE:**The template system is, on purpose, very simple. Therefore the tags have to writen
+    /// in the lowercase and without spacing.
+    pub fn template<S: Into<&'b str>>(mut self, s: S) -> Self {
+        self.p.meta.template = Some(s.into());
         self
     }
 
@@ -634,7 +669,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// app.write_help(&mut out).ok().expect("failed to write to stdout");
     /// ```
     pub fn write_help<W: Write>(&self, w: &mut W) -> ClapResult<()> {
-        self.p.write_help(w)
+        Help::write_app_help(w, &self)
     }
 
     /// Starts the parsing process, upon a failed parse an error will be displayed to the user and
@@ -808,30 +843,6 @@ impl<'a, 'b> App<'a, 'b> {
 
         e.exit()
     }
-
-    #[doc(hidden)]
-    pub fn write_self_help<W>(&self, w: &mut W, longest: usize, nlh: bool) -> io::Result<()>
-        where W: Write
-    {
-        let hw = HelpWriter::new(self, longest, nlh);
-        hw.write_to(w)
-
-        // try!(write!(w, "    {}", self.p.meta.name));
-        // write_spaces!((longest_sc + 4) - (self.p.meta.name.len()), w);
-        // if let Some(a) = self.p.meta.about {
-        //     if a.contains("{n}") {
-        //         let mut ab = a.split("{n}");
-        //         while let Some(part) = ab.next() {
-        //             try!(write!(w, "{}\n", part));
-        //             write_spaces!(longest_sc + 8, w);
-        //             try!(write!(w, "{}", ab.next().unwrap_or("")));
-        //         }
-        //     } else {
-        //         try!(write!(w, "{}", a));
-        //     }
-        // }
-        // write!(w, "\n")
-    }
 }
 
 #[cfg(feature = "yaml")]
@@ -942,6 +953,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn takes_value(&self) -> bool { true }
     fn help(&self) -> Option<&'e str> { self.p.meta.about }
     fn default_val(&self) -> Option<&'n str> { None }
+    fn longest_filter(&self) -> bool { true }
 }
 
 impl<'n, 'e> fmt::Display for App<'n, 'e> {

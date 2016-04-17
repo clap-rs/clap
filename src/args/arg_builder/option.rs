@@ -1,11 +1,10 @@
 use std::rc::Rc;
 use std::fmt::{Display, Formatter, Result};
 use std::result::Result as StdResult;
-use std::io;
 
 use vec_map::VecMap;
 
-use args::{AnyArg, Arg, HelpWriter};
+use args::{AnyArg, Arg, DispOrder};
 use args::settings::{ArgFlags, ArgSettings};
 
 #[allow(missing_debug_implementations)]
@@ -104,11 +103,6 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
         ob
     }
 
-    pub fn write_help<W: io::Write>(&self, w: &mut W, longest: usize, skip_pv: bool, nlh: bool) -> io::Result<()> {
-        let mut hw = HelpWriter::new(self, longest, nlh);
-        hw.skip_pv = skip_pv;
-        hw.write_to(w)
-    }
 }
 
 impl<'n, 'e> Display for OptBuilder<'n, 'e> {
@@ -193,6 +187,11 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn takes_value(&self) -> bool { true }
     fn help(&self) -> Option<&'e str> { self.help }
     fn default_val(&self) -> Option<&'n str> { self.default_val }
+    fn longest_filter(&self) -> bool { true }
+}
+
+impl<'n, 'e> DispOrder for OptBuilder<'n, 'e> {
+    fn disp_ord(&self) -> usize { self.disp_ord }
 }
 
 #[cfg(test)]

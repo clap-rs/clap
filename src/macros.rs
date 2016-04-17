@@ -610,6 +610,19 @@ macro_rules! write_spaces {
     })
 }
 
+// Helper/deduplication macro for printing the correct number of spaces in help messages
+// used in:
+//    src/args/arg_builder/*.rs
+//    src/app/mod.rs
+macro_rules! write_nspaces {
+    ($dst:expr, $num:expr) => ({
+        debugln!("macro=write_spaces!;");
+        for _ in 0..$num {
+            try!($dst.write(b" "));
+        }
+    })
+}
+
 // convenience macro for remove an item from a vec
 macro_rules! vec_remove {
     ($vec:expr, $to_rem:expr) => {

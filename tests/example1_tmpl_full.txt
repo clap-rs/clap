@@ -1,0 +1,15 @@
+{bin} {version}
+{author}
+{about}
+
+USAGE:
+    {usage}
+
+FLAGS:
+{flags}
+OPTIONS:
+{options}
+ARGS:
+{positionals}
+SUBCOMMANDS:
+{subcommands}

@@ -1,14 +1,13 @@
 // use std::collections::HashSet;
 use std::fmt::{Display, Formatter, Result};
 use std::convert::From;
-use std::io;
 use std::rc::Rc;
 use std::result::Result as StdResult;
 
 use vec_map::VecMap;
 
 use Arg;
-use args::{AnyArg, HelpWriter};
+use args::{AnyArg, DispOrder};
 use args::settings::{ArgFlags, ArgSettings};
 
 #[derive(Debug)]
@@ -47,11 +46,6 @@ impl<'n, 'e> FlagBuilder<'n, 'e> {
             name: name,
             ..Default::default()
         }
-    }
-
-    pub fn write_help<W: io::Write>(&self, w: &mut W, longest: usize, nlh: bool) -> io::Result<()> {
-        let hw = HelpWriter::new(self, longest, nlh);
-        hw.write_to(w)
     }
 }
 
@@ -129,6 +123,11 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn val_delim(&self) -> Option<char> { None }
     fn help(&self) -> Option<&'e str> { self.help }
     fn default_val(&self) -> Option<&'n str> { None }
+    fn longest_filter(&self) -> bool { self.long.is_some() }
+}
+
+impl<'n, 'e> DispOrder for FlagBuilder<'n, 'e> {
+    fn disp_ord(&self) -> usize { self.disp_ord }
 }
 
 #[cfg(test)]

@@ -6,8 +6,9 @@ use std::fmt::Display;
 #[cfg(feature = "debug")]
 use std::os::unix::ffi::OsStrExt;
 
-use vec_map::VecMap;
+use vec_map::{self, VecMap};
 
+use app::help::Help;
 use app::App;
 use args::{Arg, FlagBuilder, OptBuilder, ArgGroup, PosBuilder};
 use app::settings::{AppSettings, AppFlags};
@@ -1309,10 +1310,20 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
     // Creates a usage string if one was not provided by the user manually. This happens just
     // after all arguments were parsed, but before any subcommands have been parsed
     // (so as to give subcommands their own usage recursively)
-    fn create_usage(&self, used: &[&str]) -> String {
+    pub fn create_usage(&self, used: &[&str]) -> String {
         debugln!("fn=create_usage;");
         let mut usage = String::with_capacity(75);
         usage.push_str("USAGE:\n    ");
+        usage.push_str(&self.create_usage_no_title(&used));
+        usage
+    }
+
+    // Creates a usage string (*without title*) if one was not provided by the user
+    // manually. This happens just
+    // after all arguments were parsed, but before any subcommands have been parsed
+    // (so as to give subcommands their own usage recursively)
+    pub fn create_usage_no_title(&self, used: &[&str]) -> String {
+        let mut usage = String::with_capacity(75);
         if let Some(u) = self.meta.usage_str {
             usage.push_str(&*u);
         } else if used.is_empty() {
@@ -1331,8 +1342,8 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             } else {
                 usage.push_str(" [OPTIONS]");
             }
-            if !self.is_set(AppSettings::UnifiedHelpMessage) 
-                && self.has_opts() 
+            if !self.is_set(AppSettings::UnifiedHelpMessage)
+                && self.has_opts()
                 && self.opts.iter().any(|a| !a.settings.is_set(ArgSettings::Required)) {
                 usage.push_str(" [OPTIONS]");
             }
@@ -1411,146 +1422,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
 
     #[cfg_attr(feature = "lints", allow(for_kv_map))]
     pub fn write_help<W: Write>(&self, w: &mut W) -> ClapResult<()> {
-        if let Some(h) = self.meta.help_str {
-            return writeln!(w, "{}", h).map_err(Error::from);
-        }
-
-        // Print the version
-        try!(self.write_version(w));
-        if let Some(author) = self.meta.author {
-            try!(write!(w, "{}\n", author));
-        }
-        if let Some(about) = self.meta.about {
-            try!(write!(w, "{}\n", about));
-        }
-
-        try!(write!(w, "\n{}", self.create_usage(&[])));
-
-        let flags = self.has_flags();
-        let pos = self.has_positionals();
-        let opts = self.has_opts();
-        let subcmds = self.has_subcommands();
-        let unified_help = self.is_set(AppSettings::UnifiedHelpMessage);
-
-        let mut longest_flag = 0;
-        for fl in self.flags.iter()
-                      .filter(|f| f.long.is_some() && !(f.settings.is_set(ArgSettings::Hidden) || f.settings.is_set(ArgSettings::NextLineHelp)))
-                      .map(|a| a.to_string().len()) {
-            if fl > longest_flag {
-                longest_flag = fl;
-            }
-        }
-        let mut longest_opt = 0;
-        for ol in self.opts.iter()
-                      .filter(|o| !(o.settings.is_set(ArgSettings::Hidden) || o.settings.is_set(ArgSettings::NextLineHelp)))
-                      .map(|a| a.to_string().len()) {
-            if ol > longest_opt {
-                longest_opt = ol;
-            }
-        }
-        let mut longest_pos = 0;
-        for pl in self.positionals
-                      .values()
-                      .filter(|p| !(p.settings.is_set(ArgSettings::Hidden) || p.settings.is_set(ArgSettings::NextLineHelp)))
-                      .map(|f| f.to_string().len()) {
-            if pl > longest_pos {
-                longest_pos = pl;
-            }
-        }
-        let mut longest_sc = 0;
-        for scl in self.subcommands
-                       .iter()
-                       .filter(|s| !s.p.is_set(AppSettings::Hidden))
-                       .map(|s| s.p.meta.name.len()) {
-            if scl > longest_sc {
-                longest_sc = scl;
-            }
-        }
-
-        if flags || opts || pos || subcmds {
-            try!(write!(w, "\n"));
-        }
-
-        let longest = if !unified_help || longest_opt == 0 {
-            longest_flag
-        } else {
-            longest_opt
-        };
-        let nlh = self.settings.is_set(AppSettings::NextLineHelp);
-        if unified_help && (flags || opts) {
-            try!(write!(w, "\nOPTIONS:\n"));
-            let mut ord_m = VecMap::new();
-            for f in self.flags.iter().filter(|f| !f.settings.is_set(ArgSettings::Hidden)) {
-                let btm = ord_m.entry(f.disp_ord).or_insert(BTreeMap::new());
-                let mut v = vec![];
-                try!(f.write_help(&mut v, longest, nlh));
-                btm.insert(f.name, v);
-            }
-            for o in self.opts.iter().filter(|o| !o.settings.is_set(ArgSettings::Hidden)) {
-                let btm = ord_m.entry(o.disp_ord).or_insert(BTreeMap::new());
-                let mut v = vec![];
-                try!(o.write_help(&mut v, longest, self.is_set(AppSettings::HidePossibleValuesInHelp), nlh));
-                btm.insert(o.name, v);
-            }
-            for (_, btm) in ord_m.into_iter() {
-                for (_, a) in btm.into_iter() {
-                    // Only valid UTF-8 is supported, so panicing on invalid UTF-8 is ok
-                    try!(write!(w, "{}", unsafe { String::from_utf8_unchecked(a) }));
-                }
-            }
-        } else {
-            if flags {
-                let mut ord_m = VecMap::new();
-                try!(write!(w, "\nFLAGS:\n"));
-                for f in self.flags.iter().filter(|f| !f.settings.is_set(ArgSettings::Hidden)) {
-                    let btm = ord_m.entry(f.disp_ord).or_insert(BTreeMap::new());
-                    btm.insert(f.name, f);
-                }
-                for (_, btm) in ord_m.into_iter() {
-                    for (_, f) in btm.into_iter() {
-                        try!(f.write_help(w, longest, nlh));
-                    }
-                }
-            }
-            if opts {
-                let mut ord_m = VecMap::new();
-                try!(write!(w, "\nOPTIONS:\n"));
-                for o in self.opts.iter().filter(|o| !o.settings.is_set(ArgSettings::Hidden)) {
-                    let btm = ord_m.entry(o.disp_ord).or_insert(BTreeMap::new());
-                    btm.insert(o.name, o);
-                }
-                for (_, btm) in ord_m.into_iter() {
-                    for (_, o) in btm.into_iter() {
-                        try!(o.write_help(w, longest_opt, self.is_set(AppSettings::HidePossibleValuesInHelp), nlh));
-                    }
-                }
-            }
-        }
-        if pos {
-            try!(write!(w, "\nARGS:\n"));
-            for v in self.positionals.values()
-                         .filter(|p| !p.settings.is_set(ArgSettings::Hidden)) {
-                try!(v.write_help(w, longest_pos, self.is_set(AppSettings::HidePossibleValuesInHelp), nlh));
-            }
-        }
-        if subcmds {
-            let mut ord_m = VecMap::new();
-            try!(write!(w, "\nSUBCOMMANDS:\n"));
-            for sc in self.subcommands.iter().filter(|s| !s.p.is_set(AppSettings::Hidden)) {
-                let btm = ord_m.entry(sc.p.meta.disp_ord).or_insert(BTreeMap::new());
-                btm.insert(sc.p.meta.name.clone(), sc);
-            }
-            for (_, btm) in ord_m.into_iter() {
-                for (_, sc) in btm.into_iter() {
-                    try!(sc.write_self_help(w, longest_sc, nlh));
-                }
-            }
-        }
-
-        if let Some(h) = self.meta.more_help {
-            try!(write!(w, "\n{}", h));
-        }
-        w.flush().map_err(Error::from)
+        Help::write_parser_help(w, &self)
     }
 
     fn add_defaults(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
@@ -1569,6 +1441,18 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
             add_val!(self, p, matcher);
         }
         Ok(())
+    }
+
+    pub fn iter_flags(&self) -> Iter<FlagBuilder> {
+        self.flags.iter()
+    }
+
+    pub fn iter_opts(&self) -> Iter<OptBuilder> {
+        self.opts.iter()
+    }
+
+    pub fn iter_positionals(&self) -> vec_map::Values<PosBuilder> {
+        self.positionals.values()
     }
 }
 
