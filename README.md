@@ -38,10 +38,21 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights from v2.3.0
+
+* **New Help Template Engine!**: Now you have full control over the layout of your help message. Major thanks to @hgrecco
+* **Pull crate Authors from Cargo.toml**: One can now use the `crate_authors!` macro to automatically pull the crate authors from their Cargo.toml file (requires `unstable` cargo feature to enable)
+* **Colored Help Messages**: Help messages can now be optionally colored (See the `AppSettings::ColoredHelp` setting). Screenshot below.
+* A bunch of bug fixes
+
 Here's the highlights from v2.2.1
 
 * **Help text auto wraps and aligns at for subcommands too!** - Long help strings of subcommands will now properly wrap and align to term width on Linux and OSX. This can be turned off as well.
 * Bug fixes
+
+An example of the optional colored help:
+
+![screenshot](http://i.imgur.com/7fs2h5j.png)
 
 Here's the highlights from v2.2.0
 
