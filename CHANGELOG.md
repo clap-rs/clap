@@ -1,3 +1,28 @@
+<a name="v2.3.0"></a>
+## v2.3.0 (2016-04-18)
+
+
+#### Improvements
+
+* **macros.rs:**  Added write_nspaces macro (a new version of write_spaces) ([9d757e86](https://github.com/kbknapp/clap-rs/commit/9d757e8678e334e5a740ac750c76a9ed4e785cba))
+* **parser.rs:**
+  *  Provide a way to create a usage string without the USAGE: title ([a91d378b](https://github.com/kbknapp/clap-rs/commit/a91d378ba0c91b5796457f8c6e881b13226ab735))
+  *  Make Parser's create_usage public allowing to have function outside the parser to generate the help ([d51945f8](https://github.com/kbknapp/clap-rs/commit/d51945f8b82ebb0963f4f40b384a9e8335783091))
+  *  Expose Parser's flags, opts and positionals argument as iterators ([9b23e7ee](https://github.com/kbknapp/clap-rs/commit/9b23e7ee40e51f7a823644c4496be955dc6c9d3a))
+* **src/args:**  Exposes argument display order by introducing a new Trait ([1321630e](https://github.com/kbknapp/clap-rs/commit/1321630ef56955f152c73376d4d85cceb0bb4a12))
+* **srs/args:**  Added longest_filter to AnyArg trait ([65b3f667](https://github.com/kbknapp/clap-rs/commit/65b3f667532685f854c699ddd264d326599cf7e5))
+
+#### Features
+
+* **Authors Macro:**  adds a crate_authors macro ([38fb59ab](https://github.com/kbknapp/clap-rs/commit/38fb59abf480eb2b6feca269097412f8b00b5b54), closes [#447](https://github.com/kbknapp/clap-rs/issues/447))
+* **HELP:**
+  *  implements optional colored help messages ([abc8f669](https://github.com/kbknapp/clap-rs/commit/abc8f669c3c8193ffc3a3b0ac6c3ac2198794d4f), closes [#483](https://github.com/kbknapp/clap-rs/issues/483))
+  *  Add a Templated Help system. ([81e121ed](https://github.com/kbknapp/clap-rs/commit/81e121edd616f7285593f11120c63bcccae0d23e))
+
+#### Bug Fixes
+
+* **HELP:**  Adjust Help to semantic changes introduced in 6933b84 ([8d23806b](https://github.com/kbknapp/clap-rs/commit/8d23806bd67530ad412c34a1dcdcb1435555573d))
+
 <a name="v2.2.6"></a>
 ### v2.2.6 (2016-04-11)
 
