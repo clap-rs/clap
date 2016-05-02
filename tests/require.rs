@@ -168,3 +168,130 @@ fn arg_require_group_3() {
     assert!(m.is_present("other"));
     assert!(m.is_present("flag"));
 }
+
+// REQUIRED_UNLESS
+
+#[test]
+fn required_unless() {
+    let res = App::new("unlesstest")
+        .arg(Arg::with_name("cfg")
+            .required_unless("dbg")
+            .takes_value(true)
+            .long("config"))
+        .arg(Arg::with_name("dbg")
+            .long("debug"))
+        .get_matches_from_safe(vec![
+            "unlesstest", "--debug"
+        ]);
+
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("dbg"));
+    assert!(!m.is_present("cfg"));
+}
+
+#[test]
+fn required_unless_err() {
+    let res = App::new("unlesstest")
+        .arg(Arg::with_name("cfg")
+            .required_unless("dbg")
+            .takes_value(true)
+            .long("config"))
+        .arg(Arg::with_name("dbg")
+            .long("debug"))
+        .get_matches_from_safe(vec![
+            "unlesstest"
+        ]);
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+}
+
+// REQUIRED_UNLESS_ALL
+
+#[test]
+fn required_unless_all() {
+    let res = App::new("unlessall")
+        .arg(Arg::with_name("cfg")
+            .required_unless_all(&["dbg", "infile"])
+            .takes_value(true)
+            .long("config"))
+        .arg(Arg::with_name("dbg")
+            .long("debug"))
+        .arg(Arg::with_name("infile")
+            .short("i")
+            .takes_value(true))
+        .get_matches_from_safe(vec![
+            "unlessall", "--debug", "-i", "file"
+        ]);
+
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("dbg"));
+    assert!(m.is_present("infile"));
+    assert!(!m.is_present("cfg"));
+}
+
+#[test]
+fn required_unless_all_err() {
+    let res = App::new("unlessall")
+        .arg(Arg::with_name("cfg")
+            .required_unless_all(&["dbg", "infile"])
+            .takes_value(true)
+            .long("config"))
+        .arg(Arg::with_name("dbg")
+            .long("debug"))
+        .arg(Arg::with_name("infile")
+            .short("i")
+            .takes_value(true))
+        .get_matches_from_safe(vec![
+            "unlessall", "--debug"
+        ]);
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+}
+
+// REQUIRED_UNLESS_ONE
+
+#[test]
+fn required_unless_one() {
+    let res = App::new("unlessone")
+        .arg(Arg::with_name("cfg")
+            .required_unless_one(&["dbg", "infile"])
+            .takes_value(true)
+            .long("config"))
+        .arg(Arg::with_name("dbg")
+            .long("debug"))
+        .arg(Arg::with_name("infile")
+            .short("i")
+            .takes_value(true))
+        .get_matches_from_safe(vec![
+            "unlessone", "--debug"
+        ]);
+
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("dbg"));
+    assert!(!m.is_present("cfg"));
+}
+
+#[test]
+fn required_unless_one_err() {
+    let res = App::new("unlessone")
+        .arg(Arg::with_name("cfg")
+            .required_unless_one(&["dbg", "infile"])
+            .takes_value(true)
+            .long("config"))
+        .arg(Arg::with_name("dbg")
+            .long("debug"))
+        .arg(Arg::with_name("infile")
+            .short("i")
+            .takes_value(true))
+        .get_matches_from_safe(vec![
+            "unlessone"
+        ]);
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+}

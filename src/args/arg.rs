@@ -541,7 +541,7 @@ impl<'a, 'b> Arg<'a, 'b> {
         if r { self.set(ArgSettings::Required) } else { self.unset(ArgSettings::Required) }
     }
 
-    /// Sets an arg that override this arg's required setting. (i.e. this arg will be required 
+    /// Sets an arg that override this arg's required setting. (i.e. this arg will be required
     /// unless this other argument is present).
     ///
     /// **Pro Tip:** Using `Arg::required_unless` implies `Arg::required` and is therefore not
@@ -556,7 +556,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # ;
     /// ```
     ///
-    /// Setting `required_unless(name)` requires that the argument be used at runtime *unless* 
+    /// Setting `required_unless(name)` requires that the argument be used at runtime *unless*
     /// `name` is present. In the following example, the required argument is *not* provided, but
     /// it's not an error because the `unless` arg has been supplied.
     ///
@@ -588,7 +588,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("dbg")
     ///         .long("debug"))
     ///     .get_matches_from_safe(vec![
-    ///         "unlesstest" 
+    ///         "unlesstest"
     ///     ]);
     ///
     /// assert!(res.is_err());
@@ -618,8 +618,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # ;
     /// ```
     ///
-    /// Setting `required_unless_all(names)` requires that the argument be used at runtime *unless* 
-    /// *all* the args in `names` are present. In the following example, the required argument is 
+    /// Setting `required_unless_all(names)` requires that the argument be used at runtime *unless*
+    /// *all* the args in `names` are present. In the following example, the required argument is
     /// *not* provided, but it's not an error because all the `unless` args have been supplied.
     ///
     /// ```rust
@@ -643,7 +643,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// Setting `required_unless_all(names)` and *not* supplying *all* of `names` or this arg is an
     /// error.
-    /// 
+    ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("unlessall")
@@ -678,7 +678,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// Sets args that override this arg's required setting. (i.e. this arg will be required unless
     /// *at least one of* these other argument are present).
     ///
-    /// **NOTE:** If you wish for the this argument to only be required if *all of* these args are 
+    /// **NOTE:** If you wish for the this argument to only be required if *all of* these args are
     /// present see `Arg::required_unless_all`
     ///
     /// # Examples
@@ -690,9 +690,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # ;
     /// ```
     ///
-    /// Setting `required_unless_one(names)` requires that the argument be used at runtime *unless* 
-    /// *at least one of* the args in `names` are present. In the following example, the required 
-    /// argument is *not* provided, but it's not an error because one the `unless` args have been 
+    /// Setting `required_unless_one(names)` requires that the argument be used at runtime *unless*
+    /// *at least one of* the args in `names` are present. In the following example, the required
+    /// argument is *not* provided, but it's not an error because one the `unless` args have been
     /// supplied.
     ///
     /// ```rust
@@ -714,9 +714,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert!(res.is_ok());
     /// ```
     ///
-    /// Setting `required_unless_one(names)` and *not* supplying *at least one of* `names` or this 
+    /// Setting `required_unless_one(names)` and *not* supplying *at least one of* `names` or this
     /// arg is an error.
-    /// 
+    ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("unlessone")
