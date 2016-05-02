@@ -692,7 +692,8 @@ impl<'a> Help<'a> {
     ///     * `{options}`     - Help for options.
     ///     * `{positionals}` - Help for positionals arguments.
     ///     * `{subcommands}` - Help for subcommands.
-    ///     * `{after-help}`  - Help for flags.
+    ///     * `{after-help}`  - Info to be displayed after the help message.
+    ///     * `{before-help}` - Info to be displayed before the help message.
     ///
     /// The template system is, on purpose, very simple. Therefore the tags have to writen
     /// in the lowercase and without spacing.
@@ -767,6 +768,11 @@ impl<'a> Help<'a> {
                     try!(write!(self.writer,
                                 "{}",
                                 parser.meta.more_help.unwrap_or("unknown after-help")));
+                }
+                b"before-help" => {
+                    try!(write!(self.writer,
+                                "{}",
+                                parser.meta.pre_help.unwrap_or("unknown before-help")));
                 }
                 // Unknown tag, write it back.
                 ref r => {
