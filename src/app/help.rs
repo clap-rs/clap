@@ -1,9 +1,7 @@
-
 use std::io::{self, Cursor, Read, Write};
 use std::collections::BTreeMap;
 use std::fmt::Display;
 use std::cmp;
-use std::str;
 
 use vec_map::VecMap;
 
