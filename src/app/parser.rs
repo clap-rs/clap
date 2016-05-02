@@ -1245,11 +1245,11 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 continue 'outer;
             }
             if let Some(a) = self.flags.iter().filter(|f| &f.name == name).next() {
-                if self._validate_blacklist_required(a, matcher) { continue 'outer; }
+                if self.is_missing_required_ok(a, matcher) { continue 'outer; }
             } else if let Some(a) = self.opts.iter().filter(|o| &o.name == name).next() {
-                if self._validate_blacklist_required(a, matcher) { continue 'outer; }
+                if self.is_missing_required_ok(a, matcher) { continue 'outer; }
             } else if let Some(a) = self.positionals.values().filter(|p| &p.name == name).next() {
-                if self._validate_blacklist_required(a, matcher) { continue 'outer; }
+                if self.is_missing_required_ok(a, matcher) { continue 'outer; }
             }
             let err = if self.settings.is_set(AppSettings::ArgRequiredElseHelp) && matcher.is_empty() {
                 self._help().unwrap_err()
@@ -1266,7 +1266,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         Ok(())
     }
 
-    fn _validate_blacklist_required<A>(&self, a: &A, matcher: &ArgMatcher) -> bool where A: AnyArg<'a, 'b> {
+    fn is_missing_required_ok<A>(&self, a: &A, matcher: &ArgMatcher) -> bool where A: AnyArg<'a, 'b> {
         if let Some(bl) = a.blacklist() {
             for n in bl.iter() {
                 if matcher.contains(n)
@@ -1276,6 +1276,20 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                     return true;
                 }
             }
+        } else if let Some(ru) = a.required_unless() {
+            for n in ru.iter() {
+                if matcher.contains(n)
+                    || self.groups
+                            .get(n)
+                            .map_or(false, |g| g.args.iter().any(|an| matcher.contains(an))) {
+                    if !a.is_set(ArgSettings::RequiredUnlessAll) {
+                        return true;
+                    }
+                } else {
+                    return false;
+                }
+            }
+            return true;
         }
         false
     }

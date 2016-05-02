@@ -936,6 +936,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn overrides(&self) -> Option<&[&'e str]> { None }
     fn requires(&self) -> Option<&[&'e str]> { None }
     fn blacklist(&self) -> Option<&[&'e str]> { None }
+    fn required_unless(&self) -> Option<&[&'e str]> { None }
     fn val_names(&self) -> Option<&VecMap<&'e str>> { None }
     fn is_set(&self, _: ArgSettings) -> bool { false }
     fn set(&mut self, _: ArgSettings) {

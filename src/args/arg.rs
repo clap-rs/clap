@@ -70,6 +70,8 @@ pub struct Arg<'a, 'b> where 'a: 'b {
     pub default_val: Option<&'a str>,
     #[doc(hidden)]
     pub disp_ord: usize,
+    #[doc(hidden)]
+    pub r_unless: Option<Vec<&'a str>>,
 }
 
 impl<'a, 'b> Default for Arg<'a, 'b> {
@@ -94,6 +96,7 @@ impl<'a, 'b> Default for Arg<'a, 'b> {
             val_delim: Some(','),
             default_val: None,
             disp_ord: 999,
+            r_unless: None,
         }
     }
 }
@@ -157,6 +160,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 "value_name" => a.value_name(v.as_str().unwrap()),
                 "use_delimiter" => a.use_delimiter(v.as_bool().unwrap()),
                 "value_delimiter" => a.value_delimiter(v.as_str().unwrap()),
+                "required_unless" => a.required_unless(v.as_str().unwrap()),
                 "display_order" => a.display_order(v.as_i64().unwrap() as usize),
                 "value_names" => {
                     for ys in v.as_vec().unwrap() {
@@ -196,6 +200,23 @@ impl<'a, 'b> Arg<'a, 'b> {
                             a = a.possible_value(s);
                         }
                     }
+                    a
+                }
+                "required_unless_one" => {
+                    for ys in v.as_vec().unwrap() {
+                        if let Some(s) = ys.as_str() {
+                            a = a.required_unless(s);
+                        }
+                    }
+                    a
+                }
+                "required_unless_all" => {
+                    for ys in v.as_vec().unwrap() {
+                        if let Some(s) = ys.as_str() {
+                            a = a.required_unless(s);
+                        }
+                    }
+                    a.setb(ArgSettings::RequiredUnlessAll);
                     a
                 }
                 s => panic!("Unknown Arg setting '{}' in YAML file for arg '{}'",
@@ -518,6 +539,101 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     pub fn required(self, r: bool) -> Self {
         if r { self.set(ArgSettings::Required) } else { self.unset(ArgSettings::Required) }
+    }
+
+    pub fn required_unless(mut self, name: &'a str) -> Self {
+        if let Some(ref mut vec) = self.r_unless {
+            vec.push(name);
+        } else {
+            self.r_unless = Some(vec![name]);
+        }
+        self.required(true)
+    }
+
+<<<<<<< HEAD
+=======
+    /// Sets args that override this arg's required setting. (i.e. this arg will be required unless
+    /// all these other argument are present).
+    ///
+    /// **NOTE:** If you wish for the this argument to only be required if *one of* these args are
+    /// present see `Arg::required_unless_one`
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Arg;
+    /// Arg::with_name("config")
+    ///     .required_unless_all(&["cfg", "dbg"])
+    /// # ;
+    /// ```
+    ///
+    /// Setting `required_unless_all(names)` requires that the argument be used at runtime *unless* 
+    /// *all* the args in `names` are present. In the following example, the required argument is 
+    /// *not* provided, but it's not an error because all the `unless` args have been supplied.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let res = App::new("unlessall")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .required_unless_all(&["dbg", "infile"])
+    ///         .takes_value(true)
+    ///         .long("config"))
+    ///     .arg(Arg::with_name("dbg")
+    ///         .long("debug"))
+    ///     .arg(Arg::with_name("infile")
+    ///         .short("i")
+    ///         .takes_value(true))
+    ///     .get_matches_from_safe(vec![
+    ///         "unlessall", "--debug", "-i", "file"
+    ///     ]);
+    ///
+    /// assert!(res.is_ok());
+    /// ```
+    ///
+    /// Setting `required_unless_all(names)` and *not* supplying *all* of `names` or this arg is an
+    /// error.
+    /// 
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("unlessall")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .required_unless_all(&["dbg", "infile"])
+    ///         .takes_value(true)
+    ///         .long("config"))
+    ///     .arg(Arg::with_name("dbg")
+    ///         .long("debug"))
+    ///     .arg(Arg::with_name("infile")
+    ///         .short("i")
+    ///         .takes_value(true))
+    ///     .get_matches_from_safe(vec![
+    ///         "unlessall", "--debug"
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// ```
+>>>>>>> 27cf173... fixup! wip: adding required_unless
+    pub fn required_unless_all(mut self, names: &[&'a str]) -> Self {
+        if let Some(ref mut vec) = self.r_unless {
+            for s in names {
+                vec.push(s);
+            }
+        } else {
+            self.r_unless = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
+        }
+        self.setb(ArgSettings::RequiredUnlessAll);
+        self.required(true)
+    }
+
+    pub fn required_unless_one(mut self, names: &[&'a str]) -> Self {
+        if let Some(ref mut vec) = self.r_unless {
+            for s in names {
+                vec.push(s);
+            }
+        } else {
+            self.r_unless = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
+        }
+        self.required(true)
     }
 
     /// Sets a conflicting argument by name. I.e. when using this argument,
@@ -1908,6 +2024,7 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>>
             val_delim: a.val_delim,
             default_val: a.default_val,
             disp_ord: a.disp_ord,
+            r_unless: a.r_unless.clone(),
         }
     }
 }
@@ -1934,6 +2051,7 @@ impl<'a, 'b> Clone for Arg<'a, 'b> {
             val_delim: self.val_delim,
             default_val: self.default_val,
             disp_ord: self.disp_ord,
+            r_unless: self.r_unless.clone(),
         }
     }
 }

@@ -10,6 +10,7 @@ pub trait AnyArg<'n, 'e> {
     fn overrides(&self) -> Option<&[&'e str]>;
     fn requires(&self) -> Option<&[&'e str]>;
     fn blacklist(&self) -> Option<&[&'e str]>;
+    fn required_unless(&self) -> Option<&[&'e str]>;
     fn is_set(&self, ArgSettings) -> bool;
     fn set(&mut self, ArgSettings);
     fn has_switch(&self) -> bool;

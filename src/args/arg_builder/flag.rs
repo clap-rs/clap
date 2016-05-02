@@ -108,6 +108,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn overrides(&self) -> Option<&[&'e str]> { self.overrides.as_ref().map(|o| &o[..]) }
     fn requires(&self) -> Option<&[&'e str]> { self.requires.as_ref().map(|o| &o[..]) }
     fn blacklist(&self) -> Option<&[&'e str]> { self.blacklist.as_ref().map(|o| &o[..]) }
+    fn required_unless(&self) -> Option<&[&'e str]> { None }
     fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(s) }
     fn has_switch(&self) -> bool { true }
     fn takes_value(&self) -> bool { false }
