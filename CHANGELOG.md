@@ -1,3 +1,22 @@
+<a name="v2.4.0"></a>
+## v2.4.0 (2016-05-02)
+
+
+#### Features
+
+* **Help:**  adds support for displaying info before help message ([29fbfa3b](https://github.com/kbknapp/clap-rs/commit/29fbfa3b963f2f3ca7704bf5d3e1201531baa373))
+* **Required:**  adds allowing args that are required unless certain args are present ([af1f7916](https://github.com/kbknapp/clap-rs/commit/af1f79168390ea7da4074d0d9777de458ea64971))
+
+#### Documentation
+
+*   hides formatting from docs ([cb708093](https://github.com/kbknapp/clap-rs/commit/cb708093a7cd057f08c98b7bd1ed54c2db86ae7e))
+* **required_unless:**  adds docs and examples for required_unless ([ca727b52](https://github.com/kbknapp/clap-rs/commit/ca727b52423b9883acd88b2f227b2711bc144573))
+
+#### Bug Fixes
+
+* **Required Args:**  fixes issue where missing required args are sometimes duplicatd in error messages ([3beebd81](https://github.com/kbknapp/clap-rs/commit/3beebd81e7bc2faa4115ac109cf570e512c5477f), closes [#492](https://github.com/kbknapp/clap-rs/issues/492))
+
+
 <a name="v2.3.0"></a>
 ## v2.3.0 (2016-04-18)
 
