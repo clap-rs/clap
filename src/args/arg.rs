@@ -541,6 +541,59 @@ impl<'a, 'b> Arg<'a, 'b> {
         if r { self.set(ArgSettings::Required) } else { self.unset(ArgSettings::Required) }
     }
 
+    /// Sets an arg that override this arg's required setting. (i.e. this arg will be required 
+    /// unless this other argument is present).
+    ///
+    /// **Pro Tip:** Using `Arg::required_unless` implies `Arg::required` and is therefore not
+    /// mandatory to also set.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Arg;
+    /// Arg::with_name("config")
+    ///     .required_unless("debug")
+    /// # ;
+    /// ```
+    ///
+    /// Setting `required_unless(name)` requires that the argument be used at runtime *unless* 
+    /// `name` is present. In the following example, the required argument is *not* provided, but
+    /// it's not an error because the `unless` arg has been supplied.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let res = App::new("unlesstest")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .required_unless("dbg")
+    ///         .takes_value(true)
+    ///         .long("config"))
+    ///     .arg(Arg::with_name("dbg")
+    ///         .long("debug"))
+    ///     .get_matches_from_safe(vec![
+    ///         "unlesstest", "--debug"
+    ///     ]);
+    ///
+    /// assert!(res.is_ok());
+    /// ```
+    ///
+    /// Setting `required_unless(name)` and *not* supplying `name` or this arg is an error.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("unlesstest")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .required_unless("dbg")
+    ///         .takes_value(true)
+    ///         .long("config"))
+    ///     .arg(Arg::with_name("dbg")
+    ///         .long("debug"))
+    ///     .get_matches_from_safe(vec![
+    ///         "unlesstest" 
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// ```
     pub fn required_unless(mut self, name: &'a str) -> Self {
         if let Some(ref mut vec) = self.r_unless {
             vec.push(name);
@@ -550,8 +603,6 @@ impl<'a, 'b> Arg<'a, 'b> {
         self.required(true)
     }
 
-<<<<<<< HEAD
-=======
     /// Sets args that override this arg's required setting. (i.e. this arg will be required unless
     /// all these other argument are present).
     ///
@@ -606,13 +657,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .short("i")
     ///         .takes_value(true))
     ///     .get_matches_from_safe(vec![
-    ///         "unlessall", "--debug"
+    ///         "unlessall"
     ///     ]);
     ///
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
->>>>>>> 27cf173... fixup! wip: adding required_unless
     pub fn required_unless_all(mut self, names: &[&'a str]) -> Self {
         if let Some(ref mut vec) = self.r_unless {
             for s in names {
@@ -625,6 +675,67 @@ impl<'a, 'b> Arg<'a, 'b> {
         self.required(true)
     }
 
+    /// Sets args that override this arg's required setting. (i.e. this arg will be required unless
+    /// *at least one of* these other argument are present).
+    ///
+    /// **NOTE:** If you wish for the this argument to only be required if *all of* these args are 
+    /// present see `Arg::required_unless_all`
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Arg;
+    /// Arg::with_name("config")
+    ///     .required_unless_all(&["cfg", "dbg"])
+    /// # ;
+    /// ```
+    ///
+    /// Setting `required_unless_one(names)` requires that the argument be used at runtime *unless* 
+    /// *at least one of* the args in `names` are present. In the following example, the required 
+    /// argument is *not* provided, but it's not an error because one the `unless` args have been 
+    /// supplied.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let res = App::new("unlessone")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .required_unless_one(&["dbg", "infile"])
+    ///         .takes_value(true)
+    ///         .long("config"))
+    ///     .arg(Arg::with_name("dbg")
+    ///         .long("debug"))
+    ///     .arg(Arg::with_name("infile")
+    ///         .short("i")
+    ///         .takes_value(true))
+    ///     .get_matches_from_safe(vec![
+    ///         "unlessone", "--debug"
+    ///     ]);
+    ///
+    /// assert!(res.is_ok());
+    /// ```
+    ///
+    /// Setting `required_unless_one(names)` and *not* supplying *at least one of* `names` or this 
+    /// arg is an error.
+    /// 
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("unlessone")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .required_unless_one(&["dbg", "infile"])
+    ///         .takes_value(true)
+    ///         .long("config"))
+    ///     .arg(Arg::with_name("dbg")
+    ///         .long("debug"))
+    ///     .arg(Arg::with_name("infile")
+    ///         .short("i")
+    ///         .takes_value(true))
+    ///     .get_matches_from_safe(vec![
+    ///         "unlessone"
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// ```
     pub fn required_unless_one(mut self, names: &[&'a str]) -> Self {
         if let Some(ref mut vec) = self.r_unless {
             for s in names {
