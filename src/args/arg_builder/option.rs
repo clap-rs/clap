@@ -27,6 +27,7 @@ pub struct OptBuilder<'n, 'e> {
     pub val_delim: Option<char>,
     pub default_val: Option<&'n str>,
     pub disp_ord: usize,
+    pub r_unless: Option<Vec<&'e str>>,
 }
 
 impl<'n, 'e> Default for OptBuilder<'n, 'e> {
@@ -49,6 +50,7 @@ impl<'n, 'e> Default for OptBuilder<'n, 'e> {
             val_delim: Some(','),
             default_val: None,
             disp_ord: 999,
+            r_unless: None,
         }
     }
 }
@@ -84,8 +86,14 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
             settings: a.settings,
             default_val: a.default_val,
             disp_ord: a.disp_ord,
+            r_unless: a.r_unless.clone(),
             ..Default::default()
         };
+        if let Some(ref vec) = ob.val_names {
+            if vec.len() > 1 {
+                ob.num_vals = Some(vec.len() as u64);
+            }
+        }
         if let Some(ref vec) = ob.val_names {
             if vec.len() > 1 {
                 ob.num_vals = Some(vec.len() as u64);
@@ -160,6 +168,7 @@ impl<'n, 'e> Clone for OptBuilder<'n, 'e> {
             possible_vals: self.possible_vals.clone(),
             default_val: self.default_val,
             validator: self.validator.clone(),
+            r_unless: self.r_unless.clone(),
         }
     }
 }
@@ -169,6 +178,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn overrides(&self) -> Option<&[&'e str]> { self.overrides.as_ref().map(|o| &o[..]) }
     fn requires(&self) -> Option<&[&'e str]> { self.requires.as_ref().map(|o| &o[..]) }
     fn blacklist(&self) -> Option<&[&'e str]> { self.blacklist.as_ref().map(|o| &o[..]) }
+    fn required_unless(&self) -> Option<&[&'e str]> { self.r_unless.as_ref().map(|o| &o[..]) }
     #[cfg_attr(feature = "lints", allow(map_clone))]
     fn val_names(&self) -> Option<&VecMap<&'e str>> { self.val_names.as_ref().map(|o| o) }
     fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(s) }

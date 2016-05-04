@@ -38,6 +38,12 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights from v2.4.0
+
+* **Before Help:**  adds support for displaying info before help message 
+* **Required Unless:**  adds support for allowing args that are required unless certain other args are present 
+* Bug fixes
+
 Here's the highlights from v2.3.0
 
 * **New Help Template Engine!**: Now you have full control over the layout of your help message. Major thanks to @hgrecco

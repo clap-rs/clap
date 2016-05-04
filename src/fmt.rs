@@ -9,6 +9,7 @@ use ansi_term::ANSIString;
 /// Defines styles for different types of error messages. Defaults to Error=Red, Warning=Yellow,
 /// and Good=Green
 #[derive(Debug)]
+#[doc(hidden)]
 pub enum Format<T> {
     /// Defines the style used for errors, defaults to Red
     Error(T),

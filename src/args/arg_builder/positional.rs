@@ -27,6 +27,7 @@ pub struct PosBuilder<'n, 'e> {
     pub val_delim: Option<char>,
     pub default_val: Option<&'n str>,
     pub disp_ord: usize,
+    pub r_unless: Option<Vec<&'e str>>,
 }
 
 impl<'n, 'e> Default for PosBuilder<'n, 'e> {
@@ -48,6 +49,7 @@ impl<'n, 'e> Default for PosBuilder<'n, 'e> {
             val_delim: Some(','),
             default_val: None,
             disp_ord: 999,
+            r_unless: None,
         }
     }
 }
@@ -85,6 +87,7 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
             settings: a.settings,
             default_val: a.default_val,
             disp_ord: a.disp_ord,
+            r_unless: a.r_unless.clone(),
             ..Default::default()
         };
         if a.max_vals.is_some()
@@ -147,6 +150,7 @@ impl<'n, 'e> Clone for PosBuilder<'n, 'e> {
             possible_vals: self.possible_vals.clone(),
             default_val: self.default_val,
             validator: self.validator.clone(),
+            r_unless: self.r_unless.clone(),
             index: self.index,
         }
     }
@@ -157,6 +161,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for PosBuilder<'n, 'e> {
     fn overrides(&self) -> Option<&[&'e str]> { self.overrides.as_ref().map(|o| &o[..]) }
     fn requires(&self) -> Option<&[&'e str]> { self.requires.as_ref().map(|o| &o[..]) }
     fn blacklist(&self) -> Option<&[&'e str]> { self.blacklist.as_ref().map(|o| &o[..]) }
+    fn required_unless(&self) -> Option<&[&'e str]> { self.r_unless.as_ref().map(|o| &o[..]) }
     fn val_names(&self) -> Option<&VecMap<&'e str>> { self.val_names.as_ref() }
     fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(s) }
     fn set(&mut self, s: ArgSettings) { self.settings.set(s) }

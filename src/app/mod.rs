@@ -189,6 +189,23 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
+    /// Adds additional help information to be displayed in addition to auto-generated help. This
+    /// information is displayed **before** the auto-generated help information. This is often used
+    /// for header information.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::App;
+    /// App::new("myprog")
+    ///     .before_help("Some info I'd like to appear before the help info")
+    /// # ;
+    /// ```
+    pub fn before_help<S: Into<&'b str>>(mut self, help: S) -> Self {
+        self.p.meta.pre_help = Some(help.into());
+        self
+    }
+
     /// Sets a string of the version number to be displayed when displaying version or help
     /// information.
     ///
@@ -936,6 +953,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn overrides(&self) -> Option<&[&'e str]> { None }
     fn requires(&self) -> Option<&[&'e str]> { None }
     fn blacklist(&self) -> Option<&[&'e str]> { None }
+    fn required_unless(&self) -> Option<&[&'e str]> { None }
     fn val_names(&self) -> Option<&VecMap<&'e str>> { None }
     fn is_set(&self, _: ArgSettings) -> bool { false }
     fn set(&mut self, _: ArgSettings) {

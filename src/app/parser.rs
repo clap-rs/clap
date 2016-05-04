@@ -850,9 +850,11 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
     fn check_for_help_and_version_str(&self, arg: &OsStr) -> ClapResult<()> {
         debug!("Checking if --{} is help or version...", arg.to_str().unwrap());
         if arg == "help" && self.settings.is_set(AppSettings::NeedsLongHelp) {
+            sdebugln!("Help");
             try!(self._help());
         }
         if arg == "version" && self.settings.is_set(AppSettings::NeedsLongVersion) {
+            sdebugln!("Version");
             try!(self._version());
         }
         sdebugln!("Neither");
@@ -862,8 +864,14 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
 
     fn check_for_help_and_version_char(&self, arg: char) -> ClapResult<()> {
         debug!("Checking if -{} is help or version...", arg);
-        if let Some(h) = self.help_short { if arg == h { try!(self._help()); } }
-        if let Some(v) = self.version_short { if arg == v { try!(self._version()); } }
+        if let Some(h) = self.help_short {
+            sdebugln!("Help");
+            if arg == h { try!(self._help()); } 
+        }
+        if let Some(v) = self.version_short {
+            sdebugln!("Help");
+            if arg == v { try!(self._version()); } 
+        }
         sdebugln!("Neither");
         Ok(())
     }
@@ -1245,17 +1253,19 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 continue 'outer;
             }
             if let Some(a) = self.flags.iter().filter(|f| &f.name == name).next() {
-                if self._validate_blacklist_required(a, matcher) { continue 'outer; }
+                if self.is_missing_required_ok(a, matcher) { continue 'outer; }
             } else if let Some(a) = self.opts.iter().filter(|o| &o.name == name).next() {
-                if self._validate_blacklist_required(a, matcher) { continue 'outer; }
+                if self.is_missing_required_ok(a, matcher) { continue 'outer; }
             } else if let Some(a) = self.positionals.values().filter(|p| &p.name == name).next() {
-                if self._validate_blacklist_required(a, matcher) { continue 'outer; }
+                if self.is_missing_required_ok(a, matcher) { continue 'outer; }
             }
             let err = if self.settings.is_set(AppSettings::ArgRequiredElseHelp) && matcher.is_empty() {
                 self._help().unwrap_err()
             } else {
+                let mut reqs = self.required.iter().map(|&r| &*r).collect::<Vec<_>>();
+                reqs.dedup();
                 Error::missing_required_argument(
-                &*self.get_required_from(&*self.required.iter().map(|&r| &*r).collect::<Vec<_>>(), Some(matcher))
+                &*self.get_required_from(&*reqs, Some(matcher))
                       .iter()
                       .fold(String::new(),
                           |acc, s| acc + &format!("\n    {}", Format::Error(s))[..]),
@@ -1266,7 +1276,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         Ok(())
     }
 
-    fn _validate_blacklist_required<A>(&self, a: &A, matcher: &ArgMatcher) -> bool where A: AnyArg<'a, 'b> {
+    fn is_missing_required_ok<A>(&self, a: &A, matcher: &ArgMatcher) -> bool where A: AnyArg<'a, 'b> {
         if let Some(bl) = a.blacklist() {
             for n in bl.iter() {
                 if matcher.contains(n)
@@ -1276,6 +1286,20 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                     return true;
                 }
             }
+        } else if let Some(ru) = a.required_unless() {
+            for n in ru.iter() {
+                if matcher.contains(n)
+                    || self.groups
+                            .get(n)
+                            .map_or(false, |g| g.args.iter().any(|an| matcher.contains(an))) {
+                    if !a.is_set(ArgSettings::RequiredUnlessAll) {
+                        return true;
+                    }
+                } else {
+                    return false;
+                }
+            }
+            return true;
         }
         false
     }
@@ -1323,6 +1347,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
     // after all arguments were parsed, but before any subcommands have been parsed
     // (so as to give subcommands their own usage recursively)
     pub fn create_usage_no_title(&self, used: &[&str]) -> String {
+        debugln!("fn=create_usage_no_title;");
         let mut usage = String::with_capacity(75);
         if let Some(u) = self.meta.usage_str {
             usage.push_str(&*u);
@@ -1332,7 +1357,8 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                                  .unwrap_or(self.meta.bin_name
                                                 .as_ref()
                                                 .unwrap_or(&self.meta.name)));
-            let reqs: Vec<&str> = self.required().map(|r| &**r).collect();
+            let mut reqs: Vec<&str> = self.required().map(|r| &**r).collect();
+            reqs.dedup();
             let req_string = self.get_required_from(&reqs, None)
                                  .iter()
                                  .fold(String::new(), |a, s| a + &format!(" {}", s)[..]);
@@ -1381,8 +1407,10 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
     // Creates a context aware usage string, or "smart usage" from currently used
     // args, and requirements
     fn smart_usage(&self, usage: &mut String, used: &[&str]) {
+        debugln!("fn=smart_usage;");
         let mut hs: Vec<&str> = self.required().map(|s| &**s).collect();
         hs.extend_from_slice(used);
+
         let r_string = self.get_required_from(&hs, None)
                                      .iter()
                                      .fold(String::new(), |acc, s| acc + &format!(" {}", s)[..]);
