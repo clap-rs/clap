@@ -819,7 +819,7 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
                 .iter()
                 .any(|s| &s.p.meta.name[..] == "help") {
             debugln!("Building help");
-            self.subcommands.push(App::new("help").about("Prints this message or the help message of the given subcommand(s)"));
+            self.subcommands.push(App::new("help").about("Prints this message or the help of the given subcommand(s)"));
         }
     }
 
@@ -866,11 +866,11 @@ impl<'a, 'b> Parser<'a, 'b> where 'a: 'b {
         debug!("Checking if -{} is help or version...", arg);
         if let Some(h) = self.help_short {
             sdebugln!("Help");
-            if arg == h { try!(self._help()); } 
+            if arg == h { try!(self._help()); }
         }
         if let Some(v) = self.version_short {
             sdebugln!("Help");
-            if arg == v { try!(self._version()); } 
+            if arg == v { try!(self._version()); }
         }
         sdebugln!("Neither");
         Ok(())
