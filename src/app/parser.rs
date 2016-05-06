@@ -362,7 +362,7 @@ impl<'a, 'b> Parser<'a, 'b>
         // positional arguments to verify there are no gaps (i.e. supplying an index of 1 and 3
         // but no 2)
         if let Some((idx, ref p)) = self.positionals.iter().rev().next() {
-            assert!(!(idx != self.positionals.len()),
+            debug_assert!(!(idx != self.positionals.len()),
                     format!("Found positional argument \"{}\" who's index is {} but there are \
                     only {} positional arguments defined",
                             p.name,
@@ -371,12 +371,11 @@ impl<'a, 'b> Parser<'a, 'b>
         }
 
         // Next we verify that only the highest index has a .multiple(true) (if any)
-        assert!(!self.positionals
+        debug_assert!(!self.positionals
                      .values()
-                     .any(|a| {
-                         a.settings.is_set(ArgSettings::Multiple) &&
-                         (a.index as usize != self.positionals.len())
-                     }),
+                     .any(|a| a.settings.is_set(ArgSettings::Multiple) &&
+                        (a.index as usize != self.positionals.len())
+                     ),
                 "Only the positional argument with the highest index may accept multiple values");
 
         // If it's required we also need to ensure all previous positionals are

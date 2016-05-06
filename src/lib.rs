@@ -395,6 +395,7 @@
         unused_qualifications)]
 // clippy false positives, or ones we're ok with...
 #![cfg_attr(feature = "lints", allow(cyclomatic_complexity))]
+#![cfg_attr(feature = "lints", allow(doc_markdown))]
 // Only while bitflats uses "_first" inside it's macros
 #![cfg_attr(feature = "lints", allow(used_underscore_binding))]
 // Only while bitflats fails this lint

@@ -406,7 +406,7 @@ impl<'a> Help<'a> {
                            if self.color {
                                format!("{}", Format::Good(pv))
                            } else {
-                               format!("{}", pv)
+                               pv.to_string()
                            },
                            if self.hide_pv {
                                "".into()
