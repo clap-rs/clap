@@ -65,8 +65,9 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
 
     pub fn from_arg(a: &Arg<'n, 'e>, idx: u64, reqs: &mut Vec<&'e str>) -> Self {
         debug_assert!(a.short.is_none() || a.long.is_none(),
-            format!("Argument \"{}\" has conflicting requirements, both index() and short(), \
-                or long(), were supplied", a.name));
+                      format!("Argument \"{}\" has conflicting requirements, both index() and \
+                      short(), or long(), were supplied",
+                              a.name));
 
         // Create the Positional Argument Builder with each HashSet = None to only
         // allocate
@@ -90,9 +91,8 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
             r_unless: a.r_unless.clone(),
             ..Default::default()
         };
-        if a.max_vals.is_some()
-            || a.min_vals.is_some()
-            || (a.num_vals.is_some() && a.num_vals.unwrap() > 1) {
+        if a.max_vals.is_some() || a.min_vals.is_some() ||
+           (a.num_vals.is_some() && a.num_vals.unwrap() > 1) {
             pb.settings.set(ArgSettings::Multiple);
         }
         if let Some(ref p) = a.validator {
@@ -101,25 +101,36 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
         // If the arg is required, add all it's requirements to master required list
         if a.is_set(ArgSettings::Required) {
             if let Some(ref areqs) = a.requires {
-                for r in areqs { reqs.push(*r); }
+                for r in areqs {
+                    reqs.push(*r);
+                }
             }
         }
         pb
     }
-
 }
 
 impl<'n, 'e> Display for PosBuilder<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> Result {
         if self.settings.is_set(ArgSettings::Required) {
             if let Some(ref names) = self.val_names {
-                try!(write!(f, "{}", names.values().map(|n| format!("<{}>", n)).collect::<Vec<_>>().join(" ")));
+                try!(write!(f,
+                            "{}",
+                            names.values()
+                                 .map(|n| format!("<{}>", n))
+                                 .collect::<Vec<_>>()
+                                 .join(" ")));
             } else {
                 try!(write!(f, "<{}>", self.name));
             }
         } else {
             if let Some(ref names) = self.val_names {
-                try!(write!(f, "{}", names.values().map(|n| format!("[{}]", n)).collect::<Vec<_>>().join(" ")));
+                try!(write!(f,
+                            "{}",
+                            names.values()
+                                 .map(|n| format!("[{}]", n))
+                                 .collect::<Vec<_>>()
+                                 .join(" ")));
             } else {
                 try!(write!(f, "[{}]", self.name));
             }
@@ -157,33 +168,75 @@ impl<'n, 'e> Clone for PosBuilder<'n, 'e> {
 }
 
 impl<'n, 'e> AnyArg<'n, 'e> for PosBuilder<'n, 'e> {
-    fn name(&self) -> &'n str { self.name }
-    fn overrides(&self) -> Option<&[&'e str]> { self.overrides.as_ref().map(|o| &o[..]) }
-    fn requires(&self) -> Option<&[&'e str]> { self.requires.as_ref().map(|o| &o[..]) }
-    fn blacklist(&self) -> Option<&[&'e str]> { self.blacklist.as_ref().map(|o| &o[..]) }
-    fn required_unless(&self) -> Option<&[&'e str]> { self.r_unless.as_ref().map(|o| &o[..]) }
-    fn val_names(&self) -> Option<&VecMap<&'e str>> { self.val_names.as_ref() }
-    fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(s) }
-    fn set(&mut self, s: ArgSettings) { self.settings.set(s) }
-    fn has_switch(&self) -> bool { false }
-    fn max_vals(&self) -> Option<u64> { self.max_vals }
-    fn num_vals(&self) -> Option<u64> { self.num_vals }
-    fn possible_vals(&self) -> Option<&[&'e str]> { self.possible_vals.as_ref().map(|o| &o[..]) }
+    fn name(&self) -> &'n str {
+        self.name
+    }
+    fn overrides(&self) -> Option<&[&'e str]> {
+        self.overrides.as_ref().map(|o| &o[..])
+    }
+    fn requires(&self) -> Option<&[&'e str]> {
+        self.requires.as_ref().map(|o| &o[..])
+    }
+    fn blacklist(&self) -> Option<&[&'e str]> {
+        self.blacklist.as_ref().map(|o| &o[..])
+    }
+    fn required_unless(&self) -> Option<&[&'e str]> {
+        self.r_unless.as_ref().map(|o| &o[..])
+    }
+    fn val_names(&self) -> Option<&VecMap<&'e str>> {
+        self.val_names.as_ref()
+    }
+    fn is_set(&self, s: ArgSettings) -> bool {
+        self.settings.is_set(s)
+    }
+    fn set(&mut self, s: ArgSettings) {
+        self.settings.set(s)
+    }
+    fn has_switch(&self) -> bool {
+        false
+    }
+    fn max_vals(&self) -> Option<u64> {
+        self.max_vals
+    }
+    fn num_vals(&self) -> Option<u64> {
+        self.num_vals
+    }
+    fn possible_vals(&self) -> Option<&[&'e str]> {
+        self.possible_vals.as_ref().map(|o| &o[..])
+    }
     fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> {
         self.validator.as_ref()
     }
-    fn min_vals(&self) -> Option<u64> { self.min_vals }
-    fn short(&self) -> Option<char> { None }
-    fn long(&self) -> Option<&'e str> { None }
-    fn val_delim(&self) -> Option<char> { self.val_delim }
-    fn takes_value(&self) -> bool { true }
-    fn help(&self) -> Option<&'e str> { self.help }
-    fn default_val(&self) -> Option<&'n str> { self.default_val }
-    fn longest_filter(&self) -> bool { true }
+    fn min_vals(&self) -> Option<u64> {
+        self.min_vals
+    }
+    fn short(&self) -> Option<char> {
+        None
+    }
+    fn long(&self) -> Option<&'e str> {
+        None
+    }
+    fn val_delim(&self) -> Option<char> {
+        self.val_delim
+    }
+    fn takes_value(&self) -> bool {
+        true
+    }
+    fn help(&self) -> Option<&'e str> {
+        self.help
+    }
+    fn default_val(&self) -> Option<&'n str> {
+        self.default_val
+    }
+    fn longest_filter(&self) -> bool {
+        true
+    }
 }
 
 impl<'n, 'e> DispOrder for PosBuilder<'n, 'e> {
-    fn disp_ord(&self) -> usize { self.disp_ord }
+    fn disp_ord(&self) -> usize {
+        self.disp_ord
+    }
 }
 
 #[cfg(test)]

@@ -28,7 +28,6 @@ impl<T: AsRef<str>> Format<T> {
             Format::Good(ref e) => Green.paint(e.as_ref()),
         }
     }
-
 }
 
 #[cfg(all(feature = "color", not(target_os = "windows")))]

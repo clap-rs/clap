@@ -318,7 +318,10 @@ impl<'a> From<&'a BTreeMap<Yaml, Yaml>> for ArgGroup<'a> {
             let name_yml = b.keys().nth(0).expect("failed to get name");
             let name_str = name_yml.as_str().expect("failed to convert name to str");
             a.name = name_str;
-            b.get(name_yml).expect("failed to get name_str").as_hash().expect("failed to convert to a hash")
+            b.get(name_yml)
+             .expect("failed to get name_str")
+             .as_hash()
+             .expect("failed to convert to a hash")
         } else {
             b
         };
@@ -362,10 +365,12 @@ impl<'a> From<&'a BTreeMap<Yaml, Yaml>> for ArgGroup<'a> {
                     }
                     a
                 }
-                s => panic!("Unknown ArgGroup setting '{}' in YAML file for \
+                s => {
+                    panic!("Unknown ArgGroup setting '{}' in YAML file for \
                              ArgGroup '{}'",
-                            s,
-                            a.name),
+                           s,
+                           a.name)
+                }
             }
         }
 
@@ -420,14 +425,17 @@ mod test {
         let reqs = vec!["r1", "r2", "r3", "r4"];
         let confs = vec!["c1", "c2", "c3", "c4"];
 
-        let debug_str =
-               format!("{{\n\
+        let debug_str = format!("{{\n\
                    \tname: \"test\",\n\
                    \targs: {:?},\n\
                    \trequired: {:?},\n\
                    \trequires: {:?},\n\
                    \tconflicts: {:?},\n\
-               }}", args, true, Some(reqs), Some(confs));
+               }}",
+                                args,
+                                true,
+                                Some(reqs),
+                                Some(confs));
         assert_eq!(&*format!("{:?}", g), &*debug_str);
     }
 
@@ -459,8 +467,7 @@ mod test {
     #[cfg_attr(feature = "yaml", test)]
     fn test_yaml() {
 
-        let g_yaml =
-"name: test
+        let g_yaml = "name: test
 args:
 - a1
 - a4
@@ -497,5 +504,4 @@ impl<'a> Clone for ArgGroup<'a> {
             conflicts: self.conflicts.clone(),
         }
     }
-
 }

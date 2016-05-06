@@ -302,8 +302,8 @@ impl<'a> Help<'a> {
         // determine if our help fits or needs to wrap
         let width = self.term_w.unwrap_or(0);
         debugln!("Term width...{}", width);
-        let too_long = self.term_w.is_some() && (spcs + str_width(h) +
-                       str_width(&*spec_vals) >= width);
+        let too_long = self.term_w.is_some() &&
+                       (spcs + str_width(h) + str_width(&*spec_vals) >= width);
         debugln!("Too long...{:?}", too_long);
 
         // Is help on next line, if so newline + 2x tab
@@ -403,33 +403,41 @@ impl<'a> Help<'a> {
         if let Some(ref pv) = a.default_val() {
             debugln!("Writing defaults");
             return format!(" [default: {}] {}",
-                            if self.color {
-                                format!("{}", Format::Good(pv))
-                            } else {
-                                format!("{}", pv)
-                            },
-                            if self.hide_pv {
+                           if self.color {
+                               format!("{}", Format::Good(pv))
+                           } else {
+                               format!("{}", pv)
+                           },
+                           if self.hide_pv {
                                "".into()
-                            } else {
-                                if let Some(ref pv) = a.possible_vals() {
-                                    if self.color {
-                                        format!(" [values: {}]", pv.iter().map(|v| format!("{}", Format::Good(v))).collect::<Vec<_>>().join(", "))
-                                    } else {
-                                        format!(" [values: {}]", pv.join(", "))
-                                    }
-                                } else {
+                           } else {
+                               if let Some(ref pv) = a.possible_vals() {
+                                   if self.color {
+                                       format!(" [values: {}]",
+                                               pv.iter()
+                                                 .map(|v| format!("{}", Format::Good(v)))
+                                                 .collect::<Vec<_>>()
+                                                 .join(", "))
+                                   } else {
+                                       format!(" [values: {}]", pv.join(", "))
+                                   }
+                               } else {
                                    "".into()
-                                }
-                            });
+                               }
+                           });
         } else if !self.hide_pv {
             debugln!("Writing values");
             if let Some(ref pv) = a.possible_vals() {
                 debugln!("Possible vals...{:?}", pv);
-                    return if self.color {
-                        format!(" [values: {}]", pv.iter().map(|v| format!("{}", Format::Good(v))).collect::<Vec<_>>().join(", "))
-                    } else {
-                        format!(" [values: {}]", pv.join(", "))
-                    };
+                return if self.color {
+                    format!(" [values: {}]",
+                            pv.iter()
+                              .map(|v| format!("{}", Format::Good(v)))
+                              .collect::<Vec<_>>()
+                              .join(", "))
+                } else {
+                    format!(" [values: {}]", pv.join(", "))
+                };
             }
         }
         String::new()
@@ -552,7 +560,8 @@ impl<'a> Help<'a> {
         }
 
         try!(color!(self, "\nUSAGE:", Warning));
-        try!(write!(self.writer, "\n{}{}\n\n",
+        try!(write!(self.writer,
+                    "\n{}{}\n\n",
                     TAB,
                     parser.create_usage_no_title(&[])));
 
@@ -628,7 +637,8 @@ fn copy_and_capture<R: Read, W: Write>(r: &mut R,
         // The end of the reader was reached without finding the opening tag.
         // (either with or without having copied data to the writer)
         // Return None indicating that we are done.
-        ReaderEmpty | DelimiterNotFound(_) => None,
+        ReaderEmpty |
+        DelimiterNotFound(_) => None,
 
         // Something went wrong.
         ReadError(e) | WriteError(e) => Some(Err(e)),
@@ -792,7 +802,9 @@ fn find_idx_of_space(full: &str, mut start: usize) -> usize {
     let haystack = if full._is_char_boundary(start) {
         &full[..start]
     } else {
-        while !full._is_char_boundary(start) { start -= 1; }
+        while !full._is_char_boundary(start) {
+            start -= 1;
+        }
         &full[..start]
     };
     debugln!("haystack: {}", haystack);

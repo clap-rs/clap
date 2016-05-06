@@ -42,25 +42,24 @@ impl<'n, 'e> Default for FlagBuilder<'n, 'e> {
 
 impl<'n, 'e> FlagBuilder<'n, 'e> {
     pub fn new(name: &'n str) -> Self {
-        FlagBuilder {
-            name: name,
-            ..Default::default()
-        }
+        FlagBuilder { name: name, ..Default::default() }
     }
 }
 
 impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for FlagBuilder<'a, 'b> {
     fn from(a: &'z Arg<'a, 'b>) -> Self {
         assert!(a.validator.is_none(),
-            format!("The argument '{}' has a validator set, yet was parsed as a flag. Ensure \
-                .takes_value(true) or .index(u64) is set.", a.name));
+                format!("The argument '{}' has a validator set, yet was parsed as a flag. Ensure \
+                .takes_value(true) or .index(u64) is set.",
+                        a.name));
         assert!(a.possible_vals.is_none(),
-            format!("The argument '{}' cannot have a specific value set because it doesn't \
+                format!("The argument '{}' cannot have a specific value set because it doesn't \
                 have takes_value(true) set",
-                   a.name));
+                        a.name));
         assert!(!a.is_set(ArgSettings::Required),
-            format!("The argument '{}' cannot be required because it's a flag, perhaps you forgot \
-                takes_value(true)?", a.name));
+                format!("The argument '{}' cannot be required because it's a flag, perhaps you \
+                forgot takes_value(true)?",
+                        a.name));
         // No need to check for index() or takes_value() as that is handled above
 
         FlagBuilder {
@@ -104,31 +103,75 @@ impl<'n, 'e> Clone for FlagBuilder<'n, 'e> {
 }
 
 impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
-    fn name(&self) -> &'n str { self.name }
-    fn overrides(&self) -> Option<&[&'e str]> { self.overrides.as_ref().map(|o| &o[..]) }
-    fn requires(&self) -> Option<&[&'e str]> { self.requires.as_ref().map(|o| &o[..]) }
-    fn blacklist(&self) -> Option<&[&'e str]> { self.blacklist.as_ref().map(|o| &o[..]) }
-    fn required_unless(&self) -> Option<&[&'e str]> { None }
-    fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(s) }
-    fn has_switch(&self) -> bool { true }
-    fn takes_value(&self) -> bool { false }
-    fn set(&mut self, s: ArgSettings) { self.settings.set(s) }
-    fn max_vals(&self) -> Option<u64> { None }
-    fn val_names(&self) -> Option<&VecMap<&'e str>> { None }
-    fn num_vals(&self) -> Option<u64> { None }
-    fn possible_vals(&self) -> Option<&[&'e str]> { None }
-    fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> { None }
-    fn min_vals(&self) -> Option<u64> { None }
-    fn short(&self) -> Option<char> { self.short }
-    fn long(&self) -> Option<&'e str> { self.long }
-    fn val_delim(&self) -> Option<char> { None }
-    fn help(&self) -> Option<&'e str> { self.help }
-    fn default_val(&self) -> Option<&'n str> { None }
-    fn longest_filter(&self) -> bool { self.long.is_some() }
+    fn name(&self) -> &'n str {
+        self.name
+    }
+    fn overrides(&self) -> Option<&[&'e str]> {
+        self.overrides.as_ref().map(|o| &o[..])
+    }
+    fn requires(&self) -> Option<&[&'e str]> {
+        self.requires.as_ref().map(|o| &o[..])
+    }
+    fn blacklist(&self) -> Option<&[&'e str]> {
+        self.blacklist.as_ref().map(|o| &o[..])
+    }
+    fn required_unless(&self) -> Option<&[&'e str]> {
+        None
+    }
+    fn is_set(&self, s: ArgSettings) -> bool {
+        self.settings.is_set(s)
+    }
+    fn has_switch(&self) -> bool {
+        true
+    }
+    fn takes_value(&self) -> bool {
+        false
+    }
+    fn set(&mut self, s: ArgSettings) {
+        self.settings.set(s)
+    }
+    fn max_vals(&self) -> Option<u64> {
+        None
+    }
+    fn val_names(&self) -> Option<&VecMap<&'e str>> {
+        None
+    }
+    fn num_vals(&self) -> Option<u64> {
+        None
+    }
+    fn possible_vals(&self) -> Option<&[&'e str]> {
+        None
+    }
+    fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> {
+        None
+    }
+    fn min_vals(&self) -> Option<u64> {
+        None
+    }
+    fn short(&self) -> Option<char> {
+        self.short
+    }
+    fn long(&self) -> Option<&'e str> {
+        self.long
+    }
+    fn val_delim(&self) -> Option<char> {
+        None
+    }
+    fn help(&self) -> Option<&'e str> {
+        self.help
+    }
+    fn default_val(&self) -> Option<&'n str> {
+        None
+    }
+    fn longest_filter(&self) -> bool {
+        self.long.is_some()
+    }
 }
 
 impl<'n, 'e> DispOrder for FlagBuilder<'n, 'e> {
-    fn disp_ord(&self) -> usize { self.disp_ord }
+    fn disp_ord(&self) -> usize {
+        self.disp_ord
+    }
 }
 
 #[cfg(test)]

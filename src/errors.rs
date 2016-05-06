@@ -337,7 +337,8 @@ impl Error {
     /// Should the message be written to `stdout` or not
     pub fn use_stderr(&self) -> bool {
         match self.kind {
-            ErrorKind::HelpDisplayed | ErrorKind::VersionDisplayed => false,
+            ErrorKind::HelpDisplayed |
+            ErrorKind::VersionDisplayed => false,
             _ => true,
         }
     }
@@ -364,18 +365,18 @@ impl Error {
             message: format!("{} The argument '{}' cannot be used with {}\n\n\
                             {}\n\n\
                             For more information try {}",
-                           Format::Error("error:"),
-                           Format::Warning(arg.to_string()),
-                           match other {
-                               Some(name) => {
-                                   let n = name.into();
-                                   v.push(n.clone());
-                                   format!("'{}'", Format::Warning(n))
-                               },
-                               None => "one or more of the other specified arguments".to_owned(),
-                           },
-                           usage,
-                           Format::Good("--help")),
+                             Format::Error("error:"),
+                             Format::Warning(arg.to_string()),
+                             match other {
+                                 Some(name) => {
+                                     let n = name.into();
+                                     v.push(n.clone());
+                                     format!("'{}'", Format::Warning(n))
+                                 }
+                                 None => "one or more of the other specified arguments".to_owned(),
+                             },
+                             usage,
+                             Format::Good("--help")),
             kind: ErrorKind::ArgumentConflict,
             info: Some(v),
         }
@@ -391,10 +392,10 @@ impl Error {
                             \n\n\
                             {}\n\n\
                             For more information try {}",
-                           Format::Error("error:"),
-                           Format::Warning(arg.to_string()),
-                           usage,
-                           Format::Good("--help")),
+                             Format::Error("error:"),
+                             Format::Warning(arg.to_string()),
+                             usage,
+                             Format::Good("--help")),
             kind: ErrorKind::EmptyValue,
             info: Some(vec![arg.name().to_owned()]),
         }
@@ -407,9 +408,10 @@ impl Error {
               A: AnyArg<'a, 'b> + Display,
               U: Display
     {
-        let suffix = suggestions::did_you_mean_suffix(bad_val.as_ref(),
-                                                      good_vals.iter(),
-                                                      suggestions::DidYouMeanMessageStyle::EnumValue);
+        let suffix =
+            suggestions::did_you_mean_suffix(bad_val.as_ref(),
+                                             good_vals.iter(),
+                                             suggestions::DidYouMeanMessageStyle::EnumValue);
 
         let mut sorted = vec![];
         for v in good_vals {
@@ -423,13 +425,13 @@ impl Error {
                             {}\n\n\
                             {}\n\n\
                             For more information try {}",
-                           Format::Error("error:"),
-                           Format::Warning(bad_val.as_ref()),
-                           Format::Warning(arg.to_string()),
-                           valid_values,
-                           suffix.0,
-                           usage,
-                           Format::Good("--help")),
+                             Format::Error("error:"),
+                             Format::Warning(bad_val.as_ref()),
+                             Format::Warning(arg.to_string()),
+                             valid_values,
+                             suffix.0,
+                             usage,
+                             Format::Good("--help")),
             kind: ErrorKind::InvalidValue,
             info: Some(vec![arg.name().to_owned(), bad_val.as_ref().to_owned()]),
         }
@@ -450,14 +452,14 @@ impl Error {
                             re-running with '{} {} {}'\n\n\
                             {}\n\n\
                             For more information try {}",
-                           Format::Error("error:"),
-                           Format::Warning(&*s),
-                           Format::Good(did_you_mean.as_ref()),
-                           name,
-                           Format::Good("--"),
-                           &*s,
-                           usage,
-                           Format::Good("--help")),
+                             Format::Error("error:"),
+                             Format::Warning(&*s),
+                             Format::Good(did_you_mean.as_ref()),
+                             name,
+                             Format::Good("--"),
+                             &*s,
+                             usage,
+                             Format::Good("--help")),
             kind: ErrorKind::InvalidSubcommand,
             info: Some(vec![s]),
         }
@@ -474,10 +476,10 @@ impl Error {
                             USAGE:\n\t\
                                 {} help <subcommands>...\n\n\
                             For more information try {}",
-                           Format::Error("error:"),
-                           Format::Warning(&*s),
-                           name,
-                           Format::Good("--help")),
+                             Format::Error("error:"),
+                             Format::Warning(&*s),
+                             name,
+                             Format::Good("--help")),
             kind: ErrorKind::UnrecognizedSubcommand,
             info: Some(vec![s]),
         }
@@ -492,10 +494,10 @@ impl Error {
             message: format!("{} The following required arguments were not provided:{}\n\n\
                             {}\n\n\
                             For more information try {}",
-                           Format::Error("error:"),
-                           required,
-                           usage,
-                           Format::Good("--help")),
+                             Format::Error("error:"),
+                             required,
+                             usage,
+                             Format::Good("--help")),
             kind: ErrorKind::MissingRequiredArgument,
             info: None,
         }
@@ -510,10 +512,10 @@ impl Error {
             message: format!("{} '{}' requires a subcommand, but one was not provided\n\n\
                             {}\n\n\
                             For more information try {}",
-                           Format::Error("error:"),
-                           Format::Warning(name),
-                           usage,
-                           Format::Good("--help")),
+                             Format::Error("error:"),
+                             Format::Warning(name),
+                             usage,
+                             Format::Good("--help")),
             kind: ErrorKind::MissingSubcommand,
             info: None,
         }
@@ -528,9 +530,9 @@ impl Error {
             message: format!("{} Invalid UTF-8 was detected in one or more arguments\n\n\
                             {}\n\n\
                             For more information try {}",
-                           Format::Error("error:"),
-                           usage,
-                           Format::Good("--help")),
+                             Format::Error("error:"),
+                             usage,
+                             Format::Good("--help")),
             kind: ErrorKind::InvalidUtf8,
             info: None,
         }
@@ -548,11 +550,11 @@ impl Error {
                             any more values\n\n\
                             {}\n\n\
                             For more information try {}",
-                           Format::Error("error:"),
-                           Format::Warning(v),
-                           Format::Warning(arg.to_string()),
-                           usage,
-                           Format::Good("--help")),
+                             Format::Error("error:"),
+                             Format::Warning(v),
+                             Format::Warning(arg.to_string()),
+                             usage,
+                             Format::Good("--help")),
             kind: ErrorKind::TooManyValues,
             info: Some(vec![arg.name().to_owned(), v.to_owned()]),
         }
@@ -568,17 +570,17 @@ impl Error {
                             provided\n\n\
                             {}\n\n\
                             For more information try {}",
-                           Format::Error("error:"),
-                           Format::Warning(arg.to_string()),
-                           Format::Warning(min_vals.to_string()),
-                           Format::Warning(curr_vals.to_string()),
-                           if curr_vals > 1 {
-                               "ere"
-                           } else {
-                               "as"
-                           },
-                           usage,
-                           Format::Good("--help")),
+                             Format::Error("error:"),
+                             Format::Warning(arg.to_string()),
+                             Format::Warning(min_vals.to_string()),
+                             Format::Warning(curr_vals.to_string()),
+                             if curr_vals > 1 {
+                                 "ere"
+                             } else {
+                                 "as"
+                             },
+                             usage,
+                             Format::Good("--help")),
             kind: ErrorKind::TooFewValues,
             info: Some(vec![arg.name().to_owned()]),
         }
@@ -594,7 +596,12 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn wrong_number_of_values<'a, 'b, A, S, U>(arg: &A, num_vals: u64, curr_vals: usize, suffix: S, usage: U) -> Self
+    pub fn wrong_number_of_values<'a, 'b, A, S, U>(arg: &A,
+                                                   num_vals: u64,
+                                                   curr_vals: usize,
+                                                   suffix: S,
+                                                   usage: U)
+                                                   -> Self
         where A: AnyArg<'a, 'b> + Display,
               S: Display,
               U: Display
@@ -604,13 +611,13 @@ impl Error {
                             provided\n\n\
                             {}\n\n\
                             For more information try {}",
-                           Format::Error("error:"),
-                           Format::Warning(arg.to_string()),
-                           Format::Warning(num_vals.to_string()),
-                           Format::Warning(curr_vals.to_string()),
-                           suffix,
-                           usage,
-                           Format::Good("--help")),
+                             Format::Error("error:"),
+                             Format::Warning(arg.to_string()),
+                             Format::Warning(num_vals.to_string()),
+                             Format::Warning(curr_vals.to_string()),
+                             suffix,
+                             usage,
+                             Format::Good("--help")),
             kind: ErrorKind::WrongNumberOfValues,
             info: Some(vec![arg.name().to_owned()]),
         }
@@ -626,10 +633,10 @@ impl Error {
                             be used multiple times\n\n\
                             {}\n\n\
                             For more information try {}",
-                           Format::Error("error:"),
-                           Format::Warning(arg.to_string()),
-                           usage,
-                           Format::Good("--help")),
+                             Format::Error("error:"),
+                             Format::Warning(arg.to_string()),
+                             usage,
+                             Format::Good("--help")),
             kind: ErrorKind::UnexpectedMultipleUsage,
             info: Some(vec![arg.name().to_owned()]),
         }
@@ -642,18 +649,19 @@ impl Error {
     {
         let a = arg.into();
         Error {
-            message: format!("{} Found argument '{}' which wasn't expected, or isn't valid in this context{}\n\
+            message: format!("{} Found argument '{}' which wasn't expected, or isn't valid in \
+            this context{}\n\
                             {}\n\n\
                             For more information try {}",
-                           Format::Error("error:"),
-                           Format::Warning(&*a),
-                           if did_you_mean.is_empty() {
-                               "\n".to_owned()
-                           } else {
-                               format!("{}\n", did_you_mean)
-                           },
-                           usage,
-                           Format::Good("--help")),
+                             Format::Error("error:"),
+                             Format::Warning(&*a),
+                             if did_you_mean.is_empty() {
+                                 "\n".to_owned()
+                             } else {
+                                 format!("{}\n", did_you_mean)
+                             },
+                             usage,
+                             Format::Good("--help")),
             kind: ErrorKind::UnknownArgument,
             info: Some(vec![a]),
         }
@@ -661,11 +669,13 @@ impl Error {
 
     #[doc(hidden)]
     pub fn argument_not_found<A>(arg: A) -> Self
-        where A: Into<String>,
+        where A: Into<String>
     {
         let a = arg.into();
         Error {
-            message: format!("{} The argument '{}' wasn't found", Format::Error("error:"), a.clone()),
+            message: format!("{} The argument '{}' wasn't found",
+                             Format::Error("error:"),
+                             a.clone()),
             kind: ErrorKind::ArgumentNotFound,
             info: Some(vec![a]),
         }

@@ -7,7 +7,7 @@ use yaml_rust::Yaml;
 use vec_map::VecMap;
 
 use usage_parser::UsageParser;
-use args::settings::{ArgSettings, ArgFlags};
+use args::settings::{ArgFlags, ArgSettings};
 
 /// The abstract representation of a command line argument. Used to set all the options and
 /// relationships that define a valid argument for the program.
@@ -31,7 +31,9 @@ use args::settings::{ArgSettings, ArgFlags};
 /// let input = Arg::from_usage("-i, --input=[FILE] 'Provides an input file to the program'");
 /// ```
 #[allow(missing_debug_implementations)]
-pub struct Arg<'a, 'b> where 'a: 'b {
+pub struct Arg<'a, 'b>
+    where 'a: 'b
+{
     #[doc(hidden)]
     pub name: &'a str,
     #[doc(hidden)]
@@ -119,10 +121,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # ;
     /// ```
     pub fn with_name(n: &'a str) -> Self {
-        Arg {
-            name: n,
-            ..Default::default()
-        }
+        Arg { name: n, ..Default::default() }
     }
 
     /// Creates a new instance of `Arg` from a .yml (YAML) file.
@@ -219,9 +218,11 @@ impl<'a, 'b> Arg<'a, 'b> {
                     a.setb(ArgSettings::RequiredUnlessAll);
                     a
                 }
-                s => panic!("Unknown Arg setting '{}' in YAML file for arg '{}'",
-                            s,
-                            name_str),
+                s => {
+                    panic!("Unknown Arg setting '{}' in YAML file for arg '{}'",
+                           s,
+                           name_str)
+                }
             }
         }
 
@@ -328,7 +329,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ### Help String
     ///
-    /// The help string is denoted between a pair of single quotes `''` and may contain any characters.
+    /// The help string is denoted between a pair of single quotes `''` and may contain any
+    /// characters.
     ///
     /// Example help strings are as follows:
     ///
@@ -478,7 +480,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// helptest
     ///
     /// USAGE:
-	///    helptest [FLAGS]
+    ///    helptest [FLAGS]
     ///
     /// FLAGS:
     ///     --config     Some help text describing the --config arg
@@ -538,7 +540,11 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
     pub fn required(self, r: bool) -> Self {
-        if r { self.set(ArgSettings::Required) } else { self.unset(ArgSettings::Required) }
+        if r {
+            self.set(ArgSettings::Required)
+        } else {
+            self.unset(ArgSettings::Required)
+        }
     }
 
     /// Sets an arg that override this arg's required setting. (i.e. this arg will be required
@@ -1078,7 +1084,11 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(m.value_of("mode"), Some("fast"));
     /// ```
     pub fn takes_value(self, tv: bool) -> Self {
-        if tv { self.set(ArgSettings::TakesValue) } else { self.unset(ArgSettings::TakesValue) }
+        if tv {
+            self.set(ArgSettings::TakesValue)
+        } else {
+            self.unset(ArgSettings::TakesValue)
+        }
     }
 
     /// Specifies the index of a positional argument **starting at** 1.
@@ -1140,8 +1150,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// because it isn't possible to more occurrences than values for options. Because multiple
     /// values are allowed, `--option val1 val2 val3` is perfectly valid, be careful when designing
     /// a CLI where positional arguments are expectd after a option which accepts multiple values,
-    /// as `clap` will continue parsing *values* until it reaches the max or specific number of values defined, or another flag
-    /// or option.
+    /// as `clap` will continue parsing *values* until it reaches the max or specific number of
+    /// values defined, or another flag or option.
     ///
     /// **Pro Tip**:
     ///
@@ -1269,7 +1279,11 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
     pub fn multiple(self, multi: bool) -> Self {
-        if multi { self.set(ArgSettings::Multiple) } else { self.unset(ArgSettings::Multiple) }
+        if multi {
+            self.set(ArgSettings::Multiple)
+        } else {
+            self.unset(ArgSettings::Multiple)
+        }
     }
 
     /// Specifies that an argument can be matched to all child subcommands.
@@ -1313,7 +1327,11 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert!(sub_m.is_present("verb"));
     /// ```
     pub fn global(self, g: bool) -> Self {
-        if g { self.set(ArgSettings::Global) } else { self.unset(ArgSettings::Global) }
+        if g {
+            self.set(ArgSettings::Global)
+        } else {
+            self.unset(ArgSettings::Global)
+        }
     }
 
     /// Allows an argument to accept explicitly empty values. An empty value must be specified at
@@ -1390,14 +1408,18 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// helptest
     ///
     /// USAGE:
-	///    helptest [FLAGS]
+    ///    helptest [FLAGS]
     ///
     /// FLAGS:
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
     pub fn hidden(self, h: bool) -> Self {
-        if h { self.set(ArgSettings::Hidden) } else { self.unset(ArgSettings::Hidden) }
+        if h {
+            self.set(ArgSettings::Hidden)
+        } else {
+            self.unset(ArgSettings::Hidden)
+        }
     }
 
     /// Specifies a list of possible values for this argument. At runtime, `clap` verifies that only
@@ -1857,7 +1879,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// valnames
     ///
     /// USAGE:
-	///    valnames [FLAGS] [OPTIONS]
+    ///    valnames [FLAGS] [OPTIONS]
     ///
     /// FLAGS:
     ///     -h, --help       Prints help information
@@ -1869,7 +1891,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     pub fn value_names(mut self, names: &[&'b str]) -> Self {
         self.setb(ArgSettings::TakesValue);
         if let Some(ref mut vals) = self.val_names {
-            let mut l =  vals.len();
+            let mut l = vals.len();
             for s in names {
                 vals.insert(l, s);
                 l += 1;
@@ -1918,7 +1940,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// valnames
     ///
     /// USAGE:
-	///    valnames [FLAGS] [OPTIONS]
+    ///    valnames [FLAGS] [OPTIONS]
     ///
     /// FLAGS:
     ///     -h, --help       Prints help information
@@ -2112,8 +2134,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 }
 
-impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>>
-    for Arg<'a, 'b> {
+impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
     fn from(a: &'z Arg<'a, 'b>) -> Self {
         Arg {
             name: a.name,

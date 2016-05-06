@@ -39,9 +39,9 @@ pub fn did_you_mean<'a, T, I>(_: &str, _: I) -> Option<&'a str>
 /// Returns a suffix that can be empty, or is the standard 'did you mean phrase
 #[cfg_attr(feature = "lints", allow(needless_lifetimes))]
 pub fn did_you_mean_suffix<'z, T, I>(arg: &str,
-                                 values: I,
-                                 style: DidYouMeanMessageStyle)
-                                 -> (String, Option<&'z str>)
+                                     values: I,
+                                     style: DidYouMeanMessageStyle)
+                                     -> (String, Option<&'z str>)
     where T: AsRef<str> + 'z,
           I: IntoIterator<Item = &'z T>
 {
@@ -49,8 +49,9 @@ pub fn did_you_mean_suffix<'z, T, I>(arg: &str,
         Some(candidate) => {
             let mut suffix = "\n\tDid you mean ".to_owned();
             match style {
-                DidYouMeanMessageStyle::LongFlag =>
-                    suffix.push_str(&Format::Good("--").to_string()),
+                DidYouMeanMessageStyle::LongFlag => {
+                    suffix.push_str(&Format::Good("--").to_string())
+                }
                 DidYouMeanMessageStyle::EnumValue => suffix.push('\''),
             }
             suffix.push_str(&Format::Good(candidate).to_string()[..]);
@@ -92,13 +93,15 @@ mod test {
     fn suffix_long() {
         let p_vals = ["test", "possible", "values"];
         let suffix = "\n\tDid you mean \'--test\' ?";
-        assert_eq!(did_you_mean_suffix("tst", p_vals.iter(), DidYouMeanMessageStyle::LongFlag), (suffix, Some("test")));
+        assert_eq!(did_you_mean_suffix("tst", p_vals.iter(), DidYouMeanMessageStyle::LongFlag),
+                   (suffix, Some("test")));
     }
 
     #[test]
     fn suffix_enum() {
         let p_vals = ["test", "possible", "values"];
         let suffix = "\n\tDid you mean \'test\' ?";
-        assert_eq!(did_you_mean_suffix("tst", p_vals.iter(), DidYouMeanMessageStyle::EnumValue), (suffix, Some("test")));
+        assert_eq!(did_you_mean_suffix("tst", p_vals.iter(), DidYouMeanMessageStyle::EnumValue),
+                   (suffix, Some("test")));
     }
 }

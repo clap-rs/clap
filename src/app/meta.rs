@@ -12,7 +12,7 @@ pub struct AppMeta<'b> {
     pub usage: Option<String>,
     pub help_str: Option<&'b str>,
     pub disp_ord: usize,
-    pub template: Option<&'b  str>,
+    pub template: Option<&'b str>,
 }
 
 impl<'b> Default for AppMeta<'b> {
@@ -35,12 +35,11 @@ impl<'b> Default for AppMeta<'b> {
 }
 
 impl<'b> AppMeta<'b> {
-    pub fn new() -> Self { Default::default() }
+    pub fn new() -> Self {
+        Default::default()
+    }
     pub fn with_name(s: String) -> Self {
-        AppMeta {
-            name: s,
-            ..Default::default()
-        }
+        AppMeta { name: s, ..Default::default() }
     }
 }
 
