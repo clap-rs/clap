@@ -57,16 +57,14 @@ impl<'n, 'e> Default for OptBuilder<'n, 'e> {
 
 impl<'n, 'e> OptBuilder<'n, 'e> {
     pub fn new(name: &'n str) -> Self {
-        OptBuilder {
-            name: name,
-            ..Default::default()
-        }
+        OptBuilder { name: name, ..Default::default() }
     }
 
     pub fn from_arg(a: &Arg<'n, 'e>, reqs: &mut Vec<&'e str>) -> Self {
         assert!(a.short.is_some() || a.long.is_some(),
-            format!("Argument \"{}\" has takes_value(true), yet neither a short() or long() \
-                was supplied", a.name));
+                format!("Argument \"{}\" has takes_value(true), yet neither a short() or long() \
+                was supplied",
+                        a.name));
 
         // No need to check for .index() as that is handled above
         let mut ob = OptBuilder {
@@ -105,12 +103,13 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
         // If the arg is required, add all it's requirements to master required list
         if a.is_set(ArgSettings::Required) {
             if let Some(ref areqs) = a.requires {
-                for r in areqs { reqs.push(*r); }
+                for r in areqs {
+                    reqs.push(*r);
+                }
             }
         }
         ob
     }
-
 }
 
 impl<'n, 'e> Display for OptBuilder<'n, 'e> {
@@ -128,7 +127,9 @@ impl<'n, 'e> Display for OptBuilder<'n, 'e> {
             let mut it = vec.iter().peekable();
             while let Some((_, val)) = it.next() {
                 try!(write!(f, "<{}>", val));
-                if it.peek().is_some() { try!(write!(f, " ")); }
+                if it.peek().is_some() {
+                    try!(write!(f, " "));
+                }
             }
             let num = vec.len();
             if self.is_set(ArgSettings::Multiple) && num == 1 {
@@ -138,10 +139,19 @@ impl<'n, 'e> Display for OptBuilder<'n, 'e> {
             let mut it = (0..num).peekable();
             while let Some(_) = it.next() {
                 try!(write!(f, "<{}>", self.name));
-                if it.peek().is_some() { try!(write!(f, " ")); }
+                if it.peek().is_some() {
+                    try!(write!(f, " "));
+                }
             }
         } else {
-            try!(write!(f, "<{}>{}", self.name, if self.is_set(ArgSettings::Multiple) { "..." } else { "" }));
+            try!(write!(f,
+                        "<{}>{}",
+                        self.name,
+                        if self.is_set(ArgSettings::Multiple) {
+                            "..."
+                        } else {
+                            ""
+                        }));
         }
 
         Ok(())
@@ -174,34 +184,76 @@ impl<'n, 'e> Clone for OptBuilder<'n, 'e> {
 }
 
 impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
-    fn name(&self) -> &'n str { self.name }
-    fn overrides(&self) -> Option<&[&'e str]> { self.overrides.as_ref().map(|o| &o[..]) }
-    fn requires(&self) -> Option<&[&'e str]> { self.requires.as_ref().map(|o| &o[..]) }
-    fn blacklist(&self) -> Option<&[&'e str]> { self.blacklist.as_ref().map(|o| &o[..]) }
-    fn required_unless(&self) -> Option<&[&'e str]> { self.r_unless.as_ref().map(|o| &o[..]) }
+    fn name(&self) -> &'n str {
+        self.name
+    }
+    fn overrides(&self) -> Option<&[&'e str]> {
+        self.overrides.as_ref().map(|o| &o[..])
+    }
+    fn requires(&self) -> Option<&[&'e str]> {
+        self.requires.as_ref().map(|o| &o[..])
+    }
+    fn blacklist(&self) -> Option<&[&'e str]> {
+        self.blacklist.as_ref().map(|o| &o[..])
+    }
+    fn required_unless(&self) -> Option<&[&'e str]> {
+        self.r_unless.as_ref().map(|o| &o[..])
+    }
     #[cfg_attr(feature = "lints", allow(map_clone))]
-    fn val_names(&self) -> Option<&VecMap<&'e str>> { self.val_names.as_ref().map(|o| o) }
-    fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(s) }
-    fn has_switch(&self) -> bool { true }
-    fn set(&mut self, s: ArgSettings) { self.settings.set(s) }
-    fn max_vals(&self) -> Option<u64> { self.max_vals }
-    fn num_vals(&self) -> Option<u64> { self.num_vals }
-    fn possible_vals(&self) -> Option<&[&'e str]> { self.possible_vals.as_ref().map(|o| &o[..]) }
+    fn val_names(&self) -> Option<&VecMap<&'e str>> {
+        self.val_names.as_ref().map(|o| o)
+    }
+    fn is_set(&self, s: ArgSettings) -> bool {
+        self.settings.is_set(s)
+    }
+    fn has_switch(&self) -> bool {
+        true
+    }
+    fn set(&mut self, s: ArgSettings) {
+        self.settings.set(s)
+    }
+    fn max_vals(&self) -> Option<u64> {
+        self.max_vals
+    }
+    fn num_vals(&self) -> Option<u64> {
+        self.num_vals
+    }
+    fn possible_vals(&self) -> Option<&[&'e str]> {
+        self.possible_vals.as_ref().map(|o| &o[..])
+    }
     fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> {
         self.validator.as_ref()
     }
-    fn min_vals(&self) -> Option<u64> { self.min_vals }
-    fn short(&self) -> Option<char> { self.short }
-    fn long(&self) -> Option<&'e str> { self.long }
-    fn val_delim(&self) -> Option<char> { self.val_delim }
-    fn takes_value(&self) -> bool { true }
-    fn help(&self) -> Option<&'e str> { self.help }
-    fn default_val(&self) -> Option<&'n str> { self.default_val }
-    fn longest_filter(&self) -> bool { true }
+    fn min_vals(&self) -> Option<u64> {
+        self.min_vals
+    }
+    fn short(&self) -> Option<char> {
+        self.short
+    }
+    fn long(&self) -> Option<&'e str> {
+        self.long
+    }
+    fn val_delim(&self) -> Option<char> {
+        self.val_delim
+    }
+    fn takes_value(&self) -> bool {
+        true
+    }
+    fn help(&self) -> Option<&'e str> {
+        self.help
+    }
+    fn default_val(&self) -> Option<&'n str> {
+        self.default_val
+    }
+    fn longest_filter(&self) -> bool {
+        true
+    }
 }
 
 impl<'n, 'e> DispOrder for OptBuilder<'n, 'e> {
-    fn disp_ord(&self) -> usize { self.disp_ord }
+    fn disp_ord(&self) -> usize {
+        self.disp_ord
+    }
 }
 
 #[cfg(test)]

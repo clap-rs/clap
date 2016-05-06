@@ -26,7 +26,7 @@ pub trait OsStrExt2 {
 #[cfg(target_os = "windows")]
 impl OsStrExt3 for OsStr {
     fn from_bytes(b: &[u8]) -> &Self {
-        use ::std::mem;
+        use std::mem;
         unsafe { mem::transmute(b) }
     }
     fn as_bytes(&self) -> &[u8] {
@@ -45,21 +45,28 @@ impl OsStrExt2 for OsStr {
 
     fn contains_byte(&self, byte: u8) -> bool {
         for b in self.as_bytes() {
-            if b == &byte { return true; }
+            if b == &byte {
+                return true;
+            }
         }
         false
     }
 
     fn split_at_byte(&self, byte: u8) -> (&OsStr, &OsStr) {
         for (i, b) in self.as_bytes().iter().enumerate() {
-            if b == &byte { return (&OsStr::from_bytes(&self.as_bytes()[..i]), &OsStr::from_bytes(&self.as_bytes()[i+1..])); }
+            if b == &byte {
+                return (&OsStr::from_bytes(&self.as_bytes()[..i]),
+                        &OsStr::from_bytes(&self.as_bytes()[i + 1..]));
+            }
         }
         (&*self, &OsStr::from_bytes(&self.as_bytes()[self.len_()..self.len_()]))
     }
 
     fn trim_left_matches(&self, byte: u8) -> &OsStr {
         for (i, b) in self.as_bytes().iter().enumerate() {
-            if b != &byte { return &OsStr::from_bytes(&self.as_bytes()[i..]); }
+            if b != &byte {
+                return &OsStr::from_bytes(&self.as_bytes()[i..]);
+            }
         }
         &*self
     }
@@ -73,7 +80,11 @@ impl OsStrExt2 for OsStr {
     }
 
     fn split(&self, b: u8) -> OsSplit {
-        OsSplit { sep: b, val: self.as_bytes(), pos: 0 }
+        OsSplit {
+            sep: b,
+            val: self.as_bytes(),
+            pos: 0,
+        }
     }
 }
 
@@ -91,7 +102,9 @@ impl<'a> Iterator for OsSplit<'a> {
     fn next(&mut self) -> Option<&'a OsStr> {
         debugln!("fn=OsSplit::next;");
         debugln!("OsSplit: {:?}", self);
-        if self.pos == self.val.len() { return None; }
+        if self.pos == self.val.len() {
+            return None;
+        }
         let start = self.pos;
         for b in &self.val[start..] {
             self.pos += 1;
@@ -104,7 +117,9 @@ impl<'a> Iterator for OsSplit<'a> {
     fn size_hint(&self) -> (usize, Option<usize>) {
         let mut count = 0;
         for b in &self.val[self.pos..] {
-            if *b == self.sep { count += 1; }
+            if *b == self.sep {
+                count += 1;
+            }
         }
         if count > 0 {
             return (count, Some(count));
@@ -115,7 +130,9 @@ impl<'a> Iterator for OsSplit<'a> {
 
 impl<'a> DoubleEndedIterator for OsSplit<'a> {
     fn next_back(&mut self) -> Option<&'a OsStr> {
-        if self.pos == 0 { return None; }
+        if self.pos == 0 {
+            return None;
+        }
         let start = self.pos;
         for b in self.val[..self.pos].iter().rev() {
             self.pos -= 1;

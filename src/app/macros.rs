@@ -108,3 +108,35 @@ macro_rules! validate_multiples {
         }
     };
 }
+
+macro_rules! parse_positional {
+    (
+        $_self:ident,
+        $p:ident,
+        $arg_os:ident,
+        $pos_only:ident,
+        $pos_counter:ident,
+        $matcher:ident
+    ) => {
+        debugln!("macro=parse_positional!;");
+        validate_multiples!($_self, $p, $matcher);
+
+        if let Err(e) = $_self.add_val_to_arg($p, &$arg_os, $matcher) {
+            return Err(e);
+        }
+        if !$pos_only &&
+           ($_self.settings.is_set(AppSettings::TrailingVarArg) &&
+            $pos_counter == $_self.positionals.len()) {
+            $pos_only = true;
+        }
+
+        $matcher.inc_occurrence_of($p.name);
+        let _ = $_self.groups_for_arg($p.name)
+                      .and_then(|vec| Some($matcher.inc_occurrences_of(&*vec)));
+        arg_post_processing!($_self, $p, $matcher);
+// Only increment the positional counter if it doesn't allow multiples
+        if !$p.settings.is_set(ArgSettings::Multiple) {
+            $pos_counter += 1;
+        }
+    };
+}

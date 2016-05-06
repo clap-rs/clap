@@ -509,23 +509,40 @@ mod test {
 
     #[test]
     fn app_settings_fromstr() {
-        assert_eq!("subcommandsnegatereqs".parse::<AppSettings>().unwrap(), AppSettings::SubcommandsNegateReqs);
-        assert_eq!("subcommandsrequired".parse::<AppSettings>().unwrap(), AppSettings::SubcommandRequired);
-        assert_eq!("argrequiredelsehelp".parse::<AppSettings>().unwrap(), AppSettings::ArgRequiredElseHelp);
-        assert_eq!("globalversion".parse::<AppSettings>().unwrap(), AppSettings::GlobalVersion);
-        assert_eq!("versionlesssubcommands".parse::<AppSettings>().unwrap(), AppSettings::VersionlessSubcommands);
-        assert_eq!("unifiedhelpmessage".parse::<AppSettings>().unwrap(), AppSettings::UnifiedHelpMessage);
-        assert_eq!("waitonerror".parse::<AppSettings>().unwrap(), AppSettings::WaitOnError);
-        assert_eq!("subcommandrequiredelsehelp".parse::<AppSettings>().unwrap(), AppSettings::SubcommandRequiredElseHelp);
-        assert_eq!("allowexternalsubcommands".parse::<AppSettings>().unwrap(), AppSettings::AllowExternalSubcommands);
-        assert_eq!("trailingvararg".parse::<AppSettings>().unwrap(), AppSettings::TrailingVarArg);
-        assert_eq!("nobinaryname".parse::<AppSettings>().unwrap(), AppSettings::NoBinaryName);
-        assert_eq!("strictutf8".parse::<AppSettings>().unwrap(), AppSettings::StrictUtf8);
-        assert_eq!("allowinvalidutf8".parse::<AppSettings>().unwrap(), AppSettings::AllowInvalidUtf8);
-        assert_eq!("allowleadinghyphen".parse::<AppSettings>().unwrap(), AppSettings::AllowLeadingHyphen);
-        assert_eq!("hidepossiblevaluesinhelp".parse::<AppSettings>().unwrap(), AppSettings::HidePossibleValuesInHelp);
-        assert_eq!("coloredhelp".parse::<AppSettings>().unwrap(), AppSettings::ColoredHelp);
-        assert_eq!("hidden".parse::<AppSettings>().unwrap(), AppSettings::Hidden);
+        assert_eq!("subcommandsnegatereqs".parse::<AppSettings>().unwrap(),
+                   AppSettings::SubcommandsNegateReqs);
+        assert_eq!("subcommandsrequired".parse::<AppSettings>().unwrap(),
+                   AppSettings::SubcommandRequired);
+        assert_eq!("argrequiredelsehelp".parse::<AppSettings>().unwrap(),
+                   AppSettings::ArgRequiredElseHelp);
+        assert_eq!("globalversion".parse::<AppSettings>().unwrap(),
+                   AppSettings::GlobalVersion);
+        assert_eq!("versionlesssubcommands".parse::<AppSettings>().unwrap(),
+                   AppSettings::VersionlessSubcommands);
+        assert_eq!("unifiedhelpmessage".parse::<AppSettings>().unwrap(),
+                   AppSettings::UnifiedHelpMessage);
+        assert_eq!("waitonerror".parse::<AppSettings>().unwrap(),
+                   AppSettings::WaitOnError);
+        assert_eq!("subcommandrequiredelsehelp".parse::<AppSettings>().unwrap(),
+                   AppSettings::SubcommandRequiredElseHelp);
+        assert_eq!("allowexternalsubcommands".parse::<AppSettings>().unwrap(),
+                   AppSettings::AllowExternalSubcommands);
+        assert_eq!("trailingvararg".parse::<AppSettings>().unwrap(),
+                   AppSettings::TrailingVarArg);
+        assert_eq!("nobinaryname".parse::<AppSettings>().unwrap(),
+                   AppSettings::NoBinaryName);
+        assert_eq!("strictutf8".parse::<AppSettings>().unwrap(),
+                   AppSettings::StrictUtf8);
+        assert_eq!("allowinvalidutf8".parse::<AppSettings>().unwrap(),
+                   AppSettings::AllowInvalidUtf8);
+        assert_eq!("allowleadinghyphen".parse::<AppSettings>().unwrap(),
+                   AppSettings::AllowLeadingHyphen);
+        assert_eq!("hidepossiblevaluesinhelp".parse::<AppSettings>().unwrap(),
+                   AppSettings::HidePossibleValuesInHelp);
+        assert_eq!("coloredhelp".parse::<AppSettings>().unwrap(),
+                   AppSettings::ColoredHelp);
+        assert_eq!("hidden".parse::<AppSettings>().unwrap(),
+                   AppSettings::Hidden);
         assert!("hahahaha".parse::<AppSettings>().is_err());
     }
 }

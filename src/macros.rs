@@ -372,8 +372,8 @@ macro_rules! crate_version {
     };
 }
 
-/// Allows you to pull the authors for the app from your Cargo.toml at 
-/// compile time as 
+/// Allows you to pull the authors for the app from your Cargo.toml at
+/// compile time as
 /// "author1 lastname. <author1@example.com>",
 ///     "author2 lastname. <author2@example.com>"
 ///
@@ -403,7 +403,8 @@ macro_rules! clap_app {
     (@app ($builder:expr)) => { $builder };
     (@app ($builder:expr) (@arg $name:ident: $($tail:tt)*) $($tt:tt)*) => {
         clap_app!{ @app
-            ($builder.arg(clap_app!{ @arg ($crate::Arg::with_name(stringify!($name))) (-) $($tail)* }))
+            ($builder.arg(
+                clap_app!{ @arg ($crate::Arg::with_name(stringify!($name))) (-) $($tail)* }))
             $($tt)*
         }
     };
@@ -413,7 +414,7 @@ macro_rules! clap_app {
             $($tt)*
         }
     };
-    // Treat the application builder as an argument to set it's attributes
+// Treat the application builder as an argument to set it's attributes
     (@app ($builder:expr) (@attributes $($attr:tt)*) $($tt:tt)*) => {
         clap_app!{ @app (clap_app!{ @arg ($builder) $($attr)* }) $($tt)* }
     };
@@ -423,7 +424,7 @@ macro_rules! clap_app {
             $($tt)*
         }
     };
-    // Handle subcommand creation
+// Handle subcommand creation
     (@app ($builder:expr) (@subcommand $name:ident => $($tail:tt)*) $($tt:tt)*) => {
         clap_app!{ @app
             ($builder.subcommand(
@@ -432,16 +433,16 @@ macro_rules! clap_app {
             $($tt)*
         }
     };
-    // Yaml like function calls - used for setting various meta directly against the app
+// Yaml like function calls - used for setting various meta directly against the app
     (@app ($builder:expr) ($ident:ident: $($v:expr),*) $($tt:tt)*) => {
-        // clap_app!{ @app ($builder.$ident($($v),*)) $($tt)* }
+// clap_app!{ @app ($builder.$ident($($v),*)) $($tt)* }
         clap_app!{ @app
             ($builder.$ident($($v),*))
             $($tt)*
         }
     };
 
-    // Add members to group and continue argument handling with the parent builder
+// Add members to group and continue argument handling with the parent builder
     (@group ($builder:expr, $group:expr)) => { $builder.group($group) };
     (@group ($builder:expr, $group:expr) (@attributes $($attr:tt)*) $($tt:tt)*) => {
         clap_app!{ @group ($builder, clap_app!{ @arg ($group) (-) $($attr)* }) $($tt)* }
@@ -454,9 +455,9 @@ macro_rules! clap_app {
         }
     };
 
-    // No more tokens to munch
+// No more tokens to munch
     (@arg ($arg:expr) $modes:tt) => { $arg };
-    // Shorthand tokens influenced by the usage_string
+// Shorthand tokens influenced by the usage_string
     (@arg ($arg:expr) $modes:tt --$long:ident $($tail:tt)*) => {
         clap_app!{ @arg ($arg.long(stringify!($long))) $modes $($tail)* }
     };
@@ -478,42 +479,42 @@ macro_rules! clap_app {
     (@arg ($arg:expr) $modes:tt ... $($tail:tt)*) => {
         clap_app!{ @arg ($arg) $modes +multiple $($tail)* }
     };
-    // Shorthand magic
+// Shorthand magic
     (@arg ($arg:expr) $modes:tt #{$n:expr, $m:expr} $($tail:tt)*) => {
         clap_app!{ @arg ($arg) $modes min_values($n) max_values($m) $($tail)* }
     };
     (@arg ($arg:expr) $modes:tt * $($tail:tt)*) => {
         clap_app!{ @arg ($arg) $modes +required $($tail)* }
     };
-    // !foo -> .foo(false)
+// !foo -> .foo(false)
     (@arg ($arg:expr) $modes:tt !$ident $($tail:tt)*) => {
         clap_app!{ @arg ($arg.$ident(false)) $modes $($tail)* }
     };
-    // foo -> .foo(true)
+// foo -> .foo(true)
     (@arg ($arg:expr) $modes:tt +$ident:ident $($tail:tt)*) => {
         clap_app!{ @arg ($arg.$ident(true)) $modes $($tail)* }
     };
-    // Validator
+// Validator
     (@arg ($arg:expr) $modes:tt {$fn_:expr} $($tail:tt)*) => {
         clap_app!{ @arg ($arg.validator($fn_)) $modes $($tail)* }
     };
     (@as_expr $expr:expr) => { $expr };
-    // Help
+// Help
     (@arg ($arg:expr) $modes:tt $desc:tt) => { $arg.help(clap_app!{ @as_expr $desc }) };
-    // Handle functions that need to be called multiple times for each argument
+// Handle functions that need to be called multiple times for each argument
     (@arg ($arg:expr) $modes:tt $ident:ident[$($target:ident)*] $($tail:tt)*) => {
         clap_app!{ @arg ($arg $( .$ident(stringify!($target)) )*) $modes $($tail)* }
     };
-    // Inherit builder's functions
+// Inherit builder's functions
     (@arg ($arg:expr) $modes:tt $ident:ident($($expr:expr)*) $($tail:tt)*) => {
         clap_app!{ @arg ($arg.$ident($($expr)*)) $modes $($tail)* }
     };
 
-    // Build a subcommand outside of an app.
+// Build a subcommand outside of an app.
     (@subcommand $name:ident => $($tail:tt)*) => {
         clap_app!{ @app ($crate::SubCommand::with_name(stringify!($name))) $($tail)* }
     };
-    // Start the magic
+// Start the magic
     ($name:ident => $($tail:tt)*) => {{
         clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)*}
     }};

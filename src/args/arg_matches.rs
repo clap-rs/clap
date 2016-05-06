@@ -1,4 +1,4 @@
-use std::ffi::{OsString, OsStr};
+use std::ffi::{OsStr, OsString};
 use std::collections::HashMap;
 use std::iter::Map;
 use std::slice;
@@ -78,7 +78,9 @@ impl<'a> Default for ArgMatches<'a> {
 
 impl<'a> ArgMatches<'a> {
     #[doc(hidden)]
-    pub fn new() -> Self { ArgMatches { ..Default::default() } }
+    pub fn new() -> Self {
+        ArgMatches { ..Default::default() }
+    }
 
     /// Gets the value of a specific option or positional argument (i.e. an argument that takes
     /// an additional value at runtime). If the option wasn't present at runtime
@@ -165,7 +167,9 @@ impl<'a> ArgMatches<'a> {
     /// assert_eq!(&*m.value_of_os("arg").unwrap().as_bytes(), [b'H', b'i', b' ', 0xe9, b'!']);
     /// ```
     pub fn value_of_os<S: AsRef<str>>(&self, name: S) -> Option<&OsStr> {
-        self.args.get(name.as_ref()).map_or(None, |arg| arg.vals.values().nth(0).map(|v| v.as_os_str()))
+        self.args
+            .get(name.as_ref())
+            .map_or(None, |arg| arg.vals.values().nth(0).map(|v| v.as_os_str()))
     }
 
     /// Gets an Iterator of values of a specific argument (i.e. an argument that takes multiple
@@ -192,7 +196,9 @@ impl<'a> ArgMatches<'a> {
     /// ```
     pub fn values_of<S: AsRef<str>>(&'a self, name: S) -> Option<Values<'a>> {
         if let Some(ref arg) = self.args.get(name.as_ref()) {
-            fn to_str_slice(o: &OsString) -> &str { o.to_str().expect(INVALID_UTF8) }
+            fn to_str_slice(o: &OsString) -> &str {
+                o.to_str().expect(INVALID_UTF8)
+            }
             let to_str_slice: fn(&OsString) -> &str = to_str_slice; // coerce to fn pointer
             return Some(Values { iter: arg.vals.values().map(to_str_slice) });
         }
@@ -222,7 +228,8 @@ impl<'a> ArgMatches<'a> {
     /// ```
     pub fn values_of_lossy<S: AsRef<str>>(&'a self, name: S) -> Option<Vec<String>> {
         if let Some(ref arg) = self.args.get(name.as_ref()) {
-            return Some(arg.vals.values()
+            return Some(arg.vals
+                           .values()
                            .map(|v| v.to_string_lossy().into_owned())
                            .collect());
         }
@@ -256,7 +263,9 @@ impl<'a> ArgMatches<'a> {
     /// assert_eq!(itr.next(), None);
     /// ```
     pub fn values_of_os<S: AsRef<str>>(&'a self, name: S) -> Option<OsValues<'a>> {
-        fn to_str_slice(o: &OsString) -> &OsStr { &*o }
+        fn to_str_slice(o: &OsString) -> &OsStr {
+            &*o
+        }
         let to_str_slice: fn(&'a OsString) -> &'a OsStr = to_str_slice; // coerce to fn pointer
         if let Some(ref arg) = self.args.get(name.as_ref()) {
             return Some(OsValues { iter: arg.vals.values().map(to_str_slice) });
@@ -360,7 +369,9 @@ impl<'a> ArgMatches<'a> {
     /// ```
     pub fn subcommand_matches<S: AsRef<str>>(&self, name: S) -> Option<&ArgMatches<'a>> {
         if let Some(ref s) = self.subcommand {
-            if s.name == name.as_ref() { return Some(&s.matches) }
+            if s.name == name.as_ref() {
+                return Some(&s.matches);
+            }
         }
         None
     }
@@ -498,26 +509,32 @@ impl<'a> ArgMatches<'a> {
 #[derive(Clone)]
 #[allow(missing_debug_implementations)]
 pub struct Values<'a> {
-    iter: Map<vec_map::Values<'a, OsString>, fn(&'a OsString) -> &'a str>
+    iter: Map<vec_map::Values<'a, OsString>, fn(&'a OsString) -> &'a str>,
 }
 
 impl<'a> Iterator for Values<'a> {
     type Item = &'a str;
 
-    fn next(&mut self) -> Option<&'a str> { self.iter.next() }
-    fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
+    fn next(&mut self) -> Option<&'a str> {
+        self.iter.next()
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
 }
 
 impl<'a> DoubleEndedIterator for Values<'a> {
-    fn next_back(&mut self) -> Option<&'a str> { self.iter.next_back() }
+    fn next_back(&mut self) -> Option<&'a str> {
+        self.iter.next_back()
+    }
 }
 
 /// An iterator over the key-value pairs of a map.
 #[derive(Clone)]
-pub struct Iter<'a, V:'a> {
+pub struct Iter<'a, V: 'a> {
     front: usize,
     back: usize,
-    iter: slice::Iter<'a, Option<V>>
+    iter: slice::Iter<'a, Option<V>>,
 }
 
 impl<'a, V> Iterator for Iter<'a, V> {
@@ -562,16 +579,22 @@ impl<'a, V> DoubleEndedIterator for Iter<'a, V> {
 #[derive(Clone)]
 #[allow(missing_debug_implementations)]
 pub struct OsValues<'a> {
-    iter: Map<vec_map::Values<'a, OsString>, fn(&'a OsString) -> &'a OsStr>
+    iter: Map<vec_map::Values<'a, OsString>, fn(&'a OsString) -> &'a OsStr>,
 }
 
 impl<'a> Iterator for OsValues<'a> {
     type Item = &'a OsStr;
 
-    fn next(&mut self) -> Option<&'a OsStr> { self.iter.next() }
-    fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
+    fn next(&mut self) -> Option<&'a OsStr> {
+        self.iter.next()
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
 }
 
 impl<'a> DoubleEndedIterator for OsValues<'a> {
-    fn next_back(&mut self) -> Option<&'a OsStr> { self.iter.next_back() }
+    fn next_back(&mut self) -> Option<&'a OsStr> {
+        self.iter.next_back()
+    }
 }

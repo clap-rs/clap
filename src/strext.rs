@@ -5,7 +5,9 @@ pub trait _StrExt {
 impl _StrExt for str {
     #[inline]
     fn _is_char_boundary(&self, index: usize) -> bool {
-        if index == self.len() { return true; }
+        if index == self.len() {
+            return true;
+        }
         match self.as_bytes().get(index) {
             None => false,
             Some(&b) => b < 128 || b >= 192,

@@ -22,7 +22,7 @@ use std::fmt;
 use yaml_rust::Yaml;
 use vec_map::VecMap;
 
-use args::{Arg, ArgSettings, AnyArg, ArgGroup, ArgMatches, ArgMatcher};
+use args::{AnyArg, Arg, ArgGroup, ArgMatcher, ArgMatches, ArgSettings};
 use app::parser::Parser;
 use app::help::Help;
 use errors::Error;
@@ -56,9 +56,11 @@ use errors::Result as ClapResult;
 /// // Your program logic starts here...
 /// ```
 #[allow(missing_debug_implementations)]
-pub struct App<'a, 'b> where 'a: 'b {
+pub struct App<'a, 'b>
+    where 'a: 'b
+{
     #[doc(hidden)]
-    pub p: Parser<'a, 'b>
+    pub p: Parser<'a, 'b>,
 }
 
 
@@ -74,7 +76,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// let prog = App::new("My Program")
     /// # ;
     /// ```
-    pub fn new<S: Into<String>>(n: S) -> Self { App { p: Parser::with_name(n.into()) } }
+    pub fn new<S: Into<String>>(n: S) -> Self {
+        App { p: Parser::with_name(n.into()) }
+    }
 
     /// Creates a new instace of `App` from a .yml (YAML) file. A full example of supported YAML
     /// objects can be found in `examples/17_yaml.rs` and `examples/17_yaml.yml`. One great use for
@@ -112,15 +116,15 @@ impl<'a, 'b> App<'a, 'b> {
         App::from(yaml)
     }
 
-    /// Sets a string of author(s) that will be displayed to the user when they 
+    /// Sets a string of author(s) that will be displayed to the user when they
     /// request the help information with `--help` or `-h`.
     ///
-    /// **Pro-tip:** If you turn on unstable features you can use `clap`s 
+    /// **Pro-tip:** If you turn on unstable features you can use `clap`s
     /// convienience macro `crate_authors!` to automatically set your
-    /// application's author to the same thing as your crate at compile time. 
+    /// application's author to the same thing as your crate at compile time.
     /// See the `examples/`
     /// directory for more information
-    ///    
+    ///
     /// # Examples
     ///
     /// ```no_run
@@ -492,7 +496,9 @@ impl<'a, 'b> App<'a, 'b> {
     pub fn args_from_usage(mut self, usage: &'a str) -> Self {
         for line in usage.lines() {
             let l = line.trim();
-            if l.is_empty() { continue; }
+            if l.is_empty() {
+                continue;
+            }
             self.p.add_arg(&Arg::from_usage(l));
         }
         self
@@ -500,8 +506,8 @@ impl<'a, 'b> App<'a, 'b> {
 
     /// Adds an `ArgGroup` to the application. `ArgGroup`s are a family of related arguments. By
     /// placing them in a logical group, you can build easier requirement and exclusion rules. For
-    /// instance, you can make an entire `ArgGroup` required, meaning that one (and *only* one) argument
-    /// from that group must be present at runtime.
+    /// instance, you can make an entire `ArgGroup` required, meaning that one (and *only* one)
+    /// argument from that group must be present at runtime.
     ///
     /// You can also do things such as name an `ArgGroup` as a conflict to another argument.
     /// Meaning any of the arguments that belong to that group will cause a failure if present with
@@ -940,9 +946,7 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
 
 impl<'a, 'b> Clone for App<'a, 'b> {
     fn clone(&self) -> Self {
-        App {
-            p: self.p.clone(),
-        }
+        App { p: self.p.clone() }
     }
 }
 
@@ -950,28 +954,66 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn name(&self) -> &'n str {
         unreachable!("App struct does not support AnyArg::name, this is a bug!")
     }
-    fn overrides(&self) -> Option<&[&'e str]> { None }
-    fn requires(&self) -> Option<&[&'e str]> { None }
-    fn blacklist(&self) -> Option<&[&'e str]> { None }
-    fn required_unless(&self) -> Option<&[&'e str]> { None }
-    fn val_names(&self) -> Option<&VecMap<&'e str>> { None }
-    fn is_set(&self, _: ArgSettings) -> bool { false }
+    fn overrides(&self) -> Option<&[&'e str]> {
+        None
+    }
+    fn requires(&self) -> Option<&[&'e str]> {
+        None
+    }
+    fn blacklist(&self) -> Option<&[&'e str]> {
+        None
+    }
+    fn required_unless(&self) -> Option<&[&'e str]> {
+        None
+    }
+    fn val_names(&self) -> Option<&VecMap<&'e str>> {
+        None
+    }
+    fn is_set(&self, _: ArgSettings) -> bool {
+        false
+    }
     fn set(&mut self, _: ArgSettings) {
         unreachable!("App struct does not support AnyArg::set, this is a bug!")
     }
-    fn has_switch(&self) -> bool { false }
-    fn max_vals(&self) -> Option<u64> { None }
-    fn num_vals(&self) -> Option<u64> { None }
-    fn possible_vals(&self) -> Option<&[&'e str]> { None }
-    fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> { None }
-    fn min_vals(&self) -> Option<u64> { None }
-    fn short(&self) -> Option<char> { None }
-    fn long(&self) -> Option<&'e str> { None }
-    fn val_delim(&self) -> Option<char> { None }
-    fn takes_value(&self) -> bool { true }
-    fn help(&self) -> Option<&'e str> { self.p.meta.about }
-    fn default_val(&self) -> Option<&'n str> { None }
-    fn longest_filter(&self) -> bool { true }
+    fn has_switch(&self) -> bool {
+        false
+    }
+    fn max_vals(&self) -> Option<u64> {
+        None
+    }
+    fn num_vals(&self) -> Option<u64> {
+        None
+    }
+    fn possible_vals(&self) -> Option<&[&'e str]> {
+        None
+    }
+    fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> {
+        None
+    }
+    fn min_vals(&self) -> Option<u64> {
+        None
+    }
+    fn short(&self) -> Option<char> {
+        None
+    }
+    fn long(&self) -> Option<&'e str> {
+        None
+    }
+    fn val_delim(&self) -> Option<char> {
+        None
+    }
+    fn takes_value(&self) -> bool {
+        true
+    }
+    fn help(&self) -> Option<&'e str> {
+        self.p.meta.about
+    }
+    fn default_val(&self) -> Option<&'n str> {
+        None
+    }
+    fn longest_filter(&self) -> bool {
+        true
+    }
 }
 
 impl<'n, 'e> fmt::Display for App<'n, 'e> {

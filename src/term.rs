@@ -15,7 +15,7 @@
 #[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
 use std::mem::zeroed;
 #[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
-use libc::{c_int, c_ushort, c_ulong, STDOUT_FILENO};
+use libc::{STDOUT_FILENO, c_int, c_ulong, c_ushort};
 
 
 /// The number of rows and columns of a terminal.
@@ -41,7 +41,7 @@ static TIOCGWINSZ: c_ulong = 0x5413;
 #[cfg(feature = "wrap_help")]
 static TIOCGWINSZ: c_ulong = 0x40087468;
 
-extern {
+extern "C" {
 #[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
     pub fn ioctl(fd: c_int, request: c_ulong, ...) -> c_int;
 }
@@ -56,8 +56,7 @@ unsafe fn get_dimensions() -> Winsize {
 
     if result == -1 {
         zeroed()
-    }
-    else {
+    } else {
         window
     }
 }
@@ -70,8 +69,7 @@ pub fn dimensions() -> Option<(usize, usize)> {
 
     if w.ws_col == 0 || w.ws_row == 0 {
         None
-    }
-    else {
+    } else {
         Some((w.ws_col as usize, w.ws_row as usize))
     }
 }

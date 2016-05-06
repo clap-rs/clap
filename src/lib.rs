@@ -395,6 +395,7 @@
         unused_qualifications)]
 // clippy false positives, or ones we're ok with...
 #![cfg_attr(feature = "lints", allow(cyclomatic_complexity))]
+#![cfg_attr(feature = "lints", allow(doc_markdown))]
 // Only while bitflats uses "_first" inside it's macros
 #![cfg_attr(feature = "lints", allow(used_underscore_binding))]
 // Only while bitflats fails this lint
@@ -416,7 +417,7 @@ extern crate vec_map;
 
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;
-pub use args::{Arg, ArgGroup, ArgMatches, SubCommand, ArgSettings};
+pub use args::{Arg, ArgGroup, ArgMatches, ArgSettings, SubCommand};
 pub use app::{App, AppSettings};
 pub use fmt::Format;
 pub use errors::{Error, ErrorKind, Result};
