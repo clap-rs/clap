@@ -324,10 +324,15 @@ impl<'a, 'b> Parser<'a, 'b>
         }
         write_arg!(self.flags.iter(), matcher, c_flags, ret_val);
         write_arg!(self.opts.iter(), matcher, c_opt, ret_val);
+        let mut g_vec = vec![];
         for g in grps.into_iter() {
             let g_string = self.args_in_group(g)
                                .join("|");
-            ret_val.push_back(format!("<{}>", &g_string[..g_string.len()]));
+            g_vec.push(format!("<{}>", &g_string[..g_string.len()]));
+        }
+        g_vec.dedup();
+        for g in g_vec.into_iter() {
+            ret_val.push_back(g);
         }
 
         ret_val
