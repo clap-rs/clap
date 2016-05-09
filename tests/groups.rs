@@ -110,3 +110,41 @@ USAGE:
 For more information try --help", true);
 
 }
+
+#[test]
+fn req_group_with_conflict_usage_string() {
+    let app = App::new("req_group")
+        .arg(Arg::from_usage("[base] 'Base commit'").conflicts_with("delete"))
+        .arg(Arg::from_usage("-d, --delete 'Remove the base commit information'"))
+        .group(ArgGroup::with_name("base_or_delete")
+            .args(&["base", "delete"])
+            .required(true));
+
+    clap_test::check_err_output(app, "clap-test --delete base",
+"error: The argument '--delete' cannot be used with 'base'
+
+USAGE:
+    clap-test <base|--delete>
+
+For more information try --help", true);
+
+}
+
+#[test]
+fn req_group_with_conflict_rev_usage_string() {
+    let app = App::new("req_group")
+        .arg(Arg::from_usage("[base] 'Base commit'").conflicts_with("delete"))
+        .arg(Arg::from_usage("-d, --delete 'Remove the base commit information'"))
+        .group(ArgGroup::with_name("base_or_delete")
+            .args(&["base", "delete"])
+            .required(true));
+
+    clap_test::check_err_output(app, "clap-test --delete base",
+"error: The argument '--delete' cannot be used with 'base'
+
+USAGE:
+    clap-test <base|--delete>
+
+For more information try --help", true);
+
+}
