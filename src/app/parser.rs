@@ -303,7 +303,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 continue;
             }
             if let Some(p) = self.positionals.values().filter(|x| &x.name == &p).next() {
-                pmap.insert(p.index, p.to_string());
+                pmap.insert(p.index, p.name.to_owned());
             }
         }
         for (_, s) in pmap {
@@ -324,7 +324,7 @@ impl<'a, 'b> Parser<'a, 'b>
         for g in grps.into_iter() {
             let g_string = self.args_in_group(g)
                                .join("|");
-            ret_val.push_back(format!("[{}]", &g_string[..g_string.len()]));
+            ret_val.push_back(format!("<{}>", &g_string[..g_string.len()]));
         }
 
         ret_val
@@ -683,7 +683,7 @@ impl<'a, 'b> Parser<'a, 'b>
             if let Some(pos) = self.positionals.values().filter(|p| &p.name == &k).next() {
                 if let Some(ref bl) = pos.blacklist {
                     if bl.contains(&name) {
-                        return Some(pos.to_string());
+                        return Some(pos.name.to_owned());
                     }
                 }
             }
@@ -757,7 +757,7 @@ impl<'a, 'b> Parser<'a, 'b>
                                  .values()
                                  .filter(|p| &p.name == n)
                                  .next() {
-                args.push(p.to_string());
+                args.push(p.name.to_owned());
             }
         }
 

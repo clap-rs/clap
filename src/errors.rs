@@ -355,6 +355,11 @@ impl Error {
     }
 
     #[doc(hidden)]
+    pub fn write_to<W: Write>(&self, w: &mut W) -> io::Result<()> {
+        write!(w, "{}", self.message)
+    }
+
+    #[doc(hidden)]
     pub fn argument_conflict<'a, 'b, A, O, U>(arg: &A, other: Option<O>, usage: U) -> Self
         where A: AnyArg<'a, 'b> + Display,
               O: Into<String>,
