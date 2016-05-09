@@ -31,9 +31,9 @@ OPTIONS:
     -o, --option <opt>...            tests options
 
 ARGS:
-    [positional]        tests positionals
-    [positional2]       tests positionals with exclusions
-    [positional3]...    tests positionals with specific values [values: vi, emacs]
+    <positional>        tests positionals
+    <positional2>       tests positionals with exclusions
+    <positional3>...    tests positionals with specific values [values: vi, emacs]
 
 SUBCOMMANDS:
     help      Prints this message or the help of the given subcommand(s)
@@ -72,23 +72,23 @@ For more information try --help'''
 _excluded = '''error: The argument '--flag' cannot be used with '-F'
 
 USAGE:
-    claptests [positional2] -F --long-option-2 <option2>
+    claptests <positional2> -F --long-option-2 <option2>
 
 For more information try --help'''
 
 _excluded_l = '''error: The argument '-f' cannot be used with '-F'
 
 USAGE:
-    claptests [positional2] -F --long-option-2 <option2>
+    claptests <positional2> -F --long-option-2 <option2>
 
 For more information try --help'''
 
 _required = '''error: The following required arguments were not provided:
-    [positional2]
+    <positional2>
     --long-option-2 <option2>
 
 USAGE:
-    claptests [positional2] -F --long-option-2 <option2>
+    claptests <positional2> -F --long-option-2 <option2>
 
 For more information try --help'''
 
@@ -152,7 +152,7 @@ OPTIONS:
     -o, --option <scoption>...    tests options
 
 ARGS:
-    [scpositional]    tests positionals'''
+    <scpositional>    tests positionals'''
 
 _scfop = '''flag NOT present
 option NOT present
