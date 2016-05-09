@@ -21,6 +21,9 @@ yaml-rust = { version = "~0.3.2",  optional = true }
 clippy    = { version = "=0.0.64", optional = true }
 unicode-width = { version = "~0.1.3",  optional = true }
 
+[dev-dependencies]
+clap-test = { path = "clap-test/" }
+
 [features]
 default     = ["suggestions", "color", "wrap_help"]
 suggestions = ["strsim"]

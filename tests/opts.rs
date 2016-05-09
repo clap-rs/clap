@@ -1,3 +1,4 @@
+extern crate clap_test;
 extern crate clap;
 
 use clap::{App, Arg};
@@ -167,4 +168,16 @@ fn default_values_user_value() {
     let m = r.unwrap();
     assert!(m.is_present("o"));
     assert_eq!(m.value_of("o").unwrap(), "value");
+}
+
+#[test]
+fn did_you_mean() {
+    clap_test::check_err_output(clap_test::complex_app(), "clap-test --optio=foo",
+"error: Found argument '--optio' which wasn't expected, or isn't valid in this context
+\tDid you mean --option ?
+
+USAGE:
+    clap-test --option <opt>...
+
+For more information try --help", true);
 }

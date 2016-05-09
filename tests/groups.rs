@@ -1,4 +1,5 @@
 extern crate clap;
+extern crate clap_test;
 
 use clap::{App, Arg, ArgGroup, ErrorKind};
 
@@ -88,4 +89,62 @@ fn empty_group() {
     assert!(r.is_err());
     let err = r.err().unwrap();
     assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
+}
+
+#[test]
+fn req_group_usage_string() {
+    let app = App::new("req_group")
+        .args_from_usage("[base] 'Base commit'
+                          -d, --delete 'Remove the base commit information'")
+        .group(ArgGroup::with_name("base_or_delete")
+            .args(&["base", "delete"])
+            .required(true));
+
+    clap_test::check_err_output(app, "clap-test",
+"error: The following required arguments were not provided:
+    <base|--delete>
+
+USAGE:
+    clap-test [FLAGS] <base|--delete> [ARGS]
+
+For more information try --help", true);
+
+}
+
+#[test]
+fn req_group_with_conflict_usage_string() {
+    let app = App::new("req_group")
+        .arg(Arg::from_usage("[base] 'Base commit'").conflicts_with("delete"))
+        .arg(Arg::from_usage("-d, --delete 'Remove the base commit information'"))
+        .group(ArgGroup::with_name("base_or_delete")
+            .args(&["base", "delete"])
+            .required(true));
+
+    clap_test::check_err_output(app, "clap-test --delete base",
+"error: The argument '--delete' cannot be used with 'base'
+
+USAGE:
+    clap-test <base|--delete>
+
+For more information try --help", true);
+
+}
+
+#[test]
+fn req_group_with_conflict_rev_usage_string() {
+    let app = App::new("req_group")
+        .arg(Arg::from_usage("[base] 'Base commit'").conflicts_with("delete"))
+        .arg(Arg::from_usage("-d, --delete 'Remove the base commit information'"))
+        .group(ArgGroup::with_name("base_or_delete")
+            .args(&["base", "delete"])
+            .required(true));
+
+    clap_test::check_err_output(app, "clap-test --delete base",
+"error: The argument '--delete' cannot be used with 'base'
+
+USAGE:
+    clap-test <base|--delete>
+
+For more information try --help", true);
+
 }

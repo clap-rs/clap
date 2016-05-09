@@ -1,0 +1,10 @@
+[package]
+name = "clap-test"
+version = "0.1.0"
+authors = ["Kevin K. <kbknapp@gmail.com>"]
+description = "functions and macros to assist in testing clap"
+license = "MIT"
+
+[dependencies]
+regex = "~0.1.69"
+clap = { path = "../" }

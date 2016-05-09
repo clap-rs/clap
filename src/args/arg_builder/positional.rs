@@ -112,28 +112,15 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
 
 impl<'n, 'e> Display for PosBuilder<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        if self.settings.is_set(ArgSettings::Required) {
-            if let Some(ref names) = self.val_names {
-                try!(write!(f,
-                            "{}",
-                            names.values()
-                                 .map(|n| format!("<{}>", n))
-                                 .collect::<Vec<_>>()
-                                 .join(" ")));
-            } else {
-                try!(write!(f, "<{}>", self.name));
-            }
+        if let Some(ref names) = self.val_names {
+            try!(write!(f,
+                        "{}",
+                        names.values()
+                             .map(|n| format!("<{}>", n))
+                             .collect::<Vec<_>>()
+                             .join(" ")));
         } else {
-            if let Some(ref names) = self.val_names {
-                try!(write!(f,
-                            "{}",
-                            names.values()
-                                 .map(|n| format!("[{}]", n))
-                                 .collect::<Vec<_>>()
-                                 .join(" ")));
-            } else {
-                try!(write!(f, "[{}]", self.name));
-            }
+            try!(write!(f, "<{}>", self.name));
         }
         if self.settings.is_set(ArgSettings::Multiple) && self.val_names.is_none() {
             try!(write!(f, "..."));
@@ -250,7 +237,7 @@ mod test {
         let mut p = PosBuilder::new("pos", 1);
         p.settings.set(ArgSettings::Multiple);
 
-        assert_eq!(&*format!("{}", p), "[pos]...");
+        assert_eq!(&*format!("{}", p), "<pos>...");
     }
 
     #[test]
@@ -269,7 +256,7 @@ mod test {
         vm.insert(1, "file2");
         p2.val_names = Some(vm);
 
-        assert_eq!(&*format!("{}", p2), "[file1] [file2]");
+        assert_eq!(&*format!("{}", p2), "<file1> <file2>");
     }
 
     #[test]

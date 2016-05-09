@@ -18,7 +18,6 @@ script:
     cargo build --verbose --no-default-features &&
     cargo build --verbose --features yaml &&
     cargo test --verbose --features yaml &&
-    make -C clap-tests test &&
     travis-cargo --only nightly build -- --features travis &&
     travis-cargo --only nightly bench &&
     travis-cargo --only stable doc -- --features yaml

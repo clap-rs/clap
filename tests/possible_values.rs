@@ -1,6 +1,17 @@
+extern crate clap_test;
 extern crate clap;
 
 use clap::{App, Arg, ErrorKind};
+
+static PV_ERROR: &'static str = "error: 'slo' isn't a valid value for '--Option <option3>'
+\t[values:fast slow]
+
+\tDid you mean 'slow' ?
+
+USAGE:
+    clap-test --Option <option3>
+
+For more information try --help";
 
 #[test]
 fn possible_values_of_positional() {
@@ -132,4 +143,9 @@ fn possible_values_of_option_multiple_fail() {
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidValue);
+}
+
+#[test]
+fn possible_values_output() {
+    clap_test::check_err_output(clap_test::complex_app(), "clap-test -O slo", PV_ERROR, true);
 }

@@ -296,6 +296,16 @@ impl<'a, 'b> Parser<'a, 'b>
             grps, tmp
         });
         let mut ret_val = VecDeque::new();
+        c_pos.dedup();
+        c_flags.dedup();
+        c_opt.dedup();
+        grps.dedup();
+        let mut args_in_groups = vec![];
+        for g in grps.iter() {
+            for a in self.arg_names_in_group(g).into_iter() {
+                args_in_groups.push(a);
+            }
+        }
 
         let mut pmap = BTreeMap::new();
         for p in c_pos.into_iter() {
@@ -303,10 +313,19 @@ impl<'a, 'b> Parser<'a, 'b>
                 continue;
             }
             if let Some(p) = self.positionals.values().filter(|x| &x.name == &p).next() {
+                if args_in_groups.contains(&p.name) {
+                    continue;
+                }
                 pmap.insert(p.index, p.to_string());
             }
         }
+        debugln!("args_in_groups={:?}", args_in_groups);
         for (_, s) in pmap {
+            if !args_in_groups.is_empty() {
+                if args_in_groups.contains(&&*s) {
+                    continue;
+                }
+            }
             ret_val.push_back(s);
         }
         macro_rules! write_arg {
@@ -321,10 +340,15 @@ impl<'a, 'b> Parser<'a, 'b>
         }
         write_arg!(self.flags.iter(), matcher, c_flags, ret_val);
         write_arg!(self.opts.iter(), matcher, c_opt, ret_val);
+        let mut g_vec = vec![];
         for g in grps.into_iter() {
             let g_string = self.args_in_group(g)
                                .join("|");
-            ret_val.push_back(format!("[{}]", &g_string[..g_string.len()]));
+            g_vec.push(format!("<{}>", &g_string[..g_string.len()]));
+        }
+        g_vec.dedup();
+        for g in g_vec.into_iter() {
+            ret_val.push_back(g);
         }
 
         ret_val
@@ -683,7 +707,7 @@ impl<'a, 'b> Parser<'a, 'b>
             if let Some(pos) = self.positionals.values().filter(|p| &p.name == &k).next() {
                 if let Some(ref bl) = pos.blacklist {
                     if bl.contains(&name) {
-                        return Some(pos.to_string());
+                        return Some(pos.name.to_owned());
                     }
                 }
             }
@@ -757,7 +781,7 @@ impl<'a, 'b> Parser<'a, 'b>
                                  .values()
                                  .filter(|p| &p.name == n)
                                  .next() {
-                args.push(p.to_string());
+                args.push(p.name.to_owned());
             }
         }
 
@@ -1156,6 +1180,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 debugln!("macro=build_err;");
                 let c_with = $me.blacklisted_from($name, &$matcher);
                 debugln!("'{:?}' conflicts with '{}'", c_with, $name);
+                $matcher.remove($name);
                 let usg = $me.create_current_usage($matcher);
                 if let Some(f) = $me.flags.iter().filter(|f| f.name == $name).next() {
                     debugln!("It was a flag...");
