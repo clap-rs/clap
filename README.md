@@ -486,6 +486,7 @@ The following graphic depicts `clap`s dependency graph (generated using [cargo-g
 
  * **Dashed** Line: Optional dependency
  * **Red** Color: **NOT** included by default (must use cargo `features` to enable)
+ * **Blue** Color: Dev dependency, only used while developing.
 
 ![clap dependencies](clap_dep_graph.png)
 
