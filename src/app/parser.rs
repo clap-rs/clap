@@ -299,6 +299,13 @@ impl<'a, 'b> Parser<'a, 'b>
         c_pos.dedup();
         c_flags.dedup();
         c_opt.dedup();
+        grps.dedup();
+        let mut args_in_groups = vec![];
+        for g in grps.iter() {
+            for a in self.arg_names_in_group(g).into_iter() {
+                args_in_groups.push(a);
+            }
+        }
 
         let mut pmap = BTreeMap::new();
         for p in c_pos.into_iter() {
@@ -306,10 +313,19 @@ impl<'a, 'b> Parser<'a, 'b>
                 continue;
             }
             if let Some(p) = self.positionals.values().filter(|x| &x.name == &p).next() {
+                if args_in_groups.contains(&p.name) {
+                    continue;
+                }
                 pmap.insert(p.index, p.to_string());
             }
         }
+        debugln!("args_in_groups={:?}", args_in_groups);
         for (_, s) in pmap {
+            if !args_in_groups.is_empty() {
+                if args_in_groups.contains(&&*s) {
+                    continue;
+                }
+            }
             ret_val.push_back(s);
         }
         macro_rules! write_arg {
