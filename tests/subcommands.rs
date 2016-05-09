@@ -1,3 +1,4 @@
+extern crate clap_test;
 extern crate clap;
 
 use clap::{App, Arg, SubCommand};
@@ -59,3 +60,16 @@ fn subcommand_multiple() {
     assert_eq!(sub_m.value_of("test").unwrap(), "testing");
 }
 
+#[test]
+fn subcmd_did_you_mean_output() {
+    clap_test::check_err_output(clap_test::complex_app(), "clap-test subcm",
+"error: The subcommand 'subcm' wasn't recognized
+\tDid you mean 'subcmd' ?
+
+If you believe you received this message in error, try re-running with 'clap-test -- subcm'
+
+USAGE:
+    clap-test [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
+
+For more information try --help", true);
+}

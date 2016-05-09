@@ -296,6 +296,9 @@ impl<'a, 'b> Parser<'a, 'b>
             grps, tmp
         });
         let mut ret_val = VecDeque::new();
+        c_pos.dedup();
+        c_flags.dedup();
+        c_opt.dedup();
 
         let mut pmap = BTreeMap::new();
         for p in c_pos.into_iter() {
@@ -303,7 +306,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 continue;
             }
             if let Some(p) = self.positionals.values().filter(|x| &x.name == &p).next() {
-                pmap.insert(p.index, p.name.to_owned());
+                pmap.insert(p.index, p.to_string());
             }
         }
         for (_, s) in pmap {
@@ -1156,6 +1159,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 debugln!("macro=build_err;");
                 let c_with = $me.blacklisted_from($name, &$matcher);
                 debugln!("'{:?}' conflicts with '{}'", c_with, $name);
+                $matcher.remove($name);
                 let usg = $me.create_current_usage($matcher);
                 if let Some(f) = $me.flags.iter().filter(|f| f.name == $name).next() {
                     debugln!("It was a flag...");

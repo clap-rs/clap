@@ -1,4 +1,5 @@
 extern crate clap;
+extern crate clap_test;
 
 use clap::{App, Arg, ErrorKind, ArgGroup};
 
@@ -294,4 +295,17 @@ fn required_unless_one_err() {
 
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+}
+
+#[test]
+fn missing_required_output() {
+    clap_test::check_err_output(clap_test::complex_app(), "clap-test -F",
+"error: The following required arguments were not provided:
+    <positional2>
+    --long-option-2 <option2>
+
+USAGE:
+    clap-test <positional2> -F --long-option-2 <option2>
+
+For more information try --help", true)
 }

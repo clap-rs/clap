@@ -1,6 +1,56 @@
+extern crate clap_test;
 extern crate clap;
 
-use clap::{App, SubCommand, ErrorKind, Arg};
+use clap::{App, SubCommand, ErrorKind};
+
+static HELP: &'static str = "clap-test v1.4.8
+Kevin K. <kbknapp@gmail.com>
+tests clap library
+
+USAGE:
+    clap-test [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
+
+FLAGS:
+    -f, --flag       tests flags
+    -F               tests flags with exclusions
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -O, --Option <option3>           specific vals [values: fast, slow]
+        --long-option-2 <option2>    tests long options with exclusions
+        --maxvals3 <maxvals>...      Tests 3 max vals
+        --minvals2 <minvals>...      Tests 2 min vals
+        --multvals <one> <two>       Tests mutliple values, not mult occs
+        --multvalsmo <one> <two>     Tests mutliple values, and mult occs
+    -o, --option <opt>...            tests options
+
+ARGS:
+    <positional>        tests positionals
+    <positional2>       tests positionals with exclusions
+    <positional3>...    tests specific values [values: vi, emacs]
+
+SUBCOMMANDS:
+    help      Prints this message or the help of the given subcommand(s)
+    subcmd    tests subcommands
+";
+
+static SC_HELP: &'static str = "subcmd 0.1
+Kevin K. <kbknapp@gmail.com>
+tests subcommands
+
+USAGE:
+    subcmd [FLAGS] [OPTIONS] [--] [ARGS]
+
+FLAGS:
+    -f, --flag    tests flags
+
+OPTIONS:
+    -o, --option <scoption>...    tests options
+
+ARGS:
+    <scpositional>    tests positionals
+";
 
 #[test]
 fn help_short() {
@@ -54,69 +104,44 @@ fn help_subcommand() {
 }
 
 #[test]
-fn print_app_help() {
-    let mut app = App::new("test")
-        .author("Kevin K.")
-        .about("tests stuff")
-        .version("1.3")
-        .args_from_usage("-f, --flag 'some flag'
-                          --option [opt] 'some option'")
-        .arg(Arg::with_name("other")
-            .short("O")
-            .long("other-opt")
-            .takes_value(true)
-            .help("some other opt"));
-    // We call a get_matches method to cause --help and --version to be built
-    let _ = app.get_matches_from_safe_borrow(vec![""]);
+fn subcommand_short_help() {
+    let m = clap_test::complex_app()
+        .get_matches_from_safe(vec!["clap-test", "subcmd", "-h"]);
 
-    // Now we check the output of print_help()
-    let mut help = vec![];
-    app.write_help(&mut help).ok().expect("failed to print help");
-    assert_eq!(&*String::from_utf8_lossy(&*help), &*String::from("test 1.3\n\
-Kevin K.
-tests stuff
-
-USAGE:
-    test [FLAGS] [OPTIONS]
-
-FLAGS:
-    -f, --flag       some flag
-    -h, --help       Prints help information
-    -V, --version    Prints version information
-
-OPTIONS:
-        --option <opt>         some option
-    -O, --other-opt <other>    some other opt\n"));
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
 }
 
 #[test]
-fn possible_values() {
-    let mut app = App::new("test")
-        .author("Kevin K.")
-        .about("tests stuff")
-        .version("1.3")
-        .args(&[Arg::from_usage("-o, --opt [opt] 'some option'").possible_values(&["one", "two"]),
-                Arg::from_usage("[arg1] 'some pos arg'").possible_values(&["three", "four"])]);
-    // We call a get_matches method to cause --help and --version to be built
-    let _ = app.get_matches_from_safe_borrow(vec![""]);
+fn subcommand_long_help() {
+    let m = clap_test::complex_app()
+        .get_matches_from_safe(vec!["clap-test", "subcmd", "--help"]);
 
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
+}
+
+#[test]
+fn subcommand_help_rev() {
+    let m = clap_test::complex_app()
+        .get_matches_from_safe(vec!["clap-test", "help", "subcmd"]);
+
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
+}
+
+#[test]
+fn complex_help_output() {
+    clap_test::check_help(clap_test::complex_app(), HELP);
+}
+
+#[test]
+fn complex_subcommand_help_output() {
+    let mut a = clap_test::complex_app();
+    let _ = a.get_matches_from_safe_borrow(vec![""]);
+    let sc = a.p.subcommands.iter().filter(|s| s.p.meta.name == "subcmd").next().unwrap();
     // Now we check the output of print_help()
     let mut help = vec![];
-    app.write_help(&mut help).expect("failed to print help");
-    assert_eq!(&*String::from_utf8_lossy(&*help), &*String::from("test 1.3\n\
-Kevin K.
-tests stuff
-
-USAGE:
-    test [FLAGS] [OPTIONS] [ARGS]
-
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
-
-OPTIONS:
-    -o, --opt <opt>    some option [values: one, two]
-
-ARGS:
-    <arg1>    some pos arg [values: three, four]\n"));
+    sc.write_help(&mut help).ok().expect("failed to print help");
+    assert_eq!(&*String::from_utf8(help).unwrap(), SC_HELP);
 }

@@ -1,8 +1,0 @@
-[package]
-
-name = "claptests"
-version = "0.0.1"
-authors = ["Kevin K. <kbknapp@gmail.com>"]
-
-[dependencies.clap]
-path = ".."

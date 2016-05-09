@@ -1,9 +1,5 @@
 extern crate clap;
-extern crate regex;
-
-use std::str;
-
-use regex::Regex;
+extern crate clap_test;
 
 use clap::{App, Arg, ArgGroup, ErrorKind};
 
@@ -97,25 +93,20 @@ fn empty_group() {
 
 #[test]
 fn req_group_usage_string() {
-    let re = Regex::new("\x1b[^m]*m").unwrap();
-    let r = App::new("req_group")
+    let app = App::new("req_group")
         .args_from_usage("[base] 'Base commit'
                           -d, --delete 'Remove the base commit information'")
         .group(ArgGroup::with_name("base_or_delete")
             .args(&["base", "delete"])
-            .required(true))
-        .get_matches_from_safe(vec!["req_group"]);
+            .required(true));
 
-    let mut w = vec![];
-    let err = r.unwrap_err();
-    err.write_to(&mut w).unwrap();
-    let err_s = str::from_utf8(&w).unwrap();
-    assert_eq!(re.replace_all(err_s, ""),
+    clap_test::check_err_output(app, "clap-test",
 "error: The following required arguments were not provided:
     <base|--delete>
 
 USAGE:
-    req_group [FLAGS] <base|--delete> [ARGS]
+    clap-test [FLAGS] <base|--delete> [ARGS]
 
-For more information try --help")
+For more information try --help", true);
+
 }

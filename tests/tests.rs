@@ -1,7 +1,89 @@
+extern crate clap_test;
 #[macro_use]
 extern crate clap;
 
 use clap::{App, Arg};
+
+static SCF2OP: &'static str = "flag NOT present
+option NOT present
+positional NOT present
+flag2 NOT present
+option2 maybe present with value of: Nothing
+positional2 maybe present with value of: Nothing
+option3 NOT present
+positional3 NOT present
+option NOT present
+positional NOT present
+subcmd present
+flag present 2 times
+scoption present with value: some
+An scoption: some
+scpositional present with value: value
+";
+
+static SCFOP: &'static str = "flag NOT present
+option NOT present
+positional NOT present
+flag2 NOT present
+option2 maybe present with value of: Nothing
+positional2 maybe present with value of: Nothing
+option3 NOT present
+positional3 NOT present
+option NOT present
+positional NOT present
+subcmd present
+flag present 1 times
+scoption present with value: some
+An scoption: some
+scpositional present with value: value
+";
+
+static O2P: &'static str = "flag NOT present
+option present 2 times with value: some
+An option: some
+An option: other
+positional present with value: value
+flag2 NOT present
+option2 maybe present with value of: Nothing
+positional2 maybe present with value of: Nothing
+option3 NOT present
+positional3 NOT present
+option present 2 times with value: some
+An option: some
+An option: other
+positional present with value: value
+subcmd NOT present
+";
+
+static F2OP: &'static str = "flag present 2 times
+option present 1 times with value: some
+An option: some
+positional present with value: value
+flag2 NOT present
+option2 maybe present with value of: Nothing
+positional2 maybe present with value of: Nothing
+option3 NOT present
+positional3 NOT present
+option present 1 times with value: some
+An option: some
+positional present with value: value
+subcmd NOT present
+";
+
+static FOP: &'static str = "flag present 1 times
+option present 1 times with value: some
+An option: some
+positional present with value: value
+flag2 NOT present
+option2 maybe present with value of: Nothing
+positional2 maybe present with value of: Nothing
+option3 NOT present
+positional3 NOT present
+option present 1 times with value: some
+An option: some
+positional present with value: value
+subcmd NOT present
+";
 
 arg_enum!{
     #[derive(Debug)]
@@ -91,4 +173,157 @@ fn add_multiple_arg() {
                     Arg::with_name("test").short("s"),
                     Arg::with_name("test2").short("l")])
                 .get_matches();
+}
+#[test]
+fn flag_x2_opt() {
+    clap_test::check_complex_output("clap-test value -f -f -o some",
+"flag present 2 times
+option present 1 times with value: some
+An option: some
+positional present with value: value
+flag2 NOT present
+option2 maybe present with value of: Nothing
+positional2 maybe present with value of: Nothing
+option3 NOT present
+positional3 NOT present
+option present 1 times with value: some
+An option: some
+positional present with value: value
+subcmd NOT present
+");
+}
+
+#[test]
+fn long_opt_x2_pos() {
+    clap_test::check_complex_output("clap-test value --option some --option other", O2P);
+}
+
+#[test]
+fn long_opt_eq_x2_pos() {
+    clap_test::check_complex_output("clap-test value --option=some --option=other", O2P);
+}
+
+#[test]
+fn short_opt_x2_pos() {
+    clap_test::check_complex_output("clap-test value -o some -o other", O2P);
+}
+
+#[test]
+fn short_opt_eq_x2_pos() {
+    clap_test::check_complex_output("clap-test value -o=some -o=other", O2P);
+}
+
+#[test]
+fn short_flag_x2_comb_short_opt_pos() {
+    clap_test::check_complex_output("clap-test value -ff -o some", F2OP);
+}
+
+#[test]
+fn short_flag_short_opt_pos() {
+    clap_test::check_complex_output("clap-test value -f -o some", FOP);
+}
+
+#[test]
+fn long_flag_long_opt_pos() {
+    clap_test::check_complex_output("clap-test value --flag --option some", FOP);
+}
+
+#[test]
+fn long_flag_long_opt_eq_pos() {
+    clap_test::check_complex_output("clap-test value --flag --option=some", FOP);
+}
+
+#[test]
+fn sc_long_flag_long_opt() {
+    clap_test::check_complex_output("clap-test subcmd value --flag --option some", SCFOP);
+}
+
+#[test]
+fn sc_long_flag_short_opt_pos() {
+    clap_test::check_complex_output("clap-test subcmd value --flag -o some", SCFOP);
+}
+
+#[test]
+fn sc_long_flag_long_opt_eq_pos() {
+    clap_test::check_complex_output("clap-test subcmd value --flag --option=some", SCFOP);
+}
+
+#[test]
+fn sc_short_flag_long_opt_pos() {
+    clap_test::check_complex_output("clap-test subcmd value -f --option some", SCFOP);
+}
+
+#[test]
+fn sc_short_flag_short_opt_pos() {
+    clap_test::check_complex_output("clap-test subcmd value -f -o some", SCFOP);
+}
+
+#[test]
+fn sc_short_flag_short_opt_eq_pos() {
+    clap_test::check_complex_output("clap-test subcmd value -f -o=some", SCFOP);
+}
+
+#[test]
+fn sc_short_flag_long_opt_eq_pos() {
+    clap_test::check_complex_output("clap-test subcmd value -f --option=some", SCFOP);
+}
+
+#[test]
+fn sc_short_flag_x2_comb_long_opt_pos() {
+    clap_test::check_complex_output("clap-test subcmd value -ff --option some", SCF2OP);
+}
+
+#[test]
+fn sc_short_flag_x2_comb_short_opt_pos() {
+    clap_test::check_complex_output("clap-test subcmd value -ff -o some", SCF2OP);
+}
+
+#[test]
+fn sc_short_flag_x2_comb_long_opt_eq_pos() {
+    clap_test::check_complex_output("clap-test subcmd value -ff --option=some", SCF2OP);
+}
+
+#[test]
+fn sc_short_flag_x2_comb_short_opt_eq_pos() {
+    clap_test::check_complex_output("clap-test subcmd value -ff -o=some", SCF2OP);
+}
+
+#[test]
+fn sc_long_flag_x2_long_opt_pos() {
+    clap_test::check_complex_output("clap-test subcmd value --flag --flag --option some", SCF2OP);
+}
+
+#[test]
+fn sc_long_flag_x2_short_opt_pos() {
+    clap_test::check_complex_output("clap-test subcmd value --flag --flag -o some", SCF2OP);
+}
+
+#[test]
+fn sc_long_flag_x2_short_opt_eq_pos() {
+    clap_test::check_complex_output("clap-test subcmd value --flag --flag -o=some", SCF2OP);
+}
+
+#[test]
+fn sc_long_flag_x2_long_opt_eq_pos() {
+    clap_test::check_complex_output("clap-test subcmd value --flag --flag --option=some", SCF2OP);
+}
+
+#[test]
+fn sc_short_flag_x2_long_opt_pos() {
+    clap_test::check_complex_output("clap-test subcmd value -f -f --option some", SCF2OP);
+}
+
+#[test]
+fn sc_short_flag_x2_short_opt_pos() {
+    clap_test::check_complex_output("clap-test subcmd value -f -f -o some", SCF2OP);
+}
+
+#[test]
+fn sc_short_flag_x2_short_opt_eq_pos() {
+    clap_test::check_complex_output("clap-test subcmd value -f -f -o=some", SCF2OP);
+}
+
+#[test]
+fn sc_short_flag_x2_long_opt_eq_pos() {
+    clap_test::check_complex_output("clap-test subcmd value -f -f --option=some", SCF2OP);
 }
