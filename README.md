@@ -38,6 +38,10 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's what's new in v.2.5.0
+
+* Subcommands now support aliases - think of them as hidden subcommands that dispatch to said subcommand automatically
+
 Here's what's new in v2.4.3
 
 * Bug Fixes
@@ -499,7 +503,6 @@ The following graphic depicts `clap`s dependency graph (generated using [cargo-g
  * **Blue** Color: Dev dependency, only used while developing.
 
 ![clap dependencies](clap_dep_graph.png)
-
 ### More Information
 
 You can find complete documentation on the [github-pages site](http://kbknapp.github.io/clap-rs/clap/index.html) for this project.
@@ -508,11 +511,9 @@ You can also find usage examples in the [examples/](examples) directory of this 
 
 #### Video Tutorials
 
-There's also the video tutorial series [Argument Parsing with Rust](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv) that I've been working on.
+There's also the video tutorial series [Argument Parsing with Rust](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv).
 
-*Note*: Two new videos have just been added ([08 From Usage](https://youtu.be/xc6VdedFrG0), and [09 Typed Values](https://youtu.be/mZn3C1DnD90)), if you're already familiar with `clap` but want to know more about these two details you can check out those videos without watching the previous few.
-
-*Note*: Apologies for the resolution of the first video, it will be updated to a better resolution soon. The other videos have a proper resolution.
+**NOTE:** This series is getting out of date and needs to be updated
 
 ## How to Contribute
 
@@ -527,7 +528,9 @@ Please read [CONTRIBUTING.md](.github/CONTRIBUTING.md) before you start contribu
 If contributing, you can run the tests as follows (assuming you're in the `clap-rs` directory)
 
 ```
-$ cargo test && make -C clap-tests test
+$ cargo test
+
+# If your tests affect the YAML feature set
 $ cargo test --features yaml
 
 # Only on nightly compiler:

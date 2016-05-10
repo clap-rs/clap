@@ -1,3 +1,16 @@
+<a name="v2.5.0"></a>
+## v2.5.0 (2016-05-10)
+
+
+#### Improvements
+
+* **SubCommand Aliases:**  adds feature to yaml configs too ([69592195](https://github.com/kbknapp/clap-rs/commit/695921954dde46dfd483399dcdef482c9dd7f34a))
+
+#### Features
+
+* **SubCommands:**  adds support for subcommand aliases ([66b4dea6](https://github.com/kbknapp/clap-rs/commit/66b4dea65c44d8f77ff522238a9237aed1bcab6d), closes [#469](https://github.com/kbknapp/clap-rs/issues/469))
+
+
 <a name="v2.4.3"></a>
 ### v2.4.3 (2016-05-10)
 
