@@ -1,5 +1,7 @@
-extern crate clap_test;
 extern crate clap;
+extern crate regex;
+
+include!("../clap-test.rs");
 
 use clap::{App, Arg};
 
@@ -172,7 +174,7 @@ fn default_values_user_value() {
 
 #[test]
 fn did_you_mean() {
-    clap_test::check_err_output(clap_test::complex_app(), "clap-test --optio=foo",
+    test::check_err_output(test::complex_app(), "clap-test --optio=foo",
 "error: Found argument '--optio' which wasn't expected, or isn't valid in this context
 \tDid you mean --option ?
 

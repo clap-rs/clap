@@ -1,5 +1,7 @@
-extern crate clap_test;
 extern crate clap;
+extern crate regex;
+
+include!("../clap-test.rs");
 
 use clap::{App, Arg, ErrorKind, ArgGroup};
 
@@ -77,10 +79,10 @@ fn group_conflict_2() {
 
 #[test]
 fn conflict_output() {
-    clap_test::check_err_output(clap_test::complex_app(), "clap-test val1 --flag --long-option-2 val2 -F", CONFLICT_ERR, true);
+    test::check_err_output(test::complex_app(), "clap-test val1 --flag --long-option-2 val2 -F", CONFLICT_ERR, true);
 }
 
 #[test]
 fn conflict_output_rev() {
-    clap_test::check_err_output(clap_test::complex_app(), "clap-test val1 -F --long-option-2 val2 --flag", CONFLICT_ERR_REV, true);
+    test::check_err_output(test::complex_app(), "clap-test val1 -F --long-option-2 val2 --flag", CONFLICT_ERR_REV, true);
 }
