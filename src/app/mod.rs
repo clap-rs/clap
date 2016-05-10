@@ -974,6 +974,13 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
                 }
             }
         }
+        if let Some(v) = yaml["aliases"].as_vec() {
+            for ys in v {
+                if let Some(s) = ys.as_str() {
+                    a = a.alias(s);
+                }
+            }
+        }
         if let Some(v) = yaml["args"].as_vec() {
             for arg_yaml in v {
                 a = a.arg(Arg::from_yaml(&arg_yaml.as_hash().unwrap()));
