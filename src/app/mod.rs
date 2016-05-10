@@ -504,6 +504,56 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
+    /// Allows adding a subcommand alias, which function as "hidden" subcommands that automatically
+    /// dispatch as if this subcommand was used. This is more efficient, and easier than creating
+    /// multiple hidden subcommands as one only needs to check for the existing of this command,
+    /// and not all vairants.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, SubCommand};
+    /// let m = App::new("myprog")
+    ///             .subcommand(SubCommand::with_name("test")
+    ///                 .alias("do-stuff"))
+    ///             .get_matches_from(vec!["myprog", "do-stuff"]);
+    /// assert_eq!(m.subcommand_name(), Some("test"));
+    /// ```
+    pub fn alias<S: Into<&'b str>>(mut self, name: S) -> Self {
+        if let Some(ref mut als) = self.p.meta.aliases {
+            als.push(name.into());
+        } else {
+            self.p.meta.aliases = Some(vec![name.into()]);
+        }
+        self
+    }
+
+    /// Allows adding subcommand aliases, which function as "hidden" subcommands that automatically
+    /// dispatch as if this subcommand was used. This is more efficient, and easier than creating
+    /// multiple hidden subcommands as one only needs to check for the existing of this command,
+    /// and not all vairants.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, SubCommand};
+    /// let m = App::new("myprog")
+    ///             .subcommand(SubCommand::with_name("test")
+    ///                 .aliases(&["do-stuff", "do-tests", "tests"]))
+    ///             .get_matches_from(vec!["myprog", "do-tests"]);
+    /// assert_eq!(m.subcommand_name(), Some("test"));
+    /// ```
+    pub fn aliases<S: AsRef<str> + 'b>(mut self, names: &'b [S]) -> Self {
+        if let Some(ref mut als) = self.p.meta.aliases {
+            for n in names {
+                als.push(n.as_ref());
+            }
+        } else {
+            self.p.meta.aliases = Some(names.iter().map(|n| n.as_ref()).collect());
+        }
+        self
+    }
+
     /// Adds an `ArgGroup` to the application. `ArgGroup`s are a family of related arguments. By
     /// placing them in a logical group, you can build easier requirement and exclusion rules. For
     /// instance, you can make an entire `ArgGroup` required, meaning that one (and *only* one)

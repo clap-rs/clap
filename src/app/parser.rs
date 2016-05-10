@@ -466,7 +466,16 @@ impl<'a, 'b> Parser<'a, 'b>
 
             // Has the user already passed '--'?
             if !pos_only {
-                let pos_sc = self.subcommands.iter().any(|s| &s.p.meta.name[..] == &*arg_os);
+                // Does the arg match a subcommand name, or any of it's aliases (if defined)
+                let pos_sc = self.subcommands
+                                 .iter()
+                                 .any(|s| &s.p.meta.name[..] == &*arg_os ||
+                                     (s.p.meta.aliases.is_some() &&
+                                     s.p.meta.aliases
+                                             .as_ref()
+                                             .unwrap()
+                                             .iter()
+                                             .any(|&a| a == &*arg_os)));
                 if (!starts_new_arg || self.is_set(AppSettings::AllowLeadingHyphen)) && !pos_sc {
                     // Check to see if parsing a value from an option
                     if let Some(nvo) = needs_val_of {
@@ -603,7 +612,26 @@ impl<'a, 'b> Parser<'a, 'b>
            !reqs_validated {
             try!(self.validate_required(matcher));
         }
-        if let Some(sc_name) = subcmd_name {
+        if let Some(pos_sc_name) = subcmd_name {
+            // is this is a real subcommand, or an alias
+            let sc_name = if self.subcommands.iter().any(|sc| sc.p.meta.name == pos_sc_name) {
+                pos_sc_name
+            } else {
+                self.subcommands
+                    .iter()
+                    .filter(|sc| sc.p.meta.aliases.is_some())
+                    .filter_map(|sc| if sc.p.meta.aliases
+                                                 .as_ref()
+                                                 .unwrap()
+                                                 .iter()
+                                                 .any(|&a| a == &*pos_sc_name) {
+                         Some(sc.p.meta.name.clone())
+                     } else {
+                         None
+                     })
+                    .next()
+                    .expect(INTERNAL_ERROR_MSG)
+            };
             try!(self.parse_subcommand(sc_name, matcher, it));
         } else if self.is_set(AppSettings::SubcommandRequired) {
             let bn = self.meta.bin_name.as_ref().unwrap_or(&self.meta.name);
