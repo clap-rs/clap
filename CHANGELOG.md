@@ -1,5 +1,5 @@
-<a name="v2.4.2"></a>
-### v2.4.2 (2016-05-10)
+<a name="v2.4.3"></a>
+### v2.4.3 (2016-05-10)
 
 
 #### Bug Fixes
@@ -15,7 +15,15 @@
   *  moves positionals to standard <> formatting ([03dfe5ce](https://github.com/kbknapp/clap-rs/commit/03dfe5ceff1d63f172788ff688567ddad9fe119b))
   *  default help subcommand string has been shortened ([5b7fe8e4](https://github.com/kbknapp/clap-rs/commit/5b7fe8e4161e43ab19e2e5fcf55fbe46791134e9), closes [#494](https://github.com/kbknapp/clap-rs/issues/494))
 
+<a name="v2.4.2"></a>
+### v2.4.3 (2016-05-10)
 
+* Ghost Release
+
+<a name="v2.4.1"></a>
+### v2.4.3 (2016-05-10)
+
+* Ghost Release
 
 <a name="v2.4.0"></a>
 ## v2.4.0 (2016-05-02)

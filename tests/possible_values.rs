@@ -1,5 +1,7 @@
-extern crate clap_test;
 extern crate clap;
+extern crate regex;
+
+include!("../clap-test.rs");
 
 use clap::{App, Arg, ErrorKind};
 
@@ -147,5 +149,5 @@ fn possible_values_of_option_multiple_fail() {
 
 #[test]
 fn possible_values_output() {
-    clap_test::check_err_output(clap_test::complex_app(), "clap-test -O slo", PV_ERROR, true);
+    test::check_err_output(test::complex_app(), "clap-test -O slo", PV_ERROR, true);
 }

@@ -1,5 +1,7 @@
 extern crate clap;
-extern crate clap_test;
+extern crate regex;
+
+include!("../clap-test.rs");
 
 use clap::{App, Arg, ErrorKind, ArgGroup};
 
@@ -299,7 +301,7 @@ fn required_unless_one_err() {
 
 #[test]
 fn missing_required_output() {
-    clap_test::check_err_output(clap_test::complex_app(), "clap-test -F",
+    test::check_err_output(test::complex_app(), "clap-test -F",
 "error: The following required arguments were not provided:
     <positional2>
     --long-option-2 <option2>

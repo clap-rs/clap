@@ -1,5 +1,7 @@
 extern crate clap;
-extern crate clap_test;
+extern crate regex;
+
+include!("../clap-test.rs");
 
 use clap::{App, Arg, ArgGroup, ErrorKind};
 
@@ -100,7 +102,7 @@ fn req_group_usage_string() {
             .args(&["base", "delete"])
             .required(true));
 
-    clap_test::check_err_output(app, "clap-test",
+    test::check_err_output(app, "clap-test",
 "error: The following required arguments were not provided:
     <base|--delete>
 
@@ -120,7 +122,7 @@ fn req_group_with_conflict_usage_string() {
             .args(&["base", "delete"])
             .required(true));
 
-    clap_test::check_err_output(app, "clap-test --delete base",
+    test::check_err_output(app, "clap-test --delete base",
 "error: The argument '--delete' cannot be used with 'base'
 
 USAGE:
@@ -139,7 +141,7 @@ fn req_group_with_conflict_rev_usage_string() {
             .args(&["base", "delete"])
             .required(true));
 
-    clap_test::check_err_output(app, "clap-test --delete base",
+    test::check_err_output(app, "clap-test --delete base",
 "error: The argument '--delete' cannot be used with 'base'
 
 USAGE:

@@ -1,5 +1,7 @@
-extern crate clap_test;
 extern crate clap;
+extern crate regex;
+
+include!("../clap-test.rs");
 
 use clap::{App, SubCommand, ErrorKind};
 
@@ -105,7 +107,7 @@ fn help_subcommand() {
 
 #[test]
 fn subcommand_short_help() {
-    let m = clap_test::complex_app()
+    let m = test::complex_app()
         .get_matches_from_safe(vec!["clap-test", "subcmd", "-h"]);
 
     assert!(m.is_err());
@@ -114,7 +116,7 @@ fn subcommand_short_help() {
 
 #[test]
 fn subcommand_long_help() {
-    let m = clap_test::complex_app()
+    let m = test::complex_app()
         .get_matches_from_safe(vec!["clap-test", "subcmd", "--help"]);
 
     assert!(m.is_err());
@@ -123,7 +125,7 @@ fn subcommand_long_help() {
 
 #[test]
 fn subcommand_help_rev() {
-    let m = clap_test::complex_app()
+    let m = test::complex_app()
         .get_matches_from_safe(vec!["clap-test", "help", "subcmd"]);
 
     assert!(m.is_err());
@@ -132,12 +134,12 @@ fn subcommand_help_rev() {
 
 #[test]
 fn complex_help_output() {
-    clap_test::check_help(clap_test::complex_app(), HELP);
+    test::check_help(test::complex_app(), HELP);
 }
 
 #[test]
 fn complex_subcommand_help_output() {
-    let mut a = clap_test::complex_app();
+    let mut a = test::complex_app();
     let _ = a.get_matches_from_safe_borrow(vec![""]);
     let sc = a.p.subcommands.iter().filter(|s| s.p.meta.name == "subcmd").next().unwrap();
     // Now we check the output of print_help()

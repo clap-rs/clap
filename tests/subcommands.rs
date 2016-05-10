@@ -1,5 +1,7 @@
-extern crate clap_test;
 extern crate clap;
+extern crate regex;
+
+include!("../clap-test.rs");
 
 use clap::{App, Arg, SubCommand};
 
@@ -62,7 +64,7 @@ fn subcommand_multiple() {
 
 #[test]
 fn subcmd_did_you_mean_output() {
-    clap_test::check_err_output(clap_test::complex_app(), "clap-test subcm",
+    test::check_err_output(test::complex_app(), "clap-test subcm",
 "error: The subcommand 'subcm' wasn't recognized
 \tDid you mean 'subcmd' ?
 
