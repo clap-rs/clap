@@ -38,7 +38,7 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-Here's what's new in v2.4.1
+Here's what's new in v2.4.2
 
 * Bug Fixes
  * Usage strings get de-deuplicated when there are args which are also part ``ArgGroup`s`
