@@ -38,6 +38,16 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's what's new in v2.4.1
+
+* Bug Fixes
+ * Usage strings get de-deuplicated when there are args which are also part ``ArgGroup`s`
+ * Fixed times when `ArgGroup`s are duplicated in usage strings
+* Improvements
+ * Positional arguments which are part of a group are now formatted in a more readable way (fewer brackets)
+ * Positional arguments use the standard `<>` brackets to reduce confusion
+ * The default help string for the `help` subcommand has been shortened to fit in 80 columns 
+
 Here's the highlights from v2.4.0
 
 * **Before Help:**  adds support for displaying info before help message 

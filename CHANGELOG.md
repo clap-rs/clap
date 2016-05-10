@@ -1,3 +1,22 @@
+<a name="v2.4.1"></a>
+### v2.4.1 (2016-05-10)
+
+
+#### Bug Fixes
+
+* **Usage Strings:**
+  *  now properly dedups args that are also in groups ([3ca0947c](https://github.com/kbknapp/clap-rs/commit/3ca0947c166b4f8525752255e3a4fa6565eb9689), closes [#498](https://github.com/kbknapp/clap-rs/issues/498))
+  *  removes duplicate groups from usage strings ([f574fb8a](https://github.com/kbknapp/clap-rs/commit/f574fb8a7cde4d4a2fa4c4481d59be2d0f135427))
+
+#### Improvements
+
+* **Groups:**  formats positional args in groups in a better way ([fef11154](https://github.com/kbknapp/clap-rs/commit/fef11154fb7430d1cbf04a672aabb366e456a368))
+* **Help:**
+  *  moves positionals to standard <> formatting ([03dfe5ce](https://github.com/kbknapp/clap-rs/commit/03dfe5ceff1d63f172788ff688567ddad9fe119b))
+  *  default help subcommand string has been shortened ([5b7fe8e4](https://github.com/kbknapp/clap-rs/commit/5b7fe8e4161e43ab19e2e5fcf55fbe46791134e9), closes [#494](https://github.com/kbknapp/clap-rs/issues/494))
+
+
+
 <a name="v2.4.0"></a>
 ## v2.4.0 (2016-05-02)
 

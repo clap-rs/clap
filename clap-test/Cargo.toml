@@ -2,6 +2,7 @@
 name = "clap-test"
 version = "0.1.0"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
+exclude = ["Cargo.lock"]
 description = "functions and macros to assist in testing clap"
 license = "MIT"
 

@@ -1,9 +1,9 @@
 [package]
 
 name = "clap"
-version = "2.4.0"
+version = "2.4.1"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
-exclude = ["examples/*", "clap-tests/*", "tests/*", "benches/*", "*.png", "clap-perf/*"]
+exclude = ["examples/*", "clap-test/*", "tests/*", "benches/*", "*.png", "clap-perf/*", "*.dot"]
 description = "A simple to use, efficient, and full featured  Command Line Argument Parser"
 repository = "https://github.com/kbknapp/clap-rs.git"
 documentation = "http://kbknapp.github.io/clap-rs"
@@ -22,7 +22,7 @@ clippy    = { version = "=0.0.64", optional = true }
 unicode-width = { version = "~0.1.3",  optional = true }
 
 [dev-dependencies]
-clap-test = { path = "clap-test/" }
+clap-test = { path = "clap-test/", version = "0.1.0"}
 
 [features]
 default     = ["suggestions", "color", "wrap_help"]
