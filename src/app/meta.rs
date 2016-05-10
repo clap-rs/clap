@@ -8,6 +8,7 @@ pub struct AppMeta<'b> {
     pub about: Option<&'b str>,
     pub more_help: Option<&'b str>,
     pub pre_help: Option<&'b str>,
+    pub aliases: Option<Vec<&'b str>>,
     pub usage_str: Option<&'b str>,
     pub usage: Option<String>,
     pub help_str: Option<&'b str>,
@@ -30,6 +31,7 @@ impl<'b> Default for AppMeta<'b> {
             help_str: None,
             disp_ord: 999,
             template: None,
+            aliases: None,
         }
     }
 }
@@ -58,6 +60,7 @@ impl<'b> Clone for AppMeta<'b> {
             help_str: self.help_str,
             disp_ord: self.disp_ord,
             template: self.template,
+            aliases: self.aliases.clone(),
         }
     }
 }

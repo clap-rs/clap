@@ -63,6 +63,24 @@ fn subcommand_multiple() {
 }
 
 #[test]
+fn single_alias() {
+    let m = App::new("myprog")
+                .subcommand(SubCommand::with_name("test")
+                    .alias("do-stuff"))
+                .get_matches_from(vec!["myprog", "do-stuff"]);
+    assert_eq!(m.subcommand_name(), Some("test"));
+}
+
+#[test]
+fn multiple_aliases() {
+    let m = App::new("myprog")
+                .subcommand(SubCommand::with_name("test")
+                    .aliases(&["do-stuff", "test-stuff"]))
+                .get_matches_from(vec!["myprog", "test-stuff"]);
+    assert_eq!(m.subcommand_name(), Some("test"));
+}
+
+#[test]
 fn subcmd_did_you_mean_output() {
     test::check_err_output(test::complex_app(), "clap-test subcm",
 "error: The subcommand 'subcm' wasn't recognized
