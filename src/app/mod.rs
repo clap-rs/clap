@@ -535,11 +535,15 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, SubCommand};
     /// let m = App::new("myprog")
     ///             .subcommand(SubCommand::with_name("test")
     ///                 .aliases(&["do-stuff", "do-tests", "tests"]))
+    ///                 .arg(Arg::with_name("input")
+    ///                             .help("the file to add")
+    ///                             .index(1)
+    ///                             .required(true))
     ///             .get_matches_from(vec!["myprog", "do-tests"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
