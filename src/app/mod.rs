@@ -543,17 +543,17 @@ impl<'a, 'b> App<'a, 'b> {
     ///                 .arg(Arg::with_name("input")
     ///                             .help("the file to add")
     ///                             .index(1)
-    ///                             .required(true))
+    ///                             .required(false))
     ///             .get_matches_from(vec!["myprog", "do-tests"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
-    pub fn aliases<S: AsRef<str> + 'b>(mut self, names: &'b [S]) -> Self {
+    pub fn aliases(mut self, names: &[&'b str]) -> Self {
         if let Some(ref mut als) = self.p.meta.aliases {
             for n in names {
-                als.push(n.as_ref());
+                als.push(n);
             }
         } else {
-            self.p.meta.aliases = Some(names.iter().map(|n| n.as_ref()).collect());
+            self.p.meta.aliases = Some(names.iter().map(|n| *n).collect::<Vec<_>>());
         }
         self
     }
