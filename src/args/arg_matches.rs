@@ -6,8 +6,7 @@ use std::borrow::Cow;
 
 use vec_map;
 
-use args::SubCommand;
-use args::MatchedArg;
+use args::{SubCommand, SubCommandKey, MatchedArg};
 use INVALID_UTF8;
 
 /// Used to get information about the arguments that where supplied to the program at runtime by
@@ -307,7 +306,7 @@ impl<'a> ArgMatches<'a> {
     /// ```
     pub fn is_present<S: AsRef<str>>(&self, name: S) -> bool {
         if let Some(ref sc) = self.subcommand {
-            if sc.name == name.as_ref() {
+            if sc.name.to_str().unwrap_or("") == name.as_ref() {
                 return true;
             }
         }

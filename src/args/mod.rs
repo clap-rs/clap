@@ -7,6 +7,7 @@ pub use self::matched_arg::MatchedArg;
 pub use self::group::ArgGroup;
 pub use self::any_arg::{AnyArg, DispOrder};
 pub use self::settings::ArgSettings;
+pub use self::subcommand::SubCommandKey;
 
 mod arg;
 pub mod any_arg;

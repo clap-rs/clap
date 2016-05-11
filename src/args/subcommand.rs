@@ -1,3 +1,6 @@
+use std::ffi::OsString;
+use std::ffi::OsStr;
+
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
@@ -28,7 +31,7 @@ use ArgMatches;
 #[derive(Debug, Clone)]
 pub struct SubCommand<'a> {
     #[doc(hidden)]
-    pub name: String,
+    pub name: OsString,
     #[doc(hidden)]
     pub matches: ArgMatches<'a>,
 }
@@ -46,8 +49,9 @@ impl<'a> SubCommand<'a> {
     ///         SubCommand::with_name("config"))
     /// # ;
     /// ```
-    pub fn with_name<'b>(name: &str) -> App<'a, 'b> {
-        App::new(name)
+    pub fn with_name<'b, T>(t: T) -> App<'a, 'b>
+        where T: AsRef<str> {
+        App::new(t.as_ref())
     }
 
     /// Creates a new instance of a subcommand from a YAML (.yml) document
@@ -62,5 +66,23 @@ impl<'a> SubCommand<'a> {
     #[cfg(feature = "yaml")]
     pub fn from_yaml<'y>(yaml: &'y Yaml) -> App<'y, 'y> {
         App::from_yaml(yaml)
+    }
+}
+
+// Users shouldn't have to worry about this, used internally to give a from_str which doesn't
+// return a `Result`
+#[doc(hidden)]
+pub trait SubCommandKey {
+    fn from_os_str(s: &OsStr) -> Self;
+    fn external(args: Vec<OsString>) -> Option<Self> where Self: Sized;
+}
+
+impl<'a> SubCommandKey for &'a str {
+    fn from_os_str(s: &OsStr) -> Self {
+        use std::mem;
+        unsafe { mem::transmute(s) } // should not actually be called in the real world
+    }
+    fn external(_: Vec<OsString>) -> Option<Self> {
+        None
     }
 }
