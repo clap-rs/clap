@@ -1,3 +1,13 @@
+<a name="v2.5.1"></a>
+### v2.5.1 (2016-05-11)
+
+
+#### Bug Fixes
+
+* **Subcommand Aliases**: fixes lifetime issue when setting multiple aliases at once ([ac42f6cf0](https://github.com/kbknapp/clap-rs/commit/ac42f6cf0de6c4920f703807d63061803930b18d))
+
+
+
 <a name="v2.5.0"></a>
 ## v2.5.0 (2016-05-10)
 
