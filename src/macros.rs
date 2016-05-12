@@ -551,14 +551,30 @@ macro_rules! clap_app {
 /// NonExaustive matches. Likewise, if you make a simple spelling or typing
 /// error.
 ///
-/// # External Subcommands
-///
-/// FIXME: add docs for external subcomands with examples
-///
 /// **Pro Tip:** It's good practice to make the name of the enum the same as
 /// the parent command, and the variants the names of the actual subcommands
 ///
+/// # External Subcommands
+///
+/// If you wish to support external subcommands, there are two simple things one must do. First,
+/// when using the `subcommands!` macro, the **first** variant you name, **must** be `External`,
+/// this tells the macro to generate all the appropriate portions to support external subcommands.
+/// Second, you must use the `AppSettings::AllowExternalSubcommands` setting.
+///
+/// After doing these two things, if a possible external subcommand is recognized, `clap` will
+/// return the `External(Vec<OsString>)` variant. The wrapped `Vec` contains the args that were
+/// passed to the possible external subcommand (including the subcommand itself). Thse are stored
+/// as `OsString`s since it's possible contain invalid UTF-8 code points on some platforms.
+///
+/// **Pro Tip**: If you wish to get `&str`s instead and you're *sure* they won't contain invalid
+/// UTF-8, or you don't wish to support invalid UTF-8, it's as simple as using the following
+/// iterator chain on the returned `Vec`: `v.iter().map(|s| s.to_str().expect("Invalid
+/// UTF-8")).collect::<Vec<_>>()`
+///
 /// # Examples
+///
+/// First, an example showing the most basic use of the macro. (i.e. enum variants are used
+/// literally)
 ///
 /// ```rust
 /// # #[macro_use]
@@ -573,17 +589,6 @@ macro_rules! clap_app {
 ///     }
 /// }
 ///
-/// // Alternatively, if you wish to have variants which display
-/// // differently, or contain hyphens ("-") one can use this variation of
-/// // the macro
-/// subcommands!{
-///     enum MyProgAlt {
-///         Show => "show",
-///         Delete => "delete",
-///         DoStuff => "do-stuff"
-///     }
-/// }
-///
 /// fn main() {
 ///     let m = App::new("myprog")
 ///         .subcommand(SubCommand::with_name(MyProg::show))
@@ -595,6 +600,72 @@ macro_rules! clap_app {
 ///         Some((MyProg::show, _)) => println!("'myprog show' was used"),
 ///         Some((MyProg::delete, _)) => println!("'myprog delete' was used"),
 ///         Some((MyProg::make, _)) => println!("'myprog make' was used"),
+///         None => println!("No subcommand was used"),
+///     }
+/// }
+/// ```
+///
+/// Next, if you wish to support subcommands with things like hyphen characters, or don't like having
+/// non-camel-case types, a second version of the macro exists which allows specifying a literal subcommand
+/// which gets associated with a enum variant.
+///
+/// ```rust
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::{App, SubCommand};
+/// subcommands!{
+///     enum MyProg {
+///         Show => "show",
+///         Delete => "delete",
+///         DoStuff => "do-stuff"
+///     }
+/// }
+/// fn main() {
+///     use MyProg::*;
+///     let m = App::new("myprog")
+///         .subcommand(SubCommand::with_name(Show))
+///         .subcommand(SubCommand::with_name(Delete))
+///         .subcommand(SubCommand::with_name(DoStuff))
+///         .get_matches_from(vec!["myprog", "show"]);
+///
+///     match m.subcommand() {
+///         Some((Show, _)) => println!("'myprog show' was used"),
+///         Some((Delete, _)) => println!("'myprog delete' was used"),
+///         Some((DoStuff, _)) => println!("'myprog make' was used"),
+///         None => println!("No subcommand was used"),
+///     }
+/// }
+/// ```
+///
+/// Finally, if one wishes to support external subcommands, simply ensure the first variant is called
+/// `External` and the appropriate `AppSettings` variant is used.
+///
+/// ```rust
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::{App, SubCommand, AppSettings};
+/// subcommands!{
+///     enum MyProg {
+///         External,
+///         Show => "show",
+///         Delete => "delete",
+///         DoStuff => "do-stuff"
+///     }
+/// }
+/// fn main() {
+///     use MyProg::*;
+///     let m = App::new("myprog")
+///         .subcommand(SubCommand::with_name(Show))
+///         .subcommand(SubCommand::with_name(Delete))
+///         .subcommand(SubCommand::with_name(DoStuff))
+///         .setting(AppSettings::AllowExternalSubcommands)
+///         .get_matches_from(vec!["myprog", "show"]);
+///
+///     match m.subcommand() {
+///         Some((Show, _)) => println!("'myprog show' was used"),
+///         Some((Delete, _)) => println!("'myprog delete' was used"),
+///         Some((DoStuff, _)) => println!("'myprog make' was used"),
+///         Some((External(ref v), _)) => println!("An external subcommand: {:?}", v),
 ///         None => println!("No subcommand was used"),
 ///     }
 /// }
