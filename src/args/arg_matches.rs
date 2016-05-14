@@ -506,6 +506,19 @@ impl<'a> ArgMatches<'a> {
 // commit: be5e1fa3c26e351761b33010ddbdaf5f05dbcc33
 // license: MIT - Copyright (c) 2015 The Rust Project Developers
 
+/// An iterator for getting multiple values out of an argument via the `Arg::values_of` method.
+///
+/// # Examples
+///
+/// ```rust
+/// # use clap::{App, Arg};
+/// let m = App::new("myapp")
+///     .arg(Arg::with_name("output")
+///         .takes_value(true))
+///     .get_matches_from(vec!["myapp", "something"]);
+///
+/// assert_eq!(m.value_of("output"), Some("something"));
+/// ```
 #[derive(Clone)]
 #[allow(missing_debug_implementations)]
 pub struct Values<'a> {
@@ -576,6 +589,23 @@ impl<'a, V> DoubleEndedIterator for Iter<'a, V> {
     }
 }
 
+/// An iterator for getting multiple values out of an argument via the `Arg::values_of_os` method.
+/// Usage of this iterator allows values which contain invalid UTF-8 code points unlike `Values`.
+///
+/// # Examples
+///
+/// ```ignore
+/// # use clap::{App, Arg};
+/// use std::ffi::OsString;
+/// use std::os::unix::ffi::OsStrExt;
+///
+/// let m = App::new("utf8")
+///     .arg(Arg::from_usage("<arg> 'some arg'"))
+///     .get_matches_from(vec![OsString::from("myprog"),
+///                             // "Hi {0xe9}!"
+///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
+/// assert_eq!(&*m.value_of_os("arg").unwrap().as_bytes(), [b'H', b'i', b' ', 0xe9, b'!']);
+/// ```
 #[derive(Clone)]
 #[allow(missing_debug_implementations)]
 pub struct OsValues<'a> {
