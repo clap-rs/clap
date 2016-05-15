@@ -77,16 +77,18 @@ impl AppFlags {
     }
 }
 
-/// Application level settings, which affect how `App` operates
+/// Application level settings, which affect how [`App`] operates
 ///
 /// **NOTE:** When these settings are used, they apply only to current command, and are *not*
 /// propagated down or up through child or parent subcommands
+///
+/// [`App`]: ./struct.App.html
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum AppSettings {
-    /// Allows subcommands to override all requirements of the parent command. For example
-    /// if you had a subcommand or top level application which had a required argument that
-    /// are only required as long as there is no subcommand present, using this setting would allow
-    /// you set those arguments to `required(true)` and yet receive no error so long as the user
+    /// Allows [`SubCommand`]s to override all requirements of the parent command. For example if you
+    /// had a subcommand or top level application which had a required argument that are only
+    /// required as long as there is no subcommand present, using this setting would allow you set
+    /// those arguments to [`Arg::required(true)`] and yet receive no error so long as the user
     /// uses a valid subcommand instead.
     ///
     /// **NOTE:** This defaults to false (using subcommand does *not* negate requirements)
@@ -124,10 +126,13 @@ pub enum AppSettings {
     /// assert!(noerr.is_ok());
     /// # ;
     /// ```
+    /// [`Arg::required(true)`]: ./struct.Arg.html#method.required
+    /// [`SubCommand`]: ./struct.SubCommand.html
     SubcommandsNegateReqs,
-    /// Allows specifying that if no subcommand is present at runtime, error and exit gracefully
+    /// Allows specifying that if no [`SubCommand`] is present at runtime, error and exit
+    /// gracefully
     ///
-    /// **NOTE:** This defaults to false (subcommands do *not* need to be present)
+    /// **NOTE:** This defaults to `false` (subcommands do *not* need to be present)
     ///
     /// # Examples
     ///
@@ -143,11 +148,12 @@ pub enum AppSettings {
     /// assert_eq!(err.unwrap_err().kind, ErrorKind::MissingSubcommand);
     /// # ;
     /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
     SubcommandRequired,
     /// Specifies that the help text should be displayed (and then exit gracefully), if no
     /// arguments are present at runtime (i.e. an empty run such as, `$ myprog`.
     ///
-    /// **NOTE:** Subcommands count as arguments
+    /// **NOTE:** [`SubCommand`]s count as arguments
     ///
     /// # Examples
     ///
@@ -157,9 +163,10 @@ pub enum AppSettings {
     ///     .setting(AppSettings::ArgRequiredElseHelp)
     /// # ;
     /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
     ArgRequiredElseHelp,
-    /// Specifies to version of the current command for all child subcommands. (Defaults to false;
-    /// subcommands have independant version strings from their parents)
+    /// Specifies to use the version of the current command for all child [`SubCommand`]. (Defaults
+    /// to `false`; subcommands have independant version strings from their parents)
     ///
     /// **NOTE:** The version for the current command **and** this setting must be set **prior** to
     /// adding any child subcommands
@@ -176,9 +183,10 @@ pub enum AppSettings {
     /// // running `$ myprog test --version` will display
     /// // "myprog-test v1.1"
     /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
     GlobalVersion,
-    /// Disables `-V` and `--version` for all subcommands (Defaults to false; subcommands have
-    /// version flags)
+    /// Disables `-V` and `--version` for all [`SubCommand`]s (Defaults to `false`; subcommands
+    /// *do* have version flags)
     ///
     /// **NOTE:** This setting must be set **prior** adding any subcommands
     ///
@@ -196,9 +204,12 @@ pub enum AppSettings {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
     VersionlessSubcommands,
     /// Groups flags and options together presenting a more unified help message (a la `getopts` or
-    /// `docopt` style). The default is the auto-generated help message groups flags, options
+    /// `docopt` style).
+    ///
+    /// The default is that the auto-generated help message will group flags, and options
     /// separately.
     ///
     /// **NOTE:** This setting is cosmetic only and does not affect any functionality.
@@ -220,7 +231,7 @@ pub enum AppSettings {
     /// Windows where a user tries to open the binary by double-clicking instead of using the
     /// command line.
     ///
-    /// **NOTE:** This setting is **not** recursive with subcommands, meaning if you wish this
+    /// **NOTE:** This setting is **not** recursive with [`SubCommand`]s, meaning if you wish this
     /// behavior for all subcommands, you must set this on each command (needing this is extremely
     /// rare)
     ///
@@ -232,16 +243,17 @@ pub enum AppSettings {
     ///     .setting(AppSettings::WaitOnError)
     /// # ;
     /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
     WaitOnError,
     /// Specifies that the help text should be displayed (and then exit gracefully), if no
-    /// subcommands are present at runtime (i.e. an empty run such as, `$ myprog`.
+    /// [`SubCommand`]s are present at runtime (i.e. an empty run such as, `$ myprog`.
     ///
-    /// **NOTE:** This should *not* be used with `.subcommand_required()` as they do the same
-    /// thing, except this prints the help text, and the other prints an error.
+    /// **NOTE:** This should *not* be used with [`AppSettings::SubcommandRequired`] as they do
+    /// nearly same thing; this prints the help text, and the other prints an error.
     ///
     /// **NOTE:** If the user specifies arguments at runtime, but no subcommand the help text will
     /// still be displayed and exit. If this is *not* the desired result, consider using
-    /// `ArgRequiredElseHelp` instead.
+    /// [`AppSettings::ArgRequiredElseHelp`] instead.
     ///
     /// # Examples
     ///
@@ -251,8 +263,11 @@ pub enum AppSettings {
     ///     .setting(AppSettings::SubcommandRequiredElseHelp)
     /// # ;
     /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [`AppSettings::SubcommandRequired`]: ./enum.AppSettings.html#variant.SubcommandRequired
+    /// [`AppSettings::ArgRequiredElseHelp`]: ./enum.AppSettings.html#variant.ArgRequiredElseHelp
     SubcommandRequiredElseHelp,
-    /// Specifies that this subcommand should be hidden from help messages
+    /// Specifies that this [`SubCommand`] should be hidden from help messages
     ///
     /// # Examples
     ///
@@ -263,14 +278,15 @@ pub enum AppSettings {
     ///     .setting(AppSettings::Hidden))
     /// # ;
     /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
     Hidden,
     /// Specifies that the final positional argument is a "VarArg" and that `clap` should not
     /// attempt to parse any further args.
     ///
     /// The values of the trailing positional argument will contain all args from itself on.
     ///
-    /// **NOTE:** The final positional argument **must** have `.multiple(true)` or the usage string
-    /// equivalent.
+    /// **NOTE:** The final positional argument **must** have [`Arg::multiple(true)`] or the usage
+    /// string equivalent.
     ///
     /// # Examples
     ///
@@ -284,6 +300,7 @@ pub enum AppSettings {
     /// let trail: Vec<&str> = m.values_of("cmd").unwrap().collect();
     /// assert_eq!(trail, ["arg1", "-r", "val1"]);
     /// ```
+    /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     TrailingVarArg,
     /// Specifies that the parser should not assume the first argument passed is the binary name.
     /// This is normally the case when using a "daemon" style mode, or an interactive CLI where one
@@ -302,13 +319,14 @@ pub enum AppSettings {
     /// assert_eq!(cmds, ["command", "set"]);
     /// ```
     NoBinaryName,
-    /// Specifies that an unexpected argument positional arguments which would otherwise cause a
-    /// `ErrorKind::UnknownArgument` error, should instead be treated as a subcommand in the
-    /// `ArgMatches` struct.
+    /// Specifies that an unexpected positional argument, which would otherwise cause a
+    /// [`ErrorKind::UnknownArgument`] error, should instead be treated as a [`SubCommand`] within
+    /// the [`ArgMatches`] struct.
     ///
     /// **NOTE:** Use this setting with caution, as a truly unexpected argument (i.e. one that is
-    /// *NOT* an external subcommand) will not cause an error and instead be treatd as a potential
-    /// subcommand. You shoud inform the user appropriatly.
+    /// *NOT* an external subcommand) will **not** cause an error and instead be treatd as a
+    /// potential subcommand. One should check for such cases manually and inform the user
+    /// appropriatly.
     ///
     /// # Examples
     ///
@@ -331,12 +349,15 @@ pub enum AppSettings {
     ///     _ => {},
     /// }
     /// ```
+    /// [`ErrorKind::UnknownArgument`]: ./enum.ErrorKind.html#variant.UnknownArgument
+    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [`ArgMatches`]: ./struct.ArgMatches.html
     AllowExternalSubcommands,
     /// Specifies that any invalid UTF-8 code points should be treated as an error and fail
-    /// with a `ErrorKind::InvalidUtf8` error.
+    /// with a [`ErrorKind::InvalidUtf8`] error.
     ///
-    /// **NOTE:** This rule only applies to argument values, as flags, options, and subcommands
-    /// themselves only allow valid UTF-8 code points.
+    /// **NOTE:** This rule only applies to argument values. Things such as flags, options, and
+    /// [`SubCommand`]s themselves only allow valid UTF-8 code points.
     ///
     /// # Platform Specific
     ///
@@ -360,16 +381,19 @@ pub enum AppSettings {
     /// assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidUtf8);
     /// }
     /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [`ErrorKind::InvalidUtf8`]: ./enum.ErrorKind.html#variant.InvalidUtf8
     StrictUtf8,
     /// Specifies that any invalid UTF-8 code points should *not* be treated as an error. This is
     /// the default behavior of `clap`
     ///
-    /// **NOTE:** Using argument values with invalid UTF-8 code points requires using Either
-    /// `ArgMatches::os_value(s)_of` or `ArgMatches::lossy_value(s)_of` for those particular
-    /// arguments which may contain invalid UTF-8 values
+    /// **NOTE:** Using argument values with invalid UTF-8 code points requires using
+    /// [`ArgMatches::os_value_of`], [`ArgMatches::os_values_of`], [`ArgMatches::lossy_value_of`],
+    /// or [`ArgMatches::lossy_values_of`] for those particular arguments which may contain invalid
+    /// UTF-8 values
     ///
-    /// **NOTE:** This rule only applies to  argument values, as flags, options, and subcommands
-    /// themselves only allow valid UTF-8 code points.
+    /// **NOTE:** This rule only applies to  argument values, as flags, options, and
+    /// [`SubCommand`]s themselves only allow valid UTF-8 code points.
     ///
     /// # Platform Specific
     ///
@@ -394,9 +418,13 @@ pub enum AppSettings {
     /// let m = r.unwrap();
     /// assert_eq!(m.value_of_os("arg").unwrap().as_bytes(), &[0xe9]);
     /// ```
+    /// [`ArgMatches::os_value_of`]: ./struct.ArgMatches.html#method.os_value_of
+    /// [`ArgMatches::os_values_of`]: ./struct.ArgMatches.html#method.os_values_of
+    /// [`ArgMatches::lossy_value_of`]: ./struct.ArgMatches.html#method.lossy_value_of
+    /// [`ArgMatches::lossy_values_of`]: ./struct.ArgMatches.html#method.lossy_values_of
     AllowInvalidUtf8,
     /// Specifies that leading hyphens are allowed in argument *values*, such as negative numbers
-    /// `-10`
+    /// `-10` (which would otherwise be parsed as another flag or option)
     ///
     /// **NOTE:** This can only be set application wide and not on a per argument basis.
     ///
@@ -425,8 +453,6 @@ pub enum AppSettings {
     HidePossibleValuesInHelp,
     /// Places the help string for all arguments on the line after the argument
     ///
-    /// **NOTE:** This setting is cosmetic only and does not affect any functionality.
-    ///
     /// # Examples
     ///
     /// ```no_run
@@ -436,7 +462,7 @@ pub enum AppSettings {
     ///     .get_matches();
     /// ```
     NextLineHelp,
-    /// Displays the arguments and subcommands in the help message in the order that they were
+    /// Displays the arguments and [`SubCommand`]s in the help message in the order that they were
     /// declared in, vice alphabetically which is the default.
     ///
     /// # Examples
@@ -447,6 +473,7 @@ pub enum AppSettings {
     ///     .setting(AppSettings::DeriveDisplayOrder)
     ///     .get_matches();
     /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
     DeriveDisplayOrder,
     /// Uses colorized help messages.
     ///

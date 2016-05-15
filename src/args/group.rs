@@ -98,7 +98,7 @@ impl<'a> ArgGroup<'a> {
         ArgGroup::from(y.as_hash().unwrap())
     }
 
-    /// Adds an argument to this group by name
+    /// Adds an [argument] to this group by name
     ///
     /// # Examples
     ///
@@ -110,6 +110,7 @@ impl<'a> ArgGroup<'a> {
     ///     .arg("config")
     /// # ;
     /// ```
+    /// [argument]: ./struct.Arg.html
     pub fn arg(mut self, n: &'a str) -> Self {
         assert!(self.name != n,
                 "ArgGroup '{}' can not have same name as arg inside it",
@@ -118,7 +119,7 @@ impl<'a> ArgGroup<'a> {
         self
     }
 
-    /// Adds multiple arguments to this group by name
+    /// Adds multiple [arguments] to this group by name
     ///
     /// # Examples
     ///
@@ -131,6 +132,7 @@ impl<'a> ArgGroup<'a> {
     ///     .args(&["config", "input"])
     /// # ;
     /// ```
+    /// [arguments]: ./struct.Arg.html
     pub fn args(mut self, ns: &[&'a str]) -> Self {
         for n in ns {
             self = self.arg(n);
@@ -143,7 +145,8 @@ impl<'a> ArgGroup<'a> {
     /// that one, and only one argument from this group *must* be present at runtime (unless
     /// conflicting with another argument).
     ///
-    /// **NOTE:** This setting only applies to the current `App` / `SubCommand`, and not globally.
+    /// **NOTE:** This setting only applies to the current [`App`] / [`SubCommand`], and not
+    /// globally.
     ///
     /// # Examples
     ///
@@ -157,6 +160,8 @@ impl<'a> ArgGroup<'a> {
     ///     .required(true)
     /// # ;
     /// ```
+    /// [`App`]: ./struct.App.html
+    /// [`SubCommand`]: ./struct.SubCommand.html
     pub fn required(mut self, r: bool) -> Self {
         self.required = r;
         self

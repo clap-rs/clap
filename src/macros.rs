@@ -27,11 +27,11 @@ macro_rules! load_yaml {
     );
 }
 
-/// Convenience macro getting a typed value `T` where `T` implements `std::str::FromStr` from an
+/// Convenience macro getting a typed value `T` where `T` implements [`std::str::FromStr`] from an
 /// argument value. This macro returns a `Result<T,String>` which allows you as the developer to
 /// decide what you'd like to do on a failed parse. There are two types of errors, parse failures
 /// and those where the argument wasn't present (such as a non-required argument). You can use
-/// it to get a single value, or a iterator as with the `ArgMatches::values_of`
+/// it to get a single value, or a iterator as with the [`ArgMatches::values_of`]
 ///
 /// # Examples
 ///
@@ -50,6 +50,9 @@ macro_rules! load_yaml {
 /// println!("{} + 2: {}", len, len + 2);
 /// # }
 /// ```
+/// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
+/// [`ArgMatches::values_of`]: ./struct.ArgMatches.html#method.values_of
+/// [`Result<T,String>`]: https://doc.rust-lang.org/std/result/enum.Result.html
 #[macro_export]
 macro_rules! value_t {
     ($m:ident, $v:expr, $t:ty) => {
@@ -69,11 +72,11 @@ macro_rules! value_t {
     };
 }
 
-/// Convenience macro getting a typed value `T` where `T` implements `std::str::FromStr` or
-/// exiting upon error instead of returning a `Result`
+/// Convenience macro getting a typed value `T` where `T` implements [`std::str::FromStr`] or
+/// exiting upon error, instead of returning a [`Result`] type.
 ///
 /// **NOTE:** This macro is for backwards compatibility sake. Prefer
-/// `value_t!(/* ... */).unwrap_or_else(|e| e.exit())`
+/// [`value_t!(/* ... */).unwrap_or_else(|e| e.exit())`]
 ///
 /// # Examples
 ///
@@ -92,6 +95,9 @@ macro_rules! value_t {
 /// println!("{} + 2: {}", len, len + 2);
 /// # }
 /// ```
+/// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
+/// [`Result`]: https://doc.rust-lang.org/std/result/enum.Result.html
+/// [`value_t!(/* ... */).unwrap_or_else(|e| e.exit())`]: ./macro.value_t!.html
 #[macro_export]
 macro_rules! value_t_or_exit {
     ($m:ident, $v:expr, $t:ty) => {
@@ -111,9 +117,9 @@ macro_rules! value_t_or_exit {
     };
 }
 
-/// Convenience macro getting a typed value `Vec<T>` where `T` implements `std::str::FromStr` This
-/// macro returns a `clap::Result<Vec<T>>` (`Result<Vec<T>, clap::Error>`) which allows you as the
-/// developer to decide what you'd like to do on a failed parse.
+/// Convenience macro getting a typed value [`Vec<T>`] where `T` implements [`std::str::FromStr`]
+/// This macro returns a [`clap::Result<Vec<T>>`] which allows you as the developer to decide
+/// what you'd like to do on a failed parse.
 ///
 /// # Examples
 ///
@@ -137,6 +143,9 @@ macro_rules! value_t_or_exit {
 /// }
 /// # }
 /// ```
+/// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
+/// [`Vec<T>`]: https://doc.rust-lang.org/std/vec/struct.Vec.html
+/// [`clap::Result<Vec<T>>`]: ./type.Result.html
 #[macro_export]
 macro_rules! values_t {
     ($m:ident, $v:expr, $t:ty) => {
@@ -166,11 +175,11 @@ macro_rules! values_t {
     };
 }
 
-/// Convenience macro getting a typed value `Vec<T>` where `T` implements `std::str::FromStr` or
-/// exiting upon error.
+/// Convenience macro getting a typed value [`Vec<T>`] where `T` implements [`std::str::FromStr`]
+/// or exiting upon error.
 ///
 /// **NOTE:** This macro is for backwards compatibility sake. Prefer
-/// `values_t!(/* ... */).unwrap_or_else(|e| e.exit())`
+/// [`values_t!(/* ... */).unwrap_or_else(|e| e.exit())`]
 ///
 /// # Examples
 ///
@@ -195,6 +204,9 @@ macro_rules! values_t {
 /// }
 /// # }
 /// ```
+/// [`values_t!(/* ... */).unwrap_or_else(|e| e.exit())`]: ./macro.values_t!.html
+/// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
+/// [`Vec<T>`]: https://doc.rust-lang.org/std/vec/struct.Vec.html
 #[macro_export]
 macro_rules! values_t_or_exit {
     ($m:ident, $v:expr, $t:ty) => {
@@ -243,12 +255,12 @@ macro_rules! _clap_count_exprs {
 
 /// Convenience macro to generate more complete enums with variants to be used as a type when
 /// parsing arguments. This enum also provides a `variants()` function which can be used to
-/// retrieve a `Vec<&'static str>` of the variant names, as well as implementing `FromStr` and
-/// `Display` automatically.
+/// retrieve a `Vec<&'static str>` of the variant names, as well as implementing [`FromStr`] and
+/// [`Display`] automatically.
 ///
 /// **NOTE:** Case insensitivity is supported for ASCII characters only
 ///
-/// **NOTE:** This macro automatically implements std::str::FromStr and std::fmt::Display
+/// **NOTE:** This macro automatically implements [`std::str::FromStr`] and [`std::fmt::Display`]
 ///
 /// **NOTE:** These enums support pub (or not) and uses of the #[derive()] traits
 ///
@@ -277,6 +289,10 @@ macro_rules! _clap_count_exprs {
 ///     // Use f like any other Foo variant...
 /// }
 /// ```
+/// [`FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
+/// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
+/// [`Display`]: https://doc.rust-lang.org/std/fmt/trait.Display.html
+/// [`std::fmt::Display`]: https://doc.rust-lang.org/std/fmt/trait.Display.html
 #[macro_export]
 macro_rules! arg_enum {
     (@as_item $($i:item)*) => ($($i)*);

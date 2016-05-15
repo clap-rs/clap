@@ -44,7 +44,10 @@ impl Default for ArgFlags {
 }
 
 /// Various settings that apply to arguments and may be set, unset, and checked via getter/setter
-/// methods `Arg::set`, `Arg::unset`, and `Arg::is_set`
+/// methods [`Arg::set`], [`Arg::unset`], and [`Arg::is_set`]
+/// [`Arg::set`]: ./struct.Arg.html#method.set
+/// [`Arg::unset`]: ./struct.Arg.html#method.unset
+/// [`Arg::is_set`]: ./struct.Arg.html#method.is_set
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum ArgSettings {
     /// The argument must be used
@@ -53,7 +56,8 @@ pub enum ArgSettings {
     Multiple,
     /// The argument allows empty values such as `--option ""`
     EmptyValues,
-    /// The argument should be propagated down through all child subcommands
+    /// The argument should be propagated down through all child [`SubCommands`]
+    /// [`SubCommand`]: ./struct.SubCommand.html
     Global,
     /// The argument should **not** be shown in help text
     Hidden,

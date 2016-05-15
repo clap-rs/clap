@@ -30,12 +30,12 @@ use errors::Result as ClapResult;
 
 /// Used to create a representation of a command line program and all possible command line
 /// arguments. Application settings are set using the "builder pattern" with the
-/// `.get_matches()` family of methods being the terminal methods that starts the runtime-parsing
-/// process. These methods then return information about the user supplied arguments (or lack there
-/// of).
+/// [`App::get_matches`] family of methods being the terminal methods that starts the
+/// runtime-parsing process. These methods then return information about the user supplied
+/// arguments (or lack there of).
 ///
 /// **NOTE:** There aren't any mandatory "options" that one must set. The "options" may
-/// also appear in any order (so long as one of the `App::get_matches*` methods is the last method
+/// also appear in any order (so long as one of the [`App::get_matches`] methods is the last method
 /// called).
 ///
 /// # Examples
@@ -55,6 +55,7 @@ use errors::Result as ClapResult;
 ///
 /// // Your program logic starts here...
 /// ```
+/// [`App::get_matches`]: ./struct.App.html#method.get_matches
 #[allow(missing_debug_implementations)]
 pub struct App<'a, 'b>
     where 'a: 'b
@@ -80,10 +81,10 @@ impl<'a, 'b> App<'a, 'b> {
         App { p: Parser::with_name(n.into()) }
     }
 
-    /// Creates a new instace of `App` from a .yml (YAML) file. A full example of supported YAML
-    /// objects can be found in `examples/17_yaml.rs` and `examples/17_yaml.yml`. One great use for
-    /// using YAML is when supporting multiple languages and dialects, as each language could be a
-    /// distinct YAML file and determined at compiletime via `cargo` "features" in your
+    /// Creates a new instace of [`App`] from a .yml (YAML) file. A full example of supported YAML
+    /// objects can be found in [`examples/17_yaml.rs`] and [`examples/17_yaml.yml`]. One great use
+    /// for using YAML is when supporting multiple languages and dialects, as each language could
+    /// be a distinct YAML file and determined at compiletime via `cargo` "features" in your
     /// `Cargo.toml`
     ///
     /// In order to use this function you must compile `clap` with the `features = ["yaml"]` in
@@ -95,14 +96,14 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// # Panics
     ///
-    /// The YAML file must be properly formatted or this function will panic!(). A good way to
+    /// The YAML file must be properly formatted or this function will [`panic!`]. A good way to
     /// ensure this doesn't happen is to run your program with the `--help` switch. If this passes
     /// without error, you needn't worry because the YAML is properly formatted.
     ///
     /// # Examples
     ///
     /// The following example shows how to load a properly formatted YAML file to build an instnace
-    /// of an `App` struct.
+    /// of an [`App`] struct.
     ///
     /// ```ignore
     /// # use clap::App;
@@ -111,6 +112,10 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// // continued logic goes here, such as `app.get_matches()` etc.
     /// ```
+    /// [`App`]: ./struct.App.html
+    /// [`examples/17_yaml.rs`]: https://github.com/kbknapp/clap-rs/blob/master/examples/17_yaml.rs
+    /// [`examples/17_yaml.yml`]: https://github.com/kbknapp/clap-rs/blob/master/examples/17_yaml.yml
+    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     #[cfg(feature = "yaml")]
     pub fn from_yaml(yaml: &'a Yaml) -> App<'a, 'a> {
         App::from(yaml)
@@ -120,9 +125,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// request the help information with `--help` or `-h`.
     ///
     /// **Pro-tip:** If you turn on unstable features you can use `clap`s
-    /// convienience macro `crate_authors!` to automatically set your
+    /// convienience macro [`crate_authors!`] to automatically set your
     /// application's author to the same thing as your crate at compile time.
-    /// See the `examples/`
+    /// See the [`examples/`]
     /// directory for more information
     ///
     /// # Examples
@@ -133,6 +138,8 @@ impl<'a, 'b> App<'a, 'b> {
     ///      .author("Me, me@mymain.com")
     /// # ;
     /// ```
+    /// [`crate_authors!`]: ./macro.crate_authors!.html
+    /// [`examples/`]: https://github.com/kbknapp/clap-rs/tree/master/examples
     pub fn author<S: Into<&'b str>>(mut self, author: S) -> Self {
         self.p.meta.author = Some(author.into());
         self
@@ -145,7 +152,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// **Pro-tip:** When building things such as third party `cargo` subcommands, this setting
     /// **should** be used!
     ///
-    /// **NOTE:** This command **should not** be used for `SubCommand`s.
+    /// **NOTE:** This command **should not** be used for [`SubCommand`]s.
     ///
     /// # Examples
     ///
@@ -155,6 +162,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///      .bin_name("my_binary")
     /// # ;
     /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
     pub fn bin_name<S: Into<String>>(mut self, name: S) -> Self {
         self.p.meta.bin_name = Some(name.into());
         self
@@ -213,8 +221,8 @@ impl<'a, 'b> App<'a, 'b> {
     /// Sets a string of the version number to be displayed when displaying version or help
     /// information.
     ///
-    /// **Pro-tip:** Use `clap`s convienience macro `crate_version!` to automatically set your
-    /// application's version to the same thing as your crate at compile time. See the `examples/`
+    /// **Pro-tip:** Use `clap`s convienience macro [`crate_version!`] to automatically set your
+    /// application's version to the same thing as your crate at compile time. See the [`examples/`]
     /// directory for more information
     ///
     /// # Examples
@@ -225,6 +233,8 @@ impl<'a, 'b> App<'a, 'b> {
     ///     .version("v0.1.24")
     /// # ;
     /// ```
+    /// [`crate_authors!`]: ./macro.crate_authors!.html
+    /// [`examples/`]: https://github.com/kbknapp/clap-rs/tree/master/examples
     pub fn version<S: Into<&'b str>>(mut self, ver: S) -> Self {
         self.p.meta.version = Some(ver.into());
         self
@@ -233,7 +243,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// Sets a custom usage string to override the auto-generated usage string.
     ///
     /// This will be displayed to the user when errors are found in argument parsing, or when you
-    /// call `ArgMatches::usage`
+    /// call [`ArgMatches::usage`]
     ///
     /// **CAUTION:** Using this setting disables `clap`s "context-aware" usage strings. After this
     /// setting is set, this will be the only usage string displayed to the user!
@@ -253,6 +263,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///     .usage("myapp [-clDas] <some_file>")
     /// # ;
     /// ```
+    /// [`ArgMatches::usage`]: ./struct.ArgMatches.html#method.usage
     pub fn usage<S: Into<&'b str>>(mut self, usage: S) -> Self {
         self.p.meta.usage_str = Some(usage.into());
         self
@@ -267,7 +278,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// **NOTE:** This **only** replaces the help message for the current command, meaning if you
     /// are using subcommands, those help messages will still be auto-generated unless you
-    /// specify a `.help()` for them as well.
+    /// specify a [`Arg::help`] for them as well.
     ///
     /// # Examples
     ///
@@ -291,19 +302,23 @@ impl<'a, 'b> App<'a, 'b> {
     ///            work             Do some work")
     /// # ;
     /// ```
+    /// [`Arg::help`]: ./struct.Arg.html#method.help
     pub fn help<S: Into<&'b str>>(mut self, help: S) -> Self {
         self.p.meta.help_str = Some(help.into());
         self
     }
 
-    /// Sets the short version of the `help` argument without the preceding `-`.
+    /// Sets the [`short`] for the auto-generated `help` argument.
     ///
-    /// By default `clap` automatically assigns `h`, but this can be overridden by defining your
-    /// own argument with a lowercase `h` as the `short`. `clap` lazily generates these help
-    /// arguments **after** you've defined any arguments of your own.
+    /// By default `clap` automatically assigns `h`, but this can be overridden if you have a
+    /// different argument which you'd prefer to use the `-h` short with. This can be done by
+    /// defining your own argument with a lowercase `h` as the [`short`].
+    ///
+    /// `clap` lazily generates these `help` arguments **after** you've defined any arguments of
+    /// your own.
     ///
     /// **NOTE:** Any leading `-` characters will be stripped, and only the first
-    /// non `-` chacter will be used as the `short` version
+    /// non `-` chacter will be used as the [`short`] version
     ///
     /// # Examples
     ///
@@ -313,16 +328,20 @@ impl<'a, 'b> App<'a, 'b> {
     ///     .help_short("H") // Using an uppercase `H` instead of the default lowercase `h`
     /// # ;
     /// ```
+    /// [`short`]: ./struct.Arg.html#method.short
     pub fn help_short<S: AsRef<str> + 'b>(mut self, s: S) -> Self {
         self.p.help_short(s.as_ref());
         self
     }
 
-    /// Sets the short version of the `version` argument without the preceding `-`.
+    /// Sets the [`short`] for the auto-generated `version` argument.
     ///
-    /// By default `clap` automatically assigns `V`, but this can be overridden by defining your
-    /// own argument with a uppercase `V` as the `short`. `clap` lazily generates these version
-    /// arguments **after** you've defined any arguments of your own.
+    /// By default `clap` automatically assigns `V`, but this can be overridden if you have a
+    /// different argument which you'd prefer to use the `-V` short with. This can be done by
+    /// defining your own argument with an uppercase `V` as the [`short`].
+    ///
+    /// `clap` lazily generates these `version` arguments **after** you've defined any arguments of
+    /// your own.
     ///
     /// **NOTE:** Any leading `-` characters will be stripped, and only the first
     /// non `-` chacter will be used as the `short` version
@@ -335,6 +354,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///     .version_short("v") // Using a lowercase `v` instead of the default capital `V`
     /// # ;
     /// ```
+    /// [`short`]: ./struct.Arg.html#method.short
     pub fn version_short<S: AsRef<str>>(mut self, s: S) -> Self {
         self.p.version_short(s.as_ref());
         self
@@ -373,9 +393,9 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Enables a single Application level settings.
+    /// Enables a single command, or [`SubCommand`], level settings.
     ///
-    /// See `AppSettings` for a full list of possibilities and examples.
+    /// See [`AppSettings`] for a full list of possibilities and examples.
     ///
     /// # Examples
     ///
@@ -386,14 +406,16 @@ impl<'a, 'b> App<'a, 'b> {
     ///     .setting(AppSettings::WaitOnError)
     /// # ;
     /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [`AppSettings`]: ./enum.AppSettings.html
     pub fn setting(mut self, setting: AppSettings) -> Self {
         self.p.set(setting);
         self
     }
 
-    /// Enables multiple Application level settings
+    /// Enables multiple command, or [`SubCommand`], level settings
     ///
-    /// See `AppSettings` for a full list of possibilities and examples.
+    /// See [`AppSettings`] for a full list of possibilities and examples.
     ///
     /// # Examples
     ///
@@ -404,6 +426,8 @@ impl<'a, 'b> App<'a, 'b> {
     ///                  AppSettings::WaitOnError])
     /// # ;
     /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [`AppSettings`]: ./enum.AppSettings.html
     pub fn settings(mut self, settings: &[AppSettings]) -> Self {
         for s in settings {
             self.p.set(*s);
@@ -411,7 +435,7 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Adds an argument to the list of valid possibilties.
+    /// Adds an [argument] to the list of valid possibilties.
     ///
     /// # Examples
     ///
@@ -431,12 +455,13 @@ impl<'a, 'b> App<'a, 'b> {
     ///     )
     /// # ;
     /// ```
+    /// [argument]: ./struct.Arg.html
     pub fn arg<A: Borrow<Arg<'a, 'b>> + 'a>(mut self, a: A) -> Self {
         self.p.add_arg(a.borrow());
         self
     }
 
-    /// Adds multiple arguments to the list of valid possibilties
+    /// Adds multiple [arguments] to the list of valid possibilties
     ///
     /// # Examples
     ///
@@ -449,6 +474,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///     )
     /// # ;
     /// ```
+    /// [arguments]: ./struct.Arg.html
     pub fn args(mut self, args: &[Arg<'a, 'b>]) -> Self {
         for arg in args {
             self.p.add_arg(arg);
@@ -456,11 +482,11 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// A convienience method for adding a single argument from a usage type string. The string
-    /// used follows the same rules and syntax as `Arg::from_usage()`
+    /// A convienience method for adding a single [argument] from a usage type string. The string
+    /// used follows the same rules and syntax as [`Arg::from_usage`]
     ///
     /// **NOTE:** The downside to using this method is that you can not set any additional
-    /// properties of the `Arg` other than what `Arg::from_usage()` supports.
+    /// properties of the [`Arg`] other than what [`Arg::from_usage`] supports.
     ///
     /// # Examples
     ///
@@ -470,16 +496,19 @@ impl<'a, 'b> App<'a, 'b> {
     ///     .arg_from_usage("-c --config=<FILE> 'Sets a configuration file to use'")
     /// # ;
     /// ```
+    /// [arguments]: ./struct.Arg.html
+    /// [`Arg`]: ./struct.Arg.html
+    /// [`Arg::from_usage`]: ./struct.Arg.html#method.from_usage
     pub fn arg_from_usage(mut self, usage: &'a str) -> Self {
         self.p.add_arg(&Arg::from_usage(usage));
         self
     }
 
-    /// Adds multiple arguments at once from a usage string, one per line. See `Arg::from_usage()`
-    /// for details on the syntax and rules supported.
+    /// Adds multiple [arguments] at once from a usage string, one per line. See
+    /// [`Arg::from_usage`] for details on the syntax and rules supported.
     ///
-    /// **NOTE:** Like `App::arg_from_usage()` the downside is you only set properties for the
-    /// `Arg`s which `Arg::from_usage()` supports.
+    /// **NOTE:** Like [`App::arg_from_usage`] the downside is you only set properties for the
+    /// [`Arg`]s which [`Arg::from_usage`] supports.
     ///
     /// # Examples
     ///
@@ -493,6 +522,10 @@ impl<'a, 'b> App<'a, 'b> {
     ///     )
     /// # ;
     /// ```
+    /// [arguments]: ./struct.Arg.html
+    /// [`Arg::from_usage`]: ./struct.Arg.html#method.from_usage
+    /// [`App::arg_from_usage`]: ./struct.App.html#method.arg_from_usage
+    /// [`Arg`]: ./struct.Arg.html
     pub fn args_from_usage(mut self, usage: &'a str) -> Self {
         for line in usage.lines() {
             let l = line.trim();
@@ -504,10 +537,10 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Allows adding a subcommand alias, which function as "hidden" subcommands that automatically
-    /// dispatch as if this subcommand was used. This is more efficient, and easier than creating
-    /// multiple hidden subcommands as one only needs to check for the existing of this command,
-    /// and not all vairants.
+    /// Allows adding a [`SubCommand`] alias, which function as "hidden" subcommands that
+    /// automatically dispatch as if this subcommand was used. This is more efficient, and easier
+    /// than creating multiple hidden subcommands as one only needs to check for the existing of
+    /// this command, and not all vairants.
     ///
     /// # Examples
     ///
@@ -519,6 +552,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///             .get_matches_from(vec!["myprog", "do-stuff"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
     pub fn alias<S: Into<&'b str>>(mut self, name: S) -> Self {
         if let Some(ref mut als) = self.p.meta.aliases {
             als.push(name.into());
@@ -528,10 +562,10 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Allows adding subcommand aliases, which function as "hidden" subcommands that automatically
-    /// dispatch as if this subcommand was used. This is more efficient, and easier than creating
-    /// multiple hidden subcommands as one only needs to check for the existing of this command,
-    /// and not all vairants.
+    /// Allows adding [`SubCommand`] aliases, which function as "hidden" subcommands that
+    /// automatically dispatch as if this subcommand was used. This is more efficient, and easier
+    /// than creating multiple hidden subcommands as one only needs to check for the existing of
+    /// this command, and not all vairants.
     ///
     /// # Examples
     ///
@@ -547,6 +581,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///             .get_matches_from(vec!["myprog", "do-tests"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
     pub fn aliases(mut self, names: &[&'b str]) -> Self {
         if let Some(ref mut als) = self.p.meta.aliases {
             for n in names {
@@ -558,24 +593,25 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Adds an `ArgGroup` to the application. `ArgGroup`s are a family of related arguments. By
-    /// placing them in a logical group, you can build easier requirement and exclusion rules. For
-    /// instance, you can make an entire `ArgGroup` required, meaning that one (and *only* one)
-    /// argument from that group must be present at runtime.
+    /// Adds an [`ArgGroup`] to the application. [`ArgGroup`]s are a family of related arguments.
+    /// By placing them in a logical group, you can build easier requirement and exclusion rules.
+    /// For instance, you can make an entire [`ArgGroup`] required, meaning that one (and *only*
+    /// one) argument from that group must be present at runtime.
     ///
-    /// You can also do things such as name an `ArgGroup` as a conflict to another argument.
+    /// You can also do things such as name an [`ArgGroup`] as a conflict to another argument.
     /// Meaning any of the arguments that belong to that group will cause a failure if present with
     /// the conflicting argument.
     ///
-    /// Another added benfit of `ArgGroup`s is that you can extract a value from a group instead of
-    /// determining exactly which argument was used.
+    /// Another added benfit of [`ArgGroup`]s is that you can extract a value from a group instead
+    /// of determining exactly which argument was used.
     ///
-    /// Finally, using `ArgGroup`s to ensure exclusion between arguments is another very common use
+    /// Finally, using [`ArgGroup`]s to ensure exclusion between arguments is another very common
+    /// use
     ///
     /// # Examples
     ///
-    /// The following example demonstrates using an `ArgGroup` to ensure that one, and only one, of
-    /// the arguments from the specified group is present at runtime.
+    /// The following example demonstrates using an [`ArgGroup`] to ensure that one, and only one,
+    /// of the arguments from the specified group is present at runtime.
     ///
     /// ```no_run
     /// # use clap::{App, ArgGroup};
@@ -590,12 +626,13 @@ impl<'a, 'b> App<'a, 'b> {
     ///          .required(true))
     /// # ;
     /// ```
+    /// [`ArgGroup`]: ./struct.ArgGroup.html
     pub fn group(mut self, group: ArgGroup<'a>) -> Self {
         self.p.add_group(group);
         self
     }
 
-    /// Adds multiple `ArgGroup`s to the application at once.
+    /// Adds multiple [`ArgGroup`]s to the [`App`] at once.
     ///
     /// # Examples
     ///
@@ -618,6 +655,8 @@ impl<'a, 'b> App<'a, 'b> {
     ///     ])
     /// # ;
     /// ```
+    /// [`ArgGroup`]: ./struct.ArgGroup.html
+    /// [`App`]: ./struct.App.html
     pub fn groups(mut self, groups: &[ArgGroup<'a>]) -> Self {
         for g in groups {
             self = self.group(g.into());
@@ -625,10 +664,10 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Adds a subcommand to the list of valid possibilties. Subcommands are effectively sub-apps,
-    /// because they can contain their own arguments, subcommands, version, usage, etc. They also
-    /// function just like apps, in that they get their own auto generated help, version, and
-    /// usage.
+    /// Adds a [`SubCommand`] to the list of valid possibilties. Subcommands are effectively
+    /// sub-[`App`]s, because they can contain their own arguments, subcommands, version, usage,
+    /// etc. They also function just like [`App`]s, in that they get their own auto generated help,
+    /// version, and usage.
     ///
     /// # Examples
     ///
@@ -640,17 +679,19 @@ impl<'a, 'b> App<'a, 'b> {
     ///         .arg_from_usage("<config> 'Required configuration file to use'"))
     /// # ;
     /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [`App`]: ./struct.App.html
     pub fn subcommand(mut self, subcmd: App<'a, 'b>) -> Self {
         self.p.add_subcommand(subcmd);
         self
     }
 
-    /// Adds multiple subcommands to the list of valid possibilties by iterating over a Vec of
-    /// `SubCommand`s
+    /// Adds multiple subcommands to the list of valid possibilties by iterating over an
+    /// [`IntoIterator`] of [`SubCommand`]s
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, SubCommand};
     /// # App::new("myprog")
     /// .subcommands( vec![
@@ -659,6 +700,8 @@ impl<'a, 'b> App<'a, 'b> {
     ///        SubCommand::with_name("debug").about("Controls debug functionality")])
     /// # ;
     /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [`IntoIterator`]: https://doc.rust-lang.org/std/iter/trait.IntoIterator.html
     pub fn subcommands<I>(mut self, subcmds: I) -> Self
         where I: IntoIterator<Item = App<'a, 'b>>
     {
@@ -668,7 +711,7 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Allows custom ordering of subcommands within the help message. Subcommands with a lower
+    /// Allows custom ordering of [`SubCommand`]s within the help message. Subcommands with a lower
     /// value will be displayed first in the help message. This is helpful when one would like to
     /// emphasise frequently used subcommands, or prioritize those towards the top of the list.
     /// Duplicate values **are** allowed. Subcommands with duplicate display orders will be
@@ -714,44 +757,49 @@ impl<'a, 'b> App<'a, 'b> {
     ///     beta    I should be first!
     ///     alpha   Some help and text
     /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
     pub fn display_order(mut self, ord: usize) -> Self {
         self.p.meta.disp_ord = ord;
         self
     }
 
-    /// Prints the full help message to `io::stdout()` using a `BufWriter`
+    /// Prints the full help message to [`io::stdout()`] using a [`BufWriter`]
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::App;
     /// let app = App::new("myprog");
     /// app.print_help();
     /// ```
+    /// [`io::stdout()`]: https://doc.rust-lang.org/std/io/fn.stdout.html
+    /// [`BufWriter`]: https://doc.rust-lang.org/std/io/struct.BufWriter.html
     pub fn print_help(&self) -> ClapResult<()> {
         let out = io::stdout();
         let mut buf_w = BufWriter::new(out.lock());
         self.write_help(&mut buf_w)
     }
 
-    /// Writes the full help message to the user to a `io::Write` object
+    /// Writes the full help message to the user to a [`io::Write`] object
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::App;
     /// use std::io;
     /// let mut app = App::new("myprog");
     /// let mut out = io::stdout();
     /// app.write_help(&mut out).ok().expect("failed to write to stdout");
     /// ```
+    /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
     pub fn write_help<W: Write>(&self, w: &mut W) -> ClapResult<()> {
         Help::write_app_help(w, &self)
     }
 
     /// Starts the parsing process, upon a failed parse an error will be displayed to the user and
-    /// the process with exit with the appropriate error code. By default this method gets matches
-    /// from `env::args_os`
+    /// the process with exit with the appropriate error code. By default this method gets all user
+    /// provided arguments from [`env::args_os`] in order to allow for invalid UTF-8 code points,
+    /// which are legal on many platforms.
     ///
     /// # Examples
     ///
@@ -761,18 +809,18 @@ impl<'a, 'b> App<'a, 'b> {
     ///     // Args and options go here...
     ///     .get_matches();
     /// ```
+    /// [`env::args_os`]: https://doc.rust-lang.org/std/env/fn.args_os.html
     pub fn get_matches(self) -> ArgMatches<'a> {
         self.get_matches_from(&mut env::args_os())
     }
 
-    /// Starts the parsing process. This method will return a `Result` type instead of exiting the
-    /// the process on failed parse. By default this method gets matches
-    /// from `env::args_os`
+    /// Starts the parsing process. This method will return a [`clap::Result`] type instead of exiting
+    /// the the process on failed parse. By default this method gets matches from [`env::args_os`]
     ///
     /// **NOTE:** This method WILL NOT exit when `--help` or `--version` (or short versions) are
-    /// used. It will return an error, where the `kind` is a `ErrorKind::HelpDisplayed`
-    /// or `ErrorKind::VersionDisplayed` respectively. You must call `error.exit()` or
-    /// perform a `std::process::exit`.
+    /// used. It will return a [`clap::Error`], where the [`kind`] is a
+    /// [`ErrorKind::HelpDisplayed`] or [`ErrorKind::VersionDisplayed`] respectively. You must call
+    /// [`Error::exit`] or perform a [`std::process::exit`].
     ///
     /// # Examples
     ///
@@ -783,17 +831,25 @@ impl<'a, 'b> App<'a, 'b> {
     ///     .get_matches_safe()
     ///     .unwrap_or_else( |e| e.exit() );
     /// ```
+    /// [`env::args_os`]: https://doc.rust-lang.org/std/env/fn.args_os.html
+    /// [`ErrorKind::HelpDisplayed`]: ./enum.ErrorKind.html#variant.HelpDisplayed
+    /// [`ErrorKind::VersionDisplayed`]: ./enum.ErrorKind.html#variant.VersionDisplayed
+    /// [`Error::exit`]: ./struct.Error.html#method.exit
+    /// [`std::process::exit`]: https://doc.rust-lang.org/std/process/fn.exit.html
+    /// [`clap::Result`]: ./type.Result.html
+    /// [`clap::Error`]: ./struct.Error.html
+    /// [`kind`]: ./struct.Error.html
     pub fn get_matches_safe(self) -> ClapResult<ArgMatches<'a>> {
         // Start the parsing
         self.get_matches_from_safe(&mut env::args_os())
     }
 
-    /// Starts the parsing process. Like `App::get_matches` this method does not return a `Result`
+    /// Starts the parsing process. Like [`App::get_matches`] this method does not return a [`clap::Result`]
     /// and will automatically exit with an error message. This method, however, lets you specify
-    /// what iterator to use when performing matches, such as a `Vec` of your making.
+    /// what iterator to use when performing matches, such as a [`Vec`] of your making.
     ///
     /// **NOTE:** The first argument will be parsed as the binary name unless
-    /// `AppSettings::NoBinaryName` is used
+    /// [`AppSettings::NoBinaryName`] is used
     ///
     /// # Examples
     ///
@@ -805,6 +861,10 @@ impl<'a, 'b> App<'a, 'b> {
     ///     // Args and options go here...
     ///     .get_matches_from(arg_vec);
     /// ```
+    /// [`App::get_matches`]: ./struct.App.html#method.get_matches
+    /// [`clap::Result`]: ./type.Result.html
+    /// [`Vec`]: https://doc.rust-lang.org/std/vec/struct.Vec.html
+    /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
     pub fn get_matches_from<I, T>(mut self, itr: I) -> ArgMatches<'a>
         where I: IntoIterator<Item = T>,
               T: Into<OsString>
@@ -815,16 +875,16 @@ impl<'a, 'b> App<'a, 'b> {
         })
     }
 
-    /// Starts the parsing process. A combination of `App::get_matches_from`, and
-    /// `App::get_matches_safe`
+    /// Starts the parsing process. A combination of [`App::get_matches_from`], and
+    /// [`App::get_matches_safe`]
     ///
     /// **NOTE:** This method WILL NOT exit when `--help` or `--version` (or short versions) are
-    /// used. It will return an error, where the `kind` is a `ErrorKind::HelpDisplayed`
-    /// or `ErrorKind::VersionDisplayed` respectively. You must call `error.exit()` or
-    /// perform a `std::process::exit` yourself.
+    /// used. It will return a [`clap::Error`], where the [`kind`] is a [`ErrorKind::HelpDisplayed`]
+    /// or [`ErrorKind::VersionDisplayed`] respectively. You must call [`Error::exit`] or
+    /// perform a [`std::process::exit`] yourself.
     ///
     /// **NOTE:** The first argument will be parsed as the binary name unless
-    /// `AppSettings::NoBinaryName` is used
+    /// [`AppSettings::NoBinaryName`] is used
     ///
     /// # Examples
     ///
@@ -837,6 +897,16 @@ impl<'a, 'b> App<'a, 'b> {
     ///     .get_matches_from_safe(arg_vec)
     ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
     /// ```
+    /// [`App::get_matches_from`]: ./struct.App.html#method.get_matches_from
+    /// [`App::get_matches_safe`]: ./struct.App.html#method.get_matches_safe
+    /// [`ErrorKind::HelpDisplayed`]: ./enum.ErrorKind.html#variant.HelpDisplayed
+    /// [`ErrorKind::VersionDisplayed`]: ./enum.ErrorKind.html#variant.VersionDisplayed
+    /// [`Error::exit`]: ./struct.Error.html#method.exit
+    /// [`std::process::exit`]: https://doc.rust-lang.org/std/process/fn.exit.html
+    /// [`clap::Error`]: ./struct.Error.html
+    /// [`Error::exit`]: ./struct.Error.html#method.exit
+    /// [`kind`]: ./struct.Error.html
+    /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
     pub fn get_matches_from_safe<I, T>(mut self, itr: I) -> ClapResult<ArgMatches<'a>>
         where I: IntoIterator<Item = T>,
               T: Into<OsString>
@@ -844,12 +914,12 @@ impl<'a, 'b> App<'a, 'b> {
         self.get_matches_from_safe_borrow(itr)
     }
 
-    /// Starts the parsing process without consuming the `App` struct `self`. This is normally not
-    /// the desired functionality, instead prefer `App::get_matches_from_safe` which *does*
+    /// Starts the parsing process without consuming the [`App`] struct `self`. This is normally not
+    /// the desired functionality, instead prefer [`App::get_matches_from_safe`] which *does*
     /// consume `self`.
     ///
     /// **NOTE:** The first argument will be parsed as the binary name unless
-    /// `AppSettings::NoBinaryName` is used
+    /// [`AppSettings::NoBinaryName`] is used
     ///
     /// # Examples
     ///
@@ -862,6 +932,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// let matches = app.get_matches_from_safe_borrow(arg_vec)
     ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
     /// ```
+    /// [`App`]: ./struct.App.html
+    /// [`App::get_matches_from_safe`]: ./struct.App.html#method.get_matches_from_safe
+    /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
     pub fn get_matches_from_safe_borrow<I, T>(&mut self, itr: I) -> ClapResult<ArgMatches<'a>>
         where I: IntoIterator<Item = T>,
               T: Into<OsString>

@@ -73,9 +73,9 @@ macro_rules! color {
     };
 }
 
-/// CLAP Help Writer.
+/// `clap` Help Writer.
 ///
-/// Wraps a writer stream providing different methods to generate help for CLAP objects.
+/// Wraps a writer stream providing different methods to generate help for `clap` objects.
 pub struct Help<'a> {
     writer: &'a mut Write,
     next_line_help: bool,
@@ -86,7 +86,7 @@ pub struct Help<'a> {
 
 // Public Functions
 impl<'a> Help<'a> {
-    /// Create a new Help instance.
+    /// Create a new `Help` instance.
     pub fn new(w: &'a mut Write, next_line_help: bool, hide_pv: bool, color: bool) -> Self {
         Help {
             writer: w,

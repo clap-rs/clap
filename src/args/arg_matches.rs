@@ -11,7 +11,7 @@ use args::MatchedArg;
 use INVALID_UTF8;
 
 /// Used to get information about the arguments that where supplied to the program at runtime by
-/// the user. New instances of this struct are obtained by using the `App::get_matches` family of
+/// the user. New instances of this struct are obtained by using the [`App::get_matches`] family of
 /// methods.
 ///
 /// # Examples
@@ -56,6 +56,7 @@ use INVALID_UTF8;
 ///     }
 /// }
 /// ```
+/// [`App::get_matches`]: ./struct.App.html#method.get_matches
 #[derive(Debug, Clone)]
 pub struct ArgMatches<'a> {
     #[doc(hidden)]
@@ -82,16 +83,17 @@ impl<'a> ArgMatches<'a> {
         ArgMatches { ..Default::default() }
     }
 
-    /// Gets the value of a specific option or positional argument (i.e. an argument that takes
+    /// Gets the value of a specific [option] or [positional] argument (i.e. an argument that takes
     /// an additional value at runtime). If the option wasn't present at runtime
     /// it returns `None`.
     ///
     /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
-    /// prefer `values_of()` as `value_of()` will only return the *first* value.
+    /// prefer [`ArgMatches::values_of`] as `ArgMatches::value_of` will only return the *first*
+    /// value.
     ///
     /// # Panics
     ///
-    /// This method will `panic!` if the value contains invalid UTF-8 code points.
+    /// This method will [`panic!`] if the value contains invalid UTF-8 code points.
     ///
     /// # Examples
     ///
@@ -104,6 +106,10 @@ impl<'a> ArgMatches<'a> {
     ///
     /// assert_eq!(m.value_of("output"), Some("something"));
     /// ```
+    /// [option]: ./struct.Arg.html#method.takes_value
+    /// [positional]: ./struct.Arg.html#method.index
+    /// [`ArgMatches::values_of`]: ./struct.ArgMatches.html#method.values_of
+    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     pub fn value_of<S: AsRef<str>>(&self, name: S) -> Option<&str> {
         if let Some(ref arg) = self.args.get(name.as_ref()) {
             if let Some(v) = arg.vals.values().nth(0) {
@@ -118,7 +124,7 @@ impl<'a> ArgMatches<'a> {
     /// invalid points will be replaced with `\u{FFFD}`
     ///
     /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
-    /// prefer `values_of_lossy()` as `value_of_lossy()` will only return the *first* value.
+    /// prefer [`Arg::values_of_lossy`] as `value_of_lossy()` will only return the *first* value.
     ///
     /// # Examples
     ///
@@ -134,6 +140,7 @@ impl<'a> ArgMatches<'a> {
     ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
     /// assert_eq!(&*m.value_of_lossy("arg").unwrap(), "Hi \u{FFFD}!");
     /// ```
+    /// [`Arg::values_of_lossy`]: ./struct.ArgMatches.html#method.values_of_lossy
     pub fn value_of_lossy<S: AsRef<str>>(&'a self, name: S) -> Option<Cow<'a, str>> {
         if let Some(arg) = self.args.get(name.as_ref()) {
             if let Some(v) = arg.vals.values().nth(0) {
@@ -145,12 +152,13 @@ impl<'a> ArgMatches<'a> {
 
     /// Gets the OS version of a string value of a specific argument. If the option wasn't present
     /// at runtime it returns `None`. An OS value on Unix-like systems is any series of bytes,
-    /// regardless of whether or not they contain valid UTF-8 code points. Since `String`s in Rust
-    /// are guaranteed to be valid UTF-8, a valid filename on a Unix system as an argument value may
-    /// contain invalid UTF-8 code points.
+    /// regardless of whether or not they contain valid UTF-8 code points. Since [`String`]s in
+    /// Rust are guaranteed to be valid UTF-8, a valid filename on a Unix system as an argument
+    /// value may contain invalid UTF-8 code points.
     ///
     /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
-    /// prefer `values_of_os()` as `value_of_os()` will only return the *first* value.
+    /// prefer [`ArgMatches::values_of_os`] as `Arg::value_of_os` will only return the *first*
+    /// value.
     ///
     /// # Examples
     ///
@@ -166,14 +174,17 @@ impl<'a> ArgMatches<'a> {
     ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
     /// assert_eq!(&*m.value_of_os("arg").unwrap().as_bytes(), [b'H', b'i', b' ', 0xe9, b'!']);
     /// ```
+    /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
+    /// [`ArgMatches::values_of_os`]: ./struct.ArgMatches.html#method.values_of_os
     pub fn value_of_os<S: AsRef<str>>(&self, name: S) -> Option<&OsStr> {
         self.args
             .get(name.as_ref())
             .map_or(None, |arg| arg.vals.values().nth(0).map(|v| v.as_os_str()))
     }
 
-    /// Gets an Iterator of values of a specific argument (i.e. an argument that takes multiple
-    /// values at runtime). If the option wasn't present at runtime it returns `None`
+    /// Gets a [`Values`] struct which implements [`Iterator`] for values of a specific argument
+    /// (i.e. an argument that takes multiple values at runtime). If the option wasn't present at
+    /// runtime it returns `None`
     ///
     /// # Panics
     ///
@@ -194,6 +205,8 @@ impl<'a> ArgMatches<'a> {
     /// let vals: Vec<&str> = m.values_of("output").unwrap().collect();
     /// assert_eq!(vals, ["val1", "val2", "val3"]);
     /// ```
+    /// [`Values`]: ./struct.Values.html
+    /// [`Iterator`]: https://doc.rust-lang.org/std/iter/trait.Iterator.html
     pub fn values_of<S: AsRef<str>>(&'a self, name: S) -> Option<Values<'a>> {
         if let Some(ref arg) = self.args.get(name.as_ref()) {
             fn to_str_slice(o: &OsString) -> &str {
@@ -205,9 +218,9 @@ impl<'a> ArgMatches<'a> {
         None
     }
 
-    /// Gets the lossy values of a specific argument If the option wasn't present at runtime
-    /// it returns `None`. A lossy value is one which contains invalid UTF-8 code points, those
-    /// invalid points will be replaced with `\u{FFFD}`
+    /// Gets the lossy values of a specific argument. If the option wasn't present at runtime
+    /// it returns `None`. A lossy value is one where if it contains invalid UTF-8 code points,
+    /// those invalid points will be replaced with `\u{FFFD}`
     ///
     /// # Examples
     ///
@@ -236,11 +249,11 @@ impl<'a> ArgMatches<'a> {
         None
     }
 
-    /// Gets the OS version of a string value of a specific argument If the option wasn't present
-    /// at runtime it returns `None`. An OS value on Unix-like systems is any series of bytes,
-    /// regardless of whether or not they contain valid UTF-8 code points. Since `String`s in Rust
-    /// are guaranteed to be valid UTF-8, a valid filename as an argument value on Linux (for
-    /// example) may contain invalid UTF-8 code points.
+    /// Gets a [`OsValues`] struct which is implements [`Iterator`] for [`OsString`] values of a
+    /// specific argument. If the option wasn't present at runtime it returns `None`. An OS value
+    /// on Unix-like systems is any series of bytes, regardless of whether or not they contain
+    /// valid UTF-8 code points. Since [`String`]s in Rust are guaranteed to be valid UTF-8, a valid
+    /// filename as an argument value on Linux (for example) may contain invalid UTF-8 code points.
     ///
     /// # Examples
     ///
@@ -262,6 +275,10 @@ impl<'a> ArgMatches<'a> {
     /// assert_eq!(itr.next(), Some(&*OsString::from_vec(vec![0xe9, b'!'])));
     /// assert_eq!(itr.next(), None);
     /// ```
+    /// [`OsValues`]: ./struct.OsValues.html
+    /// [`Iterator`]: https://doc.rust-lang.org/std/iter/trait.Iterator.html
+    /// [`OsString`]: https://doc.rust-lang.org/std/ffi/struct.OsString.html
+    /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
     pub fn values_of_os<S: AsRef<str>>(&'a self, name: S) -> Option<OsValues<'a>> {
         fn to_str_slice(o: &OsString) -> &OsStr {
             &*o
@@ -301,7 +318,8 @@ impl<'a> ArgMatches<'a> {
     /// it will return `0`.
     ///
     /// **NOTE:** This returns the number of times the argument was used, *not* the number of
-    /// values. For example, `-o val1 val2 val3 -o val4` would return `2`.
+    /// values. For example, `-o val1 val2 val3 -o val4` would return `2` (2 occurrences, but 4
+    /// values).
     ///
     /// # Examples
     ///
@@ -339,9 +357,9 @@ impl<'a> ArgMatches<'a> {
         self.args.get(name.as_ref()).map_or(0, |a| a.occurs)
     }
 
-    /// Because subcommands are essentially "sub-apps" they have their own `ArgMatches` as well.
-    /// This method returns the `ArgMatches` for a particular subcommand or None if the subcommand
-    /// wasn't present at runtime.
+    /// Because [`Subcommand`]s are essentially "sub-[`App`]s" they have their own [`ArgMatches`]
+    /// as well. This method returns the [`ArgMatches`] for a particular subcommand or `None` if
+    /// the subcommand wasn't present at runtime.
     ///
     /// # Examples
     ///
@@ -367,6 +385,9 @@ impl<'a> ArgMatches<'a> {
     ///     assert_eq!(sub_m.value_of("opt"), Some("val"));
     /// }
     /// ```
+    /// [`Subcommand`]: ./struct.SubCommand.html
+    /// [`App`]: ./struct.App.html
+    /// [`ArgMatches`]: ./struct.ArgMatches.html
     pub fn subcommand_matches<S: AsRef<str>>(&self, name: S) -> Option<&ArgMatches<'a>> {
         if let Some(ref s) = self.subcommand {
             if s.name == name.as_ref() {
@@ -376,10 +397,10 @@ impl<'a> ArgMatches<'a> {
         None
     }
 
-    /// Because subcommands are essentially "sub-apps" they have their own `ArgMatches` as well.
-    /// But simply getting the sub-`ArgMatches` doesn't help much if we don't also know which
-    /// subcommand was actually used. This method returns the name of the subcommand that was used
-    /// at runtime, or `None` if one wasn't.
+    /// Because [`Subcommand`]s are essentially "sub-[`App`]s" they have their own [`ArgMatches`]
+    /// as well.But simply getting the sub-[`ArgMatches`] doesn't help much if we don't also know
+    /// which subcommand was actually used. This method returns the name of the subcommand that was
+    /// used at runtime, or `None` if one wasn't.
     ///
     /// *NOTE*: Subcommands form a hierarchy, where multiple subcommands can be used at runtime,
     /// but only a single subcommand from any group of sibling commands may used at once.
@@ -431,12 +452,15 @@ impl<'a> ArgMatches<'a> {
     ///     _              => {}, // Either no subcommand or one not tested for...
     /// }
     /// ```
+    /// [`Subcommand`]: ./struct.SubCommand.html
+    /// [`App`]: ./struct.App.html
+    /// [`ArgMatches`]: ./struct.ArgMatches.html
     pub fn subcommand_name(&self) -> Option<&str> {
         self.subcommand.as_ref().map(|sc| &sc.name[..])
     }
 
-    /// This brings together `ArgMatches::subcommand_matches` and `ArgMatches::subcommand_name` by
-    /// returning a tuple with both pieces of information.
+    /// This brings together [`ArgMatches::subcommand_matches`] and [`ArgMatches::subcommand_name`]
+    /// by returning a tuple with both pieces of information.
     ///
     /// # Examples
     ///
@@ -479,11 +503,13 @@ impl<'a> ArgMatches<'a> {
     ///     _ => {},
     /// }
     /// ```
+    /// [`ArgMatches::subcommand_matches`]: ./struct.ArgMatches.html#method.subcommand_matches
+    /// [`ArgMatches::subcommand_name`]: ./struct.ArgMatches.html#method.subcommand_name
     pub fn subcommand(&self) -> (&str, Option<&ArgMatches<'a>>) {
         self.subcommand.as_ref().map_or(("", None), |sc| (&sc.name[..], Some(&sc.matches)))
     }
 
-    /// Returns a string slice of the usage statement for the `App` (or `SubCommand`)
+    /// Returns a string slice of the usage statement for the [`App`] or [`SubCommand`]
     ///
     /// # Examples
     ///
@@ -495,6 +521,8 @@ impl<'a> ArgMatches<'a> {
     ///
     /// println!("{}", app_m.usage());
     /// ```
+    /// [`Subcommand`]: ./struct.SubCommand.html
+    /// [`App`]: ./struct.App.html
     pub fn usage(&self) -> &str {
         self.usage.as_ref().map_or("", |u| &u[..])
     }
@@ -506,7 +534,8 @@ impl<'a> ArgMatches<'a> {
 // commit: be5e1fa3c26e351761b33010ddbdaf5f05dbcc33
 // license: MIT - Copyright (c) 2015 The Rust Project Developers
 
-/// An iterator for getting multiple values out of an argument via the `Arg::values_of` method.
+/// An iterator for getting multiple values out of an argument via the [`ArgMatches::values_of`]
+/// method.
 ///
 /// # Examples
 ///
@@ -519,6 +548,7 @@ impl<'a> ArgMatches<'a> {
 ///
 /// assert_eq!(m.value_of("output"), Some("something"));
 /// ```
+/// [`ArgMatches::values_of`]: ./struct.ArgMatches.html#method.values_of
 #[derive(Clone)]
 #[allow(missing_debug_implementations)]
 pub struct Values<'a> {
@@ -589,8 +619,9 @@ impl<'a, V> DoubleEndedIterator for Iter<'a, V> {
     }
 }
 
-/// An iterator for getting multiple values out of an argument via the `Arg::values_of_os` method.
-/// Usage of this iterator allows values which contain invalid UTF-8 code points unlike `Values`.
+/// An iterator for getting multiple values out of an argument via the [`ArgMatches::values_of_os`]
+/// method. Usage of this iterator allows values which contain invalid UTF-8 code points unlike
+/// [`Values`].
 ///
 /// # Examples
 ///
@@ -606,6 +637,8 @@ impl<'a, V> DoubleEndedIterator for Iter<'a, V> {
 ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
 /// assert_eq!(&*m.value_of_os("arg").unwrap().as_bytes(), [b'H', b'i', b' ', 0xe9, b'!']);
 /// ```
+/// [`ArgMatches::values_of_os`]: ./struct.ArgMatches.html#method.values_of_os
+/// [`Values`]: ./struct.Values.html
 #[derive(Clone)]
 #[allow(missing_debug_implementations)]
 pub struct OsValues<'a> {
