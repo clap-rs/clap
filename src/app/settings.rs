@@ -253,7 +253,7 @@ pub enum AppSettings {
     ///
     /// **NOTE:** If the user specifies arguments at runtime, but no subcommand the help text will
     /// still be displayed and exit. If this is *not* the desired result, consider using
-    /// [`AppSettings::ArgRequiredElseHelp`] instead.
+    /// `ArgRequiredElseHelp` instead.
     ///
     /// # Examples
     ///
@@ -452,6 +452,8 @@ pub enum AppSettings {
     /// useful if there are many values, or they are explained elsewhere.
     HidePossibleValuesInHelp,
     /// Places the help string for all arguments on the line after the argument
+    ///
+    /// **NOTE:** This setting is cosmetic only and does not affect any functionality.
     ///
     /// # Examples
     ///

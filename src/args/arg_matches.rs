@@ -389,7 +389,7 @@ impl<'a> ArgMatches<'a> {
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     pub fn subcommand_matches<S: AsRef<str>>(&self, name: S) -> Option<&ArgMatches<'a>> {
         if let Some(ref s) = self.subcommand {
-            if s.name == name.as_ref() {
+            if s.name.to_str().unwrap_or("") == name.as_ref() {
                 return Some(&s.matches);
             }
         }
@@ -463,19 +463,20 @@ impl<'a> ArgMatches<'a> {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, SubCommand};
     ///  let app_m = App::new("git")
     ///      .subcommand(SubCommand::with_name("clone"))
     ///      .subcommand(SubCommand::with_name("push"))
     ///      .subcommand(SubCommand::with_name("commit"))
-    ///      .get_matches();
+    ///      .get_matches_from(vec!["git", "clone"]);
     ///
     /// match app_m.subcommand() {
-    ///     ("clone",  Some(sub_m)) => {}, // clone was used
-    ///     ("push",   Some(sub_m)) => {}, // push was used
-    ///     ("commit", Some(sub_m)) => {}, // commit was used
-    ///     _                       => {}, // Either no subcommand or one not tested for...
+    ///     Some(("clone",  sub_m)) => {}, // clone was used
+    ///     Some(("push",   sub_m)) => {}, // push was used
+    ///     Some(("commit", sub_m)) => {}, // commit was used
+    ///     None                    => {}, // No subcommand used
+    ///     _                       => {}, // unreachable
     /// }
     /// ```
     ///
@@ -483,29 +484,80 @@ impl<'a> ArgMatches<'a> {
     /// In these cases you can't know the subcommand name ahead of time, so use a variable instead
     /// with pattern matching!
     ///
+    /// Because of how subcommands are parsed, there are the two ways in which you can creat
+    /// subcommands, either by using [`&str`] slices, or by using the newer and far superior 
+    /// [enum macros].
+    /// 
+    /// This first method shows using the enum macros.
+    ///
+    /// ```rust
+    /// # use std::ffi::OsString;
+    /// # #[macro_use]
+    /// # extern crate clap;
+    /// # use clap::{App, AppSettings};
+    /// # fn main() {
+    ///
+    /// // Here we support two subcomamnds, "do-stuff" and some external command unknown at compile
+    /// // time.
+    /// // Note the `=> "do-stuff"` alternatively we could have left this part off and the user
+    /// // would have to type our variant exactly `DoStuff`
+    /// subcommands! {
+    ///     pub enum MyProg {
+    ///         External,
+    ///         DoStuff => "do-stuff"
+    ///     }
+    /// }
+    ///
+    /// // Assume there is an external subcommand named "subcmd"
+    /// let m = App::new("myprog")
+    ///     .setting(AppSettings::AllowExternalSubcommands)
+    ///     .get_matches_from(vec![
+    ///         "myprog", "subcmd", "--option", "value"
+    ///     ]);
+    ///
+    /// // The external subcommand and all trailing arguments will be stored as an Vec<OsString> 
+    /// // inside the `External` variant created by the macro
+    /// match m.subcommand() {
+    ///     Some((MyProg::External(ref args), _)) => {
+    ///          assert_eq!(args, 
+    ///              &[OsString::from("subcmd"), 
+    ///                OsString::from("--option"), 
+    ///                OsString::from("value")
+    ///          ]);
+    ///     },
+    ///     Some((MyProg::DoStuff, _)) => println!("do-stuff used..."),
+    ///     None => {}, // no subcommand was used
+    /// }
+    /// # }
+    /// ```
+    ///
+    /// This second method shows using the older `&str` method
+    ///
     /// ```rust
     /// # use clap::{App, AppSettings};
     /// // Assume there is an external subcommand named "subcmd"
-    /// let app_m = App::new("myprog")
+    /// let m = App::new("myprog")
     ///     .setting(AppSettings::AllowExternalSubcommands)
     ///     .get_matches_from(vec![
-    ///         "myprog", "subcmd", "--option", "value", "-fff", "--flag"
+    ///         "myprog", "subcmd", "--option", "value"
     ///     ]);
     ///
-    /// // All trailing arguments will be stored under the subcommand's sub-matches using a value
-    /// // of the runtime subcommand name (in this case "subcmd")
-    /// match app_m.subcommand() {
-    ///     (external, Some(sub_m)) => {
-    ///          let ext_args: Vec<&str> = sub_m.values_of(external).unwrap().collect();
-    ///          assert_eq!(ext_args, ["--option", "value", "-fff", "--flag"]);
+    /// // The external subcommand and all trailing arguments will be stored as a &str
+    /// // notice that we must specify a type hint
+    /// match m.subcommand::<&str>() {
+    ///     Some((args, _)) => {
+    ///          assert_eq!(args, "subcmd --option value");
     ///     },
     ///     _ => {},
     /// }
     /// ```
+    /// [`&str`]: https://doc.rust-lang.org/std/primitive.str.html
+    /// [enum macros]: ./macro.subcommands!.html
     /// [`ArgMatches::subcommand_matches`]: ./struct.ArgMatches.html#method.subcommand_matches
     /// [`ArgMatches::subcommand_name`]: ./struct.ArgMatches.html#method.subcommand_name
-    pub fn subcommand(&self) -> (&str, Option<&ArgMatches<'a>>) {
-        self.subcommand.as_ref().map_or(("", None), |sc| (&sc.name[..], Some(&sc.matches)))
+    pub fn subcommand<S>(&self) -> Option<(S, &ArgMatches<'a>)>
+        where S: SubCommandKey {
+        self.subcommand.as_ref().map_or(None, |sc| Some((S::from_os_str(&sc.name), &sc.matches)))
     }
 
     /// Returns a string slice of the usage statement for the [`App`] or [`SubCommand`]

@@ -35,19 +35,18 @@ macro_rules! load_yaml {
 ///
 /// # Examples
 ///
-/// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
+/// ```
+/// # #[macro_use] extern crate clap;
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
 ///               .arg_from_usage("[length] 'Set the length to use as a pos whole num, i.e. 20'")
-///               .get_matches();
+///               .get_matches_from(vec!["myapp", "8"]);
 ///
 /// let len      = value_t!(matches.value_of("length"), u32).unwrap_or_else(|e| e.exit());
 /// let also_len = value_t!(matches, "length", u32).unwrap_or_else(|e| e.exit());
 ///
-/// println!("{} + 2: {}", len, len + 2);
+/// assert_eq!(10, len + 2);
 /// # }
 /// ```
 /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
@@ -80,19 +79,19 @@ macro_rules! value_t {
 ///
 /// # Examples
 ///
-/// ```no_run
+/// ```
 /// # #[macro_use]
 /// # extern crate clap;
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
 ///               .arg_from_usage("[length] 'Set the length to use as a pos whole num, i.e. 20'")
-///               .get_matches();
+///               .get_matches_from(vec!["myapp", "8"]);
 ///
 /// let len      = value_t_or_exit!(matches.value_of("length"), u32);
 /// let also_len = value_t_or_exit!(matches, "length", u32);
 ///
-/// println!("{} + 2: {}", len, len + 2);
+/// assert_eq!(10, len + 2);
 /// # }
 /// ```
 /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
@@ -123,24 +122,20 @@ macro_rules! value_t_or_exit {
 ///
 /// # Examples
 ///
-/// ```no_run
+/// ```
 /// # #[macro_use]
 /// # extern crate clap;
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
 ///               .arg_from_usage("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
-///               .get_matches();
+///               .get_matches_from(vec!["myapp", "8", "2"]);
 ///
 /// let vals = values_t!(matches.values_of("seq"), u32).unwrap_or_else(|e| e.exit());
-/// for v in &vals {
-///     println!("{} + 2: {}", v, v + 2);
-/// }
+/// assert_eq!(10, vals.iter().fold(0, |i, acc| i + acc));
 ///
 /// let vals = values_t!(matches, "seq", u32).unwrap_or_else(|e| e.exit());
-/// for v in &vals {
-///     println!("{} + 2: {}", v, v + 2);
-/// }
+/// assert_eq!(10, vals.iter().fold(0, |i, acc| i + acc));
 /// # }
 /// ```
 /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
@@ -183,25 +178,21 @@ macro_rules! values_t {
 ///
 /// # Examples
 ///
-/// ```no_run
+/// ```
 /// # #[macro_use]
 /// # extern crate clap;
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
 ///               .arg_from_usage("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
-///               .get_matches();
+///               .get_matches_from(vec!["myapp", "8", "2"]);
 ///
 /// let vals = values_t_or_exit!(matches.values_of("seq"), u32);
-/// for v in &vals {
-///     println!("{} + 2: {}", v, v + 2);
-/// }
+/// assert_eq!(10, vals.iter().fold(0, |i, acc| i + acc));
 ///
 /// // type for example only
 /// let vals: Vec<u32> = values_t_or_exit!(matches, "seq", u32);
-/// for v in &vals {
-///     println!("{} + 2: {}", v, v + 2);
-/// }
+/// assert_eq!(10, vals.iter().fold(0, |i, acc| i + acc));
 /// # }
 /// ```
 /// [`values_t!(/* ... */).unwrap_or_else(|e| e.exit())`]: ./macro.values_t!.html
@@ -266,9 +257,8 @@ macro_rules! _clap_count_exprs {
 ///
 /// # Examples
 ///
-/// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
+/// ```
+/// # #[macro_use] extern crate clap;
 /// # use clap::{App, Arg};
 /// arg_enum!{
 ///     #[derive(Debug)]
@@ -283,7 +273,7 @@ macro_rules! _clap_count_exprs {
 /// fn main() {
 ///     let m = App::new("app")
 ///                 .arg_from_usage("<foo> 'the foo'")
-///                 .get_matches();
+///                 .get_matches_from(vec!["app", "bar"]);
 ///     let f = value_t!(m, "foo", Foo).unwrap_or_else(|e| e.exit());
 ///
 ///     // Use f like any other Foo variant...
@@ -371,9 +361,8 @@ macro_rules! arg_enum {
 ///
 /// # Examples
 ///
-/// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
+/// ```
+/// # #[macro_use] extern crate clap;
 /// # use clap::App;
 /// # fn main() {
 ///     let m = App::new("app")
@@ -395,14 +384,12 @@ macro_rules! crate_version {
 ///
 /// # Examples
 ///
-/// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
+/// ```
+/// # #[macro_use] extern crate clap;
 /// # use clap::App;
 /// # fn main() {
-///     let m = App::new("app")
-///                 .author(crate_authors!())
-///                 .get_matches();
+///     App::new("app")
+///         .author(crate_authors!());
 /// # }
 /// ```
 #[cfg_attr(feature = "unstable", macro_export)]
@@ -577,8 +564,7 @@ macro_rules! clap_app {
 /// literally)
 ///
 /// ```rust
-/// # #[macro_use]
-/// # extern crate clap;
+/// # #[macro_use] extern crate clap;
 /// # use clap::{App, SubCommand};
 /// // Note lowercase variants, the subcommand will be exactly as typed here
 /// subcommands!{
@@ -785,7 +771,7 @@ macro_rules! subcommands {
                 fn from_os_str(s: &::std::ffi::OsStr) -> Self {
                         use ::clap::OsStrExt;
                         match &s.to_string_lossy()[..] {
-                            $($s => $e::$v),+,
+                            $($v => $e::$v),+,
                             _ => $e::External((*s)._split(b' ').map(ToOwned::to_owned).collect::<Vec<_>>()),
                         }
                     }
@@ -805,7 +791,7 @@ macro_rules! subcommands {
                     fn into(self) -> &'static str {
                         match self {
                             $e::External(_) => "External",
-                            $($e::$v => $s,)+
+                            $($e::$v => stringify!($v),)+
                         }
                     }
                 }
@@ -837,7 +823,7 @@ macro_rules! subcommands {
                 impl<'a> ::clap::SubCommandKey for $e {
                 fn from_os_str(s: &::std::ffi::OsStr) -> Self {
                         match &s.to_string_lossy()[..] {
-                            $($s => $e::$v),+,
+                            $(stringify!($v) => $e::$v),+,
                             _ => unreachable!(),
                         }
                     }
@@ -855,7 +841,7 @@ macro_rules! subcommands {
                 impl<'a> ::std::convert::Into<&'static str> for $e {
                     fn into(self) -> &'static str {
                         match self {
-                            $($e::$v => $s,)+
+                            $($e::$v => stringify!($v),)+
                         }
                     }
                 }
