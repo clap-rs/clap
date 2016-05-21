@@ -369,6 +369,13 @@ impl<'a, 'b> Arg<'a, 'b> {
         parser.parse()
     }
 
+    /// FIXME: add docs
+    pub fn usage(self, u: &'a str) -> Self {
+        let mut new = Arg::from_usage(u);
+        new.name = self.name;
+        new
+    }
+
     /// Sets the short version of the argument without the preceding `-`.
     ///
     /// By default `clap` automatically assigns `V` and `h` to the auto-generated `version` and

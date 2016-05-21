@@ -284,7 +284,7 @@ macro_rules! _clap_count_exprs {
 /// [`Display`]: https://doc.rust-lang.org/std/fmt/trait.Display.html
 /// [`std::fmt::Display`]: https://doc.rust-lang.org/std/fmt/trait.Display.html
 #[macro_export]
-macro_rules! arg_enum {
+macro_rules! arg_values {
     (@as_item $($i:item)*) => ($($i)*);
     (@impls ( $($tts:tt)* ) -> ($e:ident, $($v:ident),+)) => {
         arg_enum!(@as_item
@@ -990,6 +990,76 @@ macro_rules! subcommands {
                  );
              };
  }
+
+/// FIXME: add docs
+#[macro_export]
+macro_rules! args {
+    (@as_item $($i:item)*) => ($($i)*);
+    (@impls ( $($tts:tt)* ) -> ($e:ident, $($v:ident),+)) => {
+        args!(@as_item
+        $($tts)*
+
+        impl ::std::fmt::Display for $e {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                match *self {
+                    $($e::$v => write!(f, stringify!($v)),)+
+                }
+            }
+        }
+        impl<'a> ::std::convert::Into<&'static str> for $e {
+            fn into(self) -> &'static str {
+                match self {
+                    $($e::$v => $s,)+
+                }
+            }
+        }
+        impl ::std::convert::AsRef<str> for $e {
+            fn as_ref(&self) -> &'static str {
+                match *self {
+                    $($e::$v => stringify!($v),)+
+                }
+            }
+        }
+        impl $e {
+            #[allow(dead_code)]
+            pub fn variants() -> [&'static str; _clap_count_exprs!($(stringify!($v)),+)] {
+                [
+                    $(stringify!($v),)+
+                ]
+            }
+        });
+    };
+    (#[$($m:meta),+] pub enum $e:ident { $($v:ident),+ } ) => {
+        args!(@impls
+            (#[$($m),+]
+            pub enum $e {
+                $($v),+
+            }) -> ($e, $($v),+)
+        );
+    };
+    (#[$($m:meta),+] enum $e:ident { $($v:ident),+ } ) => {
+        args!(@impls
+            (#[$($m),+]
+            enum $e {
+                $($v),+
+            }) -> ($e, $($v),+)
+        );
+    };
+    (pub enum $e:ident { $($v:ident),+ } ) => {
+        args!(@impls
+            (pub enum $e {
+                $($v),+
+            }) -> ($e, $($v),+)
+        );
+    };
+    (enum $e:ident { $($v:ident),+ } ) => {
+        args!(@impls
+            (enum $e {
+                $($v),+
+            }) -> ($e, $($v),+)
+        );
+    };
+}
 
 macro_rules! impl_settings {
     ($n:ident, $($v:ident => $c:ident),+) => {
