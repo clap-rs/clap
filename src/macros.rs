@@ -905,7 +905,7 @@ macro_rules! subcommands {
                     }) -> ($e, $($v=>$s),+)
                 );)+
             };
-            ($(#[$($m:meta),+] enum $e:ident { $($v:ident=>$s:expr),+ }) ) => {
+            ($(#[$($m:meta),+] enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
                  $(subcommands!(@impls_s
                      (#[$($m),+]
                      enum $e {
