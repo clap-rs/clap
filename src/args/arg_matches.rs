@@ -454,8 +454,8 @@ impl<'a> ArgMatches<'a> {
     /// [`Subcommand`]: ./struct.SubCommand.html
     /// [`App`]: ./struct.App.html
     /// [`ArgMatches`]: ./struct.ArgMatches.html
-    pub fn subcommand_name(&self) -> Option<&str> {
-        self.subcommand.as_ref().map(|sc| &sc.name[..])
+    pub fn subcommand_name<S>(&self) -> Option<S> where S: SubCommandKey {
+        self.subcommand.as_ref().map(|sc| S::from_os_str(&sc.name))
     }
 
     /// This brings together [`ArgMatches::subcommand_matches`] and [`ArgMatches::subcommand_name`]
