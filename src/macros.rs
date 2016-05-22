@@ -523,39 +523,45 @@ macro_rules! clap_app {
 }};
 }
 
-/// A convienience macro for defining enums that can be used to access `SubCommand`s. By using this
-/// macro, all traits are implemented automatically. The traits implemented are, `SubCommandKey`
-/// (an internal trait one needn't worry about), `Display`, `Into<&'static str>` and `AsRef<str>`.
-/// This macro also implements a `variants()` function which returns an array of `&'static str`s
-/// containing the variant names.
+/// A convienience macro for defining enums that can be used to access [`SubCommand`]s. By using
+/// this macro, all traits are implemented automatically. The traits implemented are,
+/// [`SubCommandKey`], [`Display`], [`Into<&'static str>`] and [`AsRef<str>`]. This macro also
+/// implements a `variants()` function which returns an array of [`&'static str`]s containing the
+/// variant names.
 ///
 /// There are two ways to use this macro, in an as-is scenario where the variants one defines are
 /// exaclty how the subcommands are displayed to the end user. There is also an alternative way
 /// where the actual display of the subcommands can be changed. Examples of both are bellow.
 ///
-/// This allows rustc to do some checking for you, i.e. if you add another
-/// subcommand later, but forget to check for it, rustc will complain about
-/// NonExaustive matches. Likewise, if you make a simple spelling or typing
-/// error.
+/// This allows `rustc` to do some checking for you, i.e. if you add another subcommand later, but
+/// forget to check for it, `rustc` will complain about NonExaustive matches. Likewise, if you make
+/// a simple spelling or typing error.
 ///
-/// **Pro Tip:** It's good practice to make the name of the enum the same as
-/// the parent command, and the variants the names of the actual subcommands
+/// Another benefit is when using something like [`racer`] to provide autocompeletion, you can pick
+/// from list a actual arg variants, and not risk mis-typing an arg name.
+///
+/// **Pro Tip:** It's good practice to make the name of the enum the same as the parent command,
+/// and the variants the names of the actual subcommands
+///
+/// **NOTE:** Multiple subcommand enums can be declared inside the same `subcommands!` macro block.
+///
+/// **NOTE:** If one wishes to implement these traits manually, that's also possible.
 ///
 /// # External Subcommands
 ///
 /// If you wish to support external subcommands, there are two simple things one must do. First,
 /// when using the `subcommands!` macro, the **first** variant you name, **must** be `External`,
 /// this tells the macro to generate all the appropriate portions to support external subcommands.
-/// Second, you must use the `AppSettings::AllowExternalSubcommands` setting.
+/// Second, you must use the [`AppSettings::AllowExternalSubcommands`] setting.
 ///
 /// After doing these two things, if a possible external subcommand is recognized, `clap` will
 /// return the `External(Vec<OsString>)` variant. The wrapped `Vec` contains the args that were
 /// passed to the possible external subcommand (including the subcommand itself). Thse are stored
-/// as `OsString`s since it's possible contain invalid UTF-8 code points on some platforms.
+/// as [`OsString`]s since it's possible contain invalid UTF-8 code points on some platforms.
 ///
 /// **Pro Tip**: If you wish to get `&str`s instead and you're *sure* they won't contain invalid
 /// UTF-8, or you don't wish to support invalid UTF-8, it's as simple as using the following
-/// iterator chain on the returned `Vec`: `v.iter().map(|s| s.to_str().expect("Invalid
+/// iterator chain on the returned [`Vec`]: `v.iter().map(|s| s.to_str().expect("Invalid
 /// UTF-8")).collect::<Vec<_>>()`
 ///
 /// # Examples
@@ -591,9 +597,9 @@ macro_rules! clap_app {
 /// }
 /// ```
 ///
-/// Next, if you wish to support subcommands with things like hyphen characters, or don't like having
-/// non-camel-case types, a second version of the macro exists which allows specifying a literal subcommand
-/// which gets associated with a enum variant.
+/// Next, if you wish to support subcommands with things like hyphen characters, or don't like
+/// having non-camel-case types, a second version of the macro exists which allows specifying a
+/// literal subcommand which gets associated with a enum variant.
 ///
 /// ```rust
 /// # #[macro_use]
@@ -623,8 +629,8 @@ macro_rules! clap_app {
 /// }
 /// ```
 ///
-/// Finally, if one wishes to support external subcommands, simply ensure the first variant is called
-/// `External` and the appropriate `AppSettings` variant is used.
+/// Finally, if one wishes to support external subcommands, simply ensure the first variant is
+/// called `External` and the appropriate [`AppSettings`] variant is used.
 ///
 /// ```rust
 /// # #[macro_use]
@@ -656,6 +662,17 @@ macro_rules! clap_app {
 ///     }
 /// }
 /// ```
+/// [`SubCommand`]: ./struct.SubCommand.html
+/// [`SubCommandKey`]: ./trait.SubCommandKey.html
+/// [`Display`]: https://doc.rust-lang.org/std/fmt/trait.Display.html
+/// [`Into<&'static str>`]: https://doc.rust-lang.org/std/convert/trait.Into.html
+/// [`AsRef<str>`]: https://doc.rust-lang.org/std/convert/trait.AsRef.html
+/// [`&'static str`]: https://doc.rust-lang.org/std/primitive.str.html
+/// [`AppSettings::AllowExternalSubcommands`]: ./enum.AppSettings.html#variant.AllowExternalSubcommands
+/// [`Vec`]: https://doc.rust-lang.org/std/vec/struct.Vec.html
+/// [`AppSettings`]: ./enum.AppSettings.html
+/// [`OsString`]: https://doc.rust-lang.org/std/ffi/struct.OsString.html
+/// [`racer`]: https://github.com/phildawes/racer
 #[macro_export]
 macro_rules! subcommands {
     (@as_item $($i:item)*) => ($($i)*);
@@ -991,7 +1008,101 @@ macro_rules! subcommands {
      };
  }
 
-/// FIXME: add docs
+/// A convienience macro for defining enums that can be used to access [`Arg`]s. By using this
+/// macro, all traits are implemented automatically. The traits implemented are, [`Display`],
+/// [`Into<&'static str>`] and [`AsRef<str>`]. This macro also implements a `variants()` function
+/// which returns an array of [`&'static str`]s containing the variant names.
+///
+/// There are two ways to use this macro; the most simple is in an as-is scenario where the
+/// variants one defines are exaclty how the args would be accessed via a `&str`. There is also an
+/// alternative way where the actual display of the args can be changed. Examples of both
+/// are bellow. The second method is most useful with positional arguments whos name is also
+/// displayed during usage strings and error messages.
+///
+/// The benefit of using these macros versus strings is it allows `rustc` to do some checking for
+/// you, i.e. if you add another arg later or change it's name, but forget to check for it
+/// properly, `rustc` will complain about non-existing variants. Likewise, if you make a simple
+/// spelling or typing error.
+///
+/// Another benefit is when using something like [`racer`] to provide autocompeletion, you can pick
+/// from list a actual arg variants, and not risk mis-typing an arg name.
+///
+/// **Pro Tip:** It's good practice to make the name of the enum the same as the parent command
+/// that they belong to and append the word `Args` so that it doesn't collide with any subcommands,
+/// and the variants the names of the actual args
+///
+/// **NOTE:** Multiple arg enums can be declared inside the same `args!` macro block.
+///
+/// **Pro Tip**: Using [`Arg::usage`] is a simply way to get the benefits of using enums and less
+/// verbose usage string initiation.
+///
+/// # Examples
+///
+/// First, an example showing the most basic use of the macro. (i.e. enum variants are used
+/// literally).
+///
+/// ```rust
+/// # #[macro_use] extern crate clap;
+/// # use clap::{App, Arg};
+/// args!{
+///     enum MyProg {
+///         Verbose,
+///         Config
+///     }
+/// }
+///
+/// fn main() {
+///     let m = App::new("myprog")
+///         .arg(Arg::with_name(MyProg::Verbose)
+///             .short("v")
+///             .help("print verbose output"))
+///         .arg(Arg::with_name(MyProg::Config)
+///             .long("config")
+///             .value_name("FILE")
+///             .help("use a custom config file"))
+///         .get_matches_from(vec!["myprog", "-v", "--config", "opts.cfg"]);
+///
+///     assert!(m.is_present(MyProg::Verbose));
+///     assert_eq!(m.value_of(MyProg::Config), Some("opts.cfg"));
+/// }
+/// ```
+///
+/// Next, if you wish to support args with things like hyphen characters in the name, or don't like
+/// having non-camel-case types for positional arguments which usually use either all lower-case or
+/// all upper-case characters, a second version of the macro exists which allows specifying a
+/// literal args, which is effectively the [`Arg::value_name`] which gets associated with a enum
+/// variant.
+///
+/// The benefit of the example below, is primarily with positional argumetns whos name is displayed
+/// to the users in usage strings and help messages. If one were to view the help message of the
+/// program below, the `File` woud be displayed as `<FILE>`.
+///
+/// ```rust
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::{App, Arg};
+/// args!{
+///     enum MyProg {
+///         File => "FILE"
+///     }
+/// }
+/// fn main() {
+///     let m = App::new("myprog")
+///         .subcommand(SubCommand::with_name(MyProg::File))
+///         .get_matches_from(vec!["myprog", "file.txt"]);
+///
+///     assert!(m.is_present(MyProg::File));
+///     assert_eq!(m.value_of(MyProg::File), Some("file.txt"));
+/// }
+/// ```
+/// [`Arg`]: ./struct.Arg.html
+/// [`Arg::usage`]: ./struct.Arg.html#method.usage
+/// [`Display`]: https://doc.rust-lang.org/std/fmt/trait.Display.html
+/// [`Into<&'static str>`]: https://doc.rust-lang.org/std/convert/trait.Into.html
+/// [`AsRef<str>`]: https://doc.rust-lang.org/std/convert/trait.AsRef.html
+/// [`&'static str`]: https://doc.rust-lang.org/std/primitive.str.html
+/// [`racer`]: https://github.com/phildawes/racer
+/// [`Arg::value_name`]: ./struct.Arg.html#method.value_name
 #[macro_export]
 macro_rules! args {
     (@as_item $($i:item)*) => ($($i)*);
