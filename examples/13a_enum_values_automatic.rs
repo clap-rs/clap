@@ -2,9 +2,9 @@
 // trait which is very straight forward. There are three ways to do this, for simple enums
 // meaning those that don't require 'pub' or any '#[derive()]' directives you can use clas's
 // simple_enum! macro. For those that require 'pub' or any '#[derive()]'s you can use clap's
-// arg_enum! macro. The third way is to implement std::str::FromStr manually.
+// arg_values! macro. The third way is to implement std::str::FromStr manually.
 //
-// In most circumstances using either simple_enum! or arg_enum! is fine.
+// In most circumstances using either simple_enum! or arg_values! is fine.
 //
 // In the following example we will create two enums using macros, assign a positional argument
 // that accepts only one of those values, and use clap to parse the argument.
@@ -15,10 +15,10 @@ extern crate clap;
 
 use clap::{App, Arg};
 
-// Using arg_enum! is more like traditional enum declarations
+// Using arg_values! is more like traditional enum declarations
 //
 // **NOTE:** Only bare variants are supported
-arg_enum!{
+arg_values!{
     #[derive(Debug)]
     pub enum Oof {
         Rab,
@@ -27,7 +27,7 @@ arg_enum!{
     }
 }
 
-arg_enum!{
+arg_values!{
     #[derive(Debug)]
     enum Foo {
         Bar,

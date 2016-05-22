@@ -485,9 +485,9 @@ impl<'a> ArgMatches<'a> {
     /// with pattern matching!
     ///
     /// Because of how subcommands are parsed, there are the two ways in which you can creat
-    /// subcommands, either by using [`&str`] slices, or by using the newer and far superior 
+    /// subcommands, either by using [`&str`] slices, or by using the newer and far superior
     /// [enum macros].
-    /// 
+    ///
     /// This first method shows using the enum macros.
     ///
     /// ```rust
@@ -495,7 +495,6 @@ impl<'a> ArgMatches<'a> {
     /// # #[macro_use]
     /// # extern crate clap;
     /// # use clap::{App, AppSettings};
-    /// # fn main() {
     ///
     /// // Here we support two subcomamnds, "do-stuff" and some external command unknown at compile
     /// // time.
@@ -508,6 +507,9 @@ impl<'a> ArgMatches<'a> {
     ///     }
     /// }
     ///
+    /// # fn main() {
+    /// // inside main()
+    ///
     /// // Assume there is an external subcommand named "subcmd"
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::AllowExternalSubcommands)
@@ -515,13 +517,13 @@ impl<'a> ArgMatches<'a> {
     ///         "myprog", "subcmd", "--option", "value"
     ///     ]);
     ///
-    /// // The external subcommand and all trailing arguments will be stored as an Vec<OsString> 
+    /// // The external subcommand and all trailing arguments will be stored as an Vec<OsString>
     /// // inside the `External` variant created by the macro
     /// match m.subcommand() {
     ///     Some((MyProg::External(ref args), _)) => {
-    ///          assert_eq!(args, 
-    ///              &[OsString::from("subcmd"), 
-    ///                OsString::from("--option"), 
+    ///          assert_eq!(args,
+    ///              &[OsString::from("subcmd"),
+    ///                OsString::from("--option"),
     ///                OsString::from("value")
     ///          ]);
     ///     },

@@ -87,27 +87,27 @@ positional present with value: value
 subcmd NOT present
 ";
 
-arg_enum!{
+arg_values!{
     #[derive(Debug)]
     enum Val1 {
         ValOne,
         ValTwo
     }
 }
-arg_enum!{
+arg_values!{
     #[derive(Debug)]
     pub enum Val2 {
         ValOne,
         ValTwo
     }
 }
-arg_enum!{
+arg_values!{
     enum Val3 {
         ValOne,
         ValTwo
     }
 }
-arg_enum!{
+arg_values!{
     pub enum Val4 {
         ValOne,
         ValTwo

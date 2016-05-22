@@ -260,7 +260,7 @@ macro_rules! _clap_count_exprs {
 /// ```
 /// # #[macro_use] extern crate clap;
 /// # use clap::{App, Arg};
-/// arg_enum!{
+/// arg_values!{
 ///     #[derive(Debug)]
 ///     pub enum Foo {
 ///         Bar,
@@ -287,7 +287,7 @@ macro_rules! _clap_count_exprs {
 macro_rules! arg_values {
     (@as_item $($i:item)*) => ($($i)*);
     (@impls ( $($tts:tt)* ) -> ($e:ident, $($v:ident),+)) => {
-        arg_enum!(@as_item
+        arg_values!(@as_item
         $($tts)*
 
         impl ::std::str::FromStr for $e {
@@ -325,7 +325,7 @@ macro_rules! arg_values {
         });
     };
     (#[$($m:meta),+] pub enum $e:ident { $($v:ident),+ } ) => {
-        arg_enum!(@impls
+        arg_values!(@impls
             (#[$($m),+]
             pub enum $e {
                 $($v),+
@@ -333,7 +333,7 @@ macro_rules! arg_values {
         );
     };
     (#[$($m:meta),+] enum $e:ident { $($v:ident),+ } ) => {
-        arg_enum!(@impls
+        arg_values!(@impls
             (#[$($m),+]
             enum $e {
                 $($v),+
@@ -341,14 +341,14 @@ macro_rules! arg_values {
         );
     };
     (pub enum $e:ident { $($v:ident),+ } ) => {
-        arg_enum!(@impls
+        arg_values!(@impls
             (pub enum $e {
                 $($v),+
             }) -> ($e, $($v),+)
         );
     };
     (enum $e:ident { $($v:ident),+ } ) => {
-        arg_enum!(@impls
+        arg_values!(@impls
             (enum $e {
                 $($v),+
             }) -> ($e, $($v),+)
@@ -967,13 +967,13 @@ macro_rules! subcommands {
                      }) -> ($e, $($v=>$s),+)
                  );)+
              };
-             ($(enum $e:ident { External, $($v:ident),+ }) ) => {
+             ($(enum $e:ident { External, $($v:ident),+ })+ ) => {
                  $(subcommands!(@impls_ext
                      (enum $e {
                          $($v),+,
                         External(Vec<::std::ffi::OsString>),
                      }) -> ($e, $($v),+)
-                 );)
+                 );)+
              };
              ($(enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
                  $(subcommands!(@impls_s
