@@ -412,10 +412,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// // Inside main()
     /// let m = App::new("myprog")
     ///     .arg(Arg::with_name(MyProgArgs::Arg1)
-    ///         .usage("-a, --arg <ARG> 'some option argument'"));
-    ///     .get_matches_from(vec!["myprog", "-a", "val"])
+    ///         .usage("-a, --arg <ARG> 'some option argument'"))
+    ///     .get_matches_from(vec!["myprog", "-a", "val"]);
     ///
-    /// assert_eq!(m.value_of(MyProgArgs::Arg1).unwrap(), "val");
+    /// assert_eq!(m.value_of(MyProgArgs::Arg1), Some("val"));
     /// # }
     /// ```
     /// [`Arg::from_usage`]: ./struct.Arg.html#method.from_usage

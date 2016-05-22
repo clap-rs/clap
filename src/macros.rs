@@ -1088,7 +1088,7 @@ macro_rules! subcommands {
 /// }
 /// fn main() {
 ///     let m = App::new("myprog")
-///         .subcommand(SubCommand::with_name(MyProg::File))
+///         .arg(Arg::with_name(MyProg::File))
 ///         .get_matches_from(vec!["myprog", "file.txt"]);
 ///
 ///     assert!(m.is_present(MyProg::File));
