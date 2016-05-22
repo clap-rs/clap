@@ -861,133 +861,133 @@ macro_rules! subcommands {
                     }
                 });
             };
-            (#[$($m:meta),+] pub enum $e:ident { External, $($v:ident=>$s:expr),+ } ) => {
-                subcommands!(@impls_s_ext
+            ($(#[$($m:meta),+] pub enum $e:ident { External, $($v:ident=>$s:expr),+ })+ ) => {
+                $(subcommands!(@impls_s_ext
                     (#[$($m),+]
                     pub enum $e {
                         $($v),+,
                         External(Vec<::std::ffi::OsString>),
                     }) -> ($e, $($v=>$s),+)
-                );
+                );)+
             };
-            (#[$($m:meta),+] enum $e:ident { External, $($v:ident=>$s:expr),+ } ) => {
-                 subcommands!(@impls_s_ext
+            ($(#[$($m:meta),+] enum $e:ident { External, $($v:ident=>$s:expr),+ })+ ) => {
+                 $(subcommands!(@impls_s_ext
                      (#[$($m),+]
                      enum $e {
                          $($v),+,
                         External(Vec<::std::ffi::OsString>),
                      }) -> ($e, $($v=>$s:expr),+)
-                 );
+                 );)+
             };
-             (#[$($m:meta),+] pub enum $e:ident { External, $($v:ident),+ } ) => {
-                 subcommands!(@impls_ext
+             ($(#[$($m:meta),+] pub enum $e:ident { External, $($v:ident),+ })+ ) => {
+                 $(subcommands!(@impls_ext
                      (#[$($m),+]
                      pub enum $e {
                          $($v),+,
                         External(Vec<::std::ffi::OsString>),
                      }) -> ($e, $($v),+)
-                 );
+                 );)+
              };
-             (#[$($m:meta),+] enum $e:ident { External, $($v:ident),+ } ) => {
-                 subcommands!(@impls_ext
+             ($(#[$($m:meta),+] enum $e:ident { External, $($v:ident),+ })+ ) => {
+                 $(subcommands!(@impls_ext
                      (#[$($m),+]
                      enum $e {
                          $($v),+,
                         External(Vec<::std::ffi::OsString>),
                      }) -> ($e, $($v),+)
-                 );
+                 );)+
              };
-            (#[$($m:meta),+] pub enum $e:ident { $($v:ident=>$s:expr),+ } ) => {
-                subcommands!(@impls_s
+            ($(#[$($m:meta),+] pub enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+                $(subcommands!(@impls_s
                     (#[$($m),+]
                     pub enum $e {
                         $($v),+,
                     }) -> ($e, $($v=>$s),+)
-                );
+                );)+
             };
-            (#[$($m:meta),+] enum $e:ident { $($v:ident=>$s:expr),+ } ) => {
-                 subcommands!(@impls_s
+            ($(#[$($m:meta),+] enum $e:ident { $($v:ident=>$s:expr),+ }) ) => {
+                 $(subcommands!(@impls_s
                      (#[$($m),+]
                      enum $e {
                          $($v),+,
                      }) -> ($e, $($v=>$s:expr),+)
-                 );
+                 );)+
             };
-             (#[$($m:meta),+] pub enum $e:ident { $($v:ident),+ } ) => {
-                 subcommands!(@impls
+             ($(#[$($m:meta),+] pub enum $e:ident { $($v:ident),+ })+ ) => {
+                 $(subcommands!(@impls
                      (#[$($m),+]
                      pub enum $e {
                          $($v),+,
                      }) -> ($e, $($v),+)
-                 );
+                 );)+
              };
-             (#[$($m:meta),+] enum $e:ident { $($v:ident),+ } ) => {
-                 subcommands!(@impls
+             ($(#[$($m:meta),+] enum $e:ident { $($v:ident),+ })+ ) => {
+                 $(subcommands!(@impls
                      (#[$($m),+]
                      enum $e {
                          $($v),+,
                      }) -> ($e, $($v),+)
-                 );
+                 );)+
              };
-            (pub enum $e:ident { External, $($v:ident=>$s:expr),+ } ) => {
-                 subcommands!(@impls_s_ext
+            ($(pub enum $e:ident { External, $($v:ident=>$s:expr),+ })+ ) => {
+                 $(subcommands!(@impls_s_ext
                      (pub enum $e {
                          $($v),+,
                         External(Vec<::std::ffi::OsString>),
                      }) -> ($e, $($v=>$s),+)
-                 );
+                 );)+
              };
-             (pub enum $e:ident { External, $($v:ident),+ } ) => {
-                 subcommands!(@impls_ext
+             ($(pub enum $e:ident { External, $($v:ident),+ })+ ) => {
+                 $(subcommands!(@impls_ext
                      (pub enum $e {
                          $($v),+,
                         External(Vec<::std::ffi::OsString>),
                      }) -> ($e, $($v),+)
-                 );
+                 );)+
              };
-            (pub enum $e:ident { $($v:ident=>$s:expr),+ } ) => {
-                 subcommands!(@impls_s
+            ($(pub enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+                 $(subcommands!(@impls_s
                      (pub enum $e {
                          $($v),+,
                      }) -> ($e, $($v=>$s),+)
-                 );
+                 );)+
              };
-             (pub enum $e:ident { $($v:ident),+ } ) => {
-                 subcommands!(@impls
+             ($(pub enum $e:ident { $($v:ident),+ })+ ) => {
+                 $(subcommands!(@impls
                      (pub enum $e {
                          $($v),+,
                      }) -> ($e, $($v),+)
-                 );
+                 );)+
              };
-             (enum $e:ident { External, $($v:ident=>$s:expr),+ } ) => {
-                 subcommands!(@impls_s_ext
+             ($(enum $e:ident { External, $($v:ident=>$s:expr),+ })+ ) => {
+                 $(subcommands!(@impls_s_ext
                      (enum $e {
                          $($v),+,
                         External(Vec<::std::ffi::OsString>),
                      }) -> ($e, $($v=>$s),+)
-                 );
+                 );)+
              };
-             (enum $e:ident { External, $($v:ident),+ } ) => {
-                 subcommands!(@impls_ext
+             ($(enum $e:ident { External, $($v:ident),+ }) ) => {
+                 $(subcommands!(@impls_ext
                      (enum $e {
                          $($v),+,
                         External(Vec<::std::ffi::OsString>),
                      }) -> ($e, $($v),+)
-                 );
+                 );)
              };
-             (enum $e:ident { $($v:ident=>$s:expr),+ } ) => {
-                 subcommands!(@impls_s
+             ($(enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+                 $(subcommands!(@impls_s
                      (enum $e {
                          $($v),+,
                      }) -> ($e, $($v=>$s),+)
-                 );
+                 );)+
              };
-             (enum $e:ident { $($v:ident),+ } ) => {
-                 subcommands!(@impls
+             ($(enum $e:ident { $($v:ident),+ })+ ) => {
+                 $(subcommands!(@impls
                      (enum $e {
                          $($v),+,
                      }) -> ($e, $($v),+)
-                 );
+                 );)+
              };
  }
 
@@ -1029,35 +1029,35 @@ macro_rules! args {
             }
         });
     };
-    (#[$($m:meta),+] pub enum $e:ident { $($v:ident),+ } ) => {
-        args!(@impls
+    ($(#[$($m:meta),+] pub enum $e:ident { $($v:ident),+ })+ ) => {
+        $(args!(@impls
             (#[$($m),+]
             pub enum $e {
                 $($v),+
             }) -> ($e, $($v),+)
-        );
+        );)+
     };
-    (#[$($m:meta),+] enum $e:ident { $($v:ident),+ } ) => {
-        args!(@impls
+    ($(#[$($m:meta),+] enum $e:ident { $($v:ident),+ })+ ) => {
+        $(args!(@impls
             (#[$($m),+]
             enum $e {
                 $($v),+
             }) -> ($e, $($v),+)
-        );
+        );)+
     };
-    (pub enum $e:ident { $($v:ident),+ } ) => {
-        args!(@impls
+    ($(pub enum $e:ident { $($v:ident),+ })+ ) => {
+        $(args!(@impls
             (pub enum $e {
                 $($v),+
             }) -> ($e, $($v),+)
-        );
+        );)+
     };
-    (enum $e:ident { $($v:ident),+ } ) => {
-        args!(@impls
+    ($(enum $e:ident { $($v:ident),+ })+ ) => {
+        $(args!(@impls
             (enum $e {
                 $($v),+
             }) -> ($e, $($v),+)
-        );
+        );)+
     };
 }
 
