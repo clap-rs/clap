@@ -329,11 +329,11 @@ pub enum AppSettings {
     /// appropriatly.
     ///
     /// # Examples
-    /// 
+    ///
     /// Because of how subcommands are parsed, there are the two ways in which you can creat
-    /// subcommands, either by using [`&str`] slices, or by using the newer and far superior 
+    /// subcommands, either by using [`&str`] slices, or by using the newer and far superior
     /// [enum macros].
-    /// 
+    ///
     /// This first method shows using the enum macros.
     ///
     /// ```rust
@@ -341,7 +341,6 @@ pub enum AppSettings {
     /// # extern crate clap;
     /// # use std::ffi::OsString;
     /// # use clap::{App, AppSettings};
-    /// # fn main() {
     ///
     /// // Here we will support two subcommands, "do-stuff" and an external subcommand
     /// subcommands! {
@@ -351,6 +350,8 @@ pub enum AppSettings {
     ///     }
     /// }
     ///
+    /// # fn main() {
+    /// // Inside main()
     /// // Assume there is an external subcommand named "subcmd"
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::AllowExternalSubcommands)
@@ -362,9 +363,9 @@ pub enum AppSettings {
     /// // of the runtime subcommand name (in this case "subcmd")
     /// match m.subcommand() {
     ///     Some((MyProg::External(ref args), _)) => {
-    ///          assert_eq!(args, 
-    ///              &[OsString::from("subcmd"), 
-    ///                OsString::from("--option"), 
+    ///          assert_eq!(args,
+    ///              &[OsString::from("subcmd"),
+    ///                OsString::from("--option"),
     ///                OsString::from("value")
     ///          ]);
     ///     },
