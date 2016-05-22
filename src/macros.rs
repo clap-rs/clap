@@ -995,71 +995,139 @@ macro_rules! subcommands {
 #[macro_export]
 macro_rules! args {
     (@as_item $($i:item)*) => ($($i)*);
-    (@impls ( $($tts:tt)* ) -> ($e:ident, $($v:ident),+)) => {
+    (@impls_s ( $($tts:tt)* ) -> ($e:ident, $($v:ident=>$s:expr),+)) => {
         args!(@as_item
-        $($tts)*
-
-        impl ::std::fmt::Display for $e {
-            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                match *self {
-                    $($e::$v => write!(f, stringify!($v)),)+
+            #[allow(unused_imports)]
+            #[derive(PartialEq)]
+            #[allow(non_camel_case_types)]
+            $($tts)*
+            impl ::std::fmt::Display for $e {
+                fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                    match *self {
+                        $($e::$v => write!(f, $s),)+
+                    }
                 }
             }
-        }
-        impl<'a> ::std::convert::Into<&'static str> for $e {
-            fn into(self) -> &'static str {
-                match self {
-                    $($e::$v => stringify!($v),)+
+            impl ::std::convert::AsRef<str> for $e {
+                fn as_ref(&self) -> &'static str {
+                    match *self {
+                        $($e::$v => $s,)+
+                    }
                 }
             }
-        }
-        impl ::std::convert::AsRef<str> for $e {
-            fn as_ref(&self) -> &'static str {
-                match *self {
-                    $($e::$v => stringify!($v),)+
+            impl<'a> ::std::convert::Into<&'static str> for $e {
+                fn into(self) -> &'static str {
+                    match self {
+                        $($e::$v => $s,)+
+                    }
                 }
             }
-        }
-        impl $e {
-            #[allow(dead_code)]
-            pub fn variants() -> [&'static str; _clap_count_exprs!($(stringify!($v)),+)] {
-                [
-                    $(stringify!($v),)+
-                ]
-            }
-        });
-    };
-    ($(#[$($m:meta),+] pub enum $e:ident { $($v:ident),+ })+ ) => {
-        $(args!(@impls
-            (#[$($m),+]
-            pub enum $e {
-                $($v),+
-            }) -> ($e, $($v),+)
-        );)+
-    };
-    ($(#[$($m:meta),+] enum $e:ident { $($v:ident),+ })+ ) => {
-        $(args!(@impls
-            (#[$($m),+]
-            enum $e {
-                $($v),+
-            }) -> ($e, $($v),+)
-        );)+
-    };
-    ($(pub enum $e:ident { $($v:ident),+ })+ ) => {
-        $(args!(@impls
-            (pub enum $e {
-                $($v),+
-            }) -> ($e, $($v),+)
-        );)+
-    };
-    ($(enum $e:ident { $($v:ident),+ })+ ) => {
-        $(args!(@impls
-            (enum $e {
-                $($v),+
-            }) -> ($e, $($v),+)
-        );)+
-    };
-}
+            impl $e {
+                #[allow(dead_code)]
+                pub fn variants() -> [&'static str; _clap_count_exprs!($(stringify!($v)),+)] {
+                    [
+                    $(stringify!($s),)+
+                    ]
+                }
+            });
+        };
+        (@impls ( $($tts:tt)* ) -> ($e:ident, $($v:ident),+)) => {
+            args!(@as_item
+                #[allow(unused_imports)]
+                #[derive(PartialEq)]
+                #[allow(non_camel_case_types)]
+                $($tts)*
+                impl ::std::fmt::Display for $e {
+                    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                        match *self {
+                            $($e::$v => write!(f, stringify!($v)),)+
+                        }
+                    }
+                }
+                impl<'a> ::std::convert::Into<&'static str> for $e {
+                    fn into(self) -> &'static str {
+                        match self {
+                            $($e::$v => stringify!($v),)+
+                        }
+                    }
+                }
+                impl ::std::convert::AsRef<str> for $e {
+                    fn as_ref(&self) -> &'static str {
+                        match *self {
+                            $($e::$v => stringify!($v),)+
+                        }
+                    }
+                }
+                impl $e {
+                    #[allow(dead_code)]
+                    pub fn variants() -> [&'static str; _clap_count_exprs!($(stringify!($v)),+)] {
+                        [
+                        $(stringify!($v),)+
+                        ]
+                    }
+                });
+            };
+            ($(#[$($m:meta),+] pub enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+                $(args!(@impls_s
+                    (#[$($m),+]
+                    pub enum $e {
+                        $($v),+,
+                    }) -> ($e, $($v=>$s),+)
+                );)+
+            };
+            ($(#[$($m:meta),+] enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+                 $(args!(@impls_s
+                     (#[$($m),+]
+                     enum $e {
+                         $($v),+,
+                     }) -> ($e, $($v=>$s:expr),+)
+                 );)+
+            };
+             ($(#[$($m:meta),+] pub enum $e:ident { $($v:ident),+ })+ ) => {
+                 $(args!(@impls
+                     (#[$($m),+]
+                     pub enum $e {
+                         $($v),+,
+                     }) -> ($e, $($v),+)
+                 );)+
+             };
+             ($(#[$($m:meta),+] enum $e:ident { $($v:ident),+ })+ ) => {
+                 $(args!(@impls
+                     (#[$($m),+]
+                     enum $e {
+                         $($v),+,
+                     }) -> ($e, $($v),+)
+                 );)+
+             };
+            ($(pub enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+                 $(args!(@impls_s
+                     (pub enum $e {
+                         $($v),+,
+                     }) -> ($e, $($v=>$s),+)
+                 );)+
+             };
+             ($(pub enum $e:ident { $($v:ident),+ })+ ) => {
+                 $(args!(@impls
+                     (pub enum $e {
+                         $($v),+,
+                     }) -> ($e, $($v),+)
+                 );)+
+             };
+             ($(enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+                 $(args!(@impls_s
+                     (enum $e {
+                         $($v),+,
+                     }) -> ($e, $($v=>$s),+)
+                 );)+
+             };
+             ($(enum $e:ident { $($v:ident),+ })+ ) => {
+                 $(args!(@impls
+                     (enum $e {
+                         $($v),+,
+                     }) -> ($e, $($v),+)
+                 );)+
+             };
+ }
 
 macro_rules! impl_settings {
     ($n:ident, $($v:ident => $c:ident),+) => {
