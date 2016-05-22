@@ -711,7 +711,7 @@ macro_rules! subcommands {
                     ]
                 }
             });
-        };
+    };
     (@impls_s ( $($tts:tt)* ) -> ($e:ident, $($v:ident=>$s:expr),+)) => {
         subcommands!(@as_item
             #[allow(unused_imports)]
@@ -759,236 +759,236 @@ macro_rules! subcommands {
                     ]
                 }
             });
-        };
-        (@impls_ext ( $($tts:tt)* ) -> ($e:ident, $($v:ident),+)) => {
-            subcommands!(@as_item
-                #[allow(unused_imports)]
-                use ::clap::SubCommandKey;
-                #[derive(PartialEq)]
-                #[allow(non_camel_case_types)]
-                $($tts)*
-                impl<'a> ::clap::SubCommandKey for $e {
-                fn from_os_str(s: &::std::ffi::OsStr) -> Self {
-                        use ::clap::OsStrExt;
-                        match &s.to_string_lossy()[..] {
-                            $($v => $e::$v),+,
-                            _ => $e::External((*s)._split(b' ').map(ToOwned::to_owned).collect::<Vec<_>>()),
-                        }
-                    }
-                    fn external(args: Vec<::std::ffi::OsString>) -> Option<Self> {
-                        Some($e::External(args))
+    };
+    (@impls_ext ( $($tts:tt)* ) -> ($e:ident, $($v:ident),+)) => {
+        subcommands!(@as_item
+            #[allow(unused_imports)]
+            use ::clap::SubCommandKey;
+            #[derive(PartialEq)]
+            #[allow(non_camel_case_types)]
+            $($tts)*
+            impl<'a> ::clap::SubCommandKey for $e {
+            fn from_os_str(s: &::std::ffi::OsStr) -> Self {
+                    use ::clap::OsStrExt;
+                    match &s.to_string_lossy()[..] {
+                        $($v => $e::$v),+,
+                        _ => $e::External((*s)._split(b' ').map(ToOwned::to_owned).collect::<Vec<_>>()),
                     }
                 }
-                impl ::std::fmt::Display for $e {
-                    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                        match *self {
-                            $e::External(ref args) => write!(f, "{}", args.iter().map(|a| a.to_string_lossy()).collect::<Vec<_>>().join(" ")),
-                            $($e::$v => write!(f, stringify!($v)),)+
-                        }
+                fn external(args: Vec<::std::ffi::OsString>) -> Option<Self> {
+                    Some($e::External(args))
+                }
+            }
+            impl ::std::fmt::Display for $e {
+                fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                    match *self {
+                        $e::External(ref args) => write!(f, "{}", args.iter().map(|a| a.to_string_lossy()).collect::<Vec<_>>().join(" ")),
+                        $($e::$v => write!(f, stringify!($v)),)+
                     }
                 }
-                impl<'a> ::std::convert::Into<&'static str> for $e {
-                    fn into(self) -> &'static str {
-                        match self {
-                            $e::External(_) => "External",
-                            $($e::$v => stringify!($v),)+
-                        }
+            }
+            impl<'a> ::std::convert::Into<&'static str> for $e {
+                fn into(self) -> &'static str {
+                    match self {
+                        $e::External(_) => "External",
+                        $($e::$v => stringify!($v),)+
                     }
                 }
-                impl ::std::convert::AsRef<str> for $e {
-                    fn as_ref(&self) -> &'static str {
-                        match *self {
-                            $e::External(_) => "External",
-                            $($e::$v => stringify!($v),)+
-                        }
+            }
+            impl ::std::convert::AsRef<str> for $e {
+                fn as_ref(&self) -> &'static str {
+                    match *self {
+                        $e::External(_) => "External",
+                        $($e::$v => stringify!($v),)+
                     }
                 }
-                impl $e {
-                    #[allow(dead_code)]
-                    pub fn variants() -> [&'static str; _clap_count_exprs!("External", $(stringify!($v)),+)] {
-                        [
-                        "External",
-                        $(stringify!($v),)+
-                        ]
-                    }
-                });
-            };
-        (@impls ( $($tts:tt)* ) -> ($e:ident, $($v:ident),+)) => {
-            subcommands!(@as_item
-                #[allow(unused_imports)]
-                use ::clap::SubCommandKey;
-                #[derive(PartialEq)]
-                #[allow(non_camel_case_types)]
-                $($tts)*
-                impl<'a> ::clap::SubCommandKey for $e {
-                fn from_os_str(s: &::std::ffi::OsStr) -> Self {
-                        match &s.to_string_lossy()[..] {
-                            $(stringify!($v) => $e::$v),+,
-                            _ => unreachable!(),
-                        }
-                    }
-                    fn external(_: Vec<::std::ffi::OsString>) -> Option<Self> {
-                        None
+            }
+            impl $e {
+                #[allow(dead_code)]
+                pub fn variants() -> [&'static str; _clap_count_exprs!("External", $(stringify!($v)),+)] {
+                    [
+                    "External",
+                    $(stringify!($v),)+
+                    ]
+                }
+            });
+    };
+    (@impls ( $($tts:tt)* ) -> ($e:ident, $($v:ident),+)) => {
+        subcommands!(@as_item
+            #[allow(unused_imports)]
+            use ::clap::SubCommandKey;
+            #[derive(PartialEq)]
+            #[allow(non_camel_case_types)]
+            $($tts)*
+            impl<'a> ::clap::SubCommandKey for $e {
+            fn from_os_str(s: &::std::ffi::OsStr) -> Self {
+                    match &s.to_string_lossy()[..] {
+                        $(stringify!($v) => $e::$v),+,
+                        _ => unreachable!(),
                     }
                 }
-                impl ::std::fmt::Display for $e {
-                    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                        match *self {
-                            $($e::$v => write!(f, stringify!($v)),)+
-                        }
+                fn external(_: Vec<::std::ffi::OsString>) -> Option<Self> {
+                    None
+                }
+            }
+            impl ::std::fmt::Display for $e {
+                fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                    match *self {
+                        $($e::$v => write!(f, stringify!($v)),)+
                     }
                 }
-                impl<'a> ::std::convert::Into<&'static str> for $e {
-                    fn into(self) -> &'static str {
-                        match self {
-                            $($e::$v => stringify!($v),)+
-                        }
+            }
+            impl<'a> ::std::convert::Into<&'static str> for $e {
+                fn into(self) -> &'static str {
+                    match self {
+                        $($e::$v => stringify!($v),)+
                     }
                 }
-                impl ::std::convert::AsRef<str> for $e {
-                    fn as_ref(&self) -> &'static str {
-                        match *self {
-                            $($e::$v => stringify!($v),)+
-                        }
+            }
+            impl ::std::convert::AsRef<str> for $e {
+                fn as_ref(&self) -> &'static str {
+                    match *self {
+                        $($e::$v => stringify!($v),)+
                     }
                 }
-                impl $e {
-                    #[allow(dead_code)]
-                    pub fn variants() -> [&'static str; _clap_count_exprs!($(stringify!($v)),+)] {
-                        [
-                        $(stringify!($v),)+
-                        ]
-                    }
-                });
-            };
-            ($(#[$($m:meta),+] pub enum $e:ident { External, $($v:ident=>$s:expr),+ })+ ) => {
-                $(subcommands!(@impls_s_ext
-                    (#[$($m),+]
-                    pub enum $e {
-                        $($v),+,
-                        External(Vec<::std::ffi::OsString>),
-                    }) -> ($e, $($v=>$s),+)
-                );)+
-            };
-            ($(#[$($m:meta),+] enum $e:ident { External, $($v:ident=>$s:expr),+ })+ ) => {
-                 $(subcommands!(@impls_s_ext
-                     (#[$($m),+]
-                     enum $e {
-                         $($v),+,
-                        External(Vec<::std::ffi::OsString>),
-                     }) -> ($e, $($v=>$s:expr),+)
-                 );)+
-            };
-             ($(#[$($m:meta),+] pub enum $e:ident { External, $($v:ident),+ })+ ) => {
-                 $(subcommands!(@impls_ext
-                     (#[$($m),+]
-                     pub enum $e {
-                         $($v),+,
-                        External(Vec<::std::ffi::OsString>),
-                     }) -> ($e, $($v),+)
-                 );)+
-             };
-             ($(#[$($m:meta),+] enum $e:ident { External, $($v:ident),+ })+ ) => {
-                 $(subcommands!(@impls_ext
-                     (#[$($m),+]
-                     enum $e {
-                         $($v),+,
-                        External(Vec<::std::ffi::OsString>),
-                     }) -> ($e, $($v),+)
-                 );)+
-             };
-            ($(#[$($m:meta),+] pub enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
-                $(subcommands!(@impls_s
-                    (#[$($m),+]
-                    pub enum $e {
-                        $($v),+,
-                    }) -> ($e, $($v=>$s),+)
-                );)+
-            };
-            ($(#[$($m:meta),+] enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
-                 $(subcommands!(@impls_s
-                     (#[$($m),+]
-                     enum $e {
-                         $($v),+,
-                     }) -> ($e, $($v=>$s:expr),+)
-                 );)+
-            };
-             ($(#[$($m:meta),+] pub enum $e:ident { $($v:ident),+ })+ ) => {
-                 $(subcommands!(@impls
-                     (#[$($m),+]
-                     pub enum $e {
-                         $($v),+,
-                     }) -> ($e, $($v),+)
-                 );)+
-             };
-             ($(#[$($m:meta),+] enum $e:ident { $($v:ident),+ })+ ) => {
-                 $(subcommands!(@impls
-                     (#[$($m),+]
-                     enum $e {
-                         $($v),+,
-                     }) -> ($e, $($v),+)
-                 );)+
-             };
-            ($(pub enum $e:ident { External, $($v:ident=>$s:expr),+ })+ ) => {
-                 $(subcommands!(@impls_s_ext
-                     (pub enum $e {
-                         $($v),+,
-                        External(Vec<::std::ffi::OsString>),
-                     }) -> ($e, $($v=>$s),+)
-                 );)+
-             };
-             ($(pub enum $e:ident { External, $($v:ident),+ })+ ) => {
-                 $(subcommands!(@impls_ext
-                     (pub enum $e {
-                         $($v),+,
-                        External(Vec<::std::ffi::OsString>),
-                     }) -> ($e, $($v),+)
-                 );)+
-             };
-            ($(pub enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
-                 $(subcommands!(@impls_s
-                     (pub enum $e {
-                         $($v),+,
-                     }) -> ($e, $($v=>$s),+)
-                 );)+
-             };
-             ($(pub enum $e:ident { $($v:ident),+ })+ ) => {
-                 $(subcommands!(@impls
-                     (pub enum $e {
-                         $($v),+,
-                     }) -> ($e, $($v),+)
-                 );)+
-             };
-             ($(enum $e:ident { External, $($v:ident=>$s:expr),+ })+ ) => {
-                 $(subcommands!(@impls_s_ext
-                     (enum $e {
-                         $($v),+,
-                        External(Vec<::std::ffi::OsString>),
-                     }) -> ($e, $($v=>$s),+)
-                 );)+
-             };
-             ($(enum $e:ident { External, $($v:ident),+ })+ ) => {
-                 $(subcommands!(@impls_ext
-                     (enum $e {
-                         $($v),+,
-                        External(Vec<::std::ffi::OsString>),
-                     }) -> ($e, $($v),+)
-                 );)+
-             };
-             ($(enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
-                 $(subcommands!(@impls_s
-                     (enum $e {
-                         $($v),+,
-                     }) -> ($e, $($v=>$s),+)
-                 );)+
-             };
-             ($(enum $e:ident { $($v:ident),+ })+ ) => {
-                 $(subcommands!(@impls
-                     (enum $e {
-                         $($v),+,
-                     }) -> ($e, $($v),+)
-                 );)+
-             };
+            }
+            impl $e {
+                #[allow(dead_code)]
+                pub fn variants() -> [&'static str; _clap_count_exprs!($(stringify!($v)),+)] {
+                    [
+                    $(stringify!($v),)+
+                    ]
+                }
+            });
+    };
+    ($(#[$($m:meta),+] pub enum $e:ident { External, $($v:ident=>$s:expr),+ })+ ) => {
+        $(subcommands!(@impls_s_ext
+            (#[$($m),+]
+            pub enum $e {
+                $($v),+,
+                External(Vec<::std::ffi::OsString>),
+            }) -> ($e, $($v=>$s),+)
+        );)+
+    };
+    ($(#[$($m:meta),+] enum $e:ident { External, $($v:ident=>$s:expr),+ })+ ) => {
+         $(subcommands!(@impls_s_ext
+             (#[$($m),+]
+             enum $e {
+                 $($v),+,
+                External(Vec<::std::ffi::OsString>),
+             }) -> ($e, $($v=>$s:expr),+)
+         );)+
+    };
+     ($(#[$($m:meta),+] pub enum $e:ident { External, $($v:ident),+ })+ ) => {
+         $(subcommands!(@impls_ext
+             (#[$($m),+]
+             pub enum $e {
+                 $($v),+,
+                External(Vec<::std::ffi::OsString>),
+             }) -> ($e, $($v),+)
+         );)+
+     };
+     ($(#[$($m:meta),+] enum $e:ident { External, $($v:ident),+ })+ ) => {
+         $(subcommands!(@impls_ext
+             (#[$($m),+]
+             enum $e {
+                 $($v),+,
+                External(Vec<::std::ffi::OsString>),
+             }) -> ($e, $($v),+)
+         );)+
+     };
+    ($(#[$($m:meta),+] pub enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+        $(subcommands!(@impls_s
+            (#[$($m),+]
+            pub enum $e {
+                $($v),+,
+            }) -> ($e, $($v=>$s),+)
+        );)+
+    };
+    ($(#[$($m:meta),+] enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+         $(subcommands!(@impls_s
+             (#[$($m),+]
+             enum $e {
+                 $($v),+,
+             }) -> ($e, $($v=>$s:expr),+)
+         );)+
+    };
+     ($(#[$($m:meta),+] pub enum $e:ident { $($v:ident),+ })+ ) => {
+         $(subcommands!(@impls
+             (#[$($m),+]
+             pub enum $e {
+                 $($v),+,
+             }) -> ($e, $($v),+)
+         );)+
+     };
+     ($(#[$($m:meta),+] enum $e:ident { $($v:ident),+ })+ ) => {
+         $(subcommands!(@impls
+             (#[$($m),+]
+             enum $e {
+                 $($v),+,
+             }) -> ($e, $($v),+)
+         );)+
+     };
+    ($(pub enum $e:ident { External, $($v:ident=>$s:expr),+ })+ ) => {
+         $(subcommands!(@impls_s_ext
+             (pub enum $e {
+                 $($v),+,
+                External(Vec<::std::ffi::OsString>),
+             }) -> ($e, $($v=>$s),+)
+         );)+
+     };
+     ($(pub enum $e:ident { External, $($v:ident),+ })+ ) => {
+         $(subcommands!(@impls_ext
+             (pub enum $e {
+                 $($v),+,
+                External(Vec<::std::ffi::OsString>),
+             }) -> ($e, $($v),+)
+         );)+
+     };
+    ($(pub enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+         $(subcommands!(@impls_s
+             (pub enum $e {
+                 $($v),+,
+             }) -> ($e, $($v=>$s),+)
+         );)+
+     };
+     ($(pub enum $e:ident { $($v:ident),+ })+ ) => {
+         $(subcommands!(@impls
+             (pub enum $e {
+                 $($v),+,
+             }) -> ($e, $($v),+)
+         );)+
+     };
+     ($(enum $e:ident { External, $($v:ident=>$s:expr),+ })+ ) => {
+         $(subcommands!(@impls_s_ext
+             (enum $e {
+                 $($v),+,
+                External(Vec<::std::ffi::OsString>),
+             }) -> ($e, $($v=>$s),+)
+         );)+
+     };
+     ($(enum $e:ident { External, $($v:ident),+ })+ ) => {
+         $(subcommands!(@impls_ext
+             (enum $e {
+                 $($v),+,
+                External(Vec<::std::ffi::OsString>),
+             }) -> ($e, $($v),+)
+         );)+
+     };
+     ($(enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+         $(subcommands!(@impls_s
+             (enum $e {
+                 $($v),+,
+             }) -> ($e, $($v=>$s),+)
+         );)+
+     };
+     ($(enum $e:ident { $($v:ident),+ })+ ) => {
+         $(subcommands!(@impls
+             (enum $e {
+                 $($v),+,
+             }) -> ($e, $($v),+)
+         );)+
+     };
  }
 
 /// FIXME: add docs
@@ -1030,103 +1030,103 @@ macro_rules! args {
                     ]
                 }
             });
-        };
-        (@impls ( $($tts:tt)* ) -> ($e:ident, $($v:ident),+)) => {
-            args!(@as_item
-                #[allow(unused_imports)]
-                #[derive(PartialEq)]
-                #[allow(non_camel_case_types)]
-                $($tts)*
-                impl ::std::fmt::Display for $e {
-                    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                        match *self {
-                            $($e::$v => write!(f, stringify!($v)),)+
-                        }
+    };
+    (@impls ( $($tts:tt)* ) -> ($e:ident, $($v:ident),+)) => {
+        args!(@as_item
+            #[allow(unused_imports)]
+            #[derive(PartialEq)]
+            #[allow(non_camel_case_types)]
+            $($tts)*
+            impl ::std::fmt::Display for $e {
+                fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                    match *self {
+                        $($e::$v => write!(f, stringify!($v)),)+
                     }
                 }
-                impl<'a> ::std::convert::Into<&'static str> for $e {
-                    fn into(self) -> &'static str {
-                        match self {
-                            $($e::$v => stringify!($v),)+
-                        }
+            }
+            impl<'a> ::std::convert::Into<&'static str> for $e {
+                fn into(self) -> &'static str {
+                    match self {
+                        $($e::$v => stringify!($v),)+
                     }
                 }
-                impl ::std::convert::AsRef<str> for $e {
-                    fn as_ref(&self) -> &'static str {
-                        match *self {
-                            $($e::$v => stringify!($v),)+
-                        }
+            }
+            impl ::std::convert::AsRef<str> for $e {
+                fn as_ref(&self) -> &'static str {
+                    match *self {
+                        $($e::$v => stringify!($v),)+
                     }
                 }
-                impl $e {
-                    #[allow(dead_code)]
-                    pub fn variants() -> [&'static str; _clap_count_exprs!($(stringify!($v)),+)] {
-                        [
-                        $(stringify!($v),)+
-                        ]
-                    }
-                });
-            };
-            ($(#[$($m:meta),+] pub enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
-                $(args!(@impls_s
-                    (#[$($m),+]
-                    pub enum $e {
-                        $($v),+,
-                    }) -> ($e, $($v=>$s),+)
-                );)+
-            };
-            ($(#[$($m:meta),+] enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
-                 $(args!(@impls_s
-                     (#[$($m),+]
-                     enum $e {
-                         $($v),+,
-                     }) -> ($e, $($v=>$s:expr),+)
-                 );)+
-            };
-             ($(#[$($m:meta),+] pub enum $e:ident { $($v:ident),+ })+ ) => {
-                 $(args!(@impls
-                     (#[$($m),+]
-                     pub enum $e {
-                         $($v),+,
-                     }) -> ($e, $($v),+)
-                 );)+
-             };
-             ($(#[$($m:meta),+] enum $e:ident { $($v:ident),+ })+ ) => {
-                 $(args!(@impls
-                     (#[$($m),+]
-                     enum $e {
-                         $($v),+,
-                     }) -> ($e, $($v),+)
-                 );)+
-             };
-            ($(pub enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
-                 $(args!(@impls_s
-                     (pub enum $e {
-                         $($v),+,
-                     }) -> ($e, $($v=>$s),+)
-                 );)+
-             };
-             ($(pub enum $e:ident { $($v:ident),+ })+ ) => {
-                 $(args!(@impls
-                     (pub enum $e {
-                         $($v),+,
-                     }) -> ($e, $($v),+)
-                 );)+
-             };
-             ($(enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
-                 $(args!(@impls_s
-                     (enum $e {
-                         $($v),+,
-                     }) -> ($e, $($v=>$s),+)
-                 );)+
-             };
-             ($(enum $e:ident { $($v:ident),+ })+ ) => {
-                 $(args!(@impls
-                     (enum $e {
-                         $($v),+,
-                     }) -> ($e, $($v),+)
-                 );)+
-             };
+            }
+            impl $e {
+                #[allow(dead_code)]
+                pub fn variants() -> [&'static str; _clap_count_exprs!($(stringify!($v)),+)] {
+                    [
+                    $(stringify!($v),)+
+                    ]
+                }
+            });
+    };
+    ($(#[$($m:meta),+] pub enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+        $(args!(@impls_s
+            (#[$($m),+]
+            pub enum $e {
+                $($v),+,
+            }) -> ($e, $($v=>$s),+)
+        );)+
+    };
+    ($(#[$($m:meta),+] enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+         $(args!(@impls_s
+             (#[$($m),+]
+             enum $e {
+                 $($v),+,
+             }) -> ($e, $($v=>$s:expr),+)
+         );)+
+    };
+     ($(#[$($m:meta),+] pub enum $e:ident { $($v:ident),+ })+ ) => {
+         $(args!(@impls
+             (#[$($m),+]
+             pub enum $e {
+                 $($v),+,
+             }) -> ($e, $($v),+)
+         );)+
+     };
+     ($(#[$($m:meta),+] enum $e:ident { $($v:ident),+ })+ ) => {
+         $(args!(@impls
+             (#[$($m),+]
+             enum $e {
+                 $($v),+,
+             }) -> ($e, $($v),+)
+         );)+
+     };
+    ($(pub enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+         $(args!(@impls_s
+             (pub enum $e {
+                 $($v),+,
+             }) -> ($e, $($v=>$s),+)
+         );)+
+     };
+     ($(pub enum $e:ident { $($v:ident),+ })+ ) => {
+         $(args!(@impls
+             (pub enum $e {
+                 $($v),+,
+             }) -> ($e, $($v),+)
+         );)+
+     };
+     ($(enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+         $(args!(@impls_s
+             (enum $e {
+                 $($v),+,
+             }) -> ($e, $($v=>$s),+)
+         );)+
+     };
+     ($(enum $e:ident { $($v:ident),+ })+ ) => {
+         $(args!(@impls
+             (enum $e {
+                 $($v),+,
+             }) -> ($e, $($v),+)
+         );)+
+     };
  }
 
 macro_rules! impl_settings {
