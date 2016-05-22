@@ -123,8 +123,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg`]: ./struct.Arg.html
-    pub fn with_name(n: &'a str) -> Self {
-        Arg { name: n, ..Default::default() }
+    pub fn with_name<T>(n: T) -> Self
+        where T: Into<&'a str> {
+        Arg { name: n.into(), ..Default::default() }
     }
 
     /// Creates a new instance of [`Arg`] from a .yml (YAML) file.
@@ -487,6 +488,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .get_matches_from(vec![
     ///         "shorttest", "--help"
     ///     ]);
+    ///
+    /// // ...
     /// ```
     ///
     /// The above example displays
@@ -1453,6 +1456,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .get_matches_from(vec![
     ///         "shorttest", "--help"
     ///     ]);
+    ///
+    /// // ...
     /// ```
     ///
     /// The above example displays

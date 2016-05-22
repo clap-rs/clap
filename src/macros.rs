@@ -1009,7 +1009,7 @@ macro_rules! args {
         impl<'a> ::std::convert::Into<&'static str> for $e {
             fn into(self) -> &'static str {
                 match self {
-                    $($e::$v => $s,)+
+                    $($e::$v => stringify!($v),)+
                 }
             }
         }
