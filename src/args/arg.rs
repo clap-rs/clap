@@ -123,8 +123,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg`]: ./struct.Arg.html
-    pub fn with_name(n: &'a str) -> Self {
-        Arg { name: n, ..Default::default() }
+    pub fn with_name<T>(n: T) -> Self
+        where T: Into<&'a str> {
+        Arg { name: n.into(), ..Default::default() }
     }
 
     /// Creates a new instance of [`Arg`] from a .yml (YAML) file.
@@ -369,6 +370,63 @@ impl<'a, 'b> Arg<'a, 'b> {
         parser.parse()
     }
 
+    /// Allows setting various settings utiling the same method as [`Arg::from_usage`].
+    ///
+    /// **Pro Tip:** This is useful when one would like to utilize the new enum macros
+    /// ([`subcommands!`] and [`args!`]) while still being less verbose.
+    ///
+    /// # Examples
+    ///
+    /// To set `short` use a single valid UTF-8 codepoint. If you supply a leading `-` such as `-c`
+    /// it will be stripped.
+    ///
+    /// ```rust
+    /// # #[macro_use]
+    /// # extern crate clap;
+    /// # use clap::{App, Arg};
+    /// args! {
+    ///     enum MyProgArgs {
+    ///         Arg1,
+    ///         arg2
+    ///     }
+    /// }
+    /// # fn main() {
+    /// // Inside main()
+    /// Arg::with_name(MyProgArgs::Arg1)
+    ///     .usage("-a, --arg <ARG> 'some option argument'")
+    /// # ;
+    /// # }
+    /// ```
+    ///
+    /// ```rust
+    /// # #[macro_use]
+    /// # extern crate clap;
+    /// # use clap::{App, Arg};
+    /// args! {
+    ///     enum MyProgArgs {
+    ///         Arg1,
+    ///         arg2
+    ///     }
+    /// }
+    /// # fn main() {
+    /// // Inside main()
+    /// let m = App::new("myprog")
+    ///     .arg(Arg::with_name(MyProgArgs::Arg1)
+    ///         .usage("-a, --arg <ARG> 'some option argument'"))
+    ///     .get_matches_from(vec!["myprog", "-a", "val"]);
+    ///
+    /// assert_eq!(m.value_of(MyProgArgs::Arg1), Some("val"));
+    /// # }
+    /// ```
+    /// [`Arg::from_usage`]: ./struct.Arg.html#method.from_usage
+    /// [`subcommands!`]: ./macro.subcommands!.html
+    /// [`args!`]: ./macro.args!.html
+    pub fn usage(self, u: &'a str) -> Self {
+        let mut new = Arg::from_usage(u);
+        new.name = self.name;
+        new
+    }
+
     /// Sets the short version of the argument without the preceding `-`.
     ///
     /// By default `clap` automatically assigns `V` and `h` to the auto-generated `version` and
@@ -480,6 +538,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .get_matches_from(vec![
     ///         "shorttest", "--help"
     ///     ]);
+    ///
+    /// // ...
     /// ```
     ///
     /// The above example displays
@@ -1446,6 +1506,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .get_matches_from(vec![
     ///         "shorttest", "--help"
     ///     ]);
+    ///
+    /// // ...
     /// ```
     ///
     /// The above example displays

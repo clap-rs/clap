@@ -253,7 +253,7 @@ pub enum AppSettings {
     ///
     /// **NOTE:** If the user specifies arguments at runtime, but no subcommand the help text will
     /// still be displayed and exit. If this is *not* the desired result, consider using
-    /// [`AppSettings::ArgRequiredElseHelp`] instead.
+    /// `ArgRequiredElseHelp` instead.
     ///
     /// # Examples
     ///
@@ -330,21 +330,67 @@ pub enum AppSettings {
     ///
     /// # Examples
     ///
+    /// Because of how subcommands are parsed, there are the two ways in which you can creat
+    /// subcommands, either by using [`&str`] slices, or by using the newer and far superior
+    /// [enum macros].
+    ///
+    /// This first method shows using the enum macros.
+    ///
+    /// ```rust
+    /// # #[macro_use]
+    /// # extern crate clap;
+    /// # use std::ffi::OsString;
+    /// # use clap::{App, AppSettings};
+    ///
+    /// // Here we will support two subcommands, "do-stuff" and an external subcommand
+    /// subcommands! {
+    ///     enum MyProg {
+    ///         External,
+    ///         DoStuff => "do-stuff"
+    ///     }
+    /// }
+    ///
+    /// # fn main() {
+    /// // Inside main()
+    /// // Assume there is an external subcommand named "subcmd"
+    /// let m = App::new("myprog")
+    ///     .setting(AppSettings::AllowExternalSubcommands)
+    ///     .get_matches_from(vec![
+    ///         "myprog", "subcmd", "--option", "value"
+    ///     ]);
+    ///
+    /// // All trailing arguments will be stored under the subcommand's sub-matches using a value
+    /// // of the runtime subcommand name (in this case "subcmd")
+    /// match m.subcommand() {
+    ///     Some((MyProg::External(ref args), _)) => {
+    ///          assert_eq!(args,
+    ///              &[OsString::from("subcmd"),
+    ///                OsString::from("--option"),
+    ///                OsString::from("value")
+    ///          ]);
+    ///     },
+    ///     Some((MyProg::DoStuff, _)) => {}, // "do-stuff" used
+    ///     None => {}, // No subcommand used
+    /// }
+    /// # }
+    /// ```
+    ///
+    /// This second method shows using the older `&str` method
+    ///
     /// ```rust
     /// # use clap::{App, AppSettings};
     /// // Assume there is an external subcommand named "subcmd"
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::AllowExternalSubcommands)
     ///     .get_matches_from(vec![
-    ///         "myprog", "subcmd", "--option", "value", "-fff", "--flag"
+    ///         "myprog", "subcmd", "--option", "value"
     ///     ]);
     ///
-    /// // All trailing arguments will be stored under the subcommand's sub-matches using a value
-    /// // of the runtime subcommand name (in this case "subcmd")
-    /// match m.subcommand() {
-    ///     (external, Some(ext_m)) => {
-    ///          let ext_args: Vec<&str> = ext_m.values_of(external).unwrap().collect();
-    ///          assert_eq!(ext_args, ["--option", "value", "-fff", "--flag"]);
+    /// // The external subcommand and all trailing arguments will be stored as a &str
+    /// // notice that we must specify a type hint
+    /// match m.subcommand::<&str>() {
+    ///     Some((args, _)) => {
+    ///          assert_eq!(args, "subcmd --option value");
     ///     },
     ///     _ => {},
     /// }
@@ -354,7 +400,7 @@ pub enum AppSettings {
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     AllowExternalSubcommands,
     /// Specifies that any invalid UTF-8 code points should be treated as an error and fail
-    /// with a [`ErrorKind::InvalidUtf8`] error.
+    /// with a `ErrorKind::InvalidUtf8` error.
     ///
     /// **NOTE:** This rule only applies to argument values. Things such as flags, options, and
     /// [`SubCommand`]s themselves only allow valid UTF-8 code points.
@@ -452,6 +498,8 @@ pub enum AppSettings {
     /// useful if there are many values, or they are explained elsewhere.
     HidePossibleValuesInHelp,
     /// Places the help string for all arguments on the line after the argument
+    ///
+    /// **NOTE:** This setting is cosmetic only and does not affect any functionality.
     ///
     /// # Examples
     ///

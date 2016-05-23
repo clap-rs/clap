@@ -35,19 +35,18 @@ macro_rules! load_yaml {
 ///
 /// # Examples
 ///
-/// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
+/// ```
+/// # #[macro_use] extern crate clap;
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
 ///               .arg_from_usage("[length] 'Set the length to use as a pos whole num, i.e. 20'")
-///               .get_matches();
+///               .get_matches_from(vec!["myapp", "8"]);
 ///
 /// let len      = value_t!(matches.value_of("length"), u32).unwrap_or_else(|e| e.exit());
 /// let also_len = value_t!(matches, "length", u32).unwrap_or_else(|e| e.exit());
 ///
-/// println!("{} + 2: {}", len, len + 2);
+/// assert_eq!(10, len + 2);
 /// # }
 /// ```
 /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
@@ -80,19 +79,19 @@ macro_rules! value_t {
 ///
 /// # Examples
 ///
-/// ```no_run
+/// ```
 /// # #[macro_use]
 /// # extern crate clap;
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
 ///               .arg_from_usage("[length] 'Set the length to use as a pos whole num, i.e. 20'")
-///               .get_matches();
+///               .get_matches_from(vec!["myapp", "8"]);
 ///
 /// let len      = value_t_or_exit!(matches.value_of("length"), u32);
 /// let also_len = value_t_or_exit!(matches, "length", u32);
 ///
-/// println!("{} + 2: {}", len, len + 2);
+/// assert_eq!(10, len + 2);
 /// # }
 /// ```
 /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
@@ -123,24 +122,20 @@ macro_rules! value_t_or_exit {
 ///
 /// # Examples
 ///
-/// ```no_run
+/// ```
 /// # #[macro_use]
 /// # extern crate clap;
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
 ///               .arg_from_usage("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
-///               .get_matches();
+///               .get_matches_from(vec!["myapp", "8", "2"]);
 ///
 /// let vals = values_t!(matches.values_of("seq"), u32).unwrap_or_else(|e| e.exit());
-/// for v in &vals {
-///     println!("{} + 2: {}", v, v + 2);
-/// }
+/// assert_eq!(10, vals.iter().fold(0, |i, acc| i + acc));
 ///
 /// let vals = values_t!(matches, "seq", u32).unwrap_or_else(|e| e.exit());
-/// for v in &vals {
-///     println!("{} + 2: {}", v, v + 2);
-/// }
+/// assert_eq!(10, vals.iter().fold(0, |i, acc| i + acc));
 /// # }
 /// ```
 /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
@@ -183,25 +178,21 @@ macro_rules! values_t {
 ///
 /// # Examples
 ///
-/// ```no_run
+/// ```
 /// # #[macro_use]
 /// # extern crate clap;
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
 ///               .arg_from_usage("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
-///               .get_matches();
+///               .get_matches_from(vec!["myapp", "8", "2"]);
 ///
 /// let vals = values_t_or_exit!(matches.values_of("seq"), u32);
-/// for v in &vals {
-///     println!("{} + 2: {}", v, v + 2);
-/// }
+/// assert_eq!(10, vals.iter().fold(0, |i, acc| i + acc));
 ///
 /// // type for example only
 /// let vals: Vec<u32> = values_t_or_exit!(matches, "seq", u32);
-/// for v in &vals {
-///     println!("{} + 2: {}", v, v + 2);
-/// }
+/// assert_eq!(10, vals.iter().fold(0, |i, acc| i + acc));
 /// # }
 /// ```
 /// [`values_t!(/* ... */).unwrap_or_else(|e| e.exit())`]: ./macro.values_t!.html
@@ -266,11 +257,10 @@ macro_rules! _clap_count_exprs {
 ///
 /// # Examples
 ///
-/// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
+/// ```
+/// # #[macro_use] extern crate clap;
 /// # use clap::{App, Arg};
-/// arg_enum!{
+/// arg_values!{
 ///     #[derive(Debug)]
 ///     pub enum Foo {
 ///         Bar,
@@ -283,7 +273,7 @@ macro_rules! _clap_count_exprs {
 /// fn main() {
 ///     let m = App::new("app")
 ///                 .arg_from_usage("<foo> 'the foo'")
-///                 .get_matches();
+///                 .get_matches_from(vec!["app", "bar"]);
 ///     let f = value_t!(m, "foo", Foo).unwrap_or_else(|e| e.exit());
 ///
 ///     // Use f like any other Foo variant...
@@ -294,10 +284,10 @@ macro_rules! _clap_count_exprs {
 /// [`Display`]: https://doc.rust-lang.org/std/fmt/trait.Display.html
 /// [`std::fmt::Display`]: https://doc.rust-lang.org/std/fmt/trait.Display.html
 #[macro_export]
-macro_rules! arg_enum {
+macro_rules! arg_values {
     (@as_item $($i:item)*) => ($($i)*);
     (@impls ( $($tts:tt)* ) -> ($e:ident, $($v:ident),+)) => {
-        arg_enum!(@as_item
+        arg_values!(@as_item
         $($tts)*
 
         impl ::std::str::FromStr for $e {
@@ -335,7 +325,7 @@ macro_rules! arg_enum {
         });
     };
     (#[$($m:meta),+] pub enum $e:ident { $($v:ident),+ } ) => {
-        arg_enum!(@impls
+        arg_values!(@impls
             (#[$($m),+]
             pub enum $e {
                 $($v),+
@@ -343,7 +333,7 @@ macro_rules! arg_enum {
         );
     };
     (#[$($m:meta),+] enum $e:ident { $($v:ident),+ } ) => {
-        arg_enum!(@impls
+        arg_values!(@impls
             (#[$($m),+]
             enum $e {
                 $($v),+
@@ -351,14 +341,14 @@ macro_rules! arg_enum {
         );
     };
     (pub enum $e:ident { $($v:ident),+ } ) => {
-        arg_enum!(@impls
+        arg_values!(@impls
             (pub enum $e {
                 $($v),+
             }) -> ($e, $($v),+)
         );
     };
     (enum $e:ident { $($v:ident),+ } ) => {
-        arg_enum!(@impls
+        arg_values!(@impls
             (enum $e {
                 $($v),+
             }) -> ($e, $($v),+)
@@ -371,9 +361,8 @@ macro_rules! arg_enum {
 ///
 /// # Examples
 ///
-/// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
+/// ```
+/// # #[macro_use] extern crate clap;
 /// # use clap::App;
 /// # fn main() {
 ///     let m = App::new("app")
@@ -395,14 +384,12 @@ macro_rules! crate_version {
 ///
 /// # Examples
 ///
-/// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
+/// ```
+/// # #[macro_use] extern crate clap;
 /// # use clap::App;
 /// # fn main() {
-///     let m = App::new("app")
-///                 .author(crate_authors!())
-///                 .get_matches();
+///     App::new("app")
+///         .author(crate_authors!());
 /// # }
 /// ```
 #[cfg_attr(feature = "unstable", macro_export)]
@@ -533,8 +520,725 @@ macro_rules! clap_app {
 // Start the magic
     ($name:ident => $($tail:tt)*) => {{
         clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)*}
-    }};
+}};
 }
+
+/// A convienience macro for defining enums that can be used to access [`SubCommand`]s. By using
+/// this macro, all traits are implemented automatically. The traits implemented are,
+/// [`SubCommandKey`], [`Display`], [`Into<&'static str>`] and [`AsRef<str>`]. This macro also
+/// implements a `variants()` function which returns an array of [`&'static str`]s containing the
+/// variant names.
+///
+/// There are two ways to use this macro, in an as-is scenario where the variants one defines are
+/// exaclty how the subcommands are displayed to the end user. There is also an alternative way
+/// where the actual display of the subcommands can be changed. Examples of both are bellow.
+///
+/// This allows `rustc` to do some checking for you, i.e. if you add another subcommand later, but
+/// forget to check for it, `rustc` will complain about NonExaustive matches. Likewise, if you make
+/// a simple spelling or typing error.
+///
+/// Another benefit is when using something like [`racer`] to provide autocompeletion, you can pick
+/// from list a actual arg variants, and not risk mis-typing an arg name.
+///
+/// **Pro Tip:** It's good practice to make the name of the enum the same as the parent command,
+/// and the variants the names of the actual subcommands
+///
+/// **NOTE:** Multiple subcommand enums can be declared inside the same `subcommands!` macro block.
+///
+/// **NOTE:** If one wishes to implement these traits manually, that's also possible.
+///
+/// # External Subcommands
+///
+/// If you wish to support external subcommands, there are two simple things one must do. First,
+/// when using the `subcommands!` macro, the **first** variant you name, **must** be `External`,
+/// this tells the macro to generate all the appropriate portions to support external subcommands.
+/// Second, you must use the [`AppSettings::AllowExternalSubcommands`] setting.
+///
+/// After doing these two things, if a possible external subcommand is recognized, `clap` will
+/// return the `External(Vec<OsString>)` variant. The wrapped `Vec` contains the args that were
+/// passed to the possible external subcommand (including the subcommand itself). Thse are stored
+/// as [`OsString`]s since it's possible contain invalid UTF-8 code points on some platforms.
+///
+/// **Pro Tip**: If you wish to get `&str`s instead and you're *sure* they won't contain invalid
+/// UTF-8, or you don't wish to support invalid UTF-8, it's as simple as using the following
+/// iterator chain on the returned [`Vec`]: `v.iter().map(|s| s.to_str().expect("Invalid
+/// UTF-8")).collect::<Vec<_>>()`
+///
+/// # Examples
+///
+/// First, an example showing the most basic use of the macro. (i.e. enum variants are used
+/// literally)
+///
+/// ```rust
+/// # #[macro_use] extern crate clap;
+/// # use clap::{App, SubCommand};
+/// // Note lowercase variants, the subcommand will be exactly as typed here
+/// subcommands!{
+///     enum MyProg {
+///         show,
+///         delete,
+///         make
+///     }
+/// }
+///
+/// fn main() {
+///     let m = App::new("myprog")
+///         .subcommand(SubCommand::with_name(MyProg::show))
+///         .subcommand(SubCommand::with_name(MyProg::delete))
+///         .subcommand(SubCommand::with_name(MyProg::make))
+///         .get_matches_from(vec!["myprog", "show"]);
+///
+///     match m.subcommand() {
+///         Some((MyProg::show, _)) => println!("'myprog show' was used"),
+///         Some((MyProg::delete, _)) => println!("'myprog delete' was used"),
+///         Some((MyProg::make, _)) => println!("'myprog make' was used"),
+///         None => println!("No subcommand was used"),
+///     }
+/// }
+/// ```
+///
+/// Next, if you wish to support subcommands with things like hyphen characters, or don't like
+/// having non-camel-case types, a second version of the macro exists which allows specifying a
+/// literal subcommand which gets associated with a enum variant.
+///
+/// ```rust
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::{App, SubCommand};
+/// subcommands!{
+///     enum MyProg {
+///         Show => "show",
+///         Delete => "delete",
+///         DoStuff => "do-stuff"
+///     }
+/// }
+/// fn main() {
+///     use MyProg::*;
+///     let m = App::new("myprog")
+///         .subcommand(SubCommand::with_name(Show))
+///         .subcommand(SubCommand::with_name(Delete))
+///         .subcommand(SubCommand::with_name(DoStuff))
+///         .get_matches_from(vec!["myprog", "show"]);
+///
+///     match m.subcommand() {
+///         Some((Show, _)) => println!("'myprog show' was used"),
+///         Some((Delete, _)) => println!("'myprog delete' was used"),
+///         Some((DoStuff, _)) => println!("'myprog make' was used"),
+///         None => println!("No subcommand was used"),
+///     }
+/// }
+/// ```
+///
+/// Finally, if one wishes to support external subcommands, simply ensure the first variant is
+/// called `External` and the appropriate [`AppSettings`] variant is used.
+///
+/// ```rust
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::{App, SubCommand, AppSettings};
+/// subcommands!{
+///     enum MyProg {
+///         External,
+///         Show => "show",
+///         Delete => "delete",
+///         DoStuff => "do-stuff"
+///     }
+/// }
+/// fn main() {
+///     use MyProg::*;
+///     let m = App::new("myprog")
+///         .subcommand(SubCommand::with_name(Show))
+///         .subcommand(SubCommand::with_name(Delete))
+///         .subcommand(SubCommand::with_name(DoStuff))
+///         .setting(AppSettings::AllowExternalSubcommands)
+///         .get_matches_from(vec!["myprog", "show"]);
+///
+///     match m.subcommand() {
+///         Some((Show, _)) => println!("'myprog show' was used"),
+///         Some((Delete, _)) => println!("'myprog delete' was used"),
+///         Some((DoStuff, _)) => println!("'myprog make' was used"),
+///         Some((External(ref v), _)) => println!("An external subcommand: {:?}", v),
+///         None => println!("No subcommand was used"),
+///     }
+/// }
+/// ```
+/// [`SubCommand`]: ./struct.SubCommand.html
+/// [`SubCommandKey`]: ./trait.SubCommandKey.html
+/// [`Display`]: https://doc.rust-lang.org/std/fmt/trait.Display.html
+/// [`Into<&'static str>`]: https://doc.rust-lang.org/std/convert/trait.Into.html
+/// [`AsRef<str>`]: https://doc.rust-lang.org/std/convert/trait.AsRef.html
+/// [`&'static str`]: https://doc.rust-lang.org/std/primitive.str.html
+/// [`AppSettings::AllowExternalSubcommands`]: ./enum.AppSettings.html#variant.AllowExternalSubcommands
+/// [`Vec`]: https://doc.rust-lang.org/std/vec/struct.Vec.html
+/// [`AppSettings`]: ./enum.AppSettings.html
+/// [`OsString`]: https://doc.rust-lang.org/std/ffi/struct.OsString.html
+/// [`racer`]: https://github.com/phildawes/racer
+#[macro_export]
+macro_rules! subcommands {
+    (@as_item $($i:item)*) => ($($i)*);
+    (@impls_s_ext ( $($tts:tt)* ) -> ($e:ident, $($v:ident=>$s:expr),+)) => {
+        subcommands!(@as_item
+            #[allow(unused_imports)]
+            use ::clap::SubCommandKey;
+            #[derive(PartialEq)]
+            #[allow(non_camel_case_types)]
+            $($tts)*
+            impl<'a> ::clap::SubCommandKey for $e {
+                fn from_os_str(s: &::std::ffi::OsStr) -> Self {
+                    use ::clap::OsStrExt;
+                    match &s.to_string_lossy()[..] {
+                        $($s => $e::$v),+,
+                        _ => $e::External((*s)._split(b' ').map(ToOwned::to_owned).collect::<Vec<_>>()),
+                    }
+                }
+                fn external(args: Vec<::std::ffi::OsString>) -> Option<Self> {
+                    Some($e::External(args))
+                }
+            }
+            impl ::std::fmt::Display for $e {
+                fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                    match *self {
+                        $e::External(ref args) => write!(f, "{}", args.iter().map(|a| a.to_string_lossy()).collect::<Vec<_>>().join(" ")),
+                        $($e::$v => write!(f, $s),)+
+                    }
+                }
+            }
+            impl ::std::convert::AsRef<str> for $e {
+                fn as_ref(&self) -> &'static str {
+                    match *self {
+                        $e::External(_) => "External",
+                        $($e::$v => $s,)+
+                    }
+                }
+            }
+            impl<'a> ::std::convert::Into<&'static str> for $e {
+                fn into(self) -> &'static str {
+                    match self {
+                        $e::External(_) => "External",
+                        $($e::$v => $s,)+
+                    }
+                }
+            }
+            impl $e {
+                #[allow(dead_code)]
+                pub fn variants() -> [&'static str; _clap_count_exprs!("External", $(stringify!($v)),+)] {
+                    [
+                    "External",
+                    $(stringify!($s),)+
+                    ]
+                }
+            });
+    };
+    (@impls_s ( $($tts:tt)* ) -> ($e:ident, $($v:ident=>$s:expr),+)) => {
+        subcommands!(@as_item
+            #[allow(unused_imports)]
+            use ::clap::SubCommandKey;
+            #[derive(PartialEq)]
+            #[allow(non_camel_case_types)]
+            $($tts)*
+            impl<'a> ::clap::SubCommandKey for $e {
+                fn from_os_str(s: &::std::ffi::OsStr) -> Self {
+                    match &s.to_string_lossy()[..] {
+                        $($s => $e::$v),+,
+                        _ => unreachable!(),
+                    }
+                }
+                fn external(_: Vec<::std::ffi::OsString>) -> Option<Self> {
+                    None
+                }
+            }
+            impl ::std::fmt::Display for $e {
+                fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                    match *self {
+                        $($e::$v => write!(f, $s),)+
+                    }
+                }
+            }
+            impl ::std::convert::AsRef<str> for $e {
+                fn as_ref(&self) -> &'static str {
+                    match *self {
+                        $($e::$v => $s,)+
+                    }
+                }
+            }
+            impl<'a> ::std::convert::Into<&'static str> for $e {
+                fn into(self) -> &'static str {
+                    match self {
+                        $($e::$v => $s,)+
+                    }
+                }
+            }
+            impl $e {
+                #[allow(dead_code)]
+                pub fn variants() -> [&'static str; _clap_count_exprs!($(stringify!($v)),+)] {
+                    [
+                    $(stringify!($s),)+
+                    ]
+                }
+            });
+    };
+    (@impls_ext ( $($tts:tt)* ) -> ($e:ident, $($v:ident),+)) => {
+        subcommands!(@as_item
+            #[allow(unused_imports)]
+            use ::clap::SubCommandKey;
+            #[derive(PartialEq)]
+            #[allow(non_camel_case_types)]
+            $($tts)*
+            impl<'a> ::clap::SubCommandKey for $e {
+            fn from_os_str(s: &::std::ffi::OsStr) -> Self {
+                    use ::clap::OsStrExt;
+                    match &s.to_string_lossy()[..] {
+                        $($v => $e::$v),+,
+                        _ => $e::External((*s)._split(b' ').map(ToOwned::to_owned).collect::<Vec<_>>()),
+                    }
+                }
+                fn external(args: Vec<::std::ffi::OsString>) -> Option<Self> {
+                    Some($e::External(args))
+                }
+            }
+            impl ::std::fmt::Display for $e {
+                fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                    match *self {
+                        $e::External(ref args) => write!(f, "{}", args.iter().map(|a| a.to_string_lossy()).collect::<Vec<_>>().join(" ")),
+                        $($e::$v => write!(f, stringify!($v)),)+
+                    }
+                }
+            }
+            impl<'a> ::std::convert::Into<&'static str> for $e {
+                fn into(self) -> &'static str {
+                    match self {
+                        $e::External(_) => "External",
+                        $($e::$v => stringify!($v),)+
+                    }
+                }
+            }
+            impl ::std::convert::AsRef<str> for $e {
+                fn as_ref(&self) -> &'static str {
+                    match *self {
+                        $e::External(_) => "External",
+                        $($e::$v => stringify!($v),)+
+                    }
+                }
+            }
+            impl $e {
+                #[allow(dead_code)]
+                pub fn variants() -> [&'static str; _clap_count_exprs!("External", $(stringify!($v)),+)] {
+                    [
+                    "External",
+                    $(stringify!($v),)+
+                    ]
+                }
+            });
+    };
+    (@impls ( $($tts:tt)* ) -> ($e:ident, $($v:ident),+)) => {
+        subcommands!(@as_item
+            #[allow(unused_imports)]
+            use ::clap::SubCommandKey;
+            #[derive(PartialEq)]
+            #[allow(non_camel_case_types)]
+            $($tts)*
+            impl<'a> ::clap::SubCommandKey for $e {
+            fn from_os_str(s: &::std::ffi::OsStr) -> Self {
+                    match &s.to_string_lossy()[..] {
+                        $(stringify!($v) => $e::$v),+,
+                        _ => unreachable!(),
+                    }
+                }
+                fn external(_: Vec<::std::ffi::OsString>) -> Option<Self> {
+                    None
+                }
+            }
+            impl ::std::fmt::Display for $e {
+                fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                    match *self {
+                        $($e::$v => write!(f, stringify!($v)),)+
+                    }
+                }
+            }
+            impl<'a> ::std::convert::Into<&'static str> for $e {
+                fn into(self) -> &'static str {
+                    match self {
+                        $($e::$v => stringify!($v),)+
+                    }
+                }
+            }
+            impl ::std::convert::AsRef<str> for $e {
+                fn as_ref(&self) -> &'static str {
+                    match *self {
+                        $($e::$v => stringify!($v),)+
+                    }
+                }
+            }
+            impl $e {
+                #[allow(dead_code)]
+                pub fn variants() -> [&'static str; _clap_count_exprs!($(stringify!($v)),+)] {
+                    [
+                    $(stringify!($v),)+
+                    ]
+                }
+            });
+    };
+    ($(#[$($m:meta),+] pub enum $e:ident { External, $($v:ident=>$s:expr),+ })+ ) => {
+        $(subcommands!(@impls_s_ext
+            (#[$($m),+]
+            pub enum $e {
+                $($v),+,
+                External(Vec<::std::ffi::OsString>),
+            }) -> ($e, $($v=>$s),+)
+        );)+
+    };
+    ($(#[$($m:meta),+] enum $e:ident { External, $($v:ident=>$s:expr),+ })+ ) => {
+         $(subcommands!(@impls_s_ext
+             (#[$($m),+]
+             enum $e {
+                 $($v),+,
+                External(Vec<::std::ffi::OsString>),
+             }) -> ($e, $($v=>$s:expr),+)
+         );)+
+    };
+     ($(#[$($m:meta),+] pub enum $e:ident { External, $($v:ident),+ })+ ) => {
+         $(subcommands!(@impls_ext
+             (#[$($m),+]
+             pub enum $e {
+                 $($v),+,
+                External(Vec<::std::ffi::OsString>),
+             }) -> ($e, $($v),+)
+         );)+
+     };
+     ($(#[$($m:meta),+] enum $e:ident { External, $($v:ident),+ })+ ) => {
+         $(subcommands!(@impls_ext
+             (#[$($m),+]
+             enum $e {
+                 $($v),+,
+                External(Vec<::std::ffi::OsString>),
+             }) -> ($e, $($v),+)
+         );)+
+     };
+    ($(#[$($m:meta),+] pub enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+        $(subcommands!(@impls_s
+            (#[$($m),+]
+            pub enum $e {
+                $($v),+,
+            }) -> ($e, $($v=>$s),+)
+        );)+
+    };
+    ($(#[$($m:meta),+] enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+         $(subcommands!(@impls_s
+             (#[$($m),+]
+             enum $e {
+                 $($v),+,
+             }) -> ($e, $($v=>$s:expr),+)
+         );)+
+    };
+     ($(#[$($m:meta),+] pub enum $e:ident { $($v:ident),+ })+ ) => {
+         $(subcommands!(@impls
+             (#[$($m),+]
+             pub enum $e {
+                 $($v),+,
+             }) -> ($e, $($v),+)
+         );)+
+     };
+     ($(#[$($m:meta),+] enum $e:ident { $($v:ident),+ })+ ) => {
+         $(subcommands!(@impls
+             (#[$($m),+]
+             enum $e {
+                 $($v),+,
+             }) -> ($e, $($v),+)
+         );)+
+     };
+    ($(pub enum $e:ident { External, $($v:ident=>$s:expr),+ })+ ) => {
+         $(subcommands!(@impls_s_ext
+             (pub enum $e {
+                 $($v),+,
+                External(Vec<::std::ffi::OsString>),
+             }) -> ($e, $($v=>$s),+)
+         );)+
+     };
+     ($(pub enum $e:ident { External, $($v:ident),+ })+ ) => {
+         $(subcommands!(@impls_ext
+             (pub enum $e {
+                 $($v),+,
+                External(Vec<::std::ffi::OsString>),
+             }) -> ($e, $($v),+)
+         );)+
+     };
+    ($(pub enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+         $(subcommands!(@impls_s
+             (pub enum $e {
+                 $($v),+,
+             }) -> ($e, $($v=>$s),+)
+         );)+
+     };
+     ($(pub enum $e:ident { $($v:ident),+ })+ ) => {
+         $(subcommands!(@impls
+             (pub enum $e {
+                 $($v),+,
+             }) -> ($e, $($v),+)
+         );)+
+     };
+     ($(enum $e:ident { External, $($v:ident=>$s:expr),+ })+ ) => {
+         $(subcommands!(@impls_s_ext
+             (enum $e {
+                 $($v),+,
+                External(Vec<::std::ffi::OsString>),
+             }) -> ($e, $($v=>$s),+)
+         );)+
+     };
+     ($(enum $e:ident { External, $($v:ident),+ })+ ) => {
+         $(subcommands!(@impls_ext
+             (enum $e {
+                 $($v),+,
+                External(Vec<::std::ffi::OsString>),
+             }) -> ($e, $($v),+)
+         );)+
+     };
+     ($(enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+         $(subcommands!(@impls_s
+             (enum $e {
+                 $($v),+,
+             }) -> ($e, $($v=>$s),+)
+         );)+
+     };
+     ($(enum $e:ident { $($v:ident),+ })+ ) => {
+         $(subcommands!(@impls
+             (enum $e {
+                 $($v),+,
+             }) -> ($e, $($v),+)
+         );)+
+     };
+ }
+
+/// A convienience macro for defining enums that can be used to access [`Arg`]s. By using this
+/// macro, all traits are implemented automatically. The traits implemented are, [`Display`],
+/// [`Into<&'static str>`] and [`AsRef<str>`]. This macro also implements a `variants()` function
+/// which returns an array of [`&'static str`]s containing the variant names.
+///
+/// There are two ways to use this macro; the most simple is in an as-is scenario where the
+/// variants one defines are exaclty how the args would be accessed via a `&str`. There is also an
+/// alternative way where the actual display of the args can be changed. Examples of both
+/// are bellow. The second method is most useful with positional arguments whos name is also
+/// displayed during usage strings and error messages.
+///
+/// The benefit of using these macros versus strings is it allows `rustc` to do some checking for
+/// you, i.e. if you add another arg later or change it's name, but forget to check for it
+/// properly, `rustc` will complain about non-existing variants. Likewise, if you make a simple
+/// spelling or typing error.
+///
+/// Another benefit is when using something like [`racer`] to provide autocompeletion, you can pick
+/// from list a actual arg variants, and not risk mis-typing an arg name.
+///
+/// **Pro Tip:** It's good practice to make the name of the enum the same as the parent command
+/// that they belong to and append the word `Args` so that it doesn't collide with any subcommands,
+/// and the variants the names of the actual args
+///
+/// **NOTE:** Multiple arg enums can be declared inside the same `args!` macro block.
+///
+/// **Pro Tip**: Using [`Arg::usage`] is a simply way to get the benefits of using enums and less
+/// verbose usage string initiation.
+///
+/// # Examples
+///
+/// First, an example showing the most basic use of the macro. (i.e. enum variants are used
+/// literally).
+///
+/// ```rust
+/// # #[macro_use] extern crate clap;
+/// # use clap::{App, Arg};
+/// args!{
+///     enum MyProg {
+///         Verbose,
+///         Config
+///     }
+/// }
+///
+/// fn main() {
+///     let m = App::new("myprog")
+///         .arg(Arg::with_name(MyProg::Verbose)
+///             .short("v")
+///             .help("print verbose output"))
+///         .arg(Arg::with_name(MyProg::Config)
+///             .long("config")
+///             .value_name("FILE")
+///             .help("use a custom config file"))
+///         .get_matches_from(vec!["myprog", "-v", "--config", "opts.cfg"]);
+///
+///     assert!(m.is_present(MyProg::Verbose));
+///     assert_eq!(m.value_of(MyProg::Config), Some("opts.cfg"));
+/// }
+/// ```
+///
+/// Next, if you wish to support args with things like hyphen characters in the name, or don't like
+/// having non-camel-case types for positional arguments which usually use either all lower-case or
+/// all upper-case characters, a second version of the macro exists which allows specifying a
+/// literal args, which is effectively the [`Arg::value_name`] which gets associated with a enum
+/// variant.
+///
+/// The benefit of the example below, is primarily with positional argumetns whos name is displayed
+/// to the users in usage strings and help messages. If one were to view the help message of the
+/// program below, the `File` woud be displayed as `<FILE>`.
+///
+/// ```rust
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::{App, Arg};
+/// args!{
+///     enum MyProg {
+///         File => "FILE"
+///     }
+/// }
+/// fn main() {
+///     let m = App::new("myprog")
+///         .arg(Arg::with_name(MyProg::File))
+///         .get_matches_from(vec!["myprog", "file.txt"]);
+///
+///     assert!(m.is_present(MyProg::File));
+///     assert_eq!(m.value_of(MyProg::File), Some("file.txt"));
+/// }
+/// ```
+/// [`Arg`]: ./struct.Arg.html
+/// [`Arg::usage`]: ./struct.Arg.html#method.usage
+/// [`Display`]: https://doc.rust-lang.org/std/fmt/trait.Display.html
+/// [`Into<&'static str>`]: https://doc.rust-lang.org/std/convert/trait.Into.html
+/// [`AsRef<str>`]: https://doc.rust-lang.org/std/convert/trait.AsRef.html
+/// [`&'static str`]: https://doc.rust-lang.org/std/primitive.str.html
+/// [`racer`]: https://github.com/phildawes/racer
+/// [`Arg::value_name`]: ./struct.Arg.html#method.value_name
+#[macro_export]
+macro_rules! args {
+    (@as_item $($i:item)*) => ($($i)*);
+    (@impls_s ( $($tts:tt)* ) -> ($e:ident, $($v:ident=>$s:expr),+)) => {
+        args!(@as_item
+            #[allow(unused_imports)]
+            #[derive(PartialEq)]
+            #[allow(non_camel_case_types)]
+            $($tts)*
+            impl ::std::fmt::Display for $e {
+                fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                    match *self {
+                        $($e::$v => write!(f, $s),)+
+                    }
+                }
+            }
+            impl ::std::convert::AsRef<str> for $e {
+                fn as_ref(&self) -> &'static str {
+                    match *self {
+                        $($e::$v => $s,)+
+                    }
+                }
+            }
+            impl<'a> ::std::convert::Into<&'static str> for $e {
+                fn into(self) -> &'static str {
+                    match self {
+                        $($e::$v => $s,)+
+                    }
+                }
+            }
+            impl $e {
+                #[allow(dead_code)]
+                pub fn variants() -> [&'static str; _clap_count_exprs!($(stringify!($v)),+)] {
+                    [
+                    $(stringify!($s),)+
+                    ]
+                }
+            });
+    };
+    (@impls ( $($tts:tt)* ) -> ($e:ident, $($v:ident),+)) => {
+        args!(@as_item
+            #[allow(unused_imports)]
+            #[derive(PartialEq)]
+            #[allow(non_camel_case_types)]
+            $($tts)*
+            impl ::std::fmt::Display for $e {
+                fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                    match *self {
+                        $($e::$v => write!(f, stringify!($v)),)+
+                    }
+                }
+            }
+            impl<'a> ::std::convert::Into<&'static str> for $e {
+                fn into(self) -> &'static str {
+                    match self {
+                        $($e::$v => stringify!($v),)+
+                    }
+                }
+            }
+            impl ::std::convert::AsRef<str> for $e {
+                fn as_ref(&self) -> &'static str {
+                    match *self {
+                        $($e::$v => stringify!($v),)+
+                    }
+                }
+            }
+            impl $e {
+                #[allow(dead_code)]
+                pub fn variants() -> [&'static str; _clap_count_exprs!($(stringify!($v)),+)] {
+                    [
+                    $(stringify!($v),)+
+                    ]
+                }
+            });
+    };
+    ($(#[$($m:meta),+] pub enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+        $(args!(@impls_s
+            (#[$($m),+]
+            pub enum $e {
+                $($v),+,
+            }) -> ($e, $($v=>$s),+)
+        );)+
+    };
+    ($(#[$($m:meta),+] enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+         $(args!(@impls_s
+             (#[$($m),+]
+             enum $e {
+                 $($v),+,
+             }) -> ($e, $($v=>$s:expr),+)
+         );)+
+    };
+     ($(#[$($m:meta),+] pub enum $e:ident { $($v:ident),+ })+ ) => {
+         $(args!(@impls
+             (#[$($m),+]
+             pub enum $e {
+                 $($v),+,
+             }) -> ($e, $($v),+)
+         );)+
+     };
+     ($(#[$($m:meta),+] enum $e:ident { $($v:ident),+ })+ ) => {
+         $(args!(@impls
+             (#[$($m),+]
+             enum $e {
+                 $($v),+,
+             }) -> ($e, $($v),+)
+         );)+
+     };
+    ($(pub enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+         $(args!(@impls_s
+             (pub enum $e {
+                 $($v),+,
+             }) -> ($e, $($v=>$s),+)
+         );)+
+     };
+     ($(pub enum $e:ident { $($v:ident),+ })+ ) => {
+         $(args!(@impls
+             (pub enum $e {
+                 $($v),+,
+             }) -> ($e, $($v),+)
+         );)+
+     };
+     ($(enum $e:ident { $($v:ident=>$s:expr),+ })+ ) => {
+         $(args!(@impls_s
+             (enum $e {
+                 $($v),+,
+             }) -> ($e, $($v=>$s),+)
+         );)+
+     };
+     ($(enum $e:ident { $($v:ident),+ })+ ) => {
+         $(args!(@impls
+             (enum $e {
+                 $($v),+,
+             }) -> ($e, $($v),+)
+         );)+
+     };
+ }
 
 macro_rules! impl_settings {
     ($n:ident, $($v:ident => $c:ident),+) => {

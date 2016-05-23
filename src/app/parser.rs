@@ -12,7 +12,7 @@ use app::help::Help;
 use app::App;
 use args::{Arg, ArgGroup, FlagBuilder, OptBuilder, PosBuilder};
 use app::settings::{AppFlags, AppSettings};
-use args::{AnyArg, ArgMatcher};
+use args::{AnyArg, ArgMatcher, ArgMatches};
 use args::settings::ArgSettings;
 use errors::{Error, ErrorKind};
 use errors::Result as ClapResult;
@@ -21,9 +21,9 @@ use suggestions;
 use INTERNAL_ERROR_MSG;
 use SubCommand;
 use fmt::Format;
-use osstringext::OsStrExt2;
 use app::meta::AppMeta;
 use args::MatchedArg;
+use vecext::VecExt;
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
@@ -387,20 +387,21 @@ impl<'a, 'b> Parser<'a, 'b>
         // but no 2)
         if let Some((idx, ref p)) = self.positionals.iter().rev().next() {
             debug_assert!(!(idx != self.positionals.len()),
-                    format!("Found positional argument \"{}\" who's index is {} but there are \
+                          format!("Found positional argument \"{}\" who's index is {} but there are \
                     only {} positional arguments defined",
-                            p.name,
-                            idx,
-                            self.positionals.len()));
+                                  p.name,
+                                  idx,
+                                  self.positionals.len()));
         }
 
         // Next we verify that only the highest index has a .multiple(true) (if any)
         debug_assert!(!self.positionals
-                     .values()
-                     .any(|a| a.settings.is_set(ArgSettings::Multiple) &&
-                        (a.index as usize != self.positionals.len())
-                     ),
-                "Only the positional argument with the highest index may accept multiple values");
+                           .values()
+                           .any(|a| {
+                               a.settings.is_set(ArgSettings::Multiple) &&
+                               (a.index as usize != self.positionals.len())
+                           }),
+                      "Only the positional argument with the highest index may accept multiple values");
 
         // If it's required we also need to ensure all previous positionals are
         // required too
@@ -441,6 +442,7 @@ impl<'a, 'b> Parser<'a, 'b>
         where I: Iterator<Item = T>,
               T: Into<OsString>
     {
+        use osstrext::OsStrExt;
         debugln!("fn=get_matches_with;");
         // First we create the `--help` and `--version` arguments and add them if
         // necessary
@@ -456,9 +458,9 @@ impl<'a, 'b> Parser<'a, 'b>
 
             // Is this a new argument, or values from a previous option?
             debug!("Starts new arg...");
-            let starts_new_arg = if arg_os.starts_with(b"-") {
+            let starts_new_arg = if arg_os._starts_with(b"-") {
                 sdebugln!("Yes");
-                !(arg_os.len_() == 1)
+                !(arg_os._len() == 1)
             } else {
                 sdebugln!("No");
                 false
@@ -469,13 +471,17 @@ impl<'a, 'b> Parser<'a, 'b>
                 // Does the arg match a subcommand name, or any of it's aliases (if defined)
                 let pos_sc = self.subcommands
                                  .iter()
-                                 .any(|s| &s.p.meta.name[..] == &*arg_os ||
+                                 .any(|s| {
+                                     &s.p.meta.name[..] == &*arg_os ||
                                      (s.p.meta.aliases.is_some() &&
-                                     s.p.meta.aliases
-                                             .as_ref()
-                                             .unwrap()
-                                             .iter()
-                                             .any(|&a| a == &*arg_os)));
+                                      s.p
+                                       .meta
+                                       .aliases
+                                       .as_ref()
+                                       .unwrap()
+                                       .iter()
+                                       .any(|&a| a == &*arg_os))
+                                 });
                 if (!starts_new_arg || self.is_set(AppSettings::AllowLeadingHyphen)) && !pos_sc {
                     // Check to see if parsing a value from an option
                     if let Some(nvo) = needs_val_of {
@@ -487,8 +493,8 @@ impl<'a, 'b> Parser<'a, 'b>
                         }
                     }
                 }
-                if arg_os.starts_with(b"--") {
-                    if arg_os.len_() == 2 {
+                if arg_os._starts_with(b"--") {
+                    if arg_os._len() == 2 {
                         // The user has passed '--' which means only positional args follow no
                         // matter what they start with
                         pos_only = true;
@@ -497,7 +503,7 @@ impl<'a, 'b> Parser<'a, 'b>
 
                     needs_val_of = try!(self.parse_long_arg(matcher, &arg_os));
                     continue;
-                } else if arg_os.starts_with(b"-") && arg_os.len_() != 1 {
+                } else if arg_os._starts_with(b"-") && arg_os._len() != 1 {
                     needs_val_of = try!(self.parse_short_arg(matcher, &arg_os));
                     if !(needs_val_of.is_none() && self.is_set(AppSettings::AllowLeadingHyphen)) {
                         continue;
@@ -535,7 +541,7 @@ impl<'a, 'b> Parser<'a, 'b>
                         sc.create_help_and_version();
                         return sc._help();
                     }
-                    subcmd_name = Some(arg_os.to_str().expect(INVALID_UTF8).to_owned());
+                    subcmd_name = Some(arg_os.to_string_lossy().into_owned());
                     break;
                 } else if let Some(cdate) = suggestions::did_you_mean(&*arg_os.to_string_lossy(),
                                                                self.subcommands
@@ -555,22 +561,20 @@ impl<'a, 'b> Parser<'a, 'b>
                 parse_positional!(self, p, arg_os, pos_only, pos_counter, matcher);
             } else {
                 if self.settings.is_set(AppSettings::AllowExternalSubcommands) {
-                    let mut sc_m = ArgMatcher::new();
+                    let mut args = vec![arg_os.to_owned()];
                     while let Some(v) = it.next() {
                         let a = v.into();
-                        if let None = a.to_str() {
-                            if !self.settings.is_set(AppSettings::StrictUtf8) {
-                                return Err(
-                                    Error::invalid_utf8(&*self.create_current_usage(matcher))
-                                );
-                            }
+                        if !self.settings.is_set(AppSettings::StrictUtf8) && a.to_str().is_none() {
+                            return Err(
+                                Error::invalid_utf8(&*self.create_current_usage(matcher))
+                            );
                         }
-                        sc_m.add_val_to("EXTERNAL_SUBCOMMAND", &a);
+                        args.push(a);
                     }
 
                     matcher.subcommand(SubCommand {
-                        name: "EXTERNAL_SUBCOMMAND".into(),
-                        matches: sc_m.into(),
+                        name: args.join(" "),
+                        matches: ArgMatches::new(),
                     });
                 } else {
                     return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
@@ -620,15 +624,17 @@ impl<'a, 'b> Parser<'a, 'b>
                 self.subcommands
                     .iter()
                     .filter(|sc| sc.p.meta.aliases.is_some())
-                    .filter_map(|sc| if sc.p.meta.aliases
-                                                 .as_ref()
-                                                 .unwrap()
-                                                 .iter()
-                                                 .any(|&a| a == &*pos_sc_name) {
-                         Some(sc.p.meta.name.clone())
-                     } else {
-                         None
-                     })
+                    .filter_map(|sc| if sc.p
+                                          .meta
+                                          .aliases
+                                          .as_ref()
+                                          .unwrap()
+                                          .iter()
+                                          .any(|&a| a == &*pos_sc_name) {
+                        Some(sc.p.meta.name.clone())
+                    } else {
+                        None
+                    })
                     .next()
                     .expect(INTERNAL_ERROR_MSG)
             };
@@ -709,7 +715,7 @@ impl<'a, 'b> Parser<'a, 'b>
                                               &*sc.p.meta.name));
             try!(sc.p.get_matches_with(&mut sc_matcher, it));
             matcher.subcommand(SubCommand {
-                name: sc.p.meta.name.clone(),
+                name: OsString::from(sc.p.meta.name.clone()),
                 matches: sc_matcher.into(),
             });
         }
@@ -967,18 +973,19 @@ impl<'a, 'b> Parser<'a, 'b>
                       matcher: &mut ArgMatcher<'a>,
                       full_arg: &OsStr)
                       -> ClapResult<Option<&'b str>> {
+        use osstrext::OsStrExt;
         // maybe here lifetime should be 'a
         debugln!("fn=parse_long_arg;");
         let mut val = None;
         debug!("Does it contain '='...");
-        let arg = if full_arg.contains_byte(b'=') {
-            let (p0, p1) = full_arg.trim_left_matches(b'-').split_at_byte(b'=');
+        let arg = if full_arg._contains_byte(b'=') {
+            let (p0, p1) = full_arg._trim_left_matches(b'-')._split_at_byte(b'=');
             sdebugln!("Yes '{:?}'", p1);
             val = Some(p1);
             p0
         } else {
             sdebugln!("No");
-            full_arg.trim_left_matches(b'-')
+            full_arg._trim_left_matches(b'-')
         };
 
         if let Some(opt) = self.opts
@@ -1015,9 +1022,10 @@ impl<'a, 'b> Parser<'a, 'b>
                        matcher: &mut ArgMatcher<'a>,
                        full_arg: &OsStr)
                        -> ClapResult<Option<&'a str>> {
+        use osstrext::OsStrExt;
         debugln!("fn=parse_short_arg;");
         // let mut utf8 = true;
-        let arg_os = full_arg.trim_left_matches(b'-');
+        let arg_os = full_arg._trim_left_matches(b'-');
         let arg = arg_os.to_string_lossy();
 
         for c in arg.chars() {
@@ -1040,9 +1048,9 @@ impl<'a, 'b> Parser<'a, 'b>
                 let i = p[0].as_bytes().len() + 1;
                 let val = if p[1].as_bytes().len() > 0 {
                     debugln!("setting val: {:?} (bytes), {:?} (ascii)",
-                             arg_os.split_at(i).1.as_bytes(),
-                             arg_os.split_at(i).1);
-                    Some(arg_os.split_at(i).1)
+                             arg_os._split_at(i).1.as_bytes(),
+                             arg_os._split_at(i).1);
+                    Some(arg_os._split_at(i).1)
                 } else {
                     None
                 };
@@ -1081,17 +1089,18 @@ impl<'a, 'b> Parser<'a, 'b>
                  opt: &OptBuilder<'a, 'b>,
                  matcher: &mut ArgMatcher<'a>)
                  -> ClapResult<Option<&'a str>> {
+        use osstrext::OsStrExt;
         debugln!("fn=parse_opt;");
         validate_multiples!(self, opt, matcher);
 
         debug!("Checking for val...");
         if let Some(fv) = val {
-            let v = fv.trim_left_matches(b'=');
-            if !opt.is_set(ArgSettings::EmptyValues) && v.len_() == 0 {
+            let v = fv._trim_left_matches(b'=');
+            if !opt.is_set(ArgSettings::EmptyValues) && v._len() == 0 {
                 sdebugln!("Found Empty - Error");
                 return Err(Error::empty_value(opt, &*self.create_current_usage(matcher)));
             }
-            sdebugln!("Found - {:?}, len: {}", v, v.len_());
+            sdebugln!("Found - {:?}, len: {}", v, v._len());
             try!(self.add_val_to_arg(opt, v, matcher));
         } else {
             sdebugln!("None");
@@ -1114,13 +1123,14 @@ impl<'a, 'b> Parser<'a, 'b>
                          -> ClapResult<Option<&'a str>>
         where A: AnyArg<'a, 'b> + Display
     {
+        use osstrext::OsStrExt;
         debugln!("fn=add_val_to_arg;");
         let mut ret = None;
         if let Some(delim) = arg.val_delim() {
-            if val.is_empty_() {
+            if val._is_empty() {
                 ret = try!(self.add_single_val_to_arg(arg, val, matcher));
             } else {
-                for v in val.split(delim as u32 as u8) {
+                for v in val._split(delim as u32 as u8) {
                     ret = try!(self.add_single_val_to_arg(arg, v, matcher));
                 }
             }
@@ -1159,6 +1169,7 @@ impl<'a, 'b> Parser<'a, 'b>
                          -> ClapResult<Option<&'a str>>
         where A: AnyArg<'a, 'b> + Display
     {
+        use osstrext::OsStrExt;
         debugln!("fn=validate_value; val={:?}", val);
         if self.is_set(AppSettings::StrictUtf8) && val.to_str().is_none() {
             return Err(Error::invalid_utf8(&*self.create_current_usage(matcher)));
@@ -1172,7 +1183,7 @@ impl<'a, 'b> Parser<'a, 'b>
                                                 &*self.create_current_usage(matcher)));
             }
         }
-        if !arg.is_set(ArgSettings::EmptyValues) && val.is_empty_() &&
+        if !arg.is_set(ArgSettings::EmptyValues) && val._is_empty() &&
            matcher.contains(&*arg.name()) {
             return Err(Error::empty_value(arg, &*self.create_current_usage(matcher)));
         }

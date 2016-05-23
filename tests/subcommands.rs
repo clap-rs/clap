@@ -17,7 +17,7 @@ fn subcommand() {
         .arg(Arg::with_name("other").long("other"))
         .get_matches_from(vec!["myprog", "some", "--test", "testing"]);
 
-    assert_eq!(m.subcommand_name().unwrap(), "some");
+    assert_eq!(m.subcommand_name::<&str>().unwrap(), "some");
     let sub_m = m.subcommand_matches("some").unwrap();
     assert!(sub_m.is_present("test"));
     assert_eq!(sub_m.value_of("test").unwrap(), "testing");
@@ -35,7 +35,7 @@ fn subcommand_none_given() {
         .arg(Arg::with_name("other").long("other"))
         .get_matches_from(vec![""]);
 
-    assert!(m.subcommand_name().is_none());
+    assert!(m.subcommand_name::<&str>().is_none());
 }
 
 #[test]
@@ -56,7 +56,7 @@ fn subcommand_multiple() {
 
     assert!(m.subcommand_matches("some").is_some());
     assert!(m.subcommand_matches("add").is_none());
-    assert_eq!(m.subcommand_name().unwrap(), "some");
+    assert_eq!(m.subcommand_name::<&str>().unwrap(), "some");
     let sub_m = m.subcommand_matches("some").unwrap();
     assert!(sub_m.is_present("test"));
     assert_eq!(sub_m.value_of("test").unwrap(), "testing");

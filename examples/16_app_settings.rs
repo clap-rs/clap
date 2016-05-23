@@ -1,8 +1,16 @@
+#[macro_use]
 extern crate clap;
 
 use clap::{App, AppSettings, SubCommand};
 
+subcommands!{
+    enum MyApp {
+        Test => "test"
+    }
+}
+
 fn main() {
+    use MyApp::*;
     // You can use AppSettings to change the application level behavior of clap. .setting() function
     // of App struct takes AppSettings enum as argument. There is also .settings() function which
     // takes slice of AppSettings enum.  You can learn more about AppSettings in the documentation,
@@ -19,7 +27,7 @@ fn main() {
                                             // Required positional argument called input.  This
                                             // will be only required if subcommand is not present.
 
-                        .subcommand(SubCommand::with_name("test")
+                        .subcommand(SubCommand::with_name(Test)
                                                 .about("does some testing"))
                                             // if program is invoked with subcommand, you do not
                                             // need to specify the <input> argument anymore due to
@@ -35,7 +43,7 @@ fn main() {
     }
 
     match matches.subcommand() {
-        ("test", _) => println!("The 'test' subcommand was used"),
-        _           => unreachable!()
+        Some((Test, _)) => println!("The 'test' subcommand was used"),
+        None              => println!("No subcommand was used"),
     }
 }

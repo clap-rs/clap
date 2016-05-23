@@ -1,49 +1,36 @@
 use std::ffi::OsStr;
-#[cfg(not(target_os = "windows"))]
-use std::os::unix::ffi::OsStrExt;
+#[cfg(not(windows))]
+use std::os::unix::ffi::OsStrExt as StdOsStrExt;
 
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 use INVALID_UTF8;
 
-#[cfg(target_os = "windows")]
-trait OsStrExt3 {
+#[doc(hidden)]
+pub trait OsStrExt {
+    fn _starts_with(&self, s: &[u8]) -> bool;
+    fn _split_at_byte(&self, b: u8) -> (&OsStr, &OsStr);
+    fn _split_at(&self, i: usize) -> (&OsStr, &OsStr);
+    fn _trim_left_matches(&self, b: u8) -> &OsStr;
+    fn _len(&self) -> usize;
+    fn _contains_byte(&self, b: u8) -> bool;
+    fn _is_empty(&self) -> bool;
+    fn _split(&self, b: u8) -> OsSplit;
+    #[cfg(windows)]
     fn from_bytes(b: &[u8]) -> &Self;
+    #[cfg(windows)]
     fn as_bytes(&self) -> &[u8];
 }
 
-#[doc(hidden)]
-pub trait OsStrExt2 {
-    fn starts_with(&self, s: &[u8]) -> bool;
-    fn split_at_byte(&self, b: u8) -> (&OsStr, &OsStr);
-    fn split_at(&self, i: usize) -> (&OsStr, &OsStr);
-    fn trim_left_matches(&self, b: u8) -> &OsStr;
-    fn len_(&self) -> usize;
-    fn contains_byte(&self, b: u8) -> bool;
-    fn is_empty_(&self) -> bool;
-    fn split(&self, b: u8) -> OsSplit;
-}
-
-#[cfg(target_os = "windows")]
-impl OsStrExt3 for OsStr {
-    fn from_bytes(b: &[u8]) -> &Self {
-        use std::mem;
-        unsafe { mem::transmute(b) }
-    }
-    fn as_bytes(&self) -> &[u8] {
-        self.to_str().map(|s| s.as_bytes()).expect(INVALID_UTF8)
-    }
-}
-
-impl OsStrExt2 for OsStr {
-    fn starts_with(&self, s: &[u8]) -> bool {
-        self.as_bytes().starts_with(s)
+impl OsStrExt for OsStr {
+    fn _starts_with(&self, s: &[u8]) -> bool {
+        Self::as_bytes(self).starts_with(s)
     }
 
-    fn is_empty_(&self) -> bool {
-        self.as_bytes().is_empty()
+    fn _is_empty(&self) -> bool {
+        Self::as_bytes(self).is_empty()
     }
 
-    fn contains_byte(&self, byte: u8) -> bool {
+    fn _contains_byte(&self, byte: u8) -> bool {
         for b in self.as_bytes() {
             if b == &byte {
                 return true;
@@ -52,17 +39,17 @@ impl OsStrExt2 for OsStr {
         false
     }
 
-    fn split_at_byte(&self, byte: u8) -> (&OsStr, &OsStr) {
+    fn _split_at_byte(&self, byte: u8) -> (&OsStr, &OsStr) {
         for (i, b) in self.as_bytes().iter().enumerate() {
             if b == &byte {
                 return (&OsStr::from_bytes(&self.as_bytes()[..i]),
                         &OsStr::from_bytes(&self.as_bytes()[i + 1..]));
             }
         }
-        (&*self, &OsStr::from_bytes(&self.as_bytes()[self.len_()..self.len_()]))
+        (&*self, &OsStr::from_bytes(&self.as_bytes()[self._len()..self._len()]))
     }
 
-    fn trim_left_matches(&self, byte: u8) -> &OsStr {
+    fn _trim_left_matches(&self, byte: u8) -> &OsStr {
         for (i, b) in self.as_bytes().iter().enumerate() {
             if b != &byte {
                 return &OsStr::from_bytes(&self.as_bytes()[i..]);
@@ -71,20 +58,29 @@ impl OsStrExt2 for OsStr {
         &*self
     }
 
-    fn split_at(&self, i: usize) -> (&OsStr, &OsStr) {
+    fn _split_at(&self, i: usize) -> (&OsStr, &OsStr) {
         (&OsStr::from_bytes(&self.as_bytes()[..i]), &OsStr::from_bytes(&self.as_bytes()[i..]))
     }
 
-    fn len_(&self) -> usize {
+    fn _len(&self) -> usize {
         self.as_bytes().len()
     }
 
-    fn split(&self, b: u8) -> OsSplit {
+    fn _split(&self, b: u8) -> OsSplit {
         OsSplit {
             sep: b,
             val: self.as_bytes(),
             pos: 0,
         }
+    }
+    #[cfg(windows)]
+    fn from_bytes(b: &[u8]) -> &Self {
+        use std::mem;
+        unsafe { mem::transmute(b) }
+    }
+    #[cfg(windows)]
+    fn as_bytes(&self) -> &[u8] {
+        self.to_str().map(|s| s.as_bytes()).expect(INVALID_UTF8)
     }
 }
 
