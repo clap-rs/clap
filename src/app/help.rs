@@ -551,6 +551,10 @@ impl<'a> Help<'a> {
 
     /// Writes default help for a Parser Object to the wrapped stream.
     pub fn write_default_help(&mut self, parser: &Parser) -> ClapResult<()> {
+        if let Some(h) = parser.meta.pre_help {
+            try!(write!(self.writer, "{}", h));
+            try!(self.writer.write(b"\n\n"));
+        }
 
         // Print the version
         try!(self.write_bin_name(&parser));
@@ -580,6 +584,9 @@ impl<'a> Help<'a> {
         }
 
         if let Some(h) = parser.meta.more_help {
+            if flags || opts || pos || subcmds {
+                try!(self.writer.write(b"\n\n"));
+            }
             try!(write!(self.writer, "{}", h));
         }
 
