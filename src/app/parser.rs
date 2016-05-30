@@ -1542,22 +1542,22 @@ impl<'a, 'b> Parser<'a, 'b>
         w.flush().map_err(Error::from)
     }
 
-    fn write_version<W: Write>(&self, w: &mut W) -> io::Result<()> {
+    pub fn write_version<W: Write>(&self, w: &mut W) -> io::Result<()> {
         if let Some(bn) = self.meta.bin_name.as_ref() {
             if bn.contains(' ') {
                 // Incase we're dealing with subcommands i.e. git mv is translated to git-mv
-                writeln!(w,
+                write!(w,
                          "{} {}",
                          bn.replace(" ", "-"),
                          self.meta.version.unwrap_or("".into()))
             } else {
-                writeln!(w,
+                write!(w,
                          "{} {}",
                          &self.meta.name[..],
                          self.meta.version.unwrap_or("".into()))
             }
         } else {
-            writeln!(w,
+            write!(w,
                      "{} {}",
                      &self.meta.name[..],
                      self.meta.version.unwrap_or("".into()))
