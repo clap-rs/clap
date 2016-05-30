@@ -1,6 +1,11 @@
 extern crate clap;
+extern crate regex;
 
 use clap::{App, ErrorKind};
+
+include!("../clap-test.rs");
+
+static VERSION: &'static str = "clap-test v1.4.8";
 
 #[test]
 fn version_short() {
@@ -24,4 +29,9 @@ fn version_long() {
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::VersionDisplayed);
+}
+
+#[test]
+fn complex_version_output() {
+    test::check_version(test::complex_app(), VERSION);
 }

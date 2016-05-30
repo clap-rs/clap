@@ -60,6 +60,16 @@ mod test {
         assert_eq!(str::from_utf8(&help).unwrap(), out);
     }
 
+    pub fn check_version(mut a: App, out: &str) {
+        // We call a get_matches method to cause --help and --version to be built
+        let _ = a.get_matches_from_safe_borrow(vec![""]);
+
+        // Now we check the output of print_version()
+        let mut ver = vec![];
+        a.write_version(&mut ver).ok().expect("failed to print help");
+        assert_eq!(str::from_utf8(&ver).unwrap(), out);
+    }
+
     pub fn check_complex_output(args: &str, out: &str) {
         let mut w = vec![];
         let matches = complex_app().get_matches_from(args.split(' ').collect::<Vec<_>>());
