@@ -796,6 +796,22 @@ impl<'a, 'b> App<'a, 'b> {
         Help::write_app_help(w, &self)
     }
 
+    /// Writes the version message to the user to a [`io::Write`] object
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::App;
+    /// use std::io;
+    /// let mut app = App::new("myprog");
+    /// let mut out = io::stdout();
+    /// app.write_vesrion(&mut out).ok().expect("failed to write to stdout");
+    /// ```
+    /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
+    pub fn write_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
+        self.p.write_version(w).map_err(From::from)
+    }
+
     /// Starts the parsing process, upon a failed parse an error will be displayed to the user and
     /// the process with exit with the appropriate error code. By default this method gets all user
     /// provided arguments from [`env::args_os`] in order to allow for invalid UTF-8 code points,
