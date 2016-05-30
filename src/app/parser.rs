@@ -115,9 +115,9 @@ impl<'a, 'b> Parser<'a, 'b>
                                   l));
             self.long_list.push(l);
             if l == "help" {
-                self.set(AppSettings::NeedsLongHelp);
+                self.unset(AppSettings::NeedsLongHelp);
             } else if l == "version" {
-                self.set(AppSettings::NeedsLongVersion);
+                self.unset(AppSettings::NeedsLongVersion);
             }
         }
         if a.is_set(ArgSettings::Required) {
@@ -376,6 +376,10 @@ impl<'a, 'b> Parser<'a, 'b>
 
     pub fn set(&mut self, s: AppSettings) {
         self.settings.set(s)
+    }
+
+    pub fn unset(&mut self, s: AppSettings) {
+        self.settings.unset(s)
     }
 
     pub fn verify_positionals(&mut self) {
@@ -929,13 +933,13 @@ impl<'a, 'b> Parser<'a, 'b>
         debug!("Checking if -{} is help or version...", arg);
         if let Some(h) = self.help_short {
             sdebugln!("Help");
-            if arg == h {
+            if arg == h && self.settings.is_set(AppSettings::NeedsLongHelp) {
                 try!(self._help());
             }
         }
         if let Some(v) = self.version_short {
             sdebugln!("Help");
-            if arg == v {
+            if arg == v && self.settings.is_set(AppSettings::NeedsLongVersion) {
                 try!(self._version());
             }
         }
