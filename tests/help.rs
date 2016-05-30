@@ -34,8 +34,7 @@ ARGS:
 
 SUBCOMMANDS:
     help      Prints this message or the help of the given subcommand(s)
-    subcmd    tests subcommands
-";
+    subcmd    tests subcommands";
 
 static SC_HELP: &'static str = "subcmd 0.1
 Kevin K. <kbknapp@gmail.com>
@@ -51,8 +50,7 @@ OPTIONS:
     -o, --option <scoption>...    tests options
 
 ARGS:
-    <scpositional>    tests positionals
-";
+    <scpositional>    tests positionals";
 
 #[test]
 fn help_short() {
