@@ -1580,7 +1580,6 @@ impl<'a, 'b> Parser<'a, 'b>
         self.write_help(&mut buf_w)
     }
 
-    #[cfg_attr(feature = "lints", allow(for_kv_map))]
     pub fn write_help<W: Write>(&self, w: &mut W) -> ClapResult<()> {
         Help::write_parser_help(w, &self)
     }

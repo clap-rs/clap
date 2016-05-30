@@ -503,31 +503,37 @@ impl<'a> Help<'a> {
                                    .chain(parser.iter_opts().map(as_arg_trait));
             try!(color!(self, "OPTIONS:\n", warning));
             try!(self.write_args(opts_flags));
+            first = false;
         } else {
             if flags {
                 try!(color!(self, "FLAGS:\n", warning));
                 try!(self.write_args(parser.iter_flags()
                                            .map(as_arg_trait)));
+                first = false;
             }
             if opts {
                 if !first {
-                    try!(self.writer.write(b"\n"));
+                    try!(self.writer.write(b"\n\n"));
                 }
                 try!(color!(self, "OPTIONS:\n", warning));
                 try!(self.write_args(parser.iter_opts().map(as_arg_trait)));
+                first = false;
             }
         }
 
         if pos {
             if !first {
-                try!(self.writer.write(b"\n"));
+                try!(self.writer.write(b"\n\n"));
             }
-            try!(color!(self, "ARGS:\n", Warning));
+            try!(color!(self, "ARGS:\n", warning));
             try!(self.write_args_unsorted(parser.iter_positionals().map(as_arg_trait)));
+            first = false;
         }
 
         if subcmds {
-            try!(self.writer.write(b"\n\n"));
+            if !first {
+                try!(self.writer.write(b"\n\n"));
+            }
             try!(color!(self, "SUBCOMMANDS:\n", warning));
             try!(self.write_subcommands(&parser));
         }
@@ -551,12 +557,12 @@ impl<'a> Help<'a> {
         for (_, btm) in ord_m.into_iter() {
             for (_, sc) in btm.into_iter() {
                 if !first {
-					debugln!("Writing newline...");
+		    debugln!("Writing newline...");
                     try!(self.writer.write(b"\n"));
                 } else {
                     first = false;
                 }
-				debugln!("Writing sc...{}", sc);
+		debugln!("Writing sc...{}", sc);
                 try!(self.write_arg(sc, longest));
             }
         }
@@ -774,12 +780,12 @@ impl<'a> Help<'a> {
                 _ => continue,
             };
 
-			debugln!("iter;tag_buf={};", unsafe {
-				String::from_utf8_unchecked(tag_buf.get_ref()[0..tag_length]
-												   .iter()
-											       .map(|&i|i)
-												   .collect::<Vec<_>>())
-			});
+	    debugln!("iter;tag_buf={};", unsafe {
+		String::from_utf8_unchecked(tag_buf.get_ref()[0..tag_length]
+						   .iter()
+		                                   .map(|&i|i)
+						   .collect::<Vec<_>>())
+            });
             match &tag_buf.get_ref()[0..tag_length] {
                 b"?" => {
                     try!(self.writer.write(b"Could not decode tag name"));
@@ -846,6 +852,7 @@ impl<'a> Help<'a> {
                     try!(self.writer.write(b"}"));
                 }
             }
+
         }
     }
 }
