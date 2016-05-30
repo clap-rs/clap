@@ -1,3 +1,24 @@
+<a name="v2.5.2"></a>
+### v2.5.2 (2016-05-31)
+
+
+#### Improvements
+
+*   removes extra newline from help output ([86e61d19](https://github.com/kbknapp/clap-rs/commit/86e61d19a748fb9870fcf1175308984e51ca1115))
+*   allows printing version to any io::Write object ([921f5f79](https://github.com/kbknapp/clap-rs/commit/921f5f7916597f1d028cd4a65bfe76a01c801724))
+*   removes extra newline when printing version ([7e2e2cbb](https://github.com/kbknapp/clap-rs/commit/7e2e2cbb4a8a0f050bb8072a376f742fc54b8589))
+
+#### Bug Fixes
+
+*   fixes bug where args are printed out of order with templates ([3935431d](https://github.com/kbknapp/clap-rs/commit/3935431d5633f577c0826ae2142794b301f4b8ca))
+*   fixes bug where one can't override version or help flags ([90d7d6a2](https://github.com/kbknapp/clap-rs/commit/90d7d6a2ea8240122dd9bf8d82d3c4f5ebb5c703), closes [#514](https://github.com/kbknapp/clap-rs/issues/514))
+*   fixes issue where before_help wasn't printed ([b3faff60](https://github.com/kbknapp/clap-rs/commit/b3faff6030f76a23f26afcfa6a90169002ed7106))
+
+#### Documentation
+
+*   inter-links all types and pages ([3312893d](https://github.com/kbknapp/clap-rs/commit/3312893ddaef3f44d68d8d26ed3d08010be50d97), closes [#505](https://github.com/kbknapp/clap-rs/issues/505))
+*   makes all publicly available types viewable in docs ([52ca6505](https://github.com/kbknapp/clap-rs/commit/52ca6505b4fec7b5c2d53d160c072d395eb21da6))
+
 <a name="v2.5.1"></a>
 ### v2.5.1 (2016-05-11)
 
@@ -5,8 +26,6 @@
 #### Bug Fixes
 
 * **Subcommand Aliases**: fixes lifetime issue when setting multiple aliases at once ([ac42f6cf0](https://github.com/kbknapp/clap-rs/commit/ac42f6cf0de6c4920f703807d63061803930b18d))
-
-
 
 <a name="v2.5.0"></a>
 ## v2.5.0 (2016-05-10)

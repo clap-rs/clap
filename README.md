@@ -38,6 +38,16 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's what's new in v.2.5.2
+
+*   Removes trailing newlines from help and version output
+*   Allows printing version to any io::Write object
+*   Inter-links all types and pages
+*   Makes all publicly available types viewable in docs
+*   Fixes bug where one can't override version or help flags
+*   Fixes bug where args are printed out of order when using templates
+*   Fixes issue where `App::before_help` wasn't printed properly
+
 Here's what's new in v.2.5.0
 
 * Subcommands now support aliases - think of them as hidden subcommands that dispatch to said subcommand automatically
