@@ -50,12 +50,12 @@ Here's what's new in v2.4.3
 * Improvements
  * Positional arguments which are part of a group are now formatted in a more readable way (fewer brackets)
  * Positional arguments use the standard `<>` brackets to reduce confusion
- * The default help string for the `help` subcommand has been shortened to fit in 80 columns 
+ * The default help string for the `help` subcommand has been shortened to fit in 80 columns
 
 Here's the highlights from v2.4.0
 
-* **Before Help:**  adds support for displaying info before help message 
-* **Required Unless:**  adds support for allowing args that are required unless certain other args are present 
+* **Before Help:**  adds support for displaying info before help message
+* **Required Unless:**  adds support for allowing args that are required unless certain other args are present
 * Bug fixes
 
 Here's the highlights from v2.3.0
@@ -487,7 +487,7 @@ features = [ "suggestions", "color" ]
 The following is a list of optional `clap` features:
 
 * **"suggestions"**: Turns on the `Did you mean '--myoption' ?` feature for when users make typos. (builds dependency `strsim`)
-* **"color"**: Turns on colored error messages. This feature only works on non-Windows OSs. (builds dependency `ansi-term`)
+* **"color"**: Turns on colored error messages. This feature only works on non-Windows OSs. (builds dependency `ansi-term` and `libc`)
 * **"wrap_help"**: Automatically detects terminal width and wraps long help text lines with proper indentation alignment (builds dependency `libc` and 'unicode-width')
 * **"lints"**: This is **not** included by default and should only be used while developing to run basic lints against changes. This can only be used on Rust nightly. (builds dependency `clippy`)
 * **"debug"**: This is **not** included by default and should only be used while developing to display debugging information.

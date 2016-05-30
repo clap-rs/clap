@@ -3,29 +3,32 @@ use std::ascii::AsciiExt;
 
 bitflags! {
     flags Flags: u32 {
-        const SC_NEGATE_REQS       = 0b00000000000000000000001,
-        const SC_REQUIRED          = 0b00000000000000000000010,
-        const A_REQUIRED_ELSE_HELP = 0b00000000000000000000100,
-        const GLOBAL_VERSION       = 0b00000000000000000001000,
-        const VERSIONLESS_SC       = 0b00000000000000000010000,
-        const UNIFIED_HELP         = 0b00000000000000000100000,
-        const WAIT_ON_ERROR        = 0b00000000000000001000000,
-        const SC_REQUIRED_ELSE_HELP= 0b00000000000000010000000,
-        const NEEDS_LONG_HELP      = 0b00000000000000100000000,
-        const NEEDS_LONG_VERSION   = 0b00000000000001000000000,
-        const NEEDS_SC_HELP        = 0b00000000000010000000000,
-        const DISABLE_VERSION      = 0b00000000000100000000000,
-        const HIDDEN               = 0b00000000001000000000000,
-        const TRAILING_VARARG      = 0b00000000010000000000000,
-        const NO_BIN_NAME          = 0b00000000100000000000000,
-        const ALLOW_UNK_SC         = 0b00000001000000000000000,
-        const UTF8_STRICT          = 0b00000010000000000000000,
-        const UTF8_NONE            = 0b00000100000000000000000,
-        const LEADING_HYPHEN       = 0b00001000000000000000000,
-        const NO_POS_VALUES        = 0b00010000000000000000000,
-        const NEXT_LINE_HELP       = 0b00100000000000000000000,
-        const DERIVE_DISP_ORDER    = 0b01000000000000000000000,
-        const COLORED_HELP         = 0b10000000000000000000000,
+        const SC_NEGATE_REQS       = 0b00000000000000000000000001,
+        const SC_REQUIRED          = 0b00000000000000000000000010,
+        const A_REQUIRED_ELSE_HELP = 0b00000000000000000000000100,
+        const GLOBAL_VERSION       = 0b00000000000000000000001000,
+        const VERSIONLESS_SC       = 0b00000000000000000000010000,
+        const UNIFIED_HELP         = 0b00000000000000000000100000,
+        const WAIT_ON_ERROR        = 0b00000000000000000001000000,
+        const SC_REQUIRED_ELSE_HELP= 0b00000000000000000010000000,
+        const NEEDS_LONG_HELP      = 0b00000000000000000100000000,
+        const NEEDS_LONG_VERSION   = 0b00000000000000001000000000,
+        const NEEDS_SC_HELP        = 0b00000000000000010000000000,
+        const DISABLE_VERSION      = 0b00000000000000100000000000,
+        const HIDDEN               = 0b00000000000001000000000000,
+        const TRAILING_VARARG      = 0b00000000000010000000000000,
+        const NO_BIN_NAME          = 0b00000000000100000000000000,
+        const ALLOW_UNK_SC         = 0b00000000001000000000000000,
+        const UTF8_STRICT          = 0b00000000010000000000000000,
+        const UTF8_NONE            = 0b00000000100000000000000000,
+        const LEADING_HYPHEN       = 0b00000001000000000000000000,
+        const NO_POS_VALUES        = 0b00000010000000000000000000,
+        const NEXT_LINE_HELP       = 0b00000100000000000000000000,
+        const DERIVE_DISP_ORDER    = 0b00001000000000000000000000,
+        const COLORED_HELP         = 0b00010000000000000000000000,
+        const COLOR_ALWAYS         = 0b00100000000000000000000000,
+        const COLOR_AUTO           = 0b01000000000000000000000000,
+        const COLOR_NEVER          = 0b10000000000000000000000000,
     }
 }
 
@@ -41,7 +44,7 @@ impl Clone for AppFlags {
 
 impl Default for AppFlags {
     fn default() -> Self {
-        AppFlags(NEEDS_LONG_VERSION | NEEDS_LONG_HELP | NEEDS_SC_HELP | UTF8_NONE)
+        AppFlags(NEEDS_LONG_VERSION | NEEDS_LONG_HELP | NEEDS_SC_HELP | UTF8_NONE | COLOR_AUTO)
     }
 }
 
@@ -73,7 +76,10 @@ impl AppFlags {
         HidePossibleValuesInHelp => NO_POS_VALUES,
         NextLineHelp => NEXT_LINE_HELP,
         ColoredHelp => COLORED_HELP,
-        DeriveDisplayOrder => DERIVE_DISP_ORDER
+        DeriveDisplayOrder => DERIVE_DISP_ORDER,
+        ColorAlways => COLOR_ALWAYS,
+        ColorAuto => COLOR_AUTO,
+        ColorNever => COLOR_NEVER
     }
 }
 
@@ -492,6 +498,59 @@ pub enum AppSettings {
     ///     .get_matches();
     /// ```
     ColoredHelp,
+    /// Enables colored output only when the output is going to a terminal or TTY.
+    ///
+    /// **NOTE:** This is the default behavior of `clap`
+    ///
+    /// **NOTE:** Must be compiled with the `color` cargo feature
+    ///
+    /// # Platform Specific
+    ///
+    /// This setting only applies to Unix, Linux, and OSX (i.e. non-Windows platforms)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, SubCommand, AppSettings};
+    /// App::new("myprog")
+    ///     .setting(AppSettings::ColorAuto)
+    ///     .get_matches();
+    /// ```
+    ColorAuto,
+    /// Enables colored output regardless of whether or not the output is going to a terminal/TTY.
+    ///
+    /// **NOTE:** Must be compiled with the `color` cargo feature
+    ///
+    /// # Platform Specific
+    ///
+    /// This setting only applies to Unix, Linux, and OSX (i.e. non-Windows platforms)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, SubCommand, AppSettings};
+    /// App::new("myprog")
+    ///     .setting(AppSettings::ColorAlways)
+    ///     .get_matches();
+    /// ```
+    ColorAlways,
+    /// Disables colored output no matter if the output is going to a terminal/TTY, or not.
+    ///
+    /// **NOTE:** Must be compiled with the `color` cargo feature
+    ///
+    /// # Platform Specific
+    ///
+    /// This setting only applies to Unix, Linux, and OSX (i.e. non-Windows platforms)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, SubCommand, AppSettings};
+    /// App::new("myprog")
+    ///     .setting(AppSettings::ColorNever)
+    ///     .get_matches();
+    /// ```
+    ColorNever,
     #[doc(hidden)]
     NeedsLongVersion,
     #[doc(hidden)]

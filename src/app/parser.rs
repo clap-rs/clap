@@ -20,7 +20,7 @@ use INVALID_UTF8;
 use suggestions;
 use INTERNAL_ERROR_MSG;
 use SubCommand;
-use fmt::Format;
+use fmt::{Format, ColorWhen};
 use osstringext::OsStrExt2;
 use app::meta::AppMeta;
 use args::MatchedArg;
@@ -527,7 +527,8 @@ impl<'a, 'b> Parser<'a, 'b>
                                             self.meta
                                                 .bin_name
                                                 .as_ref()
-                                                .unwrap_or(&self.meta.name)));
+                                                .unwrap_or(&self.meta.name),
+                                            self.color()));
                                 }
                             }
                             sc.clone()
@@ -547,7 +548,8 @@ impl<'a, 'b> Parser<'a, 'b>
                                                              .bin_name
                                                              .as_ref()
                                                              .unwrap_or(&self.meta.name),
-                                                         &*self.create_current_usage(matcher)));
+                                                         &*self.create_current_usage(matcher),
+                                                         self.color()));
                 }
             }
 
@@ -561,7 +563,7 @@ impl<'a, 'b> Parser<'a, 'b>
                         if let None = a.to_str() {
                             if !self.settings.is_set(AppSettings::StrictUtf8) {
                                 return Err(
-                                    Error::invalid_utf8(&*self.create_current_usage(matcher))
+                                    Error::invalid_utf8(&*self.create_current_usage(matcher), self.color())
                                 );
                             }
                         }
@@ -575,7 +577,8 @@ impl<'a, 'b> Parser<'a, 'b>
                 } else {
                     return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
                                                        "",
-                                                       &*self.create_current_usage(matcher)));
+                                                       &*self.create_current_usage(matcher),
+                                                       self.color()));
                 }
             }
         }
@@ -591,7 +594,7 @@ impl<'a, 'b> Parser<'a, 'b>
                     true
                 };
                 if should_err {
-                    return Err(Error::empty_value(o, &*self.create_current_usage(matcher)));
+                    return Err(Error::empty_value(o, &*self.create_current_usage(matcher), self.color()));
                 }
             } else {
                 return Err(Error::empty_value(self.positionals
@@ -599,7 +602,8 @@ impl<'a, 'b> Parser<'a, 'b>
                                                   .filter(|p| &p.name == &a)
                                                   .next()
                                                   .expect(INTERNAL_ERROR_MSG),
-                                              &*self.create_current_usage(matcher)));
+                                              &*self.create_current_usage(matcher),
+                                              self.color()));
             }
         }
 
@@ -635,10 +639,10 @@ impl<'a, 'b> Parser<'a, 'b>
             try!(self.parse_subcommand(sc_name, matcher, it));
         } else if self.is_set(AppSettings::SubcommandRequired) {
             let bn = self.meta.bin_name.as_ref().unwrap_or(&self.meta.name);
-            return Err(Error::missing_subcommand(bn, &self.create_current_usage(matcher)));
+            return Err(Error::missing_subcommand(bn, &self.create_current_usage(matcher), self.color()));
         } else if self.is_set(AppSettings::SubcommandRequiredElseHelp) {
             let mut out = vec![];
-            try!(self.write_help(&mut out));
+            try!(self.write_help_err(&mut out));
             return Err(Error {
                 message: String::from_utf8_lossy(&*out).into_owned(),
                 kind: ErrorKind::MissingArgumentOrSubcommand,
@@ -648,7 +652,7 @@ impl<'a, 'b> Parser<'a, 'b>
         if matcher.is_empty() && matcher.subcommand_name().is_none() &&
            self.is_set(AppSettings::ArgRequiredElseHelp) {
             let mut out = vec![];
-            try!(self.write_help(&mut out));
+            try!(self.write_help_err(&mut out));
             return Err(Error {
                 message: String::from_utf8_lossy(&*out).into_owned(),
                 kind: ErrorKind::MissingArgumentOrSubcommand,
@@ -1070,7 +1074,8 @@ impl<'a, 'b> Parser<'a, 'b>
                 arg.push(c);
                 return Err(Error::unknown_argument(&*arg,
                                                    "",
-                                                   &*self.create_current_usage(matcher)));
+                                                   &*self.create_current_usage(matcher),
+                                                   self.color()));
             }
         }
         Ok(None)
@@ -1089,7 +1094,7 @@ impl<'a, 'b> Parser<'a, 'b>
             let v = fv.trim_left_matches(b'=');
             if !opt.is_set(ArgSettings::EmptyValues) && v.len_() == 0 {
                 sdebugln!("Found Empty - Error");
-                return Err(Error::empty_value(opt, &*self.create_current_usage(matcher)));
+                return Err(Error::empty_value(opt, &*self.create_current_usage(matcher), self.color()));
             }
             sdebugln!("Found - {:?}, len: {}", v, v.len_());
             try!(self.add_val_to_arg(opt, v, matcher));
@@ -1161,7 +1166,7 @@ impl<'a, 'b> Parser<'a, 'b>
     {
         debugln!("fn=validate_value; val={:?}", val);
         if self.is_set(AppSettings::StrictUtf8) && val.to_str().is_none() {
-            return Err(Error::invalid_utf8(&*self.create_current_usage(matcher)));
+            return Err(Error::invalid_utf8(&*self.create_current_usage(matcher), self.color()));
         }
         if let Some(ref p_vals) = arg.possible_vals() {
             let val_str = val.to_string_lossy();
@@ -1169,16 +1174,17 @@ impl<'a, 'b> Parser<'a, 'b>
                 return Err(Error::invalid_value(val_str,
                                                 p_vals,
                                                 arg,
-                                                &*self.create_current_usage(matcher)));
+                                                &*self.create_current_usage(matcher),
+                                                self.color()));
             }
         }
         if !arg.is_set(ArgSettings::EmptyValues) && val.is_empty_() &&
            matcher.contains(&*arg.name()) {
-            return Err(Error::empty_value(arg, &*self.create_current_usage(matcher)));
+            return Err(Error::empty_value(arg, &*self.create_current_usage(matcher), self.color()));
         }
         if let Some(ref vtor) = arg.validator() {
             if let Err(e) = vtor(val.to_string_lossy().into_owned()) {
-                return Err(Error::value_validation(e));
+                return Err(Error::value_validation(e, self.color()));
             }
         }
         if matcher.needs_more_vals(arg) {
@@ -1212,19 +1218,19 @@ impl<'a, 'b> Parser<'a, 'b>
                 let usg = $me.create_current_usage($matcher);
                 if let Some(f) = $me.flags.iter().filter(|f| f.name == $name).next() {
                     debugln!("It was a flag...");
-                    Error::argument_conflict(f, c_with, &*usg)
+                    Error::argument_conflict(f, c_with, &*usg, self.color())
                 } else if let Some(o) = $me.opts.iter()
                                                  .filter(|o| o.name == $name)
                                                  .next() {
                     debugln!("It was an option...");
-                    Error::argument_conflict(o, c_with, &*usg)
+                    Error::argument_conflict(o, c_with, &*usg, self.color())
                 } else {
                     match $me.positionals.values()
                                             .filter(|p| p.name == $name)
                                             .next() {
                         Some(p) => {
                             debugln!("It was a positional...");
-                            Error::argument_conflict(p, c_with, &*usg)
+                            Error::argument_conflict(p, c_with, &*usg, self.color())
                         },
                         None    => panic!(INTERNAL_ERROR_MSG)
                     }
@@ -1300,7 +1306,8 @@ impl<'a, 'b> Parser<'a, 'b>
                                                          } else {
                                                              "ere"
                                                          },
-                                                         &*self.create_current_usage(matcher)));
+                                                         &*self.create_current_usage(matcher),
+                                                         self.color()));
             }
         }
         if let Some(num) = a.max_vals() {
@@ -1316,7 +1323,8 @@ impl<'a, 'b> Parser<'a, 'b>
                                                     .to_str()
                                                     .expect(INVALID_UTF8),
                                                   a,
-                                                  &*self.create_current_usage(matcher)));
+                                                  &*self.create_current_usage(matcher),
+                                                  self.color()));
             }
         }
         if let Some(num) = a.min_vals() {
@@ -1326,7 +1334,8 @@ impl<'a, 'b> Parser<'a, 'b>
                 return Err(Error::too_few_values(a,
                                                  num,
                                                  ma.vals.len(),
-                                                 &*self.create_current_usage(matcher)));
+                                                 &*self.create_current_usage(matcher),
+                                                 self.color()));
             }
         }
         Ok(())
@@ -1371,7 +1380,8 @@ impl<'a, 'b> Parser<'a, 'b>
                       .iter()
                       .fold(String::new(),
                           |acc, s| acc + &format!("\n    {}", Format::Error(s))[..]),
-                &*self.create_current_usage(matcher))
+                &*self.create_current_usage(matcher),
+                self.color())
             };
             return Err(err);
         }
@@ -1435,7 +1445,7 @@ impl<'a, 'b> Parser<'a, 'b>
         }
 
         let used_arg = format!("--{}", arg);
-        Err(Error::unknown_argument(&*used_arg, &*suffix.0, &*self.create_current_usage(matcher)))
+        Err(Error::unknown_argument(&*used_arg, &*suffix.0, &*self.create_current_usage(matcher), self.color()))
     }
 
     // Creates a usage string if one was not provided by the user manually. This happens just
@@ -1575,6 +1585,10 @@ impl<'a, 'b> Parser<'a, 'b>
         Help::write_parser_help(w, &self)
     }
 
+    pub fn write_help_err<W: Write>(&self, w: &mut W) -> ClapResult<()> {
+        Help::write_parser_help_to_stderr(w, &self)
+    }
+
     fn add_defaults(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
         macro_rules! add_val {
             ($_self:ident, $a:ident, $m:ident) => {
@@ -1605,6 +1619,23 @@ impl<'a, 'b> Parser<'a, 'b>
 
     pub fn iter_positionals(&self) -> vec_map::Values<PosBuilder> {
         self.positionals.values()
+    }
+
+    // Should we color the output? None=determined by output location, true=yes, false=no
+    #[doc(hidden)]
+    pub fn color(&self) -> ColorWhen {
+        debugln!("exec=color;");
+        debug!("Color setting...");
+        if self.is_set(AppSettings::ColorNever) {
+            sdebugln!("Never");
+            ColorWhen::Never
+        } else if self.is_set(AppSettings::ColorAlways) {
+            sdebugln!("Always");
+            ColorWhen::Always
+        } else {
+            sdebugln!("Auto");
+            ColorWhen::Auto
+        }
     }
 }
 
