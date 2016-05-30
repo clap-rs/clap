@@ -38,6 +38,16 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's what's new in v.2.5.2
+
+*   Removes trailing newlines from help and version output
+*   Allows printing version to any io::Write object
+*   Inter-links all types and pages
+*   Makes all publicly available types viewable in docs
+*   Fixes bug where one can't override version or help flags
+*   Fixes bug where args are printed out of order when using templates
+*   Fixes issue where `App::before_help` wasn't printed properly
+
 Here's what's new in v.2.5.0
 
 * Subcommands now support aliases - think of them as hidden subcommands that dispatch to said subcommand automatically
@@ -50,12 +60,12 @@ Here's what's new in v2.4.3
 * Improvements
  * Positional arguments which are part of a group are now formatted in a more readable way (fewer brackets)
  * Positional arguments use the standard `<>` brackets to reduce confusion
- * The default help string for the `help` subcommand has been shortened to fit in 80 columns 
+ * The default help string for the `help` subcommand has been shortened to fit in 80 columns
 
 Here's the highlights from v2.4.0
 
-* **Before Help:**  adds support for displaying info before help message 
-* **Required Unless:**  adds support for allowing args that are required unless certain other args are present 
+* **Before Help:**  adds support for displaying info before help message
+* **Required Unless:**  adds support for allowing args that are required unless certain other args are present
 * Bug fixes
 
 Here's the highlights from v2.3.0
