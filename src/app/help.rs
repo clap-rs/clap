@@ -115,7 +115,7 @@ impl<'a> Help<'a> {
     /// Writes the parser help to the wrapped stream.
     pub fn write_help(&mut self, parser: &Parser) -> ClapResult<()> {
         if let Some(h) = parser.meta.help_str {
-            try!(writeln!(self.writer, "{}", h).map_err(Error::from));
+            try!(write!(self.writer, "{}", h).map_err(Error::from));
         } else if let Some(ref tmpl) = parser.meta.template {
             try!(self.write_templated_help(&parser, tmpl));
         } else {
@@ -143,7 +143,13 @@ impl<'a> Help<'a> {
                 arg_v.push(arg)
             }
         }
+        let mut first = true;
         for arg in arg_v {
+            if !first {
+                try!(self.writer.write(b"\n"));
+            } else {
+                first = false;
+            };
             try!(self.write_arg(arg.as_base(), longest));
         }
         Ok(())
@@ -166,8 +172,14 @@ impl<'a> Help<'a> {
                 btm.insert(arg.name(), arg);
             }
         }
+        let mut first = true;
         for (_, btm) in ord_m.into_iter() {
             for (_, arg) in btm.into_iter() {
+                if !first {
+                    try!(self.writer.write(b"\n"));
+                } else {
+                    first = false;
+                };
                 try!(self.write_arg(arg.as_base(), longest));
             }
         }
@@ -184,7 +196,6 @@ impl<'a> Help<'a> {
         try!(self.long(arg, longest));
         try!(self.val(arg, longest));
         try!(self.help(arg, longest));
-        try!(self.writer.write(b"\n"));
         Ok(())
     }
 
@@ -458,45 +469,33 @@ impl<'a> Help<'a> {
 
         let unified_help = parser.is_set(AppSettings::UnifiedHelpMessage);
 
-        let mut first = true;
-
         if unified_help && (flags || opts) {
             let opts_flags = parser.iter_flags()
                                    .map(as_arg_trait)
                                    .chain(parser.iter_opts().map(as_arg_trait));
             try!(color!(self, "OPTIONS:\n", Warning));
             try!(self.write_args(opts_flags));
-            first = false;
         } else {
             if flags {
                 try!(color!(self, "FLAGS:\n", Warning));
                 try!(self.write_args(parser.iter_flags()
                                            .map(as_arg_trait)));
-                first = false;
             }
             if opts {
-                if !first {
-                    try!(self.writer.write(b"\n"));
-                }
+                try!(self.writer.write(b"\n\n"));
                 try!(color!(self, "OPTIONS:\n", Warning));
                 try!(self.write_args(parser.iter_opts().map(as_arg_trait)));
-                first = false;
             }
         }
 
         if pos {
-            if !first {
-                try!(self.writer.write(b"\n"));
-            }
+            try!(self.writer.write(b"\n\n"));
             try!(color!(self, "ARGS:\n", Warning));
             try!(self.write_args_unsorted(parser.iter_positionals().map(as_arg_trait)));
-            first = false;
         }
 
         if subcmds {
-            if !first {
-                try!(self.writer.write(b"\n"));
-            }
+            try!(self.writer.write(b"\n\n"));
             try!(color!(self, "SUBCOMMANDS:\n", Warning));
             try!(self.write_subcommands(&parser));
         }
@@ -515,8 +514,14 @@ impl<'a> Help<'a> {
             longest = cmp::max(longest, sc.p.meta.name.len());
         }
 
+        let mut first = true;
         for (_, btm) in ord_m.into_iter() {
             for (_, sc) in btm.into_iter() {
+                if !first {
+                    try!(self.writer.write(b"\n"));
+                } else {
+                    first = false;
+                }
                 try!(self.write_arg(sc, longest));
             }
         }
@@ -575,7 +580,7 @@ impl<'a> Help<'a> {
         }
 
         if let Some(h) = parser.meta.more_help {
-            try!(write!(self.writer, "{}\n", h));
+            try!(write!(self.writer, "{}", h));
         }
 
         self.writer.flush().map_err(Error::from)
