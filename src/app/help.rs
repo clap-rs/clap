@@ -88,6 +88,7 @@ pub struct Help<'a> {
 impl<'a> Help<'a> {
     /// Create a new `Help` instance.
     pub fn new(w: &'a mut Write, next_line_help: bool, hide_pv: bool, color: bool) -> Self {
+        debugln!("fn=Help::new;");
         Help {
             writer: w,
             next_line_help: next_line_help,
@@ -100,12 +101,14 @@ impl<'a> Help<'a> {
     /// Reads help settings from an App
     /// and write its help to the wrapped stream.
     pub fn write_app_help(w: &'a mut Write, app: &App) -> ClapResult<()> {
+        debugln!("fn=Help::write_app_help;");
         Self::write_parser_help(w, &app.p)
     }
 
     /// Reads help settings from a Parser
     /// and write its help to the wrapped stream.
     pub fn write_parser_help(w: &'a mut Write, parser: &Parser) -> ClapResult<()> {
+        debugln!("fn=Help::write_parser_help;");
         let nlh = parser.is_set(AppSettings::NextLineHelp);
         let hide_v = parser.is_set(AppSettings::HidePossibleValuesInHelp);
         let color = parser.is_set(AppSettings::ColoredHelp);
@@ -114,6 +117,7 @@ impl<'a> Help<'a> {
 
     /// Writes the parser help to the wrapped stream.
     pub fn write_help(&mut self, parser: &Parser) -> ClapResult<()> {
+        debugln!("fn=Help::write_help;");
         if let Some(h) = parser.meta.help_str {
             try!(write!(self.writer, "{}", h).map_err(Error::from));
         } else if let Some(ref tmpl) = parser.meta.template {
@@ -131,6 +135,7 @@ impl<'a> Help<'a> {
     fn write_args_unsorted<'b: 'd, 'c: 'd, 'd, I: 'd>(&mut self, args: I) -> io::Result<()>
         where I: Iterator<Item = &'d ArgWithOrder<'b, 'c>>
     {
+        debugln!("fn=write_args_unsorted;");
         let mut longest = 0;
         let mut arg_v = Vec::with_capacity(10);
         for arg in args.filter(|arg| {
@@ -159,6 +164,7 @@ impl<'a> Help<'a> {
     fn write_args<'b: 'd, 'c: 'd, 'd, I: 'd>(&mut self, args: I) -> io::Result<()>
         where I: Iterator<Item = &'d ArgWithOrder<'b, 'c>>
     {
+        debugln!("fn=write_args;");
         let mut longest = 0;
         let mut ord_m = VecMap::new();
         for arg in args.filter(|arg| {
@@ -179,7 +185,7 @@ impl<'a> Help<'a> {
                     try!(self.writer.write(b"\n"));
                 } else {
                     first = false;
-                };
+                }
                 try!(self.write_arg(arg.as_base(), longest));
             }
         }
@@ -191,7 +197,7 @@ impl<'a> Help<'a> {
                          arg: &ArgWithDisplay<'b, 'c>,
                          longest: usize)
                          -> io::Result<()> {
-        debugln!("fn=write_to;");
+        debugln!("fn=write_arg;");
         try!(self.short(arg));
         try!(self.long(arg, longest));
         try!(self.val(arg, longest));
@@ -505,6 +511,7 @@ impl<'a> Help<'a> {
 
     /// Writes help for subcommands of a Parser Object to the wrapped stream.
     fn write_subcommands(&mut self, parser: &Parser) -> io::Result<()> {
+		debugln!("exec=write_subcommands;");
         let mut longest = 0;
 
         let mut ord_m = VecMap::new();
@@ -518,10 +525,12 @@ impl<'a> Help<'a> {
         for (_, btm) in ord_m.into_iter() {
             for (_, sc) in btm.into_iter() {
                 if !first {
+					debugln!("Writing newline...");
                     try!(self.writer.write(b"\n"));
                 } else {
                     first = false;
                 }
+				debugln!("Writing sc...{}", sc);
                 try!(self.write_arg(sc, longest));
             }
         }
@@ -551,6 +560,7 @@ impl<'a> Help<'a> {
 
     /// Writes default help for a Parser Object to the wrapped stream.
     pub fn write_default_help(&mut self, parser: &Parser) -> ClapResult<()> {
+        debugln!("fn=write_default_help;");
         if let Some(h) = parser.meta.pre_help {
             try!(write!(self.writer, "{}", h));
             try!(self.writer.write(b"\n\n"));
@@ -720,6 +730,7 @@ impl<'a> Help<'a> {
     /// The template system is, on purpose, very simple. Therefore the tags have to writen
     /// in the lowercase and without spacing.
     fn write_templated_help(&mut self, parser: &Parser, template: &str) -> ClapResult<()> {
+        debugln!("fn=write_templated_help;");
         let mut tmplr = Cursor::new(&template);
         let mut tag_buf = Cursor::new(vec![0u8; 15]);
 
@@ -737,6 +748,12 @@ impl<'a> Help<'a> {
                 _ => continue,
             };
 
+			debugln!("iter;tag_buf={};", unsafe {
+				String::from_utf8_unchecked(tag_buf.get_ref()[0..tag_length]
+												   .iter()
+											       .map(|&i|i)
+												   .collect::<Vec<_>>())
+			});
             match &tag_buf.get_ref()[0..tag_length] {
                 b"?" => {
                     try!(self.writer.write(b"Could not decode tag name"));
@@ -780,8 +797,8 @@ impl<'a> Help<'a> {
                                                .map(as_arg_trait)));
                 }
                 b"positionals" => {
-                    try!(self.write_args(parser.iter_positionals()
-                                               .map(as_arg_trait)));
+                    try!(self.write_args_unsorted(parser.iter_positionals()
+                                                        .map(as_arg_trait)));
                 }
                 b"subcommands" => {
                     try!(self.write_subcommands(&parser));
@@ -803,7 +820,6 @@ impl<'a> Help<'a> {
                     try!(self.writer.write(b"}"));
                 }
             }
-
         }
     }
 }
