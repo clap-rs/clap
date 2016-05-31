@@ -30,5 +30,5 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-        --option <opt>    some option\n"));
+        --option <opt>    some option"));
 }

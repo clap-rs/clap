@@ -34,8 +34,21 @@ ARGS:
 
 SUBCOMMANDS:
     help      Prints this message or the help of the given subcommand(s)
-    subcmd    tests subcommands
-";
+    subcmd    tests subcommands";
+
+static AFTER_HELP: &'static str = "some text that comes before the help
+
+clap-test v1.4.8
+tests clap library
+
+USAGE:
+    clap-test [FLAGS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+some text that comes after the help";
 
 static SC_HELP: &'static str = "subcmd 0.1
 Kevin K. <kbknapp@gmail.com>
@@ -51,8 +64,7 @@ OPTIONS:
     -o, --option <scoption>...    tests options
 
 ARGS:
-    <scpositional>    tests positionals
-";
+    <scpositional>    tests positionals";
 
 #[test]
 fn help_short() {
@@ -135,6 +147,16 @@ fn subcommand_help_rev() {
 #[test]
 fn complex_help_output() {
     test::check_help(test::complex_app(), HELP);
+}
+
+#[test]
+fn after_and_before_help_output() {
+    let app = App::new("clap-test")
+        .version("v1.4.8")
+        .about("tests clap library")
+        .before_help("some text that comes before the help")
+        .after_help("some text that comes after the help");
+    test::check_help(app, AFTER_HELP);
 }
 
 #[test]
