@@ -155,7 +155,6 @@ impl<'a> Help<'a> {
     fn write_args_unsorted<'b: 'd, 'c: 'd, 'd, I: 'd>(&mut self, args: I) -> io::Result<()>
         where I: Iterator<Item = &'d ArgWithOrder<'b, 'c>>
     {
-        debugln!("fn=write_args_unsorted;");
         let mut longest = 0;
         let mut arg_v = Vec::with_capacity(10);
         for arg in args.filter(|arg| {
@@ -852,7 +851,6 @@ impl<'a> Help<'a> {
                     try!(self.writer.write(b"}"));
                 }
             }
-
         }
     }
 }
