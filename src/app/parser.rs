@@ -49,6 +49,7 @@ pub struct Parser<'a, 'b>
     help_short: Option<char>,
     version_short: Option<char>,
     settings: AppFlags,
+    pub g_settings: Vec<AppSettings>,
     pub meta: AppMeta<'b>,
 }
 
@@ -68,6 +69,7 @@ impl<'a, 'b> Default for Parser<'a, 'b> {
             groups: HashMap::new(),
             global_args: vec![],
             overrides: vec![],
+            g_settings: vec![],
             settings: AppFlags::new(),
             meta: AppMeta::new(),
         }
@@ -216,6 +218,10 @@ impl<'a, 'b> Parser<'a, 'b>
         }
         if self.settings.is_set(AppSettings::DeriveDisplayOrder) {
             subcmd.p.meta.disp_ord = self.subcommands.len();
+        }
+        for s in &self.g_settings {
+            subcmd.p.set(*s);
+            subcmd.p.g_settings.push(*s);
         }
         self.subcommands.push(subcmd);
     }
@@ -1661,6 +1667,7 @@ impl<'a, 'b> Clone for Parser<'a, 'b>
             help_short: self.help_short,
             version_short: self.version_short,
             settings: self.settings.clone(),
+            g_settings: self.g_settings.clone(),
             meta: self.meta.clone(),
         }
     }

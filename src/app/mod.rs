@@ -435,6 +435,53 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
+    /// Enables a single setting that is propogated *down* through all child [`SubCommand`]s.
+    ///
+    /// See [`AppSettings`] for a full list of possibilities and examples.
+    ///
+    /// **NOTE**: The setting is *only* propogated *down* and not up through parent commands.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, AppSettings};
+    /// App::new("myprog")
+    ///     .global_setting(AppSettings::SubcommandRequired)
+    /// # ;
+    /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [`AppSettings`]: ./enum.AppSettings.html
+    pub fn global_setting(mut self, setting: AppSettings) -> Self {
+        self.p.set(setting);
+        self.p.g_settings.push(setting);
+        self
+    }
+
+    /// Enables multiple settings which are propogated *down* through all child [`SubCommand`]s.
+    ///
+    /// See [`AppSettings`] for a full list of possibilities and examples.
+    ///
+    /// **NOTE**: The setting is *only* propogated *down* and not up through parent commands.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, AppSettings};
+    /// App::new("myprog")
+    ///     .global_settings(&[AppSettings::SubcommandRequired,
+    ///                  AppSettings::ColoredHelp])
+    /// # ;
+    /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [`AppSettings`]: ./enum.AppSettings.html
+    pub fn global_settings(mut self, settings: &[AppSettings]) -> Self {
+        for s in settings {
+            self.p.set(*s);
+            self.p.g_settings.push(*s)
+        }
+        self
+    }
+
     /// Adds an [argument] to the list of valid possibilties.
     ///
     /// # Examples
