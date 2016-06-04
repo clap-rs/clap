@@ -55,7 +55,7 @@ Kevin K. <kbknapp@gmail.com>
 tests subcommands
 
 USAGE:
-    subcmd [FLAGS] [OPTIONS] [--] [ARGS]
+    subcmd [FLAGS] [OPTIONS] [--] [scpositional]
 
 FLAGS:
     -f, --flag    tests flags

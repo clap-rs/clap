@@ -93,7 +93,7 @@ Kevin K.
 tests stuff
 
 USAGE:
-    test [OPTIONS] [ARGS]
+    test [OPTIONS] [arg1]
 
 OPTIONS:
     -f, --flag            some flag
@@ -125,7 +125,7 @@ Kevin K.
 tests stuff
 
 USAGE:
-    test [FLAGS] [OPTIONS] [ARGS]
+    test [FLAGS] [OPTIONS] [arg1]
 
 FLAGS:
     -h, --help       Prints help information
