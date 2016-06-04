@@ -137,3 +137,48 @@ OPTIONS:
 ARGS:
     <arg1>    some pos arg"));
 }
+
+#[test]
+fn global_setting() {
+    let app = App::new("test")
+        .global_setting(AppSettings::ColoredHelp)
+        .subcommand(SubCommand::with_name("subcmd"));
+    assert!(app.p
+               .subcommands
+               .iter()
+               .filter(|s| s.p
+                            .meta
+                            .name == "subcmd")
+               .next()
+               .unwrap()
+               .p
+               .is_set(AppSettings::ColoredHelp));
+}
+
+#[test]
+fn global_settings() {
+    let app = App::new("test")
+        .global_settings(&[AppSettings::ColoredHelp, AppSettings::TrailingVarArg])
+        .subcommand(SubCommand::with_name("subcmd"));
+    assert!(app.p
+               .subcommands
+               .iter()
+               .filter(|s| s.p
+                            .meta
+                            .name == "subcmd")
+               .next()
+               .unwrap()
+               .p
+               .is_set(AppSettings::ColoredHelp));
+    assert!(app.p
+               .subcommands
+               .iter()
+               .filter(|s| s.p
+                            .meta
+                            .name == "subcmd")
+               .next()
+               .unwrap()
+               .p
+               .is_set(AppSettings::TrailingVarArg));
+
+}
