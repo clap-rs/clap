@@ -1514,7 +1514,17 @@ impl<'a, 'b> Parser<'a, 'b>
             }
             if self.has_positionals() &&
                self.positionals.values().any(|a| !a.settings.is_set(ArgSettings::Required)) {
-                usage.push_str(" [ARGS]");
+                if self.positionals.len() == 1  {
+                    let p = self.positionals.values().next().expect(INTERNAL_ERROR_MSG);
+                    if !self.groups.values().any(|g| g.args.iter().any(|a| a == &p.name)) {
+                        usage.push_str(&*format!(" [{}]{}", p.name_no_brackets(),
+                        p.multiple_str()));
+                    } else {
+                        usage.push_str(" [ARGS]");
+                    }
+                } else {
+                    usage.push_str(" [ARGS]");
+                }
             }
 
 

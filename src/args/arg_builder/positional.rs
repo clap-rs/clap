@@ -1,6 +1,7 @@
 use std::fmt::{Display, Formatter, Result};
 use std::result::Result as StdResult;
 use std::rc::Rc;
+use std::borrow::Cow;
 
 use vec_map::VecMap;
 
@@ -107,6 +108,25 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
             }
         }
         pb
+    }
+
+    pub fn multiple_str(&self) ->  &str {
+        if self.settings.is_set(ArgSettings::Multiple) && self.val_names.is_none() {
+            "..."
+        } else {
+            ""
+        }
+    }
+
+    pub fn name_no_brackets(&self) -> Cow<str> {
+        if let Some(ref names) = self.val_names {
+            Cow::Owned(names.values()
+                 .map(|n| format!("<{}>", n))
+                 .collect::<Vec<_>>()
+                 .join(" "))
+        } else {
+            Cow::Borrowed(self.name)
+        }
     }
 }
 
