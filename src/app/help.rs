@@ -542,7 +542,7 @@ impl<'a> Help<'a> {
 
     /// Writes help for subcommands of a Parser Object to the wrapped stream.
     fn write_subcommands(&mut self, parser: &Parser) -> io::Result<()> {
-	debugln!("exec=write_subcommands;");
+        debugln!("exec=write_subcommands;");
         let mut longest = 0;
 
         let mut ord_m = VecMap::new();
@@ -556,12 +556,10 @@ impl<'a> Help<'a> {
         for (_, btm) in ord_m.into_iter() {
             for (_, sc) in btm.into_iter() {
                 if !first {
-		    debugln!("Writing newline...");
                     try!(self.writer.write(b"\n"));
                 } else {
                     first = false;
                 }
-		debugln!("Writing sc...{}", sc);
                 try!(self.write_arg(sc, longest));
             }
         }
