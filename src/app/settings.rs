@@ -584,6 +584,10 @@ impl FromStr for AppSettings {
             "nextlinehelp" => Ok(AppSettings::NextLineHelp),
             "derivedisplayorder" => Ok(AppSettings::DeriveDisplayOrder),
             "coloredhelp" => Ok(AppSettings::ColoredHelp),
+            "dontdelimittrailingvalues" => Ok(AppSettings::DontDelimitTrailingValues),
+            "colorauto" => Ok(AppSettings::ColorAuto),
+            "coloralways" => Ok(AppSettings::ColorAlways),
+            "colornever" => Ok(AppSettings::ColorNever),
             _ => Err("unknown AppSetting, cannot convert from str".to_owned()),
         }
     }
