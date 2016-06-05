@@ -51,6 +51,7 @@ pub struct Parser<'a, 'b>
     settings: AppFlags,
     pub g_settings: Vec<AppSettings>,
     pub meta: AppMeta<'b>,
+    trailing_vals: bool,
 }
 
 impl<'a, 'b> Default for Parser<'a, 'b> {
@@ -72,6 +73,7 @@ impl<'a, 'b> Default for Parser<'a, 'b> {
             g_settings: vec![],
             settings: AppFlags::new(),
             meta: AppMeta::new(),
+            trailing_vals: false,
         }
     }
 }
@@ -456,7 +458,6 @@ impl<'a, 'b> Parser<'a, 'b>
         // necessary
         self.create_help_and_version();
 
-        let mut pos_only = false;
         let mut subcmd_name: Option<String> = None;
         let mut needs_val_of: Option<&str> = None;
         let mut pos_counter = 1;
@@ -475,7 +476,7 @@ impl<'a, 'b> Parser<'a, 'b>
             };
 
             // Has the user already passed '--'?
-            if !pos_only {
+            if !self.trailing_vals {
                 // Does the arg match a subcommand name, or any of it's aliases (if defined)
                 let pos_sc = self.subcommands
                                  .iter()
@@ -501,7 +502,7 @@ impl<'a, 'b> Parser<'a, 'b>
                     if arg_os.len_() == 2 {
                         // The user has passed '--' which means only positional args follow no
                         // matter what they start with
-                        pos_only = true;
+                        self.trailing_vals = true;
                         continue;
                     }
 
@@ -564,7 +565,7 @@ impl<'a, 'b> Parser<'a, 'b>
             }
 
             if let Some(p) = self.positionals.get(pos_counter) {
-                parse_positional!(self, p, arg_os, pos_only, pos_counter, matcher);
+                parse_positional!(self, p, arg_os, pos_counter, matcher);
             } else {
                 if self.settings.is_set(AppSettings::AllowExternalSubcommands) {
                     let mut sc_m = ArgMatcher::new();
@@ -1131,13 +1132,17 @@ impl<'a, 'b> Parser<'a, 'b>
     {
         debugln!("fn=add_val_to_arg;");
         let mut ret = None;
-        if let Some(delim) = arg.val_delim() {
-            if val.is_empty_() {
-                ret = try!(self.add_single_val_to_arg(arg, val, matcher));
-            } else {
-                for v in val.split(delim as u32 as u8) {
-                    ret = try!(self.add_single_val_to_arg(arg, v, matcher));
+        if !(self.trailing_vals && self.is_set(AppSettings::DontDelimitTrailingValues)) {
+            if let Some(delim) = arg.val_delim() {
+                if val.is_empty_() {
+                    ret = try!(self.add_single_val_to_arg(arg, val, matcher));
+                } else {
+                    for v in val.split(delim as u32 as u8) {
+                        ret = try!(self.add_single_val_to_arg(arg, v, matcher));
+                    }
                 }
+            } else {
+                ret = try!(self.add_single_val_to_arg(arg, val, matcher));
             }
         } else {
             ret = try!(self.add_single_val_to_arg(arg, val, matcher));
@@ -1679,6 +1684,7 @@ impl<'a, 'b> Clone for Parser<'a, 'b>
             settings: self.settings.clone(),
             g_settings: self.g_settings.clone(),
             meta: self.meta.clone(),
+            trailing_vals: self.trailing_vals,
         }
     }
 }
