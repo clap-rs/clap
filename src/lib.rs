@@ -407,7 +407,7 @@ extern crate strsim;
 extern crate ansi_term;
 #[cfg(feature = "yaml")]
 extern crate yaml_rust;
-#[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
+#[cfg(any(feature = "wrap_help", feature = "color"))]
 extern crate libc;
 #[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
 extern crate unicode_width;

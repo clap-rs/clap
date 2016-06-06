@@ -8,10 +8,15 @@ use ansi_term::ANSIString;
 #[cfg(feature = "color")]
 use libc;
 
-#[cfg(feature = "color")]
+#[cfg(all(feature = "color", not(target_os = "windows")))]
 const STDERR: i32 = libc::STDERR_FILENO;
-#[cfg(feature = "color")]
+#[cfg(all(feature = "color", not(target_os = "windows")))]
 const STDOUT: i32 = libc::STDOUT_FILENO;
+
+#[cfg(any(not(feature = "color"), target_os = "windows"))]
+const STDERR: i32 = 0;
+#[cfg(any(not(feature = "color"), target_os = "windows"))]
+const STDOUT: i32 = 0;
 
 #[doc(hidden)]
 #[derive(Debug, Copy, Clone, PartialEq)]
