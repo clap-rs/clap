@@ -182,3 +182,55 @@ fn global_settings() {
                .is_set(AppSettings::TrailingVarArg));
 
 }
+
+#[test]
+fn stop_delim_values_only_pos_follows() {
+    let r = App::new("onlypos")
+        .setting(AppSettings::DontDelimitTrailingValues)
+        .args(&[Arg::from_usage("-f [flag] 'some opt'"),
+                Arg::from_usage("[arg]... 'some arg'")])
+        .get_matches_from_safe(vec!["", "--", "-f", "-g,x"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("arg"));
+    assert!(!m.is_present("f"));
+    assert_eq!(m.values_of("arg").unwrap().collect::<Vec<_>>(), &["-f", "-g,x"]);
+}
+
+#[test]
+fn dont_delim_values_trailingvararg() {
+    let m = App::new("positional")
+        .setting(AppSettings::TrailingVarArg)
+        .setting(AppSettings::DontDelimitTrailingValues)
+        .arg(
+            Arg::from_usage("[opt]... 'some pos'"),
+        )
+        .get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"]);
+    assert!(m.is_present("opt"));
+    assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["test", "--foo", "-Wl,-bar"]);
+}
+
+#[test]
+fn delim_values_only_pos_follows() {
+    let r = App::new("onlypos")
+        .args(&[Arg::from_usage("-f [flag] 'some opt'"),
+                Arg::from_usage("[arg]... 'some arg'")])
+        .get_matches_from_safe(vec!["", "--", "-f", "-g,x"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("arg"));
+    assert!(!m.is_present("f"));
+    assert_eq!(m.values_of("arg").unwrap().collect::<Vec<_>>(), &["-f", "-g", "x"]);
+}
+
+#[test]
+fn delim_values_trailingvararg() {
+    let m = App::new("positional")
+        .setting(AppSettings::TrailingVarArg)
+        .arg(
+            Arg::from_usage("[opt]... 'some pos'"),
+        )
+        .get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"]);
+    assert!(m.is_present("opt"));
+    assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["test", "--foo", "-Wl", "-bar"]);
+}

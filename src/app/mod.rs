@@ -840,7 +840,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
     pub fn write_help<W: Write>(&self, w: &mut W) -> ClapResult<()> {
-        Help::write_app_help(w, &self)
+        Help::write_app_help(w, self)
     }
 
     /// Writes the version message to the user to a [`io::Write`] object

@@ -51,6 +51,7 @@ pub struct Parser<'a, 'b>
     settings: AppFlags,
     pub g_settings: Vec<AppSettings>,
     pub meta: AppMeta<'b>,
+    trailing_vals: bool,
 }
 
 impl<'a, 'b> Default for Parser<'a, 'b> {
@@ -72,6 +73,7 @@ impl<'a, 'b> Default for Parser<'a, 'b> {
             g_settings: vec![],
             settings: AppFlags::new(),
             meta: AppMeta::new(),
+            trailing_vals: false,
         }
     }
 }
@@ -136,10 +138,10 @@ impl<'a, 'b> Parser<'a, 'b>
                     argument\n\n\tPerhaps try .multiple(true) to allow one positional argument \
                     to take multiple values",
                                   a.name));
-            let pb = PosBuilder::from_arg(&a, i as u64, &mut self.required);
+            let pb = PosBuilder::from_arg(a, i as u64, &mut self.required);
             self.positionals.insert(i, pb);
         } else if a.is_set(ArgSettings::TakesValue) {
-            let mut ob = OptBuilder::from_arg(&a, &mut self.required);
+            let mut ob = OptBuilder::from_arg(a, &mut self.required);
             if self.settings.is_set(AppSettings::DeriveDisplayOrder) && a.disp_ord == 999 {
                 ob.disp_ord = if self.settings.is_set(AppSettings::UnifiedHelpMessage) {
                     self.flags.len() + self.opts.len()
@@ -307,7 +309,7 @@ impl<'a, 'b> Parser<'a, 'b>
         c_opt.dedup();
         grps.dedup();
         let mut args_in_groups = vec![];
-        for g in grps.iter() {
+        for g in &grps {
             for a in self.arg_names_in_group(g).into_iter() {
                 args_in_groups.push(a);
             }
@@ -327,11 +329,10 @@ impl<'a, 'b> Parser<'a, 'b>
         }
         debugln!("args_in_groups={:?}", args_in_groups);
         for (_, s) in pmap {
-            if !args_in_groups.is_empty() {
-                if args_in_groups.contains(&&*s) {
-                    continue;
-                }
+            if (!args_in_groups.is_empty()) && (args_in_groups.contains(&&*s)) {
+				continue;
             }
+
             ret_val.push_back(s);
         }
         macro_rules! write_arg {
@@ -456,7 +457,6 @@ impl<'a, 'b> Parser<'a, 'b>
         // necessary
         self.create_help_and_version();
 
-        let mut pos_only = false;
         let mut subcmd_name: Option<String> = None;
         let mut needs_val_of: Option<&str> = None;
         let mut pos_counter = 1;
@@ -475,7 +475,7 @@ impl<'a, 'b> Parser<'a, 'b>
             };
 
             // Has the user already passed '--'?
-            if !pos_only {
+            if !self.trailing_vals {
                 // Does the arg match a subcommand name, or any of it's aliases (if defined)
                 let pos_sc = self.subcommands
                                  .iter()
@@ -501,7 +501,7 @@ impl<'a, 'b> Parser<'a, 'b>
                     if arg_os.len_() == 2 {
                         // The user has passed '--' which means only positional args follow no
                         // matter what they start with
-                        pos_only = true;
+                        self.trailing_vals = true;
                         continue;
                     }
 
@@ -564,7 +564,7 @@ impl<'a, 'b> Parser<'a, 'b>
             }
 
             if let Some(p) = self.positionals.get(pos_counter) {
-                parse_positional!(self, p, arg_os, pos_only, pos_counter, matcher);
+                parse_positional!(self, p, arg_os, pos_counter, matcher);
             } else {
                 if self.settings.is_set(AppSettings::AllowExternalSubcommands) {
                     let mut sc_m = ArgMatcher::new();
@@ -1131,13 +1131,17 @@ impl<'a, 'b> Parser<'a, 'b>
     {
         debugln!("fn=add_val_to_arg;");
         let mut ret = None;
-        if let Some(delim) = arg.val_delim() {
-            if val.is_empty_() {
-                ret = try!(self.add_single_val_to_arg(arg, val, matcher));
-            } else {
-                for v in val.split(delim as u32 as u8) {
-                    ret = try!(self.add_single_val_to_arg(arg, v, matcher));
+        if !(self.trailing_vals && self.is_set(AppSettings::DontDelimitTrailingValues)) {
+            if let Some(delim) = arg.val_delim() {
+                if val.is_empty_() {
+                    ret = try!(self.add_single_val_to_arg(arg, val, matcher));
+                } else {
+                    for v in val.split(delim as u32 as u8) {
+                        ret = try!(self.add_single_val_to_arg(arg, v, matcher));
+                    }
                 }
+            } else {
+                ret = try!(self.add_single_val_to_arg(arg, val, matcher));
             }
         } else {
             ret = try!(self.add_single_val_to_arg(arg, val, matcher));
@@ -1253,7 +1257,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 debugln!("groups contains it...");
                 for n in self.arg_names_in_group(name) {
                     debugln!("Checking arg '{}' in group...", n);
-                    if matcher.contains(&n) {
+                    if matcher.contains(n) {
                         debugln!("matcher contains it...");
                         return Err(build_err!(self, n, matcher));
                     }
@@ -1465,7 +1469,7 @@ impl<'a, 'b> Parser<'a, 'b>
         debugln!("fn=create_usage;");
         let mut usage = String::with_capacity(75);
         usage.push_str("USAGE:\n    ");
-        usage.push_str(&self.create_usage_no_title(&used));
+        usage.push_str(&self.create_usage_no_title(used));
         usage
     }
 
@@ -1601,11 +1605,11 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     pub fn write_help<W: Write>(&self, w: &mut W) -> ClapResult<()> {
-        Help::write_parser_help(w, &self)
+        Help::write_parser_help(w, self)
     }
 
     pub fn write_help_err<W: Write>(&self, w: &mut W) -> ClapResult<()> {
-        Help::write_parser_help_to_stderr(w, &self)
+        Help::write_parser_help_to_stderr(w, self)
     }
 
     fn add_defaults(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
@@ -1679,6 +1683,7 @@ impl<'a, 'b> Clone for Parser<'a, 'b>
             settings: self.settings.clone(),
             g_settings: self.g_settings.clone(),
             meta: self.meta.clone(),
+            trailing_vals: self.trailing_vals,
         }
     }
 }
