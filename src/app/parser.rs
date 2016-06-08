@@ -138,10 +138,10 @@ impl<'a, 'b> Parser<'a, 'b>
                     argument\n\n\tPerhaps try .multiple(true) to allow one positional argument \
                     to take multiple values",
                                   a.name));
-            let pb = PosBuilder::from_arg(&a, i as u64, &mut self.required);
+            let pb = PosBuilder::from_arg(a, i as u64, &mut self.required);
             self.positionals.insert(i, pb);
         } else if a.is_set(ArgSettings::TakesValue) {
-            let mut ob = OptBuilder::from_arg(&a, &mut self.required);
+            let mut ob = OptBuilder::from_arg(a, &mut self.required);
             if self.settings.is_set(AppSettings::DeriveDisplayOrder) && a.disp_ord == 999 {
                 ob.disp_ord = if self.settings.is_set(AppSettings::UnifiedHelpMessage) {
                     self.flags.len() + self.opts.len()
@@ -309,7 +309,7 @@ impl<'a, 'b> Parser<'a, 'b>
         c_opt.dedup();
         grps.dedup();
         let mut args_in_groups = vec![];
-        for g in grps.iter() {
+        for g in &grps {
             for a in self.arg_names_in_group(g).into_iter() {
                 args_in_groups.push(a);
             }
@@ -329,11 +329,10 @@ impl<'a, 'b> Parser<'a, 'b>
         }
         debugln!("args_in_groups={:?}", args_in_groups);
         for (_, s) in pmap {
-            if !args_in_groups.is_empty() {
-                if args_in_groups.contains(&&*s) {
-                    continue;
-                }
+            if (!args_in_groups.is_empty()) && (args_in_groups.contains(&&*s)) {
+				continue;
             }
+
             ret_val.push_back(s);
         }
         macro_rules! write_arg {
@@ -1258,7 +1257,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 debugln!("groups contains it...");
                 for n in self.arg_names_in_group(name) {
                     debugln!("Checking arg '{}' in group...", n);
-                    if matcher.contains(&n) {
+                    if matcher.contains(n) {
                         debugln!("matcher contains it...");
                         return Err(build_err!(self, n, matcher));
                     }
@@ -1470,7 +1469,7 @@ impl<'a, 'b> Parser<'a, 'b>
         debugln!("fn=create_usage;");
         let mut usage = String::with_capacity(75);
         usage.push_str("USAGE:\n    ");
-        usage.push_str(&self.create_usage_no_title(&used));
+        usage.push_str(&self.create_usage_no_title(used));
         usage
     }
 
@@ -1606,11 +1605,11 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     pub fn write_help<W: Write>(&self, w: &mut W) -> ClapResult<()> {
-        Help::write_parser_help(w, &self)
+        Help::write_parser_help(w, self)
     }
 
     pub fn write_help_err<W: Write>(&self, w: &mut W) -> ClapResult<()> {
-        Help::write_parser_help_to_stderr(w, &self)
+        Help::write_parser_help_to_stderr(w, self)
     }
 
     fn add_defaults(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {

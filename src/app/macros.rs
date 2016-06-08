@@ -76,8 +76,7 @@ macro_rules! _handle_group_reqs{
         use args::AnyArg;
         debugln!("macro=_handle_group_reqs!;");
         for grp in $me.groups.values() {
-            let mut found = false;
-            if grp.args.contains(&$arg.name()) {
+            let found = if grp.args.contains(&$arg.name()) {
                 vec_remove!($me.required, &$arg.name());
                 if let Some(ref reqs) = grp.requires {
                     $me.required.extend(reqs);
@@ -85,8 +84,10 @@ macro_rules! _handle_group_reqs{
                 if let Some(ref bl) = grp.conflicts {
                     $me.blacklist.extend(bl);
                 }
-                found = true; // What if arg is in more than one group with different reqs?
-            }
+                true // What if arg is in more than one group with different reqs?
+            } else {
+                false
+            };
             if found {
                 vec_remove_all!($me.required, &grp.args);
                 debugln!("Adding args from group to blacklist...{:?}", grp.args);

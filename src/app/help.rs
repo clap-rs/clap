@@ -132,7 +132,7 @@ impl<'a> Help<'a> {
             use_stderr: stderr,
             when: parser.color(),
         };
-        Self::new(w, nlh, hide_v, color, cizer).write_help(&parser)
+        Self::new(w, nlh, hide_v, color, cizer).write_help(parser)
     }
 
     /// Writes the parser help to the wrapped stream.
@@ -485,6 +485,7 @@ impl<'a> Help<'a> {
 impl<'a> Help<'a> {
     /// Writes help for all arguments (options, flags, args, subcommands)
     /// including titles of a Parser Object to the wrapped stream.
+    #[cfg_attr(feature = "lints", allow(useless_let_if_seq))]
     pub fn write_all_args(&mut self, parser: &Parser) -> ClapResult<()> {
 
         let flags = parser.has_flags();

@@ -55,24 +55,24 @@ impl OsStrExt2 for OsStr {
     fn split_at_byte(&self, byte: u8) -> (&OsStr, &OsStr) {
         for (i, b) in self.as_bytes().iter().enumerate() {
             if b == &byte {
-                return (&OsStr::from_bytes(&self.as_bytes()[..i]),
-                        &OsStr::from_bytes(&self.as_bytes()[i + 1..]));
+                return (OsStr::from_bytes(&self.as_bytes()[..i]),
+                        OsStr::from_bytes(&self.as_bytes()[i + 1..]));
             }
         }
-        (&*self, &OsStr::from_bytes(&self.as_bytes()[self.len_()..self.len_()]))
+        (&*self, OsStr::from_bytes(&self.as_bytes()[self.len_()..self.len_()]))
     }
 
     fn trim_left_matches(&self, byte: u8) -> &OsStr {
         for (i, b) in self.as_bytes().iter().enumerate() {
             if b != &byte {
-                return &OsStr::from_bytes(&self.as_bytes()[i..]);
+                return OsStr::from_bytes(&self.as_bytes()[i..]);
             }
         }
         &*self
     }
 
     fn split_at(&self, i: usize) -> (&OsStr, &OsStr) {
-        (&OsStr::from_bytes(&self.as_bytes()[..i]), &OsStr::from_bytes(&self.as_bytes()[i..]))
+        (OsStr::from_bytes(&self.as_bytes()[..i]), OsStr::from_bytes(&self.as_bytes()[i..]))
     }
 
     fn len_(&self) -> usize {
@@ -109,10 +109,10 @@ impl<'a> Iterator for OsSplit<'a> {
         for b in &self.val[start..] {
             self.pos += 1;
             if *b == self.sep {
-                return Some(&OsStr::from_bytes(&self.val[start..self.pos - 1]));
+                return Some(OsStr::from_bytes(&self.val[start..self.pos - 1]));
             }
         }
-        Some(&OsStr::from_bytes(&self.val[start..]))
+        Some(OsStr::from_bytes(&self.val[start..]))
     }
     fn size_hint(&self) -> (usize, Option<usize>) {
         let mut count = 0;
@@ -137,9 +137,9 @@ impl<'a> DoubleEndedIterator for OsSplit<'a> {
         for b in self.val[..self.pos].iter().rev() {
             self.pos -= 1;
             if *b == self.sep {
-                return Some(&OsStr::from_bytes(&self.val[self.pos + 1..start]));
+                return Some(OsStr::from_bytes(&self.val[self.pos + 1..start]));
             }
         }
-        Some(&OsStr::from_bytes(&self.val[..start]))
+        Some(OsStr::from_bytes(&self.val[..start]))
     }
 }
