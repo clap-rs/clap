@@ -6,13 +6,14 @@ use std::io::{self, Write};
 use std::convert::From;
 use std::result::Result as StdResult;
 
-use fmt::Format;
+use fmt;
 use suggestions;
 use args::any_arg::AnyArg;
 
 /// Short hand for [`Result`] type
 /// [`Result`]: https://doc.rust-lang.org/std/result/enum.Result.html
 pub type Result<T> = StdResult<T, Error>;
+
 
 /// Command line argument parser kind of error
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -382,54 +383,62 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn argument_conflict<'a, 'b, A, O, U>(arg: &A, other: Option<O>, usage: U) -> Self
+    pub fn argument_conflict<'a, 'b, A, O, U>(arg: &A, other: Option<O>, usage: U, color: fmt::ColorWhen) -> Self
         where A: AnyArg<'a, 'b> + Display,
               O: Into<String>,
               U: Display
     {
         let mut v = vec![arg.name().to_owned()];
+        let c = fmt::Colorizer {
+            use_stderr: true,
+            when: color
+        };
         Error {
             message: format!("{} The argument '{}' cannot be used with {}\n\n\
                             {}\n\n\
                             For more information try {}",
-                             Format::Error("error:"),
-                             Format::Warning(arg.to_string()),
+                             c.error("error:"),
+                             c.warning(&*arg.to_string()),
                              match other {
                                  Some(name) => {
                                      let n = name.into();
                                      v.push(n.clone());
-                                     format!("'{}'", Format::Warning(n))
+                                     c.warning(format!("'{}'", n))
                                  }
-                                 None => "one or more of the other specified arguments".to_owned(),
+                                 None => c.none("one or more of the other specified arguments".to_owned()),
                              },
                              usage,
-                             Format::Good("--help")),
+                             c.good("--help")),
             kind: ErrorKind::ArgumentConflict,
-            info: Some(v),
+            info: Some(v)
         }
     }
 
     #[doc(hidden)]
-    pub fn empty_value<'a, 'b, A, U>(arg: &A, usage: U) -> Self
+    pub fn empty_value<'a, 'b, A, U>(arg: &A, usage: U, color: fmt::ColorWhen) -> Self
         where A: AnyArg<'a, 'b> + Display,
               U: Display
     {
+        let c = fmt::Colorizer {
+            use_stderr: true,
+            when: color
+        };
         Error {
             message: format!("{} The argument '{}' requires a value but none was supplied\
                             \n\n\
                             {}\n\n\
                             For more information try {}",
-                             Format::Error("error:"),
-                             Format::Warning(arg.to_string()),
+                             c.error("error:"),
+                             c.warning(arg.to_string()),
                              usage,
-                             Format::Good("--help")),
+                             c.good("--help")),
             kind: ErrorKind::EmptyValue,
             info: Some(vec![arg.name().to_owned()]),
         }
     }
 
     #[doc(hidden)]
-    pub fn invalid_value<'a, 'b, B, G, A, U>(bad_val: B, good_vals: &[G], arg: &A, usage: U) -> Self
+    pub fn invalid_value<'a, 'b, B, G, A, U>(bad_val: B, good_vals: &[G], arg: &A, usage: U, color: fmt::ColorWhen) -> Self
         where B: AsRef<str>,
               G: AsRef<str> + Display,
               A: AnyArg<'a, 'b> + Display,
@@ -446,32 +455,40 @@ impl Error {
         }
         sorted.sort();
         let valid_values = sorted.join(" ");
+        let c = fmt::Colorizer {
+            use_stderr: true,
+            when: color
+        };
         Error {
             message: format!("{} '{}' isn't a valid value for '{}'\n\t\
                             [values:{}]\n\
                             {}\n\n\
                             {}\n\n\
                             For more information try {}",
-                             Format::Error("error:"),
-                             Format::Warning(bad_val.as_ref()),
-                             Format::Warning(arg.to_string()),
+                             c.error("error:"),
+                             c.warning(bad_val.as_ref()),
+                             c.warning(arg.to_string()),
                              valid_values,
                              suffix.0,
                              usage,
-                             Format::Good("--help")),
+                             c.good("--help")),
             kind: ErrorKind::InvalidValue,
             info: Some(vec![arg.name().to_owned(), bad_val.as_ref().to_owned()]),
         }
     }
 
     #[doc(hidden)]
-    pub fn invalid_subcommand<S, D, N, U>(subcmd: S, did_you_mean: D, name: N, usage: U) -> Self
+    pub fn invalid_subcommand<S, D, N, U>(subcmd: S, did_you_mean: D, name: N, usage: U, color: fmt::ColorWhen) -> Self
         where S: Into<String>,
               D: AsRef<str> + Display,
               N: Display,
               U: Display
     {
         let s = subcmd.into();
+        let c = fmt::Colorizer {
+            use_stderr: true,
+            when: color
+        };
         Error {
             message: format!("{} The subcommand '{}' wasn't recognized\n\t\
                             Did you mean '{}' ?\n\n\
@@ -479,70 +496,82 @@ impl Error {
                             re-running with '{} {} {}'\n\n\
                             {}\n\n\
                             For more information try {}",
-                             Format::Error("error:"),
-                             Format::Warning(&*s),
-                             Format::Good(did_you_mean.as_ref()),
+                             c.error("error:"),
+                             c.warning(&*s),
+                             c.good(did_you_mean.as_ref()),
                              name,
-                             Format::Good("--"),
+                             c.good("--"),
                              &*s,
                              usage,
-                             Format::Good("--help")),
+                             c.good("--help")),
             kind: ErrorKind::InvalidSubcommand,
             info: Some(vec![s]),
         }
     }
 
     #[doc(hidden)]
-    pub fn unrecognized_subcommand<S, N>(subcmd: S, name: N) -> Self
+    pub fn unrecognized_subcommand<S, N>(subcmd: S, name: N, color: fmt::ColorWhen) -> Self
         where S: Into<String>,
               N: Display
     {
         let s = subcmd.into();
+        let c = fmt::Colorizer {
+            use_stderr: true,
+            when: color
+        };
         Error {
             message: format!("{} The subcommand '{}' wasn't recognized\n\n\
                             USAGE:\n\t\
                                 {} help <subcommands>...\n\n\
                             For more information try {}",
-                             Format::Error("error:"),
-                             Format::Warning(&*s),
+                             c.error("error:"),
+                             c.warning(&*s),
                              name,
-                             Format::Good("--help")),
+                             c.good("--help")),
             kind: ErrorKind::UnrecognizedSubcommand,
             info: Some(vec![s]),
         }
     }
 
     #[doc(hidden)]
-    pub fn missing_required_argument<R, U>(required: R, usage: U) -> Self
+    pub fn missing_required_argument<R, U>(required: R, usage: U, color: fmt::ColorWhen) -> Self
         where R: Display,
               U: Display
     {
+        let c = fmt::Colorizer {
+            use_stderr: true,
+            when: color
+        };
         Error {
             message: format!("{} The following required arguments were not provided:{}\n\n\
                             {}\n\n\
                             For more information try {}",
-                             Format::Error("error:"),
+                             c.error("error:"),
                              required,
                              usage,
-                             Format::Good("--help")),
+                             c.good("--help")),
             kind: ErrorKind::MissingRequiredArgument,
             info: None,
         }
     }
 
     #[doc(hidden)]
-    pub fn missing_subcommand<N, U>(name: N, usage: U) -> Self
+    pub fn missing_subcommand<N, U>(name: N, usage: U, color: fmt::ColorWhen) -> Self
         where N: AsRef<str> + Display,
               U: Display
     {
+        let c = fmt::Colorizer {
+            use_stderr: true,
+            when: color
+        };
         Error {
             message: format!("{} '{}' requires a subcommand, but one was not provided\n\n\
                             {}\n\n\
                             For more information try {}",
-                             Format::Error("error:"),
-                             Format::Warning(name),
+                             c.error("error:"),
+                             c.warning(name),
                              usage,
-                             Format::Good("--help")),
+                             c.good("--help")),
             kind: ErrorKind::MissingSubcommand,
             info: None,
         }
@@ -550,76 +579,97 @@ impl Error {
 
 
     #[doc(hidden)]
-    pub fn invalid_utf8<U>(usage: U) -> Self
+    pub fn invalid_utf8<U>(usage: U, color: fmt::ColorWhen) -> Self
         where U: Display
     {
+        let c = fmt::Colorizer {
+            use_stderr: true,
+            when: color
+        };
         Error {
             message: format!("{} Invalid UTF-8 was detected in one or more arguments\n\n\
                             {}\n\n\
                             For more information try {}",
-                             Format::Error("error:"),
+                             c.error("error:"),
                              usage,
-                             Format::Good("--help")),
+                             c.good("--help")),
             kind: ErrorKind::InvalidUtf8,
             info: None,
         }
     }
 
     #[doc(hidden)]
-    pub fn too_many_values<'a, 'b, V, A, U>(val: V, arg: &A, usage: U) -> Self
+    pub fn too_many_values<'a, 'b, V, A, U>(val: V, arg: &A, usage: U, color: fmt::ColorWhen) -> Self
         where V: AsRef<str> + Display + ToOwned,
               A: AnyArg<'a, 'b> + Display,
               U: Display
     {
         let v = val.as_ref();
+        let c = fmt::Colorizer {
+            use_stderr: true,
+            when: color
+        };
         Error {
             message: format!("{} The value '{}' was provided to '{}', but it wasn't expecting \
                             any more values\n\n\
                             {}\n\n\
                             For more information try {}",
-                             Format::Error("error:"),
-                             Format::Warning(v),
-                             Format::Warning(arg.to_string()),
+                             c.error("error:"),
+                             c.warning(v),
+                             c.warning(arg.to_string()),
                              usage,
-                             Format::Good("--help")),
+                             c.good("--help")),
             kind: ErrorKind::TooManyValues,
             info: Some(vec![arg.name().to_owned(), v.to_owned()]),
         }
     }
 
     #[doc(hidden)]
-    pub fn too_few_values<'a, 'b, A, U>(arg: &A, min_vals: u64, curr_vals: usize, usage: U) -> Self
+    pub fn too_few_values<'a, 'b, A, U>(arg: &A, min_vals: u64, curr_vals: usize, usage: U, color: fmt::ColorWhen) -> Self
         where A: AnyArg<'a, 'b> + Display,
               U: Display
     {
+        let c = fmt::Colorizer {
+            use_stderr: true,
+            when: color
+        };
         Error {
             message: format!("{} The argument '{}' requires at least {} values, but only {} w{} \
                             provided\n\n\
                             {}\n\n\
                             For more information try {}",
-                             Format::Error("error:"),
-                             Format::Warning(arg.to_string()),
-                             Format::Warning(min_vals.to_string()),
-                             Format::Warning(curr_vals.to_string()),
+                             c.error("error:"),
+                             c.warning(arg.to_string()),
+                             c.warning(min_vals.to_string()),
+                             c.warning(curr_vals.to_string()),
                              if curr_vals > 1 {
                                  "ere"
                              } else {
                                  "as"
                              },
                              usage,
-                             Format::Good("--help")),
+                             c.good("--help")),
             kind: ErrorKind::TooFewValues,
             info: Some(vec![arg.name().to_owned()]),
         }
     }
 
     #[doc(hidden)]
-    pub fn value_validation(err: String) -> Self {
+    pub fn value_validation(err: String, color: fmt::ColorWhen) -> Self {
+        let c = fmt::Colorizer {
+            use_stderr: true,
+            when: color
+        };
         Error {
-            message: format!("{} {}", Format::Error("error:"), err),
+            message: format!("{} {}", c.error("error:"), err),
             kind: ErrorKind::ValueValidation,
             info: None,
         }
+    }
+
+    #[doc(hidden)]
+    pub fn value_validation_auto(err: String) -> Self {
+        Error::value_validation(err, fmt::ColorWhen::Auto)
     }
 
     #[doc(hidden)]
@@ -627,81 +677,110 @@ impl Error {
                                                    num_vals: u64,
                                                    curr_vals: usize,
                                                    suffix: S,
-                                                   usage: U)
+                                                   usage: U, color: fmt::ColorWhen)
                                                    -> Self
         where A: AnyArg<'a, 'b> + Display,
               S: Display,
               U: Display
     {
+        let c = fmt::Colorizer {
+            use_stderr: true,
+            when: color
+        };
         Error {
             message: format!("{} The argument '{}' requires {} values, but {} w{} \
                             provided\n\n\
                             {}\n\n\
                             For more information try {}",
-                             Format::Error("error:"),
-                             Format::Warning(arg.to_string()),
-                             Format::Warning(num_vals.to_string()),
-                             Format::Warning(curr_vals.to_string()),
+                             c.error("error:"),
+                             c.warning(arg.to_string()),
+                             c.warning(num_vals.to_string()),
+                             c.warning(curr_vals.to_string()),
                              suffix,
                              usage,
-                             Format::Good("--help")),
+                             c.good("--help")),
             kind: ErrorKind::WrongNumberOfValues,
             info: Some(vec![arg.name().to_owned()]),
         }
     }
 
     #[doc(hidden)]
-    pub fn unexpected_multiple_usage<'a, 'b, A, U>(arg: &A, usage: U) -> Self
+    pub fn unexpected_multiple_usage<'a, 'b, A, U>(arg: &A, usage: U, color: fmt::ColorWhen) -> Self
         where A: AnyArg<'a, 'b> + Display,
               U: Display
     {
+        let c = fmt::Colorizer {
+            use_stderr: true,
+            when: color
+        };
         Error {
             message: format!("{} The argument '{}' was provided more than once, but cannot \
                             be used multiple times\n\n\
                             {}\n\n\
                             For more information try {}",
-                             Format::Error("error:"),
-                             Format::Warning(arg.to_string()),
+                             c.error("error:"),
+                             c.warning(arg.to_string()),
                              usage,
-                             Format::Good("--help")),
+                             c.good("--help")),
             kind: ErrorKind::UnexpectedMultipleUsage,
             info: Some(vec![arg.name().to_owned()]),
         }
     }
 
     #[doc(hidden)]
-    pub fn unknown_argument<A, U>(arg: A, did_you_mean: &str, usage: U) -> Self
+    pub fn unknown_argument<A, U>(arg: A, did_you_mean: &str, usage: U, color: fmt::ColorWhen) -> Self
         where A: Into<String>,
               U: Display
     {
         let a = arg.into();
+        let c = fmt::Colorizer {
+            use_stderr: true,
+            when: color
+        };
         Error {
             message: format!("{} Found argument '{}' which wasn't expected, or isn't valid in \
             this context{}\n\
                             {}\n\n\
                             For more information try {}",
-                             Format::Error("error:"),
-                             Format::Warning(&*a),
+                             c.error("error:"),
+                             c.warning(&*a),
                              if did_you_mean.is_empty() {
                                  "\n".to_owned()
                              } else {
                                  format!("{}\n", did_you_mean)
                              },
                              usage,
-                             Format::Good("--help")),
+                             c.good("--help")),
             kind: ErrorKind::UnknownArgument,
             info: Some(vec![a]),
         }
     }
 
     #[doc(hidden)]
-    pub fn argument_not_found<A>(arg: A) -> Self
+    pub fn io_error(e: &Error, color: fmt::ColorWhen) -> Self {
+        let c = fmt::Colorizer {
+            use_stderr: true,
+            when: color
+        };
+        Error {
+            message: format!("{} {}", c.error("error:"), e.description()),
+            kind: ErrorKind::Io,
+            info: None,
+        }
+    }
+
+    #[doc(hidden)]
+    pub fn argument_not_found_auto<A>(arg: A) -> Self
         where A: Into<String>
     {
         let a = arg.into();
+        let c = fmt::Colorizer {
+            use_stderr: true,
+            when: fmt::ColorWhen::Auto
+        };
         Error {
             message: format!("{} The argument '{}' wasn't found",
-                             Format::Error("error:"),
+                             c.error("error:"),
                              a.clone()),
             kind: ErrorKind::ArgumentNotFound,
             info: Some(vec![a]),
@@ -723,8 +802,12 @@ impl Display for Error {
 
 impl From<io::Error> for Error {
     fn from(e: io::Error) -> Self {
+        let c = fmt::Colorizer {
+            use_stderr: true,
+            when: fmt::ColorWhen::Auto
+        };
         Error {
-            message: format!("{} {}", Format::Error("error:"), e.description()),
+            message: format!("{} {}", c.error("error:"), e.description()),
             kind: ErrorKind::Io,
             info: None,
         }
@@ -733,8 +816,12 @@ impl From<io::Error> for Error {
 
 impl From<std_fmt::Error> for Error {
     fn from(e: std_fmt::Error) -> Self {
+        let c = fmt::Colorizer {
+            use_stderr: true,
+            when: fmt::ColorWhen::Auto
+        };
         Error {
-            message: format!("{} {}", Format::Error("error:"), e),
+            message: format!("{} {}", c.error("error:"), e),
             kind: ErrorKind::Format,
             info: None,
         }

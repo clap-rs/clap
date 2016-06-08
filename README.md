@@ -497,7 +497,7 @@ features = [ "suggestions", "color" ]
 The following is a list of optional `clap` features:
 
 * **"suggestions"**: Turns on the `Did you mean '--myoption' ?` feature for when users make typos. (builds dependency `strsim`)
-* **"color"**: Turns on colored error messages. This feature only works on non-Windows OSs. (builds dependency `ansi-term`)
+* **"color"**: Turns on colored error messages. This feature only works on non-Windows OSs. (builds dependency `ansi-term` and `libc`)
 * **"wrap_help"**: Automatically detects terminal width and wraps long help text lines with proper indentation alignment (builds dependency `libc` and 'unicode-width')
 * **"lints"**: This is **not** included by default and should only be used while developing to run basic lints against changes. This can only be used on Rust nightly. (builds dependency `clippy`)
 * **"debug"**: This is **not** included by default and should only be used while developing to display debugging information.

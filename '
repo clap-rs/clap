@@ -5,45 +5,41 @@ use ansi_term::Colour::{Green, Red, Yellow};
 #[cfg(all(feature = "color", not(target_os = "windows")))]
 use ansi_term::ANSIString;
 
-#[cfg(feature = "color")]
+#[cfg(color)]
 use libc;
 
-#[cfg(all(feature = "color", not(target_os = "windows")))]
+#[cfg(color)]
 const STDERR: i32 = libc::STDERR_FILENO;
-#[cfg(all(feature = "color", not(target_os = "windows")))]
+#[cfg(color)]
 const STDOUT: i32 = libc::STDOUT_FILENO;
-
-#[cfg(any(not(feature = "color"), target_os = "windows"))]
+#[cfg(not(color))]
 const STDERR: i32 = 0;
-#[cfg(any(not(feature = "color"), target_os = "windows"))]
+#[cfg(not(color))]
 const STDOUT: i32 = 0;
 
 #[doc(hidden)]
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum ColorWhen {
-    Auto,
+    Auto, // Default
     Always,
     Never
 }
 
-#[cfg(feature = "color")]
+#[cfg(color)]
 pub fn is_a_tty(stderr: bool) -> bool {
-    debugln!("exec=is_a_tty;");
-    debugln!("Use stderr...{:?}", stderr);
     let fd = if stderr { STDERR } else { STDOUT };
     unsafe { libc::isatty(fd) != 0 }
 }
 
-#[cfg(not(feature = "color"))]
-pub fn is_a_tty(_: bool) -> bool {
-    debugln!("exec=is_a_tty;");
+#[cfg(not(color))]
+pub fn is_a_tty(stderr: bool) -> bool {
     false
 }
 
 #[doc(hidden)]
 pub struct Colorizer {
-    pub use_stderr: bool,
-    pub when: ColorWhen
+    use_stderr: bool,
+    when: ColorWhen
 }
 
 macro_rules! color {
@@ -52,33 +48,26 @@ macro_rules! color {
             ColorWhen::Auto => if is_a_tty($_self.use_stderr) {
                 Format::$c($m)
             } else {
-                Format::None($m)
+                $m
             },
             ColorWhen::Always => Format::$c($m),
-            ColorWhen::Never => Format::None($m),
+            ColorWhen::Never => $m,
         }
     };
 }
 
 impl Colorizer {
-    pub fn good<T>(&self, msg: T) -> Format<T> where T: fmt::Display + AsRef<str> {
-        debugln!("exec=good;");
+    pub fn good<T>(&self, msg: T) -> &fmt::Display where T: fmt::Display {
+        use Format::Good;
         color!(self, Good, msg)
     }
-
-    pub fn warning<T>(&self, msg: T) -> Format<T> where T: fmt::Display + AsRef<str> {
-        debugln!("exec=warning;");
+    pub fn warning<T>(&self, msg: T) -> &fmt::Display where T: fmt::Display {
+        use Format::Warning;
         color!(self, Warning, msg)
     }
-
-    pub fn error<T>(&self, msg: T) -> Format<T> where T: fmt::Display + AsRef<str> {
-        debugln!("exec=error;");
+    pub fn error<T>(&self, msg: T) -> &fmt::Display where T: fmt::Display {
+        use Format::Error;
         color!(self, Error, msg)
-    }
-
-    pub fn none<T>(&self, msg: T) -> Format<T> where T: fmt::Display + AsRef<str> {
-        debugln!("exec=none;");
-        Format::None(msg)
     }
 }
 
@@ -102,8 +91,6 @@ pub enum Format<T> {
     Warning(T),
     /// Defines the style used for good values, defaults to Green
     Good(T),
-    /// Defines no formatting style
-    None(T),
 }
 
 #[cfg(all(feature = "color", not(target_os = "windows")))]
@@ -113,8 +100,14 @@ impl<T: AsRef<str>> Format<T> {
             Format::Error(ref e) => Red.bold().paint(e.as_ref()),
             Format::Warning(ref e) => Yellow.paint(e.as_ref()),
             Format::Good(ref e) => Green.paint(e.as_ref()),
-            Format::None(ref e) => ANSIString::from(e.as_ref()),
         }
+    }
+}
+
+#[cfg(all(feature = "color", not(target_os = "windows")))]
+impl<T: AsRef<str>> fmt::Display for Format<T> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", &self.format())
     }
 }
 
@@ -125,16 +118,7 @@ impl<T: fmt::Display> Format<T> {
             Format::Error(ref e) => e,
             Format::Warning(ref e) => e,
             Format::Good(ref e) => e,
-            Format::None(ref e) => e,
         }
-    }
-}
-
-
-#[cfg(all(feature = "color", not(target_os = "windows")))]
-impl<T: AsRef<str>> fmt::Display for Format<T> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", &self.format())
     }
 }
 
@@ -149,7 +133,6 @@ impl<T: fmt::Display> fmt::Display for Format<T> {
 mod test {
     use super::Format;
     use ansi_term::Colour::{Green, Red, Yellow};
-    use ansi_term::ANSIString;
 
     #[test]
     fn colored_output() {
@@ -160,7 +143,5 @@ mod test {
         assert_eq!(&*format!("{}", good), &*format!("{}", Green.paint("good")));
         let warn = Format::Warning("warn");
         assert_eq!(&*format!("{}", warn), &*format!("{}", Yellow.paint("warn")));
-        let none = Format::None("none");
-        assert_eq!(&*format!("{}", none), &*format!("{}", ANSIString::from("none")));
     }
 }

@@ -10,7 +10,7 @@ use errors::{Error, Result as ClapResult};
 use args::{AnyArg, ArgSettings, DispOrder};
 use app::{App, AppSettings};
 use app::parser::Parser;
-use fmt::Format;
+use fmt::{Format, Colorizer};
 
 use term;
 
@@ -57,18 +57,18 @@ impl<'b, 'c> DispOrder for App<'b, 'c> {
 }
 
 macro_rules! color {
-    ($_self:ident, $nc:expr, $c:ident) => {
+    ($_self:ident, $s:expr, $c:ident) => {
         if $_self.color {
-            write!($_self.writer, "{}", Format::$c($nc))
+            write!($_self.writer, "{}", $_self.cizer.$c($s))
         } else {
-            write!($_self.writer, "{}", $nc)
+            write!($_self.writer, "{}", $s)
         }
     };
-    ($_self:ident, $nc:expr, $i:expr, $c:ident) => {
+    ($_self:ident, $fmt_s:expr, $v:expr, $c:ident) => {
         if $_self.color {
-            write!($_self.writer, "{}", Format::$c(format!($nc, $i)))
+            write!($_self.writer, "{}", $_self.cizer.$c(format!($fmt_s, $v)))
         } else {
-            write!($_self.writer, $nc, $i)
+            write!($_self.writer, $fmt_s, $v)
         }
     };
 }
@@ -82,12 +82,13 @@ pub struct Help<'a> {
     hide_pv: bool,
     term_w: Option<usize>,
     color: bool,
+    cizer: Colorizer,
 }
 
 // Public Functions
 impl<'a> Help<'a> {
     /// Create a new `Help` instance.
-    pub fn new(w: &'a mut Write, next_line_help: bool, hide_pv: bool, color: bool) -> Self {
+    pub fn new(w: &'a mut Write, next_line_help: bool, hide_pv: bool, color: bool, cizer: Colorizer) -> Self {
         debugln!("fn=Help::new;");
         Help {
             writer: w,
@@ -95,6 +96,7 @@ impl<'a> Help<'a> {
             hide_pv: hide_pv,
             term_w: term::dimensions().map(|(w, _)| w),
             color: color,
+            cizer: cizer,
         }
     }
 
@@ -109,10 +111,28 @@ impl<'a> Help<'a> {
     /// and write its help to the wrapped stream.
     pub fn write_parser_help(w: &'a mut Write, parser: &Parser) -> ClapResult<()> {
         debugln!("fn=Help::write_parser_help;");
+        Self::_write_parser_help(w, parser, false)
+    }
+
+    /// Reads help settings from a Parser
+    /// and write its help to the wrapped stream which will be stderr. This method prevents
+    /// formatting when required.
+    pub fn write_parser_help_to_stderr(w: &'a mut Write, parser: &Parser) -> ClapResult<()> {
+        debugln!("fn=Help::write_parser_help;");
+        Self::_write_parser_help(w, parser, true)
+    }
+
+    #[doc(hidden)]
+    pub fn _write_parser_help(w: &'a mut Write, parser: &Parser, stderr: bool) -> ClapResult<()> {
+        debugln!("fn=Help::write_parser_help;");
         let nlh = parser.is_set(AppSettings::NextLineHelp);
         let hide_v = parser.is_set(AppSettings::HidePossibleValuesInHelp);
         let color = parser.is_set(AppSettings::ColoredHelp);
-        Self::new(w, nlh, hide_v, color).write_help(&parser)
+        let cizer = Colorizer {
+            use_stderr: stderr,
+            when: parser.color(),
+        };
+        Self::new(w, nlh, hide_v, color, cizer).write_help(&parser)
     }
 
     /// Writes the parser help to the wrapped stream.
@@ -135,7 +155,6 @@ impl<'a> Help<'a> {
     fn write_args_unsorted<'b: 'd, 'c: 'd, 'd, I: 'd>(&mut self, args: I) -> io::Result<()>
         where I: Iterator<Item = &'d ArgWithOrder<'b, 'c>>
     {
-        debugln!("fn=write_args_unsorted;");
         let mut longest = 0;
         let mut arg_v = Vec::with_capacity(10);
         for arg in args.filter(|arg| {
@@ -210,7 +229,7 @@ impl<'a> Help<'a> {
         debugln!("fn=short;");
         try!(write!(self.writer, "{}", TAB));
         if let Some(s) = arg.short() {
-            color!(self, "-{}", s, Good)
+            color!(self, "-{}", s, good)
         } else if arg.has_switch() {
             write!(self.writer, "{}", TAB)
         } else {
@@ -229,7 +248,7 @@ impl<'a> Help<'a> {
                 if arg.short().is_some() {
                     try!(write!(self.writer, ", "));
                 }
-                try!(color!(self, "--{}", l, Good))
+                try!(color!(self, "--{}", l, good))
             }
             try!(write!(self.writer, " "));
         } else {
@@ -237,7 +256,7 @@ impl<'a> Help<'a> {
                 if arg.short().is_some() {
                     try!(write!(self.writer, ", "));
                 }
-                try!(color!(self, "--{}", l, Good));
+                try!(color!(self, "--{}", l, good));
                 if !self.next_line_help || !arg.is_set(ArgSettings::NextLineHelp) {
                     write_nspaces!(self.writer, (longest + 4) - (l.len() + 2));
                 }
@@ -260,27 +279,27 @@ impl<'a> Help<'a> {
         if let Some(ref vec) = arg.val_names() {
             let mut it = vec.iter().peekable();
             while let Some((_, val)) = it.next() {
-                try!(color!(self, "<{}>", val, Good));
+                try!(color!(self, "<{}>", val, good));
                 if it.peek().is_some() {
                     try!(write!(self.writer, " "));
                 }
             }
             let num = vec.len();
             if arg.is_set(ArgSettings::Multiple) && num == 1 {
-                try!(color!(self, "...", Good));
+                try!(color!(self, "...", good));
             }
         } else if let Some(num) = arg.num_vals() {
             let mut it = (0..num).peekable();
             while let Some(_) = it.next() {
-                try!(color!(self, "<{}>", arg.name(), Good));
+                try!(color!(self, "<{}>", arg.name(), good));
                 if it.peek().is_some() {
                     try!(write!(self.writer, " "));
                 }
             }
         } else if arg.has_switch() {
-            try!(color!(self, "<{}>", arg.name(), Good));
+            try!(color!(self, "<{}>", arg.name(), good));
         } else {
-            try!(color!(self, "{}", arg, Good));
+            try!(color!(self, "{}", arg, good));
         }
         if arg.has_switch() {
             if !(self.next_line_help || arg.is_set(ArgSettings::NextLineHelp)) {
@@ -421,9 +440,9 @@ impl<'a> Help<'a> {
             debugln!("Writing defaults");
             return format!(" [default: {}] {}",
                            if self.color {
-                               format!("{}", Format::Good(pv))
+                               self.cizer.good(pv)
                            } else {
-                               pv.to_string()
+                               Format::None(pv)
                            },
                            if self.hide_pv {
                                "".into()
@@ -432,7 +451,7 @@ impl<'a> Help<'a> {
                                    if self.color {
                                        format!(" [values: {}]",
                                                pv.iter()
-                                                 .map(|v| format!("{}", Format::Good(v)))
+                                                 .map(|v| format!("{}", self.cizer.good(v)))
                                                  .collect::<Vec<_>>()
                                                  .join(", "))
                                    } else {
@@ -449,7 +468,7 @@ impl<'a> Help<'a> {
                 return if self.color {
                     format!(" [values: {}]",
                             pv.iter()
-                              .map(|v| format!("{}", Format::Good(v)))
+                              .map(|v| format!("{}", self.cizer.good(v)))
                               .collect::<Vec<_>>()
                               .join(", "))
                 } else {
@@ -475,34 +494,46 @@ impl<'a> Help<'a> {
 
         let unified_help = parser.is_set(AppSettings::UnifiedHelpMessage);
 
+        let mut first = true;
+
         if unified_help && (flags || opts) {
             let opts_flags = parser.iter_flags()
                                    .map(as_arg_trait)
                                    .chain(parser.iter_opts().map(as_arg_trait));
-            try!(color!(self, "OPTIONS:\n", Warning));
+            try!(color!(self, "OPTIONS:\n", warning));
             try!(self.write_args(opts_flags));
+            first = false;
         } else {
             if flags {
-                try!(color!(self, "FLAGS:\n", Warning));
+                try!(color!(self, "FLAGS:\n", warning));
                 try!(self.write_args(parser.iter_flags()
                                            .map(as_arg_trait)));
+                first = false;
             }
             if opts {
-                try!(self.writer.write(b"\n\n"));
-                try!(color!(self, "OPTIONS:\n", Warning));
+                if !first {
+                    try!(self.writer.write(b"\n\n"));
+                }
+                try!(color!(self, "OPTIONS:\n", warning));
                 try!(self.write_args(parser.iter_opts().map(as_arg_trait)));
+                first = false;
             }
         }
 
         if pos {
-            try!(self.writer.write(b"\n\n"));
-            try!(color!(self, "ARGS:\n", Warning));
+            if !first {
+                try!(self.writer.write(b"\n\n"));
+            }
+            try!(color!(self, "ARGS:\n", warning));
             try!(self.write_args_unsorted(parser.iter_positionals().map(as_arg_trait)));
+            first = false;
         }
 
         if subcmds {
-            try!(self.writer.write(b"\n\n"));
-            try!(color!(self, "SUBCOMMANDS:\n", Warning));
+            if !first {
+                try!(self.writer.write(b"\n\n"));
+            }
+            try!(color!(self, "SUBCOMMANDS:\n", warning));
             try!(self.write_subcommands(&parser));
         }
 
@@ -511,7 +542,7 @@ impl<'a> Help<'a> {
 
     /// Writes help for subcommands of a Parser Object to the wrapped stream.
     fn write_subcommands(&mut self, parser: &Parser) -> io::Result<()> {
-		debugln!("exec=write_subcommands;");
+	debugln!("exec=write_subcommands;");
         let mut longest = 0;
 
         let mut ord_m = VecMap::new();
@@ -525,12 +556,12 @@ impl<'a> Help<'a> {
         for (_, btm) in ord_m.into_iter() {
             for (_, sc) in btm.into_iter() {
                 if !first {
-					debugln!("Writing newline...");
+		    debugln!("Writing newline...");
                     try!(self.writer.write(b"\n"));
                 } else {
                     first = false;
                 }
-				debugln!("Writing sc...{}", sc);
+		debugln!("Writing sc...{}", sc);
                 try!(self.write_arg(sc, longest));
             }
         }
@@ -548,12 +579,12 @@ impl<'a> Help<'a> {
         if let Some(bn) = parser.meta.bin_name.as_ref() {
             if bn.contains(' ') {
                 // Incase we're dealing with subcommands i.e. git mv is translated to git-mv
-                try!(color!(self, bn.replace(" ", "-"), Good))
+                try!(color!(self, bn.replace(" ", "-"), good))
             } else {
-                try!(color!(self, &parser.meta.name[..], Good))
+                try!(color!(self, &parser.meta.name[..], good))
             }
         } else {
-            try!(color!(self, &parser.meta.name[..], Good))
+            try!(color!(self, &parser.meta.name[..], good))
         }
         Ok(())
     }
@@ -578,7 +609,7 @@ impl<'a> Help<'a> {
             try!(write!(self.writer, "{}\n", about));
         }
 
-        try!(color!(self, "\nUSAGE:", Warning));
+        try!(color!(self, "\nUSAGE:", warning));
         try!(write!(self.writer,
                     "\n{}{}\n\n",
                     TAB,
@@ -643,7 +674,7 @@ fn copy_until<R: Read, W: Write>(r: &mut R, w: &mut W, delimiter_byte: u8) -> Co
 
 /// Copies the contents of a reader into a writer until a {tag} is found,
 /// copying the tag content to a buffer and returning its size.
-/// In addition to Errors, there are three possible outputs:
+/// In addition to errors, there are three possible outputs:
 ///   - None: The reader was consumed.
 ///   - Some(Ok(0)): No tag was captured but the reader still contains data.
 ///   - Some(Ok(length>0)): a tag with `length` was captured to the tag_buffer.
@@ -748,12 +779,12 @@ impl<'a> Help<'a> {
                 _ => continue,
             };
 
-			debugln!("iter;tag_buf={};", unsafe {
-				String::from_utf8_unchecked(tag_buf.get_ref()[0..tag_length]
-												   .iter()
-											       .map(|&i|i)
-												   .collect::<Vec<_>>())
-			});
+	    debugln!("iter;tag_buf={};", unsafe {
+		String::from_utf8_unchecked(tag_buf.get_ref()[0..tag_length]
+						   .iter()
+		                                   .map(|&i|i)
+						   .collect::<Vec<_>>())
+            });
             match &tag_buf.get_ref()[0..tag_length] {
                 b"?" => {
                     try!(self.writer.write(b"Could not decode tag name"));
@@ -797,8 +828,8 @@ impl<'a> Help<'a> {
                                                .map(as_arg_trait)));
                 }
                 b"positionals" => {
-                    try!(self.write_args_unsorted(parser.iter_positionals()
-                                                        .map(as_arg_trait)));
+                    try!(self.write_args(parser.iter_positionals()
+                                               .map(as_arg_trait)));
                 }
                 b"subcommands" => {
                     try!(self.write_subcommands(&parser));

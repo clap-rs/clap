@@ -1,7 +1,7 @@
 [package]
 
 name = "clap"
-version = "2.5.2"
+version = "2.6.0"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
 exclude = ["examples/*", "clap-test/*", "tests/*", "benches/*", "*.png", "clap-perf/*", "*.dot"]
 description = "A simple to use, efficient, and full featured  Command Line Argument Parser"
@@ -27,7 +27,7 @@ regex = "~0.1.69"
 [features]
 default     = ["suggestions", "color", "wrap_help"]
 suggestions = ["strsim"]
-color       = ["ansi_term"]
+color       = ["ansi_term", "libc"]
 yaml        = ["yaml-rust"]
 wrap_help   = ["libc", "unicode-width"]
 lints       = ["clippy", "nightly"]
