@@ -485,7 +485,7 @@ impl<'a, 'b> Parser<'a, 'b>
                                              .as_ref()
                                              .unwrap()
                                              .iter()
-                                             .any(|&a| a == &*arg_os)));
+                                             .any(|&(a, _)| a == &*arg_os)));
                 if (!starts_new_arg || self.is_set(AppSettings::AllowLeadingHyphen)) && !pos_sc {
                     // Check to see if parsing a value from an option
                     if let Some(nvo) = needs_val_of {
@@ -526,6 +526,24 @@ impl<'a, 'b> Parser<'a, 'b>
                                                    .filter(|s| &*s.p.meta.name == cmd)
                                                    .next()
                                                    .map(|sc| &sc.p) {
+                                    sc = c;
+                                    if i == cmds.len() - 1 {
+                                        break;
+                                    }
+                                } else if let Some(c) = sc.subcommands
+                                                          .iter()
+                                                          .filter(|s| 
+                                                              if let Some(ref als) = s.p
+                                                                                      .meta
+                                                                                      .aliases { 
+                                                                  als.iter()
+                                                                     .any(|&(a, _)| &a == &&*cmd.to_string_lossy())
+                                                              } else { 
+                                                                  false 
+                                                              }
+                                                          )
+                                                          .next()
+                                                          .map(|sc| &sc.p) {
                                     sc = c;
                                     if i == cmds.len() - 1 {
                                         break;
@@ -638,7 +656,7 @@ impl<'a, 'b> Parser<'a, 'b>
                                                  .as_ref()
                                                  .unwrap()
                                                  .iter()
-                                                 .any(|&a| a == &*pos_sc_name) {
+                                                 .any(|&(a, _)| &a == &&*pos_sc_name) {
                          Some(sc.p.meta.name.clone())
                      } else {
                          None

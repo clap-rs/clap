@@ -8,7 +8,7 @@ pub struct AppMeta<'b> {
     pub about: Option<&'b str>,
     pub more_help: Option<&'b str>,
     pub pre_help: Option<&'b str>,
-    pub aliases: Option<Vec<&'b str>>,
+    pub aliases: Option<Vec<(&'b str, bool)>>, // (name, visible)
     pub usage_str: Option<&'b str>,
     pub usage: Option<String>,
     pub help_str: Option<&'b str>,
