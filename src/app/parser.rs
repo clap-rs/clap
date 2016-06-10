@@ -530,6 +530,24 @@ impl<'a, 'b> Parser<'a, 'b>
                                     if i == cmds.len() - 1 {
                                         break;
                                     }
+                                } else if let Some(c) = sc.subcommands
+                                                          .iter()
+                                                          .filter(|s| 
+                                                              if let Some(ref als) = s.p
+                                                                                      .meta
+                                                                                      .aliases { 
+                                                                  als.iter()
+                                                                     .any(|a| a == &&*cmd.to_string_lossy())
+                                                              } else { 
+                                                                  false 
+                                                              }
+                                                          )
+                                                          .next()
+                                                          .map(|sc| &sc.p) {
+                                    sc = c;
+                                    if i == cmds.len() - 1 {
+                                        break;
+                                    }
                                 } else {
                                     return Err(
                                         Error::unrecognized_subcommand(

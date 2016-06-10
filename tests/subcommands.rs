@@ -3,7 +3,7 @@ extern crate regex;
 
 include!("../clap-test.rs");
 
-use clap::{App, Arg, SubCommand};
+use clap::{App, Arg, SubCommand, ErrorKind};
 
 #[test]
 fn subcommand() {
@@ -92,4 +92,14 @@ USAGE:
     clap-test [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
 
 For more information try --help", true);
+}
+
+#[test]
+fn alias_help() {
+    let m = App::new("myprog")
+                .subcommand(SubCommand::with_name("test")
+                    .alias("do-stuff"))
+                .get_matches_from_safe(vec!["myprog", "help", "do-stuff"]);
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
 }
