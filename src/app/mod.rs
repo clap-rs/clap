@@ -602,9 +602,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`SubCommand`]: ./struct.SubCommand.html
     pub fn alias<S: Into<&'b str>>(mut self, name: S) -> Self {
         if let Some(ref mut als) = self.p.meta.aliases {
-            als.push(name.into());
+            als.push((name.into(), false));
         } else {
-            self.p.meta.aliases = Some(vec![name.into()]);
+            self.p.meta.aliases = Some(vec![(name.into(), false)]);
         }
         self
     }
@@ -632,10 +632,60 @@ impl<'a, 'b> App<'a, 'b> {
     pub fn aliases(mut self, names: &[&'b str]) -> Self {
         if let Some(ref mut als) = self.p.meta.aliases {
             for n in names {
-                als.push(n);
+                als.push((n, false));
             }
         } else {
-            self.p.meta.aliases = Some(names.iter().map(|n| *n).collect::<Vec<_>>());
+            self.p.meta.aliases = Some(names.iter().map(|n| (*n, false)).collect::<Vec<_>>());
+        }
+        self
+    }
+
+    /// Allows adding a [`SubCommand`] alias that functions exactly like those defined with 
+    /// [`App::alias`], except that they are visible inside the help message.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, SubCommand};
+    /// let m = App::new("myprog")
+    ///             .subcommand(SubCommand::with_name("test")
+    ///                 .visible_alias("do-stuff"))
+    ///             .get_matches_from(vec!["myprog", "do-stuff"]);
+    /// assert_eq!(m.subcommand_name(), Some("test"));
+    /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [`App::alias`]: ./struct.App.html#method.alias
+    pub fn visible_alias<S: Into<&'b str>>(mut self, name: S) -> Self {
+        if let Some(ref mut als) = self.p.meta.aliases {
+            als.push((name.into(), true));
+        } else {
+            self.p.meta.aliases = Some(vec![(name.into(), true)]);
+        }
+        self
+    }
+
+    /// Allows adding multiple [`SubCommand`] aliases that functions exactly like those defined 
+    /// with [`App::aliases`], except that they are visible inside the help message.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, SubCommand};
+    /// let m = App::new("myprog")
+    ///             .subcommand(SubCommand::with_name("test")
+    ///                 .visible_aliases(&["do-stuff", "tests"]))
+    ///             .get_matches_from(vec!["myprog", "do-stuff"]);
+    /// assert_eq!(m.subcommand_name(), Some("test"));
+    /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [`App::aliases`]: ./struct.App.html#method.aliases
+    pub fn visible_aliases(mut self, names: &[&'b str]) -> Self {
+        if let Some(ref mut als) = self.p.meta.aliases {
+            for n in names {
+                als.push((n, true));
+            }
+        } else {
+            self.p.meta.aliases = Some(names.iter().map(|n| (*n, true)).collect::<Vec<_>>());
         }
         self
     }

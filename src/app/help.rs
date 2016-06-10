@@ -548,9 +548,24 @@ impl<'a> Help<'a> {
 
         let mut ord_m = VecMap::new();
         for sc in parser.subcommands.iter().filter(|s| !s.p.is_set(AppSettings::Hidden)) {
+            let sc = if let Some(ref aliases) = sc.p.meta.aliases {
+                let mut a = App::new(format!("{}|{}", &*sc.p.meta.name, aliases.iter()
+                                                                               .filter(|&&(_, vis)| vis)
+                                                                               .map(|&(n, _)| n)
+                                                                               .collect::<Vec<_>>()
+                                                                               .join("|")));
+                a = if let Some(about) = sc.p.meta.about {
+                    a.about(about)
+                } else {
+                    a
+                };
+                a
+            } else {
+                sc.clone()
+            };
             let btm = ord_m.entry(sc.p.meta.disp_ord).or_insert(BTreeMap::new());
-            btm.insert(sc.p.meta.name.clone(), sc);
             longest = cmp::max(longest, sc.p.meta.name.len());
+            btm.insert(sc.p.meta.name.clone(), sc.clone());
         }
 
         let mut first = true;
@@ -561,7 +576,7 @@ impl<'a> Help<'a> {
                 } else {
                     first = false;
                 }
-                try!(self.write_arg(sc, longest));
+                try!(self.write_arg(&sc, longest));
             }
         }
         Ok(())

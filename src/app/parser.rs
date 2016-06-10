@@ -485,7 +485,7 @@ impl<'a, 'b> Parser<'a, 'b>
                                              .as_ref()
                                              .unwrap()
                                              .iter()
-                                             .any(|&a| a == &*arg_os)));
+                                             .any(|&(a, _)| a == &*arg_os)));
                 if (!starts_new_arg || self.is_set(AppSettings::AllowLeadingHyphen)) && !pos_sc {
                     // Check to see if parsing a value from an option
                     if let Some(nvo) = needs_val_of {
@@ -537,7 +537,7 @@ impl<'a, 'b> Parser<'a, 'b>
                                                                                       .meta
                                                                                       .aliases { 
                                                                   als.iter()
-                                                                     .any(|a| a == &&*cmd.to_string_lossy())
+                                                                     .any(|&(a, _)| &a == &&*cmd.to_string_lossy())
                                                               } else { 
                                                                   false 
                                                               }
@@ -656,7 +656,7 @@ impl<'a, 'b> Parser<'a, 'b>
                                                  .as_ref()
                                                  .unwrap()
                                                  .iter()
-                                                 .any(|&a| a == &*pos_sc_name) {
+                                                 .any(|&(a, _)| &a == &&*pos_sc_name) {
                          Some(sc.p.meta.name.clone())
                      } else {
                          None
