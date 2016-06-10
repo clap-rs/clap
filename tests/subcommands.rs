@@ -5,6 +5,19 @@ include!("../clap-test.rs");
 
 use clap::{App, Arg, SubCommand, ErrorKind};
 
+static VISIBLE_ALIAS_HELP: &'static str = "clap-test 2.6
+
+USAGE:
+    clap-test [FLAGS] [SUBCOMMAND]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+SUBCOMMANDS:
+    help      Prints this message or the help of the given subcommand(s)
+    vim|vi    Some help";
+
 #[test]
 fn subcommand() {
     let m = App::new("test")
@@ -102,4 +115,15 @@ fn alias_help() {
                 .get_matches_from_safe(vec!["myprog", "help", "do-stuff"]);
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
+}
+
+#[test]
+fn visible_aliases_help_output() {
+    let app = App::new("clap-test")
+        .version("2.6")
+        .subcommand(SubCommand::with_name("vim")
+            .about("Some help")
+            .alias("invisible")
+            .visible_alias("vi"));
+    test::check_help(app, VISIBLE_ALIAS_HELP);
 }
