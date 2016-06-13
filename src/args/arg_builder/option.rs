@@ -248,6 +248,9 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn longest_filter(&self) -> bool {
         true
     }
+    fn aliases(&self) -> Option<Vec<&'e str>> {
+        None
+    }
 }
 
 impl<'n, 'e> DispOrder for OptBuilder<'n, 'e> {

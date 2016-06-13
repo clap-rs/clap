@@ -1261,6 +1261,18 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn longest_filter(&self) -> bool {
         true
     }
+    fn aliases(&self) -> Option<Vec<&'e str>> {
+        if let Some(ref aliases) = self.p.meta.aliases {
+            let vis_aliases: Vec<_> = aliases.iter().filter_map(|&(n,v)| if v { Some(n) } else {None}).collect();
+            if vis_aliases.is_empty() {
+                None
+            } else {
+                Some(vis_aliases)
+            }
+        } else {
+            None
+        }
+    }
 }
 
 impl<'n, 'e> fmt::Display for App<'n, 'e> {
