@@ -1139,6 +1139,12 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
         if let Some(v) = yaml["about"].as_str() {
             a = a.about(v);
         }
+        if let Some(v) = yaml["before_help"].as_str() {
+            a = a.before_help(v);
+        }
+        if let Some(v) = yaml["template"].as_str() {
+            a = a.template(v);
+        }
         if let Some(v) = yaml["after_help"].as_str() {
             a = a.after_help(v);
         }
@@ -1157,6 +1163,9 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
         if let Some(v) = yaml["version_short"].as_str() {
             a = a.version_short(v);
         }
+        if let Some(v) = yaml["setting"].as_str() {
+            a = a.setting(v.parse().ok().expect("unknown AppSetting found in YAML file"));
+        }
         if let Some(v) = yaml["settings"].as_vec() {
             for ys in v {
                 if let Some(s) = ys.as_str() {
@@ -1164,10 +1173,33 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
                 }
             }
         }
+        if let Some(v) = yaml["global_setting"].as_str() {
+            a = a.setting(v.parse().ok().expect("unknown AppSetting found in YAML file"));
+        }
+        if let Some(v) = yaml["global_settings"].as_vec() {
+            for ys in v {
+                if let Some(s) = ys.as_str() {
+                    a = a.global_setting(s.parse().ok().expect("unknown AppSetting found in YAML file"));
+                }
+            }
+        }
+        if let Some(v) = yaml["alias"].as_str() {
+            a = a.alias(v);
+        }
         if let Some(v) = yaml["aliases"].as_vec() {
             for ys in v {
                 if let Some(s) = ys.as_str() {
                     a = a.alias(s);
+                }
+            }
+        }
+        if let Some(v) = yaml["visible_alias"].as_str() {
+            a = a.visible_alias(v);
+        }
+        if let Some(v) = yaml["visible_aliases"].as_vec() {
+            for ys in v {
+                if let Some(s) = ys.as_str() {
+                    a = a.visible_alias(s);
                 }
             }
         }

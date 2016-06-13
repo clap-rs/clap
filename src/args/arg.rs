@@ -155,6 +155,8 @@ impl<'a, 'b> Arg<'a, 'b> {
                 "index" => a.index(v.as_i64().unwrap() as u64),
                 "global" => a.global(v.as_bool().unwrap()),
                 "multiple" => a.multiple(v.as_bool().unwrap()),
+                "hidden" => a.hidden(v.as_bool().unwrap()),
+                "next_line_help" => a.next_line_help(v.as_bool().unwrap()),
                 "empty_values" => a.empty_values(v.as_bool().unwrap()),
                 "group" => a.group(v.as_str().unwrap()),
                 "number_of_values" => a.number_of_values(v.as_i64().unwrap() as u64),
@@ -165,6 +167,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 "value_delimiter" => a.value_delimiter(v.as_str().unwrap()),
                 "required_unless" => a.required_unless(v.as_str().unwrap()),
                 "display_order" => a.display_order(v.as_i64().unwrap() as usize),
+                "default_value" => a.default_value(v.as_str().unwrap()),
                 "value_names" => {
                     for ys in v.as_vec().unwrap() {
                         if let Some(s) = ys.as_str() {
