@@ -15,8 +15,21 @@ FLAGS:
     -V, --version    Prints version information
 
 SUBCOMMANDS:
-    help      Prints this message or the help of the given subcommand(s)
-    vim|vi    Some help";
+    help    Prints this message or the help of the given subcommand(s)
+    test    Some help [aliases: dongle, done]";
+
+static INVISIBLE_ALIAS_HELP: &'static str = "clap-test 2.6
+
+USAGE:
+    clap-test [FLAGS] [SUBCOMMAND]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+SUBCOMMANDS:
+    help    Prints this message or the help of the given subcommand(s)
+    test    Some help";
 
 #[test]
 fn subcommand() {
@@ -121,9 +134,20 @@ fn alias_help() {
 fn visible_aliases_help_output() {
     let app = App::new("clap-test")
         .version("2.6")
-        .subcommand(SubCommand::with_name("vim")
+        .subcommand(SubCommand::with_name("test")
             .about("Some help")
             .alias("invisible")
-            .visible_alias("vi"));
+            .visible_alias("dongle")
+            .visible_alias("done"));
     test::check_help(app, VISIBLE_ALIAS_HELP);
+}
+
+#[test]
+fn invisible_aliases_help_output() {
+    let app = App::new("clap-test")
+        .version("2.6")
+        .subcommand(SubCommand::with_name("test")
+            .about("Some help")
+            .alias("invisible"));
+    test::check_help(app, INVISIBLE_ALIAS_HELP);
 }
