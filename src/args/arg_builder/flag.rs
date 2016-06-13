@@ -166,6 +166,9 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn longest_filter(&self) -> bool {
         self.long.is_some()
     }
+    fn aliases(&self) -> Option<Vec<&'e str>> {
+        None
+    }
 }
 
 impl<'n, 'e> DispOrder for FlagBuilder<'n, 'e> {

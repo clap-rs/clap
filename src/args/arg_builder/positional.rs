@@ -238,6 +238,9 @@ impl<'n, 'e> AnyArg<'n, 'e> for PosBuilder<'n, 'e> {
     fn longest_filter(&self) -> bool {
         true
     }
+    fn aliases(&self) -> Option<Vec<&'e str>> {
+        None
+    }
 }
 
 impl<'n, 'e> DispOrder for PosBuilder<'n, 'e> {

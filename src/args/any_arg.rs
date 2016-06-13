@@ -8,6 +8,7 @@ use args::settings::ArgSettings;
 pub trait AnyArg<'n, 'e> {
     fn name(&self) -> &'n str;
     fn overrides(&self) -> Option<&[&'e str]>;
+    fn aliases(&self) -> Option<Vec<&'e str>>;
     fn requires(&self) -> Option<&[&'e str]>;
     fn blacklist(&self) -> Option<&[&'e str]>;
     fn required_unless(&self) -> Option<&[&'e str]>;

@@ -461,6 +461,17 @@ impl<'a> Help<'a> {
                                    "".into()
                                }
                            });
+        } else if let Some(ref aliases) = a.aliases() {
+            debugln!("Writing aliases");
+            return format!(" [aliases: {}]",
+               if self.color {
+                   aliases.iter()
+                          .map(|v| format!("{}", self.cizer.good(v)))
+                          .collect::<Vec<_>>()
+                          .join(", ")
+               } else {
+                   aliases.join(", ")
+               });
         } else if !self.hide_pv {
             debugln!("Writing values");
             if let Some(ref pv) = a.possible_vals() {
@@ -548,21 +559,6 @@ impl<'a> Help<'a> {
 
         let mut ord_m = VecMap::new();
         for sc in parser.subcommands.iter().filter(|s| !s.p.is_set(AppSettings::Hidden)) {
-            let sc = if let Some(ref aliases) = sc.p.meta.aliases {
-                let mut a = App::new(format!("{}|{}", &*sc.p.meta.name, aliases.iter()
-                                                                               .filter(|&&(_, vis)| vis)
-                                                                               .map(|&(n, _)| n)
-                                                                               .collect::<Vec<_>>()
-                                                                               .join("|")));
-                a = if let Some(about) = sc.p.meta.about {
-                    a.about(about)
-                } else {
-                    a
-                };
-                a
-            } else {
-                sc.clone()
-            };
             let btm = ord_m.entry(sc.p.meta.disp_ord).or_insert(BTreeMap::new());
             longest = cmp::max(longest, sc.p.meta.name.len());
             btm.insert(sc.p.meta.name.clone(), sc.clone());
