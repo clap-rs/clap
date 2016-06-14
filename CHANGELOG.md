@@ -1,3 +1,36 @@
+<a name="v2.6.0"></a>
+## v2.6.0 (2016-06-14)
+
+
+#### Improvements
+
+*   removes extra newline from help output ([86e61d19](https://github.com/kbknapp/clap-rs/commit/86e61d19a748fb9870fcf1175308984e51ca1115))
+*   allows printing version to any io::Write object ([921f5f79](https://github.com/kbknapp/clap-rs/commit/921f5f7916597f1d028cd4a65bfe76a01c801724))
+*   removes extra newline when printing version ([7e2e2cbb](https://github.com/kbknapp/clap-rs/commit/7e2e2cbb4a8a0f050bb8072a376f742fc54b8589))
+* **Aliases:**  improves readability of asliases in help messages ([ca511de7](https://github.com/kbknapp/clap-rs/commit/ca511de71f5b8c2ac419f1b188658e8c63b67846), closes [#526](https://github.com/kbknapp/clap-rs/issues/526), [#529](https://github.com/kbknapp/clap-rs/issues/529))
+* **Usage Strings:**  improves the default usage string when only a single positional arg is present ([ec86f2da](https://github.com/kbknapp/clap-rs/commit/ec86f2dada1545a63fc72355e22fcdc4c466c215), closes [#518](https://github.com/kbknapp/clap-rs/issues/518))
+
+#### Features
+
+* **Help:**  allows wrapping at specified term width (Even on Windows!) ([1761dc0d](https://github.com/kbknapp/clap-rs/commit/1761dc0d27d0d621229d792be40c36fbf65c3014), closes [#451](https://github.com/kbknapp/clap-rs/issues/451))
+* **Settings:**
+  *  adds new setting to stop delimiting values with -- or TrailingVarArg ([fc3e0f5a](https://github.com/kbknapp/clap-rs/commit/fc3e0f5afda6d24cdb3c4676614beebe13e1e870), closes [#511](https://github.com/kbknapp/clap-rs/issues/511))
+  *  one can now set an AppSetting which is propogated down through child subcommands ([e2341835](https://github.com/kbknapp/clap-rs/commit/e23418351a3b98bf08dfd7744bc14377c70d59ee), closes [#519](https://github.com/kbknapp/clap-rs/issues/519))
+* **Subcommands:**  adds support for visible aliases ([7b10e7f8](https://github.com/kbknapp/clap-rs/commit/7b10e7f8937a07fdb8d16a6d8df79ce78d080cd3), closes [#522](https://github.com/kbknapp/clap-rs/issues/522))
+
+#### Bug Fixes
+
+*   fixes bug where args are printed out of order with templates ([05abb534](https://github.com/kbknapp/clap-rs/commit/05abb534864764102031a0d402e64ac65867aa87))
+*   fixes bug where one can't override version or help flags ([90d7d6a2](https://github.com/kbknapp/clap-rs/commit/90d7d6a2ea8240122dd9bf8d82d3c4f5ebb5c703), closes [#514](https://github.com/kbknapp/clap-rs/issues/514))
+*   fixes issue where before_help wasn't printed ([b3faff60](https://github.com/kbknapp/clap-rs/commit/b3faff6030f76a23f26afcfa6a90169002ed7106))
+* **Help:**  `App::before_help` and `App::after_help` now correctly wrap ([1f4da767](https://github.com/kbknapp/clap-rs/commit/1f4da7676e6e71aa8dda799f3eeefad105a47819), closes [#516](https://github.com/kbknapp/clap-rs/issues/516))
+* **Settings:**  fixes bug where new color settings couldn't be converted from strs ([706a7c11](https://github.com/kbknapp/clap-rs/commit/706a7c11b0900be594de6d5a3121938eff197602))
+* **Subcommands:**  subcommands with aliases now display help of the aliased subcommand ([5354d14b](https://github.com/kbknapp/clap-rs/commit/5354d14b51f189885ba110e01e6b76cca3752992), closes [#521](https://github.com/kbknapp/clap-rs/issues/521))
+* **Windows:**  fixes a failing windows build ([01e7dfd6](https://github.com/kbknapp/clap-rs/commit/01e7dfd6c07228c0be6695b3c7bf9370d82860d4))
+* **YAML:**  adds missing YAML methods for App and Arg ([e468faf3](https://github.com/kbknapp/clap-rs/commit/e468faf3f05950fd9f72d84b69aa2061e91c6c64), closes [#528](https://github.com/kbknapp/clap-rs/issues/528))
+
+
+
 <a name="v2.5.2"></a>
 ### v2.5.2 (2016-05-31)
 
