@@ -482,6 +482,35 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
+    /// Sets the terminal width at which to wrap help messages. Defaults to `120`.
+    ///
+    /// `clap` automatically tries to determine the terminal width on Unix, Linux, and OSX if the
+    /// `wrap_help` cargo "feature" has been used while compiling. If the terminal width cannot be
+    /// determined, `clap` defaults to `120`.
+    ///
+    /// **NOTE:** This setting applies globally and *not* on a per-command basis.
+    ///
+    /// **NOTE:** This setting must be set **before** any subcommands are added!
+    ///
+    /// # Platform Specific
+    ///
+    /// Only Unix, Linux, and OSX support automatic determination of terminal width. Even on those
+    /// platforms, this setting is useful if for any reason the terminal width cannot be
+    /// determined.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::App;
+    /// App::new("myprog")
+    ///     .set_term_width(80)
+    /// # ;
+    /// ```
+    pub fn set_term_width(mut self, width: usize) -> Self {
+        self.p.meta.term_w = Some(width);
+        self
+    }
+
     /// Adds an [argument] to the list of valid possibilties.
     ///
     /// # Examples
@@ -640,7 +669,7 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Allows adding a [`SubCommand`] alias that functions exactly like those defined with 
+    /// Allows adding a [`SubCommand`] alias that functions exactly like those defined with
     /// [`App::alias`], except that they are visible inside the help message.
     ///
     /// # Examples
@@ -664,7 +693,7 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Allows adding multiple [`SubCommand`] aliases that functions exactly like those defined 
+    /// Allows adding multiple [`SubCommand`] aliases that functions exactly like those defined
     /// with [`App::aliases`], except that they are visible inside the help message.
     ///
     /// # Examples

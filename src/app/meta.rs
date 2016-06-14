@@ -13,6 +13,7 @@ pub struct AppMeta<'b> {
     pub usage: Option<String>,
     pub help_str: Option<&'b str>,
     pub disp_ord: usize,
+    pub term_w: Option<usize>,
     pub template: Option<&'b str>,
 }
 
@@ -32,6 +33,7 @@ impl<'b> Default for AppMeta<'b> {
             disp_ord: 999,
             template: None,
             aliases: None,
+            term_w: None,
         }
     }
 }
@@ -61,6 +63,7 @@ impl<'b> Clone for AppMeta<'b> {
             disp_ord: self.disp_ord,
             template: self.template,
             aliases: self.aliases.clone(),
+            term_w: self.term_w,
         }
     }
 }

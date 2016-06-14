@@ -195,6 +195,8 @@ impl<'a, 'b> Parser<'a, 'b>
 
     pub fn add_subcommand(&mut self, mut subcmd: App<'a, 'b>) {
         debugln!("fn=Parser::add_subcommand;");
+        debugln!("Term widnth...{:?}", self.p.meta.term_w);
+        subcmd.p.meta.term_w = self.meta.term_w;
         debug!("Is help...");
         if subcmd.p.meta.name == "help" {
             sdebugln!("Yes");
@@ -532,14 +534,14 @@ impl<'a, 'b> Parser<'a, 'b>
                                     }
                                 } else if let Some(c) = sc.subcommands
                                                           .iter()
-                                                          .filter(|s| 
+                                                          .filter(|s|
                                                               if let Some(ref als) = s.p
                                                                                       .meta
-                                                                                      .aliases { 
+                                                                                      .aliases {
                                                                   als.iter()
                                                                      .any(|&(a, _)| &a == &&*cmd.to_string_lossy())
-                                                              } else { 
-                                                                  false 
+                                                              } else {
+                                                                  false
                                                               }
                                                           )
                                                           .next()

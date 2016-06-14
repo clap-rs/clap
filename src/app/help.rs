@@ -80,7 +80,7 @@ pub struct Help<'a> {
     writer: &'a mut Write,
     next_line_help: bool,
     hide_pv: bool,
-    term_w: Option<usize>,
+    term_w: usize,
     color: bool,
     cizer: Colorizer,
 }
@@ -88,13 +88,16 @@ pub struct Help<'a> {
 // Public Functions
 impl<'a> Help<'a> {
     /// Create a new `Help` instance.
-    pub fn new(w: &'a mut Write, next_line_help: bool, hide_pv: bool, color: bool, cizer: Colorizer) -> Self {
+    pub fn new(w: &'a mut Write, next_line_help: bool, hide_pv: bool, color: bool, cizer: Colorizer, term_w: Option<usize>) -> Self {
         debugln!("fn=Help::new;");
         Help {
             writer: w,
             next_line_help: next_line_help,
             hide_pv: hide_pv,
-            term_w: term::dimensions().map(|(w, _)| w),
+            term_w: match term_w {
+                Some(width) => width,
+                None        => term::dimensions().map(|(w, _)| w).unwrap_or(120),
+            },
             color: color,
             cizer: cizer,
         }
@@ -132,7 +135,7 @@ impl<'a> Help<'a> {
             use_stderr: stderr,
             when: parser.color(),
         };
-        Self::new(w, nlh, hide_v, color, cizer).write_help(parser)
+        Self::new(w, nlh, hide_v, color, cizer, parser.meta.term_w).write_help(parser)
     }
 
     /// Writes the parser help to the wrapped stream.
@@ -336,10 +339,9 @@ impl<'a> Help<'a> {
             longest + 12
         };
         // determine if our help fits or needs to wrap
-        let width = self.term_w.unwrap_or(0);
+        let width = self.term_w;
         debugln!("Term width...{}", width);
-        let too_long = self.term_w.is_some() &&
-                       (spcs + str_width(h) + str_width(&*spec_vals) >= width);
+        let too_long = spcs + str_width(h) + str_width(&*spec_vals) >= width;
         debugln!("Too long...{:?}", too_long);
 
         // Is help on next line, if so newline + 2x tab
