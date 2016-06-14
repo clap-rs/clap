@@ -327,6 +327,89 @@ impl<'a> Help<'a> {
         Ok(())
     }
 
+    fn write_before_after_help<'b, 'c>(&mut self, h: &str) -> io::Result<()> {
+        debugln!("fn=before_help;");
+        let mut help = String::new();
+        // determine if our help fits or needs to wrap
+        let width = self.term_w;
+        debugln!("Term width...{}", width);
+        let too_long = str_width(h) >= width;
+        debugln!("Too long...{:?}", too_long);
+
+        debug!("Too long...");
+        if too_long {
+            sdebugln!("Yes");
+            help.push_str(h);
+            debugln!("help: {}", help);
+            debugln!("help width: {}", str_width(&*help));
+            // Determine how many newlines we need to insert
+            debugln!("Usable space: {}", width);
+            let longest_w = {
+                let mut lw = 0;
+                for l in help.split(' ').map(|s| str_width(s)) {
+                    if l > lw {
+                        lw = l;
+                    }
+                }
+                lw
+            };
+            debugln!("Longest word...{}", longest_w);
+            debug!("Enough space to wrap...");
+            if longest_w < width {
+                sdebugln!("Yes");
+                let mut indices = vec![];
+                let mut idx = 0;
+                loop {
+                    idx += width - 1;
+                    if idx >= help.len() {
+                        break;
+                    }
+                    // 'a' arbitrary non space char
+                    if help.chars().nth(idx).unwrap_or('a') != ' ' {
+                        idx = find_idx_of_space(&*help, idx);
+                    }
+                    debugln!("Adding idx: {}", idx);
+                    debugln!("At {}: {:?}", idx, help.chars().nth(idx));
+                    indices.push(idx);
+                    if str_width(&help[idx..]) <= width {
+                        break;
+                    }
+                }
+                for (i, idx) in indices.iter().enumerate() {
+                    debugln!("iter;i={},idx={}", i, idx);
+                    let j = idx + (2 * i);
+                    debugln!("removing: {}", j);
+                    debugln!("at {}: {:?}", j, help.chars().nth(j));
+                    help.remove(j);
+                    help.insert(j, '{');
+                    help.insert(j + 1, 'n');
+                    help.insert(j + 2, '}');
+                }
+            } else {
+                sdebugln!("No");
+            }
+        } else {
+            sdebugln!("No");
+        }
+        let help = if !help.is_empty() {
+            &*help
+        } else {
+            help.push_str(h);
+            &*help
+        };
+        if help.contains("{n}") {
+            if let Some(part) = help.split("{n}").next() {
+                try!(write!(self.writer, "{}", part));
+            }
+            for part in help.split("{n}").skip(1) {
+                try!(write!(self.writer, "\n{}", part));
+            }
+        } else {
+            try!(write!(self.writer, "{}", help));
+        }
+        Ok(())
+    }
+
     /// Writes argument's help to the wrapped stream.
     fn help<'b, 'c>(&mut self, arg: &ArgWithDisplay<'b, 'c>, longest: usize) -> io::Result<()> {
         debugln!("fn=help;");
@@ -605,7 +688,7 @@ impl<'a> Help<'a> {
     pub fn write_default_help(&mut self, parser: &Parser) -> ClapResult<()> {
         debugln!("fn=write_default_help;");
         if let Some(h) = parser.meta.pre_help {
-            try!(write!(self.writer, "{}", h));
+            try!(self.write_before_after_help(h));
             try!(self.writer.write(b"\n\n"));
         }
 
@@ -640,7 +723,7 @@ impl<'a> Help<'a> {
             if flags || opts || pos || subcmds {
                 try!(self.writer.write(b"\n\n"));
             }
-            try!(write!(self.writer, "{}", h));
+            try!(self.write_before_after_help(h));
         }
 
         self.writer.flush().map_err(Error::from)
