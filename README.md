@@ -38,6 +38,24 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.6.0
+
+* **Global Settings:** One can now set an `AppSetting` which is propogated down through child subcommands
+* **Terminal Wrapping:**  Allows wrapping at specified term width (Even on Windows!) (can now set an absolute width to "smart" wrap at)
+* **SubCommands/Aliases:**  adds support for visible aliases for subcommands (i.e. aliases that are dipslayed in the help message)
+* **Subcommands/Aliases:**  when viewing the help of an alias, it now display help of the aliased subcommand
+* Improves the default usage string when only a single positional arg is present
+* Adds new setting to stop delimiting values with `--` or `AppSettings::TrailingVarArg`
+* `App::before_help` and `App::after_help` now correctly wrap
+* Fixes bug where positional args are printed out of order when using templates
+* Fixes bug where one can't override the auto-generated version or help flags
+* Fixes issue where `App::before_help` wasn't printed
+* Fixes a failing windows build
+* Fixes bug where new color settings couldn't be converted from strings
+* Adds missing YAML methods for App and Arg
+* Allows printing version to any io::Write object
+* Removes extra newline from help and version output
+
 Here's what's new in v.2.5.2
 
 *   Removes trailing newlines from help and version output
@@ -86,8 +104,6 @@ An example of the optional colored help:
 
 Here's the highlights from v2.2.0
 
-#### Features
-
 * **Help text auto wraps and aligns at term width!** - Long help strings will now properly wrap and align to term width on Linux and OS X (and presumably Unix too). This can be turned off as well.
 * **Can customize the order of opts, flags, and subcommands in help messages**  - Instead of using the default alphabetical order, you can now re-arrange the order of your args and subcommands in help message. This helps to emphasize more popular or important options.
  * **Can auto-derive the order from declaration order** - Have a bunch of args or subcommmands to re-order? You can now just derive the order from the declaration order!
@@ -101,13 +117,8 @@ An example of the help text wrapping at term width:
 
 In v2.1.2
 
-#### New Features
-
  * **Default Values**: Args can now specify default values
  * **Next Line Help**: Args can have help strings on the line following the argument (useful for long arguments, or those with many values). This can be set command-wide or for individual args
-
-#### Improvements
-
  * **Documentation Examples**: The examples in the documentation have been vastly improved
 
 For full details, see [CHANGELOG.md](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md)
