@@ -5,16 +5,15 @@ use std::fmt::{Debug, Formatter, Result};
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
-/// `ArgGroup`s are a family of related arguments and way for you to express, "Any of these
+/// `ArgGroup`s are a family of related [arguments] and way for you to express, "Any of these
 /// arguments". By placing arguments in a logical group, you can create easier requirement and
 /// exclusion rules instead of having to list each argument individually, or when you want a rule
 /// to apply "any but not all" arguments.
 ///
-/// For instance, you can make an entire `ArgGroup` required, this means that one (and *only* one)
-/// argument from that group must be present. Using more than one argument from an `ArgGroup`
-/// causes a parsing failure.
+/// For instance, you can make an entire `ArgGroup` required, this means that one (and *only* one,
+/// if [`ArgGroup::multiple(true)`] is set) argument from that group must be present.
 ///
-/// You can also do things such as name an entire `ArgGroup` as a conflict or requirement for
+/// You can also do things such as name an entire `ArgGroup` as a [conflict] or [requirement] for
 /// another argument, meaning any of the arguments that belong to that group will cause a failure
 /// if present, or must present respectively.
 ///
@@ -37,8 +36,8 @@ use yaml_rust::Yaml;
 /// the arguments from the specified group is present at runtime.
 ///
 /// ```rust
-/// # use clap::{App, ArgGroup};
-/// App::new("app")
+/// # use clap::{App, ArgGroup, ErrorKind};
+/// let result = App::new("app")
 ///     .args_from_usage(
 ///         "--set-ver [ver] 'set the version manually'
 ///          --major         'auto increase major'
@@ -47,8 +46,35 @@ use yaml_rust::Yaml;
 ///     .group(ArgGroup::with_name("vers")
 ///          .args(&["set-ver", "major", "minor","patch"])
 ///          .required(true))
-/// # ;
+///     .get_matches_from_safe(vec!["app", "--major", "--patch"]);
+/// // Because we used two args in the group it's an error
+/// assert!(result.is_err());
+/// let err = result.unwrap_err();
+/// assert_eq!(err.kind, ErrorKind::ArgumentConflict);
 /// ```
+/// This next example shows a passing parse of the same scenario
+/// ```rust
+/// # use clap::{App, ArgGroup};
+/// let result = App::new("app")
+///     .args_from_usage(
+///         "--set-ver [ver] 'set the version manually'
+///          --major         'auto increase major'
+///          --minor         'auto increase minor'
+///          --patch         'auto increase patch'")
+///     .group(ArgGroup::with_name("vers")
+///          .args(&["set-ver", "major", "minor","patch"])
+///          .required(true))
+///     .get_matches_from_safe(vec!["app", "--major"]);
+/// assert!(result.is_ok());
+/// let matches = result.unwrap();
+/// // We may not know which of the args was used, so we can test for the group...
+/// assert!(matches.is_present("vers"));
+/// // we could also alternatively check each arg individually (not shown here)
+/// ```
+/// [`ArgGroup::multiple(true)`]: ./struct.ArgGroup.html#method.multiple
+/// [arguments]: ./struct.Arg.html
+/// [conflict]: ./struct.Arg.html#method.conflicts_with
+/// [requirement]: ./struct.Arg.html#method.requires
 #[derive(Default)]
 pub struct ArgGroup<'a> {
     #[doc(hidden)]
@@ -106,12 +132,20 @@ impl<'a> ArgGroup<'a> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, ArgGroup, Arg};
-    /// let cfg_arg = Arg::with_name("config");
-    /// // ...
-    /// ArgGroup::with_name("files")
-    ///     .arg("config")
-    /// # ;
+    /// # use clap::{App, Arg, ArgGroup};
+    /// let m = App::new("myprog")
+    ///     .arg(Arg::with_name("flag")
+    ///         .short("f"))
+    ///     .arg(Arg::with_name("color")
+    ///         .short("c"))
+    ///     .group(ArgGroup::with_name("req_flags")
+    ///         .arg("flag")
+    ///         .arg("color"))
+    ///     .get_matches_from(vec!["myprog", "-f"]);
+    /// // maybe we don't know which of the two flags was used...
+    /// assert!(m.is_present("req_flags"));
+    /// // but we can also check individually if needed
+    /// assert!(m.is_present("flag"));
     /// ```
     /// [argument]: ./struct.Arg.html
     pub fn arg(mut self, n: &'a str) -> Self {
@@ -127,13 +161,19 @@ impl<'a> ArgGroup<'a> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{ArgGroup, Arg};
-    /// let cfg_arg = Arg::with_name("config");
-    /// let in_arg = Arg::with_name("input");
-    /// // ...
-    /// ArgGroup::with_name("files")
-    ///     .args(&["config", "input"])
-    /// # ;
+    /// # use clap::{App, Arg, ArgGroup};
+    /// let m = App::new("myprog")
+    ///     .arg(Arg::with_name("flag")
+    ///         .short("f"))
+    ///     .arg(Arg::with_name("color")
+    ///         .short("c"))
+    ///     .group(ArgGroup::with_name("req_flags")
+    ///         .args(&["flag", "color"]))
+    ///     .get_matches_from(vec!["myprog", "-f"]);
+    /// // maybe we don't know which of the two flags was used...
+    /// assert!(m.is_present("req_flags"));
+    /// // but we can also check individually if needed
+    /// assert!(m.is_present("flag"));
     /// ```
     /// [arguments]: ./struct.Arg.html
     pub fn args(mut self, ns: &[&'a str]) -> Self {
@@ -147,15 +187,40 @@ impl<'a> ArgGroup<'a> {
     ///
     /// # Examples
     ///
+    /// Notice in this example we use *both* the `-f` and `-c` flags which are both part of the
+    /// group
+    ///
     /// ```rust
-    /// # use clap::{ArgGroup, Arg};
-    /// let cfg_arg = Arg::with_name("config");
-    /// let in_arg = Arg::with_name("input");
-    /// // ...
-    /// ArgGroup::with_name("files")
-    ///     .args(&["config", "input"])
-    ///     .multiple(true)
-    /// # ;
+    /// # use clap::{App, Arg, ArgGroup};
+    /// let m = App::new("myprog")
+    ///     .arg(Arg::with_name("flag")
+    ///         .short("f"))
+    ///     .arg(Arg::with_name("color")
+    ///         .short("c"))
+    ///     .group(ArgGroup::with_name("req_flags")
+    ///         .args(&["flag", "color"])
+    ///         .multiple(true))
+    ///     .get_matches_from(vec!["myprog", "-f", "-c"]);
+    /// // maybe we don't know which of the two flags was used...
+    /// assert!(m.is_present("req_flags"));
+    /// ```
+    /// In this next example, we show the default behavior (i.e. `multiple(false)) which is throw
+    /// an error if more than one of the args in the group was used.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ArgGroup, ErrorKind};
+    /// let result = App::new("myprog")
+    ///     .arg(Arg::with_name("flag")
+    ///         .short("f"))
+    ///     .arg(Arg::with_name("color")
+    ///         .short("c"))
+    ///     .group(ArgGroup::with_name("req_flags")
+    ///         .args(&["flag", "color"]))
+    ///     .get_matches_from_safe(vec!["myprog", "-f", "-c"]);
+    /// // Because we used both args in the group it's an error
+    /// assert!(result.is_err());
+    /// let err = result.unwrap_err();
+    /// assert_eq!(err.kind, ErrorKind::ArgumentConflict);
     /// ```
     /// ['Arg']: ./struct.Arg.html
     pub fn multiple(mut self, m: bool) -> Self {
@@ -164,53 +229,74 @@ impl<'a> ArgGroup<'a> {
     }
 
     /// Sets the group as required or not. A required group will be displayed in the usage string
-    /// of the application in the format `[arg|arg2|arg3]`. A required `ArgGroup` simply states
-    /// that one, and only one argument from this group *must* be present at runtime (unless
+    /// of the application in the format `<arg|arg2|arg3>`. A required `ArgGroup` simply states
+    /// that one argument from this group *must* be present at runtime (unless
     /// conflicting with another argument).
     ///
     /// **NOTE:** This setting only applies to the current [`App`] / [`SubCommand`], and not
     /// globally.
     ///
+    /// **NOTE:** By default, [`ArgGroup::multiple`] is set to `false` which when combined with
+    /// `ArgGroup::required(true)` states, "One and *only one* arg must be used from this group.
+    /// Use of more than one arg is an error." Vice setting `ArgGroup::multiple(true)` which
+    /// states, '*At least* one arg from this group must be used. Using multiple is OK."
+    ///
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Arg, ArgGroup};
-    /// let cfg_arg = Arg::with_name("config");
-    /// let in_arg = Arg::with_name("input");
-    /// // ...
-    /// ArgGroup::with_name("cfg")
-    ///     .args(&["config", "input"])
-    ///     .required(true)
-    /// # ;
+    /// # use clap::{App, Arg, ArgGroup, ErrorKind};
+    /// let result = App::new("myprog")
+    ///     .arg(Arg::with_name("flag")
+    ///         .short("f"))
+    ///     .arg(Arg::with_name("color")
+    ///         .short("c"))
+    ///     .group(ArgGroup::with_name("req_flags")
+    ///         .args(&["flag", "color"])
+    ///         .required(true))
+    ///     .get_matches_from_safe(vec!["myprog"]);
+    /// // Because we didn't use any of the args in the group, it's an error
+    /// assert!(result.is_err());
+    /// let err = result.unwrap_err();
+    /// assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
     /// ```
     /// [`App`]: ./struct.App.html
     /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [`ArgGroup::multiple`]: ./struct.ArgGroup.html#method.multiple
     pub fn required(mut self, r: bool) -> Self {
         self.required = r;
         self
     }
 
-    /// Sets the requirement rules of this group. This is not to be confused with a required group.
-    /// Requirement rules function just like argument requirement rules, you can name other
-    /// arguments or groups that must be present when one of the arguments from this group is used.
+    /// Sets the requirement rules of this group. This is not to be confused with a
+    /// [required group]. Requirement rules function just like [argument requirement rules], you
+    /// can name other arguments or groups that must be present when any one of the arguments from
+    /// this group is used.
     ///
     /// **NOTE:** The name provided may be an argument, or group name
     ///
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ArgGroup};
-    /// let cfg_arg = Arg::with_name("config");
-    /// let in_arg = Arg::with_name("input");
-    /// // ...
-    /// ArgGroup::with_name("files")
-    ///     .args(&["config", "input"])
-    /// // ...
-    /// # ;
-    /// ArgGroup::with_name("other_group")
-    ///     .requires("files")
-    /// # ;
+    /// # use clap::{App, Arg, ArgGroup, ErrorKind};
+    /// let result = App::new("myprog")
+    ///     .arg(Arg::with_name("flag")
+    ///         .short("f"))
+    ///     .arg(Arg::with_name("color")
+    ///         .short("c"))
+    ///     .arg(Arg::with_name("debug")
+    ///         .short("d"))
+    ///     .group(ArgGroup::with_name("req_flags")
+    ///         .args(&["flag", "color"])
+    ///         .requires("debug"))
+    ///     .get_matches_from_safe(vec!["myprog", "-c"]);
+    /// // because we used an arg from the group, and the group requires "-d" to be used, it's an
+    /// // error
+    /// assert!(result.is_err());
+    /// let err = result.unwrap_err();
+    /// assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
     /// ```
+    /// [required group]: ./struct.ArgGroup.html#method.required
+    /// [argument requirement rules]: ./struct.Arg.html#method.requires
     pub fn requires(mut self, n: &'a str) -> Self {
         if let Some(ref mut reqs) = self.requires {
             reqs.push(n);
@@ -220,27 +306,38 @@ impl<'a> ArgGroup<'a> {
         self
     }
 
-    /// Sets the requirement rules of this group. This is not to be confused with a required group.
-    /// Requirement rules function just like argument requirement rules, you can name other
-    /// arguments or groups that must be present when one of the arguments from this group is used.
+    /// Sets the requirement rules of this group. This is not to be confused with a
+    /// [required group]. Requirement rules function just like [argument requirement rules], you
+    /// can name other arguments or groups that must be present when one of the arguments from this
+    /// group is used.
     ///
     /// **NOTE:** The names provided may be an argument, or group name
     ///
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ArgGroup};
-    /// let cfg_arg = Arg::with_name("config");
-    /// let in_arg = Arg::with_name("input");
-    /// // ...
-    /// ArgGroup::with_name("files")
-    ///     .args(&["config", "input"])
-    /// // ...
-    /// # ;
-    /// ArgGroup::with_name("other_group")
-    ///     .requires_all(&["config", "input"]) // No different than saying, .requires("files")
-    /// # ;
+    /// # use clap::{App, Arg, ArgGroup, ErrorKind};
+    /// let result = App::new("myprog")
+    ///     .arg(Arg::with_name("flag")
+    ///         .short("f"))
+    ///     .arg(Arg::with_name("color")
+    ///         .short("c"))
+    ///     .arg(Arg::with_name("debug")
+    ///         .short("d"))
+    ///     .arg(Arg::with_name("verb")
+    ///         .short("v"))
+    ///     .group(ArgGroup::with_name("req_flags")
+    ///         .args(&["flag", "color"])
+    ///         .requires_all(&["debug", "verb"]))
+    ///     .get_matches_from_safe(vec!["myprog", "-c", "-d"]);
+    /// // because we used an arg from the group, and the group requires "-d" and "-v" to be used,
+    /// // yet we only used "-d" it's an error
+    /// assert!(result.is_err());
+    /// let err = result.unwrap_err();
+    /// assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
     /// ```
+    /// [required group]: ./struct.ArgGroup.html#method.required
+    /// [argument requirement rules]: ./struct.Arg.html#method.requires_all
     pub fn requires_all(mut self, ns: &[&'a str]) -> Self {
         for n in ns {
             self = self.requires(n);
@@ -249,26 +346,32 @@ impl<'a> ArgGroup<'a> {
     }
 
     /// Sets the exclusion rules of this group. Exclusion (aka conflict) rules function just like
-    /// argument exclusion rules, you can name other arguments or groups that must not be present
-    /// when one of the arguments from this group are used.
+    /// [argument exclusion rules], you can name other arguments or groups that must *not* be
+    /// present when one of the arguments from this group are used.
     ///
     /// **NOTE:** The name provided may be an argument, or group name
     ///
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ArgGroup};
-    /// let cfg_arg = Arg::with_name("config");
-    /// let in_arg = Arg::with_name("input");
-    /// // ...
-    /// ArgGroup::with_name("files")
-    ///     .args(&["config", "input"])
-    /// // ...
-    /// # ;
-    /// ArgGroup::with_name("other_group")
-    ///     .conflicts_with("files")
-    /// # ;
+    /// # use clap::{App, Arg, ArgGroup, ErrorKind};
+    /// let result = App::new("myprog")
+    ///     .arg(Arg::with_name("flag")
+    ///         .short("f"))
+    ///     .arg(Arg::with_name("color")
+    ///         .short("c"))
+    ///     .arg(Arg::with_name("debug")
+    ///         .short("d"))
+    ///     .group(ArgGroup::with_name("req_flags")
+    ///         .args(&["flag", "color"])
+    ///         .conflicts_with("debug"))
+    ///     .get_matches_from_safe(vec!["myprog", "-c", "-d"]);
+    /// // because we used an arg from the group, and the group conflicts with "-d", it's an error
+    /// assert!(result.is_err());
+    /// let err = result.unwrap_err();
+    /// assert_eq!(err.kind, ErrorKind::ArgumentConflict);
     /// ```
+    /// [argument exclusion rules]: ./struct.Arg.html#method.conflicts_with
     pub fn conflicts_with(mut self, n: &'a str) -> Self {
         if let Some(ref mut confs) = self.conflicts {
             confs.push(n);
@@ -278,27 +381,36 @@ impl<'a> ArgGroup<'a> {
         self
     }
 
-    /// Sets the exclusion rules of this group. Exclusion rules function just like argument
-    /// exclusion rules, you can name other arguments or groups that must not be present when one
-    /// of the arguments from this group are used.
+    /// Sets the exclusion rules of this group. Exclusion rules function just like
+    /// [argument exclusion rules], you can name other arguments or groups that must *not* be
+    /// present when one of the arguments from this group are used.
     ///
     /// **NOTE:** The names provided may be an argument, or group name
     ///
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ArgGroup};
-    /// let cfg_arg = Arg::with_name("config");
-    /// let in_arg = Arg::with_name("input");
-    /// // ...
-    /// ArgGroup::with_name("files")
-    ///     .args(&["config", "input"])
-    /// // ...
-    /// # ;
-    /// ArgGroup::with_name("other_group")
-    ///     .conflicts_with_all(&["files", "input"]) // same as saying, conflicts_with("files")
-    /// # ;
+    /// # use clap::{App, Arg, ArgGroup, ErrorKind};
+    /// let result = App::new("myprog")
+    ///     .arg(Arg::with_name("flag")
+    ///         .short("f"))
+    ///     .arg(Arg::with_name("color")
+    ///         .short("c"))
+    ///     .arg(Arg::with_name("debug")
+    ///         .short("d"))
+    ///     .arg(Arg::with_name("verb")
+    ///         .short("v"))
+    ///     .group(ArgGroup::with_name("req_flags")
+    ///         .args(&["flag", "color"])
+    ///         .conflicts_with_all(&["debug", "verb"]))
+    ///     .get_matches_from_safe(vec!["myprog", "-c", "-v"]);
+    /// // because we used an arg from the group, and the group conflicts with either "-v" or "-d"
+    /// // it's an error
+    /// assert!(result.is_err());
+    /// let err = result.unwrap_err();
+    /// assert_eq!(err.kind, ErrorKind::ArgumentConflict);
     /// ```
+    /// [argument exclusion rules]: ./struct.Arg.html#method.conflicts_with_all
     pub fn conflicts_with_all(mut self, ns: &[&'a str]) -> Self {
         for n in ns {
             self = self.conflicts_with(n);
