@@ -61,6 +61,8 @@ pub struct ArgGroup<'a> {
     pub requires: Option<Vec<&'a str>>,
     #[doc(hidden)]
     pub conflicts: Option<Vec<&'a str>>,
+    #[doc(hidden)]
+    pub multiple: bool,
 }
 
 impl<'a> ArgGroup<'a> {
@@ -81,6 +83,7 @@ impl<'a> ArgGroup<'a> {
             args: vec![],
             requires: None,
             conflicts: None,
+            multiple: false,
         }
     }
 
@@ -137,6 +140,26 @@ impl<'a> ArgGroup<'a> {
         for n in ns {
             self = self.arg(n);
         }
+        self
+    }
+
+    /// Allows more than one of the ['Arg']s in this group to be used. (Default: `false`)
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{ArgGroup, Arg};
+    /// let cfg_arg = Arg::with_name("config");
+    /// let in_arg = Arg::with_name("input");
+    /// // ...
+    /// ArgGroup::with_name("files")
+    ///     .args(&["config", "input"])
+    ///     .multiple(true)
+    /// # ;
+    /// ```
+    /// ['Arg']: ./struct.Arg.html
+    pub fn multiple(mut self, m: bool) -> Self {
+        self.multiple = m;
         self
     }
 
@@ -310,6 +333,7 @@ impl<'a, 'z> From<&'z ArgGroup<'a>> for ArgGroup<'a> {
             args: g.args.clone(),
             requires: g.requires.clone(),
             conflicts: g.conflicts.clone(),
+            multiple: g.multiple,
         }
     }
 }
@@ -507,6 +531,7 @@ impl<'a> Clone for ArgGroup<'a> {
             args: self.args.clone(),
             requires: self.requires.clone(),
             conflicts: self.conflicts.clone(),
+            multiple: self.multiple,
         }
     }
 }
