@@ -150,3 +150,33 @@ USAGE:
 For more information try --help", true);
 
 }
+
+#[test]
+fn required_group_multiple_args() {
+    let result = App::new("group")
+        .args_from_usage("-f, --flag 'some flag'
+                          -c, --color 'some other flag'")
+        .group(ArgGroup::with_name("req")
+            .args(&["flag", "color"])
+            .required(true)
+            .multiple(true))
+        .get_matches_from_safe(vec!["group", "-f", "-c"]);
+    assert!(result.is_ok());
+    let m = result.unwrap();
+    assert!(m.is_present("flag"));
+    assert!(m.is_present("color"));
+}
+
+#[test]
+fn group_multiple_args_error() {
+    let result = App::new("group")
+        .args_from_usage("-f, --flag 'some flag'
+                          -c, --color 'some other flag'")
+        .group(ArgGroup::with_name("req")
+            .args(&["flag", "color"]))
+        .get_matches_from_safe(vec!["group", "-f", "-c"]);
+    assert!(result.is_err());
+    let err = result.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+
+}

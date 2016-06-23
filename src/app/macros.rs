@@ -91,8 +91,10 @@ macro_rules! _handle_group_reqs{
             if found {
                 vec_remove_all!($me.required, &grp.args);
                 debugln!("Adding args from group to blacklist...{:?}", grp.args);
-                $me.blacklist.extend(&grp.args);
-                vec_remove!($me.blacklist, &$arg.name());
+                if !grp.multiple {
+                    $me.blacklist.extend(&grp.args);
+                    vec_remove!($me.blacklist, &$arg.name());
+                }
             }
         }
     })
