@@ -408,7 +408,7 @@ impl<'a> ArgMatches<'a> {
     /// An ASCII art depiction may help explain this better...Using a fictional version of `git` as
     /// the demo subject. Imagine the following are all subcommands of `git` (note, the author is
     /// aware these aren't actually all subcommands in the real `git` interface, but it makes
-    /// explaination easier)
+    /// explanation easier)
     ///
     /// ```notrust
     ///              Top Level App (git)                         TOP

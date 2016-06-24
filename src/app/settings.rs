@@ -232,7 +232,7 @@ pub enum AppSettings {
     /// // running `myprog --help` will display a unified "docopt" or "getopts" style help message
     /// ```
     UnifiedHelpMessage,
-    /// Will display a message "Press [ENTER]/[RETURN] to continue..." and wait user before
+    /// Will display a message "Press [ENTER]/[RETURN] to continue..." and wait for user before
     /// exiting
     ///
     /// This is most useful when writing an application which is run from a GUI shortcut, or on
@@ -332,9 +332,9 @@ pub enum AppSettings {
     /// the [`ArgMatches`] struct.
     ///
     /// **NOTE:** Use this setting with caution, as a truly unexpected argument (i.e. one that is
-    /// *NOT* an external subcommand) will **not** cause an error and instead be treatd as a
+    /// *NOT* an external subcommand) will **not** cause an error and instead be treated as a
     /// potential subcommand. One should check for such cases manually and inform the user
-    /// appropriatly.
+    /// appropriately.
     ///
     /// # Examples
     ///

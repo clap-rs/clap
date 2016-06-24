@@ -28,7 +28,7 @@ use yaml_rust::Yaml;
 /// specify that *at least one* of them is used. For this, you can create a group.
 ///
 /// Finally, you may use `ArgGroup`s to pull a value from a group of arguments when you don't care
-/// exaclty which argument was actually used at runtime.
+/// exactly which argument was actually used at runtime.
 ///
 /// # Examples
 ///
@@ -204,7 +204,7 @@ impl<'a> ArgGroup<'a> {
     /// // maybe we don't know which of the two flags was used...
     /// assert!(m.is_present("req_flags"));
     /// ```
-    /// In this next example, we show the default behavior (i.e. `multiple(false)) which is throw
+    /// In this next example, we show the default behavior (i.e. `multiple(false)) which will throw
     /// an error if more than one of the args in the group was used.
     ///
     /// ```rust

@@ -1,4 +1,4 @@
-/// A convienience macro for loading the YAML file at compile time (relative to the current file,
+/// A convenience macro for loading the YAML file at compile time (relative to the current file,
 /// like modules work). That YAML object can then be passed to this function.
 ///
 /// # Panics

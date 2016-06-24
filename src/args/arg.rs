@@ -259,7 +259,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ### Explicit Name
     ///
-    /// This is an optional field, if it's omitted the argumenet will use one of the additioinal
+    /// This is an optional field, if it's omitted the argument will use one of the additional
     /// fields as the name using the following priority order:
     ///
     ///  * Explicit Name (This always takes precedence when present)
@@ -424,7 +424,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// # Examples
     ///
-    /// To set `long` use a word containing valid UTF-8 codepoints. If you supply a dobule leading
+    /// To set `long` use a word containing valid UTF-8 codepoints. If you supply a double leading
     /// `--` such as `--config` they will be stripped. Hyphens in the middle of the word, however,
     /// will *not* be stripped (i.e. `config-file` is allowed)
     ///
@@ -628,9 +628,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Sets args that override this arg's required setting. (i.e. this arg will be required unless
-    /// all these other argument are present).
+    /// all these other arguments are present).
     ///
-    /// **NOTE:** If you wish for the this argument to only be required if *one of* these args are
+    /// **NOTE:** If you wish for this argument to only be required if *one of* these args are
     /// present see [`Arg::required_unless_one`]
     ///
     /// # Examples
@@ -703,9 +703,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Sets args that override this arg's [required] setting. (i.e. this arg will be required
-    /// unless *at least one of* these other argument are present).
+    /// unless *at least one of* these other arguments are present).
     ///
-    /// **NOTE:** If you wish for the this argument to only be required if *all of* these args are
+    /// **NOTE:** If you wish for this argument to only be required if *all of* these args are
     /// present see [`Arg::required_unless_all`]
     ///
     /// # Examples
@@ -879,7 +879,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// will override each other in POSIX style (whichever argument was specified at runtime
     /// **last** "wins")
     ///
-    /// **NOTE:** When an argument is overriden it is essentially as if it never was used, any
+    /// **NOTE:** When an argument is overridden it is essentially as if it never was used, any
     /// conflicts, requirements, etc. are evaluated **after** all "overrides" have been removed
     ///
     /// # Examples
@@ -893,11 +893,11 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::from_usage("-c, --color 'third flag'")
     ///         .overrides_with("flag"))
     ///     .get_matches_from(vec!["posix", "-f", "-d", "-c"]);
-    ///                                 //    ^~~~~~~~~~~~^~~~~ flag is overriden by color
+    ///                                 //    ^~~~~~~~~~~~^~~~~ flag is overridden by color
     ///
     /// assert!(m.is_present("color"));
     /// assert!(m.is_present("debug")); // even though flag conflicts with debug, it's as if flag
-    ///                                 // was never used because it was overriden with color
+    ///                                 // was never used because it was overridden with color
     /// assert!(!m.is_present("flag"));
     /// ```
     pub fn overrides_with(mut self, name: &'a str) -> Self {
@@ -913,7 +913,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// argument will override each other in POSIX style (whichever argument was specified at
     /// runtime **last** "wins")
     ///
-    /// **NOTE:** When an argument is overriden it is essentially as if it never was used, any
+    /// **NOTE:** When an argument is overridden it is essentially as if it never was used, any
     /// conflicts, requirements, etc. are evaluated **after** all "overrides" have been removed
     ///
     /// # Examples
@@ -927,10 +927,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::from_usage("-c, --color 'third flag'")
     ///         .overrides_with_all(&["flag", "debug"]))
     ///     .get_matches_from(vec!["posix", "-f", "-d", "-c"]);
-    ///                                 //    ^~~~~~^~~~~~~~~ flag and debug are overriden by color
+    ///                                 //    ^~~~~~^~~~~~~~~ flag and debug are overridden by color
     ///
     /// assert!(m.is_present("color")); // even though flag conflicts with color, it's as if flag
-    ///                                 // and debug were never used because they were overriden
+    ///                                 // and debug were never used because they were overridden
     ///                                 // with color
     /// assert!(!m.is_present("debug"));
     /// assert!(!m.is_present("flag"));
@@ -961,7 +961,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     ///
     /// Setting [`Arg::requires(name)`] requires that the argument be used at runtime if the
-    /// defining argument is used. If the defining argument isn't used, the other arguemnt isn't
+    /// defining argument is used. If the defining argument isn't used, the other argument isn't
     /// required
     ///
     /// ```rust
@@ -1027,7 +1027,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// Setting [`Arg::requires_all(&[arg, arg2])`] requires that all the arguments be used at
     /// runtime if the defining argument is used. If the defining argument isn't used, the other
-    /// arguemnt isn't required
+    /// argument isn't required
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -1091,10 +1091,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// * Using an equals and no space such as `-o=value` or `--option=value`
     /// * Use a short and no space such as `-ovalue`
     ///
-    /// **NOTE:** By default, args which allow [multiple values] are delimted by commas, meaning
-    /// `--option=val1,val2,val3` is is three values for the `--option` argument. If you wish to
+    /// **NOTE:** By default, args which allow [multiple values] are delimited by commas, meaning
+    /// `--option=val1,val2,val3` is three values for the `--option` argument. If you wish to
     /// change the delimiter to another character you can use [`Arg::value_delimiter(char)`],
-    /// alternatively you can delimiting values **OFF** by using [`Arg::use_delimiter(false)`]
+    /// alternatively you can turn delimiting values **OFF** by using [`Arg::use_delimiter(false)`]
     ///
     /// # Examples
     ///
@@ -1136,7 +1136,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// leave off the `index` method, and the index will be assigned in order of evaluation.
     /// Utilizing the `index` method allows for setting indexes out of order
     ///
-    /// **NOTE:** When utilized with [`Arg::multiple(true)`], only the **last** psoitional argument
+    /// **NOTE:** When utilized with [`Arg::multiple(true)`], only the **last** positional argument
     /// may be defined as multiple (i.e. with the highest index)
     ///
     /// # Panics
@@ -1188,9 +1188,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// **WARNING:**
     ///
     /// Setting `multiple(true)` for an [option] with no other details, allows multiple values
-    /// **and** multiple occurrences because it isn't possible to more occurrences than values for
+    /// **and** multiple occurrences because it isn't possible to have more occurrences than values for
     /// options. Because multiple values are allowed, `--option val1 val2 val3` is perfectly valid,
-    /// be careful when designing a CLI where positional arguments are expectd after a option which
+    /// be careful when designing a CLI where positional arguments are expected after a option which
     /// accepts multiple values, as `clap` will continue parsing *values* until it reaches the max
     /// or specific number of values defined, or another flag or option.
     ///
@@ -1700,11 +1700,11 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// `-f <file>` argument where you wanted up to 3 'files' you would set `.max_values(3)`, and
     /// this argument would be satisfied if the user provided, 1, 2, or 3 values.
     ///
-    /// **NOTE:** This does *not* implicitly set [`Arg::mulitple(true)`]. This is because
-    /// `-o val -o val` is multiples occurrences but a single value and `-o val1 val2` is a single
+    /// **NOTE:** This does *not* implicitly set [`Arg::multiple(true)`]. This is because
+    /// `-o val -o val` is multiple occurrences but a single value and `-o val1 val2` is a single
     /// occurence with multple values. For positional arguments this **does** set
-    /// [`Arg::multiple(true)`] because there is no way to determine the diffrence between multiple
-    /// occureces and multiple values.
+    /// [`Arg::multiple(true)`] because there is no way to determine the difference between multiple
+    /// occurences and multiple values.
     ///
     /// # Examples
     ///
@@ -1747,22 +1747,22 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::TooManyValues);
     /// ```
-    /// [`Arg::mulitple(true)`]: ./struct.Arg.html#method.multiple
+    /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     pub fn max_values(mut self, qty: u64) -> Self {
         self.max_vals = Some(qty);
         self
     }
 
-    /// Specifies the *minimum* number of values are for this argument. For example, if you had a
+    /// Specifies the *minimum* number of values for this argument. For example, if you had a
     /// `-f <file>` argument where you wanted at least 2 'files' you would set
     /// `.min_values(2)`, and this argument would be satisfied if the user provided, 2 or more
     /// values.
     ///
-    /// **NOTE:** This does not implicitly set [`Arg::mulitple(true)`]. This is because
-    /// `-o val -o val` is multiples occurrences but a single value and `-o val1 val2` is a single
-    /// occurence with multple values. For positional arguments this **does** set
-    /// [`Arg::multiple(true)`] because there is no way to determine the diffrence between multiple
-    /// occureces and multiple values.
+    /// **NOTE:** This does not implicitly set [`Arg::multiple(true)`]. This is because
+    /// `-o val -o val` is multiple occurrences but a single value and `-o val1 val2` is a single
+    /// occurence with multiple values. For positional arguments this **does** set
+    /// [`Arg::multiple(true)`] because there is no way to determine the difference between multiple
+    /// occurences and multiple values.
     ///
     /// # Examples
     ///
@@ -1791,7 +1791,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(files, ["file1", "file2", "file3"]);
     /// ```
     ///
-    /// Supplying less than the mainimum number of values is an error
+    /// Supplying less than the minimum number of values is an error
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
@@ -1805,18 +1805,18 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::TooFewValues);
     /// ```
-    /// [`Arg::mulitple(true)`]: ./struct.Arg.html#method.multiple
+    /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     pub fn min_values(mut self, qty: u64) -> Self {
         self.min_vals = Some(qty);
         self.set(ArgSettings::TakesValue)
     }
 
-    /// Specifies whether or not an arugment should allow grouping of multiple values via a
-    /// delimter. I.e. shoulde `--option=val1,val2,val3` be parsed as three values (`val1`, `val2`,
+    /// Specifies whether or not an argument should allow grouping of multiple values via a
+    /// delimiter. I.e. should `--option=val1,val2,val3` be parsed as three values (`val1`, `val2`,
     /// and `val3`) or as a single value (`val1,val2,val3`). Defaults to using `,` (comma) as the
     /// value delimiter for all arguments that accept values (options and positional arguments)
     ///
-    /// **NOTE:** The defalt is `true`. Setting the value to `true` will reset any previous use of
+    /// **NOTE:** The default is `true`. Setting the value to `true` will reset any previous use of
     /// [`Arg::value_delimiter`] back to the default of `,` (comma).
     ///
     /// # Examples
@@ -1978,7 +1978,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Specifies the name for value of [option] or [positional] arguments inside of help
-    /// documenation. This name is cosmetic only, the name is **not** used to access arguments.
+    /// documentation. This name is cosmetic only, the name is **not** used to access arguments.
     /// This setting can be very helpful when describing the type of input the user should be
     /// using, such as `FILE`, `INTERFACE`, etc. Although not required, it's somewhat convention to
     /// use all capital letters for the value name.
