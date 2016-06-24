@@ -36,7 +36,7 @@ pub fn did_you_mean<'a, T, I>(_: &str, _: I) -> Option<&'a str>
     None
 }
 
-/// Returns a suffix that can be empty, or is the standard 'did you mean phrase
+/// Returns a suffix that can be empty, or is the standard 'did you mean' phrase
 #[cfg_attr(feature = "lints", allow(needless_lifetimes))]
 pub fn did_you_mean_suffix<'z, T, I>(arg: &str,
                                      values: I,

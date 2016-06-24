@@ -90,7 +90,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// In order to use this function you must compile `clap` with the `features = ["yaml"]` in
     /// your settings for the `[dependencies.clap]` table of your `Cargo.toml`
     ///
-    /// **NOTE:** Due to how the YAML objects are built there is a convienience macro for loading
+    /// **NOTE:** Due to how the YAML objects are built there is a convenience macro for loading
     /// the YAML file at compile time (relative to the current file, like modules work). That YAML
     /// object can then be passed to this function.
     ///
@@ -102,7 +102,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// # Examples
     ///
-    /// The following example shows how to load a properly formatted YAML file to build an instnace
+    /// The following example shows how to load a properly formatted YAML file to build an instance
     /// of an [`App`] struct.
     ///
     /// ```ignore
@@ -125,7 +125,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// request the help information with `--help` or `-h`.
     ///
     /// **Pro-tip:** If you turn on unstable features you can use `clap`s
-    /// convienience macro [`crate_authors!`] to automatically set your
+    /// convenience macro [`crate_authors!`] to automatically set your
     /// application's author to the same thing as your crate at compile time.
     /// See the [`examples/`]
     /// directory for more information
@@ -221,7 +221,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// Sets a string of the version number to be displayed when displaying version or help
     /// information.
     ///
-    /// **Pro-tip:** Use `clap`s convienience macro [`crate_version!`] to automatically set your
+    /// **Pro-tip:** Use `clap`s convenience macro [`crate_version!`] to automatically set your
     /// application's version to the same thing as your crate at compile time. See the [`examples/`]
     /// directory for more information
     ///
@@ -318,7 +318,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// your own.
     ///
     /// **NOTE:** Any leading `-` characters will be stripped, and only the first
-    /// non `-` chacter will be used as the [`short`] version
+    /// non `-` character will be used as the [`short`] version
     ///
     /// # Examples
     ///
@@ -344,7 +344,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// your own.
     ///
     /// **NOTE:** Any leading `-` characters will be stripped, and only the first
-    /// non `-` chacter will be used as the `short` version
+    /// non `-` character will be used as the `short` version
     ///
     /// # Examples
     ///
@@ -558,7 +558,7 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// A convienience method for adding a single [argument] from a usage type string. The string
+    /// A convenience method for adding a single [argument] from a usage type string. The string
     /// used follows the same rules and syntax as [`Arg::from_usage`]
     ///
     /// **NOTE:** The downside to using this method is that you can not set any additional
@@ -615,8 +615,8 @@ impl<'a, 'b> App<'a, 'b> {
 
     /// Allows adding a [`SubCommand`] alias, which function as "hidden" subcommands that
     /// automatically dispatch as if this subcommand was used. This is more efficient, and easier
-    /// than creating multiple hidden subcommands as one only needs to check for the existing of
-    /// this command, and not all vairants.
+    /// than creating multiple hidden subcommands as one only needs to check for the existence of
+    /// this command, and not all variants.
     ///
     /// # Examples
     ///
@@ -640,8 +640,8 @@ impl<'a, 'b> App<'a, 'b> {
 
     /// Allows adding [`SubCommand`] aliases, which function as "hidden" subcommands that
     /// automatically dispatch as if this subcommand was used. This is more efficient, and easier
-    /// than creating multiple hidden subcommands as one only needs to check for the existing of
-    /// this command, and not all vairants.
+    /// than creating multiple hidden subcommands as one only needs to check for the existence of
+    /// this command, and not all variants.
     ///
     /// # Examples
     ///
@@ -940,7 +940,7 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     /// Starts the parsing process, upon a failed parse an error will be displayed to the user and
-    /// the process with exit with the appropriate error code. By default this method gets all user
+    /// the process will exit with the appropriate error code. By default this method gets all user
     /// provided arguments from [`env::args_os`] in order to allow for invalid UTF-8 code points,
     /// which are legal on many platforms.
     ///
@@ -958,7 +958,7 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     /// Starts the parsing process. This method will return a [`clap::Result`] type instead of exiting
-    /// the the process on failed parse. By default this method gets matches from [`env::args_os`]
+    /// the process on failed parse. By default this method gets matches from [`env::args_os`]
     ///
     /// **NOTE:** This method WILL NOT exit when `--help` or `--version` (or short versions) are
     /// used. It will return a [`clap::Error`], where the [`kind`] is a
