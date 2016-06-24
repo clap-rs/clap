@@ -895,12 +895,13 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::App;
-    /// let app = App::new("myprog");
+    /// let mut app = App::new("myprog");
     /// app.print_help();
     /// ```
     /// [`io::stdout()`]: https://doc.rust-lang.org/std/io/fn.stdout.html
     /// [`BufWriter`]: https://doc.rust-lang.org/std/io/struct.BufWriter.html
-    pub fn print_help(&self) -> ClapResult<()> {
+    pub fn print_help(&mut self) -> ClapResult<()> {
+        self.p.create_help_and_version();
         let out = io::stdout();
         let mut buf_w = BufWriter::new(out.lock());
         self.write_help(&mut buf_w)

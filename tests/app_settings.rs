@@ -125,7 +125,7 @@ Kevin K.
 tests stuff
 
 USAGE:
-    test [FLAGS] [OPTIONS] [arg1]
+    test [OPTIONS] [arg1]
 
 FLAGS:
     -h, --help       Prints help information

@@ -195,7 +195,7 @@ impl<'a, 'b> Parser<'a, 'b>
 
     pub fn add_subcommand(&mut self, mut subcmd: App<'a, 'b>) {
         debugln!("fn=Parser::add_subcommand;");
-        debugln!("Term widnth...{:?}", self.p.meta.term_w);
+        debugln!("Term widnth...{:?}", self.meta.term_w);
         subcmd.p.meta.term_w = self.meta.term_w;
         debug!("Is help...");
         if subcmd.p.meta.name == "help" {
@@ -363,12 +363,79 @@ impl<'a, 'b> Parser<'a, 'b>
         ret_val
     }
 
-    pub fn has_flags(&self) -> bool {
-        !self.flags.is_empty()
+    pub fn get_args_tag(&self) -> Option<String> {
+        let mut count = 0;
+        'outer: for p in self.positionals.values().filter(|p| !p.is_set(ArgSettings::Required)) {
+            if let Some(g_vec) = self.groups_for_arg(p.name) {
+                for grp_s in &g_vec {
+                    debugln!("iter;grp_s={};", grp_s);
+                    if let Some(grp) = self.groups.get(grp_s) {
+                        debug!("Is group required...");
+                        if grp.required {
+                            sdebugln!("Yes (continuing)");
+                            continue 'outer;
+                        } else {
+                            sdebugln!("No (breaking)");
+                        }
+                    }
+                }
+                debugln!("Arg not required...");
+                count +=1;
+            } else {
+                debugln!("Arg not required...");
+                count +=1;
+            }
+        }
+        if count > 1 {
+            return None;
+        } else if count == 1 && self.positionals.len() > 1 {
+            return None;
+        } else if count == 1 {
+            let p = self.positionals.values().next().expect(INTERNAL_ERROR_MSG);
+            return Some(format!(" [{}]{}", p.name_no_brackets(), p.multiple_str()));
+        }
+        Some("".into())
+    }
+
+    pub fn needs_flags_tag(&self) -> bool {
+        debugln!("exec=needs_flags_tag;");
+        'outer: for f in &self.flags {
+            debugln!("iter;f={};", f.name);
+            if let Some(l) = f.long {
+                if l == "help" || l == "version" {
+                    continue;
+                }
+            }
+            if let Some(g_vec) = self.groups_for_arg(f.name) {
+                for grp_s in &g_vec {
+                    debugln!("iter;grp_s={};", grp_s);
+                    if let Some(grp) = self.groups.get(grp_s) {
+                        debug!("Is group required...");
+                        if grp.required {
+                            sdebugln!("Yes (continuing)");
+                            continue 'outer;
+                        } else {
+                            sdebugln!("No (breaking)");
+                        }
+                    }
+                }
+                debugln!("Flag not required...(returning true)");
+                return true;
+            } else {
+                debugln!("Flag not required...(returning true)");
+                return true;
+            }
+        }
+
+        false
     }
 
     pub fn has_opts(&self) -> bool {
         !self.opts.is_empty()
+    }
+
+    pub fn has_flags(&self) -> bool {
+        !self.flags.is_empty()
     }
 
     pub fn has_positionals(&self) -> bool {
@@ -520,9 +587,13 @@ impl<'a, 'b> Parser<'a, 'b>
                     if &*arg_os == "help" &&
                        self.settings.is_set(AppSettings::NeedsSubcommandHelp) {
                         let cmds: Vec<OsString> = it.map(|c| c.into()).collect();
+                        let mut help_help = false;
                         let mut sc = {
                             let mut sc: &Parser = self;
                             for (i, cmd) in cmds.iter().enumerate() {
+                                if &*cmd.to_string_lossy() == "help" { // cmd help help
+                                    help_help = true;
+                                }
                                 if let Some(c) = sc.subcommands
                                                    .iter()
                                                    .filter(|s| &*s.p.meta.name == cmd)
@@ -563,7 +634,30 @@ impl<'a, 'b> Parser<'a, 'b>
                             }
                             sc.clone()
                         };
-                        sc.create_help_and_version();
+                        if help_help {
+                            let mut pb = PosBuilder::new("subcommand", 1);
+                            pb.help = Some("The subcommand whose help message to display");
+                            pb.set(ArgSettings::Multiple);
+                            sc.positionals.insert(1, pb);
+                            for s in self.g_settings.clone() {
+                                sc.set(s);
+                            }
+                        } else {
+                            sc.create_help_and_version();
+                        }
+                        if sc.meta.bin_name != self.meta.bin_name {
+                            sc.meta.bin_name = Some(format!("{}{}{}",
+                                                  self.meta
+                                                      .bin_name
+                                                      .as_ref()
+                                                      .unwrap_or(&String::new()),
+                                                  if self.meta.bin_name.is_some() {
+                                                      " "
+                                                  } else {
+                                                      ""
+                                                  },
+                                                  &*sc.meta.name));
+                        }
                         return sc._help();
                     }
                     subcmd_name = Some(arg_os.to_str().expect(INVALID_UTF8).to_owned());
@@ -873,10 +967,10 @@ impl<'a, 'b> Parser<'a, 'b>
         args.iter().map(|s| *s).collect()
     }
 
-    fn create_help_and_version(&mut self) {
+    pub fn create_help_and_version(&mut self) {
         debugln!("fn=create_help_and_version;");
         // name is "hclap_help" because flags are sorted by name
-        if !self.flags.iter().any(|a| a.long.is_some() && a.long.unwrap() == "help") {
+        if self.is_set(AppSettings::NeedsLongHelp) {
             debugln!("Building --help");
             if self.help_short.is_none() && !self.short_list.contains(&'h') {
                 self.help_short = Some('h');
@@ -892,7 +986,7 @@ impl<'a, 'b> Parser<'a, 'b>
             self.flags.push(arg);
         }
         if !self.settings.is_set(AppSettings::DisableVersion) &&
-           !self.flags.iter().any(|a| a.long.is_some() && a.long.unwrap() == "version") {
+            self.is_set(AppSettings::NeedsLongVersion) {
             debugln!("Building --version");
             if self.version_short.is_none() && !self.short_list.contains(&'V') {
                 self.version_short = Some('V');
@@ -908,10 +1002,7 @@ impl<'a, 'b> Parser<'a, 'b>
             self.long_list.push("version");
             self.flags.push(arg);
         }
-        if !self.subcommands.is_empty() &&
-           !self.subcommands
-                .iter()
-                .any(|s| &s.p.meta.name[..] == "help") {
+        if !self.subcommands.is_empty() && self.is_set(AppSettings::NeedsSubcommandHelp) {
             debugln!("Building help");
             self.subcommands
                 .push(App::new("help")
@@ -1516,9 +1607,10 @@ impl<'a, 'b> Parser<'a, 'b>
                                  .iter()
                                  .fold(String::new(), |a, s| a + &format!(" {}", s)[..]);
 
-            if self.has_flags() && !self.is_set(AppSettings::UnifiedHelpMessage) {
+            let flags = self.needs_flags_tag();
+            if flags && !self.is_set(AppSettings::UnifiedHelpMessage) {
                 usage.push_str(" [FLAGS]");
-            } else {
+            } else if flags {
                 usage.push_str(" [OPTIONS]");
             }
             if !self.is_set(AppSettings::UnifiedHelpMessage) && self.has_opts() &&
@@ -1538,14 +1630,8 @@ impl<'a, 'b> Parser<'a, 'b>
             }
             if self.has_positionals() &&
                self.positionals.values().any(|a| !a.settings.is_set(ArgSettings::Required)) {
-                if self.positionals.len() == 1  {
-                    let p = self.positionals.values().next().expect(INTERNAL_ERROR_MSG);
-                    if !self.groups.values().any(|g| g.args.iter().any(|a| a == &p.name)) {
-                        usage.push_str(&*format!(" [{}]{}", p.name_no_brackets(),
-                        p.multiple_str()));
-                    } else {
-                        usage.push_str(" [ARGS]");
-                    }
+                if let Some(args_tag) = self.get_args_tag() {
+                    usage.push_str(&*args_tag);
                 } else {
                     usage.push_str(" [ARGS]");
                 }

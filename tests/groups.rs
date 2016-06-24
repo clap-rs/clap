@@ -107,7 +107,7 @@ fn req_group_usage_string() {
     <base|--delete>
 
 USAGE:
-    clap-test [FLAGS] <base|--delete> [ARGS]
+    clap-test <base|--delete>
 
 For more information try --help", true);
 
