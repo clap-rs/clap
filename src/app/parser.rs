@@ -564,6 +564,19 @@ impl<'a, 'b> Parser<'a, 'b>
                             sc.clone()
                         };
                         sc.create_help_and_version();
+                        if sc.meta.bin_name != self.meta.bin_name {
+                            sc.meta.bin_name = Some(format!("{}{}{}",
+                                                  self.meta
+                                                      .bin_name
+                                                      .as_ref()
+                                                      .unwrap_or(&String::new()),
+                                                  if self.meta.bin_name.is_some() {
+                                                      " "
+                                                  } else {
+                                                      ""
+                                                  },
+                                                  &*sc.meta.name));
+                        }
                         return sc._help();
                     }
                     subcmd_name = Some(arg_os.to_str().expect(INVALID_UTF8).to_owned());
