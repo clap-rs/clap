@@ -363,12 +363,79 @@ impl<'a, 'b> Parser<'a, 'b>
         ret_val
     }
 
-    pub fn has_flags(&self) -> bool {
-        !self.flags.is_empty()
+    pub fn get_args_tag(&self) -> Option<String> {
+        let mut count = 0;
+        'outer: for p in self.positionals.values().filter(|p| !p.is_set(ArgSettings::Required)) {
+            if let Some(g_vec) = self.groups_for_arg(p.name) {
+                for grp_s in &g_vec {
+                    debugln!("iter;grp_s={};", grp_s);
+                    if let Some(grp) = self.groups.get(grp_s) {
+                        debug!("Is group required...");
+                        if grp.required {
+                            sdebugln!("Yes (continuing)");
+                            continue 'outer;
+                        } else {
+                            sdebugln!("No (breaking)");
+                        }
+                    }
+                }
+                debugln!("Arg not required...");
+                count +=1;
+            } else {
+                debugln!("Arg not required...");
+                count +=1;
+            }
+        }
+        if count > 1 {
+            return None;
+        } else if count == 1 && self.positionals.len() > 1 {
+            return None;
+        } else if count == 1 {
+            let p = self.positionals.values().next().expect(INTERNAL_ERROR_MSG);
+            return Some(format!(" [{}]{}", p.name_no_brackets(), p.multiple_str()));
+        }
+        Some("".into())
+    }
+
+    pub fn needs_flags_tag(&self) -> bool {
+        debugln!("exec=needs_flags_tag;");
+        'outer: for f in &self.flags {
+            debugln!("iter;f={};", f.name);
+            if let Some(l) = f.long {
+                if l == "help" || l == "version" {
+                    continue;
+                }
+            }
+            if let Some(g_vec) = self.groups_for_arg(f.name) {
+                for grp_s in &g_vec {
+                    debugln!("iter;grp_s={};", grp_s);
+                    if let Some(grp) = self.groups.get(grp_s) {
+                        debug!("Is group required...");
+                        if grp.required {
+                            sdebugln!("Yes (continuing)");
+                            continue 'outer;
+                        } else {
+                            sdebugln!("No (breaking)");
+                        }
+                    }
+                }
+                debugln!("Flag not required...(returning true)");
+                return true;
+            } else {
+                debugln!("Flag not required...(returning true)");
+                return true;
+            }
+        }
+
+        false
     }
 
     pub fn has_opts(&self) -> bool {
         !self.opts.is_empty()
+    }
+
+    pub fn has_flags(&self) -> bool {
+        !self.flags.is_empty()
     }
 
     pub fn has_positionals(&self) -> bool {
@@ -1543,9 +1610,10 @@ impl<'a, 'b> Parser<'a, 'b>
                                  .iter()
                                  .fold(String::new(), |a, s| a + &format!(" {}", s)[..]);
 
-            if self.has_flags() && !self.is_set(AppSettings::UnifiedHelpMessage) {
+            let flags = self.needs_flags_tag();
+            if flags && !self.is_set(AppSettings::UnifiedHelpMessage) {
                 usage.push_str(" [FLAGS]");
-            } else {
+            } else if flags {
                 usage.push_str(" [OPTIONS]");
             }
             if !self.is_set(AppSettings::UnifiedHelpMessage) && self.has_opts() &&
@@ -1565,14 +1633,8 @@ impl<'a, 'b> Parser<'a, 'b>
             }
             if self.has_positionals() &&
                self.positionals.values().any(|a| !a.settings.is_set(ArgSettings::Required)) {
-                if self.positionals.len() == 1  {
-                    let p = self.positionals.values().next().expect(INTERNAL_ERROR_MSG);
-                    if !self.groups.values().any(|g| g.args.iter().any(|a| a == &p.name)) {
-                        usage.push_str(&*format!(" [{}]{}", p.name_no_brackets(),
-                        p.multiple_str()));
-                    } else {
-                        usage.push_str(" [ARGS]");
-                    }
+                if let Some(args_tag) = self.get_args_tag() {
+                    usage.push_str(&*args_tag);
                 } else {
                     usage.push_str(" [ARGS]");
                 }
