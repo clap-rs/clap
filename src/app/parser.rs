@@ -195,7 +195,7 @@ impl<'a, 'b> Parser<'a, 'b>
 
     pub fn add_subcommand(&mut self, mut subcmd: App<'a, 'b>) {
         debugln!("fn=Parser::add_subcommand;");
-        debugln!("Term widnth...{:?}", self.p.meta.term_w);
+        debugln!("Term widnth...{:?}", self.meta.term_w);
         subcmd.p.meta.term_w = self.meta.term_w;
         debug!("Is help...");
         if subcmd.p.meta.name == "help" {
@@ -520,9 +520,13 @@ impl<'a, 'b> Parser<'a, 'b>
                     if &*arg_os == "help" &&
                        self.settings.is_set(AppSettings::NeedsSubcommandHelp) {
                         let cmds: Vec<OsString> = it.map(|c| c.into()).collect();
+                        let mut help_help = false;
                         let mut sc = {
                             let mut sc: &Parser = self;
                             for (i, cmd) in cmds.iter().enumerate() {
+                                if &*cmd.to_string_lossy() == "help" { // cmd help help
+                                    help_help = true;
+                                }
                                 if let Some(c) = sc.subcommands
                                                    .iter()
                                                    .filter(|s| &*s.p.meta.name == cmd)
@@ -563,7 +567,17 @@ impl<'a, 'b> Parser<'a, 'b>
                             }
                             sc.clone()
                         };
-                        sc.create_help_and_version();
+                        if help_help {
+                            let mut pb = PosBuilder::new("subcommand", 1);
+                            pb.help = Some("The subcommand whose help message to display");
+                            pb.set(ArgSettings::Multiple);
+                            sc.positionals.insert(1, pb);
+                            for s in self.g_settings.clone() {
+                                sc.set(s);
+                            }
+                        } else {
+                            sc.create_help_and_version();
+                        }
                         if sc.meta.bin_name != self.meta.bin_name {
                             sc.meta.bin_name = Some(format!("{}{}{}",
                                                   self.meta
