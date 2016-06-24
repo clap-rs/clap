@@ -8,7 +8,7 @@ use clap::{App, Arg, SubCommand, ErrorKind};
 static VISIBLE_ALIAS_HELP: &'static str = "clap-test 2.6
 
 USAGE:
-    clap-test [FLAGS] [SUBCOMMAND]
+    clap-test [SUBCOMMAND]
 
 FLAGS:
     -h, --help       Prints help information
@@ -21,7 +21,7 @@ SUBCOMMANDS:
 static INVISIBLE_ALIAS_HELP: &'static str = "clap-test 2.6
 
 USAGE:
-    clap-test [FLAGS] [SUBCOMMAND]
+    clap-test [SUBCOMMAND]
 
 FLAGS:
     -h, --help       Prints help information

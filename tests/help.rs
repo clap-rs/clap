@@ -42,7 +42,7 @@ clap-test v1.4.8
 tests clap library
 
 USAGE:
-    clap-test [FLAGS]
+    clap-test
 
 FLAGS:
     -h, --help       Prints help information

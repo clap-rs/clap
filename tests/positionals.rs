@@ -180,13 +180,13 @@ fn default_values_user_value() {
 #[test]
 fn single_positional_usage_string() {
     let m = App::new("test").arg_from_usage("[FILE] 'some file'").get_matches_from(vec!["test"]);
-    assert_eq!(m.usage(), "USAGE:\n    test [FLAGS] [FILE]");
+    assert_eq!(m.usage(), "USAGE:\n    test [FILE]");
 }
 
 #[test]
 fn single_positional_multiple_usage_string() {
     let m = App::new("test").arg_from_usage("[FILE]... 'some file'").get_matches_from(vec!["test"]);
-    assert_eq!(m.usage(), "USAGE:\n    test [FLAGS] [FILE]...");
+    assert_eq!(m.usage(), "USAGE:\n    test [FILE]...");
 }
 
 #[test]
@@ -195,7 +195,7 @@ fn multiple_positional_usage_string() {
         .arg_from_usage("[FILE] 'some file'")
         .arg_from_usage("[FILES]... 'some file'")
         .get_matches_from(vec!["test"]);
-    assert_eq!(m.usage(), "USAGE:\n    test [FLAGS] [ARGS]");
+    assert_eq!(m.usage(), "USAGE:\n    test [ARGS]");
 }
 
 #[test]
@@ -204,7 +204,7 @@ fn multiple_positional_one_required_usage_string() {
         .arg_from_usage("<FILE> 'some file'")
         .arg_from_usage("[FILES]... 'some file'")
         .get_matches_from(vec!["test", "file"]);
-    assert_eq!(m.usage(), "USAGE:\n    test [FLAGS] <FILE> [ARGS]");
+    assert_eq!(m.usage(), "USAGE:\n    test <FILE> [ARGS]");
 }
 
 #[test]
@@ -212,5 +212,5 @@ fn single_positional_required_usage_string() {
     let m = App::new("test")
         .arg_from_usage("<FILE> 'some file'")
         .get_matches_from(vec!["test", "file"]);
-    assert_eq!(m.usage(), "USAGE:\n    test [FLAGS] <FILE>");
+    assert_eq!(m.usage(), "USAGE:\n    test <FILE>");
 }
