@@ -52,7 +52,7 @@ pub struct Arg<'a, 'b>
     #[doc(hidden)]
     pub requires: Option<Vec<&'a str>>,
     #[doc(hidden)]
-    pub group: Option<&'a str>,
+    pub group: Option<Vec<&'a str>>,
     #[doc(hidden)]
     pub val_names: Option<VecMap<&'b str>>,
     #[doc(hidden)]
@@ -172,6 +172,14 @@ impl<'a, 'b> Arg<'a, 'b> {
                     for ys in v.as_vec().unwrap() {
                         if let Some(s) = ys.as_str() {
                             a = a.value_name(s);
+                        }
+                    }
+                    a
+                }
+                "groups" => {
+                    for ys in v.as_vec().unwrap() {
+                        if let Some(s) = ys.as_str() {
+                            a = a.group(s);
                         }
                     }
                     a
@@ -1612,7 +1620,51 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`ArgGroup`]: ./struct.ArgGroup.html
     pub fn group(mut self, name: &'a str) -> Self {
-        self.group = Some(name);
+        if let Some(ref mut vec) = self.requires {
+            vec.push(name);
+        } else {
+            self.group = Some(vec![name]);
+        }
+        self
+    }
+
+    /// Specifies the names of multiple [`ArgGroup`]'s the argument belongs to.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// Arg::with_name("debug")
+    ///     .long("debug")
+    ///     .groups(&["mode", "verbosity"])
+    /// # ;
+    /// ```
+    ///
+    /// Arguments can be members of multiple groups and then the group checked as if it
+    /// was one of said arguments.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("groups")
+    ///     .arg(Arg::with_name("debug")
+    ///         .long("debug")
+    ///         .groups(&["mode", "verbosity"]))
+    ///     .arg(Arg::with_name("verbose")
+    ///         .long("verbose")
+    ///         .groups(&["mode", "verbosity"]))
+    ///     .get_matches_from(vec!["posvals", "--debug"]);
+    /// assert!(m.is_present("mode"));
+    /// assert!(m.is_present("verbosity"));
+    /// ```
+    /// [`ArgGroup`]: ./struct.ArgGroup.html
+    pub fn groups(mut self, names: &[&'a str]) -> Self {
+        if let Some(ref mut vec) = self.group {
+            for s in names {
+                vec.push(s);
+            }
+        } else {
+            self.group = Some(names.into_iter().map(|s| *s).collect::<Vec<_>>());
+        }
         self
     }
 
@@ -2234,7 +2286,7 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
             min_vals: a.min_vals,
             max_vals: a.max_vals,
             val_names: a.val_names.clone(),
-            group: a.group,
+            group: a.group.clone(),
             validator: a.validator.clone(),
             overrides: a.overrides.clone(),
             settings: a.settings,
@@ -2261,7 +2313,7 @@ impl<'a, 'b> Clone for Arg<'a, 'b> {
             min_vals: self.min_vals,
             max_vals: self.max_vals,
             val_names: self.val_names.clone(),
-            group: self.group,
+            group: self.group.clone(),
             validator: self.validator.clone(),
             overrides: self.overrides.clone(),
             settings: self.settings,
