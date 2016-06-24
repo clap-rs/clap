@@ -103,9 +103,11 @@ impl<'a, 'b> Parser<'a, 'b>
                         self.opts.iter().any(|o| o.name == a.name) ||
                         self.positionals.values().any(|p| p.name == a.name)),
                       format!("Non-unique argument name: {} is already in use", a.name));
-        if let Some(grp) = a.group {
-            let ag = self.groups.entry(grp).or_insert_with(|| ArgGroup::with_name(grp));
-            ag.args.push(a.name);
+        if let Some(ref grps) = a.group {
+            for g in grps {
+              let ag = self.groups.entry(g).or_insert_with(|| ArgGroup::with_name(g));
+              ag.args.push(a.name);
+            }
         }
         if let Some(s) = a.short {
             debug_assert!(!self.short_list.contains(&s),
