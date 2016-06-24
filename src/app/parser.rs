@@ -967,10 +967,10 @@ impl<'a, 'b> Parser<'a, 'b>
         args.iter().map(|s| *s).collect()
     }
 
-    fn create_help_and_version(&mut self) {
+    pub fn create_help_and_version(&mut self) {
         debugln!("fn=create_help_and_version;");
         // name is "hclap_help" because flags are sorted by name
-        if !self.flags.iter().any(|a| a.long.is_some() && a.long.unwrap() == "help") {
+        if self.is_set(AppSettings::NeedsLongHelp) {
             debugln!("Building --help");
             if self.help_short.is_none() && !self.short_list.contains(&'h') {
                 self.help_short = Some('h');
@@ -986,7 +986,7 @@ impl<'a, 'b> Parser<'a, 'b>
             self.flags.push(arg);
         }
         if !self.settings.is_set(AppSettings::DisableVersion) &&
-           !self.flags.iter().any(|a| a.long.is_some() && a.long.unwrap() == "version") {
+            self.is_set(AppSettings::NeedsLongVersion) {
             debugln!("Building --version");
             if self.version_short.is_none() && !self.short_list.contains(&'V') {
                 self.version_short = Some('V');
@@ -1002,10 +1002,7 @@ impl<'a, 'b> Parser<'a, 'b>
             self.long_list.push("version");
             self.flags.push(arg);
         }
-        if !self.subcommands.is_empty() &&
-           !self.subcommands
-                .iter()
-                .any(|s| &s.p.meta.name[..] == "help") {
+        if !self.subcommands.is_empty() && self.is_set(AppSettings::NeedsSubcommandHelp) {
             debugln!("Building help");
             self.subcommands
                 .push(App::new("help")
