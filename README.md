@@ -38,6 +38,20 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.7.0
+
+* **Usage Strings:**  `[FLAGS]` and `[ARGS]` are no longer blindly added to usage strings, instead only when applicable
+* `arg_enum!`:  allows using more than one meta item, or things like `#[repr(C)]` with `arg_enum!`s
+* `App::print_help`: now prints the same as would have been printed by `--help` or the like
+* **Help Messages:**
+ *  prevents invoking `<cmd> help help` and displaying incorrect help message
+ *  subcommand help messages requested via `<cmd> help <sub>` now correctly match `<cmd> <sub> --help`
+* **`ArgGroup`s:**
+ *  one can now specify groups which require AT LEAST one of the args
+ *  allows adding multiple ArgGroups per Arg
+ * **Documentation:**  vastly improves `ArgGroup` docs by adding better examples
+* **Documentation:**  fixes a bunch of typos in the documentation
+
 Here's the highlights for v2.6.0
 
 * **Global Settings:** One can now set an `AppSetting` which is propogated down through child subcommands
