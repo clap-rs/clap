@@ -334,33 +334,33 @@ macro_rules! arg_enum {
             }
         });
     };
-    (#[$($m:meta),+] pub enum $e:ident { $($v:ident),+ } ) => {
+    ($(#[$($m:meta),+])+ pub enum $e:ident { $($v:ident $(=$val:expr)*),+ } ) => {
         arg_enum!(@impls
-            (#[$($m),+]
+            ($(#[$($m),+])+
             pub enum $e {
-                $($v),+
+                $($v$(=$val)*),+
             }) -> ($e, $($v),+)
         );
     };
-    (#[$($m:meta),+] enum $e:ident { $($v:ident),+ } ) => {
+    ($(#[$($m:meta),+])+ enum $e:ident { $($v:ident $(=$val:expr)*),+  } ) => {
         arg_enum!(@impls
-            (#[$($m),+]
+            ($(#[$($m),+])+
             enum $e {
-                $($v),+
+                $($v$(=$val)*),+
             }) -> ($e, $($v),+)
         );
     };
-    (pub enum $e:ident { $($v:ident),+ } ) => {
+    (pub enum $e:ident { $($v:ident $(=$val:expr)*),+ } ) => {
         arg_enum!(@impls
             (pub enum $e {
-                $($v),+
+                $($v$(=$val)*),+
             }) -> ($e, $($v),+)
         );
     };
-    (enum $e:ident { $($v:ident),+ } ) => {
+    (enum $e:ident { $($v:ident $(=$val:expr)*),+ } ) => {
         arg_enum!(@impls
             (enum $e {
-                $($v),+
+                $($v$(=$val)*),+
             }) -> ($e, $($v),+)
         );
     };
