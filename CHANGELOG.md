@@ -1,3 +1,31 @@
+<a name="v2.7.0"></a>
+## v2.7.0 (2016-06-28)
+
+
+#### Documentation
+
+*   fix typos ([43b3d40b](https://github.com/kbknapp/clap-rs/commit/43b3d40b8c38b1571da75af86b5088be96cccec2))
+* **ArgGroup:**  vastly improves ArgGroup docs by adding better examples ([9e5f4f5d](https://github.com/kbknapp/clap-rs/commit/9e5f4f5d734d630bca5535c3a0aa4fd4f9db3e39), closes [#534](https://github.com/kbknapp/clap-rs/issues/534))
+
+#### Features
+
+* **ArgGroup:**  one can now specify groups which require AT LEAST one of the args ([33689acc](https://github.com/kbknapp/clap-rs/commit/33689acc689b217a8c0ee439f1b1225590c38355), closes [#533](https://github.com/kbknapp/clap-rs/issues/533))
+
+#### Bug Fixes
+
+* **App:**  using `App::print_help` now prints the same as would have been printed by `--help` or the like ([e84cc018](https://github.com/kbknapp/clap-rs/commit/e84cc01836bbe0527e97de6db9889bd9e0fd6ba1), closes [#536](https://github.com/kbknapp/clap-rs/issues/536))
+* **Help:**
+  *  prevents invoking <cmd> help help and displaying incorrect help message ([e3d2893f](https://github.com/kbknapp/clap-rs/commit/e3d2893f377942a2d4cf3c6ff04524d0346e6fdb), closes [#538](https://github.com/kbknapp/clap-rs/issues/538))
+  *  subcommand help messages requested via <cmd> help <sub> now correctly match <cmd> <sub> --help ([08ad1cff](https://github.com/kbknapp/clap-rs/commit/08ad1cff4fec57224ea957a2891a057b323c01bc), closes [#539](https://github.com/kbknapp/clap-rs/issues/539))
+
+#### Improvements
+
+* **ArgGroup:**  Add multiple ArgGroups per Arg ([902e182f](https://github.com/kbknapp/clap-rs/commit/902e182f7a58aff11ff01e0a452abcdbdb2262aa), closes [#426](https://github.com/kbknapp/clap-rs/issues/426))
+* **Usage Strings:**  `[FLAGS]` and `[ARGS]` are no longer blindly added to usage strings ([9b2e45b1](https://github.com/kbknapp/clap-rs/commit/9b2e45b170aff567b038d8b3368880b6046c10c6), closes [#537](https://github.com/kbknapp/clap-rs/issues/537))
+* **arg_enum!:**  allows using meta items like repr(C) with arg_enum!s ([edf9b233](https://github.com/kbknapp/clap-rs/commit/edf9b2331c17a2cbcc13f961add4c55c2778e773), closes [#543](https://github.com/kbknapp/clap-rs/issues/543))
+
+
+
 <a name="v2.6.0"></a>
 ## v2.6.0 (2016-06-14)
 
