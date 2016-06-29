@@ -1,3 +1,15 @@
+<a name="v2.7.1"></a>
+### v2.7.1 (2016-06-29)
+
+
+#### Bug Fixes
+
+* **Options:**
+  *  options with multiple values and using delimiters no longer parse additional values after a trailing space ([cdc500bd](https://github.com/kbknapp/clap-rs/commit/cdc500bdde6abe238c36ade406ddafc2bafff583))
+  *  using options with multiple values and with an = no longer parse args after the trailing space as values ([290f61d0](https://github.com/kbknapp/clap-rs/commit/290f61d07177413cf082ada55526d83405f6d011))
+
+
+
 <a name="v2.7.0"></a>
 ## v2.7.0 (2016-06-28)
 
@@ -1639,6 +1651,3 @@
 #### Features
 
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/kbknapp/clap-rs/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
-
-
-
