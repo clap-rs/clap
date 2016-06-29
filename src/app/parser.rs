@@ -1211,15 +1211,18 @@ impl<'a, 'b> Parser<'a, 'b>
                  -> ClapResult<Option<&'a str>> {
         debugln!("fn=parse_opt;");
         validate_multiples!(self, opt, matcher);
+        let mut has_eq = false;
 
         debug!("Checking for val...");
         if let Some(fv) = val {
+            has_eq = fv.starts_with(&[b'=']);
             let v = fv.trim_left_matches(b'=');
             if !opt.is_set(ArgSettings::EmptyValues) && v.len_() == 0 {
                 sdebugln!("Found Empty - Error");
                 return Err(Error::empty_value(opt, &*self.create_current_usage(matcher), self.color()));
             }
             sdebugln!("Found - {:?}, len: {}", v, v.len_());
+            debugln!("{:?} contains '='...{:?}", fv, fv.starts_with(&[b'=']));
             try!(self.add_val_to_arg(opt, v, matcher));
         } else {
             sdebugln!("None");
@@ -1229,7 +1232,7 @@ impl<'a, 'b> Parser<'a, 'b>
         // Increment or create the group "args"
         self.groups_for_arg(opt.name).and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
 
-        if val.is_none() || (opt.is_set(ArgSettings::Multiple) && matcher.needs_more_vals(opt)) {
+        if val.is_none() || !has_eq && (opt.is_set(ArgSettings::Multiple) && matcher.needs_more_vals(opt)) {
             return Ok(Some(opt.name));
         }
         Ok(None)
@@ -1251,6 +1254,10 @@ impl<'a, 'b> Parser<'a, 'b>
                 } else {
                     for v in val.split(delim as u32 as u8) {
                         ret = try!(self.add_single_val_to_arg(arg, v, matcher));
+                    }
+                    // If there was a delimiter used, we're not looking for more values
+                    if val.contains_byte(delim as u32 as u8) {
+                        ret = None;
                     }
                 }
             } else {
