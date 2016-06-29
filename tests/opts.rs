@@ -173,6 +173,34 @@ fn default_values_user_value() {
 }
 
 #[test]
+fn multiple_vals_pos_arg_equals() {
+    let r = App::new("mvae")
+        .arg( Arg::from_usage("-o [opt]... 'some opt'") )
+        .arg( Arg::from_usage("[file] 'some file'") )
+        .get_matches_from_safe(vec!["", "-o=1", "some"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("o"));
+    assert_eq!(m.value_of("o").unwrap(), "1");
+    assert!(m.is_present("file"));
+    assert_eq!(m.value_of("file").unwrap(), "some");
+}
+
+#[test]
+fn multiple_vals_pos_arg_delim() {
+    let r = App::new("mvae")
+        .arg( Arg::from_usage("-o [opt]... 'some opt'") )
+        .arg( Arg::from_usage("[file] 'some file'") )
+        .get_matches_from_safe(vec!["", "-o", "1,2", "some"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("o"));
+    assert_eq!(m.values_of("o").unwrap().collect::<Vec<_>>(), &["1", "2"]);
+    assert!(m.is_present("file"));
+    assert_eq!(m.value_of("file").unwrap(), "some");
+}
+
+#[test]
 fn did_you_mean() {
     test::check_err_output(test::complex_app(), "clap-test --optio=foo",
 "error: Found argument '--optio' which wasn't expected, or isn't valid in this context
