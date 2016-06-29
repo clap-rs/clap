@@ -2,7 +2,7 @@
 mod settings;
 #[macro_use]
 mod macros;
-mod parser;
+pub mod parser;
 mod meta;
 mod help;
 
@@ -27,6 +27,7 @@ use app::parser::Parser;
 use app::help::Help;
 use errors::Error;
 use errors::Result as ClapResult;
+use shell::Shell;
 
 /// Used to create a representation of a command line program and all possible command line
 /// arguments. Application settings are set using the "builder pattern" with the
@@ -937,6 +938,13 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
     pub fn write_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
         self.p.write_version(w).map_err(From::from)
+    }
+
+
+    /// Generate a completions file for a specified shell
+    pub fn gen_completions<T: Into<OsString>, S: Into<String>>(&mut self, bin_name: S, for_shell: Shell, out_dir: T) {
+        self.p.meta.bin_name = Some(bin_name.into());
+        self.p.gen_completions(for_shell, out_dir.into());
     }
 
     /// Starts the parsing process, upon a failed parse an error will be displayed to the user and

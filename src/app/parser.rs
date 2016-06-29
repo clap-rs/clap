@@ -24,6 +24,8 @@ use fmt::{Format, ColorWhen};
 use osstringext::OsStrExt2;
 use app::meta::AppMeta;
 use args::MatchedArg;
+use shell::Shell;
+use completions::ComplGen;
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
@@ -31,15 +33,15 @@ pub struct Parser<'a, 'b>
     where 'a: 'b
 {
     required: Vec<&'b str>,
-    short_list: Vec<char>,
-    long_list: Vec<&'b str>,
+    pub short_list: Vec<char>,
+    pub long_list: Vec<&'b str>,
     blacklist: Vec<&'b str>,
     // A list of possible flags
     flags: Vec<FlagBuilder<'a, 'b>>,
     // A list of possible options
-    opts: Vec<OptBuilder<'a, 'b>>,
+    pub opts: Vec<OptBuilder<'a, 'b>>,
     // A list of positional arguments
-    positionals: VecMap<PosBuilder<'a, 'b>>,
+    pub positionals: VecMap<PosBuilder<'a, 'b>>,
     // A list of subcommands
     #[doc(hidden)]
     pub subcommands: Vec<App<'a, 'b>>,
@@ -95,6 +97,12 @@ impl<'a, 'b> Parser<'a, 'b>
         self.version_short = s.trim_left_matches(|c| c == '-')
                               .chars()
                               .nth(0);
+    }
+
+    pub fn gen_completions(&mut self, for_shell: Shell, od: OsString) {
+        self.propogate_help_version();
+        self.build_bin_names();
+        ComplGen::new(self, od).generate(for_shell)
     }
 
     // actually adds the arguments
@@ -235,6 +243,7 @@ impl<'a, 'b> Parser<'a, 'b>
     pub fn required(&self) -> Iter<&str> {
         self.required.iter()
     }
+
 
     #[cfg_attr(feature = "lints", allow(for_kv_map))]
     pub fn get_required_from(&self,
@@ -652,7 +661,7 @@ impl<'a, 'b> Parser<'a, 'b>
                                                   self.meta
                                                       .bin_name
                                                       .as_ref()
-                                                      .unwrap_or(&String::new()),
+                                                      .unwrap_or(&self.meta.name.clone()),
                                                   if self.meta.bin_name.is_some() {
                                                       " "
                                                   } else {
@@ -786,6 +795,41 @@ impl<'a, 'b> Parser<'a, 'b>
             });
         }
         Ok(())
+    }
+
+    fn propogate_help_version(&mut self) {
+        debugln!("exec=propogate_help_version;");
+        self.create_help_and_version();
+        for sc in self.subcommands.iter_mut() {
+            sc.p.propogate_help_version();
+        }
+    }
+
+    fn build_bin_names(&mut self) {
+        debugln!("exec=build_bin_names;");
+        for sc in self.subcommands.iter_mut() {
+            debug!("bin_name set...");
+            if sc.p.meta.bin_name.is_none() {
+                sdebugln!("No");
+                let bin_name = format!("{}{}{}",
+                                      self.meta
+                                          .bin_name
+                                          .as_ref()
+                                          .unwrap_or(&self.meta.name.clone()),
+                                      if self.meta.bin_name.is_some() {
+                                          " "
+                                      } else {
+                                          ""
+                                      },
+                                      &*sc.p.meta.name);
+                debugln!("Setting bin_name of {} to {}", self.meta.name, bin_name);
+                sc.p.meta.bin_name = Some(bin_name);
+            } else {
+                sdebugln!("yes ({:?})", sc.p.meta.bin_name);
+            }
+            debugln!("Calling build_bin_names from...{}", sc.p.meta.name);
+            sc.p.build_bin_names();
+        }
     }
 
     fn parse_subcommand<I, T>(&mut self,
@@ -1258,7 +1302,7 @@ impl<'a, 'b> Parser<'a, 'b>
                     // If there was a delimiter used, we're not looking for more values
                     if val.contains_byte(delim as u32 as u8) || arg.is_set(ArgSettings::RequireDelimiter) {
                         ret = None;
-                    } 
+                    }
                 }
             } else {
                 ret = try!(self.add_single_val_to_arg(arg, val, matcher));
