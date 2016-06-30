@@ -1919,52 +1919,78 @@ impl<'a, 'b> Arg<'a, 'b> {
         }
     }
 
-    /// Specifies whether or not an argument should allow grouping of multiple values via a
-    /// delimiter. I.e. should `--option=val1,val2,val3` be parsed as three values (`val1`, `val2`,
-    /// and `val3`) or as a single value (`val1,val2,val3`). Defaults to using `,` (comma) as the
-    /// value delimiter for all arguments that accept values (options and positional arguments)
+    /// Specifies that *multiple values* may only be set using the delimiter. This means if an
+    /// if an option is encountered, and no delimiter is found, it automatically assumed that no
+    /// additional values for that option follow. This is unlike the default, where it is generally
+    /// assumed that more values will follow regardless of whether or not a delimiter is used.
     ///
-    /// **NOTE:** The default is `true`. Setting the value to `true` will reset any previous use of
-    /// [`Arg::value_delimiter`] back to the default of `,` (comma).
+    /// **NOTE:** The default is `false`.
+    ///
+    /// **NOTE:** It's a good idea to inform the user that use of a delimiter is required, either
+    /// through help text or other means.
     ///
     /// # Examples
     ///
-    /// The following example shows the default behavior.
+    /// These examples demonstrate what happens when `require_delimiter(true)` is used. Notice
+    /// everything works in this first example, as we use a delimiter, as expected.
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let delims = App::new("delims")
-    ///     .arg(Arg::with_name("option")
-    ///         .long("option")
-    ///         .takes_value(true))
+    /// let delims = App::new("reqdelims")
+    ///     .arg(Arg::with_name("opt")
+    ///         .short("o")
+    ///         .takes_value(true)
+    ///         .multiple(true)
+    ///         .require_delimiter(true))
+    ///     // Simulate "$ reqdelims -o val1,val2,val3"
     ///     .get_matches_from(vec![
-    ///         "delims",
-    ///         "--option=val1,val2,val3",
+    ///         "reqdelims", "-o", "val1,val2,val3",
     ///     ]);
     ///
-    /// assert!(delims.is_present("option"));
-    /// assert_eq!(delims.occurrences_of("option"), 1);
-    /// assert_eq!(delims.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
+    /// assert!(delims.is_present("opt"));
+    /// assert_eq!(delims.values_of("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
-    /// The next example shows the difference when turning delimiters off.
+    /// In this next example, we will *not* use a delimiter. Notice it's now an error.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("reqdelims")
+    ///     .arg(Arg::with_name("opt")
+    ///         .short("o")
+    ///         .takes_value(true)
+    ///         .multiple(true)
+    ///         .require_delimiter(true))
+    ///     // Simulate "$ reqdelims -o val1 val2 val3"
+    ///     .get_matches_from_safe(vec![
+    ///         "reqdelims", "-o", "val1", "val2", "val3",
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// let err = res.unwrap_err();
+    /// assert_eq!(err.kind, ErrorKind::UnknownArgument);
+    /// ```
+    /// What's happening is `-o` is getting `val1`, and because delimiters are required yet none
+    /// were present, it stops parsing `-o`. At this point it reaches `val2` and because no
+    /// positional arguments have been defined, it's an error of an unexpected argument.
+    ///
+    /// In this final example, we contrast the above with `clap`'s default behavior where the above
+    /// is *not* an error.
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let nodelims = App::new("nodelims")
-    ///     .arg(Arg::with_name("option")
-    ///         .long("option")
-    ///         .use_delimiter(false)
-    ///         .takes_value(true))
+    /// let delims = App::new("reqdelims")
+    ///     .arg(Arg::with_name("opt")
+    ///         .short("o")
+    ///         .takes_value(true)
+    ///         .multiple(true))
+    ///     // Simulate "$ reqdelims -o val1 val2 val3"
     ///     .get_matches_from(vec![
-    ///         "nodelims",
-    ///         "--option=val1,val2,val3",
+    ///         "reqdelims", "-o", "val1", "val2", "val3",
     ///     ]);
     ///
-    /// assert!(nodelims.is_present("option"));
-    /// assert_eq!(nodelims.occurrences_of("option"), 1);
-    /// assert_eq!(nodelims.value_of("option").unwrap(), "val1,val2,val3");
+    /// assert!(delims.is_present("opt"));
+    /// assert_eq!(delims.values_of("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
-    /// [`Arg::value_delimiter`]: ./struct.Arg.html#method.value_delimiter
     pub fn require_delimiter(mut self, d: bool) -> Self {
         if d {
             self.setb(ArgSettings::UseValueDelimiter);
