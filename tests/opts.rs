@@ -3,7 +3,7 @@ extern crate regex;
 
 include!("../clap-test.rs");
 
-use clap::{App, Arg};
+use clap::{App, Arg, ErrorKind};
 
 #[test]
 fn stdin_char() {
@@ -190,6 +190,31 @@ fn multiple_vals_pos_arg_equals() {
 fn multiple_vals_pos_arg_delim() {
     let r = App::new("mvae")
         .arg( Arg::from_usage("-o [opt]... 'some opt'") )
+        .arg( Arg::from_usage("[file] 'some file'") )
+        .get_matches_from_safe(vec!["", "-o", "1,2", "some"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("o"));
+    assert_eq!(m.values_of("o").unwrap().collect::<Vec<_>>(), &["1", "2"]);
+    assert!(m.is_present("file"));
+    assert_eq!(m.value_of("file").unwrap(), "some");
+}
+
+#[test]
+fn require_delims_no_delim() {
+    let r = App::new("mvae")
+        .arg( Arg::from_usage("-o [opt]... 'some opt'").require_delimiter(true) )
+        .arg( Arg::from_usage("[file] 'some file'") )
+        .get_matches_from_safe(vec!["mvae", "-o", "1", "2", "some"]);
+    assert!(r.is_err());
+    let err = r.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::UnknownArgument);
+}
+
+#[test]
+fn require_delims() {
+    let r = App::new("mvae")
+        .arg( Arg::from_usage("-o [opt]... 'some opt'").require_delimiter(true) )
         .arg( Arg::from_usage("[file] 'some file'") )
         .get_matches_from_safe(vec!["", "-o", "1,2", "some"]);
     assert!(r.is_ok());
