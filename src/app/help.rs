@@ -12,7 +12,14 @@ use app::{App, AppSettings};
 use app::parser::Parser;
 use fmt::{Format, Colorizer};
 
-use term;
+#[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
+use term_size;
+#[cfg(any(not(feature = "wrap_help"), target_os = "windows"))]
+mod term_size {
+    pub fn dimensions() -> Option<(usize, usize)> {
+        None
+    }
+}
 
 #[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
 use unicode_width::UnicodeWidthStr;
@@ -96,7 +103,7 @@ impl<'a> Help<'a> {
             hide_pv: hide_pv,
             term_w: match term_w {
                 Some(width) => width,
-                None        => term::dimensions().map(|(w, _)| w).unwrap_or(120),
+                None        => term_size::dimensions().map(|(w, _)| w).unwrap_or(120),
             },
             color: color,
             cizer: cizer,
