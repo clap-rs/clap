@@ -20,6 +20,7 @@ use libc::{STDOUT_FILENO, c_int, c_ulong, c_ushort};
 
 /// The number of rows and columns of a terminal.
 #[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
+#[repr(C)]
 struct Winsize {
     ws_row: c_ushort,
     ws_col: c_ushort,
