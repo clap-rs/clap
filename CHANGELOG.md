@@ -1,3 +1,21 @@
+<a name="v2.8.0"></a>
+## v2.8.0 (2016-06-30)
+
+
+#### Features
+
+* **Arg:**  adds new setting `Arg::require_delimiter` which requires val delimiter to parse multiple values ([920b5595](https://github.com/kbknapp/clap-rs/commit/920b5595ed72abfb501ce054ab536067d8df2a66))
+
+#### Bug Fixes
+
+*   Declare term::Winsize as repr(C) ([5d663d90](https://github.com/kbknapp/clap-rs/commit/5d663d905c9829ce6e7a164f1f0896cdd70236dd))
+
+#### Documentation
+
+* **Arg:**  adds docs for ([49af4e38](https://github.com/kbknapp/clap-rs/commit/49af4e38a5dae2ab0a7fc3b4147e2c053d532484))
+
+
+
 <a name="v2.7.1"></a>
 ### v2.7.1 (2016-06-29)
 
