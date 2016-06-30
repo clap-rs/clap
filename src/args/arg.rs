@@ -1919,6 +1919,62 @@ impl<'a, 'b> Arg<'a, 'b> {
         }
     }
 
+    /// Specifies whether or not an argument should allow grouping of multiple values via a
+    /// delimiter. I.e. should `--option=val1,val2,val3` be parsed as three values (`val1`, `val2`,
+    /// and `val3`) or as a single value (`val1,val2,val3`). Defaults to using `,` (comma) as the
+    /// value delimiter for all arguments that accept values (options and positional arguments)
+    ///
+    /// **NOTE:** The default is `true`. Setting the value to `true` will reset any previous use of
+    /// [`Arg::value_delimiter`] back to the default of `,` (comma).
+    ///
+    /// # Examples
+    ///
+    /// The following example shows the default behavior.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let delims = App::new("delims")
+    ///     .arg(Arg::with_name("option")
+    ///         .long("option")
+    ///         .takes_value(true))
+    ///     .get_matches_from(vec![
+    ///         "delims",
+    ///         "--option=val1,val2,val3",
+    ///     ]);
+    ///
+    /// assert!(delims.is_present("option"));
+    /// assert_eq!(delims.occurrences_of("option"), 1);
+    /// assert_eq!(delims.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
+    /// ```
+    /// The next example shows the difference when turning delimiters off.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let nodelims = App::new("nodelims")
+    ///     .arg(Arg::with_name("option")
+    ///         .long("option")
+    ///         .use_delimiter(false)
+    ///         .takes_value(true))
+    ///     .get_matches_from(vec![
+    ///         "nodelims",
+    ///         "--option=val1,val2,val3",
+    ///     ]);
+    ///
+    /// assert!(nodelims.is_present("option"));
+    /// assert_eq!(nodelims.occurrences_of("option"), 1);
+    /// assert_eq!(nodelims.value_of("option").unwrap(), "val1,val2,val3");
+    /// ```
+    /// [`Arg::value_delimiter`]: ./struct.Arg.html#method.value_delimiter
+    pub fn require_delimiter(mut self, d: bool) -> Self {
+        if d {
+            self.setb(ArgSettings::UseValueDelimiter);
+            self.set(ArgSettings::RequireDelimiter)
+        } else {
+            self.unsetb(ArgSettings::UseValueDelimiter);
+            self.unset(ArgSettings::RequireDelimiter)
+        }
+    }
+
     /// Specifies the separator to use when values are clumped together, defaults to `,` (comma).
     ///
     /// **NOTE:** implicitly sets [`Arg::use_delimiter(true)`]

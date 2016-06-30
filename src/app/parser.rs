@@ -1256,9 +1256,9 @@ impl<'a, 'b> Parser<'a, 'b>
                         ret = try!(self.add_single_val_to_arg(arg, v, matcher));
                     }
                     // If there was a delimiter used, we're not looking for more values
-                    if val.contains_byte(delim as u32 as u8) {
+                    if val.contains_byte(delim as u32 as u8) || arg.is_set(ArgSettings::RequireDelimiter) {
                         ret = None;
-                    }
+                    } 
                 }
             } else {
                 ret = try!(self.add_single_val_to_arg(arg, val, matcher));
