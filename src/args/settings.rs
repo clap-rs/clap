@@ -3,15 +3,16 @@ use std::ascii::AsciiExt;
 
 bitflags! {
     flags Flags: u16 {
-        const REQUIRED       = 0b000000001,
-        const MULTIPLE       = 0b000000010,
-        const EMPTY_VALS     = 0b000000100,
-        const GLOBAL         = 0b000001000,
-        const HIDDEN         = 0b000010000,
-        const TAKES_VAL      = 0b000100000,
-        const USE_DELIM      = 0b001000000,
-        const NEXT_LINE_HELP = 0b010000000,
-        const R_UNLESS_ALL   = 0b100000000,
+        const REQUIRED       = 0b0000000001,
+        const MULTIPLE       = 0b0000000010,
+        const EMPTY_VALS     = 0b0000000100,
+        const GLOBAL         = 0b0000001000,
+        const HIDDEN         = 0b0000010000,
+        const TAKES_VAL      = 0b0000100000,
+        const USE_DELIM      = 0b0001000000,
+        const NEXT_LINE_HELP = 0b0010000000,
+        const R_UNLESS_ALL   = 0b0100000000,
+        const REQ_DELIM      = 0b1000000000,
     }
 }
 
@@ -33,7 +34,8 @@ impl ArgFlags {
         TakesValue => TAKES_VAL,
         UseValueDelimiter => USE_DELIM,
         NextLineHelp => NEXT_LINE_HELP,
-        RequiredUnlessAll => R_UNLESS_ALL
+        RequiredUnlessAll => R_UNLESS_ALL,
+        RequireDelimiter => REQ_DELIM
     }
 }
 
@@ -67,6 +69,8 @@ pub enum ArgSettings {
     UseValueDelimiter,
     /// Prints the help text on the line after the argument
     NextLineHelp,
+    /// Requires the use of a value delimiter for all multiple values
+    RequireDelimiter,
     #[doc(hidden)]
     RequiredUnlessAll,
 }
@@ -84,6 +88,7 @@ impl FromStr for ArgSettings {
             "usevaluedelimiter" => Ok(ArgSettings::UseValueDelimiter),
             "nextlinehelp" => Ok(ArgSettings::NextLineHelp),
             "requiredunlessall" => Ok(ArgSettings::RequiredUnlessAll),
+            "requiredelimiter" => Ok(ArgSettings::RequireDelimiter),
             _ => Err("unknown ArgSetting, cannot convert from str".to_owned()),
         }
     }

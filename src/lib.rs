@@ -414,6 +414,8 @@ extern crate unicode_width;
 #[macro_use]
 extern crate bitflags;
 extern crate vec_map;
+#[cfg(feature = "wrap_help")]
+extern crate term_size;
 
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;
@@ -431,7 +433,6 @@ mod fmt;
 mod suggestions;
 mod errors;
 mod osstringext;
-mod term;
 mod strext;
 
 const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider filing a bug \

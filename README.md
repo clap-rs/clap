@@ -38,6 +38,13 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.8.0
+
+* **Arg:**  adds new optional setting `Arg::require_delimiter` which requires val delimiter to parse multiple values
+* The terminal sizing portion has been factored out into a separate crate, [term_size](https://crates.io/crates/term_size)
+* Minor bug fixes
+
+
 Here's the highlights for v2.7.1
 
 * **Options:**
