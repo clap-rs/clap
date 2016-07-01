@@ -586,7 +586,9 @@ impl<'a, 'b> Parser<'a, 'b>
                     }
 
                     needs_val_of = try!(self.parse_long_arg(matcher, &arg_os));
-                    continue;
+                    if !(needs_val_of.is_none() && self.is_set(AppSettings::AllowLeadingHyphen)) {
+                        continue;
+                    }
                 } else if arg_os.starts_with(b"-") && arg_os.len_() != 1 {
                     needs_val_of = try!(self.parse_short_arg(matcher, &arg_os));
                     if !(needs_val_of.is_none() && self.is_set(AppSettings::AllowLeadingHyphen)) {
@@ -1175,6 +1177,8 @@ impl<'a, 'b> Parser<'a, 'b>
             // Handle conflicts, requirements, etc.
             arg_post_processing!(self, flag, matcher);
 
+            return Ok(None);
+        } else if self.is_set(AppSettings::AllowLeadingHyphen) {
             return Ok(None);
         }
 
