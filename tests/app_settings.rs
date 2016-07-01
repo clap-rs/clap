@@ -234,3 +234,16 @@ fn delim_values_trailingvararg() {
     assert!(m.is_present("opt"));
     assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["test", "--foo", "-Wl", "-bar"]);
 }
+
+#[test]
+fn leading_double_hyphen_trailingvararg() {
+    let m = App::new("positional")
+        .setting(AppSettings::TrailingVarArg)
+        .setting(AppSettings::AllowLeadingHyphen)
+        .arg(
+            Arg::from_usage("[opt]... 'some pos'"),
+        )
+        .get_matches_from(vec!["", "--foo", "-Wl", "bar"]);
+    assert!(m.is_present("opt"));
+    assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["--foo", "-Wl", "bar"]);
+}

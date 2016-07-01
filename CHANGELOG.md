@@ -16,6 +16,10 @@
   *  completions now continue completing even after first completion ([18fc2e5b](https://github.com/kbknapp/clap-rs/commit/18fc2e5b5af63bf54a94b72cec5e1223d49f4806))
   *  allows matching on possible values in options ([89cc2026](https://github.com/kbknapp/clap-rs/commit/89cc2026ba9ac69cf44c5254360bbf99236d4f89), closes [#557](https://github.com/kbknapp/clap-rs/issues/557))
 
+#### Bug Fixes
+
+* **AllowLeadingHyphen:**  fixes an issue where  isn't ignored like it should be with this setting ([96c24c9a](https://github.com/kbknapp/clap-rs/commit/96c24c9a8fa1f85e06138d3cdd133e51659e19d2), closes [#558](https://github.com/kbknapp/clap-rs/issues/558))
+
 <a name="v2.8.0"></a>
 ## v2.8.0 (2016-06-30)
 
