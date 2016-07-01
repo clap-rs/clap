@@ -41,11 +41,11 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 Here's the highlights for v2.9.0
 
-* **Completions:**  one can now generate a bash completions script at compile time!
+* **Completions:**  one can now [generate a bash completions](http://kbknapp.github.io/clap-rs/clap/struct.App.html#method.gen_completions) script at compile time! These completions work with options using [possible values](http://kbknapp.github.io/clap-rs/clap/struct.Arg.html#method.possible_values), [subcommand aliases](http://kbknapp.github.io/clap-rs/clap/struct.App.html#method.aliases), and even multiple levels of subcommands
 
 Here's the highlights for v2.8.0
 
-* **Arg:**  adds new optional setting `Arg::require_delimiter` which requires val delimiter to parse multiple values
+* **Arg:**  adds new optional setting [`Arg::require_delimiter`](http://kbknapp.github.io/clap-rs/clap/struct.Arg.html#method.require_delimiter) which requires val delimiter to parse multiple values
 * The terminal sizing portion has been factored out into a separate crate, [term_size](https://crates.io/crates/term_size)
 * Minor bug fixes
 
@@ -199,6 +199,8 @@ Below are a few of the features which `clap` supports, full descriptions and usa
   - Can optionally be fully, or partially overridden if you want a custom help, version, or usage
 * **Auto-generated bash completion scripts at compile time**
   - Even works through many multiple levels of subcommands
+  - Works with options which only accept certain values
+  - Works with subcommand aliases
 * **Flags / Switches** (i.e. bool fields)
   - Both short and long versions supported (i.e. `-f` and `--flag` respectively)
   - Supports combining short versions (i.e. `-fBgoZ` is the same as `-f -B -g -o -Z`)

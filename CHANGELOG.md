@@ -4,12 +4,17 @@
 
 #### Documentation
 
-* **Completions:**  adds documentation for completion scripts ([c6c519e4](https://github.com/kbknapp/clap-rs/commit/c6c519e40efd6c4533a9ef5efe8e74fd150391b7))
+* **Completions:**
+  *  fixes some errors in the completion docs ([9b359bf0](https://github.com/kbknapp/clap-rs/commit/9b359bf06255d3dad8f489308044b60a9d1e6a87))
+  *  adds documentation for completion scripts ([c6c519e4](https://github.com/kbknapp/clap-rs/commit/c6c519e40efd6c4533a9ef5efe8e74fd150391b7))
 
 #### Features
 
-* **Completions:**  one can now generate a bash completions script at compile time! ([e75b6c7b](https://github.com/kbknapp/clap-rs/commit/e75b6c7b75f729afb9eb1d2a2faf61dca7674634), closes [#376](https://github.com/kbknapp/clap-rs/issues/376))
-
+* **Completions:**
+  *  one can now generate a bash completions script at compile time! ([e75b6c7b](https://github.com/kbknapp/clap-rs/commit/e75b6c7b75f729afb9eb1d2a2faf61dca7674634), closes [#376](https://github.com/kbknapp/clap-rs/issues/376))
+  *  completions now include aliases to subcommands, including all subcommand options ([0ab9f840](https://github.com/kbknapp/clap-rs/commit/0ab9f84052a8cf65b5551657f46c0c270841e634), closes [#556](https://github.com/kbknapp/clap-rs/issues/556))
+  *  completions now continue completing even after first completion ([18fc2e5b](https://github.com/kbknapp/clap-rs/commit/18fc2e5b5af63bf54a94b72cec5e1223d49f4806))
+  *  allows matching on possible values in options ([89cc2026](https://github.com/kbknapp/clap-rs/commit/89cc2026ba9ac69cf44c5254360bbf99236d4f89), closes [#557](https://github.com/kbknapp/clap-rs/issues/557))
 
 <a name="v2.8.0"></a>
 ## v2.8.0 (2016-06-30)

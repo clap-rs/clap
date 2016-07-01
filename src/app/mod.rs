@@ -960,7 +960,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// use clap::{App, Arg, SubCommand};
     ///
-    /// fn build_cli() -> App<'static, 'static> {
+    /// pub fn build_cli() -> App<'static, 'static> {
     ///     App::new("compl")
     ///         .about("Tests completions")
     ///         .arg(Arg::with_name("file")
@@ -980,7 +980,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```ignore
     /// src/main.rs
     ///
-    /// use cli;
+    /// mod cli;
     ///
     /// fn main() {
     ///     let m = cli::build_cli().get_matches();
