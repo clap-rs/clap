@@ -172,13 +172,15 @@ complete -F _{name} {name}
             if let Some(l) = o.long {
                 opts = format!("{}
                 --{})
-                    COMPREPLY=(\"{}\")
+                    COMPREPLY=({})
+                    return 0
                     ;;", opts, l, vals_for(o));
             }
             if let Some(s) = o.short {
                 opts = format!("{}
                     -{})
-                    COMPREPLY=(\"{}\")
+                    COMPREPLY=({})
+                    return 0
                     ;;", opts, s, vals_for(o));
             }
         }
@@ -224,7 +226,11 @@ pub fn get_all_subcommand_paths(p: &Parser, first: bool) -> Vec<String> {
 fn vals_for(o: &OptBuilder) -> String {
     use args::AnyArg;
     let mut ret = String::new();
-    if let Some(ref vec) = o.val_names() {
+    let mut needs_quotes = true;
+    if let Some(ref vals) = o.possible_vals() {
+        needs_quotes = false;
+        ret = format!("$(compgen -W \"{}\" -- ${{cur}})", vals.join(" "));
+    } else if let Some(ref vec) = o.val_names() {
         let mut it = vec.iter().peekable();
         while let Some((_, val)) = it.next() {
             ret = format!("{}<{}>{}", ret, val,
@@ -256,6 +262,9 @@ fn vals_for(o: &OptBuilder) -> String {
         if o.is_set(ArgSettings::Multiple) {
             ret = format!("{}...", ret);
         }
+    }
+    if needs_quotes {
+        ret = format!("\"{}\"", ret);
     }
     ret
 }
