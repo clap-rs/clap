@@ -78,6 +78,8 @@ impl<'a, 'b> ComplGen<'a, 'b> {
                     COMPREPLY=()
                     ;;
             esac
+            COMPREPLY=( $(compgen -W \"${{opts}}\" -- ${{cur}}) )
+            return 0
             ;;
         {subcmd_details}
     esac
@@ -133,6 +135,8 @@ complete -F _{name} {name}
                     COMPREPLY=()
                     ;;
             esac
+            COMPREPLY=( $(compgen -W \"${{opts}}\" -- ${{cur}}) )
+            return 0
             ;;",
                 subcmd_dets,
                 subcmd=sc.replace("-", "_"),
