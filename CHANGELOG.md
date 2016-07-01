@@ -1,3 +1,16 @@
+<a name="v2.9.0"></a>
+## v2.9.0 (2016-07-01)
+
+
+#### Documentation
+
+* **Completions:**  adds documentation for completion scripts ([c6c519e4](https://github.com/kbknapp/clap-rs/commit/c6c519e40efd6c4533a9ef5efe8e74fd150391b7))
+
+#### Features
+
+* **Completions:**  one can now generate a bash completions script at compile time! ([e75b6c7b](https://github.com/kbknapp/clap-rs/commit/e75b6c7b75f729afb9eb1d2a2faf61dca7674634), closes [#376](https://github.com/kbknapp/clap-rs/issues/376))
+
+
 <a name="v2.8.0"></a>
 ## v2.8.0 (2016-06-30)
 

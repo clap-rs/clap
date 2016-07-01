@@ -955,7 +955,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// First, it helps if we separate out our `App` definition into a seperate file. Whether you
     /// do this as a function, or bare App definition is a matter of personal preference.
     ///
-    /// ```no_run
+    /// ```ignore
     /// // src/cli.rs
     ///
     /// use clap::{App, Arg, SubCommand};
@@ -977,7 +977,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// In our regular code, we can simply call this `build_cli()` function, then call
     /// `get_mathces()`, or any of the other normal methods directly after. For example:
     ///
-    /// ```no_run
+    /// ```ignore
     /// src/main.rs
     ///
     /// use cli;
@@ -999,7 +999,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// Next, we place a `build.rs` in our project root.
     ///
-    /// ```no_run
+    /// ```ignore
     /// extern crate clap;
     ///
     /// use clap::Shell;
