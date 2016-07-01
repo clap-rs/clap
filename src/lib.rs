@@ -423,6 +423,7 @@ pub use args::{Arg, ArgGroup, ArgMatches, ArgSettings, SubCommand, Values, OsVal
 pub use app::{App, AppSettings};
 pub use fmt::Format;
 pub use errors::{Error, ErrorKind, Result};
+pub use shell::Shell;
 
 #[macro_use]
 mod macros;
@@ -434,7 +435,17 @@ mod suggestions;
 mod errors;
 mod osstringext;
 mod strext;
+mod completions;
 
 const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider filing a bug \
                                           report at https://github.com/kbknapp/clap-rs/issues";
 const INVALID_UTF8: &'static str = "unexpected invalid UTF-8 code point";
+
+mod shell {
+    /// Describes which shell to produce a completions file for
+    #[derive(Debug, Copy, Clone)]
+    pub enum Shell {
+        /// Generates a .sh completion file for the Bourne Again SHell (BASH)
+        Bash
+    }
+}

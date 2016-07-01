@@ -2,7 +2,7 @@
 mod settings;
 #[macro_use]
 mod macros;
-mod parser;
+pub mod parser;
 mod meta;
 mod help;
 
@@ -27,6 +27,7 @@ use app::parser::Parser;
 use app::help::Help;
 use errors::Error;
 use errors::Result as ClapResult;
+use shell::Shell;
 
 /// Used to create a representation of a command line program and all possible command line
 /// arguments. Application settings are set using the "builder pattern" with the
@@ -937,6 +938,87 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
     pub fn write_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
         self.p.write_version(w).map_err(From::from)
+    }
+
+
+    /// Generate a completions file for a specified shell at compile time.
+    ///
+    /// **NOTE:** to generate the this file at compile time you must use a `build.rs` "Build Script"
+    ///
+    /// # Examples
+    ///
+    /// The following example generates a bash completion script via a `build.rs` script. In this
+    /// simple example, we'll demo a very small application with only a single subcommand and two
+    /// args. Real applications could be many multiple levels deep in subcommands, and have tens or
+    /// potentiall hundreds of arguments.
+    ///
+    /// First, it helps if we separate out our `App` definition into a seperate file. Whether you
+    /// do this as a function, or bare App definition is a matter of personal preference.
+    ///
+    /// ```ignore
+    /// // src/cli.rs
+    ///
+    /// use clap::{App, Arg, SubCommand};
+    ///
+    /// fn build_cli() -> App<'static, 'static> {
+    ///     App::new("compl")
+    ///         .about("Tests completions")
+    ///         .arg(Arg::with_name("file")
+    ///             .help("some input file"))
+    ///         .subcommand(SubCommand::with_name("test")
+    ///             .about("tests things")
+    ///             .arg(Arg::with_name("case")
+    ///                 .long("case")
+    ///                 .takes_value(true)
+    ///                 .help("the case to test")))
+    /// }
+    /// ```
+    ///
+    /// In our regular code, we can simply call this `build_cli()` function, then call
+    /// `get_mathces()`, or any of the other normal methods directly after. For example:
+    ///
+    /// ```ignore
+    /// src/main.rs
+    ///
+    /// use cli;
+    ///
+    /// fn main() {
+    ///     let m = cli::build_cli().get_matches();
+    ///
+    ///     // normal logic continues...
+    /// }
+    /// ```
+    /// Next, we set up our `Cargo.toml` to use a `build.rs` build script.
+    /// ```ignore
+    /// # Cargo.toml
+    /// build = "build.rs"
+    ///
+    /// [build-dependencies]
+    /// clap = "2.9"
+    /// ```
+    ///
+    /// Next, we place a `build.rs` in our project root.
+    ///
+    /// ```ignore
+    /// extern crate clap;
+    ///
+    /// use clap::Shell;
+    ///
+    /// include!("src/cli.rs");
+    ///
+    /// fn main() {
+    ///     let mut app = build_cli();
+    ///     app.gen_completions("myapp",          // We need to specify the bin name manually
+    ///                         Shell::Bash,      // Then say which shell to build completions for
+    ///                         env!("OUT_DIR")); // Then say where write the completions to
+    /// }
+    /// ```
+    /// Now, once we combile there will be a `bash.sh` file in the directory. Assuming we compiled
+    /// with debug mode, it would be somewhere similar to
+    /// `<project>/target/debug/build/myapp-<hash>/out/bash.sh`
+    pub fn gen_completions<T: Into<OsString>, S: Into<String>>(&mut self, bin_name: S, for_shell: Shell, out_dir: T) {
+        self.p.meta.bin_name = Some(bin_name.into());
+        self.p.gen_completions(for_shell, out_dir.into());
     }
 
     /// Starts the parsing process, upon a failed parse an error will be displayed to the user and

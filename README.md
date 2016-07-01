@@ -1,4 +1,5 @@
-# clap
+clap
+====
 
 [![Crates.io](https://img.shields.io/crates/v/clap.svg)](https://crates.io/crates/clap) [![Crates.io](https://img.shields.io/crates/d/clap.svg)](https://crates.io/crates/clap) [![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/kbknapp/clap-rs/blob/master/LICENSE-MIT) [![Coverage Status](https://coveralls.io/repos/kbknapp/clap-rs/badge.svg?branch=master&service=github)](https://coveralls.io/github/kbknapp/clap-rs?branch=master) [![Join the chat at https://gitter.im/kbknapp/clap-rs](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kbknapp/clap-rs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -37,6 +38,10 @@ Table of Contents
 Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
+
+Here's the highlights for v2.9.0
+
+* **Completions:**  one can now generate a bash completions script at compile time!
 
 Here's the highlights for v2.8.0
 
@@ -192,6 +197,8 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 
 * **Auto-generated Help, Version, and Usage information**
   - Can optionally be fully, or partially overridden if you want a custom help, version, or usage
+* **Auto-generated bash completion scripts at compile time**
+  - Even works through many multiple levels of subcommands
 * **Flags / Switches** (i.e. bool fields)
   - Both short and long versions supported (i.e. `-f` and `--flag` respectively)
   - Supports combining short versions (i.e. `-fBgoZ` is the same as `-f -B -g -o -Z`)
@@ -337,37 +344,6 @@ fn main() {
                           .get_matches();
 
     // Same as previous example...
-}
-```
-
-The following combines the previous two examples by using the less verbose `from_usage` methods and the performance of the Builder Pattern.
-
-```rust
-// (Full example with detailed comments in examples/01c_quick_example.rs)
-// Must be compiled with `--features unstable`
-//
-// This example demonstrates clap's "usage strings" method of creating arguments which is less
-// less verbose
-#[macro_use]
-extern crate clap;
-
-fn main() {
-    let matches = clap_app!(myapp =>
-        (version: "1.0")
-        (author: "Kevin K. <kbknapp@gmail.com>")
-        (about: "Does awesome things")
-        (@arg config: -c --config +takes_value "Sets a custom config file")
-        (@arg INPUT: +required "Sets the input file to use")
-        (@arg verbose: -v ... "Sets the level of verbosity")
-        (@subcommand test =>
-            (about: "controls testing features")
-            (version: "1.3")
-            (author: "Someone E. <someone_else@other.com>")
-            (@arg verbose: -d --debug "Print debug information")
-        )
-    ).get_matches();
-
-// Same as previous examples...
 }
 ```
 
