@@ -1015,7 +1015,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// Now, once we combile there will be a `bash.sh` file in the directory. Assuming we compiled
     /// with debug mode, it would be somewhere similar to
-    /// `<project>/target/debug/build/myapp-<hash>/out/bash.sh`
+    /// `<project>/target/debug/build/myapp-<hash>/out/myapp_bash.sh`
     pub fn gen_completions<T: Into<OsString>, S: Into<String>>(&mut self, bin_name: S, for_shell: Shell, out_dir: T) {
         self.p.meta.bin_name = Some(bin_name.into());
         self.p.gen_completions(for_shell, out_dir.into());
