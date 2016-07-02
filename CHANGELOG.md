@@ -1,3 +1,12 @@
+<a name="2.9.1"></a>
+### 2.9.1 (2016-07-02)
+
+
+#### Improvements
+
+* **Completions:**  allows multiple completions to be built by namespacing with bin name ([57484b2d](https://github.com/kbknapp/clap-rs/commit/57484b2daeaac01c1026e8c84efc8bf099e0eb31))
+
+
 <a name="v2.9.0"></a>
 ## v2.9.0 (2016-07-01)
 
