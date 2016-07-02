@@ -39,7 +39,7 @@ impl<'a, 'b> ComplGen<'a, 'b> {
         use std::error::Error;
         let out_dir = PathBuf::from(&self.out_dir);
 
-        let mut file = match File::create(out_dir.join("bash.sh")) {
+        let mut file = match File::create(out_dir.join(format!("{}_bash.sh", &*self.p.meta.bin_name.as_ref().unwrap()))) {
             Err(why) => panic!("couldn't create bash completion file: {}",
                 why.description()),
             Ok(file) => file,
