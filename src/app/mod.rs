@@ -988,7 +988,9 @@ impl<'a, 'b> App<'a, 'b> {
     ///     // normal logic continues...
     /// }
     /// ```
+    ///
     /// Next, we set up our `Cargo.toml` to use a `build.rs` build script.
+    ///
     /// ```ignore
     /// # Cargo.toml
     /// build = "build.rs"
