@@ -39,6 +39,12 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.9.2
+
+
+* fixes bug where --help and --version short weren't added to the completion list
+* improves completions allowing multiple bins to have seperate completion files
+
 Here's the highlights for v2.9.0
 
 * **Completions:**  one can now [generate a bash completions](http://kbknapp.github.io/clap-rs/clap/struct.App.html#method.gen_completions) script at compile time! These completions work with options using [possible values](http://kbknapp.github.io/clap-rs/clap/struct.Arg.html#method.possible_values), [subcommand aliases](http://kbknapp.github.io/clap-rs/clap/struct.App.html#method.aliases), and even multiple levels of subcommands

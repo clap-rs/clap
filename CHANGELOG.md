@@ -1,3 +1,17 @@
+<a name="2.9.2"></a>
+### 2.9.2 (2016-07-03)
+
+
+#### Documentation
+
+* **Completions:**  fixes the formatting of the Cargo.toml excerpt in the completions example ([722f2607](https://github.com/kbknapp/clap-rs/commit/722f2607beaef56b6a0e433db5fd09492d9f028c))
+
+#### Bug Fixes
+
+* **Completions:**  fixes bug where --help and --version short weren't added to the completion list ([e9f2438e](https://github.com/kbknapp/clap-rs/commit/e9f2438e2ce99af0ae570a2eaf541fc7f55b771b), closes [#536](https://github.com/kbknapp/clap-rs/issues/536))
+
+
+
 <a name="2.9.1"></a>
 ### 2.9.1 (2016-07-02)
 
