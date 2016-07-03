@@ -1030,6 +1030,9 @@ impl<'a, 'b> Parser<'a, 'b>
                 help: Some("Prints help information"),
                 ..Default::default()
             };
+            if let Some(h) = self.help_short {
+                self.short_list.push(h);
+            }
             self.long_list.push("help");
             self.flags.push(arg);
         }
@@ -1047,6 +1050,9 @@ impl<'a, 'b> Parser<'a, 'b>
                 help: Some("Prints version information"),
                 ..Default::default()
             };
+            if let Some(v) = self.version_short {
+                self.short_list.push(v);
+            }
             self.long_list.push("version");
             self.flags.push(arg);
         }
