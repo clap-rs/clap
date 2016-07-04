@@ -975,7 +975,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     ///
     /// In our regular code, we can simply call this `build_cli()` function, then call
-    /// `get_mathces()`, or any of the other normal methods directly after. For example:
+    /// `get_matches()`, or any of the other normal methods directly after. For example:
     ///
     /// ```ignore
     /// src/main.rs
