@@ -26,6 +26,8 @@ use app::meta::AppMeta;
 use args::MatchedArg;
 use shell::Shell;
 use completions::ComplGen;
+use std::fs::File;
+use std::path::PathBuf;
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
@@ -99,10 +101,25 @@ impl<'a, 'b> Parser<'a, 'b>
                               .nth(0);
     }
 
-    pub fn gen_completions(&mut self, for_shell: Shell, od: OsString) {
+    pub fn gen_completions_to<W: Write>(&mut self, for_shell: Shell, buf: &mut W) {
+
         self.propogate_help_version();
         self.build_bin_names();
-        ComplGen::new(self, od).generate(for_shell)
+
+        ComplGen::new(self).generate(for_shell, buf)
+    }
+
+    pub fn gen_completions(&mut self, for_shell: Shell, od: OsString) {
+        use std::error::Error;
+
+        let out_dir = PathBuf::from(od);
+
+        let mut file = match File::create(out_dir.join(format!("{}_bash.sh", &*self.meta.bin_name.as_ref().unwrap()))) {
+            Err(why) => panic!("couldn't create bash completion file: {}",
+                why.description()),
+            Ok(file) => file,
+        };
+        self.gen_completions_to(for_shell, &mut file)
     }
 
     // actually adds the arguments
