@@ -229,7 +229,7 @@ fn require_delims() {
 fn did_you_mean() {
     test::check_err_output(test::complex_app(), "clap-test --optio=foo",
 "error: Found argument '--optio' which wasn't expected, or isn't valid in this context
-\tDid you mean --option ?
+\tDid you mean --option?
 
 USAGE:
     clap-test --option <opt>...
