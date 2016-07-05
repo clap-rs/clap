@@ -454,14 +454,14 @@ impl Error {
             sorted.push(v.as_ref());
         }
         sorted.sort();
-        let valid_values = sorted.join(" ");
+        let valid_values = sorted.join(", ");
         let c = fmt::Colorizer {
             use_stderr: true,
             when: color
         };
         Error {
             message: format!("{} '{}' isn't a valid value for '{}'\n\t\
-                            [values:{}]\n\
+                            [values: {}]\n\
                             {}\n\n\
                             {}\n\n\
                             For more information try {}",
