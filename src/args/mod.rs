@@ -20,3 +20,4 @@ mod matched_arg;
 mod group;
 #[allow(dead_code)]
 pub mod settings;
+pub mod validator;
