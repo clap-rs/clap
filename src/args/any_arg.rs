@@ -6,6 +6,7 @@ use vec_map::VecMap;
 
 // Internal
 use args::settings::ArgSettings;
+use args::validator::Validator;
 
 #[doc(hidden)]
 pub trait AnyArg<'n, 'e> {
@@ -23,6 +24,7 @@ pub trait AnyArg<'n, 'e> {
     fn num_vals(&self) -> Option<u64>;
     fn possible_vals(&self) -> Option<&[&'e str]>;
     fn validator(&self) -> Option<&Rc<Fn(String) -> Result<(), String>>>;
+    fn validators(&self) -> Vec<Box<Validator>>;
     fn short(&self) -> Option<char>;
     fn long(&self) -> Option<&'e str>;
     fn val_delim(&self) -> Option<char>;
