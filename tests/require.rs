@@ -299,7 +299,7 @@ fn required_unless_one_2() {
 
     assert!(res.is_ok());
     let m = res.unwrap();
-    assert!(m.is_present("dbg"));
+    assert!(m.is_present("infile"));
     assert!(!m.is_present("cfg"));
 }
 
