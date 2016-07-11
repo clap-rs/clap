@@ -39,7 +39,7 @@ pub struct Parser<'a, 'b>
     pub long_list: Vec<&'b str>,
     blacklist: Vec<&'b str>,
     // A list of possible flags
-    flags: Vec<FlagBuilder<'a, 'b>>,
+    pub flags: Vec<FlagBuilder<'a, 'b>>,
     // A list of possible options
     pub opts: Vec<OptBuilder<'a, 'b>>,
     // A list of positional arguments
@@ -113,8 +113,12 @@ impl<'a, 'b> Parser<'a, 'b>
         use std::error::Error;
 
         let out_dir = PathBuf::from(od);
+        let suffix = match for_shell {
+            Shell::Bash => "_bash.sh",
+            Shell::Fish => ".fish",
+        };
 
-        let mut file = match File::create(out_dir.join(format!("{}_bash.sh", &*self.meta.bin_name.as_ref().unwrap()))) {
+        let mut file = match File::create(out_dir.join(format!("{}{}", &*self.meta.bin_name.as_ref().unwrap(), suffix))) {
             Err(why) => panic!("couldn't create bash completion file: {}",
                 why.description()),
             Ok(file) => file,
