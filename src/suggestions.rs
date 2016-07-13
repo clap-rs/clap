@@ -58,7 +58,7 @@ pub fn did_you_mean_suffix<'z, T, I>(arg: &str,
             if let DidYouMeanMessageStyle::EnumValue = style {
                 suffix.push('\'');
             }
-            suffix.push_str(" ?");
+            suffix.push_str("?");
             (suffix, Some(candidate))
         }
         None => (String::new(), None),
@@ -92,7 +92,7 @@ mod test {
     #[test]
     fn suffix_long() {
         let p_vals = ["test", "possible", "values"];
-        let suffix = "\n\tDid you mean \'--test\' ?";
+        let suffix = "\n\tDid you mean \'--test\'?";
         assert_eq!(did_you_mean_suffix("tst", p_vals.iter(), DidYouMeanMessageStyle::LongFlag),
                    (suffix, Some("test")));
     }
@@ -100,7 +100,7 @@ mod test {
     #[test]
     fn suffix_enum() {
         let p_vals = ["test", "possible", "values"];
-        let suffix = "\n\tDid you mean \'test\' ?";
+        let suffix = "\n\tDid you mean \'test\'?";
         assert_eq!(did_you_mean_suffix("tst", p_vals.iter(), DidYouMeanMessageStyle::EnumValue),
                    (suffix, Some("test")));
     }

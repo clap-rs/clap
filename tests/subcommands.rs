@@ -110,7 +110,7 @@ fn multiple_aliases() {
 fn subcmd_did_you_mean_output() {
     test::check_err_output(test::complex_app(), "clap-test subcm",
 "error: The subcommand 'subcm' wasn't recognized
-\tDid you mean 'subcmd' ?
+\tDid you mean 'subcmd'?
 
 If you believe you received this message in error, try re-running with 'clap-test -- subcm'
 

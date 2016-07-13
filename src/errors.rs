@@ -444,6 +444,10 @@ impl Error {
               A: AnyArg<'a, 'b> + Display,
               U: Display
     {
+        let c = fmt::Colorizer {
+            use_stderr: true,
+            when: color
+        };
         let suffix =
             suggestions::did_you_mean_suffix(bad_val.as_ref(),
                                              good_vals.iter(),
@@ -451,17 +455,14 @@ impl Error {
 
         let mut sorted = vec![];
         for v in good_vals {
-            sorted.push(v.as_ref());
+            let val = format!("{}", c.good(v));
+            sorted.push(val);
         }
         sorted.sort();
-        let valid_values = sorted.join(" ");
-        let c = fmt::Colorizer {
-            use_stderr: true,
-            when: color
-        };
+        let valid_values = sorted.join(", ");
         Error {
             message: format!("{} '{}' isn't a valid value for '{}'\n\t\
-                            [values:{}]\n\
+                            [values: {}]\n\
                             {}\n\n\
                             {}\n\n\
                             For more information try {}",
@@ -491,7 +492,7 @@ impl Error {
         };
         Error {
             message: format!("{} The subcommand '{}' wasn't recognized\n\t\
-                            Did you mean '{}' ?\n\n\
+                            Did you mean '{}'?\n\n\
                             If you believe you received this message in error, try \
                             re-running with '{} {} {}'\n\n\
                             {}\n\n\
@@ -521,11 +522,12 @@ impl Error {
         };
         Error {
             message: format!("{} The subcommand '{}' wasn't recognized\n\n\
-                            USAGE:\n\t\
+                            {}\n\t\
                                 {} help <subcommands>...\n\n\
                             For more information try {}",
                              c.error("error:"),
                              c.warning(&*s),
+                             c.warning("USAGE:"),
                              name,
                              c.good("--help")),
             kind: ErrorKind::UnrecognizedSubcommand,

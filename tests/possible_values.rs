@@ -6,9 +6,9 @@ include!("../clap-test.rs");
 use clap::{App, Arg, ErrorKind};
 
 static PV_ERROR: &'static str = "error: 'slo' isn't a valid value for '--Option <option3>'
-\t[values:fast slow]
+\t[values: fast, slow]
 
-\tDid you mean 'slow' ?
+\tDid you mean 'slow'?
 
 USAGE:
     clap-test --Option <option3>
