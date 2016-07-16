@@ -708,6 +708,20 @@ impl<'a, 'b> Parser<'a, 'b>
             if let Some(p) = self.positionals.get(pos_counter) {
                 parse_positional!(self, p, arg_os, pos_counter, matcher);
             } else if self.settings.is_set(AppSettings::AllowExternalSubcommands) {
+                // Get external subcommand name
+                let sc_name = match arg_os.to_str() {
+                    Some(s) => s.to_string(),
+                    None => {
+                        if !self.settings.is_set(AppSettings::StrictUtf8) {
+                            return Err(
+                                Error::invalid_utf8(&*self.create_current_usage(matcher), self.color())
+                            );
+                        }
+                        arg_os.to_string_lossy().into_owned()
+                    }
+                };
+
+                // Collect the external subcommand args
                 let mut sc_m = ArgMatcher::new();
                 while let Some(v) = it.next() {
                     let a = v.into();
@@ -718,11 +732,11 @@ impl<'a, 'b> Parser<'a, 'b>
                             );
                         }
                     }
-                    sc_m.add_val_to("EXTERNAL_SUBCOMMAND", &a);
+                    sc_m.add_val_to("", &a);
                 }
 
                 matcher.subcommand(SubCommand {
-                    name: "EXTERNAL_SUBCOMMAND".into(),
+                    name: sc_name,
                     matches: sc_m.into(),
                 });
             } else {
