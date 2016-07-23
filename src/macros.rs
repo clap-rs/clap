@@ -405,7 +405,7 @@ macro_rules! crate_version {
 ///                 .get_matches();
 /// # }
 /// ```
-#[cfg_attr(feature = "unstable", macro_export)]
+#[macro_export]
 macro_rules! crate_authors {
     () => {
         env!("CARGO_PKG_AUTHORS")

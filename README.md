@@ -128,7 +128,7 @@ Here's the highlights from v2.4.0
 Here's the highlights from v2.3.0
 
 * **New Help Template Engine!**: Now you have full control over the layout of your help message. Major thanks to @hgrecco
-* **Pull crate Authors from Cargo.toml**: One can now use the `crate_authors!` macro to automatically pull the crate authors from their Cargo.toml file (requires `unstable` cargo feature to enable)
+* **Pull crate Authors from Cargo.toml**: One can now use the `crate_authors!` macro to automatically pull the crate authors from their Cargo.toml file
 * **Colored Help Messages**: Help messages can now be optionally colored (See the `AppSettings::ColoredHelp` setting). Screenshot below.
 * A bunch of bug fixes
 

@@ -125,9 +125,10 @@ impl<'a, 'b> App<'a, 'b> {
     /// Sets a string of author(s) that will be displayed to the user when they
     /// request the help information with `--help` or `-h`.
     ///
-    /// **Pro-tip:** If you turn on unstable features you can use `clap`s
-    /// convenience macro [`crate_authors!`] to automatically set your
-    /// application's author to the same thing as your crate at compile time.
+    /// **Pro-tip:** Use `clap`s convenience macro [`crate_authors!`] to automatically set your
+    /// application's author(s) to the same thing as your crate at compile time. See the [`examples/`]
+    /// directory for more information
+    ///
     /// See the [`examples/`]
     /// directory for more information
     ///
@@ -234,7 +235,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///     .version("v0.1.24")
     /// # ;
     /// ```
-    /// [`crate_authors!`]: ./macro.crate_authors!.html
+    /// [`crate_version!`]: ./macro.crate_version!.html
     /// [`examples/`]: https://github.com/kbknapp/clap-rs/tree/master/examples
     pub fn version<S: Into<&'b str>>(mut self, ver: S) -> Self {
         self.p.meta.version = Some(ver.into());
