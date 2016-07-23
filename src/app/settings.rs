@@ -586,7 +586,7 @@ impl FromStr for AppSettings {
     fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
         match &*s.to_ascii_lowercase() {
             "subcommandsnegatereqs" => Ok(AppSettings::SubcommandsNegateReqs),
-            "subcommandsrequired" => Ok(AppSettings::SubcommandRequired),
+            "subcommandrequired" => Ok(AppSettings::SubcommandRequired),
             "argrequiredelsehelp" => Ok(AppSettings::ArgRequiredElseHelp),
             "globalversion" => Ok(AppSettings::GlobalVersion),
             "versionlesssubcommands" => Ok(AppSettings::VersionlessSubcommands),
@@ -621,7 +621,7 @@ mod test {
     fn app_settings_fromstr() {
         assert_eq!("subcommandsnegatereqs".parse::<AppSettings>().unwrap(),
                    AppSettings::SubcommandsNegateReqs);
-        assert_eq!("subcommandsrequired".parse::<AppSettings>().unwrap(),
+        assert_eq!("subcommandrequired".parse::<AppSettings>().unwrap(),
                    AppSettings::SubcommandRequired);
         assert_eq!("argrequiredelsehelp".parse::<AppSettings>().unwrap(),
                    AppSettings::ArgRequiredElseHelp);

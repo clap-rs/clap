@@ -979,7 +979,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// `get_matches()`, or any of the other normal methods directly after. For example:
     ///
     /// ```ignore
-    /// src/main.rs
+    /// // src/main.rs
     ///
     /// mod cli;
     ///
@@ -1022,6 +1022,44 @@ impl<'a, 'b> App<'a, 'b> {
     pub fn gen_completions<T: Into<OsString>, S: Into<String>>(&mut self, bin_name: S, for_shell: Shell, out_dir: T) {
         self.p.meta.bin_name = Some(bin_name.into());
         self.p.gen_completions(for_shell, out_dir.into());
+    }
+
+
+    /// Generate a completions file for a specified shell at runtime.  Until `cargo install` can
+    /// install extra files like a completion script, this may be used e.g. in a command that
+    /// outputs the contents of the completion script, to be redirected into a file by the user.
+    ///
+    /// # Examples
+    ///
+    /// Assuming a separate `cli.rs` like the [example above](./struct.App.html#method.gen_completions),
+    /// we can let users generate a completion script using a command:
+    ///
+    /// ```ignore
+    /// // src/main.rs
+    ///
+    /// mod cli;
+    /// use std::io;
+    ///
+    /// fn main() {
+    ///     let matches = cli::build_cli().get_matches();
+    ///
+    ///     if matches.is_present("generate-bash-completions") {
+    ///         cli::build_cli().gen_completions_to("myapp", Shell::Bash, &mut io::stdout());
+    ///     }
+    ///
+    ///     // normal logic continues...
+    /// }
+    ///
+    /// ```
+    ///
+    /// Usage:
+    ///
+    /// ```shell
+    /// $ myapp generate-bash-completions > /etc/bash_completion.d/myapp
+    /// ```
+    pub fn gen_completions_to<W: Write, S: Into<String>>(&mut self, bin_name: S, for_shell: Shell, buf: &mut W) {
+        self.p.meta.bin_name = Some(bin_name.into());
+        self.p.gen_completions_to(for_shell, buf);
     }
 
     /// Starts the parsing process, upon a failed parse an error will be displayed to the user and
