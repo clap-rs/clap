@@ -1,6 +1,3 @@
-use std::path::PathBuf;
-use std::fs::File;
-use std::ffi::OsString;
 use std::io::Write;
 
 use app::parser::Parser;
@@ -8,8 +5,8 @@ use shell::Shell;
 use args::{ArgSettings, OptBuilder};
 
 macro_rules! w {
-    ($_self:ident, $f:ident, $to_w:expr) => {
-        match $f.write_all($to_w) {
+    ($buf:expr, $to_w:expr) => {
+        match $buf.write_all($to_w) {
             Ok(..) => (),
             Err(..) => panic!(format!("Failed to write to file completions file")),
         }
@@ -18,33 +15,23 @@ macro_rules! w {
 
 pub struct ComplGen<'a, 'b> where 'a: 'b {
     p: &'b Parser<'a, 'b>,
-    out_dir: OsString,
 }
 
 impl<'a, 'b> ComplGen<'a, 'b> {
-    pub fn new(p: &'b Parser<'a, 'b>, od: OsString) -> Self {
+    pub fn new(p: &'b Parser<'a, 'b>) -> Self {
         ComplGen {
             p: p,
-            out_dir: od,
         }
     }
 
-    pub fn generate(&self, for_shell: Shell) {
+    pub fn generate<W: Write>(&self, for_shell: Shell, buf: &mut W) {
         match for_shell {
-            Shell::Bash => self.gen_bash(),
+            Shell::Bash => self.gen_bash(buf),
         }
     }
 
-    fn gen_bash(&self) {
-        use std::error::Error;
-        let out_dir = PathBuf::from(&self.out_dir);
-
-        let mut file = match File::create(out_dir.join(format!("{}_bash.sh", &*self.p.meta.bin_name.as_ref().unwrap()))) {
-            Err(why) => panic!("couldn't create bash completion file: {}",
-                why.description()),
-            Ok(file) => file,
-        };
-        w!(self, file, format!(
+    fn gen_bash<W: Write>(&self, buf: &mut W) {
+        w!(buf, format!(
 "_{name}() {{
     local i cur prev opts cmds
     COMPREPLY=()
