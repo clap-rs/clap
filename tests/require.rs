@@ -304,6 +304,29 @@ fn required_unless_one_2() {
 }
 
 #[test]
+fn required_unless_one_1() {
+    let res = App::new("unlessone")
+        .arg(Arg::with_name("cfg")
+            .required_unless_one(&["dbg", "infile"])
+            .takes_value(true)
+            .long("config"))
+        .arg(Arg::with_name("dbg")
+            .long("debug"))
+        .arg(Arg::with_name("infile")
+            .short("i")
+            .takes_value(true))
+        .get_matches_from_safe(vec![
+            "unlessone", "--debug"
+        ]);
+
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(!m.is_present("infile"));
+    assert!(!m.is_present("cfg"));
+    assert!(m.is_present("dbg"));
+}
+
+#[test]
 fn required_unless_one_err() {
     let res = App::new("unlessone")
         .arg(Arg::with_name("cfg")
