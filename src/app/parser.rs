@@ -1606,19 +1606,21 @@ impl<'a, 'b> Parser<'a, 'b>
                 }
             }
         } else if let Some(ru) = a.required_unless() {
+            let mut found_any = false;
             for n in ru.iter() {
                 if matcher.contains(n) ||
                    self.groups
                        .get(n)
                        .map_or(false, |g| g.args.iter().any(|an| matcher.contains(an))) {
-                    if !a.is_set(ArgSettings::RequiredUnlessAll) {
-                        return true;
-                    }
-                } else {
-                    return false;
-                }
+                   if !a.is_set(ArgSettings::RequiredUnlessAll) {
+                       return true;
+                   }
+                   found_any = true;
+               } else if a.is_set(ArgSettings::RequiredUnlessAll) {
+                   return false;
+               }
             }
-            return true;
+            return found_any;
         }
         false
     }
