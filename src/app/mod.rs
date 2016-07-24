@@ -484,6 +484,47 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
+    /// Disables a single command, or [`SubCommand`], level setting.
+    /// 
+    /// See [`AppSettings`] for a full list of possibilities and examples.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, AppSettings};
+    /// App::new("myprog")
+    ///     .unset_setting(AppSettings::ColorAuto)
+    /// # ;
+    /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [`AppSettings`]: ./enum.AppSettings.html
+    pub fn unset_setting(mut self, setting: AppSettings) -> Self {
+        self.p.unset(setting);
+        self
+    }
+
+    /// Disables multiple command, or [`SubCommand`], level settings.
+    ///
+    /// See [`AppSettings`] for a full list of possibilities and examples.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, AppSettings};
+    /// App::new("myprog")
+    ///     .unset_settings(&[AppSettings::ColorAuto,
+    ///                       AppSettings::AllowInvalidUtf8])
+    /// # ;
+    /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [`AppSettings`]: ./enum.AppSettings.html
+    pub fn unset_settings(mut self, settings: &[AppSettings]) -> Self {
+        for s in settings {
+            self.p.unset(*s);
+        }
+        self 
+    }
+
     /// Sets the terminal width at which to wrap help messages. Defaults to `120`.
     ///
     /// `clap` automatically tries to determine the terminal width on Unix, Linux, and OSX if the
