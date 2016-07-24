@@ -247,3 +247,24 @@ fn leading_double_hyphen_trailingvararg() {
     assert!(m.is_present("opt"));
     assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["--foo", "-Wl", "bar"]);
 }
+
+#[test]
+fn test_unset_setting() {
+    let m = App::new("unset_setting");
+    assert!(m.p.is_set(AppSettings::AllowInvalidUtf8));
+
+    let m = m.unset_setting(AppSettings::AllowInvalidUtf8);
+    assert!(!m.p.is_set(AppSettings::AllowInvalidUtf8));
+}
+
+#[test]
+fn test_unset_settings() {
+    let m = App::new("unset_settings");
+    assert!(&m.p.is_set(AppSettings::AllowInvalidUtf8));
+    assert!(&m.p.is_set(AppSettings::ColorAuto));
+    
+    let m = m.unset_settings(&[AppSettings::AllowInvalidUtf8,
+                               AppSettings::ColorAuto]);
+    assert!(!m.p.is_set(AppSettings::AllowInvalidUtf8));
+    assert!(!m.p.is_set(AppSettings::ColorAuto));
+}
