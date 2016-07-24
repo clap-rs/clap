@@ -1,3 +1,18 @@
+<a name="2.9.3"></a>
+### 2.9.3 (2016-07-24)
+
+
+#### Bug Fixes
+
+*   fixes bug where only first arg in list of required_unless_one is recognized ([1fc3b55b](https://github.com/kbknapp/clap-rs/commit/1fc3b55bd6c8653b02e7c4253749c6b77737d2ac), closes [#575](https://github.com/kbknapp/clap-rs/issues/575))
+* **Settings:**  fixes typo subcommandsrequired->subcommandrequired ([fc72cdf5](https://github.com/kbknapp/clap-rs/commit/fc72cdf591d30f5d9375d0b5cc2a2ff3e812f9f6), closes [#593](https://github.com/kbknapp/clap-rs/issues/593))
+
+#### Features
+
+* **Completions:**  adds the ability to generate completions to io::Write object ([9f62cf73](https://github.com/kbknapp/clap-rs/commit/9f62cf7378ba5acb5ce8c5bac89b4aa60c30755f))
+* **Settings:**  Add unset_setting and unset_settings fns to App (#598) ([0ceba231](https://github.com/kbknapp/clap-rs/commit/0ceba231c6767cd6d88fdb1feeeea41deadf77ff), closes [#590](https://github.com/kbknapp/clap-rs/issues/590))
+
+
 <a name="2.9.2"></a>
 ### 2.9.2 (2016-07-03)
 
