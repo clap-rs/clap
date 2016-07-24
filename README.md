@@ -39,6 +39,14 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.9.3
+
+* Adds the ability to generate completions to an `io::Write` object 
+* Adds an `App::unset_setting` and `App::unset_settings` 
+* Fixes bug where only first arg in list of `required_unless_one` is recognized 
+* Fixes a typo bug `SubcommandsRequired`->`SubcommandRequired`
+
+
 Here's the highlights for v2.9.2
 
 
