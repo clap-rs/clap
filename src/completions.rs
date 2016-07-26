@@ -8,7 +8,7 @@ macro_rules! w {
     ($buf:expr, $to_w:expr) => {
         match $buf.write_all($to_w) {
             Ok(..) => (),
-            Err(..) => panic!(format!("Failed to write to file completions file")),
+            Err(..) => panic!("Failed to write to file completions file"),
         }
     };
 }
@@ -136,7 +136,7 @@ complete -F _{name} {name}
 
     fn all_options_for_path(&self, path: &str) -> String {
         let mut p = self.p;
-        for sc in path.split("_").skip(1) {
+        for sc in path.split('_').skip(1) {
             debugln!("iter;sc={}", sc);
             p = &p.subcommands.iter()
                               .filter(|s| s.p.meta.name == sc
@@ -164,7 +164,7 @@ complete -F _{name} {name}
 
     fn option_details_for_path(&self, path: &str) -> String {
         let mut p = self.p;
-        for sc in path.split("_").skip(1) {
+        for sc in path.split('_').skip(1) {
             debugln!("iter;sc={}", sc);
             p = &p.subcommands.iter().filter(|s| s.p.meta.name == sc || (s.p.meta.aliases.is_some() && s.p.meta.aliases.as_ref().unwrap().iter().any(|&(n,_)| n==sc ))).next().unwrap().p;
         }

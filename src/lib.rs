@@ -389,7 +389,7 @@
         missing_debug_implementations,
         missing_copy_implementations,
         trivial_casts,
-        trivial_numeric_casts,
+        //trivial_numeric_casts,       // While bitflags fails this lint
         unused_import_braces,
         unused_allocation,
         unused_qualifications)]

@@ -103,7 +103,7 @@ impl<'a> Help<'a> {
             hide_pv: hide_pv,
             term_w: match term_w {
                 Some(width) => width,
-                None        => term_size::dimensions().map(|(w, _)| w).unwrap_or(120),
+                None        => term_size::dimensions().map_or(120, |(w, _)| w),
             },
             color: color,
             cizer: cizer,
@@ -261,21 +261,17 @@ impl<'a> Help<'a> {
                 try!(color!(self, "--{}", l, good))
             }
             try!(write!(self.writer, " "));
-        } else {
-            if let Some(l) = arg.long() {
-                if arg.short().is_some() {
-                    try!(write!(self.writer, ", "));
-                }
-                try!(color!(self, "--{}", l, good));
-                if !self.next_line_help || !arg.is_set(ArgSettings::NextLineHelp) {
-                    write_nspaces!(self.writer, (longest + 4) - (l.len() + 2));
-                }
-            } else {
-                if !self.next_line_help || !arg.is_set(ArgSettings::NextLineHelp) {
-                    // 6 is tab (4) + -- (2)
-                    write_nspaces!(self.writer, (longest + 6));
-                }
+        } else if let Some(l) = arg.long() {
+            if arg.short().is_some() {
+                try!(write!(self.writer, ", "));
             }
+            try!(color!(self, "--{}", l, good));
+            if !self.next_line_help || !arg.is_set(ArgSettings::NextLineHelp) {
+                write_nspaces!(self.writer, (longest + 4) - (l.len() + 2));
+            }
+        } else if !self.next_line_help || !arg.is_set(ArgSettings::NextLineHelp) {
+            // 6 is tab (4) + -- (2)
+            write_nspaces!(self.writer, (longest + 6));
         }
         Ok(())
     }
@@ -334,7 +330,7 @@ impl<'a> Help<'a> {
         Ok(())
     }
 
-    fn write_before_after_help<'b, 'c>(&mut self, h: &str) -> io::Result<()> {
+    fn write_before_after_help(&mut self, h: &str) -> io::Result<()> {
         debugln!("fn=before_help;");
         let mut help = String::new();
         // determine if our help fits or needs to wrap
