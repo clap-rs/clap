@@ -414,9 +414,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 count +=1;
             }
         }
-        if count > 1 {
-            return None;
-        } else if count == 1 && self.positionals.len() > 1 {
+        if count > 1 || self.positionals.len() > 1 {
             return None;
         } else if count == 1 {
             let p = self.positionals.values().next().expect(INTERNAL_ERROR_MSG);
@@ -709,31 +707,29 @@ impl<'a, 'b> Parser<'a, 'b>
 
             if let Some(p) = self.positionals.get(pos_counter) {
                 parse_positional!(self, p, arg_os, pos_counter, matcher);
-            } else {
-                if self.settings.is_set(AppSettings::AllowExternalSubcommands) {
-                    let mut sc_m = ArgMatcher::new();
-                    while let Some(v) = it.next() {
-                        let a = v.into();
-                        if let None = a.to_str() {
-                            if !self.settings.is_set(AppSettings::StrictUtf8) {
-                                return Err(
-                                    Error::invalid_utf8(&*self.create_current_usage(matcher), self.color())
-                                );
-                            }
+            } else if self.settings.is_set(AppSettings::AllowExternalSubcommands) {
+                let mut sc_m = ArgMatcher::new();
+                while let Some(v) = it.next() {
+                    let a = v.into();
+                    if let None = a.to_str() {
+                        if !self.settings.is_set(AppSettings::StrictUtf8) {
+                            return Err(
+                                Error::invalid_utf8(&*self.create_current_usage(matcher), self.color())
+                            );
                         }
-                        sc_m.add_val_to("EXTERNAL_SUBCOMMAND", &a);
                     }
-
-                    matcher.subcommand(SubCommand {
-                        name: "EXTERNAL_SUBCOMMAND".into(),
-                        matches: sc_m.into(),
-                    });
-                } else {
-                    return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
-                                                       "",
-                                                       &*self.create_current_usage(matcher),
-                                                       self.color()));
+                    sc_m.add_val_to("EXTERNAL_SUBCOMMAND", &a);
                 }
+
+                matcher.subcommand(SubCommand {
+                    name: "EXTERNAL_SUBCOMMAND".into(),
+                    matches: sc_m.into(),
+                });
+            } else {
+                return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
+                                                   "",
+                                                   &*self.create_current_usage(matcher),
+                                                   self.color()));
             }
         }
 
@@ -819,14 +815,14 @@ impl<'a, 'b> Parser<'a, 'b>
     fn propogate_help_version(&mut self) {
         debugln!("exec=propogate_help_version;");
         self.create_help_and_version();
-        for sc in self.subcommands.iter_mut() {
+        for sc in &mut self.subcommands {
             sc.p.propogate_help_version();
         }
     }
 
     fn build_bin_names(&mut self) {
         debugln!("exec=build_bin_names;");
-        for sc in self.subcommands.iter_mut() {
+        for sc in &mut self.subcommands {
             debug!("bin_name set...");
             if sc.p.meta.bin_name.is_none() {
                 sdebugln!("No");
@@ -1466,18 +1462,16 @@ impl<'a, 'b> Parser<'a, 'b>
         for (name, ma) in matcher.iter() {
             if self.groups.contains_key(&**name) {
                 continue;
-            } else {
-                if let Some(opt) = self.opts
+            } else if let Some(opt) = self.opts
                                        .iter()
                                        .filter(|o| &o.name == name)
                                        .next() {
-                    try!(self._validate_num_vals(opt, ma, matcher));
-                } else if let Some(pos) = self.positionals
-                                       .values()
-                                       .filter(|p| &p.name == name)
-                                       .next() {
-                    try!(self._validate_num_vals(pos, ma, matcher));
-                }
+                try!(self._validate_num_vals(opt, ma, matcher));
+            } else if let Some(pos) = self.positionals
+                                   .values()
+                                   .filter(|p| &p.name == name)
+                                   .next() {
+                try!(self._validate_num_vals(pos, ma, matcher));
             }
         }
         Ok(())

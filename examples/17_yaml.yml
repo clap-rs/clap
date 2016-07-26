@@ -82,9 +82,9 @@ subcommands:
                 help: example subcommand positional
                 index: 1
 
-# ArgGroups are supported as well, and must be sepcified in the 'arg_groups:'
+# ArgGroups are supported as well, and must be sepcified in the 'groups:'
 # object of this file
-arg_groups:
+groups:
     # the name of the ArgGoup is specified here
     - min-max-vals:
         # All args and groups that are a part of this group are set here
