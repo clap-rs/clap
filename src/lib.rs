@@ -3,7 +3,7 @@
 // (see LICENSE or <http://opensource.org/licenses/MIT>) All files in the project carrying such
 // notice may not be copied, modified, or distributed except according to those terms.
 
-//! A simple to use, efficient, and full featured library for parsing command line arguments and subcommands when writing console, or terminal applications.
+//! A simple-to-use, efficient, and full-featured library for parsing command line arguments and subcommands when writing console/terminal applications.
 //!
 //! ## About
 //!
