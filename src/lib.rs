@@ -446,6 +446,8 @@ mod shell {
     #[derive(Debug, Copy, Clone)]
     pub enum Shell {
         /// Generates a .sh completion file for the Bourne Again SHell (BASH)
-        Bash
+        Bash,
+        /// Generates a .fish completion file for the friendly interactive shell (fish)
+        Fish,
     }
 }

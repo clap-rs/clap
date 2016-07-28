@@ -27,6 +27,7 @@ impl<'a, 'b> ComplGen<'a, 'b> {
     pub fn generate<W: Write>(&self, for_shell: Shell, buf: &mut W) {
         match for_shell {
             Shell::Bash => self.gen_bash(buf),
+            Shell::Fish => self.gen_fish(buf),
         }
     }
 
@@ -187,6 +188,32 @@ complete -F _{name} {name}
         }
         opts
     }
+
+    fn gen_fish<W: Write>(&self, buf: &mut W) {
+        let command =  self.p.meta.bin_name.as_ref().unwrap();
+        let subcommands: Vec<_> = get_all_subcommands(self.p);
+        let has_subcommands = subcommands.len() > 1;
+
+        // function to detect subcommand
+        let detect_subcommand_function = if has_subcommands {
+            format!(
+r#"function __fish_{}_no_subcommand --description "Test if there isn't given a subcommand"
+    for i in (commandline -opc)
+        if contains -- $i {}
+            return 1
+        end
+    end
+    return 0
+end
+"#, command, subcommands.join(" "))
+        } else {
+            "".to_string()
+        };
+
+        let mut buffer = detect_subcommand_function;
+        gen_fish_inner(command, &self, vec![], &mut buffer, has_subcommands);
+        w!(buf, buffer.as_bytes());
+    }
 }
 
 pub fn get_all_subcommands(p: &Parser) -> Vec<String> {
@@ -292,4 +319,101 @@ fn vals_for(o: &OptBuilder) -> String {
         ret = format!("\"{}\"", ret);
     }
     ret
+}
+
+fn gen_fish_inner(root_command: &String,
+                  comp_gen: &ComplGen,
+                  parent_cmds: Vec<&String>,
+                  buffer: &mut String,
+                  has_no_subcommand_fn: bool) {
+    // example :
+    //
+    // complete
+    //      -c {command}
+    //      -d "{description}"
+    //      -s {short}
+    //      -l {long}
+    //      -a "{possible_arguments}"
+    //      -r # if require parameter
+    //      -f # don't use file completion
+    //      -n "__fish_seen_subcommand_from install" # complete for subcommand "install"
+
+    let command = &comp_gen.p.meta.name;
+    let subcommands: Vec<_> = get_all_subcommands(comp_gen.p);
+
+    for option in &comp_gen.p.opts {
+        let mut template = format!("complete -c {}", root_command);
+        if !parent_cmds.is_empty() {
+            template.push_str(format!(" -n '__fish_seen_subcommand_from {}'",
+                                      command).as_str());
+        } else if has_no_subcommand_fn {
+            template.push_str(format!(" -n '__fish_{}_no_subcommand'",
+                                      comp_gen.p.meta.bin_name.as_ref().unwrap()).as_str());
+        }
+        if let Some(data) = option.short {
+            template.push_str(format!(" -s {}", data).as_str());
+        }
+        if let Some(data) = option.long {
+            template.push_str(format!(" -l {}", data).as_str());
+        }
+        if let Some(data) = option.help {
+            template.push_str(format!(" -d '{}'", data).as_str());
+        }
+        if let Some(ref data) = option.possible_vals {
+            template.push_str(format!(" -r -f -a '{}'", data.join(" ")).as_str());
+        }
+        buffer.push_str(template.as_str());
+        buffer.push_str("\n");
+    }
+
+    for flag in &comp_gen.p.flags {
+        let mut template = format!("complete -c {}", root_command);
+        if !parent_cmds.is_empty() {
+            template.push_str(format!(" -n '__fish_seen_subcommand_from {}'",
+                                      command).as_str());
+        } else if has_no_subcommand_fn {
+            template.push_str(format!(" -n '__fish_{}_no_subcommand'",
+                                      comp_gen.p.meta.bin_name.as_ref().unwrap()).as_str());
+        }
+        if let Some(data) = flag.short {
+            template.push_str(format!(" -s {}", data).as_str());
+        }
+        if let Some(data) = flag.long {
+            template.push_str(format!(" -l {}", data).as_str());
+        }
+        if let Some(data) = flag.help {
+            template.push_str(format!(" -d '{}'", data).as_str());
+        }
+        buffer.push_str(template.as_str());
+        buffer.push_str("\n");
+    }
+
+    if subcommands.len() > 1 {
+        for subcommand in subcommands {
+            let mut template = format!("complete -c {}", root_command);
+            if !parent_cmds.is_empty() {
+                template.push_str(format!(" -n '__fish_seen_subcommand_from {}'",
+                                          subcommand).as_str());
+            } else if has_no_subcommand_fn {
+                template.push_str(format!(" -n '__fish_{}_no_subcommand'",
+                                          comp_gen.p.meta.bin_name.as_ref().unwrap()).as_str());
+            }
+            template.push_str(" -f");
+            template.push_str(format!(" -a '{}'", subcommand).as_str());
+            buffer.push_str(template.as_str());
+            buffer.push_str("\n");
+        }
+    }
+
+    // generate options of subcommands
+    for subcommand in &comp_gen.p.subcommands {
+        let sub_comp_gen = ComplGen::new(&subcommand.p);
+        let mut sub_parent_cmds = parent_cmds.clone();
+        sub_parent_cmds.push(command);
+        gen_fish_inner(root_command,
+                       &sub_comp_gen,
+                       sub_parent_cmds,
+                       buffer,
+                       has_no_subcommand_fn);
+    }
 }
