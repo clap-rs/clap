@@ -1,3 +1,25 @@
+<a name="v2.10.0"></a>
+## v2.10.0 (2016-07-29)
+
+
+#### Features
+
+* **Completions:**  one can generate a basic fish completions script at compile time ([1979d2f2](https://github.com/kbknapp/clap-rs/commit/1979d2f2f3216e57d02a97e624a8a8f6cf867ed9))
+
+#### Bug Fixes
+
+* **parser:**  preserve external subcommand name ([875df243](https://github.com/kbknapp/clap-rs/commit/875df24316c266920a073c13bbefbf546bc1f635))
+
+#### Breaking Changes
+
+* **parser:**  preserve external subcommand name ([875df243](https://github.com/kbknapp/clap-rs/commit/875df24316c266920a073c13bbefbf546bc1f635))
+
+#### Documentation
+
+* **YAML:**  fixes example 17's incorrect reference to arg_groups instead of groups ([b6c99e13](https://github.com/kbknapp/clap-rs/commit/b6c99e1377f918e78c16c8faced70a71607da931), closes [#601](https://github.com/kbknapp/clap-rs/issues/601))
+
+
+
 <a name="2.9.3"></a>
 ### 2.9.3 (2016-07-24)
 
