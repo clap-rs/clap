@@ -347,11 +347,12 @@ pub enum AppSettings {
     ///         "myprog", "subcmd", "--option", "value", "-fff", "--flag"
     ///     ]);
     ///
-    /// // All trailing arguments will be stored under the subcommand's sub-matches using a value
-    /// // of the runtime subcommand name (in this case "subcmd")
+    /// // All trailing arguments will be stored under the subcommand's sub-matches using an empty
+    /// // string argument name
     /// match m.subcommand() {
     ///     (external, Some(ext_m)) => {
-    ///          let ext_args: Vec<&str> = ext_m.values_of(external).unwrap().collect();
+    ///          let ext_args: Vec<&str> = ext_m.values_of("").unwrap().collect();
+    ///          assert_eq!(external, "subcmd");
     ///          assert_eq!(ext_args, ["--option", "value", "-fff", "--flag"]);
     ///     },
     ///     _ => {},
