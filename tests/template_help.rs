@@ -51,7 +51,8 @@ fn build_new_help(app: &App) -> String {
 
 fn compare_app_str(l: &App, right: &str) -> bool {
     let left = build_new_help(&l);
-    let b = left.trim() == right;
+    // Strip out any mismatching \r character on windows that might sneak in on either side
+    let b = left.trim().replace("\r", "") == right.replace("\r", "");
     if !b {
         println!("");
         println!("--> left");

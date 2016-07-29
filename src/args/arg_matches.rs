@@ -493,11 +493,12 @@ impl<'a> ArgMatches<'a> {
     ///         "myprog", "subcmd", "--option", "value", "-fff", "--flag"
     ///     ]);
     ///
-    /// // All trailing arguments will be stored under the subcommand's sub-matches using a value
-    /// // of the runtime subcommand name (in this case "subcmd")
+    /// // All trailing arguments will be stored under the subcommand's sub-matches using an empty
+    /// // string argument name
     /// match app_m.subcommand() {
     ///     (external, Some(sub_m)) => {
-    ///          let ext_args: Vec<&str> = sub_m.values_of(external).unwrap().collect();
+    ///          let ext_args: Vec<&str> = sub_m.values_of("").unwrap().collect();
+    ///          assert_eq!(external, "subcmd");
     ///          assert_eq!(ext_args, ["--option", "value", "-fff", "--flag"]);
     ///     },
     ///     _ => {},
