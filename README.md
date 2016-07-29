@@ -39,6 +39,14 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.10.0
+
+
+* **Fish Shell Completions:**  one can generate a basic fish completions script at compile time!
+* **External SubCommands:**  fixes a bug which now correctly preserves external subcommand name along with args to said command (Minor breaking change that breaks no known real world code)
+* **YAML Documentation:**  fixes example 17's incorrect reference to arg_groups instead of groups
+
+
 Here's the highlights for v2.9.3
 
 * Adds the ability to generate completions to an `io::Write` object 
