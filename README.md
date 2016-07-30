@@ -8,7 +8,7 @@ Windows: [![Build status](https://ci.appveyor.com/api/projects/status/ejg8c33dn3
 
 Command Line Argument Parser for Rust
 
-It is a simple to use, efficient, and full featured library for parsing command line arguments and subcommands when writing console, or terminal applications.
+It is a simple-to-use, efficient, and full-featured library for parsing command line arguments and subcommands when writing console/terminal applications.
 
 ## [documentation](http://kbknapp.github.io/clap-rs/clap/index.html)
 
