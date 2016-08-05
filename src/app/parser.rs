@@ -1591,6 +1591,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 self._help().unwrap_err()
             } else {
                 let mut reqs = self.required.iter().map(|&r| &*r).collect::<Vec<_>>();
+                reqs.retain(|n| !matcher.contains(n));
                 reqs.dedup();
                 Error::missing_required_argument(
                 &*self.get_required_from(&*reqs, Some(matcher))
