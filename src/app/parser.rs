@@ -235,6 +235,7 @@ impl<'a, 'b> Parser<'a, 'b>
         } else {
             sdebugln!("No");
         }
+
         debug!("Using Setting VersionlessSubcommands...");
         if self.settings.is_set(AppSettings::VersionlessSubcommands) {
             sdebugln!("Yes");
@@ -620,6 +621,10 @@ impl<'a, 'b> Parser<'a, 'b>
                        self.settings.is_set(AppSettings::NeedsSubcommandHelp) {
                         let cmds: Vec<OsString> = it.map(|c| c.into()).collect();
                         let mut help_help = false;
+                        let mut bin_name = format!("{}", self.meta
+                                                             .bin_name
+                                                             .as_ref()
+                                                             .unwrap_or(&self.meta.name.clone()));
                         let mut sc = {
                             let mut sc: &Parser = self;
                             for (i, cmd) in cmds.iter().enumerate() {
@@ -663,6 +668,9 @@ impl<'a, 'b> Parser<'a, 'b>
                                                 .unwrap_or(&self.meta.name),
                                             self.color()));
                                 }
+                                bin_name = format!("{} {}",
+                                    bin_name,
+                                    &*sc.meta.name);
                             }
                             sc.clone()
                         };
@@ -678,17 +686,7 @@ impl<'a, 'b> Parser<'a, 'b>
                             sc.create_help_and_version();
                         }
                         if sc.meta.bin_name != self.meta.bin_name {
-                            sc.meta.bin_name = Some(format!("{}{}{}",
-                                                  self.meta
-                                                      .bin_name
-                                                      .as_ref()
-                                                      .unwrap_or(&self.meta.name.clone()),
-                                                  if self.meta.bin_name.is_some() {
-                                                      " "
-                                                  } else {
-                                                      ""
-                                                  },
-                                                  &*sc.meta.name));
+                            sc.meta.bin_name = Some(format!("{} {}", bin_name, sc.meta.name));
                         }
                         return sc._help();
                     }
@@ -1154,9 +1152,13 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     fn _help(&self) -> ClapResult<()> {
-        try!(self.print_help());
+        let mut buf = vec![];
+        try!(Help::write_parser_help(&mut buf, self));
+        let out = io::stdout();
+        let mut out_buf = BufWriter::new(out.lock());
+        try!(out_buf.write(&*buf));
         Err(Error {
-            message: String::new(),
+            message: unsafe { String::from_utf8_unchecked(buf) },
             kind: ErrorKind::HelpDisplayed,
             info: None,
         })
