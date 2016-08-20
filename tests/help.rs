@@ -66,6 +66,21 @@ OPTIONS:
 ARGS:
     <scpositional>    tests positionals";
 
+static MULTI_SC_HELP: &'static str = "ctest-subcmd-multi 0.1
+Kevin K. <kbknapp@gmail.com>
+tests subcommands
+
+USAGE:
+    ctest subcmd multi [FLAGS] [OPTIONS]
+
+FLAGS:
+    -f, --flag       tests flags
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -o, --option <scoption>...    tests options";
+
 #[test]
 fn help_short() {
     let m = App::new("test")
@@ -157,6 +172,21 @@ fn after_and_before_help_output() {
         .before_help("some text that comes before the help")
         .after_help("some text that comes after the help");
     test::check_help(app, AFTER_HELP);
+}
+
+#[test]
+fn multi_level_sc_help() {
+    let app = App::new("ctest")
+        .subcommand(SubCommand::with_name("subcmd")
+            .subcommand(SubCommand::with_name("multi")
+                .about("tests subcommands")
+                .author("Kevin K. <kbknapp@gmail.com>")
+                .version("0.1")
+                .args_from_usage("
+                    -f, --flag                    'tests flags'
+                    -o, --option [scoption]...    'tests options'
+                ")));
+    test::check_err_output(app, "ctest help subcmd multi", MULTI_SC_HELP, false);
 }
 
 #[test]
