@@ -235,6 +235,7 @@ impl<'a, 'b> Parser<'a, 'b>
         } else {
             sdebugln!("No");
         }
+
         debug!("Using Setting VersionlessSubcommands...");
         if self.settings.is_set(AppSettings::VersionlessSubcommands) {
             sdebugln!("Yes");
@@ -495,7 +496,7 @@ impl<'a, 'b> Parser<'a, 'b>
         // Firt we verify that the index highest supplied index, is equal to the number of
         // positional arguments to verify there are no gaps (i.e. supplying an index of 1 and 3
         // but no 2)
-        if let Some((idx, ref p)) = self.positionals.iter().rev().next() {
+        if let Some((idx, p)) = self.positionals.iter().rev().next() {
             debug_assert!(!(idx != self.positionals.len()),
                     format!("Found positional argument \"{}\" who's index is {} but there are \
                     only {} positional arguments defined",
@@ -620,6 +621,10 @@ impl<'a, 'b> Parser<'a, 'b>
                        self.settings.is_set(AppSettings::NeedsSubcommandHelp) {
                         let cmds: Vec<OsString> = it.map(|c| c.into()).collect();
                         let mut help_help = false;
+                        let mut bin_name = self.meta
+                                               .bin_name
+                                               .as_ref()
+                                               .unwrap_or(&self.meta.name).clone();
                         let mut sc = {
                             let mut sc: &Parser = self;
                             for (i, cmd) in cmds.iter().enumerate() {
@@ -663,6 +668,9 @@ impl<'a, 'b> Parser<'a, 'b>
                                                 .unwrap_or(&self.meta.name),
                                             self.color()));
                                 }
+                                bin_name = format!("{} {}",
+                                    bin_name,
+                                    &*sc.meta.name);
                             }
                             sc.clone()
                         };
@@ -678,17 +686,7 @@ impl<'a, 'b> Parser<'a, 'b>
                             sc.create_help_and_version();
                         }
                         if sc.meta.bin_name != self.meta.bin_name {
-                            sc.meta.bin_name = Some(format!("{}{}{}",
-                                                  self.meta
-                                                      .bin_name
-                                                      .as_ref()
-                                                      .unwrap_or(&self.meta.name.clone()),
-                                                  if self.meta.bin_name.is_some() {
-                                                      " "
-                                                  } else {
-                                                      ""
-                                                  },
-                                                  &*sc.meta.name));
+                            sc.meta.bin_name = Some(format!("{} {}", bin_name, sc.meta.name));
                         }
                         return sc._help();
                     }
@@ -756,7 +754,7 @@ impl<'a, 'b> Parser<'a, 'b>
             if let Some(o) = self.opts.iter().filter(|o| &o.name == &a).next() {
                 try!(self.validate_required(matcher));
                 reqs_validated = true;
-                let should_err = if let Some(ref v) = matcher.0.args.get(&*o.name) {
+                let should_err = if let Some(v) = matcher.0.args.get(&*o.name) {
                     v.vals.is_empty() && !(o.min_vals.is_some() && o.min_vals.unwrap() == 0)
                 } else {
                     true
@@ -1154,9 +1152,13 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     fn _help(&self) -> ClapResult<()> {
-        try!(self.print_help());
+        let mut buf = vec![];
+        try!(Help::write_parser_help(&mut buf, self));
+        let out = io::stdout();
+        let mut out_buf = BufWriter::new(out.lock());
+        try!(out_buf.write(&*buf));
         Err(Error {
-            message: String::new(),
+            message: unsafe { String::from_utf8_unchecked(buf) },
             kind: ErrorKind::HelpDisplayed,
             info: None,
         })
@@ -1387,7 +1389,7 @@ impl<'a, 'b> Parser<'a, 'b>
         if self.is_set(AppSettings::StrictUtf8) && val.to_str().is_none() {
             return Err(Error::invalid_utf8(&*self.create_current_usage(matcher), self.color()));
         }
-        if let Some(ref p_vals) = arg.possible_vals() {
+        if let Some(p_vals) = arg.possible_vals() {
             let val_str = val.to_string_lossy();
             if !p_vals.contains(&&*val_str) {
                 return Err(Error::invalid_value(val_str,
@@ -1401,7 +1403,7 @@ impl<'a, 'b> Parser<'a, 'b>
            matcher.contains(&*arg.name()) {
             return Err(Error::empty_value(arg, &*self.create_current_usage(matcher), self.color()));
         }
-        if let Some(ref vtor) = arg.validator() {
+        if let Some(vtor) = arg.validator() {
             if let Err(e) = vtor(val.to_string_lossy().into_owned()) {
                 return Err(Error::value_validation(e, self.color()));
             }
@@ -1591,6 +1593,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 self._help().unwrap_err()
             } else {
                 let mut reqs = self.required.iter().map(|&r| &*r).collect::<Vec<_>>();
+                reqs.retain(|n| !matcher.contains(n));
                 reqs.dedup();
                 Error::missing_required_argument(
                 &*self.get_required_from(&*reqs, Some(matcher))
