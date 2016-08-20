@@ -211,7 +211,7 @@ end
         };
 
         let mut buffer = detect_subcommand_function;
-        gen_fish_inner(command, &self, vec![], &mut buffer, has_subcommands);
+        gen_fish_inner(command, self, vec![], &mut buffer, has_subcommands);
         w!(buf, buffer.as_bytes());
     }
 }
@@ -235,7 +235,7 @@ pub fn get_all_subcommands(p: &Parser) -> Vec<String> {
         }
         subcmds.push(sc.p.meta.name.clone());
     }
-    for sc_v in p.subcommands.iter().map(|ref s| get_all_subcommands(&s.p)) {
+    for sc_v in p.subcommands.iter().map(|s| get_all_subcommands(&s.p)) {
         subcmds.extend(sc_v);
     }
     subcmds.sort();
@@ -269,7 +269,7 @@ pub fn get_all_subcommand_paths(p: &Parser, first: bool) -> Vec<String> {
             }
         }
     }
-    for sc_v in p.subcommands.iter().map(|ref s| get_all_subcommand_paths(&s.p, false)) {
+    for sc_v in p.subcommands.iter().map(|s| get_all_subcommand_paths(&s.p, false)) {
         subcmds.extend(sc_v);
     }
     subcmds
@@ -279,10 +279,10 @@ fn vals_for(o: &OptBuilder) -> String {
     use args::AnyArg;
     let mut ret = String::new();
     let mut needs_quotes = true;
-    if let Some(ref vals) = o.possible_vals() {
+    if let Some(vals) = o.possible_vals() {
         needs_quotes = false;
         ret = format!("$(compgen -W \"{}\" -- ${{cur}})", vals.join(" "));
-    } else if let Some(ref vec) = o.val_names() {
+    } else if let Some(vec) = o.val_names() {
         let mut it = vec.iter().peekable();
         while let Some((_, val)) = it.next() {
             ret = format!("{}<{}>{}", ret, val,
@@ -321,7 +321,7 @@ fn vals_for(o: &OptBuilder) -> String {
     ret
 }
 
-fn gen_fish_inner(root_command: &String,
+fn gen_fish_inner(root_command: &str,
                   comp_gen: &ComplGen,
                   parent_cmds: Vec<&String>,
                   buffer: &mut String,

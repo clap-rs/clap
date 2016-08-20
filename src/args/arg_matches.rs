@@ -111,7 +111,7 @@ impl<'a> ArgMatches<'a> {
     /// [`ArgMatches::values_of`]: ./struct.ArgMatches.html#method.values_of
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     pub fn value_of<S: AsRef<str>>(&self, name: S) -> Option<&str> {
-        if let Some(ref arg) = self.args.get(name.as_ref()) {
+        if let Some(arg) = self.args.get(name.as_ref()) {
             if let Some(v) = arg.vals.values().nth(0) {
                 return Some(v.to_str().expect(INVALID_UTF8));
             }
@@ -208,7 +208,7 @@ impl<'a> ArgMatches<'a> {
     /// [`Values`]: ./struct.Values.html
     /// [`Iterator`]: https://doc.rust-lang.org/std/iter/trait.Iterator.html
     pub fn values_of<S: AsRef<str>>(&'a self, name: S) -> Option<Values<'a>> {
-        if let Some(ref arg) = self.args.get(name.as_ref()) {
+        if let Some(arg) = self.args.get(name.as_ref()) {
             fn to_str_slice(o: &OsString) -> &str {
                 o.to_str().expect(INVALID_UTF8)
             }
@@ -240,7 +240,7 @@ impl<'a> ArgMatches<'a> {
     /// assert_eq!(itr.next(), None);
     /// ```
     pub fn values_of_lossy<S: AsRef<str>>(&'a self, name: S) -> Option<Vec<String>> {
-        if let Some(ref arg) = self.args.get(name.as_ref()) {
+        if let Some(arg) = self.args.get(name.as_ref()) {
             return Some(arg.vals
                            .values()
                            .map(|v| v.to_string_lossy().into_owned())
@@ -284,7 +284,7 @@ impl<'a> ArgMatches<'a> {
             &*o
         }
         let to_str_slice: fn(&'a OsString) -> &'a OsStr = to_str_slice; // coerce to fn pointer
-        if let Some(ref arg) = self.args.get(name.as_ref()) {
+        if let Some(arg) = self.args.get(name.as_ref()) {
             return Some(OsValues { iter: arg.vals.values().map(to_str_slice) });
         }
         None

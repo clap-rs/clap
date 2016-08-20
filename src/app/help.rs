@@ -150,7 +150,7 @@ impl<'a> Help<'a> {
         debugln!("fn=Help::write_help;");
         if let Some(h) = parser.meta.help_str {
             try!(write!(self.writer, "{}", h).map_err(Error::from));
-        } else if let Some(ref tmpl) = parser.meta.template {
+        } else if let Some(tmpl) = parser.meta.template {
             try!(self.write_templated_help(&parser, tmpl));
         } else {
             try!(self.write_default_help(&parser));
@@ -282,7 +282,7 @@ impl<'a> Help<'a> {
         if !arg.takes_value() {
             return Ok(());
         }
-        if let Some(ref vec) = arg.val_names() {
+        if let Some(vec) = arg.val_names() {
             let mut it = vec.iter().peekable();
             while let Some((_, val)) = it.next() {
                 try!(color!(self, "<{}>", val, good));
@@ -524,7 +524,7 @@ impl<'a> Help<'a> {
 
     fn spec_vals(&self, a: &ArgWithDisplay) -> String {
         debugln!("fn=spec_vals;");
-        if let Some(ref pv) = a.default_val() {
+        if let Some(pv) = a.default_val() {
             debugln!("Writing defaults");
             return format!(" [default: {}] {}",
                            if self.color {
@@ -562,7 +562,7 @@ impl<'a> Help<'a> {
                });
         } else if !self.hide_pv {
             debugln!("Writing values");
-            if let Some(ref pv) = a.possible_vals() {
+            if let Some(pv) = a.possible_vals() {
                 debugln!("Possible vals...{:?}", pv);
                 return if self.color {
                     format!(" [values: {}]",
@@ -943,7 +943,7 @@ impl<'a> Help<'a> {
                                 parser.meta.pre_help.unwrap_or("unknown before-help")));
                 }
                 // Unknown tag, write it back.
-                ref r => {
+                r => {
                     try!(self.writer.write(b"{"));
                     try!(self.writer.write(r));
                     try!(self.writer.write(b"}"));
