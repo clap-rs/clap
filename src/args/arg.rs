@@ -145,6 +145,25 @@ impl<'a, 'b> Arg<'a, 'b> {
         let mut a = Arg::with_name(name_str);
         let arg_settings = y.get(name_yml).unwrap().as_hash().unwrap();
 
+        macro_rules! vec_or_str {
+            ($v:ident, $a:ident, $c:ident) => {{
+                    let maybe_vec = $v.as_vec();
+                    if let Some(vec) = maybe_vec {
+                        for ys in vec {
+                            if let Some(s) = ys.as_str() {
+                                $a = $a.$c(s);
+                            }
+                        }
+                    } else {
+                        if let Some(s) = $v.as_str() {
+                            $a = $a.$c(s);
+                        }
+                    }
+                    $a
+                }
+            };
+        }
+
         for (k, v) in arg_settings.iter() {
             a = match k.as_str().unwrap() {
                 "short" => a.short(v.as_str().unwrap()),
@@ -169,67 +188,28 @@ impl<'a, 'b> Arg<'a, 'b> {
                 "display_order" => a.display_order(v.as_i64().unwrap() as usize),
                 "default_value" => a.default_value(v.as_str().unwrap()),
                 "value_names" => {
-                    for ys in v.as_vec().unwrap() {
-                        if let Some(s) = ys.as_str() {
-                            a = a.value_name(s);
-                        }
-                    }
-                    a
+                    vec_or_str!(v, a, value_name)
                 }
                 "groups" => {
-                    for ys in v.as_vec().unwrap() {
-                        if let Some(s) = ys.as_str() {
-                            a = a.group(s);
-                        }
-                    }
-                    a
+                    vec_or_str!(v, a, group)
                 }
                 "requires" => {
-                    for ys in v.as_vec().unwrap() {
-                        if let Some(s) = ys.as_str() {
-                            a = a.requires(s);
-                        }
-                    }
-                    a
+                    vec_or_str!(v, a, requires)
                 }
                 "conflicts_with" => {
-                    for ys in v.as_vec().unwrap() {
-                        if let Some(s) = ys.as_str() {
-                            a = a.conflicts_with(s);
-                        }
-                    }
-                    a
+                    vec_or_str!(v, a, conflicts_with)
                 }
                 "overrides_with" => {
-                    for ys in v.as_vec().unwrap() {
-                        if let Some(s) = ys.as_str() {
-                            a = a.overrides_with(s);
-                        }
-                    }
-                    a
+                    vec_or_str!(v, a, overrides_with)
                 }
                 "possible_values" => {
-                    for ys in v.as_vec().unwrap() {
-                        if let Some(s) = ys.as_str() {
-                            a = a.possible_value(s);
-                        }
-                    }
-                    a
+                    vec_or_str!(v, a, possible_value)
                 }
                 "required_unless_one" => {
-                    for ys in v.as_vec().unwrap() {
-                        if let Some(s) = ys.as_str() {
-                            a = a.required_unless(s);
-                        }
-                    }
-                    a
+                    vec_or_str!(v, a, required_unless)
                 }
                 "required_unless_all" => {
-                    for ys in v.as_vec().unwrap() {
-                        if let Some(s) = ys.as_str() {
-                            a = a.required_unless(s);
-                        }
-                    }
+                    a = vec_or_str!(v, a, required_unless);
                     a.setb(ArgSettings::RequiredUnlessAll);
                     a
                 }
