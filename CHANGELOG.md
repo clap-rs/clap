@@ -1,3 +1,17 @@
+<a name="v2.10.1"></a>
+### v2.10.1 (2016-08-21)
+
+
+#### Bug Fixes
+
+* **Help Subcommand:**  fixes misleading usage string when using multi-level subcommmands ([e203515e](https://github.com/kbknapp/clap-rs/commit/e203515e3ac495b405dbba4f78fb6af148fd282e), closes [#618](https://github.com/kbknapp/clap-rs/issues/618))
+
+#### Features
+
+* **YAML:**  allows using lists or single values with arg declarations ([9ade2cd4](https://github.com/kbknapp/clap-rs/commit/9ade2cd4b268d6d7fe828319ce6a523c641b9c38), closes [#614](https://github.com/kbknapp/clap-rs/issues/614), [#613](https://github.com/kbknapp/clap-rs/issues/613))
+
+
+
 <a name="v2.10.0"></a>
 ## v2.10.0 (2016-07-29)
 
