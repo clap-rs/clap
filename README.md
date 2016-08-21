@@ -39,6 +39,12 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.10.1
+
+* **Help Subcommand:**  fixes misleading usage string when using multi-level subcommmands such as `myprog help subcmd1 subcmd2`
+* **YAML:**  allows using lists or single values with certain arg declarations for increased ergonomics
+
+
 Here's the highlights for v2.10.0
 
 
