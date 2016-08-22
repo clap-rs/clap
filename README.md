@@ -39,6 +39,10 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.10.2
+
+* Fixes a critical bug where the help message is printed twice
+
 Here's the highlights for v2.10.1
 
 * **Help Subcommand:**  fixes misleading usage string when using multi-level subcommmands such as `myprog help subcmd1 subcmd2`
