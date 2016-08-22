@@ -1,3 +1,13 @@
+<a name="v2.10.2"></a>
+### v2.10.2 (2016-08-22)
+
+
+#### Bug Fixes
+
+*   fixes a bug where the help is printed twice ([a643fb28](https://github.com/kbknapp/clap-rs/commit/a643fb283acd9905dc727c4579c5c9fa2ceaa7e7), closes [#623](https://github.com/kbknapp/clap-rs/issues/623))
+
+
+
 <a name="v2.10.1"></a>
 ### v2.10.1 (2016-08-21)
 

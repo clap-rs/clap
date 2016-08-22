@@ -1154,9 +1154,9 @@ impl<'a, 'b> Parser<'a, 'b>
     fn _help(&self) -> ClapResult<()> {
         let mut buf = vec![];
         try!(Help::write_parser_help(&mut buf, self));
-        let out = io::stdout();
-        let mut out_buf = BufWriter::new(out.lock());
-        try!(out_buf.write(&*buf));
+        // let out = io::stdout();
+        // let mut out_buf = BufWriter::new(out.lock());
+        // try!(out_buf.write(&*buf));
         Err(Error {
             message: unsafe { String::from_utf8_unchecked(buf) },
             kind: ErrorKind::HelpDisplayed,
