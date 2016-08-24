@@ -485,7 +485,7 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     /// Disables a single command, or [`SubCommand`], level setting.
-    /// 
+    ///
     /// See [`AppSettings`] for a full list of possibilities and examples.
     ///
     /// # Examples
@@ -522,10 +522,11 @@ impl<'a, 'b> App<'a, 'b> {
         for s in settings {
             self.p.unset(*s);
         }
-        self 
+        self
     }
 
-    /// Sets the terminal width at which to wrap help messages. Defaults to `120`.
+    /// Sets the terminal width at which to wrap help messages. Defaults to `120`. Using `0` will
+    /// ignore terminal widths and use source formatting.
     ///
     /// `clap` automatically tries to determine the terminal width on Unix, Linux, and OSX if the
     /// `wrap_help` cargo "feature" has been used while compiling. If the terminal width cannot be
