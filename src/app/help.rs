@@ -2,6 +2,7 @@ use std::io::{self, Cursor, Read, Write};
 use std::collections::BTreeMap;
 use std::fmt::Display;
 use std::cmp;
+use std::usize;
 
 use vec_map::VecMap;
 
@@ -102,7 +103,11 @@ impl<'a> Help<'a> {
             next_line_help: next_line_help,
             hide_pv: hide_pv,
             term_w: match term_w {
-                Some(width) => width,
+                Some(width) => if width == 0 {
+                    usize::MAX
+                } else {
+                    width
+                },
                 None        => term_size::dimensions().map_or(120, |(w, _)| w),
             },
             color: color,
