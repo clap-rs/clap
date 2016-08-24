@@ -190,6 +190,14 @@ fn multi_level_sc_help() {
 }
 
 #[test]
+fn no_wrap_help() {
+    let app = App::new("ctest")
+        .set_term_width(0)
+        .help(MULTI_SC_HELP);
+    test::check_err_output(app, "ctest --help", MULTI_SC_HELP, false);
+}
+
+#[test]
 fn complex_subcommand_help_output() {
     let mut a = test::complex_app();
     let _ = a.get_matches_from_safe_borrow(vec![""]);
