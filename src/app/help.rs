@@ -23,17 +23,10 @@ mod term_size {
     }
 }
 
-#[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
 use unicode_width::UnicodeWidthStr;
 
 use strext::_StrExt;
 
-#[cfg(any(not(feature = "wrap_help"), target_os = "windows"))]
-fn str_width(s: &str) -> usize {
-    s.len()
-}
-
-#[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
 fn str_width(s: &str) -> usize {
     UnicodeWidthStr::width(s)
 }

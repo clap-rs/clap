@@ -409,14 +409,12 @@ extern crate ansi_term;
 extern crate yaml_rust;
 #[cfg(any(feature = "wrap_help", feature = "color"))]
 extern crate libc;
-#[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
 extern crate unicode_width;
 #[macro_use]
 extern crate bitflags;
 extern crate vec_map;
 #[cfg(feature = "wrap_help")]
 extern crate term_size;
-#[cfg(feature = "wrap_help")]
 extern crate unicode_segmentation;
 
 #[cfg(feature = "yaml")]
