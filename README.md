@@ -39,6 +39,12 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.10.3
+
+* Fixes a bug with non-English characters in help text wrapping, where the character is stripped or causes a panic
+* Fixes an issue with `strsim` which caused a panic in some scenarios
+* Adds a shorthand way to ignore help text wrapping and use source formatting (i.e. `App::set_term_width(0)`)
+
 Here's the highlights for v2.10.2
 
 * Fixes a critical bug where the help message is printed twice
@@ -59,9 +65,9 @@ Here's the highlights for v2.10.0
 
 Here's the highlights for v2.9.3
 
-* Adds the ability to generate completions to an `io::Write` object 
-* Adds an `App::unset_setting` and `App::unset_settings` 
-* Fixes bug where only first arg in list of `required_unless_one` is recognized 
+* Adds the ability to generate completions to an `io::Write` object
+* Adds an `App::unset_setting` and `App::unset_settings`
+* Fixes bug where only first arg in list of `required_unless_one` is recognized
 * Fixes a typo bug `SubcommandsRequired`->`SubcommandRequired`
 
 
@@ -547,7 +553,7 @@ The following is a list of optional `clap` features:
 
 * **"suggestions"**: Turns on the `Did you mean '--myoption'?` feature for when users make typos. (builds dependency `strsim`)
 * **"color"**: Turns on colored error messages. This feature only works on non-Windows OSs. (builds dependency `ansi-term` and `libc`)
-* **"wrap_help"**: Automatically detects terminal width and wraps long help text lines with proper indentation alignment (builds dependency `libc` and 'unicode-width')
+* **"wrap_help"**: Automatically detects terminal width and wraps long help text lines with proper indentation alignment (builds dependency `libc`, and `term_size`)
 * **"lints"**: This is **not** included by default and should only be used while developing to run basic lints against changes. This can only be used on Rust nightly. (builds dependency `clippy`)
 * **"debug"**: This is **not** included by default and should only be used while developing to display debugging information.
 * **"yaml"**: This is **not** included by default. Enables building CLIs from YAML documents. (builds dependency `yaml-rust`)

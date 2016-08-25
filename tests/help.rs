@@ -3,7 +3,7 @@ extern crate regex;
 
 include!("../clap-test.rs");
 
-use clap::{App, SubCommand, ErrorKind};
+use clap::{App, SubCommand, ErrorKind, Arg};
 
 static HELP: &'static str = "clap-test v1.4.8
 Kevin K. <kbknapp@gmail.com>
@@ -80,6 +80,45 @@ FLAGS:
 
 OPTIONS:
     -o, --option <scoption>...    tests options";
+
+static ISSUE_626_CUTOFF: &'static str = "ctest 0.1
+
+USAGE:
+    ctest [OPTIONS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -c, --cafe <FILE>    A coffeehouse, coffee shop, or café is an
+                         establishment which primarily serves hot
+                         coffee, related coffee beverages (e.g., café
+                         latte, cappuccino, espresso), tea, and other
+                         hot beverages. Some coffeehouses also serve cold
+                         beverages such as iced coffee and iced tea. Many
+                         cafés also serve some type of food, such as light
+                         snacks, muffins, or pastries.";
+
+static ISSUE_626_PANIC: &'static str = "ctest 0.1
+
+USAGE:
+    ctest [OPTIONS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -c, --cafe <FILE>    La culture du café est très
+                         développée dans de
+                         nombreux pays à climat chaud
+                         d'Amérique, d'Afrique et
+                         d'Asie, dans des plantations qui
+                         sont cultivées pour les marchés
+                         d'exportation. Le café est souvent
+                         une contribution majeure aux
+                         exportations des régions productrices.";
 
 #[test]
 fn help_short() {
@@ -190,6 +229,14 @@ fn multi_level_sc_help() {
 }
 
 #[test]
+fn no_wrap_help() {
+    let app = App::new("ctest")
+        .set_term_width(0)
+        .help(MULTI_SC_HELP);
+    test::check_err_output(app, "ctest --help", MULTI_SC_HELP, false);
+}
+
+#[test]
 fn complex_subcommand_help_output() {
     let mut a = test::complex_app();
     let _ = a.get_matches_from_safe_borrow(vec![""]);
@@ -198,4 +245,40 @@ fn complex_subcommand_help_output() {
     let mut help = vec![];
     sc.write_help(&mut help).ok().expect("failed to print help");
     assert_eq!(&*String::from_utf8(help).unwrap(), SC_HELP);
+}
+
+
+#[test]
+fn issue_626_unicode_cutoff() {
+    let app = App::new("ctest")
+        .version("0.1")
+        .set_term_width(70)
+        .arg(Arg::with_name("cafe")
+           .short("c")
+           .long("cafe")
+           .value_name("FILE")
+           .help("A coffeehouse, coffee shop, or café is an establishment \
+           which primarily serves hot coffee, related coffee beverages \
+           (e.g., café latte, cappuccino, espresso), tea, and other hot \
+           beverages. Some coffeehouses also serve cold beverages such as \
+           iced coffee and iced tea. Many cafés also serve some type of \
+           food, such as light snacks, muffins, or pastries.")
+           .takes_value(true));
+    test::check_err_output(app, "ctest --help", ISSUE_626_CUTOFF, false);
+}
+
+#[test]
+fn issue_626_panic() {
+    let app = App::new("ctest")
+        .version("0.1")
+        .set_term_width(53)
+        .arg(Arg::with_name("cafe")
+           .short("c")
+           .long("cafe")
+           .value_name("FILE")
+           .help("La culture du café est très développée dans de nombreux pays à climat chaud d'Amérique, \
+           d'Afrique et d'Asie, dans des plantations qui sont cultivées pour les marchés d'exportation. \
+           Le café est souvent une contribution majeure aux exportations des régions productrices.")
+           .takes_value(true));
+    test::check_err_output(app, "ctest --help", ISSUE_626_PANIC, false);
 }

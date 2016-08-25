@@ -2,8 +2,10 @@ use std::io::{self, Cursor, Read, Write};
 use std::collections::BTreeMap;
 use std::fmt::Display;
 use std::cmp;
+use std::usize;
 
 use vec_map::VecMap;
+use unicode_segmentation::UnicodeSegmentation;
 
 use errors::{Error, Result as ClapResult};
 
@@ -21,17 +23,10 @@ mod term_size {
     }
 }
 
-#[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
 use unicode_width::UnicodeWidthStr;
 
 use strext::_StrExt;
 
-#[cfg(any(not(feature = "wrap_help"), target_os = "windows"))]
-fn str_width(s: &str) -> usize {
-    s.len()
-}
-
-#[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
 fn str_width(s: &str) -> usize {
     UnicodeWidthStr::width(s)
 }
@@ -102,7 +97,11 @@ impl<'a> Help<'a> {
             next_line_help: next_line_help,
             hide_pv: hide_pv,
             term_w: match term_w {
-                Some(width) => width,
+                Some(width) => if width == 0 {
+                    usize::MAX
+                } else {
+                    width
+                },
                 None        => term_size::dimensions().map_or(120, |(w, _)| w),
             },
             color: color,
@@ -458,33 +457,27 @@ impl<'a> Help<'a> {
             debug!("Enough space to wrap...");
             if longest_w < avail_chars {
                 sdebugln!("Yes");
-                let mut indices = vec![];
-                let mut idx = 0;
-                loop {
-                    idx += avail_chars - 1;
-                    if idx >= help.len() {
-                        break;
+                let mut prev_space = 0;
+                let mut j = 0;
+                let mut i = 0;
+                for (idx, g) in (&*help.clone()).grapheme_indices(true) {
+                    debugln!("iter;idx={},g={}", idx, g);
+                    if g != " " { continue; }
+                    if str_width(&help[j..idx]) < avail_chars {
+                    debugln!("Still enough space...");
+                        prev_space = idx;
+                        continue;
                     }
-                    // 'a' arbitrary non space char
-                    if help.chars().nth(idx).unwrap_or('a') != ' ' {
-                        idx = find_idx_of_space(&*help, idx);
-                    }
-                    debugln!("Adding idx: {}", idx);
-                    debugln!("At {}: {:?}", idx, help.chars().nth(idx));
-                    indices.push(idx);
-                    if str_width(&help[idx..]) <= avail_chars {
-                        break;
-                    }
-                }
-                for (i, idx) in indices.iter().enumerate() {
-                    debugln!("iter;i={},idx={}", i, idx);
-                    let j = idx + (2 * i);
+                    debugln!("Adding Newline...");
+                    j = prev_space + (2 * i);
+                    debugln!("i={},prev_space={},j={}", i, prev_space, j);
                     debugln!("removing: {}", j);
-                    debugln!("at {}: {:?}", j, help.chars().nth(j));
+                    debugln!("char at {}: {}", j, &help[j..j]);
                     help.remove(j);
                     help.insert(j, '{');
                     help.insert(j + 1, 'n');
                     help.insert(j + 2, '}');
+                    i += 1;
                 }
             } else {
                 sdebugln!("No");
