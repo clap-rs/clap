@@ -39,6 +39,10 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.10.4
+
+* Fixes a bug where help is wrapped incorrectly and causing a panic with some non-English characters 
+
 Here's the highlights for v2.10.3
 
 * Fixes a bug with non-English characters in help text wrapping, where the character is stripped or causes a panic
