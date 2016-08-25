@@ -5,6 +5,7 @@ use std::cmp;
 use std::usize;
 
 use vec_map::VecMap;
+use unicode_segmentation::UnicodeSegmentation;
 
 use errors::{Error, Result as ClapResult};
 
@@ -463,33 +464,27 @@ impl<'a> Help<'a> {
             debug!("Enough space to wrap...");
             if longest_w < avail_chars {
                 sdebugln!("Yes");
-                let mut indices = vec![];
-                let mut idx = 0;
-                loop {
-                    idx += avail_chars - 1;
-                    if idx >= help.len() {
-                        break;
+                let mut prev_space = 0;
+                let mut j = 0;
+                let mut i = 0;
+                for (idx, g) in (&*help.clone()).grapheme_indices(true) {
+                    debugln!("iter;idx={},g={}", idx, g);
+                    if g != " " { continue; }
+                    if str_width(&help[j..idx]) < avail_chars {
+                    debugln!("Still enough space...");
+                        prev_space = idx;
+                        continue;
                     }
-                    // 'a' arbitrary non space char
-                    if help.chars().nth(idx).unwrap_or('a') != ' ' {
-                        idx = find_idx_of_space(&*help, idx);
-                    }
-                    debugln!("Adding idx: {}", idx);
-                    debugln!("At {}: {:?}", idx, help.chars().nth(idx));
-                    indices.push(idx);
-                    if str_width(&help[idx..]) <= avail_chars {
-                        break;
-                    }
-                }
-                for (i, idx) in indices.iter().enumerate() {
-                    debugln!("iter;i={},idx={}", i, idx);
-                    let j = idx + (2 * i);
+                    debugln!("Adding Newline...");
+                    j = prev_space + (2 * i);
+                    debugln!("i={},prev_space={},j={}", i, prev_space, j);
                     debugln!("removing: {}", j);
-                    debugln!("at {}: {:?}", j, help.chars().nth(j));
+                    debugln!("char at {}: {}", j, &help[j..j]);
                     help.remove(j);
                     help.insert(j, '{');
                     help.insert(j + 1, 'n');
                     help.insert(j + 2, '}');
+                    i += 1;
                 }
             } else {
                 sdebugln!("No");
