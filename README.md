@@ -39,6 +39,12 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.10.3
+
+* Fixes a bug with non-English characters in help text wrapping, where the character is stripped or causes a panic
+* Fixes an issue with `strsim` which caused a panic in some scenarios
+* Adds a shorthand way to ignore help text wrapping and use source formatting (i.e. `App::set_term_width(0)`)
+
 Here's the highlights for v2.10.2
 
 * Fixes a critical bug where the help message is printed twice

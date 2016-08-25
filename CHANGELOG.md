@@ -1,3 +1,20 @@
+<a name="v2.10.3"></a>
+### v2.10.3 (2016-08-25)
+
+#### Features
+
+* **Help:**  adds new short hand way to use source formatting and ignore term width in help messages ([7dfdaf20](https://github.com/kbknapp/clap-rs/commit/7dfdaf200ebb5c431351a045b48f5e0f0d3f31db), closes [#625](https://github.com/kbknapp/clap-rs/issues/625))
+
+#### Documentation
+
+* **Term Width:**  adds details about set_term_width(0) ([00b8205d](https://github.com/kbknapp/clap-rs/commit/00b8205d22639d1b54b9c453c55c785aace52cb2))
+
+#### Bug Fixes
+
+* **Unicode:**  fixes two bugs where non-English characters were stripped or caused a panic with help wrapping ([763a5c92](https://github.com/kbknapp/clap-rs/commit/763a5c920e23efc74d190af0cb8b5dd714b2d67a), closes [#626](https://github.com/kbknapp/clap-rs/issues/626))
+
+
+
 <a name="v2.10.2"></a>
 ### v2.10.2 (2016-08-22)
 
