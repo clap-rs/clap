@@ -1,3 +1,13 @@
+<a name="v2.10.4"></a>
+### v2.10.4 (2016-08-25)
+
+
+#### Bug Fixes
+
+* **Help Wrapping:**  fixes a bug where help is wrapped incorrectly and causing a panic with some non-English characters ([d0b442c7](https://github.com/kbknapp/clap-rs/commit/d0b442c7beeecac9764406bc3bd171ced0b8825e), closes [#626](https://github.com/kbknapp/clap-rs/issues/626))
+
+
+
 <a name="v2.10.3"></a>
 ### v2.10.3 (2016-08-25)
 

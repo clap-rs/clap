@@ -25,7 +25,7 @@ mod term_size {
 
 use unicode_width::UnicodeWidthStr;
 
-use strext::_StrExt;
+// use strext::_StrExt;
 
 fn str_width(s: &str) -> usize {
     UnicodeWidthStr::width(s)
@@ -336,7 +336,6 @@ impl<'a> Help<'a> {
         let width = self.term_w;
         debugln!("Term width...{}", width);
         let too_long = str_width(h) >= width;
-        debugln!("Too long...{:?}", too_long);
 
         debug!("Too long...");
         if too_long {
@@ -355,41 +354,7 @@ impl<'a> Help<'a> {
                 }
                 lw
             };
-            debugln!("Longest word...{}", longest_w);
-            debug!("Enough space to wrap...");
-            if longest_w < width {
-                sdebugln!("Yes");
-                let mut indices = vec![];
-                let mut idx = 0;
-                loop {
-                    idx += width - 1;
-                    if idx >= help.len() {
-                        break;
-                    }
-                    // 'a' arbitrary non space char
-                    if help.chars().nth(idx).unwrap_or('a') != ' ' {
-                        idx = find_idx_of_space(&*help, idx);
-                    }
-                    debugln!("Adding idx: {}", idx);
-                    debugln!("At {}: {:?}", idx, help.chars().nth(idx));
-                    indices.push(idx);
-                    if str_width(&help[idx..]) <= width {
-                        break;
-                    }
-                }
-                for (i, idx) in indices.iter().enumerate() {
-                    debugln!("iter;i={},idx={}", i, idx);
-                    let j = idx + (2 * i);
-                    debugln!("removing: {}", j);
-                    debugln!("at {}: {:?}", j, help.chars().nth(j));
-                    help.remove(j);
-                    help.insert(j, '{');
-                    help.insert(j + 1, 'n');
-                    help.insert(j + 2, '}');
-                }
-            } else {
-                sdebugln!("No");
-            }
+            wrap_help(&mut help, longest_w, width);
         } else {
             sdebugln!("No");
         }
@@ -427,7 +392,7 @@ impl<'a> Help<'a> {
         let width = self.term_w;
         debugln!("Term width...{}", width);
         let too_long = spcs + str_width(h) + str_width(&*spec_vals) >= width;
-        debugln!("Too long...{:?}", too_long);
+        debugln!("Spaces: {}", spcs);
 
         // Is help on next line, if so newline + 2x tab
         if self.next_line_help || arg.is_set(ArgSettings::NextLineHelp) {
@@ -435,7 +400,7 @@ impl<'a> Help<'a> {
         }
 
         debug!("Too long...");
-        if too_long {
+        if too_long && spcs <= width {
             sdebugln!("Yes");
             help.push_str(h);
             help.push_str(&*spec_vals);
@@ -453,35 +418,7 @@ impl<'a> Help<'a> {
                 }
                 lw
             };
-            debugln!("Longest word...{}", longest_w);
-            debug!("Enough space to wrap...");
-            if longest_w < avail_chars {
-                sdebugln!("Yes");
-                let mut prev_space = 0;
-                let mut j = 0;
-                let mut i = 0;
-                for (idx, g) in (&*help.clone()).grapheme_indices(true) {
-                    debugln!("iter;idx={},g={}", idx, g);
-                    if g != " " { continue; }
-                    if str_width(&help[j..idx]) < avail_chars {
-                    debugln!("Still enough space...");
-                        prev_space = idx;
-                        continue;
-                    }
-                    debugln!("Adding Newline...");
-                    j = prev_space + (2 * i);
-                    debugln!("i={},prev_space={},j={}", i, prev_space, j);
-                    debugln!("removing: {}", j);
-                    debugln!("char at {}: {}", j, &help[j..j]);
-                    help.remove(j);
-                    help.insert(j, '{');
-                    help.insert(j + 1, 'n');
-                    help.insert(j + 2, '}');
-                    i += 1;
-                }
-            } else {
-                sdebugln!("No");
-            }
+            wrap_help(&mut help, longest_w, avail_chars);
         } else {
             sdebugln!("No");
         }
@@ -946,24 +883,34 @@ impl<'a> Help<'a> {
     }
 }
 
-
-fn find_idx_of_space(full: &str, mut start: usize) -> usize {
-    debugln!("fn=find_idx_of_space;");
-    let haystack = if full._is_char_boundary(start) {
-        &full[..start]
+fn wrap_help(help: &mut String, longest_w: usize, avail_chars: usize) {
+    debugln!("fn=wrap_help;longest_w={},avail_chars={}", longest_w, avail_chars);
+    debug!("Enough space to wrap...");
+    if longest_w < avail_chars {
+        sdebugln!("Yes");
+        let mut prev_space = 0;
+        let mut j = 0;
+        let mut i = 0;
+        for (idx, g) in (&*help.clone()).grapheme_indices(true) {
+            debugln!("iter;idx={},g={}", idx, g);
+            if g != " " { continue; }
+            if str_width(&help[j..idx + (2 * i)]) < avail_chars {
+            debugln!("Still enough space...");
+                prev_space = idx;
+                continue;
+            }
+            debugln!("Adding Newline...");
+            j = prev_space + (2 * i);
+            debugln!("i={},prev_space={},j={}", i, prev_space, j);
+            debugln!("removing: {}", j);
+            debugln!("char at {}: {}", j, &help[j..j]);
+            help.remove(j);
+            help.insert(j, '{');
+            help.insert(j + 1, 'n');
+            help.insert(j + 2, '}');
+            i += 1;
+        }
     } else {
-        while !full._is_char_boundary(start) {
-            start -= 1;
-        }
-        &full[..start]
-    };
-    debugln!("haystack: {}", haystack);
-    for (i, c) in haystack.chars().rev().enumerate() {
-        debugln!("iter;c={},i={}", c, i);
-        if c == ' ' {
-            debugln!("Found space returning start-i...{}", start - (i + 1));
-            return start - (i + 1);
-        }
+        sdebugln!("No");
     }
-    0
 }
