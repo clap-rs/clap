@@ -530,9 +530,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// Sets the terminal width at which to wrap help messages. Defaults to `120`. Using `0` will
     /// ignore terminal widths and use source formatting.
     ///
-    /// `clap` automatically tries to determine the terminal width on Unix, Linux, and OSX if the
-    /// `wrap_help` cargo "feature" has been used while compiling. If the terminal width cannot be
-    /// determined, `clap` defaults to `120`.
+    /// `clap` automatically tries to determine the terminal width on Unix, Linux, OSX and Windows
+    /// if the `wrap_help` cargo "feature" has been used while compiling. If the terminal width
+    /// cannot be determined, `clap` defaults to `120`.
     ///
     /// **NOTE:** This setting applies globally and *not* on a per-command basis.
     ///
@@ -540,9 +540,9 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// # Platform Specific
     ///
-    /// Only Unix, Linux, and OSX support automatic determination of terminal width. Even on those
-    /// platforms, this setting is useful if for any reason the terminal width cannot be
-    /// determined.
+    /// Only Unix, Linux, OSX and Windows support automatic determination of terminal width.
+    /// Even on those platforms, this setting is useful if for any reason the terminal width
+    /// cannot be determined.
     ///
     /// # Examples
     ///
