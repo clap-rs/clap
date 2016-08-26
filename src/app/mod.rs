@@ -364,20 +364,22 @@ impl<'a, 'b> App<'a, 'b> {
 
     /// Sets the help template to be used, overriding the default format.
     ///
-    /// Tags arg given inside curly brackets:
+    /// Tags arg given inside curly brackets.
+    ///
     /// Valid tags are:
-    ///     * `{bin}`         - Binary name.
-    ///     * `{version}`     - Version number.
-    ///     * `{author}`      - Author information.
-    ///     * `{usage}`       - Automatically generated or given usage string.
-    ///     * `{all-args}`    - Help for all arguments (options, flags, positionals arguments,
-    ///                         and subcommands) including titles.
-    ///     * `{unified}`     - Unified help for options and flags.
-    ///     * `{flags}`       - Help for flags.
-    ///     * `{options}`     - Help for options.
-    ///     * `{positionals}` - Help for positionals arguments.
-    ///     * `{subcommands}` - Help for subcommands.
-    ///     * `{after-help}`  - Help for flags.
+    ///
+    ///   * `{bin}`         - Binary name.
+    ///   * `{version}`     - Version number.
+    ///   * `{author}`      - Author information.
+    ///   * `{usage}`       - Automatically generated or given usage string.
+    ///   * `{all-args}`    - Help for all arguments (options, flags, positionals arguments,
+    ///                       and subcommands) including titles.
+    ///   * `{unified}`     - Unified help for options and flags.
+    ///   * `{flags}`       - Help for flags.
+    ///   * `{options}`     - Help for options.
+    ///   * `{positionals}` - Help for positionals arguments.
+    ///   * `{subcommands}` - Help for subcommands.
+    ///   * `{after-help}`  - Help for flags.
     ///
     /// # Examples
     ///
