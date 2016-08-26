@@ -53,6 +53,7 @@ use yaml_rust::Yaml;
 /// assert_eq!(err.kind, ErrorKind::ArgumentConflict);
 /// ```
 /// This next example shows a passing parse of the same scenario
+///
 /// ```rust
 /// # use clap::{App, ArgGroup};
 /// let result = App::new("app")
