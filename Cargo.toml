@@ -4,12 +4,15 @@ name = "clap"
 version = "2.10.4"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
 exclude = ["examples/*", "clap-test/*", "tests/*", "benches/*", "*.png", "clap-perf/*", "*.dot"]
-description = "A simple to use, efficient, and full featured  Command Line Argument Parser"
 repository = "https://github.com/kbknapp/clap-rs.git"
-documentation = "http://kbknapp.github.io/clap-rs"
+documentation = "https://docs.rs/clap/"
+homepage = "https://docs.rs/crate/clap/"
 readme = "README.md"
 license = "MIT"
 keywords = ["argument", "command", "arg", "parser", "parse"]
+description = """
+A simple to use, efficient, and full featured  Command Line Argument Parser
+"""
 
 [dependencies]
 bitflags  = "~0.7"

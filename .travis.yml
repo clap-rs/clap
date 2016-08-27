@@ -20,8 +20,7 @@ script:
     cargo build --verbose --features yaml &&
     cargo test --verbose --features yaml &&
     travis-cargo --only nightly build -- --features travis &&
-    travis-cargo --only nightly bench &&
-    travis-cargo --only stable doc -- --features yaml
+    travis-cargo --only nightly bench
 addons:
   apt:
     packages:
@@ -30,7 +29,6 @@ addons:
     - libdw-dev
 after_success:
   - |
-    travis-cargo --only stable doc-upload &&
     travis-cargo --only stable coveralls --no-sudo -- --features yaml
 env:
   global:

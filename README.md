@@ -10,7 +10,7 @@ Command Line Argument Parser for Rust
 
 It is a simple-to-use, efficient, and full-featured library for parsing command line arguments and subcommands when writing console/terminal applications.
 
-## [documentation](http://kbknapp.github.io/clap-rs/clap/index.html)
+## [documentation](https://docs.rs/clap/)
 
 Table of Contents
 =================
@@ -83,12 +83,12 @@ Here's the highlights for v2.9.2
 
 Here's the highlights for v2.9.0
 
-* **Completions:**  one can now [generate a bash completions](http://kbknapp.github.io/clap-rs/clap/struct.App.html#method.gen_completions) script at compile time! These completions work with options using [possible values](http://kbknapp.github.io/clap-rs/clap/struct.Arg.html#method.possible_values), [subcommand aliases](http://kbknapp.github.io/clap-rs/clap/struct.App.html#method.aliases), and even multiple levels of subcommands
+* **Completions:**  one can now [generate a bash completions](https://docs.rs/clap/2.9.0/clap/struct.App.html#method.gen_completions) script at compile time! These completions work with options using [possible values](https://docs.rs/clap/2.9.0/clap/struct.Arg.html#method.possible_values), [subcommand aliases](https://docs.rs/clap/2.9.0/clap/struct.App.html#method.aliases), and even multiple levels of subcommands
 * Minor bug fixes when using `AppSettings::TrailingVarArg` and `AppSettings::AllowLeadingHyphen`
 
 Here's the highlights for v2.8.0
 
-* **Arg:**  adds new optional setting [`Arg::require_delimiter`](http://kbknapp.github.io/clap-rs/clap/struct.Arg.html#method.require_delimiter) which requires val delimiter to parse multiple values
+* **Arg:**  adds new optional setting [`Arg::require_delimiter`](https://docs.rs/clap/2.8.0/clap/struct.Arg.html#method.require_delimiter) which requires val delimiter to parse multiple values
 * The terminal sizing portion has been factored out into a separate crate, [term_size](https://crates.io/crates/term_size)
 * Minor bug fixes
 
@@ -236,7 +236,7 @@ Because `docopt` is doing a ton of work to parse your help messages and determin
 
 ## Features
 
-Below are a few of the features which `clap` supports, full descriptions and usage can be found in the [documentation](http://kbknapp.github.io/clap-rs/clap/index.html) and [examples/](examples) directory
+Below are a few of the features which `clap` supports, full descriptions and usage can be found in the [documentation](https://docs.rs/clap/) and [examples/](examples) directory
 
 * **Auto-generated Help, Version, and Usage information**
   - Can optionally be fully, or partially overridden if you want a custom help, version, or usage
@@ -288,7 +288,7 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 
 ## Quick Example
 
-The following examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, conflicts, groups, multiple values and occurrences see the [documentation](http://kbknapp.github.io/clap-rs/clap/index.html), [examples/](examples) directory of this repository or the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv) (which are quite outdated by now).
+The following examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, conflicts, groups, multiple values and occurrences see the [documentation](https://docs.rs/clap/), [examples/](examples) directory of this repository or the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv) (which are quite outdated by now).
 
  **NOTE:** All these examples are functionally the same, but show three different styles in which to use `clap`
 
@@ -529,7 +529,7 @@ git = "https://github.com/kbknapp/clap-rs.git"
 
 Add `extern crate clap;` to your crate root.
 
-Define a list of valid arguments for your program (see the [documentation](https://kbknapp.github.io/clap-rs/index.html) or [examples/](examples) directory of this repo)
+Define a list of valid arguments for your program (see the [documentation](https://docs.rs/clap/) or [examples/](examples) directory of this repo)
 
 Then run `cargo build` or `cargo update && cargo build` for your project.
 
@@ -574,7 +574,7 @@ The following graphic depicts `clap`s dependency graph (generated using [cargo-g
 ![clap dependencies](clap_dep_graph.png)
 ### More Information
 
-You can find complete documentation on the [github-pages site](http://kbknapp.github.io/clap-rs/clap/index.html) for this project.
+You can find complete documentation on the [docs.rs](https://docs.rs/clap/) for this project.
 
 You can also find usage examples in the [examples/](examples) directory of this repo.
 
