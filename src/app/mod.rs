@@ -82,6 +82,27 @@ impl<'a, 'b> App<'a, 'b> {
         App { p: Parser::with_name(n.into()) }
     }
 
+    /// Creates a new instance of an application requiring a name, but uses the [`crate_authors!`]
+    /// and [`crate_version!`] macros to fill in the [`App::author`] and [`App::version`] fields.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let prog = App::with_defaults("My Program")
+    /// # ;
+    /// ```
+    /// [`crate_authors!`]: ./macro.crate_authors!.html
+    /// [`crate_version!`]: ./macro.crate_version!.html
+    /// [`App::author`]: ./struct.App.html#method.author
+    /// [`App::version`]: ./struct.App.html#method.author
+    pub fn with_defaults<S: Into<String>>(n: S) -> Self {
+        let mut a = App { p: Parser::with_name(n.into()) };
+        a.p.meta.author = Some(crate_authors!());
+        a.p.meta.version = Some(crate_version!());
+        a
+    }
+
     /// Creates a new instace of [`App`] from a .yml (YAML) file. A full example of supported YAML
     /// objects can be found in [`examples/17_yaml.rs`] and [`examples/17_yaml.yml`]. One great use
     /// for using YAML is when supporting multiple languages and dialects, as each language could
