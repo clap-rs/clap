@@ -1081,9 +1081,11 @@ impl<'a, 'b> App<'a, 'b> {
     ///                         env!("OUT_DIR")); // Then say where write the completions to
     /// }
     /// ```
-    /// Now, once we combile there will be a `bash.sh` file in the directory. Assuming we compiled
-    /// with debug mode, it would be somewhere similar to
-    /// `<project>/target/debug/build/myapp-<hash>/out/myapp_bash.sh`
+    /// Now, once we combile there will be a `{bin_name}.bash-completion` file in the directory.
+    /// Assuming we compiled with debug mode, it would be somewhere similar to
+    /// `<project>/target/debug/build/myapp-<hash>/out/myapp.bash-completion`.
+    ///
+    /// Fish shell completions will use the file format `{bin_name}.fish`
     pub fn gen_completions<T: Into<OsString>, S: Into<String>>(&mut self, bin_name: S, for_shell: Shell, out_dir: T) {
         self.p.meta.bin_name = Some(bin_name.into());
         self.p.gen_completions(for_shell, out_dir.into());

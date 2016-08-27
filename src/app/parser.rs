@@ -114,7 +114,7 @@ impl<'a, 'b> Parser<'a, 'b>
 
         let out_dir = PathBuf::from(od);
         let suffix = match for_shell {
-            Shell::Bash => "_bash.sh",
+            Shell::Bash => ".bash-completion",
             Shell::Fish => ".fish",
         };
 
