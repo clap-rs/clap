@@ -458,7 +458,7 @@ impl<'a> From<&'a BTreeMap<Yaml, Yaml>> for ArgGroup<'a> {
         let mut a = ArgGroup::default();
         let group_settings = if b.len() == 1 {
             let name_yml = b.keys().nth(0).expect("failed to get name");
-            let name_str = name_yml.as_str().expect("failed to convert name to str");
+            let name_str = name_yml.as_str().expect("failed to convert arg YAML name to str");
             a.name = name_str;
             b.get(name_yml)
              .expect("failed to get name_str")
@@ -472,12 +472,7 @@ impl<'a> From<&'a BTreeMap<Yaml, Yaml>> for ArgGroup<'a> {
             a = match k.as_str().unwrap() {
                 "required" => a.required(v.as_bool().unwrap()),
                 "args" => {
-                    for ys in v.as_vec().unwrap() {
-                        if let Some(s) = ys.as_str() {
-                            a = a.arg(s);
-                        }
-                    }
-                    a
+                    yaml_vec_or_str!(v, a, arg)
                 }
                 "arg" => {
                     if let Some(ys) = v.as_str() {
@@ -486,20 +481,10 @@ impl<'a> From<&'a BTreeMap<Yaml, Yaml>> for ArgGroup<'a> {
                     a
                 }
                 "requires" => {
-                    for ys in v.as_vec().unwrap() {
-                        if let Some(s) = ys.as_str() {
-                            a = a.requires(s);
-                        }
-                    }
-                    a
+                    yaml_vec_or_str!(v, a, requires)
                 }
                 "conflicts_with" => {
-                    for ys in v.as_vec().unwrap() {
-                        if let Some(s) = ys.as_str() {
-                            a = a.conflicts_with(s);
-                        }
-                    }
-                    a
+                    yaml_vec_or_str!(v, a, conflicts_with)
                 }
                 "name" => {
                     if let Some(ys) = v.as_str() {
