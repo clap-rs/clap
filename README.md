@@ -39,6 +39,17 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.11.0
+
+* Adds the ability to wrap help text intelligently on Windows!
+* Moves docs to [docs.rs!](https://docs.rs/clap/) 
+* Fixes some usage strings that contain both args in groups and ones that conflict with each other 
+* Uses standard conventions for bash completion files, namely `{bin}.bash-completion` 
+* Automatically moves help text to the next line and wraps when term width is determined to be too small, or help text is too long 
+* Vastly improves *development* error messages when using YAML 
+* Adds `App::with_defaults` to automatically use `crate_authors!` and `crate_version!` macros 
+* Other minor improvements and bug fixes
+
 Here's the highlights for v2.10.4
 
 * Fixes a bug where help is wrapped incorrectly and causing a panic with some non-English characters 
