@@ -371,17 +371,17 @@ impl<'a, 'b> Parser<'a, 'b>
             ret_val.push_back(s);
         }
         macro_rules! write_arg {
-            ($i:expr, $m:ident, $v:ident, $r:ident) => {
+            ($i:expr, $m:ident, $v:ident, $r:ident, $aig:ident) => {
                 for f in $v.into_iter() {
-                    if $m.is_some() && $m.as_ref().unwrap().contains(f) {
+                    if $m.is_some() && $m.as_ref().unwrap().contains(f) || $aig.contains(&f) {
                         continue;
                     }
                     $r.push_back($i.filter(|flg| &flg.name == &f).next().unwrap().to_string());
                 }
             }
         }
-        write_arg!(self.flags.iter(), matcher, c_flags, ret_val);
-        write_arg!(self.opts.iter(), matcher, c_opt, ret_val);
+        write_arg!(self.flags.iter(), matcher, c_flags, ret_val, args_in_groups);
+        write_arg!(self.opts.iter(), matcher, c_opt, ret_val, args_in_groups);
         let mut g_vec = vec![];
         for g in grps.into_iter() {
             let g_string = self.args_in_group(g)
