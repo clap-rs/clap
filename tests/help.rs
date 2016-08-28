@@ -91,15 +91,13 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-    -c, --cafe <FILE>    A coffeehouse, coffee shop, or café is an
-                         establishment which primarily serves hot
-                         coffee, related coffee beverages (e.g.,
-                         café latte, cappuccino, espresso), tea,
-                         and other hot beverages. Some
-                         coffeehouses also serve cold beverages
-                         such as iced coffee and iced tea. Many
-                         cafés also serve some type of food, such
-                         as light snacks, muffins, or pastries.";
+    -c, --cafe <FILE>
+        A coffeehouse, coffee shop, or café is an establishment which
+        primarily serves hot coffee, related coffee beverages
+        (e.g., café latte, cappuccino, espresso), tea, and other
+        hot beverages. Some coffeehouses also serve cold beverages
+        such as iced coffee and iced tea. Many cafés also serve
+        some type of food, such as light snacks, muffins, or pastries.";
 
 static ISSUE_626_PANIC: &'static str = "ctest 0.1
 
@@ -111,19 +109,14 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-    -c, --cafe <FILE>    La culture du café est
-                         très développée dans de
-                         nombreux pays à climat
-                         chaud d'Amérique,
-                         d'Afrique et d'Asie,
-                         dans des plantations
-                         qui sont cultivées pour
-                         les marchés
-                         d'exportation. Le café
-                         est souvent une
-                         contribution majeure
-                         aux exportations des
-                         régions productrices.";
+    -c, --cafe <FILE>
+        La culture du café est très développée dans
+        de nombreux pays à climat chaud
+        d\'Amérique, d\'Afrique et d\'Asie, dans
+        des plantations qui sont cultivées pour
+        les marchés d\'exportation. Le café est
+        souvent une contribution majeure aux
+        exportations des régions productrices.";
 
 #[test]
 fn help_short() {
