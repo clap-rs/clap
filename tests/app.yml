@@ -1,5 +1,5 @@
 name: claptests
-version: 1.0
+version: "1.0"
 about: tests clap library
 author: Kevin K. <kbknapp@gmail.com>
 settings:
@@ -81,7 +81,7 @@ arg_groups:
 subcommands:
     - subcmd:
         about: tests subcommands
-        version: 0.1
+        version: "0.1"
         author: Kevin K. <kbknapp@gmail.com>
         args:
             - scoption:

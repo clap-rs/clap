@@ -8,6 +8,8 @@ pub use self::group::ArgGroup;
 pub use self::any_arg::{AnyArg, DispOrder};
 pub use self::settings::ArgSettings;
 
+#[macro_use]
+mod macros;
 mod arg;
 pub mod any_arg;
 mod arg_matches;

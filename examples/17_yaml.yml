@@ -1,5 +1,5 @@
 name: yml_app
-version: 1.0
+version: "1.0"
 about: an example using a .yml file to build a CLI
 author: Kevin K. <kbknapp@gmail.com>
 
@@ -69,7 +69,7 @@ subcommands:
     # Rust code later
     - subcmd:
         about: demos subcommands from yaml
-        version: 0.1
+        version: "0.1"
         author: Kevin K. <kbknapp@gmail.com>
         # Subcommand args are exactly like App args
         args:

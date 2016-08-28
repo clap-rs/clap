@@ -339,8 +339,16 @@ impl<'a> Help<'a> {
         } else {
             try!(color!(self, "{}", arg, good));
         }
+
+        let spec_vals = self.spec_vals(arg);
+        let h = arg.help().unwrap_or("");
+        let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp);
+        let width = self.term_w;
+        let taken = (longest + 12) + str_width(&*spec_vals);
+        let force_next_line = !nlh && width >= taken && str_width(h) > (width - taken) && (taken as f32 / width as f32) > 0.25;
+
         if arg.has_switch() {
-            if !(self.next_line_help || arg.is_set(ArgSettings::NextLineHelp)) {
+            if !(nlh || force_next_line) {
                 let self_len = arg.to_string().len();
                 // subtract ourself
                 let mut spcs = longest - self_len;
@@ -356,7 +364,7 @@ impl<'a> Help<'a> {
 
                 write_nspaces!(self.writer, spcs);
             }
-        } else if !(self.next_line_help || arg.is_set(ArgSettings::NextLineHelp)) {
+        } else if !(nlh || force_next_line) {
             write_nspaces!(self.writer, longest + 4 - (arg.to_string().len()));
         }
         Ok(())
@@ -416,19 +424,30 @@ impl<'a> Help<'a> {
         let spec_vals = self.spec_vals(arg);
         let mut help = String::new();
         let h = arg.help().unwrap_or("");
-        let spcs = if self.next_line_help || arg.is_set(ArgSettings::NextLineHelp) {
+        let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp);
+        debugln!("Next Line...{:?}", nlh);
+
+        // determine if our help fits or needs to wrap
+        let width = self.term_w;
+        debugln!("Term width...{}", width);
+
+        // We calculate with longest+12 since if it's already NLH we don't care
+        let taken = (longest + 12) + str_width(&*spec_vals);
+        let force_next_line = !nlh && width >= taken && str_width(h) > (width - taken) && (taken as f32 / width as f32) > 0.25;
+        debugln!("Force Next Line...{:?}", force_next_line);
+        debugln!("Force Next Line math (help_len > (width - flags/opts/spcs))...{} > ({} - {})", str_width(h), width, taken);
+
+        let spcs = if nlh || force_next_line {
             8 // "tab" + "tab"
         } else {
             longest + 12
         };
-        // determine if our help fits or needs to wrap
-        let width = self.term_w;
-        debugln!("Term width...{}", width);
+
         let too_long = spcs + str_width(h) + str_width(&*spec_vals) >= width;
         debugln!("Spaces: {}", spcs);
 
         // Is help on next line, if so newline + 2x tab
-        if self.next_line_help || arg.is_set(ArgSettings::NextLineHelp) {
+        if nlh || force_next_line {
             try!(write!(self.writer, "\n{}{}", TAB, TAB));
         }
 
@@ -470,7 +489,7 @@ impl<'a> Help<'a> {
             }
             for part in help.split("{n}").skip(1) {
                 try!(write!(self.writer, "\n"));
-                if self.next_line_help || arg.is_set(ArgSettings::NextLineHelp) {
+                if nlh || force_next_line {
                     try!(write!(self.writer, "{}{}", TAB, TAB));
                 } else if arg.has_switch() {
                     write_nspaces!(self.writer, longest + 12);
@@ -916,6 +935,7 @@ impl<'a> Help<'a> {
     }
 }
 
+#[cfg_attr(feature = "lints", allow(explicit_counter_loop))]
 fn wrap_help(help: &mut String, longest_w: usize, avail_chars: usize) {
     debugln!("fn=wrap_help;longest_w={},avail_chars={}", longest_w, avail_chars);
     debug!("Enough space to wrap...");

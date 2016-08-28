@@ -576,16 +576,16 @@ macro_rules! werr(
 #[cfg_attr(feature = "debug", macro_use)]
 mod debug_macros {
     macro_rules! debugln {
-        ($fmt:expr) => (println!(concat!("**DEBUG** ", $fmt)));
-        ($fmt:expr, $($arg:tt)*) => (println!(concat!("**DEBUG** ",$fmt), $($arg)*));
+        ($fmt:expr) => (println!(concat!("*DEBUG:clap: ", $fmt)));
+        ($fmt:expr, $($arg:tt)*) => (println!(concat!("*DEBUG:clap: ",$fmt), $($arg)*));
     }
     macro_rules! sdebugln {
         ($fmt:expr) => (println!($fmt));
         ($fmt:expr, $($arg:tt)*) => (println!($fmt, $($arg)*));
     }
     macro_rules! debug {
-        ($fmt:expr) => (print!(concat!("**DEBUG** ", $fmt)));
-        ($fmt:expr, $($arg:tt)*) => (print!(concat!("**DEBUG** ",$fmt), $($arg)*));
+        ($fmt:expr) => (print!(concat!("*DEBUG:clap: ", $fmt)));
+        ($fmt:expr, $($arg:tt)*) => (print!(concat!("*DEBUG:clap: ",$fmt), $($arg)*));
     }
     macro_rules! sdebug {
         ($fmt:expr) => (print!($fmt));

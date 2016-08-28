@@ -82,6 +82,27 @@ impl<'a, 'b> App<'a, 'b> {
         App { p: Parser::with_name(n.into()) }
     }
 
+    /// Creates a new instance of an application requiring a name, but uses the [`crate_authors!`]
+    /// and [`crate_version!`] macros to fill in the [`App::author`] and [`App::version`] fields.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let prog = App::with_defaults("My Program")
+    /// # ;
+    /// ```
+    /// [`crate_authors!`]: ./macro.crate_authors!.html
+    /// [`crate_version!`]: ./macro.crate_version!.html
+    /// [`App::author`]: ./struct.App.html#method.author
+    /// [`App::version`]: ./struct.App.html#method.author
+    pub fn with_defaults<S: Into<String>>(n: S) -> Self {
+        let mut a = App { p: Parser::with_name(n.into()) };
+        a.p.meta.author = Some(crate_authors!());
+        a.p.meta.version = Some(crate_version!());
+        a
+    }
+
     /// Creates a new instace of [`App`] from a .yml (YAML) file. A full example of supported YAML
     /// objects can be found in [`examples/17_yaml.rs`] and [`examples/17_yaml.yml`]. One great use
     /// for using YAML is when supporting multiple languages and dialects, as each language could
@@ -1060,9 +1081,11 @@ impl<'a, 'b> App<'a, 'b> {
     ///                         env!("OUT_DIR")); // Then say where write the completions to
     /// }
     /// ```
-    /// Now, once we combile there will be a `bash.sh` file in the directory. Assuming we compiled
-    /// with debug mode, it would be somewhere similar to
-    /// `<project>/target/debug/build/myapp-<hash>/out/myapp_bash.sh`
+    /// Now, once we combile there will be a `{bin_name}.bash-completion` file in the directory.
+    /// Assuming we compiled with debug mode, it would be somewhere similar to
+    /// `<project>/target/debug/build/myapp-<hash>/out/myapp.bash-completion`.
+    ///
+    /// Fish shell completions will use the file format `{bin_name}.fish`
     pub fn gen_completions<T: Into<OsString>, S: Into<String>>(&mut self, bin_name: S, for_shell: Shell, out_dir: T) {
         self.p.meta.bin_name = Some(bin_name.into());
         self.p.gen_completions(for_shell, out_dir.into());
@@ -1324,54 +1347,57 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
         } else {
             yaml
         };
-        if let Some(v) = yaml["version"].as_str() {
-            a = a.version(v);
+
+        macro_rules! yaml_str {
+            ($a:ident, $y:ident, $i:ident) => {
+                if let Some(v) = $y[stringify!($i)].as_str() {
+                    $a = $a.$i(v);
+                } else if $y[stringify!($i)] != Yaml::BadValue {
+                    panic!("Failed to convert YAML value {:?} to a string", $y[stringify!($i)]);
+                }
+            };
         }
-        if let Some(v) = yaml["author"].as_str() {
-            a = a.author(v);
-        }
-        if let Some(v) = yaml["bin_name"].as_str() {
-            a = a.bin_name(v);
-        }
-        if let Some(v) = yaml["about"].as_str() {
-            a = a.about(v);
-        }
-        if let Some(v) = yaml["before_help"].as_str() {
-            a = a.before_help(v);
-        }
-        if let Some(v) = yaml["template"].as_str() {
-            a = a.template(v);
-        }
-        if let Some(v) = yaml["after_help"].as_str() {
-            a = a.after_help(v);
-        }
+
+        yaml_str!(a, yaml, version);
+        yaml_str!(a, yaml, bin_name);
+        yaml_str!(a, yaml, about);
+        yaml_str!(a, yaml, before_help);
+        yaml_str!(a, yaml, after_help);
+        yaml_str!(a, yaml, template);
+        yaml_str!(a, yaml, usage);
+        yaml_str!(a, yaml, help);
+        yaml_str!(a, yaml, help_short);
+        yaml_str!(a, yaml, version_short);
+        yaml_str!(a, yaml, alias);
+        yaml_str!(a, yaml, visible_alias);
+
         if let Some(v) = yaml["display_order"].as_i64() {
             a = a.display_order(v as usize);
-        }
-        if let Some(v) = yaml["usage"].as_str() {
-            a = a.usage(v);
-        }
-        if let Some(v) = yaml["help"].as_str() {
-            a = a.help(v);
-        }
-        if let Some(v) = yaml["help_short"].as_str() {
-            a = a.help_short(v);
-        }
-        if let Some(v) = yaml["version_short"].as_str() {
-            a = a.version_short(v);
+        } else if yaml["display_order"] != Yaml::BadValue {
+            panic!("Failed to convert YAML value {:?} to a u64", yaml["display_order"]);
         }
         if let Some(v) = yaml["setting"].as_str() {
-            a = a.setting(v.parse().ok().expect("unknown AppSetting found in YAML file"));
+            a = a.setting(v.parse().expect("unknown AppSetting found in YAML file"));
+        } else if yaml["setting"] != Yaml::BadValue {
+            panic!("Failed to convert YAML value {:?} to an AppSetting", yaml["setting"]);
         }
         if let Some(v) = yaml["settings"].as_vec() {
             for ys in v {
                 if let Some(s) = ys.as_str() {
-                    a = a.setting(s.parse().ok().expect("unknown AppSetting found in YAML file"));
+                    a = a.setting(s.parse().expect("unknown AppSetting found in YAML file"));
                 }
+            }
+        } else {
+            if let Some(v) = yaml["settings"].as_str() {
+                a = a.setting(v.parse().expect("unknown AppSetting found in YAML file"));
+            } else if yaml["settings"] != Yaml::BadValue {
+                panic!("Failed to convert YAML value {:?} to a string", yaml["settings"]);
             }
         }
         if let Some(v) = yaml["global_setting"].as_str() {
             a = a.setting(v.parse().ok().expect("unknown AppSetting found in YAML file"));
+        } else if yaml["global_setting"] != Yaml::BadValue {
+            panic!("Failed to convert YAML value {:?} to an AppSetting", yaml["setting"]);
         }
         if let Some(v) = yaml["global_settings"].as_vec() {
             for ys in v {
@@ -1379,27 +1405,40 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
                     a = a.global_setting(s.parse().ok().expect("unknown AppSetting found in YAML file"));
                 }
             }
-        }
-        if let Some(v) = yaml["alias"].as_str() {
-            a = a.alias(v);
-        }
-        if let Some(v) = yaml["aliases"].as_vec() {
-            for ys in v {
-                if let Some(s) = ys.as_str() {
-                    a = a.alias(s);
-                }
+        } else {
+            if let Some(v) = yaml["global_settings"].as_str() {
+                a = a.global_setting(v.parse().expect("unknown AppSetting found in YAML file"));
+            } else if yaml["global_settings"] != Yaml::BadValue {
+                panic!("Failed to convert YAML value {:?} to a string", yaml["global_settings"]);
             }
         }
-        if let Some(v) = yaml["visible_alias"].as_str() {
-            a = a.visible_alias(v);
-        }
-        if let Some(v) = yaml["visible_aliases"].as_vec() {
-            for ys in v {
-                if let Some(s) = ys.as_str() {
-                    a = a.visible_alias(s);
+
+        macro_rules! vec_or_str {
+            ($a:ident, $y:ident, $as_vec:ident, $as_single:ident) => {{
+                    let maybe_vec = $y[stringify!($as_vec)].as_vec();
+                    if let Some(vec) = maybe_vec {
+                        for ys in vec {
+                            if let Some(s) = ys.as_str() {
+                                $a = $a.$as_single(s);
+                            } else {
+                                panic!("Failed to convert YAML value {:?} to a string", ys);
+                            }
+                        }
+                    } else {
+                        if let Some(s) = $y[stringify!($as_vec)].as_str() {
+                            $a = $a.$as_single(s);
+                        } else if $y[stringify!($as_vec)] != Yaml::BadValue {
+                            panic!("Failed to convert YAML value {:?} to either a vec or string", $y[stringify!($as_vec)]);
+                        }
+                    }
+                    $a
                 }
-            }
+            };
         }
+
+        a = vec_or_str!(a, yaml, aliases, alias);
+        a = vec_or_str!(a, yaml, visible_aliases, visible_alias);
+
         if let Some(v) = yaml["args"].as_vec() {
             for arg_yaml in v {
                 a = a.arg(Arg::from_yaml(&arg_yaml.as_hash().unwrap()));

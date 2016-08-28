@@ -145,71 +145,52 @@ impl<'a, 'b> Arg<'a, 'b> {
         let mut a = Arg::with_name(name_str);
         let arg_settings = y.get(name_yml).unwrap().as_hash().unwrap();
 
-        macro_rules! vec_or_str {
-            ($v:ident, $a:ident, $c:ident) => {{
-                    let maybe_vec = $v.as_vec();
-                    if let Some(vec) = maybe_vec {
-                        for ys in vec {
-                            if let Some(s) = ys.as_str() {
-                                $a = $a.$c(s);
-                            }
-                        }
-                    } else {
-                        if let Some(s) = $v.as_str() {
-                            $a = $a.$c(s);
-                        }
-                    }
-                    $a
-                }
-            };
-        }
-
         for (k, v) in arg_settings.iter() {
             a = match k.as_str().unwrap() {
-                "short" => a.short(v.as_str().unwrap()),
-                "long" => a.long(v.as_str().unwrap()),
-                "help" => a.help(v.as_str().unwrap()),
-                "required" => a.required(v.as_bool().unwrap()),
-                "takes_value" => a.takes_value(v.as_bool().unwrap()),
-                "index" => a.index(v.as_i64().unwrap() as u64),
-                "global" => a.global(v.as_bool().unwrap()),
-                "multiple" => a.multiple(v.as_bool().unwrap()),
-                "hidden" => a.hidden(v.as_bool().unwrap()),
-                "next_line_help" => a.next_line_help(v.as_bool().unwrap()),
-                "empty_values" => a.empty_values(v.as_bool().unwrap()),
-                "group" => a.group(v.as_str().unwrap()),
-                "number_of_values" => a.number_of_values(v.as_i64().unwrap() as u64),
-                "max_values" => a.max_values(v.as_i64().unwrap() as u64),
-                "min_values" => a.min_values(v.as_i64().unwrap() as u64),
-                "value_name" => a.value_name(v.as_str().unwrap()),
-                "use_delimiter" => a.use_delimiter(v.as_bool().unwrap()),
-                "value_delimiter" => a.value_delimiter(v.as_str().unwrap()),
-                "required_unless" => a.required_unless(v.as_str().unwrap()),
-                "display_order" => a.display_order(v.as_i64().unwrap() as usize),
-                "default_value" => a.default_value(v.as_str().unwrap()),
+                "short" => yaml_to_str!(a, v, short),
+                "long" => yaml_to_str!(a, v, long),
+                "help" => yaml_to_str!(a, v, help),
+                "required" => yaml_to_bool!(a, v, required),
+                "takes_value" => yaml_to_bool!(a, v, takes_value),
+                "index" => yaml_to_u64!(a, v, index),
+                "global" => yaml_to_bool!(a, v, global),
+                "multiple" => yaml_to_bool!(a, v, multiple),
+                "hidden" => yaml_to_bool!(a, v, hidden),
+                "next_line_help" => yaml_to_bool!(a, v, next_line_help),
+                "empty_values" => yaml_to_bool!(a, v, empty_values),
+                "group" => yaml_to_str!(a, v, group),
+                "number_of_values" => yaml_to_u64!(a, v, number_of_values),
+                "max_values" => yaml_to_u64!(a, v, max_values),
+                "min_values" => yaml_to_u64!(a, v, min_values),
+                "value_name" => yaml_to_str!(a, v, value_name),
+                "use_delimiter" => yaml_to_bool!(a, v, use_delimiter),
+                "value_delimiter" => yaml_to_str!(a, v, value_delimiter),
+                "required_unless" => yaml_to_str!(a, v, required_unless),
+                "display_order" => yaml_to_usize!(a, v, display_order),
+                "default_value" => yaml_to_str!(a, v, default_value),
                 "value_names" => {
-                    vec_or_str!(v, a, value_name)
+                    yaml_vec_or_str!(v, a, value_name)
                 }
                 "groups" => {
-                    vec_or_str!(v, a, group)
+                    yaml_vec_or_str!(v, a, group)
                 }
                 "requires" => {
-                    vec_or_str!(v, a, requires)
+                    yaml_vec_or_str!(v, a, requires)
                 }
                 "conflicts_with" => {
-                    vec_or_str!(v, a, conflicts_with)
+                    yaml_vec_or_str!(v, a, conflicts_with)
                 }
                 "overrides_with" => {
-                    vec_or_str!(v, a, overrides_with)
+                    yaml_vec_or_str!(v, a, overrides_with)
                 }
                 "possible_values" => {
-                    vec_or_str!(v, a, possible_value)
+                    yaml_vec_or_str!(v, a, possible_value)
                 }
                 "required_unless_one" => {
-                    vec_or_str!(v, a, required_unless)
+                    yaml_vec_or_str!(v, a, required_unless)
                 }
                 "required_unless_all" => {
-                    a = vec_or_str!(v, a, required_unless);
+                    a = yaml_vec_or_str!(v, a, required_unless);
                     a.setb(ArgSettings::RequiredUnlessAll);
                     a
                 }

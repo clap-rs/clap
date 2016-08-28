@@ -1,3 +1,27 @@
+<a name="v2.11.0"></a>
+### v2.11.0 (2016-08-28)
+
+
+#### Bug Fixes
+
+* **Groups:**  fixes some usage strings that contain both args in groups and ones that conflict with each other ([3d782def](https://github.com/kbknapp/clap-rs/commit/3d782def57725e2de26ca5a5bc5cc2e40ddebefb), closes [#616](https://github.com/kbknapp/clap-rs/issues/616))
+
+#### Documentation
+
+*   moves docs to docs.rs ([03209d5e](https://github.com/kbknapp/clap-rs/commit/03209d5e1300906f00bafec1869c2047a92e5071), closes [#634](https://github.com/kbknapp/clap-rs/issues/634))
+
+#### Improvements
+
+* **Completions:**  uses standard conventions for bash completion files, namely '{bin}.bash-completion' ([27f5bbfb](https://github.com/kbknapp/clap-rs/commit/27f5bbfbcc9474c2f57c2b92b1feb898ae46ee70), closes [#567](https://github.com/kbknapp/clap-rs/issues/567))
+* **Help:**  automatically moves help text to the next line and wraps when term width is determined to be too small, or help text is too long ([150964c4](https://github.com/kbknapp/clap-rs/commit/150964c4e7124d54476c9d9b4b3f2406f0fd00e5), closes [#597](https://github.com/kbknapp/clap-rs/issues/597))
+* **YAML Errors:**  vastly improves error messages when using YAML ([f43b7c65](https://github.com/kbknapp/clap-rs/commit/f43b7c65941c53adc0616b8646a21dc255862eb2), closes [#574](https://github.com/kbknapp/clap-rs/issues/574))
+
+#### Features
+
+*   adds App::with_defaults to automatically use crate_authors! and crate_version! macros ([5520bb01](https://github.com/kbknapp/clap-rs/commit/5520bb012c127dfd299fd55699443c744d8dcd5b), closes [#600](https://github.com/kbknapp/clap-rs/issues/600))
+
+
+
 <a name="v2.10.4"></a>
 ### v2.10.4 (2016-08-25)
 
