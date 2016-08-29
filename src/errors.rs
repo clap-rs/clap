@@ -788,6 +788,22 @@ impl Error {
             info: Some(vec![a]),
         }
     }
+
+    /// Create an error with a custom description.
+    ///
+    /// This can be used in combination with `Error::exit` to exit your program
+    /// with a custom error message.
+    pub fn with_description(description: &str, kind: ErrorKind) -> Self {
+        let c = fmt::Colorizer {
+            use_stderr: true,
+            when: fmt::ColorWhen::Auto
+        };
+        Error {
+            message: format!("{} {}", c.error("error:"), description),
+            kind: kind,
+            info: None,
+        }
+    }
 }
 
 impl StdError for Error {
@@ -804,28 +820,12 @@ impl Display for Error {
 
 impl From<io::Error> for Error {
     fn from(e: io::Error) -> Self {
-        let c = fmt::Colorizer {
-            use_stderr: true,
-            when: fmt::ColorWhen::Auto
-        };
-        Error {
-            message: format!("{} {}", c.error("error:"), e.description()),
-            kind: ErrorKind::Io,
-            info: None,
-        }
+        Error::with_description(e.description(), ErrorKind::Io)
     }
 }
 
 impl From<std_fmt::Error> for Error {
     fn from(e: std_fmt::Error) -> Self {
-        let c = fmt::Colorizer {
-            use_stderr: true,
-            when: fmt::ColorWhen::Auto
-        };
-        Error {
-            message: format!("{} {}", c.error("error:"), e),
-            kind: ErrorKind::Format,
-            info: None,
-        }
+        Error::with_description(e.description(), ErrorKind::Format)
     }
 }
