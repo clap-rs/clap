@@ -39,6 +39,14 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.11.1
+
+* Fixes an issue where settings weren't propogated down through grand-child subcommands 
+* Errors can now have custom description 
+* Uses `term_size` instead of home-grown solution on Windows
+* Updates deps with some minor bug fixes
+
+
 Here's the highlights for v2.11.0
 
 * Adds the ability to wrap help text intelligently on Windows!

@@ -1,34 +1,30 @@
 // Std
-
-
-// Internal
-
-use app::{App, AppSettings};
-use app::parser::Parser;
-use args::{AnyArg, ArgSettings, DispOrder};
-use errors::{Error, Result as ClapResult};
-use fmt::{Format, Colorizer};
 use std::cmp;
 use std::collections::BTreeMap;
 use std::fmt::Display;
 use std::io::{self, Cursor, Read, Write};
 use std::usize;
 
+// Internal
+use app::{App, AppSettings};
+use app::parser::Parser;
+use args::{AnyArg, ArgSettings, DispOrder};
+use errors::{Error, Result as ClapResult};
+use fmt::{Format, Colorizer};
+
+// Third Party
+use unicode_width::UnicodeWidthStr;
 #[cfg(feature = "wrap_help")]
 use term_size;
 use unicode_segmentation::UnicodeSegmentation;
-
 use vec_map::VecMap;
+
 #[cfg(not(feature = "wrap_help"))]
 mod term_size {
     pub fn dimensions() -> Option<(usize, usize)> {
         None
     }
 }
-
-use unicode_width::UnicodeWidthStr;
-
-// use strext::_StrExt;
 
 fn str_width(s: &str) -> usize {
     UnicodeWidthStr::width(s)

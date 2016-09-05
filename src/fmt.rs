@@ -5,7 +5,8 @@ use ansi_term::ANSIString;
 use ansi_term::Colour::{Green, Red, Yellow};
 
 #[cfg(feature = "color")]
-use libc;use std::fmt;
+use libc;
+use std::fmt;
 
 #[cfg(all(feature = "color", not(target_os = "windows")))]
 const STDERR: i32 = libc::STDERR_FILENO;

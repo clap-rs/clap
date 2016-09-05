@@ -168,27 +168,13 @@ impl<'a, 'b> Arg<'a, 'b> {
                 "required_unless" => yaml_to_str!(a, v, required_unless),
                 "display_order" => yaml_to_usize!(a, v, display_order),
                 "default_value" => yaml_to_str!(a, v, default_value),
-                "value_names" => {
-                    yaml_vec_or_str!(v, a, value_name)
-                }
-                "groups" => {
-                    yaml_vec_or_str!(v, a, group)
-                }
-                "requires" => {
-                    yaml_vec_or_str!(v, a, requires)
-                }
-                "conflicts_with" => {
-                    yaml_vec_or_str!(v, a, conflicts_with)
-                }
-                "overrides_with" => {
-                    yaml_vec_or_str!(v, a, overrides_with)
-                }
-                "possible_values" => {
-                    yaml_vec_or_str!(v, a, possible_value)
-                }
-                "required_unless_one" => {
-                    yaml_vec_or_str!(v, a, required_unless)
-                }
+                "value_names" => yaml_vec_or_str!(v, a, value_name),
+                "groups" => yaml_vec_or_str!(v, a, group),
+                "requires" => yaml_vec_or_str!(v, a, requires),
+                "conflicts_with" => yaml_vec_or_str!(v, a, conflicts_with),
+                "overrides_with" => yaml_vec_or_str!(v, a, overrides_with),
+                "possible_values" => yaml_vec_or_str!(v, a, possible_value),
+                "required_unless_one" => yaml_vec_or_str!(v, a, required_unless),
                 "required_unless_all" => {
                     a = yaml_vec_or_str!(v, a, required_unless);
                     a.setb(ArgSettings::RequiredUnlessAll);
@@ -1990,8 +1976,8 @@ impl<'a, 'b> Arg<'a, 'b> {
         self = self.set(ArgSettings::TakesValue);
         self = self.set(ArgSettings::UseValueDelimiter);
         self.val_delim = Some(d.chars()
-                               .nth(0)
-                               .expect("Failed to get value_delimiter from arg"));
+            .nth(0)
+            .expect("Failed to get value_delimiter from arg"));
         self
     }
 

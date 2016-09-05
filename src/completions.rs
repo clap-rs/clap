@@ -1,12 +1,10 @@
 // Std
-
+use std::io::Write;
 
 // Internal
-
 use app::parser::Parser;
 use args::{ArgSettings, OptBuilder};
 use shell::Shell;
-use std::io::Write;
 
 macro_rules! w {
     ($buf:expr, $to_w:expr) => {

@@ -1,12 +1,10 @@
 // Third Party
-
+use vec_map::VecMap;
 
 // Internal
-
 use INTERNAL_ERROR_MSG;
 use args::Arg;
 use args::settings::ArgSettings;
-use vec_map::VecMap;
 
 type ParseResult = Result<(), ()>;
 

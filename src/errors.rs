@@ -1,9 +1,4 @@
 // Std
-
-
-// Internal
-use args::any_arg::AnyArg;
-use fmt;
 use std::convert::From;
 use std::error::Error as StdError;
 use std::fmt as std_fmt;
@@ -11,12 +6,15 @@ use std::fmt::Display;
 use std::io::{self, Write};
 use std::process;
 use std::result::Result as StdResult;
+
+// Internal
+use args::any_arg::AnyArg;
+use fmt;
 use suggestions;
 
 /// Short hand for [`Result`] type
 /// [`Result`]: https://doc.rust-lang.org/std/result/enum.Result.html
 pub type Result<T> = StdResult<T, Error>;
-
 
 /// Command line argument parser kind of error
 #[derive(Debug, Copy, Clone, PartialEq)]
