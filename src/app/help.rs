@@ -313,8 +313,9 @@ impl<'a> Help<'a> {
         let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp);
         let width = self.term_w;
         let taken = (longest + 12) + str_width(&*spec_vals);
-        let force_next_line = !nlh && width >= taken && str_width(h) > (width - taken) &&
-                              (taken as f32 / width as f32) > 0.25;
+        let force_next_line = !nlh && width >= taken &&
+            (taken as f32 / width as f32) > 0.35 &&
+            str_width(h) > (width - taken);
 
         if arg.has_switch() {
             if !(nlh || force_next_line) {
@@ -402,8 +403,9 @@ impl<'a> Help<'a> {
 
         // We calculate with longest+12 since if it's already NLH we don't care
         let taken = (longest + 12) + str_width(&*spec_vals);
-        let force_next_line = !nlh && width >= taken && str_width(h) > (width - taken) &&
-                              (taken as f32 / width as f32) > 0.25;
+        let force_next_line = !nlh && width >= taken &&
+            (taken as f32 / width as f32) > 0.35 &&
+            str_width(h) > (width - taken);
         debugln!("Force Next Line...{:?}", force_next_line);
         debugln!("Force Next Line math (help_len > (width - flags/opts/spcs))...{} > ({} - {})",
                  str_width(h),
@@ -421,7 +423,7 @@ impl<'a> Help<'a> {
 
         // Is help on next line, if so newline + 2x tab
         if nlh || force_next_line {
-            try!(write!(self.writer, "\n{}{}", TAB, TAB));
+            try!(write!(self.writer, "\n{}{}{}", TAB, TAB, TAB));
         }
 
         debug!("Too long...");
@@ -463,7 +465,7 @@ impl<'a> Help<'a> {
             for part in help.split("{n}").skip(1) {
                 try!(write!(self.writer, "\n"));
                 if nlh || force_next_line {
-                    try!(write!(self.writer, "{}{}", TAB, TAB));
+                    try!(write!(self.writer, "{}{}{}", TAB, TAB, TAB));
                 } else if arg.has_switch() {
                     write_nspaces!(self.writer, longest + 12);
                 } else {
