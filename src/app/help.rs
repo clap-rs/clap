@@ -313,8 +313,9 @@ impl<'a> Help<'a> {
         let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp);
         let width = self.term_w;
         let taken = (longest + 12) + str_width(&*spec_vals);
-        let force_next_line = !nlh && width >= taken && str_width(h) > (width - taken) &&
-                              (taken as f32 / width as f32) > 0.25;
+        let force_next_line = !nlh && width >= taken &&
+            (taken as f32 / width as f32) > 0.40 &&
+            str_width(h) > (width - taken);
 
         if arg.has_switch() {
             if !(nlh || force_next_line) {
@@ -374,6 +375,7 @@ impl<'a> Help<'a> {
             help.push_str(h);
             &*help
         };
+
         if help.contains("{n}") {
             if let Some(part) = help.split("{n}").next() {
                 try!(write!(self.writer, "{}", part));
@@ -402,8 +404,9 @@ impl<'a> Help<'a> {
 
         // We calculate with longest+12 since if it's already NLH we don't care
         let taken = (longest + 12) + str_width(&*spec_vals);
-        let force_next_line = !nlh && width >= taken && str_width(h) > (width - taken) &&
-                              (taken as f32 / width as f32) > 0.25;
+        let force_next_line = !nlh && width >= taken &&
+            (taken as f32 / width as f32) > 0.40 &&
+            str_width(h) > (width - taken);
         debugln!("Force Next Line...{:?}", force_next_line);
         debugln!("Force Next Line math (help_len > (width - flags/opts/spcs))...{} > ({} - {})",
                  str_width(h),
@@ -411,7 +414,7 @@ impl<'a> Help<'a> {
                  taken);
 
         let spcs = if nlh || force_next_line {
-            8 // "tab" + "tab"
+            12 // "tab" * 3
         } else {
             longest + 12
         };
@@ -419,9 +422,9 @@ impl<'a> Help<'a> {
         let too_long = spcs + str_width(h) + str_width(&*spec_vals) >= width;
         debugln!("Spaces: {}", spcs);
 
-        // Is help on next line, if so newline + 2x tab
+        // Is help on next line, if so then indent
         if nlh || force_next_line {
-            try!(write!(self.writer, "\n{}{}", TAB, TAB));
+            try!(write!(self.writer, "\n{}{}{}", TAB, TAB, TAB));
         }
 
         debug!("Too long...");
@@ -456,6 +459,7 @@ impl<'a> Help<'a> {
             help.push_str(&*spec_vals);
             &*help
         };
+
         if help.contains("{n}") {
             if let Some(part) = help.split("{n}").next() {
                 try!(write!(self.writer, "{}", part));
@@ -463,7 +467,7 @@ impl<'a> Help<'a> {
             for part in help.split("{n}").skip(1) {
                 try!(write!(self.writer, "\n"));
                 if nlh || force_next_line {
-                    try!(write!(self.writer, "{}{}", TAB, TAB));
+                    try!(write!(self.writer, "{}{}{}", TAB, TAB, TAB));
                 } else if arg.has_switch() {
                     write_nspaces!(self.writer, longest + 12);
                 } else {
