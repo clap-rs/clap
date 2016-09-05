@@ -1,14 +1,18 @@
-// use std::collections::HashSet;
-use std::fmt::{Display, Formatter, Result};
-use std::convert::From;
-use std::rc::Rc;
-use std::result::Result as StdResult;
+// Std
 
-use vec_map::VecMap;
+
+// Internal
 
 use Arg;
 use args::{AnyArg, DispOrder};
 use args::settings::{ArgFlags, ArgSettings};
+use std::convert::From;
+use std::fmt::{Display, Formatter, Result};
+use std::rc::Rc;
+use std::result::Result as StdResult;
+
+// Third Party
+use vec_map::VecMap;
 
 #[derive(Debug)]
 #[doc(hidden)]
@@ -179,8 +183,8 @@ impl<'n, 'e> DispOrder for FlagBuilder<'n, 'e> {
 
 #[cfg(test)]
 mod test {
-    use super::FlagBuilder;
     use args::settings::ArgSettings;
+    use super::FlagBuilder;
 
     #[test]
     fn flagbuilder_display() {

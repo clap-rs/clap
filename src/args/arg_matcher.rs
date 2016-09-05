@@ -1,12 +1,17 @@
-use std::ffi::OsStr;
-use std::collections::hash_map::{Entry, Iter};
-use std::ops::Deref;
+// Std
 
-use vec_map::VecMap;
+
+// Internal
 
 use args::{ArgMatches, MatchedArg, SubCommand};
-use args::settings::ArgSettings;
 use args::AnyArg;
+use args::settings::ArgSettings;
+use std::collections::hash_map::{Entry, Iter};
+use std::ffi::OsStr;
+use std::ops::Deref;
+
+// Third Party
+use vec_map::VecMap;
 
 #[doc(hidden)]
 #[allow(missing_debug_implementations)]

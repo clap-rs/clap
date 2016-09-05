@@ -1,21 +1,24 @@
-use std::io::{self, Cursor, Read, Write};
-use std::collections::BTreeMap;
-use std::fmt::Display;
-use std::cmp;
-use std::usize;
+// Std
 
-use vec_map::VecMap;
-use unicode_segmentation::UnicodeSegmentation;
 
-use errors::{Error, Result as ClapResult};
+// Internal
 
-use args::{AnyArg, ArgSettings, DispOrder};
 use app::{App, AppSettings};
 use app::parser::Parser;
+use args::{AnyArg, ArgSettings, DispOrder};
+use errors::{Error, Result as ClapResult};
 use fmt::{Format, Colorizer};
+use std::cmp;
+use std::collections::BTreeMap;
+use std::fmt::Display;
+use std::io::{self, Cursor, Read, Write};
+use std::usize;
 
 #[cfg(feature = "wrap_help")]
 use term_size;
+use unicode_segmentation::UnicodeSegmentation;
+
+use vec_map::VecMap;
 #[cfg(not(feature = "wrap_help"))]
 mod term_size {
     pub fn dimensions() -> Option<(usize, usize)> {
@@ -90,19 +93,21 @@ pub struct Help<'a> {
 // Public Functions
 impl<'a> Help<'a> {
     /// Create a new `Help` instance.
-    pub fn new(w: &'a mut Write, next_line_help: bool, hide_pv: bool, color: bool, cizer: Colorizer, term_w: Option<usize>) -> Self {
+    pub fn new(w: &'a mut Write,
+               next_line_help: bool,
+               hide_pv: bool,
+               color: bool,
+               cizer: Colorizer,
+               term_w: Option<usize>)
+               -> Self {
         debugln!("fn=Help::new;");
         Help {
             writer: w,
             next_line_help: next_line_help,
             hide_pv: hide_pv,
             term_w: match term_w {
-                Some(width) => if width == 0 {
-                    usize::MAX
-                } else {
-                    width
-                },
-                None        => term_size::dimensions().map_or(120, |(w, _)| w),
+                Some(width) => if width == 0 { usize::MAX } else { width },
+                None => term_size::dimensions().map_or(120, |(w, _)| w),
             },
             color: color,
             cizer: cizer,
@@ -312,7 +317,8 @@ impl<'a> Help<'a> {
         let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp);
         let width = self.term_w;
         let taken = (longest + 12) + str_width(&*spec_vals);
-        let force_next_line = !nlh && width >= taken && str_width(h) > (width - taken) && (taken as f32 / width as f32) > 0.25;
+        let force_next_line = !nlh && width >= taken && str_width(h) > (width - taken) &&
+                              (taken as f32 / width as f32) > 0.25;
 
         if arg.has_switch() {
             if !(nlh || force_next_line) {
@@ -400,9 +406,13 @@ impl<'a> Help<'a> {
 
         // We calculate with longest+12 since if it's already NLH we don't care
         let taken = (longest + 12) + str_width(&*spec_vals);
-        let force_next_line = !nlh && width >= taken && str_width(h) > (width - taken) && (taken as f32 / width as f32) > 0.25;
+        let force_next_line = !nlh && width >= taken && str_width(h) > (width - taken) &&
+                              (taken as f32 / width as f32) > 0.25;
         debugln!("Force Next Line...{:?}", force_next_line);
-        debugln!("Force Next Line math (help_len > (width - flags/opts/spcs))...{} > ({} - {})", str_width(h), width, taken);
+        debugln!("Force Next Line math (help_len > (width - flags/opts/spcs))...{} > ({} - {})",
+                 str_width(h),
+                 width,
+                 taken);
 
         let spcs = if nlh || force_next_line {
             8 // "tab" + "tab"
@@ -488,9 +498,9 @@ impl<'a> Help<'a> {
                                    if self.color {
                                        format!(" [values: {}]",
                                                pv.iter()
-                                                 .map(|v| format!("{}", self.cizer.good(v)))
-                                                 .collect::<Vec<_>>()
-                                                 .join(", "))
+                                                   .map(|v| format!("{}", self.cizer.good(v)))
+                                                   .collect::<Vec<_>>()
+                                                   .join(", "))
                                    } else {
                                        format!(" [values: {}]", pv.join(", "))
                                    }
@@ -501,14 +511,14 @@ impl<'a> Help<'a> {
         } else if let Some(ref aliases) = a.aliases() {
             debugln!("Writing aliases");
             return format!(" [aliases: {}]",
-               if self.color {
-                   aliases.iter()
-                          .map(|v| format!("{}", self.cizer.good(v)))
-                          .collect::<Vec<_>>()
-                          .join(", ")
-               } else {
-                   aliases.join(", ")
-               });
+                           if self.color {
+                               aliases.iter()
+                                   .map(|v| format!("{}", self.cizer.good(v)))
+                                   .collect::<Vec<_>>()
+                                   .join(", ")
+                           } else {
+                               aliases.join(", ")
+                           });
         } else if !self.hide_pv {
             debugln!("Writing values");
             if let Some(pv) = a.possible_vals() {
@@ -516,9 +526,9 @@ impl<'a> Help<'a> {
                 return if self.color {
                     format!(" [values: {}]",
                             pv.iter()
-                              .map(|v| format!("{}", self.cizer.good(v)))
-                              .collect::<Vec<_>>()
-                              .join(", "))
+                                .map(|v| format!("{}", self.cizer.good(v)))
+                                .collect::<Vec<_>>()
+                                .join(", "))
                 } else {
                     format!(" [values: {}]", pv.join(", "))
                 };
@@ -547,8 +557,8 @@ impl<'a> Help<'a> {
 
         if unified_help && (flags || opts) {
             let opts_flags = parser.iter_flags()
-                                   .map(as_arg_trait)
-                                   .chain(parser.iter_opts().map(as_arg_trait));
+                .map(as_arg_trait)
+                .chain(parser.iter_opts().map(as_arg_trait));
             try!(color!(self, "OPTIONS:\n", warning));
             try!(self.write_args(opts_flags));
             first = false;
@@ -556,7 +566,7 @@ impl<'a> Help<'a> {
             if flags {
                 try!(color!(self, "FLAGS:\n", warning));
                 try!(self.write_args(parser.iter_flags()
-                                           .map(as_arg_trait)));
+                    .map(as_arg_trait)));
                 first = false;
             }
             if opts {
@@ -826,11 +836,11 @@ impl<'a> Help<'a> {
                 _ => continue,
             };
 
-	    debugln!("iter;tag_buf={};", unsafe {
-		String::from_utf8_unchecked(tag_buf.get_ref()[0..tag_length]
-						   .iter()
-		                                   .map(|&i|i)
-						   .collect::<Vec<_>>())
+            debugln!("iter;tag_buf={};", unsafe {
+                String::from_utf8_unchecked(tag_buf.get_ref()[0..tag_length]
+                    .iter()
+                    .map(|&i| i)
+                    .collect::<Vec<_>>())
             });
             match &tag_buf.get_ref()[0..tag_length] {
                 b"?" => {
@@ -862,21 +872,21 @@ impl<'a> Help<'a> {
                 }
                 b"unified" => {
                     let opts_flags = parser.iter_flags()
-                                           .map(as_arg_trait)
-                                           .chain(parser.iter_opts().map(as_arg_trait));
+                        .map(as_arg_trait)
+                        .chain(parser.iter_opts().map(as_arg_trait));
                     try!(self.write_args(opts_flags));
                 }
                 b"flags" => {
                     try!(self.write_args(parser.iter_flags()
-                                               .map(as_arg_trait)));
+                        .map(as_arg_trait)));
                 }
                 b"options" => {
                     try!(self.write_args(parser.iter_opts()
-                                               .map(as_arg_trait)));
+                        .map(as_arg_trait)));
                 }
                 b"positionals" => {
                     try!(self.write_args(parser.iter_positionals()
-                                               .map(as_arg_trait)));
+                        .map(as_arg_trait)));
                 }
                 b"subcommands" => {
                     try!(self.write_subcommands(&parser));
@@ -904,7 +914,9 @@ impl<'a> Help<'a> {
 
 #[cfg_attr(feature = "lints", allow(explicit_counter_loop))]
 fn wrap_help(help: &mut String, longest_w: usize, avail_chars: usize) {
-    debugln!("fn=wrap_help;longest_w={},avail_chars={}", longest_w, avail_chars);
+    debugln!("fn=wrap_help;longest_w={},avail_chars={}",
+             longest_w,
+             avail_chars);
     debug!("Enough space to wrap...");
     if longest_w < avail_chars {
         sdebugln!("Yes");
@@ -913,9 +925,11 @@ fn wrap_help(help: &mut String, longest_w: usize, avail_chars: usize) {
         let mut i = 0;
         for (idx, g) in (&*help.clone()).grapheme_indices(true) {
             debugln!("iter;idx={},g={}", idx, g);
-            if g != " " { continue; }
+            if g != " " {
+                continue;
+            }
             if str_width(&help[j..idx + (2 * i)]) < avail_chars {
-            debugln!("Still enough space...");
+                debugln!("Still enough space...");
                 prev_space = idx;
                 continue;
             }

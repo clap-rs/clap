@@ -1,9 +1,7 @@
-use std::ffi::OsStr;
+#[cfg(target_os = "windows")]
+use INVALID_UTF8;use std::ffi::OsStr;
 #[cfg(not(target_os = "windows"))]
 use std::os::unix::ffi::OsStrExt;
-
-#[cfg(target_os = "windows")]
-use INVALID_UTF8;
 
 #[cfg(target_os = "windows")]
 trait OsStrExt3 {

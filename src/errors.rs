@@ -1,14 +1,17 @@
-use std::process;
+// Std
+
+
+// Internal
+use args::any_arg::AnyArg;
+use fmt;
+use std::convert::From;
 use std::error::Error as StdError;
 use std::fmt as std_fmt;
 use std::fmt::Display;
 use std::io::{self, Write};
-use std::convert::From;
+use std::process;
 use std::result::Result as StdResult;
-
-use fmt;
 use suggestions;
-use args::any_arg::AnyArg;
 
 /// Short hand for [`Result`] type
 /// [`Result`]: https://doc.rust-lang.org/std/result/enum.Result.html
@@ -383,7 +386,11 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn argument_conflict<'a, 'b, A, O, U>(arg: &A, other: Option<O>, usage: U, color: fmt::ColorWhen) -> Self
+    pub fn argument_conflict<'a, 'b, A, O, U>(arg: &A,
+                                              other: Option<O>,
+                                              usage: U,
+                                              color: fmt::ColorWhen)
+                                              -> Self
         where A: AnyArg<'a, 'b> + Display,
               O: Into<String>,
               U: Display
@@ -391,7 +398,7 @@ impl Error {
         let mut v = vec![arg.name().to_owned()];
         let c = fmt::Colorizer {
             use_stderr: true,
-            when: color
+            when: color,
         };
         Error {
             message: format!("{} The argument '{}' cannot be used with {}\n\n\
@@ -405,12 +412,15 @@ impl Error {
                                      v.push(n.clone());
                                      c.warning(format!("'{}'", n))
                                  }
-                                 None => c.none("one or more of the other specified arguments".to_owned()),
+                                 None => {
+                                     c.none("one or more of the other specified arguments"
+                                         .to_owned())
+                                 }
                              },
                              usage,
                              c.good("--help")),
             kind: ErrorKind::ArgumentConflict,
-            info: Some(v)
+            info: Some(v),
         }
     }
 
@@ -421,7 +431,7 @@ impl Error {
     {
         let c = fmt::Colorizer {
             use_stderr: true,
-            when: color
+            when: color,
         };
         Error {
             message: format!("{} The argument '{}' requires a value but none was supplied\
@@ -438,7 +448,12 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn invalid_value<'a, 'b, B, G, A, U>(bad_val: B, good_vals: &[G], arg: &A, usage: U, color: fmt::ColorWhen) -> Self
+    pub fn invalid_value<'a, 'b, B, G, A, U>(bad_val: B,
+                                             good_vals: &[G],
+                                             arg: &A,
+                                             usage: U,
+                                             color: fmt::ColorWhen)
+                                             -> Self
         where B: AsRef<str>,
               G: AsRef<str> + Display,
               A: AnyArg<'a, 'b> + Display,
@@ -446,7 +461,7 @@ impl Error {
     {
         let c = fmt::Colorizer {
             use_stderr: true,
-            when: color
+            when: color,
         };
         let suffix =
             suggestions::did_you_mean_suffix(bad_val.as_ref(),
@@ -479,7 +494,12 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn invalid_subcommand<S, D, N, U>(subcmd: S, did_you_mean: D, name: N, usage: U, color: fmt::ColorWhen) -> Self
+    pub fn invalid_subcommand<S, D, N, U>(subcmd: S,
+                                          did_you_mean: D,
+                                          name: N,
+                                          usage: U,
+                                          color: fmt::ColorWhen)
+                                          -> Self
         where S: Into<String>,
               D: AsRef<str> + Display,
               N: Display,
@@ -488,7 +508,7 @@ impl Error {
         let s = subcmd.into();
         let c = fmt::Colorizer {
             use_stderr: true,
-            when: color
+            when: color,
         };
         Error {
             message: format!("{} The subcommand '{}' wasn't recognized\n\t\
@@ -518,7 +538,7 @@ impl Error {
         let s = subcmd.into();
         let c = fmt::Colorizer {
             use_stderr: true,
-            when: color
+            when: color,
         };
         Error {
             message: format!("{} The subcommand '{}' wasn't recognized\n\n\
@@ -542,7 +562,7 @@ impl Error {
     {
         let c = fmt::Colorizer {
             use_stderr: true,
-            when: color
+            when: color,
         };
         Error {
             message: format!("{} The following required arguments were not provided:{}\n\n\
@@ -564,7 +584,7 @@ impl Error {
     {
         let c = fmt::Colorizer {
             use_stderr: true,
-            when: color
+            when: color,
         };
         Error {
             message: format!("{} '{}' requires a subcommand, but one was not provided\n\n\
@@ -586,7 +606,7 @@ impl Error {
     {
         let c = fmt::Colorizer {
             use_stderr: true,
-            when: color
+            when: color,
         };
         Error {
             message: format!("{} Invalid UTF-8 was detected in one or more arguments\n\n\
@@ -601,7 +621,11 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn too_many_values<'a, 'b, V, A, U>(val: V, arg: &A, usage: U, color: fmt::ColorWhen) -> Self
+    pub fn too_many_values<'a, 'b, V, A, U>(val: V,
+                                            arg: &A,
+                                            usage: U,
+                                            color: fmt::ColorWhen)
+                                            -> Self
         where V: AsRef<str> + Display + ToOwned,
               A: AnyArg<'a, 'b> + Display,
               U: Display
@@ -609,7 +633,7 @@ impl Error {
         let v = val.as_ref();
         let c = fmt::Colorizer {
             use_stderr: true,
-            when: color
+            when: color,
         };
         Error {
             message: format!("{} The value '{}' was provided to '{}', but it wasn't expecting \
@@ -627,13 +651,18 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn too_few_values<'a, 'b, A, U>(arg: &A, min_vals: u64, curr_vals: usize, usage: U, color: fmt::ColorWhen) -> Self
+    pub fn too_few_values<'a, 'b, A, U>(arg: &A,
+                                        min_vals: u64,
+                                        curr_vals: usize,
+                                        usage: U,
+                                        color: fmt::ColorWhen)
+                                        -> Self
         where A: AnyArg<'a, 'b> + Display,
               U: Display
     {
         let c = fmt::Colorizer {
             use_stderr: true,
-            when: color
+            when: color,
         };
         Error {
             message: format!("{} The argument '{}' requires at least {} values, but only {} w{} \
@@ -644,11 +673,7 @@ impl Error {
                              c.warning(arg.to_string()),
                              c.warning(min_vals.to_string()),
                              c.warning(curr_vals.to_string()),
-                             if curr_vals > 1 {
-                                 "ere"
-                             } else {
-                                 "as"
-                             },
+                             if curr_vals > 1 { "ere" } else { "as" },
                              usage,
                              c.good("--help")),
             kind: ErrorKind::TooFewValues,
@@ -660,7 +685,7 @@ impl Error {
     pub fn value_validation(err: String, color: fmt::ColorWhen) -> Self {
         let c = fmt::Colorizer {
             use_stderr: true,
-            when: color
+            when: color,
         };
         Error {
             message: format!("{} {}", c.error("error:"), err),
@@ -679,7 +704,8 @@ impl Error {
                                                    num_vals: u64,
                                                    curr_vals: usize,
                                                    suffix: S,
-                                                   usage: U, color: fmt::ColorWhen)
+                                                   usage: U,
+                                                   color: fmt::ColorWhen)
                                                    -> Self
         where A: AnyArg<'a, 'b> + Display,
               S: Display,
@@ -687,7 +713,7 @@ impl Error {
     {
         let c = fmt::Colorizer {
             use_stderr: true,
-            when: color
+            when: color,
         };
         Error {
             message: format!("{} The argument '{}' requires {} values, but {} w{} \
@@ -713,7 +739,7 @@ impl Error {
     {
         let c = fmt::Colorizer {
             use_stderr: true,
-            when: color
+            when: color,
         };
         Error {
             message: format!("{} The argument '{}' was provided more than once, but cannot \
@@ -730,14 +756,18 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn unknown_argument<A, U>(arg: A, did_you_mean: &str, usage: U, color: fmt::ColorWhen) -> Self
+    pub fn unknown_argument<A, U>(arg: A,
+                                  did_you_mean: &str,
+                                  usage: U,
+                                  color: fmt::ColorWhen)
+                                  -> Self
         where A: Into<String>,
               U: Display
     {
         let a = arg.into();
         let c = fmt::Colorizer {
             use_stderr: true,
-            when: color
+            when: color,
         };
         Error {
             message: format!("{} Found argument '{}' which wasn't expected, or isn't valid in \
@@ -762,7 +792,7 @@ impl Error {
     pub fn io_error(e: &Error, color: fmt::ColorWhen) -> Self {
         let c = fmt::Colorizer {
             use_stderr: true,
-            when: color
+            when: color,
         };
         Error {
             message: format!("{} {}", c.error("error:"), e.description()),
@@ -778,7 +808,7 @@ impl Error {
         let a = arg.into();
         let c = fmt::Colorizer {
             use_stderr: true,
-            when: fmt::ColorWhen::Auto
+            when: fmt::ColorWhen::Auto,
         };
         Error {
             message: format!("{} The argument '{}' wasn't found",
@@ -796,7 +826,7 @@ impl Error {
     pub fn with_description(description: &str, kind: ErrorKind) -> Self {
         let c = fmt::Colorizer {
             use_stderr: true,
-            when: fmt::ColorWhen::Auto
+            when: fmt::ColorWhen::Auto,
         };
         Error {
             message: format!("{} {}", c.error("error:"), description),

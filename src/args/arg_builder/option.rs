@@ -1,11 +1,16 @@
-use std::rc::Rc;
-use std::fmt::{Display, Formatter, Result};
-use std::result::Result as StdResult;
+// Std
 
-use vec_map::VecMap;
+
+// Internal
 
 use args::{AnyArg, Arg, DispOrder};
 use args::settings::{ArgFlags, ArgSettings};
+use std::fmt::{Display, Formatter, Result};
+use std::rc::Rc;
+use std::result::Result as StdResult;
+
+// Third Party
+use vec_map::VecMap;
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
@@ -261,9 +266,9 @@ impl<'n, 'e> DispOrder for OptBuilder<'n, 'e> {
 
 #[cfg(test)]
 mod test {
+    use args::settings::ArgSettings;
     use super::OptBuilder;
     use vec_map::VecMap;
-    use args::settings::ArgSettings;
 
     #[test]
     fn optbuilder_display1() {

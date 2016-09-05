@@ -1,5 +1,7 @@
-use std::str::FromStr;
+// Std
+
 use std::ascii::AsciiExt;
+use std::str::FromStr;
 
 bitflags! {
     flags Flags: u16 {

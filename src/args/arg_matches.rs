@@ -1,14 +1,19 @@
-use std::ffi::{OsStr, OsString};
+// Std
+
+
+// Internal
+
+use INVALID_UTF8;
+use args::MatchedArg;
+use args::SubCommand;
+use std::borrow::Cow;
 use std::collections::HashMap;
+use std::ffi::{OsStr, OsString};
 use std::iter::Map;
 use std::slice;
-use std::borrow::Cow;
 
+// Third Party
 use vec_map;
-
-use args::SubCommand;
-use args::MatchedArg;
-use INVALID_UTF8;
 
 /// Used to get information about the arguments that where supplied to the program at runtime by
 /// the user. New instances of this struct are obtained by using the [`App::get_matches`] family of
@@ -242,9 +247,9 @@ impl<'a> ArgMatches<'a> {
     pub fn values_of_lossy<S: AsRef<str>>(&'a self, name: S) -> Option<Vec<String>> {
         if let Some(arg) = self.args.get(name.as_ref()) {
             return Some(arg.vals
-                           .values()
-                           .map(|v| v.to_string_lossy().into_owned())
-                           .collect());
+                .values()
+                .map(|v| v.to_string_lossy().into_owned())
+                .collect());
         }
         None
     }
