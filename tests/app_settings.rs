@@ -15,10 +15,11 @@ fn sub_command_negate_required() {
 
 #[test]
 fn global_version() {
-    let app = App::new("global_version")
+    let mut app = App::new("global_version")
         .setting(AppSettings::GlobalVersion)
         .version("1.1")
         .subcommand(SubCommand::with_name("sub1"));
+    app.p.propogate_settings();
     assert_eq!(app.p.subcommands[0].p.meta.version, Some("1.1"));
 }
 
@@ -140,9 +141,10 @@ ARGS:
 
 #[test]
 fn global_setting() {
-    let app = App::new("test")
+    let mut app = App::new("test")
         .global_setting(AppSettings::ColoredHelp)
         .subcommand(SubCommand::with_name("subcmd"));
+    app.p.propogate_settings();
     assert!(app.p
                .subcommands
                .iter()
@@ -157,9 +159,10 @@ fn global_setting() {
 
 #[test]
 fn global_settings() {
-    let app = App::new("test")
+    let mut app = App::new("test")
         .global_settings(&[AppSettings::ColoredHelp, AppSettings::TrailingVarArg])
         .subcommand(SubCommand::with_name("subcmd"));
+    app.p.propogate_settings();
     assert!(app.p
                .subcommands
                .iter()
@@ -262,7 +265,7 @@ fn test_unset_settings() {
     let m = App::new("unset_settings");
     assert!(&m.p.is_set(AppSettings::AllowInvalidUtf8));
     assert!(&m.p.is_set(AppSettings::ColorAuto));
-    
+
     let m = m.unset_settings(&[AppSettings::AllowInvalidUtf8,
                                AppSettings::ColorAuto]);
     assert!(!m.p.is_set(AppSettings::AllowInvalidUtf8));
