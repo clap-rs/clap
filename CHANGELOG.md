@@ -1,3 +1,21 @@
+<a name="v2.11.1"></a>
+### v2.11.1 (2016-09-05)
+
+
+#### Bug Fixes
+
+* **Settings:**  fixes an issue where settings weren't propogated down through grand-child subcommands ([b3efc107](https://github.com/kbknapp/clap-rs/commit/b3efc107515d78517b20798ff3890b8a2b04498e), closes [#638](https://github.com/kbknapp/clap-rs/issues/638))
+
+#### Features
+
+* **Errors:**  Errors with custom description ([58512f2f](https://github.com/kbknapp/clap-rs/commit/58512f2fcb430745f1ee6ee8f1c67f62dc216c73))
+
+#### Improvements
+
+* **help:**  use term_size instead of home-grown solution ([fc7327e9](https://github.com/kbknapp/clap-rs/commit/fc7327e9dcf4258ef2baebf0a8714d9c0622855b))
+
+
+
 <a name="v2.11.0"></a>
 ### v2.11.0 (2016-08-28)
 
