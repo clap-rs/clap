@@ -461,9 +461,9 @@ impl<'a> From<&'a BTreeMap<Yaml, Yaml>> for ArgGroup<'a> {
             let name_str = name_yml.as_str().expect("failed to convert arg YAML name to str");
             a.name = name_str;
             b.get(name_yml)
-             .expect("failed to get name_str")
-             .as_hash()
-             .expect("failed to convert to a hash")
+                .expect("failed to get name_str")
+                .as_hash()
+                .expect("failed to convert to a hash")
         } else {
             b
         };
@@ -471,21 +471,15 @@ impl<'a> From<&'a BTreeMap<Yaml, Yaml>> for ArgGroup<'a> {
         for (k, v) in group_settings.iter() {
             a = match k.as_str().unwrap() {
                 "required" => a.required(v.as_bool().unwrap()),
-                "args" => {
-                    yaml_vec_or_str!(v, a, arg)
-                }
+                "args" => yaml_vec_or_str!(v, a, arg),
                 "arg" => {
                     if let Some(ys) = v.as_str() {
                         a = a.arg(ys);
                     }
                     a
                 }
-                "requires" => {
-                    yaml_vec_or_str!(v, a, requires)
-                }
-                "conflicts_with" => {
-                    yaml_vec_or_str!(v, a, conflicts_with)
-                }
+                "requires" => yaml_vec_or_str!(v, a, requires),
+                "conflicts_with" => yaml_vec_or_str!(v, a, conflicts_with),
                 "name" => {
                     if let Some(ys) = v.as_str() {
                         a.name = ys;
@@ -514,16 +508,16 @@ mod test {
     #[test]
     fn groups() {
         let g = ArgGroup::with_name("test")
-                    .arg("a1")
-                    .arg("a4")
-                    .args(&["a2", "a3"])
-                    .required(true)
-                    .conflicts_with("c1")
-                    .conflicts_with_all(&["c2", "c3"])
-                    .conflicts_with("c4")
-                    .requires("r1")
-                    .requires_all(&["r2", "r3"])
-                    .requires("r4");
+            .arg("a1")
+            .arg("a4")
+            .args(&["a2", "a3"])
+            .required(true)
+            .conflicts_with("c1")
+            .conflicts_with_all(&["c2", "c3"])
+            .conflicts_with("c4")
+            .requires("r1")
+            .requires_all(&["r2", "r3"])
+            .requires("r4");
 
         let args = vec!["a1", "a4", "a2", "a3"];
         let reqs = vec!["r1", "r2", "r3", "r4"];
@@ -537,16 +531,16 @@ mod test {
     #[test]
     fn test_debug() {
         let g = ArgGroup::with_name("test")
-                    .arg("a1")
-                    .arg("a4")
-                    .args(&["a2", "a3"])
-                    .required(true)
-                    .conflicts_with("c1")
-                    .conflicts_with_all(&["c2", "c3"])
-                    .conflicts_with("c4")
-                    .requires("r1")
-                    .requires_all(&["r2", "r3"])
-                    .requires("r4");
+            .arg("a1")
+            .arg("a4")
+            .args(&["a2", "a3"])
+            .required(true)
+            .conflicts_with("c1")
+            .conflicts_with_all(&["c2", "c3"])
+            .conflicts_with("c4")
+            .requires("r1")
+            .requires_all(&["r2", "r3"])
+            .requires("r4");
 
         let args = vec!["a1", "a4", "a2", "a3"];
         let reqs = vec!["r1", "r2", "r3", "r4"];
@@ -569,16 +563,16 @@ mod test {
     #[test]
     fn test_from() {
         let g = ArgGroup::with_name("test")
-                    .arg("a1")
-                    .arg("a4")
-                    .args(&["a2", "a3"])
-                    .required(true)
-                    .conflicts_with("c1")
-                    .conflicts_with_all(&["c2", "c3"])
-                    .conflicts_with("c4")
-                    .requires("r1")
-                    .requires_all(&["r2", "r3"])
-                    .requires("r4");
+            .arg("a1")
+            .arg("a4")
+            .args(&["a2", "a3"])
+            .required(true)
+            .conflicts_with("c1")
+            .conflicts_with_all(&["c2", "c3"])
+            .conflicts_with("c4")
+            .requires("r1")
+            .requires_all(&["r2", "r3"])
+            .requires("r4");
 
         let args = vec!["a1", "a4", "a2", "a3"];
         let reqs = vec!["r1", "r2", "r3", "r4"];

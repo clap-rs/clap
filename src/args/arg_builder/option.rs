@@ -1,16 +1,14 @@
 // Std
-
-
-// Internal
-
-use args::{AnyArg, Arg, DispOrder};
-use args::settings::{ArgFlags, ArgSettings};
 use std::fmt::{Display, Formatter, Result};
 use std::rc::Rc;
 use std::result::Result as StdResult;
 
 // Third Party
 use vec_map::VecMap;
+
+// Internal
+use args::{AnyArg, Arg, DispOrder};
+use args::settings::{ArgFlags, ArgSettings};
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]

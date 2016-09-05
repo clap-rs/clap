@@ -1,6 +1,8 @@
+// Third Party
 #[cfg(feature = "suggestions")]
 use strsim;
 
+// Internal
 use fmt::Format;
 
 /// Produces a string from a given list of possible values which is similar to

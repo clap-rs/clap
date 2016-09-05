@@ -1,5 +1,6 @@
 #[cfg(target_os = "windows")]
-use INVALID_UTF8;use std::ffi::OsStr;
+use INVALID_UTF8;
+use std::ffi::OsStr;
 #[cfg(not(target_os = "windows"))]
 use std::os::unix::ffi::OsStrExt;
 

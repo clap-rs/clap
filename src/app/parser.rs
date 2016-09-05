@@ -1,8 +1,18 @@
 // Std
+use std::collections::{BTreeMap, HashMap, VecDeque};
+use std::ffi::{OsStr, OsString};
+use std::fmt::Display;
+use std::fs::File;
+use std::io::{self, BufWriter, Write};
+#[cfg(feature = "debug")]
+use std::os::unix::ffi::OsStrExt;
+use std::path::PathBuf;
+use std::slice::Iter;
 
+// Third Party
+use vec_map::{self, VecMap};
 
 // Internal
-
 use INTERNAL_ERROR_MSG;
 use INVALID_UTF8;
 use SubCommand;
@@ -20,19 +30,7 @@ use errors::Result as ClapResult;
 use fmt::{Format, ColorWhen};
 use osstringext::OsStrExt2;
 use shell::Shell;
-use std::collections::{BTreeMap, HashMap, VecDeque};
-use std::ffi::{OsStr, OsString};
-use std::fmt::Display;
-use std::fs::File;
-use std::io::{self, BufWriter, Write};
-#[cfg(feature = "debug")]
-use std::os::unix::ffi::OsStrExt;
-use std::path::PathBuf;
-use std::slice::Iter;
 use suggestions;
-
-// Third Party
-use vec_map::{self, VecMap};
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]

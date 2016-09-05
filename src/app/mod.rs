@@ -7,16 +7,6 @@ mod meta;
 mod help;
 
 // Std
-
-
-// Internal
-use app::help::Help;
-use app::parser::Parser;
-use args::{AnyArg, Arg, ArgGroup, ArgMatcher, ArgMatches, ArgSettings};
-use errors::Error;
-use errors::Result as ClapResult;
-pub use self::settings::AppSettings;
-use shell::Shell;
 use std::borrow::Borrow;
 use std::env;
 use std::ffi::OsString;
@@ -31,6 +21,15 @@ use std::result::Result as StdResult;
 use vec_map::VecMap;
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
+
+// Internal
+use app::help::Help;
+use app::parser::Parser;
+use args::{AnyArg, Arg, ArgGroup, ArgMatcher, ArgMatches, ArgSettings};
+use errors::Error;
+use errors::Result as ClapResult;
+pub use self::settings::AppSettings;
+use shell::Shell;
 
 /// Used to create a representation of a command line program and all possible command line
 /// arguments. Application settings are set using the "builder pattern" with the
@@ -1380,12 +1379,14 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
         if let Some(v) = yaml["display_order"].as_i64() {
             a = a.display_order(v as usize);
         } else if yaml["display_order"] != Yaml::BadValue {
-            panic!("Failed to convert YAML value {:?} to a u64", yaml["display_order"]);
+            panic!("Failed to convert YAML value {:?} to a u64",
+                   yaml["display_order"]);
         }
         if let Some(v) = yaml["setting"].as_str() {
             a = a.setting(v.parse().expect("unknown AppSetting found in YAML file"));
         } else if yaml["setting"] != Yaml::BadValue {
-            panic!("Failed to convert YAML value {:?} to an AppSetting", yaml["setting"]);
+            panic!("Failed to convert YAML value {:?} to an AppSetting",
+                   yaml["setting"]);
         }
         if let Some(v) = yaml["settings"].as_vec() {
             for ys in v {
@@ -1397,13 +1398,15 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
             if let Some(v) = yaml["settings"].as_str() {
                 a = a.setting(v.parse().expect("unknown AppSetting found in YAML file"));
             } else if yaml["settings"] != Yaml::BadValue {
-                panic!("Failed to convert YAML value {:?} to a string", yaml["settings"]);
+                panic!("Failed to convert YAML value {:?} to a string",
+                       yaml["settings"]);
             }
         }
         if let Some(v) = yaml["global_setting"].as_str() {
             a = a.setting(v.parse().ok().expect("unknown AppSetting found in YAML file"));
         } else if yaml["global_setting"] != Yaml::BadValue {
-            panic!("Failed to convert YAML value {:?} to an AppSetting", yaml["setting"]);
+            panic!("Failed to convert YAML value {:?} to an AppSetting",
+                   yaml["setting"]);
         }
         if let Some(v) = yaml["global_settings"].as_vec() {
             for ys in v {
@@ -1417,7 +1420,8 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
             if let Some(v) = yaml["global_settings"].as_str() {
                 a = a.global_setting(v.parse().expect("unknown AppSetting found in YAML file"));
             } else if yaml["global_settings"] != Yaml::BadValue {
-                panic!("Failed to convert YAML value {:?} to a string", yaml["global_settings"]);
+                panic!("Failed to convert YAML value {:?} to a string",
+                       yaml["global_settings"]);
             }
         }
 

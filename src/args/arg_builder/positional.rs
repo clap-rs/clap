@@ -1,11 +1,4 @@
 // Std
-
-
-// Internal
-
-use Arg;
-use args::{AnyArg, DispOrder};
-use args::settings::{ArgFlags, ArgSettings};
 use std::borrow::Cow;
 use std::fmt::{Display, Formatter, Result};
 use std::rc::Rc;
@@ -13,6 +6,11 @@ use std::result::Result as StdResult;
 
 // Third Party
 use vec_map::VecMap;
+
+// Internal
+use Arg;
+use args::{AnyArg, DispOrder};
+use args::settings::{ArgFlags, ArgSettings};
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
