@@ -140,12 +140,11 @@ complete -F _{name} {name}
         for sc in path.split('_').skip(1) {
             debugln!("iter;sc={}", sc);
             p = &p.subcommands.iter()
-                              .filter(|s| s.p.meta.name == sc
+                              .find(|s| s.p.meta.name == sc
                                   || (s.p.meta.aliases.is_some() && s.p.meta.aliases.as_ref()
                                                                                     .unwrap()
                                                                                     .iter()
                                                                                     .any(|&(n,_)| n==sc )))
-                              .next()
                               .unwrap().p;
         }
         let mut opts = p.short_list.iter().fold(String::new(), |acc, s| format!("{} -{}", acc, s));
@@ -167,7 +166,14 @@ complete -F _{name} {name}
         let mut p = self.p;
         for sc in path.split('_').skip(1) {
             debugln!("iter;sc={}", sc);
-            p = &p.subcommands.iter().filter(|s| s.p.meta.name == sc || (s.p.meta.aliases.is_some() && s.p.meta.aliases.as_ref().unwrap().iter().any(|&(n,_)| n==sc ))).next().unwrap().p;
+            p = &p.subcommands.iter()
+                              .find(|s| s.p.meta.name == sc ||
+                                  (s.p.meta.aliases.is_some() &&
+                                    s.p.meta.aliases.as_ref()
+                                                    .unwrap()
+                                                    .iter()
+                                                    .any(|&(n,_)| n==sc )))
+                              .unwrap().p;
         }
         let mut opts = String::new();
         for o in &p.opts {

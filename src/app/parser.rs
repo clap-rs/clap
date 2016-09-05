@@ -355,7 +355,7 @@ impl<'a, 'b> Parser<'a, 'b>
             if matcher.is_some() && matcher.as_ref().unwrap().contains(p) {
                 continue;
             }
-            if let Some(p) = self.positionals.values().filter(|x| &x.name == &p).next() {
+            if let Some(p) = self.positionals.values().find(|x| &x.name == &p) {
                 if args_in_groups.contains(&p.name) {
                     continue;
                 }
@@ -590,7 +590,7 @@ impl<'a, 'b> Parser<'a, 'b>
                     // Check to see if parsing a value from an option
                     if let Some(nvo) = needs_val_of {
                         // get the OptBuilder so we can check the settings
-                        if let Some(opt) = self.opts.iter().filter(|o| &o.name == &nvo).next() {
+                        if let Some(opt) = self.opts.iter().find(|o| &o.name == &nvo) {
                             needs_val_of = try!(self.add_val_to_arg(opt, &arg_os, matcher));
                             // get the next value from the iterator
                             continue;
@@ -633,8 +633,7 @@ impl<'a, 'b> Parser<'a, 'b>
                                 }
                                 if let Some(c) = sc.subcommands
                                                    .iter()
-                                                   .filter(|s| &*s.p.meta.name == cmd)
-                                                   .next()
+                                                   .find(|s| &*s.p.meta.name == cmd)
                                                    .map(|sc| &sc.p) {
                                     sc = c;
                                     if i == cmds.len() - 1 {
@@ -642,7 +641,7 @@ impl<'a, 'b> Parser<'a, 'b>
                                     }
                                 } else if let Some(c) = sc.subcommands
                                                           .iter()
-                                                          .filter(|s|
+                                                          .find(|s|
                                                               if let Some(ref als) = s.p
                                                                                       .meta
                                                                                       .aliases {
@@ -652,7 +651,6 @@ impl<'a, 'b> Parser<'a, 'b>
                                                                   false
                                                               }
                                                           )
-                                                          .next()
                                                           .map(|sc| &sc.p) {
                                     sc = c;
                                     if i == cmds.len() - 1 {
@@ -751,7 +749,7 @@ impl<'a, 'b> Parser<'a, 'b>
 
         let mut reqs_validated = false;
         if let Some(a) = needs_val_of {
-            if let Some(o) = self.opts.iter().filter(|o| &o.name == &a).next() {
+            if let Some(o) = self.opts.iter().find(|o| &o.name == &a) {
                 try!(self.validate_required(matcher));
                 reqs_validated = true;
                 let should_err = if let Some(v) = matcher.0.args.get(&*o.name) {
@@ -765,8 +763,7 @@ impl<'a, 'b> Parser<'a, 'b>
             } else {
                 return Err(Error::empty_value(self.positionals
                                                   .values()
-                                                  .filter(|p| &p.name == &a)
-                                                  .next()
+                                                  .find(|p| &p.name == &a)
                                                   .expect(INTERNAL_ERROR_MSG),
                                               &*self.create_current_usage(matcher),
                                               self.color()));
@@ -888,8 +885,7 @@ impl<'a, 'b> Parser<'a, 'b>
         mid_string.push_str(" ");
         if let Some(ref mut sc) = self.subcommands
                                       .iter_mut()
-                                      .filter(|s| &s.p.meta.name == &sc_name)
-                                      .next() {
+                                      .find(|s| &s.p.meta.name == &sc_name) {
             let mut sc_matcher = ArgMatcher::new();
             // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
             // a space
@@ -923,21 +919,21 @@ impl<'a, 'b> Parser<'a, 'b>
 
     fn blacklisted_from(&self, name: &str, matcher: &ArgMatcher) -> Option<String> {
         for k in matcher.arg_names() {
-            if let Some(f) = self.flags.iter().filter(|f| &f.name == &k).next() {
+            if let Some(f) = self.flags.iter().find(|f| &f.name == &k) {
                 if let Some(ref bl) = f.blacklist {
                     if bl.contains(&name) {
                         return Some(f.to_string());
                     }
                 }
             }
-            if let Some(o) = self.opts.iter().filter(|o| &o.name == &k).next() {
+            if let Some(o) = self.opts.iter().find(|o| &o.name == &k) {
                 if let Some(ref bl) = o.blacklist {
                     if bl.contains(&name) {
                         return Some(o.to_string());
                     }
                 }
             }
-            if let Some(pos) = self.positionals.values().filter(|p| &p.name == &k).next() {
+            if let Some(pos) = self.positionals.values().find(|p| &p.name == &k) {
                 if let Some(ref bl) = pos.blacklist {
                     if bl.contains(&name) {
                         return Some(pos.name.to_owned());
@@ -950,21 +946,21 @@ impl<'a, 'b> Parser<'a, 'b>
 
     fn overriden_from(&self, name: &str, matcher: &ArgMatcher) -> Option<&'a str> {
         for k in matcher.arg_names() {
-            if let Some(f) = self.flags.iter().filter(|f| &f.name == &k).next() {
+            if let Some(f) = self.flags.iter().find(|f| &f.name == &k) {
                 if let Some(ref bl) = f.overrides {
                     if bl.contains(&name.into()) {
                         return Some(f.name);
                     }
                 }
             }
-            if let Some(o) = self.opts.iter().filter(|o| &o.name == &k).next() {
+            if let Some(o) = self.opts.iter().find(|o| &o.name == &k) {
                 if let Some(ref bl) = o.overrides {
                     if bl.contains(&name.into()) {
                         return Some(o.name);
                     }
                 }
             }
-            if let Some(pos) = self.positionals.values().filter(|p| &p.name == &k).next() {
+            if let Some(pos) = self.positionals.values().find(|p| &p.name == &k) {
                 if let Some(ref bl) = pos.overrides {
                     if bl.contains(&name.into()) {
                         return Some(pos.name);
@@ -1004,16 +1000,15 @@ impl<'a, 'b> Parser<'a, 'b>
         let mut args = vec![];
 
         for n in &self.groups.get(group).unwrap().args {
-            if let Some(f) = self.flags.iter().filter(|f| &f.name == n).next() {
+            if let Some(f) = self.flags.iter().find(|f| &f.name == n) {
                 args.push(f.to_string());
-            } else if let Some(f) = self.opts.iter().filter(|o| &o.name == n).next() {
+            } else if let Some(f) = self.opts.iter().find(|o| &o.name == n) {
                 args.push(f.to_string());
             } else if self.groups.contains_key(&**n) {
                 g_vec.push(*n);
             } else if let Some(p) = self.positionals
                                  .values()
-                                 .filter(|p| &p.name == n)
-                                 .next() {
+                                 .find(|p| &p.name == n) {
                 args.push(p.name.to_owned());
             }
         }
@@ -1101,13 +1096,11 @@ impl<'a, 'b> Parser<'a, 'b>
                                    .filter(|n| {
                                        if let Some(o) = self.opts
                                                             .iter()
-                                                            .filter(|&o| &&o.name == n)
-                                                            .next() {
+                                                            .find(|&o| &&o.name == n) {
                                            !o.settings.is_set(ArgSettings::Required)
                                        } else if let Some(p) = self.positionals
                                                             .values()
-                                                            .filter(|&p| &&p.name == n)
-                                                            .next() {
+                                                            .find(|&p| &&p.name == n) {
                                            !p.settings.is_set(ArgSettings::Required)
                                        } else {
                                            true // flags can't be required, so they're always true
@@ -1195,8 +1188,7 @@ impl<'a, 'b> Parser<'a, 'b>
 
         if let Some(opt) = self.opts
                                .iter()
-                               .filter(|v| v.long.is_some() && &*v.long.unwrap() == arg)
-                               .next() {
+                               .find(|v| v.long.is_some() && &*v.long.unwrap() == arg) {
             debugln!("Found valid opt '{}'", opt.to_string());
             let ret = try!(self.parse_opt(val, opt, matcher));
             arg_post_processing!(self, opt, matcher);
@@ -1204,8 +1196,7 @@ impl<'a, 'b> Parser<'a, 'b>
             return Ok(ret);
         } else if let Some(flag) = self.flags
                                 .iter()
-                                .filter(|v| v.long.is_some() && &*v.long.unwrap() == arg)
-                                .next() {
+                                .find(|v| v.long.is_some() && &*v.long.unwrap() == arg) {
             debugln!("Found valid flag '{}'", flag.to_string());
             // Only flags could be help or version, and we need to check the raw long
             // so this is the first point to check
@@ -1241,8 +1232,7 @@ impl<'a, 'b> Parser<'a, 'b>
             // Value: val
             if let Some(opt) = self.opts
                                    .iter()
-                                   .filter(|&v| v.short.is_some() && v.short.unwrap() == c)
-                                   .next() {
+                                   .find(|&v| v.short.is_some() && v.short.unwrap() == c) {
                 debugln!("Found valid short opt -{} in '{}'", c, arg);
                 // Check for trailing concatenated value
                 let p: Vec<_> = arg.splitn(2, c).collect();
@@ -1269,8 +1259,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 return Ok(ret);
             } else if let Some(flag) = self.flags
                                     .iter()
-                                    .filter(|&v| v.short.is_some() && v.short.unwrap() == c)
-                                    .next() {
+                                    .find(|&v| v.short.is_some() && v.short.unwrap() == c) {
                 debugln!("Found valid short flag -{}", c);
                 // Only flags can be help or version
                 try!(self.check_for_help_and_version_char(c));
@@ -1484,13 +1473,11 @@ impl<'a, 'b> Parser<'a, 'b>
                 continue;
             } else if let Some(opt) = self.opts
                                        .iter()
-                                       .filter(|o| &o.name == name)
-                                       .next() {
+                                       .find(|o| &o.name == name) {
                 try!(self._validate_num_vals(opt, ma, matcher));
             } else if let Some(pos) = self.positionals
                                    .values()
-                                   .filter(|p| &p.name == name)
-                                   .next() {
+                                   .find(|p| &p.name == name) {
                 try!(self._validate_num_vals(pos, ma, matcher));
             }
         }
@@ -1575,15 +1562,15 @@ impl<'a, 'b> Parser<'a, 'b>
             if self.groups.values().any(|g| g.args.contains(name)) {
                 continue 'outer;
             }
-            if let Some(a) = self.flags.iter().filter(|f| &f.name == name).next() {
+            if let Some(a) = self.flags.iter().find(|f| &f.name == name) {
                 if self.is_missing_required_ok(a, matcher) {
                     continue 'outer;
                 }
-            } else if let Some(a) = self.opts.iter().filter(|o| &o.name == name).next() {
+            } else if let Some(a) = self.opts.iter().find(|o| &o.name == name) {
                 if self.is_missing_required_ok(a, matcher) {
                     continue 'outer;
                 }
-            } else if let Some(a) = self.positionals.values().filter(|p| &p.name == name).next() {
+            } else if let Some(a) = self.positionals.values().find(|p| &p.name == name) {
                 if self.is_missing_required_ok(a, matcher) {
                     continue 'outer;
                 }
@@ -1651,15 +1638,13 @@ impl<'a, 'b> Parser<'a, 'b>
         if let Some(name) = suffix.1 {
             if let Some(opt) = self.opts
                                    .iter()
-                                   .filter(|o| o.long.is_some() && o.long.unwrap() == name)
-                                   .next() {
+                                   .find(|o| o.long.is_some() && o.long.unwrap() == name) {
                 self.groups_for_arg(&*opt.name)
                     .and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
                 matcher.insert(&*opt.name);
             } else if let Some(flg) = self.flags
                                    .iter()
-                                   .filter(|f| f.long.is_some() && f.long.unwrap() == name)
-                                   .next() {
+                                   .find(|f| f.long.is_some() && f.long.unwrap() == name) {
                 self.groups_for_arg(&*flg.name)
                     .and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
                 matcher.insert(&*flg.name);
