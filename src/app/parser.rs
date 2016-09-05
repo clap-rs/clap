@@ -241,30 +241,37 @@ impl<'a, 'b> Parser<'a, 'b>
             sdebugln!("No");
         }
 
-        debug!("Using Setting VersionlessSubcommands...");
-        if self.settings.is_set(AppSettings::VersionlessSubcommands) {
-            sdebugln!("Yes");
-            subcmd.p.settings.set(AppSettings::DisableVersion);
-        } else {
-            sdebugln!("No");
-        }
-        debug!("Using Setting GlobalVersion...");
-        if self.settings.is_set(AppSettings::GlobalVersion) && subcmd.p.meta.version.is_none() &&
-           self.meta.version.is_some() {
-            sdebugln!("Yes");
-            subcmd = subcmd.setting(AppSettings::GlobalVersion)
-                .version(self.meta.version.unwrap());
-        } else {
-            sdebugln!("No");
-        }
         if self.settings.is_set(AppSettings::DeriveDisplayOrder) {
             subcmd.p.meta.disp_ord = self.subcommands.len();
         }
-        for s in &self.g_settings {
-            subcmd.p.set(*s);
-            subcmd.p.g_settings.push(*s);
-        }
         self.subcommands.push(subcmd);
+    }
+
+    pub fn propogate_settings(&mut self) {
+        for sc in &mut self.subcommands {
+            // We have to create a new scope in order to tell rustc the borrow of `sc` is
+            // done and to recursively call this method
+            {
+                let vsc = self.settings.is_set(AppSettings::VersionlessSubcommands);
+                let gv = self.settings.is_set(AppSettings::GlobalVersion);
+
+                debugln!("VersionlessSubcommands set...{:?}", vsc);
+                debugln!("GlobalVersion set...{:?}", gv);
+
+                if vsc {
+                    sc.p.settings.set(AppSettings::DisableVersion);
+                }
+                if gv && sc.p.meta.version.is_none() && self.meta.version.is_some() {
+                    sc.p.set(AppSettings::GlobalVersion);
+                    sc.p.meta.version = Some(self.meta.version.unwrap());
+                }
+                for s in &self.g_settings {
+                    sc.p.set(*s);
+                    sc.p.g_settings.push(*s);
+                }
+            }
+            sc.p.propogate_settings();
+        }
     }
 
     pub fn required(&self) -> Iter<&str> {
