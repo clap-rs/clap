@@ -1,8 +1,12 @@
-use std::io::Write;
+// Std
+
+
+// Internal
 
 use app::parser::Parser;
-use shell::Shell;
 use args::{ArgSettings, OptBuilder};
+use shell::Shell;
+use std::io::Write;
 
 macro_rules! w {
     ($buf:expr, $to_w:expr) => {
@@ -13,15 +17,15 @@ macro_rules! w {
     };
 }
 
-pub struct ComplGen<'a, 'b> where 'a: 'b {
+pub struct ComplGen<'a, 'b>
+    where 'a: 'b
+{
     p: &'b Parser<'a, 'b>,
 }
 
 impl<'a, 'b> ComplGen<'a, 'b> {
     pub fn new(p: &'b Parser<'a, 'b>) -> Self {
-        ComplGen {
-            p: p,
-        }
+        ComplGen { p: p }
     }
 
     pub fn generate<W: Write>(&self, for_shell: Shell, buf: &mut W) {
@@ -32,8 +36,8 @@ impl<'a, 'b> ComplGen<'a, 'b> {
     }
 
     fn gen_bash<W: Write>(&self, buf: &mut W) {
-        w!(buf, format!(
-"_{name}() {{
+        w!(buf,
+           format!("_{name}() {{
     local i cur prev opts cmds
     COMPREPLY=()
     cur=\"${{COMP_WORDS[COMP_CWORD]}}\"
@@ -75,12 +79,13 @@ impl<'a, 'b> ComplGen<'a, 'b> {
 
 complete -F _{name} {name}
 ",
-            name=self.p.meta.bin_name.as_ref().unwrap(),
-            name_opts=self.all_options_for_path(self.p.meta.bin_name.as_ref().unwrap()),
-            name_opts_details=self.option_details_for_path(self.p.meta.bin_name.as_ref().unwrap()),
-            subcmds=self.all_subcommands(),
-            subcmd_details=self.subcommand_details()
-        ).as_bytes());
+                   name = self.p.meta.bin_name.as_ref().unwrap(),
+                   name_opts = self.all_options_for_path(self.p.meta.bin_name.as_ref().unwrap()),
+                   name_opts_details =
+                       self.option_details_for_path(self.p.meta.bin_name.as_ref().unwrap()),
+                   subcmds = self.all_subcommands(),
+                   subcmd_details = self.subcommand_details())
+               .as_bytes());
     }
 
     fn all_subcommands(&self) -> String {
@@ -88,13 +93,12 @@ complete -F _{name} {name}
         let scs = get_all_subcommands(self.p);
 
         for sc in &scs {
-            subcmds = format!(
-                "{}
+            subcmds = format!("{}
             {name})
                 cmd+=\"_{name}\"
                 ;;",
-                subcmds,
-                name=sc.replace("-", "_"));
+                              subcmds,
+                              name = sc.replace("-", "_"));
         }
 
         subcmds
@@ -107,8 +111,7 @@ complete -F _{name} {name}
         scs.dedup();
 
         for sc in &scs {
-            subcmd_dets = format!(
-                "{}
+            subcmd_dets = format!("{}
         {subcmd})
             opts=\"{sc_opts}\"
             if [[ ${{cur}} == -* || ${{COMP_CWORD}} -eq {level} ]] ; then
@@ -124,12 +127,11 @@ complete -F _{name} {name}
             COMPREPLY=( $(compgen -W \"${{opts}}\" -- ${{cur}}) )
             return 0
             ;;",
-                subcmd_dets,
-                subcmd=sc.replace("-", "_"),
-                sc_opts=self.all_options_for_path(&*sc),
-                level=sc.split("_").map(|_|1).fold(0, |acc, n| acc + n),
-                opts_details=self.option_details_for_path(&*sc)
-            );
+                                  subcmd_dets,
+                                  subcmd = sc.replace("-", "_"),
+                                  sc_opts = self.all_options_for_path(&*sc),
+                                  level = sc.split("_").map(|_| 1).fold(0, |acc, n| acc + n),
+                                  opts_details = self.option_details_for_path(&*sc));
         }
 
         subcmd_dets
@@ -139,25 +141,45 @@ complete -F _{name} {name}
         let mut p = self.p;
         for sc in path.split('_').skip(1) {
             debugln!("iter;sc={}", sc);
-            p = &p.subcommands.iter()
-                              .filter(|s| s.p.meta.name == sc
-                                  || (s.p.meta.aliases.is_some() && s.p.meta.aliases.as_ref()
-                                                                                    .unwrap()
-                                                                                    .iter()
-                                                                                    .any(|&(n,_)| n==sc )))
-                              .next()
-                              .unwrap().p;
+            p = &p.subcommands
+                .iter()
+                .find(|s| {
+                    s.p.meta.name == sc ||
+                    (s.p.meta.aliases.is_some() &&
+                     s.p
+                        .meta
+                        .aliases
+                        .as_ref()
+                        .unwrap()
+                        .iter()
+                        .any(|&(n, _)| n == sc))
+                })
+                .unwrap()
+                .p;
         }
         let mut opts = p.short_list.iter().fold(String::new(), |acc, s| format!("{} -{}", acc, s));
-        opts = format!("{} {}", opts, p.long_list.iter()
-                                                 .fold(String::new(), |acc, l| format!("{} --{}", acc, l)));
-        opts = format!("{} {}", opts, p.positionals.values()
-                                                   .fold(String::new(), |acc, p| format!("{} {}", acc, p)));
-        opts = format!("{} {}", opts, p.subcommands.iter()
-                                                   .fold(String::new(), |acc, s| format!("{} {}", acc, s.p.meta.name)));
+        opts = format!("{} {}",
+                       opts,
+                       p.long_list
+                           .iter()
+                           .fold(String::new(), |acc, l| format!("{} --{}", acc, l)));
+        opts = format!("{} {}",
+                       opts,
+                       p.positionals
+                           .values()
+                           .fold(String::new(), |acc, p| format!("{} {}", acc, p)));
+        opts = format!("{} {}",
+                       opts,
+                       p.subcommands
+                           .iter()
+                           .fold(String::new(), |acc, s| format!("{} {}", acc, s.p.meta.name)));
         for sc in &p.subcommands {
             if let Some(ref aliases) = sc.p.meta.aliases {
-                opts = format!("{} {}", opts, aliases.iter().map(|&(n,_)| n).fold(String::new(), |acc, a| format!("{} {}", acc, a)));
+                opts = format!("{} {}",
+                               opts,
+                               aliases.iter()
+                                   .map(|&(n, _)| n)
+                                   .fold(String::new(), |acc, a| format!("{} {}", acc, a)));
             }
         }
         opts
@@ -167,7 +189,21 @@ complete -F _{name} {name}
         let mut p = self.p;
         for sc in path.split('_').skip(1) {
             debugln!("iter;sc={}", sc);
-            p = &p.subcommands.iter().filter(|s| s.p.meta.name == sc || (s.p.meta.aliases.is_some() && s.p.meta.aliases.as_ref().unwrap().iter().any(|&(n,_)| n==sc ))).next().unwrap().p;
+            p = &p.subcommands
+                .iter()
+                .find(|s| {
+                    s.p.meta.name == sc ||
+                    (s.p.meta.aliases.is_some() &&
+                     s.p
+                        .meta
+                        .aliases
+                        .as_ref()
+                        .unwrap()
+                        .iter()
+                        .any(|&(n, _)| n == sc))
+                })
+                .unwrap()
+                .p;
         }
         let mut opts = String::new();
         for o in &p.opts {
@@ -176,21 +212,27 @@ complete -F _{name} {name}
                 --{})
                     COMPREPLY=({})
                     return 0
-                    ;;", opts, l, vals_for(o));
+                    ;;",
+                               opts,
+                               l,
+                               vals_for(o));
             }
             if let Some(s) = o.short {
                 opts = format!("{}
                     -{})
                     COMPREPLY=({})
                     return 0
-                    ;;", opts, s, vals_for(o));
+                    ;;",
+                               opts,
+                               s,
+                               vals_for(o));
             }
         }
         opts
     }
 
     fn gen_fish<W: Write>(&self, buf: &mut W) {
-        let command =  self.p.meta.bin_name.as_ref().unwrap();
+        let command = self.p.meta.bin_name.as_ref().unwrap();
         let subcommands: Vec<_> = get_all_subcommands(self.p);
         let has_subcommands = subcommands.len() > 1;
 
@@ -285,12 +327,10 @@ fn vals_for(o: &OptBuilder) -> String {
     } else if let Some(vec) = o.val_names() {
         let mut it = vec.iter().peekable();
         while let Some((_, val)) = it.next() {
-            ret = format!("{}<{}>{}", ret, val,
-                if it.peek().is_some() {
-                    " "
-                } else {
-                    ""
-                });
+            ret = format!("{}<{}>{}",
+                          ret,
+                          val,
+                          if it.peek().is_some() { " " } else { "" });
         }
         let num = vec.len();
         if o.is_set(ArgSettings::Multiple) && num == 1 {
@@ -299,12 +339,10 @@ fn vals_for(o: &OptBuilder) -> String {
     } else if let Some(num) = o.num_vals() {
         let mut it = (0..num).peekable();
         while let Some(_) = it.next() {
-            ret = format!("{}<{}>{}", ret, o.name(),
-            if it.peek().is_some() {
-                " "
-            } else {
-                ""
-            });
+            ret = format!("{}<{}>{}",
+                          ret,
+                          o.name(),
+                          if it.peek().is_some() { " " } else { "" });
         }
         if o.is_set(ArgSettings::Multiple) && num == 1 {
             ret = format!("{}...", ret);
@@ -344,11 +382,11 @@ fn gen_fish_inner(root_command: &str,
     for option in &comp_gen.p.opts {
         let mut template = format!("complete -c {}", root_command);
         if !parent_cmds.is_empty() {
-            template.push_str(format!(" -n '__fish_seen_subcommand_from {}'",
-                                      command).as_str());
+            template.push_str(format!(" -n '__fish_seen_subcommand_from {}'", command).as_str());
         } else if has_no_subcommand_fn {
             template.push_str(format!(" -n '__fish_{}_no_subcommand'",
-                                      comp_gen.p.meta.bin_name.as_ref().unwrap()).as_str());
+                                      comp_gen.p.meta.bin_name.as_ref().unwrap())
+                .as_str());
         }
         if let Some(data) = option.short {
             template.push_str(format!(" -s {}", data).as_str());
@@ -369,11 +407,11 @@ fn gen_fish_inner(root_command: &str,
     for flag in &comp_gen.p.flags {
         let mut template = format!("complete -c {}", root_command);
         if !parent_cmds.is_empty() {
-            template.push_str(format!(" -n '__fish_seen_subcommand_from {}'",
-                                      command).as_str());
+            template.push_str(format!(" -n '__fish_seen_subcommand_from {}'", command).as_str());
         } else if has_no_subcommand_fn {
             template.push_str(format!(" -n '__fish_{}_no_subcommand'",
-                                      comp_gen.p.meta.bin_name.as_ref().unwrap()).as_str());
+                                      comp_gen.p.meta.bin_name.as_ref().unwrap())
+                .as_str());
         }
         if let Some(data) = flag.short {
             template.push_str(format!(" -s {}", data).as_str());
@@ -393,10 +431,12 @@ fn gen_fish_inner(root_command: &str,
             let mut template = format!("complete -c {}", root_command);
             if !parent_cmds.is_empty() {
                 template.push_str(format!(" -n '__fish_seen_subcommand_from {}'",
-                                          subcommand).as_str());
+                                          subcommand)
+                    .as_str());
             } else if has_no_subcommand_fn {
                 template.push_str(format!(" -n '__fish_{}_no_subcommand'",
-                                          comp_gen.p.meta.bin_name.as_ref().unwrap()).as_str());
+                                          comp_gen.p.meta.bin_name.as_ref().unwrap())
+                    .as_str());
             }
             template.push_str(" -f");
             template.push_str(format!(" -a '{}'", subcommand).as_str());

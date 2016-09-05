@@ -1,5 +1,6 @@
-use std::str::FromStr;
+
 use std::ascii::AsciiExt;
+use std::str::FromStr;
 
 bitflags! {
     flags Flags: u32 {
@@ -655,7 +656,7 @@ mod test {
         assert_eq!("hidden".parse::<AppSettings>().unwrap(),
                    AppSettings::Hidden);
         assert_eq!("dontdelimittrailingvalues".parse::<AppSettings>().unwrap(),
-                    AppSettings::DontDelimitTrailingValues);
+                   AppSettings::DontDelimitTrailingValues);
         assert!("hahahaha".parse::<AppSettings>().is_err());
     }
 }

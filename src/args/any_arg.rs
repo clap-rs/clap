@@ -1,8 +1,11 @@
-use std::rc::Rc;
+// Third Party
 
-use vec_map::VecMap;
+
+// Internal
 
 use args::settings::ArgSettings;
+use std::rc::Rc;
+use vec_map::VecMap;
 
 #[doc(hidden)]
 pub trait AnyArg<'n, 'e> {

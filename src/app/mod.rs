@@ -6,28 +6,31 @@ pub mod parser;
 mod meta;
 mod help;
 
-pub use self::settings::AppSettings;
+// Std
 
+
+// Internal
+use app::help::Help;
+use app::parser::Parser;
+use args::{AnyArg, Arg, ArgGroup, ArgMatcher, ArgMatches, ArgSettings};
+use errors::Error;
+use errors::Result as ClapResult;
+pub use self::settings::AppSettings;
+use shell::Shell;
+use std::borrow::Borrow;
 use std::env;
+use std::ffi::OsString;
+use std::fmt;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::path::Path;
 use std::process;
-use std::ffi::OsString;
-use std::borrow::Borrow;
-use std::result::Result as StdResult;
 use std::rc::Rc;
-use std::fmt;
+use std::result::Result as StdResult;
 
+// Third Party
+use vec_map::VecMap;
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
-use vec_map::VecMap;
-
-use args::{AnyArg, Arg, ArgGroup, ArgMatcher, ArgMatches, ArgSettings};
-use app::parser::Parser;
-use app::help::Help;
-use errors::Error;
-use errors::Result as ClapResult;
-use shell::Shell;
 
 /// Used to create a representation of a command line program and all possible command line
 /// arguments. Application settings are set using the "builder pattern" with the
@@ -1086,7 +1089,10 @@ impl<'a, 'b> App<'a, 'b> {
     /// `<project>/target/debug/build/myapp-<hash>/out/myapp.bash-completion`.
     ///
     /// Fish shell completions will use the file format `{bin_name}.fish`
-    pub fn gen_completions<T: Into<OsString>, S: Into<String>>(&mut self, bin_name: S, for_shell: Shell, out_dir: T) {
+    pub fn gen_completions<T: Into<OsString>, S: Into<String>>(&mut self,
+                                                               bin_name: S,
+                                                               for_shell: Shell,
+                                                               out_dir: T) {
         self.p.meta.bin_name = Some(bin_name.into());
         self.p.gen_completions(for_shell, out_dir.into());
     }
@@ -1124,7 +1130,10 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```shell
     /// $ myapp generate-bash-completions > /etc/bash_completion.d/myapp
     /// ```
-    pub fn gen_completions_to<W: Write, S: Into<String>>(&mut self, bin_name: S, for_shell: Shell, buf: &mut W) {
+    pub fn gen_completions_to<W: Write, S: Into<String>>(&mut self,
+                                                         bin_name: S,
+                                                         for_shell: Shell,
+                                                         buf: &mut W) {
         self.p.meta.bin_name = Some(bin_name.into());
         self.p.gen_completions_to(for_shell, buf);
     }
@@ -1342,11 +1351,7 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
             is_sc = Some(yaml_hash.get(sc_key).unwrap());
             App::new(sc_key.as_str().unwrap())
         };
-        yaml = if let Some(sc) = is_sc {
-            sc
-        } else {
-            yaml
-        };
+        yaml = if let Some(sc) = is_sc { sc } else { yaml };
 
         macro_rules! yaml_str {
             ($a:ident, $y:ident, $i:ident) => {
@@ -1402,7 +1407,9 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
         if let Some(v) = yaml["global_settings"].as_vec() {
             for ys in v {
                 if let Some(s) = ys.as_str() {
-                    a = a.global_setting(s.parse().ok().expect("unknown AppSetting found in YAML file"));
+                    a = a.global_setting(s.parse()
+                        .ok()
+                        .expect("unknown AppSetting found in YAML file"));
                 }
             }
         } else {
@@ -1531,7 +1538,8 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.p.meta.aliases {
-            let vis_aliases: Vec<_> = aliases.iter().filter_map(|&(n,v)| if v { Some(n) } else {None}).collect();
+            let vis_aliases: Vec<_> =
+                aliases.iter().filter_map(|&(n, v)| if v { Some(n) } else { None }).collect();
             if vis_aliases.is_empty() {
                 None
             } else {

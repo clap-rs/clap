@@ -1,13 +1,18 @@
-use std::fmt::{Display, Formatter, Result};
-use std::result::Result as StdResult;
-use std::rc::Rc;
-use std::borrow::Cow;
+// Std
 
-use vec_map::VecMap;
+
+// Internal
 
 use Arg;
 use args::{AnyArg, DispOrder};
 use args::settings::{ArgFlags, ArgSettings};
+use std::borrow::Cow;
+use std::fmt::{Display, Formatter, Result};
+use std::rc::Rc;
+use std::result::Result as StdResult;
+
+// Third Party
+use vec_map::VecMap;
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
@@ -110,7 +115,7 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
         pb
     }
 
-    pub fn multiple_str(&self) ->  &str {
+    pub fn multiple_str(&self) -> &str {
         if self.settings.is_set(ArgSettings::Multiple) && self.val_names.is_none() {
             "..."
         } else {
@@ -121,9 +126,9 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
     pub fn name_no_brackets(&self) -> Cow<str> {
         if let Some(ref names) = self.val_names {
             Cow::Owned(names.values()
-                 .map(|n| format!("<{}>", n))
-                 .collect::<Vec<_>>()
-                 .join(" "))
+                .map(|n| format!("<{}>", n))
+                .collect::<Vec<_>>()
+                .join(" "))
         } else {
             Cow::Borrowed(self.name)
         }
@@ -136,9 +141,9 @@ impl<'n, 'e> Display for PosBuilder<'n, 'e> {
             try!(write!(f,
                         "{}",
                         names.values()
-                             .map(|n| format!("<{}>", n))
-                             .collect::<Vec<_>>()
-                             .join(" ")));
+                            .map(|n| format!("<{}>", n))
+                            .collect::<Vec<_>>()
+                            .join(" ")));
         } else {
             try!(write!(f, "<{}>", self.name));
         }
@@ -251,8 +256,8 @@ impl<'n, 'e> DispOrder for PosBuilder<'n, 'e> {
 
 #[cfg(test)]
 mod test {
-    use super::PosBuilder;
     use args::settings::ArgSettings;
+    use super::PosBuilder;
     use vec_map::VecMap;
 
     #[test]

@@ -2,14 +2,12 @@ sudo: false
 language: rust
 rust:
   - nightly
-  - nightly-2016-07-20
+  - nightly-2016-09-04
   - beta
   - stable
-# Only while clippy is failing
 matrix:
     allow_failures:
         - rust: nightly
-        - rust: beta
 before_script:
   - |
     pip install 'travis-cargo<0.2' --user &&
