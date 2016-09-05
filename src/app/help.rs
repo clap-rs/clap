@@ -14,41 +14,8 @@ use app::{App, AppSettings};
 use app::parser::Parser;
 use fmt::{Format, Colorizer};
 
-#[cfg(all(feature = "wrap_help", not(target_os = "windows")))]
+#[cfg(feature = "wrap_help")]
 use term_size;
-#[cfg(all(feature = "wrap_help", target_os = "windows"))]
-mod term_size {
-    use kernel32::{GetConsoleScreenBufferInfo, GetStdHandle};
-    use winapi::{CONSOLE_SCREEN_BUFFER_INFO, COORD, SMALL_RECT, STD_OUTPUT_HANDLE};
-
-    pub fn dimensions() -> Option<(usize, usize)> {
-        let null_coord = COORD{
-            X: 0,
-            Y: 0,
-        };
-        let null_smallrect = SMALL_RECT{
-            Left: 0,
-            Top: 0,
-            Right: 0,
-            Bottom: 0,
-        };
-
-        let stdout_h = unsafe { GetStdHandle(STD_OUTPUT_HANDLE) };
-        let mut console_data = CONSOLE_SCREEN_BUFFER_INFO{
-            dwSize: null_coord,
-            dwCursorPosition: null_coord,
-            wAttributes: 0,
-            srWindow: null_smallrect,
-            dwMaximumWindowSize: null_coord,
-        };
-
-        if unsafe { GetConsoleScreenBufferInfo(stdout_h, &mut console_data) } != 0 {
-            Some(((console_data.srWindow.Right - console_data.srWindow.Left) as usize, (console_data.srWindow.Bottom - console_data.srWindow.Top) as usize))
-        } else {
-            None
-        }
-    }
-}
 #[cfg(not(feature = "wrap_help"))]
 mod term_size {
     pub fn dimensions() -> Option<(usize, usize)> {

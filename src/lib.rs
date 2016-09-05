@@ -416,10 +416,6 @@ extern crate vec_map;
 #[cfg(feature = "wrap_help")]
 extern crate term_size;
 extern crate unicode_segmentation;
-#[cfg(target_os = "windows")]
-extern crate kernel32;
-#[cfg(target_os = "windows")]
-extern crate winapi;
 
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;
