@@ -39,6 +39,10 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.11.2
+
+* Makes some minor changes to when next line help is automatically used for improved wrapping
+
 Here's the highlights for v2.11.1
 
 * Fixes an issue where settings weren't propogated down through grand-child subcommands 
