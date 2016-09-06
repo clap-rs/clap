@@ -1,3 +1,12 @@
+
+<a name="v2.11.2"></a>
+### v2.11.2 (2016-09-06)
+
+#### Improvements
+
+* **Help Wrapping:**  makes some minor changes to when next line help is automatically used ([5658b117](https://github.com/kbknapp/clap-rs/commit/5658b117aec3e03adff9c8c52a4c4bc1fcb4e1ff))
+
+
 <a name="v2.11.1"></a>
 ### v2.11.1 (2016-09-05)
 
