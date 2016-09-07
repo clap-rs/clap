@@ -365,11 +365,7 @@ impl<'a> Help<'a> {
                 }
                 lw
             };
-            help = if help.contains("{n}") {
-                help.replace("{n}", "\n")
-            } else {
-                help
-            };
+            help = help.replace("{n}", "\n");
             wrap_help(&mut help, longest_w, width);
         } else {
             sdebugln!("No");
@@ -450,11 +446,7 @@ impl<'a> Help<'a> {
                 }
                 lw
             };
-            help = if help.contains("{n}") {
-                help.replace("{n}", "\n")
-            } else {
-                help
-            };
+            help = help.replace("{n}", "\n");
             wrap_help(&mut help, longest_w, avail_chars);
         } else {
             sdebugln!("No");
@@ -930,15 +922,13 @@ fn wrap_help(help: &mut String, longest_w: usize, avail_chars: usize) {
         sdebugln!("Yes");
         let mut prev_space = 0;
         let mut j = 0;
-        // let mut i = 0;
         for (idx, g) in (&*help.clone()).grapheme_indices(true) {
             debugln!("iter;idx={},g={}", idx, g);
             if g == "\n" {
                 debugln!("Newline found...");
                 debugln!("Still space...{:?}", str_width(&help[j..idx]) < avail_chars);
                 if str_width(&help[j..idx]) < avail_chars {
-                    // i += 1;
-                    j = idx; // + i;
+                    j = idx;
                     continue;
                 }
             } else if g != " " {
@@ -946,21 +936,18 @@ fn wrap_help(help: &mut String, longest_w: usize, avail_chars: usize) {
                     continue;
                 }
                 debugln!("Reached the end of the line and we're over...");
-            } else if str_width(&help[j..idx]) < avail_chars { //(2 * i)]) < avail_chars {
+            } else if str_width(&help[j..idx]) < avail_chars {
                 debugln!("Space found with room...");
                 prev_space = idx;
                 continue;
             }
             debugln!("Adding Newline...");
-            j = prev_space; // + i;//(2 * i);
+            j = prev_space;
             debugln!("prev_space={},j={}", prev_space, j);
             debugln!("removing: {}", j);
             debugln!("char at {}: {}", j, &help[j..j]);
             help.remove(j);
             help.insert(j, '\n');
-            // help.insert(j + 1, 'n');
-            // help.insert(j + 2, '}');
-            // i += 1;
         }
     } else {
         sdebugln!("No");
