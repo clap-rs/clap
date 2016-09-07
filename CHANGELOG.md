@@ -1,3 +1,20 @@
+<a name="v2.11.3"></a>
+### v2.11.3 (2016-09-07)
+
+
+#### Documentation
+
+* **Help Wrapping:**  removes the verbage about using `'{n}'` to insert newlines in help text ([c5a2b352](https://github.com/kbknapp/clap-rs/commit/c5a2b352ca600f5b802290ad945731066cd53611))
+
+#### Improvements
+
+* **Help Wrapping:**
+  *  clap now ignores hard newlines in help messages and properly re-aligns text, but still wraps if the term width is too small ([c7678523](https://github.com/kbknapp/clap-rs/commit/c76785239fd42adc8ca04f9202b6fec615aa9f14), closes [#617](https://github.com/kbknapp/clap-rs/issues/617))
+  *  makes some minor changes to when next line help is automatically used ([01cae799](https://github.com/kbknapp/clap-rs/commit/01cae7990a33167ac35103fb36c811b4fe6eb98f))
+* **YAML:**  supports setting Arg::require_delimiter from YAML ([b9b55a39](https://github.com/kbknapp/clap-rs/commit/b9b55a39dfebcdbdc05dca2692927e503db50816))
+
+
+
 
 <a name="v2.11.2"></a>
 ### v2.11.2 (2016-09-06)
