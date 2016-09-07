@@ -59,6 +59,11 @@ args:
         multiple: true
         help: Tests mutliple values, not mult occs
         value_names: [one, two]
+    - multvalsdelim:
+        long: multvalsdelim
+        help: Tests mutliple values with required delimiter
+        multiple: true
+        require_delimiter: true
     - minvals2:
         long: minvals2
         multiple: true
