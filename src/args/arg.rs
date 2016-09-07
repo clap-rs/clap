@@ -415,9 +415,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// Any valid UTF-8 is allowed in the help text. The one exception is when one wishes to
     /// include a newline in the help text and have the following text be properly aligned with all
-    /// the other help text. To include a newline **and** be properly aligned with all other
-    /// arguments help text, it must be specified via a tag inside curly braces, like so `{n}`.
-    /// Using the standard `\n` will produce a newline, but it will not be properly aligned.
+    /// the other help text.
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -2172,8 +2170,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .short("o")
     ///         .takes_value(true)
     ///         .value_names(&["value1", "value2"])
-    ///         .help("Some really long help and complex{n}\
-    ///                help that makes more sense to be{n}\
+    ///         .help("Some really long help and complex\n\
+    ///                help that makes more sense to be\n\
     ///                on a line after the option")
     ///         .next_line_help(true))
     ///     .get_matches_from(vec![
