@@ -365,6 +365,11 @@ impl<'a> Help<'a> {
                 }
                 lw
             };
+            help = if help.contains("{n}") {
+                help.replace("{n}", "\n")
+            } else {
+                help
+            };
             wrap_help(&mut help, longest_w, width);
         } else {
             sdebugln!("No");
@@ -375,7 +380,6 @@ impl<'a> Help<'a> {
             help.push_str(h);
             &*help
         };
-
         if help.contains("{n}") {
             if let Some(part) = help.split("{n}").next() {
                 try!(write!(self.writer, "{}", part));
@@ -446,6 +450,11 @@ impl<'a> Help<'a> {
                 }
                 lw
             };
+            help = if help.contains("{n}") {
+                help.replace("{n}", "\n")
+            } else {
+                help
+            };
             wrap_help(&mut help, longest_w, avail_chars);
         } else {
             sdebugln!("No");
@@ -459,12 +468,11 @@ impl<'a> Help<'a> {
             help.push_str(&*spec_vals);
             &*help
         };
-
-        if help.contains("{n}") {
-            if let Some(part) = help.split("{n}").next() {
+        if help.contains("\n") {
+            if let Some(part) = help.split("\n").next() {
                 try!(write!(self.writer, "{}", part));
             }
-            for part in help.split("{n}").skip(1) {
+            for part in help.split("\n").skip(1) {
                 try!(write!(self.writer, "\n"));
                 if nlh || force_next_line {
                     try!(write!(self.writer, "{}{}{}", TAB, TAB, TAB));
@@ -922,27 +930,37 @@ fn wrap_help(help: &mut String, longest_w: usize, avail_chars: usize) {
         sdebugln!("Yes");
         let mut prev_space = 0;
         let mut j = 0;
-        let mut i = 0;
+        // let mut i = 0;
         for (idx, g) in (&*help.clone()).grapheme_indices(true) {
             debugln!("iter;idx={},g={}", idx, g);
-            if g != " " {
-                continue;
-            }
-            if str_width(&help[j..idx + (2 * i)]) < avail_chars {
-                debugln!("Still enough space...");
+            if g == "\n" {
+                debugln!("Newline found...");
+                debugln!("Still space...{:?}", str_width(&help[j..idx]) < avail_chars);
+                if str_width(&help[j..idx]) < avail_chars {
+                    // i += 1;
+                    j = idx; // + i;
+                    continue;
+                }
+            } else if g != " " {
+                if idx != help.len() - 1 || str_width(&help[j..idx]) < avail_chars {
+                    continue;
+                }
+                debugln!("Reached the end of the line and we're over...");
+            } else if str_width(&help[j..idx]) < avail_chars { //(2 * i)]) < avail_chars {
+                debugln!("Space found with room...");
                 prev_space = idx;
                 continue;
             }
             debugln!("Adding Newline...");
-            j = prev_space + (2 * i);
-            debugln!("i={},prev_space={},j={}", i, prev_space, j);
+            j = prev_space; // + i;//(2 * i);
+            debugln!("prev_space={},j={}", prev_space, j);
             debugln!("removing: {}", j);
             debugln!("char at {}: {}", j, &help[j..j]);
             help.remove(j);
-            help.insert(j, '{');
-            help.insert(j + 1, 'n');
-            help.insert(j + 2, '}');
-            i += 1;
+            help.insert(j, '\n');
+            // help.insert(j + 1, 'n');
+            // help.insert(j + 2, '}');
+            // i += 1;
         }
     } else {
         sdebugln!("No");
