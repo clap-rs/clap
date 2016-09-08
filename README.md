@@ -39,6 +39,12 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.11.3
+
+* `clap` no longer requires one to use `{n}` inside help text to insert a newline that is properly aligned. One can now use the normal `\n`.
+* `clap` now ignores hard newlines in help messages and properly re-aligns text, but still wraps if the term width is too small 
+* Supports setting `Arg::require_delimiter` from YAML 
+
 Here's the highlights for v2.11.2
 
 * Makes some minor changes to when next line help is automatically used for improved wrapping
