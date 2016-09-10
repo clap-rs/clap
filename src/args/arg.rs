@@ -1711,7 +1711,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// **NOTE:** This does *not* implicitly set [`Arg::multiple(true)`]. This is because
     /// `-o val -o val` is multiple occurrences but a single value and `-o val1 val2` is a single
-    /// occurence with multple values. For positional arguments this **does** set
+    /// occurence with multiple values. For positional arguments this **does** set
     /// [`Arg::multiple(true)`] because there is no way to determine the difference between multiple
     /// occurences and multiple values.
     ///
@@ -1832,8 +1832,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// and `val3`) or as a single value (`val1,val2,val3`). Defaults to using `,` (comma) as the
     /// value delimiter for all arguments that accept values (options and positional arguments)
     ///
-    /// **NOTE:** The default is `true`. Setting the value to `true` will reset any previous use of
-    /// [`Arg::value_delimiter`] back to the default of `,` (comma).
+    /// **NOTE:** The default is `false`. When set to `true` the default [`Arg::value_delimiter`]
+    /// is the comma `,`.
+    ///
+    /// **NOTE:** When using methods like [`Arg::multiple`] or [`Arg::max_values`] (i.e. methods
+    /// that imply multiple values, this `use_delimiter` setting will automatically be set to
+    /// `true` and use the comma (`,`) by default.
     ///
     /// # Examples
     ///
@@ -1844,6 +1848,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let delims = App::new("delims")
     ///     .arg(Arg::with_name("option")
     ///         .long("option")
+    ///         .use_delimiter(true)
     ///         .takes_value(true))
     ///     .get_matches_from(vec![
     ///         "delims",
@@ -1854,7 +1859,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(delims.occurrences_of("option"), 1);
     /// assert_eq!(delims.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
-    /// The next example shows the difference when turning delimiters off.
+    /// The next example shows the difference when turning delimiters off. This is the default
+    /// behavior, unless one of the methods/settings which implies multiple values is set.
     ///
     /// ```rust
     /// # use clap::{App, Arg};
