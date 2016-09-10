@@ -630,6 +630,7 @@ fn multiple_values_sep_positional() {
     let m = App::new("multiple_values")
         .arg(Arg::with_name("option")
             .help("multiple options")
+            .use_delimiter(true)
             .multiple(true))
         .get_matches_from_safe(vec![
             "",

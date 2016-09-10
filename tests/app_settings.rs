@@ -223,7 +223,7 @@ fn delim_values_only_pos_follows() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert!(!m.is_present("f"));
-    assert_eq!(m.values_of("arg").unwrap().collect::<Vec<_>>(), &["-f", "-g", "x"]);
+    assert_eq!(m.values_of("arg").unwrap().collect::<Vec<_>>(), &["-f", "-g,x"]);
 }
 
 #[test]
@@ -232,6 +232,31 @@ fn delim_values_trailingvararg() {
         .setting(AppSettings::TrailingVarArg)
         .arg(
             Arg::from_usage("[opt]... 'some pos'"),
+        )
+        .get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"]);
+    assert!(m.is_present("opt"));
+    assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["test", "--foo", "-Wl,-bar"]);
+}
+
+#[test]
+fn delim_values_only_pos_follows_with_delim() {
+    let r = App::new("onlypos")
+        .args(&[Arg::from_usage("-f [flag] 'some opt'"),
+                Arg::from_usage("[arg]... 'some arg'").use_delimiter(true)])
+        .get_matches_from_safe(vec!["", "--", "-f", "-g,x"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("arg"));
+    assert!(!m.is_present("f"));
+    assert_eq!(m.values_of("arg").unwrap().collect::<Vec<_>>(), &["-f", "-g", "x"]);
+}
+
+#[test]
+fn delim_values_trailingvararg_with_delim() {
+    let m = App::new("positional")
+        .setting(AppSettings::TrailingVarArg)
+        .arg(
+            Arg::from_usage("[opt]... 'some pos'").use_delimiter(true),
         )
         .get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"]);
     assert!(m.is_present("opt"));
