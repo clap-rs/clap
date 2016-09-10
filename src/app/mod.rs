@@ -580,6 +580,34 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
+    /// Sets the max terminal width at which to wrap help messages. Using `0` will ignore terminal
+    /// widths and use source formatting.
+    ///
+    /// `clap` automatically tries to determine the terminal width on Unix, Linux, OSX and Windows
+    /// if the `wrap_help` cargo "feature" has been used while compiling, but one might want to
+    /// limit the size (e.g. when the terminal is running fullscreen).
+    ///
+    /// **NOTE:** This setting applies globally and *not* on a per-command basis.
+    ///
+    /// **NOTE:** This setting must be set **before** any subcommands are added!
+    ///
+    /// # Platform Specific
+    ///
+    /// Only Unix, Linux, OSX and Windows support automatic determination of terminal width.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::App;
+    /// App::new("myprog")
+    ///     .max_term_width(100)
+    /// # ;
+    /// ```
+    pub fn max_term_width(mut self, w: usize) -> Self {
+        self.p.meta.max_w = Some(w);
+        self
+    }
+
     /// Adds an [argument] to the list of valid possibilties.
     ///
     /// # Examples

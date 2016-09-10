@@ -94,7 +94,8 @@ impl<'a> Help<'a> {
                hide_pv: bool,
                color: bool,
                cizer: Colorizer,
-               term_w: Option<usize>)
+               term_w: Option<usize>,
+               max_w: Option<usize>)
                -> Self {
         debugln!("fn=Help::new;");
         Help {
@@ -103,7 +104,10 @@ impl<'a> Help<'a> {
             hide_pv: hide_pv,
             term_w: match term_w {
                 Some(width) => if width == 0 { usize::MAX } else { width },
-                None => term_size::dimensions().map_or(120, |(w, _)| w),
+                None => cmp::min(term_size::dimensions().map_or(120, |(w, _)| w), match max_w {
+                    None | Some(0) => usize::MAX,
+                    Some(mw) => mw,
+                }),
             },
             color: color,
             cizer: cizer,
@@ -142,7 +146,7 @@ impl<'a> Help<'a> {
             use_stderr: stderr,
             when: parser.color(),
         };
-        Self::new(w, nlh, hide_v, color, cizer, parser.meta.term_w).write_help(parser)
+        Self::new(w, nlh, hide_v, color, cizer, parser.meta.term_w, parser.meta.max_w).write_help(parser)
     }
 
     /// Writes the parser help to the wrapped stream.
