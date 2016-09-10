@@ -96,7 +96,7 @@ impl<'a, 'b> Default for Arg<'a, 'b> {
             validator: None,
             overrides: None,
             settings: ArgFlags::new(),
-            val_delim: Some(','),
+            val_delim: None,
             default_val: None,
             disp_ord: 999,
             r_unless: None,
@@ -1277,8 +1277,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [option]: ./struct.Arg.html#method.takes_value
     /// [`Arg::number_of_values(1)`]: ./struct.Arg.html#method.number_of_values
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
-    pub fn multiple(self, multi: bool) -> Self {
+    pub fn multiple(mut self, multi: bool) -> Self {
         if multi {
+            if self.settings.is_set(ArgSettings::ValueDelimiterNotSet) &&
+                self.settings.is_set(ArgSettings::TakesValue) {
+                self = self.use_delimiter(true);
+            }
             self.set(ArgSettings::Multiple)
         } else {
             self.unset(ArgSettings::Multiple)
@@ -1649,6 +1653,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     pub fn number_of_values(mut self, qty: u64) -> Self {
+        if qty > 1 && self.settings.is_set(ArgSettings::ValueDelimiterNotSet) {
+            self.unsetb(ArgSettings::ValueDelimiterNotSet);
+            self.setb(ArgSettings::UseValueDelimiter);
+        } else {
+            self = self.use_delimiter(false);
+        }
+        self.setb(ArgSettings::TakesValue);
         self.num_vals = Some(qty);
         self
     }
@@ -1747,6 +1758,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     pub fn max_values(mut self, qty: u64) -> Self {
+        if qty > 1 && self.settings.is_set(ArgSettings::ValueDelimiterNotSet) {
+            self.unsetb(ArgSettings::ValueDelimiterNotSet);
+            self.setb(ArgSettings::UseValueDelimiter);
+        } else {
+            self = self.use_delimiter(false);
+        }
+        self.setb(ArgSettings::TakesValue);
         self.max_vals = Some(qty);
         self
     }
@@ -1857,11 +1875,16 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::value_delimiter`]: ./struct.Arg.html#method.value_delimiter
     pub fn use_delimiter(mut self, d: bool) -> Self {
         if d {
-            self.val_delim = Some(',');
-            self.set(ArgSettings::UseValueDelimiter)
+            if self.val_delim.is_none() {
+                self.val_delim = Some(',');
+            }
+            self.setb(ArgSettings::TakesValue);
+            self.setb(ArgSettings::UseValueDelimiter);
+            self.unset(ArgSettings::ValueDelimiterNotSet)
         } else {
             self.val_delim = None;
-            self.unset(ArgSettings::UseValueDelimiter)
+            self.unsetb(ArgSettings::UseValueDelimiter);
+            self.unset(ArgSettings::ValueDelimiterNotSet)
         }
     }
 
@@ -1939,6 +1962,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     pub fn require_delimiter(mut self, d: bool) -> Self {
         if d {
+            self.unsetb(ArgSettings::ValueDelimiterNotSet);
             self.setb(ArgSettings::UseValueDelimiter);
             self.set(ArgSettings::RequireDelimiter)
         } else {
@@ -1972,8 +1996,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::use_delimiter(true)`]: ./struct.Arg.html#method.use_delimiter
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     pub fn value_delimiter(mut self, d: &str) -> Self {
-        self = self.set(ArgSettings::TakesValue);
-        self = self.set(ArgSettings::UseValueDelimiter);
+        self.unsetb(ArgSettings::ValueDelimiterNotSet);
+        self.setb(ArgSettings::TakesValue);
+        self.setb(ArgSettings::UseValueDelimiter);
         self.val_delim = Some(d.chars()
             .nth(0)
             .expect("Failed to get value_delimiter from arg"));
@@ -2041,6 +2066,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     pub fn value_names(mut self, names: &[&'b str]) -> Self {
         self.setb(ArgSettings::TakesValue);
+        if self.settings.is_set(ArgSettings::ValueDelimiterNotSet) {
+            self.unsetb(ArgSettings::ValueDelimiterNotSet);
+            self.setb(ArgSettings::UseValueDelimiter);
+        }
         if let Some(ref mut vals) = self.val_names {
             let mut l = vals.len();
             for s in names {

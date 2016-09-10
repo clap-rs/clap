@@ -4,16 +4,17 @@ use std::str::FromStr;
 
 bitflags! {
     flags Flags: u16 {
-        const REQUIRED       = 0b0000000001,
-        const MULTIPLE       = 0b0000000010,
-        const EMPTY_VALS     = 0b0000000100,
-        const GLOBAL         = 0b0000001000,
-        const HIDDEN         = 0b0000010000,
-        const TAKES_VAL      = 0b0000100000,
-        const USE_DELIM      = 0b0001000000,
-        const NEXT_LINE_HELP = 0b0010000000,
-        const R_UNLESS_ALL   = 0b0100000000,
-        const REQ_DELIM      = 0b1000000000,
+        const REQUIRED       = 0b00000000001,
+        const MULTIPLE       = 0b00000000010,
+        const EMPTY_VALS     = 0b00000000100,
+        const GLOBAL         = 0b00000001000,
+        const HIDDEN         = 0b00000010000,
+        const TAKES_VAL      = 0b00000100000,
+        const USE_DELIM      = 0b00001000000,
+        const NEXT_LINE_HELP = 0b00010000000,
+        const R_UNLESS_ALL   = 0b00100000000,
+        const REQ_DELIM      = 0b01000000000,
+        const DELIM_NOT_SET  = 0b10000000000,
     }
 }
 
@@ -36,13 +37,14 @@ impl ArgFlags {
         UseValueDelimiter => USE_DELIM,
         NextLineHelp => NEXT_LINE_HELP,
         RequiredUnlessAll => R_UNLESS_ALL,
-        RequireDelimiter => REQ_DELIM
+        RequireDelimiter => REQ_DELIM,
+        ValueDelimiterNotSet => DELIM_NOT_SET
     }
 }
 
 impl Default for ArgFlags {
     fn default() -> Self {
-        ArgFlags(EMPTY_VALS | USE_DELIM)
+        ArgFlags(EMPTY_VALS | DELIM_NOT_SET)
     }
 }
 
@@ -74,6 +76,8 @@ pub enum ArgSettings {
     RequireDelimiter,
     #[doc(hidden)]
     RequiredUnlessAll,
+    #[doc(hidden)]
+    ValueDelimiterNotSet,
 }
 
 impl FromStr for ArgSettings {
@@ -90,6 +94,7 @@ impl FromStr for ArgSettings {
             "nextlinehelp" => Ok(ArgSettings::NextLineHelp),
             "requiredunlessall" => Ok(ArgSettings::RequiredUnlessAll),
             "requiredelimiter" => Ok(ArgSettings::RequireDelimiter),
+            "valuedelimiternotset" => Ok(ArgSettings::ValueDelimiterNotSet),
             _ => Err("unknown ArgSetting, cannot convert from str".to_owned()),
         }
     }

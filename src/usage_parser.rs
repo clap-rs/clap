@@ -174,6 +174,13 @@ impl<'a> UsageParser<'a> {
                     if dot_counter == 3 {
                         debugln!("setting multiple");
                         arg.setb(ArgSettings::Multiple);
+                        if arg.settings.is_set(ArgSettings::TakesValue) {
+                            arg.setb(ArgSettings::UseValueDelimiter);
+                            arg.unsetb(ArgSettings::ValueDelimiterNotSet);
+                            if arg.val_delim.is_none() {
+                                arg.val_delim = Some(',');
+                            }
+                        }
                         self.prev = UsageToken::Multiple;
                         self.pos += 1;
                         break;
