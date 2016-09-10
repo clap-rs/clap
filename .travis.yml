@@ -17,6 +17,7 @@ script:
     cargo build --verbose --no-default-features &&
     cargo build --verbose --features yaml &&
     cargo test --verbose --features yaml &&
+    cargo test --verbose --features yaml -- --ignored &&
     travis-cargo --only nightly build -- --features travis &&
     travis-cargo --only nightly bench
 addons:
