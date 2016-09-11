@@ -120,6 +120,19 @@ OPTIONS:
             souvent une contribution majeure aux
             exportations des régions productrices.";
 
+static HIDE_POS_VALS: &'static str = "ctest 0.1
+
+USAGE:
+    ctest [OPTIONS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -c, --cafe <FILE>    A coffeehouse, coffee shop, or café.
+    -p, --pos <VAL>      Some vals [values: fast, slow]";
+
 #[test]
 fn help_short() {
     let m = App::new("test")
@@ -265,6 +278,28 @@ fn issue_626_unicode_cutoff() {
            food, such as light snacks, muffins, or pastries.")
            .takes_value(true));
     test::check_err_output(app, "ctest --help", ISSUE_626_CUTOFF, false);
+}
+
+#[test]
+fn hide_possible_vals() {
+    let app = App::new("ctest")
+        .version("0.1")
+        .arg(Arg::with_name("pos")
+           .short("p")
+           .long("pos")
+           .value_name("VAL")
+           .possible_values(&["fast", "slow"])
+           .help("Some vals")
+           .takes_value(true))
+        .arg(Arg::with_name("cafe")
+           .short("c")
+           .long("cafe")
+           .value_name("FILE")
+           .hide_possible_values(true)
+           .possible_values(&["fast", "slow"])
+           .help("A coffeehouse, coffee shop, or café.")
+           .takes_value(true));
+    test::check_err_output(app, "ctest --help", HIDE_POS_VALS, false);
 }
 
 #[test]
