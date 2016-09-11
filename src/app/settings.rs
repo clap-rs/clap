@@ -579,7 +579,36 @@ pub enum AppSettings {
     NeedsLongHelp,
     #[doc(hidden)]
     NeedsSubcommandHelp,
-    #[doc(hidden)]
+    /// Disables `-V` and `--version` [`App`] without affecting any of the [`SubCommand`]s
+    /// (Defaults to `false`; application *does* have a version flag)
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, AppSettings, ErrorKind};
+    /// let res = App::new("myprog")
+    ///     .version("v1.1")
+    ///     .setting(AppSettings::DisableVersion)
+    ///     .get_matches_from_safe(vec![
+    ///         "myprog", "-V"
+    ///     ]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+    /// ```
+    ///
+    /// ```rust
+    /// # use clap::{App, SubCommand, AppSettings, ErrorKind};
+    /// let res = App::new("myprog")
+    ///     .version("v1.1")
+    ///     .setting(AppSettings::DisableVersion)
+    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .get_matches_from_safe(vec![
+    ///         "myprog", "test", "-V"
+    ///     ]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::VersionDisplayed);
+    /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
     DisableVersion,
 }
 
@@ -610,6 +639,7 @@ impl FromStr for AppSettings {
             "colorauto" => Ok(AppSettings::ColorAuto),
             "coloralways" => Ok(AppSettings::ColorAlways),
             "colornever" => Ok(AppSettings::ColorNever),
+            "disableversion" => Ok(AppSettings::DisableVersion),
             _ => Err("unknown AppSetting, cannot convert from str".to_owned()),
         }
     }
@@ -657,6 +687,8 @@ mod test {
                    AppSettings::Hidden);
         assert_eq!("dontdelimittrailingvalues".parse::<AppSettings>().unwrap(),
                    AppSettings::DontDelimitTrailingValues);
+        assert_eq!("disableversion".parse::<AppSettings>().unwrap(),
+                   AppSettings::DisableVersion);
         assert!("hahahaha".parse::<AppSettings>().is_err());
     }
 }
