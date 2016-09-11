@@ -1081,6 +1081,42 @@ impl<'a, 'b> Arg<'a, 'b> {
         }
     }
 
+    /// Specifies if the possible values of an argument should be displayed in the help text or
+    /// not. Defaults to `false` (i.e. show possible values)
+    ///
+    /// This is useful for args with many values, or ones which are explained elsewhere in the
+    /// help text.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// Arg::with_name("config")
+    ///     .hide_possible_values(true)
+    /// # ;
+    /// ```
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("hide_posvals")
+    ///     .arg(Arg::with_name("mode")
+    ///         .long("mode")
+    ///         .possible_values(&["fast", "slow"])
+    ///         .takes_value(true)
+    ///         .hide_possible_values(true));
+    ///
+    /// ```
+    ///
+    /// If we were to run the above program with `--help` the `[values: fast, slow]` portion of
+    /// the help text would be omitted.
+    pub fn hide_possible_values(self, hide: bool) -> Self {
+        if hide {
+            self.set(ArgSettings::HidePossibleValues)
+        } else {
+            self.unset(ArgSettings::HidePossibleValues)
+        }
+    }
+
     /// Specifies the index of a positional argument **starting at** 1.
     ///
     /// **NOTE:** The index refers to position according to **other positional argument**. It does

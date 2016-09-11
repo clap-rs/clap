@@ -495,7 +495,7 @@ impl<'a> Help<'a> {
                            } else {
                                Format::None(pv)
                            },
-                           if self.hide_pv {
+                           if self.hide_pv || a.is_set(ArgSettings::HidePossibleValues) {
                                "".into()
                            } else {
                                if let Some(ref pv) = a.possible_vals() {
@@ -523,7 +523,7 @@ impl<'a> Help<'a> {
                            } else {
                                aliases.join(", ")
                            });
-        } else if !self.hide_pv {
+        } else if !self.hide_pv && !a.is_set(ArgSettings::HidePossibleValues) {
             debugln!("Writing values");
             if let Some(pv) = a.possible_vals() {
                 debugln!("Possible vals...{:?}", pv);
