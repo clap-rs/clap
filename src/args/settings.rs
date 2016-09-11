@@ -4,17 +4,18 @@ use std::str::FromStr;
 
 bitflags! {
     flags Flags: u16 {
-        const REQUIRED       = 0b00000000001,
-        const MULTIPLE       = 0b00000000010,
-        const EMPTY_VALS     = 0b00000000100,
-        const GLOBAL         = 0b00000001000,
-        const HIDDEN         = 0b00000010000,
-        const TAKES_VAL      = 0b00000100000,
-        const USE_DELIM      = 0b00001000000,
-        const NEXT_LINE_HELP = 0b00010000000,
-        const R_UNLESS_ALL   = 0b00100000000,
-        const REQ_DELIM      = 0b01000000000,
-        const DELIM_NOT_SET  = 0b10000000000,
+        const REQUIRED       = 0b000000000001,
+        const MULTIPLE       = 0b000000000010,
+        const EMPTY_VALS     = 0b000000000100,
+        const GLOBAL         = 0b000000001000,
+        const HIDDEN         = 0b000000010000,
+        const TAKES_VAL      = 0b000000100000,
+        const USE_DELIM      = 0b000001000000,
+        const NEXT_LINE_HELP = 0b000010000000,
+        const R_UNLESS_ALL   = 0b000100000000,
+        const REQ_DELIM      = 0b001000000000,
+        const DELIM_NOT_SET  = 0b010000000000,
+        const HIDE_POS_VALS  = 0b100000000000,
     }
 }
 
@@ -38,7 +39,8 @@ impl ArgFlags {
         NextLineHelp => NEXT_LINE_HELP,
         RequiredUnlessAll => R_UNLESS_ALL,
         RequireDelimiter => REQ_DELIM,
-        ValueDelimiterNotSet => DELIM_NOT_SET
+        ValueDelimiterNotSet => DELIM_NOT_SET,
+        HidePossibleValues => HIDE_POS_VALS
     }
 }
 
@@ -74,6 +76,8 @@ pub enum ArgSettings {
     NextLineHelp,
     /// Requires the use of a value delimiter for all multiple values
     RequireDelimiter,
+    /// Hides the possible values from the help string
+    HidePossibleValues,
     #[doc(hidden)]
     RequiredUnlessAll,
     #[doc(hidden)]
@@ -95,6 +99,7 @@ impl FromStr for ArgSettings {
             "requiredunlessall" => Ok(ArgSettings::RequiredUnlessAll),
             "requiredelimiter" => Ok(ArgSettings::RequireDelimiter),
             "valuedelimiternotset" => Ok(ArgSettings::ValueDelimiterNotSet),
+            "hidepossiblevalues" => Ok(ArgSettings::HidePossibleValues),
             _ => Err("unknown ArgSetting, cannot convert from str".to_owned()),
         }
     }
