@@ -439,7 +439,7 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     pub fn needs_flags_tag(&self) -> bool {
-        debugln!("exec=needs_flags_tag;");
+        debugln!("fn=needs_flags_tag;");
         'outer: for f in &self.flags {
             debugln!("iter;f={};", f.name);
             if let Some(l) = f.long {
@@ -753,7 +753,7 @@ impl<'a, 'b> Parser<'a, 'b>
                     name: sc_name,
                     matches: sc_m.into(),
                 });
-            } else {
+            } else if !self.settings.is_set(AppSettings::AllowLeadingHyphen) {
                 return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
                                                    "",
                                                    &*self.create_current_usage(matcher),
@@ -763,7 +763,10 @@ impl<'a, 'b> Parser<'a, 'b>
 
         let mut reqs_validated = false;
         if let Some(a) = needs_val_of {
+            debugln!("needs_val_of={}", a);
+            debug!("Is this an opt...");
             if let Some(o) = self.opts.iter().find(|o| &o.name == &a) {
+                sdebugln!("Yes");
                 try!(self.validate_required(matcher));
                 reqs_validated = true;
                 let should_err = if let Some(v) = matcher.0.args.get(&*o.name) {
@@ -777,6 +780,8 @@ impl<'a, 'b> Parser<'a, 'b>
                                                   self.color()));
                 }
             } else {
+                sdebugln!("No");
+                debugln!("Returning Error::empty_value");
                 return Err(Error::empty_value(self.positionals
                                                   .values()
                                                   .find(|p| &p.name == &a)
@@ -846,7 +851,7 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     fn propogate_help_version(&mut self) {
-        debugln!("exec=propogate_help_version;");
+        debugln!("fn=propogate_help_version;");
         self.create_help_and_version();
         for sc in &mut self.subcommands {
             sc.p.propogate_help_version();
@@ -854,7 +859,7 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     fn build_bin_names(&mut self) {
-        debugln!("exec=build_bin_names;");
+        debugln!("fn=build_bin_names;");
         for sc in &mut self.subcommands {
             debug!("bin_name set...");
             if sc.p.meta.bin_name.is_none() {
@@ -992,7 +997,7 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     fn groups_for_arg(&self, name: &str) -> Option<Vec<&'a str>> {
-        debugln!("fn=groups_for_arg;");
+        debugln!("fn=groups_for_arg; name={}", name);
 
         if self.groups.is_empty() {
             debugln!("No groups defined");
@@ -1149,14 +1154,14 @@ impl<'a, 'b> Parser<'a, 'b>
     fn check_for_help_and_version_char(&self, arg: char) -> ClapResult<()> {
         debug!("Checking if -{} is help or version...", arg);
         if let Some(h) = self.help_short {
-            sdebugln!("Help");
             if arg == h && self.settings.is_set(AppSettings::NeedsLongHelp) {
+                sdebugln!("Help");
                 try!(self._help());
             }
         }
         if let Some(v) = self.version_short {
-            sdebugln!("Help");
             if arg == v && self.settings.is_set(AppSettings::NeedsLongVersion) {
+                sdebugln!("Version");
                 try!(self._version());
             }
         }
@@ -1862,7 +1867,7 @@ impl<'a, 'b> Parser<'a, 'b>
     // Should we color the output? None=determined by output location, true=yes, false=no
     #[doc(hidden)]
     pub fn color(&self) -> ColorWhen {
-        debugln!("exec=color;");
+        debugln!("fn=color;");
         debug!("Color setting...");
         if self.is_set(AppSettings::ColorNever) {
             sdebugln!("Never");

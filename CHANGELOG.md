@@ -1,3 +1,36 @@
+<a name="v2.12.0"></a>
+## v2.12.0 (2016-09-13)
+
+
+#### Features
+
+* **Help:**  adds ability to hide the possible values on a per argument basis ([9151ef73](https://github.com/kbknapp/clap-rs/commit/9151ef739871f2e74910c342299c0de196b95dec), closes [#640](https://github.com/kbknapp/clap-rs/issues/640))
+* **help:**  allow for limiting detected terminal width ([a43e28af](https://github.com/kbknapp/clap-rs/commit/a43e28af85c9a9deaedd5ef735f4f13008daab29), closes [#653](https://github.com/kbknapp/clap-rs/issues/653))
+
+#### Documentation
+
+* **Help Wrapping:**  removes the verbage about using `'{n}'` to insert newlines in help text ([c5a2b352](https://github.com/kbknapp/clap-rs/commit/c5a2b352ca600f5b802290ad945731066cd53611))
+* **Value Delimiters:**  updates the docs for the Arg::multiple method WRT value delimiters and default settings ([f9d17a06](https://github.com/kbknapp/clap-rs/commit/f9d17a060aa53f10d0a6e1a7eed5d989d1a59533))
+* **appsettings:**  Document AppSetting::DisableVersion ([94501965](https://github.com/kbknapp/clap-rs/commit/945019654d2ca67eb2b1d6014fdf80b84d528d30), closes [#589](https://github.com/kbknapp/clap-rs/issues/589))
+
+#### Bug Fixes
+
+* **AllowLeadingHyphen:**  fixes a bug where valid args aren't recognized with this setting ([a9699e4d](https://github.com/kbknapp/clap-rs/commit/a9699e4d7cdc9a06e73b845933ff1fe6d76f016a), closes [#588](https://github.com/kbknapp/clap-rs/issues/588))
+
+#### Improvements
+
+* **Help Wrapping:**
+  *  clap now ignores hard newlines in help messages and properly re-aligns text, but still wraps if the term width is too small ([c7678523](https://github.com/kbknapp/clap-rs/commit/c76785239fd42adc8ca04f9202b6fec615aa9f14), closes [#617](https://github.com/kbknapp/clap-rs/issues/617))
+  *  makes some minor changes to when next line help is automatically used ([01cae799](https://github.com/kbknapp/clap-rs/commit/01cae7990a33167ac35103fb36c811b4fe6eb98f))
+* **Value Delimiters:**  changes the default value delimiter rules ([f9e69254](https://github.com/kbknapp/clap-rs/commit/f9e692548e8c94de15f909432de301407d6bb834), closes [#655](https://github.com/kbknapp/clap-rs/issues/655))
+* **YAML:**  supports setting Arg::require_delimiter from YAML ([b9b55a39](https://github.com/kbknapp/clap-rs/commit/b9b55a39dfebcdbdc05dca2692927e503db50816))
+
+#### Performance
+
+* **help:**  fix redundant contains() checks ([a8afed74](https://github.com/kbknapp/clap-rs/commit/a8afed7428bf0733f8e93bb11ad6c00d9e970fcc))
+
+
+
 <a name="v2.11.3"></a>
 ### v2.11.3 (2016-09-07)
 

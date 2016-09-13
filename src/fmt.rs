@@ -28,7 +28,7 @@ pub enum ColorWhen {
 
 #[cfg(feature = "color")]
 pub fn is_a_tty(stderr: bool) -> bool {
-    debugln!("exec=is_a_tty;");
+    debugln!("fn=is_a_tty;");
     debugln!("Use stderr...{:?}", stderr);
     let fd = if stderr { STDERR } else { STDOUT };
     unsafe { libc::isatty(fd) != 0 }
@@ -36,7 +36,7 @@ pub fn is_a_tty(stderr: bool) -> bool {
 
 #[cfg(not(feature = "color"))]
 pub fn is_a_tty(_: bool) -> bool {
-    debugln!("exec=is_a_tty;");
+    debugln!("fn=is_a_tty;");
     false
 }
 
@@ -64,28 +64,28 @@ impl Colorizer {
     pub fn good<T>(&self, msg: T) -> Format<T>
         where T: fmt::Display + AsRef<str>
     {
-        debugln!("exec=good;");
+        debugln!("fn=good;");
         color!(self, Good, msg)
     }
 
     pub fn warning<T>(&self, msg: T) -> Format<T>
         where T: fmt::Display + AsRef<str>
     {
-        debugln!("exec=warning;");
+        debugln!("fn=warning;");
         color!(self, Warning, msg)
     }
 
     pub fn error<T>(&self, msg: T) -> Format<T>
         where T: fmt::Display + AsRef<str>
     {
-        debugln!("exec=error;");
+        debugln!("fn=error;");
         color!(self, Error, msg)
     }
 
     pub fn none<T>(&self, msg: T) -> Format<T>
         where T: fmt::Display + AsRef<str>
     {
-        debugln!("exec=none;");
+        debugln!("fn=none;");
         Format::None(msg)
     }
 }

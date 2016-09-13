@@ -31,7 +31,7 @@ pub struct UsageParser<'a> {
 
 impl<'a> UsageParser<'a> {
     fn new(usage: &'a str) -> Self {
-        debugln!("exec=new; usage={:?}", usage);
+        debugln!("fn=new; usage={:?}", usage);
         UsageParser {
             usage: usage,
             pos: 0,

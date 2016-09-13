@@ -88,6 +88,7 @@ macro_rules! _handle_group_reqs{
             } else {
                 false
             };
+            debugln!("iter;grp={};found={:?}", grp.name, found);
             if found {
                 vec_remove_all!($me.required, &grp.args);
                 debugln!("Adding args from group to blacklist...{:?}", grp.args);
