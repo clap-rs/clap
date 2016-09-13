@@ -353,7 +353,7 @@ impl<'a> Help<'a> {
         let too_long = str_width(h) >= width;
 
         debug!("Too long...");
-        if too_long {
+        if too_long || h.contains("{n}") {
             sdebugln!("Yes");
             help.push_str(h);
             debugln!("help: {}", help);
@@ -380,11 +380,11 @@ impl<'a> Help<'a> {
             help.push_str(h);
             &*help
         };
-        if help.contains("{n}") {
-            if let Some(part) = help.split("{n}").next() {
+        if help.contains("\n") {
+            if let Some(part) = help.split("\n").next() {
                 try!(write!(self.writer, "{}", part));
             }
-            for part in help.split("{n}").skip(1) {
+            for part in help.split("\n").skip(1) {
                 try!(write!(self.writer, "\n{}", part));
             }
         } else {
@@ -432,7 +432,7 @@ impl<'a> Help<'a> {
         }
 
         debug!("Too long...");
-        if too_long && spcs <= width {
+        if too_long && spcs <= width || h.contains("{n}") {
             sdebugln!("Yes");
             help.push_str(h);
             help.push_str(&*spec_vals);

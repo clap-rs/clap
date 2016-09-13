@@ -1,3 +1,13 @@
+<a name="v2.12.1"></a>
+### v2.12.1 (2016-09-13)
+
+
+#### Bug Fixes
+
+* **Help Wrapping:**  fixes a regression-bug where the old {n} newline char stopped working ([92ac353b](https://github.com/kbknapp/clap-rs/commit/92ac353b48b7caa2511ad2a046d94da93c236cf6), closes [#661](https://github.com/kbknapp/clap-rs/issues/661))
+
+
+
 <a name="v2.12.0"></a>
 ## v2.12.0 (2016-09-13)
 

@@ -133,6 +133,17 @@ OPTIONS:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café.
     -p, --pos <VAL>      Some vals [values: fast, slow]";
 
+static OLD_NEWLINE_CHARS: &'static str = "ctest 0.1
+
+USAGE:
+    ctest [FLAGS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -m               Some help with some wrapping
+                     (Defaults to something)
+    -V, --version    Prints version information";
+
 #[test]
 fn help_short() {
     let m = App::new("test")
@@ -334,4 +345,14 @@ fn issue_626_variable_panic() {
                .takes_value(true))
             .get_matches_from_safe(vec!["ctest", "--help"]);
     }
+}
+
+#[test]
+fn old_newline_chars() {
+    let app = App::new("ctest")
+        .version("0.1")
+        .arg(Arg::with_name("mode")
+            .short("m")
+            .help("Some help with some wrapping{n}(Defaults to something)"));
+    test::check_err_output(app, "ctest --help", OLD_NEWLINE_CHARS, false);
 }

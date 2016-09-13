@@ -39,6 +39,10 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.12.1
+
+* Fixes a regression-bug where the old `{n}` newline char stopped being replaced a properly re-aligned newline
+
 Here's the highlights for v2.12.0
 
 * Changes the default value delimiter rules (i.e. the default is `use_delimiter(false)` *unless* a setting/method that implies multiple values was used) **[Bugfix that *may* "break" code]**
