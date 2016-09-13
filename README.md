@@ -39,11 +39,26 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.12.0
+
+* Changes the default value delimiter rules (i.e. the default is `use_delimiter(false)` *unless* a setting/method that implies multiple values was used) **[Bugfix that *may* "break" code]**
+ * If code breaks, simply add `Arg::use_delimiter(true)` to the affected args
+* Updates the docs for the `Arg::multiple` method WRT value delimiters and default settings
+* Adds ability to hide the possible values from the help text on a per argument basis, instead of command wide
+* Allows for limiting detected terminal width (i.e. wrap at `x` length, unless the terminal width is *smaller*)
+* Removes some redundant `contains()` checks for minor performance improvements
+* Fixes a bug where valid args aren't recognized with the `AppSettings::AllowLeadingHyphen` setting
+* `clap` now ignores hard newlines in help messages and properly re-aligns text, but still wraps if the term width is too small
+* Makes some minor changes to when next line help is automatically used
+* Adds support for the setting `Arg::require_delimiter` from YAML
+* Removes the verbage about using `'{n}'` to insert newlines in help text from the docs (the normal `\n` can now be used)
+* Documents `AppSetting::DisableVersion`
+
 Here's the highlights for v2.11.3
 
 * `clap` no longer requires one to use `{n}` inside help text to insert a newline that is properly aligned. One can now use the normal `\n`.
-* `clap` now ignores hard newlines in help messages and properly re-aligns text, but still wraps if the term width is too small 
-* Supports setting `Arg::require_delimiter` from YAML 
+* `clap` now ignores hard newlines in help messages and properly re-aligns text, but still wraps if the term width is too small
+* Supports setting `Arg::require_delimiter` from YAML
 
 Here's the highlights for v2.11.2
 
@@ -51,8 +66,8 @@ Here's the highlights for v2.11.2
 
 Here's the highlights for v2.11.1
 
-* Fixes an issue where settings weren't propogated down through grand-child subcommands 
-* Errors can now have custom description 
+* Fixes an issue where settings weren't propogated down through grand-child subcommands
+* Errors can now have custom description
 * Uses `term_size` instead of home-grown solution on Windows
 * Updates deps with some minor bug fixes
 
@@ -60,17 +75,17 @@ Here's the highlights for v2.11.1
 Here's the highlights for v2.11.0
 
 * Adds the ability to wrap help text intelligently on Windows!
-* Moves docs to [docs.rs!](https://docs.rs/clap/) 
-* Fixes some usage strings that contain both args in groups and ones that conflict with each other 
-* Uses standard conventions for bash completion files, namely `{bin}.bash-completion` 
-* Automatically moves help text to the next line and wraps when term width is determined to be too small, or help text is too long 
-* Vastly improves *development* error messages when using YAML 
-* Adds `App::with_defaults` to automatically use `crate_authors!` and `crate_version!` macros 
+* Moves docs to [docs.rs!](https://docs.rs/clap/)
+* Fixes some usage strings that contain both args in groups and ones that conflict with each other
+* Uses standard conventions for bash completion files, namely `{bin}.bash-completion`
+* Automatically moves help text to the next line and wraps when term width is determined to be too small, or help text is too long
+* Vastly improves *development* error messages when using YAML
+* Adds `App::with_defaults` to automatically use `crate_authors!` and `crate_version!` macros
 * Other minor improvements and bug fixes
 
 Here's the highlights for v2.10.4
 
-* Fixes a bug where help is wrapped incorrectly and causing a panic with some non-English characters 
+* Fixes a bug where help is wrapped incorrectly and causing a panic with some non-English characters
 
 Here's the highlights for v2.10.3
 
@@ -301,18 +316,17 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 * **Confliction Rules**: Arguments can optionally define the following types of exclusion rules
   - Can be disallowed when certain arguments are present
   - Can disallow use of other arguments when present
-* **POSIX Override Rules**: Arguments can define rules to support POSIX overriding
 * **Groups**: Arguments can be made part of a group
   - Fully compatible with other relational rules (requirements, conflicts, and overrides) which allows things like requiring the use of any arg in a group, or denying the use of an entire group conditionally
 * **Specific Value Sets**: Positional or Option Arguments can define a specific set of allowed values (i.e. imagine a `--mode` option which may *only* have one of two values `fast` or `slow` such as `--mode fast` or `--mode slow`)
-* **Default Values**: Although not specifically provided by `clap` you can achieve this exact functionality from Rust's `Option<&str>.unwrap_or("some default")` method (or `Result<T,String>.unwrap_or(T)` when using typed values)
+* **Default Values**
 * **Automatic Version from Cargo.toml**: `clap` is fully compatible with Rust's `env!()` macro for automatically setting the version of your application to the version in your Cargo.toml. See [09_auto_version example](examples/09_auto_version.rs) for how to do this (Thanks to [jhelwig](https://github.com/jhelwig) for pointing this out)
 * **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) from positional or option arguments so long as the type you request implements `std::str::FromStr` See the [12_typed_values example](examples/12_typed_values.rs). You can also use `clap`s `arg_enum!` macro to create an enum with variants that automatically implement `std::str::FromStr`. See [13a_enum_values_automatic example](examples/13a_enum_values_automatic.rs) for details
 * **Suggestions**: Suggests corrections when the user enters a typo. For example, if you defined a `--myoption` argument, and the user mistakenly typed `--moyption` (notice `y` and `o` transposed), they would receive a `Did you mean '--myoption'?` error and exit gracefully. This also works for subcommands and flags. (Thanks to [Byron](https://github.com/Byron) for the implementation) (This feature can optionally be disabled, see 'Optional Dependencies / Features')
 * **Colorized Errors (Non Windows OS only)**: Error message are printed in in colored text (this feature can optionally be disabled, see 'Optional Dependencies / Features').
 * **Global Arguments**: Arguments can optionally be defined once, and be available to all child subcommands.
 * **Custom Validations**: You can define a function to use as a validator of argument values. Imagine defining a function to validate IP addresses, or fail parsing upon error. This means your application logic can be solely focused on *using* values.
-* **POSIX Compatible Conflicts** - In POSIX args can be conflicting, but not fail parsing because whichever arg comes *last* "wins" so to speak. This allows things such as aliases (i.e. `alias ls='ls -l'` but then using `ls -C` in your terminal which ends up passing `ls -l -C` as the final arguments. Since `-l` and `-C` aren't compatible, this effectively runs `ls -C` in `clap` if you choose...`clap` also supports hard conflicts that fail parsing). (Thanks to [Vinatorul](https://github.com/Vinatorul)!)
+* **POSIX Compatible Conflicts/Overrides** - In POSIX args can be conflicting, but not fail parsing because whichever arg comes *last* "wins" so to speak. This allows things such as aliases (i.e. `alias ls='ls -l'` but then using `ls -C` in your terminal which ends up passing `ls -l -C` as the final arguments. Since `-l` and `-C` aren't compatible, this effectively runs `ls -C` in `clap` if you choose...`clap` also supports hard conflicts that fail parsing). (Thanks to [Vinatorul](https://github.com/Vinatorul)!)
 * Supports the Unix `--` meaning, only positional arguments follow
 
 ## Quick Example
