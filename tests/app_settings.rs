@@ -264,6 +264,20 @@ fn delim_values_trailingvararg_with_delim() {
 }
 
 #[test]
+fn leading_hyphen() {
+    let res = App::new("leadhy")
+        .setting(AppSettings::AllowLeadingHyphen)
+        .arg(Arg::with_name("some"))
+        .arg(Arg::with_name("other")
+            .short("o"))
+        .get_matches_from_safe(vec!["", "-bar", "-o"]);
+    assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind);
+    let m = res.unwrap();
+    assert!(m.is_present("some"));
+    assert!(m.is_present("other"));
+}
+
+#[test]
 fn leading_double_hyphen_trailingvararg() {
     let m = App::new("positional")
         .setting(AppSettings::TrailingVarArg)
