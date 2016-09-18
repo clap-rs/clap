@@ -1,3 +1,19 @@
+<a name="v2.13.0"></a>
+## v2.13.0 (2016-09-18)
+
+
+#### Documentation
+
+*   updates README.md with new website information and updated video tutorials info ([0c19c580](https://github.com/kbknapp/clap-rs/commit/0c19c580cf50f1b82ff32f70b36708ae2bcac132))
+*   updates the docs about removing implicit value_delimiter(true) ([c81bc722](https://github.com/kbknapp/clap-rs/commit/c81bc722ebb8a86d22be89b5aec98df9fe222a08))
+* **Default Values:**  adds better examples on using default values ([57a8d9ab](https://github.com/kbknapp/clap-rs/commit/57a8d9abb2f973c235a8a14f8fc031673d7a7460), closes [#418](https://github.com/kbknapp/clap-rs/issues/418))
+
+#### Bug Fixes
+
+* **Value Delimiters:**  fixes the confusion around implicitly setting value delimiters. (default is now `false`) ([09d4d0a9](https://github.com/kbknapp/clap-rs/commit/09d4d0a9038d7ce2df55c2aec95e16f36189fcee), closes [#666](https://github.com/kbknapp/clap-rs/issues/666))
+
+
+
 <a name="v2.12.1"></a>
 ### v2.12.1 (2016-09-13)
 
