@@ -1855,10 +1855,6 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// **NOTE:** The default is `false`. When set to `true` the default [`Arg::value_delimiter`]
     /// is the comma `,`.
     ///
-    /// **NOTE:** When using methods like [`Arg::multiple`] or [`Arg::max_values`] (i.e. methods
-    /// that imply multiple values, this `use_delimiter` setting will automatically be set to
-    /// `true` and use the comma (`,`) by default.
-    ///
     /// # Examples
     ///
     /// The following example shows the default behavior.
@@ -1880,7 +1876,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(delims.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
     /// The next example shows the difference when turning delimiters off. This is the default
-    /// behavior, unless one of the methods/settings which implies multiple values is set.
+    /// behavior
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -1920,6 +1916,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assumed that more values will follow regardless of whether or not a delimiter is used.
     ///
     /// **NOTE:** The default is `false`.
+    ///
+    /// **NOTE:** Setting this to true implies [`Arg::use_delimiter(true)`]
     ///
     /// **NOTE:** It's a good idea to inform the user that use of a delimiter is required, either
     /// through help text or other means.
@@ -1986,6 +1984,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert!(delims.is_present("opt"));
     /// assert_eq!(delims.values_of("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
+    /// [`Arg::use_delimiter(true)`]: ./struct.Arg.html#method.use_delimiter
     pub fn require_delimiter(mut self, d: bool) -> Self {
         if d {
             self = self.use_delimiter(true);
