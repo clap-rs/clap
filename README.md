@@ -11,6 +11,8 @@ Command Line Argument Parser for Rust
 It is a simple-to-use, efficient, and full-featured library for parsing command line arguments and subcommands when writing console/terminal applications.
 
 ## [documentation](https://docs.rs/clap/)
+## [website](https://clap.rs/)
+## [blog](https://blog.clap.rs/)
 
 Table of Contents
 =================
@@ -335,7 +337,7 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 
 ## Quick Example
 
-The following examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, conflicts, groups, multiple values and occurrences see the [documentation](https://docs.rs/clap/), [examples/](examples) directory of this repository or the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv) (which are quite outdated by now).
+The following examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, conflicts, groups, multiple values and occurrences see the [documentation](https://docs.rs/clap/), [examples/](examples) directory of this repository or the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl2Z5T8g1pRkIynR3E0_pc7U).
 
  **NOTE:** All these examples are functionally the same, but show three different styles in which to use `clap`
 
@@ -627,9 +629,9 @@ You can also find usage examples in the [examples/](examples) directory of this 
 
 #### Video Tutorials
 
-There's also the video tutorial series [Argument Parsing with Rust](https://www.youtube.com/playlist?list=PLza5oFLQGTl0Bc_EU_pBNcX-rhVqDTRxv).
+There's also the video tutorial series [Argument Parsing with Rust v2](https://www.youtube.com/playlist?list=PLza5oFLQGTl2Z5T8g1pRkIynR3E0_pc7U).
 
-**NOTE:** This series is getting out of date and needs to be updated
+These videos slowly trickle out as I finish them and currently a work in progress.
 
 ## How to Contribute
 
