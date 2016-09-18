@@ -1313,12 +1313,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [option]: ./struct.Arg.html#method.takes_value
     /// [`Arg::number_of_values(1)`]: ./struct.Arg.html#method.number_of_values
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
-    pub fn multiple(mut self, multi: bool) -> Self {
+    pub fn multiple(self, multi: bool) -> Self {
         if multi {
-            if self.settings.is_set(ArgSettings::ValueDelimiterNotSet) &&
-                self.settings.is_set(ArgSettings::TakesValue) {
-                self = self.use_delimiter(true);
-            }
             self.set(ArgSettings::Multiple)
         } else {
             self.unset(ArgSettings::Multiple)
@@ -1689,12 +1685,6 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     pub fn number_of_values(mut self, qty: u64) -> Self {
-        if qty > 1 && self.settings.is_set(ArgSettings::ValueDelimiterNotSet) {
-            self.unsetb(ArgSettings::ValueDelimiterNotSet);
-            self.setb(ArgSettings::UseValueDelimiter);
-        } else {
-            self = self.use_delimiter(false);
-        }
         self.setb(ArgSettings::TakesValue);
         self.num_vals = Some(qty);
         self
@@ -1794,12 +1784,6 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     pub fn max_values(mut self, qty: u64) -> Self {
-        if qty > 1 && self.settings.is_set(ArgSettings::ValueDelimiterNotSet) {
-            self.unsetb(ArgSettings::ValueDelimiterNotSet);
-            self.setb(ArgSettings::UseValueDelimiter);
-        } else {
-            self = self.use_delimiter(false);
-        }
         self.setb(ArgSettings::TakesValue);
         self.max_vals = Some(qty);
         self
@@ -2004,10 +1988,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     pub fn require_delimiter(mut self, d: bool) -> Self {
         if d {
+            self = self.use_delimiter(true);
             self.unsetb(ArgSettings::ValueDelimiterNotSet);
             self.setb(ArgSettings::UseValueDelimiter);
             self.set(ArgSettings::RequireDelimiter)
         } else {
+            self = self.use_delimiter(false);
             self.unsetb(ArgSettings::UseValueDelimiter);
             self.unset(ArgSettings::RequireDelimiter)
         }
