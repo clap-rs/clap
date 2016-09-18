@@ -1,12 +1,12 @@
 [package]
 
 name = "clap"
-version = "2.12.1"
+version = "2.13.0"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
 exclude = ["examples/*", "clap-test/*", "tests/*", "benches/*", "*.png", "clap-perf/*", "*.dot"]
 repository = "https://github.com/kbknapp/clap-rs.git"
 documentation = "https://docs.rs/clap/"
-homepage = "https://docs.rs/crate/clap/"
+homepage = "https://clap.rs/"
 readme = "README.md"
 license = "MIT"
 keywords = ["argument", "command", "arg", "parser", "parse"]

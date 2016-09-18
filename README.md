@@ -41,6 +41,14 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.13.0
+
+* **Value Delimiters:**  fixes the confusion around implicitly setting value delimiters. (The default is to *not* use a delimiter unless explicitly set)
+* **Docs:** Updates README.md with new website information and updated video tutorials info
+* **Docs:** Updates the docs about removing implicit `value_delimiter(true)`
+* **Docs:** Adds better examples on using default values
+
+
 Here's the highlights for v2.12.1
 
 * Fixes a regression-bug where the old `{n}` newline char stopped being replaced a properly re-aligned newline
