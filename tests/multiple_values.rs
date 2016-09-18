@@ -523,6 +523,7 @@ fn multiple_values_sep_long_equals() {
     let m = App::new("multiple_values")
         .arg(Arg::with_name("option")
             .long("option")
+            .use_delimiter(true)
             .help("multiple options")
             .takes_value(true)
             .multiple(true))
@@ -544,6 +545,7 @@ fn multiple_values_sep_long_space() {
     let m = App::new("multiple_values")
         .arg(Arg::with_name("option")
             .long("option")
+            .use_delimiter(true)
             .help("multiple options")
             .takes_value(true)
             .multiple(true))
@@ -567,6 +569,7 @@ fn multiple_values_sep_short_equals() {
         .arg(Arg::with_name("option")
             .short("o")
             .help("multiple options")
+            .use_delimiter(true)
             .takes_value(true)
             .multiple(true))
         .get_matches_from_safe(vec![
@@ -588,6 +591,7 @@ fn multiple_values_sep_short_space() {
         .arg(Arg::with_name("option")
             .short("o")
             .help("multiple options")
+            .use_delimiter(true)
             .takes_value(true)
             .multiple(true))
         .get_matches_from_safe(vec![
@@ -610,6 +614,7 @@ fn multiple_values_sep_short_no_space() {
         .arg(Arg::with_name("option")
             .short("o")
             .help("multiple options")
+            .use_delimiter(true)
             .takes_value(true)
             .multiple(true))
         .get_matches_from_safe(vec![
