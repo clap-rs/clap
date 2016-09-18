@@ -2186,6 +2186,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// # Examples
     ///
+    /// First we use the default value without providing any value at runtime.
+    ///
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("defvals")
@@ -2199,6 +2201,23 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(m.value_of("opt"), Some("myval"));
     /// assert!(m.is_present("opt"));
     /// assert_eq!(m.occurrences_of("opt"), 0);
+    /// ```
+    ///
+    /// Next we provide a valu at runtime to override the default.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("defvals")
+    ///     .arg(Arg::with_name("opt")
+    ///         .long("myopt")
+    ///         .default_value("myval"))
+    ///     .get_matches_from(vec![
+    ///         "defvals", "--myopt=non_default"
+    ///     ]);
+    ///
+    /// assert_eq!(m.value_of("opt"), Some("non_default"));
+    /// assert!(m.is_present("opt"));
+    /// assert_eq!(m.occurrences_of("opt"), 1);
     /// ```
     /// [`ArgMatches::occurrences_of`]: /struct.ArgMatches.html#method.occurrences_of
     /// [`ArgMatches::value_of`]: ./struct.ArgMatches.html#method.value_of
