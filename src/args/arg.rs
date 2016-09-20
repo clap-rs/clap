@@ -2203,7 +2203,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(m.occurrences_of("opt"), 0);
     /// ```
     ///
-    /// Next we provide a valu at runtime to override the default.
+    /// Next we provide a value at runtime to override the default.
     ///
     /// ```rust
     /// # use clap::{App, Arg};
