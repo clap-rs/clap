@@ -1615,7 +1615,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 &*self.get_required_from(&*reqs, Some(matcher))
                       .iter()
                       .fold(String::new(),
-                          |acc, s| acc + &format!("\n    {}", Format::Error(s))[..]),
+                          |acc, s| acc + &format!("\n    {}", Format::error(s))[..]),
                 &*self.create_current_usage(matcher),
                 self.color())
                 };

@@ -493,7 +493,7 @@ impl<'a> Help<'a> {
                            if self.color {
                                self.cizer.good(pv)
                            } else {
-                               Format::None(pv)
+                               Format::none(pv)
                            },
                            if self.hide_pv || a.is_set(ArgSettings::HidePossibleValues) {
                                "".into()

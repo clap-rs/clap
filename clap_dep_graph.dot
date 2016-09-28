@@ -1,6 +1,6 @@
 digraph dependencies {
 	N0[label="clap"];
-	N1[label="ansi_term"];
+	N1[label="termion"];
 	N2[label="bitflags"];
 	N3[label="clippy",color=blue];
 	N4[label="strsim"];

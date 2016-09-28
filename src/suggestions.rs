@@ -52,11 +52,11 @@ pub fn did_you_mean_suffix<'z, T, I>(arg: &str,
             let mut suffix = "\n\tDid you mean ".to_owned();
             match style {
                 DidYouMeanMessageStyle::LongFlag => {
-                    suffix.push_str(&Format::Good("--").to_string())
+                    suffix.push_str(&Format::good("--").to_string())
                 }
                 DidYouMeanMessageStyle::EnumValue => suffix.push('\''),
             }
-            suffix.push_str(&Format::Good(candidate).to_string()[..]);
+            suffix.push_str(&Format::good(candidate).to_string()[..]);
             if let DidYouMeanMessageStyle::EnumValue = style {
                 suffix.push('\'');
             }

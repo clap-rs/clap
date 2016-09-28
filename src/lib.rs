@@ -404,7 +404,7 @@
 #[cfg(feature = "suggestions")]
 extern crate strsim;
 #[cfg(feature = "color")]
-extern crate ansi_term;
+extern crate termion;
 #[cfg(feature = "yaml")]
 extern crate yaml_rust;
 #[cfg(any(feature = "wrap_help", feature = "color"))]
