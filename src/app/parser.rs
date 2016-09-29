@@ -1336,7 +1336,9 @@ impl<'a, 'b> Parser<'a, 'b>
         self.groups_for_arg(opt.name).and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
 
         if val.is_none() ||
-           !has_eq && (opt.is_set(ArgSettings::Multiple) && matcher.needs_more_vals(opt)) {
+           !has_eq && (opt.is_set(ArgSettings::Multiple) &&
+                       !opt.is_set(ArgSettings::RequireDelimiter) &&
+                       matcher.needs_more_vals(opt)) {
             return Ok(Some(opt.name));
         }
         Ok(None)
