@@ -403,7 +403,7 @@
 
 #[cfg(feature = "suggestions")]
 extern crate strsim;
-#[cfg(feature = "color")]
+#[cfg(all(feature = "color", not(target_os = "windows")))]
 extern crate termion;
 #[cfg(feature = "yaml")]
 extern crate yaml_rust;
