@@ -604,7 +604,17 @@ impl<'a, 'b> Parser<'a, 'b>
                     // Check to see if parsing a value from an option
                     if let Some(nvo) = needs_val_of {
                         // get the OptBuilder so we can check the settings
-                        if let Some(opt) = self.opts.iter().find(|o| &o.name == &nvo) {
+                        if let Some(opt) = self.opts
+                            .iter()
+                            .find(|o| {
+                                &o.name == &nvo ||
+                                (o.aliases.is_some() &&
+                                 o.aliases
+                                    .as_ref()
+                                    .unwrap()
+                                    .iter()
+                                    .any(|&(a, _)| a == &*nvo))
+                            }) {
                             needs_val_of = try!(self.add_val_to_arg(opt, &arg_os, matcher));
                             // get the next value from the iterator
                             continue;
@@ -765,7 +775,17 @@ impl<'a, 'b> Parser<'a, 'b>
         if let Some(a) = needs_val_of {
             debugln!("needs_val_of={}", a);
             debug!("Is this an opt...");
-            if let Some(o) = self.opts.iter().find(|o| &o.name == &a) {
+            if let Some(o) = self.opts
+                .iter()
+                .find(|o| {
+                    &o.name == &a ||
+                    (o.aliases.is_some() &&
+                     o.aliases
+                        .as_ref()
+                        .unwrap()
+                        .iter()
+                        .any(|&(n, _)| n == &*a))
+                }) {
                 sdebugln!("Yes");
                 try!(self.validate_required(matcher));
                 reqs_validated = true;
@@ -1213,7 +1233,16 @@ impl<'a, 'b> Parser<'a, 'b>
 
         if let Some(opt) = self.opts
             .iter()
-            .find(|v| v.long.is_some() && &*v.long.unwrap() == arg) {
+            .find(|v|
+                (v.long.is_some() &&
+                 &*v.long.unwrap() == arg) ||
+                (v.aliases.is_some() &&
+                 v.aliases
+                    .as_ref()
+                    .unwrap()
+                    .iter()
+                    .any(|&(n, _)| n == &*arg))
+            ) {
             debugln!("Found valid opt '{}'", opt.to_string());
             let ret = try!(self.parse_opt(val, opt, matcher));
             arg_post_processing!(self, opt, matcher);

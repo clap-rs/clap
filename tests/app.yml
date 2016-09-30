@@ -64,6 +64,14 @@ args:
         help: Tests mutliple values with required delimiter
         multiple: true
         require_delimiter: true
+    - singlealias:
+        long: singlealias
+        help: Tests single alias
+        aliases: [alias]
+    - multaliases:
+        long: multaliases
+        help: Tests mutliple aliases
+        aliases: [als1, als2, als3]
     - minvals2:
         long: minvals2
         multiple: true

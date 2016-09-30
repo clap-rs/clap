@@ -42,6 +42,8 @@ pub struct Arg<'a, 'b>
     #[doc(hidden)]
     pub long: Option<&'b str>,
     #[doc(hidden)]
+    pub aliases: Option<Vec<(&'b str, bool)>>, // (name, visible)
+    #[doc(hidden)]
     pub help: Option<&'b str>,
     #[doc(hidden)]
     pub index: Option<u64>,
@@ -83,6 +85,7 @@ impl<'a, 'b> Default for Arg<'a, 'b> {
             name: "".as_ref(),
             short: None,
             long: None,
+            aliases: None,
             help: None,
             index: None,
             blacklist: None,
@@ -149,6 +152,7 @@ impl<'a, 'b> Arg<'a, 'b> {
             a = match k.as_str().unwrap() {
                 "short" => yaml_to_str!(a, v, short),
                 "long" => yaml_to_str!(a, v, long),
+                "aliases" => yaml_vec_or_str!(v, a, alias),
                 "help" => yaml_to_str!(a, v, help),
                 "required" => yaml_to_bool!(a, v, required),
                 "takes_value" => yaml_to_bool!(a, v, takes_value),
@@ -406,6 +410,50 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     pub fn long(mut self, l: &'b str) -> Self {
         self.long = Some(l.trim_left_matches(|c| c == '-'));
+        self
+    }
+
+    /// Add docs
+    pub fn alias<S: Into<&'b str>>(mut self, name: S) -> Self {
+        if let Some(ref mut als) = self.aliases {
+            als.push((name.into(), false));
+        } else {
+            self.aliases = Some(vec![(name.into(), false)]);
+        }
+        self
+    }
+
+    /// Add docs
+    pub fn aliases(mut self, names: &[&'b str]) -> Self {
+        if let Some(ref mut als) = self.aliases {
+            for n in names {
+                als.push((n, false));
+            }
+        } else {
+            self.aliases = Some(names.iter().map(|n| (*n, false)).collect::<Vec<_>>());
+        }
+        self
+    }
+
+    /// Add docs
+    pub fn visible_alias<S: Into<&'b str>>(mut self, name: S) -> Self {
+        if let Some(ref mut als) = self.aliases {
+            als.push((name.into(), true));
+        } else {
+            self.aliases = Some(vec![(name.into(), true)]);
+        }
+        self
+    }
+
+    /// Add docs
+    pub fn visible_aliases(mut self, names: &[&'b str]) -> Self {
+        if let Some(ref mut als) = self.aliases {
+            for n in names {
+                als.push((n, true));
+            }
+        } else {
+            self.aliases = Some(names.iter().map(|n| (*n, true)).collect::<Vec<_>>());
+        }
         self
     }
 
@@ -2380,6 +2428,7 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
             name: a.name,
             short: a.short,
             long: a.long,
+            aliases: a.aliases.clone(),
             help: a.help,
             index: a.index,
             possible_vals: a.possible_vals.clone(),
@@ -2407,6 +2456,7 @@ impl<'a, 'b> Clone for Arg<'a, 'b> {
             name: self.name,
             short: self.short,
             long: self.long,
+            aliases: self.aliases.clone(),
             help: self.help,
             index: self.index,
             possible_vals: self.possible_vals.clone(),
