@@ -66,14 +66,10 @@ impl<'a> UsageParser<'a> {
         debug_assert!(!arg.name.is_empty(),
                       format!("No name found for Arg when parsing usage string: {}",
                               self.usage));
-        let n_vals = if let Some(ref v) = arg.val_names {
-            v.len()
-        } else {
-            0
+        arg.num_vals = match arg.val_names {
+            Some(ref v) if v.len() >= 2 => Some(v.len() as u64),
+            _ => None,
         };
-        if n_vals > 1 {
-            arg.num_vals = Some(n_vals as u64);
-        }
         debugln!("vals: {:?}", arg.val_names);
         arg
     }
