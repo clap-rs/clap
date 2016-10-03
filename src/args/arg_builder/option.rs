@@ -344,6 +344,7 @@ mod test {
         assert_eq!(&*format!("{}", o), "--option <opt> [aliases: als]");
     }
 
+    #[test]
     fn optbuilder_display_multiple_aliases() {
         let mut o = OptBuilder::new("opt");
         o.long = Some("option");

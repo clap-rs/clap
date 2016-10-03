@@ -452,6 +452,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg};
     /// let m = App::new("myprog")
     ///             .arg(Arg::with_name("test")
+    ///                     .long("test")
     ///                     .aliases(&["do-stuff", "do-tests", "tests"])
     ///                     .help("the file to add")
     ///                     .required(false))
@@ -506,6 +507,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg};
     /// let m = App::new("myprog")
     ///             .arg(Arg::with_name("test")
+    ///                 .long("test")
     ///                 .visible_aliases(&["something", "awesome", "cool"]))
     ///        .get_matches_from(vec!["myprog", "--awesome"]);
     /// assert!(m.is_present("test"));

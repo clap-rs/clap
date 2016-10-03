@@ -17,6 +17,7 @@ use args::settings::{ArgFlags, ArgSettings};
 pub struct FlagBuilder<'n, 'e> {
     pub name: &'n str,
     pub long: Option<&'e str>,
+    pub aliases: Option<Vec<(&'e str, bool)>>,
     pub help: Option<&'e str>,
     pub blacklist: Option<Vec<&'e str>>,
     pub requires: Option<Vec<&'e str>>,
@@ -31,6 +32,7 @@ impl<'n, 'e> Default for FlagBuilder<'n, 'e> {
         FlagBuilder {
             name: "",
             long: None,
+            aliases: None,
             help: None,
             blacklist: None,
             requires: None,
@@ -68,6 +70,7 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for FlagBuilder<'a, 'b> {
             name: a.name,
             short: a.short,
             long: a.long,
+            aliases: a.aliases.clone(),
             help: a.help,
             blacklist: a.blacklist.clone(),
             overrides: a.overrides.clone(),
@@ -81,10 +84,27 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for FlagBuilder<'a, 'b> {
 impl<'n, 'e> Display for FlagBuilder<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> Result {
         if let Some(l) = self.long {
-            write!(f, "--{}", l)
+            try!(write!(f, "--{}", l));
         } else {
-            write!(f, "-{}", self.short.unwrap())
+            try!(write!(f, "-{}", self.short.unwrap()));
         }
+
+        // Write aliases such as [aliases: alias, new-alias]
+        if let Some(ref vec) = self.aliases {
+            try!(write!(f, " [aliases: "));
+            let mut it = vec.iter().peekable();
+            while let Some(&(val, b)) = it.next() {
+                if b {
+                    try!(write!(f, "{}", val));
+                    if it.peek().is_some() {
+                        try!(write!(f, ", "));
+                    }
+                }
+            }
+            try!(write!(f, "]"));
+        }
+
+        Ok(())
     }
 }
 
@@ -94,6 +114,7 @@ impl<'n, 'e> Clone for FlagBuilder<'n, 'e> {
             name: self.name,
             short: self.short,
             long: self.long,
+            aliases: self.aliases.clone(),
             help: self.help,
             blacklist: self.blacklist.clone(),
             overrides: self.overrides.clone(),
@@ -169,7 +190,19 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
         self.long.is_some()
     }
     fn aliases(&self) -> Option<Vec<&'e str>> {
-        None
+        if let Some(ref aliases) = self.aliases {
+            let vis_aliases: Vec<_> =
+                aliases.iter()
+                    .filter_map(|&(n, v)| if v { Some(n) } else { None })
+                    .collect();
+            if vis_aliases.is_empty() {
+                None
+            } else {
+                Some(vis_aliases)
+            }
+        } else {
+            None
+        }
     }
 }
 
@@ -196,5 +229,27 @@ mod test {
         f2.short = Some('f');
 
         assert_eq!(&*format!("{}", f2), "-f");
+    }
+
+    #[test]
+    fn flagbuilder_display_single_alias() {
+        let mut f = FlagBuilder::new("flg");
+        f.long = Some("flag");
+        f.aliases = Some(vec![("als", true)]);
+
+        assert_eq!(&*format!("{}", f), "--flag [aliases: als]");
+    }
+
+    #[test]
+    fn flagbuilder_display_multiple_aliases() {
+        let mut f = FlagBuilder::new("flg");
+        f.short = Some('f');
+        f.aliases = Some(vec![
+                         ("alias_not_visible", false),
+                         ("f2", true),
+                         ("f3", true),
+                         ("f4", true)
+                    ]);
+        assert_eq!(&*format!("{}", f), "-f [aliases: f2, f3, f4]");
     }
 }

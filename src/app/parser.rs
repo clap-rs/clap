@@ -1250,7 +1250,16 @@ impl<'a, 'b> Parser<'a, 'b>
             return Ok(ret);
         } else if let Some(flag) = self.flags
             .iter()
-            .find(|v| v.long.is_some() && &*v.long.unwrap() == arg) {
+            .find(|v|
+                (v.long.is_some() &&
+                 &*v.long.unwrap() == arg) ||
+                (v.aliases.is_some() &&
+                 v.aliases
+                    .as_ref()
+                    .unwrap()
+                    .iter()
+                    .any(|&(n, _)| n == &*arg))
+            ) {
             debugln!("Found valid flag '{}'", flag.to_string());
             // Only flags could be help or version, and we need to check the raw long
             // so this is the first point to check
