@@ -133,3 +133,15 @@ fn visible_arg_aliases_help_output() {
                 .visible_alias("visible")));
     test::check_subcommand_help(app, "test", SC_VISIBLE_ALIAS_HELP);
 }
+
+#[test]
+fn visible_arg_flag_aliases() {
+    let a = App::new("test")
+                .arg(Arg::with_name("opt")
+                    .long("opt")
+                    .aliases(&["invisible", "set", "of", "aliases"]))
+                .get_matches_from_safe(vec!["", "--aliases"]);
+    assert!(a.is_ok());
+    let a = a.unwrap();
+    assert!(a.is_present("opt"));
+}

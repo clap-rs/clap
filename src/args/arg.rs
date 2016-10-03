@@ -413,7 +413,25 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Add docs
+    /// Allows adding a [`Arg`] alias, which function as "hidden" arguments that
+    /// automatically dispatch as if this argument was used. This is more efficient, and easier
+    /// than creating multiple hidden arguments as one only needs to check for the existence of
+    /// this command, and not all variants.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myprog")
+    ///             .arg(Arg::with_name("test")
+    ///             .long("test")
+    ///             .alias("alias")
+    ///             .takes_value(true))
+    ///        .get_matches_from(vec!["myprog", "--alias", "cool"]);
+    /// assert!(m.is_present("test"));
+    /// assert_eq!(m.value_of("test"), Some("cool"));
+    /// ```
+    /// [`Arg`]: ./struct.Arg.html
     pub fn alias<S: Into<&'b str>>(mut self, name: S) -> Self {
         if let Some(ref mut als) = self.aliases {
             als.push((name.into(), false));
@@ -423,7 +441,24 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Add docs
+    /// Allows adding [`Arg`] aliases, which function as "hidden" arguments that
+    /// automatically dispatch as if this argument was used. This is more efficient, and easier
+    /// than creating multiple hidden subcommands as one only needs to check for the existence of
+    /// this command, and not all variants.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myprog")
+    ///             .arg(Arg::with_name("test")
+    ///                     .aliases(&["do-stuff", "do-tests", "tests"])
+    ///                     .help("the file to add")
+    ///                     .required(false))
+    ///             .get_matches_from(vec!["myprog", "--do-tests"]);
+    /// assert!(m.is_present("test"));
+    /// ```
+    /// [`Arg`]: ./struct.Arg.html
     pub fn aliases(mut self, names: &[&'b str]) -> Self {
         if let Some(ref mut als) = self.aliases {
             for n in names {
@@ -435,7 +470,24 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Add docs
+    /// Allows adding a [`Arg`] alias that functions exactly like those defined with
+    /// [`Arg::alias`], except that they are visible inside the help message.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myprog")
+    ///             .arg(Arg::with_name("test")
+    ///                 .visible_alias("something-awesome")
+    ///                 .long("test")
+    ///                 .takes_value(true))
+    ///        .get_matches_from(vec!["myprog", "--something-awesome", "coffee"]);
+    /// assert!(m.is_present("test"));
+    /// assert_eq!(m.value_of("test"), Some("coffee"));
+    /// ```
+    /// [`Arg`]: ./struct.Arg.html
+    /// [`App::alias`]: ./struct.Arg.html#method.alias
     pub fn visible_alias<S: Into<&'b str>>(mut self, name: S) -> Self {
         if let Some(ref mut als) = self.aliases {
             als.push((name.into(), true));
@@ -445,7 +497,21 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Add docs
+    /// Allows adding multiple [`Arg`] aliases that functions exactly like those defined
+    /// with [`Arg::aliases`], except that they are visible inside the help message.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myprog")
+    ///             .arg(Arg::with_name("test")
+    ///                 .visible_aliases(&["something", "awesome", "cool"]))
+    ///        .get_matches_from(vec!["myprog", "--awesome"]);
+    /// assert!(m.is_present("test"));
+    /// ```
+    /// [`Arg`]: ./struct.Arg.html
+    /// [`App::aliases`]: ./struct.Arg.html#method.aliases
     pub fn visible_aliases(mut self, names: &[&'b str]) -> Self {
         if let Some(ref mut als) = self.aliases {
             for n in names {
