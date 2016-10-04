@@ -183,11 +183,11 @@ impl<'a> Help<'a> {
         }
         let mut first = true;
         for arg in arg_v {
-            if !first {
-                try!(self.writer.write(b"\n"));
-            } else {
+            if first {
                 first = false;
-            };
+            } else {
+                try!(self.writer.write(b"\n"));
+            }
             try!(self.write_arg(arg.as_base(), longest));
         }
         Ok(())
@@ -212,12 +212,12 @@ impl<'a> Help<'a> {
             }
         }
         let mut first = true;
-        for (_, btm) in ord_m {
+        for btm in ord_m.values() {
             for arg in btm.values() {
-                if !first {
-                    try!(self.writer.write(b"\n"));
-                } else {
+                if first {
                     first = false;
+                } else {
+                    try!(self.writer.write(b"\n"));
                 }
                 try!(self.write_arg(arg.as_base(), longest));
             }
@@ -381,10 +381,10 @@ impl<'a> Help<'a> {
             &*help
         };
         if help.contains('\n') {
-            if let Some(part) = help.split('\n').next() {
+            if let Some(part) = help.lines().next() {
                 try!(write!(self.writer, "{}", part));
             }
-            for part in help.split('\n').skip(1) {
+            for part in help.lines().skip(1) {
                 try!(write!(self.writer, "\n{}", part));
             }
         } else {
@@ -465,10 +465,10 @@ impl<'a> Help<'a> {
             &*help
         };
         if help.contains('\n') {
-            if let Some(part) = help.split('\n').next() {
+            if let Some(part) = help.lines().next() {
                 try!(write!(self.writer, "{}", part));
             }
-            for part in help.split('\n').skip(1) {
+            for part in help.lines().skip(1) {
                 try!(write!(self.writer, "\n"));
                 if nlh || force_next_line {
                     try!(write!(self.writer, "{}{}{}", TAB, TAB, TAB));
@@ -616,12 +616,12 @@ impl<'a> Help<'a> {
         }
 
         let mut first = true;
-        for (_, btm) in ord_m {
+        for btm in ord_m.values() {
             for sc in btm.values() {
-                if !first {
-                    try!(self.writer.write(b"\n"));
-                } else {
+                if first {
                     first = false;
+                } else {
+                    try!(self.writer.write(b"\n"));
                 }
                 try!(self.write_arg(sc, longest));
             }
