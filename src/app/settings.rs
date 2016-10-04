@@ -375,7 +375,8 @@ pub enum AppSettings {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    #[cfg_attr(not(unix), doc=" ```ignore")]
+    #[cfg_attr(    unix , doc=" ```")]
     /// # use clap::{App, Arg, AppSettings, ErrorKind};
     /// use std::ffi::OsString;
     ///
@@ -411,7 +412,8 @@ pub enum AppSettings {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    #[cfg_attr(not(unix), doc=" ```ignore")]
+    #[cfg_attr(    unix , doc=" ```")]
     /// # use clap::{App, Arg, AppSettings};
     /// use std::ffi::OsString;
     /// use std::os::unix::ffi::OsStrExt;

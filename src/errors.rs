@@ -284,7 +284,8 @@ pub enum ErrorKind {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    #[cfg_attr(not(unix), doc=" ```ignore")]
+    #[cfg_attr(    unix , doc=" ```")]
     /// # use clap::{App, Arg, ErrorKind, AppSettings};
     /// # use std::os::unix::ffi::OsStringExt;
     /// # use std::ffi::OsString;

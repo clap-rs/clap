@@ -131,7 +131,8 @@ impl<'a> ArgMatches<'a> {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    #[cfg_attr(not(unix), doc=" ```ignore")]
+    #[cfg_attr(    unix , doc=" ```")]
     /// # use clap::{App, Arg};
     /// use std::ffi::OsString;
     /// use std::os::unix::ffi::OsStrExt;
@@ -165,7 +166,8 @@ impl<'a> ArgMatches<'a> {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    #[cfg_attr(not(unix), doc=" ```ignore")]
+    #[cfg_attr(    unix , doc=" ```")]
     /// # use clap::{App, Arg};
     /// use std::ffi::OsString;
     /// use std::os::unix::ffi::OsStrExt;
@@ -227,7 +229,8 @@ impl<'a> ArgMatches<'a> {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    #[cfg_attr(not(unix), doc=" ```ignore")]
+    #[cfg_attr(    unix , doc=" ```")]
     /// # use clap::{App, Arg};
     /// use std::ffi::OsString;
     /// use std::os::unix::ffi::OsStrExt;
@@ -260,7 +263,8 @@ impl<'a> ArgMatches<'a> {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    #[cfg_attr(not(unix), doc=" ```ignore")]
+    #[cfg_attr(    unix , doc=" ```")]
     /// # use clap::{App, Arg};
     /// use std::ffi::OsString;
     /// use std::os::unix::ffi::OsStrExt;
@@ -629,7 +633,8 @@ impl<'a, V> DoubleEndedIterator for Iter<'a, V> {
 ///
 /// # Examples
 ///
-/// ```ignore
+#[cfg_attr(not(unix), doc=" ```ignore")]
+#[cfg_attr(    unix , doc=" ```")]
 /// # use clap::{App, Arg};
 /// use std::ffi::OsString;
 /// use std::os::unix::ffi::OsStrExt;
