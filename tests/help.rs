@@ -262,13 +262,8 @@ fn no_wrap_help() {
 
 #[test]
 fn complex_subcommand_help_output() {
-    let mut a = test::complex_app();
-    let _ = a.get_matches_from_safe_borrow(vec![""]);
-    let sc = a.p.subcommands.iter().filter(|s| s.p.meta.name == "subcmd").next().unwrap();
-    // Now we check the output of print_help()
-    let mut help = vec![];
-    sc.write_help(&mut help).ok().expect("failed to print help");
-    assert_eq!(&*String::from_utf8(help).unwrap(), SC_HELP);
+    let a = test::complex_app();
+    test::check_subcommand_help(a, "subcmd", SC_HELP);
 }
 
 

@@ -50,6 +50,17 @@ mod test {
         assert_eq!(use_stderr, err.use_stderr());
     }
 
+    pub fn check_subcommand_help(mut a: App, cmd: &str, out: &str) {
+        // We call a get_matches method to cause --help and --version to be built
+        let _ = a.get_matches_from_safe_borrow(vec![""]);
+        let sc = a.p.subcommands.iter().filter(|s| s.p.meta.name == cmd).next().unwrap();
+
+        // Now we check the output of print_help()
+        let mut help = vec![];
+        sc.write_help(&mut help).ok().expect("failed to print help");
+        assert_eq!(str::from_utf8(&help).unwrap(), out);
+    }
+
     pub fn check_help(mut a: App, out: &str) {
         // We call a get_matches method to cause --help and --version to be built
         let _ = a.get_matches_from_safe_borrow(vec![""]);

@@ -42,6 +42,8 @@ pub struct Arg<'a, 'b>
     #[doc(hidden)]
     pub long: Option<&'b str>,
     #[doc(hidden)]
+    pub aliases: Option<Vec<(&'b str, bool)>>, // (name, visible)
+    #[doc(hidden)]
     pub help: Option<&'b str>,
     #[doc(hidden)]
     pub index: Option<u64>,
@@ -83,6 +85,7 @@ impl<'a, 'b> Default for Arg<'a, 'b> {
             name: "".as_ref(),
             short: None,
             long: None,
+            aliases: None,
             help: None,
             index: None,
             blacklist: None,
@@ -149,6 +152,7 @@ impl<'a, 'b> Arg<'a, 'b> {
             a = match k.as_str().unwrap() {
                 "short" => yaml_to_str!(a, v, short),
                 "long" => yaml_to_str!(a, v, long),
+                "aliases" => yaml_vec_or_str!(v, a, alias),
                 "help" => yaml_to_str!(a, v, help),
                 "required" => yaml_to_bool!(a, v, required),
                 "takes_value" => yaml_to_bool!(a, v, takes_value),
@@ -406,6 +410,118 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     pub fn long(mut self, l: &'b str) -> Self {
         self.long = Some(l.trim_left_matches(|c| c == '-'));
+        self
+    }
+
+    /// Allows adding a [`Arg`] alias, which function as "hidden" arguments that
+    /// automatically dispatch as if this argument was used. This is more efficient, and easier
+    /// than creating multiple hidden arguments as one only needs to check for the existence of
+    /// this command, and not all variants.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myprog")
+    ///             .arg(Arg::with_name("test")
+    ///             .long("test")
+    ///             .alias("alias")
+    ///             .takes_value(true))
+    ///        .get_matches_from(vec!["myprog", "--alias", "cool"]);
+    /// assert!(m.is_present("test"));
+    /// assert_eq!(m.value_of("test"), Some("cool"));
+    /// ```
+    /// [`Arg`]: ./struct.Arg.html
+    pub fn alias<S: Into<&'b str>>(mut self, name: S) -> Self {
+        if let Some(ref mut als) = self.aliases {
+            als.push((name.into(), false));
+        } else {
+            self.aliases = Some(vec![(name.into(), false)]);
+        }
+        self
+    }
+
+    /// Allows adding [`Arg`] aliases, which function as "hidden" arguments that
+    /// automatically dispatch as if this argument was used. This is more efficient, and easier
+    /// than creating multiple hidden subcommands as one only needs to check for the existence of
+    /// this command, and not all variants.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myprog")
+    ///             .arg(Arg::with_name("test")
+    ///                     .long("test")
+    ///                     .aliases(&["do-stuff", "do-tests", "tests"])
+    ///                     .help("the file to add")
+    ///                     .required(false))
+    ///             .get_matches_from(vec!["myprog", "--do-tests"]);
+    /// assert!(m.is_present("test"));
+    /// ```
+    /// [`Arg`]: ./struct.Arg.html
+    pub fn aliases(mut self, names: &[&'b str]) -> Self {
+        if let Some(ref mut als) = self.aliases {
+            for n in names {
+                als.push((n, false));
+            }
+        } else {
+            self.aliases = Some(names.iter().map(|n| (*n, false)).collect::<Vec<_>>());
+        }
+        self
+    }
+
+    /// Allows adding a [`Arg`] alias that functions exactly like those defined with
+    /// [`Arg::alias`], except that they are visible inside the help message.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myprog")
+    ///             .arg(Arg::with_name("test")
+    ///                 .visible_alias("something-awesome")
+    ///                 .long("test")
+    ///                 .takes_value(true))
+    ///        .get_matches_from(vec!["myprog", "--something-awesome", "coffee"]);
+    /// assert!(m.is_present("test"));
+    /// assert_eq!(m.value_of("test"), Some("coffee"));
+    /// ```
+    /// [`Arg`]: ./struct.Arg.html
+    /// [`App::alias`]: ./struct.Arg.html#method.alias
+    pub fn visible_alias<S: Into<&'b str>>(mut self, name: S) -> Self {
+        if let Some(ref mut als) = self.aliases {
+            als.push((name.into(), true));
+        } else {
+            self.aliases = Some(vec![(name.into(), true)]);
+        }
+        self
+    }
+
+    /// Allows adding multiple [`Arg`] aliases that functions exactly like those defined
+    /// with [`Arg::aliases`], except that they are visible inside the help message.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myprog")
+    ///             .arg(Arg::with_name("test")
+    ///                 .long("test")
+    ///                 .visible_aliases(&["something", "awesome", "cool"]))
+    ///        .get_matches_from(vec!["myprog", "--awesome"]);
+    /// assert!(m.is_present("test"));
+    /// ```
+    /// [`Arg`]: ./struct.Arg.html
+    /// [`App::aliases`]: ./struct.Arg.html#method.aliases
+    pub fn visible_aliases(mut self, names: &[&'b str]) -> Self {
+        if let Some(ref mut als) = self.aliases {
+            for n in names {
+                als.push((n, true));
+            }
+        } else {
+            self.aliases = Some(names.iter().map(|n| (*n, true)).collect::<Vec<_>>());
+        }
         self
     }
 
@@ -2380,6 +2496,7 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
             name: a.name,
             short: a.short,
             long: a.long,
+            aliases: a.aliases.clone(),
             help: a.help,
             index: a.index,
             possible_vals: a.possible_vals.clone(),
@@ -2407,6 +2524,7 @@ impl<'a, 'b> Clone for Arg<'a, 'b> {
             name: self.name,
             short: self.short,
             long: self.long,
+            aliases: self.aliases.clone(),
             help: self.help,
             index: self.index,
             possible_vals: self.possible_vals.clone(),

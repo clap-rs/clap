@@ -212,8 +212,8 @@ impl<'a> Help<'a> {
             }
         }
         let mut first = true;
-        for (_, btm) in ord_m.into_iter() {
-            for (_, arg) in btm.into_iter() {
+        for (_, btm) in ord_m {
+            for arg in btm.values() {
                 if !first {
                     try!(self.writer.write(b"\n"));
                 } else {
@@ -380,11 +380,11 @@ impl<'a> Help<'a> {
             help.push_str(h);
             &*help
         };
-        if help.contains("\n") {
-            if let Some(part) = help.split("\n").next() {
+        if help.contains('\n') {
+            if let Some(part) = help.split('\n').next() {
                 try!(write!(self.writer, "{}", part));
             }
-            for part in help.split("\n").skip(1) {
+            for part in help.split('\n').skip(1) {
                 try!(write!(self.writer, "\n{}", part));
             }
         } else {
@@ -464,11 +464,11 @@ impl<'a> Help<'a> {
             help.push_str(&*spec_vals);
             &*help
         };
-        if help.contains("\n") {
-            if let Some(part) = help.split("\n").next() {
+        if help.contains('\n') {
+            if let Some(part) = help.split('\n').next() {
                 try!(write!(self.writer, "{}", part));
             }
-            for part in help.split("\n").skip(1) {
+            for part in help.split('\n').skip(1) {
                 try!(write!(self.writer, "\n"));
                 if nlh || force_next_line {
                     try!(write!(self.writer, "{}{}{}", TAB, TAB, TAB));
@@ -616,14 +616,14 @@ impl<'a> Help<'a> {
         }
 
         let mut first = true;
-        for (_, btm) in ord_m.into_iter() {
-            for (_, sc) in btm.into_iter() {
+        for (_, btm) in ord_m {
+            for sc in btm.values() {
                 if !first {
                     try!(self.writer.write(b"\n"));
                 } else {
                     first = false;
                 }
-                try!(self.write_arg(&sc, longest));
+                try!(self.write_arg(sc, longest));
             }
         }
         Ok(())

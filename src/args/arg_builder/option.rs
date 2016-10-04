@@ -16,6 +16,7 @@ pub struct OptBuilder<'n, 'e> {
     pub name: &'n str,
     pub short: Option<char>,
     pub long: Option<&'e str>,
+    pub aliases: Option<Vec<(&'e str, bool)>>,
     pub help: Option<&'e str>,
     pub blacklist: Option<Vec<&'e str>>,
     pub possible_vals: Option<Vec<&'e str>>,
@@ -39,6 +40,7 @@ impl<'n, 'e> Default for OptBuilder<'n, 'e> {
             name: "",
             short: None,
             long: None,
+            aliases: None,
             help: None,
             blacklist: None,
             possible_vals: None,
@@ -74,6 +76,7 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
             name: a.name,
             short: a.short,
             long: a.long,
+            aliases: a.aliases.clone(),
             help: a.help,
             num_vals: a.num_vals,
             min_vals: a.min_vals,
@@ -157,6 +160,21 @@ impl<'n, 'e> Display for OptBuilder<'n, 'e> {
                         }));
         }
 
+        // Write aliases such as [aliases: alias, new-alias]
+        if let Some(ref vec) = self.aliases {
+            try!(write!(f, " [aliases: "));
+            let mut it = vec.iter().peekable();
+            while let Some(&(val, b)) = it.next() {
+                if b {
+                    try!(write!(f, "{}", val));
+                    if it.peek().is_some() {
+                        try!(write!(f, ", "));
+                    }
+                }
+            }
+            try!(write!(f, "]"));
+        }
+
         Ok(())
     }
 }
@@ -167,6 +185,7 @@ impl<'n, 'e> Clone for OptBuilder<'n, 'e> {
             name: self.name,
             short: self.short,
             long: self.long,
+            aliases: self.aliases.clone(),
             help: self.help,
             blacklist: self.blacklist.clone(),
             overrides: self.overrides.clone(),
@@ -252,7 +271,19 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
         true
     }
     fn aliases(&self) -> Option<Vec<&'e str>> {
-        None
+        if let Some(ref aliases) = self.aliases {
+            let vis_aliases: Vec<_> =
+                aliases.iter()
+                    .filter_map(|&(n, v)| if v { Some(n) } else { None })
+                    .collect();
+            if vis_aliases.is_empty() {
+                None
+            } else {
+                Some(vis_aliases)
+            }
+        } else {
+            None
+        }
     }
 }
 
@@ -302,5 +333,27 @@ mod test {
         o2.settings.set(ArgSettings::Multiple);
 
         assert_eq!(&*format!("{}", o2), "-o <file> <name>");
+    }
+
+    #[test]
+    fn optbuilder_display_single_alias() {
+        let mut o = OptBuilder::new("opt");
+        o.long = Some("option");
+        o.aliases = Some(vec![("als", true)]);
+
+        assert_eq!(&*format!("{}", o), "--option <opt> [aliases: als]");
+    }
+
+    #[test]
+    fn optbuilder_display_multiple_aliases() {
+        let mut o = OptBuilder::new("opt");
+        o.long = Some("option");
+        o.aliases = Some(vec![
+                         ("als_not_visible", false),
+                         ("als2", true),
+                         ("als3", true),
+                         ("als4", true)
+                    ]);
+        assert_eq!(&*format!("{}", o), "--option <opt> [aliases: als2, als3, als4]");
     }
 }
