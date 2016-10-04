@@ -353,32 +353,22 @@ impl<'a, 'b> Parser<'a, 'b>
         c_flags.dedup();
         c_opt.dedup();
         grps.dedup();
-        let mut args_in_groups = vec![];
-        for g in &grps {
-            for a in self.arg_names_in_group(g) {
-                args_in_groups.push(a);
-            }
-        }
+        let args_in_groups = grps.iter()
+                                 .flat_map(|g| self.arg_names_in_group(g) )
+                                 .collect::<Vec<_>>();
 
-        let mut pmap = BTreeMap::new();
-        for p in c_pos {
-            if matcher.is_some() && matcher.as_ref().unwrap().contains(p) {
-                continue;
-            }
-            if let Some(p) = self.positionals.values().find(|x| &x.name == &p) {
-                if args_in_groups.contains(&p.name) {
-                    continue;
-                }
-                pmap.insert(p.index, p.to_string());
-            }
-        }
+        let pmap = c_pos.into_iter()
+                        .filter(|&p| matcher.is_none() || !matcher.as_ref().unwrap().contains(p) )
+                        .filter_map(|p| self.positionals.values().find(|x| x.name == p ) )
+                        .filter(|p| !args_in_groups.contains(&p.name) )
+                        .map(|p| (p.index, p) )
+                        .collect::<BTreeMap<u64,&PosBuilder>>();// sort by index
         debugln!("args_in_groups={:?}", args_in_groups);
-        for (_, s) in pmap {
-            if (!args_in_groups.is_empty()) && (args_in_groups.contains(&&*s)) {
-                continue;
+        for &p in pmap.values() {
+            let s = p.to_string();
+            if args_in_groups.is_empty() || !args_in_groups.contains(&&*s) {
+                ret_val.push_back(s);
             }
-
-            ret_val.push_back(s);
         }
         macro_rules! write_arg {
             ($i:expr, $m:ident, $v:ident, $r:ident, $aig:ident) => {
