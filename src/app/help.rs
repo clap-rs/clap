@@ -381,10 +381,10 @@ impl<'a> Help<'a> {
             &*help
         };
         if help.contains('\n') {
-            if let Some(part) = help.split('\n').next() {
+            if let Some(part) = help.lines().next() {
                 try!(write!(self.writer, "{}", part));
             }
-            for part in help.split('\n').skip(1) {
+            for part in help.lines().skip(1) {
                 try!(write!(self.writer, "\n{}", part));
             }
         } else {
@@ -465,10 +465,10 @@ impl<'a> Help<'a> {
             &*help
         };
         if help.contains('\n') {
-            if let Some(part) = help.split('\n').next() {
+            if let Some(part) = help.lines().next() {
                 try!(write!(self.writer, "{}", part));
             }
-            for part in help.split('\n').skip(1) {
+            for part in help.lines().skip(1) {
                 try!(write!(self.writer, "\n"));
                 if nlh || force_next_line {
                     try!(write!(self.writer, "{}{}{}", TAB, TAB, TAB));
