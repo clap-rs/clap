@@ -729,3 +729,174 @@ fn multiple_values_no_sep_positional() {
     assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(m.value_of("option").unwrap(), "val1,val2,val3");
 }
+
+#[test]
+fn multiple_values_req_delimiter_long() {
+    let m = App::new("multiple_values")
+        .arg(Arg::with_name("option")
+            .long("option")
+            .multiple(true)
+            .use_delimiter(true)
+            .require_delimiter(true)
+            .takes_value(true))
+        .arg(Arg::with_name("args")
+            .multiple(true)
+            .index(1))
+        .get_matches_from_safe(vec![
+            "",
+            "--option", "val1", "val2", "val3",
+        ]);
+
+    assert!(m.is_ok());
+    let m = m.unwrap();
+
+    assert!(m.is_present("option"));
+    assert_eq!(m.occurrences_of("option"), 1);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), &["val1"]);
+    assert_eq!(m.values_of("args").unwrap().collect::<Vec<_>>(), &["val2", "val3"]);
+}
+
+#[test]
+fn multiple_values_req_delimiter_long_with_equal() {
+    let m = App::new("multiple_values")
+        .arg(Arg::with_name("option")
+            .long("option")
+            .multiple(true)
+            .use_delimiter(true)
+            .require_delimiter(true)
+            .takes_value(true))
+        .arg(Arg::with_name("args")
+            .multiple(true)
+            .index(1))
+        .get_matches_from_safe(vec![
+            "",
+            "--option=val1", "val2", "val3",
+        ]);
+
+    assert!(m.is_ok());
+    let m = m.unwrap();
+
+    assert!(m.is_present("option"));
+    assert_eq!(m.occurrences_of("option"), 1);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), &["val1"]);
+    assert_eq!(m.values_of("args").unwrap().collect::<Vec<_>>(), &["val2", "val3"]);
+}
+
+#[test]
+fn multiple_values_req_delimiter_short_with_space() {
+    let m = App::new("multiple_values")
+        .arg(Arg::with_name("option")
+            .short("o")
+            .multiple(true)
+            .use_delimiter(true)
+            .require_delimiter(true)
+            .takes_value(true))
+        .arg(Arg::with_name("args")
+            .multiple(true)
+            .index(1))
+        .get_matches_from_safe(vec![
+            "",
+            "-o", "val1", "val2", "val3",
+        ]);
+
+    assert!(m.is_ok());
+    let m = m.unwrap();
+
+    assert!(m.is_present("option"));
+    assert_eq!(m.occurrences_of("option"), 1);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), &["val1"]);
+    assert_eq!(m.values_of("args").unwrap().collect::<Vec<_>>(), &["val2", "val3"]);
+}
+
+#[test]
+fn multiple_values_req_delimiter_short_with_no_space() {
+    let m = App::new("multiple_values")
+        .arg(Arg::with_name("option")
+            .short("o")
+            .multiple(true)
+            .use_delimiter(true)
+            .require_delimiter(true)
+            .takes_value(true))
+        .arg(Arg::with_name("args")
+            .multiple(true)
+            .index(1))
+        .get_matches_from_safe(vec![
+            "",
+            "-oval1", "val2", "val3",
+        ]);
+
+    assert!(m.is_ok());
+    let m = m.unwrap();
+
+    assert!(m.is_present("option"));
+    assert_eq!(m.occurrences_of("option"), 1);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), &["val1"]);
+    assert_eq!(m.values_of("args").unwrap().collect::<Vec<_>>(), &["val2", "val3"]);
+}
+
+#[test]
+fn multiple_values_req_delimiter_short_with_equal() {
+    let m = App::new("multiple_values")
+        .arg(Arg::with_name("option")
+            .short("option")
+            .multiple(true)
+            .use_delimiter(true)
+            .require_delimiter(true)
+            .takes_value(true))
+        .arg(Arg::with_name("args")
+            .multiple(true)
+            .index(1))
+        .get_matches_from_safe(vec![
+            "",
+            "-o=val1", "val2", "val3",
+        ]);
+
+    assert!(m.is_ok());
+    let m = m.unwrap();
+
+    assert!(m.is_present("option"));
+    assert_eq!(m.occurrences_of("option"), 1);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), &["val1"]);
+    assert_eq!(m.values_of("args").unwrap().collect::<Vec<_>>(), &["val2", "val3"]);
+}
+
+#[test]
+fn multiple_values_req_delimiter_complex() {
+    let m = App::new("multiple_values")
+        .arg(Arg::with_name("option")
+            .long("option")
+            .short("o")
+            .multiple(true)
+            .use_delimiter(true)
+            .require_delimiter(true)
+            .takes_value(true))
+        .arg(Arg::with_name("args")
+            .multiple(true)
+            .index(1))
+        .get_matches_from_safe(vec![
+            "",
+            "val1",
+            "-oval2", "val3",
+            "-o", "val4", "val5",
+            "-o=val6", "val7",
+            "--option=val8", "val9",
+            "--option", "val10", "val11",
+            "-oval12,val13", "val14",
+            "-o", "val15,val16", "val17",
+            "-o=val18,val19", "val20",
+            "--option=val21,val22", "val23",
+            "--option", "val24,val25", "val26"
+        ]);
+
+    assert!(m.is_ok());
+    let m = m.unwrap();
+
+    assert!(m.is_present("option"));
+    assert_eq!(m.occurrences_of("option"), 10);
+    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(),
+        &["val2", "val4", "val6", "val8", "val10", "val12", "val13", "val15",
+          "val16", "val18", "val19", "val21", "val22", "val24", "val25"]);
+    assert_eq!(m.values_of("args").unwrap().collect::<Vec<_>>(),
+        &["val1", "val3", "val5", "val7", "val9", "val11", "val14", "val17",
+          "val20", "val23", "val26"]);
+}
