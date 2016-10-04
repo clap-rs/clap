@@ -165,7 +165,7 @@ fn test_enums() {
 #[test]
 fn create_app() {
     let _ =
-        App::new("test").version("1.0").author("kevin").about("does awesome things").get_matches();
+        App::new("test").version("1.0").author("kevin").about("does awesome things").get_matches_from(vec![""]);
 }
 
 #[test]
@@ -174,7 +174,7 @@ fn add_multiple_arg() {
                 .args(&mut [
                     Arg::with_name("test").short("s"),
                     Arg::with_name("test2").short("l")])
-                .get_matches();
+                .get_matches_from(vec![""]);
 }
 #[test]
 fn flag_x2_opt() {

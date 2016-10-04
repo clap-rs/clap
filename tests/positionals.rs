@@ -143,7 +143,7 @@ fn create_positional() {
                 .arg(Arg::with_name("test")
                             .index(1)
                             .help("testing testing"))
-                .get_matches();
+                .get_matches_from(vec![""]);
 }
 
 #[test]
