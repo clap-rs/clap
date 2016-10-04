@@ -183,11 +183,11 @@ impl<'a> Help<'a> {
         }
         let mut first = true;
         for arg in arg_v {
-            if !first {
-                try!(self.writer.write(b"\n"));
-            } else {
+            if first {
                 first = false;
-            };
+            } else {
+                try!(self.writer.write(b"\n"));
+            }
             try!(self.write_arg(arg.as_base(), longest));
         }
         Ok(())
@@ -212,12 +212,12 @@ impl<'a> Help<'a> {
             }
         }
         let mut first = true;
-        for (_, btm) in ord_m {
+        for btm in ord_m.values() {
             for arg in btm.values() {
-                if !first {
-                    try!(self.writer.write(b"\n"));
-                } else {
+                if first {
                     first = false;
+                } else {
+                    try!(self.writer.write(b"\n"));
                 }
                 try!(self.write_arg(arg.as_base(), longest));
             }
@@ -616,12 +616,12 @@ impl<'a> Help<'a> {
         }
 
         let mut first = true;
-        for (_, btm) in ord_m {
+        for btm in ord_m.values() {
             for sc in btm.values() {
-                if !first {
-                    try!(self.writer.write(b"\n"));
-                } else {
+                if first {
                     first = false;
+                } else {
+                    try!(self.writer.write(b"\n"));
                 }
                 try!(self.write_arg(sc, longest));
             }
