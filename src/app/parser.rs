@@ -355,13 +355,13 @@ impl<'a, 'b> Parser<'a, 'b>
         grps.dedup();
         let mut args_in_groups = vec![];
         for g in &grps {
-            for a in self.arg_names_in_group(g).into_iter() {
+            for a in self.arg_names_in_group(g) {
                 args_in_groups.push(a);
             }
         }
 
         let mut pmap = BTreeMap::new();
-        for p in c_pos.into_iter() {
+        for p in c_pos {
             if matcher.is_some() && matcher.as_ref().unwrap().contains(p) {
                 continue;
             }
@@ -382,7 +382,7 @@ impl<'a, 'b> Parser<'a, 'b>
         }
         macro_rules! write_arg {
             ($i:expr, $m:ident, $v:ident, $r:ident, $aig:ident) => {
-                for f in $v.into_iter() {
+                for f in $v {
                     if $m.is_some() && $m.as_ref().unwrap().contains(f) || $aig.contains(&f) {
                         continue;
                     }
@@ -393,13 +393,13 @@ impl<'a, 'b> Parser<'a, 'b>
         write_arg!(self.flags.iter(), matcher, c_flags, ret_val, args_in_groups);
         write_arg!(self.opts.iter(), matcher, c_opt, ret_val, args_in_groups);
         let mut g_vec = vec![];
-        for g in grps.into_iter() {
+        for g in grps {
             let g_string = self.args_in_group(g)
                 .join("|");
             g_vec.push(format!("<{}>", &g_string[..g_string.len()]));
         }
         g_vec.dedup();
-        for g in g_vec.into_iter() {
+        for g in g_vec {
             ret_val.push_back(g);
         }
 

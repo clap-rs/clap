@@ -928,7 +928,7 @@ impl<'a, 'b> App<'a, 'b> {
     pub fn subcommands<I>(mut self, subcmds: I) -> Self
         where I: IntoIterator<Item = App<'a, 'b>>
     {
-        for subcmd in subcmds.into_iter() {
+        for subcmd in subcmds {
             self.p.add_subcommand(subcmd);
         }
         self

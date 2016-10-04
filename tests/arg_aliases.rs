@@ -12,12 +12,10 @@ USAGE:
     test [FLAGS] [OPTIONS]
 
 FLAGS:
-    -f, --flag                                  
-            flag with aliases [aliases: v_flg, flag2, flg3]
+    -f, --flag                                   [aliases: v_flg, flag2, flg3]
 
 OPTIONS:
-    -o, --opt <opt>
-            help for option with alias [aliases: visible]";
+    -o, --opt <opt>     [aliases: visible]";
 
 static SC_INVISIBLE_ALIAS_HELP: &'static str = "test 
 Some help
@@ -26,10 +24,10 @@ USAGE:
     test [FLAGS] [OPTIONS]
 
 FLAGS:
-    -f, --flag                flag with aliases
+    -f, --flag                
 
 OPTIONS:
-    -o, --opt <opt>    help for option with alias";
+    -o, --opt <opt>    ";
 
 #[test]
 fn single_alias_of_option() {
@@ -169,13 +167,9 @@ fn invisible_arg_aliases_help_output() {
             .arg(Arg::with_name("opt")
                 .long("opt")
                 .short("o")
-                .help("help for option with alias")
                 .takes_value(true)
                 .aliases(&["invisible", "als1", "more"]))
-            .arg(Arg::with_name("flg")
-                .long("flag")
-                .short("f")
-                .help("flag with aliases")
+            .arg(Arg::from_usage("-f, --flag")
                 .aliases(&["invisible", "flg1", "anyway"])));
     test::check_subcommand_help(app, "test", SC_INVISIBLE_ALIAS_HELP);
 }
@@ -189,14 +183,12 @@ fn visible_arg_aliases_help_output() {
             .arg(Arg::with_name("opt")
                 .long("opt")
                 .short("o")
-                .help("help for option with alias")
                 .takes_value(true)
                 .alias("invisible")
                 .visible_alias("visible"))
             .arg(Arg::with_name("flg")
                 .long("flag")
                 .short("f")
-                .help("flag with aliases")
                 .visible_aliases(&["v_flg", "flag2", "flg3"])));
     test::check_subcommand_help(app, "test", SC_VISIBLE_ALIAS_HELP);
 }

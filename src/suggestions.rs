@@ -17,7 +17,7 @@ pub fn did_you_mean<'a, T, I>(v: &str, possible_values: I) -> Option<&'a str>
 {
 
     let mut candidate: Option<(f64, &str)> = None;
-    for pv in possible_values.into_iter() {
+    for pv in possible_values {
         let confidence = strsim::jaro_winkler(v, pv.as_ref());
         if confidence > 0.8 &&
            (candidate.is_none() || (candidate.as_ref().unwrap().0 < confidence)) {
