@@ -1013,7 +1013,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// use std::io;
     /// let mut app = App::new("myprog");
     /// let mut out = io::stdout();
-    /// app.write_help(&mut out).ok().expect("failed to write to stdout");
+    /// app.write_help(&mut out).expect("failed to write to stdout");
     /// ```
     /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
     pub fn write_help<W: Write>(&self, w: &mut W) -> ClapResult<()> {
@@ -1029,7 +1029,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// use std::io;
     /// let mut app = App::new("myprog");
     /// let mut out = io::stdout();
-    /// app.write_version(&mut out).ok().expect("failed to write to stdout");
+    /// app.write_version(&mut out).expect("failed to write to stdout");
     /// ```
     /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
     pub fn write_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {

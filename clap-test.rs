@@ -57,7 +57,7 @@ mod test {
 
         // Now we check the output of print_help()
         let mut help = vec![];
-        sc.write_help(&mut help).ok().expect("failed to print help");
+        sc.write_help(&mut help).expect("failed to print help");
         assert_eq!(str::from_utf8(&help).unwrap(), out);
     }
 
@@ -67,7 +67,7 @@ mod test {
 
         // Now we check the output of print_help()
         let mut help = vec![];
-        a.write_help(&mut help).ok().expect("failed to print help");
+        a.write_help(&mut help).expect("failed to print help");
         assert_eq!(str::from_utf8(&help).unwrap(), out);
     }
 
@@ -77,7 +77,7 @@ mod test {
 
         // Now we check the output of print_version()
         let mut ver = vec![];
-        a.write_version(&mut ver).ok().expect("failed to print help");
+        a.write_version(&mut ver).expect("failed to print help");
         assert_eq!(str::from_utf8(&ver).unwrap(), out);
     }
 
