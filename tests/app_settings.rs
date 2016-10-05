@@ -88,7 +88,7 @@ fn unified_help() {
 
     // Now we check the output of print_help()
     let mut help = vec![];
-    app.write_help(&mut help).ok().expect("failed to print help");
+    app.write_help(&mut help).expect("failed to print help");
     assert_eq!(&*String::from_utf8_lossy(&*help), &*String::from("test 1.3\n\
 Kevin K.
 tests stuff

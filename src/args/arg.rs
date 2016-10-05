@@ -141,7 +141,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     #[cfg(feature = "yaml")]
-    pub fn from_yaml<'y>(y: &'y BTreeMap<Yaml, Yaml>) -> Arg<'y, 'y> {
+    pub fn from_yaml(y: &BTreeMap<Yaml, Yaml>) -> Arg {
         // We WANT this to panic on error...so expect() is good.
         let name_yml = y.keys().nth(0).unwrap();
         let name_str = name_yml.as_str().unwrap();

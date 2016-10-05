@@ -115,7 +115,6 @@ arg_enum!{
 }
 
 #[test]
-#[cfg_attr(feature = "lints", allow(single_match))]
 fn test_enums() {
     let v1_lower = "valone";
     let v1_camel = "ValOne";

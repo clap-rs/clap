@@ -1013,7 +1013,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// use std::io;
     /// let mut app = App::new("myprog");
     /// let mut out = io::stdout();
-    /// app.write_help(&mut out).ok().expect("failed to write to stdout");
+    /// app.write_help(&mut out).expect("failed to write to stdout");
     /// ```
     /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
     pub fn write_help<W: Write>(&self, w: &mut W) -> ClapResult<()> {
@@ -1029,7 +1029,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// use std::io;
     /// let mut app = App::new("myprog");
     /// let mut out = io::stdout();
-    /// app.write_version(&mut out).ok().expect("failed to write to stdout");
+    /// app.write_version(&mut out).expect("failed to write to stdout");
     /// ```
     /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
     pub fn write_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
@@ -1422,16 +1422,14 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
                     a = a.setting(s.parse().expect("unknown AppSetting found in YAML file"));
                 }
             }
-        } else {
-            if let Some(v) = yaml["settings"].as_str() {
-                a = a.setting(v.parse().expect("unknown AppSetting found in YAML file"));
-            } else if yaml["settings"] != Yaml::BadValue {
-                panic!("Failed to convert YAML value {:?} to a string",
-                       yaml["settings"]);
-            }
+        } else if let Some(v) = yaml["settings"].as_str() {
+            a = a.setting(v.parse().expect("unknown AppSetting found in YAML file"));
+        } else if yaml["settings"] != Yaml::BadValue {
+            panic!("Failed to convert YAML value {:?} to a string",
+                   yaml["settings"]);
         }
         if let Some(v) = yaml["global_setting"].as_str() {
-            a = a.setting(v.parse().ok().expect("unknown AppSetting found in YAML file"));
+            a = a.setting(v.parse().expect("unknown AppSetting found in YAML file"));
         } else if yaml["global_setting"] != Yaml::BadValue {
             panic!("Failed to convert YAML value {:?} to an AppSetting",
                    yaml["setting"]);
@@ -1440,17 +1438,14 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
             for ys in v {
                 if let Some(s) = ys.as_str() {
                     a = a.global_setting(s.parse()
-                        .ok()
                         .expect("unknown AppSetting found in YAML file"));
                 }
             }
-        } else {
-            if let Some(v) = yaml["global_settings"].as_str() {
-                a = a.global_setting(v.parse().expect("unknown AppSetting found in YAML file"));
-            } else if yaml["global_settings"] != Yaml::BadValue {
-                panic!("Failed to convert YAML value {:?} to a string",
-                       yaml["global_settings"]);
-            }
+        } else if let Some(v) = yaml["global_settings"].as_str() {
+            a = a.global_setting(v.parse().expect("unknown AppSetting found in YAML file"));
+        } else if yaml["global_settings"] != Yaml::BadValue {
+            panic!("Failed to convert YAML value {:?} to a string",
+                   yaml["global_settings"]);
         }
 
         macro_rules! vec_or_str {
@@ -1481,12 +1476,12 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
 
         if let Some(v) = yaml["args"].as_vec() {
             for arg_yaml in v {
-                a = a.arg(Arg::from_yaml(&arg_yaml.as_hash().unwrap()));
+                a = a.arg(Arg::from_yaml(arg_yaml.as_hash().unwrap()));
             }
         }
         if let Some(v) = yaml["subcommands"].as_vec() {
             for sc_yaml in v {
-                a = a.subcommand(SubCommand::from_yaml(&sc_yaml));
+                a = a.subcommand(SubCommand::from_yaml(sc_yaml));
             }
         }
         if let Some(v) = yaml["groups"].as_vec() {

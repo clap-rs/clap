@@ -62,7 +62,7 @@ impl<'a> SubCommand<'a> {
     /// let sc = SubCommand::from_yaml(sc_yaml);
     /// ```
     #[cfg(feature = "yaml")]
-    pub fn from_yaml<'y>(yaml: &'y Yaml) -> App<'y, 'y> {
+    pub fn from_yaml(yaml: &Yaml) -> App {
         App::from_yaml(yaml)
     }
 }
