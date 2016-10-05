@@ -57,9 +57,13 @@ impl<'a> SubCommand<'a> {
     /// # Examples
     ///
     /// ```ignore
-    /// # use clap::{App, Arg, SubCommand};
+    /// # #[macro_use]
+    /// # extern crate clap;
+    /// # use clap::Subcommand;
+    /// # fn main() {
     /// let sc_yaml = load_yaml!("test_subcommand.yml");
     /// let sc = SubCommand::from_yaml(sc_yaml);
+    /// # }
     /// ```
     #[cfg(feature = "yaml")]
     pub fn from_yaml(yaml: &Yaml) -> App {

@@ -13,11 +13,15 @@
 /// of an `App` struct.
 ///
 /// ```ignore
+/// # #[macro_use]
+/// # extern crate clap;
 /// # use clap::App;
+/// # fn main() {
 /// let yml = load_yaml!("app.yml");
 /// let app = App::from_yaml(yml);
 ///
 /// // continued logic goes here, such as `app.get_matches()` etc.
+/// # }
 /// ```
 #[cfg(feature = "yaml")]
 #[macro_export]
