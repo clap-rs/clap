@@ -13,9 +13,9 @@ const STDERR: i32 = libc::STDERR_FILENO;
 #[cfg(all(feature = "color", not(target_os = "windows")))]
 const STDOUT: i32 = libc::STDOUT_FILENO;
 
-#[cfg(any(not(feature = "color"), target_os = "windows"))]
+#[cfg(target_os = "windows")]
 const STDERR: i32 = 0;
-#[cfg(any(not(feature = "color"), target_os = "windows"))]
+#[cfg(target_os = "windows")]
 const STDOUT: i32 = 0;
 
 #[doc(hidden)]
@@ -127,6 +127,7 @@ impl<T: AsRef<str>> Format<T> {
 }
 
 #[cfg(any(not(feature = "color"), target_os = "windows"))]
+#[allow(match_same_arms)]
 impl<T: fmt::Display> Format<T> {
     fn format(&self) -> &T {
         match *self {
