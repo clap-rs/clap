@@ -377,8 +377,9 @@ pub enum AppSettings {
     ///
     #[cfg_attr(not(unix), doc=" ```ignore")]
     #[cfg_attr(    unix , doc=" ```")]
-    /// # use clap::{App, Arg, AppSettings, ErrorKind};
+    /// # use clap::{App, AppSettings, ErrorKind};
     /// use std::ffi::OsString;
+    /// use std::os::unix::ffi::OsStringExt;
     ///
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::StrictUtf8)
@@ -390,7 +391,6 @@ pub enum AppSettings {
     ///
     /// assert!(m.is_err());
     /// assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidUtf8);
-    /// }
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`ErrorKind::InvalidUtf8`]: ./enum.ErrorKind.html#variant.InvalidUtf8
@@ -414,12 +414,12 @@ pub enum AppSettings {
     ///
     #[cfg_attr(not(unix), doc=" ```ignore")]
     #[cfg_attr(    unix , doc=" ```")]
-    /// # use clap::{App, Arg, AppSettings};
+    /// # use clap::{App, AppSettings};
     /// use std::ffi::OsString;
-    /// use std::os::unix::ffi::OsStrExt;
+    /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
     ///
     /// let r = App::new("myprog")
-    ///     .setting(AppSettings::StrictUtf8)
+    ///   //.setting(AppSettings::AllowInvalidUtf8)
     ///     .arg_from_usage("<arg> 'some positional arg'")
     ///     .get_matches_from_safe(
     ///         vec![

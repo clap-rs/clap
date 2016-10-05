@@ -295,7 +295,7 @@ pub enum ErrorKind {
     ///         .short("u")
     ///         .takes_value(true))
     ///     .get_matches_from_safe(vec![OsString::from("myprog"),
-    ///                                 OsString::from("-u")
+    ///                                 OsString::from("-u"),
     ///                                 OsString::from_vec(vec![0xE9])]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidUtf8);
