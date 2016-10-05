@@ -149,7 +149,8 @@
 //!
 //! The following combines the previous two examples by using the less verbose `from_usage` methods and the performance of the Builder Pattern.
 //!
-//! ```ignore
+#![cfg_attr(not(feature="unstable"), doc=" ```ignore")]
+#![cfg_attr(    feature="unstable" , doc=" ```no_run")]
 //! // (Full example with detailed comments in examples/01c_quick_example.rs)
 //! // Must be compiled with `--features unstable`
 //! //
@@ -286,7 +287,7 @@
 //!
 //! * Add the following to your `src/main.rs`
 //!
-//! ```ignore
+//! ```no_run
 //! extern crate clap;
 //! use clap::App;
 //!

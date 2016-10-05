@@ -1051,7 +1051,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// First, it helps if we separate out our `App` definition into a seperate file. Whether you
     /// do this as a function, or bare App definition is a matter of personal preference.
     ///
-    /// ```ignore
+    /// ```
     /// // src/cli.rs
     ///
     /// use clap::{App, Arg, SubCommand};
