@@ -55,7 +55,8 @@ pub enum ErrorKind {
     ///
     /// # Examples
     ///
-    /// ```rust
+    #[cfg_attr(not(feature="suggestions"), doc=" ```no_run")]
+    #[cfg_attr(    feature="suggestions" , doc=" ```")]
     /// # use clap::{App, Arg, ErrorKind, SubCommand};
     /// let result = App::new("myprog")
     ///     .subcommand(SubCommand::with_name("config")

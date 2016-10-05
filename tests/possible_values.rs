@@ -5,10 +5,20 @@ include!("../clap-test.rs");
 
 use clap::{App, Arg, ErrorKind};
 
+#[cfg(feature="suggestions")]
 static PV_ERROR: &'static str = "error: 'slo' isn't a valid value for '--Option <option3>'
 \t[values: fast, slow]
 
 \tDid you mean 'slow'?
+
+USAGE:
+    clap-test --Option <option3>
+
+For more information try --help";
+#[cfg(not(feature="suggestions"))]
+static PV_ERROR: &'static str = "error: 'slo' isn't a valid value for '--Option <option3>'
+\t[values: fast, slow]
+
 
 USAGE:
     clap-test --Option <option3>
