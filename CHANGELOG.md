@@ -1,3 +1,21 @@
+<a name="v2.14.0"></a>
+## v2.14.0 (2016-10-05)
+
+
+#### Features
+
+* **arg_aliases:**  Ability to alias arguments ([33b5f6ef](https://github.com/kbknapp/clap-rs/commit/33b5f6ef2c9612ecabb31f96b824793e46bfd3dd), closes [#669](https://github.com/kbknapp/clap-rs/issues/669))
+* **flag_aliases:**  Ability to alias flags ([40d6dac9](https://github.com/kbknapp/clap-rs/commit/40d6dac973927dded6ab423481634ef47ee7bfd7))
+
+#### Bug Fixes
+
+* **UsageParser:**  Handle non-ascii names / options. ([1d6a7c6e](https://github.com/kbknapp/clap-rs/commit/1d6a7c6e7e6aadc527346aa822f19d8587f714f3), closes [#664](https://github.com/kbknapp/clap-rs/issues/664))
+
+#### Documentation
+
+*   typo ([bac417fa](https://github.com/kbknapp/clap-rs/commit/bac417fa1cea3d32308334c7cccfcf54546cd9d8))
+
+
 <a name="v2.13.0"></a>
 ## v2.13.0 (2016-09-18)
 

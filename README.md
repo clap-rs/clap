@@ -41,6 +41,14 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.14.0
+
+* One can now alias arguments either visibly (whichc appears in the help text) or invisibly just like subcommands!
+* The `from_usage` parser now correctly handles non-ascii names / options and help!
+* Fixes a bug in the `require_delimiter` code which caused some incorrect parses
+* Fixes various typos in the docs
+* Various other small performance improvements and enhancements
+
 Here's the highlights for v2.13.0
 
 * **Value Delimiters:**  fixes the confusion around implicitly setting value delimiters. (The default is to *not* use a delimiter unless explicitly set)
