@@ -966,7 +966,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// The above example displays the following help message
     ///
-    /// ```ignore
+    /// ```text
     /// cust-ord
     ///
     /// USAGE:
@@ -1087,7 +1087,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// Next, we set up our `Cargo.toml` to use a `build.rs` build script.
     ///
-    /// ```ignore
+    /// ```toml
     /// # Cargo.toml
     /// build = "build.rs"
     ///

@@ -428,7 +428,7 @@ impl<'a> ArgMatches<'a> {
     /// Given the above fictional subcommand hierarchy, valid runtime uses would be (not an all
     /// inclusive list, and not including argument options per command for brevity and clarity):
     ///
-    /// ```ignore
+    /// ```sh
     /// $ git clone url
     /// $ git push origin path
     /// $ git add ref local

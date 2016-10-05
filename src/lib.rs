@@ -236,7 +236,7 @@
 //!
 //! If you were to compile any of the above programs and run them with the flag `--help` or `-h` (or `help` subcommand, since we defined `test` as a subcommand) the following would be output
 //!
-//! ```ignore
+//! ```text
 //! $ myprog --help
 //! My Super Program 1.0
 //! Kevin K. <kbknapp@gmail.com>
@@ -368,7 +368,7 @@
 //!
 //! If contributing, you can run the tests as follows (assuming you're in the `clap-rs` directory)
 //!
-//! ```ignore
+//! ```sh
 //! $ cargo test && make -C clap-tests test
 //! $ cargo test --features yaml
 //!
