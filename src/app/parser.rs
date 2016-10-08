@@ -229,7 +229,7 @@ impl<'a, 'b> Parser<'a, 'b>
 
     pub fn add_subcommand(&mut self, mut subcmd: App<'a, 'b>) {
         debugln!("fn=Parser::add_subcommand;");
-        debugln!("Term widnth...{:?}", self.meta.term_w);
+        debugln!("Term width...{:?}", self.meta.term_w);
         subcmd.p.meta.term_w = self.meta.term_w;
         debug!("Is help...");
         if subcmd.p.meta.name == "help" {
