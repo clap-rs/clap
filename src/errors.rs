@@ -36,7 +36,7 @@ pub enum ErrorKind {
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     InvalidValue,
-    /// Occurs when a user provides a flag, option, or argument which wasn't defined.
+    /// Occurs when a user provides a flag, option, argument or subcommand which isn't defined.
     ///
     /// # Examples
     ///
@@ -49,9 +49,10 @@ pub enum ErrorKind {
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
     UnknownArgument,
-    /// Occurs when the user provids an unrecognized [`SubCommand`] which meets the threshold for
-    /// being similar enough to an existing subcommand so as to not cause the more general
-    /// [`UnknownArgument`] error.
+    /// Occurs when the user provides an unrecognized [`SubCommand`] which meets the threshold for
+    /// being similar enough to an existing subcommand.  
+    /// If it doesn't meet the threshold, or the 'suggestions' feature is disabled,
+    /// the more general [`UnknownArgument`] error is returned.
     ///
     /// # Examples
     ///
@@ -71,9 +72,10 @@ pub enum ErrorKind {
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`UnknownArgument`]: ./enum.ErrorKind.html#variant.UnknownArgument
     InvalidSubcommand,
-    /// Occurs when the user provids an unrecognized [`SubCommand`] which does not meet the
-    /// threshold for being similar enough to an existing subcommand so as to not cause the more
-    /// detailed [`InvalidSubcommand`] error.
+    /// Occurs when the user provides an unrecognized [`SubCommand`] which either
+    /// doesn't meet the threshold for being similar enough to an existing subcommand,
+    /// or the 'sggestions' feature is disabled.  
+    /// Otherwise the more detailed [`InvalidSubcommand`] error is returned.
     ///
     /// This error typically happens when passing additional subcommand names to the `help`
     /// subcommand. Otherwise, the more general [`UnknownArgument`] error is used.
