@@ -117,13 +117,15 @@
 //! }
 //! ```
 //!
-//! The following example is functionally the same as the one above, but shows a far less verbose method but sacrifices some of the advanced configuration options (not shown in this small example).
+//! The following example is functionally the same as the one above,
+//! but shows a far less verbose method but sacrifices some of the advanced configuration options
+//! (not shown in this small example).
 //!
 //! ```no_run
 //! // (Full example with detailed comments in examples/01a_quick_example.rs)
 //! //
-//! // This example demonstrates clap's "usage strings" method of creating arguments which is less
-//! // less verbose
+//! // This example demonstrates clap's "usage strings" method of creating arguments
+//! // which is less verbose
 //! extern crate clap;
 //! use clap::{Arg, App, SubCommand};
 //!
@@ -152,10 +154,10 @@
 #![cfg_attr(not(feature="unstable"), doc=" ```ignore")]
 #![cfg_attr(    feature="unstable" , doc=" ```no_run")]
 //! // (Full example with detailed comments in examples/01c_quick_example.rs)
-//! // Must be compiled with `--features unstable`
+//! // Must be compiled with `--features unstable` (which doesn't require nightly Rust).
 //! //
-//! // This example demonstrates clap's "usage strings" method of creating arguments which is less
-//! // less verbose
+//! // This example demonstrates clap's "usage strings" method of creating arguments
+//! // which is less less verbose
 //! #[macro_use]
 //! extern crate clap;
 //!
@@ -303,11 +305,12 @@
 //!
 //! For full usage, add `clap` as a dependency in your `Cargo.toml` file to use from crates.io:
 //!
-//!  ```toml
-//!  [dependencies]
-//!  clap = "2"
-//!  ```
-//!  Or track the latest on the master branch at github:
+//! ```toml
+//! [dependencies]
+//! clap = "2"
+//! ```
+//!
+//! Or get the latest changes from the master branch at github:
 //!
 //! ```toml
 //! [dependencies.clap]
@@ -322,7 +325,13 @@
 //!
 //! ### Optional Dependencies / Features
 //!
-//! If you'd like to keep your dependency list to **only** `clap`, you can disable any features that require an additional dependency. To do this, add this to your `Cargo.toml`:
+//! #### Features enabled by default
+//!
+//! * **"suggestions"**: Turns on the `Did you mean '--myoption'?` feature for when users make typos.
+//! * **"color"**: Turns on colored error messages. This feature only works on non-Windows OSs.
+//! * **"wrap_help"**: Wraps the help at the actual terminal width when available, instead of 120 chracters.
+//!
+//! To disable these, add this to your `Cargo.toml`:
 //!
 //! ```toml
 //! [dependencies.clap]
@@ -341,14 +350,10 @@
 //! features = [ "suggestions", "color" ]
 //! ```
 //!
-//! The following is a list of optional `clap` features:
+//! #### Opt-in features
 //!
-//! * **"suggestions"**: Turns on the `Did you mean '--myoption'?` feature for when users make typos.
-//! * **"color"**: Turns on colored error messages. This feature only works on non-Windows OSs.
-//! * **"lints"**: This is **not** included by default and should only be used while developing to run basic lints against changes. This can only be used on Rust nightly.
-//! * **"debug"**: This is **not** included by default and should only be used while developing to display debugging information.
-//! * **"yaml"**: This is **not** included by default. Enables building CLIs from YAML documents.
-//! * **"unstable"**: This is **not** included by default. Enables unstable features, unstable refers to whether or not they may change, not performance stability.
+//! * **"yaml"**: Enables building CLIs from YAML documents.
+//! * **"unstable"**: Enables clap features whoose API might change without a major version bump. Doesn't require nightly Rust. Currently `clap_app!`.
 //!
 //! ### More Information
 //!
@@ -364,17 +369,22 @@
 //!
 //! *Note*: Apologies for the resolution of the first video, it will be updated to a better resolution soon. The other videos have a proper resolution.
 //!
-//! ### Running the tests
+//! ### For clap contributors
 //!
-//! If contributing, you can run the tests as follows (assuming you're in the `clap-rs` directory)
+//! If contributing, you can run theese commands to test everything:
 //!
 //! ```sh
-//! $ cargo test && make -C clap-tests test
-//! $ cargo test --features yaml
-//!
-//! # Only on nightly compiler:
-//! $ cargo build --features lints
+//! $ cargo test --no-default-features
+//! $ cargo test --features "yaml unstable"
 //! ```
+//!
+//! If you have a nightly compiler you can append `--features lints` to both commands
+//! to get style warnings and code smells; If you get one from code you think is fine,
+//! you can ignore it by prepending `#[cfg_attr(feature="lints", allow(lint_name))]`
+//! to the function or impl block.
+//!
+//! If you are debugging (or just trying to understand the code) you can enable the
+//! "debug" feature which will trace function calls and brances in some parts of the code.
 //!
 //! ## License
 //!
