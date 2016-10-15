@@ -221,9 +221,8 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn required_unless(&self) -> Option<&[&'e str]> {
         self.r_unless.as_ref().map(|o| &o[..])
     }
-    #[cfg_attr(feature = "lints", allow(map_clone))]
     fn val_names(&self) -> Option<&VecMap<&'e str>> {
-        self.val_names.as_ref().map(|o| o)
+        self.val_names.as_ref()
     }
     fn is_set(&self, s: ArgSettings) -> bool {
         self.settings.is_set(s)
