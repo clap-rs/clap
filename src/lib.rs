@@ -381,10 +381,6 @@
 //! `clap` is licensed under the MIT license. Please read the [LICENSE-MIT](LICENSE-MIT) file in this repository for more information.
 
 #![crate_type= "lib"]
-#![cfg_attr(feature = "nightly", feature(plugin))]
-#![cfg_attr(feature = "lints", plugin(clippy))]
-#![cfg_attr(feature = "lints", deny(warnings))]
-#![cfg_attr(not(any(feature = "lints", feature = "nightly")), deny(unstable_features))]
 #![deny(
         missing_docs,
         missing_debug_implementations,
@@ -394,6 +390,10 @@
         unused_import_braces,
         unused_allocation,
         unused_qualifications)]
+#![cfg_attr(not(any(feature = "lints", feature = "nightly")), forbid(unstable_features))]
+#![cfg_attr(feature = "lints", feature(plugin))]
+#![cfg_attr(feature = "lints", plugin(clippy))]
+#![cfg_attr(feature = "lints", deny(warnings))]
 // clippy false positives, or ones we're ok with...
 #![cfg_attr(feature = "lints", allow(cyclomatic_complexity))]
 #![cfg_attr(feature = "lints", allow(doc_markdown))]
