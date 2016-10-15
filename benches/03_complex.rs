@@ -134,8 +134,7 @@ fn create_app_builder(b: &mut Bencher) {
     });
 }
 
-#[cfg(feature = "unstable")]
-#[cfg_attr(feature = "unstable", bench)]
+#[bench]
 fn create_app_macros(b: &mut Bencher) {
     b.iter(|| {
         clap_app!(claptests =>

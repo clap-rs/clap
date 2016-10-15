@@ -493,7 +493,10 @@ subcommands:
                 help: print debug information
 ```
 
-Now we create our `main.rs` file just like we would have with the previous two examples:
+Since this feature is not compiled in by default we need to enable a feature flag in Cargo.toml:
+Simply change your `clap = "2"` to `clap = {version = "2", features = ["yaml"]}`.
+
+At last we create our `main.rs` file just like we would have with the previous two examples:
 
 ```rust
 // (Full example with detailed comments in examples/17_yaml.rs)
@@ -512,8 +515,6 @@ fn main() {
     // Same as previous examples...
 }
 ```
-
-**NOTE**: The YAML and macro builder options require adding a special `features` flag when compiling `clap` because they are not compiled by default. Simply change your `clap = "2"` to `clap = {version = "2", features = ["yaml"]}` for YAML, or `features = ["unstable"]` for the macro builder, in your `Cargo.toml`.
 
 If you were to compile any of the above programs and run them with the flag `--help` or `-h` (or `help` subcommand, since we defined `test` as a subcommand) the following would be output
 
@@ -632,7 +633,6 @@ features = [ "suggestions", "color" ]
 #### Opt-in features
 
 * **"yaml"**: Enables building CLIs from YAML documents. (builds dependency `yaml-rust`)
-* **"unstable"**: Enables clap features whoose API might change without a major version bump, but doesn't require nightly Rust. Currently `clap_app!`.
 
 ### Dependencies Tree
 
@@ -667,7 +667,7 @@ To test with all features both enabled and disabled, you can run theese commands
 
 ```sh
 $ cargo test --no-default-features
-$ cargo test --features "yaml unstable"
+$ cargo test --features yaml
 ```
 
 If you have a nightly compiler you can append `--features lints` to both commands

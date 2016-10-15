@@ -1,7 +1,6 @@
 #[macro_use]
 extern crate clap;
 
-#[cfg(feature = "unstable")]
 fn main() {
     // This example shows how to create an application with several arguments using macro builder.
     // It combines the simplicity of the from_usage methods and the performance of the Builder Pattern.
@@ -74,6 +73,3 @@ fn main() {
 
     // more program logic goes here...
 }
-
-#[cfg(not(feature = "unstable"))]
-fn main() {}
