@@ -130,11 +130,15 @@ impl<'a, 'b> App<'a, 'b> {
     /// of an [`App`] struct.
     ///
     /// ```ignore
+    /// # #[macro_use]
+    /// # extern crate clap;
     /// # use clap::App;
+    /// # fn main() {
     /// let yml = load_yaml!("app.yml");
     /// let app = App::from_yaml(yml);
     ///
     /// // continued logic goes here, such as `app.get_matches()` etc.
+    /// # }
     /// ```
     /// [`App`]: ./struct.App.html
     /// [`examples/17_yaml.rs`]: https://github.com/kbknapp/clap-rs/blob/master/examples/17_yaml.rs
@@ -966,7 +970,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// The above example displays the following help message
     ///
-    /// ```ignore
+    /// ```text
     /// cust-ord
     ///
     /// USAGE:
@@ -1051,7 +1055,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// First, it helps if we separate out our `App` definition into a seperate file. Whether you
     /// do this as a function, or bare App definition is a matter of personal preference.
     ///
-    /// ```ignore
+    /// ```
     /// // src/cli.rs
     ///
     /// use clap::{App, Arg, SubCommand};
@@ -1087,7 +1091,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// Next, we set up our `Cargo.toml` to use a `build.rs` build script.
     ///
-    /// ```ignore
+    /// ```toml
     /// # Cargo.toml
     /// build = "build.rs"
     ///

@@ -94,11 +94,11 @@ impl AppFlags {
 /// [`App`]: ./struct.App.html
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum AppSettings {
-    /// Allows [`SubCommand`]s to override all requirements of the parent command. For example if you
-    /// had a subcommand or top level application which had a required argument that are only
-    /// required as long as there is no subcommand present, using this setting would allow you set
-    /// those arguments to [`Arg::required(true)`] and yet receive no error so long as the user
-    /// uses a valid subcommand instead.
+    /// Allows [`SubCommand`]s to override all requirements of the parent command.
+    /// For example if you had a subcommand or top level application with a required argument
+    /// that is only required as long as there is no subcommand present,
+    /// using this setting would allow you to set those arguments to [`Arg::required(true)`]
+    /// and yet receive no error so long as the user uses a valid subcommand instead.
     ///
     /// **NOTE:** This defaults to false (using subcommand does *not* negate requirements)
     ///
@@ -138,8 +138,9 @@ pub enum AppSettings {
     /// [`Arg::required(true)`]: ./struct.Arg.html#method.required
     /// [`SubCommand`]: ./struct.SubCommand.html
     SubcommandsNegateReqs,
-    /// Allows specifying that if no [`SubCommand`] is present at runtime, error and exit
-    /// gracefully
+
+    /// Allows specifying that if no [`SubCommand`] is present at runtime,
+    /// error and exit gracefully.
     ///
     /// **NOTE:** This defaults to `false` (subcommands do *not* need to be present)
     ///
@@ -159,8 +160,9 @@ pub enum AppSettings {
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     SubcommandRequired,
-    /// Specifies that the help text should be displayed (and then exit gracefully), if no
-    /// arguments are present at runtime (i.e. an empty run such as, `$ myprog`.
+
+    /// Specifies that the help text should be displayed (and then exit gracefully),
+    /// if no arguments are present at runtime (i.e. an empty run such as, `$ myprog`.
     ///
     /// **NOTE:** [`SubCommand`]s count as arguments
     ///
@@ -174,8 +176,9 @@ pub enum AppSettings {
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     ArgRequiredElseHelp,
-    /// Specifies to use the version of the current command for all child [`SubCommand`]. (Defaults
-    /// to `false`; subcommands have independant version strings from their parents)
+
+    /// Specifies to use the version of the current command for all child [`SubCommand`]s.
+    /// (Defaults to `false`; subcommands have independant version strings from their parents.)
     ///
     /// **NOTE:** The version for the current command **and** this setting must be set **prior** to
     /// adding any child subcommands
@@ -194,8 +197,9 @@ pub enum AppSettings {
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     GlobalVersion,
-    /// Disables `-V` and `--version` for all [`SubCommand`]s (Defaults to `false`; subcommands
-    /// *do* have version flags)
+
+    /// Disables `-V` and `--version` for all [`SubCommand`]s
+    /// (Defaults to `false`; subcommands *do* have version flags.)
     ///
     /// **NOTE:** This setting must be set **prior** adding any subcommands
     ///
@@ -215,8 +219,9 @@ pub enum AppSettings {
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     VersionlessSubcommands,
-    /// Groups flags and options together presenting a more unified help message (a la `getopts` or
-    /// `docopt` style).
+
+    /// Groups flags and options together, presenting a more unified help message
+    /// (a la `getopts` or `docopt` style).
     ///
     /// The default is that the auto-generated help message will group flags, and options
     /// separately.
@@ -233,6 +238,7 @@ pub enum AppSettings {
     /// // running `myprog --help` will display a unified "docopt" or "getopts" style help message
     /// ```
     UnifiedHelpMessage,
+
     /// Will display a message "Press [ENTER]/[RETURN] to continue..." and wait for user before
     /// exiting
     ///
@@ -254,8 +260,9 @@ pub enum AppSettings {
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     WaitOnError,
-    /// Specifies that the help text should be displayed (and then exit gracefully), if no
-    /// [`SubCommand`]s are present at runtime (i.e. an empty run such as, `$ myprog`.
+
+    /// Specifies that the help text should be displayed (before exiting gracefully) if no
+    /// [`SubCommand`]s are present at runtime (i.e. an empty run such as `$ myprog`).
     ///
     /// **NOTE:** This should *not* be used with [`AppSettings::SubcommandRequired`] as they do
     /// nearly same thing; this prints the help text, and the other prints an error.
@@ -276,6 +283,7 @@ pub enum AppSettings {
     /// [`AppSettings::SubcommandRequired`]: ./enum.AppSettings.html#variant.SubcommandRequired
     /// [`AppSettings::ArgRequiredElseHelp`]: ./enum.AppSettings.html#variant.ArgRequiredElseHelp
     SubcommandRequiredElseHelp,
+
     /// Specifies that this [`SubCommand`] should be hidden from help messages
     ///
     /// # Examples
@@ -289,6 +297,7 @@ pub enum AppSettings {
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     Hidden,
+
     /// Specifies that the final positional argument is a "VarArg" and that `clap` should not
     /// attempt to parse any further args.
     ///
@@ -311,6 +320,7 @@ pub enum AppSettings {
     /// ```
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     TrailingVarArg,
+
     /// Specifies that the parser should not assume the first argument passed is the binary name.
     /// This is normally the case when using a "daemon" style mode, or an interactive CLI where one
     /// one would not normally type the binary or program name for each command.
@@ -328,14 +338,15 @@ pub enum AppSettings {
     /// assert_eq!(cmds, ["command", "set"]);
     /// ```
     NoBinaryName,
-    /// Specifies that an unexpected positional argument, which would otherwise cause a
-    /// [`ErrorKind::UnknownArgument`] error, should instead be treated as a [`SubCommand`] within
-    /// the [`ArgMatches`] struct.
+
+    /// Specifies that an unexpected positional argument,
+    /// which would otherwise cause a [`ErrorKind::UnknownArgument`] error,
+    /// should instead be treated as a [`SubCommand`] within the [`ArgMatches`] struct.
     ///
-    /// **NOTE:** Use this setting with caution, as a truly unexpected argument (i.e. one that is
-    /// *NOT* an external subcommand) will **not** cause an error and instead be treated as a
-    /// potential subcommand. One should check for such cases manually and inform the user
-    /// appropriately.
+    /// **NOTE:** Use this setting with caution,
+    /// as a truly unexpected argument (i.e. one that is *NOT* an external subcommand)
+    /// will **not** cause an error and instead be treated as a potential subcommand.
+    /// One should check for such cases manually and inform the user appropriately.
     ///
     /// # Examples
     ///
@@ -363,10 +374,11 @@ pub enum AppSettings {
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     AllowExternalSubcommands,
+
     /// Specifies that any invalid UTF-8 code points should be treated as an error and fail
     /// with a [`ErrorKind::InvalidUtf8`] error.
     ///
-    /// **NOTE:** This rule only applies to argument values. Things such as flags, options, and
+    /// **NOTE:** This rule only applies to argument values; Things such as flags, options, and
     /// [`SubCommand`]s themselves only allow valid UTF-8 code points.
     ///
     /// # Platform Specific
@@ -375,9 +387,11 @@ pub enum AppSettings {
     ///
     /// # Examples
     ///
-    /// ```ignore
-    /// # use clap::{App, Arg, AppSettings, ErrorKind};
+    #[cfg_attr(not(unix), doc=" ```ignore")]
+    #[cfg_attr(    unix , doc=" ```")]
+    /// # use clap::{App, AppSettings, ErrorKind};
     /// use std::ffi::OsString;
+    /// use std::os::unix::ffi::OsStringExt;
     ///
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::StrictUtf8)
@@ -389,13 +403,13 @@ pub enum AppSettings {
     ///
     /// assert!(m.is_err());
     /// assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidUtf8);
-    /// }
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`ErrorKind::InvalidUtf8`]: ./enum.ErrorKind.html#variant.InvalidUtf8
     StrictUtf8,
-    /// Specifies that any invalid UTF-8 code points should *not* be treated as an error. This is
-    /// the default behavior of `clap`
+
+    /// Specifies that any invalid UTF-8 code points should *not* be treated as an error.
+    /// This is the default behavior of `clap`.
     ///
     /// **NOTE:** Using argument values with invalid UTF-8 code points requires using
     /// [`ArgMatches::os_value_of`], [`ArgMatches::os_values_of`], [`ArgMatches::lossy_value_of`],
@@ -411,13 +425,14 @@ pub enum AppSettings {
     ///
     /// # Examples
     ///
-    /// ```ignore
-    /// # use clap::{App, Arg, AppSettings};
+    #[cfg_attr(not(unix), doc=" ```ignore")]
+    #[cfg_attr(    unix , doc=" ```")]
+    /// # use clap::{App, AppSettings};
     /// use std::ffi::OsString;
-    /// use std::os::unix::ffi::OsStrExt;
+    /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
     ///
     /// let r = App::new("myprog")
-    ///     .setting(AppSettings::StrictUtf8)
+    ///   //.setting(AppSettings::AllowInvalidUtf8)
     ///     .arg_from_usage("<arg> 'some positional arg'")
     ///     .get_matches_from_safe(
     ///         vec![
@@ -433,8 +448,9 @@ pub enum AppSettings {
     /// [`ArgMatches::lossy_value_of`]: ./struct.ArgMatches.html#method.lossy_value_of
     /// [`ArgMatches::lossy_values_of`]: ./struct.ArgMatches.html#method.lossy_values_of
     AllowInvalidUtf8,
+
     /// Specifies that leading hyphens are allowed in argument *values*, such as negative numbers
-    /// `-10` (which would otherwise be parsed as another flag or option)
+    /// like `-10`. (which would otherwise be parsed as another flag or option)
     ///
     /// **NOTE:** This can only be set application wide and not on a per argument basis.
     ///
@@ -458,10 +474,12 @@ pub enum AppSettings {
     /// # ;
     /// ```
     AllowLeadingHyphen,
-    /// Tells `clap` *not* to print possible values when displaying help information. This can be
-    /// useful if there are many values, or they are explained elsewhere.
+
+    /// Tells `clap` *not* to print possible values when displaying help information.
+    /// This can be useful if there are many values, or they are explained elsewhere.
     HidePossibleValuesInHelp,
-    /// Places the help string for all arguments on the line after the argument
+
+    /// Places the help string for all arguments on the line after the argument.
     ///
     /// # Examples
     ///
@@ -472,8 +490,9 @@ pub enum AppSettings {
     ///     .get_matches();
     /// ```
     NextLineHelp,
+
     /// Displays the arguments and [`SubCommand`]s in the help message in the order that they were
-    /// declared in, vice alphabetically which is the default.
+    /// declared in, and not alphabetically which is the default.
     ///
     /// # Examples
     ///
@@ -485,6 +504,7 @@ pub enum AppSettings {
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     DeriveDisplayOrder,
+
     /// Uses colorized help messages.
     ///
     /// **NOTE:** Must be compiled with the `color` cargo feature
@@ -502,15 +522,16 @@ pub enum AppSettings {
     ///     .get_matches();
     /// ```
     ColoredHelp,
+
     /// Enables colored output only when the output is going to a terminal or TTY.
     ///
-    /// **NOTE:** This is the default behavior of `clap`
+    /// **NOTE:** This is the default behavior of `clap`.
     ///
-    /// **NOTE:** Must be compiled with the `color` cargo feature
+    /// **NOTE:** Must be compiled with the `color` cargo feature.
     ///
     /// # Platform Specific
     ///
-    /// This setting only applies to Unix, Linux, and OSX (i.e. non-Windows platforms)
+    /// This setting only applies to Unix, Linux, and OSX (i.e. non-Windows platforms).
     ///
     /// # Examples
     ///
@@ -521,13 +542,14 @@ pub enum AppSettings {
     ///     .get_matches();
     /// ```
     ColorAuto,
+
     /// Enables colored output regardless of whether or not the output is going to a terminal/TTY.
     ///
-    /// **NOTE:** Must be compiled with the `color` cargo feature
+    /// **NOTE:** Must be compiled with the `color` cargo feature.
     ///
     /// # Platform Specific
     ///
-    /// This setting only applies to Unix, Linux, and OSX (i.e. non-Windows platforms)
+    /// This setting only applies to Unix, Linux, and OSX (i.e. non-Windows platforms).
     ///
     /// # Examples
     ///
@@ -538,6 +560,7 @@ pub enum AppSettings {
     ///     .get_matches();
     /// ```
     ColorAlways,
+
     /// Disables colored output no matter if the output is going to a terminal/TTY, or not.
     ///
     /// **NOTE:** Must be compiled with the `color` cargo feature
@@ -555,6 +578,7 @@ pub enum AppSettings {
     ///     .get_matches();
     /// ```
     ColorNever,
+
     /// Disables the automatic delimiting of values when `--` or [`AppSettings::TrailingVarArg`]
     /// was used.
     ///
@@ -573,12 +597,16 @@ pub enum AppSettings {
     /// [`AppSettings::TrailingVarArg`]: ./enum.AppSettings.html#variant.TrailingVarArg
     /// [`Arg::use_delimiter(false)`]: ./struct.Arg.html#method.use_delimiter
     DontDelimitTrailingValues,
+
     #[doc(hidden)]
     NeedsLongVersion,
+
     #[doc(hidden)]
     NeedsLongHelp,
+
     #[doc(hidden)]
     NeedsSubcommandHelp,
+
     /// Disables `-V` and `--version` [`App`] without affecting any of the [`SubCommand`]s
     /// (Defaults to `false`; application *does* have a version flag)
     ///

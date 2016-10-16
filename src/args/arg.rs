@@ -135,9 +135,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # Examples
     ///
     /// ```ignore
+    /// # #[macro_use]
+    /// # extern crate clap;
     /// # use clap::Arg;
+    /// # fn main() {
     /// let yml = load_yaml!("arg.yml");
     /// let arg = Arg::from_yaml(yml);
+    /// # }
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     #[cfg(feature = "yaml")]

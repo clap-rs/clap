@@ -107,6 +107,7 @@ fn multiple_aliases() {
 }
 
 #[test]
+#[cfg(feature="suggestions")]
 fn subcmd_did_you_mean_output() {
     test::check_err_output(test::complex_app(), "clap-test subcm",
 "error: The subcommand 'subcm' wasn't recognized

@@ -131,10 +131,11 @@ impl<'a> ArgMatches<'a> {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    #[cfg_attr(not(unix), doc=" ```ignore")]
+    #[cfg_attr(    unix , doc=" ```")]
     /// # use clap::{App, Arg};
     /// use std::ffi::OsString;
-    /// use std::os::unix::ffi::OsStrExt;
+    /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
     ///
     /// let m = App::new("utf8")
     ///     .arg(Arg::from_usage("<arg> 'some arg'"))
@@ -165,10 +166,11 @@ impl<'a> ArgMatches<'a> {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    #[cfg_attr(not(unix), doc=" ```ignore")]
+    #[cfg_attr(    unix , doc=" ```")]
     /// # use clap::{App, Arg};
     /// use std::ffi::OsString;
-    /// use std::os::unix::ffi::OsStrExt;
+    /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
     ///
     /// let m = App::new("utf8")
     ///     .arg(Arg::from_usage("<arg> 'some arg'"))
@@ -227,19 +229,22 @@ impl<'a> ArgMatches<'a> {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    #[cfg_attr(not(unix), doc=" ```ignore")]
+    #[cfg_attr(    unix , doc=" ```")]
     /// # use clap::{App, Arg};
     /// use std::ffi::OsString;
-    /// use std::os::unix::ffi::OsStrExt;
+    /// use std::os::unix::ffi::OsStringExt;
     ///
     /// let m = App::new("utf8")
-    ///     .arg(Arg::from_usage("<arg> 'some arg'"))
+    ///     .arg(Arg::from_usage("<arg>... 'some arg'"))
     ///     .get_matches_from(vec![OsString::from("myprog"),
-    ///                             // "Hi {0xe9}!"
-    ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
-    /// let itr = m.values_of_lossy("arg").unwrap();
-    /// assert_eq!(&*itr.next().unwrap(), "Hi");
-    /// assert_eq!(&*itr.next().unwrap(), "\u{FFFD}!");
+    ///                             // "Hi"
+    ///                             OsString::from_vec(vec![b'H', b'i']),
+    ///                             // "{0xe9}!"
+    ///                             OsString::from_vec(vec![0xe9, b'!'])]);
+    /// let mut itr = m.values_of_lossy("arg").unwrap().into_iter();
+    /// assert_eq!(&itr.next().unwrap()[..], "Hi");
+    /// assert_eq!(&itr.next().unwrap()[..], "\u{FFFD}!");
     /// assert_eq!(itr.next(), None);
     /// ```
     pub fn values_of_lossy<S: AsRef<str>>(&'a self, name: S) -> Option<Vec<String>> {
@@ -260,22 +265,23 @@ impl<'a> ArgMatches<'a> {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    #[cfg_attr(not(unix), doc=" ```ignore")]
+    #[cfg_attr(    unix , doc=" ```")]
     /// # use clap::{App, Arg};
-    /// use std::ffi::OsString;
-    /// use std::os::unix::ffi::OsStrExt;
+    /// use std::ffi::{OsStr,OsString};
+    /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
     ///
     /// let m = App::new("utf8")
-    ///     .arg(Arg::from_usage("<arg> 'some arg'"))
+    ///     .arg(Arg::from_usage("<arg>... 'some arg'"))
     ///     .get_matches_from(vec![OsString::from("myprog"),
     ///                                 // "Hi"
     ///                                 OsString::from_vec(vec![b'H', b'i']),
     ///                                 // "{0xe9}!"
     ///                                 OsString::from_vec(vec![0xe9, b'!'])]);
     ///
-    /// let itr = m.values_of_os("arg").unwrap();
-    /// assert_eq!(itr.next(), Some(&*OsString::from("Hi")));
-    /// assert_eq!(itr.next(), Some(&*OsString::from_vec(vec![0xe9, b'!'])));
+    /// let mut itr = m.values_of_os("arg").unwrap().into_iter();
+    /// assert_eq!(itr.next(), Some(OsStr::new("Hi")));
+    /// assert_eq!(itr.next(), Some(OsStr::from_bytes(&[0xe9, b'!'])));
     /// assert_eq!(itr.next(), None);
     /// ```
     /// [`OsValues`]: ./struct.OsValues.html
@@ -428,7 +434,7 @@ impl<'a> ArgMatches<'a> {
     /// Given the above fictional subcommand hierarchy, valid runtime uses would be (not an all
     /// inclusive list, and not including argument options per command for brevity and clarity):
     ///
-    /// ```ignore
+    /// ```sh
     /// $ git clone url
     /// $ git push origin path
     /// $ git add ref local
@@ -629,10 +635,11 @@ impl<'a, V> DoubleEndedIterator for Iter<'a, V> {
 ///
 /// # Examples
 ///
-/// ```ignore
+#[cfg_attr(not(unix), doc=" ```ignore")]
+#[cfg_attr(    unix , doc=" ```")]
 /// # use clap::{App, Arg};
 /// use std::ffi::OsString;
-/// use std::os::unix::ffi::OsStrExt;
+/// use std::os::unix::ffi::{OsStrExt,OsStringExt};
 ///
 /// let m = App::new("utf8")
 ///     .arg(Arg::from_usage("<arg> 'some arg'"))

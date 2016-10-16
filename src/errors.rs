@@ -19,8 +19,8 @@ pub type Result<T> = StdResult<T, Error>;
 /// Command line argument parser kind of error
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum ErrorKind {
-    /// Occurs when an [`Arg`] has a set of possible values, and the user provides a value which
-    /// isn't in that set.
+    /// Occurs when an [`Arg`] has a set of possible values,
+    /// and the user provides a value which isn't in that set.
     ///
     /// # Examples
     ///
@@ -36,7 +36,8 @@ pub enum ErrorKind {
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     InvalidValue,
-    /// Occurs when a user provides a flag, option, or argument which wasn't defined.
+
+    /// Occurs when a user provides a flag, option, argument or subcommand which isn't defined.
     ///
     /// # Examples
     ///
@@ -49,13 +50,16 @@ pub enum ErrorKind {
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
     UnknownArgument,
-    /// Occurs when the user provids an unrecognized [`SubCommand`] which meets the threshold for
-    /// being similar enough to an existing subcommand so as to not cause the more general
-    /// [`UnknownArgument`] error.
+
+    /// Occurs when the user provides an unrecognized [`SubCommand`] which meets the threshold for
+    /// being similar enough to an existing subcommand.  
+    /// If it doesn't meet the threshold, or the 'suggestions' feature is disabled,
+    /// the more general [`UnknownArgument`] error is returned.
     ///
     /// # Examples
     ///
-    /// ```rust
+    #[cfg_attr(not(feature="suggestions"), doc=" ```no_run")]
+    #[cfg_attr(    feature="suggestions" , doc=" ```")]
     /// # use clap::{App, Arg, ErrorKind, SubCommand};
     /// let result = App::new("myprog")
     ///     .subcommand(SubCommand::with_name("config")
@@ -70,9 +74,11 @@ pub enum ErrorKind {
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`UnknownArgument`]: ./enum.ErrorKind.html#variant.UnknownArgument
     InvalidSubcommand,
-    /// Occurs when the user provids an unrecognized [`SubCommand`] which does not meet the
-    /// threshold for being similar enough to an existing subcommand so as to not cause the more
-    /// detailed [`InvalidSubcommand`] error.
+
+    /// Occurs when the user provides an unrecognized [`SubCommand`] which either
+    /// doesn't meet the threshold for being similar enough to an existing subcommand,
+    /// or the 'sggestions' feature is disabled.  
+    /// Otherwise the more detailed [`InvalidSubcommand`] error is returned.
     ///
     /// This error typically happens when passing additional subcommand names to the `help`
     /// subcommand. Otherwise, the more general [`UnknownArgument`] error is used.
@@ -95,6 +101,7 @@ pub enum ErrorKind {
     /// [`InvalidSubcommand`]: ./enum.ErrorKind.html#variant.InvalidSubcommand
     /// [`UnknownArgument`]: ./enum.ErrorKind.html#variant.UnknownArgument
     UnrecognizedSubcommand,
+
     /// Occurs when the user provides an empty value for an option that does not allow empty
     /// values.
     ///
@@ -111,6 +118,7 @@ pub enum ErrorKind {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
     /// ```
     EmptyValue,
+
     /// Occurs when the user provides a value for an argument with a custom validation and the
     /// value fails that validation.
     ///
@@ -133,6 +141,7 @@ pub enum ErrorKind {
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::ValueValidation);
     /// ```
     ValueValidation,
+
     /// Occurs when a user provides more values for an argument than were defined by setting
     /// [`Arg::max_values`].
     ///
@@ -150,6 +159,7 @@ pub enum ErrorKind {
     /// ```
     /// [`Arg::max_values`]: ./struct.Arg.html#method.max_values
     TooManyValues,
+
     /// Occurs when the user provides fewer values for an argument than were defined by setting
     /// [`Arg::min_values`].
     ///
@@ -167,6 +177,7 @@ pub enum ErrorKind {
     /// ```
     /// [`Arg::min_values`]: ./struct.Arg.html#method.min_values
     TooFewValues,
+
     /// Occurs when the user provides a different number of values for an argument than what's
     /// been defined by setting [`Arg::number_of_values`] or than was implicitly set by
     /// [`Arg::value_names`].
@@ -188,6 +199,7 @@ pub enum ErrorKind {
     /// [`Arg::number_of_values`]: ./struct.Arg.html#method.number_of_values
     /// [`Arg::value_names`]: ./struct.Arg.html#method.value_names
     WrongNumberOfValues,
+
     /// Occurs when the user provides two values which conflict with each other and can't be used
     /// together.
     ///
@@ -206,6 +218,7 @@ pub enum ErrorKind {
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```
     ArgumentConflict,
+
     /// Occurs when the user does not provide one or more required arguments.
     ///
     /// # Examples
@@ -220,6 +233,7 @@ pub enum ErrorKind {
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
     MissingRequiredArgument,
+
     /// Occurs when a subcommand is required (as defined by [`AppSettings::SubcommandRequired`]),
     /// but the user does not provide one.
     ///
@@ -239,8 +253,9 @@ pub enum ErrorKind {
     /// ```
     /// [`AppSettings::SubcommandRequired`]: ./enum.AppSettings.html#variant.SubcommandRequired
     MissingSubcommand,
+
     /// Occurs when either an argument or [`SubCommand`] is required, as defined by
-    /// [`AppSettings::ArgRequiredElseHelp`] but the user did not provide one.
+    /// [`AppSettings::ArgRequiredElseHelp`], but the user did not provide one.
     ///
     /// # Examples
     ///
@@ -259,8 +274,8 @@ pub enum ErrorKind {
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`AppSettings::ArgRequiredElseHelp`]: ./enum.AppSettings.html#variant.ArgRequiredElseHelp
     MissingArgumentOrSubcommand,
-    /// Occurs when the user provides an argument multiple times which has not been set to allow
-    /// multiple uses.
+
+    /// Occurs when the user provides multiple values to an argument which doesn't allow that.
     ///
     /// # Examples
     ///
@@ -275,6 +290,7 @@ pub enum ErrorKind {
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnexpectedMultipleUsage);
     /// ```
     UnexpectedMultipleUsage,
+
     /// Occurs when the user provides a value containing invalid UTF-8 for an argument and
     /// [`AppSettings::StrictUtf8`] is set.
     ///
@@ -284,7 +300,8 @@ pub enum ErrorKind {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    #[cfg_attr(not(unix), doc=" ```ignore")]
+    #[cfg_attr(    unix , doc=" ```")]
     /// # use clap::{App, Arg, ErrorKind, AppSettings};
     /// # use std::os::unix::ffi::OsStringExt;
     /// # use std::ffi::OsString;
@@ -294,15 +311,16 @@ pub enum ErrorKind {
     ///         .short("u")
     ///         .takes_value(true))
     ///     .get_matches_from_safe(vec![OsString::from("myprog"),
-    ///                                 OsString::from("-u")
+    ///                                 OsString::from("-u"),
     ///                                 OsString::from_vec(vec![0xE9])]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidUtf8);
     /// ```
     /// [`AppSettings::StrictUtf8`]: ./enum.AppSettings.html#variant.StrictUtf8
     InvalidUtf8,
-    /// Not a true "error" as it means `--help` or similar was used. The help message will be sent
-    /// to `stdout`.
+
+    /// Not a true "error" as it means `--help` or similar was used.
+    /// The help message will be sent to `stdout`.
     ///
     /// **Note**: If the help is displayed due to an error (such as missing subcommands) it will
     /// be sent to `stderr` instead of `stdout`.
@@ -317,8 +335,9 @@ pub enum ErrorKind {
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::HelpDisplayed);
     /// ```
     HelpDisplayed,
-    /// Not a true "error" as it means `--version` or similar was used. The message will be sent
-    /// to `stdout`.
+
+    /// Not a true "error" as it means `--version` or similar was used.
+    /// The message will be sent to `stdout`.
     ///
     /// # Examples
     ///
@@ -330,17 +349,21 @@ pub enum ErrorKind {
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::VersionDisplayed);
     /// ```
     VersionDisplayed,
+
     /// Occurs when using the [`value_t!`] and [`values_t!`] macros to convert an argument value
     /// into type `T`, but the argument you requested wasn't used. I.e. you asked for an argument
     /// with name `config` to be converted, but `config` wasn't used by the user.
     /// [`value_t!`]: ./macro.value_t!.html
     /// [`values_t!`]: ./macro.values_t!.html
     ArgumentNotFound,
-    /// Represents an [I/O error], typically while writing to `stderr` or `stdout`.
+
+    /// Represents an [I/O error].
+    /// Can occur when writing to `stderr` or `stdout` or reading a configuration file.
     /// [I/O error]: https://doc.rust-lang.org/std/io/struct.Error.html
     Io,
-    /// Represents an Rust's [Format error] as part of [`Display`] , typically while writing to
-    /// `stderr` or `stdout`.
+
+    /// Represents a [Format error] (which is a part of [`Display`]).
+    /// Typically caused by writing to `stderr` or `stdout`.
     /// [`Display`]: https://doc.rust-lang.org/std/fmt/trait.Display.html
     /// [Format error]: https://doc.rust-lang.org/std/fmt/struct.Error.html
     Format,

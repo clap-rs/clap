@@ -127,7 +127,7 @@ impl<T: AsRef<str>> Format<T> {
 }
 
 #[cfg(any(not(feature = "color"), target_os = "windows"))]
-#[allow(match_same_arms)]
+#[cfg_attr(feature="lints", allow(match_same_arms))]
 impl<T: fmt::Display> Format<T> {
     fn format(&self) -> &T {
         match *self {

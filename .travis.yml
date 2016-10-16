@@ -14,10 +14,9 @@ before_script:
     export PATH=$HOME/.local/bin:$PATH
 script:
   - |
-    cargo build --verbose --no-default-features &&
-    cargo build --verbose --features yaml &&
-    cargo test --verbose --features yaml &&
-    travis-cargo --only nightly build -- --features travis &&
+    travis-cargo test -- --verbose --no-default-features &&
+    travis-cargo --skip nightly test -- --verbose --features "yaml unstable" &&
+    travis-cargo --only nightly test -- --verbose --features "yaml unstable nightly" &&
     travis-cargo --only nightly bench
 addons:
   apt:
@@ -27,8 +26,8 @@ addons:
     - libdw-dev
 after_success:
   - |
-    travis-cargo --only stable coveralls --no-sudo -- --features yaml
+    travis-cargo --only stable coveralls --no-sudo -- --features "yaml unstable"
 env:
   global:
-    - TRAVIS_CARGO_NIGHTLY_FEATURE=travis
+    - TRAVIS_CARGO_NIGHTLY_FEATURE=lints
     - secure: JLBlgHY6OEmhJ8woewNJHmuBokTNUv7/WvLkJGV8xk0t6bXBwSU0jNloXwlH7FiQTc4TccX0PumPDD4MrMgxIAVFPmmmlQOCmdpYP4tqZJ8xo189E5zk8lKF5OyaVYCs5SMmFC3cxCsKjfwGIexNu3ck5Uhwe9jI0tqgkgM3URA=
