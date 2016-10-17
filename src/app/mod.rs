@@ -98,6 +98,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`crate_version!`]: ./macro.crate_version!.html
     /// [`App::author`]: ./struct.App.html#method.author
     /// [`App::version`]: ./struct.App.html#method.author
+    #[deprecated(since="2.14.1", note="Can never work; use explicit App::author() and App::version() calls instead")]
     pub fn with_defaults<S: Into<String>>(n: S) -> Self {
         let mut a = App { p: Parser::with_name(n.into()) };
         a.p.meta.author = Some(crate_authors!());
