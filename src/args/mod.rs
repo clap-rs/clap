@@ -18,5 +18,4 @@ mod subcommand;
 mod arg_builder;
 mod matched_arg;
 mod group;
-#[allow(dead_code)]
 pub mod settings;

@@ -277,7 +277,6 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
 
-    #[cfg_attr(feature = "lints", allow(for_kv_map))]
     pub fn get_required_from(&self,
                              reqs: &[&'a str],
                              matcher: Option<&ArgMatcher<'a>>)
