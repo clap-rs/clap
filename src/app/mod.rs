@@ -1,4 +1,3 @@
-#[allow(dead_code)]
 mod settings;
 #[macro_use]
 mod macros;

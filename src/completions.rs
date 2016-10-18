@@ -358,7 +358,7 @@ fn vals_for(o: &OptBuilder) -> String {
 
 fn gen_fish_inner(root_command: &str,
                   comp_gen: &ComplGen,
-                  parent_cmds: &String,
+                  parent_cmds: &str,
                   buffer: &mut String) {
 
     // example :
@@ -422,14 +422,14 @@ fn gen_fish_inner(root_command: &str,
     for subcommand in &comp_gen.p.subcommands {
         let sub_comp_gen = ComplGen::new(&subcommand.p);
         // make new "parent_cmds" for different subcommands
-        let mut sub_parent_cmds = parent_cmds.clone();
+        let mut sub_parent_cmds = parent_cmds.to_string();
         if !sub_parent_cmds.is_empty() {
             sub_parent_cmds.push_str(" ");
         }
         sub_parent_cmds.push_str(&subcommand.p.meta.name);
         gen_fish_inner(root_command,
                        &sub_comp_gen,
-                       &mut sub_parent_cmds,
+                       &sub_parent_cmds,
                        buffer);
     }
 }

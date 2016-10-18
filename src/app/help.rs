@@ -916,7 +916,6 @@ impl<'a> Help<'a> {
     }
 }
 
-#[cfg_attr(feature = "lints", allow(explicit_counter_loop))]
 fn wrap_help(help: &mut String, longest_w: usize, avail_chars: usize) {
     debugln!("fn=wrap_help;longest_w={},avail_chars={}",
              longest_w,

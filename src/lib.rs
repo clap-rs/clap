@@ -404,13 +404,8 @@
 #![cfg_attr(feature = "lints", feature(plugin))]
 #![cfg_attr(feature = "lints", plugin(clippy))]
 #![cfg_attr(feature = "lints", deny(warnings))]
-// clippy false positives, or ones we're ok with...
 #![cfg_attr(feature = "lints", allow(cyclomatic_complexity))]
 #![cfg_attr(feature = "lints", allow(doc_markdown))]
-// Only while bitflats uses "_first" inside it's macros
-#![cfg_attr(feature = "lints", allow(used_underscore_binding))]
-// Only while bitflats fails this lint
-#![cfg_attr(feature = "lints", allow(if_not_else))]
 
 #[cfg(feature = "suggestions")]
 extern crate strsim;
