@@ -416,9 +416,9 @@ macro_rules! crate_authors {
     };
 }
 
-/// App, Arg, SubCommand and Group builder macro (Usage-string like input) must be compiled with
-/// the `unstable` feature in order to use.
-#[cfg_attr(feature = "unstable", macro_export)]
+/// Build `App`, `Arg`s, `SubCommand`s and `Group`s with Usage-string like input
+/// but without the parsing.
+#[macro_export]
 macro_rules! clap_app {
     (@app ($builder:expr)) => { $builder };
     (@app ($builder:expr) (@arg $name:ident: $($tail:tt)*) $($tt:tt)*) => {

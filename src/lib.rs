@@ -151,10 +151,8 @@
 //!
 //! The following combines the previous two examples by using the less verbose `from_usage` methods and the performance of the Builder Pattern.
 //!
-#![cfg_attr(not(feature="unstable"), doc=" ```ignore")]
-#![cfg_attr(    feature="unstable" , doc=" ```no_run")]
+//! ```no_run
 //! // (Full example with detailed comments in examples/01c_quick_example.rs)
-//! // Must be compiled with `--features unstable` (which doesn't require nightly Rust).
 //! //
 //! // This example demonstrates clap's "usage strings" method of creating arguments
 //! // which is less less verbose
@@ -214,7 +212,10 @@
 //!                 help: print debug information
 //! ```
 //!
-//! Now we create our `main.rs` file just like we would have with the previous two examples:
+//! Because this feature is not compiled in by default we need to enable a feature flag in Cargo.toml:
+//! Simply change your `clap = "2"` to `clap = {version = "2", features = ["yaml"]}`.
+//!
+//! At last we create our `main.rs` file just like we would have with the previous two examples:
 //!
 //! ```ignore
 //! // (Full example with detailed comments in examples/17_yaml.rs)
@@ -233,8 +234,6 @@
 //!     // Same as previous examples...
 //! }
 //! ```
-//!
-//! **NOTE**: The YAML and macro builder options require adding a special `features` flag when compiling `clap` because they are not compiled by default. Simply change your `clap = "2"` to `clap = {version = "2", features = ["yaml"]}` for YAML, or `features = ["unstable"]` for the macro builder, in your `Cargo.toml`.
 //!
 //! If you were to compile any of the above programs and run them with the flag `--help` or `-h` (or `help` subcommand, since we defined `test` as a subcommand) the following would be output
 //!
@@ -353,7 +352,6 @@
 //! #### Opt-in features
 //!
 //! * **"yaml"**: Enables building CLIs from YAML documents.
-//! * **"unstable"**: Enables clap features whoose API might change without a major version bump. Doesn't require nightly Rust. Currently `clap_app!`.
 //!
 //! ### More Information
 //!
@@ -375,7 +373,7 @@
 //!
 //! ```sh
 //! $ cargo test --no-default-features
-//! $ cargo test --features "yaml unstable"
+//! $ cargo test --features yaml
 //! ```
 //!
 //! If you have a nightly compiler you can append `--features lints` to both commands
