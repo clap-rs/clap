@@ -160,21 +160,6 @@ impl<'n, 'e> Display for OptBuilder<'n, 'e> {
                         }));
         }
 
-        // Write aliases such as [aliases: alias, new-alias]
-        if let Some(ref vec) = self.aliases {
-            try!(write!(f, " [aliases: "));
-            let mut it = vec.iter().peekable();
-            while let Some(&(val, b)) = it.next() {
-                if b {
-                    try!(write!(f, "{}", val));
-                    if it.peek().is_some() {
-                        try!(write!(f, ", "));
-                    }
-                }
-            }
-            try!(write!(f, "]"));
-        }
-
         Ok(())
     }
 }

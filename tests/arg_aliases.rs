@@ -12,7 +12,7 @@ USAGE:
     test [FLAGS] [OPTIONS]
 
 FLAGS:
-    -f, --flag                                   [aliases: v_flg, flag2, flg3]
+    -f, --flag    [aliases: v_flg, flag2, flg3]
 
 OPTIONS:
     -o, --opt <opt>     [aliases: visible]";
@@ -24,7 +24,7 @@ USAGE:
     test [FLAGS] [OPTIONS]
 
 FLAGS:
-    -f, --flag                
+    -f, --flag    
 
 OPTIONS:
     -o, --opt <opt>    ";
