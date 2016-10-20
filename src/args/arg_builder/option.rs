@@ -325,7 +325,7 @@ mod test {
         o.long = Some("option");
         o.aliases = Some(vec![("als", true)]);
 
-        assert_eq!(&*format!("{}", o), "--option <opt> [aliases: als]");
+        assert_eq!(&*format!("{}", o), "--option <opt>");
     }
 
     #[test]
@@ -338,6 +338,6 @@ mod test {
                          ("als3", true),
                          ("als4", true)
                     ]);
-        assert_eq!(&*format!("{}", o), "--option <opt> [aliases: als2, als3, als4]");
+        assert_eq!(&*format!("{}", o), "--option <opt>");
     }
 }

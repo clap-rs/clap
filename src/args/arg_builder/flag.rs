@@ -222,7 +222,7 @@ mod test {
         f.long = Some("flag");
         f.aliases = Some(vec![("als", true)]);
 
-        assert_eq!(&*format!("{}", f), "--flag [aliases: als]");
+        assert_eq!(&*format!("{}", f), "--flag");
     }
 
     #[test]
@@ -235,6 +235,6 @@ mod test {
                          ("f3", true),
                          ("f4", true)
                     ]);
-        assert_eq!(&*format!("{}", f), "-f [aliases: f2, f3, f4]");
+        assert_eq!(&*format!("{}", f), "-f");
     }
 }
