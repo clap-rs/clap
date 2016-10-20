@@ -285,7 +285,7 @@ impl<'a> Help<'a> {
 
     /// Writes argument's possible values to the wrapped stream.
     fn val<'b, 'c>(&mut self, arg: &ArgWithDisplay<'b, 'c>) -> Result<String, io::Error> {
-        debugln!("fn=val;arg={}", arg.name());
+        debugln!("fn=val;arg={}", arg);
         if arg.takes_value() {
             if let Some(vec) = arg.val_names() {
                 let mut it = vec.iter().peekable();
@@ -330,6 +330,7 @@ impl<'a> Help<'a> {
             debugln!("nlh...{:?}", nlh);
             debugln!("taken...{}", taken);
             debugln!("help_width > (width - taken)...{} > ({} - {})", h_w, self.term_w, taken);
+            debugln!("longest...{}", self.longest);
             debug!("next_line...");
             if !(nlh || self.force_next_line) {
                 sdebugln!("No");
@@ -433,11 +434,11 @@ impl<'a> Help<'a> {
             sdebugln!("Yes");
             help.push_str(h);
             help.push_str(&*spec_vals);
-            debugln!("help: {}", help);
-            debugln!("help width: {}", str_width(&*help));
+            debugln!("help...{}", help);
+            debugln!("help width...{}", str_width(&*help));
             // Determine how many newlines we need to insert
             let avail_chars = self.term_w - spcs;
-            debugln!("Usable space: {}", avail_chars);
+            debugln!("Usable space...{}", avail_chars);
             let longest_w = {
                 let mut lw = 0;
                 for l in help.split(' ').map(|s| str_width(s)) {
@@ -483,7 +484,7 @@ impl<'a> Help<'a> {
     }
 
     fn spec_vals(&self, a: &ArgWithDisplay) -> String {
-        debugln!("fn=spec_vals;a={}", a.name());
+        debugln!("fn=spec_vals;a={}", a);
         let mut spec_vals = vec![];
         if let Some(pv) = a.default_val() {
             debugln!("Found default value...[{}]", pv);
