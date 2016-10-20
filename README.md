@@ -41,6 +41,21 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.14.1 (Huge thanks to all the contributors who put in a lot of work this cycle! Especially @tormol @nabijaczleweli and @wdv4758h)
+
+* Stabilize `clap_app!` macro (i.e. no longer need to use `unstable` feature)
+* Fixes a bug that made determining when to auto-wrap long help messages inconsistent
+* Fixes fish completions for nested subcommands
+* Improve documentation around features
+* Reword docs for `ErrorKind` and `App::settings`
+* Fix tests that fail when the `suggestions` feature is disabled
+* Fix the `OsString`-using doc-tests
+* Tag non-rust code blocks as such instead of ignoring them
+* Improve some errors about subcommands
+* Makes sure the doc-tests don't fail before "missing file" in YAML tests
+* Deprecate `App::with_defaults`
+* Make lints not enable other nightly-requiring features
+
 Here's the highlights for v2.14.0
 
 * One can now alias arguments either visibly (whichc appears in the help text) or invisibly just like subcommands!

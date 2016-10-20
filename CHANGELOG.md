@@ -1,3 +1,30 @@
+<a name="v2.14.1"></a>
+### v2.14.1 (2016-10-20)
+
+
+#### Documentation
+
+*   Improve documentation around features ([4ee85b95](https://github.com/kbknapp/clap-rs/commit/4ee85b95d2d16708a016a3ba4e6e2c93b89b7fad))
+*   reword docs for ErrorKind and app::Settings ([3ccde7a4](https://github.com/kbknapp/clap-rs/commit/3ccde7a4b8f7a2ea8b916a5415c04a8ff4b5cb7a))
+*   fix tests that fail when the "suggestions" feature is disabled ([996fc381](https://github.com/kbknapp/clap-rs/commit/996fc381763a48d125c7ea8a58fed057fd0b4ac6))
+*   fix the OsString-using doc-tests ([af9e1a39](https://github.com/kbknapp/clap-rs/commit/af9e1a393ce6cdda46a03c8a4f48df222b015a24))
+*   tag non-rust code blocks as such instead of ignoring them ([0ba9f4b1](https://github.com/kbknapp/clap-rs/commit/0ba9f4b123f281952581b6dec948f7e51dd22890))
+* **ErrorKind:**  improve some errors about subcommands ([9f6217a4](https://github.com/kbknapp/clap-rs/commit/9f6217a424da823343d7b801b9c350dee3cd1906))
+* **yaml:**  make sure the doc-tests don't fail before "missing file" ([8c0f5551](https://github.com/kbknapp/clap-rs/commit/8c0f55516f4910c78c9f8a2bdbd822729574f95b))
+
+#### Improvements
+
+*   Stabilize clap_app! ([cd516006](https://github.com/kbknapp/clap-rs/commit/cd516006e35c37b005f329338560a0a53d1f3e00))
+* **with_defaults:**  Deprecate App::with_defaults() ([26085409](https://github.com/kbknapp/clap-rs/commit/2608540940c8bb66e517b65706bc7dea55510682), closes [#638](https://github.com/kbknapp/clap-rs/issues/638))
+
+#### Bug Fixes
+
+*   fixes a bug that made determining when to auto-wrap long help messages inconsistent ([468baadb](https://github.com/kbknapp/clap-rs/commit/468baadb8398fc1d37897b0c49374aef4cf97dca), closes [#688](https://github.com/kbknapp/clap-rs/issues/688))
+* **Completions:**  fish completions for nested subcommands ([a61eaf8a](https://github.com/kbknapp/clap-rs/commit/a61eaf8aade76cfe90ccc0f7125751ebf60e3254))
+* **features:**  Make lints not enable other nightly-requiring features ([835f75e3](https://github.com/kbknapp/clap-rs/commit/835f75e3ba20999117363ed9f916464d777f36ef))
+
+
+
 <a name="v2.14.0"></a>
 ## v2.14.0 (2016-10-05)
 
