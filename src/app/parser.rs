@@ -647,7 +647,7 @@ impl<'a, 'b> Parser<'a, 'b>
         if sc.meta.bin_name != self.meta.bin_name {
             sc.meta.bin_name = Some(format!("{} {}", bin_name, sc.meta.name));
         }
-        return sc._help();
+        sc._help()
     }
 
     // The actual parsing function
@@ -696,8 +696,8 @@ impl<'a, 'b> Parser<'a, 'b>
                     // Check to see if parsing a value from an option
                     if let Some(arg) = needs_val_of {
                         // get the OptBuilder so we can check the settings
-                        if let Some(ref opt) = self.get_opt(&arg) {
-                            needs_val_of = try!(self.add_val_to_arg(*opt, &arg_os, matcher));
+                        if let Some(opt) = self.get_opt(arg) {
+                            needs_val_of = try!(self.add_val_to_arg(&*opt, &arg_os, matcher));
                             // get the next value from the iterator
                             continue;
                         }

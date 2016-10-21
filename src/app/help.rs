@@ -508,7 +508,7 @@ impl<'a> Help<'a> {
             }));
         } 
         if !self.hide_pv && !a.is_set(ArgSettings::HidePossibleValues) {
-            if let Some(ref pv) = a.possible_vals() {
+            if let Some(pv) = a.possible_vals() {
                 debugln!("Found possible vals...{:?}", pv);
                 spec_vals.push(if self.color {
                     format!(" [values: {}]",
