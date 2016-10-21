@@ -394,10 +394,11 @@
         missing_debug_implementations,
         missing_copy_implementations,
         trivial_casts,
-// trivial_numeric_casts,       // While bitflags fails this lint
         unused_import_braces,
-        unused_allocation,
-        unused_qualifications)]
+        unused_allocation)]
+// Lints we'd like to deny but are currently failing for upstream crates
+//      unused_qualifications       (bitflags, clippy)
+//      trivial_numeric_casts       (bitflags)
 #![cfg_attr(not(any(feature = "lints", feature = "nightly")), forbid(unstable_features))]
 #![cfg_attr(feature = "lints", feature(plugin))]
 #![cfg_attr(feature = "lints", plugin(clippy))]

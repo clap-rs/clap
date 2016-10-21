@@ -353,15 +353,15 @@ impl<'a, 'b> Parser<'a, 'b>
         c_opt.dedup();
         grps.dedup();
         let args_in_groups = grps.iter()
-                                 .flat_map(|g| self.arg_names_in_group(g) )
-                                 .collect::<Vec<_>>();
+            .flat_map(|g| self.arg_names_in_group(g))
+            .collect::<Vec<_>>();
 
         let pmap = c_pos.into_iter()
-                        .filter(|&p| matcher.is_none() || !matcher.as_ref().unwrap().contains(p) )
-                        .filter_map(|p| self.positionals.values().find(|x| x.name == p ) )
-                        .filter(|p| !args_in_groups.contains(&p.name) )
-                        .map(|p| (p.index, p) )
-                        .collect::<BTreeMap<u64,&PosBuilder>>();// sort by index
+            .filter(|&p| matcher.is_none() || !matcher.as_ref().unwrap().contains(p))
+            .filter_map(|p| self.positionals.values().find(|x| x.name == p))
+            .filter(|p| !args_in_groups.contains(&p.name))
+            .map(|p| (p.index, p))
+            .collect::<BTreeMap<u64, &PosBuilder>>();// sort by index
         debugln!("args_in_groups={:?}", args_in_groups);
         for &p in pmap.values() {
             let s = p.to_string();
@@ -542,6 +542,114 @@ impl<'a, 'b> Parser<'a, 'b>
         }
     }
 
+    // Checks if the arg matches a subcommand name, or any of it's aliases (if defined)
+    #[inline]
+    fn possible_subcommand(&self, arg_os: &OsStr) -> bool {
+        debugln!("fn=possible_subcommand");
+        self.subcommands
+            .iter()
+            .any(|s| {
+                &s.p.meta.name[..] == &*arg_os ||
+                (s.p.meta.aliases.is_some() &&
+                 s.p
+                    .meta
+                    .aliases
+                    .as_ref()
+                    .unwrap()
+                    .iter()
+                    .any(|&(a, _)| a == &*arg_os))
+            })
+    }
+
+    #[inline]
+    fn get_opt(&self, arg: &str) -> Option<&OptBuilder<'a, 'b>> {
+        debugln!("fn=get_opt");
+        self.opts
+            .iter()
+            .find(|o| {
+                &o.name == &arg ||
+                (o.aliases.is_some() &&
+                 o.aliases
+                    .as_ref()
+                    .unwrap()
+                    .iter()
+                    .any(|&(a, _)| a == arg))
+            })
+    }
+
+    fn parse_help_subcommand<I, T>(&self, it: &mut I) -> ClapResult<()>
+        where I: Iterator<Item = T>,
+              T: Into<OsString>
+    {
+        debugln!("fn=parse_help_subcommand;");
+        let cmds: Vec<OsString> = it.map(|c| c.into()).collect();
+        let mut help_help = false;
+        let mut bin_name = self.meta
+            .bin_name
+            .as_ref()
+            .unwrap_or(&self.meta.name)
+            .clone();
+        let mut sc = {
+            let mut sc: &Parser = self;
+            for (i, cmd) in cmds.iter().enumerate() {
+                if &*cmd.to_string_lossy() == "help" {
+                    // cmd help help
+                    help_help = true;
+                }
+                if let Some(c) = sc.subcommands
+                    .iter()
+                    .find(|s| &*s.p.meta.name == cmd)
+                    .map(|sc| &sc.p) {
+                    sc = c;
+                    if i == cmds.len() - 1 {
+                        break;
+                    }
+                } else if let Some(c) = sc.subcommands
+                    .iter()
+                    .find(|s| if let Some(ref als) = s.p
+                        .meta
+                        .aliases {
+                        als.iter()
+                            .any(|&(a, _)| &a == &&*cmd.to_string_lossy())
+                    } else {
+                        false
+                    })
+                    .map(|sc| &sc.p) {
+                    sc = c;
+                    if i == cmds.len() - 1 {
+                        break;
+                    }
+                } else {
+                    return Err(Error::unrecognized_subcommand(cmd.to_string_lossy().into_owned(),
+                                                              self.meta
+                                                                  .bin_name
+                                                                  .as_ref()
+                                                                  .unwrap_or(&self.meta.name),
+                                                              self.color()));
+                }
+                bin_name = format!("{} {}",
+                    bin_name,
+                    &*sc.meta.name);
+            }
+            sc.clone()
+        };
+        if help_help {
+            let mut pb = PosBuilder::new("subcommand", 1);
+            pb.help = Some("The subcommand whose help message to display");
+            pb.set(ArgSettings::Multiple);
+            sc.positionals.insert(1, pb);
+            for s in self.g_settings.clone() {
+                sc.set(s);
+            }
+        } else {
+            sc.create_help_and_version();
+        }
+        if sc.meta.bin_name != self.meta.bin_name {
+            sc.meta.bin_name = Some(format!("{} {}", bin_name, sc.meta.name));
+        }
+        sc._help()
+    }
+
     // The actual parsing function
     #[cfg_attr(feature = "lints", allow(while_let_on_iterator))]
     pub fn get_matches_with<I, T>(&mut self,
@@ -566,45 +674,30 @@ impl<'a, 'b> Parser<'a, 'b>
             // Is this a new argument, or values from a previous option?
             debug!("Starts new arg...");
             let starts_new_arg = if arg_os.starts_with(b"-") {
-                sdebugln!("Yes");
+                sdebugln!("Maybe");
+                // a singe '-' by itself is a value and typically means "stdin" on unix systems
                 !(arg_os.len_() == 1)
             } else {
                 sdebugln!("No");
                 false
             };
 
-            // Has the user already passed '--'?
+            // Has the user already passed '--'? Meaning only positional args follow
             if !self.trailing_vals {
                 // Does the arg match a subcommand name, or any of it's aliases (if defined)
-                let pos_sc = self.subcommands
-                    .iter()
-                    .any(|s| {
-                        &s.p.meta.name[..] == &*arg_os ||
-                        (s.p.meta.aliases.is_some() &&
-                         s.p
-                            .meta
-                            .aliases
-                            .as_ref()
-                            .unwrap()
-                            .iter()
-                            .any(|&(a, _)| a == &*arg_os))
-                    });
-                if (!starts_new_arg || self.is_set(AppSettings::AllowLeadingHyphen)) && !pos_sc {
+                let pos_sc = self.possible_subcommand(&arg_os);
+
+                // If the arg doesn't start with a `-` (except numbers, or AllowLeadingHyphen) and
+                // isn't a subcommand
+                if (!starts_new_arg ||
+                    (self.is_set(AppSettings::AllowLeadingHyphen) ||
+                     self.is_set(AppSettings::AllowNegativeNumbers))) &&
+                   !pos_sc {
                     // Check to see if parsing a value from an option
-                    if let Some(nvo) = needs_val_of {
+                    if let Some(arg) = needs_val_of {
                         // get the OptBuilder so we can check the settings
-                        if let Some(opt) = self.opts
-                            .iter()
-                            .find(|o| {
-                                &o.name == &nvo ||
-                                (o.aliases.is_some() &&
-                                 o.aliases
-                                    .as_ref()
-                                    .unwrap()
-                                    .iter()
-                                    .any(|&(a, _)| a == &*nvo))
-                            }) {
-                            needs_val_of = try!(self.add_val_to_arg(opt, &arg_os, matcher));
+                        if let Some(opt) = self.get_opt(arg) {
+                            needs_val_of = try!(self.add_val_to_arg(&*opt, &arg_os, matcher));
                             // get the next value from the iterator
                             continue;
                         }
@@ -623,92 +716,42 @@ impl<'a, 'b> Parser<'a, 'b>
                         continue;
                     }
                 } else if arg_os.starts_with(b"-") && arg_os.len_() != 1 {
+                    // Try to parse short args like normal, if AllowLeadingHyphen or
+                    // AllowNegativeNumbers is set, parse_short_arg will *not* throw
+                    // an error, and instead return Ok(None)
                     needs_val_of = try!(self.parse_short_arg(matcher, &arg_os));
-                    if !(needs_val_of.is_none() && self.is_set(AppSettings::AllowLeadingHyphen)) {
+                    // If it's None, we then check if one of those two AppSettings was set
+                    debugln!("AllowLeadingHyphen set...{:?}", self.is_set(AppSettings::AllowLeadingHyphen));
+                    debugln!("AllowNegativeNumbers set...{:?}", self.is_set(AppSettings::AllowNegativeNumbers));
+                    debugln!("Valid negative number...{:?}", (arg_os.to_string_lossy().parse::<i64>().is_ok() ||
+                                  arg_os.to_string_lossy().parse::<f64>().is_ok()));
+                    if needs_val_of.is_none() {
+                        if self.is_set(AppSettings::AllowNegativeNumbers) {
+                            if !(arg_os.to_string_lossy().parse::<i64>().is_ok() || arg_os.to_string_lossy().parse::<f64>().is_ok()) {
+                                return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
+                                                            "",
+                                                            &*self.create_current_usage(matcher),
+                                                            self.color()));
+                            }
+                        } else if !self.is_set(AppSettings::AllowLeadingHyphen) {
+                            continue;
+                        }                  
+                    } else {
                         continue;
                     }
                 }
 
                 if pos_sc {
-                    if &*arg_os == "help" &&
-                       self.settings.is_set(AppSettings::NeedsSubcommandHelp) {
-                        let cmds: Vec<OsString> = it.map(|c| c.into()).collect();
-                        let mut help_help = false;
-                        let mut bin_name = self.meta
-                            .bin_name
-                            .as_ref()
-                            .unwrap_or(&self.meta.name)
-                            .clone();
-                        let mut sc = {
-                            let mut sc: &Parser = self;
-                            for (i, cmd) in cmds.iter().enumerate() {
-                                if &*cmd.to_string_lossy() == "help" {
-                                    // cmd help help
-                                    help_help = true;
-                                }
-                                if let Some(c) = sc.subcommands
-                                    .iter()
-                                    .find(|s| &*s.p.meta.name == cmd)
-                                    .map(|sc| &sc.p) {
-                                    sc = c;
-                                    if i == cmds.len() - 1 {
-                                        break;
-                                    }
-                                } else if let Some(c) = sc.subcommands
-                                    .iter()
-                                    .find(|s| if let Some(ref als) = s.p
-                                        .meta
-                                        .aliases {
-                                        als.iter()
-                                            .any(|&(a, _)| &a == &&*cmd.to_string_lossy())
-                                    } else {
-                                        false
-                                    })
-                                    .map(|sc| &sc.p) {
-                                    sc = c;
-                                    if i == cmds.len() - 1 {
-                                        break;
-                                    }
-                                } else {
-                                    return Err(
-                                        Error::unrecognized_subcommand(
-                                            cmd.to_string_lossy().into_owned(),
-                                            self.meta
-                                                .bin_name
-                                                .as_ref()
-                                                .unwrap_or(&self.meta.name),
-                                            self.color()));
-                                }
-                                bin_name = format!("{} {}",
-                                    bin_name,
-                                    &*sc.meta.name);
-                            }
-                            sc.clone()
-                        };
-                        if help_help {
-                            let mut pb = PosBuilder::new("subcommand", 1);
-                            pb.help = Some("The subcommand whose help message to display");
-                            pb.set(ArgSettings::Multiple);
-                            sc.positionals.insert(1, pb);
-                            for s in self.g_settings.clone() {
-                                sc.set(s);
-                            }
-                        } else {
-                            sc.create_help_and_version();
-                        }
-                        if sc.meta.bin_name != self.meta.bin_name {
-                            sc.meta.bin_name = Some(format!("{} {}", bin_name, sc.meta.name));
-                        }
-                        return sc._help();
+                    if &*arg_os == "help" && self.is_set(AppSettings::NeedsSubcommandHelp) {
+                        try!(self.parse_help_subcommand(it));
                     }
                     subcmd_name = Some(arg_os.to_str().expect(INVALID_UTF8).to_owned());
                     break;
-                } else if let Some(cdate) = suggestions::did_you_mean(&*arg_os.to_string_lossy(),
-                                                                      self.subcommands
-                                                                          .iter()
-                                                                          .map(|s| {
-                                                                              &s.p.meta.name
-                                                                          })) {
+                } else if let Some(cdate) =
+                              suggestions::did_you_mean(&*arg_os.to_string_lossy(),
+                                                        self.subcommands
+                                                            .iter()
+                                                            .map(|s| &s.p.meta.name)) {
                     return Err(Error::invalid_subcommand(arg_os.to_string_lossy().into_owned(),
                                                          cdate,
                                                          self.meta
@@ -752,7 +795,8 @@ impl<'a, 'b> Parser<'a, 'b>
                     name: sc_name,
                     matches: sc_m.into(),
                 });
-            } else if !self.settings.is_set(AppSettings::AllowLeadingHyphen) {
+            } else if !(self.is_set(AppSettings::AllowLeadingHyphen) ||
+                        self.is_set(AppSettings::AllowNegativeNumbers)) {
                 return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
                                                    "",
                                                    &*self.create_current_usage(matcher),
@@ -1222,16 +1266,15 @@ impl<'a, 'b> Parser<'a, 'b>
 
         if let Some(opt) = self.opts
             .iter()
-            .find(|v|
-                (v.long.is_some() &&
-                 &*v.long.unwrap() == arg) ||
+            .find(|v| {
+                (v.long.is_some() && &*v.long.unwrap() == arg) ||
                 (v.aliases.is_some() &&
                  v.aliases
                     .as_ref()
                     .unwrap()
                     .iter()
                     .any(|&(n, _)| n == &*arg))
-            ) {
+            }) {
             debugln!("Found valid opt '{}'", opt.to_string());
             let ret = try!(self.parse_opt(val, opt, matcher));
             arg_post_processing!(self, opt, matcher);
@@ -1239,16 +1282,15 @@ impl<'a, 'b> Parser<'a, 'b>
             return Ok(ret);
         } else if let Some(flag) = self.flags
             .iter()
-            .find(|v|
-                (v.long.is_some() &&
-                 &*v.long.unwrap() == arg) ||
+            .find(|v| {
+                (v.long.is_some() && &*v.long.unwrap() == arg) ||
                 (v.aliases.is_some() &&
                  v.aliases
                     .as_ref()
                     .unwrap()
                     .iter()
                     .any(|&(n, _)| n == &*arg))
-            ) {
+            }) {
             debugln!("Found valid flag '{}'", flag.to_string());
             // Only flags could be help or version, and we need to check the raw long
             // so this is the first point to check
@@ -1261,6 +1303,10 @@ impl<'a, 'b> Parser<'a, 'b>
 
             return Ok(None);
         } else if self.is_set(AppSettings::AllowLeadingHyphen) {
+            return Ok(None);
+        } else if self.is_set(AppSettings::AllowNegativeNumbers) &&
+                  (arg.to_string_lossy().parse::<i64>().is_ok() ||
+                   arg.to_string_lossy().parse::<f64>().is_ok()) {
             return Ok(None);
         }
 
@@ -1319,7 +1365,8 @@ impl<'a, 'b> Parser<'a, 'b>
                 // Handle conflicts, requirements, overrides, etc.
                 // Must be called here due to mutablilty
                 arg_post_processing!(self, flag, matcher);
-            } else if !self.is_set(AppSettings::AllowLeadingHyphen) {
+            } else if !(self.is_set(AppSettings::AllowLeadingHyphen) ||
+                        self.is_set(AppSettings::AllowNegativeNumbers)) {
                 let mut arg = String::new();
                 arg.push('-');
                 arg.push(c);
@@ -1363,9 +1410,9 @@ impl<'a, 'b> Parser<'a, 'b>
         self.groups_for_arg(opt.name).and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
 
         if val.is_none() ||
-           !has_eq && (opt.is_set(ArgSettings::Multiple) &&
-                       !opt.is_set(ArgSettings::RequireDelimiter) &&
-                       matcher.needs_more_vals(opt)) {
+           !has_eq &&
+           (opt.is_set(ArgSettings::Multiple) && !opt.is_set(ArgSettings::RequireDelimiter) &&
+            matcher.needs_more_vals(opt)) {
             return Ok(Some(opt.name));
         }
         Ok(None)

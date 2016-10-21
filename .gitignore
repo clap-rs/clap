@@ -21,3 +21,6 @@ Cargo.lock
 *.bak
 *.bk
 *.orig
+
+# Project files
+.vscode/*
