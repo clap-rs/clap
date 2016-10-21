@@ -3,7 +3,7 @@ extern crate regex;
 
 include!("../clap-test.rs");
 
-use clap::{App, SubCommand, ErrorKind, Arg};
+use clap::{App, AppSettings, SubCommand, ErrorKind, Arg};
 
 static HELP: &'static str = "clap-test v1.4.8
 Kevin K. <kbknapp@gmail.com>
@@ -143,6 +143,21 @@ FLAGS:
     -m               Some help with some wrapping
                      (Defaults to something)
     -V, --version    Prints version information";
+
+
+static ISSUE_688: &'static str = "ctest 0.1
+
+USAGE:
+    ctest [OPTIONS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+        --filter <filter>    Sets the filter, or sampling method, to use for interpolation when resizing the particle
+                             images. The default is Linear (Bilinear). [values: Nearest, Linear, Cubic, Gaussian,
+                             Lanczos3]";
 
 #[test]
 fn help_short() {
@@ -350,4 +365,42 @@ fn old_newline_chars() {
             .short("m")
             .help("Some help with some wrapping{n}(Defaults to something)"));
     test::check_err_output(app, "ctest --help", OLD_NEWLINE_CHARS, false);
+}
+
+#[test]
+fn issue_688_hidden_pos_vals() {
+	let filter_values = ["Nearest", "Linear", "Cubic", "Gaussian", "Lanczos3"];
+
+	let app1 = App::new("ctest")
+            .version("0.1")
+			.set_term_width(120)
+			.setting(AppSettings::HidePossibleValuesInHelp)
+			.arg(Arg::with_name("filter")
+				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
+                images. The default is Linear (Bilinear). [values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
+				.long("filter")
+				.possible_values(&filter_values)
+				.takes_value(true));
+    test::check_err_output(app1, "ctest --help", ISSUE_688, false);
+
+	let app2 = App::new("ctest")
+            .version("0.1")
+			.set_term_width(120)
+			.arg(Arg::with_name("filter")
+				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
+                images. The default is Linear (Bilinear).")
+				.long("filter")
+				.possible_values(&filter_values)
+				.takes_value(true));
+    test::check_err_output(app2, "ctest --help", ISSUE_688, false);
+
+	let app3 = App::new("ctest")
+            .version("0.1")
+			.set_term_width(120)
+			.arg(Arg::with_name("filter")
+				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
+                images. The default is Linear (Bilinear). [values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
+				.long("filter")
+				.takes_value(true));
+    test::check_err_output(app3, "ctest --help", ISSUE_688, false);
 }

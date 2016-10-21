@@ -637,7 +637,7 @@ macro_rules! write_spaces {
 //    src/app/mod.rs
 macro_rules! write_nspaces {
     ($dst:expr, $num:expr) => ({
-        debugln!("macro=write_spaces!;");
+        debugln!("macro=write_spaces!;num={}", $num);
         for _ in 0..$num {
             try!($dst.write(b" "));
         }

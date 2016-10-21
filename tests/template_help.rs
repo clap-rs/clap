@@ -15,7 +15,7 @@ USAGE:
     MyApp [FLAGS] [OPTIONS] <output> [SUBCOMMAND]
 
 FLAGS:
-    -d      Turn debugging information on
+    -d        Turn debugging information on
 OPTIONS:
     -c, --config <FILE>    Sets a custom config file
 ARGS:
@@ -31,7 +31,7 @@ USAGE:
     MyApp [FLAGS] [OPTIONS] <output> [SUBCOMMAND]
 
 FLAGS:
-    -d      Turn debugging information on
+    -d        Turn debugging information on
 
 OPTIONS:
     -c, --config <FILE>    Sets a custom config file
