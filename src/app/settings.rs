@@ -170,7 +170,7 @@ pub enum AppSettings {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, AppSettings, ErrorKind};
+    /// # use clap::{App, Arg, AppSettings};
     /// let res = App::new("myprog")
     ///     .version("v1.1")
     ///     .setting(AppSettings::AllowNegativeNumbers)
