@@ -353,15 +353,15 @@ impl<'a, 'b> Parser<'a, 'b>
         c_opt.dedup();
         grps.dedup();
         let args_in_groups = grps.iter()
-                                 .flat_map(|g| self.arg_names_in_group(g) )
-                                 .collect::<Vec<_>>();
+            .flat_map(|g| self.arg_names_in_group(g))
+            .collect::<Vec<_>>();
 
         let pmap = c_pos.into_iter()
-                        .filter(|&p| matcher.is_none() || !matcher.as_ref().unwrap().contains(p) )
-                        .filter_map(|p| self.positionals.values().find(|x| x.name == p ) )
-                        .filter(|p| !args_in_groups.contains(&p.name) )
-                        .map(|p| (p.index, p) )
-                        .collect::<BTreeMap<u64,&PosBuilder>>();// sort by index
+            .filter(|&p| matcher.is_none() || !matcher.as_ref().unwrap().contains(p))
+            .filter_map(|p| self.positionals.values().find(|x| x.name == p))
+            .filter(|p| !args_in_groups.contains(&p.name))
+            .map(|p| (p.index, p))
+            .collect::<BTreeMap<u64, &PosBuilder>>();// sort by index
         debugln!("args_in_groups={:?}", args_in_groups);
         for &p in pmap.values() {
             let s = p.to_string();
@@ -1266,16 +1266,15 @@ impl<'a, 'b> Parser<'a, 'b>
 
         if let Some(opt) = self.opts
             .iter()
-            .find(|v|
-                (v.long.is_some() &&
-                 &*v.long.unwrap() == arg) ||
+            .find(|v| {
+                (v.long.is_some() && &*v.long.unwrap() == arg) ||
                 (v.aliases.is_some() &&
                  v.aliases
                     .as_ref()
                     .unwrap()
                     .iter()
                     .any(|&(n, _)| n == &*arg))
-            ) {
+            }) {
             debugln!("Found valid opt '{}'", opt.to_string());
             let ret = try!(self.parse_opt(val, opt, matcher));
             arg_post_processing!(self, opt, matcher);
@@ -1283,16 +1282,15 @@ impl<'a, 'b> Parser<'a, 'b>
             return Ok(ret);
         } else if let Some(flag) = self.flags
             .iter()
-            .find(|v|
-                (v.long.is_some() &&
-                 &*v.long.unwrap() == arg) ||
+            .find(|v| {
+                (v.long.is_some() && &*v.long.unwrap() == arg) ||
                 (v.aliases.is_some() &&
                  v.aliases
                     .as_ref()
                     .unwrap()
                     .iter()
                     .any(|&(n, _)| n == &*arg))
-            ) {
+            }) {
             debugln!("Found valid flag '{}'", flag.to_string());
             // Only flags could be help or version, and we need to check the raw long
             // so this is the first point to check
@@ -1412,9 +1410,9 @@ impl<'a, 'b> Parser<'a, 'b>
         self.groups_for_arg(opt.name).and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
 
         if val.is_none() ||
-           !has_eq && (opt.is_set(ArgSettings::Multiple) &&
-                       !opt.is_set(ArgSettings::RequireDelimiter) &&
-                       matcher.needs_more_vals(opt)) {
+           !has_eq &&
+           (opt.is_set(ArgSettings::Multiple) && !opt.is_set(ArgSettings::RequireDelimiter) &&
+            matcher.needs_more_vals(opt)) {
             return Ok(Some(opt.name));
         }
         Ok(None)
