@@ -542,6 +542,114 @@ impl<'a, 'b> Parser<'a, 'b>
         }
     }
 
+    // Checks if the arg matches a subcommand name, or any of it's aliases (if defined)
+    #[inline]
+    fn possible_subcommand(&self, arg_os: &OsStr) -> bool {
+        debugln!("fn=possible_subcommand");
+        self.subcommands
+            .iter()
+            .any(|s| {
+                &s.p.meta.name[..] == &*arg_os ||
+                (s.p.meta.aliases.is_some() &&
+                 s.p
+                    .meta
+                    .aliases
+                    .as_ref()
+                    .unwrap()
+                    .iter()
+                    .any(|&(a, _)| a == &*arg_os))
+            })
+    }
+
+    #[inline]
+    fn get_opt(&self, arg: &str) -> Option<&OptBuilder<'a, 'b>> {
+        debugln!("fn=get_opt");
+        self.opts
+            .iter()
+            .find(|o| {
+                &o.name == &arg ||
+                (o.aliases.is_some() &&
+                 o.aliases
+                    .as_ref()
+                    .unwrap()
+                    .iter()
+                    .any(|&(a, _)| a == arg))
+            })
+    }
+
+    fn parse_help_subcommand<I, T>(&self, it: &mut I) -> ClapResult<()>
+        where I: Iterator<Item = T>,
+              T: Into<OsString>
+    {
+        debugln!("fn=parse_help_subcommand;");
+        let cmds: Vec<OsString> = it.map(|c| c.into()).collect();
+        let mut help_help = false;
+        let mut bin_name = self.meta
+            .bin_name
+            .as_ref()
+            .unwrap_or(&self.meta.name)
+            .clone();
+        let mut sc = {
+            let mut sc: &Parser = self;
+            for (i, cmd) in cmds.iter().enumerate() {
+                if &*cmd.to_string_lossy() == "help" {
+                    // cmd help help
+                    help_help = true;
+                }
+                if let Some(c) = sc.subcommands
+                    .iter()
+                    .find(|s| &*s.p.meta.name == cmd)
+                    .map(|sc| &sc.p) {
+                    sc = c;
+                    if i == cmds.len() - 1 {
+                        break;
+                    }
+                } else if let Some(c) = sc.subcommands
+                    .iter()
+                    .find(|s| if let Some(ref als) = s.p
+                        .meta
+                        .aliases {
+                        als.iter()
+                            .any(|&(a, _)| &a == &&*cmd.to_string_lossy())
+                    } else {
+                        false
+                    })
+                    .map(|sc| &sc.p) {
+                    sc = c;
+                    if i == cmds.len() - 1 {
+                        break;
+                    }
+                } else {
+                    return Err(Error::unrecognized_subcommand(cmd.to_string_lossy().into_owned(),
+                                                              self.meta
+                                                                  .bin_name
+                                                                  .as_ref()
+                                                                  .unwrap_or(&self.meta.name),
+                                                              self.color()));
+                }
+                bin_name = format!("{} {}",
+                    bin_name,
+                    &*sc.meta.name);
+            }
+            sc.clone()
+        };
+        if help_help {
+            let mut pb = PosBuilder::new("subcommand", 1);
+            pb.help = Some("The subcommand whose help message to display");
+            pb.set(ArgSettings::Multiple);
+            sc.positionals.insert(1, pb);
+            for s in self.g_settings.clone() {
+                sc.set(s);
+            }
+        } else {
+            sc.create_help_and_version();
+        }
+        if sc.meta.bin_name != self.meta.bin_name {
+            sc.meta.bin_name = Some(format!("{} {}", bin_name, sc.meta.name));
+        }
+        return sc._help();
+    }
+
     // The actual parsing function
     #[cfg_attr(feature = "lints", allow(while_let_on_iterator))]
     pub fn get_matches_with<I, T>(&mut self,
@@ -608,92 +716,42 @@ impl<'a, 'b> Parser<'a, 'b>
                         continue;
                     }
                 } else if arg_os.starts_with(b"-") && arg_os.len_() != 1 {
+                    // Try to parse short args like normal, if AllowLeadingHyphen or
+                    // AllowNegativeNumbers is set, parse_short_arg will *not* throw
+                    // an error, and instead return Ok(None)
                     needs_val_of = try!(self.parse_short_arg(matcher, &arg_os));
-                    if !(needs_val_of.is_none() && self.is_set(AppSettings::AllowLeadingHyphen)) {
+                    // If it's None, we then check if one of those two AppSettings was set
+                    debugln!("AllowLeadingHyphen set...{:?}", self.is_set(AppSettings::AllowLeadingHyphen));
+                    debugln!("AllowNegativeNumbers set...{:?}", self.is_set(AppSettings::AllowNegativeNumbers));
+                    debugln!("Valid negative number...{:?}", (arg_os.to_string_lossy().parse::<i64>().is_ok() ||
+                                  arg_os.to_string_lossy().parse::<f64>().is_ok()));
+                    if needs_val_of.is_none() {
+                        if self.is_set(AppSettings::AllowNegativeNumbers) {
+                            if !(arg_os.to_string_lossy().parse::<i64>().is_ok() || arg_os.to_string_lossy().parse::<f64>().is_ok()) {
+                                return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
+                                                            "",
+                                                            &*self.create_current_usage(matcher),
+                                                            self.color()));
+                            }
+                        } else if !self.is_set(AppSettings::AllowLeadingHyphen) {
+                            continue;
+                        }                  
+                    } else {
                         continue;
                     }
                 }
 
                 if pos_sc {
-                    if &*arg_os == "help" &&
-                       self.settings.is_set(AppSettings::NeedsSubcommandHelp) {
-                        let cmds: Vec<OsString> = it.map(|c| c.into()).collect();
-                        let mut help_help = false;
-                        let mut bin_name = self.meta
-                            .bin_name
-                            .as_ref()
-                            .unwrap_or(&self.meta.name)
-                            .clone();
-                        let mut sc = {
-                            let mut sc: &Parser = self;
-                            for (i, cmd) in cmds.iter().enumerate() {
-                                if &*cmd.to_string_lossy() == "help" {
-                                    // cmd help help
-                                    help_help = true;
-                                }
-                                if let Some(c) = sc.subcommands
-                                    .iter()
-                                    .find(|s| &*s.p.meta.name == cmd)
-                                    .map(|sc| &sc.p) {
-                                    sc = c;
-                                    if i == cmds.len() - 1 {
-                                        break;
-                                    }
-                                } else if let Some(c) = sc.subcommands
-                                    .iter()
-                                    .find(|s| if let Some(ref als) = s.p
-                                        .meta
-                                        .aliases {
-                                        als.iter()
-                                            .any(|&(a, _)| &a == &&*cmd.to_string_lossy())
-                                    } else {
-                                        false
-                                    })
-                                    .map(|sc| &sc.p) {
-                                    sc = c;
-                                    if i == cmds.len() - 1 {
-                                        break;
-                                    }
-                                } else {
-                                    return Err(
-                                        Error::unrecognized_subcommand(
-                                            cmd.to_string_lossy().into_owned(),
-                                            self.meta
-                                                .bin_name
-                                                .as_ref()
-                                                .unwrap_or(&self.meta.name),
-                                            self.color()));
-                                }
-                                bin_name = format!("{} {}",
-                                    bin_name,
-                                    &*sc.meta.name);
-                            }
-                            sc.clone()
-                        };
-                        if help_help {
-                            let mut pb = PosBuilder::new("subcommand", 1);
-                            pb.help = Some("The subcommand whose help message to display");
-                            pb.set(ArgSettings::Multiple);
-                            sc.positionals.insert(1, pb);
-                            for s in self.g_settings.clone() {
-                                sc.set(s);
-                            }
-                        } else {
-                            sc.create_help_and_version();
-                        }
-                        if sc.meta.bin_name != self.meta.bin_name {
-                            sc.meta.bin_name = Some(format!("{} {}", bin_name, sc.meta.name));
-                        }
-                        return sc._help();
+                    if &*arg_os == "help" && self.is_set(AppSettings::NeedsSubcommandHelp) {
+                        try!(self.parse_help_subcommand(it));
                     }
                     subcmd_name = Some(arg_os.to_str().expect(INVALID_UTF8).to_owned());
                     break;
-                } else if let Some(cdate) = suggestions::did_you_mean(&*arg_os.to_string_lossy(),
-                                                                      self.subcommands
-                                                                          .iter()
-                                                                          .map(|s| {
-                                                                              &s.p.meta.name
-                                                                          })) {
+                } else if let Some(cdate) =
+                              suggestions::did_you_mean(&*arg_os.to_string_lossy(),
+                                                        self.subcommands
+                                                            .iter()
+                                                            .map(|s| &s.p.meta.name)) {
                     return Err(Error::invalid_subcommand(arg_os.to_string_lossy().into_owned(),
                                                          cdate,
                                                          self.meta
