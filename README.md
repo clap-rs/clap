@@ -41,6 +41,11 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.15.0
+
+* **AppSettings:**  adds new setting `AppSettings::AllowNegativeNumbers` which functions like `AllowLeadingHyphen` except only allows undefined negative numbers to pass parsing.
+* Improves some of the documentation of `AppSettings` by moving variants into roughly alphabetical order
+
 Here's the highlights for v2.14.1 (Huge thanks to all the contributors who put in a lot of work this cycle! Especially @tormol @nabijaczleweli and @wdv4758h)
 
 * Stabilize `clap_app!` macro (i.e. no longer need to use `unstable` feature)
