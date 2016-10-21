@@ -566,45 +566,30 @@ impl<'a, 'b> Parser<'a, 'b>
             // Is this a new argument, or values from a previous option?
             debug!("Starts new arg...");
             let starts_new_arg = if arg_os.starts_with(b"-") {
-                sdebugln!("Yes");
+                sdebugln!("Maybe");
+                // a singe '-' by itself is a value and typically means "stdin" on unix systems
                 !(arg_os.len_() == 1)
             } else {
                 sdebugln!("No");
                 false
             };
 
-            // Has the user already passed '--'?
+            // Has the user already passed '--'? Meaning only positional args follow
             if !self.trailing_vals {
                 // Does the arg match a subcommand name, or any of it's aliases (if defined)
-                let pos_sc = self.subcommands
-                    .iter()
-                    .any(|s| {
-                        &s.p.meta.name[..] == &*arg_os ||
-                        (s.p.meta.aliases.is_some() &&
-                         s.p
-                            .meta
-                            .aliases
-                            .as_ref()
-                            .unwrap()
-                            .iter()
-                            .any(|&(a, _)| a == &*arg_os))
-                    });
-                if (!starts_new_arg || self.is_set(AppSettings::AllowLeadingHyphen)) && !pos_sc {
+                let pos_sc = self.possible_subcommand(&arg_os);
+
+                // If the arg doesn't start with a `-` (except numbers, or AllowLeadingHyphen) and
+                // isn't a subcommand
+                if (!starts_new_arg ||
+                    (self.is_set(AppSettings::AllowLeadingHyphen) ||
+                     self.is_set(AppSettings::AllowNegativeNumbers))) &&
+                   !pos_sc {
                     // Check to see if parsing a value from an option
-                    if let Some(nvo) = needs_val_of {
+                    if let Some(arg) = needs_val_of {
                         // get the OptBuilder so we can check the settings
-                        if let Some(opt) = self.opts
-                            .iter()
-                            .find(|o| {
-                                &o.name == &nvo ||
-                                (o.aliases.is_some() &&
-                                 o.aliases
-                                    .as_ref()
-                                    .unwrap()
-                                    .iter()
-                                    .any(|&(a, _)| a == &*nvo))
-                            }) {
-                            needs_val_of = try!(self.add_val_to_arg(opt, &arg_os, matcher));
+                        if let Some(ref opt) = self.get_opt(&arg) {
+                            needs_val_of = try!(self.add_val_to_arg(*opt, &arg_os, matcher));
                             // get the next value from the iterator
                             continue;
                         }
@@ -752,7 +737,8 @@ impl<'a, 'b> Parser<'a, 'b>
                     name: sc_name,
                     matches: sc_m.into(),
                 });
-            } else if !self.settings.is_set(AppSettings::AllowLeadingHyphen) {
+            } else if !(self.is_set(AppSettings::AllowLeadingHyphen) ||
+                        self.is_set(AppSettings::AllowNegativeNumbers)) {
                 return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
                                                    "",
                                                    &*self.create_current_usage(matcher),
@@ -1262,6 +1248,10 @@ impl<'a, 'b> Parser<'a, 'b>
             return Ok(None);
         } else if self.is_set(AppSettings::AllowLeadingHyphen) {
             return Ok(None);
+        } else if self.is_set(AppSettings::AllowNegativeNumbers) &&
+                  (arg.to_string_lossy().parse::<i64>().is_ok() ||
+                   arg.to_string_lossy().parse::<f64>().is_ok()) {
+            return Ok(None);
         }
 
         debugln!("Didn't match anything");
@@ -1319,7 +1309,8 @@ impl<'a, 'b> Parser<'a, 'b>
                 // Handle conflicts, requirements, overrides, etc.
                 // Must be called here due to mutablilty
                 arg_post_processing!(self, flag, matcher);
-            } else if !self.is_set(AppSettings::AllowLeadingHyphen) {
+            } else if !(self.is_set(AppSettings::AllowLeadingHyphen) ||
+                        self.is_set(AppSettings::AllowNegativeNumbers)) {
                 let mut arg = String::new();
                 arg.push('-');
                 arg.push(c);
