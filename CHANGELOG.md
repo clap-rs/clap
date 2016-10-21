@@ -1,3 +1,16 @@
+<a name="v2.15.0"></a>
+## v2.15.0 (2016-10-21)
+
+
+#### Features
+
+* **AppSettings:**  adds new setting `AppSettings::AllowNegativeNumbers` ([ab064546](https://github.com/kbknapp/clap-rs/commit/ab06454677fb6aa9b9f804644fcca2168b1eaee3), closes [#696](https://github.com/kbknapp/clap-rs/issues/696))
+
+#### Documentation
+
+* **app/settings.rs:**  moves variants to roughly alphabetical order ([9ed4d4d7](https://github.com/kbknapp/clap-rs/commit/9ed4d4d7957a23357aef60081e45639ab9e3905f))
+
+
 <a name="v2.14.1"></a>
 ### v2.14.1 (2016-10-20)
 
