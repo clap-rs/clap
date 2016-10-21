@@ -673,10 +673,12 @@ impl<'a, 'b> Parser<'a, 'b>
                                     return Err(
                                         Error::unrecognized_subcommand(
                                             cmd.to_string_lossy().into_owned(),
-                                            self.meta
-                                                .bin_name
-                                                .as_ref()
-                                                .unwrap_or(&self.meta.name),
+                                            format!("Usage:\n\t
+                                                         {} help <subcommands>...\n",
+                                                    match self.meta.bin_name {
+                                                        Some(ref name) => name,
+                                                        None => &self.meta.name,
+                                                    }),
                                             self.color()));
                                 }
                                 bin_name = format!("{} {}",
@@ -717,6 +719,13 @@ impl<'a, 'b> Parser<'a, 'b>
                                                              .unwrap_or(&self.meta.name),
                                                          &*self.create_current_usage(matcher),
                                                          self.color()));
+                } else if self.positionals.is_empty() &&
+                          !self.subcommands.is_empty() {
+                    return Err(
+                        Error::unrecognized_subcommand(
+                             arg_os.to_string_lossy().into_owned(),
+                             &*self.create_current_usage(matcher),
+                             self.color()));
                 }
             }
 

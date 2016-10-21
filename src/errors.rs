@@ -552,9 +552,9 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn unrecognized_subcommand<S, N>(subcmd: S, name: N, color: fmt::ColorWhen) -> Self
+    pub fn unrecognized_subcommand<S, U>(subcmd: S, usage: U, color: fmt::ColorWhen) -> Self
         where S: Into<String>,
-              N: Display
+              U: Display
     {
         let s = subcmd.into();
         let c = fmt::Colorizer {
@@ -563,13 +563,11 @@ impl Error {
         };
         Error {
             message: format!("{} The subcommand '{}' wasn't recognized\n\n\
-                            {}\n\t\
-                                {} help <subcommands>...\n\n\
+                            {}\n\
                             For more information try {}",
                              c.error("error:"),
                              c.warning(&*s),
-                             c.warning("USAGE:"),
-                             name,
+                             usage,
                              c.good("--help")),
             kind: ErrorKind::UnrecognizedSubcommand,
             info: Some(vec![s]),
