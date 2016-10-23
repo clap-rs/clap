@@ -41,6 +41,10 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.16.0
+
+* **Completions:**  adds automatic ZSH completion script generation support! :tada: :tada:
+
 Here's the highlights for v2.15.0
 
 * **AppSettings:**  adds new setting `AppSettings::AllowNegativeNumbers` which functions like `AllowLeadingHyphen` except only allows undefined negative numbers to pass parsing.

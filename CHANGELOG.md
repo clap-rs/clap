@@ -1,3 +1,13 @@
+<a name="v2.16.0"></a>
+## v2.16.0 (2016-10-23)
+
+
+#### Features
+
+* **Completions:**  adds ZSH completion support ([3e36b0ba](https://github.com/kbknapp/clap-rs/commit/3e36b0bac491d3f6194aee14604caf7be26b3d56), closes [#699](https://github.com/kbknapp/clap-rs/issues/699))
+
+
+
 <a name="v2.15.0"></a>
 ## v2.15.0 (2016-10-21)
 
