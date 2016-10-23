@@ -543,16 +543,16 @@ impl<'a> Help<'a> {
         let mut first = true;
 
         if unified_help && (flags || opts) {
-            let opts_flags = parser.iter_flags()
+            let opts_flags = parser.flags()
                 .map(as_arg_trait)
-                .chain(parser.iter_opts().map(as_arg_trait));
+                .chain(parser.opts().map(as_arg_trait));
             try!(color!(self, "OPTIONS:\n", warning));
             try!(self.write_args(opts_flags));
             first = false;
         } else {
             if flags {
                 try!(color!(self, "FLAGS:\n", warning));
-                try!(self.write_args(parser.iter_flags()
+                try!(self.write_args(parser.flags()
                     .map(as_arg_trait)));
                 first = false;
             }
@@ -561,7 +561,7 @@ impl<'a> Help<'a> {
                     try!(self.writer.write(b"\n\n"));
                 }
                 try!(color!(self, "OPTIONS:\n", warning));
-                try!(self.write_args(parser.iter_opts().map(as_arg_trait)));
+                try!(self.write_args(parser.opts().map(as_arg_trait)));
                 first = false;
             }
         }
@@ -571,7 +571,7 @@ impl<'a> Help<'a> {
                 try!(self.writer.write(b"\n\n"));
             }
             try!(color!(self, "ARGS:\n", warning));
-            try!(self.write_args_unsorted(parser.iter_positionals().map(as_arg_trait)));
+            try!(self.write_args_unsorted(parser.positionals().map(as_arg_trait)));
             first = false;
         }
 
@@ -858,21 +858,21 @@ impl<'a> Help<'a> {
                     try!(self.write_all_args(&parser));
                 }
                 b"unified" => {
-                    let opts_flags = parser.iter_flags()
+                    let opts_flags = parser.flags()
                         .map(as_arg_trait)
-                        .chain(parser.iter_opts().map(as_arg_trait));
+                        .chain(parser.opts().map(as_arg_trait));
                     try!(self.write_args(opts_flags));
                 }
                 b"flags" => {
-                    try!(self.write_args(parser.iter_flags()
+                    try!(self.write_args(parser.flags()
                         .map(as_arg_trait)));
                 }
                 b"options" => {
-                    try!(self.write_args(parser.iter_opts()
+                    try!(self.write_args(parser.opts()
                         .map(as_arg_trait)));
                 }
                 b"positionals" => {
-                    try!(self.write_args(parser.iter_positionals()
+                    try!(self.write_args(parser.positionals()
                         .map(as_arg_trait)));
                 }
                 b"subcommands" => {
