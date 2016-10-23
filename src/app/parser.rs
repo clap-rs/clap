@@ -29,7 +29,7 @@ use errors::{Error, ErrorKind};
 use errors::Result as ClapResult;
 use fmt::{Format, ColorWhen};
 use osstringext::OsStrExt2;
-use shell::Shell;
+use completions::Shell;
 use suggestions;
 
 #[allow(missing_debug_implementations)]
