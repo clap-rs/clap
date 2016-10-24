@@ -307,8 +307,14 @@ impl<'a> Help<'a> {
                         try!(write!(self.writer, " "));
                     }
                 }
+                if arg.is_set(ArgSettings::Multiple) && num == 1 {
+                    try!(color!(self, "...", good));
+                }
             } else if arg.has_switch() {
                 try!(color!(self, "<{}>", arg.name(), good));
+                if arg.is_set(ArgSettings::Multiple) {
+                    try!(color!(self, "...", good));
+                }
             } else {
                 try!(color!(self, "{}", arg, good));
             }
