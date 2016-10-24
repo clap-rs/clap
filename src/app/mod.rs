@@ -28,7 +28,7 @@ use args::{AnyArg, Arg, ArgGroup, ArgMatcher, ArgMatches, ArgSettings};
 use errors::Error;
 use errors::Result as ClapResult;
 pub use self::settings::AppSettings;
-use shell::Shell;
+use completions::Shell;
 
 /// Used to create a representation of a command line program and all possible command line
 /// arguments. Application settings are set using the "builder pattern" with the

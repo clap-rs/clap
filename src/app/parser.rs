@@ -29,7 +29,7 @@ use errors::{Error, ErrorKind};
 use errors::Result as ClapResult;
 use fmt::{Format, ColorWhen};
 use osstringext::OsStrExt2;
-use shell::Shell;
+use completions::Shell;
 use suggestions;
 
 #[allow(missing_debug_implementations)]
@@ -116,12 +116,15 @@ impl<'a, 'b> Parser<'a, 'b>
         use std::error::Error;
 
         let out_dir = PathBuf::from(od);
-        let suffix = match for_shell {
-            Shell::Bash => ".bash-completion",
-            Shell::Fish => ".fish",
+        let name = &*self.meta.bin_name.as_ref().unwrap().clone();
+        let file_name = match for_shell {
+            
+            Shell::Bash => format!("{}.bash-completion", name),
+            Shell::Fish => format!("{}.fish", name),
+            Shell::Zsh  => format!("_{}", name)
         };
 
-        let mut file = match File::create(out_dir.join(format!("{}{}", &*self.meta.bin_name.as_ref().unwrap(), suffix))) {
+        let mut file = match File::create(out_dir.join(file_name)) {
             Err(why) => panic!("couldn't create bash completion file: {}",
                 why.description()),
             Ok(file) => file,
@@ -275,7 +278,6 @@ impl<'a, 'b> Parser<'a, 'b>
     pub fn required(&self) -> Iter<&str> {
         self.required.iter()
     }
-
 
     pub fn get_required_from(&self,
                              reqs: &[&'a str],
@@ -460,30 +462,37 @@ impl<'a, 'b> Parser<'a, 'b>
         false
     }
 
+    #[inline]
     pub fn has_opts(&self) -> bool {
         !self.opts.is_empty()
     }
 
+    #[inline]
     pub fn has_flags(&self) -> bool {
         !self.flags.is_empty()
     }
 
+    #[inline]
     pub fn has_positionals(&self) -> bool {
         !self.positionals.is_empty()
     }
 
+    #[inline]
     pub fn has_subcommands(&self) -> bool {
         !self.subcommands.is_empty()
     }
 
+    #[inline]
     pub fn is_set(&self, s: AppSettings) -> bool {
         self.settings.is_set(s)
     }
 
+    #[inline]
     pub fn set(&mut self, s: AppSettings) {
         self.settings.set(s)
     }
 
+    #[inline]
     pub fn unset(&mut self, s: AppSettings) {
         self.settings.unset(s)
     }
@@ -1928,16 +1937,20 @@ impl<'a, 'b> Parser<'a, 'b>
         Ok(())
     }
 
-    pub fn iter_flags(&self) -> Iter<FlagBuilder> {
+    pub fn flags(&self) -> Iter<FlagBuilder> {
         self.flags.iter()
     }
 
-    pub fn iter_opts(&self) -> Iter<OptBuilder> {
+    pub fn opts(&self) -> Iter<OptBuilder> {
         self.opts.iter()
     }
 
-    pub fn iter_positionals(&self) -> vec_map::Values<PosBuilder> {
+    pub fn positionals(&self) -> vec_map::Values<PosBuilder> {
         self.positionals.values()
+    }
+
+    pub fn subcommands(&self) -> Iter<App> {
+        self.subcommands.iter()
     }
 
     // Should we color the output? None=determined by output location, true=yes, false=no
@@ -1955,6 +1968,40 @@ impl<'a, 'b> Parser<'a, 'b>
             sdebugln!("Auto");
             ColorWhen::Auto
         }
+    }
+
+    pub fn find_arg(&self, arg: &str) -> Option<&AnyArg> {
+        for f in self.flags() {
+            if f.name == arg {
+                return Some(f);
+            }
+        }
+        for o in self.opts() {
+            if o.name == arg {
+                return Some(o);
+            }
+        }
+        for p in self.positionals() {
+            if p.name == arg {
+                return Some(p);
+            }
+        }
+        None
+    }
+
+    pub fn find_subcommand(&'b self, sc: &str) -> Option<&'b App<'a, 'b>> {
+        debugln!("fn=find_subcommand;");
+        debugln!("Looking for sc...{}", sc);
+        debugln!("Currently in Parser...{}", self.meta.bin_name.as_ref().unwrap());
+        for s in self.subcommands.iter() {
+            if s.p.meta.bin_name.as_ref().unwrap_or(&String::new()) == sc {
+                return Some(s);
+            }
+            if let Some(app) = s.p.find_subcommand(sc) {
+                return Some(app);
+            }
+        }
+        None
     }
 }
 
