@@ -1989,6 +1989,7 @@ impl<'a, 'b> Parser<'a, 'b>
         None
     }
 
+    #[cfg_attr(feature = "lints", allow(explicit_iter_loop))]
     pub fn find_subcommand(&'b self, sc: &str) -> Option<&'b App<'a, 'b>> {
         debugln!("fn=find_subcommand;");
         debugln!("Looking for sc...{}", sc);

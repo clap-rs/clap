@@ -83,7 +83,7 @@ pub fn subcommands_of(p: &Parser) -> Vec<(String, String)> {
         if let Some(ref aliases) = p.meta.aliases {
             for &(n, _) in aliases {
                 debugln!("Found alias...{}", n);
-                let mut als_bin_name: Vec<_> = p.meta.bin_name.as_ref().unwrap().split(" ").collect();
+                let mut als_bin_name: Vec<_> = p.meta.bin_name.as_ref().unwrap().split(' ').collect();
                 als_bin_name.push(n);
                 let old = als_bin_name.len() - 2;
                 als_bin_name.swap_remove(old);
@@ -100,7 +100,7 @@ pub fn subcommands_of(p: &Parser) -> Vec<(String, String)> {
         if let Some(ref aliases) = sc.p.meta.aliases {
             for &(n, _) in aliases {
                 debugln!("Found alias...{}", n);
-                let mut als_bin_name: Vec<_> = p.meta.bin_name.as_ref().unwrap().split(" ").collect();
+                let mut als_bin_name: Vec<_> = p.meta.bin_name.as_ref().unwrap().split(' ').collect();
                 als_bin_name.push(n);
                 let old = als_bin_name.len() - 2;
                 als_bin_name.swap_remove(old);

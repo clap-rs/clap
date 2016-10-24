@@ -294,12 +294,11 @@ fn write_opts_of(p: &Parser) -> String {
         conflicts = if conflicts.is_empty() { String::new() } else { format!("({})", conflicts) };
 
         let multiple = if o.is_set(ArgSettings::Multiple) { "*" } else { "" };
-        let pv = format!("{}",
-            if let Some(pv_vec) = o.possible_vals() {
+        let pv = if let Some(pv_vec) = o.possible_vals() {
                 format!(": :({})", pv_vec.join(" "))
         } else {
             String::new()
-        });
+        };
         if let Some(short) = o.short() {
             let s = format!("\"{conflicts}{multiple}-{arg}+[{help}]{possible_values}\" \\",
                 conflicts = conflicts,
