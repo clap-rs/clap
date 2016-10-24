@@ -1,3 +1,13 @@
+<a name="v2.16.1"></a>
+### v2.16.1 (2016-10-24)
+
+
+#### Bug Fixes
+
+* **Help Message:**  fixes a regression bug where args with multiple(true) threw off alignment ([ebddac79](https://github.com/kbknapp/clap-rs/commit/ebddac791f3ceac193d5ad833b4b734b9643a7af), closes [#702](https://github.com/kbknapp/clap-rs/issues/702))
+
+
+
 <a name="v2.16.0"></a>
 ## v2.16.0 (2016-10-23)
 
