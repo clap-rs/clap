@@ -159,6 +159,26 @@ OPTIONS:
                              images. The default is Linear (Bilinear). [values: Nearest, Linear, Cubic, Gaussian,
                              Lanczos3]";
 
+static ISSUE_702: &'static str = "myapp 1.0
+foo
+bar
+
+USAGE:
+    myapp [OPTIONS] [--] [ARGS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -l, --label <label>...    a label
+    -o, --other <other>       some other option
+    -s, --some <some>         some option
+
+ARGS:
+    <arg1>       some option
+    <arg2>...    some option";
+
 #[test]
 fn help_short() {
     let m = App::new("test")
@@ -403,4 +423,34 @@ fn issue_688_hidden_pos_vals() {
 				.long("filter")
 				.takes_value(true));
     test::check_err_output(app3, "ctest --help", ISSUE_688, false);
+}
+
+#[test]
+fn issue_702_multiple_values() {
+    let app = App::new("myapp")
+        .version("1.0")
+        .author("foo")
+        .about("bar")
+        .arg(Arg::with_name("arg1")
+             .help("some option"))
+        .arg(Arg::with_name("arg2")
+             .multiple(true)
+             .help("some option"))
+        .arg(Arg::with_name("some")
+             .help("some option")
+             .short("s")
+             .long("some")
+             .takes_value(true))
+        .arg(Arg::with_name("other")
+             .help("some other option")
+             .short("o")
+             .long("other")
+             .takes_value(true))
+        .arg(Arg::with_name("label")
+             .help("a label")
+             .short("l")
+             .long("label")
+             .multiple(true)
+             .takes_value(true));
+    test::check_err_output(app, "myapp --help", ISSUE_702, false);
 }
