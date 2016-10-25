@@ -41,6 +41,12 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.16.2
+
+* Fixes a bug where single quotes are not escaped 
+
+Here's the highlights for v2.16.1
+
 * **Help Message:**  fixes a regression bug where args with multiple(true) threw off alignment
 
 Here's the highlights for v2.16.0

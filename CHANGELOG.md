@@ -1,3 +1,12 @@
+<a name="v2.15.1"></a>
+### v2.16.2 (2016-10-25)
+
+
+#### Bug Fixes
+
+* **Fish Completions:**  fixes a bug where single quotes are not escaped ([780b4a18](https://github.com/kbknapp/clap-rs/commit/780b4a18281b6f7f7071e1b9db2290fae653c406), closes [#704](https://github.com/kbknapp/clap-rs/issues/704))
+
+
 <a name="v2.16.1"></a>
 ### v2.16.1 (2016-10-24)
 
