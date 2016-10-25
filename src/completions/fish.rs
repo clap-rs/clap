@@ -58,7 +58,7 @@ fn gen_fish_inner(root_command: &str,
     //      -f # don't use file completion
     //      -n "__fish_using_command myprog subcmd1" # complete for command "myprog subcmd1"
 
-    let basic_template = format!("complete -c {} -n '__fish_using_command {}'",
+    let basic_template = format!("complete -c {} -n \"__fish_using_command {}\"",
                                 root_command,
                                 parent_cmds);
 
@@ -71,10 +71,10 @@ fn gen_fish_inner(root_command: &str,
             template.push_str(format!(" -l {}", data).as_str());
         }
         if let Some(data) = option.help {
-            template.push_str(format!(" -d '{}'", data).as_str());
+            template.push_str(format!(" -d \"{}\"", data).as_str());
         }
         if let Some(ref data) = option.possible_vals {
-            template.push_str(format!(" -r -f -a '{}'", data.join(" ")).as_str());
+            template.push_str(format!(" -r -f -a \"{}\"", data.join(" ")).as_str());
         }
         buffer.push_str(template.as_str());
         buffer.push_str("\n");
@@ -89,7 +89,7 @@ fn gen_fish_inner(root_command: &str,
             template.push_str(format!(" -l {}", data).as_str());
         }
         if let Some(data) = flag.help {
-            template.push_str(format!(" -d '{}'", data).as_str());
+            template.push_str(format!(" -d \"{}\"", data).as_str());
         }
         buffer.push_str(template.as_str());
         buffer.push_str("\n");
@@ -98,7 +98,7 @@ fn gen_fish_inner(root_command: &str,
     for subcommand in &comp_gen.p.subcommands {
         let mut template = basic_template.clone();
         template.push_str(" -f");
-        template.push_str(format!(" -a '{}'", &subcommand.p.meta.name).as_str());
+        template.push_str(format!(" -a \"{}\"", &subcommand.p.meta.name).as_str());
         buffer.push_str(template.as_str());
         buffer.push_str("\n");
     }
