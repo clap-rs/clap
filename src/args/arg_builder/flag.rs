@@ -25,6 +25,7 @@ pub struct FlagBuilder<'n, 'e> {
     pub overrides: Option<Vec<&'e str>>,
     pub settings: ArgFlags,
     pub disp_ord: usize,
+    pub unified_ord: usize,
 }
 
 impl<'n, 'e> Default for FlagBuilder<'n, 'e> {
@@ -40,6 +41,7 @@ impl<'n, 'e> Default for FlagBuilder<'n, 'e> {
             overrides: None,
             settings: ArgFlags::new(),
             disp_ord: 999,
+            unified_ord: 999,
         }
     }
 }
@@ -77,6 +79,7 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for FlagBuilder<'a, 'b> {
             requires: a.requires.clone(),
             settings: a.settings,
             disp_ord: a.disp_ord,
+            ..Default::default()
         }
     }
 }
@@ -106,6 +109,7 @@ impl<'n, 'e> Clone for FlagBuilder<'n, 'e> {
             requires: self.requires.clone(),
             settings: self.settings,
             disp_ord: self.disp_ord,
+            unified_ord: self.unified_ord,
         }
     }
 }

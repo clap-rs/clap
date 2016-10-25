@@ -179,23 +179,11 @@ impl<'a, 'b> Parser<'a, 'b>
             self.positionals.insert(i, pb);
         } else if a.is_set(ArgSettings::TakesValue) {
             let mut ob = OptBuilder::from_arg(a, &mut self.required);
-            if self.settings.is_set(AppSettings::DeriveDisplayOrder) && a.disp_ord == 999 {
-                ob.disp_ord = if self.settings.is_set(AppSettings::UnifiedHelpMessage) {
-                    self.flags.len() + self.opts.len()
-                } else {
-                    self.opts.len()
-                };
-            }
+            ob.unified_ord = self.flags.len() + self.opts.len();
             self.opts.push(ob);
         } else {
             let mut fb = FlagBuilder::from(a);
-            if self.settings.is_set(AppSettings::DeriveDisplayOrder) && a.disp_ord == 999 {
-                fb.disp_ord = if self.settings.is_set(AppSettings::UnifiedHelpMessage) {
-                    self.flags.len() + self.opts.len()
-                } else {
-                    self.flags.len()
-                };
-            }
+            fb.unified_ord = self.flags.len() + self.opts.len();
             self.flags.push(fb);
         }
         if a.is_set(ArgSettings::Global) {
@@ -242,9 +230,6 @@ impl<'a, 'b> Parser<'a, 'b>
             sdebugln!("No");
         }
 
-        if self.settings.is_set(AppSettings::DeriveDisplayOrder) {
-            subcmd.p.meta.disp_ord = self.subcommands.len();
-        }
         self.subcommands.push(subcmd);
     }
 
@@ -272,6 +257,24 @@ impl<'a, 'b> Parser<'a, 'b>
                 }
             }
             sc.p.propogate_settings();
+        }
+    }
+
+    pub fn derive_display_order(&mut self) {
+        if self.settings.is_set(AppSettings::DeriveDisplayOrder) {
+            let unified = self.settings.is_set(AppSettings::UnifiedHelpMessage);
+            for (i, o) in self.opts.iter_mut().enumerate().filter(|&(_, ref o)| o.disp_ord == 999) {
+                o.disp_ord = if unified { o.unified_ord } else { i };
+            }
+            for (i, f) in self.flags.iter_mut().enumerate().filter(|&(_, ref f)| f.disp_ord == 999) {
+                f.disp_ord = if unified { f.unified_ord } else { i };
+            }
+            for (i, sc) in &mut self.subcommands.iter_mut().enumerate().filter(|&(_, ref sc)| sc.p.meta.disp_ord == 999) {
+                sc.p.meta.disp_ord = i;
+            }
+        }
+        for sc in &mut self.subcommands {
+            sc.p.derive_display_order();
         }
     }
 
