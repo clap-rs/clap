@@ -31,6 +31,7 @@ pub struct OptBuilder<'n, 'e> {
     pub val_delim: Option<char>,
     pub default_val: Option<&'n str>,
     pub disp_ord: usize,
+    pub unified_ord: usize,
     pub r_unless: Option<Vec<&'e str>>,
 }
 
@@ -55,6 +56,7 @@ impl<'n, 'e> Default for OptBuilder<'n, 'e> {
             val_delim: Some(','),
             default_val: None,
             disp_ord: 999,
+            unified_ord: 999,
             r_unless: None,
         }
     }
@@ -177,6 +179,7 @@ impl<'n, 'e> Clone for OptBuilder<'n, 'e> {
             requires: self.requires.clone(),
             settings: self.settings,
             disp_ord: self.disp_ord,
+            unified_ord: self.unified_ord,
             num_vals: self.num_vals,
             min_vals: self.min_vals,
             max_vals: self.max_vals,

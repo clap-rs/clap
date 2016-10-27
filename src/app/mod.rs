@@ -1318,6 +1318,7 @@ impl<'a, 'b> App<'a, 'b> {
         // before parsing incase we run into a subcommand
         self.p.propogate_globals();
         self.p.propogate_settings();
+        self.p.derive_display_order();
 
         let mut matcher = ArgMatcher::new();
 
