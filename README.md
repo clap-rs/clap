@@ -41,9 +41,14 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.16.3
+
+* Fixes a bug where the derived display order isn't propagated
+* **yaml-example:**  fixes some inconsistent args in the example
+
 Here's the highlights for v2.16.2
 
-* Fixes a bug where single quotes are not escaped 
+* Fixes a bug where single quotes are not escaped
 
 Here's the highlights for v2.16.1
 
