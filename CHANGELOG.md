@@ -1,3 +1,14 @@
+<a name="v2.16.3"></a>
+### v2.16.3 (2016-10-28)
+
+
+#### Bug Fixes
+
+*   Derive display order after propagation ([9cb6facf](https://github.com/kbknapp/clap-rs/commit/9cb6facf507aff7cddd124b8c29714d2b0e7bd13), closes [#706](https://github.com/kbknapp/clap-rs/issues/706))
+* **yaml-example:**  inconsistent args ([847f7199](https://github.com/kbknapp/clap-rs/commit/847f7199219ead5065561d91d64780d99ae4b587))
+
+
+
 <a name="v2.15.1"></a>
 ### v2.16.2 (2016-10-25)
 
