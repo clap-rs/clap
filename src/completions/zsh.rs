@@ -307,8 +307,8 @@ fn write_opts_of(p: &Parser) -> String {
                 possible_values = pv,
                 help = help);
 
-            ret.push(s);
             debugln!("Wrote...{}", &*s);
+            ret.push(s);
         }
         if let Some(long) = o.long() {
             let l = format!("\"{conflicts}{multiple}--{arg}+[{help}]{possible_values}\" \\",
@@ -318,8 +318,8 @@ fn write_opts_of(p: &Parser) -> String {
                 possible_values = pv,
                 help = help);
 
-            ret.push(l);
             debugln!("Wrote...{}", &*l);
+            ret.push(l);
         }
     }
 
@@ -343,8 +343,8 @@ fn write_flags_of(p: &Parser) -> String {
                 arg = short,
                 help = help);
 
-            ret.push(s);
             debugln!("Wrote...{}", &*s);
+            ret.push(s);
         }
 
         if let Some(long) = f.long() {
@@ -354,8 +354,8 @@ fn write_flags_of(p: &Parser) -> String {
                 arg = long,
                 help = help);
 
-            ret.push(l);
             debugln!("Wrote...{}", &*l);
+            ret.push(l);
         }
     }
 
