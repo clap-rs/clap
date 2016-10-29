@@ -526,7 +526,7 @@ args:
 subcommands:
     - test:
         about: controls testing features
-        version: 1.3
+        version: "1.3"
         author: Someone E. <someone_else@other.com>
         args:
             - debug:
