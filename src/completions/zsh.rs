@@ -4,6 +4,7 @@ use std::io::Write;
 use std::ascii::AsciiExt;
 
 // Internal
+use app::App;
 use app::parser::Parser;
 use args::{ArgSettings, AnyArg};
 use completions;
@@ -127,15 +128,23 @@ _{bin_name_underscore}_commands() {{
 fn subcommands_and_args_of(p: &Parser) -> String {
     debugln!("fn=subcommands_and_args_of;");
     let mut ret = vec![];
-
-    // Firs the subcommands
-    for sc in p.subcommands() {
-        debugln!("iter;subcommand={}", sc.p.meta.name);
+    fn add_sc(sc: &App, n: &str, ret: &mut Vec<String>) {
         let s = format!("\"{name}:{help}\" \\", 
-            name = sc.p.meta.name, 
+            name = n, 
             help = sc.p.meta.about.unwrap_or(""));
         if !s.is_empty() {
             ret.push(s);
+        }
+    }
+
+    // First the subcommands
+    for sc in p.subcommands() {
+        debugln!("iter;subcommand={}", sc.p.meta.name);
+        add_sc(sc, &sc.p.meta.name, &mut ret);
+        if let Some(ref v) = sc.p.meta.aliases {
+            for alias in v.iter().filter(|&&(_, vis)| vis).map(|&(n,_)| n) {
+                add_sc(sc, alias, &mut ret);
+            }
         }
     }
 

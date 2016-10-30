@@ -1998,7 +1998,7 @@ impl<'a, 'b> Parser<'a, 'b>
         debugln!("Looking for sc...{}", sc);
         debugln!("Currently in Parser...{}", self.meta.bin_name.as_ref().unwrap());
         for s in self.subcommands.iter() {
-            if s.p.meta.bin_name.as_ref().unwrap_or(&String::new()) == sc {
+            if s.p.meta.bin_name.as_ref().unwrap_or(&String::new()) == sc || (s.p.meta.aliases.is_some() && s.p.meta.aliases.as_ref().unwrap().iter().any(|&(s,_)| s == sc.split(' ').rev().next().expect(INTERNAL_ERROR_MSG))) {
                 return Some(s);
             }
             if let Some(app) = s.p.find_subcommand(sc) {
