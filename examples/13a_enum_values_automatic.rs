@@ -1,6 +1,6 @@
 // You can use clap's value_t! macro with a custom enum by implementing the std::str::FromStr
 // trait which is very straight forward. There are three ways to do this, for simple enums
-// meaning those that don't require 'pub' or any '#[derive()]' directives you can use clas's
+// meaning those that don't require 'pub' or any '#[derive()]' directives you can use clap's
 // simple_enum! macro. For those that require 'pub' or any '#[derive()]'s you can use clap's
 // arg_enum! macro. The third way is to implement std::str::FromStr manually.
 //
