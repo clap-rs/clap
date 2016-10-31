@@ -25,8 +25,8 @@ addons:
     - libelf-dev
     - libdw-dev
 after_success:
-  - |
-    travis-cargo --only stable coveralls --no-sudo -- --features "yaml unstable"
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then travis-cargo coveralls --no-sudo --verify; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./kcov/build/src/kcov --verify --coveralls-id=$TRAVIS_JOB_ID --exclude-pattern=/.cargo target/kcov target/debug/{*-*,deps/clap-*}; fi
 env:
   global:
     - TRAVIS_CARGO_NIGHTLY_FEATURE=lints
