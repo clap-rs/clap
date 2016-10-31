@@ -13,7 +13,7 @@ macro_rules! get_zsh_arg_conflicts {
         if let Some(conf_vec) = $arg.blacklist() {
             let mut v = vec![];
             for arg_name in conf_vec {
-                let arg = $p.find_arg(arg_name).expect($msg);
+                let arg = $p.find_any_arg(arg_name).expect($msg);
                 if let Some(s) = arg.short() {
                     v.push(format!("-{}", s));
                 }

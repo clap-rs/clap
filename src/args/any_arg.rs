@@ -1,5 +1,6 @@
 // Std
 use std::rc::Rc;
+use std::fmt as std_fmt; 
 
 // Third Party
 use vec_map::VecMap;
@@ -8,7 +9,7 @@ use vec_map::VecMap;
 use args::settings::ArgSettings;
 
 #[doc(hidden)]
-pub trait AnyArg<'n, 'e> {
+pub trait AnyArg<'n, 'e>: std_fmt::Display {
     fn name(&self) -> &'n str;
     fn overrides(&self) -> Option<&[&'e str]>;
     fn aliases(&self) -> Option<Vec<&'e str>>;
