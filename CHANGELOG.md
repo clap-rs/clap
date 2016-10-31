@@ -1,3 +1,23 @@
+<a name="v2.16.4"></a>
+### v2.16.4 (2016-10-31)
+
+
+#### Improvements
+
+* **Error Output:**  conflicting errors are now symetrical, meaning more consistent and less confusing ([3d37001d](https://github.com/kbknapp/clap-rs/commit/3d37001d1dc647d73cc597ff172f1072d4beb80d), closes [#718](https://github.com/kbknapp/clap-rs/issues/718))
+
+#### Documentation
+
+*   Fix typo in example `13a_enum_values_automatic` ([c22fbc07](https://github.com/kbknapp/clap-rs/commit/c22fbc07356e556ffb5d1a79ec04597d149b915e))
+* **README.md:**  fixes failing yaml example (#715) ([21fba9e6](https://github.com/kbknapp/clap-rs/commit/21fba9e6cd8c163012999cd0ce271ec8780c5695))
+
+#### Bug Fixes
+
+* **ZSH Completions:**  fixes bug that caused panic on subcommands with aliases ([5c70e1a0](https://github.com/kbknapp/clap-rs/commit/5c70e1a01bc977e44c10015d18bb8e215c32dfc8), closes [#714](https://github.com/kbknapp/clap-rs/issues/714))
+* **debug:**  fixes the debug feature (#716) ([6c11ccf4](https://github.com/kbknapp/clap-rs/commit/6c11ccf443d46258d51f7cda33fbcc81e7fe8e90))
+
+
+
 <a name="v2.16.3"></a>
 ### v2.16.3 (2016-10-28)
 

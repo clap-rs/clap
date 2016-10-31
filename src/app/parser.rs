@@ -1007,59 +1007,6 @@ impl<'a, 'b> Parser<'a, 'b>
         Ok(())
     }
 
-    fn blacklisted_from(&self, name: &str, matcher: &ArgMatcher) -> Option<String> {
-        for k in matcher.arg_names() {
-            if let Some(f) = self.flags.iter().find(|f| &f.name == &k) {
-                if let Some(ref bl) = f.blacklist {
-                    if bl.contains(&name) {
-                        return Some(f.to_string());
-                    }
-                }
-            }
-            if let Some(o) = self.opts.iter().find(|o| &o.name == &k) {
-                if let Some(ref bl) = o.blacklist {
-                    if bl.contains(&name) {
-                        return Some(o.to_string());
-                    }
-                }
-            }
-            if let Some(pos) = self.positionals.values().find(|p| &p.name == &k) {
-                if let Some(ref bl) = pos.blacklist {
-                    if bl.contains(&name) {
-                        return Some(pos.name.to_owned());
-                    }
-                }
-            }
-        }
-        None
-    }
-
-    fn overriden_from(&self, name: &str, matcher: &ArgMatcher) -> Option<&'a str> {
-        for k in matcher.arg_names() {
-            if let Some(f) = self.flags.iter().find(|f| &f.name == &k) {
-                if let Some(ref bl) = f.overrides {
-                    if bl.contains(&name.into()) {
-                        return Some(f.name);
-                    }
-                }
-            }
-            if let Some(o) = self.opts.iter().find(|o| &o.name == &k) {
-                if let Some(ref bl) = o.overrides {
-                    if bl.contains(&name.into()) {
-                        return Some(o.name);
-                    }
-                }
-            }
-            if let Some(pos) = self.positionals.values().find(|p| &p.name == &k) {
-                if let Some(ref bl) = pos.overrides {
-                    if bl.contains(&name.into()) {
-                        return Some(pos.name);
-                    }
-                }
-            }
-        }
-        None
-    }
 
     fn groups_for_arg(&self, name: &str) -> Option<Vec<&'a str>> {
         debugln!("fn=groups_for_arg; name={}", name);
@@ -1535,26 +1482,43 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     fn validate_blacklist(&self, matcher: &mut ArgMatcher) -> ClapResult<()> {
-        debugln!("fn=validate_blacklist;");
+        debugln!("fn=validate_blacklist;blacklist={:?}", self.blacklist);
         macro_rules! build_err {
             ($me:ident, $name:expr, $matcher:ident) => ({
-                debugln!("macro=build_err;");
-                let c_with = $me.blacklisted_from($name, &$matcher);
+                debugln!("macro=build_err;name={}", $name);
+                let mut c_with = find_from!($me, $name, blacklist, &$matcher);
+                c_with = if c_with.is_none() {
+                    if let Some(aa) = $me.find_any_arg($name) {
+                        if let Some(bl) = aa.blacklist() {
+                            if let Some(arg_name) = bl.iter().find(|arg| $matcher.contains(arg)) {
+                                if let Some(aa) = $me.find_any_arg(arg_name) {
+                                    Some(aa.to_string())
+                                } else {
+                                    c_with
+                                }
+                            } else {
+                                c_with
+                            }
+                        } else {
+                            c_with
+                        }
+                    } else {
+                        c_with
+                    }
+                } else {
+                    c_with
+                };
                 debugln!("'{:?}' conflicts with '{}'", c_with, $name);
                 $matcher.remove($name);
                 let usg = $me.create_current_usage($matcher);
-                if let Some(f) = $me.flags.iter().filter(|f| f.name == $name).next() {
+                if let Some(f) = $me.find_flag($name) {
                     debugln!("It was a flag...");
                     Error::argument_conflict(f, c_with, &*usg, self.color())
-                } else if let Some(o) = $me.opts.iter()
-                                                 .filter(|o| o.name == $name)
-                                                 .next() {
-                    debugln!("It was an option...");
+                } else if let Some(o) = $me.find_option($name) {
+                   debugln!("It was an option...");
                     Error::argument_conflict(o, c_with, &*usg, self.color())
                 } else {
-                    match $me.positionals.values()
-                                            .filter(|p| p.name == $name)
-                                            .next() {
+                    match $me.find_positional($name) {
                         Some(p) => {
                             debugln!("It was a positional...");
                             Error::argument_conflict(p, c_with, &*usg, self.color())
@@ -1572,12 +1536,12 @@ impl<'a, 'b> Parser<'a, 'b>
                     debugln!("Checking arg '{}' in group...", n);
                     if matcher.contains(n) {
                         debugln!("matcher contains it...");
-                        return Err(build_err!(self, n, matcher));
+                        return Err(build_err!(self, &n, matcher));
                     }
                 }
             } else if matcher.contains(name) {
                 debugln!("matcher contains it...");
-                return Err(build_err!(self, *name, matcher));
+                return Err(build_err!(self, name, matcher));
             }
         }
         Ok(())
@@ -1940,15 +1904,15 @@ impl<'a, 'b> Parser<'a, 'b>
         Ok(())
     }
 
-    pub fn flags(&self) -> Iter<FlagBuilder> {
+    pub fn flags(&self) -> Iter<FlagBuilder<'a, 'b>> {
         self.flags.iter()
     }
 
-    pub fn opts(&self) -> Iter<OptBuilder> {
+    pub fn opts(&self) -> Iter<OptBuilder<'a, 'b>> {
         self.opts.iter()
     }
 
-    pub fn positionals(&self) -> vec_map::Values<PosBuilder> {
+    pub fn positionals(&self) -> vec_map::Values<PosBuilder<'a, 'b>> {
         self.positionals.values()
     }
 
@@ -1973,19 +1937,40 @@ impl<'a, 'b> Parser<'a, 'b>
         }
     }
 
-    pub fn find_arg(&self, arg: &str) -> Option<&AnyArg> {
+    pub fn find_any_arg(&self, arg: &str) -> Option<&AnyArg> {
+        if let Some(f) = self.find_flag(arg) {
+            return Some(f);
+        }
+        if let Some(o) = self.find_option(arg) {
+            return Some(o);
+        }
+        if let Some(p) = self.find_positional(arg) {
+            return Some(p);
+        }
+        None
+    }
+    
+    fn find_flag(&self, name: &str) -> Option<&FlagBuilder<'a, 'b>> {
         for f in self.flags() {
-            if f.name == arg {
+            if f.name == name || f.aliases.as_ref().unwrap_or(&vec![("",false)]).iter().any(|&(n,_)| n == name) {
                 return Some(f);
             }
         }
+        None
+    }
+
+    fn find_option(&self, name: &str) -> Option<&OptBuilder<'a, 'b>> {
         for o in self.opts() {
-            if o.name == arg {
+            if o.name == name || o.aliases.as_ref().unwrap_or(&vec![("",false)]).iter().any(|&(n,_)| n == name) {
                 return Some(o);
             }
         }
+        None
+    }
+
+    fn find_positional(&self, name: &str) -> Option<&PosBuilder<'a, 'b>> {
         for p in self.positionals() {
-            if p.name == arg {
+            if p.name == name {
                 return Some(p);
             }
         }
@@ -1998,7 +1983,7 @@ impl<'a, 'b> Parser<'a, 'b>
         debugln!("Looking for sc...{}", sc);
         debugln!("Currently in Parser...{}", self.meta.bin_name.as_ref().unwrap());
         for s in self.subcommands.iter() {
-            if s.p.meta.bin_name.as_ref().unwrap_or(&String::new()) == sc {
+            if s.p.meta.bin_name.as_ref().unwrap_or(&String::new()) == sc || (s.p.meta.aliases.is_some() && s.p.meta.aliases.as_ref().unwrap().iter().any(|&(s,_)| s == sc.split(' ').rev().next().expect(INTERNAL_ERROR_MSG))) {
                 return Some(s);
             }
             if let Some(app) = s.p.find_subcommand(sc) {

@@ -27,7 +27,7 @@ macro_rules! arg_post_processing {
         // Handle POSIX overrides
         debug!("Is '{}' in overrides...", $arg.to_string());
         if $me.overrides.contains(&$arg.name()) {
-            if let Some(ref name) = $me.overriden_from($arg.name(), $matcher) {
+            if let Some(ref name) = find_name_from!($me, &$arg.name(), overrides, $matcher) {
                 sdebugln!("Yes by {}", name);
                 $matcher.remove(name);
                 remove_overriden!($me, name);
@@ -48,6 +48,32 @@ macro_rules! arg_post_processing {
         debug!("Does '{}' have conflicts...", $arg.to_string());
         if let Some(bl) = $arg.blacklist() {
             sdebugln!("Yes");
+            
+            for c in bl {
+                // Inject two-way conflicts
+                debug!("Has '{}' already been matched...", c);
+                if $matcher.contains(c) {
+                    sdebugln!("Yes");
+                    // find who blacklisted us...
+                    $me.blacklist.push(&$arg.name);
+                    // if let Some(f) = $me.find_flag_mut(c) {
+                    //     if let Some(ref mut bl) = f.blacklist {
+                    //         bl.push(&$arg.name);
+                    //     }
+                    // } else if let Some(o) = $me.find_option_mut(c) {
+                    //     if let Some(ref mut bl) = o.blacklist {
+                    //         bl.push(&$arg.name);
+                    //     }
+                    // } else if let Some(p) = $me.find_positional_mut(c) {
+                    //     if let Some(ref mut bl) = p.blacklist {
+                    //         bl.push(&$arg.name);
+                    //     }
+                    // }
+                } else {
+                    sdebugln!("No");
+                }
+            }
+
             $me.blacklist.extend(bl);
             vec_remove_all!($me.overrides, bl);
             vec_remove_all!($me.required, bl);
@@ -142,4 +168,64 @@ macro_rules! parse_positional {
             $pos_counter += 1;
         }
     };
+}
+
+macro_rules! find_from {
+    ($_self:ident, $arg_name:expr, $from:ident, $matcher:expr) => {{
+        let mut ret = None;
+        for k in $matcher.arg_names() {
+            if let Some(f) = $_self.find_flag(k) {
+                if let Some(ref v) = f.$from {
+                    if v.contains($arg_name) {
+                        ret = Some(f.to_string());
+                    }
+                }
+            }
+            if let Some(o) = $_self.find_option(k) {
+                if let Some(ref v) = o.$from {
+                    if v.contains(&$arg_name) {
+                        ret = Some(o.to_string());
+                    }
+                }
+            }
+            if let Some(pos) = $_self.find_positional(k) {
+                if let Some(ref v) = pos.$from {
+                    if v.contains($arg_name) {
+                        ret = Some(pos.name.to_owned());
+                    }
+                }
+            }
+        }
+        ret
+    }};
+}
+
+macro_rules! find_name_from {
+    ($_self:ident, $arg_name:expr, $from:ident, $matcher:expr) => {{
+        let mut ret = None;
+        for k in $matcher.arg_names() {
+            if let Some(f) = $_self.find_flag(k) {
+                if let Some(ref v) = f.$from {
+                    if v.contains($arg_name) {
+                        ret = Some(f.name);
+                    }
+                }
+            }
+            if let Some(o) = $_self.find_option(k) {
+                if let Some(ref v) = o.$from {
+                    if v.contains(&$arg_name) {
+                        ret = Some(o.name);
+                    }
+                }
+            }
+            if let Some(pos) = $_self.find_positional(k) {
+                if let Some(ref v) = pos.$from {
+                    if v.contains($arg_name) {
+                        ret = Some(pos.name);
+                    }
+                }
+            }
+        }
+        ret
+    }};
 }
