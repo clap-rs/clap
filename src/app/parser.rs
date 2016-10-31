@@ -260,6 +260,7 @@ impl<'a, 'b> Parser<'a, 'b>
         }
     }
 
+    #[cfg_attr(feature = "lints", allow(needless_borrow))]
     pub fn derive_display_order(&mut self) {
         if self.settings.is_set(AppSettings::DeriveDisplayOrder) {
             let unified = self.settings.is_set(AppSettings::UnifiedHelpMessage);
