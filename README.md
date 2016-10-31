@@ -41,6 +41,14 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's what's new in v2.16.4
+
+* Fixes bug that caused panic on subcommands with aliases
+* Conflicting argument errors are now symetrical, meaning more consistent and better usage suggestions
+* Fixes typo in example `13a_enum_values_automatic`
+* Fixes failing yaml example (#715)
+* Fixes the `debug` feature (#716)
+
 Here's the highlights for v2.16.3
 
 * Fixes a bug where the derived display order isn't propagated
