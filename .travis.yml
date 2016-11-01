@@ -1,4 +1,4 @@
-sudo: false
+sudo: true
 language: rust
 rust:
   - nightly
@@ -10,7 +10,7 @@ matrix:
         - rust: nightly
 before_script:
   - |
-    pip install 'travis-cargo<0.2' --user &&
+    pip install git+git://github.com/kbknapp/travis-cargo.git --user &&
     export PATH=$HOME/.local/bin:$PATH
 script:
   - |
@@ -24,9 +24,27 @@ addons:
     - libcurl4-openssl-dev
     - libelf-dev
     - libdw-dev
+    - cmake
+    - gcc
+    - binutils-dev
 after_success:
   - |
-    travis-cargo --only stable coveralls --no-sudo -- --features "yaml unstable"
+    wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz &&
+    tar xzf master.tar.gz &&
+    cd kcov-master &&
+    mkdir build &&
+    cd build &&
+    cmake .. &&
+    make &&
+    sudo make install &&
+    cd ../.. &&
+    rm -rf kcov-master &&
+    cargo clean &&
+    cargo test --no-run --features "yaml unstable" &&
+    for file in target/debug/*-*; do mkdir -p "target/cov/$(basename $file)"; kcov --coveralls-id=$TRAVIS_JOB_ID --exclude-pattern=/.cargo,/usr/lib --verify "target/cov/$(basename $file)" "$file"; done &&
+    for file in target/debug/deps/clap-*; do mkdir -p "target/cov/$(basename $file)"; kcov --coveralls-id=$TRAVIS_JOB_ID --exclude-pattern=/.cargo,/usr/lib --verify "target/cov/$(basename $file)" "deps/$file"; done &&
+    bash <(curl -s https://codecov.io/bash) &&
+    echo "Uploaded code coverage"
 env:
   global:
     - TRAVIS_CARGO_NIGHTLY_FEATURE=lints
