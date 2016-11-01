@@ -900,3 +900,179 @@ fn multiple_values_req_delimiter_complex() {
         &["val1", "val3", "val5", "val7", "val9", "val11", "val14", "val17",
           "val20", "val23", "val26"]);
 }
+
+#[test]
+#[should_panic]
+fn low_index_positional_not_required() {
+    let _ = App::new("lip")
+        .arg(Arg::with_name("files")
+            .index(1)
+            .required(true)
+            .multiple(true))
+        .arg(Arg::with_name("target")
+            .index(2))
+        .get_matches_from_safe(vec![
+            "lip",
+            "file1", "file2",
+            "file3", "target",
+        ]);
+}
+
+#[test]
+#[should_panic]
+fn low_index_positional_last_multiple_too() {
+    let _ = App::new("lip")
+        .arg(Arg::with_name("files")
+            .index(1)
+            .required(true)
+            .multiple(true))
+        .arg(Arg::with_name("target")
+            .index(2)
+            .required(true)
+            .multiple(true))
+        .get_matches_from_safe(vec![
+            "lip",
+            "file1", "file2",
+            "file3", "target",
+        ]);
+}
+
+#[test]
+#[should_panic]
+fn low_index_positional_too_far_back() {
+    let _ = App::new("lip")
+        .arg(Arg::with_name("files")
+            .index(1)
+            .required(true)
+            .multiple(true))
+        .arg(Arg::with_name("target")
+            .required(true)
+            .index(2))
+        .arg(Arg::with_name("target2")
+            .required(true)
+            .index(3))
+        .get_matches_from_safe(vec![
+            "lip",
+            "file1", "file2",
+            "file3", "target",
+        ]);
+}
+
+#[test]
+fn low_index_positional() {
+    let m = App::new("lip")
+        .arg(Arg::with_name("files")
+            .index(1)
+            .required(true)
+            .multiple(true))
+        .arg(Arg::with_name("target")
+            .index(2)
+            .required(true))
+        .get_matches_from_safe(vec![
+            "lip",
+            "file1", "file2",
+            "file3", "target",
+        ]);
+
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    let m = m.unwrap();
+
+    assert!(m.is_present("files"));
+    assert_eq!(m.occurrences_of("files"), 3);
+    assert!(m.is_present("target"));
+    assert_eq!(m.occurrences_of("target"), 1);
+    assert_eq!(m.values_of("files").unwrap().collect::<Vec<_>>(), ["file1", "file2", "file3"]);
+    assert_eq!(m.value_of("target").unwrap(), "target");
+}
+
+#[test]
+fn low_index_positional_with_subcmd() {
+    let m = App::new("lip")
+        .arg(Arg::with_name("files")
+            .index(1)
+            .required(true)
+            .multiple(true))
+        .arg(Arg::with_name("target")
+            .index(2)
+            .required(true))
+        .subcommand(SubCommand::with_name("test").arg(Arg::with_name("other")))
+        .get_matches_from_safe(vec![
+            "lip",
+            "file1", "file2",
+            "file3", "target",
+            "test"
+        ]);
+
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    let m = m.unwrap();
+
+    assert!(m.is_present("files"));
+    assert_eq!(m.occurrences_of("files"), 3);
+    assert!(m.is_present("target"));
+    assert_eq!(m.occurrences_of("target"), 1);
+    assert_eq!(m.values_of("files").unwrap().collect::<Vec<_>>(), ["file1", "file2", "file3"]);
+    assert_eq!(m.value_of("target").unwrap(), "target");
+}
+
+#[test]
+fn low_index_positional_with_option() {
+    let m = App::new("lip")
+        .arg(Arg::with_name("files")
+            .required(true)
+            .index(1)
+            .multiple(true))
+        .arg(Arg::with_name("target")
+            .index(2)
+            .required(true))
+        .arg(Arg::with_name("opt")
+            .long("option")
+            .takes_value(true))
+        .get_matches_from_safe(vec![
+            "lip",
+            "file1", "file2",
+            "file3", "target",
+            "--option", "test"
+        ]);
+
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    let m = m.unwrap();
+
+    assert!(m.is_present("files"));
+    assert_eq!(m.occurrences_of("files"), 3);
+    assert!(m.is_present("target"));
+    assert_eq!(m.occurrences_of("target"), 1);
+    assert_eq!(m.values_of("files").unwrap().collect::<Vec<_>>(), ["file1", "file2", "file3"]);
+    assert_eq!(m.value_of("target").unwrap(), "target");
+    assert_eq!(m.value_of("opt").unwrap(), "test");
+}
+
+#[test]
+fn low_index_positional_with_flag() {
+    let m = App::new("lip")
+        .arg(Arg::with_name("files")
+            .index(1)
+            .required(true)
+            .multiple(true))
+        .arg(Arg::with_name("target")
+            .index(2)
+            .required(true))
+        .arg(Arg::with_name("flg")
+            .long("flag"))
+        .get_matches_from_safe(vec![
+            "lip",
+            "file1", "file2",
+            "file3", "target",
+            "--flag"
+        ]);
+
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    let m = m.unwrap();
+
+    assert!(m.is_present("files"));
+    assert_eq!(m.occurrences_of("files"), 3);
+    assert!(m.is_present("target"));
+    assert_eq!(m.occurrences_of("target"), 1);
+    assert_eq!(m.values_of("files").unwrap().collect::<Vec<_>>(), ["file1", "file2", "file3"]);
+    assert_eq!(m.value_of("target").unwrap(), "target");
+    assert!(m.is_present("flg"));
+}
