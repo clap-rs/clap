@@ -83,6 +83,16 @@ impl<'a, 'b> App<'a, 'b> {
         App { p: Parser::with_name(n.into()) }
     }
 
+    /// Get the name of the app
+    pub fn get_name(&self) -> &str {
+        &self.p.meta.name
+    }
+
+    /// Get the name of the binary
+    pub fn get_bin_name(&self) -> Option<&str> {
+        self.p.meta.bin_name.as_ref().map(|s| s.as_str())
+    }
+
     /// Creates a new instance of an application requiring a name, but uses the [`crate_authors!`]
     /// and [`crate_version!`] macros to fill in the [`App::author`] and [`App::version`] fields.
     ///
