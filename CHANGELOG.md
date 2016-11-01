@@ -1,3 +1,13 @@
+<a name="v2.17.0"></a>
+## v2.17.0 (2016-11-01)
+
+
+#### Features
+
+* **Positional Args:**  allows specifying the second to last positional argument as multiple(true) ([1ced2a74](https://github.com/kbknapp/clap-rs/commit/1ced2a7433ea8937a1b260ea65d708f32ca7c95e), closes [#725](https://github.com/kbknapp/clap-rs/issues/725))
+
+
+
 <a name="v2.16.4"></a>
 ### v2.16.4 (2016-10-31)
 
