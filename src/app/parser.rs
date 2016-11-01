@@ -8,6 +8,7 @@ use std::io::{self, BufWriter, Write};
 use std::os::unix::ffi::OsStrExt;
 use std::path::PathBuf;
 use std::slice::Iter;
+use std::iter::Peekable;
 
 // Third Party
 use vec_map::{self, VecMap};
@@ -118,15 +119,14 @@ impl<'a, 'b> Parser<'a, 'b>
         let out_dir = PathBuf::from(od);
         let name = &*self.meta.bin_name.as_ref().unwrap().clone();
         let file_name = match for_shell {
-            
+
             Shell::Bash => format!("{}.bash-completion", name),
             Shell::Fish => format!("{}.fish", name),
-            Shell::Zsh  => format!("_{}", name)
+            Shell::Zsh => format!("_{}", name),
         };
 
         let mut file = match File::create(out_dir.join(file_name)) {
-            Err(why) => panic!("couldn't create completion file: {}",
-                why.description()),
+            Err(why) => panic!("couldn't create completion file: {}", why.description()),
             Ok(file) => file,
         };
         self.gen_completions_to(for_shell, &mut file)
@@ -266,10 +266,16 @@ impl<'a, 'b> Parser<'a, 'b>
             for (i, o) in self.opts.iter_mut().enumerate().filter(|&(_, ref o)| o.disp_ord == 999) {
                 o.disp_ord = if unified { o.unified_ord } else { i };
             }
-            for (i, f) in self.flags.iter_mut().enumerate().filter(|&(_, ref f)| f.disp_ord == 999) {
+            for (i, f) in self.flags
+                .iter_mut()
+                .enumerate()
+                .filter(|&(_, ref f)| f.disp_ord == 999) {
                 f.disp_ord = if unified { f.unified_ord } else { i };
             }
-            for (i, sc) in &mut self.subcommands.iter_mut().enumerate().filter(|&(_, ref sc)| sc.p.meta.disp_ord == 999) {
+            for (i, sc) in &mut self.subcommands
+                .iter_mut()
+                .enumerate()
+                .filter(|&(_, ref sc)| sc.p.meta.disp_ord == 999) {
                 sc.p.meta.disp_ord = i;
             }
         }
@@ -517,12 +523,40 @@ impl<'a, 'b> Parser<'a, 'b>
         }
 
         // Next we verify that only the highest index has a .multiple(true) (if any)
-        debug_assert!(!self.positionals
-                     .values()
-                     .any(|a| a.settings.is_set(ArgSettings::Multiple) &&
-                        (a.index as usize != self.positionals.len())
-                     ),
-                "Only the positional argument with the highest index may accept multiple values");
+        if self.positionals()
+            .any(|a| {
+                a.settings.is_set(ArgSettings::Multiple) &&
+                (a.index as usize != self.positionals.len())
+            }) {
+            debug_assert!(self.positionals()
+                .filter(|p| p.settings.is_set(ArgSettings::Multiple)
+                    && p.num_vals.is_none()).map(|_| 1).sum::<u64>() <= 1,
+                "Only one positional argument with .multiple(true) set is allowed per command");
+
+            debug_assert!(self.positionals()
+                .rev()
+                .next()
+                .unwrap()
+                .is_set(ArgSettings::Required),
+                "When using a positional argument with .multiple(true) that is *not the last* \
+                positional argument, the last positional argument (i.e the one with the highest \
+                index) *must* have .required(true) set.");
+            
+            debug_assert!({
+                let num = self.positionals.len() - 1;
+                self.positionals.get(num).unwrap().is_set(ArgSettings::Multiple)
+            },
+            "Only the last positional argument, or second to last positional argument may be set to .multiple(true)");
+
+            self.set(AppSettings::LowIndexMultiplePositional);
+        }
+
+        debug_assert!(self.positionals()
+            .filter(|p| p.settings.is_set(ArgSettings::Multiple)
+                && p.num_vals.is_none())
+            .map(|_| 1)
+            .sum::<u64>() <= 1,
+            "Only one positional argument with .multiple(true) set is allowed per command");
 
         // If it's required we also need to ensure all previous positionals are
         // required too
@@ -666,10 +700,10 @@ impl<'a, 'b> Parser<'a, 'b>
     #[cfg_attr(feature = "lints", allow(while_let_on_iterator))]
     pub fn get_matches_with<I, T>(&mut self,
                                   matcher: &mut ArgMatcher<'a>,
-                                  it: &mut I)
+                                  it: &mut Peekable<I>)
                                   -> ClapResult<()>
         where I: Iterator<Item = T>,
-              T: Into<OsString>
+              T: Into<OsString> + Clone 
     {
         debugln!("fn=get_matches_with;");
         // First we create the `--help` and `--version` arguments and add them if
@@ -684,15 +718,7 @@ impl<'a, 'b> Parser<'a, 'b>
             debugln!("Begin parsing '{:?}' ({:?})", arg_os, &*arg_os.as_bytes());
 
             // Is this a new argument, or values from a previous option?
-            debug!("Starts new arg...");
-            let starts_new_arg = if arg_os.starts_with(b"-") {
-                sdebugln!("Maybe");
-                // a singe '-' by itself is a value and typically means "stdin" on unix systems
-                !(arg_os.len_() == 1)
-            } else {
-                sdebugln!("No");
-                false
-            };
+            let starts_new_arg = is_new_arg(&arg_os); 
 
             // Has the user already passed '--'? Meaning only positional args follow
             if !self.trailing_vals {
@@ -739,7 +765,8 @@ impl<'a, 'b> Parser<'a, 'b>
                                   arg_os.to_string_lossy().parse::<f64>().is_ok()));
                     if needs_val_of.is_none() {
                         if self.is_set(AppSettings::AllowNegativeNumbers) {
-                            if !(arg_os.to_string_lossy().parse::<i64>().is_ok() || arg_os.to_string_lossy().parse::<f64>().is_ok()) {
+                            if !(arg_os.to_string_lossy().parse::<i64>().is_ok() ||
+                                 arg_os.to_string_lossy().parse::<f64>().is_ok()) {
                                 return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
                                                             "",
                                                             &*self.create_current_usage(matcher),
@@ -747,7 +774,7 @@ impl<'a, 'b> Parser<'a, 'b>
                             }
                         } else if !self.is_set(AppSettings::AllowLeadingHyphen) {
                             continue;
-                        }                  
+                        }
                     } else {
                         continue;
                     }
@@ -775,6 +802,26 @@ impl<'a, 'b> Parser<'a, 'b>
                 }
             }
 
+            debugln!("Positional counter...{}", pos_counter);
+            debug!("Checking for low index multiples...");
+            if self.is_set(AppSettings::LowIndexMultiplePositional) && pos_counter == (self.positionals.len() - 1) {
+                sdebugln!("Found");
+                if let Some(na) = it.peek() {
+                    let n = (*na).clone().into();
+                    if is_new_arg(&n) || self.possible_subcommand(&n) || suggestions::did_you_mean(&n.to_string_lossy(),
+                                                        self.subcommands
+                                                            .iter()
+                                                            .map(|s| &s.p.meta.name)).is_some() {
+                        debugln!("Bumping the positional counter...");
+                        pos_counter += 1;
+                    }
+                } else {
+                    debugln!("Bumping the positional counter...");
+                    pos_counter += 1;
+                }
+            } else {
+                sdebugln!("None");
+            }
             if let Some(p) = self.positionals.get(pos_counter) {
                 parse_positional!(self, p, arg_os, pos_counter, matcher);
             } else if self.settings.is_set(AppSettings::AllowExternalSubcommands) {
@@ -953,10 +1000,10 @@ impl<'a, 'b> Parser<'a, 'b>
     fn parse_subcommand<I, T>(&mut self,
                               sc_name: String,
                               matcher: &mut ArgMatcher<'a>,
-                              it: &mut I)
+                              it: &mut Peekable<I>)
                               -> ClapResult<()>
         where I: Iterator<Item = T>,
-              T: Into<OsString>
+              T: Into<OsString> + Clone
     {
         use std::fmt::Write;
         debugln!("fn=parse_subcommand;");
@@ -1949,10 +1996,11 @@ impl<'a, 'b> Parser<'a, 'b>
         }
         None
     }
-    
+
     fn find_flag(&self, name: &str) -> Option<&FlagBuilder<'a, 'b>> {
         for f in self.flags() {
-            if f.name == name || f.aliases.as_ref().unwrap_or(&vec![("",false)]).iter().any(|&(n,_)| n == name) {
+            if f.name == name ||
+               f.aliases.as_ref().unwrap_or(&vec![("",false)]).iter().any(|&(n, _)| n == name) {
                 return Some(f);
             }
         }
@@ -1961,7 +2009,8 @@ impl<'a, 'b> Parser<'a, 'b>
 
     fn find_option(&self, name: &str) -> Option<&OptBuilder<'a, 'b>> {
         for o in self.opts() {
-            if o.name == name || o.aliases.as_ref().unwrap_or(&vec![("",false)]).iter().any(|&(n,_)| n == name) {
+            if o.name == name ||
+               o.aliases.as_ref().unwrap_or(&vec![("",false)]).iter().any(|&(n, _)| n == name) {
                 return Some(o);
             }
         }
@@ -1983,7 +2032,15 @@ impl<'a, 'b> Parser<'a, 'b>
         debugln!("Looking for sc...{}", sc);
         debugln!("Currently in Parser...{}", self.meta.bin_name.as_ref().unwrap());
         for s in self.subcommands.iter() {
-            if s.p.meta.bin_name.as_ref().unwrap_or(&String::new()) == sc || (s.p.meta.aliases.is_some() && s.p.meta.aliases.as_ref().unwrap().iter().any(|&(s,_)| s == sc.split(' ').rev().next().expect(INTERNAL_ERROR_MSG))) {
+            if s.p.meta.bin_name.as_ref().unwrap_or(&String::new()) == sc ||
+               (s.p.meta.aliases.is_some() &&
+                s.p
+                .meta
+                .aliases
+                .as_ref()
+                .unwrap()
+                .iter()
+                .any(|&(s, _)| s == sc.split(' ').rev().next().expect(INTERNAL_ERROR_MSG))) {
                 return Some(s);
             }
             if let Some(app) = s.p.find_subcommand(sc) {
@@ -2017,5 +2074,19 @@ impl<'a, 'b> Clone for Parser<'a, 'b>
             meta: self.meta.clone(),
             trailing_vals: self.trailing_vals,
         }
+    }
+}
+
+#[inline]
+fn is_new_arg(arg_os: &OsStr) -> bool {
+    // Is this a new argument, or values from a previous option?
+    debug!("Starts new arg...");
+    if arg_os.starts_with(b"-") {
+        sdebugln!("Maybe");
+        // a singe '-' by itself is a value and typically means "stdin" on unix systems
+        !(arg_os.len_() == 1)
+    } else {
+        sdebugln!("No");
+        false
     }
 }

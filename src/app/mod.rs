@@ -1250,7 +1250,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
     pub fn get_matches_from<I, T>(mut self, itr: I) -> ArgMatches<'a>
         where I: IntoIterator<Item = T>,
-              T: Into<OsString>
+              T: Into<OsString> + Clone
     {
         self.get_matches_from_safe_borrow(itr).unwrap_or_else(|e| {
             // Otherwise, write to stderr and exit
@@ -1292,7 +1292,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
     pub fn get_matches_from_safe<I, T>(mut self, itr: I) -> ClapResult<ArgMatches<'a>>
         where I: IntoIterator<Item = T>,
-              T: Into<OsString>
+              T: Into<OsString> + Clone
     {
         self.get_matches_from_safe_borrow(itr)
     }
@@ -1320,7 +1320,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
     pub fn get_matches_from_safe_borrow<I, T>(&mut self, itr: I) -> ClapResult<ArgMatches<'a>>
         where I: IntoIterator<Item = T>,
-              T: Into<OsString>
+              T: Into<OsString> + Clone
     {
         // Verify all positional assertions pass
         self.p.verify_positionals();
@@ -1355,7 +1355,7 @@ impl<'a, 'b> App<'a, 'b> {
         }
 
         // do the real parsing
-        if let Err(e) = self.p.get_matches_with(&mut matcher, &mut it) {
+        if let Err(e) = self.p.get_matches_with(&mut matcher, &mut it.peekable()) {
             return Err(e);
         }
 
