@@ -125,7 +125,7 @@ impl<'a, 'b> Parser<'a, 'b>
         };
 
         let mut file = match File::create(out_dir.join(file_name)) {
-            Err(why) => panic!("couldn't create bash completion file: {}",
+            Err(why) => panic!("couldn't create completion file: {}",
                 why.description()),
             Ok(file) => file,
         };
