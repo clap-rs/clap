@@ -41,6 +41,11 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's what's new in v2.17.0
+
+* Allows specifying the second to last positional argument as `multiple(true)` (i.e. things such as `mv <files>... <target>`) 
+* Adds an `App::get_name` and `App::get_bin_name`
+
 Here's what's new in v2.16.4
 
 * Fixes bug that caused panic on subcommands with aliases
