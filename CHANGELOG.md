@@ -1,3 +1,13 @@
+<a name="v2.17.1"></a>
+### v2.17.1 (2016-11-02)
+
+
+#### Bug Fixes
+
+* **Low Index Multiples:**  fixes a bug where using low index multiples was propgated to subcommands ([33924e88](https://github.com/kbknapp/clap-rs/commit/33924e884461983c4e6b5ea1330fecc769a4ade7), closes [#725](https://github.com/kbknapp/clap-rs/issues/725))
+
+
+
 <a name="v2.17.0"></a>
 ## v2.17.0 (2016-11-01)
 
