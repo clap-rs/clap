@@ -542,7 +542,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 "When using a positional argument with .multiple(true) that is *not the last* \
                 positional argument, the last positional argument (i.e the one with the highest \
                 index) *must* have .required(true) set.");
-            
+
             debug_assert!({
                 let num = self.positionals.len() - 1;
                 self.positionals.get(num).unwrap().is_set(ArgSettings::Multiple)
@@ -704,10 +704,13 @@ impl<'a, 'b> Parser<'a, 'b>
                                   it: &mut Peekable<I>)
                                   -> ClapResult<()>
         where I: Iterator<Item = T>,
-              T: Into<OsString> + Clone 
+              T: Into<OsString> + Clone
     {
         debugln!("fn=get_matches_with;");
-        // First we create the `--help` and `--version` arguments and add them if
+        // Verify all positional assertions pass
+        self.verify_positionals();
+
+        // Next we create the `--help` and `--version` arguments and add them if
         // necessary
         self.create_help_and_version();
 
@@ -719,7 +722,7 @@ impl<'a, 'b> Parser<'a, 'b>
             debugln!("Begin parsing '{:?}' ({:?})", arg_os, &*arg_os.as_bytes());
 
             // Is this a new argument, or values from a previous option?
-            let starts_new_arg = is_new_arg(&arg_os); 
+            let starts_new_arg = is_new_arg(&arg_os);
 
             // Has the user already passed '--'? Meaning only positional args follow
             if !self.trailing_vals {

@@ -1015,6 +1015,35 @@ fn low_index_positional_with_subcmd() {
 }
 
 #[test]
+fn low_index_positional_in_subcmd() {
+    let m = App::new("lip")
+        .subcommand(SubCommand::with_name("test")
+			.arg(Arg::with_name("files")
+				.index(1)
+				.required(true)
+				.multiple(true))
+			.arg(Arg::with_name("target")
+				.index(2)
+				.required(true)))
+        .get_matches_from_safe(vec![
+            "lip", "test",
+            "file1", "file2",
+            "file3", "target"
+        ]);
+
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    let m = m.unwrap();
+	let sm = m.subcommand_matches("test").unwrap();
+
+    assert!(sm.is_present("files"));
+    assert_eq!(sm.occurrences_of("files"), 3);
+    assert!(sm.is_present("target"));
+    assert_eq!(sm.occurrences_of("target"), 1);
+    assert_eq!(sm.values_of("files").unwrap().collect::<Vec<_>>(), ["file1", "file2", "file3"]);
+    assert_eq!(sm.value_of("target").unwrap(), "target");
+}
+
+#[test]
 fn low_index_positional_with_option() {
     let m = App::new("lip")
         .arg(Arg::with_name("files")
