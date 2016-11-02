@@ -1322,8 +1322,6 @@ impl<'a, 'b> App<'a, 'b> {
         where I: IntoIterator<Item = T>,
               T: Into<OsString> + Clone
     {
-        // Verify all positional assertions pass
-        self.p.verify_positionals();
         // If there are global arguments, or settings we need to propgate them down to subcommands
         // before parsing incase we run into a subcommand
         self.p.propogate_globals();
