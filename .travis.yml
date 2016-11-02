@@ -41,9 +41,8 @@ after_success:
     rm -rf kcov-master &&
     cargo clean &&
     cargo test --no-run --features "yaml unstable" &&
-    for file in target/debug/*-*; do mkdir -p "target/cov/$(basename $file)"; kcov --coveralls-id=$TRAVIS_JOB_ID --exclude-pattern=/.cargo,/usr/lib --verify "target/cov/$(basename $file)" "$file"; done &&
-    for file in target/debug/deps/clap-*; do mkdir -p "target/cov/$(basename $file)"; kcov --coveralls-id=$TRAVIS_JOB_ID --exclude-pattern=/.cargo,/usr/lib --verify "target/cov/$(basename $file)" "deps/$file"; done &&
-    bash <(curl -s https://codecov.io/bash) &&
+    for file in target/debug/*-*; do mkdir -p "target/cov/$(basename $file)"; kcov --exclude-pattern=/.cargo --verify "target/cov/$(basename $file)" "$file"; done &&
+    kcov --coveralls-id=$TRAVIS_JOB_ID --merge target/cov target/cov/* &&
     echo "Uploaded code coverage"
 env:
   global:
