@@ -3,6 +3,7 @@ mod macros;
 mod bash;
 mod fish;
 mod zsh;
+mod powershell;
 mod shell;
 
 // Std
@@ -13,6 +14,7 @@ use app::parser::Parser;
 use self::bash::BashGen;
 use self::fish::FishGen;
 use self::zsh::ZshGen;
+use self::powershell::PowerShellGen;
 pub use self::shell::Shell;
 
 pub struct ComplGen<'a, 'b>
@@ -28,9 +30,10 @@ impl<'a, 'b> ComplGen<'a, 'b> {
 
     pub fn generate<W: Write>(&self, for_shell: Shell, buf: &mut W) {
         match for_shell {
-            Shell::Bash => BashGen::new(self.p).generate_to(buf),
-            Shell::Fish => FishGen::new(self.p).generate_to(buf),
-            Shell::Zsh  => ZshGen::new(self.p).generate_to(buf),
+            Shell::Bash       => BashGen::new(self.p).generate_to(buf),
+            Shell::Fish       => FishGen::new(self.p).generate_to(buf),
+            Shell::Zsh        => ZshGen::new(self.p).generate_to(buf),
+            Shell::PowerShell => PowerShellGen::new(self.p).generate_to(buf),
         }
     }
 }
