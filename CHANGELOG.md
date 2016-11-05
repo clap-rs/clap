@@ -1,3 +1,13 @@
+<a name="v2.18.0"></a>
+## v2.18.0 (2016-11-05)
+
+
+#### Features
+
+* **Completions:**  adds completion support for PowerShell. ([cff82c88](https://github.com/kbknapp/clap-rs/commit/cff82c880e21064fca63351507b80350df6caadf), closes [#729](https://github.com/kbknapp/clap-rs/issues/729))
+
+
+
 <a name="v2.17.1"></a>
 ### v2.17.1 (2016-11-02)
 
