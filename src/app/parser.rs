@@ -119,10 +119,10 @@ impl<'a, 'b> Parser<'a, 'b>
         let out_dir = PathBuf::from(od);
         let name = &*self.meta.bin_name.as_ref().unwrap().clone();
         let file_name = match for_shell {
-
             Shell::Bash => format!("{}.bash-completion", name),
             Shell::Fish => format!("{}.fish", name),
             Shell::Zsh => format!("_{}", name),
+            Shell::PowerShell => format!("_{}.ps1", name),
         };
 
         let mut file = match File::create(out_dir.join(file_name)) {
