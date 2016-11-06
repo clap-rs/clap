@@ -1507,8 +1507,14 @@ impl<'a, 'b> Parser<'a, 'b>
            matcher.contains(&*arg.name()) {
             return Err(Error::empty_value(arg, &*self.create_current_usage(matcher), self.color()));
         }
+        let val_string = val.to_string_lossy().into_owned();
+        for vtor in arg.validators() {
+            if let Err(e) = vtor.validate(&val_string) {
+                return Err(Error::value_validation(e, self.color()));
+            }
+        }
         if let Some(vtor) = arg.validator() {
-            if let Err(e) = vtor(val.to_string_lossy().into_owned()) {
+            if let Err(e) = vtor(val_string) {
                 return Err(Error::value_validation(e, self.color()));
             }
         }

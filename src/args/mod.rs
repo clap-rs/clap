@@ -19,3 +19,4 @@ mod arg_builder;
 mod matched_arg;
 mod group;
 pub mod settings;
+pub mod validator;

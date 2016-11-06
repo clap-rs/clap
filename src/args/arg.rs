@@ -8,6 +8,7 @@ use vec_map::VecMap;
 
 use usage_parser::UsageParser;
 use args::settings::{ArgFlags, ArgSettings};
+use args::validator::Validator;
 
 /// The abstract representation of a command line argument. Used to set all the options and
 /// relationships that define a valid argument for the program.
@@ -66,6 +67,8 @@ pub struct Arg<'a, 'b>
     #[doc(hidden)]
     pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
     #[doc(hidden)]
+    pub validators: Vec<Box<Validator>>,
+    #[doc(hidden)]
     pub overrides: Option<Vec<&'a str>>,
     #[doc(hidden)]
     pub settings: ArgFlags,
@@ -97,6 +100,7 @@ impl<'a, 'b> Default for Arg<'a, 'b> {
             max_vals: None,
             min_vals: None,
             validator: None,
+            validators: vec![],
             overrides: None,
             settings: ArgFlags::new(),
             val_delim: None,
@@ -1851,6 +1855,16 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
+    /// Allows one to perform a custom validation on the argument value. You provide a Box
+    /// containing an object that implements `Validator`.
+    ///
+    /// **NOTE:** The error message does *not* need to contain the `error:` portion, only the
+    /// message.
+    pub fn with_validator(mut self, validator: Box<Validator> -> Self {
+        self.validators.push(validator);
+        self
+    }
+
     /// Specifies the *maximum* number of values are for this argument. For example, if you had a
     /// `-f <file>` argument where you wanted up to 3 'files' you would set `.max_values(3)`, and
     /// this argument would be satisfied if the user provided, 1, 2, or 3 values.
@@ -2512,6 +2526,7 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
             val_names: a.val_names.clone(),
             group: a.group.clone(),
             validator: a.validator.clone(),
+            validators: a.validators.clone(),
             overrides: a.overrides.clone(),
             settings: a.settings,
             val_delim: a.val_delim,
@@ -2540,6 +2555,7 @@ impl<'a, 'b> Clone for Arg<'a, 'b> {
             val_names: self.val_names.clone(),
             group: self.group.clone(),
             validator: self.validator.clone(),
+            validators: self.validators.clone(),
             overrides: self.overrides.clone(),
             settings: self.settings,
             val_delim: self.val_delim,
