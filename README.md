@@ -41,6 +41,10 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's what's new in v2.18.0
+
+* **Completions:**  Adds completion support for Microsoft PowerShell! (Thanks to @Arnavion)
+
 Here's what's new in v2.17.1
 
 * Fixes a bug where using low index multiples was propagated to subcommands
