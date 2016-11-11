@@ -19,15 +19,13 @@ pub struct ZshGen<'a, 'b>
 impl<'a, 'b> ZshGen<'a, 'b> {
     pub fn new(p: &'b Parser<'a, 'b>) -> Self {
         debugln!("fn=ZshGen::new;");
-        ZshGen { 
-            p: p,
-        }
+        ZshGen { p: p }
     }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
         debugln!("fn=generate_to;");
         w!(buf,
-            format!("\
+           format!("\
 #compdef {name}
 
 _{name}() {{
@@ -45,7 +43,8 @@ _{name} \"$@\"",
                    name = self.p.meta.bin_name.as_ref().unwrap(),
                    initial_args = get_args_of(self.p),
                    subcommands = get_subcommands_of(self.p),
-                   subcommand_details = subcommand_details(self.p)).as_bytes());
+                   subcommand_details = subcommand_details(self.p))
+               .as_bytes());
 
     }
 }
@@ -72,11 +71,11 @@ _{name} \"$@\"",
 // 	local commands; commands=(
 // 		'show:Show the active and installed toolchains'
 //      'update:Update Rust toolchains'
-//      # ... snip for brevity    
+//      # ... snip for brevity
 //      'help:Prints this message or the help of the given subcommand(s)'
 // 	)
 // 	_describe -t commands 'rustup commands' commands "$@"
-// 
+//
 fn subcommand_details(p: &Parser) -> String {
     debugln!("fn=subcommand_details");
     // First we do ourself
@@ -88,9 +87,10 @@ _{bin_name_underscore}_commands() {{
     )
     _describe -t commands '{bin_name} commands' commands \"$@\"
 }}",
-            bin_name_underscore = p.meta.bin_name.as_ref().unwrap().replace(" ", "_"),
-            bin_name = p.meta.bin_name.as_ref().unwrap(),
-            subcommands_and_args = subcommands_and_args_of(p))];
+                               bin_name_underscore =
+                                   p.meta.bin_name.as_ref().unwrap().replace(" ", "_"),
+                               bin_name = p.meta.bin_name.as_ref().unwrap(),
+                               subcommands_and_args = subcommands_and_args_of(p))];
 
     // Next we start looping through all the children, grandchildren, etc.
     let mut all_subcommands = completions::all_subcommands(p);
@@ -106,15 +106,15 @@ _{bin_name_underscore}_commands() {{
     )
     _describe -t commands '{bin_name} commands' commands \"$@\"
 }}",
-            bin_name_underscore = bin_name.replace(" ", "_"),
-            bin_name = bin_name,
-            subcommands_and_args = subcommands_and_args_of(parser_of(p, bin_name))));
+                         bin_name_underscore = bin_name.replace(" ", "_"),
+                         bin_name = bin_name,
+                         subcommands_and_args = subcommands_and_args_of(parser_of(p, bin_name))));
     }
 
     ret.join("\n")
 }
 
-// Generates subcommand and positional argument completions in form of 
+// Generates subcommand and positional argument completions in form of
 //
 // 		'[arg_name]:[arg_help]'
 //
@@ -129,9 +129,9 @@ fn subcommands_and_args_of(p: &Parser) -> String {
     debugln!("fn=subcommands_and_args_of;");
     let mut ret = vec![];
     fn add_sc(sc: &App, n: &str, ret: &mut Vec<String>) {
-        let s = format!("\"{name}:{help}\" \\", 
-            name = n, 
-            help = sc.p.meta.about.unwrap_or(""));
+        let s = format!("\"{name}:{help}\" \\",
+                        name = n,
+                        help = sc.p.meta.about.unwrap_or(""));
         if !s.is_empty() {
             ret.push(s);
         }
@@ -142,7 +142,7 @@ fn subcommands_and_args_of(p: &Parser) -> String {
         debugln!("iter;subcommand={}", sc.p.meta.name);
         add_sc(sc, &sc.p.meta.name, &mut ret);
         if let Some(ref v) = sc.p.meta.aliases {
-            for alias in v.iter().filter(|&&(_, vis)| vis).map(|&(n,_)| n) {
+            for alias in v.iter().filter(|&&(_, vis)| vis).map(|&(n, _)| n) {
                 add_sc(sc, alias, &mut ret);
             }
         }
@@ -151,10 +151,10 @@ fn subcommands_and_args_of(p: &Parser) -> String {
     // Then the positional args
     for arg in p.positionals() {
         debugln!("iter;arg={}", arg.name);
-        let a = format!("\"{name}:{help}\" \\", 
-            name = arg.name.to_ascii_uppercase(), 
-            help = arg.help.unwrap_or(""));
-        
+        let a = format!("\"{name}:{help}\" \\",
+                        name = arg.name.to_ascii_uppercase(),
+                        help = arg.help.unwrap_or(""));
+
         if !a.is_empty() {
             ret.push(a);
         }
@@ -184,7 +184,7 @@ fn subcommands_and_args_of(p: &Parser) -> String {
 //
 //     esac
 // ;;
-// esac", 
+// esac",
 //
 // Where the following variables are present:
 //    [name] = The subcommand name in the form of "install" for "rustup toolchain install"
@@ -220,18 +220,17 @@ fn get_subcommands_of(p: &Parser) -> String {
         subcmds.push(v.join("\n"));
     }
 
-    format!(
-"case $state in
+    format!("case $state in
     ({name})
         curcontext=\"${{curcontext%:*:*}}:{name_hyphen}-command-$words[1]:\"
         case $line[1] in
             {subcommands}
         esac
     ;;
-esac", 
-        name = p.meta.name,
-        name_hyphen = p.meta.bin_name.as_ref().unwrap().replace(" ", "-"),
-        subcommands = subcmds.join("\n"))
+esac",
+            name = p.meta.name,
+            name_hyphen = p.meta.bin_name.as_ref().unwrap().replace(" ", "-"),
+            subcommands = subcmds.join("\n"))
 }
 
 fn parser_of<'a, 'b>(p: &'b Parser<'a, 'b>, sc: &str) -> &'b Parser<'a, 'b> {
@@ -239,7 +238,7 @@ fn parser_of<'a, 'b>(p: &'b Parser<'a, 'b>, sc: &str) -> &'b Parser<'a, 'b> {
     &p.find_subcommand(sc).expect(INTERNAL_ERROR_MSG).p
 }
 
-// Writes out the args section, which ends up being the flags and opts, and a jump to 
+// Writes out the args section, which ends up being the flags and opts, and a jump to
 // another ZSH function if there are positional args or subcommands.
 // The structer works like this:
 //    ([conflicting_args]) [multiple] arg [takes_value] [[help]] [: :(possible_values)]
@@ -265,15 +264,15 @@ fn get_args_of(p: &Parser) -> String {
     let opts = write_opts_of(p);
     let flags = write_flags_of(p);
     let sc_or_a = if p.has_subcommands() || p.has_positionals() {
-            format!("\"1:: :_{name}_commands\" \\", 
+        format!("\"1:: :_{name}_commands\" \\",
                 name = p.meta.bin_name.as_ref().unwrap().replace(" ", "_"))
-        } else {
-            String::new()
-        };
-   let sc = if p.has_subcommands() {
-            format!("\"*:: :->{name}\" \\", name = p.meta.name)
-        } else {
-            String::new()
+    } else {
+        String::new()
+    };
+    let sc = if p.has_subcommands() {
+        format!("\"*:: :->{name}\" \\", name = p.meta.name)
+    } else {
+        String::new()
     };
 
     if !opts.is_empty() {
@@ -299,33 +298,41 @@ fn write_opts_of(p: &Parser) -> String {
     for o in p.opts() {
         debugln!("iter;o={}", o.name());
         let help = o.help().unwrap_or("");
-        let mut conflicts = get_zsh_arg_conflicts!(p, o, INTERNAL_ERROR_MSG); 
-        conflicts = if conflicts.is_empty() { String::new() } else { format!("({})", conflicts) };
+        let mut conflicts = get_zsh_arg_conflicts!(p, o, INTERNAL_ERROR_MSG);
+        conflicts = if conflicts.is_empty() {
+            String::new()
+        } else {
+            format!("({})", conflicts)
+        };
 
-        let multiple = if o.is_set(ArgSettings::Multiple) { "*" } else { "" };
+        let multiple = if o.is_set(ArgSettings::Multiple) {
+            "*"
+        } else {
+            ""
+        };
         let pv = if let Some(pv_vec) = o.possible_vals() {
-                format!(": :({})", pv_vec.join(" "))
+            format!(": :({})", pv_vec.join(" "))
         } else {
             String::new()
         };
         if let Some(short) = o.short() {
             let s = format!("\"{conflicts}{multiple}-{arg}+[{help}]{possible_values}\" \\",
-                conflicts = conflicts,
-                multiple = multiple,
-                arg = short,
-                possible_values = pv,
-                help = help);
+                            conflicts = conflicts,
+                            multiple = multiple,
+                            arg = short,
+                            possible_values = pv,
+                            help = help);
 
             debugln!("Wrote...{}", &*s);
             ret.push(s);
         }
         if let Some(long) = o.long() {
             let l = format!("\"{conflicts}{multiple}--{arg}+[{help}]{possible_values}\" \\",
-                conflicts = conflicts,
-                multiple = multiple,
-                arg = long,
-                possible_values = pv,
-                help = help);
+                            conflicts = conflicts,
+                            multiple = multiple,
+                            arg = long,
+                            possible_values = pv,
+                            help = help);
 
             debugln!("Wrote...{}", &*l);
             ret.push(l);
@@ -341,16 +348,24 @@ fn write_flags_of(p: &Parser) -> String {
     for f in p.flags() {
         debugln!("iter;f={}", f.name());
         let help = f.help().unwrap_or("");
-        let mut conflicts = get_zsh_arg_conflicts!(p, f, INTERNAL_ERROR_MSG); 
-        conflicts = if conflicts.is_empty() { String::new() } else { format!("({})", conflicts) };
+        let mut conflicts = get_zsh_arg_conflicts!(p, f, INTERNAL_ERROR_MSG);
+        conflicts = if conflicts.is_empty() {
+            String::new()
+        } else {
+            format!("({})", conflicts)
+        };
 
-        let multiple = if f.is_set(ArgSettings::Multiple) { "*" } else { "" };
+        let multiple = if f.is_set(ArgSettings::Multiple) {
+            "*"
+        } else {
+            ""
+        };
         if let Some(short) = f.short() {
             let s = format!("\"{conflicts}{multiple}-{arg}[{help}]\" \\",
-                multiple = multiple,
-                conflicts = conflicts,
-                arg = short,
-                help = help);
+                            multiple = multiple,
+                            conflicts = conflicts,
+                            arg = short,
+                            help = help);
 
             debugln!("Wrote...{}", &*s);
             ret.push(s);
@@ -358,10 +373,10 @@ fn write_flags_of(p: &Parser) -> String {
 
         if let Some(long) = f.long() {
             let l = format!("\"{conflicts}{multiple}--{arg}[{help}]\" \\",
-                conflicts = conflicts,
-                multiple = multiple,
-                arg = long,
-                help = help);
+                            conflicts = conflicts,
+                            multiple = multiple,
+                            arg = long,
+                            help = help);
 
             debugln!("Wrote...{}", &*l);
             ret.push(l);

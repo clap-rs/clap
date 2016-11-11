@@ -125,41 +125,41 @@ impl<'n, 'e> Display for OptBuilder<'n, 'e> {
         debugln!("fn=fmt");
         // Write the name such --long or -l
         if let Some(l) = self.long {
-            try!(write!(f, "--{} ", l));
+            write!(f, "--{} ", l)?;
         } else {
-            try!(write!(f, "-{} ", self.short.unwrap()));
+            write!(f, "-{} ", self.short.unwrap())?;
         }
 
         // Write the values such as <name1> <name2>
         if let Some(ref vec) = self.val_names {
             let mut it = vec.iter().peekable();
             while let Some((_, val)) = it.next() {
-                try!(write!(f, "<{}>", val));
+                write!(f, "<{}>", val)?;
                 if it.peek().is_some() {
-                    try!(write!(f, " "));
+                    write!(f, " ")?;
                 }
             }
             let num = vec.len();
             if self.is_set(ArgSettings::Multiple) && num == 1 {
-                try!(write!(f, "..."));
+                write!(f, "...")?;
             }
         } else if let Some(num) = self.num_vals {
             let mut it = (0..num).peekable();
             while let Some(_) = it.next() {
-                try!(write!(f, "<{}>", self.name));
+                write!(f, "<{}>", self.name)?;
                 if it.peek().is_some() {
-                    try!(write!(f, " "));
+                    write!(f, " ")?;
                 }
             }
         } else {
-            try!(write!(f,
-                        "<{}>{}",
-                        self.name,
-                        if self.is_set(ArgSettings::Multiple) {
-                            "..."
-                        } else {
-                            ""
-                        }));
+            write!(f,
+                   "<{}>{}",
+                   self.name,
+                   if self.is_set(ArgSettings::Multiple) {
+                       "..."
+                   } else {
+                       ""
+                   })?;
         }
 
         Ok(())
@@ -259,10 +259,9 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.aliases {
-            let vis_aliases: Vec<_> =
-                aliases.iter()
-                    .filter_map(|&(n, v)| if v { Some(n) } else { None })
-                    .collect();
+            let vis_aliases: Vec<_> = aliases.iter()
+                .filter_map(|&(n, v)| if v { Some(n) } else { None })
+                .collect();
             if vis_aliases.is_empty() {
                 None
             } else {
@@ -335,12 +334,8 @@ mod test {
     fn optbuilder_display_multiple_aliases() {
         let mut o = OptBuilder::new("opt");
         o.long = Some("option");
-        o.aliases = Some(vec![
-                         ("als_not_visible", false),
-                         ("als2", true),
-                         ("als3", true),
-                         ("als4", true)
-                    ]);
+        o.aliases =
+            Some(vec![("als_not_visible", false), ("als2", true), ("als3", true), ("als4", true)]);
         assert_eq!(&*format!("{}", o), "--option <opt>");
     }
 }

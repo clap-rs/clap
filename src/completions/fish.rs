@@ -20,8 +20,7 @@ impl<'a, 'b> FishGen<'a, 'b> {
         let command = self.p.meta.bin_name.as_ref().unwrap();
 
         // function to detect subcommand
-        let detect_subcommand_function =
-r#"function __fish_using_command
+        let detect_subcommand_function = r#"function __fish_using_command
     set cmd (commandline -opc)
     if [ (count $cmd) -eq (count $argv) ]
         for i in (seq (count $argv))
@@ -34,7 +33,8 @@ r#"function __fish_using_command
     return 1
 end
 
-"#.to_string();
+"#
+            .to_string();
 
         let mut buffer = detect_subcommand_function;
         gen_fish_inner(command, self, &command.to_string(), &mut buffer);
@@ -42,10 +42,7 @@ end
     }
 }
 
-fn gen_fish_inner(root_command: &str,
-                comp_gen: &FishGen,
-                parent_cmds: &str,
-                buffer: &mut String) {
+fn gen_fish_inner(root_command: &str, comp_gen: &FishGen, parent_cmds: &str, buffer: &mut String) {
     // example :
     //
     // complete
@@ -59,8 +56,8 @@ fn gen_fish_inner(root_command: &str,
     //      -n "__fish_using_command myprog subcmd1" # complete for command "myprog subcmd1"
 
     let basic_template = format!("complete -c {} -n \"__fish_using_command {}\"",
-                                root_command,
-                                parent_cmds);
+                                 root_command,
+                                 parent_cmds);
 
     for option in &comp_gen.p.opts {
         let mut template = basic_template.clone();
@@ -112,9 +109,6 @@ fn gen_fish_inner(root_command: &str,
             sub_parent_cmds.push_str(" ");
         }
         sub_parent_cmds.push_str(&subcommand.p.meta.name);
-        gen_fish_inner(root_command,
-                    &sub_comp_gen,
-                    &sub_parent_cmds,
-                    buffer);
+        gen_fish_inner(root_command, &sub_comp_gen, &sub_parent_cmds, buffer);
     }
 }

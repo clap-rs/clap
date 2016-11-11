@@ -111,7 +111,7 @@ impl<'a> UsageParser<'a> {
     {
         debugln!("fn=stop_at;");
         self.start = self.pos;
-        self.pos += self.usage[self.start..].bytes().take_while(|&b| f(b) ).count();
+        self.pos += self.usage[self.start..].bytes().take_while(|&b| f(b)).count();
     }
 
     fn short_or_long(&mut self, arg: &mut Arg<'a, 'a>) {
@@ -990,7 +990,8 @@ mod test {
         assert!(d.is_set(ArgSettings::Multiple));
         assert!(d.is_set(ArgSettings::TakesValue));
         assert!(d.is_set(ArgSettings::Required));
-        assert_eq!(d.val_names.unwrap().values().collect::<Vec<_>>(), [&"option"]);
+        assert_eq!(d.val_names.unwrap().values().collect::<Vec<_>>(),
+                   [&"option"]);
         assert!(d.num_vals.is_none());
     }
 
@@ -1199,7 +1200,8 @@ mod test {
         let a = Arg::from_usage("[ñämê] --ôpt=[üñíčöĐ€] 'hælp'");
         assert_eq!(a.name, "ñämê");
         assert_eq!(a.long, Some("ôpt"));
-        assert_eq!(a.val_names.unwrap().values().collect::<Vec<_>>(), [&"üñíčöĐ€"]);
+        assert_eq!(a.val_names.unwrap().values().collect::<Vec<_>>(),
+                   [&"üñíčöĐ€"]);
         assert_eq!(a.help, Some("hælp"));
     }
 }
