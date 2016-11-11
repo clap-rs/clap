@@ -626,7 +626,7 @@ macro_rules! write_spaces {
     ($num:expr, $w:ident) => ({
         debugln!("macro=write_spaces!;");
         for _ in 0..$num {
-            try!(write!($w, " "));
+            write!($w, " ")?;
         }
     })
 }
@@ -639,7 +639,7 @@ macro_rules! write_nspaces {
     ($dst:expr, $num:expr) => ({
         debugln!("macro=write_spaces!;num={}", $num);
         for _ in 0..$num {
-            try!($dst.write(b" "));
+            $dst.write(b" ")?;
         }
     })
 }

@@ -87,9 +87,9 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for FlagBuilder<'a, 'b> {
 impl<'n, 'e> Display for FlagBuilder<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> Result {
         if let Some(l) = self.long {
-            try!(write!(f, "--{}", l));
+            write!(f, "--{}", l)?;
         } else {
-            try!(write!(f, "-{}", self.short.unwrap()));
+            write!(f, "-{}", self.short.unwrap())?;
         }
 
         Ok(())
@@ -180,10 +180,9 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.aliases {
-            let vis_aliases: Vec<_> =
-                aliases.iter()
-                    .filter_map(|&(n, v)| if v { Some(n) } else { None })
-                    .collect();
+            let vis_aliases: Vec<_> = aliases.iter()
+                .filter_map(|&(n, v)| if v { Some(n) } else { None })
+                .collect();
             if vis_aliases.is_empty() {
                 None
             } else {
@@ -233,12 +232,8 @@ mod test {
     fn flagbuilder_display_multiple_aliases() {
         let mut f = FlagBuilder::new("flg");
         f.short = Some('f');
-        f.aliases = Some(vec![
-                         ("alias_not_visible", false),
-                         ("f2", true),
-                         ("f3", true),
-                         ("f4", true)
-                    ]);
+        f.aliases =
+            Some(vec![("alias_not_visible", false), ("f2", true), ("f3", true), ("f4", true)]);
         assert_eq!(&*format!("{}", f), "-f");
     }
 }
