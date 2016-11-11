@@ -1242,20 +1242,16 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```ignore
     /// $ VAR="--arg1 val1 --arg2 val2" ./program --arg2 val3
     /// ```
-    pub fn get_matches_with_env<S: AsRef<str>>(
-            self, env_var_name: Option<&S>)-> ArgMatches<'a> {
-        let mut env_var = "VAR".to_string();
-        if let Some(name) = env_var_name {
-            env_var = name.as_ref().to_string();
-        }
+    pub fn get_matches_with_env<S: AsRef<str>>(self, env_var: &S)
+            -> ArgMatches<'a> {
         // Build `args` by chaining `args_os()` and `var_os()`
         let mut args: Vec<OsString> = env::args_os().collect();
         // Handle first env-format:
         // VAR="--option1=val1 --option2=val2" ./prog
-        if let Some(vargs) = env::var_os(&env_var) {
+        if let Some(vargs) = env::var_os(env_var.as_ref()) {
             // String has split(char::is_whitespace) but for OsStr
             // we have to define closure manually.
             //let whitespace = |c| c == b' ' || c == b'\t' || c == b'\n';
@@ -1649,18 +1645,10 @@ mod tests {
     #[test]
     fn test_get_matches_with_env() {
         env::set_var("VAR", "--arg1 val1");
-        let mut matches = App::new("testprog").arg(Arg::with_name("arg1")
+        let matches = App::new("testprog").arg(Arg::with_name("arg1")
                                                     .takes_value(true)
                                                     .long("arg1"))
-                                          .get_matches_with_env(None);
+                                          .get_matches_with_env(&"VAR");
         assert_eq!(matches.value_of("arg1").unwrap(), "val1");
-
-        env::set_var("ENV_VAR_WITH_PROGRAM_ARGS".to_string(), "--arg2 val2");
-        matches = App::new("testprog")
-            .arg(Arg::with_name("arg2")
-                    .takes_value(true)
-                    .long("arg2"))
-            .get_matches_with_env(Some(&"ENV_VAR_WITH_PROGRAM_ARGS".to_string()));
-        assert_eq!(matches.value_of("arg2").unwrap(), "val2");
     }
 }
