@@ -106,10 +106,13 @@ impl<'a> Help<'a> {
             hide_pv: hide_pv,
             term_w: match term_w {
                 Some(width) => if width == 0 { usize::MAX } else { width },
-                None => cmp::min(term_size::dimensions().map_or(120, |(w, _)| w), match max_w {
-                    None | Some(0) => usize::MAX,
-                    Some(mw) => mw,
-                }),
+                None => {
+                    cmp::min(term_size::dimensions().map_or(120, |(w, _)| w),
+                             match max_w {
+                                 None | Some(0) => usize::MAX,
+                                 Some(mw) => mw,
+                             })
+                }
             },
             color: color,
             cizer: cizer,
@@ -150,14 +153,21 @@ impl<'a> Help<'a> {
             use_stderr: stderr,
             when: parser.color(),
         };
-        Self::new(w, nlh, hide_v, color, cizer, parser.meta.term_w, parser.meta.max_w).write_help(parser)
+        Self::new(w,
+                  nlh,
+                  hide_v,
+                  color,
+                  cizer,
+                  parser.meta.term_w,
+                  parser.meta.max_w)
+            .write_help(parser)
     }
 
     /// Writes the parser help to the wrapped stream.
     pub fn write_help(&mut self, parser: &Parser) -> ClapResult<()> {
         debugln!("fn=Help::write_help;");
         if let Some(h) = parser.meta.help_str {
-            try!(write!(self.writer, "{}", h).map_err(Error::from));
+            write!(self.writer, "{}", h).map_err(Error::from)?;
         } else if let Some(tmpl) = parser.meta.template {
             try!(self.write_templated_help(&parser, tmpl));
         } else {
@@ -208,8 +218,8 @@ impl<'a> Help<'a> {
         let mut ord_m = VecMap::new();
         // Determine the longest
         for arg in args.filter(|arg| {
-            // If it's NextLineHelp, but we don't care to compute how long because it may be 
-            // NextLineHelp on purpose *because* it's so long and would throw off all other 
+            // If it's NextLineHelp, but we don't care to compute how long because it may be
+            // NextLineHelp on purpose *because* it's so long and would throw off all other
             // args alignment
             !arg.is_set(ArgSettings::Hidden) || arg.is_set(ArgSettings::NextLineHelp)
         }) {
@@ -236,9 +246,7 @@ impl<'a> Help<'a> {
     }
 
     /// Writes help for an argument to the wrapped stream.
-    fn write_arg<'b, 'c>(&mut self,
-                         arg: &ArgWithDisplay<'b, 'c>)
-                         -> io::Result<()> {
+    fn write_arg<'b, 'c>(&mut self, arg: &ArgWithDisplay<'b, 'c>) -> io::Result<()> {
         debugln!("fn=write_arg;");
         try!(self.short(arg));
         try!(self.long(arg));
@@ -326,8 +334,8 @@ impl<'a> Help<'a> {
         let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp);
         let taken = self.longest + 12;
         self.force_next_line = !nlh && self.term_w >= taken &&
-            (taken as f32 / self.term_w as f32) > 0.40 &&
-            h_w > (self.term_w - taken);
+                               (taken as f32 / self.term_w as f32) > 0.40 &&
+                               h_w > (self.term_w - taken);
 
         debug!("Has switch...");
         if arg.has_switch() {
@@ -335,7 +343,10 @@ impl<'a> Help<'a> {
             debugln!("force_next_line...{:?}", self.force_next_line);
             debugln!("nlh...{:?}", nlh);
             debugln!("taken...{}", taken);
-            debugln!("help_width > (width - taken)...{} > ({} - {})", h_w, self.term_w, taken);
+            debugln!("help_width > (width - taken)...{} > ({} - {})",
+                     h_w,
+                     self.term_w,
+                     taken);
             debugln!("longest...{}", self.longest);
             debug!("next_line...");
             if !(nlh || self.force_next_line) {
@@ -495,24 +506,24 @@ impl<'a> Help<'a> {
         if let Some(pv) = a.default_val() {
             debugln!("Found default value...[{}]", pv);
             spec_vals.push(format!(" [default: {}]",
-                if self.color {
-                    self.cizer.good(pv)
-                } else {
-                    Format::None(pv)
-            }));
-        } 
+                                   if self.color {
+                                       self.cizer.good(pv)
+                                   } else {
+                                       Format::None(pv)
+                                   }));
+        }
         if let Some(ref aliases) = a.aliases() {
             debugln!("Found aliases...{:?}", aliases);
             spec_vals.push(format!(" [aliases: {}]",
-                           if self.color {
-                               aliases.iter()
-                                   .map(|v| format!("{}", self.cizer.good(v)))
-                                   .collect::<Vec<_>>()
-                                   .join(", ")
-                           } else {
-                               aliases.join(", ")
-            }));
-        } 
+                                   if self.color {
+                                       aliases.iter()
+                                           .map(|v| format!("{}", self.cizer.good(v)))
+                                           .collect::<Vec<_>>()
+                                           .join(", ")
+                                   } else {
+                                       aliases.join(", ")
+                                   }));
+        }
         if !self.hide_pv && !a.is_set(ArgSettings::HidePossibleValues) {
             if let Some(pv) = a.possible_vals() {
                 debugln!("Found possible vals...{:?}", pv);

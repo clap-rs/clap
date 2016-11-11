@@ -3,6 +3,7 @@ use std::str::FromStr;
 use std::fmt;
 
 /// Describes which shell to produce a completions file for
+#[cfg_attr(feature = "lints", allow(enum_variant_names))]
 #[derive(Debug, Copy, Clone)]
 pub enum Shell {
     /// Generates a .bash-completion completion file for the Bourne Again SHell (BASH)

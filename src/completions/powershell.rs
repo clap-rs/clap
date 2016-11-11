@@ -19,7 +19,7 @@ impl<'a, 'b> PowerShellGen<'a, 'b> {
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
         let bin_name = self.p.meta.bin_name.as_ref().unwrap();
 
-        let (subcommands_detection_cases, subcommands_cases) = generate_inner(&self.p, "");
+        let (subcommands_detection_cases, subcommands_cases) = generate_inner(self.p, "");
 
         let mut bin_names = vec![
             bin_name.to_string(),

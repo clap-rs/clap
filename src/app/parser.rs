@@ -507,6 +507,7 @@ impl<'a, 'b> Parser<'a, 'b>
         self.settings.unset(s)
     }
 
+    #[cfg_attr(feature = "lints", allow(block_in_if_condition_stmt))]
     pub fn verify_positionals(&mut self) {
         // Because you must wait until all arguments have been supplied, this is the first chance
         // to make assertions on positional argument indexes
@@ -808,14 +809,17 @@ impl<'a, 'b> Parser<'a, 'b>
 
             debugln!("Positional counter...{}", pos_counter);
             debug!("Checking for low index multiples...");
-            if self.is_set(AppSettings::LowIndexMultiplePositional) && pos_counter == (self.positionals.len() - 1) {
+            if self.is_set(AppSettings::LowIndexMultiplePositional) &&
+               pos_counter == (self.positionals.len() - 1) {
                 sdebugln!("Found");
                 if let Some(na) = it.peek() {
                     let n = (*na).clone().into();
-                    if is_new_arg(&n) || self.possible_subcommand(&n) || suggestions::did_you_mean(&n.to_string_lossy(),
-                                                        self.subcommands
-                                                            .iter()
-                                                            .map(|s| &s.p.meta.name)).is_some() {
+                    if is_new_arg(&n) || self.possible_subcommand(&n) ||
+                       suggestions::did_you_mean(&n.to_string_lossy(),
+                                                 self.subcommands
+                                                     .iter()
+                                                     .map(|s| &s.p.meta.name))
+                        .is_some() {
                         debugln!("Bumping the positional counter...");
                         pos_counter += 1;
                     }
@@ -845,11 +849,9 @@ impl<'a, 'b> Parser<'a, 'b>
                 let mut sc_m = ArgMatcher::new();
                 while let Some(v) = it.next() {
                     let a = v.into();
-                    if let None = a.to_str() {
-                        if !self.settings.is_set(AppSettings::StrictUtf8) {
+                    if a.to_str().is_none() && !self.settings.is_set(AppSettings::StrictUtf8) {
                             return Err(Error::invalid_utf8(&*self.create_current_usage(matcher),
                                                            self.color()));
-                        }
                     }
                     sc_m.add_val_to("", &a);
                 }
@@ -1235,9 +1237,6 @@ impl<'a, 'b> Parser<'a, 'b>
     fn _help(&self) -> ClapResult<()> {
         let mut buf = vec![];
         try!(Help::write_parser_help(&mut buf, self));
-        // let out = io::stdout();
-        // let mut out_buf = BufWriter::new(out.lock());
-        // try!(out_buf.write(&*buf));
         Err(Error {
             message: unsafe { String::from_utf8_unchecked(buf) },
             kind: ErrorKind::HelpDisplayed,
@@ -1304,7 +1303,7 @@ impl<'a, 'b> Parser<'a, 'b>
             debugln!("Found valid flag '{}'", flag.to_string());
             // Only flags could be help or version, and we need to check the raw long
             // so this is the first point to check
-            try!(self.check_for_help_and_version_str(&arg));
+            try!(self.check_for_help_and_version_str(arg));
 
             try!(self.parse_flag(flag, matcher));
 
