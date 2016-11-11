@@ -507,6 +507,7 @@ impl<'a, 'b> Parser<'a, 'b>
         self.settings.unset(s)
     }
 
+    #[cfg_attr(feature = "lints", allow(block_in_if_condition_stmt))]
     pub fn verify_positionals(&mut self) {
         // Because you must wait until all arguments have been supplied, this is the first chance
         // to make assertions on positional argument indexes
@@ -848,11 +849,9 @@ impl<'a, 'b> Parser<'a, 'b>
                 let mut sc_m = ArgMatcher::new();
                 while let Some(v) = it.next() {
                     let a = v.into();
-                    if let None = a.to_str() {
-                        if !self.settings.is_set(AppSettings::StrictUtf8) {
+                    if a.to_str().is_none() && !self.settings.is_set(AppSettings::StrictUtf8) {
                             return Err(Error::invalid_utf8(&*self.create_current_usage(matcher),
                                                            self.color()));
-                        }
                     }
                     sc_m.add_val_to("", &a);
                 }
@@ -1304,7 +1303,7 @@ impl<'a, 'b> Parser<'a, 'b>
             debugln!("Found valid flag '{}'", flag.to_string());
             // Only flags could be help or version, and we need to check the raw long
             // so this is the first point to check
-            self.check_for_help_and_version_str(&arg)?;
+            self.check_for_help_and_version_str(arg)?;
 
             self.parse_flag(flag, matcher)?;
 
