@@ -1344,7 +1344,7 @@ impl<'a, 'b> App<'a, 'b> {
                 let p = Path::new(&*bn_os);
                 if let Some(f) = p.file_name() {
                     if let Some(s) = f.to_os_string().to_str() {
-                        if self.p.meta.bin_name.is_none() {
+                        if let None = self.p.meta.bin_name {
                             self.p.meta.bin_name = Some(s.to_owned());
                         }
                     }

@@ -136,17 +136,17 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
 impl<'n, 'e> Display for PosBuilder<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> Result {
         if let Some(ref names) = self.val_names {
-            write!(f,
-                   "{}",
-                   names.values()
-                       .map(|n| format!("<{}>", n))
-                       .collect::<Vec<_>>()
-                       .join(" "))?;
+            try!(write!(f,
+                        "{}",
+                        names.values()
+                            .map(|n| format!("<{}>", n))
+                            .collect::<Vec<_>>()
+                            .join(" ")));
         } else {
-            write!(f, "<{}>", self.name)?;
+            try!(write!(f, "<{}>", self.name));
         }
         if self.settings.is_set(ArgSettings::Multiple) && self.val_names.is_none() {
-            write!(f, "...")?;
+            try!(write!(f, "..."));
         }
 
         Ok(())
