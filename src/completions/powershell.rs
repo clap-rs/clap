@@ -32,9 +32,7 @@ impl<'a, 'b> PowerShellGen<'a, 'b> {
             bin_names.push(format!(r"./{0}.exe", bin_name));
         }
 
-        let bin_names = bin_names.iter().fold(String::new(), |previous, current| {
-            format!("{0}, '{1}'", previous, current)
-        });
+        let bin_names = bin_names.iter().fold(String::new(), |previous, current| format!("{0}, '{1}'", previous, current));
         let bin_names = bin_names.trim_left_matches(", ");
 
         let result = format!(r#"
@@ -77,17 +75,18 @@ impl<'a, 'b> PowerShellGen<'a, 'b> {
 fn generate_inner<'a, 'b>(p: &Parser<'a, 'b>, previous_command_name: &str) -> (String, String) {
     let command_name = format!("{}_{}", previous_command_name, &p.meta.name);
 
-    let mut subcommands_detection_cases = if previous_command_name == "" {
-        String::new()
-    } else {
-        format!(r"
+    let mut subcommands_detection_cases =
+        if previous_command_name == "" {
+            String::new()
+        }
+        else {
+            format!(r"
                     '{0}' {{
                         $command += '_{0}'
                         break
                     }}
-",
-                &p.meta.name)
-    };
+", &p.meta.name)
+        };
 
     let mut completions = String::new();
     for subcommand in &p.subcommands {
@@ -104,13 +103,10 @@ fn generate_inner<'a, 'b>(p: &Parser<'a, 'b>, previous_command_name: &str) -> (S
             '{}' {{
                 $completions = @({})
             }}
-",
-                                        &command_name,
-                                        completions.trim_right_matches(", "));
+", &command_name, completions.trim_right_matches(", "));
 
     for subcommand in &p.subcommands {
-        let (subcommand_subcommands_detection_cases, subcommand_subcommands_cases) =
-            generate_inner(&subcommand.p, &command_name);
+        let (subcommand_subcommands_detection_cases, subcommand_subcommands_cases) = generate_inner(&subcommand.p, &command_name);
         subcommands_detection_cases.push_str(&subcommand_subcommands_detection_cases);
         subcommands_cases.push_str(&subcommand_subcommands_cases);
     }

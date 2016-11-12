@@ -363,7 +363,7 @@ pub enum AppSettings {
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     DisableVersion,
-
+    
     /// Displays the arguments and [`SubCommand`]s in the help message in the order that they were
     /// declared in, and not alphabetically which is the default.
     ///
@@ -667,6 +667,7 @@ pub enum AppSettings {
 
     #[doc(hidden)]
     LowIndexMultiplePositional,
+
 }
 
 impl FromStr for AppSettings {
