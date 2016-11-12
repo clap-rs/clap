@@ -270,7 +270,7 @@
 //!
 //! To try out the pre-built example, use the following steps:
 //!
-//! * Clone the repository `$ git clone https://github.com/kbknapp/clap-rs && cd clap-rs/clap-tests`
+//! * Clone the repository `$ git clone https://github.com/kbknapp/clap-rs && cd clap-rs/tests`
 //! * Compile the example `$ cargo build --release`
 //! * Run the help info `$ ./target/release/claptests --help`
 //! * Play with the arguments!
