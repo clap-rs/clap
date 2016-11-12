@@ -526,7 +526,7 @@ First, create the `cli.yml` file to hold your CLI options, but it could be calle
 
 ```yaml
 name: myapp
-version: 1.0
+version: "1.0"
 author: Kevin K. <kbknapp@gmail.com>
 about: Does awesome things
 args:
@@ -613,7 +613,7 @@ SUBCOMMANDS:
 
 To try out the pre-built example, use the following steps:
 
-* Clone the repository `$ git clone https://github.com/kbknapp/clap-rs && cd clap-rs/clap-tests`
+* Clone the repository `$ git clone https://github.com/kbknapp/clap-rs && cd clap-rs/tests`
 * Compile the example `$ cargo build --release`
 * Run the help info `$ ./target/release/claptests --help`
 * Play with the arguments!
