@@ -526,7 +526,7 @@ First, create the `cli.yml` file to hold your CLI options, but it could be calle
 
 ```yaml
 name: myapp
-version: 1.0
+version: "1.0"
 author: Kevin K. <kbknapp@gmail.com>
 about: Does awesome things
 args:
