@@ -1229,16 +1229,12 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     /// Similar to [`App::get_matches`] but also reads args from
-    /// env-var `env_var_name`.
+    /// env-var `env_var`.
     ///
-    /// If the same argument is specified both as program argument
-    /// and as environment var, the program argument takes precedence.
-    ///
-    /// Do note that using [`ArgMatches::values_of`] returns values from
-    /// both program arguments as well as env-var, if set, with program
-    /// arguments first.
-    ///
-    /// Defaults to reading from "VAR" if `env_var_name` is `None`.
+    /// The env var args are appended to the manually entered arguments
+    /// (if any) and thus if an argument is provided both in the env var
+    /// and manually, this could result in either a conflict, override,
+    /// or additional value depending on the specific rules for said arg.
     ///
     /// # Examples
     ///
