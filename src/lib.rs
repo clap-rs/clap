@@ -277,16 +277,22 @@
 //!
 //! ### BYOB (Build Your Own Binary)
 //!
-//! To test out `clap`'s default auto-generated help/version follow these steps:
-//! * Create a new cargo project `$ cargo new fake --bin && cd fake`
-//! * Add `clap` to your `Cargo.toml`
-//! *
-//! ```toml
-//! [dependencies]
-//! clap = "2"
-//! ```
+//! To test `clap`'s default auto-generated help/version, follow these steps:
 //!
-//! * Add the following to your `src/main.rs`
+//! * Create a new cargo project:
+//!
+//!   ```ignore
+//!   cargo new fake --bin && cd fake
+//!   ```
+//!
+//! * Add `clap` to your `Cargo.toml`:
+//!
+//!   ```toml
+//!   [dependencies]
+//!   clap = "2"
+//!   ```
+//!
+//! * Add the following to your `src/main.rs`:
 //!
 //! ```no_run
 //! extern crate clap;
@@ -297,8 +303,13 @@
 //! }
 //! ```
 //!
-//! * Build your program `$ cargo build --release`
-//! * Run with help or version `$ ./target/release/fake --help` or `$ ./target/release/fake --version`
+//! * Build your program, then run it:
+//!
+//!   ```ignore
+//!   cargo build --release
+//!   ./target/release/fake --help
+//!   ./target/release/fake --version
+//!   ```
 //!
 //! ## Usage
 //!
