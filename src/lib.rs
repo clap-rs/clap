@@ -412,6 +412,8 @@ extern crate strsim;
 extern crate ansi_term;
 #[cfg(feature = "yaml")]
 extern crate yaml_rust;
+#[cfg(feature = "yaml")]
+extern crate linked_hash_map;
 #[cfg(any(feature = "wrap_help", feature = "color"))]
 extern crate libc;
 extern crate unicode_width;
