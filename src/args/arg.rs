@@ -2339,10 +2339,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert!(m.is_present("opt"));
     /// assert_eq!(m.occurrences_of("opt"), 1);
     /// ```
-    /// [`ArgMatches::occurrences_of`]: /struct.ArgMatches.html#method.occurrences_of
+    /// [`ArgMatches::occurrences_of`]: ./struct.ArgMatches.html#method.occurrences_of
     /// [`ArgMatches::value_of`]: ./struct.ArgMatches.html#method.value_of
-    /// [`Arg::takes_value(true)`]: /struct.Arg.html#method.takes_value
-    /// [`ArgMatches::is_present`]: /struct.ArgMatches.html#method.is_present
+    /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
+    /// [`ArgMatches::is_present`]: ./struct.ArgMatches.html#method.is_present
     pub fn default_value(mut self, val: &'a str) -> Self {
         self.setb(ArgSettings::TakesValue);
         self.default_val = Some(val);
