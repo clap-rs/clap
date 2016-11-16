@@ -167,7 +167,7 @@ impl<'a> Help<'a> {
     pub fn write_help(&mut self, parser: &Parser) -> ClapResult<()> {
         debugln!("fn=Help::write_help;");
         if let Some(h) = parser.meta.help_str {
-            write!(self.writer, "{}", h).map_err(Error::from)?;
+            try!(write!(self.writer, "{}", h).map_err(Error::from));
         } else if let Some(tmpl) = parser.meta.template {
             try!(self.write_templated_help(&parser, tmpl));
         } else {
