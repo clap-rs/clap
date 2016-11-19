@@ -79,19 +79,13 @@ impl<'a, 'b> App<'a, 'b> {
     /// let prog = App::new("My Program")
     /// # ;
     /// ```
-    pub fn new<S: Into<String>>(n: S) -> Self {
-        App { p: Parser::with_name(n.into()) }
-    }
+    pub fn new<S: Into<String>>(n: S) -> Self { App { p: Parser::with_name(n.into()) } }
 
     /// Get the name of the app
-    pub fn get_name(&self) -> &str {
-        &self.p.meta.name
-    }
+    pub fn get_name(&self) -> &str { &self.p.meta.name }
 
     /// Get the name of the binary
-    pub fn get_bin_name(&self) -> Option<&str> {
-        self.p.meta.bin_name.as_ref().map(|s| s.as_str())
-    }
+    pub fn get_bin_name(&self) -> Option<&str> { self.p.meta.bin_name.as_ref().map(|s| s.as_str()) }
 
     /// Creates a new instance of an application requiring a name, but uses the [`crate_authors!`]
     /// and [`crate_version!`] macros to fill in the [`App::author`] and [`App::version`] fields.
@@ -155,9 +149,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`examples/17_yaml.yml`]: https://github.com/kbknapp/clap-rs/blob/master/examples/17_yaml.yml
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     #[cfg(feature = "yaml")]
-    pub fn from_yaml(yaml: &'a Yaml) -> App<'a, 'a> {
-        App::from(yaml)
-    }
+    pub fn from_yaml(yaml: &'a Yaml) -> App<'a, 'a> { App::from(yaml) }
 
     /// Sets a string of author(s) that will be displayed to the user when they
     /// request the help information with `--help` or `-h`.
@@ -1193,9 +1185,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///     .get_matches();
     /// ```
     /// [`env::args_os`]: https://doc.rust-lang.org/std/env/fn.args_os.html
-    pub fn get_matches(self) -> ArgMatches<'a> {
-        self.get_matches_from(&mut env::args_os())
-    }
+    pub fn get_matches(self) -> ArgMatches<'a> { self.get_matches_from(&mut env::args_os()) }
 
     /// Starts the parsing process. This method will return a [`clap::Result`] type instead of exiting
     /// the process on failed parse. By default this method gets matches from [`env::args_os`]
@@ -1508,78 +1498,37 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
 }
 
 impl<'a, 'b> Clone for App<'a, 'b> {
-    fn clone(&self) -> Self {
-        App { p: self.p.clone() }
-    }
+    fn clone(&self) -> Self { App { p: self.p.clone() } }
 }
 
 impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn name(&self) -> &'n str {
         unreachable!("App struct does not support AnyArg::name, this is a bug!")
     }
-    fn kind(&self) -> ArgKind {
-        ArgKind::Subcmd
-    }
-    fn overrides(&self) -> Option<&[&'e str]> {
-        None
-    }
-    fn requires(&self) -> Option<&[&'e str]> {
-        None
-    }
-    fn blacklist(&self) -> Option<&[&'e str]> {
-        None
-    }
-    fn required_unless(&self) -> Option<&[&'e str]> {
-        None
-    }
-    fn val_names(&self) -> Option<&VecMap<&'e str>> {
-        None
-    }
-    fn is_set(&self, _: ArgSettings) -> bool {
-        false
-    }
+    fn id(&self) -> usize { self.p.id }
+    fn kind(&self) -> ArgKind { ArgKind::Subcmd }
+    fn overrides(&self) -> Option<&[&'e str]> { None }
+    fn requires(&self) -> Option<&[&'e str]> { None }
+    fn blacklist(&self) -> Option<&[&'e str]> { None }
+    fn required_unless(&self) -> Option<&[&'e str]> { None }
+    fn val_names(&self) -> Option<&VecMap<&'e str>> { None }
+    fn is_set(&self, _: ArgSettings) -> bool { false }
     fn set(&mut self, _: ArgSettings) {
         unreachable!("App struct does not support AnyArg::set, this is a bug!")
     }
-    fn has_switch(&self) -> bool {
-        false
-    }
-    fn max_vals(&self) -> Option<u64> {
-        None
-    }
-    fn num_vals(&self) -> Option<u64> {
-        None
-    }
-    fn possible_vals(&self) -> Option<&[&'e str]> {
-        None
-    }
-    fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> {
-        None
-    }
-    fn min_vals(&self) -> Option<u64> {
-        None
-    }
-    fn short(&self) -> Option<char> {
-        None
-    }
-    fn long(&self) -> Option<&'e str> {
-        None
-    }
-    fn val_delim(&self) -> Option<char> {
-        None
-    }
-    fn takes_value(&self) -> bool {
-        true
-    }
-    fn help(&self) -> Option<&'e str> {
-        self.p.meta.about
-    }
-    fn default_val(&self) -> Option<&'n str> {
-        None
-    }
-    fn longest_filter(&self) -> bool {
-        true
-    }
+    fn has_switch(&self) -> bool { false }
+    fn max_vals(&self) -> Option<u64> { None }
+    fn num_vals(&self) -> Option<u64> { None }
+    fn possible_vals(&self) -> Option<&[&'e str]> { None }
+    fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> { None }
+    fn min_vals(&self) -> Option<u64> { None }
+    fn short(&self) -> Option<char> { None }
+    fn long(&self) -> Option<&'e str> { None }
+    fn val_delim(&self) -> Option<char> { None }
+    fn takes_value(&self) -> bool { true }
+    fn help(&self) -> Option<&'e str> { self.p.meta.about }
+    fn default_val(&self) -> Option<&'n str> { None }
+    fn longest_filter(&self) -> bool { true }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.p.meta.aliases {
             let vis_aliases: Vec<_> =
@@ -1596,7 +1545,5 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
 }
 
 impl<'n, 'e> fmt::Display for App<'n, 'e> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.p.meta.name)
-    }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "{}", self.p.meta.name) }
 }

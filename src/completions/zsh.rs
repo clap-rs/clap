@@ -150,7 +150,7 @@ fn subcommands_and_args_of(p: &Parser) -> String {
 
     // Then the positional args
     for arg in p.positionals() {
-        debugln!("iter;arg={}", arg.name);
+        debugln!("iter;arg={}", arg.b.name);
         let a = format!("\"{name}:{help}\" \\", 
             name = arg.b.name.to_ascii_uppercase(), 
             help = arg.b.help.unwrap_or(""));

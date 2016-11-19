@@ -11,6 +11,9 @@
 run-test TEST:
 	cargo test --test {{TEST}}
 
+debug TEST:
+	cargo test --test {{TEST}} --features debug
+
 run-tests:
 	cargo test --features "yaml unstable"
 

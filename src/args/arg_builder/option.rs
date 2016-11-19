@@ -88,6 +88,7 @@ impl<'n, 'e> Display for OptBuilder<'n, 'e> {
 
 impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn name(&self) -> &'n str { self.b.name }
+    fn id(&self) -> usize { self.b.id }
     fn kind(&self) -> ArgKind { ArgKind::Opt }
     fn overrides(&self) -> Option<&[&'e str]> { self.b.overrides.as_ref().map(|o| &o[..]) }
     fn requires(&self) -> Option<&[&'e str]> { self.b.requires.as_ref().map(|o| &o[..]) }
@@ -140,8 +141,8 @@ mod test {
     #[test]
     fn optbuilder_display1() {
         let mut o = OptBuilder::new("opt");
-        o.long = Some("option");
-        o.settings.set(ArgSettings::Multiple);
+        o.s.long = Some("option");
+        o.b.settings.set(ArgSettings::Multiple);
 
         assert_eq!(&*format!("{}", o), "--option <opt>...");
     }
@@ -153,8 +154,8 @@ mod test {
         v_names.insert(1, "name");
 
         let mut o2 = OptBuilder::new("opt");
-        o2.short = Some('o');
-        o2.val_names = Some(v_names);
+        o2.s.short = Some('o');
+        o2.v.val_names = Some(v_names);
 
         assert_eq!(&*format!("{}", o2), "-o <file> <name>");
     }
@@ -166,9 +167,9 @@ mod test {
         v_names.insert(1, "name");
 
         let mut o2 = OptBuilder::new("opt");
-        o2.short = Some('o');
-        o2.val_names = Some(v_names);
-        o2.settings.set(ArgSettings::Multiple);
+        o2.s.short = Some('o');
+        o2.v.val_names = Some(v_names);
+        o2.b.settings.set(ArgSettings::Multiple);
 
         assert_eq!(&*format!("{}", o2), "-o <file> <name>");
     }
@@ -176,8 +177,8 @@ mod test {
     #[test]
     fn optbuilder_display_single_alias() {
         let mut o = OptBuilder::new("opt");
-        o.long = Some("option");
-        o.aliases = Some(vec![("als", true)]);
+        o.s.long = Some("option");
+        o.s.aliases = Some(vec![("als", true)]);
 
         assert_eq!(&*format!("{}", o), "--option <opt>");
     }
@@ -185,8 +186,8 @@ mod test {
     #[test]
     fn optbuilder_display_multiple_aliases() {
         let mut o = OptBuilder::new("opt");
-        o.long = Some("option");
-        o.aliases =
+        o.s.long = Some("option");
+        o.s.aliases =
             Some(vec![("als_not_visible", false), ("als2", true), ("als3", true), ("als4", true)]);
         assert_eq!(&*format!("{}", o), "--option <opt>");
     }

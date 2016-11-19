@@ -12,6 +12,7 @@ use args::ArgKind;
 #[doc(hidden)]
 pub trait AnyArg<'n, 'e>: std_fmt::Display {
     fn name(&self) -> &'n str;
+    fn id(&self) -> usize;
     fn overrides(&self) -> Option<&[&'e str]>;
     fn aliases(&self) -> Option<Vec<&'e str>>;
     fn requires(&self) -> Option<&[&'e str]>;

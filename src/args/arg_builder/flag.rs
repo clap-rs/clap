@@ -49,6 +49,7 @@ impl<'n, 'e> Display for FlagBuilder<'n, 'e> {
 
 impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn name(&self) -> &'n str { self.b.name }
+    fn id(&self) -> usize { self.b.id }
     fn kind(&self) -> ArgKind { ArgKind::Flag }
     fn overrides(&self) -> Option<&[&'e str]> { self.b.overrides.as_ref().map(|o| &o[..]) }
     fn requires(&self) -> Option<&[&'e str]> { self.b.requires.as_ref().map(|o| &o[..]) }
@@ -98,13 +99,13 @@ mod test {
     #[test]
     fn flagbuilder_display() {
         let mut f = FlagBuilder::new("flg");
-        f.settings.set(ArgSettings::Multiple);
-        f.long = Some("flag");
+        f.b.settings.set(ArgSettings::Multiple);
+        f.s.long = Some("flag");
 
         assert_eq!(&*format!("{}", f), "--flag");
 
         let mut f2 = FlagBuilder::new("flg");
-        f2.short = Some('f');
+        f2.s.short = Some('f');
 
         assert_eq!(&*format!("{}", f2), "-f");
     }
@@ -112,8 +113,8 @@ mod test {
     #[test]
     fn flagbuilder_display_single_alias() {
         let mut f = FlagBuilder::new("flg");
-        f.long = Some("flag");
-        f.aliases = Some(vec![("als", true)]);
+        f.s.long = Some("flag");
+        f.s.aliases = Some(vec![("als", true)]);
 
         assert_eq!(&*format!("{}", f), "--flag");
     }
@@ -121,8 +122,8 @@ mod test {
     #[test]
     fn flagbuilder_display_multiple_aliases() {
         let mut f = FlagBuilder::new("flg");
-        f.short = Some('f');
-        f.aliases =
+        f.s.short = Some('f');
+        f.s.aliases =
             Some(vec![("alias_not_visible", false), ("f2", true), ("f3", true), ("f4", true)]);
         assert_eq!(&*format!("{}", f), "-f");
     }

@@ -142,9 +142,7 @@ macro_rules! parse_positional {
             $pos_counter == $_self.positionals.len()) {
             $_self.trailing_vals = true;
         }
-        if let Err(e) = $_self.add_val_to_arg($p, &$arg_os, $matcher) {
-            return Err(e);
-        }
+        try!($_self.add_val_to_arg($p, &$arg_os, $matcher));
 
         $matcher.inc_occurrence_of($p.b.name);
         let _ = $_self.groups_for_arg($p.b.name)
@@ -217,7 +215,7 @@ macro_rules! find_name_from {
     }};
 }
 
-// Finds an option by name
+// Finds an arg by name
 macro_rules! find_by_name {
     ($_self:ident, $name:expr, $what:ident, $how:ident) => {
         $_self.$what.$how().find(|o| &o.b.name == $name)

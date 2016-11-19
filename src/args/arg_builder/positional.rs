@@ -95,6 +95,7 @@ impl<'n, 'e> Display for PosBuilder<'n, 'e> {
 
 impl<'n, 'e> AnyArg<'n, 'e> for PosBuilder<'n, 'e> {
     fn name(&self) -> &'n str { self.b.name }
+    fn id(&self) -> usize { self.b.id }
     fn kind(&self) -> ArgKind { ArgKind::Pos }
     fn overrides(&self) -> Option<&[&'e str]> { self.b.overrides.as_ref().map(|o| &o[..]) }
     fn requires(&self) -> Option<&[&'e str]> { self.b.requires.as_ref().map(|o| &o[..]) }
@@ -134,7 +135,7 @@ mod test {
     #[test]
     fn display_mult() {
         let mut p = PosBuilder::new("pos", 1);
-        p.settings.set(ArgSettings::Multiple);
+        p.b.settings.set(ArgSettings::Multiple);
 
         assert_eq!(&*format!("{}", p), "<pos>...");
     }
@@ -142,7 +143,7 @@ mod test {
     #[test]
     fn display_required() {
         let mut p2 = PosBuilder::new("pos", 1);
-        p2.settings.set(ArgSettings::Required);
+        p2.b.settings.set(ArgSettings::Required);
 
         assert_eq!(&*format!("{}", p2), "<pos>");
     }
@@ -153,7 +154,7 @@ mod test {
         let mut vm = VecMap::new();
         vm.insert(0, "file1");
         vm.insert(1, "file2");
-        p2.val_names = Some(vm);
+        p2.v.val_names = Some(vm);
 
         assert_eq!(&*format!("{}", p2), "<file1> <file2>");
     }
@@ -161,11 +162,11 @@ mod test {
     #[test]
     fn display_val_names_req() {
         let mut p2 = PosBuilder::new("pos", 1);
-        p2.settings.set(ArgSettings::Required);
+        p2.b.settings.set(ArgSettings::Required);
         let mut vm = VecMap::new();
         vm.insert(0, "file1");
         vm.insert(1, "file2");
-        p2.val_names = Some(vm);
+        p2.v.val_names = Some(vm);
 
         assert_eq!(&*format!("{}", p2), "<file1> <file2>");
     }
