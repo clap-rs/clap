@@ -191,7 +191,7 @@ fn subcommands_and_args_of(p: &Parser) -> String {
 //    [repeat] = From the same recursive calls, but for all subcommands
 //    [subcommand_args] = The same as zsh::get_args_of
 fn get_subcommands_of(p: &Parser) -> String {
-    debugln!("fn=get_subcommands");
+    debugln!("fn=get_subcommands_of");
 
     debug!("Has subcommands...");
     if !p.has_subcommands() {
@@ -234,6 +234,9 @@ esac",
 
 fn parser_of<'a, 'b>(p: &'b Parser<'a, 'b>, sc: &str) -> &'b Parser<'a, 'b> {
     debugln!("fn=parser_of;sc={}", sc);
+    if sc == p.meta.bin_name.as_ref().unwrap_or(&String::new()) {
+        return p;
+    }
     &p.find_subcommand(sc).expect(INTERNAL_ERROR_MSG).p
 }
 
