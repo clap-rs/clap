@@ -33,6 +33,8 @@ Table of Contents
 * [How to Contribute](#how-to-contribute)
   * [Running the tests](#running-the-tests)
   * [Goals](#goals)
+  * [Compatibility Policy](#compatibility-policy)
+    * [Minimum Version of Rust](#minimum-version-of-rust)
 * [License](#license)
 * [Recent Breaking Changes](#recent-breaking-changes)
   * [Deprecations](#deprecations)
@@ -645,11 +647,11 @@ fn main() {
 
 ## Usage
 
-For full usage, add `clap` as a dependency in your `Cargo.toml` file to use from crates.io:
+For full usage, add `clap` as a dependency in your `Cargo.toml` (it is **highly** recommended to use the `~major.minor.patch` style versions in your `Cargo.toml`, for more information see [Compatibility Policy](#compatibility-policy)) to use from crates.io:
 
 ```toml
 [dependencies]
-clap = "2"
+clap = "~2.19.0"
 ```
 
 Or get the latest changes from the master branch at github:
@@ -677,7 +679,7 @@ To disable these, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies.clap]
-version = "2"
+version = "~2.19.0"
 default-features = false
 ```
 
@@ -685,7 +687,7 @@ You can also selectively enable only the features you'd like to include, by addi
 
 ```toml
 [dependencies.clap]
-version = "2"
+version = "~2.19.0"
 default-features = false
 
 # Cherry-pick the features you'd like to use
@@ -753,6 +755,28 @@ There are a few goals of `clap` that I'd like to maintain throughout contributio
 * Try to be cognizant of memory usage
   - Once parsing is complete, the memory footprint of `clap` should be low since the  main program is the star of the show
 * `panic!` on *developer* error, exit gracefully on *end-user* error
+
+### Compatibility Policy
+
+Because `clap` takes SemVer and compatibility seriously, this is the official policy regarding breaking changes and previous versions of Rust.
+
+`clap` will pin the minimum required version of Rust to the CI builds. Bumping the minimum version of Rust is considered a minor breaking change, meaning *at a minimum* the minor version of `clap` will be bumped.
+
+In order to keep from being suprised of breaking changes, it is **highly** recommended to use the `~major.minor.patch` style in your `Cargo.toml`:
+
+```toml
+[dependencies]
+clap = "~2.19.0"
+```
+
+This will cause *only* the patch version to be updated upon a `cargo update` call, and therefore cannot break due to new features, or bumped minimum versions of Rust.
+
+#### Minimum Version of Rust
+
+`clap` will officially support current stable Rust, minus two releases, but may work with prior releases as well. For example, current stable Rust at the time of this writing is 1.13.0, meaning `clap` is garunteed to compile with 1.11.0 and beyond.
+At the 1.14.0 release, `clap` will be garunteed to compile with 2.12.0 and beyond, etc.
+
+Upon bumping the minimum version of Rust (assuming it's within the stable-2 range), it *must* be clearly annotated in the `CHANGELOG.md`
 
 ## License
 

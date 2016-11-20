@@ -35,6 +35,7 @@ There are a few goals of `clap` that I'd like to maintain throughout contributio
 * Remain backwards compatible when possible
   - If backwards compatibility *must* be broken, use deprecation warnings if at all possible before removing legacy code
   - This does not apply for security concerns
+  - `clap` officially supports the current stable version of Rust, minus two releases (i.e. if 1.13.0 is current, `clap` must support 1.11.0 and beyond)
 * Parse arguments quickly
   - Parsing of arguments shouldn't slow down usage of the main program
   - This is also true of generating help and usage information (although *slightly* less stringent, as the program is about to exit)
