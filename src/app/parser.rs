@@ -1608,13 +1608,10 @@ impl<'a, 'b> Parser<'a, 'b>
     fn validate_num_args(&self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debugln!("fn=validate_num_args;");
         for (name, ma) in matcher.iter() {
-            if self.groups.contains_key(&**name) {
-                continue;
-            } else if let Some(opt) = find_by_name!(self, name, opts, iter) {
+            debugln!("iter;name={}", name);
+            if let Some(opt) = find_by_name!(self, name, opts, iter) {
                 try!(self._validate_num_vals(opt, ma, matcher));
-            } else if let Some(pos) = self.positionals
-                .values()
-                .find(|p| &p.b.name == name) {
+            } else if let Some(pos) = find_by_name!(self, name, positionals, values) {
                 try!(self._validate_num_vals(pos, ma, matcher));
             }
         }
@@ -1685,7 +1682,9 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     fn validate_required(&self, matcher: &ArgMatcher) -> ClapResult<()> {
+        debugln!("fn=validate_required;required={:?};", self.required);
         'outer: for name in &self.required {
+            debugln!("iter;name={}", name);
             if matcher.contains(name) {
                 continue 'outer;
             }
@@ -1735,8 +1734,11 @@ impl<'a, 'b> Parser<'a, 'b>
     fn is_missing_required_ok<A>(&self, a: &A, matcher: &ArgMatcher) -> bool
         where A: AnyArg<'a, 'b>
     {
+        debugln!("fn=is_missing_required_ok;a={}", a.name());
         if let Some(bl) = a.blacklist() {
+            debugln!("Conflicts found...{:?}", bl);
             for n in bl.iter() {
+                debugln!("iter;conflict={}", n);
                 if matcher.contains(n) ||
                    self.groups
                     .get(n)
@@ -1744,18 +1746,24 @@ impl<'a, 'b> Parser<'a, 'b>
                     return true;
                 }
             }
-        } else if let Some(ru) = a.required_unless() {
+        } 
+        if let Some(ru) = a.required_unless() {
+            debugln!("Required unless found...{:?}", ru);
             let mut found_any = false;
             for n in ru.iter() {
+                debugln!("iter;ru={}", n);
                 if matcher.contains(n) ||
                    self.groups
                     .get(n)
                     .map_or(false, |g| g.args.iter().any(|an| matcher.contains(an))) {
                     if !a.is_set(ArgSettings::RequiredUnlessAll) {
+                        debugln!("Doesn't require all...returning true");
                         return true;
                     }
+                    debugln!("Requires all...next");
                     found_any = true;
                 } else if a.is_set(ArgSettings::RequiredUnlessAll) {
+                    debugln!("Not in matcher, or group and requires all...returning false");
                     return false;
                 }
             }
