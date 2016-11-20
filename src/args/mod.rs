@@ -1,11 +1,11 @@
 pub use self::any_arg::{AnyArg, DispOrder};
 pub use self::arg::Arg;
-pub use self::arg_builder::{FlagBuilder, OptBuilder, PosBuilder};
+pub use self::arg_builder::{Base, Switched, Valued, FlagBuilder, OptBuilder, PosBuilder};
 pub use self::arg_matcher::ArgMatcher;
 pub use self::arg_matches::{Values, OsValues, ArgMatches};
 pub use self::group::ArgGroup;
 pub use self::matched_arg::MatchedArg;
-pub use self::settings::ArgSettings;
+pub use self::settings::{ArgFlags, ArgSettings};
 pub use self::subcommand::SubCommand;
 
 #[macro_use]
@@ -19,3 +19,13 @@ mod arg_builder;
 mod matched_arg;
 mod group;
 pub mod settings;
+
+#[doc(hidden)]
+#[derive(Copy, Clone, Debug)]
+pub enum ArgKind {
+    Flag,
+    Opt,
+    Pos,
+    Subcmd,
+    Group
+}

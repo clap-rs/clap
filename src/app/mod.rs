@@ -24,7 +24,7 @@ use yaml_rust::Yaml;
 // Internal
 use app::help::Help;
 use app::parser::Parser;
-use args::{AnyArg, Arg, ArgGroup, ArgMatcher, ArgMatches, ArgSettings};
+use args::{ArgKind, AnyArg, Arg, ArgGroup, ArgMatcher, ArgMatches, ArgSettings};
 use errors::Error;
 use errors::Result as ClapResult;
 pub use self::settings::AppSettings;
@@ -1516,6 +1516,9 @@ impl<'a, 'b> Clone for App<'a, 'b> {
 impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn name(&self) -> &'n str {
         unreachable!("App struct does not support AnyArg::name, this is a bug!")
+    }
+    fn kind(&self) -> ArgKind {
+        ArgKind::Subcmd
     }
     fn overrides(&self) -> Option<&[&'e str]> {
         None

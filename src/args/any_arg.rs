@@ -7,6 +7,7 @@ use vec_map::VecMap;
 
 // Internal
 use args::settings::ArgSettings;
+use args::ArgKind;
 
 #[doc(hidden)]
 pub trait AnyArg<'n, 'e>: std_fmt::Display {
@@ -32,6 +33,7 @@ pub trait AnyArg<'n, 'e>: std_fmt::Display {
     fn help(&self) -> Option<&'e str>;
     fn default_val(&self) -> Option<&'n str>;
     fn longest_filter(&self) -> bool;
+    fn kind(&self) -> ArgKind;
 }
 
 pub trait DispOrder {

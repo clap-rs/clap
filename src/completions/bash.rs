@@ -141,8 +141,8 @@ complete -F _{name} {name}
                 .p;
         }
         let mut opts = String::new();
-        for o in &p.opts {
-            if let Some(l) = o.long {
+        for o in p.opts() {
+            if let Some(l) = o.s.long {
                 opts = format!("{}
                 --{})
                     COMPREPLY=({})
@@ -152,7 +152,7 @@ complete -F _{name} {name}
                                l,
                                self.vals_for(o));
             }
-            if let Some(s) = o.short {
+            if let Some(s) = o.s.short {
                 opts = format!("{}
                     -{})
                     COMPREPLY=({})
