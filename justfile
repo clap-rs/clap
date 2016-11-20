@@ -17,6 +17,14 @@ debug TEST:
 run-tests:
 	cargo test --features "yaml unstable"
 
-lint:
+@bench: nightly
+	cargo bench && just remove-nightly
+
+nightly:
 	rustup override add nightly
-	cargo build --features lints && rustup override remove
+
+remove-nightly:
+	rustup override remove
+
+@lint: nightly
+	cargo build --features lints && just remove-nightly
