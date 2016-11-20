@@ -8,7 +8,7 @@ use std::process;
 use std::result::Result as StdResult;
 
 // Internal
-use args::any_arg::AnyArg;
+use args::{FlagBuilder, AnyArg};
 use fmt;
 use suggestions;
 
@@ -701,13 +701,22 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn value_validation(err: String, color: fmt::ColorWhen) -> Self {
+    pub fn value_validation<'a, 'b, A>(arg: Option<&A>, err: String, color: fmt::ColorWhen) -> Self
+        where A: AnyArg<'a, 'b> + Display
+    {
         let c = fmt::Colorizer {
             use_stderr: true,
             when: color,
         };
         Error {
-            message: format!("{} {}", c.error("error:"), err),
+            message: format!("{} Invalid value{}: {}",
+                             c.error("error:"),
+                             if let Some(a) = arg {
+                                 format!(" for '{}'", c.warning(a.to_string()))
+                             } else {
+                                 "".to_string()
+                             },
+                             err),
             kind: ErrorKind::ValueValidation,
             info: None,
         }
@@ -715,7 +724,8 @@ impl Error {
 
     #[doc(hidden)]
     pub fn value_validation_auto(err: String) -> Self {
-        Error::value_validation(err, fmt::ColorWhen::Auto)
+        let n: Option<&FlagBuilder> = None; 
+        Error::value_validation(n, err, fmt::ColorWhen::Auto)
     }
 
     #[doc(hidden)]

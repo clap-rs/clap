@@ -1870,7 +1870,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// message displayed to the user.
     ///
     /// **NOTE:** The error message does *not* need to contain the `error:` portion, only the
-    /// message.
+    /// message as all errors will appear as
+    /// `error: Invalid value for '<arg>': <YOUR MESSAGE>` where `<arg>` is replaced by the actual
+    /// arg, and `<YOUR MESSAGE>` is the `String` you return as the error.
     ///
     /// **NOTE:** There is a small performance hit for using validators, as they are implemented
     /// with [`Rc`] pointers. And the value to be checked will be allocated an extra time in order
