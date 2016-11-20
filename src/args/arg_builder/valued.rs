@@ -43,7 +43,6 @@ impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for Valued<'n, 'e> {
             validator: a.validator.clone(),
             val_delim: a.val_delim,
             default_val: a.default_val,
-            .. Default::default()
         };
         if let Some(ref vec) = a.val_names {
             if vec.len() > 1 {

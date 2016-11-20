@@ -33,7 +33,7 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
         // If the arg is required, add all it's requirements to master required list
         if a.is_set(ArgSettings::Required) {
             if let Some(ref areqs) = a.requires {
-                reqs.extend(areqs);
+                reqs.extend_from_slice(areqs);
             }
         }
         ob

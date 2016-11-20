@@ -49,7 +49,7 @@ impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for Base<'n, 'e> {
             id: 0,
             kind: ArgKind::Pos,
             blacklist: a.blacklist.clone(),
-            settings: a.settings.clone(),
+            settings: a.settings,
             r_unless: a.r_unless.clone(),
             overrides: a.overrides.clone(),
             requires: a.requires.clone(),

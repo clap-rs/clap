@@ -33,6 +33,9 @@ use osstringext::OsStrExt2;
 use completions::Shell;
 use suggestions;
 
+#[derive(Copy, Clone, Debug)]
+struct ArgId(usize, ArgKind);
+
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
 pub struct Parser<'a, 'b>
@@ -43,9 +46,9 @@ pub struct Parser<'a, 'b>
     pub long_list: Vec<&'b str>,
     blacklist: Vec<&'b str>,
     // A list of possible flags
-    pub flags: Vec<FlagBuilder<'a, 'b>>,
+    pub flags: VecMap<FlagBuilder<'a, 'b>>,
     // A list of possible options
-    pub opts: Vec<OptBuilder<'a, 'b>>,
+    pub opts: VecMap<OptBuilder<'a, 'b>>,
     // A list of positional arguments
     pub positionals: VecMap<PosBuilder<'a, 'b>>,
     // A list of subcommands
@@ -67,8 +70,8 @@ pub struct Parser<'a, 'b>
 impl<'a, 'b> Default for Parser<'a, 'b> {
     fn default() -> Self {
         Parser {
-            flags: vec![],
-            opts: vec![],
+            flags: VecMap::new(),
+            opts: VecMap::new(),
             positionals: VecMap::new(),
             subcommands: vec![],
             help_short: None,
@@ -138,8 +141,8 @@ impl<'a, 'b> Parser<'a, 'b>
 
     // actually adds the arguments
     pub fn add_arg(&mut self, a: &Arg<'a, 'b>) {
-        debug_assert!(!(self.flags.iter().any(|f| &f.b.name == &a.name) ||
-                        self.opts.iter().any(|o| o.b.name == a.name) ||
+        debug_assert!(!(self.flags.values().any(|f| &f.b.name == &a.name) ||
+                        self.opts.values().any(|o| o.b.name == a.name) ||
                         self.positionals.values().any(|p| p.b.name == a.name)),
                       format!("Non-unique argument name: {} is already in use", a.name));
         if let Some(ref grps) = a.groups {
@@ -272,16 +275,16 @@ impl<'a, 'b> Parser<'a, 'b>
     pub fn derive_display_order(&mut self) {
         if self.settings.is_set(AppSettings::DeriveDisplayOrder) {
             let unified = self.settings.is_set(AppSettings::UnifiedHelpMessage);
-            for (i, o) in self.opts
+            for (i, (_, o)) in self.opts
                 .iter_mut()
                 .enumerate()
-                .filter(|&(_, ref o)| o.s.disp_ord == 999) {
+                .filter(|&(_, (_, ref o))| o.s.disp_ord == 999) {
                 o.s.disp_ord = if unified { o.s.unified_ord } else { i };
             }
-            for (i, f) in self.flags
+            for (i, (_, f)) in self.flags
                 .iter_mut()
                 .enumerate()
-                .filter(|&(_, ref f)| f.s.disp_ord == 999) {
+                .filter(|&(_, (_, ref f))| f.s.disp_ord == 999) {
                 f.s.disp_ord = if unified { f.s.unified_ord } else { i };
             }
             for (i, sc) in &mut self.subcommands
@@ -679,7 +682,7 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     #[inline]
-    fn check_is_new_arg(&mut self, arg_os: &OsStr, needs_val_of: Option<&'a str>) -> bool {
+    fn check_is_new_arg(&mut self, arg_os: &OsStr, needs_val_of: Option<ArgId>) -> bool {
         debugln!("fn=check_is_new_arg;nvo={:?}", needs_val_of);
         let app_wide_settings = if self.is_set(AppSettings::AllowLeadingHyphen) {
             true
