@@ -1,6 +1,6 @@
 // Std
 use std::rc::Rc;
-use std::fmt as std_fmt; 
+use std::fmt as std_fmt;
 
 // Third Party
 use vec_map::VecMap;

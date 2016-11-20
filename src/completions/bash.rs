@@ -13,13 +13,11 @@ pub struct BashGen<'a, 'b>
 }
 
 impl<'a, 'b> BashGen<'a, 'b> {
-    pub fn new(p: &'b Parser<'a, 'b>) -> Self {
-        BashGen { p: p }
-    }
+    pub fn new(p: &'b Parser<'a, 'b>) -> Self { BashGen { p: p } }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
 
-    w!(buf,
+        w!(buf,
            format!("_{name}() {{
     local i cur prev opts cmds
     COMPREPLY=()
@@ -177,9 +175,9 @@ complete -F _{name} {name}
             let mut it = vec.iter().peekable();
             while let Some((_, val)) = it.next() {
                 ret = format!("{}<{}>{}",
-                            ret,
-                            val,
-                            if it.peek().is_some() { " " } else { "" });
+                              ret,
+                              val,
+                              if it.peek().is_some() { " " } else { "" });
             }
             let num = vec.len();
             if o.is_set(ArgSettings::Multiple) && num == 1 {
@@ -189,9 +187,9 @@ complete -F _{name} {name}
             let mut it = (0..num).peekable();
             while let Some(_) = it.next() {
                 ret = format!("{}<{}>{}",
-                            ret,
-                            o.name(),
-                            if it.peek().is_some() { " " } else { "" });
+                              ret,
+                              o.name(),
+                              if it.peek().is_some() { " " } else { "" });
             }
             if o.is_set(ArgSettings::Multiple) && num == 1 {
                 ret = format!("{}...", ret);

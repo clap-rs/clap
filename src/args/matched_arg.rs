@@ -23,7 +23,5 @@ impl Default for MatchedArg {
 }
 
 impl MatchedArg {
-    pub fn new() -> Self {
-        MatchedArg::default()
-    }
+    pub fn new() -> Self { MatchedArg::default() }
 }

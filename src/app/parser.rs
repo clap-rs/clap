@@ -21,8 +21,7 @@ use app::App;
 use app::help::Help;
 use app::meta::AppMeta;
 use app::settings::{AppFlags, AppSettings};
-use args::{AnyArg, ArgMatcher, Base, Switched};
-use args::{Arg, ArgKind, ArgGroup, FlagBuilder, OptBuilder, PosBuilder};
+use args::{AnyArg, ArgMatcher, Base, Switched, Arg, ArgGroup, FlagBuilder, OptBuilder, PosBuilder};
 use args::MatchedArg;
 use args::settings::ArgSettings;
 use completions::ComplGen;
@@ -32,9 +31,6 @@ use fmt::{Format, ColorWhen};
 use osstringext::OsStrExt2;
 use completions::Shell;
 use suggestions;
-
-#[derive(Copy, Clone, Debug)]
-struct ArgId(usize, ArgKind);
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]

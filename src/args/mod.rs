@@ -27,5 +27,5 @@ pub enum ArgKind {
     Opt,
     Pos,
     Subcmd,
-    Group
+    Group,
 }

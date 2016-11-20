@@ -28,7 +28,7 @@ impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for Switched<'e> {
             long: a.long,
             aliases: a.aliases.clone(),
             disp_ord: a.disp_ord,
-            .. Default::default()
+            ..Default::default()
         }
     }
 }

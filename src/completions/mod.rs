@@ -24,22 +24,20 @@ pub struct ComplGen<'a, 'b>
 }
 
 impl<'a, 'b> ComplGen<'a, 'b> {
-    pub fn new(p: &'b Parser<'a, 'b>) -> Self {
-        ComplGen { p: p }
-    }
+    pub fn new(p: &'b Parser<'a, 'b>) -> Self { ComplGen { p: p } }
 
     pub fn generate<W: Write>(&self, for_shell: Shell, buf: &mut W) {
         match for_shell {
-            Shell::Bash       => BashGen::new(self.p).generate_to(buf),
-            Shell::Fish       => FishGen::new(self.p).generate_to(buf),
-            Shell::Zsh        => ZshGen::new(self.p).generate_to(buf),
+            Shell::Bash => BashGen::new(self.p).generate_to(buf),
+            Shell::Fish => FishGen::new(self.p).generate_to(buf),
+            Shell::Zsh => ZshGen::new(self.p).generate_to(buf),
             Shell::PowerShell => PowerShellGen::new(self.p).generate_to(buf),
         }
     }
 }
 
 // Gets all subcommands including child subcommands in the form of 'name' where the name
-// is a single word (i.e. "install")  of the path to said subcommand (i.e. 
+// is a single word (i.e. "install")  of the path to said subcommand (i.e.
 // "rustup toolchain install")
 //
 // Also note, aliases are treated as their own subcommands but duplicates of whatever they're
@@ -55,7 +53,7 @@ pub fn all_subcommand_names(p: &Parser) -> Vec<String> {
 }
 
 // Gets all subcommands including child subcommands in the form of ('name', 'bin_name') where the name
-// is a single word (i.e. "install") of the path and full bin_name of said subcommand (i.e. 
+// is a single word (i.e. "install") of the path and full bin_name of said subcommand (i.e.
 // "rustup toolchain install")
 //
 // Also note, aliases are treated as their own subcommands but duplicates of whatever they're
@@ -75,7 +73,9 @@ pub fn all_subcommands(p: &Parser) -> Vec<(String, String)> {
 // Also note, aliases are treated as their own subcommands but duplicates of whatever they're
 // aliasing.
 pub fn subcommands_of(p: &Parser) -> Vec<(String, String)> {
-    debugln!("fn=subcommands_of;name={};bin_name={}", p.meta.name, p.meta.bin_name.as_ref().unwrap());
+    debugln!("fn=subcommands_of;name={};bin_name={}",
+             p.meta.name,
+             p.meta.bin_name.as_ref().unwrap());
     let mut subcmds = vec![];
 
     debug!("Has subcommands...");
@@ -86,7 +86,8 @@ pub fn subcommands_of(p: &Parser) -> Vec<(String, String)> {
         if let Some(ref aliases) = p.meta.aliases {
             for &(n, _) in aliases {
                 debugln!("Found alias...{}", n);
-                let mut als_bin_name: Vec<_> = p.meta.bin_name.as_ref().unwrap().split(' ').collect();
+                let mut als_bin_name: Vec<_> =
+                    p.meta.bin_name.as_ref().unwrap().split(' ').collect();
                 als_bin_name.push(n);
                 let old = als_bin_name.len() - 2;
                 als_bin_name.swap_remove(old);
@@ -94,16 +95,19 @@ pub fn subcommands_of(p: &Parser) -> Vec<(String, String)> {
             }
         }
         return ret;
-    } 
+    }
     sdebugln!("Yes");
     for sc in &p.subcommands {
-        debugln!("iter;name={};bin_name={}", sc.p.meta.name, sc.p.meta.bin_name.as_ref().unwrap());
+        debugln!("iter;name={};bin_name={}",
+                 sc.p.meta.name,
+                 sc.p.meta.bin_name.as_ref().unwrap());
 
         debugln!("Looking for aliases...");
         if let Some(ref aliases) = sc.p.meta.aliases {
             for &(n, _) in aliases {
                 debugln!("Found alias...{}", n);
-                let mut als_bin_name: Vec<_> = p.meta.bin_name.as_ref().unwrap().split(' ').collect();
+                let mut als_bin_name: Vec<_> =
+                    p.meta.bin_name.as_ref().unwrap().split(' ').collect();
                 als_bin_name.push(n);
                 let old = als_bin_name.len() - 2;
                 als_bin_name.swap_remove(old);

@@ -21,14 +21,10 @@ use vec_map::VecMap;
 
 #[cfg(not(feature = "wrap_help"))]
 mod term_size {
-    pub fn dimensions() -> Option<(usize, usize)> {
-        None
-    }
+    pub fn dimensions() -> Option<(usize, usize)> { None }
 }
 
-fn str_width(s: &str) -> usize {
-    UnicodeWidthStr::width(s)
-}
+fn str_width(s: &str) -> usize { UnicodeWidthStr::width(s) }
 
 const TAB: &'static str = "    ";
 
@@ -42,19 +38,13 @@ trait ArgWithOrder<'b, 'c>: ArgWithDisplay<'b, 'c> + DispOrder {
 impl<'b, 'c, T> ArgWithOrder<'b, 'c> for T
     where T: ArgWithDisplay<'b, 'c> + DispOrder
 {
-    fn as_base(&self) -> &ArgWithDisplay<'b, 'c> {
-        self
-    }
+    fn as_base(&self) -> &ArgWithDisplay<'b, 'c> { self }
 }
 
-fn as_arg_trait<'a, 'b, T: ArgWithOrder<'a, 'b>>(x: &T) -> &ArgWithOrder<'a, 'b> {
-    x
-}
+fn as_arg_trait<'a, 'b, T: ArgWithOrder<'a, 'b>>(x: &T) -> &ArgWithOrder<'a, 'b> { x }
 
 impl<'b, 'c> DispOrder for App<'b, 'c> {
-    fn disp_ord(&self) -> usize {
-        999
-    }
+    fn disp_ord(&self) -> usize { 999 }
 }
 
 macro_rules! color {

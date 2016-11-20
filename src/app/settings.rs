@@ -41,9 +41,7 @@ bitflags! {
 pub struct AppFlags(Flags);
 
 impl Clone for AppFlags {
-    fn clone(&self) -> Self {
-        AppFlags(self.0)
-    }
+    fn clone(&self) -> Self { AppFlags(self.0) }
 }
 
 impl Default for AppFlags {
@@ -53,9 +51,7 @@ impl Default for AppFlags {
 }
 
 impl AppFlags {
-    pub fn new() -> Self {
-        AppFlags::default()
-    }
+    pub fn new() -> Self { AppFlags::default() }
 
     impl_settings! { AppSettings,
         ArgRequiredElseHelp => A_REQUIRED_ELSE_HELP,
@@ -363,7 +359,7 @@ pub enum AppSettings {
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     DisableVersion,
-    
+
     /// Displays the arguments and [`SubCommand`]s in the help message in the order that they were
     /// declared in, and not alphabetically which is the default.
     ///
@@ -667,7 +663,6 @@ pub enum AppSettings {
 
     #[doc(hidden)]
     LowIndexMultiplePositional,
-
 }
 
 impl FromStr for AppSettings {

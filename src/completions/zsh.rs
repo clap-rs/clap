@@ -19,9 +19,7 @@ pub struct ZshGen<'a, 'b>
 impl<'a, 'b> ZshGen<'a, 'b> {
     pub fn new(p: &'b Parser<'a, 'b>) -> Self {
         debugln!("fn=ZshGen::new;");
-        ZshGen { 
-            p: p,
-        }
+        ZshGen { p: p }
     }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
@@ -72,11 +70,11 @@ _{name} \"$@\"",
 // 	local commands; commands=(
 // 		'show:Show the active and installed toolchains'
 //      'update:Update Rust toolchains'
-//      # ... snip for brevity    
+//      # ... snip for brevity
 //      'help:Prints this message or the help of the given subcommand(s)'
 // 	)
 // 	_describe -t commands 'rustup commands' commands "$@"
-// 
+//
 fn subcommand_details(p: &Parser) -> String {
     debugln!("fn=subcommand_details");
     // First we do ourself
@@ -114,7 +112,7 @@ _{bin_name_underscore}_commands() {{
     ret.join("\n")
 }
 
-// Generates subcommand and positional argument completions in form of 
+// Generates subcommand and positional argument completions in form of
 //
 // 		'[arg_name]:[arg_help]'
 //
@@ -142,7 +140,7 @@ fn subcommands_and_args_of(p: &Parser) -> String {
         debugln!("iter;subcommand={}", sc.p.meta.name);
         add_sc(sc, &sc.p.meta.name, &mut ret);
         if let Some(ref v) = sc.p.meta.aliases {
-            for alias in v.iter().filter(|&&(_, vis)| vis).map(|&(n,_)| n) {
+            for alias in v.iter().filter(|&&(_, vis)| vis).map(|&(n, _)| n) {
                 add_sc(sc, alias, &mut ret);
             }
         }
@@ -154,7 +152,7 @@ fn subcommands_and_args_of(p: &Parser) -> String {
         let a = format!("\"{name}:{help}\" \\", 
             name = arg.b.name.to_ascii_uppercase(), 
             help = arg.b.help.unwrap_or(""));
-        
+
         if !a.is_empty() {
             ret.push(a);
         }
@@ -184,7 +182,7 @@ fn subcommands_and_args_of(p: &Parser) -> String {
 //
 //     esac
 // ;;
-// esac", 
+// esac",
 //
 // Where the following variables are present:
 //    [name] = The subcommand name in the form of "install" for "rustup toolchain install"
@@ -239,7 +237,7 @@ fn parser_of<'a, 'b>(p: &'b Parser<'a, 'b>, sc: &str) -> &'b Parser<'a, 'b> {
     &p.find_subcommand(sc).expect(INTERNAL_ERROR_MSG).p
 }
 
-// Writes out the args section, which ends up being the flags and opts, and a jump to 
+// Writes out the args section, which ends up being the flags and opts, and a jump to
 // another ZSH function if there are positional args or subcommands.
 // The structer works like this:
 //    ([conflicting_args]) [multiple] arg [takes_value] [[help]] [: :(possible_values)]
@@ -265,15 +263,15 @@ fn get_args_of(p: &Parser) -> String {
     let opts = write_opts_of(p);
     let flags = write_flags_of(p);
     let sc_or_a = if p.has_subcommands() || p.has_positionals() {
-            format!("\"1:: :_{name}_commands\" \\", 
+        format!("\"1:: :_{name}_commands\" \\", 
                 name = p.meta.bin_name.as_ref().unwrap().replace(" ", "_"))
-        } else {
-            String::new()
-        };
-   let sc = if p.has_subcommands() {
-            format!("\"*:: :->{name}\" \\", name = p.meta.name)
-        } else {
-            String::new()
+    } else {
+        String::new()
+    };
+    let sc = if p.has_subcommands() {
+        format!("\"*:: :->{name}\" \\", name = p.meta.name)
+    } else {
+        String::new()
     };
 
     if !opts.is_empty() {
@@ -299,12 +297,20 @@ fn write_opts_of(p: &Parser) -> String {
     for o in p.opts() {
         debugln!("iter;o={}", o.name());
         let help = o.help().unwrap_or("");
-        let mut conflicts = get_zsh_arg_conflicts!(p, o, INTERNAL_ERROR_MSG); 
-        conflicts = if conflicts.is_empty() { String::new() } else { format!("({})", conflicts) };
+        let mut conflicts = get_zsh_arg_conflicts!(p, o, INTERNAL_ERROR_MSG);
+        conflicts = if conflicts.is_empty() {
+            String::new()
+        } else {
+            format!("({})", conflicts)
+        };
 
-        let multiple = if o.is_set(ArgSettings::Multiple) { "*" } else { "" };
+        let multiple = if o.is_set(ArgSettings::Multiple) {
+            "*"
+        } else {
+            ""
+        };
         let pv = if let Some(pv_vec) = o.possible_vals() {
-                format!(": :({})", pv_vec.join(" "))
+            format!(": :({})", pv_vec.join(" "))
         } else {
             String::new()
         };
@@ -341,10 +347,18 @@ fn write_flags_of(p: &Parser) -> String {
     for f in p.flags() {
         debugln!("iter;f={}", f.name());
         let help = f.help().unwrap_or("");
-        let mut conflicts = get_zsh_arg_conflicts!(p, f, INTERNAL_ERROR_MSG); 
-        conflicts = if conflicts.is_empty() { String::new() } else { format!("({})", conflicts) };
+        let mut conflicts = get_zsh_arg_conflicts!(p, f, INTERNAL_ERROR_MSG);
+        conflicts = if conflicts.is_empty() {
+            String::new()
+        } else {
+            format!("({})", conflicts)
+        };
 
-        let multiple = if f.is_set(ArgSettings::Multiple) { "*" } else { "" };
+        let multiple = if f.is_set(ArgSettings::Multiple) {
+            "*"
+        } else {
+            ""
+        };
         if let Some(short) = f.short() {
             let s = format!("\"{conflicts}{multiple}-{arg}[{help}]\" \\",
                 multiple = multiple,

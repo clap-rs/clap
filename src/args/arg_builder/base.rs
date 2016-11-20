@@ -1,7 +1,9 @@
 use args::{ArgSettings, Arg, ArgFlags, ArgKind};
 
 #[derive(Debug, Clone)]
-pub struct Base<'a, 'b> where 'a: 'b {
+pub struct Base<'a, 'b>
+    where 'a: 'b
+{
     pub name: &'a str,
     pub id: usize,
     pub kind: ArgKind,
@@ -32,19 +34,15 @@ impl<'n, 'e> Default for Base<'n, 'e> {
 }
 
 impl<'n, 'e> Base<'n, 'e> {
-    pub fn new(name: &'n str) -> Self {
-        Base { name: name, ..Default::default() }
-    }
+    pub fn new(name: &'n str) -> Self { Base { name: name, ..Default::default() } }
 
-    pub fn set(&mut self, s: ArgSettings) {
-        self.settings.set(s);
-    }
+    pub fn set(&mut self, s: ArgSettings) { self.settings.set(s); }
 }
 
 impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for Base<'n, 'e> {
     fn from(a: &'z Arg<'n, 'e>) -> Self {
         Base {
-            name: a.name, 
+            name: a.name,
             help: a.help,
             id: 0,
             kind: ArgKind::Pos,

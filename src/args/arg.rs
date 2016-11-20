@@ -126,9 +126,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg`]: ./struct.Arg.html
-    pub fn with_name(n: &'a str) -> Self {
-        Arg { name: n, ..Default::default() }
-    }
+    pub fn with_name(n: &'a str) -> Self { Arg { name: n, ..Default::default() } }
 
     /// Creates a new instance of [`Arg`] from a .yml (YAML) file.
     ///
@@ -2522,9 +2520,7 @@ impl<'a, 'b> Arg<'a, 'b> {
 
     /// Checks if one of the [`ArgSettings`] settings is set for the argument
     /// [`ArgSettings`]: ./enum.ArgSettings.html
-    pub fn is_set(&self, s: ArgSettings) -> bool {
-        self.settings.is_set(s)
-    }
+    pub fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(s) }
 
     /// Sets one of the [`ArgSettings`] settings for the argument
     /// [`ArgSettings`]: ./enum.ArgSettings.html
@@ -2541,14 +2537,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     #[doc(hidden)]
-    pub fn setb(&mut self, s: ArgSettings) {
-        self.settings.set(s);
-    }
+    pub fn setb(&mut self, s: ArgSettings) { self.settings.set(s); }
 
     #[doc(hidden)]
-    pub fn unsetb(&mut self, s: ArgSettings) {
-        self.settings.unset(s);
-    }
+    pub fn unsetb(&mut self, s: ArgSettings) { self.settings.unset(s); }
 }
 
 impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
