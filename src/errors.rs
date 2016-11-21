@@ -8,7 +8,7 @@ use std::process;
 use std::result::Result as StdResult;
 
 // Internal
-use args::any_arg::AnyArg;
+use args::{FlagBuilder, AnyArg};
 use fmt;
 use suggestions;
 
@@ -52,7 +52,7 @@ pub enum ErrorKind {
     UnknownArgument,
 
     /// Occurs when the user provides an unrecognized [`SubCommand`] which meets the threshold for
-    /// being similar enough to an existing subcommand.  
+    /// being similar enough to an existing subcommand.
     /// If it doesn't meet the threshold, or the 'suggestions' feature is disabled,
     /// the more general [`UnknownArgument`] error is returned.
     ///
@@ -77,7 +77,7 @@ pub enum ErrorKind {
 
     /// Occurs when the user provides an unrecognized [`SubCommand`] which either
     /// doesn't meet the threshold for being similar enough to an existing subcommand,
-    /// or the 'sggestions' feature is disabled.  
+    /// or the 'sggestions' feature is disabled.
     /// Otherwise the more detailed [`InvalidSubcommand`] error is returned.
     ///
     /// This error typically happens when passing additional subcommand names to the `help`
@@ -402,9 +402,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn write_to<W: Write>(&self, w: &mut W) -> io::Result<()> {
-        write!(w, "{}", self.message)
-    }
+    pub fn write_to<W: Write>(&self, w: &mut W) -> io::Result<()> { write!(w, "{}", self.message) }
 
     #[doc(hidden)]
     pub fn argument_conflict<'a, 'b, A, O, U>(arg: &A,
@@ -703,13 +701,22 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn value_validation(err: String, color: fmt::ColorWhen) -> Self {
+    pub fn value_validation<'a, 'b, A>(arg: Option<&A>, err: String, color: fmt::ColorWhen) -> Self
+        where A: AnyArg<'a, 'b> + Display
+    {
         let c = fmt::Colorizer {
             use_stderr: true,
             when: color,
         };
         Error {
-            message: format!("{} {}", c.error("error:"), err),
+            message: format!("{} Invalid value{}: {}",
+                             c.error("error:"),
+                             if let Some(a) = arg {
+                                 format!(" for '{}'", c.warning(a.to_string()))
+                             } else {
+                                 "".to_string()
+                             },
+                             err),
             kind: ErrorKind::ValueValidation,
             info: None,
         }
@@ -717,7 +724,8 @@ impl Error {
 
     #[doc(hidden)]
     pub fn value_validation_auto(err: String) -> Self {
-        Error::value_validation(err, fmt::ColorWhen::Auto)
+        let n: Option<&FlagBuilder> = None; 
+        Error::value_validation(n, err, fmt::ColorWhen::Auto)
     }
 
     #[doc(hidden)]
@@ -858,21 +866,15 @@ impl Error {
 }
 
 impl StdError for Error {
-    fn description(&self) -> &str {
-        &*self.message
-    }
+    fn description(&self) -> &str { &*self.message }
 }
 
 impl Display for Error {
-    fn fmt(&self, f: &mut std_fmt::Formatter) -> std_fmt::Result {
-        writeln!(f, "{}", self.message)
-    }
+    fn fmt(&self, f: &mut std_fmt::Formatter) -> std_fmt::Result { writeln!(f, "{}", self.message) }
 }
 
 impl From<io::Error> for Error {
-    fn from(e: io::Error) -> Self {
-        Error::with_description(e.description(), ErrorKind::Io)
-    }
+    fn from(e: io::Error) -> Self { Error::with_description(e.description(), ErrorKind::Io) }
 }
 
 impl From<std_fmt::Error> for Error {

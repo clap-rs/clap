@@ -175,6 +175,23 @@ fn arg_require_group_3() {
 // REQUIRED_UNLESS
 
 #[test]
+fn issue_753() {
+    let m = App::new("test")
+        .arg(Arg::from_usage("-l, --list 'List available interfaces (and stop there)'"))
+        .arg(Arg::from_usage("-i, --iface=[INTERFACE] 'Ethernet interface for fetching NTP packets'")
+            .required_unless("list"))
+        .arg(Arg::from_usage("-f, --file=[TESTFILE] 'Fetch NTP packets from pcap file'")
+            .conflicts_with("iface")
+            .required_unless("list"))
+        .arg(Arg::from_usage("-s, --server=[SERVER_IP] 'NTP server IP address'")
+            .required_unless("list"))
+        .arg(Arg::from_usage("-p, --port=[SERVER_PORT] 'NTP server port'")
+            .default_value("123"))
+        .get_matches_from_safe(vec!["test", "--list"]);
+   assert!(m.is_ok());
+}
+
+#[test]
 fn required_unless() {
     let res = App::new("unlesstest")
         .arg(Arg::with_name("cfg")

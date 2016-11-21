@@ -12,16 +12,13 @@ pub struct FishGen<'a, 'b>
 }
 
 impl<'a, 'b> FishGen<'a, 'b> {
-    pub fn new(p: &'b Parser<'a, 'b>) -> Self {
-        FishGen { p: p }
-    }
+    pub fn new(p: &'b Parser<'a, 'b>) -> Self { FishGen { p: p } }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
         let command = self.p.meta.bin_name.as_ref().unwrap();
 
         // function to detect subcommand
-        let detect_subcommand_function =
-r#"function __fish_using_command
+        let detect_subcommand_function = r#"function __fish_using_command
     set cmd (commandline -opc)
     if [ (count $cmd) -eq (count $argv) ]
         for i in (seq (count $argv))
@@ -34,7 +31,8 @@ r#"function __fish_using_command
     return 1
 end
 
-"#.to_string();
+"#
+            .to_string();
 
         let mut buffer = detect_subcommand_function;
         gen_fish_inner(command, self, &command.to_string(), &mut buffer);
@@ -42,10 +40,7 @@ end
     }
 }
 
-fn gen_fish_inner(root_command: &str,
-                comp_gen: &FishGen,
-                parent_cmds: &str,
-                buffer: &mut String) {
+fn gen_fish_inner(root_command: &str, comp_gen: &FishGen, parent_cmds: &str, buffer: &mut String) {
     // example :
     //
     // complete
@@ -59,36 +54,36 @@ fn gen_fish_inner(root_command: &str,
     //      -n "__fish_using_command myprog subcmd1" # complete for command "myprog subcmd1"
 
     let basic_template = format!("complete -c {} -n \"__fish_using_command {}\"",
-                                root_command,
-                                parent_cmds);
+                                 root_command,
+                                 parent_cmds);
 
-    for option in &comp_gen.p.opts {
+    for option in comp_gen.p.opts() {
         let mut template = basic_template.clone();
-        if let Some(data) = option.short {
+        if let Some(data) = option.s.short {
             template.push_str(format!(" -s {}", data).as_str());
         }
-        if let Some(data) = option.long {
+        if let Some(data) = option.s.long {
             template.push_str(format!(" -l {}", data).as_str());
         }
-        if let Some(data) = option.help {
+        if let Some(data) = option.b.help {
             template.push_str(format!(" -d \"{}\"", data).as_str());
         }
-        if let Some(ref data) = option.possible_vals {
+        if let Some(ref data) = option.v.possible_vals {
             template.push_str(format!(" -r -f -a \"{}\"", data.join(" ")).as_str());
         }
         buffer.push_str(template.as_str());
         buffer.push_str("\n");
     }
 
-    for flag in &comp_gen.p.flags {
+    for flag in comp_gen.p.flags() {
         let mut template = basic_template.clone();
-        if let Some(data) = flag.short {
+        if let Some(data) = flag.s.short {
             template.push_str(format!(" -s {}", data).as_str());
         }
-        if let Some(data) = flag.long {
+        if let Some(data) = flag.s.long {
             template.push_str(format!(" -l {}", data).as_str());
         }
-        if let Some(data) = flag.help {
+        if let Some(data) = flag.b.help {
             template.push_str(format!(" -d \"{}\"", data).as_str());
         }
         buffer.push_str(template.as_str());
@@ -112,9 +107,6 @@ fn gen_fish_inner(root_command: &str,
             sub_parent_cmds.push_str(" ");
         }
         sub_parent_cmds.push_str(&subcommand.p.meta.name);
-        gen_fish_inner(root_command,
-                    &sub_comp_gen,
-                    &sub_parent_cmds,
-                    buffer);
+        gen_fish_inner(root_command, &sub_comp_gen, &sub_parent_cmds, buffer);
     }
 }

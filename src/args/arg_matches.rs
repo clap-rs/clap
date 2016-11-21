@@ -82,9 +82,7 @@ impl<'a> Default for ArgMatches<'a> {
 
 impl<'a> ArgMatches<'a> {
     #[doc(hidden)]
-    pub fn new() -> Self {
-        ArgMatches { ..Default::default() }
-    }
+    pub fn new() -> Self { ArgMatches { ..Default::default() } }
 
     /// Gets the value of a specific [option] or [positional] argument (i.e. an argument that takes
     /// an additional value at runtime). If the option wasn't present at runtime
@@ -214,9 +212,7 @@ impl<'a> ArgMatches<'a> {
     /// [`Iterator`]: https://doc.rust-lang.org/std/iter/trait.Iterator.html
     pub fn values_of<S: AsRef<str>>(&'a self, name: S) -> Option<Values<'a>> {
         if let Some(arg) = self.args.get(name.as_ref()) {
-            fn to_str_slice(o: &OsString) -> &str {
-                o.to_str().expect(INVALID_UTF8)
-            }
+            fn to_str_slice(o: &OsString) -> &str { o.to_str().expect(INVALID_UTF8) }
             let to_str_slice: fn(&OsString) -> &str = to_str_slice; // coerce to fn pointer
             return Some(Values { iter: arg.vals.values().map(to_str_slice) });
         }
@@ -289,9 +285,7 @@ impl<'a> ArgMatches<'a> {
     /// [`OsString`]: https://doc.rust-lang.org/std/ffi/struct.OsString.html
     /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
     pub fn values_of_os<S: AsRef<str>>(&'a self, name: S) -> Option<OsValues<'a>> {
-        fn to_str_slice(o: &OsString) -> &OsStr {
-            &*o
-        }
+        fn to_str_slice(o: &OsString) -> &OsStr { &*o }
         let to_str_slice: fn(&'a OsString) -> &'a OsStr = to_str_slice; // coerce to fn pointer
         if let Some(arg) = self.args.get(name.as_ref()) {
             return Some(OsValues { iter: arg.vals.values().map(to_str_slice) });
@@ -533,9 +527,7 @@ impl<'a> ArgMatches<'a> {
     /// ```
     /// [`Subcommand`]: ./struct.SubCommand.html
     /// [`App`]: ./struct.App.html
-    pub fn usage(&self) -> &str {
-        self.usage.as_ref().map_or("", |u| &u[..])
-    }
+    pub fn usage(&self) -> &str { self.usage.as_ref().map_or("", |u| &u[..]) }
 }
 
 
@@ -568,18 +560,12 @@ pub struct Values<'a> {
 impl<'a> Iterator for Values<'a> {
     type Item = &'a str;
 
-    fn next(&mut self) -> Option<&'a str> {
-        self.iter.next()
-    }
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        self.iter.size_hint()
-    }
+    fn next(&mut self) -> Option<&'a str> { self.iter.next() }
+    fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
 }
 
 impl<'a> DoubleEndedIterator for Values<'a> {
-    fn next_back(&mut self) -> Option<&'a str> {
-        self.iter.next_back()
-    }
+    fn next_back(&mut self) -> Option<&'a str> { self.iter.next_back() }
 }
 
 /// An iterator over the key-value pairs of a map.
@@ -608,9 +594,7 @@ impl<'a, V> Iterator for Iter<'a, V> {
     }
 
     #[inline]
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        (0, Some(self.back - self.front))
-    }
+    fn size_hint(&self) -> (usize, Option<usize>) { (0, Some(self.back - self.front)) }
 }
 
 impl<'a, V> DoubleEndedIterator for Iter<'a, V> {
@@ -659,16 +643,10 @@ pub struct OsValues<'a> {
 impl<'a> Iterator for OsValues<'a> {
     type Item = &'a OsStr;
 
-    fn next(&mut self) -> Option<&'a OsStr> {
-        self.iter.next()
-    }
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        self.iter.size_hint()
-    }
+    fn next(&mut self) -> Option<&'a OsStr> { self.iter.next() }
+    fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
 }
 
 impl<'a> DoubleEndedIterator for OsValues<'a> {
-    fn next_back(&mut self) -> Option<&'a OsStr> {
-        self.iter.next_back()
-    }
+    fn next_back(&mut self) -> Option<&'a OsStr> { self.iter.next_back() }
 }

@@ -54,7 +54,7 @@ pub struct Arg<'a, 'b>
     #[doc(hidden)]
     pub requires: Option<Vec<&'a str>>,
     #[doc(hidden)]
-    pub group: Option<Vec<&'a str>>,
+    pub groups: Option<Vec<&'a str>>,
     #[doc(hidden)]
     pub val_names: Option<VecMap<&'b str>>,
     #[doc(hidden)]
@@ -91,7 +91,7 @@ impl<'a, 'b> Default for Arg<'a, 'b> {
             blacklist: None,
             possible_vals: None,
             requires: None,
-            group: None,
+            groups: None,
             val_names: None,
             num_vals: None,
             max_vals: None,
@@ -126,9 +126,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg`]: ./struct.Arg.html
-    pub fn with_name(n: &'a str) -> Self {
-        Arg { name: n, ..Default::default() }
-    }
+    pub fn with_name(n: &'a str) -> Self { Arg { name: n, ..Default::default() } }
 
     /// Creates a new instance of [`Arg`] from a .yml (YAML) file.
     ///
@@ -172,6 +170,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 "min_values" => yaml_to_u64!(a, v, min_values),
                 "value_name" => yaml_to_str!(a, v, value_name),
                 "use_delimiter" => yaml_to_bool!(a, v, use_delimiter),
+                "allow_hyphen_values" => yaml_to_bool!(a, v, allow_hyphen_values),
                 "require_delimiter" => yaml_to_bool!(a, v, require_delimiter),
                 "value_delimiter" => yaml_to_str!(a, v, value_delimiter),
                 "required_unless" => yaml_to_str!(a, v, required_unless),
@@ -636,6 +635,62 @@ impl<'a, 'b> Arg<'a, 'b> {
         }
     }
 
+    /// Allows values which start with a leading hyphen (`-`)
+    ///
+    /// **WARNING**: When building your CLIs, consider the effects of allowing leading hyphens and
+    /// the user passing in a value that matches a valid short. For example `prog -opt -F` where
+    /// `-F` is supposed to be a value, yet `-F` is *also* a valid short for anther arg. Care should
+    /// should be taken when designing these args. This is compounded by the ability to "stack"
+    /// short args. I.e. if `-val` is supposed to be a value, but `-v`, `-a`, and `-l` are all valid
+    /// shorts.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Arg;
+    /// Arg::with_name("pattern")
+    ///     .allow_hyphen_values(true)
+    /// # ;
+    /// ```
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("pattest")
+    ///     .arg(Arg::with_name("pat")
+    ///         .allow_hyphen_values(true)
+    ///         .takes_value(true)
+    ///         .long("pattern"))
+    ///     .get_matches_from(vec![
+    ///         "pattest", "--pattern", "-file"
+    ///     ]);
+    ///
+    /// assert_eq!(m.value_of("pat"), Some("-file"));
+    /// ```
+    ///
+    /// Not setting [`Arg::allow_hyphen_values(true)`] and supplying a value which starts with a
+    /// hyphen is an error.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("pattest")
+    ///     .arg(Arg::with_name("pat")
+    ///         .takes_value(true)
+    ///         .long("pattern"))
+    ///     .get_matches_from_safe(vec![
+    ///         "pattest", "--pattern", "-file"
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+    /// ```
+    /// [`Arg::allow_hyphen_values(true)`]: ./struct.Arg.html#method.allow_hyphen_values
+    pub fn allow_hyphen_values(self, a: bool) -> Self {
+        if a {
+            self.set(ArgSettings::AllowLeadingHyphen)
+        } else {
+            self.unset(ArgSettings::AllowLeadingHyphen)
+        }
+    }
     /// Sets an arg that override this arg's required setting. (i.e. this arg will be required
     /// unless this other argument is present).
     ///
@@ -1725,7 +1780,7 @@ impl<'a, 'b> Arg<'a, 'b> {
         if let Some(ref mut vec) = self.requires {
             vec.push(name);
         } else {
-            self.group = Some(vec![name]);
+            self.groups = Some(vec![name]);
         }
         self
     }
@@ -1760,12 +1815,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`ArgGroup`]: ./struct.ArgGroup.html
     pub fn groups(mut self, names: &[&'a str]) -> Self {
-        if let Some(ref mut vec) = self.group {
+        if let Some(ref mut vec) = self.groups {
             for s in names {
                 vec.push(s);
             }
         } else {
-            self.group = Some(names.into_iter().map(|s| *s).collect::<Vec<_>>());
+            self.groups = Some(names.into_iter().map(|s| *s).collect::<Vec<_>>());
         }
         self
     }
@@ -1815,7 +1870,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// message displayed to the user.
     ///
     /// **NOTE:** The error message does *not* need to contain the `error:` portion, only the
-    /// message.
+    /// message as all errors will appear as
+    /// `error: Invalid value for '<arg>': <YOUR MESSAGE>` where `<arg>` is replaced by the actual
+    /// arg, and `<YOUR MESSAGE>` is the `String` you return as the error.
     ///
     /// **NOTE:** There is a small performance hit for using validators, as they are implemented
     /// with [`Rc`] pointers. And the value to be checked will be allocated an extra time in order
@@ -2465,9 +2522,7 @@ impl<'a, 'b> Arg<'a, 'b> {
 
     /// Checks if one of the [`ArgSettings`] settings is set for the argument
     /// [`ArgSettings`]: ./enum.ArgSettings.html
-    pub fn is_set(&self, s: ArgSettings) -> bool {
-        self.settings.is_set(s)
-    }
+    pub fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(s) }
 
     /// Sets one of the [`ArgSettings`] settings for the argument
     /// [`ArgSettings`]: ./enum.ArgSettings.html
@@ -2484,14 +2539,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     #[doc(hidden)]
-    pub fn setb(&mut self, s: ArgSettings) {
-        self.settings.set(s);
-    }
+    pub fn setb(&mut self, s: ArgSettings) { self.settings.set(s); }
 
     #[doc(hidden)]
-    pub fn unsetb(&mut self, s: ArgSettings) {
-        self.settings.unset(s);
-    }
+    pub fn unsetb(&mut self, s: ArgSettings) { self.settings.unset(s); }
 }
 
 impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
@@ -2510,7 +2561,7 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
             min_vals: a.min_vals,
             max_vals: a.max_vals,
             val_names: a.val_names.clone(),
-            group: a.group.clone(),
+            groups: a.groups.clone(),
             validator: a.validator.clone(),
             overrides: a.overrides.clone(),
             settings: a.settings,
@@ -2538,7 +2589,7 @@ impl<'a, 'b> Clone for Arg<'a, 'b> {
             min_vals: self.min_vals,
             max_vals: self.max_vals,
             val_names: self.val_names.clone(),
-            group: self.group.clone(),
+            groups: self.groups.clone(),
             validator: self.validator.clone(),
             overrides: self.overrides.clone(),
             settings: self.settings,

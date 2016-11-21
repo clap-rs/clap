@@ -31,8 +31,12 @@ Table of Contents
   * [More Information](#more-information)
     * [Video Tutorials](#video-tutorials)
 * [How to Contribute](#how-to-contribute)
-  * [Running the tests](#running-the-tests)
+  * [Testing Code](#testing-code)
+  * [Linting Code](#linting-code)
+  * [Debugging Code](#debugging-code)
   * [Goals](#goals)
+  * [Compatibility Policy](#compatibility-policy)
+    * [Minimum Version of Rust](#minimum-version-of-rust)
 * [License](#license)
 * [Recent Breaking Changes](#recent-breaking-changes)
   * [Deprecations](#deprecations)
@@ -41,288 +45,95 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-Here's what's new in v2.18.0
+Here's the highlights for v2.19.0
+
+* **Arg Setting**: Allows specifying an `AllowLeadingHyphen` style setting for values only for specific args, vice command wide
+* **Validators:**  improves the error messages for validators
+* Updates the docs landing page
+* Adds the macro version back to the readme
+* Fixes some broken docs links
+* **Compatibility Policy:**  adds an official compatibility policy to
+* **Contributing:**  updates the readme to improve the readability and contributing sections
+* **Required Unless:**  fixes a bug where having required_unless set doesn't work when conflicts are also set
+* **ZSH Completions:**  fixes an issue where zsh completions caused panics if there were no subcommands
+
+Here's the highlights from v2.0.0 to v2.18.0
 
 * **Completions:**  Adds completion support for Microsoft PowerShell! (Thanks to @Arnavion)
-
-Here's what's new in v2.17.1
-
-* Fixes a bug where using low index multiples was propagated to subcommands
-
-Here's what's new in v2.17.0
-
 * Allows specifying the second to last positional argument as `multiple(true)` (i.e. things such as `mv <files>... <target>`)
 * Adds an `App::get_name` and `App::get_bin_name`
-
-Here's what's new in v2.16.4
-
-* Fixes bug that caused panic on subcommands with aliases
 * Conflicting argument errors are now symetrical, meaning more consistent and better usage suggestions
-* Fixes typo in example `13a_enum_values_automatic`
-* Fixes failing yaml example (#715)
-* Fixes the `debug` feature (#716)
-
-Here's the highlights for v2.16.3
-
-* Fixes a bug where the derived display order isn't propagated
-* **yaml-example:**  fixes some inconsistent args in the example
-
-Here's the highlights for v2.16.2
-
-* Fixes a bug where single quotes are not escaped
-
-Here's the highlights for v2.16.1
-
-* **Help Message:**  fixes a regression bug where args with multiple(true) threw off alignment
-
-Here's the highlights for v2.16.0
-
 * **Completions:**  adds automatic ZSH completion script generation support! :tada: :tada:
+* **AppSettings:**  adds new setting `AppSettings::AllowNegativeNumbers` which functions like `AllowLeadingHyphen` except only allows undefined negative numbers to pass parsing.
+* Stabilize `clap_app!` macro (i.e. no longer need to use `unstable` feature)
+* Deprecate `App::with_defaults`
+* One can now alias arguments either visibly (which appears in the help text) or invisibly just like subcommands!
+* The `from_usage` parser now correctly handles non-ascii names / options and help!
+* **Value Delimiters:**  fixes the confusion around implicitly setting value delimiters. (The default is to *not* use a delimiter unless explicitly set)
+* Changes the default value delimiter rules (i.e. the default is `use_delimiter(false)` *unless* a setting/method that implies multiple values was used) **[Bugfix that *may* "break" code]**
+ * If code breaks, simply add `Arg::use_delimiter(true)` to the affected args
+* Adds ability to hide the possible values from the help text on a per argument basis, instead of command wide
+* Allows for limiting detected terminal width (i.e. wrap at `x` length, unless the terminal width is *smaller*)
+* `clap` now ignores hard newlines in help messages and properly re-aligns text, but still wraps if the term width is too small
+* Adds support for the setting `Arg::require_delimiter` from YAML
+* `clap` no longer requires one to use `{n}` inside help text to insert a newline that is properly aligned. One can now use the normal `\n`.
+* `clap` now ignores hard newlines in help messages and properly re-aligns text, but still wraps if the term width is too small
+* Errors can now have custom description
+* Uses `term_size` instead of home-grown solution on Windows
+* Adds the ability to wrap help text intelligently on Windows!
+* Moves docs to [docs.rs!](https://docs.rs/clap/)!
+* Automatically moves help text to the next line and wraps when term width is determined to be too small, or help text is too long
+* Vastly improves *development* error messages when using YAML
+* Adds a shorthand way to ignore help text wrapping and use source formatting (i.e. `App::set_term_width(0)`)
+* **Help Subcommand:**  fixes misleading usage string when using multi-level subcommmands such as `myprog help subcmd1 subcmd2`
+* **YAML:**  allows using lists or single values with certain arg declarations for increased ergonomics
+* **Fish Shell Completions:**  one can generate a basic fish completions script at compile time!
+* Adds the ability to generate completions to an `io::Write` object
+* Adds an `App::unset_setting` and `App::unset_settings`
+* **Completions:**  one can now [generate a bash completions](https://docs.rs/clap/2.9.0/clap/struct.App.html#method.gen_completions) script at compile time! These completions work with options using [possible values](https://docs.rs/clap/2.9.0/clap/struct.Arg.html#method.possible_values), [subcommand aliases](https://docs.rs/clap/2.9.0/clap/struct.App.html#method.aliases), and even multiple levels of subcommands
+* **Arg:**  adds new optional setting [`Arg::require_delimiter`](https://docs.rs/clap/2.8.0/clap/struct.Arg.html#method.require_delimiter) which requires val delimiter to parse multiple values
+* The terminal sizing portion has been factored out into a separate crate, [term_size](https://crates.io/crates/term_size)
+* Options using multiple values and delimiters no longer parse additional values after a trailing space (i.e. `prog -o 1,2 file.txt` parses as `1,2` for `-o` and `file.txt` for a positional arg)
+* Using options using multiple values and with an `=` no longer parse args after the trailing space as values (i.e. `prog -o=1 file.txt` parses as `1` for `-o` and `file.txt` for a positional arg)
+* **Usage Strings:**  `[FLAGS]` and `[ARGS]` are no longer blindly added to usage strings, instead only when applicable
+* `arg_enum!`:  allows using more than one meta item, or things like `#[repr(C)]` with `arg_enum!`s
+* `App::print_help`: now prints the same as would have been printed by `--help` or the like
+* Prevents invoking `<cmd> help help` and displaying incorrect help message
+* Subcommand help messages requested via `<cmd> help <sub>` now correctly match `<cmd> <sub> --help`
+* One can now specify groups which require AT LEAST one of the args
+* Allows adding multiple ArgGroups per Arg
+* **Global Settings:** One can now set an `AppSetting` which is propogated down through child subcommands
+* **Terminal Wrapping:**  Allows wrapping at specified term width (Even on Windows!) (can now set an absolute width to "smart" wrap at)
+* **SubCommands/Aliases:**  adds support for visible aliases for subcommands (i.e. aliases that are dipslayed in the help message)
+* **Subcommands/Aliases:**  when viewing the help of an alias, it now display help of the aliased subcommand
+* Adds new setting to stop delimiting values with `--` or `AppSettings::TrailingVarArg`
+* Subcommands now support aliases - think of them as hidden subcommands that dispatch to said subcommand automatically
+* Fixed times when `ArgGroup`s are duplicated in usage strings
+* **Before Help:**  adds support for displaying info before help message
+* **Required Unless:**  adds support for allowing args that are required unless certain other args are present
+* **New Help Template Engine!**: Now you have full control over the layout of your help message. Major thanks to @hgrecco
+* **Pull crate Authors from Cargo.toml**: One can now use the `crate_authors!` macro to automatically pull the crate authors from their Cargo.toml file
+* **Colored Help Messages**: Help messages can now be optionally colored (See the `AppSettings::ColoredHelp` setting). Screenshot below.
+* **Help text auto wraps and aligns at for subcommands too!** - Long help strings of subcommands will now properly wrap and align to term width on Linux and OS X. This can be turned off as well.
+* **Help text auto wraps and aligns at term width!** - Long help strings will now properly wrap and align to term width on Linux and OS X (and presumably Unix too). This can be turned off as well.
+* **Can customize the order of opts, flags, and subcommands in help messages**  - Instead of using the default alphabetical order, you can now re-arrange the order of your args and subcommands in help message. This helps to emphasize more popular or important options.
+* **Can auto-derive the order from declaration order** - Have a bunch of args or subcommmands to re-order? You can now just derive the order from the declaration order!
+* **Help subcommand now accepts other subcommands as arguments!** - Similar to other CLI precedents, the `help` subcommand can now accept other subcommands as arguments to display their help message. i.e. `$ myprog help mysubcmd` (*Note* these can even be nested heavily such as `$ myprog help subcmd1 subcmd2 subcmd3` etc.)
+* **Default Values**: Args can now specify default values
+* **Next Line Help**: Args can have help strings on the line following the argument (useful for long arguments, or those with many values). This can be set command-wide or for individual args
 
 Here's a gif of them in action!
 
 ![zsh-comppletions](http://i.imgur.com/rwlMbAv.gif)
 
-Here's the highlights for v2.15.0
+An example of the help text wrapping at term width:
 
-* **AppSettings:**  adds new setting `AppSettings::AllowNegativeNumbers` which functions like `AllowLeadingHyphen` except only allows undefined negative numbers to pass parsing.
-* Improves some of the documentation of `AppSettings` by moving variants into roughly alphabetical order
-
-Here's the highlights for v2.14.1 (Huge thanks to all the contributors who put in a lot of work this cycle! Especially @tormol @nabijaczleweli and @wdv4758h)
-
-* Stabilize `clap_app!` macro (i.e. no longer need to use `unstable` feature)
-* Fixes a bug that made determining when to auto-wrap long help messages inconsistent
-* Fixes fish completions for nested subcommands
-* Improve documentation around features
-* Reword docs for `ErrorKind` and `App::settings`
-* Fix tests that fail when the `suggestions` feature is disabled
-* Fix the `OsString`-using doc-tests
-* Tag non-rust code blocks as such instead of ignoring them
-* Improve some errors about subcommands
-* Makes sure the doc-tests don't fail before "missing file" in YAML tests
-* Deprecate `App::with_defaults`
-* Make lints not enable other nightly-requiring features
-
-Here's the highlights for v2.14.0
-
-* One can now alias arguments either visibly (whichc appears in the help text) or invisibly just like subcommands!
-* The `from_usage` parser now correctly handles non-ascii names / options and help!
-* Fixes a bug in the `require_delimiter` code which caused some incorrect parses
-* Fixes various typos in the docs
-* Various other small performance improvements and enhancements
-
-Here's the highlights for v2.13.0
-
-* **Value Delimiters:**  fixes the confusion around implicitly setting value delimiters. (The default is to *not* use a delimiter unless explicitly set)
-* **Docs:** Updates README.md with new website information and updated video tutorials info
-* **Docs:** Updates the docs about removing implicit `value_delimiter(true)`
-* **Docs:** Adds better examples on using default values
-
-
-Here's the highlights for v2.12.1
-
-* Fixes a regression-bug where the old `{n}` newline char stopped being replaced a properly re-aligned newline
-
-Here's the highlights for v2.12.0
-
-* Changes the default value delimiter rules (i.e. the default is `use_delimiter(false)` *unless* a setting/method that implies multiple values was used) **[Bugfix that *may* "break" code]**
- * If code breaks, simply add `Arg::use_delimiter(true)` to the affected args
-* Updates the docs for the `Arg::multiple` method WRT value delimiters and default settings
-* Adds ability to hide the possible values from the help text on a per argument basis, instead of command wide
-* Allows for limiting detected terminal width (i.e. wrap at `x` length, unless the terminal width is *smaller*)
-* Removes some redundant `contains()` checks for minor performance improvements
-* Fixes a bug where valid args aren't recognized with the `AppSettings::AllowLeadingHyphen` setting
-* `clap` now ignores hard newlines in help messages and properly re-aligns text, but still wraps if the term width is too small
-* Makes some minor changes to when next line help is automatically used
-* Adds support for the setting `Arg::require_delimiter` from YAML
-* Removes the verbage about using `'{n}'` to insert newlines in help text from the docs (the normal `\n` can now be used)
-* Documents `AppSetting::DisableVersion`
-
-Here's the highlights for v2.11.3
-
-* `clap` no longer requires one to use `{n}` inside help text to insert a newline that is properly aligned. One can now use the normal `\n`.
-* `clap` now ignores hard newlines in help messages and properly re-aligns text, but still wraps if the term width is too small
-* Supports setting `Arg::require_delimiter` from YAML
-
-Here's the highlights for v2.11.2
-
-* Makes some minor changes to when next line help is automatically used for improved wrapping
-
-Here's the highlights for v2.11.1
-
-* Fixes an issue where settings weren't propogated down through grand-child subcommands
-* Errors can now have custom description
-* Uses `term_size` instead of home-grown solution on Windows
-* Updates deps with some minor bug fixes
-
-
-Here's the highlights for v2.11.0
-
-* Adds the ability to wrap help text intelligently on Windows!
-* Moves docs to [docs.rs!](https://docs.rs/clap/)
-* Fixes some usage strings that contain both args in groups and ones that conflict with each other
-* Uses standard conventions for bash completion files, namely `{bin}.bash-completion`
-* Automatically moves help text to the next line and wraps when term width is determined to be too small, or help text is too long
-* Vastly improves *development* error messages when using YAML
-* Adds `App::with_defaults` to automatically use `crate_authors!` and `crate_version!` macros
-* Other minor improvements and bug fixes
-
-Here's the highlights for v2.10.4
-
-* Fixes a bug where help is wrapped incorrectly and causing a panic with some non-English characters
-
-Here's the highlights for v2.10.3
-
-* Fixes a bug with non-English characters in help text wrapping, where the character is stripped or causes a panic
-* Fixes an issue with `strsim` which caused a panic in some scenarios
-* Adds a shorthand way to ignore help text wrapping and use source formatting (i.e. `App::set_term_width(0)`)
-
-Here's the highlights for v2.10.2
-
-* Fixes a critical bug where the help message is printed twice
-
-Here's the highlights for v2.10.1
-
-* **Help Subcommand:**  fixes misleading usage string when using multi-level subcommmands such as `myprog help subcmd1 subcmd2`
-* **YAML:**  allows using lists or single values with certain arg declarations for increased ergonomics
-
-
-Here's the highlights for v2.10.0
-
-
-* **Fish Shell Completions:**  one can generate a basic fish completions script at compile time!
-* **External SubCommands:**  fixes a bug which now correctly preserves external subcommand name along with args to said command (Minor breaking change that breaks no known real world code)
-* **YAML Documentation:**  fixes example 17's incorrect reference to arg_groups instead of groups
-
-
-Here's the highlights for v2.9.3
-
-* Adds the ability to generate completions to an `io::Write` object
-* Adds an `App::unset_setting` and `App::unset_settings`
-* Fixes bug where only first arg in list of `required_unless_one` is recognized
-* Fixes a typo bug `SubcommandsRequired`->`SubcommandRequired`
-
-
-Here's the highlights for v2.9.2
-
-
-* fixes bug where --help and --version short weren't added to the completion list
-* improves completions allowing multiple bins to have seperate completion files
-
-Here's the highlights for v2.9.0
-
-* **Completions:**  one can now [generate a bash completions](https://docs.rs/clap/2.9.0/clap/struct.App.html#method.gen_completions) script at compile time! These completions work with options using [possible values](https://docs.rs/clap/2.9.0/clap/struct.Arg.html#method.possible_values), [subcommand aliases](https://docs.rs/clap/2.9.0/clap/struct.App.html#method.aliases), and even multiple levels of subcommands
-* Minor bug fixes when using `AppSettings::TrailingVarArg` and `AppSettings::AllowLeadingHyphen`
-
-Here's the highlights for v2.8.0
-
-* **Arg:**  adds new optional setting [`Arg::require_delimiter`](https://docs.rs/clap/2.8.0/clap/struct.Arg.html#method.require_delimiter) which requires val delimiter to parse multiple values
-* The terminal sizing portion has been factored out into a separate crate, [term_size](https://crates.io/crates/term_size)
-* Minor bug fixes
-
-
-Here's the highlights for v2.7.1
-
-* **Options:**
-  *  options using multiple values and delimiters no longer parse additional values after a trailing space (i.e. `prog -o 1,2 file.txt` parses as `1,2` for `-o` and `file.txt` for a positional arg)
-  *  using options using multiple values and with an `=` no longer parse args after the trailing space as values (i.e. `prog -o=1 file.txt` parses as `1` for `-o` and `file.txt` for a positional arg)
-
-Here's the highlights for v2.7.0
-
-* **Usage Strings:**  `[FLAGS]` and `[ARGS]` are no longer blindly added to usage strings, instead only when applicable
-* `arg_enum!`:  allows using more than one meta item, or things like `#[repr(C)]` with `arg_enum!`s
-* `App::print_help`: now prints the same as would have been printed by `--help` or the like
-* **Help Messages:**
- *  prevents invoking `<cmd> help help` and displaying incorrect help message
- *  subcommand help messages requested via `<cmd> help <sub>` now correctly match `<cmd> <sub> --help`
-* **`ArgGroup`s:**
- *  one can now specify groups which require AT LEAST one of the args
- *  allows adding multiple ArgGroups per Arg
- * **Documentation:**  vastly improves `ArgGroup` docs by adding better examples
-* **Documentation:**  fixes a bunch of typos in the documentation
-
-Here's the highlights for v2.6.0
-
-* **Global Settings:** One can now set an `AppSetting` which is propogated down through child subcommands
-* **Terminal Wrapping:**  Allows wrapping at specified term width (Even on Windows!) (can now set an absolute width to "smart" wrap at)
-* **SubCommands/Aliases:**  adds support for visible aliases for subcommands (i.e. aliases that are dipslayed in the help message)
-* **Subcommands/Aliases:**  when viewing the help of an alias, it now display help of the aliased subcommand
-* Improves the default usage string when only a single positional arg is present
-* Adds new setting to stop delimiting values with `--` or `AppSettings::TrailingVarArg`
-* `App::before_help` and `App::after_help` now correctly wrap
-* Fixes bug where positional args are printed out of order when using templates
-* Fixes bug where one can't override the auto-generated version or help flags
-* Fixes issue where `App::before_help` wasn't printed
-* Fixes a failing windows build
-* Fixes bug where new color settings couldn't be converted from strings
-* Adds missing YAML methods for App and Arg
-* Allows printing version to any io::Write object
-* Removes extra newline from help and version output
-
-Here's what's new in v.2.5.2
-
-*   Removes trailing newlines from help and version output
-*   Allows printing version to any io::Write object
-*   Inter-links all types and pages
-*   Makes all publicly available types viewable in docs
-*   Fixes bug where one can't override version or help flags
-*   Fixes bug where args are printed out of order when using templates
-*   Fixes issue where `App::before_help` wasn't printed properly
-
-Here's what's new in v.2.5.0
-
-* Subcommands now support aliases - think of them as hidden subcommands that dispatch to said subcommand automatically
-
-Here's what's new in v2.4.3
-
-* Bug Fixes
- * Usage strings get de-deuplicated when there are args which are also part ``ArgGroup`s`
- * Fixed times when `ArgGroup`s are duplicated in usage strings
-* Improvements
- * Positional arguments which are part of a group are now formatted in a more readable way (fewer brackets)
- * Positional arguments use the standard `<>` brackets to reduce confusion
- * The default help string for the `help` subcommand has been shortened to fit in 80 columns
-
-Here's the highlights from v2.4.0
-
-* **Before Help:**  adds support for displaying info before help message
-* **Required Unless:**  adds support for allowing args that are required unless certain other args are present
-* Bug fixes
-
-Here's the highlights from v2.3.0
-
-* **New Help Template Engine!**: Now you have full control over the layout of your help message. Major thanks to @hgrecco
-* **Pull crate Authors from Cargo.toml**: One can now use the `crate_authors!` macro to automatically pull the crate authors from their Cargo.toml file
-* **Colored Help Messages**: Help messages can now be optionally colored (See the `AppSettings::ColoredHelp` setting). Screenshot below.
-* A bunch of bug fixes
-
-Here's the highlights from v2.2.1
-
-* **Help text auto wraps and aligns at for subcommands too!** - Long help strings of subcommands will now properly wrap and align to term width on Linux and OS X. This can be turned off as well.
-* Bug fixes
+![screenshot](http://i.imgur.com/PAJzJJG.png)
 
 An example of the optional colored help:
 
 ![screenshot](http://i.imgur.com/7fs2h5j.png)
 
-Here's the highlights from v2.2.0
-
-* **Help text auto wraps and aligns at term width!** - Long help strings will now properly wrap and align to term width on Linux and OS X (and presumably Unix too). This can be turned off as well.
-* **Can customize the order of opts, flags, and subcommands in help messages**  - Instead of using the default alphabetical order, you can now re-arrange the order of your args and subcommands in help message. This helps to emphasize more popular or important options.
- * **Can auto-derive the order from declaration order** - Have a bunch of args or subcommmands to re-order? You can now just derive the order from the declaration order!
-* **Help subcommand now accepts other subcommands as arguments!** - Similar to other CLI precedents, the `help` subcommand can now accept other subcommands as arguments to display their help message. i.e. `$ myprog help mysubcmd` (*Note* these can even be nested heavily such as `$ myprog help subcmd1 subcmd2 subcmd3` etc.)
-
-* Other minor bug fixes
-
-An example of the help text wrapping at term width:
-
-![screenshot](http://i.imgur.com/PAJzJJG.png)
-
-In v2.1.2
-
- * **Default Values**: Args can now specify default values
- * **Next Line Help**: Args can have help strings on the line following the argument (useful for long arguments, or those with many values). This can be set command-wide or for individual args
- * **Documentation Examples**: The examples in the documentation have been vastly improved
 
 For full details, see [CHANGELOG.md](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md)
 
@@ -417,9 +228,9 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 
 The following examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, conflicts, groups, multiple values and occurrences see the [documentation](https://docs.rs/clap/), [examples/](examples) directory of this repository or the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl2Z5T8g1pRkIynR3E0_pc7U).
 
- **NOTE:** All these examples are functionally the same, but show three different styles in which to use `clap`
+ **NOTE:** All of these examples are functionally the same, but show different styles in which to use `clap`
 
-The following example is show a method that allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired. The downside is it's more verbose.
+The first example shows a method that allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired. The downside is it's more verbose.
 
 ```rust
 // (Full example with detailed comments in examples/01b_quick_example.rs)
@@ -489,7 +300,7 @@ fn main() {
 }
 ```
 
-The following example is functionally the same as the one above, but shows a far less verbose method but sacrifices some of the advanced configuration options (not shown in this small example).
+The next example shows a far less verbose method, but sacrifices some of the advanced configuration options (not shown in this small example). This method also takes a *very* minor runtime penalty.
 
 ```rust
 // (Full example with detailed comments in examples/01a_quick_example.rs)
@@ -519,10 +330,10 @@ fn main() {
 }
 ```
 
-This final method shows how you can use a YAML file to build your CLI and keep your Rust source tidy
+This third method shows how you can use a YAML file to build your CLI and keep your Rust source tidy
 or support multiple localized translations by having different YAML files for each localization.
-First, create the `cli.yml` file to hold your CLI options, but it could be called anything we like
-(we'll use the same both examples above to keep it functionally equivalent):
+
+First, create the `cli.yml` file to hold your CLI options, but it could be called anything we like:
 
 ```yaml
 name: myapp
@@ -555,8 +366,9 @@ subcommands:
                 help: print debug information
 ```
 
-Since this feature is not compiled in by default we need to enable a feature flag in Cargo.toml:
-Simply change your `clap = "2"` to `clap = {version = "2", features = ["yaml"]}`.
+Since this feature requires additional dependencies that not everyone may want, it is *not* compiled in by default and we need to enable a feature flag in Cargo.toml:
+
+Simply change your `clap = "~2.19.0"` to `clap = {version = "~2.19.0", features = ["yaml"]}`.
 
 At last we create our `main.rs` file just like we would have with the previous two examples:
 
@@ -575,6 +387,32 @@ fn main() {
     let matches = App::from_yaml(yaml).get_matches();
 
     // Same as previous examples...
+}
+```
+
+Finally there is a macro version, which is like a hybrid approach offering the speed of the builder pattern (the first example), but without all the verbosity.
+
+```rust
+#[macro_use]
+extern crate clap;
+
+fn main() {
+    let matches = clap_app!(myapp =>
+        (version: "1.0")
+        (author: "Kevin K. <kbknapp@gmail.com>")
+        (about: "Does awesome things")
+        (@arg CONFIG: -c --config +takes_value "Sets a custom config file")
+        (@arg INPUT: +required "Sets the input file to use")
+        (@arg debug: -d ... "Sets the level of debugging information")
+        (@subcommand test =>
+            (about: "controls testing features")
+            (version: "1.3")
+            (author: "Someone E. <someone_else@other.com>")
+            (@arg verbose: -v --verbose "Print test information verbosely")
+        )
+    ).get_matches();
+
+    // Same as before...
 }
 ```
 
@@ -645,11 +483,11 @@ fn main() {
 
 ## Usage
 
-For full usage, add `clap` as a dependency in your `Cargo.toml` file to use from crates.io:
+For full usage, add `clap` as a dependency in your `Cargo.toml` (it is **highly** recommended to use the `~major.minor.patch` style versions in your `Cargo.toml`, for more information see [Compatibility Policy](#compatibility-policy)) to use from crates.io:
 
 ```toml
 [dependencies]
-clap = "2"
+clap = "~2.19.0"
 ```
 
 Or get the latest changes from the master branch at github:
@@ -677,7 +515,7 @@ To disable these, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies.clap]
-version = "2"
+version = "~2.19.0"
 default-features = false
 ```
 
@@ -685,7 +523,7 @@ You can also selectively enable only the features you'd like to include, by addi
 
 ```toml
 [dependencies.clap]
-version = "2"
+version = "~2.19.0"
 default-features = false
 
 # Cherry-pick the features you'd like to use
@@ -695,6 +533,7 @@ features = [ "suggestions", "color" ]
 #### Opt-in features
 
 * **"yaml"**: Enables building CLIs from YAML documents. (builds dependency `yaml-rust`)
+* **"unstable"**: Enables unstable `clap` features that may change from release to release
 
 ### Dependencies Tree
 
@@ -705,6 +544,7 @@ The following graphic depicts `clap`s dependency graph (generated using [cargo-g
  * **Blue** Color: Dev dependency, only used while developing.
 
 ![clap dependencies](clap_dep_graph.png)
+
 ### More Information
 
 You can find complete documentation on the [docs.rs](https://docs.rs/clap/) for this project.
@@ -725,20 +565,65 @@ Another really great way to help is if you find an interesting, or helpful way i
 
 Please read [CONTRIBUTING.md](.github/CONTRIBUTING.md) before you start contributing.
 
+
+### Testing Code
+
 To test with all features both enabled and disabled, you can run theese commands:
 
 ```sh
 $ cargo test --no-default-features
-$ cargo test --features yaml
+$ cargo test --features "yaml unstable"
 ```
 
-If you have a nightly compiler you can append `--features lints` to both commands
-to get style warnings and code smells; If you get one from code you think is fine,
-you can ignore it by prepending `#[cfg_attr(feature="lints", allow(lint_name))]`
-to the function or impl block.
+Alternatively, if you have [`just`](https://github.com/casey/just) installed you can run the prebuilt recipies. *Not* using `just` is prfeclty fine as well, it simply bundles commands automatically.
 
-If you are debugging (or just trying to understand the code) you can enable the
-"debug" feature which will trace function calls and brances in some parts of the code.
+For example, to test the code, as above simply run:
+
+```sh
+$ just run-tests`
+```
+
+From here on, I will lis the appropriate `cargo` command as well as the `just` command.
+
+Sometimes it's helpful to only run a subset of the tests, which can be done via:
+
+```sh
+$ cargo test --test <test_name>
+
+# Or
+
+$ just run-test <test_name>
+```
+
+### Linting Code
+
+During the CI process `clap` runs against many different lints using [`clippy`](https://github.com/Manishearth/rust-clippy). In order to check if these lints pass on your own computer prior to submitting a PR you'll need a nightly compiler.
+
+In order to check the code for lints run either:
+
+```sh
+$ rustup override add nightly
+$ cargo build --features lints
+$ rustup override remove
+
+# Or
+
+$ just lint
+```
+
+### Debugging Code
+
+Another helpful technique is to see the `clap` debug output while developing features. In order to see the debug output while running the full test suite or individual tests, run:
+
+```sh
+$ cargo test --features debug
+
+# Or for individual tests
+$ cargo test --test <test_name> --features debug
+
+# The corresponding just command for individual debugging tests is:
+$ just debug <test_name>
+```
 
 ### Goals
 
@@ -753,6 +638,28 @@ There are a few goals of `clap` that I'd like to maintain throughout contributio
 * Try to be cognizant of memory usage
   - Once parsing is complete, the memory footprint of `clap` should be low since the  main program is the star of the show
 * `panic!` on *developer* error, exit gracefully on *end-user* error
+
+### Compatibility Policy
+
+Because `clap` takes SemVer and compatibility seriously, this is the official policy regarding breaking changes and previous versions of Rust.
+
+`clap` will pin the minimum required version of Rust to the CI builds. Bumping the minimum version of Rust is considered a minor breaking change, meaning *at a minimum* the minor version of `clap` will be bumped.
+
+In order to keep from being suprised of breaking changes, it is **highly** recommended to use the `~major.minor.patch` style in your `Cargo.toml`:
+
+```toml
+[dependencies]
+clap = "~2.19.0"
+```
+
+This will cause *only* the patch version to be updated upon a `cargo update` call, and therefore cannot break due to new features, or bumped minimum versions of Rust.
+
+#### Minimum Version of Rust
+
+`clap` will officially support current stable Rust, minus two releases, but may work with prior releases as well. For example, current stable Rust at the time of this writing is 1.13.0, meaning `clap` is garunteed to compile with 1.11.0 and beyond.
+At the 1.14.0 release, `clap` will be garunteed to compile with 2.12.0 and beyond, etc.
+
+Upon bumping the minimum version of Rust (assuming it's within the stable-2 range), it *must* be clearly annotated in the `CHANGELOG.md`
 
 ## License
 
