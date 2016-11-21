@@ -39,7 +39,7 @@
 //! this small example), or even dynamically generating arguments when desired. The downside is it's
 //! more verbose.
 //! 
-//! ```rust
+//! ```no_run
 //! // (Full example with detailed comments in examples/01b_quick_example.rs)
 //! //
 //! // This example demonstrates clap's full 'builder pattern' style of creating arguments which is
@@ -111,7 +111,7 @@
 //! configuration options (not shown in this small example). This method also takes a *very* minor
 //! runtime penalty.
 //! 
-//! ```rust
+//! ```no_run
 //! // (Full example with detailed comments in examples/01a_quick_example.rs)
 //! //
 //! // This example demonstrates clap's "usage strings" method of creating arguments
@@ -184,7 +184,7 @@
 //!
 //! At last we create our `main.rs` file just like we would have with the previous two examples:
 //! 
-//! ```rust
+//! ```ignore
 //! // (Full example with detailed comments in examples/17_yaml.rs)
 //! //
 //! // This example demonstrates clap's building from YAML style of creating arguments which is far
@@ -205,7 +205,7 @@
 //! Finally there is a macro version, which is like a hybrid approach offering the speed of the
 //! builder pattern (the first example), but without all the verbosity.
 //! 
-//! ```rust
+//! ```no_run
 //! #[macro_use]
 //! extern crate clap;
 //! 
@@ -232,7 +232,7 @@
 //! If you were to compile any of the above programs and run them with the flag `--help` or `-h` (or
 //! `help` subcommand, since we defined `test` as a subcommand) the following would be output
 //! 
-//! ```sh
+//! ```text
 //! $ myprog --help
 //! My Super Program 1.0
 //! Kevin K. <kbknapp@gmail.com>
@@ -276,7 +276,7 @@
 //! To test out `clap`'s default auto-generated help/version follow these steps:
 //! * Create a new cargo project `$ cargo new fake --bin && cd fake`
 //! * Add `clap` to your `Cargo.toml`
-//! *
+//!
 //! ```toml
 //! [dependencies]
 //! clap = "2"
@@ -284,7 +284,7 @@
 //! 
 //! * Add the following to your `src/main.rs`
 //! 
-//! ```rust
+//! ```no_run
 //! extern crate clap;
 //! use clap::App;
 //! 
@@ -395,7 +395,7 @@
 //! 
 //! To test with all features both enabled and disabled, you can run theese commands:
 //! 
-//! ```sh
+//! ```text
 //! $ cargo test --no-default-features
 //! $ cargo test --features "yaml unstable"
 //! ```
@@ -406,7 +406,7 @@
 //! 
 //! For example, to test the code, as above simply run:
 //! 
-//! ```sh
+//! ```text
 //! $ just run-tests`
 //! ```
 //! 
@@ -414,7 +414,7 @@
 //! 
 //! Sometimes it's helpful to only run a subset of the tests, which can be done via:
 //! 
-//! ```sh
+//! ```text
 //! $ cargo test --test <test_name>
 //! 
 //! # Or
@@ -430,7 +430,7 @@
 //! 
 //! In order to check the code for lints run either:
 //! 
-//! ```sh
+//! ```text
 //! $ rustup override add nightly
 //! $ cargo build --features lints
 //! $ rustup override remove
@@ -445,7 +445,7 @@
 //! Another helpful technique is to see the `clap` debug output while developing features. In order
 //! to see the debug output while running the full test suite or individual tests, run:
 //! 
-//! ```sh
+//! ```text
 //! $ cargo test --features debug
 //! 
 //! # Or for individual tests
@@ -487,7 +487,8 @@
 //! In order to keep from being suprised of breaking changes, it is **highly** recommended to use
 //! the `~major.minor.patch` style in your `Cargo.toml`:
 //!
-//! ```toml [dependencies] clap = "~2.19.0"
+//! ```toml 
+//! [dependencies] clap = "~2.19.0"
 //! ```
 //!
 //! This will cause *only* the patch version to be updated upon a `cargo update` call, and therefore
