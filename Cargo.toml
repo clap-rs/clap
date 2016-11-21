@@ -27,7 +27,7 @@ yaml-rust = { version = "~0.3.2",  optional = true }
 clippy    = { version = "~0.0.100", optional = true }
 
 [dev-dependencies]
-regex = "~0.1.69"
+regex = "~0.1.80"
 
 [features]
 default     = ["suggestions", "color", "wrap_help"]
