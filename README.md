@@ -216,9 +216,9 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 
 The following examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, conflicts, groups, multiple values and occurrences see the [documentation](https://docs.rs/clap/), [examples/](examples) directory of this repository or the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl2Z5T8g1pRkIynR3E0_pc7U).
 
- **NOTE:** All these examples are functionally the same, but show three different styles in which to use `clap`
+ **NOTE:** All of these examples are functionally the same, but show different styles in which to use `clap`
 
-The following example is show a method that allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired. The downside is it's more verbose.
+The first example shows a method that allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired. The downside is it's more verbose.
 
 ```rust
 // (Full example with detailed comments in examples/01b_quick_example.rs)
@@ -288,7 +288,7 @@ fn main() {
 }
 ```
 
-The following example is functionally the same as the one above, but shows a far less verbose method but sacrifices some of the advanced configuration options (not shown in this small example).
+The next example shows a far less verbose method, but sacrifices some of the advanced configuration options (not shown in this small example). This method also takes a *very* minor runtime penalty.
 
 ```rust
 // (Full example with detailed comments in examples/01a_quick_example.rs)
@@ -318,10 +318,10 @@ fn main() {
 }
 ```
 
-This final method shows how you can use a YAML file to build your CLI and keep your Rust source tidy
+This third method shows how you can use a YAML file to build your CLI and keep your Rust source tidy
 or support multiple localized translations by having different YAML files for each localization.
-First, create the `cli.yml` file to hold your CLI options, but it could be called anything we like
-(we'll use the same both examples above to keep it functionally equivalent):
+
+First, create the `cli.yml` file to hold your CLI options, but it could be called anything we like:
 
 ```yaml
 name: myapp
@@ -354,8 +354,9 @@ subcommands:
                 help: print debug information
 ```
 
-Since this feature is not compiled in by default we need to enable a feature flag in Cargo.toml:
-Simply change your `clap = "2"` to `clap = {version = "2", features = ["yaml"]}`.
+Since this feature requires additional dependencies that not everyone may want, it is *not* compiled in by default and we need to enable a feature flag in Cargo.toml:
+
+Simply change your `clap = "~2.19.0"` to `clap = {version = "~2.19.0", features = ["yaml"]}`.
 
 At last we create our `main.rs` file just like we would have with the previous two examples:
 
@@ -374,6 +375,32 @@ fn main() {
     let matches = App::from_yaml(yaml).get_matches();
 
     // Same as previous examples...
+}
+```
+
+Finally there is a macro version, which is like a hybrid approach offering the speed of the builder pattern (the first example), but without all the verbosity.
+
+```rust
+#[macro_use]
+extern crate clap;
+
+fn main() {
+    let matches = clap_app!(myapp =>
+        (version: "1.0")
+        (author: "Kevin K. <kbknapp@gmail.com>")
+        (about: "Does awesome things")
+        (@arg CONFIG: -c --config +takes_value "Sets a custom config file")
+        (@arg INPUT: +required "Sets the input file to use")
+        (@arg debug: -d ... "Sets the level of debugging information")
+        (@subcommand test =>
+            (about: "controls testing features")
+            (version: "1.3")
+            (author: "Someone E. <someone_else@other.com>")
+            (@arg verbose: -v --verbose "Print test information verbosely")
+        )
+    ).get_matches();
+
+    // Same as before...
 }
 ```
 
