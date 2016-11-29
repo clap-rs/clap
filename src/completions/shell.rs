@@ -18,14 +18,7 @@ pub enum Shell {
 
 impl Shell {
     /// A list of possible variants in `&'static str` form
-    pub fn variants() -> [&'static str; 4] {
-        [
-            "zsh",
-            "bash",
-            "fish",
-            "powershell"
-        ]
-    }
+    pub fn variants() -> [&'static str; 4] { ["zsh", "bash", "fish", "powershell"] }
 }
 
 impl FromStr for Shell {
@@ -38,9 +31,7 @@ impl FromStr for Shell {
             "FISH" | _ if s.eq_ignore_ascii_case("fish") => Ok(Shell::Fish),
             "BASH" | _ if s.eq_ignore_ascii_case("bash") => Ok(Shell::Bash),
             "POWERSHELL" | _ if s.eq_ignore_ascii_case("powershell") => Ok(Shell::PowerShell),
-            _ => Err(
-                String::from("[valid values: bash, fish, zsh, powershell]")
-            ),
+            _ => Err(String::from("[valid values: bash, fish, zsh, powershell]")),
         }
     }
 }
@@ -48,11 +39,10 @@ impl FromStr for Shell {
 impl fmt::Display for Shell {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Shell::Bash       => write!(f, "BASH"),
-            Shell::Fish       => write!(f, "FISH"),
-            Shell::Zsh        => write!(f, "ZSH"),
+            Shell::Bash => write!(f, "BASH"),
+            Shell::Fish => write!(f, "FISH"),
+            Shell::Zsh => write!(f, "ZSH"),
             Shell::PowerShell => write!(f, "POWERSHELL"),
         }
     }
 }
-

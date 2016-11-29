@@ -28,19 +28,13 @@ impl OsStrExt3 for OsStr {
         use std::mem;
         unsafe { mem::transmute(b) }
     }
-    fn as_bytes(&self) -> &[u8] {
-        self.to_str().map(|s| s.as_bytes()).expect(INVALID_UTF8)
-    }
+    fn as_bytes(&self) -> &[u8] { self.to_str().map(|s| s.as_bytes()).expect(INVALID_UTF8) }
 }
 
 impl OsStrExt2 for OsStr {
-    fn starts_with(&self, s: &[u8]) -> bool {
-        self.as_bytes().starts_with(s)
-    }
+    fn starts_with(&self, s: &[u8]) -> bool { self.as_bytes().starts_with(s) }
 
-    fn is_empty_(&self) -> bool {
-        self.as_bytes().is_empty()
-    }
+    fn is_empty_(&self) -> bool { self.as_bytes().is_empty() }
 
     fn contains_byte(&self, byte: u8) -> bool {
         for b in self.as_bytes() {
@@ -74,9 +68,7 @@ impl OsStrExt2 for OsStr {
         (OsStr::from_bytes(&self.as_bytes()[..i]), OsStr::from_bytes(&self.as_bytes()[i..]))
     }
 
-    fn len_(&self) -> usize {
-        self.as_bytes().len()
-    }
+    fn len_(&self) -> usize { self.as_bytes().len() }
 
     fn split(&self, b: u8) -> OsSplit {
         OsSplit {

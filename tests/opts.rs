@@ -226,6 +226,66 @@ fn require_delims() {
 }
 
 #[test]
+fn leading_hyphen_pass() {
+    let r = App::new("mvae")
+        .arg( Arg::from_usage("-o [opt]... 'some opt'").allow_hyphen_values(true))
+        .get_matches_from_safe(vec!["", "-o", "-2", "3"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("o"));
+    assert_eq!(m.values_of("o").unwrap().collect::<Vec<_>>(), &["-2", "3"]);
+}
+
+#[test]
+fn leading_hyphen_fail() {
+    let r = App::new("mvae")
+        .arg( Arg::from_usage("-o [opt] 'some opt'"))
+        .get_matches_from_safe(vec!["", "-o", "-2"]);
+    assert!(r.is_err());
+    let m = r.unwrap_err();
+    assert_eq!(m.kind, ErrorKind::UnknownArgument);
+}
+
+#[test]
+fn leading_hyphen_with_flag_after() {
+    let r = App::new("mvae")
+        .arg( Arg::from_usage("-o [opt]... 'some opt'").allow_hyphen_values(true))
+        .arg_from_usage("-f 'some flag'")
+        .get_matches_from_safe(vec!["", "-o", "-2", "-f"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("o"));
+    assert_eq!(m.values_of("o").unwrap().collect::<Vec<_>>(), &["-2", "-f"]);
+    assert!(!m.is_present("f"));
+}
+
+#[test]
+fn leading_hyphen_with_flag_before() {
+    let r = App::new("mvae")
+        .arg( Arg::from_usage("-o [opt]... 'some opt'").allow_hyphen_values(true))
+        .arg_from_usage("-f 'some flag'")
+        .get_matches_from_safe(vec!["", "-f", "-o", "-2"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("o"));
+    assert_eq!(m.values_of("o").unwrap().collect::<Vec<_>>(), &["-2"]);
+    assert!(m.is_present("f"));
+}
+
+#[test]
+fn leading_hyphen_with_only_pos_follows() {
+    let r = App::new("mvae")
+        .arg( Arg::from_usage("-o [opt]... 'some opt'").allow_hyphen_values(true))
+        .arg_from_usage("[arg] 'some arg'")
+        .get_matches_from_safe(vec!["", "-o", "-2", "--", "val"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("o"));
+    assert_eq!(m.values_of("o").unwrap().collect::<Vec<_>>(), &["-2"]);
+    assert_eq!(m.value_of("arg"), Some("val"));
+}
+
+#[test]
 #[cfg(feature="suggestions")]
 fn did_you_mean() {
     test::check_err_output(test::complex_app(), "clap-test --optio=foo",

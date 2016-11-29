@@ -1,3 +1,27 @@
+<a name="v2.19.0"></a>
+## v2.19.0 (2016-11-21)
+
+#### Features
+
+*   allows specifying AllowLeadingHyphen style values, but only for specific args vice command wide ([c0d70feb](https://github.com/kbknapp/clap-rs/commit/c0d70febad9996a77a54107054daf1914c50d4ef), closes [#742](https://github.com/kbknapp/clap-rs/issues/742))
+
+#### Bug Fixes
+
+* **Required Unless:**  fixes a bug where having required_unless set doesn't work when conflicts are also set ([d20331b6](https://github.com/kbknapp/clap-rs/commit/d20331b6f7940ac3a4e919999f8bb4780875125d), closes [#753](https://github.com/kbknapp/clap-rs/issues/753))
+* **ZSH Completions:**  fixes an issue where zsh completions caused panics if there were no subcommands ([49e7cdab](https://github.com/kbknapp/clap-rs/commit/49e7cdab76dd1ccc07221e360f07808ec62648aa), closes [#754](https://github.com/kbknapp/clap-rs/issues/754))
+
+#### Improvements
+
+* **Validators:**  improves the error messages for validators ([65eb3385](https://github.com/kbknapp/clap-rs/commit/65eb33859d3ff53e7d3277f02a9d3fd9038a9dfb), closes [#744](https://github.com/kbknapp/clap-rs/issues/744))
+
+#### Documentation
+
+*   updates the docs landing page ([01e1e33f](https://github.com/kbknapp/clap-rs/commit/01e1e33f377934099a4a725fab5cd6c5ff50eaa2))
+*   adds the macro version back to the readme ([45eb9bf1](https://github.com/kbknapp/clap-rs/commit/45eb9bf130329c3f3853aba0342c2fe3c64ff80f))
+*   fix broken docs links ([808e7cee](https://github.com/kbknapp/clap-rs/commit/808e7ceeb86d4a319bdc270f51c23a64621dbfb3))
+* **Compatibility Policy:**  adds an official compatibility policy to ([760d66dc](https://github.com/kbknapp/clap-rs/commit/760d66dc17310b357f257776624151da933cd25d), closes [#740](https://github.com/kbknapp/clap-rs/issues/740))
+* **Contributing:**  updates the readme to improve the readability and contributing sections ([eb51316c](https://github.com/kbknapp/clap-rs/commit/eb51316cdfdc7258d287ba13b67ef2f42bd2b8f6))
+
 <a name="v2.18.0"></a>
 ## v2.18.0 (2016-11-05)
 

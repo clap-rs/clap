@@ -128,9 +128,7 @@ impl<'a> ArgGroup<'a> {
     /// # }
     /// ```
     #[cfg(feature = "yaml")]
-    pub fn from_yaml(y: &'a Yaml) -> ArgGroup<'a> {
-        ArgGroup::from(y.as_hash().unwrap())
-    }
+    pub fn from_yaml(y: &'a Yaml) -> ArgGroup<'a> { ArgGroup::from(y.as_hash().unwrap()) }
 
     /// Adds an [argument] to this group by name
     ///

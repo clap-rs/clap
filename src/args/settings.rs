@@ -4,18 +4,19 @@ use std::str::FromStr;
 
 bitflags! {
     flags Flags: u16 {
-        const REQUIRED       = 0b000000000001,
-        const MULTIPLE       = 0b000000000010,
-        const EMPTY_VALS     = 0b000000000100,
-        const GLOBAL         = 0b000000001000,
-        const HIDDEN         = 0b000000010000,
-        const TAKES_VAL      = 0b000000100000,
-        const USE_DELIM      = 0b000001000000,
-        const NEXT_LINE_HELP = 0b000010000000,
-        const R_UNLESS_ALL   = 0b000100000000,
-        const REQ_DELIM      = 0b001000000000,
-        const DELIM_NOT_SET  = 0b010000000000,
-        const HIDE_POS_VALS  = 0b100000000000,
+        const REQUIRED       = 0b0000000000001,
+        const MULTIPLE       = 0b0000000000010,
+        const EMPTY_VALS     = 0b0000000000100,
+        const GLOBAL         = 0b0000000001000,
+        const HIDDEN         = 0b0000000010000,
+        const TAKES_VAL      = 0b0000000100000,
+        const USE_DELIM      = 0b0000001000000,
+        const NEXT_LINE_HELP = 0b0000010000000,
+        const R_UNLESS_ALL   = 0b0000100000000,
+        const REQ_DELIM      = 0b0001000000000,
+        const DELIM_NOT_SET  = 0b0010000000000,
+        const HIDE_POS_VALS  = 0b0100000000000,
+        const ALLOW_TAC_VALS = 0b1000000000000,
     }
 }
 
@@ -24,9 +25,7 @@ bitflags! {
 pub struct ArgFlags(Flags);
 
 impl ArgFlags {
-    pub fn new() -> Self {
-        ArgFlags::default()
-    }
+    pub fn new() -> Self { ArgFlags::default() }
 
     impl_settings!{ArgSettings,
         Required => REQUIRED,
@@ -40,14 +39,13 @@ impl ArgFlags {
         RequiredUnlessAll => R_UNLESS_ALL,
         RequireDelimiter => REQ_DELIM,
         ValueDelimiterNotSet => DELIM_NOT_SET,
-        HidePossibleValues => HIDE_POS_VALS
+        HidePossibleValues => HIDE_POS_VALS,
+        AllowLeadingHyphen => ALLOW_TAC_VALS
     }
 }
 
 impl Default for ArgFlags {
-    fn default() -> Self {
-        ArgFlags(EMPTY_VALS | DELIM_NOT_SET)
-    }
+    fn default() -> Self { ArgFlags(EMPTY_VALS | DELIM_NOT_SET) }
 }
 
 /// Various settings that apply to arguments and may be set, unset, and checked via getter/setter
@@ -78,6 +76,8 @@ pub enum ArgSettings {
     RequireDelimiter,
     /// Hides the possible values from the help string
     HidePossibleValues,
+    /// Allows vals that start with a '-'
+    AllowLeadingHyphen,
     #[doc(hidden)]
     RequiredUnlessAll,
     #[doc(hidden)]
@@ -100,7 +100,44 @@ impl FromStr for ArgSettings {
             "requiredelimiter" => Ok(ArgSettings::RequireDelimiter),
             "valuedelimiternotset" => Ok(ArgSettings::ValueDelimiterNotSet),
             "hidepossiblevalues" => Ok(ArgSettings::HidePossibleValues),
+            "allowleadinghyphen" => Ok(ArgSettings::AllowLeadingHyphen),
             _ => Err("unknown ArgSetting, cannot convert from str".to_owned()),
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::ArgSettings;
+
+    #[test]
+    fn arg_settings_fromstr() {
+        assert_eq!("allowleadinghyphen".parse::<ArgSettings>().unwrap(),
+                   ArgSettings::AllowLeadingHyphen);
+        assert_eq!("emptyvalues".parse::<ArgSettings>().unwrap(),
+                   ArgSettings::EmptyValues);
+        assert_eq!("global".parse::<ArgSettings>().unwrap(),
+                   ArgSettings::Global);
+        assert_eq!("hidepossiblevalues".parse::<ArgSettings>().unwrap(),
+                   ArgSettings::HidePossibleValues);
+        assert_eq!("hidden".parse::<ArgSettings>().unwrap(),
+                   ArgSettings::Hidden);
+        assert_eq!("multiple".parse::<ArgSettings>().unwrap(),
+                   ArgSettings::Multiple);
+        assert_eq!("nextlinehelp".parse::<ArgSettings>().unwrap(),
+                   ArgSettings::NextLineHelp);
+        assert_eq!("requiredunlessall".parse::<ArgSettings>().unwrap(),
+                   ArgSettings::RequiredUnlessAll);
+        assert_eq!("requiredelimiter".parse::<ArgSettings>().unwrap(),
+                   ArgSettings::RequireDelimiter);
+        assert_eq!("required".parse::<ArgSettings>().unwrap(),
+                   ArgSettings::Required);
+        assert_eq!("takesvalue".parse::<ArgSettings>().unwrap(),
+                   ArgSettings::TakesValue);
+        assert_eq!("usevaluedelimiter".parse::<ArgSettings>().unwrap(),
+                   ArgSettings::UseValueDelimiter);
+        assert_eq!("valuedelimiternotset".parse::<ArgSettings>().unwrap(),
+                   ArgSettings::ValueDelimiterNotSet);
+        assert!("hahahaha".parse::<ArgSettings>().is_err());
     }
 }

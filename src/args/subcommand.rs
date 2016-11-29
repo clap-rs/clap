@@ -48,9 +48,7 @@ impl<'a> SubCommand<'a> {
     ///         SubCommand::with_name("config"))
     /// # ;
     /// ```
-    pub fn with_name<'b>(name: &str) -> App<'a, 'b> {
-        App::new(name)
-    }
+    pub fn with_name<'b>(name: &str) -> App<'a, 'b> { App::new(name) }
 
     /// Creates a new instance of a subcommand from a YAML (.yml) document
     ///
@@ -66,7 +64,5 @@ impl<'a> SubCommand<'a> {
     /// # }
     /// ```
     #[cfg(feature = "yaml")]
-    pub fn from_yaml(yaml: &Yaml) -> App {
-        App::from_yaml(yaml)
-    }
+    pub fn from_yaml(yaml: &Yaml) -> App { App::from_yaml(yaml) }
 }

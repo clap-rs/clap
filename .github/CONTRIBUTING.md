@@ -21,7 +21,8 @@ Contributions are always welcome! Please use the following guidelines when contr
     - `chore` - Catch all or things that have to do with the build system, etc
     - `examples` - Changes to existing example, or a new example
  * The `COMPONENT` is optional, and may be a single file, directory, or logical component. Can be omitted if commit applies globally
-5. Run the tests (`cargo test --no-std-features && cargo test --features yaml`)
+5. Run the tests (`cargo test --features "yaml unstable"`)
+5. Run the lints (`cargo build --features lints`) (requires a nightly compiler)
 6. `git rebase` into concise commits and remove `--fixup`s (`git rebase -i HEAD~NUM` where `NUM` is number of commits back)
 7. Push your changes back to your fork (`git push origin $your-branch`)
 8. Create a pull request! (You can also create the pull request first, and we'll merge when ready. This a good way to discuss proposed changes.)
@@ -35,6 +36,7 @@ There are a few goals of `clap` that I'd like to maintain throughout contributio
 * Remain backwards compatible when possible
   - If backwards compatibility *must* be broken, use deprecation warnings if at all possible before removing legacy code
   - This does not apply for security concerns
+  - `clap` officially supports the current stable version of Rust, minus two releases (i.e. if 1.13.0 is current, `clap` must support 1.11.0 and beyond)
 * Parse arguments quickly
   - Parsing of arguments shouldn't slow down usage of the main program
   - This is also true of generating help and usage information (although *slightly* less stringent, as the program is about to exit)

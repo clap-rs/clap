@@ -1,6 +1,6 @@
 macro_rules! remove_overriden {
     (@remove $_self:ident, $v:ident, $a:ident.$ov:ident) => {
-        if let Some(ref ora) = $a.$ov {
+        if let Some(ref ora) = $a.$ov() {
             vec_remove_all!($_self.$v, ora);
         }
     };
@@ -11,11 +11,11 @@ macro_rules! remove_overriden {
     };
     ($_self:ident, $name:expr) => {
         debugln!("macro=remove_overriden!;");
-        if let Some(ref o) = $_self.opts.iter().filter(|o| o.name == *$name).next() {
+        if let Some(ref o) = $_self.opts.iter().filter(|o| o.b.name == *$name).next() {
             remove_overriden!(@arg $_self, o);
-        } else if let Some(ref f) = $_self.flags.iter().filter(|f| f.name == *$name).next() {
+        } else if let Some(ref f) = $_self.flags.iter().filter(|f| f.b.name == *$name).next() {
             remove_overriden!(@arg $_self, f);
-        } else if let Some(p) = $_self.positionals.values().filter(|p| p.name == *$name).next() {
+        } else if let Some(p) = $_self.positionals.values().filter(|p| p.b.name == *$name).next() {
             remove_overriden!(@arg $_self, p);
         }
     };
@@ -55,20 +55,7 @@ macro_rules! arg_post_processing {
                 if $matcher.contains(c) {
                     sdebugln!("Yes");
                     // find who blacklisted us...
-                    $me.blacklist.push(&$arg.name);
-                    // if let Some(f) = $me.find_flag_mut(c) {
-                    //     if let Some(ref mut bl) = f.blacklist {
-                    //         bl.push(&$arg.name);
-                    //     }
-                    // } else if let Some(o) = $me.find_option_mut(c) {
-                    //     if let Some(ref mut bl) = o.blacklist {
-                    //         bl.push(&$arg.name);
-                    //     }
-                    // } else if let Some(p) = $me.find_positional_mut(c) {
-                    //     if let Some(ref mut bl) = p.blacklist {
-                    //         bl.push(&$arg.name);
-                    //     }
-                    // }
+                    $me.blacklist.push(&$arg.b.name);
                 } else {
                     sdebugln!("No");
                 }
@@ -130,7 +117,7 @@ macro_rules! _handle_group_reqs{
 macro_rules! validate_multiples {
     ($_self:ident, $a:ident, $m:ident) => {
         debugln!("macro=validate_multiples!;");
-        if $m.contains(&$a.name) && !$a.settings.is_set(ArgSettings::Multiple) {
+        if $m.contains(&$a.b.name) && !$a.b.settings.is_set(ArgSettings::Multiple) {
             // Not the first time, and we don't allow multiples
             return Err(Error::unexpected_multiple_usage($a,
                 &*$_self.create_current_usage($m),
@@ -155,16 +142,14 @@ macro_rules! parse_positional {
             $pos_counter == $_self.positionals.len()) {
             $_self.trailing_vals = true;
         }
-        if let Err(e) = $_self.add_val_to_arg($p, &$arg_os, $matcher) {
-            return Err(e);
-        }
+        let _ = try!($_self.add_val_to_arg($p, &$arg_os, $matcher));
 
-        $matcher.inc_occurrence_of($p.name);
-        let _ = $_self.groups_for_arg($p.name)
+        $matcher.inc_occurrence_of($p.b.name);
+        let _ = $_self.groups_for_arg($p.b.name)
                       .and_then(|vec| Some($matcher.inc_occurrences_of(&*vec)));
         arg_post_processing!($_self, $p, $matcher);
         // Only increment the positional counter if it doesn't allow multiples
-        if !$p.settings.is_set(ArgSettings::Multiple) {
+        if !$p.b.settings.is_set(ArgSettings::Multiple) {
             $pos_counter += 1;
         }
     };
@@ -174,24 +159,24 @@ macro_rules! find_from {
     ($_self:ident, $arg_name:expr, $from:ident, $matcher:expr) => {{
         let mut ret = None;
         for k in $matcher.arg_names() {
-            if let Some(f) = $_self.find_flag(k) {
-                if let Some(ref v) = f.$from {
+            if let Some(f) = find_by_name!($_self, &k, flags, iter) {
+                if let Some(ref v) = f.$from() {
                     if v.contains($arg_name) {
                         ret = Some(f.to_string());
                     }
                 }
             }
-            if let Some(o) = $_self.find_option(k) {
-                if let Some(ref v) = o.$from {
+            if let Some(o) = find_by_name!($_self, &k, opts, iter) {
+                if let Some(ref v) = o.$from() {
                     if v.contains(&$arg_name) {
                         ret = Some(o.to_string());
                     }
                 }
             }
-            if let Some(pos) = $_self.find_positional(k) {
-                if let Some(ref v) = pos.$from {
+            if let Some(pos) = find_by_name!($_self, &k, positionals, values) {
+                if let Some(ref v) = pos.$from() {
                     if v.contains($arg_name) {
-                        ret = Some(pos.name.to_owned());
+                        ret = Some(pos.b.name.to_owned());
                     }
                 }
             }
@@ -204,28 +189,54 @@ macro_rules! find_name_from {
     ($_self:ident, $arg_name:expr, $from:ident, $matcher:expr) => {{
         let mut ret = None;
         for k in $matcher.arg_names() {
-            if let Some(f) = $_self.find_flag(k) {
-                if let Some(ref v) = f.$from {
+            if let Some(f) = find_by_name!($_self, &k, flags, iter) {
+                if let Some(ref v) = f.$from() {
                     if v.contains($arg_name) {
-                        ret = Some(f.name);
+                        ret = Some(f.b.name);
                     }
                 }
             }
-            if let Some(o) = $_self.find_option(k) {
-                if let Some(ref v) = o.$from {
+            if let Some(o) = find_by_name!($_self, &k, opts, iter) {
+                if let Some(ref v) = o.$from() {
                     if v.contains(&$arg_name) {
-                        ret = Some(o.name);
+                        ret = Some(o.b.name);
                     }
                 }
             }
-            if let Some(pos) = $_self.find_positional(k) {
-                if let Some(ref v) = pos.$from {
+            if let Some(pos) = find_by_name!($_self, &k, positionals, values) {
+                if let Some(ref v) = pos.$from() {
                     if v.contains($arg_name) {
-                        ret = Some(pos.name);
+                        ret = Some(pos.b.name);
                     }
                 }
             }
         }
         ret
     }};
+}
+
+// Finds an arg by name
+macro_rules! find_by_name {
+    ($_self:ident, $name:expr, $what:ident, $how:ident) => {
+        $_self.$what.$how().find(|o| &o.b.name == $name)
+    }
+}
+
+// Finds an option including if it's aliasesed
+macro_rules! find_by_long {
+    ($_self:ident, $long:expr, $what:ident) => {
+        $_self.$what
+            .iter()
+            .filter(|o| o.s.long.is_some())
+            .find(|o| {
+                &&o.s.long.unwrap() == &$long ||
+                (o.s.aliases.is_some() &&
+                 o.s
+                    .aliases
+                    .as_ref()
+                    .unwrap()
+                    .iter()
+                    .any(|&(alias, _)| &&alias == &$long))
+            })
+    }
 }
