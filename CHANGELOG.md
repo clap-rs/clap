@@ -1,3 +1,16 @@
+<a name="v2.19.1"></a>
+### v2.19.1 (2016-12-01)
+
+
+#### Bug Fixes
+
+* **Help Messages:**  fixes help message alignment when specific settings are used on options ([cd94b318](https://github.com/kbknapp/clap-rs/commit/cd94b3188d63b63295a319e90e826bca46befcd2), closes [#760](https://github.com/kbknapp/clap-rs/issues/760))
+
+#### Improvements
+
+* **Bash Completion:**  allows bash completion to fall back to traidtional bash completion upon no matching completing function ([b1b16d56](https://github.com/kbknapp/clap-rs/commit/b1b16d56d8fddf819bdbe24b3724bb6a9f3fa613)))
+
+
 <a name="v2.19.0"></a>
 ## v2.19.0 (2016-11-21)
 

@@ -45,20 +45,18 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-Here's the highlights for v2.19.0
+Here's the highlights for v2.19.1
+
+* **Help Messages:**  fixes help message alignment when specific settings are used on options
+* **Bash Completion:**  allows bash completion to fall back to traidtional bash completion upon no matching completing function
+
+
+Here's the highlights from v2.0.0 to v2.19.0
 
 * **Arg Setting**: Allows specifying an `AllowLeadingHyphen` style setting for values only for specific args, vice command wide
 * **Validators:**  improves the error messages for validators
-* Updates the docs landing page
-* Adds the macro version back to the readme
-* Fixes some broken docs links
-* **Compatibility Policy:**  adds an official compatibility policy to
-* **Contributing:**  updates the readme to improve the readability and contributing sections
 * **Required Unless:**  fixes a bug where having required_unless set doesn't work when conflicts are also set
 * **ZSH Completions:**  fixes an issue where zsh completions caused panics if there were no subcommands
-
-Here's the highlights from v2.0.0 to v2.18.0
-
 * **Completions:**  Adds completion support for Microsoft PowerShell! (Thanks to @Arnavion)
 * Allows specifying the second to last positional argument as `multiple(true)` (i.e. things such as `mv <files>... <target>`)
 * Adds an `App::get_name` and `App::get_bin_name`
