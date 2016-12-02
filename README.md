@@ -578,10 +578,10 @@ Alternatively, if you have [`just`](https://github.com/casey/just) installed you
 For example, to test the code, as above simply run:
 
 ```sh
-$ just run-tests`
+$ just run-tests
 ```
 
-From here on, I will lis the appropriate `cargo` command as well as the `just` command.
+From here on, I will list the appropriate `cargo` command as well as the `just` command.
 
 Sometimes it's helpful to only run a subset of the tests, which can be done via:
 
