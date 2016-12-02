@@ -21,5 +21,5 @@ fn test_generation() {
     let last_line = string.lines().rev().nth(0).unwrap();
 
     assert_eq!(first_line, "_myapp() {");
-    assert_eq!(last_line, "complete -F _myapp myapp");
+    assert_eq!(last_line, "complete -F _myapp -o bashdefault -o default myapp");
 }

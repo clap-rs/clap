@@ -58,7 +58,7 @@ impl<'a, 'b> BashGen<'a, 'b> {
     esac
 }}
 
-complete -F _{name} {name}
+complete -F _{name} -o bashdefault -o default {name}
 ",
                    name = self.p.meta.bin_name.as_ref().unwrap(),
                    name_opts = self.all_options_for_path(self.p.meta.bin_name.as_ref().unwrap()),
