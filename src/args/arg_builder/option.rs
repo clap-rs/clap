@@ -71,6 +71,9 @@ impl<'n, 'e> Display for OptBuilder<'n, 'e> {
                     try!(write!(f, " "));
                 }
             }
+            if self.is_set(ArgSettings::Multiple) && num == 1 {
+                try!(write!(f, "..."));
+            }
         } else {
             try!(write!(f,
                         "<{}>{}",
