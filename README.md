@@ -366,7 +366,7 @@ subcommands:
 
 Since this feature requires additional dependencies that not everyone may want, it is *not* compiled in by default and we need to enable a feature flag in Cargo.toml:
 
-Simply change your `clap = "~2.19.0"` to `clap = {version = "~2.19.0", features = ["yaml"]}`.
+Simply change your `clap = "2.19"` to `clap = {version = "2.19", features = ["yaml"]}`.
 
 At last we create our `main.rs` file just like we would have with the previous two examples:
 
@@ -481,21 +481,16 @@ fn main() {
 
 ## Usage
 
-For full usage, add `clap` as a dependency in your `Cargo.toml` (it is **highly** recommended to use the `~major.minor.patch` style versions in your `Cargo.toml`, for more information see [Compatibility Policy](#compatibility-policy)) to use from crates.io:
+For full usage, add `clap` as a dependency in your `Cargo.toml` () to use from crates.io:
 
 ```toml
 [dependencies]
 clap = "~2.19.0"
 ```
 
-Or get the latest changes from the master branch at github:
+(**note**: If you are concerned with supporting a minimum version of Rust that is *older* than the current stable Rust minus 2 stable releases, it's recommended to use the `~major.minor.patch` style versions in your `Cargo.toml` which will only update the patch version automatically. For more information see the [Compatibility Policy](#compatibility-policy))
 
-```toml
-[dependencies.clap]
-git = "https://github.com/kbknapp/clap-rs.git"
-```
-
-Add `extern crate clap;` to your crate root.
+Then add `extern crate clap;` to your crate root.
 
 Define a list of valid arguments for your program (see the [documentation](https://docs.rs/clap/) or [examples/](examples) directory of this repo)
 
@@ -513,7 +508,7 @@ To disable these, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies.clap]
-version = "~2.19.0"
+version = "2.19"
 default-features = false
 ```
 
@@ -521,7 +516,7 @@ You can also selectively enable only the features you'd like to include, by addi
 
 ```toml
 [dependencies.clap]
-version = "~2.19.0"
+version = "2.19"
 default-features = false
 
 # Cherry-pick the features you'd like to use
@@ -639,11 +634,11 @@ There are a few goals of `clap` that I'd like to maintain throughout contributio
 
 ### Compatibility Policy
 
-Because `clap` takes SemVer and compatibility seriously, this is the official policy regarding breaking changes and previous versions of Rust.
+Because `clap` takes SemVer and compatibility seriously, this is the official policy regarding breaking changes and minimum required versions of Rust.
 
 `clap` will pin the minimum required version of Rust to the CI builds. Bumping the minimum version of Rust is considered a minor breaking change, meaning *at a minimum* the minor version of `clap` will be bumped.
 
-In order to keep from being suprised of breaking changes, it is **highly** recommended to use the `~major.minor.patch` style in your `Cargo.toml`:
+In order to keep from being suprised of breaking changes, it is **highly** recommended to use the `~major.minor.patch` style in your `Cargo.toml` only if you wish to target a version of Rust that is *older* than current stable minus two releases:
 
 ```toml
 [dependencies]
@@ -658,6 +653,14 @@ This will cause *only* the patch version to be updated upon a `cargo update` cal
 At the 1.14.0 release, `clap` will be garunteed to compile with 1.12.0 and beyond, etc.
 
 Upon bumping the minimum version of Rust (assuming it's within the stable-2 range), it *must* be clearly annotated in the `CHANGELOG.md`
+
+#### Breaking Changes
+
+`clap` takes a similar policy to Rust and will bump the major veresion number upon breaking changes with only the following exceptions:
+
+ * The breaking change is to fix a security concern
+ * The breaking change is to be fixing a bug (i.e. relying on a bug as a feature)
+ * The breaking change is a feature isn't used in the wild, or all users of said feature have given approval *prior* to the change
 
 ## License
 
@@ -706,12 +709,11 @@ As of 2.0.0 (From 1.x)
  * **There is now a priority of order to determine the name** - This is perhaps the biggest breaking change. See the documentation for full details. Prior to this change, the value name took precedence. **Ensure your args are using the proper names (i.e. typically the long or short and NOT the value name) throughout the code**
 * `ArgMatches::values_of` returns an `Values` now which implements `Iterator` (should not break any code)
 * `crate_version!` returns `&'static str` instead of `String`
-* Using the `clap_app!` macro requires compiling with the `unstable` feature because the syntax could change slightly in the future
 
 ### Deprecations
 
 Old method names will be left around for several minor version bumps, or one major version bump.
 
-As of 2.2.0:
+As of 2.19.0:
 
  * None!
