@@ -129,7 +129,7 @@ fn subcommands_and_args_of(p: &Parser) -> String {
     fn add_sc(sc: &App, n: &str, ret: &mut Vec<String>) {
         let s = format!("\"{name}:{help}\" \\", 
             name = n, 
-            help = sc.p.meta.about.unwrap_or(""));
+            help = sc.p.meta.about.unwrap_or("").replace("[", "\\[").replace("]", "\\]"));
         if !s.is_empty() {
             ret.push(s);
         }
@@ -151,7 +151,7 @@ fn subcommands_and_args_of(p: &Parser) -> String {
         debugln!("iter;arg={}", arg.b.name);
         let a = format!("\"{name}:{help}\" \\", 
             name = arg.b.name.to_ascii_uppercase(), 
-            help = arg.b.help.unwrap_or(""));
+            help = arg.b.help.unwrap_or("").replace("[", "\\[").replace("]", "\\]"));
 
         if !a.is_empty() {
             ret.push(a);
@@ -299,7 +299,7 @@ fn write_opts_of(p: &Parser) -> String {
     let mut ret = vec![];
     for o in p.opts() {
         debugln!("iter;o={}", o.name());
-        let help = o.help().unwrap_or("");
+        let help = o.help().unwrap_or("").replace("[", "\\[").replace("]", "\\]");
         let mut conflicts = get_zsh_arg_conflicts!(p, o, INTERNAL_ERROR_MSG);
         conflicts = if conflicts.is_empty() {
             String::new()
@@ -349,7 +349,7 @@ fn write_flags_of(p: &Parser) -> String {
     let mut ret = vec![];
     for f in p.flags() {
         debugln!("iter;f={}", f.name());
-        let help = f.help().unwrap_or("");
+        let help = f.help().unwrap_or("").replace("[", "\\[").replace("]", "\\]");
         let mut conflicts = get_zsh_arg_conflicts!(p, f, INTERNAL_ERROR_MSG);
         conflicts = if conflicts.is_empty() {
             String::new()
