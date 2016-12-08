@@ -1111,10 +1111,14 @@ impl<'a, 'b> App<'a, 'b> {
     /// include!("src/cli.rs");
     ///
     /// fn main() {
+    ///     let outdir = match env::var_os("OUT_DIR") {
+    ///         None => return,
+    ///         Some(outdir) => outdir,
+    ///     };
     ///     let mut app = build_cli();
-    ///     app.gen_completions("myapp",          // We need to specify the bin name manually
-    ///                         Shell::Bash,      // Then say which shell to build completions for
-    ///                         env!("OUT_DIR")); // Then say where write the completions to
+    ///     app.gen_completions("myapp",      // We need to specify the bin name manually
+    ///                         Shell::Bash,  // Then say which shell to build completions for
+    ///                         outdir);      // Then say where write the completions to
     /// }
     /// ```
     /// Now, once we combile there will be a `{bin_name}.bash-completion` file in the directory.
