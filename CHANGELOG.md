@@ -1,3 +1,17 @@
+<a name="v2.19.2"></a>
+### v2.19.2 (2016-12-08)
+
+#### Bug Fixes
+
+* **ZSH Completions:**  escapes square brackets in ZSH completions ([7e17d5a3](https://github.com/kbknapp/clap-rs/commit/7e17d5a36b2cc2cc77e7b15796b14d639ed3cbf7), closes [#771](https://github.com/kbknapp/clap-rs/issues/771))
+
+#### Documentation
+
+* **Examples:**  adds subcommand examples ([0e0f3354](https://github.com/kbknapp/clap-rs/commit/0e0f33547a6901425afc1d9fbe19f7ae3832d9a4), closes [#766](https://github.com/kbknapp/clap-rs/issues/766))
+* **README.md:**  adds guidance on when to use ~ in version pinning, and clarifies breaking change policy ([591eaefc](https://github.com/kbknapp/clap-rs/commit/591eaefc7319142ba921130e502bb0729feed907), closes [#765](https://github.com/kbknapp/clap-rs/issues/765))
+
+
+
 <a name="v2.19.1"></a>
 ### v2.19.1 (2016-12-01)
 

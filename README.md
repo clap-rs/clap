@@ -45,14 +45,16 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-Here's the highlights for v2.19.1
+Here's the highlights for v2.19.2
 
-* **Help Messages:**  fixes help message alignment when specific settings are used on options
+* Fixes a bug by escaping square brackets in ZSH completions which were causing conflicts and errors.
+* Adds subcommand examples  (`examples/20_subcommands.rs`)
+* Adds guidance on when to use ~ in version pinning, and clarifies breaking change policy
+
+
+Here's the highlights from v2.0.0 to v2.19.1
+
 * **Bash Completion:**  allows bash completion to fall back to traidtional bash completion upon no matching completing function
-
-
-Here's the highlights from v2.0.0 to v2.19.0
-
 * **Arg Setting**: Allows specifying an `AllowLeadingHyphen` style setting for values only for specific args, vice command wide
 * **Validators:**  improves the error messages for validators
 * **Required Unless:**  fixes a bug where having required_unless set doesn't work when conflicts are also set
