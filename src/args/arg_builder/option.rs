@@ -4,7 +4,7 @@ use std::rc::Rc;
 use std::result::Result as StdResult;
 
 // Third Party
-use vec_map::VecMap;
+use vec_map::{self, VecMap};
 
 // Internal
 use args::{ArgSettings, ArgKind, AnyArg, Base, Switched, Valued, Arg, DispOrder};
@@ -114,6 +114,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn takes_value(&self) -> bool { true }
     fn help(&self) -> Option<&'e str> { self.b.help }
     fn default_val(&self) -> Option<&'n str> { self.v.default_val }
+    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e str>, &'e str)>> { self.v.default_vals_ifs.as_ref().map(|vm| vm.values()) }
     fn longest_filter(&self) -> bool { true }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.s.aliases {

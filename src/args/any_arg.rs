@@ -3,7 +3,7 @@ use std::rc::Rc;
 use std::fmt as std_fmt;
 
 // Third Party
-use vec_map::VecMap;
+use vec_map::{self, VecMap};
 
 // Internal
 use args::settings::ArgSettings;
@@ -33,6 +33,7 @@ pub trait AnyArg<'n, 'e>: std_fmt::Display {
     fn val_names(&self) -> Option<&VecMap<&'e str>>;
     fn help(&self) -> Option<&'e str>;
     fn default_val(&self) -> Option<&'n str>;
+    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e str>, &'e str)>>;
     fn longest_filter(&self) -> bool;
     fn kind(&self) -> ArgKind;
 }

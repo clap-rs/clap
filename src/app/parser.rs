@@ -1949,19 +1949,51 @@ impl<'a, 'b> Parser<'a, 'b>
     fn add_defaults(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
         macro_rules! add_val {
             ($_self:ident, $a:ident, $m:ident) => {
-                if $m.get($a.b.name).is_none() {
-                    try!($_self.add_val_to_arg($a, OsStr::new($a.v.default_val
-                                                                .as_ref()
-                                                                .unwrap()), 
-                                                                $m));
-                    arg_post_processing!($_self, $a, $m);
+                if let Some(ref val) = $a.v.default_val {
+                    if $m.get($a.b.name).is_none() {
+                        try!($_self.add_val_to_arg($a, OsStr::new(val), $m));
+                        arg_post_processing!($_self, $a, $m);
+                    }
                 }
             };
         }
-        for o in self.opts.iter().filter(|o| o.v.default_val.is_some()) {
+
+        macro_rules! add_vals_ifs {
+            ($_self:ident, $a:ident, $m:ident) => {
+                if let Some(ref vm) = $a.v.default_vals_ifs {
+                    let mut done = false;
+                    if $m.get($a.b.name).is_none() {
+                        for &(arg, val, default) in vm.values() {
+                            let add = if let Some(a) = $m.get(arg) {
+                                if let Some(v) = val {
+                                    a.vals.values().any(|value| v == value)
+                                } else {
+                                    true
+                                }
+                            } else {
+                                false
+                            };
+                            if add {
+                                try!($_self.add_val_to_arg($a, OsStr::new(default), $m));
+                                arg_post_processing!($_self, $a, $m);
+                                done = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if done {
+                        continue;
+                    }
+                }
+            };
+        }
+        for o in &self.opts {
+            add_vals_ifs!(self, o, matcher);
             add_val!(self, o, matcher);
         }
-        for p in self.positionals.values().filter(|p| p.v.default_val.is_some()) {
+        for p in self.positionals.values() {
+            add_vals_ifs!(self, p, matcher);
             add_val!(self, p, matcher);
         }
         Ok(())

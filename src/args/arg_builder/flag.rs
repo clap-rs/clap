@@ -5,7 +5,7 @@ use std::rc::Rc;
 use std::result::Result as StdResult;
 
 // Third Party
-use vec_map::VecMap;
+use vec_map::{self, VecMap};
 
 // Internal
 use Arg;
@@ -70,6 +70,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn val_delim(&self) -> Option<char> { None }
     fn help(&self) -> Option<&'e str> { self.b.help }
     fn default_val(&self) -> Option<&'n str> { None }
+    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e str>, &'e str)>> {None}
     fn longest_filter(&self) -> bool { self.s.long.is_some() }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.s.aliases {

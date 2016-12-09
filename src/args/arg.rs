@@ -74,6 +74,8 @@ pub struct Arg<'a, 'b>
     #[doc(hidden)]
     pub default_val: Option<&'a str>,
     #[doc(hidden)]
+    pub default_vals_ifs: Option<VecMap<(&'a str, Option<&'b str>, &'b str)>>,
+    #[doc(hidden)]
     pub disp_ord: usize,
     #[doc(hidden)]
     pub r_unless: Option<Vec<&'a str>>,
@@ -101,6 +103,7 @@ impl<'a, 'b> Default for Arg<'a, 'b> {
             settings: ArgFlags::new(),
             val_delim: None,
             default_val: None,
+            default_vals_ifs: None,
             disp_ord: 999,
             r_unless: None,
         }
@@ -2359,6 +2362,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// not, consider [`ArgMatches::occurrences_of`] which will return `0` if the argument was *not*
     /// used at runtmie.
     ///
+    /// **NOTE:** This setting is perfectly compatible with [`Arg::default_value_if`] but slightly
+    /// different. `Arg::default_value` *only* takes affect when the user has not provided this arg
+    /// at runtime. `Arg::default_value_if` however only takes affect when the user has not provided
+    /// a value at runtime **and** these other conditions are met as well. If you have set
+    /// `Arg::default_value` and `Arg::default_value_if`, and the user **did not** provide a this
+    /// arg at runtime, nor did were the conditions met for `Arg::default_value_if`, the
+    /// `Arg::default_value` will be applied.
+    ///
     /// **NOTE:** This implicitly sets [`Arg::takes_value(true)`].
     ///
     /// # Examples
@@ -2400,9 +2411,204 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`ArgMatches::value_of`]: ./struct.ArgMatches.html#method.value_of
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`ArgMatches::is_present`]: ./struct.ArgMatches.html#method.is_present
+    /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
     pub fn default_value(mut self, val: &'a str) -> Self {
         self.setb(ArgSettings::TakesValue);
         self.default_val = Some(val);
+        self
+    }
+
+    /// Specifies the value of the argument if `arg` has been used at runtime. If `val` is set to
+    /// `None`, `arg` only needs to be present. If `val` is set to `"some-val"` then `arg` must be
+    /// present at runtime **and** have the value `val`.
+    ///
+    /// **NOTE:** This setting is perfectly compatible with [`Arg::default_value`] but slightly 
+    /// different. `Arg::default_value` *only* takes affect when the user has not provided this arg
+    /// at runtime. This setting however only takes affect when the user has not provided a value at
+    /// runtime **and** these other conditions are met as well. If you have set `Arg::default_value`
+    /// and `Arg::default_value_if`, and the user **did not** provide a this arg at runtime, nor did
+    /// were the conditions met for `Arg::default_value_if`, the `Arg::default_value` will be
+    /// applied.
+    ///
+    /// **NOTE:** This implicitly sets [`Arg::takes_value(true)`].
+    ///
+    /// # Examples
+    ///
+    /// First we use the default value only if another arg is present at runtime.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("dvif")
+    ///     .arg(Arg::with_name("flag")
+    ///         .long("flag"))
+    ///     .arg(Arg::with_name("other")
+    ///         .long("other")
+    ///         .default_value_if("flag", None, "default"))
+    ///     .get_matches_from(vec![
+    ///         "dvif", "--flag"
+    ///     ]);
+    ///
+    /// assert_eq!(m.value_of("other"), Some("default"));
+    /// ```
+    ///
+    /// Next we run the same test, but without providing `--flag`.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("dvif")
+    ///     .arg(Arg::with_name("flag")
+    ///         .long("flag"))
+    ///     .arg(Arg::with_name("other")
+    ///         .long("other")
+    ///         .default_value_if("flag", None, "default"))
+    ///     .get_matches_from(vec![
+    ///         "dvif"
+    ///     ]);
+    ///
+    /// assert_eq!(m.value_of("other"), None);
+    /// ```
+    ///
+    /// Now lets only use the default value if `--opt` contains the value `special`.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("dvif")
+    ///     .arg(Arg::with_name("opt")
+    ///         .takes_value(true)
+    ///         .long("opt"))
+    ///     .arg(Arg::with_name("other")
+    ///         .long("other")
+    ///         .default_value_if("opt", Some("special"), "default"))
+    ///     .get_matches_from(vec![
+    ///         "dvif", "--opt", "special"
+    ///     ]);
+    ///
+    /// assert_eq!(m.value_of("other"), Some("default"));
+    /// ```
+    ///
+    /// We can run the same test and provide any value *other than* `special` and we won't get a
+    /// default value.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("dvif")
+    ///     .arg(Arg::with_name("opt")
+    ///         .takes_value(true)
+    ///         .long("opt"))
+    ///     .arg(Arg::with_name("other")
+    ///         .long("other")
+    ///         .default_value_if("opt", Some("special"), "default"))
+    ///     .get_matches_from(vec![
+    ///         "dvif", "--opt", "hahaha"
+    ///     ]);
+    ///
+    /// assert_eq!(m.value_of("other"), None);
+    /// ```
+    /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
+    /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
+    pub fn default_value_if(mut self, arg: &'a str, val: Option<&'b str>, default: &'b str) -> Self {
+        self.setb(ArgSettings::TakesValue);
+        if let Some(ref mut vm) = self.default_vals_ifs {
+            let l = vm.len();
+            vm.insert(l, (arg, val, default));
+        } else {
+            let mut vm = VecMap::new();
+            vm.insert(0, (arg, val, default));
+            self.default_vals_ifs = Some(vm);
+        }
+        self
+    }
+
+    /// Specifies multiple values and conditions in the same manner as [`Arg::default_value_if`].
+    /// The method takes a slice of tuples in the `(arg, Option<val>, default)` format.
+    ///
+    /// **NOTE**: The conditions are stored in order and evaluated in the same order. I.e. the first
+    /// if multiple conditions are true, the first one found will be applied and the ultimate value.
+    ///
+    /// # Examples
+    ///
+    /// First we use the default value only if another arg is present at runtime.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("dvif")
+    ///     .arg(Arg::with_name("flag")
+    ///         .long("flag"))
+    ///     .arg(Arg::with_name("opt")
+    ///         .long("opt")
+    ///         .takes_value(true))
+    ///     .arg(Arg::with_name("other")
+    ///         .long("other")
+    ///         .default_value_ifs(&[
+    ///             ("flag", None, "default"),
+    ///             ("opt", Some("channal"), "chan"),
+    ///         ])
+    ///     .get_matches_from(vec![
+    ///         "dvif", "--opt", "channal"
+    ///     ]);
+    ///
+    /// assert_eq!(m.value_of("other"), Some("chan"));
+    /// ```
+    ///
+    /// Next we run the same test, but without providing `--flag`.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("dvif")
+    ///     .arg(Arg::with_name("flag")
+    ///         .long("flag"))
+    ///     .arg(Arg::with_name("other")
+    ///         .long("other")
+    ///         .default_value_ifs(&[
+    ///             ("flag", None, "default"),
+    ///             ("opt", Some("channal"), "chan"),
+    ///         ])
+    ///     .get_matches_from(vec![
+    ///         "dvif"
+    ///     ]);
+    ///
+    /// assert_eq!(m.value_of("other"), None);
+    /// ```
+    ///
+    /// We can also see that these values are applied in order, and if more than one condition is
+    /// true, only the first evaluatd "wins"
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("dvif")
+    ///     .arg(Arg::with_name("flag")
+    ///         .long("flag"))
+    ///     .arg(Arg::with_name("other")
+    ///         .long("other")
+    ///         .default_value_ifs(&[
+    ///             ("flag", None, "default"),
+    ///             ("opt", Some("channal"), "chan"),
+    ///         ])
+    ///     .get_matches_from(vec![
+    ///         "dvif", "--opt", "channal", "--flag"
+    ///     ]);
+    ///
+    /// assert_eq!(m.value_of("other"), Some("default"));
+    /// ```
+    /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
+    /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
+    pub fn default_value_ifs(mut self, ifs: &[(&'a str, Option<&'b str>, &'b str)]) -> Self {
+        self.setb(ArgSettings::TakesValue);
+        if let Some(ref mut vm) = self.default_vals_ifs {
+            let mut l = vm.len();
+            for &(arg, val, default) in ifs {
+                vm.insert(l, (arg, val, default));
+                l += 1;
+            }
+        } else {
+            let mut vm = VecMap::new();
+            let mut l = 0;
+            for &(arg, val, default) in ifs {
+                vm.insert(l, (arg, val, default));
+                l += 1;
+            }
+            self.default_vals_ifs = Some(vm);
+        }
         self
     }
 
@@ -2567,6 +2773,7 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
             settings: a.settings,
             val_delim: a.val_delim,
             default_val: a.default_val,
+            default_vals_ifs: a.default_vals_ifs.clone(),
             disp_ord: a.disp_ord,
             r_unless: a.r_unless.clone(),
         }
@@ -2595,6 +2802,7 @@ impl<'a, 'b> Clone for Arg<'a, 'b> {
             settings: self.settings,
             val_delim: self.val_delim,
             default_val: self.default_val,
+            default_vals_ifs: self.default_vals_ifs.clone(),
             disp_ord: self.disp_ord,
             r_unless: self.r_unless.clone(),
         }
