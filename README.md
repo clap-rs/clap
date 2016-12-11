@@ -54,7 +54,7 @@ Here's the highlights for v2.19.2
 
 Here's the highlights from v2.0.0 to v2.19.1
 
-* **Bash Completion:**  allows bash completion to fall back to traidtional bash completion upon no matching completing function
+* **Bash Completion:**  allows bash completion to fall back to traditional bash completion upon no matching completing function
 * **Arg Setting**: Allows specifying an `AllowLeadingHyphen` style setting for values only for specific args, vice command wide
 * **Validators:**  improves the error messages for validators
 * **Required Unless:**  fixes a bug where having required_unless set doesn't work when conflicts are also set
@@ -62,7 +62,7 @@ Here's the highlights from v2.0.0 to v2.19.1
 * **Completions:**  Adds completion support for Microsoft PowerShell! (Thanks to @Arnavion)
 * Allows specifying the second to last positional argument as `multiple(true)` (i.e. things such as `mv <files>... <target>`)
 * Adds an `App::get_name` and `App::get_bin_name`
-* Conflicting argument errors are now symetrical, meaning more consistent and better usage suggestions
+* Conflicting argument errors are now symmetrical, meaning more consistent and better usage suggestions
 * **Completions:**  adds automatic ZSH completion script generation support! :tada: :tada:
 * **AppSettings:**  adds new setting `AppSettings::AllowNegativeNumbers` which functions like `AllowLeadingHyphen` except only allows undefined negative numbers to pass parsing.
 * Stabilize `clap_app!` macro (i.e. no longer need to use `unstable` feature)
@@ -104,7 +104,7 @@ Here's the highlights from v2.0.0 to v2.19.1
 * Allows adding multiple ArgGroups per Arg
 * **Global Settings:** One can now set an `AppSetting` which is propogated down through child subcommands
 * **Terminal Wrapping:**  Allows wrapping at specified term width (Even on Windows!) (can now set an absolute width to "smart" wrap at)
-* **SubCommands/Aliases:**  adds support for visible aliases for subcommands (i.e. aliases that are dipslayed in the help message)
+* **SubCommands/Aliases:**  adds support for visible aliases for subcommands (i.e. aliases that are displayed in the help message)
 * **Subcommands/Aliases:**  when viewing the help of an alias, it now display help of the aliased subcommand
 * Adds new setting to stop delimiting values with `--` or `AppSettings::TrailingVarArg`
 * Subcommands now support aliases - think of them as hidden subcommands that dispatch to said subcommand automatically
@@ -504,7 +504,7 @@ Then run `cargo build` or `cargo update && cargo build` for your project.
 
 * **"suggestions"**: Turns on the `Did you mean '--myoption'?` feature for when users make typos. (builds dependency `strsim`)
 * **"color"**: Turns on colored error messages. This feature only works on non-Windows OSs. (builds dependency `ansi-term` and `libc`)
-* **"wrap_help"**: Wraps the help at the actual terminal width when available, instead of 120 chracters. (builds dependency `term_size`, and `libc`)
+* **"wrap_help"**: Wraps the help at the actual terminal width when available, instead of 120 characters. (builds dependency `term_size`, and `libc`)
 
 To disable these, add this to your `Cargo.toml`:
 
@@ -563,14 +563,14 @@ Please read [CONTRIBUTING.md](.github/CONTRIBUTING.md) before you start contribu
 
 ### Testing Code
 
-To test with all features both enabled and disabled, you can run theese commands:
+To test with all features both enabled and disabled, you can run these commands:
 
 ```sh
 $ cargo test --no-default-features
 $ cargo test --features "yaml unstable"
 ```
 
-Alternatively, if you have [`just`](https://github.com/casey/just) installed you can run the prebuilt recipies. *Not* using `just` is prfeclty fine as well, it simply bundles commands automatically.
+Alternatively, if you have [`just`](https://github.com/casey/just) installed you can run the prebuilt recipes. *Not* using `just` is perfectly fine as well, it simply bundles commands automatically.
 
 For example, to test the code, as above simply run:
 
@@ -640,7 +640,7 @@ Because `clap` takes SemVer and compatibility seriously, this is the official po
 
 `clap` will pin the minimum required version of Rust to the CI builds. Bumping the minimum version of Rust is considered a minor breaking change, meaning *at a minimum* the minor version of `clap` will be bumped.
 
-In order to keep from being suprised of breaking changes, it is **highly** recommended to use the `~major.minor.patch` style in your `Cargo.toml` only if you wish to target a version of Rust that is *older* than current stable minus two releases:
+In order to keep from being surprised of breaking changes, it is **highly** recommended to use the `~major.minor.patch` style in your `Cargo.toml` only if you wish to target a version of Rust that is *older* than current stable minus two releases:
 
 ```toml
 [dependencies]
@@ -651,14 +651,14 @@ This will cause *only* the patch version to be updated upon a `cargo update` cal
 
 #### Minimum Version of Rust
 
-`clap` will officially support current stable Rust, minus two releases, but may work with prior releases as well. For example, current stable Rust at the time of this writing is 1.13.0, meaning `clap` is garunteed to compile with 1.11.0 and beyond.
-At the 1.14.0 release, `clap` will be garunteed to compile with 1.12.0 and beyond, etc.
+`clap` will officially support current stable Rust, minus two releases, but may work with prior releases as well. For example, current stable Rust at the time of this writing is 1.13.0, meaning `clap` is guaranteed to compile with 1.11.0 and beyond.
+At the 1.14.0 release, `clap` will be guaranteed to compile with 1.12.0 and beyond, etc.
 
 Upon bumping the minimum version of Rust (assuming it's within the stable-2 range), it *must* be clearly annotated in the `CHANGELOG.md`
 
 #### Breaking Changes
 
-`clap` takes a similar policy to Rust and will bump the major veresion number upon breaking changes with only the following exceptions:
+`clap` takes a similar policy to Rust and will bump the major version number upon breaking changes with only the following exceptions:
 
  * The breaking change is to fix a security concern
  * The breaking change is to be fixing a bug (i.e. relying on a bug as a feature)

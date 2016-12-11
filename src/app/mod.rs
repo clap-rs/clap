@@ -109,7 +109,7 @@ impl<'a, 'b> App<'a, 'b> {
         a
     }
 
-    /// Creates a new instace of [`App`] from a .yml (YAML) file. A full example of supported YAML
+    /// Creates a new instance of [`App`] from a .yml (YAML) file. A full example of supported YAML
     /// objects can be found in [`examples/17_yaml.rs`] and [`examples/17_yaml.yml`]. One great use
     /// for using YAML is when supporting multiple languages and dialects, as each language could
     /// be a distinct YAML file and determined at compiletime via `cargo` "features" in your
@@ -177,7 +177,7 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     /// Overrides the system-determined binary name. This should only be used when absolutely
-    /// neccessary, such as when the binary name for your application is misleading, or perhaps
+    /// necessary, such as when the binary name for your application is misleading, or perhaps
     /// *not* how the user should invoke your program.
     ///
     /// **Pro-tip:** When building things such as third party `cargo` subcommands, this setting
@@ -614,7 +614,7 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Adds an [argument] to the list of valid possibilties.
+    /// Adds an [argument] to the list of valid possibilities.
     ///
     /// # Examples
     ///
@@ -893,7 +893,7 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Adds a [`SubCommand`] to the list of valid possibilties. Subcommands are effectively
+    /// Adds a [`SubCommand`] to the list of valid possibilities. Subcommands are effectively
     /// sub-[`App`]s, because they can contain their own arguments, subcommands, version, usage,
     /// etc. They also function just like [`App`]s, in that they get their own auto generated help,
     /// version, and usage.
@@ -915,7 +915,7 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Adds multiple subcommands to the list of valid possibilties by iterating over an
+    /// Adds multiple subcommands to the list of valid possibilities by iterating over an
     /// [`IntoIterator`] of [`SubCommand`]s
     ///
     /// # Examples
@@ -1052,9 +1052,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// The following example generates a bash completion script via a `build.rs` script. In this
     /// simple example, we'll demo a very small application with only a single subcommand and two
     /// args. Real applications could be many multiple levels deep in subcommands, and have tens or
-    /// potentiall hundreds of arguments.
+    /// potentially hundreds of arguments.
     ///
-    /// First, it helps if we separate out our `App` definition into a seperate file. Whether you
+    /// First, it helps if we separate out our `App` definition into a separate file. Whether you
     /// do this as a function, or bare App definition is a matter of personal preference.
     ///
     /// ```
