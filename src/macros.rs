@@ -478,6 +478,9 @@ macro_rules! clap_app {
 // No more tokens to munch
     (@arg ($arg:expr) $modes:tt) => { $arg };
 // Shorthand tokens influenced by the usage_string
+    (@arg ($arg:expr) $modes:tt --($long:expr) $($tail:tt)*) => {
+        clap_app!{ @arg ($arg.long($long)) $modes $($tail)* }
+    };
     (@arg ($arg:expr) $modes:tt --$long:ident $($tail:tt)*) => {
         clap_app!{ @arg ($arg.long(stringify!($long))) $modes $($tail)* }
     };
