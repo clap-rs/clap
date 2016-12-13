@@ -535,6 +535,10 @@ macro_rules! clap_app {
         clap_app!{ @app ($crate::SubCommand::with_name(stringify!($name))) $($tail)* }
     };
 // Start the magic
+    (($name:expr) => $($tail:tt)*) => {{
+        clap_app!{ @app ($crate::App::new($name)) $($tail)*}
+    }};
+
     ($name:ident => $($tail:tt)*) => {{
         clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)*}
     }};
