@@ -2671,7 +2671,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .default_value_ifs(&[
     ///             ("flag", None, "default"),
     ///             ("opt", Some("channal"), "chan"),
-    ///         ])
+    ///         ]))
     ///     .get_matches_from(vec![
     ///         "dvif", "--opt", "channal"
     ///     ]);
@@ -2691,7 +2691,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .default_value_ifs(&[
     ///             ("flag", None, "default"),
     ///             ("opt", Some("channal"), "chan"),
-    ///         ])
+    ///         ]))
     ///     .get_matches_from(vec![
     ///         "dvif"
     ///     ]);
@@ -2707,12 +2707,15 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let m = App::new("dvif")
     ///     .arg(Arg::with_name("flag")
     ///         .long("flag"))
+    ///     .arg(Arg::with_name("opt")
+    ///         .long("opt")
+    ///         .takes_value(true))
     ///     .arg(Arg::with_name("other")
     ///         .long("other")
     ///         .default_value_ifs(&[
     ///             ("flag", None, "default"),
     ///             ("opt", Some("channal"), "chan"),
-    ///         ])
+    ///         ]))
     ///     .get_matches_from(vec![
     ///         "dvif", "--opt", "channal", "--flag"
     ///     ]);
