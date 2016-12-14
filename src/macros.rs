@@ -699,7 +699,7 @@ macro_rules! vec_remove_all {
     ($vec:expr, $to_rem:expr) => {
         debugln!("macro=vec_remove_all!;to_rem={:?}", $to_rem);
         for i in (0 .. $vec.len()).rev() {
-            let should_remove = $to_rem.contains(&$vec[i]);
+            let should_remove = $to_rem.any(|name| name == &$vec[i]);
             if should_remove { $vec.swap_remove(i); }
         }
     };

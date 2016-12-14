@@ -15,7 +15,7 @@ pub trait AnyArg<'n, 'e>: std_fmt::Display {
     fn id(&self) -> usize;
     fn overrides(&self) -> Option<&[&'e str]>;
     fn aliases(&self) -> Option<Vec<&'e str>>;
-    fn requires(&self) -> Option<&[&'e str]>;
+    fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]>;
     fn blacklist(&self) -> Option<&[&'e str]>;
     fn required_unless(&self) -> Option<&[&'e str]>;
     fn is_set(&self, ArgSettings) -> bool;

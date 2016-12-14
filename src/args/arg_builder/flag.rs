@@ -52,7 +52,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn id(&self) -> usize { self.b.id }
     fn kind(&self) -> ArgKind { ArgKind::Flag }
     fn overrides(&self) -> Option<&[&'e str]> { self.b.overrides.as_ref().map(|o| &o[..]) }
-    fn requires(&self) -> Option<&[&'e str]> { self.b.requires.as_ref().map(|o| &o[..]) }
+    fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]> { self.b.requires.as_ref().map(|o| &o[..]) }
     fn blacklist(&self) -> Option<&[&'e str]> { self.b.blacklist.as_ref().map(|o| &o[..]) }
     fn required_unless(&self) -> Option<&[&'e str]> { None }
     fn is_set(&self, s: ArgSettings) -> bool { self.b.settings.is_set(s) }

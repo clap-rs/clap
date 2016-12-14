@@ -52,7 +52,7 @@ pub struct Arg<'a, 'b>
     #[doc(hidden)]
     pub possible_vals: Option<Vec<&'b str>>,
     #[doc(hidden)]
-    pub requires: Option<Vec<&'a str>>,
+    pub requires: Option<Vec<(Option<&'b str>, &'a str)>>,
     #[doc(hidden)]
     pub groups: Option<Vec<&'a str>>,
     #[doc(hidden)]
@@ -1135,9 +1135,139 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [override]: ./struct.Arg.html#method.overrides_with
     pub fn requires(mut self, name: &'a str) -> Self {
         if let Some(ref mut vec) = self.requires {
-            vec.push(name);
+            vec.push((None, name));
         } else {
-            self.requires = Some(vec![name]);
+            let mut vec = vec![];
+            vec.push((None, name));
+            self.requires = Some(vec);
+        }
+        self
+    }
+
+    /// Allows a conditional requirement. The requirement will only become valid if this arg's value
+    /// equals `val`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Arg;
+    /// Arg::with_name("config")
+    ///     .requires_if("val", "arg")
+    /// # ;
+    /// ```
+    ///
+    /// Setting [`Arg::requires(val, arg)`] requires that the `arg` be used at runtime if the
+    /// defining argument's value is equal to `val`. If the defining argument is anything other than
+    /// `val`, the other argument isn't required.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let res = App::new("reqtest")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .takes_value(true)
+    ///         .requires_if("my.cfg", "other")
+    ///         .long("config"))
+    ///     .arg(Arg::with_name("other"))
+    ///     .get_matches_from_safe(vec![
+    ///         "reqtest", "--config", "some.cfg"
+    ///     ]);
+    ///
+    /// assert!(res.is_ok()); // We didn't use --config=my.cfg, so other wasn't required
+    /// ```
+    ///
+    /// Setting [`Arg::requires_if(val, arg)`] and setting the value to `val` but *not* supplying
+    /// `arg` is an error.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("reqtest")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .takes_value(true)
+    ///         .requires_if("my.cfg", "input")
+    ///         .long("config"))
+    ///     .arg(Arg::with_name("input"))
+    ///     .get_matches_from_safe(vec![
+    ///         "reqtest", "--config", "my.cfg"
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// ```
+    /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
+    /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
+    /// [override]: ./struct.Arg.html#method.overrides_with
+    pub fn requires_if(mut self, val: &'b str, arg: &'a str) -> Self {
+        if let Some(ref mut vec) = self.requires {
+            vec.push((Some(val), arg));
+        } else {
+            self.requires = Some(vec![(Some(val), arg)]);
+        }
+        self
+    }
+
+    /// Allows a conditional requirement. The requirement will only become valid if this arg's value
+    /// equals `val`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Arg;
+    /// Arg::with_name("config")
+    ///     .requires_if("val", "arg")
+    /// # ;
+    /// ```
+    ///
+    /// Setting [`Arg::requires(val, arg)`] requires that the `arg` be used at runtime if the
+    /// defining argument's value is equal to `val`. If the defining argument is anything other than
+    /// `val`, the other argument isn't required.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let res = App::new("reqtest")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .takes_value(true)
+    ///         .requires_if("my.cfg", "other")
+    ///         .long("config"))
+    ///     .arg(Arg::with_name("other"))
+    ///     .get_matches_from_safe(vec![
+    ///         "reqtest", "--config", "some.cfg"
+    ///     ]);
+    ///
+    /// assert!(res.is_ok()); // We didn't use --config=my.cfg, so other wasn't required
+    /// ```
+    ///
+    /// Setting [`Arg::requires_if(val, arg)`] and setting the value to `val` but *not* supplying
+    /// `arg` is an error.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("reqtest")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .takes_value(true)
+    ///         .requires_if("my.cfg", "input")
+    ///         .long("config"))
+    ///     .arg(Arg::with_name("input"))
+    ///     .get_matches_from_safe(vec![
+    ///         "reqtest", "--config", "my.cfg"
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// ```
+    /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
+    /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
+    /// [override]: ./struct.Arg.html#method.overrides_with
+    pub fn requires_ifs(mut self, ifs: &[(&'b str, &'a str)]) -> Self {
+        if let Some(ref mut vec) = self.requires {
+            for &(val, arg) in ifs {
+                vec.push((Some(val), arg));
+            }
+        } else {
+            let mut vec = vec![];
+            for &(val, arg) in ifs {
+                vec.push((Some(val), arg));
+            }
+            self.requires = Some(vec);
         }
         self
     }
@@ -1207,10 +1337,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     pub fn requires_all(mut self, names: &[&'a str]) -> Self {
         if let Some(ref mut vec) = self.requires {
             for s in names {
-                vec.push(s);
+                vec.push((None, s));
             }
         } else {
-            self.requires = Some(names.into_iter().map(|s| *s).collect::<Vec<_>>());
+            let mut vec = vec![]; 
+            for s in names {
+                vec.push((None, *s));
+            }
+            self.requires = Some(vec);
         }
         self
     }
@@ -1780,7 +1914,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`ArgGroup`]: ./struct.ArgGroup.html
     pub fn group(mut self, name: &'a str) -> Self {
-        if let Some(ref mut vec) = self.requires {
+        if let Some(ref mut vec) = self.groups {
             vec.push(name);
         } else {
             self.groups = Some(vec![name]);
@@ -2422,7 +2556,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// `None`, `arg` only needs to be present. If `val` is set to `"some-val"` then `arg` must be
     /// present at runtime **and** have the value `val`.
     ///
-    /// **NOTE:** This setting is perfectly compatible with [`Arg::default_value`] but slightly 
+    /// **NOTE:** This setting is perfectly compatible with [`Arg::default_value`] but slightly
     /// different. `Arg::default_value` *only* takes affect when the user has not provided this arg
     /// at runtime. This setting however only takes affect when the user has not provided a value at
     /// runtime **and** these other conditions are met as well. If you have set `Arg::default_value`
@@ -2506,7 +2640,11 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
-    pub fn default_value_if(mut self, arg: &'a str, val: Option<&'b str>, default: &'b str) -> Self {
+    pub fn default_value_if(mut self,
+                            arg: &'a str,
+                            val: Option<&'b str>,
+                            default: &'b str)
+                            -> Self {
         self.setb(ArgSettings::TakesValue);
         if let Some(ref mut vm) = self.default_vals_ifs {
             let l = vm.len();
