@@ -1205,7 +1205,7 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Allows a conditional requirement. The requirement will only become valid if this arg's value
+    /// Allows multiple conditional requirements. The requirement will only become valid if this arg's value
     /// equals `val`.
     ///
     /// # Examples
@@ -1213,45 +1213,36 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```rust
     /// # use clap::Arg;
     /// Arg::with_name("config")
-    ///     .requires_if("val", "arg")
+    ///     .requires_ifs(&[
+    ///         ("val", "arg"),
+    ///         ("other_val", "arg2"),
+    ///     ])
     /// # ;
     /// ```
     ///
-    /// Setting [`Arg::requires(val, arg)`] requires that the `arg` be used at runtime if the
-    /// defining argument's value is equal to `val`. If the defining argument is anything other than
-    /// `val`, the other argument isn't required.
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg};
-    /// let res = App::new("reqtest")
-    ///     .arg(Arg::with_name("cfg")
-    ///         .takes_value(true)
-    ///         .requires_if("my.cfg", "other")
-    ///         .long("config"))
-    ///     .arg(Arg::with_name("other"))
-    ///     .get_matches_from_safe(vec![
-    ///         "reqtest", "--config", "some.cfg"
-    ///     ]);
-    ///
-    /// assert!(res.is_ok()); // We didn't use --config=my.cfg, so other wasn't required
-    /// ```
-    ///
-    /// Setting [`Arg::requires_if(val, arg)`] and setting the value to `val` but *not* supplying
-    /// `arg` is an error.
+    /// Setting [`Arg::requires_ifs(&["val", "arg"])`] requires that the `arg` be used at runtime if the
+    /// defining argument's value is equal to `val`. If the defining argument's value is anything other 
+    /// than `val`, `arg` isn't required.
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("reqtest")
     ///     .arg(Arg::with_name("cfg")
     ///         .takes_value(true)
-    ///         .requires_if("my.cfg", "input")
+    ///         .requires_ifs(&[
+    ///             ("special.conf", "opt"),
+    ///             ("other.conf", "other"),
+    ///         ])
     ///         .long("config"))
-    ///     .arg(Arg::with_name("input"))
+    ///     .arg(Arg::with_name("opt")
+    ///         .long("option")
+    ///         .takes_value(true))
+    ///     .arg(Arg::with_name("other"))
     ///     .get_matches_from_safe(vec![
-    ///         "reqtest", "--config", "my.cfg"
+    ///         "reqtest", "--config", "special.conf"
     ///     ]);
     ///
-    /// assert!(res.is_err());
+    /// assert!(res.is_err()); // We  used --config=special.conf so --option <val> is required
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
     /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
