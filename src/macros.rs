@@ -415,23 +415,6 @@ macro_rules! crate_authors {
         use std::ops::Deref;
         use std::sync::{ONCE_INIT, Once};
 
-        struct Lazy<T: Sync>(pub *const T, pub Once);
-
-        impl<T: Sync> Lazy<T> {
-            #[inline(always)]
-            pub fn get<F: FnOnce() -> T>(&'static mut self, f: F) -> &T {
-                unsafe {
-                    let r = &mut self.0;
-                    self.1.call_once(|| {
-                        *r = Box::into_raw(Box::new(f()));
-                    });
-                    &*self.0
-                }
-            }
-        }
-
-        unsafe impl<T: Sync> Sync for Lazy<T> {}
-
         #[allow(missing_copy_implementations)]
         #[allow(non_camel_case_types)]
         #[allow(dead_code)]
@@ -444,9 +427,10 @@ macro_rules! crate_authors {
             #[allow(unsafe_code)]
             fn deref<'a>(&'a self) -> &'a String {
                 unsafe {
-                    static mut LAZY: Lazy<String> = Lazy(0 as *const String, ONCE_INIT);
+                    static mut LAZY: (*const String, Once) = (0 as *const String, ONCE_INIT);
 
-                    LAZY.get(|| env!("CARGO_PKG_AUTHORS").replace(':', "\n"))
+                    LAZY.1.call_once(|| LAZY.0 = Box::into_raw(Box::new(env!("CARGO_PKG_AUTHORS").replace(':', "\n"))));
+                    &*LAZY.0
                 }
             }
         }
