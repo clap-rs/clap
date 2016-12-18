@@ -411,9 +411,48 @@ macro_rules! crate_version {
 /// ```
 #[macro_export]
 macro_rules! crate_authors {
-    () => {
-        env!("CARGO_PKG_AUTHORS")
-    };
+    () => {{
+        use std::ops::Deref;
+        use std::sync::{ONCE_INIT, Once};
+
+        struct Lazy<T: Sync>(pub *const T, pub Once);
+
+        impl<T: Sync> Lazy<T> {
+            #[inline(always)]
+            pub fn get<F: FnOnce() -> T>(&'static mut self, f: F) -> &T {
+                unsafe {
+                    let r = &mut self.0;
+                    self.1.call_once(|| {
+                        *r = Box::into_raw(Box::new(f()));
+                    });
+                    &*self.0
+                }
+            }
+        }
+
+        unsafe impl<T: Sync> Sync for Lazy<T> {}
+
+        #[allow(missing_copy_implementations)]
+        #[allow(non_camel_case_types)]
+        #[allow(dead_code)]
+        struct CARGO_AUTHORS {__private_field: ()}
+        static CARGO_AUTHORS: CARGO_AUTHORS = CARGO_AUTHORS {__private_field: ()};
+
+        impl Deref for CARGO_AUTHORS {
+            type Target = String;
+
+            #[allow(unsafe_code)]
+            fn deref<'a>(&'a self) -> &'a String {
+                unsafe {
+                    static mut LAZY: Lazy<String> = Lazy(0 as *const String, ONCE_INIT);
+
+                    LAZY.get(|| env!("CARGO_PKG_AUTHORS").replace(':', "\n"))
+                }
+            }
+        }
+
+        &CARGO_AUTHORS[..]
+    }};
 }
 
 /// Build `App`, `Arg`s, `SubCommand`s and `Group`s with Usage-string like input
