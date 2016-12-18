@@ -411,7 +411,7 @@ macro_rules! crate_version {
 /// ```
 #[macro_export]
 macro_rules! crate_authors {
-    () => {{
+    ($sep:expr) => {{
         use std::ops::Deref;
         use std::sync::{ONCE_INIT, Once};
 
@@ -429,7 +429,7 @@ macro_rules! crate_authors {
                 unsafe {
                     static mut LAZY: (*const String, Once) = (0 as *const String, ONCE_INIT);
 
-                    LAZY.1.call_once(|| LAZY.0 = Box::into_raw(Box::new(env!("CARGO_PKG_AUTHORS").replace(':', "\n"))));
+                    LAZY.1.call_once(|| LAZY.0 = Box::into_raw(Box::new(env!("CARGO_PKG_AUTHORS").replace(':', $sep))));
                     &*LAZY.0
                 }
             }
@@ -437,6 +437,9 @@ macro_rules! crate_authors {
 
         &CARGO_AUTHORS[..]
     }};
+    () => {
+        env!("CARGO_PKG_AUTHORS")
+    };
 }
 
 /// Build `App`, `Arg`s, `SubCommand`s and `Group`s with Usage-string like input
