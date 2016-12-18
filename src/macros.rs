@@ -393,9 +393,13 @@ macro_rules! crate_version {
 }
 
 /// Allows you to pull the authors for the app from your Cargo.toml at
-/// compile time as
-/// "author1 lastname. <author1@example.com>",
-///     "author2 lastname. <author2@example.com>"
+/// compile time in the form:
+/// `"author1 lastname <author1@example.com>:author2 lastname <author2@example.com>"`
+///
+/// You can replace the colons with a custom separator by supplying a
+/// replacement string, so, for example,
+/// `crate_authors!(",\n")` would become
+/// `"author1 lastname <author1@example.com>,\nauthor2 lastname <author2@example.com>,\nauthor3 lastname <author3@example.com>"`
 ///
 /// # Examples
 ///
@@ -404,13 +408,39 @@ macro_rules! crate_version {
 /// # extern crate clap;
 /// # use clap::App;
 /// # fn main() {
-///     let m = App::new("app")
-///                 .author(crate_authors!())
-///                 .get_matches();
+/// let m = App::new("app")
+///             .author(crate_authors!("\n"))
+///             .get_matches();
 /// # }
 /// ```
 #[macro_export]
 macro_rules! crate_authors {
+    ($sep:expr) => {{
+        use std::ops::Deref;
+        use std::sync::{ONCE_INIT, Once};
+
+        #[allow(missing_copy_implementations)]
+        #[allow(non_camel_case_types)]
+        #[allow(dead_code)]
+        struct CARGO_AUTHORS {__private_field: ()}
+        static CARGO_AUTHORS: CARGO_AUTHORS = CARGO_AUTHORS {__private_field: ()};
+
+        impl Deref for CARGO_AUTHORS {
+            type Target = String;
+
+            #[allow(unsafe_code)]
+            fn deref<'a>(&'a self) -> &'a String {
+                unsafe {
+                    static mut LAZY: (*const String, Once) = (0 as *const String, ONCE_INIT);
+
+                    LAZY.1.call_once(|| LAZY.0 = Box::into_raw(Box::new(env!("CARGO_PKG_AUTHORS").replace(':', $sep))));
+                    &*LAZY.0
+                }
+            }
+        }
+
+        &CARGO_AUTHORS[..]
+    }};
     () => {
         env!("CARGO_PKG_AUTHORS")
     };
