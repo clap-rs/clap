@@ -27,6 +27,7 @@ fn main() {
         (author: "Alice")
         (about: "Does awesome things")
         (@arg config: -c --config <conf> #{1, 2} {file_exists} "Sets a custom config file")
+        (@arg proxyHostname: --("proxy-hostname") +takes_value "Sets the hostname of the proxy to use")
         (@arg input: * "Input file")
         (@group test =>
             (@attributes +required)
