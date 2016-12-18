@@ -393,9 +393,13 @@ macro_rules! crate_version {
 }
 
 /// Allows you to pull the authors for the app from your Cargo.toml at
-/// compile time as
-/// "author1 lastname. <author1@example.com>",
-///     "author2 lastname. <author2@example.com>"
+/// compile time in the form:
+/// `"author1 lastname <author1@example.com>:author2 lastname <author2@example.com>"`
+///
+/// You can replace the colons with a custom separator by supplying a
+/// replacement string, so, for example,
+/// `crate_authors!(",\n")` would become
+/// `"author1 lastname <author1@example.com>,\nauthor2 lastname <author2@example.com>,\nauthor3 lastname <author3@example.com>"`
 ///
 /// # Examples
 ///
@@ -404,9 +408,9 @@ macro_rules! crate_version {
 /// # extern crate clap;
 /// # use clap::App;
 /// # fn main() {
-///     let m = App::new("app")
-///                 .author(crate_authors!())
-///                 .get_matches();
+/// let m = App::new("app")
+///             .author(crate_authors!("\n"))
+///             .get_matches();
 /// # }
 /// ```
 #[macro_export]
