@@ -27,7 +27,7 @@ use args::settings::ArgSettings;
 use completions::ComplGen;
 use errors::{Error, ErrorKind};
 use errors::Result as ClapResult;
-use fmt::{Format, ColorWhen};
+use fmt::{Colorizer, ColorWhen};
 use osstringext::OsStrExt2;
 use completions::Shell;
 use suggestions;
@@ -1683,6 +1683,10 @@ impl<'a, 'b> Parser<'a, 'b>
 
     fn validate_required(&self, matcher: &ArgMatcher) -> ClapResult<()> {
         debugln!("fn=validate_required;required={:?};", self.required);
+        let c = Colorizer {
+            use_stderr: true,
+            when: self.color(),
+        };
         'outer: for name in &self.required {
             debugln!("iter;name={}", name);
             if matcher.contains(name) {
@@ -1722,7 +1726,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 &*self.get_required_from(&*reqs, Some(matcher))
                       .iter()
                       .fold(String::new(),
-                          |acc, s| acc + &format!("\n    {}", Format::Error(s))[..]),
+                          |acc, s| acc + &format!("\n    {}", c.error(s))[..]),
                 &*self.create_current_usage(matcher),
                 self.color())
                 };
