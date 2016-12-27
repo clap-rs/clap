@@ -111,6 +111,9 @@ impl<'n, 'e> AnyArg<'n, 'e> for PosBuilder<'n, 'e> {
     fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> {
         self.v.validator.as_ref()
     }
+    fn validator_os(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> {
+        self.v.validator_os.as_ref()
+    }
     fn min_vals(&self) -> Option<u64> { self.v.min_vals }
     fn short(&self) -> Option<char> { None }
     fn long(&self) -> Option<&'e str> { None }
