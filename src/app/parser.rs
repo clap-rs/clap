@@ -1534,8 +1534,8 @@ impl<'a, 'b> Parser<'a, 'b>
             }
         }
         if let Some(vtor) = arg.validator_os() {
-            if let Err(e) = vtor(val.to_string_lossy().into_owned()) {
-                return Err(Error::value_validation(Some(arg), e, self.color()));
+            if let Err(e) = vtor(val) {
+                return Err(Error::value_validation(Some(arg), e.into_string().unwrap_or("error invalid UTF-8".to_string()), self.color()));
             }
         }
         if matcher.needs_more_vals(arg) {

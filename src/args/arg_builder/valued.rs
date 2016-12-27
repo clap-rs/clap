@@ -1,4 +1,5 @@
 use std::rc::Rc;
+use std::ffi::{OsStr, OsString};
 
 use vec_map::VecMap;
 
@@ -15,7 +16,7 @@ pub struct Valued<'a, 'b>
     pub max_vals: Option<u64>,
     pub min_vals: Option<u64>,
     pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
-    pub validator_os: Option<Rc<Fn(String) -> Result<(), String>>>,
+    pub validator_os: Option<Rc<Fn(&OsStr) -> Result<(), OsString>>>,
     pub val_delim: Option<char>,
     pub default_val: Option<&'a str>,
 }

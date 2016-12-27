@@ -1,6 +1,7 @@
 #[cfg(feature = "yaml")]
 use std::collections::BTreeMap;
 use std::rc::Rc;
+use std::ffi::{OsString, OsStr};
 
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
@@ -66,7 +67,7 @@ pub struct Arg<'a, 'b>
     #[doc(hidden)]
     pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
     #[doc(hidden)]
-    pub validator_os: Option<Rc<Fn(String) -> Result<(), String>>>,
+    pub validator_os: Option<Rc<Fn(&OsStr) -> Result<(), OsString>>>,
     #[doc(hidden)]
     pub overrides: Option<Vec<&'a str>>,
     #[doc(hidden)]
@@ -1915,7 +1916,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # Examples
     /// ```rust
     /// # use clap::{App, Arg};
-    ///fn has_ampersand(v: String) -> Result<(), String> {
+    ///fn has_ampersand(v: &OsStr) -> Result<(), String> {
     ///     if v.contains("&") { return Ok(()); }
     ///     Err(String::from("The value did not contain the required & sigil"))
     /// }
@@ -1930,13 +1931,15 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(res.unwrap().value_of("file"), Some("Fish & chips"));
     /// ```
     /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
+    /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
+    /// [`OsString`]: https://doc.rust-lang.org/std/ffi/struct.OsString.html
     /// [`Result`]: https://doc.rust-lang.org/std/result/enum.Result.html
     /// [`Err(String)`]: https://doc.rust-lang.org/std/result/enum.Result.html#variant.Err
     /// [`Rc`]: https://doc.rust-lang.org/std/rc/struct.Rc.html
     pub fn validator_os<F>(mut self, f: F) -> Self
-        where F: Fn(String) -> Result<(), String> + 'static
+        where F: Fn(&OsStr) -> Result<(), OsString> + 'static
     {
-        self.validator = Some(Rc::new(f));
+        self.validator_os = Some(Rc::new(f));
         self
     }
 
