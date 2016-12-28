@@ -385,6 +385,7 @@ macro_rules! arg_enum {
 ///                 .get_matches();
 /// # }
 /// ```
+#[cfg(not(feature="no_cargo"))]
 #[macro_export]
 macro_rules! crate_version {
     () => {
@@ -413,6 +414,7 @@ macro_rules! crate_version {
 ///             .get_matches();
 /// # }
 /// ```
+#[cfg(not(feature="no_cargo"))]
 #[macro_export]
 macro_rules! crate_authors {
     ($sep:expr) => {{

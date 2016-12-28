@@ -104,8 +104,8 @@ impl<'a, 'b> App<'a, 'b> {
     #[deprecated(since="2.14.1", note="Can never work; use explicit App::author() and App::version() calls instead")]
     pub fn with_defaults<S: Into<String>>(n: S) -> Self {
         let mut a = App { p: Parser::with_name(n.into()) };
-        a.p.meta.author = Some(crate_authors!());
-        a.p.meta.version = Some(crate_version!());
+        a.p.meta.author = Some("Kevin K. <kbknapp@gmail.com>");
+        a.p.meta.version = Some("2.19.2");
         a
     }
 

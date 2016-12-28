@@ -39,6 +39,7 @@ unstable    = [] # for building with unstable clap features (doesn't require nig
 nightly     = [] # for building with unstable Rust features (currently none)
 lints       = ["clippy"] # Requires nightly Rust
 debug       = [] # Enables debug messages
+no_cargo    = [] # Enable if you're not using Cargo, disables Cargo-env-var-dependent macros
 
 [profile.release]
 opt-level = 3
