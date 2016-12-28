@@ -817,10 +817,10 @@ impl<'a, 'b> Parser<'a, 'b>
                     subcmd_name = Some(arg_os.to_str().expect(INVALID_UTF8).to_owned());
                     break;
                 } else if let Some(cdate) =
-                              suggestions::did_you_mean(&*arg_os.to_string_lossy(),
-                                                        self.subcommands
-                                                            .iter()
-                                                            .map(|s| &s.p.meta.name)) {
+                    suggestions::did_you_mean(&*arg_os.to_string_lossy(),
+                                              self.subcommands
+                                                  .iter()
+                                                  .map(|s| &s.p.meta.name)) {
                     return Err(Error::invalid_subcommand(arg_os.to_string_lossy().into_owned(),
                                                          cdate,
                                                          self.meta
@@ -894,18 +894,53 @@ impl<'a, 'b> Parser<'a, 'b>
             }
         }
 
-        self.validate(needs_val_of, subcmd_name, matcher, it)
+        if let Some(ref pos_sc_name) = subcmd_name {
+            // is this is a real subcommand, or an alias
+            if self.subcommands.iter().any(|sc| &sc.p.meta.name == pos_sc_name) {
+
+                try!(self.parse_subcommand(&*pos_sc_name, matcher, it));
+            } else {
+                let sc_name = &*self.subcommands
+                    .iter()
+                    .filter(|sc| sc.p.meta.aliases.is_some())
+                    .filter_map(|sc| if sc.p
+                        .meta
+                        .aliases
+                        .as_ref()
+                        .unwrap()
+                        .iter()
+                        .any(|&(a, _)| &a == &&*pos_sc_name) {
+                        Some(sc.p.meta.name.clone())
+                    } else {
+                        None
+                    })
+                    .next()
+                    .expect(INTERNAL_ERROR_MSG);
+                try!(self.parse_subcommand(sc_name, matcher, it));
+            };
+        } else if self.is_set(AppSettings::SubcommandRequired) {
+            let bn = self.meta.bin_name.as_ref().unwrap_or(&self.meta.name);
+            return Err(Error::missing_subcommand(bn,
+                                                 &self.create_current_usage(matcher),
+                                                 self.color()));
+        } else if self.is_set(AppSettings::SubcommandRequiredElseHelp) {
+            let mut out = vec![];
+            try!(self.write_help_err(&mut out));
+            return Err(Error {
+                message: String::from_utf8_lossy(&*out).into_owned(),
+                kind: ErrorKind::MissingArgumentOrSubcommand,
+                info: None,
+            });
+        }
+
+        self.validate(needs_val_of, subcmd_name, matcher)
     }
 
-    fn validate<I, T>(&mut self,
-                      needs_val_of: Option<&'a str>,
-                      subcmd_name: Option<String>,
-                      matcher: &mut ArgMatcher<'a>,
-                      it: &mut Peekable<I>)
-                      -> ClapResult<()>
-        where I: Iterator<Item = T>,
-              T: Into<OsString> + Clone
-    {
+    fn validate(&mut self,
+                needs_val_of: Option<&'a str>,
+                subcmd_name: Option<String>,
+                matcher: &mut ArgMatcher<'a>)
+                -> ClapResult<()> {
         let mut reqs_validated = false;
         if let Some(a) = needs_val_of {
             debugln!("needs_val_of={:?}", a);
@@ -932,43 +967,6 @@ impl<'a, 'b> Parser<'a, 'b>
         if !(self.settings.is_set(AppSettings::SubcommandsNegateReqs) && subcmd_name.is_some()) &&
            !reqs_validated {
             try!(self.validate_required(matcher));
-        }
-        if let Some(pos_sc_name) = subcmd_name {
-            // is this is a real subcommand, or an alias
-            let sc_name = if self.subcommands.iter().any(|sc| sc.p.meta.name == pos_sc_name) {
-                pos_sc_name
-            } else {
-                self.subcommands
-                    .iter()
-                    .filter(|sc| sc.p.meta.aliases.is_some())
-                    .filter_map(|sc| if sc.p
-                        .meta
-                        .aliases
-                        .as_ref()
-                        .unwrap()
-                        .iter()
-                        .any(|&(a, _)| &a == &&*pos_sc_name) {
-                        Some(sc.p.meta.name.clone())
-                    } else {
-                        None
-                    })
-                    .next()
-                    .expect(INTERNAL_ERROR_MSG)
-            };
-            try!(self.parse_subcommand(sc_name, matcher, it));
-        } else if self.is_set(AppSettings::SubcommandRequired) {
-            let bn = self.meta.bin_name.as_ref().unwrap_or(&self.meta.name);
-            return Err(Error::missing_subcommand(bn,
-                                                 &self.create_current_usage(matcher),
-                                                 self.color()));
-        } else if self.is_set(AppSettings::SubcommandRequiredElseHelp) {
-            let mut out = vec![];
-            try!(self.write_help_err(&mut out));
-            return Err(Error {
-                message: String::from_utf8_lossy(&*out).into_owned(),
-                kind: ErrorKind::MissingArgumentOrSubcommand,
-                info: None,
-            });
         }
         if matcher.is_empty() && matcher.subcommand_name().is_none() &&
            self.is_set(AppSettings::ArgRequiredElseHelp) {
@@ -1019,7 +1017,7 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     fn parse_subcommand<I, T>(&mut self,
-                              sc_name: String,
+                              sc_name: &str,
                               matcher: &mut ArgMatcher<'a>,
                               it: &mut Peekable<I>)
                               -> ClapResult<()>
@@ -1755,7 +1753,7 @@ impl<'a, 'b> Parser<'a, 'b>
                     return true;
                 }
             }
-        } 
+        }
         if let Some(ru) = a.required_unless() {
             debugln!("Required unless found...{:?}", ru);
             let mut found_any = false;
