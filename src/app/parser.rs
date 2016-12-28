@@ -1531,6 +1531,11 @@ impl<'a, 'b> Parser<'a, 'b>
                 return Err(Error::value_validation(Some(arg), e, self.color()));
             }
         }
+        if let Some(vtor) = arg.validator_os() {
+            if let Err(e) = vtor(val) {
+                return Err(Error::value_validation(Some(arg), (*e).to_string_lossy().to_string(), self.color()));
+            }
+        }
         if matcher.needs_more_vals(arg) {
             return Ok(Some(arg.name()));
         }

@@ -1,4 +1,5 @@
 use std::rc::Rc;
+use std::ffi::{OsStr, OsString};
 
 use vec_map::VecMap;
 
@@ -15,6 +16,7 @@ pub struct Valued<'a, 'b>
     pub max_vals: Option<u64>,
     pub min_vals: Option<u64>,
     pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
+    pub validator_os: Option<Rc<Fn(&OsStr) -> Result<(), OsString>>>,
     pub val_delim: Option<char>,
     pub default_val: Option<&'a str>,
 }
@@ -28,6 +30,7 @@ impl<'n, 'e> Default for Valued<'n, 'e> {
             max_vals: None,
             val_names: None,
             validator: None,
+            validator_os: None,
             val_delim: Some(','),
             default_val: None,
         }
@@ -43,6 +46,7 @@ impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for Valued<'n, 'e> {
             max_vals: a.max_vals,
             val_names: a.val_names.clone(),
             validator: a.validator.clone(),
+            validator_os: a.validator_os.clone(),
             val_delim: a.val_delim,
             default_val: a.default_val,
         };
