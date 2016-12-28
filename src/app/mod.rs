@@ -9,6 +9,7 @@ mod help;
 use std::borrow::Borrow;
 use std::env;
 use std::ffi::OsString;
+use osstringext::OsStrExt2;
 use std::fmt;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::path::Path;
@@ -1221,6 +1222,38 @@ impl<'a, 'b> App<'a, 'b> {
         self.get_matches_from_safe(&mut env::args_os())
     }
 
+    /// Similar to [`App::get_matches`] but also reads args from
+    /// env-var `env_var`.
+    ///
+    /// The env var args are appended to the manually entered arguments
+    /// (if any) and thus if an argument is provided both in the env var
+    /// and manually, this could result in either a conflict, override,
+    /// or additional value depending on the specific rules for said arg.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// $ VAR="--arg1 val1 --arg2 val2" ./program --arg2 val3
+    /// ```
+    pub fn get_matches_with_env<S: AsRef<str>>(self, env_var: &S)
+            -> ArgMatches<'a> {
+        // Build `args` by chaining `args_os()` and `var_os()`
+        let mut args: Vec<OsString> = env::args_os().collect();
+        // Handle first env-format:
+        // VAR="--option1=val1 --option2=val2" ./prog
+        if let Some(vargs) = env::var_os(env_var.as_ref()) {
+            // String has split(char::is_whitespace) but for OsStr
+            // we have to define closure manually.
+            //let whitespace = |c| c == b' ' || c == b'\t' || c == b'\n';
+            //args.extend(vargs.split(whitespace)
+            // Turns out OsStr.split does not take closure like regular
+            // string slices. So sticking with just space for now.
+            args.extend(vargs.split(b' ')
+                             .map(|s| s.to_os_string()));
+        }
+        self.get_matches_from(&mut args.into_iter())
+    }
+
     /// Starts the parsing process. Like [`App::get_matches`] this method does not return a [`clap::Result`]
     /// and will automatically exit with an error message. This method, however, lets you specify
     /// what iterator to use when performing matches, such as a [`Vec`] of your making.
@@ -1550,4 +1583,22 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
 
 impl<'n, 'e> fmt::Display for App<'n, 'e> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "{}", self.p.meta.name) }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use std::env;
+
+    use ::{Arg, App};
+
+    #[test]
+    fn test_get_matches_with_env() {
+        env::set_var("VAR", "--arg1 val1");
+        let matches = App::new("testprog").arg(Arg::with_name("arg1")
+                                                    .takes_value(true)
+                                                    .long("arg1"))
+                                          .get_matches_with_env(&"VAR");
+        assert_eq!(matches.value_of("arg1").unwrap(), "val1");
+    }
 }
