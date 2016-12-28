@@ -1,3 +1,13 @@
+<a name="v2.19.3"></a>
+### v2.19.3 (2016-12-28)
+
+
+#### Bug Fixes
+
+*   fixes a bug where calling the help of a subcommand wasn't ignoring required args of parent commands ([a0ee4993](https://github.com/kbknapp/clap-rs/commit/a0ee4993015ea97b06b5bc9f378d8bcb18f1c51c), closes [#789](https://github.com/kbknapp/clap-rs/issues/789))
+
+
+
 <a name="v2.19.2"></a>
 ### v2.19.2 (2016-12-08)
 
