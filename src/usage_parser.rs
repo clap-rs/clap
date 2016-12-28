@@ -6,8 +6,6 @@ use INTERNAL_ERROR_MSG;
 use args::Arg;
 use args::settings::ArgSettings;
 
-type ParseResult = Result<(), ()>;
-
 #[derive(PartialEq, Debug)]
 enum UsageToken {
     Name,
