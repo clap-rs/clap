@@ -5,7 +5,7 @@ use std::result::Result as StdResult;
 use std::ffi::{OsStr, OsString};
 
 // Third Party
-use vec_map::VecMap;
+use vec_map::{self, VecMap};
 
 // Internal
 use args::{ArgSettings, ArgKind, AnyArg, Base, Switched, Valued, Arg, DispOrder};
@@ -24,7 +24,7 @@ pub struct OptBuilder<'n, 'e>
 impl<'n, 'e> OptBuilder<'n, 'e> {
     pub fn new(name: &'n str) -> Self { OptBuilder { b: Base::new(name), ..Default::default() } }
 
-    pub fn from_arg(a: &Arg<'n, 'e>, reqs: &mut Vec<&'e str>) -> Self {
+    pub fn from_arg(a: &Arg<'n, 'e>, reqs: &mut Vec<&'n str>) -> Self {
         // No need to check for .index() as that is handled above
         let ob = OptBuilder {
             b: Base::from(a),
@@ -34,7 +34,9 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
         // If the arg is required, add all it's requirements to master required list
         if a.is_set(ArgSettings::Required) {
             if let Some(ref areqs) = a.requires {
-                reqs.extend_from_slice(areqs);
+                for r in areqs.iter().filter(|r| r.0.is_none()) {
+                    reqs.push(r.1);
+                }
             }
         }
         ob
@@ -95,7 +97,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn id(&self) -> usize { self.b.id }
     fn kind(&self) -> ArgKind { ArgKind::Opt }
     fn overrides(&self) -> Option<&[&'e str]> { self.b.overrides.as_ref().map(|o| &o[..]) }
-    fn requires(&self) -> Option<&[&'e str]> { self.b.requires.as_ref().map(|o| &o[..]) }
+    fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]> { self.b.requires.as_ref().map(|o| &o[..]) }
     fn blacklist(&self) -> Option<&[&'e str]> { self.b.blacklist.as_ref().map(|o| &o[..]) }
     fn required_unless(&self) -> Option<&[&'e str]> { self.b.r_unless.as_ref().map(|o| &o[..]) }
     fn val_names(&self) -> Option<&VecMap<&'e str>> { self.v.val_names.as_ref() }
@@ -118,6 +120,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn takes_value(&self) -> bool { true }
     fn help(&self) -> Option<&'e str> { self.b.help }
     fn default_val(&self) -> Option<&'n str> { self.v.default_val }
+    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e str>, &'e str)>> { self.v.default_vals_ifs.as_ref().map(|vm| vm.values()) }
     fn longest_filter(&self) -> bool { true }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.s.aliases {

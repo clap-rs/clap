@@ -4,7 +4,7 @@ use std::fmt as std_fmt;
 use std::ffi::{OsStr, OsString};
 
 // Third Party
-use vec_map::VecMap;
+use vec_map::{self, VecMap};
 
 // Internal
 use args::settings::ArgSettings;
@@ -16,7 +16,7 @@ pub trait AnyArg<'n, 'e>: std_fmt::Display {
     fn id(&self) -> usize;
     fn overrides(&self) -> Option<&[&'e str]>;
     fn aliases(&self) -> Option<Vec<&'e str>>;
-    fn requires(&self) -> Option<&[&'e str]>;
+    fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]>;
     fn blacklist(&self) -> Option<&[&'e str]>;
     fn required_unless(&self) -> Option<&[&'e str]>;
     fn is_set(&self, ArgSettings) -> bool;
@@ -35,6 +35,7 @@ pub trait AnyArg<'n, 'e>: std_fmt::Display {
     fn val_names(&self) -> Option<&VecMap<&'e str>>;
     fn help(&self) -> Option<&'e str>;
     fn default_val(&self) -> Option<&'n str>;
+    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e str>, &'e str)>>;
     fn longest_filter(&self) -> bool;
     fn kind(&self) -> ArgKind;
 }

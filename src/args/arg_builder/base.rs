@@ -13,7 +13,7 @@ pub struct Base<'a, 'b>
     pub r_unless: Option<Vec<&'a str>>,
     pub overrides: Option<Vec<&'a str>>,
     pub groups: Option<Vec<&'a str>>,
-    pub requires: Option<Vec<&'a str>>,
+    pub requires: Option<Vec<(Option<&'b str>, &'a str)>>,
 }
 
 impl<'n, 'e> Default for Base<'n, 'e> {

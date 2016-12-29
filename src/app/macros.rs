@@ -1,13 +1,21 @@
 macro_rules! remove_overriden {
-    (@remove $_self:ident, $v:ident, $a:ident.$ov:ident) => {
-        if let Some(ref ora) = $a.$ov() {
-            vec_remove_all!($_self.$v, ora);
+    (@remove_requires $rem_from:expr, $a:ident.$ov:ident) => {
+        if let Some(ora) = $a.$ov() {
+            for i in (0 .. $rem_from.len()).rev() {
+                let should_remove = ora.iter().any(|&(_, ref name)| name == &$rem_from[i]);
+                if should_remove { $rem_from.swap_remove(i); }
+            }
+        }
+    };
+    (@remove $rem_from:expr, $a:ident.$ov:ident) => {
+        if let Some(ora) = $a.$ov() {
+            vec_remove_all!($rem_from, ora.iter());
         }
     };
     (@arg $_self:ident, $arg:ident) => {
-        remove_overriden!(@remove $_self, required, $arg.requires);
-        remove_overriden!(@remove $_self, blacklist, $arg.blacklist);
-        remove_overriden!(@remove $_self, overrides, $arg.overrides);
+        remove_overriden!(@remove_requires $_self.required, $arg.requires);
+        remove_overriden!(@remove $_self.blacklist, $arg.blacklist);
+        remove_overriden!(@remove $_self.overrides, $arg.overrides);
     };
     ($_self:ident, $name:expr) => {
         debugln!("macro=remove_overriden!;");
@@ -41,7 +49,7 @@ macro_rules! arg_post_processing {
             $matcher.remove_all(or);
             for pa in or { remove_overriden!($me, pa); }
             $me.overrides.extend(or);
-            vec_remove_all!($me.required, or);
+            vec_remove_all!($me.required, or.iter());
         } else { sdebugln!("No"); }
 
         // Handle conflicts
@@ -62,15 +70,15 @@ macro_rules! arg_post_processing {
             }
 
             $me.blacklist.extend(bl);
-            vec_remove_all!($me.overrides, bl);
-            vec_remove_all!($me.required, bl);
+            vec_remove_all!($me.overrides, bl.iter());
+            vec_remove_all!($me.required, bl.iter());
         } else { sdebugln!("No"); }
 
         // Add all required args which aren't already found in matcher to the master
         // list
         debug!("Does '{}' have requirements...", $arg.to_string());
         if let Some(reqs) = $arg.requires() {
-            for n in reqs {
+            for n in reqs.iter().filter(|&&(val, _)| val.is_none()).map(|&(_, name)| name) {
                 if $matcher.contains(&n) {
                     sdebugln!("\tYes '{}' but it's already met", n);
                     continue;
@@ -92,6 +100,7 @@ macro_rules! _handle_group_reqs{
             let found = if grp.args.contains(&$arg.name()) {
                 vec_remove!($me.required, &$arg.name());
                 if let Some(ref reqs) = grp.requires {
+                    debugln!("Adding {:?} to the required list", reqs);
                     $me.required.extend(reqs);
                 }
                 if let Some(ref bl) = grp.conflicts {
@@ -103,7 +112,10 @@ macro_rules! _handle_group_reqs{
             };
             debugln!("iter;grp={};found={:?}", grp.name, found);
             if found {
-                vec_remove_all!($me.required, &grp.args);
+                for i in (0 .. $me.required.len()).rev() {
+                    let should_remove = grp.args.contains(&grp.args[i]);
+                    if should_remove { $me.required.swap_remove(i); }
+                }
                 debugln!("Adding args from group to blacklist...{:?}", grp.args);
                 if !grp.multiple {
                     $me.blacklist.extend(&grp.args);

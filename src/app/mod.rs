@@ -17,7 +17,7 @@ use std::rc::Rc;
 use std::result::Result as StdResult;
 
 // Third Party
-use vec_map::VecMap;
+use vec_map::{self, VecMap};
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
@@ -1512,7 +1512,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn id(&self) -> usize { self.p.id }
     fn kind(&self) -> ArgKind { ArgKind::Subcmd }
     fn overrides(&self) -> Option<&[&'e str]> { None }
-    fn requires(&self) -> Option<&[&'e str]> { None }
+    fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]> { None }
     fn blacklist(&self) -> Option<&[&'e str]> { None }
     fn required_unless(&self) -> Option<&[&'e str]> { None }
     fn val_names(&self) -> Option<&VecMap<&'e str>> { None }
@@ -1533,6 +1533,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn takes_value(&self) -> bool { true }
     fn help(&self) -> Option<&'e str> { self.p.meta.about }
     fn default_val(&self) -> Option<&'n str> { None }
+    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e str>, &'e str)>> {None}
     fn longest_filter(&self) -> bool { true }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.p.meta.aliases {

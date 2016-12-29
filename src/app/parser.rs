@@ -37,7 +37,8 @@ use suggestions;
 pub struct Parser<'a, 'b>
     where 'a: 'b
 {
-    required: Vec<&'b str>,
+    required: Vec<&'a str>,
+    r_ifs: Vec<(&'a str, &'b str, &'a str)>,
     pub short_list: Vec<char>,
     pub long_list: Vec<&'b str>,
     blacklist: Vec<&'b str>,
@@ -73,6 +74,7 @@ impl<'a, 'b> Default for Parser<'a, 'b> {
             help_short: None,
             version_short: None,
             required: vec![],
+            r_ifs: vec![],
             short_list: vec![],
             long_list: vec![],
             blacklist: vec![],
@@ -141,6 +143,11 @@ impl<'a, 'b> Parser<'a, 'b>
                         self.opts.iter().any(|o| o.b.name == a.name) ||
                         self.positionals.values().any(|p| p.b.name == a.name)),
                       format!("Non-unique argument name: {} is already in use", a.name));
+        if let Some(ref r_ifs) = a.r_ifs {
+            for &(arg, val) in r_ifs {
+                self.r_ifs.push((arg, val, a.name));
+            }
+        }
         if let Some(ref grps) = a.groups {
             for g in grps {
                 let ag = self.groups.entry(g).or_insert_with(|| ArgGroup::with_name(g));
@@ -326,13 +333,13 @@ impl<'a, 'b> Parser<'a, 'b>
                 for a in &$v1 {
                     if let Some(a) = self.$t1.$i1().filter(|arg| &arg.b.name == a).next() {
                         if let Some(ref rl) = a.b.requires {
-                            for r in rl {
-                                if !reqs.contains(r) {
-                                    if $_self.$t1.$i1().any(|t| &t.b.name == r) {
-                                        $tmp.push(*r);
-                                    } else if $_self.$t2.$i2().any(|t| &t.b.name == r) {
+                            for &(_, r) in rl.iter() {
+                                if !reqs.contains(&r) {
+                                    if $_self.$t1.$i1().any(|t| &t.b.name == &r) {
+                                        $tmp.push(r);
+                                    } else if $_self.$t2.$i2().any(|t| &t.b.name == &r) {
                                         $v2.push(r);
-                                    } else if $_self.$t3.$i3().any(|t| &t.b.name == r) {
+                                    } else if $_self.$t3.$i3().any(|t| &t.b.name == &r) {
                                         $v3.push(r);
                                     } else if $_self.groups.contains_key(r) {
                                         $gv.push(r);
@@ -897,7 +904,6 @@ impl<'a, 'b> Parser<'a, 'b>
         if let Some(ref pos_sc_name) = subcmd_name {
             // is this is a real subcommand, or an alias
             if self.subcommands.iter().any(|sc| &sc.p.meta.name == pos_sc_name) {
-
                 try!(self.parse_subcommand(&*pos_sc_name, matcher, it));
             } else {
                 let sc_name = &*self.subcommands
@@ -917,7 +923,7 @@ impl<'a, 'b> Parser<'a, 'b>
                     .next()
                     .expect(INTERNAL_ERROR_MSG);
                 try!(self.parse_subcommand(sc_name, matcher, it));
-            };
+            }
         } else if self.is_set(AppSettings::SubcommandRequired) {
             let bn = self.meta.bin_name.as_ref().unwrap_or(&self.meta.name);
             return Err(Error::missing_subcommand(bn,
@@ -961,7 +967,7 @@ impl<'a, 'b> Parser<'a, 'b>
 
         try!(self.add_defaults(matcher));
         try!(self.validate_blacklist(matcher));
-        try!(self.validate_num_args(matcher));
+        try!(self.validate_matched_args(matcher));
         matcher.usage(self.create_usage(&[]));
 
         if !(self.settings.is_set(AppSettings::SubcommandsNegateReqs) && subcmd_name.is_some()) &&
@@ -1608,23 +1614,38 @@ impl<'a, 'b> Parser<'a, 'b>
         Ok(())
     }
 
-    fn validate_num_args(&self, matcher: &mut ArgMatcher) -> ClapResult<()> {
-        debugln!("fn=validate_num_args;");
+    fn validate_matched_args(&self, matcher: &mut ArgMatcher) -> ClapResult<()> {
+        debugln!("fn=validate_matched_args;");
         for (name, ma) in matcher.iter() {
             debugln!("iter;name={}", name);
             if let Some(opt) = find_by_name!(self, name, opts, iter) {
-                try!(self._validate_num_vals(opt, ma, matcher));
+                try!(self.validate_arg_num_vals(opt, ma, matcher));
+                try!(self.validate_arg_requires(opt, ma, matcher));
+            } else if let Some(flag) = find_by_name!(self, name, flags, iter) {
+                // Only requires
+                try!(self.validate_arg_requires(flag, ma, matcher));
             } else if let Some(pos) = find_by_name!(self, name, positionals, values) {
-                try!(self._validate_num_vals(pos, ma, matcher));
+                try!(self.validate_arg_num_vals(pos, ma, matcher));
+                try!(self.validate_arg_requires(pos, ma, matcher));
+            } else if let Some(grp) = self.groups.get(name) {
+                if let Some(ref g_reqs) = grp.requires {
+                    if g_reqs.iter().any(|&n| !matcher.contains(n)) {
+                        return self.missing_required_error(matcher);
+                    }
+                }
             }
         }
         Ok(())
     }
 
-    fn _validate_num_vals<A>(&self, a: &A, ma: &MatchedArg, matcher: &ArgMatcher) -> ClapResult<()>
+    fn validate_arg_num_vals<A>(&self,
+                                a: &A,
+                                ma: &MatchedArg,
+                                matcher: &ArgMatcher)
+                                -> ClapResult<()>
         where A: AnyArg<'a, 'b> + Display
     {
-        debugln!("fn=_validate_num_vals;");
+        debugln!("fn=validate_arg_num_vals;");
         if let Some(num) = a.num_vals() {
             debugln!("num_vals set: {}", num);
             let should_err = if a.is_set(ArgSettings::Multiple) {
@@ -1684,12 +1705,47 @@ impl<'a, 'b> Parser<'a, 'b>
         Ok(())
     }
 
-    fn validate_required(&self, matcher: &ArgMatcher) -> ClapResult<()> {
-        debugln!("fn=validate_required;required={:?};", self.required);
+    fn validate_arg_requires<A>(&self,
+                                a: &A,
+                                ma: &MatchedArg,
+                                matcher: &ArgMatcher)
+                                -> ClapResult<()>
+        where A: AnyArg<'a, 'b> + Display
+    {
+        debugln!("fn=validate_arg_requires;");
+        if let Some(a_reqs) = a.requires() {
+            for &(val, name) in a_reqs.iter().filter(|&&(val, _)| val.is_some()) {
+                if ma.vals
+                    .values()
+                    .any(|v| v == val.expect(INTERNAL_ERROR_MSG) && !matcher.contains(name)) {
+                    return self.missing_required_error(matcher);
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn missing_required_error(&self, matcher: &ArgMatcher) -> ClapResult<()> {
         let c = Colorizer {
             use_stderr: true,
             when: self.color(),
-        };
+        };        
+	let mut reqs = self.required.iter().map(|&r| &*r).collect::<Vec<_>>();
+        reqs.retain(|n| !matcher.contains(n));
+        reqs.dedup();
+        Err(Error::missing_required_argument(&*self.get_required_from(&self.required[..],
+                                                                    Some(matcher))
+                                                 .iter()
+                                                 .fold(String::new(), |acc, s| {
+                                                     acc +
+                                                     &format!("\n    {}", c.error(s))[..]
+                                                 }),
+                                             &*self.create_current_usage(matcher),
+                                             self.color()))
+    }
+
+    fn validate_required(&self, matcher: &ArgMatcher) -> ClapResult<()> {
+        debugln!("fn=validate_required;required={:?};", self.required);
         'outer: for name in &self.required {
             debugln!("iter;name={}", name);
             if matcher.contains(name) {
@@ -1718,22 +1774,20 @@ impl<'a, 'b> Parser<'a, 'b>
                     continue 'outer;
                 }
             }
-            let err =
-                if self.settings.is_set(AppSettings::ArgRequiredElseHelp) && matcher.is_empty() {
-                    self._help().unwrap_err()
-                } else {
-                    let mut reqs = self.required.iter().map(|&r| &*r).collect::<Vec<_>>();
-                    reqs.retain(|n| !matcher.contains(n));
-                    reqs.dedup();
-                    Error::missing_required_argument(
-                &*self.get_required_from(&*reqs, Some(matcher))
-                      .iter()
-                      .fold(String::new(),
-                          |acc, s| acc + &format!("\n    {}", c.error(s))[..]),
-                &*self.create_current_usage(matcher),
-                self.color())
-                };
-            return Err(err);
+            return self.missing_required_error(matcher);
+        }
+
+        // Validate the conditionally required args
+        for &(a, v, r) in &self.r_ifs {
+            if let Some(ref ma) = matcher.get(a) {
+                for val in ma.vals.values() {
+                    if v == val {
+                        if matcher.get(r).is_none() {
+                            return self.missing_required_error(matcher);
+                        }
+                    }
+                }
+            }
         }
         Ok(())
     }
@@ -1953,20 +2007,49 @@ impl<'a, 'b> Parser<'a, 'b>
 
     fn add_defaults(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
         macro_rules! add_val {
-            ($_self:ident, $a:ident, $m:ident) => {
-                if $m.get($a.b.name).is_none() {
-                    try!($_self.add_val_to_arg($a, OsStr::new($a.v.default_val
-                                                                .as_ref()
-                                                                .unwrap()), 
-                                                                $m));
-                    arg_post_processing!($_self, $a, $m);
+            (@default $_self:ident, $a:ident, $m:ident) => {
+                if let Some(ref val) = $a.v.default_val {
+                    if $m.get($a.b.name).is_none() {
+                        try!($_self.add_val_to_arg($a, OsStr::new(val), $m));
+                        arg_post_processing!($_self, $a, $m);
+                    }
                 }
             };
+            ($_self:ident, $a:ident, $m:ident) => {
+                if let Some(ref vm) = $a.v.default_vals_ifs {
+                    let mut done = false;
+                    if $m.get($a.b.name).is_none() {
+                        for &(arg, val, default) in vm.values() {
+                            let add = if let Some(a) = $m.get(arg) {
+                                if let Some(v) = val {
+                                    a.vals.values().any(|value| v == value)
+                                } else {
+                                    true
+                                }
+                            } else {
+                                false
+                            };
+                            if add {
+                                try!($_self.add_val_to_arg($a, OsStr::new(default), $m));
+                                arg_post_processing!($_self, $a, $m);
+                                done = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if done {
+                        continue; // outer loop (outside macro)
+                    }
+                }
+                add_val!(@default $_self, $a, $m)
+            };
         }
-        for o in self.opts.iter().filter(|o| o.v.default_val.is_some()) {
+
+        for o in &self.opts {
             add_val!(self, o, matcher);
         }
-        for p in self.positionals.values().filter(|p| p.v.default_val.is_some()) {
+        for p in self.positionals.values() {
             add_val!(self, p, matcher);
         }
         Ok(())
@@ -2059,6 +2142,7 @@ impl<'a, 'b> Clone for Parser<'a, 'b>
             trailing_vals: self.trailing_vals,
             id: self.id,
             valid_neg_num: self.valid_neg_num,
+            r_ifs: self.r_ifs.clone(),
         }
     }
 }
