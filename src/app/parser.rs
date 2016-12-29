@@ -904,7 +904,6 @@ impl<'a, 'b> Parser<'a, 'b>
         if let Some(ref pos_sc_name) = subcmd_name {
             // is this is a real subcommand, or an alias
             if self.subcommands.iter().any(|sc| &sc.p.meta.name == pos_sc_name) {
-
                 try!(self.parse_subcommand(&*pos_sc_name, matcher, it));
             } else {
                 let sc_name = &*self.subcommands
@@ -924,8 +923,7 @@ impl<'a, 'b> Parser<'a, 'b>
                     .next()
                     .expect(INTERNAL_ERROR_MSG);
                 try!(self.parse_subcommand(sc_name, matcher, it));
-            };
-            try!(self.parse_subcommand(sc_name, matcher, it));
+            }
         } else if self.is_set(AppSettings::SubcommandRequired) {
             let bn = self.meta.bin_name.as_ref().unwrap_or(&self.meta.name);
             return Err(Error::missing_subcommand(bn,
@@ -969,7 +967,7 @@ impl<'a, 'b> Parser<'a, 'b>
 
         try!(self.add_defaults(matcher));
         try!(self.validate_blacklist(matcher));
-        try!(self.validate_num_args(matcher));
+        try!(self.validate_matched_args(matcher));
         matcher.usage(self.create_usage(&[]));
 
         if !(self.settings.is_set(AppSettings::SubcommandsNegateReqs) && subcmd_name.is_some()) &&
@@ -1735,7 +1733,7 @@ impl<'a, 'b> Parser<'a, 'b>
                                                  .iter()
                                                  .fold(String::new(), |acc, s| {
                                                      acc +
-                                                     &format!("\n    {}", c.errors(s))[..]
+                                                     &format!("\n    {}", c.error(s))[..]
                                                  }),
                                              &*self.create_current_usage(matcher),
                                              self.color()))
@@ -2012,9 +2010,6 @@ impl<'a, 'b> Parser<'a, 'b>
                     }
                 }
             };
-        }
-
-        macro_rules! add_vals_ifs {
             ($_self:ident, $a:ident, $m:ident) => {
                 if let Some(ref vm) = $a.v.default_vals_ifs {
                     let mut done = false;
@@ -2047,11 +2042,9 @@ impl<'a, 'b> Parser<'a, 'b>
         }
 
         for o in &self.opts {
-            add_vals_ifs!(self, o, matcher);
             add_val!(self, o, matcher);
         }
         for p in self.positionals.values() {
-            add_vals_ifs!(self, p, matcher);
             add_val!(self, p, matcher);
         }
         Ok(())
