@@ -619,16 +619,16 @@ macro_rules! werr(
 #[cfg_attr(feature = "debug", macro_use)]
 mod debug_macros {
     macro_rules! debugln {
-        ($fmt:expr) => (println!(concat!("*DEBUG:clap: ", $fmt)));
-        ($fmt:expr, $($arg:tt)*) => (println!(concat!("*DEBUG:clap: ",$fmt), $($arg)*));
+        ($fmt:expr) => (println!(concat!("DEBUG:clap:", $fmt)));
+        ($fmt:expr, $($arg:tt)*) => (println!(concat!("DEBUG:clap:",$fmt), $($arg)*));
     }
     macro_rules! sdebugln {
         ($fmt:expr) => (println!($fmt));
         ($fmt:expr, $($arg:tt)*) => (println!($fmt, $($arg)*));
     }
     macro_rules! debug {
-        ($fmt:expr) => (print!(concat!("*DEBUG:clap: ", $fmt)));
-        ($fmt:expr, $($arg:tt)*) => (print!(concat!("*DEBUG:clap: ",$fmt), $($arg)*));
+        ($fmt:expr) => (print!(concat!("DEBUG:clap:", $fmt)));
+        ($fmt:expr, $($arg:tt)*) => (print!(concat!("DEBUG:clap:",$fmt), $($arg)*));
     }
     macro_rules! sdebug {
         ($fmt:expr) => (print!($fmt));
@@ -663,7 +663,7 @@ mod debug_macros {
 //    src/app/mod.rs
 macro_rules! write_spaces {
     ($num:expr, $w:ident) => ({
-        debugln!("macro=write_spaces!;");
+        debugln!("write_spaces!;");
         for _ in 0..$num {
             try!(write!($w, " "));
         }
@@ -676,7 +676,7 @@ macro_rules! write_spaces {
 //    src/app/mod.rs
 macro_rules! write_nspaces {
     ($dst:expr, $num:expr) => ({
-        debugln!("macro=write_spaces!;num={}", $num);
+        debugln!("write_spaces!: num={}", $num);
         for _ in 0..$num {
             try!($dst.write(b" "));
         }
@@ -686,7 +686,7 @@ macro_rules! write_nspaces {
 // convenience macro for remove an item from a vec
 macro_rules! vec_remove {
     ($vec:expr, $to_rem:expr) => {
-        debugln!("macro=vec_remove!;to_rem={:?}", $to_rem);
+        debugln!("vec_remove!: to_rem={:?}", $to_rem);
         for i in (0 .. $vec.len()).rev() {
             let should_remove = &$vec[i] == $to_rem;
             if should_remove { $vec.swap_remove(i); }
@@ -697,7 +697,7 @@ macro_rules! vec_remove {
 // convenience macro for remove an item from a vec
 macro_rules! vec_remove_all {
     ($vec:expr, $to_rem:expr) => {
-        debugln!("macro=vec_remove_all!;to_rem={:?}", $to_rem);
+        debugln!("vec_remove_all! to_rem={:?}", $to_rem);
         for i in (0 .. $vec.len()).rev() {
             let should_remove = $to_rem.any(|name| name == &$vec[i]);
             if should_remove { $vec.swap_remove(i); }
