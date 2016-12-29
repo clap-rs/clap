@@ -137,7 +137,7 @@ fn default_if_arg_present_no_arg_with_default_user_override() {
     assert_eq!(m.value_of("arg").unwrap(), "other");
 }
 
-// --- Default if arg with specific value
+// Conditional Default Values
 
 #[test]
 fn default_if_arg_present_with_value_no_default() {
