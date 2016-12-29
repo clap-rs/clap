@@ -100,6 +100,7 @@ macro_rules! _handle_group_reqs{
             let found = if grp.args.contains(&$arg.name()) {
                 vec_remove!($me.required, &$arg.name());
                 if let Some(ref reqs) = grp.requires {
+                    debugln!("Adding {:?} to the required list", reqs);
                     $me.required.extend(reqs);
                 }
                 if let Some(ref bl) = grp.conflicts {

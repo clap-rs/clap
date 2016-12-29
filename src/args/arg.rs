@@ -163,6 +163,8 @@ impl<'a, 'b> Arg<'a, 'b> {
                 "aliases" => yaml_vec_or_str!(v, a, alias),
                 "help" => yaml_to_str!(a, v, help),
                 "required" => yaml_to_bool!(a, v, required),
+                "required_if" => yaml_tuple2!(a, v, required_if),
+                "required_ifs" => yaml_tuple2!(a, v, required_if),
                 "takes_value" => yaml_to_bool!(a, v, takes_value),
                 "index" => yaml_to_u64!(a, v, index),
                 "global" => yaml_to_bool!(a, v, global),
@@ -182,9 +184,13 @@ impl<'a, 'b> Arg<'a, 'b> {
                 "required_unless" => yaml_to_str!(a, v, required_unless),
                 "display_order" => yaml_to_usize!(a, v, display_order),
                 "default_value" => yaml_to_str!(a, v, default_value),
+                "default_value_if" => yaml_tuple3!(a, v, default_value_if),
+                "default_value_ifs" => yaml_tuple3!(a, v, default_value_if),
                 "value_names" => yaml_vec_or_str!(v, a, value_name),
                 "groups" => yaml_vec_or_str!(v, a, group),
                 "requires" => yaml_vec_or_str!(v, a, requires),
+                "requires_if" => yaml_tuple2!(a, v, requires_if),
+                "requires_ifs" => yaml_tuple2!(a, v, requires_if),
                 "conflicts_with" => yaml_vec_or_str!(v, a, conflicts_with),
                 "overrides_with" => yaml_vec_or_str!(v, a, overrides_with),
                 "possible_values" => yaml_vec_or_str!(v, a, possible_value),
@@ -1150,6 +1156,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// Allows a conditional requirement. The requirement will only become valid if this arg's value
     /// equals `val`.
     ///
+    /// **NOTE:** If using YAML the values should be laid out as follows
+    ///
+    /// ```yaml
+    /// requires_if:
+    ///     - [val, arg]
+    /// ```
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -1211,6 +1224,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// Allows multiple conditional requirements. The requirement will only become valid if this arg's value
     /// equals `val`.
     ///
+    /// **NOTE:** If using YAML the values should be laid out as follows
+    ///
+    /// ```yaml
+    /// requires_if:
+    ///     - [val, arg]
+    ///     - [val2, arg2]
+    /// ```
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -1268,6 +1289,13 @@ impl<'a, 'b> Arg<'a, 'b> {
 
     /// Allows specifying that an argument is [required] conditionally. The requirement will only
     /// become valid if the specified `arg`'s value equals `val`.
+    ///
+    /// **NOTE:** If using YAML the values should be laid out as follows
+    ///
+    /// ```yaml
+    /// required_if:
+    ///     - [arg, val]
+    /// ```
     ///
     /// # Examples
     ///
@@ -1334,6 +1362,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// Allows specifying that an argument is [required] based on multiple conditions. The
     /// conditions are set up in a `(arg, val)` style tuple. The requirement will only become valid
     /// if one of the specified `arg`'s value equals it's corresponding `val`.
+    ///
+    /// **NOTE:** If using YAML the values should be laid out as follows
+    ///
+    /// ```yaml
+    /// required_if:
+    ///     - [arg, val]
+    ///     - [arg2, val2]
+    /// ```
     ///
     /// # Examples
     ///
@@ -2712,6 +2748,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// **NOTE:** This implicitly sets [`Arg::takes_value(true)`].
     ///
+    /// **NOTE:** If using YAML the values should be laid out as follows (`None` can be represented
+    /// as `null` in YAML)
+    ///
+    /// ```yaml
+    /// default_value_if:
+    ///     - [arg, val, default]
+    /// ```
+    ///
     /// # Examples
     ///
     /// First we use the default value only if another arg is present at runtime.
@@ -2808,6 +2852,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// **NOTE**: The conditions are stored in order and evaluated in the same order. I.e. the first
     /// if multiple conditions are true, the first one found will be applied and the ultimate value.
+    ///
+    /// **NOTE:** If using YAML the values should be laid out as follows
+    ///
+    /// ```yaml
+    /// default_value_if:
+    ///     - [arg, val, default]
+    ///     - [arg2, null, default2]
+    /// ```
     ///
     /// # Examples
     ///

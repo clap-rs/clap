@@ -1624,6 +1624,12 @@ impl<'a, 'b> Parser<'a, 'b>
             } else if let Some(pos) = find_by_name!(self, name, positionals, values) {
                 try!(self.validate_arg_num_vals(pos, ma, matcher));
                 try!(self.validate_arg_requires(pos, ma, matcher));
+            } else if let Some(grp) = self.groups.get(name) {
+                if let Some(ref g_reqs) = grp.requires {
+                    if g_reqs.iter().any(|&n| !matcher.contains(n)) {
+                        return self.missing_required_error(matcher);
+                    }
+                }
             }
         }
         Ok(())
@@ -1706,34 +1712,37 @@ impl<'a, 'b> Parser<'a, 'b>
         debugln!("fn=validate_arg_requires;");
         if let Some(a_reqs) = a.requires() {
             for &(val, name) in a_reqs.iter().filter(|&&(val, _)| val.is_some()) {
-                if ma.vals.values().any(|v| v == val.expect(INTERNAL_ERROR_MSG)) {
-                    if matcher.contains(name) {
-                        continue;
-                    }
-
-                    let mut reqs = self.required.iter().map(|&r| &*r).collect::<Vec<_>>();
-                    reqs.retain(|n| !matcher.contains(n));
-                    reqs.dedup();
-                    return Err(Error::missing_required_argument(
-                        &*self.get_required_from(&self.required[..], Some(matcher))
-                            .iter()
-                            .fold(String::new(),
-                                |acc, s| acc + &format!("\n    {}", Format::Error(s))[..]),
-                        &*self.create_current_usage(matcher),
-                        self.color())
-                    );
+                if ma.vals
+                    .values()
+                    .any(|v| v == val.expect(INTERNAL_ERROR_MSG) && !matcher.contains(name)) {
+                    return self.missing_required_error(matcher);
                 }
             }
         }
         Ok(())
     }
 
-    fn validate_required(&self, matcher: &ArgMatcher) -> ClapResult<()> {
-        debugln!("fn=validate_required;required={:?};", self.required);
+    fn missing_required_error(&self, matcher: &ArgMatcher) -> ClapResult<()> {
         let c = Colorizer {
             use_stderr: true,
             when: self.color(),
-        };
+        };        
+	let mut reqs = self.required.iter().map(|&r| &*r).collect::<Vec<_>>();
+        reqs.retain(|n| !matcher.contains(n));
+        reqs.dedup();
+        Err(Error::missing_required_argument(&*self.get_required_from(&self.required[..],
+                                                                    Some(matcher))
+                                                 .iter()
+                                                 .fold(String::new(), |acc, s| {
+                                                     acc +
+                                                     &format!("\n    {}", c.errors(s))[..]
+                                                 }),
+                                             &*self.create_current_usage(matcher),
+                                             self.color()))
+    }
+
+    fn validate_required(&self, matcher: &ArgMatcher) -> ClapResult<()> {
+        debugln!("fn=validate_required;required={:?};", self.required);
         'outer: for name in &self.required {
             debugln!("iter;name={}", name);
             if matcher.contains(name) {
@@ -1762,7 +1771,7 @@ impl<'a, 'b> Parser<'a, 'b>
                     continue 'outer;
                 }
             }
-            return Err(err());
+            return self.missing_required_error(matcher);
         }
 
         // Validate the conditionally required args
@@ -1771,7 +1780,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 for val in ma.vals.values() {
                     if v == val {
                         if matcher.get(r).is_none() {
-                            return Err(err());
+                            return self.missing_required_error(matcher);
                         }
                     }
                 }
