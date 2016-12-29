@@ -1,6 +1,7 @@
 #[cfg(feature = "yaml")]
 use std::collections::BTreeMap;
 use std::rc::Rc;
+use std::ffi::{OsString, OsStr};
 
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
@@ -66,6 +67,8 @@ pub struct Arg<'a, 'b>
     #[doc(hidden)]
     pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
     #[doc(hidden)]
+    pub validator_os: Option<Rc<Fn(&OsStr) -> Result<(), OsString>>>,
+    #[doc(hidden)]
     pub overrides: Option<Vec<&'a str>>,
     #[doc(hidden)]
     pub settings: ArgFlags,
@@ -101,6 +104,7 @@ impl<'a, 'b> Default for Arg<'a, 'b> {
             max_vals: None,
             min_vals: None,
             validator: None,
+            validator_os: None,
             overrides: None,
             settings: ArgFlags::new(),
             val_delim: None,
@@ -2227,6 +2231,37 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
+    ///Works identically to Validator but is intended to be used with non UTF-8 formatted strings.
+    /// # Examples
+    /// ```rust
+    /// # use clap::{App, Arg};
+    ///fn has_ampersand(v: &OsStr) -> Result<(), String> {
+    ///     if v.contains("&") { return Ok(()); }
+    ///     Err(String::from("The value did not contain the required & sigil"))
+    /// }
+    /// let res = App::new("validators")
+    ///     .arg(Arg::with_name("file")
+    ///         .index(1)
+    ///         .validator(has_ampersand))
+    ///     .get_matches_from_safe(vec![
+    ///         "validators", "Fish & chips"
+    ///     ]);
+    /// assert!(res.is_ok());
+    /// assert_eq!(res.unwrap().value_of("file"), Some("Fish & chips"));
+    /// ```
+    /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
+    /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
+    /// [`OsString`]: https://doc.rust-lang.org/std/ffi/struct.OsString.html
+    /// [`Result`]: https://doc.rust-lang.org/std/result/enum.Result.html
+    /// [`Err(String)`]: https://doc.rust-lang.org/std/result/enum.Result.html#variant.Err
+    /// [`Rc`]: https://doc.rust-lang.org/std/rc/struct.Rc.html
+    pub fn validator_os<F>(mut self, f: F) -> Self
+        where F: Fn(&OsStr) -> Result<(), OsString> + 'static
+    {
+        self.validator_os = Some(Rc::new(f));
+        self
+    }
+
     /// Specifies the *maximum* number of values are for this argument. For example, if you had a
     /// `-f <file>` argument where you wanted up to 3 'files' you would set `.max_values(3)`, and
     /// this argument would be satisfied if the user provided, 1, 2, or 3 values.
@@ -3108,6 +3143,7 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
             val_names: a.val_names.clone(),
             groups: a.groups.clone(),
             validator: a.validator.clone(),
+            validator_os: a.validator_os.clone(),
             overrides: a.overrides.clone(),
             settings: a.settings,
             val_delim: a.val_delim,
@@ -3138,6 +3174,7 @@ impl<'a, 'b> Clone for Arg<'a, 'b> {
             val_names: self.val_names.clone(),
             groups: self.groups.clone(),
             validator: self.validator.clone(),
+            validator_os: self.validator_os.clone(),
             overrides: self.overrides.clone(),
             settings: self.settings,
             val_delim: self.val_delim,

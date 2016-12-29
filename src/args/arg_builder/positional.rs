@@ -3,6 +3,7 @@ use std::borrow::Cow;
 use std::fmt::{Display, Formatter, Result};
 use std::rc::Rc;
 use std::result::Result as StdResult;
+use std::ffi::{OsStr, OsString};
 
 // Third Party
 use vec_map::{self, VecMap};
@@ -112,6 +113,9 @@ impl<'n, 'e> AnyArg<'n, 'e> for PosBuilder<'n, 'e> {
     fn possible_vals(&self) -> Option<&[&'e str]> { self.v.possible_vals.as_ref().map(|o| &o[..]) }
     fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> {
         self.v.validator.as_ref()
+    }
+    fn validator_os(&self) -> Option<&Rc<Fn(&OsStr) -> StdResult<(), OsString>>> {
+        self.v.validator_os.as_ref()
     }
     fn min_vals(&self) -> Option<u64> { self.v.min_vals }
     fn short(&self) -> Option<char> { None }
