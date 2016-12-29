@@ -79,6 +79,8 @@ pub struct Arg<'a, 'b>
     pub disp_ord: usize,
     #[doc(hidden)]
     pub r_unless: Option<Vec<&'a str>>,
+    #[doc(hidden)]
+    pub r_ifs: Option<Vec<(&'a str, &'b str)>>,
 }
 
 impl<'a, 'b> Default for Arg<'a, 'b> {
@@ -106,6 +108,7 @@ impl<'a, 'b> Default for Arg<'a, 'b> {
             default_vals_ifs: None,
             disp_ord: 999,
             r_unless: None,
+            r_ifs: None,
         }
     }
 }
@@ -1156,7 +1159,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # ;
     /// ```
     ///
-    /// Setting [`Arg::requires(val, arg)`] requires that the `arg` be used at runtime if the
+    /// Setting [`Arg::requires_if(val, arg)`] requires that the `arg` be used at runtime if the
     /// defining argument's value is equal to `val`. If the defining argument is anything other than
     /// `val`, the other argument isn't required.
     ///
@@ -1221,7 +1224,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     ///
     /// Setting [`Arg::requires_ifs(&["val", "arg"])`] requires that the `arg` be used at runtime if the
-    /// defining argument's value is equal to `val`. If the defining argument's value is anything other 
+    /// defining argument's value is equal to `val`. If the defining argument's value is anything other
     /// than `val`, `arg` isn't required.
     ///
     /// ```rust
@@ -1259,6 +1262,158 @@ impl<'a, 'b> Arg<'a, 'b> {
                 vec.push((Some(val), arg));
             }
             self.requires = Some(vec);
+        }
+        self
+    }
+
+    /// Allows specifying that an argument is [required] conditionally. The requirement will only
+    /// become valid if the specified `arg`'s value equals `val`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Arg;
+    /// Arg::with_name("config")
+    ///     .required_if("other_arg", "value")
+    /// # ;
+    /// ```
+    ///
+    /// Setting [`Arg::required_if(arg, val)`] makes this arg required if the `arg` is used at
+    /// runtime and it's value is equal to `val`. If the `arg`'s value is anything other than `val`,
+    /// this argument isn't required.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let res = App::new("reqtest")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .takes_value(true)
+    ///         .required_if("other", "special")
+    ///         .long("config"))
+    ///     .arg(Arg::with_name("other")
+    ///         .long("other")
+    ///         .takes_value(true))
+    ///     .get_matches_from_safe(vec![
+    ///         "reqtest", "--other", "not-special" 
+    ///     ]);
+    ///
+    /// assert!(res.is_ok()); // We didn't use --other=special, so "cfg" wasn't required
+    /// ```
+    ///
+    /// Setting [`Arg::required_if(arg, val)`] and having `arg` used with a vaue of `val` but *not*
+    /// using this arg is an error.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("reqtest")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .takes_value(true)
+    ///         .required_if("other", "special")
+    ///         .long("config"))
+    ///     .arg(Arg::with_name("other")
+    ///         .long("other")
+    ///         .takes_value(true))
+    ///     .get_matches_from_safe(vec![
+    ///         "reqtest", "--other", "special" 
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// ```
+    /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
+    /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
+    /// [required]: ./struct.Arg.html#method.required
+    pub fn required_if(mut self, arg: &'a str, val: &'b str) -> Self {
+        if let Some(ref mut vec) = self.r_ifs {
+            vec.push((arg, val));
+        } else {
+            self.r_ifs = Some(vec![(arg, val)]);
+        }
+        self
+    }
+
+    /// Allows specifying that an argument is [required] based on multiple conditions. The
+    /// conditions are set up in a `(arg, val)` style tuple. The requirement will only become valid
+    /// if one of the specified `arg`'s value equals it's corresponding `val`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Arg;
+    /// Arg::with_name("config")
+    ///     .required_ifs(&[
+    ///         ("extra", "val"),
+    ///         ("option", "spec")
+    ///     ])
+    /// # ;
+    /// ```
+    ///
+    /// Setting [`Arg::required_ifs(&[(arg, val)])`] makes this arg required if any of the `arg`s
+    /// are used at runtime and it's corresponding value is equal to `val`. If the `arg`'s value is
+    /// anything other than `val`, this argument isn't required.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let res = App::new("ri")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .required_ifs(&[
+    ///             ("extra", "val"),
+    ///             ("option", "spec")
+    ///         ])
+    ///         .takes_value(true)
+    ///         .long("config"))
+    ///     .arg(Arg::with_name("extra")
+    ///         .takes_value(true)
+    ///         .long("extra"))
+    ///     .arg(Arg::with_name("option")
+    ///         .takes_value(true)
+    ///         .long("option"))
+    ///     .get_matches_from_safe(vec![
+    ///         "ri", "--option", "other"
+    ///     ]);
+    ///
+    /// assert!(res.is_ok()); // We didn't use --option=spec, or --extra=val so "cfg" isn't required
+    /// ```
+    ///
+    /// Setting [`Arg::required_ifs(&[(arg, val)])`] and having any of the `arg`s used with it's
+    /// vaue of `val` but *not* using this arg is an error.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("ri")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .required_ifs(&[
+    ///             ("extra", "val"),
+    ///             ("option", "spec")
+    ///         ])
+    ///         .takes_value(true)
+    ///         .long("config"))
+    ///     .arg(Arg::with_name("extra")
+    ///         .takes_value(true)
+    ///         .long("extra"))
+    ///     .arg(Arg::with_name("option")
+    ///         .takes_value(true)
+    ///         .long("option"))
+    ///     .get_matches_from_safe(vec![
+    ///         "ri", "--option", "spec"
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// ```
+    /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
+    /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
+    /// [required]: ./struct.Arg.html#method.required
+    pub fn required_ifs(mut self, ifs: &[(&'a str, &'b str)]) -> Self {
+        if let Some(ref mut vec) = self.r_ifs {
+            for r_if in ifs {
+                vec.push((r_if.0, r_if.1));
+            }
+        } else {
+            let mut vec = vec![];
+            for r_if in ifs {
+                vec.push((r_if.0, r_if.1));
+            }
+            self.r_ifs = Some(vec);
         }
         self
     }
@@ -1331,7 +1486,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 vec.push((None, s));
             }
         } else {
-            let mut vec = vec![]; 
+            let mut vec = vec![];
             for s in names {
                 vec.push((None, *s));
             }
@@ -2908,6 +3063,7 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
             default_vals_ifs: a.default_vals_ifs.clone(),
             disp_ord: a.disp_ord,
             r_unless: a.r_unless.clone(),
+            r_ifs: a.r_ifs.clone(),
         }
     }
 }
@@ -2937,6 +3093,7 @@ impl<'a, 'b> Clone for Arg<'a, 'b> {
             default_vals_ifs: self.default_vals_ifs.clone(),
             disp_ord: self.disp_ord,
             r_unless: self.r_unless.clone(),
+            r_ifs: self.r_ifs.clone(),
         }
     }
 }

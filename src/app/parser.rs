@@ -38,6 +38,7 @@ pub struct Parser<'a, 'b>
     where 'a: 'b
 {
     required: Vec<&'a str>,
+    r_ifs: Vec<(&'a str, &'b str, &'a str)>,
     pub short_list: Vec<char>,
     pub long_list: Vec<&'b str>,
     blacklist: Vec<&'b str>,
@@ -73,6 +74,7 @@ impl<'a, 'b> Default for Parser<'a, 'b> {
             help_short: None,
             version_short: None,
             required: vec![],
+            r_ifs: vec![],
             short_list: vec![],
             long_list: vec![],
             blacklist: vec![],
@@ -141,6 +143,11 @@ impl<'a, 'b> Parser<'a, 'b>
                         self.opts.iter().any(|o| o.b.name == a.name) ||
                         self.positionals.values().any(|p| p.b.name == a.name)),
                       format!("Non-unique argument name: {} is already in use", a.name));
+        if let Some(ref r_ifs) = a.r_ifs {
+            for &(arg, val) in r_ifs {
+                self.r_ifs.push((arg, val, a.name));
+            }
+        }
         if let Some(ref grps) = a.groups {
             for g in grps {
                 let ag = self.groups.entry(g).or_insert_with(|| ArgGroup::with_name(g));
@@ -1622,7 +1629,11 @@ impl<'a, 'b> Parser<'a, 'b>
         Ok(())
     }
 
-    fn validate_arg_num_vals<A>(&self, a: &A, ma: &MatchedArg, matcher: &ArgMatcher) -> ClapResult<()>
+    fn validate_arg_num_vals<A>(&self,
+                                a: &A,
+                                ma: &MatchedArg,
+                                matcher: &ArgMatcher)
+                                -> ClapResult<()>
         where A: AnyArg<'a, 'b> + Display
     {
         debugln!("fn=validate_arg_num_vals;");
@@ -1685,14 +1696,20 @@ impl<'a, 'b> Parser<'a, 'b>
         Ok(())
     }
 
-    fn validate_arg_requires<A>(&self, a: &A, ma: &MatchedArg, matcher: &ArgMatcher) -> ClapResult<()>
+    fn validate_arg_requires<A>(&self,
+                                a: &A,
+                                ma: &MatchedArg,
+                                matcher: &ArgMatcher)
+                                -> ClapResult<()>
         where A: AnyArg<'a, 'b> + Display
     {
         debugln!("fn=validate_arg_requires;");
         if let Some(a_reqs) = a.requires() {
             for &(val, name) in a_reqs.iter().filter(|&&(val, _)| val.is_some()) {
                 if ma.vals.values().any(|v| v == val.expect(INTERNAL_ERROR_MSG)) {
-                    if matcher.contains(name) { continue; }
+                    if matcher.contains(name) {
+                        continue;
+                    }
 
                     let mut reqs = self.required.iter().map(|&r| &*r).collect::<Vec<_>>();
                     reqs.retain(|n| !matcher.contains(n));
@@ -1745,22 +1762,20 @@ impl<'a, 'b> Parser<'a, 'b>
                     continue 'outer;
                 }
             }
-            let err =
-                if self.settings.is_set(AppSettings::ArgRequiredElseHelp) && matcher.is_empty() {
-                    self._help().unwrap_err()
-                } else {
-                    let mut reqs = self.required.iter().map(|&r| &*r).collect::<Vec<_>>();
-                    reqs.retain(|n| !matcher.contains(n));
-                    reqs.dedup();
-                    Error::missing_required_argument(
-                &*self.get_required_from(&*reqs, Some(matcher))
-                      .iter()
-                      .fold(String::new(),
-                          |acc, s| acc + &format!("\n    {}", c.error(s))[..]),
-                &*self.create_current_usage(matcher),
-                self.color())
-                };
-            return Err(err);
+            return Err(err());
+        }
+
+        // Validate the conditionally required args
+        for &(a, v, r) in &self.r_ifs {
+            if let Some(ref ma) = matcher.get(a) {
+                for val in ma.vals.values() {
+                    if v == val {
+                        if matcher.get(r).is_none() {
+                            return Err(err());
+                        }
+                    }
+                }
+            }
         }
         Ok(())
     }
@@ -2021,6 +2036,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 add_val!(@default $_self, $a, $m)
             };
         }
+
         for o in &self.opts {
             add_vals_ifs!(self, o, matcher);
             add_val!(self, o, matcher);
@@ -2119,6 +2135,7 @@ impl<'a, 'b> Clone for Parser<'a, 'b>
             trailing_vals: self.trailing_vals,
             id: self.id,
             valid_neg_num: self.valid_neg_num,
+            r_ifs: self.r_ifs.clone(),
         }
     }
 }
