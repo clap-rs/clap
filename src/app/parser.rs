@@ -234,7 +234,8 @@ impl<'a, 'b> Parser<'a, 'b>
 
     pub fn add_subcommand(&mut self, mut subcmd: App<'a, 'b>) {
         debugln!("Parser::add_subcommand;");
-        debugln!("Parser::add_subcommand: Term width...{:?}", self.meta.term_w);
+        debugln!("Parser::add_subcommand: Term width...{:?}",
+                 self.meta.term_w);
         subcmd.p.meta.term_w = self.meta.term_w;
         debug!("Parser::add_subcommand: Is help...");
         if subcmd.p.meta.name == "help" {
@@ -256,8 +257,10 @@ impl<'a, 'b> Parser<'a, 'b>
                 let vsc = self.settings.is_set(AppSettings::VersionlessSubcommands);
                 let gv = self.settings.is_set(AppSettings::GlobalVersion);
 
-                debugln!("Parser::propogate_settings:iter: VersionlessSubcommands set...{:?}", vsc);
-                debugln!("Parser::propogate_settings:iter: GlobalVersion set...{:?}", gv);
+                debugln!("Parser::propogate_settings:iter: VersionlessSubcommands set...{:?}",
+                         vsc);
+                debugln!("Parser::propogate_settings:iter: GlobalVersion set...{:?}",
+                         gv);
 
                 if vsc {
                     sc.p.settings.set(AppSettings::DisableVersion);
@@ -438,7 +441,7 @@ impl<'a, 'b> Parser<'a, 'b>
                         if grp.required {
                             // if it's part of a required group we don't want to count it
                             continue 'outer;
-                        } 
+                        }
                     }
                 }
             }
@@ -1540,7 +1543,9 @@ impl<'a, 'b> Parser<'a, 'b>
         }
         if let Some(vtor) = arg.validator_os() {
             if let Err(e) = vtor(val) {
-                return Err(Error::value_validation(Some(arg), (*e).to_string_lossy().to_string(), self.color()));
+                return Err(Error::value_validation(Some(arg),
+                                                   (*e).to_string_lossy().to_string(),
+                                                   self.color()));
             }
         }
         if matcher.needs_more_vals(arg) {
@@ -1703,6 +1708,10 @@ impl<'a, 'b> Parser<'a, 'b>
                                                  self.color()));
             }
         }
+        // Issue 665 (https://github.com/kbknapp/clap-rs/issues/665)
+        if a.takes_value() && !a.is_set(ArgSettings::EmptyValues) && ma.vals.is_empty() {
+            return Err(Error::empty_value(a, &*self.create_current_usage(matcher), self.color()));
+        }
         Ok(())
     }
 
@@ -1731,16 +1740,15 @@ impl<'a, 'b> Parser<'a, 'b>
         let c = Colorizer {
             use_stderr: true,
             when: self.color(),
-        };        
-	let mut reqs = self.required.iter().map(|&r| &*r).collect::<Vec<_>>();
+        };
+        let mut reqs = self.required.iter().map(|&r| &*r).collect::<Vec<_>>();
         reqs.retain(|n| !matcher.contains(n));
         reqs.dedup();
         Err(Error::missing_required_argument(&*self.get_required_from(&self.required[..],
                                                                     Some(matcher))
                                                  .iter()
                                                  .fold(String::new(), |acc, s| {
-                                                     acc +
-                                                     &format!("\n    {}", c.error(s))[..]
+                                                     acc + &format!("\n    {}", c.error(s))[..]
                                                  }),
                                              &*self.create_current_usage(matcher),
                                              self.color()))
