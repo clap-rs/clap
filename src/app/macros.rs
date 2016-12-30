@@ -18,7 +18,7 @@ macro_rules! remove_overriden {
         remove_overriden!(@remove $_self.overrides, $arg.overrides);
     };
     ($_self:ident, $name:expr) => {
-        debugln!("macro=remove_overriden!;");
+        debugln!("remove_overriden!;");
         if let Some(ref o) = $_self.opts.iter().filter(|o| o.b.name == *$name).next() {
             remove_overriden!(@arg $_self, o);
         } else if let Some(ref f) = $_self.flags.iter().filter(|f| f.b.name == *$name).next() {
@@ -31,9 +31,9 @@ macro_rules! remove_overriden {
 
 macro_rules! arg_post_processing {
     ($me:ident, $arg:ident, $matcher:ident) => {
-        debugln!("macro=arg_post_processing!;");
+        debugln!("arg_post_processing!;");
         // Handle POSIX overrides
-        debug!("Is '{}' in overrides...", $arg.to_string());
+        debug!("arg_post_processing!: Is '{}' in overrides...", $arg.to_string());
         if $me.overrides.contains(&$arg.name()) {
             if let Some(ref name) = find_name_from!($me, &$arg.name(), overrides, $matcher) {
                 sdebugln!("Yes by {}", name);
@@ -43,7 +43,7 @@ macro_rules! arg_post_processing {
         } else { sdebugln!("No"); }
 
         // Add overrides
-        debug!("Does '{}' have overrides...", $arg.to_string());
+        debug!("arg_post_processing!: Does '{}' have overrides...", $arg.to_string());
         if let Some(or) = $arg.overrides() {
             sdebugln!("Yes");
             $matcher.remove_all(or);
@@ -53,13 +53,13 @@ macro_rules! arg_post_processing {
         } else { sdebugln!("No"); }
 
         // Handle conflicts
-        debug!("Does '{}' have conflicts...", $arg.to_string());
+        debug!("arg_post_processing!: Does '{}' have conflicts...", $arg.to_string());
         if let Some(bl) = $arg.blacklist() {
             sdebugln!("Yes");
             
             for c in bl {
                 // Inject two-way conflicts
-                debug!("Has '{}' already been matched...", c);
+                debug!("arg_post_processing!: Has '{}' already been matched...", c);
                 if $matcher.contains(c) {
                     sdebugln!("Yes");
                     // find who blacklisted us...
@@ -76,7 +76,7 @@ macro_rules! arg_post_processing {
 
         // Add all required args which aren't already found in matcher to the master
         // list
-        debug!("Does '{}' have requirements...", $arg.to_string());
+        debug!("arg_post_processing!: Does '{}' have requirements...", $arg.to_string());
         if let Some(reqs) = $arg.requires() {
             for n in reqs.iter().filter(|&&(val, _)| val.is_none()).map(|&(_, name)| name) {
                 if $matcher.contains(&n) {
@@ -95,12 +95,12 @@ macro_rules! arg_post_processing {
 macro_rules! _handle_group_reqs{
     ($me:ident, $arg:ident) => ({
         use args::AnyArg;
-        debugln!("macro=_handle_group_reqs!;");
+        debugln!("_handle_group_reqs!;");
         for grp in $me.groups.values() {
             let found = if grp.args.contains(&$arg.name()) {
                 vec_remove!($me.required, &$arg.name());
                 if let Some(ref reqs) = grp.requires {
-                    debugln!("Adding {:?} to the required list", reqs);
+                    debugln!("_handle_group_reqs!: Adding {:?} to the required list", reqs);
                     $me.required.extend(reqs);
                 }
                 if let Some(ref bl) = grp.conflicts {
@@ -110,13 +110,13 @@ macro_rules! _handle_group_reqs{
             } else {
                 false
             };
-            debugln!("iter;grp={};found={:?}", grp.name, found);
+            debugln!("_handle_group_reqs!:iter: grp={}, found={:?}", grp.name, found);
             if found {
                 for i in (0 .. $me.required.len()).rev() {
                     let should_remove = grp.args.contains(&grp.args[i]);
                     if should_remove { $me.required.swap_remove(i); }
                 }
-                debugln!("Adding args from group to blacklist...{:?}", grp.args);
+                debugln!("_handle_group_reqs!:iter: Adding args from group to blacklist...{:?}", grp.args);
                 if !grp.multiple {
                     $me.blacklist.extend(&grp.args);
                     vec_remove!($me.blacklist, &$arg.name());
@@ -128,7 +128,7 @@ macro_rules! _handle_group_reqs{
 
 macro_rules! validate_multiples {
     ($_self:ident, $a:ident, $m:ident) => {
-        debugln!("macro=validate_multiples!;");
+        debugln!("validate_multiples!;");
         if $m.contains(&$a.b.name) && !$a.b.settings.is_set(ArgSettings::Multiple) {
             // Not the first time, and we don't allow multiples
             return Err(Error::unexpected_multiple_usage($a,
@@ -146,7 +146,7 @@ macro_rules! parse_positional {
         $pos_counter:ident,
         $matcher:ident
     ) => {
-        debugln!("macro=parse_positional!;");
+        debugln!("parse_positional!;");
         validate_multiples!($_self, $p, $matcher);
 
         if !$_self.trailing_vals &&

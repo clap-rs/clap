@@ -70,6 +70,7 @@ complete -F _{name} -o bashdefault -o default {name}
     }
 
     fn all_subcommands(&self) -> String {
+        debugln!("BashGen::all_subcommands;");
         let mut subcmds = String::new();
         let scs = completions::all_subcommand_names(self.p);
 
@@ -86,6 +87,7 @@ complete -F _{name} -o bashdefault -o default {name}
     }
 
     fn subcommand_details(&self) -> String {
+        debugln!("BashGen::subcommand_details;");
         let mut subcmd_dets = String::new();
         let mut scs = completions::get_all_subcommand_paths(self.p, true);
         scs.sort();
@@ -119,9 +121,10 @@ complete -F _{name} -o bashdefault -o default {name}
     }
 
     fn option_details_for_path(&self, path: &str) -> String {
+        debugln!("BashGen::option_details_for_path: path={}", path);
         let mut p = self.p;
         for sc in path.split('_').skip(1) {
-            debugln!("iter;sc={}", sc);
+            debugln!("BashGen::option_details_for_path:iter: sc={}", sc);
             p = &p.subcommands
                 .iter()
                 .find(|s| {
@@ -165,6 +168,7 @@ complete -F _{name} -o bashdefault -o default {name}
     }
 
     fn vals_for(&self, o: &OptBuilder) -> String {
+        debugln!("BashGen::vals_for: o={}", o.b.name);
         use args::AnyArg;
         let mut ret = String::new();
         let mut needs_quotes = true;
@@ -206,9 +210,10 @@ complete -F _{name} -o bashdefault -o default {name}
         ret
     }
     fn all_options_for_path(&self, path: &str) -> String {
+        debugln!("BashGen::all_options_for_path: path={}", path);
         let mut p = self.p;
         for sc in path.split('_').skip(1) {
-            debugln!("iter;sc={}", sc);
+            debugln!("BashGen::all_options_for_path:iter: sc={}", sc);
             p = &p.subcommands
                 .iter()
                 .find(|s| {

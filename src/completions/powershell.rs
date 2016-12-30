@@ -73,6 +73,7 @@ impl<'a, 'b> PowerShellGen<'a, 'b> {
 }
 
 fn generate_inner<'a, 'b>(p: &Parser<'a, 'b>, previous_command_name: &str) -> (String, String) {
+    debugln!("PowerShellGen::generate_inner;");
     let command_name = format!("{}_{}", previous_command_name, &p.meta.name);
 
     let mut subcommands_detection_cases = if previous_command_name == "" {

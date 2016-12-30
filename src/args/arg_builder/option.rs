@@ -45,7 +45,7 @@ impl<'n, 'e> OptBuilder<'n, 'e> {
 
 impl<'n, 'e> Display for OptBuilder<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        debugln!("fn=fmt");
+        debugln!("OptBuilder::fmt");
         // Write the name such --long or -l
         if let Some(l) = self.s.long {
             try!(write!(f, "--{} ", l));

@@ -18,12 +18,12 @@ pub struct ZshGen<'a, 'b>
 
 impl<'a, 'b> ZshGen<'a, 'b> {
     pub fn new(p: &'b Parser<'a, 'b>) -> Self {
-        debugln!("fn=ZshGen::new;");
+        debugln!("ZshGen::new;");
         ZshGen { p: p }
     }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
-        debugln!("fn=generate_to;");
+        debugln!("ZshGen::generate_to;");
         w!(buf,
             format!("\
 #compdef {name}
@@ -76,7 +76,7 @@ _{name} \"$@\"",
 // 	_describe -t commands 'rustup commands' commands "$@"
 //
 fn subcommand_details(p: &Parser) -> String {
-    debugln!("fn=subcommand_details");
+    debugln!("ZshGen::subcommand_details;");
     // First we do ourself
     let mut ret = vec![format!("\
 (( $+functions[_{bin_name_underscore}_commands] )) ||
@@ -95,7 +95,7 @@ _{bin_name_underscore}_commands() {{
     all_subcommands.sort();
     all_subcommands.dedup();
     for &(_, ref bin_name) in &all_subcommands {
-        debugln!("iter;bin_name={}", bin_name);
+        debugln!("ZshGen::subcommand_details:iter: bin_name={}", bin_name);
         ret.push(format!("\
 (( $+functions[_{bin_name_underscore}_commands] )) ||
 _{bin_name_underscore}_commands() {{
@@ -124,9 +124,10 @@ _{bin_name_underscore}_commands() {{
 // 		'show:Show the active and installed toolchains'
 //      'update:Update Rust toolchains'
 fn subcommands_and_args_of(p: &Parser) -> String {
-    debugln!("fn=subcommands_and_args_of;");
+    debugln!("ZshGen::subcommands_and_args_of;");
     let mut ret = vec![];
     fn add_sc(sc: &App, n: &str, ret: &mut Vec<String>) {
+        debugln!("ZshGen::add_sc;");
         let s = format!("\"{name}:{help}\" \\", 
             name = n, 
             help = sc.p.meta.about.unwrap_or("").replace("[", "\\[").replace("]", "\\]"));
@@ -137,7 +138,7 @@ fn subcommands_and_args_of(p: &Parser) -> String {
 
     // First the subcommands
     for sc in p.subcommands() {
-        debugln!("iter;subcommand={}", sc.p.meta.name);
+        debugln!("ZshGen::subcommands_and_args_of:iter: subcommand={}", sc.p.meta.name);
         add_sc(sc, &sc.p.meta.name, &mut ret);
         if let Some(ref v) = sc.p.meta.aliases {
             for alias in v.iter().filter(|&&(_, vis)| vis).map(|&(n, _)| n) {
@@ -148,7 +149,7 @@ fn subcommands_and_args_of(p: &Parser) -> String {
 
     // Then the positional args
     for arg in p.positionals() {
-        debugln!("iter;arg={}", arg.b.name);
+        debugln!("ZshGen::subcommands_and_args_of:iter: arg={}", arg.b.name);
         let a = format!("\"{name}:{help}\" \\", 
             name = arg.b.name.to_ascii_uppercase(), 
             help = arg.b.help.unwrap_or("").replace("[", "\\[").replace("]", "\\]"));
@@ -191,14 +192,11 @@ fn subcommands_and_args_of(p: &Parser) -> String {
 //    [repeat] = From the same recursive calls, but for all subcommands
 //    [subcommand_args] = The same as zsh::get_args_of
 fn get_subcommands_of(p: &Parser) -> String {
-    debugln!("fn=get_subcommands_of");
+    debugln!("get_subcommands_of;");
 
-    debug!("Has subcommands...");
+    debugln!("get_subcommands_of: Has subcommands...{:?}", p.has_subcommands());
     if !p.has_subcommands() {
-        sdebugln!("No");
         return String::new();
-    } else {
-        sdebugln!("Yes");
     }
 
     let sc_names = completions::subcommands_of(p);
@@ -233,7 +231,7 @@ esac",
 }
 
 fn parser_of<'a, 'b>(p: &'b Parser<'a, 'b>, sc: &str) -> &'b Parser<'a, 'b> {
-    debugln!("fn=parser_of;sc={}", sc);
+    debugln!("parser_of: sc={}", sc);
     if sc == p.meta.bin_name.as_ref().unwrap_or(&String::new()) {
         return p;
     }
@@ -261,7 +259,7 @@ fn parser_of<'a, 'b>(p: &'b Parser<'a, 'b>, sc: &str) -> &'b Parser<'a, 'b> {
 //    -s: Allow stacking of short args (i.e. -a -b -c => -abc)
 //    -S: Do not complete anything after '--' and treat those as argument values
 fn get_args_of(p: &Parser) -> String {
-    debugln!("fn=get_args_of");
+    debugln!("get_args_of;");
     let mut ret = vec![String::from("_arguments -s -S -C \\")];
     let opts = write_opts_of(p);
     let flags = write_flags_of(p);
@@ -295,10 +293,10 @@ fn get_args_of(p: &Parser) -> String {
 }
 
 fn write_opts_of(p: &Parser) -> String {
-    debugln!("fn=write_opts_of;");
+    debugln!("write_opts_of;");
     let mut ret = vec![];
     for o in p.opts() {
-        debugln!("iter;o={}", o.name());
+        debugln!("write_opts_of:iter: o={}", o.name());
         let help = o.help().unwrap_or("").replace("[", "\\[").replace("]", "\\]");
         let mut conflicts = get_zsh_arg_conflicts!(p, o, INTERNAL_ERROR_MSG);
         conflicts = if conflicts.is_empty() {
@@ -325,7 +323,7 @@ fn write_opts_of(p: &Parser) -> String {
                 possible_values = pv,
                 help = help);
 
-            debugln!("Wrote...{}", &*s);
+            debugln!("write_opts_of:iter: Wrote...{}", &*s);
             ret.push(s);
         }
         if let Some(long) = o.long() {
@@ -336,7 +334,7 @@ fn write_opts_of(p: &Parser) -> String {
                 possible_values = pv,
                 help = help);
 
-            debugln!("Wrote...{}", &*l);
+            debugln!("write_opts_of:iter: Wrote...{}", &*l);
             ret.push(l);
         }
     }
@@ -345,10 +343,10 @@ fn write_opts_of(p: &Parser) -> String {
 }
 
 fn write_flags_of(p: &Parser) -> String {
-    debugln!("fn=write_flags_of;");
+    debugln!("write_flags_of;");
     let mut ret = vec![];
     for f in p.flags() {
-        debugln!("iter;f={}", f.name());
+        debugln!("write_flags_of:iter: f={}", f.name());
         let help = f.help().unwrap_or("").replace("[", "\\[").replace("]", "\\]");
         let mut conflicts = get_zsh_arg_conflicts!(p, f, INTERNAL_ERROR_MSG);
         conflicts = if conflicts.is_empty() {
@@ -369,7 +367,7 @@ fn write_flags_of(p: &Parser) -> String {
                 arg = short,
                 help = help);
 
-            debugln!("Wrote...{}", &*s);
+            debugln!("write_flags_of:iter: Wrote...{}", &*s);
             ret.push(s);
         }
 
@@ -380,7 +378,7 @@ fn write_flags_of(p: &Parser) -> String {
                 arg = long,
                 help = help);
 
-            debugln!("Wrote...{}", &*l);
+            debugln!("write_flags_of:iter: Wrote...{}", &*l);
             ret.push(l);
         }
     }
