@@ -371,3 +371,14 @@ fn test_unset_settings() {
     assert!(!m.p.is_set(AppSettings::AllowInvalidUtf8));
     assert!(!m.p.is_set(AppSettings::ColorAuto));
 }
+
+#[test]
+fn disable_help_subcommand() {
+    let result = App::new("disablehelp")
+        .setting(AppSettings::DisableHelpSubcommand)
+        .subcommand(SubCommand::with_name("sub1"))
+        .get_matches_from_safe(vec!["", "help"]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.kind, ErrorKind::UnknownArgument);
+}
