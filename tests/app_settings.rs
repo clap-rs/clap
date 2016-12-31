@@ -1,6 +1,23 @@
 extern crate clap;
+extern crate regex;
 
 use clap::{App, Arg, SubCommand, AppSettings, ErrorKind};
+
+include!("../clap-test.rs");
+
+static DONT_COLLAPSE_ARGS: &'static str = "clap-test v1.4.8
+
+USAGE:
+    clap-test [arg1] [arg2] [arg3]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+ARGS:
+    <arg1>    some
+    <arg2>    some
+    <arg3>    some";
 
 #[test]
 fn sub_command_negate_required() {
@@ -381,4 +398,17 @@ fn disable_help_subcommand() {
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(err.kind, ErrorKind::UnknownArgument);
+}
+
+#[test]
+fn dont_collapse_args() {
+    let app = App::new("clap-test")
+        .version("v1.4.8")
+        .setting(AppSettings::DontCollapseArgsInUsage)
+        .args(&[
+            Arg::with_name("arg1").help("some"),
+            Arg::with_name("arg2").help("some"),
+            Arg::with_name("arg3").help("some"),
+        ]);
+    test::check_help(app, DONT_COLLAPSE_ARGS);
 }
