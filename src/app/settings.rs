@@ -4,36 +4,37 @@ use std::str::FromStr;
 
 bitflags! {
     flags Flags: u32 {
-        const SC_NEGATE_REQS       = 0b000000000000000000000000000001,
-        const SC_REQUIRED          = 0b000000000000000000000000000010,
-        const A_REQUIRED_ELSE_HELP = 0b000000000000000000000000000100,
-        const GLOBAL_VERSION       = 0b000000000000000000000000001000,
-        const VERSIONLESS_SC       = 0b000000000000000000000000010000,
-        const UNIFIED_HELP         = 0b000000000000000000000000100000,
-        const WAIT_ON_ERROR        = 0b000000000000000000000001000000,
-        const SC_REQUIRED_ELSE_HELP= 0b000000000000000000000010000000,
-        const NEEDS_LONG_HELP      = 0b000000000000000000000100000000,
-        const NEEDS_LONG_VERSION   = 0b000000000000000000001000000000,
-        const NEEDS_SC_HELP        = 0b000000000000000000010000000000,
-        const DISABLE_VERSION      = 0b000000000000000000100000000000,
-        const HIDDEN               = 0b000000000000000001000000000000,
-        const TRAILING_VARARG      = 0b000000000000000010000000000000,
-        const NO_BIN_NAME          = 0b000000000000000100000000000000,
-        const ALLOW_UNK_SC         = 0b000000000000001000000000000000,
-        const UTF8_STRICT          = 0b000000000000010000000000000000,
-        const UTF8_NONE            = 0b000000000000100000000000000000,
-        const LEADING_HYPHEN       = 0b000000000001000000000000000000,
-        const NO_POS_VALUES        = 0b000000000010000000000000000000,
-        const NEXT_LINE_HELP       = 0b000000000100000000000000000000,
-        const DERIVE_DISP_ORDER    = 0b000000001000000000000000000000,
-        const COLORED_HELP         = 0b000000010000000000000000000000,
-        const COLOR_ALWAYS         = 0b000000100000000000000000000000,
-        const COLOR_AUTO           = 0b000001000000000000000000000000,
-        const COLOR_NEVER          = 0b000010000000000000000000000000,
-        const DONT_DELIM_TRAIL     = 0b000100000000000000000000000000,
-        const ALLOW_NEG_NUMS       = 0b001000000000000000000000000000,
-        const LOW_INDEX_MUL_POS    = 0b010000000000000000000000000000,
-        const DISABLE_HELP_SC      = 0b10000000000000000000000000000,
+        const SC_NEGATE_REQS       = 0b0000000000000000000000000000001,
+        const SC_REQUIRED          = 0b0000000000000000000000000000010,
+        const A_REQUIRED_ELSE_HELP = 0b0000000000000000000000000000100,
+        const GLOBAL_VERSION       = 0b0000000000000000000000000001000,
+        const VERSIONLESS_SC       = 0b0000000000000000000000000010000,
+        const UNIFIED_HELP         = 0b0000000000000000000000000100000,
+        const WAIT_ON_ERROR        = 0b0000000000000000000000001000000,
+        const SC_REQUIRED_ELSE_HELP= 0b0000000000000000000000010000000,
+        const NEEDS_LONG_HELP      = 0b0000000000000000000000100000000,
+        const NEEDS_LONG_VERSION   = 0b0000000000000000000001000000000,
+        const NEEDS_SC_HELP        = 0b0000000000000000000010000000000,
+        const DISABLE_VERSION      = 0b0000000000000000000100000000000,
+        const HIDDEN               = 0b0000000000000000001000000000000,
+        const TRAILING_VARARG      = 0b0000000000000000010000000000000,
+        const NO_BIN_NAME          = 0b0000000000000000100000000000000,
+        const ALLOW_UNK_SC         = 0b0000000000000001000000000000000,
+        const UTF8_STRICT          = 0b0000000000000010000000000000000,
+        const UTF8_NONE            = 0b0000000000000100000000000000000,
+        const LEADING_HYPHEN       = 0b0000000000001000000000000000000,
+        const NO_POS_VALUES        = 0b0000000000010000000000000000000,
+        const NEXT_LINE_HELP       = 0b0000000000100000000000000000000,
+        const DERIVE_DISP_ORDER    = 0b0000000001000000000000000000000,
+        const COLORED_HELP         = 0b0000000010000000000000000000000,
+        const COLOR_ALWAYS         = 0b0000000100000000000000000000000,
+        const COLOR_AUTO           = 0b0000001000000000000000000000000,
+        const COLOR_NEVER          = 0b0000010000000000000000000000000,
+        const DONT_DELIM_TRAIL     = 0b0000100000000000000000000000000,
+        const ALLOW_NEG_NUMS       = 0b0001000000000000000000000000000,
+        const LOW_INDEX_MUL_POS    = 0b0010000000000000000000000000000,
+        const DISABLE_HELP_SC      = 0b0100000000000000000000000000000,
+        const DONT_COLLAPSE_ARGS   = 0b1000000000000000000000000000000,
     }
 }
 
@@ -65,6 +66,7 @@ impl AppFlags {
         ColorAuto => COLOR_AUTO,
         ColorNever => COLOR_NEVER,
         DontDelimitTrailingValues => DONT_DELIM_TRAIL,
+        DontCollapseArgsInUsage => DONT_COLLAPSE_ARGS,
         DeriveDisplayOrder => DERIVE_DISP_ORDER,
         DisableHelpSubcommand => DISABLE_HELP_SC,
         DisableVersion => DISABLE_VERSION,
@@ -310,6 +312,18 @@ pub enum AppSettings {
     ///     .get_matches();
     /// ```
     ColorNever,
+
+    /// Disables the automatic collapsing of positional args into `[ARGS]` inside the usage string
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, SubCommand, AppSettings};
+    /// App::new("myprog")
+    ///     .setting(AppSettings::DontCollapseArgsInUsage)
+    ///     .get_matches();
+    /// ```
+    DontCollapseArgsInUsage,
 
     /// Disables the automatic delimiting of values when `--` or [`AppSettings::TrailingVarArg`]
     /// was used.
@@ -702,6 +716,7 @@ impl FromStr for AppSettings {
             "colornever" => Ok(AppSettings::ColorNever),
             "coloredhelp" => Ok(AppSettings::ColoredHelp),
             "derivedisplayorder" => Ok(AppSettings::DeriveDisplayOrder),
+            "dontcollapseargsinusage" => Ok(AppSettings::DontCollapseArgsInUsage),
             "dontdelimittrailingvalues" => Ok(AppSettings::DontDelimitTrailingValues),
             "disablehelpsubcommand" => Ok(AppSettings::DisableHelpSubcommand),
             "disableversion" => Ok(AppSettings::DisableVersion),
@@ -752,6 +767,8 @@ mod test {
                    AppSettings::DisableHelpSubcommand);
         assert_eq!("disableversion".parse::<AppSettings>().unwrap(),
                    AppSettings::DisableVersion);
+        assert_eq!("dontcollapseargsinusage".parse::<AppSettings>().unwrap(),
+                   AppSettings::DontCollapseArgsInUsage);
         assert_eq!("dontdelimittrailingvalues".parse::<AppSettings>().unwrap(),
                    AppSettings::DontDelimitTrailingValues);
         assert_eq!("derivedisplayorder".parse::<AppSettings>().unwrap(),

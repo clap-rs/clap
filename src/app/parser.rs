@@ -448,11 +448,23 @@ impl<'a, 'b> Parser<'a, 'b>
             count += 1;
             debugln!("Parser::get_args_tag:iter: {} Args not required", count);
         }
-        if count > 1 || self.positionals.len() > 1 {
+        if !self.is_set(AppSettings::DontCollapseArgsInUsage) &&
+           (count > 1 || self.positionals.len() > 1) {
             return None; // [ARGS]
         } else if count == 1 {
-            let p = self.positionals.values().next().expect(INTERNAL_ERROR_MSG);
+            let p = self.positionals
+                .values()
+                .filter(|p| !p.is_set(ArgSettings::Required))
+                .next()
+                .expect(INTERNAL_ERROR_MSG);
             return Some(format!(" [{}]{}", p.name_no_brackets(), p.multiple_str()));
+        } else if self.is_set(AppSettings::DontCollapseArgsInUsage) && !self.positionals.is_empty() {
+            return Some(self.positionals
+                .values()
+                .filter(|p| !p.is_set(ArgSettings::Required))
+                .map(|p| format!(" [{}]{}", p.name_no_brackets(), p.multiple_str()))
+                .collect::<Vec<_>>()
+                .join(""));
         }
         Some("".into())
     }
