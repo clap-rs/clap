@@ -4,35 +4,36 @@ use std::str::FromStr;
 
 bitflags! {
     flags Flags: u32 {
-        const SC_NEGATE_REQS       = 0b00000000000000000000000000001,
-        const SC_REQUIRED          = 0b00000000000000000000000000010,
-        const A_REQUIRED_ELSE_HELP = 0b00000000000000000000000000100,
-        const GLOBAL_VERSION       = 0b00000000000000000000000001000,
-        const VERSIONLESS_SC       = 0b00000000000000000000000010000,
-        const UNIFIED_HELP         = 0b00000000000000000000000100000,
-        const WAIT_ON_ERROR        = 0b00000000000000000000001000000,
-        const SC_REQUIRED_ELSE_HELP= 0b00000000000000000000010000000,
-        const NEEDS_LONG_HELP      = 0b00000000000000000000100000000,
-        const NEEDS_LONG_VERSION   = 0b00000000000000000001000000000,
-        const NEEDS_SC_HELP        = 0b00000000000000000010000000000,
-        const DISABLE_VERSION      = 0b00000000000000000100000000000,
-        const HIDDEN               = 0b00000000000000001000000000000,
-        const TRAILING_VARARG      = 0b00000000000000010000000000000,
-        const NO_BIN_NAME          = 0b00000000000000100000000000000,
-        const ALLOW_UNK_SC         = 0b00000000000001000000000000000,
-        const UTF8_STRICT          = 0b00000000000010000000000000000,
-        const UTF8_NONE            = 0b00000000000100000000000000000,
-        const LEADING_HYPHEN       = 0b00000000001000000000000000000,
-        const NO_POS_VALUES        = 0b00000000010000000000000000000,
-        const NEXT_LINE_HELP       = 0b00000000100000000000000000000,
-        const DERIVE_DISP_ORDER    = 0b00000001000000000000000000000,
-        const COLORED_HELP         = 0b00000010000000000000000000000,
-        const COLOR_ALWAYS         = 0b00000100000000000000000000000,
-        const COLOR_AUTO           = 0b00001000000000000000000000000,
-        const COLOR_NEVER          = 0b00010000000000000000000000000,
-        const DONT_DELIM_TRAIL     = 0b00100000000000000000000000000,
-        const ALLOW_NEG_NUMS       = 0b01000000000000000000000000000,
-        const LOW_INDEX_MUL_POS    = 0b10000000000000000000000000000,
+        const SC_NEGATE_REQS       = 0b000000000000000000000000000001,
+        const SC_REQUIRED          = 0b000000000000000000000000000010,
+        const A_REQUIRED_ELSE_HELP = 0b000000000000000000000000000100,
+        const GLOBAL_VERSION       = 0b000000000000000000000000001000,
+        const VERSIONLESS_SC       = 0b000000000000000000000000010000,
+        const UNIFIED_HELP         = 0b000000000000000000000000100000,
+        const WAIT_ON_ERROR        = 0b000000000000000000000001000000,
+        const SC_REQUIRED_ELSE_HELP= 0b000000000000000000000010000000,
+        const NEEDS_LONG_HELP      = 0b000000000000000000000100000000,
+        const NEEDS_LONG_VERSION   = 0b000000000000000000001000000000,
+        const NEEDS_SC_HELP        = 0b000000000000000000010000000000,
+        const DISABLE_VERSION      = 0b000000000000000000100000000000,
+        const HIDDEN               = 0b000000000000000001000000000000,
+        const TRAILING_VARARG      = 0b000000000000000010000000000000,
+        const NO_BIN_NAME          = 0b000000000000000100000000000000,
+        const ALLOW_UNK_SC         = 0b000000000000001000000000000000,
+        const UTF8_STRICT          = 0b000000000000010000000000000000,
+        const UTF8_NONE            = 0b000000000000100000000000000000,
+        const LEADING_HYPHEN       = 0b000000000001000000000000000000,
+        const NO_POS_VALUES        = 0b000000000010000000000000000000,
+        const NEXT_LINE_HELP       = 0b000000000100000000000000000000,
+        const DERIVE_DISP_ORDER    = 0b000000001000000000000000000000,
+        const COLORED_HELP         = 0b000000010000000000000000000000,
+        const COLOR_ALWAYS         = 0b000000100000000000000000000000,
+        const COLOR_AUTO           = 0b000001000000000000000000000000,
+        const COLOR_NEVER          = 0b000010000000000000000000000000,
+        const DONT_DELIM_TRAIL     = 0b000100000000000000000000000000,
+        const ALLOW_NEG_NUMS       = 0b001000000000000000000000000000,
+        const LOW_INDEX_MUL_POS    = 0b010000000000000000000000000000,
+        const DISABLE_HELP_SC      = 0b10000000000000000000000000000,
     }
 }
 
@@ -65,6 +66,7 @@ impl AppFlags {
         ColorNever => COLOR_NEVER,
         DontDelimitTrailingValues => DONT_DELIM_TRAIL,
         DeriveDisplayOrder => DERIVE_DISP_ORDER,
+        DisableHelpSubcommand => DISABLE_HELP_SC,
         DisableVersion => DISABLE_VERSION,
         GlobalVersion => GLOBAL_VERSION,
         HidePossibleValuesInHelp => NO_POS_VALUES,
@@ -327,6 +329,27 @@ pub enum AppSettings {
     /// [`AppSettings::TrailingVarArg`]: ./enum.AppSettings.html#variant.TrailingVarArg
     /// [`Arg::use_delimiter(false)`]: ./struct.Arg.html#method.use_delimiter
     DontDelimitTrailingValues,
+
+    /// Disables the `help` subcommand 
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, AppSettings, ErrorKind, SubCommand};
+    /// let res = App::new("myprog")
+    ///     .version("v1.1")
+    ///     .setting(AppSettings::DisableHelpSubcommand)
+    ///     // Normally, creating a subcommand causes a `help` subcommand to automaticaly
+    ///     // be generated as well
+    ///     .subcommand(SubCommand::with_name("test")) 
+    ///     .get_matches_from_safe(vec![
+    ///         "myprog", "help"
+    ///     ]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+    /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
+    DisableHelpSubcommand,
 
     /// Disables `-V` and `--version` [`App`] without affecting any of the [`SubCommand`]s
     /// (Defaults to `false`; application *does* have a version flag)
@@ -680,6 +703,7 @@ impl FromStr for AppSettings {
             "coloredhelp" => Ok(AppSettings::ColoredHelp),
             "derivedisplayorder" => Ok(AppSettings::DeriveDisplayOrder),
             "dontdelimittrailingvalues" => Ok(AppSettings::DontDelimitTrailingValues),
+            "disablehelpsubcommand" => Ok(AppSettings::DisableHelpSubcommand),
             "disableversion" => Ok(AppSettings::DisableVersion),
             "globalversion" => Ok(AppSettings::GlobalVersion),
             "hidden" => Ok(AppSettings::Hidden),
@@ -724,6 +748,8 @@ mod test {
                    AppSettings::ColorAlways);
         assert_eq!("colornever".parse::<AppSettings>().unwrap(),
                    AppSettings::ColorNever);
+        assert_eq!("disablehelpsubcommand".parse::<AppSettings>().unwrap(),
+                   AppSettings::DisableHelpSubcommand);
         assert_eq!("disableversion".parse::<AppSettings>().unwrap(),
                    AppSettings::DisableVersion);
         assert_eq!("dontdelimittrailingvalues".parse::<AppSettings>().unwrap(),

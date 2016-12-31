@@ -842,6 +842,7 @@ impl<'a, 'b> Parser<'a, 'b>
             debugln!("Parser::get_matches_with: Positional counter...{}", pos_counter);
             debug!("Parser::get_matches_with: Checking for low index multiples...");
             if self.is_set(AppSettings::LowIndexMultiplePositional) &&
+               !self.positionals.is_empty() &&
                pos_counter == (self.positionals.len() - 1) {
                 sdebugln!("Found");
                 if let Some(na) = it.peek() {
@@ -1204,7 +1205,8 @@ impl<'a, 'b> Parser<'a, 'b>
             self.long_list.push("version");
             self.flags.insert(id, arg);
         }
-        if !self.subcommands.is_empty() && self.is_set(AppSettings::NeedsSubcommandHelp) {
+        if !self.subcommands.is_empty() && !self.is_set(AppSettings::DisableHelpSubcommand) &&
+           self.is_set(AppSettings::NeedsSubcommandHelp) {
             debugln!("Parser::create_help_and_version: Building help");
             self.subcommands
                 .push(App::new("help")
