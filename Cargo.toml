@@ -15,16 +15,16 @@ A simple to use, efficient, and full featured  Command Line Argument Parser
 """
 
 [dependencies]
-bitflags              = "~0.7"
-vec_map               = "~0.6"
-unicode-width         = "~0.1.3"
-unicode-segmentation  = "~0.1.2"
-strsim    = { version = "~0.5.1",  optional = true }
-ansi_term = { version = "~0.9.0",  optional = true }
-term_size = { version = "~0.2.0",  optional = true }
-libc      = { version = "~0.2.9",  optional = true }
-yaml-rust = { version = "~0.3.2",  optional = true }
-clippy    = { version = "~0.0.100", optional = true }
+bitflags              = "=0.7.0"
+vec_map               = "=0.6.0"
+unicode-width         = "=0.1.4"
+unicode-segmentation  = "1.0.1"
+strsim    = { version = "=0.6.0",  optional = true }
+ansi_term = { version = "=0.9.0",  optional = true }
+term_size = { version = "=0.2.0",  optional = true }
+libc      = { version = "=0.2.18",  optional = true }
+yaml-rust = { version = "=0.3.5",  optional = true }
+clippy    = { version = "~0.0.104", optional = true }
 
 [dev-dependencies]
 regex = "~0.1.80"
