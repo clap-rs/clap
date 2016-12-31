@@ -412,3 +412,41 @@ fn dont_collapse_args() {
         ]);
     test::check_help(app, DONT_COLLAPSE_ARGS);
 }
+
+#[test]
+fn args_negate_subcommands_one_level() {
+    let res = App::new("disablehelp")
+        .setting(AppSettings::ArgsNegateSubcommands)
+        .setting(AppSettings::SubcommandsNegateReqs)
+        .arg_from_usage("<arg1> 'some arg'")
+        .arg_from_usage("<arg2> 'some arg'")
+        .subcommand(SubCommand::with_name("sub1")
+            .subcommand(SubCommand::with_name("sub2")
+                .subcommand(SubCommand::with_name("sub3"))
+            )
+        )
+        .get_matches_from_safe(vec!["", "pickles", "sub1"]);
+    assert!(res.is_ok(), "error: {:?}", res.unwrap_err().kind);
+    let m = res.unwrap();
+    assert_eq!(m.value_of("arg2"), Some("sub1"));
+}
+
+#[test]
+fn args_negate_subcommands_two_levels() {
+    let res = App::new("disablehelp")
+        .global_setting(AppSettings::ArgsNegateSubcommands)
+        .global_setting(AppSettings::SubcommandsNegateReqs)
+        .arg_from_usage("<arg1> 'some arg'")
+        .arg_from_usage("<arg2> 'some arg'")
+        .subcommand(SubCommand::with_name("sub1")
+            .arg_from_usage("<arg> 'some'")
+            .arg_from_usage("<arg2> 'some'")
+            .subcommand(SubCommand::with_name("sub2")
+                .subcommand(SubCommand::with_name("sub3"))
+            )
+        )
+        .get_matches_from_safe(vec!["", "sub1", "arg", "sub2"]);
+    assert!(res.is_ok(), "error: {:?}", res.unwrap_err().kind);
+    let m = res.unwrap();
+    assert_eq!(m.subcommand_matches("sub1").unwrap().value_of("arg2"), Some("sub2"));
+}
