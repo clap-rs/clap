@@ -240,7 +240,7 @@ impl<'a, 'b> Parser<'a, 'b>
         debug!("Parser::add_subcommand: Is help...");
         if subcmd.p.meta.name == "help" {
             sdebugln!("Yes");
-            self.settings.set(AppSettings::NeedsSubcommandHelp);
+            self.settings.unset(AppSettings::NeedsSubcommandHelp);
         } else {
             sdebugln!("No");
         }
