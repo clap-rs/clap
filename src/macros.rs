@@ -380,9 +380,9 @@ macro_rules! arg_enum {
 /// # extern crate clap;
 /// # use clap::App;
 /// # fn main() {
-///     let m = App::new("app")
-///                 .version(crate_version!())
-///                 .get_matches();
+/// let m = App::new("app")
+///             .version(crate_version!())
+///             .get_matches();
 /// # }
 /// ```
 #[cfg(not(feature="no_cargo"))]
@@ -445,6 +445,82 @@ macro_rules! crate_authors {
     }};
     () => {
         env!("CARGO_PKG_AUTHORS")
+    };
+}
+
+/// Allows you to pull the description from your Cargo.toml at compile time.
+///
+/// # Examples
+///
+/// ```no_run
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::App;
+/// # fn main() {
+/// let m = App::new("app")
+///             .about(crate_description!())
+///             .get_matches();
+/// # }
+/// ```
+#[cfg(not(feature="no_cargo"))]
+#[macro_export]
+macro_rules! crate_description {
+    () => {
+        env!("CARGO_PKG_DESCRIPTION")
+    };
+}
+
+/// Allows you to pull the name from your Cargo.toml at compile time.
+///
+/// # Examples
+///
+/// ```no_run
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::App;
+/// # fn main() {
+/// let m = App::new(crate_name!())
+///             .get_matches();
+/// # }
+/// ```
+#[cfg(not(feature="no_cargo"))]
+#[macro_export]
+macro_rules! crate_name {
+    () => {
+        env!("CARGO_PKG_NAME")
+    };
+}
+
+/// Allows you to build the `App` instance from your Cargo.toml at compile time.
+///
+/// Equivalent to using the `crate_*!` macros with their respective fields.
+///
+/// Provided separator is for the [macro.crate_authors.html](`crate_authors!`) macro,
+/// refer to the documentation therefor.
+///
+/// # Examples
+///
+/// ```no_run
+/// # #[macro_use]
+/// # extern crate clap;
+/// # fn main() {
+/// let m = app_from_crate!().get_matches();
+/// # }
+/// ```
+#[cfg(not(feature="no_cargo"))]
+#[macro_export]
+macro_rules! app_from_crate {
+    () => {
+        $crate::App::new(crate_name!())
+            .version(crate_version!())
+            .author(crate_authors!())
+            .about(crate_description!())
+    };
+    ($sep:expr) => {
+        $crate::App::new(crate_name!())
+            .version(crate_version!())
+            .author(crate_authors!($sep))
+            .about(crate_description!())
     };
 }
 
