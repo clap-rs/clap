@@ -59,9 +59,11 @@ pub struct Parser<'a, 'b>
     settings: AppFlags,
     pub g_settings: Vec<AppSettings>,
     pub meta: AppMeta<'b>,
-    trailing_vals: bool,
     pub id: usize,
+    trailing_vals: bool,
     valid_neg_num: bool,
+    // have we found a valid arg yet
+    valid_arg: bool,
 }
 
 impl<'a, 'b> Default for Parser<'a, 'b> {
@@ -87,6 +89,7 @@ impl<'a, 'b> Default for Parser<'a, 'b> {
             trailing_vals: false,
             id: 0,
             valid_neg_num: false,
+            valid_arg: false,
         }
     }
 }
@@ -458,7 +461,8 @@ impl<'a, 'b> Parser<'a, 'b>
                 .next()
                 .expect(INTERNAL_ERROR_MSG);
             return Some(format!(" [{}]{}", p.name_no_brackets(), p.multiple_str()));
-        } else if self.is_set(AppSettings::DontCollapseArgsInUsage) && !self.positionals.is_empty() {
+        } else if self.is_set(AppSettings::DontCollapseArgsInUsage) &&
+                  !self.positionals.is_empty() {
             return Some(self.positionals
                 .values()
                 .filter(|p| !p.is_set(ArgSettings::Required))
@@ -608,6 +612,9 @@ impl<'a, 'b> Parser<'a, 'b>
     #[inline]
     fn possible_subcommand(&self, arg_os: &OsStr) -> bool {
         debugln!("Parser::possible_subcommand;");
+        if self.is_set(AppSettings::ArgsNegateSubcommands) && self.valid_arg {
+            return false;
+        }
         self.subcommands
             .iter()
             .any(|s| {
@@ -835,6 +842,8 @@ impl<'a, 'b> Parser<'a, 'b>
                     }
                     subcmd_name = Some(arg_os.to_str().expect(INVALID_UTF8).to_owned());
                     break;
+                } else if self.is_set(AppSettings::ArgsNegateSubcommands) {
+                    ();
                 } else if let Some(cdate) =
                     suggestions::did_you_mean(&*arg_os.to_string_lossy(),
                                               self.subcommands
@@ -877,6 +886,7 @@ impl<'a, 'b> Parser<'a, 'b>
             }
             if let Some(p) = self.positionals.get(pos_counter) {
                 parse_positional!(self, p, arg_os, pos_counter, matcher);
+                self.valid_arg = true;
             } else if self.settings.is_set(AppSettings::AllowExternalSubcommands) {
                 // Get external subcommand name
                 let sc_name = match arg_os.to_str() {
@@ -922,17 +932,15 @@ impl<'a, 'b> Parser<'a, 'b>
                 let sc_name = &*self.subcommands
                     .iter()
                     .filter(|sc| sc.p.meta.aliases.is_some())
-                    .filter_map(|sc| if sc.p
+                    .filter(|sc| sc.p
                         .meta
                         .aliases
                         .as_ref()
-                        .unwrap()
+                        .expect(INTERNAL_ERROR_MSG)
                         .iter()
-                        .any(|&(a, _)| &a == &&*pos_sc_name) {
-                        Some(sc.p.meta.name.clone())
-                    } else {
-                        None
-                    })
+                        .any(|&(a, _)| &a == &&*pos_sc_name) 
+                    )
+                    .map(|sc| sc.p.meta.name.clone())
                     .next()
                     .expect(INTERNAL_ERROR_MSG);
                 try!(self.parse_subcommand(sc_name, matcher, it));
@@ -1321,12 +1329,14 @@ impl<'a, 'b> Parser<'a, 'b>
 
         if let Some(opt) = find_by_long!(self, &arg, opts) {
             debugln!("Parser::parse_long_arg: Found valid opt '{}'", opt.to_string());
+            self.valid_arg = true;
             let ret = try!(self.parse_opt(val, opt, matcher));
             arg_post_processing!(self, opt, matcher);
 
             return Ok(ret);
         } else if let Some(flag) = find_by_long!(self, &arg, flags) {
             debugln!("Parser::parse_long_arg: Found valid flag '{}'", flag.to_string());
+            self.valid_arg = true;
             // Only flags could be help or version, and we need to check the raw long
             // so this is the first point to check
             try!(self.check_for_help_and_version_str(arg));
@@ -1383,6 +1393,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 .iter()
                 .find(|&o| o.s.short.is_some() && o.s.short.unwrap() == c) {
                 debugln!("Parser::parse_short_arg:iter: Found valid short opt -{} in '{}'", c, arg);
+                self.valid_arg = true;
                 // Check for trailing concatenated value
                 let p: Vec<_> = arg.splitn(2, c).collect();
                 debugln!("Parser::parse_short_arg:iter: arg: {:?}, arg_os: {:?}, full_arg: {:?}",
@@ -1410,6 +1421,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 .iter()
                 .find(|&f| f.s.short.is_some() && f.s.short.unwrap() == c) {
                 debugln!("Parser::parse_short_arg:iter: Found valid short flag -{}", c);
+                self.valid_arg = true;
                 // Only flags can be help or version
                 try!(self.check_for_help_and_version_char(c));
                 try!(self.parse_flag(flag, matcher));
@@ -2164,6 +2176,7 @@ impl<'a, 'b> Clone for Parser<'a, 'b>
             id: self.id,
             valid_neg_num: self.valid_neg_num,
             r_ifs: self.r_ifs.clone(),
+            valid_arg: self.valid_arg,
         }
     }
 }

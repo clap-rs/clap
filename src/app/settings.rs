@@ -4,37 +4,38 @@ use std::str::FromStr;
 
 bitflags! {
     flags Flags: u32 {
-        const SC_NEGATE_REQS       = 0b0000000000000000000000000000001,
-        const SC_REQUIRED          = 0b0000000000000000000000000000010,
-        const A_REQUIRED_ELSE_HELP = 0b0000000000000000000000000000100,
-        const GLOBAL_VERSION       = 0b0000000000000000000000000001000,
-        const VERSIONLESS_SC       = 0b0000000000000000000000000010000,
-        const UNIFIED_HELP         = 0b0000000000000000000000000100000,
-        const WAIT_ON_ERROR        = 0b0000000000000000000000001000000,
-        const SC_REQUIRED_ELSE_HELP= 0b0000000000000000000000010000000,
-        const NEEDS_LONG_HELP      = 0b0000000000000000000000100000000,
-        const NEEDS_LONG_VERSION   = 0b0000000000000000000001000000000,
-        const NEEDS_SC_HELP        = 0b0000000000000000000010000000000,
-        const DISABLE_VERSION      = 0b0000000000000000000100000000000,
-        const HIDDEN               = 0b0000000000000000001000000000000,
-        const TRAILING_VARARG      = 0b0000000000000000010000000000000,
-        const NO_BIN_NAME          = 0b0000000000000000100000000000000,
-        const ALLOW_UNK_SC         = 0b0000000000000001000000000000000,
-        const UTF8_STRICT          = 0b0000000000000010000000000000000,
-        const UTF8_NONE            = 0b0000000000000100000000000000000,
-        const LEADING_HYPHEN       = 0b0000000000001000000000000000000,
-        const NO_POS_VALUES        = 0b0000000000010000000000000000000,
-        const NEXT_LINE_HELP       = 0b0000000000100000000000000000000,
-        const DERIVE_DISP_ORDER    = 0b0000000001000000000000000000000,
-        const COLORED_HELP         = 0b0000000010000000000000000000000,
-        const COLOR_ALWAYS         = 0b0000000100000000000000000000000,
-        const COLOR_AUTO           = 0b0000001000000000000000000000000,
-        const COLOR_NEVER          = 0b0000010000000000000000000000000,
-        const DONT_DELIM_TRAIL     = 0b0000100000000000000000000000000,
-        const ALLOW_NEG_NUMS       = 0b0001000000000000000000000000000,
-        const LOW_INDEX_MUL_POS    = 0b0010000000000000000000000000000,
-        const DISABLE_HELP_SC      = 0b0100000000000000000000000000000,
-        const DONT_COLLAPSE_ARGS   = 0b1000000000000000000000000000000,
+        const SC_NEGATE_REQS       = 0b00000000000000000000000000000001,
+        const SC_REQUIRED          = 0b00000000000000000000000000000010,
+        const A_REQUIRED_ELSE_HELP = 0b00000000000000000000000000000100,
+        const GLOBAL_VERSION       = 0b00000000000000000000000000001000,
+        const VERSIONLESS_SC       = 0b00000000000000000000000000010000,
+        const UNIFIED_HELP         = 0b00000000000000000000000000100000,
+        const WAIT_ON_ERROR        = 0b00000000000000000000000001000000,
+        const SC_REQUIRED_ELSE_HELP= 0b00000000000000000000000010000000,
+        const NEEDS_LONG_HELP      = 0b00000000000000000000000100000000,
+        const NEEDS_LONG_VERSION   = 0b00000000000000000000001000000000,
+        const NEEDS_SC_HELP        = 0b00000000000000000000010000000000,
+        const DISABLE_VERSION      = 0b00000000000000000000100000000000,
+        const HIDDEN               = 0b00000000000000000001000000000000,
+        const TRAILING_VARARG      = 0b00000000000000000010000000000000,
+        const NO_BIN_NAME          = 0b00000000000000000100000000000000,
+        const ALLOW_UNK_SC         = 0b00000000000000001000000000000000,
+        const UTF8_STRICT          = 0b00000000000000010000000000000000,
+        const UTF8_NONE            = 0b00000000000000100000000000000000,
+        const LEADING_HYPHEN       = 0b00000000000001000000000000000000,
+        const NO_POS_VALUES        = 0b00000000000010000000000000000000,
+        const NEXT_LINE_HELP       = 0b00000000000100000000000000000000,
+        const DERIVE_DISP_ORDER    = 0b00000000001000000000000000000000,
+        const COLORED_HELP         = 0b00000000010000000000000000000000,
+        const COLOR_ALWAYS         = 0b00000000100000000000000000000000,
+        const COLOR_AUTO           = 0b00000001000000000000000000000000,
+        const COLOR_NEVER          = 0b00000010000000000000000000000000,
+        const DONT_DELIM_TRAIL     = 0b00000100000000000000000000000000,
+        const ALLOW_NEG_NUMS       = 0b00001000000000000000000000000000,
+        const LOW_INDEX_MUL_POS    = 0b00010000000000000000000000000000,
+        const DISABLE_HELP_SC      = 0b00100000000000000000000000000000,
+        const DONT_COLLAPSE_ARGS   = 0b01000000000000000000000000000000,
+        const ARGS_NEGATE_SCS      = 0b10000000000000000000000000000000,
     }
 }
 
@@ -57,6 +58,7 @@ impl AppFlags {
 
     impl_settings! { AppSettings,
         ArgRequiredElseHelp => A_REQUIRED_ELSE_HELP,
+        ArgsNegateSubcommands => ARGS_NEGATE_SCS,
         AllowExternalSubcommands => ALLOW_UNK_SC,
         AllowInvalidUtf8 => UTF8_NONE,
         AllowLeadingHyphen => LEADING_HYPHEN,
@@ -222,6 +224,28 @@ pub enum AppSettings {
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     AllowExternalSubcommands,
+
+    /// Specifies that use of a valid [argument] negates [subcomands] being used after. By default
+    /// `clap` allows arguments between subcommands such as 
+    /// `<cmd> [cmd_args] <cmd2> [cmd2_args] <cmd3> [cmd3_args]`. This setting disables that 
+    /// functionality and says that arguments can only follow the *final* subcommand. For instance 
+    /// using this setting makes only the following invocations possible:
+    ///
+    /// * `<cmd> <cmd2> <cmd3> [cmd3_args]`
+    /// * `<cmd> <cmd2> [cmd2_args]`
+    /// * `<cmd> [cmd_args]`
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, AppSettings};
+    /// App::new("myprog")
+    ///     .setting(AppSettings::ArgsNegateSubcommands)
+    /// # ;
+    /// ```
+    /// [subcommands]: ./struct.SubCommand.html
+    /// [argument]: ./struct.Arg.html
+    ArgsNegateSubcommands,
 
     /// Specifies that the help text should be displayed (and then exit gracefully),
     /// if no arguments are present at runtime (i.e. an empty run such as, `$ myprog`.
@@ -707,6 +731,7 @@ impl FromStr for AppSettings {
     fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
         match &*s.to_ascii_lowercase() {
             "argrequiredelsehelp" => Ok(AppSettings::ArgRequiredElseHelp),
+            "argsnegatesubcommands" => Ok(AppSettings::ArgsNegateSubcommands),
             "allowinvalidutf8" => Ok(AppSettings::AllowInvalidUtf8),
             "allowleadinghyphen" => Ok(AppSettings::AllowLeadingHyphen),
             "allowexternalsubcommands" => Ok(AppSettings::AllowExternalSubcommands),
@@ -745,6 +770,8 @@ mod test {
 
     #[test]
     fn app_settings_fromstr() {
+        assert_eq!("argsnegatesubcommands".parse::<AppSettings>().unwrap(),
+                   AppSettings::ArgsNegateSubcommands);
         assert_eq!("argrequiredelsehelp".parse::<AppSettings>().unwrap(),
                    AppSettings::ArgRequiredElseHelp);
         assert_eq!("allowexternalsubcommands".parse::<AppSettings>().unwrap(),
