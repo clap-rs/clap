@@ -460,7 +460,7 @@ impl<'a, 'b> Parser<'a, 'b>
     // Determines if we need the `[FLAGS]` tag in the usage string
     pub fn needs_flags_tag(&self) -> bool {
         debugln!("Parser::needs_flags_tag;");
-        'outer: for f in self.flags.iter() {
+        'outer: for f in &self.flags {
             debugln!("Parser::needs_flags_tag:iter: f={};", f.b.name);
             if let Some(l) = f.s.long {
                 if l == "help" || l == "version" {
@@ -1791,12 +1791,10 @@ impl<'a, 'b> Parser<'a, 'b>
 
         // Validate the conditionally required args
         for &(a, v, r) in &self.r_ifs {
-            if let Some(ref ma) = matcher.get(a) {
+            if let Some(ma) = matcher.get(a) {
                 for val in ma.vals.values() {
-                    if v == val {
-                        if matcher.get(r).is_none() {
-                            return self.missing_required_error(matcher);
-                        }
+                    if v == val && matcher.get(r).is_none() {
+                        return self.missing_required_error(matcher);
                     }
                 }
             }

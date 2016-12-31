@@ -2966,6 +2966,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
+    #[cfg_attr(feature = "lints", allow(explicit_counter_loop))]
     pub fn default_value_ifs(mut self, ifs: &[(&'a str, Option<&'b str>, &'b str)]) -> Self {
         self.setb(ArgSettings::TakesValue);
         if let Some(ref mut vm) = self.default_vals_ifs {
