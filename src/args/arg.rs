@@ -1,5 +1,5 @@
 #[cfg(feature = "yaml")]
-use std::collections::BTreeMap;
+use linked_hash_map::LinkedHashMap;
 use std::rc::Rc;
 use std::ffi::{OsString, OsStr};
 
@@ -153,7 +153,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     #[cfg(feature = "yaml")]
-    pub fn from_yaml(y: &BTreeMap<Yaml, Yaml>) -> Arg {
+    pub fn from_yaml(y: &LinkedHashMap<Yaml, Yaml>) -> Arg {
         // We WANT this to panic on error...so expect() is good.
         let name_yml = y.keys().nth(0).unwrap();
         let name_str = name_yml.as_str().unwrap();
