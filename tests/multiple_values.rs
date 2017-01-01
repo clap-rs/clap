@@ -1105,3 +1105,55 @@ fn low_index_positional_with_flag() {
     assert_eq!(m.value_of("target").unwrap(), "target");
     assert!(m.is_present("flg"));
 }
+
+#[test]
+fn multiple_value_terminator_option() {
+    let m = App::new("lip")
+        .arg(Arg::with_name("files")
+            .short("f")
+            .value_terminator(";")
+            .multiple(true))
+        .arg(Arg::with_name("other"))
+        .get_matches_from_safe(vec![
+            "lip",
+            "-f", "val1", "val2", ";",
+            "otherval"
+        ]);
+
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    let m = m.unwrap();
+
+    assert!(m.is_present("other"));
+    assert_eq!(m.occurrences_of("other"), 1);
+    assert!(m.is_present("files"));
+    assert_eq!(m.values_of("files").unwrap().collect::<Vec<_>>(), ["val1", "val2"]);
+    assert_eq!(m.value_of("other"), Some("otherval"));
+}
+
+#[test]
+fn multiple_value_terminator_option_other_arg() {
+    let m = App::new("lip")
+        .arg(Arg::with_name("files")
+            .short("f")
+            .value_terminator(";")
+            .multiple(true))
+        .arg(Arg::with_name("other"))
+        .arg(Arg::with_name("flag")
+            .short("-F"))
+        .get_matches_from_safe(vec![
+            "lip",
+            "-f", "val1", "val2", 
+            "-F",
+            "otherval"
+        ]);
+
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    let m = m.unwrap();
+
+    assert!(m.is_present("other"));
+    assert!(m.is_present("files"));
+    assert_eq!(m.values_of("files").unwrap().collect::<Vec<_>>(), ["val1", "val2"]);
+    assert_eq!(m.value_of("other"), Some("otherval"));
+    assert!(m.is_present("flag"));
+}
+
