@@ -20,6 +20,7 @@ pub struct Valued<'a, 'b>
     pub val_delim: Option<char>,
     pub default_val: Option<&'a str>,
     pub default_vals_ifs: Option<VecMap<(&'a str, Option<&'b str>, &'b str)>>,
+    pub terminator: Option<&'b str>,
 }
 
 impl<'n, 'e> Default for Valued<'n, 'e> {
@@ -35,6 +36,7 @@ impl<'n, 'e> Default for Valued<'n, 'e> {
             val_delim: Some(','),
             default_val: None,
             default_vals_ifs: None,
+            terminator: None,
         }
     }
 }
@@ -52,6 +54,7 @@ impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for Valued<'n, 'e> {
             val_delim: a.val_delim,
             default_val: a.default_val,
             default_vals_ifs: a.default_vals_ifs.clone(),
+            terminator: a.val_terminator.clone(),
         };
         if let Some(ref vec) = a.val_names {
             if vec.len() > 1 {

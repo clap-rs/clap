@@ -1523,6 +1523,11 @@ impl<'a, 'b> Parser<'a, 'b>
     {
         debugln!("Parser::add_single_val_to_arg;");
         debugln!("Parser::add_single_val_to_arg: adding val...{:?}", v);
+        if let Some(t) = arg.val_terminator() {
+            if t == v {
+                return Ok(None);
+            }
+        }
         matcher.add_val_to(arg.name(), v);
 
         // Increment or create the group "args"

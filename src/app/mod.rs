@@ -1517,6 +1517,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn required_unless(&self) -> Option<&[&'e str]> { None }
     fn val_names(&self) -> Option<&VecMap<&'e str>> { None }
     fn is_set(&self, _: ArgSettings) -> bool { false }
+    fn val_terminator(&self) -> Option<&'e str> {None}
     fn set(&mut self, _: ArgSettings) {
         unreachable!("App struct does not support AnyArg::set, this is a bug!")
     }

@@ -84,6 +84,8 @@ pub struct Arg<'a, 'b>
     pub r_unless: Option<Vec<&'a str>>,
     #[doc(hidden)]
     pub r_ifs: Option<Vec<(&'a str, &'b str)>>,
+    #[doc(hidden)]
+    pub val_terminator: Option<&'b str>,
 }
 
 impl<'a, 'b> Default for Arg<'a, 'b> {
@@ -113,6 +115,7 @@ impl<'a, 'b> Default for Arg<'a, 'b> {
             disp_ord: 999,
             r_unless: None,
             r_ifs: None,
+            val_terminator: None,
         }
     }
 }
@@ -1819,6 +1822,55 @@ impl<'a, 'b> Arg<'a, 'b> {
         }
     }
 
+    /// Specifies a value that *stops* parsing multiple values of a give argument. By default when
+    /// one sets [`multiple(true)`] on an argument, clap will continue parsing values for that
+    /// argument until it reaches another valid argument, or one of the other more specific settings
+    /// for multiple values is used (such as [`min_values`], [`max_values`] or
+    /// [`number_of_values`]).
+    ///
+    /// **NOTE:** This setting only applies to [options] and [positional arguments]
+    /// 
+    /// **NOTE:** When the terminator is passed in on the command line, it is **not** stored as one
+    /// of the vaues
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// Arg::with_name("vals")
+    ///     .takes_value(true)
+    ///     .multiple(true)
+    ///     .value_terminator(";")
+    /// # ;
+    /// ```
+    /// The following example uses two arguments, a sequence of commands, and the location in which
+    /// to perform them
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("do")
+    ///     .arg(Arg::with_name("cmds")
+    ///         .multiple(true)
+    ///         .allow_hyphen_values(true)
+    ///         .value_terminator(";"))
+    ///     .arg(Arg::with_name("location"))
+    ///     .get_matches_from(vec!["do", "find", "-type", "f", "-name", "special", ";", "/home/clap"]);
+    /// let cmds: Vec<_> = m.values_of("cmds").unwrap().collect();
+    /// assert_eq!(&cmds, &["find", "-type", "f", "-name", "special"]);
+    /// assert_eq!(m.value_of("location"), Some("/home/clap"));
+    /// ```
+    /// [options]: ./struct.Arg.html#method.takes_value
+    /// [positional arguments]: ./struct.Arg.html#method.index
+    /// [`multiple(true)`]: ./struct.Arg.html#method.multiple
+    /// [`min_values`]: ./struct.Arg.html#method.min_values
+    /// [`number_of_values`]: ./struct.Arg.html#method.number_of_values
+    /// [`max_values`]: ./struct.Arg.html#method.max_values
+    pub fn value_terminator(mut self, term: &'b str) -> Self {
+        self.setb(ArgSettings::TakesValue);
+        self.val_terminator = Some(term);
+        self
+    }
+
     /// Specifies that an argument can be matched to all child [`SubCommand`]s.
     ///
     /// **NOTE:** Global arguments *only* propagate down, **not** up (to parent commands)
@@ -3153,6 +3205,7 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
             disp_ord: a.disp_ord,
             r_unless: a.r_unless.clone(),
             r_ifs: a.r_ifs.clone(),
+            val_terminator: a.val_terminator.clone(),
         }
     }
 }
@@ -3184,6 +3237,7 @@ impl<'a, 'b> Clone for Arg<'a, 'b> {
             disp_ord: self.disp_ord,
             r_unless: self.r_unless.clone(),
             r_ifs: self.r_ifs.clone(),
+            val_terminator: self.val_terminator.clone(),
         }
     }
 }
