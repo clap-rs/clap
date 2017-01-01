@@ -53,17 +53,17 @@ impl<'a> ArgMatcher<'a> {
     pub fn iter(&self) -> Iter<&str, MatchedArg> { self.0.args.iter() }
 
     pub fn inc_occurrence_of(&mut self, arg: &'a str) {
-        debugln!("fn=inc_occurrence_of;");
+        debugln!("ArgMatcher::inc_occurrence_of: arg={}", arg);
         if let Some(a) = self.get_mut(arg) {
-            debugln!("+1 to {}'s occurrences", arg);
             a.occurs += 1;
             return;
         }
+        debugln!("ArgMatcher::inc_occurrence_of: first instance");
         self.insert(arg);
     }
 
     pub fn inc_occurrences_of(&mut self, args: &[&'a str]) {
-        debugln!("fn=inc_occurrences_of;");
+        debugln!("ArgMatcher::inc_occurrences_of: args={:?}", args);
         for arg in args {
             self.inc_occurrence_of(arg);
         }
@@ -81,20 +81,20 @@ impl<'a> ArgMatcher<'a> {
     pub fn needs_more_vals<'b, A>(&self, o: &A) -> bool
         where A: AnyArg<'a, 'b>
     {
-        debugln!("fn=needs_more_vals;");
+        debugln!("ArgMatcher::needs_more_vals: o={}", o.name());
         if let Some(ma) = self.get(o.name()) {
             if let Some(num) = o.num_vals() {
-                debugln!("num_vals...{}", num);
+                debugln!("ArgMatcher::needs_more_vals: num_vals...{}", num);
                 return if o.is_set(ArgSettings::Multiple) {
                     ((ma.vals.len() as u64) % num) != 0
                 } else {
                     num != (ma.vals.len() as u64)
                 };
             } else if let Some(num) = o.max_vals() {
-                debugln!("max_vals...{}", num);
+                debugln!("ArgMatcher::needs_more_vals: max_vals...{}", num);
                 return !((ma.vals.len() as u64) > num);
             } else if o.min_vals().is_some() {
-                debugln!("min_vals...true");
+                debugln!("ArgMatcher::needs_more_vals: min_vals...true");
                 return true;
             }
             return o.is_set(ArgSettings::Multiple);

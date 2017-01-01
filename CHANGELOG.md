@@ -1,3 +1,40 @@
+<a name="v2.19.3"></a>
+### v2.19.3 (2016-12-28)
+
+
+#### Bug Fixes
+
+*   fixes a bug where calling the help of a subcommand wasn't ignoring required args of parent commands ([a0ee4993](https://github.com/kbknapp/clap-rs/commit/a0ee4993015ea97b06b5bc9f378d8bcb18f1c51c), closes [#789](https://github.com/kbknapp/clap-rs/issues/789))
+
+
+
+<a name="v2.19.2"></a>
+### v2.19.2 (2016-12-08)
+
+#### Bug Fixes
+
+* **ZSH Completions:**  escapes square brackets in ZSH completions ([7e17d5a3](https://github.com/kbknapp/clap-rs/commit/7e17d5a36b2cc2cc77e7b15796b14d639ed3cbf7), closes [#771](https://github.com/kbknapp/clap-rs/issues/771))
+
+#### Documentation
+
+* **Examples:**  adds subcommand examples ([0e0f3354](https://github.com/kbknapp/clap-rs/commit/0e0f33547a6901425afc1d9fbe19f7ae3832d9a4), closes [#766](https://github.com/kbknapp/clap-rs/issues/766))
+* **README.md:**  adds guidance on when to use ~ in version pinning, and clarifies breaking change policy ([591eaefc](https://github.com/kbknapp/clap-rs/commit/591eaefc7319142ba921130e502bb0729feed907), closes [#765](https://github.com/kbknapp/clap-rs/issues/765))
+
+
+
+<a name="v2.19.1"></a>
+### v2.19.1 (2016-12-01)
+
+
+#### Bug Fixes
+
+* **Help Messages:**  fixes help message alignment when specific settings are used on options ([cd94b318](https://github.com/kbknapp/clap-rs/commit/cd94b3188d63b63295a319e90e826bca46befcd2), closes [#760](https://github.com/kbknapp/clap-rs/issues/760))
+
+#### Improvements
+
+* **Bash Completion:**  allows bash completion to fall back to traidtional bash completion upon no matching completing function ([b1b16d56](https://github.com/kbknapp/clap-rs/commit/b1b16d56d8fddf819bdbe24b3724bb6a9f3fa613)))
+
+
 <a name="v2.19.0"></a>
 ## v2.19.0 (2016-11-21)
 

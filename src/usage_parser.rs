@@ -6,8 +6,6 @@ use INTERNAL_ERROR_MSG;
 use args::Arg;
 use args::settings::ArgSettings;
 
-type ParseResult = Result<(), ()>;
-
 #[derive(PartialEq, Debug)]
 enum UsageToken {
     Name,
@@ -31,7 +29,7 @@ pub struct UsageParser<'a> {
 
 impl<'a> UsageParser<'a> {
     fn new(usage: &'a str) -> Self {
-        debugln!("fn=new; usage={:?}", usage);
+        debugln!("UsageParser::new: usage={:?}", usage);
         UsageParser {
             usage: usage,
             pos: 0,
@@ -42,15 +40,15 @@ impl<'a> UsageParser<'a> {
     }
 
     pub fn from_usage(usage: &'a str) -> Self {
-        debugln!("fn=from_usage;");
+        debugln!("UsageParser::from_usage;");
         UsageParser::new(usage)
     }
 
     pub fn parse(mut self) -> Arg<'a, 'a> {
-        debugln!("fn=parse;");
+        debugln!("UsageParser::parse;");
         let mut arg = Arg::default();
         loop {
-            debugln!("iter; pos={};", self.pos);
+            debugln!("UsageParser::parse:iter: pos={};", self.pos);
             self.stop_at(token);
             if let Some(&c) = self.usage.as_bytes().get(self.pos) {
                 match c {
@@ -70,12 +68,12 @@ impl<'a> UsageParser<'a> {
             Some(ref v) if v.len() >= 2 => Some(v.len() as u64),
             _ => None,
         };
-        debugln!("vals: {:?}", arg.val_names);
+        debugln!("UsageParser::parse: vals...{:?}", arg.val_names);
         arg
     }
 
     fn name(&mut self, arg: &mut Arg<'a, 'a>) {
-        debugln!("fn=name;");
+        debugln!("UsageParser::name;");
         if *self.usage.as_bytes().get(self.pos).expect(INTERNAL_ERROR_MSG) == b'<' &&
            !self.explicit_name_set {
             arg.setb(ArgSettings::Required);
@@ -84,15 +82,15 @@ impl<'a> UsageParser<'a> {
         self.stop_at(name_end);
         let name = &self.usage[self.start..self.pos];
         if self.prev == UsageToken::Unknown {
-            debugln!("setting name: {}", name);
+            debugln!("UsageParser::name: setting name...{}", name);
             arg.name = name;
             if arg.long.is_none() && arg.short.is_none() {
-                debugln!("explicit name set...");
+                debugln!("UsageParser::name: explicit name set...");
                 self.explicit_name_set = true;
                 self.prev = UsageToken::Name;
             }
         } else {
-            debugln!("setting val name: {}", name);
+            debugln!("UsageParser::name: setting val name...{}", name);
             if let Some(ref mut v) = arg.val_names {
                 let len = v.len();
                 v.insert(len, name);
@@ -109,13 +107,13 @@ impl<'a> UsageParser<'a> {
     fn stop_at<F>(&mut self, f: F)
         where F: Fn(u8) -> bool
     {
-        debugln!("fn=stop_at;");
+        debugln!("UsageParser::stop_at;");
         self.start = self.pos;
         self.pos += self.usage[self.start..].bytes().take_while(|&b| f(b)).count();
     }
 
     fn short_or_long(&mut self, arg: &mut Arg<'a, 'a>) {
-        debugln!("fn=short_or_long;");
+        debugln!("UsageParser::short_or_long;");
         self.pos += 1;
         if *self.usage.as_bytes().get(self.pos).expect(INTERNAL_ERROR_MSG) == b'-' {
             self.pos += 1;
@@ -126,28 +124,28 @@ impl<'a> UsageParser<'a> {
     }
 
     fn long(&mut self, arg: &mut Arg<'a, 'a>) {
-        debugln!("fn=long;");
+        debugln!("UsageParser::long;");
         self.stop_at(long_end);
         let name = &self.usage[self.start..self.pos];
         if !self.explicit_name_set {
-            debugln!("setting name: {}", name);
+            debugln!("UsageParser::long: setting name...{}", name);
             arg.name = name;
         }
-        debugln!("setting long: {}", name);
+        debugln!("UsageParser::long: setting long...{}", name);
         arg.long = Some(name);
         self.prev = UsageToken::Long;
     }
 
     fn short(&mut self, arg: &mut Arg<'a, 'a>) {
-        debugln!("fn=short;");
+        debugln!("UsageParser::short;");
         let start = &self.usage[self.pos..];
         let short = start.chars().nth(0).expect(INTERNAL_ERROR_MSG);
-        debugln!("setting short: {}", short);
+        debugln!("UsageParser::short: setting short...{}", short);
         arg.short = Some(short);
         if arg.name.is_empty() {
             // --long takes precedence but doesn't set self.explicit_name_set
             let name = &start[..short.len_utf8()];
-            debugln!("setting name: {}", name);
+            debugln!("UsageParser::short: setting name...{}", name);
             arg.name = name;
         }
         self.prev = UsageToken::Short;
@@ -155,7 +153,7 @@ impl<'a> UsageParser<'a> {
 
     // "something..."
     fn multiple(&mut self, arg: &mut Arg) {
-        debugln!("fn=multiple;");
+        debugln!("UsageParser::multiple;");
         let mut dot_counter = 1;
         let start = self.pos;
         let mut bytes = self.usage[start..].bytes();
@@ -163,7 +161,7 @@ impl<'a> UsageParser<'a> {
             dot_counter += 1;
             self.pos += 1;
             if dot_counter == 3 {
-                debugln!("setting multiple");
+                debugln!("UsageParser::multiple: setting multiple");
                 arg.setb(ArgSettings::Multiple);
                 if arg.settings.is_set(ArgSettings::TakesValue) {
                     arg.setb(ArgSettings::UseValueDelimiter);
@@ -180,11 +178,11 @@ impl<'a> UsageParser<'a> {
     }
 
     fn help(&mut self, arg: &mut Arg<'a, 'a>) {
-        debugln!("fn=help;");
+        debugln!("UsageParser::help;");
         self.stop_at(help_start);
         self.start = self.pos + 1;
         self.pos = self.usage.len() - 1;
-        debugln!("setting help: {}", &self.usage[self.start..self.pos]);
+        debugln!("UsageParser::help: setting help...{}", &self.usage[self.start..self.pos]);
         arg.help = Some(&self.usage[self.start..self.pos]);
         self.pos += 1;   // Move to next byte to keep from thinking ending ' is a start
         self.prev = UsageToken::Help;

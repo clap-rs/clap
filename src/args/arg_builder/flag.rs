@@ -3,9 +3,10 @@ use std::convert::From;
 use std::fmt::{Display, Formatter, Result};
 use std::rc::Rc;
 use std::result::Result as StdResult;
+use std::ffi::{OsStr, OsString};
 
 // Third Party
-use vec_map::VecMap;
+use vec_map::{self, VecMap};
 
 // Internal
 use Arg;
@@ -52,7 +53,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn id(&self) -> usize { self.b.id }
     fn kind(&self) -> ArgKind { ArgKind::Flag }
     fn overrides(&self) -> Option<&[&'e str]> { self.b.overrides.as_ref().map(|o| &o[..]) }
-    fn requires(&self) -> Option<&[&'e str]> { self.b.requires.as_ref().map(|o| &o[..]) }
+    fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]> { self.b.requires.as_ref().map(|o| &o[..]) }
     fn blacklist(&self) -> Option<&[&'e str]> { self.b.blacklist.as_ref().map(|o| &o[..]) }
     fn required_unless(&self) -> Option<&[&'e str]> { None }
     fn is_set(&self, s: ArgSettings) -> bool { self.b.settings.is_set(s) }
@@ -64,12 +65,14 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn num_vals(&self) -> Option<u64> { None }
     fn possible_vals(&self) -> Option<&[&'e str]> { None }
     fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> { None }
+    fn validator_os(&self) -> Option<&Rc<Fn(&OsStr) -> StdResult<(), OsString>>> { None }
     fn min_vals(&self) -> Option<u64> { None }
     fn short(&self) -> Option<char> { self.s.short }
     fn long(&self) -> Option<&'e str> { self.s.long }
     fn val_delim(&self) -> Option<char> { None }
     fn help(&self) -> Option<&'e str> { self.b.help }
     fn default_val(&self) -> Option<&'n str> { None }
+    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e str>, &'e str)>> {None}
     fn longest_filter(&self) -> bool { self.s.long.is_some() }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.s.aliases {

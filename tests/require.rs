@@ -375,3 +375,233 @@ USAGE:
 
 For more information try --help", true)
 }
+
+// Conditional external requirements
+
+#[test]
+fn requires_if_present_val() {
+    let res = App::new("unlessone")
+        .arg(Arg::with_name("cfg")
+            .requires_if("my.cfg", "extra")
+            .takes_value(true)
+            .long("config"))
+        .arg(Arg::with_name("extra")
+            .long("extra"))
+        .get_matches_from_safe(vec![
+            "unlessone", "--config=my.cfg"
+        ]);
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+}
+
+#[test]
+fn requires_if_present_mult() {
+    let res = App::new("unlessone")
+        .arg(Arg::with_name("cfg")
+            .requires_ifs(&[
+                ("my.cfg", "extra"),
+                ("other.cfg", "other"),
+             ])
+            .takes_value(true)
+            .long("config"))
+        .arg(Arg::with_name("extra")
+            .long("extra"))
+        .arg(Arg::with_name("other")
+            .long("other"))
+        .get_matches_from_safe(vec![
+            "unlessone", "--config=other.cfg"
+        ]);
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+}
+
+#[test]
+fn requires_if_present_mult_pass() {
+    let res = App::new("unlessone")
+        .arg(Arg::with_name("cfg")
+            .requires_ifs(&[
+                ("my.cfg", "extra"),
+                ("other.cfg", "other"),
+             ])
+            .takes_value(true)
+            .long("config"))
+        .arg(Arg::with_name("extra")
+            .long("extra"))
+        .arg(Arg::with_name("other")
+            .long("other"))
+        .get_matches_from_safe(vec![
+            "unlessone", "--config=some.cfg"
+        ]);
+
+    assert!(res.is_ok());
+    // assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+}
+
+#[test]
+fn requires_if_present_val_no_present_pass() {
+    let res = App::new("unlessone")
+        .arg(Arg::with_name("cfg")
+            .requires_if("my.cfg", "extra")
+            .takes_value(true)
+            .long("config"))
+        .arg(Arg::with_name("extra")
+            .long("extra"))
+        .get_matches_from_safe(vec![
+            "unlessone",
+        ]);
+
+    assert!(res.is_ok());
+    // assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+}
+
+// Conditionally required
+
+#[test]
+fn required_if_val_present_pass() {
+    let res = App::new("ri")
+        .arg(Arg::with_name("cfg")
+            .required_if("extra", "val")
+            .takes_value(true)
+            .long("config"))
+        .arg(Arg::with_name("extra")
+            .takes_value(true)
+            .long("extra"))
+        .get_matches_from_safe(vec![
+            "ri", "--extra", "val", "--config", "my.cfg"
+        ]);
+
+    assert!(res.is_ok());
+    // assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+}
+
+#[test]
+fn required_if_val_present_fail() {
+    let res = App::new("ri")
+        .arg(Arg::with_name("cfg")
+            .required_if("extra", "val")
+            .takes_value(true)
+            .long("config"))
+        .arg(Arg::with_name("extra")
+            .takes_value(true)
+            .long("extra"))
+        .get_matches_from_safe(vec![
+            "ri", "--extra", "val"
+        ]);
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+}
+
+#[test]
+fn required_if_wrong_val() {
+    let res = App::new("ri")
+        .arg(Arg::with_name("cfg")
+            .required_if("extra", "val")
+            .takes_value(true)
+            .long("config"))
+        .arg(Arg::with_name("extra")
+            .takes_value(true)
+            .long("extra"))
+        .get_matches_from_safe(vec![
+            "ri", "--extra", "other"
+        ]);
+
+    assert!(res.is_ok());
+}
+
+#[test]
+fn required_ifs_val_present_pass() {
+    let res = App::new("ri")
+        .arg(Arg::with_name("cfg")
+            .required_ifs(&[
+                ("extra", "val"),
+                ("option", "spec")
+            ])
+            .takes_value(true)
+            .long("config"))
+        .arg(Arg::with_name("option")
+            .takes_value(true)
+            .long("option"))
+        .arg(Arg::with_name("extra")
+            .takes_value(true)
+            .long("extra"))
+        .get_matches_from_safe(vec![
+            "ri", "--option", "spec", "--config", "my.cfg"
+        ]);
+
+    assert!(res.is_ok());
+    // assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+}
+
+#[test]
+fn required_ifs_val_present_fail() {
+    let res = App::new("ri")
+        .arg(Arg::with_name("cfg")
+            .required_ifs(&[
+                ("extra", "val"),
+                ("option", "spec")
+            ])
+            .takes_value(true)
+            .long("config"))
+        .arg(Arg::with_name("extra")
+            .takes_value(true)
+            .long("extra"))
+        .arg(Arg::with_name("option")
+            .takes_value(true)
+            .long("option"))
+        .get_matches_from_safe(vec![
+            "ri", "--option", "spec"
+        ]);
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+}
+
+#[test]
+fn required_ifs_wrong_val() {
+    let res = App::new("ri")
+        .arg(Arg::with_name("cfg")
+            .required_ifs(&[
+                ("extra", "val"),
+                ("option", "spec")
+            ])
+            .takes_value(true)
+            .long("config"))
+        .arg(Arg::with_name("extra")
+            .takes_value(true)
+            .long("extra"))
+        .arg(Arg::with_name("option")
+            .takes_value(true)
+            .long("option"))
+        .get_matches_from_safe(vec![
+            "ri", "--option", "other"
+        ]);
+
+    assert!(res.is_ok());
+}
+
+#[test]
+fn required_ifs_wrong_val_mult_fail() {
+    let res = App::new("ri")
+        .arg(Arg::with_name("cfg")
+            .required_ifs(&[
+                ("extra", "val"),
+                ("option", "spec")
+            ])
+            .takes_value(true)
+            .long("config"))
+        .arg(Arg::with_name("extra")
+            .takes_value(true)
+            .long("extra"))
+        .arg(Arg::with_name("option")
+            .takes_value(true)
+            .long("option"))
+        .get_matches_from_safe(vec![
+            "ri", "--extra", "other", "--option", "spec"
+        ]);
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+}

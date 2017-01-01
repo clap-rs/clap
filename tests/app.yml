@@ -16,6 +16,9 @@ args:
     - positional2:
         help: tests positionals with exclusions
         index: 2
+        default_value_if:
+            - [flag, Null, some]
+            - [postional, other, something]
     - flag:
         short: f
         long: flag
@@ -44,6 +47,8 @@ args:
         possible_values:
             - fast
             - slow
+        requires_if:
+            - [fast, flag]
     - positional3:
         index: 3
         help: tests positionals with specific values
@@ -68,6 +73,8 @@ args:
         long: singlealias
         help: Tests single alias
         aliases: [alias]
+        required_if:
+            - [multvalsmo, two]
     - multaliases:
         long: multaliases
         help: Tests mutliple aliases

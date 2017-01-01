@@ -66,6 +66,20 @@ OPTIONS:
 ARGS:
     <scpositional>    tests positionals";
 
+// Using number_of_values(1) with multiple(true) misaligns help message
+static ISSUE_760: &'static str = "ctest 0.1
+
+USAGE:
+    ctest [OPTIONS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -O, --opt <opt>             tests options
+    -o, --option <option>...    tests options";
+
 static MULTI_SC_HELP: &'static str = "ctest-subcmd-multi 0.1
 Kevin K. <kbknapp@gmail.com>
 tests subcommands
@@ -453,4 +467,23 @@ fn issue_702_multiple_values() {
              .multiple(true)
              .takes_value(true));
     test::check_err_output(app, "myapp --help", ISSUE_702, false);
+}
+
+#[test]
+fn issue_760() {
+    let app = App::new("ctest")
+        .version("0.1")
+        .arg(Arg::with_name("option")
+             .help("tests options")
+             .short("o")
+             .long("option")
+             .takes_value(true)
+             .multiple(true)
+             .number_of_values(1))
+        .arg(Arg::with_name("opt")
+             .help("tests options")
+             .short("O")
+             .long("opt")
+             .takes_value(true));
+    test::check_err_output(app, "ctest --help", ISSUE_760, false);
 }

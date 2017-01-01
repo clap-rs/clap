@@ -380,11 +380,12 @@ macro_rules! arg_enum {
 /// # extern crate clap;
 /// # use clap::App;
 /// # fn main() {
-///     let m = App::new("app")
-///                 .version(crate_version!())
-///                 .get_matches();
+/// let m = App::new("app")
+///             .version(crate_version!())
+///             .get_matches();
 /// # }
 /// ```
+#[cfg(not(feature="no_cargo"))]
 #[macro_export]
 macro_rules! crate_version {
     () => {
@@ -393,9 +394,13 @@ macro_rules! crate_version {
 }
 
 /// Allows you to pull the authors for the app from your Cargo.toml at
-/// compile time as
-/// "author1 lastname. <author1@example.com>",
-///     "author2 lastname. <author2@example.com>"
+/// compile time in the form:
+/// `"author1 lastname <author1@example.com>:author2 lastname <author2@example.com>"`
+///
+/// You can replace the colons with a custom separator by supplying a
+/// replacement string, so, for example,
+/// `crate_authors!(",\n")` would become
+/// `"author1 lastname <author1@example.com>,\nauthor2 lastname <author2@example.com>,\nauthor3 lastname <author3@example.com>"`
 ///
 /// # Examples
 ///
@@ -404,15 +409,118 @@ macro_rules! crate_version {
 /// # extern crate clap;
 /// # use clap::App;
 /// # fn main() {
-///     let m = App::new("app")
-///                 .author(crate_authors!())
-///                 .get_matches();
+/// let m = App::new("app")
+///             .author(crate_authors!("\n"))
+///             .get_matches();
 /// # }
 /// ```
+#[cfg(not(feature="no_cargo"))]
 #[macro_export]
 macro_rules! crate_authors {
+    ($sep:expr) => {{
+        use std::ops::Deref;
+        use std::sync::{ONCE_INIT, Once};
+
+        #[allow(missing_copy_implementations)]
+        #[allow(non_camel_case_types)]
+        #[allow(dead_code)]
+        struct CARGO_AUTHORS {__private_field: ()}
+        static CARGO_AUTHORS: CARGO_AUTHORS = CARGO_AUTHORS {__private_field: ()};
+
+        impl Deref for CARGO_AUTHORS {
+            type Target = String;
+
+            #[allow(unsafe_code)]
+            fn deref<'a>(&'a self) -> &'a String {
+                unsafe {
+                    static mut LAZY: (*const String, Once) = (0 as *const String, ONCE_INIT);
+
+                    LAZY.1.call_once(|| LAZY.0 = Box::into_raw(Box::new(env!("CARGO_PKG_AUTHORS").replace(':', $sep))));
+                    &*LAZY.0
+                }
+            }
+        }
+
+        &CARGO_AUTHORS[..]
+    }};
     () => {
         env!("CARGO_PKG_AUTHORS")
+    };
+}
+
+/// Allows you to pull the description from your Cargo.toml at compile time.
+///
+/// # Examples
+///
+/// ```no_run
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::App;
+/// # fn main() {
+/// let m = App::new("app")
+///             .about(crate_description!())
+///             .get_matches();
+/// # }
+/// ```
+#[cfg(not(feature="no_cargo"))]
+#[macro_export]
+macro_rules! crate_description {
+    () => {
+        env!("CARGO_PKG_DESCRIPTION")
+    };
+}
+
+/// Allows you to pull the name from your Cargo.toml at compile time.
+///
+/// # Examples
+///
+/// ```no_run
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::App;
+/// # fn main() {
+/// let m = App::new(crate_name!())
+///             .get_matches();
+/// # }
+/// ```
+#[cfg(not(feature="no_cargo"))]
+#[macro_export]
+macro_rules! crate_name {
+    () => {
+        env!("CARGO_PKG_NAME")
+    };
+}
+
+/// Allows you to build the `App` instance from your Cargo.toml at compile time.
+///
+/// Equivalent to using the `crate_*!` macros with their respective fields.
+///
+/// Provided separator is for the [macro.crate_authors.html](`crate_authors!`) macro,
+/// refer to the documentation therefor.
+///
+/// # Examples
+///
+/// ```no_run
+/// # #[macro_use]
+/// # extern crate clap;
+/// # fn main() {
+/// let m = app_from_crate!().get_matches();
+/// # }
+/// ```
+#[cfg(not(feature="no_cargo"))]
+#[macro_export]
+macro_rules! app_from_crate {
+    () => {
+        $crate::App::new(crate_name!())
+            .version(crate_version!())
+            .author(crate_authors!())
+            .about(crate_description!())
+    };
+    ($sep:expr) => {
+        $crate::App::new(crate_name!())
+            .version(crate_version!())
+            .author(crate_authors!($sep))
+            .about(crate_description!())
     };
 }
 
@@ -478,6 +586,9 @@ macro_rules! clap_app {
 // No more tokens to munch
     (@arg ($arg:expr) $modes:tt) => { $arg };
 // Shorthand tokens influenced by the usage_string
+    (@arg ($arg:expr) $modes:tt --($long:expr) $($tail:tt)*) => {
+        clap_app!{ @arg ($arg.long($long)) $modes $($tail)* }
+    };
     (@arg ($arg:expr) $modes:tt --$long:ident $($tail:tt)*) => {
         clap_app!{ @arg ($arg.long(stringify!($long))) $modes $($tail)* }
     };
@@ -535,6 +646,10 @@ macro_rules! clap_app {
         clap_app!{ @app ($crate::SubCommand::with_name(stringify!($name))) $($tail)* }
     };
 // Start the magic
+    (($name:expr) => $($tail:tt)*) => {{
+        clap_app!{ @app ($crate::App::new($name)) $($tail)*}
+    }};
+
     ($name:ident => $($tail:tt)*) => {{
         clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)*}
     }};
@@ -580,16 +695,16 @@ macro_rules! werr(
 #[cfg_attr(feature = "debug", macro_use)]
 mod debug_macros {
     macro_rules! debugln {
-        ($fmt:expr) => (println!(concat!("*DEBUG:clap: ", $fmt)));
-        ($fmt:expr, $($arg:tt)*) => (println!(concat!("*DEBUG:clap: ",$fmt), $($arg)*));
+        ($fmt:expr) => (println!(concat!("DEBUG:clap:", $fmt)));
+        ($fmt:expr, $($arg:tt)*) => (println!(concat!("DEBUG:clap:",$fmt), $($arg)*));
     }
     macro_rules! sdebugln {
         ($fmt:expr) => (println!($fmt));
         ($fmt:expr, $($arg:tt)*) => (println!($fmt, $($arg)*));
     }
     macro_rules! debug {
-        ($fmt:expr) => (print!(concat!("*DEBUG:clap: ", $fmt)));
-        ($fmt:expr, $($arg:tt)*) => (print!(concat!("*DEBUG:clap: ",$fmt), $($arg)*));
+        ($fmt:expr) => (print!(concat!("DEBUG:clap:", $fmt)));
+        ($fmt:expr, $($arg:tt)*) => (print!(concat!("DEBUG:clap:",$fmt), $($arg)*));
     }
     macro_rules! sdebug {
         ($fmt:expr) => (print!($fmt));
@@ -624,7 +739,7 @@ mod debug_macros {
 //    src/app/mod.rs
 macro_rules! write_spaces {
     ($num:expr, $w:ident) => ({
-        debugln!("macro=write_spaces!;");
+        debugln!("write_spaces!;");
         for _ in 0..$num {
             try!(write!($w, " "));
         }
@@ -637,7 +752,7 @@ macro_rules! write_spaces {
 //    src/app/mod.rs
 macro_rules! write_nspaces {
     ($dst:expr, $num:expr) => ({
-        debugln!("macro=write_spaces!;num={}", $num);
+        debugln!("write_spaces!: num={}", $num);
         for _ in 0..$num {
             try!($dst.write(b" "));
         }
@@ -647,7 +762,7 @@ macro_rules! write_nspaces {
 // convenience macro for remove an item from a vec
 macro_rules! vec_remove {
     ($vec:expr, $to_rem:expr) => {
-        debugln!("macro=vec_remove!;to_rem={:?}", $to_rem);
+        debugln!("vec_remove!: to_rem={:?}", $to_rem);
         for i in (0 .. $vec.len()).rev() {
             let should_remove = &$vec[i] == $to_rem;
             if should_remove { $vec.swap_remove(i); }
@@ -658,9 +773,9 @@ macro_rules! vec_remove {
 // convenience macro for remove an item from a vec
 macro_rules! vec_remove_all {
     ($vec:expr, $to_rem:expr) => {
-        debugln!("macro=vec_remove_all!;to_rem={:?}", $to_rem);
+        debugln!("vec_remove_all! to_rem={:?}", $to_rem);
         for i in (0 .. $vec.len()).rev() {
-            let should_remove = $to_rem.contains(&$vec[i]);
+            let should_remove = $to_rem.any(|name| name == &$vec[i]);
             if should_remove { $vec.swap_remove(i); }
         }
     };

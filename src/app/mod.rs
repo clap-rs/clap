@@ -8,7 +8,7 @@ mod help;
 // Std
 use std::borrow::Borrow;
 use std::env;
-use std::ffi::OsString;
+use std::ffi::{OsStr, OsString};
 use std::fmt;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::path::Path;
@@ -17,7 +17,7 @@ use std::rc::Rc;
 use std::result::Result as StdResult;
 
 // Third Party
-use vec_map::VecMap;
+use vec_map::{self, VecMap};
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
@@ -104,12 +104,12 @@ impl<'a, 'b> App<'a, 'b> {
     #[deprecated(since="2.14.1", note="Can never work; use explicit App::author() and App::version() calls instead")]
     pub fn with_defaults<S: Into<String>>(n: S) -> Self {
         let mut a = App { p: Parser::with_name(n.into()) };
-        a.p.meta.author = Some(crate_authors!());
-        a.p.meta.version = Some(crate_version!());
+        a.p.meta.author = Some("Kevin K. <kbknapp@gmail.com>");
+        a.p.meta.version = Some("2.19.2");
         a
     }
 
-    /// Creates a new instace of [`App`] from a .yml (YAML) file. A full example of supported YAML
+    /// Creates a new instance of [`App`] from a .yml (YAML) file. A full example of supported YAML
     /// objects can be found in [`examples/17_yaml.rs`] and [`examples/17_yaml.yml`]. One great use
     /// for using YAML is when supporting multiple languages and dialects, as each language could
     /// be a distinct YAML file and determined at compiletime via `cargo` "features" in your
@@ -177,7 +177,7 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     /// Overrides the system-determined binary name. This should only be used when absolutely
-    /// neccessary, such as when the binary name for your application is misleading, or perhaps
+    /// necessary, such as when the binary name for your application is misleading, or perhaps
     /// *not* how the user should invoke your program.
     ///
     /// **Pro-tip:** When building things such as third party `cargo` subcommands, this setting
@@ -614,7 +614,7 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Adds an [argument] to the list of valid possibilties.
+    /// Adds an [argument] to the list of valid possibilities.
     ///
     /// # Examples
     ///
@@ -893,7 +893,7 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Adds a [`SubCommand`] to the list of valid possibilties. Subcommands are effectively
+    /// Adds a [`SubCommand`] to the list of valid possibilities. Subcommands are effectively
     /// sub-[`App`]s, because they can contain their own arguments, subcommands, version, usage,
     /// etc. They also function just like [`App`]s, in that they get their own auto generated help,
     /// version, and usage.
@@ -915,7 +915,7 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Adds multiple subcommands to the list of valid possibilties by iterating over an
+    /// Adds multiple subcommands to the list of valid possibilities by iterating over an
     /// [`IntoIterator`] of [`SubCommand`]s
     ///
     /// # Examples
@@ -1052,9 +1052,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// The following example generates a bash completion script via a `build.rs` script. In this
     /// simple example, we'll demo a very small application with only a single subcommand and two
     /// args. Real applications could be many multiple levels deep in subcommands, and have tens or
-    /// potentiall hundreds of arguments.
+    /// potentially hundreds of arguments.
     ///
-    /// First, it helps if we separate out our `App` definition into a seperate file. Whether you
+    /// First, it helps if we separate out our `App` definition into a separate file. Whether you
     /// do this as a function, or bare App definition is a matter of personal preference.
     ///
     /// ```
@@ -1111,10 +1111,14 @@ impl<'a, 'b> App<'a, 'b> {
     /// include!("src/cli.rs");
     ///
     /// fn main() {
+    ///     let outdir = match env::var_os("OUT_DIR") {
+    ///         None => return,
+    ///         Some(outdir) => outdir,
+    ///     };
     ///     let mut app = build_cli();
-    ///     app.gen_completions("myapp",          // We need to specify the bin name manually
-    ///                         Shell::Bash,      // Then say which shell to build completions for
-    ///                         env!("OUT_DIR")); // Then say where write the completions to
+    ///     app.gen_completions("myapp",      // We need to specify the bin name manually
+    ///                         Shell::Bash,  // Then say which shell to build completions for
+    ///                         outdir);      // Then say where write the completions to
     /// }
     /// ```
     /// Now, once we combile there will be a `{bin_name}.bash-completion` file in the directory.
@@ -1508,7 +1512,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn id(&self) -> usize { self.p.id }
     fn kind(&self) -> ArgKind { ArgKind::Subcmd }
     fn overrides(&self) -> Option<&[&'e str]> { None }
-    fn requires(&self) -> Option<&[&'e str]> { None }
+    fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]> { None }
     fn blacklist(&self) -> Option<&[&'e str]> { None }
     fn required_unless(&self) -> Option<&[&'e str]> { None }
     fn val_names(&self) -> Option<&VecMap<&'e str>> { None }
@@ -1521,6 +1525,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn num_vals(&self) -> Option<u64> { None }
     fn possible_vals(&self) -> Option<&[&'e str]> { None }
     fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> { None }
+    fn validator_os(&self) -> Option<&Rc<Fn(&OsStr) -> StdResult<(), OsString>>> { None }
     fn min_vals(&self) -> Option<u64> { None }
     fn short(&self) -> Option<char> { None }
     fn long(&self) -> Option<&'e str> { None }
@@ -1528,6 +1533,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn takes_value(&self) -> bool { true }
     fn help(&self) -> Option<&'e str> { self.p.meta.about }
     fn default_val(&self) -> Option<&'n str> { None }
+    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e str>, &'e str)>> {None}
     fn longest_filter(&self) -> bool { true }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.p.meta.aliases {

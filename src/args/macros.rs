@@ -1,4 +1,42 @@
 
+macro_rules! yaml_tuple2 {
+    ($a:ident, $v:ident, $c:ident) => {{
+            if let Some(vec) = $v.as_vec() {
+                for ys in vec {
+                    if let Some(tup) = ys.as_vec() {
+                        debug_assert_eq!(2, tup.len());
+                        $a = $a.$c(yaml_str!(tup[0]), yaml_str!(tup[1]));
+                    } else {
+                        panic!("Failed to convert YAML value to vec");
+                    }
+                }
+            } else {
+                panic!("Failed to convert YAML value to vec");
+            }
+            $a
+        }
+    };
+}
+
+macro_rules! yaml_tuple3 {
+    ($a:ident, $v:ident, $c:ident) => {{
+            if let Some(vec) = $v.as_vec() {
+                for ys in vec {
+                    if let Some(tup) = ys.as_vec() {
+                        debug_assert_eq!(3, tup.len());
+                        $a = $a.$c(yaml_str!(tup[0]), yaml_opt_str!(tup[1]), yaml_str!(tup[2]));
+                    } else {
+                        panic!("Failed to convert YAML value to vec");
+                    }
+                }
+            } else {
+                panic!("Failed to convert YAML value to vec");
+            }
+            $a
+        }
+    };
+}
+
 macro_rules! yaml_vec_or_str {
     ($v:ident, $a:ident, $c:ident) => {{
             let maybe_vec = $v.as_vec();
@@ -22,9 +60,26 @@ macro_rules! yaml_vec_or_str {
     };
 }
 
+macro_rules! yaml_opt_str {
+    ($v:expr) => {{
+        if $v.is_null() {
+            Some($v.as_str().unwrap_or_else(|| panic!("failed to convert YAML {:?} value to a string", $v)))
+        } else {
+            None
+        }
+    }};
+}
+
+macro_rules! yaml_str {
+    ($v:expr) => {{
+        $v.as_str().unwrap_or_else(|| panic!("failed to convert YAML {:?} value to a string", $v))
+    }};
+}
+
+
 macro_rules! yaml_to_str {
     ($a:ident, $v:ident, $c:ident) => {{
-        $a.$c($v.as_str().unwrap_or_else(|| panic!("failed to convert YAML {:?} value to a string", $v)))
+        $a.$c(yaml_str!($v))
     }};
 }
 
