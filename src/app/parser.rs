@@ -57,7 +57,7 @@ pub struct Parser<'a, 'b>
     help_short: Option<char>,
     version_short: Option<char>,
     settings: AppFlags,
-    pub g_settings: Vec<AppSettings>,
+    pub g_settings: AppFlags,
     pub meta: AppMeta<'b>,
     pub id: usize,
     trailing_vals: bool,
@@ -83,7 +83,7 @@ impl<'a, 'b> Default for Parser<'a, 'b> {
             groups: HashMap::new(),
             global_args: vec![],
             overrides: vec![],
-            g_settings: vec![],
+            g_settings: AppFlags::new(),
             settings: AppFlags::new(),
             meta: AppMeta::new(),
             trailing_vals: false,
@@ -272,10 +272,8 @@ impl<'a, 'b> Parser<'a, 'b>
                     sc.p.set(AppSettings::GlobalVersion);
                     sc.p.meta.version = Some(self.meta.version.unwrap());
                 }
-                for s in &self.g_settings {
-                    sc.p.set(*s);
-                    sc.p.g_settings.push(*s);
-                }
+                sc.p.settings = sc.p.settings | self.g_settings;
+                sc.p.g_settings = sc.p.settings | self.g_settings;
             }
             sc.p.propogate_settings();
         }
@@ -691,9 +689,7 @@ impl<'a, 'b> Parser<'a, 'b>
             pb.b.help = Some("The subcommand whose help message to display");
             pb.set(ArgSettings::Multiple);
             sc.positionals.insert(1, pb);
-            for s in self.g_settings.clone() {
-                sc.set(s);
-            }
+            sc.settings = sc.settings | self.g_settings;
         } else {
             sc.create_help_and_version();
         }
@@ -2174,8 +2170,8 @@ impl<'a, 'b> Clone for Parser<'a, 'b>
             overrides: self.overrides.clone(),
             help_short: self.help_short,
             version_short: self.version_short,
-            settings: self.settings.clone(),
-            g_settings: self.g_settings.clone(),
+            settings: self.settings,
+            g_settings: self.g_settings,
             meta: self.meta.clone(),
             trailing_vals: self.trailing_vals,
             id: self.id,

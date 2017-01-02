@@ -486,7 +486,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`AppSettings`]: ./enum.AppSettings.html
     pub fn global_setting(mut self, setting: AppSettings) -> Self {
         self.p.set(setting);
-        self.p.g_settings.push(setting);
+        self.p.g_settings.set(setting);
         self
     }
 
@@ -510,7 +510,7 @@ impl<'a, 'b> App<'a, 'b> {
     pub fn global_settings(mut self, settings: &[AppSettings]) -> Self {
         for s in settings {
             self.p.set(*s);
-            self.p.g_settings.push(*s)
+            self.p.g_settings.set(*s)
         }
         self
     }
