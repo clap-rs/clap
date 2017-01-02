@@ -4,7 +4,7 @@
 extern crate clap;
 extern crate test;
 
-use clap::{App, Arg, SubCommand};
+use clap::{App, Arg, SubCommand, AppSettings};
 
 use test::Bencher;
 
@@ -219,6 +219,10 @@ fn parse_complex2(b: &mut Bencher) {
     b.iter(|| create_app!().get_matches_from(vec!["myprog", "arg1", "-f", "arg2", "--long-option-2", "some", "-O", "slow", "--multvalsmo", "one", "two", "--minvals2", "3", "2", "1"]));
 }
 
+#[bench]
+fn parse_complex2_with_args_negate_scs(b: &mut Bencher) {
+    b.iter(|| create_app!().setting(AppSettings::ArgsNegateSubcommands).get_matches_from(vec!["myprog", "arg1", "-f", "arg2", "--long-option-2", "some", "-O", "slow", "--multvalsmo", "one", "two", "--minvals2", "3", "2", "1"]));
+}
 
 #[bench]
 fn parse_sc_complex(b: &mut Bencher) {

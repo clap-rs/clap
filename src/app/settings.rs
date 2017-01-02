@@ -1,6 +1,7 @@
 // Std
 use std::ascii::AsciiExt;
 use std::str::FromStr;
+use std::ops::BitOr;
 
 bitflags! {
     flags Flags: u32 {
@@ -40,11 +41,18 @@ bitflags! {
 }
 
 #[doc(hidden)]
-#[derive(Debug)]
+#[derive(Debug, Copy)]
 pub struct AppFlags(Flags);
 
 impl Clone for AppFlags {
     fn clone(&self) -> Self { AppFlags(self.0) }
+}
+
+impl BitOr for AppFlags {
+    type Output = Self;
+    fn bitor(self, rhs: Self) -> Self {
+        AppFlags(self.0 | rhs.0)
+    }
 }
 
 impl Default for AppFlags {

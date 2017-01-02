@@ -109,6 +109,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for PosBuilder<'n, 'e> {
     fn set(&mut self, s: ArgSettings) { self.b.settings.set(s) }
     fn has_switch(&self) -> bool { false }
     fn max_vals(&self) -> Option<u64> { self.v.max_vals }
+    fn val_terminator(&self) -> Option<&'e str> { self.v.terminator }
     fn num_vals(&self) -> Option<u64> { self.v.num_vals }
     fn possible_vals(&self) -> Option<&[&'e str]> { self.v.possible_vals.as_ref().map(|o| &o[..]) }
     fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> {
