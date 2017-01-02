@@ -313,7 +313,7 @@ impl<'a, 'b> Parser<'a, 'b>
                              reqs: &[&'a str],
                              matcher: Option<&ArgMatcher<'a>>)
                              -> VecDeque<String> {
-        debugln!("Parser::get_required_from;");
+        debugln!("Parser::get_required_from; reqs={:?}", reqs);
         let mut c_flags: Vec<&str> = vec![];
         let mut c_pos: Vec<&str> = vec![];
         let mut c_opt: Vec<&str> = vec![];
@@ -994,15 +994,15 @@ impl<'a, 'b> Parser<'a, 'b>
             }
         }
 
-        try!(self.add_defaults(matcher));
         try!(self.validate_blacklist(matcher));
-        try!(self.validate_matched_args(matcher));
-        matcher.usage(self.create_usage(&[]));
-
         if !(self.settings.is_set(AppSettings::SubcommandsNegateReqs) && subcmd_name.is_some()) &&
            !reqs_validated {
             try!(self.validate_required(matcher));
         }
+        try!(self.add_defaults(matcher));
+        try!(self.validate_matched_args(matcher));
+        matcher.usage(self.create_usage(&[]));
+
         if matcher.is_empty() && matcher.subcommand_name().is_none() &&
            self.is_set(AppSettings::ArgRequiredElseHelp) {
             let mut out = vec![];
