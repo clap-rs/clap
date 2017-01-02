@@ -1157,3 +1157,16 @@ fn multiple_value_terminator_option_other_arg() {
     assert!(m.is_present("flag"));
 }
 
+#[test]
+fn multiple_vals_with_hyphen() {
+    let m = App::new("do")
+        .arg(Arg::with_name("cmds")
+            .multiple(true)
+            .allow_hyphen_values(true)
+            .value_terminator(";"))
+        .arg(Arg::with_name("location"))
+        .get_matches_from(vec!["do", "find", "-type", "f", "-name", "special", ";", "/home/clap"]);
+    let cmds: Vec<_> = m.values_of("cmds").unwrap().collect();
+    assert_eq!(&cmds, &["find", "-type", "f", "-name", "special"]);
+    assert_eq!(m.value_of("location"), Some("/home/clap"));
+}
