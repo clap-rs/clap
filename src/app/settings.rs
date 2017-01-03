@@ -4,39 +4,40 @@ use std::str::FromStr;
 use std::ops::BitOr;
 
 bitflags! {
-    flags Flags: u32 {
-        const SC_NEGATE_REQS       = 0b00000000000000000000000000000001,
-        const SC_REQUIRED          = 0b00000000000000000000000000000010,
-        const A_REQUIRED_ELSE_HELP = 0b00000000000000000000000000000100,
-        const GLOBAL_VERSION       = 0b00000000000000000000000000001000,
-        const VERSIONLESS_SC       = 0b00000000000000000000000000010000,
-        const UNIFIED_HELP         = 0b00000000000000000000000000100000,
-        const WAIT_ON_ERROR        = 0b00000000000000000000000001000000,
-        const SC_REQUIRED_ELSE_HELP= 0b00000000000000000000000010000000,
-        const NEEDS_LONG_HELP      = 0b00000000000000000000000100000000,
-        const NEEDS_LONG_VERSION   = 0b00000000000000000000001000000000,
-        const NEEDS_SC_HELP        = 0b00000000000000000000010000000000,
-        const DISABLE_VERSION      = 0b00000000000000000000100000000000,
-        const HIDDEN               = 0b00000000000000000001000000000000,
-        const TRAILING_VARARG      = 0b00000000000000000010000000000000,
-        const NO_BIN_NAME          = 0b00000000000000000100000000000000,
-        const ALLOW_UNK_SC         = 0b00000000000000001000000000000000,
-        const UTF8_STRICT          = 0b00000000000000010000000000000000,
-        const UTF8_NONE            = 0b00000000000000100000000000000000,
-        const LEADING_HYPHEN       = 0b00000000000001000000000000000000,
-        const NO_POS_VALUES        = 0b00000000000010000000000000000000,
-        const NEXT_LINE_HELP       = 0b00000000000100000000000000000000,
-        const DERIVE_DISP_ORDER    = 0b00000000001000000000000000000000,
-        const COLORED_HELP         = 0b00000000010000000000000000000000,
-        const COLOR_ALWAYS         = 0b00000000100000000000000000000000,
-        const COLOR_AUTO           = 0b00000001000000000000000000000000,
-        const COLOR_NEVER          = 0b00000010000000000000000000000000,
-        const DONT_DELIM_TRAIL     = 0b00000100000000000000000000000000,
-        const ALLOW_NEG_NUMS       = 0b00001000000000000000000000000000,
-        const LOW_INDEX_MUL_POS    = 0b00010000000000000000000000000000,
-        const DISABLE_HELP_SC      = 0b00100000000000000000000000000000,
-        const DONT_COLLAPSE_ARGS   = 0b01000000000000000000000000000000,
-        const ARGS_NEGATE_SCS      = 0b10000000000000000000000000000000,
+    flags Flags: u64 {
+        const SC_NEGATE_REQS       = 0b000000000000000000000000000000001,
+        const SC_REQUIRED          = 0b000000000000000000000000000000010,
+        const A_REQUIRED_ELSE_HELP = 0b000000000000000000000000000000100,
+        const GLOBAL_VERSION       = 0b000000000000000000000000000001000,
+        const VERSIONLESS_SC       = 0b000000000000000000000000000010000,
+        const UNIFIED_HELP         = 0b000000000000000000000000000100000,
+        const WAIT_ON_ERROR        = 0b000000000000000000000000001000000,
+        const SC_REQUIRED_ELSE_HELP= 0b000000000000000000000000010000000,
+        const NEEDS_LONG_HELP      = 0b000000000000000000000000100000000,
+        const NEEDS_LONG_VERSION   = 0b000000000000000000000001000000000,
+        const NEEDS_SC_HELP        = 0b000000000000000000000010000000000,
+        const DISABLE_VERSION      = 0b000000000000000000000100000000000,
+        const HIDDEN               = 0b000000000000000000001000000000000,
+        const TRAILING_VARARG      = 0b000000000000000000010000000000000,
+        const NO_BIN_NAME          = 0b000000000000000000100000000000000,
+        const ALLOW_UNK_SC         = 0b000000000000000001000000000000000,
+        const UTF8_STRICT          = 0b000000000000000010000000000000000,
+        const UTF8_NONE            = 0b000000000000000100000000000000000,
+        const LEADING_HYPHEN       = 0b000000000000001000000000000000000,
+        const NO_POS_VALUES        = 0b000000000000010000000000000000000,
+        const NEXT_LINE_HELP       = 0b000000000000100000000000000000000,
+        const DERIVE_DISP_ORDER    = 0b000000000001000000000000000000000,
+        const COLORED_HELP         = 0b000000000010000000000000000000000,
+        const COLOR_ALWAYS         = 0b000000000100000000000000000000000,
+        const COLOR_AUTO           = 0b000000001000000000000000000000000,
+        const COLOR_NEVER          = 0b000000010000000000000000000000000,
+        const DONT_DELIM_TRAIL     = 0b000000100000000000000000000000000,
+        const ALLOW_NEG_NUMS       = 0b000001000000000000000000000000000,
+        const LOW_INDEX_MUL_POS    = 0b000010000000000000000000000000000,
+        const DISABLE_HELP_SC      = 0b000100000000000000000000000000000,
+        const DONT_COLLAPSE_ARGS   = 0b001000000000000000000000000000000,
+        const ARGS_NEGATE_SCS      = 0b010000000000000000000000000000000,
+        const PROPAGATE_VALS_DOWN  = 0b100000000000000000000000000000000,
     }
 }
 
@@ -88,6 +89,7 @@ impl AppFlags {
         NeedsLongVersion => NEEDS_LONG_VERSION,
         NeedsSubcommandHelp => NEEDS_SC_HELP,
         NoBinaryName => NO_BIN_NAME,
+        PropagateGlobalValuesDown=> PROPAGATE_VALS_DOWN,
         StrictUtf8 => UTF8_STRICT,
         SubcommandsNegateReqs => SC_NEGATE_REQS,
         SubcommandRequired => SC_REQUIRED,
@@ -511,6 +513,44 @@ pub enum AppSettings {
     ///     .get_matches();
     /// ```
     NextLineHelp,
+
+    /// Specifies that the parser should propagate global arg's values down through any *used* child
+    /// subcommands. Meaning, if a subcommand wasn't used, the values won't be propagated down to
+    /// said subcommand.
+    ///
+    /// **NOTE:** Values are only propagated *down* through futher child commands, not up
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, AppSettings, SubCommand};
+    /// let m = App::new("myprog")
+    ///     .setting(AppSettings::PropagateGlobalValuesDown)
+    ///     .arg(Arg::from_usage("[cmd] 'command to run'")
+    ///         .global(true))
+    ///     .subcommand(SubCommand::with_name("foo"))
+    ///     .get_matches_from(vec!["myprog", "set", "foo"]);
+    ///
+    /// assert_eq!(m.value_of("cmd"), Some("set"));
+    ///
+    /// let sub_m = m.subcommand_matches("foo").unwrap();
+    /// assert_eq!(sub_m.value_of("cmd"), Some("set"));
+    /// ```
+    /// Now doing the same thing, but *not* using any subcommands will result in the value not being
+    /// propagated down.
+    /// ```rust
+    /// # use clap::{App, Arg, AppSettings};
+    /// let m = App::new("myprog")
+    ///     .setting(AppSettings::PropagateGlobalValuesDown)
+    ///     .global_arg(Arg::from_usage("<cmd> 'command to run'"))
+    ///     .subcommand(SubCommand::with_name("foo"))
+    ///     .get_matches_from(vec!["myprog", "set"]);
+    ///
+    /// assert_eq!(m.value_of("cmd"), Some("set"));
+    ///
+    /// assert!(m.subcommand_matches("foo").is_none());
+    /// ```
+    PropagateGlobalValuesDown,
 
     /// Allows [`SubCommand`]s to override all requirements of the parent command.
     /// For example if you had a subcommand or top level application with a required argument
