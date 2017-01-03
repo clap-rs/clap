@@ -5,6 +5,28 @@ include!("../clap-test.rs");
 
 use clap::{App, Arg, ArgGroup, ErrorKind};
 
+static REQ_GROUP_USAGE: &'static str = "error: The following required arguments were not provided:
+    <base|--delete>
+
+USAGE:
+    clap-test <base|--delete>
+
+For more information try --help";
+
+static REQ_GROUP_CONFLICT_USAGE: &'static str = "error: The argument '<base>' cannot be used with '--delete'
+
+USAGE:
+    clap-test <base|--delete>
+
+For more information try --help";
+
+static REQ_GROUP_CONFLICT_REV: &'static str = "error: The argument '--delete' cannot be used with 'base'
+
+USAGE:
+    clap-test <base|--delete>
+
+For more information try --help";
+
 #[test]
 fn required_group_missing_arg() {
     let result = App::new("group")
@@ -102,15 +124,7 @@ fn req_group_usage_string() {
             .args(&["base", "delete"])
             .required(true));
 
-    test::check_err_output(app, "clap-test",
-"error: The following required arguments were not provided:
-    <base|--delete>
-
-USAGE:
-    clap-test <base|--delete>
-
-For more information try --help", true);
-
+    assert!(test::compare_output(app, "clap-test", REQ_GROUP_USAGE, true));
 }
 
 #[test]
@@ -122,14 +136,7 @@ fn req_group_with_conflict_usage_string() {
             .args(&["base", "delete"])
             .required(true));
 
-    test::check_err_output(app, "clap-test --delete base",
-"error: The argument '--delete' cannot be used with 'base'
-
-USAGE:
-    clap-test <base|--delete>
-
-For more information try --help", true);
-
+    assert!(test::compare_output(app, "clap-test --delete base", REQ_GROUP_CONFLICT_REV, true));
 }
 
 #[test]
@@ -141,14 +148,7 @@ fn req_group_with_conflict_rev_usage_string() {
             .args(&["base", "delete"])
             .required(true));
 
-    test::check_err_output(app, "clap-test --delete base",
-"error: The argument '--delete' cannot be used with 'base'
-
-USAGE:
-    clap-test <base|--delete>
-
-For more information try --help", true);
-
+    assert!(test::compare_output(app, "clap-test base --delete", REQ_GROUP_CONFLICT_USAGE, true));
 }
 
 #[test]
@@ -178,5 +178,4 @@ fn group_multiple_args_error() {
     assert!(result.is_err());
     let err = result.unwrap_err();
     assert_eq!(err.kind, ErrorKind::ArgumentConflict);
-
 }

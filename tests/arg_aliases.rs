@@ -5,26 +5,30 @@ include!("../clap-test.rs");
 
 use clap::{App, Arg, SubCommand};
 
-static SC_VISIBLE_ALIAS_HELP: &'static str = "test 
+static SC_VISIBLE_ALIAS_HELP: &'static str = "ct-test 1.2
 Some help
 
 USAGE:
-    test [FLAGS] [OPTIONS]
+    ct test [FLAGS] [OPTIONS]
 
 FLAGS:
-    -f, --flag     [aliases: v_flg, flag2, flg3]
+    -f, --flag        [aliases: v_flg, flag2, flg3]
+    -h, --help       Prints help information
+    -V, --version    Prints version information
 
 OPTIONS:
     -o, --opt <opt>     [aliases: visible]";
 
-static SC_INVISIBLE_ALIAS_HELP: &'static str = "test 
+static SC_INVISIBLE_ALIAS_HELP: &'static str = "ct-test 1.2
 Some help
 
 USAGE:
-    test [FLAGS] [OPTIONS]
+    ct test [FLAGS] [OPTIONS]
 
 FLAGS:
-    -f, --flag    
+    -f, --flag       
+    -h, --help       Prints help information
+    -V, --version    Prints version information
 
 OPTIONS:
     -o, --opt <opt>    ";
@@ -160,10 +164,11 @@ fn alias_on_a_subcommand_option() {
 
 #[test]
 fn invisible_arg_aliases_help_output() {
-    let app = App::new("clap-test")
-        .author("Salim Afiune")
+    let app = App::new("ct")
+    .author("Salim Afiune")
         .subcommand(SubCommand::with_name("test")
             .about("Some help")
+            .version("1.2")
             .arg(Arg::with_name("opt")
                 .long("opt")
                 .short("o")
@@ -171,15 +176,16 @@ fn invisible_arg_aliases_help_output() {
                 .aliases(&["invisible", "als1", "more"]))
             .arg(Arg::from_usage("-f, --flag")
                 .aliases(&["invisible", "flg1", "anyway"])));
-    test::check_subcommand_help(app, "test", SC_INVISIBLE_ALIAS_HELP);
+    assert!(test::compare_output(app, "ct test --help", SC_INVISIBLE_ALIAS_HELP, false));
 }
 
 #[test]
 fn visible_arg_aliases_help_output() {
-    let app = App::new("clap-test")
+    let app = App::new("ct")
         .author("Salim Afiune")
         .subcommand(SubCommand::with_name("test")
             .about("Some help")
+            .version("1.2")
             .arg(Arg::with_name("opt")
                 .long("opt")
                 .short("o")
@@ -190,5 +196,5 @@ fn visible_arg_aliases_help_output() {
                 .long("flag")
                 .short("f")
                 .visible_aliases(&["v_flg", "flag2", "flg3"])));
-    test::check_subcommand_help(app, "test", SC_VISIBLE_ALIAS_HELP);
+    assert!(test::compare_output(app, "ct test --help", SC_VISIBLE_ALIAS_HELP, false));
 }

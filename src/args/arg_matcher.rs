@@ -2,6 +2,7 @@
 use std::collections::hash_map::{Entry, Iter};
 use std::ffi::OsStr;
 use std::ops::Deref;
+use std::mem;
 
 // Third Party
 use vec_map::VecMap;
@@ -21,6 +22,38 @@ impl<'a> Default for ArgMatcher<'a> {
 
 impl<'a> ArgMatcher<'a> {
     pub fn new() -> Self { ArgMatcher::default() }
+
+    pub fn propagate(&mut self, arg: &'a str) {
+        debugln!("ArgMatcher::propagate: arg={}", arg);
+        let vals: VecMap<_> = if let Some(ma) = self.get(arg) {
+            ma.vals.clone()
+        } else {
+            debugln!("ArgMatcher::propagate: arg wasn't used");
+            return;
+        };
+        if let Some(ref mut sc) = self.0.subcommand {
+            {
+                let sma = (*sc).matches.args.entry(arg).or_insert_with(|| {
+                    let mut gma = MatchedArg::new();
+                    gma.occurs += 1;
+                    for (i, v) in &vals {
+                        gma.vals.insert(i, v.clone());
+                    }
+                    gma
+                }); 
+                if sma.vals.is_empty() {
+                    for (i, v) in &vals {
+                        sma.vals.insert(i, v.clone());
+                    }
+                }
+            }
+            let mut am = ArgMatcher(mem::replace(&mut sc.matches, ArgMatches::new()));
+            am.propagate(arg);
+            mem::swap(&mut am.0, &mut sc.matches);
+        } else {
+            debugln!("ArgMatcher::propagate: Subcommand wasn't used");
+        }
+    }
 
     pub fn get_mut(&mut self, arg: &str) -> Option<&mut MatchedArg> { self.0.args.get_mut(arg) }
 

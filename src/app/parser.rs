@@ -52,7 +52,7 @@ pub struct Parser<'a, 'b>
     #[doc(hidden)]
     pub subcommands: Vec<App<'a, 'b>>,
     groups: HashMap<&'a str, ArgGroup<'a>>,
-    global_args: Vec<Arg<'a, 'b>>,
+    pub global_args: Vec<Arg<'a, 'b>>,
     overrides: Vec<&'b str>,
     help_short: Option<char>,
     version_short: Option<char>,

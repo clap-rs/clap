@@ -1,11 +1,43 @@
 #[allow(unused_imports, dead_code)]
 mod test {
     use std::str;
-    use std::io::Write;
+    use std::io::{Cursor, Write};
 
     use regex::Regex;
 
     use clap::{App, Arg, SubCommand, ArgGroup};
+
+    fn compare<S, S2>(l: S, r: S2) -> bool
+        where S: AsRef<str>,
+              S2: AsRef<str> {
+        let re = Regex::new("\x1b[^m]*m").unwrap();
+        // Strip out any mismatching \r character on windows that might sneak in on either side
+        let left = re.replace_all(&l.as_ref().trim().replace("\r", "")[..], "");
+        let right = re.replace_all(&r.as_ref().trim().replace("\r", "")[..], "");
+        let b = left == right;
+        if !b {
+            println!("");
+            println!("--> left");
+            println!("{}", left);
+            println!("--> right");
+            println!("{}", right);
+            println!("--")
+        }
+        b
+    }
+
+    pub fn compare_output(l: App, args: &str, right: &str, stderr: bool) -> bool {
+        let mut buf = Cursor::new(Vec::with_capacity(50));
+        let res = l.get_matches_from_safe(args.split(' ').collect::<Vec<_>>());
+        let err = res.unwrap_err();
+        err.write_to(&mut buf).unwrap();
+        let content = buf.into_inner();
+        let left = String::from_utf8(content).unwrap();
+        assert_eq!(stderr, err.use_stderr());
+        compare(left, right)
+    }
+
+    // Legacy tests from the pyhton script days
 
     pub fn complex_app() -> App<'static, 'static> {
         let args = "-o --option=[opt]... 'tests options'
@@ -37,150 +69,4 @@ mod test {
                                     .arg_from_usage("-o --option [scoption]... 'tests options'")
                                     .arg_from_usage("[scpositional] 'tests positionals'"))
     }
-
-    pub fn check_err_output(a: App, args: &str, out: &str, use_stderr: bool) {
-        let res = a.get_matches_from_safe(args.split(' ').collect::<Vec<_>>());
-        let re = Regex::new("\x1b[^m]*m").unwrap();
-
-        let mut w = vec![];
-        let err = res.unwrap_err();
-        err.write_to(&mut w).unwrap();
-        let err_s = str::from_utf8(&w).unwrap();
-        assert_eq!(re.replace_all(err_s, ""), out);
-        assert_eq!(use_stderr, err.use_stderr());
-    }
-
-    pub fn check_subcommand_help(mut a: App, cmd: &str, out: &str) {
-        // We call a get_matches method to cause --help and --version to be built
-        let _ = a.get_matches_from_safe_borrow(vec![""]);
-        let sc = a.p.subcommands.iter().filter(|s| s.p.meta.name == cmd).next().unwrap();
-
-        // Now we check the output of print_help()
-        let mut help = vec![];
-        sc.write_help(&mut help).expect("failed to print help");
-        assert_eq!(str::from_utf8(&help).unwrap(), out);
-    }
-
-    pub fn check_help(mut a: App, out: &str) {
-        // We call a get_matches method to cause --help and --version to be built
-        let _ = a.get_matches_from_safe_borrow(vec![""]);
-
-        // Now we check the output of print_help()
-        let mut help = vec![];
-        a.write_help(&mut help).expect("failed to print help");
-        assert_eq!(str::from_utf8(&help).unwrap(), out);
-    }
-
-    pub fn check_version(mut a: App, out: &str) {
-        // We call a get_matches method to cause --help and --version to be built
-        let _ = a.get_matches_from_safe_borrow(vec![""]);
-
-        // Now we check the output of print_version()
-        let mut ver = vec![];
-        a.write_version(&mut ver).expect("failed to print help");
-        assert_eq!(str::from_utf8(&ver).unwrap(), out);
-    }
-
-    pub fn check_complex_output(args: &str, out: &str) {
-        let mut w = vec![];
-        let matches = complex_app().get_matches_from(args.split(' ').collect::<Vec<_>>());
-        if matches.is_present("flag") {
-            writeln!(w, "flag present {} times", matches.occurrences_of("flag")).unwrap();
-        } else {
-            writeln!(w, "flag NOT present").unwrap();
-        }
-
-        if matches.is_present("option") {
-            if let Some(v) = matches.value_of("option") {
-                writeln!(w, "option present {} times with value: {}",matches.occurrences_of("option"), v).unwrap();
-            }
-            if let Some(ov) = matches.values_of("option") {
-                for o in ov {
-                    writeln!(w, "An option: {}", o).unwrap();
-                }
-            }
-        } else {
-            writeln!(w, "option NOT present").unwrap();
-        }
-
-        if let Some(p) = matches.value_of("positional") {
-            writeln!(w, "positional present with value: {}", p).unwrap();
-        } else {
-            writeln!(w, "positional NOT present").unwrap();
-        }
-
-        if matches.is_present("flag2") {
-            writeln!(w, "flag2 present").unwrap();
-            writeln!(w, "option2 present with value of: {}", matches.value_of("long-option-2").unwrap()).unwrap();
-            writeln!(w, "positional2 present with value of: {}", matches.value_of("positional2").unwrap()).unwrap();
-        } else {
-            writeln!(w, "flag2 NOT present").unwrap();
-            writeln!(w, "option2 maybe present with value of: {}", matches.value_of("long-option-2").unwrap_or("Nothing")).unwrap();
-            writeln!(w, "positional2 maybe present with value of: {}", matches.value_of("positional2").unwrap_or("Nothing")).unwrap();
-        }
-
-        let _ = match matches.value_of("Option3").unwrap_or("") {
-            "fast" => writeln!(w, "option3 present quickly"),
-            "slow" => writeln!(w, "option3 present slowly"),
-            _      => writeln!(w, "option3 NOT present")
-        };
-
-        let _ = match matches.value_of("positional3").unwrap_or("") {
-            "vi" => writeln!(w, "positional3 present in vi mode"),
-            "emacs" => writeln!(w, "positional3 present in emacs mode"),
-            _      => writeln!(w, "positional3 NOT present")
-        };
-
-        if matches.is_present("option") {
-            if let Some(v) = matches.value_of("option") {
-                writeln!(w, "option present {} times with value: {}",matches.occurrences_of("option"), v).unwrap();
-            }
-            if let Some(ov) = matches.values_of("option") {
-                for o in ov {
-                    writeln!(w, "An option: {}", o).unwrap();
-                }
-            }
-        } else {
-            writeln!(w, "option NOT present").unwrap();
-        }
-
-        if let Some(p) = matches.value_of("positional") {
-            writeln!(w, "positional present with value: {}", p).unwrap();
-        } else {
-            writeln!(w, "positional NOT present").unwrap();
-        }
-        if matches.is_present("subcmd") {
-            writeln!(w, "subcmd present").unwrap();
-            if let Some(matches) = matches.subcommand_matches("subcmd") {
-                if matches.is_present("flag") {
-                    writeln!(w, "flag present {} times", matches.occurrences_of("flag")).unwrap();
-                } else {
-                    writeln!(w, "flag NOT present").unwrap();
-                }
-
-                if matches.is_present("option") {
-                    if let Some(v) = matches.value_of("option") {
-                        writeln!(w, "scoption present with value: {}", v).unwrap();
-                    }
-                    if let Some(ov) = matches.values_of("option") {
-                        for o in ov {
-                            writeln!(w, "An scoption: {}", o).unwrap();
-                        }
-                    }
-                } else {
-                    writeln!(w, "scoption NOT present").unwrap();
-                }
-
-                if let Some(p) = matches.value_of("scpositional") {
-                    writeln!(w, "scpositional present with value: {}", p).unwrap();
-                }
-            }
-        } else {
-            writeln!(w, "subcmd NOT present").unwrap();
-        }
-
-        let res = str::from_utf8(&w).unwrap();
-        assert_eq!(res, out);
-    }
-
 }

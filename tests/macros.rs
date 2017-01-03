@@ -36,7 +36,7 @@ fn basic() {
 
 #[test]
 fn quoted_app_name() {
-    let app = clap_app!(("app name with spaces-and-hyphens") =>
+    let mut app = clap_app!(("app name with spaces-and-hyphens") =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")

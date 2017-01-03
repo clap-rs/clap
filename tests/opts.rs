@@ -5,6 +5,15 @@ include!("../clap-test.rs");
 
 use clap::{App, Arg, ErrorKind};
 
+#[cfg(feature = "suggestions")]
+static DYM: &'static str = "error: Found argument '--optio' which wasn't expected, or isn't valid in this context
+\tDid you mean --option?
+
+USAGE:
+    clap-test --option <opt>...
+
+For more information try --help";
+
 #[test]
 fn stdin_char() {
     let r = App::new("opts")
@@ -278,16 +287,10 @@ fn leading_hyphen_with_only_pos_follows() {
 #[test]
 #[cfg(feature="suggestions")]
 fn did_you_mean() {
-    test::check_err_output(test::complex_app(),
+    assert!(test::compare_output(test::complex_app(),
                            "clap-test --optio=foo",
-                           "error: Found argument '--optio' which wasn't expected, or isn't valid in this context
-\tDid you mean --option?
-
-USAGE:
-    clap-test --option <opt>...
-
-For more information try --help",
-                           true);
+                           DYM,
+    true));
 }
 
 #[test]

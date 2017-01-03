@@ -1,6 +1,8 @@
 extern crate clap;
 extern crate regex;
 
+use std::str;
+
 use clap::{App, ErrorKind};
 
 include!("../clap-test.rs");
@@ -33,5 +35,11 @@ fn version_long() {
 
 #[test]
 fn complex_version_output() {
-    test::check_version(test::complex_app(), VERSION);
+    let mut a = App::new("clap-test").version("v1.4.8");
+    let _ = a.get_matches_from_safe_borrow(vec![""]);
+
+        // Now we check the output of print_version()
+        let mut ver = vec![];
+        a.write_version(&mut ver).unwrap();
+        assert_eq!(str::from_utf8(&ver).unwrap(), VERSION);
 }
