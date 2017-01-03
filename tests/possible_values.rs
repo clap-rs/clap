@@ -15,6 +15,7 @@ USAGE:
     clap-test --Option <option3>
 
 For more information try --help";
+
 #[cfg(not(feature="suggestions"))]
 static PV_ERROR: &'static str = "error: 'slo' isn't a valid value for '--Option <option3>'
 \t[values: fast, slow]
@@ -159,5 +160,5 @@ fn possible_values_of_option_multiple_fail() {
 
 #[test]
 fn possible_values_output() {
-    test::check_err_output(test::complex_app(), "clap-test -O slo", PV_ERROR, true);
+    assert!(test::compare_output(test::complex_app(), "clap-test -O slo", PV_ERROR, true));
 }

@@ -31,6 +31,17 @@ SUBCOMMANDS:
     help    Prints this message or the help of the given subcommand(s)
     test    Some help";
 
+#[cfg(feature = "suggestions")]
+static DYM: &'static str = "error: The subcommand 'subcm' wasn't recognized
+\tDid you mean 'subcmd'?
+
+If you believe you received this message in error, try re-running with 'clap-test -- subcm'
+
+USAGE:
+    clap-test [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
+
+For more information try --help";
+
 #[test]
 fn subcommand() {
     let m = App::new("test")
@@ -109,16 +120,7 @@ fn multiple_aliases() {
 #[test]
 #[cfg(feature="suggestions")]
 fn subcmd_did_you_mean_output() {
-    test::check_err_output(test::complex_app(), "clap-test subcm",
-"error: The subcommand 'subcm' wasn't recognized
-\tDid you mean 'subcmd'?
-
-If you believe you received this message in error, try re-running with 'clap-test -- subcm'
-
-USAGE:
-    clap-test [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
-
-For more information try --help", true);
+    assert!(test::compare_output(test::complex_app(), "clap-test subcm", DYM, true));
 }
 
 #[test]
@@ -140,7 +142,7 @@ fn visible_aliases_help_output() {
             .alias("invisible")
             .visible_alias("dongle")
             .visible_alias("done"));
-    test::check_help(app, VISIBLE_ALIAS_HELP);
+    assert!(test::compare_output(app, "clap-test --help", VISIBLE_ALIAS_HELP, false));
 }
 
 #[test]
@@ -150,5 +152,5 @@ fn invisible_aliases_help_output() {
         .subcommand(SubCommand::with_name("test")
             .about("Some help")
             .alias("invisible"));
-    test::check_help(app, INVISIBLE_ALIAS_HELP);
+    assert!(test::compare_output(app, "clap-test --help", INVISIBLE_ALIAS_HELP, false));
 }

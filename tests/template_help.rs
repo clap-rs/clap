@@ -1,8 +1,9 @@
 extern crate clap;
-
-use std::io::Cursor;
+extern crate regex;
 
 use clap::{App, SubCommand};
+
+include!("../clap-test.rs");
 
 static EXAMPLE1_TMPL_S : &'static str = include_str!("example1_tmpl_simple.txt");
 static EXAMPLE1_TMPS_F : &'static str = include_str!("example1_tmpl_full.txt");
@@ -15,12 +16,15 @@ USAGE:
     MyApp [FLAGS] [OPTIONS] <output> [SUBCOMMAND]
 
 FLAGS:
-    -d        Turn debugging information on
+    -d               Turn debugging information on
+    -h, --help       Prints help information
+    -V, --version    Prints version information
 OPTIONS:
     -c, --config <FILE>    Sets a custom config file
 ARGS:
     <output>    Sets an optional output file
 SUBCOMMANDS:
+    help    Prints this message or the help of the given subcommand(s)
     test    does testing things";
 
 static SIMPLE_TEMPLATE: &'static str = "MyApp 1.0
@@ -31,7 +35,9 @@ USAGE:
     MyApp [FLAGS] [OPTIONS] <output> [SUBCOMMAND]
 
 FLAGS:
-    -d        Turn debugging information on
+    -d               Turn debugging information on
+    -h, --help       Prints help information
+    -V, --version    Prints version information
 
 OPTIONS:
     -c, --config <FILE>    Sets a custom config file
@@ -40,39 +46,19 @@ ARGS:
     <output>    Sets an optional output file
 
 SUBCOMMANDS:
+    help    Prints this message or the help of the given subcommand(s)
     test    does testing things";
-
-fn build_new_help(app: &App) -> String {
-    let mut buf = Cursor::new(Vec::with_capacity(50));
-    app.write_help(&mut buf).unwrap();
-    let content = buf.into_inner();
-    String::from_utf8(content).unwrap()
-}
-
-fn compare_app_str(l: &App, right: &str) -> bool {
-    let left = build_new_help(&l);
-    // Strip out any mismatching \r character on windows that might sneak in on either side
-    let b = left.trim().replace("\r", "") == right.replace("\r", "");
-    if !b {
-        println!("");
-        println!("--> left");
-        println!("{}", left);
-        println!("--> right");
-        println!("{}", right);
-        println!("--")
-    }
-    b
-}
 
 #[test]
 fn with_template() {
-    assert!(compare_app_str(&app_example1().template(EXAMPLE1_TMPL_S), SIMPLE_TEMPLATE));
+    let app = app_example1().template(EXAMPLE1_TMPL_S);
+    assert!(test::compare_output(app, "MyApp --help", SIMPLE_TEMPLATE, false));
 }
 
 #[test]
 fn custom_template() {
     let app = app_example1().template(EXAMPLE1_TMPS_F);
-    assert!(compare_app_str(&app, CUSTOM_TEMPL_HELP));
+    assert!(test::compare_output(app, "MyApp --help", CUSTOM_TEMPL_HELP, false));
 }
 
 #[test]
@@ -82,7 +68,7 @@ fn template_empty() {
                     .author("Kevin K. <kbknapp@gmail.com>")
                     .about("Does awesome things")
                     .template("");
-    assert!(compare_app_str(&app, ""));
+    assert!(test::compare_output(app, "MyApp --help", "", false));
 }
 
 #[test]
@@ -92,7 +78,7 @@ fn template_notag() {
                     .author("Kevin K. <kbknapp@gmail.com>")
                     .about("Does awesome things")
                     .template("test no tag test");
-    assert!(compare_app_str(&app, "test no tag test"));
+    assert!(test::compare_output(app, "MyApp --help", "test no tag test", false));
 }
 
 #[test]
@@ -102,7 +88,7 @@ fn template_unknowntag() {
                     .author("Kevin K. <kbknapp@gmail.com>")
                     .about("Does awesome things")
                     .template("test {unknown_tag} test");
-    assert!(compare_app_str(&app, "test {unknown_tag} test"));
+    assert!(test::compare_output(app, "MyApp --help", "test {unknown_tag} test", false));
 }
 
 #[test]
@@ -112,8 +98,10 @@ fn template_author_version() {
                     .author("Kevin K. <kbknapp@gmail.com>")
                     .about("Does awesome things")
                     .template("{author}\n{version}\n{about}\n{bin}");
-    assert!(compare_app_str(&app, "Kevin K. <kbknapp@gmail.com>\n1.0\nDoes awesome things\nMyApp"));
+    assert!(test::compare_output(app, "MyApp --help", "Kevin K. <kbknapp@gmail.com>\n1.0\nDoes awesome things\nMyApp", false));
 }
+
+// ----------
 
 fn app_example1<'b, 'c>() -> App<'b, 'c> {
     App::new("MyApp")

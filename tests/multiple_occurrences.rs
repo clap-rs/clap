@@ -2,7 +2,6 @@ extern crate clap;
 
 use clap::{App, Arg};
 
-
 #[test]
 fn multiple_occurrences_of_flags_long() {
     let m = App::new("mo_flags_long")

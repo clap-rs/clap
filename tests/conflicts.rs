@@ -79,10 +79,10 @@ fn group_conflict_2() {
 
 #[test]
 fn conflict_output() {
-    test::check_err_output(test::complex_app(), "clap-test val1 --flag --long-option-2 val2 -F", CONFLICT_ERR, true);
+    test::compare_output(test::complex_app(), "clap-test val1 --flag --long-option-2 val2 -F", CONFLICT_ERR, true);
 }
 
 #[test]
 fn conflict_output_rev() {
-    test::check_err_output(test::complex_app(), "clap-test val1 -F --long-option-2 val2 --flag", CONFLICT_ERR_REV, true);
+    test::compare_output(test::complex_app(), "clap-test val1 -F --long-option-2 val2 --flag", CONFLICT_ERR_REV, true);
 }

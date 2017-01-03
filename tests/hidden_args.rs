@@ -1,23 +1,11 @@
 extern crate clap;
+extern crate regex;
 
 use clap::{App, Arg};
 
-#[test]
-fn hidden_args() {
-    let mut app = App::new("test")
-        .author("Kevin K.")
-        .about("tests stuff")
-        .version("1.3")
-        .args(&[Arg::from_usage("-f, --flag 'some flag'").hidden(true),
-                    Arg::from_usage("-F, --flag2 'some other flag'"),
-                    Arg::from_usage("--option [opt] 'some option'")]);
-    // We call a get_matches method to cause --help and --version to be built
-    let _ = app.get_matches_from_safe_borrow(vec![""]);
+include!("../clap-test.rs");
 
-    // Now we check the output of print_help()
-    let mut help = vec![];
-    app.write_help(&mut help).expect("failed to print help");
-    assert_eq!(&*String::from_utf8_lossy(&*help), &*String::from("test 1.3\n\
+static HIDDEN_ARGS: &'static str = "test 1.3
 Kevin K.
 tests stuff
 
@@ -30,5 +18,16 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-        --option <opt>    some option"));
+        --option <opt>    some option";
+
+#[test]
+fn hidden_args() {
+    let app = App::new("test")
+        .author("Kevin K.")
+        .about("tests stuff")
+        .version("1.3")
+        .args(&[Arg::from_usage("-f, --flag 'some flag'").hidden(true),
+                    Arg::from_usage("-F, --flag2 'some other flag'"),
+                    Arg::from_usage("--option [opt] 'some option'")]);
+    assert!(test::compare_output(app, "test --help", HIDDEN_ARGS, false));
 }

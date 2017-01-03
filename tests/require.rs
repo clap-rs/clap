@@ -5,6 +5,15 @@ include!("../clap-test.rs");
 
 use clap::{App, Arg, ErrorKind, ArgGroup};
 
+static MISSING_REQ: &'static str = "error: The following required arguments were not provided:
+    <positional2>
+    --long-option-2 <option2>
+
+USAGE:
+    clap-test <positional2> -F --long-option-2 <option2>
+
+For more information try --help";
+
 #[test]
 fn flag_required() {
     let result = App::new("flag_required")
@@ -365,15 +374,7 @@ fn required_unless_one_err() {
 
 #[test]
 fn missing_required_output() {
-    test::check_err_output(test::complex_app(), "clap-test -F",
-"error: The following required arguments were not provided:
-    <positional2>
-    --long-option-2 <option2>
-
-USAGE:
-    clap-test <positional2> -F --long-option-2 <option2>
-
-For more information try --help", true)
+    assert!(test::compare_output(test::complex_app(), "clap-test -F", MISSING_REQ, true));
 }
 
 // Conditional external requirements
@@ -453,7 +454,6 @@ fn requires_if_present_val_no_present_pass() {
         ]);
 
     assert!(res.is_ok());
-    // assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
 }
 
 // Conditionally required
@@ -473,7 +473,6 @@ fn required_if_val_present_pass() {
         ]);
 
     assert!(res.is_ok());
-    // assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
 }
 
 #[test]

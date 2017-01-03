@@ -50,15 +50,17 @@ FLAGS:
 
 some text that comes after the help";
 
-static SC_HELP: &'static str = "subcmd 0.1
+static SC_HELP: &'static str = "clap-test-subcmd 0.1
 Kevin K. <kbknapp@gmail.com>
 tests subcommands
 
 USAGE:
-    subcmd [FLAGS] [OPTIONS] [--] [scpositional]
+    clap-test subcmd [FLAGS] [OPTIONS] [--] [scpositional]
 
 FLAGS:
-    -f, --flag    tests flags
+    -f, --flag       tests flags
+    -h, --help       Prints help information
+    -V, --version    Prints version information
 
 OPTIONS:
     -o, --option <scoption>...    tests options
@@ -290,7 +292,7 @@ fn subcommand_help_rev() {
 
 #[test]
 fn complex_help_output() {
-    test::check_help(test::complex_app(), HELP);
+    assert!(test::compare_output(test::complex_app(), "clap-test --help", HELP, false));
 }
 
 #[test]
@@ -300,7 +302,7 @@ fn after_and_before_help_output() {
         .about("tests clap library")
         .before_help("some text that comes before the help")
         .after_help("some text that comes after the help");
-    test::check_help(app, AFTER_HELP);
+    assert!(test::compare_output(app, "clap-test --help", AFTER_HELP, false));
 }
 
 #[test]
@@ -315,7 +317,7 @@ fn multi_level_sc_help() {
                     -f, --flag                    'tests flags'
                     -o, --option [scoption]...    'tests options'
                 ")));
-    test::check_err_output(app, "ctest help subcmd multi", MULTI_SC_HELP, false);
+    assert!(test::compare_output(app, "ctest help subcmd multi", MULTI_SC_HELP, false));
 }
 
 #[test]
@@ -323,13 +325,13 @@ fn no_wrap_help() {
     let app = App::new("ctest")
         .set_term_width(0)
         .help(MULTI_SC_HELP);
-    test::check_err_output(app, "ctest --help", MULTI_SC_HELP, false);
+    assert!(test::compare_output(app, "ctest --help", MULTI_SC_HELP, false));
 }
 
 #[test]
 fn complex_subcommand_help_output() {
     let a = test::complex_app();
-    test::check_subcommand_help(a, "subcmd", SC_HELP);
+    assert!(test::compare_output(a, "clap-test subcmd --help", SC_HELP, false));
 }
 
 
@@ -349,7 +351,7 @@ fn issue_626_unicode_cutoff() {
            iced coffee and iced tea. Many cafés also serve some type of \
            food, such as light snacks, muffins, or pastries.")
            .takes_value(true));
-    test::check_err_output(app, "ctest --help", ISSUE_626_CUTOFF, false);
+    assert!(test::compare_output(app, "ctest --help", ISSUE_626_CUTOFF, false));
 }
 
 #[test]
@@ -371,7 +373,7 @@ fn hide_possible_vals() {
            .possible_values(&["fast", "slow"])
            .help("A coffeehouse, coffee shop, or café.")
            .takes_value(true));
-    test::check_err_output(app, "ctest --help", HIDE_POS_VALS, false);
+    assert!(test::compare_output(app, "ctest --help", HIDE_POS_VALS, false));
 }
 
 #[test]
@@ -387,7 +389,7 @@ fn issue_626_panic() {
            d'Afrique et d'Asie, dans des plantations qui sont cultivées pour les marchés d'exportation. \
            Le café est souvent une contribution majeure aux exportations des régions productrices.")
            .takes_value(true));
-    test::check_err_output(app, "ctest --help", ISSUE_626_PANIC, false);
+    assert!(test::compare_output(app, "ctest --help", ISSUE_626_PANIC, false));
 }
 
 #[test]
@@ -415,7 +417,7 @@ fn old_newline_chars() {
         .arg(Arg::with_name("mode")
             .short("m")
             .help("Some help with some wrapping{n}(Defaults to something)"));
-    test::check_err_output(app, "ctest --help", OLD_NEWLINE_CHARS, false);
+    assert!(test::compare_output(app, "ctest --help", OLD_NEWLINE_CHARS, false));
 }
 
 #[test]
@@ -432,7 +434,7 @@ fn issue_688_hidden_pos_vals() {
 				.long("filter")
 				.possible_values(&filter_values)
 				.takes_value(true));
-    test::check_err_output(app1, "ctest --help", ISSUE_688, false);
+    assert!(test::compare_output(app1, "ctest --help", ISSUE_688, false));
 
 	let app2 = App::new("ctest")
             .version("0.1")
@@ -443,7 +445,7 @@ fn issue_688_hidden_pos_vals() {
 				.long("filter")
 				.possible_values(&filter_values)
 				.takes_value(true));
-    test::check_err_output(app2, "ctest --help", ISSUE_688, false);
+    assert!(test::compare_output(app2, "ctest --help", ISSUE_688, false));
 
 	let app3 = App::new("ctest")
             .version("0.1")
@@ -453,7 +455,7 @@ fn issue_688_hidden_pos_vals() {
                 images. The default is Linear (Bilinear). [values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
 				.long("filter")
 				.takes_value(true));
-    test::check_err_output(app3, "ctest --help", ISSUE_688, false);
+    assert!(test::compare_output(app3, "ctest --help", ISSUE_688, false));
 }
 
 #[test]
@@ -483,7 +485,7 @@ fn issue_702_multiple_values() {
              .long("label")
              .multiple(true)
              .takes_value(true));
-    test::check_err_output(app, "myapp --help", ISSUE_702, false);
+    assert!(test::compare_output(app, "myapp --help", ISSUE_702, false));
 }
 
 #[test]
@@ -502,9 +504,8 @@ fn issue_760() {
              .short("O")
              .long("opt")
              .takes_value(true));
-    test::check_err_output(app, "ctest --help", ISSUE_760, false);
+    assert!(test::compare_output(app, "ctest --help", ISSUE_760, false));
 }
-
 #[test]
 fn issue_777_wrap_all_things() {
     let app = App::new("A app with a crazy very long long long name hahaha")
