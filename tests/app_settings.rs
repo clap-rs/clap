@@ -450,3 +450,16 @@ fn args_negate_subcommands_two_levels() {
     let m = res.unwrap();
     assert_eq!(m.subcommand_matches("sub1").unwrap().value_of("arg2"), Some("sub2"));
 }
+
+
+#[test]
+fn propagate_vals_down() {
+    let m = App::new("myprog")
+        .setting(AppSettings::PropagateGlobalValuesDown)
+        .arg(Arg::from_usage("[cmd] 'command to run'").global(true))
+        .subcommand(SubCommand::with_name("foo"))
+        .get_matches_from(vec!["myprog", "set", "foo"]);
+    assert_eq!(m.value_of("cmd"), Some("set"));
+    let sub_m = m.subcommand_matches("foo").unwrap();
+    assert_eq!(sub_m.value_of("cmd"), Some("set"));
+}
