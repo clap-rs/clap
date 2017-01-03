@@ -513,5 +513,5 @@ fn issue_777_wrap_all_things() {
         .author("Some Very Long Name and crazy long email <email@server.com>")
         .about("Show how the about text is not wrapped")
         .set_term_width(35);
-    test::check_err_output(app, "ctest --help", ISSUE_777, false);
+    assert!(test::compare_output(app, "ctest --help", ISSUE_777, false));
 }
