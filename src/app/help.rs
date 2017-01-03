@@ -24,6 +24,18 @@ mod term_size {
     pub fn dimensions() -> Option<(usize, usize)> { None }
 }
 
+macro_rules! find_longest {
+    ($help:expr) => {{
+        let mut lw = 0;
+        for l in $help.split(' ').map(|s| str_width(s)) {
+            if l > lw {
+                lw = l;
+            }
+        }
+        lw
+    }};
+}
+
 fn str_width(s: &str) -> usize { UnicodeWidthStr::width(s) }
 
 const TAB: &'static str = "    ";
@@ -383,15 +395,7 @@ impl<'a> Help<'a> {
             debugln!("Help::write_before_after_help: help width: {}", str_width(&*help));
             // Determine how many newlines we need to insert
             debugln!("Help::write_before_after_help: Usable space: {}", self.term_w);
-            let longest_w = {
-                let mut lw = 0;
-                for l in help.split(' ').map(|s| str_width(s)) {
-                    if l > lw {
-                        lw = l;
-                    }
-                }
-                lw
-            };
+            let longest_w = find_longest!(help);            
             help = help.replace("{n}", "\n");
             wrap_help(&mut help, longest_w, self.term_w);
         } else {
@@ -447,15 +451,7 @@ impl<'a> Help<'a> {
             // Determine how many newlines we need to insert
             let avail_chars = self.term_w - spcs;
             debugln!("Help::help: Usable space...{}", avail_chars);
-            let longest_w = {
-                let mut lw = 0;
-                for l in help.split(' ').map(|s| str_width(s)) {
-                    if l > lw {
-                        lw = l;
-                    }
-                }
-                lw
-            };
+            let longest_w = find_longest!(help);            
             help = help.replace("{n}", "\n");
             wrap_help(&mut help, longest_w, avail_chars);
         } else {
@@ -630,15 +626,24 @@ impl<'a> Help<'a> {
     /// Writes binary name of a Parser Object to the wrapped stream.
     fn write_bin_name(&mut self, parser: &Parser) -> io::Result<()> {
         debugln!("Help::write_bin_name;");
+        macro_rules! write_name {
+            () => {{
+                let mut name = parser.meta.name.clone();
+                let longest_w = find_longest!(name);            
+                name = name.replace("{n}", "\n");
+                wrap_help(&mut name, longest_w, self.term_w);
+                try!(color!(self, &*name, good));
+            }};
+        }
         if let Some(bn) = parser.meta.bin_name.as_ref() {
             if bn.contains(' ') {
                 // Incase we're dealing with subcommands i.e. git mv is translated to git-mv
                 try!(color!(self, bn.replace(" ", "-"), good))
             } else {
-                try!(color!(self, &parser.meta.name[..], good))
+                write_name!();
             }
         } else {
-            try!(color!(self, &parser.meta.name[..], good))
+            write_name!();
         }
         Ok(())
     }
@@ -651,16 +656,25 @@ impl<'a> Help<'a> {
             try!(self.writer.write(b"\n\n"));
         }
 
+        macro_rules! write_thing {
+            ($thing:expr) => {{
+                let mut owned_thing = $thing.to_owned();
+                let longest_w = find_longest!(owned_thing);            
+                owned_thing = owned_thing.replace("{n}", "\n");
+                wrap_help(&mut owned_thing, longest_w, self.term_w);
+                try!(write!(self.writer, "{}\n", &*owned_thing))
+            }};
+        }
         // Print the version
         try!(self.write_bin_name(&parser));
         try!(self.writer.write(b" "));
         try!(self.write_version(&parser));
         try!(self.writer.write(b"\n"));
         if let Some(author) = parser.meta.author {
-            try!(write!(self.writer, "{}\n", author));
+            write_thing!(author)
         }
         if let Some(about) = parser.meta.about {
-            try!(write!(self.writer, "{}\n", about));
+            write_thing!(about)
         }
 
         try!(color!(self, "\nUSAGE:", warning));

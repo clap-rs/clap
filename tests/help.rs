@@ -193,6 +193,23 @@ ARGS:
     <arg1>       some option
     <arg2>...    some option";
 
+static ISSUE_777: &'static str = "A app with a crazy very long long
+long name hahaha 1.0
+Some Very Long Name and crazy long
+email <email@server.com>
+Show how the about text is not
+wrapped
+
+USAGE:
+    ctest
+
+FLAGS:
+    -h, --help
+            Prints help information
+    -V, --version
+            Prints version
+            information";
+
 #[test]
 fn help_short() {
     let m = App::new("test")
@@ -486,4 +503,14 @@ fn issue_760() {
              .long("opt")
              .takes_value(true));
     test::check_err_output(app, "ctest --help", ISSUE_760, false);
+}
+
+#[test]
+fn issue_777_wrap_all_things() {
+    let app = App::new("A app with a crazy very long long long name hahaha")
+        .version("1.0")
+        .author("Some Very Long Name and crazy long email <email@server.com>")
+        .about("Show how the about text is not wrapped")
+        .set_term_width(35);
+    test::check_err_output(app, "ctest --help", ISSUE_777, false);
 }
