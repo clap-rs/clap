@@ -1,3 +1,96 @@
+<a name="v2.20.0"></a>
+## v2.20.0 (2017-01-04)
+
+## There is a Minor Breaking Change
+
+This update contains a minor breaking. Why is the major version not bumped? The following items:
+
+ * it's to fix a bug in the original code
+ * the fix for end users is trivial and not always required
+ * it's a niche feature that few use.
+ * I've checked most of the major projects that I'm aware of and none are using this method
+
+**Details:** `App::write_help` now requires `&mut self` instead of `&self`. That's it.
+
+This means if you use
+
+```rust
+let app = /* .. */;
+app.write_help(/* .. */);
+```
+Change your code to:
+
+```rust
+let mut app = // all else remains the same
+```
+
+Note `mut` app.
+
+However, if you used
+
+```rust
+let app = // no semi-colon
+    .write_help(/* .. */);
+```
+
+No change is required
+
+
+#### New Settings
+
+* **ArgsNegateSubcommands:**  disables args being allowed between subcommands ([5e2af8c9](https://github.com/kbknapp/clap-rs/commit/5e2af8c96adb5ab75fa2d1536237ebcb41869494), closes [#793](https://github.com/kbknapp/clap-rs/issues/793))
+* **DontCollapseArgsInUsage:** disables the collapsing of positional args into `[ARGS]` in the usage string  ([c2978afc](https://github.com/kbknapp/clap-rs/commit/c2978afc61fb46d5263ab3b2d87ecde1c9ce1553), closes [#769](https://github.com/kbknapp/clap-rs/issues/769))
+* **DisableHelpSubcommand:**  disables building the `help` subcommand  ([a10fc859](https://github.com/kbknapp/clap-rs/commit/a10fc859ee20159fbd9ff4337be59b76467a64f2))
+* **AllowMissingPositional:**  allows one to implement `$ prog [optional] <required>` style CLIs where the second postional argument is required, but the first is optional ([1110fdc7](https://github.com/kbknapp/clap-rs/commit/1110fdc7a345c108820dc45783a9bf893fa4c214), closes [#636](https://github.com/kbknapp/clap-rs/issues/636))
+* **PropagateGlobalValuesDown:**  automatically propagats global arg's values down through *used* subcommands ([985536c8](https://github.com/kbknapp/clap-rs/commit/985536c8ebcc09af98aac835f42a8072ad58c262), closes [#694](https://github.com/kbknapp/clap-rs/issues/694))
+
+#### API Additions
+
+##### Arg
+
+* **Arg::value_terminator:**  adds the ability to terminate multiple values with a given string or char ([be64ce0c](https://github.com/kbknapp/clap-rs/commit/be64ce0c373efc106384baca3f487ea99fe7b8cf), closes [#782](https://github.com/kbknapp/clap-rs/issues/782))
+* **Arg::default_value_if[s]:**  adds new methods for *conditional* default values (such as a particular value from another argument was used) ([eb4010e7](https://github.com/kbknapp/clap-rs/commit/eb4010e7b21724447ef837db11ac441915728f22))
+* **Arg::requires_if[s]:**  adds the ability to *conditionally* require additional args (such as if a particular value was used) ([198449d6](https://github.com/kbknapp/clap-rs/commit/198449d64393c265f0bc327aaeac23ec4bb97226))
+* **Arg::required_if[s]:**  adds the ability for an arg to be *conditionally* required (i.e. "arg X is only required if arg Y was used with value Z") ([ee9cfddf](https://github.com/kbknapp/clap-rs/commit/ee9cfddf345a6b5ae2af42ba72aa5c89e2ca7f59))
+* **Arg::validator_os:**  adds ability to validate values which may contain invalid UTF-8 ([47232498](https://github.com/kbknapp/clap-rs/commit/47232498a813db4f3366ccd3e9faf0bff56433a4))
+
+##### Macros
+
+* **crate_description!:** Uses the `Cargo.toml` description field to fill in the `App::about` method at compile time ([4d9a82db](https://github.com/kbknapp/clap-rs/commit/4d9a82db8e875e9b64a9c2a5c6e22c25afc1279d), closes [#778](https://github.com/kbknapp/clap-rs/issues/778))
+* **crate_name!:** Uses the `Cargo.toml` name field to fill in the `App::new` method at compile time ([4d9a82db](https://github.com/kbknapp/clap-rs/commit/4d9a82db8e875e9b64a9c2a5c6e22c25afc1279d), closes [#778](https://github.com/kbknapp/clap-rs/issues/778))
+* **app_from_crate!:** Combines `crate_version!`, `crate_name!`, `crate_description!`, and `crate_authors!` into a single macro call to build a default `App` instance from the `Cargo.toml` fields ([4d9a82db](https://github.com/kbknapp/clap-rs/commit/4d9a82db8e875e9b64a9c2a5c6e22c25afc1279d), closes [#778](https://github.com/kbknapp/clap-rs/issues/778))
+
+
+#### Features
+
+* **no_cargo:**  adds a `no_cargo` feature to disable Cargo-env-var-dependent macros for those *not* using `cargo` to build their crates (#786) ([6fdd2f9d](https://github.com/kbknapp/clap-rs/commit/6fdd2f9d693aaf1118fc61bd362273950703f43d))
+
+#### Bug Fixes
+
+* **Options:**  fixes a critical bug where options weren't forced to have a value ([5a5f2b1e](https://github.com/kbknapp/clap-rs/commit/5a5f2b1e9f598a0d0280ef3e98abbbba2bc41132), closes [#665](https://github.com/kbknapp/clap-rs/issues/665))
+*   fixes an issue where the full help message wasn't written when doing `App::write_help` ([20842ed8](https://github.com/kbknapp/clap-rs/commit/20842ed8c29facd5dd8a971046965c144daba667), closes [#801](https://github.com/kbknapp/clap-rs/issues/801))
+  * *BREAKING CHANGE**: This is a breaking change, but because of the following three items, it's not bumping the major version: it's due to a bug, the fix is trivial and not always required, and it's a niche feature that few use. `App::write_to` requires `&mut self` instead of `&self`.
+  * This means if you use `let app = /* .. */; app.write_help(/* .. */);` you need to now do `let mut app = // snip`. ALL other forms don't need to change.
+*   fixes a bug where calling the help of a subcommand wasn't ignoring required args of parent commands ([d3d34a2b](https://github.com/kbknapp/clap-rs/commit/d3d34a2b51ef31004055b0ab574f766d801c3adf), closes [#789](https://github.com/kbknapp/clap-rs/issues/789))
+* **Help Subcommand:**  fixes a bug where the help subcommand couldn't be overriden ([d34ec3e0](https://github.com/kbknapp/clap-rs/commit/d34ec3e032d03e402d8e87af9b2942fe2819b2da), closes [#787](https://github.com/kbknapp/clap-rs/issues/787))
+* **Low Index Multiples:**  fixes a bug which caused combinations of LowIndexMultiples and `Arg::allow_hyphen_values` to fail parsing ([26c670ca](https://github.com/kbknapp/clap-rs/commit/26c670ca16d2c80dc26d5c1ce83380ace6357318))
+
+#### Improvements
+
+* **Default Values:**  improves the error message when default values are involved ([1f33de54](https://github.com/kbknapp/clap-rs/commit/1f33de545036e7fd2f80faba251fca009bd519b8), closes [#774](https://github.com/kbknapp/clap-rs/issues/774))
+* **YAML:**  adds conditional requirements and conditional default values to YAML ([9a4df327](https://github.com/kbknapp/clap-rs/commit/9a4df327893486adb5558ffefba790c634ccdc6e), closes [#764](https://github.com/kbknapp/clap-rs/issues/764))
+*  Support `--("some-arg-name")` syntax for defining long arg names when using `clap_app!` macro ([f41ec962](https://github.com/kbknapp/clap-rs/commit/f41ec962c243a5ffff8b1be1ae2ad63970d3d1d4))
+*  Support `("some app name")` syntax for defining app names when using `clap_app!` macro ([9895b671](https://github.com/kbknapp/clap-rs/commit/9895b671cff784f35cf56abcd8270f7c2ba09699), closes [#759](https://github.com/kbknapp/clap-rs/issues/759))
+* **Help Wrapping:**  long app names (with spaces), authors, and descriptions are now wrapped appropriately ([ad4691b7](https://github.com/kbknapp/clap-rs/commit/ad4691b71a63e951ace346318238d8834e04ad8a), closes [#777](https://github.com/kbknapp/clap-rs/issues/777))
+
+
+#### Documentation
+
+* **Conditional Default Values:**  fixes the failing doc tests of Arg::default_value_ifs ([4ef09101](https://github.com/kbknapp/clap-rs/commit/4ef091019c083b4db1a0c13f1c1e95ac363259f2))
+* **Conditional Requirements:**  adds docs for Arg::requires_ifs ([7f296e29](https://github.com/kbknapp/clap-rs/commit/7f296e29db7d9036e76e5dbcc9c8b20dfe7b25bd))
+* **README.md:**  fix some typos ([f22c21b4](https://github.com/kbknapp/clap-rs/commit/f22c21b422d5b287d1a1ac183a379ee02eebf54f))
+* **src/app/mod.rs:**  fix some typos ([5c9b0d47](https://github.com/kbknapp/clap-rs/commit/5c9b0d47ca78dea285c5b9dec79063d24c3e451a))
+
 <a name="v2.19.3"></a>
 ### v2.19.3 (2016-12-28)
 
