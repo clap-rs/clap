@@ -457,3 +457,14 @@ fn propagate_vals_down() {
     let sub_m = m.subcommand_matches("foo").unwrap();
     assert_eq!(sub_m.value_of("cmd"), Some("set"));
 }
+
+#[test]
+fn allow_missing_positional() {
+    let m = App::new("test")
+        .setting(AppSettings::AllowMissingPositional)
+        .arg(Arg::from_usage("[src] 'some file'").default_value("src"))
+        .arg_from_usage("<dest> 'some file'")
+        .get_matches_from(vec!["test", "file"]);
+    assert_eq!(m.value_of("src"), Some("src"));
+    assert_eq!(m.value_of("dest"), Some("file"));
+}
