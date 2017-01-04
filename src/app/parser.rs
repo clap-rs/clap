@@ -546,10 +546,6 @@ impl<'a, 'b> Parser<'a, 'b>
                 a.b.settings.is_set(ArgSettings::Multiple) &&
                 (a.index as usize != self.positionals.len())
             }) {
-            debug_assert!(self.positionals.values()
-                .filter(|p| p.b.settings.is_set(ArgSettings::Multiple)
-                    && p.v.num_vals.is_none()).map(|_| 1).sum::<u64>() <= 1,
-                "Only one positional argument with .multiple(true) set is allowed per command");
 
             debug_assert!({
                     let mut it = self.positionals.values().rev();
@@ -581,17 +577,42 @@ impl<'a, 'b> Parser<'a, 'b>
 
         // If it's required we also need to ensure all previous positionals are
         // required too
-        let mut found = false;
-        for p in self.positionals.values().rev() {
-            if found {
-                debug_assert!(p.b.settings.is_set(ArgSettings::Required),
-                              "Found positional argument which is not required with a lower index \
-                              than a required positional argument: {:?} index {}",
-                              p.b.name,
-                              p.index);
-            } else if p.b.settings.is_set(ArgSettings::Required) {
-                found = true;
-                continue;
+        if self.is_set(AppSettings::AllowMissingPositional) {
+            let mut found = false;
+            let mut foundx2 = false;
+            for p in self.positionals.values().rev() {
+                if foundx2 && !p.b.settings.is_set(ArgSettings::Required) {
+                    // [arg1] <arg2> is Ok
+                    // [arg1] <arg2> <arg3> Is not
+                    debug_assert!(p.b.settings.is_set(ArgSettings::Required),
+                                "Found positional argument which is not required with a lower index \
+                                than a required positional argument by two or more: {:?} index {}",
+                                p.b.name,
+                                p.index);
+                } else if p.b.settings.is_set(ArgSettings::Required) {
+                    if found {
+                        foundx2 = true;
+                        continue;
+                    }
+                    found = true;
+                    continue;
+                } else {
+                    found = false;
+                }
+            }
+        } else {
+            let mut found = false;
+            for p in self.positionals.values().rev() {
+                if found {
+                    debug_assert!(p.b.settings.is_set(ArgSettings::Required),
+                                "Found positional argument which is not required with a lower index \
+                                than a required positional argument: {:?} index {}",
+                                p.b.name,
+                                p.index);
+                } else if p.b.settings.is_set(ArgSettings::Required) {
+                    found = true;
+                    continue;
+                }
             }
         }
     }
@@ -861,12 +882,15 @@ impl<'a, 'b> Parser<'a, 'b>
             let low_index_mults = self.is_set(AppSettings::LowIndexMultiplePositional) &&
                                   !self.positionals.is_empty() &&
                                   pos_counter == (self.positionals.len() - 1);
+            let missing_pos = self.is_set(AppSettings::AllowMissingPositional) &&
+                                  !self.positionals.is_empty() &&
+                                  pos_counter == (self.positionals.len() - 1);
             debugln!("Parser::get_matches_with: Low index multiples...{:?}", low_index_mults);
             debugln!("Parser::get_matches_with: Positional counter...{}", pos_counter);
-            if low_index_mults {
+            if low_index_mults || missing_pos {
                 if let Some(na) = it.peek() {
                     let n = (*na).clone().into();
-                    needs_val_of = if let None = needs_val_of {
+                    needs_val_of = if needs_val_of.is_none() {
                         if let Some(p) = self.positionals.get(pos_counter) {
                             Some(p.b.name)
                         } else {
