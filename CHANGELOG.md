@@ -1,40 +1,4 @@
 <a name="v2.20.0"></a>
-## v2.20.0 (2017-01-04)
-
-## There is a Minor Breaking Change
-
-This update contains a minor breaking. Why is the major version not bumped? The following items:
-
- * it's to fix a bug in the original code
- * the fix for end users is trivial and not always required
- * it's a niche feature that few use.
- * I've checked most of the major projects that I'm aware of and none are using this method
-
-**Details:** `App::write_help` now requires `&mut self` instead of `&self`. That's it.
-
-This means if you use
-
-```rust
-let app = /* .. */;
-app.write_help(/* .. */);
-```
-Change your code to:
-
-```rust
-let mut app = // all else remains the same
-```
-
-Note `mut` app.
-
-However, if you used
-
-```rust
-let app = // no semi-colon
-    .write_help(/* .. */);
-```
-
-No change is required
-
 
 #### New Settings
 
@@ -68,9 +32,6 @@ No change is required
 #### Bug Fixes
 
 * **Options:**  fixes a critical bug where options weren't forced to have a value ([5a5f2b1e](https://github.com/kbknapp/clap-rs/commit/5a5f2b1e9f598a0d0280ef3e98abbbba2bc41132), closes [#665](https://github.com/kbknapp/clap-rs/issues/665))
-*   fixes an issue where the full help message wasn't written when doing `App::write_help` ([20842ed8](https://github.com/kbknapp/clap-rs/commit/20842ed8c29facd5dd8a971046965c144daba667), closes [#801](https://github.com/kbknapp/clap-rs/issues/801))
-  * *BREAKING CHANGE**: This is a breaking change, but because of the following three items, it's not bumping the major version: it's due to a bug, the fix is trivial and not always required, and it's a niche feature that few use. `App::write_to` requires `&mut self` instead of `&self`.
-  * This means if you use `let app = /* .. */; app.write_help(/* .. */);` you need to now do `let mut app = // snip`. ALL other forms don't need to change.
 *   fixes a bug where calling the help of a subcommand wasn't ignoring required args of parent commands ([d3d34a2b](https://github.com/kbknapp/clap-rs/commit/d3d34a2b51ef31004055b0ab574f766d801c3adf), closes [#789](https://github.com/kbknapp/clap-rs/issues/789))
 * **Help Subcommand:**  fixes a bug where the help subcommand couldn't be overriden ([d34ec3e0](https://github.com/kbknapp/clap-rs/commit/d34ec3e032d03e402d8e87af9b2942fe2819b2da), closes [#787](https://github.com/kbknapp/clap-rs/issues/787))
 * **Low Index Multiples:**  fixes a bug which caused combinations of LowIndexMultiples and `Arg::allow_hyphen_values` to fail parsing ([26c670ca](https://github.com/kbknapp/clap-rs/commit/26c670ca16d2c80dc26d5c1ce83380ace6357318))

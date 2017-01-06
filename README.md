@@ -47,8 +47,6 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 Here's the highlights for v2.20.0
 
-**NOTICE:** This release contains a technically breaking change in a *very* niche feature that few use (`App::write_help`). The fix is *very* trivial and not always required. See the full CHANGELOG.md for details.
-
 * **ArgsNegateSubcommands:**  disables args being allowed between subcommands
 * **DontCollapseArgsInUsage:** disables the collapsing of positional args into `[ARGS]` in the usage string
 * **DisableHelpSubcommand:**  disables building the `help` subcommand
@@ -64,7 +62,6 @@ Here's the highlights for v2.20.0
 * **app_from_crate!:** Combines `crate_version!`, `crate_name!`, `crate_description!`, and `crate_authors!` into a single macro call to build a default `App` instance from the `Cargo.toml` fields
 * **no_cargo:**  adds a `no_cargo` feature to disable Cargo-env-var-dependent macros for those *not* using `cargo` to build their crates
 * **Options:**  fixes a critical bug where options weren't forced to have a value
-*   fixes an issue where the full help message wasn't written when doing `App::write_help`
 *   fixes a bug where calling the help of a subcommand wasn't ignoring required args of parent commands
 * **Help Subcommand:**  fixes a bug where the help subcommand couldn't be overriden
 * **Low Index Multiples:**  fixes a bug which caused combinations of LowIndexMultiples and `Arg::allow_hyphen_values` to fail parsing
