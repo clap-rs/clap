@@ -5,39 +5,40 @@ use std::ops::BitOr;
 
 bitflags! {
     flags Flags: u64 {
-        const SC_NEGATE_REQS       = 0b000000000000000000000000000000001,
-        const SC_REQUIRED          = 0b000000000000000000000000000000010,
-        const A_REQUIRED_ELSE_HELP = 0b000000000000000000000000000000100,
-        const GLOBAL_VERSION       = 0b000000000000000000000000000001000,
-        const VERSIONLESS_SC       = 0b000000000000000000000000000010000,
-        const UNIFIED_HELP         = 0b000000000000000000000000000100000,
-        const WAIT_ON_ERROR        = 0b000000000000000000000000001000000,
-        const SC_REQUIRED_ELSE_HELP= 0b000000000000000000000000010000000,
-        const NEEDS_LONG_HELP      = 0b000000000000000000000000100000000,
-        const NEEDS_LONG_VERSION   = 0b000000000000000000000001000000000,
-        const NEEDS_SC_HELP        = 0b000000000000000000000010000000000,
-        const DISABLE_VERSION      = 0b000000000000000000000100000000000,
-        const HIDDEN               = 0b000000000000000000001000000000000,
-        const TRAILING_VARARG      = 0b000000000000000000010000000000000,
-        const NO_BIN_NAME          = 0b000000000000000000100000000000000,
-        const ALLOW_UNK_SC         = 0b000000000000000001000000000000000,
-        const UTF8_STRICT          = 0b000000000000000010000000000000000,
-        const UTF8_NONE            = 0b000000000000000100000000000000000,
-        const LEADING_HYPHEN       = 0b000000000000001000000000000000000,
-        const NO_POS_VALUES        = 0b000000000000010000000000000000000,
-        const NEXT_LINE_HELP       = 0b000000000000100000000000000000000,
-        const DERIVE_DISP_ORDER    = 0b000000000001000000000000000000000,
-        const COLORED_HELP         = 0b000000000010000000000000000000000,
-        const COLOR_ALWAYS         = 0b000000000100000000000000000000000,
-        const COLOR_AUTO           = 0b000000001000000000000000000000000,
-        const COLOR_NEVER          = 0b000000010000000000000000000000000,
-        const DONT_DELIM_TRAIL     = 0b000000100000000000000000000000000,
-        const ALLOW_NEG_NUMS       = 0b000001000000000000000000000000000,
-        const LOW_INDEX_MUL_POS    = 0b000010000000000000000000000000000,
-        const DISABLE_HELP_SC      = 0b000100000000000000000000000000000,
-        const DONT_COLLAPSE_ARGS   = 0b001000000000000000000000000000000,
-        const ARGS_NEGATE_SCS      = 0b010000000000000000000000000000000,
-        const PROPAGATE_VALS_DOWN  = 0b100000000000000000000000000000000,
+        const SC_NEGATE_REQS       = 0b0000000000000000000000000000000001,
+        const SC_REQUIRED          = 0b0000000000000000000000000000000010,
+        const A_REQUIRED_ELSE_HELP = 0b0000000000000000000000000000000100,
+        const GLOBAL_VERSION       = 0b0000000000000000000000000000001000,
+        const VERSIONLESS_SC       = 0b0000000000000000000000000000010000,
+        const UNIFIED_HELP         = 0b0000000000000000000000000000100000,
+        const WAIT_ON_ERROR        = 0b0000000000000000000000000001000000,
+        const SC_REQUIRED_ELSE_HELP= 0b0000000000000000000000000010000000,
+        const NEEDS_LONG_HELP      = 0b0000000000000000000000000100000000,
+        const NEEDS_LONG_VERSION   = 0b0000000000000000000000001000000000,
+        const NEEDS_SC_HELP        = 0b0000000000000000000000010000000000,
+        const DISABLE_VERSION      = 0b0000000000000000000000100000000000,
+        const HIDDEN               = 0b0000000000000000000001000000000000,
+        const TRAILING_VARARG      = 0b0000000000000000000010000000000000,
+        const NO_BIN_NAME          = 0b0000000000000000000100000000000000,
+        const ALLOW_UNK_SC         = 0b0000000000000000001000000000000000,
+        const UTF8_STRICT          = 0b0000000000000000010000000000000000,
+        const UTF8_NONE            = 0b0000000000000000100000000000000000,
+        const LEADING_HYPHEN       = 0b0000000000000001000000000000000000,
+        const NO_POS_VALUES        = 0b0000000000000010000000000000000000,
+        const NEXT_LINE_HELP       = 0b0000000000000100000000000000000000,
+        const DERIVE_DISP_ORDER    = 0b0000000000001000000000000000000000,
+        const COLORED_HELP         = 0b0000000000010000000000000000000000,
+        const COLOR_ALWAYS         = 0b0000000000100000000000000000000000,
+        const COLOR_AUTO           = 0b0000000001000000000000000000000000,
+        const COLOR_NEVER          = 0b0000000010000000000000000000000000,
+        const DONT_DELIM_TRAIL     = 0b0000000100000000000000000000000000,
+        const ALLOW_NEG_NUMS       = 0b0000001000000000000000000000000000,
+        const LOW_INDEX_MUL_POS    = 0b0000010000000000000000000000000000,
+        const DISABLE_HELP_SC      = 0b0000100000000000000000000000000000,
+        const DONT_COLLAPSE_ARGS   = 0b0001000000000000000000000000000000,
+        const ARGS_NEGATE_SCS      = 0b0010000000000000000000000000000000,
+        const PROPAGATE_VALS_DOWN  = 0b0100000000000000000000000000000000,
+        const ALLOW_MISSING_POS    = 0b1000000000000000000000000000000000,
     }
 }
 
@@ -72,6 +73,7 @@ impl AppFlags {
         AllowInvalidUtf8 => UTF8_NONE,
         AllowLeadingHyphen => LEADING_HYPHEN,
         AllowNegativeNumbers => ALLOW_NEG_NUMS,
+        AllowMissingPositional => ALLOW_MISSING_POS,
         ColoredHelp => COLORED_HELP,
         ColorAlways => COLOR_ALWAYS,
         ColorAuto => COLOR_AUTO,
@@ -198,6 +200,39 @@ pub enum AppSettings {
     /// ```
     /// [`AllowLeadingHyphen`]: ./enum.AppSettings.html#variant.AllowLeadingHyphen
     AllowNegativeNumbers,
+
+    /// Allows one to implement a CLI where the second to last positional argument is optional, but
+    /// the final positional argument is required. Such as `$ prog [optional] <required>` where one
+    /// of the two following usages is allowed:
+    ///
+    /// * `$ prog [optional] <required>`
+    /// * `$ prog <required>`
+    ///
+    /// This would otherwise not be allowed. This is useful when `[optional]` has a default value.
+    ///
+    /// **Note:** In addition to using this setting, the second positional argument *must* be 
+    /// [required]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, AppSettings};
+    /// // Assume there is an external subcommand named "subcmd"
+    /// let m = App::new("myprog")
+    ///     .setting(AppSettings::AllowMissingPositional)
+    ///     .arg(Arg::with_name("arg1")
+    ///         .default_value("something"))
+    ///     .arg(Arg::with_name("arg2")
+    ///         .required(true))
+    ///     .get_matches_from(vec![
+    ///         "myprog", "other"
+    ///     ]);
+    ///
+    /// assert_eq!(m.value_of("arg1"), Some("something"));
+    /// assert_eq!(m.value_of("arg2"), Some("other"));
+    /// ```
+    /// [required]: ./struct.Arg.html#method.required
+    AllowMissingPositional,
 
     /// Specifies that an unexpected positional argument,
     /// which would otherwise cause a [`ErrorKind::UnknownArgument`] error,

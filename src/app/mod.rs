@@ -1028,14 +1028,16 @@ impl<'a, 'b> App<'a, 'b> {
     /// app.write_help(&mut out).expect("failed to write to stdout");
     /// ```
     /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
-    pub fn write_help<W: Write>(&mut self, w: &mut W) -> ClapResult<()> {
+    pub fn write_help<W: Write>(&self, w: &mut W) -> ClapResult<()> {
+        // PENDING ISSUE: 808
+        //      https://github.com/kbknapp/clap-rs/issues/808
         // If there are global arguments, or settings we need to propgate them down to subcommands
         // before parsing incase we run into a subcommand
-        self.p.propogate_globals();
-        self.p.propogate_settings();
-        self.p.derive_display_order();
+        // self.p.propogate_globals();
+        // self.p.propogate_settings();
+        // self.p.derive_display_order();
+        // self.p.create_help_and_version();
 
-        self.p.create_help_and_version();
         Help::write_app_help(w, self)
     }
 
