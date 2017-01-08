@@ -51,7 +51,7 @@ use completions::Shell;
 ///     .arg(
 ///         Arg::with_name("in_file").index(1)
 ///     )
-///     .after_help("Longer explaination to appear after the options when \
+///     .after_help("Longer explanation to appear after the options when \
 ///                  displaying the help information from --help or -h")
 ///     .get_matches();
 ///
