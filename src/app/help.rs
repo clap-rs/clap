@@ -948,7 +948,7 @@ fn wrap_help(help: &mut String, longest_w: usize, avail_chars: usize) {
                     continue;
                 }
                 debugln!("Help::wrap_help:iter: Reached the end of the line and we're over...");
-            } else if str_width(&help[j..idx]) < avail_chars {
+            } else if str_width(&help[j..idx]) <= avail_chars {
                 debugln!("Help::wrap_help:iter: Space found with room...");
                 prev_space = idx;
                 continue;

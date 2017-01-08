@@ -113,9 +113,8 @@ OPTIONS:
                          latte, cappuccino, espresso), tea, and other
                          hot beverages. Some coffeehouses also serve
                          cold beverages such as iced coffee and iced
-                         tea. Many cafés also serve some type of
-                         food, such as light snacks, muffins, or
-                         pastries.";
+                         tea. Many cafés also serve some type of food,
+                         such as light snacks, muffins, or pastries.";
 
 static ISSUE_626_PANIC: &'static str = "ctest 0.1
 
