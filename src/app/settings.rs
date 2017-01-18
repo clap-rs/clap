@@ -297,6 +297,9 @@ pub enum AppSettings {
     ///
     /// **NOTE:** [`SubCommand`]s count as arguments
     ///
+    /// **NOTE:** Setting [`Arg::default_value`] effectively disables this option as it will
+    /// ensure that some argument is always present. 
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -306,6 +309,7 @@ pub enum AppSettings {
     /// # ;
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     ArgRequiredElseHelp,
 
     /// Uses colorized help messages.

@@ -2775,6 +2775,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// **NOTE:** This implicitly sets [`Arg::takes_value(true)`].
     ///
+    /// **NOTE:** This setting effectively disables `AppSettings::ArgRequiredElseHelp` if used in
+    /// conjuction as it ensures that some argument will always be present.
+    ///
     /// # Examples
     ///
     /// First we use the default value without providing any value at runtime.
