@@ -10,6 +10,7 @@ homepage = "https://clap.rs/"
 readme = "README.md"
 license = "MIT"
 keywords = ["argument", "command", "arg", "parser", "parse"]
+categories = ["command-line-interface"]
 description = """
 A simple to use, efficient, and full featured  Command Line Argument Parser
 """
