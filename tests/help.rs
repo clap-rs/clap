@@ -253,8 +253,8 @@ FLAGS:
 ARGS:
     <mode>    x, max, maximum   20 characters, contains
               symbols.
-              l, long           Copy-friendly,
-              14 characters, contains symbols.
+              l, long           Copy-friendly, 14
+              characters, contains symbols.
               m, med, medium    Copy-friendly, 8
               characters, contains symbols.";
 
