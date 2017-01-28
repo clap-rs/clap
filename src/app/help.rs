@@ -957,7 +957,7 @@ fn wrap_help(help: &mut String, longest_w: usize, avail_chars: usize) {
             j = prev_space;
             debugln!("Help::wrap_help:iter: prev_space={}, j={}", prev_space, j);
             debugln!("Help::wrap_help:iter: Removing...{}", j);
-            debugln!("Help::wrap_help:iter: Char at {}...{}", j, &help[j..j]);
+            debugln!("Help::wrap_help:iter: Char at {}: {:?}", j, &help[j..j+1]);
             help.remove(j);
             help.insert(j, '\n');
         }
