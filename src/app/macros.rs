@@ -113,7 +113,7 @@ macro_rules! _handle_group_reqs{
             debugln!("_handle_group_reqs!:iter: grp={}, found={:?}", grp.name, found);
             if found {
                 for i in (0 .. $me.required.len()).rev() {
-                    let should_remove = grp.args.contains(&grp.args[i]);
+                    let should_remove = grp.args.contains(&$me.required[i]);
                     if should_remove { $me.required.swap_remove(i); }
                 }
                 debugln!("_handle_group_reqs!:iter: Adding args from group to blacklist...{:?}", grp.args);
