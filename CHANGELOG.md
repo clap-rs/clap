@@ -1,3 +1,19 @@
+<a name="v2.20.1"></a>
+### v2.20.1 (2017-01-30)
+
+#### Bug Fixes
+
+* Fix finding required arguments in group arguments ([f9f778e](https://github.com/kbknapp/clap-rs/commit/5b29be9b073330ab1f7227cdd19fe4aab39d5dcb), closes [#829](https://github.com/kbknapp/clap-rs/pull/829))
+
+#### Documentation
+
+*   fix link from app_from_crate! to crate_authors! ([5b29be9b](https://github.com/kbknapp/clap-rs/commit/5b29be9b073330ab1f7227cdd19fe4aab39d5dcb), closes [#822](https://github.com/kbknapp/clap-rs/pull/822))
+*   fix spelling of "guaranteed" ([4f30a65b](https://github.com/kbknapp/clap-rs/commit/4f30a65b9c03eb09607eb91a929a6396637dc105))
+
+#### Improvements
+
+*   updates libc and term_size deps for the libc version conflict ([6802ac4a](https://github.com/kbknapp/clap-rs/commit/6802ac4a59c142cda9ec55ca0c45ae5cb9a6ab55))
+
 <a name="v2.20.0"></a>
 
 #### New Settings

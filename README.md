@@ -45,7 +45,15 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-Here's the highlights for v2.20.0
+Here's the highlights for v2.20.1
+
+* updates libc and term_size deps for the libc version conflict
+* Fix finding required arguments in group arguments
+* fix link from app_from_crate! to crate_authors!
+* fix spelling of "guaranteed"
+
+
+Here's the highlights from v2.0.0 to v2.20.0
 
 * **ArgsNegateSubcommands:**  disables args being allowed between subcommands
 * **DontCollapseArgsInUsage:** disables the collapsing of positional args into `[ARGS]` in the usage string
@@ -72,9 +80,6 @@ Here's the highlights for v2.20.0
 * **Help Wrapping:**  long app names (with spaces), authors, and descriptions are now wrapped appropriately
 * **Conditional Default Values:**  fixes the failing doc tests of Arg::default_value_ifs
 * **Conditional Requirements:**  adds docs for Arg::requires_ifs
-
-Here's the highlights from v2.0.0 to v2.19.3
-
 * Fixes a bug where calling the help of a subcommand wasn't ignoring required args of parent commands
 * Fixes a bug by escaping square brackets in ZSH completions which were causing conflicts and errors.
 * **Bash Completion:**  allows bash completion to fall back to traidtional bash completion upon no matching completing function
