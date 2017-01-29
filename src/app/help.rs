@@ -960,8 +960,21 @@ fn wrap_help(help: &mut String, longest_w: usize, avail_chars: usize) {
             debugln!("Help::wrap_help:iter: Char at {}: {:?}", j, &help[j..j+1]);
             help.remove(j);
             help.insert(j, '\n');
+            prev_space = idx;
         }
     } else {
         sdebugln!("No");
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::wrap_help;
+
+    #[test]
+    fn wrap_help_last_word() {
+        let mut help = String::from("foo bar baz");
+        wrap_help(&mut help, 3, 5);
+        assert_eq!(help, "foo\nbar\nbaz");
     }
 }

@@ -159,7 +159,8 @@ FLAGS:
             information
     -V, --version
             Prints
-            version information";
+            version
+            information";
 
 static OLD_NEWLINE_CHARS: &'static str = "ctest 0.1
 
