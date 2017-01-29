@@ -54,7 +54,7 @@ impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for Valued<'n, 'e> {
             val_delim: a.val_delim,
             default_val: a.default_val,
             default_vals_ifs: a.default_vals_ifs.clone(),
-            terminator: a.val_terminator.clone(),
+            terminator: a.val_terminator,
         };
         if let Some(ref vec) = a.val_names {
             if vec.len() > 1 {

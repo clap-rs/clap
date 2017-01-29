@@ -3208,7 +3208,7 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
             disp_ord: a.disp_ord,
             r_unless: a.r_unless.clone(),
             r_ifs: a.r_ifs.clone(),
-            val_terminator: a.val_terminator.clone(),
+            val_terminator: a.val_terminator,
         }
     }
 }
@@ -3240,7 +3240,7 @@ impl<'a, 'b> Clone for Arg<'a, 'b> {
             disp_ord: self.disp_ord,
             r_unless: self.r_unless.clone(),
             r_ifs: self.r_ifs.clone(),
-            val_terminator: self.val_terminator.clone(),
+            val_terminator: self.val_terminator,
         }
     }
 }
