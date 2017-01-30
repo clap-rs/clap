@@ -113,9 +113,8 @@ OPTIONS:
                          latte, cappuccino, espresso), tea, and other
                          hot beverages. Some coffeehouses also serve
                          cold beverages such as iced coffee and iced
-                         tea. Many cafés also serve some type of
-                         food, such as light snacks, muffins, or
-                         pastries.";
+                         tea. Many cafés also serve some type of food,
+                         such as light snacks, muffins, or pastries.";
 
 static ISSUE_626_PANIC: &'static str = "ctest 0.1
 
@@ -148,6 +147,20 @@ FLAGS:
 OPTIONS:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café.
     -p, --pos <VAL>      Some vals [values: fast, slow]";
+
+static FINAL_WORD_WRAPPING: &'static str = "ctest 0.1
+
+USAGE:
+    ctest
+
+FLAGS:
+    -h, --help
+            Prints help
+            information
+    -V, --version
+            Prints
+            version
+            information";
 
 static OLD_NEWLINE_CHARS: &'static str = "ctest 0.1
 
@@ -408,6 +421,12 @@ fn issue_626_variable_panic() {
                .takes_value(true))
             .get_matches_from_safe(vec!["ctest", "--help"]);
     }
+}
+
+#[test]
+fn final_word_wrapping() {
+    let app = App::new("ctest").version("0.1").set_term_width(24);
+    assert!(test::compare_output(app, "ctest --help", FINAL_WORD_WRAPPING, false));
 }
 
 #[test]

@@ -948,7 +948,7 @@ fn wrap_help(help: &mut String, longest_w: usize, avail_chars: usize) {
                     continue;
                 }
                 debugln!("Help::wrap_help:iter: Reached the end of the line and we're over...");
-            } else if str_width(&help[j..idx]) < avail_chars {
+            } else if str_width(&help[j..idx]) <= avail_chars {
                 debugln!("Help::wrap_help:iter: Space found with room...");
                 prev_space = idx;
                 continue;
@@ -957,11 +957,24 @@ fn wrap_help(help: &mut String, longest_w: usize, avail_chars: usize) {
             j = prev_space;
             debugln!("Help::wrap_help:iter: prev_space={}, j={}", prev_space, j);
             debugln!("Help::wrap_help:iter: Removing...{}", j);
-            debugln!("Help::wrap_help:iter: Char at {}...{}", j, &help[j..j]);
+            debugln!("Help::wrap_help:iter: Char at {}: {:?}", j, &help[j..j+1]);
             help.remove(j);
             help.insert(j, '\n');
+            prev_space = idx;
         }
     } else {
         sdebugln!("No");
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::wrap_help;
+
+    #[test]
+    fn wrap_help_last_word() {
+        let mut help = String::from("foo bar baz");
+        wrap_help(&mut help, 3, 5);
+        assert_eq!(help, "foo\nbar\nbaz");
     }
 }
