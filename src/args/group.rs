@@ -10,8 +10,9 @@ use yaml_rust::Yaml;
 /// exclusion rules instead of having to list each argument individually, or when you want a rule
 /// to apply "any but not all" arguments.
 ///
-/// For instance, you can make an entire `ArgGroup` required, this means that one (and *only* one,
-/// if [`ArgGroup::multiple(true)`] is set) argument from that group must be present.
+/// For instance, you can make an entire `ArgGroup` required. If [`ArgGroup::multiple(true)`] is
+/// set, this means that at least one argument from that group must be present. If
+/// [`ArgGroup::multiple(false)`] is set (the default), one and *only* one must be present.
 ///
 /// You can also do things such as name an entire `ArgGroup` as a [conflict] or [requirement] for
 /// another argument, meaning any of the arguments that belong to that group will cause a failure
