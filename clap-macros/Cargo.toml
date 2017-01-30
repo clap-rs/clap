@@ -1,0 +1,11 @@
+[package]
+name = "clap-macros"
+version = "0.1.0"
+authors = ["Wim Looman <wim@nemo157.com>"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = "0.11"
+quote = "0.3"

@@ -28,7 +28,8 @@ yaml-rust = { version = "0.3.5",  optional = true }
 clippy    = { version = "~0.0.112", optional = true }
 
 [dev-dependencies]
-regex = "~0.1.80"
+regex = "~0.1.69"
+clap-macros = { path = "clap-macros" }
 
 [features]
 default     = ["suggestions", "color", "wrap_help"]
