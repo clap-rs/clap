@@ -495,7 +495,7 @@ macro_rules! crate_name {
 ///
 /// Equivalent to using the `crate_*!` macros with their respective fields.
 ///
-/// Provided separator is for the [macro.crate_authors.html](`crate_authors!`) macro,
+/// Provided separator is for the [`crate_authors!`](macro.crate_authors.html) macro,
 /// refer to the documentation therefor.
 ///
 /// # Examples
