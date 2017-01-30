@@ -11,8 +11,8 @@ mod from_arg_matches;
 mod define_sub_commands;
 mod sub_command_from_arg_matches;
 
-#[proc_macro_derive(DefineApp, attributes(clap))]
-pub fn define_app(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+#[proc_macro_derive(App, attributes(clap))]
+pub fn app(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let ast = syn::parse_macro_input(&input.to_string()).unwrap();
     let (attrs, field_attrs) = attrs::extract_attrs(&ast);
     let expanded = define_app::expand(&ast, &attrs, &field_attrs);
@@ -30,16 +30,10 @@ pub fn from_arg_matches(input: proc_macro::TokenStream) -> proc_macro::TokenStre
     expanded.parse().unwrap()
 }
 
-#[proc_macro_derive(DefineSubCommands, attributes(clap))]
-pub fn define_sub_commands(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+#[proc_macro_derive(SubCommands, attributes(clap))]
+pub fn subcommands(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let ast = syn::parse_macro_input(&input.to_string()).unwrap();
-    let expanded = define_sub_commands::expand(&ast);
-    expanded.parse().unwrap()
-}
-
-#[proc_macro_derive(SubCommandFromArgMatches, attributes(clap))]
-pub fn sub_command_from_arg_matches(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let ast = syn::parse_macro_input(&input.to_string()).unwrap();
-    let expanded = sub_command_from_arg_matches::expand(&ast);
-    expanded.parse().unwrap()
+    let subcommands = define_sub_commands::expand(&ast);
+    let from_arg_matches = sub_command_from_arg_matches::expand(&ast);
+    quote!(#subcommands #from_arg_matches).to_string().parse().unwrap()
 }

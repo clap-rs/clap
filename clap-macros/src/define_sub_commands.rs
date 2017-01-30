@@ -3,7 +3,7 @@ use quote;
 
 pub fn expand_subcommands(cmds: &[(&syn::Ident, &syn::Ty)]) -> quote::Tokens {
     let types = cmds.iter().map(|&(_ident, ty)| ty);
-    quote! { vec![ #(<#types as ::clap::stomp::DefineApp>::app()),* ] }
+    quote! { vec![ #(<#types as ::clap::code_gen::App>::app()),* ] }
 }
 
 pub fn expand(ast: &syn::MacroInput) -> quote::Tokens {
@@ -37,7 +37,7 @@ pub fn expand(ast: &syn::MacroInput) -> quote::Tokens {
     let subcommands = expand_subcommands(&cmds);
     let (impl_generics, ty_generics, where_clause) = ast.generics.split_for_impl();
     quote! {
-        impl #impl_generics ::clap::stomp::DefineSubCommands for #ident #ty_generics #where_clause {
+        impl #impl_generics ::clap::code_gen::SubCommands for #ident #ty_generics #where_clause {
             fn subcommands() -> ::std::vec::Vec<::clap::App<'static, 'static>> {
                 #subcommands
             }

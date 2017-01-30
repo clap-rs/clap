@@ -61,7 +61,7 @@ fn expand_subcommand(subcommand: &Subcommand) -> quote::Tokens {
     };
 
     quote! {
-        .subcommands(<#ty as ::clap::stomp::DefineSubCommands>::subcommands())
+        .subcommands(<#ty as ::clap::code_gen::SubCommands>::subcommands())
         #required
     }
 }
@@ -131,7 +131,7 @@ pub fn expand(ast: &syn::MacroInput, attrs: &Attributes, field_attrs: &FieldAttr
     let app = expand_app(ast, attrs, &fields);
     let (impl_generics, ty_generics, where_clause) = ast.generics.split_for_impl();
     quote! {
-        impl #impl_generics ::clap::stomp::DefineApp for #ident #ty_generics #where_clause {
+        impl #impl_generics ::clap::code_gen::App for #ident #ty_generics #where_clause {
             fn app() -> ::clap::App<'static, 'static> {
                 #app
             }

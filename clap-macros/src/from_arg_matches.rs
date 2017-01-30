@@ -58,7 +58,7 @@ fn expand_parse_subcommand(cmd: &Subcommand, matches: &syn::Ident) -> quote::Tok
 
     quote! {
         #ident: match #matches.subcommand() {
-            (name, Some(matches)) => #wrapper(<#ty as ::clap::stomp::SubCommandFromArgMatches>::from(name, matches)),
+            (name, Some(matches)) => #wrapper(<#ty as ::clap::code_gen::SubCommandFromArgMatches>::from_matches(name, matches)),
             (_, None) => #default,
         }
     }
@@ -100,22 +100,24 @@ pub fn expand(ast: &syn::MacroInput, field_attrs: &FieldAttributes) -> quote::To
     };
 
     let ident = &ast.ident;
-    let matches: syn::Ident = "matches".into();
+    let matches = syn::Ident::new("matches");
     let parse = expand_parse(ast, &fields, &matches);
-    let allow_unused = syn::Attribute {
-        style: syn::AttrStyle::Outer,
-        value: syn::MetaItem::List(syn::Ident::from("allow"), vec![
-            syn::NestedMetaItem::MetaItem(
-                syn::MetaItem::Word(syn::Ident::from("unused_variables"))
-            ),
-        ]),
-        is_sugared_doc: false,
-    };
-    let (impl_generics, ty_generics, where_clause) = ast.generics.split_for_impl();
+    // Is this really the best way to add extra lifetimes D:
+    // Also, hygiene is important...
+    let a = syn::LifetimeDef::new("'clap_macros_from_arg_matches_a");
+    let mut b = syn::LifetimeDef::new("'clap_macros_from_arg_matches_b");
+    b.bounds.push(a.lifetime.clone());
+    let mut generics = ast.generics.clone();
+    generics.lifetimes.push(a.clone());
+    generics.lifetimes.push(b.clone());
+    let (impl_generics, _, _) = generics.split_for_impl();
+    let (_, ty_generics, where_clause) = ast.generics.split_for_impl();
+    let a = a.lifetime;
+    let b = b.lifetime;
     quote! {
-        impl #impl_generics ::clap::stomp::FromArgMatches for #ident #ty_generics #where_clause {
-            #allow_unused
-            fn from(#matches: &::clap::ArgMatches) -> Self {
+        impl #impl_generics ::std::convert::From<&#a ::clap::ArgMatches<#b>> for #ident #ty_generics #where_clause {
+            #[allow(unused)]
+            fn from(#matches: &#a ::clap::ArgMatches<#b>) -> Self {
                 #parse
             }
         }

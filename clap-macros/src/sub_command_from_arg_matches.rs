@@ -4,7 +4,7 @@ use quote;
 fn expand_parse(me: &syn::Ident, cmds: &[(&syn::Ident, &syn::Ty)], name: &syn::Ident, matches: &syn::Ident) -> quote::Tokens {
     let variants = cmds.iter().map(|&(ident, ty)| {
         let name = ident.as_ref().to_lowercase();
-        quote! { #name => #me::#ident(<#ty as ::clap::stomp::FromArgMatches>::from(#matches)) }
+        quote! { #name => #me::#ident(<#ty as ::std::convert::From<&::clap::ArgMatches>>::from(#matches)) }
     });
     quote! {
         match #name {
@@ -47,8 +47,8 @@ pub fn expand(ast: &syn::MacroInput) -> quote::Tokens {
     let from = expand_parse(ident, &cmds, &name, &matches);
     let (impl_generics, ty_generics, where_clause) = ast.generics.split_for_impl();
     quote! {
-        impl #impl_generics ::clap::stomp::SubCommandFromArgMatches for #ident #ty_generics #where_clause {
-            fn from(#name: &str, #matches: &::clap::ArgMatches) -> Self {
+        impl #impl_generics ::clap::code_gen::SubCommandFromArgMatches for #ident #ty_generics #where_clause {
+            fn from_matches(#name: &str, #matches: &::clap::ArgMatches) -> Self {
                 #from
             }
         }

@@ -2,7 +2,7 @@ extern crate clap;
 #[macro_use]
 extern crate clap_macros;
 
-use clap::stomp::*;
+use clap::code_gen::*;
 
 // Create an application with 5 possible arguments (2 auto generated) and 2 subcommands (1 auto generated)
 //    - A config file
@@ -28,7 +28,7 @@ use clap::stomp::*;
 //        + Used by "$ myapp help" (same functionality as "-h" or "--help")
 
 /// Does awesome things.
-#[derive(DefineApp, FromArgMatches)]
+#[derive(App, FromArgMatches)]
 #[clap(name = "MyApp", version = "1.0")]
 #[clap(author = "Nemo157 <clap@nemo157.com>")]
 pub struct MyApp {
@@ -48,13 +48,13 @@ pub struct MyApp {
     subcommand: Option<Commands>,
 }
 
-#[derive(DefineSubCommands, SubCommandFromArgMatches)]
+#[derive(SubCommands)]
 pub enum Commands {
     Test(Test),
 }
 
 /// does testing things
-#[derive(DefineApp, FromArgMatches)]
+#[derive(App, FromArgMatches)]
 pub struct Test {
     /// lists test values
     #[clap(short = "l")]
@@ -62,7 +62,7 @@ pub struct Test {
 }
 
 fn main() {
-    let app = MyApp::parse();
+    let app = MyApp::from(&MyApp::app().get_matches());
 
     // You can check the value provided by positional arguments, or option arguments
     if let Some(o) = app.output {
