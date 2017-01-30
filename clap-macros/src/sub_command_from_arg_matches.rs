@@ -16,8 +16,8 @@ fn expand_parse(me: &syn::Ident, cmds: &[(&syn::Ident, &syn::Ty)], name: &syn::I
 
 pub fn expand(ast: &syn::MacroInput) -> quote::Tokens {
     let ident = &ast.ident;
-    let name = "name".into(): syn::Ident;
-    let matches = "matches".into(): syn::Ident;
+    let name: syn::Ident = "name".into();
+    let matches: syn::Ident = "matches".into();
 
     let cmds: Vec<_> = match ast.body {
         syn::Body::Enum(ref variants) => {

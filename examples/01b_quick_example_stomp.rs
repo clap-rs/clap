@@ -1,7 +1,3 @@
-#![feature(attr_literals)]
-#![feature(custom_derive)]
-#![feature(proc_macro)]
-
 extern crate clap;
 #[macro_use]
 extern crate clap_macros;
@@ -37,15 +33,15 @@ use clap::stomp::*;
 #[clap(author = "Nemo157 <clap@nemo157.com>")]
 pub struct MyApp {
     /// Sets a custom config file
-    #[clap(short = 'c', value_name = "FILE")]
+    #[clap(short = "c", value_name = "FILE")]
     config: Option<String>,
 
     /// Sets an optional output file
-    #[clap(index = 1)]
+    #[clap(index = "1")]
     output: Option<String>,
 
     /// Turn debugging information on
-    #[clap(counted, short = 'd', long = "debug")]
+    #[clap(counted, short = "d", long = "debug")]
     debug_level: u64,
 
     #[clap(subcommand)]
@@ -61,7 +57,7 @@ pub enum Commands {
 #[derive(DefineApp, FromArgMatches)]
 pub struct Test {
     /// lists test values
-    #[clap(short = 'l')]
+    #[clap(short = "l")]
     list: bool,
 }
 

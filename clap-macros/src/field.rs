@@ -66,7 +66,7 @@ impl<'a> From<(&'a syn::Field, &'a Attributes)> for Arg<'a> {
         let name = attrs.get("name").map(|a| a.into())
                 .unwrap_or_else(|| field.ident.as_ref().unwrap().as_ref());
 
-        let index = attrs.get("index").map(|a| a.into(): u64);
+        let index = attrs.get("index").map(|a| a.into());
 
         // Unlike clap we default to a flag option unless there's a attribute given
         // telling us to not do so
@@ -75,7 +75,7 @@ impl<'a> From<(&'a syn::Field, &'a Attributes)> for Arg<'a> {
         let long = attrs.get("long").map(|a| a.into())
             .or_else(|| if is_flag { Some(name) } else { None });
 
-        let short = attrs.get("short").map(|s| (s.into(): char).to_string());
+        let short = attrs.get("short").map(|s| Into::<char>::into(s).to_string());
         let value_name = attrs.get("value_name").map(|a| a.into());
 
         let is_counter = attrs.get_bool("counted");

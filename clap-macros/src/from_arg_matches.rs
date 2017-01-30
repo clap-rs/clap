@@ -58,7 +58,7 @@ fn expand_parse_subcommand(cmd: &Subcommand, matches: &syn::Ident) -> quote::Tok
 
     quote! {
         #ident: match #matches.subcommand() {
-            (name, Some(matches)) => #wrapper(<#ty as ::clap::stomp::SubCommandsFromArgMatches>::from(name, matches)),
+            (name, Some(matches)) => #wrapper(<#ty as ::clap::stomp::SubCommandFromArgMatches>::from(name, matches)),
             (_, None) => #default,
         }
     }
@@ -100,7 +100,7 @@ pub fn expand(ast: &syn::MacroInput, field_attrs: &FieldAttributes) -> quote::To
     };
 
     let ident = &ast.ident;
-    let matches = "matches".into(): syn::Ident;
+    let matches: syn::Ident = "matches".into();
     let parse = expand_parse(ast, &fields, &matches);
     let allow_unused = syn::Attribute {
         style: syn::AttrStyle::Outer,
