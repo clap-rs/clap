@@ -204,7 +204,7 @@ impl<'a> Help<'a> {
             if first {
                 first = false;
             } else {
-                try!(self.writer.write(b"\n"));
+                try!(self.writer.write_all(b"\n"));
             }
             try!(self.write_arg(arg.as_base()));
         }
@@ -240,7 +240,7 @@ impl<'a> Help<'a> {
                 if first {
                     first = false;
                 } else {
-                    try!(self.writer.write(b"\n"));
+                    try!(self.writer.write_all(b"\n"));
                 }
                 try!(self.write_arg(arg.as_base()));
             }
@@ -562,7 +562,7 @@ impl<'a> Help<'a> {
             }
             if opts {
                 if !first {
-                    try!(self.writer.write(b"\n\n"));
+                    try!(self.writer.write_all(b"\n\n"));
                 }
                 try!(color!(self, "OPTIONS:\n", warning));
                 try!(self.write_args(parser.opts().map(as_arg_trait)));
@@ -572,7 +572,7 @@ impl<'a> Help<'a> {
 
         if pos {
             if !first {
-                try!(self.writer.write(b"\n\n"));
+                try!(self.writer.write_all(b"\n\n"));
             }
             try!(color!(self, "ARGS:\n", warning));
             try!(self.write_args_unsorted(parser.positionals().map(as_arg_trait)));
@@ -581,7 +581,7 @@ impl<'a> Help<'a> {
 
         if subcmds {
             if !first {
-                try!(self.writer.write(b"\n\n"));
+                try!(self.writer.write_all(b"\n\n"));
             }
             try!(color!(self, "SUBCOMMANDS:\n", warning));
             try!(self.write_subcommands(&parser));
@@ -608,7 +608,7 @@ impl<'a> Help<'a> {
                 if first {
                     first = false;
                 } else {
-                    try!(self.writer.write(b"\n"));
+                    try!(self.writer.write_all(b"\n"));
                 }
                 try!(self.write_arg(sc));
             }
@@ -653,7 +653,7 @@ impl<'a> Help<'a> {
         debugln!("Help::write_default_help;");
         if let Some(h) = parser.meta.pre_help {
             try!(self.write_before_after_help(h));
-            try!(self.writer.write(b"\n\n"));
+            try!(self.writer.write_all(b"\n\n"));
         }
 
         macro_rules! write_thing {
@@ -667,9 +667,9 @@ impl<'a> Help<'a> {
         }
         // Print the version
         try!(self.write_bin_name(&parser));
-        try!(self.writer.write(b" "));
+        try!(self.writer.write_all(b" "));
         try!(self.write_version(&parser));
-        try!(self.writer.write(b"\n"));
+        try!(self.writer.write_all(b"\n"));
         if let Some(author) = parser.meta.author {
             write_thing!(author)
         }
@@ -694,7 +694,7 @@ impl<'a> Help<'a> {
 
         if let Some(h) = parser.meta.more_help {
             if flags || opts || pos || subcmds {
-                try!(self.writer.write(b"\n\n"));
+                try!(self.writer.write_all(b"\n\n"));
             }
             try!(self.write_before_after_help(h));
         }
@@ -857,7 +857,7 @@ impl<'a> Help<'a> {
             });
             match &tag_buf.get_ref()[0..tag_length] {
                 b"?" => {
-                    try!(self.writer.write(b"Could not decode tag name"));
+                    try!(self.writer.write_all(b"Could not decode tag name"));
                 }
                 b"bin" => {
                     try!(self.write_bin_name(&parser));
@@ -916,9 +916,9 @@ impl<'a> Help<'a> {
                 }
                 // Unknown tag, write it back.
                 r => {
-                    try!(self.writer.write(b"{"));
-                    try!(self.writer.write(r));
-                    try!(self.writer.write(b"}"));
+                    try!(self.writer.write_all(b"{"));
+                    try!(self.writer.write_all(r));
+                    try!(self.writer.write_all(b"}"));
                 }
             }
         }

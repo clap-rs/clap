@@ -455,8 +455,7 @@ impl<'a, 'b> Parser<'a, 'b>
         } else if count == 1 {
             let p = self.positionals
                 .values()
-                .filter(|p| !p.is_set(ArgSettings::Required))
-                .next()
+                .find(|p| !p.is_set(ArgSettings::Required))
                 .expect(INTERNAL_ERROR_MSG);
             return Some(format!(" [{}]{}", p.name_no_brackets(), p.multiple_str()));
         } else if self.is_set(AppSettings::DontCollapseArgsInUsage) &&
@@ -550,7 +549,7 @@ impl<'a, 'b> Parser<'a, 'b>
             debug_assert!({
                     let mut it = self.positionals.values().rev();
                     // Either the final positional is required
-                    it.next().unwrap().is_set(ArgSettings::Required) 
+                    it.next().unwrap().is_set(ArgSettings::Required)
                     // Or the second to last has a terminator set
                     || it.next().unwrap().v.terminator.is_some()
                 },
@@ -723,6 +722,8 @@ impl<'a, 'b> Parser<'a, 'b>
         sc._help()
     }
 
+    // allow wrong self convention due to self.valid_neg_num = true and it's a private method
+    #[cfg_attr(feature = "lints", allow(wrong_self_convention))]
     #[inline]
     fn is_new_arg(&mut self, arg_os: &OsStr, needs_val_of: Option<&'a str>) -> bool {
         debugln!("Parser::is_new_arg: arg={:?}, Needs Val of={:?}", arg_os, needs_val_of);
@@ -776,7 +777,7 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     // The actual parsing function
-    #[cfg_attr(feature = "lints", allow(while_let_on_iterator))]
+    #[cfg_attr(feature = "lints", allow(while_let_on_iterator, collapsible_if))]
     pub fn get_matches_with<I, T>(&mut self,
                                   matcher: &mut ArgMatcher<'a>,
                                   it: &mut Peekable<I>)
@@ -812,8 +813,8 @@ impl<'a, 'b> Parser<'a, 'b>
                     }
                     subcmd_name = Some(arg_os.to_str().expect(INVALID_UTF8).to_owned());
                     break;
-                } 
-                
+                }
+
                 if !starts_new_arg {
                     if let Some(name) = needs_val_of {
                         // Check to see if parsing a value from a previous arg
@@ -859,8 +860,8 @@ impl<'a, 'b> Parser<'a, 'b>
                             continue;
                         }
                     }
-                } 
-                
+                }
+
                 if !self.is_set(AppSettings::ArgsNegateSubcommands) {
                     if let Some(cdate) =
                     suggestions::did_you_mean(&*arg_os.to_string_lossy(),
@@ -1954,7 +1955,7 @@ impl<'a, 'b> Parser<'a, 'b>
             usage.push_str(&*self.meta
                 .usage
                 .as_ref()
-                .unwrap_or(self.meta
+                .unwrap_or_else(|| self.meta
                     .bin_name
                     .as_ref()
                     .unwrap_or(&self.meta.name)));
@@ -2022,7 +2023,7 @@ impl<'a, 'b> Parser<'a, 'b>
         usage.push_str(&self.meta
             .usage
             .as_ref()
-            .unwrap_or(self.meta
+            .unwrap_or_else(|| self.meta
                 .bin_name
                 .as_ref()
                 .unwrap_or(&self.meta
