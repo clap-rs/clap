@@ -15,10 +15,10 @@ USAGE:
 For more information try --help";
 
 static COND_REQ_IN_USAGE: &'static str = "error: The following required arguments were not provided:
-   --output <output>
+    --output <output>
 
 USAGE:
-    clap_test [OPTIONS] --target <target> --input <input> --output <output>
+    test --target <target> --input <input> --output <output>
 
 For more information try --help";
 
