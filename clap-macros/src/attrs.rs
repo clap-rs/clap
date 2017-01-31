@@ -16,7 +16,17 @@ pub struct FieldAttributes {
     map: HashMap<syn::Ident, (RefCell<usize>, Attributes)>,
 }
 
+impl Default for Attributes {
+    fn default() -> Self {
+        Attributes { summary: "".into(), docs: "".into(), map: BTreeMap::new() }
+    }
+}
+
 impl Attributes {
+    pub fn new() -> Self {
+        Default::default()
+    }
+
     pub fn check_used(&self, name: &str, field: Option<&str>) {
         for (ref attr, &(ref counter, _)) in &self.map {
             if *counter.borrow() == 0 {
@@ -133,7 +143,7 @@ fn extract_attrs_inner(attrs: &Vec<syn::Attribute>) -> Attributes {
 
 /// Extracts all clap attributes of the form #[clap(i = V)]
 pub fn extract_attrs(ast: &syn::MacroInput) -> (Attributes, FieldAttributes) {
-    let empty = Attributes { summary: "".into(), docs: "".into(), map: BTreeMap::new() };
+    let empty = Attributes::new();
     let root_attrs = extract_attrs_inner(&ast.attrs);
     let field_attrs = match ast.body {
         syn::Body::Struct(syn::VariantData::Struct(ref fields)) => {
