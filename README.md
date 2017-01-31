@@ -47,10 +47,11 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 Here's the highlights for v2.20.1
 
-* updates libc and term_size deps for the libc version conflict
-* Fix finding required arguments in group arguments
-* fix link from app_from_crate! to crate_authors!
-* fix spelling of "guaranteed"
+* Fixes a bug where the final word wasn't wrapped in help messages
+* Updates `libc` and `term_size` deps for the `libc` version conflict
+* Fixes finding required arguments in group arguments
+* Fixes broken link from `app_from_crate!` to `crate_authors!`
+* Fixes some docs spelling mistakes
 
 
 Here's the highlights from v2.0.0 to v2.20.0
