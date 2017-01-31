@@ -1,7 +1,11 @@
 use syn;
 use quote;
 
-fn expand_parse(me: &syn::Ident, cmds: &[(&syn::Ident, &syn::Ty)], name: &syn::Ident, matches: &syn::Ident) -> quote::Tokens {
+fn expand_parse(me: &syn::Ident,
+                cmds: &[(&syn::Ident, &syn::Ty)],
+                name: &syn::Ident,
+                matches: &syn::Ident)
+                -> quote::Tokens {
     let variants = cmds.iter().map(|&(ident, ty)| {
         let name = ident.as_ref().to_lowercase();
         quote! { #name => #me::#ident(<#ty as ::std::convert::From<&::clap::ArgMatches>>::from(#matches)) }
@@ -39,9 +43,7 @@ pub fn expand(ast: &syn::MacroInput) -> quote::Tokens {
                 })
                 .collect()
         }
-        syn::Body::Struct(_) => {
-            panic!("#[derive(SubCommandFromArgMatches)] is not supported on structs")
-        }
+        syn::Body::Struct(_) => panic!("#[derive(SubCommandFromArgMatches)] is not supported on structs"),
     };
 
     let from = expand_parse(ident, &cmds, &name, &matches);

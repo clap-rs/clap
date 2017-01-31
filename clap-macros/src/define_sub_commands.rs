@@ -29,9 +29,7 @@ pub fn expand(ast: &syn::MacroInput) -> quote::Tokens {
                 })
                 .collect()
         }
-        syn::Body::Struct(_) => {
-            panic!("#[derive(DefineSubCommands)] is not supported on structs")
-        }
+        syn::Body::Struct(_) => panic!("#[derive(DefineSubCommands)] is not supported on structs"),
     };
 
     let subcommands = expand_subcommands(&cmds);

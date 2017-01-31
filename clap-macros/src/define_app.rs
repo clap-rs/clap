@@ -1,8 +1,8 @@
 use syn;
 use quote;
 
-use attrs::{ Attributes, FieldAttributes };
-use field::{ Arg, Field, Subcommand };
+use attrs::{Attributes, FieldAttributes};
+use field::{Arg, Field, Subcommand};
 
 fn expand_arg(arg: &Arg) -> quote::Tokens {
     let name = arg.name;
@@ -47,7 +47,9 @@ fn expand_arg(arg: &Arg) -> quote::Tokens {
     }
 }
 
-fn expand_args<'a, 'b: 'a, I>(args: I) -> quote::Tokens where I: Iterator<Item=&'a Arg<'b>> {
+fn expand_args<'a, 'b: 'a, I>(args: I) -> quote::Tokens
+    where I: Iterator<Item = &'a Arg<'b>>
+{
     let args = args.map(expand_arg);
     quote! { .args(&[#(#args),*]) }
 }
@@ -67,8 +69,9 @@ fn expand_subcommand(subcommand: &Subcommand) -> quote::Tokens {
 }
 
 fn expand_app(ast: &syn::MacroInput, attrs: &Attributes, fields: &[Field]) -> quote::Tokens {
-    let name = attrs.get("name").map(|a| a.into())
-            .unwrap_or_else(|| syn::Lit::from(ast.ident.as_ref().to_lowercase()));
+    let name = attrs.get("name")
+        .map(|a| a.into())
+        .unwrap_or_else(|| syn::Lit::from(ast.ident.as_ref().to_lowercase()));
 
     let version = if attrs.get_bool("crate_version") {
         Some(quote! { .version(crate_version!()) })
@@ -109,22 +112,21 @@ fn expand_app(ast: &syn::MacroInput, attrs: &Attributes, fields: &[Field]) -> qu
     }
 }
 
-pub fn expand(ast: &syn::MacroInput, attrs: &Attributes, field_attrs: &FieldAttributes) -> quote::Tokens {
+pub fn expand(ast: &syn::MacroInput,
+              attrs: &Attributes,
+              field_attrs: &FieldAttributes)
+              -> quote::Tokens {
+    use syn::Body as B;
+    use syn::VariantData as V;
     let fields = match ast.body {
-        syn::Body::Struct(syn::VariantData::Unit) => {
-            Vec::new()
-        }
-        syn::Body::Struct(syn::VariantData::Struct(ref fields)) => {
+        B::Struct(V::Unit) => Vec::new(),
+        B::Struct(V::Struct(ref fields)) => {
             fields.iter()
                 .map(|field| Field::from((field, field_attrs.get(field))))
                 .collect()
         }
-        syn::Body::Struct(syn::VariantData::Tuple(_)) => {
-            panic!("#[derive(DefineApp)] is not supported on tuple structs")
-        }
-        syn::Body::Enum(_) => {
-            panic!("#[derive(DefineApp)] is not supported on enums")
-        }
+        B::Struct(V::Tuple(_)) => panic!("#[derive(DefineApp)] is not supported on tuple structs"),
+        B::Enum(_) => panic!("#[derive(DefineApp)] is not supported on enums"),
     };
 
     let ident = &ast.ident;
