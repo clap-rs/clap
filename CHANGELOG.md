@@ -1,18 +1,20 @@
 <a name="v2.20.1"></a>
-### v2.20.1 (2017-01-30)
+### v2.20.1 (2017-01-31)
 
 #### Bug Fixes
 
-* Fix finding required arguments in group arguments ([f9f778e](https://github.com/kbknapp/clap-rs/commit/5b29be9b073330ab1f7227cdd19fe4aab39d5dcb), closes [#829](https://github.com/kbknapp/clap-rs/pull/829))
-
-#### Documentation
-
-*   fix link from app_from_crate! to crate_authors! ([5b29be9b](https://github.com/kbknapp/clap-rs/commit/5b29be9b073330ab1f7227cdd19fe4aab39d5dcb), closes [#822](https://github.com/kbknapp/clap-rs/pull/822))
-*   fix spelling of "guaranteed" ([4f30a65b](https://github.com/kbknapp/clap-rs/commit/4f30a65b9c03eb09607eb91a929a6396637dc105))
+*   allow final word to be wrapped in wrap_help ([564c5f0f](https://github.com/kbknapp/clap-rs/commit/564c5f0f1730f4a2c1cdd128664f1a981c31dcd4), closes [#828](https://github.com/kbknapp/clap-rs/issues/828))
+*   actually show character in debug output ([84d8c547](https://github.com/kbknapp/clap-rs/commit/84d8c5476de95b7f37d61888bc4f13688b712434))
+*   include final character in line lenght ([aff4ba18](https://github.com/kbknapp/clap-rs/commit/aff4ba18da8147e1259b04b0bfbc1fcb5c78a3c0))
 
 #### Improvements
 
 *   updates libc and term_size deps for the libc version conflict ([6802ac4a](https://github.com/kbknapp/clap-rs/commit/6802ac4a59c142cda9ec55ca0c45ae5cb9a6ab55))
+
+#### Documentation
+
+*   fix link from app_from_crate! to crate_authors! (#822) ([5b29be9b](https://github.com/kbknapp/clap-rs/commit/5b29be9b073330ab1f7227cdd19fe4aab39d5dcb))
+*   fix spelling of "guaranteed" ([4f30a65b](https://github.com/kbknapp/clap-rs/commit/4f30a65b9c03eb09607eb91a929a6396637dc105))
 
 <a name="v2.20.0"></a>
 
