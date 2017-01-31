@@ -30,8 +30,8 @@ impl Attributes {
     pub fn new() -> Self { Default::default() }
 
     pub fn from_attrs(attrs: &[syn::Attribute]) -> Self {
-        use syn::NestedMetaItem::*;
-        use syn::MetaItem::*;
+        use syn::NestedMetaItem as N;
+        use syn::MetaItem as M;
         let mut claps = BTreeMap::new();
         for attr in attrs {
             if let syn::MetaItem::List(ref ident, ref values) = attr.value {
@@ -41,25 +41,25 @@ impl Attributes {
                 for value in values {
                     match *value {
                         // #[foo = "bar"]
-                        MetaItem(NameValue(ref name, ref value)) => {
+                        N::MetaItem(M::NameValue(ref name, ref value)) => {
                             let &mut (_, ref mut attr) = claps.entry(name.to_string())
                                 .or_insert((RefCell::new(0), Attribute::new(name.to_string())));
                             attr.push(value.clone());
                         }
                         // #[foo]
-                        MetaItem(Word(ref name)) => {
+                        N::MetaItem(M::Word(ref name)) => {
                             let &mut (_, ref mut attr) = claps.entry(name.to_string())
                                 .or_insert((RefCell::new(0), Attribute::new(name.to_string())));
                             attr.push(syn::Lit::Bool(true));
                         }
                         // #[derive(..)]
-                        MetaItem(List(ref ident, ref values)) => {
+                        N::MetaItem(M::List(ref ident, ref values)) => {
                             let &mut (_, ref mut attr) = claps.entry(ident.as_ref().to_string())
                                 .or_insert((RefCell::new(0),
                                             Attribute::new(ident.as_ref().to_string())));
                             for value in values {
                                 match *value {
-                                    MetaItem(Word(ref name)) => attr.push(name.as_ref().into()),
+                                    N::MetaItem(M::Word(ref name)) => attr.push(name.as_ref().into()),
                                     _ => {
                                         panic!("Invalid clap attribute {} literal value not supported",
                                                quote!(#attr).to_string().replace(" ", ""))
@@ -157,12 +157,12 @@ impl FieldAttributes {
 
 /// Extracts all clap attributes of the form #[clap(i = V)]
 pub fn extract_attrs(ast: &syn::MacroInput) -> (Attributes, FieldAttributes) {
-    use syn::Body::*;
-    use syn::VariantData::*;
+    use syn::Body as B;
+    use syn::VariantData as V;
     let empty = Attributes::new();
     let root_attrs = Attributes::from_attrs(&ast.attrs);
     let field_attrs = match ast.body {
-        Struct(Struct(ref fields)) => {
+        B::Struct(V::Struct(ref fields)) => {
             fields.iter()
                 .map(|field| {
                     (field.ident.clone().unwrap(),
@@ -170,8 +170,8 @@ pub fn extract_attrs(ast: &syn::MacroInput) -> (Attributes, FieldAttributes) {
                 })
                 .collect()
         }
-        Struct(Tuple(_)) => panic!("TODO: tuple struct unsupported msg"),
-        Struct(Unit) | Enum(_) => HashMap::new(),
+        B::Struct(V::Tuple(_)) => panic!("TODO: tuple struct unsupported msg"),
+        B::Struct(V::Unit) | B::Enum(_) => HashMap::new(),
     };
     (root_attrs,
      FieldAttributes {

@@ -2,7 +2,7 @@ use syn;
 use quote;
 
 use attrs::FieldAttributes;
-use field::{ Arg, Field, Subcommand };
+use field::{Arg, Field, Subcommand};
 
 fn expand_parse_arg(arg: &Arg, matches: &syn::Ident) -> quote::Tokens {
     let ident = arg.ident;
@@ -83,20 +83,14 @@ fn expand_parse(ast: &syn::MacroInput, fields: &[Field], matches: &syn::Ident) -
 
 pub fn expand(ast: &syn::MacroInput, field_attrs: &FieldAttributes) -> quote::Tokens {
     let fields = match ast.body {
-        syn::Body::Struct(syn::VariantData::Unit) => {
-            Vec::new()
-        }
+        syn::Body::Struct(syn::VariantData::Unit) => Vec::new(),
         syn::Body::Struct(syn::VariantData::Struct(ref fields)) => {
             fields.iter()
                 .map(|field| Field::from((field, field_attrs.get(field))))
                 .collect()
         }
-        syn::Body::Struct(syn::VariantData::Tuple(_)) => {
-            panic!("#[derive(FromArgMatches)] is not supported on tuple structs")
-        }
-        syn::Body::Enum(_) => {
-            panic!("#[derive(FromArgMatches)] is not supported on enums")
-        }
+        syn::Body::Struct(syn::VariantData::Tuple(_)) => panic!("#[derive(FromArgMatches)] is not supported on tuple structs"),
+        syn::Body::Enum(_) => panic!("#[derive(FromArgMatches)] is not supported on enums"),
     };
 
     let ident = &ast.ident;

@@ -63,8 +63,9 @@ impl<'a> From<(&'a syn::Field, &'a Attributes)> for Field<'a> {
 
 impl<'a> From<(&'a syn::Field, &'a Attributes)> for Arg<'a> {
     fn from((field, attrs): (&'a syn::Field, &'a Attributes)) -> Arg<'a> {
-        let name = attrs.get("name").map(|a| a.into())
-                .unwrap_or_else(|| field.ident.as_ref().unwrap().as_ref());
+        let name = attrs.get("name")
+            .map(|a| a.into())
+            .unwrap_or_else(|| field.ident.as_ref().unwrap().as_ref());
 
         let index = attrs.get("index").map(|a| a.into());
 
@@ -72,7 +73,8 @@ impl<'a> From<(&'a syn::Field, &'a Attributes)> for Arg<'a> {
         // telling us to not do so
         let is_flag = !index.is_some() && !attrs.get_bool("arg");
 
-        let long = attrs.get("long").map(|a| a.into())
+        let long = attrs.get("long")
+            .map(|a| a.into())
             .or_else(|| if is_flag { Some(name) } else { None });
 
         let short = attrs.get("short").map(|s| Into::<char>::into(s).to_string());
@@ -87,7 +89,8 @@ impl<'a> From<(&'a syn::Field, &'a Attributes)> for Arg<'a> {
                 is_optional = path.segments[0].ident == "Option";
                 is_vec = path.segments[0].ident == "Vec";
                 if is_optional || is_vec {
-                    if let syn::PathParameters::AngleBracketed(ref params) = path.segments[0].parameters {
+                    if let syn::PathParameters::AngleBracketed(ref params) =
+                        path.segments[0].parameters {
                         ty = &params.types[0];
                     } else {
                         panic!();
@@ -135,7 +138,8 @@ impl<'a> From<&'a syn::Field> for Subcommand<'a> {
             syn::Ty::Path(None, ref path) => {
                 is_optional = path.segments[0].ident == "Option";
                 if is_optional {
-                    if let syn::PathParameters::AngleBracketed(ref params) = path.segments[0].parameters {
+                    if let syn::PathParameters::AngleBracketed(ref params) =
+                        path.segments[0].parameters {
                         ty = &params.types[0];
                     } else {
                         panic!();
