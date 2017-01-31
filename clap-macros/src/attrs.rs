@@ -27,6 +27,73 @@ impl Attributes {
         Default::default()
     }
 
+    pub fn from_attrs(attrs: &[syn::Attribute]) -> Self {
+        let mut claps = BTreeMap::new();
+        for attr in attrs {
+            if let syn::MetaItem::List(ref ident, ref values) = attr.value {
+                if ident == "clap" {
+                    for value in values {
+                        match *value {
+                            syn::NestedMetaItem::MetaItem(ref item) => match *item {
+                                syn::MetaItem::NameValue(ref name, ref value) => {
+                                    let &mut (_, ref mut attr) = claps.entry(name.to_string()).or_insert((RefCell::new(0), Attribute::new(name.to_string())));
+                                    attr.push(value.clone());
+                                }
+                                syn::MetaItem::Word(ref name) => {
+                                    let &mut (_, ref mut attr) = claps.entry(name.to_string()).or_insert((RefCell::new(0), Attribute::new(name.to_string())));
+                                    attr.push(syn::Lit::Bool(true));
+                                }
+                                syn::MetaItem::List(ref ident, ref values) => {
+                                    let &mut (_, ref mut attr) = claps.entry(ident.as_ref().to_string()).or_insert((RefCell::new(0), Attribute::new(ident.as_ref().to_string())));
+                                    for value in values {
+                                        match *value {
+                                            syn::NestedMetaItem::MetaItem(ref item) => match *item {
+                                                syn::MetaItem::Word(ref name) => {
+                                                    attr.push(name.as_ref().into());
+                                                }
+                                                syn::MetaItem::NameValue(..) => {
+                                                    panic!("Invalid clap attribute {} named value in sublist not supported", quote!(#attr).to_string().replace(" ", ""));
+                                                }
+                                                syn::MetaItem::List(..) => {
+                                                    panic!("Invalid clap attribute {} sublist in sublist not supported", quote!(#attr).to_string().replace(" ", ""));
+                                                }
+                                            },
+                                            syn::NestedMetaItem::Literal(_) => {
+                                                panic!("Invalid clap attribute {} literal value not supported", quote!(#attr).to_string().replace(" ", ""));
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                            syn::NestedMetaItem::Literal(_) => {
+                                panic!("Invalid clap attribute {} literal value not supported", quote!(#attr).to_string().replace(" ", ""));
+                            },
+                        }
+                    }
+                }
+            }
+        }
+
+        let docs = attrs.iter()
+            .filter(|a| a.is_sugared_doc)
+            .map(|a| match a.value {
+                syn::MetaItem::NameValue(_, syn::Lit::Str(ref doc, _)) => doc,
+                _ => unreachable!(),
+            })
+            .fold(String::new(), |docs, line| docs + line.trim_left_matches('/').trim() + "\n");
+
+        let index = docs.find("\n\n");
+        let (summary, docs) = if let Some(index) = index {
+            let (summary, docs) = docs.split_at(index);
+            let (_, docs) = docs.split_at(2);
+            (summary.into(), docs.into())
+        } else {
+            (docs, "".into())
+        };
+
+        Attributes { summary: summary, docs: docs, map: claps }
+    }
+
     pub fn check_used(&self, name: &str, field: Option<&str>) {
         for (ref attr, &(ref counter, _)) in &self.map {
             if *counter.borrow() == 0 {
@@ -74,77 +141,10 @@ impl FieldAttributes {
     }
 }
 
-fn extract_attrs_inner(attrs: &Vec<syn::Attribute>) -> Attributes {
-    let mut claps = BTreeMap::new();
-    for attr in attrs {
-        if let syn::MetaItem::List(ref ident, ref values) = attr.value {
-            if ident == "clap" {
-                for value in values {
-                    match *value {
-                        syn::NestedMetaItem::MetaItem(ref item) => match *item {
-                            syn::MetaItem::NameValue(ref name, ref value) => {
-                                let &mut (_, ref mut attr) = claps.entry(name.to_string()).or_insert((RefCell::new(0), Attribute::new(name.to_string())));
-                                attr.push(value.clone());
-                            }
-                            syn::MetaItem::Word(ref name) => {
-                                let &mut (_, ref mut attr) = claps.entry(name.to_string()).or_insert((RefCell::new(0), Attribute::new(name.to_string())));
-                                attr.push(syn::Lit::Bool(true));
-                            }
-                            syn::MetaItem::List(ref ident, ref values) => {
-                                let &mut (_, ref mut attr) = claps.entry(ident.as_ref().to_string()).or_insert((RefCell::new(0), Attribute::new(ident.as_ref().to_string())));
-                                for value in values {
-                                    match *value {
-                                        syn::NestedMetaItem::MetaItem(ref item) => match *item {
-                                            syn::MetaItem::Word(ref name) => {
-                                                attr.push(name.as_ref().into());
-                                            }
-                                            syn::MetaItem::NameValue(..) => {
-                                                panic!("Invalid clap attribute {} named value in sublist not supported", quote!(#attr).to_string().replace(" ", ""));
-                                            }
-                                            syn::MetaItem::List(..) => {
-                                                panic!("Invalid clap attribute {} sublist in sublist not supported", quote!(#attr).to_string().replace(" ", ""));
-                                            }
-                                        },
-                                        syn::NestedMetaItem::Literal(_) => {
-                                            panic!("Invalid clap attribute {} literal value not supported", quote!(#attr).to_string().replace(" ", ""));
-                                        },
-                                    }
-                                }
-                            }
-                        },
-                        syn::NestedMetaItem::Literal(_) => {
-                            panic!("Invalid clap attribute {} literal value not supported", quote!(#attr).to_string().replace(" ", ""));
-                        },
-                    }
-                }
-            }
-        }
-    }
-
-    let docs = attrs.iter()
-        .filter(|a| a.is_sugared_doc)
-        .map(|a| match a.value {
-            syn::MetaItem::NameValue(_, syn::Lit::Str(ref doc, _)) => doc,
-            _ => unreachable!(),
-        })
-        .fold(String::new(), |docs, line| docs + line.trim_left_matches('/').trim() + "\n");
-
-    let index = docs.find("\n\n");
-    let (summary, docs) = if let Some(index) = index {
-        let (summary, docs) = docs.split_at(index);
-        let (_, docs) = docs.split_at(2);
-        (summary.into(), docs.into())
-    } else {
-        (docs, "".into())
-    };
-
-    Attributes { summary: summary, docs: docs, map: claps }
-}
-
 /// Extracts all clap attributes of the form #[clap(i = V)]
 pub fn extract_attrs(ast: &syn::MacroInput) -> (Attributes, FieldAttributes) {
     let empty = Attributes::new();
-    let root_attrs = extract_attrs_inner(&ast.attrs);
+    let root_attrs = Attributes::from_attrs(&ast.attrs);
     let field_attrs = match ast.body {
         syn::Body::Struct(syn::VariantData::Struct(ref fields)) => {
             fields
