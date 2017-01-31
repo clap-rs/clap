@@ -125,7 +125,7 @@ pub fn get_all_subcommand_paths(p: &Parser, first: bool) -> Vec<String> {
     if !p.has_subcommands() {
         if !first {
             let name = &*p.meta.name;
-            let path = p.meta.bin_name.as_ref().unwrap().clone().replace(" ", "_");
+            let path = p.meta.bin_name.as_ref().unwrap().clone().replace(" ", "__");
             let mut ret = vec![path.clone()];
             if let Some(ref aliases) = p.meta.aliases {
                 for &(n, _) in aliases {
@@ -138,7 +138,7 @@ pub fn get_all_subcommand_paths(p: &Parser, first: bool) -> Vec<String> {
     }
     for sc in &p.subcommands {
         let name = &*sc.p.meta.name;
-        let path = sc.p.meta.bin_name.as_ref().unwrap().clone().replace(" ", "_");
+        let path = sc.p.meta.bin_name.as_ref().unwrap().clone().replace(" ", "__");
         subcmds.push(path.clone());
         if let Some(ref aliases) = sc.p.meta.aliases {
             for &(n, _) in aliases {
