@@ -86,7 +86,7 @@ _{bin_name_underscore}_commands() {{
     )
     _describe -t commands '{bin_name} commands' commands \"$@\"
 }}",
-            bin_name_underscore = p.meta.bin_name.as_ref().unwrap().replace(" ", "_"),
+            bin_name_underscore = p.meta.bin_name.as_ref().unwrap().replace(" ", "__"),
             bin_name = p.meta.bin_name.as_ref().unwrap(),
             subcommands_and_args = subcommands_and_args_of(p))];
 
@@ -104,7 +104,7 @@ _{bin_name_underscore}_commands() {{
     )
     _describe -t commands '{bin_name} commands' commands \"$@\"
 }}",
-            bin_name_underscore = bin_name.replace(" ", "_"),
+            bin_name_underscore = bin_name.replace(" ", "__"),
             bin_name = bin_name,
             subcommands_and_args = subcommands_and_args_of(parser_of(p, bin_name))));
     }
@@ -265,7 +265,7 @@ fn get_args_of(p: &Parser) -> String {
     let flags = write_flags_of(p);
     let sc_or_a = if p.has_subcommands() || p.has_positionals() {
         format!("\"1:: :_{name}_commands\" \\", 
-                name = p.meta.bin_name.as_ref().unwrap().replace(" ", "_"))
+                name = p.meta.bin_name.as_ref().unwrap().replace(" ", "__"))
     } else {
         String::new()
     };
