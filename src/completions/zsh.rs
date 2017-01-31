@@ -29,10 +29,10 @@ impl<'a, 'b> ZshGen<'a, 'b> {
 #compdef {name}
 
 _{name}() {{
-	typeset -A opt_args
-	local ret=1
+    typeset -A opt_args
+    local ret=1
 
-	local context curcontext=\"$curcontext\" state line
+    local context curcontext=\"$curcontext\" state line
     {initial_args}
     {subcommands}
 }}
