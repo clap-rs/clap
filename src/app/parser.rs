@@ -995,6 +995,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 -> ClapResult<()> {
         debugln!("Parser::validate;");
         let mut reqs_validated = false;
+        try!(self.add_defaults(matcher));
         if let Some(a) = needs_val_of {
             debugln!("Parser::validate: needs_val_of={:?}", a);
             if let Some(o) = find_by_name!(self, &a, opts, iter) {
@@ -1018,7 +1019,6 @@ impl<'a, 'b> Parser<'a, 'b>
            !reqs_validated {
             try!(self.validate_required(matcher));
         }
-        try!(self.add_defaults(matcher));
         try!(self.validate_matched_args(matcher));
         matcher.usage(self.create_usage(&[]));
 
