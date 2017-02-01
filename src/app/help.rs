@@ -392,7 +392,7 @@ impl<'a> Help<'a> {
 
     fn write_before_after_help(&mut self, h: &str) -> io::Result<()> {
         debugln!("Help::write_before_after_help;");
-        let mut help = String::new();
+        let mut help = String::from(h);
         // determine if our help fits or needs to wrap
         debugln!("Help::write_before_after_help: Term width...{}",
                  self.term_w);
@@ -401,7 +401,6 @@ impl<'a> Help<'a> {
         debug!("Help::write_before_after_help: Too long...");
         if too_long || h.contains("{n}") {
             sdebugln!("Yes");
-            help.push_str(h);
             debugln!("Help::write_before_after_help: help: {}", help);
             debugln!("Help::write_before_after_help: help width: {}",
                      str_width(&*help));
@@ -414,12 +413,6 @@ impl<'a> Help<'a> {
         } else {
             sdebugln!("No");
         }
-        let help = if !help.is_empty() {
-            &*help
-        } else {
-            help.push_str(h);
-            &*help
-        };
         if help.contains('\n') {
             if let Some(part) = help.lines().next() {
                 try!(write!(self.writer, "{}", part));
@@ -436,12 +429,12 @@ impl<'a> Help<'a> {
     /// Writes argument's help to the wrapped stream.
     fn help<'b, 'c>(&mut self, arg: &ArgWithDisplay<'b, 'c>, spec_vals: &str) -> io::Result<()> {
         debugln!("Help::help;");
-        let mut help = String::new();
         let h = if self.use_long {
             arg.long_help().unwrap_or(arg.help().unwrap_or(""))
         } else {
             arg.help().unwrap_or(arg.long_help().unwrap_or(""))
         };
+        let mut help = String::from(h) + spec_vals;
         let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp) || self.use_long;
         debugln!("Help::help: Next Line...{:?}", nlh);
 
@@ -461,8 +454,6 @@ impl<'a> Help<'a> {
         debug!("Help::help: Too long...");
         if too_long && spcs <= self.term_w || h.contains("{n}") {
             sdebugln!("Yes");
-            help.push_str(h);
-            help.push_str(&*spec_vals);
             debugln!("Help::help: help...{}", help);
             debugln!("Help::help: help width...{}", str_width(&*help));
             // Determine how many newlines we need to insert
@@ -474,15 +465,6 @@ impl<'a> Help<'a> {
         } else {
             sdebugln!("No");
         }
-        let help = if !help.is_empty() {
-            &*help
-        } else if spec_vals.is_empty() {
-            h
-        } else {
-            help.push_str(h);
-            help.push_str(&*spec_vals);
-            &*help
-        };
         if help.contains('\n') {
             if let Some(part) = help.lines().next() {
                 try!(write!(self.writer, "{}", part));
