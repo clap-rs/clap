@@ -47,12 +47,17 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 Here's the highlights for v2.20.2
 
-*   fixes a critical bug where subcommand settings were being propogated too far 
-*   adds ArgGroup::multiple to the supported YAML fields for building ArgGroups from YAML 
+* fixes a println->debugln typo 
+* **Completions**: fixes bash completions for commands that have an underscore in the name 
+* **Completions**: fixes a bug where ZSH completions would panic if the binary name had an underscore in it 
+* allow final word to be wrapped in wrap_help 
+* **Completions**: fixes a bug where global args weren't included in the generated completion scripts 
+* **Macros Documentation:**  adds a warning about changing values in Cargo.toml not triggering a rebuild automatically 
 
+Here's the highlights from v2.0.0 to v2.20.2
 
-Here's the highlights from v2.0.0 to v2.20.1
-
+* Fixes a critical bug where subcommand settings were being propogated too far 
+* Adds ArgGroup::multiple to the supported YAML fields for building ArgGroups from YAML 
 * Fixes a bug where the final word wasn't wrapped in help messages
 * Fixes finding required arguments in group arguments
 * **ArgsNegateSubcommands:**  disables args being allowed between subcommands

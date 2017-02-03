@@ -132,7 +132,7 @@ macro_rules! validate_multiples {
         if $m.contains(&$a.b.name) && !$a.b.settings.is_set(ArgSettings::Multiple) {
             // Not the first time, and we don't allow multiples
             return Err(Error::unexpected_multiple_usage($a,
-                &*$_self.create_current_usage($m),
+                &*$_self.create_current_usage($m, None),
                 $_self.color()))
         }
     };

@@ -3,7 +3,7 @@ extern crate regex;
 
 include!("../clap-test.rs");
 
-use clap::{App, Arg};
+use clap::{App, Arg, ErrorKind};
 
 #[test]
 fn opts() {
@@ -316,4 +316,56 @@ fn default_ifs_arg_present_order() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "default");
+}
+
+#[test]
+fn conditional_reqs_fail() {
+    let m = App::new("Test app")
+        .version("1.0")
+        .author("F0x06")
+        .about("Arg test")
+        .arg(Arg::with_name("target")
+            .takes_value(true)
+            .default_value("file")
+            .possible_values(&["file", "stdout"])
+            .long("target"))
+        .arg(Arg::with_name("input")
+            .takes_value(true)
+            .required(true)
+            .long("input"))
+        .arg(Arg::with_name("output")
+            .takes_value(true)
+            .required_if("target", "file")
+            .long("output"))
+        .get_matches_from_safe(vec!["test", "--input", "some"]);
+
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+}
+
+#[test]
+fn conditional_reqs_pass() {
+    let m = App::new("Test app")
+        .version("1.0")
+        .author("F0x06")
+        .about("Arg test")
+        .arg(Arg::with_name("target")
+            .takes_value(true)
+            .default_value("file")
+            .possible_values(&["file", "stdout"])
+            .long("target"))
+        .arg(Arg::with_name("input")
+            .takes_value(true)
+            .required(true)
+            .long("input"))
+        .arg(Arg::with_name("output")
+            .takes_value(true)
+            .required_if("target", "file")
+            .long("output"))
+        .get_matches_from_safe(vec!["test", "--input", "some", "--output", "other"]);
+
+    assert!(m.is_ok());
+    let m = m.unwrap();
+    assert_eq!(m.value_of("output"), Some("other"));
+    assert_eq!(m.value_of("input"), Some("some"));
 }

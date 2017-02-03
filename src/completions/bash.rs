@@ -77,10 +77,10 @@ complete -F _{name} -o bashdefault -o default {name}
         for sc in &scs {
             subcmds = format!("{}
             {name})
-                cmd+=\"_{name}\"
+                cmd+=\"__{name}\"
                 ;;",
                               subcmds,
-                              name = sc.replace("-", "_"));
+                              name = sc.replace("-", "__"));
         }
 
         subcmds
@@ -111,9 +111,9 @@ complete -F _{name} -o bashdefault -o default {name}
             return 0
             ;;",
                                   subcmd_dets,
-                                  subcmd = sc.replace("-", "_"),
+                                  subcmd = sc.replace("-", "__"),
                                   sc_opts = self.all_options_for_path(&*sc),
-                                  level = sc.split("_").map(|_| 1).fold(0, |acc, n| acc + n),
+                                  level = sc.split("__").map(|_| 1).fold(0, |acc, n| acc + n),
                                   opts_details = self.option_details_for_path(&*sc));
         }
 
@@ -123,7 +123,7 @@ complete -F _{name} -o bashdefault -o default {name}
     fn option_details_for_path(&self, path: &str) -> String {
         debugln!("BashGen::option_details_for_path: path={}", path);
         let mut p = self.p;
-        for sc in path.split('_').skip(1) {
+        for sc in path.split("__").skip(1) {
             debugln!("BashGen::option_details_for_path:iter: sc={}", sc);
             p = &p.subcommands
                 .iter()
@@ -212,7 +212,7 @@ complete -F _{name} -o bashdefault -o default {name}
     fn all_options_for_path(&self, path: &str) -> String {
         debugln!("BashGen::all_options_for_path: path={}", path);
         let mut p = self.p;
-        for sc in path.split('_').skip(1) {
+        for sc in path.split("__").skip(1) {
             debugln!("BashGen::all_options_for_path:iter: sc={}", sc);
             p = &p.subcommands
                 .iter()
