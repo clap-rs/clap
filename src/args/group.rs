@@ -474,6 +474,7 @@ impl<'a> From<&'a BTreeMap<Yaml, Yaml>> for ArgGroup<'a> {
         for (k, v) in group_settings.iter() {
             a = match k.as_str().unwrap() {
                 "required" => a.required(v.as_bool().unwrap()),
+                "multiple" => a.multiple(v.as_bool().unwrap()),
                 "args" => yaml_vec_or_str!(v, a, arg),
                 "arg" => {
                     if let Some(ys) = v.as_str() {
