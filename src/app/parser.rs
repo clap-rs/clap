@@ -236,34 +236,27 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     pub fn add_subcommand(&mut self, mut subcmd: App<'a, 'b>) {
-        debugln!("Parser::add_subcommand;");
-        debugln!("Parser::add_subcommand: Term width...{:?}",
-                 self.meta.term_w);
+        debugln!("Parser::add_subcommand: term_w={:?}, name={}",
+                 self.meta.term_w, subcmd.p.meta.name);
         subcmd.p.meta.term_w = self.meta.term_w;
-        debug!("Parser::add_subcommand: Is help...");
         if subcmd.p.meta.name == "help" {
-            sdebugln!("Yes");
             self.settings.unset(AppSettings::NeedsSubcommandHelp);
-        } else {
-            sdebugln!("No");
         }
 
         self.subcommands.push(subcmd);
     }
 
     pub fn propogate_settings(&mut self) {
-        debugln!("Parser::propogate_settings;");
+        debugln!("Parser::propogate_settings: self={}, g_settings={:#?}", 
+            self.meta.name, self.g_settings);
         for sc in &mut self.subcommands {
+            debugln!("Parser::propogate_settings: sc={}, settings={:#?}, g_settings={:#?}", 
+                sc.p.meta.name, sc.p.settings, sc.p.g_settings);
             // We have to create a new scope in order to tell rustc the borrow of `sc` is
             // done and to recursively call this method
             {
                 let vsc = self.settings.is_set(AppSettings::VersionlessSubcommands);
                 let gv = self.settings.is_set(AppSettings::GlobalVersion);
-
-                debugln!("Parser::propogate_settings:iter: VersionlessSubcommands set...{:?}",
-                         vsc);
-                debugln!("Parser::propogate_settings:iter: GlobalVersion set...{:?}",
-                         gv);
 
                 if vsc {
                     sc.p.settings.set(AppSettings::DisableVersion);
@@ -273,7 +266,7 @@ impl<'a, 'b> Parser<'a, 'b>
                     sc.p.meta.version = Some(self.meta.version.unwrap());
                 }
                 sc.p.settings = sc.p.settings | self.g_settings;
-                sc.p.g_settings = sc.p.settings | self.g_settings;
+                sc.p.g_settings = sc.p.g_settings | self.g_settings;
             }
             sc.p.propogate_settings();
         }
@@ -982,6 +975,7 @@ impl<'a, 'b> Parser<'a, 'b>
                                                  &self.create_current_usage(matcher),
                                                  self.color()));
         } else if self.is_set(AppSettings::SubcommandRequiredElseHelp) {
+            debugln!("parser::get_matches_with: SubcommandRequiredElseHelp=true");
             let mut out = vec![];
             try!(self.write_help_err(&mut out));
             return Err(Error {
@@ -1124,6 +1118,8 @@ impl<'a, 'b> Parser<'a, 'b>
                                                   ""
                                               },
                                               &*sc.p.meta.name));
+            println!("Parser::parse_subcommand: About to parse sc={}", sc.p.meta.name);
+            println!("Parser::parse_subcommand: sc settings={:#?}", sc.p.settings);
             try!(sc.p.get_matches_with(&mut sc_matcher, it));
             matcher.subcommand(SubCommand {
                 name: sc.p.meta.name.clone(),
