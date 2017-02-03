@@ -1,3 +1,15 @@
+<a name="v2.20.2"></a>
+### v2.20.2 (2017-02-03)
+
+#### Bug Fixes
+
+*   fixes a critical bug where subcommand settings were being propogated too far ([74648c94](https://github.com/kbknapp/clap-rs/commit/74648c94b893df542bfa5bb595e68c7bb8167e36), closes [#832](https://github.com/kbknapp/clap-rs/issues/832))
+
+
+#### Improvements
+
+*   adds ArgGroup::multiple to the supported YAML fields for building ArgGroups from YAML ([d8590037](https://github.com/kbknapp/clap-rs/commit/d8590037ce07dafd8cd5b26928aa4a9fd3018288), closes [#840](https://github.com/kbknapp/clap-rs/issues/840))
+
 <a name="v2.20.1"></a>
 ### v2.20.1 (2017-01-31)
 
