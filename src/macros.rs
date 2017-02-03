@@ -498,6 +498,13 @@ macro_rules! crate_name {
 /// Provided separator is for the [`crate_authors!`](macro.crate_authors.html) macro,
 /// refer to the documentation therefor.
 ///
+/// **NOTE:** Changing the values in your `Cargo.toml` does not trigger a re-build automatically, 
+/// and therefore won't change the generated output until you recompile.
+///
+/// **Pro Tip:** In some cases you can "trick" the compiler into triggering a rebuild when your
+/// `Cargo.toml` is changed by including this in your `src/main.rs` file 
+/// `include_str!("../Cargo.toml");`
+///
 /// # Examples
 ///
 /// ```no_run
