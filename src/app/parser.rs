@@ -117,6 +117,8 @@ impl<'a, 'b> Parser<'a, 'b>
 
         self.propogate_help_version();
         self.build_bin_names();
+        self.propogate_globals();
+        self.propogate_settings();
 
         ComplGen::new(self).generate(for_shell, buf)
     }
