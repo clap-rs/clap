@@ -1129,8 +1129,8 @@ impl<'a, 'b> Parser<'a, 'b>
                                                   ""
                                               },
                                               &*sc.p.meta.name));
-            println!("Parser::parse_subcommand: About to parse sc={}", sc.p.meta.name);
-            println!("Parser::parse_subcommand: sc settings={:#?}", sc.p.settings);
+            debugln!("Parser::parse_subcommand: About to parse sc={}", sc.p.meta.name);
+            debugln!("Parser::parse_subcommand: sc settings={:#?}", sc.p.settings);
             try!(sc.p.get_matches_with(&mut sc_matcher, it));
             matcher.subcommand(SubCommand {
                 name: sc.p.meta.name.clone(),
