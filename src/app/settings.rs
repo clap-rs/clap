@@ -43,12 +43,8 @@ bitflags! {
 }
 
 #[doc(hidden)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct AppFlags(Flags);
-
-// impl Clone for AppFlags {
-//     fn clone(&self) -> Self { AppFlags(self.0) }
-// }
 
 impl BitOr for AppFlags {
     type Output = Self;
