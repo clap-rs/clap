@@ -13,12 +13,16 @@ extern crate clap;
 
 use structopt::StructOpt;
 
-#[derive(StructOpt, Default)]
+#[derive(StructOpt, Debug)]
 struct Opt {
-    i: bool,
+    debug: bool,
+    verbose: u64,
+    speed: Option<f64>,
+    output: String,
+    level: Vec<String>,
 }
 
 fn main() {
     let opt = Opt::from_args();
-    println!("i = {}", opt.i);
+    println!("{:?}", opt);
 }
