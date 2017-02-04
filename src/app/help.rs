@@ -413,15 +413,11 @@ impl<'a> Help<'a> {
         } else {
             sdebugln!("No");
         }
-        if help.contains('\n') {
-            if let Some(part) = help.lines().next() {
-                try!(write!(self.writer, "{}", part));
-            }
-            for part in help.lines().skip(1) {
-                try!(write!(self.writer, "\n{}", part));
-            }
-        } else {
-            try!(write!(self.writer, "{}", help));
+        if let Some(part) = help.lines().next() {
+            try!(write!(self.writer, "{}", part));
+        }
+        for part in help.lines().skip(1) {
+            try!(write!(self.writer, "\n{}", part));
         }
         Ok(())
     }
@@ -465,26 +461,22 @@ impl<'a> Help<'a> {
         } else {
             sdebugln!("No");
         }
-        if help.contains('\n') {
-            if let Some(part) = help.lines().next() {
-                try!(write!(self.writer, "{}", part));
-            }
-            for part in help.lines().skip(1) {
-                try!(write!(self.writer, "\n"));
-                if nlh || self.force_next_line {
-                    try!(write!(self.writer, "{}{}{}", TAB, TAB, TAB));
-                } else if arg.has_switch() {
-                    write_nspaces!(self.writer, self.longest + 12);
-                } else {
-                    write_nspaces!(self.writer, self.longest + 8);
-                }
-                try!(write!(self.writer, "{}", part));
-            }
-        } else if nlh || self.force_next_line {
-            try!(write!(self.writer, "{}", help));
+        if let Some(part) = help.lines().next() {
+            try!(write!(self.writer, "{}", part));
+        }
+        for part in help.lines().skip(1) {
             try!(write!(self.writer, "\n"));
-        } else {
-            try!(write!(self.writer, "{}", help));
+            if nlh || self.force_next_line {
+                try!(write!(self.writer, "{}{}{}", TAB, TAB, TAB));
+            } else if arg.has_switch() {
+                write_nspaces!(self.writer, self.longest + 12);
+            } else {
+                write_nspaces!(self.writer, self.longest + 8);
+            }
+            try!(write!(self.writer, "{}", part));
+        }
+        if !help.contains('\n') && (nlh || self.force_next_line) {
+            try!(write!(self.writer, "\n"));
         }
         Ok(())
     }
