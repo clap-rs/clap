@@ -413,12 +413,7 @@ impl<'a> Help<'a> {
         } else {
             sdebugln!("No");
         }
-        if let Some(part) = help.lines().next() {
-            try!(write!(self.writer, "{}", part));
-        }
-        for part in help.lines().skip(1) {
-            try!(write!(self.writer, "\n{}", part));
-        }
+        try!(write!(self.writer, "{}", help));
         Ok(())
     }
 
