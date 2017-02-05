@@ -12,7 +12,7 @@ extern crate quote;
 
 use proc_macro::TokenStream;
 
-#[proc_macro_derive(StructOpt)]
+#[proc_macro_derive(StructOpt, attributes(structopt))]
 pub fn structopt(input: TokenStream) -> TokenStream {
     let s = input.to_string();
     let ast = syn::parse_derive_input(&s).unwrap();
@@ -42,8 +42,8 @@ fn ty(t: &syn::Ty) -> Ty {
     }
 }
 
-fn impl_structopt(ast: &syn::MacroInput) -> quote::Tokens {
-    use syn::{Body, VariantData};
+fn impl_structopt(ast: &syn::DeriveInput) -> quote::Tokens {
+    use syn::{Body, VariantData, MetaItem, NestedMetaItem};
     let name = &ast.ident;
     let s = if let Body::Struct(VariantData::Struct(ref s)) = ast.body {
         s
@@ -68,6 +68,7 @@ fn impl_structopt(ast: &syn::MacroInput) -> quote::Tokens {
                 .multiple(false)
             },
             Ty::Vec => quote! {
+                .use_delimiter(true)
                 .takes_value(true)
                 .multiple(true)
             },
@@ -77,10 +78,25 @@ fn impl_structopt(ast: &syn::MacroInput) -> quote::Tokens {
                 .required(true)
             },
         };
+        let from_attr = f.attrs.iter()
+            .filter_map(|attr| {
+                if let MetaItem::List(ref i, ref v)  = attr.value {
+                    if i.as_ref() == "structopt" {
+                        return Some(v)
+                    }
+                }
+                None
+            }).flat_map(|v| v.iter().filter_map(|mi| {
+                if let NestedMetaItem::MetaItem(MetaItem::NameValue(ref i, ref l)) = *mi {
+                    Some(quote!(.#i(#l)))
+                } else {
+                    None
+                }
+            }));
         quote! {
             .arg(Arg::with_name(stringify!(#ident))
-                 .long(stringify!(#ident))
-                 #modifier)
+                 #modifier
+                 #(#from_attr)*)
         }
     });
     let fields = s.iter().map(|f| {

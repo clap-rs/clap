@@ -15,10 +15,17 @@ use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
 struct Opt {
+    #[structopt(short = "d", long = "debug", help = "Activate debug mode")]
     debug: bool,
+    #[structopt(short = "v", long = "verbose", help = "Verbose mode")]
     verbose: u64,
+    #[structopt(short = "s", long = "speed", help = "Set speed")]
     speed: Option<f64>,
+    #[structopt(short = "o", long = "output", help = "Output file")]
     output: String,
+    #[structopt(short = "l",
+                long = "level",
+                help = "admin_level to consider")]
     level: Vec<String>,
 }
 
