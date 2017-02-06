@@ -11,7 +11,7 @@ extern crate syn;
 extern crate quote;
 
 use proc_macro::TokenStream;
-use syn::{Attribute, Body, VariantData, MetaItem, NestedMetaItem, Ident, Lit, StrStyle};
+use syn::*;
 
 #[proc_macro_derive(StructOpt, attributes(structopt))]
 pub fn structopt(input: TokenStream) -> TokenStream {
@@ -40,6 +40,21 @@ fn ty(t: &syn::Ty) -> Ty {
         }
     } else {
         Ty::Other
+    }
+}
+
+fn sub_type(t: &syn::Ty) -> Option<&syn::Ty> {
+    let segs = match *t {
+        syn::Ty::Path(None, syn::Path { ref segments, .. }) => segments,
+        _ => return None,
+    };
+    match *segs.last().unwrap() {
+        PathSegment {
+            parameters: PathParameters::AngleBracketed(
+                AngleBracketedParameterData { ref types, .. }),
+            ..
+        } if !types.is_empty() => Some(&types[0]),
+            _ => None,
     }
 }
 
@@ -78,7 +93,17 @@ fn impl_structopt(ast: &syn::DeriveInput) -> quote::Tokens {
 
     let args = s.iter().map(|f| {
         let ident = f.ident.as_ref().unwrap();
-        let modifier = match ty(&f.ty) {
+        let cur_type = ty(&f.ty);
+        let convert_type = match cur_type {
+            Ty::Vec | Ty::Option => sub_type(&f.ty).unwrap_or(&f.ty),
+            _ => &f.ty,
+        };
+        let validator = quote! {
+            validator(|s| s.parse::<#convert_type>()
+                      .map(|_| ())
+                      .map_err(|e| e.description().into()))
+        };
+        let modifier = match cur_type {
             Ty::Bool => quote! {
                 .max_values(0)
                 .takes_value(false)
@@ -92,16 +117,24 @@ fn impl_structopt(ast: &syn::DeriveInput) -> quote::Tokens {
             Ty::Option => quote! {
                 .takes_value(true)
                 .multiple(false)
+                .#validator
             },
             Ty::Vec => quote! {
                 .use_delimiter(true)
                 .takes_value(true)
                 .multiple(true)
+                .#validator
             },
-            Ty::Other => quote!{
-                .takes_value(true)
-                .multiple(false)
-                .required(true)
+            Ty::Other => {
+                let required = extract_attrs(&f.attrs)
+                    .find(|&(i, _)| i.as_ref() == "default_value")
+                    .is_none();
+                quote! {
+                    .takes_value(true)
+                    .multiple(false)
+                    .required(#required)
+                    .#validator
+                }
             },
         };
         let from_attr = extract_attrs(&f.attrs).map(|(i, l)| quote!(.#i(#l)));
@@ -141,6 +174,7 @@ fn impl_structopt(ast: &syn::DeriveInput) -> quote::Tokens {
         impl StructOpt for #struct_name {
             fn clap<'a, 'b>() -> clap::App<'a, 'b> {
                 use clap::{App, Arg};
+                use std::error::Error;
                 App::new(#name)
                     .version(#version)
                     .author(#author)
