@@ -8,12 +8,12 @@
 extern crate structopt;
 #[macro_use]
 extern crate structopt_derive;
-#[macro_use]
 extern crate clap;
 
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
+#[structopt(name = "basic", about = "A basic example")]
 struct Opt {
     #[structopt(short = "d", long = "debug", help = "Activate debug mode")]
     debug: bool,

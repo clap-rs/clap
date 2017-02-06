@@ -11,6 +11,7 @@ extern crate syn;
 extern crate quote;
 
 use proc_macro::TokenStream;
+use syn::{Attribute, Body, VariantData, MetaItem, NestedMetaItem, Ident, Lit, StrStyle};
 
 #[proc_macro_derive(StructOpt, attributes(structopt))]
 pub fn structopt(input: TokenStream) -> TokenStream {
@@ -42,14 +43,39 @@ fn ty(t: &syn::Ty) -> Ty {
     }
 }
 
+fn extract_attrs<'a>(attrs: &'a [Attribute]) -> Box<Iterator<Item = (&'a Ident, &'a Lit)> + 'a> {
+    let iter = attrs.iter()
+        .filter_map(|attr| match attr.value {
+            MetaItem::List(ref i, ref v) if i.as_ref() == "structopt" => Some(v),
+            _ => None,
+        }).flat_map(|v| v.iter().filter_map(|mi| match *mi {
+            NestedMetaItem::MetaItem(MetaItem::NameValue(ref i, ref l)) => Some((i, l)),
+            _ => None,
+        }));
+    Box::new(iter)
+}
+
+fn from_attr_or(attrs: &[(&Ident, &Lit)], key: &str, default: &str) -> Lit {
+    attrs.iter()
+        .find(|&&(i, _)| i.as_ref() == key)
+        .map(|&(_, l)| l.clone())
+        .unwrap_or_else(|| Lit::Str(default.into(), StrStyle::Cooked))
+ }
+
 fn impl_structopt(ast: &syn::DeriveInput) -> quote::Tokens {
-    use syn::{Body, VariantData, MetaItem, NestedMetaItem};
-    let name = &ast.ident;
+    let struct_name = &ast.ident;
     let s = if let Body::Struct(VariantData::Struct(ref s)) = ast.body {
         s
     } else {
         panic!("Only struct is supported")
     };
+
+    let struct_attrs: Vec<_> = extract_attrs(&ast.attrs).collect();
+    let name = from_attr_or(&struct_attrs, "name", env!("CARGO_PKG_NAME"));
+    let version = from_attr_or(&struct_attrs, "version", env!("CARGO_PKG_VERSION"));
+    let author = from_attr_or(&struct_attrs, "author", env!("CARGO_PKG_AUTHORS"));
+    let about = from_attr_or(&struct_attrs, "about", env!("CARGO_PKG_DESCRIPTION"));
+
     let args = s.iter().map(|f| {
         let ident = f.ident.as_ref().unwrap();
         let modifier = match ty(&f.ty) {
@@ -78,21 +104,7 @@ fn impl_structopt(ast: &syn::DeriveInput) -> quote::Tokens {
                 .required(true)
             },
         };
-        let from_attr = f.attrs.iter()
-            .filter_map(|attr| {
-                if let MetaItem::List(ref i, ref v)  = attr.value {
-                    if i.as_ref() == "structopt" {
-                        return Some(v)
-                    }
-                }
-                None
-            }).flat_map(|v| v.iter().filter_map(|mi| {
-                if let NestedMetaItem::MetaItem(MetaItem::NameValue(ref i, ref l)) = *mi {
-                    Some(quote!(.#i(#l)))
-                } else {
-                    None
-                }
-            }));
+        let from_attr = extract_attrs(&f.attrs).map(|(i, l)| quote!(.#i(#l)));
         quote! {
             .arg(Arg::with_name(stringify!(#ident))
                  #modifier
@@ -122,21 +134,22 @@ fn impl_structopt(ast: &syn::DeriveInput) -> quote::Tokens {
                     .unwrap()
             },
         };
-        quote! {
-            #ident: matches.#convert,
-        }
+        quote!( #ident: matches.#convert, )
     });
 
     quote! {
-        impl StructOpt for #name {
+        impl StructOpt for #struct_name {
             fn clap<'a, 'b>() -> clap::App<'a, 'b> {
-                use ::clap::Arg;
-                app_from_crate!()
+                use clap::{App, Arg};
+                App::new(#name)
+                    .version(#version)
+                    .author(#author)
+                    .about(#about)
                     #( #args )*
             }
             fn from_clap(app: clap::App) -> Self {
                 let matches = app.get_matches();
-                #name {
+                #struct_name {
                     #( #fields )*
                 }
             }
