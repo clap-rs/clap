@@ -139,11 +139,22 @@ fn impl_structopt(ast: &syn::DeriveInput) -> quote::Tokens {
         };
         let from_attr = extract_attrs(&f.attrs).map(|(i, l)| quote!(.#i(#l)));
         quote! {
-            .arg(Arg::with_name(stringify!(#ident))
+            .arg(_clap::Arg::with_name(stringify!(#ident))
                  #modifier
                  #(#from_attr)*)
         }
     });
+    let clap = quote! {
+        fn clap<'a, 'b>() -> _clap::App<'a, 'b> {
+            use std::error::Error;
+            _clap::App::new(#name)
+                .version(#version)
+                .author(#author)
+                .about(#about)
+                #( #args )*
+        }
+    };
+
     let fields = s.iter().map(|f| {
         let ident = f.ident.as_ref().unwrap();
         let convert = match ty(&f.ty) {
@@ -169,24 +180,24 @@ fn impl_structopt(ast: &syn::DeriveInput) -> quote::Tokens {
         };
         quote!( #ident: matches.#convert, )
     });
-
-    quote! {
-        impl StructOpt for #struct_name {
-            fn clap<'a, 'b>() -> clap::App<'a, 'b> {
-                use clap::{App, Arg};
-                use std::error::Error;
-                App::new(#name)
-                    .version(#version)
-                    .author(#author)
-                    .about(#about)
-                    #( #args )*
-            }
-            fn from_clap(app: clap::App) -> Self {
-                let matches = app.get_matches();
-                #struct_name {
-                    #( #fields )*
-                }
+    let from_clap = quote! {
+        fn from_clap(app: _clap::App) -> Self {
+            let matches = app.get_matches();
+            #struct_name {
+                #( #fields )*
             }
         }
+    };
+    let dummy_const = Ident::new(format!("_IMPL_STRUCTOPT_FOR_{}", struct_name));
+    quote! {
+        #[allow(non_upper_case_globals, unused_attributes, unused_qualifications)]
+        const #dummy_const: () = {
+            extern crate clap as _clap;
+            extern crate structopt as _structopt;
+            impl _structopt::StructOpt for #struct_name {
+                #clap
+                #from_clap
+            }
+        };
     }
 }
