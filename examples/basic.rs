@@ -27,6 +27,8 @@ struct Opt {
     #[structopt(short = "l", long = "level")]
     #[structopt(help = "admin_level to consider")]
     level: Vec<String>,
+    #[structopt(help = "Files to process")]
+    files: Vec<String>,
 }
 
 fn main() {

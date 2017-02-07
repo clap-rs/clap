@@ -105,12 +105,10 @@ fn impl_structopt(ast: &syn::DeriveInput) -> quote::Tokens {
         };
         let modifier = match cur_type {
             Ty::Bool => quote! {
-                .max_values(0)
                 .takes_value(false)
                 .multiple(false)
             },
             Ty::U64 => quote! {
-                .max_values(0)
                 .takes_value(false)
                 .multiple(true)
             },
@@ -120,7 +118,6 @@ fn impl_structopt(ast: &syn::DeriveInput) -> quote::Tokens {
                 .#validator
             },
             Ty::Vec => quote! {
-                .use_delimiter(true)
                 .takes_value(true)
                 .multiple(true)
                 .#validator
@@ -187,6 +184,7 @@ fn impl_structopt(ast: &syn::DeriveInput) -> quote::Tokens {
             }
         }
     };
+
     let dummy_const = Ident::new(format!("_IMPL_STRUCTOPT_FOR_{}", struct_name));
     quote! {
         #[allow(non_upper_case_globals, unused_attributes, unused_imports)]
