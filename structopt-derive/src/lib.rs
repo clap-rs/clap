@@ -77,31 +77,42 @@ fn from_attr_or(attrs: &[(&Ident, &Lit)], key: &str, default: &str) -> Lit {
         .unwrap_or_else(|| Lit::Str(default.into(), StrStyle::Cooked))
 }
 
+fn gen_name(field: &Field) -> Ident {
+    extract_attrs(&field.attrs)
+        .find(|&(i, _)| i.as_ref() == "name")
+        .and_then(|(_, l)| match *l {
+            Lit::Str(ref s, _) => Some(Ident::new(s.clone())),
+            _ => None,
+        })
+        .unwrap_or(field.ident.as_ref().unwrap().clone())
+}
+
 fn gen_from_clap(struct_name: &Ident, s: &[Field]) -> quote::Tokens {
-    let fields = s.iter().map(|f| {
-        let ident = f.ident.as_ref().unwrap();
-        let convert = match ty(&f.ty) {
-            Ty::Bool => quote!(is_present(stringify!(#ident))),
-            Ty::U64 => quote!(occurrences_of(stringify!(#ident))),
+    let fields = s.iter().map(|field| {
+        let field_name = field.ident.as_ref().unwrap();
+        let name = gen_name(field);
+        let convert = match ty(&field.ty) {
+            Ty::Bool => quote!(is_present(stringify!(#name))),
+            Ty::U64 => quote!(occurrences_of(stringify!(#name))),
             Ty::Option => quote! {
-                value_of(stringify!(#ident))
+                value_of(stringify!(#name))
                     .as_ref()
                     .map(|s| s.parse().unwrap())
             },
             Ty::Vec => quote! {
-                values_of(stringify!(#ident))
+                values_of(stringify!(#name))
                     .map(|v| v.map(|s| s.parse().unwrap()).collect())
                     .unwrap_or_else(Vec::new)
             },
             Ty::Other => quote! {
-                value_of(stringify!(#ident))
+                value_of(stringify!(#name))
                     .as_ref()
                     .unwrap()
                     .parse()
                     .unwrap()
             },
         };
-        quote!( #ident: matches.#convert, )
+        quote!( #field_name: matches.#convert, )
     });
     quote! {
         fn from_clap(matches: _clap::ArgMatches) -> Self {
@@ -119,12 +130,12 @@ fn gen_clap(ast: &DeriveInput, s: &[Field]) -> quote::Tokens {
     let author = from_attr_or(&struct_attrs, "author", env!("CARGO_PKG_AUTHORS"));
     let about = from_attr_or(&struct_attrs, "about", env!("CARGO_PKG_DESCRIPTION"));
 
-    let args = s.iter().map(|f| {
-        let ident = f.ident.as_ref().unwrap();
-        let cur_type = ty(&f.ty);
+    let args = s.iter().map(|field| {
+        let name = gen_name(field);
+        let cur_type = ty(&field.ty);
         let convert_type = match cur_type {
-            Ty::Vec | Ty::Option => sub_type(&f.ty).unwrap_or(&f.ty),
-            _ => &f.ty,
+            Ty::Vec | Ty::Option => sub_type(&field.ty).unwrap_or(&field.ty),
+            _ => &field.ty,
         };
         let validator = quote! {
             validator(|s| s.parse::<#convert_type>()
@@ -137,14 +148,16 @@ fn gen_clap(ast: &DeriveInput, s: &[Field]) -> quote::Tokens {
             Ty::Option => quote!( .takes_value(true).multiple(false).#validator ),
             Ty::Vec => quote!( .takes_value(true).multiple(true).#validator ),
             Ty::Other => {
-                let required = extract_attrs(&f.attrs)
+                let required = extract_attrs(&field.attrs)
                     .find(|&(i, _)| i.as_ref() == "default_value")
                     .is_none();
                 quote!( .takes_value(true).multiple(false).required(#required).#validator )
             },
         };
-        let from_attr = extract_attrs(&f.attrs).map(|(i, l)| quote!(.#i(#l)));
-        quote!( .arg(_clap::Arg::with_name(stringify!(#ident)) #modifier #(#from_attr)*) )
+        let from_attr = extract_attrs(&field.attrs)
+            .filter(|&(i, _)| i.as_ref() != "name")
+            .map(|(i, l)| quote!(.#i(#l)));
+        quote!( .arg(_clap::Arg::with_name(stringify!(#name)) #modifier #(#from_attr)*) )
     });
     quote! {
         fn clap<'a, 'b>() -> _clap::App<'a, 'b> {
