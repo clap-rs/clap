@@ -9,8 +9,8 @@ extern crate clap;
 
 pub trait StructOpt {
     fn clap<'a, 'b>() -> clap::App<'a, 'b>;
-    fn from_clap(clap::App) -> Self;
+    fn from_clap(clap::ArgMatches) -> Self;
     fn from_args() -> Self where Self: Sized {
-        Self::from_clap(Self::clap())
+        Self::from_clap(Self::clap().get_matches())
     }
 }

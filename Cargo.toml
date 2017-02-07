@@ -12,6 +12,8 @@ readme = "README.md"
 
 [dependencies]
 clap = "2.20.1"
+
+[dev-dependencies]
 structopt-derive = { path = "structopt-derive", version = "0.0.0" }
 
 [workspace]

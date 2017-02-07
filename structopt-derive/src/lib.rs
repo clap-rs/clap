@@ -181,8 +181,7 @@ fn impl_structopt(ast: &syn::DeriveInput) -> quote::Tokens {
         quote!( #ident: matches.#convert, )
     });
     let from_clap = quote! {
-        fn from_clap(app: _clap::App) -> Self {
-            let matches = app.get_matches();
+        fn from_clap(matches: _clap::ArgMatches) -> Self {
             #struct_name {
                 #( #fields )*
             }
@@ -190,7 +189,7 @@ fn impl_structopt(ast: &syn::DeriveInput) -> quote::Tokens {
     };
     let dummy_const = Ident::new(format!("_IMPL_STRUCTOPT_FOR_{}", struct_name));
     quote! {
-        #[allow(non_upper_case_globals, unused_attributes, unused_qualifications)]
+        #[allow(non_upper_case_globals, unused_attributes, unused_imports)]
         const #dummy_const: () = {
             extern crate clap as _clap;
             extern crate structopt as _structopt;
