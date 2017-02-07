@@ -75,83 +75,9 @@ fn from_attr_or(attrs: &[(&Ident, &Lit)], key: &str, default: &str) -> Lit {
         .find(|&&(i, _)| i.as_ref() == key)
         .map(|&(_, l)| l.clone())
         .unwrap_or_else(|| Lit::Str(default.into(), StrStyle::Cooked))
- }
+}
 
-fn impl_structopt(ast: &syn::DeriveInput) -> quote::Tokens {
-    let struct_name = &ast.ident;
-    let s = if let Body::Struct(VariantData::Struct(ref s)) = ast.body {
-        s
-    } else {
-        panic!("Only struct is supported")
-    };
-
-    let struct_attrs: Vec<_> = extract_attrs(&ast.attrs).collect();
-    let name = from_attr_or(&struct_attrs, "name", env!("CARGO_PKG_NAME"));
-    let version = from_attr_or(&struct_attrs, "version", env!("CARGO_PKG_VERSION"));
-    let author = from_attr_or(&struct_attrs, "author", env!("CARGO_PKG_AUTHORS"));
-    let about = from_attr_or(&struct_attrs, "about", env!("CARGO_PKG_DESCRIPTION"));
-
-    let args = s.iter().map(|f| {
-        let ident = f.ident.as_ref().unwrap();
-        let cur_type = ty(&f.ty);
-        let convert_type = match cur_type {
-            Ty::Vec | Ty::Option => sub_type(&f.ty).unwrap_or(&f.ty),
-            _ => &f.ty,
-        };
-        let validator = quote! {
-            validator(|s| s.parse::<#convert_type>()
-                      .map(|_| ())
-                      .map_err(|e| e.description().into()))
-        };
-        let modifier = match cur_type {
-            Ty::Bool => quote! {
-                .takes_value(false)
-                .multiple(false)
-            },
-            Ty::U64 => quote! {
-                .takes_value(false)
-                .multiple(true)
-            },
-            Ty::Option => quote! {
-                .takes_value(true)
-                .multiple(false)
-                .#validator
-            },
-            Ty::Vec => quote! {
-                .takes_value(true)
-                .multiple(true)
-                .#validator
-            },
-            Ty::Other => {
-                let required = extract_attrs(&f.attrs)
-                    .find(|&(i, _)| i.as_ref() == "default_value")
-                    .is_none();
-                quote! {
-                    .takes_value(true)
-                    .multiple(false)
-                    .required(#required)
-                    .#validator
-                }
-            },
-        };
-        let from_attr = extract_attrs(&f.attrs).map(|(i, l)| quote!(.#i(#l)));
-        quote! {
-            .arg(_clap::Arg::with_name(stringify!(#ident))
-                 #modifier
-                 #(#from_attr)*)
-        }
-    });
-    let clap = quote! {
-        fn clap<'a, 'b>() -> _clap::App<'a, 'b> {
-            use std::error::Error;
-            _clap::App::new(#name)
-                .version(#version)
-                .author(#author)
-                .about(#about)
-                #( #args )*
-        }
-    };
-
+fn gen_from_clap(struct_name: &Ident, s: &[Field]) -> quote::Tokens {
     let fields = s.iter().map(|f| {
         let ident = f.ident.as_ref().unwrap();
         let convert = match ty(&f.ty) {
@@ -177,14 +103,70 @@ fn impl_structopt(ast: &syn::DeriveInput) -> quote::Tokens {
         };
         quote!( #ident: matches.#convert, )
     });
-    let from_clap = quote! {
+    quote! {
         fn from_clap(matches: _clap::ArgMatches) -> Self {
             #struct_name {
                 #( #fields )*
             }
         }
+    }
+}
+
+fn gen_clap(ast: &DeriveInput, s: &[Field]) -> quote::Tokens {
+    let struct_attrs: Vec<_> = extract_attrs(&ast.attrs).collect();
+    let name = from_attr_or(&struct_attrs, "name", env!("CARGO_PKG_NAME"));
+    let version = from_attr_or(&struct_attrs, "version", env!("CARGO_PKG_VERSION"));
+    let author = from_attr_or(&struct_attrs, "author", env!("CARGO_PKG_AUTHORS"));
+    let about = from_attr_or(&struct_attrs, "about", env!("CARGO_PKG_DESCRIPTION"));
+
+    let args = s.iter().map(|f| {
+        let ident = f.ident.as_ref().unwrap();
+        let cur_type = ty(&f.ty);
+        let convert_type = match cur_type {
+            Ty::Vec | Ty::Option => sub_type(&f.ty).unwrap_or(&f.ty),
+            _ => &f.ty,
+        };
+        let validator = quote! {
+            validator(|s| s.parse::<#convert_type>()
+                      .map(|_| ())
+                      .map_err(|e| e.description().into()))
+        };
+        let modifier = match cur_type {
+            Ty::Bool => quote!( .takes_value(false).multiple(false) ),
+            Ty::U64 => quote!( .takes_value(false).multiple(true) ),
+            Ty::Option => quote!( .takes_value(true).multiple(false).#validator ),
+            Ty::Vec => quote!( .takes_value(true).multiple(true).#validator ),
+            Ty::Other => {
+                let required = extract_attrs(&f.attrs)
+                    .find(|&(i, _)| i.as_ref() == "default_value")
+                    .is_none();
+                quote!( .takes_value(true).multiple(false).required(#required).#validator )
+            },
+        };
+        let from_attr = extract_attrs(&f.attrs).map(|(i, l)| quote!(.#i(#l)));
+        quote!( .arg(_clap::Arg::with_name(stringify!(#ident)) #modifier #(#from_attr)*) )
+    });
+    quote! {
+        fn clap<'a, 'b>() -> _clap::App<'a, 'b> {
+            use std::error::Error;
+            _clap::App::new(#name)
+                .version(#version)
+                .author(#author)
+                .about(#about)
+                #( #args )*
+        }
+    }
+}
+
+fn impl_structopt(ast: &syn::DeriveInput) -> quote::Tokens {
+    let struct_name = &ast.ident;
+    let s = match ast.body {
+        Body::Struct(VariantData::Struct(ref s)) => s,
+        _ => panic!("Only struct is supported"),
     };
 
+    let clap = gen_clap(ast, s);
+    let from_clap = gen_from_clap(struct_name, s);
     let dummy_const = Ident::new(format!("_IMPL_STRUCTOPT_FOR_{}", struct_name));
     quote! {
         #[allow(non_upper_case_globals, unused_attributes, unused_imports)]
