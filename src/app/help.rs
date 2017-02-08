@@ -395,8 +395,7 @@ impl<'a> Help<'a> {
             // Determine how many newlines we need to insert
             debugln!("Help::write_before_after_help: Usable space: {}",
                      self.term_w);
-            help = help.replace("{n}", "\n");
-            wrap_help(&mut help, self.term_w);
+            help = wrap_help(&help.replace("{n}", "\n"), self.term_w);
         } else {
             sdebugln!("No");
         }
@@ -437,8 +436,7 @@ impl<'a> Help<'a> {
             // Determine how many newlines we need to insert
             let avail_chars = self.term_w - spcs;
             debugln!("Help::help: Usable space...{}", avail_chars);
-            help = help.replace("{n}", "\n");
-            wrap_help(&mut help, avail_chars);
+            help = wrap_help(&help.replace("{n}", "\n"), avail_chars);
         } else {
             sdebugln!("No");
         }
@@ -616,8 +614,7 @@ impl<'a> Help<'a> {
             () => {{
                 let mut name = parser.meta.name.clone();
                 name = name.replace("{n}", "\n");
-                wrap_help(&mut name, self.term_w);
-                try!(color!(self, &*name, good));
+                try!(color!(self, wrap_help(&name, self.term_w), good));
             }};
         }
         if let Some(bn) = parser.meta.bin_name.as_ref() {
@@ -645,8 +642,8 @@ impl<'a> Help<'a> {
             ($thing:expr) => {{
                 let mut owned_thing = $thing.to_owned();
                 owned_thing = owned_thing.replace("{n}", "\n");
-                wrap_help(&mut owned_thing, self.term_w);
-                try!(write!(self.writer, "{}\n", &*owned_thing))
+                try!(write!(self.writer, "{}\n",
+                            wrap_help(&owned_thing, self.term_w)))
             }};
         }
         // Print the version
@@ -907,12 +904,12 @@ impl<'a> Help<'a> {
     }
 }
 
-fn wrap_help(help: &mut String, avail_chars: usize) {
+fn wrap_help(help: &str, avail_chars: usize) -> String {
     let wrapper = textwrap::Wrapper::new(avail_chars).break_words(false);
-    *help = help.lines()
+    help.lines()
         .map(|line| wrapper.fill(line))
         .collect::<Vec<String>>()
-        .join("\n");
+        .join("\n")
 }
 
 #[cfg(test)]
@@ -921,8 +918,7 @@ mod test {
 
     #[test]
     fn wrap_help_last_word() {
-        let mut help = String::from("foo bar baz");
-        wrap_help(&mut help, 5);
-        assert_eq!(help, "foo\nbar\nbaz");
+        let help = String::from("foo bar baz");
+        assert_eq!(wrap_help(&help, 5), "foo\nbar\nbaz");
     }
 }
