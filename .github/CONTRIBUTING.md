@@ -52,5 +52,5 @@ I use a [conventional](https://github.com/ajoslin/conventional-changelog/blob/a5
 
 ### Other ways to contribute
 
-Another really great way to help is if you find an interesting, or helpful way in which to use `clap`. You can either add it to the [examples/](examples) directory, or file an issue and tell me. I'm all about giving credit where credit is due :)
+Another really great way to help is if you find an interesting, or helpful way in which to use `clap`. You can either add it to the [examples/](../examples) directory, or file an issue and tell me. I'm all about giving credit where credit is due :)
 
