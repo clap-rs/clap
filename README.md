@@ -8,6 +8,15 @@ Find it on Docs.rs: [structopt-derive](https://docs.rs/structopt-derive) and [st
 
 ## Example
 
+Add `clap`, `structopt` and `structop-derive` to your dependencies of your `Cargo.toml`:
+```toml
+[dependencies]
+clap = "2.20"
+structopt = "0.0.2"
+structopt-derive = "0.0.2"
+```
+
+And then, in your rust file:
 ```rust
 extern crate structopt;
 #[macro_use]

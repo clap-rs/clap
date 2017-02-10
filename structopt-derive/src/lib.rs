@@ -141,11 +141,12 @@ fn extract_attrs<'a>(attrs: &'a [Attribute]) -> Box<Iterator<Item = (&'a Ident, 
     Box::new(iter)
 }
 
-fn from_attr_or(attrs: &[(&Ident, &Lit)], key: &str, default: &str) -> Lit {
+fn from_attr_or_env(attrs: &[(&Ident, &Lit)], key: &str, env: &str) -> Lit {
+    let default = std::env::var(env).unwrap_or("".into());
     attrs.iter()
         .find(|&&(i, _)| i.as_ref() == key)
         .map(|&(_, l)| l.clone())
-        .unwrap_or_else(|| Lit::Str(default.into(), StrStyle::Cooked))
+        .unwrap_or_else(|| Lit::Str(default, StrStyle::Cooked))
 }
 
 fn gen_name(field: &Field) -> Ident {
@@ -196,10 +197,10 @@ fn gen_from_clap(struct_name: &Ident, s: &[Field]) -> quote::Tokens {
 
 fn gen_clap(ast: &DeriveInput, s: &[Field]) -> quote::Tokens {
     let struct_attrs: Vec<_> = extract_attrs(&ast.attrs).collect();
-    let name = from_attr_or(&struct_attrs, "name", env!("CARGO_PKG_NAME"));
-    let version = from_attr_or(&struct_attrs, "version", env!("CARGO_PKG_VERSION"));
-    let author = from_attr_or(&struct_attrs, "author", env!("CARGO_PKG_AUTHORS"));
-    let about = from_attr_or(&struct_attrs, "about", env!("CARGO_PKG_DESCRIPTION"));
+    let name = from_attr_or_env(&struct_attrs, "name", "CARGO_PKG_NAME");
+    let version = from_attr_or_env(&struct_attrs, "version", "CARGO_PKG_VERSION");
+    let author = from_attr_or_env(&struct_attrs, "author", "CARGO_PKG_AUTHORS");
+    let about = from_attr_or_env(&struct_attrs, "about", "CARGO_PKG_DESCRIPTION");
 
     let args = s.iter().map(|field| {
         let name = gen_name(field);
