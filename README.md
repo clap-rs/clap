@@ -79,8 +79,8 @@ Opt { debug: true, speed: 1337, input: "foo", output: Some("bar") }
 
 ## Why
 
-I use [docopt](https://crates.io/crates/docopt) since  long time. I really like the fact that you have a structure with the parsed argumentThat's like going back to the : no need to convert `String` to `f64`, no useless `unwrap`. But in another hand, I don't like to write by hand the usage string. That's like going back to the golden age of WYSIWYG editors.
+I use [docopt](https://crates.io/crates/docopt) since a long time (pre rust 1.0). I really like the fact that you have a structure with the parsed argument: no need to convert `String` to `f64`, no useless `unwrap`. But on the other hand, I don't like to write by hand the usage string. That's like going back to the golden age of WYSIWYG editors.  Field naming is also a bit artificial.
 
-Today, the new standard to read command line arguments in Rust is [clap](https://crates.io/crates/clap).  This library is so feature full! But I think there is one downside: even if you can validate arument, expressing that an argument is required, you still need to transform something looking like a hashmap of string vectors to something useful for your application.
+Today, the new standard to read command line arguments in Rust is [clap](https://crates.io/crates/clap).  This library is so feature full! But I think there is one downside: even if you can validate argument and expressing that an argument is required, you still need to transform something looking like a hashmap of string vectors to something useful for your application.
 
 Now, there is stable custom derive. Thus I can add to clap the automatic conversion that I miss. Here is the result.
