@@ -9,7 +9,7 @@
 //!
 //! First, look at an example:
 //!
-//! ```
+//! ```ignore
 //! #[derive(StructOpt)]
 //! #[structopt(name = "example", about = "An example of StructOpt usage.")]
 //! struct Opt {
@@ -63,7 +63,7 @@
 //!
 //! Thus, the `speed` argument is generated as:
 //!
-//! ```
+//! ```ignore
 //! clap::Arg::with_name("speed")
 //!     .takes_value(true)
 //!     .multiple(false)
