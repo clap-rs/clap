@@ -9,6 +9,9 @@ keywords = ["clap", "cli", "derive", "docopt"]
 categories = ["command-line-interface"]
 license = "WTFPL"
 
+[badges]
+travis-ci = { repository = "TeXitoi/structopt" }
+
 [dependencies]
 syn = "0.11.4"
 quote = "0.3.12"

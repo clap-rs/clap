@@ -10,6 +10,9 @@ categories = ["command-line-interface"]
 license = "WTFPL"
 readme = "README.md"
 
+[badges]
+travis-ci = { repository = "TeXitoi/structopt" }
+
 [dependencies]
 clap = "2.20.1"
 
