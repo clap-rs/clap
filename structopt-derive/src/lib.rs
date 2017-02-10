@@ -5,6 +5,76 @@
 // Version 2, as published by Sam Hocevar. See the COPYING file for
 // more details.
 
+//! How to `derive(StructOpt)`
+//!
+//! First, look at an example:
+//!
+//! ```
+//! #[derive(StructOpt)]
+//! #[structopt(name = "example", about = "An example of StructOpt usage.")]
+//! struct Opt {
+//!     #[structopt(short = "d", long = "debug", help = "Activate debug mode")]
+//!     debug: bool,
+//!     #[structopt(short = "s", long = "speed", help = "Set speed", default_value = "42")]
+//!     speed: f64,
+//!     #[structopt(help = "Input file")]
+//!     input: String,
+//!     #[structopt(help = "Output file, stdout if not present")]
+//!     output: Option<String>,
+//! }
+//! ```
+//!
+//! So, `derive(StructOpt)` do the job, and `structopt` attribute is
+//! used for additional parameters.
+//!
+//! First, define a struct, whatever its name.  This structure will
+//! correspond to a `clap::App`.  Every method of `clap::App` in the
+//! form of `fn function_name(self, &str)` can be use in the form of
+//! attributes.  Our example call for example something like
+//! `app.about("An example of StructOpt usage.")`.  There is some
+//! special attributes:
+//!
+//!   - `name`: correspond to the creation of the `App` object. Our
+//!     example does `clap::App::new("example")`.  Default to
+//!     the crate name given by cargo.
+//!   - `version`: default to the crate version given by cargo.
+//!   - `author`: default to the crate version given by cargo.
+//!   - `about`: default to the crate version given by cargo.
+//!
+//! Then, each field of the struct correspond to a `clap::Arg`.  As
+//! for the struct attributes, every method of `clap::Arg` in the form
+//! of `fn function_name(self, &str)` can be use in the form of
+//! attributes.  The `name` attribute can be used to customize the
+//! `Arg::with_name()` call (default to the field name).
+//!
+//! The type of the field gives the kind of argument:
+//!
+//! Type                 | Effect            | Added method call to `clap::Arg`
+//! ---------------------|-------------------|--------------------------------------
+//! `bool`               | `true` if present | `.takes_value(false).multiple(false)`
+//! `u64`                | number of params  | `.takes_value(false).multiple(true)`
+//! `Option<T: FromStr>` | optional argument | `.takes_value(true).multiple(false)`
+//! `Vec<T: FromStr>`    | list of arguments | `.takes_value(true).multiple(true)`
+//! `T: FromStr` | required argument | `.takes_value(true).multiple(false).required(!has_default)`
+//!
+//! The `FromStr` trait is used to convert the argument to the given
+//! type, and the `Arg::validator` method is setted to a method using
+//! `FromStr::Error::description()`.
+//!
+//! Thus, the `speed` argument is generated as:
+//!
+//! ```
+//! clap::Arg::with_name("speed")
+//!     .takes_value(true)
+//!     .multiple(false)
+//!     .required(false)
+//!     .validator(parse_validator::<f64>)
+//!     .short("s")
+//!     .long("debug")
+//!     .help("Set speed")
+//!     .default_value("42")
+//! ```
+
 extern crate proc_macro;
 extern crate syn;
 #[macro_use]
@@ -13,6 +83,7 @@ extern crate quote;
 use proc_macro::TokenStream;
 use syn::*;
 
+/// Generates the `StructOpt` impl.
 #[proc_macro_derive(StructOpt, attributes(structopt))]
 pub fn structopt(input: TokenStream) -> TokenStream {
     let s = input.to_string();

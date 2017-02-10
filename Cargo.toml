@@ -1,6 +1,6 @@
 [package]
 name = "structopt"
-version = "0.0.0"
+version = "0.0.1"
 authors = ["Guillaume Pinot <texitoi@texitoi.eu>"]
 description = "Parse command line argument by defining a struct."
 documentation = "https://docs.rs/structopt"
@@ -14,6 +14,6 @@ readme = "README.md"
 clap = "2.20.1"
 
 [dev-dependencies]
-structopt-derive = { path = "structopt-derive", version = "0.0.0" }
+structopt-derive = { path = "structopt-derive", version = "0.0.1" }
 
 [workspace]
