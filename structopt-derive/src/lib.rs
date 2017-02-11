@@ -187,7 +187,7 @@ fn gen_from_clap(struct_name: &Ident, s: &[Field]) -> quote::Tokens {
         quote!( #field_name: matches.#convert, )
     });
     quote! {
-        fn from_clap(matches: _clap::ArgMatches) -> Self {
+        fn from_clap(matches: _structopt::clap::ArgMatches) -> Self {
             #struct_name {
                 #( #fields )*
             }
@@ -229,12 +229,12 @@ fn gen_clap(ast: &DeriveInput, s: &[Field]) -> quote::Tokens {
         let from_attr = extract_attrs(&field.attrs)
             .filter(|&(i, _)| i.as_ref() != "name")
             .map(|(i, l)| quote!(.#i(#l)));
-        quote!( .arg(_clap::Arg::with_name(stringify!(#name)) #modifier #(#from_attr)*) )
+        quote!( .arg(_structopt::clap::Arg::with_name(stringify!(#name)) #modifier #(#from_attr)*) )
     });
     quote! {
-        fn clap<'a, 'b>() -> _clap::App<'a, 'b> {
+        fn clap<'a, 'b>() -> _structopt::clap::App<'a, 'b> {
             use std::error::Error;
-            _clap::App::new(#name)
+            _structopt::clap::App::new(#name)
                 .version(#version)
                 .author(#author)
                 .about(#about)
@@ -256,7 +256,6 @@ fn impl_structopt(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         #[allow(non_upper_case_globals, unused_attributes, unused_imports)]
         const #dummy_const: () = {
-            extern crate clap as _clap;
             extern crate structopt as _structopt;
             impl _structopt::StructOpt for #struct_name {
                 #clap

@@ -13,7 +13,12 @@
 //! little interest.  See the `structopt-derive` crate to
 //! automatically generate implementation of this trait.
 
-extern crate clap;
+extern crate clap as _clap;
+
+/// Re-export of clap
+pub mod clap {
+    pub use _clap::*;
+}
 
 /// A struct that is converted from command line arguments.
 pub trait StructOpt {
