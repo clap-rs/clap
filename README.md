@@ -8,7 +8,7 @@ Find it on Docs.rs: [structopt-derive](https://docs.rs/structopt-derive) and [st
 
 ## Example
 
-Add `clap`, `structopt` and `structop-derive` to your dependencies of your `Cargo.toml`:
+Add `structopt` and `structop-derive` to your dependencies of your `Cargo.toml`:
 ```toml
 [dependencies]
 structopt = "0.0.3"
