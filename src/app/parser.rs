@@ -37,6 +37,7 @@ use suggestions;
 pub struct Parser<'a, 'b>
     where 'a: 'b
 {
+    propogated: bool,
     required: Vec<&'a str>,
     r_ifs: Vec<(&'a str, &'b str, &'a str)>,
     pub short_list: Vec<char>,
@@ -69,6 +70,7 @@ pub struct Parser<'a, 'b>
 impl<'a, 'b> Default for Parser<'a, 'b> {
     fn default() -> Self {
         Parser {
+            propogated: false,
             flags: vec![],
             opts: vec![],
             positionals: VecMap::new(),
@@ -114,11 +116,13 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     pub fn gen_completions_to<W: Write>(&mut self, for_shell: Shell, buf: &mut W) {
-
-        self.propogate_help_version();
-        self.build_bin_names();
-        self.propogate_globals();
-        self.propogate_settings();
+        if !self.propogated {
+            self.propogate_help_version();
+            self.build_bin_names();
+            self.propogate_globals();
+            self.propogate_settings();
+            self.propogated = true;
+        }
 
         ComplGen::new(self).generate(for_shell, buf)
     }
@@ -2210,6 +2214,7 @@ impl<'a, 'b> Clone for Parser<'a, 'b>
 {
     fn clone(&self) -> Self {
         Parser {
+            propogated: self.propogated,
             required: self.required.clone(),
             short_list: self.short_list.clone(),
             long_list: self.long_list.clone(),
