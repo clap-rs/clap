@@ -1,3 +1,16 @@
+<a name="v2.20.4"></a>
+### v2.20.4 (2017-02-15)
+
+
+#### Bug Fixes
+
+* **Completions:**   fixes a bug that tried to propogate global args multiple times when generating multiple completion scripts ([5e9b9cf4](https://github.com/kbknapp/clap-rs/commit/5e9b9cf4dd80fa66a624374fd04e6545635c1f94), closes [#846](https://github.com/kbknapp/clap-rs/issues/846))
+
+#### Documentation
+
+*   Fix examples link in CONTRIBUTING.md ([60cf875d](https://github.com/kbknapp/clap-rs/commit/60cf875d67a252e19bb85054be57696fac2c57a1))
+
+
 <a name="v2.20.3"></a>
 ### v2.20.3 (2017-02-03)
 
