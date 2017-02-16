@@ -400,6 +400,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///   * `{bin}`         - Binary name.
     ///   * `{version}`     - Version number.
     ///   * `{author}`      - Author information.
+    ///   * `{about}`       - General description (from [`App::about`])
     ///   * `{usage}`       - Automatically generated or given usage string.
     ///   * `{all-args}`    - Help for all arguments (options, flags, positionals arguments,
     ///                       and subcommands) including titles.
@@ -408,7 +409,8 @@ impl<'a, 'b> App<'a, 'b> {
     ///   * `{options}`     - Help for options.
     ///   * `{positionals}` - Help for positionals arguments.
     ///   * `{subcommands}` - Help for subcommands.
-    ///   * `{after-help}`  - Help for flags.
+    ///   * `{after-help}`  - Help from [`App::after_help`]
+    ///   * `{before-help}`  - Help from [`App::before_help`]
     ///
     /// # Examples
     ///
@@ -421,6 +423,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// **NOTE:**The template system is, on purpose, very simple. Therefore the tags have to writen
     /// in the lowercase and without spacing.
+    /// [`App::about`]: ./struct.App.html#method.about
+    /// [`App::after_help`]: ./struct.App.html#method.after_help
+    /// [`App::before_help`]: ./struct.App.html#method.before_help
     pub fn template<S: Into<&'b str>>(mut self, s: S) -> Self {
         self.p.meta.template = Some(s.into());
         self

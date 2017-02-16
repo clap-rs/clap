@@ -532,7 +532,66 @@ macro_rules! app_from_crate {
 }
 
 /// Build `App`, `Arg`s, `SubCommand`s and `Group`s with Usage-string like input
-/// but without the parsing.
+/// but without the associated parsing runtime cost.
+///
+/// `clap_app!` also supports several shorthand syntaxes.
+///
+/// # Examples
+///
+/// ```no_run
+/// # #[macro_use]
+/// # extern crate clap;
+/// # fn main() {
+/// clap_app!(myapp =>                                       
+///     (version: "1.0")                                                   
+///     (author: "Kevin K. <kbknapp@gmail.com>")                           
+///     (about: "Does awesome things")                                     
+///     (@arg CONFIG: -c --config +takes_value "Sets a custom config file")
+///     (@arg INPUT: +required "Sets the input file to use")               
+///     (@arg debug: -d ... "Sets the level of debugging information")     
+///     (@subcommand test =>                                               
+///         (about: "controls testing features")                           
+///         (version: "1.3")                                               
+///         (author: "Someone E. <someone_else@other.com>")                
+///         (@arg verbose: -v --verbose "Print test information verbosely")
+///     )                                                                  
+/// )
+/// #}                                                                          
+/// ```
+/// # Shorthand Syntax for Args
+/// 
+/// * A single hyphen followed by a character (such as `-c`) sets the [`Arg::short`]
+/// * A double hyphen followed by a character or word (such as `--config`) sets [`Arg::long`]
+/// * Three dots (`...`) sets [`Arg::multiple(true)`]
+/// * Angled brackets after either a short or long will set [`Arg::value_name`] and 
+/// `Arg::required(true)` such as `--config <FILE>` = `Arg::value_name("FILE")` and 
+/// `Arg::required(true)
+/// * Square brackets after either a short or long will set [`Arg::value_name`] and 
+/// `Arg::required(false)` such as `--config [FILE]` = `Arg::value_name("FILE")` and 
+/// `Arg::required(false)
+/// * There are short hand syntaxes for Arg methods that accept booleans 
+///   * A plus sign will set that method to `true` such as `+required` = `Arg::required(true)`
+///   * An exclamation will set that method to `false` such as `!required` = `Arg::required(false)`
+/// * A `#{min, max}` will set [`Arg::min_values(min)`] and [`Arg::max_values(max)`]
+/// * An asterisk (`*`) will set `Arg::required(true)`
+/// * Curly brackets around a `fn` will set [`Arg::validator`] as in `{fn}` = `Arg::validator(fn)`
+/// * An Arg method that accepts a string followed by square brackets will set that method such as 
+/// `conflicts_with[FOO]` will set `Arg::conflicts_with("FOO")` (note the lack of quotes around 
+/// `FOO` in the macro) 
+/// * An Arg method that takes a string and can be set multiple times (such as 
+/// [`Arg::conflicts_with`]) followed by square brackets and a list of values separated by spaces 
+/// will set that method such as `conflicts_with[FOO BAR BAZ]` will set 
+/// `Arg::conflicts_with("FOO")`, `Arg::conflicts_with("BAR")`, and `Arg::conflicts_with("BAZ")`
+/// (note the lack of quotes around the values in the macro) 
+///
+/// [`Arg::short`]: ./struct.Arg.html#method.short
+/// [`Arg::long`]: ./struct.Arg.html#method.long
+/// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
+/// [`Arg::value_name`]: ./struct.Arg.html#method.value_name
+/// [`Arg::min_values(min)`]: ./struct.Arg.html#method.min_values
+/// [`Arg::max_values(max)`]: ./struct.Arg.html#method.max_values
+/// [`Arg::validator`]: ./struct.Arg.html#method.validator
+/// [`Arg::conflicts_with`]: ./struct.Arg.html#method.conflicts_with
 #[macro_export]
 macro_rules! clap_app {
     (@app ($builder:expr)) => { $builder };
@@ -628,7 +687,7 @@ macro_rules! clap_app {
     (@arg ($arg:expr) $modes:tt !$ident $($tail:tt)*) => {
         clap_app!{ @arg ($arg.$ident(false)) $modes $($tail)* }
     };
-// foo -> .foo(true)
+// +foo -> .foo(true)
     (@arg ($arg:expr) $modes:tt +$ident:ident $($tail:tt)*) => {
         clap_app!{ @arg ($arg.$ident(true)) $modes $($tail)* }
     };
