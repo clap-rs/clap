@@ -119,7 +119,7 @@ impl<'a> ArgGroup<'a> {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    /// ```no_run
     /// # #[macro_use]
     /// # extern crate clap;
     /// # use clap::ArgGroup;

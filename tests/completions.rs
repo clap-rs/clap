@@ -667,7 +667,8 @@ fn fish() {
 }
 
 // Disabled until I figure out this windows line ending and AppVeyor issues
-//#[test]
+#[test]
+#[ignore]
 fn powershell() {
     let mut app = build_app();
     let mut buf = vec![];
@@ -678,7 +679,8 @@ fn powershell() {
 }
 
 // Disabled until I figure out this windows line ending and AppVeyor issues
-//#[test]
+#[test]
+#[ignore]
 fn powershell_with_underscore() {
     let mut app = build_app_with_underscore();
     let mut buf = vec![];
