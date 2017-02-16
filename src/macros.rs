@@ -542,7 +542,7 @@ macro_rules! app_from_crate {
 /// # #[macro_use]
 /// # extern crate clap;
 /// # fn main() {
-/// clap_app!(myapp =>                                       
+/// let matches = clap_app!(myapp =>                                       
 ///     (version: "1.0")                                                   
 ///     (author: "Kevin K. <kbknapp@gmail.com>")                           
 ///     (about: "Does awesome things")                                     
@@ -555,8 +555,8 @@ macro_rules! app_from_crate {
 ///         (author: "Someone E. <someone_else@other.com>")                
 ///         (@arg verbose: -v --verbose "Print test information verbosely")
 ///     )                                                                  
-/// )
-/// #}                                                                          
+/// );
+/// # }                                                                          
 /// ```
 /// # Shorthand Syntax for Args
 /// 
