@@ -308,6 +308,7 @@ impl<'a, 'b> Parser<'a, 'b>
 
     pub fn required(&self) -> Iter<&str> { self.required.iter() }
 
+    #[cfg_attr(feature = "lints", allow(needless_borrow))]
     pub fn get_required_from(&self,
                              reqs: &[&'a str],
                              matcher: Option<&ArgMatcher<'a>>,
