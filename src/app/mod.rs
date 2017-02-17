@@ -24,7 +24,7 @@ use yaml_rust::Yaml;
 // Internal
 use app::help::Help;
 use app::parser::Parser;
-use args::{ArgKind, AnyArg, Arg, ArgGroup, ArgMatcher, ArgMatches, ArgSettings};
+use args::{AnyArg, Arg, ArgGroup, ArgMatcher, ArgMatches, ArgSettings};
 use errors::Error;
 use errors::Result as ClapResult;
 pub use self::settings::AppSettings;
@@ -1373,7 +1373,7 @@ impl<'a, 'b> App<'a, 'b> {
 
         if self.p.is_set(AppSettings::PropagateGlobalValuesDown) {
             for a in &self.p.global_args {
-                matcher.propagate(a.name);
+                matcher.propagate(a.b.name);
             }
         }
 
@@ -1536,7 +1536,6 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
         unreachable!("App struct does not support AnyArg::name, this is a bug!")
     }
     fn id(&self) -> usize { self.p.id }
-    fn kind(&self) -> ArgKind { ArgKind::Subcmd }
     fn overrides(&self) -> Option<&[&'e str]> { None }
     fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]> { None }
     fn blacklist(&self) -> Option<&[&'e str]> { None }

@@ -10,7 +10,7 @@ use vec_map::{self, VecMap};
 
 // Internal
 use Arg;
-use args::{ArgSettings, Base, Valued, ArgKind, AnyArg, DispOrder};
+use args::{ArgSettings, Base, Valued, AnyArg, DispOrder};
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
@@ -41,13 +41,13 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
             v: Valued::from(a),
             index: idx,
         };
-        if a.max_vals.is_some() || a.min_vals.is_some() ||
-           (a.num_vals.is_some() && a.num_vals.unwrap() > 1) {
+        if a.v.max_vals.is_some() || a.v.min_vals.is_some() ||
+           (a.v.num_vals.is_some() && a.v.num_vals.unwrap() > 1) {
             pb.b.settings.set(ArgSettings::Multiple);
         }
         // If the arg is required, add all it's requirements to master required list
         if a.is_set(ArgSettings::Required) {
-            if let Some(ref areqs) = a.requires {
+            if let Some(ref areqs) = a.b.requires {
                 for name in areqs.iter().filter(|&&(val,_)|val.is_none()).map(|&(_, name)| name) {
                     reqs.push(name);
                 }
@@ -99,7 +99,6 @@ impl<'n, 'e> Display for PosBuilder<'n, 'e> {
 impl<'n, 'e> AnyArg<'n, 'e> for PosBuilder<'n, 'e> {
     fn name(&self) -> &'n str { self.b.name }
     fn id(&self) -> usize { self.b.id }
-    fn kind(&self) -> ArgKind { ArgKind::Pos }
     fn overrides(&self) -> Option<&[&'e str]> { self.b.overrides.as_ref().map(|o| &o[..]) }
     fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]> { self.b.requires.as_ref().map(|o| &o[..]) }
     fn blacklist(&self) -> Option<&[&'e str]> { self.b.blacklist.as_ref().map(|o| &o[..]) }

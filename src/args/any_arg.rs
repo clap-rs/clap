@@ -8,7 +8,6 @@ use vec_map::{self, VecMap};
 
 // Internal
 use args::settings::ArgSettings;
-use args::ArgKind;
 
 #[doc(hidden)]
 pub trait AnyArg<'n, 'e>: std_fmt::Display {
@@ -37,7 +36,6 @@ pub trait AnyArg<'n, 'e>: std_fmt::Display {
     fn default_val(&self) -> Option<&'n str>;
     fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e str>, &'e str)>>;
     fn longest_filter(&self) -> bool;
-    fn kind(&self) -> ArgKind;
     fn val_terminator(&self) -> Option<&'e str>;
 }
 
