@@ -45,14 +45,15 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-Here's the highlights for v2.20.4
+Here's the highlights for v2.20.5
+
+* Fixes a critical bug in the `clap_app!` macro of a missing fragment specifier when using `!property` style tags.
+
+
+Here's the highlights from v2.0.0 to v2.20.4
 
 * Fixes a bug that tried to propogate global args multiple times when generating multiple completion scripts
 * Fix examples link in CONTRIBUTING.md
-
-
-Here's the highlights from v2.0.0 to v2.20.3
-
 * **Completions**: fixes bash completions for commands that have an underscore in the name
 * **Completions**: fixes a bug where ZSH completions would panic if the binary name had an underscore in it
 * allow final word to be wrapped in wrap_help

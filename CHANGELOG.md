@@ -1,3 +1,12 @@
+<a name="v2.20.5"></a>
+### v2.20.5 (2017-02-18)
+
+
+#### Bug Fixes
+
+* **clap_app!:**   fixes a critical bug of a missing fragment specifier when using `!property` style tags. ([5635c1f94](https://github.com/kbknapp/clap-rs/commit/5e9b9cf4dd80fa66a624374fd04e6545635c1f94))
+
+
 <a name="v2.20.4"></a>
 ### v2.20.4 (2017-02-15)
 
