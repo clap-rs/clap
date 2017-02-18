@@ -1387,7 +1387,7 @@ impl<'a, 'b> Parser<'a, 'b>
         if let Some(opt) = find_by_long!(self, &arg, opts) {
             debugln!("Parser::parse_long_arg: Found valid opt '{}'", opt.to_string());
             self.valid_arg = true;
-            let ret = try!(self.parse_opt(val, opt, matcher));
+            let ret = try!(self.parse_opt(val, opt, val.is_some(), matcher));
             arg_post_processing!(self, opt, matcher);
 
             return Ok(ret);
@@ -1469,7 +1469,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 };
 
                 // Default to "we're expecting a value later"
-                let ret = try!(self.parse_opt(val, opt, matcher));
+                let ret = try!(self.parse_opt(val, opt, false, matcher));
 
                 arg_post_processing!(self, opt, matcher);
 
@@ -1501,17 +1501,19 @@ impl<'a, 'b> Parser<'a, 'b>
     fn parse_opt(&self,
                  val: Option<&OsStr>,
                  opt: &OptBuilder<'a, 'b>,
+                 had_eq: bool,
                  matcher: &mut ArgMatcher<'a>)
                  -> ClapResult<Option<&'a str>> {
-        debugln!("Parser::parse_opt;");
+        debugln!("Parser::parse_opt; opt={}, val={:?}", opt.b.name, val);
+        debugln!("Parser::parse_opt; opt.settings={:?}", opt.b.settings);
         validate_multiples!(self, opt, matcher);
         let mut has_eq = false;
 
-        debug!("Parser::parse_optChecking for val...");
+        debug!("Parser::parse_opt; Checking for val...");
         if let Some(fv) = val {
-            has_eq = fv.starts_with(&[b'=']);
+            has_eq = fv.starts_with(&[b'=']) || had_eq;
             let v = fv.trim_left_matches(b'=');
-            if !opt.is_set(ArgSettings::EmptyValues) && v.len_() == 0 {
+            if !opt.is_set(ArgSettings::EmptyValues) && (v.len_() == 0 || (opt.is_set(ArgSettings::RequireEquals) && !has_eq)) {
                 sdebugln!("Found Empty - Error");
                 return Err(Error::empty_value(opt,
                                               &*self.create_current_usage(matcher, None),
@@ -1520,6 +1522,12 @@ impl<'a, 'b> Parser<'a, 'b>
             sdebugln!("Found - {:?}, len: {}", v, v.len_());
             debugln!("Parser::parse_opt: {:?} contains '='...{:?}", fv, fv.starts_with(&[b'=']));
             try!(self.add_val_to_arg(opt, v, matcher));
+        } else if opt.is_set(ArgSettings::RequireEquals) && !opt.is_set(ArgSettings::EmptyValues) {
+            sdebugln!("None, but requires equals...Error");
+            return Err(Error::empty_value(opt,
+                                          &*self.create_current_usage(matcher, None),
+                                          self.color()));
+
         } else {
             sdebugln!("None");
         }
