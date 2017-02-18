@@ -684,7 +684,7 @@ macro_rules! clap_app {
         clap_app!{ @arg ($arg) $modes +required $($tail)* }
     };
 // !foo -> .foo(false)
-    (@arg ($arg:expr) $modes:tt !$ident $($tail:tt)*) => {
+    (@arg ($arg:expr) $modes:tt !$ident:ident $($tail:tt)*) => {
         clap_app!{ @arg ($arg.$ident(false)) $modes $($tail)* }
     };
 // +foo -> .foo(true)
