@@ -1,3 +1,13 @@
+<a name="v1.5.6"></a>
+### v1.5.6 (2017-02-18)
+
+
+#### Bug Fixes
+
+* **clap_app!:**  fixes a critical bug of a missing fragmet specifier when using  tags ([39647f49](https://github.com/kbknapp/clap-rs/commit/39647f495ae5402ae39569ef2ca91cfca1875bca))
+
+
+
 <a name="v1.5.5"></a>
 ### v1.5.5 (2016-01-04)
 
