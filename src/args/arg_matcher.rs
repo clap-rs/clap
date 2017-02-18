@@ -3,6 +3,7 @@ use vec_map::VecMap;
 use args::{ArgMatches, MatchedArg, SubCommand};
 use std::collections::hash_map::{Entry, Keys, Iter};
 
+#[allow(missing_debug_implementations)]
 pub struct ArgMatcher<'ar>(ArgMatches<'ar, 'ar>);
 
 impl<'ar> ArgMatcher<'ar> {
