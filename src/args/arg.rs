@@ -2,6 +2,11 @@
 use std::collections::BTreeMap;
 use std::rc::Rc;
 use std::ffi::{OsString, OsStr};
+#[cfg(target_os="windows")]
+use osstringext::OsStrExt3;
+#[cfg(not(target_os="windows"))]
+use std::os::unix::ffi::OsStrExt;
+
 
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
@@ -268,7 +273,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// App::new("myprog")
+    /// App::new("prog")
     ///     .args(&[
     ///         Arg::from_usage("--config <FILE> 'a required file for the configuration and no short'"),
     ///         Arg::from_usage("-d, --debug... 'turns on debugging information and allows multiples'"),
@@ -309,11 +314,11 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("shorttest")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("config")
     ///         .short("c"))
     ///     .get_matches_from(vec![
-    ///         "shorttest", "-c"
+    ///         "prog", "-c"
     ///     ]);
     ///
     /// assert!(m.is_present("config"));
@@ -350,11 +355,11 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("longtest")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .long("config"))
     ///     .get_matches_from(vec![
-    ///         "longtest", "--config"
+    ///         "prog", "--config"
     ///     ]);
     ///
     /// assert!(m.is_present("cfg"));
@@ -373,12 +378,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("myprog")
+    /// let m = App::new("prog")
     ///             .arg(Arg::with_name("test")
     ///             .long("test")
     ///             .alias("alias")
     ///             .takes_value(true))
-    ///        .get_matches_from(vec!["myprog", "--alias", "cool"]);
+    ///        .get_matches_from(vec![
+    ///             "prog", "--alias", "cool"
+    ///         ]);
     /// assert!(m.is_present("test"));
     /// assert_eq!(m.value_of("test"), Some("cool"));
     /// ```
@@ -401,13 +408,15 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("myprog")
+    /// let m = App::new("prog")
     ///             .arg(Arg::with_name("test")
     ///                     .long("test")
     ///                     .aliases(&["do-stuff", "do-tests", "tests"])
     ///                     .help("the file to add")
     ///                     .required(false))
-    ///             .get_matches_from(vec!["myprog", "--do-tests"]);
+    ///             .get_matches_from(vec![
+    ///                 "prog", "--do-tests"
+    ///             ]);
     /// assert!(m.is_present("test"));
     /// ```
     /// [`Arg`]: ./struct.Arg.html
@@ -429,12 +438,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("myprog")
+    /// let m = App::new("prog")
     ///             .arg(Arg::with_name("test")
     ///                 .visible_alias("something-awesome")
     ///                 .long("test")
     ///                 .takes_value(true))
-    ///        .get_matches_from(vec!["myprog", "--something-awesome", "coffee"]);
+    ///        .get_matches_from(vec![
+    ///             "prog", "--something-awesome", "coffee"
+    ///         ]);
     /// assert!(m.is_present("test"));
     /// assert_eq!(m.value_of("test"), Some("coffee"));
     /// ```
@@ -456,11 +467,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("myprog")
+    /// let m = App::new("prog")
     ///             .arg(Arg::with_name("test")
     ///                 .long("test")
     ///                 .visible_aliases(&["something", "awesome", "cool"]))
-    ///        .get_matches_from(vec!["myprog", "--awesome"]);
+    ///        .get_matches_from(vec![
+    ///             "prog", "--awesome"
+    ///         ]);
     /// assert!(m.is_present("test"));
     /// ```
     /// [`Arg`]: ./struct.Arg.html
@@ -497,12 +510,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("helptest")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .long("config")
     ///         .help("Some help text describing the --config arg"))
     ///     .get_matches_from(vec![
-    ///         "shorttest", "--help"
+    ///         "prog", "--help"
     ///     ]);
     /// ```
     ///
@@ -546,13 +559,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let res = App::new("longtest")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .required(true)
     ///         .takes_value(true)
     ///         .long("config"))
     ///     .get_matches_from_safe(vec![
-    ///         "shorttest", "--config", "file.conf"
+    ///         "prog", "--config", "file.conf"
     ///     ]);
     ///
     /// assert!(res.is_ok());
@@ -562,13 +575,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("longtest")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .required(true)
     ///         .takes_value(true)
     ///         .long("config"))
     ///     .get_matches_from_safe(vec![
-    ///         "shorttest"
+    ///         "prog"
     ///     ]);
     ///
     /// assert!(res.is_err());
@@ -580,6 +593,69 @@ impl<'a, 'b> Arg<'a, 'b> {
             self.set(ArgSettings::Required)
         } else {
             self.unset(ArgSettings::Required)
+        }
+    }
+
+    /// Requires that options use the `--option=val` syntax (i.e. an equals between the option and
+    /// associated value) **Default:** `false`
+    ///
+    /// **NOTE:** This setting also removes the default of allowing empty values and implies
+    /// [`Arg::empty_values(false)`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Arg;
+    /// Arg::with_name("config")
+    ///     .long("config")
+    ///     .takes_value(true)
+    ///     .require_equals(true)
+    /// # ;
+    /// ```
+    ///
+    /// Setting [`Arg::require_equals(true)`] requires that the option have an equals sign between
+    /// it and the associated value.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let res = App::new("prog")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .require_equals(true)
+    ///         .takes_value(true)
+    ///         .long("config"))
+    ///     .get_matches_from_safe(vec![
+    ///         "prog", "--config=file.conf"
+    ///     ]);
+    ///
+    /// assert!(res.is_ok());
+    /// ```
+    ///
+    /// Setting [`Arg::require_equals(true)`] and *not* supplying the equals will cause an error
+    /// unless [`Arg::empty_values(true)`] is set.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("prog")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .require_equals(true)
+    ///         .takes_value(true)
+    ///         .long("config"))
+    ///     .get_matches_from_safe(vec![
+    ///         "prog", "--config", "file.conf"
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
+    /// ```
+    /// [`Arg::require_equals(true)`]: ./struct.Arg.html#method.require_equals
+    /// [`Arg::empty_values(true)`]: ./struct.Arg.html#method.empty_values
+    /// [`Arg::empty_values(false)`]: ./struct.Arg.html#method.empty_values
+    pub fn require_equals(mut self, r: bool) -> Self {
+        if r {
+            self.unsetb(ArgSettings::EmptyValues);
+            self.set(ArgSettings::RequireEquals)
+        } else {
+            self.unset(ArgSettings::RequireEquals)
         }
     }
 
@@ -603,13 +679,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("pattest")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("pat")
     ///         .allow_hyphen_values(true)
     ///         .takes_value(true)
     ///         .long("pattern"))
     ///     .get_matches_from(vec![
-    ///         "pattest", "--pattern", "-file"
+    ///         "prog", "--pattern", "-file"
     ///     ]);
     ///
     /// assert_eq!(m.value_of("pat"), Some("-file"));
@@ -620,12 +696,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("pattest")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("pat")
     ///         .takes_value(true)
     ///         .long("pattern"))
     ///     .get_matches_from_safe(vec![
-    ///         "pattest", "--pattern", "-file"
+    ///         "prog", "--pattern", "-file"
     ///     ]);
     ///
     /// assert!(res.is_err());
@@ -660,7 +736,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let res = App::new("unlesstest")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .required_unless("dbg")
     ///         .takes_value(true)
@@ -668,7 +744,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("dbg")
     ///         .long("debug"))
     ///     .get_matches_from_safe(vec![
-    ///         "unlesstest", "--debug"
+    ///         "prog", "--debug"
     ///     ]);
     ///
     /// assert!(res.is_ok());
@@ -678,7 +754,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("unlesstest")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .required_unless("dbg")
     ///         .takes_value(true)
@@ -686,7 +762,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("dbg")
     ///         .long("debug"))
     ///     .get_matches_from_safe(vec![
-    ///         "unlesstest"
+    ///         "prog"
     ///     ]);
     ///
     /// assert!(res.is_err());
@@ -726,7 +802,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let res = App::new("unlessall")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .required_unless_all(&["dbg", "infile"])
     ///         .takes_value(true)
@@ -737,7 +813,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .short("i")
     ///         .takes_value(true))
     ///     .get_matches_from_safe(vec![
-    ///         "unlessall", "--debug", "-i", "file"
+    ///         "prog", "--debug", "-i", "file"
     ///     ]);
     ///
     /// assert!(res.is_ok());
@@ -748,7 +824,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("unlessall")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .required_unless_all(&["dbg", "infile"])
     ///         .takes_value(true)
@@ -759,7 +835,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .short("i")
     ///         .takes_value(true))
     ///     .get_matches_from_safe(vec![
-    ///         "unlessall"
+    ///         "prog"
     ///     ]);
     ///
     /// assert!(res.is_err());
@@ -801,7 +877,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let res = App::new("unlessone")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .required_unless_one(&["dbg", "infile"])
     ///         .takes_value(true)
@@ -812,7 +888,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .short("i")
     ///         .takes_value(true))
     ///     .get_matches_from_safe(vec![
-    ///         "unlessone", "--debug"
+    ///         "prog", "--debug"
     ///     ]);
     ///
     /// assert!(res.is_ok());
@@ -823,7 +899,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("unlessone")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .required_unless_one(&["dbg", "infile"])
     ///         .takes_value(true)
@@ -834,7 +910,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .short("i")
     ///         .takes_value(true))
     ///     .get_matches_from_safe(vec![
-    ///         "unlessone"
+    ///         "prog"
     ///     ]);
     ///
     /// assert!(res.is_err());
@@ -877,7 +953,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("conflictions")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .takes_value(true)
     ///         .conflicts_with("debug")
@@ -885,7 +961,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("debug")
     ///         .long("debug"))
     ///     .get_matches_from_safe(vec![
-    ///         "conflictions", "--debug", "--config", "file.conf"
+    ///         "prog", "--debug", "--config", "file.conf"
     ///     ]);
     ///
     /// assert!(res.is_err());
@@ -924,7 +1000,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("conflictions")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .takes_value(true)
     ///         .conflicts_with_all(&["debug", "input"])
@@ -934,7 +1010,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("input")
     ///         .index(1))
     ///     .get_matches_from_safe(vec![
-    ///         "conflictions", "--config", "file.conf", "file.txt"
+    ///         "prog", "--config", "file.conf", "file.txt"
     ///     ]);
     ///
     /// assert!(res.is_err());
@@ -963,14 +1039,15 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("posix")
+    /// let m = App::new("prog")
     ///     .arg(Arg::from_usage("-f, --flag 'some flag'")
     ///         .conflicts_with("debug"))
     ///     .arg(Arg::from_usage("-d, --debug 'other flag'"))
     ///     .arg(Arg::from_usage("-c, --color 'third flag'")
     ///         .overrides_with("flag"))
-    ///     .get_matches_from(vec!["posix", "-f", "-d", "-c"]);
-    ///                                 //    ^~~~~~~~~~~~^~~~~ flag is overridden by color
+    ///     .get_matches_from(vec![
+    ///         "prog", "-f", "-d", "-c"]);
+    ///             //    ^~~~~~~~~~~~^~~~~ flag is overridden by color
     ///
     /// assert!(m.is_present("color"));
     /// assert!(m.is_present("debug")); // even though flag conflicts with debug, it's as if flag
@@ -997,14 +1074,15 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("posix")
+    /// let m = App::new("prog")
     ///     .arg(Arg::from_usage("-f, --flag 'some flag'")
     ///         .conflicts_with("color"))
     ///     .arg(Arg::from_usage("-d, --debug 'other flag'"))
     ///     .arg(Arg::from_usage("-c, --color 'third flag'")
     ///         .overrides_with_all(&["flag", "debug"]))
-    ///     .get_matches_from(vec!["posix", "-f", "-d", "-c"]);
-    ///                                 //    ^~~~~~^~~~~~~~~ flag and debug are overridden by color
+    ///     .get_matches_from(vec![
+    ///         "prog", "-f", "-d", "-c"]);
+    ///             //    ^~~~~~^~~~~~~~~ flag and debug are overridden by color
     ///
     /// assert!(m.is_present("color")); // even though flag conflicts with color, it's as if flag
     ///                                 // and debug were never used because they were overridden
@@ -1043,7 +1121,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let res = App::new("reqtest")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .takes_value(true)
     ///         .requires("input")
@@ -1051,7 +1129,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("input")
     ///         .index(1))
     ///     .get_matches_from_safe(vec![
-    ///         "reqtest"
+    ///         "prog"
     ///     ]);
     ///
     /// assert!(res.is_ok()); // We didn't use cfg, so input wasn't required
@@ -1061,7 +1139,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("reqtest")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .takes_value(true)
     ///         .requires("input")
@@ -1069,7 +1147,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("input")
     ///         .index(1))
     ///     .get_matches_from_safe(vec![
-    ///         "reqtest", "--config", "file.conf"
+    ///         "prog", "--config", "file.conf"
     ///     ]);
     ///
     /// assert!(res.is_err());
@@ -1114,14 +1192,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let res = App::new("reqtest")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .takes_value(true)
     ///         .requires_if("my.cfg", "other")
     ///         .long("config"))
     ///     .arg(Arg::with_name("other"))
     ///     .get_matches_from_safe(vec![
-    ///         "reqtest", "--config", "some.cfg"
+    ///         "prog", "--config", "some.cfg"
     ///     ]);
     ///
     /// assert!(res.is_ok()); // We didn't use --config=my.cfg, so other wasn't required
@@ -1132,14 +1210,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("reqtest")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .takes_value(true)
     ///         .requires_if("my.cfg", "input")
     ///         .long("config"))
     ///     .arg(Arg::with_name("input"))
     ///     .get_matches_from_safe(vec![
-    ///         "reqtest", "--config", "my.cfg"
+    ///         "prog", "--config", "my.cfg"
     ///     ]);
     ///
     /// assert!(res.is_err());
@@ -1186,7 +1264,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("reqtest")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .takes_value(true)
     ///         .requires_ifs(&[
@@ -1199,7 +1277,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .takes_value(true))
     ///     .arg(Arg::with_name("other"))
     ///     .get_matches_from_safe(vec![
-    ///         "reqtest", "--config", "special.conf"
+    ///         "prog", "--config", "special.conf"
     ///     ]);
     ///
     /// assert!(res.is_err()); // We  used --config=special.conf so --option <val> is required
@@ -1248,7 +1326,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let res = App::new("reqtest")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .takes_value(true)
     ///         .required_if("other", "special")
@@ -1257,7 +1335,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .long("other")
     ///         .takes_value(true))
     ///     .get_matches_from_safe(vec![
-    ///         "reqtest", "--other", "not-special" 
+    ///         "prog", "--other", "not-special" 
     ///     ]);
     ///
     /// assert!(res.is_ok()); // We didn't use --other=special, so "cfg" wasn't required
@@ -1268,7 +1346,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("reqtest")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .takes_value(true)
     ///         .required_if("other", "special")
@@ -1277,7 +1355,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .long("other")
     ///         .takes_value(true))
     ///     .get_matches_from_safe(vec![
-    ///         "reqtest", "--other", "special" 
+    ///         "prog", "--other", "special" 
     ///     ]);
     ///
     /// assert!(res.is_err());
@@ -1325,7 +1403,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let res = App::new("ri")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .required_ifs(&[
     ///             ("extra", "val"),
@@ -1340,7 +1418,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .takes_value(true)
     ///         .long("option"))
     ///     .get_matches_from_safe(vec![
-    ///         "ri", "--option", "other"
+    ///         "prog", "--option", "other"
     ///     ]);
     ///
     /// assert!(res.is_ok()); // We didn't use --option=spec, or --extra=val so "cfg" isn't required
@@ -1351,7 +1429,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("ri")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .required_ifs(&[
     ///             ("extra", "val"),
@@ -1366,7 +1444,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .takes_value(true)
     ///         .long("option"))
     ///     .get_matches_from_safe(vec![
-    ///         "ri", "--option", "spec"
+    ///         "prog", "--option", "spec"
     ///     ]);
     ///
     /// assert!(res.is_err());
@@ -1411,7 +1489,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let res = App::new("reqtest")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .takes_value(true)
     ///         .requires("input")
@@ -1421,7 +1499,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("output")
     ///         .index(2))
     ///     .get_matches_from_safe(vec![
-    ///         "reqtest"
+    ///         "prog"
     ///     ]);
     ///
     /// assert!(res.is_ok()); // We didn't use cfg, so input and output weren't required
@@ -1432,7 +1510,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("reqtest")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .takes_value(true)
     ///         .requires_all(&["input", "output"])
@@ -1442,7 +1520,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("output")
     ///         .index(2))
     ///     .get_matches_from_safe(vec![
-    ///         "reqtest", "--config", "file.conf", "in.txt"
+    ///         "prog", "--config", "file.conf", "in.txt"
     ///     ]);
     ///
     /// assert!(res.is_err());
@@ -1491,11 +1569,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("posvals")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("mode")
     ///         .long("mode")
     ///         .takes_value(true))
-    ///     .get_matches_from(vec!["posvals", "--mode", "fast"]);
+    ///     .get_matches_from(vec![
+    ///         "prog", "--mode", "fast"
+    ///     ]);
     ///
     /// assert!(m.is_present("mode"));
     /// assert_eq!(m.value_of("mode"), Some("fast"));
@@ -1528,7 +1608,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("hide_posvals")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("mode")
     ///         .long("mode")
     ///         .possible_values(&["fast", "slow"])
@@ -1576,12 +1656,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("posvals")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("mode")
     ///         .index(1))
     ///     .arg(Arg::with_name("debug")
     ///         .long("debug"))
-    ///     .get_matches_from(vec!["posvals", "--debug", "fast"]);
+    ///     .get_matches_from(vec![
+    ///         "prog", "--debug", "fast"
+    ///     ]);
     ///
     /// assert!(m.is_present("mode"));
     /// assert_eq!(m.value_of("mode"), Some("fast")); // notice index(1) means "first positional"
@@ -1633,11 +1715,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("mults")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("verbose")
     ///         .multiple(true)
     ///         .short("v"))
-    ///     .get_matches_from(vec!["mults", "-v", "-v", "-v"]); // note, -vvv would have same result
+    ///     .get_matches_from(vec![
+    ///         "prog", "-v", "-v", "-v"    // note, -vvv would have same result
+    ///     ]); 
     ///
     /// assert!(m.is_present("verbose"));
     /// assert_eq!(m.occurrences_of("verbose"), 3);
@@ -1647,12 +1731,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("mults")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("file")
     ///         .multiple(true)
     ///         .takes_value(true)
     ///         .short("F"))
-    ///     .get_matches_from(vec!["mults", "-F", "file1", "file2", "file3"]);
+    ///     .get_matches_from(vec![
+    ///         "prog", "-F", "file1", "file2", "file3"
+    ///     ]);
     ///
     /// assert!(m.is_present("file"));
     /// assert_eq!(m.occurrences_of("file"), 1); // notice only one occurrence
@@ -1663,12 +1749,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("mults")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("file")
     ///         .multiple(true)
     ///         .takes_value(true)
     ///         .short("F"))
-    ///     .get_matches_from(vec!["mults", "-F", "file1", "-F", "file2", "-F", "file3"]);
+    ///     .get_matches_from(vec![
+    ///         "prog", "-F", "file1", "-F", "file2", "-F", "file3"
+    ///     ]);
     /// let files: Vec<_> = m.values_of("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2", "file3"]);
     ///
@@ -1682,14 +1770,16 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("mults")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("file")
     ///         .multiple(true)
     ///         .takes_value(true)
     ///         .short("F"))
     ///     .arg(Arg::with_name("word")
     ///         .index(1))
-    ///     .get_matches_from(vec!["mults", "-F", "file1", "file2", "file3", "word"]);
+    ///     .get_matches_from(vec![
+    ///         "prog", "-F", "file1", "file2", "file3", "word"
+    ///     ]);
     ///
     /// assert!(m.is_present("file"));
     /// let files: Vec<_> = m.values_of("file").unwrap().collect();
@@ -1705,7 +1795,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("mults")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("file")
     ///         .multiple(true)
     ///         .takes_value(true)
@@ -1713,7 +1803,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .short("F"))
     ///     .arg(Arg::with_name("word")
     ///         .index(1))
-    ///     .get_matches_from(vec!["mults", "-F", "file1", "-F", "file2", "-F", "file3", "word"]);
+    ///     .get_matches_from(vec![
+    ///         "prog", "-F", "file1", "-F", "file2", "-F", "file3", "word"
+    ///     ]);
     ///
     /// assert!(m.is_present("file"));
     /// let files: Vec<_> = m.values_of("file").unwrap().collect();
@@ -1727,7 +1819,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("mults")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("file")
     ///         .multiple(true)
     ///         .takes_value(true)
@@ -1735,7 +1827,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .short("F"))
     ///     .arg(Arg::with_name("word")
     ///         .index(1))
-    ///     .get_matches_from_safe(vec!["mults", "-F", "file1", "file2", "file3", "word"]);
+    ///     .get_matches_from_safe(vec![
+    ///         "prog", "-F", "file1", "file2", "file3", "word"
+    ///     ]);
     ///
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
@@ -1777,13 +1871,15 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("do")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("cmds")
     ///         .multiple(true)
     ///         .allow_hyphen_values(true)
     ///         .value_terminator(";"))
     ///     .arg(Arg::with_name("location"))
-    ///     .get_matches_from(vec!["do", "find", "-type", "f", "-name", "special", ";", "/home/clap"]);
+    ///     .get_matches_from(vec![
+    ///         "prog", "find", "-type", "f", "-name", "special", ";", "/home/clap"
+    ///     ]);
     /// let cmds: Vec<_> = m.values_of("cmds").unwrap().collect();
     /// assert_eq!(&cmds, &["find", "-type", "f", "-name", "special"]);
     /// assert_eq!(m.value_of("location"), Some("/home/clap"));
@@ -1827,14 +1923,16 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, SubCommand};
-    /// let m = App::new("mults")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("verb")
     ///         .long("verbose")
     ///         .short("v")
     ///         .global(true))
     ///     .subcommand(SubCommand::with_name("test"))
     ///     .subcommand(SubCommand::with_name("do-stuff"))
-    ///     .get_matches_from(vec!["mults", "do-stuff", "--verbose"]);
+    ///     .get_matches_from(vec![
+    ///         "prog", "do-stuff", "--verbose"
+    ///     ]);
     ///
     /// assert_eq!(m.subcommand_name(), Some("do-stuff"));
     /// let sub_m = m.subcommand_matches("do-stuff").unwrap();
@@ -1874,12 +1972,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("evals")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .long("config")
     ///         .short("v")
     ///         .empty_values(false))
-    ///     .get_matches_from_safe(vec!["evals", "--config="]);
+    ///     .get_matches_from_safe(vec![
+    ///         "prog", "--config="
+    ///     ]);
     ///
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
@@ -1910,13 +2010,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("helptest")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .long("config")
     ///         .hidden(true)
     ///         .help("Some help text describing the --config arg"))
     ///     .get_matches_from(vec![
-    ///         "shorttest", "--help"
+    ///         "prog", "--help"
     ///     ]);
     /// ```
     ///
@@ -1957,12 +2057,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("posvals")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("mode")
     ///         .long("mode")
     ///         .takes_value(true)
     ///         .possible_values(&["fast", "slow", "medium"]))
-    ///     .get_matches_from(vec!["posvals", "--mode", "fast"]);
+    ///     .get_matches_from(vec![
+    ///         "prog", "--mode", "fast"
+    ///     ]);
     /// assert!(m.is_present("mode"));
     /// assert_eq!(m.value_of("mode"), Some("fast"));
     /// ```
@@ -1972,12 +2074,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("posvals")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("mode")
     ///         .long("mode")
     ///         .takes_value(true)
     ///         .possible_values(&["fast", "slow", "medium"]))
-    ///     .get_matches_from_safe(vec!["myprog", "--mode", "wrong"]);
+    ///     .get_matches_from_safe(vec![
+    ///         "prog", "--mode", "wrong"
+    ///     ]);
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::InvalidValue);
     /// ```
@@ -2013,14 +2117,16 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("posvals")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("mode")
     ///         .long("mode")
     ///         .takes_value(true)
     ///         .possible_value("fast")
     ///         .possible_value("slow")
     ///         .possible_value("medium"))
-    ///     .get_matches_from(vec!["posvals", "--mode", "fast"]);
+    ///     .get_matches_from(vec![
+    ///         "prog", "--mode", "fast"
+    ///     ]);
     /// assert!(m.is_present("mode"));
     /// assert_eq!(m.value_of("mode"), Some("fast"));
     /// ```
@@ -2030,14 +2136,16 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("posvals")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("mode")
     ///         .long("mode")
     ///         .takes_value(true)
     ///         .possible_value("fast")
     ///         .possible_value("slow")
     ///         .possible_value("medium"))
-    ///     .get_matches_from_safe(vec!["myprog", "--mode", "wrong"]);
+    ///     .get_matches_from_safe(vec![
+    ///         "prog", "--mode", "wrong"
+    ///     ]);
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::InvalidValue);
     /// ```
@@ -2069,14 +2177,16 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("groups")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("debug")
     ///         .long("debug")
     ///         .group("mode"))
     ///     .arg(Arg::with_name("verbose")
     ///         .long("verbose")
     ///         .group("mode"))
-    ///     .get_matches_from(vec!["posvals", "--debug"]);
+    ///     .get_matches_from(vec![
+    ///         "prog", "--debug"
+    ///     ]);
     /// assert!(m.is_present("mode"));
     /// ```
     /// [`ArgGroup`]: ./struct.ArgGroup.html
@@ -2106,14 +2216,16 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("groups")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("debug")
     ///         .long("debug")
     ///         .groups(&["mode", "verbosity"]))
     ///     .arg(Arg::with_name("verbose")
     ///         .long("verbose")
     ///         .groups(&["mode", "verbosity"]))
-    ///     .get_matches_from(vec!["posvals", "--debug"]);
+    ///     .get_matches_from(vec![
+    ///         "prog", "--debug"
+    ///     ]);
     /// assert!(m.is_present("mode"));
     /// assert!(m.is_present("verbosity"));
     /// ```
@@ -2152,12 +2264,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("numvals")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("file")
     ///         .takes_value(true)
     ///         .number_of_values(2)
     ///         .short("F"))
-    ///     .get_matches_from_safe(vec!["mults", "-F", "file1"]);
+    ///     .get_matches_from_safe(vec![
+    ///         "prog", "-F", "file1"
+    ///     ]);
     ///
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
@@ -2191,12 +2305,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     if v.contains("@") { return Ok(()); }
     ///     Err(String::from("The value did not contain the required @ sigil"))
     /// }
-    /// let res = App::new("validators")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("file")
     ///         .index(1)
     ///         .validator(has_at))
     ///     .get_matches_from_safe(vec![
-    ///         "validators", "some@file"
+    ///         "prog", "some@file"
     ///     ]);
     /// assert!(res.is_ok());
     /// assert_eq!(res.unwrap().value_of("file"), Some("some@file"));
@@ -2220,12 +2334,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     if v.contains("&") { return Ok(()); }
     ///     Err(String::from("The value did not contain the required & sigil"))
     /// }
-    /// let res = App::new("validators")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("file")
     ///         .index(1)
     ///         .validator(has_ampersand))
     ///     .get_matches_from_safe(vec![
-    ///         "validators", "Fish & chips"
+    ///         "prog", "Fish & chips"
     ///     ]);
     /// assert!(res.is_ok());
     /// assert_eq!(res.unwrap().value_of("file"), Some("Fish & chips"));
@@ -2267,12 +2381,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let res = App::new("numvals")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("file")
     ///         .takes_value(true)
     ///         .max_values(3)
     ///         .short("F"))
-    ///     .get_matches_from_safe(vec!["mults", "-F", "file1", "file2"]);
+    ///     .get_matches_from_safe(vec![
+    ///         "prog", "-F", "file1", "file2"
+    ///     ]);
     ///
     /// assert!(res.is_ok());
     /// let m = res.unwrap();
@@ -2284,12 +2400,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("numvals")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("file")
     ///         .takes_value(true)
     ///         .max_values(2)
     ///         .short("F"))
-    ///     .get_matches_from_safe(vec!["mults", "-F", "file1", "file2", "file3"]);
+    ///     .get_matches_from_safe(vec![
+    ///         "prog", "-F", "file1", "file2", "file3"
+    ///     ]);
     ///
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::TooManyValues);
@@ -2326,12 +2444,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let res = App::new("numvals")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("file")
     ///         .takes_value(true)
     ///         .min_values(2)
     ///         .short("F"))
-    ///     .get_matches_from_safe(vec!["mults", "-F", "file1", "file2", "file3"]);
+    ///     .get_matches_from_safe(vec![
+    ///         "prog", "-F", "file1", "file2", "file3"
+    ///     ]);
     ///
     /// assert!(res.is_ok());
     /// let m = res.unwrap();
@@ -2343,12 +2463,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("numvals")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("file")
     ///         .takes_value(true)
     ///         .min_values(2)
     ///         .short("F"))
-    ///     .get_matches_from_safe(vec!["mults", "-F", "file1"]);
+    ///     .get_matches_from_safe(vec![
+    ///         "prog", "-F", "file1"
+    ///     ]);
     ///
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::TooFewValues);
@@ -2373,14 +2495,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let delims = App::new("delims")
+    /// let delims = App::new("prog")
     ///     .arg(Arg::with_name("option")
     ///         .long("option")
     ///         .use_delimiter(true)
     ///         .takes_value(true))
     ///     .get_matches_from(vec![
-    ///         "delims",
-    ///         "--option=val1,val2,val3",
+    ///         "prog", "--option=val1,val2,val3",
     ///     ]);
     ///
     /// assert!(delims.is_present("option"));
@@ -2392,14 +2513,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let nodelims = App::new("nodelims")
+    /// let nodelims = App::new("prog")
     ///     .arg(Arg::with_name("option")
     ///         .long("option")
     ///         .use_delimiter(false)
     ///         .takes_value(true))
     ///     .get_matches_from(vec![
-    ///         "nodelims",
-    ///         "--option=val1,val2,val3",
+    ///         "prog", "--option=val1,val2,val3",
     ///     ]);
     ///
     /// assert!(nodelims.is_present("option"));
@@ -2441,15 +2561,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let delims = App::new("reqdelims")
+    /// let delims = App::new("prog")
     ///     .arg(Arg::with_name("opt")
     ///         .short("o")
     ///         .takes_value(true)
     ///         .multiple(true)
     ///         .require_delimiter(true))
-    ///     // Simulate "$ reqdelims -o val1,val2,val3"
     ///     .get_matches_from(vec![
-    ///         "reqdelims", "-o", "val1,val2,val3",
+    ///         "prog", "-o", "val1,val2,val3",
     ///     ]);
     ///
     /// assert!(delims.is_present("opt"));
@@ -2459,15 +2578,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("reqdelims")
+    /// let res = App::new("prog")
     ///     .arg(Arg::with_name("opt")
     ///         .short("o")
     ///         .takes_value(true)
     ///         .multiple(true)
     ///         .require_delimiter(true))
-    ///     // Simulate "$ reqdelims -o val1 val2 val3"
     ///     .get_matches_from_safe(vec![
-    ///         "reqdelims", "-o", "val1", "val2", "val3",
+    ///         "prog", "-o", "val1", "val2", "val3",
     ///     ]);
     ///
     /// assert!(res.is_err());
@@ -2483,14 +2601,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let delims = App::new("reqdelims")
+    /// let delims = App::new("prog")
     ///     .arg(Arg::with_name("opt")
     ///         .short("o")
     ///         .takes_value(true)
     ///         .multiple(true))
-    ///     // Simulate "$ reqdelims -o val1 val2 val3"
     ///     .get_matches_from(vec![
-    ///         "reqdelims", "-o", "val1", "val2", "val3",
+    ///         "prog", "-o", "val1", "val2", "val3",
     ///     ]);
     ///
     /// assert!(delims.is_present("opt"));
@@ -2520,15 +2637,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let app = App::new("fake")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("config")
     ///         .short("c")
     ///         .long("config")
-    ///         .value_delimiter(";"));
-    ///
-    /// let m = app.get_matches_from(vec![
-    ///     "fake", "--config=val1;val2;val3"
-    /// ]);
+    ///         .value_delimiter(";"))
+    ///     .get_matches_from(vec![
+    ///         "prog", "--config=val1;val2;val3"
+    ///     ]);
     ///
     /// assert_eq!(m.values_of("config").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"])
     /// ```
@@ -2576,12 +2692,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let app = App::new("valnames")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("io")
     ///         .long("io-files")
     ///         .value_names(&["INFILE", "OUTFILE"]))
     ///     .get_matches_from(vec![
-    ///         "valnames", "--help"
+    ///         "prog", "--help"
     ///     ]);
     /// ```
     /// Running the above program produces the following output
@@ -2645,12 +2761,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let app = App::new("valnames")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("config")
     ///         .long("config")
     ///         .value_name("FILE"))
     ///     .get_matches_from(vec![
-    ///         "valnames", "--help"
+    ///         "prog", "--help"
     ///     ]);
     /// ```
     /// Running the above program produces the following output
@@ -2713,12 +2829,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("defvals")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("opt")
     ///         .long("myopt")
     ///         .default_value("myval"))
     ///     .get_matches_from(vec![
-    ///         "defvals"
+    ///         "prog"
     ///     ]);
     ///
     /// assert_eq!(m.value_of("opt"), Some("myval"));
@@ -2730,12 +2846,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("defvals")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("opt")
     ///         .long("myopt")
     ///         .default_value("myval"))
     ///     .get_matches_from(vec![
-    ///         "defvals", "--myopt=non_default"
+    ///         "prog", "--myopt=non_default"
     ///     ]);
     ///
     /// assert_eq!(m.value_of("opt"), Some("non_default"));
@@ -2749,7 +2865,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
     pub fn default_value(mut self, val: &'a str) -> Self {
         self.setb(ArgSettings::TakesValue);
-        self.v.default_val = Some(val);
+        self.v.default_val = Some(OsStr::from_bytes(val.as_bytes()));
         self
     }
 
@@ -2781,14 +2897,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("dvif")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("flag")
     ///         .long("flag"))
     ///     .arg(Arg::with_name("other")
     ///         .long("other")
     ///         .default_value_if("flag", None, "default"))
     ///     .get_matches_from(vec![
-    ///         "dvif", "--flag"
+    ///         "prog", "--flag"
     ///     ]);
     ///
     /// assert_eq!(m.value_of("other"), Some("default"));
@@ -2798,14 +2914,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("dvif")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("flag")
     ///         .long("flag"))
     ///     .arg(Arg::with_name("other")
     ///         .long("other")
     ///         .default_value_if("flag", None, "default"))
     ///     .get_matches_from(vec![
-    ///         "dvif"
+    ///         "prog"
     ///     ]);
     ///
     /// assert_eq!(m.value_of("other"), None);
@@ -2815,7 +2931,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("dvif")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("opt")
     ///         .takes_value(true)
     ///         .long("opt"))
@@ -2823,7 +2939,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .long("other")
     ///         .default_value_if("opt", Some("special"), "default"))
     ///     .get_matches_from(vec![
-    ///         "dvif", "--opt", "special"
+    ///         "prog", "--opt", "special"
     ///     ]);
     ///
     /// assert_eq!(m.value_of("other"), Some("default"));
@@ -2834,7 +2950,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("dvif")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("opt")
     ///         .takes_value(true)
     ///         .long("opt"))
@@ -2842,17 +2958,29 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .long("other")
     ///         .default_value_if("opt", Some("special"), "default"))
     ///     .get_matches_from(vec![
-    ///         "dvif", "--opt", "hahaha"
+    ///         "prog", "--opt", "hahaha"
     ///     ]);
     ///
     /// assert_eq!(m.value_of("other"), None);
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
-    pub fn default_value_if(mut self,
+    pub fn default_value_if(self,
                             arg: &'a str,
                             val: Option<&'b str>,
                             default: &'b str)
+                            -> Self {
+        self.default_value_if_os(arg, val.map(str::as_bytes).map(OsStr::from_bytes), OsStr::from_bytes(default.as_bytes()))
+    }
+
+    /// Provides a conditional default value in the exact same manner as [`Arg::default_value_if`]
+    /// only using [`OsStr`]s instead.
+    /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
+    /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
+    pub fn default_value_if_os(mut self,
+                            arg: &'a str,
+                            val: Option<&'b OsStr>,
+                            default: &'b OsStr)
                             -> Self {
         self.setb(ArgSettings::TakesValue);
         if let Some(ref mut vm) = self.v.default_vals_ifs {
@@ -2886,7 +3014,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("dvif")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("flag")
     ///         .long("flag"))
     ///     .arg(Arg::with_name("opt")
@@ -2899,7 +3027,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///             ("opt", Some("channal"), "chan"),
     ///         ]))
     ///     .get_matches_from(vec![
-    ///         "dvif", "--opt", "channal"
+    ///         "prog", "--opt", "channal"
     ///     ]);
     ///
     /// assert_eq!(m.value_of("other"), Some("chan"));
@@ -2909,7 +3037,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("dvif")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("flag")
     ///         .long("flag"))
     ///     .arg(Arg::with_name("other")
@@ -2919,7 +3047,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///             ("opt", Some("channal"), "chan"),
     ///         ]))
     ///     .get_matches_from(vec![
-    ///         "dvif"
+    ///         "prog"
     ///     ]);
     ///
     /// assert_eq!(m.value_of("other"), None);
@@ -2930,7 +3058,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("dvif")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("flag")
     ///         .long("flag"))
     ///     .arg(Arg::with_name("opt")
@@ -2943,30 +3071,28 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///             ("opt", Some("channal"), "chan"),
     ///         ]))
     ///     .get_matches_from(vec![
-    ///         "dvif", "--opt", "channal", "--flag"
+    ///         "prog", "--opt", "channal", "--flag"
     ///     ]);
     ///
     /// assert_eq!(m.value_of("other"), Some("default"));
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
-    #[cfg_attr(feature = "lints", allow(explicit_counter_loop))]
     pub fn default_value_ifs(mut self, ifs: &[(&'a str, Option<&'b str>, &'b str)]) -> Self {
-        self.setb(ArgSettings::TakesValue);
-        if let Some(ref mut vm) = self.v.default_vals_ifs {
-            let mut l = vm.len();
-            for &(arg, val, default) in ifs {
-                vm.insert(l, (arg, val, default));
-                l += 1;
-            }
-        } else {
-            let mut vm = VecMap::new();
-            let mut l = 0;
-            for &(arg, val, default) in ifs {
-                vm.insert(l, (arg, val, default));
-                l += 1;
-            }
-            self.v.default_vals_ifs = Some(vm);
+        for &(arg, val, default) in ifs {
+            self = self.default_value_if_os(arg, val.map(str::as_bytes).map(OsStr::from_bytes), OsStr::from_bytes(default.as_bytes()));
+        }
+        self
+    }   
+
+    /// Provides multiple conditional default values in the exact same manner as 
+    /// [`Arg::default_value_ifs`] only using [`OsStr`]s instead.
+    /// [`Arg::default_value_ifs`]: ./struct.Arg.html#method.default_value_ifs
+    /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
+    #[cfg_attr(feature = "lints", allow(explicit_counter_loop))]
+    pub fn default_value_ifs_os(mut self, ifs: &[(&'a str, Option<&'b OsStr>, &'b OsStr)]) -> Self {
+        for &(arg, val, default) in ifs {
+            self = self.default_value_if_os(arg, val, default);
         }
         self
     }
@@ -2982,7 +3108,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("nlh")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("opt")
     ///         .long("long-option-flag")
     ///         .short("o")
@@ -2993,7 +3119,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///                on a line after the option")
     ///         .next_line_help(true))
     ///     .get_matches_from(vec![
-    ///         "nlh", "--help"
+    ///         "prog", "--help"
     ///     ]);
     /// ```
     ///
@@ -3040,7 +3166,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// let m = App::new("cust-ord")
+    /// let m = App::new("prog")
     ///     .arg(Arg::with_name("a") // Typically args are grouped alphabetically by name.
     ///                              // Args without a display_order have a value of 999 and are
     ///                              // displayed alphabetically with all other 999 valued args.
@@ -3058,7 +3184,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///                             // alphabetically with this one...then 2 values, then 3, etc.
     ///         .help("I should be first!"))
     ///     .get_matches_from(vec![
-    ///         "cust-ord", "--help"
+    ///         "prog", "--help"
     ///     ]);
     /// ```
     ///

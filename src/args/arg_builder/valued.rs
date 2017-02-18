@@ -18,8 +18,8 @@ pub struct Valued<'a, 'b>
     pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
     pub validator_os: Option<Rc<Fn(&OsStr) -> Result<(), OsString>>>,
     pub val_delim: Option<char>,
-    pub default_val: Option<&'a str>,
-    pub default_vals_ifs: Option<VecMap<(&'a str, Option<&'b str>, &'b str)>>,
+    pub default_val: Option<&'b OsStr>,
+    pub default_vals_ifs: Option<VecMap<(&'a str, Option<&'b OsStr>, &'b OsStr)>>,
     pub terminator: Option<&'b str>,
 }
 

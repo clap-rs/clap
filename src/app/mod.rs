@@ -1558,8 +1558,8 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn val_delim(&self) -> Option<char> { None }
     fn takes_value(&self) -> bool { true }
     fn help(&self) -> Option<&'e str> { self.p.meta.about }
-    fn default_val(&self) -> Option<&'n str> { None }
-    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e str>, &'e str)>> {None}
+    fn default_val(&self) -> Option<&'e OsStr> { None }
+    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {None}
     fn longest_filter(&self) -> bool { true }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.p.meta.aliases {
