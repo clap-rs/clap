@@ -5,18 +5,8 @@ use ansi_term::ANSIString;
 use ansi_term::Colour::{Green, Red, Yellow};
 
 #[cfg(feature = "color")]
-use libc;
+use atty;
 use std::fmt;
-
-#[cfg(all(feature = "color", not(target_os = "windows")))]
-const STDERR: i32 = libc::STDERR_FILENO;
-#[cfg(all(feature = "color", not(target_os = "windows")))]
-const STDOUT: i32 = libc::STDOUT_FILENO;
-
-#[cfg(target_os = "windows")]
-const STDERR: i32 = 0;
-#[cfg(target_os = "windows")]
-const STDOUT: i32 = 0;
 
 #[doc(hidden)]
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -29,8 +19,12 @@ pub enum ColorWhen {
 #[cfg(feature = "color")]
 pub fn is_a_tty(stderr: bool) -> bool {
     debugln!("is_a_tty: stderr={:?}", stderr);
-    let fd = if stderr { STDERR } else { STDOUT };
-    unsafe { libc::isatty(fd) != 0 }
+    let stream = if stderr {
+        atty::Stream::Stderr
+    } else {
+        atty::Stream::Stdout
+    };
+    atty::is(stream)
 }
 
 #[cfg(not(feature = "color"))]
