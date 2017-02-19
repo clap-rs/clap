@@ -26,6 +26,7 @@ term_size = { version = "0.2.2",  optional = true }
 libc      = { version = "0.2.20",  optional = true }
 yaml-rust = { version = "0.3.5",  optional = true }
 clippy    = { version = "~0.0.112", optional = true }
+atty      = { version = "0.2.2",  optional = true }
 
 [dev-dependencies]
 regex = "~0.1.80"
@@ -33,7 +34,7 @@ regex = "~0.1.80"
 [features]
 default     = ["suggestions", "color", "wrap_help"]
 suggestions = ["strsim"]
-color       = ["ansi_term", "libc"]
+color       = ["ansi_term", "atty"]
 wrap_help   = ["libc", "term_size"]
 yaml        = ["yaml-rust"]
 unstable    = [] # for building with unstable clap features (doesn't require nightly Rust) (currently none)
