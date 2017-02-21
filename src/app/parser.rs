@@ -1513,7 +1513,8 @@ impl<'a, 'b> Parser<'a, 'b>
         if let Some(fv) = val {
             has_eq = fv.starts_with(&[b'=']) || had_eq;
             let v = fv.trim_left_matches(b'=');
-            if !opt.is_set(ArgSettings::EmptyValues) && (v.len_() == 0 || (opt.is_set(ArgSettings::RequireEquals) && !has_eq)) {
+            if !opt.is_set(ArgSettings::EmptyValues) &&
+               (v.len_() == 0 || (opt.is_set(ArgSettings::RequireEquals) && !has_eq)) {
                 sdebugln!("Found Empty - Error");
                 return Err(Error::empty_value(opt,
                                               &*self.create_current_usage(matcher, None),
@@ -1556,7 +1557,7 @@ impl<'a, 'b> Parser<'a, 'b>
     {
         debugln!("Parser::add_val_to_arg; arg={}, val={:?}", arg.name(), val);
         let mut ret = None;
-        debugln!("Parser::add_val_to_arg; trailing_vals={:?}, DontDelimTrailingVals={:?}", 
+        debugln!("Parser::add_val_to_arg; trailing_vals={:?}, DontDelimTrailingVals={:?}",
             self.trailing_vals, self.is_set(AppSettings::DontDelimitTrailingValues));
         if !(self.trailing_vals && self.is_set(AppSettings::DontDelimitTrailingValues)) {
             if let Some(delim) = arg.val_delim() {
