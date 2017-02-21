@@ -15,6 +15,62 @@ USAGE:
 For more information try --help";
 
 #[test]
+fn require_equals_fail() {
+    let res = App::new("prog")
+        .arg(Arg::with_name("cfg")
+            .require_equals(true)
+            .takes_value(true)
+            .long("config"))
+        .get_matches_from_safe(vec![
+            "prog", "--config", "file.conf"
+        ]);
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
+}
+
+#[test]
+fn require_equals_no_empty_values_fail() {
+    let res = App::new("prog")
+        .arg(Arg::with_name("cfg")
+            .require_equals(true)
+            .takes_value(true)
+            .long("config"))
+        .arg(Arg::with_name("some"))
+        .get_matches_from_safe(vec![
+            "prog", "--config=", "file.conf"
+        ]);
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
+}
+
+#[test]
+fn require_equals_empty_vals_pass() {
+    let res = App::new("prog")
+        .arg(Arg::with_name("cfg")
+            .require_equals(true)
+            .takes_value(true)
+            .empty_values(true)
+            .long("config"))
+        .get_matches_from_safe(vec![
+            "prog", "--config="
+        ]);
+    assert!(res.is_ok());
+}
+
+#[test]
+fn require_equals_pass() {
+    let res = App::new("prog")
+        .arg(Arg::with_name("cfg")
+            .require_equals(true)
+            .takes_value(true)
+            .long("config"))
+        .get_matches_from_safe(vec![
+            "prog", "--config=file.conf"
+        ]);
+    assert!(res.is_ok());
+}
+
+#[test]
 fn stdin_char() {
     let r = App::new("opts")
         .arg(Arg::from_usage("-f [flag] 'some flag'"))

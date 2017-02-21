@@ -5,7 +5,7 @@ use std::ffi::OsStr;
 use std::os::unix::ffi::OsStrExt;
 
 #[cfg(target_os = "windows")]
-trait OsStrExt3 {
+pub trait OsStrExt3 {
     fn from_bytes(b: &[u8]) -> &Self;
     fn as_bytes(&self) -> &[u8];
 }

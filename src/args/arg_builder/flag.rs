@@ -10,7 +10,7 @@ use vec_map::{self, VecMap};
 
 // Internal
 use Arg;
-use args::{ArgSettings, ArgKind, Base, Switched, AnyArg, DispOrder};
+use args::{ArgSettings, Base, Switched, AnyArg, DispOrder};
 
 #[derive(Default, Clone, Debug)]
 #[doc(hidden)]
@@ -51,7 +51,6 @@ impl<'n, 'e> Display for FlagBuilder<'n, 'e> {
 impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn name(&self) -> &'n str { self.b.name }
     fn id(&self) -> usize { self.b.id }
-    fn kind(&self) -> ArgKind { ArgKind::Flag }
     fn overrides(&self) -> Option<&[&'e str]> { self.b.overrides.as_ref().map(|o| &o[..]) }
     fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]> { self.b.requires.as_ref().map(|o| &o[..]) }
     fn blacklist(&self) -> Option<&[&'e str]> { self.b.blacklist.as_ref().map(|o| &o[..]) }
@@ -72,8 +71,8 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn val_delim(&self) -> Option<char> { None }
     fn help(&self) -> Option<&'e str> { self.b.help }
     fn val_terminator(&self) -> Option<&'e str> {None}
-    fn default_val(&self) -> Option<&'n str> { None }
-    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e str>, &'e str)>> {None}
+    fn default_val(&self) -> Option<&'e OsStr> { None }
+    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {None}
     fn longest_filter(&self) -> bool { self.s.long.is_some() }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.s.aliases {
