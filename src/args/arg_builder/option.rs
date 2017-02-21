@@ -94,9 +94,10 @@ impl<'n, 'e> Display for OptBuilder<'n, 'e> {
 
 impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn name(&self) -> &'n str { self.b.name }
-    fn id(&self) -> usize { self.b.id }
     fn overrides(&self) -> Option<&[&'e str]> { self.b.overrides.as_ref().map(|o| &o[..]) }
-    fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]> { self.b.requires.as_ref().map(|o| &o[..]) }
+    fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]> {
+        self.b.requires.as_ref().map(|o| &o[..])
+    }
     fn blacklist(&self) -> Option<&[&'e str]> { self.b.blacklist.as_ref().map(|o| &o[..]) }
     fn required_unless(&self) -> Option<&[&'e str]> { self.b.r_unless.as_ref().map(|o| &o[..]) }
     fn val_names(&self) -> Option<&VecMap<&'e str>> { self.v.val_names.as_ref() }
@@ -120,7 +121,9 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn takes_value(&self) -> bool { true }
     fn help(&self) -> Option<&'e str> { self.b.help }
     fn default_val(&self) -> Option<&'e OsStr> { self.v.default_val }
-    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> { self.v.default_vals_ifs.as_ref().map(|vm| vm.values()) }
+    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {
+        self.v.default_vals_ifs.as_ref().map(|vm| vm.values())
+    }
     fn longest_filter(&self) -> bool { true }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.s.aliases {

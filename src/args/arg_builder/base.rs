@@ -5,7 +5,6 @@ pub struct Base<'a, 'b>
     where 'a: 'b
 {
     pub name: &'a str,
-    pub id: usize,
     pub help: Option<&'b str>,
     pub blacklist: Option<Vec<&'a str>>,
     pub settings: ArgFlags,
@@ -24,7 +23,5 @@ impl<'n, 'e> Base<'n, 'e> {
 }
 
 impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for Base<'n, 'e> {
-    fn from(a: &'z Arg<'n, 'e>) -> Self {
-        a.b.clone()
-    }
+    fn from(a: &'z Arg<'n, 'e>) -> Self { a.b.clone() }
 }

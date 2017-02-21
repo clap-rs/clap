@@ -56,7 +56,7 @@ macro_rules! arg_post_processing {
         debug!("arg_post_processing!: Does '{}' have conflicts...", $arg.to_string());
         if let Some(bl) = $arg.blacklist() {
             sdebugln!("Yes");
-            
+
             for c in bl {
                 // Inject two-way conflicts
                 debug!("arg_post_processing!: Has '{}' already been matched...", c);
@@ -129,7 +129,7 @@ macro_rules! _handle_group_reqs{
 macro_rules! validate_multiples {
     ($_self:ident, $a:ident, $m:ident) => {
         debugln!("validate_multiples!;");
-        if $m.contains(&$a.b.name) && !$a.b.settings.is_set(ArgSettings::Multiple) {
+        if $m.contains(&$a.b.name) && !$a.b.is_set(ArgSettings::Multiple) {
             // Not the first time, and we don't allow multiples
             return Err(Error::unexpected_multiple_usage($a,
                 &*$_self.create_current_usage($m, None),
@@ -149,10 +149,10 @@ macro_rules! parse_positional {
         debugln!("parse_positional!;");
         validate_multiples!($_self, $p, $matcher);
 
-        if !$_self.trailing_vals &&
-           ($_self.settings.is_set(AppSettings::TrailingVarArg) &&
+        if !$_self.is_set(TrailingValues) &&
+           ($_self.is_set(TrailingVarArg) &&
             $pos_counter == $_self.positionals.len()) {
-            $_self.trailing_vals = true;
+            $_self.settings.set(TrailingValues);
         }
         let _ = try!($_self.add_val_to_arg($p, &$arg_os, $matcher));
 

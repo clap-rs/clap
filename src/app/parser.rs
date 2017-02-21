@@ -31,69 +31,31 @@ use fmt::{Colorizer, ColorWhen};
 use osstringext::OsStrExt2;
 use completions::Shell;
 use suggestions;
+use app::settings::AppSettings::*;
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
+#[derive(Clone, Default)]
 pub struct Parser<'a, 'b>
     where 'a: 'b
 {
-    propogated: bool,
-    required: Vec<&'a str>,
-    r_ifs: Vec<(&'a str, &'b str, &'a str)>,
-    pub short_list: Vec<char>,
-    pub long_list: Vec<&'b str>,
-    blacklist: Vec<&'b str>,
-    // A list of possible flags
+    pub meta: AppMeta<'b>,
+    settings: AppFlags,
+    pub g_settings: AppFlags,
     pub flags: Vec<FlagBuilder<'a, 'b>>,
-    // A list of possible options
     pub opts: Vec<OptBuilder<'a, 'b>>,
-    // A list of positional arguments
     pub positionals: VecMap<PosBuilder<'a, 'b>>,
-    // A list of subcommands
-    #[doc(hidden)]
     pub subcommands: Vec<App<'a, 'b>>,
     groups: HashMap<&'a str, ArgGroup<'a>>,
     pub global_args: Vec<Arg<'a, 'b>>,
+    required: Vec<&'a str>,
+    r_ifs: Vec<(&'a str, &'b str, &'a str)>,
+    blacklist: Vec<&'b str>,
     overrides: Vec<&'b str>,
+    pub short_list: Vec<char>,
+    pub long_list: Vec<&'b str>,
     help_short: Option<char>,
     version_short: Option<char>,
-    settings: AppFlags,
-    pub g_settings: AppFlags,
-    pub meta: AppMeta<'b>,
-    pub id: usize,
-    trailing_vals: bool,
-    valid_neg_num: bool,
-    // have we found a valid arg yet
-    valid_arg: bool,
-}
-
-impl<'a, 'b> Default for Parser<'a, 'b> {
-    fn default() -> Self {
-        Parser {
-            propogated: false,
-            flags: vec![],
-            opts: vec![],
-            positionals: VecMap::new(),
-            subcommands: vec![],
-            help_short: None,
-            version_short: None,
-            required: vec![],
-            r_ifs: vec![],
-            short_list: vec![],
-            long_list: vec![],
-            blacklist: vec![],
-            groups: HashMap::new(),
-            global_args: vec![],
-            overrides: vec![],
-            g_settings: AppFlags::new(),
-            settings: AppFlags::new(),
-            meta: AppMeta::new(),
-            trailing_vals: false,
-            id: 0,
-            valid_neg_num: false,
-            valid_arg: false,
-        }
-    }
 }
 
 impl<'a, 'b> Parser<'a, 'b>
@@ -116,12 +78,12 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     pub fn gen_completions_to<W: Write>(&mut self, for_shell: Shell, buf: &mut W) {
-        if !self.propogated {
+        if !self.is_set(Propogated) {
             self.propogate_help_version();
             self.build_bin_names();
             self.propogate_globals();
             self.propogate_settings();
-            self.propogated = true;
+            self.set(Propogated);
         }
 
         ComplGen::new(self).generate(for_shell, buf)
@@ -175,9 +137,9 @@ impl<'a, 'b> Parser<'a, 'b>
                                   l));
             self.long_list.push(l);
             if l == "help" {
-                self.unset(AppSettings::NeedsLongHelp);
+                self.unset(NeedsLongHelp);
             } else if l == "version" {
-                self.unset(AppSettings::NeedsLongVersion);
+                self.unset(NeedsLongVersion);
             }
         }
         if a.is_set(ArgSettings::Required) {
@@ -199,13 +161,11 @@ impl<'a, 'b> Parser<'a, 'b>
         } else if a.is_set(ArgSettings::TakesValue) {
             let mut ob = OptBuilder::from_arg(a, &mut self.required);
             let id = self.opts.len();
-            ob.b.id = id;
             ob.s.unified_ord = self.flags.len() + self.opts.len();
             self.opts.insert(id, ob);
         } else {
             let mut fb = FlagBuilder::from(a);
             let id = self.flags.len();
-            fb.b.id = id;
             fb.s.unified_ord = self.flags.len() + self.opts.len();
             self.flags.insert(id, fb);
         }
@@ -247,7 +207,7 @@ impl<'a, 'b> Parser<'a, 'b>
                  subcmd.p.meta.name);
         subcmd.p.meta.term_w = self.meta.term_w;
         if subcmd.p.meta.name == "help" {
-            self.settings.unset(AppSettings::NeedsSubcommandHelp);
+            self.unset(NeedsSubcommandHelp);
         }
 
         self.subcommands.push(subcmd);
@@ -265,14 +225,14 @@ impl<'a, 'b> Parser<'a, 'b>
             // We have to create a new scope in order to tell rustc the borrow of `sc` is
             // done and to recursively call this method
             {
-                let vsc = self.settings.is_set(AppSettings::VersionlessSubcommands);
-                let gv = self.settings.is_set(AppSettings::GlobalVersion);
+                let vsc = self.settings.is_set(VersionlessSubcommands);
+                let gv = self.settings.is_set(GlobalVersion);
 
                 if vsc {
-                    sc.p.settings.set(AppSettings::DisableVersion);
+                    sc.p.set(DisableVersion);
                 }
                 if gv && sc.p.meta.version.is_none() && self.meta.version.is_some() {
-                    sc.p.set(AppSettings::GlobalVersion);
+                    sc.p.set(GlobalVersion);
                     sc.p.meta.version = Some(self.meta.version.unwrap());
                 }
                 sc.p.settings = sc.p.settings | self.g_settings;
@@ -284,8 +244,8 @@ impl<'a, 'b> Parser<'a, 'b>
 
     #[cfg_attr(feature = "lints", allow(needless_borrow))]
     pub fn derive_display_order(&mut self) {
-        if self.settings.is_set(AppSettings::DeriveDisplayOrder) {
-            let unified = self.settings.is_set(AppSettings::UnifiedHelpMessage);
+        if self.is_set(DeriveDisplayOrder) {
+            let unified = self.is_set(UnifiedHelpMessage);
             for (i, o) in self.opts
                 .iter_mut()
                 .enumerate()
@@ -464,8 +424,7 @@ impl<'a, 'b> Parser<'a, 'b>
             count += 1;
             debugln!("Parser::get_args_tag:iter: {} Args not required", count);
         }
-        if !self.is_set(AppSettings::DontCollapseArgsInUsage) &&
-           (count > 1 || self.positionals.len() > 1) {
+        if !self.is_set(DontCollapseArgsInUsage) && (count > 1 || self.positionals.len() > 1) {
             return None; // [ARGS]
         } else if count == 1 {
             let p = self.positionals
@@ -473,8 +432,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 .find(|p| !p.is_set(ArgSettings::Required))
                 .expect(INTERNAL_ERROR_MSG);
             return Some(format!(" [{}]{}", p.name_no_brackets(), p.multiple_str()));
-        } else if self.is_set(AppSettings::DontCollapseArgsInUsage) &&
-                  !self.positionals.is_empty() {
+        } else if self.is_set(DontCollapseArgsInUsage) && !self.positionals.is_empty() {
             return Some(self.positionals
                 .values()
                 .filter(|p| !p.is_set(ArgSettings::Required))
@@ -579,7 +537,7 @@ impl<'a, 'b> Parser<'a, 'b>
             },
             "Only the last positional argument, or second to last positional argument may be set to .multiple(true)");
 
-            self.set(AppSettings::LowIndexMultiplePositional);
+            self.set(LowIndexMultiplePositional);
         }
 
         debug_assert!(self.positionals.values()
@@ -591,7 +549,7 @@ impl<'a, 'b> Parser<'a, 'b>
 
         // If it's required we also need to ensure all previous positionals are
         // required too
-        if self.is_set(AppSettings::AllowMissingPositional) {
+        if self.is_set(AllowMissingPositional) {
             let mut found = false;
             let mut foundx2 = false;
             for p in self.positionals.values().rev() {
@@ -648,7 +606,7 @@ impl<'a, 'b> Parser<'a, 'b>
     #[inline]
     fn possible_subcommand(&self, arg_os: &OsStr) -> bool {
         debugln!("Parser::possible_subcommand: arg={:?}", arg_os);
-        if self.is_set(AppSettings::ArgsNegateSubcommands) && self.valid_arg {
+        if self.is_set(ArgsNegateSubcommands) && self.is_set(ValidArgFound) {
             return false;
         }
         self.subcommands
@@ -742,12 +700,12 @@ impl<'a, 'b> Parser<'a, 'b>
     #[inline]
     fn is_new_arg(&mut self, arg_os: &OsStr, needs_val_of: Option<&'a str>) -> bool {
         debugln!("Parser::is_new_arg: arg={:?}, Needs Val of={:?}", arg_os, needs_val_of);
-        let app_wide_settings = if self.is_set(AppSettings::AllowLeadingHyphen) {
+        let app_wide_settings = if self.is_set(AllowLeadingHyphen) {
             true
-        } else if self.is_set(AppSettings::AllowNegativeNumbers) {
+        } else if self.is_set(AllowNegativeNumbers) {
             let a = arg_os.to_string_lossy();
             if a.parse::<i64>().is_ok() || a.parse::<f64>().is_ok() {
-                self.valid_neg_num = true;
+                self.set(ValidNegNumFound);
                 true
             } else {
                 false
@@ -815,15 +773,15 @@ impl<'a, 'b> Parser<'a, 'b>
             let arg_os = arg.into();
             debugln!("Parser::get_matches_with: Begin parsing '{:?}' ({:?})", arg_os, &*arg_os.as_bytes());
 
-            self.valid_neg_num = false;
+            self.unset(ValidNegNumFound);
             // Is this a new argument, or values from a previous option?
             let starts_new_arg = self.is_new_arg(&arg_os, needs_val_of);
 
             // Has the user already passed '--'? Meaning only positional args follow
-            if !self.trailing_vals {
+            if !self.is_set(TrailingValues) {
                 // Does the arg match a subcommand name, or any of it's aliases (if defined)
                 if self.possible_subcommand(&arg_os) {
-                    if &*arg_os == "help" && self.is_set(AppSettings::NeedsSubcommandHelp) {
+                    if &*arg_os == "help" && self.is_set(NeedsSubcommandHelp) {
                         try!(self.parse_help_subcommand(it));
                     }
                     subcmd_name = Some(arg_os.to_str().expect(INVALID_UTF8).to_owned());
@@ -845,13 +803,12 @@ impl<'a, 'b> Parser<'a, 'b>
                         if arg_os.len_() == 2 {
                             // The user has passed '--' which means only positional args follow no
                             // matter what they start with
-                            self.trailing_vals = true;
+                            self.set(TrailingValues);
                             continue;
                         }
 
                         needs_val_of = try!(self.parse_long_arg(matcher, &arg_os));
-                        if !(needs_val_of.is_none() &&
-                             self.is_set(AppSettings::AllowLeadingHyphen)) {
+                        if !(needs_val_of.is_none() && self.is_set(AllowLeadingHyphen)) {
                             continue;
                         }
                     } else if arg_os.starts_with(b"-") && arg_os.len_() != 1 {
@@ -861,7 +818,7 @@ impl<'a, 'b> Parser<'a, 'b>
                         needs_val_of = try!(self.parse_short_arg(matcher, &arg_os));
                         // If it's None, we then check if one of those two AppSettings was set
                         if needs_val_of.is_none() {
-                            if self.is_set(AppSettings::AllowNegativeNumbers) {
+                            if self.is_set(AllowNegativeNumbers) {
                                 if !(arg_os.to_string_lossy().parse::<i64>().is_ok() ||
                                      arg_os.to_string_lossy().parse::<f64>().is_ok()) {
                                     return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
@@ -869,7 +826,7 @@ impl<'a, 'b> Parser<'a, 'b>
                                                                 &*self.create_current_usage(matcher, None),
                                                                 self.color()));
                                 }
-                            } else if !self.is_set(AppSettings::AllowLeadingHyphen) {
+                            } else if !self.is_set(AllowLeadingHyphen) {
                                 continue;
                             }
                         } else {
@@ -878,7 +835,7 @@ impl<'a, 'b> Parser<'a, 'b>
                     }
                 }
 
-                if !self.is_set(AppSettings::ArgsNegateSubcommands) {
+                if !self.is_set(ArgsNegateSubcommands) {
                     if let Some(cdate) = suggestions::did_you_mean(&*arg_os.to_string_lossy(),
                                                                    self.subcommands
                                                                        .iter()
@@ -897,11 +854,10 @@ impl<'a, 'b> Parser<'a, 'b>
                 }
             }
 
-            let low_index_mults = self.is_set(AppSettings::LowIndexMultiplePositional) &&
+            let low_index_mults = self.is_set(LowIndexMultiplePositional) &&
                                   !self.positionals.is_empty() &&
                                   pos_counter == (self.positionals.len() - 1);
-            let missing_pos = self.is_set(AppSettings::AllowMissingPositional) &&
-                              !self.positionals.is_empty() &&
+            let missing_pos = self.is_set(AllowMissingPositional) && !self.positionals.is_empty() &&
                               pos_counter == (self.positionals.len() - 1);
             debugln!("Parser::get_matches_with: Low index multiples...{:?}", low_index_mults);
             debugln!("Parser::get_matches_with: Positional counter...{}", pos_counter);
@@ -933,13 +889,13 @@ impl<'a, 'b> Parser<'a, 'b>
             }
             if let Some(p) = self.positionals.get(pos_counter) {
                 parse_positional!(self, p, arg_os, pos_counter, matcher);
-                self.valid_arg = true;
-            } else if self.settings.is_set(AppSettings::AllowExternalSubcommands) {
+                self.settings.set(ValidArgFound);
+            } else if self.is_set(AllowExternalSubcommands) {
                 // Get external subcommand name
                 let sc_name = match arg_os.to_str() {
                     Some(s) => s.to_string(),
                     None => {
-                        if !self.settings.is_set(AppSettings::StrictUtf8) {
+                        if !self.is_set(StrictUtf8) {
                             return Err(Error::invalid_utf8(&*self.create_current_usage(matcher,
                                                                                        None),
                                                            self.color()));
@@ -952,7 +908,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 let mut sc_m = ArgMatcher::new();
                 while let Some(v) = it.next() {
                     let a = v.into();
-                    if a.to_str().is_none() && !self.settings.is_set(AppSettings::StrictUtf8) {
+                    if a.to_str().is_none() && !self.is_set(StrictUtf8) {
                         return Err(Error::invalid_utf8(&*self.create_current_usage(matcher, None),
                                                        self.color()));
                     }
@@ -963,8 +919,7 @@ impl<'a, 'b> Parser<'a, 'b>
                     name: sc_name,
                     matches: sc_m.into(),
                 });
-            } else if !(self.is_set(AppSettings::AllowLeadingHyphen) ||
-                        self.is_set(AppSettings::AllowNegativeNumbers)) {
+            } else if !(self.is_set(AllowLeadingHyphen) || self.is_set(AllowNegativeNumbers)) {
                 return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
                                                    "",
                                                    &*self.create_current_usage(matcher, None),
@@ -994,12 +949,12 @@ impl<'a, 'b> Parser<'a, 'b>
                     .expect(INTERNAL_ERROR_MSG);
                 try!(self.parse_subcommand(sc_name, matcher, it));
             }
-        } else if self.is_set(AppSettings::SubcommandRequired) {
+        } else if self.is_set(SubcommandRequired) {
             let bn = self.meta.bin_name.as_ref().unwrap_or(&self.meta.name);
             return Err(Error::missing_subcommand(bn,
                                                  &self.create_current_usage(matcher, None),
                                                  self.color()));
-        } else if self.is_set(AppSettings::SubcommandRequiredElseHelp) {
+        } else if self.is_set(SubcommandRequiredElseHelp) {
             debugln!("parser::get_matches_with: SubcommandRequiredElseHelp=true");
             let mut out = vec![];
             try!(self.write_help_err(&mut out));
@@ -1040,15 +995,14 @@ impl<'a, 'b> Parser<'a, 'b>
         }
 
         try!(self.validate_blacklist(matcher));
-        if !(self.settings.is_set(AppSettings::SubcommandsNegateReqs) &&
-             subcmd_name.is_some()) && !reqs_validated {
+        if !(self.is_set(SubcommandsNegateReqs) && subcmd_name.is_some()) && !reqs_validated {
             try!(self.validate_required(matcher));
         }
         try!(self.validate_matched_args(matcher));
         matcher.usage(self.create_usage(&[]));
 
         if matcher.is_empty() && matcher.subcommand_name().is_none() &&
-           self.is_set(AppSettings::ArgRequiredElseHelp) {
+           self.is_set(ArgRequiredElseHelp) {
             let mut out = vec![];
             try!(self.write_help_err(&mut out));
             return Err(Error {
@@ -1106,7 +1060,7 @@ impl<'a, 'b> Parser<'a, 'b>
         use std::fmt::Write;
         debugln!("Parser::parse_subcommand;");
         let mut mid_string = String::new();
-        if !self.settings.is_set(AppSettings::SubcommandsNegateReqs) {
+        if !self.is_set(SubcommandsNegateReqs) {
             let mut hs: Vec<&str> = self.required.iter().map(|n| &**n).collect();
             for k in matcher.arg_names() {
                 hs.push(k);
@@ -1226,7 +1180,7 @@ impl<'a, 'b> Parser<'a, 'b>
     pub fn create_help_and_version(&mut self) {
         debugln!("Parser::create_help_and_version;");
         // name is "hclap_help" because flags are sorted by name
-        if self.is_set(AppSettings::NeedsLongHelp) {
+        if self.is_set(NeedsLongHelp) {
             debugln!("Parser::create_help_and_version: Building --help");
             if self.help_short.is_none() && !self.short_list.contains(&'h') {
                 self.help_short = Some('h');
@@ -1236,7 +1190,6 @@ impl<'a, 'b> Parser<'a, 'b>
                 b: Base {
                     name: "hclap_help",
                     help: Some("Prints help information"),
-                    id: id,
                     ..Default::default()
                 },
                 s: Switched {
@@ -1251,8 +1204,7 @@ impl<'a, 'b> Parser<'a, 'b>
             self.long_list.push("help");
             self.flags.insert(id, arg);
         }
-        if !self.settings.is_set(AppSettings::DisableVersion) &&
-           self.is_set(AppSettings::NeedsLongVersion) {
+        if !self.is_set(DisableVersion) && self.is_set(NeedsLongVersion) {
             debugln!("Parser::create_help_and_version: Building --version");
             if self.version_short.is_none() && !self.short_list.contains(&'V') {
                 self.version_short = Some('V');
@@ -1263,7 +1215,6 @@ impl<'a, 'b> Parser<'a, 'b>
                 b: Base {
                     name: "vclap_version",
                     help: Some("Prints version information"),
-                    id: id,
                     ..Default::default()
                 },
                 s: Switched {
@@ -1278,8 +1229,8 @@ impl<'a, 'b> Parser<'a, 'b>
             self.long_list.push("version");
             self.flags.insert(id, arg);
         }
-        if !self.subcommands.is_empty() && !self.is_set(AppSettings::DisableHelpSubcommand) &&
-           self.is_set(AppSettings::NeedsSubcommandHelp) {
+        if !self.subcommands.is_empty() && !self.is_set(DisableHelpSubcommand) &&
+           self.is_set(NeedsSubcommandHelp) {
             debugln!("Parser::create_help_and_version: Building help");
             self.subcommands
                 .push(App::new("help")
@@ -1313,11 +1264,11 @@ impl<'a, 'b> Parser<'a, 'b>
         debugln!("Parser::check_for_help_and_version_str;");
         debug!("Parser::check_for_help_and_version_str: Checking if --{} is help or version...",
                arg.to_str().unwrap());
-        if arg == "help" && self.settings.is_set(AppSettings::NeedsLongHelp) {
+        if arg == "help" && self.is_set(NeedsLongHelp) {
             sdebugln!("Help");
             try!(self._help());
         }
-        if arg == "version" && self.settings.is_set(AppSettings::NeedsLongVersion) {
+        if arg == "version" && self.is_set(NeedsLongVersion) {
             sdebugln!("Version");
             try!(self._version());
         }
@@ -1330,13 +1281,13 @@ impl<'a, 'b> Parser<'a, 'b>
         debugln!("Parser::check_for_help_and_version_char;");
         debug!("Parser::check_for_help_and_version_char: Checking if -{} is help or version...", arg);
         if let Some(h) = self.help_short {
-            if arg == h && self.settings.is_set(AppSettings::NeedsLongHelp) {
+            if arg == h && self.is_set(NeedsLongHelp) {
                 sdebugln!("Help");
                 try!(self._help());
             }
         }
         if let Some(v) = self.version_short {
-            if arg == v && self.settings.is_set(AppSettings::NeedsLongVersion) {
+            if arg == v && self.is_set(NeedsLongVersion) {
                 sdebugln!("Version");
                 try!(self._version());
             }
@@ -1386,14 +1337,14 @@ impl<'a, 'b> Parser<'a, 'b>
 
         if let Some(opt) = find_by_long!(self, &arg, opts) {
             debugln!("Parser::parse_long_arg: Found valid opt '{}'", opt.to_string());
-            self.valid_arg = true;
+            self.settings.set(ValidArgFound);
             let ret = try!(self.parse_opt(val, opt, val.is_some(), matcher));
             arg_post_processing!(self, opt, matcher);
 
             return Ok(ret);
         } else if let Some(flag) = find_by_long!(self, &arg, flags) {
             debugln!("Parser::parse_long_arg: Found valid flag '{}'", flag.to_string());
-            self.valid_arg = true;
+            self.settings.set(ValidArgFound);
             // Only flags could be help or version, and we need to check the raw long
             // so this is the first point to check
             try!(self.check_for_help_and_version_str(arg));
@@ -1404,9 +1355,9 @@ impl<'a, 'b> Parser<'a, 'b>
             arg_post_processing!(self, flag, matcher);
 
             return Ok(None);
-        } else if self.is_set(AppSettings::AllowLeadingHyphen) {
+        } else if self.is_set(AllowLeadingHyphen) {
             return Ok(None);
-        } else if self.valid_neg_num {
+        } else if self.is_set(ValidNegNumFound) {
             return Ok(None);
         }
 
@@ -1425,7 +1376,7 @@ impl<'a, 'b> Parser<'a, 'b>
 
         // If AllowLeadingHyphen is set, we want to ensure `-val` gets parsed as `-val` and not `-v` `-a` `-l` assuming
         // `v` `a` and `l` are all, or mostly, valid shorts.
-        if self.is_set(AppSettings::AllowLeadingHyphen) {
+        if self.is_set(AllowLeadingHyphen) {
             let mut good = true;
             for c in arg.chars() {
                 good = self.short_list.contains(&c);
@@ -1433,7 +1384,7 @@ impl<'a, 'b> Parser<'a, 'b>
             if !good {
                 return Ok(None);
             }
-        } else if self.valid_neg_num {
+        } else if self.is_set(ValidNegNumFound) {
             // TODO: Add docs about having AllowNegativeNumbers and `-2` as a valid short
             // May be better to move this to *after* not finding a valid flag/opt?
             debugln!("Parser::parse_short_arg: Valid negative num...");
@@ -1450,7 +1401,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 .iter()
                 .find(|&o| o.s.short.is_some() && o.s.short.unwrap() == c) {
                 debugln!("Parser::parse_short_arg:iter: Found valid short opt -{} in '{}'", c, arg);
-                self.valid_arg = true;
+                self.settings.set(ValidArgFound);
                 // Check for trailing concatenated value
                 let p: Vec<_> = arg.splitn(2, c).collect();
                 debugln!("Parser::parse_short_arg:iter: arg: {:?}, arg_os: {:?}, full_arg: {:?}",
@@ -1478,7 +1429,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 .iter()
                 .find(|&f| f.s.short.is_some() && f.s.short.unwrap() == c) {
                 debugln!("Parser::parse_short_arg:iter: Found valid short flag -{}", c);
-                self.valid_arg = true;
+                self.settings.set(ValidArgFound);
                 // Only flags can be help or version
                 try!(self.check_for_help_and_version_char(c));
                 try!(self.parse_flag(flag, matcher));
@@ -1558,8 +1509,8 @@ impl<'a, 'b> Parser<'a, 'b>
         debugln!("Parser::add_val_to_arg; arg={}, val={:?}", arg.name(), val);
         let mut ret = None;
         debugln!("Parser::add_val_to_arg; trailing_vals={:?}, DontDelimTrailingVals={:?}",
-            self.trailing_vals, self.is_set(AppSettings::DontDelimitTrailingValues));
-        if !(self.trailing_vals && self.is_set(AppSettings::DontDelimitTrailingValues)) {
+            self.is_set(TrailingValues), self.is_set(DontDelimitTrailingValues));
+        if !(self.is_set(TrailingValues) && self.is_set(DontDelimitTrailingValues)) {
             if let Some(delim) = arg.val_delim() {
                 if val.is_empty_() {
                     ret = try!(self.add_single_val_to_arg(arg, val, matcher));
@@ -1618,7 +1569,7 @@ impl<'a, 'b> Parser<'a, 'b>
         where A: AnyArg<'a, 'b> + Display
     {
         debugln!("Parser::validate_value: val={:?}", val);
-        if self.is_set(AppSettings::StrictUtf8) && val.to_str().is_none() {
+        if self.is_set(StrictUtf8) && val.to_str().is_none() {
             return Err(Error::invalid_utf8(&*self.create_current_usage(matcher, None),
                                            self.color()));
         }
@@ -2015,12 +1966,12 @@ impl<'a, 'b> Parser<'a, 'b>
                 .fold(String::new(), |a, s| a + &format!(" {}", s)[..]);
 
             let flags = self.needs_flags_tag();
-            if flags && !self.is_set(AppSettings::UnifiedHelpMessage) {
+            if flags && !self.is_set(UnifiedHelpMessage) {
                 usage.push_str(" [FLAGS]");
             } else if flags {
                 usage.push_str(" [OPTIONS]");
             }
-            if !self.is_set(AppSettings::UnifiedHelpMessage) && self.has_opts() &&
+            if !self.is_set(UnifiedHelpMessage) && self.has_opts() &&
                self.opts.iter().any(|o| !o.b.settings.is_set(ArgSettings::Required)) {
                 usage.push_str(" [OPTIONS]");
             }
@@ -2045,9 +1996,9 @@ impl<'a, 'b> Parser<'a, 'b>
             }
 
 
-            if self.has_subcommands() && !self.is_set(AppSettings::SubcommandRequired) {
+            if self.has_subcommands() && !self.is_set(SubcommandRequired) {
                 usage.push_str(" [SUBCOMMAND]");
-            } else if self.is_set(AppSettings::SubcommandRequired) && self.has_subcommands() {
+            } else if self.is_set(SubcommandRequired) && self.has_subcommands() {
                 usage.push_str(" <SUBCOMMAND>");
             }
         } else {
@@ -2081,7 +2032,7 @@ impl<'a, 'b> Parser<'a, 'b>
             })
                             [..]);
         usage.push_str(&*r_string);
-        if self.is_set(AppSettings::SubcommandRequired) {
+        if self.is_set(SubcommandRequired) {
             usage.push_str(" <SUBCOMMAND>");
         }
     }
@@ -2191,10 +2142,10 @@ impl<'a, 'b> Parser<'a, 'b>
     pub fn color(&self) -> ColorWhen {
         debugln!("Parser::color;");
         debug!("Parser::color: Color setting...");
-        if self.is_set(AppSettings::ColorNever) {
+        if self.is_set(ColorNever) {
             sdebugln!("Never");
             ColorWhen::Never
-        } else if self.is_set(AppSettings::ColorAlways) {
+        } else if self.is_set(ColorAlways) {
             sdebugln!("Always");
             ColorWhen::Always
         } else {
@@ -2237,36 +2188,5 @@ impl<'a, 'b> Parser<'a, 'b>
             }
         }
         None
-    }
-}
-
-impl<'a, 'b> Clone for Parser<'a, 'b>
-    where 'a: 'b
-{
-    fn clone(&self) -> Self {
-        Parser {
-            propogated: self.propogated,
-            required: self.required.clone(),
-            short_list: self.short_list.clone(),
-            long_list: self.long_list.clone(),
-            blacklist: self.blacklist.clone(),
-            flags: self.flags.clone(),
-            opts: self.opts.clone(),
-            positionals: self.positionals.clone(),
-            subcommands: self.subcommands.clone(),
-            groups: self.groups.clone(),
-            global_args: self.global_args.clone(),
-            overrides: self.overrides.clone(),
-            help_short: self.help_short,
-            version_short: self.version_short,
-            settings: self.settings,
-            g_settings: self.g_settings,
-            meta: self.meta.clone(),
-            trailing_vals: self.trailing_vals,
-            id: self.id,
-            valid_neg_num: self.valid_neg_num,
-            r_ifs: self.r_ifs.clone(),
-            valid_arg: self.valid_arg,
-        }
     }
 }
