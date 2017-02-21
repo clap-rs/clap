@@ -9,11 +9,12 @@ mod test {
 
     fn compare<S, S2>(l: S, r: S2) -> bool
         where S: AsRef<str>,
-              S2: AsRef<str> {
+              S2: AsRef<str>
+    {
         let re = Regex::new("\x1b[^m]*m").unwrap();
         // Strip out any mismatching \r character on windows that might sneak in on either side
-        let left = re.replace_all(&l.as_ref().trim().replace("\r", "")[..], "").into_owned();
-        let right = re.replace_all(&r.as_ref().trim().replace("\r", "")[..], "").into_owned();
+        let left = re.replace_all(&l.as_ref().trim().replace("\r", "")[..], "");
+        let right = re.replace_all(&r.as_ref().trim().replace("\r", "")[..], "");
         let b = left == right;
         if !b {
             println!("");

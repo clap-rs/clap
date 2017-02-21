@@ -278,8 +278,7 @@ fn help_subcommand() {
 
 #[test]
 fn subcommand_short_help() {
-    let m = test::complex_app()
-        .get_matches_from_safe(vec!["clap-test", "subcmd", "-h"]);
+    let m = test::complex_app().get_matches_from_safe(vec!["clap-test", "subcmd", "-h"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
@@ -287,8 +286,7 @@ fn subcommand_short_help() {
 
 #[test]
 fn subcommand_long_help() {
-    let m = test::complex_app()
-        .get_matches_from_safe(vec!["clap-test", "subcmd", "--help"]);
+    let m = test::complex_app().get_matches_from_safe(vec!["clap-test", "subcmd", "--help"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
@@ -296,8 +294,7 @@ fn subcommand_long_help() {
 
 #[test]
 fn subcommand_help_rev() {
-    let m = test::complex_app()
-        .get_matches_from_safe(vec!["clap-test", "help", "subcmd"]);
+    let m = test::complex_app().get_matches_from_safe(vec!["clap-test", "help", "subcmd"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
@@ -321,12 +318,11 @@ fn after_and_before_help_output() {
 #[test]
 fn multi_level_sc_help() {
     let app = App::new("ctest")
-        .subcommand(SubCommand::with_name("subcmd")
-            .subcommand(SubCommand::with_name("multi")
-                .about("tests subcommands")
-                .author("Kevin K. <kbknapp@gmail.com>")
-                .version("0.1")
-                .args_from_usage("
+        .subcommand(SubCommand::with_name("subcmd").subcommand(SubCommand::with_name("multi")
+            .about("tests subcommands")
+            .author("Kevin K. <kbknapp@gmail.com>")
+            .version("0.1")
+            .args_from_usage("
                     -f, --flag                    'tests flags'
                     -o, --option [scoption]...    'tests options'
                 ")));
@@ -354,16 +350,16 @@ fn issue_626_unicode_cutoff() {
         .version("0.1")
         .set_term_width(70)
         .arg(Arg::with_name("cafe")
-           .short("c")
-           .long("cafe")
-           .value_name("FILE")
-           .help("A coffeehouse, coffee shop, or café is an establishment \
+            .short("c")
+            .long("cafe")
+            .value_name("FILE")
+            .help("A coffeehouse, coffee shop, or café is an establishment \
            which primarily serves hot coffee, related coffee beverages \
            (e.g., café latte, cappuccino, espresso), tea, and other hot \
            beverages. Some coffeehouses also serve cold beverages such as \
            iced coffee and iced tea. Many cafés also serve some type of \
            food, such as light snacks, muffins, or pastries.")
-           .takes_value(true));
+            .takes_value(true));
     assert!(test::compare_output(app, "ctest --help", ISSUE_626_CUTOFF, false));
 }
 
@@ -372,20 +368,20 @@ fn hide_possible_vals() {
     let app = App::new("ctest")
         .version("0.1")
         .arg(Arg::with_name("pos")
-           .short("p")
-           .long("pos")
-           .value_name("VAL")
-           .possible_values(&["fast", "slow"])
-           .help("Some vals")
-           .takes_value(true))
+            .short("p")
+            .long("pos")
+            .value_name("VAL")
+            .possible_values(&["fast", "slow"])
+            .help("Some vals")
+            .takes_value(true))
         .arg(Arg::with_name("cafe")
-           .short("c")
-           .long("cafe")
-           .value_name("FILE")
-           .hide_possible_values(true)
-           .possible_values(&["fast", "slow"])
-           .help("A coffeehouse, coffee shop, or café.")
-           .takes_value(true));
+            .short("c")
+            .long("cafe")
+            .value_name("FILE")
+            .hide_possible_values(true)
+            .possible_values(&["fast", "slow"])
+            .help("A coffeehouse, coffee shop, or café.")
+            .takes_value(true));
     assert!(test::compare_output(app, "ctest --help", HIDE_POS_VALS, false));
 }
 
@@ -441,9 +437,9 @@ fn old_newline_chars() {
 
 #[test]
 fn issue_688_hidden_pos_vals() {
-	let filter_values = ["Nearest", "Linear", "Cubic", "Gaussian", "Lanczos3"];
+    let filter_values = ["Nearest", "Linear", "Cubic", "Gaussian", "Lanczos3"];
 
-	let app1 = App::new("ctest")
+    let app1 = App::new("ctest")
             .version("0.1")
 			.set_term_width(120)
 			.setting(AppSettings::HidePossibleValuesInHelp)
@@ -455,7 +451,7 @@ fn issue_688_hidden_pos_vals() {
 				.takes_value(true));
     assert!(test::compare_output(app1, "ctest --help", ISSUE_688, false));
 
-	let app2 = App::new("ctest")
+    let app2 = App::new("ctest")
             .version("0.1")
 			.set_term_width(120)
 			.arg(Arg::with_name("filter")
@@ -466,7 +462,7 @@ fn issue_688_hidden_pos_vals() {
 				.takes_value(true));
     assert!(test::compare_output(app2, "ctest --help", ISSUE_688, false));
 
-	let app3 = App::new("ctest")
+    let app3 = App::new("ctest")
             .version("0.1")
 			.set_term_width(120)
 			.arg(Arg::with_name("filter")
@@ -483,27 +479,26 @@ fn issue_702_multiple_values() {
         .version("1.0")
         .author("foo")
         .about("bar")
-        .arg(Arg::with_name("arg1")
-             .help("some option"))
+        .arg(Arg::with_name("arg1").help("some option"))
         .arg(Arg::with_name("arg2")
-             .multiple(true)
-             .help("some option"))
+            .multiple(true)
+            .help("some option"))
         .arg(Arg::with_name("some")
-             .help("some option")
-             .short("s")
-             .long("some")
-             .takes_value(true))
+            .help("some option")
+            .short("s")
+            .long("some")
+            .takes_value(true))
         .arg(Arg::with_name("other")
-             .help("some other option")
-             .short("o")
-             .long("other")
-             .takes_value(true))
+            .help("some other option")
+            .short("o")
+            .long("other")
+            .takes_value(true))
         .arg(Arg::with_name("label")
-             .help("a label")
-             .short("l")
-             .long("label")
-             .multiple(true)
-             .takes_value(true));
+            .help("a label")
+            .short("l")
+            .long("label")
+            .multiple(true)
+            .takes_value(true));
     assert!(test::compare_output(app, "myapp --help", ISSUE_702, false));
 }
 
@@ -512,17 +507,17 @@ fn issue_760() {
     let app = App::new("ctest")
         .version("0.1")
         .arg(Arg::with_name("option")
-             .help("tests options")
-             .short("o")
-             .long("option")
-             .takes_value(true)
-             .multiple(true)
-             .number_of_values(1))
+            .help("tests options")
+            .short("o")
+            .long("option")
+            .takes_value(true)
+            .multiple(true)
+            .number_of_values(1))
         .arg(Arg::with_name("opt")
-             .help("tests options")
-             .short("O")
-             .long("opt")
-             .takes_value(true));
+            .help("tests options")
+            .short("O")
+            .long("opt")
+            .takes_value(true));
     assert!(test::compare_output(app, "ctest --help", ISSUE_760, false));
 }
 #[test]

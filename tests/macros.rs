@@ -106,8 +106,7 @@ fn quoted_arg_long_name() {
             (@arg scpositional: index(1) "tests positionals"))
     );
 
-    assert_eq!(app.p.long_list[2], "long-option-2");
-
-    let matches = app.get_matches_from_safe(vec!["bin_name", "value1", "value2", "--long-option-2"]).expect("Expected to successfully match the given args.");
+    let matches = app.get_matches_from_safe(vec!["bin_name", "value1", "value2", "--long-option-2"])
+        .expect("Expected to successfully match the given args.");
     assert!(matches.is_present("option2"));
 }

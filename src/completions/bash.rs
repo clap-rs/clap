@@ -125,21 +125,7 @@ complete -F _{name} -o bashdefault -o default {name}
         let mut p = self.p;
         for sc in path.split("__").skip(1) {
             debugln!("BashGen::option_details_for_path:iter: sc={}", sc);
-            p = &p.subcommands
-                .iter()
-                .find(|s| {
-                    s.p.meta.name == sc ||
-                    (s.p.meta.aliases.is_some() &&
-                     s.p
-                        .meta
-                        .aliases
-                        .as_ref()
-                        .unwrap()
-                        .iter()
-                        .any(|&(n, _)| n == sc))
-                })
-                .unwrap()
-                .p;
+            p = &find_subcmd!(p, sc).unwrap().p;
         }
         let mut opts = String::new();
         for o in p.opts() {
@@ -214,28 +200,12 @@ complete -F _{name} -o bashdefault -o default {name}
         let mut p = self.p;
         for sc in path.split("__").skip(1) {
             debugln!("BashGen::all_options_for_path:iter: sc={}", sc);
-            p = &p.subcommands
-                .iter()
-                .find(|s| {
-                    s.p.meta.name == sc ||
-                    (s.p.meta.aliases.is_some() &&
-                     s.p
-                        .meta
-                        .aliases
-                        .as_ref()
-                        .unwrap()
-                        .iter()
-                        .any(|&(n, _)| n == sc))
-                })
-                .unwrap()
-                .p;
+            p = &find_subcmd!(p, sc).unwrap().p;
         }
-        let mut opts = p.short_list.iter().fold(String::new(), |acc, s| format!("{} -{}", acc, s));
+        let mut opts = shorts!(p).fold(String::new(), |acc, s| format!("{} -{}", acc, s));
         opts = format!("{} {}",
                        opts,
-                       p.long_list
-                           .iter()
-                           .fold(String::new(), |acc, l| format!("{} --{}", acc, l)));
+                       longs!(p).fold(String::new(), |acc, l| format!("{} --{}", acc, l)));
         opts = format!("{} {}",
                        opts,
                        p.positionals

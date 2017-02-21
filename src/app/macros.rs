@@ -19,11 +19,14 @@ macro_rules! remove_overriden {
     };
     ($_self:ident, $name:expr) => {
         debugln!("remove_overriden!;");
-        if let Some(ref o) = $_self.opts.iter().filter(|o| o.b.name == *$name).next() {
+        if let Some(o) = $_self.opts.iter() .find(|o| o.b.name == *$name) {
             remove_overriden!(@arg $_self, o);
-        } else if let Some(ref f) = $_self.flags.iter().filter(|f| f.b.name == *$name).next() {
+        } else if let Some(f) = $_self.flags.iter() .find(|f| f.b.name == *$name) {
             remove_overriden!(@arg $_self, f);
-        } else if let Some(p) = $_self.positionals.values().filter(|p| p.b.name == *$name).next() {
+        } else {
+            let p = $_self.positionals.values()
+                                      .find(|p| p.b.name == *$name)
+                                      .expect(INTERNAL_ERROR_MSG);
             remove_overriden!(@arg $_self, p);
         }
     };
@@ -69,21 +72,20 @@ macro_rules! arg_post_processing {
                 }
             }
 
-            $me.blacklist.extend(bl);
+            $me.blacklist.extend_from_slice(bl);
             vec_remove_all!($me.overrides, bl.iter());
-            vec_remove_all!($me.required, bl.iter());
+            // vec_remove_all!($me.required, bl.iter());
         } else { sdebugln!("No"); }
 
         // Add all required args which aren't already found in matcher to the master
         // list
         debug!("arg_post_processing!: Does '{}' have requirements...", $arg.to_string());
         if let Some(reqs) = $arg.requires() {
-            for n in reqs.iter().filter(|&&(val, _)| val.is_none()).map(|&(_, name)| name) {
-                if $matcher.contains(&n) {
-                    sdebugln!("\tYes '{}' but it's already met", n);
-                    continue;
-                } else { sdebugln!("\tYes '{}'", n); }
-
+            for n in reqs.iter()
+                .filter(|&&(val, _)| val.is_none())
+                .filter(|&&(_, req)| !$matcher.contains(&req))
+                .map(|&(_, name)| name) {
+                    
                 $me.required.push(n);
             }
         } else { sdebugln!("No"); }
@@ -96,9 +98,9 @@ macro_rules! _handle_group_reqs{
     ($me:ident, $arg:ident) => ({
         use args::AnyArg;
         debugln!("_handle_group_reqs!;");
-        for grp in $me.groups.values() {
+        for grp in $me.groups.iter() {
             let found = if grp.args.contains(&$arg.name()) {
-                vec_remove!($me.required, &$arg.name());
+                // vec_remove!($me.required, &$arg.name());
                 if let Some(ref reqs) = grp.requires {
                     debugln!("_handle_group_reqs!: Adding {:?} to the required list", reqs);
                     $me.required.extend(reqs);
@@ -126,18 +128,6 @@ macro_rules! _handle_group_reqs{
     })
 }
 
-macro_rules! validate_multiples {
-    ($_self:ident, $a:ident, $m:ident) => {
-        debugln!("validate_multiples!;");
-        if $m.contains(&$a.b.name) && !$a.b.is_set(ArgSettings::Multiple) {
-            // Not the first time, and we don't allow multiples
-            return Err(Error::unexpected_multiple_usage($a,
-                &*$_self.create_current_usage($m, None),
-                $_self.color()))
-        }
-    };
-}
-
 macro_rules! parse_positional {
     (
         $_self:ident,
@@ -147,12 +137,11 @@ macro_rules! parse_positional {
         $matcher:ident
     ) => {
         debugln!("parse_positional!;");
-        validate_multiples!($_self, $p, $matcher);
 
-        if !$_self.is_set(TrailingValues) &&
-           ($_self.is_set(TrailingVarArg) &&
+        if !$_self.is_set(AS::TrailingValues) &&
+           ($_self.is_set(AS::TrailingVarArg) &&
             $pos_counter == $_self.positionals.len()) {
-            $_self.settings.set(TrailingValues);
+            $_self.settings.set(AS::TrailingValues);
         }
         let _ = try!($_self.add_val_to_arg($p, &$arg_os, $matcher));
 
@@ -165,90 +154,4 @@ macro_rules! parse_positional {
             $pos_counter += 1;
         }
     };
-}
-
-macro_rules! find_from {
-    ($_self:ident, $arg_name:expr, $from:ident, $matcher:expr) => {{
-        let mut ret = None;
-        for k in $matcher.arg_names() {
-            if let Some(f) = find_by_name!($_self, &k, flags, iter) {
-                if let Some(ref v) = f.$from() {
-                    if v.contains($arg_name) {
-                        ret = Some(f.to_string());
-                    }
-                }
-            }
-            if let Some(o) = find_by_name!($_self, &k, opts, iter) {
-                if let Some(ref v) = o.$from() {
-                    if v.contains(&$arg_name) {
-                        ret = Some(o.to_string());
-                    }
-                }
-            }
-            if let Some(pos) = find_by_name!($_self, &k, positionals, values) {
-                if let Some(ref v) = pos.$from() {
-                    if v.contains($arg_name) {
-                        ret = Some(pos.b.name.to_owned());
-                    }
-                }
-            }
-        }
-        ret
-    }};
-}
-
-macro_rules! find_name_from {
-    ($_self:ident, $arg_name:expr, $from:ident, $matcher:expr) => {{
-        let mut ret = None;
-        for k in $matcher.arg_names() {
-            if let Some(f) = find_by_name!($_self, &k, flags, iter) {
-                if let Some(ref v) = f.$from() {
-                    if v.contains($arg_name) {
-                        ret = Some(f.b.name);
-                    }
-                }
-            }
-            if let Some(o) = find_by_name!($_self, &k, opts, iter) {
-                if let Some(ref v) = o.$from() {
-                    if v.contains(&$arg_name) {
-                        ret = Some(o.b.name);
-                    }
-                }
-            }
-            if let Some(pos) = find_by_name!($_self, &k, positionals, values) {
-                if let Some(ref v) = pos.$from() {
-                    if v.contains($arg_name) {
-                        ret = Some(pos.b.name);
-                    }
-                }
-            }
-        }
-        ret
-    }};
-}
-
-// Finds an arg by name
-macro_rules! find_by_name {
-    ($_self:ident, $name:expr, $what:ident, $how:ident) => {
-        $_self.$what.$how().find(|o| &o.b.name == $name)
-    }
-}
-
-// Finds an option including if it's aliasesed
-macro_rules! find_by_long {
-    ($_self:ident, $long:expr, $what:ident) => {
-        $_self.$what
-            .iter()
-            .filter(|o| o.s.long.is_some())
-            .find(|o| {
-                &&o.s.long.unwrap() == &$long ||
-                (o.s.aliases.is_some() &&
-                 o.s
-                    .aliases
-                    .as_ref()
-                    .unwrap()
-                    .iter()
-                    .any(|&(alias, _)| &&alias == &$long))
-            })
-    }
 }
