@@ -491,12 +491,12 @@ impl<'a> Help<'a> {
         debugln!("Help::spec_vals: a={}", a);
         let mut spec_vals = vec![];
         if let Some(pv) = a.default_val() {
-            debugln!("Help::spec_vals: Found default value...[{}]", pv);
+            debugln!("Help::spec_vals: Found default value...[{:?}]", pv);
             spec_vals.push(format!(" [default: {}]",
                                    if self.color {
-                                       self.cizer.good(pv)
+                                       self.cizer.good(pv.to_string_lossy())
                                    } else {
-                                       Format::None(pv)
+                                       Format::None(pv.to_string_lossy())
                                    }));
         }
         if let Some(ref aliases) = a.aliases() {
