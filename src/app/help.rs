@@ -384,7 +384,8 @@ impl<'a> Help<'a> {
         debugln!("Help::write_before_after_help;");
         let mut help = String::new();
         // determine if our help fits or needs to wrap
-        debugln!("Help::write_before_after_help: Term width...{}", self.term_w);
+        debugln!("Help::write_before_after_help: Term width...{}",
+                 self.term_w);
         let too_long = str_width(h) >= self.term_w;
 
         debug!("Help::write_before_after_help: Too long...");
@@ -392,10 +393,12 @@ impl<'a> Help<'a> {
             sdebugln!("Yes");
             help.push_str(h);
             debugln!("Help::write_before_after_help: help: {}", help);
-            debugln!("Help::write_before_after_help: help width: {}", str_width(&*help));
+            debugln!("Help::write_before_after_help: help width: {}",
+                     str_width(&*help));
             // Determine how many newlines we need to insert
-            debugln!("Help::write_before_after_help: Usable space: {}", self.term_w);
-            let longest_w = find_longest!(help);            
+            debugln!("Help::write_before_after_help: Usable space: {}",
+                     self.term_w);
+            let longest_w = find_longest!(help);
             help = help.replace("{n}", "\n");
             wrap_help(&mut help, longest_w, self.term_w);
         } else {
@@ -451,7 +454,7 @@ impl<'a> Help<'a> {
             // Determine how many newlines we need to insert
             let avail_chars = self.term_w - spcs;
             debugln!("Help::help: Usable space...{}", avail_chars);
-            let longest_w = find_longest!(help);            
+            let longest_w = find_longest!(help);
             help = help.replace("{n}", "\n");
             wrap_help(&mut help, longest_w, avail_chars);
         } else {
@@ -938,7 +941,8 @@ fn wrap_help(help: &mut String, longest_w: usize, avail_chars: usize) {
             debugln!("Help::wrap_help:iter: idx={}, g={}", idx, g);
             if g == "\n" {
                 debugln!("Help::wrap_help:iter: Newline found...");
-                debugln!("Help::wrap_help:iter: Still space...{:?}", str_width(&help[j..idx]) < avail_chars);
+                debugln!("Help::wrap_help:iter: Still space...{:?}",
+                         str_width(&help[j..idx]) < avail_chars);
                 if str_width(&help[j..idx]) < avail_chars {
                     j = idx;
                     continue;
@@ -957,7 +961,7 @@ fn wrap_help(help: &mut String, longest_w: usize, avail_chars: usize) {
             j = prev_space;
             debugln!("Help::wrap_help:iter: prev_space={}, j={}", prev_space, j);
             debugln!("Help::wrap_help:iter: Removing...{}", j);
-            debugln!("Help::wrap_help:iter: Char at {}: {:?}", j, &help[j..j+1]);
+            debugln!("Help::wrap_help:iter: Char at {}: {:?}", j, &help[j..j + 1]);
             help.remove(j);
             help.insert(j, '\n');
             prev_space = idx;
