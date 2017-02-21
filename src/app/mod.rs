@@ -25,7 +25,6 @@ use yaml_rust::Yaml;
 use app::help::Help;
 use app::parser::Parser;
 use args::{AnyArg, Arg, ArgGroup, ArgMatcher, ArgMatches, ArgSettings};
-use errors::Error;
 use errors::Result as ClapResult;
 pub use self::settings::AppSettings;
 use completions::Shell;
@@ -1268,7 +1267,21 @@ impl<'a, 'b> App<'a, 'b> {
     {
         self.get_matches_from_safe_borrow(itr).unwrap_or_else(|e| {
             // Otherwise, write to stderr and exit
-            self.maybe_wait_for_exit(e);
+            if e.use_stderr() {
+                wlnerr!("{}", e.message);
+                if self.p.is_set(AppSettings::WaitOnError) {
+                    wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
+                    let mut s = String::new();
+                    let i = io::stdin();
+                    i.lock().read_line(&mut s).unwrap();
+                }
+                drop(self);
+                drop(e);
+                process::exit(1);
+            }
+
+            drop(self);
+            e.exit()
         })
     }
 
@@ -1378,23 +1391,6 @@ impl<'a, 'b> App<'a, 'b> {
         }
 
         Ok(matcher.into())
-    }
-
-    // Re-implements ClapError::exit except it checks if we should wait for input before exiting
-    // since ClapError doesn't have that info and the error message must be printed before exiting
-    fn maybe_wait_for_exit(&self, e: Error) -> ! {
-        if e.use_stderr() {
-            wlnerr!("{}", e.message);
-            if self.p.is_set(AppSettings::WaitOnError) {
-                wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
-                let mut s = String::new();
-                let i = io::stdin();
-                i.lock().read_line(&mut s).unwrap();
-            }
-            process::exit(1);
-        }
-
-        e.exit()
     }
 }
 
@@ -1542,7 +1538,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn required_unless(&self) -> Option<&[&'e str]> { None }
     fn val_names(&self) -> Option<&VecMap<&'e str>> { None }
     fn is_set(&self, _: ArgSettings) -> bool { false }
-    fn val_terminator(&self) -> Option<&'e str> {None}
+    fn val_terminator(&self) -> Option<&'e str> { None }
     fn set(&mut self, _: ArgSettings) {
         unreachable!("App struct does not support AnyArg::set, this is a bug!")
     }
@@ -1559,7 +1555,9 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn takes_value(&self) -> bool { true }
     fn help(&self) -> Option<&'e str> { self.p.meta.about }
     fn default_val(&self) -> Option<&'e OsStr> { None }
-    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {None}
+    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {
+        None
+    }
     fn longest_filter(&self) -> bool { true }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.p.meta.aliases {
