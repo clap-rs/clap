@@ -1,12 +1,11 @@
-use args::{ArgSettings, Arg, ArgFlags, ArgKind};
+use args::{ArgSettings, Arg, ArgFlags};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Base<'a, 'b>
     where 'a: 'b
 {
     pub name: &'a str,
     pub id: usize,
-    pub kind: ArgKind,
     pub help: Option<&'b str>,
     pub blacklist: Option<Vec<&'a str>>,
     pub settings: ArgFlags,
@@ -16,42 +15,16 @@ pub struct Base<'a, 'b>
     pub requires: Option<Vec<(Option<&'b str>, &'a str)>>,
 }
 
-impl<'n, 'e> Default for Base<'n, 'e> {
-    fn default() -> Self {
-        Base {
-            name: "",
-            id: 0,
-            kind: ArgKind::Pos,
-            help: None,
-            blacklist: None,
-            settings: ArgFlags::new(),
-            r_unless: None,
-            overrides: None,
-            requires: None,
-            groups: None,
-        }
-    }
-}
-
 impl<'n, 'e> Base<'n, 'e> {
     pub fn new(name: &'n str) -> Self { Base { name: name, ..Default::default() } }
 
     pub fn set(&mut self, s: ArgSettings) { self.settings.set(s); }
+    pub fn unset(&mut self, s: ArgSettings) { self.settings.unset(s); }
+    pub fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(s) }
 }
 
 impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for Base<'n, 'e> {
     fn from(a: &'z Arg<'n, 'e>) -> Self {
-        Base {
-            name: a.name,
-            help: a.help,
-            id: 0,
-            kind: ArgKind::Pos,
-            blacklist: a.blacklist.clone(),
-            settings: a.settings,
-            r_unless: a.r_unless.clone(),
-            overrides: a.overrides.clone(),
-            requires: a.requires.clone(),
-            groups: a.groups.clone(),
-        }
+        a.b.clone()
     }
 }

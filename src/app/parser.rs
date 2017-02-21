@@ -148,28 +148,28 @@ impl<'a, 'b> Parser<'a, 'b>
 
     // actually adds the arguments
     pub fn add_arg(&mut self, a: &Arg<'a, 'b>) {
-        debug_assert!(!(self.flags.iter().any(|f| &f.b.name == &a.name) ||
-                        self.opts.iter().any(|o| o.b.name == a.name) ||
-                        self.positionals.values().any(|p| p.b.name == a.name)),
-                      format!("Non-unique argument name: {} is already in use", a.name));
+        debug_assert!(!(self.flags.iter().any(|f| &f.b.name == &a.b.name) ||
+                        self.opts.iter().any(|o| o.b.name == a.b.name) ||
+                        self.positionals.values().any(|p| p.b.name == a.b.name)),
+                      format!("Non-unique argument name: {} is already in use", a.b.name));
         if let Some(ref r_ifs) = a.r_ifs {
             for &(arg, val) in r_ifs {
-                self.r_ifs.push((arg, val, a.name));
+                self.r_ifs.push((arg, val, a.b.name));
             }
         }
-        if let Some(ref grps) = a.groups {
+        if let Some(ref grps) = a.b.groups {
             for g in grps {
                 let ag = self.groups.entry(g).or_insert_with(|| ArgGroup::with_name(g));
-                ag.args.push(a.name);
+                ag.args.push(a.b.name);
             }
         }
-        if let Some(s) = a.short {
+        if let Some(s) = a.s.short {
             debug_assert!(!self.short_list.contains(&s),
                           format!("Argument short must be unique\n\n\t-{} is already in use",
                                   s));
             self.short_list.push(s);
         }
-        if let Some(l) = a.long {
+        if let Some(l) = a.s.long {
             debug_assert!(!self.long_list.contains(&l),
                           format!("Argument long must be unique\n\n\t--{} is already in use",
                                   l));
@@ -181,9 +181,9 @@ impl<'a, 'b> Parser<'a, 'b>
             }
         }
         if a.is_set(ArgSettings::Required) {
-            self.required.push(a.name);
+            self.required.push(a.b.name);
         }
-        if a.index.is_some() || (a.short.is_none() && a.long.is_none()) {
+        if a.index.is_some() || (a.s.short.is_none() && a.s.long.is_none()) {
             let i = if a.index.is_none() {
                 (self.positionals.len() + 1)
             } else {
@@ -193,7 +193,7 @@ impl<'a, 'b> Parser<'a, 'b>
                           format!("Argument \"{}\" has the same index as another positional \
                     argument\n\n\tPerhaps try .multiple(true) to allow one positional argument \
                     to take multiple values",
-                                  a.name));
+                                  a.b.name));
             let pb = PosBuilder::from_arg(a, i as u64, &mut self.required);
             self.positionals.insert(i, pb);
         } else if a.is_set(ArgSettings::TakesValue) {
@@ -213,7 +213,7 @@ impl<'a, 'b> Parser<'a, 'b>
             debug_assert!(!a.is_set(ArgSettings::Required),
                           format!("Global arguments cannot be required.\n\n\t'{}' is marked as \
                           global and required",
-                                  a.name));
+                                  a.b.name));
             self.global_args.push(a.into());
         }
     }
@@ -243,7 +243,8 @@ impl<'a, 'b> Parser<'a, 'b>
 
     pub fn add_subcommand(&mut self, mut subcmd: App<'a, 'b>) {
         debugln!("Parser::add_subcommand: term_w={:?}, name={}",
-                 self.meta.term_w, subcmd.p.meta.name);
+                 self.meta.term_w,
+                 subcmd.p.meta.name);
         subcmd.p.meta.term_w = self.meta.term_w;
         if subcmd.p.meta.name == "help" {
             self.settings.unset(AppSettings::NeedsSubcommandHelp);
@@ -253,11 +254,14 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     pub fn propogate_settings(&mut self) {
-        debugln!("Parser::propogate_settings: self={}, g_settings={:#?}", 
-            self.meta.name, self.g_settings);
+        debugln!("Parser::propogate_settings: self={}, g_settings={:#?}",
+                 self.meta.name,
+                 self.g_settings);
         for sc in &mut self.subcommands {
-            debugln!("Parser::propogate_settings: sc={}, settings={:#?}, g_settings={:#?}", 
-                sc.p.meta.name, sc.p.settings, sc.p.g_settings);
+            debugln!("Parser::propogate_settings: sc={}, settings={:#?}, g_settings={:#?}",
+                     sc.p.meta.name,
+                     sc.p.settings,
+                     sc.p.g_settings);
             // We have to create a new scope in order to tell rustc the borrow of `sc` is
             // done and to recursively call this method
             {
@@ -308,12 +312,15 @@ impl<'a, 'b> Parser<'a, 'b>
 
     pub fn required(&self) -> Iter<&str> { self.required.iter() }
 
+    #[cfg_attr(feature = "lints", allow(needless_borrow))]
     pub fn get_required_from(&self,
                              reqs: &[&'a str],
                              matcher: Option<&ArgMatcher<'a>>,
                              extra: Option<&str>)
                              -> VecDeque<String> {
-        debugln!("Parser::get_required_from: reqs={:?}, extra={:?}", reqs, extra);
+        debugln!("Parser::get_required_from: reqs={:?}, extra={:?}",
+                 reqs,
+                 extra);
         let mut c_flags: Vec<&str> = vec![];
         let mut c_pos: Vec<&str> = vec![];
         let mut c_opt: Vec<&str> = vec![];
@@ -402,7 +409,7 @@ impl<'a, 'b> Parser<'a, 'b>
             .filter_map(|p| self.positionals.values().find(|x| x.b.name == p))
             .filter(|p| !args_in_groups.contains(&p.b.name))
             .map(|p| (p.index, p))
-            .collect::<BTreeMap<u64, &PosBuilder>>();// sort by index
+            .collect::<BTreeMap<u64, &PosBuilder>>(); // sort by index
         debugln!("Parser::get_required_from: args_in_groups={:?}", args_in_groups);
         for &p in pmap.values() {
             let s = p.to_string();
@@ -547,12 +554,12 @@ impl<'a, 'b> Parser<'a, 'b>
         }
 
         // Next we verify that only the highest index has a .multiple(true) (if any)
-        if self.positionals
-            .values()
-            .any(|a| {
-                a.b.settings.is_set(ArgSettings::Multiple) &&
-                (a.index as usize != self.positionals.len())
-            }) {
+        if 
+            self.positionals
+                .values()
+                .any(|a| {
+                    a.is_set(ArgSettings::Multiple) && (a.index as usize != self.positionals.len())
+                }) {
 
             debug_assert!({
                     let mut it = self.positionals.values().rev();
@@ -827,7 +834,7 @@ impl<'a, 'b> Parser<'a, 'b>
                     if let Some(name) = needs_val_of {
                         // Check to see if parsing a value from a previous arg
                         if let Some(arg) = find_by_name!(self, &name, opts, iter) {
-                        // get the OptBuilder so we can check the settings
+                            // get the OptBuilder so we can check the settings
                             needs_val_of = try!(self.add_val_to_arg(&*arg, &arg_os, matcher));
                             // get the next value from the iterator
                             continue;
@@ -843,7 +850,8 @@ impl<'a, 'b> Parser<'a, 'b>
                         }
 
                         needs_val_of = try!(self.parse_long_arg(matcher, &arg_os));
-                        if !(needs_val_of.is_none() && self.is_set(AppSettings::AllowLeadingHyphen)) {
+                        if !(needs_val_of.is_none() &&
+                             self.is_set(AppSettings::AllowLeadingHyphen)) {
                             continue;
                         }
                     } else if arg_os.starts_with(b"-") && arg_os.len_() != 1 {
@@ -855,7 +863,7 @@ impl<'a, 'b> Parser<'a, 'b>
                         if needs_val_of.is_none() {
                             if self.is_set(AppSettings::AllowNegativeNumbers) {
                                 if !(arg_os.to_string_lossy().parse::<i64>().is_ok() ||
-                                    arg_os.to_string_lossy().parse::<f64>().is_ok()) {
+                                     arg_os.to_string_lossy().parse::<f64>().is_ok()) {
                                     return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
                                                                 "",
                                                                 &*self.create_current_usage(matcher, None),
@@ -871,19 +879,20 @@ impl<'a, 'b> Parser<'a, 'b>
                 }
 
                 if !self.is_set(AppSettings::ArgsNegateSubcommands) {
-                    if let Some(cdate) =
-                    suggestions::did_you_mean(&*arg_os.to_string_lossy(),
-                                              self.subcommands
-                                                  .iter()
-                                                  .map(|s| &s.p.meta.name)) {
-                        return Err(Error::invalid_subcommand(arg_os.to_string_lossy().into_owned(),
-                                                            cdate,
-                                                            self.meta
-                                                                .bin_name
-                                                                .as_ref()
-                                                                .unwrap_or(&self.meta.name),
-                                                            &*self.create_current_usage(matcher, None),
-                                                            self.color()));
+                    if let Some(cdate) = suggestions::did_you_mean(&*arg_os.to_string_lossy(),
+                                                                   self.subcommands
+                                                                       .iter()
+                                                                       .map(|s| &s.p.meta.name)) {
+                        return Err(Error::invalid_subcommand(arg_os.to_string_lossy()
+                                                                 .into_owned(),
+                                                             cdate,
+                                                             self.meta
+                                                                 .bin_name
+                                                                 .as_ref()
+                                                                 .unwrap_or(&self.meta.name),
+                                                             &*self.create_current_usage(matcher,
+                                                                                         None),
+                                                             self.color()));
                     }
                 }
             }
@@ -892,8 +901,8 @@ impl<'a, 'b> Parser<'a, 'b>
                                   !self.positionals.is_empty() &&
                                   pos_counter == (self.positionals.len() - 1);
             let missing_pos = self.is_set(AppSettings::AllowMissingPositional) &&
-                                  !self.positionals.is_empty() &&
-                                  pos_counter == (self.positionals.len() - 1);
+                              !self.positionals.is_empty() &&
+                              pos_counter == (self.positionals.len() - 1);
             debugln!("Parser::get_matches_with: Low index multiples...{:?}", low_index_mults);
             debugln!("Parser::get_matches_with: Positional counter...{}", pos_counter);
             if low_index_mults || missing_pos {
@@ -931,7 +940,8 @@ impl<'a, 'b> Parser<'a, 'b>
                     Some(s) => s.to_string(),
                     None => {
                         if !self.settings.is_set(AppSettings::StrictUtf8) {
-                            return Err(Error::invalid_utf8(&*self.create_current_usage(matcher, None),
+                            return Err(Error::invalid_utf8(&*self.create_current_usage(matcher,
+                                                                                       None),
                                                            self.color()));
                         }
                         arg_os.to_string_lossy().into_owned()
@@ -1023,15 +1033,15 @@ impl<'a, 'b> Parser<'a, 'b>
                 };
                 if should_err {
                     return Err(Error::empty_value(o,
-                                                &*self.create_current_usage(matcher, None),
-                                                self.color()));
+                                                  &*self.create_current_usage(matcher, None),
+                                                  self.color()));
                 }
             }
         }
 
         try!(self.validate_blacklist(matcher));
-        if !(self.settings.is_set(AppSettings::SubcommandsNegateReqs) && subcmd_name.is_some()) &&
-           !reqs_validated {
+        if !(self.settings.is_set(AppSettings::SubcommandsNegateReqs) &&
+             subcmd_name.is_some()) && !reqs_validated {
             try!(self.validate_required(matcher));
         }
         try!(self.validate_matched_args(matcher));
@@ -1377,7 +1387,7 @@ impl<'a, 'b> Parser<'a, 'b>
         if let Some(opt) = find_by_long!(self, &arg, opts) {
             debugln!("Parser::parse_long_arg: Found valid opt '{}'", opt.to_string());
             self.valid_arg = true;
-            let ret = try!(self.parse_opt(val, opt, matcher));
+            let ret = try!(self.parse_opt(val, opt, val.is_some(), matcher));
             arg_post_processing!(self, opt, matcher);
 
             return Ok(ret);
@@ -1459,7 +1469,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 };
 
                 // Default to "we're expecting a value later"
-                let ret = try!(self.parse_opt(val, opt, matcher));
+                let ret = try!(self.parse_opt(val, opt, false, matcher));
 
                 arg_post_processing!(self, opt, matcher);
 
@@ -1491,17 +1501,20 @@ impl<'a, 'b> Parser<'a, 'b>
     fn parse_opt(&self,
                  val: Option<&OsStr>,
                  opt: &OptBuilder<'a, 'b>,
+                 had_eq: bool,
                  matcher: &mut ArgMatcher<'a>)
                  -> ClapResult<Option<&'a str>> {
-        debugln!("Parser::parse_opt;");
+        debugln!("Parser::parse_opt; opt={}, val={:?}", opt.b.name, val);
+        debugln!("Parser::parse_opt; opt.settings={:?}", opt.b.settings);
         validate_multiples!(self, opt, matcher);
         let mut has_eq = false;
 
-        debug!("Parser::parse_optChecking for val...");
+        debug!("Parser::parse_opt; Checking for val...");
         if let Some(fv) = val {
-            has_eq = fv.starts_with(&[b'=']);
+            has_eq = fv.starts_with(&[b'=']) || had_eq;
             let v = fv.trim_left_matches(b'=');
-            if !opt.is_set(ArgSettings::EmptyValues) && v.len_() == 0 {
+            if !opt.is_set(ArgSettings::EmptyValues) &&
+               (v.len_() == 0 || (opt.is_set(ArgSettings::RequireEquals) && !has_eq)) {
                 sdebugln!("Found Empty - Error");
                 return Err(Error::empty_value(opt,
                                               &*self.create_current_usage(matcher, None),
@@ -1510,6 +1523,12 @@ impl<'a, 'b> Parser<'a, 'b>
             sdebugln!("Found - {:?}, len: {}", v, v.len_());
             debugln!("Parser::parse_opt: {:?} contains '='...{:?}", fv, fv.starts_with(&[b'=']));
             try!(self.add_val_to_arg(opt, v, matcher));
+        } else if opt.is_set(ArgSettings::RequireEquals) && !opt.is_set(ArgSettings::EmptyValues) {
+            sdebugln!("None, but requires equals...Error");
+            return Err(Error::empty_value(opt,
+                                          &*self.create_current_usage(matcher, None),
+                                          self.color()));
+
         } else {
             sdebugln!("None");
         }
@@ -1536,8 +1555,10 @@ impl<'a, 'b> Parser<'a, 'b>
                          -> ClapResult<Option<&'a str>>
         where A: AnyArg<'a, 'b> + Display
     {
-        debugln!("Parser::add_val_to_arg;");
+        debugln!("Parser::add_val_to_arg; arg={}, val={:?}", arg.name(), val);
         let mut ret = None;
+        debugln!("Parser::add_val_to_arg; trailing_vals={:?}, DontDelimTrailingVals={:?}",
+            self.trailing_vals, self.is_set(AppSettings::DontDelimitTrailingValues));
         if !(self.trailing_vals && self.is_set(AppSettings::DontDelimitTrailingValues)) {
             if let Some(delim) = arg.val_delim() {
                 if val.is_empty_() {
@@ -1598,7 +1619,8 @@ impl<'a, 'b> Parser<'a, 'b>
     {
         debugln!("Parser::validate_value: val={:?}", val);
         if self.is_set(AppSettings::StrictUtf8) && val.to_str().is_none() {
-            return Err(Error::invalid_utf8(&*self.create_current_usage(matcher, None), self.color()));
+            return Err(Error::invalid_utf8(&*self.create_current_usage(matcher, None),
+                                           self.color()));
         }
         if let Some(p_vals) = arg.possible_vals() {
             let val_str = val.to_string_lossy();
@@ -1612,7 +1634,9 @@ impl<'a, 'b> Parser<'a, 'b>
         }
         if !arg.is_set(ArgSettings::EmptyValues) && val.is_empty_() &&
            matcher.contains(&*arg.name()) {
-            return Err(Error::empty_value(arg, &*self.create_current_usage(matcher, None), self.color()));
+            return Err(Error::empty_value(arg,
+                                          &*self.create_current_usage(matcher, None),
+                                          self.color()));
         }
         if let Some(vtor) = arg.validator() {
             if let Err(e) = vtor(val.to_string_lossy().into_owned()) {
@@ -1788,7 +1812,9 @@ impl<'a, 'b> Parser<'a, 'b>
         }
         // Issue 665 (https://github.com/kbknapp/clap-rs/issues/665)
         if a.takes_value() && !a.is_set(ArgSettings::EmptyValues) && ma.vals.is_empty() {
-            return Err(Error::empty_value(a, &*self.create_current_usage(matcher, None), self.color()));
+            return Err(Error::empty_value(a,
+                                          &*self.create_current_usage(matcher, None),
+                                          self.color()));
         }
         Ok(())
     }
@@ -1976,10 +2002,12 @@ impl<'a, 'b> Parser<'a, 'b>
             usage.push_str(&*self.meta
                 .usage
                 .as_ref()
-                .unwrap_or_else(|| self.meta
-                    .bin_name
-                    .as_ref()
-                    .unwrap_or(&self.meta.name)));
+                .unwrap_or_else(|| {
+                    self.meta
+                        .bin_name
+                        .as_ref()
+                        .unwrap_or(&self.meta.name)
+                }));
             let mut reqs: Vec<&str> = self.required().map(|r| &**r).collect();
             reqs.dedup();
             let req_string = self.get_required_from(&reqs, None, None)
@@ -2044,11 +2072,14 @@ impl<'a, 'b> Parser<'a, 'b>
         usage.push_str(&self.meta
             .usage
             .as_ref()
-            .unwrap_or_else(|| self.meta
-                .bin_name
-                .as_ref()
-                .unwrap_or(&self.meta
-                    .name))[..]);
+            .unwrap_or_else(|| {
+                self.meta
+                    .bin_name
+                    .as_ref()
+                    .unwrap_or(&self.meta
+                        .name)
+            })
+                            [..]);
         usage.push_str(&*r_string);
         if self.is_set(AppSettings::SubcommandRequired) {
             usage.push_str(" <SUBCOMMAND>");

@@ -61,14 +61,14 @@ impl<'a> UsageParser<'a> {
                 break;
             }
         }
-        debug_assert!(!arg.name.is_empty(),
+        debug_assert!(!arg.b.name.is_empty(),
                       format!("No name found for Arg when parsing usage string: {}",
                               self.usage));
-        arg.num_vals = match arg.val_names {
+        arg.v.num_vals = match arg.v.val_names {
             Some(ref v) if v.len() >= 2 => Some(v.len() as u64),
             _ => None,
         };
-        debugln!("UsageParser::parse: vals...{:?}", arg.val_names);
+        debugln!("UsageParser::parse: vals...{:?}", arg.v.val_names);
         arg
     }
 
@@ -83,21 +83,21 @@ impl<'a> UsageParser<'a> {
         let name = &self.usage[self.start..self.pos];
         if self.prev == UsageToken::Unknown {
             debugln!("UsageParser::name: setting name...{}", name);
-            arg.name = name;
-            if arg.long.is_none() && arg.short.is_none() {
+            arg.b.name = name;
+            if arg.s.long.is_none() && arg.s.short.is_none() {
                 debugln!("UsageParser::name: explicit name set...");
                 self.explicit_name_set = true;
                 self.prev = UsageToken::Name;
             }
         } else {
             debugln!("UsageParser::name: setting val name...{}", name);
-            if let Some(ref mut v) = arg.val_names {
+            if let Some(ref mut v) = arg.v.val_names {
                 let len = v.len();
                 v.insert(len, name);
             } else {
                 let mut v = VecMap::new();
                 v.insert(0, name);
-                arg.val_names = Some(v);
+                arg.v.val_names = Some(v);
                 arg.setb(ArgSettings::TakesValue);
             }
             self.prev = UsageToken::ValName;
@@ -129,10 +129,10 @@ impl<'a> UsageParser<'a> {
         let name = &self.usage[self.start..self.pos];
         if !self.explicit_name_set {
             debugln!("UsageParser::long: setting name...{}", name);
-            arg.name = name;
+            arg.b.name = name;
         }
         debugln!("UsageParser::long: setting long...{}", name);
-        arg.long = Some(name);
+        arg.s.long = Some(name);
         self.prev = UsageToken::Long;
     }
 
@@ -141,12 +141,12 @@ impl<'a> UsageParser<'a> {
         let start = &self.usage[self.pos..];
         let short = start.chars().nth(0).expect(INTERNAL_ERROR_MSG);
         debugln!("UsageParser::short: setting short...{}", short);
-        arg.short = Some(short);
-        if arg.name.is_empty() {
+        arg.s.short = Some(short);
+        if arg.b.name.is_empty() {
             // --long takes precedence but doesn't set self.explicit_name_set
             let name = &start[..short.len_utf8()];
             debugln!("UsageParser::short: setting name...{}", name);
-            arg.name = name;
+            arg.b.name = name;
         }
         self.prev = UsageToken::Short;
     }
@@ -163,11 +163,11 @@ impl<'a> UsageParser<'a> {
             if dot_counter == 3 {
                 debugln!("UsageParser::multiple: setting multiple");
                 arg.setb(ArgSettings::Multiple);
-                if arg.settings.is_set(ArgSettings::TakesValue) {
+                if arg.is_set(ArgSettings::TakesValue) {
                     arg.setb(ArgSettings::UseValueDelimiter);
                     arg.unsetb(ArgSettings::ValueDelimiterNotSet);
-                    if arg.val_delim.is_none() {
-                        arg.val_delim = Some(',');
+                    if arg.v.val_delim.is_none() {
+                        arg.v.val_delim = Some(',');
                     }
                 }
                 self.prev = UsageToken::Multiple;
@@ -183,7 +183,7 @@ impl<'a> UsageParser<'a> {
         self.start = self.pos + 1;
         self.pos = self.usage.len() - 1;
         debugln!("UsageParser::help: setting help...{}", &self.usage[self.start..self.pos]);
-        arg.help = Some(&self.usage[self.start..self.pos]);
+        arg.b.help = Some(&self.usage[self.start..self.pos]);
         self.pos += 1;   // Move to next byte to keep from thinking ending ' is a start
         self.prev = UsageToken::Help;
     }
@@ -211,989 +211,989 @@ mod test {
     #[test]
     fn create_flag_usage() {
         let a = Arg::from_usage("[flag] -f 'some help info'");
-        assert_eq!(a.name, "flag");
-        assert_eq!(a.short.unwrap(), 'f');
-        assert!(a.long.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.b.name, "flag");
+        assert_eq!(a.s.short.unwrap(), 'f');
+        assert!(a.s.long.is_none());
+        assert_eq!(a.b.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::Multiple));
-        assert!(a.val_names.is_none());
-        assert!(a.num_vals.is_none());
+        assert!(a.v.val_names.is_none());
+        assert!(a.v.num_vals.is_none());
 
         let b = Arg::from_usage("[flag] --flag 'some help info'");
-        assert_eq!(b.name, "flag");
-        assert_eq!(b.long.unwrap(), "flag");
-        assert!(b.short.is_none());
-        assert_eq!(b.help.unwrap(), "some help info");
+        assert_eq!(b.b.name, "flag");
+        assert_eq!(b.s.long.unwrap(), "flag");
+        assert!(b.s.short.is_none());
+        assert_eq!(b.b.help.unwrap(), "some help info");
         assert!(!b.is_set(ArgSettings::Multiple));
-        assert!(a.val_names.is_none());
-        assert!(a.num_vals.is_none());
+        assert!(a.v.val_names.is_none());
+        assert!(a.v.num_vals.is_none());
 
         let b = Arg::from_usage("--flag 'some help info'");
-        assert_eq!(b.name, "flag");
-        assert_eq!(b.long.unwrap(), "flag");
-        assert!(b.short.is_none());
-        assert_eq!(b.help.unwrap(), "some help info");
+        assert_eq!(b.b.name, "flag");
+        assert_eq!(b.s.long.unwrap(), "flag");
+        assert!(b.s.short.is_none());
+        assert_eq!(b.b.help.unwrap(), "some help info");
         assert!(!b.is_set(ArgSettings::Multiple));
-        assert!(b.val_names.is_none());
-        assert!(b.num_vals.is_none());
+        assert!(b.v.val_names.is_none());
+        assert!(b.v.num_vals.is_none());
 
         let c = Arg::from_usage("[flag] -f --flag 'some help info'");
-        assert_eq!(c.name, "flag");
-        assert_eq!(c.short.unwrap(), 'f');
-        assert_eq!(c.long.unwrap(), "flag");
-        assert_eq!(c.help.unwrap(), "some help info");
+        assert_eq!(c.b.name, "flag");
+        assert_eq!(c.s.short.unwrap(), 'f');
+        assert_eq!(c.s.long.unwrap(), "flag");
+        assert_eq!(c.b.help.unwrap(), "some help info");
         assert!(!c.is_set(ArgSettings::Multiple));
-        assert!(c.val_names.is_none());
-        assert!(c.num_vals.is_none());
+        assert!(c.v.val_names.is_none());
+        assert!(c.v.num_vals.is_none());
 
         let d = Arg::from_usage("[flag] -f... 'some help info'");
-        assert_eq!(d.name, "flag");
-        assert_eq!(d.short.unwrap(), 'f');
-        assert!(d.long.is_none());
-        assert_eq!(d.help.unwrap(), "some help info");
+        assert_eq!(d.b.name, "flag");
+        assert_eq!(d.s.short.unwrap(), 'f');
+        assert!(d.s.long.is_none());
+        assert_eq!(d.b.help.unwrap(), "some help info");
         assert!(d.is_set(ArgSettings::Multiple));
-        assert!(d.val_names.is_none());
-        assert!(d.num_vals.is_none());
+        assert!(d.v.val_names.is_none());
+        assert!(d.v.num_vals.is_none());
 
         let e = Arg::from_usage("[flag] -f --flag... 'some help info'");
-        assert_eq!(e.name, "flag");
-        assert_eq!(e.long.unwrap(), "flag");
-        assert_eq!(e.short.unwrap(), 'f');
-        assert_eq!(e.help.unwrap(), "some help info");
+        assert_eq!(e.b.name, "flag");
+        assert_eq!(e.s.long.unwrap(), "flag");
+        assert_eq!(e.s.short.unwrap(), 'f');
+        assert_eq!(e.b.help.unwrap(), "some help info");
         assert!(e.is_set(ArgSettings::Multiple));
-        assert!(e.val_names.is_none());
-        assert!(e.num_vals.is_none());
+        assert!(e.v.val_names.is_none());
+        assert!(e.v.num_vals.is_none());
 
         let e = Arg::from_usage("-f --flag... 'some help info'");
-        assert_eq!(e.name, "flag");
-        assert_eq!(e.long.unwrap(), "flag");
-        assert_eq!(e.short.unwrap(), 'f');
-        assert_eq!(e.help.unwrap(), "some help info");
+        assert_eq!(e.b.name, "flag");
+        assert_eq!(e.s.long.unwrap(), "flag");
+        assert_eq!(e.s.short.unwrap(), 'f');
+        assert_eq!(e.b.help.unwrap(), "some help info");
         assert!(e.is_set(ArgSettings::Multiple));
-        assert!(e.val_names.is_none());
-        assert!(e.num_vals.is_none());
+        assert!(e.v.val_names.is_none());
+        assert!(e.v.num_vals.is_none());
 
         let e = Arg::from_usage("--flags");
-        assert_eq!(e.name, "flags");
-        assert_eq!(e.long.unwrap(), "flags");
-        assert!(e.val_names.is_none());
-        assert!(e.num_vals.is_none());
+        assert_eq!(e.b.name, "flags");
+        assert_eq!(e.s.long.unwrap(), "flags");
+        assert!(e.v.val_names.is_none());
+        assert!(e.v.num_vals.is_none());
 
         let e = Arg::from_usage("--flags...");
-        assert_eq!(e.name, "flags");
-        assert_eq!(e.long.unwrap(), "flags");
+        assert_eq!(e.b.name, "flags");
+        assert_eq!(e.s.long.unwrap(), "flags");
         assert!(e.is_set(ArgSettings::Multiple));
-        assert!(e.val_names.is_none());
-        assert!(e.num_vals.is_none());
+        assert!(e.v.val_names.is_none());
+        assert!(e.v.num_vals.is_none());
 
         let e = Arg::from_usage("[flags] -f");
-        assert_eq!(e.name, "flags");
-        assert_eq!(e.short.unwrap(), 'f');
-        assert!(e.val_names.is_none());
-        assert!(e.num_vals.is_none());
+        assert_eq!(e.b.name, "flags");
+        assert_eq!(e.s.short.unwrap(), 'f');
+        assert!(e.v.val_names.is_none());
+        assert!(e.v.num_vals.is_none());
 
         let e = Arg::from_usage("[flags] -f...");
-        assert_eq!(e.name, "flags");
-        assert_eq!(e.short.unwrap(), 'f');
+        assert_eq!(e.b.name, "flags");
+        assert_eq!(e.s.short.unwrap(), 'f');
         assert!(e.is_set(ArgSettings::Multiple));
-        assert!(e.val_names.is_none());
-        assert!(e.num_vals.is_none());
+        assert!(e.v.val_names.is_none());
+        assert!(e.v.num_vals.is_none());
 
         let a = Arg::from_usage("-f 'some help info'");
-        assert_eq!(a.name, "f");
-        assert_eq!(a.short.unwrap(), 'f');
-        assert!(a.long.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.b.name, "f");
+        assert_eq!(a.s.short.unwrap(), 'f');
+        assert!(a.s.long.is_none());
+        assert_eq!(a.b.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::Multiple));
-        assert!(a.val_names.is_none());
-        assert!(a.num_vals.is_none());
+        assert!(a.v.val_names.is_none());
+        assert!(a.v.num_vals.is_none());
 
         let e = Arg::from_usage("-f");
-        assert_eq!(e.name, "f");
-        assert_eq!(e.short.unwrap(), 'f');
-        assert!(e.val_names.is_none());
-        assert!(e.num_vals.is_none());
+        assert_eq!(e.b.name, "f");
+        assert_eq!(e.s.short.unwrap(), 'f');
+        assert!(e.v.val_names.is_none());
+        assert!(e.v.num_vals.is_none());
 
         let e = Arg::from_usage("-f...");
-        assert_eq!(e.name, "f");
-        assert_eq!(e.short.unwrap(), 'f');
+        assert_eq!(e.b.name, "f");
+        assert_eq!(e.s.short.unwrap(), 'f');
         assert!(e.is_set(ArgSettings::Multiple));
-        assert!(e.val_names.is_none());
-        assert!(e.num_vals.is_none());
+        assert!(e.v.val_names.is_none());
+        assert!(e.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage0() {
         // Short only
         let a = Arg::from_usage("[option] -o [opt] 'some help info'");
-        assert_eq!(a.name, "option");
-        assert_eq!(a.short.unwrap(), 'o');
-        assert!(a.long.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.b.name, "option");
+        assert_eq!(a.s.short.unwrap(), 'o');
+        assert!(a.s.long.is_none());
+        assert_eq!(a.b.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::Multiple));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
-        assert_eq!(a.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(a.num_vals.is_none());
+        assert_eq!(a.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(a.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage1() {
         let b = Arg::from_usage("-o [opt] 'some help info'");
-        assert_eq!(b.name, "o");
-        assert_eq!(b.short.unwrap(), 'o');
-        assert!(b.long.is_none());
-        assert_eq!(b.help.unwrap(), "some help info");
+        assert_eq!(b.b.name, "o");
+        assert_eq!(b.s.short.unwrap(), 'o');
+        assert!(b.s.long.is_none());
+        assert_eq!(b.b.help.unwrap(), "some help info");
         assert!(!b.is_set(ArgSettings::Multiple));
         assert!(b.is_set(ArgSettings::TakesValue));
         assert!(!b.is_set(ArgSettings::Required));
-        assert_eq!(b.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(b.num_vals.is_none());
+        assert_eq!(b.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(b.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage2() {
         let c = Arg::from_usage("<option> -o <opt> 'some help info'");
-        assert_eq!(c.name, "option");
-        assert_eq!(c.short.unwrap(), 'o');
-        assert!(c.long.is_none());
-        assert_eq!(c.help.unwrap(), "some help info");
+        assert_eq!(c.b.name, "option");
+        assert_eq!(c.s.short.unwrap(), 'o');
+        assert!(c.s.long.is_none());
+        assert_eq!(c.b.help.unwrap(), "some help info");
         assert!(!c.is_set(ArgSettings::Multiple));
         assert!(c.is_set(ArgSettings::TakesValue));
         assert!(c.is_set(ArgSettings::Required));
-        assert_eq!(c.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(c.num_vals.is_none());
+        assert_eq!(c.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(c.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage3() {
         let d = Arg::from_usage("-o <opt> 'some help info'");
-        assert_eq!(d.name, "o");
-        assert_eq!(d.short.unwrap(), 'o');
-        assert!(d.long.is_none());
-        assert_eq!(d.help.unwrap(), "some help info");
+        assert_eq!(d.b.name, "o");
+        assert_eq!(d.s.short.unwrap(), 'o');
+        assert!(d.s.long.is_none());
+        assert_eq!(d.b.help.unwrap(), "some help info");
         assert!(!d.is_set(ArgSettings::Multiple));
         assert!(d.is_set(ArgSettings::TakesValue));
         assert!(d.is_set(ArgSettings::Required));
-        assert_eq!(d.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(d.num_vals.is_none());
+        assert_eq!(d.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(d.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage4() {
         let a = Arg::from_usage("[option] -o [opt]... 'some help info'");
-        assert_eq!(a.name, "option");
-        assert_eq!(a.short.unwrap(), 'o');
-        assert!(a.long.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.b.name, "option");
+        assert_eq!(a.s.short.unwrap(), 'o');
+        assert!(a.s.long.is_none());
+        assert_eq!(a.b.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::Multiple));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
-        assert_eq!(a.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(a.num_vals.is_none());
+        assert_eq!(a.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(a.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage5() {
         let a = Arg::from_usage("[option]... -o [opt] 'some help info'");
-        assert_eq!(a.name, "option");
-        assert_eq!(a.short.unwrap(), 'o');
-        assert!(a.long.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.b.name, "option");
+        assert_eq!(a.s.short.unwrap(), 'o');
+        assert!(a.s.long.is_none());
+        assert_eq!(a.b.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::Multiple));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
-        assert_eq!(a.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(a.num_vals.is_none());
+        assert_eq!(a.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(a.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage6() {
         let b = Arg::from_usage("-o [opt]... 'some help info'");
-        assert_eq!(b.name, "o");
-        assert_eq!(b.short.unwrap(), 'o');
-        assert!(b.long.is_none());
-        assert_eq!(b.help.unwrap(), "some help info");
+        assert_eq!(b.b.name, "o");
+        assert_eq!(b.s.short.unwrap(), 'o');
+        assert!(b.s.long.is_none());
+        assert_eq!(b.b.help.unwrap(), "some help info");
         assert!(b.is_set(ArgSettings::Multiple));
         assert!(b.is_set(ArgSettings::TakesValue));
         assert!(!b.is_set(ArgSettings::Required));
-        assert_eq!(b.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(b.num_vals.is_none());
+        assert_eq!(b.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(b.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage7() {
         let c = Arg::from_usage("<option> -o <opt>... 'some help info'");
-        assert_eq!(c.name, "option");
-        assert_eq!(c.short.unwrap(), 'o');
-        assert!(c.long.is_none());
-        assert_eq!(c.help.unwrap(), "some help info");
+        assert_eq!(c.b.name, "option");
+        assert_eq!(c.s.short.unwrap(), 'o');
+        assert!(c.s.long.is_none());
+        assert_eq!(c.b.help.unwrap(), "some help info");
         assert!(c.is_set(ArgSettings::Multiple));
         assert!(c.is_set(ArgSettings::TakesValue));
         assert!(c.is_set(ArgSettings::Required));
-        assert_eq!(c.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(c.num_vals.is_none());
+        assert_eq!(c.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(c.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage8() {
         let c = Arg::from_usage("<option>... -o <opt> 'some help info'");
-        assert_eq!(c.name, "option");
-        assert_eq!(c.short.unwrap(), 'o');
-        assert!(c.long.is_none());
-        assert_eq!(c.help.unwrap(), "some help info");
+        assert_eq!(c.b.name, "option");
+        assert_eq!(c.s.short.unwrap(), 'o');
+        assert!(c.s.long.is_none());
+        assert_eq!(c.b.help.unwrap(), "some help info");
         assert!(c.is_set(ArgSettings::Multiple));
         assert!(c.is_set(ArgSettings::TakesValue));
         assert!(c.is_set(ArgSettings::Required));
-        assert_eq!(c.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(c.num_vals.is_none());
+        assert_eq!(c.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(c.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage9() {
         let d = Arg::from_usage("-o <opt>... 'some help info'");
-        assert_eq!(d.name, "o");
-        assert_eq!(d.short.unwrap(), 'o');
-        assert!(d.long.is_none());
-        assert_eq!(d.help.unwrap(), "some help info");
+        assert_eq!(d.b.name, "o");
+        assert_eq!(d.s.short.unwrap(), 'o');
+        assert!(d.s.long.is_none());
+        assert_eq!(d.b.help.unwrap(), "some help info");
         assert!(d.is_set(ArgSettings::Multiple));
         assert!(d.is_set(ArgSettings::TakesValue));
         assert!(d.is_set(ArgSettings::Required));
-        assert_eq!(d.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(d.num_vals.is_none());
+        assert_eq!(d.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(d.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_long1() {
         let a = Arg::from_usage("[option] --opt [opt] 'some help info'");
-        assert_eq!(a.name, "option");
-        assert_eq!(a.long.unwrap(), "opt");
-        assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.b.name, "option");
+        assert_eq!(a.s.long.unwrap(), "opt");
+        assert!(a.s.short.is_none());
+        assert_eq!(a.b.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::Multiple));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
-        assert_eq!(a.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(a.num_vals.is_none());
+        assert_eq!(a.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(a.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_long2() {
         let b = Arg::from_usage("--opt [option] 'some help info'");
-        assert_eq!(b.name, "opt");
-        assert_eq!(b.long.unwrap(), "opt");
-        assert!(b.short.is_none());
-        assert_eq!(b.help.unwrap(), "some help info");
+        assert_eq!(b.b.name, "opt");
+        assert_eq!(b.s.long.unwrap(), "opt");
+        assert!(b.s.short.is_none());
+        assert_eq!(b.b.help.unwrap(), "some help info");
         assert!(!b.is_set(ArgSettings::Multiple));
         assert!(b.is_set(ArgSettings::TakesValue));
         assert!(!b.is_set(ArgSettings::Required));
-        assert_eq!(b.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(b.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"option"]);
-        assert!(b.num_vals.is_none());
+        assert!(b.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_long3() {
         let c = Arg::from_usage("<option> --opt <opt> 'some help info'");
-        assert_eq!(c.name, "option");
-        assert_eq!(c.long.unwrap(), "opt");
-        assert!(c.short.is_none());
-        assert_eq!(c.help.unwrap(), "some help info");
+        assert_eq!(c.b.name, "option");
+        assert_eq!(c.s.long.unwrap(), "opt");
+        assert!(c.s.short.is_none());
+        assert_eq!(c.b.help.unwrap(), "some help info");
         assert!(!c.is_set(ArgSettings::Multiple));
         assert!(c.is_set(ArgSettings::TakesValue));
         assert!(c.is_set(ArgSettings::Required));
-        assert_eq!(c.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(c.num_vals.is_none());
+        assert_eq!(c.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(c.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_long4() {
         let d = Arg::from_usage("--opt <option> 'some help info'");
-        assert_eq!(d.name, "opt");
-        assert_eq!(d.long.unwrap(), "opt");
-        assert!(d.short.is_none());
-        assert_eq!(d.help.unwrap(), "some help info");
+        assert_eq!(d.b.name, "opt");
+        assert_eq!(d.s.long.unwrap(), "opt");
+        assert!(d.s.short.is_none());
+        assert_eq!(d.b.help.unwrap(), "some help info");
         assert!(!d.is_set(ArgSettings::Multiple));
         assert!(d.is_set(ArgSettings::TakesValue));
         assert!(d.is_set(ArgSettings::Required));
-        assert_eq!(d.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(d.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"option"]);
-        assert!(d.num_vals.is_none());
+        assert!(d.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_long5() {
         let a = Arg::from_usage("[option] --opt [opt]... 'some help info'");
-        assert_eq!(a.name, "option");
-        assert_eq!(a.long.unwrap(), "opt");
-        assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.b.name, "option");
+        assert_eq!(a.s.long.unwrap(), "opt");
+        assert!(a.s.short.is_none());
+        assert_eq!(a.b.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::Multiple));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
-        assert_eq!(a.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(a.num_vals.is_none());
+        assert_eq!(a.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(a.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_long6() {
         let a = Arg::from_usage("[option]... --opt [opt] 'some help info'");
-        assert_eq!(a.name, "option");
-        assert_eq!(a.long.unwrap(), "opt");
-        assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.b.name, "option");
+        assert_eq!(a.s.long.unwrap(), "opt");
+        assert!(a.s.short.is_none());
+        assert_eq!(a.b.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::Multiple));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
-        assert_eq!(a.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(a.num_vals.is_none());
+        assert_eq!(a.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(a.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_long7() {
         let b = Arg::from_usage("--opt [option]... 'some help info'");
-        assert_eq!(b.name, "opt");
-        assert_eq!(b.long.unwrap(), "opt");
-        assert!(b.short.is_none());
-        assert_eq!(b.help.unwrap(), "some help info");
+        assert_eq!(b.b.name, "opt");
+        assert_eq!(b.s.long.unwrap(), "opt");
+        assert!(b.s.short.is_none());
+        assert_eq!(b.b.help.unwrap(), "some help info");
         assert!(b.is_set(ArgSettings::Multiple));
         assert!(b.is_set(ArgSettings::TakesValue));
         assert!(!b.is_set(ArgSettings::Required));
-        assert_eq!(b.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(b.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"option"]);
-        assert!(b.num_vals.is_none());
+        assert!(b.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_long8() {
         let c = Arg::from_usage("<option> --opt <opt>... 'some help info'");
-        assert_eq!(c.name, "option");
-        assert_eq!(c.long.unwrap(), "opt");
-        assert!(c.short.is_none());
-        assert_eq!(c.help.unwrap(), "some help info");
+        assert_eq!(c.b.name, "option");
+        assert_eq!(c.s.long.unwrap(), "opt");
+        assert!(c.s.short.is_none());
+        assert_eq!(c.b.help.unwrap(), "some help info");
         assert!(c.is_set(ArgSettings::Multiple));
         assert!(c.is_set(ArgSettings::TakesValue));
         assert!(c.is_set(ArgSettings::Required));
-        assert_eq!(c.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(c.num_vals.is_none());
+        assert_eq!(c.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(c.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_long9() {
         let c = Arg::from_usage("<option>... --opt <opt> 'some help info'");
-        assert_eq!(c.name, "option");
-        assert_eq!(c.long.unwrap(), "opt");
-        assert!(c.short.is_none());
-        assert_eq!(c.help.unwrap(), "some help info");
+        assert_eq!(c.b.name, "option");
+        assert_eq!(c.s.long.unwrap(), "opt");
+        assert!(c.s.short.is_none());
+        assert_eq!(c.b.help.unwrap(), "some help info");
         assert!(c.is_set(ArgSettings::Multiple));
         assert!(c.is_set(ArgSettings::TakesValue));
         assert!(c.is_set(ArgSettings::Required));
-        assert_eq!(c.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(c.num_vals.is_none());
+        assert_eq!(c.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(c.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_long10() {
         let d = Arg::from_usage("--opt <option>... 'some help info'");
-        assert_eq!(d.name, "opt");
-        assert_eq!(d.long.unwrap(), "opt");
-        assert!(d.short.is_none());
-        assert_eq!(d.help.unwrap(), "some help info");
+        assert_eq!(d.b.name, "opt");
+        assert_eq!(d.s.long.unwrap(), "opt");
+        assert!(d.s.short.is_none());
+        assert_eq!(d.b.help.unwrap(), "some help info");
         assert!(d.is_set(ArgSettings::Multiple));
         assert!(d.is_set(ArgSettings::TakesValue));
         assert!(d.is_set(ArgSettings::Required));
-        assert_eq!(d.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(d.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"option"]);
-        assert!(d.num_vals.is_none());
+        assert!(d.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_long_equals1() {
         let a = Arg::from_usage("[option] --opt=[opt] 'some help info'");
-        assert_eq!(a.name, "option");
-        assert_eq!(a.long.unwrap(), "opt");
-        assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.b.name, "option");
+        assert_eq!(a.s.long.unwrap(), "opt");
+        assert!(a.s.short.is_none());
+        assert_eq!(a.b.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::Multiple));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
-        assert_eq!(a.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(a.num_vals.is_none());
+        assert_eq!(a.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(a.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_long_equals2() {
         let b = Arg::from_usage("--opt=[option] 'some help info'");
-        assert_eq!(b.name, "opt");
-        assert_eq!(b.long.unwrap(), "opt");
-        assert!(b.short.is_none());
-        assert_eq!(b.help.unwrap(), "some help info");
+        assert_eq!(b.b.name, "opt");
+        assert_eq!(b.s.long.unwrap(), "opt");
+        assert!(b.s.short.is_none());
+        assert_eq!(b.b.help.unwrap(), "some help info");
         assert!(!b.is_set(ArgSettings::Multiple));
         assert!(b.is_set(ArgSettings::TakesValue));
         assert!(!b.is_set(ArgSettings::Required));
-        assert_eq!(b.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(b.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"option"]);
-        assert!(b.num_vals.is_none());
+        assert!(b.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_long_equals3() {
         let c = Arg::from_usage("<option> --opt=<opt> 'some help info'");
-        assert_eq!(c.name, "option");
-        assert_eq!(c.long.unwrap(), "opt");
-        assert!(c.short.is_none());
-        assert_eq!(c.help.unwrap(), "some help info");
+        assert_eq!(c.b.name, "option");
+        assert_eq!(c.s.long.unwrap(), "opt");
+        assert!(c.s.short.is_none());
+        assert_eq!(c.b.help.unwrap(), "some help info");
         assert!(!c.is_set(ArgSettings::Multiple));
         assert!(c.is_set(ArgSettings::TakesValue));
         assert!(c.is_set(ArgSettings::Required));
-        assert_eq!(c.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(c.num_vals.is_none());
+        assert_eq!(c.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(c.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_long_equals4() {
         let d = Arg::from_usage("--opt=<option> 'some help info'");
-        assert_eq!(d.name, "opt");
-        assert_eq!(d.long.unwrap(), "opt");
-        assert!(d.short.is_none());
-        assert_eq!(d.help.unwrap(), "some help info");
+        assert_eq!(d.b.name, "opt");
+        assert_eq!(d.s.long.unwrap(), "opt");
+        assert!(d.s.short.is_none());
+        assert_eq!(d.b.help.unwrap(), "some help info");
         assert!(!d.is_set(ArgSettings::Multiple));
         assert!(d.is_set(ArgSettings::TakesValue));
         assert!(d.is_set(ArgSettings::Required));
-        assert_eq!(d.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(d.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"option"]);
-        assert!(d.num_vals.is_none());
+        assert!(d.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_long_equals5() {
         let a = Arg::from_usage("[option] --opt=[opt]... 'some help info'");
-        assert_eq!(a.name, "option");
-        assert_eq!(a.long.unwrap(), "opt");
-        assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.b.name, "option");
+        assert_eq!(a.s.long.unwrap(), "opt");
+        assert!(a.s.short.is_none());
+        assert_eq!(a.b.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::Multiple));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
-        assert_eq!(a.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(a.num_vals.is_none());
+        assert_eq!(a.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(a.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_long_equals6() {
         let a = Arg::from_usage("[option]... --opt=[opt] 'some help info'");
-        assert_eq!(a.name, "option");
-        assert_eq!(a.long.unwrap(), "opt");
-        assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.b.name, "option");
+        assert_eq!(a.s.long.unwrap(), "opt");
+        assert!(a.s.short.is_none());
+        assert_eq!(a.b.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::Multiple));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
-        assert_eq!(a.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(a.num_vals.is_none());
+        assert_eq!(a.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(a.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_long_equals7() {
         let b = Arg::from_usage("--opt=[option]... 'some help info'");
-        assert_eq!(b.name, "opt");
-        assert_eq!(b.long.unwrap(), "opt");
-        assert!(b.short.is_none());
-        assert_eq!(b.help.unwrap(), "some help info");
+        assert_eq!(b.b.name, "opt");
+        assert_eq!(b.s.long.unwrap(), "opt");
+        assert!(b.s.short.is_none());
+        assert_eq!(b.b.help.unwrap(), "some help info");
         assert!(b.is_set(ArgSettings::Multiple));
         assert!(b.is_set(ArgSettings::TakesValue));
         assert!(!b.is_set(ArgSettings::Required));
-        assert_eq!(b.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(b.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"option"]);
-        assert!(b.num_vals.is_none());
+        assert!(b.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_long_equals8() {
         let c = Arg::from_usage("<option> --opt=<opt>... 'some help info'");
-        assert_eq!(c.name, "option");
-        assert_eq!(c.long.unwrap(), "opt");
-        assert!(c.short.is_none());
-        assert_eq!(c.help.unwrap(), "some help info");
+        assert_eq!(c.b.name, "option");
+        assert_eq!(c.s.long.unwrap(), "opt");
+        assert!(c.s.short.is_none());
+        assert_eq!(c.b.help.unwrap(), "some help info");
         assert!(c.is_set(ArgSettings::Multiple));
         assert!(c.is_set(ArgSettings::TakesValue));
         assert!(c.is_set(ArgSettings::Required));
-        assert_eq!(c.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(c.num_vals.is_none());
+        assert_eq!(c.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(c.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_long_equals9() {
         let c = Arg::from_usage("<option>... --opt=<opt> 'some help info'");
-        assert_eq!(c.name, "option");
-        assert_eq!(c.long.unwrap(), "opt");
-        assert!(c.short.is_none());
-        assert_eq!(c.help.unwrap(), "some help info");
+        assert_eq!(c.b.name, "option");
+        assert_eq!(c.s.long.unwrap(), "opt");
+        assert!(c.s.short.is_none());
+        assert_eq!(c.b.help.unwrap(), "some help info");
         assert!(c.is_set(ArgSettings::Multiple));
         assert!(c.is_set(ArgSettings::TakesValue));
         assert!(c.is_set(ArgSettings::Required));
-        assert_eq!(c.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(c.num_vals.is_none());
+        assert_eq!(c.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(c.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_long_equals10() {
         let d = Arg::from_usage("--opt=<option>... 'some help info'");
-        assert_eq!(d.name, "opt");
-        assert_eq!(d.long.unwrap(), "opt");
-        assert!(d.short.is_none());
-        assert_eq!(d.help.unwrap(), "some help info");
+        assert_eq!(d.b.name, "opt");
+        assert_eq!(d.s.long.unwrap(), "opt");
+        assert!(d.s.short.is_none());
+        assert_eq!(d.b.help.unwrap(), "some help info");
         assert!(d.is_set(ArgSettings::Multiple));
         assert!(d.is_set(ArgSettings::TakesValue));
         assert!(d.is_set(ArgSettings::Required));
-        assert_eq!(d.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(d.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"option"]);
-        assert!(d.num_vals.is_none());
+        assert!(d.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_both1() {
         let a = Arg::from_usage("[option] -o --opt [option] 'some help info'");
-        assert_eq!(a.name, "option");
-        assert_eq!(a.long.unwrap(), "opt");
-        assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.b.name, "option");
+        assert_eq!(a.s.long.unwrap(), "opt");
+        assert_eq!(a.s.short.unwrap(), 'o');
+        assert_eq!(a.b.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::Multiple));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
-        assert_eq!(a.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(a.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"option"]);
-        assert!(a.num_vals.is_none());
+        assert!(a.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_both2() {
         let b = Arg::from_usage("-o --opt [option] 'some help info'");
-        assert_eq!(b.name, "opt");
-        assert_eq!(b.long.unwrap(), "opt");
-        assert_eq!(b.short.unwrap(), 'o');
-        assert_eq!(b.help.unwrap(), "some help info");
+        assert_eq!(b.b.name, "opt");
+        assert_eq!(b.s.long.unwrap(), "opt");
+        assert_eq!(b.s.short.unwrap(), 'o');
+        assert_eq!(b.b.help.unwrap(), "some help info");
         assert!(!b.is_set(ArgSettings::Multiple));
         assert!(b.is_set(ArgSettings::TakesValue));
         assert!(!b.is_set(ArgSettings::Required));
-        assert_eq!(b.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(b.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"option"]);
-        assert!(b.num_vals.is_none());
+        assert!(b.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_both3() {
         let c = Arg::from_usage("<option> -o --opt <opt> 'some help info'");
-        assert_eq!(c.name, "option");
-        assert_eq!(c.long.unwrap(), "opt");
-        assert_eq!(c.short.unwrap(), 'o');
-        assert_eq!(c.help.unwrap(), "some help info");
+        assert_eq!(c.b.name, "option");
+        assert_eq!(c.s.long.unwrap(), "opt");
+        assert_eq!(c.s.short.unwrap(), 'o');
+        assert_eq!(c.b.help.unwrap(), "some help info");
         assert!(!c.is_set(ArgSettings::Multiple));
         assert!(c.is_set(ArgSettings::TakesValue));
         assert!(c.is_set(ArgSettings::Required));
-        assert_eq!(c.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(c.num_vals.is_none());
+        assert_eq!(c.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(c.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_both4() {
         let d = Arg::from_usage("-o --opt <option> 'some help info'");
-        assert_eq!(d.name, "opt");
-        assert_eq!(d.long.unwrap(), "opt");
-        assert_eq!(d.short.unwrap(), 'o');
-        assert_eq!(d.help.unwrap(), "some help info");
+        assert_eq!(d.b.name, "opt");
+        assert_eq!(d.s.long.unwrap(), "opt");
+        assert_eq!(d.s.short.unwrap(), 'o');
+        assert_eq!(d.b.help.unwrap(), "some help info");
         assert!(!d.is_set(ArgSettings::Multiple));
         assert!(d.is_set(ArgSettings::TakesValue));
         assert!(d.is_set(ArgSettings::Required));
-        assert_eq!(d.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(d.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"option"]);
-        assert!(d.num_vals.is_none());
+        assert!(d.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_both5() {
         let a = Arg::from_usage("[option]... -o --opt [option] 'some help info'");
-        assert_eq!(a.name, "option");
-        assert_eq!(a.long.unwrap(), "opt");
-        assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.b.name, "option");
+        assert_eq!(a.s.long.unwrap(), "opt");
+        assert_eq!(a.s.short.unwrap(), 'o');
+        assert_eq!(a.b.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::Multiple));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
-        assert_eq!(a.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(a.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"option"]);
-        assert!(a.num_vals.is_none());
+        assert!(a.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_both6() {
         let b = Arg::from_usage("-o --opt [option]... 'some help info'");
-        assert_eq!(b.name, "opt");
-        assert_eq!(b.long.unwrap(), "opt");
-        assert_eq!(b.short.unwrap(), 'o');
-        assert_eq!(b.help.unwrap(), "some help info");
+        assert_eq!(b.b.name, "opt");
+        assert_eq!(b.s.long.unwrap(), "opt");
+        assert_eq!(b.s.short.unwrap(), 'o');
+        assert_eq!(b.b.help.unwrap(), "some help info");
         assert!(b.is_set(ArgSettings::Multiple));
         assert!(b.is_set(ArgSettings::TakesValue));
         assert!(!b.is_set(ArgSettings::Required));
-        assert_eq!(b.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(b.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"option"]);
-        assert!(b.num_vals.is_none());
+        assert!(b.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_both7() {
         let c = Arg::from_usage("<option>... -o --opt <opt> 'some help info'");
-        assert_eq!(c.name, "option");
-        assert_eq!(c.long.unwrap(), "opt");
-        assert_eq!(c.short.unwrap(), 'o');
-        assert_eq!(c.help.unwrap(), "some help info");
+        assert_eq!(c.b.name, "option");
+        assert_eq!(c.s.long.unwrap(), "opt");
+        assert_eq!(c.s.short.unwrap(), 'o');
+        assert_eq!(c.b.help.unwrap(), "some help info");
         assert!(c.is_set(ArgSettings::Multiple));
         assert!(c.is_set(ArgSettings::TakesValue));
         assert!(c.is_set(ArgSettings::Required));
-        assert_eq!(c.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(c.num_vals.is_none());
+        assert_eq!(c.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(c.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_both8() {
         let d = Arg::from_usage("-o --opt <option>... 'some help info'");
-        assert_eq!(d.name, "opt");
-        assert_eq!(d.long.unwrap(), "opt");
-        assert_eq!(d.short.unwrap(), 'o');
-        assert_eq!(d.help.unwrap(), "some help info");
+        assert_eq!(d.b.name, "opt");
+        assert_eq!(d.s.long.unwrap(), "opt");
+        assert_eq!(d.s.short.unwrap(), 'o');
+        assert_eq!(d.b.help.unwrap(), "some help info");
         assert!(d.is_set(ArgSettings::Multiple));
         assert!(d.is_set(ArgSettings::TakesValue));
         assert!(d.is_set(ArgSettings::Required));
-        assert_eq!(d.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(d.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"option"]);
-        assert!(d.num_vals.is_none());
+        assert!(d.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_both_equals1() {
         let a = Arg::from_usage("[option] -o --opt=[option] 'some help info'");
-        assert_eq!(a.name, "option");
-        assert_eq!(a.long.unwrap(), "opt");
-        assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.b.name, "option");
+        assert_eq!(a.s.long.unwrap(), "opt");
+        assert_eq!(a.s.short.unwrap(), 'o');
+        assert_eq!(a.b.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::Multiple));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
-        assert_eq!(a.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(a.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"option"]);
-        assert!(a.num_vals.is_none());
+        assert!(a.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_both_equals2() {
         let b = Arg::from_usage("-o --opt=[option] 'some help info'");
-        assert_eq!(b.name, "opt");
-        assert_eq!(b.long.unwrap(), "opt");
-        assert_eq!(b.short.unwrap(), 'o');
-        assert_eq!(b.help.unwrap(), "some help info");
+        assert_eq!(b.b.name, "opt");
+        assert_eq!(b.s.long.unwrap(), "opt");
+        assert_eq!(b.s.short.unwrap(), 'o');
+        assert_eq!(b.b.help.unwrap(), "some help info");
         assert!(!b.is_set(ArgSettings::Multiple));
         assert!(b.is_set(ArgSettings::TakesValue));
         assert!(!b.is_set(ArgSettings::Required));
-        assert_eq!(b.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(b.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"option"]);
-        assert!(b.num_vals.is_none());
+        assert!(b.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_both_equals3() {
         let c = Arg::from_usage("<option> -o --opt=<opt> 'some help info'");
-        assert_eq!(c.name, "option");
-        assert_eq!(c.long.unwrap(), "opt");
-        assert_eq!(c.short.unwrap(), 'o');
-        assert_eq!(c.help.unwrap(), "some help info");
+        assert_eq!(c.b.name, "option");
+        assert_eq!(c.s.long.unwrap(), "opt");
+        assert_eq!(c.s.short.unwrap(), 'o');
+        assert_eq!(c.b.help.unwrap(), "some help info");
         assert!(!c.is_set(ArgSettings::Multiple));
         assert!(c.is_set(ArgSettings::TakesValue));
         assert!(c.is_set(ArgSettings::Required));
-        assert_eq!(c.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(c.num_vals.is_none());
+        assert_eq!(c.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(c.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_both_equals4() {
         let d = Arg::from_usage("-o --opt=<option> 'some help info'");
-        assert_eq!(d.name, "opt");
-        assert_eq!(d.long.unwrap(), "opt");
-        assert_eq!(d.short.unwrap(), 'o');
-        assert_eq!(d.help.unwrap(), "some help info");
+        assert_eq!(d.b.name, "opt");
+        assert_eq!(d.s.long.unwrap(), "opt");
+        assert_eq!(d.s.short.unwrap(), 'o');
+        assert_eq!(d.b.help.unwrap(), "some help info");
         assert!(!d.is_set(ArgSettings::Multiple));
         assert!(d.is_set(ArgSettings::TakesValue));
         assert!(d.is_set(ArgSettings::Required));
-        assert_eq!(d.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(d.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"option"]);
-        assert!(d.num_vals.is_none());
+        assert!(d.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_both_equals5() {
         let a = Arg::from_usage("[option]... -o --opt=[option] 'some help info'");
-        assert_eq!(a.name, "option");
-        assert_eq!(a.long.unwrap(), "opt");
-        assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.b.name, "option");
+        assert_eq!(a.s.long.unwrap(), "opt");
+        assert_eq!(a.s.short.unwrap(), 'o');
+        assert_eq!(a.b.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::Multiple));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
-        assert_eq!(a.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(a.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"option"]);
-        assert!(a.num_vals.is_none());
+        assert!(a.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_both_equals6() {
         let b = Arg::from_usage("-o --opt=[option]... 'some help info'");
-        assert_eq!(b.name, "opt");
-        assert_eq!(b.long.unwrap(), "opt");
-        assert_eq!(b.short.unwrap(), 'o');
-        assert_eq!(b.help.unwrap(), "some help info");
+        assert_eq!(b.b.name, "opt");
+        assert_eq!(b.s.long.unwrap(), "opt");
+        assert_eq!(b.s.short.unwrap(), 'o');
+        assert_eq!(b.b.help.unwrap(), "some help info");
         assert!(b.is_set(ArgSettings::Multiple));
         assert!(b.is_set(ArgSettings::TakesValue));
         assert!(!b.is_set(ArgSettings::Required));
-        assert_eq!(b.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(b.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"option"]);
-        assert!(b.num_vals.is_none());
+        assert!(b.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_both_equals7() {
         let c = Arg::from_usage("<option>... -o --opt=<opt> 'some help info'");
-        assert_eq!(c.name, "option");
-        assert_eq!(c.long.unwrap(), "opt");
-        assert_eq!(c.short.unwrap(), 'o');
-        assert_eq!(c.help.unwrap(), "some help info");
+        assert_eq!(c.b.name, "option");
+        assert_eq!(c.s.long.unwrap(), "opt");
+        assert_eq!(c.s.short.unwrap(), 'o');
+        assert_eq!(c.b.help.unwrap(), "some help info");
         assert!(c.is_set(ArgSettings::Multiple));
         assert!(c.is_set(ArgSettings::TakesValue));
         assert!(c.is_set(ArgSettings::Required));
-        assert_eq!(c.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
-        assert!(c.num_vals.is_none());
+        assert_eq!(c.v.val_names.unwrap().values().collect::<Vec<_>>(), [&"opt"]);
+        assert!(c.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_usage_both_equals8() {
         let d = Arg::from_usage("-o --opt=<option>... 'some help info'");
-        assert_eq!(d.name, "opt");
-        assert_eq!(d.long.unwrap(), "opt");
-        assert_eq!(d.short.unwrap(), 'o');
-        assert_eq!(d.help.unwrap(), "some help info");
+        assert_eq!(d.b.name, "opt");
+        assert_eq!(d.s.long.unwrap(), "opt");
+        assert_eq!(d.s.short.unwrap(), 'o');
+        assert_eq!(d.b.help.unwrap(), "some help info");
         assert!(d.is_set(ArgSettings::Multiple));
         assert!(d.is_set(ArgSettings::TakesValue));
         assert!(d.is_set(ArgSettings::Required));
-        assert_eq!(d.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(d.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"option"]);
-        assert!(d.num_vals.is_none());
+        assert!(d.v.num_vals.is_none());
     }
 
     #[test]
     fn create_option_with_vals1() {
         let d = Arg::from_usage("-o <file> <mode> 'some help info'");
-        assert_eq!(d.name, "o");
-        assert!(d.long.is_none());
-        assert_eq!(d.short.unwrap(), 'o');
-        assert_eq!(d.help.unwrap(), "some help info");
+        assert_eq!(d.b.name, "o");
+        assert!(d.s.long.is_none());
+        assert_eq!(d.s.short.unwrap(), 'o');
+        assert_eq!(d.b.help.unwrap(), "some help info");
         assert!(!d.is_set(ArgSettings::Multiple));
         assert!(d.is_set(ArgSettings::TakesValue));
         assert!(d.is_set(ArgSettings::Required));
-        assert_eq!(d.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(d.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"file", &"mode"]);
-        assert_eq!(d.num_vals.unwrap(), 2);
+        assert_eq!(d.v.num_vals.unwrap(), 2);
     }
 
     #[test]
     fn create_option_with_vals2() {
         let d = Arg::from_usage("-o <file> <mode>... 'some help info'");
-        assert_eq!(d.name, "o");
-        assert!(d.long.is_none());
-        assert_eq!(d.short.unwrap(), 'o');
-        assert_eq!(d.help.unwrap(), "some help info");
+        assert_eq!(d.b.name, "o");
+        assert!(d.s.long.is_none());
+        assert_eq!(d.s.short.unwrap(), 'o');
+        assert_eq!(d.b.help.unwrap(), "some help info");
         assert!(d.is_set(ArgSettings::Multiple));
         assert!(d.is_set(ArgSettings::TakesValue));
         assert!(d.is_set(ArgSettings::Required));
-        assert_eq!(d.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(d.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"file", &"mode"]);
-        assert_eq!(d.num_vals.unwrap(), 2);
+        assert_eq!(d.v.num_vals.unwrap(), 2);
     }
 
     #[test]
     fn create_option_with_vals3() {
         let d = Arg::from_usage("--opt <file> <mode>... 'some help info'");
-        assert_eq!(d.name, "opt");
-        assert!(d.short.is_none());
-        assert_eq!(d.long.unwrap(), "opt");
-        assert_eq!(d.help.unwrap(), "some help info");
+        assert_eq!(d.b.name, "opt");
+        assert!(d.s.short.is_none());
+        assert_eq!(d.s.long.unwrap(), "opt");
+        assert_eq!(d.b.help.unwrap(), "some help info");
         assert!(d.is_set(ArgSettings::Multiple));
         assert!(d.is_set(ArgSettings::TakesValue));
         assert!(d.is_set(ArgSettings::Required));
-        assert_eq!(d.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(d.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"file", &"mode"]);
-        assert_eq!(d.num_vals.unwrap(), 2);
+        assert_eq!(d.v.num_vals.unwrap(), 2);
     }
 
     #[test]
     fn create_option_with_vals4() {
         let d = Arg::from_usage("[myopt] --opt <file> <mode> 'some help info'");
-        assert_eq!(d.name, "myopt");
-        assert!(d.short.is_none());
-        assert_eq!(d.long.unwrap(), "opt");
-        assert_eq!(d.help.unwrap(), "some help info");
+        assert_eq!(d.b.name, "myopt");
+        assert!(d.s.short.is_none());
+        assert_eq!(d.s.long.unwrap(), "opt");
+        assert_eq!(d.b.help.unwrap(), "some help info");
         assert!(!d.is_set(ArgSettings::Multiple));
         assert!(d.is_set(ArgSettings::TakesValue));
         assert!(!d.is_set(ArgSettings::Required));
-        assert_eq!(d.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(d.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"file", &"mode"]);
-        assert_eq!(d.num_vals.unwrap(), 2);
+        assert_eq!(d.v.num_vals.unwrap(), 2);
     }
 
     #[test]
     fn create_option_with_vals5() {
         let d = Arg::from_usage("--opt <file> <mode> 'some help info'");
-        assert_eq!(d.name, "opt");
-        assert!(d.short.is_none());
-        assert_eq!(d.long.unwrap(), "opt");
-        assert_eq!(d.help.unwrap(), "some help info");
+        assert_eq!(d.b.name, "opt");
+        assert!(d.s.short.is_none());
+        assert_eq!(d.s.long.unwrap(), "opt");
+        assert_eq!(d.b.help.unwrap(), "some help info");
         assert!(!d.is_set(ArgSettings::Multiple));
         assert!(d.is_set(ArgSettings::TakesValue));
         assert!(d.is_set(ArgSettings::Required));
-        assert_eq!(d.num_vals.unwrap(), 2);
+        assert_eq!(d.v.num_vals.unwrap(), 2);
     }
 
     #[test]
     fn create_positional_usage() {
         let a = Arg::from_usage("[pos] 'some help info'");
-        assert_eq!(a.name, "pos");
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.b.name, "pos");
+        assert_eq!(a.b.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::Multiple));
         assert!(!a.is_set(ArgSettings::Required));
-        assert!(a.val_names.is_none());
-        assert!(a.num_vals.is_none());
+        assert!(a.v.val_names.is_none());
+        assert!(a.v.num_vals.is_none());
     }
 
     #[test]
     fn create_positional_usage0() {
         let b = Arg::from_usage("<pos> 'some help info'");
-        assert_eq!(b.name, "pos");
-        assert_eq!(b.help.unwrap(), "some help info");
+        assert_eq!(b.b.name, "pos");
+        assert_eq!(b.b.help.unwrap(), "some help info");
         assert!(!b.is_set(ArgSettings::Multiple));
         assert!(b.is_set(ArgSettings::Required));
-        assert!(b.val_names.is_none());
-        assert!(b.num_vals.is_none());
+        assert!(b.v.val_names.is_none());
+        assert!(b.v.num_vals.is_none());
     }
 
     #[test]
     fn pos_mult_help() {
         let c = Arg::from_usage("[pos]... 'some help info'");
-        assert_eq!(c.name, "pos");
-        assert_eq!(c.help.unwrap(), "some help info");
+        assert_eq!(c.b.name, "pos");
+        assert_eq!(c.b.help.unwrap(), "some help info");
         assert!(c.is_set(ArgSettings::Multiple));
         assert!(!c.is_set(ArgSettings::Required));
-        assert!(c.val_names.is_none());
-        assert!(c.num_vals.is_none());
+        assert!(c.v.val_names.is_none());
+        assert!(c.v.num_vals.is_none());
     }
 
     #[test]
     fn pos_help_lit_single_quote() {
         let c = Arg::from_usage("[pos]... 'some help\' info'");
-        assert_eq!(c.name, "pos");
-        assert_eq!(c.help.unwrap(), "some help' info");
+        assert_eq!(c.b.name, "pos");
+        assert_eq!(c.b.help.unwrap(), "some help' info");
         assert!(c.is_set(ArgSettings::Multiple));
         assert!(!c.is_set(ArgSettings::Required));
-        assert!(c.val_names.is_none());
-        assert!(c.num_vals.is_none());
+        assert!(c.v.val_names.is_none());
+        assert!(c.v.num_vals.is_none());
     }
 
     #[test]
     fn pos_help_double_lit_single_quote() {
         let c = Arg::from_usage("[pos]... 'some \'help\' info'");
-        assert_eq!(c.name, "pos");
-        assert_eq!(c.help.unwrap(), "some 'help' info");
+        assert_eq!(c.b.name, "pos");
+        assert_eq!(c.b.help.unwrap(), "some 'help' info");
         assert!(c.is_set(ArgSettings::Multiple));
         assert!(!c.is_set(ArgSettings::Required));
-        assert!(c.val_names.is_none());
-        assert!(c.num_vals.is_none());
+        assert!(c.v.val_names.is_none());
+        assert!(c.v.num_vals.is_none());
     }
 
     #[test]
     fn pos_help_newline() {
         let c = Arg::from_usage("[pos]... 'some help{n}\
                                            info'");
-        assert_eq!(c.name, "pos");
-        assert_eq!(c.help.unwrap(), "some help{n}info");
+        assert_eq!(c.b.name, "pos");
+        assert_eq!(c.b.help.unwrap(), "some help{n}info");
         assert!(c.is_set(ArgSettings::Multiple));
         assert!(!c.is_set(ArgSettings::Required));
-        assert!(c.val_names.is_none());
-        assert!(c.num_vals.is_none());
+        assert!(c.v.val_names.is_none());
+        assert!(c.v.num_vals.is_none());
     }
 
     #[test]
     fn pos_help_newline_lit_sq() {
         let c = Arg::from_usage("[pos]... 'some help\' stuff{n}\
                                            info'");
-        assert_eq!(c.name, "pos");
-        assert_eq!(c.help.unwrap(), "some help' stuff{n}info");
+        assert_eq!(c.b.name, "pos");
+        assert_eq!(c.b.help.unwrap(), "some help' stuff{n}info");
         assert!(c.is_set(ArgSettings::Multiple));
         assert!(!c.is_set(ArgSettings::Required));
-        assert!(c.val_names.is_none());
-        assert!(c.num_vals.is_none());
+        assert!(c.v.val_names.is_none());
+        assert!(c.v.num_vals.is_none());
     }
 
     #[test]
     fn pos_req_mult_help() {
         let d = Arg::from_usage("<pos>... 'some help info'");
-        assert_eq!(d.name, "pos");
-        assert_eq!(d.help.unwrap(), "some help info");
+        assert_eq!(d.b.name, "pos");
+        assert_eq!(d.b.help.unwrap(), "some help info");
         assert!(d.is_set(ArgSettings::Multiple));
         assert!(d.is_set(ArgSettings::Required));
-        assert!(d.val_names.is_none());
-        assert!(d.num_vals.is_none());
+        assert!(d.v.val_names.is_none());
+        assert!(d.v.num_vals.is_none());
     }
 
     #[test]
     fn pos_req() {
         let b = Arg::from_usage("<pos>");
-        assert_eq!(b.name, "pos");
+        assert_eq!(b.b.name, "pos");
         assert!(!b.is_set(ArgSettings::Multiple));
         assert!(b.is_set(ArgSettings::Required));
-        assert!(b.val_names.is_none());
-        assert!(b.num_vals.is_none());
+        assert!(b.v.val_names.is_none());
+        assert!(b.v.num_vals.is_none());
     }
 
     #[test]
     fn pos_mult() {
         let c = Arg::from_usage("[pos]...");
-        assert_eq!(c.name, "pos");
+        assert_eq!(c.b.name, "pos");
         assert!(c.is_set(ArgSettings::Multiple));
         assert!(!c.is_set(ArgSettings::Required));
-        assert!(c.val_names.is_none());
-        assert!(c.num_vals.is_none());
+        assert!(c.v.val_names.is_none());
+        assert!(c.v.num_vals.is_none());
     }
 
     #[test]
     fn nonascii() {
         let a = Arg::from_usage("<ASCII> 'üñíčöĐ€'");
-        assert_eq!(a.name, "ASCII");
-        assert_eq!(a.help, Some("üñíčöĐ€"));
+        assert_eq!(a.b.name, "ASCII");
+        assert_eq!(a.b.help, Some("üñíčöĐ€"));
         let a = Arg::from_usage("<üñíčöĐ€> 'ASCII'");
-        assert_eq!(a.name, "üñíčöĐ€");
-        assert_eq!(a.help, Some("ASCII"));
+        assert_eq!(a.b.name, "üñíčöĐ€");
+        assert_eq!(a.b.help, Some("ASCII"));
         let a = Arg::from_usage("<üñíčöĐ€> 'üñíčöĐ€'");
-        assert_eq!(a.name, "üñíčöĐ€");
-        assert_eq!(a.help, Some("üñíčöĐ€"));
+        assert_eq!(a.b.name, "üñíčöĐ€");
+        assert_eq!(a.b.help, Some("üñíčöĐ€"));
         let a = Arg::from_usage("-ø 'ø'");
-        assert_eq!(a.name, "ø");
-        assert_eq!(a.short, Some('ø'));
-        assert_eq!(a.help, Some("ø"));
+        assert_eq!(a.b.name, "ø");
+        assert_eq!(a.s.short, Some('ø'));
+        assert_eq!(a.b.help, Some("ø"));
         let a = Arg::from_usage("--üñíčöĐ€ 'Nōṫ ASCII'");
-        assert_eq!(a.name, "üñíčöĐ€");
-        assert_eq!(a.long, Some("üñíčöĐ€"));
-        assert_eq!(a.help, Some("Nōṫ ASCII"));
+        assert_eq!(a.b.name, "üñíčöĐ€");
+        assert_eq!(a.s.long, Some("üñíčöĐ€"));
+        assert_eq!(a.b.help, Some("Nōṫ ASCII"));
         let a = Arg::from_usage("[ñämê] --ôpt=[üñíčöĐ€] 'hælp'");
-        assert_eq!(a.name, "ñämê");
-        assert_eq!(a.long, Some("ôpt"));
-        assert_eq!(a.val_names.unwrap().values().collect::<Vec<_>>(),
+        assert_eq!(a.b.name, "ñämê");
+        assert_eq!(a.s.long, Some("ôpt"));
+        assert_eq!(a.v.val_names.unwrap().values().collect::<Vec<_>>(),
                    [&"üñíčöĐ€"]);
-        assert_eq!(a.help, Some("hælp"));
+        assert_eq!(a.b.help, Some("hælp"));
     }
 }

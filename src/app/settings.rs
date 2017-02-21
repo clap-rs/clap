@@ -48,9 +48,7 @@ pub struct AppFlags(Flags);
 
 impl BitOr for AppFlags {
     type Output = Self;
-    fn bitor(self, rhs: Self) -> Self {
-        AppFlags(self.0 | rhs.0)
-    }
+    fn bitor(self, rhs: Self) -> Self { AppFlags(self.0 | rhs.0) }
 }
 
 impl Default for AppFlags {
@@ -206,7 +204,7 @@ pub enum AppSettings {
     ///
     /// This would otherwise not be allowed. This is useful when `[optional]` has a default value.
     ///
-    /// **Note:** In addition to using this setting, the second positional argument *must* be 
+    /// **Note:** In addition to using this setting, the second positional argument *must* be
     /// [required]
     ///
     /// # Examples
@@ -267,9 +265,9 @@ pub enum AppSettings {
     AllowExternalSubcommands,
 
     /// Specifies that use of a valid [argument] negates [subcomands] being used after. By default
-    /// `clap` allows arguments between subcommands such as 
-    /// `<cmd> [cmd_args] <cmd2> [cmd2_args] <cmd3> [cmd3_args]`. This setting disables that 
-    /// functionality and says that arguments can only follow the *final* subcommand. For instance 
+    /// `clap` allows arguments between subcommands such as
+    /// `<cmd> [cmd_args] <cmd2> [cmd2_args] <cmd3> [cmd3_args]`. This setting disables that
+    /// functionality and says that arguments can only follow the *final* subcommand. For instance
     /// using this setting makes only the following invocations possible:
     ///
     /// * `<cmd> <cmd2> <cmd3> [cmd3_args]`
@@ -294,7 +292,7 @@ pub enum AppSettings {
     /// **NOTE:** [`SubCommand`]s count as arguments
     ///
     /// **NOTE:** Setting [`Arg::default_value`] effectively disables this option as it will
-    /// ensure that some argument is always present. 
+    /// ensure that some argument is always present.
     ///
     /// # Examples
     ///
@@ -413,7 +411,7 @@ pub enum AppSettings {
     /// [`Arg::use_delimiter(false)`]: ./struct.Arg.html#method.use_delimiter
     DontDelimitTrailingValues,
 
-    /// Disables the `help` subcommand 
+    /// Disables the `help` subcommand
     ///
     /// # Examples
     ///
@@ -424,7 +422,7 @@ pub enum AppSettings {
     ///     .setting(AppSettings::DisableHelpSubcommand)
     ///     // Normally, creating a subcommand causes a `help` subcommand to automaticaly
     ///     // be generated as well
-    ///     .subcommand(SubCommand::with_name("test")) 
+    ///     .subcommand(SubCommand::with_name("test"))
     ///     .get_matches_from_safe(vec![
     ///         "myprog", "help"
     ///     ]);
