@@ -274,6 +274,7 @@
 //! ### BYOB (Build Your Own Binary)
 //! 
 //! To test out `clap`'s default auto-generated help/version follow these steps:
+//!
 //! * Create a new cargo project `$ cargo new fake --bin && cd fake`
 //! * Add `clap` to your `Cargo.toml`
 //!
