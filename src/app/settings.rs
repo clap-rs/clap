@@ -571,6 +571,7 @@ pub enum AppSettings {
     /// ```
     /// Now doing the same thing, but *not* using any subcommands will result in the value not being
     /// propagated down.
+    ///
     /// ```rust
     /// # use clap::{App, Arg, AppSettings};
     /// let m = App::new("myprog")
