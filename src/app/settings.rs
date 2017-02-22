@@ -573,10 +573,11 @@ pub enum AppSettings {
     /// propagated down.
     ///
     /// ```rust
-    /// # use clap::{App, Arg, AppSettings};
+    /// # use clap::{App, Arg, AppSettings, SubCommand};
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::PropagateGlobalValuesDown)
-    ///     .global_arg(Arg::from_usage("<cmd> 'command to run'"))
+    ///     .arg(Arg::from_usage("[cmd] 'command to run'")
+    ///         .global(true))
     ///     .subcommand(SubCommand::with_name("foo"))
     ///     .get_matches_from(vec!["myprog", "set"]);
     ///
