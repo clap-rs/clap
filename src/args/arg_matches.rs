@@ -568,6 +568,8 @@ impl<'a> DoubleEndedIterator for Values<'a> {
     fn next_back(&mut self) -> Option<&'a str> { self.iter.next_back() }
 }
 
+impl<'a> ExactSizeIterator for Values<'a> {}
+
 /// An iterator over the key-value pairs of a map.
 #[derive(Clone)]
 pub struct Iter<'a, V: 'a> {
