@@ -17,7 +17,7 @@ A simple to use, efficient, and full featured  Command Line Argument Parser
 
 [dependencies]
 bitflags              = "0.8.0"
-vec_map               = "0.6.0"
+vec_map               = "0.7.0"
 unicode-width         = "0.1.4"
 unicode-segmentation  = "1.0.1"
 strsim    = { version = "0.6.0",  optional = true }
