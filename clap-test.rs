@@ -13,8 +13,10 @@ mod test {
     {
         let re = Regex::new("\x1b[^m]*m").unwrap();
         // Strip out any mismatching \r character on windows that might sneak in on either side
-        let left = re.replace_all(&l.as_ref().trim().replace("\r", "")[..], "");
-        let right = re.replace_all(&r.as_ref().trim().replace("\r", "")[..], "");
+        let ls = l.as_ref().trim().replace("\r", "");
+        let rs = r.as_ref().trim().replace("\r", "");
+        let left = re.replace_all(&*ls, "");
+        let right = re.replace_all(&*rs, "");
         let b = left == right;
         if !b {
             println!("");
