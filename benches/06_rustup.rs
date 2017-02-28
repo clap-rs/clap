@@ -17,6 +17,11 @@ fn build_app(b: &mut Bencher) { b.iter(|| build_cli()); }
 #[bench]
 fn parse_clean(b: &mut Bencher) { b.iter(|| build_cli().get_matches_from(vec![""])); }
 
+#[bench]
+fn parse_subcommands(b: &mut Bencher) {
+    b.iter(|| build_cli().get_matches_from(vec!["rustup override add stable"]));
+}
+
 pub fn build_cli() -> App<'static, 'static> {
     App::new("rustup")
         .version("0.9.0") // Simulating
