@@ -4,6 +4,7 @@ use std::fmt::{Display, Formatter, Result};
 use std::rc::Rc;
 use std::result::Result as StdResult;
 use std::ffi::{OsStr, OsString};
+use std::mem;
 
 // Third Party
 use vec_map::{self, VecMap};
@@ -32,10 +33,7 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
         }
     }
 
-    pub fn from_arg(a: &Arg<'n, 'e>, idx: u64, reqs: &mut Vec<&'n str>) -> Self {
-        // Create the Positional Argument Builder with each HashSet = None to only
-        // allocate
-        // those that require it
+    pub fn from_arg_ref(a: &Arg<'n, 'e>, idx: u64) -> Self {
         let mut pb = PosBuilder {
             b: Base::from(a),
             v: Valued::from(a),
@@ -45,15 +43,19 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
            (a.v.num_vals.is_some() && a.v.num_vals.unwrap() > 1) {
             pb.b.settings.set(ArgSettings::Multiple);
         }
-        // If the arg is required, add all it's requirements to master required list
-        if a.is_set(ArgSettings::Required) {
-            if let Some(ref areqs) = a.b.requires {
-                for name in areqs.iter().filter(|&&(val, _)| val.is_none()).map(|&(_, name)| name) {
-                    reqs.push(name);
-                }
-            }
-        }
         pb
+    }
+
+    pub fn from_arg(mut a: Arg<'n, 'e>, idx: u64) -> Self {
+        if a.v.max_vals.is_some() || a.v.min_vals.is_some() ||
+           (a.v.num_vals.is_some() && a.v.num_vals.unwrap() > 1) {
+            a.b.settings.set(ArgSettings::Multiple);
+        }
+        PosBuilder {
+            b: mem::replace(&mut a.b, Base::default()),
+            v: mem::replace(&mut a.v, Valued::default()),
+            index: idx,
+        }
     }
 
     pub fn multiple_str(&self) -> &str {

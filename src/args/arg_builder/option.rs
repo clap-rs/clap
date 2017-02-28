@@ -3,6 +3,7 @@ use std::fmt::{Display, Formatter, Result};
 use std::rc::Rc;
 use std::result::Result as StdResult;
 use std::ffi::{OsStr, OsString};
+use std::mem;
 
 // Third Party
 use vec_map::{self, VecMap};
@@ -23,23 +24,26 @@ pub struct OptBuilder<'n, 'e>
 
 impl<'n, 'e> OptBuilder<'n, 'e> {
     pub fn new(name: &'n str) -> Self { OptBuilder { b: Base::new(name), ..Default::default() } }
+}
 
-    pub fn from_arg(a: &Arg<'n, 'e>, reqs: &mut Vec<&'n str>) -> Self {
-        // No need to check for .index() as that is handled above
-        let ob = OptBuilder {
+impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for OptBuilder<'n, 'e> {
+    fn from(a: &'z Arg<'n, 'e>) -> Self {
+        OptBuilder {
             b: Base::from(a),
             s: Switched::from(a),
             v: Valued::from(a),
-        };
-        // If the arg is required, add all it's requirements to master required list
-        if a.is_set(ArgSettings::Required) {
-            if let Some(ref areqs) = a.b.requires {
-                for r in areqs.iter().filter(|r| r.0.is_none()) {
-                    reqs.push(r.1);
-                }
-            }
         }
-        ob
+    }
+}
+
+impl<'n, 'e> From<Arg<'n, 'e>> for OptBuilder<'n, 'e> {
+    fn from(mut a: Arg<'n, 'e>) -> Self {
+        a.v.fill_in();
+        OptBuilder {
+            b: mem::replace(&mut a.b, Base::default()),
+            s: mem::replace(&mut a.s, Switched::default()),
+            v: mem::replace(&mut a.v, Valued::default()),
+        }
     }
 }
 

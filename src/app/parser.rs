@@ -110,8 +110,8 @@ impl<'a, 'b> Parser<'a, 'b>
         self.gen_completions_to(for_shell, &mut file)
     }
 
-    // actually adds the arguments
-    pub fn add_arg(&mut self, a: &Arg<'a, 'b>) {
+    #[inline]
+    fn debug_asserts(&self, a: &Arg) {
         debug_assert!(!arg_names!(self).any(|name| name == a.b.name),
                       format!("Non-unique argument name: {} is already in use", a.b.name));
         if let Some(l) = a.s.long {
@@ -124,11 +124,33 @@ impl<'a, 'b> Parser<'a, 'b>
                           format!("Argument short must be unique\n\n\t-{} is already in use",
                                   s));
         }
+        let i = if a.index.is_none() {
+            (self.positionals.len() + 1)
+        } else {
+            a.index.unwrap() as usize
+        };
+        debug_assert!(!self.positionals.contains_key(i),
+                      format!("Argument \"{}\" has the same index as another positional \
+                    argument\n\n\tPerhaps try .multiple(true) to allow one positional argument \
+                    to take multiple values",
+                              a.b.name));
+        debug_assert!(!(a.is_set(ArgSettings::Required) && a.is_set(ArgSettings::Global)),
+                      format!("Global arguments cannot be required.\n\n\t'{}' is marked as \
+                          global and required",
+                              a.b.name));
+    }
+
+    #[inline]
+    fn add_conditional_reqs(&mut self, a: &Arg<'a, 'b>) {
         if let Some(ref r_ifs) = a.r_ifs {
             for &(arg, val) in r_ifs {
                 self.r_ifs.push((arg, val, a.b.name));
             }
         }
+    }
+
+    #[inline]
+    fn add_arg_groups(&mut self, a: &Arg<'a, 'b>) {
         if let Some(ref grps) = a.b.groups {
             for g in grps {
                 let mut found = false;
@@ -143,24 +165,64 @@ impl<'a, 'b> Parser<'a, 'b>
                 }
             }
         }
+    }
+
+    #[inline]
+    fn add_reqs(&mut self, a: &Arg<'a, 'b>) {
         if a.is_set(ArgSettings::Required) {
+            // If the arg is required, add all it's requirements to master required list
+            if let Some(ref areqs) = a.b.requires {
+                for name in areqs.iter().filter(|&&(val, _)| val.is_none()).map(|&(_, name)| name) {
+                    self.required.push(name);
+                }
+            }
             self.required.push(a.b.name);
         }
+    }
+
+    // actually adds the arguments
+    pub fn add_arg(&mut self, a: Arg<'a, 'b>) {
+        // if it's global we have to clone anyways
+        if a.is_set(ArgSettings::Global) {
+            return self.add_arg_ref(&a);
+        }
+        self.debug_asserts(&a);
+        self.add_conditional_reqs(&a);
+        self.add_arg_groups(&a);
+        self.add_reqs(&a);
         if a.index.is_some() || (a.s.short.is_none() && a.s.long.is_none()) {
             let i = if a.index.is_none() {
                 (self.positionals.len() + 1)
             } else {
                 a.index.unwrap() as usize
             };
-            debug_assert!(!self.positionals.contains_key(i),
-                          format!("Argument \"{}\" has the same index as another positional \
-                    argument\n\n\tPerhaps try .multiple(true) to allow one positional argument \
-                    to take multiple values",
-                                  a.b.name));
-            let pb = PosBuilder::from_arg(a, i as u64, &mut self.required);
+            self.positionals.insert(i, PosBuilder::from_arg(a, i as u64));
+        } else if a.is_set(ArgSettings::TakesValue) {
+            let mut ob = OptBuilder::from(a);
+            ob.s.unified_ord = self.flags.len() + self.opts.len();
+            self.opts.push(ob);
+        } else {
+            let mut fb = FlagBuilder::from(a);
+            fb.s.unified_ord = self.flags.len() + self.opts.len();
+            self.flags.push(fb);
+        }
+    }
+    // actually adds the arguments but from a borrow (which means we have to do some clonine)
+    pub fn add_arg_ref(&mut self, a: &Arg<'a, 'b>) {
+        self.debug_asserts(&a);
+        self.add_conditional_reqs(&a);
+        self.add_arg_groups(&a);
+        self.add_reqs(&a);
+        if a.index.is_some() || (a.s.short.is_none() && a.s.long.is_none()) {
+            let i = if a.index.is_none() {
+                (self.positionals.len() + 1)
+            } else {
+                a.index.unwrap() as usize
+            };
+            let pb = PosBuilder::from_arg_ref(a, i as u64);
             self.positionals.insert(i, pb);
         } else if a.is_set(ArgSettings::TakesValue) {
-            let mut ob = OptBuilder::from_arg(a, &mut self.required);
+            let mut ob = OptBuilder::from(a);
             ob.s.unified_ord = self.flags.len() + self.opts.len();
             self.opts.push(ob);
         } else {
@@ -169,10 +231,6 @@ impl<'a, 'b> Parser<'a, 'b>
             self.flags.push(fb);
         }
         if a.is_set(ArgSettings::Global) {
-            debug_assert!(!a.is_set(ArgSettings::Required),
-                          format!("Global arguments cannot be required.\n\n\t'{}' is marked as \
-                          global and required",
-                                  a.b.name));
             self.global_args.push(a.into());
         }
     }
@@ -589,7 +647,7 @@ impl<'a, 'b> Parser<'a, 'b>
             // done and to recursively call this method
             {
                 for a in &self.global_args {
-                    sc.p.add_arg(a);
+                    sc.p.add_arg_ref(a);
                 }
             }
             sc.p.propogate_globals();

@@ -4,6 +4,7 @@ use std::fmt::{Display, Formatter, Result};
 use std::rc::Rc;
 use std::result::Result as StdResult;
 use std::ffi::{OsStr, OsString};
+use std::mem;
 
 // Third Party
 use vec_map::{self, VecMap};
@@ -27,11 +28,18 @@ impl<'n, 'e> FlagBuilder<'n, 'e> {
 
 impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for FlagBuilder<'a, 'b> {
     fn from(a: &'z Arg<'a, 'b>) -> Self {
-        // No need to check for index() or takes_value() as that is handled above
-
         FlagBuilder {
             b: Base::from(a),
             s: Switched::from(a),
+        }
+    }
+}
+
+impl<'a, 'b> From<Arg<'a, 'b>> for FlagBuilder<'a, 'b> {
+    fn from(mut a: Arg<'a, 'b>) -> Self {
+        FlagBuilder {
+            b: mem::replace(&mut a.b, Base::default()),
+            s: mem::replace(&mut a.s, Switched::default()),
         }
     }
 }
