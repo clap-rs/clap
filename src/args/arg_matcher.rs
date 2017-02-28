@@ -4,9 +4,6 @@ use std::ffi::OsStr;
 use std::ops::Deref;
 use std::mem;
 
-// Third Party
-use vec_map::VecMap;
-
 // Internal
 use args::{ArgMatches, MatchedArg, SubCommand};
 use args::AnyArg;
@@ -25,7 +22,7 @@ impl<'a> ArgMatcher<'a> {
 
     pub fn propagate(&mut self, arg: &'a str) {
         debugln!("ArgMatcher::propagate: arg={}", arg);
-        let vals: VecMap<_> = if let Some(ma) = self.get(arg) {
+        let vals: Vec<_> = if let Some(ma) = self.get(arg) {
             ma.vals.clone()
         } else {
             debugln!("ArgMatcher::propagate: arg wasn't used");
@@ -36,15 +33,11 @@ impl<'a> ArgMatcher<'a> {
                 let sma = (*sc).matches.args.entry(arg).or_insert_with(|| {
                     let mut gma = MatchedArg::new();
                     gma.occurs += 1;
-                    for (i, v) in &vals {
-                        gma.vals.insert(i, v.clone());
-                    }
+                    gma.vals = vals.clone();
                     gma
                 });
                 if sma.vals.is_empty() {
-                    for (i, v) in &vals {
-                        sma.vals.insert(i, v.clone());
-                    }
+                    sma.vals = vals.clone();
                 }
             }
             let mut am = ArgMatcher(mem::replace(&mut sc.matches, ArgMatches::new()));
@@ -105,10 +98,10 @@ impl<'a> ArgMatcher<'a> {
     pub fn add_val_to(&mut self, arg: &'a str, val: &OsStr) {
         let ma = self.entry(arg).or_insert(MatchedArg {
             occurs: 0,
-            vals: VecMap::new(),
+            vals: Vec::with_capacity(1),
         });
-        let len = ma.vals.len() + 1;
-        ma.vals.insert(len, val.to_owned());
+        // let len = ma.vals.len() + 1;
+        ma.vals.push(val.to_owned());
     }
 
     pub fn needs_more_vals<'b, A>(&self, o: &A) -> bool

@@ -1634,7 +1634,7 @@ impl<'a, 'b> Parser<'a, 'b>
         where A: AnyArg<'a, 'b> + Display
     {
         debugln!("Parser::validate_values: arg={:?}", arg.name());
-        for (_, val) in &ma.vals {
+        for val in &ma.vals {
             if self.is_set(AS::StrictUtf8) && val.to_str().is_none() {
                 debugln!("Parser::validate_values: invalid UTF-8 found in val {:?}",
                          val);
@@ -1838,14 +1838,11 @@ impl<'a, 'b> Parser<'a, 'b>
             debugln!("Parser::validate_arg_num_vals: max_vals set...{}", num);
             if (ma.vals.len() as u64) > num {
                 debugln!("Parser::validate_arg_num_vals: Sending error TooManyValues");
-                return Err(Error::too_many_values(ma.vals
-                                                      .get(ma.vals
-                                                          .keys()
-                                                          .last()
-                                                          .expect(INTERNAL_ERROR_MSG))
-                                                      .expect(INTERNAL_ERROR_MSG)
-                                                      .to_str()
-                                                      .expect(INVALID_UTF8),
+                return Err(Error::too_many_values(ma.vals.iter()
+                                                         .last()
+                                                         .expect(INTERNAL_ERROR_MSG)
+                                                         .to_str()
+                                                         .expect(INVALID_UTF8),
                                                   a,
                                                   &*self.create_current_usage(matcher, None),
                                                   self.color()));
@@ -1882,7 +1879,7 @@ impl<'a, 'b> Parser<'a, 'b>
         if let Some(a_reqs) = a.requires() {
             for &(val, name) in a_reqs.iter().filter(|&&(val, _)| val.is_some()) {
                 if ma.vals
-                    .values()
+                    .iter()
                     .any(|v| v == val.expect(INTERNAL_ERROR_MSG) && !matcher.contains(name)) {
                     return self.missing_required_error(matcher, None);
                 }
@@ -1942,8 +1939,8 @@ impl<'a, 'b> Parser<'a, 'b>
         // Validate the conditionally required args
         for &(a, v, r) in &self.r_ifs {
             if let Some(ma) = matcher.get(a) {
-                for val in ma.vals.values() {
-                    if v == val && matcher.get(r).is_none() {
+                if matcher.get(r).is_none() {
+                    if ma.vals.iter().any(|val| val == v) {
                         return self.missing_required_error(matcher, Some(r));
                     }
                 }
@@ -2196,7 +2193,7 @@ impl<'a, 'b> Parser<'a, 'b>
                         for &(arg, val, default) in vm.values() {
                             let add = if let Some(a) = $m.get(arg) {
                                 if let Some(v) = val {
-                                    a.vals.values().any(|value| v == value)
+                                    a.vals.iter().any(|value| v == value)
                                 } else {
                                     true
                                 }
