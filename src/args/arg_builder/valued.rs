@@ -41,14 +41,19 @@ impl<'n, 'e> Default for Valued<'n, 'e> {
     }
 }
 
+impl<'n, 'e> Valued<'n, 'e> {
+    pub fn fill_in(&mut self) {
+        if let Some(ref vec) = self.val_names {
+            if vec.len() > 1 {
+                self.num_vals = Some(vec.len() as u64);
+            }
+        }
+    }
+}
+
 impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for Valued<'n, 'e> {
     fn from(a: &'z Arg<'n, 'e>) -> Self {
         let mut v = a.v.clone();
-        if let Some(ref vec) = a.v.val_names {
-            if vec.len() > 1 {
-                v.num_vals = Some(vec.len() as u64);
-            }
-        }
         if let Some(ref vec) = a.v.val_names {
             if vec.len() > 1 {
                 v.num_vals = Some(vec.len() as u64);

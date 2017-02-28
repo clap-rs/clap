@@ -5,40 +5,44 @@ use std::ops::BitOr;
 
 bitflags! {
     flags Flags: u64 {
-        const SC_NEGATE_REQS       = 0b0000000000000000000000000000000001,
-        const SC_REQUIRED          = 0b0000000000000000000000000000000010,
-        const A_REQUIRED_ELSE_HELP = 0b0000000000000000000000000000000100,
-        const GLOBAL_VERSION       = 0b0000000000000000000000000000001000,
-        const VERSIONLESS_SC       = 0b0000000000000000000000000000010000,
-        const UNIFIED_HELP         = 0b0000000000000000000000000000100000,
-        const WAIT_ON_ERROR        = 0b0000000000000000000000000001000000,
-        const SC_REQUIRED_ELSE_HELP= 0b0000000000000000000000000010000000,
-        const NEEDS_LONG_HELP      = 0b0000000000000000000000000100000000,
-        const NEEDS_LONG_VERSION   = 0b0000000000000000000000001000000000,
-        const NEEDS_SC_HELP        = 0b0000000000000000000000010000000000,
-        const DISABLE_VERSION      = 0b0000000000000000000000100000000000,
-        const HIDDEN               = 0b0000000000000000000001000000000000,
-        const TRAILING_VARARG      = 0b0000000000000000000010000000000000,
-        const NO_BIN_NAME          = 0b0000000000000000000100000000000000,
-        const ALLOW_UNK_SC         = 0b0000000000000000001000000000000000,
-        const UTF8_STRICT          = 0b0000000000000000010000000000000000,
-        const UTF8_NONE            = 0b0000000000000000100000000000000000,
-        const LEADING_HYPHEN       = 0b0000000000000001000000000000000000,
-        const NO_POS_VALUES        = 0b0000000000000010000000000000000000,
-        const NEXT_LINE_HELP       = 0b0000000000000100000000000000000000,
-        const DERIVE_DISP_ORDER    = 0b0000000000001000000000000000000000,
-        const COLORED_HELP         = 0b0000000000010000000000000000000000,
-        const COLOR_ALWAYS         = 0b0000000000100000000000000000000000,
-        const COLOR_AUTO           = 0b0000000001000000000000000000000000,
-        const COLOR_NEVER          = 0b0000000010000000000000000000000000,
-        const DONT_DELIM_TRAIL     = 0b0000000100000000000000000000000000,
-        const ALLOW_NEG_NUMS       = 0b0000001000000000000000000000000000,
-        const LOW_INDEX_MUL_POS    = 0b0000010000000000000000000000000000,
-        const DISABLE_HELP_SC      = 0b0000100000000000000000000000000000,
-        const DONT_COLLAPSE_ARGS   = 0b0001000000000000000000000000000000,
-        const ARGS_NEGATE_SCS      = 0b0010000000000000000000000000000000,
-        const PROPAGATE_VALS_DOWN  = 0b0100000000000000000000000000000000,
-        const ALLOW_MISSING_POS    = 0b1000000000000000000000000000000000,
+        const SC_NEGATE_REQS       = 0b00000000000000000000000000000000000001,
+        const SC_REQUIRED          = 0b00000000000000000000000000000000000010,
+        const A_REQUIRED_ELSE_HELP = 0b00000000000000000000000000000000000100,
+        const GLOBAL_VERSION       = 0b00000000000000000000000000000000001000,
+        const VERSIONLESS_SC       = 0b00000000000000000000000000000000010000,
+        const UNIFIED_HELP         = 0b00000000000000000000000000000000100000,
+        const WAIT_ON_ERROR        = 0b00000000000000000000000000000001000000,
+        const SC_REQUIRED_ELSE_HELP= 0b00000000000000000000000000000010000000,
+        const NEEDS_LONG_HELP      = 0b00000000000000000000000000000100000000,
+        const NEEDS_LONG_VERSION   = 0b00000000000000000000000000001000000000,
+        const NEEDS_SC_HELP        = 0b00000000000000000000000000010000000000,
+        const DISABLE_VERSION      = 0b00000000000000000000000000100000000000,
+        const HIDDEN               = 0b00000000000000000000000001000000000000,
+        const TRAILING_VARARG      = 0b00000000000000000000000010000000000000,
+        const NO_BIN_NAME          = 0b00000000000000000000000100000000000000,
+        const ALLOW_UNK_SC         = 0b00000000000000000000001000000000000000,
+        const UTF8_STRICT          = 0b00000000000000000000010000000000000000,
+        const UTF8_NONE            = 0b00000000000000000000100000000000000000,
+        const LEADING_HYPHEN       = 0b00000000000000000001000000000000000000,
+        const NO_POS_VALUES        = 0b00000000000000000010000000000000000000,
+        const NEXT_LINE_HELP       = 0b00000000000000000100000000000000000000,
+        const DERIVE_DISP_ORDER    = 0b00000000000000001000000000000000000000,
+        const COLORED_HELP         = 0b00000000000000010000000000000000000000,
+        const COLOR_ALWAYS         = 0b00000000000000100000000000000000000000,
+        const COLOR_AUTO           = 0b00000000000001000000000000000000000000,
+        const COLOR_NEVER          = 0b00000000000010000000000000000000000000,
+        const DONT_DELIM_TRAIL     = 0b00000000000100000000000000000000000000,
+        const ALLOW_NEG_NUMS       = 0b00000000001000000000000000000000000000,
+        const LOW_INDEX_MUL_POS    = 0b00000000010000000000000000000000000000,
+        const DISABLE_HELP_SC      = 0b00000000100000000000000000000000000000,
+        const DONT_COLLAPSE_ARGS   = 0b00000001000000000000000000000000000000,
+        const ARGS_NEGATE_SCS      = 0b00000010000000000000000000000000000000,
+        const PROPAGATE_VALS_DOWN  = 0b00000100000000000000000000000000000000,
+        const ALLOW_MISSING_POS    = 0b00001000000000000000000000000000000000,
+        const TRAILING_VALUES      = 0b00010000000000000000000000000000000000,
+        const VALID_NEG_NUM_FOUND  = 0b00100000000000000000000000000000000000,
+        const PROPOGATED           = 0b01000000000000000000000000000000000000,
+        const VALID_ARG_FOUND      = 0b10000000000000000000000000000000000000
     }
 }
 
@@ -94,7 +98,11 @@ impl AppFlags {
         UnifiedHelpMessage => UNIFIED_HELP,
         NextLineHelp => NEXT_LINE_HELP,
         VersionlessSubcommands => VERSIONLESS_SC,
-        WaitOnError => WAIT_ON_ERROR
+        WaitOnError => WAIT_ON_ERROR,
+        TrailingValues => TRAILING_VALUES,
+        ValidNegNumFound => VALID_NEG_NUM_FOUND,
+        Propogated => PROPOGATED,
+        ValidArgFound => VALID_ARG_FOUND
     }
 }
 
@@ -807,6 +815,18 @@ pub enum AppSettings {
 
     #[doc(hidden)]
     LowIndexMultiplePositional,
+
+    #[doc(hidden)]
+    TrailingValues,
+
+    #[doc(hidden)]
+    ValidNegNumFound,
+
+    #[doc(hidden)]
+    Propogated,
+
+    #[doc(hidden)]
+    ValidArgFound,
 }
 
 impl FromStr for AppSettings {
@@ -842,6 +862,10 @@ impl FromStr for AppSettings {
             "unifiedhelpmessage" => Ok(AppSettings::UnifiedHelpMessage),
             "versionlesssubcommands" => Ok(AppSettings::VersionlessSubcommands),
             "waitonerror" => Ok(AppSettings::WaitOnError),
+            "validnegnumfound" => Ok(AppSettings::ValidNegNumFound),
+            "validargfound" => Ok(AppSettings::ValidArgFound),
+            "propogated" => Ok(AppSettings::Propogated),
+            "trailingvalues" => Ok(AppSettings::TrailingValues),
             _ => Err("unknown AppSetting, cannot convert from str".to_owned()),
         }
     }
@@ -911,6 +935,14 @@ mod test {
                    AppSettings::VersionlessSubcommands);
         assert_eq!("waitonerror".parse::<AppSettings>().unwrap(),
                    AppSettings::WaitOnError);
+        assert_eq!("validnegnumfound".parse::<AppSettings>().unwrap(),
+                   AppSettings::ValidNegNumFound);
+        assert_eq!("validargfound".parse::<AppSettings>().unwrap(),
+                   AppSettings::ValidArgFound);
+        assert_eq!("propogated".parse::<AppSettings>().unwrap(),
+                   AppSettings::Propogated);
+        assert_eq!("trailingvalues".parse::<AppSettings>().unwrap(),
+                   AppSettings::TrailingValues);
         assert!("hahahaha".parse::<AppSettings>().is_err());
     }
 }

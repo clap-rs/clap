@@ -40,7 +40,7 @@ impl<'a> ArgMatcher<'a> {
                         gma.vals.insert(i, v.clone());
                     }
                     gma
-                }); 
+                });
                 if sma.vals.is_empty() {
                     for (i, v) in &vals {
                         sma.vals.insert(i, v.clone());

@@ -6,7 +6,6 @@ mod meta;
 mod help;
 
 // Std
-use std::borrow::Borrow;
 use std::env;
 use std::ffi::{OsStr, OsString};
 use std::fmt;
@@ -639,8 +638,8 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     /// [argument]: ./struct.Arg.html
-    pub fn arg<A: Borrow<Arg<'a, 'b>> + 'a>(mut self, a: A) -> Self {
-        self.p.add_arg(a.borrow());
+    pub fn arg<A: Into<Arg<'a, 'b>>>(mut self, a: A) -> Self {
+        self.p.add_arg(a.into());
         self
     }
 
@@ -660,7 +659,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [arguments]: ./struct.Arg.html
     pub fn args(mut self, args: &[Arg<'a, 'b>]) -> Self {
         for arg in args {
-            self.p.add_arg(arg);
+            self.p.add_arg_ref(arg);
         }
         self
     }
@@ -683,7 +682,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`Arg`]: ./struct.Arg.html
     /// [`Arg::from_usage`]: ./struct.Arg.html#method.from_usage
     pub fn arg_from_usage(mut self, usage: &'a str) -> Self {
-        self.p.add_arg(&Arg::from_usage(usage));
+        self.p.add_arg(Arg::from_usage(usage));
         self
     }
 
@@ -715,7 +714,7 @@ impl<'a, 'b> App<'a, 'b> {
             if l.is_empty() {
                 continue;
             }
-            self.p.add_arg(&Arg::from_usage(l));
+            self.p.add_arg(Arg::from_usage(l));
         }
         self
     }
@@ -1531,7 +1530,6 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn name(&self) -> &'n str {
         unreachable!("App struct does not support AnyArg::name, this is a bug!")
     }
-    fn id(&self) -> usize { self.p.id }
     fn overrides(&self) -> Option<&[&'e str]> { None }
     fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]> { None }
     fn blacklist(&self) -> Option<&[&'e str]> { None }

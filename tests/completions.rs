@@ -63,7 +63,7 @@ static BASH: &'static str = r#"_myapp() {
             return 0
             ;;
         myapp__test)
-            opts=" -h -V  --case --help --version  "
+            opts=" -h -V  --help --version --case  "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
                 return 0
@@ -550,7 +550,7 @@ static BASH_WUS: &'static str = r#"_my_app() {
             return 0
             ;;
         my_app__some_cmd)
-            opts=" -h -V  --config --help --version  "
+            opts=" -h -V  --help --version --config  "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
                 return 0
@@ -569,7 +569,7 @@ static BASH_WUS: &'static str = r#"_my_app() {
             return 0
             ;;
         my_app__test)
-            opts=" -h -V  --case --help --version  "
+            opts=" -h -V  --help --version --case  "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
                 return 0
@@ -609,15 +609,12 @@ fn compare(left: &str, right: &str) -> bool {
     b
 }
 
-fn build_app() -> App<'static, 'static> {
-    build_app_with_name("myapp")
-}
+fn build_app() -> App<'static, 'static> { build_app_with_name("myapp") }
 
 fn build_app_with_name(s: &'static str) -> App<'static, 'static> {
-   App::new(s)
+    App::new(s)
         .about("Tests completions")
-        .arg(Arg::with_name("file")
-            .help("some input file"))
+        .arg(Arg::with_name("file").help("some input file"))
         .subcommand(SubCommand::with_name("test")
             .about("tests things")
             .arg(Arg::with_name("case")
@@ -627,13 +624,12 @@ fn build_app_with_name(s: &'static str) -> App<'static, 'static> {
 }
 
 fn build_app_with_underscore() -> App<'static, 'static> {
-    build_app_with_name("my_app")
-        .subcommand(SubCommand::with_name("some_cmd")
-            .about("tests other things")
-            .arg(Arg::with_name("config")
-                .long("--config")
-                .takes_value(true)
-                .help("the other case to test")))
+    build_app_with_name("my_app").subcommand(SubCommand::with_name("some_cmd")
+        .about("tests other things")
+        .arg(Arg::with_name("config")
+            .long("--config")
+            .takes_value(true)
+            .help("the other case to test")))
 }
 
 #[test]
@@ -668,25 +664,25 @@ fn fish() {
 
 // Disabled until I figure out this windows line ending and AppVeyor issues
 //#[test]
-fn powershell() {
-    let mut app = build_app();
-    let mut buf = vec![];
-    app.gen_completions_to("myapp", Shell::PowerShell, &mut buf);
-    let string = String::from_utf8(buf).unwrap();
-
-    assert!(compare(&*string, POWERSHELL));
-}
+// fn powershell() {
+//     let mut app = build_app();
+//     let mut buf = vec![];
+//     app.gen_completions_to("myapp", Shell::PowerShell, &mut buf);
+//     let string = String::from_utf8(buf).unwrap();
+//
+//     assert!(compare(&*string, POWERSHELL));
+// }
 
 // Disabled until I figure out this windows line ending and AppVeyor issues
 //#[test]
-fn powershell_with_underscore() {
-    let mut app = build_app_with_underscore();
-    let mut buf = vec![];
-    app.gen_completions_to("my_app", Shell::PowerShell, &mut buf);
-    let string = String::from_utf8(buf).unwrap();
-
-    assert!(compare(&*string, POWERSHELL_WUS));
-}
+// fn powershell_with_underscore() {
+//     let mut app = build_app_with_underscore();
+//     let mut buf = vec![];
+//     app.gen_completions_to("my_app", Shell::PowerShell, &mut buf);
+//     let string = String::from_utf8(buf).unwrap();
+//
+//     assert!(compare(&*string, POWERSHELL_WUS));
+// }
 
 #[test]
 fn bash_with_underscore() {

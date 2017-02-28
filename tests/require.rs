@@ -18,7 +18,7 @@ static COND_REQ_IN_USAGE: &'static str = "error: The following required argument
     --output <output>
 
 USAGE:
-    test --target <target> --input <input> --output <output>
+    test --input <input> --output <output> --target <target>
 
 For more information try --help";
 
@@ -46,7 +46,7 @@ fn flag_required_2() {
 #[test]
 fn option_required() {
     let result = App::new("option_required")
-        .arg(Arg::from_usage("-f [flag] 'some flag'").requires("color"))
+        .arg(Arg::from_usage("-f [flag] 'some flag'").requires("c"))
         .arg(Arg::from_usage("-c [color] 'third flag'"))
         .get_matches_from_safe(vec!["", "-f", "val"]);
     assert!(result.is_err());

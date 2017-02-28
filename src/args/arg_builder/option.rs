@@ -3,6 +3,7 @@ use std::fmt::{Display, Formatter, Result};
 use std::rc::Rc;
 use std::result::Result as StdResult;
 use std::ffi::{OsStr, OsString};
+use std::mem;
 
 // Third Party
 use vec_map::{self, VecMap};
@@ -23,23 +24,26 @@ pub struct OptBuilder<'n, 'e>
 
 impl<'n, 'e> OptBuilder<'n, 'e> {
     pub fn new(name: &'n str) -> Self { OptBuilder { b: Base::new(name), ..Default::default() } }
+}
 
-    pub fn from_arg(a: &Arg<'n, 'e>, reqs: &mut Vec<&'n str>) -> Self {
-        // No need to check for .index() as that is handled above
-        let ob = OptBuilder {
+impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for OptBuilder<'n, 'e> {
+    fn from(a: &'z Arg<'n, 'e>) -> Self {
+        OptBuilder {
             b: Base::from(a),
             s: Switched::from(a),
             v: Valued::from(a),
-        };
-        // If the arg is required, add all it's requirements to master required list
-        if a.is_set(ArgSettings::Required) {
-            if let Some(ref areqs) = a.b.requires {
-                for r in areqs.iter().filter(|r| r.0.is_none()) {
-                    reqs.push(r.1);
-                }
-            }
         }
-        ob
+    }
+}
+
+impl<'n, 'e> From<Arg<'n, 'e>> for OptBuilder<'n, 'e> {
+    fn from(mut a: Arg<'n, 'e>) -> Self {
+        a.v.fill_in();
+        OptBuilder {
+            b: mem::replace(&mut a.b, Base::default()),
+            s: mem::replace(&mut a.s, Switched::default()),
+            v: mem::replace(&mut a.v, Valued::default()),
+        }
     }
 }
 
@@ -94,9 +98,10 @@ impl<'n, 'e> Display for OptBuilder<'n, 'e> {
 
 impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn name(&self) -> &'n str { self.b.name }
-    fn id(&self) -> usize { self.b.id }
     fn overrides(&self) -> Option<&[&'e str]> { self.b.overrides.as_ref().map(|o| &o[..]) }
-    fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]> { self.b.requires.as_ref().map(|o| &o[..]) }
+    fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]> {
+        self.b.requires.as_ref().map(|o| &o[..])
+    }
     fn blacklist(&self) -> Option<&[&'e str]> { self.b.blacklist.as_ref().map(|o| &o[..]) }
     fn required_unless(&self) -> Option<&[&'e str]> { self.b.r_unless.as_ref().map(|o| &o[..]) }
     fn val_names(&self) -> Option<&VecMap<&'e str>> { self.v.val_names.as_ref() }
@@ -120,7 +125,9 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn takes_value(&self) -> bool { true }
     fn help(&self) -> Option<&'e str> { self.b.help }
     fn default_val(&self) -> Option<&'e OsStr> { self.v.default_val }
-    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> { self.v.default_vals_ifs.as_ref().map(|vm| vm.values()) }
+    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {
+        self.v.default_vals_ifs.as_ref().map(|vm| vm.values())
+    }
     fn longest_filter(&self) -> bool { true }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.s.aliases {

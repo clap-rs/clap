@@ -1335,7 +1335,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .long("other")
     ///         .takes_value(true))
     ///     .get_matches_from_safe(vec![
-    ///         "prog", "--other", "not-special" 
+    ///         "prog", "--other", "not-special"
     ///     ]);
     ///
     /// assert!(res.is_ok()); // We didn't use --other=special, so "cfg" wasn't required
@@ -1355,7 +1355,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .long("other")
     ///         .takes_value(true))
     ///     .get_matches_from_safe(vec![
-    ///         "prog", "--other", "special" 
+    ///         "prog", "--other", "special"
     ///     ]);
     ///
     /// assert!(res.is_err());
@@ -1721,7 +1721,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .short("v"))
     ///     .get_matches_from(vec![
     ///         "prog", "-v", "-v", "-v"    // note, -vvv would have same result
-    ///     ]); 
+    ///     ]);
     ///
     /// assert!(m.is_present("verbose"));
     /// assert_eq!(m.occurrences_of("verbose"), 3);
@@ -1852,7 +1852,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`number_of_values`]).
     ///
     /// **NOTE:** This setting only applies to [options] and [positional arguments]
-    /// 
+    ///
     /// **NOTE:** When the terminator is passed in on the command line, it is **not** stored as one
     /// of the vaues
     ///
@@ -2965,12 +2965,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
-    pub fn default_value_if(self,
-                            arg: &'a str,
-                            val: Option<&'b str>,
-                            default: &'b str)
-                            -> Self {
-        self.default_value_if_os(arg, val.map(str::as_bytes).map(OsStr::from_bytes), OsStr::from_bytes(default.as_bytes()))
+    pub fn default_value_if(self, arg: &'a str, val: Option<&'b str>, default: &'b str) -> Self {
+        self.default_value_if_os(arg,
+                                 val.map(str::as_bytes).map(OsStr::from_bytes),
+                                 OsStr::from_bytes(default.as_bytes()))
     }
 
     /// Provides a conditional default value in the exact same manner as [`Arg::default_value_if`]
@@ -2978,10 +2976,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     pub fn default_value_if_os(mut self,
-                            arg: &'a str,
-                            val: Option<&'b OsStr>,
-                            default: &'b OsStr)
-                            -> Self {
+                               arg: &'a str,
+                               val: Option<&'b OsStr>,
+                               default: &'b OsStr)
+                               -> Self {
         self.setb(ArgSettings::TakesValue);
         if let Some(ref mut vm) = self.v.default_vals_ifs {
             let l = vm.len();
@@ -3080,12 +3078,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     pub fn default_value_ifs(mut self, ifs: &[(&'a str, Option<&'b str>, &'b str)]) -> Self {
         for &(arg, val, default) in ifs {
-            self = self.default_value_if_os(arg, val.map(str::as_bytes).map(OsStr::from_bytes), OsStr::from_bytes(default.as_bytes()));
+            self = self.default_value_if_os(arg,
+                                            val.map(str::as_bytes).map(OsStr::from_bytes),
+                                            OsStr::from_bytes(default.as_bytes()));
         }
         self
-    }   
+    }
 
-    /// Provides multiple conditional default values in the exact same manner as 
+    /// Provides multiple conditional default values in the exact same manner as
     /// [`Arg::default_value_ifs`] only using [`OsStr`]s instead.
     /// [`Arg::default_value_ifs`]: ./struct.Arg.html#method.default_value_ifs
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
