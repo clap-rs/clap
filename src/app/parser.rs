@@ -160,22 +160,10 @@ impl<'a, 'b> Parser<'a, 'b>
             let pb = PosBuilder::from_arg(a, i as u64, &mut self.required);
             self.positionals.insert(i, pb);
         } else if a.is_set(ArgSettings::TakesValue) {
-            // TODO: use uniquemap
-            // if let Some(ref als) = a.s.aliases {
-            //     for &(a, _) in als.iter() {
-            //         self.opt_l.push(a);
-            //     }
-            // }
             let mut ob = OptBuilder::from_arg(a, &mut self.required);
             ob.s.unified_ord = self.flags.len() + self.opts.len();
             self.opts.push(ob);
         } else {
-            // TODO: use uniquemap
-            // if let Some(ref als) = a.s.aliases {
-            //     for &(a, _) in als.iter() {
-            //         self.flag_l.push(a);
-            //     }
-            // }
             let mut fb = FlagBuilder::from(a);
             fb.s.unified_ord = self.flags.len() + self.opts.len();
             self.flags.push(fb);
