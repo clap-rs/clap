@@ -12,7 +12,7 @@ use fmt::Format;
 #[cfg(feature = "suggestions")]
 #[cfg_attr(feature = "lints", allow(needless_lifetimes))]
 pub fn did_you_mean<'a, T, I>(v: &str, possible_values: I) -> Option<&'a str>
-    where T: AsRef<str> + 'a,
+    where T: AsRef<str> + 'a + ?Sized,
           I: IntoIterator<Item = &'a T>
 {
 

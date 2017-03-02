@@ -111,6 +111,83 @@ fn arg_required_else_help() {
 }
 
 #[test]
+fn infer_subcommands_fail_no_args() {
+    let m = App::new("prog")
+        .setting(AppSettings::InferSubcommands)
+        .subcommand(SubCommand::with_name("test"))
+        .subcommand(SubCommand::with_name("temp"))
+        .get_matches_from_safe(vec![
+            "prog", "te"
+        ]);
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidSubcommand);
+}
+
+#[test]
+fn infer_subcommands_fail_with_args() {
+    let m = App::new("prog")
+        .setting(AppSettings::InferSubcommands)
+        .arg(Arg::with_name("some"))
+        .subcommand(SubCommand::with_name("test"))
+        .subcommand(SubCommand::with_name("temp"))
+        .get_matches_from_safe(vec![
+            "prog", "t"
+        ]);
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    assert_eq!(m.unwrap().value_of("some"), Some("t"));
+}
+
+#[test]
+fn infer_subcommands_fail_with_args2() {
+    let m = App::new("prog")
+        .setting(AppSettings::InferSubcommands)
+        .arg(Arg::with_name("some"))
+        .subcommand(SubCommand::with_name("test"))
+        .subcommand(SubCommand::with_name("temp"))
+        .get_matches_from_safe(vec![
+            "prog", "te"
+        ]);
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    assert_eq!(m.unwrap().value_of("some"), Some("te"));
+}
+
+#[test]
+fn infer_subcommands_pass() {
+    let m = App::new("prog")
+        .setting(AppSettings::InferSubcommands)
+        .subcommand(SubCommand::with_name("test"))
+        .get_matches_from(vec![
+            "prog", "te"
+        ]);
+    assert_eq!(m.subcommand_name(), Some("test"));
+}
+
+#[test]
+fn infer_subcommands_pass_close() {
+    let m = App::new("prog")
+        .setting(AppSettings::InferSubcommands)
+        .subcommand(SubCommand::with_name("test"))
+        .subcommand(SubCommand::with_name("temp"))
+        .get_matches_from(vec![
+            "prog", "tes"
+        ]);
+    assert_eq!(m.subcommand_name(), Some("test"));
+}
+
+#[test]
+fn infer_subcommands_fail_suggestions() {
+    let m = App::new("prog")
+        .setting(AppSettings::InferSubcommands)
+        .subcommand(SubCommand::with_name("test"))
+        .subcommand(SubCommand::with_name("temp"))
+        .get_matches_from_safe(vec![
+            "prog", "temps"
+        ]);
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidSubcommand);
+}
+
+#[test]
 fn no_bin_name() {
     let result = App::new("arg_required")
         .setting(AppSettings::NoBinaryName)
@@ -452,7 +529,9 @@ fn propagate_vals_down() {
         .setting(AppSettings::PropagateGlobalValuesDown)
         .arg(Arg::from_usage("[cmd] 'command to run'").global(true))
         .subcommand(SubCommand::with_name("foo"))
-        .get_matches_from(vec!["myprog", "set", "foo"]);
+        .get_matches_from_safe(vec!["myprog", "set", "foo"]);
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    let m = m.unwrap();
     assert_eq!(m.value_of("cmd"), Some("set"));
     let sub_m = m.subcommand_matches("foo").unwrap();
     assert_eq!(sub_m.value_of("cmd"), Some("set"));
@@ -464,7 +543,9 @@ fn allow_missing_positional() {
         .setting(AppSettings::AllowMissingPositional)
         .arg(Arg::from_usage("[src] 'some file'").default_value("src"))
         .arg_from_usage("<dest> 'some file'")
-        .get_matches_from(vec!["test", "file"]);
+        .get_matches_from_safe(vec!["test", "file"]);
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    let m = m.unwrap();
     assert_eq!(m.value_of("src"), Some("src"));
     assert_eq!(m.value_of("dest"), Some("file"));
 }

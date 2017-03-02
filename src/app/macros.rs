@@ -149,6 +149,8 @@ macro_rules! parse_positional {
         let _ = $_self.groups_for_arg($p.b.name)
                       .and_then(|vec| Some($matcher.inc_occurrences_of(&*vec)));
         arg_post_processing!($_self, $p, $matcher);
+
+        $_self.set(AS::ValidArgFound);
         // Only increment the positional counter if it doesn't allow multiples
         if !$p.b.settings.is_set(ArgSettings::Multiple) {
             $pos_counter += 1;

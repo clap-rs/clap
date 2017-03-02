@@ -989,7 +989,7 @@ macro_rules! find_subcmd {
         $_self.subcommands
             .iter()
             .find(|s| {
-                s.p.meta.name == $sc ||
+                &*s.p.meta.name == $sc ||
                 (s.p.meta.aliases.is_some() &&
                  s.p
                     .meta
@@ -1029,12 +1029,18 @@ macro_rules! _shorts_longs {
 
 macro_rules! arg_names {
     ($_self:ident) => {{
-        _names!($_self)
+        _names!(@args $_self)
+    }};
+}
+
+macro_rules! sc_names {
+    ($_self:ident) => {{
+        _names!(@sc $_self)
     }};
 }
 
 macro_rules! _names {
-    ($_self:ident) => {{
+    (@args $_self:ident) => {{
         $_self.flags
                 .iter()
                 .map(|f| &*f.b.name)
@@ -1043,4 +1049,15 @@ macro_rules! _names {
                                   .chain($_self.positionals.values()
                                                            .map(|p| &*p.b.name)))
     }};
+    (@sc $_self:ident) => {{
+        $_self.subcommands
+            .iter()
+            .map(|s| &*s.p.meta.name)
+            .chain($_self.subcommands
+                         .iter()
+                         .filter(|s| s.p.meta.aliases.is_some())
+                         .flat_map(|s| s.p.meta.aliases.as_ref().unwrap().iter().map(|&(n, _)| n)))
+            // .map(|n| &n)
+
+    }}
 }
