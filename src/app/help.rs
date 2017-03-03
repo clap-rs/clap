@@ -195,9 +195,7 @@ impl<'a> Help<'a> {
             if arg.longest_filter() {
                 self.longest = cmp::max(self.longest, arg.to_string().len());
             }
-            if !arg.is_set(ArgSettings::Hidden) {
-                arg_v.push(arg)
-            }
+            arg_v.push(arg)
         }
         let mut first = true;
         for arg in arg_v {
@@ -541,7 +539,7 @@ impl<'a> Help<'a> {
     pub fn write_all_args(&mut self, parser: &Parser) -> ClapResult<()> {
         debugln!("Help::write_all_args;");
         let flags = parser.has_flags();
-        let pos = parser.has_positionals();
+        let pos = parser.positionals().filter(|arg| !arg.is_set(ArgSettings::Hidden)).count() > 0;
         let opts = parser.has_opts();
         let subcmds = parser.has_subcommands();
 
