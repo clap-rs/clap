@@ -542,7 +542,7 @@ impl<'a, 'b> Parser<'a, 'b>
 
     #[inline]
     pub fn has_positionals(&self) -> bool { !self.positionals.is_empty() }
-
+    
     #[inline]
     pub fn has_subcommands(&self) -> bool { !self.subcommands.is_empty() }
 
