@@ -54,6 +54,7 @@ pub struct Parser<'a, 'b>
     overrides: Vec<&'b str>,
     help_short: Option<char>,
     version_short: Option<char>,
+    cache: Option<&'a str>,
     help_message: Option<&'a str>,
     version_message: Option<&'a str>,
 }
@@ -79,14 +80,6 @@ impl<'a, 'b> Parser<'a, 'b>
             .nth(0)
             .unwrap_or('V');
         self.version_short = Some(c);
-    }
-
-    pub fn help_message(&mut self, s: &'a str) {
-        self.help_message = Some(s);
-    }
-
-    pub fn version_message(&mut self, s: &'a str) {
-        self.version_message = Some(s);
     }
 
     pub fn gen_completions_to<W: Write>(&mut self, for_shell: Shell, buf: &mut W) {
@@ -1289,7 +1282,7 @@ impl<'a, 'b> Parser<'a, 'b>
             let arg = FlagBuilder {
                 b: Base {
                     name: "hclap_help",
-                    help: Some(self.help_message.unwrap_or("Prints help information")),
+                    help: Some("Prints help information"),
                     ..Default::default()
                 },
                 s: Switched {
@@ -1309,7 +1302,7 @@ impl<'a, 'b> Parser<'a, 'b>
             let arg = FlagBuilder {
                 b: Base {
                     name: "vclap_version",
-                    help: Some(self.version_message.unwrap_or("Prints version information")),
+                    help: Some("Prints version information"),
                     ..Default::default()
                 },
                 s: Switched {
@@ -1432,8 +1425,10 @@ impl<'a, 'b> Parser<'a, 'b>
                      opt.to_string());
             self.settings.set(AS::ValidArgFound);
             let ret = try!(self.parse_opt(val, opt, val.is_some(), matcher));
-            self.set(AS::ValidArgFound);
-            arg_post_processing!(self, opt, matcher);
+            if self.cache.map_or(true, |name| name != opt.b.name) {
+                arg_post_processing!(self, opt, matcher);
+                self.cache = Some(opt.b.name);
+            }
 
             return Ok(ret);
         } else if let Some(flag) = find_flag_by_long!(@os self, &arg) {
@@ -1447,9 +1442,11 @@ impl<'a, 'b> Parser<'a, 'b>
             try!(self.parse_flag(flag, matcher));
 
             // Handle conflicts, requirements, etc.
-            arg_post_processing!(self, flag, matcher);
+            if self.cache.map_or(true, |name| name != flag.b.name) {
+                arg_post_processing!(self, flag, matcher);
+                self.cache = Some(flag.b.name);
+            }
 
-            self.set(AS::ValidArgFound);
             return Ok(None);
         } else if self.is_set(AS::AllowLeadingHyphen) {
             return Ok(None);
@@ -1517,9 +1514,11 @@ impl<'a, 'b> Parser<'a, 'b>
                 // Default to "we're expecting a value later"
                 let ret = try!(self.parse_opt(val, opt, false, matcher));
 
-                arg_post_processing!(self, opt, matcher);
+                if self.cache.map_or(true, |name| name != opt.b.name) {
+                    arg_post_processing!(self, opt, matcher);
+                    self.cache = Some(opt.b.name);
+                }
 
-                self.set(AS::ValidArgFound);
                 return Ok(ret);
             } else if let Some(flag) = find_flag_by_short!(self, c) {
                 debugln!("Parser::parse_short_arg:iter: Found valid short flag -{}",
@@ -1529,10 +1528,12 @@ impl<'a, 'b> Parser<'a, 'b>
                 try!(self.check_for_help_and_version_char(c));
                 try!(self.parse_flag(flag, matcher));
 
-                self.set(AS::ValidArgFound);
                 // Handle conflicts, requirements, overrides, etc.
                 // Must be called here due to mutablilty
-                arg_post_processing!(self, flag, matcher);
+                if self.cache.map_or(true, |name| name != flag.b.name) {
+                    arg_post_processing!(self, flag, matcher);
+                    self.cache = Some(flag.b.name);
+                }
             } else {
                 let arg = format!("-{}", c);
                 return Err(Error::unknown_argument(&*arg,
@@ -2215,7 +2216,11 @@ impl<'a, 'b> Parser<'a, 'b>
                 if let Some(ref val) = $a.v.default_val {
                     if $m.get($a.b.name).is_none() {
                         try!($_self.add_val_to_arg($a, OsStr::new(val), $m));
-                        arg_post_processing!($_self, $a, $m);
+
+                        if $_self.cache.map_or(true, |name| name != $a.name()) {
+                            arg_post_processing!($_self, $a, $m);
+                            $_self.cache = Some($a.name());
+                        }
                     }
                 }
             };
@@ -2235,7 +2240,10 @@ impl<'a, 'b> Parser<'a, 'b>
                             };
                             if add {
                                 try!($_self.add_val_to_arg($a, OsStr::new(default), $m));
-                                arg_post_processing!($_self, $a, $m);
+                                if $_self.cache.map_or(true, |name| name != $a.name()) {
+                                    arg_post_processing!($_self, $a, $m);
+                                    $_self.cache = Some($a.name());
+                                }
                                 done = true;
                                 break;
                             }
