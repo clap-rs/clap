@@ -474,7 +474,8 @@ impl<'a, 'b> Parser<'a, 'b>
     pub fn get_args_tag(&self) -> Option<String> {
         debugln!("Parser::get_args_tag;");
         let mut count = 0;
-        'outer: for p in self.positionals.values().filter(|p| !p.is_set(ArgSettings::Required)) {
+        'outer: for p in self.positionals.values().filter(|p| !p.is_set(ArgSettings::Required) && 
+            !p.is_set(ArgSettings::Hidden)) {
             debugln!("Parser::get_args_tag:iter:{}:", p.b.name);
             if let Some(g_vec) = self.groups_for_arg(p.b.name) {
                 for grp_s in &g_vec {
@@ -486,20 +487,21 @@ impl<'a, 'b> Parser<'a, 'b>
                 }
             }
             count += 1;
-            debugln!("Parser::get_args_tag:iter: {} Args not required", count);
+            debugln!("Parser::get_args_tag:iter: {} Args not required or hidden", count);
         }
-        if !self.is_set(AS::DontCollapseArgsInUsage) && (count > 1 || self.positionals.len() > 1) {
+        if !self.is_set(AS::DontCollapseArgsInUsage) && count > 1 {
             return None; // [ARGS]
         } else if count == 1 {
             let p = self.positionals
                 .values()
-                .find(|p| !p.is_set(ArgSettings::Required))
+                .find(|p| !p.is_set(ArgSettings::Required) && !p.is_set(ArgSettings::Hidden))
                 .expect(INTERNAL_ERROR_MSG);
             return Some(format!(" [{}]{}", p.name_no_brackets(), p.multiple_str()));
         } else if self.is_set(AS::DontCollapseArgsInUsage) && !self.positionals.is_empty() {
             return Some(self.positionals
                 .values()
                 .filter(|p| !p.is_set(ArgSettings::Required))
+                .filter(|p| !p.is_set(ArgSettings::Hidden))
                 .map(|p| format!(" [{}]{}", p.name_no_brackets(), p.multiple_str()))
                 .collect::<Vec<_>>()
                 .join(""));
@@ -526,6 +528,9 @@ impl<'a, 'b> Parser<'a, 'b>
                         continue 'outer;
                     }
                 }
+            }
+            if f.is_set(ArgSettings::Hidden) {
+                continue;
             }
             debugln!("Parser::needs_flags_tag:iter: [FLAGS] required");
             return true;
@@ -2113,7 +2118,8 @@ impl<'a, 'b> Parser<'a, 'b>
                 usage.push_str(" [OPTIONS]");
             }
             if !self.is_set(AS::UnifiedHelpMessage) && self.has_opts() &&
-               self.opts.iter().any(|o| !o.b.settings.is_set(ArgSettings::Required)) {
+               self.opts.iter().any(|o| !o.is_set(ArgSettings::Required) && 
+               !o.is_set!(AS::Hidden)) {
                 usage.push_str(" [OPTIONS]");
             }
 
@@ -2122,13 +2128,14 @@ impl<'a, 'b> Parser<'a, 'b>
             // places a '--' in the usage string if there are args and options
             // supporting multiple values
             if self.has_positionals() &&
-               self.opts.iter().any(|o| o.b.settings.is_set(ArgSettings::Multiple)) &&
-               self.positionals.values().any(|p| !p.b.settings.is_set(ArgSettings::Required)) &&
+               self.opts.iter().any(|o| o.is_set(ArgSettings::Multiple)) &&
+               self.positionals.values().any(|p| !p.is_set(ArgSettings::Required)) &&
                !self.has_subcommands() {
                 usage.push_str(" [--]")
             }
             if self.has_positionals() &&
-               self.positionals.values().any(|p| !p.b.settings.is_set(ArgSettings::Required)) {
+               self.positionals.values().any(|p| !p.is_set(ArgSettings::Required) && 
+                    !p.is_set(ArgSettings::Hidden)) {
                 if let Some(args_tag) = self.get_args_tag() {
                     usage.push_str(&*args_tag);
                 } else {
