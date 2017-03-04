@@ -180,7 +180,7 @@ fn multiple_positional_one_required_usage_string() {
         .arg_from_usage("<FILE> 'some file'")
         .arg_from_usage("[FILES]... 'some file'")
         .get_matches_from(vec!["test", "file"]);
-    assert_eq!(m.usage(), "USAGE:\n    test <FILE> [ARGS]");
+    assert_eq!(m.usage(), "USAGE:\n    test <FILE> [FILES]...");
 }
 
 #[test]

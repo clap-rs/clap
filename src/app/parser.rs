@@ -578,7 +578,7 @@ impl<'a, 'b> Parser<'a, 'b>
     #[inline]
     pub fn has_visible_subcommands(&self) -> bool { 
         if self.subcommands.is_empty() { return false; }  
-        self.subcommands.iter().any(|s| !s.is_set(AppSettings::Hidden))
+        self.subcommands.iter().any(|s| !s.p.is_set(AS::Hidden))
     }
 
     #[inline]
@@ -2120,7 +2120,7 @@ impl<'a, 'b> Parser<'a, 'b>
         if let Some(u) = self.meta.usage_str {
             usage.push_str(&*u);
         } else if used.is_empty() {
-            usage.push_str(&*self.meta
+            let name = self.meta
                 .usage
                 .as_ref()
                 .unwrap_or_else(|| {
@@ -2128,7 +2128,8 @@ impl<'a, 'b> Parser<'a, 'b>
                         .bin_name
                         .as_ref()
                         .unwrap_or(&self.meta.name)
-                }));
+                });
+            usage.push_str(&*name);
             let mut reqs: Vec<&str> = self.required().map(|r| &**r).collect();
             reqs.dedup();
             let req_string = self.get_required_from(&reqs, None, None)
@@ -2141,9 +2142,9 @@ impl<'a, 'b> Parser<'a, 'b>
             } else if flags {
                 usage.push_str(" [OPTIONS]");
             }
-            if !self.is_set(AS::UnifiedHelpMessage) && self.has_opts() &&
+            if !self.is_set(AS::UnifiedHelpMessage) && 
                self.opts.iter().any(|o| !o.is_set(ArgSettings::Required) && 
-               !o.is_set!(AS::Hidden)) {
+               !o.is_set(ArgSettings::Hidden)) {
                 usage.push_str(" [OPTIONS]");
             }
 
@@ -2154,7 +2155,7 @@ impl<'a, 'b> Parser<'a, 'b>
             if self.has_positionals() &&
                self.opts.iter().any(|o| o.is_set(ArgSettings::Multiple)) &&
                self.positionals.values().any(|p| !p.is_set(ArgSettings::Required)) &&
-               !self.has_subcommands() {
+               !self.has_visible_subcommands() {
                 usage.push_str(" [--]")
             }
             if self.has_positionals() &&
@@ -2168,11 +2169,19 @@ impl<'a, 'b> Parser<'a, 'b>
             }
 
 
-            if self.has_subcommands() && !self.is_set(AS::SubcommandRequired) {
-                usage.push_str(" [SUBCOMMAND]");
-            } else if (self.is_set(AS::SubcommandRequired) || 
-                self.is_set(AS::SubcommandRequiredElseHelp)) && self.has_subcommands() {
-                usage.push_str(" <SUBCOMMAND>");
+            if self.is_set(AS::SubcommandsNegateReqs) || self.is_set(AS::ArgsNegateSubcommands) {
+                if self.has_visible_subcommands() {
+                    usage.push_str("\n    ");
+                    usage.push_str(&*name);
+                    usage.push_str(" <SUBCOMMAND>");
+                }
+            } else {
+                if self.has_visible_subcommands() && !self.is_set(AS::SubcommandRequired) {
+                    usage.push_str(" [SUBCOMMAND]");
+                } else if (self.is_set(AS::SubcommandRequired) || 
+                    self.is_set(AS::SubcommandRequiredElseHelp)) && self.has_subcommands() {
+                    usage.push_str(" <SUBCOMMAND>");
+                }
             }
         } else {
             self.smart_usage(&mut usage, used);
