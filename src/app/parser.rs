@@ -558,6 +558,30 @@ impl<'a, 'b> Parser<'a, 'b>
     pub fn has_subcommands(&self) -> bool { !self.subcommands.is_empty() }
 
     #[inline]
+    pub fn has_visible_opts(&self) -> bool { 
+        if self.opts.is_empty() { return false; }  
+        self.opts.iter().any(|o| !o.is_set(ArgSettings::Hidden))
+    }
+
+    #[inline]
+    pub fn has_visible_flags(&self) -> bool { 
+        if self.flags.is_empty() { return false; }  
+        self.flags.iter().any(|f| !f.is_set(ArgSettings::Hidden))
+    }
+
+    #[inline]
+    pub fn has_visible_positionals(&self) -> bool { 
+        if self.positionals.is_empty() { return false; }  
+        self.positionals.values().any(|p| !p.is_set(ArgSettings::Hidden))
+    }
+
+    #[inline]
+    pub fn has_visible_subcommands(&self) -> bool { 
+        if self.subcommands.is_empty() { return false; }  
+        self.subcommands.iter().any(|s| !s.is_set(AppSettings::Hidden))
+    }
+
+    #[inline]
     pub fn is_set(&self, s: AS) -> bool { self.settings.is_set(s) }
 
     #[inline]
