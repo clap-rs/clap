@@ -2139,7 +2139,8 @@ impl<'a, 'b> Parser<'a, 'b>
 
             if self.has_subcommands() && !self.is_set(AS::SubcommandRequired) {
                 usage.push_str(" [SUBCOMMAND]");
-            } else if self.is_set(AS::SubcommandRequired) && self.has_subcommands() {
+            } else if (self.is_set(AS::SubcommandRequired) || 
+                self.is_set(AS::SubcommandRequiredElseHelp)) && self.has_subcommands() {
                 usage.push_str(" <SUBCOMMAND>");
             }
         } else {
