@@ -329,7 +329,7 @@
 //! 
 //! * **"suggestions"**: Turns on the `Did you mean '--myoption'?` feature for when users make typos. (builds dependency `strsim`)
 //! * **"color"**: Turns on colored error messages. This feature only works on non-Windows OSs. (builds dependency `ansi-term` and `atty`)
-//! * **"wrap_help"**: Wraps the help at the actual terminal width when available, instead of 120 chracters. (builds dependency `term_size`, and `libc`)
+//! * **"wrap_help"**: Wraps the help at the actual terminal width when available, instead of 120 chracters. (builds dependency `term_size`)
 //! 
 //! To disable these, add this to your `Cargo.toml`:
 //! 
@@ -534,8 +534,6 @@ extern crate strsim;
 extern crate ansi_term;
 #[cfg(feature = "yaml")]
 extern crate yaml_rust;
-#[cfg(feature = "wrap_help")]
-extern crate libc;
 extern crate unicode_width;
 #[macro_use]
 extern crate bitflags;
