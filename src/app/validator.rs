@@ -54,7 +54,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             try!(self.validate_required(matcher));
         }
         try!(self.validate_matched_args(matcher));
-        matcher.usage(usage::create_help_usage(self.0));
+        matcher.usage(usage::create_usage_with_title(self.0, &[]));
 
         if matcher.is_empty() && matcher.subcommand_name().is_none() &&
            self.0.is_set(AS::ArgRequiredElseHelp) {

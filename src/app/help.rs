@@ -683,7 +683,7 @@ impl<'a> Help<'a> {
         try!(write!(self.writer,
                     "\n{}{}\n\n",
                     TAB,
-                    usage::create_help_usage(parser)));
+                    usage::create_help_usage(parser, true)));
 
         let flags = parser.has_flags();
         let pos = parser.has_positionals();
@@ -880,7 +880,7 @@ impl<'a> Help<'a> {
                                 parser.meta.about.unwrap_or("unknown about")));
                 }
                 b"usage" => {
-                    try!(write!(self.writer, "{}", usage::create_help_usage(parser)));
+                    try!(write!(self.writer, "{}", usage::create_help_usage(parser, true)));
                 }
                 b"all-args" => {
                     try!(self.write_all_args(&parser));

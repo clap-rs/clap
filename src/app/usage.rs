@@ -43,14 +43,14 @@ fn create_usage_no_title(p: &Parser, used: &[&str]) -> String {
     if let Some(u) = p.meta.usage_str {
         String::from(&*u)
     } else if used.is_empty() {
-        create_help_usage(p)
+        create_help_usage(p, true)
     } else {
         create_smart_usage(p, used)
     }
 }
 
 // Creates a usage string for display in help messages (i.e. not for errors)
-pub fn create_help_usage(p: &Parser) -> String {
+pub fn create_help_usage(p: &Parser, incl_reqs: bool) -> String {
     let mut usage = String::with_capacity(75);
     let name = p.meta
         .usage
@@ -62,11 +62,15 @@ pub fn create_help_usage(p: &Parser) -> String {
                                 .unwrap_or(&p.meta.name)
                         });
     usage.push_str(&*name);
-    let mut reqs: Vec<&str> = p.required().map(|r| &**r).collect();
-    reqs.dedup();
-    let req_string =
+    let req_string = if incl_reqs {
+        let mut reqs: Vec<&str> = p.required().map(|r| &**r).collect();
+        reqs.sort();
+        reqs.dedup();
         p.get_required_from(&reqs, None, None).iter().fold(String::new(),
-                                                            |a, s| a + &format!(" {}", s)[..]);
+                                                           |a, s| a + &format!(" {}", s)[..])
+    } else {
+        String::new()
+    };
 
     let flags = p.needs_flags_tag();
     if flags && !p.is_set(AS::UnifiedHelpMessage) {
@@ -75,9 +79,7 @@ pub fn create_help_usage(p: &Parser) -> String {
         usage.push_str(" [OPTIONS]");
     }
     if !p.is_set(AS::UnifiedHelpMessage) &&
-        p.opts.iter().any(|o| {
-                                !o.is_set(ArgSettings::Required) && !o.is_set(ArgSettings::Hidden)
-                            }) {
+       p.opts.iter().any(|o| !o.is_set(ArgSettings::Required) && !o.is_set(ArgSettings::Hidden)) {
         usage.push_str(" [OPTIONS]");
     }
 
@@ -86,15 +88,15 @@ pub fn create_help_usage(p: &Parser) -> String {
     // places a '--' in the usage string if there are args and options
     // supporting multiple values
     if p.has_positionals() && p.opts.iter().any(|o| o.is_set(ArgSettings::Multiple)) &&
-        p.positionals.values().any(|p| !p.is_set(ArgSettings::Required)) &&
-        !p.has_visible_subcommands() {
+       p.positionals.values().any(|p| !p.is_set(ArgSettings::Required)) &&
+       !p.has_visible_subcommands() {
         usage.push_str(" [--]")
     }
     if p.has_positionals() &&
-        p.positionals.values().any(|p| {
-                                        !p.is_set(ArgSettings::Required) &&
-                                        !p.is_set(ArgSettings::Hidden)
-                                    }) {
+       p.positionals.values().any(|p| {
+                                      !p.is_set(ArgSettings::Required) &&
+                                      !p.is_set(ArgSettings::Hidden)
+                                  }) {
         if let Some(args_tag) = p.get_args_tag() {
             usage.push_str(&*args_tag);
         } else {
@@ -102,20 +104,24 @@ pub fn create_help_usage(p: &Parser) -> String {
         }
     }
 
-
-    if p.is_set(AS::SubcommandsNegateReqs) || p.is_set(AS::ArgsNegateSubcommands) {
-        if p.has_visible_subcommands() {
-            usage.push_str("\n    ");
-            usage.push_str(&*name);
-            usage.push_str(" <SUBCOMMAND>");
-        }
-    } else {
-        if p.has_visible_subcommands() && !p.is_set(AS::SubcommandRequired) {
-            usage.push_str(" [SUBCOMMAND]");
-        } else if (p.is_set(AS::SubcommandRequired) ||
-                    p.is_set(AS::SubcommandRequiredElseHelp)) &&
-                    p.has_subcommands() {
-            usage.push_str(" <SUBCOMMAND>");
+    // incl_reqs is only false when this function is called recursively
+    if p.has_visible_subcommands() && incl_reqs {
+        if p.is_set(AS::SubcommandsNegateReqs) || p.is_set(AS::ArgsNegateSubcommands) {
+            if !p.is_set(AS::ArgsNegateSubcommands) {
+                usage.push_str("\n    ");
+                usage.push_str(&*create_help_usage(p, false));
+                usage.push_str(" <SUBCOMMAND>");
+            } else {
+                usage.push_str("\n    ");
+                usage.push_str(&*name);
+                usage.push_str(" <SUBCOMMAND>");
+            }
+        } else {
+            if p.is_set(AS::SubcommandRequired) || p.is_set(AS::SubcommandRequiredElseHelp) {
+                usage.push_str(" <SUBCOMMAND>");
+            } else {
+                usage.push_str(" [SUBCOMMAND]");
+            }
         }
     }
     usage.shrink_to_fit();
