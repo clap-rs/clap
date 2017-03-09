@@ -36,6 +36,47 @@ SUBCOMMANDS:
     help      Prints this message or the help of the given subcommand(s)
     subcmd    tests subcommands";
 
+static SC_NEGATES_REQS: &'static str = "prog 1.0
+
+USAGE:
+    prog --opt <FILE> [PATH]
+    prog [PATH] <SUBCOMMAND>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -o, --opt <FILE>    tests options
+
+ARGS:
+    <PATH>    
+
+SUBCOMMANDS:
+    help    Prints this message or the help of the given subcommand(s)
+    test";
+
+static ARGS_NEGATE_SC: &'static str = "prog 1.0
+
+USAGE:
+    prog [FLAGS] [OPTIONS] [PATH]
+    prog <SUBCOMMAND>
+
+FLAGS:
+    -f, --flag       testing flags
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -o, --opt <FILE>    tests options
+
+ARGS:
+    <PATH>    
+
+SUBCOMMANDS:
+    help    Prints this message or the help of the given subcommand(s)
+    test";
+
 static AFTER_HELP: &'static str = "some text that comes before the help
 
 clap-test v1.4.8
@@ -49,6 +90,19 @@ FLAGS:
     -V, --version    Prints version information
 
 some text that comes after the help";
+
+static HIDDEN_ARGS: &'static str = "prog 1.0
+
+USAGE:
+    prog [FLAGS] [OPTIONS]
+
+FLAGS:
+    -f, --flag       testing flags
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -o, --opt <FILE>    tests options";
 
 static SC_HELP: &'static str = "clap-test-subcmd 0.1
 Kevin K. <kbknapp@gmail.com>
@@ -531,6 +585,40 @@ fn issue_760() {
             .takes_value(true));
     assert!(test::compare_output(app, "ctest --help", ISSUE_760, false));
 }
+
+#[test]
+fn hidden_args() {
+    let app = App::new("prog")
+        .version("1.0")
+        .args_from_usage("-f, --flag 'testing flags'
+                          -o, --opt [FILE] 'tests options'")
+        .arg(Arg::with_name("pos").hidden(true));
+    assert!(test::compare_output(app, "prog --help", HIDDEN_ARGS, false));
+}
+
+#[test]
+fn sc_negates_reqs() {
+    let app = App::new("prog")
+        .version("1.0")
+        .setting(AppSettings::SubcommandsNegateReqs)
+        .arg_from_usage("-o, --opt <FILE> 'tests options'")
+        .arg(Arg::with_name("PATH"))
+        .subcommand(SubCommand::with_name("test"));
+    assert!(test::compare_output(app, "prog --help", SC_NEGATES_REQS, false));
+}
+
+#[test]
+fn args_negate_sc() {
+    let app = App::new("prog")
+        .version("1.0")
+        .setting(AppSettings::ArgsNegateSubcommands)
+        .args_from_usage("-f, --flag 'testing flags'
+                          -o, --opt [FILE] 'tests options'")
+        .arg(Arg::with_name("PATH"))
+        .subcommand(SubCommand::with_name("test"));
+    assert!(test::compare_output(app, "prog --help", ARGS_NEGATE_SC, false));
+}
+
 #[test]
 fn issue_777_wrap_all_things() {
     let app = App::new("A app with a crazy very long long long name hahaha")
