@@ -12,19 +12,20 @@ use osstringext::OsStrExt2;
 use app::settings::AppSettings as AS;
 use app::parser::Parser;
 use fmt::Colorizer;
+use app::usage;
 
-pub struct Validator<'a, 'b, 'z>(&'z mut Parser<'a, 'b>) where 'a: 'b, 'b: 'z;
+pub struct Validator<'a, 'b, 'z>(&'z mut Parser<'a, 'b>)
+    where 'a: 'b,
+          'b: 'z;
 
 impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
-    pub fn new(p: &'z mut Parser<'a, 'b>) -> Self {
-        Validator(p)
-    }
+    pub fn new(p: &'z mut Parser<'a, 'b>) -> Self { Validator(p) }
 
     pub fn validate(&mut self,
-                needs_val_of: Option<&'a str>,
-                subcmd_name: Option<String>,
-                matcher: &mut ArgMatcher<'a>)
-                -> ClapResult<()> {
+                    needs_val_of: Option<&'a str>,
+                    subcmd_name: Option<String>,
+                    matcher: &mut ArgMatcher<'a>)
+                    -> ClapResult<()> {
         debugln!("Validator::validate;");
         let mut reqs_validated = false;
         try!(self.0.add_defaults(matcher));
@@ -40,7 +41,9 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                 };
                 if should_err {
                     return Err(Error::empty_value(o,
-                                                  &*self.0.create_current_usage(matcher, None),
+                                                  &*usage::create_error_usage(self.0,
+                                                                                matcher,
+                                                                                None),
                                                   self.0.color()));
                 }
             }
@@ -51,17 +54,17 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             try!(self.validate_required(matcher));
         }
         try!(self.validate_matched_args(matcher));
-        matcher.usage(self.0.create_usage(&[]));
+        matcher.usage(usage::create_help_usage(self.0));
 
         if matcher.is_empty() && matcher.subcommand_name().is_none() &&
            self.0.is_set(AS::ArgRequiredElseHelp) {
             let mut out = vec![];
             try!(self.0.write_help_err(&mut out));
             return Err(Error {
-                message: String::from_utf8_lossy(&*out).into_owned(),
-                kind: ErrorKind::MissingArgumentOrSubcommand,
-                info: None,
-            });
+                           message: String::from_utf8_lossy(&*out).into_owned(),
+                           kind: ErrorKind::MissingArgumentOrSubcommand,
+                           info: None,
+                       });
         }
         Ok(())
     }
@@ -78,7 +81,9 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             if self.0.is_set(AS::StrictUtf8) && val.to_str().is_none() {
                 debugln!("Validator::validate_values: invalid UTF-8 found in val {:?}",
                          val);
-                return Err(Error::invalid_utf8(&*self.0.create_current_usage(matcher, None),
+                return Err(Error::invalid_utf8(&*usage::create_error_usage(self.0,
+                                                                             matcher,
+                                                                             None),
                                                self.0.color()));
             }
             if let Some(p_vals) = arg.possible_vals() {
@@ -88,7 +93,9 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                     return Err(Error::invalid_value(val_str,
                                                     p_vals,
                                                     arg,
-                                                    &*self.0.create_current_usage(matcher, None),
+                                                    &*usage::create_error_usage(self.0,
+                                                                                  matcher,
+                                                                                  None),
                                                     self.0.color()));
                 }
             }
@@ -96,7 +103,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                matcher.contains(&*arg.name()) {
                 debugln!("Validator::validate_values: illegal empty val found");
                 return Err(Error::empty_value(arg,
-                                              &*self.0.create_current_usage(matcher, None),
+                                              &*usage::create_error_usage(self.0, matcher, None),
                                               self.0.color()));
             }
             if let Some(vtor) = arg.validator() {
@@ -124,7 +131,8 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
     }
 
     fn validate_blacklist(&self, matcher: &mut ArgMatcher) -> ClapResult<()> {
-        debugln!("Validator::validate_blacklist: blacklist={:?}", self.0.blacklist);
+        debugln!("Validator::validate_blacklist: blacklist={:?}",
+                 self.0.blacklist);
         macro_rules! build_err {
             ($p:expr, $name:expr, $matcher:ident) => ({
                 debugln!("build_err!: name={}", $name);
@@ -138,7 +146,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                 );
                 debugln!("build_err!: '{:?}' conflicts with '{}'", c_with, $name);
                 $matcher.remove($name);
-                let usg = $p.create_current_usage($matcher, None);
+                let usg = usage::create_error_usage($p, $matcher, None);
                 if let Some(f) = find_by_name!($p, $name, flags, iter) {
                     debugln!("build_err!: It was a flag...");
                     Error::argument_conflict(f, c_with, &*usg, self.0.color())
@@ -160,7 +168,10 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         for name in &self.0.blacklist {
             debugln!("Validator::validate_blacklist:iter: Checking blacklisted name: {}",
                      name);
-            if self.0.groups.iter().any(|g| &g.name == name) {
+            if self.0
+                   .groups
+                   .iter()
+                   .any(|g| &g.name == name) {
                 debugln!("Validator::validate_blacklist:iter: groups contains it...");
                 for n in self.0.arg_names_in_group(name) {
                     debugln!("Validator::validate_blacklist:iter:iter: Checking arg '{}' in group...",
@@ -198,7 +209,11 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                 try!(self.validate_values(pos, ma, matcher));
                 try!(self.validate_arg_requires(pos, ma, matcher));
             } else {
-                let grp = self.0.groups.iter().find(|g| &g.name == name).expect(INTERNAL_ERROR_MSG);
+                let grp = self.0
+                    .groups
+                    .iter()
+                    .find(|g| &g.name == name)
+                    .expect(INTERNAL_ERROR_MSG);
                 if let Some(ref g_reqs) = grp.requires {
                     if g_reqs.iter().any(|&n| !matcher.contains(n)) {
                         return self.missing_required_error(matcher, None);
@@ -220,7 +235,9 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         if ma.occurs > 1 && !a.is_set(ArgSettings::Multiple) {
             // Not the first time, and we don't allow multiples
             return Err(Error::unexpected_multiple_usage(a,
-                                                        &*self.0.create_current_usage(matcher, None),
+                                                        &*usage::create_error_usage(self.0,
+                                                                                      matcher,
+                                                                                      None),
                                                         self.0.color()));
         }
         Ok(())
@@ -258,7 +275,9 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                                                          } else {
                                                              "ere"
                                                          },
-                                                         &*self.0.create_current_usage(matcher, None),
+                                                         &*usage::create_error_usage(self.0,
+                                                                                       matcher,
+                                                                                       None),
                                                          self.0.color()));
             }
         }
@@ -273,7 +292,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                                                       .to_str()
                                                       .expect(INVALID_UTF8),
                                                   a,
-                                                  &*self.0.create_current_usage(matcher, None),
+                                                  &*usage::create_error_usage(self.0, matcher, None),
                                                   self.0.color()));
             }
         }
@@ -284,14 +303,14 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                 return Err(Error::too_few_values(a,
                                                  num,
                                                  ma.vals.len(),
-                                                 &*self.0.create_current_usage(matcher, None),
+                                                 &*usage::create_error_usage(self.0, matcher, None),
                                                  self.0.color()));
             }
         }
         // Issue 665 (https://github.com/kbknapp/clap-rs/issues/665)
         if a.takes_value() && !a.is_set(ArgSettings::EmptyValues) && ma.vals.is_empty() {
             return Err(Error::empty_value(a,
-                                          &*self.0.create_current_usage(matcher, None),
+                                          &*usage::create_error_usage(self.0, matcher, None),
                                           self.0.color()));
         }
         Ok(())
@@ -307,9 +326,10 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         debugln!("Validator::validate_arg_requires;");
         if let Some(a_reqs) = a.requires() {
             for &(val, name) in a_reqs.iter().filter(|&&(val, _)| val.is_some()) {
-                if ma.vals
-                    .iter()
-                    .any(|v| v == val.expect(INTERNAL_ERROR_MSG) && !matcher.contains(name)) {
+                if ma.vals.iter().any(|v| {
+                                          v == val.expect(INTERNAL_ERROR_MSG) &&
+                                          !matcher.contains(name)
+                                      }) {
                     return self.missing_required_error(matcher, None);
                 }
             }
@@ -318,7 +338,8 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
     }
 
     fn validate_required(&self, matcher: &ArgMatcher) -> ClapResult<()> {
-        debugln!("Validator::validate_required: required={:?};", self.0.required);
+        debugln!("Validator::validate_required: required={:?};",
+                 self.0.required);
         'outer: for name in &self.0.required {
             debugln!("Validator::validate_required:iter:{}:", name);
             if matcher.contains(name) {
@@ -360,7 +381,8 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         a.blacklist().map(|bl| {
             bl.iter().any(|conf| {
                 matcher.contains(conf) ||
-                self.0.groups
+                self.0
+                    .groups
                     .iter()
                     .find(|g| &g.name == conf)
                     .map_or(false, |g| g.args.iter().any(|arg| matcher.contains(arg)))
@@ -401,21 +423,26 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             use_stderr: true,
             when: self.0.color(),
         };
-        let mut reqs = self.0.required.iter().map(|&r| &*r).collect::<Vec<_>>();
+        let mut reqs = self.0
+            .required
+            .iter()
+            .map(|&r| &*r)
+            .collect::<Vec<_>>();
         if let Some(r) = extra {
             reqs.push(r);
         }
         reqs.retain(|n| !matcher.contains(n));
         reqs.dedup();
         debugln!("Validator::missing_required_error: reqs={:#?}", reqs);
-        Err(Error::missing_required_argument(&*self.0.get_required_from(&reqs[..],
-                                                                    Some(matcher),
-                                                                    extra)
-                                                 .iter()
-                                                 .fold(String::new(), |acc, s| {
-                                                     acc + &format!("\n    {}", c.error(s))[..]
-                                                 }),
-                                             &*self.0.create_current_usage(matcher, extra),
+        Err(Error::missing_required_argument(&*self.0
+                                                   .get_required_from(&reqs[..],
+                                                                      Some(matcher),
+                                                                      extra)
+                                                   .iter()
+                                                   .fold(String::new(), |acc, s| {
+            acc + &format!("\n    {}", c.error(s))[..]
+        }),
+                                             &*usage::create_error_usage(self.0, matcher, extra),
                                              self.0.color()))
     }
 

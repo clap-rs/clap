@@ -11,6 +11,7 @@ use app::parser::Parser;
 use args::{AnyArg, ArgSettings, DispOrder};
 use errors::{Error, Result as ClapResult};
 use fmt::{Format, Colorizer};
+use app::usage;
 
 // Third Party
 use unicode_width::UnicodeWidthStr;
@@ -682,7 +683,7 @@ impl<'a> Help<'a> {
         try!(write!(self.writer,
                     "\n{}{}\n\n",
                     TAB,
-                    parser.create_usage_no_title(&[])));
+                    usage::create_help_usage(parser)));
 
         let flags = parser.has_flags();
         let pos = parser.has_positionals();
@@ -879,7 +880,7 @@ impl<'a> Help<'a> {
                                 parser.meta.about.unwrap_or("unknown about")));
                 }
                 b"usage" => {
-                    try!(write!(self.writer, "{}", parser.create_usage_no_title(&[])));
+                    try!(write!(self.writer, "{}", usage::create_help_usage(parser)));
                 }
                 b"all-args" => {
                     try!(self.write_all_args(&parser));

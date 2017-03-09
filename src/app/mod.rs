@@ -5,6 +5,7 @@ pub mod parser;
 mod meta;
 mod help;
 mod validator;
+mod usage;
 
 // Std
 use std::env;
