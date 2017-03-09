@@ -739,7 +739,7 @@ impl<'a, 'b> Parser<'a, 'b>
             #[cfg(not(target_os = "windows"))]
             use std::os::unix::ffi::OsStrExt;
             #[cfg(target_os = "windows")]
-            use ossstringext::OsStrExt3;
+            use osstringext::OsStrExt3;
 
             let n_bytes = n.as_bytes();
             let h_bytes = OsStr::new(h).as_bytes();
