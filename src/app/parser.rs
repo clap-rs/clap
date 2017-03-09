@@ -21,17 +21,17 @@ use app::App;
 use app::help::Help;
 use app::meta::AppMeta;
 use app::settings::AppFlags;
-use args::{AnyArg, ArgMatcher, Base, Switched, Arg, ArgGroup, FlagBuilder, OptBuilder, PosBuilder,
-           MatchedArg};
+use args::{AnyArg, ArgMatcher, Base, Switched, Arg, ArgGroup, FlagBuilder, OptBuilder, PosBuilder};
 use args::settings::ArgSettings;
 use completions::ComplGen;
 use errors::{Error, ErrorKind};
 use errors::Result as ClapResult;
-use fmt::{Colorizer, ColorWhen};
+use fmt::ColorWhen;
 use osstringext::OsStrExt2;
 use completions::Shell;
 use suggestions;
 use app::settings::AppSettings as AS;
+use app::validator::Validator;
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
@@ -46,12 +46,12 @@ pub struct Parser<'a, 'b>
     pub opts: Vec<OptBuilder<'a, 'b>>,
     pub positionals: VecMap<PosBuilder<'a, 'b>>,
     pub subcommands: Vec<App<'a, 'b>>,
-    groups: Vec<ArgGroup<'a>>,
+    pub groups: Vec<ArgGroup<'a>>,
     pub global_args: Vec<Arg<'a, 'b>>,
-    required: Vec<&'a str>,
-    r_ifs: Vec<(&'a str, &'b str, &'a str)>,
-    blacklist: Vec<&'b str>,
-    overrides: Vec<&'b str>,
+    pub required: Vec<&'a str>,
+    pub r_ifs: Vec<(&'a str, &'b str, &'a str)>,
+    pub blacklist: Vec<&'b str>,
+    pub overrides: Vec<&'b str>,
     help_short: Option<char>,
     version_short: Option<char>,
     cache: Option<&'a str>,
@@ -1097,54 +1097,9 @@ impl<'a, 'b> Parser<'a, 'b>
             });
         }
 
-        self.validate(needs_val_of, subcmd_name, matcher)
+        Validator::new(self).validate(needs_val_of, subcmd_name, matcher)
     }
 
-    fn validate(&mut self,
-                needs_val_of: Option<&'a str>,
-                subcmd_name: Option<String>,
-                matcher: &mut ArgMatcher<'a>)
-                -> ClapResult<()> {
-        debugln!("Parser::validate;");
-        let mut reqs_validated = false;
-        try!(self.add_defaults(matcher));
-        if let Some(a) = needs_val_of {
-            debugln!("Parser::validate: needs_val_of={:?}", a);
-            if let Some(o) = find_by_name!(self, &a, opts, iter) {
-                try!(self.validate_required(matcher));
-                reqs_validated = true;
-                let should_err = if let Some(v) = matcher.0.args.get(&*o.b.name) {
-                    v.vals.is_empty() && !(o.v.min_vals.is_some() && o.v.min_vals.unwrap() == 0)
-                } else {
-                    true
-                };
-                if should_err {
-                    return Err(Error::empty_value(o,
-                                                  &*self.create_current_usage(matcher, None),
-                                                  self.color()));
-                }
-            }
-        }
-
-        try!(self.validate_blacklist(matcher));
-        if !(self.is_set(AS::SubcommandsNegateReqs) && subcmd_name.is_some()) && !reqs_validated {
-            try!(self.validate_required(matcher));
-        }
-        try!(self.validate_matched_args(matcher));
-        matcher.usage(self.create_usage(&[]));
-
-        if matcher.is_empty() && matcher.subcommand_name().is_none() &&
-           self.is_set(AS::ArgRequiredElseHelp) {
-            let mut out = vec![];
-            try!(self.write_help_err(&mut out));
-            return Err(Error {
-                message: String::from_utf8_lossy(&*out).into_owned(),
-                kind: ErrorKind::MissingArgumentOrSubcommand,
-                info: None,
-            });
-        }
-        Ok(())
-    }
 
     fn propogate_help_version(&mut self) {
         debugln!("Parser::propogate_help_version;");
@@ -1294,7 +1249,7 @@ impl<'a, 'b> Parser<'a, 'b>
         args.iter().map(ToOwned::to_owned).collect()
     }
 
-    fn arg_names_in_group(&self, group: &str) -> Vec<&'a str> {
+    pub fn arg_names_in_group(&self, group: &str) -> Vec<&'a str> {
         let mut g_vec = vec![];
         let mut args = vec![];
 
@@ -1697,62 +1652,6 @@ impl<'a, 'b> Parser<'a, 'b>
         Ok(None)
     }
 
-    fn validate_values<A>(&self,
-                          arg: &A,
-                          ma: &MatchedArg,
-                          matcher: &ArgMatcher<'a>)
-                          -> ClapResult<()>
-        where A: AnyArg<'a, 'b> + Display
-    {
-        debugln!("Parser::validate_values: arg={:?}", arg.name());
-        for val in &ma.vals {
-            if self.is_set(AS::StrictUtf8) && val.to_str().is_none() {
-                debugln!("Parser::validate_values: invalid UTF-8 found in val {:?}",
-                         val);
-                return Err(Error::invalid_utf8(&*self.create_current_usage(matcher, None),
-                                               self.color()));
-            }
-            if let Some(p_vals) = arg.possible_vals() {
-                debugln!("Parser::validate_values: possible_vals={:?}", p_vals);
-                let val_str = val.to_string_lossy();
-                if !p_vals.contains(&&*val_str) {
-                    return Err(Error::invalid_value(val_str,
-                                                    p_vals,
-                                                    arg,
-                                                    &*self.create_current_usage(matcher, None),
-                                                    self.color()));
-                }
-            }
-            if !arg.is_set(ArgSettings::EmptyValues) && val.is_empty_() &&
-               matcher.contains(&*arg.name()) {
-                debugln!("Parser::validate_values: illegal empty val found");
-                return Err(Error::empty_value(arg,
-                                              &*self.create_current_usage(matcher, None),
-                                              self.color()));
-            }
-            if let Some(vtor) = arg.validator() {
-                debug!("Parser::validate_values: checking validator...");
-                if let Err(e) = vtor(val.to_string_lossy().into_owned()) {
-                    sdebugln!("error");
-                    return Err(Error::value_validation(Some(arg), e, self.color()));
-                } else {
-                    sdebugln!("good");
-                }
-            }
-            if let Some(vtor) = arg.validator_os() {
-                debug!("Parser::validate_values: checking validator_os...");
-                if let Err(e) = vtor(&val) {
-                    sdebugln!("error");
-                    return Err(Error::value_validation(Some(arg),
-                                                       (*e).to_string_lossy().to_string(),
-                                                       self.color()));
-                } else {
-                    sdebugln!("good");
-                }
-            }
-        }
-        Ok(())
-    }
 
     fn parse_flag(&self,
                   flag: &FlagBuilder<'a, 'b>,
@@ -1765,311 +1664,6 @@ impl<'a, 'b> Parser<'a, 'b>
         self.groups_for_arg(flag.b.name).and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
 
         Ok(())
-    }
-
-    fn validate_blacklist(&self, matcher: &mut ArgMatcher) -> ClapResult<()> {
-        debugln!("Parser::validate_blacklist: blacklist={:?}", self.blacklist);
-        macro_rules! build_err {
-            ($me:ident, $name:expr, $matcher:ident) => ({
-                debugln!("build_err!: name={}", $name);
-                let mut c_with = find_from!($me, $name, blacklist, &$matcher);
-                c_with = c_with.or(
-                    $me.find_any_arg($name).map_or(None, |aa| aa.blacklist())
-                                           .map_or(None, 
-                                                |bl| bl.iter().find(|arg| $matcher.contains(arg)))
-                                           .map_or(None, |an| $me.find_any_arg(an))
-                                           .map_or(None, |aa| Some(format!("{}", aa)))
-                );
-                debugln!("build_err!: '{:?}' conflicts with '{}'", c_with, $name);
-                $matcher.remove($name);
-                let usg = $me.create_current_usage($matcher, None);
-                if let Some(f) = find_by_name!($me, $name, flags, iter) {
-                    debugln!("build_err!: It was a flag...");
-                    Error::argument_conflict(f, c_with, &*usg, self.color())
-                } else if let Some(o) = find_by_name!($me, $name, opts, iter) {
-                   debugln!("build_err!: It was an option...");
-                    Error::argument_conflict(o, c_with, &*usg, self.color())
-                } else {
-                    match find_by_name!($me, $name, positionals, values) {
-                        Some(p) => {
-                            debugln!("build_err!: It was a positional...");
-                            Error::argument_conflict(p, c_with, &*usg, self.color())
-                        },
-                        None    => panic!(INTERNAL_ERROR_MSG)
-                    }
-                }
-            });
-        }
-
-        for name in &self.blacklist {
-            debugln!("Parser::validate_blacklist:iter: Checking blacklisted name: {}",
-                     name);
-            if self.groups.iter().any(|g| &g.name == name) {
-                debugln!("Parser::validate_blacklist:iter: groups contains it...");
-                for n in self.arg_names_in_group(name) {
-                    debugln!("Parser::validate_blacklist:iter:iter: Checking arg '{}' in group...",
-                             n);
-                    if matcher.contains(n) {
-                        debugln!("Parser::validate_blacklist:iter:iter: matcher contains it...");
-                        return Err(build_err!(self, &n, matcher));
-                    }
-                }
-            } else if matcher.contains(name) {
-                debugln!("Parser::validate_blacklist:iter: matcher contains it...");
-                return Err(build_err!(self, name, matcher));
-            }
-        }
-        Ok(())
-    }
-
-    fn validate_matched_args(&self, matcher: &mut ArgMatcher) -> ClapResult<()> {
-        debugln!("Parser::validate_matched_args;");
-        for (name, ma) in matcher.iter() {
-            debugln!("Parser::validate_matched_args:iter:{}: vals={:#?}",
-                     name,
-                     ma.vals);
-            if let Some(opt) = find_by_name!(self, name, opts, iter) {
-                try!(self.validate_arg_num_vals(opt, ma, matcher));
-                try!(self.validate_values(opt, ma, matcher));
-                try!(self.validate_arg_requires(opt, ma, matcher));
-                try!(self.validate_arg_num_occurs(opt, ma, matcher));
-            } else if let Some(flag) = find_by_name!(self, name, flags, iter) {
-                try!(self.validate_arg_requires(flag, ma, matcher));
-                try!(self.validate_arg_num_occurs(flag, ma, matcher));
-            } else if let Some(pos) = find_by_name!(self, name, positionals, values) {
-                try!(self.validate_arg_num_vals(pos, ma, matcher));
-                try!(self.validate_arg_num_occurs(pos, ma, matcher));
-                try!(self.validate_values(pos, ma, matcher));
-                try!(self.validate_arg_requires(pos, ma, matcher));
-            } else {
-                let grp = self.groups.iter().find(|g| &g.name == name).expect(INTERNAL_ERROR_MSG);
-                if let Some(ref g_reqs) = grp.requires {
-                    if g_reqs.iter().any(|&n| !matcher.contains(n)) {
-                        return self.missing_required_error(matcher, None);
-                    }
-                }
-            }
-        }
-        Ok(())
-    }
-
-    fn validate_arg_num_occurs<A>(&self,
-                                  a: &A,
-                                  ma: &MatchedArg,
-                                  matcher: &ArgMatcher)
-                                  -> ClapResult<()>
-        where A: AnyArg<'a, 'b> + Display
-    {
-        debugln!("Parser::validate_arg_num_occurs: a={};", a.name());
-        if ma.occurs > 1 && !a.is_set(ArgSettings::Multiple) {
-            // Not the first time, and we don't allow multiples
-            return Err(Error::unexpected_multiple_usage(a,
-                                                        &*self.create_current_usage(matcher, None),
-                                                        self.color()));
-        }
-        Ok(())
-    }
-
-    fn validate_arg_num_vals<A>(&self,
-                                a: &A,
-                                ma: &MatchedArg,
-                                matcher: &ArgMatcher)
-                                -> ClapResult<()>
-        where A: AnyArg<'a, 'b> + Display
-    {
-        debugln!("Parser::validate_arg_num_vals;");
-        if let Some(num) = a.num_vals() {
-            debugln!("Parser::validate_arg_num_vals: num_vals set...{}", num);
-            let should_err = if a.is_set(ArgSettings::Multiple) {
-                ((ma.vals.len() as u64) % num) != 0
-            } else {
-                num != (ma.vals.len() as u64)
-            };
-            if should_err {
-                debugln!("Parser::validate_arg_num_vals: Sending error WrongNumberOfValues");
-                return Err(Error::wrong_number_of_values(a,
-                                                         num,
-                                                         if a.is_set(ArgSettings::Multiple) {
-                                                             (ma.vals.len() % num as usize)
-                                                         } else {
-                                                             ma.vals.len()
-                                                         },
-                                                         if ma.vals.len() == 1 ||
-                                                            (a.is_set(ArgSettings::Multiple) &&
-                                                             (ma.vals.len() % num as usize) ==
-                                                             1) {
-                                                             "as"
-                                                         } else {
-                                                             "ere"
-                                                         },
-                                                         &*self.create_current_usage(matcher, None),
-                                                         self.color()));
-            }
-        }
-        if let Some(num) = a.max_vals() {
-            debugln!("Parser::validate_arg_num_vals: max_vals set...{}", num);
-            if (ma.vals.len() as u64) > num {
-                debugln!("Parser::validate_arg_num_vals: Sending error TooManyValues");
-                return Err(Error::too_many_values(ma.vals
-                                                      .iter()
-                                                      .last()
-                                                      .expect(INTERNAL_ERROR_MSG)
-                                                      .to_str()
-                                                      .expect(INVALID_UTF8),
-                                                  a,
-                                                  &*self.create_current_usage(matcher, None),
-                                                  self.color()));
-            }
-        }
-        if let Some(num) = a.min_vals() {
-            debugln!("Parser::validate_arg_num_vals: min_vals set: {}", num);
-            if (ma.vals.len() as u64) < num {
-                debugln!("Parser::validate_arg_num_vals: Sending error TooFewValues");
-                return Err(Error::too_few_values(a,
-                                                 num,
-                                                 ma.vals.len(),
-                                                 &*self.create_current_usage(matcher, None),
-                                                 self.color()));
-            }
-        }
-        // Issue 665 (https://github.com/kbknapp/clap-rs/issues/665)
-        if a.takes_value() && !a.is_set(ArgSettings::EmptyValues) && ma.vals.is_empty() {
-            return Err(Error::empty_value(a,
-                                          &*self.create_current_usage(matcher, None),
-                                          self.color()));
-        }
-        Ok(())
-    }
-
-    fn validate_arg_requires<A>(&self,
-                                a: &A,
-                                ma: &MatchedArg,
-                                matcher: &ArgMatcher)
-                                -> ClapResult<()>
-        where A: AnyArg<'a, 'b> + Display
-    {
-        debugln!("Parser::validate_arg_requires;");
-        if let Some(a_reqs) = a.requires() {
-            for &(val, name) in a_reqs.iter().filter(|&&(val, _)| val.is_some()) {
-                if ma.vals
-                    .iter()
-                    .any(|v| v == val.expect(INTERNAL_ERROR_MSG) && !matcher.contains(name)) {
-                    return self.missing_required_error(matcher, None);
-                }
-            }
-        }
-        Ok(())
-    }
-
-    #[inline]
-    fn missing_required_error(&self, matcher: &ArgMatcher, extra: Option<&str>) -> ClapResult<()> {
-        debugln!("Parser::missing_required_error: extra={:?}", extra);
-        let c = Colorizer {
-            use_stderr: true,
-            when: self.color(),
-        };
-        let mut reqs = self.required.iter().map(|&r| &*r).collect::<Vec<_>>();
-        if let Some(r) = extra {
-            reqs.push(r);
-        }
-        reqs.retain(|n| !matcher.contains(n));
-        reqs.dedup();
-        debugln!("Parser::missing_required_error: reqs={:#?}", reqs);
-        Err(Error::missing_required_argument(&*self.get_required_from(&reqs[..],
-                                                                    Some(matcher),
-                                                                    extra)
-                                                 .iter()
-                                                 .fold(String::new(), |acc, s| {
-                                                     acc + &format!("\n    {}", c.error(s))[..]
-                                                 }),
-                                             &*self.create_current_usage(matcher, extra),
-                                             self.color()))
-    }
-
-    fn validate_required(&self, matcher: &ArgMatcher) -> ClapResult<()> {
-        debugln!("Parser::validate_required: required={:?};", self.required);
-        'outer: for name in &self.required {
-            debugln!("Parser::validate_required:iter:{}:", name);
-            if matcher.contains(name) {
-                continue 'outer;
-            }
-            if let Some(a) = find_by_name!(self, name, flags, iter) {
-                if self.is_missing_required_ok(a, matcher) {
-                    continue 'outer;
-                }
-            } else if let Some(a) = find_by_name!(self, name, opts, iter) {
-                if self.is_missing_required_ok(a, matcher) {
-                    continue 'outer;
-                }
-            } else if let Some(a) = find_by_name!(self, name, positionals, values) {
-                if self.is_missing_required_ok(a, matcher) {
-                    continue 'outer;
-                }
-            }
-            return self.missing_required_error(matcher, None);
-        }
-
-        // Validate the conditionally required args
-        for &(a, v, r) in &self.r_ifs {
-            if let Some(ma) = matcher.get(a) {
-                if matcher.get(r).is_none() {
-                    if ma.vals.iter().any(|val| val == v) {
-                        return self.missing_required_error(matcher, Some(r));
-                    }
-                }
-            }
-        }
-        Ok(())
-    }
-
-    fn check_conflicts<A>(&self, a: &A, matcher: &ArgMatcher) -> Option<bool>
-        where A: AnyArg<'a, 'b>
-    {
-        debugln!("Parser::check_conflicts: a={:?};", a.name());
-        a.blacklist().map(|bl| {
-            bl.iter().any(|conf| {
-                matcher.contains(conf) ||
-                self.groups
-                    .iter()
-                    .find(|g| &g.name == conf)
-                    .map_or(false, |g| g.args.iter().any(|arg| matcher.contains(arg)))
-            })
-        })
-    }
-
-    fn check_required_unless<A>(&self, a: &A, matcher: &ArgMatcher) -> Option<bool>
-        where A: AnyArg<'a, 'b>
-    {
-        debugln!("Parser::check_required_unless: a={:?};", a.name());
-        macro_rules! check {
-            ($how:ident, $_self:ident, $a:ident, $m:ident) => {{
-                $a.required_unless().map(|ru| {
-                    ru.iter().$how(|n| {
-                        $m.contains(n) || {
-                            if let Some(grp) = $_self.groups.iter().find(|g| &g.name == n) {
-                                     grp.args.iter().any(|arg| $m.contains(arg))
-                            } else {
-                                false
-                            }
-                        }
-                    })
-                })
-            }}; 
-        }
-        if a.is_set(ArgSettings::RequiredUnlessAll) {
-            check!(all, self, a, matcher)
-        } else {
-            check!(any, self, a, matcher)
-        }
-    }
-
-    #[inline]
-    fn is_missing_required_ok<A>(&self, a: &A, matcher: &ArgMatcher) -> bool
-        where A: AnyArg<'a, 'b>
-    {
-        debugln!("Parser::is_missing_required_ok: a={}", a.name());
-        self.check_conflicts(a, matcher).unwrap_or(false) ||
-        self.check_required_unless(a, matcher).unwrap_or(false)
     }
 
     fn did_you_mean_error(&self, arg: &str, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
@@ -2261,7 +1855,7 @@ impl<'a, 'b> Parser<'a, 'b>
         Help::write_parser_help_to_stderr(w, self)
     }
 
-    fn add_defaults(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
+    pub fn add_defaults(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
         macro_rules! add_val {
             (@default $_self:ident, $a:ident, $m:ident) => {
                 if let Some(ref val) = $a.v.default_val {
