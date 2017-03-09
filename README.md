@@ -45,9 +45,22 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-Here's the highlights for v2.20.5
+Here's the highlights for v2.21.0
 
+* Some performance improvements by reducing the ammount of duplicate work, cloning, and allocations in all cases.
+* Some massive perfomance gains when using many args (i.e. things like shell glob expansions)
+* adds a setting to allow one to infer shortened subcommands or aliases (i.e. for subcommmand "test", "t", "te", or "tes" would be allowed assuming no other ambiguities)
+* when `AppSettings::SubcommandsNegateReqs` and `ArgsNegateSubcommands` are used, a new more accurate double line usage string is shown
+* provides `default_value_os` and `default_value_if[s]_os`
+* adds the ability to require the equals syntax with options `--opt=val`
+* doesn't print the argument sections in the help message if all args in that section are hidden
+* doesn't include the various `[ARGS]` `[FLAGS]` or `[OPTIONS]` if the only ones available are hidden
+* now correctly shows subcommand as required in the usage string when AppSettings::SubcommandRequiredElseHelp is used
+* fixes some "memory leaks" when an error is detected and clap exits
+* fixes a trait that's marked private accidentlly, but should be crate internal public
+* fixes a bug that tried to propogate global args multiple times when generating multiple completion scripts
 * Fixes a critical bug in the `clap_app!` macro of a missing fragment specifier when using `!property` style tags.
+* Fix examples link in CONTRIBUTING.md
 
 
 Here's the highlights from v2.0.0 to v2.20.4
