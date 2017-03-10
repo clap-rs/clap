@@ -6,7 +6,7 @@ use app::parser::Parser;
 // Creates a usage string for display. This happens just after all arguments were parsed, but before
 // any subcommands have been parsed (so as to give subcommands their own usage recursively)
 pub fn create_usage_with_title(p: &Parser, used: &[&str]) -> String {
-    debugln!("Parser::create_usage_with_title;");
+    debugln!("usage::create_usage_with_title;");
     let mut usage = String::with_capacity(75);
     usage.push_str("USAGE:\n    ");
     usage.push_str(&*create_usage_no_title(p, used));
@@ -39,7 +39,7 @@ pub fn create_error_usage<'a, 'b>(p: &Parser<'a, 'b>,
 
 // Creates a usage string (*without title*) if one was not provided by the user manually.
 fn create_usage_no_title(p: &Parser, used: &[&str]) -> String {
-    debugln!("Parser::create_usage_no_title;");
+    debugln!("usage::create_usage_no_title;");
     if let Some(u) = p.meta.usage_str {
         String::from(&*u)
     } else if used.is_empty() {
@@ -131,7 +131,7 @@ pub fn create_help_usage(p: &Parser, incl_reqs: bool) -> String {
 // Creates a context aware usage string, or "smart usage" from currently used
 // args, and requirements
 fn create_smart_usage(p: &Parser, used: &[&str]) -> String {
-    debugln!("Parser::smart_usage;");
+    debugln!("usage::smart_usage;");
     let mut usage = String::with_capacity(75);
     let mut hs: Vec<&str> = p.required().map(|s| &**s).collect();
     hs.extend_from_slice(used);
