@@ -225,6 +225,17 @@ FLAGS:
             Prints version
             information";
 
+static CUSTOM_VERSION_AND_HELP: &'static str = "customize 0.1
+Nobody <odysseus@example.com>
+You can customize the version and help text
+
+USAGE:
+    customize
+
+FLAGS:
+    -H, --help       Print help information
+    -v, --version    Print version information";
+
 #[test]
 fn help_short() {
     let m = App::new("test")
@@ -528,4 +539,17 @@ fn issue_777_wrap_all_things() {
         .about("Show how the about text is not wrapped")
         .set_term_width(35);
     assert!(test::compare_output(app, "ctest --help", ISSUE_777, false));
+}
+
+#[test]
+fn customize_version_and_help() {
+    let app = App::new("customize")
+        .version("0.1")
+        .author("Nobody <odysseus@example.com>")
+        .about("You can customize the version and help text")
+        .help_short("H")
+        .help_message("Print help information")
+        .version_short("v")
+        .version_message("Print version information");
+    assert!(test::compare_output(app, "customize --help", CUSTOM_VERSION_AND_HELP, false));
 }

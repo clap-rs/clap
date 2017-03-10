@@ -54,6 +54,8 @@ pub struct Parser<'a, 'b>
     overrides: Vec<&'b str>,
     help_short: Option<char>,
     version_short: Option<char>,
+    help_message: Option<&'a str>,
+    version_message: Option<&'a str>,
 }
 
 impl<'a, 'b> Parser<'a, 'b>
@@ -77,6 +79,14 @@ impl<'a, 'b> Parser<'a, 'b>
             .nth(0)
             .unwrap_or('V');
         self.version_short = Some(c);
+    }
+
+    pub fn help_message(&mut self, s: &'a str) {
+        self.help_message = Some(s);
+    }
+
+    pub fn version_message(&mut self, s: &'a str) {
+        self.version_message = Some(s);
     }
 
     pub fn gen_completions_to<W: Write>(&mut self, for_shell: Shell, buf: &mut W) {
@@ -1251,7 +1261,7 @@ impl<'a, 'b> Parser<'a, 'b>
             let arg = FlagBuilder {
                 b: Base {
                     name: "hclap_help",
-                    help: Some("Prints help information"),
+                    help: Some(self.help_message.unwrap_or("Prints help information")),
                     ..Default::default()
                 },
                 s: Switched {
@@ -1271,7 +1281,7 @@ impl<'a, 'b> Parser<'a, 'b>
             let arg = FlagBuilder {
                 b: Base {
                     name: "vclap_version",
-                    help: Some("Prints version information"),
+                    help: Some(self.version_message.unwrap_or("Prints version information")),
                     ..Default::default()
                 },
                 s: Switched {
