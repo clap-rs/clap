@@ -110,7 +110,7 @@ impl<'a> ArgMatches<'a> {
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     pub fn value_of<S: AsRef<str>>(&self, name: S) -> Option<&str> {
         if let Some(arg) = self.args.get(name.as_ref()) {
-            if let Some(v) = arg.vals.iter().nth(0) {
+            if let Some(v) = arg.vals.get(0) {
                 return Some(v.to_str().expect(INVALID_UTF8));
             }
         }
@@ -142,7 +142,7 @@ impl<'a> ArgMatches<'a> {
     /// [`Arg::values_of_lossy`]: ./struct.ArgMatches.html#method.values_of_lossy
     pub fn value_of_lossy<S: AsRef<str>>(&'a self, name: S) -> Option<Cow<'a, str>> {
         if let Some(arg) = self.args.get(name.as_ref()) {
-            if let Some(v) = arg.vals.iter().nth(0) {
+            if let Some(v) = arg.vals.get(0) {
                 return Some(v.to_string_lossy());
             }
         }
@@ -179,7 +179,7 @@ impl<'a> ArgMatches<'a> {
     pub fn value_of_os<S: AsRef<str>>(&self, name: S) -> Option<&OsStr> {
         self.args
             .get(name.as_ref())
-            .map_or(None, |arg| arg.vals.iter().nth(0).map(|v| v.as_os_str()))
+            .map_or(None, |arg| arg.vals.get(0).map(|v| v.as_os_str()))
     }
 
     /// Gets a [`Values`] struct which implements [`Iterator`] for values of a specific argument

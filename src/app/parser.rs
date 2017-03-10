@@ -217,10 +217,10 @@ impl<'a, 'b> Parser<'a, 'b>
     }
     // actually adds the arguments but from a borrow (which means we have to do some clonine)
     pub fn add_arg_ref(&mut self, a: &Arg<'a, 'b>) {
-        self.debug_asserts(&a);
-        self.add_conditional_reqs(&a);
-        self.add_arg_groups(&a);
-        self.add_reqs(&a);
+        self.debug_asserts(a);
+        self.add_conditional_reqs(a);
+        self.add_arg_groups(a);
+        self.add_reqs(a);
         if a.index.is_some() || (a.s.short.is_none() && a.s.long.is_none()) {
             let i = if a.index.is_none() {
                 (self.positionals.len() + 1)
@@ -779,7 +779,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 return (true, Some(v[0]));
             }
         }
-        return (false, None);
+        (false, None)
     }
 
     fn parse_help_subcommand<I, T>(&self, it: &mut I) -> ClapResult<()>
@@ -1324,7 +1324,7 @@ impl<'a, 'b> Parser<'a, 'b>
                       .expect(INTERNAL_ERROR_MSG)
                       .args {
             if self.groups.iter().any(|g| &g.name == &*n) {
-                args.extend(self.arg_names_in_group(&*n));
+                args.extend(self.arg_names_in_group(n));
                 g_vec.push(*n);
             } else {
                 args.push(*n);
@@ -1504,6 +1504,7 @@ impl<'a, 'b> Parser<'a, 'b>
         self.did_you_mean_error(arg.to_str().expect(INVALID_UTF8), matcher).map(|_| None)
     }
 
+    #[cfg_attr(feature = "lints", allow(len_zero))]
     fn parse_short_arg(&mut self,
                        matcher: &mut ArgMatcher<'a>,
                        full_arg: &OsStr)
@@ -1882,7 +1883,7 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     // Only used for completion scripts due to bin_name messiness
-    #[cfg_attr(feature = "lints", allow(explicit_iter_loop))]
+    #[cfg_attr(feature = "lints", allow(block_in_if_condition_stmt))]
     pub fn find_subcommand(&'b self, sc: &str) -> Option<&'b App<'a, 'b>> {
         debugln!("Parser::find_subcommand: sc={}", sc);
         debugln!("Parser::find_subcommand: Currently in Parser...{}",

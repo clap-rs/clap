@@ -42,8 +42,8 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                 if should_err {
                     return Err(Error::empty_value(o,
                                                   &*usage::create_error_usage(self.0,
-                                                                                matcher,
-                                                                                None),
+                                                                              matcher,
+                                                                              None),
                                                   self.0.color()));
                 }
             }
@@ -81,9 +81,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             if self.0.is_set(AS::StrictUtf8) && val.to_str().is_none() {
                 debugln!("Validator::validate_values: invalid UTF-8 found in val {:?}",
                          val);
-                return Err(Error::invalid_utf8(&*usage::create_error_usage(self.0,
-                                                                             matcher,
-                                                                             None),
+                return Err(Error::invalid_utf8(&*usage::create_error_usage(self.0, matcher, None),
                                                self.0.color()));
             }
             if let Some(p_vals) = arg.possible_vals() {
@@ -94,8 +92,8 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                                                     p_vals,
                                                     arg,
                                                     &*usage::create_error_usage(self.0,
-                                                                                  matcher,
-                                                                                  None),
+                                                                                matcher,
+                                                                                None),
                                                     self.0.color()));
                 }
             }
@@ -117,7 +115,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             }
             if let Some(vtor) = arg.validator_os() {
                 debug!("Validator::validate_values: checking validator_os...");
-                if let Err(e) = vtor(&val) {
+                if let Err(e) = vtor(val) {
                     sdebugln!("error");
                     return Err(Error::value_validation(Some(arg),
                                                        (*e).to_string_lossy().to_string(),
@@ -236,8 +234,8 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             // Not the first time, and we don't allow multiples
             return Err(Error::unexpected_multiple_usage(a,
                                                         &*usage::create_error_usage(self.0,
-                                                                                      matcher,
-                                                                                      None),
+                                                                                    matcher,
+                                                                                    None),
                                                         self.0.color()));
         }
         Ok(())
@@ -276,8 +274,8 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                                                              "ere"
                                                          },
                                                          &*usage::create_error_usage(self.0,
-                                                                                       matcher,
-                                                                                       None),
+                                                                                     matcher,
+                                                                                     None),
                                                          self.0.color()));
             }
         }
@@ -292,7 +290,9 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                                                       .to_str()
                                                       .expect(INVALID_UTF8),
                                                   a,
-                                                  &*usage::create_error_usage(self.0, matcher, None),
+                                                  &*usage::create_error_usage(self.0,
+                                                                              matcher,
+                                                                              None),
                                                   self.0.color()));
             }
         }
@@ -303,7 +303,9 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                 return Err(Error::too_few_values(a,
                                                  num,
                                                  ma.vals.len(),
-                                                 &*usage::create_error_usage(self.0, matcher, None),
+                                                 &*usage::create_error_usage(self.0,
+                                                                             matcher,
+                                                                             None),
                                                  self.0.color()));
             }
         }
@@ -326,10 +328,9 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         debugln!("Validator::validate_arg_requires;");
         if let Some(a_reqs) = a.requires() {
             for &(val, name) in a_reqs.iter().filter(|&&(val, _)| val.is_some()) {
-                if ma.vals.iter().any(|v| {
-                                          v == val.expect(INTERNAL_ERROR_MSG) &&
-                                          !matcher.contains(name)
-                                      }) {
+                let missing_req =
+                    |v| v == val.expect(INTERNAL_ERROR_MSG) && !matcher.contains(name);
+                if ma.vals.iter().any(missing_req) {
                     return self.missing_required_error(matcher, None);
                 }
             }
@@ -364,10 +365,8 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         // Validate the conditionally required args
         for &(a, v, r) in &self.0.r_ifs {
             if let Some(ma) = matcher.get(a) {
-                if matcher.get(r).is_none() {
-                    if ma.vals.iter().any(|val| val == v) {
-                        return self.missing_required_error(matcher, Some(r));
-                    }
+                if matcher.get(r).is_none() && ma.vals.iter().any(|val| val == v) {
+                    return self.missing_required_error(matcher, Some(r));
                 }
             }
         }

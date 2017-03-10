@@ -1,4 +1,4 @@
-use args::{AnyArg, ArgMatcher};
+use args::{AnyArg, ArgMatcher, PosBuilder};
 use args::settings::ArgSettings;
 use app::settings::AppSettings as AS;
 use app::parser::Parser;
@@ -92,11 +92,8 @@ pub fn create_help_usage(p: &Parser, incl_reqs: bool) -> String {
        !p.has_visible_subcommands() {
         usage.push_str(" [--]")
     }
-    if p.has_positionals() &&
-       p.positionals.values().any(|p| {
-                                      !p.is_set(ArgSettings::Required) &&
-                                      !p.is_set(ArgSettings::Hidden)
-                                  }) {
+    let not_req_or_hidden= |p: &PosBuilder| !p.is_set(ArgSettings::Required) && !p.is_set(ArgSettings::Hidden);
+    if p.has_positionals() && p.positionals.values().any(not_req_or_hidden) {
         if let Some(args_tag) = p.get_args_tag() {
             usage.push_str(&*args_tag);
         } else {
@@ -116,12 +113,10 @@ pub fn create_help_usage(p: &Parser, incl_reqs: bool) -> String {
                 usage.push_str(&*name);
                 usage.push_str(" <SUBCOMMAND>");
             }
+        } else if p.is_set(AS::SubcommandRequired) || p.is_set(AS::SubcommandRequiredElseHelp) {
+            usage.push_str(" <SUBCOMMAND>");
         } else {
-            if p.is_set(AS::SubcommandRequired) || p.is_set(AS::SubcommandRequiredElseHelp) {
-                usage.push_str(" <SUBCOMMAND>");
-            } else {
-                usage.push_str(" [SUBCOMMAND]");
-            }
+            usage.push_str(" [SUBCOMMAND]");
         }
     }
     usage.shrink_to_fit();

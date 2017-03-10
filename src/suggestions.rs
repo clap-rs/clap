@@ -68,6 +68,7 @@ pub fn did_you_mean_suffix<'z, T, I>(arg: &str,
 }
 
 /// A helper to determine message formatting
+#[derive(Copy, Clone, Debug)]
 pub enum DidYouMeanMessageStyle {
     /// Suggested value is a long flag
     LongFlag,
