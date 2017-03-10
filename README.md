@@ -52,6 +52,7 @@ Here's the highlights for v2.21.0
 * adds a setting to allow one to infer shortened subcommands or aliases (i.e. for subcommmand "test", "t", "te", or "tes" would be allowed assuming no other ambiguities)
 * when `AppSettings::SubcommandsNegateReqs` and `ArgsNegateSubcommands` are used, a new more accurate double line usage string is shown
 * provides `default_value_os` and `default_value_if[s]_os`
+* provides `App::help_message` and `App::version_message` which allows one to override the auto-generated help/version flag associated help
 * adds the ability to require the equals syntax with options `--opt=val`
 * doesn't print the argument sections in the help message if all args in that section are hidden
 * doesn't include the various `[ARGS]` `[FLAGS]` or `[OPTIONS]` if the only ones available are hidden

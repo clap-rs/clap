@@ -19,6 +19,7 @@
 #### API Additions
 
 *   provides `default_value_os` and `default_value_if[s]_os` ([0f2a3782](https://github.com/kbknapp/clap-rs/commit/0f2a378219a6930748d178ba350fe5925be5dad5), closes [#849](https://github.com/kbknapp/clap-rs/issues/849))
+*   provides `App::help_message` and `App::version_message` which allows one to override the auto-generated help/version flag associated help ([389c413](https://github.com/kbknapp/clap-rs/commit/389c413b7023dccab8c76aa00577ea1d048e7a99), closes [#889](https://github.com/kbknapp/clap-rs/issues/889))
 
 #### New Settings
 
