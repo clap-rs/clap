@@ -4,6 +4,7 @@ about: tests clap library
 author: Kevin K. <kbknapp@gmail.com>
 settings:
     - ArgRequiredElseHelp
+help_message: prints help with a nonstandard description
 args:
     - opt:
         short: o
