@@ -32,7 +32,7 @@ pub fn did_you_mean<'a, T, I>(v: &str, possible_values: I) -> Option<&'a str>
 
 #[cfg(not(feature = "suggestions"))]
 pub fn did_you_mean<'a, T, I>(_: &str, _: I) -> Option<&'a str>
-    where T: AsRef<str> + 'a,
+    where T: AsRef<str> + 'a + ?Sized,
           I: IntoIterator<Item = &'a T>
 {
     None
