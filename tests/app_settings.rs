@@ -110,6 +110,7 @@ fn arg_required_else_help() {
     assert_eq!(err.kind, ErrorKind::MissingArgumentOrSubcommand);
 }
 
+#[cfg(not(feature = "suggestions"))]
 #[test]
 fn infer_subcommands_fail_no_args() {
     let m = App::new("prog")
@@ -119,7 +120,21 @@ fn infer_subcommands_fail_no_args() {
         .get_matches_from_safe(vec![
             "prog", "te"
         ]);
-    assert!(m.is_err());
+    assert!(m.is_err(), "{:#?}", m.unwrap());
+    assert_eq!(m.unwrap_err().kind, ErrorKind::UnrecognizedSubcommand);
+}
+
+#[cfg(feature = "suggestions")]
+#[test]
+fn infer_subcommands_fail_no_args() {
+    let m = App::new("prog")
+        .setting(AppSettings::InferSubcommands)
+        .subcommand(SubCommand::with_name("test"))
+        .subcommand(SubCommand::with_name("temp"))
+        .get_matches_from_safe(vec![
+            "prog", "te"
+        ]);
+    assert!(m.is_err(), "{:#?}", m.unwrap());
     assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidSubcommand);
 }
 
@@ -174,6 +189,7 @@ fn infer_subcommands_pass_close() {
     assert_eq!(m.subcommand_name(), Some("test"));
 }
 
+#[cfg(feature = "suggestions")]
 #[test]
 fn infer_subcommands_fail_suggestions() {
     let m = App::new("prog")
@@ -183,8 +199,22 @@ fn infer_subcommands_fail_suggestions() {
         .get_matches_from_safe(vec![
             "prog", "temps"
         ]);
-    assert!(m.is_err());
+    assert!(m.is_err(), "{:#?}", m.unwrap());
     assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidSubcommand);
+}
+
+#[cfg(not(feature = "suggestions"))]
+#[test]
+fn infer_subcommands_fail_suggestions() {
+    let m = App::new("prog")
+        .setting(AppSettings::InferSubcommands)
+        .subcommand(SubCommand::with_name("test"))
+        .subcommand(SubCommand::with_name("temp"))
+        .get_matches_from_safe(vec![
+            "prog", "temps"
+        ]);
+    assert!(m.is_err(), "{:#?}", m.unwrap());
+    assert_eq!(m.unwrap_err().kind, ErrorKind::UnrecognizedSubcommand);
 }
 
 #[test]

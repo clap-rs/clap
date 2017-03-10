@@ -940,6 +940,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 // Does the arg match a subcommand name, or any of it's aliases (if defined)
                 {
                     let (is_match, sc_name) = self.possible_subcommand(&arg_os);
+                    debugln!("Parser::get_matches_with: possible_sc={:?}, sc={:?}", is_match, sc_name);
                     if is_match {
                         let sc_name = sc_name.expect(INTERNAL_ERROR_MSG);
                         if sc_name == "help" && self.is_set(AS::NeedsSubcommandHelp) {
@@ -1094,7 +1095,7 @@ impl<'a, 'b> Parser<'a, 'b>
                                                                                  matcher,
                                                                                  None),
                                                    self.color()));
-            } else if !(has_args) && self.has_subcommands() {
+            } else if !has_args || self.is_set(AS::InferSubcommands) && self.has_subcommands() {
                 if let Some(cdate) = suggestions::did_you_mean(&*arg_os.to_string_lossy(),
                                                                sc_names!(self)) {
                     return Err(Error::invalid_subcommand(arg_os.to_string_lossy().into_owned(),
@@ -1107,6 +1108,13 @@ impl<'a, 'b> Parser<'a, 'b>
                                                                                        matcher,
                                                                                        None),
                                                          self.color()));
+                } else {
+                    return Err(Error::unrecognized_subcommand(arg_os.to_string_lossy().into_owned(),
+                                                              self.meta
+                                                                  .bin_name
+                                                                  .as_ref()
+                                                                  .unwrap_or(&self.meta.name),
+                                                              self.color()));
                 }
             }
         }
@@ -1132,7 +1140,7 @@ impl<'a, 'b> Parser<'a, 'b>
                                                                               None),
                                                  self.color()));
         } else if self.is_set(AS::SubcommandRequiredElseHelp) {
-            debugln!("parser::get_matches_with: SubcommandRequiredElseHelp=true");
+            debugln!("Parser::get_matches_with: SubcommandRequiredElseHelp=true");
             let mut out = vec![];
             try!(self.write_help_err(&mut out));
             return Err(Error {
