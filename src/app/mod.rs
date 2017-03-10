@@ -389,6 +389,44 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
+    /// Sets the help text for the auto-generated `help` argument.
+    ///
+    /// By default `clap` sets this to `"Prints help information"`, but if you're using a
+    /// different convention for your help messages and would prefer a different phrasing you can
+    /// override it.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .help_message("Print help information") // Perhaps you want imperative help messages
+    ///
+    /// # ;
+    /// ```
+    pub fn help_message<S: Into<&'a str>>(mut self, s: S) -> Self {
+        self.p.help_message(s.into());
+        self
+    }
+
+    /// Sets the help text for the auto-generated `version` argument.
+    ///
+    /// By default `clap` sets this to `"Prints version information"`, but if you're using a
+    /// different convention for your help messages and would prefer a different phrasing then you
+    /// can change it.
+    ///
+    /// # Examples
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .version_message("Print version information") // Perhaps you want imperative help messages
+    /// # ;
+    /// ```
+    pub fn version_message<S: Into<&'a str>>(mut self, s: S) -> Self {
+        self.p.version_message(s.into());
+        self
+    }
+
     /// Sets the help template to be used, overriding the default format.
     ///
     /// Tags arg given inside curly brackets.
@@ -1429,6 +1467,8 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
         yaml_str!(a, yaml, help);
         yaml_str!(a, yaml, help_short);
         yaml_str!(a, yaml, version_short);
+        yaml_str!(a, yaml, help_message);
+        yaml_str!(a, yaml, version_message);
         yaml_str!(a, yaml, alias);
         yaml_str!(a, yaml, visible_alias);
 
