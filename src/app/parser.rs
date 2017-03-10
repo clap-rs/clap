@@ -56,8 +56,8 @@ pub struct Parser<'a, 'b>
     help_short: Option<char>,
     version_short: Option<char>,
     cache: Option<&'a str>,
-    help_message: Option<&'a str>,
-    version_message: Option<&'a str>,
+    pub help_message: Option<&'a str>,
+    pub version_message: Option<&'a str>,
 }
 
 impl<'a, 'b> Parser<'a, 'b>
@@ -1348,7 +1348,7 @@ impl<'a, 'b> Parser<'a, 'b>
             let arg = FlagBuilder {
                 b: Base {
                     name: "hclap_help",
-                    help: Some("Prints help information"),
+                    help: self.help_message.or(Some("Prints help information")),
                     ..Default::default()
                 },
                 s: Switched {
@@ -1368,7 +1368,7 @@ impl<'a, 'b> Parser<'a, 'b>
             let arg = FlagBuilder {
                 b: Base {
                     name: "vclap_version",
-                    help: Some("Prints version information"),
+                    help: self.version_message.or(Some("Prints version information")),
                     ..Default::default()
                 },
                 s: Switched {
