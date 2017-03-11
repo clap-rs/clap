@@ -26,3 +26,9 @@ impl<'n, 'e> Base<'n, 'e> {
 impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for Base<'n, 'e> {
     fn from(a: &'z Arg<'n, 'e>) -> Self { a.b.clone() }
 }
+
+impl<'n, 'e> PartialEq for Base<'n, 'e> {
+    fn eq(&self, other: &Base<'n, 'e>) -> bool {
+        self.name == other.name
+    }
+}

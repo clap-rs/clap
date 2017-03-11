@@ -3327,3 +3327,9 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
         }
     }
 }
+
+impl<'n, 'e> PartialEq for Arg<'n, 'e> {
+    fn eq(&self, other: &Arg<'n, 'e>) -> bool {
+        self.b == other.b
+    }
+}

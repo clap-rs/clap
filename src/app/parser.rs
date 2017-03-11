@@ -1168,13 +1168,12 @@ impl<'a, 'b> Parser<'a, 'b>
                 args.extend(self.arg_names_in_group(n));
                 g_vec.push(*n);
             } else {
-                args.push(*n);
+                if !args.contains(n) {
+                    args.push(*n);
+                }
             }
         }
 
-        // TODO: faster way to sort/dedup?
-        args.sort();
-        args.dedup();
         args.iter().map(|s| *s).collect()
     }
 

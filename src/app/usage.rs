@@ -421,13 +421,14 @@ pub fn get_required_usage_from<'a, 'b>(p: &Parser<'a, 'b>,
                             });
         ret_val.push_back(arg);
     }
-    let mut g_vec = vec![];
+    let mut g_vec: Vec<String> = vec![];
     for g in desc_reqs.iter().filter(|n| p.groups.iter().any(|g| &&g.name == n)) {
         let g_string = p.args_in_group(g).join("|");
-        g_vec.push(format!("<{}>", &g_string[..g_string.len()]));
+        let elem = format!("<{}>", &g_string[..g_string.len()]);
+        if !g_vec.contains(&elem) {
+            g_vec.push(elem);
+        }
     }
-    g_vec.sort();
-    g_vec.dedup();
     for g in g_vec {
         ret_val.push_back(g);
     }
