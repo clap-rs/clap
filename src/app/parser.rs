@@ -1,5 +1,4 @@
 // Std
-use std::collections::{BTreeMap, VecDeque};
 use std::ffi::{OsStr, OsString};
 use std::fmt::Display;
 use std::fs::File;
@@ -119,33 +118,44 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     #[inline]
-    fn debug_asserts(&self, a: &Arg) {
-        debug_assert!(!arg_names!(self).any(|name| name == a.b.name),
-                      format!("Non-unique argument name: {} is already in use", a.b.name));
+    fn debug_asserts(&self, a: &Arg) -> bool {
+        assert!(!arg_names!(self).any(|name| name == a.b.name),
+                format!("Non-unique argument name: {} is already in use", a.b.name));
         if let Some(l) = a.s.long {
-            debug_assert!(!self.contains_long(l),
-                          format!("Argument long must be unique\n\n\t--{} is already in use",
-                                  l));
+            assert!(!self.contains_long(l),
+                    "Argument long must be unique\n\n\t--{} is already in use",
+                    l);
         }
         if let Some(s) = a.s.short {
-            debug_assert!(!self.contains_short(s),
-                          format!("Argument short must be unique\n\n\t-{} is already in use",
-                                  s));
+            assert!(!self.contains_short(s),
+                    "Argument short must be unique\n\n\t-{} is already in use",
+                    s);
         }
         let i = if a.index.is_none() {
             (self.positionals.len() + 1)
         } else {
             a.index.unwrap() as usize
         };
-        debug_assert!(!self.positionals.contains_key(i),
-                      format!("Argument \"{}\" has the same index as another positional \
+        assert!(!self.positionals.contains_key(i),
+                "Argument \"{}\" has the same index as another positional \
                     argument\n\n\tPerhaps try .multiple(true) to allow one positional argument \
                     to take multiple values",
-                              a.b.name));
-        debug_assert!(!(a.is_set(ArgSettings::Required) && a.is_set(ArgSettings::Global)),
-                      format!("Global arguments cannot be required.\n\n\t'{}' is marked as \
+                a.b.name);
+        assert!(!(a.is_set(ArgSettings::Required) && a.is_set(ArgSettings::Global)),
+                "Global arguments cannot be required.\n\n\t'{}' is marked as \
                           global and required",
-                              a.b.name));
+                a.b.name);
+        if a.b.is_set(ArgSettings::Last) {
+            assert!(!self.positionals.values().any(|p| p.b.is_set(ArgSettings::Last)),
+                    "Only one positional argument may have last(true) set. Found two.");
+            assert!(a.s.long.is_none(),
+                    "Flags or Options may not have last(true) set. {} has both a long and last(true) set.",
+                    a.b.name);
+            assert!(a.s.short.is_none(),
+                    "Flags or Options may not have last(true) set. {} has both a short and last(true) set.",
+                    a.b.name);
+        }
+        true
     }
 
     #[inline]
@@ -188,16 +198,27 @@ impl<'a, 'b> Parser<'a, 'b>
         }
     }
 
+    #[inline]
+    fn implied_settings(&mut self, a: &Arg<'a, 'b>) {
+        if a.is_set(ArgSettings::Last) {
+            // if an arg has `Last` set, we need to imply DontCollapseArgsInUsage so that args
+            // in the usage string don't get confused or left out.
+            self.set(AS::DontCollapseArgsInUsage);
+            self.set(AS::ContainsLast);
+        }
+    }
+
     // actually adds the arguments
     pub fn add_arg(&mut self, a: Arg<'a, 'b>) {
         // if it's global we have to clone anyways
         if a.is_set(ArgSettings::Global) {
             return self.add_arg_ref(&a);
         }
-        self.debug_asserts(&a);
+        debug_assert!(self.debug_asserts(&a));
         self.add_conditional_reqs(&a);
         self.add_arg_groups(&a);
         self.add_reqs(&a);
+        self.implied_settings(&a);
         if a.index.is_some() || (a.s.short.is_none() && a.s.long.is_none()) {
             let i = if a.index.is_none() {
                 (self.positionals.len() + 1)
@@ -217,10 +238,11 @@ impl<'a, 'b> Parser<'a, 'b>
     }
     // actually adds the arguments but from a borrow (which means we have to do some clonine)
     pub fn add_arg_ref(&mut self, a: &Arg<'a, 'b>) {
-        self.debug_asserts(a);
+        debug_assert!(self.debug_asserts(&a));
         self.add_conditional_reqs(a);
         self.add_arg_groups(a);
         self.add_reqs(a);
+        self.implied_settings(&a);
         if a.index.is_some() || (a.s.short.is_none() && a.s.long.is_none()) {
             let i = if a.index.is_none() {
                 (self.positionals.len() + 1)
@@ -343,220 +365,6 @@ impl<'a, 'b> Parser<'a, 'b>
     pub fn required(&self) -> Iter<&str> { self.required.iter() }
 
     #[cfg_attr(feature = "lints", allow(needless_borrow))]
-    pub fn get_required_from(&self,
-                             reqs: &[&'a str],
-                             matcher: Option<&ArgMatcher<'a>>,
-                             extra: Option<&str>)
-                             -> VecDeque<String> {
-        debugln!("Parser::get_required_from: reqs={:?}, extra={:?}",
-                 reqs,
-                 extra);
-        let mut desc_reqs: Vec<&str> = vec![];
-        desc_reqs.extend(extra);
-        let mut new_reqs: Vec<&str> = vec![];
-        macro_rules! get_requires {
-            (@group $a: ident, $v:ident, $p:ident) => {{
-                if let Some(rl) = self.groups.iter()
-                                             .filter(|g| g.requires.is_some())
-                                             .find(|g| &g.name == $a)
-                                             .map(|g| g.requires.as_ref().unwrap()) {
-                    for r in rl {
-                        if !$p.contains(&r) {
-                            debugln!("Parser::get_required_from:iter:{}: adding group req={:?}",
-                                $a, r);
-                            $v.push(r);
-                        }
-                    }
-                }
-            }};
-            ($a:ident, $what:ident, $how:ident, $v:ident, $p:ident) => {{
-                if let Some(rl) = self.$what.$how()
-                                            .filter(|a| a.b.requires.is_some())
-                                            .find(|arg| &arg.b.name == $a)
-                                            .map(|a| a.b.requires.as_ref().unwrap()) {
-                    for &(_, r) in rl.iter() {
-                        if !$p.contains(&r) {
-                            debugln!("Parser::get_required_from:iter:{}: adding arg req={:?}",
-                                $a, r);
-                            $v.push(r);
-                        }
-                    }
-                }
-            }};
-        }
-        // initialize new_reqs
-        for a in reqs {
-            get_requires!(a, flags, iter, new_reqs, reqs);
-            get_requires!(a, opts, iter, new_reqs, reqs);
-            get_requires!(a, positionals, values, new_reqs, reqs);
-            get_requires!(@group a, new_reqs, reqs);
-        }
-        desc_reqs.extend_from_slice(&*new_reqs);
-        debugln!("Parser::get_required_from: after init desc_reqs={:?}",
-                 desc_reqs);
-        loop {
-            let mut tmp = vec![];
-            for a in &new_reqs {
-                get_requires!(a, flags, iter, tmp, desc_reqs);
-                get_requires!(a, opts, iter, tmp, desc_reqs);
-                get_requires!(a, positionals, values, tmp, desc_reqs);
-                get_requires!(@group a, tmp, desc_reqs);
-            }
-            if tmp.is_empty() {
-                debugln!("Parser::get_required_from: no more children");
-                break;
-            } else {
-                debugln!("Parser::get_required_from: after iter tmp={:?}", tmp);
-                debugln!("Parser::get_required_from: after iter new_reqs={:?}",
-                         new_reqs);
-                desc_reqs.extend_from_slice(&*new_reqs);
-                new_reqs.clear();
-                new_reqs.extend_from_slice(&*tmp);
-                debugln!("Parser::get_required_from: after iter desc_reqs={:?}",
-                         desc_reqs);
-            }
-        }
-        desc_reqs.extend_from_slice(reqs);
-        desc_reqs.sort();
-        desc_reqs.dedup();
-        debugln!("Parser::get_required_from: final desc_reqs={:?}", desc_reqs);
-        let mut ret_val = VecDeque::new();
-        let args_in_groups = self.groups
-            .iter()
-            .filter(|gn| desc_reqs.contains(&gn.name))
-            .flat_map(|g| self.arg_names_in_group(&g.name))
-            .collect::<Vec<_>>();
-
-        let pmap = if let Some(ref m) = matcher {
-            desc_reqs.iter()
-                .filter(|a| self.positionals.values().any(|p| &&p.b.name == a))
-                .filter(|&p| !m.contains(p))
-                .filter_map(|p| self.positionals.values().find(|x| &x.b.name == p))
-                .filter(|p| !args_in_groups.contains(&p.b.name))
-                .map(|p| (p.index, p))
-                .collect::<BTreeMap<u64, &PosBuilder>>() // sort by index
-        } else {
-            desc_reqs.iter()
-                .filter(|a| self.positionals.values().any(|p| &&p.b.name == a))
-                .filter_map(|p| self.positionals.values().find(|x| &x.b.name == p))
-                .filter(|p| !args_in_groups.contains(&p.b.name))
-                .map(|p| (p.index, p))
-                .collect::<BTreeMap<u64, &PosBuilder>>() // sort by index
-        };
-        debugln!("Parser::get_required_from: args_in_groups={:?}",
-                 args_in_groups);
-        for &p in pmap.values() {
-            let s = p.to_string();
-            if args_in_groups.is_empty() || !args_in_groups.contains(&&*s) {
-                ret_val.push_back(s);
-            }
-        }
-        for a in desc_reqs.iter()
-                .filter(|name| !self.positionals.values().any(|p| &&p.b.name == name))
-                .filter(|name| !self.groups.iter().any(|g| &&g.name == name))
-                .filter(|name| !args_in_groups.contains(name))
-                .filter(|name| {
-                            !(matcher.is_some() && matcher.as_ref().unwrap().contains(name))
-                        }) {
-            debugln!("Parser::get_required_from:iter:{}:", a);
-            let arg = find_by_name!(self, a, flags, iter)
-                .map(|f| f.to_string())
-                .unwrap_or_else(|| {
-                                    find_by_name!(self, a, opts, iter)
-                                        .map(|o| o.to_string())
-                                        .expect(INTERNAL_ERROR_MSG)
-                                });
-            ret_val.push_back(arg);
-        }
-        let mut g_vec = vec![];
-        for g in desc_reqs.iter().filter(|n| self.groups.iter().any(|g| &&g.name == n)) {
-            let g_string = self.args_in_group(g).join("|");
-            g_vec.push(format!("<{}>", &g_string[..g_string.len()]));
-        }
-        g_vec.sort();
-        g_vec.dedup();
-        for g in g_vec {
-            ret_val.push_back(g);
-        }
-
-        ret_val
-    }
-
-    // Gets the `[ARGS]` tag for the usage string
-    pub fn get_args_tag(&self) -> Option<String> {
-        debugln!("Parser::get_args_tag;");
-        let mut count = 0;
-        'outer: for p in self.positionals.values().filter(|p| {
-                                                              !p.is_set(ArgSettings::Required) &&
-                                                              !p.is_set(ArgSettings::Hidden)
-                                                          }) {
-            debugln!("Parser::get_args_tag:iter:{}:", p.b.name);
-            if let Some(g_vec) = self.groups_for_arg(p.b.name) {
-                for grp_s in &g_vec {
-                    debugln!("Parser::get_args_tag:iter:{}:iter:{};", p.b.name, grp_s);
-                    // if it's part of a required group we don't want to count it
-                    if self.groups.iter().any(|g| g.required && (&g.name == grp_s)) {
-                        continue 'outer;
-                    }
-                }
-            }
-            count += 1;
-            debugln!("Parser::get_args_tag:iter: {} Args not required or hidden",
-                     count);
-        }
-        if !self.is_set(AS::DontCollapseArgsInUsage) && count > 1 {
-            return None; // [ARGS]
-        } else if count == 1 {
-            let p = self.positionals
-                .values()
-                .find(|p| !p.is_set(ArgSettings::Required) && !p.is_set(ArgSettings::Hidden))
-                .expect(INTERNAL_ERROR_MSG);
-            return Some(format!(" [{}]{}", p.name_no_brackets(), p.multiple_str()));
-        } else if self.is_set(AS::DontCollapseArgsInUsage) && !self.positionals.is_empty() {
-            return Some(self.positionals
-                            .values()
-                            .filter(|p| !p.is_set(ArgSettings::Required))
-                            .filter(|p| !p.is_set(ArgSettings::Hidden))
-                            .map(|p| {
-                                     format!(" [{}]{}", p.name_no_brackets(), p.multiple_str())
-                                 })
-                            .collect::<Vec<_>>()
-                            .join(""));
-        }
-        Some("".into())
-    }
-
-    // Determines if we need the `[FLAGS]` tag in the usage string
-    pub fn needs_flags_tag(&self) -> bool {
-        debugln!("Parser::needs_flags_tag;");
-        'outer: for f in &self.flags {
-            debugln!("Parser::needs_flags_tag:iter: f={};", f.b.name);
-            if let Some(l) = f.s.long {
-                if l == "help" || l == "version" {
-                    // Don't print `[FLAGS]` just for help or version
-                    continue;
-                }
-            }
-            if let Some(g_vec) = self.groups_for_arg(f.b.name) {
-                for grp_s in &g_vec {
-                    debugln!("Parser::needs_flags_tag:iter:iter: grp_s={};", grp_s);
-                    if self.groups.iter().any(|g| &g.name == grp_s && g.required) {
-                        debug!("Parser::needs_flags_tag:iter:iter: Group is required");
-                        continue 'outer;
-                    }
-                }
-            }
-            if f.is_set(ArgSettings::Hidden) {
-                continue;
-            }
-            debugln!("Parser::needs_flags_tag:iter: [FLAGS] required");
-            return true;
-        }
-
-        debugln!("Parser::needs_flags_tag: [FLAGS] not required");
-        false
-    }
-
     #[inline]
     pub fn has_args(&self) -> bool {
         !(self.flags.is_empty() && self.opts.is_empty() && self.positionals.is_empty())
@@ -570,7 +378,7 @@ impl<'a, 'b> Parser<'a, 'b>
 
     #[inline]
     pub fn has_positionals(&self) -> bool { !self.positionals.is_empty() }
-    
+
     #[inline]
     pub fn has_subcommands(&self) -> bool { !self.subcommands.is_empty() }
 
@@ -616,7 +424,7 @@ impl<'a, 'b> Parser<'a, 'b>
     pub fn unset(&mut self, s: AS) { self.settings.unset(s) }
 
     #[cfg_attr(feature = "lints", allow(block_in_if_condition_stmt))]
-    pub fn verify_positionals(&mut self) {
+    pub fn verify_positionals(&mut self) -> bool {
         // Because you must wait until all arguments have been supplied, this is the first chance
         // to make assertions on positional argument indexes
         //
@@ -627,71 +435,72 @@ impl<'a, 'b> Parser<'a, 'b>
                .iter()
                .rev()
                .next() {
-            debug_assert!(!(idx != self.positionals.len()),
-                          format!("Found positional argument \"{}\" who's index is {} but there \
+            assert!(!(idx != self.positionals.len()),
+                    "Found positional argument \"{}\" who's index is {} but there \
                           are only {} positional arguments defined",
-                                  p.b.name,
-                                  idx,
-                                  self.positionals.len()));
+                    p.b.name,
+                    idx,
+                    self.positionals.len());
         }
 
         // Next we verify that only the highest index has a .multiple(true) (if any)
         if self.positionals.values().any(|a| {
-                                             a.is_set(ArgSettings::Multiple) &&
+                                             a.b.is_set(ArgSettings::Multiple) &&
                                              (a.index as usize != self.positionals.len())
                                          }) {
-
-            debug_assert!({
-                              let mut it = self.positionals.values().rev();
-                              // Either the final positional is required
-                              it.next().unwrap().is_set(ArgSettings::Required)
-                    // Or the second to last has a terminator set
-                    || it.next().unwrap().v.terminator.is_some()
-                          },
-                          "When using a positional argument with .multiple(true) that is *not the \
+            let mut it = self.positionals.values().rev();
+            let last = it.next().unwrap();
+            let second_to_last = it.next().unwrap();
+            // Either the final positional is required
+            // Or the second to last has a terminator or .last(true) set
+            let ok = last.is_set(ArgSettings::Required) ||
+                     (second_to_last.v.terminator.is_some() ||
+                      second_to_last.b.is_set(ArgSettings::Last));
+            assert!(ok,
+                    "When using a positional argument with .multiple(true) that is *not the \
                           last* positional argument, the last positional argument (i.e the one \
-                          with the highest index) *must* have .required(true) set.");
-
-            debug_assert!({
-                              let num = self.positionals.len() - 1;
-                              self.positionals
-                                  .get(num)
-                                  .unwrap()
-                                  .is_set(ArgSettings::Multiple)
-                          },
-                          "Only the last positional argument, or second to last positional \
+                          with the highest index) *must* have .required(true) or .last(true) set.");
+            let num = self.positionals.len() - 1;
+            let ok = self.positionals
+                .get(num)
+                .unwrap()
+                .is_set(ArgSettings::Multiple);
+            assert!(ok,
+                    "Only the last positional argument, or second to last positional \
                           argument may be set to .multiple(true)");
 
-            self.set(AS::LowIndexMultiplePositional);
+            self.settings.set(AS::LowIndexMultiplePositional);
         }
 
-        debug_assert!(self.positionals
-                          .values()
-                          .filter(|p| {
-                                      p.b.settings.is_set(ArgSettings::Multiple) &&
-                                      p.v.num_vals.is_none()
-                                  })
-                          .map(|_| 1)
-                          .sum::<u64>() <= 1,
-                      "Only one positional argument with .multiple(true) set is allowed per \
+        let ok = self.positionals
+            .values()
+            .filter(|p| p.b.settings.is_set(ArgSettings::Multiple) && p.v.num_vals.is_none())
+            .map(|_| 1)
+            .sum::<u64>() <= 1;
+        assert!(ok,
+                "Only one positional argument with .multiple(true) set is allowed per \
                       command");
 
-        // If it's required we also need to ensure all previous positionals are
-        // required too
         if self.is_set(AS::AllowMissingPositional) {
+            // Check that if a required positional argument is found, all positions with a lower
+            // index are also required.
             let mut found = false;
             let mut foundx2 = false;
             for p in self.positionals.values().rev() {
                 if foundx2 && !p.b.settings.is_set(ArgSettings::Required) {
-                    // [arg1] <arg2> is Ok
-                    // [arg1] <arg2> <arg3> Is not
-                    debug_assert!(p.b.settings.is_set(ArgSettings::Required),
-                                  "Found positional argument which is not required with a lower \
+                    assert!(p.b.is_set(ArgSettings::Required),
+                            "Found positional argument which is not required with a lower \
                                   index than a required positional argument by two or more: {:?} \
                                   index {}",
-                                  p.b.name,
-                                  p.index);
-                } else if p.b.settings.is_set(ArgSettings::Required) {
+                            p.b.name,
+                            p.index);
+                } else if p.b.is_set(ArgSettings::Required) && !p.b.is_set(ArgSettings::Last) {
+                    // Args that .last(true) don't count since they can be required and have
+                    // positionals with a lower index that aren't required
+                    // Imagine: prog <req1> [opt1] -- <req2>
+                    // Both of these are valid invocations:
+                    //      $ prog r1 -- r2
+                    //      $ prog r1 o1 -- r2
                     if found {
                         foundx2 = true;
                         continue;
@@ -703,20 +512,38 @@ impl<'a, 'b> Parser<'a, 'b>
                 }
             }
         } else {
+            // Check that if a required positional argument is found, all positions with a lower
+            // index are also required
             let mut found = false;
             for p in self.positionals.values().rev() {
                 if found {
-                    debug_assert!(p.b.settings.is_set(ArgSettings::Required),
-                                  "Found positional argument which is not required with a lower \
+                    assert!(p.b.is_set(ArgSettings::Required),
+                            "Found positional argument which is not required with a lower \
                                   index than a required positional argument: {:?} index {}",
-                                  p.b.name,
-                                  p.index);
-                } else if p.b.settings.is_set(ArgSettings::Required) {
+                            p.b.name,
+                            p.index);
+                } else if p.b.is_set(ArgSettings::Required) && !p.b.is_set(ArgSettings::Last) {
+                    // Args that .last(true) don't count since they can be required and have
+                    // positionals with a lower index that aren't required
+                    // Imagine: prog <req1> [opt1] -- <req2>
+                    // Both of these are valid invocations:
+                    //      $ prog r1 -- r2
+                    //      $ prog r1 o1 -- r2
                     found = true;
                     continue;
                 }
             }
         }
+        if self.positionals.values().any(|p| {
+                                             p.b.is_set(ArgSettings::Last) &&
+                                             p.b.is_set(ArgSettings::Required)
+                                         }) && self.has_subcommands() &&
+           !self.is_set(AS::SubcommandsNegateReqs) {
+            panic!("Having a required positional argument with .last(true) set *and* child \
+            subcommands without setting SubcommandsNegateReqs isn't compatible.");
+        }
+
+        true
     }
 
     pub fn propogate_globals(&mut self) {
@@ -915,7 +742,7 @@ impl<'a, 'b> Parser<'a, 'b>
     {
         debugln!("Parser::get_matches_with;");
         // Verify all positional assertions pass
-        self.verify_positionals();
+        debug_assert!(self.verify_positionals());
         let has_args = self.has_args();
 
         // Next we create the `--help` and `--version` arguments and add them if
@@ -940,7 +767,9 @@ impl<'a, 'b> Parser<'a, 'b>
                 // Does the arg match a subcommand name, or any of it's aliases (if defined)
                 {
                     let (is_match, sc_name) = self.possible_subcommand(&arg_os);
-                    debugln!("Parser::get_matches_with: possible_sc={:?}, sc={:?}", is_match, sc_name);
+                    debugln!("Parser::get_matches_with: possible_sc={:?}, sc={:?}",
+                             is_match,
+                             sc_name);
                     if is_match {
                         let sc_name = sc_name.expect(INTERNAL_ERROR_MSG);
                         if sc_name == "help" && self.is_set(AS::NeedsSubcommandHelp) {
@@ -1011,7 +840,8 @@ impl<'a, 'b> Parser<'a, 'b>
                                                                  .bin_name
                                                                  .as_ref()
                                                                  .unwrap_or(&self.meta.name),
-                                                             &*usage::create_error_usage(self, matcher,
+                                                             &*usage::create_error_usage(self,
+                                                                                         matcher,
                                                                                          None),
                                                              self.color()));
                     }
@@ -1050,8 +880,21 @@ impl<'a, 'b> Parser<'a, 'b>
                     debugln!("Parser::get_matches_with: Bumping the positional counter...");
                     pos_counter += 1;
                 }
+            } else if self.is_set(AS::ContainsLast) && self.is_set(AS::TrailingValues) {
+                // Came to -- and one postional has .last(true) set, so we go immediately
+                // to the last (highest index) positional
+                debugln!("Parser::get_matches_with: .last(true) and --, setting last pos");
+                pos_counter = self.positionals.len();
             }
             if let Some(p) = self.positionals.get(pos_counter) {
+                if p.is_set(ArgSettings::Last) && !self.is_set(AS::TrailingValues) {
+                    return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
+                                                       "",
+                                                       &*usage::create_error_usage(self,
+                                                                                   matcher,
+                                                                                   None),
+                                                       self.color()));
+                }
                 parse_positional!(self, p, arg_os, pos_counter, matcher);
                 self.settings.set(AS::ValidArgFound);
             } else if self.is_set(AS::AllowExternalSubcommands) {
@@ -1061,8 +904,8 @@ impl<'a, 'b> Parser<'a, 'b>
                     None => {
                         if !self.is_set(AS::StrictUtf8) {
                             return Err(Error::invalid_utf8(&*usage::create_error_usage(self,
-                                                                                         matcher,
-                                                                                         None),
+                                                                                       matcher,
+                                                                                       None),
                                                            self.color()));
                         }
                         arg_os.to_string_lossy().into_owned()
@@ -1075,8 +918,8 @@ impl<'a, 'b> Parser<'a, 'b>
                     let a = v.into();
                     if a.to_str().is_none() && !self.is_set(AS::StrictUtf8) {
                         return Err(Error::invalid_utf8(&*usage::create_error_usage(self,
-                                                                              matcher,
-                                                                              None),
+                                                                                   matcher,
+                                                                                   None),
                                                        self.color()));
                     }
                     sc_m.add_val_to("", &a);
@@ -1092,8 +935,8 @@ impl<'a, 'b> Parser<'a, 'b>
                 return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
                                                    "",
                                                    &*usage::create_error_usage(self,
-                                                                                 matcher,
-                                                                                 None),
+                                                                               matcher,
+                                                                               None),
                                                    self.color()));
             } else if !has_args || self.is_set(AS::InferSubcommands) && self.has_subcommands() {
                 if let Some(cdate) = suggestions::did_you_mean(&*arg_os.to_string_lossy(),
@@ -1105,11 +948,12 @@ impl<'a, 'b> Parser<'a, 'b>
                                                              .as_ref()
                                                              .unwrap_or(&self.meta.name),
                                                          &*usage::create_error_usage(self,
-                                                                                       matcher,
-                                                                                       None),
+                                                                                     matcher,
+                                                                                     None),
                                                          self.color()));
                 } else {
-                    return Err(Error::unrecognized_subcommand(arg_os.to_string_lossy().into_owned(),
+                    return Err(Error::unrecognized_subcommand(arg_os.to_string_lossy()
+                                                                  .into_owned(),
                                                               self.meta
                                                                   .bin_name
                                                                   .as_ref()
@@ -1135,9 +979,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 .as_ref()
                 .unwrap_or(&self.meta.name);
             return Err(Error::missing_subcommand(bn,
-                                                 &usage::create_error_usage(self,
-                                                                              matcher,
-                                                                              None),
+                                                 &usage::create_error_usage(self, matcher, None),
                                                  self.color()));
         } else if self.is_set(AS::SubcommandRequiredElseHelp) {
             debugln!("Parser::get_matches_with: SubcommandRequiredElseHelp=true");
@@ -1214,7 +1056,7 @@ impl<'a, 'b> Parser<'a, 'b>
             for k in matcher.arg_names() {
                 hs.push(k);
             }
-            let reqs = self.get_required_from(&hs, Some(matcher), None);
+            let reqs = usage::get_required_usage_from(self, &hs, Some(matcher), None, false);
 
             for s in &reqs {
                 write!(&mut mid_string, " {}", s).expect(INTERNAL_ERROR_MSG);
@@ -1262,8 +1104,7 @@ impl<'a, 'b> Parser<'a, 'b>
         Ok(())
     }
 
-
-    fn groups_for_arg(&self, name: &str) -> Option<Vec<&'a str>> {
+    pub fn groups_for_arg(&self, name: &str) -> Option<Vec<&'a str>> {
         debugln!("Parser::groups_for_arg: name={}", name);
 
         if self.groups.is_empty() {
@@ -1287,7 +1128,7 @@ impl<'a, 'b> Parser<'a, 'b>
         Some(res)
     }
 
-    fn args_in_group(&self, group: &str) -> Vec<String> {
+    pub fn args_in_group(&self, group: &str) -> Vec<String> {
         let mut g_vec = vec![];
         let mut args = vec![];
 
@@ -1581,8 +1422,8 @@ impl<'a, 'b> Parser<'a, 'b>
                 return Err(Error::unknown_argument(&*arg,
                                                    "",
                                                    &*usage::create_error_usage(self,
-                                                                                 matcher,
-                                                                                 None),
+                                                                               matcher,
+                                                                               None),
                                                    self.color()));
             }
         }

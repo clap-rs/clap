@@ -44,6 +44,7 @@ bitflags! {
         const PROPOGATED           = 1 << 36,
         const VALID_ARG_FOUND      = 1 << 37,
         const INFER_SUBCOMMANDS    = 1 << 38,
+        const CONTAINS_LAST        = 1 << 39,
     }
 }
 
@@ -104,7 +105,8 @@ impl AppFlags {
         ValidNegNumFound => VALID_NEG_NUM_FOUND,
         Propogated => PROPOGATED,
         ValidArgFound => VALID_ARG_FOUND,
-        InferSubcommands => INFER_SUBCOMMANDS
+        InferSubcommands => INFER_SUBCOMMANDS,
+        ContainsLast => CONTAINS_LAST
     }
 }
 
@@ -859,6 +861,9 @@ pub enum AppSettings {
 
     #[doc(hidden)]
     ValidArgFound,
+
+    #[doc(hidden)]
+    ContainsLast,
 }
 
 impl FromStr for AppSettings {

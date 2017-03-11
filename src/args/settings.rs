@@ -18,6 +18,7 @@ bitflags! {
         const HIDE_POS_VALS  = 1 << 11,
         const ALLOW_TAC_VALS = 1 << 12,
         const REQUIRE_EQUALS = 1 << 13,
+        const LAST           = 1 << 14,
     }
 }
 
@@ -42,7 +43,8 @@ impl ArgFlags {
         ValueDelimiterNotSet => DELIM_NOT_SET,
         HidePossibleValues => HIDE_POS_VALS,
         AllowLeadingHyphen => ALLOW_TAC_VALS,
-        RequireEquals => REQUIRE_EQUALS 
+        RequireEquals => REQUIRE_EQUALS,
+        Last => LAST
     }
 }
 
@@ -82,6 +84,9 @@ pub enum ArgSettings {
     AllowLeadingHyphen,
     /// Require options use `--option=val` syntax
     RequireEquals,
+    /// Specifies that the arg is the last positional argument and may be accessed early via `--`
+    /// syntax
+    Last,
     #[doc(hidden)]
     RequiredUnlessAll,
     #[doc(hidden)]
@@ -106,6 +111,7 @@ impl FromStr for ArgSettings {
             "hidepossiblevalues" => Ok(ArgSettings::HidePossibleValues),
             "allowleadinghyphen" => Ok(ArgSettings::AllowLeadingHyphen),
             "requireequals" => Ok(ArgSettings::RequireEquals),
+            "last" => Ok(ArgSettings::Last),
             _ => Err("unknown ArgSetting, cannot convert from str".to_owned()),
         }
     }
@@ -145,6 +151,8 @@ mod test {
                    ArgSettings::ValueDelimiterNotSet);
         assert_eq!("requireequals".parse::<ArgSettings>().unwrap(),
                    ArgSettings::RequireEquals);
+        assert_eq!("last".parse::<ArgSettings>().unwrap(),
+                   ArgSettings::Last);
         assert!("hahahaha".parse::<ArgSettings>().is_err());
     }
 }

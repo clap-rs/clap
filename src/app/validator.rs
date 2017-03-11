@@ -415,7 +415,6 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         }
     }
 
-    #[inline]
     fn missing_required_error(&self, matcher: &ArgMatcher, extra: Option<&str>) -> ClapResult<()> {
         debugln!("Validator::missing_required_error: extra={:?}", extra);
         let c = Colorizer {
@@ -433,14 +432,13 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         reqs.retain(|n| !matcher.contains(n));
         reqs.dedup();
         debugln!("Validator::missing_required_error: reqs={:#?}", reqs);
-        Err(Error::missing_required_argument(&*self.0
-                                                   .get_required_from(&reqs[..],
-                                                                      Some(matcher),
-                                                                      extra)
-                                                   .iter()
-                                                   .fold(String::new(), |acc, s| {
-            acc + &format!("\n    {}", c.error(s))[..]
-        }),
+        let req_args =
+            usage::get_required_usage_from(self.0, &reqs[..], Some(matcher), extra, true)
+                .iter()
+                .fold(String::new(),
+                      |acc, s| acc + &format!("\n    {}", c.error(s))[..]);
+        debugln!("Validator::missing_required_error: req_args={:#?}", req_args);
+        Err(Error::missing_required_argument(&*req_args,
                                              &*usage::create_error_usage(self.0, matcher, extra),
                                              self.0.color()))
     }
