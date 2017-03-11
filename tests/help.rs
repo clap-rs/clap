@@ -290,6 +290,72 @@ FLAGS:
     -H, --help       Print help information
     -v, --version    Print version information";
 
+static LAST_ARG: &'static str = "last 0.1
+
+USAGE:
+    last <TARGET> [CORPUS] [-- <ARGS>...]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+ARGS:
+    <TARGET>     some
+    <CORPUS>     some
+    <ARGS>...    some";
+
+static LAST_ARG_SC: &'static str = "last 0.1
+
+USAGE:
+    last <TARGET> [CORPUS] [-- <ARGS>...]
+    last <SUBCOMMAND>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+ARGS:
+    <TARGET>     some
+    <CORPUS>     some
+    <ARGS>...    some
+
+SUBCOMMANDS:
+    help    Prints this message or the help of the given subcommand(s)
+    test    some";
+
+static LAST_ARG_REQ: &'static str = "last 0.1
+
+USAGE:
+    last <TARGET> [CORPUS] -- <ARGS>...
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+ARGS:
+    <TARGET>     some
+    <CORPUS>     some
+    <ARGS>...    some";
+
+static LAST_ARG_REQ_SC: &'static str = "last 0.1
+
+USAGE:
+    last <TARGET> [CORPUS] -- <ARGS>...
+    last <SUBCOMMAND>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+ARGS:
+    <TARGET>     some
+    <CORPUS>     some
+    <ARGS>...    some
+
+SUBCOMMANDS:
+    help    Prints this message or the help of the given subcommand(s)
+    test    some";
+
 #[test]
 fn help_short() {
     let m = App::new("test")
@@ -640,4 +706,48 @@ fn customize_version_and_help() {
         .version_short("v")
         .version_message("Print version information");
     assert!(test::compare_output(app, "customize --help", CUSTOM_VERSION_AND_HELP, false));
+}
+
+#[test]
+fn last_arg_mult_usage() {
+    let app = App::new("last")
+            .version("0.1")
+            .arg(Arg::with_name("TARGET").required(true).help("some"))
+            .arg(Arg::with_name("CORPUS").help("some"))
+            .arg(Arg::with_name("ARGS").multiple(true).last(true).help("some"));
+    assert!(test::compare_output(app, "last --help", LAST_ARG, false));
+}
+
+#[test]
+fn last_arg_mult_usage_req() {
+    let app = App::new("last")
+            .version("0.1")
+            .arg(Arg::with_name("TARGET").required(true).help("some"))
+            .arg(Arg::with_name("CORPUS").help("some"))
+            .arg(Arg::with_name("ARGS").multiple(true).last(true).required(true).help("some"));
+    assert!(test::compare_output(app, "last --help", LAST_ARG_REQ, false));
+}
+
+#[test]
+fn last_arg_mult_usage_req_with_sc() {
+    let app = App::new("last")
+            .version("0.1")
+            .setting(AppSettings::SubcommandsNegateReqs)
+            .arg(Arg::with_name("TARGET").required(true).help("some"))
+            .arg(Arg::with_name("CORPUS").help("some"))
+            .arg(Arg::with_name("ARGS").multiple(true).last(true).required(true).help("some"))
+            .subcommand(SubCommand::with_name("test").about("some"));
+    assert!(test::compare_output(app, "last --help", LAST_ARG_REQ_SC, false));
+}
+
+#[test]
+fn last_arg_mult_usage_with_sc() {
+    let app = App::new("last")
+            .version("0.1")
+            .setting(AppSettings::ArgsNegateSubcommands)
+            .arg(Arg::with_name("TARGET").required(true).help("some"))
+            .arg(Arg::with_name("CORPUS").help("some"))
+            .arg(Arg::with_name("ARGS").multiple(true).last(true).help("some"))
+            .subcommand(SubCommand::with_name("test").about("some"));
+    assert!(test::compare_output(app, "last --help", LAST_ARG_SC, false));
 }
