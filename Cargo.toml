@@ -65,7 +65,7 @@ debug = true
 rpath = false
 lto = false
 debug-assertions = true
-codegen-units = 2
+codegen-units = 4
 
 [profile.bench]
 opt-level = 3
