@@ -105,6 +105,12 @@ impl<'n, 'e> DispOrder for FlagBuilder<'n, 'e> {
     fn disp_ord(&self) -> usize { self.s.disp_ord }
 }
 
+impl<'n, 'e> PartialEq for FlagBuilder<'n, 'e> {
+    fn eq(&self, other: &FlagBuilder<'n, 'e>) -> bool {
+        self.b == other.b
+    }
+}
+
 #[cfg(test)]
 mod test {
     use args::settings::ArgSettings;

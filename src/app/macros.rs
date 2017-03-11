@@ -148,7 +148,12 @@ macro_rules! parse_positional {
         $matcher.inc_occurrence_of($p.b.name);
         let _ = $_self.groups_for_arg($p.b.name)
                       .and_then(|vec| Some($matcher.inc_occurrences_of(&*vec)));
-        arg_post_processing!($_self, $p, $matcher);
+        if $_self.cache.map_or(true, |name| name != $p.b.name) {
+            arg_post_processing!($_self, $p, $matcher);
+            $_self.cache = Some($p.b.name);
+        }
+
+        $_self.settings.set(AS::ValidArgFound);
         // Only increment the positional counter if it doesn't allow multiples
         if !$p.b.settings.is_set(ArgSettings::Multiple) {
             $pos_counter += 1;

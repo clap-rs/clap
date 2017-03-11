@@ -4,20 +4,21 @@ use std::str::FromStr;
 
 bitflags! {
     flags Flags: u16 {
-        const REQUIRED       = 0b00000000000001,
-        const MULTIPLE       = 0b00000000000010,
-        const EMPTY_VALS     = 0b00000000000100,
-        const GLOBAL         = 0b00000000001000,
-        const HIDDEN         = 0b00000000010000,
-        const TAKES_VAL      = 0b00000000100000,
-        const USE_DELIM      = 0b00000001000000,
-        const NEXT_LINE_HELP = 0b00000010000000,
-        const R_UNLESS_ALL   = 0b00000100000000,
-        const REQ_DELIM      = 0b00001000000000,
-        const DELIM_NOT_SET  = 0b00010000000000,
-        const HIDE_POS_VALS  = 0b00100000000000,
-        const ALLOW_TAC_VALS = 0b01000000000000,
-        const REQUIRE_EQUALS = 0b10000000000000,
+        const REQUIRED       = 1 << 0,
+        const MULTIPLE       = 1 << 1,
+        const EMPTY_VALS     = 1 << 2,
+        const GLOBAL         = 1 << 3,
+        const HIDDEN         = 1 << 4,
+        const TAKES_VAL      = 1 << 5,
+        const USE_DELIM      = 1 << 6,
+        const NEXT_LINE_HELP = 1 << 7,
+        const R_UNLESS_ALL   = 1 << 8,
+        const REQ_DELIM      = 1 << 9,
+        const DELIM_NOT_SET  = 1 << 10,
+        const HIDE_POS_VALS  = 1 << 11,
+        const ALLOW_TAC_VALS = 1 << 12,
+        const REQUIRE_EQUALS = 1 << 13,
+        const LAST           = 1 << 14,
     }
 }
 
@@ -42,7 +43,8 @@ impl ArgFlags {
         ValueDelimiterNotSet => DELIM_NOT_SET,
         HidePossibleValues => HIDE_POS_VALS,
         AllowLeadingHyphen => ALLOW_TAC_VALS,
-        RequireEquals => REQUIRE_EQUALS 
+        RequireEquals => REQUIRE_EQUALS,
+        Last => LAST
     }
 }
 
@@ -82,6 +84,9 @@ pub enum ArgSettings {
     AllowLeadingHyphen,
     /// Require options use `--option=val` syntax
     RequireEquals,
+    /// Specifies that the arg is the last positional argument and may be accessed early via `--`
+    /// syntax
+    Last,
     #[doc(hidden)]
     RequiredUnlessAll,
     #[doc(hidden)]
@@ -106,6 +111,7 @@ impl FromStr for ArgSettings {
             "hidepossiblevalues" => Ok(ArgSettings::HidePossibleValues),
             "allowleadinghyphen" => Ok(ArgSettings::AllowLeadingHyphen),
             "requireequals" => Ok(ArgSettings::RequireEquals),
+            "last" => Ok(ArgSettings::Last),
             _ => Err("unknown ArgSetting, cannot convert from str".to_owned()),
         }
     }
@@ -145,6 +151,8 @@ mod test {
                    ArgSettings::ValueDelimiterNotSet);
         assert_eq!("requireequals".parse::<ArgSettings>().unwrap(),
                    ArgSettings::RequireEquals);
+        assert_eq!("last".parse::<ArgSettings>().unwrap(),
+                   ArgSettings::Last);
         assert!("hahahaha".parse::<ArgSettings>().is_err());
     }
 }

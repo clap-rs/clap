@@ -180,7 +180,7 @@ fn multiple_positional_one_required_usage_string() {
         .arg_from_usage("<FILE> 'some file'")
         .arg_from_usage("[FILES]... 'some file'")
         .get_matches_from(vec!["test", "file"]);
-    assert_eq!(m.usage(), "USAGE:\n    test <FILE> [ARGS]");
+    assert_eq!(m.usage(), "USAGE:\n    test <FILE> [FILES]...");
 }
 
 #[test]
@@ -210,4 +210,27 @@ fn missing_required_2() {
         .get_matches_from_safe(vec!["test", "file"]);
     assert!(r.is_err());
     assert_eq!(r.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+}
+
+#[test]
+fn last_positional() {
+    let r = App::new("test")
+        .arg_from_usage("<TARGET> 'some target'")
+        .arg_from_usage("[CORPUS] 'some corpus'")
+        .arg(Arg::from_usage("[ARGS]... 'some file'").last(true))
+        .get_matches_from_safe(vec!["test", "tgt", "--", "arg"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert_eq!(m.values_of("ARGS").unwrap().collect::<Vec<_>>(), &["arg"]);
+}
+
+#[test]
+fn last_positional_no_double_dash() {
+    let r = App::new("test")
+        .arg_from_usage("<TARGET> 'some target'")
+        .arg_from_usage("[CORPUS] 'some corpus'")
+        .arg(Arg::from_usage("[ARGS]... 'some file'").last(true))
+        .get_matches_from_safe(vec!["test", "tgt", "crp", "arg"]);
+    assert!(r.is_err());
+    assert_eq!(r.unwrap_err().kind, ErrorKind::UnknownArgument);
 }

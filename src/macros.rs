@@ -847,7 +847,7 @@ macro_rules! vec_remove_all {
     };
 }
 macro_rules! find_from {
-    ($_self:ident, $arg_name:expr, $from:ident, $matcher:expr) => {{
+    ($_self:expr, $arg_name:expr, $from:ident, $matcher:expr) => {{
         let mut ret = None;
         for k in $matcher.arg_names() {
             if let Some(f) = find_by_name!($_self, &k, flags, iter) {
@@ -877,7 +877,7 @@ macro_rules! find_from {
 }
 
 macro_rules! find_name_from {
-    ($_self:ident, $arg_name:expr, $from:ident, $matcher:expr) => {{
+    ($_self:expr, $arg_name:expr, $from:ident, $matcher:expr) => {{
         let mut ret = None;
         for k in $matcher.arg_names() {
             if let Some(f) = find_by_name!($_self, &k, flags, iter) {
@@ -908,8 +908,8 @@ macro_rules! find_name_from {
 
 // Finds an arg by name
 macro_rules! find_by_name {
-    ($_self:ident, $name:expr, $what:ident, $how:ident) => {
-        $_self.$what.$how().find(|o| &o.b.name == $name)
+    ($p:expr, $name:expr, $what:ident, $how:ident) => {
+        $p.$what.$how().find(|o| &o.b.name == $name)
     }
 }
 
@@ -989,7 +989,7 @@ macro_rules! find_subcmd {
         $_self.subcommands
             .iter()
             .find(|s| {
-                s.p.meta.name == $sc ||
+                &*s.p.meta.name == $sc ||
                 (s.p.meta.aliases.is_some() &&
                  s.p
                     .meta
@@ -1029,12 +1029,18 @@ macro_rules! _shorts_longs {
 
 macro_rules! arg_names {
     ($_self:ident) => {{
-        _names!($_self)
+        _names!(@args $_self)
+    }};
+}
+
+macro_rules! sc_names {
+    ($_self:ident) => {{
+        _names!(@sc $_self)
     }};
 }
 
 macro_rules! _names {
-    ($_self:ident) => {{
+    (@args $_self:ident) => {{
         $_self.flags
                 .iter()
                 .map(|f| &*f.b.name)
@@ -1043,4 +1049,14 @@ macro_rules! _names {
                                   .chain($_self.positionals.values()
                                                            .map(|p| &*p.b.name)))
     }};
+    (@sc $_self:ident) => {{
+        $_self.subcommands
+            .iter()
+            .map(|s| &*s.p.meta.name)
+            .chain($_self.subcommands
+                         .iter()
+                         .filter(|s| s.p.meta.aliases.is_some())
+                         .flat_map(|s| s.p.meta.aliases.as_ref().unwrap().iter().map(|&(n, _)| n)))
+
+    }}
 }

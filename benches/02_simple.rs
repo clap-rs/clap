@@ -3,7 +3,7 @@
 extern crate clap;
 extern crate test;
 
-use clap::App;
+use clap::{App, Arg};
 
 use test::Bencher;
 
@@ -23,6 +23,69 @@ macro_rules! create_app {
 fn build_app(b: &mut Bencher) {
 
     b.iter(|| create_app!());
+}
+
+#[bench]
+fn add_flag(b: &mut Bencher) {
+    fn build_app() -> App<'static, 'static> {
+        App::new("claptests")
+    }
+
+    b.iter(|| build_app().arg(Arg::from_usage("-s, --some 'something'")));
+}
+
+#[bench]
+fn add_flag_ref(b: &mut Bencher) {
+    fn build_app() -> App<'static, 'static> {
+        App::new("claptests")
+    }
+
+    b.iter(|| {
+        let arg = Arg::from_usage("-s, --some 'something'");
+        build_app().arg(&arg)
+    });
+}
+
+#[bench]
+fn add_opt(b: &mut Bencher) {
+    fn build_app() -> App<'static, 'static> {
+        App::new("claptests")
+    }
+
+    b.iter(|| build_app().arg(Arg::from_usage("-s, --some <FILE> 'something'")));
+}
+
+#[bench]
+fn add_opt_ref(b: &mut Bencher) {
+    fn build_app() -> App<'static, 'static> {
+        App::new("claptests")
+    }
+
+    b.iter(|| {
+        let arg = Arg::from_usage("-s, --some <FILE> 'something'");
+        build_app().arg(&arg)
+    });
+}
+
+#[bench]
+fn add_pos(b: &mut Bencher) {
+    fn build_app() -> App<'static, 'static> {
+        App::new("claptests")
+    }
+
+    b.iter(|| build_app().arg(Arg::with_name("some")));
+}
+
+#[bench]
+fn add_pos_ref(b: &mut Bencher) {
+    fn build_app() -> App<'static, 'static> {
+        App::new("claptests")
+    }
+
+    b.iter(|| {
+        let arg = Arg::with_name("some");
+        build_app().arg(&arg)
+    });
 }
 
 #[bench]

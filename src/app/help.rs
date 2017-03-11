@@ -11,6 +11,7 @@ use app::parser::Parser;
 use args::{AnyArg, ArgSettings, DispOrder};
 use errors::{Error, Result as ClapResult};
 use fmt::{Format, Colorizer};
+use app::usage;
 
 // Third Party
 use unicode_width::UnicodeWidthStr;
@@ -195,9 +196,7 @@ impl<'a> Help<'a> {
             if arg.longest_filter() {
                 self.longest = cmp::max(self.longest, arg.to_string().len());
             }
-            if !arg.is_set(ArgSettings::Hidden) {
-                arg_v.push(arg)
-            }
+            arg_v.push(arg)
         }
         let mut first = true;
         for arg in arg_v {
@@ -541,7 +540,7 @@ impl<'a> Help<'a> {
     pub fn write_all_args(&mut self, parser: &Parser) -> ClapResult<()> {
         debugln!("Help::write_all_args;");
         let flags = parser.has_flags();
-        let pos = parser.has_positionals();
+        let pos = parser.positionals().filter(|arg| !arg.is_set(ArgSettings::Hidden)).count() > 0;
         let opts = parser.has_opts();
         let subcmds = parser.has_subcommands();
 
@@ -684,7 +683,7 @@ impl<'a> Help<'a> {
         try!(write!(self.writer,
                     "\n{}{}\n\n",
                     TAB,
-                    parser.create_usage_no_title(&[])));
+                    usage::create_help_usage(parser, true)));
 
         let flags = parser.has_flags();
         let pos = parser.has_positionals();
@@ -881,7 +880,7 @@ impl<'a> Help<'a> {
                                 parser.meta.about.unwrap_or("unknown about")));
                 }
                 b"usage" => {
-                    try!(write!(self.writer, "{}", parser.create_usage_no_title(&[])));
+                    try!(write!(self.writer, "{}", usage::create_help_usage(parser, true)));
                 }
                 b"all-args" => {
                     try!(self.write_all_args(&parser));

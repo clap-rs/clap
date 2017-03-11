@@ -537,6 +537,86 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
+    /// Specifies that this arg is the last, or final, positional argument (i.e. has the highest
+    /// index) and is *only* able to be accessed via the `--` syntax (i.e. `$ prog args --
+    /// last_arg`). Even, if no other arguments are left to parse, if the user omits the `--` syntax
+    /// they will receive an [`UnknownArgument`] error. Setting an argument to `.last(true)` also
+    /// allows one to access this arg early using the `--` syntax. Accessing an arg early, even with
+    /// the `--` syntax is otherwise not possible.
+    ///
+    /// **NOTE:** This will change the usage string to look like `$ prog [FLAGS] [-- <ARG>]` if 
+    /// `ARG` is marked as `.last(true)`.
+    ///
+    /// **NOTE:** This setting will imply [`AppSettings::DontCollapseArgsInUsage`] because failing
+    /// to set this can make the usage string very confusing.
+    ///
+    /// **NOTE**: This setting only applies to positional arguments, and has no affect on FLAGS / 
+    /// OPTIONS
+    ///
+    /// **CAUTION:** Setting an argument to `.last(true)` *and* having child subcommands is not
+    /// recommended with the exception of *also* using [`AppSettings::ArgsNegateSubcommands`]
+    /// (or [`AppSettings::SubcommandsNegateReqs`] if the argument marked `.last(true)` is also
+    /// marked [`.required(true)`])
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Arg;
+    /// Arg::with_name("args")
+    ///     .last(true)
+    /// # ;
+    /// ```
+    ///
+    /// Setting [`Arg::last(true)`] ensures the arg has the highest [index] of all positional args
+    /// and requires that the `--` syntax be used to access it early.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let res = App::new("prog")
+    ///     .arg(Arg::with_name("first"))
+    ///     .arg(Arg::with_name("second"))
+    ///     .arg(Arg::with_name("third").last(true))
+    ///     .get_matches_from_safe(vec![
+    ///         "prog", "one", "--", "three"
+    ///     ]);
+    ///
+    /// assert!(res.is_ok());
+    /// let m = res.unwrap();
+    /// assert_eq!(m.value_of("third"), Some("three"));
+    /// assert!(m.value_of("second").is_none());
+    /// ```
+    ///
+    /// Even if the positional argument marked `.last(true)` is the only argument left to parse,
+    /// failing to use the `--` syntax results in an error.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("prog")
+    ///     .arg(Arg::with_name("first"))
+    ///     .arg(Arg::with_name("second"))
+    ///     .arg(Arg::with_name("third").last(true))
+    ///     .get_matches_from_safe(vec![
+    ///         "prog", "one", "two", "three"
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+    /// ```
+    /// [`Arg::last(true)`]: ./struct.Arg.html#method.last
+    /// [index]: ./struct.Arg.html#method.index
+    /// [`AppSettings::DontCollapseArgsInUsage`]: ./enum.AppSettings.html#variant.DontCollapseArgsInUsage
+    /// [`AppSettings::ArgsNegateSubcommands`]: ./enum.AppSettings.html#variant.ArgsNegateSubcommands
+    /// [`AppSettings::SubcommandsNegateReqs`]: ./enum.AppSettings.html#variant.SubcommandsNegateReqs
+    /// [`.required(true)`]: ./struct.Arg.html#method.required
+    /// [`UnknownArgument`]: ./enum.ErrorKind.html#variant.UnknownArgument
+    pub fn last(self, l: bool) -> Self {
+        if l {
+            self.set(ArgSettings::Last)
+        } else {
+            self.unset(ArgSettings::Last)
+        }
+    }
+
     /// Sets whether or not the argument is required by default. Required by default means it is
     /// required, when no other conflicting rules have been evaluated. Conflicting rules take
     /// precedence over being required. **Default:** `false`
@@ -3245,5 +3325,11 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
             index: a.index,
             r_ifs: a.r_ifs.clone(),
         }
+    }
+}
+
+impl<'n, 'e> PartialEq for Arg<'n, 'e> {
+    fn eq(&self, other: &Arg<'n, 'e>) -> bool {
+        self.b == other.b
     }
 }

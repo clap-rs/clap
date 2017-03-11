@@ -11,7 +11,7 @@ use fmt::Format;
 /// `Some("foo")`, whereas "blark" would yield `None`.
 #[cfg(feature = "suggestions")]
 #[cfg_attr(feature = "lints", allow(needless_lifetimes))]
-pub fn did_you_mean<'a, T, I>(v: &str, possible_values: I) -> Option<&'a str>
+pub fn did_you_mean<'a, T: ?Sized, I>(v: &str, possible_values: I) -> Option<&'a str>
     where T: AsRef<str> + 'a,
           I: IntoIterator<Item = &'a T>
 {
@@ -31,7 +31,7 @@ pub fn did_you_mean<'a, T, I>(v: &str, possible_values: I) -> Option<&'a str>
 }
 
 #[cfg(not(feature = "suggestions"))]
-pub fn did_you_mean<'a, T, I>(_: &str, _: I) -> Option<&'a str>
+pub fn did_you_mean<'a, T: ?Sized, I>(_: &str, _: I) -> Option<&'a str>
     where T: AsRef<str> + 'a,
           I: IntoIterator<Item = &'a T>
 {
@@ -68,6 +68,7 @@ pub fn did_you_mean_suffix<'z, T, I>(arg: &str,
 }
 
 /// A helper to determine message formatting
+#[derive(Copy, Clone, Debug)]
 pub enum DidYouMeanMessageStyle {
     /// Suggested value is a long flag
     LongFlag,

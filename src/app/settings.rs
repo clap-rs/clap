@@ -5,44 +5,46 @@ use std::ops::BitOr;
 
 bitflags! {
     flags Flags: u64 {
-        const SC_NEGATE_REQS       = 0b00000000000000000000000000000000000001,
-        const SC_REQUIRED          = 0b00000000000000000000000000000000000010,
-        const A_REQUIRED_ELSE_HELP = 0b00000000000000000000000000000000000100,
-        const GLOBAL_VERSION       = 0b00000000000000000000000000000000001000,
-        const VERSIONLESS_SC       = 0b00000000000000000000000000000000010000,
-        const UNIFIED_HELP         = 0b00000000000000000000000000000000100000,
-        const WAIT_ON_ERROR        = 0b00000000000000000000000000000001000000,
-        const SC_REQUIRED_ELSE_HELP= 0b00000000000000000000000000000010000000,
-        const NEEDS_LONG_HELP      = 0b00000000000000000000000000000100000000,
-        const NEEDS_LONG_VERSION   = 0b00000000000000000000000000001000000000,
-        const NEEDS_SC_HELP        = 0b00000000000000000000000000010000000000,
-        const DISABLE_VERSION      = 0b00000000000000000000000000100000000000,
-        const HIDDEN               = 0b00000000000000000000000001000000000000,
-        const TRAILING_VARARG      = 0b00000000000000000000000010000000000000,
-        const NO_BIN_NAME          = 0b00000000000000000000000100000000000000,
-        const ALLOW_UNK_SC         = 0b00000000000000000000001000000000000000,
-        const UTF8_STRICT          = 0b00000000000000000000010000000000000000,
-        const UTF8_NONE            = 0b00000000000000000000100000000000000000,
-        const LEADING_HYPHEN       = 0b00000000000000000001000000000000000000,
-        const NO_POS_VALUES        = 0b00000000000000000010000000000000000000,
-        const NEXT_LINE_HELP       = 0b00000000000000000100000000000000000000,
-        const DERIVE_DISP_ORDER    = 0b00000000000000001000000000000000000000,
-        const COLORED_HELP         = 0b00000000000000010000000000000000000000,
-        const COLOR_ALWAYS         = 0b00000000000000100000000000000000000000,
-        const COLOR_AUTO           = 0b00000000000001000000000000000000000000,
-        const COLOR_NEVER          = 0b00000000000010000000000000000000000000,
-        const DONT_DELIM_TRAIL     = 0b00000000000100000000000000000000000000,
-        const ALLOW_NEG_NUMS       = 0b00000000001000000000000000000000000000,
-        const LOW_INDEX_MUL_POS    = 0b00000000010000000000000000000000000000,
-        const DISABLE_HELP_SC      = 0b00000000100000000000000000000000000000,
-        const DONT_COLLAPSE_ARGS   = 0b00000001000000000000000000000000000000,
-        const ARGS_NEGATE_SCS      = 0b00000010000000000000000000000000000000,
-        const PROPAGATE_VALS_DOWN  = 0b00000100000000000000000000000000000000,
-        const ALLOW_MISSING_POS    = 0b00001000000000000000000000000000000000,
-        const TRAILING_VALUES      = 0b00010000000000000000000000000000000000,
-        const VALID_NEG_NUM_FOUND  = 0b00100000000000000000000000000000000000,
-        const PROPOGATED           = 0b01000000000000000000000000000000000000,
-        const VALID_ARG_FOUND      = 0b10000000000000000000000000000000000000
+        const SC_NEGATE_REQS       = 1 << 0,
+        const SC_REQUIRED          = 1 << 1,
+        const A_REQUIRED_ELSE_HELP = 1 << 2,
+        const GLOBAL_VERSION       = 1 << 3,
+        const VERSIONLESS_SC       = 1 << 4,
+        const UNIFIED_HELP         = 1 << 5,
+        const WAIT_ON_ERROR        = 1 << 6,
+        const SC_REQUIRED_ELSE_HELP= 1 << 7,
+        const NEEDS_LONG_HELP      = 1 << 8,
+        const NEEDS_LONG_VERSION   = 1 << 9,
+        const NEEDS_SC_HELP        = 1 << 10,
+        const DISABLE_VERSION      = 1 << 11,
+        const HIDDEN               = 1 << 12,
+        const TRAILING_VARARG      = 1 << 13,
+        const NO_BIN_NAME          = 1 << 14,
+        const ALLOW_UNK_SC         = 1 << 15,
+        const UTF8_STRICT          = 1 << 16,
+        const UTF8_NONE            = 1 << 17,
+        const LEADING_HYPHEN       = 1 << 18,
+        const NO_POS_VALUES        = 1 << 19,
+        const NEXT_LINE_HELP       = 1 << 20,
+        const DERIVE_DISP_ORDER    = 1 << 21,
+        const COLORED_HELP         = 1 << 22,
+        const COLOR_ALWAYS         = 1 << 23,
+        const COLOR_AUTO           = 1 << 24,
+        const COLOR_NEVER          = 1 << 25,
+        const DONT_DELIM_TRAIL     = 1 << 26,
+        const ALLOW_NEG_NUMS       = 1 << 27,
+        const LOW_INDEX_MUL_POS    = 1 << 28,
+        const DISABLE_HELP_SC      = 1 << 29,
+        const DONT_COLLAPSE_ARGS   = 1 << 30,
+        const ARGS_NEGATE_SCS      = 1 << 31, 
+        const PROPAGATE_VALS_DOWN  = 1 << 32,
+        const ALLOW_MISSING_POS    = 1 << 33,
+        const TRAILING_VALUES      = 1 << 34,
+        const VALID_NEG_NUM_FOUND  = 1 << 35,
+        const PROPOGATED           = 1 << 36,
+        const VALID_ARG_FOUND      = 1 << 37,
+        const INFER_SUBCOMMANDS    = 1 << 38,
+        const CONTAINS_LAST        = 1 << 39,
     }
 }
 
@@ -102,7 +104,9 @@ impl AppFlags {
         TrailingValues => TRAILING_VALUES,
         ValidNegNumFound => VALID_NEG_NUM_FOUND,
         Propogated => PROPOGATED,
-        ValidArgFound => VALID_ARG_FOUND
+        ValidArgFound => VALID_ARG_FOUND,
+        InferSubcommands => INFER_SUBCOMMANDS,
+        ContainsLast => CONTAINS_LAST
     }
 }
 
@@ -525,6 +529,36 @@ pub enum AppSettings {
     /// This can be useful if there are many values, or they are explained elsewhere.
     HidePossibleValuesInHelp,
 
+    /// Tries to match unknown args to partial [`subcommands`] or their [aliases]. For example to 
+    /// match a subcommand named `test`, one could use `t`, `te`, `tes`, and `test`.
+    ///
+    /// **NOTE:** The match *must not* be ambiguous at all in order to succeed. i.e. to match `te`
+    /// to `test` there could not also be a subcommand or alias `temp` because both start with `te`
+    ///
+    /// **CAUTION:** This setting can interfere with [positional/free arguments], take care when
+    /// designing CLIs which allow inferred subcommands and have potential positional/free
+    /// arguments who's values could start with the same characters as subcommands. If this is the
+    /// case, it's recommended to use settings such as [`AppSeettings::ArgsNegateSubcommands`] in
+    /// conjuction with this setting.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, SubCommand, AppSettings};
+    /// let m = App::new("prog")
+    ///     .setting(AppSettings::InferSubcommands)
+    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .get_matches_from(vec![
+    ///         "prog", "te"
+    ///     ]);
+    /// assert_eq!(m.subcommand_name(), Some("test"));
+    /// ```
+    /// [`subcommands`]: ./struct.SubCommand.html
+    /// [positional/free arguments]: ./struct.Arg.html#method.index
+    /// [aliases]: ./struct.App.html#method.alias
+    /// [`AppSeettings::ArgsNegateSubcommands`]: ./enum.AppSettings.html#variant.ArgsNegateSubcommands
+    InferSubcommands,
+
     /// Specifies that the parser should not assume the first argument passed is the binary name.
     /// This is normally the case when using a "daemon" style mode, or an interactive CLI where one
     /// one would not normally type the binary or program name for each command.
@@ -827,6 +861,9 @@ pub enum AppSettings {
 
     #[doc(hidden)]
     ValidArgFound,
+
+    #[doc(hidden)]
+    ContainsLast,
 }
 
 impl FromStr for AppSettings {
@@ -851,6 +888,7 @@ impl FromStr for AppSettings {
             "globalversion" => Ok(AppSettings::GlobalVersion),
             "hidden" => Ok(AppSettings::Hidden),
             "hidepossiblevaluesinhelp" => Ok(AppSettings::HidePossibleValuesInHelp),
+            "infersubcommands" => Ok(AppSettings::InferSubcommands),
             "lowindexmultiplepositional" => Ok(AppSettings::LowIndexMultiplePositional),
             "nobinaryname" => Ok(AppSettings::NoBinaryName),
             "nextlinehelp" => Ok(AppSettings::NextLineHelp),
@@ -943,6 +981,8 @@ mod test {
                    AppSettings::Propogated);
         assert_eq!("trailingvalues".parse::<AppSettings>().unwrap(),
                    AppSettings::TrailingValues);
+        assert_eq!("infersubcommands".parse::<AppSettings>().unwrap(),
+                   AppSettings::InferSubcommands);
         assert!("hahahaha".parse::<AppSettings>().is_err());
     }
 }

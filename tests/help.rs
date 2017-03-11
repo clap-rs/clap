@@ -36,6 +36,47 @@ SUBCOMMANDS:
     help      Prints this message or the help of the given subcommand(s)
     subcmd    tests subcommands";
 
+static SC_NEGATES_REQS: &'static str = "prog 1.0
+
+USAGE:
+    prog --opt <FILE> [PATH]
+    prog [PATH] <SUBCOMMAND>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -o, --opt <FILE>    tests options
+
+ARGS:
+    <PATH>    
+
+SUBCOMMANDS:
+    help    Prints this message or the help of the given subcommand(s)
+    test";
+
+static ARGS_NEGATE_SC: &'static str = "prog 1.0
+
+USAGE:
+    prog [FLAGS] [OPTIONS] [PATH]
+    prog <SUBCOMMAND>
+
+FLAGS:
+    -f, --flag       testing flags
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -o, --opt <FILE>    tests options
+
+ARGS:
+    <PATH>    
+
+SUBCOMMANDS:
+    help    Prints this message or the help of the given subcommand(s)
+    test";
+
 static AFTER_HELP: &'static str = "some text that comes before the help
 
 clap-test v1.4.8
@@ -49,6 +90,19 @@ FLAGS:
     -V, --version    Prints version information
 
 some text that comes after the help";
+
+static HIDDEN_ARGS: &'static str = "prog 1.0
+
+USAGE:
+    prog [FLAGS] [OPTIONS]
+
+FLAGS:
+    -f, --flag       testing flags
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -o, --opt <FILE>    tests options";
 
 static SC_HELP: &'static str = "clap-test-subcmd 0.1
 Kevin K. <kbknapp@gmail.com>
@@ -235,6 +289,72 @@ USAGE:
 FLAGS:
     -H, --help       Print help information
     -v, --version    Print version information";
+
+static LAST_ARG: &'static str = "last 0.1
+
+USAGE:
+    last <TARGET> [CORPUS] [-- <ARGS>...]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+ARGS:
+    <TARGET>     some
+    <CORPUS>     some
+    <ARGS>...    some";
+
+static LAST_ARG_SC: &'static str = "last 0.1
+
+USAGE:
+    last <TARGET> [CORPUS] [-- <ARGS>...]
+    last <SUBCOMMAND>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+ARGS:
+    <TARGET>     some
+    <CORPUS>     some
+    <ARGS>...    some
+
+SUBCOMMANDS:
+    help    Prints this message or the help of the given subcommand(s)
+    test    some";
+
+static LAST_ARG_REQ: &'static str = "last 0.1
+
+USAGE:
+    last <TARGET> [CORPUS] -- <ARGS>...
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+ARGS:
+    <TARGET>     some
+    <CORPUS>     some
+    <ARGS>...    some";
+
+static LAST_ARG_REQ_SC: &'static str = "last 0.1
+
+USAGE:
+    last <TARGET> [CORPUS] -- <ARGS>...
+    last <SUBCOMMAND>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+ARGS:
+    <TARGET>     some
+    <CORPUS>     some
+    <ARGS>...    some
+
+SUBCOMMANDS:
+    help    Prints this message or the help of the given subcommand(s)
+    test    some";
 
 #[test]
 fn help_short() {
@@ -531,6 +651,40 @@ fn issue_760() {
             .takes_value(true));
     assert!(test::compare_output(app, "ctest --help", ISSUE_760, false));
 }
+
+#[test]
+fn hidden_args() {
+    let app = App::new("prog")
+        .version("1.0")
+        .args_from_usage("-f, --flag 'testing flags'
+                          -o, --opt [FILE] 'tests options'")
+        .arg(Arg::with_name("pos").hidden(true));
+    assert!(test::compare_output(app, "prog --help", HIDDEN_ARGS, false));
+}
+
+#[test]
+fn sc_negates_reqs() {
+    let app = App::new("prog")
+        .version("1.0")
+        .setting(AppSettings::SubcommandsNegateReqs)
+        .arg_from_usage("-o, --opt <FILE> 'tests options'")
+        .arg(Arg::with_name("PATH"))
+        .subcommand(SubCommand::with_name("test"));
+    assert!(test::compare_output(app, "prog --help", SC_NEGATES_REQS, false));
+}
+
+#[test]
+fn args_negate_sc() {
+    let app = App::new("prog")
+        .version("1.0")
+        .setting(AppSettings::ArgsNegateSubcommands)
+        .args_from_usage("-f, --flag 'testing flags'
+                          -o, --opt [FILE] 'tests options'")
+        .arg(Arg::with_name("PATH"))
+        .subcommand(SubCommand::with_name("test"));
+    assert!(test::compare_output(app, "prog --help", ARGS_NEGATE_SC, false));
+}
+
 #[test]
 fn issue_777_wrap_all_things() {
     let app = App::new("A app with a crazy very long long long name hahaha")
@@ -552,4 +706,48 @@ fn customize_version_and_help() {
         .version_short("v")
         .version_message("Print version information");
     assert!(test::compare_output(app, "customize --help", CUSTOM_VERSION_AND_HELP, false));
+}
+
+#[test]
+fn last_arg_mult_usage() {
+    let app = App::new("last")
+            .version("0.1")
+            .arg(Arg::with_name("TARGET").required(true).help("some"))
+            .arg(Arg::with_name("CORPUS").help("some"))
+            .arg(Arg::with_name("ARGS").multiple(true).last(true).help("some"));
+    assert!(test::compare_output(app, "last --help", LAST_ARG, false));
+}
+
+#[test]
+fn last_arg_mult_usage_req() {
+    let app = App::new("last")
+            .version("0.1")
+            .arg(Arg::with_name("TARGET").required(true).help("some"))
+            .arg(Arg::with_name("CORPUS").help("some"))
+            .arg(Arg::with_name("ARGS").multiple(true).last(true).required(true).help("some"));
+    assert!(test::compare_output(app, "last --help", LAST_ARG_REQ, false));
+}
+
+#[test]
+fn last_arg_mult_usage_req_with_sc() {
+    let app = App::new("last")
+            .version("0.1")
+            .setting(AppSettings::SubcommandsNegateReqs)
+            .arg(Arg::with_name("TARGET").required(true).help("some"))
+            .arg(Arg::with_name("CORPUS").help("some"))
+            .arg(Arg::with_name("ARGS").multiple(true).last(true).required(true).help("some"))
+            .subcommand(SubCommand::with_name("test").about("some"));
+    assert!(test::compare_output(app, "last --help", LAST_ARG_REQ_SC, false));
+}
+
+#[test]
+fn last_arg_mult_usage_with_sc() {
+    let app = App::new("last")
+            .version("0.1")
+            .setting(AppSettings::ArgsNegateSubcommands)
+            .arg(Arg::with_name("TARGET").required(true).help("some"))
+            .arg(Arg::with_name("CORPUS").help("some"))
+            .arg(Arg::with_name("ARGS").multiple(true).last(true).help("some"))
+            .subcommand(SubCommand::with_name("test").about("some"));
+    assert!(test::compare_output(app, "last --help", LAST_ARG_SC, false));
 }

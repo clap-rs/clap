@@ -138,6 +138,12 @@ impl<'n, 'e> DispOrder for PosBuilder<'n, 'e> {
     fn disp_ord(&self) -> usize { self.index as usize }
 }
 
+impl<'n, 'e> PartialEq for PosBuilder<'n, 'e> {
+    fn eq(&self, other: &PosBuilder<'n, 'e>) -> bool {
+        self.b == other.b
+    }
+}
+
 #[cfg(test)]
 mod test {
     use args::settings::ArgSettings;

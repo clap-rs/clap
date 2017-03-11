@@ -4,6 +4,8 @@ mod macros;
 pub mod parser;
 mod meta;
 mod help;
+mod validator;
+mod usage;
 
 // Std
 use std::env;
@@ -405,7 +407,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn help_message<S: Into<&'a str>>(mut self, s: S) -> Self {
-        self.p.help_message(s.into());
+        self.p.help_message = Some(s.into());
         self
     }
 
@@ -423,7 +425,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn version_message<S: Into<&'a str>>(mut self, s: S) -> Self {
-        self.p.version_message(s.into());
+        self.p.version_message = Some(s.into());
         self
     }
 

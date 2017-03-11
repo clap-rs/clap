@@ -1,3 +1,46 @@
+<a name="v2.21.0"></a>
+## v2.21.0 (2017-03-09)
+
+#### Performance
+
+*   doesn't run `arg_post_processing` on multiple values anymore ([ec516182](https://github.com/kbknapp/clap-rs/commit/ec5161828729f6a53f0fccec8648f71697f01f78))
+*   changes internal use of `VecMap` to `Vec` for matched values of `Arg`s ([22bf137a](https://github.com/kbknapp/clap-rs/commit/22bf137ac581684c6ed460d2c3c640c503d62621))
+*   vastly reduces the amount of cloning when adding non-global args minus when they're added from `App::args` which is forced to clone ([8da0303b](https://github.com/kbknapp/clap-rs/commit/8da0303bc02db5fe047cfc0631a9da41d9dc60f7))
+*   refactor to remove unneeded vectors and allocations and checks for significant performance increases ([0efa4119](https://github.com/kbknapp/clap-rs/commit/0efa4119632f134fc5b8b9695b007dd94b76735d))
+
+#### Documentation
+
+*   Fix examples link in CONTRIBUTING.md ([60cf875d](https://github.com/kbknapp/clap-rs/commit/60cf875d67a252e19bb85054be57696fac2c57a1))
+
+#### Improvements
+
+*   when `AppSettings::SubcommandsNegateReqs` and `ArgsNegateSubcommands` are used, a new more accurate double line usage string is shown ([50f02300](https://github.com/kbknapp/clap-rs/commit/50f02300d81788817acefef0697e157e01b6ca32), closes [#871](https://github.com/kbknapp/clap-rs/issues/871))
+
+#### API Additions
+
+* **Arg::last:**  adds the ability to mark a positional argument as 'last' which means it should be used with `--` syntax and can be accessed early ([6a7aea90](https://github.com/kbknapp/clap-rs/commit/6a7aea9043b83badd9ab038b4ecc4c787716147e), closes [#888](https://github.com/kbknapp/clap-rs/issues/888))
+*   provides `default_value_os` and `default_value_if[s]_os` ([0f2a3782](https://github.com/kbknapp/clap-rs/commit/0f2a378219a6930748d178ba350fe5925be5dad5), closes [#849](https://github.com/kbknapp/clap-rs/issues/849))
+*   provides `App::help_message` and `App::version_message` which allows one to override the auto-generated help/version flag associated help ([389c413](https://github.com/kbknapp/clap-rs/commit/389c413b7023dccab8c76aa00577ea1d048e7a99), closes [#889](https://github.com/kbknapp/clap-rs/issues/889))
+
+#### New Settings
+
+* **InferSubcommands:**  adds a setting to allow one to infer shortened subcommands or aliases (i.e. for subcommmand "test", "t", "te", or "tes" would be allowed assuming no other ambiguities) ([11602032](https://github.com/kbknapp/clap-rs/commit/11602032f6ff05881e3adf130356e37d5e66e8f9), closes [#863](https://github.com/kbknapp/clap-rs/issues/863))
+
+#### Bug Fixes
+
+*   doesn't print the argument sections in the help message if all args in that section are hidden ([ce5ee5f5](https://github.com/kbknapp/clap-rs/commit/ce5ee5f5a76f838104aeddd01c8ec956dd347f50))
+*   doesn't include the various [ARGS] [FLAGS] or [OPTIONS] if the only ones available are hidden ([7b4000af](https://github.com/kbknapp/clap-rs/commit/7b4000af97637703645c5fb2ac8bb65bd546b95b), closes [#882](https://github.com/kbknapp/clap-rs/issues/882))
+*   now correctly shows subcommand as required in the usage string when AppSettings::SubcommandRequiredElseHelp is used ([8f0884c1](https://github.com/kbknapp/clap-rs/commit/8f0884c1764983a49b45de52a1eddf8d721564d8))
+*   fixes some memory leaks when an error is detected and clap exits ([8c2dd287](https://github.com/kbknapp/clap-rs/commit/8c2dd28718262ace4ae0db98563809548e02a86b))
+*   fixes a trait that's marked private accidentlly, but should be crate internal public ([1ae21108](https://github.com/kbknapp/clap-rs/commit/1ae21108015cea87e5360402e1747025116c7878))
+* **Completions:**   fixes a bug that tried to propogate global args multiple times when generating multiple completion scripts ([5e9b9cf4](https://github.com/kbknapp/clap-rs/commit/5e9b9cf4dd80fa66a624374fd04e6545635c1f94), closes [#846](https://github.com/kbknapp/clap-rs/issues/846))
+
+#### Features
+
+* **Options:**  adds the ability to require the equals syntax with options --opt=val ([f002693d](https://github.com/kbknapp/clap-rs/commit/f002693dec6a6959c4e9590cb7b7bfffd6d6e5bc), closes [#833](https://github.com/kbknapp/clap-rs/issues/833))
+
+
+
 <a name="v2.20.5"></a>
 ### v2.20.5 (2017-02-18)
 
