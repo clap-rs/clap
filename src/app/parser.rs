@@ -455,31 +455,30 @@ impl<'a, 'b> Parser<'a, 'b>
             // Or the second to last has a terminator or .last(true) set
             let ok = last.is_set(ArgSettings::Required) ||
                      (second_to_last.v.terminator.is_some() ||
-                      second_to_last.b.is_set(ArgSettings::Last));
+                      second_to_last.b.is_set(ArgSettings::Last)) ||
+                     last.is_set(ArgSettings::Last);
             assert!(ok,
                     "When using a positional argument with .multiple(true) that is *not the \
                           last* positional argument, the last positional argument (i.e the one \
                           with the highest index) *must* have .required(true) or .last(true) set.");
-            let num = self.positionals.len() - 1;
-            let ok = self.positionals
-                .get(num)
-                .unwrap()
-                .is_set(ArgSettings::Multiple);
+            let ok = second_to_last.is_set(ArgSettings::Multiple) || last.is_set(ArgSettings::Last);
             assert!(ok,
                     "Only the last positional argument, or second to last positional \
                           argument may be set to .multiple(true)");
 
-            self.settings.set(AS::LowIndexMultiplePositional);
+            let count = self.positionals
+                .values()
+                .filter(|p| p.b.settings.is_set(ArgSettings::Multiple) && p.v.num_vals.is_none())
+                .count();
+            let ok = count <= 1 ||
+                     (last.is_set(ArgSettings::Last) && last.is_set(ArgSettings::Multiple) &&
+                      second_to_last.is_set(ArgSettings::Multiple) &&
+                      count == 2);
+            assert!(ok,
+                    "Only one positional argument with .multiple(true) set is allowed per \
+                        command, unless the second one also has .last(true) set");
         }
 
-        let ok = self.positionals
-            .values()
-            .filter(|p| p.b.settings.is_set(ArgSettings::Multiple) && p.v.num_vals.is_none())
-            .map(|_| 1)
-            .sum::<u64>() <= 1;
-        assert!(ok,
-                "Only one positional argument with .multiple(true) set is allowed per \
-                      command");
 
         if self.is_set(AS::AllowMissingPositional) {
             // Check that if a required positional argument is found, all positions with a lower
@@ -677,7 +676,6 @@ impl<'a, 'b> Parser<'a, 'b>
 
     // allow wrong self convention due to self.valid_neg_num = true and it's a private method
     #[cfg_attr(feature = "lints", allow(wrong_self_convention))]
-    #[inline]
     fn is_new_arg(&mut self, arg_os: &OsStr, needs_val_of: Option<&'a str>) -> bool {
         debugln!("Parser::is_new_arg: arg={:?}, Needs Val of={:?}",
                  arg_os,
@@ -743,6 +741,13 @@ impl<'a, 'b> Parser<'a, 'b>
         debugln!("Parser::get_matches_with;");
         // Verify all positional assertions pass
         debug_assert!(self.verify_positionals());
+        if self.positionals.values().any(|a| {
+                                             a.b.is_set(ArgSettings::Multiple) &&
+                                             (a.index as usize != self.positionals.len())
+                                         }) &&
+           self.positionals.values().last().map_or(false, |p| !p.is_set(ArgSettings::Last)) {
+            self.settings.set(AS::LowIndexMultiplePositional);
+        }
         let has_args = self.has_args();
 
         // Next we create the `--help` and `--version` arguments and add them if
@@ -761,6 +766,11 @@ impl<'a, 'b> Parser<'a, 'b>
             self.unset(AS::ValidNegNumFound);
             // Is this a new argument, or values from a previous option?
             let starts_new_arg = self.is_new_arg(&arg_os, needs_val_of);
+            if arg_os.starts_with(b"--") && arg_os.len_() == 2 {
+                debugln!("Parser::get_matches_with: setting TrailingVals=true");
+                self.set(AS::TrailingValues);
+                continue;
+            }
 
             // Has the user already passed '--'? Meaning only positional args follow
             if !self.is_set(AS::TrailingValues) {
@@ -792,15 +802,6 @@ impl<'a, 'b> Parser<'a, 'b>
                     }
                 } else {
                     if arg_os.starts_with(b"--") {
-                        if arg_os.len_() == 2 {
-                            // The user has passed '--' which means only positional args follow no
-                            // matter what they start with
-                            debugln!("Parser::get_matches_with: found '--'");
-                            debugln!("Parser::get_matches_with: setting TrailingVals=true");
-                            self.set(AS::TrailingValues);
-                            continue;
-                        }
-
                         needs_val_of = try!(self.parse_long_arg(matcher, &arg_os));
                         if !(needs_val_of.is_none() && self.is_set(AS::AllowLeadingHyphen)) {
                             continue;
