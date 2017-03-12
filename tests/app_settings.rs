@@ -110,6 +110,18 @@ fn arg_required_else_help() {
     assert_eq!(err.kind, ErrorKind::MissingArgumentOrSubcommand);
 }
 
+#[test]
+fn arg_required_else_help_over_reqs() {
+    let result = App::new("arg_required")
+        .setting(AppSettings::ArgRequiredElseHelp)
+        .arg(Arg::with_name("test")
+               .index(1).required(true))
+        .get_matches_from_safe(vec![""]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.kind, ErrorKind::MissingArgumentOrSubcommand);
+}
+
 #[cfg(not(feature = "suggestions"))]
 #[test]
 fn infer_subcommands_fail_no_args() {
