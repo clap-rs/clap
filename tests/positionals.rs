@@ -234,3 +234,13 @@ fn last_positional_no_double_dash() {
     assert!(r.is_err());
     assert_eq!(r.unwrap_err().kind, ErrorKind::UnknownArgument);
 }
+
+#[test]
+fn last_positional_second_to_last_mult() {
+    let r = App::new("test")
+        .arg_from_usage("<TARGET> 'some target'")
+        .arg_from_usage("[CORPUS]... 'some corpus'")
+        .arg(Arg::from_usage("[ARGS]... 'some file'").last(true))
+        .get_matches_from_safe(vec!["test", "tgt", "crp1", "crp2", "--", "arg"]);
+    assert!(r.is_ok(), "{:?}", r.unwrap_err().kind);
+}

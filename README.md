@@ -45,6 +45,11 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.21.1
+
+* fixes the precedence of this error to prioritize over other error messages
+* fixes some regression bugs resulting from old asserts in debug mode.
+
 Here's the highlights for v2.21.0
 
 * adds the ability to mark a positional argument as 'last' which means it should be used with `--` syntax and can be accessed early to effectivly skip other positional args

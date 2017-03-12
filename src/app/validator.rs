@@ -49,13 +49,6 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             }
         }
 
-        try!(self.validate_blacklist(matcher));
-        if !(self.0.is_set(AS::SubcommandsNegateReqs) && subcmd_name.is_some()) && !reqs_validated {
-            try!(self.validate_required(matcher));
-        }
-        try!(self.validate_matched_args(matcher));
-        matcher.usage(usage::create_usage_with_title(self.0, &[]));
-
         if matcher.is_empty() && matcher.subcommand_name().is_none() &&
            self.0.is_set(AS::ArgRequiredElseHelp) {
             let mut out = vec![];
@@ -66,6 +59,13 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                            info: None,
                        });
         }
+        try!(self.validate_blacklist(matcher));
+        if !(self.0.is_set(AS::SubcommandsNegateReqs) && subcmd_name.is_some()) && !reqs_validated {
+            try!(self.validate_required(matcher));
+        }
+        try!(self.validate_matched_args(matcher));
+        matcher.usage(usage::create_usage_with_title(self.0, &[]));
+
         Ok(())
     }
 

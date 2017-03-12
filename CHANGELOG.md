@@ -1,3 +1,14 @@
+<a name="v2.21.1"></a>
+### v2.21.1 (2017-03-12)
+
+
+#### Bug Fixes
+
+* **ArgRequiredElseHelp:**  fixes the precedence of this error to prioritize over other error messages ([74b751ff](https://github.com/kbknapp/clap-rs/commit/74b751ff2e3631e337b7946347c1119829a41c53), closes [#895](https://github.com/kbknapp/clap-rs/issues/895))
+* **Positionals:**  fixes some regression bugs resulting from old asserts in debug mode. ([9a3bc98e](https://github.com/kbknapp/clap-rs/commit/9a3bc98e9b55e7514b74b73374c5ac8b6e5e0508), closes [#896](https://github.com/kbknapp/clap-rs/issues/896))
+
+
+
 <a name="v2.21.0"></a>
 ## v2.21.0 (2017-03-09)
 
