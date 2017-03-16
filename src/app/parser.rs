@@ -329,6 +329,8 @@ impl<'a, 'b> Parser<'a, 'b>
                 }
                 sc.p.settings = sc.p.settings | self.g_settings;
                 sc.p.g_settings = sc.p.g_settings | self.g_settings;
+                sc.p.meta.term_w = self.meta.term_w;
+                sc.p.meta.max_w = self.meta.max_w;
             }
             sc.p.propogate_settings();
         }
