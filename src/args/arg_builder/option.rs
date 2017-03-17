@@ -50,11 +50,16 @@ impl<'n, 'e> From<Arg<'n, 'e>> for OptBuilder<'n, 'e> {
 impl<'n, 'e> Display for OptBuilder<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> Result {
         debugln!("OptBuilder::fmt");
+        let sep = if self.b.is_set(ArgSettings::RequireEquals) {
+            "="
+        } else {
+            " "
+        };
         // Write the name such --long or -l
         if let Some(l) = self.s.long {
-            try!(write!(f, "--{} ", l));
+            try!(write!(f, "--{}{}", l, sep));
         } else {
-            try!(write!(f, "-{} ", self.s.short.unwrap()));
+            try!(write!(f, "-{}{}", self.s.short.unwrap(), sep));
         }
 
         // Write the values such as <name1> <name2>

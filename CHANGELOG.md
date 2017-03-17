@@ -1,3 +1,18 @@
+<a name="v2.21.2"></a>
+### v2.21.2 (2017-03-17)
+
+
+#### Improvements
+
+*   options that use `require_equals(true)` now display the equals sign in help messages, usage strings, and errors" ([c8eb0384](https://github.com/kbknapp/clap-rs/commit/c8eb0384d394d2900ccdc1593099c97808a3fa05), closes [#903](https://github.com/kbknapp/clap-rs/issues/903))
+
+
+#### Bug Fixes
+
+*  setting the max term width now correctly propagates down through child subcommands
+
+
+
 <a name="v2.21.1"></a>
 ### v2.21.1 (2017-03-12)
 

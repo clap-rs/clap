@@ -283,7 +283,13 @@ impl<'a> Help<'a> {
                 }
                 try!(color!(self, "--{}", l, good))
             }
-            try!(write!(self.writer, " "));
+
+            let sep = if arg.is_set(ArgSettings::RequireEquals) {
+                "="
+            } else {
+                " "
+            };
+            try!(write!(self.writer, "{}", sep));
         } else if let Some(l) = arg.long() {
             if arg.short().is_some() {
                 try!(write!(self.writer, ", "));
