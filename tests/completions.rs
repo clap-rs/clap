@@ -169,8 +169,8 @@ end
 
 complete -c myapp -n "__fish_using_command myapp" -s h -l help -d "Prints help information"
 complete -c myapp -n "__fish_using_command myapp" -s V -l version -d "Prints version information"
-complete -c myapp -n "__fish_using_command myapp" -f -a "test"
-complete -c myapp -n "__fish_using_command myapp" -f -a "help"
+complete -c myapp -n "__fish_using_command myapp" -f -a "test" -d "tests things"
+complete -c myapp -n "__fish_using_command myapp" -f -a "help" -d "Prints this message or the help of the given subcommand(s)"
 complete -c myapp -n "__fish_using_command myapp test" -l case -d "the case to test"
 complete -c myapp -n "__fish_using_command myapp test" -s h -l help -d "Prints help information"
 complete -c myapp -n "__fish_using_command myapp test" -s V -l version -d "Prints version information"
@@ -475,9 +475,9 @@ end
 
 complete -c my_app -n "__fish_using_command my_app" -s h -l help -d "Prints help information"
 complete -c my_app -n "__fish_using_command my_app" -s V -l version -d "Prints version information"
-complete -c my_app -n "__fish_using_command my_app" -f -a "test"
-complete -c my_app -n "__fish_using_command my_app" -f -a "some_cmd"
-complete -c my_app -n "__fish_using_command my_app" -f -a "help"
+complete -c my_app -n "__fish_using_command my_app" -f -a "test" -d "tests things"
+complete -c my_app -n "__fish_using_command my_app" -f -a "some_cmd" -d "tests other things"
+complete -c my_app -n "__fish_using_command my_app" -f -a "help" -d "Prints this message or the help of the given subcommand(s)"
 complete -c my_app -n "__fish_using_command my_app test" -l case -d "the case to test"
 complete -c my_app -n "__fish_using_command my_app test" -s h -l help -d "Prints help information"
 complete -c my_app -n "__fish_using_command my_app test" -s V -l version -d "Prints version information"

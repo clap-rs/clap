@@ -95,6 +95,9 @@ fn gen_fish_inner(root_command: &str, comp_gen: &FishGen, parent_cmds: &str, buf
         let mut template = basic_template.clone();
         template.push_str(" -f");
         template.push_str(format!(" -a \"{}\"", &subcommand.p.meta.name).as_str());
+        if let Some(data) = subcommand.p.meta.about {
+            template.push_str(format!(" -d \"{}\"", &data).as_str())
+        }
         buffer.push_str(template.as_str());
         buffer.push_str("\n");
     }
