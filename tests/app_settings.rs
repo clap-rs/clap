@@ -19,6 +19,18 @@ ARGS:
     <arg2>    some
     <arg3>    some";
 
+static REQUIRE_EQUALS: &'static str = "clap-test v1.4.8
+
+USAGE:
+    clap-test --opt=<FILE>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -o, --opt=<FILE>    some";
+
 static UNIFIED_HELP: &'static str = "test 1.3
 Kevin K.
 tests stuff
@@ -524,6 +536,22 @@ fn dont_collapse_args() {
             Arg::with_name("arg3").help("some"),
         ]);
     assert!(test::compare_output(app, "clap-test --help", DONT_COLLAPSE_ARGS, false));
+}
+
+#[test]
+fn require_eq() {
+    let app = App::new("clap-test")
+        .version("v1.4.8")
+        .arg(
+            Arg::with_name("opt")
+            .long("opt")
+            .short("o")
+            .required(true)
+            .require_equals(true)
+            .value_name("FILE")
+            .help("some"),
+        );
+    assert!(test::compare_output(app, "clap-test --help", REQUIRE_EQUALS, false));
 }
 
 #[test]

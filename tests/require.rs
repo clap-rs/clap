@@ -5,6 +5,14 @@ include!("../clap-test.rs");
 
 use clap::{App, Arg, ErrorKind, ArgGroup};
 
+static REQUIRE_EQUALS: &'static str = "error: The following required arguments were not provided:
+    --opt=<FILE>
+
+USAGE:
+    clap-test --opt=<FILE>
+
+For more information try --help";
+
 static MISSING_REQ: &'static str = "error: The following required arguments were not provided:
     <positional2>
     --long-option-2 <option2>
@@ -560,4 +568,20 @@ fn required_ifs_wrong_val_mult_fail() {
 
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+}
+
+#[test]
+fn require_eq() {
+    let app = App::new("clap-test")
+        .version("v1.4.8")
+        .arg(
+            Arg::with_name("opt")
+            .long("opt")
+            .short("o")
+            .required(true)
+            .require_equals(true)
+            .value_name("FILE")
+            .help("some")
+        );
+    assert!(test::compare_output(app, "clap-test", REQUIRE_EQUALS, true));
 }
