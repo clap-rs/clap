@@ -45,6 +45,11 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.21.2
+
+*   options that use `require_equals(true)` now display the equals sign in help messages, usage strings, and errors
+*  setting the max term width now correctly propagates down through child subcommands
+
 Here's the highlights for v2.21.1
 
 * fixes the precedence of this error to prioritize over other error messages
