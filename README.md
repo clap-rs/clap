@@ -47,6 +47,7 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 Here's the highlights for v2.21.2
 
+*   adds fish subcommand help support 
 *   options that use `require_equals(true)` now display the equals sign in help messages, usage strings, and errors
 *  setting the max term width now correctly propagates down through child subcommands
 
