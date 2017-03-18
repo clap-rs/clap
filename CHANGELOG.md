@@ -4,6 +4,7 @@
 
 #### Improvements
 
+*   add fish subcommand help support ([f8f68cf8](https://github.com/kbknapp/clap-rs/commit/f8f68cf8251669aef4539a25a7c1166f0ac81ea6))
 *   options that use `require_equals(true)` now display the equals sign in help messages, usage strings, and errors" ([c8eb0384](https://github.com/kbknapp/clap-rs/commit/c8eb0384d394d2900ccdc1593099c97808a3fa05), closes [#903](https://github.com/kbknapp/clap-rs/issues/903))
 
 
