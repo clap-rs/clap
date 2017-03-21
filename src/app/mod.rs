@@ -215,6 +215,33 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
+    /// Sets the program's name. This will be displayed when displaying help information.
+    ///
+    /// **Pro-top:** This function is particularly useful when configuring a program via
+    /// [`App::from_yaml`] in conjunction with the [`crate_name!`] macro to derive the program's
+    /// name from its `Cargo.toml`.
+    ///
+    /// # Examples
+    /// ```ignore
+    /// # #[macro_use]
+    /// # extern crate clap;
+    /// # use clap::App;
+    /// # fn main() {
+    /// let yml = load_yaml!("app.yml");
+    /// let app = App::from_yaml(yml)
+    ///     .name(crate_name!());
+    ///
+    /// // continued logic goes here, such as `app.get_matches()` etc.
+    /// # }
+    /// ```
+    ///
+    /// [`App::from_yaml`]: ./struct.App.html#method.from_yaml
+    /// [`crate_name!`]: ./macro.crate_name.html
+    pub fn name<S: Into<String>>(mut self, name: S) -> Self {
+        self.p.meta.name = name.into();
+        self
+    }
+
     /// Adds additional help information to be displayed in addition to auto-generated help. This
     /// information is displayed **after** the auto-generated help information. This is often used
     /// to describe how to use the arguments, or caveats to be noted.

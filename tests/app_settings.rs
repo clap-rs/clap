@@ -256,7 +256,8 @@ fn no_bin_name() {
 
 #[test]
 fn unified_help() {
-    let app = App::new("test")
+    let app = App::new("myTest")
+        .name("test")
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
