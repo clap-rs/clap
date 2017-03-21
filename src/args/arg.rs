@@ -1707,6 +1707,40 @@ impl<'a, 'b> Arg<'a, 'b> {
         }
     }
 
+    /// Specifies if the default value of an argument should be displayed in the help text or
+    /// not. Defaults to `false` (i.e. show default value)
+    ///
+    /// This is useful when default behavior of an arg is explained elsewhere in the help text.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// Arg::with_name("config")
+    ///     .hide_default_value(true)
+    /// # ;
+    /// ```
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("connect")
+    ///     .arg(Arg::with_name("host")
+    ///         .long("host")
+    ///         .default_value("localhost")
+    ///         .hide_default_value(true));
+    ///
+    /// ```
+    ///
+    /// If we were to run the above program with `--help` the `[default: localhost]` portion of
+    /// the help text would be omitted.
+    pub fn hide_default_value(self, hide: bool) -> Self {
+        if hide {
+            self.set(ArgSettings::HideDefaultValue)
+        } else {
+            self.unset(ArgSettings::HideDefaultValue)
+        }
+    }
+
     /// Specifies the index of a positional argument **starting at** 1.
     ///
     /// **NOTE:** The index refers to position according to **other positional argument**. It does

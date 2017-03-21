@@ -4,21 +4,22 @@ use std::str::FromStr;
 
 bitflags! {
     flags Flags: u16 {
-        const REQUIRED       = 1 << 0,
-        const MULTIPLE       = 1 << 1,
-        const EMPTY_VALS     = 1 << 2,
-        const GLOBAL         = 1 << 3,
-        const HIDDEN         = 1 << 4,
-        const TAKES_VAL      = 1 << 5,
-        const USE_DELIM      = 1 << 6,
-        const NEXT_LINE_HELP = 1 << 7,
-        const R_UNLESS_ALL   = 1 << 8,
-        const REQ_DELIM      = 1 << 9,
-        const DELIM_NOT_SET  = 1 << 10,
-        const HIDE_POS_VALS  = 1 << 11,
-        const ALLOW_TAC_VALS = 1 << 12,
-        const REQUIRE_EQUALS = 1 << 13,
-        const LAST           = 1 << 14,
+        const REQUIRED         = 1 << 0,
+        const MULTIPLE         = 1 << 1,
+        const EMPTY_VALS       = 1 << 2,
+        const GLOBAL           = 1 << 3,
+        const HIDDEN           = 1 << 4,
+        const TAKES_VAL        = 1 << 5,
+        const USE_DELIM        = 1 << 6,
+        const NEXT_LINE_HELP   = 1 << 7,
+        const R_UNLESS_ALL     = 1 << 8,
+        const REQ_DELIM        = 1 << 9,
+        const DELIM_NOT_SET    = 1 << 10,
+        const HIDE_POS_VALS    = 1 << 11,
+        const ALLOW_TAC_VALS   = 1 << 12,
+        const REQUIRE_EQUALS   = 1 << 13,
+        const LAST             = 1 << 14,
+        const HIDE_DEFAULT_VAL = 1 << 15,
     }
 }
 
@@ -44,7 +45,8 @@ impl ArgFlags {
         HidePossibleValues => HIDE_POS_VALS,
         AllowLeadingHyphen => ALLOW_TAC_VALS,
         RequireEquals => REQUIRE_EQUALS,
-        Last => LAST
+        Last => LAST,
+        HideDefaultValue => HIDE_DEFAULT_VAL
     }
 }
 
@@ -87,6 +89,8 @@ pub enum ArgSettings {
     /// Specifies that the arg is the last positional argument and may be accessed early via `--`
     /// syntax
     Last,
+    /// Hides the default value from the help string
+    HideDefaultValue,
     #[doc(hidden)]
     RequiredUnlessAll,
     #[doc(hidden)]
@@ -112,6 +116,7 @@ impl FromStr for ArgSettings {
             "allowleadinghyphen" => Ok(ArgSettings::AllowLeadingHyphen),
             "requireequals" => Ok(ArgSettings::RequireEquals),
             "last" => Ok(ArgSettings::Last),
+            "hidedefaultvalue" => Ok(ArgSettings::HideDefaultValue),
             _ => Err("unknown ArgSetting, cannot convert from str".to_owned()),
         }
     }
@@ -153,6 +158,8 @@ mod test {
                    ArgSettings::RequireEquals);
         assert_eq!("last".parse::<ArgSettings>().unwrap(),
                    ArgSettings::Last);
+        assert_eq!("hidedefaultvalue".parse::<ArgSettings>().unwrap(),
+                   ArgSettings::HideDefaultValue);
         assert!("hahahaha".parse::<ArgSettings>().is_err());
     }
 }
