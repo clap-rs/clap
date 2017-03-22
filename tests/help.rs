@@ -356,6 +356,18 @@ SUBCOMMANDS:
     help    Prints this message or the help of the given subcommand(s)
     test    some";
 
+static HIDE_DEFAULT_VAL: &'static str = "default 0.1
+
+USAGE:
+    default [OPTIONS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+        --arg <argument>    Pass an argument to the program. [default: default-argument]";
+
 #[test]
 fn help_short() {
     let m = App::new("test")
@@ -750,4 +762,27 @@ fn last_arg_mult_usage_with_sc() {
             .arg(Arg::with_name("ARGS").multiple(true).last(true).help("some"))
             .subcommand(SubCommand::with_name("test").about("some"));
     assert!(test::compare_output(app, "last --help", LAST_ARG_SC, false));
+}
+
+
+#[test]
+fn hidden_default_val() {
+    let app1 = App::new("default")
+        .version("0.1")
+        .set_term_width(120)
+        .arg(Arg::with_name("argument")
+             .help("Pass an argument to the program. [default: default-argument]")
+             .long("arg")
+             .default_value("default-argument")
+             .hide_default_value(true));
+    assert!(test::compare_output(app1, "default --help", HIDE_DEFAULT_VAL, false));
+
+    let app2 = App::new("default")
+        .version("0.1")
+        .set_term_width(120)
+        .arg(Arg::with_name("argument")
+             .help("Pass an argument to the program.")
+             .long("arg")
+             .default_value("default-argument"));
+    assert!(test::compare_output(app2, "default --help", HIDE_DEFAULT_VAL, false));
 }
