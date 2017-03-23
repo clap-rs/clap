@@ -1,3 +1,12 @@
+<a name="v2.22.0"></a>
+## v2.22.0 (2017-03-23)
+
+#### API Additions
+
+* **App::name:**  adds the ability to change the name of the App instance after creation ([d49e8292](https://github.com/kbknapp/clap-rs/commit/d49e8292b026b06e2b70447cd9f08299f4fcba76), closes [#908](https://github.com/kbknapp/clap-rs/issues/908))
+* **Arg::hide_default_value:**  adds ability to hide the default value of an argument from the help string ([89e6ea86](https://github.com/kbknapp/clap-rs/commit/89e6ea861e16a1ad56757ca12f6b32d02253e44a), closes [#902](https://github.com/kbknapp/clap-rs/issues/902))
+
+
 <a name="v2.21.3"></a>
 ### v2.21.3 (2017-03-23)
 
