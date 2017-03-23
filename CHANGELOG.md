@@ -1,3 +1,11 @@
+<a name="v2.21.3"></a>
+### v2.21.3 (2017-03-23)
+
+#### Bug Fixes
+
+* **yaml:**  adds support for loading author info from yaml ([e04c390c](https://github.com/kbknapp/clap-rs/commit/e04c390c597a55fa27e724050342f16c42f1c5c9))
+
+
 <a name="v2.21.2"></a>
 ### v2.21.2 (2017-03-17)
 

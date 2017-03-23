@@ -45,19 +45,17 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-Here's the highlights for v2.21.2
+Here's the highlights for v2.21.3
 
-*   adds fish subcommand help support 
-*   options that use `require_equals(true)` now display the equals sign in help messages, usage strings, and errors
-*  setting the max term width now correctly propagates down through child subcommands
+* **yaml:**  fixes support for loading author info from yaml
 
-Here's the highlights for v2.21.1
+Here's the highlights for v2.21.0 to v2.21.2
 
+* adds fish subcommand help support
+* options that use `require_equals(true)` now display the equals sign in help messages, usage strings, and errors
+* setting the max term width now correctly propagates down through child subcommands
 * fixes the precedence of this error to prioritize over other error messages
 * fixes some regression bugs resulting from old asserts in debug mode.
-
-Here's the highlights for v2.21.0
-
 * adds the ability to mark a positional argument as 'last' which means it should be used with `--` syntax and can be accessed early to effectivly skip other positional args
 * Some performance improvements by reducing the ammount of duplicate work, cloning, and allocations in all cases.
 * Some massive perfomance gains when using many args (i.e. things like shell glob expansions)
