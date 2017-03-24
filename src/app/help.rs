@@ -691,7 +691,7 @@ impl<'a> Help<'a> {
         try!(write!(self.writer,
                     "\n{}{}\n\n",
                     TAB,
-                    usage::create_help_usage(parser, true)));
+                    usage::create_usage_no_title(parser, &[])));
 
         let flags = parser.has_flags();
         let pos = parser.has_positionals();
