@@ -43,7 +43,7 @@ pub fn create_error_usage<'a, 'b>(p: &Parser<'a, 'b>,
 }
 
 // Creates a usage string (*without title*) if one was not provided by the user manually.
-fn create_usage_no_title(p: &Parser, used: &[&str]) -> String {
+pub fn create_usage_no_title(p: &Parser, used: &[&str]) -> String {
     debugln!("usage::create_usage_no_title;");
     if let Some(u) = p.meta.usage_str {
         String::from(&*u)
