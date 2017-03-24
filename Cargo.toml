@@ -1,7 +1,7 @@
 [package]
 
 name = "clap"
-version = "2.22.0"
+version = "2.22.1"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
 exclude = ["examples/*", "clap-test/*", "tests/*", "benches/*", "*.png", "clap-perf/*", "*.dot"]
 repository = "https://github.com/kbknapp/clap-rs.git"

@@ -45,13 +45,14 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-Here's the highlights for v2.22.0
+Here's the highlights for v2.22.1
+
+* **usage:**  fixes a big regression with custom usage strings 
+
+Here's the highlights for v2.21.0 to v2.22.0
 
 * **App::name:**  adds the ability to change the name of the App instance after creation
 * **Arg::hide_default_value:**  adds ability to hide the default value of an argument from the help string
-
-Here's the highlights for v2.21.0 to v2.21.3
-
 * **yaml:**  fixes support for loading author info from yaml
 * adds fish subcommand help support
 * options that use `require_equals(true)` now display the equals sign in help messages, usage strings, and errors
