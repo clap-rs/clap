@@ -136,6 +136,19 @@ OPTIONS:
     -O, --opt <opt>             tests options
     -o, --option <option>...    tests options";
 
+static RIPGREP_USAGE: &'static str = "ripgrep 0.5
+
+USAGE:
+    rg [OPTIONS] <pattern> [<path> ...]
+    rg [OPTIONS] [-e PATTERN | -f FILE ]... [<path> ...]
+    rg [OPTIONS] --files [<path> ...]
+    rg [OPTIONS] --type-list
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information";
+
+
 static MULTI_SC_HELP: &'static str = "ctest-subcmd-multi 0.1
 Kevin K. <kbknapp@gmail.com>
 tests subcommands
@@ -662,6 +675,18 @@ fn issue_760() {
             .long("opt")
             .takes_value(true));
     assert!(test::compare_output(app, "ctest --help", ISSUE_760, false));
+}
+
+#[test]
+fn ripgrep_usage() {
+    let app = App::new("ripgrep")
+        .version("0.5")
+        .usage("rg [OPTIONS] <pattern> [<path> ...]
+    rg [OPTIONS] [-e PATTERN | -f FILE ]... [<path> ...]
+    rg [OPTIONS] --files [<path> ...]
+    rg [OPTIONS] --type-list");
+
+    assert!(test::compare_output(app, "ripgrep --help", RIPGREP_USAGE, false));
 }
 
 #[test]
