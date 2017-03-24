@@ -1,3 +1,11 @@
+<a name="v2.22.1"></a>
+### v2.22.1 (2017-03-24)
+
+
+#### Bug Fixes
+
+* **usage:**  fixes a big regression with custom usage strings ([2c41caba](https://github.com/kbknapp/clap-rs/commit/2c41caba3c7d723a2894e315d04da796b0e97759))
+
 <a name="v2.22.0"></a>
 ## v2.22.0 (2017-03-23)
 
