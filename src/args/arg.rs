@@ -2440,18 +2440,24 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    ///Works identically to Validator but is intended to be used with non UTF-8 formatted strings.
+    /// Works identically to Validator but is intended to be used with values that could 
+    /// contain non UTF-8 formatted strings.
+    ///
     /// # Examples
-    /// ```rust
+    ///
+    #[cfg_attr(not(unix), doc=" ```ignore")]
+    #[cfg_attr(    unix , doc=" ```rust")]
     /// # use clap::{App, Arg};
-    ///fn has_ampersand(v: &OsStr) -> Result<(), String> {
-    ///     if v.contains("&") { return Ok(()); }
-    ///     Err(String::from("The value did not contain the required & sigil"))
+    /// # use std::ffi::{OsStr, OsString};
+    /// # use std::os::unix::ffi::OsStrExt;
+    /// fn has_ampersand(v: &OsStr) -> Result<(), OsString> {
+    ///     if v.as_bytes().iter().any(|b| *b == b'&') { return Ok(()); }
+    ///     Err(OsString::from("The value did not contain the required & sigil"))
     /// }
     /// let res = App::new("prog")
     ///     .arg(Arg::with_name("file")
     ///         .index(1)
-    ///         .validator(has_ampersand))
+    ///         .validator_os(has_ampersand))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "Fish & chips"
     ///     ]);
