@@ -1,3 +1,13 @@
+<a name="v2.22.2"></a>
+### v2.22.2 (2017-03-30)
+
+
+#### Bug Fixes
+
+* **Custom Usage Strings:**  fixes the usage string regression when using help templates ([0e4fd96d](https://github.com/kbknapp/clap-rs/commit/0e4fd96d74280d306d09e60ac44f938a82321769))
+
+
+
 <a name="v2.22.1"></a>
 ### v2.22.1 (2017-03-24)
 

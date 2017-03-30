@@ -686,7 +686,27 @@ fn ripgrep_usage() {
     rg [OPTIONS] --files [<path> ...]
     rg [OPTIONS] --type-list");
 
-    assert!(test::compare_output(app, "ripgrep --help", RIPGREP_USAGE, false));
+    assert!(test::compare_output(app, "rg --help", RIPGREP_USAGE, false));
+}
+
+#[test]
+fn ripgrep_usage_using_templates() {
+    let app = App::new("ripgrep")
+        .version("0.5")
+        .usage("
+    rg [OPTIONS] <pattern> [<path> ...]
+    rg [OPTIONS] [-e PATTERN | -f FILE ]... [<path> ...]
+    rg [OPTIONS] --files [<path> ...]
+    rg [OPTIONS] --type-list")
+        .template("\
+{bin} {version}
+
+USAGE:{usage}
+
+FLAGS:
+{flags}");
+
+    assert!(test::compare_output(app, "rg --help", RIPGREP_USAGE, false));
 }
 
 #[test]
