@@ -888,7 +888,7 @@ impl<'a> Help<'a> {
                                 parser.meta.about.unwrap_or("unknown about")));
                 }
                 b"usage" => {
-                    try!(write!(self.writer, "{}", usage::create_help_usage(parser, true)));
+                    try!(write!(self.writer, "{}", usage::create_usage_no_title(parser, &[])));
                 }
                 b"all-args" => {
                     try!(self.write_all_args(&parser));
