@@ -10,7 +10,7 @@ Kevin K.
 tests stuff
 
 USAGE:
-    test [FLAGS] [OPTIONS]
+    test [FLAGS] [OPTIONS] [DUMMY]
 
 FLAGS:
     -F, --flag2      some other flag
