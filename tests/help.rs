@@ -831,3 +831,16 @@ fn hidden_default_val() {
              .default_value("default-argument"));
     assert!(test::compare_output(app2, "default --help", HIDE_DEFAULT_VAL, false));
 }
+
+#[test]
+fn override_help() {
+    let m = App::new("test")
+        .author("Kevin K.")
+        .about("tests stuff")
+        .version("1.3")
+        .arg(Arg::from_usage("-H, --help 'some help'"))
+        .get_matches_from_safe(vec!["test", "--help"]);
+
+    assert!(m.is_ok());
+    assert!(m.unwrap().is_present("help"));
+}
