@@ -206,6 +206,13 @@ impl<'a, 'b> Parser<'a, 'b>
             self.set(AS::DontCollapseArgsInUsage);
             self.set(AS::ContainsLast);
         }
+        if let Some(l) = a.s.long {
+            if l == "version" {
+                self.unset(AS::NeedsLongVersion);
+            } else if l == "help" {
+                self.unset(AS::NeedsLongHelp);
+            }
+        }
     }
 
     // actually adds the arguments
