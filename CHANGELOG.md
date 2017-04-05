@@ -1,3 +1,34 @@
+<a name="v2.23.0"></a>
+## v2.23.0 (2017-04-05)
+
+
+#### API Additions
+
+* `App::long_about`
+* `App::long_version`
+* `App::print_long_help`
+* `App::write_long_help`
+* `App::print_long_version`
+* `App::write_long_version`
+* `Arg::long_help`
+
+#### Features
+
+*   allows distinguishing between short and long version messages (-V/short or --version/long) ([59272b06](https://github.com/kbknapp/clap-rs/commit/59272b06cc213289dc604dbc694cb95d383a5d68))
+*   allows distinguishing between short and long help with subcommands in the same manner as args ([6b371891](https://github.com/kbknapp/clap-rs/commit/6b371891a1702173a849d1e95f9fecb168bf6fc4))
+*   allows specifying a short help vs a long help (i.e. varying levels of detail depending on if -h or --help was used) ([ef1b24c3](https://github.com/kbknapp/clap-rs/commit/ef1b24c3a0dff2f58c5e2e90880fbc2b69df20ee))
+* **clap_app!:**  adds support for arg names with hyphens similar to longs with hyphens ([f7a88779](https://github.com/kbknapp/clap-rs/commit/f7a8877978c8f90e6543d4f0d9600c086cf92cd7), closes [#869](https://github.com/kbknapp/clap-rs/issues/869))
+
+#### Bug Fixes
+
+*   fixes a bug that wasn't allowing help and version to be properly overridden ([8b2ceb83](https://github.com/kbknapp/clap-rs/commit/8b2ceb8368bcb70689fadf1c7f4b9549184926c1), closes [#922](https://github.com/kbknapp/clap-rs/issues/922))
+
+#### Documentation
+
+* **clap_app!:**  documents the `--("some-arg")` method for using args with hyphens inside them ([bc08ef3e](https://github.com/kbknapp/clap-rs/commit/bc08ef3e185393073d969d301989b6319c616c1f), closes [#919](https://github.com/kbknapp/clap-rs/issues/919))
+
+
+
 <a name="v2.22.2"></a>
 ### v2.22.2 (2017-03-30)
 

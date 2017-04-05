@@ -45,12 +45,24 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-Here's the highlights for v2.22.2
+Here's the highlights for v2.23.0
+
+* allows specifying a short help vs a long help (i.e. varying levels of detail depending on if -h or --help was used) 
+* **clap_app!:**  adds support for arg names with hyphens similar to longs with hyphens 
+* fixes a bug that wasn't allowing help and version to be properly overridden 
+  * This may break code that was relying on this bug! If you add a flag with a long of `help` manually *and* rely on the help message to be printed automatically your code could break. Please see the commit link in the full CHANGELOG.md
+* `App::long_about`
+* `App::long_version`
+* `App::print_long_help`
+* `App::write_long_help`
+* `App::print_long_version`
+* `App::write_long_version`
+* `Arg::long_help`
+* **clap_app!:**  documents the `--("some-arg")` method for using args with hyphens inside them 
+
+Here's the highlights for v2.21.0 to v2.22.2
 
 * fixes the usage string regression when using help templates 
-
-Here's the highlights for v2.21.0 to v2.22.1
-
 * fixes a big regression with custom usage strings 
 * adds the ability to change the name of the App instance after creation
 * adds ability to hide the default value of an argument from the help string
