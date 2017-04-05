@@ -200,7 +200,13 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     /// Sets a string describing what the program does. This will be displayed when displaying help
-    /// information.
+    /// information with `-h`.
+    ///
+    /// **NOTE:** If only `about` is provided, and not [`App::long_about`] but the user requests
+    /// `--help` clap will still display the contents of `about` appropriately
+    ///
+    /// **NOTE:** Only [`App::about`] is used in completion script generation in order to be
+    /// concise
     ///
     /// # Examples
     ///
@@ -210,8 +216,35 @@ impl<'a, 'b> App<'a, 'b> {
     ///     .about("Does really amazing things to great people")
     /// # ;
     /// ```
+    /// [`App::long_about`]: ./struct.App.html#method.long_about
     pub fn about<S: Into<&'b str>>(mut self, about: S) -> Self {
         self.p.meta.about = Some(about.into());
+        self
+    }
+
+    /// Sets a string describing what the program does. This will be displayed when displaying help
+    /// information.
+    ///
+    /// **NOTE:** If only `long_about` is provided, and not [`App::about`] but the user requests
+    /// `-h` clap will still display the contents of `long_about` appropriately
+    ///
+    /// **NOTE:** Only [`App::about`] is used in completion script generation in order to be
+    /// concise
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .long_about(
+    /// "Does really amazing things to great people. Now let's talk a little
+    ///  more in depth about how this subcommand really works. It may take about
+    ///  a few lines of text, but that's ok!")
+    /// # ;
+    /// ```
+    /// [`App::about`]: ./struct.App.html#method.about
+    pub fn long_about<S: Into<&'b str>>(mut self, about: S) -> Self {
+        self.p.meta.long_about = Some(about.into());
         self
     }
 
