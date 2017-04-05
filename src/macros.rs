@@ -597,6 +597,13 @@ macro_rules! app_from_crate {
 #[macro_export]
 macro_rules! clap_app {
     (@app ($builder:expr)) => { $builder };
+    (@app ($builder:expr) (@arg ($name:expr): $($tail:tt)*) $($tt:tt)*) => {
+        clap_app!{ @app
+            ($builder.arg(
+                clap_app!{ @arg ($crate::Arg::with_name($name)) (-) $($tail)* }))
+            $($tt)*
+        }
+    };
     (@app ($builder:expr) (@arg $name:ident: $($tail:tt)*) $($tt:tt)*) => {
         clap_app!{ @app
             ($builder.arg(
