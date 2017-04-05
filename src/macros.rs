@@ -562,6 +562,8 @@ macro_rules! app_from_crate {
 ///
 /// * A single hyphen followed by a character (such as `-c`) sets the [`Arg::short`]
 /// * A double hyphen followed by a character or word (such as `--config`) sets [`Arg::long`]
+///   * If one wishes to use a [`Arg::long`] with a hyphen inside (i.e. `--config-file`), you
+///     must use `--("config-file")` due to limitations of the Rust macro system.
 /// * Three dots (`...`) sets [`Arg::multiple(true)`]
 /// * Angled brackets after either a short or long will set [`Arg::value_name`] and
 /// `Arg::required(true)` such as `--config <FILE>` = `Arg::value_name("FILE")` and
