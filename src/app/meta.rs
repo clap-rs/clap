@@ -6,6 +6,7 @@ pub struct AppMeta<'b> {
     pub bin_name: Option<String>,
     pub author: Option<&'b str>,
     pub version: Option<&'b str>,
+    pub long_version: Option<&'b str>,
     pub about: Option<&'b str>,
     pub long_about: Option<&'b str>,
     pub more_help: Option<&'b str>,

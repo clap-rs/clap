@@ -310,7 +310,10 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     /// Sets a string of the version number to be displayed when displaying version or help
-    /// information.
+    /// information with `-V`. 
+    ///
+    /// **NOTE:** If only `version` is provided, and not [`App::long_version`] but the user
+    /// requests `--version` clap will still display the contents of `version` appropriately
     ///
     /// **Pro-tip:** Use `clap`s convenience macro [`crate_version!`] to automatically set your
     /// application's version to the same thing as your crate at compile time. See the [`examples/`]
@@ -326,8 +329,40 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`crate_version!`]: ./macro.crate_version!.html
     /// [`examples/`]: https://github.com/kbknapp/clap-rs/tree/master/examples
+    /// [`App::long_version`]: ./struct.App.html#method.long_version
     pub fn version<S: Into<&'b str>>(mut self, ver: S) -> Self {
         self.p.meta.version = Some(ver.into());
+        self
+    }
+
+    /// Sets a string of the version number to be displayed when displaying version or help
+    /// information with `--version`.
+    ///
+    /// **NOTE:** If only `long_version` is provided, and not [`App::version`] but the user
+    /// requests `-V` clap will still display the contents of `long_version` appropriately
+    ///
+    /// **Pro-tip:** Use `clap`s convenience macro [`crate_version!`] to automatically set your
+    /// application's version to the same thing as your crate at compile time. See the [`examples/`]
+    /// directory for more information
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .long_version(
+    /// "v0.1.24
+    ///  commit: abcdef89726d
+    ///  revision: 123
+    ///  release: 2
+    ///  binary: myprog")
+    /// # ;
+    /// ```
+    /// [`crate_version!`]: ./macro.crate_version!.html
+    /// [`examples/`]: https://github.com/kbknapp/clap-rs/tree/master/examples
+    /// [`App::version`]: ./struct.App.html#method.version
+    pub fn long_version<S: Into<&'b str>>(mut self, ver: S) -> Self {
+        self.p.meta.long_version = Some(ver.into());
         self
     }
 
@@ -1217,7 +1252,10 @@ impl<'a, 'b> App<'a, 'b> {
         Help::write_app_help(w, self, true)
     }
 
-    /// Writes the version message to the user to a [`io::Write`] object
+    /// Writes the version message to the user to a [`io::Write`] object as if the user ran `-V`.
+    ///
+    /// **NOTE:** clap has the ability to distinguish between "short" and "long" version messages
+    /// depending on if the user ran [`-V` (short)] or [`--version` (long)]
     ///
     /// # Examples
     ///
@@ -1229,10 +1267,32 @@ impl<'a, 'b> App<'a, 'b> {
     /// app.write_version(&mut out).expect("failed to write to stdout");
     /// ```
     /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
+    /// [`-V` (short)]: ./struct.App.html#method.version
+    /// [`--version` (long)]: ./struct.App.html#method.long_version
     pub fn write_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
-        self.p.write_version(w).map_err(From::from)
+        self.p.write_version(w, false).map_err(From::from)
     }
 
+    /// Writes the version message to the user to a [`io::Write`] object
+    ///
+    /// **NOTE:** clap has the ability to distinguish between "short" and "long" version messages
+    /// depending on if the user ran [`-V` (short)] or [`--version` (long)]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::App;
+    /// use std::io;
+    /// let mut app = App::new("myprog");
+    /// let mut out = io::stdout();
+    /// app.write_long_version(&mut out).expect("failed to write to stdout");
+    /// ```
+    /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
+    /// [`-V` (short)]: ./struct.App.html#method.version
+    /// [`--version` (long)]: ./struct.App.html#method.long_version
+    pub fn write_long_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
+        self.p.write_version(w, true).map_err(From::from)
+    }
 
     /// Generate a completions file for a specified shell at compile time.
     ///
