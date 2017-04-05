@@ -7,6 +7,7 @@ pub struct Base<'a, 'b>
 {
     pub name: &'a str,
     pub help: Option<&'b str>,
+    pub long_help: Option<&'b str>,
     pub blacklist: Option<Vec<&'a str>>,
     pub settings: ArgFlags,
     pub r_unless: Option<Vec<&'a str>>,

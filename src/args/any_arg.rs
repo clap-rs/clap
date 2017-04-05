@@ -32,6 +32,7 @@ pub trait AnyArg<'n, 'e>: std_fmt::Display {
     fn takes_value(&self) -> bool;
     fn val_names(&self) -> Option<&VecMap<&'e str>>;
     fn help(&self) -> Option<&'e str>;
+    fn long_help(&self) -> Option<&'e str>;
     fn default_val(&self) -> Option<&'e OsStr>;
     fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>>;
     fn longest_filter(&self) -> bool;

@@ -79,6 +79,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn long(&self) -> Option<&'e str> { self.s.long }
     fn val_delim(&self) -> Option<char> { None }
     fn help(&self) -> Option<&'e str> { self.b.help }
+    fn long_help(&self) -> Option<&'e str> { self.b.long_help }
     fn val_terminator(&self) -> Option<&'e str> { None }
     fn default_val(&self) -> Option<&'e OsStr> { None }
     fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {

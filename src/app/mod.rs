@@ -200,7 +200,13 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     /// Sets a string describing what the program does. This will be displayed when displaying help
-    /// information.
+    /// information with `-h`.
+    ///
+    /// **NOTE:** If only `about` is provided, and not [`App::long_about`] but the user requests
+    /// `--help` clap will still display the contents of `about` appropriately
+    ///
+    /// **NOTE:** Only [`App::about`] is used in completion script generation in order to be
+    /// concise
     ///
     /// # Examples
     ///
@@ -210,8 +216,35 @@ impl<'a, 'b> App<'a, 'b> {
     ///     .about("Does really amazing things to great people")
     /// # ;
     /// ```
+    /// [`App::long_about`]: ./struct.App.html#method.long_about
     pub fn about<S: Into<&'b str>>(mut self, about: S) -> Self {
         self.p.meta.about = Some(about.into());
+        self
+    }
+
+    /// Sets a string describing what the program does. This will be displayed when displaying help
+    /// information.
+    ///
+    /// **NOTE:** If only `long_about` is provided, and not [`App::about`] but the user requests
+    /// `-h` clap will still display the contents of `long_about` appropriately
+    ///
+    /// **NOTE:** Only [`App::about`] is used in completion script generation in order to be
+    /// concise
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .long_about(
+    /// "Does really amazing things to great people. Now let's talk a little
+    ///  more in depth about how this subcommand really works. It may take about
+    ///  a few lines of text, but that's ok!")
+    /// # ;
+    /// ```
+    /// [`App::about`]: ./struct.App.html#method.about
+    pub fn long_about<S: Into<&'b str>>(mut self, about: S) -> Self {
+        self.p.meta.long_about = Some(about.into());
         self
     }
 
@@ -277,7 +310,10 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     /// Sets a string of the version number to be displayed when displaying version or help
-    /// information.
+    /// information with `-V`. 
+    ///
+    /// **NOTE:** If only `version` is provided, and not [`App::long_version`] but the user
+    /// requests `--version` clap will still display the contents of `version` appropriately
     ///
     /// **Pro-tip:** Use `clap`s convenience macro [`crate_version!`] to automatically set your
     /// application's version to the same thing as your crate at compile time. See the [`examples/`]
@@ -293,8 +329,40 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`crate_version!`]: ./macro.crate_version!.html
     /// [`examples/`]: https://github.com/kbknapp/clap-rs/tree/master/examples
+    /// [`App::long_version`]: ./struct.App.html#method.long_version
     pub fn version<S: Into<&'b str>>(mut self, ver: S) -> Self {
         self.p.meta.version = Some(ver.into());
+        self
+    }
+
+    /// Sets a string of the version number to be displayed when displaying version or help
+    /// information with `--version`.
+    ///
+    /// **NOTE:** If only `long_version` is provided, and not [`App::version`] but the user
+    /// requests `-V` clap will still display the contents of `long_version` appropriately
+    ///
+    /// **Pro-tip:** Use `clap`s convenience macro [`crate_version!`] to automatically set your
+    /// application's version to the same thing as your crate at compile time. See the [`examples/`]
+    /// directory for more information
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .long_version(
+    /// "v0.1.24
+    ///  commit: abcdef89726d
+    ///  revision: 123
+    ///  release: 2
+    ///  binary: myprog")
+    /// # ;
+    /// ```
+    /// [`crate_version!`]: ./macro.crate_version!.html
+    /// [`examples/`]: https://github.com/kbknapp/clap-rs/tree/master/examples
+    /// [`App::version`]: ./struct.App.html#method.version
+    pub fn long_version<S: Into<&'b str>>(mut self, ver: S) -> Self {
+        self.p.meta.long_version = Some(ver.into());
         self
     }
 
@@ -1062,7 +1130,11 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Prints the full help message to [`io::stdout()`] using a [`BufWriter`]
+    /// Prints the full help message to [`io::stdout()`] using a [`BufWriter`] using the same
+    /// method as if someone ran `-h` to request the help message
+    ///
+    /// **NOTE:** clap has the ability to distinguish between "short" and "long" help messages
+    /// depending on if the user ran [`-h` (short)] or [`--help` (long)]
     ///
     /// # Examples
     ///
@@ -1073,6 +1145,8 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`io::stdout()`]: https://doc.rust-lang.org/std/io/fn.stdout.html
     /// [`BufWriter`]: https://doc.rust-lang.org/std/io/struct.BufWriter.html
+    /// [`-h` (short)]: ./struct.Arg.html#method.help
+    /// [`--help` (long)]: ./struct.Arg.html#method.long_help
     pub fn print_help(&mut self) -> ClapResult<()> {
         // If there are global arguments, or settings we need to propgate them down to subcommands
         // before parsing incase we run into a subcommand
@@ -1086,7 +1160,45 @@ impl<'a, 'b> App<'a, 'b> {
         self.write_help(&mut buf_w)
     }
 
-    /// Writes the full help message to the user to a [`io::Write`] object
+    /// Prints the full help message to [`io::stdout()`] using a [`BufWriter`] using the same
+    /// method as if someone ran `-h` to request the help message
+    ///
+    /// **NOTE:** clap has the ability to distinguish between "short" and "long" help messages
+    /// depending on if the user ran [`-h` (short)] or [`--help` (long)]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::App;
+    /// let mut app = App::new("myprog");
+    /// app.print_long_help();
+    /// ```
+    /// [`io::stdout()`]: https://doc.rust-lang.org/std/io/fn.stdout.html
+    /// [`BufWriter`]: https://doc.rust-lang.org/std/io/struct.BufWriter.html
+    /// [`-h` (short)]: ./struct.Arg.html#method.help
+    /// [`--help` (long)]: ./struct.Arg.html#method.long_help
+    pub fn print_long_help(&mut self) -> ClapResult<()> {
+        // If there are global arguments, or settings we need to propgate them down to subcommands
+        // before parsing incase we run into a subcommand
+        self.p.propogate_globals();
+        self.p.propogate_settings();
+        self.p.derive_display_order();
+
+        self.p.create_help_and_version();
+        let out = io::stdout();
+        let mut buf_w = BufWriter::new(out.lock());
+        self.write_long_help(&mut buf_w)
+    }
+
+    /// Writes the full help message to the user to a [`io::Write`] object in the same method as if
+    /// the user ran `-h`
+    ///
+    /// **NOTE:** clap has the ability to distinguish between "short" and "long" help messages
+    /// depending on if the user ran [`-h` (short)] or [`--help` (long)]
+    ///
+    /// **NOTE:** There is a known bug where this method does not write propogated global arguments
+    /// or autogenerated arguments (i.e. the default help/version args). Prefer
+    /// [`App::write_long_help`] instead if possibe!
     ///
     /// # Examples
     ///
@@ -1098,6 +1210,8 @@ impl<'a, 'b> App<'a, 'b> {
     /// app.write_help(&mut out).expect("failed to write to stdout");
     /// ```
     /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
+    /// [`-h` (short)]: ./struct.Arg.html#method.help
+    /// [`--help` (long)]: ./struct.Arg.html#method.long_help
     pub fn write_help<W: Write>(&self, w: &mut W) -> ClapResult<()> {
         // PENDING ISSUE: 808
         //      https://github.com/kbknapp/clap-rs/issues/808
@@ -1108,10 +1222,40 @@ impl<'a, 'b> App<'a, 'b> {
         // self.p.derive_display_order();
         // self.p.create_help_and_version();
 
-        Help::write_app_help(w, self)
+        Help::write_app_help(w, self, false)
     }
 
-    /// Writes the version message to the user to a [`io::Write`] object
+    /// Writes the full help message to the user to a [`io::Write`] object in the same method as if
+    /// the user ran `--help`
+    ///
+    /// **NOTE:** clap has the ability to distinguish between "short" and "long" help messages
+    /// depending on if the user ran [`-h` (short)] or [`--help` (long)]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::App;
+    /// use std::io;
+    /// let mut app = App::new("myprog");
+    /// let mut out = io::stdout();
+    /// app.write_long_help(&mut out).expect("failed to write to stdout");
+    /// ```
+    /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
+    /// [`-h` (short)]: ./struct.Arg.html#method.help
+    /// [`--help` (long)]: ./struct.Arg.html#method.long_help
+    pub fn write_long_help<W: Write>(&mut self, w: &mut W) -> ClapResult<()> {
+        self.p.propogate_globals();
+        self.p.propogate_settings();
+        self.p.derive_display_order();
+        self.p.create_help_and_version();
+
+        Help::write_app_help(w, self, true)
+    }
+
+    /// Writes the version message to the user to a [`io::Write`] object as if the user ran `-V`.
+    ///
+    /// **NOTE:** clap has the ability to distinguish between "short" and "long" version messages
+    /// depending on if the user ran [`-V` (short)] or [`--version` (long)]
     ///
     /// # Examples
     ///
@@ -1123,10 +1267,32 @@ impl<'a, 'b> App<'a, 'b> {
     /// app.write_version(&mut out).expect("failed to write to stdout");
     /// ```
     /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
+    /// [`-V` (short)]: ./struct.App.html#method.version
+    /// [`--version` (long)]: ./struct.App.html#method.long_version
     pub fn write_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
-        self.p.write_version(w).map_err(From::from)
+        self.p.write_version(w, false).map_err(From::from)
     }
 
+    /// Writes the version message to the user to a [`io::Write`] object
+    ///
+    /// **NOTE:** clap has the ability to distinguish between "short" and "long" version messages
+    /// depending on if the user ran [`-V` (short)] or [`--version` (long)]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::App;
+    /// use std::io;
+    /// let mut app = App::new("myprog");
+    /// let mut out = io::stdout();
+    /// app.write_long_version(&mut out).expect("failed to write to stdout");
+    /// ```
+    /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
+    /// [`-V` (short)]: ./struct.App.html#method.version
+    /// [`--version` (long)]: ./struct.App.html#method.long_version
+    pub fn write_long_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
+        self.p.write_version(w, true).map_err(From::from)
+    }
 
     /// Generate a completions file for a specified shell at compile time.
     ///
@@ -1183,7 +1349,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// build = "build.rs"
     ///
     /// [build-dependencies]
-    /// clap = "2.9"
+    /// clap = "2.23"
     /// ```
     ///
     /// Next, we place a `build.rs` in our project root.
@@ -1622,6 +1788,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn val_delim(&self) -> Option<char> { None }
     fn takes_value(&self) -> bool { true }
     fn help(&self) -> Option<&'e str> { self.p.meta.about }
+    fn long_help(&self) -> Option<&'e str> { self.p.meta.long_about }
     fn default_val(&self) -> Option<&'e OsStr> { None }
     fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {
         None

@@ -103,6 +103,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 "long" => yaml_to_str!(a, v, long),
                 "aliases" => yaml_vec_or_str!(v, a, alias),
                 "help" => yaml_to_str!(a, v, help),
+                "long_help" => yaml_to_str!(a, v, long_help),
                 "required" => yaml_to_bool!(a, v, required),
                 "required_if" => yaml_tuple2!(a, v, required_if),
                 "required_ifs" => yaml_tuple2!(a, v, required_if),
@@ -489,8 +490,14 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Sets the help text of the argument that will be displayed to the user when they print the
-    /// usage/help information.
+    /// Sets the short help text of the argument that will be displayed to the user when they print
+    /// the help information with `-h`. Typically, this is a short (one line) description of the
+    /// arg.
+    ///
+    /// **NOTE:** If only `Arg::help` is provided, and not [`Arg::long_help`] but the user requests
+    /// `--help` clap will still display the contents of `help` appropriately
+    ///
+    /// **NOTE:** Only `Arg::help` is used in completion script generation in order to be concise
     ///
     /// # Examples
     ///
@@ -532,8 +539,80 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
+    /// [`Arg::long_help`]: ./struct.Arg.html#method.long_help
     pub fn help(mut self, h: &'b str) -> Self {
         self.b.help = Some(h);
+        self
+    }
+
+    /// Sets the long help text of the argument that will be displayed to the user when they print
+    /// the help information with `--help`. Typically this a more detailed (multi-line) message
+    /// that describes the arg.
+    ///
+    /// **NOTE:** If only `long_help` is provided, and not [`Arg::help`] but the user requests `-h`
+    /// clap will still display the contents of `long_help` appropriately
+    ///
+    /// **NOTE:** Only [`Arg::help`] is used in completion script generation in order to be concise
+    ///
+    /// # Examples
+    ///
+    /// Any valid UTF-8 is allowed in the help text. The one exception is when one wishes to
+    /// include a newline in the help text and have the following text be properly aligned with all
+    /// the other help text.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// Arg::with_name("config")
+    ///     .long_help(
+    /// "The config file used by the myprog must be in JSON format
+    /// with only valid keys and may not contain other nonsense
+    /// that cannot be read by this program. Obviously I'm going on
+    /// and on, so I'll stop now.")
+    /// # ;
+    /// ```
+    ///
+    /// Setting `help` displays a short message to the side of the argument when the user passes
+    /// `-h` or `--help` (by default).
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("prog")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .long("config")
+    ///         .long_help(
+    /// "The config file used by the myprog must be in JSON format
+    /// with only valid keys and may not contain other nonsense
+    /// that cannot be read by this program. Obviously I'm going on
+    /// and on, so I'll stop now."))
+    ///     .get_matches_from(vec![
+    ///         "prog", "--help"
+    ///     ]);
+    /// ```
+    ///
+    /// The above example displays
+    ///
+    /// ```notrust
+    /// helptest
+    ///
+    /// USAGE:
+    ///    helptest [FLAGS]
+    ///
+    /// FLAGS:
+    ///    --config
+    ///         The config file used by the myprog must be in JSON format
+    ///         with only valid keys and may not contain other nonsense
+    ///         that cannot be read by this program. Obviously I'm going on
+    ///         and on, so I'll stop now.
+    ///
+    /// -h, --help       
+    ///         Prints help information
+    ///
+    /// -V, --version    
+    ///         Prints version information
+    /// ```
+    /// [`Arg::help`]: ./struct.Arg.html#method.help
+    pub fn long_help(mut self, h: &'b str) -> Self {
+        self.b.long_help = Some(h);
         self
     }
 
