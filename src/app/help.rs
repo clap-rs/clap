@@ -498,6 +498,9 @@ impl<'a> Help<'a> {
                 }
                 try!(write!(self.writer, "{}", part));
             }
+        } else if nlh || self.force_next_line {
+            try!(write!(self.writer, "{}", help));
+            try!(write!(self.writer, "\n"));
         } else {
             try!(write!(self.writer, "{}", help));
         }

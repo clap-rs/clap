@@ -288,6 +288,7 @@ USAGE:
 FLAGS:
     -h, --help
             Prints help information
+
     -V, --version
             Prints version
             information";
