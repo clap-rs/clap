@@ -680,7 +680,7 @@ impl<'a, 'b> Parser<'a, 'b>
         if sc.meta.bin_name != self.meta.bin_name {
             sc.meta.bin_name = Some(format!("{} {}", bin_name, sc.meta.name));
         }
-        sc._help()
+        sc._help(false)
     }
 
     // allow wrong self convention due to self.valid_neg_num = true and it's a private method
@@ -1246,7 +1246,7 @@ impl<'a, 'b> Parser<'a, 'b>
                arg.to_str().unwrap());
         if arg == "help" && self.is_set(AS::NeedsLongHelp) {
             sdebugln!("Help");
-            try!(self._help());
+            try!(self._help(true));
         }
         if arg == "version" && self.is_set(AS::NeedsLongVersion) {
             sdebugln!("Version");
@@ -1264,7 +1264,7 @@ impl<'a, 'b> Parser<'a, 'b>
         if let Some(h) = self.help_short {
             if arg == h && self.is_set(AS::NeedsLongHelp) {
                 sdebugln!("Help");
-                try!(self._help());
+                try!(self._help(false));
             }
         }
         if let Some(v) = self.version_short {
@@ -1277,9 +1277,20 @@ impl<'a, 'b> Parser<'a, 'b>
         Ok(())
     }
 
-    fn _help(&self) -> ClapResult<()> {
+    fn use_long_help(&self) -> bool {
+        let ul = self.flags.iter().any(|f| f.b.long_help.is_some()) ||
+        self.opts.iter().any(|o| o.b.long_help.is_some()) ||
+        self.positionals.values().any(|p| p.b.long_help.is_some()) ||
+        self.subcommands.iter().any(|s| s.p.meta.long_about.is_some());
+        debugln!("Parser::use_long_help: ret={:?}", ul);
+        ul
+    }
+
+    fn _help(&self, mut use_long: bool) -> ClapResult<()> {
+        debugln!("Parser::_help: use_long={:?}", use_long);
+        use_long = use_long && self.use_long_help();
         let mut buf = vec![];
-        try!(Help::write_parser_help(&mut buf, self));
+        try!(Help::write_parser_help(&mut buf, self, use_long));
         Err(Error {
                 message: unsafe { String::from_utf8_unchecked(buf) },
                 kind: ErrorKind::HelpDisplayed,
@@ -1288,6 +1299,7 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     fn _version(&self) -> ClapResult<()> {
+        debugln!("Parser::_version: ");
         let out = io::stdout();
         let mut buf_w = BufWriter::new(out.lock());
         try!(self.print_version(&mut buf_w));
@@ -1630,7 +1642,11 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     pub fn write_help<W: Write>(&self, w: &mut W) -> ClapResult<()> {
-        Help::write_parser_help(w, self)
+        Help::write_parser_help(w, self, false)
+    }
+
+    pub fn write_long_help<W: Write>(&self, w: &mut W) -> ClapResult<()> {
+        Help::write_parser_help(w, self, true)
     }
 
     pub fn write_help_err<W: Write>(&self, w: &mut W) -> ClapResult<()> {

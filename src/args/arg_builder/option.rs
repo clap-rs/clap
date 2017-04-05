@@ -129,6 +129,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn val_delim(&self) -> Option<char> { self.v.val_delim }
     fn takes_value(&self) -> bool { true }
     fn help(&self) -> Option<&'e str> { self.b.help }
+    fn long_help(&self) -> Option<&'e str> { self.b.long_help }
     fn default_val(&self) -> Option<&'e OsStr> { self.v.default_val }
     fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {
         self.v.default_vals_ifs.as_ref().map(|vm| vm.values())

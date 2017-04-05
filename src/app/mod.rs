@@ -1108,7 +1108,7 @@ impl<'a, 'b> App<'a, 'b> {
         // self.p.derive_display_order();
         // self.p.create_help_and_version();
 
-        Help::write_app_help(w, self)
+        Help::write_app_help(w, self, false)
     }
 
     /// Writes the version message to the user to a [`io::Write`] object
@@ -1622,6 +1622,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn val_delim(&self) -> Option<char> { None }
     fn takes_value(&self) -> bool { true }
     fn help(&self) -> Option<&'e str> { self.p.meta.about }
+    fn long_help(&self) -> Option<&'e str> { self.p.meta.long_about }
     fn default_val(&self) -> Option<&'e OsStr> { None }
     fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {
         None
