@@ -500,7 +500,7 @@
 //! `clap` will officially support current stable Rust, minus two releases, but may work with prior
 //! releases as well. For example, current stable Rust at the time of this writing is 1.13.0,
 //! meaning `clap` is guaranteed to compile with 1.11.0 and beyond. At the 1.14.0 release, `clap`
-//! will be guaranteed to compile with 2.12.0 and beyond, etc.
+//! will be guaranteed to compile with 1.12.0 and beyond, etc.
 //! 
 //! Upon bumping the minimum version of Rust (assuming it's within the stable-2 range), it *must* be
 //! clearly annotated in the `CHANGELOG.md`
