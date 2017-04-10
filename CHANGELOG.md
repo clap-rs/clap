@@ -1,3 +1,13 @@
+<a name="v2.23.2"></a>
+### v2.23.2 (2017-04-09)
+
+
+#### Improvements
+
+*   bumps term_size to take advantage of better terminal dimension handling ([e05100b7](https://github.com/kbknapp/clap-rs/commit/e05100b73d74066a90876bf38f952adf5e8ee422))
+
+
+
 <a name="v2.23.1"></a>
 ### v2.23.1 (2017-04-05)
 
