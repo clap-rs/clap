@@ -314,7 +314,7 @@ impl<'a> ArgMatches<'a> {
     ///     .map(|s| IpAddr::from_str(s).unwrap())
     ///     .collect::<Vec<_>>());
     /// ```
-    pub fn parsed_values_of<S: AsRef<str>, T: FromStr>(&'a self, name: S) -> Result<Vec<T>>
+    pub fn parsed_values_of<S: AsRef<str>, T: FromStr>(&self, name: S) -> Result<Vec<T>>
         where T::Err: fmt::Display
     {
         let mut parsed = vec![];
