@@ -2,13 +2,16 @@
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::ffi::{OsStr, OsString};
+use std::fmt;
 use std::iter::Map;
 use std::slice::Iter;
+use std::str::FromStr;
 
 // Internal
 use INVALID_UTF8;
 use args::MatchedArg;
 use args::SubCommand;
+use {Error, Result};
 
 /// Used to get information about the arguments that where supplied to the program at runtime by
 /// the user. New instances of this struct are obtained by using the [`App::get_matches`] family of
@@ -117,6 +120,73 @@ impl<'a> ArgMatches<'a> {
         None
     }
 
+    /// Gets the value of a specific [option] or [positional] argument (i.e. an argument that takes
+    /// an additional value at runtime) and parses the string using `FromStr`. If the option wasn't 
+    /// present at runtime, it returns an `Error` of kind `ArgumentNotFound`.
+    ///
+    /// This function requires the error type to implement `fmt::Display` so that it can return the
+    /// error message as a string if value validation fails.
+    ///
+    /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
+    /// prefer [`ArgMatches::parsed_values_of`] as `ArgMatches::parsed_of` will only return the *first*
+    /// value.
+    ///
+    /// # Panics
+    ///
+    /// This method will [`panic!`] if the value contains invalid UTF-8 code points.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// use std::net::IpAddr;
+    /// use std::str::FromStr;
+    ///
+    /// let m = App::new("myapp")
+    ///     .arg(Arg::with_name("ntp")
+    ///         .takes_value(true))
+    ///     .get_matches_from(vec!["myapp", "1.2.3.4"]);
+    ///
+    /// assert_eq!(m.parsed_of::<_, IpAddr>("ntp").unwrap(), 
+    ///     IpAddr::from_str("1.2.3.4").unwrap());
+    /// ```
+    /// [option]: ./struct.Arg.html#method.takes_value
+    /// [positional]: ./struct.Arg.html#method.index
+    /// [`ArgMatches::values_of`]: ./struct.ArgMatches.html#method.values_of
+    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
+    pub fn parsed_of<S: AsRef<str>, T: FromStr>(&self, name: S) -> Result<T>
+        where T::Err: fmt::Display
+    {
+        match self.parsed_of_opt(&name) {
+            Ok(Some(val)) => Ok(val),
+            Ok(None) => Err(Error::argument_not_found_auto(name.as_ref().to_string())),
+            Err(e) => Err(e)
+        }
+    }
+
+    /// Gets the value of a specific [option] or [positional] argument (i.e. an argument that takes
+    /// an additional value at runtime) and parses the string using `FromStr`. If the option wasn't 
+    /// present at runtime it returns `None`.
+    ///
+    /// This function requires the error type to implement `fmt::Display` so that it can return the
+    /// error message as a string if value validation fails.
+    pub fn parsed_of_opt<S: AsRef<str>, T: FromStr>(&self, name: S) -> Result<Option<T>>
+        where T::Err: fmt::Display
+    {
+        if let Some(arg) = self.args.get(name.as_ref()) {
+            if let Some(raw) = arg.vals.get(0) {
+                return T::from_str(raw.to_str().expect(INVALID_UTF8))
+                    .map(Option::Some)
+                    .map_err(|err| {
+                        // TODO figure out how to get this to surface arg info.
+                        Error::value_validation_auto(err.to_string())
+                });
+            }
+        }
+
+        Ok(None)
+    }
+
     /// Gets the lossy value of a specific argument. If the argument wasn't present at runtime
     /// it returns `None`. A lossy value is one which contains invalid UTF-8 code points, those
     /// invalid points will be replaced with `\u{FFFD}`
@@ -214,6 +284,51 @@ impl<'a> ArgMatches<'a> {
             return Some(Values { iter: arg.vals.iter().map(to_str_slice) });
         }
         None
+    }
+
+    /// Gets the list of values for a specific argument and parses each of them 
+    /// into `T`, returning an error if the parse method fails.
+    /// 
+    /// # Panics
+    ///
+    /// This method will panic if any of the values contain invalid UTF-8 code points.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// use std::net::IpAddr;
+    /// # use std::str::FromStr;
+    ///
+    /// let m = App::new("myprog")
+    ///     .arg(Arg::with_name("ntp")
+    ///         .multiple(true)
+    ///         .short("n")
+    ///         .takes_value(true))
+    ///     .get_matches_from(vec![
+    ///         "myprog", "-n", "1.2.3.4", "1.2.3.5", "1.2.3.6"
+    ///     ]);
+    /// let vals: Vec<IpAddr> = m.parsed_values_of("ntp").unwrap();
+    /// assert_eq!(vals, vec!["1.2.3.4", "1.2.3.5", "1.2.3.6"]
+    ///     .into_iter()
+    ///     .map(|s| IpAddr::from_str(s).unwrap())
+    ///     .collect::<Vec<_>>());
+    /// ```
+    pub fn parsed_values_of<S: AsRef<str>, T: FromStr>(&'a self, name: S) -> Result<Vec<T>>
+        where T::Err: fmt::Display
+    {
+        let mut parsed = vec![];
+        
+        if let Some(items) = self.values_of(name) {
+            for item in items {
+                match T::from_str(item) {
+                    Ok(val) => parsed.push(val),
+                    Err(e) => return Err(Error::value_validation_auto(e.to_string())),
+                }
+            }
+        }
+        
+        Ok(parsed)
     }
 
     /// Gets the lossy values of a specific argument. If the option wasn't present at runtime
