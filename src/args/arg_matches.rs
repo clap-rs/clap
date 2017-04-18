@@ -2,11 +2,7 @@
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::ffi::{OsStr, OsString};
-<<<<<<< HEAD
 use std::fmt as stdfmt;
-=======
-use std::fmt;
->>>>>>> 2e7a63b94a7d22005e0b8f1713620c4c0cfecf73
 use std::iter::Map;
 use std::result::Result as StdResult;
 use std::slice::Iter;
@@ -133,7 +129,7 @@ impl<'a> ArgMatches<'a> {
     /// error message as a string if value validation fails.
     ///
     /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
-    /// prefer [`ArgMatches::parsed_values_of`] as `ArgMatches::parsed_of` will only return the *first*
+    /// prefer [`ArgMatches::values_t`] as `ArgMatches::value_t` will only return the *first*
     /// value.
     ///
     /// # Panics
@@ -157,7 +153,7 @@ impl<'a> ArgMatches<'a> {
     /// ```
     /// [option]: ./struct.Arg.html#method.takes_value
     /// [positional]: ./struct.Arg.html#method.index
-    /// [`ArgMatches::values_of`]: ./struct.ArgMatches.html#method.values_of
+    /// [`ArgMatches::values_t`]: ./struct.ArgMatches.html#method.values_t
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     pub fn value_t_or_err<S: AsRef<str>, T: FromStr>(&self, name: S) -> Result<T>
         where T::Err: stdfmt::Display
@@ -304,7 +300,7 @@ impl<'a> ArgMatches<'a> {
     ///     .get_matches_from(vec![
     ///         "myprog", "-n", "1.2.3.4", "1.2.3.5", "1.2.3.6"
     ///     ]);
-    /// let vals: Vec<IpAddr> = m.parsed_values_of("ntp").unwrap();
+    /// let vals: Vec<IpAddr> = m.values_t("ntp").unwrap();
     /// assert_eq!(vals, vec!["1.2.3.4", "1.2.3.5", "1.2.3.6"]
     ///     .into_iter()
     ///     .map(|s| IpAddr::from_str(s).unwrap())
