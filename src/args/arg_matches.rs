@@ -2,7 +2,11 @@
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::ffi::{OsStr, OsString};
+<<<<<<< HEAD
 use std::fmt as stdfmt;
+=======
+use std::fmt;
+>>>>>>> 2e7a63b94a7d22005e0b8f1713620c4c0cfecf73
 use std::iter::Map;
 use std::result::Result as StdResult;
 use std::slice::Iter;
