@@ -45,6 +45,13 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's the highlights for v2.23.3
+
+* **PowerShell Completions:** 
+  * fixes a bug where powershells completions cant be used if no subcommands are defined 
+  * massively dedups subcommand names in the generate script to make smaller scripts that are still functionally equiv 
+* Fix a typo the minimum rust version required 
+
 Here's the highlights for v2.23.2
 
 *   bumps term_size to take advantage of better terminal dimension handling 

@@ -1,4 +1,23 @@
 <a name="v2.23.2"></a>
+### v2.23.2 (2017-04-19)
+
+
+#### Bug Fixes
+
+* **PowerShell Completions:**  fixes a bug where powershells completions cant be used if no subcommands are defined ([a8bce558](https://github.com/kbknapp/clap-rs/commit/a8bce55837dc4e0fb187dc93180884a40ae09c6f), closes [#931](https://github.com/kbknapp/clap-rs/issues/931))
+
+#### Improvements
+
+*   bumps term_size to take advantage of better terminal dimension handling ([e05100b7](https://github.com/kbknapp/clap-rs/commit/e05100b73d74066a90876bf38f952adf5e8ee422))
+* **PowerShell Completions:**  massively dedups subcommand names in the generate script to make smaller scripts that are still functionally equiv ([85b0e1cc](https://github.com/kbknapp/clap-rs/commit/85b0e1cc4b9755dda75a93d898d79bc38631552b))
+
+#### Documentation
+
+*   Fix a typo the minimum rust version required ([71dabba3](https://github.com/kbknapp/clap-rs/commit/71dabba3ea0a17c88b0e2199c9d99f0acbf3bc17))
+
+
+
+<a name="v2.23.2"></a>
 ### v2.23.2 (2017-04-09)
 
 
