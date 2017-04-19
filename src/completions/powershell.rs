@@ -18,7 +18,8 @@ impl<'a, 'b> PowerShellGen<'a, 'b> {
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
         let bin_name = self.p.meta.bin_name.as_ref().unwrap();
 
-        let (subcommands_detection_cases, subcommands_cases) = generate_inner(self.p, "");
+        let mut names = vec![];
+        let (subcommands_detection_cases, subcommands_cases) = generate_inner(self.p, "", &mut names);
 
         let mut bin_names = vec![bin_name.to_string(), format!("./{0}", bin_name)];
         if cfg!(windows) {
@@ -73,7 +74,7 @@ impl<'a, 'b> PowerShellGen<'a, 'b> {
     }
 }
 
-fn generate_inner<'a, 'b>(p: &Parser<'a, 'b>, previous_command_name: &str) -> (String, String) {
+fn generate_inner<'a, 'b, 'p>(p: &'p Parser<'a, 'b>, previous_command_name: &str, names: &mut Vec<&'p str>) -> (String, String) {
     debugln!("PowerShellGen::generate_inner;");
     let command_name = if previous_command_name.is_empty() {
         format!("{}_{}", previous_command_name, &p.meta.bin_name.as_ref().expect(INTERNAL_ERROR_MSG))
@@ -81,9 +82,10 @@ fn generate_inner<'a, 'b>(p: &Parser<'a, 'b>, previous_command_name: &str) -> (S
         format!("{}_{}", previous_command_name, &p.meta.name)
     };
 
-    let mut subcommands_detection_cases = if previous_command_name == "" {
+    let mut subcommands_detection_cases = if previous_command_name.is_empty() {
         String::new()
-    } else {
+    } else if !names.contains(&&*p.meta.name) {
+        names.push(&&*p.meta.name);
         format!(r"
                     '{0}' {{
                         $command += '_{0}'
@@ -91,6 +93,8 @@ fn generate_inner<'a, 'b>(p: &Parser<'a, 'b>, previous_command_name: &str) -> (S
                     }}
 ",
                 &p.meta.name)
+    } else {
+        String::new()
     };
 
     let mut completions = String::new();
@@ -114,7 +118,7 @@ fn generate_inner<'a, 'b>(p: &Parser<'a, 'b>, previous_command_name: &str) -> (S
 
     for subcommand in &p.subcommands {
         let (subcommand_subcommands_detection_cases, subcommand_subcommands_cases) =
-            generate_inner(&subcommand.p, &command_name);
+            generate_inner(&subcommand.p, &command_name, names);
         subcommands_detection_cases.push_str(&subcommand_subcommands_detection_cases);
         subcommands_cases.push_str(&subcommand_subcommands_cases);
     }
