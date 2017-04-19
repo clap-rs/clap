@@ -4,6 +4,7 @@ use std::io::Write;
 
 // Internal
 use app::parser::Parser;
+use INTERNAL_ERROR_MSG;
 
 pub struct PowerShellGen<'a, 'b>
     where 'a: 'b
@@ -43,6 +44,9 @@ impl<'a, 'b> PowerShellGen<'a, 'b> {
             %{{
                 switch ($_.ToString()) {{
 {subcommands_detection_cases}
+                    default {{ 
+                        break
+                    }}
                 }}
             }}
 
@@ -71,7 +75,11 @@ impl<'a, 'b> PowerShellGen<'a, 'b> {
 
 fn generate_inner<'a, 'b>(p: &Parser<'a, 'b>, previous_command_name: &str) -> (String, String) {
     debugln!("PowerShellGen::generate_inner;");
-    let command_name = format!("{}_{}", previous_command_name, &p.meta.name);
+    let command_name = if previous_command_name.is_empty() {
+        format!("{}_{}", previous_command_name, &p.meta.bin_name.as_ref().expect(INTERNAL_ERROR_MSG))
+    } else {
+        format!("{}_{}", previous_command_name, &p.meta.name)
+    };
 
     let mut subcommands_detection_cases = if previous_command_name == "" {
         String::new()
