@@ -567,6 +567,22 @@ impl<'a> DoubleEndedIterator for Values<'a> {
 
 impl<'a> ExactSizeIterator for Values<'a> {}
 
+/// Creates an empty iterator.
+impl Default for Values<'static> {
+    fn default() -> Self {
+        static EMPTY: [OsString; 0] = [];
+        // This is never called because the iterator is empty:
+        fn to_str_slice(_: &OsString) -> &str { unreachable!() };
+        Values { iter: EMPTY[..].iter().map(to_str_slice) }
+    }
+}
+
+#[test]
+fn test_default_values() {
+    let mut values: Values = Values::default();
+    assert_eq!(values.next(), None);
+}
+
 /// An iterator for getting multiple values out of an argument via the [`ArgMatches::values_of_os`]
 /// method. Usage of this iterator allows values which contain invalid UTF-8 code points unlike
 /// [`Values`].
@@ -603,4 +619,20 @@ impl<'a> Iterator for OsValues<'a> {
 
 impl<'a> DoubleEndedIterator for OsValues<'a> {
     fn next_back(&mut self) -> Option<&'a OsStr> { self.iter.next_back() }
+}
+
+/// Creates an empty iterator.
+impl Default for OsValues<'static> {
+    fn default() -> Self {
+        static EMPTY: [OsString; 0] = [];
+        // This is never called because the iterator is empty:
+        fn to_str_slice(_: &OsString) -> &OsStr { unreachable!() };
+        OsValues { iter: EMPTY[..].iter().map(to_str_slice) }
+    }
+}
+
+#[test]
+fn test_default_osvalues() {
+    let mut values: OsValues = OsValues::default();
+    assert_eq!(values.next(), None);
 }
