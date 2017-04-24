@@ -3062,9 +3062,17 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`ArgMatches::is_present`]: ./struct.ArgMatches.html#method.is_present
     /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
-    pub fn default_value(mut self, val: &'a str) -> Self {
+    pub fn default_value(self, val: &'a str) -> Self {
+        self.default_value_os(OsStr::from_bytes(val.as_bytes()))
+    }
+
+    /// Provides a default value in the exact same manner as [`Arg::default_value`]
+    /// only using [`OsStr`]s instead.
+    /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
+    /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
+    pub fn default_value_os(mut self, val: &'a OsStr) -> Self {
         self.setb(ArgSettings::TakesValue);
-        self.v.default_val = Some(OsStr::from_bytes(val.as_bytes()));
+        self.v.default_val = Some(val);
         self
     }
 
