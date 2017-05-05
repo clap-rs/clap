@@ -53,6 +53,68 @@ fn positional_user_override() {
     assert_eq!(m.value_of("arg").unwrap(), "value");
 }
 
+// OsStr Default Values
+
+#[test]
+fn osstr_opts() {
+    use std::ffi::OsStr;
+    let expected = OsStr::new("default");
+    
+    let r = App::new("df")
+        .arg( Arg::from_usage("-o [opt] 'some opt'")
+            .default_value_os(expected))
+        .get_matches_from_safe(vec![""]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("o"));
+    assert_eq!(m.value_of("o").unwrap(), expected);
+}
+
+#[test]
+fn osstr_opt_user_override() {
+    use std::ffi::OsStr;
+    let default = OsStr::new("default");
+
+    let r = App::new("df")
+        .arg( Arg::from_usage("--opt [FILE] 'some arg'")
+            .default_value_os(default))
+        .get_matches_from_safe(vec!["", "--opt", "value"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("opt"));
+    assert_eq!(m.value_of("opt").unwrap(), "value");
+}
+
+#[test]
+fn osstr_positionals() {
+    use std::ffi::OsStr;
+    let expected = OsStr::new("default");
+
+    let r = App::new("df")
+        .arg( Arg::from_usage("[arg] 'some opt'")
+            .default_value_os(expected))
+        .get_matches_from_safe(vec![""]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("arg"));
+    assert_eq!(m.value_of("arg").unwrap(), expected);
+}
+
+#[test]
+fn osstr_positional_user_override() {
+    use std::ffi::OsStr;
+    let default = OsStr::new("default");
+
+    let r = App::new("df")
+        .arg( Arg::from_usage("[arg] 'some arg'")
+            .default_value_os(default))
+        .get_matches_from_safe(vec!["", "value"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("arg"));
+    assert_eq!(m.value_of("arg").unwrap(), "value");
+}
+
 // --- Default if arg is present 
 
 #[test]
