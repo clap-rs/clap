@@ -1,3 +1,17 @@
+<a name="v2.24.0"></a>
+## v2.24.0 (2017-05-05)
+
+
+#### Documentation
+
+* **README.md:**  fix some typos ([fa34deac](https://github.com/kbknapp/clap-rs/commit/fa34deac079f334c3af97bb7fb151880ba8887f8))
+
+#### API Additions
+
+* **Arg:**  add `default_value_os` ([d5ef8955](https://github.com/kbknapp/clap-rs/commit/d5ef8955414b1587060f7218385256105b639c88))
+* **arg_matches.rs:**  Added a Default implementation for Values and OsValues iterators. ([0a4384e3](https://github.com/kbknapp/clap-rs/commit/0a4384e350eed74c2a4dc8964c203f21ac64897f))
+
+
 <a name="v2.23.2"></a>
 ### v2.23.2 (2017-04-19)
 
@@ -14,18 +28,6 @@
 #### Documentation
 
 *   Fix a typo the minimum rust version required ([71dabba3](https://github.com/kbknapp/clap-rs/commit/71dabba3ea0a17c88b0e2199c9d99f0acbf3bc17))
-
-
-
-<a name="v2.23.2"></a>
-### v2.23.2 (2017-04-09)
-
-
-#### Improvements
-
-*   bumps term_size to take advantage of better terminal dimension handling ([e05100b7](https://github.com/kbknapp/clap-rs/commit/e05100b73d74066a90876bf38f952adf5e8ee422))
-
-
 
 <a name="v2.23.1"></a>
 ### v2.23.1 (2017-04-05)
