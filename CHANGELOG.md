@@ -1,3 +1,9 @@
+<a name="unreleased"></a>
+### Unreleased
+
+*   Added value parsing methods; `ArgMatches::parsed_of`, `ArgsMatches::parsed_of_opt`, and `ArgMatches::parsed_values_of`. These fill the role
+    of `value_t!` and `values_t!` macros with less exotic syntax.
+
 <a name="v2.23.2"></a>
 ### v2.23.2 (2017-04-19)
 
