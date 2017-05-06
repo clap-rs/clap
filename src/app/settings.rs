@@ -162,11 +162,9 @@ pub enum AppSettings {
     /// Specifies that leading hyphens are allowed in argument *values*, such as negative numbers
     /// like `-10`. (which would otherwise be parsed as another flag or option)
     ///
-    /// **NOTE:** This can only be set application wide and not on a per argument basis.
-    ///
     /// **NOTE:** Use this setting with caution as it silences certain circumstances which would
     /// otherwise be an error (such as accidentally forgetting to specify a value for leading
-    /// option)
+    /// option). It is preferred to set this on a per argument basis, via [`Arg::allow_hyphen_values`]
     ///
     /// # Examples
     ///
@@ -183,6 +181,7 @@ pub enum AppSettings {
     /// assert_eq!(m.value_of("neg"), Some("-20"));
     /// # ;
     /// ```
+    /// [`Arg::allow_hyphen_values`]: ./struct.Arg.html#method.allow_hyphen_values
     AllowLeadingHyphen,
 
     /// Allows negative numbers to pass as values. This is similar to
