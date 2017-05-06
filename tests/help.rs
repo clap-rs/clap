@@ -382,6 +382,24 @@ FLAGS:
 OPTIONS:
         --arg <argument>    Pass an argument to the program. [default: default-argument]";
 
+static LAST_ARG_USAGE: &'static str = "flamegraph 0.1
+
+USAGE:
+    flamegraph [FLAGS] [OPTIONS] [BINFILE] [-- <ARGS>...]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+    -v, --verbose    Prints out more stuff.
+
+OPTIONS:
+    -f, --frequency <HERTZ>    The sampling frequency. By default, this is 99 Hz.
+    -t, --timeout <SECONDS>    Timeout in seconds. By default, there is no timeout.
+
+ARGS:
+    <BINFILE>    The path of the binary to be profiled. If empty, Cargo.toml is searched for a binary.
+    <ARGS>...       Any arguments you wish to pass to the binary being profiled.";
+
 #[test]
 fn help_short() {
     let m = App::new("test")
@@ -431,6 +449,45 @@ fn help_subcommand() {
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
+}
+
+#[test]
+fn args_with_last_usage() {
+    let app = App::new("flamegraph")
+        .version("0.1")
+        .setting(AppSettings::TrailingVarArg)
+        .arg(Arg::with_name("verbose")
+            .help("Prints out more stuff.")
+            .short("v")
+            .long("verbose")
+            .multiple(true)
+        )
+        .arg(Arg::with_name("timeout")
+            .help("Timeout in seconds. By default, there is no timeout.")
+            .short("t")
+            .long("timeout")
+            .value_name("SECONDS")
+            .takes_value(true)
+        )
+        .arg(Arg::with_name("frequency")
+            .help("The sampling frequency. By default, this is 99 Hz.")
+            .short("f")
+            .long("frequency")
+            .value_name("HERTZ")
+            .takes_value(true)
+        )
+        .arg(Arg::with_name("binary path")
+            .help("The path of the binary to be profiled. If empty, Cargo.toml is searched for a binary.")
+            .takes_value(true)
+            .value_name("BINFILE")
+        )
+        .arg(Arg::with_name("pass through args")
+            .help("Any arguments you wish to pass to the binary being profiled.")
+            .value_name("ARGS")
+            .last(true)
+            .multiple(true)
+        );
+    assert!(test::compare_output(app, "flamegraph --help", LAST_ARG_USAGE, false));
 }
 
 #[test]
