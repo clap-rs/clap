@@ -10,7 +10,7 @@ use errors::{Error, ErrorKind};
 use errors::Result as ClapResult;
 use osstringext::OsStrExt2;
 use app::settings::AppSettings as AS;
-use app::parser::Parser;
+use app::parser::{Parser, ParseResult};
 use fmt::Colorizer;
 use app::usage;
 
@@ -22,30 +22,31 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
     pub fn new(p: &'z mut Parser<'a, 'b>) -> Self { Validator(p) }
 
     pub fn validate(&mut self,
-                    needs_val_of: Option<&'a str>,
+                    needs_val_of: ParseResult<'a>,
                     subcmd_name: Option<String>,
                     matcher: &mut ArgMatcher<'a>)
                     -> ClapResult<()> {
         debugln!("Validator::validate;");
         let mut reqs_validated = false;
         try!(self.0.add_defaults(matcher));
-        if let Some(a) = needs_val_of {
+        if let ParseResult::Opt(a) = needs_val_of {
             debugln!("Validator::validate: needs_val_of={:?}", a);
-            if let Some(o) = find_by_name!(self.0, &a, opts, iter) {
-                try!(self.validate_required(matcher));
-                reqs_validated = true;
-                let should_err = if let Some(v) = matcher.0.args.get(&*o.b.name) {
-                    v.vals.is_empty() && !(o.v.min_vals.is_some() && o.v.min_vals.unwrap() == 0)
-                } else {
-                    true
-                };
-                if should_err {
-                    return Err(Error::empty_value(o,
-                                                  &*usage::create_error_usage(self.0,
-                                                                              matcher,
-                                                                              None),
-                                                  self.0.color()));
-                }
+            let o = self.0
+                .opts
+                .iter()
+                .find(|o| o.b.name == a)
+                .expect(INTERNAL_ERROR_MSG);
+            try!(self.validate_required(matcher));
+            reqs_validated = true;
+            let should_err = if let Some(v) = matcher.0.args.get(&*o.b.name) {
+                v.vals.is_empty() && !(o.v.min_vals.is_some() && o.v.min_vals.unwrap() == 0)
+            } else {
+                true
+            };
+            if should_err {
+                return Err(Error::empty_value(o,
+                                              &*usage::create_error_usage(self.0, matcher, None),
+                                              self.0.color()));
             }
         }
 
@@ -166,10 +167,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         for name in &self.0.blacklist {
             debugln!("Validator::validate_blacklist:iter: Checking blacklisted name: {}",
                      name);
-            if self.0
-                   .groups
-                   .iter()
-                   .any(|g| &g.name == name) {
+            if self.0.groups.iter().any(|g| &g.name == name) {
                 debugln!("Validator::validate_blacklist:iter: groups contains it...");
                 for n in self.0.arg_names_in_group(name) {
                     debugln!("Validator::validate_blacklist:iter:iter: Checking arg '{}' in group...",
@@ -377,16 +375,18 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         where A: AnyArg<'a, 'b>
     {
         debugln!("Validator::validate_conflicts: a={:?};", a.name());
-        a.blacklist().map(|bl| {
-            bl.iter().any(|conf| {
-                matcher.contains(conf) ||
-                self.0
-                    .groups
-                    .iter()
-                    .find(|g| &g.name == conf)
-                    .map_or(false, |g| g.args.iter().any(|arg| matcher.contains(arg)))
+        a.blacklist()
+            .map(|bl| {
+                bl.iter()
+                    .any(|conf| {
+                        matcher.contains(conf) ||
+                        self.0
+                            .groups
+                            .iter()
+                            .find(|g| &g.name == conf)
+                            .map_or(false, |g| g.args.iter().any(|arg| matcher.contains(arg)))
+                    })
             })
-        })
     }
 
     fn validate_required_unless<A>(&self, a: &A, matcher: &ArgMatcher) -> Option<bool>
@@ -437,7 +437,8 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                 .iter()
                 .fold(String::new(),
                       |acc, s| acc + &format!("\n    {}", c.error(s))[..]);
-        debugln!("Validator::missing_required_error: req_args={:#?}", req_args);
+        debugln!("Validator::missing_required_error: req_args={:#?}",
+                 req_args);
         Err(Error::missing_required_argument(&*req_args,
                                              &*usage::create_error_usage(self.0, matcher, extra),
                                              self.0.color()))
@@ -449,6 +450,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
     {
         debugln!("Validator::is_missing_required_ok: a={}", a.name());
         self.validate_conflicts(a, matcher).unwrap_or(false) ||
-        self.validate_required_unless(a, matcher).unwrap_or(false)
+        self.validate_required_unless(a, matcher)
+            .unwrap_or(false)
     }
 }

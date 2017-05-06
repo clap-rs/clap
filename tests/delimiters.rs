@@ -51,7 +51,7 @@ fn opt_s_eq_no_delim() {
             "-o=val1,val2,val3",
         ]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{:?}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -70,7 +70,7 @@ fn opt_s_default_no_delim() {
             "-o", "val1,val2,val3",
         ]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{:?}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
