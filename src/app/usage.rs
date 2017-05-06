@@ -112,14 +112,14 @@ pub fn create_help_usage(p: &Parser, incl_reqs: bool) -> String {
                 .values()
                 .find(|p| p.b.is_set(ArgSettings::Last))
                 .expect(INTERNAL_ERROR_MSG);
-            debugln!("usage::create_help_usage: {} has .last(true)", pos.name());
+            debugln!("usage::create_help_usage: '{}' has .last(true)", pos.name());
             let req = pos.is_set(ArgSettings::Required);
             if req {
                 usage.push_str(" -- <");
             } else {
                 usage.push_str(" [-- <");
             }
-            usage.push_str(pos.name());
+            usage.push_str(&*pos.name_no_brackets());
             usage.push_str(">");
             usage.push_str(pos.multiple_str());
             if !req {
@@ -216,7 +216,7 @@ fn get_args_tag(p: &Parser, incl_reqs: bool) -> Option<String> {
                       !pos.is_set(ArgSettings::Last)
                   })
             .expect(INTERNAL_ERROR_MSG);
-        debugln!("usage::get_args_tag:iter: Exactly one, returning {}",
+        debugln!("usage::get_args_tag:iter: Exactly one, returning '{}'",
                  pos.name());
         return Some(format!(" [{}]{}", pos.name_no_brackets(), pos.multiple_str()));
     } else if p.is_set(AS::DontCollapseArgsInUsage) && !p.positionals.is_empty() && incl_reqs {
