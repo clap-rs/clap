@@ -12,6 +12,7 @@ use vec_map::{self, VecMap};
 // Internal
 use Arg;
 use args::{ArgSettings, Base, Valued, AnyArg, DispOrder};
+use INTERNAL_ERROR_MSG;
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
@@ -59,7 +60,11 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
     }
 
     pub fn multiple_str(&self) -> &str {
-        if self.b.settings.is_set(ArgSettings::Multiple) && self.v.val_names.is_none() {
+        let mult_vals = self.v
+            .val_names
+            .as_ref()
+            .map_or(true, |ref names| names.len() < 2);
+        if self.is_set(ArgSettings::Multiple) && mult_vals {
             "..."
         } else {
             ""
@@ -67,12 +72,20 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
     }
 
     pub fn name_no_brackets(&self) -> Cow<str> {
+        debugln!("PosBuilder::name_no_brackets;");
         if let Some(ref names) = self.v.val_names {
-            Cow::Owned(names.values()
-                .map(|n| format!("<{}>", n))
-                .collect::<Vec<_>>()
-                .join(" "))
+            debugln!("PosBuilder:name_no_brackets: val_names={:#?}", names);
+            if names.len() > 1 {
+                Cow::Owned(names
+                               .values()
+                               .map(|n| format!("<{}>", n))
+                               .collect::<Vec<_>>()
+                               .join(" "))
+            } else {
+                Cow::Borrowed(names.values().next().expect(INTERNAL_ERROR_MSG))
+            }
         } else {
+            debugln!("PosBuilder:name_no_brackets: just name");
             Cow::Borrowed(self.b.name)
         }
     }
@@ -83,7 +96,8 @@ impl<'n, 'e> Display for PosBuilder<'n, 'e> {
         if let Some(ref names) = self.v.val_names {
             try!(write!(f,
                         "{}",
-                        names.values()
+                        names
+                            .values()
                             .map(|n| format!("<{}>", n))
                             .collect::<Vec<_>>()
                             .join(" ")));
@@ -140,9 +154,7 @@ impl<'n, 'e> DispOrder for PosBuilder<'n, 'e> {
 }
 
 impl<'n, 'e> PartialEq for PosBuilder<'n, 'e> {
-    fn eq(&self, other: &PosBuilder<'n, 'e>) -> bool {
-        self.b == other.b
-    }
+    fn eq(&self, other: &PosBuilder<'n, 'e>) -> bool { self.b == other.b }
 }
 
 #[cfg(test)]

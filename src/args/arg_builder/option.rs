@@ -49,7 +49,7 @@ impl<'n, 'e> From<Arg<'n, 'e>> for OptBuilder<'n, 'e> {
 
 impl<'n, 'e> Display for OptBuilder<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        debugln!("OptBuilder::fmt");
+        debugln!("OptBuilder::fmt:{}", self.b.name);
         let sep = if self.b.is_set(ArgSettings::RequireEquals) {
             "="
         } else {
