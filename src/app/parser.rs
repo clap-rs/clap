@@ -33,6 +33,18 @@ use app::settings::AppSettings as AS;
 use app::validator::Validator;
 use app::usage;
 
+#[derive(Debug, PartialEq, Copy, Clone)]
+#[doc(hidden)]
+pub enum ParseResult<'a> {
+    Flag,
+    Opt(&'a str),
+    Pos(&'a str),
+    MaybeHyphenValue,
+    MaybeNegNum,
+    NotFound,
+    ValuesDone,
+}
+
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
 #[derive(Clone, Default)]
@@ -619,7 +631,7 @@ impl<'a, 'b> Parser<'a, 'b>
         (false, None)
     }
 
-    fn parse_help_subcommand<I, T>(&self, it: &mut I) -> ClapResult<()>
+    fn parse_help_subcommand<I, T>(&self, it: &mut I) -> ClapResult<ParseResult<'a>>
         where I: Iterator<Item = T>,
               T: Into<OsString>
     {
@@ -682,12 +694,12 @@ impl<'a, 'b> Parser<'a, 'b>
         if sc.meta.bin_name != self.meta.bin_name {
             sc.meta.bin_name = Some(format!("{} {}", bin_name, sc.meta.name));
         }
-        sc._help(false)
+        Err(sc._help(false))
     }
 
     // allow wrong self convention due to self.valid_neg_num = true and it's a private method
     #[cfg_attr(feature = "lints", allow(wrong_self_convention))]
-    fn is_new_arg(&mut self, arg_os: &OsStr, needs_val_of: Option<&'a str>) -> bool {
+    fn is_new_arg(&mut self, arg_os: &OsStr, needs_val_of: ParseResult<'a>) -> bool {
         debugln!("Parser::is_new_arg: arg={:?}, Needs Val of={:?}",
                  arg_os,
                  needs_val_of);
@@ -704,16 +716,22 @@ impl<'a, 'b> Parser<'a, 'b>
         } else {
             false
         };
-        let arg_allows_tac = if let Some(name) = needs_val_of {
-            if let Some(o) = find_by_name!(self, &name, opts, iter) {
+        let arg_allows_tac = match needs_val_of {
+            ParseResult::Opt(name) => {
+                let o = self.opts
+                    .iter()
+                    .find(|o| o.b.name == name)
+                    .expect(INTERNAL_ERROR_MSG);
                 (o.is_set(ArgSettings::AllowLeadingHyphen) || app_wide_settings)
-            } else if let Some(p) = find_by_name!(self, &name, positionals, values) {
-                (p.is_set(ArgSettings::AllowLeadingHyphen) || app_wide_settings)
-            } else {
-                false
             }
-        } else {
-            false
+            ParseResult::Pos(name) => {
+                let p = self.positionals
+                    .values()
+                    .find(|p| p.b.name == name)
+                    .expect(INTERNAL_ERROR_MSG);
+                (p.is_set(ArgSettings::AllowLeadingHyphen) || app_wide_settings)
+            }
+            _ => false,
         };
         debugln!("Parser::is_new_arg: Arg::allow_leading_hyphen({:?})",
                  arg_allows_tac);
@@ -771,7 +789,7 @@ impl<'a, 'b> Parser<'a, 'b>
         self.create_help_and_version();
 
         let mut subcmd_name: Option<String> = None;
-        let mut needs_val_of: Option<&'a str> = None;
+        let mut needs_val_of: ParseResult<'a> = ParseResult::NotFound;
         let mut pos_counter = 1;
         while let Some(arg) = it.next() {
             let arg_os = arg.into();
@@ -807,29 +825,44 @@ impl<'a, 'b> Parser<'a, 'b>
                 }
 
                 if !starts_new_arg {
-                    if let Some(name) = needs_val_of {
-                        // Check to see if parsing a value from a previous arg
-                        if let Some(arg) = find_by_name!(self, &name, opts, iter) {
+                    match needs_val_of {
+                        ParseResult::Opt(name) => {
+                            // Check to see if parsing a value from a previous arg
+                            let arg = self.opts
+                                .iter()
+                                .find(|o| o.b.name == name)
+                                .expect(INTERNAL_ERROR_MSG);
                             // get the OptBuilder so we can check the settings
-                            needs_val_of = try!(self.add_val_to_arg(&*arg, &arg_os, matcher));
+                            needs_val_of = try!(self.add_val_to_arg(arg, &arg_os, matcher));
                             // get the next value from the iterator
                             continue;
                         }
+                        _ => (),
                     }
                 } else {
                     if arg_os.starts_with(b"--") {
                         needs_val_of = try!(self.parse_long_arg(matcher, &arg_os));
-                        if !(needs_val_of.is_none() && self.is_set(AS::AllowLeadingHyphen)) {
-                            continue;
+                        debugln!("Parser:get_matches_with: After parse_long_arg {:?}",
+                                 needs_val_of);
+                        match needs_val_of {
+                            ParseResult::Flag |
+                            ParseResult::Opt(..) |
+                            ParseResult::ValuesDone => continue,
+                            _ => (),
                         }
+                        // if !(needs_val_of == ParseResult::Flag && self.is_set(AS::AllowLeadingHyphen)) {
+                        //     continue;
+                        // }
                     } else if arg_os.starts_with(b"-") && arg_os.len_() != 1 {
                         // Try to parse short args like normal, if AllowLeadingHyphen or
                         // AllowNegativeNumbers is set, parse_short_arg will *not* throw
                         // an error, and instead return Ok(None)
                         needs_val_of = try!(self.parse_short_arg(matcher, &arg_os));
                         // If it's None, we then check if one of those two AppSettings was set
-                        if needs_val_of.is_none() {
-                            if self.is_set(AS::AllowNegativeNumbers) {
+                        debugln!("Parser:get_matches_with: After parse_short_arg {:?}",
+                                 needs_val_of);
+                        match needs_val_of {
+                            ParseResult::MaybeNegNum => {
                                 if !(arg_os.to_string_lossy().parse::<i64>().is_ok() ||
                                      arg_os.to_string_lossy().parse::<f64>().is_ok()) {
                                     return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
@@ -837,11 +870,12 @@ impl<'a, 'b> Parser<'a, 'b>
                                         &*usage::create_error_usage(self, matcher, None),
                                         self.color()));
                                 }
-                            } else if !self.is_set(AS::AllowLeadingHyphen) {
-                                continue;
                             }
-                        } else {
-                            continue;
+                            // ParseResult::MaybeHyphenValue => (),
+                            ParseResult::Opt(..) |
+                            ParseResult::Flag |
+                            ParseResult::ValuesDone => continue,
+                            _ => (),
                         }
                     }
                 }
@@ -877,14 +911,14 @@ impl<'a, 'b> Parser<'a, 'b>
             if low_index_mults || missing_pos {
                 if let Some(na) = it.peek() {
                     let n = (*na).clone().into();
-                    needs_val_of = if needs_val_of.is_none() {
+                    needs_val_of = if needs_val_of != ParseResult::ValuesDone {
                         if let Some(p) = self.positionals.get(pos_counter) {
-                            Some(p.b.name)
+                            ParseResult::Pos(p.b.name)
                         } else {
-                            None
+                            ParseResult::ValuesDone
                         }
                     } else {
-                        None
+                        ParseResult::ValuesDone
                     };
                     let sc_match = {
                         self.possible_subcommand(&n).0
@@ -1241,11 +1275,11 @@ impl<'a, 'b> Parser<'a, 'b>
                arg.to_str().unwrap());
         if arg == "help" && self.is_set(AS::NeedsLongHelp) {
             sdebugln!("Help");
-            try!(self._help(true));
+            return Err(self._help(true));
         }
         if arg == "version" && self.is_set(AS::NeedsLongVersion) {
             sdebugln!("Version");
-            try!(self._version(true));
+            return Err(self._version(true));
         }
         sdebugln!("Neither");
 
@@ -1259,13 +1293,13 @@ impl<'a, 'b> Parser<'a, 'b>
         if let Some(h) = self.help_short {
             if arg == h && self.is_set(AS::NeedsLongHelp) {
                 sdebugln!("Help");
-                try!(self._help(false));
+                return Err(self._help(false));
             }
         }
         if let Some(v) = self.version_short {
             if arg == v && self.is_set(AS::NeedsLongVersion) {
                 sdebugln!("Version");
-                try!(self._version(false));
+                return Err(self._version(false));
             }
         }
         sdebugln!("Neither");
@@ -1285,34 +1319,40 @@ impl<'a, 'b> Parser<'a, 'b>
         ul
     }
 
-    fn _help(&self, mut use_long: bool) -> ClapResult<()> {
+    fn _help(&self, mut use_long: bool) -> Error {
         debugln!("Parser::_help: use_long={:?}", use_long);
         use_long = use_long && self.use_long_help();
         let mut buf = vec![];
-        try!(Help::write_parser_help(&mut buf, self, use_long));
-        Err(Error {
-                message: unsafe { String::from_utf8_unchecked(buf) },
-                kind: ErrorKind::HelpDisplayed,
-                info: None,
-            })
+        match Help::write_parser_help(&mut buf, self, use_long) {
+            Err(e) => return e,
+            _ => (),
+        }
+        Error {
+            message: unsafe { String::from_utf8_unchecked(buf) },
+            kind: ErrorKind::HelpDisplayed,
+            info: None,
+        }
     }
 
-    fn _version(&self, use_long: bool) -> ClapResult<()> {
+    fn _version(&self, use_long: bool) -> Error {
         debugln!("Parser::_version: ");
         let out = io::stdout();
         let mut buf_w = BufWriter::new(out.lock());
-        try!(self.print_version(&mut buf_w, use_long));
-        Err(Error {
-                message: String::new(),
-                kind: ErrorKind::VersionDisplayed,
-                info: None,
-            })
+        match self.print_version(&mut buf_w, use_long) {
+            Err(e) => return e,
+            _ => (),
+        }
+        Error {
+            message: String::new(),
+            kind: ErrorKind::VersionDisplayed,
+            info: None,
+        }
     }
 
     fn parse_long_arg(&mut self,
                       matcher: &mut ArgMatcher<'a>,
                       full_arg: &OsStr)
-                      -> ClapResult<Option<&'a str>> {
+                      -> ClapResult<ParseResult<'a>> {
         // maybe here lifetime should be 'a
         debugln!("Parser::parse_long_arg;");
         let mut val = None;
@@ -1349,28 +1389,28 @@ impl<'a, 'b> Parser<'a, 'b>
             try!(self.parse_flag(flag, matcher));
 
             // Handle conflicts, requirements, etc.
-            if self.cache.map_or(true, |name| name != flag.b.name) {
-                arg_post_processing!(self, flag, matcher);
-                self.cache = Some(flag.b.name);
-            }
+            // if self.cache.map_or(true, |name| name != flag.b.name) {
+            arg_post_processing!(self, flag, matcher);
+            // self.cache = Some(flag.b.name);
+            // }
 
-            return Ok(None);
+            return Ok(ParseResult::Flag);
         } else if self.is_set(AS::AllowLeadingHyphen) {
-            return Ok(None);
+            return Ok(ParseResult::MaybeHyphenValue);
         } else if self.is_set(AS::ValidNegNumFound) {
-            return Ok(None);
+            return Ok(ParseResult::MaybeNegNum);
         }
 
         debugln!("Parser::parse_long_arg: Didn't match anything");
         self.did_you_mean_error(arg.to_str().expect(INVALID_UTF8), matcher)
-            .map(|_| None)
+            .map(|_| ParseResult::NotFound)
     }
 
     #[cfg_attr(feature = "lints", allow(len_zero))]
     fn parse_short_arg(&mut self,
                        matcher: &mut ArgMatcher<'a>,
                        full_arg: &OsStr)
-                       -> ClapResult<Option<&'a str>> {
+                       -> ClapResult<ParseResult<'a>> {
         debugln!("Parser::parse_short_arg: full_arg={:?}", full_arg);
         let arg_os = full_arg.trim_left_matches(b'-');
         let arg = arg_os.to_string_lossy();
@@ -1381,15 +1421,16 @@ impl<'a, 'b> Parser<'a, 'b>
             if arg.chars().any(|c| !self.contains_short(c)) {
                 debugln!("Parser::parse_short_arg: LeadingHyphenAllowed yet -{} isn't valid",
                          arg);
-                return Ok(None);
+                return Ok(ParseResult::MaybeHyphenValue);
             }
         } else if self.is_set(AS::ValidNegNumFound) {
             // TODO: Add docs about having AllowNegativeNumbers and `-2` as a valid short
             // May be better to move this to *after* not finding a valid flag/opt?
             debugln!("Parser::parse_short_arg: Valid negative num...");
-            return Ok(None);
+            return Ok(ParseResult::MaybeNegNum);
         }
 
+        let mut ret = ParseResult::NotFound;
         for c in arg.chars() {
             debugln!("Parser::parse_short_arg:iter:{}", c);
             // Check for matching short options, and return the name if there is no trailing
@@ -1430,7 +1471,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 self.settings.set(AS::ValidArgFound);
                 // Only flags can be help or version
                 try!(self.check_for_help_and_version_char(c));
-                try!(self.parse_flag(flag, matcher));
+                ret = try!(self.parse_flag(flag, matcher));
 
                 // Handle conflicts, requirements, overrides, etc.
                 // Must be called here due to mutablilty
@@ -1448,7 +1489,7 @@ impl<'a, 'b> Parser<'a, 'b>
                                                    self.color()));
             }
         }
-        Ok(None)
+        Ok(ret)
     }
 
     fn parse_opt(&self,
@@ -1456,7 +1497,7 @@ impl<'a, 'b> Parser<'a, 'b>
                  opt: &OptBuilder<'a, 'b>,
                  had_eq: bool,
                  matcher: &mut ArgMatcher<'a>)
-                 -> ClapResult<Option<&'a str>> {
+                 -> ClapResult<ParseResult<'a>> {
         debugln!("Parser::parse_opt; opt={}, val={:?}", opt.b.name, val);
         debugln!("Parser::parse_opt; opt.settings={:?}", opt.b.settings);
         let mut has_eq = false;
@@ -1497,59 +1538,61 @@ impl<'a, 'b> Parser<'a, 'b>
            (opt.is_set(ArgSettings::Multiple) && !opt.is_set(ArgSettings::RequireDelimiter) &&
             matcher.needs_more_vals(opt)) {
             debugln!("Parser::parse_opt: More arg vals required...");
-            return Ok(Some(opt.b.name));
+            return Ok(ParseResult::Opt(opt.b.name));
         }
         debugln!("Parser::parse_opt: More arg vals not required...");
-        Ok(None)
+        Ok(ParseResult::ValuesDone)
     }
 
     fn add_val_to_arg<A>(&self,
                          arg: &A,
                          val: &OsStr,
                          matcher: &mut ArgMatcher<'a>)
-                         -> ClapResult<Option<&'a str>>
+                         -> ClapResult<ParseResult<'a>>
         where A: AnyArg<'a, 'b> + Display
     {
         debugln!("Parser::add_val_to_arg; arg={}, val={:?}", arg.name(), val);
-        let mut ret = None;
+        let ret;
         debugln!("Parser::add_val_to_arg; trailing_vals={:?}, DontDelimTrailingVals={:?}",
                  self.is_set(AS::TrailingValues),
                  self.is_set(AS::DontDelimitTrailingValues));
         if !(self.is_set(AS::TrailingValues) && self.is_set(AS::DontDelimitTrailingValues)) {
             if let Some(delim) = arg.val_delim() {
+                let mut iret = ParseResult::ValuesDone;
                 if val.is_empty_() {
-                    ret = try!(self.add_single_val_to_arg(arg, val, matcher));
+                    iret = try!(self.add_single_val_to_arg(arg, val, matcher));
                 } else {
                     for v in val.split(delim as u32 as u8) {
-                        ret = try!(self.add_single_val_to_arg(arg, v, matcher));
+                        iret = try!(self.add_single_val_to_arg(arg, v, matcher));
                     }
                     // If there was a delimiter used, we're not looking for more values
                     if val.contains_byte(delim as u32 as u8) ||
                        arg.is_set(ArgSettings::RequireDelimiter) {
-                        ret = None;
+                        iret = ParseResult::ValuesDone;
                     }
                 }
+                ret = Ok(iret);
             } else {
-                ret = try!(self.add_single_val_to_arg(arg, val, matcher));
+                ret = self.add_single_val_to_arg(arg, val, matcher);
             }
         } else {
-            ret = try!(self.add_single_val_to_arg(arg, val, matcher));
+            ret = self.add_single_val_to_arg(arg, val, matcher);
         }
-        Ok(ret)
+        ret
     }
 
     fn add_single_val_to_arg<A>(&self,
                                 arg: &A,
                                 v: &OsStr,
                                 matcher: &mut ArgMatcher<'a>)
-                                -> ClapResult<Option<&'a str>>
+                                -> ClapResult<ParseResult<'a>>
         where A: AnyArg<'a, 'b> + Display
     {
         debugln!("Parser::add_single_val_to_arg;");
         debugln!("Parser::add_single_val_to_arg: adding val...{:?}", v);
         if let Some(t) = arg.val_terminator() {
             if t == v {
-                return Ok(None);
+                return Ok(ParseResult::ValuesDone);
             }
         }
         matcher.add_val_to(arg.name(), v);
@@ -1562,16 +1605,16 @@ impl<'a, 'b> Parser<'a, 'b>
         }
 
         if matcher.needs_more_vals(arg) {
-            return Ok(Some(arg.name()));
+            return Ok(ParseResult::Opt(arg.name()));
         }
-        Ok(None)
+        Ok(ParseResult::ValuesDone)
     }
 
 
     fn parse_flag(&self,
                   flag: &FlagBuilder<'a, 'b>,
                   matcher: &mut ArgMatcher<'a>)
-                  -> ClapResult<()> {
+                  -> ClapResult<ParseResult<'a>> {
         debugln!("Parser::parse_flag;");
 
         matcher.inc_occurrence_of(flag.b.name);
@@ -1579,7 +1622,7 @@ impl<'a, 'b> Parser<'a, 'b>
         self.groups_for_arg(flag.b.name)
             .and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
 
-        Ok(())
+        Ok(ParseResult::Flag)
     }
 
     fn did_you_mean_error(&self, arg: &str, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
