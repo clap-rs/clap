@@ -1,3 +1,4 @@
+#[macro_use]
 extern crate clap;
 extern crate regex;
 
@@ -400,6 +401,19 @@ ARGS:
     <BINFILE>    The path of the binary to be profiled. If empty, Cargo.toml is searched for a binary.
     <ARGS>...       Any arguments you wish to pass to the binary being profiled.";
 
+static LAST_ARG_REQ_MULT: &'static str = "example 1.0
+
+USAGE:
+    example <FIRST>... [--] <SECOND>...
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+ARGS:
+    <FIRST>...     First
+    <SECOND>...    Second";
+
 #[test]
 fn help_short() {
     let m = App::new("test")
@@ -449,6 +463,16 @@ fn help_subcommand() {
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
+}
+ 
+#[test]
+fn req_last_arg_usage() {
+    let app = clap_app!(example =>
+        (version: "1.0")
+        (@arg FIRST: ... * "First")
+        (@arg SECOND: ... * +last "Second")
+    );
+    assert!(test::compare_output(app, "example --help", LAST_ARG_REQ_MULT, false));
 }
 
 #[test]
