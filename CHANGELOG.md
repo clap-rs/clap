@@ -1,4 +1,16 @@
 <a name="v2.24.0"></a>
+### v2.24.0 (2017-05-07)
+
+
+#### Bug Fixes
+
+*   fixes a bug where args with last(true) and required(true) set were not being printed in the usage string ([3ac533fe](https://github.com/kbknapp/clap-rs/commit/3ac533fedabf713943eedf006f830a5a486bbe80), closes [#944](https://github.com/kbknapp/clap-rs/issues/944))
+*   fixes a bug that was printing the arg name, instead of value name when Arg::last(true) was used ([e1fe8ac3](https://github.com/kbknapp/clap-rs/commit/e1fe8ac3bc1f9cf4e36df0d881f8419755f1787b), closes [#940](https://github.com/kbknapp/clap-rs/issues/940))
+*   fixes a bug where flags were parsed as flags AND positional values when specific combinations of settings were used ([20f83292](https://github.com/kbknapp/clap-rs/commit/20f83292d070038b8cee2a6b47e91f6b0a2f7871), closes [#946](https://github.com/kbknapp/clap-rs/issues/946))
+
+
+
+<a name="v2.24.0"></a>
 ## v2.24.0 (2017-05-05)
 
 
