@@ -100,7 +100,7 @@ pub fn create_help_usage(p: &Parser, incl_reqs: bool) -> String {
         usage.push_str(" [--]");
     }
     let not_req_or_hidden =
-        |p: &PosBuilder| !p.is_set(ArgSettings::Required) && !p.is_set(ArgSettings::Hidden);
+        |p: &PosBuilder| (!p.is_set(ArgSettings::Required) || p.is_set(ArgSettings::Last)) && !p.is_set(ArgSettings::Hidden);
     if p.has_positionals() && p.positionals.values().any(not_req_or_hidden) {
         if let Some(args_tag) = get_args_tag(p, incl_reqs) {
             usage.push_str(&*args_tag);
@@ -114,8 +114,10 @@ pub fn create_help_usage(p: &Parser, incl_reqs: bool) -> String {
                 .expect(INTERNAL_ERROR_MSG);
             debugln!("usage::create_help_usage: '{}' has .last(true)", pos.name());
             let req = pos.is_set(ArgSettings::Required);
-            if req {
+            if req && p.positionals.values().any(|p| !p.is_set(ArgSettings::Required)) {
                 usage.push_str(" -- <");
+            } else if req {
+                usage.push_str(" [--] <");
             } else {
                 usage.push_str(" [-- <");
             }
