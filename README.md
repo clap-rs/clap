@@ -45,14 +45,17 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-Here's the highlights for v2.24.0
+Here's the highlights for v2.24.1
+
+* fixes a bug where args with last(true) and required(true) set were not being printed in the usage string 
+* fixes a bug that was printing the arg name, instead of value name when Arg::last(true) was used 
+* fixes a bug where flags were parsed as flags AND positional values when specific combinations of settings were used 
+
+Here's the highlights for v2.21.0 to v2.24.0
 
 * **README.md:**  fix some typos 
 * **Arg:**  add `default_value_os` 
 * **arg_matches.rs:**  Added a Default implementation for Values and OsValues iterators. 
-
-Here's the highlights for v2.21.0 to v2.23.3
-
 * **PowerShell Completions:**
   * fixes a bug where powershells completions cant be used if no subcommands are defined
   * massively dedups subcommand names in the generate script to make smaller scripts that are still functionally equiv
