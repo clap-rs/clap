@@ -398,8 +398,8 @@ OPTIONS:
     -t, --timeout <SECONDS>    Timeout in seconds. By default, there is no timeout.
 
 ARGS:
-    <BINFILE>    The path of the binary to be profiled. If empty, Cargo.toml is searched for a binary.
-    <ARGS>...       Any arguments you wish to pass to the binary being profiled.";
+    <BINFILE>    The path of the binary to be profiled. for a binary.
+    <ARGS>...    Any arguments you wish to pass to the being profiled.";
 
 static LAST_ARG_REQ_MULT: &'static str = "example 1.0
 
@@ -501,12 +501,12 @@ fn args_with_last_usage() {
             .takes_value(true)
         )
         .arg(Arg::with_name("binary path")
-            .help("The path of the binary to be profiled. If empty, Cargo.toml is searched for a binary.")
+            .help("The path of the binary to be profiled. for a binary.")
             .takes_value(true)
             .value_name("BINFILE")
         )
         .arg(Arg::with_name("pass through args")
-            .help("Any arguments you wish to pass to the binary being profiled.")
+            .help("Any arguments you wish to pass to the being profiled.")
             .value_name("ARGS")
             .last(true)
             .multiple(true)
