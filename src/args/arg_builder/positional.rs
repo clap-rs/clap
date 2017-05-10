@@ -104,7 +104,7 @@ impl<'n, 'e> Display for PosBuilder<'n, 'e> {
         } else {
             try!(write!(f, "<{}>", self.b.name));
         }
-        if self.b.settings.is_set(ArgSettings::Multiple) && self.v.val_names.is_none() {
+        if self.b.settings.is_set(ArgSettings::Multiple) && (self.v.val_names.is_none() || self.v.val_names.as_ref().unwrap().len() == 1) {
             try!(write!(f, "..."));
         }
 
