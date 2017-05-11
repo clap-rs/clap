@@ -394,8 +394,8 @@ FLAGS:
     -v, --verbose    Prints out more stuff.
 
 OPTIONS:
-    -f, --frequency <HERTZ>    The sampling frequency. By default, this is 99 Hz.
-    -t, --timeout <SECONDS>    Timeout in seconds. By default, there is no timeout.
+    -f, --frequency <HERTZ>    The sampling frequency.
+    -t, --timeout <SECONDS>    Timeout in seconds.
 
 ARGS:
     <BINFILE>    The path of the binary to be profiled. for a binary.
@@ -487,14 +487,14 @@ fn args_with_last_usage() {
             .multiple(true)
         )
         .arg(Arg::with_name("timeout")
-            .help("Timeout in seconds. By default, there is no timeout.")
+            .help("Timeout in seconds.")
             .short("t")
             .long("timeout")
             .value_name("SECONDS")
             .takes_value(true)
         )
         .arg(Arg::with_name("frequency")
-            .help("The sampling frequency. By default, this is 99 Hz.")
+            .help("The sampling frequency.")
             .short("f")
             .long("frequency")
             .value_name("HERTZ")
