@@ -65,7 +65,7 @@ args:
 # the list is the name of the subcommand, and all settings for that command are
 # are part of a Hash object
 subcommands:
-    # The nae of this subcommand will be 'subcmd' which can be accessed in your
+    # The name of this subcommand will be 'subcmd' which can be accessed in your
     # Rust code later
     - subcmd:
         about: demos subcommands from yaml

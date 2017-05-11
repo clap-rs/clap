@@ -24,6 +24,6 @@ fn main() {
        .version(crate_version!())
        .get_matches();
 
-    // running the this app with the -V or --version will display whatever version is in your
+    // running this app with the -V or --version will display whatever version is in your
     // Cargo.toml, the default being: myapp 0.0.1
 }
