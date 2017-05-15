@@ -1,3 +1,21 @@
+<a name="v2.24.2"></a>
+### v2.24.2 (2017-05-15)
+
+
+#### Bug Fixes
+
+*   adds a debug assertion to ensure all args added to groups actually exist ([14f6b8f3](https://github.com/kbknapp/clap-rs/commit/14f6b8f3a2f6df73aeeec9c54a54909b1acfc158), closes [#917](https://github.com/kbknapp/clap-rs/issues/917))
+*   fixes a bug where args that allow values to start with a hyphen couldnt contain a double hyphen -- as a value ([ebf73a09](https://github.com/kbknapp/clap-rs/commit/ebf73a09db6f3c03c19cdd76b1ba6113930e1643), closes [#960](https://github.com/kbknapp/clap-rs/issues/960))
+*   fixes a bug where positional argument help text is misaligned ([54c16836](https://github.com/kbknapp/clap-rs/commit/54c16836dea4651806a2cfad53146a83fa3abf21))
+
+#### Documentation
+
+* **App::template:**  adds details about the necessity to use AppSettings::UnifiedHelpMessage when using {unified} tags in the help template ([cf569438](https://github.com/kbknapp/clap-rs/commit/cf569438f309c199800bb8e46c9f140187de69d7), closes [#949](https://github.com/kbknapp/clap-rs/issues/949))
+* **Arg::allow_hyphen_values:**  updates the docs to include warnings for allow_hyphen_values and multiple(true) used together ([ded5a2f1](https://github.com/kbknapp/clap-rs/commit/ded5a2f15474d4a5bd46a67b130ccb8b6781bd01))
+* **clap_app!:**  adds using the @group specifier to the macro docs ([fe85fcb1](https://github.com/kbknapp/clap-rs/commit/fe85fcb1772b61f13b20b7ea5290e2437a76190c), closes [#932](https://github.com/kbknapp/clap-rs/issues/932))
+
+
+
 <a name="v2.24.0"></a>
 ### v2.24.0 (2017-05-07)
 
