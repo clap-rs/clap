@@ -820,6 +820,11 @@ impl<'a, 'b> Arg<'a, 'b> {
 
     /// Allows values which start with a leading hyphen (`-`)
     ///
+    /// **WARNING**: Take caution when using this setting, combined with [`Arg::multiple(true)`] as
+    /// it this becomes ambigous `$ prog --arg -- -- val`. All three `--, --, val` will be values
+    /// when the user may have thought the second `--` would constitute the normal, "Only
+    /// positional args follow" idiom. To fix this, consider using [`Arg::number_of_values(1)`]
+    ///
     /// **WARNING**: When building your CLIs, consider the effects of allowing leading hyphens and
     /// the user passing in a value that matches a valid short. For example `prog -opt -F` where
     /// `-F` is supposed to be a value, yet `-F` is *also* a valid short for anther arg. Care should
@@ -867,6 +872,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
     /// [`Arg::allow_hyphen_values(true)`]: ./struct.Arg.html#method.allow_hyphen_values
+    /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
+    /// [`Arg::number_of_values(1)`]: ./struct.Arg.html#method.number_of_values
     pub fn allow_hyphen_values(self, a: bool) -> Self {
         if a {
             self.set(ArgSettings::AllowLeadingHyphen)
