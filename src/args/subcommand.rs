@@ -48,8 +48,21 @@ impl<'a> SubCommand<'a> {
     ///         SubCommand::with_name("config"))
     /// # ;
     /// ```
-    pub fn with_name<'b>(name: &str) -> App<'a, 'b> { App::new(name) }
+    pub fn new<'b>(name: &str) -> App<'a, 'b> { App::new(name) }
 
+    // ------- DEPRECATIONS ---------------
+
+    /// Deprecated
+    #[cfg(feature = "yaml")]
+    #[deprecated(since = "2.24.1", notes = "Use SubCommand::from or serde instead")]
+    pub fn from_yaml(yaml: &Yaml) -> App { App::from(yaml) }
+
+    /// Deprecated
+    #[deprecated(since = "2.24.1", notes = "Use SubCommand::new instead")]
+    pub fn with_name<'b>(name: &str) -> App<'a, 'b> { App::new(name) }
+}
+
+impl<'a, 'b, 'z> From<&'z Yaml> for SubCommand<'a> {
     /// Creates a new instance of a subcommand from a YAML (.yml) document
     ///
     /// # Examples
@@ -63,6 +76,7 @@ impl<'a> SubCommand<'a> {
     /// let sc = SubCommand::from_yaml(sc_yaml);
     /// # }
     /// ```
-    #[cfg(feature = "yaml")]
-    pub fn from_yaml(yaml: &Yaml) -> App { App::from_yaml(yaml) }
+    fn from(yaml: &'z Yaml) -> App<'a, 'b> {
+        App::from(yaml)
+    }
 }

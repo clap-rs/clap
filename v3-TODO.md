@@ -1,0 +1,7 @@
+- [ ] Deprecations
+- [ ] Restructure mods
+- [ ] From Docopt
+- [ ] CustomDerive
+- [ ] Serde
+- [ ] Redo Arg/App internals (True Builders)
+- [ ] Migration app
