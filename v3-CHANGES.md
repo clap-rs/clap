@@ -13,3 +13,4 @@
 * Arg::from_usage -> Arg::from
 * Arg::from_yaml -> Arg::from
 * Arg::*(bool) -> Arg::setting(*)
+* Restructure Mods

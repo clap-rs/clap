@@ -1,7 +1,9 @@
-- [ ] Deprecations
-- [ ] Restructure mods
+- [x] Deprecations
+- [x] Restructure mods
+- [ ] Redo Arg/App internals (True Builders)
 - [ ] From Docopt
 - [ ] CustomDerive
 - [ ] Serde
-- [ ] Redo Arg/App internals (True Builders)
+- [ ] Enums as keys
 - [ ] Migration app
+- [ ] Color Redux
