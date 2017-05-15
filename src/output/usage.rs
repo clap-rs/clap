@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, VecDeque};
 
 // Internal
 use INTERNAL_ERROR_MSG;
-use args::{AnyArg, ArgMatcher, PosBuilder};
+use args::{AnyArg, ArgMatcher, Pos};
 use args::settings::ArgSettings;
 use app::settings::AppSettings as AS;
 use app::parser::Parser;
@@ -100,7 +100,7 @@ pub fn create_help_usage(p: &Parser, incl_reqs: bool) -> String {
         usage.push_str(" [--]");
     }
     let not_req_or_hidden =
-        |p: &PosBuilder| (!p.is_set(ArgSettings::Required) || p.is_set(ArgSettings::Last)) && !p.is_set(ArgSettings::Hidden);
+        |p: &Pos| (!p.is_set(ArgSettings::Required) || p.is_set(ArgSettings::Last)) && !p.is_set(ArgSettings::Hidden);
     if p.has_positionals() && p.positionals.values().any(not_req_or_hidden) {
         if let Some(args_tag) = get_args_tag(p, incl_reqs) {
             usage.push_str(&*args_tag);
@@ -390,7 +390,7 @@ pub fn get_required_usage_from<'a, 'b>(p: &Parser<'a, 'b>,
             .filter(|&pos| incl_last || !pos.is_set(ArgSettings::Last))
             .filter(|pos| !args_in_groups.contains(&pos.b.name))
             .map(|pos| (pos.index, pos))
-            .collect::<BTreeMap<u64, &PosBuilder>>() // sort by index
+            .collect::<BTreeMap<u64, &Pos>>() // sort by index
     } else {
         desc_reqs.iter()
             .filter(|a| p.positionals.values().any(|pos| &&pos.b.name == a))
@@ -398,7 +398,7 @@ pub fn get_required_usage_from<'a, 'b>(p: &Parser<'a, 'b>,
             .filter(|&pos| incl_last || !pos.is_set(ArgSettings::Last))
             .filter(|pos| !args_in_groups.contains(&pos.b.name))
             .map(|pos| (pos.index, pos))
-            .collect::<BTreeMap<u64, &PosBuilder>>() // sort by index
+            .collect::<BTreeMap<u64, &Pos>>() // sort by index
     };
     debugln!("usage::get_required_usage_from: args_in_groups={:?}",
              args_in_groups);

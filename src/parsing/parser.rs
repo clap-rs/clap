@@ -20,7 +20,7 @@ use app::App;
 use app::help::Help;
 use app::meta::AppMeta;
 use app::settings::AppFlags;
-use args::{AnyArg, ArgMatcher, Base, Switched, Arg, ArgGroup, FlagBuilder, OptBuilder, PosBuilder};
+use args::{AnyArg, ArgMatcher, Base, Switched, Arg, ArgGroup, Flag, Opt, Pos};
 use args::settings::ArgSettings;
 use completions::ComplGen;
 use errors::{Error, ErrorKind};
@@ -54,9 +54,9 @@ pub struct Parser<'a, 'b>
     pub meta: AppMeta<'b>,
     settings: AppFlags,
     pub g_settings: AppFlags,
-    pub flags: Vec<FlagBuilder<'a, 'b>>,
-    pub opts: Vec<OptBuilder<'a, 'b>>,
-    pub positionals: VecMap<PosBuilder<'a, 'b>>,
+    pub flags: Vec<Flag<'a, 'b>>,
+    pub opts: Vec<Opt<'a, 'b>>,
+    pub positionals: VecMap<Pos<'a, 'b>>,
     pub subcommands: Vec<App<'a, 'b>>,
     pub groups: Vec<ArgGroup<'a>>,
     pub global_args: Vec<Arg<'a, 'b>>,
@@ -292,13 +292,13 @@ impl<'a, 'b> Parser<'a, 'b>
                 a.index.unwrap() as usize
             };
             self.positionals
-                .insert(i, PosBuilder::from_arg(a, i as u64));
+                .insert(i, Pos::from_arg(a, i as u64));
         } else if a.is_set(ArgSettings::TakesValue) {
-            let mut ob = OptBuilder::from(a);
+            let mut ob = Opt::from(a);
             ob.s.unified_ord = self.flags.len() + self.opts.len();
             self.opts.push(ob);
         } else {
-            let mut fb = FlagBuilder::from(a);
+            let mut fb = Flag::from(a);
             fb.s.unified_ord = self.flags.len() + self.opts.len();
             self.flags.push(fb);
         }
@@ -316,14 +316,14 @@ impl<'a, 'b> Parser<'a, 'b>
             } else {
                 a.index.unwrap() as usize
             };
-            let pb = PosBuilder::from_arg_ref(a, i as u64);
+            let pb = Pos::from_arg_ref(a, i as u64);
             self.positionals.insert(i, pb);
         } else if a.is_set(ArgSettings::TakesValue) {
-            let mut ob = OptBuilder::from(a);
+            let mut ob = Opt::from(a);
             ob.s.unified_ord = self.flags.len() + self.opts.len();
             self.opts.push(ob);
         } else {
-            let mut fb = FlagBuilder::from(a);
+            let mut fb = Flag::from(a);
             fb.s.unified_ord = self.flags.len() + self.opts.len();
             self.flags.push(fb);
         }
@@ -724,7 +724,7 @@ impl<'a, 'b> Parser<'a, 'b>
             sc.clone()
         };
         if help_help {
-            let mut pb = PosBuilder::new("subcommand", 1);
+            let mut pb = Pos::new("subcommand", 1);
             pb.b.help = Some("The subcommand whose help message to display");
             pb.set(ArgSettings::Multiple);
             sc.positionals.insert(1, pb);
@@ -874,7 +874,7 @@ impl<'a, 'b> Parser<'a, 'b>
                                 .iter()
                                 .find(|o| o.b.name == name)
                                 .expect(INTERNAL_ERROR_MSG);
-                            // get the OptBuilder so we can check the settings
+                            // get the Opt so we can check the settings
                             needs_val_of = try!(self.add_val_to_arg(arg, &arg_os, matcher));
                             // get the next value from the iterator
                             continue;
@@ -1255,7 +1255,7 @@ impl<'a, 'b> Parser<'a, 'b>
             if self.help_short.is_none() && !self.contains_short('h') {
                 self.help_short = Some('h');
             }
-            let arg = FlagBuilder {
+            let arg = Flag {
                 b: Base {
                     name: "hclap_help",
                     help: self.help_message.or(Some("Prints help information")),
@@ -1275,7 +1275,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 self.version_short = Some('V');
             }
             // name is "vclap_version" because flags are sorted by name
-            let arg = FlagBuilder {
+            let arg = Flag {
                 b: Base {
                     name: "vclap_version",
                     help: self.version_message.or(Some("Prints version information")),
@@ -1522,7 +1522,7 @@ impl<'a, 'b> Parser<'a, 'b>
 
     fn parse_opt(&self,
                  val: Option<&OsStr>,
-                 opt: &OptBuilder<'a, 'b>,
+                 opt: &Opt<'a, 'b>,
                  had_eq: bool,
                  matcher: &mut ArgMatcher<'a>)
                  -> ClapResult<ParseResult<'a>> {
@@ -1638,7 +1638,7 @@ impl<'a, 'b> Parser<'a, 'b>
 
 
     fn parse_flag(&self,
-                  flag: &FlagBuilder<'a, 'b>,
+                  flag: &Flag<'a, 'b>,
                   matcher: &mut ArgMatcher<'a>)
                   -> ClapResult<ParseResult<'a>> {
         debugln!("Parser::parse_flag;");
@@ -1780,11 +1780,11 @@ impl<'a, 'b> Parser<'a, 'b>
         Ok(())
     }
 
-    pub fn flags(&self) -> Iter<FlagBuilder<'a, 'b>> { self.flags.iter() }
+    pub fn flags(&self) -> Iter<Flag<'a, 'b>> { self.flags.iter() }
 
-    pub fn opts(&self) -> Iter<OptBuilder<'a, 'b>> { self.opts.iter() }
+    pub fn opts(&self) -> Iter<Opt<'a, 'b>> { self.opts.iter() }
 
-    pub fn positionals(&self) -> vec_map::Values<PosBuilder<'a, 'b>> { self.positionals.values() }
+    pub fn positionals(&self) -> vec_map::Values<Pos<'a, 'b>> { self.positionals.values() }
 
     pub fn subcommands(&self) -> Iter<App> { self.subcommands.iter() }
 

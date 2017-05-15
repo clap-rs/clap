@@ -17,7 +17,7 @@ use INTERNAL_ERROR_MSG;
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
 #[derive(Clone, Default)]
-pub struct PosBuilder<'n, 'e>
+pub struct Pos<'n, 'e>
     where 'n: 'e
 {
     pub b: Base<'n, 'e>,
@@ -25,9 +25,9 @@ pub struct PosBuilder<'n, 'e>
     pub index: u64,
 }
 
-impl<'n, 'e> PosBuilder<'n, 'e> {
+impl<'n, 'e> Pos<'n, 'e> {
     pub fn new(name: &'n str, idx: u64) -> Self {
-        PosBuilder {
+        Pos {
             b: Base::new(name),
             index: idx,
             ..Default::default()
@@ -35,7 +35,7 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
     }
 
     pub fn from_arg_ref(a: &Arg<'n, 'e>, idx: u64) -> Self {
-        let mut pb = PosBuilder {
+        let mut pb = Pos {
             b: Base::from(a),
             v: Valued::from(a),
             index: idx,
@@ -52,7 +52,7 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
            (a.v.num_vals.is_some() && a.v.num_vals.unwrap() > 1) {
             a.b.settings.set(ArgSettings::Multiple);
         }
-        PosBuilder {
+        Pos {
             b: mem::replace(&mut a.b, Base::default()),
             v: mem::replace(&mut a.v, Valued::default()),
             index: idx,
@@ -72,9 +72,9 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
     }
 
     pub fn name_no_brackets(&self) -> Cow<str> {
-        debugln!("PosBuilder::name_no_brackets;");
+        debugln!("Pos::name_no_brackets;");
         if let Some(ref names) = self.v.val_names {
-            debugln!("PosBuilder:name_no_brackets: val_names={:#?}", names);
+            debugln!("Pos:name_no_brackets: val_names={:#?}", names);
             if names.len() > 1 {
                 Cow::Owned(names
                                .values()
@@ -85,13 +85,13 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
                 Cow::Borrowed(names.values().next().expect(INTERNAL_ERROR_MSG))
             }
         } else {
-            debugln!("PosBuilder:name_no_brackets: just name");
+            debugln!("Pos:name_no_brackets: just name");
             Cow::Borrowed(self.b.name)
         }
     }
 }
 
-impl<'n, 'e> Display for PosBuilder<'n, 'e> {
+impl<'n, 'e> Display for Pos<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> Result {
         if let Some(ref names) = self.v.val_names {
             try!(write!(f,
@@ -112,7 +112,7 @@ impl<'n, 'e> Display for PosBuilder<'n, 'e> {
     }
 }
 
-impl<'n, 'e> AnyArg<'n, 'e> for PosBuilder<'n, 'e> {
+impl<'n, 'e> AnyArg<'n, 'e> for Pos<'n, 'e> {
     fn name(&self) -> &'n str { self.b.name }
     fn overrides(&self) -> Option<&[&'e str]> { self.b.overrides.as_ref().map(|o| &o[..]) }
     fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]> {
@@ -149,23 +149,23 @@ impl<'n, 'e> AnyArg<'n, 'e> for PosBuilder<'n, 'e> {
     fn aliases(&self) -> Option<Vec<&'e str>> { None }
 }
 
-impl<'n, 'e> DispOrder for PosBuilder<'n, 'e> {
+impl<'n, 'e> DispOrder for Pos<'n, 'e> {
     fn disp_ord(&self) -> usize { self.index as usize }
 }
 
-impl<'n, 'e> PartialEq for PosBuilder<'n, 'e> {
-    fn eq(&self, other: &PosBuilder<'n, 'e>) -> bool { self.b == other.b }
+impl<'n, 'e> PartialEq for Pos<'n, 'e> {
+    fn eq(&self, other: &Pos<'n, 'e>) -> bool { self.b == other.b }
 }
 
 #[cfg(test)]
 mod test {
     use args::settings::ArgSettings;
-    use super::PosBuilder;
+    use super::Pos;
     use vec_map::VecMap;
 
     #[test]
     fn display_mult() {
-        let mut p = PosBuilder::new("pos", 1);
+        let mut p = Pos::new("pos", 1);
         p.b.settings.set(ArgSettings::Multiple);
 
         assert_eq!(&*format!("{}", p), "<pos>...");
@@ -173,7 +173,7 @@ mod test {
 
     #[test]
     fn display_required() {
-        let mut p2 = PosBuilder::new("pos", 1);
+        let mut p2 = Pos::new("pos", 1);
         p2.b.settings.set(ArgSettings::Required);
 
         assert_eq!(&*format!("{}", p2), "<pos>");
@@ -181,7 +181,7 @@ mod test {
 
     #[test]
     fn display_val_names() {
-        let mut p2 = PosBuilder::new("pos", 1);
+        let mut p2 = Pos::new("pos", 1);
         let mut vm = VecMap::new();
         vm.insert(0, "file1");
         vm.insert(1, "file2");
@@ -192,7 +192,7 @@ mod test {
 
     #[test]
     fn display_val_names_req() {
-        let mut p2 = PosBuilder::new("pos", 1);
+        let mut p2 = Pos::new("pos", 1);
         p2.b.settings.set(ArgSettings::Required);
         let mut vm = VecMap::new();
         vm.insert(0, "file1");

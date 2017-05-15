@@ -14,7 +14,7 @@ use args::{ArgSettings, AnyArg, Base, Switched, Valued, Arg, DispOrder};
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
 #[derive(Default, Clone)]
-pub struct OptBuilder<'n, 'e>
+pub struct Opt<'n, 'e>
     where 'n: 'e
 {
     pub b: Base<'n, 'e>,
@@ -22,13 +22,13 @@ pub struct OptBuilder<'n, 'e>
     pub v: Valued<'n, 'e>,
 }
 
-impl<'n, 'e> OptBuilder<'n, 'e> {
-    pub fn new(name: &'n str) -> Self { OptBuilder { b: Base::new(name), ..Default::default() } }
+impl<'n, 'e> Opt<'n, 'e> {
+    pub fn new(name: &'n str) -> Self { Opt { b: Base::new(name), ..Default::default() } }
 }
 
-impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for OptBuilder<'n, 'e> {
+impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for Opt<'n, 'e> {
     fn from(a: &'z Arg<'n, 'e>) -> Self {
-        OptBuilder {
+        Opt {
             b: Base::from(a),
             s: Switched::from(a),
             v: Valued::from(a),
@@ -36,10 +36,10 @@ impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for OptBuilder<'n, 'e> {
     }
 }
 
-impl<'n, 'e> From<Arg<'n, 'e>> for OptBuilder<'n, 'e> {
+impl<'n, 'e> From<Arg<'n, 'e>> for Opt<'n, 'e> {
     fn from(mut a: Arg<'n, 'e>) -> Self {
         a.v.fill_in();
-        OptBuilder {
+        Opt {
             b: mem::replace(&mut a.b, Base::default()),
             s: mem::replace(&mut a.s, Switched::default()),
             v: mem::replace(&mut a.v, Valued::default()),
@@ -47,9 +47,9 @@ impl<'n, 'e> From<Arg<'n, 'e>> for OptBuilder<'n, 'e> {
     }
 }
 
-impl<'n, 'e> Display for OptBuilder<'n, 'e> {
+impl<'n, 'e> Display for Opt<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        debugln!("OptBuilder::fmt:{}", self.b.name);
+        debugln!("Opt::fmt:{}", self.b.name);
         let sep = if self.b.is_set(ArgSettings::RequireEquals) {
             "="
         } else {
@@ -101,7 +101,7 @@ impl<'n, 'e> Display for OptBuilder<'n, 'e> {
     }
 }
 
-impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
+impl<'n, 'e> AnyArg<'n, 'e> for Opt<'n, 'e> {
     fn name(&self) -> &'n str { self.b.name }
     fn overrides(&self) -> Option<&[&'e str]> { self.b.overrides.as_ref().map(|o| &o[..]) }
     fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]> {
@@ -151,12 +151,12 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     }
 }
 
-impl<'n, 'e> DispOrder for OptBuilder<'n, 'e> {
+impl<'n, 'e> DispOrder for Opt<'n, 'e> {
     fn disp_ord(&self) -> usize { self.s.disp_ord }
 }
 
-impl<'n, 'e> PartialEq for OptBuilder<'n, 'e> {
-    fn eq(&self, other: &OptBuilder<'n, 'e>) -> bool {
+impl<'n, 'e> PartialEq for Opt<'n, 'e> {
+    fn eq(&self, other: &Opt<'n, 'e>) -> bool {
         self.b == other.b
     }
 }
@@ -164,12 +164,12 @@ impl<'n, 'e> PartialEq for OptBuilder<'n, 'e> {
 #[cfg(test)]
 mod test {
     use args::settings::ArgSettings;
-    use super::OptBuilder;
+    use super::Opt;
     use vec_map::VecMap;
 
     #[test]
-    fn optbuilder_display1() {
-        let mut o = OptBuilder::new("opt");
+    fn Opt_display1() {
+        let mut o = Opt::new("opt");
         o.s.long = Some("option");
         o.b.settings.set(ArgSettings::Multiple);
 
@@ -177,12 +177,12 @@ mod test {
     }
 
     #[test]
-    fn optbuilder_display2() {
+    fn Opt_display2() {
         let mut v_names = VecMap::new();
         v_names.insert(0, "file");
         v_names.insert(1, "name");
 
-        let mut o2 = OptBuilder::new("opt");
+        let mut o2 = Opt::new("opt");
         o2.s.short = Some('o');
         o2.v.val_names = Some(v_names);
 
@@ -190,12 +190,12 @@ mod test {
     }
 
     #[test]
-    fn optbuilder_display3() {
+    fn Opt_display3() {
         let mut v_names = VecMap::new();
         v_names.insert(0, "file");
         v_names.insert(1, "name");
 
-        let mut o2 = OptBuilder::new("opt");
+        let mut o2 = Opt::new("opt");
         o2.s.short = Some('o');
         o2.v.val_names = Some(v_names);
         o2.b.settings.set(ArgSettings::Multiple);
@@ -204,8 +204,8 @@ mod test {
     }
 
     #[test]
-    fn optbuilder_display_single_alias() {
-        let mut o = OptBuilder::new("opt");
+    fn Opt_display_single_alias() {
+        let mut o = Opt::new("opt");
         o.s.long = Some("option");
         o.s.aliases = Some(vec![("als", true)]);
 
@@ -213,8 +213,8 @@ mod test {
     }
 
     #[test]
-    fn optbuilder_display_multiple_aliases() {
-        let mut o = OptBuilder::new("opt");
+    fn Opt_display_multiple_aliases() {
+        let mut o = Opt::new("opt");
         o.s.long = Some("option");
         o.s.aliases =
             Some(vec![("als_not_visible", false), ("als2", true), ("als3", true), ("als4", true)]);

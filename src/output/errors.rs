@@ -8,8 +8,8 @@ use std::process;
 use std::result::Result as StdResult;
 
 // Internal
-use args::{FlagBuilder, AnyArg};
-use fmt::{Colorizer, ColorizerOption, ColorWhen};
+use args::{Flag, AnyArg};
+use fmt;
 use suggestions;
 
 /// Short hand for [`Result`] type
@@ -724,7 +724,7 @@ impl Error {
 
     #[doc(hidden)]
     pub fn value_validation_auto(err: String) -> Self {
-        let n: Option<&FlagBuilder> = None; 
+        let n: Option<&Flag> = None; 
         Error::value_validation(n, err, ColorWhen::Auto)
     }
 

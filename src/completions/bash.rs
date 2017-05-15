@@ -3,7 +3,7 @@ use std::io::Write;
 
 // Internal
 use app::parser::Parser;
-use args::{ArgSettings, OptBuilder};
+use args::{ArgSettings, Opt};
 use completions;
 
 pub struct BashGen<'a, 'b>
@@ -153,7 +153,7 @@ complete -F _{name} -o bashdefault -o default {name}
         opts
     }
 
-    fn vals_for(&self, o: &OptBuilder) -> String {
+    fn vals_for(&self, o: &Opt) -> String {
         debugln!("BashGen::vals_for: o={}", o.b.name);
         use args::AnyArg;
         let mut ret = String::new();

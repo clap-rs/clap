@@ -15,36 +15,36 @@ use args::{ArgSettings, Base, Switched, AnyArg, DispOrder};
 
 #[derive(Default, Clone, Debug)]
 #[doc(hidden)]
-pub struct FlagBuilder<'n, 'e>
+pub struct Flag<'n, 'e>
     where 'n: 'e
 {
     pub b: Base<'n, 'e>,
     pub s: Switched<'e>,
 }
 
-impl<'n, 'e> FlagBuilder<'n, 'e> {
-    pub fn new(name: &'n str) -> Self { FlagBuilder { b: Base::new(name), ..Default::default() } }
+impl<'n, 'e> Flag<'n, 'e> {
+    pub fn new(name: &'n str) -> Self { Flag { b: Base::new(name), ..Default::default() } }
 }
 
-impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for FlagBuilder<'a, 'b> {
+impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Flag<'a, 'b> {
     fn from(a: &'z Arg<'a, 'b>) -> Self {
-        FlagBuilder {
+        Flag {
             b: Base::from(a),
             s: Switched::from(a),
         }
     }
 }
 
-impl<'a, 'b> From<Arg<'a, 'b>> for FlagBuilder<'a, 'b> {
+impl<'a, 'b> From<Arg<'a, 'b>> for Flag<'a, 'b> {
     fn from(mut a: Arg<'a, 'b>) -> Self {
-        FlagBuilder {
+        Flag {
             b: mem::replace(&mut a.b, Base::default()),
             s: mem::replace(&mut a.s, Switched::default()),
         }
     }
 }
 
-impl<'n, 'e> Display for FlagBuilder<'n, 'e> {
+impl<'n, 'e> Display for Flag<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> Result {
         if let Some(l) = self.s.long {
             try!(write!(f, "--{}", l));
@@ -56,7 +56,7 @@ impl<'n, 'e> Display for FlagBuilder<'n, 'e> {
     }
 }
 
-impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
+impl<'n, 'e> AnyArg<'n, 'e> for Flag<'n, 'e> {
     fn name(&self) -> &'n str { self.b.name }
     fn overrides(&self) -> Option<&[&'e str]> { self.b.overrides.as_ref().map(|o| &o[..]) }
     fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]> {
@@ -102,12 +102,12 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     }
 }
 
-impl<'n, 'e> DispOrder for FlagBuilder<'n, 'e> {
+impl<'n, 'e> DispOrder for Flag<'n, 'e> {
     fn disp_ord(&self) -> usize { self.s.disp_ord }
 }
 
-impl<'n, 'e> PartialEq for FlagBuilder<'n, 'e> {
-    fn eq(&self, other: &FlagBuilder<'n, 'e>) -> bool {
+impl<'n, 'e> PartialEq for Flag<'n, 'e> {
+    fn eq(&self, other: &Flag<'n, 'e>) -> bool {
         self.b == other.b
     }
 }
@@ -115,25 +115,25 @@ impl<'n, 'e> PartialEq for FlagBuilder<'n, 'e> {
 #[cfg(test)]
 mod test {
     use args::settings::ArgSettings;
-    use super::FlagBuilder;
+    use super::Flag;
 
     #[test]
-    fn flagbuilder_display() {
-        let mut f = FlagBuilder::new("flg");
+    fn Flag_display() {
+        let mut f = Flag::new("flg");
         f.b.settings.set(ArgSettings::Multiple);
         f.s.long = Some("flag");
 
         assert_eq!(&*format!("{}", f), "--flag");
 
-        let mut f2 = FlagBuilder::new("flg");
+        let mut f2 = Flag::new("flg");
         f2.s.short = Some('f');
 
         assert_eq!(&*format!("{}", f2), "-f");
     }
 
     #[test]
-    fn flagbuilder_display_single_alias() {
-        let mut f = FlagBuilder::new("flg");
+    fn Flag_display_single_alias() {
+        let mut f = Flag::new("flg");
         f.s.long = Some("flag");
         f.s.aliases = Some(vec![("als", true)]);
 
@@ -141,8 +141,8 @@ mod test {
     }
 
     #[test]
-    fn flagbuilder_display_multiple_aliases() {
-        let mut f = FlagBuilder::new("flg");
+    fn Flag_display_multiple_aliases() {
+        let mut f = Flag::new("flg");
         f.s.short = Some('f');
         f.s.aliases =
             Some(vec![("alias_not_visible", false), ("f2", true), ("f3", true), ("f4", true)]);

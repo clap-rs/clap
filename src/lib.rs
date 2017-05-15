@@ -525,45 +525,38 @@
 #![cfg_attr(feature = "lints", feature(plugin))]
 #![cfg_attr(feature = "lints", plugin(clippy))]
 #![cfg_attr(feature = "lints", deny(warnings))]
-#![cfg_attr(feature = "lints", allow(cyclomatic_complexity))]
-#![cfg_attr(feature = "lints", allow(doc_markdown))]
-#![cfg_attr(feature = "lints", allow(explicit_iter_loop))]
+// #![cfg_attr(feature = "lints", allow(cyclomatic_complexity))]
+// #![cfg_attr(feature = "lints", allow(doc_markdown))]
+// #![cfg_attr(feature = "lints", allow(explicit_iter_loop))]
 
-#[cfg(feature = "suggestions")]
-extern crate strsim;
-#[cfg(feature = "color")]
-extern crate ansi_term;
-#[cfg(feature = "yaml")]
-extern crate yaml_rust;
+#[cfg(feature = "suggestions")] extern crate strsim;
+#[cfg(feature = "color")]       extern crate ansi_term;
+#[cfg(feature = "wrap_help")]   extern crate term_size;
+#[cfg(feature = "wrap_help")]   extern crate text_wrap;
+#[cfg(feature = "color")]       extern crate atty;
+#[macro_use]                    extern crate bitflags;
+extern crate unicode_segmentation;
+extern crate vec_map;
 extern crate unicode_width;
 #[macro_use]
 extern crate bitflags;
-extern crate vec_map;
-#[cfg(feature = "wrap_help")]
-extern crate term_size;
-extern crate textwrap;
-extern crate unicode_segmentation;
-#[cfg(feature = "color")]
-extern crate atty;
 
-#[cfg(feature = "yaml")]
-pub use yaml_rust::YamlLoader;
-pub use args::{Arg, ArgGroup, ArgMatches, ArgSettings, SubCommand, Values, OsValues};
-pub use app::{App, AppSettings};
-pub use fmt::Format;
-pub use errors::{Error, ErrorKind, Result};
+// v3-TODO: Remove before release
+#[cfg(feature = "yaml")] extern crate yaml_rust;
+#[cfg(feature = "yaml")] pub use yaml_rust::YamlLoader;
+
+pub use matched::{ArgMatches, Values, OsValues};
+pub use builders::{App, AppSettings, Arg, ArgGroup, ArgSettings, SubCommand};
+pub use output::errors;
 pub use completions::Shell;
 
 #[macro_use]
 mod macros;
-mod app;
-mod args;
-mod usage_parser;
-mod fmt;
-mod suggestions;
-mod errors;
-mod osstringext;
-mod strext;
+mod builders;
+mod built;
+mod matched;
+mod output;
+mod parsing;
 mod completions;
 
 const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider filing a bug \
