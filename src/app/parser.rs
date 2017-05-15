@@ -739,8 +739,10 @@ impl<'a, 'b> Parser<'a, 'b>
         // Is this a new argument, or values from a previous option?
         let mut ret = if arg_os.starts_with(b"--") {
             debugln!("Parser::is_new_arg: -- found");
-            if arg_os.len_() == 2 {
+            if arg_os.len_() == 2 && !arg_allows_tac {
                 return true; // We have to return true so override everything else
+            } else if arg_allows_tac {
+                return false;
             }
             true
         } else if arg_os.starts_with(b"-") {
@@ -800,7 +802,7 @@ impl<'a, 'b> Parser<'a, 'b>
             self.unset(AS::ValidNegNumFound);
             // Is this a new argument, or values from a previous option?
             let starts_new_arg = self.is_new_arg(&arg_os, needs_val_of);
-            if arg_os.starts_with(b"--") && arg_os.len_() == 2 {
+            if arg_os.starts_with(b"--") && arg_os.len_() == 2 && starts_new_arg {
                 debugln!("Parser::get_matches_with: setting TrailingVals=true");
                 self.set(AS::TrailingValues);
                 continue;
@@ -850,9 +852,6 @@ impl<'a, 'b> Parser<'a, 'b>
                             ParseResult::ValuesDone => continue,
                             _ => (),
                         }
-                        // if !(needs_val_of == ParseResult::Flag && self.is_set(AS::AllowLeadingHyphen)) {
-                        //     continue;
-                        // }
                     } else if arg_os.starts_with(b"-") && arg_os.len_() != 1 {
                         // Try to parse short args like normal, if AllowLeadingHyphen or
                         // AllowNegativeNumbers is set, parse_short_arg will *not* throw
@@ -871,7 +870,6 @@ impl<'a, 'b> Parser<'a, 'b>
                                         self.color()));
                                 }
                             }
-                            // ParseResult::MaybeHyphenValue => (),
                             ParseResult::Opt(..) |
                             ParseResult::Flag |
                             ParseResult::ValuesDone => continue,
