@@ -129,6 +129,49 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     #[inline]
+    fn app_debug_asserts(&mut self) -> bool {
+        assert!(self.verify_positionals());
+        let should_err = self.groups
+            .iter()
+            .all(|g| {
+                g.args
+                    .iter()
+                    .all(|arg| {
+                             (self.flags.iter().any(|f| &f.b.name == arg) ||
+                              self.opts.iter().any(|o| &o.b.name == arg) ||
+                              self.positionals.values().any(|p| &p.b.name == arg) ||
+                              self.groups.iter().any(|g| &g.name == arg))
+                         })
+            });
+        let g = self.groups
+            .iter()
+            .find(|g| {
+                g.args
+                    .iter()
+                    .any(|arg| {
+                             !(self.flags.iter().any(|f| &f.b.name == arg) ||
+                               self.opts.iter().any(|o| &o.b.name == arg) ||
+                               self.positionals.values().any(|p| &p.b.name == arg) ||
+                               self.groups.iter().any(|g| &g.name == arg))
+                         })
+            });
+        assert!(should_err,
+                "The group '{}' contains the arg '{}' that doesn't actually exist.",
+                g.unwrap().name,
+                g.unwrap()
+                    .args
+                    .iter()
+                    .find(|arg| {
+                              !(self.flags.iter().any(|f| &&f.b.name == arg) ||
+                                self.opts.iter().any(|o| &&o.b.name == arg) ||
+                                self.positionals.values().any(|p| &&p.b.name == arg) ||
+                                self.groups.iter().any(|g| &&g.name == arg))
+                          })
+                    .unwrap());
+        true
+    }
+
+    #[inline]
     fn debug_asserts(&self, a: &Arg) -> bool {
         assert!(!arg_names!(self).any(|name| name == a.b.name),
                 format!("Non-unique argument name: {} is already in use", a.b.name));
@@ -417,9 +460,7 @@ impl<'a, 'b> Parser<'a, 'b>
         if self.flags.is_empty() {
             return false;
         }
-        self.flags
-            .iter()
-            .any(|f| !f.is_set(ArgSettings::Hidden))
+        self.flags.iter().any(|f| !f.is_set(ArgSettings::Hidden))
     }
 
     #[inline]
@@ -771,7 +812,7 @@ impl<'a, 'b> Parser<'a, 'b>
     {
         debugln!("Parser::get_matches_with;");
         // Verify all positional assertions pass
-        debug_assert!(self.verify_positionals());
+        debug_assert!(self.app_debug_asserts());
         if self.positionals
                .values()
                .any(|a| {
@@ -1244,8 +1285,7 @@ impl<'a, 'b> Parser<'a, 'b>
             let arg = FlagBuilder {
                 b: Base {
                     name: "vclap_version",
-                    help: self.version_message
-                        .or(Some("Prints version information")),
+                    help: self.version_message.or(Some("Prints version information")),
                     ..Default::default()
                 },
                 s: Switched {
@@ -1261,7 +1301,7 @@ impl<'a, 'b> Parser<'a, 'b>
             debugln!("Parser::create_help_and_version: Building help");
             self.subcommands
                 .push(App::new("help")
-                    .about("Prints this message or the help of the given subcommand(s)"));
+                          .about("Prints this message or the help of the given subcommand(s)"));
         }
     }
 
@@ -1307,9 +1347,7 @@ impl<'a, 'b> Parser<'a, 'b>
     fn use_long_help(&self) -> bool {
         let ul = self.flags.iter().any(|f| f.b.long_help.is_some()) ||
                  self.opts.iter().any(|o| o.b.long_help.is_some()) ||
-                 self.positionals
-                     .values()
-                     .any(|p| p.b.long_help.is_some()) ||
+                 self.positionals.values().any(|p| p.b.long_help.is_some()) ||
                  self.subcommands
                      .iter()
                      .any(|s| s.p.meta.long_about.is_some());
