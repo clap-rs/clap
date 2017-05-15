@@ -168,6 +168,18 @@ impl<'a, 'b> Parser<'a, 'b>
                     "Flags or Options may not have last(true) set. {} has both a short and last(true) set.",
                     a.b.name);
         }
+        assert!(!self.groups
+                    .iter()
+                    .any(|g| {
+            g.args
+                .iter()
+                .any(|arg| {
+                         !(self.flags.iter().any(|f| &f.b.name == arg) ||
+                           self.opts.iter().any(|o| &o.b.name == arg) ||
+                           self.positionals.values().any(|p| &p.b.name == arg))
+                     })
+        }),
+                "One of the groups contains an arg that doesn't actually exist. Check all arg names added to ArgGroups");
         true
     }
 
@@ -417,9 +429,7 @@ impl<'a, 'b> Parser<'a, 'b>
         if self.flags.is_empty() {
             return false;
         }
-        self.flags
-            .iter()
-            .any(|f| !f.is_set(ArgSettings::Hidden))
+        self.flags.iter().any(|f| !f.is_set(ArgSettings::Hidden))
     }
 
     #[inline]
@@ -1244,8 +1254,7 @@ impl<'a, 'b> Parser<'a, 'b>
             let arg = FlagBuilder {
                 b: Base {
                     name: "vclap_version",
-                    help: self.version_message
-                        .or(Some("Prints version information")),
+                    help: self.version_message.or(Some("Prints version information")),
                     ..Default::default()
                 },
                 s: Switched {
@@ -1261,7 +1270,7 @@ impl<'a, 'b> Parser<'a, 'b>
             debugln!("Parser::create_help_and_version: Building help");
             self.subcommands
                 .push(App::new("help")
-                    .about("Prints this message or the help of the given subcommand(s)"));
+                          .about("Prints this message or the help of the given subcommand(s)"));
         }
     }
 
@@ -1307,9 +1316,7 @@ impl<'a, 'b> Parser<'a, 'b>
     fn use_long_help(&self) -> bool {
         let ul = self.flags.iter().any(|f| f.b.long_help.is_some()) ||
                  self.opts.iter().any(|o| o.b.long_help.is_some()) ||
-                 self.positionals
-                     .values()
-                     .any(|p| p.b.long_help.is_some()) ||
+                 self.positionals.values().any(|p| p.b.long_help.is_some()) ||
                  self.subcommands
                      .iter()
                      .any(|s| s.p.meta.long_about.is_some());
