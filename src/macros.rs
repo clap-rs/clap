@@ -549,6 +549,11 @@ macro_rules! app_from_crate {
 ///     (@arg CONFIG: -c --config +takes_value "Sets a custom config file")
 ///     (@arg INPUT: +required "Sets the input file to use")
 ///     (@arg debug: -d ... "Sets the level of debugging information")
+///     (@group difficulty =>
+///         (@arg hard: -h --hard "Sets hard mode")
+///         (@arg normal: -n --normal "Sets normal mode")
+///         (@arg easy: -e --easy "Sets easy mode")
+///     )
 ///     (@subcommand test =>
 ///         (about: "controls testing features")
 ///         (version: "1.3")
