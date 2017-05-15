@@ -29,6 +29,20 @@ fn require_equals_fail() {
 }
 
 #[test]
+fn double_hyphen_as_value() {
+    let res = App::new("prog")
+        .arg(Arg::with_name("cfg")
+            .takes_value(true)
+            .allow_hyphen_values(true)
+            .long("config"))
+        .get_matches_from_safe(vec![
+            "prog", "--config", "--"
+        ]);
+    assert!(res.is_ok(), "{:?}", res);
+    assert_eq!(res.unwrap().value_of("cfg"), Some("--"));
+}
+
+#[test]
 fn require_equals_no_empty_values_fail() {
     let res = App::new("prog")
         .arg(Arg::with_name("cfg")
@@ -330,10 +344,10 @@ fn leading_hyphen_with_flag_before() {
 #[test]
 fn leading_hyphen_with_only_pos_follows() {
     let r = App::new("mvae")
-        .arg(Arg::from_usage("-o [opt]... 'some opt'").allow_hyphen_values(true))
+        .arg(Arg::from_usage("-o [opt]... 'some opt'").number_of_values(1).allow_hyphen_values(true))
         .arg_from_usage("[arg] 'some arg'")
         .get_matches_from_safe(vec!["", "-o", "-2", "--", "val"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{:?}", r);
     let m = r.unwrap();
     assert!(m.is_present("o"));
     assert_eq!(m.values_of("o").unwrap().collect::<Vec<_>>(), &["-2"]);
