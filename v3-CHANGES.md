@@ -9,3 +9,7 @@
 * App::write_help takes &mut self
 * App::help -> App::override_help
 * App::usage -> App::override_usage
+* Arg::with_name -> Arg::new
+* Arg::from_usage -> Arg::from
+* Arg::from_yaml -> Arg::from
+* Arg::*(bool) -> Arg::setting(*)
