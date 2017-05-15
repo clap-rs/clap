@@ -81,75 +81,38 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     pub fn new<S: Into<String>>(n: S) -> Self { App { p: Parser::with_name(n.into()) } }
 
-    /// Get the name of the app
-    pub fn get_name(&self) -> &str { &self.p.meta.name }
-
-    /// Get the name of the binary
-    pub fn get_bin_name(&self) -> Option<&str> { self.p.meta.bin_name.as_ref().map(|s| s.as_str()) }
-
-    /// Creates a new instance of an application requiring a name, but uses the [`crate_authors!`]
-    /// and [`crate_version!`] macros to fill in the [`App::author`] and [`App::version`] fields.
+    /// Sets the program's name. This will be displayed when displaying help information.
+    ///
+    /// **Pro-top:** This function is particularly useful when configuring a program via
+    /// [`App::from_yaml`] in conjunction with the [`crate_name!`] macro to derive the program's
+    /// name from its `Cargo.toml`.
     ///
     /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// let prog = App::with_defaults("My Program")
-    /// # ;
-    /// ```
-    /// [`crate_authors!`]: ./macro.crate_authors!.html
-    /// [`crate_version!`]: ./macro.crate_version!.html
-    /// [`App::author`]: ./struct.App.html#method.author
-    /// [`App::version`]: ./struct.App.html#method.author
-    #[deprecated(since="2.14.1", note="Can never work; use explicit App::author() and App::version() calls instead")]
-    pub fn with_defaults<S: Into<String>>(n: S) -> Self {
-        let mut a = App { p: Parser::with_name(n.into()) };
-        a.p.meta.author = Some("Kevin K. <kbknapp@gmail.com>");
-        a.p.meta.version = Some("2.19.2");
-        a
-    }
-
-    /// Creates a new instance of [`App`] from a .yml (YAML) file. A full example of supported YAML
-    /// objects can be found in [`examples/17_yaml.rs`] and [`examples/17_yaml.yml`]. One great use
-    /// for using YAML is when supporting multiple languages and dialects, as each language could
-    /// be a distinct YAML file and determined at compiletime via `cargo` "features" in your
-    /// `Cargo.toml`
-    ///
-    /// In order to use this function you must compile `clap` with the `features = ["yaml"]` in
-    /// your settings for the `[dependencies.clap]` table of your `Cargo.toml`
-    ///
-    /// **NOTE:** Due to how the YAML objects are built there is a convenience macro for loading
-    /// the YAML file at compile time (relative to the current file, like modules work). That YAML
-    /// object can then be passed to this function.
-    ///
-    /// # Panics
-    ///
-    /// The YAML file must be properly formatted or this function will [`panic!`]. A good way to
-    /// ensure this doesn't happen is to run your program with the `--help` switch. If this passes
-    /// without error, you needn't worry because the YAML is properly formatted.
-    ///
-    /// # Examples
-    ///
-    /// The following example shows how to load a properly formatted YAML file to build an instance
-    /// of an [`App`] struct.
-    ///
     /// ```ignore
     /// # #[macro_use]
     /// # extern crate clap;
     /// # use clap::App;
     /// # fn main() {
     /// let yml = load_yaml!("app.yml");
-    /// let app = App::from_yaml(yml);
+    /// let app = App::from_yaml(yml)
+    ///     .name(crate_name!());
     ///
     /// // continued logic goes here, such as `app.get_matches()` etc.
     /// # }
     /// ```
-    /// [`App`]: ./struct.App.html
-    /// [`examples/17_yaml.rs`]: https://github.com/kbknapp/clap-rs/blob/master/examples/17_yaml.rs
-    /// [`examples/17_yaml.yml`]: https://github.com/kbknapp/clap-rs/blob/master/examples/17_yaml.yml
-    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
-    #[cfg(feature = "yaml")]
-    pub fn from_yaml(yaml: &'a Yaml) -> App<'a, 'a> { App::from(yaml) }
+    ///
+    /// [`App::from_yaml`]: ./struct.App.html#method.from_yaml
+    /// [`crate_name!`]: ./macro.crate_name.html
+    pub fn name<S: Into<String>>(mut self, name: S) -> Self {
+        self.p.meta.name = name.into();
+        self
+    }
+
+    /// Get the name of the app
+    pub fn get_name(&self) -> &str { &self.p.meta.name }
+
+    /// Get the name of the binary
+    pub fn get_bin_name(&self) -> Option<&str> { self.p.meta.bin_name.as_ref().map(|s| s.as_str()) }
 
     /// Sets a string of author(s) that will be displayed to the user when they
     /// request the help information with `--help` or `-h`.
@@ -245,33 +208,6 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`App::about`]: ./struct.App.html#method.about
     pub fn long_about<S: Into<&'b str>>(mut self, about: S) -> Self {
         self.p.meta.long_about = Some(about.into());
-        self
-    }
-
-    /// Sets the program's name. This will be displayed when displaying help information.
-    ///
-    /// **Pro-top:** This function is particularly useful when configuring a program via
-    /// [`App::from_yaml`] in conjunction with the [`crate_name!`] macro to derive the program's
-    /// name from its `Cargo.toml`.
-    ///
-    /// # Examples
-    /// ```ignore
-    /// # #[macro_use]
-    /// # extern crate clap;
-    /// # use clap::App;
-    /// # fn main() {
-    /// let yml = load_yaml!("app.yml");
-    /// let app = App::from_yaml(yml)
-    ///     .name(crate_name!());
-    ///
-    /// // continued logic goes here, such as `app.get_matches()` etc.
-    /// # }
-    /// ```
-    ///
-    /// [`App::from_yaml`]: ./struct.App.html#method.from_yaml
-    /// [`crate_name!`]: ./macro.crate_name.html
-    pub fn name<S: Into<String>>(mut self, name: S) -> Self {
-        self.p.meta.name = name.into();
         self
     }
 
@@ -390,11 +326,11 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     /// [`ArgMatches::usage`]: ./struct.ArgMatches.html#method.usage
-    pub fn usage<S: Into<&'b str>>(mut self, usage: S) -> Self {
+    pub fn override_usage<S: Into<&'b str>>(mut self, usage: S) -> Self {
         self.p.meta.usage_str = Some(usage.into());
         self
     }
-
+    
     /// Sets a custom help message and overrides the auto-generated one. This should only be used
     /// when the auto-generated message does not suffice.
     ///
@@ -429,98 +365,8 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     /// [`Arg::help`]: ./struct.Arg.html#method.help
-    pub fn help<S: Into<&'b str>>(mut self, help: S) -> Self {
+    pub fn override_help<S: Into<&'b str>>(mut self, help: S) -> Self {
         self.p.meta.help_str = Some(help.into());
-        self
-    }
-
-    /// Sets the [`short`] for the auto-generated `help` argument.
-    ///
-    /// By default `clap` automatically assigns `h`, but this can be overridden if you have a
-    /// different argument which you'd prefer to use the `-h` short with. This can be done by
-    /// defining your own argument with a lowercase `h` as the [`short`].
-    ///
-    /// `clap` lazily generates these `help` arguments **after** you've defined any arguments of
-    /// your own.
-    ///
-    /// **NOTE:** Any leading `-` characters will be stripped, and only the first
-    /// non `-` character will be used as the [`short`] version
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// App::new("myprog")
-    ///     .help_short("H") // Using an uppercase `H` instead of the default lowercase `h`
-    /// # ;
-    /// ```
-    /// [`short`]: ./struct.Arg.html#method.short
-    pub fn help_short<S: AsRef<str> + 'b>(mut self, s: S) -> Self {
-        self.p.help_short(s.as_ref());
-        self
-    }
-
-    /// Sets the [`short`] for the auto-generated `version` argument.
-    ///
-    /// By default `clap` automatically assigns `V`, but this can be overridden if you have a
-    /// different argument which you'd prefer to use the `-V` short with. This can be done by
-    /// defining your own argument with an uppercase `V` as the [`short`].
-    ///
-    /// `clap` lazily generates these `version` arguments **after** you've defined any arguments of
-    /// your own.
-    ///
-    /// **NOTE:** Any leading `-` characters will be stripped, and only the first
-    /// non `-` character will be used as the `short` version
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// App::new("myprog")
-    ///     .version_short("v") // Using a lowercase `v` instead of the default capital `V`
-    /// # ;
-    /// ```
-    /// [`short`]: ./struct.Arg.html#method.short
-    pub fn version_short<S: AsRef<str>>(mut self, s: S) -> Self {
-        self.p.version_short(s.as_ref());
-        self
-    }
-
-    /// Sets the help text for the auto-generated `help` argument.
-    ///
-    /// By default `clap` sets this to `"Prints help information"`, but if you're using a
-    /// different convention for your help messages and would prefer a different phrasing you can
-    /// override it.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// App::new("myprog")
-    ///     .help_message("Print help information") // Perhaps you want imperative help messages
-    ///
-    /// # ;
-    /// ```
-    pub fn help_message<S: Into<&'a str>>(mut self, s: S) -> Self {
-        self.p.help_message = Some(s.into());
-        self
-    }
-
-    /// Sets the help text for the auto-generated `version` argument.
-    ///
-    /// By default `clap` sets this to `"Prints version information"`, but if you're using a
-    /// different convention for your help messages and would prefer a different phrasing then you
-    /// can change it.
-    ///
-    /// # Examples
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// App::new("myprog")
-    ///     .version_message("Print version information") // Perhaps you want imperative help messages
-    /// # ;
-    /// ```
-    pub fn version_message<S: Into<&'a str>>(mut self, s: S) -> Self {
-        self.p.version_message = Some(s.into());
         self
     }
 
@@ -798,61 +644,6 @@ impl<'a, 'b> App<'a, 'b> {
     pub fn args(mut self, args: &[Arg<'a, 'b>]) -> Self {
         for arg in args {
             self.p.add_arg_ref(arg);
-        }
-        self
-    }
-
-    /// A convenience method for adding a single [argument] from a usage type string. The string
-    /// used follows the same rules and syntax as [`Arg::from_usage`]
-    ///
-    /// **NOTE:** The downside to using this method is that you can not set any additional
-    /// properties of the [`Arg`] other than what [`Arg::from_usage`] supports.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// App::new("myprog")
-    ///     .arg_from_usage("-c --config=<FILE> 'Sets a configuration file to use'")
-    /// # ;
-    /// ```
-    /// [arguments]: ./struct.Arg.html
-    /// [`Arg`]: ./struct.Arg.html
-    /// [`Arg::from_usage`]: ./struct.Arg.html#method.from_usage
-    pub fn arg_from_usage(mut self, usage: &'a str) -> Self {
-        self.p.add_arg(Arg::from_usage(usage));
-        self
-    }
-
-    /// Adds multiple [arguments] at once from a usage string, one per line. See
-    /// [`Arg::from_usage`] for details on the syntax and rules supported.
-    ///
-    /// **NOTE:** Like [`App::arg_from_usage`] the downside is you only set properties for the
-    /// [`Arg`]s which [`Arg::from_usage`] supports.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// App::new("myprog")
-    ///     .args_from_usage(
-    ///         "-c --config=[FILE] 'Sets a configuration file to use'
-    ///          [debug]... -d 'Sets the debugging level'
-    ///          <FILE> 'The input file to use'"
-    ///     )
-    /// # ;
-    /// ```
-    /// [arguments]: ./struct.Arg.html
-    /// [`Arg::from_usage`]: ./struct.Arg.html#method.from_usage
-    /// [`App::arg_from_usage`]: ./struct.App.html#method.arg_from_usage
-    /// [`Arg`]: ./struct.Arg.html
-    pub fn args_from_usage(mut self, usage: &'a str) -> Self {
-        for line in usage.lines() {
-            let l = line.trim();
-            if l.is_empty() {
-                continue;
-            }
-            self.p.add_arg(Arg::from_usage(l));
         }
         self
     }
@@ -1215,15 +1006,13 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
     /// [`-h` (short)]: ./struct.Arg.html#method.help
     /// [`--help` (long)]: ./struct.Arg.html#method.long_help
-    pub fn write_help<W: Write>(&self, w: &mut W) -> ClapResult<()> {
-        // PENDING ISSUE: 808
-        //      https://github.com/kbknapp/clap-rs/issues/808
+    pub fn write_help<W: Write>(&mut self, w: &mut W) -> ClapResult<()> {
         // If there are global arguments, or settings we need to propgate them down to subcommands
         // before parsing incase we run into a subcommand
-        // self.p.propogate_globals();
-        // self.p.propogate_settings();
-        // self.p.derive_display_order();
-        // self.p.create_help_and_version();
+        self.p.propogate_globals();
+        self.p.propogate_settings();
+        self.p.derive_display_order();
+        self.p.create_help_and_version();
 
         Help::write_app_help(w, self, false)
     }
@@ -1627,10 +1416,116 @@ impl<'a, 'b> App<'a, 'b> {
 
         Ok(matcher.into())
     }
+    
+    /// Deprecated
+    #[cfg(feature = "yaml")]
+    #[deprecated(since = "2.24.1", notes = "Use App::from or serde instead")]
+    pub fn from_yaml(yaml: &'a Yaml) -> App<'a, 'a> { App::from(yaml) }
+
+    /// Deprecated
+    #[deprecated(since = "2.24.1", notes="Use App::override_help instead")]
+    pub fn help<S: Into<&'b str>>(mut self, help: S) -> Self {
+        self.p.meta.help_str = Some(help.into());
+        self
+    }
+
+    /// Deprecated
+    #[deprecated(since = "2.24.1", notes = "Use App::mut_arg(\"help\", |arg| arg.short(\"H\")) instead")]
+    pub fn help_short<S: AsRef<str> + 'b>(mut self, s: S) -> Self {
+        self.p.help_short(s.as_ref());
+        self
+    }
+
+    /// Deprecated
+    #[deprecated(since = "2.24.1", notes = "Use App::mut_arg(\"version\", |arg| arg.short(\"v\")) instead")]
+    pub fn version_short<S: AsRef<str>>(mut self, s: S) -> Self {
+        self.p.version_short(s.as_ref());
+        self
+    }
+
+    /// Deprecated
+    #[deprecated(since = "2.24.1", notes = "Use App::mut_arg(\"help\", |arg| arg.help(\"Some message\")) instead")]
+    pub fn help_message<S: Into<&'a str>>(mut self, s: S) -> Self {
+        self.p.help_message = Some(s.into());
+        self
+    }
+
+    /// Deprecated
+    #[deprecated(since = "2.24.1", notes = "Use App::mut_arg(\"version\", |arg| arg.short(\"Some message\")) instead")]
+    pub fn version_message<S: Into<&'a str>>(mut self, s: S) -> Self {
+        self.p.version_message = Some(s.into());
+        self
+    }
+
+    /// Deprecated
+    #[deprecated(since = "2.24.1", notes="Use App::override_usage instead")]
+    pub fn usage<S: Into<&'b str>>(mut self, usage: S) -> Self {
+        self.p.meta.usage_str = Some(usage.into());
+        self
+    }
+
+    /// Deprecated
+    #[deprecated(since = "2.24.1", notes = "Use App::arg(\"-a, --all 'some message'\") instead")]
+    pub fn arg_from_usage(mut self, usage: &'a str) -> Self {
+        self.p.add_arg(Arg::from_usage(usage));
+        self
+    }
+
+    /// Deprecated
+    #[deprecated(since = "2.24.1", notes = "Use App::args(&[\"-a, --all 'some message'\", \"-o, --other=[some] 'message'\"]) instead")]
+    pub fn args_from_usage(mut self, usage: &'a str) -> Self {
+        for line in usage.lines() {
+            let l = line.trim();
+            if l.is_empty() {
+                continue;
+            }
+            self.p.add_arg(Arg::from_usage(l));
+        }
+        self
+    }
 }
 
 #[cfg(feature = "yaml")]
 impl<'a> From<&'a Yaml> for App<'a, 'a> {
+    /// Creates a new instance of [`App`] from a .yml (YAML) file. A full example of supported YAML
+    /// objects can be found in [`examples/17_yaml.rs`] and [`examples/17_yaml.yml`]. One great use
+    /// for using YAML is when supporting multiple languages and dialects, as each language could
+    /// be a distinct YAML file and determined at compiletime via `cargo` "features" in your
+    /// `Cargo.toml`
+    ///
+    /// In order to use this function you must compile `clap` with the `features = ["yaml"]` in
+    /// your settings for the `[dependencies.clap]` table of your `Cargo.toml`
+    ///
+    /// **NOTE:** Due to how the YAML objects are built there is a convenience macro for loading
+    /// the YAML file at compile time (relative to the current file, like modules work). That YAML
+    /// object can then be passed to this function.
+    ///
+    /// # Panics
+    ///
+    /// The YAML file must be properly formatted or this function will [`panic!`]. A good way to
+    /// ensure this doesn't happen is to run your program with the `--help` switch. If this passes
+    /// without error, you needn't worry because the YAML is properly formatted.
+    ///
+    /// # Examples
+    ///
+    /// The following example shows how to load a properly formatted YAML file to build an instance
+    /// of an [`App`] struct.
+    ///
+    /// ```ignore
+    /// # #[macro_use]
+    /// # extern crate clap;
+    /// # use clap::App;
+    /// # fn main() {
+    /// let yml = load_yaml!("app.yml");
+    /// let app = App::from_yaml(yml);
+    ///
+    /// // continued logic goes here, such as `app.get_matches()` etc.
+    /// # }
+    /// ```
+    /// [`App`]: ./struct.App.html
+    /// [`examples/17_yaml.rs`]: https://github.com/kbknapp/clap-rs/blob/master/examples/17_yaml.rs
+    /// [`examples/17_yaml.yml`]: https://github.com/kbknapp/clap-rs/blob/master/examples/17_yaml.yml
+    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     fn from(mut yaml: &'a Yaml) -> Self {
         use args::SubCommand;
         // We WANT this to panic on error...so expect() is good.
