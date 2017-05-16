@@ -129,6 +129,49 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     #[inline]
+    fn app_debug_asserts(&mut self) -> bool {
+        assert!(self.verify_positionals());
+        let should_err = self.groups
+            .iter()
+            .all(|g| {
+                g.args
+                    .iter()
+                    .all(|arg| {
+                             (self.flags.iter().any(|f| &f.b.name == arg) ||
+                              self.opts.iter().any(|o| &o.b.name == arg) ||
+                              self.positionals.values().any(|p| &p.b.name == arg) ||
+                              self.groups.iter().any(|g| &g.name == arg))
+                         })
+            });
+        let g = self.groups
+            .iter()
+            .find(|g| {
+                g.args
+                    .iter()
+                    .any(|arg| {
+                             !(self.flags.iter().any(|f| &f.b.name == arg) ||
+                               self.opts.iter().any(|o| &o.b.name == arg) ||
+                               self.positionals.values().any(|p| &p.b.name == arg) ||
+                               self.groups.iter().any(|g| &g.name == arg))
+                         })
+            });
+        assert!(should_err,
+                "The group '{}' contains the arg '{}' that doesn't actually exist.",
+                g.unwrap().name,
+                g.unwrap()
+                    .args
+                    .iter()
+                    .find(|arg| {
+                              !(self.flags.iter().any(|f| &&f.b.name == arg) ||
+                                self.opts.iter().any(|o| &&o.b.name == arg) ||
+                                self.positionals.values().any(|p| &&p.b.name == arg) ||
+                                self.groups.iter().any(|g| &&g.name == arg))
+                          })
+                    .unwrap());
+        true
+    }
+
+    #[inline]
     fn debug_asserts(&self, a: &Arg) -> bool {
         assert!(!arg_names!(self).any(|name| name == a.b.name),
                 format!("Non-unique argument name: {} is already in use", a.b.name));
@@ -168,18 +211,6 @@ impl<'a, 'b> Parser<'a, 'b>
                     "Flags or Options may not have last(true) set. {} has both a short and last(true) set.",
                     a.b.name);
         }
-        assert!(!self.groups
-                    .iter()
-                    .any(|g| {
-            g.args
-                .iter()
-                .any(|arg| {
-                         !(self.flags.iter().any(|f| &f.b.name == arg) ||
-                           self.opts.iter().any(|o| &o.b.name == arg) ||
-                           self.positionals.values().any(|p| &p.b.name == arg))
-                     })
-        }),
-                "One of the groups contains an arg that doesn't actually exist. Check all arg names added to ArgGroups");
         true
     }
 
@@ -781,7 +812,7 @@ impl<'a, 'b> Parser<'a, 'b>
     {
         debugln!("Parser::get_matches_with;");
         // Verify all positional assertions pass
-        debug_assert!(self.verify_positionals());
+        debug_assert!(self.app_debug_asserts());
         if self.positionals
                .values()
                .any(|a| {
