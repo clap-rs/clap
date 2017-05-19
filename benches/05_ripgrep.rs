@@ -14,12 +14,25 @@ use clap::{App, AppSettings, Arg, ArgSettings};
 
 use test::Bencher;
 use std::collections::HashMap;
+use std::io::Cursor;
 
 #[bench]
 fn build_app_short(b: &mut Bencher) { b.iter(|| app_short()); }
 
 #[bench]
 fn build_app_long(b: &mut Bencher) { b.iter(|| app_long()); }
+
+#[bench]
+fn build_help_short(b: &mut Bencher) {
+    let app = app_short();
+    b.iter(|| build_help(&app));
+}
+
+#[bench]
+fn build_help_long(b: &mut Bencher) {
+    let app = app_long();
+    b.iter(|| build_help(&app));
+}
 
 #[bench]
 fn parse_clean(b: &mut Bencher) { b.iter(|| app_short().get_matches_from(vec!["rg", "pat"])); }
@@ -303,6 +316,16 @@ pub fn app_short() -> App<'static, 'static> { app(false, |k| USAGES[k].short) }
 
 /// Build a clap application with long help strings.
 pub fn app_long() -> App<'static, 'static> { app(true, |k| USAGES[k].long) }
+
+
+/// Build the help text of an application.
+fn build_help(app: &App) -> String {
+    let mut buf = Cursor::new(Vec::with_capacity(50));
+    app.write_help(&mut buf).unwrap();
+    let content = buf.into_inner();
+    String::from_utf8(content).unwrap()
+}
+
 
 /// Build a clap application parameterized by usage strings.
 ///
