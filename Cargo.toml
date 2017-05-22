@@ -16,7 +16,7 @@ A simple to use, efficient, and full featured  Command Line Argument Parser
 """
 
 [dependencies]
-bitflags              = "0.8.0"
+bitflags              = "0.9"
 vec_map               = "0.8"
 unicode-width         = "0.1.4"
 unicode-segmentation  = "~1.1.0" # 1.2.0 requires Rust 1.13.0
