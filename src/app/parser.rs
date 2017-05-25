@@ -500,7 +500,7 @@ impl<'a, 'b> Parser<'a, 'b>
         // but no 2)
         if let Some((idx, p)) = self.positionals.iter().rev().next() {
             assert!(!(idx != self.positionals.len()),
-                    "Found positional argument \"{}\" who's index is {} but there \
+                    "Found positional argument \"{}\" whose index is {} but there \
                           are only {} positional arguments defined",
                     p.b.name,
                     idx,
