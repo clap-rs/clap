@@ -36,7 +36,7 @@ bitflags! {
         const LOW_INDEX_MUL_POS    = 1 << 28,
         const DISABLE_HELP_SC      = 1 << 29,
         const DONT_COLLAPSE_ARGS   = 1 << 30,
-        const ARGS_NEGATE_SCS      = 1 << 31, 
+        const ARGS_NEGATE_SCS      = 1 << 31,
         const PROPAGATE_VALS_DOWN  = 1 << 32,
         const ALLOW_MISSING_POS    = 1 << 33,
         const TRAILING_VALUES      = 1 << 34,
@@ -528,7 +528,7 @@ pub enum AppSettings {
     /// This can be useful if there are many values, or they are explained elsewhere.
     HidePossibleValuesInHelp,
 
-    /// Tries to match unknown args to partial [`subcommands`] or their [aliases]. For example to 
+    /// Tries to match unknown args to partial [`subcommands`] or their [aliases]. For example to
     /// match a subcommand named `test`, one could use `t`, `te`, `tes`, and `test`.
     ///
     /// **NOTE:** The match *must not* be ambiguous at all in order to succeed. i.e. to match `te`
@@ -536,7 +536,7 @@ pub enum AppSettings {
     ///
     /// **CAUTION:** This setting can interfere with [positional/free arguments], take care when
     /// designing CLIs which allow inferred subcommands and have potential positional/free
-    /// arguments who's values could start with the same characters as subcommands. If this is the
+    /// arguments whose values could start with the same characters as subcommands. If this is the
     /// case, it's recommended to use settings such as [`AppSeettings::ArgsNegateSubcommands`] in
     /// conjuction with this setting.
     ///
