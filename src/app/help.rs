@@ -10,7 +10,7 @@ use app::{App, AppSettings};
 use app::parser::Parser;
 use args::{AnyArg, ArgSettings, DispOrder};
 use errors::{Error, Result as ClapResult};
-use fmt::{Format, Colorizer};
+use fmt::{Format, Colorizer, ColorizerOption};
 use app::usage;
 
 // Third Party
@@ -155,10 +155,10 @@ impl<'a> Help<'a> {
         let nlh = parser.is_set(AppSettings::NextLineHelp);
         let hide_v = parser.is_set(AppSettings::HidePossibleValuesInHelp);
         let color = parser.is_set(AppSettings::ColoredHelp);
-        let cizer = Colorizer {
+        let cizer = Colorizer::new( ColorizerOption {
             use_stderr: stderr,
             when: parser.color(),
-        };
+        });
         Self::new(w,
                   nlh,
                   hide_v,
