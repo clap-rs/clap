@@ -11,7 +11,7 @@ use errors::Result as ClapResult;
 use osstringext::OsStrExt2;
 use app::settings::AppSettings as AS;
 use app::parser::{Parser, ParseResult};
-use fmt::Colorizer;
+use fmt::{Colorizer,ColorizerOption};
 use app::usage;
 
 pub struct Validator<'a, 'b, 'z>(&'z mut Parser<'a, 'b>)
@@ -417,10 +417,10 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
 
     fn missing_required_error(&self, matcher: &ArgMatcher, extra: Option<&str>) -> ClapResult<()> {
         debugln!("Validator::missing_required_error: extra={:?}", extra);
-        let c = Colorizer {
+        let c = Colorizer::new( ColorizerOption {
             use_stderr: true,
             when: self.0.color(),
-        };
+        } );
         let mut reqs = self.0
             .required
             .iter()

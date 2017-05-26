@@ -34,6 +34,17 @@ pub fn is_a_tty(_: bool) -> bool {
     false
 }
 
+
+pub fn is_term_dumb() -> bool {
+    return env::var("TERM").ok() == Some(String::from("dumb")) 
+}
+
+#[doc(hidden)]
+pub struct ColorizerOption {
+    pub use_stderr: bool,
+    pub when: ColorWhen,
+}
+
 #[doc(hidden)]
 pub struct Colorizer {
     pub use_stderr: bool,
@@ -59,6 +70,19 @@ macro_rules! color {
 }
 
 impl Colorizer {
+    pub fn new(option:ColorizerOption) -> Colorizer {
+        let is_a_tty = is_a_tty(option.use_stderr);
+        let is_term_dumb = is_term_dumb();
+        Colorizer {
+            use_stderr : option.use_stderr,
+            when : if is_a_tty && ! is_term_dumb { 
+                option.when 
+            } else {
+                ColorWhen::Never
+            }
+        }
+    }
+
     pub fn good<T>(&self, msg: T) -> Format<T>
         where T: fmt::Display + AsRef<str>
     {
@@ -90,10 +114,10 @@ impl Colorizer {
 
 impl Default for Colorizer {
     fn default() -> Self {
-        Colorizer {
-            use_stderr: true,
-            when: ColorWhen::Auto,
-        }
+        Colorizer::new( ColorizerOption { 
+            use_stderr:true, 
+            when:ColorWhen::Auto 
+        })
     }
 }
 
