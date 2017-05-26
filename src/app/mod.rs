@@ -537,7 +537,9 @@ impl<'a, 'b> App<'a, 'b> {
     ///   * `{usage}`       - Automatically generated or given usage string.
     ///   * `{all-args}`    - Help for all arguments (options, flags, positionals arguments,
     ///                       and subcommands) including titles.
-    ///   * `{unified}`     - Unified help for options and flags.
+    ///   * `{unified}`     - Unified help for options and flags. Note, you must *also* set 
+    ///                       [`AppSettings::UnifiedHelpMessage`] to fully merge both options and 
+    ///                       flags, otherwise the ordering is "best effort"
     ///   * `{flags}`       - Help for flags.
     ///   * `{options}`     - Help for options.
     ///   * `{positionals}` - Help for positionals arguments.
@@ -559,6 +561,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`App::about`]: ./struct.App.html#method.about
     /// [`App::after_help`]: ./struct.App.html#method.after_help
     /// [`App::before_help`]: ./struct.App.html#method.before_help
+    /// [`AppSettings::UnifiedHelpMessage`]: ./enum.AppSettings.html#variant.UnifiedHelpMessage
     pub fn template<S: Into<&'b str>>(mut self, s: S) -> Self {
         self.p.meta.template = Some(s.into());
         self

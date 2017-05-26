@@ -42,6 +42,18 @@ fn required_group_missing_arg() {
 }
 
 #[test]
+#[should_panic]
+fn non_existing_arg() {
+    let _ = App::new("group")
+        .args_from_usage("-f, --flag 'some flag'
+                          -c, --color 'some other flag'")
+        .group(ArgGroup::with_name("req")
+            .args(&["flg", "color"])
+            .required(true))
+        .get_matches_from_safe(vec![""]);
+}
+
+#[test]
 fn group_single_value() {
     let m = App::new("group")
         .args_from_usage("-f, --flag 'some flag'
