@@ -9,7 +9,7 @@ use std::result::Result as StdResult;
 
 // Internal
 use args::{FlagBuilder, AnyArg};
-use fmt::{Colorizer,ColorizerOption, ColorWhen};
+use fmt::{Colorizer, ColorizerOption, ColorWhen};
 use suggestions;
 
 /// Short hand for [`Result`] type
@@ -415,7 +415,7 @@ impl Error {
               U: Display
     {
         let mut v = vec![arg.name().to_owned()];
-        let c = Colorizer::new( ColorizerOption {
+        let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
             when: color,
         });
@@ -448,7 +448,7 @@ impl Error {
         where A: AnyArg<'a, 'b> + Display,
               U: Display
     {
-        let c = Colorizer::new( ColorizerOption {
+        let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
             when: color,
         });
@@ -478,7 +478,7 @@ impl Error {
               A: AnyArg<'a, 'b> + Display,
               U: Display
     {
-        let c = Colorizer::new( ColorizerOption {
+        let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
             when: color,
         });
@@ -525,7 +525,7 @@ impl Error {
               U: Display
     {
         let s = subcmd.into();
-        let c = Colorizer::new( ColorizerOption {
+        let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
             when: color,
         });
@@ -555,7 +555,7 @@ impl Error {
               N: Display
     {
         let s = subcmd.into();
-        let c = Colorizer::new( ColorizerOption {
+        let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
             when: color,
         });
@@ -579,7 +579,7 @@ impl Error {
         where R: Display,
               U: Display
     {
-        let c = Colorizer::new( ColorizerOption {
+        let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
             when: color,
         });
@@ -601,7 +601,7 @@ impl Error {
         where N: AsRef<str> + Display,
               U: Display
     {
-        let c = Colorizer::new( ColorizerOption {
+        let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
             when: color,
         });
@@ -623,7 +623,7 @@ impl Error {
     pub fn invalid_utf8<U>(usage: U, color: ColorWhen) -> Self
         where U: Display
     {
-        let c = Colorizer::new( ColorizerOption {
+        let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
             when: color,
         });
@@ -650,7 +650,7 @@ impl Error {
               U: Display
     {
         let v = val.as_ref();
-        let c = Colorizer::new( ColorizerOption {
+        let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
             when: color,
         });
@@ -679,7 +679,7 @@ impl Error {
         where A: AnyArg<'a, 'b> + Display,
               U: Display
     {
-        let c = Colorizer::new( ColorizerOption {
+        let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
             when: color,
         });
@@ -704,7 +704,7 @@ impl Error {
     pub fn value_validation<'a, 'b, A>(arg: Option<&A>, err: String, color: ColorWhen) -> Self
         where A: AnyArg<'a, 'b> + Display
     {
-        let c = Colorizer::new( ColorizerOption {
+        let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
             when: color,
         });
@@ -740,7 +740,7 @@ impl Error {
               S: Display,
               U: Display
     {
-        let c = Colorizer::new( ColorizerOption {
+        let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
             when: color,
         });
@@ -766,7 +766,7 @@ impl Error {
         where A: AnyArg<'a, 'b> + Display,
               U: Display
     {
-        let c = Colorizer::new( ColorizerOption {
+        let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
             when: color,
         });
@@ -794,7 +794,7 @@ impl Error {
               U: Display
     {
         let a = arg.into();
-        let c = Colorizer::new( ColorizerOption {
+        let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
             when: color,
         });
@@ -819,7 +819,7 @@ impl Error {
 
     #[doc(hidden)]
     pub fn io_error(e: &Error, color: ColorWhen) -> Self {
-        let c = Colorizer::new( ColorizerOption {
+        let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
             when: color,
         });
@@ -835,7 +835,7 @@ impl Error {
         where A: Into<String>
     {
         let a = arg.into();
-        let c = Colorizer::new( ColorizerOption {
+        let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
             when: ColorWhen::Auto,
         });
@@ -853,7 +853,7 @@ impl Error {
     /// This can be used in combination with `Error::exit` to exit your program
     /// with a custom error message.
     pub fn with_description(description: &str, kind: ErrorKind) -> Self {
-        let c = Colorizer::new( ColorizerOption {
+        let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
             when: ColorWhen::Auto,
         });
