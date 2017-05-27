@@ -44,8 +44,8 @@ pub struct ColorizerOption {
 
 #[doc(hidden)]
 pub struct Colorizer {
-    pub use_stderr: bool,
-    pub when: ColorWhen,
+    use_stderr: bool,
+    when: ColorWhen,
 }
 
 macro_rules! color {
