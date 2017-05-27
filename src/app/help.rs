@@ -155,7 +155,7 @@ impl<'a> Help<'a> {
         let nlh = parser.is_set(AppSettings::NextLineHelp);
         let hide_v = parser.is_set(AppSettings::HidePossibleValuesInHelp);
         let color = parser.is_set(AppSettings::ColoredHelp);
-        let cizer = Colorizer::new( ColorizerOption {
+        let cizer = Colorizer::new(ColorizerOption {
             use_stderr: stderr,
             when: parser.color(),
         });
