@@ -618,6 +618,28 @@ clap = "~2.19.0"
 
 This will cause *only* the patch version to be updated upon a `cargo update` call, and therefore cannot break due to new features, or bumped minimum versions of Rust.
 
+#### Warning about '~' Dependencies
+
+Using `~` can cause issues in certain circumstances.
+
+From @alexcrichton:
+
+Right now Cargo's version resolution is pretty naive, it's just a brute-force search of the solution space, returning the first resolvable graph. This also means that it currently won't terminate until it proves there is not possible resolvable graph. This leads to situations where workspaces with multiple binaries, for example, have two different dependencies such as:
+
+```toml
+
+# In one Cargo.toml
+[dependencies]
+clap = "~2.19.0"
+
+# In another Cargo.toml
+[dependencies]
+clap = "2.22"
+
+```
+
+This is inherently an unresolvable crate graph in Cargo right now. Cargo requires there's only one major version of a crate, and being in the same workspace these two crates must share a version. This is impossible in this location, though, as these version constraints cannot be met.
+
 #### Minimum Version of Rust
 
 `clap` will officially support current stable Rust, minus two releases, but may work with prior releases as well. For example, current stable Rust at the time of this writing is 1.13.0, meaning `clap` is guaranteed to compile with 1.11.0 and beyond.
