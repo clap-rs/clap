@@ -50,6 +50,7 @@ use completions::Shell;
 /// ```
 /// [`App::get_matches`]: ./struct.App.html#method.get_matches
 #[derive(Debug, Clone, Default)]
+#[serde(default)]
 pub struct App<'a, 'b>
     where 'a: 'b
 {
@@ -441,7 +442,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`AppSettings`]: ./enum.AppSettings.html
-    pub fn setting(mut self, setting: AppSettings) -> Self {
+    pub fn set(mut self, setting: AppSettings) -> Self {
         self.settings.push(setting);
         self
     }
@@ -461,7 +462,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`AppSettings`]: ./enum.AppSettings.html
-    pub fn settings(mut self, settings: &[AppSettings]) -> Self {
+    pub fn set_all(mut self, settings: &[AppSettings]) -> Self {
         self.settings.extend(settings);
         self
     }
@@ -482,7 +483,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`AppSettings`]: ./enum.AppSettings.html
-    pub fn global_setting(mut self, setting: AppSettings) -> Self {
+    pub fn set_global(mut self, setting: AppSettings) -> Self {
         self.global_settings.push(setting);
         self.settings.push(setting);
         self
@@ -505,7 +506,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`AppSettings`]: ./enum.AppSettings.html
-    pub fn global_settings(mut self, settings: &[AppSettings]) -> Self {
+    pub fn set_all_global(mut self, settings: &[AppSettings]) -> Self {
         self.global_settings.extend(settings);
         self.settings.extend(settings);
         self
@@ -520,12 +521,12 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```no_run
     /// # use clap::{App, AppSettings};
     /// App::new("myprog")
-    ///     .unset_setting(AppSettings::ColorAuto)
+    ///     .unset(AppSettings::ColorAuto)
     /// # ;
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`AppSettings`]: ./enum.AppSettings.html
-    pub fn unset_setting(mut self, setting: AppSettings) -> Self {
+    pub fn unset(mut self, setting: AppSettings) -> Self {
         'start: 
         for i in (0 .. self.settings.len()).rev() {
             let should_remove = self.settings[i] == setting;
@@ -546,13 +547,13 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```no_run
     /// # use clap::{App, AppSettings};
     /// App::new("myprog")
-    ///     .unset_settings(&[AppSettings::ColorAuto,
+    ///     .unsets(&[AppSettings::ColorAuto,
     ///                       AppSettings::AllowInvalidUtf8])
     /// # ;
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`AppSettings`]: ./enum.AppSettings.html
-    pub fn unset_settings(mut self, settings: &[AppSettings]) -> Self {
+    pub fn unset_all(mut self, settings: &[AppSettings]) -> Self {
         for s in settings {
             'start: 
             for i in (0 .. self.settings.len()).rev() {
@@ -1408,6 +1409,65 @@ impl<'a, 'b> App<'a, 'b> {
         self.p.gen_completions_to(for_shell, buf);
     }
 
+    /// Deprecated
+    #[deprecated(since = "2.24.2", note = "Use App::unset_all instead")]
+    pub fn unset_settings(mut self, settings: &[AppSettings]) -> Self {
+        for s in settings {
+            'start: 
+            for i in (0 .. self.settings.len()).rev() {
+                let should_remove = self.settings[i] == setting;
+                if should_remove { 
+                    self.settings.swap_remove(i); 
+                    break start;
+                }
+            }
+        }
+        self
+    }
+
+    /// Deprecated
+    #[deprecated(since = "2.24.2", note = "Use App::unset instead")]
+    pub fn unset_setting(mut self, setting: AppSettings) -> Self {
+        'start: 
+        for i in (0 .. self.settings.len()).rev() {
+            let should_remove = self.settings[i] == setting;
+            if should_remove { 
+                self.settings.swap_remove(i); 
+                break start;
+            }
+        }
+        self
+    }
+
+    /// Deprecated
+    #[deprecated(since = "2.24.2", note = "Use App::set_all instead")]
+    pub fn settings(mut self, settings: &[AppSettings]) -> Self {
+        self.settings.extend(settings);
+        self
+    }
+
+    /// Deprecated
+    #[deprecated(since = "2.24.2", note = "Use App::set instead")]
+    pub fn setting(mut self, setting: AppSettings) -> Self {
+        self.settings.push(setting);
+        self
+    }
+
+    /// Deprecated
+    #[deprecated(since = "2.24.2", note = "Use App::set_global instead")]
+    pub fn global_setting(mut self, setting: AppSettings) -> Self {
+        self.global_settings.push(setting);
+        self.settings.push(setting);
+        self
+    }
+
+    /// Deprecated
+    #[deprecated(since = "2.24.2", note = "Use App::set_all_global instead")]
+    pub fn set_all_global(mut self, settings: &[AppSettings]) -> Self {
+        self.global_settings.extend(settings);
+        self.settings.extend(settings);
+        self
+    }
 }
 
 #[cfg(feature = "yaml")]

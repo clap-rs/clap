@@ -7,7 +7,6 @@ use osstringext::OsStrExt3;
 #[cfg(not(target_os="windows"))]
 use std::os::unix::ffi::OsStrExt;
 
-
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 use vec_map::VecMap;
@@ -15,6 +14,11 @@ use vec_map::VecMap;
 use usage_parser::UsageParser;
 use args::settings::ArgSettings;
 use args::arg_builder::{Base, Valued, Switched};
+
+// Gives the default display order value
+#[doc(hidden)]
+pub fn default_dispaly_order() -> usize { 999 }
+
 
 /// The abstract representation of a command line argument. Used to set all the options and
 /// relationships that define a valid argument for the program.
@@ -38,21 +42,39 @@ use args::arg_builder::{Base, Valued, Switched};
 /// let input = Arg::from_usage("-i, --input=[FILE] 'Provides an input file to the program'");
 /// ```
 /// [`Arg`]: ./struct.Arg.html
-#[allow(missing_debug_implementations)]
 #[derive(Default, Clone)]
+#[serde(default)]
 pub struct Arg<'a, 'b>
     where 'a: 'b
 {
-    #[doc(hidden)]
-    pub b: Base<'a, 'b>,
-    #[doc(hidden)]
-    pub s: Switched<'b>,
-    #[doc(hidden)]
-    pub v: Valued<'a, 'b>,
-    #[doc(hidden)]
-    pub index: Option<u64>,
-    #[doc(hidden)]
-    pub r_ifs: Option<Vec<(&'a str, &'b str)>>,
+    name: &'a str,
+    help: Option<&'b str>,
+    long_help: Option<&'b str>,
+    conflicts_with: Option<Vec<&'a str>>,
+    settings: ArgFlags,
+    required_unless: Option<Vec<&'a str>>,
+    overrides_with: Option<Vec<&'a str>>,
+    groups: Option<Vec<&'a str>>,
+    requires: Option<Vec<(Option<&'b str>, &'a str)>>,
+    short: Option<char>,
+    long: Option<&'b str>,
+    aliases: Option<Vec<&'b str>>, 
+    visible_aliases: Option<Vec<&'b str>>, 
+    #[serde(default = "default_display_order")]
+    display_order: usize,
+    possible_values: Option<Vec<&'b str>>,
+    value_names: Option<VecMap<&'b str>>,
+    number_of_values: Option<u64>,
+    max_values: Option<u64>,
+    min_values: Option<u64>,
+    value_delimiter: Option<char>,
+    default_value: Option<&'b OsStr>,
+    default_value_ifs: Option<VecMap<(&'a str, Option<&'b OsStr>, &'b OsStr)>>,
+    value_terminator: Option<&'b str>,
+    #[serde(skip)]
+    validator: Option<Rc<Fn(String) -> Result<(), String>>>,
+    #[serde(skip)]
+    validator_os: Option<Rc<Fn(&OsStr) -> Result<(), OsString>>>,
 }
 
 impl<'a, 'b> Arg<'a, 'b> {
@@ -73,7 +95,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg`]: ./struct.Arg.html
-    pub fn new(n: &'a str) -> Self { Arg { b: Base::new(n), ..Default::default() } }
+    pub fn new(n: &'a str) -> Self { Arg { name: n, ..Default::default() } }
 
     /// Sets the short version of the argument without the preceding `-`.
     ///
@@ -112,7 +134,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`short`]: ./struct.Arg.html#method.short
     pub fn short<S: AsRef<str>>(mut self, s: S) -> Self {
-        self.s.short = s.as_ref().trim_left_matches(|c| c == '-').chars().nth(0);
+        self.short = s.as_ref().trim_left_matches(|c| c == '-').chars().nth(0);
         self
     }
 
@@ -152,7 +174,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert!(m.is_present("cfg"));
     /// ```
     pub fn long(mut self, l: &'b str) -> Self {
-        self.s.long = Some(l.trim_left_matches(|c| c == '-'));
+        self.long = Some(l.trim_left_matches(|c| c == '-'));
         self
     }
 
@@ -178,11 +200,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     pub fn alias<S: Into<&'b str>>(mut self, name: S) -> Self {
-        if let Some(ref mut als) = self.s.aliases {
-            als.push((name.into(), false));
-        } else {
-            self.s.aliases = Some(vec![(name.into(), false)]);
-        }
+        self.aliases.map(|als| als.push(name.into()));
         self
     }
 
@@ -208,13 +226,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     pub fn aliases(mut self, names: &[&'b str]) -> Self {
-        if let Some(ref mut als) = self.s.aliases {
-            for n in names {
-                als.push((n, false));
-            }
-        } else {
-            self.s.aliases = Some(names.iter().map(|n| (*n, false)).collect::<Vec<_>>());
-        }
+        self.aliases.map(|als| als.extend(names));
         self
     }
 
@@ -239,11 +251,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg`]: ./struct.Arg.html
     /// [`App::alias`]: ./struct.Arg.html#method.alias
     pub fn visible_alias<S: Into<&'b str>>(mut self, name: S) -> Self {
-        if let Some(ref mut als) = self.s.aliases {
-            als.push((name.into(), true));
-        } else {
-            self.s.aliases = Some(vec![(name.into(), true)]);
-        }
+        self.visible_aliases.map(|als| als.push(name.into()));
         self
     }
 
@@ -266,13 +274,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg`]: ./struct.Arg.html
     /// [`App::aliases`]: ./struct.Arg.html#method.aliases
     pub fn visible_aliases(mut self, names: &[&'b str]) -> Self {
-        if let Some(ref mut als) = self.s.aliases {
-            for n in names {
-                als.push((n, true));
-            }
-        } else {
-            self.s.aliases = Some(names.iter().map(|n| (*n, true)).collect::<Vec<_>>());
-        }
+        self.visible_aliases.map(|als| als.extend(names));
         self
     }
 
@@ -327,7 +329,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg::long_help`]: ./struct.Arg.html#method.long_help
     pub fn help(mut self, h: &'b str) -> Self {
-        self.b.help = Some(h);
+        self.help = Some(h);
         self
     }
 
@@ -398,7 +400,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg::help`]: ./struct.Arg.html#method.help
     pub fn long_help(mut self, h: &'b str) -> Self {
-        self.b.long_help = Some(h);
+        self.long_help = Some(h);
         self
     }
 
@@ -459,11 +461,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::required`]: ./struct.Arg.html#method.required
     /// [`Arg::required_unless(name)`]: ./struct.Arg.html#method.required_unless
     pub fn required_unless(mut self, name: &'a str) -> Self {
-        if let Some(ref mut vec) = self.b.r_unless {
-            vec.push(name);
-        } else {
-            self.b.r_unless = Some(vec![name]);
-        }
+        self.required_unless.map(|ru| ru.push(name.into()));
         self.required(true)
     }
 
@@ -531,15 +529,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::required_unless_one`]: ./struct.Arg.html#method.required_unless_one
     /// [`Arg::required_unless_all(names)`]: ./struct.Arg.html#method.required_unless_all
     pub fn required_unless_all(mut self, names: &[&'a str]) -> Self {
-        if let Some(ref mut vec) = self.b.r_unless {
-            for s in names {
-                vec.push(s);
-            }
-        } else {
-            self.b.r_unless = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
-        }
-        self.setb(ArgSettings::RequiredUnlessAll);
-        self.required(true)
+        self.required_unless.map(|ru| ru.extend(names));
+        self.set(ArgSettings::RequiredUnlessAll).required(true)
     }
 
     /// Sets args that override this arg's [required] setting. (i.e. this arg will be required
@@ -607,13 +598,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::required_unless_one(names)`]: ./struct.Arg.html#method.required_unless_one
     /// [`Arg::required_unless_all`]: ./struct.Arg.html#method.required_unless_all
     pub fn required_unless_one(mut self, names: &[&'a str]) -> Self {
-        if let Some(ref mut vec) = self.b.r_unless {
-            for s in names {
-                vec.push(s);
-            }
-        } else {
-            self.b.r_unless = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
-        }
+        self.required_unless.map(|ru| ru.extend(names));
         self.required(true)
     }
 
@@ -655,11 +640,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```
     pub fn conflicts_with(mut self, name: &'a str) -> Self {
-        if let Some(ref mut vec) = self.b.blacklist {
-            vec.push(name);
-        } else {
-            self.b.blacklist = Some(vec![name]);
-        }
+        self.conflicts_with.map(|cw| cw.push(name));
         self
     }
 
@@ -705,13 +686,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg::conflicts_with`]: ./struct.Arg.html#method.conflicts_with
     pub fn conflicts_with_all(mut self, names: &[&'a str]) -> Self {
-        if let Some(ref mut vec) = self.b.blacklist {
-            for s in names {
-                vec.push(s);
-            }
-        } else {
-            self.b.blacklist = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
-        }
+        self.conflicts_with.map(|cw| cw.extend(names));
         self
     }
 
@@ -742,11 +717,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert!(!m.is_present("flag"));
     /// ```
     pub fn overrides_with(mut self, name: &'a str) -> Self {
-        if let Some(ref mut vec) = self.b.overrides {
-            vec.push(name.as_ref());
-        } else {
-            self.b.overrides = Some(vec![name.as_ref()]);
-        }
+        self.overrides_with.map(|ow| ow.push(name));
         self
     }
 
@@ -778,13 +749,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert!(!m.is_present("flag"));
     /// ```
     pub fn overrides_with_all(mut self, names: &[&'a str]) -> Self {
-        if let Some(ref mut vec) = self.b.overrides {
-            for s in names {
-                vec.push(s);
-            }
-        } else {
-            self.b.overrides = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
-        }
+        self.overrides_with.map(|ow| ow.extend(names));
         self
     }
 
@@ -844,13 +809,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [override]: ./struct.Arg.html#method.overrides_with
     pub fn requires(mut self, name: &'a str) -> Self {
-        if let Some(ref mut vec) = self.b.requires {
-            vec.push((None, name));
-        } else {
-            let mut vec = vec![];
-            vec.push((None, name));
-            self.b.requires = Some(vec);
-        }
+        self.requires.map(|ow| ow.push(name));
         self
     }
 
@@ -914,11 +873,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [override]: ./struct.Arg.html#method.overrides_with
     pub fn requires_if(mut self, val: &'b str, arg: &'a str) -> Self {
-        if let Some(ref mut vec) = self.b.requires {
-            vec.push((Some(val), arg));
-        } else {
-            self.b.requires = Some(vec![(Some(val), arg)]);
-        }
+        self.requires_ifs.map(|ow| ow.push((val, arg)));
         self
     }
 
@@ -974,17 +929,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [override]: ./struct.Arg.html#method.overrides_with
     pub fn requires_ifs(mut self, ifs: &[(&'b str, &'a str)]) -> Self {
-        if let Some(ref mut vec) = self.b.requires {
-            for &(val, arg) in ifs {
-                vec.push((Some(val), arg));
-            }
-        } else {
-            let mut vec = vec![];
-            for &(val, arg) in ifs {
-                vec.push((Some(val), arg));
-            }
-            self.b.requires = Some(vec);
-        }
+        self.requires_ifs.map(|ow| ow.extend(ifs));
         self
     }
 
@@ -1052,11 +997,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [required]: ./struct.Arg.html#method.required
     pub fn required_if(mut self, arg: &'a str, val: &'b str) -> Self {
-        if let Some(ref mut vec) = self.r_ifs {
-            vec.push((arg, val));
-        } else {
-            self.r_ifs = Some(vec![(arg, val)]);
-        }
+        self.required_ifs.map(|ow| ow.push((arg, val)));
         self
     }
 
@@ -1141,17 +1082,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [required]: ./struct.Arg.html#method.required
     pub fn required_ifs(mut self, ifs: &[(&'a str, &'b str)]) -> Self {
-        if let Some(ref mut vec) = self.r_ifs {
-            for r_if in ifs {
-                vec.push((r_if.0, r_if.1));
-            }
-        } else {
-            let mut vec = vec![];
-            for r_if in ifs {
-                vec.push((r_if.0, r_if.1));
-            }
-            self.r_ifs = Some(vec);
-        }
+        self.required_ifs.map(|ow| ow.extend(ifs));
         self
     }
 
@@ -1218,17 +1149,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [override]: ./struct.Arg.html#method.overrides_with
     /// [`Arg::requires_all(&[arg, arg2])`]: ./struct.Arg.html#method.requires_all
     pub fn requires_all(mut self, names: &[&'a str]) -> Self {
-        if let Some(ref mut vec) = self.b.requires {
-            for s in names {
-                vec.push((None, s));
-            }
-        } else {
-            let mut vec = vec![];
-            for s in names {
-                vec.push((None, *s));
-            }
-            self.b.requires = Some(vec);
-        }
+        self.requires.map(|r| r.extend(names));
         self
     }
 
@@ -1330,9 +1251,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`number_of_values`]: ./struct.Arg.html#method.number_of_values
     /// [`max_values`]: ./struct.Arg.html#method.max_values
     pub fn value_terminator(mut self, term: &'b str) -> Self {
-        self.setb(ArgSettings::TakesValue);
-        self.v.terminator = Some(term);
-        self
+        self.value_terminator = Some(term);
+        self.set(ArgSettings::TakesValue)
     }
 
     /// Specifies a list of possible values for this argument. At runtime, `clap` verifies that
@@ -1383,13 +1303,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [options]: ./struct.Arg.html#method.takes_value
     /// [positional arguments]: ./struct.Arg.html#method.index
     pub fn possible_values(mut self, names: &[&'b str]) -> Self {
-        if let Some(ref mut vec) = self.v.possible_vals {
-            for s in names {
-                vec.push(s);
-            }
-        } else {
-            self.v.possible_vals = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
-        }
+        self.possible_values.map(|pv| pv.extend(names));
         self
     }
 
@@ -1447,11 +1361,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [options]: ./struct.Arg.html#method.takes_value
     /// [positional arguments]: ./struct.Arg.html#method.index
     pub fn possible_value(mut self, name: &'b str) -> Self {
-        if let Some(ref mut vec) = self.v.possible_vals {
-            vec.push(name);
-        } else {
-            self.v.possible_vals = Some(vec![name]);
-        }
+        self.possible_values.map(|pv| pv.push(name));
         self
     }
 
@@ -1486,11 +1396,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`ArgGroup`]: ./struct.ArgGroup.html
     pub fn group(mut self, name: &'a str) -> Self {
-        if let Some(ref mut vec) = self.b.groups {
-            vec.push(name);
-        } else {
-            self.b.groups = Some(vec![name]);
-        }
+        self.groups.map(|g| g.push(name));
         self
     }
 
@@ -1526,13 +1432,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`ArgGroup`]: ./struct.ArgGroup.html
     pub fn groups(mut self, names: &[&'a str]) -> Self {
-        if let Some(ref mut vec) = self.b.groups {
-            for s in names {
-                vec.push(s);
-            }
-        } else {
-            self.b.groups = Some(names.into_iter().map(|s| *s).collect::<Vec<_>>());
-        }
+        self.groups.map(|g| g.extend(names));
         self
     }
 
@@ -1573,9 +1473,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     pub fn number_of_values(mut self, qty: u64) -> Self {
-        self.setb(ArgSettings::TakesValue);
-        self.v.num_vals = Some(qty);
-        self
+        self.number_of_values = Some(qty);
+        self.set(ArgSettings::TakesValue)
     }
 
     /// Allows one to perform a custom validation on the argument value. You provide a closure
@@ -1617,7 +1516,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     pub fn validator<F>(mut self, f: F) -> Self
         where F: Fn(String) -> Result<(), String> + 'static
     {
-        self.v.validator = Some(Rc::new(f));
+        self.validator = Some(Rc::new(f));
         self
     }
 
@@ -1654,7 +1553,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     pub fn validator_os<F>(mut self, f: F) -> Self
         where F: Fn(&OsStr) -> Result<(), OsString> + 'static
     {
-        self.v.validator_os = Some(Rc::new(f));
+        self.validator_os = Some(Rc::new(f));
         self
     }
 
@@ -1715,9 +1614,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     pub fn max_values(mut self, qty: u64) -> Self {
-        self.setb(ArgSettings::TakesValue);
-        self.v.max_vals = Some(qty);
-        self
+        self.max_values = Some(qty);
+        self.set(ArgSettings::TakesValue)
     }
 
     /// Specifies the *minimum* number of values for this argument. For example, if you had a
@@ -1778,7 +1676,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     pub fn min_values(mut self, qty: u64) -> Self {
-        self.v.min_vals = Some(qty);
+        self.min_values = Some(qty);
         self.set(ArgSettings::TakesValue)
     }
 
@@ -1806,13 +1704,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::use_delimiter(true)`]: ./struct.Arg.html#method.use_delimiter
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     pub fn value_delimiter(mut self, d: &str) -> Self {
-        self.unsetb(ArgSettings::ValueDelimiterNotSet);
-        self.setb(ArgSettings::TakesValue);
-        self.setb(ArgSettings::UseValueDelimiter);
-        self.v.val_delim = Some(d.chars()
+        self.value_delimiter = Some(d.chars()
             .nth(0)
             .expect("Failed to get value_delimiter from arg"));
-        self
+        self.unset(ArgSettings::ValueDelimiterNotSet)
+            .setting(ArgSettings::TakesValue)
+            .setting(ArgSettings::UseValueDelimiter)
     }
 
     /// Specify multiple names for values of option arguments. These names are cosmetic only, used
@@ -1875,12 +1772,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     pub fn value_names(mut self, names: &[&'b str]) -> Self {
-        self.setb(ArgSettings::TakesValue);
-        if self.is_set(ArgSettings::ValueDelimiterNotSet) {
-            self.unsetb(ArgSettings::ValueDelimiterNotSet);
-            self.setb(ArgSettings::UseValueDelimiter);
-        }
-        if let Some(ref mut vals) = self.v.val_names {
+        // TODO-v3-release: look at functional approach
+        if let Some(ref mut vals) = self.value_names {
             let mut l = vals.len();
             for s in names {
                 vals.insert(l, s);
@@ -1891,7 +1784,13 @@ impl<'a, 'b> Arg<'a, 'b> {
             for (i, n) in names.iter().enumerate() {
                 vm.insert(i, *n);
             }
-            self.v.val_names = Some(vm);
+            self.value_names = Some(vm);
+        }
+
+        self = self.set(ArgSettings::TakesValue);
+        if self.is_set(ArgSettings::ValueDelimiterNotSet) {
+            self = self.unset(ArgSettings::ValueDelimiterNotSet)
+                .setting(ArgSettings::UseValueDelimiter);
         }
         self
     }
@@ -1943,16 +1842,15 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [positional]: ./struct.Arg.html#method.index
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     pub fn value_name(mut self, name: &'b str) -> Self {
-        self.setb(ArgSettings::TakesValue);
-        if let Some(ref mut vals) = self.v.val_names {
+        if let Some(ref mut vals) = self.value_names {
             let l = vals.len();
             vals.insert(l, name);
         } else {
             let mut vm = VecMap::new();
             vm.insert(0, name);
-            self.v.val_names = Some(vm);
+            self.value_names = Some(vm);
         }
-        self
+        self.set(ArgSettings::TakesValue)
     }
 
     /// Specifies the value of the argument when *not* specified at runtime.
@@ -2027,9 +1925,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     pub fn default_value_os(mut self, val: &'a OsStr) -> Self {
-        self.setb(ArgSettings::TakesValue);
-        self.v.default_val = Some(val);
-        self
+        self.default_value = Some(val);
+        self.set(ArgSettings::TakesValue)
     }
 
     /// Specifies the value of the argument if `arg` has been used at runtime. If `val` is set to
@@ -2143,16 +2040,15 @@ impl<'a, 'b> Arg<'a, 'b> {
                                val: Option<&'b OsStr>,
                                default: &'b OsStr)
                                -> Self {
-        self.setb(ArgSettings::TakesValue);
-        if let Some(ref mut vm) = self.v.default_vals_ifs {
+        if let Some(ref mut vm) = self.default_vals_ifs {
             let l = vm.len();
             vm.insert(l, (arg, val, default));
         } else {
             let mut vm = VecMap::new();
             vm.insert(0, (arg, val, default));
-            self.v.default_vals_ifs = Some(vm);
+            self.default_vals_ifs = Some(vm);
         }
-        self
+        self.set(ArgSettings::TakesValue)
     }
 
     /// Specifies multiple values and conditions in the same manner as [`Arg::default_value_if`].
@@ -2316,13 +2212,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [positional arguments]: ./struct.Arg.html#method.index
     /// [index]: ./struct.Arg.html#method.index
     pub fn display_order(mut self, ord: usize) -> Self {
-        self.s.disp_ord = ord;
+        self.disp_ord = ord;
         self
     }
 
     /// Checks if one of the [`ArgSettings`] settings is set for the argument
     /// [`ArgSettings`]: ./enum.ArgSettings.html
-    pub fn is_set(&self, s: ArgSettings) -> bool { self.b.is_set(s) }
+    pub fn is_set(&self, s: ArgSettings) -> bool { self.settings.contains(s) }
 
     /// Sets one of the [`ArgSettings`] settings for the argument
     /// [`ArgSettings`]: ./enum.ArgSettings.html
@@ -2339,15 +2235,25 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     #[doc(hidden)]
-    pub fn setb(&mut self, s: ArgSettings) { self.b.set(s); }
+    pub fn setb(&mut self, s: ArgSettings) { self.settings.push(s); }
 
     #[doc(hidden)]
-    pub fn unsetb(&mut self, s: ArgSettings) { self.b.unset(s); }
+    pub fn unsetb(&mut self, s: ArgSettings) { 
+        'start: 
+        for i in (0 .. self.settings.len()).rev() {
+            let should_remove = self.settings[i] == setting;
+            if should_remove { 
+                self.settings.swap_remove(i); 
+                break start;
+            }
+        }
+        
+    }
 
     // --------- DEPRECATIONS ----------
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::UseValueDelimiter) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::UseValueDelimiter) instead")]
     pub fn use_delimiter(mut self, d: bool) -> Self {
         if d {
             if self.v.val_delim.is_none() {
@@ -2364,7 +2270,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::NextLineHelp) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::NextLineHelp) instead")]
     pub fn next_line_help(mut self, nlh: bool) -> Self {
         if nlh {
             self.setb(ArgSettings::NextLineHelp);
@@ -2375,7 +2281,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::RequireDelimiter) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::RequireDelimiter) instead")]
     pub fn require_delimiter(mut self, d: bool) -> Self {
         if d {
             self = self.use_delimiter(true);
@@ -2390,7 +2296,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::Global) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::Global) instead")]
     pub fn global(self, g: bool) -> Self {
         if g {
             self.set(ArgSettings::Global)
@@ -2400,7 +2306,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::Hidden) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::Hidden) instead")]
     pub fn hidden(self, h: bool) -> Self {
         if h {
             self.set(ArgSettings::Hidden)
@@ -2411,7 +2317,7 @@ impl<'a, 'b> Arg<'a, 'b> {
 
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::EmptyValues) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::EmptyValues) instead")]
     pub fn empty_values(mut self, ev: bool) -> Self {
         if ev {
             self.set(ArgSettings::EmptyValues)
@@ -2423,7 +2329,7 @@ impl<'a, 'b> Arg<'a, 'b> {
 
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::Multiple) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::Multiple) instead")]
     pub fn multiple(self, multi: bool) -> Self {
         if multi {
             self.set(ArgSettings::Multiple)
@@ -2433,7 +2339,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::HidePossibleValues) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::HidePossibleValues) instead")]
     pub fn hide_possible_values(self, hide: bool) -> Self {
         if hide {
             self.set(ArgSettings::HidePossibleValues)
@@ -2443,7 +2349,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::TakesValue) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::TakesValue) instead")]
     pub fn takes_value(self, tv: bool) -> Self {
         if tv {
             self.set(ArgSettings::TakesValue)
@@ -2453,7 +2359,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::AllowHyphenValues) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::AllowHyphenValues) instead")]
     pub fn allow_hyphen_values(self, a: bool) -> Self {
         if a {
             self.set(ArgSettings::AllowHpyhenValues)
@@ -2478,7 +2384,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::Last) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::Last) instead")]
     pub fn last(self, l: bool) -> Self {
         if l {
             self.set(ArgSettings::Last)
@@ -2488,7 +2394,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::Required) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::Required) instead")]
     pub fn required(self, r: bool) -> Self {
         if r {
             self.set(ArgSettings::Required)
@@ -2498,7 +2404,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::RequireEquals) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::RequireEquals) instead")]
     pub fn require_equals(mut self, r: bool) -> Self {
         if r {
             self.unsetb(ArgSettings::EmptyValues);
@@ -2509,7 +2415,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::HideDefaultValue) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::HideDefaultValue) instead")]
     pub fn hide_default_value(self, hide: bool) -> Self {
         if hide {
             self.set(ArgSettings::HideDefaultValue)
