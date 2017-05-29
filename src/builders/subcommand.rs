@@ -54,11 +54,11 @@ impl<'a> SubCommand<'a> {
 
     /// Deprecated
     #[cfg(feature = "yaml")]
-    #[deprecated(since = "2.24.1", notes = "Use SubCommand::from or serde instead")]
+    #[deprecated(since = "2.24.1", note = "Use SubCommand::from or serde instead")]
     pub fn from_yaml(yaml: &Yaml) -> App { App::from(yaml) }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "Use SubCommand::new instead")]
+    #[deprecated(since = "2.24.1", note = "Use SubCommand::new instead")]
     pub fn with_name<'b>(name: &str) -> App<'a, 'b> { App::new(name) }
 }
 

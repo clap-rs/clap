@@ -558,6 +558,7 @@ mod matched;
 mod output;
 mod parsing;
 mod completions;
+mod utils;
 
 const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider filing a bug \
                                           report at https://github.com/kbknapp/clap-rs/issues";

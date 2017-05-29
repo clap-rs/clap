@@ -151,3 +151,141 @@ pub fn get_all_subcommand_paths(p: &Parser, first: bool) -> Vec<String> {
     }
     subcmds
 }
+
+/// Generate a completions file for a specified shell at compile time.
+///
+/// **NOTE:** to generate the this file at compile time you must use a `build.rs` "Build Script"
+///
+/// # Examples
+///
+/// The following example generates a bash completion script via a `build.rs` script. In this
+/// simple example, we'll demo a very small application with only a single subcommand and two
+/// args. Real applications could be many multiple levels deep in subcommands, and have tens or
+/// potentially hundreds of arguments.
+///
+/// First, it helps if we separate out our `App` definition into a separate file. Whether you
+/// do this as a function, or bare App definition is a matter of personal preference.
+///
+/// ```
+/// // src/cli.rs
+///
+/// use clap::{App, Arg, SubCommand};
+///
+/// pub fn build_cli() -> App<'static, 'static> {
+///     App::new("compl")
+///         .about("Tests completions")
+///         .arg(Arg::with_name("file")
+///             .help("some input file"))
+///         .subcommand(SubCommand::with_name("test")
+///             .about("tests things")
+///             .arg(Arg::with_name("case")
+///                 .long("case")
+///                 .takes_value(true)
+///                 .help("the case to test")))
+/// }
+/// ```
+///
+/// In our regular code, we can simply call this `build_cli()` function, then call
+/// `get_matches()`, or any of the other normal methods directly after. For example:
+///
+/// ```ignore
+/// // src/main.rs
+///
+/// mod cli;
+///
+/// fn main() {
+///     let m = cli::build_cli().get_matches();
+///
+///     // normal logic continues...
+/// }
+/// ```
+///
+/// Next, we set up our `Cargo.toml` to use a `build.rs` build script.
+///
+/// ```toml
+/// # Cargo.toml
+/// build = "build.rs"
+///
+/// [build-dependencies]
+/// clap = "2.23"
+/// ```
+///
+/// Next, we place a `build.rs` in our project root.
+///
+/// ```ignore
+/// extern crate clap;
+///
+/// use clap::Shell;
+///
+/// include!("src/cli.rs");
+///
+/// fn main() {
+///     let outdir = match env::var_os("OUT_DIR") {
+///         None => return,
+///         Some(outdir) => outdir,
+///     };
+///     let mut app = build_cli();
+///     app.gen_completions("myapp",      // We need to specify the bin name manually
+///                         Shell::Bash,  // Then say which shell to build completions for
+///                         outdir);      // Then say where write the completions to
+/// }
+/// ```
+/// Now, once we combile there will be a `{bin_name}.bash-completion` file in the directory.
+/// Assuming we compiled with debug mode, it would be somewhere similar to
+/// `<project>/target/debug/build/myapp-<hash>/out/myapp.bash-completion`.
+///
+/// Fish shell completions will use the file format `{bin_name}.fish`
+pub fn generate<T: Into<OsString>, S: Into<String>>(app: &mut App<'a, 'b>,
+                                                    bin_name: S,
+                                                    for_shell: Shell,
+                                                    out_dir: T) {
+    // TODO-v3-beta: implement completion initialization
+    unimplemented!();
+
+    app.p.meta.bin_name = Some(bin_name.into());
+    app.p.gen_completions(for_shell, out_dir.into());
+}
+
+
+/// Generate a completions file for a specified shell at runtime.  Until `cargo install` can
+/// install extra files like a completion script, this may be used e.g. in a command that
+/// outputs the contents of the completion script, to be redirected into a file by the user.
+///
+/// # Examples
+///
+/// Assuming a separate `cli.rs` like the [example above](./struct.App.html#method.gen_completions),
+/// we can let users generate a completion script using a command:
+///
+/// ```ignore
+/// // src/main.rs
+///
+/// mod cli;
+/// use std::io;
+///
+/// fn main() {
+///     let matches = cli::build_cli().get_matches();
+///
+///     if matches.is_present("generate-bash-completions") {
+///         cli::build_cli().gen_completions_to("myapp", Shell::Bash, &mut io::stdout());
+///     }
+///
+///     // normal logic continues...
+/// }
+///
+/// ```
+///
+/// Usage:
+///
+/// ```shell
+/// $ myapp generate-bash-completions > /etc/bash_completion.d/myapp
+/// ```
+pub fn generate_to<W: Write, S: Into<String>>(app: &mut App<'a, 'b>,
+                                              bin_name: S,
+                                              for_shell: Shell,
+                                              buf: &mut W) {
+    // TODO-v3-beta: implement completion initialization
+    unimplemented!();
+
+    self.p.meta.bin_name = Some(bin_name.into());
+    self.p.gen_completions_to(for_shell, buf);
+}

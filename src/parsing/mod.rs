@@ -1,7 +1,7 @@
 #[macro_use] mod macros;
 mod any_arg;
-mod arg_matches;
-mod ossstringext;
+mod arg_matcher;
+mod osstringext;
 mod parser;
 mod strext;
 mod validator;

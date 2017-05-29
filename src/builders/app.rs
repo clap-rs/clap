@@ -1,12 +1,3 @@
-mod settings;
-#[macro_use]
-mod macros;
-pub mod parser;
-mod meta;
-mod help;
-mod validator;
-mod usage;
-
 // Std
 use std::env;
 use std::ffi::{OsStr, OsString};
@@ -58,12 +49,37 @@ use completions::Shell;
 /// // Your program logic starts here...
 /// ```
 /// [`App::get_matches`]: ./struct.App.html#method.get_matches
-#[allow(missing_debug_implementations)]
+#[derive(Debug, Clone, Default)]
 pub struct App<'a, 'b>
     where 'a: 'b
 {
-    #[doc(hidden)]
-    pub p: Parser<'a, 'b>,
+    name: String,
+    bin_name: Option<String>,
+    author: Option<&'b str>,
+    version: Option<&'b str>,
+    long_version: Option<&'b str>,
+    about: Option<&'b str>,
+    long_about: Option<&'b str>,
+    after_help: Option<&'b str>,
+    before_help: Option<&'b str>,
+    override_usage: Option<&'b str>,
+    override_help: Option<&'b str>,
+    aliases: Option<Vec<&'b str>>,
+    visible_aliases: Option<Vec<&'b str>>,
+    display_order: usize,
+    term_witdth: Option<usize>,
+    max_term_width: Option<usize>,
+    help_template: Option<&'b str>,
+    args: Vec<Arg<'a, 'b>>,
+    global_args: Vec<Arg<'a, 'b>>,
+    subcommands: Vec<App<'a, 'b>>,
+    groups: Vec<ArgGroup<'a>>,
+    settings: Option<Vec<AppSettings>>,
+    global_settings: Option<Vec<AppSettings>>,
+    help_short: Option<char>,
+    version_short: Option<char>,
+    help_message: Option<&'a str>,
+    version_message: Option<&'a str>,
 }
 
 
@@ -79,7 +95,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// let prog = App::new("My Program")
     /// # ;
     /// ```
-    pub fn new<S: Into<String>>(n: S) -> Self { App { p: Parser::with_name(n.into()) } }
+    pub fn new<S: Into<String>>(n: S) -> Self { App { name: n.into() .. Default::default() } }
 
     /// Sets the program's name. This will be displayed when displaying help information.
     ///
@@ -104,15 +120,12 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`App::from_yaml`]: ./struct.App.html#method.from_yaml
     /// [`crate_name!`]: ./macro.crate_name.html
     pub fn name<S: Into<String>>(mut self, name: S) -> Self {
-        self.p.meta.name = name.into();
+        self.name = name.into();
         self
     }
 
     /// Get the name of the app
-    pub fn get_name(&self) -> &str { &self.p.meta.name }
-
-    /// Get the name of the binary
-    pub fn get_bin_name(&self) -> Option<&str> { self.p.meta.bin_name.as_ref().map(|s| s.as_str()) }
+    pub fn get_name(&self) -> &str { &self.name }
 
     /// Sets a string of author(s) that will be displayed to the user when they
     /// request the help information with `--help` or `-h`.
@@ -135,7 +148,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`crate_authors!`]: ./macro.crate_authors!.html
     /// [`examples/`]: https://github.com/kbknapp/clap-rs/tree/master/examples
     pub fn author<S: Into<&'b str>>(mut self, author: S) -> Self {
-        self.p.meta.author = Some(author.into());
+        self.author = Some(author.into());
         self
     }
 
@@ -158,7 +171,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     pub fn bin_name<S: Into<String>>(mut self, name: S) -> Self {
-        self.p.meta.bin_name = Some(name.into());
+        self.bin_name = Some(name.into());
         self
     }
 
@@ -181,7 +194,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`App::long_about`]: ./struct.App.html#method.long_about
     pub fn about<S: Into<&'b str>>(mut self, about: S) -> Self {
-        self.p.meta.about = Some(about.into());
+        self.about = Some(about.into());
         self
     }
 
@@ -207,7 +220,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`App::about`]: ./struct.App.html#method.about
     pub fn long_about<S: Into<&'b str>>(mut self, about: S) -> Self {
-        self.p.meta.long_about = Some(about.into());
+        self.long_about = Some(about.into());
         self
     }
 
@@ -224,7 +237,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn after_help<S: Into<&'b str>>(mut self, help: S) -> Self {
-        self.p.meta.more_help = Some(help.into());
+        self.after_help = Some(help.into());
         self
     }
 
@@ -241,7 +254,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn before_help<S: Into<&'b str>>(mut self, help: S) -> Self {
-        self.p.meta.pre_help = Some(help.into());
+        self.before_help = Some(help.into());
         self
     }
 
@@ -267,7 +280,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`examples/`]: https://github.com/kbknapp/clap-rs/tree/master/examples
     /// [`App::long_version`]: ./struct.App.html#method.long_version
     pub fn version<S: Into<&'b str>>(mut self, ver: S) -> Self {
-        self.p.meta.version = Some(ver.into());
+        self.version = Some(ver.into());
         self
     }
 
@@ -298,7 +311,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`examples/`]: https://github.com/kbknapp/clap-rs/tree/master/examples
     /// [`App::version`]: ./struct.App.html#method.version
     pub fn long_version<S: Into<&'b str>>(mut self, ver: S) -> Self {
-        self.p.meta.long_version = Some(ver.into());
+        self.long_version = Some(ver.into());
         self
     }
 
@@ -327,7 +340,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`ArgMatches::usage`]: ./struct.ArgMatches.html#method.usage
     pub fn override_usage<S: Into<&'b str>>(mut self, usage: S) -> Self {
-        self.p.meta.usage_str = Some(usage.into());
+        self.override_usage = Some(usage.into());
         self
     }
     
@@ -366,7 +379,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`Arg::help`]: ./struct.Arg.html#method.help
     pub fn override_help<S: Into<&'b str>>(mut self, help: S) -> Self {
-        self.p.meta.help_str = Some(help.into());
+        self.override_help = Some(help.into());
         self
     }
 
@@ -408,8 +421,8 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`App::after_help`]: ./struct.App.html#method.after_help
     /// [`App::before_help`]: ./struct.App.html#method.before_help
     /// [`AppSettings::UnifiedHelpMessage`]: ./enum.AppSettings.html#variant.UnifiedHelpMessage
-    pub fn template<S: Into<&'b str>>(mut self, s: S) -> Self {
-        self.p.meta.template = Some(s.into());
+    pub fn help_template<S: Into<&'b str>>(mut self, s: S) -> Self {
+        self.help_template = Some(s.into());
         self
     }
 
@@ -429,7 +442,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`AppSettings`]: ./enum.AppSettings.html
     pub fn setting(mut self, setting: AppSettings) -> Self {
-        self.p.set(setting);
+        self.settings.push(setting);
         self
     }
 
@@ -449,9 +462,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`AppSettings`]: ./enum.AppSettings.html
     pub fn settings(mut self, settings: &[AppSettings]) -> Self {
-        for s in settings {
-            self.p.set(*s);
-        }
+        self.settings.extend(settings);
         self
     }
 
@@ -472,8 +483,8 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`AppSettings`]: ./enum.AppSettings.html
     pub fn global_setting(mut self, setting: AppSettings) -> Self {
-        self.p.set(setting);
-        self.p.g_settings.set(setting);
+        self.global_settings.push(setting);
+        self.settings.push(setting);
         self
     }
 
@@ -495,10 +506,8 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`AppSettings`]: ./enum.AppSettings.html
     pub fn global_settings(mut self, settings: &[AppSettings]) -> Self {
-        for s in settings {
-            self.p.set(*s);
-            self.p.g_settings.set(*s)
-        }
+        self.global_settings.extend(settings);
+        self.settings.extend(settings);
         self
     }
 
@@ -517,7 +526,14 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`AppSettings`]: ./enum.AppSettings.html
     pub fn unset_setting(mut self, setting: AppSettings) -> Self {
-        self.p.unset(setting);
+        'start: 
+        for i in (0 .. self.settings.len()).rev() {
+            let should_remove = self.settings[i] == setting;
+            if should_remove { 
+                self.settings.swap_remove(i); 
+                break start;
+            }
+        }
         self
     }
 
@@ -538,7 +554,14 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`AppSettings`]: ./enum.AppSettings.html
     pub fn unset_settings(mut self, settings: &[AppSettings]) -> Self {
         for s in settings {
-            self.p.unset(*s);
+            'start: 
+            for i in (0 .. self.settings.len()).rev() {
+                let should_remove = self.settings[i] == setting;
+                if should_remove { 
+                    self.settings.swap_remove(i); 
+                    break start;
+                }
+            }
         }
         self
     }
@@ -569,7 +592,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn set_term_width(mut self, width: usize) -> Self {
-        self.p.meta.term_w = Some(width);
+        self.term_width = Some(width);
         self
     }
 
@@ -597,7 +620,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn max_term_width(mut self, w: usize) -> Self {
-        self.p.meta.max_w = Some(w);
+        self.max_term_width = Some(w);
         self
     }
 
@@ -623,7 +646,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [argument]: ./struct.Arg.html
     pub fn arg<A: Into<Arg<'a, 'b>>>(mut self, a: A) -> Self {
-        self.p.add_arg(a.into());
+        self.args.push(a.into());
         self
     }
 
@@ -643,7 +666,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [arguments]: ./struct.Arg.html
     pub fn args(mut self, args: &[Arg<'a, 'b>]) -> Self {
         for arg in args {
-            self.p.add_arg_ref(arg);
+            self.args.push(arg.to_owned());
         }
         self
     }
@@ -665,11 +688,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     pub fn alias<S: Into<&'b str>>(mut self, name: S) -> Self {
-        if let Some(ref mut als) = self.p.meta.aliases {
-            als.push((name.into(), false));
-        } else {
-            self.p.meta.aliases = Some(vec![(name.into(), false)]);
-        }
+        self.aliases.map(|als| als.push(name.into()));
         self
     }
 
@@ -694,13 +713,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     pub fn aliases(mut self, names: &[&'b str]) -> Self {
-        if let Some(ref mut als) = self.p.meta.aliases {
-            for n in names {
-                als.push((n, false));
-            }
-        } else {
-            self.p.meta.aliases = Some(names.iter().map(|n| (*n, false)).collect::<Vec<_>>());
-        }
+        self.aliases.map(|als| als.extend(names));
         self
     }
 
@@ -720,11 +733,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`App::alias`]: ./struct.App.html#method.alias
     pub fn visible_alias<S: Into<&'b str>>(mut self, name: S) -> Self {
-        if let Some(ref mut als) = self.p.meta.aliases {
-            als.push((name.into(), true));
-        } else {
-            self.p.meta.aliases = Some(vec![(name.into(), true)]);
-        }
+        self.visible_aliases.map(|als| als.push(name.into()));
         self
     }
 
@@ -744,13 +753,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`App::aliases`]: ./struct.App.html#method.aliases
     pub fn visible_aliases(mut self, names: &[&'b str]) -> Self {
-        if let Some(ref mut als) = self.p.meta.aliases {
-            for n in names {
-                als.push((n, true));
-            }
-        } else {
-            self.p.meta.aliases = Some(names.iter().map(|n| (*n, true)).collect::<Vec<_>>());
-        }
+        self.visible_aliases.map(|als| als.extend(names));
         self
     }
 
@@ -789,7 +792,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`ArgGroup`]: ./struct.ArgGroup.html
     pub fn group(mut self, group: ArgGroup<'a>) -> Self {
-        self.p.add_group(group);
+        self.groups.push(group);
         self
     }
 
@@ -819,9 +822,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`ArgGroup`]: ./struct.ArgGroup.html
     /// [`App`]: ./struct.App.html
     pub fn groups(mut self, groups: &[ArgGroup<'a>]) -> Self {
-        for g in groups {
-            self = self.group(g.into());
-        }
+        self.groups.extend(groups);
         self
     }
 
@@ -843,7 +844,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`App`]: ./struct.App.html
     pub fn subcommand(mut self, subcmd: App<'a, 'b>) -> Self {
-        self.p.add_subcommand(subcmd);
+        self.subcommands.push(subcmd);
         self
     }
 
@@ -866,9 +867,7 @@ impl<'a, 'b> App<'a, 'b> {
     pub fn subcommands<I>(mut self, subcmds: I) -> Self
         where I: IntoIterator<Item = App<'a, 'b>>
     {
-        for subcmd in subcmds {
-            self.p.add_subcommand(subcmd);
-        }
+            self.subcommands.extend(subcmd);
         self
     }
 
@@ -942,6 +941,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`-h` (short)]: ./struct.Arg.html#method.help
     /// [`--help` (long)]: ./struct.Arg.html#method.long_help
     pub fn print_help(&mut self) -> ClapResult<()> {
+        // TODO-v3-beta: do some sort of app::build().print()
+        unimplemented!();
+
         // If there are global arguments, or settings we need to propgate them down to subcommands
         // before parsing incase we run into a subcommand
         self.p.propogate_globals();
@@ -972,6 +974,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`-h` (short)]: ./struct.Arg.html#method.help
     /// [`--help` (long)]: ./struct.Arg.html#method.long_help
     pub fn print_long_help(&mut self) -> ClapResult<()> {
+        // TODO-v3-beta: do some sort of app::build().print()
+        unimplemented!();
+
         // If there are global arguments, or settings we need to propgate them down to subcommands
         // before parsing incase we run into a subcommand
         self.p.propogate_globals();
@@ -1007,6 +1012,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`-h` (short)]: ./struct.Arg.html#method.help
     /// [`--help` (long)]: ./struct.Arg.html#method.long_help
     pub fn write_help<W: Write>(&mut self, w: &mut W) -> ClapResult<()> {
+        // TODO-v3-beta: do some sort of app::build().print()
+        unimplemented!();
+
         // If there are global arguments, or settings we need to propgate them down to subcommands
         // before parsing incase we run into a subcommand
         self.p.propogate_globals();
@@ -1036,6 +1044,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`-h` (short)]: ./struct.Arg.html#method.help
     /// [`--help` (long)]: ./struct.Arg.html#method.long_help
     pub fn write_long_help<W: Write>(&mut self, w: &mut W) -> ClapResult<()> {
+        // TODO-v3-beta: do some sort of app::build().print()
+        unimplemented!();
+
         self.p.propogate_globals();
         self.p.propogate_settings();
         self.p.derive_display_order();
@@ -1062,6 +1073,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`-V` (short)]: ./struct.App.html#method.version
     /// [`--version` (long)]: ./struct.App.html#method.long_version
     pub fn write_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
+        // TODO-v3-beta: do some sort of app::build().print()
+        unimplemented!();
+
         self.p.write_version(w, false).map_err(From::from)
     }
 
@@ -1083,139 +1097,10 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`-V` (short)]: ./struct.App.html#method.version
     /// [`--version` (long)]: ./struct.App.html#method.long_version
     pub fn write_long_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
+        // TODO-v3-beta: do some sort of app::build().print()
+        unimplemented!();
+
         self.p.write_version(w, true).map_err(From::from)
-    }
-
-    /// Generate a completions file for a specified shell at compile time.
-    ///
-    /// **NOTE:** to generate the this file at compile time you must use a `build.rs` "Build Script"
-    ///
-    /// # Examples
-    ///
-    /// The following example generates a bash completion script via a `build.rs` script. In this
-    /// simple example, we'll demo a very small application with only a single subcommand and two
-    /// args. Real applications could be many multiple levels deep in subcommands, and have tens or
-    /// potentially hundreds of arguments.
-    ///
-    /// First, it helps if we separate out our `App` definition into a separate file. Whether you
-    /// do this as a function, or bare App definition is a matter of personal preference.
-    ///
-    /// ```
-    /// // src/cli.rs
-    ///
-    /// use clap::{App, Arg, SubCommand};
-    ///
-    /// pub fn build_cli() -> App<'static, 'static> {
-    ///     App::new("compl")
-    ///         .about("Tests completions")
-    ///         .arg(Arg::with_name("file")
-    ///             .help("some input file"))
-    ///         .subcommand(SubCommand::with_name("test")
-    ///             .about("tests things")
-    ///             .arg(Arg::with_name("case")
-    ///                 .long("case")
-    ///                 .takes_value(true)
-    ///                 .help("the case to test")))
-    /// }
-    /// ```
-    ///
-    /// In our regular code, we can simply call this `build_cli()` function, then call
-    /// `get_matches()`, or any of the other normal methods directly after. For example:
-    ///
-    /// ```ignore
-    /// // src/main.rs
-    ///
-    /// mod cli;
-    ///
-    /// fn main() {
-    ///     let m = cli::build_cli().get_matches();
-    ///
-    ///     // normal logic continues...
-    /// }
-    /// ```
-    ///
-    /// Next, we set up our `Cargo.toml` to use a `build.rs` build script.
-    ///
-    /// ```toml
-    /// # Cargo.toml
-    /// build = "build.rs"
-    ///
-    /// [build-dependencies]
-    /// clap = "2.23"
-    /// ```
-    ///
-    /// Next, we place a `build.rs` in our project root.
-    ///
-    /// ```ignore
-    /// extern crate clap;
-    ///
-    /// use clap::Shell;
-    ///
-    /// include!("src/cli.rs");
-    ///
-    /// fn main() {
-    ///     let outdir = match env::var_os("OUT_DIR") {
-    ///         None => return,
-    ///         Some(outdir) => outdir,
-    ///     };
-    ///     let mut app = build_cli();
-    ///     app.gen_completions("myapp",      // We need to specify the bin name manually
-    ///                         Shell::Bash,  // Then say which shell to build completions for
-    ///                         outdir);      // Then say where write the completions to
-    /// }
-    /// ```
-    /// Now, once we combile there will be a `{bin_name}.bash-completion` file in the directory.
-    /// Assuming we compiled with debug mode, it would be somewhere similar to
-    /// `<project>/target/debug/build/myapp-<hash>/out/myapp.bash-completion`.
-    ///
-    /// Fish shell completions will use the file format `{bin_name}.fish`
-    pub fn gen_completions<T: Into<OsString>, S: Into<String>>(&mut self,
-                                                               bin_name: S,
-                                                               for_shell: Shell,
-                                                               out_dir: T) {
-        self.p.meta.bin_name = Some(bin_name.into());
-        self.p.gen_completions(for_shell, out_dir.into());
-    }
-
-
-    /// Generate a completions file for a specified shell at runtime.  Until `cargo install` can
-    /// install extra files like a completion script, this may be used e.g. in a command that
-    /// outputs the contents of the completion script, to be redirected into a file by the user.
-    ///
-    /// # Examples
-    ///
-    /// Assuming a separate `cli.rs` like the [example above](./struct.App.html#method.gen_completions),
-    /// we can let users generate a completion script using a command:
-    ///
-    /// ```ignore
-    /// // src/main.rs
-    ///
-    /// mod cli;
-    /// use std::io;
-    ///
-    /// fn main() {
-    ///     let matches = cli::build_cli().get_matches();
-    ///
-    ///     if matches.is_present("generate-bash-completions") {
-    ///         cli::build_cli().gen_completions_to("myapp", Shell::Bash, &mut io::stdout());
-    ///     }
-    ///
-    ///     // normal logic continues...
-    /// }
-    ///
-    /// ```
-    ///
-    /// Usage:
-    ///
-    /// ```shell
-    /// $ myapp generate-bash-completions > /etc/bash_completion.d/myapp
-    /// ```
-    pub fn gen_completions_to<W: Write, S: Into<String>>(&mut self,
-                                                         bin_name: S,
-                                                         for_shell: Shell,
-                                                         buf: &mut W) {
-        self.p.meta.bin_name = Some(bin_name.into());
-        self.p.gen_completions_to(for_shell, buf);
     }
 
     /// Starts the parsing process, upon a failed parse an error will be displayed to the user and
@@ -1416,63 +1301,67 @@ impl<'a, 'b> App<'a, 'b> {
 
         Ok(matcher.into())
     }
+
+    //
+    // -------- Deprecations ----------
+    //
     
     /// Deprecated
     #[cfg(feature = "yaml")]
-    #[deprecated(since = "2.24.1", notes = "Use App::from or serde instead")]
+    #[deprecated(since = "2.24.1", note = "Use App::from or serde instead")]
     pub fn from_yaml(yaml: &'a Yaml) -> App<'a, 'a> { App::from(yaml) }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes="Use App::override_help instead")]
+    #[deprecated(since = "2.24.1", note = "Use App::override_help instead")]
     pub fn help<S: Into<&'b str>>(mut self, help: S) -> Self {
         self.p.meta.help_str = Some(help.into());
         self
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "Use App::mut_arg(\"help\", |arg| arg.short(\"H\")) instead")]
+    #[deprecated(since = "2.24.1", note = "Use App::mut_arg(\"help\", |arg| arg.short(\"H\")) instead")]
     pub fn help_short<S: AsRef<str> + 'b>(mut self, s: S) -> Self {
         self.p.help_short(s.as_ref());
         self
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "Use App::mut_arg(\"version\", |arg| arg.short(\"v\")) instead")]
+    #[deprecated(since = "2.24.1", note = "Use App::mut_arg(\"version\", |arg| arg.short(\"v\")) instead")]
     pub fn version_short<S: AsRef<str>>(mut self, s: S) -> Self {
         self.p.version_short(s.as_ref());
         self
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "Use App::mut_arg(\"help\", |arg| arg.help(\"Some message\")) instead")]
+    #[deprecated(since = "2.24.1", note = "Use App::mut_arg(\"help\", |arg| arg.help(\"Some message\")) instead")]
     pub fn help_message<S: Into<&'a str>>(mut self, s: S) -> Self {
         self.p.help_message = Some(s.into());
         self
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "Use App::mut_arg(\"version\", |arg| arg.short(\"Some message\")) instead")]
+    #[deprecated(since = "2.24.1", note = "Use App::mut_arg(\"version\", |arg| arg.short(\"Some message\")) instead")]
     pub fn version_message<S: Into<&'a str>>(mut self, s: S) -> Self {
         self.p.version_message = Some(s.into());
         self
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes="Use App::override_usage instead")]
+    #[deprecated(since = "2.24.1", note = "Use App::override_usage instead")]
     pub fn usage<S: Into<&'b str>>(mut self, usage: S) -> Self {
         self.p.meta.usage_str = Some(usage.into());
         self
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "Use App::arg(\"-a, --all 'some message'\") instead")]
+    #[deprecated(since = "2.24.1", note = "Use App::arg(\"-a, --all 'some message'\") instead")]
     pub fn arg_from_usage(mut self, usage: &'a str) -> Self {
         self.p.add_arg(Arg::from_usage(usage));
         self
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "Use App::args(&[\"-a, --all 'some message'\", \"-o, --other=[some] 'message'\"]) instead")]
+    #[deprecated(since = "2.24.1", note = "Use App::args(&[\"-a, --all 'some message'\", \"-o, --other=[some] 'message'\"]) instead")]
     pub fn args_from_usage(mut self, usage: &'a str) -> Self {
         for line in usage.lines() {
             let l = line.trim();
@@ -1483,6 +1372,42 @@ impl<'a, 'b> App<'a, 'b> {
         }
         self
     }
+
+    /// Deprecated
+    #[deprecated(since = "2.24.2", note = "Use clap::utils::get_bin_name")]
+    pub fn get_bin_name(&self) -> Option<&str> {
+        panic!("This method is no longer implemented, but can be called via clap::utils::get_bin_name()")
+    }
+
+    /// Deprecated
+    #[deprecated(since = "2.24.2", note = "Use App::help_template")]
+    pub fn template<S: Into<&'b str>>(mut self, s: S) -> Self {
+        self.help_template = Some(s.into());
+        self
+    }
+
+    /// Deprecated
+    #[deprecated(since = "2.24.2", note = "Use clap::completions::generate")]
+    pub fn gen_completions<T: Into<OsString>, S: Into<String>>(&mut self,
+                                                               bin_name: S,
+                                                               for_shell: Shell,
+                                                               out_dir: T) {
+        unimplemented!();
+        self.p.meta.bin_name = Some(bin_name.into());
+        self.p.gen_completions(for_shell, out_dir.into());
+    }
+
+    /// Deprecated
+    #[deprecated(since = "2.24.2", note = "Use clap::completions::generate")]
+    pub fn gen_completions_to<W: Write, S: Into<String>>(&mut self,
+                                                         bin_name: S,
+                                                         for_shell: Shell,
+                                                         buf: &mut W) {
+        unimplemented!();
+        self.p.meta.bin_name = Some(bin_name.into());
+        self.p.gen_completions_to(for_shell, buf);
+    }
+
 }
 
 #[cfg(feature = "yaml")]

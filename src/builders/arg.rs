@@ -2347,7 +2347,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     // --------- DEPRECATIONS ----------
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "use Arg::setting(ArgSettings::UseValueDelimiter) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::UseValueDelimiter) instead")]
     pub fn use_delimiter(mut self, d: bool) -> Self {
         if d {
             if self.v.val_delim.is_none() {
@@ -2364,7 +2364,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "use Arg::setting(ArgSettings::NextLineHelp) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::NextLineHelp) instead")]
     pub fn next_line_help(mut self, nlh: bool) -> Self {
         if nlh {
             self.setb(ArgSettings::NextLineHelp);
@@ -2375,7 +2375,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "use Arg::setting(ArgSettings::RequireDelimiter) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::RequireDelimiter) instead")]
     pub fn require_delimiter(mut self, d: bool) -> Self {
         if d {
             self = self.use_delimiter(true);
@@ -2390,7 +2390,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "use Arg::setting(ArgSettings::Global) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::Global) instead")]
     pub fn global(self, g: bool) -> Self {
         if g {
             self.set(ArgSettings::Global)
@@ -2400,7 +2400,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "use Arg::setting(ArgSettings::Hidden) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::Hidden) instead")]
     pub fn hidden(self, h: bool) -> Self {
         if h {
             self.set(ArgSettings::Hidden)
@@ -2411,7 +2411,7 @@ impl<'a, 'b> Arg<'a, 'b> {
 
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "use Arg::setting(ArgSettings::EmptyValues) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::EmptyValues) instead")]
     pub fn empty_values(mut self, ev: bool) -> Self {
         if ev {
             self.set(ArgSettings::EmptyValues)
@@ -2423,7 +2423,7 @@ impl<'a, 'b> Arg<'a, 'b> {
 
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "use Arg::setting(ArgSettings::Multiple) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::Multiple) instead")]
     pub fn multiple(self, multi: bool) -> Self {
         if multi {
             self.set(ArgSettings::Multiple)
@@ -2433,7 +2433,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "use Arg::setting(ArgSettings::HidePossibleValues) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::HidePossibleValues) instead")]
     pub fn hide_possible_values(self, hide: bool) -> Self {
         if hide {
             self.set(ArgSettings::HidePossibleValues)
@@ -2443,7 +2443,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "use Arg::setting(ArgSettings::TakesValue) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::TakesValue) instead")]
     pub fn takes_value(self, tv: bool) -> Self {
         if tv {
             self.set(ArgSettings::TakesValue)
@@ -2453,7 +2453,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "use Arg::setting(ArgSettings::AllowHyphenValues) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::AllowHyphenValues) instead")]
     pub fn allow_hyphen_values(self, a: bool) -> Self {
         if a {
             self.set(ArgSettings::AllowHpyhenValues)
@@ -2463,22 +2463,22 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "use Arg::new instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::new instead")]
     pub fn with_name(n: &'a str) -> Self { Arg { b: Base::new(n), ..Default::default() } }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "use Arg::from or serde instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::from or serde instead")]
     #[cfg(feature = "yaml")]
     pub fn from_yaml(y: &BTreeMap<Yaml, Yaml>) -> Arg<'n, 'e> { Arg::from(y) }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "use Arg::from instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::from instead")]
     pub fn from_usage(u: &'a str) -> Self {
         Arg::from(u)
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "use Arg::setting(ArgSettings::Last) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::Last) instead")]
     pub fn last(self, l: bool) -> Self {
         if l {
             self.set(ArgSettings::Last)
@@ -2488,7 +2488,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "use Arg::setting(ArgSettings::Required) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::Required) instead")]
     pub fn required(self, r: bool) -> Self {
         if r {
             self.set(ArgSettings::Required)
@@ -2498,7 +2498,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "use Arg::setting(ArgSettings::RequireEquals) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::RequireEquals) instead")]
     pub fn require_equals(mut self, r: bool) -> Self {
         if r {
             self.unsetb(ArgSettings::EmptyValues);
@@ -2509,7 +2509,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", notes = "use Arg::setting(ArgSettings::HideDefaultValue) instead")]
+    #[deprecated(since = "2.24.1", note = "use Arg::setting(ArgSettings::HideDefaultValue) instead")]
     pub fn hide_default_value(self, hide: bool) -> Self {
         if hide {
             self.set(ArgSettings::HideDefaultValue)
