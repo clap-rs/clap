@@ -1,9 +1,13 @@
 - [x] Deprecations
 - [x] Restructure mods
-- [ ] Redo Arg/App internals (True Builders)
-- [ ] From Docopt
-- [ ] CustomDerive
+- [x] Redo Arg/App internals (True Builders)
+  - [x] App
+  - [x] ArgGroup
+  - [x] Arg
 - [ ] Serde
+- [ ] CustomDerive
 - [ ] Enums as keys
-- [ ] Migration app
 - [ ] Color Redux
+- [ ] Migration app
+- [ ] From Docopt
+- [ ] Derive all common traits

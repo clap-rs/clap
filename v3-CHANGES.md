@@ -9,8 +9,15 @@
 * App::write_help takes &mut self
 * App::help -> App::override_help
 * App::usage -> App::override_usage
+* App::get_bin_name -> clap::utils::get_bin_name (now function)
 * Arg::with_name -> Arg::new
 * Arg::from_usage -> Arg::from
 * Arg::from_yaml -> Arg::from
-* Arg::*(bool) -> Arg::setting(*)
+* Arg::*(bool) -> Arg::set(*)
 * Restructure Mods
+* App::gen_completions -> clap::completions::generate
+* App::gen_completions_to -> clap::completions::generate_to
+* App::setting -> App::set
+* App::settings -> App::set_all
+* App::global_setting -> App::set_global
+* App::global_settings -> App::set_all_global
