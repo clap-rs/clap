@@ -241,6 +241,22 @@ FLAGS:
                      (Defaults to something)
     -V, --version    Prints version information";
 
+static WRAPPING_NEWLINE_CHARS: &'static str = "ctest 0.1
+
+USAGE:
+    ctest [mode]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+ARGS:
+    <mode>    x, max, maximum   20 characters, contains
+              symbols.
+              l, long           Copy-friendly, 14
+              characters, contains symbols.
+              m, med, medium    Copy-friendly, 8
+              characters, contains symbols.";
 
 static ISSUE_688: &'static str = "ctest 0.1
 
@@ -661,6 +677,18 @@ fn issue_626_variable_panic() {
 fn final_word_wrapping() {
     let app = App::new("ctest").version("0.1").set_term_width(24);
     assert!(test::compare_output(app, "ctest --help", FINAL_WORD_WRAPPING, false));
+}
+
+#[test]
+fn wrapping_newline_chars() {
+    let app = App::new("ctest")
+        .version("0.1")
+		.set_term_width(60)
+        .arg(Arg::with_name("mode")
+             .help("x, max, maximum   20 characters, contains symbols.{n}\
+                    l, long           Copy-friendly, 14 characters, contains symbols.{n}\
+                    m, med, medium    Copy-friendly, 8 characters, contains symbols.{n}"));
+    assert!(test::compare_output(app, "ctest --help", WRAPPING_NEWLINE_CHARS, false));
 }
 
 #[test]

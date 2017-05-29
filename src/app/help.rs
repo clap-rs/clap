@@ -17,7 +17,7 @@ use app::usage;
 use unicode_width::UnicodeWidthStr;
 #[cfg(feature = "wrap_help")]
 use term_size;
-use unicode_segmentation::UnicodeSegmentation;
+use textwrap;
 use vec_map::VecMap;
 
 #[cfg(not(feature = "wrap_help"))]
@@ -955,45 +955,13 @@ impl<'a> Help<'a> {
 }
 
 fn wrap_help(help: &mut String, longest_w: usize, avail_chars: usize) {
-    debugln!("Help::wrap_help: longest_w={}, avail_chars={}",
-             longest_w,
-             avail_chars);
-    debug!("Help::wrap_help: Enough space to wrap...");
+    // Keep previous behavior of not wrapping at all if one of the
+    // words would overflow the line.
     if longest_w < avail_chars {
-        sdebugln!("Yes");
-        let mut prev_space = 0;
-        let mut j = 0;
-        for (idx, g) in (&*help.clone()).grapheme_indices(true) {
-            debugln!("Help::wrap_help:iter: idx={}, g={}", idx, g);
-            if g == "\n" {
-                debugln!("Help::wrap_help:iter: Newline found...");
-                debugln!("Help::wrap_help:iter: Still space...{:?}",
-                         str_width(&help[j..idx]) < avail_chars);
-                if str_width(&help[j..idx]) < avail_chars {
-                    j = idx;
-                    continue;
-                }
-            } else if g != " " {
-                if idx != help.len() - 1 || str_width(&help[j..idx]) < avail_chars {
-                    continue;
-                }
-                debugln!("Help::wrap_help:iter: Reached the end of the line and we're over...");
-            } else if str_width(&help[j..idx]) <= avail_chars {
-                debugln!("Help::wrap_help:iter: Space found with room...");
-                prev_space = idx;
-                continue;
-            }
-            debugln!("Help::wrap_help:iter: Adding Newline...");
-            j = prev_space;
-            debugln!("Help::wrap_help:iter: prev_space={}, j={}", prev_space, j);
-            debugln!("Help::wrap_help:iter: Removing...{}", j);
-            debugln!("Help::wrap_help:iter: Char at {}: {:?}", j, &help[j..j + 1]);
-            help.remove(j);
-            help.insert(j, '\n');
-            prev_space = idx;
-        }
-    } else {
-        sdebugln!("No");
+        *help = help.lines()
+            .map(|line| textwrap::fill(line, avail_chars))
+            .collect::<Vec<String>>()
+            .join("\n");
     }
 }
 
