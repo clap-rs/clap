@@ -4,14 +4,16 @@ use std::fmt::Display;
 // Internal
 use INTERNAL_ERROR_MSG;
 use INVALID_UTF8;
-use args::{AnyArg, ArgMatcher, MatchedArg};
-use args::settings::ArgSettings;
-use errors::{Error, ErrorKind};
-use errors::Result as ClapResult;
-use osstringext::OsStrExt2;
-use app::settings::AppSettings as AS;
-use app::parser::{Parser, ParseResult};
-use fmt::{Colorizer, ColorizerOption};
+use parsing::any_arg::AnyArg;
+use parsing::arg_matcher::ArgMatcher;
+use machd::matched_arg::MatchedArg;
+use builders::arg_settings::ArgSettings;
+use output::errors::{Error, ErrorKind};
+use output::errors::Result as ClapResult;
+use parsing::osstringext::OsStrExt2;
+use builders::app_settings::AppSettings as AS;
+use parsing::parser::{Parser, ParseResult};
+use output::fmt::{Colorizer, ColorizerOption};
 use app::usage;
 
 pub struct Validator<'a, 'b, 'z>(&'z mut Parser<'a, 'b>)

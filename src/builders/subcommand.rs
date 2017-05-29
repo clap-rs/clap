@@ -1,10 +1,12 @@
+
 // Third Party
+// TODO-v3-release: remove
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
 // Internal
-use App;
-use ArgMatches;
+use builders::app::App;
+use matches::ArgMatches;
 
 /// The abstract representation of a command line subcommand.
 ///
@@ -62,6 +64,7 @@ impl<'a> SubCommand<'a> {
     pub fn with_name<'b>(name: &str) -> App<'a, 'b> { App::new(name) }
 }
 
+#[cfg(feature = "yaml")]
 impl<'a, 'b, 'z> From<&'z Yaml> for SubCommand<'a> {
     /// Creates a new instance of a subcommand from a YAML (.yml) document
     ///

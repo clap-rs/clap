@@ -3,7 +3,7 @@
 use std::io::Write;
 
 // Internal
-use app::parser::Parser;
+use parsing::parser::Parser;
 use INTERNAL_ERROR_MSG;
 
 pub struct PowerShellGen<'a, 'b>

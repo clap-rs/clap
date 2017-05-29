@@ -1,7 +1,13 @@
-#[cfg(feature = "yaml")]
-use std::collections::BTreeMap;
 use std::fmt::{Debug, Formatter, Result};
 
+// TODO-3x-release: remove
+#[cfg(feature = "yaml")]
+use std::collections::BTreeMap;
+
+#[cfg(feature = "serde")]
+use serde::{Serialize, Deserialize};
+
+// TODO-3x-release: remove
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
@@ -77,19 +83,15 @@ use yaml_rust::Yaml;
 /// [arguments]: ./struct.Arg.html
 /// [conflict]: ./struct.Arg.html#method.conflicts_with
 /// [requirement]: ./struct.Arg.html#method.requires
-#[derive(Default)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Clone, Default, Debug)]
+#[cfg_attr(feature = "serde", serde(default))]
 pub struct ArgGroup<'a> {
-    #[doc(hidden)]
     pub name: &'a str,
-    #[doc(hidden)]
     pub args: Vec<&'a str>,
-    #[doc(hidden)]
     pub required: bool,
-    #[doc(hidden)]
     pub requires: Option<Vec<&'a str>>,
-    #[doc(hidden)]
     pub conflicts: Option<Vec<&'a str>>,
-    #[doc(hidden)]
     pub multiple: bool,
 }
 

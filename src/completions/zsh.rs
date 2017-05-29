@@ -4,9 +4,10 @@ use std::io::Write;
 use std::ascii::AsciiExt;
 
 // Internal
-use app::App;
-use app::parser::Parser;
-use args::{ArgSettings, AnyArg};
+use builders::app::App;
+use builders::arg_settings::ArgSettings;
+use parsing::any_arg::AnyArg;
+use parsing::parser::Parser;
 use completions;
 use INTERNAL_ERROR_MSG;
 

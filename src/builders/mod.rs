@@ -1,7 +1,9 @@
 #[macro_use] mod macros;
-mod app_settings;
-mod app;
-mod arg_settings;
-mod arg;
-mod group;
-mod subcommand;
+pub mod app_settings;
+pub mod app;
+pub mod arg_settings;
+pub mod arg;
+pub mod group;
+pub mod subcommand;
+
+pub use app::App;

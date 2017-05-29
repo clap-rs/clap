@@ -17,6 +17,7 @@ use args::arg_builder::{Base, Valued, Switched};
 
 // Gives the default display order value
 #[doc(hidden)]
+#[cfg(feature = "serde")]
 pub fn default_dispaly_order() -> usize { 999 }
 
 
@@ -43,7 +44,8 @@ pub fn default_dispaly_order() -> usize { 999 }
 /// ```
 /// [`Arg`]: ./struct.Arg.html
 #[derive(Default, Clone)]
-#[serde(default)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", serde(default))]
 pub struct Arg<'a, 'b>
     where 'a: 'b
 {
@@ -60,7 +62,7 @@ pub struct Arg<'a, 'b>
     long: Option<&'b str>,
     aliases: Option<Vec<&'b str>>, 
     visible_aliases: Option<Vec<&'b str>>, 
-    #[serde(default = "default_display_order")]
+    #[cfg_attr(feature = "serde", serde(default = "default_display_order"))]
     display_order: usize,
     possible_values: Option<Vec<&'b str>>,
     value_names: Option<VecMap<&'b str>>,
@@ -71,9 +73,9 @@ pub struct Arg<'a, 'b>
     default_value: Option<&'b OsStr>,
     default_value_ifs: Option<VecMap<(&'a str, Option<&'b OsStr>, &'b OsStr)>>,
     value_terminator: Option<&'b str>,
-    #[serde(skip)]
+    #[cfg_attr(feature = "serde", serde(skip))]
     validator: Option<Rc<Fn(String) -> Result<(), String>>>,
-    #[serde(skip)]
+    #[cfg_attr(feature = "serde", serde(skip))]
     validator_os: Option<Rc<Fn(&OsStr) -> Result<(), OsString>>>,
 }
 
@@ -2241,10 +2243,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     pub fn unsetb(&mut self, s: ArgSettings) { 
         'start: 
         for i in (0 .. self.settings.len()).rev() {
-            let should_remove = self.settings[i] == setting;
+            let should_remove = self.settings[i] == s;
             if should_remove { 
                 self.settings.swap_remove(i); 
-                break start;
+                break 'start;
             }
         }
         
@@ -2658,7 +2660,7 @@ impl<'n, 'e, 'z> From<&'z str> for Arg<'n, 'e> {
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     /// [`Arg::from_usage`]: ./struct.Arg.html#method.from_usage
-    pub fn from(y: &'z str) -> Arg<'n, 'e> {
+    pub fn from(u: &'z str) -> Arg<'n, 'e> {
         let parser = UsageParser::from_usage(u);
         parser.parse()
     }

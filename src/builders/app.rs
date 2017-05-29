@@ -10,15 +10,23 @@ use std::result::Result as StdResult;
 
 // Third Party
 use vec_map::{self, VecMap};
+#[cfg(feature = "serde")]
+use serde::{Serialize, Deserialize};
+
+// TODO-v3-release: remove
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
 // Internal
-use app::help::Help;
-use app::parser::Parser;
-use args::{AnyArg, Arg, ArgGroup, ArgMatcher, ArgMatches, ArgSettings};
-use errors::Result as ClapResult;
-pub use self::settings::AppSettings;
+use builders::app_settings::AppSettings;
+use builders::arg_settings::ArgSettings;
+use parsing::{AnyArg, ArgMatcher};
+use matched::ArgMatches;
+use output::Result as ClapResult;
+use output::help::Help;
+use builders::{Arg, ArgGroup};
+
+// TODO-v3-release: remove
 use completions::Shell;
 
 /// Used to create a representation of a command line program and all possible command line
@@ -50,7 +58,8 @@ use completions::Shell;
 /// ```
 /// [`App::get_matches`]: ./struct.App.html#method.get_matches
 #[derive(Debug, Clone, Default)]
-#[serde(default)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", serde(default))]
 pub struct App<'a, 'b>
     where 'a: 'b
 {
@@ -532,7 +541,7 @@ impl<'a, 'b> App<'a, 'b> {
             let should_remove = self.settings[i] == setting;
             if should_remove { 
                 self.settings.swap_remove(i); 
-                break start;
+                break 'start;
             }
         }
         self
@@ -557,10 +566,10 @@ impl<'a, 'b> App<'a, 'b> {
         for s in settings {
             'start: 
             for i in (0 .. self.settings.len()).rev() {
-                let should_remove = self.settings[i] == setting;
+                let should_remove = self.settings[i] == s;
                 if should_remove { 
                     self.settings.swap_remove(i); 
-                    break start;
+                    break 'start;
                 }
             }
         }
@@ -868,7 +877,7 @@ impl<'a, 'b> App<'a, 'b> {
     pub fn subcommands<I>(mut self, subcmds: I) -> Self
         where I: IntoIterator<Item = App<'a, 'b>>
     {
-            self.subcommands.extend(subcmd);
+            self.subcommands.extend(subcmds);
         self
     }
 
@@ -1415,10 +1424,10 @@ impl<'a, 'b> App<'a, 'b> {
         for s in settings {
             'start: 
             for i in (0 .. self.settings.len()).rev() {
-                let should_remove = self.settings[i] == setting;
+                let should_remove = self.settings[i] == s;
                 if should_remove { 
                     self.settings.swap_remove(i); 
-                    break start;
+                    break 'start;
                 }
             }
         }
@@ -1433,7 +1442,7 @@ impl<'a, 'b> App<'a, 'b> {
             let should_remove = self.settings[i] == setting;
             if should_remove { 
                 self.settings.swap_remove(i); 
-                break start;
+                break 'start;
             }
         }
         self

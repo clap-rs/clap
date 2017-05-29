@@ -1,16 +1,16 @@
 // Std
-use std::convert::From;
 use std::error::Error as StdError;
 use std::fmt as std_fmt;
-use std::fmt::Display;
 use std::io::{self, Write};
-use std::process;
+use std::fmt::Display;
 use std::result::Result as StdResult;
+use std::process;
 
 // Internal
-use args::{Flag, AnyArg};
-use fmt;
-use suggestions;
+use output::fmt::{ColorizerOption, ColorWhen, Colorizer};
+use parsing::AnyArg;
+use output::suggestions;
+use built::Flag;
 
 /// Short hand for [`Result`] type
 /// [`Result`]: https://doc.rust-lang.org/std/result/enum.Result.html

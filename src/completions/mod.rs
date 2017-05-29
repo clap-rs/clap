@@ -8,9 +8,11 @@ mod shell;
 
 // Std
 use std::io::Write;
+use std::ffi::OsString; 
 
 // Internal
-use app::parser::Parser;
+use parsing::parser::Parser;
+use builders::app::App;
 use self::bash::BashGen;
 use self::fish::FishGen;
 use self::zsh::ZshGen;
@@ -235,7 +237,7 @@ pub fn get_all_subcommand_paths(p: &Parser, first: bool) -> Vec<String> {
 /// `<project>/target/debug/build/myapp-<hash>/out/myapp.bash-completion`.
 ///
 /// Fish shell completions will use the file format `{bin_name}.fish`
-pub fn generate<T: Into<OsString>, S: Into<String>>(app: &mut App<'a, 'b>,
+pub fn generate<T: Into<OsString>, S: Into<String>>(app: &mut App,
                                                     bin_name: S,
                                                     for_shell: Shell,
                                                     out_dir: T) {
@@ -279,13 +281,14 @@ pub fn generate<T: Into<OsString>, S: Into<String>>(app: &mut App<'a, 'b>,
 /// ```shell
 /// $ myapp generate-bash-completions > /etc/bash_completion.d/myapp
 /// ```
-pub fn generate_to<W: Write, S: Into<String>>(app: &mut App<'a, 'b>,
+pub fn generate_to<W: Write, S: Into<String>>(app: &mut App,
                                               bin_name: S,
                                               for_shell: Shell,
                                               buf: &mut W) {
     // TODO-v3-beta: implement completion initialization
     unimplemented!();
 
-    self.p.meta.bin_name = Some(bin_name.into());
-    self.p.gen_completions_to(for_shell, buf);
+    // let p: Parser = app.build();
+    // p.meta.bin_name = Some(bin_name.into());
+    // p.gen_completions_to(for_shell, buf);
 }

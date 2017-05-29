@@ -7,7 +7,7 @@ use std::ffi::{OsStr, OsString};
 use vec_map::{self, VecMap};
 
 // Internal
-use args::settings::ArgSettings;
+use builders::ArgSettings;
 
 #[doc(hidden)]
 pub trait AnyArg<'n, 'e>: std_fmt::Display {

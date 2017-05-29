@@ -517,31 +517,33 @@
         missing_copy_implementations,
         trivial_casts,
         unused_import_braces,
-        unused_allocation)]
-// Lints we'd like to deny but are currently failing for upstream crates
-//      unused_qualifications       (bitflags, clippy)
-//      trivial_numeric_casts       (bitflags)
+        unused_allocation,
+        unused_qualifications,   
+        trivial_numeric_casts)]  
 #![cfg_attr(not(any(feature = "lints", feature = "nightly")), forbid(unstable_features))]
 #![cfg_attr(feature = "lints", feature(plugin))]
 #![cfg_attr(feature = "lints", plugin(clippy))]
-#![cfg_attr(feature = "lints", deny(warnings))]
+// #![cfg_attr(feature = "lints", deny(warnings))]
 // #![cfg_attr(feature = "lints", allow(cyclomatic_complexity))]
 // #![cfg_attr(feature = "lints", allow(doc_markdown))]
 // #![cfg_attr(feature = "lints", allow(explicit_iter_loop))]
 
+// Optional Deps
 #[cfg(feature = "suggestions")] extern crate strsim;
 #[cfg(feature = "color")]       extern crate ansi_term;
 #[cfg(feature = "wrap_help")]   extern crate term_size;
-#[cfg(feature = "wrap_help")]   extern crate text_wrap;
+#[cfg(feature = "wrap_help")]   extern crate textwrap;
 #[cfg(feature = "color")]       extern crate atty;
+#[cfg_attr(feature = "serde", macro_use)]
+#[cfg(feature = "serde")]       extern crate serde;
+
+// Required Deps
 #[macro_use]                    extern crate bitflags;
 extern crate unicode_segmentation;
 extern crate vec_map;
 extern crate unicode_width;
-#[macro_use]
-extern crate bitflags;
 
-// v3-TODO: Remove before release
+// TODO-v3-release: remove
 #[cfg(feature = "yaml")] extern crate yaml_rust;
 #[cfg(feature = "yaml")] pub use yaml_rust::YamlLoader;
 

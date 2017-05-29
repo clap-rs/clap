@@ -1,3 +1,6 @@
+use std::env;
+use std::path::Path;
+
 /// Get the name of the binary of the top level command, if it exists
 pub fn get_bin_name() -> Option<String> { 
     if let Some(name) = env::args().next() {

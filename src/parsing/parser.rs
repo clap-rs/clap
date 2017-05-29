@@ -15,23 +15,24 @@ use vec_map::{self, VecMap};
 // Internal
 use INTERNAL_ERROR_MSG;
 use INVALID_UTF8;
-use SubCommand;
-use app::App;
-use app::help::Help;
-use app::meta::AppMeta;
-use app::settings::AppFlags;
-use args::{AnyArg, ArgMatcher, Base, Switched, Arg, ArgGroup, Flag, Opt, Pos};
-use args::settings::ArgSettings;
+use builders::subcommand::SubCommand;
+use builders::app::App;
+use output::help::Help;
+use built::meta::AppMeta;
+use builders::arg_settings::AppFlags;
+use parsing::any_arg::AnyArg;
+use built::{Base, Switched, Flag, Opt, Pos};
+use builders::{ArgGroup, App, Arg};
+use builders::arg_settings::ArgSettings;
 use completions::ComplGen;
-use errors::{Error, ErrorKind};
-use errors::Result as ClapResult;
-use fmt::ColorWhen;
-use osstringext::OsStrExt2;
+use output::errors::{Error, ErrorKind};
+use output::errors::Result as ClapResult;
+use output::fmt::ColorWhen;
+use parsing::osstringext::OsStrExt2;
 use completions::Shell;
-use suggestions;
-use app::settings::AppSettings as AS;
-use app::validator::Validator;
-use app::usage;
+use output::suggestions;
+use builders::app_settings::AppSettings as AS;
+use parsing::validator::Validator;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[doc(hidden)]
