@@ -25,18 +25,6 @@ mod term_size {
     pub fn dimensions() -> Option<(usize, usize)> { None }
 }
 
-macro_rules! find_longest {
-    ($help:expr) => {{
-        let mut lw = 0;
-        for l in $help.split(' ').map(|s| str_width(s)) {
-            if l > lw {
-                lw = l;
-            }
-        }
-        lw
-    }};
-}
-
 fn str_width(s: &str) -> usize { UnicodeWidthStr::width(s) }
 
 const TAB: &'static str = "    ";
@@ -392,7 +380,7 @@ impl<'a> Help<'a> {
 
     fn write_before_after_help(&mut self, h: &str) -> io::Result<()> {
         debugln!("Help::write_before_after_help;");
-        let mut help = String::new();
+        let mut help = String::from(h);
         // determine if our help fits or needs to wrap
         debugln!("Help::write_before_after_help: Term width...{}",
                  self.term_w);
@@ -401,47 +389,29 @@ impl<'a> Help<'a> {
         debug!("Help::write_before_after_help: Too long...");
         if too_long || h.contains("{n}") {
             sdebugln!("Yes");
-            help.push_str(h);
             debugln!("Help::write_before_after_help: help: {}", help);
             debugln!("Help::write_before_after_help: help width: {}",
                      str_width(&*help));
             // Determine how many newlines we need to insert
             debugln!("Help::write_before_after_help: Usable space: {}",
                      self.term_w);
-            let longest_w = find_longest!(help);
-            help = help.replace("{n}", "\n");
-            wrap_help(&mut help, longest_w, self.term_w);
+            help = wrap_help(&help.replace("{n}", "\n"), self.term_w);
         } else {
             sdebugln!("No");
         }
-        let help = if !help.is_empty() {
-            &*help
-        } else {
-            help.push_str(h);
-            &*help
-        };
-        if help.contains('\n') {
-            if let Some(part) = help.lines().next() {
-                try!(write!(self.writer, "{}", part));
-            }
-            for part in help.lines().skip(1) {
-                try!(write!(self.writer, "\n{}", part));
-            }
-        } else {
-            try!(write!(self.writer, "{}", help));
-        }
+        try!(write!(self.writer, "{}", help));
         Ok(())
     }
 
     /// Writes argument's help to the wrapped stream.
     fn help<'b, 'c>(&mut self, arg: &ArgWithDisplay<'b, 'c>, spec_vals: &str) -> io::Result<()> {
         debugln!("Help::help;");
-        let mut help = String::new();
         let h = if self.use_long {
             arg.long_help().unwrap_or(arg.help().unwrap_or(""))
         } else {
             arg.help().unwrap_or(arg.long_help().unwrap_or(""))
         };
+        let mut help = String::from(h) + spec_vals;
         let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp) || self.use_long;
         debugln!("Help::help: Next Line...{:?}", nlh);
 
@@ -461,48 +431,31 @@ impl<'a> Help<'a> {
         debug!("Help::help: Too long...");
         if too_long && spcs <= self.term_w || h.contains("{n}") {
             sdebugln!("Yes");
-            help.push_str(h);
-            help.push_str(&*spec_vals);
             debugln!("Help::help: help...{}", help);
             debugln!("Help::help: help width...{}", str_width(&*help));
             // Determine how many newlines we need to insert
             let avail_chars = self.term_w - spcs;
             debugln!("Help::help: Usable space...{}", avail_chars);
-            let longest_w = find_longest!(help);
-            help = help.replace("{n}", "\n");
-            wrap_help(&mut help, longest_w, avail_chars);
+            help = wrap_help(&help.replace("{n}", "\n"), avail_chars);
         } else {
             sdebugln!("No");
         }
-        let help = if !help.is_empty() {
-            &*help
-        } else if spec_vals.is_empty() {
-            h
-        } else {
-            help.push_str(h);
-            help.push_str(&*spec_vals);
-            &*help
-        };
-        if help.contains('\n') {
-            if let Some(part) = help.lines().next() {
-                try!(write!(self.writer, "{}", part));
-            }
-            for part in help.lines().skip(1) {
-                try!(write!(self.writer, "\n"));
-                if nlh || self.force_next_line {
-                    try!(write!(self.writer, "{}{}{}", TAB, TAB, TAB));
-                } else if arg.has_switch() {
-                    write_nspaces!(self.writer, self.longest + 12);
-                } else {
-                    write_nspaces!(self.writer, self.longest + 8);
-                }
-                try!(write!(self.writer, "{}", part));
-            }
-        } else if nlh || self.force_next_line {
-            try!(write!(self.writer, "{}", help));
+        if let Some(part) = help.lines().next() {
+            try!(write!(self.writer, "{}", part));
+        }
+        for part in help.lines().skip(1) {
             try!(write!(self.writer, "\n"));
-        } else {
-            try!(write!(self.writer, "{}", help));
+            if nlh || self.force_next_line {
+                try!(write!(self.writer, "{}{}{}", TAB, TAB, TAB));
+            } else if arg.has_switch() {
+                write_nspaces!(self.writer, self.longest + 12);
+            } else {
+                write_nspaces!(self.writer, self.longest + 8);
+            }
+            try!(write!(self.writer, "{}", part));
+        }
+        if !help.contains('\n') && (nlh || self.force_next_line) {
+            try!(write!(self.writer, "\n"));
         }
         Ok(())
     }
@@ -660,10 +613,8 @@ impl<'a> Help<'a> {
         macro_rules! write_name {
             () => {{
                 let mut name = parser.meta.name.clone();
-                let longest_w = find_longest!(name);            
                 name = name.replace("{n}", "\n");
-                wrap_help(&mut name, longest_w, self.term_w);
-                try!(color!(self, &*name, good));
+                try!(color!(self, wrap_help(&name, self.term_w), good));
             }};
         }
         if let Some(bn) = parser.meta.bin_name.as_ref() {
@@ -690,10 +641,9 @@ impl<'a> Help<'a> {
         macro_rules! write_thing {
             ($thing:expr) => {{
                 let mut owned_thing = $thing.to_owned();
-                let longest_w = find_longest!(owned_thing);            
                 owned_thing = owned_thing.replace("{n}", "\n");
-                wrap_help(&mut owned_thing, longest_w, self.term_w);
-                try!(write!(self.writer, "{}\n", &*owned_thing))
+                try!(write!(self.writer, "{}\n",
+                            wrap_help(&owned_thing, self.term_w)))
             }};
         }
         // Print the version
@@ -954,15 +904,12 @@ impl<'a> Help<'a> {
     }
 }
 
-fn wrap_help(help: &mut String, longest_w: usize, avail_chars: usize) {
-    // Keep previous behavior of not wrapping at all if one of the
-    // words would overflow the line.
-    if longest_w < avail_chars {
-        *help = help.lines()
-            .map(|line| textwrap::fill(line, avail_chars))
-            .collect::<Vec<String>>()
-            .join("\n");
-    }
+fn wrap_help(help: &str, avail_chars: usize) -> String {
+    let wrapper = textwrap::Wrapper::new(avail_chars).break_words(false);
+    help.lines()
+        .map(|line| wrapper.fill(line))
+        .collect::<Vec<String>>()
+        .join("\n")
 }
 
 #[cfg(test)]
@@ -971,8 +918,7 @@ mod test {
 
     #[test]
     fn wrap_help_last_word() {
-        let mut help = String::from("foo bar baz");
-        wrap_help(&mut help, 3, 5);
-        assert_eq!(help, "foo\nbar\nbaz");
+        let help = String::from("foo bar baz");
+        assert_eq!(wrap_help(&help, 5), "foo\nbar\nbaz");
     }
 }
