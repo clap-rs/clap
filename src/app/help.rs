@@ -187,7 +187,7 @@ impl<'a> Help<'a> {
                                    arg.is_set(ArgSettings::NextLineHelp)
                                }) {
             if arg.longest_filter() {
-                self.longest = cmp::max(self.longest, arg.to_string().len());
+                self.longest = cmp::max(self.longest, str_width(arg.to_string().as_str()));
             }
             arg_v.push(arg)
         }
@@ -220,7 +220,7 @@ impl<'a> Help<'a> {
         }) {
             if arg.longest_filter() {
                 debugln!("Help::write_args: Current Longest...{}", self.longest);
-                self.longest = cmp::max(self.longest, arg.to_string().len());
+                ;self.longest = cmp::max(self.longest, str_width(arg.to_string().as_str()));
                 debugln!("Help::write_args: New Longest...{}", self.longest);
             }
             let btm = ord_m.entry(arg.disp_ord()).or_insert(BTreeMap::new());
@@ -352,7 +352,7 @@ impl<'a> Help<'a> {
             debug!("Help::val: next_line...");
             if !(nlh || self.force_next_line) {
                 sdebugln!("No");
-                let self_len = arg.to_string().len();
+                let self_len = str_width(arg.to_string().as_str());
                 // subtract ourself
                 let mut spcs = self.longest - self_len;
                 // Since we're writing spaces from the tab point we first need to know if we
@@ -371,7 +371,7 @@ impl<'a> Help<'a> {
             }
         } else if !(nlh || self.force_next_line) {
             sdebugln!("No, and not next_line");
-            write_nspaces!(self.writer, self.longest + 4 - (arg.to_string().len()));
+            write_nspaces!(self.writer, self.longest + 4 - (str_width(arg.to_string().as_str())));
         } else {
             sdebugln!("No");
         }
@@ -582,7 +582,8 @@ impl<'a> Help<'a> {
             let btm = ord_m
                 .entry(sc.p.meta.disp_ord)
                 .or_insert(BTreeMap::new());
-            self.longest = cmp::max(self.longest, sc.p.meta.name.len());
+            self.longest = cmp::max(self.longest, str_width(sc.p.meta.name.as_str()));
+            //self.longest = cmp::max(self.longest, sc.p.meta.name.len());
             btm.insert(sc.p.meta.name.clone(), sc.clone());
         }
 
