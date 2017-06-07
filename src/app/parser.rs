@@ -1665,7 +1665,7 @@ impl<'a, 'b> Parser<'a, 'b>
 
         // Didn't match a flag or option
         let suffix =
-            suggestions::did_you_mean_arg_suffix(arg, longs!(self), &self.subcommands);
+            suggestions::did_you_mean_flag_suffix(arg, longs!(self), &self.subcommands);
 
         // Add the arg to the matches to build a proper usage string
         if let Some(name) = suffix.1 {

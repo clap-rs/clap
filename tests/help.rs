@@ -118,7 +118,8 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-    -o, --option <scoption>...    tests options
+    -o, --option <scoption>...     tests options
+    -s, --subcmdarg <subcmdarg>    tests other args
 
 ARGS:
     <scpositional>    tests positionals";

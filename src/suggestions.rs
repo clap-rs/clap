@@ -103,15 +103,13 @@ mod test {
     fn suffix_long() {
         let p_vals = ["test", "possible", "values"];
         let suffix = "\n\tDid you mean \'--test\'?";
-        assert_eq!(did_you_mean_suffix("tst", p_vals.iter(), DidYouMeanMessageStyle::LongFlag),
-                   (suffix, Some("test")));
+        assert_eq!(did_you_mean_flag_suffix("tst", p_vals.iter(), []), (suffix, Some("test")));
     }
 
     #[test]
     fn suffix_enum() {
         let p_vals = ["test", "possible", "values"];
         let suffix = "\n\tDid you mean \'test\'?";
-        assert_eq!(did_you_mean_suffix("tst", p_vals.iter(), DidYouMeanMessageStyle::EnumValue),
-                   (suffix, Some("test")));
+        assert_eq!(did_you_mean_value_suffix("tst", p_vals.iter()), (suffix, Some("test")));
     }
 }
