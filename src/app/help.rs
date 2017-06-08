@@ -407,9 +407,9 @@ impl<'a> Help<'a> {
     fn help<'b, 'c>(&mut self, arg: &ArgWithDisplay<'b, 'c>, spec_vals: &str) -> io::Result<()> {
         debugln!("Help::help;");
         let h = if self.use_long {
-            arg.long_help().unwrap_or(arg.help().unwrap_or(""))
+            arg.long_help().unwrap_or_else(|| arg.help().unwrap_or(""))
         } else {
-            arg.help().unwrap_or(arg.long_help().unwrap_or(""))
+            arg.help().unwrap_or_else(|| arg.long_help().unwrap_or(""))
         };
         let mut help = String::from(h) + spec_vals;
         let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp) || self.use_long;
@@ -604,7 +604,7 @@ impl<'a> Help<'a> {
     /// Writes version of a Parser Object to the wrapped stream.
     fn write_version(&mut self, parser: &Parser) -> io::Result<()> {
         debugln!("Help::write_version;");
-        try!(write!(self.writer, "{}", parser.meta.version.unwrap_or("".into())));
+        try!(write!(self.writer, "{}", parser.meta.version.unwrap_or("")));
         Ok(())
     }
 

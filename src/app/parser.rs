@@ -1695,11 +1695,11 @@ impl<'a, 'b> Parser<'a, 'b>
         let ver = if use_long {
             self.meta
                 .long_version
-                .unwrap_or(self.meta.version.unwrap_or("".into()))
+                .unwrap_or_else(|| self.meta.version.unwrap_or(""))
         } else {
             self.meta
                 .version
-                .unwrap_or(self.meta.long_version.unwrap_or("".into()))
+                .unwrap_or_else(|| self.meta.long_version.unwrap_or(""))
         };
         if let Some(bn) = self.meta.bin_name.as_ref() {
             if bn.contains(' ') {

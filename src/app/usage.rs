@@ -244,7 +244,7 @@ fn get_args_tag(p: &Parser, incl_reqs: bool) -> Option<String> {
                             None
                         })
             .max()
-            .unwrap_or(p.positionals.len());
+            .unwrap_or_else(|| p.positionals.len());
         return Some(p.positionals
                         .iter()
                         .filter_map(|(idx, pos)| if idx <= highest_req_pos {
