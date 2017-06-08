@@ -371,7 +371,7 @@ macro_rules! arg_enum {
 }
 
 /// Allows you to pull the version from your Cargo.toml at compile time as
-/// MAJOR.MINOR.PATCH_PKGVERSION_PRE
+/// `MAJOR.MINOR.PATCH_PKGVERSION_PRE`
 ///
 /// # Examples
 ///

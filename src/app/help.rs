@@ -726,9 +726,9 @@ fn copy_until<R: Read, W: Write>(r: &mut R, w: &mut W, delimiter_byte: u8) -> Co
 /// Copies the contents of a reader into a writer until a {tag} is found,
 /// copying the tag content to a buffer and returning its size.
 /// In addition to errors, there are three possible outputs:
-///   - None: The reader was consumed.
-///   - Some(Ok(0)): No tag was captured but the reader still contains data.
-///   - Some(Ok(length>0)): a tag with `length` was captured to the tag_buffer.
+///   - `None`: The reader was consumed.
+///   - `Some(Ok(0))`: No tag was captured but the reader still contains data.
+///   - `Some(Ok(length>0))`: a tag with `length` was captured to the `tag_buffer`.
 fn copy_and_capture<R: Read, W: Write>(r: &mut R,
                                        w: &mut W,
                                        tag_buffer: &mut Cursor<Vec<u8>>)
