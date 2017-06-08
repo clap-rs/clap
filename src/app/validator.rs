@@ -135,16 +135,16 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         macro_rules! build_err {
             ($p:expr, $name:expr, $matcher:ident) => ({
                 debugln!("build_err!: name={}", $name);
-                let mut c_with = find_from!($p, $name, blacklist, &$matcher);
+                let mut c_with = find_from!($p, &$name, blacklist, &$matcher);
                 c_with = c_with.or(
-                    $p.find_any_arg($name).map_or(None, |aa| aa.blacklist())
+                    $p.find_any_arg(&$name).map_or(None, |aa| aa.blacklist())
                                            .map_or(None, 
                                                 |bl| bl.iter().find(|arg| $matcher.contains(arg)))
                                            .map_or(None, |an| $p.find_any_arg(an))
                                            .map_or(None, |aa| Some(format!("{}", aa)))
                 );
-                debugln!("build_err!: '{:?}' conflicts with '{}'", c_with, $name);
-                $matcher.remove($name);
+                debugln!("build_err!: '{:?}' conflicts with '{}'", c_with, &$name);
+                $matcher.remove(&$name);
                 let usg = usage::create_error_usage($p, $matcher, None);
                 if let Some(f) = find_by_name!($p, $name, flags, iter) {
                     debugln!("build_err!: It was a flag...");
@@ -174,12 +174,12 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                              n);
                     if matcher.contains(n) {
                         debugln!("Validator::validate_blacklist:iter:iter: matcher contains it...");
-                        return Err(build_err!(self.0, &n, matcher));
+                        return Err(build_err!(self.0, n, matcher));
                     }
                 }
             } else if matcher.contains(name) {
                 debugln!("Validator::validate_blacklist:iter: matcher contains it...");
-                return Err(build_err!(self.0, name, matcher));
+                return Err(build_err!(self.0, *name, matcher));
             }
         }
         Ok(())
@@ -191,15 +191,15 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             debugln!("Validator::validate_matched_args:iter:{}: vals={:#?}",
                      name,
                      ma.vals);
-            if let Some(opt) = find_by_name!(self.0, name, opts, iter) {
+            if let Some(opt) = find_by_name!(self.0, *name, opts, iter) {
                 try!(self.validate_arg_num_vals(opt, ma, matcher));
                 try!(self.validate_values(opt, ma, matcher));
                 try!(self.validate_arg_requires(opt, ma, matcher));
                 try!(self.validate_arg_num_occurs(opt, ma, matcher));
-            } else if let Some(flag) = find_by_name!(self.0, name, flags, iter) {
+            } else if let Some(flag) = find_by_name!(self.0, *name, flags, iter) {
                 try!(self.validate_arg_requires(flag, ma, matcher));
                 try!(self.validate_arg_num_occurs(flag, ma, matcher));
-            } else if let Some(pos) = find_by_name!(self.0, name, positionals, values) {
+            } else if let Some(pos) = find_by_name!(self.0, *name, positionals, values) {
                 try!(self.validate_arg_num_vals(pos, ma, matcher));
                 try!(self.validate_arg_num_occurs(pos, ma, matcher));
                 try!(self.validate_values(pos, ma, matcher));
@@ -344,15 +344,15 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             if matcher.contains(name) {
                 continue 'outer;
             }
-            if let Some(a) = find_by_name!(self.0, name, flags, iter) {
+            if let Some(a) = find_by_name!(self.0, *name, flags, iter) {
                 if self.is_missing_required_ok(a, matcher) {
                     continue 'outer;
                 }
-            } else if let Some(a) = find_by_name!(self.0, name, opts, iter) {
+            } else if let Some(a) = find_by_name!(self.0, *name, opts, iter) {
                 if self.is_missing_required_ok(a, matcher) {
                     continue 'outer;
                 }
-            } else if let Some(a) = find_by_name!(self.0, name, positionals, values) {
+            } else if let Some(a) = find_by_name!(self.0, *name, positionals, values) {
                 if self.is_missing_required_ok(a, matcher) {
                     continue 'outer;
                 }

@@ -1814,13 +1814,13 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     pub fn find_any_arg(&self, name: &str) -> Option<&AnyArg> {
-        if let Some(f) = find_by_name!(self, &name, flags, iter) {
+        if let Some(f) = find_by_name!(self, name, flags, iter) {
             return Some(f);
         }
-        if let Some(o) = find_by_name!(self, &name, opts, iter) {
+        if let Some(o) = find_by_name!(self, name, opts, iter) {
             return Some(o);
         }
-        if let Some(p) = find_by_name!(self, &name, positionals, values) {
+        if let Some(p) = find_by_name!(self, name, positionals, values) {
             return Some(p);
         }
         None

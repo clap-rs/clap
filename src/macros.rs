@@ -841,21 +841,21 @@ macro_rules! find_from {
     ($_self:expr, $arg_name:expr, $from:ident, $matcher:expr) => {{
         let mut ret = None;
         for k in $matcher.arg_names() {
-            if let Some(f) = find_by_name!($_self, &k, flags, iter) {
+            if let Some(f) = find_by_name!($_self, k, flags, iter) {
                 if let Some(ref v) = f.$from() {
                     if v.contains($arg_name) {
                         ret = Some(f.to_string());
                     }
                 }
             }
-            if let Some(o) = find_by_name!($_self, &k, opts, iter) {
+            if let Some(o) = find_by_name!($_self, k, opts, iter) {
                 if let Some(ref v) = o.$from() {
                     if v.contains(&$arg_name) {
                         ret = Some(o.to_string());
                     }
                 }
             }
-            if let Some(pos) = find_by_name!($_self, &k, positionals, values) {
+            if let Some(pos) = find_by_name!($_self, k, positionals, values) {
                 if let Some(ref v) = pos.$from() {
                     if v.contains($arg_name) {
                         ret = Some(pos.b.name.to_owned());
@@ -871,21 +871,21 @@ macro_rules! find_name_from {
     ($_self:expr, $arg_name:expr, $from:ident, $matcher:expr) => {{
         let mut ret = None;
         for k in $matcher.arg_names() {
-            if let Some(f) = find_by_name!($_self, &k, flags, iter) {
+            if let Some(f) = find_by_name!($_self, k, flags, iter) {
                 if let Some(ref v) = f.$from() {
                     if v.contains($arg_name) {
                         ret = Some(f.b.name);
                     }
                 }
             }
-            if let Some(o) = find_by_name!($_self, &k, opts, iter) {
+            if let Some(o) = find_by_name!($_self, k, opts, iter) {
                 if let Some(ref v) = o.$from() {
                     if v.contains(&$arg_name) {
                         ret = Some(o.b.name);
                     }
                 }
             }
-            if let Some(pos) = find_by_name!($_self, &k, positionals, values) {
+            if let Some(pos) = find_by_name!($_self, k, positionals, values) {
                 if let Some(ref v) = pos.$from() {
                     if v.contains($arg_name) {
                         ret = Some(pos.b.name);
@@ -900,7 +900,7 @@ macro_rules! find_name_from {
 // Finds an arg by name
 macro_rules! find_by_name {
     ($p:expr, $name:expr, $what:ident, $how:ident) => {
-        $p.$what.$how().find(|o| o.b.name == *$name)
+        $p.$what.$how().find(|o| o.b.name == $name)
     }
 }
 
