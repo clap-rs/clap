@@ -25,7 +25,7 @@ pub trait AnyArg<'n, 'e>: std_fmt::Display {
     fn num_vals(&self) -> Option<u64>;
     fn possible_vals(&self) -> Option<&[&'e str]>;
     fn validator(&self) -> Option<&Rc<Fn(String) -> Result<(), String>>>;
-    fn validator_os(&self) -> Option<&Rc<Fn(&OsStr) -> Result<(), OsString>>>;
+    fn validator_os(&self) -> Option<&Rc<Fn(&OsStr) -> Result<(), String>>>;
     fn short(&self) -> Option<char>;
     fn long(&self) -> Option<&'e str>;
     fn val_delim(&self) -> Option<char>;

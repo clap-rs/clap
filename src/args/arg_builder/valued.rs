@@ -16,7 +16,7 @@ pub struct Valued<'a, 'b>
     pub max_vals: Option<u64>,
     pub min_vals: Option<u64>,
     pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
-    pub validator_os: Option<Rc<Fn(&OsStr) -> Result<(), OsString>>>,
+    pub validator_os: Option<Rc<Fn(&OsStr) -> Result<(), String>>>,
     pub val_delim: Option<char>,
     pub default_val: Option<&'b OsStr>,
     pub default_vals_ifs: Option<VecMap<(&'a str, Option<&'b OsStr>, &'b OsStr)>>,

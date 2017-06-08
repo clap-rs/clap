@@ -119,7 +119,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                 if let Err(e) = vtor(val) {
                     sdebugln!("error");
                     return Err(Error::value_validation(Some(arg),
-                                                       (*e).to_string_lossy().to_string(),
+                                                       (*e).to_string(),
                                                        self.0.color()));
                 } else {
                     sdebugln!("good");
