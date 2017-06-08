@@ -5,7 +5,7 @@ use std::ops::BitOr;
 
 bitflags! {
     struct Flags: u64 {
-        const SC_NEGATE_REQS       = 1 << 0;
+        const SC_NEGATE_REQS       = 1;
         const SC_REQUIRED          = 1 << 1;
         const A_REQUIRED_ELSE_HELP = 1 << 2;
         const GLOBAL_VERSION       = 1 << 3;
