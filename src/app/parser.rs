@@ -702,7 +702,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 } else if let Some(c) = sc.subcommands
                               .iter()
                               .find(|s| if let Some(ref als) = s.p.meta.aliases {
-                                        als.iter().any(|&(a, _)| &a == &&*cmd.to_string_lossy())
+                                        als.iter().any(|&(a, _)| a == &*cmd.to_string_lossy())
                                     } else {
                                         false
                                     })
@@ -1146,7 +1146,7 @@ impl<'a, 'b> Parser<'a, 'b>
         mid_string.push_str(" ");
         if let Some(ref mut sc) = self.subcommands
                .iter_mut()
-               .find(|s| &s.p.meta.name == &sc_name) {
+               .find(|s| s.p.meta.name == sc_name) {
             let mut sc_matcher = ArgMatcher::new();
             // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
             // a space
@@ -1239,7 +1239,7 @@ impl<'a, 'b> Parser<'a, 'b>
                       .find(|g| g.name == group)
                       .expect(INTERNAL_ERROR_MSG)
                       .args {
-            if self.groups.iter().any(|g| &g.name == &*n) {
+            if self.groups.iter().any(|g| g.name == *n) {
                 args.extend(self.arg_names_in_group(n));
                 g_vec.push(*n);
             } else if !args.contains(n) {
