@@ -305,11 +305,11 @@ impl<'a, 'b> Parser<'a, 'b>
     }
     // actually adds the arguments but from a borrow (which means we have to do some clonine)
     pub fn add_arg_ref(&mut self, a: &Arg<'a, 'b>) {
-        debug_assert!(self.debug_asserts(&a));
+        debug_assert!(self.debug_asserts(a));
         self.add_conditional_reqs(a);
         self.add_arg_groups(a);
         self.add_reqs(a);
-        self.implied_settings(&a);
+        self.implied_settings(a);
         if a.index.is_some() || (a.s.short.is_none() && a.s.long.is_none()) {
             let i = if a.index.is_none() {
                 (self.positionals.len() + 1)

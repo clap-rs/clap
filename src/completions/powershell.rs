@@ -85,7 +85,7 @@ fn generate_inner<'a, 'b, 'p>(p: &'p Parser<'a, 'b>, previous_command_name: &str
     let mut subcommands_detection_cases = if previous_command_name.is_empty() {
         String::new()
     } else if !names.contains(&&*p.meta.name) {
-        names.push(&&*p.meta.name);
+        names.push(&*p.meta.name);
         format!(r"
                     '{0}' {{
                         $command += '_{0}'

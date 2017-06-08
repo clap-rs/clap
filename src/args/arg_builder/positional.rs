@@ -63,7 +63,7 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
         let mult_vals = self.v
             .val_names
             .as_ref()
-            .map_or(true, |ref names| names.len() < 2);
+            .map_or(true, |names| names.len() < 2);
         if self.is_set(ArgSettings::Multiple) && mult_vals {
             "..."
         } else {

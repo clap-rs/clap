@@ -164,9 +164,9 @@ impl<'a> Help<'a> {
         if let Some(h) = parser.meta.help_str {
             try!(write!(self.writer, "{}", h).map_err(Error::from));
         } else if let Some(tmpl) = parser.meta.template {
-            try!(self.write_templated_help(&parser, tmpl));
+            try!(self.write_templated_help(parser, tmpl));
         } else {
-            try!(self.write_default_help(&parser));
+            try!(self.write_default_help(parser));
         }
         Ok(())
     }
@@ -563,7 +563,7 @@ impl<'a> Help<'a> {
                 try!(self.writer.write_all(b"\n\n"));
             }
             try!(color!(self, "SUBCOMMANDS:\n", warning));
-            try!(self.write_subcommands(&parser));
+            try!(self.write_subcommands(parser));
         }
 
         Ok(())
@@ -648,9 +648,9 @@ impl<'a> Help<'a> {
             }};
         }
         // Print the version
-        try!(self.write_bin_name(&parser));
+        try!(self.write_bin_name(parser));
         try!(self.writer.write_all(b" "));
-        try!(self.write_version(&parser));
+        try!(self.write_version(parser));
         try!(self.writer.write_all(b"\n"));
         if let Some(author) = parser.meta.author {
             write_thing!(author)
@@ -671,7 +671,7 @@ impl<'a> Help<'a> {
         let subcmds = parser.has_subcommands();
 
         if flags || opts || pos || subcmds {
-            try!(self.write_all_args(&parser));
+            try!(self.write_all_args(parser));
         }
 
         if let Some(h) = parser.meta.more_help {
@@ -842,7 +842,7 @@ impl<'a> Help<'a> {
                     try!(self.writer.write_all(b"Could not decode tag name"));
                 }
                 b"bin" => {
-                    try!(self.write_bin_name(&parser));
+                    try!(self.write_bin_name(parser));
                 }
                 b"version" => {
                     try!(write!(self.writer,
@@ -863,7 +863,7 @@ impl<'a> Help<'a> {
                     try!(write!(self.writer, "{}", usage::create_usage_no_title(parser, &[])));
                 }
                 b"all-args" => {
-                    try!(self.write_all_args(&parser));
+                    try!(self.write_all_args(parser));
                 }
                 b"unified" => {
                     let opts_flags = parser
@@ -882,7 +882,7 @@ impl<'a> Help<'a> {
                     try!(self.write_args(parser.positionals().map(as_arg_trait)));
                 }
                 b"subcommands" => {
-                    try!(self.write_subcommands(&parser));
+                    try!(self.write_subcommands(parser));
                 }
                 b"after-help" => {
                     try!(write!(self.writer,

@@ -379,10 +379,10 @@ pub fn get_required_usage_from<'a, 'b>(p: &Parser<'a, 'b>,
     let args_in_groups = p.groups
         .iter()
         .filter(|gn| desc_reqs.contains(&gn.name))
-        .flat_map(|g| p.arg_names_in_group(&g.name))
+        .flat_map(|g| p.arg_names_in_group(g.name))
         .collect::<Vec<_>>();
 
-    let pmap = if let Some(ref m) = matcher {
+    let pmap = if let Some(m) = matcher {
         desc_reqs.iter()
             .filter(|a| p.positionals.values().any(|p| &&p.b.name == a))
             .filter(|&pos| !m.contains(pos))
