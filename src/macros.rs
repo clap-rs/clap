@@ -764,12 +764,6 @@ macro_rules! wlnerr(
         writeln!(&mut stderr(), $($arg)*).ok();
     })
 );
-macro_rules! werr(
-    ($($arg:tt)*) => ({
-        use std::io::{Write, stderr};
-        write!(&mut stderr(), $($arg)*).ok();
-    })
-);
 
 #[cfg(feature = "debug")]
 #[cfg_attr(feature = "debug", macro_use)]
@@ -803,27 +797,10 @@ mod debug_macros {
         ($fmt:expr) => ();
         ($fmt:expr, $($arg:tt)*) => ();
     }
-    macro_rules! sdebug {
-        ($fmt:expr) => ();
-        ($fmt:expr, $($arg:tt)*) => ();
-    }
     macro_rules! debug {
         ($fmt:expr) => ();
         ($fmt:expr, $($arg:tt)*) => ();
     }
-}
-
-// Helper/deduplication macro for printing the correct number of spaces in help messages
-// used in:
-//    src/args/arg_builder/*.rs
-//    src/app/mod.rs
-macro_rules! write_spaces {
-    ($num:expr, $w:ident) => ({
-        debugln!("write_spaces!;");
-        for _ in 0..$num {
-            try!(write!($w, " "));
-        }
-    })
 }
 
 // Helper/deduplication macro for printing the correct number of spaces in help messages
@@ -946,12 +923,6 @@ macro_rules! find_flag_by_long {
     }};
 }
 
-macro_rules! find_any_by_long {
-    ($_self:ident, $long:expr, $what:ident) => {
-        _find_flag_by_long!($_self, $long).or(_find_opt_by_long!($_self, $long))
-    }
-}
-
 macro_rules! _find_by_long {
     ($_self:ident, $long:expr, $what:ident) => {{
         $_self.$what
@@ -981,12 +952,6 @@ macro_rules! find_flag_by_short {
     ($_self:ident, $short:expr) => {{
         _find_by_short!($_self, $short, flags)
     }}
-}
-
-macro_rules! find_any_by_short {
-    ($_self:ident, $short:expr, $what:ident) => {
-        _find_flag_by_short!($_self, $short).or(_find_opt_by_short!($_self, $short))
-    }
 }
 
 macro_rules! _find_by_short {
