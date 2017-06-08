@@ -882,40 +882,38 @@ impl<'a, 'b> Parser<'a, 'b>
                         }
                         _ => (),
                     }
-                } else {
-                    if arg_os.starts_with(b"--") {
-                        needs_val_of = try!(self.parse_long_arg(matcher, &arg_os));
-                        debugln!("Parser:get_matches_with: After parse_long_arg {:?}",
-                                 needs_val_of);
-                        match needs_val_of {
-                            ParseResult::Flag |
+                } else if arg_os.starts_with(b"--") {
+                    needs_val_of = try!(self.parse_long_arg(matcher, &arg_os));
+                    debugln!("Parser:get_matches_with: After parse_long_arg {:?}",
+                             needs_val_of);
+                    match needs_val_of {
+                        ParseResult::Flag |
                             ParseResult::Opt(..) |
                             ParseResult::ValuesDone => continue,
-                            _ => (),
-                        }
-                    } else if arg_os.starts_with(b"-") && arg_os.len_() != 1 {
-                        // Try to parse short args like normal, if AllowLeadingHyphen or
-                        // AllowNegativeNumbers is set, parse_short_arg will *not* throw
-                        // an error, and instead return Ok(None)
-                        needs_val_of = try!(self.parse_short_arg(matcher, &arg_os));
-                        // If it's None, we then check if one of those two AppSettings was set
-                        debugln!("Parser:get_matches_with: After parse_short_arg {:?}",
-                                 needs_val_of);
-                        match needs_val_of {
-                            ParseResult::MaybeNegNum => {
-                                if !(arg_os.to_string_lossy().parse::<i64>().is_ok() ||
-                                     arg_os.to_string_lossy().parse::<f64>().is_ok()) {
-                                    return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
-                                        "",
-                                        &*usage::create_error_usage(self, matcher, None),
-                                        self.color()));
-                                }
+                        _ => (),
+                    }
+                } else if arg_os.starts_with(b"-") && arg_os.len_() != 1 {
+                    // Try to parse short args like normal, if AllowLeadingHyphen or
+                    // AllowNegativeNumbers is set, parse_short_arg will *not* throw
+                    // an error, and instead return Ok(None)
+                    needs_val_of = try!(self.parse_short_arg(matcher, &arg_os));
+                    // If it's None, we then check if one of those two AppSettings was set
+                    debugln!("Parser:get_matches_with: After parse_short_arg {:?}",
+                             needs_val_of);
+                    match needs_val_of {
+                        ParseResult::MaybeNegNum => {
+                            if !(arg_os.to_string_lossy().parse::<i64>().is_ok() ||
+                                 arg_os.to_string_lossy().parse::<f64>().is_ok()) {
+                                return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
+                                "",
+                                &*usage::create_error_usage(self, matcher, None),
+                                self.color()));
                             }
-                            ParseResult::Opt(..) |
+                        }
+                        ParseResult::Opt(..) |
                             ParseResult::Flag |
                             ParseResult::ValuesDone => continue,
-                            _ => (),
-                        }
+                        _ => (),
                     }
                 }
 
@@ -1244,10 +1242,8 @@ impl<'a, 'b> Parser<'a, 'b>
             if self.groups.iter().any(|g| &g.name == &*n) {
                 args.extend(self.arg_names_in_group(n));
                 g_vec.push(*n);
-            } else {
-                if !args.contains(n) {
-                    args.push(*n);
-                }
+            } else if !args.contains(n) {
+                args.push(*n);
             }
         }
 
