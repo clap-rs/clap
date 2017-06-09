@@ -83,6 +83,7 @@ pub struct Help<'a> {
 // Public Functions
 impl<'a> Help<'a> {
     /// Create a new `Help` instance.
+    #[cfg_attr(feature = "cargo-clippy", allow(too_many_arguments))]
     pub fn new(w: &'a mut Write,
                next_line_help: bool,
                hide_pv: bool,
