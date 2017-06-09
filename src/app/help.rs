@@ -220,7 +220,7 @@ impl<'a> Help<'a> {
         }) {
             if arg.longest_filter() {
                 debugln!("Help::write_args: Current Longest...{}", self.longest);
-                ;self.longest = cmp::max(self.longest, str_width(arg.to_string().as_str()));
+                self.longest = cmp::max(self.longest, str_width(arg.to_string().as_str()));
                 debugln!("Help::write_args: New Longest...{}", self.longest);
             }
             let btm = ord_m.entry(arg.disp_ord()).or_insert(BTreeMap::new());
