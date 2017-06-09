@@ -1853,7 +1853,7 @@ impl<'a, 'b> Parser<'a, 'b>
         debugln!("Parser::find_subcommand: sc={}", sc);
         debugln!("Parser::find_subcommand: Currently in Parser...{}",
                  self.meta.bin_name.as_ref().unwrap());
-        for s in self.subcommands.iter() {
+        for s in &self.subcommands {
             if s.p.is_bin_name(sc) {
                 return Some(s);
             }

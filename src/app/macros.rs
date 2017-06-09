@@ -98,7 +98,7 @@ macro_rules! _handle_group_reqs{
     ($me:ident, $arg:ident) => ({
         use args::AnyArg;
         debugln!("_handle_group_reqs!;");
-        for grp in $me.groups.iter() {
+        for grp in &$me.groups {
             let found = if grp.args.contains(&$arg.name()) {
                 if let Some(ref reqs) = grp.requires {
                     debugln!("_handle_group_reqs!: Adding {:?} to the required list", reqs);
