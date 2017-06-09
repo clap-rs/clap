@@ -817,17 +817,6 @@ macro_rules! write_nspaces {
 }
 
 // convenience macro for remove an item from a vec
-macro_rules! vec_remove {
-    ($vec:expr, $to_rem:expr) => {
-        debugln!("vec_remove!: to_rem={:?}", $to_rem);
-        for i in (0 .. $vec.len()).rev() {
-            let should_remove = $vec[i] == $to_rem;
-            if should_remove { $vec.swap_remove(i); }
-        }
-    };
-}
-
-// convenience macro for remove an item from a vec
 macro_rules! vec_remove_all {
     ($vec:expr, $to_rem:expr) => {
         debugln!("vec_remove_all! to_rem={:?}", $to_rem);

@@ -120,7 +120,11 @@ macro_rules! _handle_group_reqs{
                 debugln!("_handle_group_reqs!:iter: Adding args from group to blacklist...{:?}", grp.args);
                 if !grp.multiple {
                     $me.blacklist.extend(&grp.args);
-                    vec_remove!($me.blacklist, $arg.name());
+                    debugln!("_handle_group_reqs!: removing {:?} from blacklist", $arg.name());
+                    for i in (0 .. $me.blacklist.len()).rev() {
+                        let should_remove = $me.blacklist[i] == $arg.name();
+                        if should_remove { $me.blacklist.swap_remove(i); }
+                    }
                 }
             }
         }
