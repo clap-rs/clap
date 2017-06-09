@@ -100,7 +100,6 @@ macro_rules! _handle_group_reqs{
         debugln!("_handle_group_reqs!;");
         for grp in $me.groups.iter() {
             let found = if grp.args.contains(&$arg.name()) {
-                // vec_remove!($me.required, &$arg.name());
                 if let Some(ref reqs) = grp.requires {
                     debugln!("_handle_group_reqs!: Adding {:?} to the required list", reqs);
                     $me.required.extend(reqs);
@@ -121,7 +120,7 @@ macro_rules! _handle_group_reqs{
                 debugln!("_handle_group_reqs!:iter: Adding args from group to blacklist...{:?}", grp.args);
                 if !grp.multiple {
                     $me.blacklist.extend(&grp.args);
-                    vec_remove!($me.blacklist, &$arg.name());
+                    vec_remove!($me.blacklist, $arg.name());
                 }
             }
         }
