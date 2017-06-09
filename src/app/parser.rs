@@ -1824,6 +1824,29 @@ impl<'a, 'b> Parser<'a, 'b>
         None
     }
 
+    /// Check is a given string matches the binary name for this parser
+    fn is_bin_name(&self, value: &str) -> bool {
+        self.meta.bin_name
+            .as_ref()
+            .and_then(|name| Some(value == name))
+            .unwrap_or(false)
+    }
+
+    /// Check is a given string is an alias for this parser
+    fn is_alias(&self, value: &str) -> bool {
+        self.meta.aliases
+            .as_ref()
+            .and_then(|aliases| {
+                for alias in aliases {
+                    if alias.0 == value {
+                        return Some(true);
+                    }
+                }
+                Some(false)
+            })
+            .unwrap_or(false)
+    }
+
     // Only used for completion scripts due to bin_name messiness
     #[cfg_attr(feature = "lints", allow(block_in_if_condition_stmt))]
     pub fn find_subcommand(&'b self, sc: &str) -> Option<&'b App<'a, 'b>> {
@@ -1831,19 +1854,16 @@ impl<'a, 'b> Parser<'a, 'b>
         debugln!("Parser::find_subcommand: Currently in Parser...{}",
                  self.meta.bin_name.as_ref().unwrap());
         for s in self.subcommands.iter() {
-            if s.p.meta.bin_name.as_ref().unwrap_or(&String::new()) == sc ||
-               (s.p.meta.aliases.is_some() &&
-                s.p
-                    .meta
-                    .aliases
-                    .as_ref()
-                    .unwrap()
-                    .iter()
-                    .any(|&(s, _)| {
-                             s == sc.split(' ').rev().next().expect(INTERNAL_ERROR_MSG)
-                         })) {
+            if s.p.is_bin_name(sc) {
                 return Some(s);
             }
+            // XXX: why do we split here?
+            // isn't `sc` supposed to be single word already?
+            let last = sc.split(' ').rev().next().expect(INTERNAL_ERROR_MSG);
+            if s.p.is_alias(last) {
+                return Some(s);
+            }
+
             if let Some(app) = s.p.find_subcommand(sc) {
                 return Some(app);
             }
