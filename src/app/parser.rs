@@ -1357,13 +1357,12 @@ impl<'a, 'b> Parser<'a, 'b>
         use_long = use_long && self.use_long_help();
         let mut buf = vec![];
         match Help::write_parser_help(&mut buf, self, use_long) {
-            Err(e) => return e,
-            _ => (),
-        }
-        Error {
-            message: unsafe { String::from_utf8_unchecked(buf) },
-            kind: ErrorKind::HelpDisplayed,
-            info: None,
+            Err(e) => e,
+            _ => Error {
+                message: unsafe { String::from_utf8_unchecked(buf) },
+                kind: ErrorKind::HelpDisplayed,
+                info: None,
+            }
         }
     }
 
@@ -1372,13 +1371,12 @@ impl<'a, 'b> Parser<'a, 'b>
         let out = io::stdout();
         let mut buf_w = BufWriter::new(out.lock());
         match self.print_version(&mut buf_w, use_long) {
-            Err(e) => return e,
-            _ => (),
-        }
-        Error {
-            message: String::new(),
-            kind: ErrorKind::VersionDisplayed,
-            info: None,
+            Err(e) => e,
+            _ => Error {
+                message: String::new(),
+                kind: ErrorKind::VersionDisplayed,
+                info: None,
+            }
         }
     }
 
