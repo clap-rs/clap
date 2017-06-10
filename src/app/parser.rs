@@ -1585,33 +1585,31 @@ impl<'a, 'b> Parser<'a, 'b>
         where A: AnyArg<'a, 'b> + Display
     {
         debugln!("Parser::add_val_to_arg; arg={}, val={:?}", arg.name(), val);
-        let ret;
         debugln!("Parser::add_val_to_arg; trailing_vals={:?}, DontDelimTrailingVals={:?}",
                  self.is_set(AS::TrailingValues),
                  self.is_set(AS::DontDelimitTrailingValues));
         if !(self.is_set(AS::TrailingValues) && self.is_set(AS::DontDelimitTrailingValues)) {
             if let Some(delim) = arg.val_delim() {
-                let mut iret = ParseResult::ValuesDone;
                 if val.is_empty_() {
-                    iret = try!(self.add_single_val_to_arg(arg, val, matcher));
+                    Ok(try!(self.add_single_val_to_arg(arg, val, matcher)))
                 } else {
+                    let mut iret = ParseResult::ValuesDone;
                     for v in val.split(delim as u32 as u8) {
                         iret = try!(self.add_single_val_to_arg(arg, v, matcher));
                     }
                     // If there was a delimiter used, we're not looking for more values
                     if val.contains_byte(delim as u32 as u8) ||
-                       arg.is_set(ArgSettings::RequireDelimiter) {
-                        iret = ParseResult::ValuesDone;
-                    }
+                        arg.is_set(ArgSettings::RequireDelimiter) {
+                            iret = ParseResult::ValuesDone;
+                        }
+                    Ok(iret)
                 }
-                ret = Ok(iret);
             } else {
-                ret = self.add_single_val_to_arg(arg, val, matcher);
+                self.add_single_val_to_arg(arg, val, matcher)
             }
         } else {
-            ret = self.add_single_val_to_arg(arg, val, matcher);
+            self.add_single_val_to_arg(arg, val, matcher)
         }
-        ret
     }
 
     fn add_single_val_to_arg<A>(&self,
