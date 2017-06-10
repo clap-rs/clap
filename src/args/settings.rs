@@ -3,23 +3,23 @@ use std::ascii::AsciiExt;
 use std::str::FromStr;
 
 bitflags! {
-    flags Flags: u16 {
-        const REQUIRED         = 1 << 0,
-        const MULTIPLE         = 1 << 1,
-        const EMPTY_VALS       = 1 << 2,
-        const GLOBAL           = 1 << 3,
-        const HIDDEN           = 1 << 4,
-        const TAKES_VAL        = 1 << 5,
-        const USE_DELIM        = 1 << 6,
-        const NEXT_LINE_HELP   = 1 << 7,
-        const R_UNLESS_ALL     = 1 << 8,
-        const REQ_DELIM        = 1 << 9,
-        const DELIM_NOT_SET    = 1 << 10,
-        const HIDE_POS_VALS    = 1 << 11,
-        const ALLOW_TAC_VALS   = 1 << 12,
-        const REQUIRE_EQUALS   = 1 << 13,
-        const LAST             = 1 << 14,
-        const HIDE_DEFAULT_VAL = 1 << 15,
+    struct Flags: u16 {
+        const REQUIRED         = 1 << 0;
+        const MULTIPLE         = 1 << 1;
+        const EMPTY_VALS       = 1 << 2;
+        const GLOBAL           = 1 << 3;
+        const HIDDEN           = 1 << 4;
+        const TAKES_VAL        = 1 << 5;
+        const USE_DELIM        = 1 << 6;
+        const NEXT_LINE_HELP   = 1 << 7;
+        const R_UNLESS_ALL     = 1 << 8;
+        const REQ_DELIM        = 1 << 9;
+        const DELIM_NOT_SET    = 1 << 10;
+        const HIDE_POS_VALS    = 1 << 11;
+        const ALLOW_TAC_VALS   = 1 << 12;
+        const REQUIRE_EQUALS   = 1 << 13;
+        const LAST             = 1 << 14;
+        const HIDE_DEFAULT_VAL = 1 << 15;
     }
 }
 
