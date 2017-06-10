@@ -929,14 +929,14 @@ macro_rules! _find_by_long {
             .iter()
             .filter(|a| a.s.long.is_some())
             .find(|a| {
-                &a.s.long.unwrap() == $long ||
+                a.s.long.unwrap() == $long ||
                 (a.s.aliases.is_some() &&
                  a.s
                     .aliases
                     .as_ref()
                     .unwrap()
                     .iter()
-                    .any(|&(alias, _)| &alias == $long))
+                    .any(|&(alias, _)| alias == $long))
             })
     }}
 }

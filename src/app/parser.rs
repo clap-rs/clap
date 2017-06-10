@@ -1400,7 +1400,7 @@ impl<'a, 'b> Parser<'a, 'b>
             full_arg.trim_left_matches(b'-')
         };
 
-        if let Some(opt) = find_opt_by_long!(@os self, &arg) {
+        if let Some(opt) = find_opt_by_long!(@os self, arg) {
             debugln!("Parser::parse_long_arg: Found valid opt '{}'",
                      opt.to_string());
             self.settings.set(AS::ValidArgFound);
@@ -1411,7 +1411,7 @@ impl<'a, 'b> Parser<'a, 'b>
             }
 
             return Ok(ret);
-        } else if let Some(flag) = find_flag_by_long!(@os self, &arg) {
+        } else if let Some(flag) = find_flag_by_long!(@os self, arg) {
             debugln!("Parser::parse_long_arg: Found valid flag '{}'",
                      flag.to_string());
             self.settings.set(AS::ValidArgFound);
@@ -1667,11 +1667,11 @@ impl<'a, 'b> Parser<'a, 'b>
 
         // Add the arg to the matches to build a proper usage string
         if let Some(name) = suffix.1 {
-            if let Some(opt) = find_opt_by_long!(self, &name) {
+            if let Some(opt) = find_opt_by_long!(self, name) {
                 self.groups_for_arg(&*opt.b.name)
                     .and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
                 matcher.insert(&*opt.b.name);
-            } else if let Some(flg) = find_flag_by_long!(self, &name) {
+            } else if let Some(flg) = find_flag_by_long!(self, name) {
                 self.groups_for_arg(&*flg.b.name)
                     .and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
                 matcher.insert(&*flg.b.name);
