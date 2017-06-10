@@ -868,8 +868,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 }
 
                 if !starts_new_arg {
-                    match needs_val_of {
-                        ParseResult::Opt(name) => {
+                    if let ParseResult::Opt(name) = needs_val_of {
                             // Check to see if parsing a value from a previous arg
                             let arg = self.opts
                                 .iter()
@@ -879,8 +878,6 @@ impl<'a, 'b> Parser<'a, 'b>
                             needs_val_of = try!(self.add_val_to_arg(arg, &arg_os, matcher));
                             // get the next value from the iterator
                             continue;
-                        }
-                        _ => (),
                     }
                 } else if arg_os.starts_with(b"--") {
                     needs_val_of = try!(self.parse_long_arg(matcher, &arg_os));
