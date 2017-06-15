@@ -169,20 +169,22 @@ fn extract_attrs<'a>(attrs: &'a [Attribute], attr_source: AttrSource) -> Box<Ite
             }
         });
 
-    Box::new(settings_attrs.chain(doc_comments))
+    Box::new(doc_comments.chain(settings_attrs))
 }
 
 fn from_attr_or_env<'a>(attrs: &[(Ident, Lit)], key: &str, env: &str) -> Lit {
     let default = std::env::var(env).unwrap_or("".into());
     attrs.iter()
-        .find(|&&(ref i, _)| i.as_ref() == key)
+        .filter(|&&(ref i, _)| i.as_ref() == key)
+        .last()
         .map(|&(_, ref l)| l.clone())
         .unwrap_or_else(|| Lit::Str(default, StrStyle::Cooked))
 }
 
 fn gen_name(field: &Field) -> Ident {
     extract_attrs(&field.attrs, AttrSource::Field)
-        .find(|&(ref i, _)| i.as_ref() == "name")
+        .filter(|&(ref i, _)| i.as_ref() == "name")
+        .last()
         .and_then(|(_, ref l)| match l {
             &Lit::Str(ref s, _) => Some(Ident::new(s.clone())),
             _ => None,
