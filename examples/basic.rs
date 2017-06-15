@@ -11,23 +11,36 @@ extern crate structopt_derive;
 
 use structopt::StructOpt;
 
+/// A basic example
 #[derive(StructOpt, Debug)]
-#[structopt(name = "basic", about = "A basic example")]
+#[structopt(name = "basic")]
 struct Opt {
-    #[structopt(short = "d", long = "debug", help = "Activate debug mode")]
+    /// Activate debug mode
+    #[structopt(short = "d", long = "debug")]
     debug: bool,
-    #[structopt(short = "v", long = "verbose", help = "Verbose mode")]
+
+    /// Verbose mode
+    #[structopt(short = "v", long = "verbose")]
     verbose: u64,
-    #[structopt(short = "s", long = "speed", help = "Set speed", default_value = "42")]
+
+    /// Set speed
+    #[structopt(short = "s", long = "speed", default_value = "42")]
     speed: f64,
-    #[structopt(short = "o", long = "output", help = "Output file")]
+
+    /// Output file
+    #[structopt(short = "o", long = "output")]
     output: String,
-    #[structopt(short = "c", long = "car", help = "Number of car")]
+
+    /// Number of car
+    #[structopt(short = "c", long = "car")]
     car: Option<i32>,
+
+    /// admin_level to consider
     #[structopt(short = "l", long = "level")]
-    #[structopt(help = "admin_level to consider")]
     level: Vec<String>,
-    #[structopt(name = "FILE", help = "Files to process")]
+
+    /// Files to process
+    #[structopt(name = "FILE")]
     files: Vec<String>,
 }
 

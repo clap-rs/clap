@@ -129,31 +129,62 @@ fn sub_type(t: &syn::Ty) -> Option<&syn::Ty> {
     }
 }
 
-fn extract_attrs<'a>(attrs: &'a [Attribute]) -> Box<Iterator<Item = (&'a Ident, &'a Lit)> + 'a> {
-    let iter = attrs.iter()
+#[derive(Debug, Clone, Copy)]
+enum AttrSource { Struct, Field, }
+
+fn extract_attrs<'a>(attrs: &'a [Attribute], attr_source: AttrSource) -> Box<Iterator<Item = (Ident, Lit)> + 'a> {
+    let settings_attrs = attrs.iter()
         .filter_map(|attr| match attr.value {
             MetaItem::List(ref i, ref v) if i.as_ref() == "structopt" => Some(v),
             _ => None,
         }).flat_map(|v| v.iter().filter_map(|mi| match *mi {
-            NestedMetaItem::MetaItem(MetaItem::NameValue(ref i, ref l)) => Some((i, l)),
+            NestedMetaItem::MetaItem(MetaItem::NameValue(ref i, ref l)) =>
+                Some((i.clone(), l.clone())),
             _ => None,
         }));
-    Box::new(iter)
+
+    let doc_comments = attrs.iter()
+        .filter_map(move |attr| {
+            if let Attribute {
+                value: MetaItem::NameValue(ref name, Lit::Str(ref value, StrStyle::Cooked)),
+                is_sugared_doc: true,
+                ..
+            } = *attr {
+                if name != "doc" { return None; }
+                let text = value.trim_left_matches("//!")
+                    .trim_left_matches("///")
+                    .trim_left_matches("/*!")
+                    .trim_left_matches("/**")
+                    .trim();
+
+                // Clap's `App` has an `about` method to set a description,
+                // it's `Field`s have a `help` method instead.
+                if let AttrSource::Struct = attr_source {
+                    Some(("about".into(), text.into()))
+                } else {
+                    Some(("help".into(), text.into()))
+                }
+            } else {
+                None
+            }
+        });
+
+    Box::new(settings_attrs.chain(doc_comments))
 }
 
-fn from_attr_or_env(attrs: &[(&Ident, &Lit)], key: &str, env: &str) -> Lit {
+fn from_attr_or_env<'a>(attrs: &[(Ident, Lit)], key: &str, env: &str) -> Lit {
     let default = std::env::var(env).unwrap_or("".into());
     attrs.iter()
-        .find(|&&(i, _)| i.as_ref() == key)
-        .map(|&(_, l)| l.clone())
+        .find(|&&(ref i, _)| i.as_ref() == key)
+        .map(|&(_, ref l)| l.clone())
         .unwrap_or_else(|| Lit::Str(default, StrStyle::Cooked))
 }
 
 fn gen_name(field: &Field) -> Ident {
-    extract_attrs(&field.attrs)
-        .find(|&(i, _)| i.as_ref() == "name")
-        .and_then(|(_, l)| match *l {
-            Lit::Str(ref s, _) => Some(Ident::new(s.clone())),
+    extract_attrs(&field.attrs, AttrSource::Field)
+        .find(|&(ref i, _)| i.as_ref() == "name")
+        .and_then(|(_, ref l)| match l {
+            &Lit::Str(ref s, _) => Some(Ident::new(s.clone())),
             _ => None,
         })
         .unwrap_or(field.ident.as_ref().unwrap().clone())
@@ -196,7 +227,7 @@ fn gen_from_clap(struct_name: &Ident, s: &[Field]) -> quote::Tokens {
 }
 
 fn gen_clap(ast: &DeriveInput, s: &[Field]) -> quote::Tokens {
-    let struct_attrs: Vec<_> = extract_attrs(&ast.attrs).collect();
+    let struct_attrs: Vec<_> = extract_attrs(&ast.attrs, AttrSource::Struct).collect();
     let name = from_attr_or_env(&struct_attrs, "name", "CARGO_PKG_NAME");
     let version = from_attr_or_env(&struct_attrs, "version", "CARGO_PKG_VERSION");
     let author = from_attr_or_env(&struct_attrs, "author", "CARGO_PKG_AUTHORS");
@@ -220,14 +251,14 @@ fn gen_clap(ast: &DeriveInput, s: &[Field]) -> quote::Tokens {
             Ty::Option => quote!( .takes_value(true).multiple(false).#validator ),
             Ty::Vec => quote!( .takes_value(true).multiple(true).#validator ),
             Ty::Other => {
-                let required = extract_attrs(&field.attrs)
-                    .find(|&(i, _)| i.as_ref() == "default_value")
+                let required = extract_attrs(&field.attrs, AttrSource::Field)
+                    .find(|&(ref i, _)| i.as_ref() == "default_value")
                     .is_none();
                 quote!( .takes_value(true).multiple(false).required(#required).#validator )
             },
         };
-        let from_attr = extract_attrs(&field.attrs)
-            .filter(|&(i, _)| i.as_ref() != "name")
+        let from_attr = extract_attrs(&field.attrs, AttrSource::Field)
+            .filter(|&(ref i, _)| i.as_ref() != "name")
             .map(|(i, l)| quote!(.#i(#l)));
         quote!( .arg(_structopt::clap::Arg::with_name(stringify!(#name)) #modifier #(#from_attr)*) )
     });
