@@ -483,9 +483,9 @@ impl Error {
             when: color,
         });
         let suffix =
-            suggestions::did_you_mean_suffix(bad_val.as_ref(),
-                                             good_vals.iter(),
-                                             suggestions::DidYouMeanMessageStyle::EnumValue);
+            suggestions::did_you_mean_value_suffix(
+                bad_val.as_ref(),
+                good_vals.iter());
 
         let mut sorted = vec![];
         for v in good_vals {

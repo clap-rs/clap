@@ -70,6 +70,7 @@ mod test {
                                     .version("0.1")
                                     .author("Kevin K. <kbknapp@gmail.com>")
                                     .arg_from_usage("-o --option [scoption]... 'tests options'")
+                                    .arg_from_usage("-s --subcmdarg [subcmdarg] 'tests other args'")
                                     .arg_from_usage("[scpositional] 'tests positionals'"))
     }
 }

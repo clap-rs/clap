@@ -1652,11 +1652,10 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     fn did_you_mean_error(&self, arg: &str, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
-        // Didn't match a flag or option...maybe it was a typo and close to one
+
+        // Didn't match a flag or option
         let suffix =
-            suggestions::did_you_mean_suffix(arg,
-                                             longs!(self),
-                                             suggestions::DidYouMeanMessageStyle::LongFlag);
+            suggestions::did_you_mean_flag_suffix(arg, longs!(self), &self.subcommands);
 
         // Add the arg to the matches to build a proper usage string
         if let Some(name) = suffix.1 {

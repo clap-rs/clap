@@ -1,3 +1,4 @@
+use app::App;
 // Third Party
 #[cfg(feature = "suggestions")]
 use strsim;
@@ -40,40 +41,46 @@ pub fn did_you_mean<'a, T: ?Sized, I>(_: &str, _: I) -> Option<&'a str>
 
 /// Returns a suffix that can be empty, or is the standard 'did you mean' phrase
 #[cfg_attr(feature = "lints", allow(needless_lifetimes))]
-pub fn did_you_mean_suffix<'z, T, I>(arg: &str,
-                                     values: I,
-                                     style: DidYouMeanMessageStyle)
+pub fn did_you_mean_flag_suffix<'z, T, I>(arg: &str, longs: I, subcommands: &'z [App])
                                      -> (String, Option<&'z str>)
+    where T: AsRef<str> + 'z,
+          I: IntoIterator<Item = &'z T>
+{
+    match did_you_mean(arg, longs) {
+        Some(candidate) => {
+            let suffix = format!("\n\tDid you mean {}{}?", Format::Good("--"), Format::Good(candidate));
+            return (suffix, Some(candidate))
+        }
+        None => {
+            for subcommand in subcommands {
+                let opts = subcommand.p.flags.iter().filter_map(|f| f.s.long).chain(
+                    subcommand.p.opts.iter().filter_map(|o| o.s.long));
+
+                if let Some(candidate) = did_you_mean(arg, opts) {
+                    let suffix = format!(
+                        "\n\tDid you mean to put '--{}' after the subcommand '{}'?",
+                        Format::Good(arg),
+                        Format::Good(candidate));
+                    return (suffix, Some(candidate));
+                }
+            }
+        }
+    }
+    return (String::new(), None)
+}
+
+/// Returns a suffix that can be empty, or is the standard 'did you mean' phrase
+pub fn did_you_mean_value_suffix<'z, T, I>(arg: &str, values: I) -> (String, Option<&'z str>)
     where T: AsRef<str> + 'z,
           I: IntoIterator<Item = &'z T>
 {
     match did_you_mean(arg, values) {
         Some(candidate) => {
-            let mut suffix = "\n\tDid you mean ".to_owned();
-            match style {
-                DidYouMeanMessageStyle::LongFlag => {
-                    suffix.push_str(&Format::Good("--").to_string())
-                }
-                DidYouMeanMessageStyle::EnumValue => suffix.push('\''),
-            }
-            suffix.push_str(&Format::Good(candidate).to_string()[..]);
-            if let DidYouMeanMessageStyle::EnumValue = style {
-                suffix.push('\'');
-            }
-            suffix.push_str("?");
+            let suffix = format!("\n\tDid you mean '{}'?", Format::Good(candidate));
             (suffix, Some(candidate))
         }
         None => (String::new(), None),
     }
-}
-
-/// A helper to determine message formatting
-#[derive(Copy, Clone, Debug)]
-pub enum DidYouMeanMessageStyle {
-    /// Suggested value is a long flag
-    LongFlag,
-    /// Suggested value is one of various possible values
-    EnumValue,
 }
 
 #[cfg(all(test, features = "suggestions"))]
@@ -96,15 +103,13 @@ mod test {
     fn suffix_long() {
         let p_vals = ["test", "possible", "values"];
         let suffix = "\n\tDid you mean \'--test\'?";
-        assert_eq!(did_you_mean_suffix("tst", p_vals.iter(), DidYouMeanMessageStyle::LongFlag),
-                   (suffix, Some("test")));
+        assert_eq!(did_you_mean_flag_suffix("tst", p_vals.iter(), []), (suffix, Some("test")));
     }
 
     #[test]
     fn suffix_enum() {
         let p_vals = ["test", "possible", "values"];
         let suffix = "\n\tDid you mean \'test\'?";
-        assert_eq!(did_you_mean_suffix("tst", p_vals.iter(), DidYouMeanMessageStyle::EnumValue),
-                   (suffix, Some("test")));
+        assert_eq!(did_you_mean_value_suffix("tst", p_vals.iter()), (suffix, Some("test")));
     }
 }
