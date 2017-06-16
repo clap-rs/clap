@@ -1,6 +1,6 @@
 [package]
 name = "structopt"
-version = "0.0.3"
+version = "0.0.4"
 authors = ["Guillaume Pinot <texitoi@texitoi.eu>"]
 description = "Parse command line argument by defining a struct."
 documentation = "https://docs.rs/structopt"
