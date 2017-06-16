@@ -327,9 +327,9 @@
 //! 
 //! #### Features enabled by default
 //! 
-//! * **"suggestions"**: Turns on the `Did you mean '--myoption'?` feature for when users make typos. (builds dependency `strsim`)
-//! * **"color"**: Turns on colored error messages. This feature only works on non-Windows OSs. (builds dependency `ansi-term` and `atty`)
-//! * **"wrap_help"**: Wraps the help at the actual terminal width when available, instead of 120 chracters. (builds dependency `term_size`)
+//! * `suggestions`: Turns on the `Did you mean '--myoption'?` feature for when users make typos. (builds dependency `strsim`)
+//! * `color`: Turns on colored error messages. This feature only works on non-Windows OSs. (builds dependency `ansi-term` and `atty`)
+//! * `wrap_help`: Wraps the help at the actual terminal width when available, instead of 120 chracters. (builds dependency `term_size`)
 //! 
 //! To disable these, add this to your `Cargo.toml`:
 //! 
@@ -478,7 +478,7 @@
 //! 
 //! ### Compatibility Policy
 //!
-//! Because `clap` takes SemVer and compatibility seriously, this is the official policy regarding
+//! Because `clap` takes `SemVer` and compatibility seriously, this is the official policy regarding
 //! breaking changes and previous versions of Rust.
 //!
 //! `clap` will pin the minimum required version of Rust to the CI builds. Bumping the minimum

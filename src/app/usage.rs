@@ -26,9 +26,9 @@ pub fn create_error_usage<'a, 'b>(p: &Parser<'a, 'b>,
     let mut args: Vec<_> = matcher.arg_names()
         .iter()
         .filter(|n| {
-            if let Some(o) = find_by_name!(p, *n, opts, iter) {
+            if let Some(o) = find_by_name!(p, **n, opts, iter) {
                 !o.b.is_set(ArgSettings::Required) && !o.b.is_set(ArgSettings::Hidden)
-            } else if let Some(p) = find_by_name!(p, *n, positionals, values) {
+            } else if let Some(p) = find_by_name!(p, **n, positionals, values) {
                 !p.b.is_set(ArgSettings::Required) && p.b.is_set(ArgSettings::Hidden)
             } else {
                 true // flags can't be required, so they're always true
@@ -244,7 +244,7 @@ fn get_args_tag(p: &Parser, incl_reqs: bool) -> Option<String> {
                             None
                         })
             .max()
-            .unwrap_or(p.positionals.len());
+            .unwrap_or_else(|| p.positionals.len());
         return Some(p.positionals
                         .iter()
                         .filter_map(|(idx, pos)| if idx <= highest_req_pos {
@@ -379,10 +379,10 @@ pub fn get_required_usage_from<'a, 'b>(p: &Parser<'a, 'b>,
     let args_in_groups = p.groups
         .iter()
         .filter(|gn| desc_reqs.contains(&gn.name))
-        .flat_map(|g| p.arg_names_in_group(&g.name))
+        .flat_map(|g| p.arg_names_in_group(g.name))
         .collect::<Vec<_>>();
 
-    let pmap = if let Some(ref m) = matcher {
+    let pmap = if let Some(m) = matcher {
         desc_reqs.iter()
             .filter(|a| p.positionals.values().any(|p| &&p.b.name == a))
             .filter(|&pos| !m.contains(pos))
@@ -414,10 +414,10 @@ pub fn get_required_usage_from<'a, 'b>(p: &Parser<'a, 'b>,
             .filter(|name| !args_in_groups.contains(name))
             .filter(|name| !(matcher.is_some() && matcher.as_ref().unwrap().contains(name))) {
         debugln!("usage::get_required_usage_from:iter:{}:", a);
-        let arg = find_by_name!(p, a, flags, iter)
+        let arg = find_by_name!(p, *a, flags, iter)
             .map(|f| f.to_string())
             .unwrap_or_else(|| {
-                                find_by_name!(p, a, opts, iter)
+                                find_by_name!(p, *a, opts, iter)
                                     .map(|o| o.to_string())
                                     .expect(INTERNAL_ERROR_MSG)
                             });

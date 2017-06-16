@@ -472,7 +472,7 @@ impl<'a> From<&'a BTreeMap<Yaml, Yaml>> for ArgGroup<'a> {
             b
         };
 
-        for (k, v) in group_settings.iter() {
+        for (k, v) in group_settings {
             a = match k.as_str().unwrap() {
                 "required" => a.required(v.as_bool().unwrap()),
                 "multiple" => a.multiple(v.as_bool().unwrap()),

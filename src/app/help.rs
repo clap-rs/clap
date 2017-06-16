@@ -83,6 +83,7 @@ pub struct Help<'a> {
 // Public Functions
 impl<'a> Help<'a> {
     /// Create a new `Help` instance.
+    #[cfg_attr(feature = "cargo-clippy", allow(too_many_arguments))]
     pub fn new(w: &'a mut Write,
                next_line_help: bool,
                hide_pv: bool,
@@ -164,9 +165,9 @@ impl<'a> Help<'a> {
         if let Some(h) = parser.meta.help_str {
             try!(write!(self.writer, "{}", h).map_err(Error::from));
         } else if let Some(tmpl) = parser.meta.template {
-            try!(self.write_templated_help(&parser, tmpl));
+            try!(self.write_templated_help(parser, tmpl));
         } else {
-            try!(self.write_default_help(&parser));
+            try!(self.write_default_help(parser));
         }
         Ok(())
     }
@@ -407,9 +408,9 @@ impl<'a> Help<'a> {
     fn help<'b, 'c>(&mut self, arg: &ArgWithDisplay<'b, 'c>, spec_vals: &str) -> io::Result<()> {
         debugln!("Help::help;");
         let h = if self.use_long {
-            arg.long_help().unwrap_or(arg.help().unwrap_or(""))
+            arg.long_help().unwrap_or_else(|| arg.help().unwrap_or(""))
         } else {
-            arg.help().unwrap_or(arg.long_help().unwrap_or(""))
+            arg.help().unwrap_or_else(|| arg.long_help().unwrap_or(""))
         };
         let mut help = String::from(h) + spec_vals;
         let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp) || self.use_long;
@@ -511,6 +512,7 @@ impl<'a> Help<'a> {
     /// Writes help for all arguments (options, flags, args, subcommands)
     /// including titles of a Parser Object to the wrapped stream.
     #[cfg_attr(feature = "lints", allow(useless_let_if_seq))]
+    #[cfg_attr(feature = "cargo-clippy", allow(useless_let_if_seq))]
     pub fn write_all_args(&mut self, parser: &Parser) -> ClapResult<()> {
         debugln!("Help::write_all_args;");
         let flags = parser.has_flags();
@@ -563,7 +565,7 @@ impl<'a> Help<'a> {
                 try!(self.writer.write_all(b"\n\n"));
             }
             try!(color!(self, "SUBCOMMANDS:\n", warning));
-            try!(self.write_subcommands(&parser));
+            try!(self.write_subcommands(parser));
         }
 
         Ok(())
@@ -604,7 +606,7 @@ impl<'a> Help<'a> {
     /// Writes version of a Parser Object to the wrapped stream.
     fn write_version(&mut self, parser: &Parser) -> io::Result<()> {
         debugln!("Help::write_version;");
-        try!(write!(self.writer, "{}", parser.meta.version.unwrap_or("".into())));
+        try!(write!(self.writer, "{}", parser.meta.version.unwrap_or("")));
         Ok(())
     }
 
@@ -648,9 +650,9 @@ impl<'a> Help<'a> {
             }};
         }
         // Print the version
-        try!(self.write_bin_name(&parser));
+        try!(self.write_bin_name(parser));
         try!(self.writer.write_all(b" "));
-        try!(self.write_version(&parser));
+        try!(self.write_version(parser));
         try!(self.writer.write_all(b"\n"));
         if let Some(author) = parser.meta.author {
             write_thing!(author)
@@ -671,7 +673,7 @@ impl<'a> Help<'a> {
         let subcmds = parser.has_subcommands();
 
         if flags || opts || pos || subcmds {
-            try!(self.write_all_args(&parser));
+            try!(self.write_all_args(parser));
         }
 
         if let Some(h) = parser.meta.more_help {
@@ -726,9 +728,9 @@ fn copy_until<R: Read, W: Write>(r: &mut R, w: &mut W, delimiter_byte: u8) -> Co
 /// Copies the contents of a reader into a writer until a {tag} is found,
 /// copying the tag content to a buffer and returning its size.
 /// In addition to errors, there are three possible outputs:
-///   - None: The reader was consumed.
-///   - Some(Ok(0)): No tag was captured but the reader still contains data.
-///   - Some(Ok(length>0)): a tag with `length` was captured to the tag_buffer.
+///   - `None`: The reader was consumed.
+///   - `Some(Ok(0))`: No tag was captured but the reader still contains data.
+///   - `Some(Ok(length>0))`: a tag with `length` was captured to the `tag_buffer`.
 fn copy_and_capture<R: Read, W: Write>(r: &mut R,
                                        w: &mut W,
                                        tag_buffer: &mut Cursor<Vec<u8>>)
@@ -842,7 +844,7 @@ impl<'a> Help<'a> {
                     try!(self.writer.write_all(b"Could not decode tag name"));
                 }
                 b"bin" => {
-                    try!(self.write_bin_name(&parser));
+                    try!(self.write_bin_name(parser));
                 }
                 b"version" => {
                     try!(write!(self.writer,
@@ -863,7 +865,7 @@ impl<'a> Help<'a> {
                     try!(write!(self.writer, "{}", usage::create_usage_no_title(parser, &[])));
                 }
                 b"all-args" => {
-                    try!(self.write_all_args(&parser));
+                    try!(self.write_all_args(parser));
                 }
                 b"unified" => {
                     let opts_flags = parser
@@ -882,7 +884,7 @@ impl<'a> Help<'a> {
                     try!(self.write_args(parser.positionals().map(as_arg_trait)));
                 }
                 b"subcommands" => {
-                    try!(self.write_subcommands(&parser));
+                    try!(self.write_subcommands(parser));
                 }
                 b"after-help" => {
                     try!(write!(self.writer,

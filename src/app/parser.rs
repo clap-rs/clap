@@ -305,11 +305,11 @@ impl<'a, 'b> Parser<'a, 'b>
     }
     // actually adds the arguments but from a borrow (which means we have to do some clonine)
     pub fn add_arg_ref(&mut self, a: &Arg<'a, 'b>) {
-        debug_assert!(self.debug_asserts(&a));
+        debug_assert!(self.debug_asserts(a));
         self.add_conditional_reqs(a);
         self.add_arg_groups(a);
         self.add_reqs(a);
-        self.implied_settings(&a);
+        self.implied_settings(a);
         if a.index.is_some() || (a.s.short.is_none() && a.s.long.is_none()) {
             let i = if a.index.is_none() {
                 (self.positionals.len() + 1)
@@ -702,7 +702,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 } else if let Some(c) = sc.subcommands
                               .iter()
                               .find(|s| if let Some(ref als) = s.p.meta.aliases {
-                                        als.iter().any(|&(a, _)| &a == &&*cmd.to_string_lossy())
+                                        als.iter().any(|&(a, _)| a == &*cmd.to_string_lossy())
                                     } else {
                                         false
                                     })
@@ -868,8 +868,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 }
 
                 if !starts_new_arg {
-                    match needs_val_of {
-                        ParseResult::Opt(name) => {
+                    if let ParseResult::Opt(name) = needs_val_of {
                             // Check to see if parsing a value from a previous arg
                             let arg = self.opts
                                 .iter()
@@ -879,43 +878,39 @@ impl<'a, 'b> Parser<'a, 'b>
                             needs_val_of = try!(self.add_val_to_arg(arg, &arg_os, matcher));
                             // get the next value from the iterator
                             continue;
-                        }
+                    }
+                } else if arg_os.starts_with(b"--") {
+                    needs_val_of = try!(self.parse_long_arg(matcher, &arg_os));
+                    debugln!("Parser:get_matches_with: After parse_long_arg {:?}",
+                             needs_val_of);
+                    match needs_val_of {
+                        ParseResult::Flag |
+                            ParseResult::Opt(..) |
+                            ParseResult::ValuesDone => continue,
                         _ => (),
                     }
-                } else {
-                    if arg_os.starts_with(b"--") {
-                        needs_val_of = try!(self.parse_long_arg(matcher, &arg_os));
-                        debugln!("Parser:get_matches_with: After parse_long_arg {:?}",
-                                 needs_val_of);
-                        match needs_val_of {
-                            ParseResult::Flag |
-                            ParseResult::Opt(..) |
-                            ParseResult::ValuesDone => continue,
-                            _ => (),
-                        }
-                    } else if arg_os.starts_with(b"-") && arg_os.len_() != 1 {
-                        // Try to parse short args like normal, if AllowLeadingHyphen or
-                        // AllowNegativeNumbers is set, parse_short_arg will *not* throw
-                        // an error, and instead return Ok(None)
-                        needs_val_of = try!(self.parse_short_arg(matcher, &arg_os));
-                        // If it's None, we then check if one of those two AppSettings was set
-                        debugln!("Parser:get_matches_with: After parse_short_arg {:?}",
-                                 needs_val_of);
-                        match needs_val_of {
-                            ParseResult::MaybeNegNum => {
-                                if !(arg_os.to_string_lossy().parse::<i64>().is_ok() ||
-                                     arg_os.to_string_lossy().parse::<f64>().is_ok()) {
-                                    return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
-                                        "",
-                                        &*usage::create_error_usage(self, matcher, None),
-                                        self.color()));
-                                }
+                } else if arg_os.starts_with(b"-") && arg_os.len_() != 1 {
+                    // Try to parse short args like normal, if AllowLeadingHyphen or
+                    // AllowNegativeNumbers is set, parse_short_arg will *not* throw
+                    // an error, and instead return Ok(None)
+                    needs_val_of = try!(self.parse_short_arg(matcher, &arg_os));
+                    // If it's None, we then check if one of those two AppSettings was set
+                    debugln!("Parser:get_matches_with: After parse_short_arg {:?}",
+                             needs_val_of);
+                    match needs_val_of {
+                        ParseResult::MaybeNegNum => {
+                            if !(arg_os.to_string_lossy().parse::<i64>().is_ok() ||
+                                 arg_os.to_string_lossy().parse::<f64>().is_ok()) {
+                                return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
+                                "",
+                                &*usage::create_error_usage(self, matcher, None),
+                                self.color()));
                             }
-                            ParseResult::Opt(..) |
+                        }
+                        ParseResult::Opt(..) |
                             ParseResult::Flag |
                             ParseResult::ValuesDone => continue,
-                            _ => (),
-                        }
+                        _ => (),
                     }
                 }
 
@@ -1148,7 +1143,7 @@ impl<'a, 'b> Parser<'a, 'b>
         mid_string.push_str(" ");
         if let Some(ref mut sc) = self.subcommands
                .iter_mut()
-               .find(|s| &s.p.meta.name == &sc_name) {
+               .find(|s| s.p.meta.name == sc_name) {
             let mut sc_matcher = ArgMatcher::new();
             // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
             // a space
@@ -1241,13 +1236,11 @@ impl<'a, 'b> Parser<'a, 'b>
                       .find(|g| g.name == group)
                       .expect(INTERNAL_ERROR_MSG)
                       .args {
-            if self.groups.iter().any(|g| &g.name == &*n) {
+            if self.groups.iter().any(|g| g.name == *n) {
                 args.extend(self.arg_names_in_group(n));
                 g_vec.push(*n);
-            } else {
-                if !args.contains(n) {
-                    args.push(*n);
-                }
+            } else if !args.contains(n) {
+                args.push(*n);
             }
         }
 
@@ -1344,6 +1337,7 @@ impl<'a, 'b> Parser<'a, 'b>
         Ok(())
     }
 
+    #[cfg_attr(feature = "cargo-clippy", allow(let_and_return))]
     fn use_long_help(&self) -> bool {
         let ul = self.flags.iter().any(|f| f.b.long_help.is_some()) ||
                  self.opts.iter().any(|o| o.b.long_help.is_some()) ||
@@ -1360,13 +1354,12 @@ impl<'a, 'b> Parser<'a, 'b>
         use_long = use_long && self.use_long_help();
         let mut buf = vec![];
         match Help::write_parser_help(&mut buf, self, use_long) {
-            Err(e) => return e,
-            _ => (),
-        }
-        Error {
-            message: unsafe { String::from_utf8_unchecked(buf) },
-            kind: ErrorKind::HelpDisplayed,
-            info: None,
+            Err(e) => e,
+            _ => Error {
+                message: unsafe { String::from_utf8_unchecked(buf) },
+                kind: ErrorKind::HelpDisplayed,
+                info: None,
+            }
         }
     }
 
@@ -1375,13 +1368,12 @@ impl<'a, 'b> Parser<'a, 'b>
         let out = io::stdout();
         let mut buf_w = BufWriter::new(out.lock());
         match self.print_version(&mut buf_w, use_long) {
-            Err(e) => return e,
-            _ => (),
-        }
-        Error {
-            message: String::new(),
-            kind: ErrorKind::VersionDisplayed,
-            info: None,
+            Err(e) => e,
+            _ => Error {
+                message: String::new(),
+                kind: ErrorKind::VersionDisplayed,
+                info: None,
+            }
         }
     }
 
@@ -1403,7 +1395,7 @@ impl<'a, 'b> Parser<'a, 'b>
             full_arg.trim_left_matches(b'-')
         };
 
-        if let Some(opt) = find_opt_by_long!(@os self, &arg) {
+        if let Some(opt) = find_opt_by_long!(@os self, arg) {
             debugln!("Parser::parse_long_arg: Found valid opt '{}'",
                      opt.to_string());
             self.settings.set(AS::ValidArgFound);
@@ -1414,7 +1406,7 @@ impl<'a, 'b> Parser<'a, 'b>
             }
 
             return Ok(ret);
-        } else if let Some(flag) = find_flag_by_long!(@os self, &arg) {
+        } else if let Some(flag) = find_flag_by_long!(@os self, arg) {
             debugln!("Parser::parse_long_arg: Found valid flag '{}'",
                      flag.to_string());
             self.settings.set(AS::ValidArgFound);
@@ -1588,33 +1580,31 @@ impl<'a, 'b> Parser<'a, 'b>
         where A: AnyArg<'a, 'b> + Display
     {
         debugln!("Parser::add_val_to_arg; arg={}, val={:?}", arg.name(), val);
-        let ret;
         debugln!("Parser::add_val_to_arg; trailing_vals={:?}, DontDelimTrailingVals={:?}",
                  self.is_set(AS::TrailingValues),
                  self.is_set(AS::DontDelimitTrailingValues));
         if !(self.is_set(AS::TrailingValues) && self.is_set(AS::DontDelimitTrailingValues)) {
             if let Some(delim) = arg.val_delim() {
-                let mut iret = ParseResult::ValuesDone;
                 if val.is_empty_() {
-                    iret = try!(self.add_single_val_to_arg(arg, val, matcher));
+                    Ok(try!(self.add_single_val_to_arg(arg, val, matcher)))
                 } else {
+                    let mut iret = ParseResult::ValuesDone;
                     for v in val.split(delim as u32 as u8) {
                         iret = try!(self.add_single_val_to_arg(arg, v, matcher));
                     }
                     // If there was a delimiter used, we're not looking for more values
                     if val.contains_byte(delim as u32 as u8) ||
-                       arg.is_set(ArgSettings::RequireDelimiter) {
-                        iret = ParseResult::ValuesDone;
-                    }
+                        arg.is_set(ArgSettings::RequireDelimiter) {
+                            iret = ParseResult::ValuesDone;
+                        }
+                    Ok(iret)
                 }
-                ret = Ok(iret);
             } else {
-                ret = self.add_single_val_to_arg(arg, val, matcher);
+                self.add_single_val_to_arg(arg, val, matcher)
             }
         } else {
-            ret = self.add_single_val_to_arg(arg, val, matcher);
+            self.add_single_val_to_arg(arg, val, matcher)
         }
-        ret
     }
 
     fn add_single_val_to_arg<A>(&self,
@@ -1670,11 +1660,11 @@ impl<'a, 'b> Parser<'a, 'b>
 
         // Add the arg to the matches to build a proper usage string
         if let Some(name) = suffix.1 {
-            if let Some(opt) = find_opt_by_long!(self, &name) {
+            if let Some(opt) = find_opt_by_long!(self, name) {
                 self.groups_for_arg(&*opt.b.name)
                     .and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
                 matcher.insert(&*opt.b.name);
-            } else if let Some(flg) = find_flag_by_long!(self, &name) {
+            } else if let Some(flg) = find_flag_by_long!(self, name) {
                 self.groups_for_arg(&*flg.b.name)
                     .and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
                 matcher.insert(&*flg.b.name);
@@ -1698,11 +1688,11 @@ impl<'a, 'b> Parser<'a, 'b>
         let ver = if use_long {
             self.meta
                 .long_version
-                .unwrap_or(self.meta.version.unwrap_or("".into()))
+                .unwrap_or_else(|| self.meta.version.unwrap_or(""))
         } else {
             self.meta
                 .version
-                .unwrap_or(self.meta.long_version.unwrap_or("".into()))
+                .unwrap_or_else(|| self.meta.long_version.unwrap_or(""))
         };
         if let Some(bn) = self.meta.bin_name.as_ref() {
             if bn.contains(' ') {
@@ -1817,16 +1807,39 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     pub fn find_any_arg(&self, name: &str) -> Option<&AnyArg> {
-        if let Some(f) = find_by_name!(self, &name, flags, iter) {
+        if let Some(f) = find_by_name!(self, name, flags, iter) {
             return Some(f);
         }
-        if let Some(o) = find_by_name!(self, &name, opts, iter) {
+        if let Some(o) = find_by_name!(self, name, opts, iter) {
             return Some(o);
         }
-        if let Some(p) = find_by_name!(self, &name, positionals, values) {
+        if let Some(p) = find_by_name!(self, name, positionals, values) {
             return Some(p);
         }
         None
+    }
+
+    /// Check is a given string matches the binary name for this parser
+    fn is_bin_name(&self, value: &str) -> bool {
+        self.meta.bin_name
+            .as_ref()
+            .and_then(|name| Some(value == name))
+            .unwrap_or(false)
+    }
+
+    /// Check is a given string is an alias for this parser
+    fn is_alias(&self, value: &str) -> bool {
+        self.meta.aliases
+            .as_ref()
+            .and_then(|aliases| {
+                for alias in aliases {
+                    if alias.0 == value {
+                        return Some(true);
+                    }
+                }
+                Some(false)
+            })
+            .unwrap_or(false)
     }
 
     // Only used for completion scripts due to bin_name messiness
@@ -1835,20 +1848,17 @@ impl<'a, 'b> Parser<'a, 'b>
         debugln!("Parser::find_subcommand: sc={}", sc);
         debugln!("Parser::find_subcommand: Currently in Parser...{}",
                  self.meta.bin_name.as_ref().unwrap());
-        for s in self.subcommands.iter() {
-            if s.p.meta.bin_name.as_ref().unwrap_or(&String::new()) == sc ||
-               (s.p.meta.aliases.is_some() &&
-                s.p
-                    .meta
-                    .aliases
-                    .as_ref()
-                    .unwrap()
-                    .iter()
-                    .any(|&(s, _)| {
-                             s == sc.split(' ').rev().next().expect(INTERNAL_ERROR_MSG)
-                         })) {
+        for s in &self.subcommands {
+            if s.p.is_bin_name(sc) {
                 return Some(s);
             }
+            // XXX: why do we split here?
+            // isn't `sc` supposed to be single word already?
+            let last = sc.split(' ').rev().next().expect(INTERNAL_ERROR_MSG);
+            if s.p.is_alias(last) {
+                return Some(s);
+            }
+
             if let Some(app) = s.p.find_subcommand(sc) {
                 return Some(app);
             }

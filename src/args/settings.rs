@@ -4,7 +4,7 @@ use std::str::FromStr;
 
 bitflags! {
     struct Flags: u16 {
-        const REQUIRED         = 1 << 0;
+        const REQUIRED         = 1;
         const MULTIPLE         = 1 << 1;
         const EMPTY_VALS       = 1 << 2;
         const GLOBAL           = 1 << 3;

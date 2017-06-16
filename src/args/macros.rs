@@ -1,4 +1,4 @@
-
+#[cfg(feature = "yaml")]
 macro_rules! yaml_tuple2 {
     ($a:ident, $v:ident, $c:ident) => {{
             if let Some(vec) = $v.as_vec() {
@@ -18,6 +18,7 @@ macro_rules! yaml_tuple2 {
     };
 }
 
+#[cfg(feature = "yaml")]
 macro_rules! yaml_tuple3 {
     ($a:ident, $v:ident, $c:ident) => {{
             if let Some(vec) = $v.as_vec() {
@@ -37,6 +38,7 @@ macro_rules! yaml_tuple3 {
     };
 }
 
+#[cfg(feature = "yaml")]
 macro_rules! yaml_vec_or_str {
     ($v:ident, $a:ident, $c:ident) => {{
             let maybe_vec = $v.as_vec();
@@ -60,6 +62,7 @@ macro_rules! yaml_vec_or_str {
     };
 }
 
+#[cfg(feature = "yaml")]
 macro_rules! yaml_opt_str {
     ($v:expr) => {{
         if $v.is_null() {
@@ -70,31 +73,35 @@ macro_rules! yaml_opt_str {
     }};
 }
 
+#[cfg(feature = "yaml")]
 macro_rules! yaml_str {
     ($v:expr) => {{
         $v.as_str().unwrap_or_else(|| panic!("failed to convert YAML {:?} value to a string", $v))
     }};
 }
 
-
+#[cfg(feature = "yaml")]
 macro_rules! yaml_to_str {
     ($a:ident, $v:ident, $c:ident) => {{
         $a.$c(yaml_str!($v))
     }};
 }
 
+#[cfg(feature = "yaml")]
 macro_rules! yaml_to_bool {
     ($a:ident, $v:ident, $c:ident) => {{
         $a.$c($v.as_bool().unwrap_or_else(|| panic!("failed to convert YAML {:?} value to a string", $v)))
     }};
 }
 
+#[cfg(feature = "yaml")]
 macro_rules! yaml_to_u64 {
     ($a:ident, $v:ident, $c:ident) => {{
         $a.$c($v.as_i64().unwrap_or_else(|| panic!("failed to convert YAML {:?} value to a string", $v)) as u64)
     }};
 }
 
+#[cfg(feature = "yaml")]
 macro_rules! yaml_to_usize {
     ($a:ident, $v:ident, $c:ident) => {{
         $a.$c($v.as_i64().unwrap_or_else(|| panic!("failed to convert YAML {:?} value to a string", $v)) as usize)
