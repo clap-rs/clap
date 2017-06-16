@@ -172,7 +172,7 @@ fn extract_attrs<'a>(attrs: &'a [Attribute], attr_source: AttrSource) -> Box<Ite
     Box::new(doc_comments.chain(settings_attrs))
 }
 
-fn from_attr_or_env<'a>(attrs: &[(Ident, Lit)], key: &str, env: &str) -> Lit {
+fn from_attr_or_env(attrs: &[(Ident, Lit)], key: &str, env: &str) -> Lit {
     let default = std::env::var(env).unwrap_or("".into());
     attrs.iter()
         .filter(|&&(ref i, _)| i.as_ref() == key)
