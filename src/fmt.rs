@@ -44,7 +44,6 @@ pub struct ColorizerOption {
 
 #[doc(hidden)]
 pub struct Colorizer {
-    use_stderr: bool,
     when: ColorWhen,
 }
 
@@ -63,7 +62,6 @@ impl Colorizer {
         let is_a_tty = is_a_tty(option.use_stderr);
         let is_term_dumb = is_term_dumb();
         Colorizer {
-            use_stderr: option.use_stderr,
             when: if is_a_tty && !is_term_dumb {
                 option.when
             } else {

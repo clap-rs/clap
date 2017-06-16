@@ -371,7 +371,7 @@ macro_rules! arg_enum {
 }
 
 /// Allows you to pull the version from your Cargo.toml at compile time as
-/// MAJOR.MINOR.PATCH_PKGVERSION_PRE
+/// `MAJOR.MINOR.PATCH_PKGVERSION_PRE`
 ///
 /// # Examples
 ///
@@ -764,12 +764,6 @@ macro_rules! wlnerr(
         writeln!(&mut stderr(), $($arg)*).ok();
     })
 );
-macro_rules! werr(
-    ($($arg:tt)*) => ({
-        use std::io::{Write, stderr};
-        write!(&mut stderr(), $($arg)*).ok();
-    })
-);
 
 #[cfg(feature = "debug")]
 #[cfg_attr(feature = "debug", macro_use)]
@@ -803,27 +797,10 @@ mod debug_macros {
         ($fmt:expr) => ();
         ($fmt:expr, $($arg:tt)*) => ();
     }
-    macro_rules! sdebug {
-        ($fmt:expr) => ();
-        ($fmt:expr, $($arg:tt)*) => ();
-    }
     macro_rules! debug {
         ($fmt:expr) => ();
         ($fmt:expr, $($arg:tt)*) => ();
     }
-}
-
-// Helper/deduplication macro for printing the correct number of spaces in help messages
-// used in:
-//    src/args/arg_builder/*.rs
-//    src/app/mod.rs
-macro_rules! write_spaces {
-    ($num:expr, $w:ident) => ({
-        debugln!("write_spaces!;");
-        for _ in 0..$num {
-            try!(write!($w, " "));
-        }
-    })
 }
 
 // Helper/deduplication macro for printing the correct number of spaces in help messages
@@ -840,17 +817,6 @@ macro_rules! write_nspaces {
 }
 
 // convenience macro for remove an item from a vec
-macro_rules! vec_remove {
-    ($vec:expr, $to_rem:expr) => {
-        debugln!("vec_remove!: to_rem={:?}", $to_rem);
-        for i in (0 .. $vec.len()).rev() {
-            let should_remove = &$vec[i] == $to_rem;
-            if should_remove { $vec.swap_remove(i); }
-        }
-    };
-}
-
-// convenience macro for remove an item from a vec
 macro_rules! vec_remove_all {
     ($vec:expr, $to_rem:expr) => {
         debugln!("vec_remove_all! to_rem={:?}", $to_rem);
@@ -864,21 +830,21 @@ macro_rules! find_from {
     ($_self:expr, $arg_name:expr, $from:ident, $matcher:expr) => {{
         let mut ret = None;
         for k in $matcher.arg_names() {
-            if let Some(f) = find_by_name!($_self, &k, flags, iter) {
+            if let Some(f) = find_by_name!($_self, k, flags, iter) {
                 if let Some(ref v) = f.$from() {
                     if v.contains($arg_name) {
                         ret = Some(f.to_string());
                     }
                 }
             }
-            if let Some(o) = find_by_name!($_self, &k, opts, iter) {
+            if let Some(o) = find_by_name!($_self, k, opts, iter) {
                 if let Some(ref v) = o.$from() {
                     if v.contains(&$arg_name) {
                         ret = Some(o.to_string());
                     }
                 }
             }
-            if let Some(pos) = find_by_name!($_self, &k, positionals, values) {
+            if let Some(pos) = find_by_name!($_self, k, positionals, values) {
                 if let Some(ref v) = pos.$from() {
                     if v.contains($arg_name) {
                         ret = Some(pos.b.name.to_owned());
@@ -894,21 +860,21 @@ macro_rules! find_name_from {
     ($_self:expr, $arg_name:expr, $from:ident, $matcher:expr) => {{
         let mut ret = None;
         for k in $matcher.arg_names() {
-            if let Some(f) = find_by_name!($_self, &k, flags, iter) {
+            if let Some(f) = find_by_name!($_self, k, flags, iter) {
                 if let Some(ref v) = f.$from() {
                     if v.contains($arg_name) {
                         ret = Some(f.b.name);
                     }
                 }
             }
-            if let Some(o) = find_by_name!($_self, &k, opts, iter) {
+            if let Some(o) = find_by_name!($_self, k, opts, iter) {
                 if let Some(ref v) = o.$from() {
                     if v.contains(&$arg_name) {
                         ret = Some(o.b.name);
                     }
                 }
             }
-            if let Some(pos) = find_by_name!($_self, &k, positionals, values) {
+            if let Some(pos) = find_by_name!($_self, k, positionals, values) {
                 if let Some(ref v) = pos.$from() {
                     if v.contains($arg_name) {
                         ret = Some(pos.b.name);
@@ -923,7 +889,7 @@ macro_rules! find_name_from {
 // Finds an arg by name
 macro_rules! find_by_name {
     ($p:expr, $name:expr, $what:ident, $how:ident) => {
-        $p.$what.$how().find(|o| &o.b.name == $name)
+        $p.$what.$how().find(|o| o.b.name == $name)
     }
 }
 
@@ -946,26 +912,20 @@ macro_rules! find_flag_by_long {
     }};
 }
 
-macro_rules! find_any_by_long {
-    ($_self:ident, $long:expr, $what:ident) => {
-        _find_flag_by_long!($_self, $long).or(_find_opt_by_long!($_self, $long))
-    }
-}
-
 macro_rules! _find_by_long {
     ($_self:ident, $long:expr, $what:ident) => {{
         $_self.$what
             .iter()
             .filter(|a| a.s.long.is_some())
             .find(|a| {
-                &&a.s.long.unwrap() == &$long ||
+                a.s.long.unwrap() == $long ||
                 (a.s.aliases.is_some() &&
                  a.s
                     .aliases
                     .as_ref()
                     .unwrap()
                     .iter()
-                    .any(|&(alias, _)| &&alias == &$long))
+                    .any(|&(alias, _)| alias == $long))
             })
     }}
 }
@@ -981,12 +941,6 @@ macro_rules! find_flag_by_short {
     ($_self:ident, $short:expr) => {{
         _find_by_short!($_self, $short, flags)
     }}
-}
-
-macro_rules! find_any_by_short {
-    ($_self:ident, $short:expr, $what:ident) => {
-        _find_flag_by_short!($_self, $short).or(_find_opt_by_short!($_self, $short))
-    }
 }
 
 macro_rules! _find_by_short {
