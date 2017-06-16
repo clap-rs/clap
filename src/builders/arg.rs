@@ -11,9 +11,10 @@ use std::os::unix::ffi::OsStrExt;
 use yaml_rust::Yaml;
 use vec_map::VecMap;
 
-use usage_parser::UsageParser;
-use args::settings::ArgSettings;
-use args::arg_builder::{Base, Valued, Switched};
+use ArgSettings;
+use builders::arg_settings::ArgFlags;
+use builders::UsageParser;
+use built::{Base, Valued, Switched};
 
 // Gives the default display order value
 #[doc(hidden)]
@@ -2660,7 +2661,7 @@ impl<'n, 'e, 'z> From<&'z str> for Arg<'n, 'e> {
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     /// [`Arg::from_usage`]: ./struct.Arg.html#method.from_usage
-    pub fn from(u: &'z str) -> Arg<'n, 'e> {
+    fn from(u: &'z str) -> Arg<'n, 'e> {
         let parser = UsageParser::from_usage(u);
         parser.parse()
     }

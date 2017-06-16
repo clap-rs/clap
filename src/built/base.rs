@@ -1,5 +1,6 @@
 
-use args::{ArgSettings, Arg, ArgFlags};
+use {ArgSettings, Arg};
+use builders::arg_settings::ArgFlags;
 
 #[derive(Debug, Clone, Default)]
 pub struct Base<'a, 'b>

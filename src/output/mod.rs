@@ -1,5 +1,8 @@
 pub mod errors;
 pub mod fmt;
-pub mod help;
+mod help;
 pub mod suggestions;
 pub mod usage;
+
+pub use self::help::Help;
+pub use self::errors::Result;

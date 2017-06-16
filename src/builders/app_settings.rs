@@ -117,6 +117,7 @@ impl AppFlags {
 ///
 /// [`App`]: ./struct.App.html
 #[derive(Debug, PartialEq, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum AppSettings {
     /// Specifies that any invalid UTF-8 code points should *not* be treated as an error.
     /// This is the default behavior of `clap`.

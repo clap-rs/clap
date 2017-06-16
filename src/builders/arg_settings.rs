@@ -60,6 +60,7 @@ impl Default for ArgFlags {
 /// [`Arg::unset`]: ./struct.Arg.html#method.unset
 /// [`Arg::is_set`]: ./struct.Arg.html#method.is_set
 #[derive(Debug, PartialEq, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum ArgSettings {
     /// Sets whether or not the argument is required by default. Required by default means it is
     /// required, when no other conflicting rules have been evaluated. Conflicting rules take

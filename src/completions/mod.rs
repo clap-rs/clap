@@ -11,8 +11,8 @@ use std::io::Write;
 use std::ffi::OsString; 
 
 // Internal
-use parsing::parser::Parser;
-use builders::app::App;
+use parsing::Parser;
+use App;
 use self::bash::BashGen;
 use self::fish::FishGen;
 use self::zsh::ZshGen;

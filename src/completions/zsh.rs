@@ -4,12 +4,10 @@ use std::io::Write;
 use std::ascii::AsciiExt;
 
 // Internal
-use builders::app::App;
-use builders::arg_settings::ArgSettings;
-use parsing::any_arg::AnyArg;
-use parsing::parser::Parser;
-use completions;
 use INTERNAL_ERROR_MSG;
+use builders::{App, ArgSettings};
+use completions;
+use parsing::{Parser, AnyArg};
 
 pub struct ZshGen<'a, 'b>
     where 'a: 'b

@@ -38,7 +38,3 @@ pub trait AnyArg<'n, 'e>: std_fmt::Display {
     fn longest_filter(&self) -> bool;
     fn val_terminator(&self) -> Option<&'e str>;
 }
-
-pub trait DispOrder {
-    fn disp_ord(&self) -> usize;
-}

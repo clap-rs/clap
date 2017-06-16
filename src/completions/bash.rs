@@ -2,10 +2,10 @@
 use std::io::Write;
 
 // Internal
-use parsing::parser::Parser;
-use builders::arg_settings::ArgSettings;
-use built::Opt;
+use ArgSettings;
 use completions;
+use parsing::Parser;
+use built::Opt;
 
 pub struct BashGen<'a, 'b>
     where 'a: 'b
@@ -156,7 +156,7 @@ complete -F _{name} -o bashdefault -o default {name}
 
     fn vals_for(&self, o: &Opt) -> String {
         debugln!("BashGen::vals_for: o={}", o.b.name);
-        use parsing::any_arg::AnyArg;
+        use parsing::AnyArg;
         let mut ret = String::new();
         let mut needs_quotes = true;
         if let Some(vals) = o.possible_vals() {

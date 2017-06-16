@@ -5,9 +5,9 @@ use std::ops::Deref;
 use std::mem;
 
 // Internal
-use args::{ArgMatches, MatchedArg, SubCommand};
-use args::AnyArg;
-use args::settings::ArgSettings;
+use {ArgSettings, ArgMatches, SubCommand};
+use parsing::AnyArg;
+use matched::MatchedArg;
 
 #[doc(hidden)]
 #[allow(missing_debug_implementations)]

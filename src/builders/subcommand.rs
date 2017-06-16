@@ -5,8 +5,7 @@
 use yaml_rust::Yaml;
 
 // Internal
-use builders::app::App;
-use matches::ArgMatches;
+use {App, ArgMatches};
 
 /// The abstract representation of a command line subcommand.
 ///

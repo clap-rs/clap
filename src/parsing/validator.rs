@@ -4,17 +4,17 @@ use std::fmt::Display;
 // Internal
 use INTERNAL_ERROR_MSG;
 use INVALID_UTF8;
-use parsing::any_arg::AnyArg;
-use parsing::arg_matcher::ArgMatcher;
-use machd::matched_arg::MatchedArg;
-use builders::arg_settings::ArgSettings;
-use output::errors::{Error, ErrorKind};
+use ArgSettings;
+use AppSettings as AS;
+use parsing::{AnyArg, ArgMatcher};
+use matched::MatchedArg;
+use output::errors::ErrorKind;
+use output::errors::Error as ClapError;
 use output::errors::Result as ClapResult;
-use parsing::osstringext::OsStrExt2;
-use builders::app_settings::AppSettings as AS;
-use parsing::parser::{Parser, ParseResult};
+use parsing::OsStrExt2;
+use parsing::{Parser, ParseResult};
 use output::fmt::{Colorizer, ColorizerOption};
-use app::usage;
+use output::usage;
 
 pub struct Validator<'a, 'b, 'z>(&'z mut Parser<'a, 'b>)
     where 'a: 'b,
@@ -46,7 +46,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                 true
             };
             if should_err {
-                return Err(Error::empty_value(o,
+                return Err(ClapError::empty_value(o,
                                               &*usage::create_error_usage(self.0, matcher, None),
                                               self.0.color()));
             }
@@ -56,7 +56,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
            self.0.is_set(AS::ArgRequiredElseHelp) {
             let mut out = vec![];
             try!(self.0.write_help_err(&mut out));
-            return Err(Error {
+            return Err(ClapError {
                            message: String::from_utf8_lossy(&*out).into_owned(),
                            kind: ErrorKind::MissingArgumentOrSubcommand,
                            info: None,
@@ -84,14 +84,14 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             if self.0.is_set(AS::StrictUtf8) && val.to_str().is_none() {
                 debugln!("Validator::validate_values: invalid UTF-8 found in val {:?}",
                          val);
-                return Err(Error::invalid_utf8(&*usage::create_error_usage(self.0, matcher, None),
+                return Err(ClapError::invalid_utf8(&*usage::create_error_usage(self.0, matcher, None),
                                                self.0.color()));
             }
             if let Some(p_vals) = arg.possible_vals() {
                 debugln!("Validator::validate_values: possible_vals={:?}", p_vals);
                 let val_str = val.to_string_lossy();
                 if !p_vals.contains(&&*val_str) {
-                    return Err(Error::invalid_value(val_str,
+                    return Err(ClapError::invalid_value(val_str,
                                                     p_vals,
                                                     arg,
                                                     &*usage::create_error_usage(self.0,
@@ -103,7 +103,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             if !arg.is_set(ArgSettings::EmptyValues) && val.is_empty_() &&
                matcher.contains(&*arg.name()) {
                 debugln!("Validator::validate_values: illegal empty val found");
-                return Err(Error::empty_value(arg,
+                return Err(ClapError::empty_value(arg,
                                               &*usage::create_error_usage(self.0, matcher, None),
                                               self.0.color()));
             }
@@ -111,7 +111,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                 debug!("Validator::validate_values: checking validator...");
                 if let Err(e) = vtor(val.to_string_lossy().into_owned()) {
                     sdebugln!("error");
-                    return Err(Error::value_validation(Some(arg), e, self.0.color()));
+                    return Err(ClapError::value_validation(Some(arg), e, self.0.color()));
                 } else {
                     sdebugln!("good");
                 }
@@ -120,7 +120,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                 debug!("Validator::validate_values: checking validator_os...");
                 if let Err(e) = vtor(val) {
                     sdebugln!("error");
-                    return Err(Error::value_validation(Some(arg),
+                    return Err(ClapError::value_validation(Some(arg),
                                                        (*e).to_string_lossy().to_string(),
                                                        self.0.color()));
                 } else {
@@ -150,15 +150,15 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                 let usg = usage::create_error_usage($p, $matcher, None);
                 if let Some(f) = find_by_name!($p, $name, flags, iter) {
                     debugln!("build_err!: It was a flag...");
-                    Error::argument_conflict(f, c_with, &*usg, self.0.color())
+                    ClapError::argument_conflict(f, c_with, &*usg, self.0.color())
                 } else if let Some(o) = find_by_name!($p, $name, opts, iter) {
                    debugln!("build_err!: It was an option...");
-                    Error::argument_conflict(o, c_with, &*usg, self.0.color())
+                    ClapError::argument_conflict(o, c_with, &*usg, self.0.color())
                 } else {
                     match find_by_name!($p, $name, positionals, values) {
                         Some(p) => {
                             debugln!("build_err!: It was a positional...");
-                            Error::argument_conflict(p, c_with, &*usg, self.0.color())
+                            ClapError::argument_conflict(p, c_with, &*usg, self.0.color())
                         },
                         None    => panic!(INTERNAL_ERROR_MSG)
                     }
@@ -232,7 +232,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         debugln!("Validator::validate_arg_num_occurs: a={};", a.name());
         if ma.occurs > 1 && !a.is_set(ArgSettings::Multiple) {
             // Not the first time, and we don't allow multiples
-            return Err(Error::unexpected_multiple_usage(a,
+            return Err(ClapError::unexpected_multiple_usage(a,
                                                         &*usage::create_error_usage(self.0,
                                                                                     matcher,
                                                                                     None),
@@ -258,7 +258,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             };
             if should_err {
                 debugln!("Validator::validate_arg_num_vals: Sending error WrongNumberOfValues");
-                return Err(Error::wrong_number_of_values(a,
+                return Err(ClapError::wrong_number_of_values(a,
                                                          num,
                                                          if a.is_set(ArgSettings::Multiple) {
                                                              (ma.vals.len() % num as usize)
@@ -283,7 +283,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             debugln!("Validator::validate_arg_num_vals: max_vals set...{}", num);
             if (ma.vals.len() as u64) > num {
                 debugln!("Validator::validate_arg_num_vals: Sending error TooManyValues");
-                return Err(Error::too_many_values(ma.vals
+                return Err(ClapError::too_many_values(ma.vals
                                                       .iter()
                                                       .last()
                                                       .expect(INTERNAL_ERROR_MSG)
@@ -300,7 +300,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             debugln!("Validator::validate_arg_num_vals: min_vals set: {}", num);
             if (ma.vals.len() as u64) < num {
                 debugln!("Validator::validate_arg_num_vals: Sending error TooFewValues");
-                return Err(Error::too_few_values(a,
+                return Err(ClapError::too_few_values(a,
                                                  num,
                                                  ma.vals.len(),
                                                  &*usage::create_error_usage(self.0,
@@ -311,7 +311,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         }
         // Issue 665 (https://github.com/kbknapp/clap-rs/issues/665)
         if a.takes_value() && !a.is_set(ArgSettings::EmptyValues) && ma.vals.is_empty() {
-            return Err(Error::empty_value(a,
+            return Err(ClapError::empty_value(a,
                                           &*usage::create_error_usage(self.0, matcher, None),
                                           self.0.color()));
         }
@@ -441,7 +441,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                       |acc, s| acc + &format!("\n    {}", c.error(s))[..]);
         debugln!("Validator::missing_required_error: req_args={:#?}",
                  req_args);
-        Err(Error::missing_required_argument(&*req_args,
+        Err(ClapError::missing_required_argument(&*req_args,
                                              &*usage::create_error_usage(self.0, matcher, extra),
                                              self.0.color()))
     }

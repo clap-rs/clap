@@ -83,8 +83,8 @@ use yaml_rust::Yaml;
 /// [arguments]: ./struct.Arg.html
 /// [conflict]: ./struct.Arg.html#method.conflicts_with
 /// [requirement]: ./struct.Arg.html#method.requires
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Default, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(default))]
 pub struct ArgGroup<'a> {
     pub name: &'a str,
@@ -426,24 +426,6 @@ impl<'a> ArgGroup<'a> {
     }
 }
 
-impl<'a> Debug for ArgGroup<'a> {
-    fn fmt(&self, f: &mut Formatter) -> Result {
-        write!(f,
-               "{{\n\
-                   \tname: {:?},\n\
-                   \targs: {:?},\n\
-                   \trequired: {:?},\n\
-                   \trequires: {:?},\n\
-                   \tconflicts: {:?},\n\
-                }}",
-               self.name,
-               self.args,
-               self.required,
-               self.requires,
-               self.conflicts)
-    }
-}
-
 impl<'a, 'z> From<&'z ArgGroup<'a>> for ArgGroup<'a> {
     fn from(g: &'z ArgGroup<'a>) -> Self {
         ArgGroup {
@@ -619,18 +601,5 @@ requires:
         assert_eq!(g.args, args);
         assert_eq!(g.requires, Some(reqs));
         assert_eq!(g.conflicts, Some(confs));
-    }
-}
-
-impl<'a> Clone for ArgGroup<'a> {
-    fn clone(&self) -> Self {
-        ArgGroup {
-            name: self.name,
-            required: self.required,
-            args: self.args.clone(),
-            requires: self.requires.clone(),
-            conflicts: self.conflicts.clone(),
-            multiple: self.multiple,
-        }
     }
 }

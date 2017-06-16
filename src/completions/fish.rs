@@ -3,7 +3,7 @@
 use std::io::Write;
 
 // Internal
-use parsing::parser::Parser;
+use parsing::Parser;
 
 pub struct FishGen<'a, 'b>
     where 'a: 'b

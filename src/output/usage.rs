@@ -3,10 +3,11 @@ use std::collections::{BTreeMap, VecDeque};
 
 // Internal
 use INTERNAL_ERROR_MSG;
-use args::{AnyArg, ArgMatcher, Pos};
-use args::settings::ArgSettings;
-use app::settings::AppSettings as AS;
-use app::parser::Parser;
+use parsing::{AnyArg, ArgMatcher};
+use built::Pos;
+use ArgSettings;
+use AppSettings as AS;
+use parsing::Parser;
 
 // Creates a usage string for display. This happens just after all arguments were parsed, but before
 // any subcommands have been parsed (so as to give subcommands their own usage recursively)

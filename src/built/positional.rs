@@ -10,9 +10,10 @@ use std::mem;
 use vec_map::{self, VecMap};
 
 // Internal
-use Arg;
-use args::{ArgSettings, Base, Valued, AnyArg, DispOrder};
 use INTERNAL_ERROR_MSG;
+use {Arg, ArgSettings};
+use built::{Base, Valued};
+use parsing::{AnyArg, DispOrder};
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]

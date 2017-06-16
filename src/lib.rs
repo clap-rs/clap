@@ -548,8 +548,11 @@ extern crate unicode_width;
 #[cfg(feature = "yaml")] pub use yaml_rust::YamlLoader;
 
 pub use matched::{ArgMatches, Values, OsValues};
+// TODO-v3-release: Remove SubCommand
 pub use builders::{App, AppSettings, Arg, ArgGroup, ArgSettings, SubCommand};
+pub use output::Result;
 pub use output::errors;
+// TODO-v3-release: Remove
 pub use completions::Shell;
 
 #[macro_use]
@@ -559,7 +562,7 @@ mod built;
 mod matched;
 mod output;
 mod parsing;
-mod completions;
+pub mod completions;
 mod utils;
 
 const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider filing a bug \

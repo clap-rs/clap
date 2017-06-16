@@ -6,12 +6,11 @@ use std::io::{self, Cursor, Read, Write};
 use std::usize;
 
 // Internal
-use app::{App, AppSettings};
-use app::parser::Parser;
-use args::{AnyArg, ArgSettings, DispOrder};
-use errors::{Error, Result as ClapResult};
-use fmt::{Format, Colorizer, ColorizerOption};
-use app::usage;
+use {App, AppSettings, ArgSettings};
+use parsing::{AnyArg, DispOrder, Parser};
+use errors::{Error as ClapError, Result as ClapResult};
+use output::fmt::{Format, Colorizer, ColorizerOption};
+use output::usage;
 
 // Third Party
 use unicode_width::UnicodeWidthStr;
@@ -164,7 +163,7 @@ impl<'a> Help<'a> {
     pub fn write_help(&mut self, parser: &Parser) -> ClapResult<()> {
         debugln!("Help::write_help;");
         if let Some(h) = parser.meta.help_str {
-            try!(write!(self.writer, "{}", h).map_err(Error::from));
+            try!(write!(self.writer, "{}", h).map_err(ClapError::from));
         } else if let Some(tmpl) = parser.meta.template {
             try!(self.write_templated_help(parser, tmpl));
         } else {
@@ -684,7 +683,7 @@ impl<'a> Help<'a> {
             try!(self.write_before_after_help(h));
         }
 
-        self.writer.flush().map_err(Error::from)
+        self.writer.flush().map_err(ClapError::from)
     }
 }
 
@@ -829,7 +828,7 @@ impl<'a> Help<'a> {
         loop {
             let tag_length = match copy_and_capture(&mut tmplr, &mut self.writer, &mut tag_buf) {
                 None => return Ok(()),
-                Some(Err(e)) => return Err(Error::from(e)),
+                Some(Err(e)) => return Err(ClapError::from(e)),
                 Some(Ok(val)) if val > 0 => val,
                 _ => continue,
             };

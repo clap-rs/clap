@@ -10,8 +10,9 @@ use std::mem;
 use vec_map::{self, VecMap};
 
 // Internal
-use Arg;
-use args::{ArgSettings, Base, Switched, AnyArg, DispOrder};
+use {Arg, ArgSettings};
+use built::{Base, Switched};
+use parsing::{AnyArg, DispOrder};
 
 #[derive(Default, Clone, Debug)]
 #[doc(hidden)]

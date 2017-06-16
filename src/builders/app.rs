@@ -18,13 +18,11 @@ use serde::{Serialize, Deserialize};
 use yaml_rust::Yaml;
 
 // Internal
-use builders::app_settings::AppSettings;
-use builders::arg_settings::ArgSettings;
+use {Arg, ArgGroup, AppSettings, ArgSettings};
 use parsing::{AnyArg, ArgMatcher};
 use matched::ArgMatches;
 use output::Result as ClapResult;
-use output::help::Help;
-use builders::{Arg, ArgGroup};
+use output::Help;
 
 // TODO-v3-release: remove
 use completions::Shell;
@@ -1472,7 +1470,7 @@ impl<'a, 'b> App<'a, 'b> {
 
     /// Deprecated
     #[deprecated(since = "2.24.2", note = "Use App::set_all_global instead")]
-    pub fn set_all_global(mut self, settings: &[AppSettings]) -> Self {
+    pub fn global_settings(mut self, settings: &[AppSettings]) -> Self {
         self.global_settings.extend(settings);
         self.settings.extend(settings);
         self
@@ -1648,10 +1646,6 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
 
         a
     }
-}
-
-impl<'a, 'b> Clone for App<'a, 'b> {
-    fn clone(&self) -> Self { App { p: self.p.clone() } }
 }
 
 impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {

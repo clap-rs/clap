@@ -4,10 +4,8 @@
   - [x] App
   - [x] ArgGroup
   - [x] Arg
-- [ ] Serde
+- [x] Serde
 - [ ] CustomDerive
 - [ ] Enums as keys
 - [ ] Color Redux
-- [ ] Migration app
-- [ ] From Docopt
 - [ ] Derive all common traits

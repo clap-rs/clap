@@ -15,24 +15,19 @@ use vec_map::{self, VecMap};
 // Internal
 use INTERNAL_ERROR_MSG;
 use INVALID_UTF8;
-use builders::subcommand::SubCommand;
-use builders::app::App;
-use output::help::Help;
-use built::meta::AppMeta;
-use builders::arg_settings::AppFlags;
-use parsing::any_arg::AnyArg;
-use built::{Base, Switched, Flag, Opt, Pos};
-use builders::{ArgGroup, App, Arg};
-use builders::arg_settings::ArgSettings;
-use completions::ComplGen;
-use output::errors::{Error, ErrorKind};
-use output::errors::Result as ClapResult;
+use {ArgSettings, SubCommand, App, Arg, ArgGroup};
+use builders::app_settings::AppFlags;
+use AppSettings as AS;
+use built::{AppMeta, Base, Switched, Flag, Opt, Pos};
+use completions::{Shell, ComplGen};
+use output::Help;
+use output::errors::ErrorKind;
+use errors::Error as ClapError;
+use Result as ClapResult;
 use output::fmt::ColorWhen;
-use parsing::osstringext::OsStrExt2;
-use completions::Shell;
+use output::usage;
 use output::suggestions;
-use builders::app_settings::AppSettings as AS;
-use parsing::validator::Validator;
+use parsing::{AnyArg, OsStrExt2, Validator, ArgMatcher};
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[doc(hidden)]
@@ -713,7 +708,7 @@ impl<'a, 'b> Parser<'a, 'b>
                         break;
                     }
                 } else {
-                    return Err(Error::unrecognized_subcommand(cmd.to_string_lossy().into_owned(),
+                    return Err(ClapError::unrecognized_subcommand(cmd.to_string_lossy().into_owned(),
                                                               self.meta
                                                                   .bin_name
                                                                   .as_ref()
@@ -902,7 +897,7 @@ impl<'a, 'b> Parser<'a, 'b>
                         ParseResult::MaybeNegNum => {
                             if !(arg_os.to_string_lossy().parse::<i64>().is_ok() ||
                                  arg_os.to_string_lossy().parse::<f64>().is_ok()) {
-                                return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
+                                return Err(ClapError::unknown_argument(&*arg_os.to_string_lossy(),
                                 "",
                                 &*usage::create_error_usage(self, matcher, None),
                                 self.color()));
@@ -919,7 +914,7 @@ impl<'a, 'b> Parser<'a, 'b>
                    !self.is_set(AS::InferSubcommands) {
                     if let Some(cdate) = suggestions::did_you_mean(&*arg_os.to_string_lossy(),
                                                                    sc_names!(self)) {
-                        return Err(Error::invalid_subcommand(arg_os
+                        return Err(ClapError::invalid_subcommand(arg_os
                                                                  .to_string_lossy()
                                                                  .into_owned(),
                                                              cdate,
@@ -975,7 +970,7 @@ impl<'a, 'b> Parser<'a, 'b>
             }
             if let Some(p) = self.positionals.get(pos_counter) {
                 if p.is_set(ArgSettings::Last) && !self.is_set(AS::TrailingValues) {
-                    return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
+                    return Err(ClapError::unknown_argument(&*arg_os.to_string_lossy(),
                                                        "",
                                                        &*usage::create_error_usage(self,
                                                                                    matcher,
@@ -990,7 +985,7 @@ impl<'a, 'b> Parser<'a, 'b>
                     Some(s) => s.to_string(),
                     None => {
                         if !self.is_set(AS::StrictUtf8) {
-                            return Err(Error::invalid_utf8(&*usage::create_error_usage(self,
+                            return Err(ClapError::invalid_utf8(&*usage::create_error_usage(self,
                                                                                        matcher,
                                                                                        None),
                                                            self.color()));
@@ -1004,7 +999,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 while let Some(v) = it.next() {
                     let a = v.into();
                     if a.to_str().is_none() && !self.is_set(AS::StrictUtf8) {
-                        return Err(Error::invalid_utf8(&*usage::create_error_usage(self,
+                        return Err(ClapError::invalid_utf8(&*usage::create_error_usage(self,
                                                                                    matcher,
                                                                                    None),
                                                        self.color()));
@@ -1019,7 +1014,7 @@ impl<'a, 'b> Parser<'a, 'b>
             } else if !(self.is_set(AS::AllowLeadingHyphen) ||
                         self.is_set(AS::AllowNegativeNumbers)) &&
                       !self.is_set(AS::InferSubcommands) {
-                return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
+                return Err(ClapError::unknown_argument(&*arg_os.to_string_lossy(),
                                                    "",
                                                    &*usage::create_error_usage(self,
                                                                                matcher,
@@ -1028,7 +1023,7 @@ impl<'a, 'b> Parser<'a, 'b>
             } else if !has_args || self.is_set(AS::InferSubcommands) && self.has_subcommands() {
                 if let Some(cdate) = suggestions::did_you_mean(&*arg_os.to_string_lossy(),
                                                                sc_names!(self)) {
-                    return Err(Error::invalid_subcommand(arg_os.to_string_lossy().into_owned(),
+                    return Err(ClapError::invalid_subcommand(arg_os.to_string_lossy().into_owned(),
                                                          cdate,
                                                          self.meta
                                                              .bin_name
@@ -1039,7 +1034,7 @@ impl<'a, 'b> Parser<'a, 'b>
                                                                                      None),
                                                          self.color()));
                 } else {
-                    return Err(Error::unrecognized_subcommand(arg_os
+                    return Err(ClapError::unrecognized_subcommand(arg_os
                                                                   .to_string_lossy()
                                                                   .into_owned(),
                                                               self.meta
@@ -1063,14 +1058,14 @@ impl<'a, 'b> Parser<'a, 'b>
             try!(self.parse_subcommand(&*sc_name, matcher, it));
         } else if self.is_set(AS::SubcommandRequired) {
             let bn = self.meta.bin_name.as_ref().unwrap_or(&self.meta.name);
-            return Err(Error::missing_subcommand(bn,
+            return Err(ClapError::missing_subcommand(bn,
                                                  &usage::create_error_usage(self, matcher, None),
                                                  self.color()));
         } else if self.is_set(AS::SubcommandRequiredElseHelp) {
             debugln!("Parser::get_matches_with: SubcommandRequiredElseHelp=true");
             let mut out = vec![];
             try!(self.write_help_err(&mut out));
-            return Err(Error {
+            return Err(ClapError {
                            message: String::from_utf8_lossy(&*out).into_owned(),
                            kind: ErrorKind::MissingArgumentOrSubcommand,
                            info: None,
@@ -1350,13 +1345,13 @@ impl<'a, 'b> Parser<'a, 'b>
         ul
     }
 
-    fn _help(&self, mut use_long: bool) -> Error {
+    fn _help(&self, mut use_long: bool) -> ClapError {
         debugln!("Parser::_help: use_long={:?}", use_long);
         use_long = use_long && self.use_long_help();
         let mut buf = vec![];
         match Help::write_parser_help(&mut buf, self, use_long) {
             Err(e) => e,
-            _ => Error {
+            _ => ClapError {
                 message: unsafe { String::from_utf8_unchecked(buf) },
                 kind: ErrorKind::HelpDisplayed,
                 info: None,
@@ -1364,13 +1359,13 @@ impl<'a, 'b> Parser<'a, 'b>
         }
     }
 
-    fn _version(&self, use_long: bool) -> Error {
+    fn _version(&self, use_long: bool) -> ClapError {
         debugln!("Parser::_version: ");
         let out = io::stdout();
         let mut buf_w = BufWriter::new(out.lock());
         match self.print_version(&mut buf_w, use_long) {
             Err(e) => e,
-            _ => Error {
+            _ => ClapError {
                 message: String::new(),
                 kind: ErrorKind::VersionDisplayed,
                 info: None,
@@ -1510,7 +1505,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 }
             } else {
                 let arg = format!("-{}", c);
-                return Err(Error::unknown_argument(&*arg,
+                return Err(ClapError::unknown_argument(&*arg,
                                                    "",
                                                    &*usage::create_error_usage(self,
                                                                                matcher,
@@ -1538,7 +1533,7 @@ impl<'a, 'b> Parser<'a, 'b>
             if !opt.is_set(ArgSettings::EmptyValues) &&
                (v.len_() == 0 || (opt.is_set(ArgSettings::RequireEquals) && !has_eq)) {
                 sdebugln!("Found Empty - Error");
-                return Err(Error::empty_value(opt,
+                return Err(ClapError::empty_value(opt,
                                               &*usage::create_error_usage(self, matcher, None),
                                               self.color()));
             }
@@ -1549,7 +1544,7 @@ impl<'a, 'b> Parser<'a, 'b>
             try!(self.add_val_to_arg(opt, v, matcher));
         } else if opt.is_set(ArgSettings::RequireEquals) && !opt.is_set(ArgSettings::EmptyValues) {
             sdebugln!("None, but requires equals...Error");
-            return Err(Error::empty_value(opt,
+            return Err(ClapError::empty_value(opt,
                                           &*usage::create_error_usage(self, matcher, None),
                                           self.color()));
 
@@ -1672,7 +1667,7 @@ impl<'a, 'b> Parser<'a, 'b>
         }
 
         let used_arg = format!("--{}", arg);
-        Err(Error::unknown_argument(&*used_arg,
+        Err(ClapError::unknown_argument(&*used_arg,
                                     &*suffix.0,
                                     &*usage::create_error_usage(self, matcher, None),
                                     self.color()))
@@ -1681,7 +1676,7 @@ impl<'a, 'b> Parser<'a, 'b>
     // Prints the version to the user and exits if quit=true
     fn print_version<W: Write>(&self, w: &mut W, use_long: bool) -> ClapResult<()> {
         try!(self.write_version(w, use_long));
-        w.flush().map_err(Error::from)
+        w.flush().map_err(ClapError::from)
     }
 
     pub fn write_version<W: Write>(&self, w: &mut W, use_long: bool) -> io::Result<()> {

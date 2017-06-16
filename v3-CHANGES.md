@@ -21,3 +21,4 @@
 * App::settings -> App::set_all
 * App::global_setting -> App::set_global
 * App::global_settings -> App::set_all_global
+* Mod Structure
