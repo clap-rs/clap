@@ -14,7 +14,7 @@ macro_rules! remove_overriden {
     };
     (@arg $_self:ident, $arg:ident) => {
         remove_overriden!(@remove_requires $_self.required, $arg.requires);
-        remove_overriden!(@remove $_self.blacklist, $arg.blacklist);
+        remove_overriden!(@remove $_self.conflicts, $arg.conflicts);
         remove_overriden!(@remove $_self.overrides, $arg.overrides);
     };
     ($_self:ident, $name:expr) => {
@@ -57,7 +57,7 @@ macro_rules! arg_post_processing {
 
         // Handle conflicts
         debug!("arg_post_processing!: Does '{}' have conflicts...", $arg.to_string());
-        if let Some(bl) = $arg.blacklist() {
+        if let Some(bl) = $arg.conflicts() {
             sdebugln!("Yes");
 
             for c in bl {
@@ -65,14 +65,14 @@ macro_rules! arg_post_processing {
                 debug!("arg_post_processing!: Has '{}' already been matched...", c);
                 if $matcher.contains(c) {
                     sdebugln!("Yes");
-                    // find who blacklisted us...
-                    $me.blacklist.push(&$arg.b.name);
+                    // find who conflictsed us...
+                    $me.conflicts.push(&$arg.b.name);
                 } else {
                     sdebugln!("No");
                 }
             }
 
-            $me.blacklist.extend_from_slice(bl);
+            $me.conflicts.extend_from_slice(bl);
             vec_remove_all!($me.overrides, bl.iter());
             // vec_remove_all!($me.required, bl.iter());
         } else { sdebugln!("No"); }
@@ -105,7 +105,7 @@ macro_rules! _handle_group_reqs{
                     $me.required.extend(reqs);
                 }
                 if let Some(ref bl) = grp.conflicts {
-                    $me.blacklist.extend(bl);
+                    $me.conflicts.extend(bl);
                 }
                 true // What if arg is in more than one group with different reqs?
             } else {
@@ -117,13 +117,13 @@ macro_rules! _handle_group_reqs{
                     let should_remove = grp.args.contains(&$me.required[i]);
                     if should_remove { $me.required.swap_remove(i); }
                 }
-                debugln!("_handle_group_reqs!:iter: Adding args from group to blacklist...{:?}", grp.args);
+                debugln!("_handle_group_reqs!:iter: Adding args from group to conflicts...{:?}", grp.args);
                 if !grp.multiple {
-                    $me.blacklist.extend(&grp.args);
-                    debugln!("_handle_group_reqs!: removing {:?} from blacklist", $arg.name());
-                    for i in (0 .. $me.blacklist.len()).rev() {
-                        let should_remove = $me.blacklist[i] == $arg.name();
-                        if should_remove { $me.blacklist.swap_remove(i); }
+                    $me.conflicts.extend(&grp.args);
+                    debugln!("_handle_group_reqs!: removing {:?} from conflicts", $arg.name());
+                    for i in (0 .. $me.conflicts.len()).rev() {
+                        let should_remove = $me.conflicts[i] == $arg.name();
+                        if should_remove { $me.conflicts.swap_remove(i); }
                     }
                 }
             }

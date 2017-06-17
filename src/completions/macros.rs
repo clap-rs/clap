@@ -10,7 +10,7 @@ macro_rules! w {
 
 macro_rules! get_zsh_arg_conflicts {
     ($p:ident, $arg:ident, $msg:ident) => {
-        if let Some(conf_vec) = $arg.blacklist() {
+        if let Some(conf_vec) = $arg.conflicts() {
             let mut v = vec![];
             for arg_name in conf_vec {
                 let arg = $p.find_any_arg(arg_name).expect($msg);

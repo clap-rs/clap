@@ -67,7 +67,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                 info: None,
             });
         }
-        try!(self.validate_blacklist(matcher));
+        try!(self.validate_conflicts(matcher));
         if !(self.0.is_set(AS::SubcommandsNegateReqs) && subcmd_name.is_some()) && !reqs_validated {
             try!(self.validate_required(matcher));
         }
@@ -147,17 +147,17 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         Ok(())
     }
 
-    fn validate_blacklist(&self, matcher: &mut ArgMatcher) -> ClapResult<()> {
+    fn validate_conflicts(&self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debugln!(
-            "Validator::validate_blacklist: blacklist={:?}",
-            self.0.blacklist
+            "Validator::validate_conflicts: conflicts={:?}",
+            self.0.conflicts
         );
         macro_rules! build_err {
             ($p:expr, $name:expr, $matcher:ident) => ({
                 debugln!("build_err!: name={}", $name);
-                let mut c_with = find_from!($p, &$name, blacklist, &$matcher);
+                let mut c_with = find_from!($p, &$name, conflicts, &$matcher);
                 c_with = c_with.or(
-                    $p.find_any_arg(&$name).map_or(None, |aa| aa.blacklist())
+                    $p.find_any_arg(&$name).map_or(None, |aa| aa.conflicts())
                                            .map_or(None, 
                                                 |bl| bl.iter().find(|arg| $matcher.contains(arg)))
                                            .map_or(None, |an| $p.find_any_arg(an))
@@ -184,25 +184,25 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             });
         }
 
-        for name in &self.0.blacklist {
+        for name in &self.0.conflicts {
             debugln!(
-                "Validator::validate_blacklist:iter: Checking blacklisted name: {}",
+                "Validator::validate_conflicts:iter: Checking conflictsed name: {}",
                 name
             );
             if self.0.groups.iter().any(|g| &g.name == name) {
-                debugln!("Validator::validate_blacklist:iter: groups contains it...");
+                debugln!("Validator::validate_conflicts:iter: groups contains it...");
                 for n in self.0.arg_names_in_group(name) {
                     debugln!(
-                        "Validator::validate_blacklist:iter:iter: Checking arg '{}' in group...",
+                        "Validator::validate_conflicts:iter:iter: Checking arg '{}' in group...",
                         n
                     );
                     if matcher.contains(n) {
-                        debugln!("Validator::validate_blacklist:iter:iter: matcher contains it...");
+                        debugln!("Validator::validate_conflicts:iter:iter: matcher contains it...");
                         return Err(build_err!(self.0, n, matcher));
                     }
                 }
             } else if matcher.contains(name) {
-                debugln!("Validator::validate_blacklist:iter: matcher contains it...");
+                debugln!("Validator::validate_conflicts:iter: matcher contains it...");
                 return Err(build_err!(self.0, *name, matcher));
             }
         }
@@ -412,7 +412,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         A: AnyArg<'a, 'b>,
     {
         debugln!("Validator::validate_conflicts: a={:?};", a.name());
-        a.blacklist().map(|bl| {
+        a.conflicts().map(|bl| {
             bl.iter().any(|conf| {
                 matcher.contains(conf) ||
                     self.0.groups.iter().find(|g| &g.name == conf).map_or(

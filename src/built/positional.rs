@@ -128,7 +128,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for Pos<'n, 'e> {
     fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]> {
         self.b.requires.as_ref().map(|o| &o[..])
     }
-    fn blacklist(&self) -> Option<&[&'e str]> { self.b.blacklist.as_ref().map(|o| &o[..]) }
+    fn conflicts(&self) -> Option<&[&'e str]> { self.b.conflicts.as_ref().map(|o| &o[..]) }
     fn required_unless(&self) -> Option<&[&'e str]> { self.b.r_unless.as_ref().map(|o| &o[..]) }
     fn val_names(&self) -> Option<&VecMap<&'e str>> { self.v.val_names.as_ref() }
     fn is_set(&self, s: ArgSettings) -> bool { self.b.settings.is_set(s) }

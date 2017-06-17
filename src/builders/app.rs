@@ -1197,7 +1197,9 @@ impl<'a, 'b> App<'a, 'b> {
             // Otherwise, write to stderr and exit
             if e.use_stderr() {
                 wlnerr!("{}", e.message);
-                if self.is_set(AppSettings::WaitOnError) {
+                if self.settings.contains(AppSettings::WaitOnError) ||
+                    self.global_settings.contains(AppSettings::WaitOnError)
+                {
                     wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
                     let mut s = String::new();
                     let i = io::stdin();
@@ -1224,7 +1226,9 @@ impl<'a, 'b> App<'a, 'b> {
             // Otherwise, write to stderr and exit
             if e.use_stderr() {
                 wlnerr!("{}", e.message);
-                if self.is_set(AppSettings::WaitOnError) {
+                if self.settings.contains(AppSettings::WaitOnError) ||
+                    self.global_settings.contains(AppSettings::WaitOnError)
+                {
                     wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
                     let mut s = String::new();
                     let i = io::stdin();
@@ -1282,7 +1286,10 @@ impl<'a, 'b> App<'a, 'b> {
         // that was used to execute the program. This is because a program called
         // ./target/release/my_prog -a will have two arguments, './target/release/my_prog', '-a'
         // but we don't want to display the full path when displaying help messages and such
-        if !self.is_set(AppSettings::NoBinaryName) && self.get_bin_name().is_none() {
+        if !(self.settings.contains(AppSettings::NoBinaryName) ||
+                 self.settings.contains(AppSettings::NoBinaryName)) &&
+            self.get_bin_name().is_none()
+        {
             if let Some(name) = it.next() {
                 let bn_os = name.into();
                 let p = Path::new(&*bn_os);
@@ -1302,7 +1309,7 @@ impl<'a, 'b> App<'a, 'b> {
             return Err(e);
         }
 
-        if self.is_set(AppSettings::PropagateGlobalValuesDown) {
+        if parser.is_set(AppSettings::PropagateGlobalValuesDown) {
             for a in &self.global_args {
                 matcher.propagate(a.b.name);
             }
@@ -1342,7 +1349,10 @@ impl<'a, 'b> App<'a, 'b> {
         // that was used to execute the program. This is because a program called
         // ./target/release/my_prog -a will have two arguments, './target/release/my_prog', '-a'
         // but we don't want to display the full path when displaying help messages and such
-        if !self.is_set(AppSettings::NoBinaryName) && self.get_bin_name().is_none() {
+        if !(self.settings.contains(AppSettings::NoBinaryName) ||
+                 self.settings.contains(AppSettings::NoBinaryName)) &&
+            self.get_bin_name().is_none()
+        {
             if let Some(name) = it.next() {
                 let bn_os = name.into();
                 let p = Path::new(&*bn_os);
@@ -1362,7 +1372,7 @@ impl<'a, 'b> App<'a, 'b> {
             return Err(e);
         }
 
-        if self.is_set(AppSettings::PropagateGlobalValuesDown) {
+        if parser.is_set(AppSettings::PropagateGlobalValuesDown) {
             for a in &self.global_args {
                 matcher.propagate(a.b.name);
             }
@@ -1751,7 +1761,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     }
     fn overrides(&self) -> Option<&[&'e str]> { None }
     fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]> { None }
-    fn blacklist(&self) -> Option<&[&'e str]> { None }
+    fn conflicts(&self) -> Option<&[&'e str]> { None }
     fn required_unless(&self) -> Option<&[&'e str]> { None }
     fn val_names(&self) -> Option<&VecMap<&'e str>> { None }
     fn is_set(&self, _: ArgSettings) -> bool { false }

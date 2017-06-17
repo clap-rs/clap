@@ -42,7 +42,7 @@ _{name}() {{
 {subcommand_details}
 
 _{name} \"$@\"",
-                name = self.p.meta.bin_name.as_ref().unwrap(),
+                name = self.app.bin_name.as_ref().unwrap(),
                 initial_args = get_args_of(self.p),
                 subcommands = get_subcommands_of(self.p),
                 subcommand_details = subcommand_details(self.p)
@@ -92,8 +92,8 @@ _{bin_name_underscore}_commands() {{
     )
     _describe -t commands '{bin_name} commands' commands \"$@\"
 }}",
-            bin_name_underscore = p.meta.bin_name.as_ref().unwrap().replace(" ", "__"),
-            bin_name = p.meta.bin_name.as_ref().unwrap(),
+            bin_name_underscore = p.app.bin_name.as_ref().unwrap().replace(" ", "__"),
+            bin_name = p.app.bin_name.as_ref().unwrap(),
             subcommands_and_args = subcommands_and_args_of(p)
         ),
     ];
@@ -142,7 +142,7 @@ fn subcommands_and_args_of(p: &Parser) -> String {
         let s = format!(
             "\"{name}:{help}\" \\",
             name = n,
-            help = sc.p.meta.about.unwrap_or("").replace("[", "\\[").replace(
+            help = sc.about.unwrap_or("").replace("[", "\\[").replace(
                 "]",
                 "\\]",
             )
@@ -156,10 +156,10 @@ fn subcommands_and_args_of(p: &Parser) -> String {
     for sc in p.subcommands() {
         debugln!(
             "ZshGen::subcommands_and_args_of:iter: subcommand={}",
-            sc.p.meta.name
+            sc.name
         );
-        add_sc(sc, &sc.p.meta.name, &mut ret);
-        if let Some(ref v) = sc.p.meta.aliases {
+        add_sc(sc, &sc.name, &mut ret);
+        if let Some(ref v) = sc.aliases {
             for alias in v.iter().filter(|&&(_, vis)| vis).map(|&(n, _)| n) {
                 add_sc(sc, alias, &mut ret);
             }
@@ -252,15 +252,15 @@ fn get_subcommands_of(p: &Parser) -> String {
         esac
     ;;
 esac",
-        name = p.meta.name,
-        name_hyphen = p.meta.bin_name.as_ref().unwrap().replace(" ", "-"),
+        name = p.app.name,
+        name_hyphen = p.app.bin_name.as_ref().unwrap().replace(" ", "-"),
         subcommands = subcmds.join("\n")
     )
 }
 
 fn parser_of<'a, 'b>(p: &'b Parser<'a, 'b>, sc: &str) -> &'b Parser<'a, 'b> {
     debugln!("parser_of: sc={}", sc);
-    if sc == p.meta.bin_name.as_ref().unwrap_or(&String::new()) {
+    if sc == p.app.bin_name.as_ref().unwrap_or(&String::new()) {
         return p;
     }
     &p.find_subcommand(sc).expect(INTERNAL_ERROR_MSG).p
@@ -294,13 +294,13 @@ fn get_args_of(p: &Parser) -> String {
     let sc_or_a = if p.has_subcommands() || p.has_positionals() {
         format!(
             "\"1:: :_{name}_commands\" \\",
-            name = p.meta.bin_name.as_ref().unwrap().replace(" ", "__")
+            name = p.app.bin_name.as_ref().unwrap().replace(" ", "__")
         )
     } else {
         String::new()
     };
     let sc = if p.has_subcommands() {
-        format!("\"*:: :->{name}\" \\", name = p.meta.name)
+        format!("\"*:: :->{name}\" \\", name = p.app.name)
     } else {
         String::new()
     };

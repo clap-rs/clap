@@ -54,6 +54,7 @@ where
     pub flags: Vec<Flag<'a, 'b>>,
     pub opts: Vec<Opt<'a, 'b>>,
     pub positionals: VecMap<Pos<'a, 'b>>,
+    groups: Vec<ArgGroup<'a>>,
     pub required: Vec<&'a str>,
     pub req_ifs: Vec<(&'a str, &'b str, &'a str)>,
     pub conflicts: Vec<&'b str>,
@@ -65,6 +66,17 @@ impl<'a, 'b> Parser<'a, 'b>
 where
     'a: 'b,
 {
+    fn new(app: Cow<'b, App>, appx_groups: usize, appx_args: usize) -> Self {
+        Parser {
+            app: app,
+            flags: Vec::with_capacity(appx_args),
+            opts: Vec::with_capacity(appx_args),
+            positionals: Vec::with_capacity(appx_args),
+            flags: Vec::with_capacity(appx_args),
+            groups: Vec::with_capacity(appx_groups),
+            ..Default::default()
+        }
+    }
     //
     // ----- Initialization Phase
     //
@@ -75,7 +87,7 @@ where
         self.add_arg_groups(&a);
         self.add_reqs(&a);
         self.implied_settings(&a);
-        if a.index.is_some() || (a.s.short.is_none() && a.s.long.is_none()) {
+        if a.index.is_some() || (a.short.is_none() && a.long.is_none()) {
             let i = if a.index.is_none() {
                 (self.positionals.len() + 1)
             } else {
@@ -99,7 +111,7 @@ where
         self.add_arg_groups(a);
         self.add_reqs(a);
         self.implied_settings(a);
-        if a.index.is_some() || (a.s.short.is_none() && a.s.long.is_none()) {
+        if a.index.is_some() || (a.short.is_none() && a.long.is_none()) {
             let i = if a.index.is_none() {
                 (self.positionals.len() + 1)
             } else {
@@ -116,9 +128,6 @@ where
             fb.s.unified_ord = self.flags.len() + self.opts.len();
             self.flags.push(fb);
         }
-        if a.is_set(ArgSettings::Global) {
-            self.global_args.push(a.into());
-        }
     }
 
     #[inline]
@@ -134,16 +143,10 @@ where
     fn add_arg_groups(&mut self, a: &Arg<'a, 'b>) {
         if let Some(ref grps) = a.groups {
             for g in grps {
-                let mut found = false;
-                if let Some(ref mut ag) = self.groups.iter_mut().find(|grp| &grp.name == g) {
-                    ag.args.push(a.name);
-                    found = true;
-                }
-                if !found {
-                    let mut ag = ArgGroup::with_name(g);
-                    ag.args.push(a.name);
-                    self.groups.push(ag);
-                }
+                let mut ag = self.groups
+                    .entry(g)
+                    .or_insert_with(|| ArgGroup::with_name(g));
+                ag.args.push(a.name);
             }
         }
     }
@@ -166,6 +169,16 @@ where
     }
 
     pub fn add_group(&mut self, group: ArgGroup<'a>) {
+        self.add_group_reqs(&group);
+        self.groups.push(group);
+    }
+
+    pub fn add_group_ref(&mut self, group: &ArgGroup<'a>) {
+        self.add_group_reqs(group);
+        self.groups.push(group.clone());
+    }
+
+    fn add_group_reqs(&mut self, group: &ArgGroup<'a>) {
         if group.required {
             self.required.push(group.name);
             if let Some(ref reqs) = group.requires {
@@ -175,19 +188,8 @@ where
                 self.conflicts.extend_from_slice(bl);
             }
         }
-        if self.groups.iter().any(|g| g.name == group.name) {
-            let grp = self.groups
-                .iter_mut()
-                .find(|g| g.name == group.name)
-                .expect(INTERNAL_ERROR_MSG);
-            grp.args.extend_from_slice(&group.args);
-            grp.requires = group.requires.clone();
-            grp.conflicts = group.conflicts.clone();
-            grp.required = group.required;
-        } else {
-            self.groups.push(group);
-        }
     }
+
 
     //
     // ---------- Asserts
@@ -434,7 +436,7 @@ where
             self.set(AS::DontCollapseArgsInUsage);
             self.set(AS::ContainsLast);
         }
-        if let Some(l) = a.s.long {
+        if let Some(l) = a.long {
             if l == "version" {
                 self.unset(AS::NeedsLongVersion);
             } else if l == "help" {
@@ -1605,63 +1607,6 @@ where
         ))
     }
 
-    pub fn add_defaults(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
-        macro_rules! add_val {
-            (@default $_self:ident, $a:ident, $m:ident) => {
-                if let Some(ref val) = $a.v.default_val {
-                    if $m.get($a.b.name).is_none() {
-                        try!($_self.add_val_to_arg($a, OsStr::new(val), $m));
-
-                        if $_self.cache.map_or(true, |name| name != $a.name()) {
-                            arg_post_processing!($_self, $a, $m);
-                            $_self.cache = Some($a.name());
-                        }
-                    }
-                }
-            };
-            ($_self:ident, $a:ident, $m:ident) => {
-                if let Some(ref vm) = $a.v.default_vals_ifs {
-                    let mut done = false;
-                    if $m.get($a.b.name).is_none() {
-                        for &(arg, val, default) in vm.values() {
-                            let add = if let Some(a) = $m.get(arg) {
-                                if let Some(v) = val {
-                                    a.vals.iter().any(|value| v == value)
-                                } else {
-                                    true
-                                }
-                            } else {
-                                false
-                            };
-                            if add {
-                                try!($_self.add_val_to_arg($a, OsStr::new(default), $m));
-                                if $_self.cache.map_or(true, |name| name != $a.name()) {
-                                    arg_post_processing!($_self, $a, $m);
-                                    $_self.cache = Some($a.name());
-                                }
-                                done = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if done {
-                        continue; // outer loop (outside macro)
-                    }
-                }
-                add_val!(@default $_self, $a, $m)
-            };
-        }
-
-        for o in &self.opts {
-            add_val!(self, o, matcher);
-        }
-        for p in self.positionals.values() {
-            add_val!(self, p, matcher);
-        }
-        Ok(())
-    }
-
     //
     // ------- Display Help / Version --------
     //
@@ -2028,10 +1973,11 @@ where
 
 impl<'keys, 'other, 'a> From<&'a App<'keys, 'other>> for Parser<'keys, 'other> {
     fn from(a: &'a App) -> Self {
-        let mut p = Parser {
-            app: Cow::Borrowed(a),
-            ..Default::default()
-        };
+        let mut p = Parser::new(Cow::Borrowed(a), a.groups.len(), a.args.len());
+
+        for grp in &a.groups {
+            p.add_group_ref(grp);
+        }
         for set in a.settings {
             p.set(set);
         }
@@ -2039,11 +1985,12 @@ impl<'keys, 'other, 'a> From<&'a App<'keys, 'other>> for Parser<'keys, 'other> {
             p.set(g_set);
             p.g_settings.set(g_set);
         }
-        for arg in &a.args {
-            p.add_arg_ref(arg);
-        }
+        // Global args are first because of derived display orders
         for g_arg in &a.global_args {
             p.add_arg_ref(g_arg);
+        }
+        for arg in &a.args {
+            p.add_arg_ref(arg);
         }
 
         p
@@ -2052,22 +1999,24 @@ impl<'keys, 'other, 'a> From<&'a App<'keys, 'other>> for Parser<'keys, 'other> {
 
 impl<'keys, 'other> From<App<'keys, 'other>> for Parser<'keys, 'other> {
     fn from(a: App) -> Self {
-        let mut p = Parser::default();
+        let mut p = Parser::new(Cow::Owned(a), a.groups.len(), a.args.len());
+        for grp in p.app.groups.into_iter() {
+            p.add_group(grp);
+        }
         for set in a.settings {
             p.set(set);
         }
-        for g_set in a.global_settings {
+        for g_set in p.app.global_settings {
             p.set(g_set);
             p.g_settings.set(g_set);
         }
-        for arg in a.args.into_iter() {
-            p.add_arg(arg);
-        }
-        for g_arg in a.global_args.into_iter() {
+        // Global args are first because of derived display orders
+        for g_arg in p.app.global_args.into_iter() {
             p.add_arg(g_arg);
         }
-
-        let _ = mem::replace(&mut p.app, Cow::Owned(a));
+        for arg in p.app.args.into_iter() {
+            p.add_arg(arg);
+        }
 
         p
     }
