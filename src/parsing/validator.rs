@@ -407,11 +407,11 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         Ok(())
     }
 
-    fn validate_conflicts<A>(&self, a: &A, matcher: &ArgMatcher) -> Option<bool>
+    fn validate_arg_conflicts<A>(&self, a: &A, matcher: &ArgMatcher) -> Option<bool>
     where
         A: AnyArg<'a, 'b>,
     {
-        debugln!("Validator::validate_conflicts: a={:?};", a.name());
+        debugln!("Validator::validate_arg_conflicts: a={:?};", a.name());
         a.conflicts().map(|bl| {
             bl.iter().any(|conf| {
                 matcher.contains(conf) ||
@@ -488,7 +488,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         A: AnyArg<'a, 'b>,
     {
         debugln!("Validator::is_missing_required_ok: a={}", a.name());
-        self.validate_conflicts(a, matcher).unwrap_or(false) ||
+        self.validate_arg_conflicts(a, matcher).unwrap_or(false) ||
             self.validate_required_unless(a, matcher).unwrap_or(false)
     }
 }

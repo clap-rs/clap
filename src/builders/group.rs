@@ -87,12 +87,12 @@ use yaml_rust::Yaml;
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(default))]
 pub struct ArgGroup<'a> {
-    pub name: &'a str,
-    pub args: Vec<&'a str>,
-    pub required: bool,
-    pub requires: Option<Vec<&'a str>>,
-    pub conflicts: Option<Vec<&'a str>>,
-    pub multiple: bool,
+    #[doc(hidden)] pub name: &'a str,
+    #[doc(hidden)] pub args: Vec<&'a str>,
+    #[doc(hidden)] pub required: bool,
+    #[doc(hidden)] pub requires: Option<Vec<&'a str>>,
+    #[doc(hidden)] pub conflicts: Option<Vec<&'a str>>,
+    #[doc(hidden)] pub multiple: bool,
 }
 
 impl<'a> ArgGroup<'a> {

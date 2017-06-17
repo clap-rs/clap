@@ -11,4 +11,3 @@ pub use self::positional::Pos;
 pub use self::base::Base;
 pub use self::switched::Switched;
 pub use self::valued::Valued;
-pub use self::app_meta::AppMeta;

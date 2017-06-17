@@ -51,34 +51,34 @@ pub struct Arg<'a, 'b>
 where
     'a: 'b,
 {
-    name: &'a str,
-    help: Option<&'b str>,
-    long_help: Option<&'b str>,
-    conflicts_with: Option<Vec<&'a str>>,
-    settings: ArgFlags,
-    required_unless: Option<Vec<&'a str>>,
-    overrides_with: Option<Vec<&'a str>>,
-    groups: Option<Vec<&'a str>>,
-    requires: Option<Vec<(Option<&'b str>, &'a str)>>,
-    short: Option<char>,
-    long: Option<&'b str>,
-    aliases: Option<Vec<&'b str>>,
-    visible_aliases: Option<Vec<&'b str>>,
-    #[cfg_attr(feature = "serde", serde(default = "default_display_order"))]
-    display_order: usize,
-    possible_values: Option<Vec<&'b str>>,
-    value_names: Option<VecMap<&'b str>>,
-    number_of_values: Option<u64>,
-    max_values: Option<u64>,
-    min_values: Option<u64>,
-    value_delimiter: Option<char>,
-    default_value: Option<&'b OsStr>,
-    default_value_ifs: Option<VecMap<(&'a str, Option<&'b OsStr>, &'b OsStr)>>,
-    value_terminator: Option<&'b str>,
-    #[cfg_attr(feature = "serde", serde(skip))]
-    validator: Option<Rc<Fn(String) -> Result<(), String>>>,
-    #[cfg_attr(feature = "serde", serde(skip))]
-    validator_os: Option<Rc<Fn(&OsStr) -> Result<(), OsString>>>,
+    #[doc(hidden)] pub name: &'a str,
+    #[doc(hidden)] pub help: Option<&'b str>,
+    #[doc(hidden)] pub long_help: Option<&'b str>,
+    #[doc(hidden)] pub conflicts_with: Option<Vec<&'a str>>,
+    #[doc(hidden)] pub settings: ArgFlags,
+    #[doc(hidden)] pub required_unless: Option<Vec<&'a str>>,
+    #[doc(hidden)] pub overrides_with: Option<Vec<&'a str>>,
+    #[doc(hidden)] pub groups: Option<Vec<&'a str>>,
+    #[doc(hidden)] pub requires: Option<Vec<(Option<&'b str>, &'a str)>>,
+    #[doc(hidden)] pub short: Option<char>,
+    #[doc(hidden)] pub long: Option<&'b str>,
+    #[doc(hidden)] pub aliases: Option<Vec<&'b str>>,
+    #[doc(hidden)] pub visible_aliases: Option<Vec<&'b str>>,
+    #[doc(hidden)] #[cfg_attr(feature = "serde", serde(default = "default_display_order"))] 
+    pub display_order: usize,
+    #[doc(hidden)] pub possible_values: Option<Vec<&'b str>>,
+    #[doc(hidden)] pub value_names: Option<VecMap<&'b str>>,
+    #[doc(hidden)] pub number_of_values: Option<u64>,
+    #[doc(hidden)] pub max_values: Option<u64>, 
+    #[doc(hidden)] pub min_values: Option<u64>,
+    #[doc(hidden)] pub value_delimiter: Option<char>,
+    #[doc(hidden)] pub default_value: Option<&'b OsStr>,
+    #[doc(hidden)] pub default_value_ifs: Option<VecMap<(&'a str, Option<&'b OsStr>, &'b OsStr)>>,
+    #[doc(hidden)] pub value_terminator: Option<&'b str>,
+    #[doc(hidden)] #[cfg_attr(feature = "serde", serde(skip))] 
+    pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
+    #[doc(hidden)] #[cfg_attr(feature = "serde", serde(skip))] 
+    pub validator_os: Option<Rc<Fn(&OsStr) -> Result<(), OsString>>>,
 }
 
 impl<'a, 'b> Arg<'a, 'b> {
