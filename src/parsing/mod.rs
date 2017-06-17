@@ -1,4 +1,5 @@
-#[macro_use] mod macros;
+#[macro_use]
+mod macros;
 mod any_arg;
 mod arg_matcher;
 mod osstringext;

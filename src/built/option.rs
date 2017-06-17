@@ -17,7 +17,8 @@ use built::{Base, Switched, Valued};
 #[doc(hidden)]
 #[derive(Default, Clone)]
 pub struct Opt<'n, 'e>
-    where 'n: 'e
+where
+    'n: 'e,
 {
     pub b: Base<'n, 'e>,
     pub s: Switched<'e>,
@@ -25,7 +26,12 @@ pub struct Opt<'n, 'e>
 }
 
 impl<'n, 'e> Opt<'n, 'e> {
-    pub fn new(name: &'n str) -> Self { Opt { b: Base::new(name), ..Default::default() } }
+    pub fn new(name: &'n str) -> Self {
+        Opt {
+            b: Base::new(name),
+            ..Default::default()
+        }
+    }
 }
 
 impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for Opt<'n, 'e> {
@@ -89,14 +95,16 @@ impl<'n, 'e> Display for Opt<'n, 'e> {
                 try!(write!(f, "..."));
             }
         } else {
-            try!(write!(f,
-                        "<{}>{}",
-                        self.b.name,
-                        if self.is_set(ArgSettings::Multiple) {
-                            "..."
-                        } else {
-                            ""
-                        }));
+            try!(write!(
+                f,
+                "<{}>{}",
+                self.b.name,
+                if self.is_set(ArgSettings::Multiple) {
+                    "..."
+                } else {
+                    ""
+                }
+            ));
         }
 
         Ok(())
@@ -139,7 +147,8 @@ impl<'n, 'e> AnyArg<'n, 'e> for Opt<'n, 'e> {
     fn longest_filter(&self) -> bool { true }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.s.aliases {
-            let vis_aliases: Vec<_> = aliases.iter()
+            let vis_aliases: Vec<_> = aliases
+                .iter()
                 .filter_map(|&(n, v)| if v { Some(n) } else { None })
                 .collect();
             if vis_aliases.is_empty() {
@@ -158,9 +167,7 @@ impl<'n, 'e> DispOrder for Opt<'n, 'e> {
 }
 
 impl<'n, 'e> PartialEq for Opt<'n, 'e> {
-    fn eq(&self, other: &Opt<'n, 'e>) -> bool {
-        self.b == other.b
-    }
+    fn eq(&self, other: &Opt<'n, 'e>) -> bool { self.b == other.b }
 }
 
 #[cfg(test)]
@@ -218,8 +225,12 @@ mod test {
     fn Opt_display_multiple_aliases() {
         let mut o = Opt::new("opt");
         o.s.long = Some("option");
-        o.s.aliases =
-            Some(vec![("als_not_visible", false), ("als2", true), ("als3", true), ("als4", true)]);
+        o.s.aliases = Some(vec![
+            ("als_not_visible", false),
+            ("als2", true),
+            ("als3", true),
+            ("als4", true),
+        ]);
         assert_eq!(&*format!("{}", o), "--option <opt>");
     }
 }

@@ -127,8 +127,8 @@ impl<'a> ArgMatches<'a> {
     ///
     /// # Examples
     ///
-    #[cfg_attr(not(unix), doc=" ```ignore")]
-    #[cfg_attr(    unix , doc=" ```")]
+    #[cfg_attr(not(unix), doc = " ```ignore")]
+    #[cfg_attr(unix, doc = " ```")]
     /// # use clap::{App, Arg};
     /// use std::ffi::OsString;
     /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
@@ -162,8 +162,8 @@ impl<'a> ArgMatches<'a> {
     ///
     /// # Examples
     ///
-    #[cfg_attr(not(unix), doc=" ```ignore")]
-    #[cfg_attr(    unix , doc=" ```")]
+    #[cfg_attr(not(unix), doc = " ```ignore")]
+    #[cfg_attr(unix, doc = " ```")]
     /// # use clap::{App, Arg};
     /// use std::ffi::OsString;
     /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
@@ -223,8 +223,8 @@ impl<'a> ArgMatches<'a> {
     ///
     /// # Examples
     ///
-    #[cfg_attr(not(unix), doc=" ```ignore")]
-    #[cfg_attr(    unix , doc=" ```")]
+    #[cfg_attr(not(unix), doc = " ```ignore")]
+    #[cfg_attr(unix, doc = " ```")]
     /// # use clap::{App, Arg};
     /// use std::ffi::OsString;
     /// use std::os::unix::ffi::OsStringExt;
@@ -243,10 +243,12 @@ impl<'a> ArgMatches<'a> {
     /// ```
     pub fn values_of_lossy<S: AsRef<str>>(&'a self, name: S) -> Option<Vec<String>> {
         if let Some(arg) = self.args.get(name.as_ref()) {
-            return Some(arg.vals
-                .iter()
-                .map(|v| v.to_string_lossy().into_owned())
-                .collect());
+            return Some(
+                arg.vals
+                    .iter()
+                    .map(|v| v.to_string_lossy().into_owned())
+                    .collect(),
+            );
         }
         None
     }
@@ -259,8 +261,8 @@ impl<'a> ArgMatches<'a> {
     ///
     /// # Examples
     ///
-    #[cfg_attr(not(unix), doc=" ```ignore")]
-    #[cfg_attr(    unix , doc=" ```")]
+    #[cfg_attr(not(unix), doc = " ```ignore")]
+    #[cfg_attr(unix, doc = " ```")]
     /// # use clap::{App, Arg};
     /// use std::ffi::{OsStr,OsString};
     /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
@@ -508,7 +510,9 @@ impl<'a> ArgMatches<'a> {
     /// [`ArgMatches::subcommand_matches`]: ./struct.ArgMatches.html#method.subcommand_matches
     /// [`ArgMatches::subcommand_name`]: ./struct.ArgMatches.html#method.subcommand_name
     pub fn subcommand(&self) -> (&str, Option<&ArgMatches<'a>>) {
-        self.subcommand.as_ref().map_or(("", None), |sc| (&sc.name[..], Some(&sc.matches)))
+        self.subcommand
+            .as_ref()
+            .map_or(("", None), |sc| (&sc.name[..], Some(&sc.matches)))
     }
 
     /// Returns a string slice of the usage statement for the [`App`] or [`SubCommand`]
@@ -590,8 +594,8 @@ fn test_default_values() {
 ///
 /// # Examples
 ///
-#[cfg_attr(not(unix), doc=" ```ignore")]
-#[cfg_attr(    unix , doc=" ```")]
+#[cfg_attr(not(unix), doc = " ```ignore")]
+#[cfg_attr(unix, doc = " ```")]
 /// # use clap::{App, Arg};
 /// use std::ffi::OsString;
 /// use std::os::unix::ffi::{OsStrExt,OsStringExt};

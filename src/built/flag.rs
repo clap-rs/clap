@@ -17,14 +17,20 @@ use parsing::{AnyArg, DispOrder};
 #[derive(Default, Clone, Debug)]
 #[doc(hidden)]
 pub struct Flag<'n, 'e>
-    where 'n: 'e
+where
+    'n: 'e,
 {
     pub b: Base<'n, 'e>,
     pub s: Switched<'e>,
 }
 
 impl<'n, 'e> Flag<'n, 'e> {
-    pub fn new(name: &'n str) -> Self { Flag { b: Base::new(name), ..Default::default() } }
+    pub fn new(name: &'n str) -> Self {
+        Flag {
+            b: Base::new(name),
+            ..Default::default()
+        }
+    }
 }
 
 impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Flag<'a, 'b> {
@@ -89,7 +95,8 @@ impl<'n, 'e> AnyArg<'n, 'e> for Flag<'n, 'e> {
     fn longest_filter(&self) -> bool { self.s.long.is_some() }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.s.aliases {
-            let vis_aliases: Vec<_> = aliases.iter()
+            let vis_aliases: Vec<_> = aliases
+                .iter()
                 .filter_map(|&(n, v)| if v { Some(n) } else { None })
                 .collect();
             if vis_aliases.is_empty() {
@@ -108,9 +115,7 @@ impl<'n, 'e> DispOrder for Flag<'n, 'e> {
 }
 
 impl<'n, 'e> PartialEq for Flag<'n, 'e> {
-    fn eq(&self, other: &Flag<'n, 'e>) -> bool {
-        self.b == other.b
-    }
+    fn eq(&self, other: &Flag<'n, 'e>) -> bool { self.b == other.b }
 }
 
 #[cfg(test)]
@@ -145,8 +150,12 @@ mod test {
     fn Flag_display_multiple_aliases() {
         let mut f = Flag::new("flg");
         f.s.short = Some('f');
-        f.s.aliases =
-            Some(vec![("alias_not_visible", false), ("f2", true), ("f3", true), ("f4", true)]);
+        f.s.aliases = Some(vec![
+            ("alias_not_visible", false),
+            ("f2", true),
+            ("f3", true),
+            ("f4", true),
+        ]);
         assert_eq!(&*format!("{}", f), "-f");
     }
 }

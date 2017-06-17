@@ -4,7 +4,6 @@ mod option;
 mod base;
 mod valued;
 mod switched;
-mod app_meta;
 
 pub use self::flag::Flag;
 pub use self::option::Opt;

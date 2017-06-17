@@ -6,7 +6,8 @@ use std::io::Write;
 use parsing::Parser;
 
 pub struct FishGen<'a, 'b>
-    where 'a: 'b
+where
+    'a: 'b,
 {
     p: &'b Parser<'a, 'b>,
 }
@@ -54,9 +55,11 @@ fn gen_fish_inner(root_command: &str, comp_gen: &FishGen, parent_cmds: &str, buf
     //      -f # don't use file completion
     //      -n "__fish_using_command myprog subcmd1" # complete for command "myprog subcmd1"
 
-    let basic_template = format!("complete -c {} -n \"__fish_using_command {}\"",
-                                 root_command,
-                                 parent_cmds);
+    let basic_template = format!(
+        "complete -c {} -n \"__fish_using_command {}\"",
+        root_command,
+        parent_cmds
+    );
 
     for option in comp_gen.p.opts() {
         let mut template = basic_template.clone();

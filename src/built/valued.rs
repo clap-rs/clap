@@ -8,7 +8,8 @@ use Arg;
 #[allow(missing_debug_implementations)]
 #[derive(Clone)]
 pub struct Valued<'a, 'b>
-    where 'a: 'b
+where
+    'a: 'b,
 {
     pub possible_vals: Option<Vec<&'b str>>,
     pub val_names: Option<VecMap<&'b str>>,

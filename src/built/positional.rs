@@ -19,7 +19,8 @@ use parsing::{AnyArg, DispOrder};
 #[doc(hidden)]
 #[derive(Clone, Default)]
 pub struct Pos<'n, 'e>
-    where 'n: 'e
+where
+    'n: 'e,
 {
     pub b: Base<'n, 'e>,
     pub v: Valued<'n, 'e>,
@@ -42,7 +43,8 @@ impl<'n, 'e> Pos<'n, 'e> {
             index: idx,
         };
         if a.v.max_vals.is_some() || a.v.min_vals.is_some() ||
-           (a.v.num_vals.is_some() && a.v.num_vals.unwrap() > 1) {
+            (a.v.num_vals.is_some() && a.v.num_vals.unwrap() > 1)
+        {
             pb.b.settings.set(ArgSettings::Multiple);
         }
         pb
@@ -50,7 +52,8 @@ impl<'n, 'e> Pos<'n, 'e> {
 
     pub fn from_arg(mut a: Arg<'n, 'e>, idx: u64) -> Self {
         if a.v.max_vals.is_some() || a.v.min_vals.is_some() ||
-           (a.v.num_vals.is_some() && a.v.num_vals.unwrap() > 1) {
+            (a.v.num_vals.is_some() && a.v.num_vals.unwrap() > 1)
+        {
             a.b.settings.set(ArgSettings::Multiple);
         }
         Pos {
@@ -61,10 +64,10 @@ impl<'n, 'e> Pos<'n, 'e> {
     }
 
     pub fn multiple_str(&self) -> &str {
-        let mult_vals = self.v
-            .val_names
-            .as_ref()
-            .map_or(true, |names| names.len() < 2);
+        let mult_vals = self.v.val_names.as_ref().map_or(
+            true,
+            |names| names.len() < 2,
+        );
         if self.is_set(ArgSettings::Multiple) && mult_vals {
             "..."
         } else {
@@ -77,11 +80,13 @@ impl<'n, 'e> Pos<'n, 'e> {
         if let Some(ref names) = self.v.val_names {
             debugln!("Pos:name_no_brackets: val_names={:#?}", names);
             if names.len() > 1 {
-                Cow::Owned(names
-                               .values()
-                               .map(|n| format!("<{}>", n))
-                               .collect::<Vec<_>>()
-                               .join(" "))
+                Cow::Owned(
+                    names
+                        .values()
+                        .map(|n| format!("<{}>", n))
+                        .collect::<Vec<_>>()
+                        .join(" "),
+                )
             } else {
                 Cow::Borrowed(names.values().next().expect(INTERNAL_ERROR_MSG))
             }
@@ -95,17 +100,21 @@ impl<'n, 'e> Pos<'n, 'e> {
 impl<'n, 'e> Display for Pos<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> Result {
         if let Some(ref names) = self.v.val_names {
-            try!(write!(f,
-                        "{}",
-                        names
-                            .values()
-                            .map(|n| format!("<{}>", n))
-                            .collect::<Vec<_>>()
-                            .join(" ")));
+            try!(write!(
+                f,
+                "{}",
+                names
+                    .values()
+                    .map(|n| format!("<{}>", n))
+                    .collect::<Vec<_>>()
+                    .join(" ")
+            ));
         } else {
             try!(write!(f, "<{}>", self.b.name));
         }
-        if self.b.settings.is_set(ArgSettings::Multiple) && (self.v.val_names.is_none() || self.v.val_names.as_ref().unwrap().len() == 1) {
+        if self.b.settings.is_set(ArgSettings::Multiple) &&
+            (self.v.val_names.is_none() || self.v.val_names.as_ref().unwrap().len() == 1)
+        {
             try!(write!(f, "..."));
         }
 

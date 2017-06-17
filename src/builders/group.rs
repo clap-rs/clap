@@ -156,9 +156,11 @@ impl<'a> ArgGroup<'a> {
     /// [argument]: ./struct.Arg.html
     #[cfg_attr(feature = "lints", allow(should_assert_eq))]
     pub fn arg(mut self, n: &'a str) -> Self {
-        assert!(self.name != n,
-                "ArgGroup '{}' can not have same name as arg inside it",
-                &*self.name);
+        assert!(
+            self.name != n,
+            "ArgGroup '{}' can not have same name as arg inside it",
+            &*self.name
+        );
         self.args.push(n);
         self
     }
@@ -446,7 +448,9 @@ impl<'a> From<&'a BTreeMap<Yaml, Yaml>> for ArgGroup<'a> {
         let mut a = ArgGroup::default();
         let group_settings = if b.len() == 1 {
             let name_yml = b.keys().nth(0).expect("failed to get name");
-            let name_str = name_yml.as_str().expect("failed to convert arg YAML name to str");
+            let name_str = name_yml
+                .as_str()
+                .expect("failed to convert arg YAML name to str");
             a.name = name_str;
             b.get(name_yml)
                 .expect("failed to get name_str")
@@ -476,10 +480,12 @@ impl<'a> From<&'a BTreeMap<Yaml, Yaml>> for ArgGroup<'a> {
                     a
                 }
                 s => {
-                    panic!("Unknown ArgGroup setting '{}' in YAML file for \
+                    panic!(
+                        "Unknown ArgGroup setting '{}' in YAML file for \
                              ArgGroup '{}'",
-                           s,
-                           a.name)
+                        s,
+                        a.name
+                    )
                 }
             }
         }
@@ -535,17 +541,19 @@ mod test {
         let reqs = vec!["r1", "r2", "r3", "r4"];
         let confs = vec!["c1", "c2", "c3", "c4"];
 
-        let debug_str = format!("{{\n\
+        let debug_str = format!(
+            "{{\n\
                    \tname: \"test\",\n\
                    \targs: {:?},\n\
                    \trequired: {:?},\n\
                    \trequires: {:?},\n\
                    \tconflicts: {:?},\n\
                }}",
-                                args,
-                                true,
-                                Some(reqs),
-                                Some(confs));
+            args,
+            true,
+            Some(reqs),
+            Some(confs)
+        );
         assert_eq!(&*format!("{:?}", g), &*debug_str);
     }
 
@@ -573,7 +581,7 @@ mod test {
         assert_eq!(g2.conflicts, Some(confs));
     }
 
-    #[cfg(feature="yaml")]
+    #[cfg(feature = "yaml")]
     #[cfg_attr(feature = "yaml", test)]
     fn test_yaml() {
 

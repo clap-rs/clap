@@ -71,28 +71,32 @@ impl Colorizer {
     }
 
     pub fn good<T>(&self, msg: T) -> Format<T>
-        where T: fmt::Display + AsRef<str>
+    where
+        T: fmt::Display + AsRef<str>,
     {
         debugln!("Colorizer::good;");
         color!(self, Good, msg)
     }
 
     pub fn warning<T>(&self, msg: T) -> Format<T>
-        where T: fmt::Display + AsRef<str>
+    where
+        T: fmt::Display + AsRef<str>,
     {
         debugln!("Colorizer::warning;");
         color!(self, Warning, msg)
     }
 
     pub fn error<T>(&self, msg: T) -> Format<T>
-        where T: fmt::Display + AsRef<str>
+    where
+        T: fmt::Display + AsRef<str>,
     {
         debugln!("Colorizer::error;");
         color!(self, Error, msg)
     }
 
     pub fn none<T>(&self, msg: T) -> Format<T>
-        where T: fmt::Display + AsRef<str>
+    where
+        T: fmt::Display + AsRef<str>,
     {
         debugln!("Colorizer::none;");
         Format::None(msg)
@@ -136,7 +140,7 @@ impl<T: AsRef<str>> Format<T> {
 }
 
 #[cfg(any(not(feature = "color"), target_os = "windows"))]
-#[cfg_attr(feature="lints", allow(match_same_arms))]
+#[cfg_attr(feature = "lints", allow(match_same_arms))]
 impl<T: fmt::Display> Format<T> {
     fn format(&self) -> &T {
         match *self {
@@ -168,14 +172,18 @@ mod test {
     #[test]
     fn colored_output() {
         let err = Format::Error("error");
-        assert_eq!(&*format!("{}", err),
-                   &*format!("{}", Red.bold().paint("error")));
+        assert_eq!(
+            &*format!("{}", err),
+            &*format!("{}", Red.bold().paint("error"))
+        );
         let good = Format::Good("good");
         assert_eq!(&*format!("{}", good), &*format!("{}", Green.paint("good")));
         let warn = Format::Warning("warn");
         assert_eq!(&*format!("{}", warn), &*format!("{}", Yellow.paint("warn")));
         let none = Format::None("none");
-        assert_eq!(&*format!("{}", none),
-                   &*format!("{}", ANSIString::from("none")));
+        assert_eq!(
+            &*format!("{}", none),
+            &*format!("{}", ANSIString::from("none"))
+        );
     }
 }

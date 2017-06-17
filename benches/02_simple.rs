@@ -20,25 +20,20 @@ macro_rules! create_app {
 }
 
 #[bench]
-fn build_app(b: &mut Bencher) {
-
-    b.iter(|| create_app!());
-}
+fn build_app(b: &mut Bencher) { b.iter(|| create_app!()); }
 
 #[bench]
 fn add_flag(b: &mut Bencher) {
-    fn build_app() -> App<'static, 'static> {
-        App::new("claptests")
-    }
+    fn build_app() -> App<'static, 'static> { App::new("claptests") }
 
-    b.iter(|| build_app().arg(Arg::from_usage("-s, --some 'something'")));
+    b.iter(|| {
+        build_app().arg(Arg::from_usage("-s, --some 'something'"))
+    });
 }
 
 #[bench]
 fn add_flag_ref(b: &mut Bencher) {
-    fn build_app() -> App<'static, 'static> {
-        App::new("claptests")
-    }
+    fn build_app() -> App<'static, 'static> { App::new("claptests") }
 
     b.iter(|| {
         let arg = Arg::from_usage("-s, --some 'something'");
@@ -48,18 +43,16 @@ fn add_flag_ref(b: &mut Bencher) {
 
 #[bench]
 fn add_opt(b: &mut Bencher) {
-    fn build_app() -> App<'static, 'static> {
-        App::new("claptests")
-    }
+    fn build_app() -> App<'static, 'static> { App::new("claptests") }
 
-    b.iter(|| build_app().arg(Arg::from_usage("-s, --some <FILE> 'something'")));
+    b.iter(|| {
+        build_app().arg(Arg::from_usage("-s, --some <FILE> 'something'"))
+    });
 }
 
 #[bench]
 fn add_opt_ref(b: &mut Bencher) {
-    fn build_app() -> App<'static, 'static> {
-        App::new("claptests")
-    }
+    fn build_app() -> App<'static, 'static> { App::new("claptests") }
 
     b.iter(|| {
         let arg = Arg::from_usage("-s, --some <FILE> 'something'");
@@ -69,18 +62,14 @@ fn add_opt_ref(b: &mut Bencher) {
 
 #[bench]
 fn add_pos(b: &mut Bencher) {
-    fn build_app() -> App<'static, 'static> {
-        App::new("claptests")
-    }
+    fn build_app() -> App<'static, 'static> { App::new("claptests") }
 
     b.iter(|| build_app().arg(Arg::with_name("some")));
 }
 
 #[bench]
 fn add_pos_ref(b: &mut Bencher) {
-    fn build_app() -> App<'static, 'static> {
-        App::new("claptests")
-    }
+    fn build_app() -> App<'static, 'static> { App::new("claptests") }
 
     b.iter(|| {
         let arg = Arg::with_name("some");
@@ -89,18 +78,16 @@ fn add_pos_ref(b: &mut Bencher) {
 }
 
 #[bench]
-fn parse_clean(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec![""]));
-}
+fn parse_clean(b: &mut Bencher) { b.iter(|| create_app!().get_matches_from(vec![""])); }
 
 #[bench]
-fn parse_flag(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec!["myprog", "-f"]));
-}
+fn parse_flag(b: &mut Bencher) { b.iter(|| create_app!().get_matches_from(vec!["myprog", "-f"])); }
 
 #[bench]
 fn parse_option(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec!["myprog", "-o", "option1"]));
+    b.iter(|| {
+        create_app!().get_matches_from(vec!["myprog", "-o", "option1"])
+    });
 }
 
 #[bench]
@@ -110,5 +97,7 @@ fn parse_positional(b: &mut Bencher) {
 
 #[bench]
 fn parse_complex(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec!["myprog", "-o", "option1", "-f", "arg1"]));
+    b.iter(|| {
+        create_app!().get_matches_from(vec!["myprog", "-o", "option1", "-f", "arg1"])
+    });
 }

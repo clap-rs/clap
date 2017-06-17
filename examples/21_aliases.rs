@@ -5,17 +5,20 @@ use clap::{App, Arg, SubCommand};
 fn main() {
 
     let matches = App::new("MyApp")
-                        .subcommand(SubCommand::with_name("ls")
-                                                .aliases(&["list", "dir"])
-                                                .about("Adds files to myapp")
-                                                .version("0.1")
-                                                .author("Kevin K.")
-                                                .arg(Arg::with_name("input")
-                                                            .help("the file to add")
-                                                            .index(1)
-                                                            .required(true))
-                                                )
-                        .get_matches();
+        .subcommand(
+            SubCommand::with_name("ls")
+                .aliases(&["list", "dir"])
+                .about("Adds files to myapp")
+                .version("0.1")
+                .author("Kevin K.")
+                .arg(
+                    Arg::with_name("input")
+                        .help("the file to add")
+                        .index(1)
+                        .required(true),
+                ),
+        )
+        .get_matches();
 
     // You can check if a subcommand was used like normal
     if matches.is_present("add") {
@@ -31,8 +34,8 @@ fn main() {
     // You can also match on a subcommand's name
     match matches.subcommand_name() {
         Some("add") => println!("'myapp add' was used"),
-        None        => println!("No subcommand was used"),
-        _           => println!("Some other subcommand was used"),
+        None => println!("No subcommand was used"),
+        _ => println!("Some other subcommand was used"),
     }
 
     // Continued program logic goes here...

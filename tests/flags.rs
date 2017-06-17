@@ -5,10 +5,12 @@ use clap::{App, Arg, ArgSettings};
 #[test]
 fn flag_using_short() {
     let m = App::new("flag")
-        .args(&[
-            Arg::from_usage("-f, --flag 'some flag'"),
-            Arg::from_usage("-c, --color 'some other flag'")
-            ])
+        .args(
+            &[
+                Arg::from_usage("-f, --flag 'some flag'"),
+                Arg::from_usage("-c, --color 'some other flag'"),
+            ],
+        )
         .get_matches_from(vec!["", "-f", "-c"]);
     assert!(m.is_present("flag"));
     assert!(m.is_present("color"));
@@ -17,38 +19,307 @@ fn flag_using_short() {
 #[test]
 fn lots_o_flags_sep() {
     let r = App::new("opts")
-        .arg(
-            Arg::from_usage("-o... 'some flag'"),
-            )
-        .get_matches_from_safe(vec!["", 
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
-            ]);
+        .arg(Arg::from_usage("-o... 'some flag'"))
+        .get_matches_from_safe(vec![
+            "",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+            "-o",
+        ]);
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("o"));
@@ -58,16 +329,15 @@ fn lots_o_flags_sep() {
 #[test]
 fn lots_o_flags_combined() {
     let r = App::new("opts")
-        .arg(
-            Arg::from_usage("-o... 'some flag'"),
-            )
-        .get_matches_from_safe(vec!["", 
+        .arg(Arg::from_usage("-o... 'some flag'"))
+        .get_matches_from_safe(vec![
+            "",
             "-oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
             "-oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
             "-oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
             "-oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
             "-ooooooooooooooooooooooooooooooooooooooooo",
-            ]);
+        ]);
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("o"));
@@ -77,10 +347,12 @@ fn lots_o_flags_combined() {
 #[test]
 fn flag_using_long() {
     let m = App::new("flag")
-        .args(&[
-            Arg::from_usage("--flag 'some flag'"),
-            Arg::from_usage("--color 'some other flag'")
-            ])
+        .args(
+            &[
+                Arg::from_usage("--flag 'some flag'"),
+                Arg::from_usage("--color 'some other flag'"),
+            ],
+        )
         .get_matches_from(vec!["", "--flag", "--color"]);
     assert!(m.is_present("flag"));
     assert!(m.is_present("color"));
@@ -89,19 +361,23 @@ fn flag_using_long() {
 #[test]
 fn flag_using_mixed() {
     let m = App::new("flag")
-        .args(&[
-            Arg::from_usage("-f, --flag 'some flag'"),
-            Arg::from_usage("-c, --color 'some other flag'")
-            ])
+        .args(
+            &[
+                Arg::from_usage("-f, --flag 'some flag'"),
+                Arg::from_usage("-c, --color 'some other flag'"),
+            ],
+        )
         .get_matches_from(vec!["", "-f", "--color"]);
     assert!(m.is_present("flag"));
     assert!(m.is_present("color"));
 
     let m = App::new("flag")
-        .args(&[
-            Arg::from_usage("-f, --flag 'some flag'"),
-            Arg::from_usage("-c, --color 'some other flag'")
-            ])
+        .args(
+            &[
+                Arg::from_usage("-f, --flag 'some flag'"),
+                Arg::from_usage("-c, --color 'some other flag'"),
+            ],
+        )
         .get_matches_from(vec!["", "--flag", "-c"]);
     assert!(m.is_present("flag"));
     assert!(m.is_present("color"));
@@ -110,11 +386,13 @@ fn flag_using_mixed() {
 #[test]
 fn multiple_flags_in_single() {
     let m = App::new("multe_flags")
-        .args(&[
-            Arg::from_usage("-f, --flag 'some flag'"),
-            Arg::from_usage("-c, --color 'some other flag'"),
-            Arg::from_usage("-d, --debug 'another other flag'")
-            ])
+        .args(
+            &[
+                Arg::from_usage("-f, --flag 'some flag'"),
+                Arg::from_usage("-c, --color 'some other flag'"),
+                Arg::from_usage("-d, --debug 'another other flag'"),
+            ],
+        )
         .get_matches_from(vec!["", "-fcd"]);
     assert!(m.is_present("flag"));
     assert!(m.is_present("color"));

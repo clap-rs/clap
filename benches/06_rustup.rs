@@ -19,7 +19,9 @@ fn parse_clean(b: &mut Bencher) { b.iter(|| build_cli().get_matches_from(vec![""
 
 #[bench]
 fn parse_subcommands(b: &mut Bencher) {
-    b.iter(|| build_cli().get_matches_from(vec!["rustup override add stable"]));
+    b.iter(|| {
+        build_cli().get_matches_from(vec!["rustup override add stable"])
+    });
 }
 
 pub fn build_cli() -> App<'static, 'static> {
@@ -275,7 +277,8 @@ the same as `rustup toolchain install`.
 'toolchain' specifies a toolchain name, such as 'stable', 'nightly',
 or '1.8.0'. For more information see `rustup help toolchain`.";
 
-static TOOLCHAIN_INSTALL_HELP: &'static str = r"
+static TOOLCHAIN_INSTALL_HELP: &'static str =
+    r"
 Installs a specific rust toolchain.
 
 The 'install' command is an alias for 'rustup update <toolchain>'.
@@ -343,7 +346,8 @@ Or a specific stable release:
 To see the active toolchain use `rustup show`. To remove the override
 and use the default toolchain again, `rustup override unset`.";
 
-static OVERRIDE_UNSET_HELP: &'static str = r"
+static OVERRIDE_UNSET_HELP: &'static str =
+    r"
 If `--path` argument is present, removes the override toolchain for
 the specified directory. If `--nonexistent` argument is present, removes
 the override toolchain for all nonexistent directories. Otherwise,

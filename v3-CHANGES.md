@@ -22,3 +22,6 @@
 * App::global_setting -> App::set_global
 * App::global_settings -> App::set_all_global
 * Mod Structure
+* get_matches_from_safe_borrow -> get_matches_from_safe_mut
+* App::get_matches_from_mut
+* App::get_matches_safe_mut

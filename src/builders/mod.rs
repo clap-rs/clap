@@ -1,4 +1,5 @@
-#[macro_use] mod macros;
+#[macro_use]
+mod macros;
 pub mod app_settings;
 mod app;
 pub mod arg_settings;

@@ -113,7 +113,6 @@ pub enum ArgSettings {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
     /// [`Arg::required(true)`]: ./struct.Arg.html#method.required
-
     Required,
     /// Specifies that the argument may appear more than once. For flags, this results
     /// in the number of occurrences of the flag being recorded. For example `-ddd` or `-d -d -d`
@@ -308,7 +307,6 @@ pub enum ArgSettings {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
-
     EmptyValues,
     /// Specifies that an argument can be matched to all child [`SubCommand`]s.
     ///
@@ -396,7 +394,6 @@ pub enum ArgSettings {
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
-
     Hidden,
     /// Specifies that the argument takes a value at run time.
     ///
@@ -529,7 +526,6 @@ pub enum ArgSettings {
     ///         on a line after the option
     /// ```
     /// [`AppSettings::NextLineHelp`]: ./enum.AppSettings.html#variant.NextLineHelp
-
     NextLineHelp,
     /// Specifies that *multiple values* may only be set using the delimiter. This means if an
     /// if an option is encountered, and no delimiter is found, it automatically assumed that no
@@ -603,7 +599,6 @@ pub enum ArgSettings {
     /// assert_eq!(delims.values_of("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
     /// [`Arg::use_delimiter(true)`]: ./struct.Arg.html#method.use_delimiter
-
     RequireDelimiter,
     /// Specifies if the possible values of an argument should be displayed in the help text or
     /// not. Defaults to `false` (i.e. show possible values)
@@ -738,7 +733,6 @@ pub enum ArgSettings {
     /// [`Arg::require_equals(true)`]: ./struct.Arg.html#method.require_equals
     /// [`Arg::empty_values(true)`]: ./struct.Arg.html#method.empty_values
     /// [`Arg::empty_values(false)`]: ./struct.Arg.html#method.empty_values
-
     RequireEquals,
     /// Specifies that this arg is the last, or final, positional argument (i.e. has the highest
     /// index) and is *only* able to be accessed via the `--` syntax (i.e. `$ prog args --
@@ -747,13 +741,13 @@ pub enum ArgSettings {
     /// allows one to access this arg early using the `--` syntax. Accessing an arg early, even with
     /// the `--` syntax is otherwise not possible.
     ///
-    /// **NOTE:** This will change the usage string to look like `$ prog [FLAGS] [-- <ARG>]` if 
+    /// **NOTE:** This will change the usage string to look like `$ prog [FLAGS] [-- <ARG>]` if
     /// `ARG` is marked as `.last(true)`.
     ///
     /// **NOTE:** This setting will imply [`AppSettings::DontCollapseArgsInUsage`] because failing
     /// to set this can make the usage string very confusing.
     ///
-    /// **NOTE**: This setting only applies to positional arguments, and has no affect on FLAGS / 
+    /// **NOTE**: This setting only applies to positional arguments, and has no affect on FLAGS /
     /// OPTIONS
     ///
     /// **CAUTION:** Setting an argument to `.last(true)` *and* having child subcommands is not
@@ -839,7 +833,6 @@ pub enum ArgSettings {
     ///
     /// If we were to run the above program with `--help` the `[default: localhost]` portion of
     /// the help text would be omitted.
-
     HideDefaultValue,
     #[doc(hidden)]
     RequiredUnlessAll,
@@ -878,38 +871,67 @@ mod test {
 
     #[test]
     fn arg_settings_fromstr() {
-        assert_eq!("allowleadinghyphen".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::AllowLeadingHyphen);
-        assert_eq!("emptyvalues".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::EmptyValues);
-        assert_eq!("global".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::Global);
-        assert_eq!("hidepossiblevalues".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::HidePossibleValues);
-        assert_eq!("hidden".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::Hidden);
-        assert_eq!("multiple".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::Multiple);
-        assert_eq!("nextlinehelp".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::NextLineHelp);
-        assert_eq!("requiredunlessall".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::RequiredUnlessAll);
-        assert_eq!("requiredelimiter".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::RequireDelimiter);
-        assert_eq!("required".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::Required);
-        assert_eq!("takesvalue".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::TakesValue);
-        assert_eq!("usevaluedelimiter".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::UseValueDelimiter);
-        assert_eq!("valuedelimiternotset".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::ValueDelimiterNotSet);
-        assert_eq!("requireequals".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::RequireEquals);
-        assert_eq!("last".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::Last);
-        assert_eq!("hidedefaultvalue".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::HideDefaultValue);
+        assert_eq!(
+            "allowleadinghyphen".parse::<ArgSettings>().unwrap(),
+            ArgSettings::AllowLeadingHyphen
+        );
+        assert_eq!(
+            "emptyvalues".parse::<ArgSettings>().unwrap(),
+            ArgSettings::EmptyValues
+        );
+        assert_eq!(
+            "global".parse::<ArgSettings>().unwrap(),
+            ArgSettings::Global
+        );
+        assert_eq!(
+            "hidepossiblevalues".parse::<ArgSettings>().unwrap(),
+            ArgSettings::HidePossibleValues
+        );
+        assert_eq!(
+            "hidden".parse::<ArgSettings>().unwrap(),
+            ArgSettings::Hidden
+        );
+        assert_eq!(
+            "multiple".parse::<ArgSettings>().unwrap(),
+            ArgSettings::Multiple
+        );
+        assert_eq!(
+            "nextlinehelp".parse::<ArgSettings>().unwrap(),
+            ArgSettings::NextLineHelp
+        );
+        assert_eq!(
+            "requiredunlessall".parse::<ArgSettings>().unwrap(),
+            ArgSettings::RequiredUnlessAll
+        );
+        assert_eq!(
+            "requiredelimiter".parse::<ArgSettings>().unwrap(),
+            ArgSettings::RequireDelimiter
+        );
+        assert_eq!(
+            "required".parse::<ArgSettings>().unwrap(),
+            ArgSettings::Required
+        );
+        assert_eq!(
+            "takesvalue".parse::<ArgSettings>().unwrap(),
+            ArgSettings::TakesValue
+        );
+        assert_eq!(
+            "usevaluedelimiter".parse::<ArgSettings>().unwrap(),
+            ArgSettings::UseValueDelimiter
+        );
+        assert_eq!(
+            "valuedelimiternotset".parse::<ArgSettings>().unwrap(),
+            ArgSettings::ValueDelimiterNotSet
+        );
+        assert_eq!(
+            "requireequals".parse::<ArgSettings>().unwrap(),
+            ArgSettings::RequireEquals
+        );
+        assert_eq!("last".parse::<ArgSettings>().unwrap(), ArgSettings::Last);
+        assert_eq!(
+            "hidedefaultvalue".parse::<ArgSettings>().unwrap(),
+            ArgSettings::HideDefaultValue
+        );
         assert!("hahahaha".parse::<ArgSettings>().is_err());
     }
 }

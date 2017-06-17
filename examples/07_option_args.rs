@@ -65,7 +65,10 @@ fn main() {
     // NOTE: Just like with flags, if we did not specify the multiple() setting this will only
     // return 1 no matter how many times the argument was used (unless it wasn't used at all, in
     // in which case 0 is returned)
-    println!("The \"input\" argument was used {} times", matches.occurrences_of("input"));
+    println!(
+        "The \"input\" argument was used {} times",
+        matches.occurrences_of("input")
+    );
 
     // Continued program logic goes here...
 }

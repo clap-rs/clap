@@ -78,7 +78,5 @@ impl<'a, 'b, 'z> From<&'z Yaml> for SubCommand<'a> {
     /// let sc = SubCommand::from_yaml(sc_yaml);
     /// # }
     /// ```
-    fn from(yaml: &'z Yaml) -> App<'a, 'b> {
-        App::from(yaml)
-    }
+    fn from(yaml: &'z Yaml) -> App<'a, 'b> { App::from(yaml) }
 }

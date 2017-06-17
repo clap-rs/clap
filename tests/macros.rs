@@ -36,7 +36,8 @@ fn basic() {
 
 #[test]
 fn quoted_app_name() {
-    let app = clap_app!(("app name with spaces-and-hyphens") =>
+    let app =
+        clap_app!(("app name with spaces-and-hyphens") =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -69,14 +70,16 @@ fn quoted_app_name() {
     assert_eq!(app.p.meta.name, "app name with spaces-and-hyphens");
 
     let mut help_text = vec![];
-    app.write_help(&mut help_text).expect("Could not write help text.");
+    app.write_help(&mut help_text)
+        .expect("Could not write help text.");
     let help_text = String::from_utf8(help_text).expect("Help text is not valid utf-8");
     assert!(help_text.starts_with("app name with spaces-and-hyphens 0.1\n"));
 }
 
 #[test]
 fn quoted_arg_long_name() {
-    let app = clap_app!(claptests =>
+    let app =
+        clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -106,14 +109,16 @@ fn quoted_arg_long_name() {
             (@arg scpositional: index(1) "tests positionals"))
     );
 
-    let matches = app.get_matches_from_safe(vec!["bin_name", "value1", "value2", "--long-option-2"])
-        .expect("Expected to successfully match the given args.");
+    let matches = app.get_matches_from_safe(
+        vec!["bin_name", "value1", "value2", "--long-option-2"],
+    ).expect("Expected to successfully match the given args.");
     assert!(matches.is_present("option2"));
 }
 
 #[test]
 fn quoted_arg_name() {
-    let app = clap_app!(claptests =>
+    let app =
+        clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -143,7 +148,8 @@ fn quoted_arg_name() {
             (@arg scpositional: index(1) "tests positionals"))
     );
 
-    let matches = app.get_matches_from_safe(vec!["bin_name", "value1", "value2", "--long-option-2"])
-        .expect("Expected to successfully match the given args.");
+    let matches = app.get_matches_from_safe(
+        vec!["bin_name", "value1", "value2", "--long-option-2"],
+    ).expect("Expected to successfully match the given args.");
     assert!(matches.is_present("option2"));
 }

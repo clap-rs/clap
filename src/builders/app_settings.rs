@@ -59,7 +59,9 @@ impl BitOr for AppFlags {
 
 impl Default for AppFlags {
     fn default() -> Self {
-        AppFlags(NEEDS_LONG_VERSION | NEEDS_LONG_HELP | NEEDS_SC_HELP | UTF8_NONE | COLOR_AUTO)
+        AppFlags(
+            NEEDS_LONG_VERSION | NEEDS_LONG_HELP | NEEDS_SC_HELP | UTF8_NONE | COLOR_AUTO,
+        )
     }
 }
 
@@ -136,8 +138,8 @@ pub enum AppSettings {
     ///
     /// # Examples
     ///
-    #[cfg_attr(not(unix), doc=" ```ignore")]
-    #[cfg_attr(    unix , doc=" ```")]
+    #[cfg_attr(not(unix), doc = " ```ignore")]
+    #[cfg_attr(unix, doc = " ```")]
     /// # use clap::{App, AppSettings};
     /// use std::ffi::OsString;
     /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
@@ -709,8 +711,8 @@ pub enum AppSettings {
     ///
     /// # Examples
     ///
-    #[cfg_attr(not(unix), doc=" ```ignore")]
-    #[cfg_attr(    unix , doc=" ```")]
+    #[cfg_attr(not(unix), doc = " ```ignore")]
+    #[cfg_attr(unix, doc = " ```")]
     /// # use clap::{App, AppSettings, ErrorKind};
     /// use std::ffi::OsString;
     /// use std::os::unix::ffi::OsStringExt;
@@ -915,74 +917,142 @@ mod test {
 
     #[test]
     fn app_settings_fromstr() {
-        assert_eq!("argsnegatesubcommands".parse::<AppSettings>().unwrap(),
-                   AppSettings::ArgsNegateSubcommands);
-        assert_eq!("argrequiredelsehelp".parse::<AppSettings>().unwrap(),
-                   AppSettings::ArgRequiredElseHelp);
-        assert_eq!("allowexternalsubcommands".parse::<AppSettings>().unwrap(),
-                   AppSettings::AllowExternalSubcommands);
-        assert_eq!("allowinvalidutf8".parse::<AppSettings>().unwrap(),
-                   AppSettings::AllowInvalidUtf8);
-        assert_eq!("allowleadinghyphen".parse::<AppSettings>().unwrap(),
-                   AppSettings::AllowLeadingHyphen);
-        assert_eq!("allownegativenumbers".parse::<AppSettings>().unwrap(),
-                   AppSettings::AllowNegativeNumbers);
-        assert_eq!("coloredhelp".parse::<AppSettings>().unwrap(),
-                   AppSettings::ColoredHelp);
-        assert_eq!("colorauto".parse::<AppSettings>().unwrap(),
-                   AppSettings::ColorAuto);
-        assert_eq!("coloralways".parse::<AppSettings>().unwrap(),
-                   AppSettings::ColorAlways);
-        assert_eq!("colornever".parse::<AppSettings>().unwrap(),
-                   AppSettings::ColorNever);
-        assert_eq!("disablehelpsubcommand".parse::<AppSettings>().unwrap(),
-                   AppSettings::DisableHelpSubcommand);
-        assert_eq!("disableversion".parse::<AppSettings>().unwrap(),
-                   AppSettings::DisableVersion);
-        assert_eq!("dontcollapseargsinusage".parse::<AppSettings>().unwrap(),
-                   AppSettings::DontCollapseArgsInUsage);
-        assert_eq!("dontdelimittrailingvalues".parse::<AppSettings>().unwrap(),
-                   AppSettings::DontDelimitTrailingValues);
-        assert_eq!("derivedisplayorder".parse::<AppSettings>().unwrap(),
-                   AppSettings::DeriveDisplayOrder);
-        assert_eq!("globalversion".parse::<AppSettings>().unwrap(),
-                   AppSettings::GlobalVersion);
-        assert_eq!("hidden".parse::<AppSettings>().unwrap(),
-                   AppSettings::Hidden);
-        assert_eq!("hidepossiblevaluesinhelp".parse::<AppSettings>().unwrap(),
-                   AppSettings::HidePossibleValuesInHelp);
-        assert_eq!("lowindexmultiplePositional".parse::<AppSettings>().unwrap(),
-                   AppSettings::LowIndexMultiplePositional);
-        assert_eq!("nobinaryname".parse::<AppSettings>().unwrap(),
-                   AppSettings::NoBinaryName);
-        assert_eq!("nextlinehelp".parse::<AppSettings>().unwrap(),
-                   AppSettings::NextLineHelp);
-        assert_eq!("subcommandsnegatereqs".parse::<AppSettings>().unwrap(),
-                   AppSettings::SubcommandsNegateReqs);
-        assert_eq!("subcommandrequired".parse::<AppSettings>().unwrap(),
-                   AppSettings::SubcommandRequired);
-        assert_eq!("subcommandrequiredelsehelp".parse::<AppSettings>().unwrap(),
-                   AppSettings::SubcommandRequiredElseHelp);
-        assert_eq!("strictutf8".parse::<AppSettings>().unwrap(),
-                   AppSettings::StrictUtf8);
-        assert_eq!("trailingvararg".parse::<AppSettings>().unwrap(),
-                   AppSettings::TrailingVarArg);
-        assert_eq!("unifiedhelpmessage".parse::<AppSettings>().unwrap(),
-                   AppSettings::UnifiedHelpMessage);
-        assert_eq!("versionlesssubcommands".parse::<AppSettings>().unwrap(),
-                   AppSettings::VersionlessSubcommands);
-        assert_eq!("waitonerror".parse::<AppSettings>().unwrap(),
-                   AppSettings::WaitOnError);
-        assert_eq!("validnegnumfound".parse::<AppSettings>().unwrap(),
-                   AppSettings::ValidNegNumFound);
-        assert_eq!("validargfound".parse::<AppSettings>().unwrap(),
-                   AppSettings::ValidArgFound);
-        assert_eq!("propogated".parse::<AppSettings>().unwrap(),
-                   AppSettings::Propogated);
-        assert_eq!("trailingvalues".parse::<AppSettings>().unwrap(),
-                   AppSettings::TrailingValues);
-        assert_eq!("infersubcommands".parse::<AppSettings>().unwrap(),
-                   AppSettings::InferSubcommands);
+        assert_eq!(
+            "argsnegatesubcommands".parse::<AppSettings>().unwrap(),
+            AppSettings::ArgsNegateSubcommands
+        );
+        assert_eq!(
+            "argrequiredelsehelp".parse::<AppSettings>().unwrap(),
+            AppSettings::ArgRequiredElseHelp
+        );
+        assert_eq!(
+            "allowexternalsubcommands".parse::<AppSettings>().unwrap(),
+            AppSettings::AllowExternalSubcommands
+        );
+        assert_eq!(
+            "allowinvalidutf8".parse::<AppSettings>().unwrap(),
+            AppSettings::AllowInvalidUtf8
+        );
+        assert_eq!(
+            "allowleadinghyphen".parse::<AppSettings>().unwrap(),
+            AppSettings::AllowLeadingHyphen
+        );
+        assert_eq!(
+            "allownegativenumbers".parse::<AppSettings>().unwrap(),
+            AppSettings::AllowNegativeNumbers
+        );
+        assert_eq!(
+            "coloredhelp".parse::<AppSettings>().unwrap(),
+            AppSettings::ColoredHelp
+        );
+        assert_eq!(
+            "colorauto".parse::<AppSettings>().unwrap(),
+            AppSettings::ColorAuto
+        );
+        assert_eq!(
+            "coloralways".parse::<AppSettings>().unwrap(),
+            AppSettings::ColorAlways
+        );
+        assert_eq!(
+            "colornever".parse::<AppSettings>().unwrap(),
+            AppSettings::ColorNever
+        );
+        assert_eq!(
+            "disablehelpsubcommand".parse::<AppSettings>().unwrap(),
+            AppSettings::DisableHelpSubcommand
+        );
+        assert_eq!(
+            "disableversion".parse::<AppSettings>().unwrap(),
+            AppSettings::DisableVersion
+        );
+        assert_eq!(
+            "dontcollapseargsinusage".parse::<AppSettings>().unwrap(),
+            AppSettings::DontCollapseArgsInUsage
+        );
+        assert_eq!(
+            "dontdelimittrailingvalues".parse::<AppSettings>().unwrap(),
+            AppSettings::DontDelimitTrailingValues
+        );
+        assert_eq!(
+            "derivedisplayorder".parse::<AppSettings>().unwrap(),
+            AppSettings::DeriveDisplayOrder
+        );
+        assert_eq!(
+            "globalversion".parse::<AppSettings>().unwrap(),
+            AppSettings::GlobalVersion
+        );
+        assert_eq!(
+            "hidden".parse::<AppSettings>().unwrap(),
+            AppSettings::Hidden
+        );
+        assert_eq!(
+            "hidepossiblevaluesinhelp".parse::<AppSettings>().unwrap(),
+            AppSettings::HidePossibleValuesInHelp
+        );
+        assert_eq!(
+            "lowindexmultiplePositional".parse::<AppSettings>().unwrap(),
+            AppSettings::LowIndexMultiplePositional
+        );
+        assert_eq!(
+            "nobinaryname".parse::<AppSettings>().unwrap(),
+            AppSettings::NoBinaryName
+        );
+        assert_eq!(
+            "nextlinehelp".parse::<AppSettings>().unwrap(),
+            AppSettings::NextLineHelp
+        );
+        assert_eq!(
+            "subcommandsnegatereqs".parse::<AppSettings>().unwrap(),
+            AppSettings::SubcommandsNegateReqs
+        );
+        assert_eq!(
+            "subcommandrequired".parse::<AppSettings>().unwrap(),
+            AppSettings::SubcommandRequired
+        );
+        assert_eq!(
+            "subcommandrequiredelsehelp".parse::<AppSettings>().unwrap(),
+            AppSettings::SubcommandRequiredElseHelp
+        );
+        assert_eq!(
+            "strictutf8".parse::<AppSettings>().unwrap(),
+            AppSettings::StrictUtf8
+        );
+        assert_eq!(
+            "trailingvararg".parse::<AppSettings>().unwrap(),
+            AppSettings::TrailingVarArg
+        );
+        assert_eq!(
+            "unifiedhelpmessage".parse::<AppSettings>().unwrap(),
+            AppSettings::UnifiedHelpMessage
+        );
+        assert_eq!(
+            "versionlesssubcommands".parse::<AppSettings>().unwrap(),
+            AppSettings::VersionlessSubcommands
+        );
+        assert_eq!(
+            "waitonerror".parse::<AppSettings>().unwrap(),
+            AppSettings::WaitOnError
+        );
+        assert_eq!(
+            "validnegnumfound".parse::<AppSettings>().unwrap(),
+            AppSettings::ValidNegNumFound
+        );
+        assert_eq!(
+            "validargfound".parse::<AppSettings>().unwrap(),
+            AppSettings::ValidArgFound
+        );
+        assert_eq!(
+            "propogated".parse::<AppSettings>().unwrap(),
+            AppSettings::Propogated
+        );
+        assert_eq!(
+            "trailingvalues".parse::<AppSettings>().unwrap(),
+            AppSettings::TrailingValues
+        );
+        assert_eq!(
+            "infersubcommands".parse::<AppSettings>().unwrap(),
+            AppSettings::InferSubcommands
+        );
         assert!("hahahaha".parse::<AppSettings>().is_err());
     }
 }

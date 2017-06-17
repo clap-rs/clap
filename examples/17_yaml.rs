@@ -38,7 +38,7 @@ fn main() {
         match mode {
             "vi" => println!("You are using vi"),
             "emacs" => println!("You are using emacs..."),
-            _      => unreachable!()
+            _ => unreachable!(),
         }
     } else {
         println!("--mode <MODE> wasn't used...");

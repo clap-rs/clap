@@ -105,7 +105,8 @@ impl<'a> ArgMatcher<'a> {
     }
 
     pub fn needs_more_vals<'b, A>(&self, o: &A) -> bool
-        where A: AnyArg<'a, 'b>
+    where
+        A: AnyArg<'a, 'b>,
     {
         debugln!("ArgMatcher::needs_more_vals: o={}", o.name());
         if let Some(ma) = self.get(o.name()) {

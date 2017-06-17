@@ -26,9 +26,13 @@ fn hidden_args() {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.4")
-        .args(&[Arg::from_usage("-f, --flag 'some flag'").hidden(true),
-                    Arg::from_usage("-F, --flag2 'some other flag'"),
-                    Arg::from_usage("--option [opt] 'some option'"),
-                    Arg::with_name("DUMMY").required(false).hidden(true)]);
+        .args(
+            &[
+                Arg::from_usage("-f, --flag 'some flag'").hidden(true),
+                Arg::from_usage("-F, --flag2 'some other flag'"),
+                Arg::from_usage("--option [opt] 'some option'"),
+                Arg::with_name("DUMMY").required(false).hidden(true),
+            ],
+        );
     assert!(test::compare_output(app, "test --help", HIDDEN_ARGS, false));
 }

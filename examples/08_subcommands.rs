@@ -49,8 +49,8 @@ fn main() {
     // You can also match on a subcommand's name
     match matches.subcommand_name() {
         Some("add") => println!("'myapp add' was used"),
-        None        => println!("No subcommand was used"),
-        _           => println!("Some other subcommand was used"),
+        None => println!("No subcommand was used"),
+        _ => println!("Some other subcommand was used"),
     }
 
     // Continued program logic goes here...

@@ -59,7 +59,8 @@ use completions::Shell;
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(default))]
 pub struct App<'a, 'b>
-    where 'a: 'b
+where
+    'a: 'b,
 {
     name: String,
     bin_name: Option<String>,
@@ -103,7 +104,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// let prog = App::new("My Program")
     /// # ;
     /// ```
-    pub fn new<S: Into<String>>(n: S) -> Self { App { name: n.into() .. Default::default() } }
+    pub fn new<S: Into<String>>(n: S) -> Self { App { name: n.into()..Default::default() } }
 
     /// Sets the program's name. This will be displayed when displaying help information.
     ///
@@ -267,7 +268,7 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     /// Sets a string of the version number to be displayed when displaying version or help
-    /// information with `-V`. 
+    /// information with `-V`.
     ///
     /// **NOTE:** If only `version` is provided, and not [`App::long_version`] but the user
     /// requests `--version` clap will still display the contents of `version` appropriately
@@ -351,7 +352,7 @@ impl<'a, 'b> App<'a, 'b> {
         self.override_usage = Some(usage.into());
         self
     }
-    
+
     /// Sets a custom help message and overrides the auto-generated one. This should only be used
     /// when the auto-generated message does not suffice.
     ///
@@ -404,8 +405,8 @@ impl<'a, 'b> App<'a, 'b> {
     ///   * `{usage}`       - Automatically generated or given usage string.
     ///   * `{all-args}`    - Help for all arguments (options, flags, positionals arguments,
     ///                       and subcommands) including titles.
-    ///   * `{unified}`     - Unified help for options and flags. Note, you must *also* set 
-    ///                       [`AppSettings::UnifiedHelpMessage`] to fully merge both options and 
+    ///   * `{unified}`     - Unified help for options and flags. Note, you must *also* set
+    ///                       [`AppSettings::UnifiedHelpMessage`] to fully merge both options and
     ///                       flags, otherwise the ordering is "best effort"
     ///   * `{flags}`       - Help for flags.
     ///   * `{options}`     - Help for options.
@@ -534,11 +535,10 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`AppSettings`]: ./enum.AppSettings.html
     pub fn unset(mut self, setting: AppSettings) -> Self {
-        'start: 
-        for i in (0 .. self.settings.len()).rev() {
+        'start: for i in (0..self.settings.len()).rev() {
             let should_remove = self.settings[i] == setting;
-            if should_remove { 
-                self.settings.swap_remove(i); 
+            if should_remove {
+                self.settings.swap_remove(i);
                 break 'start;
             }
         }
@@ -562,11 +562,10 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`AppSettings`]: ./enum.AppSettings.html
     pub fn unset_all(mut self, settings: &[AppSettings]) -> Self {
         for s in settings {
-            'start: 
-            for i in (0 .. self.settings.len()).rev() {
+            'start: for i in (0..self.settings.len()).rev() {
                 let should_remove = self.settings[i] == s;
-                if should_remove { 
-                    self.settings.swap_remove(i); 
+                if should_remove {
+                    self.settings.swap_remove(i);
                     break 'start;
                 }
             }
@@ -873,9 +872,10 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`IntoIterator`]: https://doc.rust-lang.org/std/iter/trait.IntoIterator.html
     pub fn subcommands<I>(mut self, subcmds: I) -> Self
-        where I: IntoIterator<Item = App<'a, 'b>>
+    where
+        I: IntoIterator<Item = App<'a, 'b>>,
     {
-            self.subcommands.extend(subcmds);
+        self.subcommands.extend(subcmds);
         self
     }
 
@@ -1127,8 +1127,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`env::args_os`]: https://doc.rust-lang.org/std/env/fn.args_os.html
     pub fn get_matches(self) -> ArgMatches<'a> { self.get_matches_from(&mut env::args_os()) }
 
-    /// Starts the parsing process. This method will return a [`clap::Result`] type instead of exiting
-    /// the process on failed parse. By default this method gets matches from [`env::args_os`]
+    /// Starts the parsing process. This method will return a [`clap::Result`] type instead of
+    /// exiting the process on failed parse. By default this method gets matches from
+    /// [`env::args_os`]
     ///
     /// **NOTE:** This method WILL NOT exit when `--help` or `--version` (or short versions) are
     /// used. It will return a [`clap::Error`], where the [`kind`] is a
@@ -1157,6 +1158,15 @@ impl<'a, 'b> App<'a, 'b> {
         self.get_matches_from_safe(&mut env::args_os())
     }
 
+    // TODO-v3-release: improve docs
+    /// Starts the parsing process. This method will return a [`clap::Result`] type instead of
+    /// exiting the process on failed parse. By default this method gets matches from
+    /// [`env::args_os`]
+    pub fn get_matches_safe_mut(&mut self) -> ClapResult<ArgMatches<'a>> {
+        // Start the parsing
+        self.get_matches_from_safe_mut(&mut env::args_os())
+    }
+
     /// Starts the parsing process. Like [`App::get_matches`] this method does not return a [`clap::Result`]
     /// and will automatically exit with an error message. This method, however, lets you specify
     /// what iterator to use when performing matches, such as a [`Vec`] of your making.
@@ -1179,14 +1189,42 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`Vec`]: https://doc.rust-lang.org/std/vec/struct.Vec.html
     /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
     pub fn get_matches_from<I, T>(mut self, itr: I) -> ArgMatches<'a>
-        where I: IntoIterator<Item = T>,
-              T: Into<OsString> + Clone
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<OsString> + Clone,
     {
-        self.get_matches_from_safe_borrow(itr).unwrap_or_else(|e| {
+        self.get_matches_from_safe_mut(itr).unwrap_or_else(|e| {
             // Otherwise, write to stderr and exit
             if e.use_stderr() {
                 wlnerr!("{}", e.message);
-                if self.p.is_set(AppSettings::WaitOnError) {
+                if self.is_set(AppSettings::WaitOnError) {
+                    wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
+                    let mut s = String::new();
+                    let i = io::stdin();
+                    i.lock().read_line(&mut s).unwrap();
+                }
+                drop(self);
+                drop(e);
+                process::exit(1);
+            }
+
+            drop(self);
+            e.exit()
+        })
+    }
+
+    // TODO-v3-release: improve docs
+    /// Starts the parsing process using a custom argv without consuming the `App` instance.
+    pub fn get_matches_from_mut<I, T>(&mut self, itr: I) -> ArgMatches<'a>
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<OsString> + Clone,
+    {
+        self.get_matches_from_safe_mut(itr).unwrap_or_else(|e| {
+            // Otherwise, write to stderr and exit
+            if e.use_stderr() {
+                wlnerr!("{}", e.message);
+                if self.is_set(AppSettings::WaitOnError) {
                     wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
                     let mut s = String::new();
                     let i = io::stdin();
@@ -1235,10 +1273,42 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`kind`]: ./struct.Error.html
     /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
     pub fn get_matches_from_safe<I, T>(mut self, itr: I) -> ClapResult<ArgMatches<'a>>
-        where I: IntoIterator<Item = T>,
-              T: Into<OsString> + Clone
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<OsString> + Clone,
     {
-        self.get_matches_from_safe_borrow(itr)
+        let mut it = itr.into_iter();
+        // Get the name of the program (argument 1 of env::args()) and determine the actual file
+        // that was used to execute the program. This is because a program called
+        // ./target/release/my_prog -a will have two arguments, './target/release/my_prog', '-a'
+        // but we don't want to display the full path when displaying help messages and such
+        if !self.is_set(AppSettings::NoBinaryName) && self.get_bin_name().is_none() {
+            if let Some(name) = it.next() {
+                let bn_os = name.into();
+                let p = Path::new(&*bn_os);
+                if let Some(f) = p.file_name() {
+                    if let Some(s) = f.to_os_string().to_str() {
+                        self.bin_name = Some(s.to_owned());
+                    }
+                }
+            }
+        }
+
+        let mut matcher = ArgMatcher::new();
+        let mut parser = Parser::from(self);
+
+        // do the real parsing
+        if let Err(e) = parser.get_matches_with(&mut matcher, &mut it.peekable()) {
+            return Err(e);
+        }
+
+        if self.is_set(AppSettings::PropagateGlobalValuesDown) {
+            for a in &self.global_args {
+                matcher.propagate(a.b.name);
+            }
+        }
+
+        Ok(matcher.into())
     }
 
     /// Starts the parsing process without consuming the [`App`] struct `self`. This is normally not
@@ -1262,47 +1332,38 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`App`]: ./struct.App.html
     /// [`App::get_matches_from_safe`]: ./struct.App.html#method.get_matches_from_safe
     /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
-    pub fn get_matches_from_safe_borrow<I, T>(&mut self, itr: I) -> ClapResult<ArgMatches<'a>>
-        where I: IntoIterator<Item = T>,
-              T: Into<OsString> + Clone
+    pub fn get_matches_from_safe_mut<I, T>(&mut self, itr: I) -> ClapResult<ArgMatches<'a>>
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<OsString> + Clone,
     {
-        // If there are global arguments, or settings we need to propgate them down to subcommands
-        // before parsing incase we run into a subcommand
-        self.p.propogate_globals();
-        self.p.propogate_settings();
-        self.p.derive_display_order();
-
-        let mut matcher = ArgMatcher::new();
-
         let mut it = itr.into_iter();
-        // Get the name of the program (argument 1 of env::args()) and determine the
-        // actual file
+        // Get the name of the program (argument 1 of env::args()) and determine the actual file
         // that was used to execute the program. This is because a program called
-        // ./target/release/my_prog -a
-        // will have two arguments, './target/release/my_prog', '-a' but we don't want
-        // to display
-        // the full path when displaying help messages and such
-        if !self.p.is_set(AppSettings::NoBinaryName) {
+        // ./target/release/my_prog -a will have two arguments, './target/release/my_prog', '-a'
+        // but we don't want to display the full path when displaying help messages and such
+        if !self.is_set(AppSettings::NoBinaryName) && self.get_bin_name().is_none() {
             if let Some(name) = it.next() {
                 let bn_os = name.into();
                 let p = Path::new(&*bn_os);
                 if let Some(f) = p.file_name() {
                     if let Some(s) = f.to_os_string().to_str() {
-                        if self.p.meta.bin_name.is_none() {
-                            self.p.meta.bin_name = Some(s.to_owned());
-                        }
+                        self.bin_name = Some(s.to_owned());
                     }
                 }
             }
         }
 
+        let mut matcher = ArgMatcher::new();
+        let mut parser = Parser::from(self);
+
         // do the real parsing
-        if let Err(e) = self.p.get_matches_with(&mut matcher, &mut it.peekable()) {
+        if let Err(e) = parser.get_matches_with(&mut matcher, &mut it.peekable()) {
             return Err(e);
         }
 
-        if self.p.is_set(AppSettings::PropagateGlobalValuesDown) {
-            for a in &self.p.global_args {
+        if self.is_set(AppSettings::PropagateGlobalValuesDown) {
+            for a in &self.global_args {
                 matcher.propagate(a.b.name);
             }
         }
@@ -1313,7 +1374,17 @@ impl<'a, 'b> App<'a, 'b> {
     //
     // -------- Deprecations ----------
     //
-    
+
+    /// Deprecated
+    #[deprecated(since = "2.24.1", note = "Use App::get_matches_from_safe_mut instead")]
+    pub fn get_matches_from_safe_borrow<I, T>(&mut self, itr: I) -> ClapResult<ArgMatches<'a>>
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<OsString> + Clone,
+    {
+        self.get_matches_from_safe_ref(itr)
+    }
+
     /// Deprecated
     #[cfg(feature = "yaml")]
     #[deprecated(since = "2.24.1", note = "Use App::from or serde instead")]
@@ -1327,28 +1398,40 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", note = "Use App::mut_arg(\"help\", |arg| arg.short(\"H\")) instead")]
+    #[deprecated(since = "2.24.1",
+                 note = "Use App::mut_arg(\"help\", |arg| arg.short(\"H\")) instead")]
     pub fn help_short<S: AsRef<str> + 'b>(mut self, s: S) -> Self {
-        self.p.help_short(s.as_ref());
+        let c = s.trim_left_matches(|c| c == '-')
+            .chars()
+            .nth(0)
+            .unwrap_or('h');
+        self.help_short = Some(c);
         self
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", note = "Use App::mut_arg(\"version\", |arg| arg.short(\"v\")) instead")]
+    #[deprecated(since = "2.24.1",
+                 note = "Use App::mut_arg(\"version\", |arg| arg.short(\"v\")) instead")]
     pub fn version_short<S: AsRef<str>>(mut self, s: S) -> Self {
-        self.p.version_short(s.as_ref());
+        let c = s.trim_left_matches(|c| c == '-')
+            .chars()
+            .nth(0)
+            .unwrap_or('V');
+        self.version_short = Some(c);
         self
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", note = "Use App::mut_arg(\"help\", |arg| arg.help(\"Some message\")) instead")]
+    #[deprecated(since = "2.24.1",
+                 note = "Use App::mut_arg(\"help\", |arg| arg.help(\"Some message\")) instead")]
     pub fn help_message<S: Into<&'a str>>(mut self, s: S) -> Self {
         self.p.help_message = Some(s.into());
         self
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", note = "Use App::mut_arg(\"version\", |arg| arg.short(\"Some message\")) instead")]
+    #[deprecated(since = "2.24.1",
+                 note = "Use App::mut_arg(\"version\", |arg| arg.short(\"Some message\")) instead")]
     pub fn version_message<S: Into<&'a str>>(mut self, s: S) -> Self {
         self.p.version_message = Some(s.into());
         self
@@ -1369,7 +1452,8 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     /// Deprecated
-    #[deprecated(since = "2.24.1", note = "Use App::args(&[\"-a, --all 'some message'\", \"-o, --other=[some] 'message'\"]) instead")]
+    #[deprecated(since = "2.24.1",
+                 note = "Use App::args(&[\"-a, --all 'some message'\", \"-o, --other=[some] 'message'\"]) instead")]
     pub fn args_from_usage(mut self, usage: &'a str) -> Self {
         for line in usage.lines() {
             let l = line.trim();
@@ -1384,7 +1468,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// Deprecated
     #[deprecated(since = "2.24.2", note = "Use clap::utils::get_bin_name")]
     pub fn get_bin_name(&self) -> Option<&str> {
-        panic!("This method is no longer implemented, but can be called via clap::utils::get_bin_name()")
+        panic!(
+            "This method is no longer implemented, but can be called via clap::utils::get_bin_name()"
+        )
     }
 
     /// Deprecated
@@ -1396,10 +1482,12 @@ impl<'a, 'b> App<'a, 'b> {
 
     /// Deprecated
     #[deprecated(since = "2.24.2", note = "Use clap::completions::generate")]
-    pub fn gen_completions<T: Into<OsString>, S: Into<String>>(&mut self,
-                                                               bin_name: S,
-                                                               for_shell: Shell,
-                                                               out_dir: T) {
+    pub fn gen_completions<T: Into<OsString>, S: Into<String>>(
+        &mut self,
+        bin_name: S,
+        for_shell: Shell,
+        out_dir: T,
+    ) {
         unimplemented!();
         self.p.meta.bin_name = Some(bin_name.into());
         self.p.gen_completions(for_shell, out_dir.into());
@@ -1407,10 +1495,12 @@ impl<'a, 'b> App<'a, 'b> {
 
     /// Deprecated
     #[deprecated(since = "2.24.2", note = "Use clap::completions::generate")]
-    pub fn gen_completions_to<W: Write, S: Into<String>>(&mut self,
-                                                         bin_name: S,
-                                                         for_shell: Shell,
-                                                         buf: &mut W) {
+    pub fn gen_completions_to<W: Write, S: Into<String>>(
+        &mut self,
+        bin_name: S,
+        for_shell: Shell,
+        buf: &mut W,
+    ) {
         unimplemented!();
         self.p.meta.bin_name = Some(bin_name.into());
         self.p.gen_completions_to(for_shell, buf);
@@ -1420,11 +1510,10 @@ impl<'a, 'b> App<'a, 'b> {
     #[deprecated(since = "2.24.2", note = "Use App::unset_all instead")]
     pub fn unset_settings(mut self, settings: &[AppSettings]) -> Self {
         for s in settings {
-            'start: 
-            for i in (0 .. self.settings.len()).rev() {
+            'start: for i in (0..self.settings.len()).rev() {
                 let should_remove = self.settings[i] == s;
-                if should_remove { 
-                    self.settings.swap_remove(i); 
+                if should_remove {
+                    self.settings.swap_remove(i);
                     break 'start;
                 }
             }
@@ -1435,11 +1524,10 @@ impl<'a, 'b> App<'a, 'b> {
     /// Deprecated
     #[deprecated(since = "2.24.2", note = "Use App::unset instead")]
     pub fn unset_setting(mut self, setting: AppSettings) -> Self {
-        'start: 
-        for i in (0 .. self.settings.len()).rev() {
+        'start: for i in (0..self.settings.len()).rev() {
             let should_remove = self.settings[i] == setting;
-            if should_remove { 
-                self.settings.swap_remove(i); 
+            if should_remove {
+                self.settings.swap_remove(i);
                 break 'start;
             }
         }
@@ -1561,14 +1649,18 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
         if let Some(v) = yaml["display_order"].as_i64() {
             a = a.display_order(v as usize);
         } else if yaml["display_order"] != Yaml::BadValue {
-            panic!("Failed to convert YAML value {:?} to a u64",
-                   yaml["display_order"]);
+            panic!(
+                "Failed to convert YAML value {:?} to a u64",
+                yaml["display_order"]
+            );
         }
         if let Some(v) = yaml["setting"].as_str() {
             a = a.setting(v.parse().expect("unknown AppSetting found in YAML file"));
         } else if yaml["setting"] != Yaml::BadValue {
-            panic!("Failed to convert YAML value {:?} to an AppSetting",
-                   yaml["setting"]);
+            panic!(
+                "Failed to convert YAML value {:?} to an AppSetting",
+                yaml["setting"]
+            );
         }
         if let Some(v) = yaml["settings"].as_vec() {
             for ys in v {
@@ -1579,27 +1671,32 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
         } else if let Some(v) = yaml["settings"].as_str() {
             a = a.setting(v.parse().expect("unknown AppSetting found in YAML file"));
         } else if yaml["settings"] != Yaml::BadValue {
-            panic!("Failed to convert YAML value {:?} to a string",
-                   yaml["settings"]);
+            panic!(
+                "Failed to convert YAML value {:?} to a string",
+                yaml["settings"]
+            );
         }
         if let Some(v) = yaml["global_setting"].as_str() {
             a = a.setting(v.parse().expect("unknown AppSetting found in YAML file"));
         } else if yaml["global_setting"] != Yaml::BadValue {
-            panic!("Failed to convert YAML value {:?} to an AppSetting",
-                   yaml["setting"]);
+            panic!(
+                "Failed to convert YAML value {:?} to an AppSetting",
+                yaml["setting"]
+            );
         }
         if let Some(v) = yaml["global_settings"].as_vec() {
             for ys in v {
                 if let Some(s) = ys.as_str() {
-                    a = a.global_setting(s.parse()
-                        .expect("unknown AppSetting found in YAML file"));
+                    a = a.global_setting(s.parse().expect("unknown AppSetting found in YAML file"));
                 }
             }
         } else if let Some(v) = yaml["global_settings"].as_str() {
             a = a.global_setting(v.parse().expect("unknown AppSetting found in YAML file"));
         } else if yaml["global_settings"] != Yaml::BadValue {
-            panic!("Failed to convert YAML value {:?} to a string",
-                   yaml["global_settings"]);
+            panic!(
+                "Failed to convert YAML value {:?} to a string",
+                yaml["global_settings"]
+            );
         }
 
         macro_rules! vec_or_str {
@@ -1682,8 +1779,10 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn longest_filter(&self) -> bool { true }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.p.meta.aliases {
-            let vis_aliases: Vec<_> =
-                aliases.iter().filter_map(|&(n, v)| if v { Some(n) } else { None }).collect();
+            let vis_aliases: Vec<_> = aliases
+                .iter()
+                .filter_map(|&(n, v)| if v { Some(n) } else { None })
+                .collect();
             if vis_aliases.is_empty() {
                 None
             } else {

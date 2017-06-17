@@ -60,7 +60,7 @@ fn main() {
     match t {
         Foo::Bar => println!("Found a Bar"),
         Foo::Baz => println!("Found a Baz"),
-        Foo::Qux => println!("Found a Qux")
+        Foo::Qux => println!("Found a Qux"),
     }
 
     // Since our Oof derives Debug, we can do this:

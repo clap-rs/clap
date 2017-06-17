@@ -2,9 +2,9 @@
 use std::collections::BTreeMap;
 use std::rc::Rc;
 use std::ffi::{OsString, OsStr};
-#[cfg(target_os="windows")]
+#[cfg(target_os = "windows")]
 use osstringext::OsStrExt3;
-#[cfg(not(target_os="windows"))]
+#[cfg(not(target_os = "windows"))]
 use std::os::unix::ffi::OsStrExt;
 
 #[cfg(feature = "yaml")]
@@ -48,7 +48,8 @@ pub fn default_dispaly_order() -> usize { 999 }
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(default))]
 pub struct Arg<'a, 'b>
-    where 'a: 'b
+where
+    'a: 'b,
 {
     name: &'a str,
     help: Option<&'b str>,
@@ -61,8 +62,8 @@ pub struct Arg<'a, 'b>
     requires: Option<Vec<(Option<&'b str>, &'a str)>>,
     short: Option<char>,
     long: Option<&'b str>,
-    aliases: Option<Vec<&'b str>>, 
-    visible_aliases: Option<Vec<&'b str>>, 
+    aliases: Option<Vec<&'b str>>,
+    visible_aliases: Option<Vec<&'b str>>,
     #[cfg_attr(feature = "serde", serde(default = "default_display_order"))]
     display_order: usize,
     possible_values: Option<Vec<&'b str>>,
@@ -98,7 +99,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg`]: ./struct.Arg.html
-    pub fn new(n: &'a str) -> Self { Arg { name: n, ..Default::default() } }
+    pub fn new(n: &'a str) -> Self {
+        Arg {
+            name: n,
+            ..Default::default()
+        }
+    }
 
     /// Sets the short version of the argument without the preceding `-`.
     ///
@@ -395,10 +401,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         that cannot be read by this program. Obviously I'm going on
     ///         and on, so I'll stop now.
     ///
-    /// -h, --help       
+    /// -h, --help
     ///         Prints help information
     ///
-    /// -V, --version    
+    /// -V, --version
     ///         Prints version information
     /// ```
     /// [`Arg::help`]: ./struct.Arg.html#method.help
@@ -1517,19 +1523,20 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Err(String)`]: https://doc.rust-lang.org/std/result/enum.Result.html#variant.Err
     /// [`Rc`]: https://doc.rust-lang.org/std/rc/struct.Rc.html
     pub fn validator<F>(mut self, f: F) -> Self
-        where F: Fn(String) -> Result<(), String> + 'static
+    where
+        F: Fn(String) -> Result<(), String> + 'static,
     {
         self.validator = Some(Rc::new(f));
         self
     }
 
-    /// Works identically to Validator but is intended to be used with values that could 
+    /// Works identically to Validator but is intended to be used with values that could
     /// contain non UTF-8 formatted strings.
     ///
     /// # Examples
     ///
-    #[cfg_attr(not(unix), doc=" ```ignore")]
-    #[cfg_attr(    unix , doc=" ```rust")]
+    #[cfg_attr(not(unix), doc = " ```ignore")]
+    #[cfg_attr(unix, doc = " ```rust")]
     /// # use clap::{App, Arg};
     /// # use std::ffi::{OsStr, OsString};
     /// # use std::os::unix::ffi::OsStrExt;
@@ -1554,7 +1561,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Err(String)`]: https://doc.rust-lang.org/std/result/enum.Result.html#variant.Err
     /// [`Rc`]: https://doc.rust-lang.org/std/rc/struct.Rc.html
     pub fn validator_os<F>(mut self, f: F) -> Self
-        where F: Fn(&OsStr) -> Result<(), OsString> + 'static
+    where
+        F: Fn(&OsStr) -> Result<(), OsString> + 'static,
     {
         self.validator_os = Some(Rc::new(f));
         self
@@ -1707,9 +1715,11 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::use_delimiter(true)`]: ./struct.Arg.html#method.use_delimiter
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     pub fn value_delimiter(mut self, d: &str) -> Self {
-        self.value_delimiter = Some(d.chars()
-            .nth(0)
-            .expect("Failed to get value_delimiter from arg"));
+        self.value_delimiter = Some(
+            d.chars()
+                .nth(0)
+                .expect("Failed to get value_delimiter from arg"),
+        );
         self.unset(ArgSettings::ValueDelimiterNotSet)
             .setting(ArgSettings::TakesValue)
             .setting(ArgSettings::UseValueDelimiter)
@@ -2029,20 +2039,23 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     pub fn default_value_if(self, arg: &'a str, val: Option<&'b str>, default: &'b str) -> Self {
-        self.default_value_if_os(arg,
-                                 val.map(str::as_bytes).map(OsStr::from_bytes),
-                                 OsStr::from_bytes(default.as_bytes()))
+        self.default_value_if_os(
+            arg,
+            val.map(str::as_bytes).map(OsStr::from_bytes),
+            OsStr::from_bytes(default.as_bytes()),
+        )
     }
 
     /// Provides a conditional default value in the exact same manner as [`Arg::default_value_if`]
     /// only using [`OsStr`]s instead.
     /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
-    pub fn default_value_if_os(mut self,
-                               arg: &'a str,
-                               val: Option<&'b OsStr>,
-                               default: &'b OsStr)
-                               -> Self {
+    pub fn default_value_if_os(
+        mut self,
+        arg: &'a str,
+        val: Option<&'b OsStr>,
+        default: &'b OsStr,
+    ) -> Self {
         if let Some(ref mut vm) = self.default_vals_ifs {
             let l = vm.len();
             vm.insert(l, (arg, val, default));
@@ -2140,9 +2153,11 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     pub fn default_value_ifs(mut self, ifs: &[(&'a str, Option<&'b str>, &'b str)]) -> Self {
         for &(arg, val, default) in ifs {
-            self = self.default_value_if_os(arg,
-                                            val.map(str::as_bytes).map(OsStr::from_bytes),
-                                            OsStr::from_bytes(default.as_bytes()));
+            self = self.default_value_if_os(
+                arg,
+                val.map(str::as_bytes).map(OsStr::from_bytes),
+                OsStr::from_bytes(default.as_bytes()),
+            );
         }
         self
     }
@@ -2241,16 +2256,15 @@ impl<'a, 'b> Arg<'a, 'b> {
     pub fn setb(&mut self, s: ArgSettings) { self.settings.push(s); }
 
     #[doc(hidden)]
-    pub fn unsetb(&mut self, s: ArgSettings) { 
-        'start: 
-        for i in (0 .. self.settings.len()).rev() {
+    pub fn unsetb(&mut self, s: ArgSettings) {
+        'start: for i in (0..self.settings.len()).rev() {
             let should_remove = self.settings[i] == s;
-            if should_remove { 
-                self.settings.swap_remove(i); 
+            if should_remove {
+                self.settings.swap_remove(i);
                 break 'start;
             }
         }
-        
+
     }
 
     // --------- DEPRECATIONS ----------
@@ -2373,7 +2387,12 @@ impl<'a, 'b> Arg<'a, 'b> {
 
     /// Deprecated
     #[deprecated(since = "2.24.1", note = "use Arg::new instead")]
-    pub fn with_name(n: &'a str) -> Self { Arg { b: Base::new(n), ..Default::default() } }
+    pub fn with_name(n: &'a str) -> Self {
+        Arg {
+            b: Base::new(n),
+            ..Default::default()
+        }
+    }
 
     /// Deprecated
     #[deprecated(since = "2.24.1", note = "use Arg::from or serde instead")]
@@ -2382,9 +2401,7 @@ impl<'a, 'b> Arg<'a, 'b> {
 
     /// Deprecated
     #[deprecated(since = "2.24.1", note = "use Arg::from instead")]
-    pub fn from_usage(u: &'a str) -> Self {
-        Arg::from(u)
-    }
+    pub fn from_usage(u: &'a str) -> Self { Arg::from(u) }
 
     /// Deprecated
     #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::Last) instead")]
@@ -2426,8 +2443,6 @@ impl<'a, 'b> Arg<'a, 'b> {
             self.unset(ArgSettings::HideDefaultValue)
         }
     }
-
-
 }
 
 impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
@@ -2443,9 +2458,7 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
 }
 
 impl<'n, 'e> PartialEq for Arg<'n, 'e> {
-    fn eq(&self, other: &Arg<'n, 'e>) -> bool {
-        self.b == other.b
-    }
+    fn eq(&self, other: &Arg<'n, 'e>) -> bool { self.b == other.b }
 }
 
 #[cfg(feature = "yaml")]
@@ -2517,16 +2530,17 @@ impl<'n, 'e, 'z> From<&'z BTreeMap<Yaml, Yaml>> for Arg<'n, 'e> {
                     a
                 }
                 s => {
-                    panic!("Unknown Arg setting '{}' in YAML file for arg '{}'",
-                           s,
-                           name_str)
+                    panic!(
+                        "Unknown Arg setting '{}' in YAML file for arg '{}'",
+                        s,
+                        name_str
+                    )
                 }
             }
         }
 
         a
     }
-
 }
 
 impl<'n, 'e, 'z> From<&'z str> for Arg<'n, 'e> {

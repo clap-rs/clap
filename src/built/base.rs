@@ -4,7 +4,8 @@ use builders::arg_settings::ArgFlags;
 
 #[derive(Debug, Clone, Default)]
 pub struct Base<'a, 'b>
-    where 'a: 'b
+where
+    'a: 'b,
 {
     pub name: &'a str,
     pub help: Option<&'b str>,
@@ -18,7 +19,12 @@ pub struct Base<'a, 'b>
 }
 
 impl<'n, 'e> Base<'n, 'e> {
-    pub fn new(name: &'n str) -> Self { Base { name: name, ..Default::default() } }
+    pub fn new(name: &'n str) -> Self {
+        Base {
+            name: name,
+            ..Default::default()
+        }
+    }
 
     pub fn set(&mut self, s: ArgSettings) { self.settings.set(s); }
     pub fn unset(&mut self, s: ArgSettings) { self.settings.unset(s); }
@@ -30,7 +36,5 @@ impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for Base<'n, 'e> {
 }
 
 impl<'n, 'e> PartialEq for Base<'n, 'e> {
-    fn eq(&self, other: &Base<'n, 'e>) -> bool {
-        self.name == other.name
-    }
+    fn eq(&self, other: &Base<'n, 'e>) -> bool { self.name == other.name }
 }
