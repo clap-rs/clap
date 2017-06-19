@@ -13,18 +13,18 @@ use vec_map::{self, VecMap};
 #[cfg(feature = "serde")]
 use serde::{Serialize, Deserialize};
 
-// TODO-v3-release: remove
+// TODO-v3-beta: remove
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
 // Internal
 use {Arg, ArgGroup, AppSettings, ArgSettings};
-use parsing::{AnyArg, ArgMatcher};
+use parsing::{Parser, AnyArg, ArgMatcher};
 use matched::ArgMatches;
 use output::Result as ClapResult;
 use output::Help;
 
-// TODO-v3-release: remove
+// TODO-v3-beta: remove
 use completions::Shell;
 
 /// Used to create a representation of a command line program and all possible command line
@@ -66,7 +66,6 @@ where
     #[doc(hidden)] pub bin_name: Option<String>,
     #[doc(hidden)] pub author: Option<&'b str>,
     #[doc(hidden)] pub version: Option<&'b str>,
-    #[doc(hidden)] pub long_version: Option<&'b str>,
     #[doc(hidden)] pub about: Option<&'b str>,
     #[doc(hidden)] pub long_about: Option<&'b str>,
     #[doc(hidden)] pub after_help: Option<&'b str>,
@@ -85,10 +84,16 @@ where
     #[doc(hidden)] pub groups: Vec<ArgGroup<'a>>,
     #[doc(hidden)] pub settings: Option<Vec<AppSettings>>,
     #[doc(hidden)] pub global_settings: Option<Vec<AppSettings>>,
+    // TODO-3x-beta: remove
     #[doc(hidden)] pub help_short: Option<char>,
+    // TODO-3x-beta: remove
     #[doc(hidden)] pub version_short: Option<char>,
+    // TODO-3x-beta: remove
     #[doc(hidden)] pub help_message: Option<&'a str>,
+    // TODO-3x-beta: remove
     #[doc(hidden)] pub version_message: Option<&'a str>,
+    // TODO-3x-beta: remove
+    #[doc(hidden)] pub long_version: Option<&'b str>,
 }
 
 
@@ -678,6 +683,16 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
+    // TODO-v3-release: improve docs
+    /// # Panics
+    ///
+    /// Panics if `arg` doesn't exist
+    pub fn mut_arg<F>(mut self, arg: &str, f: F) -> Self where F: Fn(Arg) -> Arg {
+        let a = self.args.find_mut(|a| a.name == arg).unwrap_or(self.global_args.find(|a| a.name == arg).unwrap());
+        self.args.push(f(a));
+        self
+    }
+
     /// Allows adding a [`SubCommand`] alias, which function as "hidden" subcommands that
     /// automatically dispatch as if this subcommand was used. This is more efficient, and easier
     /// than creating multiple hidden subcommands as one only needs to check for the existence of
@@ -803,6 +818,16 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
+    // TODO-v3-release: improve docs
+    /// # Panics
+    ///
+    /// Panics if `group` doesn't exist
+    pub fn mut_group<F>(mut self, group: &str, f: F) -> Self where F: Fn(ArgGroup) -> ArgGroup {
+        let g = self.groups.find_mut(|g| g.name == group).unwrap();
+        self.groups.push(f(g));
+        self
+    }
+
     /// Adds multiple [`ArgGroup`]s to the [`App`] at once.
     ///
     /// # Examples
@@ -876,6 +901,16 @@ impl<'a, 'b> App<'a, 'b> {
         I: IntoIterator<Item = App<'a, 'b>>,
     {
         self.subcommands.extend(subcmds);
+        self
+    }
+
+    // TODO-v3-release: improve docs
+    /// # Panics
+    ///
+    /// Panics if `subcommand` doesn't exist
+    pub fn mut_subcommand<F>(mut self, subcommand: &str, f: F) -> Self where F: Fn(App) -> App {
+        let s = self.subcommands.find_mut(|s| s.name == subcommand).unwrap();
+        self.subcommands.push(f(s));
         self
     }
 
@@ -1302,7 +1337,7 @@ impl<'a, 'b> App<'a, 'b> {
         }
 
         let mut matcher = ArgMatcher::new();
-        let mut parser = Parser::from(self);
+        let mut parser = Parser::from(&mut self);
 
         // do the real parsing
         if let Err(e) = parser.get_matches_with(&mut matcher, &mut it.peekable()) {
