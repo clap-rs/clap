@@ -550,30 +550,32 @@ extern crate unicode_segmentation;
 extern crate vec_map;
 extern crate unicode_width;
 
-// TODO-v3-release: remove
+// @TODO-v3-beta: remove
 #[cfg(feature = "yaml")]
 extern crate yaml_rust;
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;
 
 pub use matched::{ArgMatches, Values, OsValues};
-// TODO-v3-release: Remove SubCommand
+// @TODO-v3-beta: Remove SubCommand
 pub use builders::{App, AppSettings, Arg, ArgGroup, ArgSettings, SubCommand};
 pub use output::Result;
 pub use output::errors;
-// TODO-v3-release: Remove
-pub use completions::Shell;
+// @TODO-v3-beta: Remove
+pub use builders::Shell;
 
 #[macro_use]
 mod macros;
 mod builders;
-mod built;
 mod matched;
 mod output;
 mod parsing;
-pub mod completions;
+/// @DOCS @TODO-v3-release: add docs
 pub mod utils;
 
 const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider filing a bug \
                                           report at https://github.com/kbknapp/clap-rs/issues";
 const INVALID_UTF8: &'static str = "unexpected invalid UTF-8 code point";
+
+#[doc(hidden)]
+pub fn default_display_order() -> usize { 999 }

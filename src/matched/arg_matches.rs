@@ -8,7 +8,7 @@ use std::slice::Iter;
 // Internal
 use INVALID_UTF8;
 use matched::MatchedArg;
-// TODO-v3-release: remove
+// @TODO-v3-beta: remove
 use SubCommand;
 
 /// Used to get information about the arguments that where supplied to the program at runtime by

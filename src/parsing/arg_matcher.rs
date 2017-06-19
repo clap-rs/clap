@@ -1,12 +1,11 @@
 // Std
-use std::collections::hash_map::{Entry, Iter};
+use std::collections::hash_map::{Entry, Iter, Keys};
 use std::ffi::OsStr;
-use std::ops::Deref;
 use std::mem;
 
 // Internal
-use {ArgSettings, ArgMatches, SubCommand};
-use parsing::AnyArg;
+use {Arg, ArgSettings, ArgMatches, SubCommand};
+// use parsing::AnyArg;
 use matched::MatchedArg;
 
 #[doc(hidden)]
@@ -68,7 +67,7 @@ impl<'a> ArgMatcher<'a> {
 
     pub fn usage(&mut self, usage: String) { self.0.usage = Some(usage); }
 
-    pub fn arg_names(&'a self) -> Vec<&'a str> { self.0.args.keys().map(Deref::deref).collect() }
+    pub fn arg_names(&self) -> Keys<&'a str, MatchedArg> { self.0.args.keys() }
 
     pub fn entry(&mut self, arg: &'a str) -> Entry<&'a str, MatchedArg> { self.0.args.entry(arg) }
 
@@ -104,23 +103,21 @@ impl<'a> ArgMatcher<'a> {
         ma.vals.push(val.to_owned());
     }
 
-    pub fn needs_more_vals<'b, A>(&self, o: &A) -> bool
-    where
-        A: AnyArg<'a, 'b>,
+    pub fn needs_more_vals<'b>(&self, o: &Arg) -> bool
     {
-        debugln!("ArgMatcher::needs_more_vals: o={}", o.name());
-        if let Some(ma) = self.get(o.name()) {
-            if let Some(num) = o.num_vals() {
+        debugln!("ArgMatcher::needs_more_vals: o={}", o.name);
+        if let Some(ma) = self.get(o.name) {
+            if let Some(num) = o.number_of_values {
                 debugln!("ArgMatcher::needs_more_vals: num_vals...{}", num);
                 return if o.is_set(ArgSettings::Multiple) {
-                    ((ma.vals.len() as u64) % num) != 0
+                    (ma.vals.len() % num) != 0
                 } else {
-                    num != (ma.vals.len() as u64)
+                    num != ma.vals.len()
                 };
-            } else if let Some(num) = o.max_vals() {
+            } else if let Some(num) = o.max_values {
                 debugln!("ArgMatcher::needs_more_vals: max_vals...{}", num);
-                return !((ma.vals.len() as u64) > num);
-            } else if o.min_vals().is_some() {
+                return !(ma.vals.len() > num);
+            } else if o.min_values.is_some() {
                 debugln!("ArgMatcher::needs_more_vals: min_vals...true");
                 return true;
             }

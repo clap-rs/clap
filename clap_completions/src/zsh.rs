@@ -168,11 +168,11 @@ fn subcommands_and_args_of(p: &Parser) -> String {
 
     // Then the positional args
     for arg in p.positionals() {
-        debugln!("ZshGen::subcommands_and_args_of:iter: arg={}", arg.b.name);
+        debugln!("ZshGen::subcommands_and_args_of:iter: arg={}", arg.name);
         let a = format!(
             "\"{name}:{help}\" \\",
-            name = arg.b.name.to_ascii_uppercase(),
-            help = arg.b.help.unwrap_or("").replace("[", "\\[").replace(
+            name = arg.name.to_ascii_uppercase(),
+            help = arg.help.unwrap_or("").replace("[", "\\[").replace(
                 "]",
                 "\\]",
             )

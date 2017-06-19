@@ -1,13 +1,11 @@
-use std::fmt::{Debug, Formatter, Result};
-
-// TODO-3x-release: remove
+// @TODO-3x-beta: remove
 #[cfg(feature = "yaml")]
 use std::collections::BTreeMap;
 
 #[cfg(feature = "serde")]
 use serde::{Serialize, Deserialize};
 
-// TODO-3x-release: remove
+// @TODO-3x-beta: remove
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
@@ -87,12 +85,18 @@ use yaml_rust::Yaml;
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(default))]
 pub struct ArgGroup<'a> {
-    #[doc(hidden)] pub name: &'a str,
-    #[doc(hidden)] pub args: Vec<&'a str>,
-    #[doc(hidden)] pub required: bool,
-    #[doc(hidden)] pub requires: Option<Vec<&'a str>>,
-    #[doc(hidden)] pub conflicts: Option<Vec<&'a str>>,
-    #[doc(hidden)] pub multiple: bool,
+    #[doc(hidden)]
+    pub name: &'a str,
+    #[doc(hidden)]
+    pub args: Vec<&'a str>,
+    #[doc(hidden)]
+    pub required: bool,
+    #[doc(hidden)]
+    pub requires: Option<Vec<&'a str>>,
+    #[doc(hidden)]
+    pub conflicts: Option<Vec<&'a str>>,
+    #[doc(hidden)]
+    pub multiple: bool,
 }
 
 impl<'a> ArgGroup<'a> {
@@ -106,7 +110,7 @@ impl<'a> ArgGroup<'a> {
     /// ArgGroup::with_name("config")
     /// # ;
     /// ```
-    pub fn with_name(n: &'a str) -> Self {
+    pub fn new(n: &'a str) -> Self {
         ArgGroup {
             name: n,
             required: false,
@@ -425,6 +429,14 @@ impl<'a> ArgGroup<'a> {
             self = self.conflicts_with(n);
         }
         self
+    }
+
+    // -------- DEPRECATIONS ------------
+
+    /// Deprecated
+    #[deprecated(since = "3.0.0", note = "use ArgGroup::new(name) instead")]
+    pub fn with_name(n: &'a str) -> Self {
+        ArgGroup::new(n)
     }
 }
 

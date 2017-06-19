@@ -17,12 +17,12 @@
 * Restructure Mods
 * App::gen_completions -> clap::completions::generate
 * App::gen_completions_to -> clap::completions::generate_to
-* App::setting -> App::set
-* App::settings -> App::set_all
-* App::global_setting -> App::set_global
-* App::global_settings -> App::set_all_global
 * Mod Structure
 * get_matches_from_safe_borrow -> get_matches_from_safe_mut
 * App::get_matches_from_mut
 * App::get_matches_safe_mut
 * clap::utils
+* Completions to clap_completions crate
+* ArgSettings::AllowLeadingHyphen -> ArgSettings::AllowHyphenValues
+* ArgGroup::with_name -> ArgGroup::new
+* Arg u64 -> Arg usize

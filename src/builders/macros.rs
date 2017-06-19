@@ -107,3 +107,23 @@ macro_rules! yaml_to_usize {
         $a.$c($v.as_i64().unwrap_or_else(|| panic!("failed to convert YAML {:?} value to a string", $v)) as usize)
     }};
 }
+
+macro_rules! add_to_option_vec {
+    ($_self:ident, $add_to:ident, $what:expr) => {{
+        if let Some(ref mut als) = $_self.$add_to {
+            als.push($what.into());
+        } else {
+            $_self.$add_to = Some(vec![$what.into()]);
+        }
+    }}
+}
+
+macro_rules! add_slice_to_option_vec {
+    ($_self:ident, $add_to:ident, $what:expr) => {{
+        if let Some(ref mut als) = $_self.$add_to {
+            als.extend_from_slice($what);
+        } else {
+            $_self.$add_to = Some($what.into());
+        }
+    }}
+}

@@ -51,7 +51,7 @@ pub fn all_subcommand_names(p: &Parser) -> Vec<String> {
         .iter()
         .map(|&(ref n, _)| n.clone())
         .collect();
-    for sc_v in p.subcommands.iter().map(|s| all_subcommand_names(&s.p)) {
+    for sc_v in p.app.subcommands.iter().map(|s| all_subcommand_names(&s.p)) {
         subcmds.extend(sc_v);
     }
     subcmds.sort();
@@ -68,7 +68,7 @@ pub fn all_subcommand_names(p: &Parser) -> Vec<String> {
 pub fn all_subcommands(p: &Parser) -> Vec<(String, String)> {
     debugln!("all_subcommands;");
     let mut subcmds: Vec<_> = subcommands_of(p);
-    for sc_v in p.subcommands.iter().map(|s| all_subcommands(&s.p)) {
+    for sc_v in p.app.subcommands.iter().map(|s| all_subcommands(&s.p)) {
         subcmds.extend(sc_v);
     }
     subcmds
@@ -83,8 +83,8 @@ pub fn all_subcommands(p: &Parser) -> Vec<(String, String)> {
 pub fn subcommands_of(p: &Parser) -> Vec<(String, String)> {
     debugln!(
         "subcommands_of: name={}, bin_name={}",
-        p.meta.name,
-        p.meta.bin_name.as_ref().unwrap()
+        p.app.name,
+        p.app.bin_name.as_ref().unwrap()
     );
     let mut subcmds = vec![];
 
@@ -94,17 +94,14 @@ pub fn subcommands_of(p: &Parser) -> Vec<(String, String)> {
     );
     if !p.has_subcommands() {
         let mut ret = vec![
-            (
-                p.meta.name.clone(),
-                p.meta.bin_name.as_ref().unwrap().clone()
-            ),
+            (p.app.name.clone(), p.app.bin_name.as_ref().unwrap().clone()),
         ];
         debugln!("subcommands_of: Looking for aliases...");
-        if let Some(ref aliases) = p.meta.aliases {
+        if let Some(ref aliases) = p.app.aliases {
             for &(n, _) in aliases {
                 debugln!("subcommands_of:iter:iter: Found alias...{}", n);
                 let mut als_bin_name: Vec<_> =
-                    p.meta.bin_name.as_ref().unwrap().split(' ').collect();
+                    p.app.bin_name.as_ref().unwrap().split(' ').collect();
                 als_bin_name.push(n);
                 let old = als_bin_name.len() - 2;
                 als_bin_name.swap_remove(old);
@@ -116,16 +113,16 @@ pub fn subcommands_of(p: &Parser) -> Vec<(String, String)> {
     for sc in &p.subcommands {
         debugln!(
             "subcommands_of:iter: name={}, bin_name={}",
-            sc.p.meta.name,
-            sc.p.meta.bin_name.as_ref().unwrap()
+            sc.p.app.name,
+            sc.p.app.bin_name.as_ref().unwrap()
         );
 
         debugln!("subcommands_of:iter: Looking for aliases...");
-        if let Some(ref aliases) = sc.p.meta.aliases {
+        if let Some(ref aliases) = sc.p.app.aliases {
             for &(n, _) in aliases {
                 debugln!("subcommands_of:iter:iter: Found alias...{}", n);
                 let mut als_bin_name: Vec<_> =
-                    p.meta.bin_name.as_ref().unwrap().split(' ').collect();
+                    p.app.bin_name.as_ref().unwrap().split(' ').collect();
                 als_bin_name.push(n);
                 let old = als_bin_name.len() - 2;
                 als_bin_name.swap_remove(old);
@@ -133,8 +130,8 @@ pub fn subcommands_of(p: &Parser) -> Vec<(String, String)> {
             }
         }
         subcmds.push((
-            sc.p.meta.name.clone(),
-            sc.p.meta.bin_name.as_ref().unwrap().clone(),
+            sc.p.app.name.clone(),
+            sc.p.app.bin_name.as_ref().unwrap().clone(),
         ));
     }
     subcmds
@@ -145,10 +142,10 @@ pub fn get_all_subcommand_paths(p: &Parser, first: bool) -> Vec<String> {
     let mut subcmds = vec![];
     if !p.has_subcommands() {
         if !first {
-            let name = &*p.meta.name;
-            let path = p.meta.bin_name.as_ref().unwrap().clone().replace(" ", "__");
+            let name = &*p.app.name;
+            let path = p.app.bin_name.as_ref().unwrap().clone().replace(" ", "__");
             let mut ret = vec![path.clone()];
-            if let Some(ref aliases) = p.meta.aliases {
+            if let Some(ref aliases) = p.app.aliases {
                 for &(n, _) in aliases {
                     ret.push(path.replace(name, n));
                 }
@@ -158,13 +155,13 @@ pub fn get_all_subcommand_paths(p: &Parser, first: bool) -> Vec<String> {
         return vec![];
     }
     for sc in &p.subcommands {
-        let name = &*sc.p.meta.name;
-        let path = sc.p.meta.bin_name.as_ref().unwrap().clone().replace(
+        let name = &*sc.p.app.name;
+        let path = sc.p.app.bin_name.as_ref().unwrap().clone().replace(
             " ",
             "__",
         );
         subcmds.push(path.clone());
-        if let Some(ref aliases) = sc.p.meta.aliases {
+        if let Some(ref aliases) = sc.p.app.aliases {
             for &(n, _) in aliases {
                 subcmds.push(path.replace(name, n));
             }
@@ -268,10 +265,10 @@ pub fn generate<T: Into<OsString>, S: Into<String>>(
     for_shell: Shell,
     out_dir: T,
 ) {
-    // TODO-v3-beta: implement completion initialization
+    // @TODO-v3-beta: implement completion initialization
     unimplemented!();
 
-    app.p.meta.bin_name = Some(bin_name.into());
+    app.p.app.bin_name = Some(bin_name.into());
     app.p.gen_completions(for_shell, out_dir.into());
 }
 
@@ -314,10 +311,124 @@ pub fn generate_to<W: Write, S: Into<String>>(
     for_shell: Shell,
     buf: &mut W,
 ) {
-    // TODO-v3-beta: implement completion initialization
+    // @TODO-v3-beta: implement completion initialization
     unimplemented!();
 
     // let p: Parser = app.build();
-    // p.meta.bin_name = Some(bin_name.into());
+    // p.app.bin_name = Some(bin_name.into());
     // p.gen_completions_to(for_shell, buf);
+}
+
+fn gen_completions_to<W: Write>(p: &mut Parser, for_shell: Shell, buf: &mut W) {
+    if !p.is_set(AS::Propogated) {
+        p.propogate_help_version();
+        p.build_bin_names();
+        p.propogate_globals();
+        p.propogate_settings();
+        p.set(AS::Propogated);
+    }
+
+    ComplGen::new(self).generate(for_shell, buf)
+}
+
+fn gen_completions(p: &mut Parser, for_shell: Shell, od: OsString) {
+    use std::error::Error;
+
+    let out_dir = PathBuf::from(od);
+    let name = &*p.app.bin_name.as_ref().unwrap().clone();
+    let file_name = match for_shell {
+        Shell::Bash => format!("{}.bash-completion", name),
+        Shell::Fish => format!("{}.fish", name),
+        Shell::Zsh => format!("_{}", name),
+        Shell::PowerShell => format!("_{}.ps1", name),
+    };
+
+    let mut file = match File::create(out_dir.join(file_name)) {
+        Err(why) => panic!("couldn't create completion file: {}", why.description()),
+        Ok(file) => file,
+    };
+    p.gen_completions_to(for_shell, &mut file)
+}
+
+// @TODO-v3-alpha: This should only happen when required, not for all recursively with the
+// exception of completions
+fn propagate_help_version(p: &mut Parser) {
+    debugln!("Parser::propogate_help_version;");
+    p.create_help_and_version();
+    for sc in &mut p.app.subcommands {
+        sc.p.propogate_help_version();
+    }
+}
+
+fn build_bin_names(p: &mut Parser) {
+    debugln!("Parser::build_bin_names;");
+    for sc in &mut p.app.subcommands {
+        debug!("Parser::build_bin_names:iter: bin_name set...");
+        if sc.p.app.bin_name.is_none() {
+            sdebugln!("No");
+            let bin_name = format!(
+                "{}{}{}",
+                p.app.bin_name.as_ref().unwrap_or(&self.app.name.clone()),
+                if p.app.bin_name.is_some() { " " } else { "" },
+                &*sc.p.app.name
+            );
+            debugln!(
+                "Parser::build_bin_names:iter: Setting bin_name of {} to {}",
+                p.app.name,
+                bin_name
+            );
+            sc.p.app.bin_name = Some(bin_name);
+        } else {
+            sdebugln!("yes ({:?})", sc.p.app.bin_name);
+        }
+        debugln!(
+            "Parser::build_bin_names:iter: Calling build_bin_names from...{}",
+            sc.p.app.name
+        );
+        sc.p.build_bin_names();
+    }
+}
+
+impl<'a, 'b, 'c> Parser<'a, 'b, 'c> {
+    /// Check is a given string matches the binary name for this parser
+    fn is_bin_name(&self, value: &str) -> bool {
+        self.app
+            .bin_name
+            .as_ref()
+            .and_then(|name| Some(value == name))
+            .unwrap_or(false)
+    }
+
+    // Used for completions:
+    /// Check is a given string is an alias for this parser
+    fn is_alias(&self, value: &str) -> bool {
+        aliases!(self.app).any(|als| als == &value)
+    }
+
+    // // Only used for completion scripts due to bin_name messiness
+    // #[cfg_attr(feature = "lints", allow(block_in_if_condition_stmt))]
+    // pub fn find_subcommand(&'b self, sc: &str) -> Option<&'b App<'a, 'b>> {
+    //     debugln!("Parser::find_subcommand: sc={}", sc);
+    //     debugln!(
+    //         "Parser::find_subcommand: Currently in Parser...{}",
+    //         self.app.bin_name.as_ref().unwrap()
+    //     );
+    //     for s in &self.app.subcommands {
+    //         if s.is_bin_name(sc) {
+    //             return Some(s);
+    //         }
+    //         // XXX: why do we split here?
+    //         // isn't `sc` supposed to be single word already?
+    //         let last = sc.split(' ').rev().next().expect(INTERNAL_ERROR_MSG);
+    //         if s.is_alias(last) {
+    //             return Some(s);
+    //         }
+
+    //         if let Some(app) = s.find_subcommand(sc) {
+    //             return Some(app);
+    //         }
+    //     }
+    //     None
+    // }
+
 }

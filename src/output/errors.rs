@@ -7,10 +7,9 @@ use std::result::Result as StdResult;
 use std::process;
 
 // Internal
+use Arg;
 use output::fmt::{ColorizerOption, ColorWhen, Colorizer};
-use parsing::AnyArg;
 use output::suggestions;
-use built::Flag;
 
 /// Short hand for [`Result`] type
 /// [`Result`]: https://doc.rust-lang.org/std/result/enum.Result.html
@@ -405,18 +404,16 @@ impl Error {
     pub fn write_to<W: Write>(&self, w: &mut W) -> io::Result<()> { write!(w, "{}", self.message) }
 
     #[doc(hidden)]
-    pub fn argument_conflict<'a, 'b, A, O, U>(
-        arg: &A,
-        other: Option<O>,
+    pub fn argument_conflict<U>(
+        arg: &Arg,
+        other: Option<String>,
         usage: U,
         color: ColorWhen,
     ) -> Self
     where
-        A: AnyArg<'a, 'b> + Display,
-        O: Into<String>,
         U: Display,
     {
-        let mut v = vec![arg.name().to_owned()];
+        let mut v = vec![arg.name.to_owned()];
         let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
             when: color,
@@ -429,10 +426,9 @@ impl Error {
                 c.error("error:"),
                 c.warning(&*arg.to_string()),
                 match other {
-                    Some(name) => {
-                        let n = name.into();
-                        v.push(n.clone());
-                        c.warning(format!("'{}'", n))
+                    Some(ref arg) => {
+                        v.push(arg.to_owned());
+                        c.warning(format!("'{}'", arg))
                     }
                     None => c.none("one or more of the other specified arguments".to_owned()),
                 },
@@ -445,9 +441,8 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn empty_value<'a, 'b, A, U>(arg: &A, usage: U, color: ColorWhen) -> Self
+    pub fn empty_value<U>(arg: &Arg, usage: U, color: ColorWhen) -> Self
     where
-        A: AnyArg<'a, 'b> + Display,
         U: Display,
     {
         let c = Colorizer::new(ColorizerOption {
@@ -466,22 +461,21 @@ impl Error {
                 c.good("--help")
             ),
             kind: ErrorKind::EmptyValue,
-            info: Some(vec![arg.name().to_owned()]),
+            info: Some(vec![arg.name.to_owned()]),
         }
     }
 
     #[doc(hidden)]
-    pub fn invalid_value<'a, 'b, B, G, A, U>(
+    pub fn invalid_value<B, G, U>(
         bad_val: B,
         good_vals: &[G],
-        arg: &A,
+        arg: &Arg,
         usage: U,
         color: ColorWhen,
     ) -> Self
     where
         B: AsRef<str>,
         G: AsRef<str> + Display,
-        A: AnyArg<'a, 'b> + Display,
         U: Display,
     {
         let c = Colorizer::new(ColorizerOption {
@@ -513,7 +507,7 @@ impl Error {
                 c.good("--help")
             ),
             kind: ErrorKind::InvalidValue,
-            info: Some(vec![arg.name().to_owned(), bad_val.as_ref().to_owned()]),
+            info: Some(vec![arg.name.to_owned(), bad_val.as_ref().to_owned()]),
         }
     }
 
@@ -661,10 +655,9 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn too_many_values<'a, 'b, V, A, U>(val: V, arg: &A, usage: U, color: ColorWhen) -> Self
+    pub fn too_many_values<V, U>(val: V, arg: &Arg, usage: U, color: ColorWhen) -> Self
     where
         V: AsRef<str> + Display + ToOwned,
-        A: AnyArg<'a, 'b> + Display,
         U: Display,
     {
         let v = val.as_ref();
@@ -685,20 +678,19 @@ impl Error {
                 c.good("--help")
             ),
             kind: ErrorKind::TooManyValues,
-            info: Some(vec![arg.name().to_owned(), v.to_owned()]),
+            info: Some(vec![arg.name.to_owned(), v.to_owned()]),
         }
     }
 
     #[doc(hidden)]
-    pub fn too_few_values<'a, 'b, A, U>(
-        arg: &A,
-        min_vals: u64,
+    pub fn too_few_values<U>(
+        arg: &Arg,
+        min_vals: usize,
         curr_vals: usize,
         usage: U,
         color: ColorWhen,
     ) -> Self
     where
-        A: AnyArg<'a, 'b> + Display,
         U: Display,
     {
         let c = Colorizer::new(ColorizerOption {
@@ -720,14 +712,12 @@ impl Error {
                 c.good("--help")
             ),
             kind: ErrorKind::TooFewValues,
-            info: Some(vec![arg.name().to_owned()]),
+            info: Some(vec![arg.name.to_owned()]),
         }
     }
 
     #[doc(hidden)]
-    pub fn value_validation<'a, 'b, A>(arg: Option<&A>, err: String, color: ColorWhen) -> Self
-    where
-        A: AnyArg<'a, 'b> + Display,
+    pub fn value_validation(arg: Option<&Arg>, err: String, color: ColorWhen) -> Self
     {
         let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
@@ -751,21 +741,20 @@ impl Error {
 
     #[doc(hidden)]
     pub fn value_validation_auto(err: String) -> Self {
-        let n: Option<&Flag> = None;
+        let n: Option<&Arg> = None;
         Error::value_validation(n, err, ColorWhen::Auto)
     }
 
     #[doc(hidden)]
-    pub fn wrong_number_of_values<'a, 'b, A, S, U>(
-        arg: &A,
-        num_vals: u64,
+    pub fn wrong_number_of_values<S, U>(
+        arg: &Arg,
+        num_vals: usize,
         curr_vals: usize,
         suffix: S,
         usage: U,
         color: ColorWhen,
     ) -> Self
     where
-        A: AnyArg<'a, 'b> + Display,
         S: Display,
         U: Display,
     {
@@ -788,14 +777,13 @@ impl Error {
                 c.good("--help")
             ),
             kind: ErrorKind::WrongNumberOfValues,
-            info: Some(vec![arg.name().to_owned()]),
+            info: Some(vec![arg.name.to_owned()]),
         }
     }
 
     #[doc(hidden)]
-    pub fn unexpected_multiple_usage<'a, 'b, A, U>(arg: &A, usage: U, color: ColorWhen) -> Self
+    pub fn unexpected_multiple_usage<U>(arg: &Arg, usage: U, color: ColorWhen) -> Self
     where
-        A: AnyArg<'a, 'b> + Display,
         U: Display,
     {
         let c = Colorizer::new(ColorizerOption {
@@ -814,7 +802,7 @@ impl Error {
                 c.good("--help")
             ),
             kind: ErrorKind::UnexpectedMultipleUsage,
-            info: Some(vec![arg.name().to_owned()]),
+            info: Some(vec![arg.name.to_owned()]),
         }
     }
 

@@ -2,10 +2,9 @@
 use std::io::Write;
 
 // Internal
-use ArgSettings;
+use {Arg, ArgSettings};
 use completions;
 use parsing::Parser;
-use built::Opt;
 
 pub struct BashGen<'a, 'b>
 where
@@ -62,10 +61,10 @@ impl<'a, 'b> BashGen<'a, 'b> {
 
 complete -F _{name} -o bashdefault -o default {name}
 ",
-                   name = self.p.meta.bin_name.as_ref().unwrap(),
-                   name_opts = self.all_options_for_path(self.p.meta.bin_name.as_ref().unwrap()),
+                   name = self.p.app.bin_name.as_ref().unwrap(),
+                   name_opts = self.all_options_for_path(self.p.app.bin_name.as_ref().unwrap()),
                    name_opts_details =
-                       self.option_details_for_path(self.p.meta.bin_name.as_ref().unwrap()),
+                       self.option_details_for_path(self.p.app.bin_name.as_ref().unwrap()),
                    subcmds = self.all_subcommands(),
                    subcmd_details = self.subcommand_details())
                .as_bytes());
@@ -135,7 +134,7 @@ complete -F _{name} -o bashdefault -o default {name}
         }
         let mut opts = String::new();
         for o in p.opts() {
-            if let Some(l) = o.s.long {
+            if let Some(l) = o.long {
                 opts = format!(
                     "{}
                 --{})
@@ -147,7 +146,7 @@ complete -F _{name} -o bashdefault -o default {name}
                     self.vals_for(o)
                 );
             }
-            if let Some(s) = o.s.short {
+            if let Some(s) = o.short {
                 opts = format!(
                     "{}
                     -{})
@@ -163,8 +162,8 @@ complete -F _{name} -o bashdefault -o default {name}
         opts
     }
 
-    fn vals_for(&self, o: &Opt) -> String {
-        debugln!("BashGen::vals_for: o={}", o.b.name);
+    fn vals_for(&self, o: &Arg) -> String {
+        debugln!("BashGen::vals_for: o={}", o.name);
         use parsing::AnyArg;
         let mut ret = String::new();
         let mut needs_quotes = true;
@@ -234,10 +233,10 @@ complete -F _{name} -o bashdefault -o default {name}
             opts,
             p.subcommands
                 .iter()
-                .fold(String::new(), |acc, s| format!("{} {}", acc, s.p.meta.name))
+                .fold(String::new(), |acc, s| format!("{} {}", acc, s.p.app.name))
         );
         for sc in &p.subcommands {
-            if let Some(ref aliases) = sc.p.meta.aliases {
+            if let Some(ref aliases) = sc.p.app.aliases {
                 opts = format!(
                     "{} {}",
                     opts,

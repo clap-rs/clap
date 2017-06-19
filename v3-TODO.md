@@ -4,6 +4,7 @@
   - [x] App
   - [x] ArgGroup
   - [x] Arg
+- [ ] App::mut_arg
 - [x] Serde
 - [ ] CustomDerive
 - [ ] Enums as keys

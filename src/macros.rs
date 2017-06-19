@@ -826,28 +826,15 @@ macro_rules! vec_remove_all {
         }
     };
 }
-macro_rules! find_from {
-    ($_self:expr, $arg_name:expr, $from:ident, $matcher:expr) => {{
+
+macro_rules! find_matched_that_contains_arg_in {
+    ($app:expr, $arg_name:expr, $from:ident, $matcher:expr) => {{
         let mut ret = None;
         for k in $matcher.arg_names() {
-            if let Some(f) = find_by_name!($_self, k, flags, iter) {
-                if let Some(ref v) = f.$from() {
+            if let Some(f) = args!($app).find(|a| &a.name == k) {
+                if let Some(ref v) = f.$from {
                     if v.contains($arg_name) {
-                        ret = Some(f.to_string());
-                    }
-                }
-            }
-            if let Some(o) = find_by_name!($_self, k, opts, iter) {
-                if let Some(ref v) = o.$from() {
-                    if v.contains(&$arg_name) {
-                        ret = Some(o.to_string());
-                    }
-                }
-            }
-            if let Some(pos) = find_by_name!($_self, k, positionals, values) {
-                if let Some(ref v) = pos.$from() {
-                    if v.contains($arg_name) {
-                        ret = Some(pos.b.name.to_owned());
+                        ret = Some(f);
                     }
                 }
             }
@@ -857,27 +844,13 @@ macro_rules! find_from {
 }
 
 macro_rules! find_name_from {
-    ($_self:expr, $arg_name:expr, $from:ident, $matcher:expr) => {{
+    ($app:expr, $arg_name:expr, $from:ident, $matcher:expr) => {{
         let mut ret = None;
         for k in $matcher.arg_names() {
-            if let Some(f) = find_by_name!($_self, k, flags, iter) {
-                if let Some(ref v) = f.$from() {
+            if let Some(a) = args!($app).find(|a| &a.name == k) {
+                if let Some(ref v) = a.$from {
                     if v.contains($arg_name) {
-                        ret = Some(f.b.name);
-                    }
-                }
-            }
-            if let Some(o) = find_by_name!($_self, k, opts, iter) {
-                if let Some(ref v) = o.$from() {
-                    if v.contains(&$arg_name) {
-                        ret = Some(o.b.name);
-                    }
-                }
-            }
-            if let Some(pos) = find_by_name!($_self, k, positionals, values) {
-                if let Some(ref v) = pos.$from() {
-                    if v.contains($arg_name) {
-                        ret = Some(pos.b.name);
+                        ret = Some(a.name);
                     }
                 }
             }
@@ -886,145 +859,167 @@ macro_rules! find_name_from {
     }};
 }
 
-// Finds an arg by name
-macro_rules! find_by_name {
-    ($p:expr, $name:expr, $what:ident, $how:ident) => {
-        $p.$what.$how().find(|o| o.b.name == $name)
-    }
-}
-
-// Finds an option including if it's aliasesed
-macro_rules! find_opt_by_long {
-    (@os $_self:ident, $long:expr) => {{
-        _find_by_long!($_self, $long, opts)
-    }};
-    ($_self:ident, $long:expr) => {{
-        _find_by_long!($_self, $long, opts)
-    }};
-}
-
-macro_rules! find_flag_by_long {
-    (@os $_self:ident, $long:expr) => {{
-        _find_by_long!($_self, $long, flags)
-    }};
-    ($_self:ident, $long:expr) => {{
-        _find_by_long!($_self, $long, flags)
-    }};
-}
-
-macro_rules! _find_by_long {
-    ($_self:ident, $long:expr, $what:ident) => {{
-        $_self.$what
+macro_rules! match_alias {
+    ($a:expr, $to:expr, $what:expr) => {{
+        $what == $to ||
+        ($a.aliases.is_some() &&
+            $a.aliases 
+            .as_ref()
+            .unwrap()
             .iter()
-            .filter(|a| a.s.long.is_some())
-            .find(|a| {
-                a.s.long.unwrap() == $long ||
-                (a.s.aliases.is_some() &&
-                 a.s
-                    .aliases
-                    .as_ref()
-                    .unwrap()
-                    .iter()
-                    .any(|&(alias, _)| alias == $long))
-            })
+            .any(|alias| alias == &$to)) || 
+            ($a.visible_aliases.is_some() && 
+                $a.visible_aliases.as_ref().unwrap().iter().any(|als| als == &$to))
     }}
 }
 
-// Finds an option
-macro_rules! find_opt_by_short {
-    ($_self:ident, $short:expr) => {{
-        _find_by_short!($_self, $short, opts)
+macro_rules! find_by_long {
+    ($app:expr, $long:expr, $what:ident) => {{
+        $what!($app)
+            .filter(|a| a.long.is_some())
+            .find(|a| match_alias!(a, $long, a.long.unwrap()))
+    }};
+    ($app:expr, $long:expr) => {{
+        args!($app)
+            .filter(|a| a.long.is_some())
+            .find(|a| match_alias!(a, $long, a.long.unwrap()))
     }}
 }
 
-macro_rules! find_flag_by_short {
-    ($_self:ident, $short:expr) => {{
-        _find_by_short!($_self, $short, flags)
+macro_rules! find_by_short {
+    ($app:expr, $short:expr, $what:ident) => {{
+        $what!($app)
+            .filter(|a| a.short.is_some())
+            .find(|a| a.short.unwrap() == $short)
+    }};
+    ($app:expr, $short:expr) => {{
+        args!($app)
+            .filter(|a| a.short.is_some())
+            .find(|a| a.short.unwrap() == $short)
     }}
 }
 
-macro_rules! _find_by_short {
-    ($_self:ident, $short:expr, $what:ident) => {{
-        $_self.$what
+macro_rules! aliases {
+    ($what:ident, $app:expr) => {{
+        $what!($app)
+            .filter_map(|what| what.aliases.as_ref())
+            .flat_map(|aliases| aliases)
+            .chain($what!($app)
+                .filter_map(|what| what.visible_aliases.as_ref())
+                .flat_map(|v_aliases| v_aliases))
+            
+    }};
+    ($app:expr) => {{
+        $app.aliases
+            .unwrap_or(vec![])
             .iter()
-            .filter(|a| a.s.short.is_some())
-            .find(|a| a.s.short.unwrap() == $short)
-    }}
+            .chain($app.visible_aliases
+                .unwrap_or(vec![]))
+            
+    }};
 }
 
-macro_rules! find_subcmd {
-    ($_self:expr, $sc:expr) => {{
-        $_self.subcommands
-            .iter()
-            .find(|s| {
-                &*s.p.meta.name == $sc ||
-                (s.p.meta.aliases.is_some() &&
-                 s.p
-                    .meta
-                    .aliases
-                    .as_ref()
-                    .unwrap()
-                    .iter()
-                    .any(|&(n, _)| n == $sc))
-            })
+macro_rules! find_subcommand {
+    ($app:expr, $sc:expr) => {{
+        subcommands!($app)
+            .find(|a| match_alias!(a, $sc, &*a.name))
+    }};
+}
+
+macro_rules! find_subcommand_cloned {
+    ($app:expr, $sc:expr) => {{
+        subcommands_cloned!($app)
+            .find(|a| match_alias!(a, $sc, &*a.name))
+    }};
+}
+
+macro_rules! find_subcommand_mut {
+    ($app:expr, $sc:expr) => {{
+        subcommands_mut!($app)
+            .find(|a| match_alias!(a, $sc, &*a.name))
+    }};
+}
+
+macro_rules! subcommands {
+    ($app:expr) => {{
+        $app.subcommands.iter()
+    }};
+}
+
+macro_rules! subcommands_cloned {
+    ($app:expr) => {{
+        $app.subcommands.iter().cloned()
+    }};
+}
+
+macro_rules! subcommands_mut {
+    ($app:expr) => {{
+        $app.subcommands.iter_mut()
     }};
 }
 
 macro_rules! shorts {
-    ($_self:ident) => {{
-        _shorts_longs!($_self, short)
+    ($app:expr) => {{
+        _shorts_longs!($app, short)
     }};
 }
 
-
 macro_rules! longs {
-    ($_self:ident) => {{
-        _shorts_longs!($_self, long)
+    ($app:expr) => {{
+        _shorts_longs!($app, long)
+            .chain(aliases!(args, $app))
     }};
 }
 
 macro_rules! _shorts_longs {
-    ($_self:ident, $what:ident) => {{
-        $_self.flags
-                .iter()
-                .filter(|f| f.s.$what.is_some())
-                .map(|f| f.s.$what.as_ref().unwrap())
-                .chain($_self.opts.iter()
-                                  .filter(|o| o.s.$what.is_some())
-                                  .map(|o| o.s.$what.as_ref().unwrap()))
+    ($app:expr, $what:ident) => {{
+        args!($app)
+            .filter_map(|a| a.$what.as_ref())
     }};
 }
 
 macro_rules! arg_names {
+    ($app:expr) => {{
+        args!($app).map(|a| a.name)
+    }};
+}
+
+macro_rules! flags {
+    ($app:expr) => {{
+        args!($app).filter(|a| !a._settings.is_set(ArgSettings::TakesValue))
+    }};
+}
+
+macro_rules! opts {
+    ($app:expr) => {{
+        args!($app).filter(|a| a._settings.is_set(ArgSettings::TakesValue) && (a.short.is_some() || a.long.is_some()))
+    }};
+}
+
+macro_rules! positionals {
+    ($app:expr) => {{
+        args!($app).filter(|a| a.index.is_some())
+    }};
+}
+
+macro_rules! args {
+    ($app:expr) => {{
+        $app.args.iter()
+                 .chain($app.global_args.iter())
+    }};
+}
+
+macro_rules! parser_args_mut {
     ($_self:ident) => {{
-        _names!(@args $_self)
+        $_self.app.args.iter_mut()
+                       .chain($_self.app.global_args.iter_mut())
     }};
 }
 
 macro_rules! sc_names {
-    ($_self:ident) => {{
-        _names!(@sc $_self)
+    ($app:expr) => {{
+        subcommands!($app)
+            .map(|s| &*s.name)
+            .chain(aliases!(subcommands, $app).map(|als| *als))
     }};
-}
-
-macro_rules! _names {
-    (@args $_self:ident) => {{
-        $_self.flags
-                .iter()
-                .map(|f| &*f.b.name)
-                .chain($_self.opts.iter()
-                                  .map(|o| &*o.b.name)
-                                  .chain($_self.positionals.values()
-                                                           .map(|p| &*p.b.name)))
-    }};
-    (@sc $_self:ident) => {{
-        $_self.subcommands
-            .iter()
-            .map(|s| &*s.p.meta.name)
-            .chain($_self.subcommands
-                         .iter()
-                         .filter(|s| s.p.meta.aliases.is_some())
-                         .flat_map(|s| s.p.meta.aliases.as_ref().unwrap().iter().map(|&(n, _)| n)))
-
-    }}
 }

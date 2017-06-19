@@ -50,8 +50,8 @@ pub fn did_you_mean_flag_suffix<'z, T, I>(
     subcommands: &'z [App],
 ) -> (String, Option<&'z str>)
 where
-    T: AsRef<str> + 'z,
     I: IntoIterator<Item = &'z T>,
+    T: AsRef<str> + 'z,
 {
     match did_you_mean(arg, longs) {
         Some(candidate) => {
@@ -64,14 +64,7 @@ where
         }
         None => {
             for subcommand in subcommands {
-                let opts = subcommand
-                    .p
-                    .flags
-                    .iter()
-                    .filter_map(|f| f.s.long)
-                    .chain(subcommand.p.opts.iter().filter_map(|o| o.s.long));
-
-                if let Some(candidate) = did_you_mean(arg, opts) {
+                if let Some(candidate) = did_you_mean(arg, longs!(subcommand)) {
                     let suffix = format!(
                         "\n\tDid you mean to put '--{}' after the subcommand '{}'?",
                         Format::Good(arg),

@@ -63,16 +63,16 @@ fn gen_fish_inner(root_command: &str, comp_gen: &FishGen, parent_cmds: &str, buf
 
     for option in comp_gen.p.opts() {
         let mut template = basic_template.clone();
-        if let Some(data) = option.s.short {
+        if let Some(data) = option.short {
             template.push_str(format!(" -s {}", data).as_str());
         }
-        if let Some(data) = option.s.long {
+        if let Some(data) = option.long {
             template.push_str(format!(" -l {}", data).as_str());
         }
-        if let Some(data) = option.b.help {
+        if let Some(data) = option.help {
             template.push_str(format!(" -d \"{}\"", data).as_str());
         }
-        if let Some(ref data) = option.v.possible_vals {
+        if let Some(ref data) = option.possible_vals {
             template.push_str(format!(" -r -f -a \"{}\"", data.join(" ")).as_str());
         }
         buffer.push_str(template.as_str());
@@ -81,13 +81,13 @@ fn gen_fish_inner(root_command: &str, comp_gen: &FishGen, parent_cmds: &str, buf
 
     for flag in comp_gen.p.flags() {
         let mut template = basic_template.clone();
-        if let Some(data) = flag.s.short {
+        if let Some(data) = flag.short {
             template.push_str(format!(" -s {}", data).as_str());
         }
-        if let Some(data) = flag.s.long {
+        if let Some(data) = flag.long {
             template.push_str(format!(" -l {}", data).as_str());
         }
-        if let Some(data) = flag.b.help {
+        if let Some(data) = flag.help {
             template.push_str(format!(" -d \"{}\"", data).as_str());
         }
         buffer.push_str(template.as_str());

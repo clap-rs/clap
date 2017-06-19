@@ -1,6 +1,6 @@
 
 // Third Party
-// TODO-v3-release: remove
+// @TODO-v3-beta: remove
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 

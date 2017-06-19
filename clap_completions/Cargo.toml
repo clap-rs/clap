@@ -1,45 +1,24 @@
 [package]
-
-name = "clap"
-version = "3.0.0-alpha"
+name = "clap_completions"
+version = "0.1.0"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
-exclude = ["examples/*", "clap-test/*", "tests/*", "benches/*", "*.png", "etc/*", "*.dot", "clap_completions/*", "clap_derive/*"]
+exclude = []
 repository = "https://github.com/kbknapp/clap-rs.git"
-documentation = "https://docs.rs/clap/"
+documentation = "https://docs.rs/clap_completions/"
 homepage = "https://clap.rs/"
 readme = "README.md"
-license = "MIT"
-keywords = ["argument", "command", "arg", "parser", "parse"]
+license = "MIT/Apache-2.0"
+keywords = ["command-line", "completions", "complete", "completer"]
 categories = ["command-line-interface"]
 description = """
-A simple to use, efficient, and full featured  Command Line Argument Parser
+Generates completion scripts for clap enabled CLIs
 """
 
 [dependencies]
-bitflags              = "0.9"
-vec_map               = "0.8"
-unicode-width         = "0.1.4"
-unicode-segmentation  = "1.2.0"
-strsim    = { version = "0.6.0",  optional = true }
-ansi_term = { version = "0.9.0",  optional = true }
-term_size = { version = "0.3.0",  optional = true }
-textwrap  = { version = "0.6.0",  optional = true }
-yaml-rust = { version = "0.3.5",  optional = true }
+clap = { path = "../" }
 clippy    = { version = "~0.0.131", optional = true }
-atty      = { version = "0.2.2",  optional = true }
-serde     = { version = "1.0.0", optional = true }
-serde_derive = {version = "1.0.0", optional = true } 
-
-[dev-dependencies]
-regex = "0.2"
-lazy_static = "0.2"
 
 [features]
-default     = ["suggestions", "color", "wrap_help"]
-suggestions = ["strsim"]
-color       = ["ansi_term", "atty"]
-wrap_help   = ["term_size", "textwrap"]
-yaml        = ["yaml-rust"]
 unstable    = [] # for building with unstable clap features (doesn't require nightly Rust) (currently none)
 nightly     = [] # for building with unstable Rust features (currently none)
 lints       = ["clippy"] # Requires nightly Rust
@@ -84,3 +63,4 @@ rpath = false
 lto = false
 debug-assertions = true
 codegen-units = 4
+

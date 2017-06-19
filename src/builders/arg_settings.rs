@@ -43,7 +43,7 @@ impl ArgFlags {
         RequireDelimiter => REQ_DELIM,
         ValueDelimiterNotSet => DELIM_NOT_SET,
         HidePossibleValues => HIDE_POS_VALS,
-        AllowLeadingHyphen => ALLOW_TAC_VALS,
+        AllowHyphenValues => ALLOW_TAC_VALS,
         RequireEquals => REQUIRE_EQUALS,
         Last => LAST,
         HideDefaultValue => HIDE_DEFAULT_VAL
@@ -856,7 +856,7 @@ impl FromStr for ArgSettings {
             "requiredelimiter" => Ok(ArgSettings::RequireDelimiter),
             "valuedelimiternotset" => Ok(ArgSettings::ValueDelimiterNotSet),
             "hidepossiblevalues" => Ok(ArgSettings::HidePossibleValues),
-            "allowleadinghyphen" => Ok(ArgSettings::AllowLeadingHyphen),
+            "allowhyphenvalues" => Ok(ArgSettings::AllowHyphenValues),
             "requireequals" => Ok(ArgSettings::RequireEquals),
             "last" => Ok(ArgSettings::Last),
             "hidedefaultvalue" => Ok(ArgSettings::HideDefaultValue),
@@ -873,7 +873,7 @@ mod test {
     fn arg_settings_fromstr() {
         assert_eq!(
             "allowleadinghyphen".parse::<ArgSettings>().unwrap(),
-            ArgSettings::AllowLeadingHyphen
+            ArgSettings::AllowHyphenValues
         );
         assert_eq!(
             "emptyvalues".parse::<ArgSettings>().unwrap(),
