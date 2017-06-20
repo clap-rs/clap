@@ -45,7 +45,13 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-Here's the highlights for v2.24.2
+Here's the highlights for v2.25.0
+
+* use textwrap crate for wrapping help texts 
+* suggests to use flag after subcommand when applicable 
+* Bumps bitflags crate to v0.9
+
+Here's the highlights for v2.21.0 to v2.24.2
 
 * fixes a bug where args that allow values to start with a hyphen couldnt contain a double hyphen -- as a value 
 * fixes a bug where positional argument help text is misaligned 
@@ -53,9 +59,6 @@ Here's the highlights for v2.24.2
 * **Arg::allow_hyphen_values docs:**  updates the docs to include warnings for allow_hyphen_values and multiple(true) used together 
 * **clap_app! docs:**  adds using the @group specifier to the macro docs 
 * adds a debug assertion to ensure all args added to groups actually exist 
-
-Here's the highlights for v2.21.0 to v2.24.1
-
 * fixes a bug where args with last(true) and required(true) set were not being printed in the usage string 
 * fixes a bug that was printing the arg name, instead of value name when Arg::last(true) was used 
 * fixes a bug where flags were parsed as flags AND positional values when specific combinations of settings were used 
