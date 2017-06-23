@@ -12,7 +12,8 @@ fn main() {
              .short("p")
              .takes_value(true))
         .arg(Arg::with_name("slop")
-             .multiple(true))
+             .multiple(true)
+             .last(true))
         .get_matches();
 
 
