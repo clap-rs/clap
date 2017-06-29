@@ -300,7 +300,15 @@ fn impl_structopt_for_struct(name: &Ident, fields: &[Field], attrs: &[Attribute]
 }
 
 fn impl_structopt_for_enum(_variants: &[Variant]) -> quote::Tokens {
-    quote!()
+    quote! {
+        impl _structopt::StructOpt for #name {
+        }
+
+        impl #name {
+            fn from_subcommand<'a, 'b>(sub: (&'b str, Option<&'b _structopt::clap::ArgMatches<'a, 'b>>)) -> Option<Self> {
+            }
+        }
+    }
 }
 
 fn impl_structopt(ast: &DeriveInput) -> quote::Tokens {
