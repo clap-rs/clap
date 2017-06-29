@@ -181,73 +181,10 @@ fn from_attr_or_env(attrs: &[(Ident, Lit)], key: &str, env: &str) -> Lit {
         .unwrap_or_else(|| Lit::Str(default, StrStyle::Cooked))
 }
 
-fn gen_name(field: &Field) -> Ident {
-    extract_attrs(&field.attrs, AttrSource::Field)
-        .filter(|&(ref i, _)| i.as_ref() == "name")
-        .last()
-        .and_then(|(_, ref l)| match l {
-            &Lit::Str(ref s, _) => Some(Ident::new(s.clone())),
-            _ => None,
-        })
-        .unwrap_or(field.ident.as_ref().unwrap().clone())
-}
-
-fn gen_from_clap(struct_name: &Ident, s: &[Field]) -> quote::Tokens {
-    let fields = s.iter().map(|field| {
-        let field_name = field.ident.as_ref().unwrap();
-        let name = gen_name(field);
-        let convert = match ty(&field.ty) {
-            Ty::Bool => quote!(is_present(stringify!(#name))),
-            Ty::U64 => quote!(occurrences_of(stringify!(#name))),
-            Ty::Option => quote! {
-                value_of(stringify!(#name))
-                    .as_ref()
-                    .map(|s| s.parse().unwrap())
-            },
-            Ty::Vec => quote! {
-                values_of(stringify!(#name))
-                    .map(|v| v.map(|s| s.parse().unwrap()).collect())
-                    .unwrap_or_else(Vec::new)
-            },
-            Ty::Other => quote! {
-                value_of(stringify!(#name))
-                    .as_ref()
-                    .unwrap()
-                    .parse()
-                    .unwrap()
-            },
-        };
-        quote!( #field_name: matches.#convert, )
-    });
-    quote! {
-        fn from_clap(matches: _structopt::clap::ArgMatches) -> Self {
-            #struct_name {
-                #( #fields )*
-            }
-        }
-    }
-}
-
-fn gen_clap(struct_attrs: &[Attribute]) -> quote::Tokens {
-    let struct_attrs: Vec<_> = extract_attrs(struct_attrs, AttrSource::Struct).collect();
-    let name = from_attr_or_env(&struct_attrs, "name", "CARGO_PKG_NAME");
-    let version = from_attr_or_env(&struct_attrs, "version", "CARGO_PKG_VERSION");
-    let author = from_attr_or_env(&struct_attrs, "author", "CARGO_PKG_AUTHORS");
-    let about = from_attr_or_env(&struct_attrs, "about", "CARGO_PKG_DESCRIPTION");
-
-    quote! {
-        fn clap<'a, 'b>() -> _structopt::clap::App<'a, 'b> {
-            let app = _structopt::clap::App::new(#name)
-                .version(#version)
-                .author(#author)
-                .about(#about);
-            Self::augment_clap(app)
-        }
-    }
-}
-
-fn gen_augment_clap(s: &[Field]) -> quote::Tokens {
-    let args = s.iter().map(|field| {
+/// Generate a block of code to add arguments/subcommands corresponding to
+/// the `fields` to an app.
+fn gen_augmentation(fields: &[Field], app_var: &Ident) -> quote::Tokens {
+    let args = fields.iter().map(|field| {
         let name = gen_name(field);
         let cur_type = ty(&field.ty);
         let convert_type = match cur_type {
@@ -277,10 +214,91 @@ fn gen_augment_clap(s: &[Field]) -> quote::Tokens {
         quote!( .arg(_structopt::clap::Arg::with_name(stringify!(#name)) #modifier #(#from_attr)*) )
     });
 
+    quote! {{
+        use std::error::Error;
+        let #app_var = #app_var #( #args )* ;
+        #app_var
+    }}
+}
+
+fn gen_constructor(fields: &[Field]) -> quote::Tokens {
+    let fields = fields.iter().map(|field| {
+        let field_name = field.ident.as_ref().unwrap();
+        let name = gen_name(field);
+        let convert = match ty(&field.ty) {
+            Ty::Bool => quote!(is_present(stringify!(#name))),
+            Ty::U64 => quote!(occurrences_of(stringify!(#name))),
+            Ty::Option => quote! {
+                value_of(stringify!(#name))
+                    .as_ref()
+                    .map(|s| s.parse().unwrap())
+            },
+            Ty::Vec => quote! {
+                values_of(stringify!(#name))
+                    .map(|v| v.map(|s| s.parse().unwrap()).collect())
+                    .unwrap_or_else(Vec::new)
+            },
+            Ty::Other => quote! {
+                value_of(stringify!(#name))
+                    .as_ref()
+                    .unwrap()
+                    .parse()
+                    .unwrap()
+            },
+        };
+        quote!( #field_name: matches.#convert )
+    });
+
+    quote! {{
+        #( #fields ),*
+    }}
+}
+
+fn gen_name(field: &Field) -> Ident {
+    extract_attrs(&field.attrs, AttrSource::Field)
+        .filter(|&(ref i, _)| i.as_ref() == "name")
+        .last()
+        .and_then(|(_, ref l)| match l {
+            &Lit::Str(ref s, _) => Some(Ident::new(s.clone())),
+            _ => None,
+        })
+        .unwrap_or(field.ident.as_ref().unwrap().clone())
+}
+
+fn gen_from_clap(struct_name: &Ident, fields: &[Field]) -> quote::Tokens {
+    let field_block = gen_constructor(fields);
+
     quote! {
-        fn augment_clap<'a, 'b>(app: _structopt::clap::App<'a, 'b>) -> _structopt::clap::App<'a, 'b> {
-            use std::error::Error;
-            app #( #args )*
+        fn from_clap(matches: _structopt::clap::ArgMatches) -> Self {
+            #struct_name #field_block
+        }
+    }
+}
+
+fn gen_clap(struct_attrs: &[Attribute]) -> quote::Tokens {
+    let struct_attrs: Vec<_> = extract_attrs(struct_attrs, AttrSource::Struct).collect();
+    let name = from_attr_or_env(&struct_attrs, "name", "CARGO_PKG_NAME");
+    let version = from_attr_or_env(&struct_attrs, "version", "CARGO_PKG_VERSION");
+    let author = from_attr_or_env(&struct_attrs, "author", "CARGO_PKG_AUTHORS");
+    let about = from_attr_or_env(&struct_attrs, "about", "CARGO_PKG_DESCRIPTION");
+
+    quote! {
+        fn clap<'a, 'b>() -> _structopt::clap::App<'a, 'b> {
+            let app = _structopt::clap::App::new(#name)
+                .version(#version)
+                .author(#author)
+                .about(#about);
+            Self::augment_clap(app)
+        }
+    }
+}
+
+fn gen_augment_clap(fields: &[Field]) -> quote::Tokens {
+    let app_var = Ident::new("app");
+    let augmentation = gen_augmentation(fields, &app_var);
+    quote! {
+        fn augment_clap<'a, 'b>(#app_var: _structopt::clap::App<'a, 'b>) -> _structopt::clap::App<'a, 'b> {
+            #augmentation
         }
     }
 }
@@ -299,7 +317,7 @@ fn impl_structopt_for_struct(name: &Ident, fields: &[Field], attrs: &[Attribute]
     }
 }
 
-fn impl_structopt_for_enum(_variants: &[Variant]) -> quote::Tokens {
+fn impl_structopt_for_enum(name: &Ident, _variants: &[Variant]) -> quote::Tokens {
     quote! {
         impl _structopt::StructOpt for #name {
         }
@@ -317,7 +335,7 @@ fn impl_structopt(ast: &DeriveInput) -> quote::Tokens {
         Body::Struct(VariantData::Struct(ref fields)) =>
             impl_structopt_for_struct(struct_name, fields, &ast.attrs),
         Body::Enum(ref variants) =>
-            impl_structopt_for_enum(variants),
+            impl_structopt_for_enum(struct_name, variants),
         _ => panic!("structopt only supports non-tuple structs and enums")
     };
 
