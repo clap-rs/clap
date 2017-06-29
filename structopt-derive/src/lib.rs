@@ -228,13 +228,25 @@ fn gen_from_clap(struct_name: &Ident, s: &[Field]) -> quote::Tokens {
     }
 }
 
-fn gen_clap(ast: &DeriveInput, s: &[Field]) -> quote::Tokens {
+fn gen_clap(ast: &DeriveInput) -> quote::Tokens {
     let struct_attrs: Vec<_> = extract_attrs(&ast.attrs, AttrSource::Struct).collect();
     let name = from_attr_or_env(&struct_attrs, "name", "CARGO_PKG_NAME");
     let version = from_attr_or_env(&struct_attrs, "version", "CARGO_PKG_VERSION");
     let author = from_attr_or_env(&struct_attrs, "author", "CARGO_PKG_AUTHORS");
     let about = from_attr_or_env(&struct_attrs, "about", "CARGO_PKG_DESCRIPTION");
 
+    quote! {
+        fn clap<'a, 'b>() -> _structopt::clap::App<'a, 'b> {
+            let app = _structopt::clap::App::new(#name)
+                .version(#version)
+                .author(#author)
+                .about(#about);
+            Self::augment_clap(app)
+        }
+    }
+}
+
+fn gen_augment_clap(s: &[Field]) -> quote::Tokens {
     let args = s.iter().map(|field| {
         let name = gen_name(field);
         let cur_type = ty(&field.ty);
@@ -264,14 +276,11 @@ fn gen_clap(ast: &DeriveInput, s: &[Field]) -> quote::Tokens {
             .map(|(i, l)| quote!(.#i(#l)));
         quote!( .arg(_structopt::clap::Arg::with_name(stringify!(#name)) #modifier #(#from_attr)*) )
     });
+
     quote! {
-        fn clap<'a, 'b>() -> _structopt::clap::App<'a, 'b> {
+        fn augment_clap<'a, 'b>(app: _structopt::clap::App<'a, 'b>) -> _structopt::clap::App<'a, 'b> {
             use std::error::Error;
-            _structopt::clap::App::new(#name)
-                .version(#version)
-                .author(#author)
-                .about(#about)
-                #( #args )*
+            app #( #args )*
         }
     }
 }
@@ -283,7 +292,8 @@ fn impl_structopt(ast: &syn::DeriveInput) -> quote::Tokens {
         _ => panic!("Only struct is supported"),
     };
 
-    let clap = gen_clap(ast, s);
+    let clap = gen_clap(ast);
+    let augment_clap = gen_augment_clap(s);
     let from_clap = gen_from_clap(struct_name, s);
     let dummy_const = Ident::new(format!("_IMPL_STRUCTOPT_FOR_{}", struct_name));
     quote! {
@@ -292,6 +302,7 @@ fn impl_structopt(ast: &syn::DeriveInput) -> quote::Tokens {
             extern crate structopt as _structopt;
             impl _structopt::StructOpt for #struct_name {
                 #clap
+                #augment_clap
                 #from_clap
             }
         };
