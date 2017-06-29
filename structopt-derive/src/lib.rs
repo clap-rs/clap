@@ -181,6 +181,20 @@ fn from_attr_or_env(attrs: &[(Ident, Lit)], key: &str, env: &str) -> Lit {
         .unwrap_or_else(|| Lit::Str(default, StrStyle::Cooked))
 }
 
+fn is_subcommand(field: &Field) -> bool {
+    field.attrs.iter()
+        .map(|attr| &attr.value)
+        .any(|meta| if let MetaItem::List(ref i, ref l) = *meta {
+            if i != "structopt" { return false; }
+            match l.first() {
+                Some(&NestedMetaItem::MetaItem(MetaItem::Word(ref inner))) => inner == "subcommand",
+                _ => false
+            }
+        } else {
+          false
+        })
+}
+
 /// Generate a block of code to add arguments/subcommands corresponding to
 /// the `fields` to an app.
 fn gen_augmentation(fields: &[Field], app_var: &Ident) -> quote::Tokens {
@@ -303,6 +317,97 @@ fn gen_augment_clap(fields: &[Field]) -> quote::Tokens {
     }
 }
 
+fn gen_clap_enum(enum_attrs: &[Attribute]) -> quote::Tokens {
+    let enum_attrs: Vec<_> = extract_attrs(enum_attrs, AttrSource::Struct).collect();
+    let name = from_attr_or_env(&enum_attrs, "name", "CARGO_PKG_NAME");
+    let version = from_attr_or_env(&enum_attrs, "version", "CARGO_PKG_VERSION");
+    let author = from_attr_or_env(&enum_attrs, "author", "CARGO_PKG_AUTHORS");
+    let about = from_attr_or_env(&enum_attrs, "about", "CARGO_PKG_DESCRIPTION");
+
+    quote! {
+        fn clap<'a, 'b>() -> _structopt::clap::App<'a, 'b> {
+            let app = _structopt::clap::App::new(#name)
+                .version(#version)
+                .author(#author)
+                .about(#about)
+                .setting(_structopt::clap::AppSettings::SubcommandRequired);
+            Self::augment_clap(app)
+        }
+    }
+}
+
+fn gen_augment_clap_enum(variants: &[Variant]) -> quote::Tokens {
+    let subcommands = variants.iter().map(|variant| {
+        let name = extract_attrs(&variant.attrs, AttrSource::Struct)
+            .filter_map(|attr| match attr {
+                (ref i, Lit::Str(ref s, ..)) if i == "name" => 
+                    Some(Ident::new(s as &str)),
+                _ => None
+            })
+            .next()
+            .unwrap_or_else(|| variant.ident.clone());
+        let app_var = Ident::new("subcommand");
+        let arg_block = match variant.data {
+            VariantData::Struct(ref fields) => gen_augmentation(fields, &app_var),
+            _ => unreachable!()
+        };
+
+        quote! {
+            .subcommand({
+                let #app_var = _structopt::clap::SubCommand::with_name( stringify!(#name) );
+                #arg_block
+            })
+        }
+    });
+   
+    quote! {
+        fn augment_clap<'a, 'b>(app: _structopt::clap::App<'a, 'b>) -> _structopt::clap::App<'a, 'b> {
+            app #( #subcommands )*
+        }
+    }
+}
+
+fn gen_from_clap_enum(name: &Ident) -> quote::Tokens {
+    quote! {
+        fn from_clap(matches: _structopt::clap::ArgMatches) -> Self {
+            #name ::from_subcommand(matches.subcommand())
+                .unwrap()
+        }
+    }
+}
+
+fn gen_from_subcommand(name: &Ident, variants: &[Variant]) -> quote::Tokens {
+    let match_arms = variants.iter().map(|variant| {
+        let sub_name = extract_attrs(&variant.attrs, AttrSource::Struct)
+            .filter_map(|attr| match attr {
+                (ref i, Lit::Str(ref s, ..)) if i == "name" => 
+                    Some(Ident::new(s as &str)),
+                _ => None
+            })
+            .next()
+            .unwrap_or_else(|| variant.ident.clone());
+        let variant_name = &variant.ident;
+        let constructor_block = match variant.data {
+            VariantData::Struct(ref fields) => gen_constructor(fields),
+            _ => unreachable!()
+        };
+        
+        quote! {
+            (stringify!(#sub_name), Some(matches)) =>
+                Some(#name :: #variant_name #constructor_block)
+        }
+    });
+
+    quote! {
+        fn from_subcommand<'a, 'b>(sub: (&'b str, Option<&'b _structopt::clap::ArgMatches<'a, 'b>>)) -> Option<Self> {
+            match sub {
+                #( #match_arms ),*,
+                _ => None
+            }
+        }
+    }
+}
+
 fn impl_structopt_for_struct(name: &Ident, fields: &[Field], attrs: &[Attribute]) -> quote::Tokens {
     let clap = gen_clap(attrs);
     let augment_clap = gen_augment_clap(fields);
@@ -317,14 +422,28 @@ fn impl_structopt_for_struct(name: &Ident, fields: &[Field], attrs: &[Attribute]
     }
 }
 
-fn impl_structopt_for_enum(name: &Ident, _variants: &[Variant]) -> quote::Tokens {
+fn impl_structopt_for_enum(name: &Ident, variants: &[Variant], attrs: &[Attribute]) -> quote::Tokens {
+    if variants.iter().any(|variant| {
+            if let VariantData::Struct(..) = variant.data { false } else { true }
+        })
+    {
+        panic!("enum variants must use curly braces");
+    }
+
+    let clap = gen_clap_enum(attrs);
+    let augment_clap = gen_augment_clap_enum(variants);
+    let from_clap = gen_from_clap_enum(name);
+    let from_subcommand = gen_from_subcommand(name, variants);
+
     quote! {
         impl _structopt::StructOpt for #name {
+            #clap
+            #augment_clap
+            #from_clap
         }
 
         impl #name {
-            fn from_subcommand<'a, 'b>(sub: (&'b str, Option<&'b _structopt::clap::ArgMatches<'a, 'b>>)) -> Option<Self> {
-            }
+            #from_subcommand
         }
     }
 }
@@ -335,7 +454,7 @@ fn impl_structopt(ast: &DeriveInput) -> quote::Tokens {
         Body::Struct(VariantData::Struct(ref fields)) =>
             impl_structopt_for_struct(struct_name, fields, &ast.attrs),
         Body::Enum(ref variants) =>
-            impl_structopt_for_enum(struct_name, variants),
+            impl_structopt_for_enum(struct_name, variants, &ast.attrs),
         _ => panic!("structopt only supports non-tuple structs and enums")
     };
 
