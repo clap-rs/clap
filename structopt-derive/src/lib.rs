@@ -228,8 +228,8 @@ fn gen_from_clap(struct_name: &Ident, s: &[Field]) -> quote::Tokens {
     }
 }
 
-fn gen_clap(ast: &DeriveInput) -> quote::Tokens {
-    let struct_attrs: Vec<_> = extract_attrs(&ast.attrs, AttrSource::Struct).collect();
+fn gen_clap(struct_attrs: &[Attribute]) -> quote::Tokens {
+    let struct_attrs: Vec<_> = extract_attrs(struct_attrs, AttrSource::Struct).collect();
     let name = from_attr_or_env(&struct_attrs, "name", "CARGO_PKG_NAME");
     let version = from_attr_or_env(&struct_attrs, "version", "CARGO_PKG_VERSION");
     let author = from_attr_or_env(&struct_attrs, "author", "CARGO_PKG_AUTHORS");
@@ -285,26 +285,41 @@ fn gen_augment_clap(s: &[Field]) -> quote::Tokens {
     }
 }
 
-fn impl_structopt(ast: &syn::DeriveInput) -> quote::Tokens {
+fn impl_structopt_for_struct(name: &Ident, fields: &[Field], attrs: &[Attribute]) -> quote::Tokens {
+    let clap = gen_clap(attrs);
+    let augment_clap = gen_augment_clap(fields);
+    let from_clap = gen_from_clap(name, fields);
+
+    quote! {
+        impl _structopt::StructOpt for #name {
+            #clap
+            #augment_clap
+            #from_clap
+        }
+    }
+}
+
+fn impl_structopt_for_enum(_variants: &[Variant]) -> quote::Tokens {
+    quote!()
+}
+
+fn impl_structopt(ast: &DeriveInput) -> quote::Tokens {
     let struct_name = &ast.ident;
-    let s = match ast.body {
-        Body::Struct(VariantData::Struct(ref s)) => s,
-        _ => panic!("Only struct is supported"),
+    let inner_impl = match ast.body {
+        Body::Struct(VariantData::Struct(ref fields)) =>
+            impl_structopt_for_struct(struct_name, fields, &ast.attrs),
+        Body::Enum(ref variants) =>
+            impl_structopt_for_enum(variants),
+        _ => panic!("structopt only supports non-tuple structs and enums")
     };
 
-    let clap = gen_clap(ast);
-    let augment_clap = gen_augment_clap(s);
-    let from_clap = gen_from_clap(struct_name, s);
     let dummy_const = Ident::new(format!("_IMPL_STRUCTOPT_FOR_{}", struct_name));
     quote! {
         #[allow(non_upper_case_globals, unused_attributes, unused_imports)]
         const #dummy_const: () = {
             extern crate structopt as _structopt;
-            impl _structopt::StructOpt for #struct_name {
-                #clap
-                #augment_clap
-                #from_clap
-            }
+            use structopt::StructOpt;
+            #inner_impl
         };
     }
 }
