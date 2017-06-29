@@ -399,7 +399,7 @@ fn gen_from_subcommand(name: &Ident, variants: &[Variant]) -> quote::Tokens {
     });
 
     quote! {
-        fn from_subcommand<'a, 'b>(sub: (&'b str, Option<&'b _structopt::clap::ArgMatches<'a, 'b>>)) -> Option<Self> {
+        fn from_subcommand<'a, 'b>(sub: (&'b str, Option<&'b _structopt::clap::ArgMatches<'a>>)) -> Option<Self> {
             match sub {
                 #( #match_arms ),*,
                 _ => None
