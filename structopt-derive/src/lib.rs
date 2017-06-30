@@ -92,6 +92,7 @@ pub fn structopt(input: TokenStream) -> TokenStream {
     gen.parse().unwrap()
 }
 
+#[derive(Copy, Clone)]
 enum Ty {
     Bool,
     U64,
@@ -198,39 +199,56 @@ fn is_subcommand(field: &Field) -> bool {
 /// Generate a block of code to add arguments/subcommands corresponding to
 /// the `fields` to an app.
 fn gen_augmentation(fields: &[Field], app_var: &Ident) -> quote::Tokens {
-    let args = fields.iter().map(|field| {
-        let name = gen_name(field);
-        let cur_type = ty(&field.ty);
-        let convert_type = match cur_type {
-            Ty::Vec | Ty::Option => sub_type(&field.ty).unwrap_or(&field.ty),
-            _ => &field.ty,
-        };
-        let validator = quote! {
-            validator(|s| s.parse::<#convert_type>()
-                      .map(|_| ())
-                      .map_err(|e| e.description().into()))
-        };
-        let modifier = match cur_type {
-            Ty::Bool => quote!( .takes_value(false).multiple(false) ),
-            Ty::U64 => quote!( .takes_value(false).multiple(true) ),
-            Ty::Option => quote!( .takes_value(true).multiple(false).#validator ),
-            Ty::Vec => quote!( .takes_value(true).multiple(true).#validator ),
-            Ty::Other => {
-                let required = extract_attrs(&field.attrs, AttrSource::Field)
-                    .find(|&(ref i, _)| i.as_ref() == "default_value")
-                    .is_none();
-                quote!( .takes_value(true).multiple(false).required(#required).#validator )
-            },
-        };
-        let from_attr = extract_attrs(&field.attrs, AttrSource::Field)
-            .filter(|&(ref i, _)| i.as_ref() != "name")
-            .map(|(i, l)| quote!(.#i(#l)));
-        quote!( .arg(_structopt::clap::Arg::with_name(stringify!(#name)) #modifier #(#from_attr)*) )
-    });
+    let subcmds: Vec<quote::Tokens> = fields.iter()
+        .filter(|&field| is_subcommand(field))
+        .map(|field| {
+            let cur_type = ty(&field.ty);
+            let subcmd_type = match (cur_type, sub_type(&field.ty)) {
+                (Ty::Option, Some(sub_type)) => sub_type,
+                _ => &field.ty
+            };
+
+            quote!( let #app_var = #subcmd_type ::augment_clap( #app_var ); )
+        })
+        .collect();
+    let args = fields.iter()
+        .filter(|&field| !is_subcommand(field))
+        .map(|field| {
+            let name = gen_name(field);
+            let cur_type = ty(&field.ty);
+            let convert_type = match cur_type {
+                Ty::Vec | Ty::Option => sub_type(&field.ty).unwrap_or(&field.ty),
+                _ => &field.ty,
+            };
+            let validator = quote! {
+                validator(|s| s.parse::<#convert_type>()
+                          .map(|_| ())
+                          .map_err(|e| e.description().into()))
+            };
+            let modifier = match cur_type {
+                Ty::Bool => quote!( .takes_value(false).multiple(false) ),
+                Ty::U64 => quote!( .takes_value(false).multiple(true) ),
+                Ty::Option => quote!( .takes_value(true).multiple(false).#validator ),
+                Ty::Vec => quote!( .takes_value(true).multiple(true).#validator ),
+                Ty::Other => {
+                    let required = extract_attrs(&field.attrs, AttrSource::Field)
+                        .find(|&(ref i, _)| i.as_ref() == "default_value")
+                        .is_none();
+                    quote!( .takes_value(true).multiple(false).required(#required).#validator )
+                },
+            };
+            let from_attr = extract_attrs(&field.attrs, AttrSource::Field)
+                .filter(|&(ref i, _)| i.as_ref() != "name")
+                .map(|(i, l)| quote!(.#i(#l)));
+            quote!( .arg(_structopt::clap::Arg::with_name(stringify!(#name)) #modifier #(#from_attr)*) )
+        });
+
+    assert!(subcmds.len() <= 1, "cannot have more than one nested subcommand");
 
     quote! {{
         use std::error::Error;
         let #app_var = #app_var #( #args )* ;
+        #( #subcmds )*
         #app_var
     }}
 }
@@ -239,28 +257,41 @@ fn gen_constructor(fields: &[Field]) -> quote::Tokens {
     let fields = fields.iter().map(|field| {
         let field_name = field.ident.as_ref().unwrap();
         let name = gen_name(field);
-        let convert = match ty(&field.ty) {
-            Ty::Bool => quote!(is_present(stringify!(#name))),
-            Ty::U64 => quote!(occurrences_of(stringify!(#name))),
-            Ty::Option => quote! {
-                value_of(stringify!(#name))
-                    .as_ref()
-                    .map(|s| s.parse().unwrap())
-            },
-            Ty::Vec => quote! {
-                values_of(stringify!(#name))
-                    .map(|v| v.map(|s| s.parse().unwrap()).collect())
-                    .unwrap_or_else(Vec::new)
-            },
-            Ty::Other => quote! {
-                value_of(stringify!(#name))
-                    .as_ref()
-                    .unwrap()
-                    .parse()
-                    .unwrap()
-            },
-        };
-        quote!( #field_name: matches.#convert )
+        if is_subcommand(field) {
+            let cur_type = ty(&field.ty);
+            let subcmd_type = match (cur_type, sub_type(&field.ty)) {
+                (Ty::Option, Some(sub_type)) => sub_type,
+                _ => &field.ty
+            };
+            let unwrapper = match cur_type {
+                Ty::Option => quote!(),
+                _ => quote!( .unwrap() )
+            };
+            quote!( #field_name: #subcmd_type ::from_subcommand(matches.subcommand()) #unwrapper )
+        } else {
+            let convert = match ty(&field.ty) {
+                Ty::Bool => quote!(is_present(stringify!(#name))),
+                Ty::U64 => quote!(occurrences_of(stringify!(#name))),
+                Ty::Option => quote! {
+                    value_of(stringify!(#name))
+                        .as_ref()
+                        .map(|s| s.parse().unwrap())
+                },
+                Ty::Vec => quote! {
+                    values_of(stringify!(#name))
+                        .map(|v| v.map(|s| s.parse().unwrap()).collect())
+                        .unwrap_or_else(Vec::new)
+                },
+                Ty::Other => quote! {
+                    value_of(stringify!(#name))
+                        .as_ref()
+                        .unwrap()
+                        .parse()
+                        .unwrap()
+                },
+            };
+            quote!( #field_name: matches.#convert )
+        }
     });
 
     quote! {{
@@ -289,19 +320,26 @@ fn gen_from_clap(struct_name: &Ident, fields: &[Field]) -> quote::Tokens {
     }
 }
 
-fn gen_clap(struct_attrs: &[Attribute]) -> quote::Tokens {
+fn gen_clap(struct_attrs: &[Attribute], subcmd_required: bool) -> quote::Tokens {
     let struct_attrs: Vec<_> = extract_attrs(struct_attrs, AttrSource::Struct).collect();
     let name = from_attr_or_env(&struct_attrs, "name", "CARGO_PKG_NAME");
     let version = from_attr_or_env(&struct_attrs, "version", "CARGO_PKG_VERSION");
     let author = from_attr_or_env(&struct_attrs, "author", "CARGO_PKG_AUTHORS");
     let about = from_attr_or_env(&struct_attrs, "about", "CARGO_PKG_DESCRIPTION");
+    let setting = if subcmd_required {
+        quote!( .setting(_structopt::clap::AppSettings::SubcommandRequired) )
+    } else {
+        quote!()
+    };
 
     quote! {
         fn clap<'a, 'b>() -> _structopt::clap::App<'a, 'b> {
             let app = _structopt::clap::App::new(#name)
                 .version(#version)
                 .author(#author)
-                .about(#about);
+                .about(#about)
+                #setting
+                ;
             Self::augment_clap(app)
         }
     }
@@ -409,7 +447,8 @@ fn gen_from_subcommand(name: &Ident, variants: &[Variant]) -> quote::Tokens {
 }
 
 fn impl_structopt_for_struct(name: &Ident, fields: &[Field], attrs: &[Attribute]) -> quote::Tokens {
-    let clap = gen_clap(attrs);
+    let subcmd_required = fields.iter().any(is_subcommand);
+    let clap = gen_clap(attrs, subcmd_required);
     let augment_clap = gen_augment_clap(fields);
     let from_clap = gen_from_clap(name, fields);
 
