@@ -36,13 +36,11 @@ OPTIONS:
 #[test]
 fn single_alias_of_option() {
     let a = App::new("single_alias")
-        .arg(
-            Arg::with_name("alias")
-                .long("alias")
-                .takes_value(true)
-                .help("single alias")
-                .alias("new-opt"),
-        )
+        .arg(Arg::with_name("alias")
+                 .long("alias")
+                 .takes_value(true)
+                 .help("single alias")
+                 .alias("new-opt"))
         .get_matches_from_safe(vec!["", "--new-opt", "cool"]);
     assert!(a.is_ok());
     let a = a.unwrap();
@@ -52,13 +50,12 @@ fn single_alias_of_option() {
 
 #[test]
 fn multiple_aliases_of_option() {
-    let a = App::new("multiple_aliases").arg(
-        Arg::with_name("aliases")
-            .long("aliases")
-            .takes_value(true)
-            .help("multiple aliases")
-            .aliases(&vec!["alias1", "alias2", "alias3"]),
-    );
+    let a =
+        App::new("multiple_aliases").arg(Arg::with_name("aliases")
+                                             .long("aliases")
+                                             .takes_value(true)
+                                             .help("multiple aliases")
+                                             .aliases(&vec!["alias1", "alias2", "alias3"]));
     let long = a.clone()
         .get_matches_from_safe(vec!["", "--aliases", "value"]);
     assert!(long.is_ok());
@@ -101,15 +98,10 @@ fn single_alias_of_flag() {
 
 #[test]
 fn multiple_aliases_of_flag() {
-    let a = App::new("test").arg(Arg::with_name("flag").long("flag").aliases(
-        &[
-            "invisible",
-            "set",
-            "of",
-            "cool",
-            "aliases",
-        ],
-    ));
+    let a =
+        App::new("test").arg(Arg::with_name("flag")
+                                 .long("flag")
+                                 .aliases(&["invisible", "set", "of", "cool", "aliases"]));
 
     let flag = a.clone().get_matches_from_safe(vec!["", "--flag"]);
     assert!(flag.is_ok());
@@ -136,21 +128,15 @@ fn multiple_aliases_of_flag() {
 #[test]
 fn alias_on_a_subcommand_option() {
     let m = App::new("test")
-        .subcommand(
-            SubCommand::with_name("some").arg(
-                Arg::with_name("test")
-                    .short("t")
-                    .long("test")
-                    .takes_value(true)
-                    .alias("opt")
-                    .help("testing testing"),
-            ),
-        )
-        .arg(
-            Arg::with_name("other")
-                .long("other")
-                .aliases(&vec!["o1", "o2", "o3"]),
-        )
+        .subcommand(SubCommand::with_name("some").arg(Arg::with_name("test")
+                                                          .short("t")
+                                                          .long("test")
+                                                          .takes_value(true)
+                                                          .alias("opt")
+                                                          .help("testing testing")))
+        .arg(Arg::with_name("other")
+                 .long("other")
+                 .aliases(&vec!["o1", "o2", "o3"]))
         .get_matches_from(vec!["test", "some", "--opt", "awesome"]);
 
     assert!(m.subcommand_matches("some").is_some());
@@ -161,58 +147,38 @@ fn alias_on_a_subcommand_option() {
 
 #[test]
 fn invisible_arg_aliases_help_output() {
-    let app = App::new("ct").author("Salim Afiune").subcommand(
-        SubCommand::with_name("test")
-            .about("Some help")
-            .version("1.2")
-            .arg(
-                Arg::with_name("opt")
-                    .long("opt")
-                    .short("o")
-                    .takes_value(true)
-                    .aliases(&["invisible", "als1", "more"]),
-            )
-            .arg(Arg::from_usage("-f, --flag").aliases(
-                &[
-                    "invisible",
-                    "flg1",
-                    "anyway",
-                ],
-            )),
-    );
-    assert!(test::compare_output(
-        app,
-        "ct test --help",
-        SC_INVISIBLE_ALIAS_HELP,
-        false,
-    ));
+    let app = App::new("ct")
+        .author("Salim Afiune")
+        .subcommand(SubCommand::with_name("test")
+                        .about("Some help")
+                        .version("1.2")
+                        .arg(Arg::with_name("opt")
+                                 .long("opt")
+                                 .short("o")
+                                 .takes_value(true)
+                                 .aliases(&["invisible", "als1", "more"]))
+                        .arg(Arg::from_usage("-f, --flag").aliases(&["invisible",
+                                                                     "flg1",
+                                                                     "anyway"])));
+    assert!(test::compare_output(app, "ct test --help", SC_INVISIBLE_ALIAS_HELP, false));
 }
 
 #[test]
 fn visible_arg_aliases_help_output() {
-    let app = App::new("ct").author("Salim Afiune").subcommand(
-        SubCommand::with_name("test")
-            .about("Some help")
-            .version("1.2")
-            .arg(
-                Arg::with_name("opt")
-                    .long("opt")
-                    .short("o")
-                    .takes_value(true)
-                    .alias("invisible")
-                    .visible_alias("visible"),
-            )
-            .arg(
-                Arg::with_name("flg")
-                    .long("flag")
-                    .short("f")
-                    .visible_aliases(&["v_flg", "flag2", "flg3"]),
-            ),
-    );
-    assert!(test::compare_output(
-        app,
-        "ct test --help",
-        SC_VISIBLE_ALIAS_HELP,
-        false,
-    ));
+    let app = App::new("ct")
+        .author("Salim Afiune")
+        .subcommand(SubCommand::with_name("test")
+                        .about("Some help")
+                        .version("1.2")
+                        .arg(Arg::with_name("opt")
+                                 .long("opt")
+                                 .short("o")
+                                 .takes_value(true)
+                                 .alias("invisible")
+                                 .visible_alias("visible"))
+                        .arg(Arg::with_name("flg")
+                                 .long("flag")
+                                 .short("f")
+                                 .visible_aliases(&["v_flg", "flag2", "flg3"])));
+    assert!(test::compare_output(app, "ct test --help", SC_VISIBLE_ALIAS_HELP, false));
 }

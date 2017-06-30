@@ -101,12 +101,11 @@ pub fn check_complex_output(args: &str, out: &str) {
 
     if matches.is_present("option") {
         if let Some(v) = matches.value_of("option") {
-            writeln!(
-                w,
-                "option present {} times with value: {}",
-                matches.occurrences_of("option"),
-                v
-            ).unwrap();
+            writeln!(w,
+                     "option present {} times with value: {}",
+                     matches.occurrences_of("option"),
+                     v)
+                    .unwrap();
         }
         if let Some(ov) = matches.values_of("option") {
             for o in ov {
@@ -125,28 +124,24 @@ pub fn check_complex_output(args: &str, out: &str) {
 
     if matches.is_present("flag2") {
         writeln!(w, "flag2 present").unwrap();
-        writeln!(
-            w,
-            "option2 present with value of: {}",
-            matches.value_of("long-option-2").unwrap()
-        ).unwrap();
-        writeln!(
-            w,
-            "positional2 present with value of: {}",
-            matches.value_of("positional2").unwrap()
-        ).unwrap();
+        writeln!(w,
+                 "option2 present with value of: {}",
+                 matches.value_of("long-option-2").unwrap())
+                .unwrap();
+        writeln!(w,
+                 "positional2 present with value of: {}",
+                 matches.value_of("positional2").unwrap())
+                .unwrap();
     } else {
         writeln!(w, "flag2 NOT present").unwrap();
-        writeln!(
-            w,
-            "option2 maybe present with value of: {}",
-            matches.value_of("long-option-2").unwrap_or("Nothing")
-        ).unwrap();
-        writeln!(
-            w,
-            "positional2 maybe present with value of: {}",
-            matches.value_of("positional2").unwrap_or("Nothing")
-        ).unwrap();
+        writeln!(w,
+                 "option2 maybe present with value of: {}",
+                 matches.value_of("long-option-2").unwrap_or("Nothing"))
+                .unwrap();
+        writeln!(w,
+                 "positional2 maybe present with value of: {}",
+                 matches.value_of("positional2").unwrap_or("Nothing"))
+                .unwrap();
     }
 
     let _ = match matches.value_of("Option3").unwrap_or("") {
@@ -163,12 +158,11 @@ pub fn check_complex_output(args: &str, out: &str) {
 
     if matches.is_present("option") {
         if let Some(v) = matches.value_of("option") {
-            writeln!(
-                w,
-                "option present {} times with value: {}",
-                matches.occurrences_of("option"),
-                v
-            ).unwrap();
+            writeln!(w,
+                     "option present {} times with value: {}",
+                     matches.occurrences_of("option"),
+                     v)
+                    .unwrap();
         }
         if let Some(ov) = matches.values_of("option") {
             for o in ov {
@@ -304,19 +298,14 @@ fn create_app() {
 #[test]
 fn add_multiple_arg() {
     let _ = App::new("test")
-        .args(
-            &mut [
-                Arg::with_name("test").short("s"),
-                Arg::with_name("test2").short("l"),
-            ],
-        )
+        .args(&mut [Arg::with_name("test").short("s"),
+                    Arg::with_name("test2").short("l")])
         .get_matches_from(vec![""]);
 }
 #[test]
 fn flag_x2_opt() {
-    check_complex_output(
-        "clap-test value -f -f -o some",
-        "flag present 2 times
+    check_complex_output("clap-test value -f -f -o some",
+                         "flag present 2 times
 option present 1 times with value: some
 An option: some
 positional present with value: value
@@ -329,8 +318,7 @@ option present 1 times with value: some
 An option: some
 positional present with value: value
 subcmd NOT present
-",
-    );
+");
 }
 
 #[test]

@@ -140,14 +140,12 @@ fn main() {
         }
         ("add", Some(add_matches)) => {
             // Now we have a reference to add's matches
-            println!(
-                "Adding {}",
-                add_matches
-                    .values_of("stuff")
-                    .unwrap()
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            );
+            println!("Adding {}",
+                     add_matches
+                         .values_of("stuff")
+                         .unwrap()
+                         .collect::<Vec<_>>()
+                         .join(", "));
         }
         ("", None) => println!("No subcommand was used"), // If no subcommand was usd it'll match the tuple ("", None)
         _ => unreachable!(), // If all subcommands are defined above, anything else is unreachabe!()

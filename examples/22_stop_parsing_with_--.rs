@@ -14,12 +14,10 @@ fn main() {
 
     println!("-f used: {:?}", matches.is_present("eff"));
     println!("-p's value: {:?}", matches.value_of("pea"));
-    println!(
-        "'slops' values: {:?}",
-        matches
-            .values_of("slop")
-            .map(|vals| vals.collect::<Vec<_>>())
-    );
+    println!("'slops' values: {:?}",
+             matches
+                 .values_of("slop")
+                 .map(|vals| vals.collect::<Vec<_>>()));
 
     // Continued program logic goes here...
 }

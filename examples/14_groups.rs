@@ -61,11 +61,8 @@ fn main() {
         format!("{}", ver)
     } else {
         // Increment the one requested (in a real program, we'd reset the lower numbers)
-        let (maj, min, pat) = (
-            matches.is_present("major"),
-            matches.is_present("minor"),
-            matches.is_present("patch"),
-        );
+        let (maj, min, pat) =
+            (matches.is_present("major"), matches.is_present("minor"), matches.is_present("patch"));
         match (maj, min, pat) {
             (true, _, _) => major += 1,
             (_, true, _) => minor += 1,
@@ -79,16 +76,12 @@ fn main() {
 
     // Check for usage of -c
     if matches.is_present("config") {
-        let input = matches.value_of("INPUT_FILE").unwrap_or(
-            matches
-                .value_of("SPEC_IN")
-                .unwrap(),
-        );
-        println!(
-            "Doing work using input {} and config {}",
-            input,
-            matches.value_of("config").unwrap()
-        );
+        let input = matches
+            .value_of("INPUT_FILE")
+            .unwrap_or(matches.value_of("SPEC_IN").unwrap());
+        println!("Doing work using input {} and config {}",
+                 input,
+                 matches.value_of("config").unwrap());
     }
 
 

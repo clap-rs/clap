@@ -238,40 +238,26 @@ fn unified_help() {
         .about("tests stuff")
         .version("1.3")
         .setting(AppSettings::UnifiedHelpMessage)
-        .args_from_usage(
-            "-f, --flag 'some flag'
+        .args_from_usage("-f, --flag 'some flag'
                           [arg1] 'some pos arg'
-                          --option [opt] 'some option'",
-        );
+                          --option [opt] 'some option'");
 
-    assert!(test::compare_output(
-        app,
-        "test --help",
-        UNIFIED_HELP,
-        false,
-    ));
+    assert!(test::compare_output(app, "test --help", UNIFIED_HELP, false));
 }
 
 #[test]
 fn skip_possible_values() {
-    let app = App::new("test")
-        .author("Kevin K.")
-        .about("tests stuff")
-        .version("1.3")
-        .setting(AppSettings::HidePossibleValuesInHelp)
-        .args(
-            &[
-                Arg::from_usage("-o, --opt [opt] 'some option'").possible_values(&["one", "two"]),
-                Arg::from_usage("[arg1] 'some pos arg'").possible_values(&["three", "four"]),
-            ],
-        );
+    let app =
+        App::new("test")
+            .author("Kevin K.")
+            .about("tests stuff")
+            .version("1.3")
+            .setting(AppSettings::HidePossibleValuesInHelp)
+            .args(&[Arg::from_usage("-o, --opt [opt] 'some option'").possible_values(&["one",
+                                                                                       "two"]),
+                    Arg::from_usage("[arg1] 'some pos arg'").possible_values(&["three", "four"])]);
 
-    assert!(test::compare_output(
-        app,
-        "test --help",
-        SKIP_POS_VALS,
-        false,
-    ));
+    assert!(test::compare_output(app, "test --help", SKIP_POS_VALS, false));
 }
 
 #[test]
@@ -280,16 +266,14 @@ fn global_setting() {
         .global_setting(AppSettings::ColoredHelp)
         .subcommand(SubCommand::with_name("subcmd"));
     app.p.propogate_settings();
-    assert!(
-        app.p
-            .subcommands
-            .iter()
-            .filter(|s| s.p.meta.name == "subcmd")
-            .next()
-            .unwrap()
-            .p
-            .is_set(AppSettings::ColoredHelp)
-    );
+    assert!(app.p
+                .subcommands
+                .iter()
+                .filter(|s| s.p.meta.name == "subcmd")
+                .next()
+                .unwrap()
+                .p
+                .is_set(AppSettings::ColoredHelp));
 }
 
 #[test]
@@ -298,26 +282,22 @@ fn global_settings() {
         .global_settings(&[AppSettings::ColoredHelp, AppSettings::TrailingVarArg])
         .subcommand(SubCommand::with_name("subcmd"));
     app.p.propogate_settings();
-    assert!(
-        app.p
-            .subcommands
-            .iter()
-            .filter(|s| s.p.meta.name == "subcmd")
-            .next()
-            .unwrap()
-            .p
-            .is_set(AppSettings::ColoredHelp)
-    );
-    assert!(
-        app.p
-            .subcommands
-            .iter()
-            .filter(|s| s.p.meta.name == "subcmd")
-            .next()
-            .unwrap()
-            .p
-            .is_set(AppSettings::TrailingVarArg)
-    );
+    assert!(app.p
+                .subcommands
+                .iter()
+                .filter(|s| s.p.meta.name == "subcmd")
+                .next()
+                .unwrap()
+                .p
+                .is_set(AppSettings::ColoredHelp));
+    assert!(app.p
+                .subcommands
+                .iter()
+                .filter(|s| s.p.meta.name == "subcmd")
+                .next()
+                .unwrap()
+                .p
+                .is_set(AppSettings::TrailingVarArg));
 
 }
 
@@ -325,21 +305,15 @@ fn global_settings() {
 fn stop_delim_values_only_pos_follows() {
     let r = App::new("onlypos")
         .setting(AppSettings::DontDelimitTrailingValues)
-        .args(
-            &[
-                Arg::from_usage("-f [flag] 'some opt'"),
-                Arg::from_usage("[arg]... 'some arg'"),
-            ],
-        )
+        .args(&[Arg::from_usage("-f [flag] 'some opt'"),
+                Arg::from_usage("[arg]... 'some arg'")])
         .get_matches_from_safe(vec!["", "--", "-f", "-g,x"]);
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert!(!m.is_present("f"));
-    assert_eq!(
-        m.values_of("arg").unwrap().collect::<Vec<_>>(),
-        &["-f", "-g,x"]
-    );
+    assert_eq!(m.values_of("arg").unwrap().collect::<Vec<_>>(),
+               &["-f", "-g,x"]);
 }
 
 #[test]
@@ -350,30 +324,22 @@ fn dont_delim_values_trailingvararg() {
         .arg(Arg::from_usage("[opt]... 'some pos'"))
         .get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"]);
     assert!(m.is_present("opt"));
-    assert_eq!(
-        m.values_of("opt").unwrap().collect::<Vec<_>>(),
-        &["test", "--foo", "-Wl,-bar"]
-    );
+    assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(),
+               &["test", "--foo", "-Wl,-bar"]);
 }
 
 #[test]
 fn delim_values_only_pos_follows() {
     let r = App::new("onlypos")
-        .args(
-            &[
-                Arg::from_usage("-f [flag] 'some opt'"),
-                Arg::from_usage("[arg]... 'some arg'"),
-            ],
-        )
+        .args(&[Arg::from_usage("-f [flag] 'some opt'"),
+                Arg::from_usage("[arg]... 'some arg'")])
         .get_matches_from_safe(vec!["", "--", "-f", "-g,x"]);
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert!(!m.is_present("f"));
-    assert_eq!(
-        m.values_of("arg").unwrap().collect::<Vec<_>>(),
-        &["-f", "-g,x"]
-    );
+    assert_eq!(m.values_of("arg").unwrap().collect::<Vec<_>>(),
+               &["-f", "-g,x"]);
 }
 
 #[test]
@@ -383,30 +349,22 @@ fn delim_values_trailingvararg() {
         .arg(Arg::from_usage("[opt]... 'some pos'"))
         .get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"]);
     assert!(m.is_present("opt"));
-    assert_eq!(
-        m.values_of("opt").unwrap().collect::<Vec<_>>(),
-        &["test", "--foo", "-Wl,-bar"]
-    );
+    assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(),
+               &["test", "--foo", "-Wl,-bar"]);
 }
 
 #[test]
 fn delim_values_only_pos_follows_with_delim() {
     let r = App::new("onlypos")
-        .args(
-            &[
-                Arg::from_usage("-f [flag] 'some opt'"),
-                Arg::from_usage("[arg]... 'some arg'").use_delimiter(true),
-            ],
-        )
+        .args(&[Arg::from_usage("-f [flag] 'some opt'"),
+                Arg::from_usage("[arg]... 'some arg'").use_delimiter(true)])
         .get_matches_from_safe(vec!["", "--", "-f", "-g,x"]);
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert!(!m.is_present("f"));
-    assert_eq!(
-        m.values_of("arg").unwrap().collect::<Vec<_>>(),
-        &["-f", "-g", "x"]
-    );
+    assert_eq!(m.values_of("arg").unwrap().collect::<Vec<_>>(),
+               &["-f", "-g", "x"]);
 }
 
 #[test]
@@ -416,10 +374,8 @@ fn delim_values_trailingvararg_with_delim() {
         .arg(Arg::from_usage("[opt]... 'some pos'").use_delimiter(true))
         .get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"]);
     assert!(m.is_present("opt"));
-    assert_eq!(
-        m.values_of("opt").unwrap().collect::<Vec<_>>(),
-        &["test", "--foo", "-Wl", "-bar"]
-    );
+    assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(),
+               &["test", "--foo", "-Wl", "-bar"]);
 }
 
 #[test]
@@ -496,10 +452,8 @@ fn leading_double_hyphen_trailingvararg() {
         .arg(Arg::from_usage("[opt]... 'some pos'"))
         .get_matches_from(vec!["", "--foo", "-Wl", "bar"]);
     assert!(m.is_present("opt"));
-    assert_eq!(
-        m.values_of("opt").unwrap().collect::<Vec<_>>(),
-        &["--foo", "-Wl", "bar"]
-    );
+    assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(),
+               &["--foo", "-Wl", "bar"]);
 }
 
 #[test]
@@ -538,38 +492,24 @@ fn dont_collapse_args() {
     let app = App::new("clap-test")
         .version("v1.4.8")
         .setting(AppSettings::DontCollapseArgsInUsage)
-        .args(
-            &[
-                Arg::with_name("arg1").help("some"),
+        .args(&[Arg::with_name("arg1").help("some"),
                 Arg::with_name("arg2").help("some"),
-                Arg::with_name("arg3").help("some"),
-            ],
-        );
-    assert!(test::compare_output(
-        app,
-        "clap-test --help",
-        DONT_COLLAPSE_ARGS,
-        false,
-    ));
+                Arg::with_name("arg3").help("some")]);
+    assert!(test::compare_output(app, "clap-test --help", DONT_COLLAPSE_ARGS, false));
 }
 
 #[test]
 fn require_eq() {
-    let app = App::new("clap-test").version("v1.4.8").arg(
-        Arg::with_name("opt")
-            .long("opt")
-            .short("o")
-            .required(true)
-            .require_equals(true)
-            .value_name("FILE")
-            .help("some"),
-    );
-    assert!(test::compare_output(
-        app,
-        "clap-test --help",
-        REQUIRE_EQUALS,
-        false,
-    ));
+    let app = App::new("clap-test")
+        .version("v1.4.8")
+        .arg(Arg::with_name("opt")
+                 .long("opt")
+                 .short("o")
+                 .required(true)
+                 .require_equals(true)
+                 .value_name("FILE")
+                 .help("some"));
+    assert!(test::compare_output(app, "clap-test --help", REQUIRE_EQUALS, false));
 }
 
 #[test]
@@ -579,9 +519,9 @@ fn args_negate_subcommands_one_level() {
         .setting(AppSettings::SubcommandsNegateReqs)
         .arg_from_usage("<arg1> 'some arg'")
         .arg_from_usage("<arg2> 'some arg'")
-        .subcommand(SubCommand::with_name("sub1").subcommand(
-            SubCommand::with_name("sub2").subcommand(SubCommand::with_name("sub3")),
-        ))
+        .subcommand(SubCommand::with_name("sub1")
+                        .subcommand(SubCommand::with_name("sub2")
+                                        .subcommand(SubCommand::with_name("sub3"))))
         .get_matches_from_safe(vec!["", "pickles", "sub1"]);
     assert!(res.is_ok(), "error: {:?}", res.unwrap_err().kind);
     let m = res.unwrap();
@@ -595,21 +535,16 @@ fn args_negate_subcommands_two_levels() {
         .global_setting(AppSettings::SubcommandsNegateReqs)
         .arg_from_usage("<arg1> 'some arg'")
         .arg_from_usage("<arg2> 'some arg'")
-        .subcommand(
-            SubCommand::with_name("sub1")
-                .arg_from_usage("<arg> 'some'")
-                .arg_from_usage("<arg2> 'some'")
-                .subcommand(
-                    SubCommand::with_name("sub2").subcommand(SubCommand::with_name("sub3")),
-                ),
-        )
+        .subcommand(SubCommand::with_name("sub1")
+                        .arg_from_usage("<arg> 'some'")
+                        .arg_from_usage("<arg2> 'some'")
+                        .subcommand(SubCommand::with_name("sub2")
+                                        .subcommand(SubCommand::with_name("sub3"))))
         .get_matches_from_safe(vec!["", "sub1", "arg", "sub2"]);
     assert!(res.is_ok(), "error: {:?}", res.unwrap_err().kind);
     let m = res.unwrap();
-    assert_eq!(
-        m.subcommand_matches("sub1").unwrap().value_of("arg2"),
-        Some("sub2")
-    );
+    assert_eq!(m.subcommand_matches("sub1").unwrap().value_of("arg2"),
+               Some("sub2"));
 }
 
 

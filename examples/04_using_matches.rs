@@ -21,24 +21,18 @@ fn main() {
         .about("Parses an input file to do awesome things")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
-        .arg(
-            Arg::with_name("debug")
-                .help("turn on debugging information")
-                .short("d")
-                .long("debug"),
-        )
-        .arg(
-            Arg::with_name("config")
-                .help("sets the config file to use")
-                .short("c")
-                .long("config"),
-        )
-        .arg(
-            Arg::with_name("input")
-                .help("the input file to use")
-                .index(1)
-                .required(true),
-        )
+        .arg(Arg::with_name("debug")
+                 .help("turn on debugging information")
+                 .short("d")
+                 .long("debug"))
+        .arg(Arg::with_name("config")
+                 .help("sets the config file to use")
+                 .short("c")
+                 .long("config"))
+        .arg(Arg::with_name("input")
+                 .help("the input file to use")
+                 .index(1)
+                 .required(true))
         .get_matches();
 
     // We can find out whether or not debugging was turned on
@@ -54,10 +48,8 @@ fn main() {
 
     // Because "input" is required we can safely call unwrap() because had the user NOT
     // specified a value, clap would have explained the error the user, and exited.
-    println!(
-        "Doing real work with file: {}",
-        matches.value_of("input").unwrap()
-    );
+    println!("Doing real work with file: {}",
+             matches.value_of("input").unwrap());
 
     // Continued program logic goes here...
 }

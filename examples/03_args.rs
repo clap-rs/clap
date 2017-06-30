@@ -65,14 +65,12 @@ fn main() {
     // an example, and may be somewhat contrived
     //
     // First we check if debugging should be on or not
-    println!(
-        "Debugging mode is: {}",
-        if matches.is_present("debug") {
-            "ON"
-        } else {
-            "OFF"
-        }
-    );
+    println!("Debugging mode is: {}",
+             if matches.is_present("debug") {
+                 "ON"
+             } else {
+                 "OFF"
+             });
 
     // Next we print the config file we're using, if any was defined with either -c <file> or
     // --config <file>

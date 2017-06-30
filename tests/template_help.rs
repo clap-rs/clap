@@ -52,23 +52,13 @@ SUBCOMMANDS:
 #[test]
 fn with_template() {
     let app = app_example1().template(EXAMPLE1_TMPL_S);
-    assert!(test::compare_output(
-        app,
-        "MyApp --help",
-        SIMPLE_TEMPLATE,
-        false,
-    ));
+    assert!(test::compare_output(app, "MyApp --help", SIMPLE_TEMPLATE, false));
 }
 
 #[test]
 fn custom_template() {
     let app = app_example1().template(EXAMPLE1_TMPS_F);
-    assert!(test::compare_output(
-        app,
-        "MyApp --help",
-        CUSTOM_TEMPL_HELP,
-        false,
-    ));
+    assert!(test::compare_output(app, "MyApp --help", CUSTOM_TEMPL_HELP, false));
 }
 
 #[test]
@@ -88,12 +78,7 @@ fn template_notag() {
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
         .template("test no tag test");
-    assert!(test::compare_output(
-        app,
-        "MyApp --help",
-        "test no tag test",
-        false,
-    ));
+    assert!(test::compare_output(app, "MyApp --help", "test no tag test", false));
 }
 
 #[test]
@@ -103,12 +88,7 @@ fn template_unknowntag() {
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
         .template("test {unknown_tag} test");
-    assert!(test::compare_output(
-        app,
-        "MyApp --help",
-        "test {unknown_tag} test",
-        false,
-    ));
+    assert!(test::compare_output(app, "MyApp --help", "test {unknown_tag} test", false));
 }
 
 #[test]
@@ -118,12 +98,10 @@ fn template_author_version() {
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
         .template("{author}\n{version}\n{about}\n{bin}");
-    assert!(test::compare_output(
-        app,
-        "MyApp --help",
-        "Kevin K. <kbknapp@gmail.com>\n1.0\nDoes awesome things\nMyApp",
-        false,
-    ));
+    assert!(test::compare_output(app,
+                                 "MyApp --help",
+                                 "Kevin K. <kbknapp@gmail.com>\n1.0\nDoes awesome things\nMyApp",
+                                 false));
 }
 
 // ----------
@@ -133,14 +111,10 @@ fn app_example1<'b, 'c>() -> App<'b, 'c> {
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
-        .args_from_usage(
-            "-c, --config=[FILE] 'Sets a custom config file'
+        .args_from_usage("-c, --config=[FILE] 'Sets a custom config file'
                           <output>            'Sets an optional output file'
-                          -d...               'Turn debugging information on'",
-        )
-        .subcommand(
-            SubCommand::with_name("test")
-                .about("does testing things")
-                .arg_from_usage("-l, --list 'lists test values'"),
-        )
+                          -d...               'Turn debugging information on'")
+        .subcommand(SubCommand::with_name("test")
+                        .about("does testing things")
+                        .arg_from_usage("-l, --list 'lists test values'"))
 }

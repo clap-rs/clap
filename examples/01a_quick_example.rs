@@ -36,16 +36,12 @@ fn main() {
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
-        .args_from_usage(
-            "-c, --config=[FILE] 'Sets a custom config file'
+        .args_from_usage("-c, --config=[FILE] 'Sets a custom config file'
                                          <output> 'Sets an optional output file'
-                                         -d... 'Turn debugging information on'",
-        )
-        .subcommand(
-            SubCommand::with_name("test")
-                .about("does testing things")
-                .arg_from_usage("-l, --list 'lists test values'"),
-        )
+                                         -d... 'Turn debugging information on'")
+        .subcommand(SubCommand::with_name("test")
+                        .about("does testing things")
+                        .arg_from_usage("-l, --list 'lists test values'"))
         .get_matches();
 
     // You can check the value provided by positional arguments, or option arguments

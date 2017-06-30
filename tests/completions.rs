@@ -615,27 +615,21 @@ fn build_app_with_name(s: &'static str) -> App<'static, 'static> {
     App::new(s)
         .about("Tests completions")
         .arg(Arg::with_name("file").help("some input file"))
-        .subcommand(
-            SubCommand::with_name("test").about("tests things").arg(
-                Arg::with_name("case")
-                    .long("case")
-                    .takes_value(true)
-                    .help("the case to test"),
-            ),
-        )
+        .subcommand(SubCommand::with_name("test")
+                        .about("tests things")
+                        .arg(Arg::with_name("case")
+                                 .long("case")
+                                 .takes_value(true)
+                                 .help("the case to test")))
 }
 
 fn build_app_with_underscore() -> App<'static, 'static> {
-    build_app_with_name("my_app").subcommand(
-        SubCommand::with_name("some_cmd")
-            .about("tests other things")
-            .arg(
-                Arg::with_name("config")
-                    .long("--config")
-                    .takes_value(true)
-                    .help("the other case to test"),
-            ),
-    )
+    build_app_with_name("my_app").subcommand(SubCommand::with_name("some_cmd")
+                                                 .about("tests other things")
+                                                 .arg(Arg::with_name("config")
+                                                          .long("--config")
+                                                          .takes_value(true)
+                                                          .help("the other case to test")))
 }
 
 #[test]
