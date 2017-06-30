@@ -447,7 +447,13 @@ fn gen_from_subcommand(name: &Ident, variants: &[Variant]) -> quote::Tokens {
 }
 
 fn impl_structopt_for_struct(name: &Ident, fields: &[Field], attrs: &[Attribute]) -> quote::Tokens {
-    let subcmd_required = fields.iter().any(is_subcommand);
+    let subcmd_required = fields.iter().any(|field| {
+        let cur_type = ty(&field.ty);
+        match cur_type {
+            Ty::Option => false,
+            _ => is_subcommand(field)
+        }
+    });
     let clap = gen_clap(attrs, subcmd_required);
     let augment_clap = gen_augment_clap(fields);
     let from_clap = gen_from_clap(name, fields);
