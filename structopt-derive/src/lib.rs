@@ -499,7 +499,8 @@ fn impl_structopt(ast: &DeriveInput) -> quote::Tokens {
 
     let dummy_const = Ident::new(format!("_IMPL_STRUCTOPT_FOR_{}", struct_name));
     quote! {
-        #[allow(non_upper_case_globals, unused_attributes, unused_imports)]
+        #[allow(non_upper_case_globals)]
+        #[allow(unused_attributes, unused_imports, unused_variables)]
         const #dummy_const: () = {
             extern crate structopt as _structopt;
             use structopt::StructOpt;
