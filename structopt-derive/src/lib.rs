@@ -44,7 +44,7 @@
 //!
 //! Then, each field of the struct not marked as a subcommand corresponds
 //! to a `clap::Arg`. As with the struct attributes, every method of
-//! `clap::Arg`in the form of `fn function_name(self, &str)` can be used
+//! `clap::Arg` in the form of `fn function_name(self, &str)` can be used
 //! through specifying it as an attribute.
 //! The `name` attribute can be used to customize the
 //! `Arg::with_name()` call (defaults to the field name).
@@ -97,7 +97,7 @@
 //! }
 //! ```
 //!
-//! ## Subcomamnds
+//! ## Subcommands
 //! 
 //! Some applications, like `git`, support "subcommands;" an extra command that
 //! is used to differentiate what the application should do. With `git`, these
