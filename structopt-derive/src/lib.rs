@@ -379,11 +379,11 @@ fn gen_augment_clap_enum(variants: &[Variant]) -> quote::Tokens {
         let name = extract_attrs(&variant.attrs, AttrSource::Struct)
             .filter_map(|attr| match attr {
                 (ref i, Lit::Str(ref s, ..)) if i == "name" => 
-                    Some(Ident::new(s as &str)),
+                    Some(s.to_string()),
                 _ => None
             })
             .next()
-            .unwrap_or_else(|| variant.ident.clone());
+            .unwrap_or_else(|| variant.ident.to_string());
         let app_var = Ident::new("subcommand");
         let arg_block = match variant.data {
             VariantData::Struct(ref fields) => gen_augmentation(fields, &app_var),
@@ -392,7 +392,7 @@ fn gen_augment_clap_enum(variants: &[Variant]) -> quote::Tokens {
 
         quote! {
             .subcommand({
-                let #app_var = _structopt::clap::SubCommand::with_name( stringify!(#name) );
+                let #app_var = _structopt::clap::SubCommand::with_name( #name );
                 #arg_block
             })
         }
