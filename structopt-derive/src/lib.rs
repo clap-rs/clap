@@ -147,7 +147,7 @@
 //! #[structopt(name = "make-cookie")]
 //! struct MakeCookie {
 //!     #[structopt(name = "supervisor", default_value = "Puck")]
-//!     supervising_faerie: Option<String>,
+//!     supervising_faerie: String,
 //!     #[structopt(name = "tree")]
 //!     /// The faerie tree this cookie is being made in.
 //!     tree: Option<String>,
