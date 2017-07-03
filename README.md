@@ -11,8 +11,8 @@ Find it on Docs.rs: [structopt-derive](https://docs.rs/structopt-derive) and [st
 Add `structopt` and `structopt-derive` to your dependencies of your `Cargo.toml`:
 ```toml
 [dependencies]
-structopt = "0.0.6"
-structopt-derive = "0.0.6"
+structopt = "0.1.0"
+structopt-derive = "0.1.0"
 ```
 
 And then, in your rust file:
