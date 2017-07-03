@@ -10,8 +10,9 @@
 //! `StructOpt` trait definition
 //!
 //! This crate defines the `StructOpt` trait.  Alone, this crate is of
-//! little interest.  See the `structopt-derive` crate to
-//! automatically generate implementation of this trait.
+//! little interest.  See the 
+//! [`structopt-derive`](https://docs.rs/structopt-derive) crate to
+//! automatically generate an implementation of this trait.
 
 extern crate clap as _clap;
 
