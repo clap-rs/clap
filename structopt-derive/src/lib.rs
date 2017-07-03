@@ -5,9 +5,9 @@
 // Version 2, as published by Sam Hocevar. See the COPYING file for
 // more details.
 
-//! How to `derive(StructOpt)`
+//! ## How to `derive(StructOpt)`
 //!
-//! First, look at an example:
+//! First, let's look at an example:
 //!
 //! ```ignore
 //! #[derive(StructOpt)]
@@ -24,28 +24,30 @@
 //! }
 //! ```
 //!
-//! So, `derive(StructOpt)` do the job, and `structopt` attribute is
+//! So `derive(StructOpt)` tells Rust to generate a command line parser, 
+//! and the various `structopt` attributes are simply
 //! used for additional parameters.
 //!
 //! First, define a struct, whatever its name.  This structure will
 //! correspond to a `clap::App`.  Every method of `clap::App` in the
-//! form of `fn function_name(self, &str)` can be use in the form of
-//! attributes.  Our example call for example something like
-//! `app.about("An example of StructOpt usage.")`.  There is some
-//! special attributes:
+//! form of `fn function_name(self, &str)` can be use through attributes
+//! placed on the struct. In our example above, the `about` attribute
+//! will become an `.about("An example of StructOpt usage.")` call on the
+//! generated `clap::App`. There are a few attributes that will default
+//! if not specified:
 //!
-//!   - `name`: correspond to the creation of the `App` object. Our
-//!     example does `clap::App::new("example")`.  Default to
-//!     the crate name given by cargo.
-//!   - `version`: default to the crate version given by cargo.
-//!   - `author`: default to the crate version given by cargo.
-//!   - `about`: default to the crate version given by cargo.
+//!   - `name`: The binary name displayed in help messages. Defaults
+        to the crate name given by Cargo.
+//!   - `version`: Defaults to the crate version given by Cargo.
+//!   - `author`: Defaults to the crate author name given by Cargo.
+//!   - `about`: Defaults to the crate description given by Cargo.
 //!
-//! Then, each field of the struct correspond to a `clap::Arg`.  As
-//! for the struct attributes, every method of `clap::Arg` in the form
-//! of `fn function_name(self, &str)` can be use in the form of
-//! attributes.  The `name` attribute can be used to customize the
-//! `Arg::with_name()` call (default to the field name).
+//! Then, each field of the struct not marked as a subcommand corresponds
+//! to a `clap::Arg`. As with the struct attributes, every method of
+//! `clap::Arg`in the form of `fn function_name(self, &str)` can be used
+//! through specifying it as an attribute.
+//! The `name` attribute can be used to customize the
+//! `Arg::with_name()` call (defaults to the field name).
 //!
 //! The type of the field gives the kind of argument:
 //!
@@ -55,10 +57,10 @@
 //! `u64`                | number of params  | `.takes_value(false).multiple(true)`
 //! `Option<T: FromStr>` | optional argument | `.takes_value(true).multiple(false)`
 //! `Vec<T: FromStr>`    | list of arguments | `.takes_value(true).multiple(true)`
-//! `T: FromStr` | required argument | `.takes_value(true).multiple(false).required(!has_default)`
+//! `T: FromStr`         | required argument | `.takes_value(true).multiple(false).required(!has_default)`
 //!
 //! The `FromStr` trait is used to convert the argument to the given
-//! type, and the `Arg::validator` method is setted to a method using
+//! type, and the `Arg::validator` method is set to a method using
 //! `FromStr::Error::description()`.
 //!
 //! Thus, the `speed` argument is generated as:
