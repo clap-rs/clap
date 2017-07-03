@@ -37,7 +37,7 @@
 //! if not specified:
 //!
 //!   - `name`: The binary name displayed in help messages. Defaults
-        to the crate name given by Cargo.
+//!      to the crate name given by Cargo.
 //!   - `version`: Defaults to the crate version given by Cargo.
 //!   - `author`: Defaults to the crate author name given by Cargo.
 //!   - `about`: Defaults to the crate description given by Cargo.
@@ -75,6 +75,26 @@
 //!     .long("debug")
 //!     .help("Set speed")
 //!     .default_value("42")
+//! ```
+//!
+//! ## Help messages
+//!
+//! Help messages for the whole binary or individual arguments can be
+//! specified using the `about` attribute on the struct/field, as we've
+//! already seen. For convenience, they can also be specified using
+//! doc comments. For example:
+//!
+//! ```ignore
+//! #[derive(StructOpt)]
+//! #[structopt(name = "foo")]
+//! /// The help message that will be displayed when passing `--help`.
+//! struct Foo {
+//!   ...
+//!   #[structopt(short = "b")]
+//!   /// The description for the arg that will be displayed when passing `--help`.
+//!   bar: String
+//!   ...
+//! }
 //! ```
 //!
 //! ## Subcomamnds
