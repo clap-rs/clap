@@ -181,6 +181,25 @@
 //! + `make-cookie pound 50`
 //! + `make-cookie sparkle -mmm --color "green"`
 //! + `make-cookie finish 130 glaze 3`
+//!
+//! ### Optional subcommands
+//!
+//! A nested subcommand can be marked optional:
+//!
+//! #[derive(StructOpt)]
+//! #[structopt(name = "foo")]
+//! struct Foo {
+//!     file: String,
+//!     #[structopt(subcommand)]
+//!     cmd: Option<Command>
+//! }
+//! 
+//! #[derive(StructOpt)]
+//! enum Command {
+//!     Bar {},
+//!     Baz {},
+//!     Quux {}
+//! }
 
 extern crate proc_macro;
 extern crate syn;
