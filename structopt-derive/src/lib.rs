@@ -206,6 +206,7 @@
 //!
 //! A nested subcommand can be marked optional:
 //!
+//! ```ignore
 //! #[derive(StructOpt)]
 //! #[structopt(name = "foo")]
 //! struct Foo {
@@ -220,6 +221,7 @@
 //!     Baz {},
 //!     Quux {}
 //! }
+//! ```
 
 extern crate proc_macro;
 extern crate syn;
