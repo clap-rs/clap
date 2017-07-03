@@ -76,6 +76,111 @@
 //!     .help("Set speed")
 //!     .default_value("42")
 //! ```
+//!
+//! ## Subcomamnds
+//! 
+//! Some applications, like `git`, support "subcommands;" an extra command that
+//! is used to differentiate what the application should do. With `git`, these
+//! would be `add`, `init`, `fetch`, `commit`, for a few examples.
+//!
+//! `clap` has this functionality, so `structopt` supports this through enums:
+//!
+//! ```ignore
+//! #[derive(StructOpt)]
+//! #[structopt(name = "git", about = "the stupid content tracker")]
+//! enum Git {
+//!     #[structopt(name = "add")]
+//!     Add {
+//!         #[structopt(short = "i")]
+//!         interactive: bool,
+//!         #[structopt(short = "p")]
+//!         patch: bool,
+//!         files: Vec<String>
+//!     },
+//!     #[structopt(name = "fetch")]
+//!     Fetch {
+//!         #[structopt(long = "dry-run")]
+//!         dry_run: bool,
+//!         #[structopt(long = "all")]
+//!         all: bool,
+//!         repository: Option<String>
+//!     },
+//!     #[structopt(name = "commit")]
+//!     Commit {
+//!         #[structopt(short = "m")]
+//!         message: Option<String>,
+//!         #[structopt(short = "a")]
+//!         all: bool
+//!     }
+//! }
+//! ```
+//!
+//! Using `derive(StructOpt)` on an enum instead of a struct will produce
+//! a `clap::App` that only takes subcommands. So `git add`, `git fetch`,
+//! and `git commit` would be commands allowed for the above example.
+//!
+//! `structopt` also provides support for applications where certain flags
+//! need to apply to all subcommands, as well as nested subcommands:
+//!
+//! ```ignore
+//! #[derive(StructOpt)]
+//! #[structopt(name = "make-cookie")]
+//! struct MakeCookie {
+//!     #[structopt(name = "supervisor", default_value = "Puck")]
+//!     supervising_faerie: Option<String>,
+//!     #[structopt(name = "tree")]
+//!     /// The faerie tree this cookie is being made in.
+//!     tree: Option<String>,
+//!     #[structopt(subcommand)]  // Note that we mark a field as a subcommand
+//!     cmd: Command
+//! }
+//! 
+//! #[derive(StructOpt)]
+//! enum Command {
+//!     #[structopt(name = "pound")]
+//!     /// Pound acorns into flour for cookie dough.
+//!     Pound {
+//!         acorns: u32
+//!     },
+//!     #[structopt(name = "sparkle")]
+//!     /// Add magical sparkles -- the secret ingredient!
+//!     Sparkle {
+//!         #[structopt(short = "m")]
+//!         magicality: u64,
+//!         #[structopt(short = "c")]
+//!         color: String
+//!     },
+//!     #[structopt(name = "finish")]
+//!     Finish {
+//!         #[structopt(short = "t")]
+//!         time: u32,
+//!         #[structopt(subcommand)]  // Note that we mark a field as a subcommand
+//!         type: FinishType
+//!     }
+//! }
+//! 
+//! #[derive(StructOpt)]
+//! enum FinishType {
+//!     #[structopt(name = "glaze")]
+//!     Glaze {
+//!         applications: u32
+//!     },
+//!     #[structopt(name = "powder")]
+//!     Powder {
+//!         flavor: String,
+//!         dips: u32
+//!     }
+//! }
+//! ```
+//!
+//! Marking a field with `structopt(subcommand)` will add the subcommands of the
+//! designated enum to the current `clap::App`. The designated enum *must* also
+//! be derived `StructOpt`. So the above example would take the following
+//! commands:
+//! 
+//! + `make-cookie pound 50`
+//! + `make-cookie sparkle -mmm --color "green"`
+//! + `make-cookie finish 130 glaze 3`
 
 extern crate proc_macro;
 extern crate syn;
