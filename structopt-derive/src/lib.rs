@@ -217,9 +217,9 @@
 //! 
 //! #[derive(StructOpt)]
 //! enum Command {
-//!     Bar {},
-//!     Baz {},
-//!     Quux {}
+//!     Bar,
+//!     Baz,
+//!     Quux
 //! }
 //! ```
 
