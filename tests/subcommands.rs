@@ -12,7 +12,7 @@ use structopt::StructOpt;
 
 #[derive(StructOpt, PartialEq, Debug)]
 enum Opt {
-    #[structopt(name = "fetch")]
+    #[structopt(name = "fetch", about = "Fetch stuff from GitHub.")]
     Fetch {
         #[structopt(long = "all")]
         all: bool,
@@ -54,4 +54,20 @@ fn test_no_parse() {
 
     let result = Opt::clap().get_matches_from_safe(&["test", "add", "--badoption"]);
     assert!(result.is_err());
+}
+
+#[derive(StructOpt, PartialEq, Debug)]
+enum Opt2 {
+    #[structopt(name = "do-something")]
+    DoSomething {
+        arg: String
+    }
+}
+
+#[test]
+/// This test is specifically to make sure that hyphenated subcommands get
+/// processed correctly.
+fn test_hyphenated_subcommands() {
+    assert_eq!(Opt2::DoSomething { arg: "blah".to_string() },
+               Opt2::from_clap(Opt2::clap().get_matches_from(&["test", "do-something", "blah"])));
 }

@@ -537,10 +537,14 @@ fn gen_augment_clap_enum(variants: &[Variant]) -> quote::Tokens {
             VariantData::Struct(ref fields) => gen_augmentation(fields, &app_var),
             _ => unreachable!()
         };
+        let from_attr = extract_attrs(&variant.attrs, AttrSource::Struct)
+            .filter(|&(ref i, _)| i != "name")
+            .map(|(i, l)| quote!( .#i(#l) ));
 
         quote! {
             .subcommand({
-                let #app_var = _structopt::clap::SubCommand::with_name( #name );
+                let #app_var = _structopt::clap::SubCommand::with_name( #name )
+                    #( #from_attr )* ;
                 #arg_block
             })
         }
@@ -567,11 +571,11 @@ fn gen_from_subcommand(name: &Ident, variants: &[Variant]) -> quote::Tokens {
         let sub_name = extract_attrs(&variant.attrs, AttrSource::Struct)
             .filter_map(|attr| match attr {
                 (ref i, Lit::Str(ref s, ..)) if i == "name" => 
-                    Some(Ident::new(s as &str)),
+                    Some(s.to_string()),
                 _ => None
             })
             .next()
-            .unwrap_or_else(|| variant.ident.clone());
+            .unwrap_or_else(|| variant.ident.as_ref().to_string());
         let variant_name = &variant.ident;
         let constructor_block = match variant.data {
             VariantData::Struct(ref fields) => gen_constructor(fields),
@@ -579,7 +583,7 @@ fn gen_from_subcommand(name: &Ident, variants: &[Variant]) -> quote::Tokens {
         };
         
         quote! {
-            (stringify!(#sub_name), Some(matches)) =>
+            (#sub_name, Some(matches)) =>
                 Some(#name :: #variant_name #constructor_block)
         }
     });
