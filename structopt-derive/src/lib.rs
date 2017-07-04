@@ -535,6 +535,7 @@ fn gen_augment_clap_enum(variants: &[Variant]) -> quote::Tokens {
         let app_var = Ident::new("subcommand");
         let arg_block = match variant.data {
             VariantData::Struct(ref fields) => gen_augmentation(fields, &app_var),
+            VariantData::Unit => quote!( #app_var ),
             _ => unreachable!()
         };
         let from_attr = extract_attrs(&variant.attrs, AttrSource::Struct)
@@ -579,6 +580,7 @@ fn gen_from_subcommand(name: &Ident, variants: &[Variant]) -> quote::Tokens {
         let variant_name = &variant.ident;
         let constructor_block = match variant.data {
             VariantData::Struct(ref fields) => gen_constructor(fields),
+            VariantData::Unit => quote!(),  // empty
             _ => unreachable!()
         };
         
@@ -621,10 +623,10 @@ fn impl_structopt_for_struct(name: &Ident, fields: &[Field], attrs: &[Attribute]
 
 fn impl_structopt_for_enum(name: &Ident, variants: &[Variant], attrs: &[Attribute]) -> quote::Tokens {
     if variants.iter().any(|variant| {
-            if let VariantData::Struct(..) = variant.data { false } else { true }
+            if let VariantData::Tuple(..) = variant.data { true } else { false }
         })
     {
-        panic!("enum variants must use curly braces");
+        panic!("enum variants cannot be tuples");
     }
 
     let clap = gen_clap_enum(attrs);

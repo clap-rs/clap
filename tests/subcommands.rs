@@ -71,3 +71,20 @@ fn test_hyphenated_subcommands() {
     assert_eq!(Opt2::DoSomething { arg: "blah".to_string() },
                Opt2::from_clap(Opt2::clap().get_matches_from(&["test", "do-something", "blah"])));
 }
+
+#[derive(StructOpt, PartialEq, Debug)]
+enum Opt3 {
+    #[structopt(name = "add")]
+    Add,
+    #[structopt(name = "init")]
+    Init,
+    #[structopt(name = "fetch")]
+    Fetch
+}
+
+#[test]
+fn test_null_commands() {
+    assert_eq!(Opt3::Add, Opt3::from_clap(Opt3::clap().get_matches_from(&["test", "add"])));
+    assert_eq!(Opt3::Init, Opt3::from_clap(Opt3::clap().get_matches_from(&["test", "init"])));
+    assert_eq!(Opt3::Fetch, Opt3::from_clap(Opt3::clap().get_matches_from(&["test", "fetch"])));
+}
