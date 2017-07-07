@@ -359,6 +359,9 @@ fn gen_augmentation(fields: &[Field], app_var: &Ident) -> quote::Tokens {
             quote!( let #app_var = #subcmd_type ::augment_clap( #app_var ); )
         })
         .collect();
+
+    assert!(subcmds.len() <= 1, "cannot have more than one nested subcommand");
+
     let args = fields.iter()
         .filter(|&field| !is_subcommand(field))
         .map(|field| {
@@ -390,8 +393,6 @@ fn gen_augmentation(fields: &[Field], app_var: &Ident) -> quote::Tokens {
                 .map(|(i, l)| quote!(.#i(#l)));
             quote!( .arg(_structopt::clap::Arg::with_name(stringify!(#name)) #modifier #(#from_attr)*) )
         });
-
-    assert!(subcmds.len() <= 1, "cannot have more than one nested subcommand");
 
     quote! {{
         use std::error::Error;
