@@ -615,8 +615,11 @@ fn impl_structopt_for_struct(name: &Ident, fields: &[Field], attrs: &[Attribute]
     quote! {
         impl _structopt::StructOpt for #name {
             #clap
-            #augment_clap
             #from_clap
+        }
+
+        impl #name {
+            #augment_clap
         }
     }
 }
@@ -637,11 +640,11 @@ fn impl_structopt_for_enum(name: &Ident, variants: &[Variant], attrs: &[Attribut
     quote! {
         impl _structopt::StructOpt for #name {
             #clap
-            #augment_clap
             #from_clap
         }
 
         impl #name {
+            #augment_clap
             #from_subcommand
         }
     }

@@ -26,9 +26,6 @@ pub trait StructOpt {
     /// Returns the corresponding `clap::App`.
     fn clap<'a, 'b>() -> clap::App<'a, 'b>;
 
-    /// Add this app's arguments/subcommands to another `clap::App`.
-    fn augment_clap<'a, 'b>(clap::App<'a, 'b>) -> clap::App<'a, 'b>;
-
     /// Creates the struct from `clap::ArgMatches`.
     fn from_clap(clap::ArgMatches) -> Self;
 
