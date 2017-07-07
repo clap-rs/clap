@@ -43,6 +43,7 @@ nightly     = [] # for building with unstable Rust features (currently none)
 lints       = ["clippy"] # Requires nightly Rust
 debug       = [] # Enables debug messages
 no_cargo    = [] # Enable if you're not using Cargo, disables Cargo-env-var-dependent macros
+doc         = ["yaml"] # All the features which add to documentation
 
 [profile.release]
 opt-level = 3
@@ -82,3 +83,6 @@ rpath = false
 lto = false
 debug-assertions = true
 codegen-units = 4
+
+[package.metadata.docs.rs]
+features = ["doc"]
