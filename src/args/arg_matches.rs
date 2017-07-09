@@ -568,7 +568,7 @@ impl<'a> DoubleEndedIterator for Values<'a> {
 impl<'a> ExactSizeIterator for Values<'a> {}
 
 /// Creates an empty iterator.
-impl Default for Values<'static> {
+impl<'a> Default for Values<'a> {
     fn default() -> Self {
         static EMPTY: [OsString; 0] = [];
         // This is never called because the iterator is empty:
@@ -580,6 +580,13 @@ impl Default for Values<'static> {
 #[test]
 fn test_default_values() {
     let mut values: Values = Values::default();
+    assert_eq!(values.next(), None);
+}
+
+#[test]
+fn test_default_values_with_shorter_lifetime() {
+    let matches = ArgMatches::new();
+    let mut values = matches.values_of("").unwrap_or_default();
     assert_eq!(values.next(), None);
 }
 
@@ -622,7 +629,7 @@ impl<'a> DoubleEndedIterator for OsValues<'a> {
 }
 
 /// Creates an empty iterator.
-impl Default for OsValues<'static> {
+impl<'a> Default for OsValues<'a> {
     fn default() -> Self {
         static EMPTY: [OsString; 0] = [];
         // This is never called because the iterator is empty:
@@ -634,5 +641,12 @@ impl Default for OsValues<'static> {
 #[test]
 fn test_default_osvalues() {
     let mut values: OsValues = OsValues::default();
+    assert_eq!(values.next(), None);
+}
+
+#[test]
+fn test_default_osvalues_with_shorter_lifetime() {
+    let matches = ArgMatches::new();
+    let mut values = matches.values_of_os("").unwrap_or_default();
     assert_eq!(values.next(), None);
 }
