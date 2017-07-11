@@ -310,7 +310,7 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     /// Sets a string of the version number to be displayed when displaying version or help
-    /// information with `-V`. 
+    /// information with `-V`.
     ///
     /// **NOTE:** If only `version` is provided, and not [`App::long_version`] but the user
     /// requests `--version` clap will still display the contents of `version` appropriately
@@ -537,8 +537,8 @@ impl<'a, 'b> App<'a, 'b> {
     ///   * `{usage}`       - Automatically generated or given usage string.
     ///   * `{all-args}`    - Help for all arguments (options, flags, positionals arguments,
     ///                       and subcommands) including titles.
-    ///   * `{unified}`     - Unified help for options and flags. Note, you must *also* set 
-    ///                       [`AppSettings::UnifiedHelpMessage`] to fully merge both options and 
+    ///   * `{unified}`     - Unified help for options and flags. Note, you must *also* set
+    ///                       [`AppSettings::UnifiedHelpMessage`] to fully merge both options and
     ///                       flags, otherwise the ordering is "best effort"
     ///   * `{flags}`       - Help for flags.
     ///   * `{options}`     - Help for options.
@@ -1164,7 +1164,7 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     /// Prints the full help message to [`io::stdout()`] using a [`BufWriter`] using the same
-    /// method as if someone ran `-h` to request the help message
+    /// method as if someone ran `--help` to request the help message
     ///
     /// **NOTE:** clap has the ability to distinguish between "short" and "long" help messages
     /// depending on if the user ran [`-h` (short)] or [`--help` (long)]
