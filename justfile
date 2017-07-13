@@ -37,3 +37,9 @@ clean:
 	find . -type f -name "*.orig" -exec rm {} \;
 	find . -type f -name "*.bk" -exec rm {} \;
 	find . -type f -name ".*~" -exec rm {} \;
+
+count-errors:
+    cargo build 2>&1 | grep -e 'error[:\[]' | wc -l
+
+find-errors:
+    cargo build 2>&1 | grep -e '--> [^:]*' -o | sort | uniq -c
