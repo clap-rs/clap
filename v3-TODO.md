@@ -4,9 +4,11 @@
   - [x] App
   - [x] ArgGroup
   - [x] Arg
-- [ ] App::mut_arg
+- [x] App::mut_arg
 - [x] Serde
 - [ ] CustomDerive
 - [ ] Enums as keys
 - [ ] Color Redux
 - [ ] Derive all common traits
+- [ ] Fix App's bin_name vs name vs usage delima
+- [ ] Get usage lazily
