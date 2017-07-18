@@ -99,11 +99,13 @@
 //!
 //! ## Subcommands
 //! 
-//! Some applications, like `git`, support "subcommands;" an extra command that
-//! is used to differentiate what the application should do. With `git`, these
-//! would be `add`, `init`, `fetch`, `commit`, for a few examples.
+//! Some applications, especially large ones, split their functionality
+//! through the use of "subcommands". Each of these act somewhat like a separate
+//! command, but is part of the larger group.
+//! One example is `git`, which has subcommands such as `add`, `commit`,
+//! and `clone`, to mention just a few.
 //!
-//! `clap` has this functionality, so `structopt` supports this through enums:
+//! `clap` has this functionality, and `structopt` supports it through enums:
 //!
 //! ```ignore
 //! #[derive(StructOpt)]
