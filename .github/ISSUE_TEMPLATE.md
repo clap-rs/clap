@@ -1,4 +1,4 @@
-Please use the following template to assist with creating an issue, and getting a speedy resolution. If an area is not aplicable, feel free to delete the area, or mark with `N/A`
+Please use the following template to assist with creating an issue and getting a speedy resolution. If an area is not applicable, feel free to delete the area, or mark with `N/A`
 
 ### Rust Version
 
