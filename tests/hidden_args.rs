@@ -29,6 +29,6 @@ fn hidden_args() {
         .args(&[Arg::from("-f, --flag 'some flag'").hidden(true),
                 Arg::from("-F, --flag2 'some other flag'"),
                 Arg::from("--option [opt] 'some option'"),
-                Arg::with_name("DUMMY").required(false).hidden(true)]);
+                Arg::new("DUMMY").required(false).hidden(true)]);
     assert!(test::compare_output(app, "test --help", HIDDEN_ARGS, false));
 }

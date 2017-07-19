@@ -51,7 +51,7 @@ fn main() {
         .author("Me")
         .subcommand(
             SubCommand::with_name("clone").about("clones repos").arg(
-                Arg::with_name("repo")
+                Arg::new("repo")
                     .help("The repo to clone")
                     .required(true),
             ),
@@ -64,7 +64,7 @@ fn main() {
                     SubCommand::with_name("remote")  // Subcommands can have thier own subcommands,
                                                          // which in turn have their own subcommands
                 .about("pushes remote things")
-                .arg(Arg::with_name("repo")
+                .arg(Arg::new("repo")
                     .required(true)
                     .help("The remote repo to push things to")),
                 )
@@ -76,7 +76,7 @@ fn main() {
             .author("Someone Else")                     // Subcommands can list different authors
             .version("v2.0 (I'm versioned differently") // or different version from their parents
             .setting(AppSettings::ArgRequiredElseHelp)  // They can even have different settings
-            .arg(Arg::with_name("stuff")
+            .arg(Arg::new("stuff")
                 .long("stuff")
                 .help("Stuff to add")
                 .takes_value(true)

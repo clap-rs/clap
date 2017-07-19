@@ -605,14 +605,14 @@ macro_rules! clap_app {
     (@app ($builder:expr) (@arg ($name:expr): $($tail:tt)*) $($tt:tt)*) => {
         clap_app!{ @app
             ($builder.arg(
-                clap_app!{ @arg ($crate::Arg::with_name($name)) (-) $($tail)* }))
+                clap_app!{ @arg ($crate::Arg::new($name)) (-) $($tail)* }))
             $($tt)*
         }
     };
     (@app ($builder:expr) (@arg $name:ident: $($tail:tt)*) $($tt:tt)*) => {
         clap_app!{ @app
             ($builder.arg(
-                clap_app!{ @arg ($crate::Arg::with_name(stringify!($name))) (-) $($tail)* }))
+                clap_app!{ @arg ($crate::Arg::new(stringify!($name))) (-) $($tail)* }))
             $($tt)*
         }
     };

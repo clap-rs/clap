@@ -53,7 +53,7 @@ pub enum Shell {
 ///     .version("1.0.2")
 ///     .about("Explains in brief what the program does")
 ///     .arg(
-///         Arg::with_name("in_file").index(1)
+///         Arg::new("in_file").index(1)
 ///     )
 ///     .after_help("Longer explanation to appear after the options when \
 ///                  displaying the help information from --help or -h")
@@ -709,9 +709,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// App::new("myprog")
-    ///     // Adding a single "flag" argument with a short and help text, using Arg::with_name()
+    ///     // Adding a single "flag" argument with a short and help text, using Arg::new()
     ///     .arg(
-    ///         Arg::with_name("debug")
+    ///         Arg::new("debug")
     ///            .short("d")
     ///            .help("turns on debugging mode")
     ///     )
@@ -737,7 +737,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// App::new("myprog")
     ///     .args(
     ///         &[Arg::from("[debug] -d 'turns on debugging info'"),
-    ///          Arg::with_name("input").index(1).help("the input file to use")]
+    ///          Arg::new("input").index(1).help("the input file to use")]
     ///     )
     /// # ;
     /// ```
@@ -795,7 +795,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// let m = App::new("myprog")
     ///             .subcommand(SubCommand::with_name("test")
     ///                 .aliases(&["do-stuff", "do-tests", "tests"]))
-    ///                 .arg(Arg::with_name("input")
+    ///                 .arg(Arg::new("input")
     ///                             .help("the file to add")
     ///                             .index(1)
     ///                             .required(false))
@@ -961,7 +961,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # App::new("myprog")
     /// .subcommands( vec![
     ///        SubCommand::with_name("config").about("Controls configuration functionality")
-    ///                                 .arg(Arg::with_name("config_file").index(1)),
+    ///                                 .arg(Arg::new("config_file").index(1)),
     ///        SubCommand::with_name("debug").about("Controls debug functionality")])
     /// # ;
     /// ```

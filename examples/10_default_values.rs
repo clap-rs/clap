@@ -10,7 +10,7 @@ fn main() {
     //
     // First, we'll use clap's Arg::default_value with an "INPUT" file.
     let matches = App::new("myapp").about("does awesome things")
-                        .arg(Arg::with_name("INPUT")
+                        .arg(Arg::new("INPUT")
                                 .help("The input file to use") // Note, we don't need to specify
                                                                // anything like, "Defaults to..."
                                                                // because clap will automatically
@@ -20,7 +20,7 @@ fn main() {
                                 .index(1))
 
                         // Next we'll use the Option::unwrap_or method on this "CONFIG" option
-                        .arg(Arg::with_name("CONFIG")
+                        .arg(Arg::new("CONFIG")
                                 // Note that we have to manaully include some verbage to the user
                                 // telling them what the default will be.
                                 .help("The config file to use (default is \"config.json\")")

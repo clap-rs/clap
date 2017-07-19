@@ -45,7 +45,7 @@ fn main() {
                         .group("input"))
                       // Now let's assume we have a -c [config] argument which requires one of
                       // (but **not** both) the "input" arguments
-                      .arg(Arg::with_name("config")
+                      .arg(Arg::new("config")
                         .short("c")
                         .takes_value(true)
                         .requires("input"))

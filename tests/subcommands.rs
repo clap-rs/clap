@@ -54,12 +54,12 @@ For more information try --help";
 #[test]
 fn subcommand() {
     let m = App::new("test")
-        .subcommand(SubCommand::with_name("some").arg(Arg::with_name("test")
+        .subcommand(SubCommand::with_name("some").arg(Arg::new("test")
                                                           .short("t")
                                                           .long("test")
                                                           .takes_value(true)
                                                           .help("testing testing")))
-        .arg(Arg::with_name("other").long("other"))
+        .arg(Arg::new("other").long("other"))
         .get_matches_from(vec!["myprog", "some", "--test", "testing"]);
 
     assert_eq!(m.subcommand_name().unwrap(), "some");
@@ -71,12 +71,12 @@ fn subcommand() {
 #[test]
 fn subcommand_none_given() {
     let m = App::new("test")
-        .subcommand(SubCommand::with_name("some").arg(Arg::with_name("test")
+        .subcommand(SubCommand::with_name("some").arg(Arg::new("test")
                                                           .short("t")
                                                           .long("test")
                                                           .takes_value(true)
                                                           .help("testing testing")))
-        .arg(Arg::with_name("other").long("other"))
+        .arg(Arg::new("other").long("other"))
         .get_matches_from(vec![""]);
 
     assert!(m.subcommand_name().is_none());
@@ -85,13 +85,13 @@ fn subcommand_none_given() {
 #[test]
 fn subcommand_multiple() {
     let m = App::new("test")
-        .subcommands(vec![SubCommand::with_name("some").arg(Arg::with_name("test")
+        .subcommands(vec![SubCommand::with_name("some").arg(Arg::new("test")
                                                                 .short("t")
                                                                 .long("test")
                                                                 .takes_value(true)
                                                                 .help("testing testing")),
-                          SubCommand::with_name("add").arg(Arg::with_name("roster").short("r"))])
-        .arg(Arg::with_name("other").long("other"))
+                          SubCommand::with_name("add").arg(Arg::new("roster").short("r"))])
+        .arg(Arg::new("other").long("other"))
         .get_matches_from(vec!["myprog", "some", "--test", "testing"]);
 
     assert!(m.subcommand_matches("some").is_some());

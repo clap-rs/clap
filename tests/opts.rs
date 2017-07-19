@@ -17,7 +17,7 @@ For more information try --help";
 #[test]
 fn require_equals_fail() {
     let res = App::new("prog")
-        .arg(Arg::with_name("cfg")
+        .arg(Arg::new("cfg")
                  .require_equals(true)
                  .takes_value(true)
                  .long("config"))
@@ -29,7 +29,7 @@ fn require_equals_fail() {
 #[test]
 fn double_hyphen_as_value() {
     let res = App::new("prog")
-        .arg(Arg::with_name("cfg")
+        .arg(Arg::new("cfg")
                  .takes_value(true)
                  .allow_hyphen_values(true)
                  .long("config"))
@@ -41,11 +41,11 @@ fn double_hyphen_as_value() {
 #[test]
 fn require_equals_no_empty_values_fail() {
     let res = App::new("prog")
-        .arg(Arg::with_name("cfg")
+        .arg(Arg::new("cfg")
                  .require_equals(true)
                  .takes_value(true)
                  .long("config"))
-        .arg(Arg::with_name("some"))
+        .arg(Arg::new("some"))
         .get_matches_from_safe(vec!["prog", "--config=", "file.conf"]);
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
@@ -54,7 +54,7 @@ fn require_equals_no_empty_values_fail() {
 #[test]
 fn require_equals_empty_vals_pass() {
     let res = App::new("prog")
-        .arg(Arg::with_name("cfg")
+        .arg(Arg::new("cfg")
                  .require_equals(true)
                  .takes_value(true)
                  .empty_values(true)
@@ -66,7 +66,7 @@ fn require_equals_empty_vals_pass() {
 #[test]
 fn require_equals_pass() {
     let res = App::new("prog")
-        .arg(Arg::with_name("cfg")
+        .arg(Arg::new("cfg")
                  .require_equals(true)
                  .takes_value(true)
                  .long("config"))

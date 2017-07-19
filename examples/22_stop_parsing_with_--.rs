@@ -6,9 +6,9 @@ use clap::{App, Arg};
 fn main() {
 
     let matches = App::new("myprog")
-        .arg(Arg::with_name("eff").short("f"))
-        .arg(Arg::with_name("pea").short("p").takes_value(true))
-        .arg(Arg::with_name("slop").multiple(true))
+        .arg(Arg::new("eff").short("f"))
+        .arg(Arg::new("pea").short("p").takes_value(true))
+        .arg(Arg::new("slop").multiple(true))
         .get_matches();
 
 

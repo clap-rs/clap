@@ -39,15 +39,15 @@ fn app_example2<'b, 'c>() -> App<'b, 'c> {
 
 fn app_example3<'b, 'c>() -> App<'b, 'c> {
     App::new("MyApp")
-        .arg(Arg::with_name("debug")
+        .arg(Arg::new("debug")
                  .help("turn on debugging information")
                  .short("d"))
-        .args(&[Arg::with_name("config")
+        .args(&[Arg::new("config")
                     .help("sets the config file to use")
                     .takes_value(true)
                     .short("c")
                     .long("config"),
-                Arg::with_name("input")
+                Arg::new("input")
                     .help("the input file to use")
                     .index(1)
                     .required(true)])
@@ -61,22 +61,22 @@ fn app_example4<'b, 'c>() -> App<'b, 'c> {
         .about("Parses an input file to do awesome things")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
-        .arg(Arg::with_name("debug")
+        .arg(Arg::new("debug")
                  .help("turn on debugging information")
                  .short("d")
                  .long("debug"))
-        .arg(Arg::with_name("config")
+        .arg(Arg::new("config")
                  .help("sets the config file to use")
                  .short("c")
                  .long("config"))
-        .arg(Arg::with_name("input")
+        .arg(Arg::new("input")
                  .help("the input file to use")
                  .index(1)
                  .required(true))
 }
 
 fn app_example5<'b, 'c>() -> App<'b, 'c> {
-    App::new("MyApp").arg(Arg::with_name("awesome")
+    App::new("MyApp").arg(Arg::new("awesome")
                               .help("turns up the awesome")
                               .short("a")
                               .long("awesome")
@@ -87,22 +87,22 @@ fn app_example5<'b, 'c>() -> App<'b, 'c> {
 
 fn app_example6<'b, 'c>() -> App<'b, 'c> {
     App::new("MyApp")
-        .arg(Arg::with_name("input")
+        .arg(Arg::new("input")
                  .help("the input file to use")
                  .index(1)
                  .requires("config")
                  .conflicts_with("output")
                  .required(true))
-        .arg(Arg::with_name("config")
+        .arg(Arg::new("config")
                  .help("the config file to use")
                  .index(2))
 }
 
 fn app_example7<'b, 'c>() -> App<'b, 'c> {
     App::new("MyApp")
-        .arg(Arg::with_name("config"))
-        .arg(Arg::with_name("output"))
-        .arg(Arg::with_name("input")
+        .arg(Arg::new("config"))
+        .arg(Arg::new("output"))
+        .arg(Arg::new("input")
                  .help("the input file to use")
                  .takes_value(true)
                  .short("i")
@@ -115,9 +115,9 @@ fn app_example7<'b, 'c>() -> App<'b, 'c> {
 
 fn app_example8<'b, 'c>() -> App<'b, 'c> {
     App::new("MyApp")
-        .arg(Arg::with_name("config"))
-        .arg(Arg::with_name("output"))
-        .arg(Arg::with_name("input")
+        .arg(Arg::new("config"))
+        .arg(Arg::new("output"))
+        .arg(Arg::new("input")
                  .help("the input file to use")
                  .takes_value(true)
                  .short("i")
@@ -131,7 +131,7 @@ fn app_example8<'b, 'c>() -> App<'b, 'c> {
 fn app_example10<'b, 'c>() -> App<'b, 'c> {
     App::new("myapp")
         .about("does awesome things")
-        .arg(Arg::with_name("CONFIG")
+        .arg(Arg::new("CONFIG")
                  .help("The config file to use (default is \"config.json\")")
                  .short("c")
                  .takes_value(true))

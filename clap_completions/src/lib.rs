@@ -198,11 +198,11 @@ pub fn get_all_subcommand_paths(p: &Parser, first: bool) -> Vec<String> {
 /// pub fn build_cli() -> App<'static, 'static> {
 ///     App::new("compl")
 ///         .about("Tests completions")
-///         .arg(Arg::with_name("file")
+///         .arg(Arg::new("file")
 ///             .help("some input file"))
 ///         .subcommand(SubCommand::with_name("test")
 ///             .about("tests things")
-///             .arg(Arg::with_name("case")
+///             .arg(Arg::new("case")
 ///                 .long("case")
 ///                 .takes_value(true)
 ///                 .help("the case to test")))

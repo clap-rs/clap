@@ -29,7 +29,7 @@ For more information try --help";
 #[test]
 fn possible_values_of_positional() {
     let m = App::new("possible_values")
-        .arg(Arg::with_name("positional")
+        .arg(Arg::new("positional")
                  .index(1)
                  .possible_value("test123"))
         .get_matches_from_safe(vec!["myprog", "test123"]);
@@ -44,7 +44,7 @@ fn possible_values_of_positional() {
 #[test]
 fn possible_values_of_positional_fail() {
     let m = App::new("possible_values")
-        .arg(Arg::with_name("positional")
+        .arg(Arg::new("positional")
                  .index(1)
                  .possible_value("test123"))
         .get_matches_from_safe(vec!["myprog", "notest"]);
@@ -56,7 +56,7 @@ fn possible_values_of_positional_fail() {
 #[test]
 fn possible_values_of_positional_multiple() {
     let m = App::new("possible_values")
-        .arg(Arg::with_name("positional")
+        .arg(Arg::new("positional")
                  .index(1)
                  .possible_value("test123")
                  .possible_value("test321")
@@ -74,7 +74,7 @@ fn possible_values_of_positional_multiple() {
 #[test]
 fn possible_values_of_positional_multiple_fail() {
     let m = App::new("possible_values")
-        .arg(Arg::with_name("positional")
+        .arg(Arg::new("positional")
                  .index(1)
                  .possible_value("test123")
                  .possible_value("test321")
@@ -88,7 +88,7 @@ fn possible_values_of_positional_multiple_fail() {
 #[test]
 fn possible_values_of_option() {
     let m = App::new("possible_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .short("-o")
                  .long("--option")
                  .takes_value(true)
@@ -105,7 +105,7 @@ fn possible_values_of_option() {
 #[test]
 fn possible_values_of_option_fail() {
     let m = App::new("possible_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .short("-o")
                  .long("--option")
                  .takes_value(true)
@@ -119,7 +119,7 @@ fn possible_values_of_option_fail() {
 #[test]
 fn possible_values_of_option_multiple() {
     let m = App::new("possible_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .short("-o")
                  .long("--option")
                  .takes_value(true)
@@ -139,7 +139,7 @@ fn possible_values_of_option_multiple() {
 #[test]
 fn possible_values_of_option_multiple_fail() {
     let m = App::new("possible_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .short("-o")
                  .long("--option")
                  .takes_value(true)

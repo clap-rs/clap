@@ -29,28 +29,28 @@ fn main() {
                         // All application settings go here...
 
                         // A simple "Flag" argument example (i.e. "-d") using the builder pattern
-                        .arg(Arg::with_name("debug")
+                        .arg(Arg::new("debug")
                                     .help("turn on debugging information")
                                     .short("d"))
 
                         // Two arguments, one "Option" argument (i.e. one that takes a value) such
                         // as "-c some", and one positional argument (i.e. "myapp some_file")
                         .args(&[
-                            Arg::with_name("config")
+                            Arg::new("config")
                                     .help("sets the config file to use")
                                     .takes_value(true)
                                     .short("c")
                                     .long("config"),
-                            Arg::with_name("input")
+                            Arg::new("input")
                                     .help("the input file to use")
                                     .index(1)
                                     .required(true)
                         ])
 
                         // *Note* the following two examples are convienience methods, if you wish
-                        // to still get the full configurability of Arg::with_name() and the readability
+                        // to still get the full configurability of Arg::new() and the readability
                         // of arg_from_usage(), you can instantiate a new Arg with Arg::from() and
-                        // still be able to set all the additional properties, just like Arg::with_name()
+                        // still be able to set all the additional properties, just like Arg::new()
                         //
                         //
                         // One "Flag" using a usage string

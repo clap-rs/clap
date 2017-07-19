@@ -26,7 +26,7 @@ pub enum ErrorKind {
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("prog")
-    ///     .arg(Arg::with_name("speed")
+    ///     .arg(Arg::new("speed")
     ///         .possible_value("fast")
     ///         .possible_value("slow"))
     ///     .get_matches_from_safe(vec!["prog", "other"]);
@@ -63,7 +63,7 @@ pub enum ErrorKind {
     /// let result = App::new("prog")
     ///     .subcommand(SubCommand::with_name("config")
     ///         .about("Used for configuration")
-    ///         .arg(Arg::with_name("config_file")
+    ///         .arg(Arg::new("config_file")
     ///             .help("The configuration file to use")
     ///             .index(1)))
     ///     .get_matches_from_safe(vec!["prog", "confi"]);
@@ -89,7 +89,7 @@ pub enum ErrorKind {
     /// let result = App::new("prog")
     ///     .subcommand(SubCommand::with_name("config")
     ///         .about("Used for configuration")
-    ///         .arg(Arg::with_name("config_file")
+    ///         .arg(Arg::new("config_file")
     ///             .help("The configuration file to use")
     ///             .index(1)))
     ///     .get_matches_from_safe(vec!["prog", "help", "nothing"]);
@@ -109,7 +109,7 @@ pub enum ErrorKind {
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///          .long("color")
     ///          .empty_values(false))
     ///     .get_matches_from_safe(vec!["prog", "--color="]);
@@ -133,7 +133,7 @@ pub enum ErrorKind {
     /// }
     ///
     /// let result = App::new("prog")
-    ///     .arg(Arg::with_name("num")
+    ///     .arg(Arg::new("num")
     ///          .validator(is_numeric))
     ///     .get_matches_from_safe(vec!["prog", "NotANumber"]);
     /// assert!(result.is_err());
@@ -149,7 +149,7 @@ pub enum ErrorKind {
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("prog")
-    ///     .arg(Arg::with_name("arg")
+    ///     .arg(Arg::new("arg")
     ///         .multiple(true)
     ///         .max_values(2))
     ///     .get_matches_from_safe(vec!["prog", "too", "many", "values"]);
@@ -167,7 +167,7 @@ pub enum ErrorKind {
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("prog")
-    ///     .arg(Arg::with_name("some_opt")
+    ///     .arg(Arg::new("some_opt")
     ///         .long("opt")
     ///         .min_values(3))
     ///     .get_matches_from_safe(vec!["prog", "--opt", "too", "few"]);
@@ -186,7 +186,7 @@ pub enum ErrorKind {
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("prog")
-    ///     .arg(Arg::with_name("some_opt")
+    ///     .arg(Arg::new("some_opt")
     ///         .long("opt")
     ///         .takes_value(true)
     ///         .number_of_values(2))
@@ -207,10 +207,10 @@ pub enum ErrorKind {
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("prog")
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .long("debug")
     ///         .conflicts_with("color"))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .long("color"))
     ///     .get_matches_from_safe(vec!["prog", "--debug", "--color"]);
     /// assert!(result.is_err());
@@ -225,7 +225,7 @@ pub enum ErrorKind {
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("prog")
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .required(true))
     ///     .get_matches_from_safe(vec!["prog"]);
     /// assert!(result.is_err());
@@ -264,7 +264,7 @@ pub enum ErrorKind {
     ///     .setting(AppSettings::ArgRequiredElseHelp)
     ///     .subcommand(SubCommand::with_name("config")
     ///         .about("Used for configuration")
-    ///         .arg(Arg::with_name("config_file")
+    ///         .arg(Arg::new("config_file")
     ///             .help("The configuration file to use")))
     ///     .get_matches_from_safe(vec!["prog"]);
     /// assert!(result.is_err());
@@ -281,7 +281,7 @@ pub enum ErrorKind {
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("prog")
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .long("debug")
     ///         .multiple(false))
     ///     .get_matches_from_safe(vec!["prog", "--debug", "--debug"]);
@@ -306,7 +306,7 @@ pub enum ErrorKind {
     /// # use std::ffi::OsString;
     /// let result = App::new("prog")
     ///     .setting(AppSettings::StrictUtf8)
-    ///     .arg(Arg::with_name("utf8")
+    ///     .arg(Arg::new("utf8")
     ///         .short("u")
     ///         .takes_value(true))
     ///     .get_matches_from_safe(vec![OsString::from("myprog"),

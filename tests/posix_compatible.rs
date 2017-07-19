@@ -146,7 +146,7 @@ fn conflict_overriden_4() {
 #[test]
 fn pos_required_overridden_by_flag() {
     let result = App::new("require_overriden")
-        .arg(Arg::with_name("pos").index(1).required(true))
+        .arg(Arg::new("pos").index(1).required(true))
         .arg(Arg::from("-c, --color 'some flag'").overrides_with("pos"))
         .get_matches_from_safe(vec!["", "test", "-c"]);
     assert!(result.is_ok(), "{:?}", result.unwrap_err());
@@ -155,7 +155,7 @@ fn pos_required_overridden_by_flag() {
 #[test]
 fn require_overriden_2() {
     let m = App::new("require_overriden")
-        .arg(Arg::with_name("flag").index(1).required(true))
+        .arg(Arg::new("flag").index(1).required(true))
         .arg(Arg::from("-c, --color 'other flag'").overrides_with("flag"))
         .get_matches_from(vec!["", "-c", "flag"]);
     assert!(!m.is_present("color"));

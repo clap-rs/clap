@@ -368,7 +368,7 @@ fn app<F>(next_line_help: bool, doc: F) -> App<'static, 'static>
     where F: Fn(&'static str) -> &'static str
 {
     let arg = |name| {
-        Arg::with_name(name)
+        Arg::new(name)
             .help(doc(name))
             .next_line_help(next_line_help)
     };

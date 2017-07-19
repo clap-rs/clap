@@ -176,7 +176,7 @@ pub enum AppSettings {
     /// // Imagine you needed to represent negative numbers as well, such as -10
     /// let m = App::new("nums")
     ///     .setting(AppSettings::AllowLeadingHyphen)
-    ///     .arg(Arg::with_name("neg").index(1))
+    ///     .arg(Arg::new("neg").index(1))
     ///     .get_matches_from(vec![
     ///         "nums", "-20"
     ///     ]);
@@ -198,7 +198,7 @@ pub enum AppSettings {
     /// let res = App::new("myprog")
     ///     .version("v1.1")
     ///     .setting(AppSettings::AllowNegativeNumbers)
-    ///     .arg(Arg::with_name("num"))
+    ///     .arg(Arg::new("num"))
     ///     .get_matches_from_safe(vec![
     ///         "myprog", "-20"
     ///     ]);
@@ -228,9 +228,9 @@ pub enum AppSettings {
     /// // Assume there is an external subcommand named "subcmd"
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::AllowMissingPositional)
-    ///     .arg(Arg::with_name("arg1")
+    ///     .arg(Arg::new("arg1")
     ///         .default_value("something"))
-    ///     .arg(Arg::with_name("arg2")
+    ///     .arg(Arg::new("arg2")
     ///         .required(true))
     ///     .get_matches_from(vec![
     ///         "myprog", "other"
@@ -647,7 +647,7 @@ pub enum AppSettings {
     /// # use clap::{App, Arg, AppSettings, SubCommand, ErrorKind};
     /// let err = App::new("myprog")
     ///     .setting(AppSettings::SubcommandsNegateReqs)
-    ///     .arg(Arg::with_name("opt").required(true))
+    ///     .arg(Arg::new("opt").required(true))
     ///     .subcommand(SubCommand::with_name("test"))
     ///     .get_matches_from_safe(vec![
     ///         "myprog"
@@ -664,7 +664,7 @@ pub enum AppSettings {
     /// # use clap::{App, Arg, AppSettings, SubCommand, ErrorKind};
     /// let noerr = App::new("myprog")
     ///     .setting(AppSettings::SubcommandsNegateReqs)
-    ///     .arg(Arg::with_name("opt").required(true))
+    ///     .arg(Arg::new("opt").required(true))
     ///     .subcommand(SubCommand::with_name("test"))
     ///     .get_matches_from_safe(vec![
     ///         "myprog", "test"

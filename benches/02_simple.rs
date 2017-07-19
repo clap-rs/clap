@@ -60,7 +60,7 @@ fn add_opt_ref(b: &mut Bencher) {
 fn add_pos(b: &mut Bencher) {
     fn build_app() -> App<'static, 'static> { App::new("claptests") }
 
-    b.iter(|| build_app().arg(Arg::with_name("some")));
+    b.iter(|| build_app().arg(Arg::new("some")));
 }
 
 #[bench]
@@ -68,7 +68,7 @@ fn add_pos_ref(b: &mut Bencher) {
     fn build_app() -> App<'static, 'static> { App::new("claptests") }
 
     b.iter(|| {
-               let arg = Arg::with_name("some");
+               let arg = Arg::new("some");
                build_app().arg(&arg)
            });
 }

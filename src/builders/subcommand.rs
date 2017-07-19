@@ -21,7 +21,7 @@ use {App, ArgMatches};
 ///     .subcommand(
 ///         SubCommand::with_name("config")
 ///             .about("Used for configuration")
-///             .arg(Arg::with_name("config_file")
+///             .arg(Arg::new("config_file")
 ///                 .help("The configuration file to use")
 ///                 .index(1)))
 /// # ;

@@ -5,7 +5,7 @@ use clap::{App, Arg, ErrorKind, SubCommand};
 #[test]
 fn option_long() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .long("option")
                  .help("multiple options")
                  .takes_value(true)
@@ -25,7 +25,7 @@ fn option_long() {
 #[test]
 fn with_subcmd() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .long("option")
                  .help("multiple options")
                  .takes_value(true)
@@ -46,7 +46,7 @@ fn with_subcmd() {
 #[test]
 fn option_short() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
                  .takes_value(true)
@@ -65,7 +65,7 @@ fn option_short() {
 #[test]
 fn option_mixed() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .long("option")
                  .short("o")
                  .help("multiple options")
@@ -86,7 +86,7 @@ fn option_mixed() {
 #[test]
 fn option_exact_exact() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
                  .takes_value(true)
@@ -106,7 +106,7 @@ fn option_exact_exact() {
 #[test]
 fn option_exact_exact_not_mult() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
                  .takes_value(true)
@@ -125,7 +125,7 @@ fn option_exact_exact_not_mult() {
 #[test]
 fn option_exact_exact_mult() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
                  .takes_value(true)
@@ -146,7 +146,7 @@ fn option_exact_exact_mult() {
 #[test]
 fn option_exact_less() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
                  .takes_value(true)
@@ -162,7 +162,7 @@ fn option_exact_less() {
 fn option_exact_more() {
     let m =
         App::new("multiple_values")
-            .arg(Arg::with_name("option")
+            .arg(Arg::new("option")
                      .short("o")
                      .help("multiple options")
                      .takes_value(true)
@@ -178,7 +178,7 @@ fn option_exact_more() {
 #[test]
 fn option_min_exact() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
                  .takes_value(true)
@@ -198,7 +198,7 @@ fn option_min_exact() {
 #[test]
 fn option_min_less() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
                  .takes_value(true)
@@ -213,8 +213,8 @@ fn option_min_less() {
 #[test]
 fn option_short_min_more_mult_occurs() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("arg").required(true))
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("arg").required(true))
+        .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
                  .takes_value(true)
@@ -237,8 +237,8 @@ fn option_short_min_more_mult_occurs() {
 #[test]
 fn option_short_min_more_single_occur() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("arg").required(true))
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("arg").required(true))
+        .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
                  .takes_value(true)
@@ -260,7 +260,7 @@ fn option_short_min_more_single_occur() {
 #[test]
 fn option_max_exact() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
                  .takes_value(true)
@@ -280,7 +280,7 @@ fn option_max_exact() {
 #[test]
 fn option_max_less() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
                  .takes_value(true)
@@ -301,7 +301,7 @@ fn option_max_less() {
 fn option_max_more() {
     let m =
         App::new("multiple_values")
-            .arg(Arg::with_name("option")
+            .arg(Arg::new("option")
                      .short("o")
                      .help("multiple options")
                      .takes_value(true)
@@ -317,7 +317,7 @@ fn option_max_more() {
 #[test]
 fn positional() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("pos")
+        .arg(Arg::new("pos")
                  .help("multiple positionals")
                  .multiple(true))
         .get_matches_from_safe(vec!["myprog", "val1", "val2", "val3"]);
@@ -334,7 +334,7 @@ fn positional() {
 #[test]
 fn positional_exact_exact() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("pos")
+        .arg(Arg::new("pos")
                  .help("multiple positionals")
                  .number_of_values(3))
         .get_matches_from_safe(vec!["myprog", "val1", "val2", "val3"]);
@@ -351,7 +351,7 @@ fn positional_exact_exact() {
 #[test]
 fn positional_exact_less() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("pos")
+        .arg(Arg::new("pos")
                  .help("multiple positionals")
                  .number_of_values(3))
         .get_matches_from_safe(vec!["myprog", "val1", "val2"]);
@@ -363,7 +363,7 @@ fn positional_exact_less() {
 #[test]
 fn positional_exact_more() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("pos")
+        .arg(Arg::new("pos")
                  .help("multiple positionals")
                  .number_of_values(3))
         .get_matches_from_safe(vec!["myprog", "val1", "val2", "val3", "val4"]);
@@ -375,7 +375,7 @@ fn positional_exact_more() {
 #[test]
 fn positional_min_exact() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("pos")
+        .arg(Arg::new("pos")
                  .help("multiple positionals")
                  .min_values(3))
         .get_matches_from_safe(vec!["myprog", "val1", "val2", "val3"]);
@@ -392,7 +392,7 @@ fn positional_min_exact() {
 #[test]
 fn positional_min_less() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("pos")
+        .arg(Arg::new("pos")
                  .help("multiple positionals")
                  .min_values(3))
         .get_matches_from_safe(vec!["myprog", "val1", "val2"]);
@@ -404,7 +404,7 @@ fn positional_min_less() {
 #[test]
 fn positional_min_more() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("pos")
+        .arg(Arg::new("pos")
                  .help("multiple positionals")
                  .min_values(3))
         .get_matches_from_safe(vec!["myprog", "val1", "val2", "val3", "val4"]);
@@ -421,7 +421,7 @@ fn positional_min_more() {
 #[test]
 fn positional_max_exact() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("pos")
+        .arg(Arg::new("pos")
                  .help("multiple positionals")
                  .max_values(3))
         .get_matches_from_safe(vec!["myprog", "val1", "val2", "val3"]);
@@ -438,7 +438,7 @@ fn positional_max_exact() {
 #[test]
 fn positional_max_less() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("pos")
+        .arg(Arg::new("pos")
                  .help("multiple positionals")
                  .max_values(3))
         .get_matches_from_safe(vec!["myprog", "val1", "val2"]);
@@ -455,7 +455,7 @@ fn positional_max_less() {
 #[test]
 fn positional_max_more() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("pos")
+        .arg(Arg::new("pos")
                  .help("multiple positionals")
                  .max_values(3))
         .get_matches_from_safe(vec!["myprog", "val1", "val2", "val3", "val4"]);
@@ -467,7 +467,7 @@ fn positional_max_more() {
 #[test]
 fn sep_long_equals() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .long("option")
                  .use_delimiter(true)
                  .help("multiple options")
@@ -487,7 +487,7 @@ fn sep_long_equals() {
 #[test]
 fn sep_long_space() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .long("option")
                  .use_delimiter(true)
                  .help("multiple options")
@@ -507,7 +507,7 @@ fn sep_long_space() {
 #[test]
 fn sep_short_equals() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
                  .use_delimiter(true)
@@ -527,7 +527,7 @@ fn sep_short_equals() {
 #[test]
 fn sep_short_space() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
                  .use_delimiter(true)
@@ -547,7 +547,7 @@ fn sep_short_space() {
 #[test]
 fn sep_short_no_space() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
                  .use_delimiter(true)
@@ -567,7 +567,7 @@ fn sep_short_no_space() {
 #[test]
 fn sep_positional() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .help("multiple options")
                  .use_delimiter(true)
                  .multiple(true))
@@ -585,7 +585,7 @@ fn sep_positional() {
 #[test]
 fn different_sep() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .long("option")
                  .help("multiple options")
                  .takes_value(true)
@@ -604,7 +604,7 @@ fn different_sep() {
 #[test]
 fn different_sep_positional() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .help("multiple options")
                  .value_delimiter(";"))
         .get_matches_from_safe(vec!["", "val1;val2;val3"]);
@@ -621,7 +621,7 @@ fn different_sep_positional() {
 #[test]
 fn no_sep() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .long("option")
                  .help("multiple options")
                  .takes_value(true)
@@ -639,7 +639,7 @@ fn no_sep() {
 #[test]
 fn no_sep_positional() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .help("multiple options")
                  .use_delimiter(false))
         .get_matches_from_safe(vec!["", "val1,val2,val3"]);
@@ -655,13 +655,13 @@ fn no_sep_positional() {
 #[test]
 fn req_delimiter_long() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .long("option")
                  .multiple(true)
                  .use_delimiter(true)
                  .require_delimiter(true)
                  .takes_value(true))
-        .arg(Arg::with_name("args").multiple(true).index(1))
+        .arg(Arg::new("args").multiple(true).index(1))
         .get_matches_from_safe(vec!["", "--option", "val1", "val2", "val3"]);
 
     assert!(m.is_ok());
@@ -678,13 +678,13 @@ fn req_delimiter_long() {
 #[test]
 fn req_delimiter_long_with_equal() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .long("option")
                  .multiple(true)
                  .use_delimiter(true)
                  .require_delimiter(true)
                  .takes_value(true))
-        .arg(Arg::with_name("args").multiple(true).index(1))
+        .arg(Arg::new("args").multiple(true).index(1))
         .get_matches_from_safe(vec!["", "--option=val1", "val2", "val3"]);
 
     assert!(m.is_ok());
@@ -701,13 +701,13 @@ fn req_delimiter_long_with_equal() {
 #[test]
 fn req_delimiter_short_with_space() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .short("o")
                  .multiple(true)
                  .use_delimiter(true)
                  .require_delimiter(true)
                  .takes_value(true))
-        .arg(Arg::with_name("args").multiple(true).index(1))
+        .arg(Arg::new("args").multiple(true).index(1))
         .get_matches_from_safe(vec!["", "-o", "val1", "val2", "val3"]);
 
     assert!(m.is_ok());
@@ -724,13 +724,13 @@ fn req_delimiter_short_with_space() {
 #[test]
 fn req_delimiter_short_with_no_space() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .short("o")
                  .multiple(true)
                  .use_delimiter(true)
                  .require_delimiter(true)
                  .takes_value(true))
-        .arg(Arg::with_name("args").multiple(true).index(1))
+        .arg(Arg::new("args").multiple(true).index(1))
         .get_matches_from_safe(vec!["", "-oval1", "val2", "val3"]);
 
     assert!(m.is_ok());
@@ -747,13 +747,13 @@ fn req_delimiter_short_with_no_space() {
 #[test]
 fn req_delimiter_short_with_equal() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .short("option")
                  .multiple(true)
                  .use_delimiter(true)
                  .require_delimiter(true)
                  .takes_value(true))
-        .arg(Arg::with_name("args").multiple(true).index(1))
+        .arg(Arg::new("args").multiple(true).index(1))
         .get_matches_from_safe(vec!["", "-o=val1", "val2", "val3"]);
 
     assert!(m.is_ok());
@@ -770,14 +770,14 @@ fn req_delimiter_short_with_equal() {
 #[test]
 fn req_delimiter_complex() {
     let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
+        .arg(Arg::new("option")
                  .long("option")
                  .short("o")
                  .multiple(true)
                  .use_delimiter(true)
                  .require_delimiter(true)
                  .takes_value(true))
-        .arg(Arg::with_name("args").multiple(true).index(1))
+        .arg(Arg::new("args").multiple(true).index(1))
         .get_matches_from_safe(vec!["",
                                     "val1",
                                     "-oval2",
@@ -822,11 +822,11 @@ fn req_delimiter_complex() {
 #[should_panic]
 fn low_index_positional_not_required() {
     let _ = App::new("lip")
-        .arg(Arg::with_name("files")
+        .arg(Arg::new("files")
                  .index(1)
                  .required(true)
                  .multiple(true))
-        .arg(Arg::with_name("target").index(2))
+        .arg(Arg::new("target").index(2))
         .get_matches_from_safe(vec!["lip", "file1", "file2", "file3", "target"]);
 }
 
@@ -834,11 +834,11 @@ fn low_index_positional_not_required() {
 #[should_panic]
 fn low_index_positional_last_multiple_too() {
     let _ = App::new("lip")
-        .arg(Arg::with_name("files")
+        .arg(Arg::new("files")
                  .index(1)
                  .required(true)
                  .multiple(true))
-        .arg(Arg::with_name("target")
+        .arg(Arg::new("target")
                  .index(2)
                  .required(true)
                  .multiple(true))
@@ -849,23 +849,23 @@ fn low_index_positional_last_multiple_too() {
 #[should_panic]
 fn low_index_positional_too_far_back() {
     let _ = App::new("lip")
-        .arg(Arg::with_name("files")
+        .arg(Arg::new("files")
                  .index(1)
                  .required(true)
                  .multiple(true))
-        .arg(Arg::with_name("target").required(true).index(2))
-        .arg(Arg::with_name("target2").required(true).index(3))
+        .arg(Arg::new("target").required(true).index(2))
+        .arg(Arg::new("target2").required(true).index(3))
         .get_matches_from_safe(vec!["lip", "file1", "file2", "file3", "target"]);
 }
 
 #[test]
 fn low_index_positional() {
     let m = App::new("lip")
-        .arg(Arg::with_name("files")
+        .arg(Arg::new("files")
                  .index(1)
                  .required(true)
                  .multiple(true))
-        .arg(Arg::with_name("target").index(2).required(true))
+        .arg(Arg::new("target").index(2).required(true))
         .get_matches_from_safe(vec!["lip", "file1", "file2", "file3", "target"]);
 
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
@@ -883,12 +883,12 @@ fn low_index_positional() {
 #[test]
 fn low_index_positional_with_subcmd() {
     let m = App::new("lip")
-        .arg(Arg::with_name("files")
+        .arg(Arg::new("files")
                  .index(1)
                  .required(true)
                  .multiple(true))
-        .arg(Arg::with_name("target").index(2).required(true))
-        .subcommand(SubCommand::with_name("test").arg(Arg::with_name("other")))
+        .arg(Arg::new("target").index(2).required(true))
+        .subcommand(SubCommand::with_name("test").arg(Arg::new("other")))
         .get_matches_from_safe(vec!["lip", "file1", "file2", "file3", "target", "test"]);
 
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
@@ -907,11 +907,11 @@ fn low_index_positional_with_subcmd() {
 fn low_index_positional_in_subcmd() {
     let m = App::new("lip")
         .subcommand(SubCommand::with_name("test")
-                        .arg(Arg::with_name("files")
+                        .arg(Arg::new("files")
                                  .index(1)
                                  .required(true)
                                  .multiple(true))
-                        .arg(Arg::with_name("target").index(2).required(true)))
+                        .arg(Arg::new("target").index(2).required(true)))
         .get_matches_from_safe(vec!["lip", "test", "file1", "file2", "file3", "target"]);
 
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
@@ -930,12 +930,12 @@ fn low_index_positional_in_subcmd() {
 #[test]
 fn low_index_positional_with_option() {
     let m = App::new("lip")
-        .arg(Arg::with_name("files")
+        .arg(Arg::new("files")
                  .required(true)
                  .index(1)
                  .multiple(true))
-        .arg(Arg::with_name("target").index(2).required(true))
-        .arg(Arg::with_name("opt").long("option").takes_value(true))
+        .arg(Arg::new("target").index(2).required(true))
+        .arg(Arg::new("opt").long("option").takes_value(true))
         .get_matches_from_safe(vec!["lip", "file1", "file2", "file3", "target", "--option",
                                     "test"]);
 
@@ -955,12 +955,12 @@ fn low_index_positional_with_option() {
 #[test]
 fn low_index_positional_with_flag() {
     let m = App::new("lip")
-        .arg(Arg::with_name("files")
+        .arg(Arg::new("files")
                  .index(1)
                  .required(true)
                  .multiple(true))
-        .arg(Arg::with_name("target").index(2).required(true))
-        .arg(Arg::with_name("flg").long("flag"))
+        .arg(Arg::new("target").index(2).required(true))
+        .arg(Arg::new("flg").long("flag"))
         .get_matches_from_safe(vec!["lip", "file1", "file2", "file3", "target", "--flag"]);
 
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
@@ -979,11 +979,11 @@ fn low_index_positional_with_flag() {
 #[test]
 fn multiple_value_terminator_option() {
     let m = App::new("lip")
-        .arg(Arg::with_name("files")
+        .arg(Arg::new("files")
                  .short("f")
                  .value_terminator(";")
                  .multiple(true))
-        .arg(Arg::with_name("other"))
+        .arg(Arg::new("other"))
         .get_matches_from_safe(vec!["lip", "-f", "val1", "val2", ";", "otherval"]);
 
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
@@ -1000,12 +1000,12 @@ fn multiple_value_terminator_option() {
 #[test]
 fn multiple_value_terminator_option_other_arg() {
     let m = App::new("lip")
-        .arg(Arg::with_name("files")
+        .arg(Arg::new("files")
                  .short("f")
                  .value_terminator(";")
                  .multiple(true))
-        .arg(Arg::with_name("other"))
-        .arg(Arg::with_name("flag").short("-F"))
+        .arg(Arg::new("other"))
+        .arg(Arg::new("flag").short("-F"))
         .get_matches_from_safe(vec!["lip", "-f", "val1", "val2", "-F", "otherval"]);
 
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
@@ -1022,11 +1022,11 @@ fn multiple_value_terminator_option_other_arg() {
 #[test]
 fn multiple_vals_with_hyphen() {
     let m = App::new("do")
-        .arg(Arg::with_name("cmds")
+        .arg(Arg::new("cmds")
                  .multiple(true)
                  .allow_hyphen_values(true)
                  .value_terminator(";"))
-        .arg(Arg::with_name("location"))
+        .arg(Arg::new("location"))
         .get_matches_from(vec!["do",
                                "find",
                                "-type",

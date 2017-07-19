@@ -20,14 +20,14 @@ use SubCommand;
 /// ```no_run
 /// # use clap::{App, Arg};
 /// let matches = App::new("MyApp")
-///     .arg(Arg::with_name("out")
+///     .arg(Arg::new("out")
 ///         .long("output")
 ///         .required(true)
 ///         .takes_value(true))
-///     .arg(Arg::with_name("debug")
+///     .arg(Arg::new("debug")
 ///         .short("d")
 ///         .multiple(true))
-///     .arg(Arg::with_name("cfg")
+///     .arg(Arg::new("cfg")
 ///         .short("c")
 ///         .takes_value(true))
 ///     .get_matches(); // builds the instance of ArgMatches
@@ -99,7 +99,7 @@ impl<'a> ArgMatches<'a> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("myapp")
-    ///     .arg(Arg::with_name("output")
+    ///     .arg(Arg::new("output")
     ///         .takes_value(true))
     ///     .get_matches_from(vec!["myapp", "something"]);
     ///
@@ -196,7 +196,7 @@ impl<'a> ArgMatches<'a> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("myprog")
-    ///     .arg(Arg::with_name("output")
+    ///     .arg(Arg::new("output")
     ///         .multiple(true)
     ///         .short("o")
     ///         .takes_value(true))
@@ -300,7 +300,7 @@ impl<'a> ArgMatches<'a> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("myprog")
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .short("d"))
     ///     .get_matches_from(vec![
     ///         "myprog", "-d"
@@ -329,7 +329,7 @@ impl<'a> ArgMatches<'a> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("myprog")
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .short("d")
     ///         .multiple(true))
     ///     .get_matches_from(vec![
@@ -344,10 +344,10 @@ impl<'a> ArgMatches<'a> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("myprog")
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .short("d")
     ///         .multiple(true))
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short("f"))
     ///     .get_matches_from(vec![
     ///         "myprog", "-ddfd"
@@ -369,10 +369,10 @@ impl<'a> ArgMatches<'a> {
     /// ```rust
     /// # use clap::{App, Arg, SubCommand};
     /// let app_m = App::new("myprog")
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .short("d"))
     ///     .subcommand(SubCommand::with_name("test")
-    ///         .arg(Arg::with_name("opt")
+    ///         .arg(Arg::new("opt")
     ///             .long("option")
     ///             .takes_value(true)))
     ///     .get_matches_from(vec![
@@ -546,7 +546,7 @@ impl<'a> ArgMatches<'a> {
 /// ```rust
 /// # use clap::{App, Arg};
 /// let m = App::new("myapp")
-///     .arg(Arg::with_name("output")
+///     .arg(Arg::new("output")
 ///         .takes_value(true))
 ///     .get_matches_from(vec!["myapp", "something"]);
 ///

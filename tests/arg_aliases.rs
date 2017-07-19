@@ -36,7 +36,7 @@ OPTIONS:
 #[test]
 fn single_alias_of_option() {
     let a = App::new("single_alias")
-        .arg(Arg::with_name("alias")
+        .arg(Arg::new("alias")
                  .long("alias")
                  .takes_value(true)
                  .help("single alias")
@@ -51,7 +51,7 @@ fn single_alias_of_option() {
 #[test]
 fn multiple_aliases_of_option() {
     let a =
-        App::new("multiple_aliases").arg(Arg::with_name("aliases")
+        App::new("multiple_aliases").arg(Arg::new("aliases")
                                              .long("aliases")
                                              .takes_value(true)
                                              .help("multiple aliases")
@@ -89,7 +89,7 @@ fn multiple_aliases_of_option() {
 #[test]
 fn single_alias_of_flag() {
     let a = App::new("test")
-        .arg(Arg::with_name("flag").long("flag").alias("alias"))
+        .arg(Arg::new("flag").long("flag").alias("alias"))
         .get_matches_from_safe(vec!["", "--alias"]);
     assert!(a.is_ok());
     let a = a.unwrap();
@@ -99,7 +99,7 @@ fn single_alias_of_flag() {
 #[test]
 fn multiple_aliases_of_flag() {
     let a =
-        App::new("test").arg(Arg::with_name("flag")
+        App::new("test").arg(Arg::new("flag")
                                  .long("flag")
                                  .aliases(&["invisible", "set", "of", "cool", "aliases"]));
 
@@ -128,13 +128,13 @@ fn multiple_aliases_of_flag() {
 #[test]
 fn alias_on_a_subcommand_option() {
     let m = App::new("test")
-        .subcommand(SubCommand::with_name("some").arg(Arg::with_name("test")
+        .subcommand(SubCommand::with_name("some").arg(Arg::new("test")
                                                           .short("t")
                                                           .long("test")
                                                           .takes_value(true)
                                                           .alias("opt")
                                                           .help("testing testing")))
-        .arg(Arg::with_name("other")
+        .arg(Arg::new("other")
                  .long("other")
                  .aliases(&vec!["o1", "o2", "o3"]))
         .get_matches_from(vec!["test", "some", "--opt", "awesome"]);
@@ -152,7 +152,7 @@ fn invisible_arg_aliases_help_output() {
         .subcommand(SubCommand::with_name("test")
                         .about("Some help")
                         .version("1.2")
-                        .arg(Arg::with_name("opt")
+                        .arg(Arg::new("opt")
                                  .long("opt")
                                  .short("o")
                                  .takes_value(true)
@@ -170,13 +170,13 @@ fn visible_arg_aliases_help_output() {
         .subcommand(SubCommand::with_name("test")
                         .about("Some help")
                         .version("1.2")
-                        .arg(Arg::with_name("opt")
+                        .arg(Arg::new("opt")
                                  .long("opt")
                                  .short("o")
                                  .takes_value(true)
                                  .alias("invisible")
                                  .visible_alias("visible"))
-                        .arg(Arg::with_name("flg")
+                        .arg(Arg::new("flg")
                                  .long("flag")
                                  .short("f")
                                  .visible_aliases(&["v_flg", "flag2", "flg3"])));

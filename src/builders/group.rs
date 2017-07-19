@@ -144,9 +144,9 @@ impl<'a> ArgGroup<'a> {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup};
     /// let m = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short("f"))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short("c"))
     ///     .group(ArgGroup::new("req_flags")
     ///         .arg("flag")
@@ -176,9 +176,9 @@ impl<'a> ArgGroup<'a> {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup};
     /// let m = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short("f"))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short("c"))
     ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"]))
@@ -206,9 +206,9 @@ impl<'a> ArgGroup<'a> {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup};
     /// let m = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short("f"))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short("c"))
     ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
@@ -223,9 +223,9 @@ impl<'a> ArgGroup<'a> {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup, ErrorKind};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short("f"))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short("c"))
     ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"]))
@@ -259,9 +259,9 @@ impl<'a> ArgGroup<'a> {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup, ErrorKind};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short("f"))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short("c"))
     ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
@@ -292,11 +292,11 @@ impl<'a> ArgGroup<'a> {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup, ErrorKind};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short("f"))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short("c"))
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .short("d"))
     ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
@@ -331,13 +331,13 @@ impl<'a> ArgGroup<'a> {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup, ErrorKind};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short("f"))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short("c"))
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .short("d"))
-    ///     .arg(Arg::with_name("verb")
+    ///     .arg(Arg::new("verb")
     ///         .short("v"))
     ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
@@ -369,11 +369,11 @@ impl<'a> ArgGroup<'a> {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup, ErrorKind};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short("f"))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short("c"))
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .short("d"))
     ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
@@ -405,13 +405,13 @@ impl<'a> ArgGroup<'a> {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup, ErrorKind};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short("f"))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short("c"))
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .short("d"))
-    ///     .arg(Arg::with_name("verb")
+    ///     .arg(Arg::new("verb")
     ///         .short("v"))
     ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])

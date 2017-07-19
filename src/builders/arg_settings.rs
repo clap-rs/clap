@@ -75,7 +75,7 @@ pub enum ArgSettings {
     ///
     /// ```rust
     /// # use clap::Arg;
-    /// Arg::with_name("config")
+    /// Arg::new("config")
     ///     .required(true)
     /// # ;
     /// ```
@@ -85,7 +85,7 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let res = App::new("prog")
-    ///     .arg(Arg::with_name("cfg")
+    ///     .arg(Arg::new("cfg")
     ///         .required(true)
     ///         .takes_value(true)
     ///         .long("config"))
@@ -101,7 +101,7 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
-    ///     .arg(Arg::with_name("cfg")
+    ///     .arg(Arg::new("cfg")
     ///         .required(true)
     ///         .takes_value(true)
     ///         .long("config"))
@@ -141,7 +141,7 @@ pub enum ArgSettings {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// Arg::with_name("debug")
+    /// Arg::new("debug")
     ///     .short("d")
     ///     .multiple(true)
     /// # ;
@@ -151,7 +151,7 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
-    ///     .arg(Arg::with_name("verbose")
+    ///     .arg(Arg::new("verbose")
     ///         .multiple(true)
     ///         .short("v"))
     ///     .get_matches_from(vec![
@@ -167,7 +167,7 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
-    ///     .arg(Arg::with_name("file")
+    ///     .arg(Arg::new("file")
     ///         .multiple(true)
     ///         .takes_value(true)
     ///         .short("F"))
@@ -185,7 +185,7 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
-    ///     .arg(Arg::with_name("file")
+    ///     .arg(Arg::new("file")
     ///         .multiple(true)
     ///         .takes_value(true)
     ///         .short("F"))
@@ -206,11 +206,11 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
-    ///     .arg(Arg::with_name("file")
+    ///     .arg(Arg::new("file")
     ///         .multiple(true)
     ///         .takes_value(true)
     ///         .short("F"))
-    ///     .arg(Arg::with_name("word")
+    ///     .arg(Arg::new("word")
     ///         .index(1))
     ///     .get_matches_from(vec![
     ///         "prog", "-F", "file1", "file2", "file3", "word"
@@ -231,12 +231,12 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
-    ///     .arg(Arg::with_name("file")
+    ///     .arg(Arg::new("file")
     ///         .multiple(true)
     ///         .takes_value(true)
     ///         .number_of_values(1)
     ///         .short("F"))
-    ///     .arg(Arg::with_name("word")
+    ///     .arg(Arg::new("word")
     ///         .index(1))
     ///     .get_matches_from(vec![
     ///         "prog", "-F", "file1", "-F", "file2", "-F", "file3", "word"
@@ -255,12 +255,12 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
-    ///     .arg(Arg::with_name("file")
+    ///     .arg(Arg::new("file")
     ///         .multiple(true)
     ///         .takes_value(true)
     ///         .number_of_values(1)
     ///         .short("F"))
-    ///     .arg(Arg::with_name("word")
+    ///     .arg(Arg::new("word")
     ///         .index(1))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "-F", "file1", "file2", "file3", "word"
@@ -284,7 +284,7 @@ pub enum ArgSettings {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// Arg::with_name("file")
+    /// Arg::new("file")
     ///     .long("file")
     ///     .empty_values(false)
     /// # ;
@@ -295,7 +295,7 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
-    ///     .arg(Arg::with_name("cfg")
+    ///     .arg(Arg::new("cfg")
     ///         .long("config")
     ///         .short("v")
     ///         .empty_values(false))
@@ -323,7 +323,7 @@ pub enum ArgSettings {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// Arg::with_name("debug")
+    /// Arg::new("debug")
     ///     .short("d")
     ///     .global(true)
     /// # ;
@@ -336,7 +336,7 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg, SubCommand};
     /// let m = App::new("prog")
-    ///     .arg(Arg::with_name("verb")
+    ///     .arg(Arg::new("verb")
     ///         .long("verbose")
     ///         .short("v")
     ///         .global(true))
@@ -364,7 +364,7 @@ pub enum ArgSettings {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// Arg::with_name("debug")
+    /// Arg::new("debug")
     ///     .hidden(true)
     /// # ;
     /// ```
@@ -373,7 +373,7 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
-    ///     .arg(Arg::with_name("cfg")
+    ///     .arg(Arg::new("cfg")
     ///         .long("config")
     ///         .hidden(true)
     ///         .help("Some help text describing the --config arg"))
@@ -412,7 +412,7 @@ pub enum ArgSettings {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// Arg::with_name("config")
+    /// Arg::new("config")
     ///     .takes_value(true)
     /// # ;
     /// ```
@@ -420,7 +420,7 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
-    ///     .arg(Arg::with_name("mode")
+    ///     .arg(Arg::new("mode")
     ///         .long("mode")
     ///         .takes_value(true))
     ///     .get_matches_from(vec![
@@ -449,7 +449,7 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let delims = App::new("prog")
-    ///     .arg(Arg::with_name("option")
+    ///     .arg(Arg::new("option")
     ///         .long("option")
     ///         .use_delimiter(true)
     ///         .takes_value(true))
@@ -467,7 +467,7 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let nodelims = App::new("prog")
-    ///     .arg(Arg::with_name("option")
+    ///     .arg(Arg::new("option")
     ///         .long("option")
     ///         .use_delimiter(false)
     ///         .takes_value(true))
@@ -493,7 +493,7 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
-    ///     .arg(Arg::with_name("opt")
+    ///     .arg(Arg::new("opt")
     ///         .long("long-option-flag")
     ///         .short("o")
     ///         .takes_value(true)
@@ -547,7 +547,7 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let delims = App::new("prog")
-    ///     .arg(Arg::with_name("opt")
+    ///     .arg(Arg::new("opt")
     ///         .short("o")
     ///         .takes_value(true)
     ///         .multiple(true)
@@ -564,7 +564,7 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
-    ///     .arg(Arg::with_name("opt")
+    ///     .arg(Arg::new("opt")
     ///         .short("o")
     ///         .takes_value(true)
     ///         .multiple(true)
@@ -587,7 +587,7 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let delims = App::new("prog")
-    ///     .arg(Arg::with_name("opt")
+    ///     .arg(Arg::new("opt")
     ///         .short("o")
     ///         .takes_value(true)
     ///         .multiple(true))
@@ -610,7 +610,7 @@ pub enum ArgSettings {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// Arg::with_name("config")
+    /// Arg::new("config")
     ///     .hide_possible_values(true)
     /// # ;
     /// ```
@@ -618,7 +618,7 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
-    ///     .arg(Arg::with_name("mode")
+    ///     .arg(Arg::new("mode")
     ///         .long("mode")
     ///         .possible_values(&["fast", "slow"])
     ///         .takes_value(true)
@@ -642,7 +642,7 @@ pub enum ArgSettings {
     ///
     /// ```rust
     /// # use clap::Arg;
-    /// Arg::with_name("pattern")
+    /// Arg::new("pattern")
     ///     .allow_hyphen_values(true)
     /// # ;
     /// ```
@@ -650,7 +650,7 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
-    ///     .arg(Arg::with_name("pat")
+    ///     .arg(Arg::new("pat")
     ///         .allow_hyphen_values(true)
     ///         .takes_value(true)
     ///         .long("pattern"))
@@ -667,7 +667,7 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
-    ///     .arg(Arg::with_name("pat")
+    ///     .arg(Arg::new("pat")
     ///         .takes_value(true)
     ///         .long("pattern"))
     ///     .get_matches_from_safe(vec![
@@ -689,7 +689,7 @@ pub enum ArgSettings {
     ///
     /// ```rust
     /// # use clap::Arg;
-    /// Arg::with_name("config")
+    /// Arg::new("config")
     ///     .long("config")
     ///     .takes_value(true)
     ///     .require_equals(true)
@@ -702,7 +702,7 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let res = App::new("prog")
-    ///     .arg(Arg::with_name("cfg")
+    ///     .arg(Arg::new("cfg")
     ///         .require_equals(true)
     ///         .takes_value(true)
     ///         .long("config"))
@@ -719,7 +719,7 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
-    ///     .arg(Arg::with_name("cfg")
+    ///     .arg(Arg::new("cfg")
     ///         .require_equals(true)
     ///         .takes_value(true)
     ///         .long("config"))
@@ -759,7 +759,7 @@ pub enum ArgSettings {
     ///
     /// ```rust
     /// # use clap::Arg;
-    /// Arg::with_name("args")
+    /// Arg::new("args")
     ///     .last(true)
     /// # ;
     /// ```
@@ -770,9 +770,9 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let res = App::new("prog")
-    ///     .arg(Arg::with_name("first"))
-    ///     .arg(Arg::with_name("second"))
-    ///     .arg(Arg::with_name("third").last(true))
+    ///     .arg(Arg::new("first"))
+    ///     .arg(Arg::new("second"))
+    ///     .arg(Arg::new("third").last(true))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "one", "--", "three"
     ///     ]);
@@ -789,9 +789,9 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
-    ///     .arg(Arg::with_name("first"))
-    ///     .arg(Arg::with_name("second"))
-    ///     .arg(Arg::with_name("third").last(true))
+    ///     .arg(Arg::new("first"))
+    ///     .arg(Arg::new("second"))
+    ///     .arg(Arg::new("third").last(true))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "one", "two", "three"
     ///     ]);
@@ -816,7 +816,7 @@ pub enum ArgSettings {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// Arg::with_name("config")
+    /// Arg::new("config")
     ///     .hide_default_value(true)
     /// # ;
     /// ```
@@ -824,7 +824,7 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("connect")
-    ///     .arg(Arg::with_name("host")
+    ///     .arg(Arg::new("host")
     ///         .long("host")
     ///         .default_value("localhost")
     ///         .hide_default_value(true));
