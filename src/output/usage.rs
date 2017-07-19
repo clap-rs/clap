@@ -105,7 +105,7 @@ impl<'a, 'b, 'c> Parser<'a, 'b, 'c> {
                 let pos = positionals!(self.app)
                     .find(|p| p.is_set(ArgSettings::Last))
                     .expect(INTERNAL_ERROR_MSG);
-                debugln!("usage::create_help_usage: '{}' has .last(true)", pos.name());
+                debugln!("usage::create_help_usage: '{}' has .last(true)", pos.name);
                 let req = pos.is_set(ArgSettings::Required);
                 if req && positionals!(self.app).any(|p| !p.is_set(ArgSettings::Required)) {
                     usage.push_str(" -- <");

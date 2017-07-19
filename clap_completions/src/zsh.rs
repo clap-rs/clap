@@ -326,7 +326,7 @@ fn write_opts_of(p: &Parser) -> String {
     debugln!("write_opts_of;");
     let mut ret = vec![];
     for o in p.opts() {
-        debugln!("write_opts_of:iter: o={}", o.name());
+        debugln!("write_opts_of:iter: o={}", o.name);
         let help = o.help().unwrap_or("").replace("[", "\\[").replace(
             "]",
             "\\]",
@@ -383,7 +383,7 @@ fn write_flags_of(p: &Parser) -> String {
     debugln!("write_flags_of;");
     let mut ret = vec![];
     for f in p.flags() {
-        debugln!("write_flags_of:iter: f={}", f.name());
+        debugln!("write_flags_of:iter: f={}", f.name);
         let help = f.help().unwrap_or("").replace("[", "\\[").replace(
             "]",
             "\\]",

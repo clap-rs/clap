@@ -217,7 +217,7 @@ impl<'a, 'b, 'c> Parser<'a, 'b, 'c> {
         matcher: &ArgMatcher<'a>,
     ) -> ClapResult<()>
     {
-        debugln!("Validator::validate_arg_num_occurs: a={};", a.name());
+        debugln!("Validator::validate_arg_num_occurs: a={};", a.name);
         if ma.occurs > 1 && !a.is_set(ArgSettings::Multiple) {
             // Not the first time, and we don't allow multiples
             return Err(ClapError::unexpected_multiple_usage(
@@ -384,7 +384,7 @@ impl<'a, 'b, 'c> Parser<'a, 'b, 'c> {
 
     fn validate_required_unless(&self, a: &Arg, matcher: &ArgMatcher) -> Option<bool>
     {
-        debugln!("Validator::validate_required_unless: a={:?};", a.name());
+        debugln!("Validator::validate_required_unless: a={:?};", a.name);
         macro_rules! check {
             ($how:ident, $_self:expr, $a:ident, $m:ident) => {{
                 $a.required_unless.as_ref().map(|ru| {
@@ -440,7 +440,7 @@ impl<'a, 'b, 'c> Parser<'a, 'b, 'c> {
     #[inline]
     fn is_missing_required_ok(&self, a: &Arg<'a, 'b>, matcher: &ArgMatcher<'a>) -> bool
     {
-        debugln!("Validator::is_missing_required_ok: a={}", a.name());
+        debugln!("Validator::is_missing_required_ok: a={}", a.name);
         self.validate_arg_conflicts(a, matcher).unwrap_or(false) ||
             self.validate_required_unless(a, matcher).unwrap_or(false)
     }

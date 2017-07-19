@@ -393,7 +393,7 @@ impl<'a, 'b, 'c> Parser<'a, 'b, 'c>
         debugln!(
             "Parser::propogate_settings: self={}, g_settings={:#?}",
             self.app.name,
-            self.g_settings
+            self.app._g_settings
         );
         if let Some(sc) = self.app
             .subcommands
@@ -402,9 +402,9 @@ impl<'a, 'b, 'c> Parser<'a, 'b, 'c>
         {
             debugln!(
                 "Parser::propogate_settings: sc={}, settings={:#?}, g_settings={:#?}",
-                sc.app.name,
-                sc.settings,
-                sc.g_settings
+                sc.name,
+                sc._settings,
+                sc._g_settings
             );
             // We have to create a new scope in order to tell rustc the borrow of `sc` is
             // done and to recursively call this method
@@ -1219,7 +1219,7 @@ impl<'a, 'b, 'c> Parser<'a, 'b, 'c>
         val: &OsStr,
         matcher: &mut ArgMatcher<'a>,
     ) -> ClapResult<ParseResult<'a>> {
-        debugln!("Parser::add_val_to_arg; arg={}, val={:?}", arg.name(), val);
+        debugln!("Parser::add_val_to_arg; arg={}, val={:?}", arg.name, val);
         debugln!(
             "Parser::add_val_to_arg; trailing_vals={:?}, DontDelimTrailingVals={:?}",
             self.is_set(AS::TrailingValues),

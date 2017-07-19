@@ -190,7 +190,7 @@ complete -F _{name} -o bashdefault -o default {name}
                 ret = format!(
                     "{}<{}>{}",
                     ret,
-                    o.name(),
+                    o.name,
                     if it.peek().is_some() { " " } else { "" }
                 );
             }
@@ -198,7 +198,7 @@ complete -F _{name} -o bashdefault -o default {name}
                 ret = format!("{}...", ret);
             }
         } else {
-            ret = format!("<{}>", o.name());
+            ret = format!("<{}>", o.name);
             if o.is_set(ArgSettings::Multiple) {
                 ret = format!("{}...", ret);
             }

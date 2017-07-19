@@ -122,7 +122,7 @@ macro_rules! handle_group_reqs {
                 debugln!("handle_group_reqs!:iter: Adding args from group to conflicts...{:?}", grp.args);
                 if !grp.multiple {
                     $parser.conflicts.extend(&grp.args);
-                    debugln!("handle_group_reqs!: removing {:?} from conflicts", $arg.name());
+                    debugln!("handle_group_reqs!: removing {:?} from conflicts", $arg.name);
                     for i in (0 .. $parser.conflicts.len()).rev() {
                         let should_remove = $parser.conflicts[i] == $arg.name;
                         if should_remove { $parser.conflicts.swap_remove(i); }

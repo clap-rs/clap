@@ -71,7 +71,7 @@ impl<'a> UsageParser<'a> {
             Some(ref v) if v.len() >= 2 => Some(v.len()),
             _ => None,
         };
-        debugln!("UsageParser::parse: vals...{:?}", arg.val_names);
+        debugln!("UsageParser::parse: vals...{:?}", arg.value_names);
         arg
     }
 
