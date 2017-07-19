@@ -559,8 +559,7 @@ pub use yaml_rust::YamlLoader;
 pub use matched::{ArgMatches, Values, OsValues};
 // @TODO-v3-beta: Remove SubCommand
 pub use builders::{App, AppSettings, Arg, ArgGroup, ArgSettings, SubCommand};
-pub use output::Result;
-pub use output::errors;
+pub use output::{ErrorKind, Error, Result};
 // @TODO-v3-beta: Remove
 pub use builders::Shell;
 

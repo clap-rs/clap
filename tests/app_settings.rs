@@ -253,9 +253,9 @@ fn skip_possible_values() {
             .about("tests stuff")
             .version("1.3")
             .setting(AppSettings::HidePossibleValuesInHelp)
-            .args(&[Arg::from_usage("-o, --opt [opt] 'some option'").possible_values(&["one",
+            .args(&[Arg::from("-o, --opt [opt] 'some option'").possible_values(&["one",
                                                                                        "two"]),
-                    Arg::from_usage("[arg1] 'some pos arg'").possible_values(&["three", "four"])]);
+                    Arg::from("[arg1] 'some pos arg'").possible_values(&["three", "four"])]);
 
     assert!(test::compare_output(app, "test --help", SKIP_POS_VALS, false));
 }
@@ -305,8 +305,8 @@ fn global_settings() {
 fn stop_delim_values_only_pos_follows() {
     let r = App::new("onlypos")
         .setting(AppSettings::DontDelimitTrailingValues)
-        .args(&[Arg::from_usage("-f [flag] 'some opt'"),
-                Arg::from_usage("[arg]... 'some arg'")])
+        .args(&[Arg::from("-f [flag] 'some opt'"),
+                Arg::from("[arg]... 'some arg'")])
         .get_matches_from_safe(vec!["", "--", "-f", "-g,x"]);
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -321,7 +321,7 @@ fn dont_delim_values_trailingvararg() {
     let m = App::new("positional")
         .setting(AppSettings::TrailingVarArg)
         .setting(AppSettings::DontDelimitTrailingValues)
-        .arg(Arg::from_usage("[opt]... 'some pos'"))
+        .arg(Arg::from("[opt]... 'some pos'"))
         .get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"]);
     assert!(m.is_present("opt"));
     assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(),
@@ -331,8 +331,8 @@ fn dont_delim_values_trailingvararg() {
 #[test]
 fn delim_values_only_pos_follows() {
     let r = App::new("onlypos")
-        .args(&[Arg::from_usage("-f [flag] 'some opt'"),
-                Arg::from_usage("[arg]... 'some arg'")])
+        .args(&[Arg::from("-f [flag] 'some opt'"),
+                Arg::from("[arg]... 'some arg'")])
         .get_matches_from_safe(vec!["", "--", "-f", "-g,x"]);
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -346,7 +346,7 @@ fn delim_values_only_pos_follows() {
 fn delim_values_trailingvararg() {
     let m = App::new("positional")
         .setting(AppSettings::TrailingVarArg)
-        .arg(Arg::from_usage("[opt]... 'some pos'"))
+        .arg(Arg::from("[opt]... 'some pos'"))
         .get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"]);
     assert!(m.is_present("opt"));
     assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(),
@@ -356,8 +356,8 @@ fn delim_values_trailingvararg() {
 #[test]
 fn delim_values_only_pos_follows_with_delim() {
     let r = App::new("onlypos")
-        .args(&[Arg::from_usage("-f [flag] 'some opt'"),
-                Arg::from_usage("[arg]... 'some arg'").use_delimiter(true)])
+        .args(&[Arg::from("-f [flag] 'some opt'"),
+                Arg::from("[arg]... 'some arg'").use_delimiter(true)])
         .get_matches_from_safe(vec!["", "--", "-f", "-g,x"]);
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -371,7 +371,7 @@ fn delim_values_only_pos_follows_with_delim() {
 fn delim_values_trailingvararg_with_delim() {
     let m = App::new("positional")
         .setting(AppSettings::TrailingVarArg)
-        .arg(Arg::from_usage("[opt]... 'some pos'").use_delimiter(true))
+        .arg(Arg::from("[opt]... 'some pos'").use_delimiter(true))
         .get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"]);
     assert!(m.is_present("opt"));
     assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(),
@@ -449,7 +449,7 @@ fn leading_double_hyphen_trailingvararg() {
     let m = App::new("positional")
         .setting(AppSettings::TrailingVarArg)
         .setting(AppSettings::AllowLeadingHyphen)
-        .arg(Arg::from_usage("[opt]... 'some pos'"))
+        .arg(Arg::from("[opt]... 'some pos'"))
         .get_matches_from(vec!["", "--foo", "-Wl", "bar"]);
     assert!(m.is_present("opt"));
     assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(),
@@ -552,7 +552,7 @@ fn args_negate_subcommands_two_levels() {
 fn propagate_vals_down() {
     let m = App::new("myprog")
         .setting(AppSettings::PropagateGlobalValuesDown)
-        .arg(Arg::from_usage("[cmd] 'command to run'").global(true))
+        .arg(Arg::from("[cmd] 'command to run'").global(true))
         .subcommand(SubCommand::with_name("foo"))
         .get_matches_from_safe(vec!["myprog", "set", "foo"]);
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
@@ -566,7 +566,7 @@ fn propagate_vals_down() {
 fn allow_missing_positional() {
     let m = App::new("test")
         .setting(AppSettings::AllowMissingPositional)
-        .arg(Arg::from_usage("[src] 'some file'").default_value("src"))
+        .arg(Arg::from("[src] 'some file'").default_value("src"))
         .arg_from_usage("<dest> 'some file'")
         .get_matches_from_safe(vec!["test", "file"]);
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);

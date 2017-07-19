@@ -9,7 +9,7 @@ fn main() {
     //
     // The example below is functionally identical to the 01a_quick_example.rs and 01c_quick_example.rs
     //
-    // *NOTE:* You can actually achieve the best of both worlds by using Arg::from_usage() (instead of Arg::with_name())
+    // *NOTE:* You can actually achieve the best of both worlds by using Arg::from() (instead of Arg::with_name())
     // and *then* setting any additional properties.
     //
     // Create an application with 5 possible arguments (2 auto generated) and 2 subcommands (1 auto generated)

@@ -49,7 +49,7 @@ fn main() {
 
                         // *Note* the following two examples are convienience methods, if you wish
                         // to still get the full configurability of Arg::with_name() and the readability
-                        // of arg_from_usage(), you can instantiate a new Arg with Arg::from_usage() and
+                        // of arg_from_usage(), you can instantiate a new Arg with Arg::from() and
                         // still be able to set all the additional properties, just like Arg::with_name()
                         //
                         //

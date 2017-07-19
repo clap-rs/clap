@@ -77,7 +77,7 @@ fn require_equals_pass() {
 #[test]
 fn stdin_char() {
     let r = App::new("opts")
-        .arg(Arg::from_usage("-f [flag] 'some flag'"))
+        .arg(Arg::from("-f [flag] 'some flag'"))
         .get_matches_from_safe(vec!["", "-f", "-"]);
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -88,8 +88,8 @@ fn stdin_char() {
 #[test]
 fn opts_using_short() {
     let r = App::new("opts")
-        .args(&[Arg::from_usage("-f [flag] 'some flag'"),
-                Arg::from_usage("-c [color] 'some other flag'")])
+        .args(&[Arg::from("-f [flag] 'some flag'"),
+                Arg::from("-c [color] 'some other flag'")])
         .get_matches_from_safe(vec!["", "-f", "some", "-c", "other"]);
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -102,7 +102,7 @@ fn opts_using_short() {
 #[test]
 fn lots_o_vals() {
     let r = App::new("opts")
-        .arg(Arg::from_usage("-o [opt]... 'some opt'"))
+        .arg(Arg::from("-o [opt]... 'some opt'"))
         .get_matches_from_safe(vec!["", "-o", "some", "some", "some", "some", "some", "some",
                                     "some", "some", "some", "some", "some", "some", "some",
                                     "some", "some", "some", "some", "some", "some", "some",
@@ -155,8 +155,8 @@ fn lots_o_vals() {
 #[test]
 fn opts_using_long_space() {
     let r = App::new("opts")
-        .args(&[Arg::from_usage("--flag [flag] 'some flag'"),
-                Arg::from_usage("--color [color] 'some other flag'")])
+        .args(&[Arg::from("--flag [flag] 'some flag'"),
+                Arg::from("--color [color] 'some other flag'")])
         .get_matches_from_safe(vec!["", "--flag", "some", "--color", "other"]);
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -181,8 +181,8 @@ fn opts_with_empty_values() {
 #[test]
 fn opts_using_long_equals() {
     let r = App::new("opts")
-        .args(&[Arg::from_usage("--flag [flag] 'some flag'"),
-                Arg::from_usage("--color [color] 'some other flag'")])
+        .args(&[Arg::from("--flag [flag] 'some flag'"),
+                Arg::from("--color [color] 'some other flag'")])
         .get_matches_from_safe(vec!["", "--flag=some", "--color=other"]);
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -195,8 +195,8 @@ fn opts_using_long_equals() {
 #[test]
 fn opts_using_mixed() {
     let r = App::new("opts")
-        .args(&[Arg::from_usage("-f, --flag [flag] 'some flag'"),
-                Arg::from_usage("-c, --color [color] 'some other flag'")])
+        .args(&[Arg::from("-f, --flag [flag] 'some flag'"),
+                Arg::from("-c, --color [color] 'some other flag'")])
         .get_matches_from_safe(vec!["", "-f", "some", "--color", "other"]);
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -209,8 +209,8 @@ fn opts_using_mixed() {
 #[test]
 fn opts_using_mixed2() {
     let r = App::new("opts")
-        .args(&[Arg::from_usage("-f, --flag [flag] 'some flag'"),
-                Arg::from_usage("-c, --color [color] 'some other flag'")])
+        .args(&[Arg::from("-f, --flag [flag] 'some flag'"),
+                Arg::from("-c, --color [color] 'some other flag'")])
         .get_matches_from_safe(vec!["", "--flag=some", "-c", "other"]);
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -223,7 +223,7 @@ fn opts_using_mixed2() {
 #[test]
 fn default_values_user_value() {
     let r = App::new("df")
-        .arg(Arg::from_usage("-o [opt] 'some opt'").default_value("default"))
+        .arg(Arg::from("-o [opt] 'some opt'").default_value("default"))
         .get_matches_from_safe(vec!["", "-o", "value"]);
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -234,8 +234,8 @@ fn default_values_user_value() {
 #[test]
 fn multiple_vals_pos_arg_equals() {
     let r = App::new("mvae")
-        .arg(Arg::from_usage("-o [opt]... 'some opt'"))
-        .arg(Arg::from_usage("[file] 'some file'"))
+        .arg(Arg::from("-o [opt]... 'some opt'"))
+        .arg(Arg::from("[file] 'some file'"))
         .get_matches_from_safe(vec!["", "-o=1", "some"]);
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -248,8 +248,8 @@ fn multiple_vals_pos_arg_equals() {
 #[test]
 fn multiple_vals_pos_arg_delim() {
     let r = App::new("mvae")
-        .arg(Arg::from_usage("-o [opt]... 'some opt'"))
-        .arg(Arg::from_usage("[file] 'some file'"))
+        .arg(Arg::from("-o [opt]... 'some opt'"))
+        .arg(Arg::from("[file] 'some file'"))
         .get_matches_from_safe(vec!["", "-o", "1,2", "some"]);
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -262,8 +262,8 @@ fn multiple_vals_pos_arg_delim() {
 #[test]
 fn require_delims_no_delim() {
     let r = App::new("mvae")
-        .arg(Arg::from_usage("-o [opt]... 'some opt'").require_delimiter(true))
-        .arg(Arg::from_usage("[file] 'some file'"))
+        .arg(Arg::from("-o [opt]... 'some opt'").require_delimiter(true))
+        .arg(Arg::from("[file] 'some file'"))
         .get_matches_from_safe(vec!["mvae", "-o", "1", "2", "some"]);
     assert!(r.is_err());
     let err = r.unwrap_err();
@@ -273,8 +273,8 @@ fn require_delims_no_delim() {
 #[test]
 fn require_delims() {
     let r = App::new("mvae")
-        .arg(Arg::from_usage("-o [opt]... 'some opt'").require_delimiter(true))
-        .arg(Arg::from_usage("[file] 'some file'"))
+        .arg(Arg::from("-o [opt]... 'some opt'").require_delimiter(true))
+        .arg(Arg::from("[file] 'some file'"))
         .get_matches_from_safe(vec!["", "-o", "1,2", "some"]);
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -287,7 +287,7 @@ fn require_delims() {
 #[test]
 fn leading_hyphen_pass() {
     let r = App::new("mvae")
-        .arg(Arg::from_usage("-o [opt]... 'some opt'").allow_hyphen_values(true))
+        .arg(Arg::from("-o [opt]... 'some opt'").allow_hyphen_values(true))
         .get_matches_from_safe(vec!["", "-o", "-2", "3"]);
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -298,7 +298,7 @@ fn leading_hyphen_pass() {
 #[test]
 fn leading_hyphen_fail() {
     let r = App::new("mvae")
-        .arg(Arg::from_usage("-o [opt] 'some opt'"))
+        .arg(Arg::from("-o [opt] 'some opt'"))
         .get_matches_from_safe(vec!["", "-o", "-2"]);
     assert!(r.is_err());
     let m = r.unwrap_err();
@@ -308,7 +308,7 @@ fn leading_hyphen_fail() {
 #[test]
 fn leading_hyphen_with_flag_after() {
     let r = App::new("mvae")
-        .arg(Arg::from_usage("-o [opt]... 'some opt'").allow_hyphen_values(true))
+        .arg(Arg::from("-o [opt]... 'some opt'").allow_hyphen_values(true))
         .arg_from_usage("-f 'some flag'")
         .get_matches_from_safe(vec!["", "-o", "-2", "-f"]);
     assert!(r.is_ok());
@@ -321,7 +321,7 @@ fn leading_hyphen_with_flag_after() {
 #[test]
 fn leading_hyphen_with_flag_before() {
     let r = App::new("mvae")
-        .arg(Arg::from_usage("-o [opt]... 'some opt'").allow_hyphen_values(true))
+        .arg(Arg::from("-o [opt]... 'some opt'").allow_hyphen_values(true))
         .arg_from_usage("-f 'some flag'")
         .get_matches_from_safe(vec!["", "-f", "-o", "-2"]);
     assert!(r.is_ok());
@@ -334,7 +334,7 @@ fn leading_hyphen_with_flag_before() {
 #[test]
 fn leading_hyphen_with_only_pos_follows() {
     let r = App::new("mvae")
-        .arg(Arg::from_usage("-o [opt]... 'some opt'")
+        .arg(Arg::from("-o [opt]... 'some opt'")
                  .number_of_values(1)
                  .allow_hyphen_values(true))
         .arg_from_usage("[arg] 'some arg'")
@@ -356,7 +356,7 @@ fn did_you_mean() {
 fn issue_665() {
     let res = App::new("tester")
         .arg_from_usage("-v, --reroll-count=[N] 'Mark the patch series as PATCH vN'")
-        .arg(Arg::from_usage(
+        .arg(Arg::from(
 "--subject-prefix [Subject-Prefix] 'Use [Subject-Prefix] instead of the standard [PATCH] prefix'")
             .empty_values(false))
         .get_matches_from_safe(vec!["test", "--subject-prefix", "-v", "2"]);

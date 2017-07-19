@@ -7,7 +7,7 @@ use std::usize;
 // Internal
 use {Arg, App, AppSettings, ArgSettings};
 use parsing::{DispOrder, Parser};
-use errors::{Error as ClapError, Result as ClapResult};
+use output::{Error as ClapError, Result as ClapResult};
 use output::fmt::{Format, Colorizer, ColorizerOption};
 
 // Third Party

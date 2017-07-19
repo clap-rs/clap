@@ -26,7 +26,7 @@ fn build_app(b: &mut Bencher) { b.iter(|| create_app!()); }
 fn add_flag(b: &mut Bencher) {
     fn build_app() -> App<'static, 'static> { App::new("claptests") }
 
-    b.iter(|| build_app().arg(Arg::from_usage("-s, --some 'something'")));
+    b.iter(|| build_app().arg(Arg::from("-s, --some 'something'")));
 }
 
 #[bench]
@@ -34,7 +34,7 @@ fn add_flag_ref(b: &mut Bencher) {
     fn build_app() -> App<'static, 'static> { App::new("claptests") }
 
     b.iter(|| {
-               let arg = Arg::from_usage("-s, --some 'something'");
+               let arg = Arg::from("-s, --some 'something'");
                build_app().arg(&arg)
            });
 }
@@ -43,7 +43,7 @@ fn add_flag_ref(b: &mut Bencher) {
 fn add_opt(b: &mut Bencher) {
     fn build_app() -> App<'static, 'static> { App::new("claptests") }
 
-    b.iter(|| build_app().arg(Arg::from_usage("-s, --some <FILE> 'something'")));
+    b.iter(|| build_app().arg(Arg::from("-s, --some <FILE> 'something'")));
 }
 
 #[bench]
@@ -51,7 +51,7 @@ fn add_opt_ref(b: &mut Bencher) {
     fn build_app() -> App<'static, 'static> { App::new("claptests") }
 
     b.iter(|| {
-               let arg = Arg::from_usage("-s, --some <FILE> 'something'");
+               let arg = Arg::from("-s, --some <FILE> 'something'");
                build_app().arg(&arg)
            });
 }

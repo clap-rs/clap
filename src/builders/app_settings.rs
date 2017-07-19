@@ -571,7 +571,7 @@ pub enum AppSettings {
     /// # use clap::{App, Arg, AppSettings};
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::NoBinaryName)
-    ///     .arg(Arg::from_usage("<cmd>... 'commands to run'"))
+    ///     .arg(Arg::from("<cmd>... 'commands to run'"))
     ///     .get_matches_from(vec!["command", "set"]);
     ///
     /// let cmds: Vec<&str> = m.values_of("cmd").unwrap().collect();
@@ -603,7 +603,7 @@ pub enum AppSettings {
     /// # use clap::{App, Arg, AppSettings, SubCommand};
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::PropagateGlobalValuesDown)
-    ///     .arg(Arg::from_usage("[cmd] 'command to run'")
+    ///     .arg(Arg::from("[cmd] 'command to run'")
     ///         .global(true))
     ///     .subcommand(SubCommand::with_name("foo"))
     ///     .get_matches_from(vec!["myprog", "set", "foo"]);
@@ -620,7 +620,7 @@ pub enum AppSettings {
     /// # use clap::{App, Arg, AppSettings, SubCommand};
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::PropagateGlobalValuesDown)
-    ///     .arg(Arg::from_usage("[cmd] 'command to run'")
+    ///     .arg(Arg::from("[cmd] 'command to run'")
     ///         .global(true))
     ///     .subcommand(SubCommand::with_name("foo"))
     ///     .get_matches_from(vec!["myprog", "set"]);
@@ -768,7 +768,7 @@ pub enum AppSettings {
     /// # use clap::{App, Arg, AppSettings};
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::TrailingVarArg)
-    ///     .arg(Arg::from_usage("<cmd>... 'commands to run'"))
+    ///     .arg(Arg::from("<cmd>... 'commands to run'"))
     ///     .get_matches_from(vec!["myprog", "arg1", "-r", "val1"]);
     ///
     /// let trail: Vec<&str> = m.values_of("cmd").unwrap().collect();

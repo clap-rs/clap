@@ -47,7 +47,7 @@ pub fn default_dispaly_order() -> usize { 999 }
 ///       .value_name("FILE")
 ///       .help("Provides a config file to myprog");
 /// // Using a usage string (setting a similar argument to the one above)
-/// let input = Arg::from_usage("-i, --input=[FILE] 'Provides an input file to the program'");
+/// let input = Arg::from("-i, --input=[FILE] 'Provides an input file to the program'");
 /// ```
 /// [`Arg`]: ./struct.Arg.html
 #[derive(Default, Clone)]
@@ -755,10 +755,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
-    ///     .arg(Arg::from_usage("-f, --flag 'some flag'")
+    ///     .arg(Arg::from("-f, --flag 'some flag'")
     ///         .conflicts_with("debug"))
-    ///     .arg(Arg::from_usage("-d, --debug 'other flag'"))
-    ///     .arg(Arg::from_usage("-c, --color 'third flag'")
+    ///     .arg(Arg::from("-d, --debug 'other flag'"))
+    ///     .arg(Arg::from("-c, --color 'third flag'")
     ///         .overrides_with("flag"))
     ///     .get_matches_from(vec![
     ///         "prog", "-f", "-d", "-c"]);
@@ -786,10 +786,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
-    ///     .arg(Arg::from_usage("-f, --flag 'some flag'")
+    ///     .arg(Arg::from("-f, --flag 'some flag'")
     ///         .conflicts_with("color"))
-    ///     .arg(Arg::from_usage("-d, --debug 'other flag'"))
-    ///     .arg(Arg::from_usage("-c, --color 'third flag'")
+    ///     .arg(Arg::from("-d, --debug 'other flag'"))
+    ///     .arg(Arg::from("-c, --color 'third flag'")
     ///         .overrides_with_all(&["flag", "debug"]))
     ///     .get_matches_from(vec![
     ///         "prog", "-f", "-d", "-c"]);
@@ -2653,7 +2653,7 @@ impl<'n, 'e> From<&'n str> for Arg<'n, 'e> {
     /// **NOTE**: Not all settings may be set using the usage string method. Some properties are
     /// only available via the builder pattern.
     ///
-    /// **NOTE**: Only ASCII values are officially supported in [`Arg::from_usage`] strings. Some
+    /// **NOTE**: Only ASCII values are officially supported in [`Arg::from`] strings. Some
     /// UTF-8 codepoints may work just fine, but this is not guaranteed.
     ///
     /// # Syntax
@@ -2770,14 +2770,14 @@ impl<'n, 'e> From<&'n str> for Arg<'n, 'e> {
     /// # use clap::{App, Arg};
     /// App::new("prog")
     ///     .args(&[
-    ///         Arg::from_usage("--config <FILE> 'a required file for the configuration and no short'"),
-    ///         Arg::from_usage("-d, --debug... 'turns on debugging information and allows multiples'"),
-    ///         Arg::from_usage("[input] 'an optional input file to use'")
+    ///         Arg::from("--config <FILE> 'a required file for the configuration and no short'"),
+    ///         Arg::from("-d, --debug... 'turns on debugging information and allows multiples'"),
+    ///         Arg::from("[input] 'an optional input file to use'")
     /// ])
     /// # ;
     /// ```
     /// [`Arg`]: ./struct.Arg.html
-    /// [`Arg::from_usage`]: ./struct.Arg.html#method.from_usage
+    /// [`Arg::from`]: ./struct.Arg.html#method.from_usage
     fn from(u: &'n str) -> Arg<'n, 'e> {
         let parser = UsageParser::from_usage(u);
         parser.parse()

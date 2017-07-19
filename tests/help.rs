@@ -955,7 +955,7 @@ fn override_help() {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
-        .arg(Arg::from_usage("-H, --help 'some help'"))
+        .arg(Arg::from("-H, --help 'some help'"))
         .get_matches_from_safe(vec!["test", "--help"]);
 
     assert!(m.is_ok());

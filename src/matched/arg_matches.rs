@@ -134,7 +134,7 @@ impl<'a> ArgMatches<'a> {
     /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
     ///
     /// let m = App::new("utf8")
-    ///     .arg(Arg::from_usage("<arg> 'some arg'"))
+    ///     .arg(Arg::from("<arg> 'some arg'"))
     ///     .get_matches_from(vec![OsString::from("myprog"),
     ///                             // "Hi {0xe9}!"
     ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
@@ -169,7 +169,7 @@ impl<'a> ArgMatches<'a> {
     /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
     ///
     /// let m = App::new("utf8")
-    ///     .arg(Arg::from_usage("<arg> 'some arg'"))
+    ///     .arg(Arg::from("<arg> 'some arg'"))
     ///     .get_matches_from(vec![OsString::from("myprog"),
     ///                             // "Hi {0xe9}!"
     ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
@@ -230,7 +230,7 @@ impl<'a> ArgMatches<'a> {
     /// use std::os::unix::ffi::OsStringExt;
     ///
     /// let m = App::new("utf8")
-    ///     .arg(Arg::from_usage("<arg>... 'some arg'"))
+    ///     .arg(Arg::from("<arg>... 'some arg'"))
     ///     .get_matches_from(vec![OsString::from("myprog"),
     ///                             // "Hi"
     ///                             OsString::from_vec(vec![b'H', b'i']),
@@ -268,7 +268,7 @@ impl<'a> ArgMatches<'a> {
     /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
     ///
     /// let m = App::new("utf8")
-    ///     .arg(Arg::from_usage("<arg>... 'some arg'"))
+    ///     .arg(Arg::from("<arg>... 'some arg'"))
     ///     .get_matches_from(vec![OsString::from("myprog"),
     ///                                 // "Hi"
     ///                                 OsString::from_vec(vec![b'H', b'i']),
@@ -601,7 +601,7 @@ fn test_default_values() {
 /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
 ///
 /// let m = App::new("utf8")
-///     .arg(Arg::from_usage("<arg> 'some arg'"))
+///     .arg(Arg::from("<arg> 'some arg'"))
 ///     .get_matches_from(vec![OsString::from("myprog"),
 ///                             // "Hi {0xe9}!"
 ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);

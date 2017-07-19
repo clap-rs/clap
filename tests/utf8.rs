@@ -9,7 +9,7 @@ use clap::{App, Arg, AppSettings, ErrorKind};
 #[test]
 fn invalid_utf8_strict_positional() {
     let m = App::new("bad_utf8")
-        .arg(Arg::from_usage("<arg> 'some arg'"))
+        .arg(Arg::from("<arg> 'some arg'"))
         .setting(AppSettings::StrictUtf8)
         .get_matches_from_safe(vec![OsString::from(""), OsString::from_vec(vec![0xe9])]);
     assert!(m.is_err());
@@ -19,7 +19,7 @@ fn invalid_utf8_strict_positional() {
 #[test]
 fn invalid_utf8_strict_option_short_space() {
     let m = App::new("bad_utf8")
-        .arg(Arg::from_usage("-a, --arg <arg> 'some arg'"))
+        .arg(Arg::from("-a, --arg <arg> 'some arg'"))
         .setting(AppSettings::StrictUtf8)
         .get_matches_from_safe(vec![OsString::from(""),
                                     OsString::from("-a"),
@@ -31,7 +31,7 @@ fn invalid_utf8_strict_option_short_space() {
 #[test]
 fn invalid_utf8_strict_option_short_equals() {
     let m = App::new("bad_utf8")
-        .arg(Arg::from_usage("-a, --arg <arg> 'some arg'"))
+        .arg(Arg::from("-a, --arg <arg> 'some arg'"))
         .setting(AppSettings::StrictUtf8)
         .get_matches_from_safe(vec![OsString::from(""),
                                     OsString::from_vec(vec![0x2d, 0x61, 0x3d, 0xe9])]);
@@ -42,7 +42,7 @@ fn invalid_utf8_strict_option_short_equals() {
 #[test]
 fn invalid_utf8_strict_option_short_no_space() {
     let m = App::new("bad_utf8")
-        .arg(Arg::from_usage("-a, --arg <arg> 'some arg'"))
+        .arg(Arg::from("-a, --arg <arg> 'some arg'"))
         .setting(AppSettings::StrictUtf8)
         .get_matches_from_safe(vec![OsString::from(""),
                                     OsString::from_vec(vec![0x2d, 0x61, 0xe9])]);
@@ -53,7 +53,7 @@ fn invalid_utf8_strict_option_short_no_space() {
 #[test]
 fn invalid_utf8_strict_option_long_space() {
     let m = App::new("bad_utf8")
-        .arg(Arg::from_usage("-a, --arg <arg> 'some arg'"))
+        .arg(Arg::from("-a, --arg <arg> 'some arg'"))
         .setting(AppSettings::StrictUtf8)
         .get_matches_from_safe(vec![OsString::from(""),
                                     OsString::from("--arg"),
@@ -65,7 +65,7 @@ fn invalid_utf8_strict_option_long_space() {
 #[test]
 fn invalid_utf8_strict_option_long_equals() {
     let m = App::new("bad_utf8")
-        .arg(Arg::from_usage("-a, --arg <arg> 'some arg'"))
+        .arg(Arg::from("-a, --arg <arg> 'some arg'"))
         .setting(AppSettings::StrictUtf8)
         .get_matches_from_safe(vec![OsString::from(""),
                                     OsString::from_vec(vec![0x2d, 0x2d, 0x61, 0x72, 0x67, 0x3d,
@@ -77,7 +77,7 @@ fn invalid_utf8_strict_option_long_equals() {
 #[test]
 fn invalid_utf8_lossy_positional() {
     let r = App::new("bad_utf8")
-        .arg(Arg::from_usage("<arg> 'some arg'"))
+        .arg(Arg::from("<arg> 'some arg'"))
         .get_matches_from_safe(vec![OsString::from(""), OsString::from_vec(vec![0xe9])]);
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -88,7 +88,7 @@ fn invalid_utf8_lossy_positional() {
 #[test]
 fn invalid_utf8_lossy_option_short_space() {
     let r = App::new("bad_utf8")
-        .arg(Arg::from_usage("-a, --arg <arg> 'some arg'"))
+        .arg(Arg::from("-a, --arg <arg> 'some arg'"))
         .get_matches_from_safe(vec![OsString::from(""),
                                     OsString::from("-a"),
                                     OsString::from_vec(vec![0xe9])]);
@@ -101,7 +101,7 @@ fn invalid_utf8_lossy_option_short_space() {
 #[test]
 fn invalid_utf8_lossy_option_short_equals() {
     let r = App::new("bad_utf8")
-        .arg(Arg::from_usage("-a, --arg <arg> 'some arg'"))
+        .arg(Arg::from("-a, --arg <arg> 'some arg'"))
         .get_matches_from_safe(vec![OsString::from(""),
                                     OsString::from_vec(vec![0x2d, 0x61, 0x3d, 0xe9])]);
     assert!(r.is_ok());
@@ -113,7 +113,7 @@ fn invalid_utf8_lossy_option_short_equals() {
 #[test]
 fn invalid_utf8_lossy_option_short_no_space() {
     let r = App::new("bad_utf8")
-        .arg(Arg::from_usage("-a, --arg <arg> 'some arg'"))
+        .arg(Arg::from("-a, --arg <arg> 'some arg'"))
         .get_matches_from_safe(vec![OsString::from(""),
                                     OsString::from_vec(vec![0x2d, 0x61, 0xe9])]);
     assert!(r.is_ok());
@@ -125,7 +125,7 @@ fn invalid_utf8_lossy_option_short_no_space() {
 #[test]
 fn invalid_utf8_lossy_option_long_space() {
     let r = App::new("bad_utf8")
-        .arg(Arg::from_usage("-a, --arg <arg> 'some arg'"))
+        .arg(Arg::from("-a, --arg <arg> 'some arg'"))
         .get_matches_from_safe(vec![OsString::from(""),
                                     OsString::from("--arg"),
                                     OsString::from_vec(vec![0xe9])]);
@@ -138,7 +138,7 @@ fn invalid_utf8_lossy_option_long_space() {
 #[test]
 fn invalid_utf8_lossy_option_long_equals() {
     let r = App::new("bad_utf8")
-        .arg(Arg::from_usage("-a, --arg <arg> 'some arg'"))
+        .arg(Arg::from("-a, --arg <arg> 'some arg'"))
         .get_matches_from_safe(vec![OsString::from(""),
                                     OsString::from_vec(vec![0x2d, 0x2d, 0x61, 0x72, 0x67, 0x3d,
                                                             0xe9])]);
@@ -151,7 +151,7 @@ fn invalid_utf8_lossy_option_long_equals() {
 #[test]
 fn invalid_utf8_positional() {
     let r = App::new("bad_utf8")
-        .arg(Arg::from_usage("<arg> 'some arg'"))
+        .arg(Arg::from("<arg> 'some arg'"))
         .get_matches_from_safe(vec![OsString::from(""), OsString::from_vec(vec![0xe9])]);
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -163,7 +163,7 @@ fn invalid_utf8_positional() {
 #[test]
 fn invalid_utf8_option_short_space() {
     let r = App::new("bad_utf8")
-        .arg(Arg::from_usage("-a, --arg <arg> 'some arg'"))
+        .arg(Arg::from("-a, --arg <arg> 'some arg'"))
         .get_matches_from_safe(vec![OsString::from(""),
                                     OsString::from("-a"),
                                     OsString::from_vec(vec![0xe9])]);
@@ -177,7 +177,7 @@ fn invalid_utf8_option_short_space() {
 #[test]
 fn invalid_utf8_option_short_equals() {
     let r = App::new("bad_utf8")
-        .arg(Arg::from_usage("-a, --arg <arg> 'some arg'"))
+        .arg(Arg::from("-a, --arg <arg> 'some arg'"))
         .get_matches_from_safe(vec![OsString::from(""),
                                     OsString::from_vec(vec![0x2d, 0x61, 0x3d, 0xe9])]);
     assert!(r.is_ok());
@@ -190,7 +190,7 @@ fn invalid_utf8_option_short_equals() {
 #[test]
 fn invalid_utf8_option_short_no_space() {
     let r = App::new("bad_utf8")
-        .arg(Arg::from_usage("-a, --arg <arg> 'some arg'"))
+        .arg(Arg::from("-a, --arg <arg> 'some arg'"))
         .get_matches_from_safe(vec![OsString::from(""),
                                     OsString::from_vec(vec![0x2d, 0x61, 0xe9])]);
     assert!(r.is_ok());
@@ -203,7 +203,7 @@ fn invalid_utf8_option_short_no_space() {
 #[test]
 fn invalid_utf8_option_long_space() {
     let r = App::new("bad_utf8")
-        .arg(Arg::from_usage("-a, --arg <arg> 'some arg'"))
+        .arg(Arg::from("-a, --arg <arg> 'some arg'"))
         .get_matches_from_safe(vec![OsString::from(""),
                                     OsString::from("--arg"),
                                     OsString::from_vec(vec![0xe9])]);
@@ -217,7 +217,7 @@ fn invalid_utf8_option_long_space() {
 #[test]
 fn invalid_utf8_option_long_equals() {
     let r = App::new("bad_utf8")
-        .arg(Arg::from_usage("-a, --arg <arg> 'some arg'"))
+        .arg(Arg::from("-a, --arg <arg> 'some arg'"))
         .get_matches_from_safe(vec![OsString::from(""),
                                     OsString::from_vec(vec![0x2d, 0x2d, 0x61, 0x72, 0x67, 0x3d,
                                                             0xe9])]);
