@@ -48,7 +48,7 @@ use yaml_rust::Yaml;
 ///          --major         'auto increase major'
 ///          --minor         'auto increase minor'
 ///          --patch         'auto increase patch'")
-///     .group(ArgGroup::with_name("vers")
+///     .group(ArgGroup::new("vers")
 ///          .args(&["set-ver", "major", "minor","patch"])
 ///          .required(true))
 ///     .get_matches_from_safe(vec!["app", "--major", "--patch"]);
@@ -67,7 +67,7 @@ use yaml_rust::Yaml;
 ///          --major         'auto increase major'
 ///          --minor         'auto increase minor'
 ///          --patch         'auto increase patch'")
-///     .group(ArgGroup::with_name("vers")
+///     .group(ArgGroup::new("vers")
 ///          .args(&["set-ver", "major", "minor","patch"])
 ///          .required(true))
 ///     .get_matches_from_safe(vec!["app", "--major"]);
@@ -107,7 +107,7 @@ impl<'a> ArgGroup<'a> {
     ///
     /// ```rust
     /// # use clap::{App, ArgGroup};
-    /// ArgGroup::with_name("config")
+    /// ArgGroup::new("config")
     /// # ;
     /// ```
     pub fn new(n: &'a str) -> Self {
@@ -148,7 +148,7 @@ impl<'a> ArgGroup<'a> {
     ///         .short("f"))
     ///     .arg(Arg::with_name("color")
     ///         .short("c"))
-    ///     .group(ArgGroup::with_name("req_flags")
+    ///     .group(ArgGroup::new("req_flags")
     ///         .arg("flag")
     ///         .arg("color"))
     ///     .get_matches_from(vec!["myprog", "-f"]);
@@ -180,7 +180,7 @@ impl<'a> ArgGroup<'a> {
     ///         .short("f"))
     ///     .arg(Arg::with_name("color")
     ///         .short("c"))
-    ///     .group(ArgGroup::with_name("req_flags")
+    ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"]))
     ///     .get_matches_from(vec!["myprog", "-f"]);
     /// // maybe we don't know which of the two flags was used...
@@ -210,7 +210,7 @@ impl<'a> ArgGroup<'a> {
     ///         .short("f"))
     ///     .arg(Arg::with_name("color")
     ///         .short("c"))
-    ///     .group(ArgGroup::with_name("req_flags")
+    ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
     ///         .multiple(true))
     ///     .get_matches_from(vec!["myprog", "-f", "-c"]);
@@ -227,7 +227,7 @@ impl<'a> ArgGroup<'a> {
     ///         .short("f"))
     ///     .arg(Arg::with_name("color")
     ///         .short("c"))
-    ///     .group(ArgGroup::with_name("req_flags")
+    ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"]))
     ///     .get_matches_from_safe(vec!["myprog", "-f", "-c"]);
     /// // Because we used both args in the group it's an error
@@ -263,7 +263,7 @@ impl<'a> ArgGroup<'a> {
     ///         .short("f"))
     ///     .arg(Arg::with_name("color")
     ///         .short("c"))
-    ///     .group(ArgGroup::with_name("req_flags")
+    ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
     ///         .required(true))
     ///     .get_matches_from_safe(vec!["myprog"]);
@@ -298,7 +298,7 @@ impl<'a> ArgGroup<'a> {
     ///         .short("c"))
     ///     .arg(Arg::with_name("debug")
     ///         .short("d"))
-    ///     .group(ArgGroup::with_name("req_flags")
+    ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
     ///         .requires("debug"))
     ///     .get_matches_from_safe(vec!["myprog", "-c"]);
@@ -339,7 +339,7 @@ impl<'a> ArgGroup<'a> {
     ///         .short("d"))
     ///     .arg(Arg::with_name("verb")
     ///         .short("v"))
-    ///     .group(ArgGroup::with_name("req_flags")
+    ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
     ///         .requires_all(&["debug", "verb"]))
     ///     .get_matches_from_safe(vec!["myprog", "-c", "-d"]);
@@ -375,7 +375,7 @@ impl<'a> ArgGroup<'a> {
     ///         .short("c"))
     ///     .arg(Arg::with_name("debug")
     ///         .short("d"))
-    ///     .group(ArgGroup::with_name("req_flags")
+    ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
     ///         .conflicts_with("debug"))
     ///     .get_matches_from_safe(vec!["myprog", "-c", "-d"]);
@@ -413,7 +413,7 @@ impl<'a> ArgGroup<'a> {
     ///         .short("d"))
     ///     .arg(Arg::with_name("verb")
     ///         .short("v"))
-    ///     .group(ArgGroup::with_name("req_flags")
+    ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
     ///         .conflicts_with_all(&["debug", "verb"]))
     ///     .get_matches_from_safe(vec!["myprog", "-c", "-v"]);
@@ -514,7 +514,7 @@ mod test {
 
     #[test]
     fn groups() {
-        let g = ArgGroup::with_name("test")
+        let g = ArgGroup::new("test")
             .arg("a1")
             .arg("a4")
             .args(&["a2", "a3"])
@@ -537,7 +537,7 @@ mod test {
 
     #[test]
     fn test_debug() {
-        let g = ArgGroup::with_name("test")
+        let g = ArgGroup::new("test")
             .arg("a1")
             .arg("a4")
             .args(&["a2", "a3"])
@@ -571,7 +571,7 @@ mod test {
 
     #[test]
     fn test_from() {
-        let g = ArgGroup::with_name("test")
+        let g = ArgGroup::new("test")
             .arg("a1")
             .arg("a4")
             .args(&["a2", "a3"])

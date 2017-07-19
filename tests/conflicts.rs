@@ -45,7 +45,7 @@ fn flag_conflict_2() {
 fn group_conflict() {
     let result = App::new("group_conflict")
         .arg(Arg::from("-f, --flag 'some flag'").conflicts_with("gr"))
-        .group(ArgGroup::with_name("gr")
+        .group(ArgGroup::new("gr")
                    .required(true)
                    .arg("some")
                    .arg("other"))
@@ -61,7 +61,7 @@ fn group_conflict() {
 fn group_conflict_2() {
     let result = App::new("group_conflict")
         .arg(Arg::from("-f, --flag 'some flag'").conflicts_with("gr"))
-        .group(ArgGroup::with_name("gr")
+        .group(ArgGroup::new("gr")
                    .required(true)
                    .arg("some")
                    .arg("other"))

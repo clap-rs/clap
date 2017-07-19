@@ -628,7 +628,7 @@ macro_rules! clap_app {
     };
     (@app ($builder:expr) (@group $name:ident => $($tail:tt)*) $($tt:tt)*) => {
         clap_app!{ @app
-            (clap_app!{ @group ($builder, $crate::ArgGroup::with_name(stringify!($name))) $($tail)* })
+            (clap_app!{ @group ($builder, $crate::ArgGroup::new(stringify!($name))) $($tail)* })
             $($tt)*
         }
     };

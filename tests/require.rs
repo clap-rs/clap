@@ -97,7 +97,7 @@ fn positional_required_2() {
 fn group_required() {
     let result = App::new("group_required")
         .arg(Arg::from("-f, --flag 'some flag'"))
-        .group(ArgGroup::with_name("gr")
+        .group(ArgGroup::new("gr")
                    .required(true)
                    .arg("some")
                    .arg("other"))
@@ -113,7 +113,7 @@ fn group_required() {
 fn group_required_2() {
     let m = App::new("group_required")
         .arg(Arg::from("-f, --flag 'some flag'"))
-        .group(ArgGroup::with_name("gr")
+        .group(ArgGroup::new("gr")
                    .required(true)
                    .arg("some")
                    .arg("other"))
@@ -129,7 +129,7 @@ fn group_required_2() {
 fn group_required_3() {
     let m = App::new("group_required")
         .arg(Arg::from("-f, --flag 'some flag'"))
-        .group(ArgGroup::with_name("gr")
+        .group(ArgGroup::new("gr")
                    .required(true)
                    .arg("some")
                    .arg("other"))
@@ -145,7 +145,7 @@ fn group_required_3() {
 fn arg_require_group() {
     let result = App::new("arg_require_group")
         .arg(Arg::from("-f, --flag 'some flag'").requires("gr"))
-        .group(ArgGroup::with_name("gr").arg("some").arg("other"))
+        .group(ArgGroup::new("gr").arg("some").arg("other"))
         .arg(Arg::from("--some 'some arg'"))
         .arg(Arg::from("--other 'other arg'"))
         .get_matches_from_safe(vec!["", "-f"]);
@@ -158,7 +158,7 @@ fn arg_require_group() {
 fn arg_require_group_2() {
     let m = App::new("arg_require_group")
         .arg(Arg::from("-f, --flag 'some flag'").requires("gr"))
-        .group(ArgGroup::with_name("gr").arg("some").arg("other"))
+        .group(ArgGroup::new("gr").arg("some").arg("other"))
         .arg(Arg::from("--some 'some arg'"))
         .arg(Arg::from("--other 'other arg'"))
         .get_matches_from(vec!["", "-f", "--some"]);
@@ -171,7 +171,7 @@ fn arg_require_group_2() {
 fn arg_require_group_3() {
     let m = App::new("arg_require_group")
         .arg(Arg::from("-f, --flag 'some flag'").requires("gr"))
-        .group(ArgGroup::with_name("gr").arg("some").arg("other"))
+        .group(ArgGroup::new("gr").arg("some").arg("other"))
         .arg(Arg::from("--some 'some arg'"))
         .arg(Arg::from("--other 'other arg'"))
         .get_matches_from(vec!["", "-f", "--other"]);

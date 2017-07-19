@@ -205,7 +205,7 @@ pub fn build_cli() -> App<'static, 'static> {
             .arg(Arg::with_name("std")
                 .long("std")
                 .help("Standard library API documentation"))
-            .group(ArgGroup::with_name("page").args(&["book", "std"])))
+            .group(ArgGroup::new("page").args(&["book", "std"])))
         .subcommand(SubCommand::with_name("man")
             .about("View the man page for a given command")
             .arg(Arg::with_name("command").required(true))

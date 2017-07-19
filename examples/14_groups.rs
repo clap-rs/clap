@@ -34,7 +34,7 @@ fn main() {
                                         --minor         'auto inc minor'
                                         --patch         'auto inc patch'")
                       // Create a group, make it required, and add the above arguments
-                      .group(ArgGroup::with_name("vers")
+                      .group(ArgGroup::new("vers")
                                           .required(true)
                                           .args(&["ver", "major", "minor", "patch"]))
                       // Arguments can also be added to a group individually, these two arguments

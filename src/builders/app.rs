@@ -876,7 +876,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///          --major         'auto increase major'
     ///          --minor         'auto increase minor'
     ///          --patch         'auto increase patch'")
-    ///     .group(ArgGroup::with_name("vers")
+    ///     .group(ArgGroup::new("vers")
     ///          .args(&["set-ver", "major", "minor","patch"])
     ///          .required(true))
     /// # ;
@@ -914,10 +914,10 @@ impl<'a, 'b> App<'a, 'b> {
     ///          -c [FILE]       'a config file'
     ///          -i [IFACE]      'an interface'")
     ///     .groups(&[
-    ///         ArgGroup::with_name("vers")
+    ///         ArgGroup::new("vers")
     ///             .args(&["set-ver", "major", "minor","patch"])
     ///             .required(true),
-    ///         ArgGroup::with_name("input")
+    ///         ArgGroup::new("input")
     ///             .args(&["c", "i"])
     ///     ])
     /// # ;
