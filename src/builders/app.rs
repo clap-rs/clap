@@ -21,6 +21,7 @@ use builders::app_settings::AppFlags;
 use parsing::{Parser, ArgMatcher};
 use matched::ArgMatches;
 use output::Result as ClapResult;
+use output::Error as ClapError;
 use output::HelpWriter;
 use utils;
 
@@ -1274,21 +1275,7 @@ impl<'a, 'b> App<'a, 'b> {
         T: Into<OsString> + Clone,
     {
         self.get_matches_from_safe_mut(itr).unwrap_or_else(|e| {
-            // Otherwise, write to stderr and exit
-            if e.use_stderr() {
-                wlnerr!("{}", e.message);
-                if self.settings.contains(&AppSettings::WaitOnError) ||
-                    self.global_settings.contains(&AppSettings::WaitOnError)
-                {
-                    wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
-                    let mut s = String::new();
-                    let i = io::stdin();
-                    i.lock().read_line(&mut s).unwrap();
-                }
-                drop(self);
-                drop(e);
-                process::exit(1);
-            }
+            self._maybe_exit(&e);
 
             drop(self);
             e.exit()
@@ -1303,25 +1290,29 @@ impl<'a, 'b> App<'a, 'b> {
         T: Into<OsString> + Clone,
     {
         self.get_matches_from_safe_mut(itr).unwrap_or_else(|e| {
-            // Otherwise, write to stderr and exit
-            if e.use_stderr() {
-                wlnerr!("{}", e.message);
-                if self.settings.contains(&AppSettings::WaitOnError) ||
-                    self.global_settings.contains(&AppSettings::WaitOnError)
-                {
-                    wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
-                    let mut s = String::new();
-                    let i = io::stdin();
-                    i.lock().read_line(&mut s).unwrap();
-                }
-                drop(self);
-                drop(e);
-                process::exit(1);
-            }
+            self._maybe_exit(&e);
 
             drop(self);
             e.exit()
         })
+    }
+
+    fn _maybe_exit(&self, e: &ClapError) {
+        // Otherwise, write to stderr and exit
+        if e.use_stderr() {
+            wlnerr!("{}", e.message);
+            if self.settings.contains(&AppSettings::WaitOnError) ||
+                self.global_settings.contains(&AppSettings::WaitOnError)
+            {
+                wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
+                let mut s = String::new();
+                let i = io::stdin();
+                i.lock().read_line(&mut s).unwrap();
+            }
+            drop(self);
+            drop(e);
+            process::exit(1);
+        }
     }
 
     /// Starts the parsing process. A combination of [`App::get_matches_from`], and
@@ -1366,10 +1357,7 @@ impl<'a, 'b> App<'a, 'b> {
         // that was used to execute the program. This is because a program called
         // ./target/release/my_prog -a will have two arguments, './target/release/my_prog', '-a'
         // but we don't want to display the full path when displaying help messages and such
-        if !(self.settings.contains(&AppSettings::NoBinaryName) ||
-                 self.settings.contains(&AppSettings::NoBinaryName)) &&
-            utils::get_bin_name().is_none()
-        {
+        if !self.settings.contains(&AppSettings::NoBinaryName) {
             if let Some(name) = it.next() {
                 let bn_os = name.into();
                 let p = Path::new(&*bn_os);

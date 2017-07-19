@@ -2784,47 +2784,11 @@ impl<'n, 'e> From<&'n str> for Arg<'n, 'e> {
     }
 }
 
-// impl<'n, 'e> AnyArg<'n, 'e> for Arg<'n, 'e> {
-//     fn name(&self) -> &'n str { self.name }
-//     fn overrides(&self) -> Option<&[&'e str]> { self.overrides_with.as_ref().map(|o| &o[..]) }
-//     fn requires(&self) -> Option<&[&'n str]> {
-//         self.requires.as_ref().map(|o| &o[..])
-//     }
-//     fn conflicts(&self) -> Option<&[&'e str]> { self.conflicts_with.as_ref().map(|o| &o[..]) }
-//     fn required_unless(&self) -> Option<&[&'e str]> {
-//         self.required_unless.as_ref().map(|o| &o[..])
-//     }
-//     fn val_names(&self) -> Option<&VecMap<&'e str>> { self.value_names.as_ref() }
-//     fn _is_set(&self, s: ArgSettings) -> bool { self._settings.is_set(s) }
-//     fn _set(&mut self, s: ArgSettings) { self._settings.set(s) }
-//     fn has_switch(&self) -> bool { self.short.is_some() || self.long.is_some() }
-//     fn max_vals(&self) -> Option<usize> { self.max_values }
-//     fn val_terminator(&self) -> Option<&'e str> { self.value_terminator }
-//     fn num_vals(&self) -> Option<usize> { self.number_of_values }
-//     fn possible_vals(&self) -> Option<&[&'e str]> { self.possible_values.as_ref().map(|o| &o[..]) }
-//     fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> {
-//         self.validator.as_ref()
-//     }
-//     fn validator_os(&self) -> Option<&Rc<Fn(&OsStr) -> StdResult<(), OsString>>> {
-//         self.validator_os.as_ref()
-//     }
-//     fn min_vals(&self) -> Option<usize> { self.min_values }
-//     fn short(&self) -> Option<char> { self.short }
-//     fn long(&self) -> Option<&'e str> { self.long }
-//     fn val_delim(&self) -> Option<char> { self.value_delimiter }
-//     fn takes_value(&self) -> bool { true }
-//     fn help(&self) -> Option<&'e str> { self.help }
-//     fn long_help(&self) -> Option<&'e str> { self.long_help }
-//     fn default_val(&self) -> Option<&'e OsStr> { self.default_value }
-//     fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {
-//         self.default_value_ifs.as_ref().map(|vm| vm.values())
-//     }
-//     fn longest_filter(&self) -> bool { self._is_set(ArgSettings::TakesValue) && self.has_switch() }
-//     fn aliases(&self) -> Chain<&'e str, &'e str> {
-//         self.aliases.iter().chain(self.visible_aliases.iter())
-//     }
-// }
-
+impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for Arg<'n, 'e> {
+    fn from(a: &'z Arg<'n, 'e>) -> Self {
+        a.clone()
+    }
+}
 
 impl<'n, 'e> Display for Arg<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
@@ -2920,6 +2884,46 @@ impl<'n, 'e> DispOrder for Arg<'n, 'e> {
 
 impl<'n, 'e> PartialEq for Arg<'n, 'e> {
     fn eq(&self, other: &Arg<'n, 'e>) -> bool { self.name == other.name }
+}
+
+impl<'n, 'e> fmt::Debug for Arg<'n, 'e> {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        write!(f, "Arg {{ name: {:?}, help: {:?}, long_help: {:?}, conflicts_with: {:?}, \
+            settings: {:?}, required_unless: {:?}, overrides_with: {:?}, groups: {:?}, \
+            requires: {:?}, requires_ifs: {:?}, short: {:?}, index: {:?}, long: {:?}, \
+            aliases: {:?}, visible_aliases: {:?}, possible_values: {:?}, value_names: {:?}, \
+            number_of_values: {:?}, max_values: {:?}, min_values: {:?}, value_delimiter: {:?}, \
+            default_value_ifs: {:?}, value_terminator: {:?}, display_order: {:?}, validator: {}, \
+            validator_os: {} \
+        }}", 
+            self.name,
+            self.help,
+            self.long_help,
+            self.conflicts_with,
+            self.settings,
+            self.required_unless,
+            self.overrides_with,
+            self.groups,
+            self.requires,
+            self.requires_ifs,
+            self.short,
+            self.index,
+            self.long,
+            self.aliases,
+            self.visible_aliases,
+            self.possible_values,
+            self.value_names,
+            self.number_of_values,
+            self.max_values,
+            self.min_values,
+            self.value_delimiter,
+            self.default_value_ifs,
+            self.value_terminator,
+            self.display_order,
+            self.validator.as_ref().map_or("None", |_| "Some(Fn)"),
+            self.validator_os.as_ref().map_or("None", |_| "Some(Fn)")
+        )
+    }
 }
 
 #[cfg(test)]
@@ -3050,69 +3054,3 @@ mod test {
     }
 }
 
-impl<'n, 'e> fmt::Debug for Arg<'n, 'e> {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        write!(f, "Arg {{ name: {:?}, help: {:?}, long_help: {:?}, conflicts_with: {:?}, \
-            settings: {:?}, required_unless: {:?}, overrides_with: {:?}, groups: {:?}, \
-            requires: {:?}, requires_ifs: {:?}, short: {:?}, index: {:?}, long: {:?}, \
-            aliases: {:?}, visible_aliases: {:?}, possible_values: {:?}, value_names: {:?}, \
-            number_of_values: {:?}, max_values: {:?}, min_values: {:?}, value_delimiter: {:?}, \
-            default_value_ifs: {:?}, value_terminator: {:?}, display_order: {:?}, validator: {}, \
-            validator_os: {} \
-        }}", 
-            self.name,
-            self.help,
-            self.long_help,
-            self.conflicts_with,
-            self.settings,
-            self.required_unless,
-            self.overrides_with,
-            self.groups,
-            self.requires,
-            self.requires_ifs,
-            self.short,
-            self.index,
-            self.long,
-            self.aliases,
-            self.visible_aliases,
-            self.possible_values,
-            self.value_names,
-            self.number_of_values,
-            self.max_values,
-            self.min_values,
-            self.value_delimiter,
-            self.default_value_ifs,
-            self.value_terminator,
-            self.display_order,
-            self.validator.as_ref().map_or("None", |_| "Some(Fn)"),
-            self.validator_os.as_ref().map_or("None", |_| "Some(Fn)")
-    // name: {:?},
-    // help: Option<&'b str>,
-    // long_help: Option<&'b str>,
-    // conflicts: Option<Vec<&'a str>>,
-    // settings: Vec<ArgSettings>,
-    // required_unless: Option<Vec<&'a str>>,
-    // overrides: Option<Vec<&'a str>>,
-    // groups: Option<Vec<&'a str>>,
-    // requires: Option<Vec<&'a str>>,
-    // requires_if: Option<Vec<(&'a str, Option<&'b str>)>>,
-    // short: Option<char>,
-    // index: Option<usize>,
-    // long: Option<&'b str>,
-    // aliases: Option<Vec<&'b str>>,
-    // visible_aliases: Option<Vec<&'b str>>,
-    // possible_values: Option<Vec<&'b str>>,
-    // value_names: Option<VecMap<&'b str>>,
-    // number_of_values: Option<u64>,
-    // max_values: Option<u64>,
-    // min_values: Option<u64>,
-    // value_delimiter: Option<char>,
-    // default_value_ifs: Option<VecMap<(&'a str, Option<&'b OsStr>, &'b OsStr)>>,
-    // value_terminator: Option<&'b str>,
-    // display_order: usize,
-    // validator: Option<Rc<Fn(String) -> StdResult<(), String>>>,
-    // validator_os: Option<Rc<Fn(&OsStr) -> StdResult<(), OsString>>>,
-    // _settings: ArgFlags,
-        )
-    }
-}
