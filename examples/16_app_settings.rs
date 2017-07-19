@@ -19,7 +19,7 @@ fn main() {
                                             // Required positional argument called input.  This
                                             // will be only required if subcommand is not present.
 
-                        .subcommand(SubCommand::with_name("test")
+                        .subcommand(App::new("test")
                                                 .about("does some testing"))
                                             // if program is invoked with subcommand, you do not
                                             // need to specify the <input> argument anymore due to

@@ -24,7 +24,7 @@ fn main() {
                         // In the following example assume we wanted an application which
                         // supported an "add" subcommand, this "add" subcommand also took
                         // one positional argument of a file to add:
-                        .subcommand(SubCommand::with_name("add")                        // The name we call argument with
+                        .subcommand(App::new("add")                        // The name we call argument with
                                                 .about("Adds files to myapp")           // The message displayed in "myapp -h"
                                                                                         // or "myapp help"
                                                 .version("0.1")                         // Subcommands can have independent version

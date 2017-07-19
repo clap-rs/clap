@@ -33,7 +33,7 @@ macro_rules! create_app {
                           Arg::from("--minvals2 [minvals]... 'Tests 2 min vals'").min_values(2),
                           Arg::from("--maxvals3 [maxvals]... 'Tests 3 max vals'").max_values(3)
                     ])
-                .subcommand(SubCommand::with_name("subcmd")
+                .subcommand(App::new("subcmd")
                                         .about("tests subcommands")
                                         .version("0.1")
                                         .author("Kevin K. <kbknapp@gmail.com>")
@@ -115,7 +115,7 @@ fn create_app_builder(b: &mut Bencher) {
                      .multiple(true)
                      .help("Tests 3 max vals")
                      .max_values(3))
-            .subcommand(SubCommand::with_name("subcmd")
+            .subcommand(App::new("subcmd")
                             .about("tests subcommands")
                             .version("0.1")
                             .author("Kevin K. <kbknapp@gmail.com>")

@@ -636,7 +636,7 @@ macro_rules! clap_app {
     (@app ($builder:expr) (@subcommand $name:ident => $($tail:tt)*) $($tt:tt)*) => {
         clap_app!{ @app
             ($builder.subcommand(
-                clap_app!{ @app ($crate::SubCommand::with_name(stringify!($name))) $($tail)* }
+                clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)* }
             ))
             $($tt)*
         }
@@ -723,7 +723,7 @@ macro_rules! clap_app {
 
 // Build a subcommand outside of an app.
     (@subcommand $name:ident => $($tail:tt)*) => {
-        clap_app!{ @app ($crate::SubCommand::with_name(stringify!($name))) $($tail)* }
+        clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)* }
     };
 // Start the magic
     (($name:expr) => $($tail:tt)*) => {{

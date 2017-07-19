@@ -26,3 +26,4 @@
 * ArgSettings::AllowLeadingHyphen -> ArgSettings::AllowHyphenValues
 * ArgGroup::with_name -> ArgGroup::new
 * Arg u64 -> Arg usize
+* SubCommand::with_name -> App::new

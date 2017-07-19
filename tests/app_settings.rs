@@ -69,7 +69,7 @@ fn sub_command_negate_required() {
     App::new("sub_command_negate")
         .setting(AppSettings::SubcommandsNegateReqs)
         .arg(Arg::new("test").required(true).index(1))
-        .subcommand(SubCommand::with_name("sub1"))
+        .subcommand(App::new("sub1"))
         .get_matches_from(vec!["myprog", "sub1"]);
 }
 
@@ -78,7 +78,7 @@ fn global_version() {
     let mut app = App::new("global_version")
         .setting(AppSettings::GlobalVersion)
         .version("1.1")
-        .subcommand(SubCommand::with_name("sub1"));
+        .subcommand(App::new("sub1"));
     app.p.propogate_settings();
     assert_eq!(app.p.subcommands[0].p.meta.version, Some("1.1"));
 }
@@ -88,7 +88,7 @@ fn sub_command_negate_required_2() {
     let result = App::new("sub_command_negate")
         .setting(AppSettings::SubcommandsNegateReqs)
         .arg(Arg::new("test").required(true).index(1))
-        .subcommand(SubCommand::with_name("sub1"))
+        .subcommand(App::new("sub1"))
         .get_matches_from_safe(vec![""]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -99,7 +99,7 @@ fn sub_command_negate_required_2() {
 fn sub_command_required() {
     let result = App::new("sc_required")
         .setting(AppSettings::SubcommandRequired)
-        .subcommand(SubCommand::with_name("sub1"))
+        .subcommand(App::new("sub1"))
         .get_matches_from_safe(vec![""]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -133,8 +133,8 @@ fn arg_required_else_help_over_reqs() {
 fn infer_subcommands_fail_no_args() {
     let m = App::new("prog")
         .setting(AppSettings::InferSubcommands)
-        .subcommand(SubCommand::with_name("test"))
-        .subcommand(SubCommand::with_name("temp"))
+        .subcommand(App::new("test"))
+        .subcommand(App::new("temp"))
         .get_matches_from_safe(vec!["prog", "te"]);
     assert!(m.is_err(), "{:#?}", m.unwrap());
     assert_eq!(m.unwrap_err().kind, ErrorKind::UnrecognizedSubcommand);
@@ -145,8 +145,8 @@ fn infer_subcommands_fail_no_args() {
 fn infer_subcommands_fail_no_args() {
     let m = App::new("prog")
         .setting(AppSettings::InferSubcommands)
-        .subcommand(SubCommand::with_name("test"))
-        .subcommand(SubCommand::with_name("temp"))
+        .subcommand(App::new("test"))
+        .subcommand(App::new("temp"))
         .get_matches_from_safe(vec!["prog", "te"]);
     assert!(m.is_err(), "{:#?}", m.unwrap());
     assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidSubcommand);
@@ -157,8 +157,8 @@ fn infer_subcommands_fail_with_args() {
     let m = App::new("prog")
         .setting(AppSettings::InferSubcommands)
         .arg(Arg::new("some"))
-        .subcommand(SubCommand::with_name("test"))
-        .subcommand(SubCommand::with_name("temp"))
+        .subcommand(App::new("test"))
+        .subcommand(App::new("temp"))
         .get_matches_from_safe(vec!["prog", "t"]);
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
     assert_eq!(m.unwrap().value_of("some"), Some("t"));
@@ -169,8 +169,8 @@ fn infer_subcommands_fail_with_args2() {
     let m = App::new("prog")
         .setting(AppSettings::InferSubcommands)
         .arg(Arg::new("some"))
-        .subcommand(SubCommand::with_name("test"))
-        .subcommand(SubCommand::with_name("temp"))
+        .subcommand(App::new("test"))
+        .subcommand(App::new("temp"))
         .get_matches_from_safe(vec!["prog", "te"]);
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
     assert_eq!(m.unwrap().value_of("some"), Some("te"));
@@ -180,7 +180,7 @@ fn infer_subcommands_fail_with_args2() {
 fn infer_subcommands_pass() {
     let m = App::new("prog")
         .setting(AppSettings::InferSubcommands)
-        .subcommand(SubCommand::with_name("test"))
+        .subcommand(App::new("test"))
         .get_matches_from(vec!["prog", "te"]);
     assert_eq!(m.subcommand_name(), Some("test"));
 }
@@ -189,8 +189,8 @@ fn infer_subcommands_pass() {
 fn infer_subcommands_pass_close() {
     let m = App::new("prog")
         .setting(AppSettings::InferSubcommands)
-        .subcommand(SubCommand::with_name("test"))
-        .subcommand(SubCommand::with_name("temp"))
+        .subcommand(App::new("test"))
+        .subcommand(App::new("temp"))
         .get_matches_from(vec!["prog", "tes"]);
     assert_eq!(m.subcommand_name(), Some("test"));
 }
@@ -200,8 +200,8 @@ fn infer_subcommands_pass_close() {
 fn infer_subcommands_fail_suggestions() {
     let m = App::new("prog")
         .setting(AppSettings::InferSubcommands)
-        .subcommand(SubCommand::with_name("test"))
-        .subcommand(SubCommand::with_name("temp"))
+        .subcommand(App::new("test"))
+        .subcommand(App::new("temp"))
         .get_matches_from_safe(vec!["prog", "temps"]);
     assert!(m.is_err(), "{:#?}", m.unwrap());
     assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidSubcommand);
@@ -212,8 +212,8 @@ fn infer_subcommands_fail_suggestions() {
 fn infer_subcommands_fail_suggestions() {
     let m = App::new("prog")
         .setting(AppSettings::InferSubcommands)
-        .subcommand(SubCommand::with_name("test"))
-        .subcommand(SubCommand::with_name("temp"))
+        .subcommand(App::new("test"))
+        .subcommand(App::new("temp"))
         .get_matches_from_safe(vec!["prog", "temps"]);
     assert!(m.is_err(), "{:#?}", m.unwrap());
     assert_eq!(m.unwrap_err().kind, ErrorKind::UnrecognizedSubcommand);
@@ -264,7 +264,7 @@ fn skip_possible_values() {
 fn global_setting() {
     let mut app = App::new("test")
         .global_setting(AppSettings::ColoredHelp)
-        .subcommand(SubCommand::with_name("subcmd"));
+        .subcommand(App::new("subcmd"));
     app.p.propogate_settings();
     assert!(app.p
                 .subcommands
@@ -280,7 +280,7 @@ fn global_setting() {
 fn global_settings() {
     let mut app = App::new("test")
         .global_settings(&[AppSettings::ColoredHelp, AppSettings::TrailingVarArg])
-        .subcommand(SubCommand::with_name("subcmd"));
+        .subcommand(App::new("subcmd"));
     app.p.propogate_settings();
     assert!(app.p
                 .subcommands
@@ -480,7 +480,7 @@ fn test_unset_settings() {
 fn disable_help_subcommand() {
     let result = App::new("disablehelp")
         .setting(AppSettings::DisableHelpSubcommand)
-        .subcommand(SubCommand::with_name("sub1"))
+        .subcommand(App::new("sub1"))
         .get_matches_from_safe(vec!["", "help"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -519,9 +519,9 @@ fn args_negate_subcommands_one_level() {
         .setting(AppSettings::SubcommandsNegateReqs)
         .arg_from_usage("<arg1> 'some arg'")
         .arg_from_usage("<arg2> 'some arg'")
-        .subcommand(SubCommand::with_name("sub1")
-                        .subcommand(SubCommand::with_name("sub2")
-                                        .subcommand(SubCommand::with_name("sub3"))))
+        .subcommand(App::new("sub1")
+                        .subcommand(App::new("sub2")
+                                        .subcommand(App::new("sub3"))))
         .get_matches_from_safe(vec!["", "pickles", "sub1"]);
     assert!(res.is_ok(), "error: {:?}", res.unwrap_err().kind);
     let m = res.unwrap();
@@ -535,11 +535,11 @@ fn args_negate_subcommands_two_levels() {
         .global_setting(AppSettings::SubcommandsNegateReqs)
         .arg_from_usage("<arg1> 'some arg'")
         .arg_from_usage("<arg2> 'some arg'")
-        .subcommand(SubCommand::with_name("sub1")
+        .subcommand(App::new("sub1")
                         .arg_from_usage("<arg> 'some'")
                         .arg_from_usage("<arg2> 'some'")
-                        .subcommand(SubCommand::with_name("sub2")
-                                        .subcommand(SubCommand::with_name("sub3"))))
+                        .subcommand(App::new("sub2")
+                                        .subcommand(App::new("sub3"))))
         .get_matches_from_safe(vec!["", "sub1", "arg", "sub2"]);
     assert!(res.is_ok(), "error: {:?}", res.unwrap_err().kind);
     let m = res.unwrap();
@@ -553,7 +553,7 @@ fn propagate_vals_down() {
     let m = App::new("myprog")
         .setting(AppSettings::PropagateGlobalValuesDown)
         .arg(Arg::from("[cmd] 'command to run'").global(true))
-        .subcommand(SubCommand::with_name("foo"))
+        .subcommand(App::new("foo"))
         .get_matches_from_safe(vec!["myprog", "set", "foo"]);
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
     let m = m.unwrap();

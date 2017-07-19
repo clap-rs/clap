@@ -19,7 +19,7 @@ use {App, ArgMatches};
 /// # use clap::{App, Arg, SubCommand};
 /// App::new("myprog")
 ///     .subcommand(
-///         SubCommand::with_name("config")
+///         App::new("config")
 ///             .about("Used for configuration")
 ///             .arg(Arg::new("config_file")
 ///                 .help("The configuration file to use")
@@ -46,7 +46,7 @@ impl<'a> SubCommand<'a> {
     /// # use clap::{App, Arg, SubCommand};
     /// App::new("myprog")
     ///     .subcommand(
-    ///         SubCommand::with_name("config"))
+    ///         App::new("config"))
     /// # ;
     /// ```
     pub fn new<'b>(name: &str) -> App<'a, 'b> { App::new(name) }

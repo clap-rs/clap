@@ -50,28 +50,28 @@ fn main() {
         .version("1.0")
         .author("Me")
         .subcommand(
-            SubCommand::with_name("clone").about("clones repos").arg(
+            App::new("clone").about("clones repos").arg(
                 Arg::new("repo")
                     .help("The repo to clone")
                     .required(true),
             ),
         )
         .subcommand(
-            SubCommand::with_name("push")
+            App::new("push")
                 .about("pushes things")
                 .setting(AppSettings::SubcommandRequiredElseHelp)
                 .subcommand(
-                    SubCommand::with_name("remote")  // Subcommands can have thier own subcommands,
+                    App::new("remote")  // Subcommands can have thier own subcommands,
                                                          // which in turn have their own subcommands
                 .about("pushes remote things")
                 .arg(Arg::new("repo")
                     .required(true)
                     .help("The remote repo to push things to")),
                 )
-                .subcommand(SubCommand::with_name("local").about("pushes local things")),
+                .subcommand(App::new("local").about("pushes local things")),
         )
         .subcommand(
-            SubCommand::with_name("add")
+            App::new("add")
             .about("adds things")
             .author("Someone Else")                     // Subcommands can list different authors
             .version("v2.0 (I'm versioned differently") // or different version from their parents

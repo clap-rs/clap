@@ -128,7 +128,7 @@ fn multiple_aliases_of_flag() {
 #[test]
 fn alias_on_a_subcommand_option() {
     let m = App::new("test")
-        .subcommand(SubCommand::with_name("some").arg(Arg::new("test")
+        .subcommand(App::new("some").arg(Arg::new("test")
                                                           .short("t")
                                                           .long("test")
                                                           .takes_value(true)
@@ -149,7 +149,7 @@ fn alias_on_a_subcommand_option() {
 fn invisible_arg_aliases_help_output() {
     let app = App::new("ct")
         .author("Salim Afiune")
-        .subcommand(SubCommand::with_name("test")
+        .subcommand(App::new("test")
                         .about("Some help")
                         .version("1.2")
                         .arg(Arg::new("opt")
@@ -167,7 +167,7 @@ fn invisible_arg_aliases_help_output() {
 fn visible_arg_aliases_help_output() {
     let app = App::new("ct")
         .author("Salim Afiune")
-        .subcommand(SubCommand::with_name("test")
+        .subcommand(App::new("test")
                         .about("Some help")
                         .version("1.2")
                         .arg(Arg::new("opt")

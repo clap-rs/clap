@@ -5,7 +5,7 @@ use clap::{App, Arg, SubCommand};
 fn main() {
 
     let matches = App::new("MyApp")
-        .subcommand(SubCommand::with_name("ls")
+        .subcommand(App::new("ls")
                         .aliases(&["list", "dir"])
                         .about("Adds files to myapp")
                         .version("0.1")

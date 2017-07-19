@@ -340,8 +340,8 @@ pub enum ArgSettings {
     ///         .long("verbose")
     ///         .short("v")
     ///         .global(true))
-    ///     .subcommand(SubCommand::with_name("test"))
-    ///     .subcommand(SubCommand::with_name("do-stuff"))
+    ///     .subcommand(App::new("test"))
+    ///     .subcommand(App::new("do-stuff"))
     ///     .get_matches_from(vec![
     ///         "prog", "do-stuff", "--verbose"
     ///     ]);

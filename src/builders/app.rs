@@ -772,7 +772,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg, SubCommand};
     /// let m = App::new("myprog")
-    ///             .subcommand(SubCommand::with_name("test")
+    ///             .subcommand(App::new("test")
     ///                 .alias("do-stuff"))
     ///             .get_matches_from(vec!["myprog", "do-stuff"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
@@ -793,7 +793,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg, SubCommand};
     /// let m = App::new("myprog")
-    ///             .subcommand(SubCommand::with_name("test")
+    ///             .subcommand(App::new("test")
     ///                 .aliases(&["do-stuff", "do-tests", "tests"]))
     ///                 .arg(Arg::new("input")
     ///                             .help("the file to add")
@@ -816,7 +816,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg, SubCommand};
     /// let m = App::new("myprog")
-    ///             .subcommand(SubCommand::with_name("test")
+    ///             .subcommand(App::new("test")
     ///                 .visible_alias("do-stuff"))
     ///             .get_matches_from(vec!["myprog", "do-stuff"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
@@ -836,7 +836,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg, SubCommand};
     /// let m = App::new("myprog")
-    ///             .subcommand(SubCommand::with_name("test")
+    ///             .subcommand(App::new("test")
     ///                 .visible_aliases(&["do-stuff", "tests"]))
     ///             .get_matches_from(vec!["myprog", "do-stuff"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
@@ -939,7 +939,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg, SubCommand};
     /// App::new("myprog")
-    ///     .subcommand(SubCommand::with_name("config")
+    ///     .subcommand(App::new("config")
     ///         .about("Controls configuration features")
     ///         .arg_from_usage("<config> 'Required configuration file to use'"))
     /// # ;
@@ -960,9 +960,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// # use clap::{App, Arg, SubCommand};
     /// # App::new("myprog")
     /// .subcommands( vec![
-    ///        SubCommand::with_name("config").about("Controls configuration functionality")
+    ///        App::new("config").about("Controls configuration functionality")
     ///                                 .arg(Arg::new("config_file").index(1)),
-    ///        SubCommand::with_name("debug").about("Controls debug functionality")])
+    ///        App::new("debug").about("Controls debug functionality")])
     /// # ;
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
@@ -999,13 +999,13 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```rust
     /// # use clap::{App, SubCommand};
     /// let m = App::new("cust-ord")
-    ///     .subcommand(SubCommand::with_name("alpha") // typically subcommands are grouped
+    ///     .subcommand(App::new("alpha") // typically subcommands are grouped
     ///                                                // alphabetically by name. Subcommands
     ///                                                // without a display_order have a value of
     ///                                                // 999 and are displayed alphabetically with
     ///                                                // all other 999 subcommands
     ///         .about("Some help and text"))
-    ///     .subcommand(SubCommand::with_name("beta")
+    ///     .subcommand(App::new("beta")
     ///         .display_order(1)   // In order to force this subcommand to appear *first*
     ///                             // all we have to do is give it a value lower than 999.
     ///                             // Any other subcommands with a value of 1 will be displayed

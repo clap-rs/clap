@@ -371,7 +371,7 @@ impl<'a> ArgMatches<'a> {
     /// let app_m = App::new("myprog")
     ///     .arg(Arg::new("debug")
     ///         .short("d"))
-    ///     .subcommand(SubCommand::with_name("test")
+    ///     .subcommand(App::new("test")
     ///         .arg(Arg::new("opt")
     ///             .long("option")
     ///             .takes_value(true)))
@@ -443,9 +443,9 @@ impl<'a> ArgMatches<'a> {
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
     ///  let app_m = App::new("git")
-    ///      .subcommand(SubCommand::with_name("clone"))
-    ///      .subcommand(SubCommand::with_name("push"))
-    ///      .subcommand(SubCommand::with_name("commit"))
+    ///      .subcommand(App::new("clone"))
+    ///      .subcommand(App::new("push"))
+    ///      .subcommand(App::new("commit"))
     ///      .get_matches();
     ///
     /// match app_m.subcommand_name() {
@@ -470,9 +470,9 @@ impl<'a> ArgMatches<'a> {
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
     ///  let app_m = App::new("git")
-    ///      .subcommand(SubCommand::with_name("clone"))
-    ///      .subcommand(SubCommand::with_name("push"))
-    ///      .subcommand(SubCommand::with_name("commit"))
+    ///      .subcommand(App::new("clone"))
+    ///      .subcommand(App::new("push"))
+    ///      .subcommand(App::new("commit"))
     ///      .get_matches();
     ///
     /// match app_m.subcommand() {
@@ -522,7 +522,7 @@ impl<'a> ArgMatches<'a> {
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand};
     /// let app_m = App::new("myprog")
-    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .subcommand(App::new("test"))
     ///     .get_matches();
     ///
     /// println!("{}", app_m.usage());

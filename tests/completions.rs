@@ -615,7 +615,7 @@ fn build_app_with_name(s: &'static str) -> App<'static, 'static> {
     App::new(s)
         .about("Tests completions")
         .arg(Arg::new("file").help("some input file"))
-        .subcommand(SubCommand::with_name("test")
+        .subcommand(App::new("test")
                         .about("tests things")
                         .arg(Arg::new("case")
                                  .long("case")
@@ -624,7 +624,7 @@ fn build_app_with_name(s: &'static str) -> App<'static, 'static> {
 }
 
 fn build_app_with_underscore() -> App<'static, 'static> {
-    build_app_with_name("my_app").subcommand(SubCommand::with_name("some_cmd")
+    build_app_with_name("my_app").subcommand(App::new("some_cmd")
                                                  .about("tests other things")
                                                  .arg(Arg::new("config")
                                                           .long("--config")

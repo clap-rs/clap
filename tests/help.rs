@@ -473,7 +473,7 @@ fn help_subcommand() {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
-        .subcommand(SubCommand::with_name("test")
+        .subcommand(App::new("test")
                         .about("tests things")
                         .arg_from_usage("-v --verbose 'with verbosity'"))
         .get_matches_from_safe(vec!["myprog", "help"]);
@@ -568,8 +568,8 @@ fn after_and_before_help_output() {
 #[test]
 fn multi_level_sc_help() {
     let app = App::new("ctest")
-        .subcommand(SubCommand::with_name("subcmd")
-                        .subcommand(SubCommand::with_name("multi")
+        .subcommand(App::new("subcmd")
+                        .subcommand(App::new("multi")
                                         .about("tests subcommands")
                                         .author("Kevin K. <kbknapp@gmail.com>")
                                         .version("0.1")
@@ -829,7 +829,7 @@ fn sc_negates_reqs() {
         .setting(AppSettings::SubcommandsNegateReqs)
         .arg_from_usage("-o, --opt <FILE> 'tests options'")
         .arg(Arg::new("PATH"))
-        .subcommand(SubCommand::with_name("test"));
+        .subcommand(App::new("test"));
     assert!(test::compare_output(app, "prog --help", SC_NEGATES_REQS, false));
 }
 
@@ -841,7 +841,7 @@ fn args_negate_sc() {
         .args_from_usage("-f, --flag 'testing flags'
                           -o, --opt [FILE] 'tests options'")
         .arg(Arg::new("PATH"))
-        .subcommand(SubCommand::with_name("test"));
+        .subcommand(App::new("test"));
     assert!(test::compare_output(app, "prog --help", ARGS_NEGATE_SC, false));
 }
 
@@ -907,7 +907,7 @@ fn last_arg_mult_usage_req_with_sc() {
                  .last(true)
                  .required(true)
                  .help("some"))
-        .subcommand(SubCommand::with_name("test").about("some"));
+        .subcommand(App::new("test").about("some"));
     assert!(test::compare_output(app, "last --help", LAST_ARG_REQ_SC, false));
 }
 
@@ -922,7 +922,7 @@ fn last_arg_mult_usage_with_sc() {
                  .multiple(true)
                  .last(true)
                  .help("some"))
-        .subcommand(SubCommand::with_name("test").about("some"));
+        .subcommand(App::new("test").about("some"));
     assert!(test::compare_output(app, "last --help", LAST_ARG_SC, false));
 }
 

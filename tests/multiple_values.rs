@@ -30,7 +30,7 @@ fn with_subcmd() {
                  .help("multiple options")
                  .takes_value(true)
                  .multiple(true))
-        .subcommand(SubCommand::with_name("foo"))
+        .subcommand(App::new("foo"))
         .get_matches_from_safe(vec!["", "--option", "val1", "val2", "foo"]);
 
     assert!(m.is_ok());
@@ -888,7 +888,7 @@ fn low_index_positional_with_subcmd() {
                  .required(true)
                  .multiple(true))
         .arg(Arg::new("target").index(2).required(true))
-        .subcommand(SubCommand::with_name("test").arg(Arg::new("other")))
+        .subcommand(App::new("test").arg(Arg::new("other")))
         .get_matches_from_safe(vec!["lip", "file1", "file2", "file3", "target", "test"]);
 
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
@@ -906,7 +906,7 @@ fn low_index_positional_with_subcmd() {
 #[test]
 fn low_index_positional_in_subcmd() {
     let m = App::new("lip")
-        .subcommand(SubCommand::with_name("test")
+        .subcommand(App::new("test")
                         .arg(Arg::new("files")
                                  .index(1)
                                  .required(true)

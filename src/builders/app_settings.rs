@@ -436,7 +436,7 @@ pub enum AppSettings {
     ///     .setting(AppSettings::DisableHelpSubcommand)
     ///     // Normally, creating a subcommand causes a `help` subcommand to automaticaly
     ///     // be generated as well
-    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .subcommand(App::new("test"))
     ///     .get_matches_from_safe(vec![
     ///         "myprog", "help"
     ///     ]);
@@ -468,7 +468,7 @@ pub enum AppSettings {
     /// let res = App::new("myprog")
     ///     .version("v1.1")
     ///     .setting(AppSettings::DisableVersion)
-    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .subcommand(App::new("test"))
     ///     .get_matches_from_safe(vec![
     ///         "myprog", "test", "-V"
     ///     ]);
@@ -505,7 +505,7 @@ pub enum AppSettings {
     /// App::new("myprog")
     ///     .version("v1.1")
     ///     .setting(AppSettings::GlobalVersion)
-    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .subcommand(App::new("test"))
     ///     .get_matches();
     /// // running `$ myprog test --version` will display
     /// // "myprog-test v1.1"
@@ -520,7 +520,7 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, Arg, AppSettings, SubCommand};
     /// App::new("myprog")
-    ///     .subcommand(SubCommand::with_name("test")
+    ///     .subcommand(App::new("test")
     ///     .setting(AppSettings::Hidden))
     /// # ;
     /// ```
@@ -549,7 +549,7 @@ pub enum AppSettings {
     /// # use clap::{App, Arg, SubCommand, AppSettings};
     /// let m = App::new("prog")
     ///     .setting(AppSettings::InferSubcommands)
-    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .subcommand(App::new("test"))
     ///     .get_matches_from(vec![
     ///         "prog", "te"
     ///     ]);
@@ -605,7 +605,7 @@ pub enum AppSettings {
     ///     .setting(AppSettings::PropagateGlobalValuesDown)
     ///     .arg(Arg::from("[cmd] 'command to run'")
     ///         .global(true))
-    ///     .subcommand(SubCommand::with_name("foo"))
+    ///     .subcommand(App::new("foo"))
     ///     .get_matches_from(vec!["myprog", "set", "foo"]);
     ///
     /// assert_eq!(m.value_of("cmd"), Some("set"));
@@ -622,7 +622,7 @@ pub enum AppSettings {
     ///     .setting(AppSettings::PropagateGlobalValuesDown)
     ///     .arg(Arg::from("[cmd] 'command to run'")
     ///         .global(true))
-    ///     .subcommand(SubCommand::with_name("foo"))
+    ///     .subcommand(App::new("foo"))
     ///     .get_matches_from(vec!["myprog", "set"]);
     ///
     /// assert_eq!(m.value_of("cmd"), Some("set"));
@@ -648,7 +648,7 @@ pub enum AppSettings {
     /// let err = App::new("myprog")
     ///     .setting(AppSettings::SubcommandsNegateReqs)
     ///     .arg(Arg::new("opt").required(true))
-    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .subcommand(App::new("test"))
     ///     .get_matches_from_safe(vec![
     ///         "myprog"
     ///     ]);
@@ -665,7 +665,7 @@ pub enum AppSettings {
     /// let noerr = App::new("myprog")
     ///     .setting(AppSettings::SubcommandsNegateReqs)
     ///     .arg(Arg::new("opt").required(true))
-    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .subcommand(App::new("test"))
     ///     .get_matches_from_safe(vec![
     ///         "myprog", "test"
     ///     ]);
@@ -743,7 +743,7 @@ pub enum AppSettings {
     /// # use clap::{App, AppSettings, SubCommand, ErrorKind};
     /// let err = App::new("myprog")
     ///     .setting(AppSettings::SubcommandRequired)
-    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .subcommand(App::new("test"))
     ///     .get_matches_from_safe(vec![
     ///         "myprog",
     ///     ]);
@@ -808,7 +808,7 @@ pub enum AppSettings {
     /// let res = App::new("myprog")
     ///     .version("v1.1")
     ///     .setting(AppSettings::VersionlessSubcommands)
-    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .subcommand(App::new("test"))
     ///     .get_matches_from_safe(vec![
     ///         "myprog", "test", "-V"
     ///     ]);

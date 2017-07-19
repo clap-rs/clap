@@ -229,7 +229,7 @@ fn main() {
                                .short("v")
                                .multiple(true)
                                .help("Sets the level of verbosity"))
-                          .subcommand(SubCommand::with_name("test")
+                          .subcommand(App::new("test")
                                       .about("controls testing features")
                                       .version("1.3")
                                       .author("Someone E. <someone_else@other.com>")
@@ -288,7 +288,7 @@ fn main() {
                               "-c, --config=[FILE] 'Sets a custom config file'
                               <INPUT>              'Sets the input file to use'
                               -v...                'Sets the level of verbosity'")
-                          .subcommand(SubCommand::with_name("test")
+                          .subcommand(App::new("test")
                                       .about("controls testing features")
                                       .version("1.3")
                                       .author("Someone E. <someone_else@other.com>")

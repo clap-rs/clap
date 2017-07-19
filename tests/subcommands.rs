@@ -54,7 +54,7 @@ For more information try --help";
 #[test]
 fn subcommand() {
     let m = App::new("test")
-        .subcommand(SubCommand::with_name("some").arg(Arg::new("test")
+        .subcommand(App::new("some").arg(Arg::new("test")
                                                           .short("t")
                                                           .long("test")
                                                           .takes_value(true)
@@ -71,7 +71,7 @@ fn subcommand() {
 #[test]
 fn subcommand_none_given() {
     let m = App::new("test")
-        .subcommand(SubCommand::with_name("some").arg(Arg::new("test")
+        .subcommand(App::new("some").arg(Arg::new("test")
                                                           .short("t")
                                                           .long("test")
                                                           .takes_value(true)
@@ -85,12 +85,12 @@ fn subcommand_none_given() {
 #[test]
 fn subcommand_multiple() {
     let m = App::new("test")
-        .subcommands(vec![SubCommand::with_name("some").arg(Arg::new("test")
+        .subcommands(vec![App::new("some").arg(Arg::new("test")
                                                                 .short("t")
                                                                 .long("test")
                                                                 .takes_value(true)
                                                                 .help("testing testing")),
-                          SubCommand::with_name("add").arg(Arg::new("roster").short("r"))])
+                          App::new("add").arg(Arg::new("roster").short("r"))])
         .arg(Arg::new("other").long("other"))
         .get_matches_from(vec!["myprog", "some", "--test", "testing"]);
 
@@ -105,7 +105,7 @@ fn subcommand_multiple() {
 #[test]
 fn single_alias() {
     let m = App::new("myprog")
-        .subcommand(SubCommand::with_name("test").alias("do-stuff"))
+        .subcommand(App::new("test").alias("do-stuff"))
         .get_matches_from(vec!["myprog", "do-stuff"]);
     assert_eq!(m.subcommand_name(), Some("test"));
 }
@@ -113,7 +113,7 @@ fn single_alias() {
 #[test]
 fn multiple_aliases() {
     let m = App::new("myprog")
-        .subcommand(SubCommand::with_name("test").aliases(&["do-stuff", "test-stuff"]))
+        .subcommand(App::new("test").aliases(&["do-stuff", "test-stuff"]))
         .get_matches_from(vec!["myprog", "test-stuff"]);
     assert_eq!(m.subcommand_name(), Some("test"));
 }
@@ -128,7 +128,7 @@ fn subcmd_did_you_mean_output() {
 #[test]
 fn alias_help() {
     let m = App::new("myprog")
-        .subcommand(SubCommand::with_name("test").alias("do-stuff"))
+        .subcommand(App::new("test").alias("do-stuff"))
         .get_matches_from_safe(vec!["myprog", "help", "do-stuff"]);
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
@@ -138,7 +138,7 @@ fn alias_help() {
 fn visible_aliases_help_output() {
     let app = App::new("clap-test")
         .version("2.6")
-        .subcommand(SubCommand::with_name("test")
+        .subcommand(App::new("test")
                         .about("Some help")
                         .alias("invisible")
                         .visible_alias("dongle")
@@ -150,7 +150,7 @@ fn visible_aliases_help_output() {
 fn invisible_aliases_help_output() {
     let app = App::new("clap-test")
         .version("2.6")
-        .subcommand(SubCommand::with_name("test")
+        .subcommand(App::new("test")
                         .about("Some help")
                         .alias("invisible"));
     assert!(test::compare_output(app, "clap-test --help", INVISIBLE_ALIAS_HELP, false));

@@ -39,7 +39,7 @@ fn main() {
         .args_from_usage("-c, --config=[FILE] 'Sets a custom config file'
                                          <output> 'Sets an optional output file'
                                          -d... 'Turn debugging information on'")
-        .subcommand(SubCommand::with_name("test")
+        .subcommand(App::new("test")
                         .about("does testing things")
                         .arg_from_usage("-l, --list 'lists test values'"))
         .get_matches();

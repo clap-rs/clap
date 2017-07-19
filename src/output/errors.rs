@@ -61,7 +61,7 @@ pub enum ErrorKind {
     #[cfg_attr(feature = "suggestions", doc = " ```")]
     /// # use clap::{App, Arg, ErrorKind, SubCommand};
     /// let result = App::new("prog")
-    ///     .subcommand(SubCommand::with_name("config")
+    ///     .subcommand(App::new("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::new("config_file")
     ///             .help("The configuration file to use")
@@ -87,7 +87,7 @@ pub enum ErrorKind {
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind, SubCommand};
     /// let result = App::new("prog")
-    ///     .subcommand(SubCommand::with_name("config")
+    ///     .subcommand(App::new("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::new("config_file")
     ///             .help("The configuration file to use")
@@ -242,7 +242,7 @@ pub enum ErrorKind {
     /// # use clap::{App, AppSettings, SubCommand, ErrorKind};
     /// let err = App::new("prog")
     ///     .setting(AppSettings::SubcommandRequired)
-    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .subcommand(App::new("test"))
     ///     .get_matches_from_safe(vec![
     ///         "myprog",
     ///     ]);
@@ -262,7 +262,7 @@ pub enum ErrorKind {
     /// # use clap::{App, Arg, AppSettings, ErrorKind, SubCommand};
     /// let result = App::new("prog")
     ///     .setting(AppSettings::ArgRequiredElseHelp)
-    ///     .subcommand(SubCommand::with_name("config")
+    ///     .subcommand(App::new("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::new("config_file")
     ///             .help("The configuration file to use")))

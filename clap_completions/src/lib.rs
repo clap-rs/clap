@@ -200,7 +200,7 @@ pub fn get_all_subcommand_paths(p: &Parser, first: bool) -> Vec<String> {
 ///         .about("Tests completions")
 ///         .arg(Arg::new("file")
 ///             .help("some input file"))
-///         .subcommand(SubCommand::with_name("test")
+///         .subcommand(App::new("test")
 ///             .about("tests things")
 ///             .arg(Arg::new("case")
 ///                 .long("case")
