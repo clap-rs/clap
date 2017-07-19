@@ -171,19 +171,19 @@ impl<'a, 'b, 'c> Parser<'a, 'b, 'c>
     #[inline]
     fn debug_asserts(&self, a: &Arg) -> bool {
         assert!(
-            !arg_names!(self.app).any(|name| name == a.name),
+            arg_names!(self.app).filter(|name| name == &a.name).count() == 1,
             format!("Non-unique argument name: {} is already in use", a.name)
         );
         if let Some(l) = a.long {
             assert!(
-                !self.contains_long(l),
+                longs!(self.app).filter(|long| long == &&l).count() == 1,
                 "Argument long must be unique\n\n\t--{} is already in use",
                 l
             );
         }
         if let Some(s) = a.short {
             assert!(
-                !self.contains_short(s),
+                shorts!(self.app).filter(|short| short == &&s).count() == 1,
                 "Argument short must be unique\n\n\t-{} is already in use",
                 s
             );
