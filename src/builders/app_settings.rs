@@ -108,7 +108,9 @@ impl AppFlags {
         Propogated => PROPOGATED,
         ValidArgFound => VALID_ARG_FOUND,
         InferSubcommands => INFER_SUBCOMMANDS,
-        ContainsLast => CONTAINS_LAST
+        ContainsLast => CONTAINS_LAST,
+        DisableHelp => DISABLE_HELP,
+        DisableHelpAndVersion => DISABLE_HELPVER
     }
 }
 
@@ -446,8 +448,7 @@ pub enum AppSettings {
     /// [`SubCommand`]: ./struct.SubCommand.html
     DisableHelpSubcommand,
 
-    /// Disables `-V` and `--version` [`App`] without affecting any of the [`SubCommand`]s
-    /// (Defaults to `false`; application *does* have a version flag)
+    /// Disables `-V` and `--version` flags from being generated for the given [`App`]
     ///
     /// # Examples
     ///
@@ -477,6 +478,70 @@ pub enum AppSettings {
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     DisableVersion,
+
+    /// Disables `-h` and `--help` flags from being generated for the given [`App`]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, AppSettings, ErrorKind};
+    /// let res = App::new("myprog")
+    ///     .version("v1.1")
+    ///     .setting(AppSettings::DisableHelp)
+    ///     .get_matches_from_safe(vec![
+    ///         "myprog", "-h"
+    ///     ]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+    /// ```
+    /// Notice this doesn't affect any child subcommands.
+    ///
+    /// ```rust
+    /// # use clap::{App, SubCommand, AppSettings, ErrorKind};
+    /// let res = App::new("myprog")
+    ///     .version("v1.1")
+    ///     .setting(AppSettings::DisableHelp)
+    ///     .subcommand(App::new("test"))
+    ///     .get_matches_from_safe(vec![
+    ///         "myprog", "test", "-h"
+    ///     ]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::HelpDisplayed);
+    /// ```
+    /// [`App`]: ./struct.App.html
+    DisableHelp,
+
+    /// Disables `-h`/`--help` and `-V`/`--version` flags from being generated for the given [`App`]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, AppSettings, ErrorKind};
+    /// let res = App::new("myprog")
+    ///     .version("v1.1")
+    ///     .setting(AppSettings::DisableHelpAndVersion)
+    ///     .get_matches_from_safe(vec![
+    ///         "myprog", "-h"
+    ///     ]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+    /// ```
+    /// Notice this doesn't affect any child subcommands.
+    ///
+    /// ```rust
+    /// # use clap::{App, SubCommand, AppSettings, ErrorKind};
+    /// let res = App::new("myprog")
+    ///     .version("v1.1")
+    ///     .setting(AppSettings::DisableHelpAndVersion)
+    ///     .subcommand(App::new("test"))
+    ///     .get_matches_from_safe(vec![
+    ///         "myprog", "test", "-h"
+    ///     ]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::HelpDisplayed);
+    /// ```
+    /// [`App`]: ./struct.App.html
+    DisableHelpAndVersion,
 
     /// Displays the arguments and [`SubCommand`]s in the help message in the order that they were
     /// declared in, and not alphabetically which is the default.
@@ -887,6 +952,8 @@ impl FromStr for AppSettings {
             "dontdelimittrailingvalues" => Ok(AppSettings::DontDelimitTrailingValues),
             "disablehelpsubcommand" => Ok(AppSettings::DisableHelpSubcommand),
             "disableversion" => Ok(AppSettings::DisableVersion),
+            "disablehelp" => Ok(AppSettings::DisableHelp),
+            "disablehelpandversion" => Ok(AppSettings::DisableHelpAndVersion),
             "globalversion" => Ok(AppSettings::GlobalVersion),
             "hidden" => Ok(AppSettings::Hidden),
             "hidepossiblevaluesinhelp" => Ok(AppSettings::HidePossibleValuesInHelp),

@@ -1475,7 +1475,7 @@ impl<'a, 'b> App<'a, 'b> {
     // Make App ready for parsing. This should be called after all args are built but before parsing
     #[doc(hidden)]
     pub fn _build(&mut self) {
-        // @TODO-v3-alpha: Build Help/Version if applicable
+        // @TODO-v3-alpha: Remove Help/Version if applicable
         for s in &self.settings {
             self._settings.set(*s);
         }
@@ -1483,6 +1483,56 @@ impl<'a, 'b> App<'a, 'b> {
             self._settings.set(*s);
             self._g_settings.set(*s);
         }
+        if self._settings.is_set(AppSettings::GlobalVersion) {
+            for s in self.subcommands.iter_mut() {
+                s.version = self.version;
+            }
+        }
+        let help_ver = self._settings.is_set(AppSettings::DisableHelpAndVersion);
+        let no_help = self._settings.is_set(AppSettings::DisableHelp) || help_ver;
+        let no_ver = self._settings.is_set(AppSettings::DisableVersion) || help_ver;
+        if no_help {
+            for i in (0..self.args.len()).rev() {
+                let found = "help" == self.args[i].name;
+                if found {
+                    self.args.swap_remove(i);
+                    break;
+                }
+            }
+        }
+        if no_ver {
+            for i in (0..self.args.len()).rev() {
+                let found = "version" == self.args[i].name;
+                if found {
+                    self.args.swap_remove(i);
+                    break;
+                }
+            }
+        }
+        if !self.subcommands.is_empty() && !self.is_set(AppSettings::DisableHelpSubcommand) 
+        {
+            debugln!("App::_build: Building help subcommand");
+            self.subcommands
+                .push(App::new("help")
+                          .about("Prints this message or the help of the given subcommand(s)"));
+        }
+    }
+
+    #[doc(hidden)]
+    fn _create_help_and_version(&mut self) {
+        debugln!("App::_create_help_and_version;");
+        debugln!("App::_create_help_and_version: Building --help");
+        let mut help = Arg::new("help")
+            .long("help")
+            .short("h")
+            .help("Prints help information");
+        self.args.push(help);
+        debugln!("App::_create_help_and_version: Building --version");
+        let mut ver = Arg::new("version")
+            .long("version")
+            .help("Prints version information")
+            .short("V");
+        self.args.push(ver);
     }
 
     //

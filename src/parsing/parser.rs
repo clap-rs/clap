@@ -432,43 +432,6 @@ impl<'a, 'b, 'c> Parser<'a, 'b, 'c>
         }
     }
 
-    pub fn create_help_and_version(&mut self) {
-        debugln!("Parser::create_help_and_version;");
-        // @TODO-3x-beta: remove help and version generation because they should already be
-        // made. Consider just removing version if needed, and creating help subcommand if needed
-        //
-        // name is "hclap_help" because flags are sorted by name
-        if !self.contains_long("help") {
-            debugln!("Parser::create_help_and_version: Building --help");
-            if self.app.help_short.is_none() && !self.contains_short('h') {
-                self.app.help_short = Some('h');
-            }
-            let mut arg = Arg::new("hclap_help").long("help");
-            arg.help = self.app.help_message.or(Some("Prints help information"));
-            arg.short = self.app.help_short;
-            self.app.args.push(arg);
-        }
-        if !self.is_set(AS::DisableVersion) && !self.contains_long("version") {
-            debugln!("Parser::create_help_and_version: Building --version");
-            if self.app.version_short.is_none() && !self.contains_short('V') {
-                self.app.version_short = Some('V');
-            }
-            // name is "vclap_version" because flags are sorted by name
-            let mut arg = Arg::new("vclap_version").long("version");
-            arg.help = self.app.version_message.or(Some("Prints version information"));
-            arg.short = self.app.version_short;
-            self.app.args.push(arg);
-        }
-        if !self.app.subcommands.is_empty() && !self.is_set(AS::DisableHelpSubcommand) &&
-            self.is_set(AS::NeedsSubcommandHelp)
-        {
-            debugln!("Parser::create_help_and_version: Building help");
-            self.app.subcommands
-                .push(App::new("help")
-                          .about("Prints this message or the help of the given subcommand(s)"));
-        }
-    }
-
     //
     // -------- Parse!!! Yay!
     //
@@ -503,10 +466,6 @@ impl<'a, 'b, 'c> Parser<'a, 'b, 'c>
             self.set(AS::LowIndexMultiplePositional);
         }
         let has_args = self.has_args();
-
-        // Next we create the `--help` and `--version` arguments and add them if
-        // necessary
-        self.create_help_and_version();
 
         let mut subcmd_name: Option<String> = None;
         let mut needs_val_of: ParseResult<'a> = ParseResult::NotFound;
@@ -857,14 +816,14 @@ impl<'a, 'b, 'c> Parser<'a, 'b, 'c>
         };
         let mut parser = Parser::new(&mut sc);
         if help_help {
-            let mut pb = Arg::new("subcommand").index(1).setting(ArgSettings::Multiple);
+            let mut pb = Arg::new("subcommand")
+                .index(1)
+                .setting(ArgSettings::Multiple)
+                .help("The subcommand whose help message to display");
             pb._build();
-            pb.help = Some("The subcommand whose help message to display");
             parser.positionals.insert(1, pb.name);
             parser.app._settings = parser.app._settings | self.app._g_settings;
             parser.app._g_settings = self.app._g_settings;
-        } else {
-            parser.create_help_and_version();
         }
         if parser.app.bin_name != self.app.bin_name {
             parser.app.bin_name = Some(format!("{} {}", bin_name, parser.app.name));
