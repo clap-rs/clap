@@ -325,7 +325,7 @@ pub enum ArgSettings {
     /// # use clap::{App, Arg};
     /// Arg::new("debug")
     ///     .short("d")
-    ///     .global(true)
+    ///     .set(ArgSettings::Global)
     /// # ;
     /// ```
     ///
@@ -339,7 +339,7 @@ pub enum ArgSettings {
     ///     .arg(Arg::new("verb")
     ///         .long("verbose")
     ///         .short("v")
-    ///         .global(true))
+    ///         .set(ArgSettings::Global))
     ///     .subcommand(App::new("test"))
     ///     .subcommand(App::new("do-stuff"))
     ///     .get_matches_from(vec![

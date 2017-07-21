@@ -21,7 +21,7 @@ macro_rules! create_app {
                 .author("Kevin K. <kbknapp@gmail.com>")
                 .args_from_usage(ARGS)
                 .arg(Arg::from("-f --flag... 'tests flags'")
-                             .global(true))
+                             .set(ArgSettings::Global))
                 .args(&[
                           Arg::from("[flag2] -F 'tests flags with exclusions'").conflicts_with("flag").requires("option2"),
                           Arg::from("--long-option-2 [option2] 'tests long options with exclusions'").conflicts_with("option").requires("positional2"),
@@ -66,7 +66,7 @@ fn create_app_builder(b: &mut Bencher) {
                      .help("tests flags")
                      .long("flag")
                      .multiple(true)
-                     .global(true))
+                     .set(ArgSettings::Global))
             .arg(Arg::new("flag2")
                      .short("F")
                      .help("tests flags with exclusions")

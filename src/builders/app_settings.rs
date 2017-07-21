@@ -671,7 +671,7 @@ pub enum AppSettings {
     /// let m = App::new("myprog")
     ///     .set(AppSettings::PropagateGlobalValuesDown)
     ///     .arg(Arg::from("[cmd] 'command to run'")
-    ///         .global(true))
+    ///         .set(ArgSettings::Global))
     ///     .subcommand(App::new("foo"))
     ///     .get_matches_from(vec!["myprog", "set", "foo"]);
     ///
@@ -688,7 +688,7 @@ pub enum AppSettings {
     /// let m = App::new("myprog")
     ///     .set(AppSettings::PropagateGlobalValuesDown)
     ///     .arg(Arg::from("[cmd] 'command to run'")
-    ///         .global(true))
+    ///         .set(ArgSettings::Global))
     ///     .subcommand(App::new("foo"))
     ///     .get_matches_from(vec!["myprog", "set"]);
     ///
