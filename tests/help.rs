@@ -496,7 +496,7 @@ fn req_last_arg_usage() {
 fn args_with_last_usage() {
     let app = App::new("flamegraph")
         .version("0.1")
-        .setting(AppSettings::TrailingVarArg)
+        .set(AppSettings::TrailingVarArg)
         .arg(Arg::new("verbose")
                  .help("Prints out more stuff.")
                  .short("v")
@@ -703,7 +703,7 @@ fn issue_688_hidden_pos_vals() {
     let app1 = App::new("ctest")
             .version("0.1")
 			.set_term_width(120)
-			.setting(AppSettings::HidePossibleValuesInHelp)
+			.set(AppSettings::HidePossibleValuesInHelp)
 			.arg(Arg::new("filter")
 				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
                 images. The default is Linear (Bilinear). [values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
@@ -826,7 +826,7 @@ fn hidden_args() {
 fn sc_negates_reqs() {
     let app = App::new("prog")
         .version("1.0")
-        .setting(AppSettings::SubcommandsNegateReqs)
+        .set(AppSettings::SubcommandsNegateReqs)
         .arg_from_usage("-o, --opt <FILE> 'tests options'")
         .arg(Arg::new("PATH"))
         .subcommand(App::new("test"));
@@ -837,7 +837,7 @@ fn sc_negates_reqs() {
 fn args_negate_sc() {
     let app = App::new("prog")
         .version("1.0")
-        .setting(AppSettings::ArgsNegateSubcommands)
+        .set(AppSettings::ArgsNegateSubcommands)
         .args_from_usage("-f, --flag 'testing flags'
                           -o, --opt [FILE] 'tests options'")
         .arg(Arg::new("PATH"))
@@ -899,7 +899,7 @@ fn last_arg_mult_usage_req() {
 fn last_arg_mult_usage_req_with_sc() {
     let app = App::new("last")
         .version("0.1")
-        .setting(AppSettings::SubcommandsNegateReqs)
+        .set(AppSettings::SubcommandsNegateReqs)
         .arg(Arg::new("TARGET").required(true).help("some"))
         .arg(Arg::new("CORPUS").help("some"))
         .arg(Arg::new("ARGS")
@@ -915,7 +915,7 @@ fn last_arg_mult_usage_req_with_sc() {
 fn last_arg_mult_usage_with_sc() {
     let app = App::new("last")
         .version("0.1")
-        .setting(AppSettings::ArgsNegateSubcommands)
+        .set(AppSettings::ArgsNegateSubcommands)
         .arg(Arg::new("TARGET").required(true).help("some"))
         .arg(Arg::new("CORPUS").help("some"))
         .arg(Arg::new("ARGS")

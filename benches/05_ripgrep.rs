@@ -379,7 +379,7 @@ fn app<F>(next_line_help: bool, doc: F) -> App<'static, 'static>
         .version("0.4.0") // Simulating
         .about(ABOUT)
         .max_term_width(100)
-        .setting(AppSettings::UnifiedHelpMessage)
+        .set(AppSettings::UnifiedHelpMessage)
         .usage(USAGE)
         .template(TEMPLATE)
         // Handle help/version manually to make their output formatting

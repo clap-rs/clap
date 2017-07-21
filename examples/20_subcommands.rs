@@ -59,7 +59,7 @@ fn main() {
         .subcommand(
             App::new("push")
                 .about("pushes things")
-                .setting(AppSettings::SubcommandRequiredElseHelp)
+                .set(AppSettings::SubcommandRequiredElseHelp)
                 .subcommand(
                     App::new("remote")  // Subcommands can have thier own subcommands,
                                                          // which in turn have their own subcommands
@@ -75,7 +75,7 @@ fn main() {
             .about("adds things")
             .author("Someone Else")                     // Subcommands can list different authors
             .version("v2.0 (I'm versioned differently") // or different version from their parents
-            .setting(AppSettings::ArgRequiredElseHelp)  // They can even have different settings
+            .set(AppSettings::ArgRequiredElseHelp)  // They can even have different settings
             .arg(Arg::new("stuff")
                 .long("stuff")
                 .help("Stuff to add")

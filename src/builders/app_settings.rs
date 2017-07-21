@@ -149,7 +149,7 @@ pub enum AppSettings {
     /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
     ///
     /// let r = App::new("myprog")
-    ///   //.setting(AppSettings::AllowInvalidUtf8)
+    ///   //.set(AppSettings::AllowInvalidUtf8)
     ///     .arg_from_usage("<arg> 'some positional arg'")
     ///     .get_matches_from_safe(
     ///         vec![
@@ -179,7 +179,7 @@ pub enum AppSettings {
     /// # use clap::{Arg, App, AppSettings};
     /// // Imagine you needed to represent negative numbers as well, such as -10
     /// let m = App::new("nums")
-    ///     .setting(AppSettings::AllowLeadingHyphen)
+    ///     .set(AppSettings::AllowLeadingHyphen)
     ///     .arg(Arg::new("neg").index(1))
     ///     .get_matches_from(vec![
     ///         "nums", "-20"
@@ -201,7 +201,7 @@ pub enum AppSettings {
     /// # use clap::{App, Arg, AppSettings};
     /// let res = App::new("myprog")
     ///     .version("v1.1")
-    ///     .setting(AppSettings::AllowNegativeNumbers)
+    ///     .set(AppSettings::AllowNegativeNumbers)
     ///     .arg(Arg::new("num"))
     ///     .get_matches_from_safe(vec![
     ///         "myprog", "-20"
@@ -231,7 +231,7 @@ pub enum AppSettings {
     /// # use clap::{App, Arg, AppSettings};
     /// // Assume there is an external subcommand named "subcmd"
     /// let m = App::new("myprog")
-    ///     .setting(AppSettings::AllowMissingPositional)
+    ///     .set(AppSettings::AllowMissingPositional)
     ///     .arg(Arg::new("arg1")
     ///         .default_value("something"))
     ///     .arg(Arg::new("arg2")
@@ -261,7 +261,7 @@ pub enum AppSettings {
     /// # use clap::{App, AppSettings};
     /// // Assume there is an external subcommand named "subcmd"
     /// let m = App::new("myprog")
-    ///     .setting(AppSettings::AllowExternalSubcommands)
+    ///     .set(AppSettings::AllowExternalSubcommands)
     ///     .get_matches_from(vec![
     ///         "myprog", "subcmd", "--option", "value", "-fff", "--flag"
     ///     ]);
@@ -297,7 +297,7 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::ArgsNegateSubcommands)
+    ///     .set(AppSettings::ArgsNegateSubcommands)
     /// # ;
     /// ```
     /// [subcommands]: ./struct.SubCommand.html
@@ -317,7 +317,7 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::ArgRequiredElseHelp)
+    ///     .set(AppSettings::ArgRequiredElseHelp)
     /// # ;
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
@@ -337,7 +337,7 @@ pub enum AppSettings {
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::ColoredHelp)
+    ///     .set(AppSettings::ColoredHelp)
     ///     .get_matches();
     /// ```
     ColoredHelp,
@@ -357,7 +357,7 @@ pub enum AppSettings {
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::ColorAuto)
+    ///     .set(AppSettings::ColorAuto)
     ///     .get_matches();
     /// ```
     ColorAuto,
@@ -375,7 +375,7 @@ pub enum AppSettings {
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::ColorAlways)
+    ///     .set(AppSettings::ColorAlways)
     ///     .get_matches();
     /// ```
     ColorAlways,
@@ -393,7 +393,7 @@ pub enum AppSettings {
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::ColorNever)
+    ///     .set(AppSettings::ColorNever)
     ///     .get_matches();
     /// ```
     ColorNever,
@@ -405,7 +405,7 @@ pub enum AppSettings {
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::DontCollapseArgsInUsage)
+    ///     .set(AppSettings::DontCollapseArgsInUsage)
     ///     .get_matches();
     /// ```
     DontCollapseArgsInUsage,
@@ -422,7 +422,7 @@ pub enum AppSettings {
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::DontDelimitTrailingValues)
+    ///     .set(AppSettings::DontDelimitTrailingValues)
     ///     .get_matches();
     /// ```
     /// [`AppSettings::TrailingVarArg`]: ./enum.AppSettings.html#variant.TrailingVarArg
@@ -437,7 +437,7 @@ pub enum AppSettings {
     /// # use clap::{App, AppSettings, ErrorKind, SubCommand};
     /// let res = App::new("myprog")
     ///     .version("v1.1")
-    ///     .setting(AppSettings::DisableHelpSubcommand)
+    ///     .set(AppSettings::DisableHelpSubcommand)
     ///     // Normally, creating a subcommand causes a `help` subcommand to automaticaly
     ///     // be generated as well
     ///     .subcommand(App::new("test"))
@@ -458,7 +458,7 @@ pub enum AppSettings {
     /// # use clap::{App, AppSettings, ErrorKind};
     /// let res = App::new("myprog")
     ///     .version("v1.1")
-    ///     .setting(AppSettings::DisableVersion)
+    ///     .set(AppSettings::DisableVersion)
     ///     .get_matches_from_safe(vec![
     ///         "myprog", "-V"
     ///     ]);
@@ -470,7 +470,7 @@ pub enum AppSettings {
     /// # use clap::{App, SubCommand, AppSettings, ErrorKind};
     /// let res = App::new("myprog")
     ///     .version("v1.1")
-    ///     .setting(AppSettings::DisableVersion)
+    ///     .set(AppSettings::DisableVersion)
     ///     .subcommand(App::new("test"))
     ///     .get_matches_from_safe(vec![
     ///         "myprog", "test", "-V"
@@ -489,7 +489,7 @@ pub enum AppSettings {
     /// # use clap::{App, AppSettings, ErrorKind};
     /// let res = App::new("myprog")
     ///     .version("v1.1")
-    ///     .setting(AppSettings::DisableHelp)
+    ///     .set(AppSettings::DisableHelp)
     ///     .get_matches_from_safe(vec![
     ///         "myprog", "-h"
     ///     ]);
@@ -502,7 +502,7 @@ pub enum AppSettings {
     /// # use clap::{App, SubCommand, AppSettings, ErrorKind};
     /// let res = App::new("myprog")
     ///     .version("v1.1")
-    ///     .setting(AppSettings::DisableHelp)
+    ///     .set(AppSettings::DisableHelp)
     ///     .subcommand(App::new("test"))
     ///     .get_matches_from_safe(vec![
     ///         "myprog", "test", "-h"
@@ -521,7 +521,7 @@ pub enum AppSettings {
     /// # use clap::{App, AppSettings, ErrorKind};
     /// let res = App::new("myprog")
     ///     .version("v1.1")
-    ///     .setting(AppSettings::DisableHelpAndVersion)
+    ///     .set(AppSettings::DisableHelpAndVersion)
     ///     .get_matches_from_safe(vec![
     ///         "myprog", "-h"
     ///     ]);
@@ -534,7 +534,7 @@ pub enum AppSettings {
     /// # use clap::{App, SubCommand, AppSettings, ErrorKind};
     /// let res = App::new("myprog")
     ///     .version("v1.1")
-    ///     .setting(AppSettings::DisableHelpAndVersion)
+    ///     .set(AppSettings::DisableHelpAndVersion)
     ///     .subcommand(App::new("test"))
     ///     .get_matches_from_safe(vec![
     ///         "myprog", "test", "-h"
@@ -553,7 +553,7 @@ pub enum AppSettings {
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::DeriveDisplayOrder)
+    ///     .set(AppSettings::DeriveDisplayOrder)
     ///     .get_matches();
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
@@ -571,7 +571,7 @@ pub enum AppSettings {
     /// # use clap::{App, Arg, SubCommand, AppSettings};
     /// App::new("myprog")
     ///     .version("v1.1")
-    ///     .setting(AppSettings::GlobalVersion)
+    ///     .set(AppSettings::GlobalVersion)
     ///     .subcommand(App::new("test"))
     ///     .get_matches();
     /// // running `$ myprog test --version` will display
@@ -588,7 +588,7 @@ pub enum AppSettings {
     /// # use clap::{App, Arg, AppSettings, SubCommand};
     /// App::new("myprog")
     ///     .subcommand(App::new("test")
-    ///     .setting(AppSettings::Hidden))
+    ///     .set(AppSettings::Hidden))
     /// # ;
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
@@ -615,7 +615,7 @@ pub enum AppSettings {
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand, AppSettings};
     /// let m = App::new("prog")
-    ///     .setting(AppSettings::InferSubcommands)
+    ///     .set(AppSettings::InferSubcommands)
     ///     .subcommand(App::new("test"))
     ///     .get_matches_from(vec![
     ///         "prog", "te"
@@ -637,7 +637,7 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, Arg, AppSettings};
     /// let m = App::new("myprog")
-    ///     .setting(AppSettings::NoBinaryName)
+    ///     .set(AppSettings::NoBinaryName)
     ///     .arg(Arg::from("<cmd>... 'commands to run'"))
     ///     .get_matches_from(vec!["command", "set"]);
     ///
@@ -653,7 +653,7 @@ pub enum AppSettings {
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::NextLineHelp)
+    ///     .set(AppSettings::NextLineHelp)
     ///     .get_matches();
     /// ```
     NextLineHelp,
@@ -669,7 +669,7 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, Arg, AppSettings, SubCommand};
     /// let m = App::new("myprog")
-    ///     .setting(AppSettings::PropagateGlobalValuesDown)
+    ///     .set(AppSettings::PropagateGlobalValuesDown)
     ///     .arg(Arg::from("[cmd] 'command to run'")
     ///         .global(true))
     ///     .subcommand(App::new("foo"))
@@ -686,7 +686,7 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, Arg, AppSettings, SubCommand};
     /// let m = App::new("myprog")
-    ///     .setting(AppSettings::PropagateGlobalValuesDown)
+    ///     .set(AppSettings::PropagateGlobalValuesDown)
     ///     .arg(Arg::from("[cmd] 'command to run'")
     ///         .global(true))
     ///     .subcommand(App::new("foo"))
@@ -713,7 +713,7 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, Arg, AppSettings, SubCommand, ErrorKind};
     /// let err = App::new("myprog")
-    ///     .setting(AppSettings::SubcommandsNegateReqs)
+    ///     .set(AppSettings::SubcommandsNegateReqs)
     ///     .arg(Arg::new("opt").required(true))
     ///     .subcommand(App::new("test"))
     ///     .get_matches_from_safe(vec![
@@ -730,7 +730,7 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, Arg, AppSettings, SubCommand, ErrorKind};
     /// let noerr = App::new("myprog")
-    ///     .setting(AppSettings::SubcommandsNegateReqs)
+    ///     .set(AppSettings::SubcommandsNegateReqs)
     ///     .arg(Arg::new("opt").required(true))
     ///     .subcommand(App::new("test"))
     ///     .get_matches_from_safe(vec![
@@ -758,7 +758,7 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::SubcommandRequiredElseHelp)
+    ///     .set(AppSettings::SubcommandRequiredElseHelp)
     /// # ;
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
@@ -785,7 +785,7 @@ pub enum AppSettings {
     /// use std::os::unix::ffi::OsStringExt;
     ///
     /// let m = App::new("myprog")
-    ///     .setting(AppSettings::StrictUtf8)
+    ///     .set(AppSettings::StrictUtf8)
     ///     .arg_from_usage("<arg> 'some positional arg'")
     ///     .get_matches_from_safe(
     ///         vec![
@@ -809,7 +809,7 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, AppSettings, SubCommand, ErrorKind};
     /// let err = App::new("myprog")
-    ///     .setting(AppSettings::SubcommandRequired)
+    ///     .set(AppSettings::SubcommandRequired)
     ///     .subcommand(App::new("test"))
     ///     .get_matches_from_safe(vec![
     ///         "myprog",
@@ -834,7 +834,7 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, Arg, AppSettings};
     /// let m = App::new("myprog")
-    ///     .setting(AppSettings::TrailingVarArg)
+    ///     .set(AppSettings::TrailingVarArg)
     ///     .arg(Arg::from("<cmd>... 'commands to run'"))
     ///     .get_matches_from(vec!["myprog", "arg1", "-r", "val1"]);
     ///
@@ -857,7 +857,7 @@ pub enum AppSettings {
     /// ```no_run
     /// # use clap::{App, Arg, SubCommand, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::UnifiedHelpMessage)
+    ///     .set(AppSettings::UnifiedHelpMessage)
     ///     .get_matches();
     /// // running `myprog --help` will display a unified "docopt" or "getopts" style help message
     /// ```
@@ -879,7 +879,7 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::WaitOnError)
+    ///     .set(AppSettings::WaitOnError)
     /// # ;
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html

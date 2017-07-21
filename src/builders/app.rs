@@ -541,7 +541,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
-    ///     .global_setting(AppSettings::SubcommandRequired)
+    ///     .set_global(AppSettings::SubcommandRequired)
     /// # ;
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
@@ -636,7 +636,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```rust
     /// # use clap::{App, AppSettings};
     /// let app = App::new("myprog")
-    ///     .setting(AppSettings::SubcommandRequired);
+    ///     .set(AppSettings::SubcommandRequired);
     /// assert!(app.is_set(AppSettings::SubcommandRequired));
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html

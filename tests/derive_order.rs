@@ -142,7 +142,7 @@ fn no_derive_order() {
 #[test]
 fn derive_order() {
     let app = App::new("test")
-        .setting(AppSettings::DeriveDisplayOrder)
+        .set(AppSettings::DeriveDisplayOrder)
         .version("1.2")
         .args(&[Arg::new("flag_b")
                     .long("flag_b")
@@ -165,7 +165,7 @@ fn derive_order() {
 #[test]
 fn unified_help() {
     let app = App::new("test")
-        .setting(AppSettings::UnifiedHelpMessage)
+        .set(AppSettings::UnifiedHelpMessage)
         .version("1.2")
         .args(&[Arg::new("flag_b")
                     .long("flag_b")
@@ -188,8 +188,8 @@ fn unified_help() {
 #[test]
 fn unified_help_and_derive_order() {
     let app = App::new("test")
-        .setting(AppSettings::DeriveDisplayOrder)
-        .setting(AppSettings::UnifiedHelpMessage)
+        .set(AppSettings::DeriveDisplayOrder)
+        .set(AppSettings::UnifiedHelpMessage)
         .version("1.2")
         .args(&[Arg::new("flag_b")
                     .long("flag_b")
@@ -212,7 +212,7 @@ fn unified_help_and_derive_order() {
 #[test]
 fn derive_order_subcommand_propagate() {
     let app = App::new("test")
-        .global_setting(AppSettings::DeriveDisplayOrder)
+        .set_global(AppSettings::DeriveDisplayOrder)
         .version("1.2")
         .subcommand(App::new("sub")
                         .version("1.2")
@@ -237,7 +237,7 @@ fn derive_order_subcommand_propagate() {
 #[test]
 fn unified_help_subcommand_propagate() {
     let app = App::new("test")
-        .global_setting(AppSettings::UnifiedHelpMessage)
+        .set_global(AppSettings::UnifiedHelpMessage)
         .subcommand(App::new("sub")
                         .version("1.2")
                         .args(&[Arg::new("flag_b")
@@ -261,8 +261,8 @@ fn unified_help_subcommand_propagate() {
 #[test]
 fn unified_help_and_derive_order_subcommand_propagate() {
     let app = App::new("test")
-        .global_setting(AppSettings::DeriveDisplayOrder)
-        .global_setting(AppSettings::UnifiedHelpMessage)
+        .set_global(AppSettings::DeriveDisplayOrder)
+        .set_global(AppSettings::UnifiedHelpMessage)
         .subcommand(App::new("sub")
                         .version("1.2")
                         .args(&[Arg::new("flag_b")
@@ -286,8 +286,8 @@ fn unified_help_and_derive_order_subcommand_propagate() {
 #[test]
 fn unified_help_and_derive_order_subcommand_propagate_with_explicit_display_order() {
     let app = App::new("test")
-        .global_setting(AppSettings::DeriveDisplayOrder)
-        .global_setting(AppSettings::UnifiedHelpMessage)
+        .set_global(AppSettings::DeriveDisplayOrder)
+        .set_global(AppSettings::UnifiedHelpMessage)
         .subcommand(App::new("sub")
                         .version("1.2")
                         .args(&[Arg::new("flag_b")

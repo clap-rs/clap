@@ -241,7 +241,7 @@ pub enum ErrorKind {
     /// ```rust
     /// # use clap::{App, AppSettings, SubCommand, ErrorKind};
     /// let err = App::new("prog")
-    ///     .setting(AppSettings::SubcommandRequired)
+    ///     .set(AppSettings::SubcommandRequired)
     ///     .subcommand(App::new("test"))
     ///     .get_matches_from_safe(vec![
     ///         "myprog",
@@ -261,7 +261,7 @@ pub enum ErrorKind {
     /// ```rust
     /// # use clap::{App, Arg, AppSettings, ErrorKind, SubCommand};
     /// let result = App::new("prog")
-    ///     .setting(AppSettings::ArgRequiredElseHelp)
+    ///     .set(AppSettings::ArgRequiredElseHelp)
     ///     .subcommand(App::new("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::new("config_file")
@@ -305,7 +305,7 @@ pub enum ErrorKind {
     /// # use std::os::unix::ffi::OsStringExt;
     /// # use std::ffi::OsString;
     /// let result = App::new("prog")
-    ///     .setting(AppSettings::StrictUtf8)
+    ///     .set(AppSettings::StrictUtf8)
     ///     .arg(Arg::new("utf8")
     ///         .short("u")
     ///         .takes_value(true))

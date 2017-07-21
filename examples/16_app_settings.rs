@@ -12,7 +12,7 @@ fn main() {
     // information.
 
     let matches = App::new("myapp")
-                        .setting(AppSettings::SubcommandsNegateReqs)
+                        .set(AppSettings::SubcommandsNegateReqs)
                                             // Negates requirement of parent command.
 
                         .arg_from_usage("<input> 'input file to use'")

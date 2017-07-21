@@ -245,7 +245,7 @@ fn parse_complex2(b: &mut Bencher) {
 fn parse_complex2_with_args_negate_scs(b: &mut Bencher) {
     b.iter(|| {
         create_app!()
-            .setting(AppSettings::ArgsNegateSubcommands)
+            .set(AppSettings::ArgsNegateSubcommands)
             .get_matches_from(vec!["myprog",
                                    "arg1",
                                    "-f",

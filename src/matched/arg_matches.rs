@@ -491,7 +491,7 @@ impl<'a> ArgMatches<'a> {
     /// # use clap::{App, AppSettings};
     /// // Assume there is an external subcommand named "subcmd"
     /// let app_m = App::new("myprog")
-    ///     .setting(AppSettings::AllowExternalSubcommands)
+    ///     .set(AppSettings::AllowExternalSubcommands)
     ///     .get_matches_from(vec![
     ///         "myprog", "subcmd", "--option", "value", "-fff", "--flag"
     ///     ]);

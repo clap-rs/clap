@@ -69,7 +69,7 @@ ARGS:
 #[test]
 fn sub_command_negate_required() {
     let res = App::new("sub_command_negate")
-        .setting(AppSettings::SubcommandsNegateReqs)
+        .set(AppSettings::SubcommandsNegateReqs)
         .arg(Arg::new("test").required(true).index(1))
         .subcommand(App::new("sub1"))
         .get_matches_from_safe(vec!["myprog", "sub1"]);
@@ -80,7 +80,7 @@ fn sub_command_negate_required() {
 #[test]
 fn global_version() {
     let app = App::new("global_version")
-        .setting(AppSettings::GlobalVersion)
+        .set(AppSettings::GlobalVersion)
         .version("1.1")
         .subcommand(App::new("sub1"));
     assert!(test::compare_output(app, "test sub1 --version", GLOBAL_VERSION, false));
@@ -89,7 +89,7 @@ fn global_version() {
 #[test]
 fn sub_command_negate_required_2() {
     let result = App::new("sub_command_negate")
-        .setting(AppSettings::SubcommandsNegateReqs)
+        .set(AppSettings::SubcommandsNegateReqs)
         .arg(Arg::new("test").required(true).index(1))
         .subcommand(App::new("sub1"))
         .get_matches_from_safe(vec![""]);
@@ -101,7 +101,7 @@ fn sub_command_negate_required_2() {
 #[test]
 fn sub_command_required() {
     let result = App::new("sc_required")
-        .setting(AppSettings::SubcommandRequired)
+        .set(AppSettings::SubcommandRequired)
         .subcommand(App::new("sub1"))
         .get_matches_from_safe(vec![""]);
     assert!(result.is_err());
@@ -112,7 +112,7 @@ fn sub_command_required() {
 #[test]
 fn arg_required_else_help() {
     let result = App::new("arg_required")
-        .setting(AppSettings::ArgRequiredElseHelp)
+        .set(AppSettings::ArgRequiredElseHelp)
         .arg(Arg::new("test").index(1))
         .get_matches_from_safe(vec![""]);
     assert!(result.is_err());
@@ -123,7 +123,7 @@ fn arg_required_else_help() {
 #[test]
 fn arg_required_else_help_over_reqs() {
     let result = App::new("arg_required")
-        .setting(AppSettings::ArgRequiredElseHelp)
+        .set(AppSettings::ArgRequiredElseHelp)
         .arg(Arg::new("test").index(1).required(true))
         .get_matches_from_safe(vec![""]);
     assert!(result.is_err());
@@ -135,7 +135,7 @@ fn arg_required_else_help_over_reqs() {
 #[test]
 fn infer_subcommands_fail_no_args() {
     let m = App::new("prog")
-        .setting(AppSettings::InferSubcommands)
+        .set(AppSettings::InferSubcommands)
         .subcommand(App::new("test"))
         .subcommand(App::new("temp"))
         .get_matches_from_safe(vec!["prog", "te"]);
@@ -147,7 +147,7 @@ fn infer_subcommands_fail_no_args() {
 #[test]
 fn infer_subcommands_fail_no_args() {
     let m = App::new("prog")
-        .setting(AppSettings::InferSubcommands)
+        .set(AppSettings::InferSubcommands)
         .subcommand(App::new("test"))
         .subcommand(App::new("temp"))
         .get_matches_from_safe(vec!["prog", "te"]);
@@ -158,7 +158,7 @@ fn infer_subcommands_fail_no_args() {
 #[test]
 fn infer_subcommands_fail_with_args() {
     let m = App::new("prog")
-        .setting(AppSettings::InferSubcommands)
+        .set(AppSettings::InferSubcommands)
         .arg(Arg::new("some"))
         .subcommand(App::new("test"))
         .subcommand(App::new("temp"))
@@ -170,7 +170,7 @@ fn infer_subcommands_fail_with_args() {
 #[test]
 fn infer_subcommands_fail_with_args2() {
     let m = App::new("prog")
-        .setting(AppSettings::InferSubcommands)
+        .set(AppSettings::InferSubcommands)
         .arg(Arg::new("some"))
         .subcommand(App::new("test"))
         .subcommand(App::new("temp"))
@@ -182,7 +182,7 @@ fn infer_subcommands_fail_with_args2() {
 #[test]
 fn infer_subcommands_pass() {
     let m = App::new("prog")
-        .setting(AppSettings::InferSubcommands)
+        .set(AppSettings::InferSubcommands)
         .subcommand(App::new("test"))
         .get_matches_from(vec!["prog", "te"]);
     assert_eq!(m.subcommand_name(), Some("test"));
@@ -191,7 +191,7 @@ fn infer_subcommands_pass() {
 #[test]
 fn infer_subcommands_pass_close() {
     let m = App::new("prog")
-        .setting(AppSettings::InferSubcommands)
+        .set(AppSettings::InferSubcommands)
         .subcommand(App::new("test"))
         .subcommand(App::new("temp"))
         .get_matches_from(vec!["prog", "tes"]);
@@ -202,7 +202,7 @@ fn infer_subcommands_pass_close() {
 #[test]
 fn infer_subcommands_fail_suggestions() {
     let m = App::new("prog")
-        .setting(AppSettings::InferSubcommands)
+        .set(AppSettings::InferSubcommands)
         .subcommand(App::new("test"))
         .subcommand(App::new("temp"))
         .get_matches_from_safe(vec!["prog", "temps"]);
@@ -214,7 +214,7 @@ fn infer_subcommands_fail_suggestions() {
 #[test]
 fn infer_subcommands_fail_suggestions() {
     let m = App::new("prog")
-        .setting(AppSettings::InferSubcommands)
+        .set(AppSettings::InferSubcommands)
         .subcommand(App::new("test"))
         .subcommand(App::new("temp"))
         .get_matches_from_safe(vec!["prog", "temps"]);
@@ -225,7 +225,7 @@ fn infer_subcommands_fail_suggestions() {
 #[test]
 fn no_bin_name() {
     let result = App::new("arg_required")
-        .setting(AppSettings::NoBinaryName)
+        .set(AppSettings::NoBinaryName)
         .arg(Arg::new("test").required(true).index(1))
         .get_matches_from_safe(vec!["testing"]);
     assert!(result.is_ok());
@@ -240,7 +240,7 @@ fn unified_help() {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
-        .setting(AppSettings::UnifiedHelpMessage)
+        .set(AppSettings::UnifiedHelpMessage)
         .args_from_usage("-f, --flag 'some flag'
                           [arg1] 'some pos arg'
                           --option [opt] 'some option'");
@@ -255,7 +255,7 @@ fn skip_possible_values() {
             .author("Kevin K.")
             .about("tests stuff")
             .version("1.3")
-            .setting(AppSettings::HidePossibleValuesInHelp)
+            .set(AppSettings::HidePossibleValuesInHelp)
             .args(&[Arg::from("-o, --opt [opt] 'some option'").possible_values(&["one",
                                                                                        "two"]),
                     Arg::from("[arg1] 'some pos arg'").possible_values(&["three", "four"])]);
@@ -274,7 +274,7 @@ fn skip_possible_values() {
 #[test]
 fn stop_delim_values_only_pos_follows() {
     let r = App::new("onlypos")
-        .setting(AppSettings::DontDelimitTrailingValues)
+        .set(AppSettings::DontDelimitTrailingValues)
         .args(&[Arg::from("-f [flag] 'some opt'"),
                 Arg::from("[arg]... 'some arg'")])
         .get_matches_from_safe(vec!["", "--", "-f", "-g,x"]);
@@ -289,8 +289,8 @@ fn stop_delim_values_only_pos_follows() {
 #[test]
 fn dont_delim_values_trailingvararg() {
     let m = App::new("positional")
-        .setting(AppSettings::TrailingVarArg)
-        .setting(AppSettings::DontDelimitTrailingValues)
+        .set(AppSettings::TrailingVarArg)
+        .set(AppSettings::DontDelimitTrailingValues)
         .arg(Arg::from("[opt]... 'some pos'"))
         .get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"]);
     assert!(m.is_present("opt"));
@@ -315,7 +315,7 @@ fn delim_values_only_pos_follows() {
 #[test]
 fn delim_values_trailingvararg() {
     let m = App::new("positional")
-        .setting(AppSettings::TrailingVarArg)
+        .set(AppSettings::TrailingVarArg)
         .arg(Arg::from("[opt]... 'some pos'"))
         .get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"]);
     assert!(m.is_present("opt"));
@@ -340,7 +340,7 @@ fn delim_values_only_pos_follows_with_delim() {
 #[test]
 fn delim_values_trailingvararg_with_delim() {
     let m = App::new("positional")
-        .setting(AppSettings::TrailingVarArg)
+        .set(AppSettings::TrailingVarArg)
         .arg(Arg::from("[opt]... 'some pos'").use_delimiter(true))
         .get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"]);
     assert!(m.is_present("opt"));
@@ -351,7 +351,7 @@ fn delim_values_trailingvararg_with_delim() {
 #[test]
 fn leading_hyphen_short() {
     let res = App::new("leadhy")
-        .setting(AppSettings::AllowLeadingHyphen)
+        .set(AppSettings::AllowLeadingHyphen)
         .arg(Arg::new("some"))
         .arg(Arg::new("other").short("o"))
         .get_matches_from_safe(vec!["", "-bar", "-o"]);
@@ -365,7 +365,7 @@ fn leading_hyphen_short() {
 #[test]
 fn leading_hyphen_long() {
     let res = App::new("leadhy")
-        .setting(AppSettings::AllowLeadingHyphen)
+        .set(AppSettings::AllowLeadingHyphen)
         .arg(Arg::new("some"))
         .arg(Arg::new("other").short("o"))
         .get_matches_from_safe(vec!["", "--bar", "-o"]);
@@ -379,7 +379,7 @@ fn leading_hyphen_long() {
 #[test]
 fn leading_hyphen_opt() {
     let res = App::new("leadhy")
-        .setting(AppSettings::AllowLeadingHyphen)
+        .set(AppSettings::AllowLeadingHyphen)
         .arg(Arg::new("some").takes_value(true).long("opt"))
         .arg(Arg::new("other").short("o"))
         .get_matches_from_safe(vec!["", "--opt", "--bar", "-o"]);
@@ -393,7 +393,7 @@ fn leading_hyphen_opt() {
 #[test]
 fn allow_negative_numbers() {
     let res = App::new("negnum")
-        .setting(AppSettings::AllowNegativeNumbers)
+        .set(AppSettings::AllowNegativeNumbers)
         .arg(Arg::new("panum"))
         .arg(Arg::new("onum").short("o").takes_value(true))
         .get_matches_from_safe(vec!["negnum", "-20", "-o", "-1.2"]);
@@ -406,7 +406,7 @@ fn allow_negative_numbers() {
 #[test]
 fn allow_negative_numbers_fail() {
     let res = App::new("negnum")
-        .setting(AppSettings::AllowNegativeNumbers)
+        .set(AppSettings::AllowNegativeNumbers)
         .arg(Arg::new("panum"))
         .arg(Arg::new("onum").short("o").takes_value(true))
         .get_matches_from_safe(vec!["negnum", "--foo", "-o", "-1.2"]);
@@ -417,8 +417,8 @@ fn allow_negative_numbers_fail() {
 #[test]
 fn leading_double_hyphen_trailingvararg() {
     let m = App::new("positional")
-        .setting(AppSettings::TrailingVarArg)
-        .setting(AppSettings::AllowLeadingHyphen)
+        .set(AppSettings::TrailingVarArg)
+        .set(AppSettings::AllowLeadingHyphen)
         .arg(Arg::from("[opt]... 'some pos'"))
         .get_matches_from(vec!["", "--foo", "-Wl", "bar"]);
     assert!(m.is_present("opt"));
@@ -429,7 +429,7 @@ fn leading_double_hyphen_trailingvararg() {
 #[test]
 fn disable_help_subcommand() {
     let result = App::new("disablehelp")
-        .setting(AppSettings::DisableHelpSubcommand)
+        .set(AppSettings::DisableHelpSubcommand)
         .subcommand(App::new("sub1"))
         .get_matches_from_safe(vec!["", "help"]);
     assert!(result.is_err());
@@ -441,7 +441,7 @@ fn disable_help_subcommand() {
 fn dont_collapse_args() {
     let app = App::new("clap-test")
         .version("v1.4.8")
-        .setting(AppSettings::DontCollapseArgsInUsage)
+        .set(AppSettings::DontCollapseArgsInUsage)
         .args(&[Arg::new("arg1").help("some"),
                 Arg::new("arg2").help("some"),
                 Arg::new("arg3").help("some")]);
@@ -465,8 +465,8 @@ fn require_eq() {
 #[test]
 fn args_negate_subcommands_one_level() {
     let res = App::new("disablehelp")
-        .setting(AppSettings::ArgsNegateSubcommands)
-        .setting(AppSettings::SubcommandsNegateReqs)
+        .set(AppSettings::ArgsNegateSubcommands)
+        .set(AppSettings::SubcommandsNegateReqs)
         .arg_from_usage("<arg1> 'some arg'")
         .arg_from_usage("<arg2> 'some arg'")
         .subcommand(App::new("sub1")
@@ -481,8 +481,8 @@ fn args_negate_subcommands_one_level() {
 #[test]
 fn args_negate_subcommands_two_levels() {
     let res = App::new("disablehelp")
-        .global_setting(AppSettings::ArgsNegateSubcommands)
-        .global_setting(AppSettings::SubcommandsNegateReqs)
+        .set_global(AppSettings::ArgsNegateSubcommands)
+        .set_global(AppSettings::SubcommandsNegateReqs)
         .arg_from_usage("<arg1> 'some arg'")
         .arg_from_usage("<arg2> 'some arg'")
         .subcommand(App::new("sub1")
@@ -501,7 +501,7 @@ fn args_negate_subcommands_two_levels() {
 #[test]
 fn propagate_vals_down() {
     let m = App::new("myprog")
-        .setting(AppSettings::PropagateGlobalValuesDown)
+        .set(AppSettings::PropagateGlobalValuesDown)
         .arg(Arg::from("[cmd] 'command to run'").global(true))
         .subcommand(App::new("foo"))
         .get_matches_from_safe(vec!["myprog", "set", "foo"]);
@@ -515,7 +515,7 @@ fn propagate_vals_down() {
 #[test]
 fn allow_missing_positional() {
     let m = App::new("test")
-        .setting(AppSettings::AllowMissingPositional)
+        .set(AppSettings::AllowMissingPositional)
         .arg(Arg::from("[src] 'some file'").default_value("src"))
         .arg_from_usage("<dest> 'some file'")
         .get_matches_from_safe(vec!["test", "file"]);
