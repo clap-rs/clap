@@ -45,26 +45,27 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-Here's the highlights for v2.25.0
+Here's the highlights for v2.25.2
 
-* use textwrap crate for wrapping help texts 
-* suggests to use flag after subcommand when applicable 
+* impl Default for Values + OsValues for any lifetime. ([fb7d6231f1](https://github.com/kbknapp/clap-rs/commit/fb7d6231f13a2f79f411e62dca210b7dc9994c18))
+
+Here's the highlights for v2.21.0 to v2.25.1
+
+* use textwrap crate for wrapping help texts
+* suggests to use flag after subcommand when applicable
 * Bumps bitflags crate to v0.9
-
-Here's the highlights for v2.21.0 to v2.24.2
-
-* fixes a bug where args that allow values to start with a hyphen couldnt contain a double hyphen -- as a value 
-* fixes a bug where positional argument help text is misaligned 
-* **App::template docs:**  adds details about the necessity to use AppSettings::UnifiedHelpMessage when using {unified} tags in the help template 
-* **Arg::allow_hyphen_values docs:**  updates the docs to include warnings for allow_hyphen_values and multiple(true) used together 
-* **clap_app! docs:**  adds using the @group specifier to the macro docs 
-* adds a debug assertion to ensure all args added to groups actually exist 
-* fixes a bug where args with last(true) and required(true) set were not being printed in the usage string 
-* fixes a bug that was printing the arg name, instead of value name when Arg::last(true) was used 
-* fixes a bug where flags were parsed as flags AND positional values when specific combinations of settings were used 
-* **README.md:**  fix some typos 
-* **Arg:**  add `default_value_os` 
-* **arg_matches.rs:**  Added a Default implementation for Values and OsValues iterators. 
+* fixes a bug where args that allow values to start with a hyphen couldnt contain a double hyphen -- as a value
+* fixes a bug where positional argument help text is misaligned
+* **App::template docs:**  adds details about the necessity to use AppSettings::UnifiedHelpMessage when using {unified} tags in the help template
+* **Arg::allow_hyphen_values docs:**  updates the docs to include warnings for allow_hyphen_values and multiple(true) used together
+* **clap_app! docs:**  adds using the @group specifier to the macro docs
+* adds a debug assertion to ensure all args added to groups actually exist
+* fixes a bug where args with last(true) and required(true) set were not being printed in the usage string
+* fixes a bug that was printing the arg name, instead of value name when Arg::last(true) was used
+* fixes a bug where flags were parsed as flags AND positional values when specific combinations of settings were used
+* **README.md:**  fix some typos
+* **Arg:**  add `default_value_os`
+* **arg_matches.rs:**  Added a Default implementation for Values and OsValues iterators.
 * **PowerShell Completions:**
   * fixes a bug where powershells completions cant be used if no subcommands are defined
   * massively dedups subcommand names in the generate script to make smaller scripts that are still functionally equiv
