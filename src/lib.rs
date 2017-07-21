@@ -58,7 +58,7 @@
 //!                                .long("config")
 //!                                .value_name("FILE")
 //!                                .help("Sets a custom config file")
-//!                                .takes_value(true))
+//!                                .set(ArgSettings::TakesValue))
 //!                           .arg(Arg::new("INPUT")
 //!                                .help("Sets the input file to use")
 //!                                .required(true)

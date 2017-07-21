@@ -818,7 +818,7 @@ impl<'a, 'b, 'c> Parser<'a, 'b, 'c>
         if help_help {
             let mut pb = Arg::new("subcommand")
                 .index(1)
-                .setting(ArgSettings::Multiple)
+                .set(ArgSettings::Multiple)
                 .help("The subcommand whose help message to display");
             pb._build();
             parser.positionals.insert(1, pb.name);

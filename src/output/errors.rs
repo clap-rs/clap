@@ -188,7 +188,7 @@ pub enum ErrorKind {
     /// let result = App::new("prog")
     ///     .arg(Arg::new("some_opt")
     ///         .long("opt")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .number_of_values(2))
     ///     .get_matches_from_safe(vec!["prog", "--opt", "wrong"]);
     /// assert!(result.is_err());
@@ -308,7 +308,7 @@ pub enum ErrorKind {
     ///     .set(AppSettings::StrictUtf8)
     ///     .arg(Arg::new("utf8")
     ///         .short("u")
-    ///         .takes_value(true))
+    ///         .set(ArgSettings::TakesValue))
     ///     .get_matches_from_safe(vec![OsString::from("myprog"),
     ///                                 OsString::from("-u"),
     ///                                 OsString::from_vec(vec![0xE9])]);

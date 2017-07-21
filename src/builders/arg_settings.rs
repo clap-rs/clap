@@ -87,7 +87,7 @@ pub enum ArgSettings {
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required(true)
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .long("config"))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "--config", "file.conf"
@@ -103,7 +103,7 @@ pub enum ArgSettings {
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required(true)
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .long("config"))
     ///     .get_matches_from_safe(vec![
     ///         "prog"
@@ -169,7 +169,7 @@ pub enum ArgSettings {
     /// let m = App::new("prog")
     ///     .arg(Arg::new("file")
     ///         .multiple(true)
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .short("F"))
     ///     .get_matches_from(vec![
     ///         "prog", "-F", "file1", "file2", "file3"
@@ -187,7 +187,7 @@ pub enum ArgSettings {
     /// let m = App::new("prog")
     ///     .arg(Arg::new("file")
     ///         .multiple(true)
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .short("F"))
     ///     .get_matches_from(vec![
     ///         "prog", "-F", "file1", "-F", "file2", "-F", "file3"
@@ -208,7 +208,7 @@ pub enum ArgSettings {
     /// let m = App::new("prog")
     ///     .arg(Arg::new("file")
     ///         .multiple(true)
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .short("F"))
     ///     .arg(Arg::new("word")
     ///         .index(1))
@@ -233,7 +233,7 @@ pub enum ArgSettings {
     /// let m = App::new("prog")
     ///     .arg(Arg::new("file")
     ///         .multiple(true)
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .number_of_values(1)
     ///         .short("F"))
     ///     .arg(Arg::new("word")
@@ -257,7 +257,7 @@ pub enum ArgSettings {
     /// let res = App::new("prog")
     ///     .arg(Arg::new("file")
     ///         .multiple(true)
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .number_of_values(1)
     ///         .short("F"))
     ///     .arg(Arg::new("word")
@@ -413,7 +413,7 @@ pub enum ArgSettings {
     /// ```rust
     /// # use clap::{App, Arg};
     /// Arg::new("config")
-    ///     .takes_value(true)
+    ///     .set(ArgSettings::TakesValue)
     /// # ;
     /// ```
     ///
@@ -422,7 +422,7 @@ pub enum ArgSettings {
     /// let m = App::new("prog")
     ///     .arg(Arg::new("mode")
     ///         .long("mode")
-    ///         .takes_value(true))
+    ///         .set(ArgSettings::TakesValue))
     ///     .get_matches_from(vec![
     ///         "prog", "--mode", "fast"
     ///     ]);
@@ -452,7 +452,7 @@ pub enum ArgSettings {
     ///     .arg(Arg::new("option")
     ///         .long("option")
     ///         .use_delimiter(true)
-    ///         .takes_value(true))
+    ///         .set(ArgSettings::TakesValue))
     ///     .get_matches_from(vec![
     ///         "prog", "--option=val1,val2,val3",
     ///     ]);
@@ -470,7 +470,7 @@ pub enum ArgSettings {
     ///     .arg(Arg::new("option")
     ///         .long("option")
     ///         .use_delimiter(false)
-    ///         .takes_value(true))
+    ///         .set(ArgSettings::TakesValue))
     ///     .get_matches_from(vec![
     ///         "prog", "--option=val1,val2,val3",
     ///     ]);
@@ -496,7 +496,7 @@ pub enum ArgSettings {
     ///     .arg(Arg::new("opt")
     ///         .long("long-option-flag")
     ///         .short("o")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .value_names(&["value1", "value2"])
     ///         .help("Some really long help and complex\n\
     ///                help that makes more sense to be\n\
@@ -549,7 +549,7 @@ pub enum ArgSettings {
     /// let delims = App::new("prog")
     ///     .arg(Arg::new("opt")
     ///         .short("o")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .multiple(true)
     ///         .require_delimiter(true))
     ///     .get_matches_from(vec![
@@ -566,7 +566,7 @@ pub enum ArgSettings {
     /// let res = App::new("prog")
     ///     .arg(Arg::new("opt")
     ///         .short("o")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .multiple(true)
     ///         .require_delimiter(true))
     ///     .get_matches_from_safe(vec![
@@ -589,7 +589,7 @@ pub enum ArgSettings {
     /// let delims = App::new("prog")
     ///     .arg(Arg::new("opt")
     ///         .short("o")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .multiple(true))
     ///     .get_matches_from(vec![
     ///         "prog", "-o", "val1", "val2", "val3",
@@ -621,7 +621,7 @@ pub enum ArgSettings {
     ///     .arg(Arg::new("mode")
     ///         .long("mode")
     ///         .possible_values(&["fast", "slow"])
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .hide_possible_values(true));
     ///
     /// ```
@@ -652,7 +652,7 @@ pub enum ArgSettings {
     /// let m = App::new("prog")
     ///     .arg(Arg::new("pat")
     ///         .allow_hyphen_values(true)
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .long("pattern"))
     ///     .get_matches_from(vec![
     ///         "prog", "--pattern", "-file"
@@ -668,7 +668,7 @@ pub enum ArgSettings {
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("pat")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .long("pattern"))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "--pattern", "-file"
@@ -691,7 +691,7 @@ pub enum ArgSettings {
     /// # use clap::Arg;
     /// Arg::new("config")
     ///     .long("config")
-    ///     .takes_value(true)
+    ///     .set(ArgSettings::TakesValue)
     ///     .require_equals(true)
     /// # ;
     /// ```
@@ -704,7 +704,7 @@ pub enum ArgSettings {
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .require_equals(true)
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .long("config"))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "--config=file.conf"
@@ -721,7 +721,7 @@ pub enum ArgSettings {
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .require_equals(true)
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .long("config"))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "--config", "file.conf"

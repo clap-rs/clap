@@ -25,7 +25,7 @@ fn main() {
                                 // telling them what the default will be.
                                 .help("The config file to use (default is \"config.json\")")
                                 .short("c")
-                                .takes_value(true))
+                                .set(ArgSettings::TakesValue))
                         .get_matches();
 
     // It's safe to call unwrap because the value with either be what the user input at runtime

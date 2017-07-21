@@ -8,7 +8,7 @@ fn option_long() {
         .arg(Arg::new("option")
                  .long("option")
                  .help("multiple options")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .multiple(true))
         .get_matches_from_safe(vec!["", "--option", "val1", "--option", "val2", "--option",
                                     "val3"]);
@@ -28,7 +28,7 @@ fn with_subcmd() {
         .arg(Arg::new("option")
                  .long("option")
                  .help("multiple options")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .multiple(true))
         .subcommand(App::new("foo"))
         .get_matches_from_safe(vec!["", "--option", "val1", "val2", "foo"]);
@@ -49,7 +49,7 @@ fn option_short() {
         .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .multiple(true))
         .get_matches_from_safe(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
 
@@ -69,7 +69,7 @@ fn option_mixed() {
                  .long("option")
                  .short("o")
                  .help("multiple options")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .multiple(true))
         .get_matches_from_safe(vec!["", "-o", "val1", "--option", "val2", "--option", "val3",
                                     "-o", "val4"]);
@@ -89,7 +89,7 @@ fn option_exact_exact() {
         .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .multiple(true)
                  .number_of_values(3))
         .get_matches_from_safe(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
@@ -109,7 +109,7 @@ fn option_exact_exact_not_mult() {
         .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .number_of_values(3))
         .get_matches_from_safe(vec!["", "-o", "val1", "val2", "val3"]);
 
@@ -128,7 +128,7 @@ fn option_exact_exact_mult() {
         .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .multiple(true)
                  .number_of_values(3))
         .get_matches_from_safe(vec!["", "-o", "val1", "val2", "val3", "-o", "val4", "val5",
@@ -149,7 +149,7 @@ fn option_exact_less() {
         .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .multiple(true)
                  .number_of_values(3))
         .get_matches_from_safe(vec!["", "-o", "val1", "-o", "val2"]);
@@ -165,7 +165,7 @@ fn option_exact_more() {
             .arg(Arg::new("option")
                      .short("o")
                      .help("multiple options")
-                     .takes_value(true)
+                     .set(ArgSettings::TakesValue)
                      .multiple(true)
                      .number_of_values(3))
             .get_matches_from_safe(vec!["", "-o", "val1", "-o", "val2", "-o", "val3", "-o",
@@ -181,7 +181,7 @@ fn option_min_exact() {
         .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .multiple(true)
                  .min_values(3))
         .get_matches_from_safe(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
@@ -201,7 +201,7 @@ fn option_min_less() {
         .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .multiple(true)
                  .min_values(3))
         .get_matches_from_safe(vec!["", "-o", "val1", "-o", "val2"]);
@@ -217,7 +217,7 @@ fn option_short_min_more_mult_occurs() {
         .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .multiple(true)
                  .min_values(3))
         .get_matches_from_safe(vec!["", "pos", "-o", "val1", "-o", "val2", "-o", "val3", "-o",
@@ -241,7 +241,7 @@ fn option_short_min_more_single_occur() {
         .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .multiple(true)
                  .min_values(3))
         .get_matches_from_safe(vec!["", "pos", "-o", "val1", "val2", "val3", "val4"]);
@@ -263,7 +263,7 @@ fn option_max_exact() {
         .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .multiple(true)
                  .max_values(3))
         .get_matches_from_safe(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
@@ -283,7 +283,7 @@ fn option_max_less() {
         .arg(Arg::new("option")
                  .short("o")
                  .help("multiple options")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .multiple(true)
                  .max_values(3))
         .get_matches_from_safe(vec!["", "-o", "val1", "-o", "val2"]);
@@ -304,7 +304,7 @@ fn option_max_more() {
             .arg(Arg::new("option")
                      .short("o")
                      .help("multiple options")
-                     .takes_value(true)
+                     .set(ArgSettings::TakesValue)
                      .multiple(true)
                      .max_values(3))
             .get_matches_from_safe(vec!["", "-o", "val1", "-o", "val2", "-o", "val3", "-o",
@@ -471,7 +471,7 @@ fn sep_long_equals() {
                  .long("option")
                  .use_delimiter(true)
                  .help("multiple options")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .multiple(true))
         .get_matches_from_safe(vec!["", "--option=val1,val2,val3"]);
 
@@ -491,7 +491,7 @@ fn sep_long_space() {
                  .long("option")
                  .use_delimiter(true)
                  .help("multiple options")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .multiple(true))
         .get_matches_from_safe(vec!["", "--option", "val1,val2,val3"]);
 
@@ -511,7 +511,7 @@ fn sep_short_equals() {
                  .short("o")
                  .help("multiple options")
                  .use_delimiter(true)
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .multiple(true))
         .get_matches_from_safe(vec!["", "-o=val1,val2,val3"]);
 
@@ -531,7 +531,7 @@ fn sep_short_space() {
                  .short("o")
                  .help("multiple options")
                  .use_delimiter(true)
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .multiple(true))
         .get_matches_from_safe(vec!["", "-o", "val1,val2,val3"]);
 
@@ -551,7 +551,7 @@ fn sep_short_no_space() {
                  .short("o")
                  .help("multiple options")
                  .use_delimiter(true)
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .multiple(true))
         .get_matches_from_safe(vec!["", "-oval1,val2,val3"]);
 
@@ -588,7 +588,7 @@ fn different_sep() {
         .arg(Arg::new("option")
                  .long("option")
                  .help("multiple options")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .value_delimiter(";"))
         .get_matches_from_safe(vec!["", "--option=val1;val2;val3"]);
 
@@ -624,7 +624,7 @@ fn no_sep() {
         .arg(Arg::new("option")
                  .long("option")
                  .help("multiple options")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .use_delimiter(false))
         .get_matches_from_safe(vec!["", "--option=val1,val2,val3"]);
 
@@ -660,7 +660,7 @@ fn req_delimiter_long() {
                  .multiple(true)
                  .use_delimiter(true)
                  .require_delimiter(true)
-                 .takes_value(true))
+                 .set(ArgSettings::TakesValue))
         .arg(Arg::new("args").multiple(true).index(1))
         .get_matches_from_safe(vec!["", "--option", "val1", "val2", "val3"]);
 
@@ -683,7 +683,7 @@ fn req_delimiter_long_with_equal() {
                  .multiple(true)
                  .use_delimiter(true)
                  .require_delimiter(true)
-                 .takes_value(true))
+                 .set(ArgSettings::TakesValue))
         .arg(Arg::new("args").multiple(true).index(1))
         .get_matches_from_safe(vec!["", "--option=val1", "val2", "val3"]);
 
@@ -706,7 +706,7 @@ fn req_delimiter_short_with_space() {
                  .multiple(true)
                  .use_delimiter(true)
                  .require_delimiter(true)
-                 .takes_value(true))
+                 .set(ArgSettings::TakesValue))
         .arg(Arg::new("args").multiple(true).index(1))
         .get_matches_from_safe(vec!["", "-o", "val1", "val2", "val3"]);
 
@@ -729,7 +729,7 @@ fn req_delimiter_short_with_no_space() {
                  .multiple(true)
                  .use_delimiter(true)
                  .require_delimiter(true)
-                 .takes_value(true))
+                 .set(ArgSettings::TakesValue))
         .arg(Arg::new("args").multiple(true).index(1))
         .get_matches_from_safe(vec!["", "-oval1", "val2", "val3"]);
 
@@ -752,7 +752,7 @@ fn req_delimiter_short_with_equal() {
                  .multiple(true)
                  .use_delimiter(true)
                  .require_delimiter(true)
-                 .takes_value(true))
+                 .set(ArgSettings::TakesValue))
         .arg(Arg::new("args").multiple(true).index(1))
         .get_matches_from_safe(vec!["", "-o=val1", "val2", "val3"]);
 
@@ -776,7 +776,7 @@ fn req_delimiter_complex() {
                  .multiple(true)
                  .use_delimiter(true)
                  .require_delimiter(true)
-                 .takes_value(true))
+                 .set(ArgSettings::TakesValue))
         .arg(Arg::new("args").multiple(true).index(1))
         .get_matches_from_safe(vec!["",
                                     "val1",
@@ -935,7 +935,7 @@ fn low_index_positional_with_option() {
                  .index(1)
                  .multiple(true))
         .arg(Arg::new("target").index(2).required(true))
-        .arg(Arg::new("opt").long("option").takes_value(true))
+        .arg(Arg::new("opt").long("option").set(ArgSettings::TakesValue))
         .get_matches_from_safe(vec!["lip", "file1", "file2", "file3", "target", "--option",
                                     "test"]);
 

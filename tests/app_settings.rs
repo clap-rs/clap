@@ -380,7 +380,7 @@ fn leading_hyphen_long() {
 fn leading_hyphen_opt() {
     let res = App::new("leadhy")
         .set(AppSettings::AllowLeadingHyphen)
-        .arg(Arg::new("some").takes_value(true).long("opt"))
+        .arg(Arg::new("some").set(ArgSettings::TakesValue).long("opt"))
         .arg(Arg::new("other").short("o"))
         .get_matches_from_safe(vec!["", "--opt", "--bar", "-o"]);
     assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind);
@@ -395,7 +395,7 @@ fn allow_negative_numbers() {
     let res = App::new("negnum")
         .set(AppSettings::AllowNegativeNumbers)
         .arg(Arg::new("panum"))
-        .arg(Arg::new("onum").short("o").takes_value(true))
+        .arg(Arg::new("onum").short("o").set(ArgSettings::TakesValue))
         .get_matches_from_safe(vec!["negnum", "-20", "-o", "-1.2"]);
     assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind);
     let m = res.unwrap();
@@ -408,7 +408,7 @@ fn allow_negative_numbers_fail() {
     let res = App::new("negnum")
         .set(AppSettings::AllowNegativeNumbers)
         .arg(Arg::new("panum"))
-        .arg(Arg::new("onum").short("o").takes_value(true))
+        .arg(Arg::new("onum").short("o").set(ArgSettings::TakesValue))
         .get_matches_from_safe(vec!["negnum", "--foo", "-o", "-1.2"]);
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument)

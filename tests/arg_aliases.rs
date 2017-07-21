@@ -38,7 +38,7 @@ fn single_alias_of_option() {
     let a = App::new("single_alias")
         .arg(Arg::new("alias")
                  .long("alias")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .help("single alias")
                  .alias("new-opt"))
         .get_matches_from_safe(vec!["", "--new-opt", "cool"]);
@@ -53,7 +53,7 @@ fn multiple_aliases_of_option() {
     let a =
         App::new("multiple_aliases").arg(Arg::new("aliases")
                                              .long("aliases")
-                                             .takes_value(true)
+                                             .set(ArgSettings::TakesValue)
                                              .help("multiple aliases")
                                              .aliases(&vec!["alias1", "alias2", "alias3"]));
     let long = a.clone()
@@ -131,7 +131,7 @@ fn alias_on_a_subcommand_option() {
         .subcommand(App::new("some").arg(Arg::new("test")
                                                           .short("t")
                                                           .long("test")
-                                                          .takes_value(true)
+                                                          .set(ArgSettings::TakesValue)
                                                           .alias("opt")
                                                           .help("testing testing")))
         .arg(Arg::new("other")
@@ -155,7 +155,7 @@ fn invisible_arg_aliases_help_output() {
                         .arg(Arg::new("opt")
                                  .long("opt")
                                  .short("o")
-                                 .takes_value(true)
+                                 .set(ArgSettings::TakesValue)
                                  .aliases(&["invisible", "als1", "more"]))
                         .arg(Arg::from("-f, --flag").aliases(&["invisible",
                                                                      "flg1",
@@ -173,7 +173,7 @@ fn visible_arg_aliases_help_output() {
                         .arg(Arg::new("opt")
                                  .long("opt")
                                  .short("o")
-                                 .takes_value(true)
+                                 .set(ArgSettings::TakesValue)
                                  .alias("invisible")
                                  .visible_alias("visible"))
                         .arg(Arg::new("flg")

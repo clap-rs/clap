@@ -44,7 +44,7 @@ fn app_example3<'b, 'c>() -> App<'b, 'c> {
                  .short("d"))
         .args(&[Arg::new("config")
                     .help("sets the config file to use")
-                    .takes_value(true)
+                    .set(ArgSettings::TakesValue)
                     .short("c")
                     .long("config"),
                 Arg::new("input")
@@ -104,7 +104,7 @@ fn app_example7<'b, 'c>() -> App<'b, 'c> {
         .arg(Arg::new("output"))
         .arg(Arg::new("input")
                  .help("the input file to use")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .short("i")
                  .long("input")
                  .multiple(true)
@@ -119,7 +119,7 @@ fn app_example8<'b, 'c>() -> App<'b, 'c> {
         .arg(Arg::new("output"))
         .arg(Arg::new("input")
                  .help("the input file to use")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .short("i")
                  .long("input")
                  .multiple(true)
@@ -134,7 +134,7 @@ fn app_example10<'b, 'c>() -> App<'b, 'c> {
         .arg(Arg::new("CONFIG")
                  .help("The config file to use (default is \"config.json\")")
                  .short("c")
-                 .takes_value(true))
+                 .set(ArgSettings::TakesValue))
 }
 
 #[bench]

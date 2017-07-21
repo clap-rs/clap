@@ -43,7 +43,7 @@ fn main() {
                  .long("config")
                  .value_name("FILE")
                  .help("Sets a custom config file")
-                 .takes_value(true))
+                 .set(ArgSettings::TakesValue))
         .arg(Arg::new("output")
                  .help("Sets an optional output file")
                  .index(1))

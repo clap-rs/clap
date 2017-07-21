@@ -22,7 +22,7 @@ fn issue_946() {
         .args_from_usage("--exact    'filters match exactly'")
         .arg(clap::Arg::new("filter")
                  .index(1)
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .help("filters to apply to output"))
         .get_matches_from_safe(vec!["compiletest", "--exact"]);
     assert!(r.is_ok(), "{:#?}", r);

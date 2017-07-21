@@ -204,7 +204,7 @@ pub fn get_all_subcommand_paths(p: &Parser, first: bool) -> Vec<String> {
 ///             .about("tests things")
 ///             .arg(Arg::new("case")
 ///                 .long("case")
-///                 .takes_value(true)
+///                 .set(ArgSettings::TakesValue)
 ///                 .help("the case to test")))
 /// }
 /// ```

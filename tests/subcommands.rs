@@ -57,7 +57,7 @@ fn subcommand() {
         .subcommand(App::new("some").arg(Arg::new("test")
                                                           .short("t")
                                                           .long("test")
-                                                          .takes_value(true)
+                                                          .set(ArgSettings::TakesValue)
                                                           .help("testing testing")))
         .arg(Arg::new("other").long("other"))
         .get_matches_from(vec!["myprog", "some", "--test", "testing"]);
@@ -74,7 +74,7 @@ fn subcommand_none_given() {
         .subcommand(App::new("some").arg(Arg::new("test")
                                                           .short("t")
                                                           .long("test")
-                                                          .takes_value(true)
+                                                          .set(ArgSettings::TakesValue)
                                                           .help("testing testing")))
         .arg(Arg::new("other").long("other"))
         .get_matches_from(vec![""]);
@@ -88,7 +88,7 @@ fn subcommand_multiple() {
         .subcommands(vec![App::new("some").arg(Arg::new("test")
                                                                 .short("t")
                                                                 .long("test")
-                                                                .takes_value(true)
+                                                                .set(ArgSettings::TakesValue)
                                                                 .help("testing testing")),
                           App::new("add").arg(Arg::new("roster").short("r"))])
         .arg(Arg::new("other").long("other"))

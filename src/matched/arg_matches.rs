@@ -23,13 +23,13 @@ use SubCommand;
 ///     .arg(Arg::new("out")
 ///         .long("output")
 ///         .required(true)
-///         .takes_value(true))
+///         .set(ArgSettings::TakesValue))
 ///     .arg(Arg::new("debug")
 ///         .short("d")
 ///         .multiple(true))
 ///     .arg(Arg::new("cfg")
 ///         .short("c")
-///         .takes_value(true))
+///         .set(ArgSettings::TakesValue))
 ///     .get_matches(); // builds the instance of ArgMatches
 ///
 /// // to get information about the "cfg" argument we created, such as the value supplied we use
@@ -100,7 +100,7 @@ impl<'a> ArgMatches<'a> {
     /// # use clap::{App, Arg};
     /// let m = App::new("myapp")
     ///     .arg(Arg::new("output")
-    ///         .takes_value(true))
+    ///         .set(ArgSettings::TakesValue))
     ///     .get_matches_from(vec!["myapp", "something"]);
     ///
     /// assert_eq!(m.value_of("output"), Some("something"));
@@ -199,7 +199,7 @@ impl<'a> ArgMatches<'a> {
     ///     .arg(Arg::new("output")
     ///         .multiple(true)
     ///         .short("o")
-    ///         .takes_value(true))
+    ///         .set(ArgSettings::TakesValue))
     ///     .get_matches_from(vec![
     ///         "myprog", "-o", "val1", "val2", "val3"
     ///     ]);
@@ -374,7 +374,7 @@ impl<'a> ArgMatches<'a> {
     ///     .subcommand(App::new("test")
     ///         .arg(Arg::new("opt")
     ///             .long("option")
-    ///             .takes_value(true)))
+    ///             .set(ArgSettings::TakesValue)))
     ///     .get_matches_from(vec![
     ///         "myprog", "-d", "test", "--option", "val"
     ///     ]);
@@ -547,7 +547,7 @@ impl<'a> ArgMatches<'a> {
 /// # use clap::{App, Arg};
 /// let m = App::new("myapp")
 ///     .arg(Arg::new("output")
-///         .takes_value(true))
+///         .set(ArgSettings::TakesValue))
 ///     .get_matches_from(vec!["myapp", "something"]);
 ///
 /// assert_eq!(m.value_of("output"), Some("something"));

@@ -619,7 +619,7 @@ fn build_app_with_name(s: &'static str) -> App<'static, 'static> {
                         .about("tests things")
                         .arg(Arg::new("case")
                                  .long("case")
-                                 .takes_value(true)
+                                 .set(ArgSettings::TakesValue)
                                  .help("the case to test")))
 }
 
@@ -628,7 +628,7 @@ fn build_app_with_underscore() -> App<'static, 'static> {
                                                  .about("tests other things")
                                                  .arg(Arg::new("config")
                                                           .long("--config")
-                                                          .takes_value(true)
+                                                          .set(ArgSettings::TakesValue)
                                                           .help("the other case to test")))
 }
 

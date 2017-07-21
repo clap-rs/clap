@@ -507,16 +507,16 @@ fn args_with_last_usage() {
                  .short("t")
                  .long("timeout")
                  .value_name("SECONDS")
-                 .takes_value(true))
+                 .set(ArgSettings::TakesValue))
         .arg(Arg::new("frequency")
                  .help("The sampling frequency.")
                  .short("f")
                  .long("frequency")
                  .value_name("HERTZ")
-                 .takes_value(true))
+                 .set(ArgSettings::TakesValue))
         .arg(Arg::new("binary path")
                  .help("The path of the binary to be profiled. for a binary.")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .value_name("BINFILE"))
         .arg(Arg::new("pass through args")
                  .help("Any arguments you wish to pass to the being profiled.")
@@ -608,7 +608,7 @@ fn issue_626_unicode_cutoff() {
            beverages. Some coffeehouses also serve cold beverages such as \
            iced coffee and iced tea. Many cafés also serve some type of \
            food, such as light snacks, muffins, or pastries.")
-                 .takes_value(true));
+                 .set(ArgSettings::TakesValue));
     assert!(test::compare_output(app, "ctest --help", ISSUE_626_CUTOFF, false));
 }
 
@@ -622,7 +622,7 @@ fn hide_possible_vals() {
                  .value_name("VAL")
                  .possible_values(&["fast", "slow"])
                  .help("Some vals")
-                 .takes_value(true))
+                 .set(ArgSettings::TakesValue))
         .arg(Arg::new("cafe")
                  .short("c")
                  .long("cafe")
@@ -630,7 +630,7 @@ fn hide_possible_vals() {
                  .hide_possible_values(true)
                  .possible_values(&["fast", "slow"])
                  .help("A coffeehouse, coffee shop, or café.")
-                 .takes_value(true));
+                 .set(ArgSettings::TakesValue));
     assert!(test::compare_output(app, "ctest --help", HIDE_POS_VALS, false));
 }
 
@@ -646,7 +646,7 @@ fn issue_626_panic() {
            .help("La culture du café est très développée dans de nombreux pays à climat chaud d'Amérique, \
            d'Afrique et d'Asie, dans des plantations qui sont cultivées pour les marchés d'exportation. \
            Le café est souvent une contribution majeure aux exportations des régions productrices.")
-           .takes_value(true));
+           .set(ArgSettings::TakesValue));
     assert!(test::compare_output(app, "ctest --help", ISSUE_626_PANIC, false));
 }
 
@@ -663,7 +663,7 @@ fn issue_626_variable_panic() {
                .help("La culture du café est très développée dans de nombreux pays à climat chaud d'Amérique, \
                d'Afrique et d'Asie, dans des plantations qui sont cultivées pour les marchés d'exportation. \
                Le café est souvent une contribution majeure aux exportations des régions productrices.")
-               .takes_value(true))
+               .set(ArgSettings::TakesValue))
             .get_matches_from_safe(vec!["ctest", "--help"]);
     }
 }
@@ -709,7 +709,7 @@ fn issue_688_hidden_pos_vals() {
                 images. The default is Linear (Bilinear). [values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
 				.long("filter")
 				.possible_values(&filter_values)
-				.takes_value(true));
+				.set(ArgSettings::TakesValue));
     assert!(test::compare_output(app1, "ctest --help", ISSUE_688, false));
 
     let app2 = App::new("ctest")
@@ -720,7 +720,7 @@ fn issue_688_hidden_pos_vals() {
                 images. The default is Linear (Bilinear).")
 				.long("filter")
 				.possible_values(&filter_values)
-				.takes_value(true));
+				.set(ArgSettings::TakesValue));
     assert!(test::compare_output(app2, "ctest --help", ISSUE_688, false));
 
     let app3 = App::new("ctest")
@@ -730,7 +730,7 @@ fn issue_688_hidden_pos_vals() {
 				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
                 images. The default is Linear (Bilinear). [values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
 				.long("filter")
-				.takes_value(true));
+				.set(ArgSettings::TakesValue));
     assert!(test::compare_output(app3, "ctest --help", ISSUE_688, false));
 }
 
@@ -746,18 +746,18 @@ fn issue_702_multiple_values() {
                  .help("some option")
                  .short("s")
                  .long("some")
-                 .takes_value(true))
+                 .set(ArgSettings::TakesValue))
         .arg(Arg::new("other")
                  .help("some other option")
                  .short("o")
                  .long("other")
-                 .takes_value(true))
+                 .set(ArgSettings::TakesValue))
         .arg(Arg::new("label")
                  .help("a label")
                  .short("l")
                  .long("label")
                  .multiple(true)
-                 .takes_value(true));
+                 .set(ArgSettings::TakesValue));
     assert!(test::compare_output(app, "myapp --help", ISSUE_702, false));
 }
 
@@ -769,14 +769,14 @@ fn issue_760() {
                  .help("tests options")
                  .short("o")
                  .long("option")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .multiple(true)
                  .number_of_values(1))
         .arg(Arg::new("opt")
                  .help("tests options")
                  .short("O")
                  .long("opt")
-                 .takes_value(true));
+                 .set(ArgSettings::TakesValue));
     assert!(test::compare_output(app, "ctest --help", ISSUE_760, false));
 }
 

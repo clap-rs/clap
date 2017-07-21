@@ -79,7 +79,7 @@ fn main() {
             .arg(Arg::new("stuff")
                 .long("stuff")
                 .help("Stuff to add")
-                .takes_value(true)
+                .set(ArgSettings::TakesValue)
                 .multiple(true)),
         )
         .get_matches();

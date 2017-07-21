@@ -38,7 +38,7 @@ fn main() {
                         .args(&[
                             Arg::new("config")
                                     .help("sets the config file to use")
-                                    .takes_value(true)
+                                    .set(ArgSettings::TakesValue)
                                     .short("c")
                                     .long("config"),
                             Arg::new("input")

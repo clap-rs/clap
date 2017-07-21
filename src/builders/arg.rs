@@ -43,7 +43,7 @@ pub fn default_dispaly_order() -> usize { 999 }
 /// let cfg = Arg::new("config")
 ///       .short("c")
 ///       .long("config")
-///       .takes_value(true)
+///       .set(ArgSettings::TakesValue)
 ///       .value_name("FILE")
 ///       .help("Provides a config file to myprog");
 /// // Using a usage string (setting a similar argument to the one above)
@@ -244,7 +244,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///             .arg(Arg::new("test")
     ///             .long("test")
     ///             .alias("alias")
-    ///             .takes_value(true))
+    ///             .set(ArgSettings::TakesValue))
     ///        .get_matches_from(vec![
     ///             "prog", "--alias", "cool"
     ///         ]);
@@ -294,7 +294,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///             .arg(Arg::new("test")
     ///                 .visible_alias("something-awesome")
     ///                 .long("test")
-    ///                 .takes_value(true))
+    ///                 .set(ArgSettings::TakesValue))
     ///        .get_matches_from(vec![
     ///             "prog", "--something-awesome", "coffee"
     ///         ]);
@@ -481,7 +481,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required_unless("dbg")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
     ///         .long("debug"))
@@ -499,7 +499,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required_unless("dbg")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
     ///         .long("debug"))
@@ -515,7 +515,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::required_unless(name)`]: ./struct.Arg.html#method.required_unless
     pub fn required_unless(mut self, name: &'a str) -> Self {
         add_to_option_vec!(self, required_unless, name);
-        self.setting(ArgSettings::Required)
+        self.set(ArgSettings::Required)
     }
 
     /// Sets args that override this arg's required setting. (i.e. this arg will be required unless
@@ -543,13 +543,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required_unless_all(&["dbg", "infile"])
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
     ///         .long("debug"))
     ///     .arg(Arg::new("infile")
     ///         .short("i")
-    ///         .takes_value(true))
+    ///         .set(ArgSettings::TakesValue))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "--debug", "-i", "file"
     ///     ]);
@@ -565,13 +565,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required_unless_all(&["dbg", "infile"])
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
     ///         .long("debug"))
     ///     .arg(Arg::new("infile")
     ///         .short("i")
-    ///         .takes_value(true))
+    ///         .set(ArgSettings::TakesValue))
     ///     .get_matches_from_safe(vec![
     ///         "prog"
     ///     ]);
@@ -583,7 +583,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::required_unless_all(names)`]: ./struct.Arg.html#method.required_unless_all
     pub fn required_unless_all(mut self, names: &[&'a str]) -> Self {
         add_slice_to_option_vec!(self, required_unless, names);
-        self.setting(ArgSettings::RequiredUnlessAll).setting(ArgSettings::Required)
+        self.set(ArgSettings::RequiredUnlessAll).set(ArgSettings::Required)
     }
 
     /// Sets args that override this arg's [required] setting. (i.e. this arg will be required
@@ -611,13 +611,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required_unless_one(&["dbg", "infile"])
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
     ///         .long("debug"))
     ///     .arg(Arg::new("infile")
     ///         .short("i")
-    ///         .takes_value(true))
+    ///         .set(ArgSettings::TakesValue))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "--debug"
     ///     ]);
@@ -633,13 +633,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required_unless_one(&["dbg", "infile"])
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
     ///         .long("debug"))
     ///     .arg(Arg::new("infile")
     ///         .short("i")
-    ///         .takes_value(true))
+    ///         .set(ArgSettings::TakesValue))
     ///     .get_matches_from_safe(vec![
     ///         "prog"
     ///     ]);
@@ -652,7 +652,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::required_unless_all`]: ./struct.Arg.html#method.required_unless_all
     pub fn required_unless_one(mut self, names: &[&'a str]) -> Self {
         add_slice_to_option_vec!(self, required_unless, names);
-        self.setting(ArgSettings::Required)
+        self.set(ArgSettings::Required)
     }
 
     /// Sets a conflicting argument by name. I.e. when using this argument,
@@ -680,7 +680,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .conflicts_with("debug")
     ///         .long("config"))
     ///     .arg(Arg::new("debug")
@@ -723,7 +723,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .conflicts_with_all(&["debug", "input"])
     ///         .long("config"))
     ///     .arg(Arg::new("debug")
@@ -828,7 +828,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .requires("input")
     ///         .long("config"))
     ///     .arg(Arg::new("input")
@@ -846,7 +846,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .requires("input")
     ///         .long("config"))
     ///     .arg(Arg::new("input")
@@ -893,7 +893,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .requires_if("my.cfg", "other")
     ///         .long("config"))
     ///     .arg(Arg::new("other"))
@@ -911,7 +911,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .requires_if("my.cfg", "input")
     ///         .long("config"))
     ///     .arg(Arg::new("input"))
@@ -965,7 +965,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .requires_ifs(&[
     ///             ("special.conf", "opt"),
     ///             ("other.conf", "other"),
@@ -973,7 +973,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .long("config"))
     ///     .arg(Arg::new("opt")
     ///         .long("option")
-    ///         .takes_value(true))
+    ///         .set(ArgSettings::TakesValue))
     ///     .arg(Arg::new("other"))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "--config", "special.conf"
@@ -1021,12 +1021,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .required_if("other", "special")
     ///         .long("config"))
     ///     .arg(Arg::new("other")
     ///         .long("other")
-    ///         .takes_value(true))
+    ///         .set(ArgSettings::TakesValue))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "--other", "not-special"
     ///     ]);
@@ -1041,12 +1041,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .required_if("other", "special")
     ///         .long("config"))
     ///     .arg(Arg::new("other")
     ///         .long("other")
-    ///         .takes_value(true))
+    ///         .set(ArgSettings::TakesValue))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "--other", "special"
     ///     ]);
@@ -1102,13 +1102,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///             ("extra", "val"),
     ///             ("option", "spec")
     ///         ])
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .long("config"))
     ///     .arg(Arg::new("extra")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .long("extra"))
     ///     .arg(Arg::new("option")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .long("option"))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "--option", "other"
@@ -1128,13 +1128,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///             ("extra", "val"),
     ///             ("option", "spec")
     ///         ])
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .long("config"))
     ///     .arg(Arg::new("extra")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .long("extra"))
     ///     .arg(Arg::new("option")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .long("option"))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "--option", "spec"
@@ -1178,7 +1178,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .requires("input")
     ///         .long("config"))
     ///     .arg(Arg::new("input")
@@ -1199,7 +1199,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .requires_all(&["input", "output"])
     ///         .long("config"))
     ///     .arg(Arg::new("input")
@@ -1271,7 +1271,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     pub fn index(mut self, idx: usize) -> Self {
         self.index = Some(idx);
-        self.setting(ArgSettings::TakesValue)
+        self.set(ArgSettings::TakesValue)
     }
 
     /// Specifies a value that *stops* parsing multiple values of a give argument. By default when
@@ -1290,7 +1290,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// Arg::new("vals")
-    ///     .takes_value(true)
+    ///     .set(ArgSettings::TakesValue)
     ///     .multiple(true)
     ///     .value_terminator(";")
     /// # ;
@@ -1321,7 +1321,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`max_values`]: ./struct.Arg.html#method.max_values
     pub fn value_terminator(mut self, term: &'b str) -> Self {
         self.value_terminator = Some(term);
-        self.setting(ArgSettings::TakesValue)
+        self.set(ArgSettings::TakesValue)
     }
 
     /// Specifies a list of possible values for this argument. At runtime, `clap` verifies that
@@ -1334,7 +1334,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// Arg::new("mode")
-    ///     .takes_value(true)
+    ///     .set(ArgSettings::TakesValue)
     ///     .possible_values(&["fast", "slow", "medium"])
     /// # ;
     /// ```
@@ -1344,7 +1344,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let m = App::new("prog")
     ///     .arg(Arg::new("mode")
     ///         .long("mode")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .possible_values(&["fast", "slow", "medium"]))
     ///     .get_matches_from(vec![
     ///         "prog", "--mode", "fast"
@@ -1361,7 +1361,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let res = App::new("prog")
     ///     .arg(Arg::new("mode")
     ///         .long("mode")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .possible_values(&["fast", "slow", "medium"]))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "--mode", "wrong"
@@ -1386,7 +1386,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// Arg::new("mode")
-    ///     .takes_value(true)
+    ///     .set(ArgSettings::TakesValue)
     ///     .possible_value("fast")
     ///     .possible_value("slow")
     ///     .possible_value("medium")
@@ -1398,7 +1398,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let m = App::new("prog")
     ///     .arg(Arg::new("mode")
     ///         .long("mode")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .possible_value("fast")
     ///         .possible_value("slow")
     ///         .possible_value("medium"))
@@ -1417,7 +1417,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let res = App::new("prog")
     ///     .arg(Arg::new("mode")
     ///         .long("mode")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .possible_value("fast")
     ///         .possible_value("slow")
     ///         .possible_value("medium"))
@@ -1530,7 +1530,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .number_of_values(2)
     ///         .short("F"))
     ///     .get_matches_from_safe(vec![
@@ -1544,9 +1544,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     pub fn number_of_values(mut self, qty: usize) -> Self {
         self.number_of_values = Some(qty);
         if qty > 1 {
-            self = self.setting(ArgSettings::Multiple);
+            self = self.set(ArgSettings::Multiple);
         }
-        self.setting(ArgSettings::TakesValue)
+        self.set(ArgSettings::TakesValue)
     }
 
     /// Allows one to perform a custom validation on the argument value. You provide a closure
@@ -1657,7 +1657,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .max_values(3)
     ///         .short("F"))
     ///     .get_matches_from_safe(vec![
@@ -1676,7 +1676,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .max_values(2)
     ///         .short("F"))
     ///     .get_matches_from_safe(vec![
@@ -1690,9 +1690,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     pub fn max_values(mut self, qty: usize) -> Self {
         self.max_values = Some(qty);
         if qty > 1 {
-            self = self.setting(ArgSettings::Multiple);
+            self = self.set(ArgSettings::Multiple);
         }
-        self.setting(ArgSettings::TakesValue)
+        self.set(ArgSettings::TakesValue)
     }
 
     /// Specifies the *minimum* number of values for this argument. For example, if you had a
@@ -1722,7 +1722,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .min_values(2)
     ///         .short("F"))
     ///     .get_matches_from_safe(vec![
@@ -1741,7 +1741,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .min_values(2)
     ///         .short("F"))
     ///     .get_matches_from_safe(vec![
@@ -1755,9 +1755,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     pub fn min_values(mut self, qty: usize) -> Self {
         self.min_values = Some(qty);
         if qty > 1 {
-            self = self.setting(ArgSettings::Multiple);
+            self = self.set(ArgSettings::Multiple);
         }
-        self.setting(ArgSettings::TakesValue)
+        self.set(ArgSettings::TakesValue)
     }
 
     /// Specifies the separator to use when values are clumped together, defaults to `,` (comma).
@@ -1790,8 +1790,8 @@ impl<'a, 'b> Arg<'a, 'b> {
                 .expect("Failed to get value_delimiter from arg"),
         );
         self.unset_setting(ArgSettings::ValueDelimiterNotSet)
-            .setting(ArgSettings::TakesValue)
-            .setting(ArgSettings::UseValueDelimiter)
+            .set(ArgSettings::TakesValue)
+            .set(ArgSettings::UseValueDelimiter)
     }
 
     /// Specify multiple names for values of option arguments. These names are cosmetic only, used
@@ -1869,10 +1869,10 @@ impl<'a, 'b> Arg<'a, 'b> {
             self.value_names = Some(vm);
         }
 
-        self = self.setting(ArgSettings::TakesValue);
+        self = self.set(ArgSettings::TakesValue);
         if self.is_set(ArgSettings::ValueDelimiterNotSet) {
             self = self.unset_setting(ArgSettings::ValueDelimiterNotSet)
-                .setting(ArgSettings::UseValueDelimiter);
+                .set(ArgSettings::UseValueDelimiter);
         }
         self
     }
@@ -1932,7 +1932,7 @@ impl<'a, 'b> Arg<'a, 'b> {
             vm.insert(0, name);
             self.value_names = Some(vm);
         }
-        self.setting(ArgSettings::TakesValue)
+        self.set(ArgSettings::TakesValue)
     }
 
     /// Specifies the value of the argument when *not* specified at runtime.
@@ -2008,7 +2008,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     pub fn default_value_os(mut self, val: &'a OsStr) -> Self {
         self.default_value = Some(val);
-        self.setting(ArgSettings::TakesValue)
+        self.set(ArgSettings::TakesValue)
     }
 
     /// Specifies the value of the argument if `arg` has been used at runtime. If `val` is set to
@@ -2075,7 +2075,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
     ///     .arg(Arg::new("opt")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .long("opt"))
     ///     .arg(Arg::new("other")
     ///         .long("other")
@@ -2094,7 +2094,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
     ///     .arg(Arg::new("opt")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .long("opt"))
     ///     .arg(Arg::new("other")
     ///         .long("other")
@@ -2133,7 +2133,7 @@ impl<'a, 'b> Arg<'a, 'b> {
             vm.insert(0, (arg, val, default));
             self.default_value_ifs = Some(vm);
         }
-        self.setting(ArgSettings::TakesValue)
+        self.set(ArgSettings::TakesValue)
     }
 
     /// Specifies multiple values and conditions in the same manner as [`Arg::default_value_if`].
@@ -2161,7 +2161,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .long("flag"))
     ///     .arg(Arg::new("opt")
     ///         .long("opt")
-    ///         .takes_value(true))
+    ///         .set(ArgSettings::TakesValue))
     ///     .arg(Arg::new("other")
     ///         .long("other")
     ///         .default_value_ifs(&[
@@ -2205,7 +2205,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .long("flag"))
     ///     .arg(Arg::new("opt")
     ///         .long("opt")
-    ///         .takes_value(true))
+    ///         .set(ArgSettings::TakesValue))
     ///     .arg(Arg::new("other")
     ///         .long("other")
     ///         .default_value_ifs(&[
@@ -2264,12 +2264,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///                              // displayed alphabetically with all other 999 valued args.
     ///         .long("long-option")
     ///         .short("o")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .help("Some help and text"))
     ///     .arg(Arg::new("b")
     ///         .long("other-option")
     ///         .short("O")
-    ///         .takes_value(true)
+    ///         .set(ArgSettings::TakesValue)
     ///         .display_order(1)   // In order to force this arg to appear *first*
     ///                             // all we have to do is give it a value lower than 999.
     ///                             // Any other args with a value of 1 will be displayed
@@ -2509,10 +2509,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::RequireDelimiter) instead")]
     pub fn require_delimiter(mut self, d: bool) -> Self {
         if d {
-            self = self.setting(ArgSettings::RequireDelimiter);
+            self = self.set(ArgSettings::RequireDelimiter);
             self.unsetb(ArgSettings::ValueDelimiterNotSet);
             self.setb(ArgSettings::UseValueDelimiter);
-            self.setting(ArgSettings::RequireDelimiter)
+            self.set(ArgSettings::RequireDelimiter)
         } else {
             self = self.unset_setting(ArgSettings::RequireDelimiter);
             self.unsetb(ArgSettings::UseValueDelimiter);
@@ -2524,7 +2524,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::Global) instead")]
     pub fn global(self, g: bool) -> Self {
         if g {
-            self.setting(ArgSettings::Global)
+            self.set(ArgSettings::Global)
         } else {
             self.unset_setting(ArgSettings::Global)
         }
@@ -2534,7 +2534,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::Hidden) instead")]
     pub fn hidden(self, h: bool) -> Self {
         if h {
-            self.setting(ArgSettings::Hidden)
+            self.set(ArgSettings::Hidden)
         } else {
             self.unset_setting(ArgSettings::Hidden)
         }
@@ -2545,9 +2545,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::EmptyValues) instead")]
     pub fn empty_values(mut self, ev: bool) -> Self {
         if ev {
-            self.setting(ArgSettings::EmptyValues)
+            self.set(ArgSettings::EmptyValues)
         } else {
-            self = self.setting(ArgSettings::TakesValue);
+            self = self.set(ArgSettings::TakesValue);
             self.unset_setting(ArgSettings::EmptyValues)
         }
     }
@@ -2557,7 +2557,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::Multiple) instead")]
     pub fn multiple(self, multi: bool) -> Self {
         if multi {
-            self.setting(ArgSettings::Multiple)
+            self.set(ArgSettings::Multiple)
         } else {
             self.unset_setting(ArgSettings::Multiple)
         }
@@ -2567,7 +2567,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::HidePossibleValues) instead")]
     pub fn hide_possible_values(self, hide: bool) -> Self {
         if hide {
-            self.setting(ArgSettings::HidePossibleValues)
+            self.set(ArgSettings::HidePossibleValues)
         } else {
             self.unset_setting(ArgSettings::HidePossibleValues)
         }
@@ -2577,7 +2577,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::TakesValue) instead")]
     pub fn takes_value(self, tv: bool) -> Self {
         if tv {
-            self.setting(ArgSettings::TakesValue)
+            self.set(ArgSettings::TakesValue)
         } else {
             self.unset_setting(ArgSettings::TakesValue)
         }
@@ -2587,7 +2587,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::AllowHyphenValues) instead")]
     pub fn allow_hyphen_values(self, a: bool) -> Self {
         if a {
-            self.setting(ArgSettings::AllowHyphenValues)
+            self.set(ArgSettings::AllowHyphenValues)
         } else {
             self.unset_setting(ArgSettings::AllowHyphenValues)
         }
@@ -2610,7 +2610,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::Last) instead")]
     pub fn last(self, l: bool) -> Self {
         if l {
-            self.setting(ArgSettings::Last)
+            self.set(ArgSettings::Last)
         } else {
             self.unset_setting(ArgSettings::Last)
         }
@@ -2620,7 +2620,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::Required) instead")]
     pub fn required(self, r: bool) -> Self {
         if r {
-            self.setting(ArgSettings::Required)
+            self.set(ArgSettings::Required)
         } else {
             self.unset_setting(ArgSettings::Required)
         }
@@ -2631,7 +2631,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     pub fn require_equals(mut self, r: bool) -> Self {
         if r {
             self.unsetb(ArgSettings::EmptyValues);
-            self.setting(ArgSettings::RequireEquals)
+            self.set(ArgSettings::RequireEquals)
         } else {
             self.unset_setting(ArgSettings::RequireEquals)
         }
@@ -2641,7 +2641,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::HideDefaultValue) instead")]
     pub fn hide_default_value(self, hide: bool) -> Self {
         if hide {
-            self.setting(ArgSettings::HideDefaultValue)
+            self.set(ArgSettings::HideDefaultValue)
         } else {
             self.unset_setting(ArgSettings::HideDefaultValue)
         }

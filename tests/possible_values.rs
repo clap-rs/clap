@@ -91,7 +91,7 @@ fn possible_values_of_option() {
         .arg(Arg::new("option")
                  .short("-o")
                  .long("--option")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .possible_value("test123"))
         .get_matches_from_safe(vec!["myprog", "--option", "test123"]);
 
@@ -108,7 +108,7 @@ fn possible_values_of_option_fail() {
         .arg(Arg::new("option")
                  .short("-o")
                  .long("--option")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .possible_value("test123"))
         .get_matches_from_safe(vec!["myprog", "--option", "notest"]);
 
@@ -122,7 +122,7 @@ fn possible_values_of_option_multiple() {
         .arg(Arg::new("option")
                  .short("-o")
                  .long("--option")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .possible_value("test123")
                  .possible_value("test321")
                  .multiple(true))
@@ -142,7 +142,7 @@ fn possible_values_of_option_multiple_fail() {
         .arg(Arg::new("option")
                  .short("-o")
                  .long("--option")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .possible_value("test123")
                  .possible_value("test321")
                  .multiple(true))

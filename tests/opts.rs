@@ -19,7 +19,7 @@ fn require_equals_fail() {
     let res = App::new("prog")
         .arg(Arg::new("cfg")
                  .require_equals(true)
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .long("config"))
         .get_matches_from_safe(vec!["prog", "--config", "file.conf"]);
     assert!(res.is_err());
@@ -30,7 +30,7 @@ fn require_equals_fail() {
 fn double_hyphen_as_value() {
     let res = App::new("prog")
         .arg(Arg::new("cfg")
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .allow_hyphen_values(true)
                  .long("config"))
         .get_matches_from_safe(vec!["prog", "--config", "--"]);
@@ -43,7 +43,7 @@ fn require_equals_no_empty_values_fail() {
     let res = App::new("prog")
         .arg(Arg::new("cfg")
                  .require_equals(true)
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .long("config"))
         .arg(Arg::new("some"))
         .get_matches_from_safe(vec!["prog", "--config=", "file.conf"]);
@@ -56,7 +56,7 @@ fn require_equals_empty_vals_pass() {
     let res = App::new("prog")
         .arg(Arg::new("cfg")
                  .require_equals(true)
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .empty_values(true)
                  .long("config"))
         .get_matches_from_safe(vec!["prog", "--config="]);
@@ -68,7 +68,7 @@ fn require_equals_pass() {
     let res = App::new("prog")
         .arg(Arg::new("cfg")
                  .require_equals(true)
-                 .takes_value(true)
+                 .set(ArgSettings::TakesValue)
                  .long("config"))
         .get_matches_from_safe(vec!["prog", "--config=file.conf"]);
     assert!(res.is_ok());

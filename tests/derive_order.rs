@@ -126,14 +126,14 @@ fn no_derive_order() {
                     .help("first flag"),
                 Arg::new("option_b")
                     .long("option_b")
-                    .takes_value(true)
+                    .set(ArgSettings::TakesValue)
                     .help("first option"),
                 Arg::new("flag_a")
                     .long("flag_a")
                     .help("second flag"),
                 Arg::new("option_a")
                     .long("option_a")
-                    .takes_value(true)
+                    .set(ArgSettings::TakesValue)
                     .help("second option")]);
 
     assert!(test::compare_output(app, "test --help", NO_DERIVE_ORDER, false));
@@ -149,14 +149,14 @@ fn derive_order() {
                     .help("first flag"),
                 Arg::new("option_b")
                     .long("option_b")
-                    .takes_value(true)
+                    .set(ArgSettings::TakesValue)
                     .help("first option"),
                 Arg::new("flag_a")
                     .long("flag_a")
                     .help("second flag"),
                 Arg::new("option_a")
                     .long("option_a")
-                    .takes_value(true)
+                    .set(ArgSettings::TakesValue)
                     .help("second option")]);
 
     assert!(test::compare_output(app, "test --help", DERIVE_ORDER, false));
@@ -172,14 +172,14 @@ fn unified_help() {
                     .help("first flag"),
                 Arg::new("option_b")
                     .long("option_b")
-                    .takes_value(true)
+                    .set(ArgSettings::TakesValue)
                     .help("first option"),
                 Arg::new("flag_a")
                     .long("flag_a")
                     .help("second flag"),
                 Arg::new("option_a")
                     .long("option_a")
-                    .takes_value(true)
+                    .set(ArgSettings::TakesValue)
                     .help("second option")]);
 
     assert!(test::compare_output(app, "test --help", UNIFIED_HELP, false));
@@ -196,14 +196,14 @@ fn unified_help_and_derive_order() {
                     .help("first flag"),
                 Arg::new("option_b")
                     .long("option_b")
-                    .takes_value(true)
+                    .set(ArgSettings::TakesValue)
                     .help("first option"),
                 Arg::new("flag_a")
                     .long("flag_a")
                     .help("second flag"),
                 Arg::new("option_a")
                     .long("option_a")
-                    .takes_value(true)
+                    .set(ArgSettings::TakesValue)
                     .help("second option")]);
 
     assert!(test::compare_output(app, "test --help", UNIFIED_HELP_AND_DERIVE, false));
@@ -221,14 +221,14 @@ fn derive_order_subcommand_propagate() {
                                     .help("first flag"),
                                 Arg::new("option_b")
                                     .long("option_b")
-                                    .takes_value(true)
+                                    .set(ArgSettings::TakesValue)
                                     .help("first option"),
                                 Arg::new("flag_a")
                                     .long("flag_a")
                                     .help("second flag"),
                                 Arg::new("option_a")
                                     .long("option_a")
-                                    .takes_value(true)
+                                    .set(ArgSettings::TakesValue)
                                     .help("second option")]));
 
     assert!(test::compare_output(app, "test sub --help", DERIVE_ORDER_SC_PROP, false));
@@ -245,14 +245,14 @@ fn unified_help_subcommand_propagate() {
                                     .help("first flag"),
                                 Arg::new("option_b")
                                     .long("option_b")
-                                    .takes_value(true)
+                                    .set(ArgSettings::TakesValue)
                                     .help("first option"),
                                 Arg::new("flag_a")
                                     .long("flag_a")
                                     .help("second flag"),
                                 Arg::new("option_a")
                                     .long("option_a")
-                                    .takes_value(true)
+                                    .set(ArgSettings::TakesValue)
                                     .help("second option")]));
 
     assert!(test::compare_output(app, "test sub --help", UNIFIED_SC_PROP, false));
@@ -270,14 +270,14 @@ fn unified_help_and_derive_order_subcommand_propagate() {
                                     .help("first flag"),
                                 Arg::new("option_b")
                                     .long("option_b")
-                                    .takes_value(true)
+                                    .set(ArgSettings::TakesValue)
                                     .help("first option"),
                                 Arg::new("flag_a")
                                     .long("flag_a")
                                     .help("second flag"),
                                 Arg::new("option_a")
                                     .long("option_a")
-                                    .takes_value(true)
+                                    .set(ArgSettings::TakesValue)
                                     .help("second option")]));
 
     assert!(test::compare_output(app, "test sub --help", UNIFIED_DERIVE_SC_PROP, false));
@@ -295,7 +295,7 @@ fn unified_help_and_derive_order_subcommand_propagate_with_explicit_display_orde
                                     .help("first flag"),
                                 Arg::new("option_b")
                                     .long("option_b")
-                                    .takes_value(true)
+                                    .set(ArgSettings::TakesValue)
                                     .help("first option"),
                                 Arg::new("flag_a")
                                     .long("flag_a")
@@ -303,7 +303,7 @@ fn unified_help_and_derive_order_subcommand_propagate_with_explicit_display_orde
                                     .display_order(0),
                                 Arg::new("option_a")
                                     .long("option_a")
-                                    .takes_value(true)
+                                    .set(ArgSettings::TakesValue)
                                     .help("second option")]));
 
     assert!(test::compare_output(app,

@@ -47,7 +47,7 @@ fn main() {
                       // (but **not** both) the "input" arguments
                       .arg(Arg::new("config")
                         .short("c")
-                        .takes_value(true)
+                        .set(ArgSettings::TakesValue)
                         .requires("input"))
                       .get_matches();
 
