@@ -45,11 +45,11 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-Here's the highlights for v2.25.2
+Here's the highlights for v2.25.1
 
 * impl Default for Values + OsValues for any lifetime. ([fb7d6231f1](https://github.com/kbknapp/clap-rs/commit/fb7d6231f13a2f79f411e62dca210b7dc9994c18))
 
-Here's the highlights for v2.21.0 to v2.25.1
+Here's the highlights for v2.21.0 to v2.25.0
 
 * use textwrap crate for wrapping help texts
 * suggests to use flag after subcommand when applicable
