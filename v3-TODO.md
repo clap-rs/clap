@@ -4,6 +4,34 @@
   - [x] App
   - [x] ArgGroup
   - [x] Arg
+  - [ ] Make tests pass
+    - [ ] app_settings
+    - [ ] arg_aliases
+    - [x] borrowed
+    - [ ] completions
+    - [x] conflicts
+    - [ ] default_vals
+    - [ ] delimiters
+    - [ ] derive_order
+    - [ ] flags
+    - [ ] groups
+    - [ ] help
+    - [ ] hidden_args
+    - [ ] macros
+    - [ ] multipl_occurrences
+    - [ ] multiple_values
+    - [ ] opts
+    - [ ] positionals
+    - [ ] posix_compatible
+    - [ ] require
+    - [ ] subcommands
+    - [ ] template_help
+    - [ ] tests
+    - [x] unique_args
+    - [ ] utf8
+    - [ ] version
+    - [ ] yaml
+  - [ ] Update all examples/tests to new calls
 - [x] App::mut_arg
 - [x] Serde
 - [ ] CustomDerive
