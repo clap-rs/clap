@@ -1,5 +1,5 @@
-<a name="v2.25.2"></a>
-### v2.25.2 (2017-07-21)
+<a name="v2.25.1"></a>
+### v2.25.1 (2017-07-21)
 
 #### Improvements
 
@@ -9,7 +9,7 @@
 
 * Various documentation typos and grammar fixes
 
-<a name="v2.24.2"></a>
+<a name="v2.25.0"></a>
 ### v2.25.0 (2017-06-20)
 
 
