@@ -15,6 +15,10 @@ description = """
 A simple to use, efficient, and full featured  Command Line Argument Parser
 """
 
+[badges]
+travis-ci = { repository = "kbknapp/clap-rs" }
+appveyor = { repository = "kbknapp/clap-rs" }
+
 [dependencies]
 bitflags              = "0.9"
 vec_map               = "0.8"
