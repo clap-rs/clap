@@ -29,7 +29,7 @@ macro_rules! arg_post_processing {
     ($parser:ident, $arg:ident, $matcher:ident) => {
         debugln!("arg_post_processing!;");
         // Handle POSIX overrides
-        debug!("arg_post_processing!: Is '{}' in overrides...", $arg.to_string());
+        debug!("arg_post_processing!: Is '{}' in overrides...", $arg.name);
         if $parser.overrides.contains(&$arg.name) {
             if let Some(ref name) = find_name_from!($parser.app, &$arg.name, overrides_with, $matcher) {
                 sdebugln!("Yes by {}", name);
@@ -39,7 +39,7 @@ macro_rules! arg_post_processing {
         } else { sdebugln!("No"); }
 
         // Add overrides
-        debug!("arg_post_processing!: Does '{}' have overrides...", $arg.to_string());
+        debug!("arg_post_processing!: Does '{}' have overrides...", $arg.name);
         if let Some(ref or) = $arg.overrides_with {
             sdebugln!("Yes");
             $matcher.remove_all(&*or);

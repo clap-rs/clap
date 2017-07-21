@@ -1488,9 +1488,8 @@ impl<'a, 'b> App<'a, 'b> {
                 s.version = self.version;
             }
         }
-        let help_ver = self._settings.is_set(AppSettings::DisableHelpAndVersion);
-        let no_help = self._settings.is_set(AppSettings::DisableHelp) || help_ver;
-        let no_ver = self._settings.is_set(AppSettings::DisableVersion) || help_ver;
+        let no_help = self._settings.is_set(AppSettings::DisableHelp);
+        let no_ver = self._settings.is_set(AppSettings::DisableVersion);
         if no_help {
             for i in (0..self.args.len()).rev() {
                 let found = "help" == self.args[i].name;

@@ -5,6 +5,8 @@ use clap::{App, Arg, SubCommand, AppSettings, ErrorKind};
 
 include!("../clap-test.rs");
 
+static GLOBAL_VERSION: &'static str = "clap-test-sub1 v1.1";
+
 static DONT_COLLAPSE_ARGS: &'static str = "clap-test v1.4.8
 
 USAGE:
@@ -66,21 +68,22 @@ ARGS:
 
 #[test]
 fn sub_command_negate_required() {
-    App::new("sub_command_negate")
+    let res = App::new("sub_command_negate")
         .setting(AppSettings::SubcommandsNegateReqs)
         .arg(Arg::new("test").required(true).index(1))
         .subcommand(App::new("sub1"))
-        .get_matches_from(vec!["myprog", "sub1"]);
+        .get_matches_from_safe(vec!["myprog", "sub1"]);
+
+    assert!(res.is_ok());
 }
 
 #[test]
 fn global_version() {
-    let mut app = App::new("global_version")
+    let app = App::new("global_version")
         .setting(AppSettings::GlobalVersion)
         .version("1.1")
         .subcommand(App::new("sub1"));
-    app.p.propogate_settings();
-    assert_eq!(app.p.subcommands[0].p.meta.version, Some("1.1"));
+    assert!(test::compare_output(app, "test sub1 --version", GLOBAL_VERSION, false));
 }
 
 #[test]
@@ -260,46 +263,13 @@ fn skip_possible_values() {
     assert!(test::compare_output(app, "test --help", SKIP_POS_VALS, false));
 }
 
-#[test]
-fn global_setting() {
-    let mut app = App::new("test")
-        .global_setting(AppSettings::ColoredHelp)
-        .subcommand(App::new("subcmd"));
-    app.p.propogate_settings();
-    assert!(app.p
-                .subcommands
-                .iter()
-                .filter(|s| s.p.meta.name == "subcmd")
-                .next()
-                .unwrap()
-                .p
-                .is_set(AppSettings::ColoredHelp));
-}
 
-#[test]
-fn global_settings() {
-    let mut app = App::new("test")
-        .global_settings(&[AppSettings::ColoredHelp, AppSettings::TrailingVarArg])
-        .subcommand(App::new("subcmd"));
-    app.p.propogate_settings();
-    assert!(app.p
-                .subcommands
-                .iter()
-                .filter(|s| s.p.meta.name == "subcmd")
-                .next()
-                .unwrap()
-                .p
-                .is_set(AppSettings::ColoredHelp));
-    assert!(app.p
-                .subcommands
-                .iter()
-                .filter(|s| s.p.meta.name == "subcmd")
-                .next()
-                .unwrap()
-                .p
-                .is_set(AppSettings::TrailingVarArg));
-
-}
+// @TEST @TODO-v3-release: test via DisableVersion or something
+// #[test]
+// fn global_setting() {
+// }
+// fn global_settings() {
+// }
 
 #[test]
 fn stop_delim_values_only_pos_follows() {
@@ -454,26 +424,6 @@ fn leading_double_hyphen_trailingvararg() {
     assert!(m.is_present("opt"));
     assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(),
                &["--foo", "-Wl", "bar"]);
-}
-
-#[test]
-fn test_unset_setting() {
-    let m = App::new("unset_setting");
-    assert!(m.p.is_set(AppSettings::AllowInvalidUtf8));
-
-    let m = m.unset_setting(AppSettings::AllowInvalidUtf8);
-    assert!(!m.p.is_set(AppSettings::AllowInvalidUtf8));
-}
-
-#[test]
-fn test_unset_settings() {
-    let m = App::new("unset_settings");
-    assert!(&m.p.is_set(AppSettings::AllowInvalidUtf8));
-    assert!(&m.p.is_set(AppSettings::ColorAuto));
-
-    let m = m.unset_settings(&[AppSettings::AllowInvalidUtf8, AppSettings::ColorAuto]);
-    assert!(!m.p.is_set(AppSettings::AllowInvalidUtf8));
-    assert!(!m.p.is_set(AppSettings::ColorAuto));
 }
 
 #[test]

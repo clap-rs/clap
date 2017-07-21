@@ -1271,7 +1271,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     pub fn index(mut self, idx: usize) -> Self {
         self.index = Some(idx);
-        self
+        self.setting(ArgSettings::TakesValue)
     }
 
     /// Specifies a value that *stops* parsing multiple values of a give argument. By default when
@@ -2391,6 +2391,58 @@ impl<'a, 'b> Arg<'a, 'b> {
         self.long.is_some() || self.is_set(ArgSettings::TakesValue) || self.index.is_some()
     }
 
+    #[doc(hidden)]
+    fn _write_switch(&self, f: &mut Formatter, sep: &str) -> fmt::Result {
+        if let Some(l) = self.long {
+            try!(write!(f, "--{}{}", l, sep));
+        } else {
+            try!(write!(f, "-{}{}", self.short.unwrap(), sep));
+        }
+        Ok(())
+    }
+
+    #[doc(hidden)]
+    fn _write_values(&self, f: &mut Formatter) -> fmt::Result {
+        // Write the values such as <name1> <name2>
+        if let Some(ref vec) = self.value_names {
+            let mut it = vec.iter().peekable();
+            while let Some((_, val)) = it.next() {
+                try!(write!(f, "<{}>", val));
+                if it.peek().is_some() {
+                    try!(write!(f, " "));
+                }
+            }
+            let num = vec.len();
+            if self.is_set(ArgSettings::Multiple) && num == 1 {
+                try!(write!(f, "..."));
+            }
+        } else if let Some(num) = self.number_of_values {
+            let mut it = (0..num).peekable();
+            while let Some(_) = it.next() {
+                try!(write!(f, "<{}>", self.name));
+                if it.peek().is_some() {
+                    try!(write!(f, " "));
+                }
+            }
+            if self.is_set(ArgSettings::Multiple) && num == 1 {
+                try!(write!(f, "..."));
+            }
+        } else {
+            try!(write!(
+                f,
+                "<{}>{}",
+                self.name,
+                if self.is_set(ArgSettings::Multiple) {
+                    "..."
+                } else {
+                    ""
+                }
+            ));
+        }
+
+        Ok(())
+    }
+
     // --------- DEPRECATIONS ----------
 
     /// Deprecated
@@ -2792,86 +2844,24 @@ impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for Arg<'n, 'e> {
 
 impl<'n, 'e> Display for Arg<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        if self._settings.is_set(ArgSettings::TakesValue) {
-            if self.index.is_some() {
-                // Display for Positionals
-                if let Some(ref names) = self.value_names {
-                    try!(write!(
-                        f,
-                        "{}",
-                        names
-                            .values()
-                            .map(|n| format!("<{}>", n))
-                            .collect::<Vec<_>>()
-                            .join(" ")
-                    ));
-                } else {
-                    try!(write!(f, "<{}>", self.name));
-                }
-                if self.is_set(ArgSettings::Multiple) &&
-                    (self.value_names.is_none() || self.value_names.as_ref().unwrap().len() == 1)
-                {
-                    try!(write!(f, "..."));
-                }
-            } else {
+        debugln!("Arg::fmt:{};", self.name);
+        if self.long.is_some() || self.short.is_some() {
+            if self._settings.is_set(ArgSettings::TakesValue) {
+                debugln!("Arg::fmt:{}:opt;", self.name);
                 // Display for Opts
-                debugln!("Opt::fmt:{}", self.name);
-                let sep = if self.is_set(ArgSettings::RequireEquals) {
-                    "="
-                } else {
-                    " "
-                };
+                let sep = if self.is_set(ArgSettings::RequireEquals) { "=" } else { " " };
                 // Write the name such --long or -l
-                if let Some(l) = self.long {
-                    try!(write!(f, "--{}{}", l, sep));
-                } else {
-                    try!(write!(f, "-{}{}", self.short.unwrap(), sep));
-                }
+                try!(self._write_switch(f, sep));
 
-                // Write the values such as <name1> <name2>
-                if let Some(ref vec) = self.value_names {
-                    let mut it = vec.iter().peekable();
-                    while let Some((_, val)) = it.next() {
-                        try!(write!(f, "<{}>", val));
-                        if it.peek().is_some() {
-                            try!(write!(f, " "));
-                        }
-                    }
-                    let num = vec.len();
-                    if self.is_set(ArgSettings::Multiple) && num == 1 {
-                        try!(write!(f, "..."));
-                    }
-                } else if let Some(num) = self.number_of_values {
-                    let mut it = (0..num).peekable();
-                    while let Some(_) = it.next() {
-                        try!(write!(f, "<{}>", self.name));
-                        if it.peek().is_some() {
-                            try!(write!(f, " "));
-                        }
-                    }
-                    if self.is_set(ArgSettings::Multiple) && num == 1 {
-                        try!(write!(f, "..."));
-                    }
-                } else {
-                    try!(write!(
-                        f,
-                        "<{}>{}",
-                        self.name,
-                        if self.is_set(ArgSettings::Multiple) {
-                            "..."
-                        } else {
-                            ""
-                        }
-                    ));
-                }
+                try!(self._write_values(f));
+            } else {
+                // Display for Flags
+                try!(self._write_switch(f, ""));
             }
         } else {
-            // Display for Flags
-            if let Some(l) = self.long {
-                try!(write!(f, "--{}", l));
-            } else {
-                try!(write!(f, "-{}", self.short.unwrap()));
-            }
+            debugln!("Arg::fmt:{}:positional;", self.name);
+            // Display for Positionals
+            try!(self._write_values(f));
         }
 
         Ok(())
@@ -2928,7 +2918,7 @@ impl<'n, 'e> fmt::Debug for Arg<'n, 'e> {
 
 #[cfg(test)]
 mod test {
-    use args::settings::ArgSettings;
+    use ArgSettings;
     use super::Arg;
     use vec_map::VecMap;
 
