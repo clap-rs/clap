@@ -45,6 +45,8 @@ bitflags! {
         const VALID_ARG_FOUND      = 1 << 37;
         const INFER_SUBCOMMANDS    = 1 << 38;
         const CONTAINS_LAST        = 1 << 39;
+        const DISABLE_HELP         = 1 << 40;
+        const DISABLE_HELPVER      = DISABLE_HELP.bits | DISABLE_VERSION.bits;
     }
 }
 
@@ -861,28 +863,6 @@ pub enum AppSettings {
     /// ```
     UnifiedHelpMessage,
 
-    /// Disables `-V` and `--version` for all [`SubCommand`]s
-    /// (Defaults to `false`; subcommands *do* have version flags.)
-    ///
-    /// **NOTE:** This setting must be set **prior** adding any subcommands
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, SubCommand, AppSettings, ErrorKind};
-    /// let res = App::new("myprog")
-    ///     .version("v1.1")
-    ///     .setting(AppSettings::VersionlessSubcommands)
-    ///     .subcommand(App::new("test"))
-    ///     .get_matches_from_safe(vec![
-    ///         "myprog", "test", "-V"
-    ///     ]);
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
-    /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
-    VersionlessSubcommands,
-
     /// Will display a message "Press [ENTER]/[RETURN] to continue..." and wait for user before
     /// exiting
     ///
@@ -931,6 +911,13 @@ pub enum AppSettings {
 
     #[doc(hidden)]
     ContainsLast,
+    
+    // -------- DEPRECATIONS --------
+
+    /// Deprecated
+    #[deprecated(since = "2.26.0", note = "Use App::set_global(AppSettings::DisableVersion) instead")]
+    VersionlessSubcommands,
+
 }
 
 impl FromStr for AppSettings {

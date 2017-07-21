@@ -27,3 +27,4 @@
 * ArgGroup::with_name -> ArgGroup::new
 * Arg u64 -> Arg usize
 * SubCommand::with_name -> App::new
+* AppSettings::VersionlessSubcommands -> App::set_global(AppSettings::DisableVersion)
