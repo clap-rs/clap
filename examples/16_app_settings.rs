@@ -15,7 +15,7 @@ fn main() {
                         .set(AppSettings::SubcommandsNegateReqs)
                                             // Negates requirement of parent command.
 
-                        .arg_from_usage("<input> 'input file to use'")
+                        .arg("<input> 'input file to use'")
                                             // Required positional argument called input.  This
                                             // will be only required if subcommand is not present.
 

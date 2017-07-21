@@ -169,7 +169,7 @@ fn opts_using_long_space() {
 #[test]
 fn opts_with_empty_values() {
     let r = App::new("opts")
-        .arg_from_usage("--flag [flag]... 'some flag'")
+        .arg("--flag [flag]... 'some flag'")
         .get_matches_from_safe(vec!["", "--flag", "", "test"]);
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -309,7 +309,7 @@ fn leading_hyphen_fail() {
 fn leading_hyphen_with_flag_after() {
     let r = App::new("mvae")
         .arg(Arg::from("-o [opt]... 'some opt'").allow_hyphen_values(true))
-        .arg_from_usage("-f 'some flag'")
+        .arg("-f 'some flag'")
         .get_matches_from_safe(vec!["", "-o", "-2", "-f"]);
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -322,7 +322,7 @@ fn leading_hyphen_with_flag_after() {
 fn leading_hyphen_with_flag_before() {
     let r = App::new("mvae")
         .arg(Arg::from("-o [opt]... 'some opt'").allow_hyphen_values(true))
-        .arg_from_usage("-f 'some flag'")
+        .arg("-f 'some flag'")
         .get_matches_from_safe(vec!["", "-f", "-o", "-2"]);
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -337,7 +337,7 @@ fn leading_hyphen_with_only_pos_follows() {
         .arg(Arg::from("-o [opt]... 'some opt'")
                  .number_of_values(1)
                  .allow_hyphen_values(true))
-        .arg_from_usage("[arg] 'some arg'")
+        .arg("[arg] 'some arg'")
         .get_matches_from_safe(vec!["", "-o", "-2", "--", "val"]);
     assert!(r.is_ok(), "{:?}", r);
     let m = r.unwrap();
@@ -355,7 +355,7 @@ fn did_you_mean() {
 #[test]
 fn issue_665() {
     let res = App::new("tester")
-        .arg_from_usage("-v, --reroll-count=[N] 'Mark the patch series as PATCH vN'")
+        .arg("-v, --reroll-count=[N] 'Mark the patch series as PATCH vN'")
         .arg(Arg::from(
 "--subject-prefix [Subject-Prefix] 'Use [Subject-Prefix] instead of the standard [PATCH] prefix'")
             .empty_values(false))

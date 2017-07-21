@@ -54,7 +54,7 @@ fn main() {
                         //
                         //
                         // One "Flag" using a usage string
-                        .arg_from_usage("--license 'display the license file'")
+                        .arg("--license 'display the license file'")
 
                         // Two args, one "Positional", and one "Option" using a usage string
                         .args_from_usage("[output] 'Supply an output file to use'

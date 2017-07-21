@@ -475,7 +475,7 @@ fn help_subcommand() {
         .version("1.3")
         .subcommand(App::new("test")
                         .about("tests things")
-                        .arg_from_usage("-v --verbose 'with verbosity'"))
+                        .arg("-v --verbose 'with verbosity'"))
         .get_matches_from_safe(vec!["myprog", "help"]);
 
     assert!(m.is_err());
@@ -827,7 +827,7 @@ fn sc_negates_reqs() {
     let app = App::new("prog")
         .version("1.0")
         .set(AppSettings::SubcommandsNegateReqs)
-        .arg_from_usage("-o, --opt <FILE> 'tests options'")
+        .arg("-o, --opt <FILE> 'tests options'")
         .arg(Arg::new("PATH"))
         .subcommand(App::new("test"));
     assert!(test::compare_output(app, "prog --help", SC_NEGATES_REQS, false));

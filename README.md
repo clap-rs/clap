@@ -292,7 +292,7 @@ fn main() {
                                       .about("controls testing features")
                                       .version("1.3")
                                       .author("Someone E. <someone_else@other.com>")
-                                      .arg_from_usage("-d, --debug 'Print debug information'"))
+                                      .arg("-d, --debug 'Print debug information'"))
                           .get_matches();
 
     // Same as previous example...

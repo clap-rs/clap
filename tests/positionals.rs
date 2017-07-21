@@ -178,7 +178,7 @@ fn positional_hyphen_does_not_panic() {
 #[test]
 fn single_positional_usage_string() {
     let m = App::new("test")
-        .arg_from_usage("[FILE] 'some file'")
+        .arg("[FILE] 'some file'")
         .get_matches_from(vec!["test"]);
     assert_eq!(m.usage(), "USAGE:\n    test [FILE]");
 }
@@ -186,7 +186,7 @@ fn single_positional_usage_string() {
 #[test]
 fn single_positional_multiple_usage_string() {
     let m = App::new("test")
-        .arg_from_usage("[FILE]... 'some file'")
+        .arg("[FILE]... 'some file'")
         .get_matches_from(vec!["test"]);
     assert_eq!(m.usage(), "USAGE:\n    test [FILE]...");
 }
@@ -194,8 +194,8 @@ fn single_positional_multiple_usage_string() {
 #[test]
 fn multiple_positional_usage_string() {
     let m = App::new("test")
-        .arg_from_usage("[FILE] 'some file'")
-        .arg_from_usage("[FILES]... 'some file'")
+        .arg("[FILE] 'some file'")
+        .arg("[FILES]... 'some file'")
         .get_matches_from(vec!["test"]);
     assert_eq!(m.usage(), "USAGE:\n    test [ARGS]");
 }
@@ -203,8 +203,8 @@ fn multiple_positional_usage_string() {
 #[test]
 fn multiple_positional_one_required_usage_string() {
     let m = App::new("test")
-        .arg_from_usage("<FILE> 'some file'")
-        .arg_from_usage("[FILES]... 'some file'")
+        .arg("<FILE> 'some file'")
+        .arg("[FILES]... 'some file'")
         .get_matches_from(vec!["test", "file"]);
     assert_eq!(m.usage(), "USAGE:\n    test <FILE> [FILES]...");
 }
@@ -212,7 +212,7 @@ fn multiple_positional_one_required_usage_string() {
 #[test]
 fn single_positional_required_usage_string() {
     let m = App::new("test")
-        .arg_from_usage("<FILE> 'some file'")
+        .arg("<FILE> 'some file'")
         .get_matches_from(vec!["test", "file"]);
     assert_eq!(m.usage(), "USAGE:\n    test <FILE>");
 }
@@ -221,8 +221,8 @@ fn single_positional_required_usage_string() {
 #[should_panic]
 fn missing_required() {
     let r = App::new("test")
-        .arg_from_usage("[FILE1] 'some file'")
-        .arg_from_usage("<FILE2> 'some file'")
+        .arg("[FILE1] 'some file'")
+        .arg("<FILE2> 'some file'")
         .get_matches_from_safe(vec!["test", "file"]);
     assert!(r.is_err());
     assert_eq!(r.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
@@ -231,8 +231,8 @@ fn missing_required() {
 #[test]
 fn missing_required_2() {
     let r = App::new("test")
-        .arg_from_usage("<FILE1> 'some file'")
-        .arg_from_usage("<FILE2> 'some file'")
+        .arg("<FILE1> 'some file'")
+        .arg("<FILE2> 'some file'")
         .get_matches_from_safe(vec!["test", "file"]);
     assert!(r.is_err());
     assert_eq!(r.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
@@ -241,8 +241,8 @@ fn missing_required_2() {
 #[test]
 fn last_positional() {
     let r = App::new("test")
-        .arg_from_usage("<TARGET> 'some target'")
-        .arg_from_usage("[CORPUS] 'some corpus'")
+        .arg("<TARGET> 'some target'")
+        .arg("[CORPUS] 'some corpus'")
         .arg(Arg::from("[ARGS]... 'some file'").last(true))
         .get_matches_from_safe(vec!["test", "tgt", "--", "arg"]);
     assert!(r.is_ok());
@@ -253,8 +253,8 @@ fn last_positional() {
 #[test]
 fn last_positional_no_double_dash() {
     let r = App::new("test")
-        .arg_from_usage("<TARGET> 'some target'")
-        .arg_from_usage("[CORPUS] 'some corpus'")
+        .arg("<TARGET> 'some target'")
+        .arg("[CORPUS] 'some corpus'")
         .arg(Arg::from("[ARGS]... 'some file'").last(true))
         .get_matches_from_safe(vec!["test", "tgt", "crp", "arg"]);
     assert!(r.is_err());
@@ -264,8 +264,8 @@ fn last_positional_no_double_dash() {
 #[test]
 fn last_positional_second_to_last_mult() {
     let r = App::new("test")
-        .arg_from_usage("<TARGET> 'some target'")
-        .arg_from_usage("[CORPUS]... 'some corpus'")
+        .arg("<TARGET> 'some target'")
+        .arg("[CORPUS]... 'some corpus'")
         .arg(Arg::from("[ARGS]... 'some file'").last(true))
         .get_matches_from_safe(vec!["test", "tgt", "crp1", "crp2", "--", "arg"]);
     assert!(r.is_ok(), "{:?}", r.unwrap_err().kind);

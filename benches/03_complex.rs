@@ -37,8 +37,8 @@ macro_rules! create_app {
                                         .about("tests subcommands")
                                         .version("0.1")
                                         .author("Kevin K. <kbknapp@gmail.com>")
-                                        .arg_from_usage("-o --option [scoption]... 'tests options'")
-                                        .arg_from_usage("[scpositional] 'tests positionals'"))
+                                        .arg("-o --option [scoption]... 'tests options'")
+                                        .arg("[scpositional] 'tests positionals'"))
     })
 }
 

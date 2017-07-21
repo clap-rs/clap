@@ -45,7 +45,7 @@ macro_rules! load_yaml {
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
-///               .arg_from_usage("[length] 'Set the length to use as a pos whole num, i.e. 20'")
+///               .arg("[length] 'Set the length to use as a pos whole num, i.e. 20'")
 ///               .get_matches();
 ///
 /// let len      = value_t!(matches.value_of("length"), u32).unwrap_or_else(|e| e.exit());
@@ -90,7 +90,7 @@ macro_rules! value_t {
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
-///               .arg_from_usage("[length] 'Set the length to use as a pos whole num, i.e. 20'")
+///               .arg("[length] 'Set the length to use as a pos whole num, i.e. 20'")
 ///               .get_matches();
 ///
 /// let len      = value_t_or_exit!(matches.value_of("length"), u32);
@@ -133,7 +133,7 @@ macro_rules! value_t_or_exit {
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
-///               .arg_from_usage("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
+///               .arg("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
 ///               .get_matches();
 ///
 /// let vals = values_t!(matches.values_of("seq"), u32).unwrap_or_else(|e| e.exit());
@@ -193,7 +193,7 @@ macro_rules! values_t {
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
-///               .arg_from_usage("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
+///               .arg("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
 ///               .get_matches();
 ///
 /// let vals = values_t_or_exit!(matches.values_of("seq"), u32);
@@ -286,7 +286,7 @@ macro_rules! _clap_count_exprs {
 /// // and implements std::str::FromStr to use with the value_t! macros
 /// fn main() {
 ///     let m = App::new("app")
-///                 .arg_from_usage("<foo> 'the foo'")
+///                 .arg("<foo> 'the foo'")
 ///                 .get_matches();
 ///     let f = value_t!(m, "foo", Foo).unwrap_or_else(|e| e.exit());
 ///

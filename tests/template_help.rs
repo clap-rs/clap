@@ -116,5 +116,5 @@ fn app_example1<'b, 'c>() -> App<'b, 'c> {
                           -d...               'Turn debugging information on'")
         .subcommand(App::new("test")
                         .about("does testing things")
-                        .arg_from_usage("-l, --list 'lists test values'"))
+                        .arg("-l, --list 'lists test values'"))
 }

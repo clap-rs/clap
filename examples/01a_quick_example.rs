@@ -41,7 +41,7 @@ fn main() {
                                          -d... 'Turn debugging information on'")
         .subcommand(App::new("test")
                         .about("does testing things")
-                        .arg_from_usage("-l, --list 'lists test values'"))
+                        .arg("-l, --list 'lists test values'"))
         .get_matches();
 
     // You can check the value provided by positional arguments, or option arguments

@@ -467,8 +467,8 @@ fn args_negate_subcommands_one_level() {
     let res = App::new("disablehelp")
         .set(AppSettings::ArgsNegateSubcommands)
         .set(AppSettings::SubcommandsNegateReqs)
-        .arg_from_usage("<arg1> 'some arg'")
-        .arg_from_usage("<arg2> 'some arg'")
+        .arg("<arg1> 'some arg'")
+        .arg("<arg2> 'some arg'")
         .subcommand(App::new("sub1")
                         .subcommand(App::new("sub2")
                                         .subcommand(App::new("sub3"))))
@@ -483,11 +483,11 @@ fn args_negate_subcommands_two_levels() {
     let res = App::new("disablehelp")
         .set_global(AppSettings::ArgsNegateSubcommands)
         .set_global(AppSettings::SubcommandsNegateReqs)
-        .arg_from_usage("<arg1> 'some arg'")
-        .arg_from_usage("<arg2> 'some arg'")
+        .arg("<arg1> 'some arg'")
+        .arg("<arg2> 'some arg'")
         .subcommand(App::new("sub1")
-                        .arg_from_usage("<arg> 'some'")
-                        .arg_from_usage("<arg2> 'some'")
+                        .arg("<arg> 'some'")
+                        .arg("<arg2> 'some'")
                         .subcommand(App::new("sub2")
                                         .subcommand(App::new("sub3"))))
         .get_matches_from_safe(vec!["", "sub1", "arg", "sub2"]);
@@ -517,7 +517,7 @@ fn allow_missing_positional() {
     let m = App::new("test")
         .set(AppSettings::AllowMissingPositional)
         .arg(Arg::from("[src] 'some file'").default_value("src"))
-        .arg_from_usage("<dest> 'some file'")
+        .arg("<dest> 'some file'")
         .get_matches_from_safe(vec!["test", "file"]);
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
     let m = m.unwrap();

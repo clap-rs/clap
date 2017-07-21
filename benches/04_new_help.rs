@@ -27,7 +27,7 @@ fn app_example1<'b, 'c>() -> App<'b, 'c> {
                           -d... 'Turn debugging information on'")
         .subcommand(App::new("test")
                         .about("does testing things")
-                        .arg_from_usage("-l, --list 'lists test values'"))
+                        .arg("-l, --list 'lists test values'"))
 }
 
 fn app_example2<'b, 'c>() -> App<'b, 'c> {
@@ -51,7 +51,7 @@ fn app_example3<'b, 'c>() -> App<'b, 'c> {
                     .help("the input file to use")
                     .index(1)
                     .required(true)])
-        .arg_from_usage("--license 'display the license file'")
+        .arg("--license 'display the license file'")
         .args_from_usage("[output] 'Supply an output file to use'
                           -i, --int=[IFACE] 'Set an interface to use'")
 }

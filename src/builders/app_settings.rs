@@ -150,7 +150,7 @@ pub enum AppSettings {
     ///
     /// let r = App::new("myprog")
     ///   //.set(AppSettings::AllowInvalidUtf8)
-    ///     .arg_from_usage("<arg> 'some positional arg'")
+    ///     .arg("<arg> 'some positional arg'")
     ///     .get_matches_from_safe(
     ///         vec![
     ///             OsString::from("myprog"),
@@ -786,7 +786,7 @@ pub enum AppSettings {
     ///
     /// let m = App::new("myprog")
     ///     .set(AppSettings::StrictUtf8)
-    ///     .arg_from_usage("<arg> 'some positional arg'")
+    ///     .arg("<arg> 'some positional arg'")
     ///     .get_matches_from_safe(
     ///         vec![
     ///             OsString::from("myprog"),

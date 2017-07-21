@@ -971,7 +971,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// App::new("myprog")
     ///     .subcommand(App::new("config")
     ///         .about("Controls configuration features")
-    ///         .arg_from_usage("<config> 'Required configuration file to use'"))
+    ///         .arg("<config> 'Required configuration file to use'"))
     /// # ;
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
