@@ -2309,15 +2309,33 @@ impl<'a, 'b> Arg<'a, 'b> {
 
     /// Sets one of the [`ArgSettings`] settings for the argument
     /// [`ArgSettings`]: ./enum.ArgSettings.html
-    pub fn setting(mut self, s: ArgSettings) -> Self {
+    pub fn set(mut self, s: ArgSettings) -> Self {
         self.setb(s);
         self
     }
 
+    /// Sets multiple [`ArgSettings`] settings for the argument
+    /// [`ArgSettings`]: ./enum.ArgSettings.html
+    pub fn set_all(mut self, settings: &[ArgSettings]) -> Self {
+        for s in settings {
+            self.setb(*s);
+        }
+        self
+    }
+    
     /// Unsets one of the [`ArgSettings`] settings for the argument
     /// [`ArgSettings`]: ./enum.ArgSettings.html
-    pub fn unset_setting(mut self, s: ArgSettings) -> Self {
+    pub fn unset(mut self, s: ArgSettings) -> Self {
         self.unsetb(s);
+        self
+    }
+
+    /// Unsets multiple [`ArgSettings`] settings for the argument
+    /// [`ArgSettings`]: ./enum.ArgSettings.html
+    pub fn unset_all(mut self, settings: &[ArgSettings]) -> Self {
+        for s in settings {
+            self.unsetb(*s);
+        }
         self
     }
 
@@ -2444,6 +2462,20 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     // --------- DEPRECATIONS ----------
+
+    /// Deprecated
+    #[deprecated(since = "2.26.0", note = "use Arg::unset instead")]
+    pub fn unset_setting(mut self, s: ArgSettings) -> Self {
+        self.unsetb(s);
+        self
+    }
+
+    /// Deprecated
+    #[deprecated(since = "2.26.0", note = "use Arg::set instead")]
+    pub fn setting(mut self, s: ArgSettings) -> Self {
+        self.setb(s);
+        self
+    }
 
     /// Deprecated
     #[deprecated(since = "2.24.1", note = "use Arg::set(ArgSettings::UseValueDelimiter) instead")]
