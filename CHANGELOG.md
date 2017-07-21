@@ -1,3 +1,14 @@
+<a name="v2.25.2"></a>
+### v2.25.2 (2017-07-21)
+
+#### Improvements
+
+* impl Default for Values + OsValues for any lifetime. ([fb7d6231f1](https://github.com/kbknapp/clap-rs/commit/fb7d6231f13a2f79f411e62dca210b7dc9994c18))
+
+#### Documentation
+
+* Various documentation typos and grammar fixes
+
 <a name="v2.24.2"></a>
 ### v2.25.0 (2017-06-20)
 
@@ -21,7 +32,6 @@
 * **Arg::allow_hyphen_values:**  updates the docs to include warnings for allow_hyphen_values and multiple(true) used together ([f9b0d657](https://github.com/kbknapp/clap-rs/commit/f9b0d657835d3f517f313d70962177dc30acf4a7))
 * **README.md:**
   *  added a warning about using ~ deps ([821929b5](https://github.com/kbknapp/clap-rs/commit/821929b51bd60213955705900a436c9a64fcb79f), closes [#964](https://github.com/kbknapp/clap-rs/issues/964))
-  *  added a warning about using ~ deps ([667697b0](https://github.com/kbknapp/clap-rs/commit/667697b0018369b71da41d02d567ab57df0f4887))
 * **clap_app!:**  adds using the @group specifier to the macro docs ([826048cb](https://github.com/kbknapp/clap-rs/commit/826048cb3cbc0280169303f1498ff0a2b7395883), closes [#932](https://github.com/kbknapp/clap-rs/issues/932))
 
 
