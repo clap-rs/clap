@@ -750,6 +750,35 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
+    /// Adds multiple [arguments] at once from a usage string, one per line. See
+    /// [`Arg::from`] for details on the syntax and rules supported.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .args_from_usage(
+    ///         "-c --config=[FILE] 'Sets a configuration file to use'
+    ///          [debug]... -d 'Sets the debugging level'
+    ///          <FILE> 'The input file to use'"
+    ///     )
+    /// # ;
+    /// ```
+    /// [arguments]: ./struct.Arg.html
+    /// [`Arg::from`]: ./struct.Arg.html#method.from
+    /// [`Arg`]: ./struct.Arg.html
+    pub fn args_from_usage(mut self, usage: &'a str) -> Self {
+        for line in usage.lines() {
+            let l = line.trim();
+            if l.is_empty() {
+                continue;
+            }
+            self = self.arg(Arg::from(l));
+        }
+        self
+    }
+
     
     /// @DOCS @TODO-v3-release: add docs
     pub fn mut_arg<F>(mut self, arg: &str, f: F) -> Self
@@ -1611,20 +1640,6 @@ impl<'a, 'b> App<'a, 'b> {
     #[deprecated(since = "2.24.1", note = "Use App::arg(\"-a, --all 'some message'\") instead")]
     pub fn arg_from_usage(mut self, usage: &'a str) -> Self {
         self = self.arg(Arg::from(usage));
-        self
-    }
-
-    /// Deprecated
-    #[deprecated(since = "2.24.1",
-                 note = "Use App::args(&[\"-a, --all 'some message'\", \"-o, --other=[some] 'message'\"]) instead")]
-    pub fn args_from_usage(mut self, usage: &'a str) -> Self {
-        for line in usage.lines() {
-            let l = line.trim();
-            if l.is_empty() {
-                continue;
-            }
-            self = self.arg(Arg::from(l));
-        }
         self
     }
 
