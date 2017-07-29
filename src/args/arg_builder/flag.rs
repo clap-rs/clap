@@ -47,9 +47,9 @@ impl<'a, 'b> From<Arg<'a, 'b>> for FlagBuilder<'a, 'b> {
 impl<'n, 'e> Display for FlagBuilder<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> Result {
         if let Some(l) = self.s.long {
-            try!(write!(f, "--{}", l));
+            write!(f, "--{}", l)?;
         } else {
-            try!(write!(f, "-{}", self.s.short.unwrap()));
+            write!(f, "-{}", self.s.short.unwrap())?;
         }
 
         Ok(())

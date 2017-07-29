@@ -860,7 +860,7 @@ impl<'a, 'b> Parser<'a, 'b>
                     if is_match {
                         let sc_name = sc_name.expect(INTERNAL_ERROR_MSG);
                         if sc_name == "help" && self.is_set(AS::NeedsSubcommandHelp) {
-                            try!(self.parse_help_subcommand(it));
+                            self.parse_help_subcommand(it)?;
                         }
                         subcmd_name = Some(sc_name.to_owned());
                         break;
@@ -875,12 +875,12 @@ impl<'a, 'b> Parser<'a, 'b>
                                 .find(|o| o.b.name == name)
                                 .expect(INTERNAL_ERROR_MSG);
                             // get the OptBuilder so we can check the settings
-                            needs_val_of = try!(self.add_val_to_arg(arg, &arg_os, matcher));
+                            needs_val_of = self.add_val_to_arg(arg, &arg_os, matcher)?;
                             // get the next value from the iterator
                             continue;
                     }
                 } else if arg_os.starts_with(b"--") {
-                    needs_val_of = try!(self.parse_long_arg(matcher, &arg_os));
+                    needs_val_of = self.parse_long_arg(matcher, &arg_os)?;
                     debugln!("Parser:get_matches_with: After parse_long_arg {:?}",
                              needs_val_of);
                     match needs_val_of {
@@ -893,7 +893,7 @@ impl<'a, 'b> Parser<'a, 'b>
                     // Try to parse short args like normal, if AllowLeadingHyphen or
                     // AllowNegativeNumbers is set, parse_short_arg will *not* throw
                     // an error, and instead return Ok(None)
-                    needs_val_of = try!(self.parse_short_arg(matcher, &arg_os));
+                    needs_val_of = self.parse_short_arg(matcher, &arg_os)?;
                     // If it's None, we then check if one of those two AppSettings was set
                     debugln!("Parser:get_matches_with: After parse_short_arg {:?}",
                              needs_val_of);
@@ -1059,7 +1059,7 @@ impl<'a, 'b> Parser<'a, 'b>
                     .name
                     .clone()
             };
-            try!(self.parse_subcommand(&*sc_name, matcher, it));
+            self.parse_subcommand(&*sc_name, matcher, it)?;
         } else if self.is_set(AS::SubcommandRequired) {
             let bn = self.meta.bin_name.as_ref().unwrap_or(&self.meta.name);
             return Err(Error::missing_subcommand(bn,
@@ -1068,7 +1068,7 @@ impl<'a, 'b> Parser<'a, 'b>
         } else if self.is_set(AS::SubcommandRequiredElseHelp) {
             debugln!("Parser::get_matches_with: SubcommandRequiredElseHelp=true");
             let mut out = vec![];
-            try!(self.write_help_err(&mut out));
+            self.write_help_err(&mut out)?;
             return Err(Error {
                            message: String::from_utf8_lossy(&*out).into_owned(),
                            kind: ErrorKind::MissingArgumentOrSubcommand,
@@ -1167,7 +1167,7 @@ impl<'a, 'b> Parser<'a, 'b>
             debugln!("Parser::parse_subcommand: About to parse sc={}",
                      sc.p.meta.name);
             debugln!("Parser::parse_subcommand: sc settings={:#?}", sc.p.settings);
-            try!(sc.p.get_matches_with(&mut sc_matcher, it));
+            sc.p.get_matches_with(&mut sc_matcher, it)?;
             matcher.subcommand(SubCommand {
                                    name: sc.p.meta.name.clone(),
                                    matches: sc_matcher.into(),
@@ -1399,7 +1399,7 @@ impl<'a, 'b> Parser<'a, 'b>
             debugln!("Parser::parse_long_arg: Found valid opt '{}'",
                      opt.to_string());
             self.settings.set(AS::ValidArgFound);
-            let ret = try!(self.parse_opt(val, opt, val.is_some(), matcher));
+            let ret = self.parse_opt(val, opt, val.is_some(), matcher)?;
             if self.cache.map_or(true, |name| name != opt.b.name) {
                 arg_post_processing!(self, opt, matcher);
                 self.cache = Some(opt.b.name);
@@ -1412,9 +1412,9 @@ impl<'a, 'b> Parser<'a, 'b>
             self.settings.set(AS::ValidArgFound);
             // Only flags could be help or version, and we need to check the raw long
             // so this is the first point to check
-            try!(self.check_for_help_and_version_str(arg));
+            self.check_for_help_and_version_str(arg)?;
 
-            try!(self.parse_flag(flag, matcher));
+            self.parse_flag(flag, matcher)?;
 
             // Handle conflicts, requirements, etc.
             // if self.cache.map_or(true, |name| name != flag.b.name) {
@@ -1486,7 +1486,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 };
 
                 // Default to "we're expecting a value later"
-                let ret = try!(self.parse_opt(val, opt, false, matcher));
+                let ret = self.parse_opt(val, opt, false, matcher)?;
 
                 if self.cache.map_or(true, |name| name != opt.b.name) {
                     arg_post_processing!(self, opt, matcher);
@@ -1498,8 +1498,8 @@ impl<'a, 'b> Parser<'a, 'b>
                 debugln!("Parser::parse_short_arg:iter:{}: Found valid flag", c);
                 self.settings.set(AS::ValidArgFound);
                 // Only flags can be help or version
-                try!(self.check_for_help_and_version_char(c));
-                ret = try!(self.parse_flag(flag, matcher));
+                self.check_for_help_and_version_char(c)?;
+                ret = self.parse_flag(flag, matcher)?;
 
                 // Handle conflicts, requirements, overrides, etc.
                 // Must be called here due to mutablilty
@@ -1545,7 +1545,7 @@ impl<'a, 'b> Parser<'a, 'b>
             debugln!("Parser::parse_opt: {:?} contains '='...{:?}",
                      fv,
                      fv.starts_with(&[b'=']));
-            try!(self.add_val_to_arg(opt, v, matcher));
+            self.add_val_to_arg(opt, v, matcher)?;
         } else if opt.is_set(ArgSettings::RequireEquals) && !opt.is_set(ArgSettings::EmptyValues) {
             sdebugln!("None, but requires equals...Error");
             return Err(Error::empty_value(opt,
@@ -1586,11 +1586,11 @@ impl<'a, 'b> Parser<'a, 'b>
         if !(self.is_set(AS::TrailingValues) && self.is_set(AS::DontDelimitTrailingValues)) {
             if let Some(delim) = arg.val_delim() {
                 if val.is_empty_() {
-                    Ok(try!(self.add_single_val_to_arg(arg, val, matcher)))
+                    Ok(self.add_single_val_to_arg(arg, val, matcher)?)
                 } else {
                     let mut iret = ParseResult::ValuesDone;
                     for v in val.split(delim as u32 as u8) {
-                        iret = try!(self.add_single_val_to_arg(arg, v, matcher));
+                        iret = self.add_single_val_to_arg(arg, v, matcher)?;
                     }
                     // If there was a delimiter used, we're not looking for more values
                     if val.contains_byte(delim as u32 as u8) ||
@@ -1679,7 +1679,7 @@ impl<'a, 'b> Parser<'a, 'b>
 
     // Prints the version to the user and exits if quit=true
     fn print_version<W: Write>(&self, w: &mut W, use_long: bool) -> ClapResult<()> {
-        try!(self.write_version(w, use_long));
+        self.write_version(w, use_long)?;
         w.flush().map_err(Error::from)
     }
 
@@ -1728,7 +1728,7 @@ impl<'a, 'b> Parser<'a, 'b>
             (@default $_self:ident, $a:ident, $m:ident) => {
                 if let Some(ref val) = $a.v.default_val {
                     if $m.get($a.b.name).is_none() {
-                        try!($_self.add_val_to_arg($a, OsStr::new(val), $m));
+                        $_self.add_val_to_arg($a, OsStr::new(val), $m)?;
 
                         if $_self.cache.map_or(true, |name| name != $a.name()) {
                             arg_post_processing!($_self, $a, $m);
@@ -1752,7 +1752,7 @@ impl<'a, 'b> Parser<'a, 'b>
                                 false
                             };
                             if add {
-                                try!($_self.add_val_to_arg($a, OsStr::new(default), $m));
+                                $_self.add_val_to_arg($a, OsStr::new(default), $m)?;
                                 if $_self.cache.map_or(true, |name| name != $a.name()) {
                                     arg_post_processing!($_self, $a, $m);
                                     $_self.cache = Some($a.name());

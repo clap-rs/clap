@@ -811,7 +811,7 @@ macro_rules! write_nspaces {
     ($dst:expr, $num:expr) => ({
         debugln!("write_spaces!: num={}", $num);
         for _ in 0..$num {
-            try!($dst.write_all(b" "));
+            $dst.write_all(b" ")?;
         }
     })
 }

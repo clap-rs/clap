@@ -28,7 +28,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                     -> ClapResult<()> {
         debugln!("Validator::validate;");
         let mut reqs_validated = false;
-        try!(self.0.add_defaults(matcher));
+        self.0.add_defaults(matcher)?;
         if let ParseResult::Opt(a) = needs_val_of {
             debugln!("Validator::validate: needs_val_of={:?}", a);
             let o = self.0
@@ -36,7 +36,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                 .iter()
                 .find(|o| o.b.name == a)
                 .expect(INTERNAL_ERROR_MSG);
-            try!(self.validate_required(matcher));
+            self.validate_required(matcher)?;
             reqs_validated = true;
             let should_err = if let Some(v) = matcher.0.args.get(&*o.b.name) {
                 v.vals.is_empty() && !(o.v.min_vals.is_some() && o.v.min_vals.unwrap() == 0)
@@ -53,18 +53,18 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         if matcher.is_empty() && matcher.subcommand_name().is_none() &&
            self.0.is_set(AS::ArgRequiredElseHelp) {
             let mut out = vec![];
-            try!(self.0.write_help_err(&mut out));
+            self.0.write_help_err(&mut out)?;
             return Err(Error {
                            message: String::from_utf8_lossy(&*out).into_owned(),
                            kind: ErrorKind::MissingArgumentOrSubcommand,
                            info: None,
                        });
         }
-        try!(self.validate_blacklist(matcher));
+        self.validate_blacklist(matcher)?;
         if !(self.0.is_set(AS::SubcommandsNegateReqs) && subcmd_name.is_some()) && !reqs_validated {
-            try!(self.validate_required(matcher));
+            self.validate_required(matcher)?;
         }
-        try!(self.validate_matched_args(matcher));
+        self.validate_matched_args(matcher)?;
         matcher.usage(usage::create_usage_with_title(self.0, &[]));
 
         Ok(())
@@ -192,18 +192,18 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                      name,
                      ma.vals);
             if let Some(opt) = find_by_name!(self.0, *name, opts, iter) {
-                try!(self.validate_arg_num_vals(opt, ma, matcher));
-                try!(self.validate_values(opt, ma, matcher));
-                try!(self.validate_arg_requires(opt, ma, matcher));
-                try!(self.validate_arg_num_occurs(opt, ma, matcher));
+                self.validate_arg_num_vals(opt, ma, matcher)?;
+                self.validate_values(opt, ma, matcher)?;
+                self.validate_arg_requires(opt, ma, matcher)?;
+                self.validate_arg_num_occurs(opt, ma, matcher)?;
             } else if let Some(flag) = find_by_name!(self.0, *name, flags, iter) {
-                try!(self.validate_arg_requires(flag, ma, matcher));
-                try!(self.validate_arg_num_occurs(flag, ma, matcher));
+                self.validate_arg_requires(flag, ma, matcher)?;
+                self.validate_arg_num_occurs(flag, ma, matcher)?;
             } else if let Some(pos) = find_by_name!(self.0, *name, positionals, values) {
-                try!(self.validate_arg_num_vals(pos, ma, matcher));
-                try!(self.validate_arg_num_occurs(pos, ma, matcher));
-                try!(self.validate_values(pos, ma, matcher));
-                try!(self.validate_arg_requires(pos, ma, matcher));
+                self.validate_arg_num_vals(pos, ma, matcher)?;
+                self.validate_arg_num_occurs(pos, ma, matcher)?;
+                self.validate_values(pos, ma, matcher)?;
+                self.validate_arg_requires(pos, ma, matcher)?;
             } else {
                 let grp = self.0
                     .groups
