@@ -14,6 +14,8 @@ pub enum Shell {
     Zsh,
     /// Generates a completion file for PowerShell
     PowerShell,
+    #[doc(hidden)]
+    __nonexhaustive_dont_match,
 }
 
 impl Shell {
@@ -43,6 +45,7 @@ impl fmt::Display for Shell {
             Shell::Fish => write!(f, "FISH"),
             Shell::Zsh => write!(f, "ZSH"),
             Shell::PowerShell => write!(f, "POWERSHELL"),
+            Shell::__nonexhaustive_dont_match => write!(f, "Shell::__nonexhaustive_dont_match (should NOT be used)"),
         }
     }
 }
