@@ -1,7 +1,7 @@
 [package]
 
 name = "clap"
-version = "2.25.1"
+version = "2.26.0"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
 exclude = ["examples/*", "clap-test/*", "tests/*", "benches/*", "*.png", "clap-perf/*", "*.dot"]
 repository = "https://github.com/kbknapp/clap-rs.git"
@@ -23,7 +23,7 @@ appveyor = { repository = "kbknapp/clap-rs" }
 bitflags              = "0.9"
 vec_map               = "0.8"
 unicode-width         = "0.1.4"
-unicode-segmentation  = "~1.1.0" # 1.2.0 requires Rust 1.13.0
+unicode-segmentation  = "1.2.0" 
 textwrap              = "0.7.0"
 strsim    = { version = "0.6.0",  optional = true }
 ansi_term = { version = "0.9.0",  optional = true }
