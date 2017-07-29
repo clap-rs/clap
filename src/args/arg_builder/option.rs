@@ -57,44 +57,44 @@ impl<'n, 'e> Display for OptBuilder<'n, 'e> {
         };
         // Write the name such --long or -l
         if let Some(l) = self.s.long {
-            try!(write!(f, "--{}{}", l, sep));
+            write!(f, "--{}{}", l, sep)?;
         } else {
-            try!(write!(f, "-{}{}", self.s.short.unwrap(), sep));
+            write!(f, "-{}{}", self.s.short.unwrap(), sep)?;
         }
 
         // Write the values such as <name1> <name2>
         if let Some(ref vec) = self.v.val_names {
             let mut it = vec.iter().peekable();
             while let Some((_, val)) = it.next() {
-                try!(write!(f, "<{}>", val));
+                write!(f, "<{}>", val)?;
                 if it.peek().is_some() {
-                    try!(write!(f, " "));
+                    write!(f, " ")?;
                 }
             }
             let num = vec.len();
             if self.is_set(ArgSettings::Multiple) && num == 1 {
-                try!(write!(f, "..."));
+                write!(f, "...")?;
             }
         } else if let Some(num) = self.v.num_vals {
             let mut it = (0..num).peekable();
             while let Some(_) = it.next() {
-                try!(write!(f, "<{}>", self.b.name));
+                write!(f, "<{}>", self.b.name)?;
                 if it.peek().is_some() {
-                    try!(write!(f, " "));
+                    write!(f, " ")?;
                 }
             }
             if self.is_set(ArgSettings::Multiple) && num == 1 {
-                try!(write!(f, "..."));
+                write!(f, "...")?;
             }
         } else {
-            try!(write!(f,
-                        "<{}>{}",
-                        self.b.name,
-                        if self.is_set(ArgSettings::Multiple) {
-                            "..."
-                        } else {
-                            ""
-                        }));
+            write!(f,
+                "<{}>{}",
+                self.b.name,
+                if self.is_set(ArgSettings::Multiple) {
+                    "..."
+                } else {
+                    ""
+                })?;
         }
 
         Ok(())

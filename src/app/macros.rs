@@ -146,7 +146,7 @@ macro_rules! parse_positional {
             $pos_counter == $_self.positionals.len()) {
             $_self.settings.set(AS::TrailingValues);
         }
-        let _ = try!($_self.add_val_to_arg($p, &$arg_os, $matcher));
+        let _ = $_self.add_val_to_arg($p, &$arg_os, $matcher)?;
 
         $matcher.inc_occurrence_of($p.b.name);
         let _ = $_self.groups_for_arg($p.b.name)
