@@ -1,3 +1,21 @@
+<a name="v2.26.0"></a>
+## v2.26.0 (2017-07-29)
+
+Minimum version of Rust is now v1.13.0 (Stable)
+
+
+#### Improvements
+
+*   bumps unicode-segmentation to v1.2 ([cd7b40a2](https://github.com/kbknapp/clap-rs/commit/cd7b40a21c77bae17ba453c5512cb82b7d1ce474))
+
+
+#### Performance
+
+*   update textwrap to version 0.7.0 ([c2d4e637](https://github.com/kbknapp/clap-rs/commit/c2d4e63756a6f070e38c16dff846e9b0a53d6f93))
+
+
+
+
 <a name="v2.25.1"></a>
 ### v2.25.1 (2017-07-21)
 

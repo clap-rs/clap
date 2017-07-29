@@ -45,12 +45,16 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-Here's the highlights for v2.25.1
+Here's the highlights for v2.26.0
 
-* impl Default for Values + OsValues for any lifetime. ([fb7d6231f1](https://github.com/kbknapp/clap-rs/commit/fb7d6231f13a2f79f411e62dca210b7dc9994c18))
+*   **The minimum required version of Rust is now 1.13.0 (Stable)**
+*   bumps unicode-segmentation to v1.2 
+*   update textwrap to version 0.7.0 which increases the performance of writing help strings
 
-Here's the highlights for v2.21.0 to v2.25.0
 
+Here's the highlights for v2.21.0 to v2.25.1
+
+* impl Default for Values + OsValues for any lifetime. 
 * use textwrap crate for wrapping help texts
 * suggests to use flag after subcommand when applicable
 * Bumps bitflags crate to v0.9
