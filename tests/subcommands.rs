@@ -43,8 +43,8 @@ USAGE:
 For more information try --help";
 
 #[cfg(feature = "suggestions")]
-static DYM2: &'static str = "error: Found argument '--subcmdarg' which wasn't expected, or isn't valid in this context
-\tDid you mean to put '--subcmdarg' after the subcommand 'subcmdarg'?
+static DYM2: &'static str = "error: Found argument '--subcm' which wasn't expected, or isn't valid in this context
+\tDid you mean to put '--subcmdarg' after the subcommand 'subcmd'?
 
 USAGE:
     clap-test [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
@@ -130,7 +130,7 @@ fn multiple_aliases() {
 #[cfg(feature="suggestions")]
 fn subcmd_did_you_mean_output() {
     assert!(test::compare_output(test::complex_app(), "clap-test subcm", DYM, true));
-    assert!(test::compare_output(test::complex_app(), "clap-test --subcmdarg foo", DYM2, true));
+    assert!(test::compare_output(test::complex_app(), "clap-test --subcm foo", DYM2, true));
 }
 
 #[test]
