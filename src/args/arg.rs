@@ -1507,7 +1507,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert!(res.is_ok()); // We didn't use --other=special, so "cfg" wasn't required
     /// ```
     ///
-    /// Setting [`Arg::required_if(arg, val)`] and having `arg` used with a vaue of `val` but *not*
+    /// Setting [`Arg::required_if(arg, val)`] and having `arg` used with a value of `val` but *not*
     /// using this arg is an error.
     ///
     /// ```rust
@@ -1591,7 +1591,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     ///
     /// Setting [`Arg::required_ifs(&[(arg, val)])`] and having any of the `arg`s used with it's
-    /// vaue of `val` but *not* using this arg is an error.
+    /// value of `val` but *not* using this arg is an error.
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
@@ -2054,7 +2054,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// **NOTE:** This setting only applies to [options] and [positional arguments]
     ///
     /// **NOTE:** When the terminator is passed in on the command line, it is **not** stored as one
-    /// of the vaues
+    /// of the values
     ///
     /// # Examples
     ///
