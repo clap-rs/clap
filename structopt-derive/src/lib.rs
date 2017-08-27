@@ -471,11 +471,20 @@ fn gen_from_clap(struct_name: &Ident, fields: &[Field]) -> quote::Tokens {
     }
 }
 
+fn format_author(raw_authors: Lit) -> Lit {
+    let raw_authors = match raw_authors {
+        Lit::Str(x, _) => x,
+        x => return x,
+    };
+    let authors = raw_authors.replace(":", ", ");
+    Lit::Str(authors, StrStyle::Cooked)
+}
+
 fn gen_clap(struct_attrs: &[Attribute], subcmd_required: bool) -> quote::Tokens {
     let struct_attrs: Vec<_> = extract_attrs(struct_attrs, AttrSource::Struct).collect();
     let name = from_attr_or_env(&struct_attrs, "name", "CARGO_PKG_NAME");
     let version = from_attr_or_env(&struct_attrs, "version", "CARGO_PKG_VERSION");
-    let author = from_attr_or_env(&struct_attrs, "author", "CARGO_PKG_AUTHORS");
+    let author = format_author(from_attr_or_env(&struct_attrs, "author", "CARGO_PKG_AUTHORS"));
     let about = from_attr_or_env(&struct_attrs, "about", "CARGO_PKG_DESCRIPTION");
     let setting = if subcmd_required {
         quote!( .setting(_structopt::clap::AppSettings::SubcommandRequired) )
@@ -510,7 +519,7 @@ fn gen_clap_enum(enum_attrs: &[Attribute]) -> quote::Tokens {
     let enum_attrs: Vec<_> = extract_attrs(enum_attrs, AttrSource::Struct).collect();
     let name = from_attr_or_env(&enum_attrs, "name", "CARGO_PKG_NAME");
     let version = from_attr_or_env(&enum_attrs, "version", "CARGO_PKG_VERSION");
-    let author = from_attr_or_env(&enum_attrs, "author", "CARGO_PKG_AUTHORS");
+    let author = format_author(from_attr_or_env(&enum_attrs, "author", "CARGO_PKG_AUTHORS"));
     let about = from_attr_or_env(&enum_attrs, "about", "CARGO_PKG_DESCRIPTION");
 
     quote! {
