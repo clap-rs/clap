@@ -24,7 +24,7 @@
 //! }
 //! ```
 //!
-//! So `derive(StructOpt)` tells Rust to generate a command line parser, 
+//! So `derive(StructOpt)` tells Rust to generate a command line parser,
 //! and the various `structopt` attributes are simply
 //! used for additional parameters.
 //!
@@ -98,7 +98,7 @@
 //! ```
 //!
 //! ## Subcommands
-//! 
+//!
 //! Some applications, especially large ones, split their functionality
 //! through the use of "subcommands". Each of these act somewhat like a separate
 //! command, but is part of the larger group.
@@ -156,7 +156,7 @@
 //!     #[structopt(subcommand)]  // Note that we mark a field as a subcommand
 //!     cmd: Command
 //! }
-//! 
+//!
 //! #[derive(StructOpt)]
 //! enum Command {
 //!     #[structopt(name = "pound")]
@@ -180,7 +180,7 @@
 //!         type: FinishType
 //!     }
 //! }
-//! 
+//!
 //! #[derive(StructOpt)]
 //! enum FinishType {
 //!     #[structopt(name = "glaze")]
@@ -199,7 +199,7 @@
 //! designated enum to the current `clap::App`. The designated enum *must* also
 //! be derived `StructOpt`. So the above example would take the following
 //! commands:
-//! 
+//!
 //! + `make-cookie pound 50`
 //! + `make-cookie sparkle -mmm --color "green"`
 //! + `make-cookie finish 130 glaze 3`
@@ -216,7 +216,7 @@
 //!     #[structopt(subcommand)]
 //!     cmd: Option<Command>
 //! }
-//! 
+//!
 //! #[derive(StructOpt)]
 //! enum Command {
 //!     Bar,
@@ -529,7 +529,7 @@ fn gen_augment_clap_enum(variants: &[Variant]) -> quote::Tokens {
     let subcommands = variants.iter().map(|variant| {
         let name = extract_attrs(&variant.attrs, AttrSource::Struct)
             .filter_map(|attr| match attr {
-                (ref i, Lit::Str(ref s, ..)) if i == "name" => 
+                (ref i, Lit::Str(ref s, ..)) if i == "name" =>
                     Some(s.to_string()),
                 _ => None
             })
@@ -553,7 +553,7 @@ fn gen_augment_clap_enum(variants: &[Variant]) -> quote::Tokens {
             })
         }
     });
-   
+
     quote! {
         fn augment_clap<'a, 'b>(app: _structopt::clap::App<'a, 'b>) -> _structopt::clap::App<'a, 'b> {
             app #( #subcommands )*
@@ -574,7 +574,7 @@ fn gen_from_subcommand(name: &Ident, variants: &[Variant]) -> quote::Tokens {
     let match_arms = variants.iter().map(|variant| {
         let sub_name = extract_attrs(&variant.attrs, AttrSource::Struct)
             .filter_map(|attr| match attr {
-                (ref i, Lit::Str(ref s, ..)) if i == "name" => 
+                (ref i, Lit::Str(ref s, ..)) if i == "name" =>
                     Some(s.to_string()),
                 _ => None
             })
@@ -586,7 +586,7 @@ fn gen_from_subcommand(name: &Ident, variants: &[Variant]) -> quote::Tokens {
             VariantData::Unit => quote!(),  // empty
             _ => unreachable!()
         };
-        
+
         quote! {
             (#sub_name, Some(matches)) =>
                 Some(#name :: #variant_name #constructor_block)
