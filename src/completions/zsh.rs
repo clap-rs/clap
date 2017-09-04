@@ -292,12 +292,20 @@ fn get_args_of(p: &Parser) -> String {
     ret.join("\n")
 }
 
+// Escape string inside single quotes and brackets
+fn escape_string(string: &str) -> String {
+    string.replace("\\", "\\\\")
+        .replace("'", "'\\''")
+        .replace("[", "\\[")
+        .replace("]", "\\]")
+}
+
 fn write_opts_of(p: &Parser) -> String {
     debugln!("write_opts_of;");
     let mut ret = vec![];
     for o in p.opts() {
         debugln!("write_opts_of:iter: o={}", o.name());
-        let help = o.help().unwrap_or("").replace("[", "\\[").replace("]", "\\]");
+        let help = o.help().map_or(String::new(), escape_string);
         let mut conflicts = get_zsh_arg_conflicts!(p, o, INTERNAL_ERROR_MSG);
         conflicts = if conflicts.is_empty() {
             String::new()
@@ -316,7 +324,7 @@ fn write_opts_of(p: &Parser) -> String {
             String::new()
         };
         if let Some(short) = o.short() {
-            let s = format!("\"{conflicts}{multiple}-{arg}+[{help}]{possible_values}\" \\",
+            let s = format!("'{conflicts}{multiple}-{arg}+[{help}]{possible_values}' \\",
                 conflicts = conflicts,
                 multiple = multiple,
                 arg = short,
@@ -327,7 +335,7 @@ fn write_opts_of(p: &Parser) -> String {
             ret.push(s);
         }
         if let Some(long) = o.long() {
-            let l = format!("\"{conflicts}{multiple}--{arg}+[{help}]{possible_values}\" \\",
+            let l = format!("'{conflicts}{multiple}--{arg}+[{help}]{possible_values}' \\",
                 conflicts = conflicts,
                 multiple = multiple,
                 arg = long,
@@ -347,7 +355,7 @@ fn write_flags_of(p: &Parser) -> String {
     let mut ret = vec![];
     for f in p.flags() {
         debugln!("write_flags_of:iter: f={}", f.name());
-        let help = f.help().unwrap_or("").replace("[", "\\[").replace("]", "\\]");
+        let help = f.help().map_or(String::new(), escape_string);
         let mut conflicts = get_zsh_arg_conflicts!(p, f, INTERNAL_ERROR_MSG);
         conflicts = if conflicts.is_empty() {
             String::new()
@@ -361,7 +369,7 @@ fn write_flags_of(p: &Parser) -> String {
             ""
         };
         if let Some(short) = f.short() {
-            let s = format!("\"{conflicts}{multiple}-{arg}[{help}]\" \\",
+            let s = format!("'{conflicts}{multiple}-{arg}[{help}]' \\",
                 multiple = multiple,
                 conflicts = conflicts,
                 arg = short,
@@ -372,7 +380,7 @@ fn write_flags_of(p: &Parser) -> String {
         }
 
         if let Some(long) = f.long() {
-            let l = format!("\"{conflicts}{multiple}--{arg}[{help}]\" \\",
+            let l = format!("'{conflicts}{multiple}--{arg}[{help}]' \\",
                 conflicts = conflicts,
                 multiple = multiple,
                 arg = long,

@@ -40,6 +40,11 @@ end
     }
 }
 
+// Escape string inside single quotes
+fn escape_string(string: &str) -> String {
+    string.replace("\\", "\\\\").replace("'", "\\'")
+}
+
 fn gen_fish_inner(root_command: &str, comp_gen: &FishGen, parent_cmds: &str, buffer: &mut String) {
     debugln!("FishGen::gen_fish_inner;");
     // example :
@@ -67,7 +72,7 @@ fn gen_fish_inner(root_command: &str, comp_gen: &FishGen, parent_cmds: &str, buf
             template.push_str(format!(" -l {}", data).as_str());
         }
         if let Some(data) = option.b.help {
-            template.push_str(format!(" -d \"{}\"", data).as_str());
+            template.push_str(format!(" -d '{}'", escape_string(data)).as_str());
         }
         if let Some(ref data) = option.v.possible_vals {
             template.push_str(format!(" -r -f -a \"{}\"", data.join(" ")).as_str());
@@ -85,7 +90,7 @@ fn gen_fish_inner(root_command: &str, comp_gen: &FishGen, parent_cmds: &str, buf
             template.push_str(format!(" -l {}", data).as_str());
         }
         if let Some(data) = flag.b.help {
-            template.push_str(format!(" -d \"{}\"", data).as_str());
+            template.push_str(format!(" -d '{}'", escape_string(data)).as_str());
         }
         buffer.push_str(template.as_str());
         buffer.push_str("\n");
@@ -96,7 +101,7 @@ fn gen_fish_inner(root_command: &str, comp_gen: &FishGen, parent_cmds: &str, buf
         template.push_str(" -f");
         template.push_str(format!(" -a \"{}\"", &subcommand.p.meta.name).as_str());
         if let Some(data) = subcommand.p.meta.about {
-            template.push_str(format!(" -d \"{}\"", &data).as_str())
+            template.push_str(format!(" -d '{}'", escape_string(&data)).as_str())
         }
         buffer.push_str(template.as_str());
         buffer.push_str("\n");
