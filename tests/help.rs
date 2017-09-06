@@ -431,6 +431,15 @@ ARGS:
     <FIRST>...     First
     <SECOND>...    Second";
 
+static DEFAULT_HELP: &'static str = "ctest 
+
+USAGE:
+    ctest
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information";
+
 #[test]
 fn help_short() {
     let m = App::new("test")
@@ -590,6 +599,12 @@ fn no_wrap_help() {
         .set_term_width(0)
         .help(MULTI_SC_HELP);
     assert!(test::compare_output(app, "ctest --help", MULTI_SC_HELP, false));
+}
+
+#[test]
+fn no_wrap_default_help() {
+    let app = App::new("ctest").set_term_width(0);
+    assert!(test::compare_output(app, "ctest --help", DEFAULT_HELP, false));
 }
 
 #[test]
