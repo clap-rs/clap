@@ -95,10 +95,10 @@ _myapp() {
 
     local context curcontext="$curcontext" state line
     _arguments -s -S -C \
-"-h[Prints help information]" \
-"--help[Prints help information]" \
-"-V[Prints version information]" \
-"--version[Prints version information]" \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
 "1:: :_myapp_commands" \
 "*:: :->myapp" \
 && ret=0
@@ -108,19 +108,19 @@ _myapp() {
         case $line[1] in
             (test)
 _arguments -s -S -C \
-"--case+[the case to test]" \
-"-h[Prints help information]" \
-"--help[Prints help information]" \
-"-V[Prints version information]" \
-"--version[Prints version information]" \
+'--case+[the case to test]' \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
 && ret=0
 ;;
 (help)
 _arguments -s -S -C \
-"-h[Prints help information]" \
-"--help[Prints help information]" \
-"-V[Prints version information]" \
-"--version[Prints version information]" \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
 && ret=0
 ;;
         esac
@@ -167,15 +167,15 @@ static FISH: &'static str = r#"function __fish_using_command
     return 1
 end
 
-complete -c myapp -n "__fish_using_command myapp" -s h -l help -d "Prints help information"
-complete -c myapp -n "__fish_using_command myapp" -s V -l version -d "Prints version information"
-complete -c myapp -n "__fish_using_command myapp" -f -a "test" -d "tests things"
-complete -c myapp -n "__fish_using_command myapp" -f -a "help" -d "Prints this message or the help of the given subcommand(s)"
-complete -c myapp -n "__fish_using_command myapp test" -l case -d "the case to test"
-complete -c myapp -n "__fish_using_command myapp test" -s h -l help -d "Prints help information"
-complete -c myapp -n "__fish_using_command myapp test" -s V -l version -d "Prints version information"
-complete -c myapp -n "__fish_using_command myapp help" -s h -l help -d "Prints help information"
-complete -c myapp -n "__fish_using_command myapp help" -s V -l version -d "Prints version information"
+complete -c myapp -n "__fish_using_command myapp" -s h -l help -d 'Prints help information'
+complete -c myapp -n "__fish_using_command myapp" -s V -l version -d 'Prints version information'
+complete -c myapp -n "__fish_using_command myapp" -f -a "test" -d 'tests things'
+complete -c myapp -n "__fish_using_command myapp" -f -a "help" -d 'Prints this message or the help of the given subcommand(s)'
+complete -c myapp -n "__fish_using_command myapp test" -l case -d 'the case to test'
+complete -c myapp -n "__fish_using_command myapp test" -s h -l help -d 'Prints help information'
+complete -c myapp -n "__fish_using_command myapp test" -s V -l version -d 'Prints version information'
+complete -c myapp -n "__fish_using_command myapp help" -s h -l help -d 'Prints help information'
+complete -c myapp -n "__fish_using_command myapp help" -s V -l version -d 'Prints version information'
 "#;
 
 #[cfg(not(target_os="windows"))]
@@ -384,10 +384,10 @@ _my_app() {
 
     local context curcontext="$curcontext" state line
     _arguments -s -S -C \
-"-h[Prints help information]" \
-"--help[Prints help information]" \
-"-V[Prints version information]" \
-"--version[Prints version information]" \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
 "1:: :_my_app_commands" \
 "*:: :->my_app" \
 && ret=0
@@ -397,28 +397,28 @@ _my_app() {
         case $line[1] in
             (test)
 _arguments -s -S -C \
-"--case+[the case to test]" \
-"-h[Prints help information]" \
-"--help[Prints help information]" \
-"-V[Prints version information]" \
-"--version[Prints version information]" \
+'--case+[the case to test]' \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
 && ret=0
 ;;
 (some_cmd)
 _arguments -s -S -C \
-"--config+[the other case to test]" \
-"-h[Prints help information]" \
-"--help[Prints help information]" \
-"-V[Prints version information]" \
-"--version[Prints version information]" \
+'--config+[the other case to test]' \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
 && ret=0
 ;;
 (help)
 _arguments -s -S -C \
-"-h[Prints help information]" \
-"--help[Prints help information]" \
-"-V[Prints version information]" \
-"--version[Prints version information]" \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
 && ret=0
 ;;
         esac
@@ -473,19 +473,19 @@ static FISH_WUS: &'static str = r#"function __fish_using_command
     return 1
 end
 
-complete -c my_app -n "__fish_using_command my_app" -s h -l help -d "Prints help information"
-complete -c my_app -n "__fish_using_command my_app" -s V -l version -d "Prints version information"
-complete -c my_app -n "__fish_using_command my_app" -f -a "test" -d "tests things"
-complete -c my_app -n "__fish_using_command my_app" -f -a "some_cmd" -d "tests other things"
-complete -c my_app -n "__fish_using_command my_app" -f -a "help" -d "Prints this message or the help of the given subcommand(s)"
-complete -c my_app -n "__fish_using_command my_app test" -l case -d "the case to test"
-complete -c my_app -n "__fish_using_command my_app test" -s h -l help -d "Prints help information"
-complete -c my_app -n "__fish_using_command my_app test" -s V -l version -d "Prints version information"
-complete -c my_app -n "__fish_using_command my_app some_cmd" -l config -d "the other case to test"
-complete -c my_app -n "__fish_using_command my_app some_cmd" -s h -l help -d "Prints help information"
-complete -c my_app -n "__fish_using_command my_app some_cmd" -s V -l version -d "Prints version information"
-complete -c my_app -n "__fish_using_command my_app help" -s h -l help -d "Prints help information"
-complete -c my_app -n "__fish_using_command my_app help" -s V -l version -d "Prints version information"
+complete -c my_app -n "__fish_using_command my_app" -s h -l help -d 'Prints help information'
+complete -c my_app -n "__fish_using_command my_app" -s V -l version -d 'Prints version information'
+complete -c my_app -n "__fish_using_command my_app" -f -a "test" -d 'tests things'
+complete -c my_app -n "__fish_using_command my_app" -f -a "some_cmd" -d 'tests other things'
+complete -c my_app -n "__fish_using_command my_app" -f -a "help" -d 'Prints this message or the help of the given subcommand(s)'
+complete -c my_app -n "__fish_using_command my_app test" -l case -d 'the case to test'
+complete -c my_app -n "__fish_using_command my_app test" -s h -l help -d 'Prints help information'
+complete -c my_app -n "__fish_using_command my_app test" -s V -l version -d 'Prints version information'
+complete -c my_app -n "__fish_using_command my_app some_cmd" -l config -d 'the other case to test'
+complete -c my_app -n "__fish_using_command my_app some_cmd" -s h -l help -d 'Prints help information'
+complete -c my_app -n "__fish_using_command my_app some_cmd" -s V -l version -d 'Prints version information'
+complete -c my_app -n "__fish_using_command my_app help" -s h -l help -d 'Prints help information'
+complete -c my_app -n "__fish_using_command my_app help" -s V -l version -d 'Prints version information'
 "#;
 
 static BASH_WUS: &'static str = r#"_my_app() {
@@ -593,6 +593,68 @@ static BASH_WUS: &'static str = r#"_my_app() {
 complete -F _my_app -o bashdefault -o default my_app
 "#;
 
+static FISH_SPECIAL: &'static str = r#"function __fish_using_command
+    set cmd (commandline -opc)
+    if [ (count $cmd) -eq (count $argv) ]
+        for i in (seq (count $argv))
+            if [ $cmd[$i] != $argv[$i] ]
+                return 1
+            end
+        end
+        return 0
+    end
+    return 1
+end
+
+complete -c my_app -n "__fish_using_command my_app" -l single-quotes -d 'Can be \'always\', \'auto\', or \'never\''
+complete -c my_app -n "__fish_using_command my_app" -l double-quotes -d 'Can be "always", "auto", or "never"'
+complete -c my_app -n "__fish_using_command my_app" -l backticks -d 'For more information see `echo test`'
+complete -c my_app -n "__fish_using_command my_app" -l backslash -d 'Avoid \'\\n\''
+complete -c my_app -n "__fish_using_command my_app" -l brackets -d 'List packages [filter]'
+complete -c my_app -n "__fish_using_command my_app" -l expansions -d 'Execute the shell command with $SHELL'
+complete -c my_app -n "__fish_using_command my_app" -s h -l help -d 'Prints help information'
+complete -c my_app -n "__fish_using_command my_app" -s V -l version -d 'Prints version information'
+"#;
+
+static ZSH_SPECIAL: &'static str = r#"#compdef my_app
+
+_my_app() {
+    typeset -A opt_args
+    local ret=1
+
+    local context curcontext="$curcontext" state line
+    _arguments -s -S -C \
+'--single-quotes[Can be '\''always'\'', '\''auto'\'', or '\''never'\'']' \
+'--double-quotes[Can be "always", "auto", or "never"]' \
+'--backticks[For more information see `echo test`]' \
+'--backslash[Avoid '\''\\n'\'']' \
+'--brackets[List packages \[filter\]]' \
+'--expansions[Execute the shell command with $SHELL]' \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
+&& ret=0
+    
+}
+
+(( $+functions[_my_app_commands] )) ||
+_my_app_commands() {
+    local commands; commands=(
+        
+    )
+    _describe -t commands 'my_app commands' commands "$@"
+}
+(( $+functions[_my_app_commands] )) ||
+_my_app_commands() {
+    local commands; commands=(
+        
+    )
+    _describe -t commands 'my_app commands' commands "$@"
+}
+
+_my_app "$@""#;
+
 fn compare(left: &str, right: &str) -> bool {
     let b = left == right;
     if !b {
@@ -630,6 +692,28 @@ fn build_app_with_underscore() -> App<'static, 'static> {
             .long("--config")
             .takes_value(true)
             .help("the other case to test")))
+}
+
+fn build_app_special() -> App<'static, 'static> {
+    App::new("my_app")
+        .arg(Arg::with_name("single-quotes")
+            .long("single-quotes")
+            .help("Can be 'always', 'auto', or 'never'"))
+        .arg(Arg::with_name("double-quotes")
+            .long("double-quotes")
+            .help("Can be \"always\", \"auto\", or \"never\""))
+        .arg(Arg::with_name("backticks")
+            .long("backticks")
+            .help("For more information see `echo test`"))
+        .arg(Arg::with_name("backslash")
+            .long("backslash")
+            .help("Avoid '\\n'"))
+        .arg(Arg::with_name("brackets")
+            .long("brackets")
+            .help("List packages [filter]"))
+        .arg(Arg::with_name("expansions")
+            .long("expansions")
+            .help("Execute the shell command with $SHELL"))
 }
 
 #[test]
@@ -712,4 +796,24 @@ fn zsh_with_underscore() {
     let string = String::from_utf8(buf).unwrap();
 
     assert!(compare(&*string, ZSH_WUS));
+}
+
+#[test]
+fn fish_special() {
+    let mut app = build_app_special();
+    let mut buf = vec![];
+    app.gen_completions_to("my_app", Shell::Fish, &mut buf);
+    let string = String::from_utf8(buf).unwrap();
+
+    assert!(compare(&*string, FISH_SPECIAL));
+}
+
+#[test]
+fn zsh_special() {
+    let mut app = build_app_special();
+    let mut buf = vec![];
+    app.gen_completions_to("my_app", Shell::Zsh, &mut buf);
+    let string = String::from_utf8(buf).unwrap();
+
+    assert!(compare(&*string, ZSH_SPECIAL));
 }
