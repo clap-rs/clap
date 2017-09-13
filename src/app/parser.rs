@@ -1339,7 +1339,8 @@ impl<'a, 'b> Parser<'a, 'b>
 
     #[cfg_attr(feature = "cargo-clippy", allow(let_and_return))]
     fn use_long_help(&self) -> bool {
-        let ul = self.flags.iter().any(|f| f.b.long_help.is_some()) ||
+        let ul = self.meta.long_about.is_some() ||
+                 self.flags.iter().any(|f| f.b.long_help.is_some()) ||
                  self.opts.iter().any(|o| o.b.long_help.is_some()) ||
                  self.positionals.values().any(|p| p.b.long_help.is_some()) ||
                  self.subcommands
