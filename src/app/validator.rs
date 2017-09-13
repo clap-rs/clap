@@ -294,9 +294,9 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                                                   self.0.color()));
             }
         }
-        if let Some(num) = a.min_vals() {
+        let min_vals_zero = if let Some(num) = a.min_vals() {
             debugln!("Validator::validate_arg_num_vals: min_vals set: {}", num);
-            if (ma.vals.len() as u64) < num {
+            if (ma.vals.len() as u64) < num && num != 0 {
                 debugln!("Validator::validate_arg_num_vals: Sending error TooFewValues");
                 return Err(Error::too_few_values(a,
                                                  num,
@@ -306,9 +306,10 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                                                                              None),
                                                  self.0.color()));
             }
-        }
+            num == 0
+        } else { false };
         // Issue 665 (https://github.com/kbknapp/clap-rs/issues/665)
-        if a.takes_value() && !a.is_set(ArgSettings::EmptyValues) && ma.vals.is_empty() {
+        if a.takes_value() && !(a.is_set(ArgSettings::EmptyValues) || min_vals_zero)  && ma.vals.is_empty() {
             return Err(Error::empty_value(a,
                                           &*usage::create_error_usage(self.0, matcher, None),
                                           self.0.color()));
