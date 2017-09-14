@@ -440,6 +440,26 @@ FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information";
 
+static LONG_ABOUT: &'static str = "myapp 1.0
+foo
+something really really long, with
+multiple lines of text
+that should be displayed
+
+USAGE:
+    myapp [arg1]
+
+FLAGS:
+    -h, --help       
+            Prints help information
+
+    -V, --version    
+            Prints version information
+
+
+ARGS:
+    <arg1>    
+            some option";
 #[test]
 fn help_short() {
     let m = App::new("test")
@@ -782,6 +802,17 @@ fn issue_702_multiple_values() {
             .multiple(true)
             .takes_value(true));
     assert!(test::compare_output(app, "myapp --help", ISSUE_702, false));
+}
+
+#[test]
+fn long_about() {
+    let app = App::new("myapp")
+        .version("1.0")
+        .author("foo")
+        .about("bar")
+        .long_about("something really really long, with\nmultiple lines of text\nthat should be displayed")
+        .arg(Arg::with_name("arg1").help("some option"));
+    assert!(test::compare_output(app, "myapp --help", LONG_ABOUT, false));
 }
 
 #[test]

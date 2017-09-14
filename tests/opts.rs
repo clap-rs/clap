@@ -29,6 +29,24 @@ fn require_equals_fail() {
 }
 
 #[test]
+fn require_equals_min_values_zero() {
+    let res = App::new("prog")
+        .arg(Arg::with_name("cfg")
+            .require_equals(true)
+            .takes_value(true)
+            .min_values(0)
+            .long("config"))
+        .arg(Arg::with_name("cmd"))
+        .get_matches_from_safe(vec![
+            "prog", "--config", "cmd"
+        ]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("cfg"));
+    assert_eq!(m.value_of("cmd"), Some("cmd"));
+}
+
+#[test]
 fn double_hyphen_as_value() {
     let res = App::new("prog")
         .arg(Arg::with_name("cfg")

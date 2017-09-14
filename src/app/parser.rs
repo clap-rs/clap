@@ -1339,7 +1339,8 @@ impl<'a, 'b> Parser<'a, 'b>
 
     #[cfg_attr(feature = "cargo-clippy", allow(let_and_return))]
     fn use_long_help(&self) -> bool {
-        let ul = self.flags.iter().any(|f| f.b.long_help.is_some()) ||
+        let ul = self.meta.long_about.is_some() ||
+                 self.flags.iter().any(|f| f.b.long_help.is_some()) ||
                  self.opts.iter().any(|o| o.b.long_help.is_some()) ||
                  self.positionals.values().any(|p| p.b.long_help.is_some()) ||
                  self.subcommands
@@ -1529,13 +1530,17 @@ impl<'a, 'b> Parser<'a, 'b>
         debugln!("Parser::parse_opt; opt={}, val={:?}", opt.b.name, val);
         debugln!("Parser::parse_opt; opt.settings={:?}", opt.b.settings);
         let mut has_eq = false;
+        let no_val = val.is_none();
+        let empty_vals = opt.is_set(ArgSettings::EmptyValues);
+        let min_vals_zero = opt.v.min_vals.unwrap_or(1) == 0;
+        let needs_eq = opt.is_set(ArgSettings::RequireEquals);
 
         debug!("Parser::parse_opt; Checking for val...");
         if let Some(fv) = val {
             has_eq = fv.starts_with(&[b'=']) || had_eq;
             let v = fv.trim_left_matches(b'=');
-            if !opt.is_set(ArgSettings::EmptyValues) &&
-               (v.len_() == 0 || (opt.is_set(ArgSettings::RequireEquals) && !has_eq)) {
+            if !empty_vals &&
+               (v.len_() == 0 || (needs_eq && !has_eq)) {
                 sdebugln!("Found Empty - Error");
                 return Err(Error::empty_value(opt,
                                               &*usage::create_error_usage(self, matcher, None),
@@ -1546,7 +1551,7 @@ impl<'a, 'b> Parser<'a, 'b>
                      fv,
                      fv.starts_with(&[b'=']));
             self.add_val_to_arg(opt, v, matcher)?;
-        } else if opt.is_set(ArgSettings::RequireEquals) && !opt.is_set(ArgSettings::EmptyValues) {
+        } else if needs_eq && !(empty_vals || min_vals_zero) {
             sdebugln!("None, but requires equals...Error");
             return Err(Error::empty_value(opt,
                                           &*usage::create_error_usage(self, matcher, None),
@@ -1561,10 +1566,12 @@ impl<'a, 'b> Parser<'a, 'b>
         self.groups_for_arg(opt.b.name)
             .and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
 
-        if val.is_none() ||
-           !has_eq &&
-           (opt.is_set(ArgSettings::Multiple) && !opt.is_set(ArgSettings::RequireDelimiter) &&
-            matcher.needs_more_vals(opt)) {
+        let needs_delim = opt.is_set(ArgSettings::RequireDelimiter);
+        let mult = opt.is_set(ArgSettings::Multiple);
+        if no_val && min_vals_zero && !has_eq && needs_eq {
+            debugln!("Parser::parse_opt: More arg vals not required...");
+            return Ok(ParseResult::ValuesDone);
+        } else if no_val || (mult && !needs_delim) && !has_eq && matcher.needs_more_vals(opt) { 
             debugln!("Parser::parse_opt: More arg vals required...");
             return Ok(ParseResult::Opt(opt.b.name));
         }
