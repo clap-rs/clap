@@ -1571,7 +1571,7 @@ impl<'a, 'b> Parser<'a, 'b>
         if no_val && min_vals_zero && !has_eq && needs_eq {
             debugln!("Parser::parse_opt: More arg vals not required...");
             return Ok(ParseResult::ValuesDone);
-        } else if (mult && !needs_delim) && matcher.needs_more_vals(opt) { 
+        } else if no_val || (mult && !needs_delim) && !has_eq && matcher.needs_more_vals(opt) { 
             debugln!("Parser::parse_opt: More arg vals required...");
             return Ok(ParseResult::Opt(opt.b.name));
         }
