@@ -475,10 +475,7 @@ impl<'a, 'b> Parser<'a, 'b>
 
     #[inline]
     pub fn has_visible_subcommands(&self) -> bool {
-        if self.subcommands.is_empty() {
-            return false;
-        }
-        self.subcommands.iter().any(|s| !s.p.is_set(AS::Hidden))
+        self.has_subcommands() && self.subcommands.iter().filter(|sc| sc.p.meta.name != "help").any(|sc| !sc.p.is_set(AS::Hidden))
     }
 
     #[inline]
