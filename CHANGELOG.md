@@ -1,3 +1,17 @@
+<a name="v2.26.2"></a>
+### v2.26.2 (2017-09-14)
+
+
+#### Improvements
+
+*   if all subcommands are hidden, the subcommands section of the help message is no longer displayed ([4ae7b046](https://github.com/kbknapp/clap-rs/commit/4ae7b0464750bc07ec80ece38e43f003fdd1b8ae), closes [#1046](https://github.com/kbknapp/clap-rs/issues/1046))
+
+#### Bug Fixes
+
+*   fixes a bug where default values are not applied if the option supports zero values ([9c248cbf](https://github.com/kbknapp/clap-rs/commit/9c248cbf7d8a825119bc387c23e9a1d1989682b0), closes [#1047](https://github.com/kbknapp/clap-rs/issues/1047))
+
+
+
 <a name="v2.26.1"></a>
 ### v2.26.1 (2017-09-14)
 
