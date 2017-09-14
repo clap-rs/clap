@@ -45,15 +45,21 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-Here's the highlights for v2.26.0
+Here's what's new in 2.26.1:
+
+*   fixes using require_equals(true) and min_values(0) together 
+*   escape special characters in zsh and fish completions 
+*   avoid panic generating default help msg if term width set to 0 due to bug in textwrap 0.7.0 
+*   Change `who's` -> `whose` in documentation
+* **Help Message:**  fixes `App::long_about` not being displayed
+* **Suggestions:**  output for flag after subcommand 
+
+
+Here's the highlights for v2.21.0 to v2.26.0
 
 *   **The minimum required version of Rust is now 1.13.0 (Stable)**
 *   bumps unicode-segmentation to v1.2 
 *   update textwrap to version 0.7.0 which increases the performance of writing help strings
-
-
-Here's the highlights for v2.21.0 to v2.25.1
-
 * impl Default for Values + OsValues for any lifetime. 
 * use textwrap crate for wrapping help texts
 * suggests to use flag after subcommand when applicable
