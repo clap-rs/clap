@@ -45,8 +45,10 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-Here's what's new in 2.26.1:
+Here's what's new in 2.26.2:
 
+*   if all subcommands are hidden, the subcommands section of the help message is no longer displayed 
+*   fixes a bug where default values are not applied if the option supports zero values 
 *   fixes using require_equals(true) and min_values(0) together 
 *   escape special characters in zsh and fish completions 
 *   avoid panic generating default help msg if term width set to 0 due to bug in textwrap 0.7.0 

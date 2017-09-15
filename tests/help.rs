@@ -124,6 +124,22 @@ OPTIONS:
 ARGS:
     <scpositional>    tests positionals";
 
+static ISSUE_1046_HIDDEN_SCS: &'static str = "prog 1.0
+
+USAGE:
+    prog [FLAGS] [OPTIONS] [PATH]
+
+FLAGS:
+    -f, --flag       testing flags
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -o, --opt <FILE>    tests options
+
+ARGS:
+    <PATH>    some";
+
 // Using number_of_values(1) with multiple(true) misaligns help message
 static ISSUE_760: &'static str = "ctest 0.1
 
@@ -897,6 +913,17 @@ fn args_negate_sc() {
         .arg(Arg::with_name("PATH"))
         .subcommand(SubCommand::with_name("test"));
     assert!(test::compare_output(app, "prog --help", ARGS_NEGATE_SC, false));
+}
+
+#[test]
+fn issue_1046_hidden_scs() {
+    let app = App::new("prog")
+        .version("1.0")
+        .args_from_usage("-f, --flag 'testing flags'
+                          -o, --opt [FILE] 'tests options'")
+        .arg(Arg::with_name("PATH").help("some"))
+        .subcommand(SubCommand::with_name("test").setting(AppSettings::Hidden));
+    assert!(test::compare_output(app, "prog --help", ISSUE_1046_HIDDEN_SCS, false));
 }
 
 #[test]

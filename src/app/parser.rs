@@ -475,10 +475,7 @@ impl<'a, 'b> Parser<'a, 'b>
 
     #[inline]
     pub fn has_visible_subcommands(&self) -> bool {
-        if self.subcommands.is_empty() {
-            return false;
-        }
-        self.subcommands.iter().any(|s| !s.p.is_set(AS::Hidden))
+        self.has_subcommands() && self.subcommands.iter().filter(|sc| sc.p.meta.name != "help").any(|sc| !sc.p.is_set(AS::Hidden))
     }
 
     #[inline]
@@ -1734,7 +1731,14 @@ impl<'a, 'b> Parser<'a, 'b>
         macro_rules! add_val {
             (@default $_self:ident, $a:ident, $m:ident) => {
                 if let Some(ref val) = $a.v.default_val {
-                    if $m.get($a.b.name).is_none() {
+                    if $m.get($a.b.name).map(|ma| ma.vals.len()).map(|len| len == 0).unwrap_or(false) {
+                        $_self.add_val_to_arg($a, OsStr::new(val), $m)?;
+
+                        if $_self.cache.map_or(true, |name| name != $a.name()) {
+                            arg_post_processing!($_self, $a, $m);
+                            $_self.cache = Some($a.name());
+                        }
+                    } else {
                         $_self.add_val_to_arg($a, OsStr::new(val), $m)?;
 
                         if $_self.cache.map_or(true, |name| name != $a.name()) {

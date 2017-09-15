@@ -521,7 +521,7 @@ impl<'a> Help<'a> {
             .filter(|arg| !arg.is_set(ArgSettings::Hidden))
             .count() > 0;
         let opts = parser.has_opts();
-        let subcmds = parser.has_subcommands();
+        let subcmds = parser.has_visible_subcommands();
 
         let unified_help = parser.is_set(AppSettings::UnifiedHelpMessage);
 

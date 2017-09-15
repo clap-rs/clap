@@ -393,3 +393,20 @@ fn issue_665() {
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
 }
+
+#[test]
+fn issue_1047_min_zero_vals_default_val() {
+    let m = App::new("foo")
+        .arg(
+            Arg::with_name("del")
+                .short("d")
+                .long("del")
+                .takes_value(true)
+                .require_equals(true)
+                .min_values(0)
+                .default_value("default"),
+        )
+        .get_matches_from(vec!["foo", "-d"]);
+    assert_eq!(m.occurrences_of("del"), 1);
+    assert_eq!(m.value_of("del"), Some("default"));
+}
