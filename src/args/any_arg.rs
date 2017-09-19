@@ -3,11 +3,9 @@ use std::rc::Rc;
 use std::fmt as std_fmt;
 use std::ffi::{OsStr, OsString};
 
-// Third Party
-use vec_map::{self, VecMap};
-
 // Internal
 use args::settings::ArgSettings;
+use map::{self, VecMap};
 
 #[doc(hidden)]
 pub trait AnyArg<'n, 'e>: std_fmt::Display {
@@ -34,7 +32,7 @@ pub trait AnyArg<'n, 'e>: std_fmt::Display {
     fn help(&self) -> Option<&'e str>;
     fn long_help(&self) -> Option<&'e str>;
     fn default_val(&self) -> Option<&'e OsStr>;
-    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>>;
+    fn default_vals_ifs(&self) -> Option<map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>>;
     fn longest_filter(&self) -> bool;
     fn val_terminator(&self) -> Option<&'e str>;
 }

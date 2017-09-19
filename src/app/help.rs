@@ -12,13 +12,13 @@ use args::{AnyArg, ArgSettings, DispOrder};
 use errors::{Error, Result as ClapResult};
 use fmt::{Format, Colorizer, ColorizerOption};
 use app::usage;
+use map::VecMap;
 
 // Third Party
 use unicode_width::UnicodeWidthStr;
 #[cfg(feature = "wrap_help")]
 use term_size;
 use textwrap;
-use vec_map::VecMap;
 
 #[cfg(not(feature = "wrap_help"))]
 mod term_size {

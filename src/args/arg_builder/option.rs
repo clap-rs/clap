@@ -5,11 +5,9 @@ use std::result::Result as StdResult;
 use std::ffi::{OsStr, OsString};
 use std::mem;
 
-// Third Party
-use vec_map::{self, VecMap};
-
 // Internal
 use args::{ArgSettings, AnyArg, Base, Switched, Valued, Arg, DispOrder};
+use map::{self, VecMap};
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
@@ -131,7 +129,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn help(&self) -> Option<&'e str> { self.b.help }
     fn long_help(&self) -> Option<&'e str> { self.b.long_help }
     fn default_val(&self) -> Option<&'e OsStr> { self.v.default_val }
-    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {
+    fn default_vals_ifs(&self) -> Option<map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {
         self.v.default_vals_ifs.as_ref().map(|vm| vm.values())
     }
     fn longest_filter(&self) -> bool { true }
@@ -165,7 +163,7 @@ impl<'n, 'e> PartialEq for OptBuilder<'n, 'e> {
 mod test {
     use args::settings::ArgSettings;
     use super::OptBuilder;
-    use vec_map::VecMap;
+    use map::VecMap;
 
     #[test]
     fn optbuilder_display1() {

@@ -10,7 +10,7 @@ use std::os::unix::ffi::OsStrExt;
 
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
-use vec_map::VecMap;
+use map::VecMap;
 
 use usage_parser::UsageParser;
 use args::settings::ArgSettings;

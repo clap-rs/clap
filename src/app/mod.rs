@@ -18,7 +18,6 @@ use std::rc::Rc;
 use std::result::Result as StdResult;
 
 // Third Party
-use vec_map::{self, VecMap};
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
@@ -29,6 +28,7 @@ use args::{AnyArg, Arg, ArgGroup, ArgMatcher, ArgMatches, ArgSettings};
 use errors::Result as ClapResult;
 pub use self::settings::AppSettings;
 use completions::Shell;
+use map::{self, VecMap};
 
 /// Used to create a representation of a command line program and all possible command line
 /// arguments. Application settings are set using the "builder pattern" with the
@@ -1793,7 +1793,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn help(&self) -> Option<&'e str> { self.p.meta.about }
     fn long_help(&self) -> Option<&'e str> { self.p.meta.long_about }
     fn default_val(&self) -> Option<&'e OsStr> { None }
-    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {
+    fn default_vals_ifs(&self) -> Option<map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {
         None
     }
     fn longest_filter(&self) -> bool { true }
