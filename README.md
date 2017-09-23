@@ -642,7 +642,7 @@ From @alexcrichton:
 
 Right now Cargo's version resolution is pretty naive, it's just a brute-force search of the solution space, returning the first resolvable graph. This also means that it currently won't terminate until it proves there is not possible resolvable graph. This leads to situations where workspaces with multiple binaries, for example, have two different dependencies such as:
 
-```toml
+```toml,no_sync
 
 # In one Cargo.toml
 [dependencies]
