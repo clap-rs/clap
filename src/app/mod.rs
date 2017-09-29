@@ -1796,6 +1796,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn default_vals_ifs(&self) -> Option<map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {
         None
     }
+    fn from_env(&self) -> Option<&OsString> { None }
     fn longest_filter(&self) -> bool { true }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.p.meta.aliases {
