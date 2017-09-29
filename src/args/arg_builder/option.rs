@@ -9,13 +9,14 @@ use std::mem;
 use vec_map::{self, VecMap};
 
 // Internal
-use args::{ArgSettings, AnyArg, Base, Switched, Valued, Arg, DispOrder};
+use args::{AnyArg, Arg, ArgSettings, Base, DispOrder, Switched, Valued};
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
 #[derive(Default, Clone)]
 pub struct OptBuilder<'n, 'e>
-    where 'n: 'e
+where
+    'n: 'e,
 {
     pub b: Base<'n, 'e>,
     pub s: Switched<'e>,
@@ -23,7 +24,12 @@ pub struct OptBuilder<'n, 'e>
 }
 
 impl<'n, 'e> OptBuilder<'n, 'e> {
-    pub fn new(name: &'n str) -> Self { OptBuilder { b: Base::new(name), ..Default::default() } }
+    pub fn new(name: &'n str) -> Self {
+        OptBuilder {
+            b: Base::new(name),
+            ..Default::default()
+        }
+    }
 }
 
 impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for OptBuilder<'n, 'e> {
@@ -87,14 +93,16 @@ impl<'n, 'e> Display for OptBuilder<'n, 'e> {
                 write!(f, "...")?;
             }
         } else {
-            write!(f,
+            write!(
+                f,
                 "<{}>{}",
                 self.b.name,
                 if self.is_set(ArgSettings::Multiple) {
                     "..."
                 } else {
                     ""
-                })?;
+                }
+            )?;
         }
 
         Ok(())
@@ -134,10 +142,12 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {
         self.v.default_vals_ifs.as_ref().map(|vm| vm.values())
     }
+    fn from_env(&self) -> Option<&OsString> { self.v.from_env.as_ref() }
     fn longest_filter(&self) -> bool { true }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.s.aliases {
-            let vis_aliases: Vec<_> = aliases.iter()
+            let vis_aliases: Vec<_> = aliases
+                .iter()
                 .filter_map(|&(n, v)| if v { Some(n) } else { None })
                 .collect();
             if vis_aliases.is_empty() {
@@ -156,9 +166,7 @@ impl<'n, 'e> DispOrder for OptBuilder<'n, 'e> {
 }
 
 impl<'n, 'e> PartialEq for OptBuilder<'n, 'e> {
-    fn eq(&self, other: &OptBuilder<'n, 'e>) -> bool {
-        self.b == other.b
-    }
+    fn eq(&self, other: &OptBuilder<'n, 'e>) -> bool { self.b == other.b }
 }
 
 #[cfg(test)]
@@ -216,8 +224,12 @@ mod test {
     fn optbuilder_display_multiple_aliases() {
         let mut o = OptBuilder::new("opt");
         o.s.long = Some("option");
-        o.s.aliases =
-            Some(vec![("als_not_visible", false), ("als2", true), ("als3", true), ("als4", true)]);
+        o.s.aliases = Some(vec![
+            ("als_not_visible", false),
+            ("als2", true),
+            ("als3", true),
+            ("als4", true),
+        ]);
         assert_eq!(&*format!("{}", o), "--option <opt>");
     }
 }

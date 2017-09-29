@@ -6,7 +6,7 @@ use std::ffi::{OsString, OsStr};
 use osstringext::OsStrExt3;
 #[cfg(not(target_os="windows"))]
 use std::os::unix::ffi::OsStrExt;
-
+use std::env;
 
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
@@ -128,6 +128,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 "default_value" => yaml_to_str!(a, v, default_value),
                 "default_value_if" => yaml_tuple3!(a, v, default_value_if),
                 "default_value_ifs" => yaml_tuple3!(a, v, default_value_if),
+                "from_env" => yaml_to_str!(a, v, from_env),
                 "value_names" => yaml_vec_or_str!(v, a, value_name),
                 "groups" => yaml_vec_or_str!(v, a, group),
                 "requires" => yaml_vec_or_str!(v, a, requires),
@@ -3308,6 +3309,16 @@ impl<'a, 'b> Arg<'a, 'b> {
         for &(arg, val, default) in ifs {
             self = self.default_value_if_os(arg, val, default);
         }
+        self
+    }
+
+    /// Specifies that if the value is not passed in as an argument, that it should be retrieved
+    /// from the environment if available. If it is not present in the environment, then default
+    /// rules will apply.
+    pub fn from_env<K: AsRef<OsStr>>(mut self, name: K) -> Self {
+        self.setb(ArgSettings::TakesValue);
+
+        self.v.from_env = env::var_os(name);
         self
     }
 

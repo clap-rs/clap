@@ -11,14 +11,15 @@ use vec_map::{self, VecMap};
 
 // Internal
 use Arg;
-use args::{ArgSettings, Base, Valued, AnyArg, DispOrder};
+use args::{AnyArg, ArgSettings, Base, DispOrder, Valued};
 use INTERNAL_ERROR_MSG;
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
 #[derive(Clone, Default)]
 pub struct PosBuilder<'n, 'e>
-    where 'n: 'e
+where
+    'n: 'e,
 {
     pub b: Base<'n, 'e>,
     pub v: Valued<'n, 'e>,
@@ -41,7 +42,8 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
             index: idx,
         };
         if a.v.max_vals.is_some() || a.v.min_vals.is_some() ||
-           (a.v.num_vals.is_some() && a.v.num_vals.unwrap() > 1) {
+            (a.v.num_vals.is_some() && a.v.num_vals.unwrap() > 1)
+        {
             pb.b.settings.set(ArgSettings::Multiple);
         }
         pb
@@ -49,7 +51,8 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
 
     pub fn from_arg(mut a: Arg<'n, 'e>, idx: u64) -> Self {
         if a.v.max_vals.is_some() || a.v.min_vals.is_some() ||
-           (a.v.num_vals.is_some() && a.v.num_vals.unwrap() > 1) {
+            (a.v.num_vals.is_some() && a.v.num_vals.unwrap() > 1)
+        {
             a.b.settings.set(ArgSettings::Multiple);
         }
         PosBuilder {
@@ -76,11 +79,13 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
         if let Some(ref names) = self.v.val_names {
             debugln!("PosBuilder:name_no_brackets: val_names={:#?}", names);
             if names.len() > 1 {
-                Cow::Owned(names
-                               .values()
-                               .map(|n| format!("<{}>", n))
-                               .collect::<Vec<_>>()
-                               .join(" "))
+                Cow::Owned(
+                    names
+                        .values()
+                        .map(|n| format!("<{}>", n))
+                        .collect::<Vec<_>>()
+                        .join(" "),
+                )
             } else {
                 Cow::Borrowed(names.values().next().expect(INTERNAL_ERROR_MSG))
             }
@@ -94,17 +99,21 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
 impl<'n, 'e> Display for PosBuilder<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> Result {
         if let Some(ref names) = self.v.val_names {
-            write!(f,
+            write!(
+                f,
                 "{}",
                 names
                     .values()
                     .map(|n| format!("<{}>", n))
                     .collect::<Vec<_>>()
-                    .join(" "))?;
+                    .join(" ")
+            )?;
         } else {
             write!(f, "<{}>", self.b.name)?;
         }
-        if self.b.settings.is_set(ArgSettings::Multiple) && (self.v.val_names.is_none() || self.v.val_names.as_ref().unwrap().len() == 1) {
+        if self.b.settings.is_set(ArgSettings::Multiple) &&
+            (self.v.val_names.is_none() || self.v.val_names.as_ref().unwrap().len() == 1)
+        {
             write!(f, "...")?;
         }
 
@@ -145,6 +154,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for PosBuilder<'n, 'e> {
         self.v.default_vals_ifs.as_ref().map(|vm| vm.values())
     }
     fn default_val(&self) -> Option<&'e OsStr> { self.v.default_val }
+    fn from_env(&self) -> Option<&OsString> { self.v.from_env.as_ref() }
     fn longest_filter(&self) -> bool { true }
     fn aliases(&self) -> Option<Vec<&'e str>> { None }
 }

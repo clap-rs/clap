@@ -474,6 +474,7 @@ impl<'a> Help<'a> {
                                            Format::None(pv.to_string_lossy())
                                        }));
             }
+            // FIXME: add [env::{}: {}] here
         }
         if let Some(ref aliases) = a.aliases() {
             debugln!("Help::spec_vals: Found aliases...{:?}", aliases);
