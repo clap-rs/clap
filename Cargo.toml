@@ -34,6 +34,7 @@ atty      = { version = "0.2.2",  optional = true }
 [dev-dependencies]
 regex = "0.2"
 lazy_static = "0.2"
+version-sync = "0.3"
 
 [features]
 default     = ["suggestions", "color", "wrap_help"]

@@ -14,6 +14,12 @@ before_script:
   - |
     pip install git+git://github.com/kbknapp/travis-cargo.git --user &&
     export PATH=$HOME/.local/bin:$PATH
+  - |
+    if [[ "$TRAVIS_RUST_VERSION" == "1.13.0" ]]; then
+        echo "Old Rust detected, removing version-sync dependency"
+        sed -i "/^version-sync =/d" Cargo.toml
+        rm "tests/version-numbers.rs"
+    fi
 script:
   - |
     travis-cargo test -- --verbose --no-default-features &&

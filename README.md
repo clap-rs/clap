@@ -472,7 +472,7 @@ For full usage, add `clap` as a dependency in your `Cargo.toml` () to use from c
 
 ```toml
 [dependencies]
-clap = "~2.19.0"
+clap = "~2.26"
 ```
 
 (**note**: If you are concerned with supporting a minimum version of Rust that is *older* than the current stable Rust minus 2 stable releases, it's recommended to use the `~major.minor.patch` style versions in your `Cargo.toml` which will only update the patch version automatically. For more information see the [Compatibility Policy](#compatibility-policy))
@@ -495,7 +495,7 @@ To disable these, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies.clap]
-version = "2.19"
+version = "2.26"
 default-features = false
 ```
 
@@ -503,7 +503,7 @@ You can also selectively enable only the features you'd like to include, by addi
 
 ```toml
 [dependencies.clap]
-version = "2.19"
+version = "2.26"
 default-features = false
 
 # Cherry-pick the features you'd like to use
@@ -629,7 +629,7 @@ In order to keep from being surprised of breaking changes, it is **highly** reco
 
 ```toml
 [dependencies]
-clap = "~2.19.0"
+clap = "~2.26"
 ```
 
 This will cause *only* the patch version to be updated upon a `cargo update` call, and therefore cannot break due to new features, or bumped minimum versions of Rust.
@@ -642,7 +642,7 @@ From @alexcrichton:
 
 Right now Cargo's version resolution is pretty naive, it's just a brute-force search of the solution space, returning the first resolvable graph. This also means that it currently won't terminate until it proves there is not possible resolvable graph. This leads to situations where workspaces with multiple binaries, for example, have two different dependencies such as:
 
-```toml
+```toml,no_sync
 
 # In one Cargo.toml
 [dependencies]
