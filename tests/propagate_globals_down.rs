@@ -1,9 +1,7 @@
 extern crate clap;
 extern crate regex;
 
-include!("../clap-test.rs");
 
-use clap::{App, Arg, SubCommand, ErrorKind, AppSettings};
 
 static VISIBLE_ALIAS_HELP: &'static str = "clap-test 2.6
 
@@ -51,36 +49,61 @@ USAGE:
 
 For more information try --help";
 
-#[test]
-fn subcommand_can_access_global_arg_if_setting_is_on() {
-    let global_arg = Arg::with_name("GLOBAL_ARG")
-        .long("global-arg")
-        .help(
-            "Specifies something needed by the subcommands",
-        )
-        .global(true)
-        .takes_value(true);
-    
-    let double_sub_command = SubCommand::with_name("outer")
-        .subcommand(SubCommand::with_name("run"));
+#[cfg(test)]
+mod tests {
+    include!("../clap-test.rs");
+    use clap;
+    use clap::{App, Arg, SubCommand, ErrorKind, AppSettings};
 
-    let matches = App::new("globals")
-        .setting(AppSettings::PropagateGlobalValuesDown)
-        .arg(global_arg)
-        .subcommand(double_sub_command)
-        .get_matches_from(
-            vec!["globals", "outer", "run", "--global-arg", "some_value"]
+    fn setup_app_with_globals_and_subcommands<'a, 'b>() -> clap::App<'a, 'b> {
+        let global_arg = Arg::with_name("GLOBAL_ARG")
+            .long("global-arg")
+            .help(
+                "Specifies something needed by the subcommands",
+            )
+            .global(true)
+            .takes_value(true);
+        
+        let double_sub_command = SubCommand::with_name("outer")
+            .subcommand(SubCommand::with_name("run"));
+
+        App::new("globals")
+            .setting(AppSettings::PropagateGlobalValuesDown)
+            .arg(global_arg)
+            .subcommand(double_sub_command)
+    }
+
+    fn test_arg_vector(arg_vector : Vec<&str>) {
+        let matches = setup_app_with_globals_and_subcommands().get_matches_from(
+            arg_vector
         );
 
-    let sub_match = matches.subcommand_matches("outer").expect("could not access subcommand");
+        let sub_match = matches.subcommand_matches("outer").expect("could not access subcommand");
 
-    assert_eq!(sub_match.value_of("GLOBAL_ARG").expect("subcommand could not access global arg"), 
-                "some_value", "subcommand did not have expected value for global arg");
+        assert_eq!(sub_match.value_of("GLOBAL_ARG").expect("subcommand could not access global arg"), 
+                    "some_value", "subcommand did not have expected value for global arg");
 
-    let sub_sub_match = sub_match.subcommand_matches("run").expect("could not access inner sub");
+        let sub_sub_match = sub_match.subcommand_matches("run").expect("could not access inner sub");
 
-    assert_eq!(sub_sub_match.value_of("GLOBAL_ARG").expect("subcommand could not access global arg"), 
-            "some_value", "inner subcommand did not have expected value for global arg");
+        assert_eq!(sub_sub_match.value_of("GLOBAL_ARG").expect("inner subcommand could not access global arg"), 
+                "some_value", "inner subcommand did not have expected value for global arg");
+    }
+
+    #[test]
+    fn subcommand_can_access_global_arg_if_global_arg_is_last() {
+        test_arg_vector(vec!["globals", "outer", "run", "--global-arg", "some_value"]);
+    }
+
+    #[test]
+    fn subcommand_can_access_global_arg_if_global_arg_is_first() {
+        test_arg_vector(vec!["globals", "--global-arg", "some_value", "outer", "run"]);
+    }
+
+    #[test]
+    fn subcommand_can_access_global_arg_if_global_arg_is_in_the_middle() {
+        test_arg_vector(vec!["globals", "outer",  "--global-arg", "some_value" ,"run"]);
+    }
 
 }
+
 
