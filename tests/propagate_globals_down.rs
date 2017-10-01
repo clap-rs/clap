@@ -69,12 +69,18 @@ fn subcommand_can_access_global_arg_if_setting_is_on() {
         .arg(global_arg)
         .subcommand(double_sub_command)
         .get_matches_from(
-            vec!["globals", "outer", "--global-arg", "some_value"]
+            vec!["globals", "outer", "run", "--global-arg", "some_value"]
         );
 
     let sub_match = matches.subcommand_matches("outer").expect("could not access subcommand");
 
-    assert_eq!(sub_match.value_of("global-arg").expect("subcommand could not access global arg"), 
+    assert_eq!(sub_match.value_of("GLOBAL_ARG").expect("subcommand could not access global arg"), 
                 "some_value", "subcommand did not have expected value for global arg");
 
+    let sub_sub_match = sub_match.subcommand_matches("run").expect("could not access inner sub");
+
+    assert_eq!(sub_sub_match.value_of("GLOBAL_ARG").expect("subcommand could not access global arg"), 
+            "some_value", "inner subcommand did not have expected value for global arg");
+
 }
+
