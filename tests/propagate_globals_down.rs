@@ -17,7 +17,7 @@ mod tests {
             .takes_value(true);
         
         let double_sub_command = SubCommand::with_name("outer")
-            .subcommand(SubCommand::with_name("run"));
+            .subcommand(SubCommand::with_name("inner"));
 
         App::new("myprog")
             .setting(AppSettings::PropagateGlobalValuesDown)
@@ -43,7 +43,7 @@ mod tests {
         );
 
         let sub_match = matches.subcommand_matches("outer").expect("could not access subcommand");
-        let sub_sub_match = sub_match.subcommand_matches("run").expect("could not access inner sub");
+        let sub_sub_match = sub_match.subcommand_matches("inner").expect("could not access inner sub");
 
         assert_eq!(sub_sub_match.value_of("GLOBAL_ARG").expect("inner subcommand could not access global arg"), 
                 "some_value", "inner subcommand did not have expected value for global arg");
@@ -52,34 +52,34 @@ mod tests {
     #[test]
     fn subcommand_can_access_global_arg_if_global_arg_is_first() {
         // calls propagate zero times, works
-        first_subcommand_can_access_global(vec!["myprog", "--global-arg", "some_value", "outer", "run"]);
+        first_subcommand_can_access_global(vec!["myprog", "--global-arg", "some_value", "outer", "inner"]);
     }
 
     #[test]
     fn subcommand_can_access_global_arg_if_global_arg_is_in_the_middle() {
         // calls propagate twice, doesn't work
-        first_subcommand_can_access_global(vec!["myprog", "outer",  "--global-arg", "some_value" ,"run"]);
+        first_subcommand_can_access_global(vec!["myprog", "outer",  "--global-arg", "some_value" ,"inner"]);
     }
 
     #[test]
     fn subcommand_can_access_global_arg_if_global_arg_is_last() {
         // calls propagate twice, doesn't work
-        first_subcommand_can_access_global(vec!["myprog", "outer", "run", "--global-arg", "some_value"]);
+        first_subcommand_can_access_global(vec!["myprog", "outer", "inner", "--global-arg", "some_value"]);
     }
 
     #[test]
     fn second_subcommand_can_access_global_arg_if_global_arg_is_first() {
-        second_subcommand_can_access_global(vec!["myprog", "--global-arg", "some_value", "outer", "run"]);
+        second_subcommand_can_access_global(vec!["myprog", "--global-arg", "some_value", "outer", "inner"]);
     }
 
     #[test]
     fn second_subcommand_can_access_global_arg_if_global_arg_is_in_the_middle() {
-        second_subcommand_can_access_global(vec!["myprog", "outer",  "--global-arg", "some_value" ,"run"]);
+        second_subcommand_can_access_global(vec!["myprog", "outer",  "--global-arg", "some_value" ,"inner"]);
     }
 
     #[test]
     fn second_subcommand_can_access_global_arg_if_global_arg_is_last() {
-        second_subcommand_can_access_global(vec!["myprog", "outer", "run", "--global-arg", "some_value"]);
+        second_subcommand_can_access_global(vec!["myprog", "outer", "inner", "--global-arg", "some_value"]);
     }
 }
 
