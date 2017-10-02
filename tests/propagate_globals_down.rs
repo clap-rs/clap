@@ -1,54 +1,6 @@
 extern crate clap;
 extern crate regex;
 
-
-
-static VISIBLE_ALIAS_HELP: &'static str = "clap-test 2.6
-
-USAGE:
-    clap-test [SUBCOMMAND]
-
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
-
-SUBCOMMANDS:
-    help    Prints this message or the help of the given subcommand(s)
-    test    Some help [aliases: dongle, done]";
-
-static INVISIBLE_ALIAS_HELP: &'static str = "clap-test 2.6
-
-USAGE:
-    clap-test [SUBCOMMAND]
-
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
-
-SUBCOMMANDS:
-    help    Prints this message or the help of the given subcommand(s)
-    test    Some help";
-
-#[cfg(feature = "suggestions")]
-static DYM: &'static str = "error: The subcommand 'subcm' wasn't recognized
-\tDid you mean 'subcmd'?
-
-If you believe you received this message in error, try re-running with 'clap-test -- subcm'
-
-USAGE:
-    clap-test [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
-
-For more information try --help";
-
-#[cfg(feature = "suggestions")]
-static DYM2: &'static str = "error: Found argument '--subcm' which wasn't expected, or isn't valid in this context
-\tDid you mean to put '--subcmdarg' after the subcommand 'subcmd'?
-
-USAGE:
-    clap-test [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
-
-For more information try --help";
-
 #[cfg(test)]
 mod tests {
     include!("../clap-test.rs");
