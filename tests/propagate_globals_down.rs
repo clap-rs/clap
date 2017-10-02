@@ -51,19 +51,16 @@ mod tests {
 
     #[test]
     fn subcommand_can_access_global_arg_if_global_arg_is_first() {
-        // calls propagate zero times, works
         first_subcommand_can_access_global(vec!["myprog", "--global-arg", "some_value", "outer", "inner"]);
     }
 
     #[test]
     fn subcommand_can_access_global_arg_if_global_arg_is_in_the_middle() {
-        // calls propagate twice, doesn't work
         first_subcommand_can_access_global(vec!["myprog", "outer",  "--global-arg", "some_value" ,"inner"]);
     }
 
     #[test]
     fn subcommand_can_access_global_arg_if_global_arg_is_last() {
-        // calls propagate twice, doesn't work
         first_subcommand_can_access_global(vec!["myprog", "outer", "inner", "--global-arg", "some_value"]);
     }
 
