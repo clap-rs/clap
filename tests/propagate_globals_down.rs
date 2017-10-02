@@ -5,7 +5,7 @@ extern crate regex;
 mod tests {
     include!("../clap-test.rs");
     use clap;
-    use clap::{App, Arg, SubCommand, ErrorKind, AppSettings};
+    use clap::{App, Arg, SubCommand, AppSettings};
 
     fn setup_app_with_globals_and_subcommands<'a, 'b>() -> clap::App<'a, 'b> {
         let global_arg = Arg::with_name("GLOBAL_ARG")
@@ -51,31 +51,37 @@ mod tests {
 
     #[test]
     fn subcommand_can_access_global_arg_if_global_arg_is_first() {
+        // currently passes
         first_subcommand_can_access_global(vec!["myprog", "--global-arg", "some_value", "outer", "inner"]);
     }
 
     #[test]
     fn subcommand_can_access_global_arg_if_global_arg_is_in_the_middle() {
+        // currently passes
         first_subcommand_can_access_global(vec!["myprog", "outer",  "--global-arg", "some_value" ,"inner"]);
     }
 
     #[test]
-    fn subcommand_can_access_global_arg_if_global_arg_is_last() {
+    fn first_subcommand_can_access_global_arg_if_global_arg_is_last() {
+        // currently fails - hypothesis - nothing propagates global args back up
         first_subcommand_can_access_global(vec!["myprog", "outer", "inner", "--global-arg", "some_value"]);
     }
 
     #[test]
     fn second_subcommand_can_access_global_arg_if_global_arg_is_first() {
+        // currently passes
         second_subcommand_can_access_global(vec!["myprog", "--global-arg", "some_value", "outer", "inner"]);
     }
 
     #[test]
     fn second_subcommand_can_access_global_arg_if_global_arg_is_in_the_middle() {
+        // currently fails - hypothesis: subcommands do not recursively propagate global args
         second_subcommand_can_access_global(vec!["myprog", "outer",  "--global-arg", "some_value" ,"inner"]);
     }
 
     #[test]
     fn second_subcommand_can_access_global_arg_if_global_arg_is_last() {
+        // currently passes
         second_subcommand_can_access_global(vec!["myprog", "outer", "inner", "--global-arg", "some_value"]);
     }
 }
