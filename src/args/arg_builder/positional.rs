@@ -154,7 +154,12 @@ impl<'n, 'e> AnyArg<'n, 'e> for PosBuilder<'n, 'e> {
         self.v.default_vals_ifs.as_ref().map(|vm| vm.values())
     }
     fn default_val(&self) -> Option<&'e OsStr> { self.v.default_val }
-    fn from_env(&self) -> Option<&OsString> { self.v.from_env.as_ref() }
+    fn env<'s>(&'s self) -> Option<(&'n OsStr, &'s OsString)> {
+        self.v
+            .env
+            .as_ref()
+            .map(|&(key, ref value)| (key, value))
+    }
     fn longest_filter(&self) -> bool { true }
     fn aliases(&self) -> Option<Vec<&'e str>> { None }
 }

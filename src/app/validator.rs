@@ -28,7 +28,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                     -> ClapResult<()> {
         debugln!("Validator::validate;");
         let mut reqs_validated = false;
-        self.0.add_from_env(matcher)?;
+        self.0.add_env(matcher)?;
         self.0.add_defaults(matcher)?;
         if let ParseResult::Opt(a) = needs_val_of {
             debugln!("Validator::validate: needs_val_of={:?}", a);

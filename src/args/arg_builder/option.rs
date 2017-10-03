@@ -142,7 +142,9 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {
         self.v.default_vals_ifs.as_ref().map(|vm| vm.values())
     }
-    fn from_env(&self) -> Option<&OsString> { self.v.from_env.as_ref() }
+    fn env<'s>(&'s self) -> Option<(&'n OsStr, &'s OsString)> {
+        self.v.env.as_ref().map(|&(key, ref value)| (key, value))
+    }
     fn longest_filter(&self) -> bool { true }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.s.aliases {
