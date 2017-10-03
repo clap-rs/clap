@@ -479,16 +479,3 @@ fn conditional_reqs_pass() {
     assert_eq!(m.value_of("output"), Some("other"));
     assert_eq!(m.value_of("input"), Some("some"));
 }
-
-#[test]
-fn from_env_no_default() {
-    std::env::set_var("CLP_TEST_ENV", "from_env");
-
-    let r = App::new("df")
-        .arg(Arg::from_usage("[arg] 'some opt'").from_env("CLP_TEST_ENV"))
-        .get_matches_from_safe(vec![""]);
-    assert!(r.is_ok());
-    let m = r.unwrap();
-    // assert!(m.is_present("arg")); // TODO: should this be true?
-    assert_eq!(m.value_of("arg").unwrap(), "from_env");
-}

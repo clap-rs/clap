@@ -128,7 +128,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 "default_value" => yaml_to_str!(a, v, default_value),
                 "default_value_if" => yaml_tuple3!(a, v, default_value_if),
                 "default_value_ifs" => yaml_tuple3!(a, v, default_value_if),
-                "from_env" => yaml_to_str!(a, v, from_env),
+                "env" => yaml_to_str!(a, v, env),
                 "value_names" => yaml_vec_or_str!(v, a, value_name),
                 "groups" => yaml_vec_or_str!(v, a, group),
                 "requires" => yaml_vec_or_str!(v, a, requires),
@@ -3315,10 +3315,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// Specifies that if the value is not passed in as an argument, that it should be retrieved
     /// from the environment if available. If it is not present in the environment, then default
     /// rules will apply.
-    pub fn from_env<K: AsRef<OsStr>>(mut self, name: K) -> Self {
+    pub fn env(mut self, name: &'a OsStr) -> Self {
         self.setb(ArgSettings::TakesValue);
 
-        self.v.from_env = env::var_os(name);
+        self.v.env = env::var_os(name).map(|value| (name, value));
         self
     }
 
