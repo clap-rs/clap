@@ -444,9 +444,7 @@ macro_rules! crate_authors {
             }
         }
 
-        static CARGO_AUTHORS: CargoAuthors = CargoAuthors { __private_field: () };
-
-        &*CARGO_AUTHORS
+        &*CargoAuthors { __private_field: () }
     }};
     () => {
         env!("CARGO_PKG_AUTHORS")
