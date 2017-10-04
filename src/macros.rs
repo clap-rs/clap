@@ -422,26 +422,31 @@ macro_rules! crate_authors {
         use std::sync::{ONCE_INIT, Once};
 
         #[allow(missing_copy_implementations)]
-        #[allow(non_camel_case_types)]
         #[allow(dead_code)]
-        struct CARGO_AUTHORS {__private_field: ()}
-        static CARGO_AUTHORS: CARGO_AUTHORS = CARGO_AUTHORS {__private_field: ()};
+        struct CargoAuthors { __private_field: () };
 
-        impl Deref for CARGO_AUTHORS {
-            type Target = String;
+        impl Deref for CargoAuthors {
+            type Target = str;
 
             #[allow(unsafe_code)]
-            fn deref<'a>(&'a self) -> &'a String {
-                unsafe {
-                    static mut LAZY: (*const String, Once) = (0 as *const String, ONCE_INIT);
+            fn deref(&self) -> &'static str {
+                static ONCE: Once = ONCE_INIT;
+                static mut VALUE: *const String = 0 as *const String;
 
-                    LAZY.1.call_once(|| LAZY.0 = Box::into_raw(Box::new(env!("CARGO_PKG_AUTHORS").replace(':', $sep))));
-                    &*LAZY.0
+                unsafe {
+                    ONCE.call_once(|| {
+                        let s = env!("CARGO_PKG_AUTHORS").replace(':', $sep);
+                        VALUE = Box::into_raw(Box::new(s));
+                    });
+
+                    &(*VALUE)[..]
                 }
             }
         }
 
-        &CARGO_AUTHORS[..]
+        static CARGO_AUTHORS: CargoAuthors = CargoAuthors { __private_field: () };
+
+        &*CARGO_AUTHORS
     }};
     () => {
         env!("CARGO_PKG_AUTHORS")
