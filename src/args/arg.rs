@@ -3315,7 +3315,88 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// Specifies that if the value is not passed in as an argument, that it should be retrieved
     /// from the environment if available. If it is not present in the environment, then default
     /// rules will apply.
-    pub fn env(mut self, name: &'a OsStr) -> Self {
+    /// 
+    /// **NOTE:** If the user *does not* use this argument at runtime, [`ArgMatches::occurrences_of`]
+    /// will return `0` even though the [`ArgMatches::value_of`] will return the default specified.
+    ///
+    /// **NOTE:** If the user *does not* use this argument at runtime [`ArgMatches::is_present`] will
+    /// still return `true`. If you wish to determine whether the argument was used at runtime or
+    /// not, consider [`ArgMatches::occurrences_of`] which will return `0` if the argument was *not*
+    /// used at runtmie.
+    /// 
+    /// **NOTE:** This implicitly sets [`Arg::takes_value(true)`].
+    ///  
+    /// # Examples
+    /// 
+    /// In this example, we show the variable coming from the environment:
+    /// 
+    /// ```rust
+    /// # use std::env;
+    /// # use clap::{App, Arg};
+    ///
+    /// env::set_var("MY_FLAG", "env");
+    ///  
+    /// let m = App::new("prog")
+    ///     .arg(Arg::with_name("flag")
+    ///         .long("flag")
+    ///         .env("MY_FLAG"))
+    ///     .get_matches_from(vec![
+    ///         "prog"
+    ///     ]);
+    ///
+    /// # env::remove_var("MY_FLAG");
+    /// assert_eq!(m.value_of("flag"), Some("env"));
+    /// ```
+    /// 
+    /// In this example, we show the variable coming from a option on the CLI:
+    /// 
+    /// ```rust
+    /// # use std::env;
+    /// # use clap::{App, Arg};
+    ///
+    /// env::set_var("MY_FLAG", "env");
+    ///  
+    /// let m = App::new("prog")
+    ///     .arg(Arg::with_name("flag")
+    ///         .long("flag")
+    ///         .env("MY_FLAG"))
+    ///     .get_matches_from(vec![
+    ///         "prog", "--flag", "opt"
+    ///     ]);
+    ///
+    /// # env::remove_var("MY_FLAG");
+    /// assert_eq!(m.value_of("flag"), Some("opt"));
+    /// ```
+    /// 
+    /// In this example, we show the variable coming from the environment even with the
+    /// presence of a default:
+    /// 
+    /// ```rust
+    /// # use std::env;
+    /// # use clap::{App, Arg};
+    ///
+    /// env::set_var("MY_FLAG", "env");
+    ///  
+    /// let m = App::new("prog")
+    ///     .arg(Arg::with_name("flag")
+    ///         .long("flag")
+    ///         .env("MY_FLAG")
+    ///         .default_value("default"))
+    ///     .get_matches_from(vec![
+    ///         "prog"
+    ///     ]);
+    ///
+    /// # env::remove_var("MY_FLAG");
+    /// assert_eq!(m.value_of("flag"), Some("env"));
+    /// ```
+    pub fn env(self, name: &'a str) -> Self {
+        self.env_os(OsStr::new(name))
+    }
+
+    /// Specifies that if the value is not passed in as an argument, that it should be retrieved
+    /// from the environment if available in the exact same manner as [`Arg::env`] only using
+    /// [`OsStr`]s instead.
+    pub fn env_os(mut self, name: &'a OsStr) -> Self {
         self.setb(ArgSettings::TakesValue);
 
         self.v.env = env::var_os(name).map(|value| (name, value));
