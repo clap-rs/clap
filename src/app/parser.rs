@@ -9,9 +9,6 @@ use std::path::PathBuf;
 use std::slice::Iter;
 use std::iter::Peekable;
 
-// Third Party
-use vec_map::{self, VecMap};
-
 // Internal
 use INTERNAL_ERROR_MSG;
 use INVALID_UTF8;
@@ -32,6 +29,7 @@ use suggestions;
 use app::settings::AppSettings as AS;
 use app::validator::Validator;
 use app::usage;
+use map::{self, VecMap};
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[doc(hidden)]
@@ -1795,7 +1793,7 @@ impl<'a, 'b> Parser<'a, 'b>
 
     pub fn opts(&self) -> Iter<OptBuilder<'a, 'b>> { self.opts.iter() }
 
-    pub fn positionals(&self) -> vec_map::Values<PosBuilder<'a, 'b>> { self.positionals.values() }
+    pub fn positionals(&self) -> map::Values<PosBuilder<'a, 'b>> { self.positionals.values() }
 
     pub fn subcommands(&self) -> Iter<App> { self.subcommands.iter() }
 

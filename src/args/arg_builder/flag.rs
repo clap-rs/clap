@@ -6,12 +6,10 @@ use std::result::Result as StdResult;
 use std::ffi::{OsStr, OsString};
 use std::mem;
 
-// Third Party
-use vec_map::{self, VecMap};
-
 // Internal
 use Arg;
 use args::{ArgSettings, Base, Switched, AnyArg, DispOrder};
+use map::{self, VecMap};
 
 #[derive(Default, Clone, Debug)]
 #[doc(hidden)]
@@ -82,7 +80,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn long_help(&self) -> Option<&'e str> { self.b.long_help }
     fn val_terminator(&self) -> Option<&'e str> { None }
     fn default_val(&self) -> Option<&'e OsStr> { None }
-    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {
+    fn default_vals_ifs(&self) -> Option<map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {
         None
     }
     fn longest_filter(&self) -> bool { self.s.long.is_some() }

@@ -6,13 +6,11 @@ use std::result::Result as StdResult;
 use std::ffi::{OsStr, OsString};
 use std::mem;
 
-// Third Party
-use vec_map::{self, VecMap};
-
 // Internal
 use Arg;
 use args::{ArgSettings, Base, Valued, AnyArg, DispOrder};
 use INTERNAL_ERROR_MSG;
+use map::{self, VecMap};
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
@@ -141,7 +139,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for PosBuilder<'n, 'e> {
     fn takes_value(&self) -> bool { true }
     fn help(&self) -> Option<&'e str> { self.b.help }
     fn long_help(&self) -> Option<&'e str> { self.b.long_help }
-    fn default_vals_ifs(&self) -> Option<vec_map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {
+    fn default_vals_ifs(&self) -> Option<map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {
         self.v.default_vals_ifs.as_ref().map(|vm| vm.values())
     }
     fn default_val(&self) -> Option<&'e OsStr> { self.v.default_val }
@@ -161,7 +159,7 @@ impl<'n, 'e> PartialEq for PosBuilder<'n, 'e> {
 mod test {
     use args::settings::ArgSettings;
     use super::PosBuilder;
-    use vec_map::VecMap;
+    use map::VecMap;
 
     #[test]
     fn display_mult() {

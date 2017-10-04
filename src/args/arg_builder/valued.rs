@@ -1,7 +1,7 @@
 use std::rc::Rc;
 use std::ffi::{OsStr, OsString};
 
-use vec_map::VecMap;
+use map::VecMap;
 
 use Arg;
 
