@@ -3015,7 +3015,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// **NOTE:** If the user *does not* use this argument at runtime [`ArgMatches::is_present`] will
     /// still return `true`. If you wish to determine whether the argument was used at runtime or
     /// not, consider [`ArgMatches::occurrences_of`] which will return `0` if the argument was *not*
-    /// used at runtmie.
+    /// used at runtime.
     ///
     /// **NOTE:** This setting is perfectly compatible with [`Arg::default_value_if`] but slightly
     /// different. `Arg::default_value` *only* takes affect when the user has not provided this arg
@@ -3313,7 +3313,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Specifies that if the value is not passed in as an argument, that it should be retrieved
-    /// from the environment if available. If it is not present in the environment, then default
+    /// from the environment, if available. If it is not present in the environment, then default
     /// rules will apply.
     /// 
     /// **NOTE:** If the user *does not* use this argument at runtime, [`ArgMatches::occurrences_of`]
@@ -3322,7 +3322,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// **NOTE:** If the user *does not* use this argument at runtime [`ArgMatches::is_present`] will
     /// still return `true`. If you wish to determine whether the argument was used at runtime or
     /// not, consider [`ArgMatches::occurrences_of`] which will return `0` if the argument was *not*
-    /// used at runtmie.
+    /// used at runtime.
     /// 
     /// **NOTE:** This implicitly sets [`Arg::takes_value(true)`].
     ///  
@@ -3348,7 +3348,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(m.value_of("flag"), Some("env"));
     /// ```
     /// 
-    /// In this example, we show the variable coming from a option on the CLI:
+    /// In this example, we show the variable coming from an option on the CLI:
     /// 
     /// ```rust
     /// # use std::env;
