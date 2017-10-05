@@ -352,9 +352,9 @@ impl<'a> Help<'a> {
         let h_w = str_width(h) + str_width(&*spec_vals);
         let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp);
         let taken = self.longest + 12;
-        self.force_next_line = !nlh && self.term_w >= taken &&
-            (taken as f32 / self.term_w as f32) > 0.40 &&
-            h_w > (self.term_w - taken);
+        self.force_next_line = !nlh && self.term_w >= taken
+            && (taken as f32 / self.term_w as f32) > 0.40
+            && h_w > (self.term_w - taken);
 
         debug!("Help::val: Has switch...");
         if arg.has_switch() {
@@ -512,7 +512,7 @@ impl<'a> Help<'a> {
                 env.1
             );
             spec_vals.push(format!(
-                " [env:{}:{}]",
+                " [env:{}: {}]",
                 env.0.to_string_lossy(),
                 env.1.to_string_lossy()
             ));
