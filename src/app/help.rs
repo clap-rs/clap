@@ -492,6 +492,18 @@ impl<'a> Help<'a> {
     fn spec_vals(&self, a: &ArgWithDisplay) -> String {
         debugln!("Help::spec_vals: a={}", a);
         let mut spec_vals = vec![];
+        if let Some(ref env) = a.env() {
+            debugln!(
+                "Help::spec_vals: Found environment variable...[{:?}:{:?}]",
+                env.0,
+                env.1
+            );
+            spec_vals.push(format!(
+                " [env:{}: {}]",
+                env.0.to_string_lossy(),
+                env.1.to_string_lossy()
+            ));
+        }
         if !a.is_set(ArgSettings::HideDefaultValue) {
             if let Some(pv) = a.default_val() {
                 debugln!("Help::spec_vals: Found default value...[{:?}]", pv);
@@ -504,18 +516,6 @@ impl<'a> Help<'a> {
                     }
                 ));
             }
-        }
-        if let Some(ref env) = a.env() {
-            debugln!(
-                "Help::spec_vals: Found environment variable...[{:?}:{:?}]",
-                env.0,
-                env.1
-            );
-            spec_vals.push(format!(
-                " [env:{}: {}]",
-                env.0.to_string_lossy(),
-                env.1.to_string_lossy()
-            ));
         }
         if let Some(ref aliases) = a.aliases() {
             debugln!("Help::spec_vals: Found aliases...{:?}", aliases);
