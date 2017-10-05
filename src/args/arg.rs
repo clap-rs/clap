@@ -6,7 +6,7 @@ use std::ffi::{OsString, OsStr};
 use osstringext::OsStrExt3;
 #[cfg(not(target_os="windows"))]
 use std::os::unix::ffi::OsStrExt;
-
+use std::env;
 
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
@@ -128,6 +128,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 "default_value" => yaml_to_str!(a, v, default_value),
                 "default_value_if" => yaml_tuple3!(a, v, default_value_if),
                 "default_value_ifs" => yaml_tuple3!(a, v, default_value_if),
+                "env" => yaml_to_str!(a, v, env),
                 "value_names" => yaml_vec_or_str!(v, a, value_name),
                 "groups" => yaml_vec_or_str!(v, a, group),
                 "requires" => yaml_vec_or_str!(v, a, requires),
@@ -3014,7 +3015,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// **NOTE:** If the user *does not* use this argument at runtime [`ArgMatches::is_present`] will
     /// still return `true`. If you wish to determine whether the argument was used at runtime or
     /// not, consider [`ArgMatches::occurrences_of`] which will return `0` if the argument was *not*
-    /// used at runtmie.
+    /// used at runtime.
     ///
     /// **NOTE:** This setting is perfectly compatible with [`Arg::default_value_if`] but slightly
     /// different. `Arg::default_value` *only* takes affect when the user has not provided this arg
@@ -3308,6 +3309,119 @@ impl<'a, 'b> Arg<'a, 'b> {
         for &(arg, val, default) in ifs {
             self = self.default_value_if_os(arg, val, default);
         }
+        self
+    }
+
+    /// Specifies that if the value is not passed in as an argument, that it should be retrieved
+    /// from the environment, if available. If it is not present in the environment, then default
+    /// rules will apply.
+    /// 
+    /// **NOTE:** If the user *does not* use this argument at runtime, [`ArgMatches::occurrences_of`]
+    /// will return `0` even though the [`ArgMatches::value_of`] will return the default specified.
+    ///
+    /// **NOTE:** If the user *does not* use this argument at runtime [`ArgMatches::is_present`] will
+    /// return `true` if the variable is present in the environemnt . If you wish to determine whether
+    /// the argument was used at runtime or not, consider [`ArgMatches::occurrences_of`] which will
+    /// return `0` if the argument was *not* used at runtime.
+    /// 
+    /// **NOTE:** This implicitly sets [`Arg::takes_value(true)`].
+    /// 
+    /// **NOTE:** If [`Arg::multiple(true)`] is set then [`Arg::use_delimiter(true)`] should also be
+    /// set. Otherwise, only a single argument will be returned from the environment variable. The
+    /// default delimiter is `,` and follows all the other delimiter rules.
+    ///  
+    /// # Examples
+    /// 
+    /// In this example, we show the variable coming from the environment:
+    /// 
+    /// ```rust
+    /// # use std::env;
+    /// # use clap::{App, Arg};
+    ///
+    /// env::set_var("MY_FLAG", "env");
+    ///  
+    /// let m = App::new("prog")
+    ///     .arg(Arg::with_name("flag")
+    ///         .long("flag")
+    ///         .env("MY_FLAG"))
+    ///     .get_matches_from(vec![
+    ///         "prog"
+    ///     ]);
+    ///
+    /// assert_eq!(m.value_of("flag"), Some("env"));
+    /// ```
+    /// 
+    /// In this example, we show the variable coming from an option on the CLI:
+    /// 
+    /// ```rust
+    /// # use std::env;
+    /// # use clap::{App, Arg};
+    ///
+    /// env::set_var("MY_FLAG", "env");
+    ///  
+    /// let m = App::new("prog")
+    ///     .arg(Arg::with_name("flag")
+    ///         .long("flag")
+    ///         .env("MY_FLAG"))
+    ///     .get_matches_from(vec![
+    ///         "prog", "--flag", "opt"
+    ///     ]);
+    ///
+    /// assert_eq!(m.value_of("flag"), Some("opt"));
+    /// ```
+    /// 
+    /// In this example, we show the variable coming from the environment even with the
+    /// presence of a default:
+    /// 
+    /// ```rust
+    /// # use std::env;
+    /// # use clap::{App, Arg};
+    ///
+    /// env::set_var("MY_FLAG", "env");
+    ///  
+    /// let m = App::new("prog")
+    ///     .arg(Arg::with_name("flag")
+    ///         .long("flag")
+    ///         .env("MY_FLAG")
+    ///         .default_value("default"))
+    ///     .get_matches_from(vec![
+    ///         "prog"
+    ///     ]);
+    ///
+    /// assert_eq!(m.value_of("flag"), Some("env"));
+    /// ```
+    /// 
+    /// In this example, we show the use of multiple values in a single environment variable:
+    /// 
+    /// ```rust
+    /// # use std::env;
+    /// # use clap::{App, Arg};
+    ///
+    /// env::set_var("MY_FLAG_MULTI", "env1,env2");
+    ///  
+    /// let m = App::new("prog")
+    ///     .arg(Arg::with_name("flag")
+    ///         .long("flag")
+    ///         .env("MY_FLAG_MULTI")
+    ///         .multiple(true)
+    ///         .use_delimiter(true))
+    ///     .get_matches_from(vec![
+    ///         "prog"
+    ///     ]);
+    ///
+    /// assert_eq!(m.values_of("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
+    /// ```
+    pub fn env(self, name: &'a str) -> Self {
+        self.env_os(OsStr::new(name))
+    }
+
+    /// Specifies that if the value is not passed in as an argument, that it should be retrieved
+    /// from the environment if available in the exact same manner as [`Arg::env`] only using
+    /// [`OsStr`]s instead.
+    pub fn env_os(mut self, name: &'a OsStr) -> Self {
+        self.setb(ArgSettings::TakesValue);
+
+        self.v.env = env::var_os(name).map(|value| (name, value));
         self
     }
 
