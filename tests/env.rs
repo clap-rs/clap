@@ -184,3 +184,80 @@ fn multiple_no_delimiter() {
         vec!["env1 env2 env3"]
     );
 }
+
+#[test]
+fn possible_value() {
+    env::set_var("CLP_TEST_ENV", "env");
+
+    let r = App::new("df")
+        .arg(
+            Arg::from_usage("[arg] 'some opt'")
+                .env("CLP_TEST_ENV")
+                .possible_value("env"),
+        )
+        .get_matches_from_safe(vec![""]);
+
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("arg"));
+    assert_eq!(m.occurrences_of("arg"), 0);
+    assert_eq!(m.value_of("arg").unwrap(), "env");
+}
+
+
+#[test]
+fn not_possible_value() {
+    env::set_var("CLP_TEST_ENV", "env");
+
+    let r = App::new("df")
+        .arg(
+            Arg::from_usage("[arg] 'some opt'")
+                .env("CLP_TEST_ENV")
+                .possible_value("never"),
+        )
+        .get_matches_from_safe(vec![""]);
+
+    assert!(r.is_err());
+}
+
+#[test]
+fn validator() {
+    env::set_var("CLP_TEST_ENV", "env");
+
+    let r = App::new("df")
+        .arg(
+            Arg::from_usage("[arg] 'some opt'")
+                .env("CLP_TEST_ENV")
+                .validator(|s| if s == "env" {
+                    Ok(())
+                } else {
+                    Err("not equal".to_string())
+                }),
+        )
+        .get_matches_from_safe(vec![""]);
+
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("arg"));
+    assert_eq!(m.occurrences_of("arg"), 0);
+    assert_eq!(m.value_of("arg").unwrap(), "env");
+}
+
+#[test]
+fn validator_invalid() {
+    env::set_var("CLP_TEST_ENV", "env");
+
+    let r = App::new("df")
+        .arg(
+            Arg::from_usage("[arg] 'some opt'")
+                .env("CLP_TEST_ENV")
+                .validator(|s| if s != "env" {
+                    Ok(())
+                } else {
+                    Err("is equal".to_string())
+                }),
+        )
+        .get_matches_from_safe(vec![""]);
+
+    assert!(r.is_err());
+}
