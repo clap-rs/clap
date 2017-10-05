@@ -3320,11 +3320,15 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// will return `0` even though the [`ArgMatches::value_of`] will return the default specified.
     ///
     /// **NOTE:** If the user *does not* use this argument at runtime [`ArgMatches::is_present`] will
-    /// still return `true`. If you wish to determine whether the argument was used at runtime or
-    /// not, consider [`ArgMatches::occurrences_of`] which will return `0` if the argument was *not*
-    /// used at runtime.
+    /// return `true` if the variable is present in the environemnt . If you wish to determine whether
+    /// the argument was used at runtime or not, consider [`ArgMatches::occurrences_of`] which will
+    /// return `0` if the argument was *not* used at runtime.
     /// 
     /// **NOTE:** This implicitly sets [`Arg::takes_value(true)`].
+    /// 
+    /// **NOTE:** If [`Arg::multiple(true)`] is set then [`Arg::use_delimiter(true)`] should also be
+    /// set. Otherwise, only a single argument will be returned from the environment variable. The
+    /// default delimiter is `,` and follows all the other delimiter rules.
     ///  
     /// # Examples
     /// 
@@ -3344,7 +3348,6 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         "prog"
     ///     ]);
     ///
-    /// # env::remove_var("MY_FLAG");
     /// assert_eq!(m.value_of("flag"), Some("env"));
     /// ```
     /// 
@@ -3364,7 +3367,6 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         "prog", "--flag", "opt"
     ///     ]);
     ///
-    /// # env::remove_var("MY_FLAG");
     /// assert_eq!(m.value_of("flag"), Some("opt"));
     /// ```
     /// 
@@ -3386,8 +3388,28 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         "prog"
     ///     ]);
     ///
-    /// # env::remove_var("MY_FLAG");
     /// assert_eq!(m.value_of("flag"), Some("env"));
+    /// ```
+    /// 
+    /// In this example, we show the use of multiple values in a single environment variable:
+    /// 
+    /// ```rust
+    /// # use std::env;
+    /// # use clap::{App, Arg};
+    ///
+    /// env::set_var("MY_FLAG_MULTI", "env1,env2");
+    ///  
+    /// let m = App::new("prog")
+    ///     .arg(Arg::with_name("flag")
+    ///         .long("flag")
+    ///         .env("MY_FLAG_MULTI")
+    ///         .multiple(true)
+    ///         .use_delimiter(true))
+    ///     .get_matches_from(vec![
+    ///         "prog"
+    ///     ]);
+    ///
+    /// assert_eq!(m.values_of("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
     /// ```
     pub fn env(self, name: &'a str) -> Self {
         self.env_os(OsStr::new(name))
