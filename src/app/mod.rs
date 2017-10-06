@@ -1620,7 +1620,12 @@ impl<'a, 'b> App<'a, 'b> {
         }
 
         if self.p.is_set(AppSettings::PropagateGlobalValuesDown) {
+            // hypothesis: self.p.global_args only has the arg I care about
+            // if it was passed early
             for a in &self.p.global_args {
+                // DOES propagate(a.b.name) propagate the value?
+                // what globals are available here?
+                debugln!("grepforme the arg was {}", a.b.name);
                 matcher.propagate(a.b.name);
             }
         }

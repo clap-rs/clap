@@ -9,6 +9,7 @@ use std::slice::Iter;
 use INVALID_UTF8;
 use args::MatchedArg;
 use args::SubCommand;
+use args::settings::ArgSettings;
 
 /// Used to get information about the arguments that where supplied to the program at runtime by
 /// the user. New instances of this struct are obtained by using the [`App::get_matches`] family of
@@ -391,6 +392,7 @@ impl<'a> ArgMatches<'a> {
     pub fn subcommand_matches<S: AsRef<str>>(&self, name: S) -> Option<&ArgMatches<'a>> {
         if let Some(ref s) = self.subcommand {
             if s.name == name.as_ref() {
+                // TODO: when we reach here, the return value should have globals in it
                 return Some(&s.matches);
             }
         }
