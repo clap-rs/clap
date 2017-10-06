@@ -21,19 +21,13 @@ impl<'a> ArgMatcher<'a> {
     pub fn new() -> Self { ArgMatcher::default() }
 
     pub fn propagate(&mut self, arg: &'a str) {
-        // TODO: propagate globals recursively to subcommands
-        // this function should behave differently if the arg is global and AppSettings::PropagateGlobalsDown is set
-        // but I don't know exactly what it should do differently.
-        debugln!("grepforme! The arg was {:?}", arg);
+        debugln!("ArgMatcher::propagate: arg={}", arg);
         let vals: Vec<_> = if let Some(ma) = self.get(arg) {
             ma.vals.clone()
         } else {
             debugln!("ArgMatcher::propagate: arg wasn't used");
             return;
         };
-        // this check is being false for global arg I think
-        // first_subcommand_can_access_global_arg_if_global_arg_is_last fails here
-        // as does second_subcommand_can_access_global_arg_if_global_arg_is_in_the_middle
         if let Some(ref mut sc) = self.0.subcommand {
             {
                 let sma = (*sc).matches.args.entry(arg).or_insert_with(|| {
@@ -46,7 +40,6 @@ impl<'a> ArgMatcher<'a> {
                     sma.vals = vals.clone();
                 }
             }
-            // make an arg matcher with a new vector of args
             let mut am = ArgMatcher(mem::replace(&mut sc.matches, ArgMatches::new()));
             am.propagate(arg);
             mem::swap(&mut am.0, &mut sc.matches);
