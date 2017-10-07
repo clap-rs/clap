@@ -1352,7 +1352,7 @@ impl<'a, 'b> Parser<'a, 'b>
         match Help::write_parser_help(&mut buf, self, use_long) {
             Err(e) => e,
             _ => Error {
-                message: unsafe { String::from_utf8_unchecked(buf) },
+                message: String::from_utf8(buf).unwrap_or_default(),
                 kind: ErrorKind::HelpDisplayed,
                 info: None,
             }
@@ -1566,7 +1566,7 @@ impl<'a, 'b> Parser<'a, 'b>
         if no_val && min_vals_zero && !has_eq && needs_eq {
             debugln!("Parser::parse_opt: More arg vals not required...");
             return Ok(ParseResult::ValuesDone);
-        } else if no_val || (mult && !needs_delim) && !has_eq && matcher.needs_more_vals(opt) { 
+        } else if no_val || (mult && !needs_delim) && !has_eq && matcher.needs_more_vals(opt) {
             debugln!("Parser::parse_opt: More arg vals required...");
             return Ok(ParseResult::Opt(opt.b.name));
         }

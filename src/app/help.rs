@@ -850,12 +850,11 @@ impl<'a> Help<'a> {
                 _ => continue,
             };
 
-            debugln!("Help::write_template_help:iter: tag_buf={};", unsafe {
-                String::from_utf8_unchecked(tag_buf.get_ref()[0..tag_length]
-                                                .iter()
-                                                .map(|&i| i)
-                                                .collect::<Vec<_>>())
-            });
+            debugln!(
+                "Help::write_template_help:iter: tag_buf={};",
+                str::from_utf8(&tag_buf.get_ref()[..tag_length])
+                    .unwrap_or_default()
+            );
             match &tag_buf.get_ref()[0..tag_length] {
                 b"?" => {
                     self.writer.write_all(b"Could not decode tag name")?;
