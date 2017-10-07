@@ -16,13 +16,16 @@ use map::VecMap;
 
 // Third Party
 use unicode_width::UnicodeWidthStr;
-#[cfg(feature = "wrap_help")]
-use term_size;
 use textwrap;
 
+#[cfg(feature = "wrap_help")]
+fn term_width() -> usize {
+    textwrap::termwidth()
+}
+
 #[cfg(not(feature = "wrap_help"))]
-mod term_size {
-    pub fn dimensions() -> Option<(usize, usize)> { None }
+fn term_width() -> usize {
+    120
 }
 
 fn str_width(s: &str) -> usize { UnicodeWidthStr::width(s) }
@@ -101,7 +104,7 @@ impl<'a> Help<'a> {
             term_w: match term_w {
                 Some(width) => if width == 0 { usize::MAX } else { width },
                 None => {
-                    cmp::min(term_size::dimensions().map_or(120, |(w, _)| w),
+                    cmp::min(term_width(),
                              match max_w {
                                  None | Some(0) => usize::MAX,
                                  Some(mw) => mw,
