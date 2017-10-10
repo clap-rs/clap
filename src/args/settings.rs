@@ -32,27 +32,27 @@ impl ArgFlags {
     pub fn new() -> Self { ArgFlags::default() }
 
     impl_settings!{ArgSettings,
-        Required => REQUIRED,
-        Multiple => MULTIPLE,
-        EmptyValues => EMPTY_VALS,
-        Global => GLOBAL,
-        Hidden => HIDDEN,
-        TakesValue => TAKES_VAL,
-        UseValueDelimiter => USE_DELIM,
-        NextLineHelp => NEXT_LINE_HELP,
-        RequiredUnlessAll => R_UNLESS_ALL,
-        RequireDelimiter => REQ_DELIM,
-        ValueDelimiterNotSet => DELIM_NOT_SET,
-        HidePossibleValues => HIDE_POS_VALS,
-        AllowLeadingHyphen => ALLOW_TAC_VALS,
-        RequireEquals => REQUIRE_EQUALS,
-        Last => LAST,
-        HideDefaultValue => HIDE_DEFAULT_VAL
+        Required => Flags::REQUIRED,
+        Multiple => Flags::MULTIPLE,
+        EmptyValues => Flags::EMPTY_VALS,
+        Global => Flags::GLOBAL,
+        Hidden => Flags::HIDDEN,
+        TakesValue => Flags::TAKES_VAL,
+        UseValueDelimiter => Flags::USE_DELIM,
+        NextLineHelp => Flags::NEXT_LINE_HELP,
+        RequiredUnlessAll => Flags::R_UNLESS_ALL,
+        RequireDelimiter => Flags::REQ_DELIM,
+        ValueDelimiterNotSet => Flags::DELIM_NOT_SET,
+        HidePossibleValues => Flags::HIDE_POS_VALS,
+        AllowLeadingHyphen => Flags::ALLOW_TAC_VALS,
+        RequireEquals => Flags::REQUIRE_EQUALS,
+        Last => Flags::LAST,
+        HideDefaultValue => Flags::HIDE_DEFAULT_VAL
     }
 }
 
 impl Default for ArgFlags {
-    fn default() -> Self { ArgFlags(EMPTY_VALS | DELIM_NOT_SET) }
+    fn default() -> Self { ArgFlags(Flags::EMPTY_VALS | Flags::DELIM_NOT_SET) }
 }
 
 /// Various settings that apply to arguments and may be set, unset, and checked via getter/setter
