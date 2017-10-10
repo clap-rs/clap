@@ -3,10 +3,10 @@ language: rust
 cache: cargo
 rust:
   - nightly
-  - nightly-2017-06-07
+  - nightly-2017-10-11
   - beta
   - stable
-  - 1.18.0
+  - 1.20.0
 matrix:
     allow_failures:
         - rust: nightly
