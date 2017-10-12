@@ -39,8 +39,8 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
             v: Valued::from(a),
             index: idx,
         };
-        if a.v.max_vals.is_some() || a.v.min_vals.is_some() ||
-            (a.v.num_vals.is_some() && a.v.num_vals.unwrap() > 1)
+        if a.v.max_vals.is_some() || a.v.min_vals.is_some()
+            || (a.v.num_vals.is_some() && a.v.num_vals.unwrap() > 1)
         {
             pb.b.settings.set(ArgSettings::Multiple);
         }
@@ -48,8 +48,8 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
     }
 
     pub fn from_arg(mut a: Arg<'n, 'e>, idx: u64) -> Self {
-        if a.v.max_vals.is_some() || a.v.min_vals.is_some() ||
-            (a.v.num_vals.is_some() && a.v.num_vals.unwrap() > 1)
+        if a.v.max_vals.is_some() || a.v.min_vals.is_some()
+            || (a.v.num_vals.is_some() && a.v.num_vals.unwrap() > 1)
         {
             a.b.settings.set(ArgSettings::Multiple);
         }
@@ -109,8 +109,8 @@ impl<'n, 'e> Display for PosBuilder<'n, 'e> {
         } else {
             write!(f, "<{}>", self.b.name)?;
         }
-        if self.b.settings.is_set(ArgSettings::Multiple) &&
-            (self.v.val_names.is_none() || self.v.val_names.as_ref().unwrap().len() == 1)
+        if self.b.settings.is_set(ArgSettings::Multiple)
+            && (self.v.val_names.is_none() || self.v.val_names.as_ref().unwrap().len() == 1)
         {
             write!(f, "...")?;
         }
@@ -152,11 +152,11 @@ impl<'n, 'e> AnyArg<'n, 'e> for PosBuilder<'n, 'e> {
         self.v.default_vals_ifs.as_ref().map(|vm| vm.values())
     }
     fn default_val(&self) -> Option<&'e OsStr> { self.v.default_val }
-    fn env<'s>(&'s self) -> Option<(&'n OsStr, &'s OsString)> {
+    fn env<'s>(&'s self) -> Option<(&'n OsStr, Option<&'s OsString>)> {
         self.v
             .env
             .as_ref()
-            .map(|&(key, ref value)| (key, value))
+            .map(|&(key, ref value)| (key, value.as_ref()))
     }
     fn longest_filter(&self) -> bool { true }
     fn aliases(&self) -> Option<Vec<&'e str>> { None }

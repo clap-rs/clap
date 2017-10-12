@@ -1,4 +1,5 @@
 // Std
+use std::borrow::Cow;
 use std::cmp;
 use std::collections::BTreeMap;
 use std::fmt::Display;
@@ -501,7 +502,7 @@ impl<'a> Help<'a> {
             spec_vals.push(format!(
                 " [env:{}: {}]",
                 env.0.to_string_lossy(),
-                env.1.to_string_lossy()
+                env.1.map_or(Cow::Borrowed(""), |val| val.to_string_lossy())
             ));
         }
         if !a.is_set(ArgSettings::HideDefaultValue) {

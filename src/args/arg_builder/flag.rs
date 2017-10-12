@@ -89,7 +89,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn default_vals_ifs(&self) -> Option<map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {
         None
     }
-    fn env<'s>(&'s self) -> Option<(&'n OsStr, &'s OsString)> { None }
+    fn env<'s>(&'s self) -> Option<(&'n OsStr, Option<&'s OsString>)> { None }
     fn longest_filter(&self) -> bool { self.s.long.is_some() }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.s.aliases {
