@@ -74,6 +74,12 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
 
     pub fn name_no_brackets(&self) -> Cow<str> {
         debugln!("PosBuilder::name_no_brackets;");
+        let mut delim = String::new();
+        delim.push(if self.is_set(ArgSettings::RequireDelimiter) {
+            self.v.val_delim.expect(INTERNAL_ERROR_MSG)
+        } else {
+            ' '
+        });
         if let Some(ref names) = self.v.val_names {
             debugln!("PosBuilder:name_no_brackets: val_names={:#?}", names);
             if names.len() > 1 {
@@ -82,7 +88,7 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
                         .values()
                         .map(|n| format!("<{}>", n))
                         .collect::<Vec<_>>()
-                        .join(" "),
+                        .join(&&*delim),
                 )
             } else {
                 Cow::Borrowed(names.values().next().expect(INTERNAL_ERROR_MSG))
@@ -96,6 +102,12 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
 
 impl<'n, 'e> Display for PosBuilder<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> Result {
+        let mut delim = String::new();
+        delim.push(if self.is_set(ArgSettings::RequireDelimiter) {
+            self.v.val_delim.expect(INTERNAL_ERROR_MSG)
+        } else {
+            ' '
+        });
         if let Some(ref names) = self.v.val_names {
             write!(
                 f,
@@ -104,7 +116,7 @@ impl<'n, 'e> Display for PosBuilder<'n, 'e> {
                     .values()
                     .map(|n| format!("<{}>", n))
                     .collect::<Vec<_>>()
-                    .join(" ")
+                    .join(&&*delim)
             )?;
         } else {
             write!(f, "<{}>", self.b.name)?;

@@ -6,6 +6,20 @@ include!("../clap-test.rs");
 
 use clap::{App, AppSettings, SubCommand, ErrorKind, Arg};
 
+static REQUIRE_DELIM_HELP: &'static str = "test 1.3
+Kevin K.
+tests stuff
+
+USAGE:
+    test --fake <some>:<val>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -f, --fake <some>:<val>    some help";
+
 static HELP: &'static str = "clap-test v1.4.8
 Kevin K. <kbknapp@gmail.com>
 tests clap library
@@ -1027,4 +1041,15 @@ fn override_help() {
 
     assert!(m.is_ok());
     assert!(m.unwrap().is_present("help"));
+}
+
+#[test]
+fn issue_1052_require_delim_help() {
+    let app = App::new("test")
+        .author("Kevin K.")
+        .about("tests stuff")
+        .version("1.3")
+        .arg(Arg::from_usage("-f, --fake <some> <val> 'some help'").require_delimiter(true).value_delimiter(":"));
+
+    assert!(test::compare_output(app, "test --help", REQUIRE_DELIM_HELP, false));
 }
