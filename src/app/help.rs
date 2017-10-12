@@ -14,6 +14,7 @@ use errors::{Error, Result as ClapResult};
 use fmt::{Colorizer, ColorizerOption, Format};
 use app::usage;
 use map::VecMap;
+use INTERNAL_ERROR_MSG;
 
 // Third Party
 use unicode_width::UnicodeWidthStr;
@@ -315,12 +316,17 @@ impl<'a> Help<'a> {
     fn val<'b, 'c>(&mut self, arg: &ArgWithDisplay<'b, 'c>) -> Result<String, io::Error> {
         debugln!("Help::val: arg={}", arg);
         if arg.takes_value() {
+            let delim = if arg.is_set(ArgSettings::RequireDelimiter) {
+                arg.val_delim().expect(INTERNAL_ERROR_MSG)
+            } else {
+                ' '
+            };
             if let Some(vec) = arg.val_names() {
                 let mut it = vec.iter().peekable();
                 while let Some((_, val)) = it.next() {
                     color!(self, "<{}>", val, good)?;
                     if it.peek().is_some() {
-                        write!(self.writer, " ")?;
+                        write!(self.writer, "{}", delim)?;
                     }
                 }
                 let num = vec.len();
@@ -332,7 +338,7 @@ impl<'a> Help<'a> {
                 while let Some(_) = it.next() {
                     color!(self, "<{}>", arg.name(), good)?;
                     if it.peek().is_some() {
-                        write!(self.writer, " ")?;
+                        write!(self.writer, "{}", delim)?;
                     }
                 }
                 if arg.is_set(ArgSettings::Multiple) && num == 1 {

@@ -8,6 +8,7 @@ use std::mem;
 // Internal
 use args::{AnyArg, Arg, ArgSettings, Base, DispOrder, Switched, Valued};
 use map::{self, VecMap};
+use INTERNAL_ERROR_MSG;
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
@@ -65,6 +66,11 @@ impl<'n, 'e> Display for OptBuilder<'n, 'e> {
         } else {
             write!(f, "-{}{}", self.s.short.unwrap(), sep)?;
         }
+        let delim = if self.is_set(ArgSettings::RequireDelimiter) {
+            self.v.val_delim.expect(INTERNAL_ERROR_MSG)
+        } else {
+            ' '
+        };
 
         // Write the values such as <name1> <name2>
         if let Some(ref vec) = self.v.val_names {
@@ -72,7 +78,7 @@ impl<'n, 'e> Display for OptBuilder<'n, 'e> {
             while let Some((_, val)) = it.next() {
                 write!(f, "<{}>", val)?;
                 if it.peek().is_some() {
-                    write!(f, " ")?;
+                    write!(f, "{}", delim)?;
                 }
             }
             let num = vec.len();
@@ -84,7 +90,7 @@ impl<'n, 'e> Display for OptBuilder<'n, 'e> {
             while let Some(_) = it.next() {
                 write!(f, "<{}>", self.b.name)?;
                 if it.peek().is_some() {
-                    write!(f, " ")?;
+                    write!(f, "{}", delim)?;
                 }
             }
             if self.is_set(ArgSettings::Multiple) && num == 1 {
