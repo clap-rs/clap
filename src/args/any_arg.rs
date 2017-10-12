@@ -33,7 +33,7 @@ pub trait AnyArg<'n, 'e>: std_fmt::Display {
     fn long_help(&self) -> Option<&'e str>;
     fn default_val(&self) -> Option<&'e OsStr>;
     fn default_vals_ifs(&self) -> Option<map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>>;
-    fn env<'s>(&'s self) -> Option<(&'n OsStr, &'s OsString)>;
+    fn env<'s>(&'s self) -> Option<(&'n OsStr, Option<&'s OsString>)>;
     fn longest_filter(&self) -> bool;
     fn val_terminator(&self) -> Option<&'e str>;
 }

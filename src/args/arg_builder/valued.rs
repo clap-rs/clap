@@ -21,7 +21,7 @@ where
     pub val_delim: Option<char>,
     pub default_val: Option<&'b OsStr>,
     pub default_vals_ifs: Option<VecMap<(&'a str, Option<&'b OsStr>, &'b OsStr)>>,
-    pub env: Option<(&'a OsStr, OsString)>,
+    pub env: Option<(&'a OsStr, Option<OsString>)>,
     pub terminator: Option<&'b str>,
 }
 

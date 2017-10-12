@@ -1794,18 +1794,22 @@ impl<'a, 'b> Parser<'a, 'b>
             ($_self:ident, $a:ident, $m:ident) => {
                 if let Some(ref val) = $a.v.env {
                     if $m.get($a.b.name).map(|ma| ma.vals.len()).map(|len| len == 0).unwrap_or(false) {
-                        $_self.add_val_to_arg($a, OsStr::new(&val.1), $m)?;
+                        if let Some(ref val) = val.1 {
+                            $_self.add_val_to_arg($a, OsStr::new(val), $m)?;
 
-                        if $_self.cache.map_or(true, |name| name != $a.name()) {
-                            arg_post_processing!($_self, $a, $m);
-                            $_self.cache = Some($a.name());
+                            if $_self.cache.map_or(true, |name| name != $a.name()) {
+                                arg_post_processing!($_self, $a, $m);
+                                $_self.cache = Some($a.name());
+                            }
                         }
                     } else {
-                        $_self.add_val_to_arg($a, OsStr::new(&val.1), $m)?;
+                        if let Some(ref val) = val.1 {
+                            $_self.add_val_to_arg($a, OsStr::new(val), $m)?;
 
-                        if $_self.cache.map_or(true, |name| name != $a.name()) {
-                            arg_post_processing!($_self, $a, $m);
-                            $_self.cache = Some($a.name());
+                            if $_self.cache.map_or(true, |name| name != $a.name()) {
+                                arg_post_processing!($_self, $a, $m);
+                                $_self.cache = Some($a.name());
+                            }
                         }
                     }
                 }

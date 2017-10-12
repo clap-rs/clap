@@ -3421,7 +3421,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     pub fn env_os(mut self, name: &'a OsStr) -> Self {
         self.setb(ArgSettings::TakesValue);
 
-        self.v.env = env::var_os(name).map(|value| (name, value));
+        self.v.env = Some((name, env::var_os(name)));
         self
     }
 
