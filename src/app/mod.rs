@@ -16,6 +16,7 @@ use std::path::Path;
 use std::process;
 use std::rc::Rc;
 use std::result::Result as StdResult;
+use std::collections::HashMap;
 
 // Third Party
 #[cfg(feature = "yaml")]
@@ -1620,14 +1621,13 @@ impl<'a, 'b> App<'a, 'b> {
         }
 
         if self.p.is_set(AppSettings::PropagateGlobalValuesDown) {
-            // hypothesis: self.p.global_args only has the arg I care about
-            // if it was passed early
-            for a in &self.p.global_args {
-                // DOES propagate(a.b.name) propagate the value?
-                // what globals are available here?
-                debugln!("grepforme the arg was {}", a.b.name);
-                matcher.propagate(a.b.name);
-            }
+            // TODO: get a list of all the argument names, create a vector
+            // from it, and passing that to propagate.
+            let mut global_arg_vec : Vec<&str> = (&self).p.global_args.iter().map(|ga| ga.b.name).collect();
+            let mut global_arg_to_value_map = HashMap::new();
+            matcher.get_global_values(&global_arg_vec, &mut global_arg_to_value_map);
+            matcher.recursive_populate_global_arg_vec(&mut global_arg_vec);
+            //matcher.propagate_globals(global_arg_vec);
         }
 
         Ok(matcher.into())
