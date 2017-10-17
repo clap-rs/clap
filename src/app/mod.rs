@@ -25,7 +25,7 @@ use yaml_rust::Yaml;
 // Internal
 use app::help::Help;
 use app::parser::Parser;
-use args::{AnyArg, Arg, ArgGroup, ArgMatcher, ArgMatches, ArgSettings, MatchedArg};
+use args::{AnyArg, Arg, ArgGroup, ArgMatcher, ArgMatches, ArgSettings, MatchedArg, SubCommand};
 use errors::Result as ClapResult;
 pub use self::settings::AppSettings;
 use completions::Shell;
@@ -1683,6 +1683,21 @@ impl<'a, 'b> App<'a, 'b> {
                                 global_arg_to_value_map.insert(global_arg, sma.vals.clone());
                             }
                         }
+                    }
+                }
+                for global_arg in global_arg_vec.iter() {
+                    let sma = (*sc).matches.args.entry(global_arg).or_insert_with(|| {
+                        let vals = global_arg_to_value_map.get(global_arg).unwrap_or(empty_vec_reference);
+                        let mut gma = MatchedArg::new();
+                        gma.occurs += 1;
+                        if !vals.is_empty() {
+                            gma.vals = vals.clone();
+                        }
+                        gma
+                    });
+                    if sma.vals.is_empty() {
+                        let vals = global_arg_to_value_map.get(global_arg).unwrap_or(empty_vec_reference);
+                        sma.vals = vals.clone();
                     }
                 }
             }
