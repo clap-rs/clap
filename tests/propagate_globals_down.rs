@@ -17,10 +17,11 @@ mod tests {
             .takes_value(true);
         
         let double_sub_command = SubCommand::with_name("outer")
+            .setting(AppSettings::PropagateGlobalValuesDown)
             .subcommand(SubCommand::with_name("inner"));
 
         App::new("myprog")
-            .setting(AppSettings::PropagateGlobalValuesDown)
+            .global_setting(AppSettings::PropagateGlobalValuesDown)
             .arg(global_arg)
             .subcommand(double_sub_command)
     }
