@@ -16,6 +16,7 @@ use std::path::Path;
 use std::process;
 use std::rc::Rc;
 use std::result::Result as StdResult;
+use std::collections::HashMap;
 
 // Third Party
 #[cfg(feature = "yaml")]
@@ -24,7 +25,7 @@ use yaml_rust::Yaml;
 // Internal
 use app::help::Help;
 use app::parser::Parser;
-use args::{AnyArg, Arg, ArgGroup, ArgMatcher, ArgMatches, ArgSettings};
+use args::{AnyArg, Arg, ArgGroup, ArgMatcher, ArgMatches, ArgSettings, MatchedArg, SubCommand};
 use errors::Result as ClapResult;
 pub use self::settings::AppSettings;
 use completions::Shell;
@@ -1620,13 +1621,61 @@ impl<'a, 'b> App<'a, 'b> {
         }
 
         if self.p.is_set(AppSettings::PropagateGlobalValuesDown) {
-            for a in &self.p.global_args {
-                matcher.propagate(a.b.name);
+            let global_arg_vec : Vec<&str> = (&self).p.global_args.iter().map(|ga| ga.b.name).collect();
+            let mut global_arg_to_value_map = HashMap::new();
+            matcher.get_global_values(&global_arg_vec, &mut global_arg_to_value_map);
+            if let Some(ref mut sc) = matcher.0.subcommand {
+                self.handle_subcommand_globals(sc, &mut global_arg_to_value_map, &global_arg_vec);
             }
         }
 
         Ok(matcher.into())
     }
+
+    fn handle_subcommand_globals(&self, subcommand : &mut Box<SubCommand<'a>>, arg_value_map: &mut HashMap<&'a str, Vec<OsString>>, global_arg_vec: &Vec<&'a str>) {
+        let empty_vec_reference = &vec![];
+        for global_arg in global_arg_vec.iter() {
+            let sma = (*subcommand).matches.args.entry(global_arg).or_insert_with(|| {
+                let vals = arg_value_map.get(global_arg).unwrap_or(empty_vec_reference);
+                let mut gma = MatchedArg::new();
+                gma.occurs += 1;
+                if !vals.is_empty() {
+                    gma.vals = vals.clone();
+                }
+                gma
+            });
+            if sma.vals.is_empty() {
+                let vals = arg_value_map.get(global_arg).unwrap_or(empty_vec_reference);
+                sma.vals = vals.clone();
+            } else {
+                arg_value_map.insert(global_arg, sma.vals.clone());
+            }
+        }
+        if let Some(ref mut inner_sub) = subcommand.matches.subcommand {
+            self.handle_subcommand_globals(inner_sub, arg_value_map, global_arg_vec);
+        }
+        self.fill_in_missing_globals(subcommand, arg_value_map, global_arg_vec);
+    }
+
+    fn fill_in_missing_globals(&self, subcommand : &mut Box<SubCommand<'a>>, arg_value_map: &mut HashMap<&'a str, Vec<OsString>>, global_arg_vec: &Vec<&'a str>) {
+        let empty_vec_reference = &vec![];
+        for global_arg in global_arg_vec.iter() {
+            let sma = (*subcommand).matches.args.entry(global_arg).or_insert_with(|| {
+                let vals = arg_value_map.get(global_arg).unwrap_or(empty_vec_reference);
+                let mut gma = MatchedArg::new();
+                gma.occurs += 1;
+                if !vals.is_empty() {
+                    gma.vals = vals.clone();
+                }
+                gma
+            });
+            if sma.vals.is_empty() {
+                let vals = arg_value_map.get(global_arg).unwrap_or(empty_vec_reference);
+                sma.vals = vals.clone();
+            }
+        }
+    }
+
 }
 
 #[cfg(feature = "yaml")]

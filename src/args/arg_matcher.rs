@@ -1,6 +1,8 @@
 // Std
 use std::collections::hash_map::{Entry, Iter};
+use std::collections::HashMap;
 use std::ffi::OsStr;
+use std::ffi::OsString;
 use std::ops::Deref;
 use std::mem;
 
@@ -20,31 +22,15 @@ impl<'a> Default for ArgMatcher<'a> {
 impl<'a> ArgMatcher<'a> {
     pub fn new() -> Self { ArgMatcher::default() }
 
-    pub fn propagate(&mut self, arg: &'a str) {
-        debugln!("ArgMatcher::propagate: arg={}", arg);
-        let vals: Vec<_> = if let Some(ma) = self.get(arg) {
-            ma.vals.clone()
-        } else {
-            debugln!("ArgMatcher::propagate: arg wasn't used");
-            return;
-        };
-        if let Some(ref mut sc) = self.0.subcommand {
-            {
-                let sma = (*sc).matches.args.entry(arg).or_insert_with(|| {
-                    let mut gma = MatchedArg::new();
-                    gma.occurs += 1;
-                    gma.vals = vals.clone();
-                    gma
-                });
-                if sma.vals.is_empty() {
-                    sma.vals = vals.clone();
-                }
-            }
-            let mut am = ArgMatcher(mem::replace(&mut sc.matches, ArgMatches::new()));
-            am.propagate(arg);
-            mem::swap(&mut am.0, &mut sc.matches);
-        } else {
-            debugln!("ArgMatcher::propagate: Subcommand wasn't used");
+    pub fn get_global_values(&mut self, global_arg_vec : &Vec<&'a str>, vals_map: &mut HashMap<&'a str, Vec<OsString>>) {
+        for global_arg in global_arg_vec.iter() {
+            let vals: Vec<_> = if let Some(ma) = self.get(global_arg) {
+                ma.vals.clone()
+            } else {
+                debugln!("ArgMatcher::propagate: arg wasn't used");
+                Vec::new()
+            };
+            vals_map.insert(global_arg, vals);
         }
     }
 
