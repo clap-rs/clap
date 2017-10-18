@@ -829,7 +829,6 @@ impl<'a, 'b> Parser<'a, 'b>
         let mut subcmd_name: Option<String> = None;
         let mut needs_val_of: ParseResult<'a> = ParseResult::NotFound;
         let mut pos_counter = 1;
-        // we traverse the args in a loop in order
         while let Some(arg) = it.next() {
             let arg_os = arg.into();
             debugln!("Parser::get_matches_with: Begin parsing '{:?}' ({:?})",
@@ -850,7 +849,6 @@ impl<'a, 'b> Parser<'a, 'b>
                 // Does the arg match a subcommand name, or any of it's aliases (if defined)
                 {
                     let (is_match, sc_name) = self.possible_subcommand(&arg_os);
-
                     debugln!("Parser::get_matches_with: possible_sc={:?}, sc={:?}",
                              is_match,
                              sc_name);
@@ -1072,7 +1070,7 @@ impl<'a, 'b> Parser<'a, 'b>
                            info: None,
                        });
         }
-        
+
         Validator::new(self).validate(needs_val_of, subcmd_name, matcher)
     }
 
