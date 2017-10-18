@@ -1707,6 +1707,50 @@ impl<'a, 'b> App<'a, 'b> {
         Ok(matcher.into())
     }
 
+    fn handle_subcommand_globals(&self, subcommand : &mut Box<SubCommand<'a>>, arg_value_map: &mut HashMap<&'a str, Vec<OsString>>, global_arg_vec: &Vec<&'a str>) {
+        let empty_vec_reference = &vec![];
+        for global_arg in global_arg_vec.iter() {
+            let sma = (*subcommand).matches.args.entry(global_arg).or_insert_with(|| {
+                let vals = arg_value_map.get(global_arg).unwrap_or(empty_vec_reference);
+                let mut gma = MatchedArg::new();
+                gma.occurs += 1;
+                if !vals.is_empty() {
+                    gma.vals = vals.clone();
+                }
+                gma
+            });
+            if sma.vals.is_empty() {
+                let vals = arg_value_map.get(global_arg).unwrap_or(empty_vec_reference);
+                sma.vals = vals.clone();
+            } else {
+                arg_value_map.insert(global_arg, sma.vals.clone());
+            }
+        }
+        if let Some(ref mut inner_sub) = subcommand.matches.subcommand {
+            self.handle_subcommand_globals(inner_sub, arg_value_map, global_arg_vec);
+        }
+        self.fill_in_missing_globals(subcommand, arg_value_map, global_arg_vec);
+    }
+
+    fn fill_in_missing_globals(&self, subcommand : &mut Box<SubCommand<'a>>, arg_value_map: &mut HashMap<&'a str, Vec<OsString>>, global_arg_vec: &Vec<&'a str>) {
+        let empty_vec_reference = &vec![];
+        for global_arg in global_arg_vec.iter() {
+            let sma = (*subcommand).matches.args.entry(global_arg).or_insert_with(|| {
+                let vals = arg_value_map.get(global_arg).unwrap_or(empty_vec_reference);
+                let mut gma = MatchedArg::new();
+                gma.occurs += 1;
+                if !vals.is_empty() {
+                    gma.vals = vals.clone();
+                }
+                gma
+            });
+            if sma.vals.is_empty() {
+                let vals = arg_value_map.get(global_arg).unwrap_or(empty_vec_reference);
+                sma.vals = vals.clone();
+            }
+        }
+    }
+
 }
 
 #[cfg(feature = "yaml")]
