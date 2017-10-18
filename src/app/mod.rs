@@ -1621,8 +1621,6 @@ impl<'a, 'b> App<'a, 'b> {
         }
 
         if self.p.is_set(AppSettings::PropagateGlobalValuesDown) {
-            // TODO: get a list of all the argument names, create a vector
-            // from it, and passing that to propagate.
             let global_arg_vec : Vec<&str> = (&self).p.global_args.iter().map(|ga| ga.b.name).collect();
             let mut global_arg_to_value_map = HashMap::new();
             matcher.get_global_values(&global_arg_vec, &mut global_arg_to_value_map);

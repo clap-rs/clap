@@ -22,95 +22,17 @@ impl<'a> Default for ArgMatcher<'a> {
 impl<'a> ArgMatcher<'a> {
     pub fn new() -> Self { ArgMatcher::default() }
 
-    // TODO: maybe this would work better as a while loop
-    // than as a recursive call, so that we can push subcommands
-    // onto a stack and gather values from them as we go, then
-    // pop the stack and set values as needed
     pub fn get_global_values(&mut self, global_arg_vec : &Vec<&'a str>, vals_map: &mut HashMap<&'a str, Vec<OsString>>) {
         for global_arg in global_arg_vec.iter() {
             let vals: Vec<_> = if let Some(ma) = self.get(global_arg) {
                 ma.vals.clone()
             } else {
                 debugln!("ArgMatcher::propagate: arg wasn't used");
-                //return; // we can't return early because some subcommand might
-                // TODO: can we start returning early again if we
                 Vec::new()
             };
             vals_map.insert(global_arg, vals);
         }
     }
-
-
-    // pub fn propagate_globals(&mut self, global_arg_vec: Vec<&'a str>) {
-    //     debugln!("ArgMatcher::propagate: arg={}", arg);
-    //     // we need to decide which subcommands were actually used by asking
-    //     // each successive subcommand for the next subcommand
-    //     let mut subcommand_stack : Vec<Box<SubCommand>> = vec![];
-
-
-    //     //let mut am : &mut ArgMatcher;
-    //     if let Some(ref mut sc) = self.0.subcommand {
-    //         let mut found_subcommand = sc.clone();
-    //         let mut unboxed_sub : SubCommand = *found_subcommand;
-    //         subcommand_stack.push(Box::new(unboxed_sub.clone()));
-    //         let mut option_sub = unboxed_sub.matches.subcommand().1;
-    //         while let Some(ref mut new_arg_matches) = option_sub {
-    //             if let Some(ref new_subcommand) = new_arg_matches.subcommand {
-    //                 subcommand_stack.push(Box::new(*new_subcommand.clone()));
-    //                 option_sub = Some(&new_subcommand.matches);
-    //             }
-    //         }
-    //     }
-    //     // TODO make a new matcher and propagate 
-    //     for boxed_sub in subcommand_stack.iter() {
-    //         let mut unboxed_sub = &*boxed_sub;
-    //         let mut ix: usize = 0; 
-    //         for global_arg in global_arg_vec.iter() {
-    //             let vals = &vals_vec[ix];
-                
-    //             let sma = (unboxed_sub).matches.args.entry(global_arg).or_insert_with(|| {
-    //                     let mut gma = MatchedArg::new();
-    //                     gma.occurs += 1;
-    //                     if !vals.is_empty() {
-    //                         gma.vals = *vals.clone();
-    //                     }
-    //                     gma
-    //             });
-    //             if sma.vals.is_empty() {
-    //                     sma.vals = *vals.clone();
-    //             }
-    //             ix += 1; 
-    //         }
-
-    //         //let mut am = //&mut ArgMatcher(mem::replace(&mut sc.matches, ArgMatches::new()));
-    //         let mut am = ArgMatcher(ArgMatches::new());
-    //         mem::swap(&mut am.0, &mut unboxed_sub.matches);
-    //     }
-
-    //     // for arg in global_arg_vec {
-
-    //     //     if let Some(ref mut sc) = self.0.subcommand {
-    //     //         {
-    //     //             let sma = (*sc).matches.args.entry(arg).or_insert_with(|| {
-    //     //                 let mut gma = MatchedArg::new();
-    //     //                 gma.occurs += 1;
-    //     //                 if !vals.is_empty() {
-    //     //                     gma.vals = vals.clone();
-    //     //                 }
-    //     //                 gma
-    //     //             });
-    //     //             if sma.vals.is_empty() {
-    //     //                 sma.vals = vals.clone();
-    //     //             }
-    //     //         }
-    //     //         let mut am = ArgMatcher(mem::replace(&mut sc.matches, ArgMatches::new()));
-    //     //         am.propagate(global_arg_vec.clone());
-    //     //         mem::swap(&mut am.0, &mut sc.matches);
-    //     //     } else {
-    //     //         debugln!("ArgMatcher::propagate: Subcommand wasn't used");
-    //     //     }
-    //     // }
-    // }
 
     pub fn get_mut(&mut self, arg: &str) -> Option<&mut MatchedArg> { self.0.args.get_mut(arg) }
 

@@ -1072,10 +1072,7 @@ impl<'a, 'b> Parser<'a, 'b>
                            info: None,
                        });
         }
-        // FIXME: this makes the globals exist more than once
-        // if self.settings.is_set(AS::PropagateGlobalValuesDown) {
-        //     self.propogate_globals();
-        // }
+        
         Validator::new(self).validate(needs_val_of, subcmd_name, matcher)
     }
 
