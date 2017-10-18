@@ -1627,81 +1627,8 @@ impl<'a, 'b> App<'a, 'b> {
             let mut global_arg_to_value_map = HashMap::new();
             matcher.get_global_values(&global_arg_vec, &mut global_arg_to_value_map);
             if let Some(ref mut sc) = matcher.0.subcommand {
-                // TODO: recursively get global values
-                let empty_vec_reference = &vec![];
-                for global_arg in global_arg_vec.iter() {
-                    let sma = (*sc).matches.args.entry(global_arg).or_insert_with(|| {
-                        let vals = global_arg_to_value_map.get(global_arg).unwrap_or(empty_vec_reference);
-                        let mut gma = MatchedArg::new();
-                        gma.occurs += 1;
-                        if !vals.is_empty() {
-                            gma.vals = vals.clone();
-                        }
-                        gma
-                    });
-                    if sma.vals.is_empty() {
-                        let vals = global_arg_to_value_map.get(global_arg).unwrap_or(empty_vec_reference);
-                        sma.vals = vals.clone();
-                    } else {
-                        global_arg_to_value_map.insert(global_arg, sma.vals.clone());
-                    }
-                }
-                // TODO: nothing sends the global args here back up. 
-                if let Some(ref mut inner_sub) = sc.matches.subcommand {
-                    for global_arg in global_arg_vec.iter() {
-                        let sma = (*inner_sub).matches.args.entry(global_arg).or_insert_with(|| {
-                            let vals = global_arg_to_value_map.get(global_arg).unwrap_or(empty_vec_reference);
-                            let mut gma = MatchedArg::new();
-                            gma.occurs += 1;
-                            if !vals.is_empty() {
-                                gma.vals = vals.clone();
-                            }
-                            gma
-                        });
-                        if sma.vals.is_empty() {
-                            let vals = global_arg_to_value_map.get(global_arg).unwrap_or(empty_vec_reference);
-                            sma.vals = vals.clone();
-                        } else {
-                            global_arg_to_value_map.insert(global_arg, sma.vals.clone());
-                        }
-                    }
-                    if let Some(ref mut inner_inner_sub) = inner_sub.matches.subcommand {
-                        for global_arg in global_arg_vec.iter() {
-                            let sma = (*inner_inner_sub).matches.args.entry(global_arg).or_insert_with(|| {
-                                let vals = global_arg_to_value_map.get(global_arg).unwrap_or(empty_vec_reference);
-                                let mut gma = MatchedArg::new();
-                                gma.occurs += 1;
-                                if !vals.is_empty() {
-                                    gma.vals = vals.clone();
-                                }
-                                gma
-                            });
-                            if sma.vals.is_empty() {
-                                let vals = global_arg_to_value_map.get(global_arg).unwrap_or(empty_vec_reference);
-                                sma.vals = vals.clone();
-                            } else {
-                                global_arg_to_value_map.insert(global_arg, sma.vals.clone());
-                            }
-                        }
-                    }
-                }
-                for global_arg in global_arg_vec.iter() {
-                    let sma = (*sc).matches.args.entry(global_arg).or_insert_with(|| {
-                        let vals = global_arg_to_value_map.get(global_arg).unwrap_or(empty_vec_reference);
-                        let mut gma = MatchedArg::new();
-                        gma.occurs += 1;
-                        if !vals.is_empty() {
-                            gma.vals = vals.clone();
-                        }
-                        gma
-                    });
-                    if sma.vals.is_empty() {
-                        let vals = global_arg_to_value_map.get(global_arg).unwrap_or(empty_vec_reference);
-                        sma.vals = vals.clone();
-                    }
-                }
+                self.handle_subcommand_globals(sc, &mut global_arg_to_value_map, &global_arg_vec);
             }
-            //matcher.propagate_globals(global_arg_vec);
         }
 
         Ok(matcher.into())
