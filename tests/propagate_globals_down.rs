@@ -27,7 +27,7 @@ mod tests {
             .subcommand(double_sub_command)
     }
 
-    fn first_subcommand_can_access_global(arg_vector : Vec<&str>, expected_value: &str) {
+    fn first_subcommand_can_access_global(arg_vector : Vec<&str>, expected: &str) {
         let matches = setup_app_with_globals_and_subcommands().get_matches_from(
             arg_vector
         );
@@ -35,7 +35,7 @@ mod tests {
         let sub_match = matches.subcommand_matches("outer").expect("could not access subcommand");
 
         assert_eq!(sub_match.value_of("GLOBAL_ARG").expect("subcommand could not access global arg"), 
-                    expected_value, "subcommand did not have expected value for global arg");
+                    expected, "subcommand did not have expected value for global arg");
 
     }
 
