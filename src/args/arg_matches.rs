@@ -473,9 +473,9 @@ impl<'a> ArgMatches<'a> {
     ///      .get_matches();
     ///
     /// match app_m.subcommand() {
-    ///     ("clone",  Some(sub_m)) => {}, // clone was used
-    ///     ("push",   Some(sub_m)) => {}, // push was used
-    ///     ("commit", Some(sub_m)) => {}, // commit was used
+    ///     Some(("clone",  sub_m)) => {}, // clone was used
+    ///     Some(("push",   sub_m)) => {}, // push was used
+    ///     Some(("commit", sub_m)) => {}, // commit was used
     ///     _                       => {}, // Either no subcommand or one not tested for...
     /// }
     /// ```
@@ -496,7 +496,7 @@ impl<'a> ArgMatches<'a> {
     /// // All trailing arguments will be stored under the subcommand's sub-matches using an empty
     /// // string argument name
     /// match app_m.subcommand() {
-    ///     (external, Some(sub_m)) => {
+    ///     Some((external, sub_m)) => {
     ///          let ext_args: Vec<&str> = sub_m.values_of("").unwrap().collect();
     ///          assert_eq!(external, "subcmd");
     ///          assert_eq!(ext_args, ["--option", "value", "-fff", "--flag"]);
@@ -506,8 +506,8 @@ impl<'a> ArgMatches<'a> {
     /// ```
     /// [`ArgMatches::subcommand_matches`]: ./struct.ArgMatches.html#method.subcommand_matches
     /// [`ArgMatches::subcommand_name`]: ./struct.ArgMatches.html#method.subcommand_name
-    pub fn subcommand(&self) -> (&str, Option<&ArgMatches<'a>>) {
-        self.subcommand.as_ref().map_or(("", None), |sc| (&sc.name[..], Some(&sc.matches)))
+    pub fn subcommand(&self) -> Option<(&str, &ArgMatches<'a>)> {
+        self.subcommand.as_ref().map_or(None, |sc| Some((&sc.name[..], &sc.matches)))
     }
 
     /// Returns a string slice of the usage statement for the [`App`] or [`SubCommand`]

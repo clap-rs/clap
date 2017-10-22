@@ -35,7 +35,7 @@ fn main() {
     }
 
     match matches.subcommand() {
-        ("test", _) => println!("The 'test' subcommand was used"),
+        Some(("test", _)) => println!("The 'test' subcommand was used"),
         _           => unreachable!()
     }
 }

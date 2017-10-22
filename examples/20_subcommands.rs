@@ -114,28 +114,28 @@ fn main() {
     // The most common way to handle subcommands is via a combined approach using
     // `ArgMatches::subcommand` which returns a tuple of both the name and matches
     match matches.subcommand() {
-        ("clone", Some(clone_matches)) =>{
+        Some(("clone", clone_matches)) =>{
             // Now we have a reference to clone's matches
             println!("Cloning {}", clone_matches.value_of("repo").unwrap());
         },
-        ("push", Some(push_matches)) =>{
+        Some(("push", push_matches)) =>{
             // Now we have a reference to push's matches
             match push_matches.subcommand() {
-                ("remote", Some(remote_matches)) =>{
+                Some(("remote", remote_matches)) =>{
                     // Now we have a reference to remote's matches
                     println!("Pushing to {}", remote_matches.value_of("repo").unwrap());
                 },
-                ("local", Some(_)) =>{
+                Some(("local", _)) =>{
                     println!("'git push local' was used");
                 },
                 _            => unreachable!(),
             }
         },
-        ("add", Some(add_matches)) =>{
+        Some(("add", add_matches)) =>{
             // Now we have a reference to add's matches
             println!("Adding {}", add_matches.values_of("stuff").unwrap().collect::<Vec<_>>().join(", "));
         },
-        ("", None)   => println!("No subcommand was used"), // If no subcommand was usd it'll match the tuple ("", None)
+        None => println!("No subcommand was used"), // If no subcommand was usd it'll match the tuple ("", None)
         _            => unreachable!(), // If all subcommands are defined above, anything else is unreachabe!()
     }
 
