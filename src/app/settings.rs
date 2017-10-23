@@ -41,7 +41,7 @@ bitflags! {
         const ALLOW_MISSING_POS    = 1 << 33;
         const TRAILING_VALUES      = 1 << 34;
         const VALID_NEG_NUM_FOUND  = 1 << 35;
-        const PROPOGATED           = 1 << 36;
+        const PROPAGATED           = 1 << 36;
         const VALID_ARG_FOUND      = 1 << 37;
         const INFER_SUBCOMMANDS    = 1 << 38;
         const CONTAINS_LAST        = 1 << 39;
@@ -103,7 +103,7 @@ impl AppFlags {
         WaitOnError => WAIT_ON_ERROR,
         TrailingValues => TRAILING_VALUES,
         ValidNegNumFound => VALID_NEG_NUM_FOUND,
-        Propogated => PROPOGATED,
+        Propagated => PROPAGATED,
         ValidArgFound => VALID_ARG_FOUND,
         InferSubcommands => INFER_SUBCOMMANDS,
         ContainsLast => CONTAINS_LAST
@@ -856,7 +856,7 @@ pub enum AppSettings {
     ValidNegNumFound,
 
     #[doc(hidden)]
-    Propogated,
+    Propagated,
 
     #[doc(hidden)]
     ValidArgFound,
@@ -901,7 +901,7 @@ impl FromStr for AppSettings {
             "waitonerror" => Ok(AppSettings::WaitOnError),
             "validnegnumfound" => Ok(AppSettings::ValidNegNumFound),
             "validargfound" => Ok(AppSettings::ValidArgFound),
-            "propogated" => Ok(AppSettings::Propogated),
+            "propagated" => Ok(AppSettings::Propagated),
             "trailingvalues" => Ok(AppSettings::TrailingValues),
             _ => Err("unknown AppSetting, cannot convert from str".to_owned()),
         }
@@ -976,8 +976,8 @@ mod test {
                    AppSettings::ValidNegNumFound);
         assert_eq!("validargfound".parse::<AppSettings>().unwrap(),
                    AppSettings::ValidArgFound);
-        assert_eq!("propogated".parse::<AppSettings>().unwrap(),
-                   AppSettings::Propogated);
+        assert_eq!("propagated".parse::<AppSettings>().unwrap(),
+                   AppSettings::Propagated);
         assert_eq!("trailingvalues".parse::<AppSettings>().unwrap(),
                    AppSettings::TrailingValues);
         assert_eq!("infersubcommands".parse::<AppSettings>().unwrap(),

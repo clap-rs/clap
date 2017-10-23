@@ -2,7 +2,6 @@
 use std::collections::hash_map::{Entry, Iter};
 use std::collections::HashMap;
 use std::ffi::OsStr;
-use std::ffi::OsString;
 use std::ops::Deref;
 use std::mem;
 
