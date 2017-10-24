@@ -86,3 +86,17 @@ fn conflict_output() {
 fn conflict_output_rev() {
     test::compare_output(test::complex_app(), "clap-test val1 -F --long-option-2 val2 --flag", CONFLICT_ERR_REV, true);
 }
+
+#[test]
+fn conflict_with_unused_default_value() {
+    let result = App::new("conflict")
+        .arg(Arg::from_usage("-o, --opt=[opt] 'some opt'")
+            .default_value("default"))
+        .arg(Arg::from_usage("-f, --flag 'some flag'")
+            .conflicts_with("opt"))
+        .get_matches_from_safe(vec!["myprog", "-f"]);
+    assert!(result.is_ok());
+    let m = result.unwrap();
+    assert_eq!(m.value_of("opt"), Some("default"));
+    assert!(m.is_present("flag"));
+}
