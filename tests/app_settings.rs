@@ -81,7 +81,7 @@ fn global_version() {
         .setting(AppSettings::GlobalVersion)
         .version("1.1")
         .subcommand(SubCommand::with_name("sub1"));
-    app.p.propogate_settings();
+    app.p.propagate_settings();
     assert_eq!(app.p.subcommands[0].p.meta.version, Some("1.1"));
 }
 
@@ -287,7 +287,7 @@ fn global_setting() {
     let mut app = App::new("test")
         .global_setting(AppSettings::ColoredHelp)
         .subcommand(SubCommand::with_name("subcmd"));
-    app.p.propogate_settings();
+    app.p.propagate_settings();
     assert!(app.p
                .subcommands
                .iter()
@@ -305,7 +305,7 @@ fn global_settings() {
     let mut app = App::new("test")
         .global_settings(&[AppSettings::ColoredHelp, AppSettings::TrailingVarArg])
         .subcommand(SubCommand::with_name("subcmd"));
-    app.p.propogate_settings();
+    app.p.propagate_settings();
     assert!(app.p
                .subcommands
                .iter()
@@ -597,7 +597,6 @@ fn args_negate_subcommands_two_levels() {
 #[test]
 fn propagate_vals_down() {
     let m = App::new("myprog")
-        .setting(AppSettings::PropagateGlobalValuesDown)
         .arg(Arg::from_usage("[cmd] 'command to run'").global(true))
         .subcommand(SubCommand::with_name("foo"))
         .get_matches_from_safe(vec!["myprog", "set", "foo"]);

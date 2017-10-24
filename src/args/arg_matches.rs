@@ -179,7 +179,7 @@ impl<'a> ArgMatches<'a> {
     pub fn value_of_os<S: AsRef<str>>(&self, name: S) -> Option<&OsStr> {
         self.args
             .get(name.as_ref())
-            .map_or(None, |arg| arg.vals.get(0).map(|v| v.as_os_str()))
+            .and_then(|arg| arg.vals.get(0).map(|v| v.as_os_str()))
     }
 
     /// Gets a [`Values`] struct which implements [`Iterator`] for values of a specific argument

@@ -96,12 +96,12 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     pub fn gen_completions_to<W: Write>(&mut self, for_shell: Shell, buf: &mut W) {
-        if !self.is_set(AS::Propogated) {
-            self.propogate_help_version();
+        if !self.is_set(AS::Propagated) {
+            self.propagate_help_version();
             self.build_bin_names();
-            self.propogate_globals();
-            self.propogate_settings();
-            self.set(AS::Propogated);
+            self.propagate_globals();
+            self.propagate_settings();
+            self.set(AS::Propagated);
         }
 
         ComplGen::new(self).generate(for_shell, buf)
@@ -366,12 +366,12 @@ impl<'a, 'b> Parser<'a, 'b>
         self.subcommands.push(subcmd);
     }
 
-    pub fn propogate_settings(&mut self) {
-        debugln!("Parser::propogate_settings: self={}, g_settings={:#?}",
+    pub fn propagate_settings(&mut self) {
+        debugln!("Parser::propagate_settings: self={}, g_settings={:#?}",
                  self.meta.name,
                  self.g_settings);
         for sc in &mut self.subcommands {
-            debugln!("Parser::propogate_settings: sc={}, settings={:#?}, g_settings={:#?}",
+            debugln!("Parser::propagate_settings: sc={}, settings={:#?}, g_settings={:#?}",
                      sc.p.meta.name,
                      sc.p.settings,
                      sc.p.g_settings);
@@ -393,7 +393,7 @@ impl<'a, 'b> Parser<'a, 'b>
                 sc.p.meta.term_w = self.meta.term_w;
                 sc.p.meta.max_w = self.meta.max_w;
             }
-            sc.p.propogate_settings();
+            sc.p.propagate_settings();
         }
     }
 
@@ -607,7 +607,7 @@ impl<'a, 'b> Parser<'a, 'b>
         true
     }
 
-    pub fn propogate_globals(&mut self) {
+    pub fn propagate_globals(&mut self) {
         for sc in &mut self.subcommands {
             // We have to create a new scope in order to tell rustc the borrow of `sc` is
             // done and to recursively call this method
@@ -616,7 +616,7 @@ impl<'a, 'b> Parser<'a, 'b>
                     sc.p.add_arg_ref(a);
                 }
             }
-            sc.p.propogate_globals();
+            sc.p.propagate_globals();
         }
     }
 
@@ -1075,11 +1075,11 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
 
-    fn propogate_help_version(&mut self) {
-        debugln!("Parser::propogate_help_version;");
+    fn propagate_help_version(&mut self) {
+        debugln!("Parser::propagate_help_version;");
         self.create_help_and_version();
         for sc in &mut self.subcommands {
-            sc.p.propogate_help_version();
+            sc.p.propagate_help_version();
         }
     }
 
@@ -1332,17 +1332,14 @@ impl<'a, 'b> Parser<'a, 'b>
         Ok(())
     }
 
-    #[cfg_attr(feature = "cargo-clippy", allow(let_and_return))]
     fn use_long_help(&self) -> bool {
-        let ul = self.meta.long_about.is_some() ||
+        self.meta.long_about.is_some() ||
                  self.flags.iter().any(|f| f.b.long_help.is_some()) ||
                  self.opts.iter().any(|o| o.b.long_help.is_some()) ||
                  self.positionals.values().any(|p| p.b.long_help.is_some()) ||
                  self.subcommands
                      .iter()
-                     .any(|s| s.p.meta.long_about.is_some());
-        debugln!("Parser::use_long_help: ret={:?}", ul);
-        ul
+                     .any(|s| s.p.meta.long_about.is_some())
     }
 
     fn _help(&self, mut use_long: bool) -> Error {

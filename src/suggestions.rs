@@ -67,7 +67,7 @@ pub fn did_you_mean_flag_suffix<'z, T, I>(arg: &str, longs: I, subcommands: &'z 
             }
         }
     }
-    return (String::new(), None)
+    (String::new(), None)
 }
 
 /// Returns a suffix that can be empty, or is the standard 'did you mean' phrase

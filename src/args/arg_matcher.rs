@@ -2,7 +2,6 @@
 use std::collections::hash_map::{Entry, Iter};
 use std::collections::HashMap;
 use std::ffi::OsStr;
-use std::ffi::OsString;
 use std::ops::Deref;
 use std::mem;
 
@@ -22,15 +21,45 @@ impl<'a> Default for ArgMatcher<'a> {
 impl<'a> ArgMatcher<'a> {
     pub fn new() -> Self { ArgMatcher::default() }
 
-    pub fn get_global_values(&mut self, global_arg_vec : &Vec<&'a str>, vals_map: &mut HashMap<&'a str, Vec<OsString>>) {
-        for global_arg in global_arg_vec.iter() {
-            let vals: Vec<_> = if let Some(ma) = self.get(global_arg) {
-                ma.vals.clone()
-            } else {
-                debugln!("ArgMatcher::propagate: arg wasn't used");
-                Vec::new()
-            };
-            vals_map.insert(global_arg, vals);
+    pub fn propagate_globals(&mut self, global_arg_vec : &[&'a str]) {
+        debugln!("ArgMatcher::get_global_values: global_arg_vec={:?}", global_arg_vec);
+        let mut vals_map = HashMap::new();
+        self.fill_in_global_values(global_arg_vec, &mut vals_map);
+    }
+
+    fn fill_in_global_values(
+        &mut self, 
+        global_arg_vec: &[&'a str], 
+        vals_map: &mut HashMap<&'a str, MatchedArg> 
+    ) {
+        for global_arg in global_arg_vec {
+            if let Some(ma) = self.get(global_arg) {
+                // We have to check if the parent's global arg wasn't used but still exists
+                // such as from a default value.
+                //
+                // For example, `myprog subcommand --global-arg=value` where --global-arg defines
+                // a default value of `other` myprog would have an existing MatchedArg for
+                // --global-arg where the value is `other`, however the occurs will be 0.
+                let to_update = if let Some(parent_ma) = vals_map.get(global_arg) {
+                    if parent_ma.occurs > 0 && ma.occurs == 0 {
+                        parent_ma.clone()
+                    } else {
+                        ma.clone()
+                    }
+                } else {
+                    ma.clone()
+                };
+                vals_map.insert(global_arg, to_update);
+            }
+        }
+        if let Some(ref mut sc) = self.0.subcommand {
+            let mut am = ArgMatcher(mem::replace(&mut sc.matches, ArgMatches::new()));
+            am.fill_in_global_values(global_arg_vec, vals_map);
+            mem::swap(&mut am.0, &mut sc.matches);
+        }
+
+        for (name, matched_arg) in vals_map.into_iter() {
+            self.0.args.insert(name, matched_arg.clone());
         }
     }
 

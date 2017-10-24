@@ -88,7 +88,7 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
                         .values()
                         .map(|n| format!("<{}>", n))
                         .collect::<Vec<_>>()
-                        .join(&&*delim),
+                        .join(&*delim),
                 )
             } else {
                 Cow::Borrowed(names.values().next().expect(INTERNAL_ERROR_MSG))
@@ -116,7 +116,7 @@ impl<'n, 'e> Display for PosBuilder<'n, 'e> {
                     .values()
                     .map(|n| format!("<{}>", n))
                     .collect::<Vec<_>>()
-                    .join(&&*delim)
+                    .join(&*delim)
             )?;
         } else {
             write!(f, "<{}>", self.b.name)?;

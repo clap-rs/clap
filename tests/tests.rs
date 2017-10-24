@@ -9,7 +9,7 @@ include!("../clap-test.rs");
 
 use clap::{App, Arg};
 
-static SCF2OP: &'static str = "flag NOT present
+static SCF2OP: &'static str = "flag present 2 times
 option NOT present
 positional NOT present
 flag2 NOT present
@@ -26,7 +26,7 @@ An scoption: some
 scpositional present with value: value
 ";
 
-static SCFOP: &'static str = "flag NOT present
+static SCFOP: &'static str = "flag present 1 times
 option NOT present
 positional NOT present
 flag2 NOT present
