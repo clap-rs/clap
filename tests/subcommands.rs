@@ -164,3 +164,28 @@ fn invisible_aliases_help_output() {
             .alias("invisible"));
     assert!(test::compare_output(app, "clap-test --help", INVISIBLE_ALIAS_HELP, false));
 }
+
+#[test]
+fn issue_1031_args_with_same_name() {
+    let res = App::new("prog")
+        .arg(Arg::from_usage("--ui-path=<PATH>"))
+        .subcommand(SubCommand::with_name("signer"))
+        .get_matches_from_safe(vec!["prog", "--ui-path", "signer"]);
+
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
+    let m = res.unwrap();
+    assert_eq!(m.value_of("ui-path"), Some("signer"));
+}
+
+#[test]
+fn issue_1031_args_with_same_name_no_more_vals() {
+    let res = App::new("prog")
+        .arg(Arg::from_usage("--ui-path=<PATH>"))
+        .subcommand(SubCommand::with_name("signer"))
+        .get_matches_from_safe(vec!["prog", "--ui-path", "value", "signer"]);
+
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
+    let m = res.unwrap();
+    assert_eq!(m.value_of("ui-path"), Some("value"));
+    assert_eq!(m.subcommand_name(), Some("signer"));
+}
