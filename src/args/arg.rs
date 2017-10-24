@@ -1891,11 +1891,11 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// **WARNING:**
     ///
     /// Setting `multiple(true)` for an [option] with no other details, allows multiple values
-    /// **and** multiple occurrences because it isn't possible to have more occurrences than values for
-    /// options. Because multiple values are allowed, `--option val1 val2 val3` is perfectly valid,
-    /// be careful when designing a CLI where positional arguments are expected after a option which
-    /// accepts multiple values, as `clap` will continue parsing *values* until it reaches the max
-    /// or specific number of values defined, or another flag or option.
+    /// **and** multiple occurrences because it isn't possible to have more occurrences than values 
+    /// for options. Because multiple values are allowed, `--option val1 val2 val3` is perfectly 
+    /// valid, be careful when designing a CLI where positional arguments are expected after a 
+    /// option which accepts multiple values, as `clap` will continue parsing *values* until it 
+    /// reaches the max or specific number of values defined, or another flag or option.
     ///
     /// **Pro Tip**:
     ///
@@ -1903,6 +1903,36 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// occurrence. To do this use [`Arg::number_of_values(1)`] in coordination with
     /// [`Arg::multiple(true)`].
     ///
+    /// **WARNING:**
+    /// 
+    /// When using args with `multiple(true)` on [options] or [positionals] (i.e. those args that
+    /// accept values) and [subcommands], one needs to consider the posibility of an argument value
+    /// being the same as a valid subcommand. By default `clap` will parse the argument in question
+    /// as a value *only if* a value is possible at that moment. Otherwise it will be parsed as a
+    /// subcommand. In effect, this means using `multiple(true)` with no additional parameters and
+    /// a possible value that coincides with a subcommand name, the subcommand cannot be called 
+    /// unless another argument is passed first.
+    /// 
+    /// As an example, consider a CLI with an option `--ui-paths=<paths>...` and subcommand `signer`
+    /// 
+    /// The following would be parsed as values to `--ui-paths`.
+    /// 
+    /// ```notrust
+    /// $ program --ui-paths path1 path2 signer
+    /// ```
+    /// 
+    /// This is because `--ui-paths` accepts multiple values. `clap` will continue parsing values
+    /// until another argument is reached and it knows `--ui-paths` is done.
+    /// 
+    /// By adding additional parameters to `--ui-paths` we can solve this issue. Consider adding
+    /// [`Arg::number_of_values(1)`] as discussed above. The following are all valid, and `signer` 
+    /// is parsed as both a subcommand and a value in the second case.
+    /// 
+    /// ```notrust
+    /// $ program --ui-paths path1 signer
+    /// $ program --ui-paths path1 --ui-paths signer signer
+    /// ```
+    /// 
     /// # Examples
     ///
     /// ```rust
@@ -2036,6 +2066,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
     /// [option]: ./struct.Arg.html#method.takes_value
+    /// [options]: ./struct.Arg.html#method.takes_value
+    /// [subcommands]: ./struct.SubCommand.html
+    /// [positionals]: ./struct.Arg.html#method.index
     /// [`Arg::number_of_values(1)`]: ./struct.Arg.html#method.number_of_values
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     pub fn multiple(self, multi: bool) -> Self {
