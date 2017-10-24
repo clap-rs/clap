@@ -848,17 +848,22 @@ impl<'a, 'b> Parser<'a, 'b>
             if !self.is_set(AS::TrailingValues) {
                 // Does the arg match a subcommand name, or any of it's aliases (if defined)
                 {
-                    let (is_match, sc_name) = self.possible_subcommand(&arg_os);
-                    debugln!("Parser::get_matches_with: possible_sc={:?}, sc={:?}",
-                             is_match,
-                             sc_name);
-                    if is_match {
-                        let sc_name = sc_name.expect(INTERNAL_ERROR_MSG);
-                        if sc_name == "help" && self.is_set(AS::NeedsSubcommandHelp) {
-                            self.parse_help_subcommand(it)?;
+                    match needs_val_of {
+                        ParseResult::Opt(_) | ParseResult::Pos(_) =>(),
+                        _ => {
+                            let (is_match, sc_name) = self.possible_subcommand(&arg_os);
+                            debugln!("Parser::get_matches_with: possible_sc={:?}, sc={:?}",
+                                    is_match,
+                                    sc_name);
+                            if is_match {
+                                let sc_name = sc_name.expect(INTERNAL_ERROR_MSG);
+                                if sc_name == "help" && self.is_set(AS::NeedsSubcommandHelp) {
+                                    self.parse_help_subcommand(it)?;
+                                }
+                                subcmd_name = Some(sc_name.to_owned());
+                                break;
+                            }
                         }
-                        subcmd_name = Some(sc_name.to_owned());
-                        break;
                     }
                 }
 
