@@ -1723,17 +1723,24 @@ impl<'a, 'b> Parser<'a, 'b>
     }
 
     pub fn add_defaults(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
+        debugln!("Parser::add_defaults;");
         macro_rules! add_val {
             (@default $_self:ident, $a:ident, $m:ident) => {
                 if let Some(ref val) = $a.v.default_val {
+                    debugln!("Parser::add_defaults:iter:{}: has default vals", $a.b.name);
                     if $m.get($a.b.name).map(|ma| ma.vals.len()).map(|len| len == 0).unwrap_or(false) {
+                        debugln!("Parser::add_defaults:iter:{}: has no user defined vals", $a.b.name);
                         $_self.add_val_to_arg($a, OsStr::new(val), $m)?;
 
                         if $_self.cache.map_or(true, |name| name != $a.name()) {
                             arg_post_processing!($_self, $a, $m);
                             $_self.cache = Some($a.name());
                         }
+                    } else if $m.get($a.b.name).is_some() {
+                        debugln!("Parser::add_defaults:iter:{}: has user defined vals", $a.b.name);
                     } else {
+                        debugln!("Parser::add_defaults:iter:{}: wasn't used", $a.b.name);
+
                         $_self.add_val_to_arg($a, OsStr::new(val), $m)?;
 
                         if $_self.cache.map_or(true, |name| name != $a.name()) {
@@ -1741,10 +1748,13 @@ impl<'a, 'b> Parser<'a, 'b>
                             $_self.cache = Some($a.name());
                         }
                     }
+                } else {
+                    debugln!("Parser::add_defaults:iter:{}: doesn't have default vals", $a.b.name);
                 }
             };
             ($_self:ident, $a:ident, $m:ident) => {
                 if let Some(ref vm) = $a.v.default_vals_ifs {
+                    sdebugln!(" has conditional defaults");
                     let mut done = false;
                     if $m.get($a.b.name).is_none() {
                         for &(arg, val, default) in vm.values() {
@@ -1772,15 +1782,19 @@ impl<'a, 'b> Parser<'a, 'b>
                     if done {
                         continue; // outer loop (outside macro)
                     }
+                } else {
+                    sdebugln!(" doesn't have conditional defaults");
                 }
                 add_val!(@default $_self, $a, $m)
             };
         }
 
         for o in &self.opts {
+            debug!("Parser::add_defaults:iter:{}:", o.b.name);
             add_val!(self, o, matcher);
         }
         for p in self.positionals.values() {
+            debug!("Parser::add_defaults:iter:{}:", p.b.name);
             add_val!(self, p, matcher);
         }
         Ok(())
