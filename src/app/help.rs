@@ -717,14 +717,12 @@ impl<'a> Help<'a> {
                 debugln!("Help::write_default_help: writing about");
                 write_thing!(about)
             }
-        } else {
-            if let Some(about) = parser.meta.about {
-                debugln!("Help::write_default_help: writing about");
-                write_thing!(about)
-            } else if let Some(about) = parser.meta.long_about {
-                debugln!("Help::write_default_help: writing long about");
-                write_thing!(about)
-            }
+        } else if let Some(about) = parser.meta.about {
+            debugln!("Help::write_default_help: writing about");
+            write_thing!(about)
+        } else if let Some(about) = parser.meta.long_about {
+            debugln!("Help::write_default_help: writing long about");
+            write_thing!(about)
         }
 
         color!(self, "\nUSAGE:", warning)?;

@@ -597,7 +597,6 @@ fn args_negate_subcommands_two_levels() {
 #[test]
 fn propagate_vals_down() {
     let m = App::new("myprog")
-        .setting(AppSettings::PropagateGlobalValuesDown)
         .arg(Arg::from_usage("[cmd] 'command to run'").global(true))
         .subcommand(SubCommand::with_name("foo"))
         .get_matches_from_safe(vec!["myprog", "set", "foo"]);
