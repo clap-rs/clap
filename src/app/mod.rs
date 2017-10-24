@@ -1586,9 +1586,12 @@ impl<'a, 'b> App<'a, 'b> {
     {
         // If there are global arguments, or settings we need to propgate them down to subcommands
         // before parsing incase we run into a subcommand
-        self.p.propagate_globals();
-        self.p.propagate_settings();
-        self.p.derive_display_order();
+        if !self.p.is_set(AppSettings::Propagated) {
+            self.p.propagate_globals();
+            self.p.propagate_settings();
+            self.p.derive_display_order();
+            self.p.set(AppSettings::Propagated);
+        }
 
         let mut matcher = ArgMatcher::new();
 
