@@ -2099,14 +2099,10 @@ impl<'a, 'b> Arg<'a, 'b> {
 
     /// Specifies that an argument can be matched to all child [`SubCommand`]s.
     ///
-    /// **NOTE:** Global arguments *only* propagate down, **not** up (to parent commands)
-    ///
-    /// **NOTE:** Global arguments *cannot* be [required].
-    ///
-    /// **NOTE:** Global arguments, when matched, *only* exist in the command's matches that they
-    /// were matched to. For example, if you defined a `--flag` global argument in the top most
-    /// parent command, but the user supplied the arguments `top cmd1 cmd2 --flag` *only* `cmd2`'s
-    /// [`ArgMatches`] would return `true` if tested for [`ArgMatches::is_present("flag")`].
+    /// **NOTE:** Global arguments *only* propagate down, **not** up (to parent commands), however
+    /// their values once a user uses them will be propagated back up to parents. In effect, this 
+    /// means one should *define* all global arguments at the top level, however it doesn't matter 
+    /// where the user *uses* the global argument.
     ///
     /// # Examples
     ///
