@@ -81,7 +81,7 @@ fn global_version() {
         .setting(AppSettings::GlobalVersion)
         .version("1.1")
         .subcommand(SubCommand::with_name("sub1"));
-    app.p.propogate_settings();
+    app.p.propagate_settings();
     assert_eq!(app.p.subcommands[0].p.meta.version, Some("1.1"));
 }
 
@@ -287,7 +287,7 @@ fn global_setting() {
     let mut app = App::new("test")
         .global_setting(AppSettings::ColoredHelp)
         .subcommand(SubCommand::with_name("subcmd"));
-    app.p.propogate_settings();
+    app.p.propagate_settings();
     assert!(app.p
                .subcommands
                .iter()
@@ -305,7 +305,7 @@ fn global_settings() {
     let mut app = App::new("test")
         .global_settings(&[AppSettings::ColoredHelp, AppSettings::TrailingVarArg])
         .subcommand(SubCommand::with_name("subcmd"));
-    app.p.propogate_settings();
+    app.p.propagate_settings();
     assert!(app.p
                .subcommands
                .iter()
