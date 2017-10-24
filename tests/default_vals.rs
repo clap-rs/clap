@@ -479,3 +479,20 @@ fn conditional_reqs_pass() {
     assert_eq!(m.value_of("output"), Some("other"));
     assert_eq!(m.value_of("input"), Some("some"));
 }
+
+#[test]
+fn issue_1050_num_vals_and_defaults() {
+    let res = App::new("hello")
+        .arg(
+            Arg::with_name("exit-code")
+                .long("exit-code")
+                .required(true)
+                .takes_value(true)
+                .number_of_values(1)
+                .default_value("0"),
+        )
+        .get_matches_from_safe(vec!["hello", "--exit-code=1"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert_eq!(m.value_of("exit-code"), Some("1"));
+}
