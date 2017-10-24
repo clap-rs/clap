@@ -1015,8 +1015,8 @@ impl<'a, 'b> Parser<'a, 'b>
                                        name: sc_name,
                                        matches: sc_m.into(),
                                    });
-            } else if !(self.is_set(AS::AllowLeadingHyphen) ||
-                        self.is_set(AS::AllowNegativeNumbers)) &&
+            } else if !((self.is_set(AS::AllowLeadingHyphen) ||
+                        self.is_set(AS::AllowNegativeNumbers)) && arg_os.starts_with(b"-")) &&
                       !self.is_set(AS::InferSubcommands) {
                 return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
                                                    "",
@@ -1047,6 +1047,13 @@ impl<'a, 'b> Parser<'a, 'b>
                                                                   .unwrap_or(&self.meta.name),
                                                               self.color()));
                 }
+            } else {
+                return Err(Error::unknown_argument(&*arg_os.to_string_lossy(),
+                                                   "",
+                                                   &*usage::create_error_usage(self,
+                                                                               matcher,
+                                                                               None),
+                                                   self.color()));
             }
         }
 
