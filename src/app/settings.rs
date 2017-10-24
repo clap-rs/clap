@@ -588,18 +588,17 @@ pub enum AppSettings {
     /// ```
     NextLineHelp,
 
-    /// Specifies that the parser should propagate global arg's values down through any *used* child
-    /// subcommands. Meaning, if a subcommand wasn't used, the values won't be propagated down to
+    /// **DEPRECATED**: This setting is no longer required in order to propagate values up or down
+    /// 
+    /// Specifies that the parser should propagate global arg's values down or up through any *used*
+    /// child subcommands. Meaning, if a subcommand wasn't used, the values won't be propagated to 
     /// said subcommand.
-    ///
-    /// **NOTE:** Values are only propagated *down* through futher child commands, not up
     ///
     /// # Examples
     ///
     /// ```rust
     /// # use clap::{App, Arg, AppSettings, SubCommand};
     /// let m = App::new("myprog")
-    ///     .setting(AppSettings::PropagateGlobalValuesDown)
     ///     .arg(Arg::from_usage("[cmd] 'command to run'")
     ///         .global(true))
     ///     .subcommand(SubCommand::with_name("foo"))
@@ -616,7 +615,6 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, Arg, AppSettings, SubCommand};
     /// let m = App::new("myprog")
-    ///     .setting(AppSettings::PropagateGlobalValuesDown)
     ///     .arg(Arg::from_usage("[cmd] 'command to run'")
     ///         .global(true))
     ///     .subcommand(SubCommand::with_name("foo"))
@@ -626,6 +624,7 @@ pub enum AppSettings {
     ///
     /// assert!(m.subcommand_matches("foo").is_none());
     /// ```
+    #[deprecated(since = "2.27.0", note = "No longer required to propagate values")]
     PropagateGlobalValuesDown,
 
     /// Allows [`SubCommand`]s to override all requirements of the parent command.
