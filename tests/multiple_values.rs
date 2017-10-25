@@ -26,30 +26,6 @@ fn option_long() {
 }
 
 #[test]
-fn with_subcmd() {
-    let m = App::new("multiple_values")
-        .arg(Arg::with_name("option")
-            .long("option")
-            .help("multiple options")
-            .takes_value(true)
-            .multiple(true))
-        .subcommand(SubCommand::with_name("foo"))
-        .get_matches_from_safe(vec![
-            "",
-            "--option", "val1",
-            "val2", "foo"
-        ]);
-
-    assert!(m.is_ok());
-    let m = m.unwrap();
-
-    assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
-    assert_eq!(m.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2"]);
-    assert_eq!(m.subcommand_name(), Some("foo"));
-}
-
-#[test]
 fn option_short() {
     let m = App::new("multiple_values")
         .arg(Arg::with_name("option")
@@ -972,35 +948,6 @@ fn low_index_positional() {
             "lip",
             "file1", "file2",
             "file3", "target",
-        ]);
-
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
-    let m = m.unwrap();
-
-    assert!(m.is_present("files"));
-    assert_eq!(m.occurrences_of("files"), 3);
-    assert!(m.is_present("target"));
-    assert_eq!(m.occurrences_of("target"), 1);
-    assert_eq!(m.values_of("files").unwrap().collect::<Vec<_>>(), ["file1", "file2", "file3"]);
-    assert_eq!(m.value_of("target").unwrap(), "target");
-}
-
-#[test]
-fn low_index_positional_with_subcmd() {
-    let m = App::new("lip")
-        .arg(Arg::with_name("files")
-            .index(1)
-            .required(true)
-            .multiple(true))
-        .arg(Arg::with_name("target")
-            .index(2)
-            .required(true))
-        .subcommand(SubCommand::with_name("test").arg(Arg::with_name("other")))
-        .get_matches_from_safe(vec![
-            "lip",
-            "file1", "file2",
-            "file3", "target",
-            "test"
         ]);
 
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);

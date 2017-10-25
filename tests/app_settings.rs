@@ -619,3 +619,36 @@ fn allow_missing_positional() {
     assert_eq!(m.value_of("src"), Some("src"));
     assert_eq!(m.value_of("dest"), Some("file"));
 }
+
+#[test]
+fn issue_1066_allow_leading_hyphen_and_unknown_args() {
+    let res = App::new("prog")
+        .global_setting(AppSettings::AllowLeadingHyphen) 
+        .arg(Arg::from_usage("--some-argument"))
+        .get_matches_from_safe(vec!["prog", "hello"]);
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+}
+
+#[test]
+fn issue_1066_allow_leading_hyphen_and_unknown_args_no_vals() {
+    let res = App::new("prog")
+        .global_setting(AppSettings::AllowLeadingHyphen) 
+        .arg(Arg::from_usage("--some-argument"))
+        .get_matches_from_safe(vec!["prog", "--hello"]);
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+}
+
+#[test]
+fn issue_1066_allow_leading_hyphen_and_unknown_args_option() {
+    let res = App::new("prog")
+        .global_setting(AppSettings::AllowLeadingHyphen) 
+        .arg(Arg::from_usage("--some-argument=[val]"))
+        .get_matches_from_safe(vec!["prog", "-hello"]);
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+}

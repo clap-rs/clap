@@ -166,20 +166,22 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         }
 
         for name in &self.0.blacklist {
-            debugln!("Validator::validate_blacklist:iter: Checking blacklisted name: {}",
-                     name);
+            debugln!("Validator::validate_blacklist:iter:{}: Checking blacklisted arg", name);
+            let mut should_err = false;
             if self.0.groups.iter().any(|g| &g.name == name) {
-                debugln!("Validator::validate_blacklist:iter: groups contains it...");
+                debugln!("Validator::validate_blacklist:iter:{}: groups contains it...", name);
                 for n in self.0.arg_names_in_group(name) {
-                    debugln!("Validator::validate_blacklist:iter:iter: Checking arg '{}' in group...",
-                             n);
+                    debugln!("Validator::validate_blacklist:iter:{}:iter:{}: looking in group...", name, n);
                     if matcher.contains(n) {
-                        debugln!("Validator::validate_blacklist:iter:iter: matcher contains it...");
+                        debugln!("Validator::validate_blacklist:iter:{}:iter:{}: matcher contains it...", name, n);
                         return Err(build_err!(self.0, n, matcher));
                     }
                 }
-            } else if matcher.contains(name) {
-                debugln!("Validator::validate_blacklist:iter: matcher contains it...");
+            } else if let Some(ma) = matcher.get(name) {
+                debugln!("Validator::validate_blacklist:iter:{}: matcher contains it...", name);
+                should_err = ma.occurs > 0;
+            }
+            if should_err {
                 return Err(build_err!(self.0, *name, matcher));
             }
         }
