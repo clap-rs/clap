@@ -1,7 +1,7 @@
 <a name="v2.27.0"></a>
 ## v2.27.0 (2017-10-24)
 
-** This release raises the minimum required version of Rust to 1.19 **
+** This release raises the minimum required version of Rust to 1.18 **
 
 ** This release also contains a very minor breaking change to fix a bug **
 
