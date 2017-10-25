@@ -54,7 +54,7 @@ subcommand name can coincide with one of the multiple values.
 
 See the commit [0c223f54](https://github.com/kbknapp/clap-rs/commit/0c223f54ed46da406bc8b43a5806e0b227863b31) for full details.
 
-*   **The minimum required version of Rust is now 1.12.0 (Stable)**
+*   **The minimum required version of Rust is now 1.18.0 (Stable)**
 *   Values from global args are now propagated UP and DOWN!
 *   fixes a bug where using AppSettings::AllowHyphenValues would allow invalid arguments even when there is no way for them to be valid
 *   when an argument requires a value and that value happens to match a subcommand name, its parsed as a value
