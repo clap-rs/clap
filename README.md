@@ -50,46 +50,42 @@ Here's whats new in 2.27.0:
 ** This release also contains a very minor breaking change to fix a bug **
 
 The only CLIs affected will be those using unrestrained multiple values and subcommands where the
-subcommand name can coincide with one of the multiple values. 
+subcommand name can coincide with one of the multiple values.
 
 See the commit [0c223f54](https://github.com/kbknapp/clap-rs/commit/0c223f54ed46da406bc8b43a5806e0b227863b31) for full details.
 
 *   **The minimum required version of Rust is now 1.12.0 (Stable)**
 *   Values from global args are now propagated UP and DOWN!
-*   fixes a bug where using AppSettings::AllowHyphenValues would allow invalid arguments even when there is no way for them to be valid 
-*   when an argument requires a value and that value happens to match a subcommand name, its parsed as a value 
-*   fixes a bug that prevented number_of_values and default_values to be used together 
-*   fixes a bug that didn't allow args with default values to have conflicts 
-*   fixes a panic when using global args and calling App::get_matches_from_safe_borrow multiple times 
-*   fixes issues and potential regressions with global args values not being propagated properly or at all 
-*   fixes a bug where default values are not applied if the option supports zero values 
-*   adds addtional blurbs about using multiples with subcommands 
-*   updates the docs to reflect changes to global args and that global args values can now be propagated back up the stack 
-*   add html_root_url attribute 
-*   sync README version numbers with crate version 
-*   args that have require_delimiter(true) is now reflected in help and usage strings 
-*   if all subcommands are hidden, the subcommands section of the help message is no longer displayed 
-*   fixes when an argument requires a value and that value happens to match a subcommand name, its parsed as a value 
-* **AppSettings::PropagateGlobalValuesDown:**  this setting deprecated and is no longer required to propagate values down or up 
+*   fixes a bug where using AppSettings::AllowHyphenValues would allow invalid arguments even when there is no way for them to be valid
+*   when an argument requires a value and that value happens to match a subcommand name, its parsed as a value
+*   fixes a bug that prevented number_of_values and default_values to be used together
+*   fixes a bug that didn't allow args with default values to have conflicts
+*   fixes a panic when using global args and calling App::get_matches_from_safe_borrow multiple times
+*   fixes issues and potential regressions with global args values not being propagated properly or at all
+*   fixes a bug where default values are not applied if the option supports zero values
+*   adds addtional blurbs about using multiples with subcommands
+*   updates the docs to reflect changes to global args and that global args values can now be propagated back up the stack
+*   add html_root_url attribute
+*   sync README version numbers with crate version
+*   args that have require_delimiter(true) is now reflected in help and usage strings
+*   if all subcommands are hidden, the subcommands section of the help message is no longer displayed
+*   fixes when an argument requires a value and that value happens to match a subcommand name, its parsed as a value
+* **AppSettings::PropagateGlobalValuesDown:**  this setting deprecated and is no longer required to propagate values down or up
 
-Here's what's new in 2.26.2:
+Here's the highlights for v2.21.0 to v2.26.2
 
-*   if all subcommands are hidden, the subcommands section of the help message is no longer displayed 
-*   fixes a bug where default values are not applied if the option supports zero values 
-*   fixes using require_equals(true) and min_values(0) together 
-*   escape special characters in zsh and fish completions 
-*   avoid panic generating default help msg if term width set to 0 due to bug in textwrap 0.7.0 
+*   if all subcommands are hidden, the subcommands section of the help message is no longer displayed
+*   fixes a bug where default values are not applied if the option supports zero values
+*   fixes using require_equals(true) and min_values(0) together
+*   escape special characters in zsh and fish completions
+*   avoid panic generating default help msg if term width set to 0 due to bug in textwrap 0.7.0
 *   Change `who's` -> `whose` in documentation
 * **Help Message:**  fixes `App::long_about` not being displayed
-* **Suggestions:**  output for flag after subcommand 
-
-
-Here's the highlights for v2.21.0 to v2.26.0
-
+* **Suggestions:**  output for flag after subcommand
 *   **The minimum required version of Rust is now 1.13.0 (Stable)**
-*   bumps unicode-segmentation to v1.2 
+*   bumps unicode-segmentation to v1.2
 *   update textwrap to version 0.7.0 which increases the performance of writing help strings
-* impl Default for Values + OsValues for any lifetime. 
+* impl Default for Values + OsValues for any lifetime.
 * use textwrap crate for wrapping help texts
 * suggests to use flag after subcommand when applicable
 * Bumps bitflags crate to v0.9
@@ -380,7 +376,7 @@ subcommands:
 
 Since this feature requires additional dependencies that not everyone may want, it is *not* compiled in by default and we need to enable a feature flag in Cargo.toml:
 
-Simply change your `clap = "2.19"` to `clap = {version = "2.19", features = ["yaml"]}`.
+Simply change your `clap = "2.27"` to `clap = {version = "2.27", features = ["yaml"]}`.
 
 At last we create our `main.rs` file just like we would have with the previous two examples:
 
@@ -499,7 +495,7 @@ For full usage, add `clap` as a dependency in your `Cargo.toml` () to use from c
 
 ```toml
 [dependencies]
-clap = "~2.26"
+clap = "~2.27"
 ```
 
 (**note**: If you are concerned with supporting a minimum version of Rust that is *older* than the current stable Rust minus 2 stable releases, it's recommended to use the `~major.minor.patch` style versions in your `Cargo.toml` which will only update the patch version automatically. For more information see the [Compatibility Policy](#compatibility-policy))
@@ -523,7 +519,7 @@ To disable these, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies.clap]
-version = "2.26"
+version = "2.27"
 default-features = false
 ```
 
@@ -531,7 +527,7 @@ You can also selectively enable only the features you'd like to include, by addi
 
 ```toml
 [dependencies.clap]
-version = "2.26"
+version = "2.27"
 default-features = false
 
 # Cherry-pick the features you'd like to use
@@ -657,7 +653,7 @@ In order to keep from being surprised of breaking changes, it is **highly** reco
 
 ```toml
 [dependencies]
-clap = "~2.26"
+clap = "~2.27"
 ```
 
 This will cause *only* the patch version to be updated upon a `cargo update` call, and therefore cannot break due to new features, or bumped minimum versions of Rust.
@@ -686,7 +682,7 @@ This is inherently an unresolvable crate graph in Cargo right now. Cargo require
 
 #### Minimum Version of Rust
 
-`clap` will officially support current stable Rust, minus two releases, but may work with prior releases as well. For example, current stable Rust at the time of this writing is 1.19.0, meaning `clap` is guaranteed to compile with 1.19.0 and beyond.
+`clap` will officially support current stable Rust, minus two releases, but may work with prior releases as well. For example, current stable Rust at the time of this writing is 1.21.0, meaning `clap` is guaranteed to compile with 1.19.0 and beyond.
 
 At the 1.22.0 stable release, `clap` will be guaranteed to compile with 1.20.0 and beyond, etc.
 
@@ -754,4 +750,4 @@ Old method names will be left around for several minor version bumps, or one maj
 
 As of 2.27.0:
 
-* **AppSettings::PropagateGlobalValuesDown:**  this setting deprecated and is no longer required to propagate values down or up 
+* **AppSettings::PropagateGlobalValuesDown:**  this setting deprecated and is no longer required to propagate values down or up

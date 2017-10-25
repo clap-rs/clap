@@ -180,7 +180,7 @@
 //! Since this feature requires additional dependencies that not everyone may want, it is *not*
 //! compiled in by default and we need to enable a feature flag in Cargo.toml:
 //!
-//! Simply change your `clap = "~2.19.0"` to `clap = {version = "~2.19.0", features = ["yaml"]}`.
+//! Simply change your `clap = "~2.27.0"` to `clap = {version = "~2.27.0", features = ["yaml"]}`.
 //!
 //! At last we create our `main.rs` file just like we would have with the previous two examples:
 //!
@@ -306,7 +306,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! clap = "~2.19.0"
+//! clap = "~2.27.0"
 //! ```
 //!
 //! Or get the latest changes from the master branch at github:
@@ -337,7 +337,7 @@
 //!
 //! ```toml
 //! [dependencies.clap]
-//! version = "~2.19.0"
+//! version = "~2.27.0"
 //! default-features = false
 //! ```
 //!
@@ -345,7 +345,7 @@
 //!
 //! ```toml
 //! [dependencies.clap]
-//! version = "~2.19.0"
+//! version = "~2.27.0"
 //! default-features = false
 //!
 //! # Cherry-pick the features you'd like to use
@@ -491,7 +491,7 @@
 //! the `~major.minor.patch` style in your `Cargo.toml`:
 //!
 //! ```toml
-//! [dependencies] clap = "~2.19.0"
+//! [dependencies] clap = "~2.27.0"
 //! ```
 //!
 //! This will cause *only* the patch version to be updated upon a `cargo update` call, and therefore
@@ -500,9 +500,9 @@
 //! #### Minimum Version of Rust
 //!
 //! `clap` will officially support current stable Rust, minus two releases, but may work with prior
-//! releases as well. For example, current stable Rust at the time of this writing is 1.13.0,
-//! meaning `clap` is guaranteed to compile with 1.11.0 and beyond. At the 1.14.0 release, `clap`
-//! will be guaranteed to compile with 1.12.0 and beyond, etc.
+//! releases as well. For example, current stable Rust at the time of this writing is 1.21.0,
+//! meaning `clap` is guaranteed to compile with 1.19.0 and beyond. At the 1.22.0 release, `clap`
+//! will be guaranteed to compile with 1.20.0 and beyond, etc.
 //!
 //! Upon bumping the minimum version of Rust (assuming it's within the stable-2 range), it *must* be
 //! clearly annotated in the `CHANGELOG.md`
@@ -513,7 +513,7 @@
 //! this repository for more information.
 
 #![crate_type= "lib"]
-#![doc(html_root_url = "https://docs.rs/clap/2.26.2")]
+#![doc(html_root_url = "https://docs.rs/clap/2.27.0")]
 #![deny(
         missing_docs,
         missing_debug_implementations,
