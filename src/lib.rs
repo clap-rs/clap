@@ -544,6 +544,8 @@ extern crate unicode_width;
 extern crate bitflags;
 #[cfg(feature = "vec_map")]
 extern crate vec_map;
+#[cfg(feature = "wrap_help")]
+extern crate term_size;
 extern crate textwrap;
 #[cfg(feature = "color")]
 extern crate atty;
