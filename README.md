@@ -45,7 +45,7 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-Here's whats new in 2.27.0:
+Here's whats new in 2.27.1:
 
 ** This release also contains a very minor breaking change to fix a bug **
 
@@ -54,6 +54,7 @@ subcommand name can coincide with one of the multiple values.
 
 See the commit [0c223f54](https://github.com/kbknapp/clap-rs/commit/0c223f54ed46da406bc8b43a5806e0b227863b31) for full details.
 
+*    Adds `term_size` as an optional dependency (with feature `wrap_help`) to fix compile bug
 *   **The minimum required version of Rust is now 1.18.0 (Stable)**
 *   Values from global args are now propagated UP and DOWN!
 *   fixes a bug where using AppSettings::AllowHyphenValues would allow invalid arguments even when there is no way for them to be valid
