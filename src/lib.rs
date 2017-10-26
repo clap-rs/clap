@@ -513,7 +513,7 @@
 //! this repository for more information.
 
 #![crate_type= "lib"]
-#![doc(html_root_url = "https://docs.rs/clap/2.27.0")]
+#![doc(html_root_url = "https://docs.rs/clap/2.27.1")]
 #![deny(
         missing_docs,
         missing_debug_implementations,
@@ -544,6 +544,8 @@ extern crate unicode_width;
 extern crate bitflags;
 #[cfg(feature = "vec_map")]
 extern crate vec_map;
+#[cfg(feature = "wrap_help")]
+extern crate term_size;
 extern crate textwrap;
 #[cfg(feature = "color")]
 extern crate atty;

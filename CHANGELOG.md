@@ -1,3 +1,11 @@
+<a name="v2.27.1"></a>
+## v2.27.1 (2017-10-24)
+
+
+#### Bug Fixes
+
+* Adds `term_size` as an optional dependency (with feature `wrap_help`) to fix compile bug
+
 <a name="v2.27.0"></a>
 ## v2.27.0 (2017-10-24)
 
@@ -6,7 +14,7 @@
 ** This release also contains a very minor breaking change to fix a bug **
 
 The only CLIs affected will be those using unrestrained multiple values and subcommands where the
-subcommand name can coincide with one of the multiple values. 
+subcommand name can coincide with one of the multiple values.
 
 See the commit [0c223f54](https://github.com/kbknapp/clap-rs/commit/0c223f54ed46da406bc8b43a5806e0b227863b31) for full details.
 
