@@ -63,6 +63,7 @@ impl Default for AppFlags {
     }
 }
 
+#[allow(deprecated)]
 impl AppFlags {
     pub fn new() -> Self { AppFlags::default() }
 
