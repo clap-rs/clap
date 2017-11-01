@@ -539,7 +539,7 @@ fn gen_augment_clap(fields: &[Field]) -> quote::Tokens {
     let app_var = Ident::new("app");
     let augmentation = gen_augmentation(fields, &app_var);
     quote! {
-        fn augment_clap<'a, 'b>(#app_var: _structopt::clap::App<'a, 'b>) -> _structopt::clap::App<'a, 'b> {
+        pub fn augment_clap<'a, 'b>(#app_var: _structopt::clap::App<'a, 'b>) -> _structopt::clap::App<'a, 'b> {
             #augmentation
         }
     }
@@ -586,7 +586,7 @@ fn gen_augment_clap_enum(variants: &[Variant]) -> quote::Tokens {
     });
 
     quote! {
-        fn augment_clap<'a, 'b>(app: _structopt::clap::App<'a, 'b>) -> _structopt::clap::App<'a, 'b> {
+        pub fn augment_clap<'a, 'b>(app: _structopt::clap::App<'a, 'b>) -> _structopt::clap::App<'a, 'b> {
             app #( #subcommands )*
         }
     }
@@ -594,6 +594,7 @@ fn gen_augment_clap_enum(variants: &[Variant]) -> quote::Tokens {
 
 fn gen_from_clap_enum(name: &Ident) -> quote::Tokens {
     quote! {
+        #[doc(hidden)]
         fn from_clap(matches: _structopt::clap::ArgMatches) -> Self {
             #name ::from_subcommand(matches.subcommand())
                 .unwrap()
@@ -625,7 +626,8 @@ fn gen_from_subcommand(name: &Ident, variants: &[Variant]) -> quote::Tokens {
     });
 
     quote! {
-        fn from_subcommand<'a, 'b>(sub: (&'b str, Option<&'b _structopt::clap::ArgMatches<'a>>)) -> Option<Self> {
+        #[doc(hidden)]
+        pub fn from_subcommand<'a, 'b>(sub: (&'b str, Option<&'b _structopt::clap::ArgMatches<'a>>)) -> Option<Self> {
             match sub {
                 #( #match_arms ),*,
                 _ => None
