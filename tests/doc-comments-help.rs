@@ -17,6 +17,7 @@ fn commets_intead_of_actual_help() {
     #[derive(StructOpt, PartialEq, Debug)]
     struct LoremIpsum {
         /// Fooify a bar
+        /// and a baz
         #[structopt(short = "f", long = "foo")]
         foo: bool,
     }
@@ -26,7 +27,7 @@ fn commets_intead_of_actual_help() {
     let output = String::from_utf8(output).unwrap();
 
     assert!(output.contains("Lorem ipsum"));
-    assert!(output.contains("Fooify a bar"));
+    assert!(output.contains("Fooify a bar and a baz"));
 }
 
 #[test]

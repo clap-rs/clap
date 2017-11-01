@@ -296,7 +296,7 @@ fn extract_attrs<'a>(attrs: &'a [Attribute], attr_source: AttrSource) -> Box<Ite
             _ => None,
         }));
 
-    let doc_comments = attrs.iter()
+    let doc_comments: Vec<String> = attrs.iter()
         .filter_map(move |attr| {
             if let Attribute {
                 value: MetaItem::NameValue(ref name, Lit::Str(ref value, StrStyle::Cooked)),
@@ -309,20 +309,26 @@ fn extract_attrs<'a>(attrs: &'a [Attribute], attr_source: AttrSource) -> Box<Ite
                     .trim_left_matches("/*!")
                     .trim_left_matches("/**")
                     .trim();
-
-                // Clap's `App` has an `about` method to set a description,
-                // it's `Field`s have a `help` method instead.
-                if let AttrSource::Struct = attr_source {
-                    Some(("about".into(), text.into()))
-                } else {
-                    Some(("help".into(), text.into()))
-                }
+                Some(text.into())
             } else {
                 None
             }
-        });
+        })
+        .collect();
 
-    Box::new(doc_comments.chain(settings_attrs))
+    let doc_comments = if doc_comments.is_empty() {
+        None
+    } else {
+        // Clap's `App` has an `about` method to set a description,
+        // it's `Field`s have a `help` method instead.
+        if let AttrSource::Struct = attr_source {
+            Some(("about".into(), doc_comments.join(" ").into()))
+        } else {
+            Some(("help".into(), doc_comments.join(" ").into()))
+        }
+    };
+
+    Box::new(doc_comments.into_iter().chain(settings_attrs))
 }
 
 fn from_attr_or_env(attrs: &[(Ident, Lit)], key: &str, env: &str) -> Lit {
