@@ -48,6 +48,8 @@
 //! through specifying it as an attribute.
 //! The `name` attribute can be used to customize the
 //! `Arg::with_name()` call (defaults to the field name).
+//! For functions that do not take a `&str` as argument, the attribute can be
+//! called `function_name_raw`, e. g. `aliases_raw = "&[\"alias\"]"`.
 //!
 //! The type of the field gives the kind of argument:
 //!
@@ -385,14 +387,15 @@ fn gen_augmentation(fields: &[Field], app_var: &Ident) -> quote::Tokens {
                 Ty::Vec => quote!( .takes_value(true).multiple(true).#validator ),
                 Ty::Other => {
                     let required = extract_attrs(&field.attrs, AttrSource::Field)
-                        .find(|&(ref i, _)| i.as_ref() == "default_value")
+                        .find(|&(ref i, _)| i.as_ref() == "default_value"
+                              || i.as_ref() == "default_value_raw")
                         .is_none();
                     quote!( .takes_value(true).multiple(false).required(#required).#validator )
                 },
             };
             let from_attr = extract_attrs(&field.attrs, AttrSource::Field)
                 .filter(|&(ref i, _)| i.as_ref() != "name")
-                .map(|(i, l)| quote!(.#i(#l)));
+                .map(|(i, l)| gen_attr_call(&i, &l));
             quote!( .arg(_structopt::clap::Arg::with_name(stringify!(#name)) #modifier #(#from_attr)*) )
         });
 
@@ -402,6 +405,21 @@ fn gen_augmentation(fields: &[Field], app_var: &Ident) -> quote::Tokens {
         #( #subcmds )*
         #app_var
     }}
+}
+
+/// Interpret the value of `*_raw` attributes as code and the rest as strings.
+fn gen_attr_call(key: &syn::Ident, val: &syn::Lit) -> quote::Tokens {
+    if let Lit::Str(ref val, _) = *val {
+        let key = key.as_ref();
+        if key.ends_with("_raw") {
+            let key = Ident::from(&key[..(key.len() - 4)]);
+            // Call method without quoting the string
+            let ts = syn::parse_token_trees(val)
+                .expect(&format!("bad parameter {} = {}: the parameter must be valid rust code", key, val));
+            return quote!(.#key(#(#ts)*));
+        }
+    }
+    quote!(.#key(#val))
 }
 
 fn gen_constructor(fields: &[Field]) -> quote::Tokens {
@@ -480,12 +498,28 @@ fn format_author(raw_authors: Lit) -> Lit {
     Lit::Str(authors, StrStyle::Cooked)
 }
 
-fn gen_clap(struct_attrs: &[Attribute], subcmd_required: bool) -> quote::Tokens {
-    let struct_attrs: Vec<_> = extract_attrs(struct_attrs, AttrSource::Struct).collect();
-    let name = from_attr_or_env(&struct_attrs, "name", "CARGO_PKG_NAME");
-    let version = from_attr_or_env(&struct_attrs, "version", "CARGO_PKG_VERSION");
-    let author = format_author(from_attr_or_env(&struct_attrs, "author", "CARGO_PKG_AUTHORS"));
-    let about = from_attr_or_env(&struct_attrs, "about", "CARGO_PKG_DESCRIPTION");
+fn gen_clap(attrs: &[Attribute]) -> quote::Tokens {
+    let attrs: Vec<_> = extract_attrs(attrs, AttrSource::Struct).collect();
+    let name = from_attr_or_env(&attrs, "name", "CARGO_PKG_NAME");
+    let version = from_attr_or_env(&attrs, "version", "CARGO_PKG_VERSION");
+    let author = format_author(from_attr_or_env(&attrs, "author", "CARGO_PKG_AUTHORS"));
+    let about = from_attr_or_env(&attrs, "about", "CARGO_PKG_DESCRIPTION");
+    let settings = attrs.iter()
+        .filter(|&&(ref i, _)| !["name", "version", "author", "about"].contains(&i.as_ref()))
+        .map(|&(ref i, ref l)| gen_attr_call(i, l))
+        .collect::<Vec<_>>();
+
+    quote! {
+        _structopt::clap::App::new(#name)
+            .version(#version)
+            .author(#author)
+            .about(#about)
+            #( #settings )*
+    }
+}
+
+fn gen_clap_struct(struct_attrs: &[Attribute], subcmd_required: bool) -> quote::Tokens {
+    let gen = gen_clap(struct_attrs);
     let setting = if subcmd_required {
         quote!( .setting(_structopt::clap::AppSettings::SubcommandRequired) )
     } else {
@@ -494,12 +528,8 @@ fn gen_clap(struct_attrs: &[Attribute], subcmd_required: bool) -> quote::Tokens 
 
     quote! {
         fn clap<'a, 'b>() -> _structopt::clap::App<'a, 'b> {
-            let app = _structopt::clap::App::new(#name)
-                .version(#version)
-                .author(#author)
-                .about(#about)
-                #setting
-                ;
+            let app = #gen
+                #setting;
             Self::augment_clap(app)
         }
     }
@@ -516,19 +546,11 @@ fn gen_augment_clap(fields: &[Field]) -> quote::Tokens {
 }
 
 fn gen_clap_enum(enum_attrs: &[Attribute]) -> quote::Tokens {
-    let enum_attrs: Vec<_> = extract_attrs(enum_attrs, AttrSource::Struct).collect();
-    let name = from_attr_or_env(&enum_attrs, "name", "CARGO_PKG_NAME");
-    let version = from_attr_or_env(&enum_attrs, "version", "CARGO_PKG_VERSION");
-    let author = format_author(from_attr_or_env(&enum_attrs, "author", "CARGO_PKG_AUTHORS"));
-    let about = from_attr_or_env(&enum_attrs, "about", "CARGO_PKG_DESCRIPTION");
-
+    let gen = gen_clap(enum_attrs);
     quote! {
         fn clap<'a, 'b>() -> _structopt::clap::App<'a, 'b> {
-            let app = _structopt::clap::App::new(#name)
-                .version(#version)
-                .author(#author)
-                .about(#about)
-                .setting(_structopt::clap::AppSettings::SubcommandRequired);
+            let app = #gen
+                .setting(_structopt::clap::AppSettings::SubcommandRequiredElseHelp);
             Self::augment_clap(app)
         }
     }
@@ -552,7 +574,7 @@ fn gen_augment_clap_enum(variants: &[Variant]) -> quote::Tokens {
         };
         let from_attr = extract_attrs(&variant.attrs, AttrSource::Struct)
             .filter(|&(ref i, _)| i != "name")
-            .map(|(i, l)| quote!( .#i(#l) ));
+            .map(|(i, l)| gen_attr_call(&i, &l));
 
         quote! {
             .subcommand({
@@ -620,7 +642,7 @@ fn impl_structopt_for_struct(name: &Ident, fields: &[Field], attrs: &[Attribute]
             _ => is_subcommand(field)
         }
     });
-    let clap = gen_clap(attrs, subcmd_required);
+    let clap = gen_clap_struct(attrs, subcmd_required);
     let augment_clap = gen_augment_clap(fields);
     let from_clap = gen_from_clap(name, fields);
 
