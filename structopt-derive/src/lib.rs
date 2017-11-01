@@ -63,7 +63,8 @@
 //!
 //! The `FromStr` trait is used to convert the argument to the given
 //! type, and the `Arg::validator` method is set to a method using
-//! `FromStr::Error::description()`.
+//! `FromStr::Err::description()` (`FromStr::Err` must implement
+//! `std::Error::Error`).
 //!
 //! Thus, the `speed` argument is generated as:
 //!
