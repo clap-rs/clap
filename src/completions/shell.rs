@@ -1,3 +1,4 @@
+#[cfg(not(feature = "nightly"))]
 use std::ascii::AsciiExt;
 use std::str::FromStr;
 use std::fmt;

@@ -147,3 +147,15 @@ fn quoted_arg_name() {
         .expect("Expected to successfully match the given args.");
     assert!(matches.is_present("option2"));
 }
+
+#[test]
+fn arg_enum() {
+    arg_enum!{
+        #[derive(Debug, PartialEq, Copy, Clone)]
+        pub enum Greek {
+            Alpha,
+            Bravo
+        }
+    }
+    assert_eq!("Alpha".parse::<Greek>(), Ok(Greek::Alpha));
+}

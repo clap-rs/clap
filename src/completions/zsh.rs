@@ -1,6 +1,7 @@
 
 // Std
 use std::io::Write;
+#[cfg(not(feature = "nightly"))]
 use std::ascii::AsciiExt;
 
 // Internal
