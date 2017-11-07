@@ -96,7 +96,7 @@ pub fn create_help_usage(p: &Parser, incl_reqs: bool) -> String {
     // supporting multiple values
     if p.opts.iter().any(|o| o.is_set(ArgSettings::Multiple)) &&
        p.positionals.values().any(|p| !p.is_set(ArgSettings::Required)) &&
-       !p.has_visible_subcommands() && !has_last {
+       !(p.has_visible_subcommands() || p.is_set(AS::AllowExternalSubcommands)) && !has_last {
         usage.push_str(" [--]");
     }
     let not_req_or_hidden =
@@ -131,7 +131,7 @@ pub fn create_help_usage(p: &Parser, incl_reqs: bool) -> String {
     }
 
     // incl_reqs is only false when this function is called recursively
-    if p.has_visible_subcommands() && incl_reqs {
+    if p.has_visible_subcommands() && incl_reqs || p.is_set(AS::AllowExternalSubcommands) {
         if p.is_set(AS::SubcommandsNegateReqs) || p.is_set(AS::ArgsNegateSubcommands) {
             if !p.is_set(AS::ArgsNegateSubcommands) {
                 usage.push_str("\n    ");
