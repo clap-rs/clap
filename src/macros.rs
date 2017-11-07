@@ -308,6 +308,7 @@ macro_rules! arg_enum {
             type Err = String;
 
             fn from_str(s: &str) -> ::std::result::Result<Self,Self::Err> {
+                #[cfg(not(feature = "nightly"))]
                 use ::std::ascii::AsciiExt;
                 match s {
                     $(stringify!($v) |

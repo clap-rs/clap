@@ -5,6 +5,15 @@ use clap::{App, Arg, SubCommand, AppSettings, ErrorKind};
 
 include!("../clap-test.rs");
 
+static ALLOW_EXT_SC: &'static str = "clap-test v1.4.8
+
+USAGE:
+    clap-test [SUBCOMMAND]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information";
+
 static DONT_COLLAPSE_ARGS: &'static str = "clap-test v1.4.8
 
 USAGE:
@@ -651,4 +660,12 @@ fn issue_1066_allow_leading_hyphen_and_unknown_args_option() {
 
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+}
+
+#[test]
+fn issue_1093_allow_ext_sc() {
+    let app = App::new("clap-test")
+        .version("v1.4.8")
+        .setting(AppSettings::AllowExternalSubcommands);
+    assert!(test::compare_output(app, "clap-test --help", ALLOW_EXT_SC, false));
 }
