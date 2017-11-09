@@ -1375,7 +1375,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///                         outdir);      // Then say where write the completions to
     /// }
     /// ```
-    /// Now, once we combile there will be a `{bin_name}.bash-completion` file in the directory.
+    /// Now, once we compile there will be a `{bin_name}.bash-completion` file in the directory.
     /// Assuming we compiled with debug mode, it would be somewhere similar to
     /// `<project>/target/debug/build/myapp-<hash>/out/myapp.bash-completion`.
     ///
