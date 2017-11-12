@@ -1,4 +1,4 @@
-#[cfg(not(feature = "nightly"))]
+#[allow(unused_imports)] 
 use std::ascii::AsciiExt;
 use std::str::FromStr;
 use std::fmt;
