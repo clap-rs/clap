@@ -1,7 +1,7 @@
 
 // Std
 use std::io::Write;
-#[cfg(not(feature = "nightly"))]
+#[allow(unused_imports)] 
 use std::ascii::AsciiExt;
 
 // Internal
