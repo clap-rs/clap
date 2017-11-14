@@ -308,7 +308,7 @@ macro_rules! arg_enum {
             type Err = String;
 
             fn from_str(s: &str) -> ::std::result::Result<Self,Self::Err> {
-                #[allow(unused_imports)] 
+                #[allow(unused_imports)]
                 use ::std::ascii::AsciiExt;
                 match s {
                     $(stringify!($v) |
@@ -771,6 +771,7 @@ macro_rules! wlnerr(
 
 #[cfg(feature = "debug")]
 #[cfg_attr(feature = "debug", macro_use)]
+#[cfg_attr(feature = "debug", allow(unused_macros))]
 mod debug_macros {
     macro_rules! debugln {
         ($fmt:expr) => (println!(concat!("DEBUG:clap:", $fmt)));

@@ -139,7 +139,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                 let mut c_with = find_from!($p, &$name, blacklist, &$matcher);
                 c_with = c_with.or(
                     $p.find_any_arg(&$name).map_or(None, |aa| aa.blacklist())
-                                           .map_or(None, 
+                                           .map_or(None,
                                                 |bl| bl.iter().find(|arg| $matcher.contains(arg)))
                                            .map_or(None, |an| $p.find_any_arg(an))
                                            .map_or(None, |aa| Some(format!("{}", aa)))
@@ -312,7 +312,8 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             num == 0
         } else { false };
         // Issue 665 (https://github.com/kbknapp/clap-rs/issues/665)
-        if a.takes_value() && !(a.is_set(ArgSettings::EmptyValues) || min_vals_zero)  && ma.vals.is_empty() {
+        // Issue 1105 (https://github.com/kbknapp/clap-rs/issues/1105)
+        if a.takes_value() && !min_vals_zero && ma.vals.is_empty() {
             return Err(Error::empty_value(a,
                                           &*usage::create_error_usage(self.0, matcher, None),
                                           self.0.color()));
@@ -410,7 +411,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                         }
                     })
                 })
-            }}; 
+            }};
         }
         if a.is_set(ArgSettings::RequiredUnlessAll) {
             check!(all, self.0, a, matcher)

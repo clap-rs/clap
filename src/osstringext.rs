@@ -56,10 +56,16 @@ impl OsStrExt2 for OsStr {
     }
 
     fn trim_left_matches(&self, byte: u8) -> &OsStr {
+        let mut found = false;
         for (i, b) in self.as_bytes().iter().enumerate() {
             if b != &byte {
                 return OsStr::from_bytes(&self.as_bytes()[i..]);
+            } else {
+                found = true;
             }
+        }
+        if found {
+            return OsStr::from_bytes(&self.as_bytes()[self.len_()..]);
         }
         &*self
     }

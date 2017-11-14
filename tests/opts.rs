@@ -3,7 +3,7 @@ extern crate regex;
 
 include!("../clap-test.rs");
 
-use clap::{App, Arg, ErrorKind};
+use clap::{App, ArgMatches, Arg, ErrorKind};
 
 #[cfg(feature = "suggestions")]
 static DYM: &'static str = "error: Found argument '--optio' which wasn't expected, or isn't valid in this context
@@ -192,18 +192,6 @@ fn opts_using_long_space() {
     assert_eq!(m.value_of("flag").unwrap(), "some");
     assert!(m.is_present("color"));
     assert_eq!(m.value_of("color").unwrap(), "other");
-}
-
-#[test]
-fn opts_with_empty_values() {
-    let r = App::new("opts")
-        .arg_from_usage("--flag [flag]... 'some flag'")
-        .get_matches_from_safe(vec!["", "--flag", "", "test"]);
-    assert!(r.is_ok());
-    let m = r.unwrap();
-    assert!(m.is_present("flag"));
-    assert_eq!(m.values_of("flag").unwrap().collect::<Vec<_>>(),
-               ["", "test"]);
 }
 
 #[test]
@@ -409,4 +397,65 @@ fn issue_1047_min_zero_vals_default_val() {
         .get_matches_from(vec!["foo", "-d"]);
     assert_eq!(m.occurrences_of("del"), 1);
     assert_eq!(m.value_of("del"), Some("default"));
+}
+
+fn issue_1105_setup(argv: Vec<&'static str>) -> Result<ArgMatches<'static>, clap::Error> {
+    App::new("opts")
+        .arg_from_usage("-o, --option [opt] 'some option'")
+        .arg_from_usage("--flag 'some flag'")
+        .get_matches_from_safe(argv)
+}
+
+#[test]
+fn issue_1105_empty_value_long_fail() {
+    let r = issue_1105_setup(vec!["app",  "--option", "--flag"]);
+    assert!(r.is_err());
+    assert_eq!(r.unwrap_err().kind, ErrorKind::EmptyValue);
+}
+
+#[test]
+fn issue_1105_empty_value_long_explicit() {
+    let r = issue_1105_setup(vec!["app", "--option", ""]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert_eq!(m.value_of("option"), Some(""));
+}
+
+#[test]
+fn issue_1105_empty_value_long_equals() {
+    let r = issue_1105_setup(vec!["app",  "--option="]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert_eq!(m.value_of("option"), Some(""));
+}
+
+#[test]
+fn issue_1105_empty_value_short_fail() {
+    let r = issue_1105_setup(vec!["app", "-o", "--flag"]);
+    assert!(r.is_err());
+    assert_eq!(r.unwrap_err().kind, ErrorKind::EmptyValue);
+}
+
+#[test]
+fn issue_1105_empty_value_short_explicit() {
+    let r = issue_1105_setup(vec!["app", "-o", ""]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert_eq!(m.value_of("option"), Some(""));
+}
+
+#[test]
+fn issue_1105_empty_value_short_equals() {
+    let r = issue_1105_setup(vec!["app", "-o="]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert_eq!(m.value_of("option"), Some(""));
+}
+
+#[test]
+fn issue_1105_empty_value_short_explicit_no_space() {
+    let r = issue_1105_setup(vec!["app", "-o", ""]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert_eq!(m.value_of("option"), Some(""));
 }
