@@ -54,6 +54,9 @@ fn test_no_parse() {
 
     let result = Opt::clap().get_matches_from_safe(&["test", "add", "--badoption"]);
     assert!(result.is_err());
+
+    let result = Opt::clap().get_matches_from_safe(&["test"]);
+    assert!(result.is_err());
 }
 
 #[derive(StructOpt, PartialEq, Debug)]

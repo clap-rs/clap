@@ -114,3 +114,46 @@ fn test_subsubcommand() {
         Opt3::from_clap(Opt3::clap().get_matches_from(&["test", "--all", "foo", "lib.rs", "quux"]))
     );
 }
+
+#[derive(StructOpt, PartialEq, Debug)]
+enum SubSubCmdWithOption {
+     #[structopt(name = "remote")]
+    Remote {
+        #[structopt(subcommand)]
+        cmd: Option<Remote>
+    },
+    #[structopt(name = "stash")]
+    Stash {
+        #[structopt(subcommand)]
+        cmd: Stash
+    },
+}
+#[derive(StructOpt, PartialEq, Debug)]
+enum Remote {
+     #[structopt(name = "add")]
+    Add { name: String, url: String },
+     #[structopt(name = "remove")]
+    Remove { name: String },
+}
+
+#[derive(StructOpt, PartialEq, Debug)]
+enum Stash {
+     #[structopt(name = "save")]
+    Save,
+     #[structopt(name = "pop")]
+    Pop,
+}
+
+#[test]
+fn sub_sub_cmd_with_option() {
+    fn make(args: &[&str]) -> Option<SubSubCmdWithOption> {
+        SubSubCmdWithOption::clap().get_matches_from_safe(args).ok().map(SubSubCmdWithOption::from_clap)
+    }
+    assert_eq!(Some(SubSubCmdWithOption::Remote { cmd: None }), make(&["", "remote"]));
+    assert_eq!(
+        Some(SubSubCmdWithOption::Remote { cmd: Some(Remote::Add { name: "origin".into(), url: "http".into() }) }),
+        make(&["", "remote", "add", "origin", "http"])
+    );
+    assert_eq!(Some(SubSubCmdWithOption::Stash { cmd: Stash::Save }), make(&["", "stash", "save"]));
+    assert_eq!(None, make(&["", "stash"]));
+}

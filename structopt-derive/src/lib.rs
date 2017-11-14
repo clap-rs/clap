@@ -292,7 +292,7 @@ pub fn structopt(input: TokenStream) -> TokenStream {
     gen.parse().unwrap()
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq)]
 enum Ty {
     Bool,
     U64,
@@ -491,8 +491,16 @@ fn gen_augmentation(fields: &[Field], app_var: &Ident) -> quote::Tokens {
                 (Ty::Option, Some(sub_type)) => sub_type,
                 _ => &field.ty
             };
+            let required = if cur_type == Ty::Option {
+                quote!()
+            } else {
+                quote!( let #app_var = #app_var.setting(_structopt::clap::AppSettings::SubcommandRequiredElseHelp); )
+            };
 
-            quote!( let #app_var = #subcmd_type ::augment_clap( #app_var ); )
+            quote!{
+                let #app_var = #subcmd_type ::augment_clap( #app_var );
+                #required
+            }
         })
         .collect();
 
@@ -691,18 +699,12 @@ fn gen_clap(attrs: &[Attribute]) -> quote::Tokens {
     }
 }
 
-fn gen_clap_struct(struct_attrs: &[Attribute], subcmd_required: bool) -> quote::Tokens {
+fn gen_clap_struct(struct_attrs: &[Attribute]) -> quote::Tokens {
     let gen = gen_clap(struct_attrs);
-    let setting = if subcmd_required {
-        quote!( .setting(_structopt::clap::AppSettings::SubcommandRequired) )
-    } else {
-        quote!()
-    };
 
     quote! {
         fn clap<'a, 'b>() -> _structopt::clap::App<'a, 'b> {
-            let app = #gen
-                #setting;
+            let app = #gen;
             Self::augment_clap(app)
         }
     }
@@ -810,14 +812,7 @@ fn gen_from_subcommand(name: &Ident, variants: &[Variant]) -> quote::Tokens {
 }
 
 fn impl_structopt_for_struct(name: &Ident, fields: &[Field], attrs: &[Attribute]) -> quote::Tokens {
-    let subcmd_required = fields.iter().any(|field| {
-        let cur_type = ty(&field.ty);
-        match cur_type {
-            Ty::Option => false,
-            _ => is_subcommand(field)
-        }
-    });
-    let clap = gen_clap_struct(attrs, subcmd_required);
+    let clap = gen_clap_struct(attrs);
     let augment_clap = gen_augment_clap(fields);
     let from_clap = gen_from_clap(name, fields);
 
