@@ -44,7 +44,7 @@ trait ClapDerive {
 }
 
 /// It is required to have this seperate and specificly defined.
-#[proc_macro_derive(ArgEnum)]
+#[proc_macro_derive(ArgEnum, attributes(case_sensitive))]
 pub fn derive_arg_enum(input: TokenStream) -> TokenStream {
     ArgEnum::derive(input).unwrap()
 }

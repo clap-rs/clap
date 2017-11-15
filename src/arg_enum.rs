@@ -20,17 +20,24 @@ impl ClapDerive for ArgEnum {
 
 fn impl_from_str(ast: &DeriveInput) -> Result<Tokens> {
     let ident = &ast.ident;
+    let is_case_sensitive = ast.attrs.iter().any(|v| v.name() == "case_sensitive");
     let variants = helpers::variants(ast)?;
 
     let strings = variants.iter()
         .map(|ref variant| String::from(variant.ident.as_ref()))
         .collect::<Vec<_>>();
     
-    // Yes, we actually need to do this.
+    // All of these need to be iterators.
     let ident_slice = [ident.clone()];
     let idents = ident_slice.iter().cycle();
 
     let for_error_message = strings.clone();
+
+    let condition_function_slice = [match is_case_sensitive {
+        true => quote! { str::eq },
+        false => quote! { ::std::ascii::AsciiExt::eq_ignore_ascii_case },
+    }];
+    let condition_function = condition_function_slice.iter().cycle();
 
     Ok(quote! {
         impl ::std::str::FromStr for #ident {
@@ -38,7 +45,7 @@ fn impl_from_str(ast: &DeriveInput) -> Result<Tokens> {
 
             fn from_str(input: &str) -> ::std::result::Result<Self, Self::Err> {
                 match input {
-                    #(val if ::std::ascii::AsciiExt::eq_ignore_ascii_case(val, #strings) => Ok(#idents::#variants),)*
+                    #(val if #condition_function(val, #strings) => Ok(#idents::#variants),)*
                     _ => Err({
                         let v = #for_error_message;
                         format!("valid values: {}",
