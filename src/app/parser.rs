@@ -75,6 +75,7 @@ impl<'a, 'b> Parser<'a, 'b>
     pub fn with_name(n: String) -> Self {
         Parser {
             meta: AppMeta::with_name(n),
+            g_settings: AppFlags::zeroed(),
             ..Default::default()
         }
     }
@@ -1811,7 +1812,7 @@ impl<'a, 'b> Parser<'a, 'b>
         }
         Ok(())
     }
-    
+
     pub fn add_env(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
         macro_rules! add_val {
             ($_self:ident, $a:ident, $m:ident) => {

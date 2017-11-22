@@ -67,6 +67,7 @@ impl Default for AppFlags {
 #[allow(deprecated)]
 impl AppFlags {
     pub fn new() -> Self { AppFlags::default() }
+    pub fn zeroed() -> Self { AppFlags(Flags::empty()) }
 
     impl_settings! { AppSettings,
         ArgRequiredElseHelp => Flags::A_REQUIRED_ELSE_HELP,
