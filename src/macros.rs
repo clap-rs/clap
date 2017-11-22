@@ -740,7 +740,7 @@ macro_rules! clap_app {
 }
 
 macro_rules! impl_settings {
-    ($n:ident, $($v:ident => $c:ident),+) => {
+    ($n:ident, $($v:ident => $c:path),+) => {
         pub fn set(&mut self, s: $n) {
             match s {
                 $($n::$v => self.0.insert($c)),+
