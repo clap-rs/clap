@@ -1375,9 +1375,9 @@ impl<'a, 'b> App<'a, 'b> {
     ///                         outdir);      // Then say where write the completions to
     /// }
     /// ```
-    /// Now, once we compile there will be a `{bin_name}.bash-completion` file in the directory.
+    /// Now, once we compile there will be a `{bin_name}.bash` file in the directory.
     /// Assuming we compiled with debug mode, it would be somewhere similar to
-    /// `<project>/target/debug/build/myapp-<hash>/out/myapp.bash-completion`.
+    /// `<project>/target/debug/build/myapp-<hash>/out/myapp.bash`.
     ///
     /// Fish shell completions will use the file format `{bin_name}.fish`
     pub fn gen_completions<T: Into<OsString>, S: Into<String>>(&mut self,
@@ -1419,7 +1419,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// Usage:
     ///
     /// ```shell
-    /// $ myapp generate-bash-completions > /etc/bash_completion.d/myapp
+    /// $ myapp generate-bash-completions > /usr/share/bash-completion/completions/myapp.bash
     /// ```
     pub fn gen_completions_to<W: Write, S: Into<String>>(&mut self,
                                                          bin_name: S,
