@@ -53,13 +53,13 @@
 //!
 //! The type of the field gives the kind of argument:
 //!
-//! Type                 | Effect                               | Added method call to `clap::Arg`
-//! ---------------------|--------------------------------------|--------------------------------------
-//! `bool`               | `true` if present                    | `.takes_value(false).multiple(false)`
-//! `u64`                | number of times the argument is used | `.takes_value(false).multiple(true)`
-//! `Option<T: FromStr>` | optional argument                    | `.takes_value(true).multiple(false)`
-//! `Vec<T: FromStr>`    | list of arguments                    | `.takes_value(true).multiple(true)`
-//! `T: FromStr`         | required argument                    | `.takes_value(true).multiple(false).required(!has_default)`
+//! Type                 | Effect                                            | Added method call to `clap::Arg`
+//! ---------------------|---------------------------------------------------|--------------------------------------
+//! `bool`               | `true` if the flag is present                     | `.takes_value(false).multiple(false)`
+//! `u64`                | number of times the flag is used                  | `.takes_value(false).multiple(true)`
+//! `Option<T: FromStr>` | optional positional argument or option            | `.takes_value(true).multiple(false)`
+//! `Vec<T: FromStr>`    | list of options or the other positional arguments | `.takes_value(true).multiple(true)`
+//! `T: FromStr`         | required option or positional argument            | `.takes_value(true).multiple(false).required(!has_default)`
 //!
 //! The `FromStr` trait is used to convert the argument to the given
 //! type, and the `Arg::validator` method is set to a method using
