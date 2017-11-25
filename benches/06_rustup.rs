@@ -383,11 +383,11 @@ Unix and similar operating systems (such as GNU/Linux).
 
 BASH:
 
-Completion files are commonly stored in `/etc/bash_completion.d/`
+Completion files are commonly stored in `/usr/share/bash-completion/completions`
 
 Run the command:
 
-`rustup completions bash > /etc/bash_completion.d/rustup.bash-completion`
+`rustup completions bash > /usr/share/bash-completion/completions/rustup.bash`
 
 This installs the completion script. You may have to log out and log
 back in to your shell session for the changes to take affect.
