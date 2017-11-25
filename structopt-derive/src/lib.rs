@@ -392,13 +392,16 @@ fn extract_attrs<'a>(attrs: &'a [Attribute], attr_source: AttrSource) -> Box<Ite
     Box::new(doc_comments.into_iter().chain(settings_attrs))
 }
 
-fn from_attr_or_env(attrs: &[(Ident, Lit)], key: &str, env: &str) -> Lit {
+fn from_attr_or_env(attrs: &[(Ident, Lit)], key: &str, env: &str) -> String {
     let default = std::env::var(env).unwrap_or("".into());
     attrs.iter()
         .filter(|&&(ref i, _)| i.as_ref() == key)
         .last()
-        .map(|&(_, ref l)| l.clone())
-        .unwrap_or_else(|| Lit::Str(default, StrStyle::Cooked))
+        .and_then(|&(_, ref l)| match *l {
+            Lit::Str(ref s, _) => Some(s.clone()),
+            _ => None
+        })
+        .unwrap_or(default)
 }
 
 fn is_subcommand(field: &Field) -> bool {
@@ -670,21 +673,28 @@ fn gen_from_clap(struct_name: &Ident, fields: &[Field]) -> quote::Tokens {
     }
 }
 
-fn format_author(raw_authors: Lit) -> Lit {
-    let raw_authors = match raw_authors {
-        Lit::Str(x, _) => x,
-        x => return x,
-    };
-    let authors = raw_authors.replace(":", ", ");
-    Lit::Str(authors, StrStyle::Cooked)
+fn format_author(raw_authors: String) -> String {
+    raw_authors.replace(":", ", ")
+}
+
+fn method_if_arg(method: &str, arg: &str) -> Option<quote::Tokens> {
+    if arg.is_empty() {
+        None
+    } else {
+        let method: Ident = method.into();
+        Some(quote!(.#method(#arg)))
+    }
 }
 
 fn gen_clap(attrs: &[Attribute]) -> quote::Tokens {
     let attrs: Vec<_> = extract_attrs(attrs, AttrSource::Struct).collect();
-    let name = from_attr_or_env(&attrs, "name", "CARGO_PKG_NAME");
+    let name: Lit = from_attr_or_env(&attrs, "name", "CARGO_PKG_NAME").into();
     let version = from_attr_or_env(&attrs, "version", "CARGO_PKG_VERSION");
+    let version = method_if_arg("version", &version);
     let author = format_author(from_attr_or_env(&attrs, "author", "CARGO_PKG_AUTHORS"));
+    let author = method_if_arg("author", &author);
     let about = from_attr_or_env(&attrs, "about", "CARGO_PKG_DESCRIPTION");
+    let about = method_if_arg("about", &about);
     let settings = attrs.iter()
         .filter(|&&(ref i, _)| !["name", "version", "author", "about"].contains(&i.as_ref()))
         .map(|&(ref i, ref l)| gen_attr_call(i, l))
@@ -692,9 +702,9 @@ fn gen_clap(attrs: &[Attribute]) -> quote::Tokens {
 
     quote! {
         _structopt::clap::App::new(#name)
-            .version(#version)
-            .author(#author)
-            .about(#about)
+            #version
+            #author
+            #about
             #( #settings )*
     }
 }
