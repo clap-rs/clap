@@ -165,3 +165,79 @@ fn possible_values_of_option_multiple_fail() {
 fn possible_values_output() {
     assert!(test::compare_output(test::complex_app(), "clap-test -O slo", PV_ERROR, true));
 }
+
+#[test]
+fn case_insensitive() {
+    let m = App::new("pv")
+        .arg(Arg::with_name("option")
+            .short("-o")
+            .long("--option")
+            .takes_value(true)
+            .possible_value("test123")
+            .possible_value("test321")
+            .case_insensitive(true))
+        .get_matches_from_safe(vec![
+            "pv",
+            "--option", "TeSt123",
+        ]);
+
+    assert!(m.is_ok());
+    assert!(m.unwrap().value_of("option").unwrap().eq_ignore_ascii_case("test123"));
+}
+
+#[test]
+fn case_insensitive_faili() {
+    let m = App::new("pv")
+        .arg(Arg::with_name("option")
+            .short("-o")
+            .long("--option")
+            .takes_value(true)
+            .possible_value("test123")
+            .possible_value("test321"))
+        .get_matches_from_safe(vec![
+            "pv",
+            "--option", "TeSt123",
+        ]);
+
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidValue);
+}
+
+#[test]
+fn case_insensitive_multiple() {
+    let m = App::new("pv")
+        .arg(Arg::with_name("option")
+            .short("-o")
+            .long("--option")
+            .takes_value(true)
+            .possible_value("test123")
+            .possible_value("test321")
+            .multiple(true)
+            .case_insensitive(true))
+        .get_matches_from_safe(vec![
+            "pv",
+            "--option", "TeSt123", "teST123", "tESt321"
+        ]);
+
+    assert!(m.is_ok());
+    assert_eq!(m.unwrap().values_of("option").unwrap().collect::<Vec<_>>(), &["TeSt123", "teST123", "tESt321"]);
+}
+
+#[test]
+fn case_insensitive_multiple_fail() {
+    let m = App::new("pv")
+        .arg(Arg::with_name("option")
+            .short("-o")
+            .long("--option")
+            .takes_value(true)
+            .possible_value("test123")
+            .possible_value("test321")
+            .multiple(true))
+        .get_matches_from_safe(vec![
+            "pv",
+            "--option", "test123", "teST123", "test321"
+        ]);
+
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidValue);
+}
