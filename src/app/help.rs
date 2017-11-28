@@ -506,7 +506,7 @@ impl<'a> Help<'a> {
                 env.1
             );
             spec_vals.push(format!(
-                " [env:{}: {}]",
+                " [env: {}={}]",
                 env.0.to_string_lossy(),
                 env.1.map_or(Cow::Borrowed(""), |val| val.to_string_lossy())
             ));

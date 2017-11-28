@@ -42,33 +42,20 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-Here's whats new in 2.27.1:
+Here's whats new in 2.28.0:
 
-** This release also contains a very minor breaking change to fix a bug **
+The minimum required Rust is now 1.20. This was done to start using bitflags 1.0 and having >1.0 deps is a *very good* thing!
 
-The only CLIs affected will be those using unrestrained multiple values and subcommands where the
-subcommand name can coincide with one of the multiple values.
-
-See the commit [0c223f54](https://github.com/kbknapp/clap-rs/commit/0c223f54ed46da406bc8b43a5806e0b227863b31) for full details.
-
-*    Adds `term_size` as an optional dependency (with feature `wrap_help`) to fix compile bug
-*   **The minimum required version of Rust is now 1.18.0 (Stable)**
-*   Values from global args are now propagated UP and DOWN!
-*   fixes a bug where using AppSettings::AllowHyphenValues would allow invalid arguments even when there is no way for them to be valid
-*   when an argument requires a value and that value happens to match a subcommand name, its parsed as a value
-*   fixes a bug that prevented number_of_values and default_values to be used together
-*   fixes a bug that didn't allow args with default values to have conflicts
-*   fixes a panic when using global args and calling App::get_matches_from_safe_borrow multiple times
-*   fixes issues and potential regressions with global args values not being propagated properly or at all
-*   fixes a bug where default values are not applied if the option supports zero values
-*   adds addtional blurbs about using multiples with subcommands
-*   updates the docs to reflect changes to global args and that global args values can now be propagated back up the stack
-*   add html_root_url attribute
-*   sync README version numbers with crate version
-*   args that have require_delimiter(true) is now reflected in help and usage strings
-*   if all subcommands are hidden, the subcommands section of the help message is no longer displayed
-*   fixes when an argument requires a value and that value happens to match a subcommand name, its parsed as a value
-* **AppSettings::PropagateGlobalValuesDown:**  this setting deprecated and is no longer required to propagate values down or up
+* Updates `bitflags` to 1.0
+* Adds the traits to be used with the `clap-derive` crate to be able to use Custom Derive (for now must be accessed with `unstable` feature flag)
+* Fixes a regression where --help couldn't be overridden
+* adds '[SUBCOMMAND]' to usage strings with only AppSettings::AllowExternalSubcommands is used with no other subcommands
+* uses `.bash` for Bash completion scripts now instead of `.bash-completion` due to convention and `.bash-completion` not being supported by completion projects
+* Fix URL path to github hosted files
+* fix typos in docs
+* **README.md:**  updates the readme and pulls out some redundant sections
+* fixes a bug that allowed options to pass parsing when no value was provided
+* ignore PropagateGlobalValuesDown deprecation warning
 
 For full details, see [CHANGELOG.md](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md)
 
@@ -309,7 +296,7 @@ subcommands:
 
 Since this feature requires additional dependencies that not everyone may want, it is *not* compiled in by default and we need to enable a feature flag in Cargo.toml:
 
-Simply change your `clap = "2.27"` to `clap = {version = "2.27", features = ["yaml"]}`.
+Simply change your `clap = "2.28"` to `clap = {version = "2.87", features = ["yaml"]}`.
 
 Finally we create our `main.rs` file just like we would have with the previous two examples:
 
@@ -390,12 +377,13 @@ SUBCOMMANDS:
 
 ### Pre-Built Test
 
-To try out the pre-built example, use the following steps:
+To try out the pre-built examples, use the following steps:
 
-* Clone the repository `$ git clone https://github.com/kbknapp/clap-rs && cd clap-rs/tests`
-* Compile the example `$ cargo build --release`
-* Run the help info `$ ./target/release/claptests --help`
+* Clone the repository `$ git clone https://github.com/kbknapp/clap-rs && cd clap-rs/`
+* Compile the example `$ cargo build --example <EXAMPLE>`
+* Run the help info `$ ./target/debug/examples/<EXAMPLE> --help`
 * Play with the arguments!
+* You can also do a onetime run via `$ cargo run --example <EXAMPLE> -- [args to example]
 
 ### BYOB (Build Your Own Binary)
 
@@ -428,7 +416,7 @@ For full usage, add `clap` as a dependency in your `Cargo.toml` () to use from c
 
 ```toml
 [dependencies]
-clap = "~2.27"
+clap = "~2.28"
 ```
 
 (**note**: If you are concerned with supporting a minimum version of Rust that is *older* than the current stable Rust minus 2 stable releases, it's recommended to use the `~major.minor.patch` style versions in your `Cargo.toml` which will only update the patch version automatically. For more information see the [Compatibility Policy](#compatibility-policy))
@@ -452,7 +440,7 @@ To disable these, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies.clap]
-version = "2.27"
+version = "2.28"
 default-features = false
 ```
 
@@ -460,7 +448,7 @@ You can also selectively enable only the features you'd like to include, by addi
 
 ```toml
 [dependencies.clap]
-version = "2.27"
+version = "2.28"
 default-features = false
 
 # Cherry-pick the features you'd like to use
@@ -508,7 +496,7 @@ In order to keep from being surprised of breaking changes, it is **highly** reco
 
 ```toml
 [dependencies]
-clap = "~2.27"
+clap = "~2.28"
 ```
 
 This will cause *only* the patch version to be updated upon a `cargo update` call, and therefore cannot break due to new features, or bumped minimum versions of Rust.
@@ -525,11 +513,11 @@ Right now Cargo's version resolution is pretty naive, it's just a brute-force se
 
 # In one Cargo.toml
 [dependencies]
-clap = "~2.27.0"
+clap = "~2.28.0"
 
 # In another Cargo.toml
 [dependencies]
-clap = "2.27"
+clap = "2.28"
 ```
 
 This is inherently an unresolvable crate graph in Cargo right now. Cargo requires there's only one major version of a crate, and being in the same workspace these two crates must share a version. This is impossible in this location, though, as these version constraints cannot be met.
