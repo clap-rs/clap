@@ -3,6 +3,9 @@ extern crate regex;
 
 include!("../clap-test.rs");
 
+#[allow(unsused_imports)]
+use std::ascii::AsciiExt;
+
 use clap::{App, Arg, ErrorKind};
 
 #[cfg(feature="suggestions")]

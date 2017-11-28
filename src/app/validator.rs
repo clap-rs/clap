@@ -1,5 +1,7 @@
 // std
 use std::fmt::Display;
+#[allow(unused_imports)]
+use std::ascii::AsciiExt;
 
 // Internal
 use INTERNAL_ERROR_MSG;
@@ -89,7 +91,12 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             if let Some(p_vals) = arg.possible_vals() {
                 debugln!("Validator::validate_values: possible_vals={:?}", p_vals);
                 let val_str = val.to_string_lossy();
-                if !p_vals.contains(&&*val_str) {
+                let ok = if arg.is_set(ArgSettings::CaseInsensitive) {
+                    p_vals.iter().any(|pv| pv.eq_ignore_ascii_case(&*val_str))
+                } else {
+                    p_vals.contains(&&*val_str)
+                };
+                if !ok {
                     return Err(Error::invalid_value(val_str,
                                                     p_vals,
                                                     arg,

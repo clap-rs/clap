@@ -2390,6 +2390,59 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
+    /// When used with [`Arg::possible_values`] it allows the argument value to pass validation even if
+    /// the case differs from that of the specified `possible_value`.
+    /// 
+    /// **Pro Tip:** Use this setting with [`arg_enum!`]
+    /// 
+    /// # Examples
+    /// 
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// # use std::ascii::AsciiExt;
+    /// let m = App::new("pv")
+    ///     .arg(Arg::with_name("option")
+    ///         .long("--option")
+    ///         .takes_value(true)
+    ///         .possible_value("test123")
+    ///         .case_insensitive(true))
+    ///     .get_matches_from(vec![
+    ///         "pv", "--option", "TeSt123",
+    ///     ]);
+    /// 
+    /// assert!(m.value_of("option").unwrap().eq_ignore_ascii_case("test123"));
+    /// ```
+    /// 
+    /// This setting also works when multiple values can be defined:
+    /// 
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("pv")
+    ///     .arg(Arg::with_name("option")
+    ///         .short("-o")
+    ///         .long("--option")
+    ///         .takes_value(true)
+    ///         .possible_value("test123")
+    ///         .possible_value("test321")
+    ///         .multiple(true)
+    ///         .case_insensitive(true))
+    ///     .get_matches_from(vec![
+    ///         "pv", "--option", "TeSt123", "teST123", "tESt321"
+    ///     ]);
+    /// 
+    /// let matched_vals = m.values_of("option").unwrap().collect::<Vec<_>>();
+    /// assert_eq!(&*matched_vals, &["TeSt123", "teST123", "tESt321"]);
+    /// ```
+    /// [`Arg::case_insensitive(true)`]: ./struct.Arg.html#method.possible_values
+    /// [`arg_enum!`]: ./macro.arg_enum.html
+    pub fn case_insensitive(self, ci: bool) -> Self {
+        if ci {
+            self.set(ArgSettings::CaseInsensitive)
+        } else {
+            self.unset(ArgSettings::CaseInsensitive)
+        }
+    }
+
     /// Specifies the name of the [`ArgGroup`] the argument belongs to.
     ///
     /// # Examples

@@ -4,7 +4,7 @@ use std::ascii::AsciiExt;
 use std::str::FromStr;
 
 bitflags! {
-    struct Flags: u16 {
+    struct Flags: u32 {
         const REQUIRED         = 1;
         const MULTIPLE         = 1 << 1;
         const EMPTY_VALS       = 1 << 2;
@@ -21,6 +21,7 @@ bitflags! {
         const REQUIRE_EQUALS   = 1 << 13;
         const LAST             = 1 << 14;
         const HIDE_DEFAULT_VAL = 1 << 15;
+        const CASE_INSENSITIVE = 1 << 16;
     }
 }
 
@@ -47,6 +48,7 @@ impl ArgFlags {
         AllowLeadingHyphen => Flags::ALLOW_TAC_VALS,
         RequireEquals => Flags::REQUIRE_EQUALS,
         Last => Flags::LAST,
+        CaseInsensitive => Flags::CASE_INSENSITIVE,
         HideDefaultValue => Flags::HIDE_DEFAULT_VAL
     }
 }
@@ -92,6 +94,8 @@ pub enum ArgSettings {
     Last,
     /// Hides the default value from the help string
     HideDefaultValue,
+    /// Makes `Arg::possible_values` case insensitive
+    CaseInsensitive,
     #[doc(hidden)]
     RequiredUnlessAll,
     #[doc(hidden)]
@@ -118,6 +122,7 @@ impl FromStr for ArgSettings {
             "requireequals" => Ok(ArgSettings::RequireEquals),
             "last" => Ok(ArgSettings::Last),
             "hidedefaultvalue" => Ok(ArgSettings::HideDefaultValue),
+            "caseinsensitive" => Ok(ArgSettings::CaseInsensitive),
             _ => Err("unknown ArgSetting, cannot convert from str".to_owned()),
         }
     }
@@ -161,6 +166,8 @@ mod test {
                    ArgSettings::Last);
         assert_eq!("hidedefaultvalue".parse::<ArgSettings>().unwrap(),
                    ArgSettings::HideDefaultValue);
+        assert_eq!("caseinsensitive".parse::<ArgSettings>().unwrap(),
+                   ArgSettings::CaseInsensitive);
         assert!("hahahaha".parse::<ArgSettings>().is_err());
     }
 }
