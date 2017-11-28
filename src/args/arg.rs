@@ -1,7 +1,7 @@
 #[cfg(feature = "yaml")]
 use std::collections::BTreeMap;
 use std::rc::Rc;
-use std::ffi::{OsString, OsStr};
+use std::ffi::OsStr;
 #[cfg(target_os="windows")]
 use osstringext::OsStrExt3;
 #[cfg(not(target_os="windows"))]
@@ -2564,11 +2564,11 @@ impl<'a, 'b> Arg<'a, 'b> {
     #[cfg_attr(not(unix), doc=" ```ignore")]
     #[cfg_attr(    unix , doc=" ```rust")]
     /// # use clap::{App, Arg};
-    /// # use std::ffi::{OsStr, OsString};
+    /// # use std::ffi::{OsStr};
     /// # use std::os::unix::ffi::OsStrExt;
-    /// fn has_ampersand(v: &OsStr) -> Result<(), OsString> {
+    /// fn has_ampersand(v: &OsStr) -> Result<(), String> {
     ///     if v.as_bytes().iter().any(|b| *b == b'&') { return Ok(()); }
-    ///     Err(OsString::from("The value did not contain the required & sigil"))
+    ///     Err(String::from("The value did not contain the required & sigil"))
     /// }
     /// let res = App::new("prog")
     ///     .arg(Arg::with_name("file")
@@ -2582,12 +2582,11 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
-    /// [`OsString`]: https://doc.rust-lang.org/std/ffi/struct.OsString.html
     /// [`Result`]: https://doc.rust-lang.org/std/result/enum.Result.html
     /// [`Err(String)`]: https://doc.rust-lang.org/std/result/enum.Result.html#variant.Err
     /// [`Rc`]: https://doc.rust-lang.org/std/rc/struct.Rc.html
     pub fn validator_os<F>(mut self, f: F) -> Self
-        where F: Fn(&OsStr) -> Result<(), OsString> + 'static
+        where F: Fn(&OsStr) -> Result<(), String> + 'static
     {
         self.v.validator_os = Some(Rc::new(f));
         self
