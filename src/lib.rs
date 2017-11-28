@@ -513,7 +513,7 @@
 //! this repository for more information.
 
 #![crate_type= "lib"]
-#![doc(html_root_url = "https://docs.rs/clap/2.27.2")]
+#![doc(html_root_url = "https://docs.rs/clap/2.28.0")]
 #![deny(
         missing_docs,
         missing_debug_implementations,
@@ -603,7 +603,7 @@ mod derive {
 
 
         /// @TODO @release @docs
-        fn try_parse_from<I, T>(argv: I) -> Result<Self, clap::Error> 
+        fn try_parse_from<I, T>(argv: I) -> Result<Self, clap::Error>
             where I: IntoIterator<Item = T>,
             T: Into<OsString> + Clone
         {
