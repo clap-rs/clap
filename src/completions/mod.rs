@@ -18,7 +18,8 @@ use self::powershell::PowerShellGen;
 pub use self::shell::Shell;
 
 pub struct ComplGen<'a, 'b>
-    where 'a: 'b
+where
+    'a: 'b,
 {
     p: &'b Parser<'a, 'b>,
 }
@@ -44,7 +45,10 @@ impl<'a, 'b> ComplGen<'a, 'b> {
 // aliasing.
 pub fn all_subcommand_names(p: &Parser) -> Vec<String> {
     debugln!("all_subcommand_names;");
-    let mut subcmds: Vec<_> = subcommands_of(p).iter().map(|&(ref n, _)| n.clone()).collect();
+    let mut subcmds: Vec<_> = subcommands_of(p)
+        .iter()
+        .map(|&(ref n, _)| n.clone())
+        .collect();
     for sc_v in p.subcommands.iter().map(|s| all_subcommand_names(&s.p)) {
         subcmds.extend(sc_v);
     }
@@ -75,14 +79,24 @@ pub fn all_subcommands(p: &Parser) -> Vec<(String, String)> {
 // Also note, aliases are treated as their own subcommands but duplicates of whatever they're
 // aliasing.
 pub fn subcommands_of(p: &Parser) -> Vec<(String, String)> {
-    debugln!("subcommands_of: name={}, bin_name={}",
-             p.meta.name,
-             p.meta.bin_name.as_ref().unwrap());
+    debugln!(
+        "subcommands_of: name={}, bin_name={}",
+        p.meta.name,
+        p.meta.bin_name.as_ref().unwrap()
+    );
     let mut subcmds = vec![];
 
-    debugln!("subcommands_of: Has subcommands...{:?}", p.has_subcommands());
+    debugln!(
+        "subcommands_of: Has subcommands...{:?}",
+        p.has_subcommands()
+    );
     if !p.has_subcommands() {
-        let mut ret = vec![(p.meta.name.clone(), p.meta.bin_name.as_ref().unwrap().clone())];
+        let mut ret = vec![
+            (
+                p.meta.name.clone(),
+                p.meta.bin_name.as_ref().unwrap().clone(),
+            ),
+        ];
         debugln!("subcommands_of: Looking for aliases...");
         if let Some(ref aliases) = p.meta.aliases {
             for &(n, _) in aliases {
@@ -98,9 +112,11 @@ pub fn subcommands_of(p: &Parser) -> Vec<(String, String)> {
         return ret;
     }
     for sc in &p.subcommands {
-        debugln!("subcommands_of:iter: name={}, bin_name={}",
-                 sc.p.meta.name,
-                 sc.p.meta.bin_name.as_ref().unwrap());
+        debugln!(
+            "subcommands_of:iter: name={}, bin_name={}",
+            sc.p.meta.name,
+            sc.p.meta.bin_name.as_ref().unwrap()
+        );
 
         debugln!("subcommands_of:iter: Looking for aliases...");
         if let Some(ref aliases) = sc.p.meta.aliases {
@@ -114,7 +130,10 @@ pub fn subcommands_of(p: &Parser) -> Vec<(String, String)> {
                 subcmds.push((n.to_owned(), als_bin_name.join(" ")));
             }
         }
-        subcmds.push((sc.p.meta.name.clone(), sc.p.meta.bin_name.as_ref().unwrap().clone()));
+        subcmds.push((
+            sc.p.meta.name.clone(),
+            sc.p.meta.bin_name.as_ref().unwrap().clone(),
+        ));
     }
     subcmds
 }
@@ -138,7 +157,13 @@ pub fn get_all_subcommand_paths(p: &Parser, first: bool) -> Vec<String> {
     }
     for sc in &p.subcommands {
         let name = &*sc.p.meta.name;
-        let path = sc.p.meta.bin_name.as_ref().unwrap().clone().replace(" ", "__");
+        let path = sc.p
+            .meta
+            .bin_name
+            .as_ref()
+            .unwrap()
+            .clone()
+            .replace(" ", "__");
         subcmds.push(path.clone());
         if let Some(ref aliases) = sc.p.meta.aliases {
             for &(n, _) in aliases {
@@ -146,7 +171,10 @@ pub fn get_all_subcommand_paths(p: &Parser, first: bool) -> Vec<String> {
             }
         }
     }
-    for sc_v in p.subcommands.iter().map(|s| get_all_subcommand_paths(&s.p, false)) {
+    for sc_v in p.subcommands
+        .iter()
+        .map(|s| get_all_subcommand_paths(&s.p, false))
+    {
         subcmds.extend(sc_v);
     }
     subcmds

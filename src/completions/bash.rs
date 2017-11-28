@@ -7,7 +7,8 @@ use args::{ArgSettings, OptBuilder};
 use completions;
 
 pub struct BashGen<'a, 'b>
-    where 'a: 'b
+where
+    'a: 'b,
 {
     p: &'b Parser<'a, 'b>,
 }
@@ -16,9 +17,10 @@ impl<'a, 'b> BashGen<'a, 'b> {
     pub fn new(p: &'b Parser<'a, 'b>) -> Self { BashGen { p: p } }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
-
-        w!(buf,
-           format!("_{name}() {{
+        w!(
+            buf,
+            format!(
+                "_{name}() {{
     local i cur prev opts cmds
     COMPREPLY=()
     cur=\"${{COMP_WORDS[COMP_CWORD]}}\"
@@ -60,13 +62,14 @@ impl<'a, 'b> BashGen<'a, 'b> {
 
 complete -F _{name} -o bashdefault -o default {name}
 ",
-                   name = self.p.meta.bin_name.as_ref().unwrap(),
-                   name_opts = self.all_options_for_path(self.p.meta.bin_name.as_ref().unwrap()),
-                   name_opts_details =
-                       self.option_details_for_path(self.p.meta.bin_name.as_ref().unwrap()),
-                   subcmds = self.all_subcommands(),
-                   subcmd_details = self.subcommand_details())
-               .as_bytes());
+                name = self.p.meta.bin_name.as_ref().unwrap(),
+                name_opts = self.all_options_for_path(self.p.meta.bin_name.as_ref().unwrap()),
+                name_opts_details =
+                    self.option_details_for_path(self.p.meta.bin_name.as_ref().unwrap()),
+                subcmds = self.all_subcommands(),
+                subcmd_details = self.subcommand_details()
+            ).as_bytes()
+        );
     }
 
     fn all_subcommands(&self) -> String {
@@ -75,12 +78,14 @@ complete -F _{name} -o bashdefault -o default {name}
         let scs = completions::all_subcommand_names(self.p);
 
         for sc in &scs {
-            subcmds = format!("{}
+            subcmds = format!(
+                "{}
             {name})
                 cmd+=\"__{name}\"
                 ;;",
-                              subcmds,
-                              name = sc.replace("-", "__"));
+                subcmds,
+                name = sc.replace("-", "__")
+            );
         }
 
         subcmds
@@ -94,7 +99,8 @@ complete -F _{name} -o bashdefault -o default {name}
         scs.dedup();
 
         for sc in &scs {
-            subcmd_dets = format!("{}
+            subcmd_dets = format!(
+                "{}
         {subcmd})
             opts=\"{sc_opts}\"
             if [[ ${{cur}} == -* || ${{COMP_CWORD}} -eq {level} ]] ; then
@@ -110,11 +116,12 @@ complete -F _{name} -o bashdefault -o default {name}
             COMPREPLY=( $(compgen -W \"${{opts}}\" -- ${{cur}}) )
             return 0
             ;;",
-                                  subcmd_dets,
-                                  subcmd = sc.replace("-", "__"),
-                                  sc_opts = self.all_options_for_path(&*sc),
-                                  level = sc.split("__").map(|_| 1).fold(0, |acc, n| acc + n),
-                                  opts_details = self.option_details_for_path(&*sc));
+                subcmd_dets,
+                subcmd = sc.replace("-", "__"),
+                sc_opts = self.all_options_for_path(&*sc),
+                level = sc.split("__").map(|_| 1).fold(0, |acc, n| acc + n),
+                opts_details = self.option_details_for_path(&*sc)
+            );
         }
 
         subcmd_dets
@@ -130,24 +137,28 @@ complete -F _{name} -o bashdefault -o default {name}
         let mut opts = String::new();
         for o in p.opts() {
             if let Some(l) = o.s.long {
-                opts = format!("{}
+                opts = format!(
+                    "{}
                 --{})
                     COMPREPLY=({})
                     return 0
                     ;;",
-                               opts,
-                               l,
-                               self.vals_for(o));
+                    opts,
+                    l,
+                    self.vals_for(o)
+                );
             }
             if let Some(s) = o.s.short {
-                opts = format!("{}
+                opts = format!(
+                    "{}
                     -{})
                     COMPREPLY=({})
                     return 0
                     ;;",
-                               opts,
-                               s,
-                               self.vals_for(o));
+                    opts,
+                    s,
+                    self.vals_for(o)
+                );
             }
         }
         opts
@@ -164,10 +175,12 @@ complete -F _{name} -o bashdefault -o default {name}
         } else if let Some(vec) = o.val_names() {
             let mut it = vec.iter().peekable();
             while let Some((_, val)) = it.next() {
-                ret = format!("{}<{}>{}",
-                              ret,
-                              val,
-                              if it.peek().is_some() { " " } else { "" });
+                ret = format!(
+                    "{}<{}>{}",
+                    ret,
+                    val,
+                    if it.peek().is_some() { " " } else { "" }
+                );
             }
             let num = vec.len();
             if o.is_set(ArgSettings::Multiple) && num == 1 {
@@ -176,10 +189,12 @@ complete -F _{name} -o bashdefault -o default {name}
         } else if let Some(num) = o.num_vals() {
             let mut it = (0..num).peekable();
             while let Some(_) = it.next() {
-                ret = format!("{}<{}>{}",
-                              ret,
-                              o.name(),
-                              if it.peek().is_some() { " " } else { "" });
+                ret = format!(
+                    "{}<{}>{}",
+                    ret,
+                    o.name(),
+                    if it.peek().is_some() { " " } else { "" }
+                );
             }
             if o.is_set(ArgSettings::Multiple) && num == 1 {
                 ret = format!("{}...", ret);
@@ -203,26 +218,35 @@ complete -F _{name} -o bashdefault -o default {name}
             p = &find_subcmd!(p, sc).unwrap().p;
         }
         let mut opts = shorts!(p).fold(String::new(), |acc, s| format!("{} -{}", acc, s));
-        opts = format!("{} {}",
-                       opts,
-                       longs!(p).fold(String::new(), |acc, l| format!("{} --{}", acc, l)));
-        opts = format!("{} {}",
-                       opts,
-                       p.positionals
-                           .values()
-                           .fold(String::new(), |acc, p| format!("{} {}", acc, p)));
-        opts = format!("{} {}",
-                       opts,
-                       p.subcommands
-                           .iter()
-                           .fold(String::new(), |acc, s| format!("{} {}", acc, s.p.meta.name)));
+        opts = format!(
+            "{} {}",
+            opts,
+            longs!(p).fold(String::new(), |acc, l| format!("{} --{}", acc, l))
+        );
+        opts = format!(
+            "{} {}",
+            opts,
+            p.positionals
+                .values()
+                .fold(String::new(), |acc, p| format!("{} {}", acc, p))
+        );
+        opts = format!(
+            "{} {}",
+            opts,
+            p.subcommands
+                .iter()
+                .fold(String::new(), |acc, s| format!("{} {}", acc, s.p.meta.name))
+        );
         for sc in &p.subcommands {
             if let Some(ref aliases) = sc.p.meta.aliases {
-                opts = format!("{} {}",
-                               opts,
-                               aliases.iter()
-                                   .map(|&(n, _)| n)
-                                   .fold(String::new(), |acc, a| format!("{} {}", acc, a)));
+                opts = format!(
+                    "{} {}",
+                    opts,
+                    aliases
+                        .iter()
+                        .map(|&(n, _)| n)
+                        .fold(String::new(), |acc, a| format!("{} {}", acc, a))
+                );
             }
         }
         opts

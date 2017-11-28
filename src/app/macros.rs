@@ -85,7 +85,7 @@ macro_rules! arg_post_processing {
                 .filter(|&&(val, _)| val.is_none())
                 .filter(|&&(_, req)| !$matcher.contains(&req))
                 .map(|&(_, name)| name) {
-                    
+
                 $me.required.push(n);
             }
         } else { sdebugln!("No"); }
