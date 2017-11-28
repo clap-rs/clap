@@ -13,15 +13,15 @@ use fmt::Format;
 #[cfg(feature = "suggestions")]
 #[cfg_attr(feature = "lints", allow(needless_lifetimes))]
 pub fn did_you_mean<'a, T: ?Sized, I>(v: &str, possible_values: I) -> Option<&'a str>
-    where T: AsRef<str> + 'a,
-          I: IntoIterator<Item = &'a T>
+where
+    T: AsRef<str> + 'a,
+    I: IntoIterator<Item = &'a T>,
 {
-
     let mut candidate: Option<(f64, &str)> = None;
     for pv in possible_values {
         let confidence = strsim::jaro_winkler(v, pv.as_ref());
-        if confidence > 0.8 &&
-           (candidate.is_none() || (candidate.as_ref().unwrap().0 < confidence)) {
+        if confidence > 0.8 && (candidate.is_none() || (candidate.as_ref().unwrap().0 < confidence))
+        {
             candidate = Some((confidence, pv.as_ref()));
         }
     }
@@ -33,47 +33,60 @@ pub fn did_you_mean<'a, T: ?Sized, I>(v: &str, possible_values: I) -> Option<&'a
 
 #[cfg(not(feature = "suggestions"))]
 pub fn did_you_mean<'a, T: ?Sized, I>(_: &str, _: I) -> Option<&'a str>
-    where T: AsRef<str> + 'a,
-          I: IntoIterator<Item = &'a T>
+where
+    T: AsRef<str> + 'a,
+    I: IntoIterator<Item = &'a T>,
 {
     None
 }
 
 /// Returns a suffix that can be empty, or is the standard 'did you mean' phrase
 #[cfg_attr(feature = "lints", allow(needless_lifetimes))]
-pub fn did_you_mean_flag_suffix<'z, T, I>(arg: &str, longs: I, subcommands: &'z [App])
-                                     -> (String, Option<&'z str>)
-    where T: AsRef<str> + 'z,
-          I: IntoIterator<Item = &'z T>
+pub fn did_you_mean_flag_suffix<'z, T, I>(
+    arg: &str,
+    longs: I,
+    subcommands: &'z [App],
+) -> (String, Option<&'z str>)
+where
+    T: AsRef<str> + 'z,
+    I: IntoIterator<Item = &'z T>,
 {
     match did_you_mean(arg, longs) {
         Some(candidate) => {
-            let suffix = format!("\n\tDid you mean {}{}?", Format::Good("--"), Format::Good(candidate));
-            return (suffix, Some(candidate))
+            let suffix = format!(
+                "\n\tDid you mean {}{}?",
+                Format::Good("--"),
+                Format::Good(candidate)
+            );
+            return (suffix, Some(candidate));
         }
-        None => {
-            for subcommand in subcommands {
-                let opts = subcommand.p.flags.iter().filter_map(|f| f.s.long).chain(
-                    subcommand.p.opts.iter().filter_map(|o| o.s.long));
+        None => for subcommand in subcommands {
+            let opts = subcommand
+                .p
+                .flags
+                .iter()
+                .filter_map(|f| f.s.long)
+                .chain(subcommand.p.opts.iter().filter_map(|o| o.s.long));
 
-                if let Some(candidate) = did_you_mean(arg, opts) {
-                    let suffix = format!(
-                        "\n\tDid you mean to put '{}{}' after the subcommand '{}'?",
-                        Format::Good("--"),
-                        Format::Good(candidate),
-                        Format::Good(subcommand.get_name()));
-                    return (suffix, Some(candidate));
-                }
+            if let Some(candidate) = did_you_mean(arg, opts) {
+                let suffix = format!(
+                    "\n\tDid you mean to put '{}{}' after the subcommand '{}'?",
+                    Format::Good("--"),
+                    Format::Good(candidate),
+                    Format::Good(subcommand.get_name())
+                );
+                return (suffix, Some(candidate));
             }
-        }
+        },
     }
     (String::new(), None)
 }
 
 /// Returns a suffix that can be empty, or is the standard 'did you mean' phrase
 pub fn did_you_mean_value_suffix<'z, T, I>(arg: &str, values: I) -> (String, Option<&'z str>)
-    where T: AsRef<str> + 'z,
-          I: IntoIterator<Item = &'z T>
+where
+    T: AsRef<str> + 'z,
+    I: IntoIterator<Item = &'z T>,
 {
     match did_you_mean(arg, values) {
         Some(candidate) => {
@@ -104,13 +117,19 @@ mod test {
     fn suffix_long() {
         let p_vals = ["test", "possible", "values"];
         let suffix = "\n\tDid you mean \'--test\'?";
-        assert_eq!(did_you_mean_flag_suffix("tst", p_vals.iter(), []), (suffix, Some("test")));
+        assert_eq!(
+            did_you_mean_flag_suffix("tst", p_vals.iter(), []),
+            (suffix, Some("test"))
+        );
     }
 
     #[test]
     fn suffix_enum() {
         let p_vals = ["test", "possible", "values"];
         let suffix = "\n\tDid you mean \'test\'?";
-        assert_eq!(did_you_mean_value_suffix("tst", p_vals.iter()), (suffix, Some("test")));
+        assert_eq!(
+            did_you_mean_value_suffix("tst", p_vals.iter()),
+            (suffix, Some("test"))
+        );
     }
 }

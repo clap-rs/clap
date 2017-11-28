@@ -48,6 +48,7 @@ The minimum required Rust is now 1.20. This was done to start using bitflags 1.0
 
 * Updates `bitflags` to 1.0
 * Adds the traits to be used with the `clap-derive` crate to be able to use Custom Derive (for now must be accessed with `unstable` feature flag)
+* Adds Arg::case_insensitive(bool) which allows matching Arg::possible_values without worrying about ASCII case
 * Fixes a regression where --help couldn't be overridden
 * adds '[SUBCOMMAND]' to usage strings with only AppSettings::AllowExternalSubcommands is used with no other subcommands
 * uses `.bash` for Bash completion scripts now instead of `.bash-completion` due to convention and `.bash-completion` not being supported by completion projects

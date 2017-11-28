@@ -1,4 +1,4 @@
-#[allow(unused_imports)] 
+#[allow(unused_imports)]
 use std::ascii::AsciiExt;
 use std::str::FromStr;
 use std::fmt;
@@ -27,7 +27,6 @@ impl FromStr for Shell {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-
             "ZSH" | _ if s.eq_ignore_ascii_case("zsh") => Ok(Shell::Zsh),
             "FISH" | _ if s.eq_ignore_ascii_case("fish") => Ok(Shell::Fish),
             "BASH" | _ if s.eq_ignore_ascii_case("bash") => Ok(Shell::Bash),

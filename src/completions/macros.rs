@@ -1,4 +1,3 @@
-
 macro_rules! w {
     ($buf:expr, $to_w:expr) => {
         match $buf.write_all($to_w) {
@@ -20,7 +19,7 @@ macro_rules! get_zsh_arg_conflicts {
                 if let Some(l) = arg.long() {
                     v.push(format!("--{}", l));
                 }
-            } 
+            }
             v.join(" ")
         } else {
             String::new()

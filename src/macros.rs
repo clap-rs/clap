@@ -262,7 +262,8 @@ macro_rules! _clap_count_exprs {
 /// retrieve a `Vec<&'static str>` of the variant names, as well as implementing [`FromStr`] and
 /// [`Display`] automatically.
 ///
-/// **NOTE:** Case insensitivity is supported for ASCII characters only
+/// **NOTE:** Case insensitivity is supported for ASCII characters only. It's highly recommended to
+/// use [`Arg::case_insensitive(true)`] for args that will be used with these enums
 ///
 /// **NOTE:** This macro automatically implements [`std::str::FromStr`] and [`std::fmt::Display`]
 ///
@@ -270,12 +271,12 @@ macro_rules! _clap_count_exprs {
 ///
 /// # Examples
 ///
-/// ```no_run
+/// ```rust
 /// # #[macro_use]
 /// # extern crate clap;
 /// # use clap::{App, Arg};
 /// arg_enum!{
-///     #[derive(Debug)]
+///     #[derive(PartialEq, Debug)]
 ///     pub enum Foo {
 ///         Bar,
 ///         Baz,
@@ -286,17 +287,22 @@ macro_rules! _clap_count_exprs {
 /// // and implements std::str::FromStr to use with the value_t! macros
 /// fn main() {
 ///     let m = App::new("app")
-///                 .arg_from_usage("<foo> 'the foo'")
-///                 .get_matches();
+///                 .arg(Arg::from_usage("<foo> 'the foo'")
+///                     .possible_values(&Foo::variants())
+///                     .case_insensitive(true))
+///                 .get_matches_from(vec![
+///                     "app", "baz"
+///                 ]);
 ///     let f = value_t!(m, "foo", Foo).unwrap_or_else(|e| e.exit());
 ///
-///     // Use f like any other Foo variant...
+///     assert_eq!(f, Foo::Baz);
 /// }
 /// ```
 /// [`FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
 /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
 /// [`Display`]: https://doc.rust-lang.org/std/fmt/trait.Display.html
 /// [`std::fmt::Display`]: https://doc.rust-lang.org/std/fmt/trait.Display.html
+/// [`Arg::case_insensitive(true)`]: ./struct.Arg.html#method.case_insensitive
 #[macro_export]
 macro_rules! arg_enum {
     (@as_item $($i:item)*) => ($($i)*);
@@ -386,7 +392,7 @@ macro_rules! arg_enum {
 ///             .get_matches();
 /// # }
 /// ```
-#[cfg(not(feature="no_cargo"))]
+#[cfg(not(feature = "no_cargo"))]
 #[macro_export]
 macro_rules! crate_version {
     () => {
@@ -415,7 +421,7 @@ macro_rules! crate_version {
 ///             .get_matches();
 /// # }
 /// ```
-#[cfg(not(feature="no_cargo"))]
+#[cfg(not(feature = "no_cargo"))]
 #[macro_export]
 macro_rules! crate_authors {
     ($sep:expr) => {{
@@ -466,7 +472,7 @@ macro_rules! crate_authors {
 ///             .get_matches();
 /// # }
 /// ```
-#[cfg(not(feature="no_cargo"))]
+#[cfg(not(feature = "no_cargo"))]
 #[macro_export]
 macro_rules! crate_description {
     () => {
@@ -487,7 +493,7 @@ macro_rules! crate_description {
 ///             .get_matches();
 /// # }
 /// ```
-#[cfg(not(feature="no_cargo"))]
+#[cfg(not(feature = "no_cargo"))]
 #[macro_export]
 macro_rules! crate_name {
     () => {
@@ -518,7 +524,7 @@ macro_rules! crate_name {
 /// let m = app_from_crate!().get_matches();
 /// # }
 /// ```
-#[cfg(not(feature="no_cargo"))]
+#[cfg(not(feature = "no_cargo"))]
 #[macro_export]
 macro_rules! app_from_crate {
     () => {

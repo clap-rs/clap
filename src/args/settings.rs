@@ -1,10 +1,10 @@
 // Std
-#[allow(unused_imports)] 
+#[allow(unused_imports)]
 use std::ascii::AsciiExt;
 use std::str::FromStr;
 
 bitflags! {
-    struct Flags: u16 {
+    struct Flags: u32 {
         const REQUIRED         = 1;
         const MULTIPLE         = 1 << 1;
         const EMPTY_VALS       = 1 << 2;
@@ -21,6 +21,7 @@ bitflags! {
         const REQUIRE_EQUALS   = 1 << 13;
         const LAST             = 1 << 14;
         const HIDE_DEFAULT_VAL = 1 << 15;
+        const CASE_INSENSITIVE = 1 << 16;
     }
 }
 
@@ -47,6 +48,7 @@ impl ArgFlags {
         AllowLeadingHyphen => Flags::ALLOW_TAC_VALS,
         RequireEquals => Flags::REQUIRE_EQUALS,
         Last => Flags::LAST,
+        CaseInsensitive => Flags::CASE_INSENSITIVE,
         HideDefaultValue => Flags::HIDE_DEFAULT_VAL
     }
 }
@@ -92,10 +94,10 @@ pub enum ArgSettings {
     Last,
     /// Hides the default value from the help string
     HideDefaultValue,
-    #[doc(hidden)]
-    RequiredUnlessAll,
-    #[doc(hidden)]
-    ValueDelimiterNotSet,
+    /// Makes `Arg::possible_values` case insensitive
+    CaseInsensitive,
+    #[doc(hidden)] RequiredUnlessAll,
+    #[doc(hidden)] ValueDelimiterNotSet,
 }
 
 impl FromStr for ArgSettings {
@@ -118,6 +120,7 @@ impl FromStr for ArgSettings {
             "requireequals" => Ok(ArgSettings::RequireEquals),
             "last" => Ok(ArgSettings::Last),
             "hidedefaultvalue" => Ok(ArgSettings::HideDefaultValue),
+            "caseinsensitive" => Ok(ArgSettings::CaseInsensitive),
             _ => Err("unknown ArgSetting, cannot convert from str".to_owned()),
         }
     }
@@ -129,38 +132,71 @@ mod test {
 
     #[test]
     fn arg_settings_fromstr() {
-        assert_eq!("allowleadinghyphen".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::AllowLeadingHyphen);
-        assert_eq!("emptyvalues".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::EmptyValues);
-        assert_eq!("global".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::Global);
-        assert_eq!("hidepossiblevalues".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::HidePossibleValues);
-        assert_eq!("hidden".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::Hidden);
-        assert_eq!("multiple".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::Multiple);
-        assert_eq!("nextlinehelp".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::NextLineHelp);
-        assert_eq!("requiredunlessall".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::RequiredUnlessAll);
-        assert_eq!("requiredelimiter".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::RequireDelimiter);
-        assert_eq!("required".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::Required);
-        assert_eq!("takesvalue".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::TakesValue);
-        assert_eq!("usevaluedelimiter".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::UseValueDelimiter);
-        assert_eq!("valuedelimiternotset".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::ValueDelimiterNotSet);
-        assert_eq!("requireequals".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::RequireEquals);
-        assert_eq!("last".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::Last);
-        assert_eq!("hidedefaultvalue".parse::<ArgSettings>().unwrap(),
-                   ArgSettings::HideDefaultValue);
+        assert_eq!(
+            "allowleadinghyphen".parse::<ArgSettings>().unwrap(),
+            ArgSettings::AllowLeadingHyphen
+        );
+        assert_eq!(
+            "emptyvalues".parse::<ArgSettings>().unwrap(),
+            ArgSettings::EmptyValues
+        );
+        assert_eq!(
+            "global".parse::<ArgSettings>().unwrap(),
+            ArgSettings::Global
+        );
+        assert_eq!(
+            "hidepossiblevalues".parse::<ArgSettings>().unwrap(),
+            ArgSettings::HidePossibleValues
+        );
+        assert_eq!(
+            "hidden".parse::<ArgSettings>().unwrap(),
+            ArgSettings::Hidden
+        );
+        assert_eq!(
+            "multiple".parse::<ArgSettings>().unwrap(),
+            ArgSettings::Multiple
+        );
+        assert_eq!(
+            "nextlinehelp".parse::<ArgSettings>().unwrap(),
+            ArgSettings::NextLineHelp
+        );
+        assert_eq!(
+            "requiredunlessall".parse::<ArgSettings>().unwrap(),
+            ArgSettings::RequiredUnlessAll
+        );
+        assert_eq!(
+            "requiredelimiter".parse::<ArgSettings>().unwrap(),
+            ArgSettings::RequireDelimiter
+        );
+        assert_eq!(
+            "required".parse::<ArgSettings>().unwrap(),
+            ArgSettings::Required
+        );
+        assert_eq!(
+            "takesvalue".parse::<ArgSettings>().unwrap(),
+            ArgSettings::TakesValue
+        );
+        assert_eq!(
+            "usevaluedelimiter".parse::<ArgSettings>().unwrap(),
+            ArgSettings::UseValueDelimiter
+        );
+        assert_eq!(
+            "valuedelimiternotset".parse::<ArgSettings>().unwrap(),
+            ArgSettings::ValueDelimiterNotSet
+        );
+        assert_eq!(
+            "requireequals".parse::<ArgSettings>().unwrap(),
+            ArgSettings::RequireEquals
+        );
+        assert_eq!("last".parse::<ArgSettings>().unwrap(), ArgSettings::Last);
+        assert_eq!(
+            "hidedefaultvalue".parse::<ArgSettings>().unwrap(),
+            ArgSettings::HideDefaultValue
+        );
+        assert_eq!(
+            "caseinsensitive".parse::<ArgSettings>().unwrap(),
+            ArgSettings::CaseInsensitive
+        );
         assert!("hahahaha".parse::<ArgSettings>().is_err());
     }
 }

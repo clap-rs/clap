@@ -21,16 +21,19 @@ impl<'a> Default for ArgMatcher<'a> {
 impl<'a> ArgMatcher<'a> {
     pub fn new() -> Self { ArgMatcher::default() }
 
-    pub fn propagate_globals(&mut self, global_arg_vec : &[&'a str]) {
-        debugln!("ArgMatcher::get_global_values: global_arg_vec={:?}", global_arg_vec);
+    pub fn propagate_globals(&mut self, global_arg_vec: &[&'a str]) {
+        debugln!(
+            "ArgMatcher::get_global_values: global_arg_vec={:?}",
+            global_arg_vec
+        );
         let mut vals_map = HashMap::new();
         self.fill_in_global_values(global_arg_vec, &mut vals_map);
     }
 
     fn fill_in_global_values(
-        &mut self, 
-        global_arg_vec: &[&'a str], 
-        vals_map: &mut HashMap<&'a str, MatchedArg> 
+        &mut self,
+        global_arg_vec: &[&'a str],
+        vals_map: &mut HashMap<&'a str, MatchedArg>,
     ) {
         for global_arg in global_arg_vec {
             if let Some(ma) = self.get(global_arg) {
@@ -120,7 +123,8 @@ impl<'a> ArgMatcher<'a> {
     }
 
     pub fn needs_more_vals<'b, A>(&self, o: &A) -> bool
-        where A: AnyArg<'a, 'b>
+    where
+        A: AnyArg<'a, 'b>,
     {
         debugln!("ArgMatcher::needs_more_vals: o={}", o.name());
         if let Some(ma) = self.get(o.name()) {

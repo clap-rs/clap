@@ -29,10 +29,8 @@ use ArgMatches;
 /// [arguments]: ./struct.Arg.html
 #[derive(Debug, Clone)]
 pub struct SubCommand<'a> {
-    #[doc(hidden)]
-    pub name: String,
-    #[doc(hidden)]
-    pub matches: ArgMatches<'a>,
+    #[doc(hidden)] pub name: String,
+    #[doc(hidden)] pub matches: ArgMatches<'a>,
 }
 
 impl<'a> SubCommand<'a> {

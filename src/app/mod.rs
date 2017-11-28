@@ -60,10 +60,10 @@ use map::{self, VecMap};
 /// [`App::get_matches`]: ./struct.App.html#method.get_matches
 #[allow(missing_debug_implementations)]
 pub struct App<'a, 'b>
-    where 'a: 'b
+where
+    'a: 'b,
 {
-    #[doc(hidden)]
-    pub p: Parser<'a, 'b>,
+    #[doc(hidden)] pub p: Parser<'a, 'b>,
 }
 
 
@@ -79,7 +79,11 @@ impl<'a, 'b> App<'a, 'b> {
     /// let prog = App::new("My Program")
     /// # ;
     /// ```
-    pub fn new<S: Into<String>>(n: S) -> Self { App { p: Parser::with_name(n.into()) } }
+    pub fn new<S: Into<String>>(n: S) -> Self {
+        App {
+            p: Parser::with_name(n.into()),
+        }
+    }
 
     /// Get the name of the app
     pub fn get_name(&self) -> &str { &self.p.meta.name }
@@ -103,7 +107,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`App::version`]: ./struct.App.html#method.author
     #[deprecated(since="2.14.1", note="Can never work; use explicit App::author() and App::version() calls instead")]
     pub fn with_defaults<S: Into<String>>(n: S) -> Self {
-        let mut a = App { p: Parser::with_name(n.into()) };
+        let mut a = App {
+            p: Parser::with_name(n.into()),
+        };
         a.p.meta.author = Some("Kevin K. <kbknapp@gmail.com>");
         a.p.meta.version = Some("2.19.2");
         a
@@ -1073,7 +1079,8 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`IntoIterator`]: https://doc.rust-lang.org/std/iter/trait.IntoIterator.html
     pub fn subcommands<I>(mut self, subcmds: I) -> Self
-        where I: IntoIterator<Item = App<'a, 'b>>
+    where
+        I: IntoIterator<Item = App<'a, 'b>>,
     {
         for subcmd in subcmds {
             self.p.add_subcommand(subcmd);
@@ -1380,10 +1387,12 @@ impl<'a, 'b> App<'a, 'b> {
     /// `<project>/target/debug/build/myapp-<hash>/out/myapp.bash`.
     ///
     /// Fish shell completions will use the file format `{bin_name}.fish`
-    pub fn gen_completions<T: Into<OsString>, S: Into<String>>(&mut self,
-                                                               bin_name: S,
-                                                               for_shell: Shell,
-                                                               out_dir: T) {
+    pub fn gen_completions<T: Into<OsString>, S: Into<String>>(
+        &mut self,
+        bin_name: S,
+        for_shell: Shell,
+        out_dir: T,
+    ) {
         self.p.meta.bin_name = Some(bin_name.into());
         self.p.gen_completions(for_shell, out_dir.into());
     }
@@ -1421,10 +1430,12 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```shell
     /// $ myapp generate-bash-completions > /usr/share/bash-completion/completions/myapp.bash
     /// ```
-    pub fn gen_completions_to<W: Write, S: Into<String>>(&mut self,
-                                                         bin_name: S,
-                                                         for_shell: Shell,
-                                                         buf: &mut W) {
+    pub fn gen_completions_to<W: Write, S: Into<String>>(
+        &mut self,
+        bin_name: S,
+        for_shell: Shell,
+        buf: &mut W,
+    ) {
         self.p.meta.bin_name = Some(bin_name.into());
         self.p.gen_completions_to(for_shell, buf);
     }
@@ -1497,8 +1508,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`Vec`]: https://doc.rust-lang.org/std/vec/struct.Vec.html
     /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
     pub fn get_matches_from<I, T>(mut self, itr: I) -> ArgMatches<'a>
-        where I: IntoIterator<Item = T>,
-              T: Into<OsString> + Clone
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<OsString> + Clone,
     {
         self.get_matches_from_safe_borrow(itr).unwrap_or_else(|e| {
             // Otherwise, write to stderr and exit
@@ -1553,8 +1565,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`kind`]: ./struct.Error.html
     /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
     pub fn get_matches_from_safe<I, T>(mut self, itr: I) -> ClapResult<ArgMatches<'a>>
-        where I: IntoIterator<Item = T>,
-              T: Into<OsString> + Clone
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<OsString> + Clone,
     {
         self.get_matches_from_safe_borrow(itr)
     }
@@ -1581,8 +1594,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`App::get_matches_from_safe`]: ./struct.App.html#method.get_matches_from_safe
     /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
     pub fn get_matches_from_safe_borrow<I, T>(&mut self, itr: I) -> ClapResult<ArgMatches<'a>>
-        where I: IntoIterator<Item = T>,
-              T: Into<OsString> + Clone
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<OsString> + Clone,
     {
         // If there are global arguments, or settings we need to propgate them down to subcommands
         // before parsing incase we run into a subcommand
@@ -1622,7 +1636,7 @@ impl<'a, 'b> App<'a, 'b> {
             return Err(e);
         }
 
-        let global_arg_vec : Vec<&str> = (&self).p.global_args.iter().map(|ga| ga.b.name).collect();
+        let global_arg_vec: Vec<&str> = (&self).p.global_args.iter().map(|ga| ga.b.name).collect();
         matcher.propagate_globals(&global_arg_vec);
 
         Ok(matcher.into())
@@ -1674,14 +1688,18 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
         if let Some(v) = yaml["display_order"].as_i64() {
             a = a.display_order(v as usize);
         } else if yaml["display_order"] != Yaml::BadValue {
-            panic!("Failed to convert YAML value {:?} to a u64",
-                   yaml["display_order"]);
+            panic!(
+                "Failed to convert YAML value {:?} to a u64",
+                yaml["display_order"]
+            );
         }
         if let Some(v) = yaml["setting"].as_str() {
             a = a.setting(v.parse().expect("unknown AppSetting found in YAML file"));
         } else if yaml["setting"] != Yaml::BadValue {
-            panic!("Failed to convert YAML value {:?} to an AppSetting",
-                   yaml["setting"]);
+            panic!(
+                "Failed to convert YAML value {:?} to an AppSetting",
+                yaml["setting"]
+            );
         }
         if let Some(v) = yaml["settings"].as_vec() {
             for ys in v {
@@ -1692,27 +1710,32 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
         } else if let Some(v) = yaml["settings"].as_str() {
             a = a.setting(v.parse().expect("unknown AppSetting found in YAML file"));
         } else if yaml["settings"] != Yaml::BadValue {
-            panic!("Failed to convert YAML value {:?} to a string",
-                   yaml["settings"]);
+            panic!(
+                "Failed to convert YAML value {:?} to a string",
+                yaml["settings"]
+            );
         }
         if let Some(v) = yaml["global_setting"].as_str() {
             a = a.setting(v.parse().expect("unknown AppSetting found in YAML file"));
         } else if yaml["global_setting"] != Yaml::BadValue {
-            panic!("Failed to convert YAML value {:?} to an AppSetting",
-                   yaml["setting"]);
+            panic!(
+                "Failed to convert YAML value {:?} to an AppSetting",
+                yaml["setting"]
+            );
         }
         if let Some(v) = yaml["global_settings"].as_vec() {
             for ys in v {
                 if let Some(s) = ys.as_str() {
-                    a = a.global_setting(s.parse()
-                        .expect("unknown AppSetting found in YAML file"));
+                    a = a.global_setting(s.parse().expect("unknown AppSetting found in YAML file"));
                 }
             }
         } else if let Some(v) = yaml["global_settings"].as_str() {
             a = a.global_setting(v.parse().expect("unknown AppSetting found in YAML file"));
         } else if yaml["global_settings"] != Yaml::BadValue {
-            panic!("Failed to convert YAML value {:?} to a string",
-                   yaml["global_settings"]);
+            panic!(
+                "Failed to convert YAML value {:?} to a string",
+                yaml["global_settings"]
+            );
         }
 
         macro_rules! vec_or_str {
@@ -1800,8 +1823,10 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn longest_filter(&self) -> bool { true }
     fn aliases(&self) -> Option<Vec<&'e str>> {
         if let Some(ref aliases) = self.p.meta.aliases {
-            let vis_aliases: Vec<_> =
-                aliases.iter().filter_map(|&(n, v)| if v { Some(n) } else { None }).collect();
+            let vis_aliases: Vec<_> = aliases
+                .iter()
+                .filter_map(|&(n, v)| if v { Some(n) } else { None })
+                .collect();
             if vis_aliases.is_empty() {
                 None
             } else {
