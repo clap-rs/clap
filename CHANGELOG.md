@@ -1,30 +1,29 @@
 <a name="2.28.0"></a>
-## 2.28.0 (2017-11-27)
+## 2.28.0 (2017-11-28)
 
 The minimum required Rust is now 1.20. This was done to start using bitflags 1.0 and having >1.0 deps is a *very good* thing!
 
+#### Documentation
 
-#### API Additions
-
-*   Adds the traits to be used with the `clap-derive` crate to be able to use Custom Derive ([6f4c3412](https://github.com/kbknapp/clap-rs/commit/6f4c3412415e882f5ca2cc3fbd6d4dce79440828))
+*   changes the demo version to 2.28 to stay in sync ([ce6ca492](https://github.com/kbknapp/clap-rs/commit/ce6ca492c7510ab6474075806360b96081b021a9))
+*   Fix URL path to github hosted files ([ce72aada](https://github.com/kbknapp/clap-rs/commit/ce72aada56a9581d4a6cb4bf9bdb861c3906f8df), closes [#1106](https://github.com/kbknapp/clap-rs/issues/1106))
+*   fix typo ([002b07fc](https://github.com/kbknapp/clap-rs/commit/002b07fc98a1c85acb66296b1eec0b2aba906125))
+* **README.md:**  updates the readme and pulls out some redundant sections ([db6caf86](https://github.com/kbknapp/clap-rs/commit/db6caf8663747e679d2f4ed3bd127f33476754aa))
 
 #### Improvements
 
 *   adds '[SUBCOMMAND]' to usage strings with only AppSettings::AllowExternalSubcommands is used with no other subcommands ([e78bb757](https://github.com/kbknapp/clap-rs/commit/e78bb757a3df16e82d539e450c06767a6bfcf859), closes [#1093](https://github.com/kbknapp/clap-rs/issues/1093))
-*   uses `.bash` for Bash completion scripts now instead of `.bash-completion` due to convention and `.bash-completion` not being supported by completion projects ([4740cde4](https://github.com/kbknapp/clap-rs/commit/4740cde404121a443c64d644eb4a0722c0b0a823)
 
-#### Documentation
+#### API Additions
 
-*   Fix URL path to github hosted files ([ce72aada](https://github.com/kbknapp/clap-rs/commit/ce72aada56a9581d4a6cb4bf9bdb861c3906f8df), closes [#1106](https://github.com/kbknapp/clap-rs/issues/1106))
-*   fix typo ([002b07fc](https://github.com/kbknapp/clap-rs/commit/002b07fc98a1c85acb66296b1eec0b2aba906125))
-* **README.md:**  updates the readme and pulls out some redundant sections ([db6caf86](https://github.com/kbknapp/clap-rs/commit/db6caf8663747e679d2f4ed3bd127f33476754aa))
+*   Adds Arg::case_insensitive(bool) which allows matching Arg::possible_values without worrying about ASCII case ([1fec268e](https://github.com/kbknapp/clap-rs/commit/1fec268e51736602e38e67c76266f439e2e0ef12), closes [#1118](https://github.com/kbknapp/clap-rs/issues/1118))
+*   Adds the traits to be used with the clap-derive crate to be able to use Custom Derive ([6f4c3412](https://github.com/kbknapp/clap-rs/commit/6f4c3412415e882f5ca2cc3fbd6d4dce79440828))
 
 #### Bug Fixes
 
 *   Fixes a regression where --help couldn't be overridden ([a283d69f](https://github.com/kbknapp/clap-rs/commit/a283d69fc08aa016ae1bf9ba010012abecc7ba69), closes [#1112](https://github.com/kbknapp/clap-rs/issues/1112))
 *   fixes a bug that allowed options to pass parsing when no value was provided ([2fb75821](https://github.com/kbknapp/clap-rs/commit/2fb758219c7a60d639da67692e100b855a8165ac), closes [#1105](https://github.com/kbknapp/clap-rs/issues/1105))
 *   ignore PropagateGlobalValuesDown deprecation warning ([f61ce3f5](https://github.com/kbknapp/clap-rs/commit/f61ce3f55fe65e16b3db0bd4facdc4575de22767), closes [#1086](https://github.com/kbknapp/clap-rs/issues/1086))
-
 
 #### Deps
 
