@@ -505,11 +505,17 @@ impl<'a> Help<'a> {
                 env.0,
                 env.1
             );
-            spec_vals.push(format!(
-                " [env: {}={}]",
+            let env_val = if !a.is_set(ArgSettings::HideEnvValues) {
+                format!("={}", env.1.map_or(Cow::Borrowed(""), |val| val.to_string_lossy()))
+            } else {
+                String::new()
+            };
+            let env_info = format!(
+                " [env: {}{}]",
                 env.0.to_string_lossy(),
-                env.1.map_or(Cow::Borrowed(""), |val| val.to_string_lossy())
-            ));
+                env_val
+            );
+            spec_vals.push(env_info);
         }
         if !a.is_set(ArgSettings::HideDefaultValue) {
             if let Some(pv) = a.default_val() {

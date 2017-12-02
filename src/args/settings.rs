@@ -22,6 +22,7 @@ bitflags! {
         const LAST             = 1 << 14;
         const HIDE_DEFAULT_VAL = 1 << 15;
         const CASE_INSENSITIVE = 1 << 16;
+        const HIDE_ENV_VALS    = 1 << 17;
     }
 }
 
@@ -49,6 +50,7 @@ impl ArgFlags {
         RequireEquals => Flags::REQUIRE_EQUALS,
         Last => Flags::LAST,
         CaseInsensitive => Flags::CASE_INSENSITIVE,
+        HideEnvValues => Flags::HIDE_ENV_VALS,
         HideDefaultValue => Flags::HIDE_DEFAULT_VAL
     }
 }
@@ -96,6 +98,8 @@ pub enum ArgSettings {
     HideDefaultValue,
     /// Makes `Arg::possible_values` case insensitive
     CaseInsensitive,
+    /// Hides ENV values in the help message
+    HideEnvValues,
     #[doc(hidden)] RequiredUnlessAll,
     #[doc(hidden)] ValueDelimiterNotSet,
 }
@@ -121,6 +125,7 @@ impl FromStr for ArgSettings {
             "last" => Ok(ArgSettings::Last),
             "hidedefaultvalue" => Ok(ArgSettings::HideDefaultValue),
             "caseinsensitive" => Ok(ArgSettings::CaseInsensitive),
+            "hideenvvalues" => Ok(ArgSettings::HideEnvValues),
             _ => Err("unknown ArgSetting, cannot convert from str".to_owned()),
         }
     }
@@ -196,6 +201,10 @@ mod test {
         assert_eq!(
             "caseinsensitive".parse::<ArgSettings>().unwrap(),
             ArgSettings::CaseInsensitive
+        );
+        assert_eq!(
+            "hideenvvalues".parse::<ArgSettings>().unwrap(),
+            ArgSettings::HideEnvValues
         );
         assert!("hahahaha".parse::<ArgSettings>().is_err());
     }

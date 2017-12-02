@@ -3515,6 +3515,15 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
+    /// @TODO @p2 @docs @release: write docs
+    pub fn hide_env_values(self, hide: bool) -> Self { 
+        if hide {
+            self.set(ArgSettings::HideEnvValues)
+        } else {
+            self.unset(ArgSettings::HideEnvValues)
+        }
+    }
+
     /// When set to `true` the help string will be displayed on the line after the argument and
     /// indented once. This can be helpful for arguments with very long or complex help messages.
     /// This can also be helpful for arguments with very long flag names, or many/long value names.
