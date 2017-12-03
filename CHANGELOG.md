@@ -1,3 +1,13 @@
+<a name="2.29.0"></a>
+## 2.29.0 (2017-12-02)
+
+
+#### API Additions
+
+* **Arg:**  adds Arg::hide_env_values(bool) which allows one to hide any current env values and display only the key in help messages ([fb41d062](https://github.com/kbknapp/clap-rs/commit/fb41d062eedf37cb4f805c90adca29909bd197d7))
+
+
+
 <a name="2.28.0"></a>
 ## 2.28.0 (2017-11-28)
 

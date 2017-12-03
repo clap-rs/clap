@@ -491,6 +491,32 @@ ARGS:
     <arg1>    
             some option";
 
+static HIDE_ENV_VALS: &'static str = "ctest 0.1
+
+USAGE:
+    ctest [OPTIONS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR]
+    -p, --pos <VAL>      Some vals [values: fast, slow]";
+
+static SHOW_ENV_VALS: &'static str = "ctest 0.1
+
+USAGE:
+    ctest [OPTIONS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]
+    -p, --pos <VAL>      Some vals [values: fast, slow]";
+
 fn setup() -> App<'static, 'static> {
     App::new("test")
         .author("Kevin K.")
@@ -1081,4 +1107,54 @@ fn issue_1052_require_delim_help() {
         .arg(Arg::from_usage("-f, --fake <some> <val> 'some help'").require_delimiter(true).value_delimiter(":"));
 
     assert!(test::compare_output(app, "test --help", REQUIRE_DELIM_HELP, false));
+}
+
+#[test]
+fn hide_env_vals() {
+    use std::env;
+
+    env::set_var("ENVVAR", "MYVAL");
+    let app = App::new("ctest")
+        .version("0.1")
+        .arg(Arg::with_name("pos")
+            .short("p")
+            .long("pos")
+            .value_name("VAL")
+            .possible_values(&["fast", "slow"])
+            .help("Some vals")
+            .takes_value(true))
+        .arg(Arg::with_name("cafe")
+            .short("c")
+            .long("cafe")
+            .value_name("FILE")
+            .hide_env_values(true)
+            .env("ENVVAR")
+            .help("A coffeehouse, coffee shop, or café.")
+            .takes_value(true));
+    assert!(test::compare_output(app, "ctest --help", HIDE_ENV_VALS, false));
+}
+
+#[test]
+fn show_env_vals() {
+    use std::env;
+
+    env::set_var("ENVVAR", "MYVAL");
+    let app = App::new("ctest")
+        .version("0.1")
+        .arg(Arg::with_name("pos")
+            .short("p")
+            .long("pos")
+            .value_name("VAL")
+            .possible_values(&["fast", "slow"])
+            .help("Some vals")
+            .takes_value(true))
+        .arg(Arg::with_name("cafe")
+            .short("c")
+            .long("cafe")
+            .value_name("FILE")
+            .hide_possible_values(true)
+            .env("ENVVAR")
+            .help("A coffeehouse, coffee shop, or café.")
+            .takes_value(true));
+    assert!(test::compare_output(app, "ctest --help", SHOW_ENV_VALS, false));
 }
