@@ -42,6 +42,32 @@
 //!   - `author`: Defaults to the crate author name given by Cargo.
 //!   - `about`: Defaults to the crate description given by Cargo.
 //!
+//! Methods from `clap::App` that don't take an &str can be called by
+//! adding _raw to their name, e.g. to activate colored help text:
+//!
+//! ```ignore
+//! extern crate clap;
+//! extern crate structopt;
+//! #[macro_use]
+//! extern crate structopt_derive;
+//! 
+//! use structopt::StructOpt;
+//! 
+//! #[derive(StructOpt, Debug)]
+//! #[structopt(setting_raw = "clap::AppSettings::ColoredHelp")]
+//! struct Opt {
+//!     #[structopt(short = "s")]
+//!     speed: bool,
+//!     #[structopt(short = "d")]
+//!     debug: bool,
+//! }
+//! 
+//! fn main() {
+//!     let opt = Opt::from_args();
+//!     println!("{:?}", opt);
+//! }
+//! ```
+//!
 //! Then, each field of the struct not marked as a subcommand corresponds
 //! to a `clap::Arg`. As with the struct attributes, every method of
 //! `clap::Arg` in the form of `fn function_name(self, &str)` can be used
