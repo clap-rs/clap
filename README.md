@@ -438,7 +438,6 @@ Then run `cargo build` or `cargo update && cargo build` for your project.
 
 * **"suggestions"**: Turns on the `Did you mean '--myoption'?` feature for when users make typos. (builds dependency `strsim`)
 * **"color"**: Turns on colored error messages. This feature only works on non-Windows OSs. (builds dependency `ansi-term`)
-* **"wrap_help"**: Wraps the help at the actual terminal width when available, instead of 120 characters. (builds dependency `term_size`)
 * **"vec_map"**: Use [`VecMap`](https://crates.io/crates/vec_map) internally instead of a [`BTreeMap`](https://doc.rust-lang.org/stable/std/collections/struct.BTreeMap.html). This feature provides a _slight_ performance improvement. (builds dependency `vec_map`)
 
 To disable these, add this to your `Cargo.toml`:
