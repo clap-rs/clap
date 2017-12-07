@@ -159,3 +159,15 @@ fn arg_enum() {
     }
     assert_eq!("Alpha".parse::<Greek>(), Ok(Greek::Alpha));
 }
+
+#[test]
+fn arg_enum_trailing_comma() {
+    arg_enum!{
+        #[derive(Debug, PartialEq, Copy, Clone)]
+        pub enum Greek {
+            Alpha,
+            Bravo,
+        }
+    }
+    assert_eq!("Alpha".parse::<Greek>(), Ok(Greek::Alpha));
+}
