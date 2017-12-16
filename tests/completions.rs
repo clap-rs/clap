@@ -413,6 +413,14 @@ _arguments -s -S -C \
 '--version[Prints version information]' \
 && ret=0
 ;;
+(some-cmd-with-hypens)
+_arguments -s -S -C \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
+&& ret=0
+;;
 (help)
 _arguments -s -S -C \
 '-h[Prints help information]' \
@@ -431,6 +439,7 @@ _my_app_commands() {
     local commands; commands=(
         "test:tests things" \
 "some_cmd:tests other things" \
+"some-cmd-with-hypens:" \
 "help:Prints this message or the help of the given subcommand(s)" \
 "FILE:some input file" \
     )
@@ -442,6 +451,13 @@ _my_app__help_commands() {
         
     )
     _describe -t commands 'my_app help commands' commands "$@"
+}
+(( $+functions[_my_app__some-cmd-with-hypens_commands] )) ||
+_my_app__some-cmd-with-hypens_commands() {
+    local commands; commands=(
+        
+    )
+    _describe -t commands 'my_app some-cmd-with-hypens commands' commands "$@"
 }
 (( $+functions[_my_app__some_cmd_commands] )) ||
 _my_app__some_cmd_commands() {
@@ -477,6 +493,7 @@ complete -c my_app -n "__fish_using_command my_app" -s h -l help -d 'Prints help
 complete -c my_app -n "__fish_using_command my_app" -s V -l version -d 'Prints version information'
 complete -c my_app -n "__fish_using_command my_app" -f -a "test" -d 'tests things'
 complete -c my_app -n "__fish_using_command my_app" -f -a "some_cmd" -d 'tests other things'
+complete -c my_app -n "__fish_using_command my_app" -f -a "some-cmd-with-hypens"
 complete -c my_app -n "__fish_using_command my_app" -f -a "help" -d 'Prints this message or the help of the given subcommand(s)'
 complete -c my_app -n "__fish_using_command my_app test" -l case -d 'the case to test'
 complete -c my_app -n "__fish_using_command my_app test" -s h -l help -d 'Prints help information'
@@ -484,6 +501,8 @@ complete -c my_app -n "__fish_using_command my_app test" -s V -l version -d 'Pri
 complete -c my_app -n "__fish_using_command my_app some_cmd" -l config -d 'the other case to test'
 complete -c my_app -n "__fish_using_command my_app some_cmd" -s h -l help -d 'Prints help information'
 complete -c my_app -n "__fish_using_command my_app some_cmd" -s V -l version -d 'Prints version information'
+complete -c my_app -n "__fish_using_command my_app some-cmd-with-hypens" -s h -l help -d 'Prints help information'
+complete -c my_app -n "__fish_using_command my_app some-cmd-with-hypens" -s V -l version -d 'Prints version information'
 complete -c my_app -n "__fish_using_command my_app help" -s h -l help -d 'Prints help information'
 complete -c my_app -n "__fish_using_command my_app help" -s V -l version -d 'Prints version information'
 "#;
@@ -506,6 +525,9 @@ static BASH_SPECIAL_CMDS: &'static str = r#"_my_app() {
             help)
                 cmd+="__help"
                 ;;
+            some__cmd__with__hypens)
+                cmd+="__some__cmd__with__hypens"
+                ;;
             some_cmd)
                 cmd+="__some_cmd"
                 ;;
@@ -519,7 +541,7 @@ static BASH_SPECIAL_CMDS: &'static str = r#"_my_app() {
 
     case "${cmd}" in
         my_app)
-            opts=" -h -V  --help --version  <file>  test some_cmd help"
+            opts=" -h -V  --help --version  <file>  test some_cmd some-cmd-with-hypens help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
                 return 0
@@ -535,6 +557,21 @@ static BASH_SPECIAL_CMDS: &'static str = r#"_my_app() {
             ;;
         
         my_app__help)
+            opts=" -h -V  --help --version  "
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+                return 0
+            fi
+            case "${prev}" in
+                
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            return 0
+            ;;
+        my_app__some__cmd__with__hypens)
             opts=" -h -V  --help --version  "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
@@ -686,12 +723,14 @@ fn build_app_with_name(s: &'static str) -> App<'static, 'static> {
 }
 
 fn build_app_special_commands() -> App<'static, 'static> {
-    build_app_with_name("my_app").subcommand(SubCommand::with_name("some_cmd")
-        .about("tests other things")
-        .arg(Arg::with_name("config")
-            .long("--config")
-            .takes_value(true)
-            .help("the other case to test")))
+    build_app_with_name("my_app")
+        .subcommand(SubCommand::with_name("some_cmd")
+                    .about("tests other things")
+                    .arg(Arg::with_name("config")
+                         .long("--config")
+                         .takes_value(true)
+                         .help("the other case to test")))
+        .subcommand(SubCommand::with_name("some-cmd-with-hypens"))
 }
 
 fn build_app_special_help() -> App<'static, 'static> {
