@@ -525,7 +525,7 @@ static BASH_SPECIAL_CMDS: &'static str = r#"_my_app() {
             help)
                 cmd+="__help"
                 ;;
-            some__cmd__with__hypens)
+            some-cmd-with-hypens)
                 cmd+="__some__cmd__with__hypens"
                 ;;
             some_cmd)
