@@ -29,7 +29,7 @@
 //!
 //! The following examples show a quick example of some of the very basic functionality of `clap`.
 //! For more advanced usage, such as requirements, conflicts, groups, multiple values and
-//! occurrences see the [documentation](https://docs.rs/clap/), [examples/](examples) directory of
+//! occurrences see the [documentation](https://docs.rs/clap/), [examples/](https://github.com/kbknapp/clap-rs/tree/master/examples) directory of
 //! this repository or the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl2Z5T8g1pRkIynR3E0_pc7U).
 //!
 //! **NOTE:** All of these examples are functionally the same, but show different styles in which to
