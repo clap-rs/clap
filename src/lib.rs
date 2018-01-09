@@ -29,7 +29,7 @@
 //!
 //! The following examples show a quick example of some of the very basic functionality of `clap`.
 //! For more advanced usage, such as requirements, conflicts, groups, multiple values and
-//! occurrences see the [documentation](https://docs.rs/clap/), [examples/](examples) directory of
+//! occurrences see the [documentation](https://docs.rs/clap/), [examples/](https://github.com/kbknapp/clap-rs/tree/master/examples) directory of
 //! this repository or the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl2Z5T8g1pRkIynR3E0_pc7U).
 //!
 //! **NOTE:** All of these examples are functionally the same, but show different styles in which to
@@ -366,13 +366,13 @@
 //!  * **Red** Color: **NOT** included by default (must use cargo `features` to enable)
 //!  * **Blue** Color: Dev dependency, only used while developing.
 //!
-//! ![clap dependencies](clap_dep_graph.png)
+//! ![clap dependencies](https://raw.githubusercontent.com/kbknapp/clap-rs/master/clap_dep_graph.png)
 //!
 //! ### More Information
 //!
 //! You can find complete documentation on the [docs.rs](https://docs.rs/clap/) for this project.
 //!
-//! You can also find usage examples in the [examples/](examples) directory of this repo.
+//! You can also find usage examples in the [examples/](https://github.com/kbknapp/clap-rs/tree/master/examples) directory of this repo.
 //!
 //! #### Video Tutorials
 //!
@@ -391,7 +391,7 @@
 //! `clap`. You can either add it to the [examples/](examples) directory, or file an issue and tell
 //! me. I'm all about giving credit where credit is due :)
 //!
-//! Please read [CONTRIBUTING.md](.github/CONTRIBUTING.md) before you start contributing.
+//! Please read [CONTRIBUTING.md](https://raw.githubusercontent.com/kbknapp/clap-rs/master/.github/CONTRIBUTING.md) before you start contributing.
 //!
 //!
 //! ### Testing Code
