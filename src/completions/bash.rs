@@ -81,10 +81,11 @@ complete -F _{name} -o bashdefault -o default {name}
             subcmds = format!(
                 "{}
             {name})
-                cmd+=\"__{name}\"
+                cmd+=\"__{fn_name}\"
                 ;;",
                 subcmds,
-                name = sc.replace("-", "__")
+                name = sc,
+                fn_name = sc.replace("-", "__")
             );
         }
 
