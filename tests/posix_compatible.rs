@@ -166,14 +166,13 @@ fn pos_required_overridden_by_flag() {
 #[test]
 fn require_overriden_2() {
     let m = App::new("require_overriden")
-        .arg(Arg::with_name("flag")
-            .index(1)
+        .arg(Arg::with_name("req_pos")
             .required(true))
         .arg(Arg::from_usage("-c, --color 'other flag'")
-            .overrides_with("flag"))
-        .get_matches_from(vec!["", "-c", "flag"]);
+            .overrides_with("req_pos"))
+        .get_matches_from(vec!["", "-c", "req_pos"]);
     assert!(!m.is_present("color"));
-    assert!(m.is_present("flag"));
+    assert!(m.is_present("req_pos"));
 }
 
 #[test]
