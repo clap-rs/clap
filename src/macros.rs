@@ -853,15 +853,15 @@ macro_rules! write_nspaces {
 }
 
 // convenience macro for remove an item from a vec
-macro_rules! vec_remove_all {
-    ($vec:expr, $to_rem:expr) => {
-        debugln!("vec_remove_all! to_rem={:?}", $to_rem);
-        for i in (0 .. $vec.len()).rev() {
-            let should_remove = $to_rem.any(|name| name == &$vec[i]);
-            if should_remove { $vec.swap_remove(i); }
-        }
-    };
-}
+//macro_rules! vec_remove_all {
+//    ($vec:expr, $to_rem:expr) => {
+//        debugln!("vec_remove_all! to_rem={:?}", $to_rem);
+//        for i in (0 .. $vec.len()).rev() {
+//            let should_remove = $to_rem.any(|name| name == &$vec[i]);
+//            if should_remove { $vec.swap_remove(i); }
+//        }
+//    };
+//}
 macro_rules! find_from {
     ($_self:expr, $arg_name:expr, $from:ident, $matcher:expr) => {{
         let mut ret = None;
@@ -892,36 +892,49 @@ macro_rules! find_from {
     }};
 }
 
-macro_rules! find_name_from {
-    ($_self:expr, $arg_name:expr, $from:ident, $matcher:expr) => {{
-        let mut ret = None;
-        for k in $matcher.arg_names() {
-            if let Some(f) = find_by_name!($_self, k, flags, iter) {
-                if let Some(ref v) = f.$from() {
-                    if v.contains($arg_name) {
-                        ret = Some(f.b.name);
-                    }
-                }
-            }
-            if let Some(o) = find_by_name!($_self, k, opts, iter) {
-                if let Some(ref v) = o.$from() {
-                    if v.contains(&$arg_name) {
-                        ret = Some(o.b.name);
-                    }
-                }
-            }
-            if let Some(pos) = find_by_name!($_self, k, positionals, values) {
-                if let Some(ref v) = pos.$from() {
-                    if v.contains($arg_name) {
-                        ret = Some(pos.b.name);
-                    }
-                }
-            }
-        }
-        ret
-    }};
-}
+//macro_rules! find_name_from {
+//    ($_self:expr, $arg_name:expr, $from:ident, $matcher:expr) => {{
+//        let mut ret = None;
+//        for k in $matcher.arg_names() {
+//            if let Some(f) = find_by_name!($_self, k, flags, iter) {
+//                if let Some(ref v) = f.$from() {
+//                    if v.contains($arg_name) {
+//                        ret = Some(f.b.name);
+//                    }
+//                }
+//            }
+//            if let Some(o) = find_by_name!($_self, k, opts, iter) {
+//                if let Some(ref v) = o.$from() {
+//                    if v.contains(&$arg_name) {
+//                        ret = Some(o.b.name);
+//                    }
+//                }
+//            }
+//            if let Some(pos) = find_by_name!($_self, k, positionals, values) {
+//                if let Some(ref v) = pos.$from() {
+//                    if v.contains($arg_name) {
+//                        ret = Some(pos.b.name);
+//                    }
+//                }
+//            }
+//        }
+//        ret
+//    }};
+//}
 
+
+macro_rules! find_any_by_name {
+    ($p:expr, $name:expr) => {
+        {
+            fn as_trait_obj<'a, 'b, T: AnyArg<'a, 'b>>(x: &T) -> &AnyArg<'a, 'b> { x }
+            find_by_name!($p, $name, flags, iter).map(as_trait_obj).or(
+                find_by_name!($p, $name, opts, iter).map(as_trait_obj).or(
+                    find_by_name!($p, $name, positionals, values).map(as_trait_obj)
+                )
+            )
+        }
+    }
+}
 // Finds an arg by name
 macro_rules! find_by_name {
     ($p:expr, $name:expr, $what:ident, $how:ident) => {

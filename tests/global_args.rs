@@ -4,7 +4,7 @@ extern crate regex;
 #[cfg(test)]
 mod tests {
     include!("../clap-test.rs");
-    use clap::{App, Arg, SubCommand, ArgMatches};
+    use clap::{App, Arg, SubCommand};
 
     fn get_app() -> App<'static, 'static> {
         App::new("myprog")

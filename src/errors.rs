@@ -8,7 +8,7 @@ use std::process;
 use std::result::Result as StdResult;
 
 // Internal
-use args::{AnyArg, FlagBuilder};
+use args::AnyArg;
 use fmt::{ColorWhen, Colorizer, ColorizerOption};
 use suggestions;
 
@@ -404,14 +404,13 @@ impl Error {
     pub fn write_to<W: Write>(&self, w: &mut W) -> io::Result<()> { write!(w, "{}", self.message) }
 
     #[doc(hidden)]
-    pub fn argument_conflict<'a, 'b, A, O, U>(
-        arg: &A,
+    pub fn argument_conflict<'a, 'b, O, U>(
+        arg: &AnyArg,
         other: Option<O>,
         usage: U,
         color: ColorWhen,
     ) -> Self
     where
-        A: AnyArg<'a, 'b> + Display,
         O: Into<String>,
         U: Display,
     {
@@ -444,9 +443,8 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn empty_value<'a, 'b, A, U>(arg: &A, usage: U, color: ColorWhen) -> Self
+    pub fn empty_value<'a, 'b, U>(arg: &AnyArg, usage: U, color: ColorWhen) -> Self
     where
-        A: AnyArg<'a, 'b> + Display,
         U: Display,
     {
         let c = Colorizer::new(ColorizerOption {
@@ -470,17 +468,16 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn invalid_value<'a, 'b, B, G, A, U>(
+    pub fn invalid_value<'a, 'b, B, G, U>(
         bad_val: B,
         good_vals: &[G],
-        arg: &A,
+        arg: &AnyArg,
         usage: U,
         color: ColorWhen,
     ) -> Self
     where
         B: AsRef<str>,
         G: AsRef<str> + Display,
-        A: AnyArg<'a, 'b> + Display,
         U: Display,
     {
         let c = Colorizer::new(ColorizerOption {
@@ -660,10 +657,9 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn too_many_values<'a, 'b, V, A, U>(val: V, arg: &A, usage: U, color: ColorWhen) -> Self
+    pub fn too_many_values<'a, 'b, V, U>(val: V, arg: &AnyArg, usage: U, color: ColorWhen) -> Self
     where
         V: AsRef<str> + Display + ToOwned,
-        A: AnyArg<'a, 'b> + Display,
         U: Display,
     {
         let v = val.as_ref();
@@ -689,15 +685,14 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn too_few_values<'a, 'b, A, U>(
-        arg: &A,
+    pub fn too_few_values<'a, 'b, U>(
+        arg: &AnyArg,
         min_vals: u64,
         curr_vals: usize,
         usage: U,
         color: ColorWhen,
     ) -> Self
     where
-        A: AnyArg<'a, 'b> + Display,
         U: Display,
     {
         let c = Colorizer::new(ColorizerOption {
@@ -724,9 +719,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn value_validation<'a, 'b, A>(arg: Option<&A>, err: String, color: ColorWhen) -> Self
-    where
-        A: AnyArg<'a, 'b> + Display,
+    pub fn value_validation<'a, 'b>(arg: Option<&AnyArg>, err: String, color: ColorWhen) -> Self
     {
         let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
@@ -750,13 +743,13 @@ impl Error {
 
     #[doc(hidden)]
     pub fn value_validation_auto(err: String) -> Self {
-        let n: Option<&FlagBuilder> = None;
+        let n: Option<&AnyArg> = None;
         Error::value_validation(n, err, ColorWhen::Auto)
     }
 
     #[doc(hidden)]
-    pub fn wrong_number_of_values<'a, 'b, A, S, U>(
-        arg: &A,
+    pub fn wrong_number_of_values<'a, 'b, S, U>(
+        arg: &AnyArg,
         num_vals: u64,
         curr_vals: usize,
         suffix: S,
@@ -764,7 +757,6 @@ impl Error {
         color: ColorWhen,
     ) -> Self
     where
-        A: AnyArg<'a, 'b> + Display,
         S: Display,
         U: Display,
     {
@@ -792,9 +784,8 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn unexpected_multiple_usage<'a, 'b, A, U>(arg: &A, usage: U, color: ColorWhen) -> Self
+    pub fn unexpected_multiple_usage<'a, 'b, U>(arg: &AnyArg, usage: U, color: ColorWhen) -> Self
     where
-        A: AnyArg<'a, 'b> + Display,
         U: Display,
     {
         let c = Colorizer::new(ColorizerOption {
