@@ -42,6 +42,15 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's whats new in 2.29.1:
+
+* Debloats clap by deduplicating logic and refactors for a ~57% decrease in code size! This is with zero functinoality lost, and a slight perf increase!
+* Change the bash completion script code generation to support hyphens. 
+* Fix completion of long option values in ZSH completions
+* Fixes broken links in docs
+* Updates contributors list
+* Fixes the ripgrep benchmark by adding a value to a flag that expects it 
+
 Here's whats new in 2.29.0:
 
 * **Arg:**  adds Arg::hide_env_values(bool) which allows one to hide any current env values and display only the key in help messages
