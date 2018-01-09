@@ -43,7 +43,7 @@ fn parse_complex(b: &mut Bencher) {
         app_short().get_matches_from(vec!["rg",
                                           "pat",
                                           "-cFlN",
-                                          "-pqr",
+                                          "-pqr=some",
                                           "--null",
                                           "--no-filename",
                                           "--no-messages",
