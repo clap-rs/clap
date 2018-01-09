@@ -310,7 +310,7 @@ subcommands:
 
 Since this feature requires additional dependencies that not everyone may want, it is *not* compiled in by default and we need to enable a feature flag in Cargo.toml:
 
-Simply change your `clap = "2.29"` to `clap = {version = "2.87", features = ["yaml"]}`.
+Simply change your `clap = "2.29"` to `clap = {version = "2.29", features = ["yaml"]}`.
 
 Finally we create our `main.rs` file just like we would have with the previous two examples:
 
