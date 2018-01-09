@@ -371,7 +371,7 @@ fn write_opts_of(p: &Parser) -> String {
         }
         if let Some(long) = o.long() {
             let l = format!(
-                "'{conflicts}{multiple}--{arg}+[{help}]{possible_values}' \\",
+                "'{conflicts}{multiple}--{arg}=[{help}]{possible_values}' \\",
                 conflicts = conflicts,
                 multiple = multiple,
                 arg = long,

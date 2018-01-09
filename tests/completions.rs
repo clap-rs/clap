@@ -108,7 +108,7 @@ _myapp() {
         case $line[1] in
             (test)
 _arguments -s -S -C \
-'--case+[the case to test]' \
+'--case=[the case to test]' \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
 '-V[Prints version information]' \
@@ -397,7 +397,7 @@ _my_app() {
         case $line[1] in
             (test)
 _arguments -s -S -C \
-'--case+[the case to test]' \
+'--case=[the case to test]' \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
 '-V[Prints version information]' \
@@ -406,7 +406,7 @@ _arguments -s -S -C \
 ;;
 (some_cmd)
 _arguments -s -S -C \
-'--config+[the other case to test]' \
+'--config=[the other case to test]' \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
 '-V[Prints version information]' \
