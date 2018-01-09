@@ -24,3 +24,4 @@ Cargo.lock
 
 # Project files
 .vscode/*
+.idea/*
