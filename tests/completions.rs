@@ -108,7 +108,7 @@ _myapp() {
         case $line[1] in
             (test)
 _arguments -s -S -C \
-'--case+[the case to test]' \
+'--case=[the case to test]' \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
 '-V[Prints version information]' \
@@ -270,7 +270,7 @@ static POWERSHELL: &'static str = r#"
 "#;
 
 #[cfg(not(target_os="windows"))]
-static POWERSHELL_WUS: &'static str = r#"
+static POWERSHELL_SPECIAL_CMDS: &'static str = r#"
 @('my_app', './my_app') | %{
     Register-ArgumentCompleter -Native -CommandName $_ -ScriptBlock {
         param($wordToComplete, $commandAst, $cursorPosition)
@@ -330,7 +330,7 @@ static POWERSHELL_WUS: &'static str = r#"
 "#;
 
 #[cfg(target_os="windows")]
-static POWERSHELL_WUS: &'static str = r#"
+static POWERSHELL_SPECIAL_CMDS: &'static str = r#"
 @('my_app', './my_app', 'my_app.exe', '.\my_app', '.\my_app.exe', './my_app.exe') | %{
     Register-ArgumentCompleter -Native -CommandName $_ -ScriptBlock {
         param($wordToComplete, $commandAst, $cursorPosition)
@@ -376,7 +376,7 @@ static POWERSHELL_WUS: &'static str = r#"
 }
 "#;
 
-static ZSH_WUS: &'static str = r#"#compdef my_app
+static ZSH_SPECIAL_CMDS: &'static str = r#"#compdef my_app
 
 _my_app() {
     typeset -A opt_args
@@ -397,7 +397,7 @@ _my_app() {
         case $line[1] in
             (test)
 _arguments -s -S -C \
-'--case+[the case to test]' \
+'--case=[the case to test]' \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
 '-V[Prints version information]' \
@@ -406,7 +406,15 @@ _arguments -s -S -C \
 ;;
 (some_cmd)
 _arguments -s -S -C \
-'--config+[the other case to test]' \
+'--config=[the other case to test]' \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
+&& ret=0
+;;
+(some-cmd-with-hypens)
+_arguments -s -S -C \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
 '-V[Prints version information]' \
@@ -431,6 +439,7 @@ _my_app_commands() {
     local commands; commands=(
         "test:tests things" \
 "some_cmd:tests other things" \
+"some-cmd-with-hypens:" \
 "help:Prints this message or the help of the given subcommand(s)" \
 "FILE:some input file" \
     )
@@ -442,6 +451,13 @@ _my_app__help_commands() {
         
     )
     _describe -t commands 'my_app help commands' commands "$@"
+}
+(( $+functions[_my_app__some-cmd-with-hypens_commands] )) ||
+_my_app__some-cmd-with-hypens_commands() {
+    local commands; commands=(
+        
+    )
+    _describe -t commands 'my_app some-cmd-with-hypens commands' commands "$@"
 }
 (( $+functions[_my_app__some_cmd_commands] )) ||
 _my_app__some_cmd_commands() {
@@ -460,7 +476,7 @@ _my_app__test_commands() {
 
 _my_app "$@""#;
 
-static FISH_WUS: &'static str = r#"function __fish_using_command
+static FISH_SPECIAL_CMDS: &'static str = r#"function __fish_using_command
     set cmd (commandline -opc)
     if [ (count $cmd) -eq (count $argv) ]
         for i in (seq (count $argv))
@@ -477,6 +493,7 @@ complete -c my_app -n "__fish_using_command my_app" -s h -l help -d 'Prints help
 complete -c my_app -n "__fish_using_command my_app" -s V -l version -d 'Prints version information'
 complete -c my_app -n "__fish_using_command my_app" -f -a "test" -d 'tests things'
 complete -c my_app -n "__fish_using_command my_app" -f -a "some_cmd" -d 'tests other things'
+complete -c my_app -n "__fish_using_command my_app" -f -a "some-cmd-with-hypens"
 complete -c my_app -n "__fish_using_command my_app" -f -a "help" -d 'Prints this message or the help of the given subcommand(s)'
 complete -c my_app -n "__fish_using_command my_app test" -l case -d 'the case to test'
 complete -c my_app -n "__fish_using_command my_app test" -s h -l help -d 'Prints help information'
@@ -484,11 +501,13 @@ complete -c my_app -n "__fish_using_command my_app test" -s V -l version -d 'Pri
 complete -c my_app -n "__fish_using_command my_app some_cmd" -l config -d 'the other case to test'
 complete -c my_app -n "__fish_using_command my_app some_cmd" -s h -l help -d 'Prints help information'
 complete -c my_app -n "__fish_using_command my_app some_cmd" -s V -l version -d 'Prints version information'
+complete -c my_app -n "__fish_using_command my_app some-cmd-with-hypens" -s h -l help -d 'Prints help information'
+complete -c my_app -n "__fish_using_command my_app some-cmd-with-hypens" -s V -l version -d 'Prints version information'
 complete -c my_app -n "__fish_using_command my_app help" -s h -l help -d 'Prints help information'
 complete -c my_app -n "__fish_using_command my_app help" -s V -l version -d 'Prints version information'
 "#;
 
-static BASH_WUS: &'static str = r#"_my_app() {
+static BASH_SPECIAL_CMDS: &'static str = r#"_my_app() {
     local i cur prev opts cmds
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
@@ -506,6 +525,9 @@ static BASH_WUS: &'static str = r#"_my_app() {
             help)
                 cmd+="__help"
                 ;;
+            some-cmd-with-hypens)
+                cmd+="__some__cmd__with__hypens"
+                ;;
             some_cmd)
                 cmd+="__some_cmd"
                 ;;
@@ -519,7 +541,7 @@ static BASH_WUS: &'static str = r#"_my_app() {
 
     case "${cmd}" in
         my_app)
-            opts=" -h -V  --help --version  <file>  test some_cmd help"
+            opts=" -h -V  --help --version  <file>  test some_cmd some-cmd-with-hypens help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
                 return 0
@@ -535,6 +557,21 @@ static BASH_WUS: &'static str = r#"_my_app() {
             ;;
         
         my_app__help)
+            opts=" -h -V  --help --version  "
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+                return 0
+            fi
+            case "${prev}" in
+                
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            return 0
+            ;;
+        my_app__some__cmd__with__hypens)
             opts=" -h -V  --help --version  "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
@@ -593,7 +630,7 @@ static BASH_WUS: &'static str = r#"_my_app() {
 complete -F _my_app -o bashdefault -o default my_app
 "#;
 
-static FISH_SPECIAL: &'static str = r#"function __fish_using_command
+static FISH_SPECIAL_HELP: &'static str = r#"function __fish_using_command
     set cmd (commandline -opc)
     if [ (count $cmd) -eq (count $argv) ]
         for i in (seq (count $argv))
@@ -616,7 +653,7 @@ complete -c my_app -n "__fish_using_command my_app" -s h -l help -d 'Prints help
 complete -c my_app -n "__fish_using_command my_app" -s V -l version -d 'Prints version information'
 "#;
 
-static ZSH_SPECIAL: &'static str = r#"#compdef my_app
+static ZSH_SPECIAL_HELP: &'static str = r#"#compdef my_app
 
 _my_app() {
     typeset -A opt_args
@@ -685,16 +722,18 @@ fn build_app_with_name(s: &'static str) -> App<'static, 'static> {
                 .help("the case to test")))
 }
 
-fn build_app_with_underscore() -> App<'static, 'static> {
-    build_app_with_name("my_app").subcommand(SubCommand::with_name("some_cmd")
-        .about("tests other things")
-        .arg(Arg::with_name("config")
-            .long("--config")
-            .takes_value(true)
-            .help("the other case to test")))
+fn build_app_special_commands() -> App<'static, 'static> {
+    build_app_with_name("my_app")
+        .subcommand(SubCommand::with_name("some_cmd")
+                    .about("tests other things")
+                    .arg(Arg::with_name("config")
+                         .long("--config")
+                         .takes_value(true)
+                         .help("the other case to test")))
+        .subcommand(SubCommand::with_name("some-cmd-with-hypens"))
 }
 
-fn build_app_special() -> App<'static, 'static> {
+fn build_app_special_help() -> App<'static, 'static> {
     App::new("my_app")
         .arg(Arg::with_name("single-quotes")
             .long("single-quotes")
@@ -759,61 +798,61 @@ fn fish() {
 
 // Disabled until I figure out this windows line ending and AppVeyor issues
 //#[test]
-// fn powershell_with_underscore() {
-//     let mut app = build_app_with_underscore();
+// fn powershell_with_special_commands() {
+//     let mut app = build_app_special_commands();
 //     let mut buf = vec![];
 //     app.gen_completions_to("my_app", Shell::PowerShell, &mut buf);
 //     let string = String::from_utf8(buf).unwrap();
 //
-//     assert!(compare(&*string, POWERSHELL_WUS));
+//     assert!(compare(&*string, POWERSHELL_SPECIAL_CMDS));
 // }
 
 #[test]
-fn bash_with_underscore() {
-    let mut app = build_app_with_underscore();
+fn bash_with_special_commands() {
+    let mut app = build_app_special_commands();
     let mut buf = vec![];
     app.gen_completions_to("my_app", Shell::Bash, &mut buf);
     let string = String::from_utf8(buf).unwrap();
 
-    assert!(compare(&*string, BASH_WUS));
+    assert!(compare(&*string, BASH_SPECIAL_CMDS));
 }
 
 #[test]
-fn fish_with_underscore() {
-    let mut app = build_app_with_underscore();
+fn fish_with_special_commands() {
+    let mut app = build_app_special_commands();
     let mut buf = vec![];
     app.gen_completions_to("my_app", Shell::Fish, &mut buf);
     let string = String::from_utf8(buf).unwrap();
 
-    assert!(compare(&*string, FISH_WUS));
+    assert!(compare(&*string, FISH_SPECIAL_CMDS));
 }
 
 #[test]
-fn zsh_with_underscore() {
-    let mut app = build_app_with_underscore();
+fn zsh_with_special_commands() {
+    let mut app = build_app_special_commands();
     let mut buf = vec![];
     app.gen_completions_to("my_app", Shell::Zsh, &mut buf);
     let string = String::from_utf8(buf).unwrap();
 
-    assert!(compare(&*string, ZSH_WUS));
+    assert!(compare(&*string, ZSH_SPECIAL_CMDS));
 }
 
 #[test]
-fn fish_special() {
-    let mut app = build_app_special();
+fn fish_with_special_help() {
+    let mut app = build_app_special_help();
     let mut buf = vec![];
     app.gen_completions_to("my_app", Shell::Fish, &mut buf);
     let string = String::from_utf8(buf).unwrap();
 
-    assert!(compare(&*string, FISH_SPECIAL));
+    assert!(compare(&*string, FISH_SPECIAL_HELP));
 }
 
 #[test]
-fn zsh_special() {
-    let mut app = build_app_special();
+fn zsh_with_special_help() {
+    let mut app = build_app_special_help();
     let mut buf = vec![];
     app.gen_completions_to("my_app", Shell::Zsh, &mut buf);
     let string = String::from_utf8(buf).unwrap();
 
-    assert!(compare(&*string, ZSH_SPECIAL));
+    assert!(compare(&*string, ZSH_SPECIAL_HELP));
 }

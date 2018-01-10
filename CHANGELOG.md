@@ -1,3 +1,24 @@
+<a name="2.29.1"></a>
+### 2.29.1 (2018-01-09)
+
+
+#### Documentation
+
+*   fixes broken links. ([56e734b8](https://github.com/kbknapp/clap-rs/commit/56e734b839303d733d2e5baf7dac39bd7b97b8e4))
+*   updates contributors list ([e1313a5a](https://github.com/kbknapp/clap-rs/commit/e1313a5a0f69d8f4016f73b860a63af8318a6676))
+
+#### Performance
+
+*   further debloating by removing generics from error cases ([eb8d919e](https://github.com/kbknapp/clap-rs/commit/eb8d919e6f3443db279ba0c902f15d76676c02dc))
+*   debloats clap by deduplicating logic and refactors ([03e413d7](https://github.com/kbknapp/clap-rs/commit/03e413d7175d35827cd7d8908d47dbae15a849a3))
+
+#### Bug Fixes
+
+*   fixes the ripgrep benchmark by adding a value to a flag that expects it ([d26ab2b9](https://github.com/kbknapp/clap-rs/commit/d26ab2b97cf9c0ea675b440b7b0eaf6ac3ad01f4))
+* **bash completion:**  Change the bash completion script code generation to support hyphens. ([ba7f1d18](https://github.com/kbknapp/clap-rs/commit/ba7f1d18eba7a07ce7f57e0981986f66c994b639))
+* **completions/zsh.rs:**  Fix completion of long option values ([46365cf8](https://github.com/kbknapp/clap-rs/commit/46365cf8be5331ba04c895eb183e2f230b5aad51))
+
+
 <a name="2.29.0"></a>
 ## 2.29.0 (2017-12-02)
 

@@ -32,22 +32,22 @@ SUBCOMMANDS:
     test    Some help";
 
 #[cfg(feature = "suggestions")]
-static DYM: &'static str = "error: The subcommand 'subcm' wasn't recognized
-\tDid you mean 'subcmd'?
+static DYM_SUBCMD: &'static str = "error: The subcommand 'subcm' wasn't recognized
+	Did you mean 'subcmd'?
 
-If you believe you received this message in error, try re-running with 'clap-test -- subcm'
+If you believe you received this message in error, try re-running with 'dym -- subcm'
 
 USAGE:
-    clap-test [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
+    dym [SUBCOMMAND]
 
 For more information try --help";
 
 #[cfg(feature = "suggestions")]
-static DYM2: &'static str = "error: Found argument '--subcm' which wasn't expected, or isn't valid in this context
+static DYM_ARG: &'static str = "error: Found argument '--subcm' which wasn't expected, or isn't valid in this context
 \tDid you mean to put '--subcmdarg' after the subcommand 'subcmd'?
 
 USAGE:
-    clap-test [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
+    dym [SUBCOMMAND]
 
 For more information try --help";
 
@@ -129,8 +129,18 @@ fn multiple_aliases() {
 #[test]
 #[cfg(feature="suggestions")]
 fn subcmd_did_you_mean_output() {
-    assert!(test::compare_output(test::complex_app(), "clap-test subcm", DYM, true));
-    assert!(test::compare_output(test::complex_app(), "clap-test --subcm foo", DYM2, true));
+    let app = App::new("dym")
+        .subcommand(SubCommand::with_name("subcmd"));
+    assert!(test::compare_output(app, "dym subcm", DYM_SUBCMD, true));
+}
+
+#[test]
+#[cfg(feature="suggestions")]
+fn subcmd_did_you_mean_output_arg() {
+    let app = App::new("dym")
+        .subcommand(SubCommand::with_name("subcmd")
+            .arg_from_usage("-s --subcmdarg [subcmdarg] 'tests'") );
+    assert!(test::compare_output(app, "dym --subcm foo", DYM_ARG, true));
 }
 
 #[test]

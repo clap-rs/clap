@@ -61,8 +61,7 @@ where
     pub global_args: Vec<Arg<'a, 'b>>,
     pub required: Vec<&'a str>,
     pub r_ifs: Vec<(&'a str, &'b str, &'a str)>,
-    pub blacklist: Vec<&'b str>,
-    pub overrides: Vec<&'b str>,
+    pub overrides: Vec<(&'b str, &'a str)>,
     help_short: Option<char>,
     version_short: Option<char>,
     cache: Option<&'a str>,
@@ -346,9 +345,9 @@ where
             if let Some(ref reqs) = group.requires {
                 self.required.extend_from_slice(reqs);
             }
-            if let Some(ref bl) = group.conflicts {
-                self.blacklist.extend_from_slice(bl);
-            }
+//            if let Some(ref bl) = group.conflicts {
+//                self.blacklist.extend_from_slice(bl);
+//            }
         }
         if self.groups.iter().any(|g| g.name == group.name) {
             let grp = self.groups
@@ -773,12 +772,8 @@ where
 
     // allow wrong self convention due to self.valid_neg_num = true and it's a private method
     #[cfg_attr(feature = "lints", allow(wrong_self_convention))]
-    fn is_new_arg(&mut self, arg_os: &OsStr, needs_val_of: ParseResult<'a>) -> bool {
-        debugln!(
-            "Parser::is_new_arg: arg={:?}, Needs Val of={:?}",
-            arg_os,
-            needs_val_of
-        );
+    fn is_new_arg(&mut self, arg_os: &OsStr, needs_val_of: ParseResult) -> bool {
+        debugln!( "Parser::is_new_arg:{:?}:{:?}", arg_os, needs_val_of);
         let app_wide_settings = if self.is_set(AS::AllowLeadingHyphen) {
             true
         } else if self.is_set(AS::AllowNegativeNumbers) {
@@ -807,12 +802,10 @@ where
                     .expect(INTERNAL_ERROR_MSG);
                 (p.is_set(ArgSettings::AllowLeadingHyphen) || app_wide_settings)
             }
+            ParseResult::ValuesDone => return true,
             _ => false,
         };
-        debugln!(
-            "Parser::is_new_arg: Arg::allow_leading_hyphen({:?})",
-            arg_allows_tac
-        );
+        debugln!( "Parser::is_new_arg: arg_allows_tac={:?}", arg_allows_tac );
 
         // Is this a new argument, or values from a previous option?
         let mut ret = if arg_os.starts_with(b"--") {
@@ -913,7 +906,52 @@ where
                     }
                 }
 
-                if !starts_new_arg {
+                if starts_new_arg {
+                    {
+                        let any_arg = find_any_by_name!(self, self.cache.unwrap_or(""));
+                        matcher.process_arg_overrides(any_arg, &mut self.overrides, &mut self.required);
+                    }
+
+                    if arg_os.starts_with(b"--") {
+                        needs_val_of = self.parse_long_arg(matcher, &arg_os)?;
+                        debugln!( "Parser:get_matches_with: After parse_long_arg {:?}", needs_val_of );
+                        match needs_val_of {
+                            ParseResult::Flag | ParseResult::Opt(..) | ParseResult::ValuesDone => {
+                                continue
+                            }
+                            _ => (),
+                        }
+                    } else if arg_os.starts_with(b"-") && arg_os.len_() != 1 {
+                        // Try to parse short args like normal, if AllowLeadingHyphen or
+                        // AllowNegativeNumbers is set, parse_short_arg will *not* throw
+                        // an error, and instead return Ok(None)
+                        needs_val_of = self.parse_short_arg(matcher, &arg_os)?;
+                        // If it's None, we then check if one of those two AppSettings was set
+                        debugln!(
+                            "Parser:get_matches_with: After parse_short_arg {:?}",
+                            needs_val_of
+                        );
+                        match needs_val_of {
+                            ParseResult::MaybeNegNum => {
+                                if !(arg_os.to_string_lossy().parse::<i64>().is_ok()
+                                    || arg_os.to_string_lossy().parse::<f64>().is_ok())
+                                    {
+                                        return Err(Error::unknown_argument(
+                                            &*arg_os.to_string_lossy(),
+                                            "",
+                                            &*usage::create_error_usage(self, matcher, None),
+                                            self.color(),
+                                        ));
+                                    }
+                            },
+                            ParseResult::Opt(..) | ParseResult::Flag | ParseResult::ValuesDone => {
+                                continue
+                            }
+                            _ => (),
+                        }
+                    }
+
+                } else {
                     if let ParseResult::Opt(name) = needs_val_of {
                         // Check to see if parsing a value from a previous arg
                         let arg = self.opts
@@ -925,62 +963,20 @@ where
                         // get the next value from the iterator
                         continue;
                     }
-                } else if arg_os.starts_with(b"--") {
-                    needs_val_of = self.parse_long_arg(matcher, &arg_os)?;
-                    debugln!(
-                        "Parser:get_matches_with: After parse_long_arg {:?}",
-                        needs_val_of
-                    );
-                    match needs_val_of {
-                        ParseResult::Flag | ParseResult::Opt(..) | ParseResult::ValuesDone => {
-                            continue
-                        }
-                        _ => (),
-                    }
-                } else if arg_os.starts_with(b"-") && arg_os.len_() != 1 {
-                    // Try to parse short args like normal, if AllowLeadingHyphen or
-                    // AllowNegativeNumbers is set, parse_short_arg will *not* throw
-                    // an error, and instead return Ok(None)
-                    needs_val_of = self.parse_short_arg(matcher, &arg_os)?;
-                    // If it's None, we then check if one of those two AppSettings was set
-                    debugln!(
-                        "Parser:get_matches_with: After parse_short_arg {:?}",
-                        needs_val_of
-                    );
-                    match needs_val_of {
-                        ParseResult::MaybeNegNum => {
-                            if !(arg_os.to_string_lossy().parse::<i64>().is_ok()
-                                || arg_os.to_string_lossy().parse::<f64>().is_ok())
-                            {
-                                return Err(Error::unknown_argument(
-                                    &*arg_os.to_string_lossy(),
-                                    "",
-                                    &*usage::create_error_usage(self, matcher, None),
-                                    self.color(),
-                                ));
-                            }
-                        }
-                        ParseResult::Opt(..) | ParseResult::Flag | ParseResult::ValuesDone => {
-                            continue
-                        }
-                        _ => (),
-                    }
                 }
+            }
 
-                if !(self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound))
-                    && !self.is_set(AS::InferSubcommands)
-                {
-                    if let Some(cdate) =
-                        suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self))
-                    {
-                        return Err(Error::invalid_subcommand(
-                            arg_os.to_string_lossy().into_owned(),
-                            cdate,
-                            self.meta.bin_name.as_ref().unwrap_or(&self.meta.name),
-                            &*usage::create_error_usage(self, matcher, None),
-                            self.color(),
-                        ));
-                    }
+            if !(self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound))
+                && !self.is_set(AS::InferSubcommands)
+            {
+                if let Some(cdate) = suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self)) {
+                    return Err(Error::invalid_subcommand(
+                        arg_os.to_string_lossy().into_owned(),
+                        cdate,
+                        self.meta.bin_name.as_ref().unwrap_or(&self.meta.name),
+                        &*usage::create_error_usage(self, matcher, None),
+                        self.color(),
+                    ));
                 }
             }
 
@@ -1035,7 +1031,29 @@ where
                         self.color(),
                     ));
                 }
-                parse_positional!(self, p, arg_os, pos_counter, matcher);
+                if !self.is_set(AS::TrailingValues) &&
+                    (self.is_set(AS::TrailingVarArg) &&
+                    pos_counter == self.positionals.len()) {
+                    self.settings.set(AS::TrailingValues);
+                }
+                if self.cache.map_or(true, |name| name != p.b.name) {
+                    {
+                        let any_arg = find_any_by_name!(self, self.cache.unwrap_or(""));
+                        matcher.process_arg_overrides(any_arg, &mut self.overrides, &mut self.required);
+                    }
+                    self.cache = Some(p.b.name);
+                }
+                let _ = self.add_val_to_arg(p, &arg_os, matcher)?;
+
+                matcher.inc_occurrence_of(p.b.name);
+                let _ = self.groups_for_arg(p.b.name)
+                    .and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
+
+                self.settings.set(AS::ValidArgFound);
+                // Only increment the positional counter if it doesn't allow multiples
+                if !p.b.settings.is_set(ArgSettings::Multiple) {
+                    pos_counter += 1;
+                }
                 self.settings.set(AS::ValidArgFound);
             } else if self.is_set(AS::AllowExternalSubcommands) {
                 // Get external subcommand name
@@ -1136,9 +1154,34 @@ where
             });
         }
 
+        // In case the last arg was new, we  need to process it's overrides
+        {
+            let any_arg = find_any_by_name!(self, self.cache.unwrap_or(""));
+            matcher.process_arg_overrides(any_arg, &mut self.overrides, &mut self.required);
+        }
+
+        self.remove_overrides(matcher);
+
         Validator::new(self).validate(needs_val_of, subcmd_name, matcher)
     }
 
+    fn remove_overrides(&mut self, matcher: &mut ArgMatcher) {
+        debugln!("Parser::remove_overrides:{:?};", self.overrides);
+        for &(overr, name) in &self.overrides {
+            debugln!("Parser::remove_overrides:iter:({},{});", overr, name);
+            if matcher.is_present(overr) {
+                debugln!("Parser::remove_overrides:iter:({},{}): removing {};", overr, name, name);
+                matcher.remove(name);
+                for i in (0 .. self.required.len()).rev() {
+                    debugln!("Parser::remove_overrides:iter:({},{}): removing required {};", overr, name, name);
+                    if self.required[i] == name {
+                        self.required.swap_remove(i);
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
     fn propagate_help_version(&mut self) {
         debugln!("Parser::propagate_help_version;");
@@ -1483,7 +1526,6 @@ where
             self.settings.set(AS::ValidArgFound);
             let ret = self.parse_opt(val, opt, val.is_some(), matcher)?;
             if self.cache.map_or(true, |name| name != opt.b.name) {
-                arg_post_processing!(self, opt, matcher);
                 self.cache = Some(opt.b.name);
             }
 
@@ -1501,10 +1543,9 @@ where
             self.parse_flag(flag, matcher)?;
 
             // Handle conflicts, requirements, etc.
-            // if self.cache.map_or(true, |name| name != flag.b.name) {
-            arg_post_processing!(self, flag, matcher);
-            // self.cache = Some(flag.b.name);
-            // }
+             if self.cache.map_or(true, |name| name != flag.b.name) {
+                 self.cache = Some(flag.b.name);
+             }
 
             return Ok(ParseResult::Flag);
         } else if self.is_set(AS::AllowLeadingHyphen) {
@@ -1580,7 +1621,6 @@ where
                 let ret = self.parse_opt(val, opt, false, matcher)?;
 
                 if self.cache.map_or(true, |name| name != opt.b.name) {
-                    arg_post_processing!(self, opt, matcher);
                     self.cache = Some(opt.b.name);
                 }
 
@@ -1595,7 +1635,6 @@ where
                 // Handle conflicts, requirements, overrides, etc.
                 // Must be called here due to mutablilty
                 if self.cache.map_or(true, |name| name != flag.b.name) {
-                    arg_post_processing!(self, flag, matcher);
                     self.cache = Some(flag.b.name);
                 }
             } else {
@@ -1844,7 +1883,6 @@ where
                         $_self.add_val_to_arg($a, OsStr::new(val), $m)?;
 
                         if $_self.cache.map_or(true, |name| name != $a.name()) {
-                            arg_post_processing!($_self, $a, $m);
                             $_self.cache = Some($a.name());
                         }
                     } else if $m.get($a.b.name).is_some() {
@@ -1855,7 +1893,6 @@ where
                         $_self.add_val_to_arg($a, OsStr::new(val), $m)?;
 
                         if $_self.cache.map_or(true, |name| name != $a.name()) {
-                            arg_post_processing!($_self, $a, $m);
                             $_self.cache = Some($a.name());
                         }
                     }
@@ -1881,7 +1918,6 @@ where
                             if add {
                                 $_self.add_val_to_arg($a, OsStr::new(default), $m)?;
                                 if $_self.cache.map_or(true, |name| name != $a.name()) {
-                                    arg_post_processing!($_self, $a, $m);
                                     $_self.cache = Some($a.name());
                                 }
                                 done = true;
@@ -1920,7 +1956,6 @@ where
                             $_self.add_val_to_arg($a, OsStr::new(val), $m)?;
 
                             if $_self.cache.map_or(true, |name| name != $a.name()) {
-                                arg_post_processing!($_self, $a, $m);
                                 $_self.cache = Some($a.name());
                             }
                         }
@@ -1929,7 +1964,6 @@ where
                             $_self.add_val_to_arg($a, OsStr::new(val), $m)?;
 
                             if $_self.cache.map_or(true, |name| name != $a.name()) {
-                                arg_post_processing!($_self, $a, $m);
                                 $_self.cache = Some($a.name());
                             }
                         }
@@ -1972,7 +2006,7 @@ where
         }
     }
 
-    pub fn find_any_arg(&self, name: &str) -> Option<&AnyArg> {
+    pub fn find_any_arg(&self, name: &str) -> Option<&AnyArg<'a, 'b>> {
         if let Some(f) = find_by_name!(self, name, flags, iter) {
             return Some(f);
         }

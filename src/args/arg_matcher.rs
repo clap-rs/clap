@@ -21,11 +21,36 @@ impl<'a> Default for ArgMatcher<'a> {
 impl<'a> ArgMatcher<'a> {
     pub fn new() -> Self { ArgMatcher::default() }
 
+    pub fn process_arg_overrides<'b>(&mut self, a: Option<&AnyArg<'a, 'b>>, overrides: &mut Vec<(&'b str, &'a str)>, required: &mut Vec<&'a str>) {
+        debugln!("ArgMatcher::process_arg_overrides:{:?};", a.map_or(None, |a| Some(a.name())));
+        if let Some(aa) = a {
+            if let Some(a_overrides) = aa.overrides() {
+                for overr in a_overrides {
+                    debugln!("ArgMatcher::process_arg_overrides:iter:{};", overr);
+                    if self.is_present(overr) {
+                        debugln!("ArgMatcher::process_arg_overrides:iter:{}: removing from matches;", overr);
+                        self.remove(overr);
+                        for i in (0 .. required.len()).rev() {
+                            if &required[i] == overr {
+                                debugln!("ArgMatcher::process_arg_overrides:iter:{}: removing required;", overr);
+                                required.swap_remove(i);
+                                break;
+                            }
+                        }
+                    } else {
+                        overrides.push((overr, aa.name()));
+                    }
+                }
+            }
+        }
+    }
+
+    pub fn is_present(&self, name: &str) -> bool {
+        self.0.is_present(name)
+    }
+
     pub fn propagate_globals(&mut self, global_arg_vec: &[&'a str]) {
-        debugln!(
-            "ArgMatcher::get_global_values: global_arg_vec={:?}",
-            global_arg_vec
-        );
+        debugln!( "ArgMatcher::get_global_values: global_arg_vec={:?}", global_arg_vec );
         let mut vals_map = HashMap::new();
         self.fill_in_global_values(global_arg_vec, &mut vals_map);
     }
