@@ -1304,7 +1304,7 @@ impl<'a, 'b> App<'a, 'b> {
 
     /// Generate a completions file for a specified shell at compile time.
     ///
-    /// **NOTE:** to generate the this file at compile time you must use a `build.rs` "Build Script"
+    /// **NOTE:** to generate the file at compile time you must use a `build.rs` "Build Script"
     ///
     /// # Examples
     ///
