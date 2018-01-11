@@ -10,6 +10,6 @@ fn main() {
        .author(crate_authors!())
        .get_matches();
 
-    // running the this app with the -h will display whatever author(s) are in your
+    // running this app with -h will display whatever author(s) are in your
     // Cargo.toml
 }
