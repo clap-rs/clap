@@ -167,24 +167,6 @@ fn subcommands_and_args_of(p: &Parser) -> String {
         }
     }
 
-    // Then the positional args
-    for arg in p.positionals() {
-        debugln!("ZshGen::subcommands_and_args_of:iter: arg={}", arg.b.name);
-        let a = format!(
-            "\"{name}:{help}\" \\",
-            name = arg.b.name.to_ascii_uppercase(),
-            help = arg.b
-                .help
-                .unwrap_or("")
-                .replace("[", "\\[")
-                .replace("]", "\\]")
-        );
-
-        if !a.is_empty() {
-            ret.push(a);
-        }
-    }
-
     ret.join("\n")
 }
 
@@ -293,9 +275,10 @@ fn get_args_of(p: &Parser) -> String {
     let mut ret = vec![String::from("_arguments -s -S -C \\")];
     let opts = write_opts_of(p);
     let flags = write_flags_of(p);
-    let sc_or_a = if p.has_subcommands() || p.has_positionals() {
+    let positionals = write_positionals_of(p);
+    let sc_or_a = if p.has_subcommands() {
         format!(
-            "\"1:: :_{name}_commands\" \\",
+            "\":: :_{name}_commands\" \\",
             name = p.meta.bin_name.as_ref().unwrap().replace(" ", "__")
         )
     } else {
@@ -312,6 +295,9 @@ fn get_args_of(p: &Parser) -> String {
     }
     if !flags.is_empty() {
         ret.push(flags);
+    }
+    if !positionals.is_empty() {
+        ret.push(positionals);
     }
     if !sc_or_a.is_empty() {
         ret.push(sc_or_a);
@@ -430,6 +416,29 @@ fn write_flags_of(p: &Parser) -> String {
             debugln!("write_flags_of:iter: Wrote...{}", &*l);
             ret.push(l);
         }
+    }
+
+    ret.join("\n")
+}
+
+fn write_positionals_of(p: &Parser) -> String {
+    debugln!("write_positionals_of;");
+    let mut ret = vec![];
+    for arg in p.positionals() {
+        debugln!("write_positionals_of:iter: arg={}", arg.b.name);
+        let a = format!(
+            "\"{optional}:{name}{help}:_files\" \\",
+            optional = if !arg.b.is_set(ArgSettings::Required) { ":" } else { "" },
+            name = arg.b.name,
+            help = arg.b
+                .help
+                .map_or("".to_owned(), |v| " -- ".to_owned() + v)
+                .replace("[", "\\[")
+                .replace("]", "\\]")
+        );
+
+        debugln!("write_positionals_of:iter: Wrote...{}", a);
+        ret.push(a);
     }
 
     ret.join("\n")

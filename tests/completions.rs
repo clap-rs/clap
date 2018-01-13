@@ -99,7 +99,8 @@ _myapp() {
 '--help[Prints help information]' \
 '-V[Prints version information]' \
 '--version[Prints version information]' \
-"1:: :_myapp_commands" \
+"::file -- some input file:_files" \
+":: :_myapp_commands" \
 "*:: :->myapp" \
 && ret=0
     case $state in
@@ -133,7 +134,6 @@ _myapp_commands() {
     local commands; commands=(
         "test:tests things" \
 "help:Prints this message or the help of the given subcommand(s)" \
-"FILE:some input file" \
     )
     _describe -t commands 'myapp commands' commands "$@"
 }
@@ -388,7 +388,8 @@ _my_app() {
 '--help[Prints help information]' \
 '-V[Prints version information]' \
 '--version[Prints version information]' \
-"1:: :_my_app_commands" \
+"::file -- some input file:_files" \
+":: :_my_app_commands" \
 "*:: :->my_app" \
 && ret=0
     case $state in
@@ -441,7 +442,6 @@ _my_app_commands() {
 "some_cmd:tests other things" \
 "some-cmd-with-hypens:" \
 "help:Prints this message or the help of the given subcommand(s)" \
-"FILE:some input file" \
     )
     _describe -t commands 'my_app commands' commands "$@"
 }
