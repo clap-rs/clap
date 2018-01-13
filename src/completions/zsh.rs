@@ -33,7 +33,14 @@ impl<'a, 'b> ZshGen<'a, 'b> {
 
 _{name}() {{
     typeset -A opt_args
+    typeset -a _arguments_options
     local ret=1
+
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
 
     local context curcontext=\"$curcontext\" state line
     {initial_args}
@@ -275,7 +282,7 @@ fn parser_of<'a, 'b>(p: &'b Parser<'a, 'b>, sc: &str) -> &'b Parser<'a, 'b> {
 //    -S: Do not complete anything after '--' and treat those as argument values
 fn get_args_of(p: &Parser) -> String {
     debugln!("get_args_of;");
-    let mut ret = vec![String::from("_arguments -s -S -C \\")];
+    let mut ret = vec![String::from("_arguments \"${_arguments_options[@]}\" \\")];
     let opts = write_opts_of(p);
     let flags = write_flags_of(p);
     let positionals = write_positionals_of(p);
