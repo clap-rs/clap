@@ -101,12 +101,14 @@ _myapp() {
 '--version[Prints version information]' \
 "::file -- some input file:_files" \
 ":: :_myapp_commands" \
-"*:: :->myapp" \
+"*::: :->myapp" \
 && ret=0
     case $state in
     (myapp)
-        curcontext="${curcontext%:*:*}:myapp-command-$words[1]:"
-        case $line[1] in
+        words=($line[2] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:myapp-command-$line[2]:"
+        case $line[2] in
             (test)
 _arguments -s -S -C \
 '--case=[the case to test]' \
@@ -390,12 +392,14 @@ _my_app() {
 '--version[Prints version information]' \
 "::file -- some input file:_files" \
 ":: :_my_app_commands" \
-"*:: :->my_app" \
+"*::: :->my_app" \
 && ret=0
     case $state in
     (my_app)
-        curcontext="${curcontext%:*:*}:my_app-command-$words[1]:"
-        case $line[1] in
+        words=($line[2] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:my_app-command-$line[2]:"
+        case $line[2] in
             (test)
 _arguments -s -S -C \
 '--case=[the case to test]' \

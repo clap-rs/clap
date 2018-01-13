@@ -230,15 +230,18 @@ fn get_subcommands_of(p: &Parser) -> String {
     format!(
         "case $state in
     ({name})
-        curcontext=\"${{curcontext%:*:*}}:{name_hyphen}-command-$words[1]:\"
-        case $line[1] in
+        words=($line[{pos}] \"${{words[@]}}\")
+        (( CURRENT += 1 ))
+        curcontext=\"${{curcontext%:*:*}}:{name_hyphen}-command-$line[{pos}]:\"
+        case $line[{pos}] in
             {subcommands}
         esac
     ;;
 esac",
         name = p.meta.name,
         name_hyphen = p.meta.bin_name.as_ref().unwrap().replace(" ", "-"),
-        subcommands = subcmds.join("\n")
+        subcommands = subcmds.join("\n"),
+        pos = p.positionals().len() + 1
     )
 }
 
@@ -285,7 +288,7 @@ fn get_args_of(p: &Parser) -> String {
         String::new()
     };
     let sc = if p.has_subcommands() {
-        format!("\"*:: :->{name}\" \\", name = p.meta.name)
+        format!("\"*::: :->{name}\" \\", name = p.meta.name)
     } else {
         String::new()
     };
