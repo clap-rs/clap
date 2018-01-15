@@ -91,12 +91,7 @@ pub fn subcommands_of(p: &Parser) -> Vec<(String, String)> {
         p.has_subcommands()
     );
     if !p.has_subcommands() {
-        let mut ret = vec![
-            (
-                p.meta.name.clone(),
-                p.meta.bin_name.as_ref().unwrap().clone(),
-            ),
-        ];
+        let mut ret = vec![];
         debugln!("subcommands_of: Looking for aliases...");
         if let Some(ref aliases) = p.meta.aliases {
             for &(n, _) in aliases {
