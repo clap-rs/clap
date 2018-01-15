@@ -61,7 +61,7 @@ _{name} \"$@\"",
     }
 }
 
-// Displays the positional args and commands of a subcommand
+// Displays the commands of a subcommand
 // (( $+functions[_[bin_name_underscore]_commands] )) ||
 // _[bin_name_underscore]_commands() {
 // 	local commands; commands=(
@@ -72,8 +72,8 @@ _{name} \"$@\"",
 // Where the following variables are present:
 //    [bin_name_underscore]: The full space deliniated bin_name, where spaces have been replaced by
 //                           underscore characters
-//    [arg_name]: The name of the positional arg or subcommand
-//    [arg_help]: The help message of the arg or subcommand
+//    [arg_name]: The name of the subcommand
+//    [arg_help]: The help message of the subcommand
 //    [bin_name]: The full space deliniated bin_name
 //
 // Here's a snippet from rustup:
@@ -103,7 +103,7 @@ _{bin_name_underscore}_commands() {{
 }}",
             bin_name_underscore = p.meta.bin_name.as_ref().unwrap().replace(" ", "__"),
             bin_name = p.meta.bin_name.as_ref().unwrap(),
-            subcommands_and_args = subcommands_and_args_of(p)
+            subcommands_and_args = subcommands_of(p)
         ),
     ];
 
@@ -124,26 +124,26 @@ _{bin_name_underscore}_commands() {{
 }}",
             bin_name_underscore = bin_name.replace(" ", "__"),
             bin_name = bin_name,
-            subcommands_and_args = subcommands_and_args_of(parser_of(p, bin_name))
+            subcommands_and_args = subcommands_of(parser_of(p, bin_name))
         ));
     }
 
     ret.join("\n")
 }
 
-// Generates subcommand and positional argument completions in form of
+// Generates subcommand completions in form of
 //
 // 		'[arg_name]:[arg_help]'
 //
 // Where:
-//    [arg_name]: the argument or subcommand's name
-//    [arg_help]: the help message of the argument or subcommand
+//    [arg_name]: the subcommand's name
+//    [arg_help]: the help message of the subcommand
 //
 // A snippet from rustup:
 // 		'show:Show the active and installed toolchains'
 //      'update:Update Rust toolchains'
-fn subcommands_and_args_of(p: &Parser) -> String {
-    debugln!("ZshGen::subcommands_and_args_of;");
+fn subcommands_of(p: &Parser) -> String {
+    debugln!("ZshGen::subcommands_of;");
     let mut ret = vec![];
     fn add_sc(sc: &App, n: &str, ret: &mut Vec<String>) {
         debugln!("ZshGen::add_sc;");
@@ -162,10 +162,10 @@ fn subcommands_and_args_of(p: &Parser) -> String {
         }
     }
 
-    // First the subcommands
+    // The subcommands
     for sc in p.subcommands() {
         debugln!(
-            "ZshGen::subcommands_and_args_of:iter: subcommand={}",
+            "ZshGen::subcommands_of:iter: subcommand={}",
             sc.p.meta.name
         );
         add_sc(sc, &sc.p.meta.name, &mut ret);
@@ -262,8 +262,8 @@ fn parser_of<'a, 'b>(p: &'b Parser<'a, 'b>, sc: &str) -> &'b Parser<'a, 'b> {
     &p.find_subcommand(sc).expect(INTERNAL_ERROR_MSG).p
 }
 
-// Writes out the args section, which ends up being the flags and opts, and a jump to
-// another ZSH function if there are positional args or subcommands.
+// Writes out the args section, which ends up being the flags, opts and postionals, and a jump to
+// another ZSH function if there are subcommands.
 // The structer works like this:
 //    ([conflicting_args]) [multiple] arg [takes_value] [[help]] [: :(possible_values)]
 //       ^-- list '-v -h'    ^--'*'          ^--'+'                   ^-- list 'one two three'
@@ -274,8 +274,8 @@ fn parser_of<'a, 'b>(p: &'b Parser<'a, 'b>, sc: &str) -> &'b Parser<'a, 'b> {
 // 		'(-h --help --verbose)-v[Enable verbose output]' \
 // 		'(-V -v --version --verbose --help)-h[Prints help information]' \
 //      # ... snip for brevity
-// 		'1:: :_rustup_commands' \   # <-- displays positional args and subcommands
-// 		'*:: :->rustup' \           # <-- displays subcommand args and child subcommands
+// 		':: :_rustup_commands' \    # <-- displays subcommands
+// 		'*::: :->rustup' \          # <-- displays subcommand args and child subcommands
 // 	&& ret=0
 //
 // The args used for _arguments are as follows:
