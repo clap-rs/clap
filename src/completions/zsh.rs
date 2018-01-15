@@ -322,8 +322,8 @@ fn get_args_of(p: &Parser) -> String {
     ret.join("\n")
 }
 
-// Escape string inside single quotes and brackets
-fn escape_string(string: &str) -> String {
+// Escape help string inside single quotes and brackets
+fn escape_help(string: &str) -> String {
     string
         .replace("\\", "\\\\")
         .replace("'", "'\\''")
@@ -331,12 +331,22 @@ fn escape_string(string: &str) -> String {
         .replace("]", "\\]")
 }
 
+// Escape value string inside single quotes and parentheses
+fn escape_value(string: &str) -> String {
+    string
+        .replace("\\", "\\\\")
+        .replace("'", "'\\''")
+        .replace("(", "\\(")
+        .replace(")", "\\)")
+        .replace(" ", "\\ ")
+}
+
 fn write_opts_of(p: &Parser) -> String {
     debugln!("write_opts_of;");
     let mut ret = vec![];
     for o in p.opts() {
         debugln!("write_opts_of:iter: o={}", o.name());
-        let help = o.help().map_or(String::new(), escape_string);
+        let help = o.help().map_or(String::new(), escape_help);
         let mut conflicts = get_zsh_arg_conflicts!(p, o, INTERNAL_ERROR_MSG);
         conflicts = if conflicts.is_empty() {
             String::new()
@@ -390,7 +400,7 @@ fn write_flags_of(p: &Parser) -> String {
     let mut ret = vec![];
     for f in p.flags() {
         debugln!("write_flags_of:iter: f={}", f.name());
-        let help = f.help().map_or(String::new(), escape_string);
+        let help = f.help().map_or(String::new(), escape_help);
         let mut conflicts = get_zsh_arg_conflicts!(p, f, INTERNAL_ERROR_MSG);
         conflicts = if conflicts.is_empty() {
             String::new()
@@ -439,14 +449,18 @@ fn write_positionals_of(p: &Parser) -> String {
     for arg in p.positionals() {
         debugln!("write_positionals_of:iter: arg={}", arg.b.name);
         let a = format!(
-            "\"{optional}:{name}{help}:_files\" \\",
+            "'{optional}:{name}{help}:{action}' \\",
             optional = if !arg.b.is_set(ArgSettings::Required) { ":" } else { "" },
             name = arg.b.name,
             help = arg.b
                 .help
                 .map_or("".to_owned(), |v| " -- ".to_owned() + v)
                 .replace("[", "\\[")
-                .replace("]", "\\]")
+                .replace("]", "\\]"),
+            action = arg.possible_vals().map_or("_files".to_owned(), |values| {
+                format!("({})",
+                    values.iter().map(|v| escape_value(*v)).collect::<Vec<String>>().join(" "))
+            })
         );
 
         debugln!("write_positionals_of:iter: Wrote...{}", a);

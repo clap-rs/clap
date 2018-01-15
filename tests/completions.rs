@@ -108,7 +108,7 @@ _myapp() {
 '--help[Prints help information]' \
 '-V[Prints version information]' \
 '--version[Prints version information]' \
-"::file -- some input file:_files" \
+'::file -- some input file:_files' \
 ":: :_myapp_commands" \
 "*::: :->myapp" \
 && ret=0
@@ -408,7 +408,7 @@ _my_app() {
 '--help[Prints help information]' \
 '-V[Prints version information]' \
 '--version[Prints version information]' \
-"::file -- some input file:_files" \
+'::file -- some input file:_files' \
 ":: :_my_app_commands" \
 "*::: :->my_app" \
 && ret=0
