@@ -31,6 +31,8 @@ impl<'a, 'b> ZshGen<'a, 'b> {
                 "\
 #compdef {name}
 
+autoload -U is-at-least
+
 _{name}() {{
     typeset -A opt_args
     typeset -a _arguments_options

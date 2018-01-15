@@ -89,6 +89,8 @@ complete -F _myapp -o bashdefault -o default myapp
 
 static ZSH: &'static str = r#"#compdef myapp
 
+autoload -U is-at-least
+
 _myapp() {
     typeset -A opt_args
     typeset -a _arguments_options
@@ -387,6 +389,8 @@ static POWERSHELL_SPECIAL_CMDS: &'static str = r#"
 
 static ZSH_SPECIAL_CMDS: &'static str = r#"#compdef my_app
 
+autoload -U is-at-least
+
 _my_app() {
     typeset -A opt_args
     typeset -a _arguments_options
@@ -672,6 +676,8 @@ complete -c my_app -n "__fish_using_command my_app" -s V -l version -d 'Prints v
 "#;
 
 static ZSH_SPECIAL_HELP: &'static str = r#"#compdef my_app
+
+autoload -U is-at-least
 
 _my_app() {
     typeset -A opt_args
