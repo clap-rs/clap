@@ -360,7 +360,8 @@ fn write_opts_of(p: &Parser) -> String {
             ""
         };
         let pv = if let Some(pv_vec) = o.possible_vals() {
-            format!(": :({})", pv_vec.join(" "))
+            format!(": :({})", pv_vec.iter().map(
+                |v| escape_value(*v)).collect::<Vec<String>>().join(" "))
         } else {
             String::new()
         };
