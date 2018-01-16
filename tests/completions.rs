@@ -89,25 +89,37 @@ complete -F _myapp -o bashdefault -o default myapp
 
 static ZSH: &'static str = r#"#compdef myapp
 
+autoload -U is-at-least
+
 _myapp() {
     typeset -A opt_args
+    typeset -a _arguments_options
     local ret=1
 
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
+
     local context curcontext="$curcontext" state line
-    _arguments -s -S -C \
+    _arguments "${_arguments_options[@]}" \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
 '-V[Prints version information]' \
 '--version[Prints version information]' \
-"1:: :_myapp_commands" \
-"*:: :->myapp" \
+'::file -- some input file:_files' \
+":: :_myapp_commands" \
+"*::: :->myapp" \
 && ret=0
     case $state in
     (myapp)
-        curcontext="${curcontext%:*:*}:myapp-command-$words[1]:"
-        case $line[1] in
+        words=($line[2] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:myapp-command-$line[2]:"
+        case $line[2] in
             (test)
-_arguments -s -S -C \
+_arguments "${_arguments_options[@]}" \
 '--case=[the case to test]' \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
@@ -116,7 +128,7 @@ _arguments -s -S -C \
 && ret=0
 ;;
 (help)
-_arguments -s -S -C \
+_arguments "${_arguments_options[@]}" \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
 '-V[Prints version information]' \
@@ -133,7 +145,6 @@ _myapp_commands() {
     local commands; commands=(
         "test:tests things" \
 "help:Prints this message or the help of the given subcommand(s)" \
-"FILE:some input file" \
     )
     _describe -t commands 'myapp commands' commands "$@"
 }
@@ -378,25 +389,37 @@ static POWERSHELL_SPECIAL_CMDS: &'static str = r#"
 
 static ZSH_SPECIAL_CMDS: &'static str = r#"#compdef my_app
 
+autoload -U is-at-least
+
 _my_app() {
     typeset -A opt_args
+    typeset -a _arguments_options
     local ret=1
 
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
+
     local context curcontext="$curcontext" state line
-    _arguments -s -S -C \
+    _arguments "${_arguments_options[@]}" \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
 '-V[Prints version information]' \
 '--version[Prints version information]' \
-"1:: :_my_app_commands" \
-"*:: :->my_app" \
+'::file -- some input file:_files' \
+":: :_my_app_commands" \
+"*::: :->my_app" \
 && ret=0
     case $state in
     (my_app)
-        curcontext="${curcontext%:*:*}:my_app-command-$words[1]:"
-        case $line[1] in
+        words=($line[2] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:my_app-command-$line[2]:"
+        case $line[2] in
             (test)
-_arguments -s -S -C \
+_arguments "${_arguments_options[@]}" \
 '--case=[the case to test]' \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
@@ -405,7 +428,7 @@ _arguments -s -S -C \
 && ret=0
 ;;
 (some_cmd)
-_arguments -s -S -C \
+_arguments "${_arguments_options[@]}" \
 '--config=[the other case to test]' \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
@@ -414,7 +437,7 @@ _arguments -s -S -C \
 && ret=0
 ;;
 (some-cmd-with-hypens)
-_arguments -s -S -C \
+_arguments "${_arguments_options[@]}" \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
 '-V[Prints version information]' \
@@ -422,7 +445,7 @@ _arguments -s -S -C \
 && ret=0
 ;;
 (help)
-_arguments -s -S -C \
+_arguments "${_arguments_options[@]}" \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
 '-V[Prints version information]' \
@@ -441,7 +464,6 @@ _my_app_commands() {
 "some_cmd:tests other things" \
 "some-cmd-with-hypens:" \
 "help:Prints this message or the help of the given subcommand(s)" \
-"FILE:some input file" \
     )
     _describe -t commands 'my_app commands' commands "$@"
 }
@@ -655,12 +677,21 @@ complete -c my_app -n "__fish_using_command my_app" -s V -l version -d 'Prints v
 
 static ZSH_SPECIAL_HELP: &'static str = r#"#compdef my_app
 
+autoload -U is-at-least
+
 _my_app() {
     typeset -A opt_args
+    typeset -a _arguments_options
     local ret=1
 
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
+
     local context curcontext="$curcontext" state line
-    _arguments -s -S -C \
+    _arguments "${_arguments_options[@]}" \
 '--single-quotes[Can be '\''always'\'', '\''auto'\'', or '\''never'\'']' \
 '--double-quotes[Can be "always", "auto", or "never"]' \
 '--backticks[For more information see `echo test`]' \
