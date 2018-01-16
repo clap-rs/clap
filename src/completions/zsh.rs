@@ -31,9 +31,18 @@ impl<'a, 'b> ZshGen<'a, 'b> {
                 "\
 #compdef {name}
 
+autoload -U is-at-least
+
 _{name}() {{
     typeset -A opt_args
+    typeset -a _arguments_options
     local ret=1
+
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
 
     local context curcontext=\"$curcontext\" state line
     {initial_args}
@@ -52,7 +61,7 @@ _{name} \"$@\"",
     }
 }
 
-// Displays the positional args and commands of a subcommand
+// Displays the commands of a subcommand
 // (( $+functions[_[bin_name_underscore]_commands] )) ||
 // _[bin_name_underscore]_commands() {
 // 	local commands; commands=(
@@ -63,8 +72,8 @@ _{name} \"$@\"",
 // Where the following variables are present:
 //    [bin_name_underscore]: The full space deliniated bin_name, where spaces have been replaced by
 //                           underscore characters
-//    [arg_name]: The name of the positional arg or subcommand
-//    [arg_help]: The help message of the arg or subcommand
+//    [arg_name]: The name of the subcommand
+//    [arg_help]: The help message of the subcommand
 //    [bin_name]: The full space deliniated bin_name
 //
 // Here's a snippet from rustup:
@@ -94,7 +103,7 @@ _{bin_name_underscore}_commands() {{
 }}",
             bin_name_underscore = p.meta.bin_name.as_ref().unwrap().replace(" ", "__"),
             bin_name = p.meta.bin_name.as_ref().unwrap(),
-            subcommands_and_args = subcommands_and_args_of(p)
+            subcommands_and_args = subcommands_of(p)
         ),
     ];
 
@@ -115,26 +124,26 @@ _{bin_name_underscore}_commands() {{
 }}",
             bin_name_underscore = bin_name.replace(" ", "__"),
             bin_name = bin_name,
-            subcommands_and_args = subcommands_and_args_of(parser_of(p, bin_name))
+            subcommands_and_args = subcommands_of(parser_of(p, bin_name))
         ));
     }
 
     ret.join("\n")
 }
 
-// Generates subcommand and positional argument completions in form of
+// Generates subcommand completions in form of
 //
 // 		'[arg_name]:[arg_help]'
 //
 // Where:
-//    [arg_name]: the argument or subcommand's name
-//    [arg_help]: the help message of the argument or subcommand
+//    [arg_name]: the subcommand's name
+//    [arg_help]: the help message of the subcommand
 //
 // A snippet from rustup:
 // 		'show:Show the active and installed toolchains'
 //      'update:Update Rust toolchains'
-fn subcommands_and_args_of(p: &Parser) -> String {
-    debugln!("ZshGen::subcommands_and_args_of;");
+fn subcommands_of(p: &Parser) -> String {
+    debugln!("ZshGen::subcommands_of;");
     let mut ret = vec![];
     fn add_sc(sc: &App, n: &str, ret: &mut Vec<String>) {
         debugln!("ZshGen::add_sc;");
@@ -153,10 +162,10 @@ fn subcommands_and_args_of(p: &Parser) -> String {
         }
     }
 
-    // First the subcommands
+    // The subcommands
     for sc in p.subcommands() {
         debugln!(
-            "ZshGen::subcommands_and_args_of:iter: subcommand={}",
+            "ZshGen::subcommands_of:iter: subcommand={}",
             sc.p.meta.name
         );
         add_sc(sc, &sc.p.meta.name, &mut ret);
@@ -164,24 +173,6 @@ fn subcommands_and_args_of(p: &Parser) -> String {
             for alias in v.iter().filter(|&&(_, vis)| vis).map(|&(n, _)| n) {
                 add_sc(sc, alias, &mut ret);
             }
-        }
-    }
-
-    // Then the positional args
-    for arg in p.positionals() {
-        debugln!("ZshGen::subcommands_and_args_of:iter: arg={}", arg.b.name);
-        let a = format!(
-            "\"{name}:{help}\" \\",
-            name = arg.b.name.to_ascii_uppercase(),
-            help = arg.b
-                .help
-                .unwrap_or("")
-                .replace("[", "\\[")
-                .replace("]", "\\]")
-        );
-
-        if !a.is_empty() {
-            ret.push(a);
         }
     }
 
@@ -248,15 +239,18 @@ fn get_subcommands_of(p: &Parser) -> String {
     format!(
         "case $state in
     ({name})
-        curcontext=\"${{curcontext%:*:*}}:{name_hyphen}-command-$words[1]:\"
-        case $line[1] in
+        words=($line[{pos}] \"${{words[@]}}\")
+        (( CURRENT += 1 ))
+        curcontext=\"${{curcontext%:*:*}}:{name_hyphen}-command-$line[{pos}]:\"
+        case $line[{pos}] in
             {subcommands}
         esac
     ;;
 esac",
         name = p.meta.name,
         name_hyphen = p.meta.bin_name.as_ref().unwrap().replace(" ", "-"),
-        subcommands = subcmds.join("\n")
+        subcommands = subcmds.join("\n"),
+        pos = p.positionals().len() + 1
     )
 }
 
@@ -268,8 +262,8 @@ fn parser_of<'a, 'b>(p: &'b Parser<'a, 'b>, sc: &str) -> &'b Parser<'a, 'b> {
     &p.find_subcommand(sc).expect(INTERNAL_ERROR_MSG).p
 }
 
-// Writes out the args section, which ends up being the flags and opts, and a jump to
-// another ZSH function if there are positional args or subcommands.
+// Writes out the args section, which ends up being the flags, opts and postionals, and a jump to
+// another ZSH function if there are subcommands.
 // The structer works like this:
 //    ([conflicting_args]) [multiple] arg [takes_value] [[help]] [: :(possible_values)]
 //       ^-- list '-v -h'    ^--'*'          ^--'+'                   ^-- list 'one two three'
@@ -280,8 +274,8 @@ fn parser_of<'a, 'b>(p: &'b Parser<'a, 'b>, sc: &str) -> &'b Parser<'a, 'b> {
 // 		'(-h --help --verbose)-v[Enable verbose output]' \
 // 		'(-V -v --version --verbose --help)-h[Prints help information]' \
 //      # ... snip for brevity
-// 		'1:: :_rustup_commands' \   # <-- displays positional args and subcommands
-// 		'*:: :->rustup' \           # <-- displays subcommand args and child subcommands
+// 		':: :_rustup_commands' \    # <-- displays subcommands
+// 		'*::: :->rustup' \          # <-- displays subcommand args and child subcommands
 // 	&& ret=0
 //
 // The args used for _arguments are as follows:
@@ -290,19 +284,20 @@ fn parser_of<'a, 'b>(p: &'b Parser<'a, 'b>, sc: &str) -> &'b Parser<'a, 'b> {
 //    -S: Do not complete anything after '--' and treat those as argument values
 fn get_args_of(p: &Parser) -> String {
     debugln!("get_args_of;");
-    let mut ret = vec![String::from("_arguments -s -S -C \\")];
+    let mut ret = vec![String::from("_arguments \"${_arguments_options[@]}\" \\")];
     let opts = write_opts_of(p);
     let flags = write_flags_of(p);
-    let sc_or_a = if p.has_subcommands() || p.has_positionals() {
+    let positionals = write_positionals_of(p);
+    let sc_or_a = if p.has_subcommands() {
         format!(
-            "\"1:: :_{name}_commands\" \\",
+            "\":: :_{name}_commands\" \\",
             name = p.meta.bin_name.as_ref().unwrap().replace(" ", "__")
         )
     } else {
         String::new()
     };
     let sc = if p.has_subcommands() {
-        format!("\"*:: :->{name}\" \\", name = p.meta.name)
+        format!("\"*::: :->{name}\" \\", name = p.meta.name)
     } else {
         String::new()
     };
@@ -312,6 +307,9 @@ fn get_args_of(p: &Parser) -> String {
     }
     if !flags.is_empty() {
         ret.push(flags);
+    }
+    if !positionals.is_empty() {
+        ret.push(positionals);
     }
     if !sc_or_a.is_empty() {
         ret.push(sc_or_a);
@@ -324,8 +322,8 @@ fn get_args_of(p: &Parser) -> String {
     ret.join("\n")
 }
 
-// Escape string inside single quotes and brackets
-fn escape_string(string: &str) -> String {
+// Escape help string inside single quotes and brackets
+fn escape_help(string: &str) -> String {
     string
         .replace("\\", "\\\\")
         .replace("'", "'\\''")
@@ -333,12 +331,22 @@ fn escape_string(string: &str) -> String {
         .replace("]", "\\]")
 }
 
+// Escape value string inside single quotes and parentheses
+fn escape_value(string: &str) -> String {
+    string
+        .replace("\\", "\\\\")
+        .replace("'", "'\\''")
+        .replace("(", "\\(")
+        .replace(")", "\\)")
+        .replace(" ", "\\ ")
+}
+
 fn write_opts_of(p: &Parser) -> String {
     debugln!("write_opts_of;");
     let mut ret = vec![];
     for o in p.opts() {
         debugln!("write_opts_of:iter: o={}", o.name());
-        let help = o.help().map_or(String::new(), escape_string);
+        let help = o.help().map_or(String::new(), escape_help);
         let mut conflicts = get_zsh_arg_conflicts!(p, o, INTERNAL_ERROR_MSG);
         conflicts = if conflicts.is_empty() {
             String::new()
@@ -352,7 +360,8 @@ fn write_opts_of(p: &Parser) -> String {
             ""
         };
         let pv = if let Some(pv_vec) = o.possible_vals() {
-            format!(": :({})", pv_vec.join(" "))
+            format!(": :({})", pv_vec.iter().map(
+                |v| escape_value(*v)).collect::<Vec<String>>().join(" "))
         } else {
             String::new()
         };
@@ -392,7 +401,7 @@ fn write_flags_of(p: &Parser) -> String {
     let mut ret = vec![];
     for f in p.flags() {
         debugln!("write_flags_of:iter: f={}", f.name());
-        let help = f.help().map_or(String::new(), escape_string);
+        let help = f.help().map_or(String::new(), escape_help);
         let mut conflicts = get_zsh_arg_conflicts!(p, f, INTERNAL_ERROR_MSG);
         conflicts = if conflicts.is_empty() {
             String::new()
@@ -430,6 +439,33 @@ fn write_flags_of(p: &Parser) -> String {
             debugln!("write_flags_of:iter: Wrote...{}", &*l);
             ret.push(l);
         }
+    }
+
+    ret.join("\n")
+}
+
+fn write_positionals_of(p: &Parser) -> String {
+    debugln!("write_positionals_of;");
+    let mut ret = vec![];
+    for arg in p.positionals() {
+        debugln!("write_positionals_of:iter: arg={}", arg.b.name);
+        let a = format!(
+            "'{optional}:{name}{help}:{action}' \\",
+            optional = if !arg.b.is_set(ArgSettings::Required) { ":" } else { "" },
+            name = arg.b.name,
+            help = arg.b
+                .help
+                .map_or("".to_owned(), |v| " -- ".to_owned() + v)
+                .replace("[", "\\[")
+                .replace("]", "\\]"),
+            action = arg.possible_vals().map_or("_files".to_owned(), |values| {
+                format!("({})",
+                    values.iter().map(|v| escape_value(*v)).collect::<Vec<String>>().join(" "))
+            })
+        );
+
+        debugln!("write_positionals_of:iter: Wrote...{}", a);
+        ret.push(a);
     }
 
     ret.join("\n")
