@@ -21,9 +21,9 @@ fn main() {
     // so that you know right away an error was made by the developer, not the end user.
     //
     // # Help and Version
-    // clap automatically generates a help and version flag for you, unless you specificy your
+    // clap automatically generates a help and version flag for you, unless you specify your
     // own. By default help uses "-h" and "--help", and version uses "-V" and "--version". You can
-    // safely overide "-V" and "-h" to your own arguments, and "--help" and "--version" will stil
+    // safely override "-V" and "-h" to your own arguments, and "--help" and "--version" will still
     // be automatically generated for you.
     let matches = App::new("MyApp")
                         // All application settings go here...
@@ -47,7 +47,7 @@ fn main() {
                                     .required(true)
                         ])
 
-                        // *Note* the following two examples are convienience methods, if you wish
+                        // *Note* the following two examples are convenience methods, if you wish
                         // to still get the full configurability of Arg::with_name() and the readability
                         // of arg_from_usage(), you can instantiate a new Arg with Arg::from_usage() and
                         // still be able to set all the additional properties, just like Arg::with_name()
@@ -79,6 +79,6 @@ fn main() {
 
     // We could continue checking for and using arguments in this manner, such as "license",
     // "output", and "interface". Keep in mind that "output" and "interface" are optional, so you
-    // shouldn't call .unwrap(), instead prefer using an 'if let' expression as we did with
+    // shouldn't call .unwrap(). Instead, prefer using an 'if let' expression as we did with
     // "config"
 }
