@@ -1874,14 +1874,6 @@ where
 
     pub fn add_defaults(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
         debugln!("Parser::add_defaults;");
-        // This is the first place that the passing and failing test diverge
-        // Both log "Parser::add_defaults;"
-        // but only the passing test run adds 
-        // "Parser::add_defaults:iter:{}: doesn't have default vals"
-        // and only the passing test run adds 
-        // doesn't have conditional defaults
-        // I believe that this is a bug in the recursive pattern matching
-        // on the failed test run, the else blocks in this macro never fire
         macro_rules! add_val {
             (@default $_self:ident, $a:ident, $m:ident) => {
                 if let Some(ref val) = $a.v.default_val {
@@ -1940,9 +1932,6 @@ where
                 } else {
                     sdebugln!(" doesn't have conditional defaults");
                 }
-                // This macro checks whether there are conditional defaults, then calls itself
-                // to check whether there are regular defaults, but in the buggy behavior, the
-                // conditional test is not firing
                 add_val!(@default $_self, $a, $m)
             };
         }
