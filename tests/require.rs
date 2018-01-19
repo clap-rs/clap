@@ -337,6 +337,35 @@ fn required_unless_one_works_with_short() {
 }
 
 #[test]
+fn required_unless_one_works_without() {
+    // GitHub issue: https://github.com/kbknapp/clap-rs/issues/1135
+    // removing `short("x")` will make this test pass
+    let res = App::new("unlessone")
+        .arg(Arg::with_name("a").conflicts_with("b").short("a"))
+        .arg(Arg::with_name("b").short("b"))
+        .arg(
+            Arg::with_name("x")
+                .required_unless_one(&["a", "b"])
+        ).get_matches_from_safe(vec!["unlessone", "-a"]);
+
+    assert!(res.is_ok());
+}
+
+#[test]
+fn required_unless_one_works_with_long() {
+    let res = App::new("unlessone")
+        .arg(Arg::with_name("a").conflicts_with("b").short("a"))
+        .arg(Arg::with_name("b").short("b"))
+        .arg(
+            Arg::with_name("x")
+                .long("x_is_the_option")
+                .required_unless_one(&["a", "b"])
+        ).get_matches_from_safe(vec!["unlessone", "-a"]);
+
+    assert!(res.is_ok());
+}
+
+#[test]
 fn required_unless_one_1() {
     let res = App::new("unlessone")
         .arg(Arg::with_name("cfg")
