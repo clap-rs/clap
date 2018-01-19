@@ -1,3 +1,24 @@
+<a name="v2.29.2"></a>
+### v2.29.2 (2018-01-16)
+
+
+#### Features
+
+* **completions/zsh.rs:**
+  *  Escape possible values for options ([25561dec](https://github.com/kbknapp/clap-rs/commit/25561decf147d329b64634a14d9695673c2fc78f))
+  *  Implement postional argument possible values completion ([f3b0afd2](https://github.com/kbknapp/clap-rs/commit/f3b0afd2bef8b7be97162f8a7802ddf7603dff36))
+  *  Complete positional arguments properly ([e39aeab8](https://github.com/kbknapp/clap-rs/commit/e39aeab8487596046fbdbc6a226e5c8820585245))
+
+#### Bug Fixes
+
+* **completions/zsh.rs:**
+  *  Add missing autoload for is-at-least ([a6522607](https://github.com/kbknapp/clap-rs/commit/a652260795d1519f6ec2a7a09ccc1258499cad7b))
+  *  Don't pass -S to _arguments if Zsh is too old ([16b4f143](https://github.com/kbknapp/clap-rs/commit/16b4f143ff466b7ef18a267bc44ade0f9639109b))
+  *  Maybe fix completions with mixed positionals and subcommands ([1146f0da](https://github.com/kbknapp/clap-rs/commit/1146f0da154d6796fbfcb09db8efa3593cb0d898))
+* **completions/zsh.zsh:**  Remove redundant code from output ([0e185b92](https://github.com/kbknapp/clap-rs/commit/0e185b922ed1e0fd653de00b4cd8d567d72ff68e), closes [#1142](https://github.com/kbknapp/clap-rs/issues/1142))
+
+
+
 <a name="2.29.1"></a>
 ### 2.29.1 (2018-01-09)
 
