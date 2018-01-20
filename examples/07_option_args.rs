@@ -12,8 +12,8 @@ fn main() {
     let matches = App::new("MyApp")
                         // Regular App configuration goes here...
 
-                        // Assume we an application that accepts an input file via the "-i file"
-                        // or the "--input file" (as wel as "--input=file").
+                        // Assume we have an application that accepts an input file via the "-i file"
+                        // or the "--input file" (as well as "--input=file").
                         // Below every setting supported by option arguments is discussed.
                         // NOTE: You DO NOT need to specify each setting, only those which apply
                         // to your particular case.
