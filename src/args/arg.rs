@@ -822,14 +822,14 @@ impl<'a, 'b> Arg<'a, 'b> {
 
     /// Allows values which start with a leading hyphen (`-`)
     ///
-    /// **WARNING**: Take caution when using this setting, combined with [`Arg::multiple(true)`] as
-    /// it this becomes ambigous `$ prog --arg -- -- val`. All three `--, --, val` will be values
+    /// **WARNING**: Take caution when using this setting combined with [`Arg::multiple(true)`], as
+    /// this becomes ambiguous `$ prog --arg -- -- val`. All three `--, --, val` will be values
     /// when the user may have thought the second `--` would constitute the normal, "Only
     /// positional args follow" idiom. To fix this, consider using [`Arg::number_of_values(1)`]
     ///
     /// **WARNING**: When building your CLIs, consider the effects of allowing leading hyphens and
     /// the user passing in a value that matches a valid short. For example `prog -opt -F` where
-    /// `-F` is supposed to be a value, yet `-F` is *also* a valid short for anther arg. Care should
+    /// `-F` is supposed to be a value, yet `-F` is *also* a valid short for another arg. Care should
     /// should be taken when designing these args. This is compounded by the ability to "stack"
     /// short args. I.e. if `-val` is supposed to be a value, but `-v`, `-a`, and `-l` are all valid
     /// shorts.
