@@ -8,7 +8,7 @@ use std::process;
 use std::result::Result as StdResult;
 
 // Internal
-use args::AnyArg;
+use args::Arg;
 use fmt::{ColorWhen, Colorizer, ColorizerOption};
 use suggestions;
 
@@ -405,7 +405,7 @@ impl Error {
 
     #[doc(hidden)]
     pub fn argument_conflict<'a, 'b, O, U>(
-        arg: &AnyArg,
+        arg: &Arg,
         other: Option<O>,
         usage: U,
         color: ColorWhen,
@@ -414,7 +414,7 @@ impl Error {
         O: Into<String>,
         U: Display,
     {
-        let mut v = vec![arg.name().to_owned()];
+        let mut v = vec![arg.name.to_owned()];
         let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
             when: color,
@@ -443,7 +443,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn empty_value<'a, 'b, U>(arg: &AnyArg, usage: U, color: ColorWhen) -> Self
+    pub fn empty_value<'a, 'b, U>(arg: &Arg, usage: U, color: ColorWhen) -> Self
     where
         U: Display,
     {
@@ -463,7 +463,7 @@ impl Error {
                 c.good("--help")
             ),
             kind: ErrorKind::EmptyValue,
-            info: Some(vec![arg.name().to_owned()]),
+            info: Some(vec![arg.name.to_owned()]),
         }
     }
 
@@ -471,7 +471,7 @@ impl Error {
     pub fn invalid_value<'a, 'b, B, G, U>(
         bad_val: B,
         good_vals: &[G],
-        arg: &AnyArg,
+        arg: &Arg,
         usage: U,
         color: ColorWhen,
     ) -> Self
@@ -509,7 +509,7 @@ impl Error {
                 c.good("--help")
             ),
             kind: ErrorKind::InvalidValue,
-            info: Some(vec![arg.name().to_owned(), bad_val.as_ref().to_owned()]),
+            info: Some(vec![arg.name.to_owned(), bad_val.as_ref().to_owned()]),
         }
     }
 
@@ -657,7 +657,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn too_many_values<'a, 'b, V, U>(val: V, arg: &AnyArg, usage: U, color: ColorWhen) -> Self
+    pub fn too_many_values<'a, 'b, V, U>(val: V, arg: &Arg, usage: U, color: ColorWhen) -> Self
     where
         V: AsRef<str> + Display + ToOwned,
         U: Display,
@@ -680,13 +680,13 @@ impl Error {
                 c.good("--help")
             ),
             kind: ErrorKind::TooManyValues,
-            info: Some(vec![arg.name().to_owned(), v.to_owned()]),
+            info: Some(vec![arg.name.to_owned(), v.to_owned()]),
         }
     }
 
     #[doc(hidden)]
     pub fn too_few_values<'a, 'b, U>(
-        arg: &AnyArg,
+        arg: &Arg,
         min_vals: u64,
         curr_vals: usize,
         usage: U,
@@ -714,12 +714,12 @@ impl Error {
                 c.good("--help")
             ),
             kind: ErrorKind::TooFewValues,
-            info: Some(vec![arg.name().to_owned()]),
+            info: Some(vec![arg.name.to_owned()]),
         }
     }
 
     #[doc(hidden)]
-    pub fn value_validation<'a, 'b>(arg: Option<&AnyArg>, err: String, color: ColorWhen) -> Self
+    pub fn value_validation<'a, 'b>(arg: Option<&Arg>, err: String, color: ColorWhen) -> Self
     {
         let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
@@ -743,13 +743,13 @@ impl Error {
 
     #[doc(hidden)]
     pub fn value_validation_auto(err: String) -> Self {
-        let n: Option<&AnyArg> = None;
+        let n: Option<&Arg> = None;
         Error::value_validation(n, err, ColorWhen::Auto)
     }
 
     #[doc(hidden)]
     pub fn wrong_number_of_values<'a, 'b, S, U>(
-        arg: &AnyArg,
+        arg: &Arg,
         num_vals: u64,
         curr_vals: usize,
         suffix: S,
@@ -779,12 +779,12 @@ impl Error {
                 c.good("--help")
             ),
             kind: ErrorKind::WrongNumberOfValues,
-            info: Some(vec![arg.name().to_owned()]),
+            info: Some(vec![arg.name.to_owned()]),
         }
     }
 
     #[doc(hidden)]
-    pub fn unexpected_multiple_usage<'a, 'b, U>(arg: &AnyArg, usage: U, color: ColorWhen) -> Self
+    pub fn unexpected_multiple_usage<'a, 'b, U>(arg: &Arg, usage: U, color: ColorWhen) -> Self
     where
         U: Display,
     {
@@ -804,7 +804,7 @@ impl Error {
                 c.good("--help")
             ),
             kind: ErrorKind::UnexpectedMultipleUsage,
-            info: Some(vec![arg.name().to_owned()]),
+            info: Some(vec![arg.name.to_owned()]),
         }
     }
 

@@ -6,8 +6,7 @@ use std::ops::Deref;
 use std::mem;
 
 // Internal
-use args::{ArgMatches, MatchedArg, SubCommand};
-use args::AnyArg;
+use args::{Arg, ArgMatches, MatchedArg, SubCommand};
 use args::settings::ArgSettings;
 
 #[doc(hidden)]
@@ -21,10 +20,10 @@ impl<'a> Default for ArgMatcher<'a> {
 impl<'a> ArgMatcher<'a> {
     pub fn new() -> Self { ArgMatcher::default() }
 
-    pub fn process_arg_overrides<'b>(&mut self, a: Option<&AnyArg<'a, 'b>>, overrides: &mut Vec<(&'b str, &'a str)>, required: &mut Vec<&'a str>) {
-        debugln!("ArgMatcher::process_arg_overrides:{:?};", a.map_or(None, |a| Some(a.name())));
+    pub fn process_arg_overrides<'b>(&mut self, a: Option<&Arg<'a, 'b>>, overrides: &mut Vec<(&'b str, &'a str)>, required: &mut Vec<&'a str>) {
+        debugln!("ArgMatcher::process_arg_overrides:{:?};", a.map_or(None, |a| Some(a.name)));
         if let Some(aa) = a {
-            if let Some(a_overrides) = aa.overrides() {
+            if let Some(ref a_overrides) = aa.overrides {
                 for overr in a_overrides {
                     debugln!("ArgMatcher::process_arg_overrides:iter:{};", overr);
                     if self.is_present(overr) {
@@ -38,7 +37,7 @@ impl<'a> ArgMatcher<'a> {
                             }
                         }
                     } else {
-                        overrides.push((overr, aa.name()));
+                        overrides.push((overr, aa.name));
                     }
                 }
             }
@@ -147,23 +146,21 @@ impl<'a> ArgMatcher<'a> {
         ma.vals.push(val.to_owned());
     }
 
-    pub fn needs_more_vals<'b, A>(&self, o: &A) -> bool
-    where
-        A: AnyArg<'a, 'b>,
+    pub fn needs_more_vals<'b>(&self, o: &Arg) -> bool
     {
-        debugln!("ArgMatcher::needs_more_vals: o={}", o.name());
-        if let Some(ma) = self.get(o.name()) {
-            if let Some(num) = o.num_vals() {
+        debugln!("ArgMatcher::needs_more_vals: o={}", o.name);
+        if let Some(ma) = self.get(o.name) {
+            if let Some(num) = o.num_vals {
                 debugln!("ArgMatcher::needs_more_vals: num_vals...{}", num);
                 return if o.is_set(ArgSettings::Multiple) {
                     ((ma.vals.len() as u64) % num) != 0
                 } else {
                     num != (ma.vals.len() as u64)
                 };
-            } else if let Some(num) = o.max_vals() {
+            } else if let Some(num) = o.max_vals {
                 debugln!("ArgMatcher::needs_more_vals: max_vals...{}", num);
                 return !((ma.vals.len() as u64) > num);
-            } else if o.min_vals().is_some() {
+            } else if o.min_vals.is_some() {
                 debugln!("ArgMatcher::needs_more_vals: min_vals...true");
                 return true;
             }
