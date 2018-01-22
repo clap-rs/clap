@@ -321,6 +321,62 @@ fn required_unless_one_2() {
 }
 
 #[test]
+fn required_unless_one_works_with_short() {
+    // GitHub issue: https://github.com/kbknapp/clap-rs/issues/1135
+    let res = App::new("unlessone")
+        .arg(Arg::with_name("a").conflicts_with("b").short("a"))
+        .arg(Arg::with_name("b").short("b"))
+        .arg(
+            Arg::with_name("x")
+                .short("x")
+                .required_unless_one(&["a", "b"])
+        ).get_matches_from_safe(vec!["unlessone", "-a"]);
+
+    assert!(res.is_ok());
+}
+
+#[test]
+fn required_unless_one_works_with_short_err() {
+    let res = App::new("unlessone")
+        .arg(Arg::with_name("a").conflicts_with("b").short("a"))
+        .arg(Arg::with_name("b").short("b"))
+        .arg(
+            Arg::with_name("x")
+                .short("x")
+                .required_unless_one(&["a", "b"])
+        ).get_matches_from_safe(vec!["unlessone"]);
+
+    assert!(!res.is_ok());
+}
+
+#[test]
+fn required_unless_one_works_without() {
+    let res = App::new("unlessone")
+        .arg(Arg::with_name("a").conflicts_with("b").short("a"))
+        .arg(Arg::with_name("b").short("b"))
+        .arg(
+            Arg::with_name("x")
+                .required_unless_one(&["a", "b"])
+        ).get_matches_from_safe(vec!["unlessone", "-a"]);
+
+    assert!(res.is_ok());
+}
+
+#[test]
+fn required_unless_one_works_with_long() {
+    let res = App::new("unlessone")
+        .arg(Arg::with_name("a").conflicts_with("b").short("a"))
+        .arg(Arg::with_name("b").short("b"))
+        .arg(
+            Arg::with_name("x")
+                .long("x_is_the_option")
+                .required_unless_one(&["a", "b"])
+        ).get_matches_from_safe(vec!["unlessone", "-a"]);
+
+    assert!(res.is_ok());
+}
+
+#[test]
 fn required_unless_one_1() {
     let res = App::new("unlessone")
         .arg(Arg::with_name("cfg")

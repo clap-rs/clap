@@ -67,7 +67,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
         self.b.requires.as_ref().map(|o| &o[..])
     }
     fn blacklist(&self) -> Option<&[&'e str]> { self.b.blacklist.as_ref().map(|o| &o[..]) }
-    fn required_unless(&self) -> Option<&[&'e str]> { None }
+    fn required_unless(&self) -> Option<&[&'e str]> { self.b.r_unless.as_ref().map(|o| &o[..]) }
     fn is_set(&self, s: ArgSettings) -> bool { self.b.settings.is_set(s) }
     fn has_switch(&self) -> bool { true }
     fn takes_value(&self) -> bool { false }
