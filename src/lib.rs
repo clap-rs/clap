@@ -13,6 +13,15 @@
 //! little interest.  See the 
 //! [`structopt-derive`](https://docs.rs/structopt-derive) crate to
 //! automatically generate an implementation of this trait.
+//!
+//! If you want to disable all the `clap` features (colors,
+//! suggestions, ..) add `default-features = false` to the `structopt`
+//! dependency:
+//! ```toml
+//! [dependencies]
+//! structopt = { version = "0.1.0", default-features = false }
+//! structopt-derive = "0.1.0"
+//! ```
 
 extern crate clap as _clap;
 
