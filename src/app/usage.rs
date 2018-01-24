@@ -35,7 +35,7 @@ impl<'a, 'b, 'c,'z> Usage<'a, 'b, 'c, 'z> {
         let mut args: Vec<_> = matcher
             .arg_names()
             .iter()
-            .filter(|n| {
+            .filter(|ref n| {
                 if let Some(a) = find!(self.0.app, **n) {
                     !a.is_set(ArgSettings::Required) && !a.is_set(ArgSettings::Hidden)
                 } else {
@@ -414,7 +414,7 @@ impl<'a, 'b, 'c,'z> Usage<'a, 'b, 'c, 'z> {
                 .iter()
                 .filter(|a| self.0.positionals.values().any(|p| &p == a))
                 .filter(|&pos| !m.contains(pos))
-                .filter_map(|pos| find!(self.0.app, *pos))
+                .filter_map(|pos| find!(self.0.app, pos))
                 .filter(|&pos| incl_last || !pos.is_set(ArgSettings::Last))
                 .filter(|pos| !args_in_groups.contains(&pos.name))
                 .map(|pos| (pos.index.unwrap(), pos))
@@ -423,7 +423,7 @@ impl<'a, 'b, 'c,'z> Usage<'a, 'b, 'c, 'z> {
             desc_reqs
                 .iter()
                 .filter(|a| self.0.positionals.values().any(|p| &p == a))
-                .filter_map(|pos| find!(self.0.app, *pos))
+                .filter_map(|pos| find!(self.0.app, pos))
                 .filter(|&pos| incl_last || !pos.is_set(ArgSettings::Last))
                 .filter(|pos| !args_in_groups.contains(&pos.name))
                 .map(|pos| (pos.index.unwrap(), pos))
@@ -448,7 +448,7 @@ impl<'a, 'b, 'c,'z> Usage<'a, 'b, 'c, 'z> {
                 !(matcher.is_some() && matcher.as_ref().unwrap().contains(name))
             }) {
             debugln!("usage::get_required_usage_from:iter:{}:", a);
-            let arg = find!(self.0.app, *a).map(|f| f.to_string()).expect(INTERNAL_ERROR_MSG);
+            let arg = find!(self.0.app, a).map(|f| f.to_string()).expect(INTERNAL_ERROR_MSG);
             ret_val.push_back(arg);
         }
         let mut g_vec: Vec<String> = vec![];

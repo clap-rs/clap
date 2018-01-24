@@ -114,14 +114,6 @@ impl<'w> Help<'w> {
         }
     }
 
-    /// Reads help settings from an App
-    /// and write its help to the wrapped stream.
-    pub fn write_app_help(w: &'w mut Write, app: &mut App, use_long: bool) -> ClapResult<()> {
-        debugln!("Help::write_app_help;");
-        let p = Parser::new(app);
-        Self::write_parser_help(w, &p, use_long)
-    }
-
     /// Reads help settings from a Parser
     /// and write its help to the wrapped stream.
     pub fn write_parser_help(w: &'w mut Write, parser: &Parser, use_long: bool) -> ClapResult<()> {
@@ -310,7 +302,7 @@ impl<'w> Help<'w> {
             } else {
                 ' '
             };
-            if let Some(vec) = arg.val_names {
+            if let Some(ref vec) = arg.val_names {
                 let mut it = vec.iter().peekable();
                 while let Some((_, val)) = it.next() {
                     color!(self, "<{}>", val, good)?;
@@ -495,7 +487,7 @@ impl<'w> Help<'w> {
                 env.1
             );
             let env_val = if !a.is_set(ArgSettings::HideEnvValues) {
-                format!("={}", env.1.map_or(Cow::Borrowed(""), |val| val.to_string_lossy()))
+                format!("={}", env.1.as_ref().map_or(Cow::Borrowed(""), |val| val.to_string_lossy()))
             } else {
                 String::new()
             };
@@ -536,7 +528,7 @@ impl<'w> Help<'w> {
             ));
         }
         if !self.hide_pv && !a.is_set(ArgSettings::HidePossibleValues) {
-            if let Some(pv) = a.possible_vals {
+            if let Some(ref pv) = a.possible_vals {
                 debugln!("Help::spec_vals: Found possible vals...{:?}", pv);
                 spec_vals.push(if self.color {
                     format!(

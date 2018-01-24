@@ -96,6 +96,7 @@ impl<'a> ArgMatcher<'a> {
 
     pub fn remove(&mut self, arg: &str) { self.0.args.remove(arg); }
 
+    #[allow(dead_code)]
     pub fn remove_all(&mut self, args: &[&str]) {
         for &arg in args {
             self.0.args.remove(arg);

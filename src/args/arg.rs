@@ -48,32 +48,32 @@ pub struct Arg<'a, 'b>
 where
     'a: 'b,
 {
-    pub name: &'a str,
-    pub help: Option<&'b str>,
-    pub long_help: Option<&'b str>,
-    pub blacklist: Option<Vec<&'a str>>,
-    pub settings: ArgFlags,
-    pub r_unless: Option<Vec<&'a str>>,
-    pub overrides: Option<Vec<&'a str>>,
-    pub groups: Option<Vec<&'a str>>,
-    pub requires: Option<Vec<(Option<&'b str>, &'a str)>>,
-    pub short: Option<char>,
-    pub long: Option<&'b str>,
-    pub aliases: Option<Vec<(&'b str, bool)>>, // (name, visible)
-    pub disp_ord: usize,
-    pub unified_ord: usize,
-    pub possible_vals: Option<Vec<&'b str>>,
-    pub val_names: Option<VecMap<&'b str>>,
-    pub num_vals: Option<u64>,
-    pub max_vals: Option<u64>,
-    pub min_vals: Option<u64>,
-    pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
-    pub validator_os: Option<Rc<Fn(&OsStr) -> Result<(), OsString>>>,
-    pub val_delim: Option<char>,
-    pub default_val: Option<&'b OsStr>,
-    pub default_vals_ifs: Option<VecMap<(&'a str, Option<&'b OsStr>, &'b OsStr)>>,
-    pub env: Option<(&'a OsStr, Option<OsString>)>,
-    pub terminator: Option<&'b str>,
+    #[doc(hidden)] pub name: &'a str,
+    #[doc(hidden)] pub help: Option<&'b str>,
+    #[doc(hidden)] pub long_help: Option<&'b str>,
+    #[doc(hidden)] pub blacklist: Option<Vec<&'a str>>,
+    #[doc(hidden)] pub settings: ArgFlags,
+    #[doc(hidden)] pub r_unless: Option<Vec<&'a str>>,
+    #[doc(hidden)] pub overrides: Option<Vec<&'a str>>,
+    #[doc(hidden)] pub groups: Option<Vec<&'a str>>,
+    #[doc(hidden)] pub requires: Option<Vec<(Option<&'b str>, &'a str)>>,
+    #[doc(hidden)] pub short: Option<char>,
+    #[doc(hidden)] pub long: Option<&'b str>,
+    #[doc(hidden)] pub aliases: Option<Vec<(&'b str, bool)>>, // (name, visible)
+    #[doc(hidden)] pub disp_ord: usize,
+    #[doc(hidden)] pub unified_ord: usize,
+    #[doc(hidden)] pub possible_vals: Option<Vec<&'b str>>,
+    #[doc(hidden)] pub val_names: Option<VecMap<&'b str>>,
+    #[doc(hidden)] pub num_vals: Option<u64>,
+    #[doc(hidden)] pub max_vals: Option<u64>,
+    #[doc(hidden)] pub min_vals: Option<u64>,
+    #[doc(hidden)] pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
+    #[doc(hidden)] pub validator_os: Option<Rc<Fn(&OsStr) -> Result<(), OsString>>>,
+    #[doc(hidden)] pub val_delim: Option<char>,
+    #[doc(hidden)] pub default_val: Option<&'b OsStr>,
+    #[doc(hidden)] pub default_vals_ifs: Option<VecMap<(&'a str, Option<&'b OsStr>, &'b OsStr)>>,
+    #[doc(hidden)] pub env: Option<(&'a OsStr, Option<OsString>)>,
+    #[doc(hidden)] pub terminator: Option<&'b str>,
     #[doc(hidden)] pub index: Option<u64>,
     #[doc(hidden)] pub r_ifs: Option<Vec<(&'a str, &'b str)>>,
 }
@@ -3667,7 +3667,7 @@ impl<'a, 'b> Arg<'a, 'b> {
 
     /// Checks if one of the [`ArgSettings`] settings is set for the argument
     /// [`ArgSettings`]: ./enum.ArgSettings.html
-    pub fn is_set(&self, s: ArgSettings) -> bool { self.is_set(s) }
+    pub fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(s) }
 
     /// Sets one of the [`ArgSettings`] settings for the argument
     /// [`ArgSettings`]: ./enum.ArgSettings.html
@@ -3701,10 +3701,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     #[doc(hidden)]
-    pub fn setb(&mut self, s: ArgSettings) { self.set(s); }
+    pub fn setb(&mut self, s: ArgSettings) { self.settings.set(s); }
 
     #[doc(hidden)]
-    pub fn unsetb(&mut self, s: ArgSettings) { self.unset(s); }
+    pub fn unsetb(&mut self, s: ArgSettings) { self.settings.unset(s); }
 
     #[doc(hidden)]
     pub fn has_switch(&self) -> bool { self.short.is_some() || self.long.is_some() }
@@ -3769,7 +3769,8 @@ impl<'n, 'e> PartialEq for Arg<'n, 'e> {
 
 impl<'n, 'e> Display for Arg<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        if self.short.is_none() && self.long.is_none() {
+        debugln!("Arg::fmt:{}", self.name);
+        if self.index.is_some() {
             // Positional
             let mut delim = String::new();
             delim.push(if self.is_set(ArgSettings::RequireDelimiter) {
@@ -3795,6 +3796,15 @@ impl<'n, 'e> Display for Arg<'n, 'e> {
             {
                 write!(f, "...")?;
             }
+            return Ok(());
+        } else if !self.is_set(ArgSettings::TakesValue) {
+            // Flag
+            if let Some(l) = self.long {
+                write!(f, "--{}", l)?;
+            } else {
+                write!(f, "-{}", self.short.unwrap())?;
+            }
+
             return Ok(());
         }
         let sep = if self.is_set(ArgSettings::RequireEquals) {

@@ -61,32 +61,32 @@ pub struct App<'a, 'b>
 where
     'a: 'b,
 {
-    pub name: String,
-    pub bin_name: Option<String>,
-    pub author: Option<&'b str>,
-    pub version: Option<&'b str>,
-    pub long_version: Option<&'b str>,
-    pub about: Option<&'b str>,
-    pub long_about: Option<&'b str>,
-    pub more_help: Option<&'b str>,
-    pub pre_help: Option<&'b str>,
-    pub aliases: Option<Vec<(&'b str, bool)>>, // (name, visible)
-    pub usage_str: Option<&'b str>,
-    pub usage: Option<String>,
-    pub help_str: Option<&'b str>,
-    pub disp_ord: usize,
-    pub term_w: Option<usize>,
-    pub max_w: Option<usize>,
-    pub template: Option<&'b str>,
-    settings: AppFlags,
-    pub g_settings: AppFlags,
-    pub args: Vec<Arg<'a, 'b>>,
-    pub subcommands: Vec<App<'a, 'b>>,
-    pub groups: Vec<ArgGroup<'a>>,
-    help_short: Option<char>,
-    version_short: Option<char>,
-    pub help_message: Option<&'a str>,
-    pub version_message: Option<&'a str>,
+    #[doc(hidden)] pub name: String,
+    #[doc(hidden)] pub bin_name: Option<String>,
+    #[doc(hidden)] pub author: Option<&'b str>,
+    #[doc(hidden)] pub version: Option<&'b str>,
+    #[doc(hidden)] pub long_version: Option<&'b str>,
+    #[doc(hidden)] pub about: Option<&'b str>,
+    #[doc(hidden)] pub long_about: Option<&'b str>,
+    #[doc(hidden)] pub more_help: Option<&'b str>,
+    #[doc(hidden)] pub pre_help: Option<&'b str>,
+    #[doc(hidden)] pub aliases: Option<Vec<(&'b str, bool)>>, // (name, visible)
+    #[doc(hidden)] pub usage_str: Option<&'b str>,
+    #[doc(hidden)] pub usage: Option<String>,
+    #[doc(hidden)] pub help_str: Option<&'b str>,
+    #[doc(hidden)] pub disp_ord: usize,
+    #[doc(hidden)] pub term_w: Option<usize>,
+    #[doc(hidden)] pub max_w: Option<usize>,
+    #[doc(hidden)] pub template: Option<&'b str>,
+    #[doc(hidden)] pub settings: AppFlags,
+    #[doc(hidden)] pub g_settings: AppFlags,
+    #[doc(hidden)] pub args: Vec<Arg<'a, 'b>>,
+    #[doc(hidden)] pub subcommands: Vec<App<'a, 'b>>,
+    #[doc(hidden)] pub groups: Vec<ArgGroup<'a>>,
+    #[doc(hidden)] help_short: Option<char>,
+    #[doc(hidden)] version_short: Option<char>,
+    #[doc(hidden)] pub help_message: Option<&'a str>,
+    #[doc(hidden)] pub version_message: Option<&'a str>,
 }
 
 
@@ -698,6 +698,8 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// See [`AppSettings`] for a full list of possibilities and examples.
     ///
+    /// **NOTE:** The setting being unset will be unset from both local and [global] settings
+    ///
     /// # Examples
     ///
     /// ```no_run
@@ -708,14 +710,18 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`AppSettings`]: ./enum.AppSettings.html
+    /// [global]: ./struct.App.html#method.global_setting
     pub fn unset_setting(mut self, setting: AppSettings) -> Self {
         self.settings.unset(setting);
+        self.g_settings.unset(setting);
         self
     }
 
     /// Disables multiple command, or [`SubCommand`], level settings.
     ///
     /// See [`AppSettings`] for a full list of possibilities and examples.
+    ///
+    /// **NOTE:** The setting being unset will be unset from both local and [global] settings
     ///
     /// # Examples
     ///
@@ -728,9 +734,11 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`AppSettings`]: ./enum.AppSettings.html
+    /// [global]: ./struct.App.html#method.global_setting
     pub fn unset_settings(mut self, settings: &[AppSettings]) -> Self {
         for s in settings {
             self.settings.unset(*s);
+            self.g_settings.unset(*s);
         }
         self
     }
@@ -1248,7 +1256,7 @@ impl<'a, 'b> App<'a, 'b> {
         self._build();
 
         let p = Parser::new(self);
-        Help::write_app_help(w, self, false)
+        Help::write_parser_help(w, &p, false)
     }
 
     /// Writes the full help message to the user to a [`io::Write`] object in the same method as if
@@ -1466,8 +1474,8 @@ impl<'a, 'b> App<'a, 'b> {
     ) {
         self.bin_name = Some(bin_name.into());
         if !self.is_set(AppSettings::Propagated) {
-            self.propagate();
-            self.build_bin_names();
+            self._propagate();
+            self._build_bin_names();
             self.set(AppSettings::Propagated);
         }
 
@@ -1667,6 +1675,7 @@ impl<'a, 'b> App<'a, 'b> {
         I: Iterator<Item = T>,
         T: Into<OsString> + Clone,
     {
+        debugln!("App::_do_parse;");
         let mut matcher = ArgMatcher::new();
 
         // If there are global arguments, or settings we need to propgate them down to subcommands
@@ -1675,11 +1684,13 @@ impl<'a, 'b> App<'a, 'b> {
             self._build();
         }
 
-        let mut parser = Parser::new(self);
+        {
+            let mut parser = Parser::new(self);
 
-        // do the real parsing
-        if let Err(e) = parser.get_matches_with(&mut matcher, it) {
-            return Err(e);
+            // do the real parsing
+            if let Err(e) = parser.get_matches_with(&mut matcher, it) {
+                return Err(e);
+            }
         }
 
         let global_arg_vec: Vec<&str> = (&self).args.iter().filter(|a| a.is_set(ArgSettings::Global)).map(|ga| ga.name).collect();
@@ -1689,44 +1700,86 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     fn _build(&mut self) {
-        self.create_help_and_version();
-        self.propagate();
-        self.derive_display_order();
+        debugln!("App::_build;");
+        // Make sure all the globally set flags apply to us as well
+        self.settings = self.settings | self.g_settings;
+
+        self._create_help_and_version();
+        self._propagate();
+        self._derive_display_order();
+        // Perform expensive debug assertions
+        debug_assert!({
+            for a in &self.args {
+                self._arg_debug_asserts(a);
+            }
+            true
+        });
         for a in &mut self.args {
-            self.fill_in_arg_groups(a);
-            self.implied_settings(a);
+            // Fill in the groups
+            if let Some(ref grps) = a.groups {
+                for g in grps {
+                    let mut found = false;
+                    if let Some(ref mut ag) = groups_mut!(self).find(|grp| &grp.name == g) {
+                        ag.args.push(a.name);
+                        found = true;
+                    }
+                    if !found {
+                        let mut ag = ArgGroup::with_name(g);
+                        ag.args.push(a.name);
+                        self.groups.push(ag);
+                    }
+                }
+            }
+
+            // Figure out implied settings
+            if a.is_set(ArgSettings::Last) {
+                // if an arg has `Last` set, we need to imply DontCollapseArgsInUsage so that args
+                // in the usage string don't get confused or left out.
+                self.settings.set(AppSettings::DontCollapseArgsInUsage);
+                self.settings.set(AppSettings::ContainsLast);
+            }
+            if let Some(l) = a.long {
+                if l == "version" {
+                    self.settings.unset(AppSettings::NeedsLongVersion);
+                } else if l == "help" {
+                    self.settings.unset(AppSettings::NeedsLongHelp);
+                }
+            }
             a._build();
         }
+
+        debug_assert!(self._app_debug_asserts());
+        self.settings.set(AppSettings::Propagated);
     }
 
-    fn implied_settings(&mut self, a: &Arg<'a, 'b>) {
-        if a.is_set(ArgSettings::Last) {
-            // if an arg has `Last` set, we need to imply DontCollapseArgsInUsage so that args
-            // in the usage string don't get confused or left out.
-            self.set(AppSettings::DontCollapseArgsInUsage);
-            self.set(AppSettings::ContainsLast);
-        }
-        if let Some(l) = a.long {
-            if l == "version" {
-                self.unset(AppSettings::NeedsLongVersion);
-            } else if l == "help" {
-                self.unset(AppSettings::NeedsLongHelp);
-            }
-        }
+    // Perform some expensive assertions on the Parser itself
+    fn _app_debug_asserts(&mut self) -> bool {
+        debugln!("App::app_debug_asserts;");
+        // * Args listed inside groups should exist
+        // * Groups should not have naming conflicts with Args
+        let g = groups!(self).find(|g| {
+            g.args.iter().any(|arg| {
+                !(find!(self, arg).is_some()
+                    || groups!(self).any(|g| &g.name == arg))
+            })
+        });
+        assert!(
+            g.is_none(),
+            "The group '{}' contains an arg that doesn't exist or has a naming conflict with a group.",
+            g.unwrap().name
+        );
+        true
     }
+
 
     // @TODO @v3-alpha @perf: should only propagate globals to subcmd we find, or for help
-    pub fn propagate(&mut self) {
-        debugln!(
-            "Parser::propagate: self={}, g_settings={:#?}",
-            self.name,
-            self.g_settings
-        );
+    pub fn _propagate(&mut self) {
+        debugln!("App::propagate:{}", self.name);
         for sc in &mut self.subcommands {
             // We have to create a new scope in order to tell rustc the borrow of `sc` is
             // done and to recursively call this method
             debugln!(
-                "Parser::propagate: sc={}, settings={:#?}, g_settings={:#?}",
+                "App::_propagate:{}: settings={:#?}, g_settings={:#?}",
                 sc.name,
                 sc.settings,
                 sc.g_settings
@@ -1754,12 +1807,12 @@ impl<'a, 'b> App<'a, 'b> {
                     sc.args.push(a.clone());
                 }
             }
-            sc.create_help_and_version();
-            sc.propagate();
+            // sc._create_help_and_version();
+            // sc._propagate();
         }
     }
 
-    pub fn create_help_and_version(&mut self) {
+    pub(crate) fn _create_help_and_version(&mut self) {
         debugln!("App::create_help_and_version;");
         // name is "hclap_help" because flags are sorted by name
         if !self.contains_long("help") {
@@ -1802,8 +1855,8 @@ impl<'a, 'b> App<'a, 'b> {
         }
     }
 
-    #[cfg_attr(feature = "lints", allow(needless_borrow))]
-    pub fn derive_display_order(&mut self) {
+    pub(crate) fn _derive_display_order(&mut self) {
+        debugln!("App::_derive_display_order:{}", self.name);
         if self.is_set(AppSettings::DeriveDisplayOrder) {
             let unified = self.is_set(AppSettings::UnifiedHelpMessage);
             for (i, o) in opts_mut!(self)
@@ -1826,29 +1879,72 @@ impl<'a, 'b> App<'a, 'b> {
             }
         }
         for sc in subcommands_mut!(self) {
-            sc.derive_display_order();
+            sc._derive_display_order();
         }
     }
 
-    fn fill_in_arg_groups(&mut self, a: &Arg<'a, 'b>) {
-        if let Some(ref grps) = a.groups {
-            for g in grps {
-                let mut found = false;
-                if let Some(ref mut ag) = groups_mut!(self).find(|grp| &grp.name == g) {
-                    ag.args.push(a.name);
-                    found = true;
-                }
-                if !found {
-                    let mut ag = ArgGroup::with_name(g);
-                    ag.args.push(a.name);
-                    self.groups.push(ag);
-                }
-            }
+    // Perform expensive assertions on the Arg instance
+    fn _arg_debug_asserts(&self, a: &Arg) -> bool {
+        debugln!("App::_arg_debug_asserts:{}", a.name);
+        // No naming conflicts
+        assert!(
+            arg_names!(self).filter(|name| name == &a.name).count() <= 1,
+            format!("Non-unique argument name: {} is already in use", a.name)
+        );
+
+        // Long conflicts
+        if let Some(l) = a.long {
+            assert!(
+                args!(self).filter(|a| a.long == Some(l)).count() <= 1,
+                "Argument long must be unique\n\n\t--{} is already in use",
+                l
+            );
         }
+
+        // Short conflicts
+        if let Some(s) = a.short {
+            assert!(
+                args!(self).filter(|a| a.short == Some(s)).count() <= 1,
+                "Argument short must be unique\n\n\t-{} is already in use",
+                s
+            );
+        }
+
+        if let Some(idx) = a.index {
+            // No index conflicts
+            assert!(
+                positionals!(self).filter(|p| p.index == Some(idx as u64)).count() <= 1,
+                "Argument '{}' has the same index as another positional \
+                 argument\n\n\tUse Arg::multiple(true) to allow one positional argument \
+                 to take multiple values",
+                a.name
+            );
+        }
+        assert!(
+            !(a.is_set(ArgSettings::Required) && a.is_set(ArgSettings::Global)),
+            "Global arguments cannot be required.\n\n\t'{}' is marked as \
+             global and required",
+            a.name
+        );
+        if a.is_set(ArgSettings::Last) {
+            assert!(
+                !positionals!(self)
+                    .any(|p| p.is_set(ArgSettings::Last)),
+                "Only one positional argument may have last(true) set. Found two."
+            );
+            assert!(a.long.is_none(),
+                    "Flags or Options may not have last(true) set. {} has both a long and last(true) set.",
+                    a.name);
+            assert!(a.short.is_none(),
+                    "Flags or Options may not have last(true) set. {} has both a short and last(true) set.",
+                    a.name);
+        }
+        true
     }
 
-    fn build_bin_names(&mut self) {
-        debugln!("Parser::build_bin_names;");
+
+    fn _build_bin_names(&mut self) {
+        debugln!("App::_build_bin_names;");
         for sc in subcommands_mut!(self) {
             debug!("Parser::build_bin_names:iter: bin_name set...");
             if sc.bin_name.is_none() {
@@ -1879,12 +1975,12 @@ impl<'a, 'b> App<'a, 'b> {
                 "Parser::build_bin_names:iter: Calling build_bin_names from...{}",
                 sc.name
             );
-            sc.build_bin_names();
+            sc._build_bin_names();
         }
     }
 
-
-    pub fn _write_version<W: Write>(&self, w: &mut W, use_long: bool) -> io::Result<()> {
+    pub(crate) fn _write_version<W: Write>(&self, w: &mut W, use_long: bool) -> io::Result<()> {
+        debugln!("App::_write_version;");
         let ver = if use_long {
             self
                 .long_version
@@ -1905,7 +2001,11 @@ impl<'a, 'b> App<'a, 'b> {
             write!(w, "{} {}", &self.name[..], ver)
         }
     }
+}
 
+// Internal Query Methods
+#[doc(hidden)]
+impl<'a, 'b> App<'a, 'b> {
     // Should we color the output? None=determined by output location, true=yes, false=no
     #[doc(hidden)]
     pub fn color(&self) -> ColorWhen {
@@ -1922,11 +2022,6 @@ impl<'a, 'b> App<'a, 'b> {
             ColorWhen::Auto
         }
     }
-}
-
-// Internal Query Methods
-#[doc(hidden)]
-impl<'a, 'b> App<'a, 'b> {
     fn contains_long(&self, l: &str) -> bool { longs!(self).any(|al| al == l) }
 
     fn contains_short(&self, s: char) -> bool { shorts!(self).any(|arg_s| arg_s == s) }

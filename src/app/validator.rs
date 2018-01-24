@@ -37,7 +37,7 @@ impl<'a, 'b, 'c,'z> Validator<'a, 'b, 'c, 'z> {
         self.0.add_defaults(matcher)?;
         if let ParseResult::Opt(a) = needs_val_of {
             debugln!("Validator::validate: needs_val_of={:?}", a);
-            let o = find!(self.0.app, a).expect(INTERNAL_ERROR_MSG);
+            let o = find!(self.0.app, &a).expect(INTERNAL_ERROR_MSG);
             self.validate_required(matcher)?;
             reqs_validated = true;
             let should_err = if let Some(v) = matcher.0.args.get(&*o.name) {
@@ -152,16 +152,16 @@ impl<'a, 'b, 'c,'z> Validator<'a, 'b, 'c, 'z> {
         debugln!("build_err!: name={}", name);
         let mut c_with = find_from!(self.0.app, &name, blacklist, &matcher);
         c_with = c_with.or(
-        find!(self.0.app, name).map_or(None, |aa| aa.blacklist)
+        find!(self.0.app, &name).map_or(None, |ref aa| aa.blacklist.as_ref())
             .map_or(None,
-                    |bl| bl.iter().find(|arg| matcher.contains(arg)))
-            .map_or(None, |an| find!(self.0.app, *an))
+                    |ref bl| bl.iter().find(|arg| matcher.contains(arg)))
+            .map_or(None, |an| find!(self.0.app, an))
             .map_or(None, |aa| Some(format!("{}", aa)))
         );
         debugln!("build_err!: '{:?}' conflicts with '{}'", c_with, &name);
 //        matcher.remove(&name);
         let usg = Usage::new(self.0).create_error_usage(matcher, None);
-        if let Some(f) = find!(self.0.app, name) {
+        if let Some(f) = find!(self.0.app, &name) {
             debugln!("build_err!: It was a flag...");
             Err(Error::argument_conflict(f, c_with, &*usg, self.0.app.color()))
         } else {
@@ -191,8 +191,8 @@ impl<'a, 'b, 'c,'z> Validator<'a, 'b, 'c, 'z> {
                     }
                 }
             }
-            if let Some(arg) = find!(self.0.app, name) {
-                if let Some(bl) = arg.blacklist {
+            if let Some(arg) = find!(self.0.app, &name) {
+                if let Some(ref bl) = arg.blacklist {
                     for conf in bl {
                         if matcher.get(conf).is_some() {
                             conflicts.push(conf);
@@ -204,7 +204,7 @@ impl<'a, 'b, 'c,'z> Validator<'a, 'b, 'c, 'z> {
                 let args = self.0.arg_names_in_group(name);
                 for arg in &args {
                     debugln!("Validator::validate_blacklist:iter:{}:group:iter:{};", name, arg);
-                    if let Some(bl) = find!(self.0.app, *arg).unwrap().blacklist {
+                    if let Some(ref bl) = find!(self.0.app, arg).unwrap().blacklist {
                         for conf in bl {
                             if matcher.get(conf).is_some() {
                                 conflicts.push(conf);
@@ -263,13 +263,13 @@ impl<'a, 'b, 'c,'z> Validator<'a, 'b, 'c, 'z> {
                 name,
                 ma.vals
             );
-            if let Some(arg) = find!(self.0.app, *name) {
+            if let Some(arg) = find!(self.0.app, name) {
                 self.validate_arg_num_vals(arg, ma, matcher)?;
                 self.validate_arg_values(arg, ma, matcher)?;
                 self.validate_arg_requires(arg, ma, matcher)?;
                 self.validate_arg_num_occurs(arg, ma, matcher)?;
             } else {
-                let grp = find!(self.0.app, *name, groups).expect(INTERNAL_ERROR_MSG);
+                let grp = find!(self.0.app, name, groups).expect(INTERNAL_ERROR_MSG);
                 if let Some(ref g_reqs) = grp.requires {
                     if g_reqs.iter().any(|&n| !matcher.contains(n)) {
                         return self.missing_required_error(matcher, None);
@@ -417,7 +417,7 @@ impl<'a, 'b, 'c,'z> Validator<'a, 'b, 'c, 'z> {
             if matcher.contains(name) {
                 continue 'outer;
             }
-            if let Some(a) = find!(self.0.app, *name) {
+            if let Some(a) = find!(self.0.app, name) {
                 if self.is_missing_required_ok(a, matcher) {
                     continue 'outer;
                 }
@@ -436,10 +436,10 @@ impl<'a, 'b, 'c,'z> Validator<'a, 'b, 'c, 'z> {
         Ok(())
     }
 
-    fn validate_arg_conflicts(&self, a: &Arg, matcher: &ArgMatcher) -> Option<bool> {
+    fn validate_arg_conflicts(&self, a: &Arg<'a, 'b>, matcher: &ArgMatcher<'a>) -> Option<bool> {
         debugln!("Validator::validate_arg_conflicts: a={:?};", a.name);
-        a.blacklist.map(|bl| {
-            bl.iter().any(|conf| {
+        a.blacklist.as_ref().map(|bl| {
+            bl.iter().any(|ref conf| {
                 matcher.contains(conf)
                     || find!(self.0.app, *conf, groups)
                         .map_or(false, |g| g.args.iter().any(|arg| matcher.contains(arg)))
@@ -447,14 +447,14 @@ impl<'a, 'b, 'c,'z> Validator<'a, 'b, 'c, 'z> {
         })
     }
 
-    fn validate_required_unless(&self, a: &Arg, matcher: &ArgMatcher) -> Option<bool> {
+    fn validate_required_unless(&self, a: &Arg<'a, 'b>, matcher: &ArgMatcher<'a>) -> Option<bool> {
         debugln!("Validator::validate_required_unless: a={:?};", a.name);
         macro_rules! check {
             ($how:ident, $_self:expr, $a:ident, $m:ident) => {{
-                $a.r_unless.map(|ru| {
+                $a.r_unless.as_ref().map(|ru| {
                     ru.iter().$how(|n| {
                         $m.contains(n) || {
-                            if let Some(grp) = find!($_self.app, *n, groups) {
+                            if let Some(grp) = find!($_self.app, n, groups) {
                                      grp.args.iter().any(|arg| $m.contains(arg))
                             } else {
                                 false
@@ -502,7 +502,7 @@ impl<'a, 'b, 'c,'z> Validator<'a, 'b, 'c, 'z> {
     }
 
     #[inline]
-    fn is_missing_required_ok(&self, a: &Arg, matcher: &ArgMatcher) -> bool {
+    fn is_missing_required_ok(&self, a: &Arg<'a, 'b>, matcher: &ArgMatcher<'a>) -> bool {
         debugln!("Validator::is_missing_required_ok: a={}", a.name);
         self.validate_arg_conflicts(a, matcher).unwrap_or(false)
             || self.validate_required_unless(a, matcher).unwrap_or(false)

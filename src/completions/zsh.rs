@@ -441,7 +441,7 @@ fn write_positionals_of(p: &App) -> String {
     debugln!("write_positionals_of;");
     let mut ret = vec![];
     for arg in positionals!(p) {
-        debugln!("write_positionals_of:iter: arg={}", arg.b.name);
+        debugln!("write_positionals_of:iter: arg={}", arg.name);
         let a = format!(
             "'{optional}:{name}{help}:{action}' \\",
             optional = if !arg.is_set(ArgSettings::Required) { ":" } else { "" },
@@ -450,7 +450,7 @@ fn write_positionals_of(p: &App) -> String {
                 .map_or("".to_owned(), |v| " -- ".to_owned() + v)
                 .replace("[", "\\[")
                 .replace("]", "\\]"),
-            action = arg.possible_vals.map_or("_files".to_owned(), |values| {
+            action = arg.possible_vals.as_ref().map_or("_files".to_owned(), |values| {
                 format!("({})",
                     values.iter().map(|v| escape_value(*v)).collect::<Vec<String>>().join(" "))
             })
