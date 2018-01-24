@@ -116,9 +116,9 @@ impl<'w> Help<'w> {
 
     /// Reads help settings from an App
     /// and write its help to the wrapped stream.
-    pub fn write_app_help(w: &'w mut Write, app: &App, use_long: bool) -> ClapResult<()> {
+    pub fn write_app_help(w: &'w mut Write, app: &mut App, use_long: bool) -> ClapResult<()> {
         debugln!("Help::write_app_help;");
-        let p = RefParser::new(app);
+        let p = Parser::new(app);
         Self::write_parser_help(w, &p, use_long)
     }
 
