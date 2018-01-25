@@ -16,7 +16,7 @@ use yaml_rust::Yaml;
 use map::VecMap;
 
 use usage_parser::UsageParser;
-use args::settings::{ArgSettings, ArgFlags};
+use args::settings::{ArgFlags, ArgSettings};
 use args::DispOrder;
 use INTERNAL_ERROR_MSG;
 
@@ -48,34 +48,62 @@ pub struct Arg<'a, 'b>
 where
     'a: 'b,
 {
-    #[doc(hidden)] pub name: &'a str,
-    #[doc(hidden)] pub help: Option<&'b str>,
-    #[doc(hidden)] pub long_help: Option<&'b str>,
-    #[doc(hidden)] pub blacklist: Option<Vec<&'a str>>,
-    #[doc(hidden)] pub settings: ArgFlags,
-    #[doc(hidden)] pub r_unless: Option<Vec<&'a str>>,
-    #[doc(hidden)] pub overrides: Option<Vec<&'a str>>,
-    #[doc(hidden)] pub groups: Option<Vec<&'a str>>,
-    #[doc(hidden)] pub requires: Option<Vec<(Option<&'b str>, &'a str)>>,
-    #[doc(hidden)] pub short: Option<char>,
-    #[doc(hidden)] pub long: Option<&'b str>,
-    #[doc(hidden)] pub aliases: Option<Vec<(&'b str, bool)>>, // (name, visible)
-    #[doc(hidden)] pub disp_ord: usize,
-    #[doc(hidden)] pub unified_ord: usize,
-    #[doc(hidden)] pub possible_vals: Option<Vec<&'b str>>,
-    #[doc(hidden)] pub val_names: Option<VecMap<&'b str>>,
-    #[doc(hidden)] pub num_vals: Option<u64>,
-    #[doc(hidden)] pub max_vals: Option<u64>,
-    #[doc(hidden)] pub min_vals: Option<u64>,
-    #[doc(hidden)] pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
-    #[doc(hidden)] pub validator_os: Option<Rc<Fn(&OsStr) -> Result<(), OsString>>>,
-    #[doc(hidden)] pub val_delim: Option<char>,
-    #[doc(hidden)] pub default_val: Option<&'b OsStr>,
-    #[doc(hidden)] pub default_vals_ifs: Option<VecMap<(&'a str, Option<&'b OsStr>, &'b OsStr)>>,
-    #[doc(hidden)] pub env: Option<(&'a OsStr, Option<OsString>)>,
-    #[doc(hidden)] pub terminator: Option<&'b str>,
-    #[doc(hidden)] pub index: Option<u64>,
-    #[doc(hidden)] pub r_ifs: Option<Vec<(&'a str, &'b str)>>,
+    #[doc(hidden)]
+    pub name: &'a str,
+    #[doc(hidden)]
+    pub help: Option<&'b str>,
+    #[doc(hidden)]
+    pub long_help: Option<&'b str>,
+    #[doc(hidden)]
+    pub blacklist: Option<Vec<&'a str>>,
+    #[doc(hidden)]
+    pub settings: ArgFlags,
+    #[doc(hidden)]
+    pub r_unless: Option<Vec<&'a str>>,
+    #[doc(hidden)]
+    pub overrides: Option<Vec<&'a str>>,
+    #[doc(hidden)]
+    pub groups: Option<Vec<&'a str>>,
+    #[doc(hidden)]
+    pub requires: Option<Vec<(Option<&'b str>, &'a str)>>,
+    #[doc(hidden)]
+    pub short: Option<char>,
+    #[doc(hidden)]
+    pub long: Option<&'b str>,
+    #[doc(hidden)]
+    pub aliases: Option<Vec<(&'b str, bool)>>, // (name, visible)
+    #[doc(hidden)]
+    pub disp_ord: usize,
+    #[doc(hidden)]
+    pub unified_ord: usize,
+    #[doc(hidden)]
+    pub possible_vals: Option<Vec<&'b str>>,
+    #[doc(hidden)]
+    pub val_names: Option<VecMap<&'b str>>,
+    #[doc(hidden)]
+    pub num_vals: Option<u64>,
+    #[doc(hidden)]
+    pub max_vals: Option<u64>,
+    #[doc(hidden)]
+    pub min_vals: Option<u64>,
+    #[doc(hidden)]
+    pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
+    #[doc(hidden)]
+    pub validator_os: Option<Rc<Fn(&OsStr) -> Result<(), OsString>>>,
+    #[doc(hidden)]
+    pub val_delim: Option<char>,
+    #[doc(hidden)]
+    pub default_val: Option<&'b OsStr>,
+    #[doc(hidden)]
+    pub default_vals_ifs: Option<VecMap<(&'a str, Option<&'b OsStr>, &'b OsStr)>>,
+    #[doc(hidden)]
+    pub env: Option<(&'a OsStr, Option<OsString>)>,
+    #[doc(hidden)]
+    pub terminator: Option<&'b str>,
+    #[doc(hidden)]
+    pub index: Option<u64>,
+    #[doc(hidden)]
+    pub r_ifs: Option<Vec<(&'a str, &'b str)>>,
 }
 
 impl<'a, 'b> Arg<'a, 'b> {
@@ -173,8 +201,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 }
                 s => panic!(
                     "Unknown Arg setting '{}' in YAML file for arg '{}'",
-                    s,
-                    name_str
+                    s, name_str
                 ),
             }
         }
@@ -3758,9 +3785,7 @@ impl<'a, 'b> Arg<'a, 'b> {
 }
 
 impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
-    fn from(a: &'z Arg<'a, 'b>) -> Self {
-        a.clone()
-    }
+    fn from(a: &'z Arg<'a, 'b>) -> Self { a.clone() }
 }
 
 impl<'n, 'e> PartialEq for Arg<'n, 'e> {
@@ -3865,30 +3890,28 @@ impl<'n, 'e> Display for Arg<'n, 'e> {
     }
 }
 
-impl<'n, 'e> PartialOrd for Arg<'n , 'e> {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
+impl<'n, 'e> PartialOrd for Arg<'n, 'e> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> { Some(self.cmp(other)) }
 }
 
 impl<'n, 'e> Ord for Arg<'n, 'e> {
-    fn cmp(&self, other: &Arg) -> Ordering {
-        self.name.cmp(&other.name)
-    }
+    fn cmp(&self, other: &Arg) -> Ordering { self.name.cmp(&other.name) }
 }
 
-impl<'n, 'e> Eq for Arg<'n, 'e> { }
+impl<'n, 'e> Eq for Arg<'n, 'e> {}
 
 impl<'n, 'e> fmt::Debug for Arg<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
-        write!(f, "Arg {{ name: {:?}, help: {:?}, long_help: {:?}, conflicts_with: {:?}, \
-            settings: {:?}, required_unless: {:?}, overrides_with: {:?}, groups: {:?}, \
-            requires: {:?}, requires_ifs: {:?}, short: {:?}, index: {:?}, long: {:?}, \
-            aliases: {:?}, possible_values: {:?}, value_names: {:?}, number_of_values: {:?}, \
-            max_values: {:?}, min_values: {:?}, value_delimiter: {:?}, default_value_ifs: {:?}, \
-            value_terminator: {:?}, display_order: {:?}, env: {:?}, unified_ord: {:?}, \
-            default_value: {:?}, validator: {}, validator_os: {} \
-        }}",
+        write!(
+            f,
+            "Arg {{ name: {:?}, help: {:?}, long_help: {:?}, conflicts_with: {:?}, \
+             settings: {:?}, required_unless: {:?}, overrides_with: {:?}, groups: {:?}, \
+             requires: {:?}, requires_ifs: {:?}, short: {:?}, index: {:?}, long: {:?}, \
+             aliases: {:?}, possible_values: {:?}, value_names: {:?}, number_of_values: {:?}, \
+             max_values: {:?}, min_values: {:?}, value_delimiter: {:?}, default_value_ifs: {:?}, \
+             value_terminator: {:?}, display_order: {:?}, env: {:?}, unified_ord: {:?}, \
+             default_value: {:?}, validator: {}, validator_os: {} \
+             }}",
             self.name,
             self.help,
             self.long_help,

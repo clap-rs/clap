@@ -5,7 +5,7 @@ use std::ascii::AsciiExt;
 // Internal
 use INTERNAL_ERROR_MSG;
 use INVALID_UTF8;
-use args::{ArgMatcher, MatchedArg, Arg};
+use args::{Arg, ArgMatcher, MatchedArg};
 use args::settings::ArgSettings;
 use errors::{Error, ErrorKind};
 use errors::Result as ClapResult;
@@ -15,14 +15,13 @@ use app::parser::{ParseResult, Parser};
 use fmt::{Colorizer, ColorizerOption};
 use app::usage::Usage;
 
-pub struct Validator<'a, 'b, 'c,'z>(&'z mut Parser<'a, 'b, 'c>)
+pub struct Validator<'a, 'b, 'c, 'z>(&'z mut Parser<'a, 'b, 'c>)
 where
     'a: 'b,
     'b: 'c,
     'c: 'z;
 
-
-impl<'a, 'b, 'c,'z> Validator<'a, 'b, 'c, 'z> {
+impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
     pub fn new(p: &'z mut Parser<'a, 'b, 'c>) -> Self { Validator(p) }
 
     pub fn validate(
@@ -80,8 +79,7 @@ impl<'a, 'b, 'c,'z> Validator<'a, 'b, 'c, 'z> {
         arg: &Arg,
         ma: &MatchedArg,
         matcher: &ArgMatcher<'a>,
-    ) -> ClapResult<()>
-    {
+    ) -> ClapResult<()> {
         debugln!("Validator::validate_arg_values: arg={:?}", arg.name);
         for val in &ma.vals {
             if self.0.is_set(AS::StrictUtf8) && val.to_str().is_none() {
@@ -151,19 +149,22 @@ impl<'a, 'b, 'c,'z> Validator<'a, 'b, 'c, 'z> {
     fn build_err(&self, name: &str, matcher: &ArgMatcher<'a>) -> ClapResult<()> {
         debugln!("build_err!: name={}", name);
         let mut c_with = find_from!(self.0.app, &name, blacklist, &matcher);
-        c_with = c_with.or(
-        find!(self.0.app, &name).map_or(None, |ref aa| aa.blacklist.as_ref())
-            .map_or(None,
-                    |ref bl| bl.iter().find(|arg| matcher.contains(arg)))
+        c_with = c_with.or(find!(self.0.app, &name)
+            .map_or(None, |ref aa| aa.blacklist.as_ref())
+            .map_or(None, |ref bl| bl.iter().find(|arg| matcher.contains(arg)))
             .map_or(None, |an| find!(self.0.app, an))
-            .map_or(None, |aa| Some(format!("{}", aa)))
-        );
+            .map_or(None, |aa| Some(format!("{}", aa))));
         debugln!("build_err!: '{:?}' conflicts with '{}'", c_with, &name);
-//        matcher.remove(&name);
+        //        matcher.remove(&name);
         let usg = Usage::new(self.0).create_error_usage(matcher, None);
         if let Some(f) = find!(self.0.app, &name) {
             debugln!("build_err!: It was a flag...");
-            Err(Error::argument_conflict(f, c_with, &*usg, self.0.app.color()))
+            Err(Error::argument_conflict(
+                f,
+                c_with,
+                &*usg,
+                self.0.app.color(),
+            ))
         } else {
             panic!(INTERNAL_ERROR_MSG);
         }
@@ -203,7 +204,11 @@ impl<'a, 'b, 'c,'z> Validator<'a, 'b, 'c, 'z> {
                 debugln!("Validator::validate_blacklist:iter:{}:group;", name);
                 let args = self.0.arg_names_in_group(name);
                 for arg in &args {
-                    debugln!("Validator::validate_blacklist:iter:{}:group:iter:{};", name, arg);
+                    debugln!(
+                        "Validator::validate_blacklist:iter:{}:group:iter:{};",
+                        name,
+                        arg
+                    );
                     if let Some(ref bl) = find!(self.0.app, arg).unwrap().blacklist {
                         for conf in bl {
                             if matcher.get(conf).is_some() {
@@ -285,8 +290,7 @@ impl<'a, 'b, 'c,'z> Validator<'a, 'b, 'c, 'z> {
         a: &Arg,
         ma: &MatchedArg,
         matcher: &ArgMatcher<'a>,
-    ) -> ClapResult<()>
-    {
+    ) -> ClapResult<()> {
         debugln!("Validator::validate_arg_num_occurs: a={};", a.name);
         if ma.occurs > 1 && !a.is_set(ArgSettings::Multiple) {
             // Not the first time, and we don't allow multiples
@@ -304,8 +308,7 @@ impl<'a, 'b, 'c,'z> Validator<'a, 'b, 'c, 'z> {
         a: &Arg,
         ma: &MatchedArg,
         matcher: &ArgMatcher<'a>,
-    ) -> ClapResult<()>
-    {
+    ) -> ClapResult<()> {
         debugln!("Validator::validate_arg_num_vals;");
         if let Some(num) = a.num_vals {
             debugln!("Validator::validate_arg_num_vals: num_vals set...{}", num);
@@ -386,8 +389,7 @@ impl<'a, 'b, 'c,'z> Validator<'a, 'b, 'c, 'z> {
         a: &Arg,
         ma: &MatchedArg,
         matcher: &ArgMatcher<'a>,
-    ) -> ClapResult<()>
-    {
+    ) -> ClapResult<()> {
         debugln!("Validator::validate_arg_requires:{};", a.name);
         if let Some(ref a_reqs) = a.requires {
             for &(val, name) in a_reqs.iter().filter(|&&(val, _)| val.is_some()) {
@@ -471,7 +473,11 @@ impl<'a, 'b, 'c,'z> Validator<'a, 'b, 'c, 'z> {
         }
     }
 
-    fn missing_required_error(&self, matcher: &ArgMatcher<'a>, extra: Option<&str>) -> ClapResult<()> {
+    fn missing_required_error(
+        &self,
+        matcher: &ArgMatcher<'a>,
+        extra: Option<&str>,
+    ) -> ClapResult<()> {
         debugln!("Validator::missing_required_error: extra={:?}", extra);
         let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
@@ -484,12 +490,12 @@ impl<'a, 'b, 'c,'z> Validator<'a, 'b, 'c, 'z> {
         reqs.retain(|n| !matcher.contains(n));
         reqs.dedup();
         debugln!("Validator::missing_required_error: reqs={:#?}", reqs);
-        let req_args =
-            Usage::new(self.0).get_required_usage_from(&reqs[..], Some(matcher), extra, true)
-                .iter()
-                .fold(String::new(), |acc, s| {
-                    acc + &format!("\n    {}", c.error(s))[..]
-                });
+        let req_args = Usage::new(self.0)
+            .get_required_usage_from(&reqs[..], Some(matcher), extra, true)
+            .iter()
+            .fold(String::new(), |acc, s| {
+                acc + &format!("\n    {}", c.error(s))[..]
+            });
         debugln!(
             "Validator::missing_required_error: req_args={:#?}",
             req_args

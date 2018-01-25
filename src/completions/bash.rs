@@ -3,13 +3,15 @@ use std::io::Write;
 
 // Internal
 use app::App;
-use args::{ArgSettings, Arg};
+use args::{Arg, ArgSettings};
 use completions;
 
-pub struct BashGen<'a, 'b> (&'b App<'a, 'b> ) where 'a: 'b;
+pub struct BashGen<'a, 'b>(&'b App<'a, 'b>)
+where
+    'a: 'b;
 
 impl<'a, 'b> BashGen<'a, 'b> {
-    pub fn new(app: &'b App<'a, 'b>) -> Self { BashGen ( app ) }
+    pub fn new(app: &'b App<'a, 'b>) -> Self { BashGen(app) }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
         w!(
@@ -59,8 +61,7 @@ complete -F _{name} -o bashdefault -o default {name}
 ",
                 name = self.0.bin_name.as_ref().unwrap(),
                 name_opts = self.all_options_for_path(self.0.bin_name.as_ref().unwrap()),
-                name_opts_details =
-                    self.option_details_for_path(self.0.bin_name.as_ref().unwrap()),
+                name_opts_details = self.option_details_for_path(self.0.bin_name.as_ref().unwrap()),
                 subcmds = self.all_subcommands(),
                 subcmd_details = self.subcommand_details()
             ).as_bytes()
@@ -221,14 +222,12 @@ complete -F _{name} -o bashdefault -o default {name}
         opts = format!(
             "{} {}",
             opts,
-            positionals!(p)
-                .fold(String::new(), |acc, p| format!("{} {}", acc, p))
+            positionals!(p).fold(String::new(), |acc, p| format!("{} {}", acc, p))
         );
         opts = format!(
             "{} {}",
             opts,
-            subcommands!(p)
-                .fold(String::new(), |acc, s| format!("{} {}", acc, s.name))
+            subcommands!(p).fold(String::new(), |acc, s| format!("{} {}", acc, s.name))
         );
         for sc in subcommands!(p) {
             if let Some(ref aliases) = sc.aliases {

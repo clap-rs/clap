@@ -3,7 +3,6 @@ extern crate clap;
 use clap::{App, Arg};
 
 fn main() {
-
     // Positional arguments are those values after the program name which are not preceded by any
     // identifier (such as "myapp some_file"). Positionals support many of the same options as
     // flags, as well as a few additional ones.
@@ -50,7 +49,11 @@ fn main() {
     // We can also get the values for those arguments
     if let Some(ref in_file) = matches.value_of("input") {
         // It's safe to call unwrap() because of the required options we set above
-        println!("Doing work with {} and {}", in_file, matches.value_of("config").unwrap());
+        println!(
+            "Doing work with {} and {}",
+            in_file,
+            matches.value_of("config").unwrap()
+        );
     }
     // Continued program logic goes here...
 }

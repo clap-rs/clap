@@ -5,10 +5,12 @@ use std::io::Write;
 use app::App;
 use INTERNAL_ERROR_MSG;
 
-pub struct PowerShellGen<'a, 'b> (&'b App<'a, 'b>) where 'a: 'b;
+pub struct PowerShellGen<'a, 'b>(&'b App<'a, 'b>)
+where
+    'a: 'b;
 
 impl<'a, 'b> PowerShellGen<'a, 'b> {
-    pub fn new(app: &'b App<'a, 'b>) -> Self { PowerShellGen ( app ) }
+    pub fn new(app: &'b App<'a, 'b>) -> Self { PowerShellGen(app) }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
         let bin_name = self.0.bin_name.as_ref().unwrap();

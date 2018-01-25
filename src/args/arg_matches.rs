@@ -59,9 +59,12 @@ use args::SubCommand;
 /// [`App::get_matches`]: ./struct.App.html#method.get_matches
 #[derive(Debug, Clone)]
 pub struct ArgMatches<'a> {
-    #[doc(hidden)] pub args: HashMap<&'a str, MatchedArg>,
-    #[doc(hidden)] pub subcommand: Option<Box<SubCommand<'a>>>,
-    #[doc(hidden)] pub usage: Option<String>,
+    #[doc(hidden)]
+    pub args: HashMap<&'a str, MatchedArg>,
+    #[doc(hidden)]
+    pub subcommand: Option<Box<SubCommand<'a>>>,
+    #[doc(hidden)]
+    pub usage: Option<String>,
 }
 
 impl<'a> Default for ArgMatches<'a> {
@@ -535,7 +538,6 @@ impl<'a> ArgMatches<'a> {
     /// [`App`]: ./struct.App.html
     pub fn usage(&self) -> &str { self.usage.as_ref().map_or("", |u| &u[..]) }
 }
-
 
 // The following were taken and adapated from vec_map source
 // repo: https://github.com/contain-rs/vec-map

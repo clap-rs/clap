@@ -8,13 +8,13 @@ use args::settings::ArgSettings;
 use app::settings::AppSettings as AS;
 use app::parser::Parser;
 
-pub struct Usage<'a, 'b, 'c,'z>(&'z Parser<'a, 'b, 'c>)
+pub struct Usage<'a, 'b, 'c, 'z>(&'z Parser<'a, 'b, 'c>)
 where
     'a: 'b,
     'b: 'c,
     'c: 'z;
 
-impl<'a, 'b, 'c,'z> Usage<'a, 'b, 'c, 'z> {
+impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
     pub fn new(p: &'z Parser<'a, 'b, 'c>) -> Self { Usage(p) }
 
     // Creates a usage string for display. This happens just after all arguments were parsed, but before
@@ -28,10 +28,7 @@ impl<'a, 'b, 'c,'z> Usage<'a, 'b, 'c, 'z> {
     }
 
     // Creates a usage string to be used in error message (i.e. one with currently used args)
-    pub fn create_error_usage(&self,
-        matcher: &ArgMatcher<'a>,
-        extra: Option<&str>,
-    ) -> String {
+    pub fn create_error_usage(&self, matcher: &ArgMatcher<'a>, extra: Option<&str>) -> String {
         let mut args: Vec<_> = matcher
             .arg_names()
             .iter()
@@ -65,7 +62,8 @@ impl<'a, 'b, 'c,'z> Usage<'a, 'b, 'c, 'z> {
     // Creates a usage string for display in help messages (i.e. not for errors)
     pub fn create_help_usage(&self, incl_reqs: bool) -> String {
         let mut usage = String::with_capacity(75);
-        let name = self.0.app
+        let name = self.0
+            .app
             .usage
             .as_ref()
             .unwrap_or_else(|| self.0.app.bin_name.as_ref().unwrap_or(&self.0.app.name));
@@ -87,9 +85,10 @@ impl<'a, 'b, 'c,'z> Usage<'a, 'b, 'c, 'z> {
         } else if flags {
             usage.push_str(" [OPTIONS]");
         }
-        if !self.0.is_set(AS::UnifiedHelpMessage) && opts!(self.0.app).any(|o| {
-            !o.is_set(ArgSettings::Required) && !o.is_set(ArgSettings::Hidden)
-        }) {
+        if !self.0.is_set(AS::UnifiedHelpMessage)
+            && opts!(self.0.app)
+                .any(|o| !o.is_set(ArgSettings::Required) && !o.is_set(ArgSettings::Hidden))
+        {
             usage.push_str(" [OPTIONS]");
         }
 
@@ -99,10 +98,9 @@ impl<'a, 'b, 'c,'z> Usage<'a, 'b, 'c, 'z> {
         // places a '--' in the usage string if there are args and options
         // supporting multiple values
         if opts!(self.0.app).any(|o| o.is_set(ArgSettings::Multiple))
-            && positionals!(self.0.app)
-                .any(|p| !p.is_set(ArgSettings::Required))
-            && !(self.0.app.has_visible_subcommands() || self.0.is_set(AS::AllowExternalSubcommands))
-            && !has_last
+            && positionals!(self.0.app).any(|p| !p.is_set(ArgSettings::Required))
+            && !(self.0.app.has_visible_subcommands()
+                || self.0.is_set(AS::AllowExternalSubcommands)) && !has_last
         {
             usage.push_str(" [--]");
         }
@@ -122,10 +120,7 @@ impl<'a, 'b, 'c,'z> Usage<'a, 'b, 'c, 'z> {
                     .expect(INTERNAL_ERROR_MSG);
                 debugln!("usage::create_help_usage: '{}' has .last(true)", pos.name);
                 let req = pos.is_set(ArgSettings::Required);
-                if req
-                    && positionals!(self.0.app)
-                        .any(|p| !p.is_set(ArgSettings::Required))
-                {
+                if req && positionals!(self.0.app).any(|p| !p.is_set(ArgSettings::Required)) {
                     usage.push_str(" -- <");
                 } else if req {
                     usage.push_str(" [--] <");
@@ -142,8 +137,11 @@ impl<'a, 'b, 'c,'z> Usage<'a, 'b, 'c, 'z> {
         }
 
         // incl_reqs is only false when this function is called recursively
-        if self.0.app.has_visible_subcommands() && incl_reqs || self.0.is_set(AS::AllowExternalSubcommands) {
-            if self.0.is_set(AS::SubcommandsNegateReqs) || self.0.is_set(AS::ArgsNegateSubcommands) {
+        if self.0.app.has_visible_subcommands() && incl_reqs
+            || self.0.is_set(AS::AllowExternalSubcommands)
+        {
+            if self.0.is_set(AS::SubcommandsNegateReqs) || self.0.is_set(AS::ArgsNegateSubcommands)
+            {
                 if !self.0.is_set(AS::ArgsNegateSubcommands) {
                     usage.push_str("\n    ");
                     usage.push_str(&*self.create_help_usage(false));
@@ -153,7 +151,9 @@ impl<'a, 'b, 'c,'z> Usage<'a, 'b, 'c, 'z> {
                     usage.push_str(&*name);
                     usage.push_str(" <SUBCOMMAND>");
                 }
-            } else if self.0.is_set(AS::SubcommandRequired) || self.0.is_set(AS::SubcommandRequiredElseHelp) {
+            } else if self.0.is_set(AS::SubcommandRequired)
+                || self.0.is_set(AS::SubcommandRequiredElseHelp)
+            {
                 usage.push_str(" <SUBCOMMAND>");
             } else {
                 usage.push_str(" [SUBCOMMAND]");
@@ -177,7 +177,8 @@ impl<'a, 'b, 'c,'z> Usage<'a, 'b, 'c, 'z> {
             .fold(String::new(), |acc, s| acc + &format!(" {}", s)[..]);
 
         usage.push_str(
-            &self.0.app
+            &self.0
+                .app
                 .usage
                 .as_ref()
                 .unwrap_or_else(|| self.0.app.bin_name.as_ref().unwrap_or(&self.0.app.name))[..],
@@ -234,16 +235,16 @@ impl<'a, 'b, 'c,'z> Usage<'a, 'b, 'c, 'z> {
                 pos.name_no_brackets(),
                 pos.multiple_str()
             ));
-        } else if self.0.is_set(AS::DontCollapseArgsInUsage) && self.0.has_positionals() && incl_reqs {
+        } else if self.0.is_set(AS::DontCollapseArgsInUsage) && self.0.has_positionals()
+            && incl_reqs
+        {
             debugln!("usage::get_args_tag:iter: Don't collapse returning all");
             return Some(
                 positionals!(self.0.app)
                     .filter(|pos| !pos.is_set(ArgSettings::Required))
                     .filter(|pos| !pos.is_set(ArgSettings::Hidden))
                     .filter(|pos| !pos.is_set(ArgSettings::Last))
-                    .map(|pos| {
-                        format!(" [{}]{}", pos.name_no_brackets(), pos.multiple_str())
-                    })
+                    .map(|pos| format!(" [{}]{}", pos.name_no_brackets(), pos.multiple_str()))
                     .collect::<Vec<_>>()
                     .join(""),
             );
@@ -271,9 +272,7 @@ impl<'a, 'b, 'c,'z> Usage<'a, 'b, 'c, 'z> {
                     .filter(|pos| !pos.is_set(ArgSettings::Required))
                     .filter(|pos| !pos.is_set(ArgSettings::Hidden))
                     .filter(|pos| !pos.is_set(ArgSettings::Last))
-                    .map(|pos| {
-                        format!(" [{}]{}", pos.name_no_brackets(), pos.multiple_str())
-                    })
+                    .map(|pos| format!(" [{}]{}", pos.name_no_brackets(), pos.multiple_str()))
                     .collect::<Vec<_>>()
                     .join(""),
             );
@@ -444,11 +443,12 @@ impl<'a, 'b, 'c,'z> Usage<'a, 'b, 'c, 'z> {
             .filter(|name| !positionals!(self.0.app).any(|p| &&p.name == name))
             .filter(|name| !groups!(self.0.app).any(|g| &&g.name == name))
             .filter(|name| !args_in_groups.contains(name))
-            .filter(|name| {
-                !(matcher.is_some() && matcher.as_ref().unwrap().contains(name))
-            }) {
+            .filter(|name| !(matcher.is_some() && matcher.as_ref().unwrap().contains(name)))
+        {
             debugln!("usage::get_required_usage_from:iter:{}:", a);
-            let arg = find!(self.0.app, a).map(|f| f.to_string()).expect(INTERNAL_ERROR_MSG);
+            let arg = find!(self.0.app, a)
+                .map(|f| f.to_string())
+                .expect(INTERNAL_ERROR_MSG);
             ret_val.push_back(arg);
         }
         let mut g_vec: Vec<String> = vec![];

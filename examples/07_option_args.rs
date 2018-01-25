@@ -3,7 +3,6 @@ extern crate clap;
 use clap::{App, Arg};
 
 fn main() {
-
     // Option arguments are those that take an additional value, such as "-c value". In clap they
     // support three types of specification, those with short() as "-o some", or those with long()
     // as "--option value" or "--option=value"
@@ -65,7 +64,10 @@ fn main() {
     // NOTE: Just like with flags, if we did not specify the multiple() setting this will only
     // return 1 no matter how many times the argument was used (unless it wasn't used at all, in
     // in which case 0 is returned)
-    println!("The \"input\" argument was used {} times", matches.occurrences_of("input"));
+    println!(
+        "The \"input\" argument was used {} times",
+        matches.occurrences_of("input")
+    );
 
     // Continued program logic goes here...
 }

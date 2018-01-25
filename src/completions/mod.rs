@@ -17,10 +17,12 @@ use self::zsh::ZshGen;
 use self::powershell::PowerShellGen;
 pub use self::shell::Shell;
 
-pub struct ComplGen<'a, 'b> (&'b App<'a, 'b>, ) where 'a: 'b;
+pub struct ComplGen<'a, 'b>(&'b App<'a, 'b>)
+where
+    'a: 'b;
 
 impl<'a, 'b> ComplGen<'a, 'b> {
-    pub fn new(app: &'b App<'a, 'b>) -> Self { ComplGen ( app ) }
+    pub fn new(app: &'b App<'a, 'b>) -> Self { ComplGen(app) }
 
     pub fn generate<W: Write>(&self, for_shell: Shell, buf: &mut W) {
         match for_shell {
@@ -91,8 +93,7 @@ pub fn subcommands_of(p: &App) -> Vec<(String, String)> {
         if let Some(ref aliases) = p.aliases {
             for &(n, _) in aliases {
                 debugln!("subcommands_of:iter:iter: Found alias...{}", n);
-                let mut als_bin_name: Vec<_> =
-                    p.bin_name.as_ref().unwrap().split(' ').collect();
+                let mut als_bin_name: Vec<_> = p.bin_name.as_ref().unwrap().split(' ').collect();
                 als_bin_name.push(n);
                 let old = als_bin_name.len() - 2;
                 als_bin_name.swap_remove(old);
@@ -112,18 +113,14 @@ pub fn subcommands_of(p: &App) -> Vec<(String, String)> {
         if let Some(ref aliases) = sc.aliases {
             for &(n, _) in aliases {
                 debugln!("subcommands_of:iter:iter: Found alias...{}", n);
-                let mut als_bin_name: Vec<_> =
-                    p.bin_name.as_ref().unwrap().split(' ').collect();
+                let mut als_bin_name: Vec<_> = p.bin_name.as_ref().unwrap().split(' ').collect();
                 als_bin_name.push(n);
                 let old = als_bin_name.len() - 2;
                 als_bin_name.swap_remove(old);
                 subcmds.push((n.to_owned(), als_bin_name.join(" ")));
             }
         }
-        subcmds.push((
-            sc.name.clone(),
-            sc.bin_name.as_ref().unwrap().clone(),
-        ));
+        subcmds.push((sc.name.clone(), sc.bin_name.as_ref().unwrap().clone()));
     }
     subcmds
 }
@@ -147,11 +144,7 @@ pub fn get_all_subcommand_paths(p: &App, first: bool) -> Vec<String> {
     }
     for sc in subcommands!(p) {
         let name = &*sc.name;
-        let path = sc.bin_name
-            .as_ref()
-            .unwrap()
-            .clone()
-            .replace(" ", "__");
+        let path = sc.bin_name.as_ref().unwrap().clone().replace(" ", "__");
         subcmds.push(path.clone());
         if let Some(ref aliases) = sc.aliases {
             for &(n, _) in aliases {
@@ -159,9 +152,7 @@ pub fn get_all_subcommand_paths(p: &App, first: bool) -> Vec<String> {
             }
         }
     }
-    for sc_v in subcommands!(p)
-        .map(|s| get_all_subcommand_paths(&s, false))
-    {
+    for sc_v in subcommands!(p).map(|s| get_all_subcommand_paths(&s, false)) {
         subcmds.extend(sc_v);
     }
     subcmds

@@ -42,7 +42,7 @@ pub enum ParseResult<'a> {
 pub struct Parser<'a, 'b, 'c>
 where
     'a: 'b,
-    'b: 'c
+    'b: 'c,
 {
     pub app: &'c mut App<'a, 'b>,
     pub required: Vec<&'a str>,
@@ -54,9 +54,13 @@ where
     pub positionals: VecMap<&'a str>,
 }
 
-
 // Standalone split borrow functions
-fn count_arg<'a, 'b>(a: &mut Arg<'a, 'b>, positionals: &mut VecMap<&'a str>, num_opts: &mut usize, num_flags: &mut usize) {
+fn count_arg<'a, 'b>(
+    a: &mut Arg<'a, 'b>,
+    positionals: &mut VecMap<&'a str>,
+    num_opts: &mut usize,
+    num_flags: &mut usize,
+) {
     // Count types
     if a.index.is_some() || (a.short.is_none() && a.long.is_none()) {
         let i = if a.index.is_none() {
@@ -82,9 +86,12 @@ where
     'a: 'b,
     'b: 'c,
 {
-    pub fn new(app:  &'c mut App<'a, 'b>) -> Self {
-        let reqs = app.args.iter().filter(|a|
-            a.settings.is_set(ArgSettings::Required)).map(|a| a.name).collect();
+    pub fn new(app: &'c mut App<'a, 'b>) -> Self {
+        let reqs = app.args
+            .iter()
+            .filter(|a| a.settings.is_set(ArgSettings::Required))
+            .map(|a| a.name)
+            .collect();
 
         Parser {
             app: app,
@@ -111,11 +118,11 @@ where
         let num_p = self.positionals.len();
 
         assert!(
-                highest_idx == num_p,
-                "Found positional argument whose index is {} but there \
-                 are only {} positional arguments defined",
-                highest_idx,
-                num_p
+            highest_idx == num_p,
+            "Found positional argument whose index is {} but there \
+             are only {} positional arguments defined",
+            highest_idx,
+            num_p
         );
 
         // Next we verify that only the highest index has a .multiple(true) (if any)
@@ -128,13 +135,14 @@ where
             //  * ArgSettings::Last
             //  * The last arg is Required
             let mut it = self.positionals.values().rev();
-            let last = find!(self.app, it.next().expect(INTERNAL_ERROR_MSG)).expect(INTERNAL_ERROR_MSG);
-            let second_to_last = find!(self.app, it.next().expect(INTERNAL_ERROR_MSG)).expect(INTERNAL_ERROR_MSG);
+            let last =
+                find!(self.app, it.next().expect(INTERNAL_ERROR_MSG)).expect(INTERNAL_ERROR_MSG);
+            let second_to_last =
+                find!(self.app, it.next().expect(INTERNAL_ERROR_MSG)).expect(INTERNAL_ERROR_MSG);
             // Either the final positional is required
             // Or the second to last has a terminator or .last(true) set
             let ok = last.is_set(ArgSettings::Required)
-                || (second_to_last.terminator.is_some()
-                    || second_to_last.is_set(ArgSettings::Last))
+                || (second_to_last.terminator.is_some() || second_to_last.is_set(ArgSettings::Last))
                 || last.is_set(ArgSettings::Last);
             assert!(
                 ok,
@@ -153,9 +161,7 @@ where
 
             // Next we check how many have both Multiple and not a specific number of values set
             let count = positionals!(self.app)
-                .filter(|p| {
-                    p.settings.is_set(ArgSettings::Multiple) && p.num_vals.is_none()
-                })
+                .filter(|p| p.settings.is_set(ArgSettings::Multiple) && p.num_vals.is_none())
                 .count();
             let ok = count <= 1
                 || (last.is_set(ArgSettings::Last) && last.is_set(ArgSettings::Multiple)
@@ -173,7 +179,11 @@ where
             // index are also required.
             let mut found = false;
             let mut foundx2 = false;
-            for p in self.positionals.values().rev().map(|p_name| find!(self.app, p_name).expect(INTERNAL_ERROR_MSG)) {
+            for p in self.positionals
+                .values()
+                .rev()
+                .map(|p_name| find!(self.app, p_name).expect(INTERNAL_ERROR_MSG))
+            {
                 if foundx2 && !p.is_set(ArgSettings::Required) {
                     assert!(
                         p.is_set(ArgSettings::Required),
@@ -204,7 +214,11 @@ where
             // Check that if a required positional argument is found, all positions with a lower
             // index are also required
             let mut found = false;
-            for p in self.positionals.values().rev().map(|p_name| find!(self.app, p_name).expect(INTERNAL_ERROR_MSG)) {
+            for p in self.positionals
+                .values()
+                .rev()
+                .map(|p_name| find!(self.app, p_name).expect(INTERNAL_ERROR_MSG))
+            {
                 if found {
                     assert!(
                         p.is_set(ArgSettings::Required),
@@ -225,9 +239,9 @@ where
                 }
             }
         }
-        if positionals!(self.app).any(|p| {
-            p.is_set(ArgSettings::Last) && p.is_set(ArgSettings::Required)
-        }) && self.has_subcommands() && !self.is_set(AS::SubcommandsNegateReqs)
+        if positionals!(self.app)
+            .any(|p| p.is_set(ArgSettings::Last) && p.is_set(ArgSettings::Required))
+            && self.has_subcommands() && !self.is_set(AS::SubcommandsNegateReqs)
         {
             panic!(
                 "Having a required positional argument with .last(true) set *and* child \
@@ -265,19 +279,24 @@ where
                 self.required.push(a.name);
             }
 
-            count_arg(a, &mut self.positionals, &mut self.num_opts, &mut self.num_flags);
+            count_arg(
+                a,
+                &mut self.positionals,
+                &mut self.num_opts,
+                &mut self.num_flags,
+            );
         }
 
         debug_assert!(self._verify_positionals());
         // Set the LowIndexMultiple flag if required
         if positionals!(self.app).any(|a| {
-            a.is_set(ArgSettings::Multiple) && (a.index.unwrap_or(0) as usize != self.positionals.len())
-        })
-            && self.positionals.values()
-                .last()
-                .map_or(false, |p_name|
-                    !find!(self.app, p_name).expect(INTERNAL_ERROR_MSG).is_set(ArgSettings::Last))
-        {
+            a.is_set(ArgSettings::Multiple)
+                && (a.index.unwrap_or(0) as usize != self.positionals.len())
+        }) && self.positionals.values().last().map_or(false, |p_name| {
+            !find!(self.app, p_name)
+                .expect(INTERNAL_ERROR_MSG)
+                .is_set(ArgSettings::Last)
+        }) {
             self.app.settings.set(AS::LowIndexMultiplePositional);
         }
 
@@ -363,12 +382,19 @@ where
                 if starts_new_arg {
                     {
                         let any_arg = find!(self.app, &self.cache.unwrap_or(""));
-                        matcher.process_arg_overrides(any_arg, &mut self.overrides, &mut self.required);
+                        matcher.process_arg_overrides(
+                            any_arg,
+                            &mut self.overrides,
+                            &mut self.required,
+                        );
                     }
 
                     if arg_os.starts_with(b"--") {
                         needs_val_of = self.parse_long_arg(matcher, &arg_os)?;
-                        debugln!( "Parser:get_matches_with: After parse_long_arg {:?}", needs_val_of );
+                        debugln!(
+                            "Parser:get_matches_with: After parse_long_arg {:?}",
+                            needs_val_of
+                        );
                         match needs_val_of {
                             ParseResult::Flag | ParseResult::Opt(..) | ParseResult::ValuesDone => {
                                 continue
@@ -389,15 +415,15 @@ where
                             ParseResult::MaybeNegNum => {
                                 if !(arg_os.to_string_lossy().parse::<i64>().is_ok()
                                     || arg_os.to_string_lossy().parse::<f64>().is_ok())
-                                    {
-                                        return Err(ClapError::unknown_argument(
-                                            &*arg_os.to_string_lossy(),
-                                            "",
-                                            &*Usage::new(self).create_error_usage(matcher, None),
-                                            self.app.color(),
-                                        ));
-                                    }
-                            },
+                                {
+                                    return Err(ClapError::unknown_argument(
+                                        &*arg_os.to_string_lossy(),
+                                        "",
+                                        &*Usage::new(self).create_error_usage(matcher, None),
+                                        self.app.color(),
+                                    ));
+                                }
+                            }
                             ParseResult::Opt(..) | ParseResult::Flag | ParseResult::ValuesDone => {
                                 continue
                             }
@@ -407,8 +433,7 @@ where
                 } else {
                     if let ParseResult::Opt(name) = needs_val_of {
                         // Check to see if parsing a value from a previous arg
-                        let arg = find!(self.app, &name)
-                            .expect(INTERNAL_ERROR_MSG);
+                        let arg = find!(self.app, &name).expect(INTERNAL_ERROR_MSG);
                         // get the option so we can check the settings
                         needs_val_of = self.add_val_to_arg(arg, &arg_os, matcher)?;
                         // get the next value from the iterator
@@ -420,7 +445,9 @@ where
             if !(self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound))
                 && !self.is_set(AS::InferSubcommands)
             {
-                if let Some(cdate) = suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app)) {
+                if let Some(cdate) =
+                    suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app))
+                {
                     return Err(ClapError::invalid_subcommand(
                         arg_os.to_string_lossy().into_owned(),
                         cdate,
@@ -447,7 +474,9 @@ where
                 if let Some(na) = it.peek() {
                     let n = (*na).clone().into();
                     needs_val_of = if needs_val_of != ParseResult::ValuesDone {
-                        if let Some(p) = positionals!(self.app).find(|p| p.index == Some(pos_counter as u64)) {
+                        if let Some(p) =
+                            positionals!(self.app).find(|p| p.index == Some(pos_counter as u64))
+                        {
                             ParseResult::Pos(p.name)
                         } else {
                             ParseResult::ValuesDone
@@ -482,15 +511,19 @@ where
                         self.app.color(),
                     ));
                 }
-                if !self.is_set(AS::TrailingValues) &&
-                    (self.is_set(AS::TrailingVarArg) &&
-                    pos_counter == self.positionals.len()) {
+                if !self.is_set(AS::TrailingValues)
+                    && (self.is_set(AS::TrailingVarArg) && pos_counter == self.positionals.len())
+                {
                     self.app.settings.set(AS::TrailingValues);
                 }
                 if self.cache.map_or(true, |name| name != p.name) {
                     {
                         let any_arg = find!(self.app, &self.cache.unwrap_or(""));
-                        matcher.process_arg_overrides(any_arg, &mut self.overrides, &mut self.required);
+                        matcher.process_arg_overrides(
+                            any_arg,
+                            &mut self.overrides,
+                            &mut self.required,
+                        );
                     }
                     self.cache = Some(p.name);
                 }
@@ -658,8 +691,8 @@ where
         let mut help_help = false;
         let mut bin_name = self.app.bin_name.as_ref().unwrap_or(&self.app.name).clone();
         let mut sc = {
-            // @TODO @perf: cloning all these Apps ins't great, but since it's just displaying the help
-            // message there are bigger fish to fry
+            // @TODO @perf: cloning all these Apps ins't great, but since it's just displaying the
+            // help message there are bigger fish to fry
             let mut sc = self.app.clone();
             for (i, cmd) in cmds.iter().enumerate() {
                 if &*cmd.to_string_lossy() == "help" {
@@ -667,8 +700,7 @@ where
                     help_help = true;
                     break; // Maybe?
                 }
-                if let Some(c) = find_subcmd_cloned!(sc, cmd)
-                {
+                if let Some(c) = find_subcmd_cloned!(sc, cmd) {
                     sc = c;
                     if i == cmds.len() - 1 {
                         break;
@@ -709,7 +741,7 @@ where
     // allow wrong self convention due to self.valid_neg_num = true and it's a private method
     #[cfg_attr(feature = "lints", allow(wrong_self_convention))]
     fn is_new_arg(&mut self, arg_os: &OsStr, needs_val_of: ParseResult) -> bool {
-        debugln!( "Parser::is_new_arg:{:?}:{:?}", arg_os, needs_val_of);
+        debugln!("Parser::is_new_arg:{:?}:{:?}", arg_os, needs_val_of);
         let app_wide_settings = if self.is_set(AS::AllowLeadingHyphen) {
             true
         } else if self.is_set(AS::AllowNegativeNumbers) {
@@ -725,19 +757,17 @@ where
         };
         let arg_allows_tac = match needs_val_of {
             ParseResult::Opt(name) => {
-                let o = find!(self.app, &name)
-                    .expect(INTERNAL_ERROR_MSG);
+                let o = find!(self.app, &name).expect(INTERNAL_ERROR_MSG);
                 (o.is_set(ArgSettings::AllowLeadingHyphen) || app_wide_settings)
             }
             ParseResult::Pos(name) => {
-                let p = find!(self.app, &name)
-                    .expect(INTERNAL_ERROR_MSG);
+                let p = find!(self.app, &name).expect(INTERNAL_ERROR_MSG);
                 (p.is_set(ArgSettings::AllowLeadingHyphen) || app_wide_settings)
             }
             ParseResult::ValuesDone => return true,
             _ => false,
         };
-        debugln!( "Parser::is_new_arg: arg_allows_tac={:?}", arg_allows_tac );
+        debugln!("Parser::is_new_arg: arg_allows_tac={:?}", arg_allows_tac);
 
         // Is this a new argument, or values from a previous option?
         let mut ret = if arg_os.starts_with(b"--") {
@@ -763,16 +793,25 @@ where
         ret
     }
 
-
     fn remove_overrides(&mut self, matcher: &mut ArgMatcher) {
         debugln!("Parser::remove_overrides:{:?};", self.overrides);
         for &(overr, name) in &self.overrides {
             debugln!("Parser::remove_overrides:iter:({},{});", overr, name);
             if matcher.is_present(overr) {
-                debugln!("Parser::remove_overrides:iter:({},{}): removing {};", overr, name, name);
+                debugln!(
+                    "Parser::remove_overrides:iter:({},{}): removing {};",
+                    overr,
+                    name,
+                    name
+                );
                 matcher.remove(name);
-                for i in (0 .. self.required.len()).rev() {
-                    debugln!("Parser::remove_overrides:iter:({},{}): removing required {};", overr, name, name);
+                for i in (0..self.required.len()).rev() {
+                    debugln!(
+                        "Parser::remove_overrides:iter:({},{}): removing required {};",
+                        overr,
+                        name,
+                        name
+                    );
                     if self.required[i] == name {
                         self.required.swap_remove(i);
                         break;
@@ -807,9 +846,7 @@ where
             }
         }
         mid_string.push_str(" ");
-        if let Some(ref mut sc) = subcommands_mut!(self.app)
-            .find(|s| s.name == sc_name)
-        {
+        if let Some(ref mut sc) = subcommands_mut!(self.app).find(|s| s.name == sc_name) {
             let mut sc_matcher = ArgMatcher::new();
             // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
             // a space
@@ -826,21 +863,14 @@ where
             sc.bin_name = Some(format!(
                 "{}{}{}",
                 self.app.bin_name.as_ref().unwrap_or(&String::new()),
-                if self.app.bin_name.is_some() {
-                    " "
-                } else {
-                    ""
-                },
+                if self.app.bin_name.is_some() { " " } else { "" },
                 &*sc.name
             ));
 
             // Ensure all args are built and ready to parse
             sc._build();
 
-            debugln!(
-                "Parser::parse_subcommand: About to parse sc={}",
-                sc.name
-            );
+            debugln!("Parser::parse_subcommand: About to parse sc={}", sc.name);
 
             let name = sc.name.clone();
             let mut p = Parser::new(sc);
@@ -940,9 +970,9 @@ where
             self.parse_flag(flag, matcher)?;
 
             // Handle conflicts, requirements, etc.
-             if self.cache.map_or(true, |name| name != flag.name) {
-                 self.cache = Some(flag.name);
-             }
+            if self.cache.map_or(true, |name| name != flag.name) {
+                self.cache = Some(flag.name);
+            }
 
             return Ok(ParseResult::Flag);
         } else if self.is_set(AS::AllowLeadingHyphen) {
@@ -1115,8 +1145,7 @@ where
         arg: &Arg<'a, 'b>,
         val: &OsStr,
         matcher: &mut ArgMatcher<'a>,
-    ) -> ClapResult<ParseResult<'a>>
-    {
+    ) -> ClapResult<ParseResult<'a>> {
         debugln!("Parser::add_val_to_arg; arg={}, val={:?}", arg.name, val);
         debugln!(
             "Parser::add_val_to_arg; trailing_vals={:?}, DontDelimTrailingVals={:?}",
@@ -1153,8 +1182,7 @@ where
         arg: &Arg<'a, 'b>,
         v: &OsStr,
         matcher: &mut ArgMatcher<'a>,
-    ) -> ClapResult<ParseResult<'a>>
-    {
+    ) -> ClapResult<ParseResult<'a>> {
         debugln!("Parser::add_single_val_to_arg;");
         debugln!("Parser::add_single_val_to_arg: adding val...{:?}", v);
         if let Some(t) = arg.terminator {
@@ -1198,7 +1226,8 @@ where
             (@default $_self:ident, $a:ident, $m:ident) => {
                 if let Some(ref val) = $a.default_val {
                     debugln!("Parser::add_defaults:iter:{}: has default vals", $a.name);
-                    if $m.get($a.name).map(|ma| ma.vals.len()).map(|len| len == 0).unwrap_or(false) {
+                    if $m.get($a.name).map(|ma| ma.vals.len())
+                        .map(|len| len == 0).unwrap_or(false) {
                         debugln!("Parser::add_defaults:iter:{}: has no user defined vals", $a.name);
                         $_self.add_val_to_arg($a, OsStr::new(val), $m)?;
 
@@ -1270,7 +1299,12 @@ where
     pub(crate) fn add_env(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
         for a in &self.app.args {
             if let Some(ref val) = a.env {
-                if matcher.get(a.name).map(|ma| ma.vals.len()).map(|len| len == 0).unwrap_or(false) {
+                if matcher
+                    .get(a.name)
+                    .map(|ma| ma.vals.len())
+                    .map(|len| len == 0)
+                    .unwrap_or(false)
+                {
                     if let Some(ref val) = val.1 {
                         self.add_val_to_arg(a, OsStr::new(val), matcher)?;
 
@@ -1301,7 +1335,8 @@ where
 {
     fn did_you_mean_error(&self, arg: &str, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
         // Didn't match a flag or option
-        let suffix = suggestions::did_you_mean_flag_suffix(arg, longs!(self.app), &*self.app.subcommands);
+        let suffix =
+            suggestions::did_you_mean_flag_suffix(arg, longs!(self.app), &*self.app.subcommands);
 
         // Add the arg to the matches to build a proper usage string
         if let Some(name) = suffix.1 {
@@ -1398,7 +1433,10 @@ where
         let mut g_vec = vec![];
         let mut args = vec![];
 
-        for n in &find!(self.app, &group, groups).expect(INTERNAL_ERROR_MSG).args {
+        for n in &find!(self.app, &group, groups)
+            .expect(INTERNAL_ERROR_MSG)
+            .args
+        {
             if let Some(ref f) = find!(self.app, n) {
                 args.push(f.to_string());
             } else {
@@ -1437,29 +1475,17 @@ where
     pub(crate) fn required(&self) -> Iter<&str> { self.required.iter() }
 
     #[cfg_attr(feature = "lints", allow(needless_borrow))]
-    pub(crate) fn has_args(&self) -> bool {
-        self.app.has_args()
-    }
+    pub(crate) fn has_args(&self) -> bool { self.app.has_args() }
 
-    pub(crate) fn has_opts(&self) -> bool {
-        self.app.has_opts()
-    }
+    pub(crate) fn has_opts(&self) -> bool { self.app.has_opts() }
 
-    pub(crate) fn has_flags(&self) -> bool {
-        self.app.has_flags()
-    }
+    pub(crate) fn has_flags(&self) -> bool { self.app.has_flags() }
 
-    pub(crate) fn has_positionals(&self) -> bool {
-        !self.positionals.is_empty()
-    }
+    pub(crate) fn has_positionals(&self) -> bool { !self.positionals.is_empty() }
 
-    pub(crate) fn has_subcommands(&self) -> bool {
-        self.app.has_subcommands()
-    }
+    pub(crate) fn has_subcommands(&self) -> bool { self.app.has_subcommands() }
 
-    pub(crate) fn has_visible_subcommands(&self) -> bool {
-        self.app.has_visible_subcommands()
-    }
+    pub(crate) fn has_visible_subcommands(&self) -> bool { self.app.has_visible_subcommands() }
 
     pub(crate) fn is_set(&self, s: AS) -> bool { self.app.is_set(s) }
 

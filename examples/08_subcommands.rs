@@ -3,7 +3,6 @@ extern crate clap;
 use clap::{App, Arg, SubCommand};
 
 fn main() {
-
     // SubCommands function exactly like sub-Apps, because that's exactly what they are. Each
     // instance of a SubCommand can have it's own version, author(s), Args, and even it's own
     // subcommands.
@@ -49,8 +48,8 @@ fn main() {
     // You can also match on a subcommand's name
     match matches.subcommand_name() {
         Some("add") => println!("'myapp add' was used"),
-        None        => println!("No subcommand was used"),
-        _           => println!("Some other subcommand was used"),
+        None => println!("No subcommand was used"),
+        _ => println!("Some other subcommand was used"),
     }
 
     // Continued program logic goes here...

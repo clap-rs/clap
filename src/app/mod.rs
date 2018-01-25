@@ -9,7 +9,7 @@ use std::env;
 use std::ffi::OsString;
 use std::fmt;
 use std::io::{self, BufRead, BufWriter, Write};
-use std::path::{PathBuf, Path};
+use std::path::{Path, PathBuf};
 use std::process;
 use std::fs::File;
 use std::iter::Peekable;
@@ -21,7 +21,7 @@ use yaml_rust::Yaml;
 // Internal
 use app::parser::Parser;
 use app::help::Help;
-use args::{DispOrder, Arg, ArgGroup, ArgMatcher, ArgMatches};
+use args::{Arg, ArgGroup, ArgMatcher, ArgMatches, DispOrder};
 use args::settings::ArgSettings;
 use errors::Result as ClapResult;
 pub use self::settings::{AppFlags, AppSettings};
@@ -61,34 +61,59 @@ pub struct App<'a, 'b>
 where
     'a: 'b,
 {
-    #[doc(hidden)] pub name: String,
-    #[doc(hidden)] pub bin_name: Option<String>,
-    #[doc(hidden)] pub author: Option<&'b str>,
-    #[doc(hidden)] pub version: Option<&'b str>,
-    #[doc(hidden)] pub long_version: Option<&'b str>,
-    #[doc(hidden)] pub about: Option<&'b str>,
-    #[doc(hidden)] pub long_about: Option<&'b str>,
-    #[doc(hidden)] pub more_help: Option<&'b str>,
-    #[doc(hidden)] pub pre_help: Option<&'b str>,
-    #[doc(hidden)] pub aliases: Option<Vec<(&'b str, bool)>>, // (name, visible)
-    #[doc(hidden)] pub usage_str: Option<&'b str>,
-    #[doc(hidden)] pub usage: Option<String>,
-    #[doc(hidden)] pub help_str: Option<&'b str>,
-    #[doc(hidden)] pub disp_ord: usize,
-    #[doc(hidden)] pub term_w: Option<usize>,
-    #[doc(hidden)] pub max_w: Option<usize>,
-    #[doc(hidden)] pub template: Option<&'b str>,
-    #[doc(hidden)] pub settings: AppFlags,
-    #[doc(hidden)] pub g_settings: AppFlags,
-    #[doc(hidden)] pub args: Vec<Arg<'a, 'b>>,
-    #[doc(hidden)] pub subcommands: Vec<App<'a, 'b>>,
-    #[doc(hidden)] pub groups: Vec<ArgGroup<'a>>,
-    #[doc(hidden)] help_short: Option<char>,
-    #[doc(hidden)] version_short: Option<char>,
-    #[doc(hidden)] pub help_message: Option<&'a str>,
-    #[doc(hidden)] pub version_message: Option<&'a str>,
+    #[doc(hidden)]
+    pub name: String,
+    #[doc(hidden)]
+    pub bin_name: Option<String>,
+    #[doc(hidden)]
+    pub author: Option<&'b str>,
+    #[doc(hidden)]
+    pub version: Option<&'b str>,
+    #[doc(hidden)]
+    pub long_version: Option<&'b str>,
+    #[doc(hidden)]
+    pub about: Option<&'b str>,
+    #[doc(hidden)]
+    pub long_about: Option<&'b str>,
+    #[doc(hidden)]
+    pub more_help: Option<&'b str>,
+    #[doc(hidden)]
+    pub pre_help: Option<&'b str>,
+    #[doc(hidden)]
+    pub aliases: Option<Vec<(&'b str, bool)>>, // (name, visible)
+    #[doc(hidden)]
+    pub usage_str: Option<&'b str>,
+    #[doc(hidden)]
+    pub usage: Option<String>,
+    #[doc(hidden)]
+    pub help_str: Option<&'b str>,
+    #[doc(hidden)]
+    pub disp_ord: usize,
+    #[doc(hidden)]
+    pub term_w: Option<usize>,
+    #[doc(hidden)]
+    pub max_w: Option<usize>,
+    #[doc(hidden)]
+    pub template: Option<&'b str>,
+    #[doc(hidden)]
+    pub settings: AppFlags,
+    #[doc(hidden)]
+    pub g_settings: AppFlags,
+    #[doc(hidden)]
+    pub args: Vec<Arg<'a, 'b>>,
+    #[doc(hidden)]
+    pub subcommands: Vec<App<'a, 'b>>,
+    #[doc(hidden)]
+    pub groups: Vec<ArgGroup<'a>>,
+    #[doc(hidden)]
+    help_short: Option<char>,
+    #[doc(hidden)]
+    version_short: Option<char>,
+    #[doc(hidden)]
+    pub help_message: Option<&'a str>,
+    #[doc(hidden)]
+    pub version_message: Option<&'a str>,
 }
-
 
 impl<'a, 'b> App<'a, 'b> {
     /// Creates a new instance of an application requiring a name. The name may be, but doesn't
@@ -133,7 +158,7 @@ impl<'a, 'b> App<'a, 'b> {
     pub fn with_defaults<S: Into<String>>(n: S) -> Self {
         App {
             name: n.into(),
-            author:  Some("Kevin K. <kbknapp@gmail.com>"),
+            author: Some("Kevin K. <kbknapp@gmail.com>"),
             version: Some("2.19.2"),
             ..Default::default()
         }
@@ -486,7 +511,8 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`short`]: ./struct.Arg.html#method.short
     pub fn help_short<S: AsRef<str> + 'b>(mut self, s: S) -> Self {
-        let c = s.as_ref().trim_left_matches(|c| c == '-')
+        let c = s.as_ref()
+            .trim_left_matches(|c| c == '-')
             .chars()
             .nth(0)
             .unwrap_or('h');
@@ -516,7 +542,8 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`short`]: ./struct.Arg.html#method.short
     pub fn version_short<S: AsRef<str>>(mut self, s: S) -> Self {
-        let c = s.as_ref().trim_left_matches(|c| c == '-')
+        let c = s.as_ref()
+            .trim_left_matches(|c| c == '-')
             .chars()
             .nth(0)
             .unwrap_or('V');
@@ -1433,7 +1460,6 @@ impl<'a, 'b> App<'a, 'b> {
         self.gen_completions_to(bin_name.into(), for_shell, &mut file)
     }
 
-
     /// Generate a completions file for a specified shell at runtime.  Until `cargo install` can
     /// install extra files like a completion script, this may be used e.g. in a command that
     /// outputs the contents of the completion script, to be redirected into a file by the user.
@@ -1693,7 +1719,12 @@ impl<'a, 'b> App<'a, 'b> {
             }
         }
 
-        let global_arg_vec: Vec<&str> = (&self).args.iter().filter(|a| a.is_set(ArgSettings::Global)).map(|ga| ga.name).collect();
+        let global_arg_vec: Vec<&str> = (&self)
+            .args
+            .iter()
+            .filter(|a| a.is_set(ArgSettings::Global))
+            .map(|ga| ga.name)
+            .collect();
         matcher.propagate_globals(&global_arg_vec);
 
         Ok(matcher.into())
@@ -1758,10 +1789,9 @@ impl<'a, 'b> App<'a, 'b> {
         // * Args listed inside groups should exist
         // * Groups should not have naming conflicts with Args
         let g = groups!(self).find(|g| {
-            g.args.iter().any(|arg| {
-                !(find!(self, arg).is_some()
-                    || groups!(self).any(|g| &g.name == arg))
-            })
+            g.args
+                .iter()
+                .any(|arg| !(find!(self, arg).is_some() || groups!(self).any(|g| &g.name == arg)))
         });
         assert!(
             g.is_none(),
@@ -1770,7 +1800,6 @@ impl<'a, 'b> App<'a, 'b> {
         );
         true
     }
-
 
     // @TODO @v3-alpha @perf: should only propagate globals to subcmd we find, or for help
     pub fn _propagate(&mut self) {
@@ -1863,13 +1892,15 @@ impl<'a, 'b> App<'a, 'b> {
                 .enumerate()
                 .filter(|&(_, ref o)| o.disp_ord == 999)
             {
-                o.disp_ord = if unified { o.unified_ord } else { i };
+                o.disp_ord =
+                    if unified { o.unified_ord } else { i };
             }
             for (i, f) in flags_mut!(self)
                 .enumerate()
                 .filter(|&(_, ref f)| f.disp_ord == 999)
             {
-                f.disp_ord = if unified { f.unified_ord } else { i };
+                f.disp_ord =
+                    if unified { f.unified_ord } else { i };
             }
             for (i, sc) in &mut subcommands_mut!(self)
                 .enumerate()
@@ -1913,7 +1944,9 @@ impl<'a, 'b> App<'a, 'b> {
         if let Some(idx) = a.index {
             // No index conflicts
             assert!(
-                positionals!(self).filter(|p| p.index == Some(idx as u64)).count() <= 1,
+                positionals!(self)
+                    .filter(|p| p.index == Some(idx as u64))
+                    .count() <= 1,
                 "Argument '{}' has the same index as another positional \
                  argument\n\n\tUse Arg::multiple(true) to allow one positional argument \
                  to take multiple values",
@@ -1928,8 +1961,7 @@ impl<'a, 'b> App<'a, 'b> {
         );
         if a.is_set(ArgSettings::Last) {
             assert!(
-                !positionals!(self)
-                    .any(|p| p.is_set(ArgSettings::Last)),
+                !positionals!(self).any(|p| p.is_set(ArgSettings::Last)),
                 "Only one positional argument may have last(true) set. Found two."
             );
             assert!(a.long.is_none(),
@@ -1942,7 +1974,6 @@ impl<'a, 'b> App<'a, 'b> {
         true
     }
 
-
     fn _build_bin_names(&mut self) {
         debugln!("App::_build_bin_names;");
         for sc in subcommands_mut!(self) {
@@ -1951,15 +1982,8 @@ impl<'a, 'b> App<'a, 'b> {
                 sdebugln!("No");
                 let bin_name = format!(
                     "{}{}{}",
-                    self
-                        .bin_name
-                        .as_ref()
-                        .unwrap_or(&self.name.clone()),
-                    if self.bin_name.is_some() {
-                        " "
-                    } else {
-                        ""
-                    },
+                    self.bin_name.as_ref().unwrap_or(&self.name.clone()),
+                    if self.bin_name.is_some() { " " } else { "" },
                     &*sc.name
                 );
                 debugln!(
@@ -1982,12 +2006,10 @@ impl<'a, 'b> App<'a, 'b> {
     pub(crate) fn _write_version<W: Write>(&self, w: &mut W, use_long: bool) -> io::Result<()> {
         debugln!("App::_write_version;");
         let ver = if use_long {
-            self
-                .long_version
+            self.long_version
                 .unwrap_or_else(|| self.version.unwrap_or(""))
         } else {
-            self
-                .version
+            self.version
                 .unwrap_or_else(|| self.long_version.unwrap_or(""))
         };
         if let Some(bn) = self.bin_name.as_ref() {
@@ -2026,7 +2048,9 @@ impl<'a, 'b> App<'a, 'b> {
 
     fn contains_short(&self, s: char) -> bool { shorts!(self).any(|arg_s| arg_s == s) }
 
-    pub fn is_set(&self, s: AppSettings) -> bool { self.settings.is_set(s) || self.g_settings.is_set(s)}
+    pub fn is_set(&self, s: AppSettings) -> bool {
+        self.settings.is_set(s) || self.g_settings.is_set(s)
+    }
 
     pub fn set(&mut self, s: AppSettings) { self.settings.set(s) }
 
@@ -2036,33 +2060,19 @@ impl<'a, 'b> App<'a, 'b> {
 
     pub fn unset(&mut self, s: AppSettings) { self.settings.unset(s) }
 
-    pub fn has_subcommands(&self) -> bool {
-        !self.subcommands.is_empty()
-    }
+    pub fn has_subcommands(&self) -> bool { !self.subcommands.is_empty() }
 
-    pub fn has_args(&self) -> bool {
-        !self.args.is_empty()
-    }
+    pub fn has_args(&self) -> bool { !self.args.is_empty() }
 
-    pub fn has_opts(&self) -> bool {
-        opts!(self).count() > 0
-    }
+    pub fn has_opts(&self) -> bool { opts!(self).count() > 0 }
 
-    pub fn has_flags(&self) -> bool {
-        flags!(self).count() > 0
-    }
+    pub fn has_flags(&self) -> bool { flags!(self).count() > 0 }
 
-    pub fn has_positionals(&self) -> bool {
-        positionals!(self).count() > 0
-    }
+    pub fn has_positionals(&self) -> bool { positionals!(self).count() > 0 }
 
-    pub fn has_visible_opts(&self) -> bool {
-        opts!(self).any(|o| !o.is_set(ArgSettings::Hidden))
-    }
+    pub fn has_visible_opts(&self) -> bool { opts!(self).any(|o| !o.is_set(ArgSettings::Hidden)) }
 
-    pub fn has_visible_flags(&self) -> bool {
-        flags!(self).any(|o| !o.is_set(ArgSettings::Hidden))
-    }
+    pub fn has_visible_flags(&self) -> bool { flags!(self).any(|o| !o.is_set(ArgSettings::Hidden)) }
 
     pub fn has_visible_positionals(&self) -> bool {
         positionals!(self).any(|o| !o.is_set(ArgSettings::Hidden))
@@ -2070,14 +2080,13 @@ impl<'a, 'b> App<'a, 'b> {
 
     pub fn has_visible_subcommands(&self) -> bool {
         subcommands!(self)
-                .filter(|sc| sc.name != "help")
-                .any(|sc| !sc.is_set(AppSettings::Hidden))
+            .filter(|sc| sc.name != "help")
+            .any(|sc| !sc.is_set(AppSettings::Hidden))
     }
 
     fn use_long_help(&self) -> bool {
         self.long_about.is_some() || self.args.iter().any(|f| f.long_help.is_some())
-            || subcommands!(self)
-                .any(|s| s.long_about.is_some())
+            || subcommands!(self).any(|s| s.long_about.is_some())
     }
 }
 
@@ -2229,4 +2238,3 @@ impl<'n, 'e> fmt::Display for App<'n, 'e> {
 impl<'b, 'c> DispOrder for App<'b, 'c> {
     fn disp_ord(&self) -> usize { 999 }
 }
-

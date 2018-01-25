@@ -1017,7 +1017,6 @@ macro_rules! shorts {
     }};
 }
 
-
 macro_rules! longs {
     ($app:expr) => {{
         _shorts_longs!($app, long)

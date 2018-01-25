@@ -8,7 +8,7 @@ use std::usize;
 // Internal
 use app::{App, AppSettings};
 use app::parser::Parser;
-use args::{ArgSettings, DispOrder, Arg};
+use args::{Arg, ArgSettings, DispOrder};
 use errors::{Error, Result as ClapResult};
 use fmt::{Colorizer, ColorizerOption, Format};
 use app::usage::Usage;
@@ -487,15 +487,16 @@ impl<'w> Help<'w> {
                 env.1
             );
             let env_val = if !a.is_set(ArgSettings::HideEnvValues) {
-                format!("={}", env.1.as_ref().map_or(Cow::Borrowed(""), |val| val.to_string_lossy()))
+                format!(
+                    "={}",
+                    env.1
+                        .as_ref()
+                        .map_or(Cow::Borrowed(""), |val| val.to_string_lossy())
+                )
             } else {
                 String::new()
             };
-            let env_info = format!(
-                " [env: {}{}]",
-                env.0.to_string_lossy(),
-                env_val
-            );
+            let env_info = format!(" [env: {}{}]", env.0.to_string_lossy(), env_val);
             spec_vals.push(env_info);
         }
         if !a.is_set(ArgSettings::HideDefaultValue) {
@@ -523,7 +524,12 @@ impl<'w> Help<'w> {
                         .collect::<Vec<_>>()
                         .join(", ")
                 } else {
-                    aliases.iter().filter(|&als| als.1).map(|&als| als.0).collect::<Vec<_>>().join(", ")
+                    aliases
+                        .iter()
+                        .filter(|&als| als.1)
+                        .map(|&als| als.0)
+                        .collect::<Vec<_>>()
+                        .join(", ")
                 }
             ));
         }
@@ -592,7 +598,12 @@ impl<'w> Help<'w> {
                         .collect::<Vec<_>>()
                         .join(", ")
                 } else {
-                    aliases.iter().filter(|&als| als.1).map(|&als| als.0).collect::<Vec<_>>().join(", ")
+                    aliases
+                        .iter()
+                        .filter(|&als| als.1)
+                        .map(|&als| als.0)
+                        .collect::<Vec<_>>()
+                        .join(", ")
                 }
             ));
         }
@@ -652,9 +663,7 @@ impl<'w> Help<'w> {
         }
         Ok(())
     }
-
 }
-
 
 // Methods to write Parser help.
 impl<'w> Help<'w> {
@@ -722,9 +731,7 @@ impl<'w> Help<'w> {
         // The shortest an arg can legally be is 2 (i.e. '-x')
         self.longest = 2;
         let mut ord_m = VecMap::new();
-        for sc in subcommands!(app)
-            .filter(|s| !s.is_set(AppSettings::Hidden))
-        {
+        for sc in subcommands!(app).filter(|s| !s.is_set(AppSettings::Hidden)) {
             let btm = ord_m.entry(sc.disp_ord).or_insert(BTreeMap::new());
             self.longest = cmp::max(self.longest, str_width(sc.name.as_str()));
             //self.longest = cmp::max(self.longest, sc.p.meta.name.len());
@@ -940,7 +947,6 @@ fn copy_and_capture<R: Read, W: Write>(
     }
 }
 
-
 // Methods to write Parser help using templates.
 impl<'w> Help<'w> {
     /// Write help to stream for the parser in the format defined by the template.
@@ -1026,7 +1032,11 @@ impl<'w> Help<'w> {
                     )?;
                 }
                 b"usage" => {
-                    write!(self.writer, "{}", Usage::new(parser).create_usage_no_title(&[]))?;
+                    write!(
+                        self.writer,
+                        "{}",
+                        Usage::new(parser).create_usage_no_title(&[])
+                    )?;
                 }
                 b"all-args" => {
                     self.write_all_args(parser)?;

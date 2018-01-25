@@ -7,7 +7,7 @@
 extern crate clap;
 extern crate test;
 
-use clap::{App, AppSettings, Arg, Shell, SubCommand, ArgGroup};
+use clap::{App, AppSettings, Arg, ArgGroup, Shell, SubCommand};
 
 use test::Bencher;
 

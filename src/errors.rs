@@ -632,7 +632,6 @@ impl Error {
         }
     }
 
-
     #[doc(hidden)]
     pub fn invalid_utf8<U>(usage: U, color: ColorWhen) -> Self
     where
@@ -719,8 +718,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn value_validation<'a, 'b>(arg: Option<&Arg>, err: String, color: ColorWhen) -> Self
-    {
+    pub fn value_validation<'a, 'b>(arg: Option<&Arg>, err: String, color: ColorWhen) -> Self {
         let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
             when: color,

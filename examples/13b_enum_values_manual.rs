@@ -15,7 +15,7 @@ enum Vals {
     Foo,
     Bar,
     Baz,
-    Qux
+    Qux,
 }
 
 // Implement the trait
@@ -28,7 +28,7 @@ impl FromStr for Vals {
             "Bar" => Ok(Vals::Bar),
             "Baz" => Ok(Vals::Baz),
             "Qux" => Ok(Vals::Qux),
-            _     => Err("no match")
+            _ => Err("no match"),
         }
     }
 }
@@ -49,6 +49,6 @@ fn main() {
         Vals::Foo => println!("Found a Foo"),
         Vals::Bar => println!("Found a Bar"),
         Vals::Baz => println!("Found a Baz"),
-        Vals::Qux => println!("Found a Qux")
+        Vals::Qux => println!("Found a Qux"),
     }
 }

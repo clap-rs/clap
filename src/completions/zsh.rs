@@ -9,12 +9,14 @@ use args::ArgSettings;
 use completions;
 use INTERNAL_ERROR_MSG;
 
-pub struct ZshGen<'a, 'b> (&'b App<'a, 'b>) where 'a: 'b;
+pub struct ZshGen<'a, 'b>(&'b App<'a, 'b>)
+where
+    'a: 'b;
 
 impl<'a, 'b> ZshGen<'a, 'b> {
     pub fn new(app: &'b App<'a, 'b>) -> Self {
         debugln!("ZshGen::new;");
-        ZshGen ( app )
+        ZshGen(app)
     }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
@@ -144,8 +146,7 @@ fn subcommands_of(p: &App) -> String {
         let s = format!(
             "\"{name}:{help}\" \\",
             name = n,
-            help = sc
-                .about
+            help = sc.about
                 .unwrap_or("")
                 .replace("[", "\\[")
                 .replace("]", "\\]")
@@ -157,10 +158,7 @@ fn subcommands_of(p: &App) -> String {
 
     // The subcommands
     for sc in subcommands!(p) {
-        debugln!(
-            "ZshGen::subcommands_of:iter: subcommand={}",
-            sc.name
-        );
+        debugln!("ZshGen::subcommands_of:iter: subcommand={}", sc.name);
         add_sc(sc, &sc.name, &mut ret);
         if let Some(ref v) = sc.aliases {
             for alias in v.iter().filter(|&&(_, vis)| vis).map(|&(n, _)| n) {
@@ -353,8 +351,14 @@ fn write_opts_of(p: &App) -> String {
             ""
         };
         let pv = if let Some(ref pv_vec) = o.possible_vals {
-            format!(": :({})", pv_vec.iter().map(
-                |v| escape_value(*v)).collect::<Vec<String>>().join(" "))
+            format!(
+                ": :({})",
+                pv_vec
+                    .iter()
+                    .map(|v| escape_value(*v))
+                    .collect::<Vec<String>>()
+                    .join(" ")
+            )
         } else {
             String::new()
         };
@@ -444,16 +448,26 @@ fn write_positionals_of(p: &App) -> String {
         debugln!("write_positionals_of:iter: arg={}", arg.name);
         let a = format!(
             "'{optional}:{name}{help}:{action}' \\",
-            optional = if !arg.is_set(ArgSettings::Required) { ":" } else { "" },
+            optional = if !arg.is_set(ArgSettings::Required) {
+                ":"
+            } else {
+                ""
+            },
             name = arg.name,
             help = arg.help
                 .map_or("".to_owned(), |v| " -- ".to_owned() + v)
                 .replace("[", "\\[")
                 .replace("]", "\\]"),
-            action = arg.possible_vals.as_ref().map_or("_files".to_owned(), |values| {
-                format!("({})",
-                    values.iter().map(|v| escape_value(*v)).collect::<Vec<String>>().join(" "))
-            })
+            action = arg.possible_vals
+                .as_ref()
+                .map_or("_files".to_owned(), |values| format!(
+                    "({})",
+                    values
+                        .iter()
+                        .map(|v| escape_value(*v))
+                        .collect::<Vec<String>>()
+                        .join(" ")
+                ))
         );
 
         debugln!("write_positionals_of:iter: Wrote...{}", a);

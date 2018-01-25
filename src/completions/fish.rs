@@ -4,10 +4,12 @@ use std::io::Write;
 // Internal
 use app::App;
 
-pub struct FishGen<'a, 'b> (&'b App<'a, 'b> ) where 'a: 'b;
+pub struct FishGen<'a, 'b>(&'b App<'a, 'b>)
+where
+    'a: 'b;
 
 impl<'a, 'b> FishGen<'a, 'b> {
-    pub fn new(app: &'b App<'a, 'b>) -> Self { FishGen ( app ) }
+    pub fn new(app: &'b App<'a, 'b>) -> Self { FishGen(app) }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
         let command = self.0.bin_name.as_ref().unwrap();
@@ -53,8 +55,7 @@ fn gen_fish_inner(root_command: &str, comp_gen: &FishGen, parent_cmds: &str, buf
 
     let basic_template = format!(
         "complete -c {} -n \"__fish_using_command {}\"",
-        root_command,
-        parent_cmds
+        root_command, parent_cmds
     );
 
     for option in opts!(comp_gen.0) {

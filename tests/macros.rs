@@ -69,7 +69,8 @@ fn quoted_app_name() {
     assert_eq!(app.name, "app name with spaces-and-hyphens");
 
     let mut help_text = vec![];
-    app.write_help(&mut help_text).expect("Could not write help text.");
+    app.write_help(&mut help_text)
+        .expect("Could not write help text.");
     let help_text = String::from_utf8(help_text).expect("Help text is not valid utf-8");
     assert!(help_text.starts_with("app name with spaces-and-hyphens 0.1\n"));
 }
@@ -106,8 +107,9 @@ fn quoted_arg_long_name() {
             (@arg scpositional: index(1) "tests positionals"))
     );
 
-    let matches = app.get_matches_from_safe(vec!["bin_name", "value1", "value2", "--long-option-2"])
-        .expect("Expected to successfully match the given args.");
+    let matches =
+        app.get_matches_from_safe(vec!["bin_name", "value1", "value2", "--long-option-2"])
+            .expect("Expected to successfully match the given args.");
     assert!(matches.is_present("option2"));
 }
 
@@ -143,8 +145,9 @@ fn quoted_arg_name() {
             (@arg scpositional: index(1) "tests positionals"))
     );
 
-    let matches = app.get_matches_from_safe(vec!["bin_name", "value1", "value2", "--long-option-2"])
-        .expect("Expected to successfully match the given args.");
+    let matches =
+        app.get_matches_from_safe(vec!["bin_name", "value1", "value2", "--long-option-2"])
+            .expect("Expected to successfully match the given args.");
     assert!(matches.is_present("option2"));
 }
 
