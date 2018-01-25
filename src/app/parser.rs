@@ -135,10 +135,14 @@ where
             //  * ArgSettings::Last
             //  * The last arg is Required
             let mut it = self.positionals.values().rev();
-            let last =
-                find!(self.app, it.next().expect(INTERNAL_ERROR_MSG)).expect(INTERNAL_ERROR_MSG);
-            let second_to_last =
-                find!(self.app, it.next().expect(INTERNAL_ERROR_MSG)).expect(INTERNAL_ERROR_MSG);
+
+            // We can't pass the closure (it.next()) to the macro directly because each call to
+            // find() (iterator, not macro) gets called repeatedly.
+            let last_name = it.next().expect(INTERNAL_ERROR_MSG);
+            let second_to_last_name = it.next().expect(INTERNAL_ERROR_MSG);
+            let last = find!(self.app, last_name).expect(INTERNAL_ERROR_MSG);
+            let second_to_last = find!(self.app, second_to_last_name).expect(INTERNAL_ERROR_MSG);
+
             // Either the final positional is required
             // Or the second to last has a terminator or .last(true) set
             let ok = last.is_set(ArgSettings::Required)
@@ -239,6 +243,12 @@ where
                 }
             }
         }
+        assert!(
+            positionals!(self.app)
+                .filter(|p| p.is_set(ArgSettings::Last))
+                .count() < 2,
+            "Only one positional argument may have last(true) set. Found two."
+        );
         if positionals!(self.app)
             .any(|p| p.is_set(ArgSettings::Last) && p.is_set(ArgSettings::Required))
             && self.has_subcommands() && !self.is_set(AS::SubcommandsNegateReqs)
@@ -891,11 +901,14 @@ where
             "Parser::check_for_help_and_version_str: Checking if --{} is help or version...",
             arg.to_str().unwrap()
         );
-        if arg == "help" && self.is_set(AS::NeedsLongHelp) {
+
+        // Needs to use app.settings.is_set instead of just is_set() because is_set() checks
+        // both global and local settings, we only want to check local
+        if arg == "help" && self.app.settings.is_set(AS::NeedsLongHelp) {
             sdebugln!("Help");
             return Err(self.help_err(true));
         }
-        if arg == "version" && self.is_set(AS::NeedsLongVersion) {
+        if arg == "version" && self.app.settings.is_set(AS::NeedsLongVersion) {
             sdebugln!("Version");
             return Err(self.version_err(true));
         }
@@ -910,14 +923,16 @@ where
             "Parser::check_for_help_and_version_char: Checking if -{} is help or version...",
             arg
         );
+        // Needs to use app.settings.is_set instead of just is_set() because is_set() checks
+        // both global and local settings, we only want to check local
         if let Some(h) = self.app.help_short {
-            if arg == h && self.is_set(AS::NeedsLongHelp) {
+            if arg == h && self.app.settings.is_set(AS::NeedsLongHelp) {
                 sdebugln!("Help");
                 return Err(self.help_err(false));
             }
         }
         if let Some(v) = self.app.version_short {
-            if arg == v && self.is_set(AS::NeedsLongVersion) {
+            if arg == v && self.app.settings.is_set(AS::NeedsLongVersion) {
                 sdebugln!("Version");
                 return Err(self.version_err(false));
             }

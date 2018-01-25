@@ -1769,13 +1769,6 @@ impl<'a, 'b> App<'a, 'b> {
                 self.settings.set(AppSettings::DontCollapseArgsInUsage);
                 self.settings.set(AppSettings::ContainsLast);
             }
-            if let Some(l) = a.long {
-                if l == "version" {
-                    self.settings.unset(AppSettings::NeedsLongVersion);
-                } else if l == "help" {
-                    self.settings.unset(AppSettings::NeedsLongHelp);
-                }
-            }
             a._build();
         }
 
@@ -1803,16 +1796,8 @@ impl<'a, 'b> App<'a, 'b> {
 
     // @TODO @v3-alpha @perf: should only propagate globals to subcmd we find, or for help
     pub fn _propagate(&mut self) {
-        debugln!("App::propagate:{}", self.name);
+        debugln!("App::_propagate:{}", self.name);
         for sc in &mut self.subcommands {
-            // We have to create a new scope in order to tell rustc the borrow of `sc` is
-            // done and to recursively call this method
-            debugln!(
-                "App::_propagate:{}: settings={:#?}, g_settings={:#?}",
-                sc.name,
-                sc.settings,
-                sc.g_settings
-            );
             // We have to create a new scope in order to tell rustc the borrow of `sc` is
             // done and to recursively call this method
             {
@@ -1836,16 +1821,17 @@ impl<'a, 'b> App<'a, 'b> {
                     sc.args.push(a.clone());
                 }
             }
+            // @TODO @deadcode @perf @v3-alpha: Currently we're not propagating
             // sc._create_help_and_version();
             // sc._propagate();
         }
     }
 
     pub(crate) fn _create_help_and_version(&mut self) {
-        debugln!("App::create_help_and_version;");
+        debugln!("App::_create_help_and_version;");
         // name is "hclap_help" because flags are sorted by name
         if !self.contains_long("help") {
-            debugln!("App::create_help_and_version: Building --help");
+            debugln!("App::_create_help_and_version: Building --help");
             if self.help_short.is_none() && !self.contains_short('h') {
                 self.help_short = Some('h');
             }
@@ -1857,9 +1843,11 @@ impl<'a, 'b> App<'a, 'b> {
                 ..Default::default()
             };
             self.args.push(arg);
+        } else {
+            self.settings.unset(AppSettings::NeedsLongHelp);
         }
         if !self.is_set(AppSettings::DisableVersion) && !self.contains_long("version") {
-            debugln!("App::create_help_and_version: Building --version");
+            debugln!("App::_create_help_and_version: Building --version");
             if self.version_short.is_none() && !self.contains_short('V') {
                 self.version_short = Some('V');
             }
@@ -1872,15 +1860,19 @@ impl<'a, 'b> App<'a, 'b> {
                 ..Default::default()
             };
             self.args.push(arg);
+        } else {
+            self.settings.unset(AppSettings::NeedsLongVersion);
         }
         if self.has_subcommands() && !self.is_set(AppSettings::DisableHelpSubcommand)
             && subcommands!(self).any(|s| s.name == "help")
         {
-            debugln!("App::create_help_and_version: Building help");
+            debugln!("App::_create_help_and_version: Building help");
             self.subcommands.push(
                 App::new("help")
                     .about("Prints this message or the help of the given subcommand(s)"),
             );
+        } else {
+            self.settings.unset(AppSettings::NeedsSubcommandHelp);
         }
     }
 
@@ -1919,14 +1911,14 @@ impl<'a, 'b> App<'a, 'b> {
         debugln!("App::_arg_debug_asserts:{}", a.name);
         // No naming conflicts
         assert!(
-            arg_names!(self).filter(|name| name == &a.name).count() <= 1,
+            arg_names!(self).filter(|name| name == &a.name).count() < 2,
             format!("Non-unique argument name: {} is already in use", a.name)
         );
 
         // Long conflicts
         if let Some(l) = a.long {
             assert!(
-                args!(self).filter(|a| a.long == Some(l)).count() <= 1,
+                args!(self).filter(|arg| arg.long == Some(l)).count() < 2,
                 "Argument long must be unique\n\n\t--{} is already in use",
                 l
             );
@@ -1935,7 +1927,7 @@ impl<'a, 'b> App<'a, 'b> {
         // Short conflicts
         if let Some(s) = a.short {
             assert!(
-                args!(self).filter(|a| a.short == Some(s)).count() <= 1,
+                args!(self).filter(|arg| arg.short == Some(s)).count() < 2,
                 "Argument short must be unique\n\n\t-{} is already in use",
                 s
             );
@@ -1944,26 +1936,14 @@ impl<'a, 'b> App<'a, 'b> {
         if let Some(idx) = a.index {
             // No index conflicts
             assert!(
-                positionals!(self)
-                    .filter(|p| p.index == Some(idx as u64))
-                    .count() <= 1,
+                positionals!(self).filter(|p| p.index == Some(idx as u64)).count() < 2,
                 "Argument '{}' has the same index as another positional \
                  argument\n\n\tUse Arg::multiple(true) to allow one positional argument \
                  to take multiple values",
                 a.name
             );
         }
-        assert!(
-            !(a.is_set(ArgSettings::Required) && a.is_set(ArgSettings::Global)),
-            "Global arguments cannot be required.\n\n\t'{}' is marked as \
-             global and required",
-            a.name
-        );
         if a.is_set(ArgSettings::Last) {
-            assert!(
-                !positionals!(self).any(|p| p.is_set(ArgSettings::Last)),
-                "Only one positional argument may have last(true) set. Found two."
-            );
             assert!(a.long.is_none(),
                     "Flags or Options may not have last(true) set. {} has both a long and last(true) set.",
                     a.name);
@@ -1971,6 +1951,13 @@ impl<'a, 'b> App<'a, 'b> {
                     "Flags or Options may not have last(true) set. {} has both a short and last(true) set.",
                     a.name);
         }
+        assert!(
+            !(a.is_set(ArgSettings::Required) && a.is_set(ArgSettings::Global)),
+            "Global arguments cannot be required.\n\n\t'{}' is marked as \
+             global and required",
+            a.name
+        );
+
         true
     }
 

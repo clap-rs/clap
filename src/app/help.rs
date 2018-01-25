@@ -514,24 +514,26 @@ impl<'w> Help<'w> {
         }
         if let Some(ref aliases) = a.aliases {
             debugln!("Help::spec_vals: Found aliases...{:?}", aliases);
-            spec_vals.push(format!(
-                " [aliases: {}]",
-                if self.color {
-                    aliases
-                        .iter()
-                        .filter(|&als| als.1) // visible
-                        .map(|&als| format!("{}", self.cizer.good(als.0))) // name
-                        .collect::<Vec<_>>()
-                        .join(", ")
-                } else {
-                    aliases
-                        .iter()
-                        .filter(|&als| als.1)
-                        .map(|&als| als.0)
-                        .collect::<Vec<_>>()
-                        .join(", ")
-                }
-            ));
+            let als = if self.color {
+                aliases
+                    .iter()
+                    .filter(|&als| als.1) // visible
+                    .map(|&als| format!("{}", self.cizer.good(als.0))) // name
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            } else {
+                aliases
+                    .iter()
+                    .filter(|&als| als.1)
+                    .map(|&als| als.0)
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            };
+            if !als.is_empty() {
+                spec_vals.push(format!(
+                    " [aliases: {}]", als
+                ));
+            }
         }
         if !self.hide_pv && !a.is_set(ArgSettings::HidePossibleValues) {
             if let Some(ref pv) = a.possible_vals {

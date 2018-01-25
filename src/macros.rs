@@ -857,13 +857,15 @@ macro_rules! args {
         $app.args.$how()
     };
     ($app:expr) => {
-        opts!($app, iter)
+        args!($app, iter)
     }
 }
 
 macro_rules! flags {
     ($app:expr, $how:ident) => {
-        $app.args.$how().filter(|a| !a.settings.is_set(::args::settings::ArgSettings::TakesValue) && (a.short.is_some() || a.long.is_some()))
+        $app.args.$how()
+            .filter(|a| !a.settings.is_set(::args::settings::ArgSettings::TakesValue))
+            .filter(|a| a.short.is_some() || a.long.is_some())
     };
     ($app:expr) => {
         flags!($app, iter)
@@ -878,7 +880,9 @@ macro_rules! flags_mut {
 
 macro_rules! opts {
     ($app:expr, $how:ident) => {
-        $app.args.$how().filter(|a| a.settings.is_set(::args::settings::ArgSettings::TakesValue) && (a.short.is_some() || a.long.is_some()))
+        $app.args.$how()
+            .filter(|a| a.settings.is_set(::args::settings::ArgSettings::TakesValue))
+            .filter(|a| a.short.is_some() || a.long.is_some())
     };
     ($app:expr) => {
         opts!($app, iter)
