@@ -10,7 +10,10 @@ fn posix_compatible_flags_long() {
         .get_matches_from(vec!["", "--flag", "--color"]);
     assert!(m.is_present("color"));
     assert!(!m.is_present("flag"));
+}
 
+#[test]
+fn posix_compatible_flags_long_rev() {
     let m = App::new("posix")
         .arg(Arg::from_usage("--flag  'some flag'").overrides_with("color"))
         .arg(Arg::from_usage("--color 'some other flag'"))
@@ -27,7 +30,10 @@ fn posix_compatible_flags_short() {
         .get_matches_from(vec!["", "-f", "-c"]);
     assert!(m.is_present("color"));
     assert!(!m.is_present("flag"));
+}
 
+#[test]
+fn posix_compatible_flags_short_rev() {
     let m = App::new("posix")
         .arg(Arg::from_usage("-f, --flag  'some flag'").overrides_with("color"))
         .arg(Arg::from_usage("-c, --color 'some other flag'"))
@@ -45,7 +51,10 @@ fn posix_compatible_opts_long() {
     assert!(m.is_present("color"));
     assert_eq!(m.value_of("color").unwrap(), "other");
     assert!(!m.is_present("flag"));
+}
 
+#[test]
+fn posix_compatible_opts_long_rev() {
     let m = App::new("posix")
         .arg(Arg::from_usage("--flag [flag] 'some flag'").overrides_with("color"))
         .arg(Arg::from_usage("--color [color] 'some other flag'"))
@@ -64,7 +73,10 @@ fn posix_compatible_opts_long_equals() {
     assert!(m.is_present("color"));
     assert_eq!(m.value_of("color").unwrap(), "other");
     assert!(!m.is_present("flag"));
+}
 
+#[test]
+fn posix_compatible_opts_long_equals_rev() {
     let m = App::new("posix")
         .arg(Arg::from_usage("--flag [flag] 'some flag'").overrides_with("color"))
         .arg(Arg::from_usage("--color [color] 'some other flag'"))
@@ -83,7 +95,10 @@ fn posix_compatible_opts_short() {
     assert!(m.is_present("c"));
     assert_eq!(m.value_of("c").unwrap(), "other");
     assert!(!m.is_present("f"));
+}
 
+#[test]
+fn posix_compatible_opts_short_rev() {
     let m = App::new("posix")
         .arg(Arg::from_usage("-f [flag]  'some flag'").overrides_with("c"))
         .arg(Arg::from_usage("-c [color] 'some other flag'"))
