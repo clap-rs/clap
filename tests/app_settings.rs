@@ -249,8 +249,8 @@ fn unified_help() {
         .setting(AppSettings::UnifiedHelpMessage)
         .args_from_usage(
             "-f, --flag 'some flag'
-                          [arg1] 'some pos arg'
-                          --option [opt] 'some option'",
+             [arg1] 'some pos arg'
+             --option [opt] 'some option'",
         );
 
     assert!(test::compare_output(

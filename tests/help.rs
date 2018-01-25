@@ -683,10 +683,8 @@ fn multi_level_sc_help() {
                 .author("Kevin K. <kbknapp@gmail.com>")
                 .version("0.1")
                 .args_from_usage(
-                    "
-                    -f, --flag                    'tests flags'
-                    -o, --option [scoption]...    'tests options'
-                ",
+                    "-f, --flag                    'tests flags'
+                    -o, --option [scoption]...    'tests options'",
                 ),
         ),
     );

@@ -228,7 +228,7 @@ fn option_min_less() {
 
 #[test]
 fn option_short_min_more_mult_occurs() {
-    let m = App::new("multiple_values")
+    let res = App::new("multiple_values")
         .arg(Arg::with_name("arg").required(true))
         .arg(
             Arg::with_name("option")
@@ -242,8 +242,8 @@ fn option_short_min_more_mult_occurs() {
             "", "pos", "-o", "val1", "-o", "val2", "-o", "val3", "-o", "val4"
         ]);
 
-    let m = m.map_err(|e| println!("failed to unwrap err with error kind {:?}", e.kind))
-        .unwrap();
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
+    let m = res.unwrap();
 
     assert!(m.is_present("option"));
     assert!(m.is_present("arg"));
@@ -257,7 +257,7 @@ fn option_short_min_more_mult_occurs() {
 
 #[test]
 fn option_short_min_more_single_occur() {
-    let m = App::new("multiple_values")
+    let res = App::new("multiple_values")
         .arg(Arg::with_name("arg").required(true))
         .arg(
             Arg::with_name("option")
@@ -269,8 +269,8 @@ fn option_short_min_more_single_occur() {
         )
         .get_matches_from_safe(vec!["", "pos", "-o", "val1", "val2", "val3", "val4"]);
 
-    let m = m.map_err(|e| println!("failed to unwrap err with error kind {:#?}", e))
-        .unwrap();
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
+    let m = res.unwrap();
 
     assert!(m.is_present("option"));
     assert!(m.is_present("arg"));
