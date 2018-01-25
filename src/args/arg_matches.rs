@@ -1,9 +1,11 @@
 // Std
 use std::borrow::Cow;
-use std::collections::HashMap;
 use std::ffi::{OsStr, OsString};
 use std::iter::Map;
 use std::slice::Iter;
+
+// Third Party
+use ordermap::OrderMap;
 
 // Internal
 use INVALID_UTF8;
@@ -60,7 +62,7 @@ use args::SubCommand;
 #[derive(Debug, Clone)]
 pub struct ArgMatches<'a> {
     #[doc(hidden)]
-    pub args: HashMap<&'a str, MatchedArg>,
+    pub args: OrderMap<&'a str, MatchedArg>,
     #[doc(hidden)]
     pub subcommand: Option<Box<SubCommand<'a>>>,
     #[doc(hidden)]
@@ -70,7 +72,7 @@ pub struct ArgMatches<'a> {
 impl<'a> Default for ArgMatches<'a> {
     fn default() -> Self {
         ArgMatches {
-            args: HashMap::new(),
+            args: OrderMap::new(),
             subcommand: None,
             usage: None,
         }

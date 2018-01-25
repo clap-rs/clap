@@ -47,7 +47,7 @@ where
     pub app: &'c mut App<'a, 'b>,
     pub required: Vec<&'a str>,
     pub r_ifs: Vec<(&'a str, &'b str, &'a str)>,
-    pub overrides: Vec<(&'b str, &'a str)>,
+    pub overriden: Vec<&'a str>,
     cache: Option<&'a str>,
     num_opts: usize,
     num_flags: usize,
@@ -97,7 +97,7 @@ where
             app: app,
             required: reqs,
             r_ifs: Vec::new(),
-            overrides: Vec::new(),
+            overriden: Vec::new(),
             cache: None,
             num_opts: 0,
             num_flags: 0,
@@ -390,14 +390,14 @@ where
                 }
 
                 if starts_new_arg {
-                    {
-                        let any_arg = find!(self.app, &self.cache.unwrap_or(""));
-                        matcher.process_arg_overrides(
-                            any_arg,
-                            &mut self.overrides,
-                            &mut self.required,
-                        );
-                    }
+                    // {
+                    //     let any_arg = find!(self.app, &self.cache.unwrap_or(""));
+                    //     matcher.process_arg_overrides(
+                    //         any_arg,
+                    //         &mut self.overrides,
+                    //         &mut self.required,
+                    //     );
+                    // }
 
                     if arg_os.starts_with(b"--") {
                         needs_val_of = self.parse_long_arg(matcher, &arg_os)?;
@@ -527,14 +527,14 @@ where
                     self.app.settings.set(AS::TrailingValues);
                 }
                 if self.cache.map_or(true, |name| name != p.name) {
-                    {
-                        let any_arg = find!(self.app, &self.cache.unwrap_or(""));
-                        matcher.process_arg_overrides(
-                            any_arg,
-                            &mut self.overrides,
-                            &mut self.required,
-                        );
-                    }
+                    // {
+                    //     let any_arg = find!(self.app, &self.cache.unwrap_or(""));
+                    //     matcher.process_arg_overrides(
+                    //         any_arg,
+                    //         &mut self.overrides,
+                    //         &mut self.required,
+                    //     );
+                    // }
                     self.cache = Some(p.name);
                 }
                 let _ = self.add_val_to_arg(p, &arg_os, matcher)?;
@@ -647,10 +647,10 @@ where
         }
 
         // In case the last arg was new, we  need to process it's overrides
-        {
-            let any_arg = find!(self.app, &self.cache.unwrap_or(""));
-            matcher.process_arg_overrides(any_arg, &mut self.overrides, &mut self.required);
-        }
+        // {
+        //     let any_arg = find!(self.app, &self.cache.unwrap_or(""));
+        //     matcher.process_arg_overrides(any_arg, &mut self.overrides, &mut self.required);
+        // }
 
         self.remove_overrides(matcher);
 
@@ -804,30 +804,31 @@ where
     }
 
     fn remove_overrides(&mut self, matcher: &mut ArgMatcher) {
-        debugln!("Parser::remove_overrides:{:?};", self.overrides);
-        for &(overr, name) in &self.overrides {
-            debugln!("Parser::remove_overrides:iter:({},{});", overr, name);
-            if matcher.is_present(overr) {
-                debugln!(
-                    "Parser::remove_overrides:iter:({},{}): removing {};",
-                    overr,
-                    name,
-                    name
-                );
-                matcher.remove(name);
-                for i in (0..self.required.len()).rev() {
-                    debugln!(
-                        "Parser::remove_overrides:iter:({},{}): removing required {};",
-                        overr,
-                        name,
-                        name
-                    );
-                    if self.required[i] == name {
-                        self.required.swap_remove(i);
-                        break;
+        debugln!("Parser::remove_overrides;");
+        let mut to_rem: Vec<&str> = Vec::new();
+        let mut seen: Vec<&str> = Vec::new();
+        for name in matcher.arg_names() {
+            debugln!("Parser::remove_overrides:iter:{};", name);
+            if let Some(arg) = find!(self.app, name) {
+                if let Some(ref overrides) = arg.overrides {
+                    debugln!("Parser::remove_overrides:iter:{}:{:?};", name, overrides);
+                    for o in overrides {
+                        if matcher.is_present(o) && !seen.contains(o) {
+                            debugln!("Parser::remove_overrides:iter:{}:iter:{}: self;", name, o);
+                            to_rem.push(arg.name);
+                        } else {
+                            debugln!("Parser::remove_overrides:iter:{}:iter:{}: other;", name, o);
+                            to_rem.push(o);
+                        }
                     }
                 }
+                seen.push(arg.name);
             }
+        }
+        for name in &to_rem {
+            debugln!("Parser::remove_overrides:iter:{}: removing;", name);
+            matcher.remove(name);
+            self.overriden.push(name);
         }
     }
 

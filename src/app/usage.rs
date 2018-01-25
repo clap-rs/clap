@@ -31,7 +31,6 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
     pub fn create_error_usage(&self, matcher: &ArgMatcher<'a>, extra: Option<&str>) -> String {
         let mut args: Vec<_> = matcher
             .arg_names()
-            .iter()
             .filter(|ref n| {
                 if let Some(a) = find!(self.0.app, **n) {
                     !a.is_set(ArgSettings::Required) && !a.is_set(ArgSettings::Hidden)

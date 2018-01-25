@@ -146,7 +146,7 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
         Ok(())
     }
 
-    fn build_err(&self, name: &str, matcher: &ArgMatcher<'a>) -> ClapResult<()> {
+    fn build_conflict_err(&self, name: &str, matcher: &ArgMatcher<'a>) -> ClapResult<()> {
         debugln!("build_err!: name={}", name);
         let mut c_with = find_from!(self.0.app, &name, blacklist, &matcher);
         c_with = c_with.or(find!(self.0.app, &name)
@@ -172,78 +172,24 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
 
     fn validate_blacklist(&self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
         debugln!("Validator::validate_blacklist;");
-        let mut conflicts: Vec<&str> = vec![];
-        for (&name, _) in matcher.iter() {
+        for name in &self.gather_conflicts(matcher) {
             debugln!("Validator::validate_blacklist:iter:{};", name);
-            if let Some(grps) = self.0.groups_for_arg(name) {
-                for grp in &grps {
-                    if let Some(g) = self.0.app.groups.iter().find(|g| &g.name == grp) {
-                        if !g.multiple {
-                            for arg in &g.args {
-                                if arg == &name {
-                                    continue;
-                                }
-                                conflicts.push(arg);
-                            }
-                        }
-                        if let Some(ref gc) = g.conflicts {
-                            conflicts.extend(&*gc);
-                        }
-                    }
-                }
-            }
-            if let Some(arg) = find!(self.0.app, &name) {
-                if let Some(ref bl) = arg.blacklist {
-                    for conf in bl {
-                        if matcher.get(conf).is_some() {
-                            conflicts.push(conf);
-                        }
-                    }
-                }
-            } else {
-                debugln!("Validator::validate_blacklist:iter:{}:group;", name);
-                let args = self.0.arg_names_in_group(name);
-                for arg in &args {
-                    debugln!(
-                        "Validator::validate_blacklist:iter:{}:group:iter:{};",
-                        name,
-                        arg
-                    );
-                    if let Some(ref bl) = find!(self.0.app, arg).unwrap().blacklist {
-                        for conf in bl {
-                            if matcher.get(conf).is_some() {
-                                conflicts.push(conf);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        for name in &conflicts {
-            debugln!(
-                "Validator::validate_blacklist:iter:{}: Checking blacklisted arg",
-                name
-            );
             let mut should_err = false;
             if groups!(self.0.app).any(|g| &g.name == name) {
-                debugln!(
-                    "Validator::validate_blacklist:iter:{}: groups contains it...",
-                    name
-                );
+                debugln!("Validator::validate_blacklist:iter:{}:group;", name);
                 for n in self.0.arg_names_in_group(name) {
                     debugln!(
-                        "Validator::validate_blacklist:iter:{}:iter:{}: looking in group...",
+                        "Validator::validate_blacklist:iter:{}:group:iter:{};",
                         name,
                         n
                     );
                     if matcher.contains(n) {
                         debugln!(
-                            "Validator::validate_blacklist:iter:{}:iter:{}: matcher contains it...",
+                            "Validator::validate_blacklist:iter:{}:group:iter:{}: found;",
                             name,
                             n
                         );
-                        return self.build_err(n, matcher);
+                        return self.build_conflict_err(n, matcher);
                     }
                 }
             } else if let Some(ma) = matcher.get(name) {
@@ -254,10 +200,64 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
                 should_err = ma.occurs > 0;
             }
             if should_err {
-                return self.build_err(*name, matcher);
+                return self.build_conflict_err(*name, matcher);
             }
         }
         Ok(())
+    }
+
+    fn gather_conflicts(&self, matcher: &mut ArgMatcher<'a>) -> Vec<&'a str> {
+        debugln!("Validator::gather_conflicts;");
+        let mut conflicts = vec![];
+        for name in matcher.arg_names() {
+            debugln!("Validator::gather_conflicts:iter:{};", name);
+            if let Some(arg) = find!(self.0.app, name) {
+                if let Some(ref bl) = arg.blacklist {
+                    for conf in bl {
+                        if matcher.get(conf).is_some() {
+                            conflicts.push(*conf);
+                        }
+                    }
+                }
+                if let Some(grps) = self.0.groups_for_arg(name) {
+                    for grp in &grps {
+                        if let Some(g) = find!(self.0.app, grp, groups) {
+                            if !g.multiple {
+                                for g_arg in &g.args {
+                                    if &g_arg == &name {
+                                        continue;
+                                    }
+                                    conflicts.push(g_arg);
+                                }
+                            }
+                            if let Some(ref gc) = g.conflicts {
+                                conflicts.extend(&*gc);
+                            }
+                        }
+                    }
+                }
+            } else {
+                debugln!("Validator::gather_conflicts:iter:{}:group;", name);
+                let args = self.0.arg_names_in_group(name);
+                for arg in &args {
+                    debugln!(
+                        "Validator::gather_conflicts:iter:{}:group:iter:{};",
+                        name,
+                        arg
+                    );
+                    if let Some(ref bl) =
+                        find!(self.0.app, arg).expect(INTERNAL_ERROR_MSG).blacklist
+                    {
+                        for conf in bl {
+                            if matcher.get(conf).is_some() {
+                                conflicts.push(conf);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        conflicts
     }
 
     fn validate_matched_args(&self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
@@ -438,6 +438,13 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
         Ok(())
     }
 
+    fn is_missing_required_ok(&self, a: &Arg<'a, 'b>, matcher: &ArgMatcher<'a>) -> bool {
+        debugln!("Validator::is_missing_required_ok: a={}", a.name);
+        self.validate_arg_conflicts(a, matcher).unwrap_or(false)
+            || self.validate_required_unless(a, matcher).unwrap_or(false)
+            || self.0.overriden.contains(&a.name)
+    }
+
     fn validate_arg_conflicts(&self, a: &Arg<'a, 'b>, matcher: &ArgMatcher<'a>) -> Option<bool> {
         debugln!("Validator::validate_arg_conflicts: a={:?};", a.name);
         a.blacklist.as_ref().map(|bl| {
@@ -505,12 +512,5 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
             &*Usage::new(self.0).create_error_usage(matcher, extra),
             self.0.app.color(),
         ))
-    }
-
-    #[inline]
-    fn is_missing_required_ok(&self, a: &Arg<'a, 'b>, matcher: &ArgMatcher<'a>) -> bool {
-        debugln!("Validator::is_missing_required_ok: a={}", a.name);
-        self.validate_arg_conflicts(a, matcher).unwrap_or(false)
-            || self.validate_required_unless(a, matcher).unwrap_or(false)
     }
 }
