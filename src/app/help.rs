@@ -8,7 +8,7 @@ use std::usize;
 // Internal
 use app::{App, AppSettings};
 use app::parser::Parser;
-use args::{Arg, ArgSettings, DispOrder};
+use args::{Arg, ArgSettings};
 use errors::{Error, Result as ClapResult};
 use fmt::{Colorizer, ColorizerOption, Format};
 use app::usage::Usage;
@@ -214,8 +214,8 @@ impl<'w> Help<'w> {
         let mut ord_m = VecMap::new();
         // Determine the longest
         for arg in args.filter(|arg| {
-            // If it's NextLineHelp, but we don't care to compute how long because it may be
-            // NextLineHelp on purpose *because* it's so long and would throw off all other
+            // If it's NextLineHelp we don't care to compute how long it is because it may be
+            // NextLineHelp on purpose simply *because* it's so long and would throw off all other
             // args alignment
             !arg.is_set(ArgSettings::Hidden) || arg.is_set(ArgSettings::NextLineHelp)
         }) {
@@ -224,7 +224,7 @@ impl<'w> Help<'w> {
                 self.longest = cmp::max(self.longest, str_width(arg.to_string().as_str()));
                 debugln!("Help::write_args: New Longest...{}", self.longest);
             }
-            let btm = ord_m.entry(arg.disp_ord()).or_insert(BTreeMap::new());
+            let btm = ord_m.entry(arg.disp_ord).or_insert(BTreeMap::new());
             btm.insert(arg.name, arg);
         }
         let mut first = true;
@@ -295,7 +295,7 @@ impl<'w> Help<'w> {
 
     /// Writes argument's possible values to the wrapped stream.
     fn val<'b, 'c>(&mut self, arg: &Arg<'b, 'c>) -> Result<String, io::Error> {
-        debugln!("Help::val: arg={}", arg);
+        debugln!("Help::val: arg={}", arg.name);
         if arg.is_set(ArgSettings::TakesValue) {
             let delim = if arg.is_set(ArgSettings::RequireDelimiter) {
                 arg.val_delim.expect(INTERNAL_ERROR_MSG)
@@ -530,9 +530,7 @@ impl<'w> Help<'w> {
                     .join(", ")
             };
             if !als.is_empty() {
-                spec_vals.push(format!(
-                    " [aliases: {}]", als
-                ));
+                spec_vals.push(format!(" [aliases: {}]", als));
             }
         }
         if !self.hide_pv && !a.is_set(ArgSettings::HidePossibleValues) {
@@ -559,6 +557,8 @@ impl<'w> Help<'w> {
 impl<'w> Help<'w> {
     fn write_subcommand<'a, 'b>(&mut self, app: &App<'a, 'b>) -> io::Result<()> {
         debugln!("Help::write_subcommand;");
+        write!(self.writer, "{}", TAB)?;
+        color!(self, "{}", app.name, good)?;
         let spec_vals = self.sc_val(app)?;
         self.sc_help(app, &*spec_vals)?;
         Ok(())
@@ -566,7 +566,6 @@ impl<'w> Help<'w> {
 
     fn sc_val<'a, 'b>(&mut self, app: &App<'a, 'b>) -> Result<String, io::Error> {
         debugln!("Help::sc_val: app={}", app.name);
-
         let spec_vals = self.sc_spec_vals(app);
         let h = app.about.unwrap_or("");
         let h_w = str_width(h) + str_width(&*spec_vals);
@@ -590,24 +589,24 @@ impl<'w> Help<'w> {
         let mut spec_vals = vec![];
         if let Some(ref aliases) = a.aliases {
             debugln!("Help::spec_vals: Found aliases...{:?}", aliases);
-            spec_vals.push(format!(
-                " [aliases: {}]",
-                if self.color {
-                    aliases
-                        .iter()
-                        .filter(|&als| als.1) // visible
-                        .map(|&als| format!("{}", self.cizer.good(als.0))) // name
-                        .collect::<Vec<_>>()
-                        .join(", ")
-                } else {
-                    aliases
-                        .iter()
-                        .filter(|&als| als.1)
-                        .map(|&als| als.0)
-                        .collect::<Vec<_>>()
-                        .join(", ")
-                }
-            ));
+            let als = if self.color {
+                aliases
+                    .iter()
+                    .filter(|&als| als.1) // visible
+                    .map(|&als| format!("{}", self.cizer.good(als.0))) // name
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            } else {
+                aliases
+                    .iter()
+                    .filter(|&als| als.1)
+                    .map(|&als| als.0)
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            };
+            if !als.is_empty() {
+                spec_vals.push(format!(" [aliases: {}]", als));
+            }
         }
         spec_vals.join(" ")
     }
@@ -676,9 +675,14 @@ impl<'w> Help<'w> {
     pub fn write_all_args(&mut self, parser: &Parser) -> ClapResult<()> {
         debugln!("Help::write_all_args;");
         let flags = parser.has_flags();
-        let pos = positionals!(parser.app)
-            .filter(|arg| !arg.is_set(ArgSettings::Hidden))
-            .count() > 0;
+        // Strange filter/count vs fold... https://github.com/rust-lang/rust/issues/33038
+        let pos = positionals!(parser.app).fold(0, |acc, arg| {
+            if arg.is_set(ArgSettings::Hidden) {
+                acc
+            } else {
+                acc + 1
+            }
+        }) > 0;
         let opts = parser.has_opts();
         let subcmds = parser.has_visible_subcommands();
 
@@ -687,7 +691,7 @@ impl<'w> Help<'w> {
         let mut first = true;
 
         if unified_help && (flags || opts) {
-            let opts_flags = parser.app.args.iter().filter(|a| a.has_switch());
+            let opts_flags = args!(parser.app).filter(|a| a.has_switch());
             color!(self, "OPTIONS:\n", warning)?;
             self.write_args(opts_flags)?;
             first = false;

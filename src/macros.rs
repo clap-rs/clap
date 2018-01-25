@@ -861,6 +861,12 @@ macro_rules! args {
     }
 }
 
+macro_rules! args_mut {
+    ($app:expr) => {
+        args!($app, iter_mut)
+    }
+}
+
 macro_rules! flags {
     ($app:expr, $how:ident) => {
         $app.args.$how()
@@ -872,6 +878,7 @@ macro_rules! flags {
     }
 }
 
+#[allow(unused_macros)]
 macro_rules! flags_mut {
     ($app:expr) => {
         flags!($app, iter_mut)
@@ -1023,7 +1030,12 @@ macro_rules! shorts {
 
 macro_rules! longs {
     ($app:expr) => {{
-        _shorts_longs!($app, long)
+        $app.args.iter()
+            .filter(|a| a.long.is_some())
+            .map(|a| a.long.unwrap())
+            .chain($app.args.iter()
+                .filter(|a| a.aliases.is_some())
+                .flat_map(|a| a.aliases.as_ref().unwrap().iter().map(|als| als.0)))
     }};
 }
 

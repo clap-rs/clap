@@ -245,11 +245,12 @@ esac",
     )
 }
 
-fn parser_of<'a, 'b>(p: &'b App<'a, 'b>, sc: &str) -> &'b App<'a, 'b> {
+fn parser_of<'a, 'b>(p: &'b App<'a, 'b>, mut sc: &str) -> &'b App<'a, 'b> {
     debugln!("parser_of: sc={}", sc);
     if sc == p.bin_name.as_ref().unwrap_or(&String::new()) {
         return p;
     }
+    sc = sc.split(" ").last().unwrap();
     find_subcmd!(p, sc).expect(INTERNAL_ERROR_MSG)
 }
 

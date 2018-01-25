@@ -21,12 +21,21 @@ use yaml_rust::Yaml;
 // Internal
 use app::parser::Parser;
 use app::help::Help;
-use args::{Arg, ArgGroup, ArgMatcher, ArgMatches, DispOrder};
+use args::{Arg, ArgGroup, ArgMatcher, ArgMatches};
 use args::settings::ArgSettings;
 use errors::Result as ClapResult;
 pub use self::settings::{AppFlags, AppSettings};
 use completions::{ComplGen, Shell};
 use fmt::ColorWhen;
+
+#[allow(dead_code)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub(crate) enum Propagation<'a> {
+    To(&'a str),
+    Full,
+    NextLevel,
+    None
+}
 
 /// Used to create a representation of a command line program and all possible command line
 /// arguments. Application settings are set using the "builder pattern" with the
@@ -1227,7 +1236,7 @@ impl<'a, 'b> App<'a, 'b> {
     pub fn print_help(&mut self) -> ClapResult<()> {
         // If there are global arguments, or settings we need to propgate them down to subcommands
         // before parsing incase we run into a subcommand
-        self._build();
+        self._build(Propagation::NextLevel);
 
         let out = io::stdout();
         let mut buf_w = BufWriter::new(out.lock());
@@ -1254,7 +1263,7 @@ impl<'a, 'b> App<'a, 'b> {
     pub fn print_long_help(&mut self) -> ClapResult<()> {
         // If there are global arguments, or settings we need to propgate them down to subcommands
         // before parsing incase we run into a subcommand
-        self._build();
+        self._build(Propagation::NextLevel);
 
         let out = io::stdout();
         let mut buf_w = BufWriter::new(out.lock());
@@ -1280,7 +1289,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`-h` (short)]: ./struct.Arg.html#method.help
     /// [`--help` (long)]: ./struct.Arg.html#method.long_help
     pub fn write_help<W: Write>(&mut self, w: &mut W) -> ClapResult<()> {
-        self._build();
+        self._build(Propagation::NextLevel);
 
         let p = Parser::new(self);
         Help::write_parser_help(w, &p, false)
@@ -1305,7 +1314,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`-h` (short)]: ./struct.Arg.html#method.help
     /// [`--help` (long)]: ./struct.Arg.html#method.long_help
     pub fn write_long_help<W: Write>(&mut self, w: &mut W) -> ClapResult<()> {
-        self._build();
+        self._build(Propagation::NextLevel);
 
         let p = Parser::new(self);
         Help::write_parser_help(w, &p, true)
@@ -1500,9 +1509,8 @@ impl<'a, 'b> App<'a, 'b> {
     ) {
         self.bin_name = Some(bin_name.into());
         if !self.is_set(AppSettings::Propagated) {
-            self._propagate();
+            self._build(Propagation::Full);
             self._build_bin_names();
-            self.set(AppSettings::Propagated);
         }
 
         ComplGen::new(self).generate(for_shell, buf)
@@ -1707,7 +1715,7 @@ impl<'a, 'b> App<'a, 'b> {
         // If there are global arguments, or settings we need to propgate them down to subcommands
         // before parsing incase we run into a subcommand
         if !self.settings.is_set(AppSettings::Propagated) {
-            self._build();
+            self._build(Propagation::NextLevel);
         }
 
         {
@@ -1730,14 +1738,22 @@ impl<'a, 'b> App<'a, 'b> {
         Ok(matcher.into())
     }
 
-    fn _build(&mut self) {
+    fn _build(&mut self, prop: Propagation) {
         debugln!("App::_build;");
         // Make sure all the globally set flags apply to us as well
         self.settings = self.settings | self.g_settings;
 
-        self._create_help_and_version();
-        self._propagate();
-        self._derive_display_order();
+        // Depending on if DeriveDisplayOrder is set or not, we need to determine when we build
+        // the help and version flags, otherwise help message orders get screwed up
+        if self.settings.is_set(AppSettings::DeriveDisplayOrder) {
+            self._derive_display_order();
+            self._create_help_and_version();
+            self._propagate(prop);
+        } else {
+            self._create_help_and_version();
+            self._propagate(prop);
+            self._derive_display_order();
+        }
         // Perform expensive debug assertions
         debug_assert!({
             for a in &self.args {
@@ -1795,7 +1811,7 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     // @TODO @v3-alpha @perf: should only propagate globals to subcmd we find, or for help
-    pub fn _propagate(&mut self) {
+    pub(crate) fn _propagate(&mut self, prop: Propagation) {
         debugln!("App::_propagate:{}", self.name);
         for sc in &mut self.subcommands {
             // We have to create a new scope in order to tell rustc the borrow of `sc` is
@@ -1822,8 +1838,9 @@ impl<'a, 'b> App<'a, 'b> {
                 }
             }
             // @TODO @deadcode @perf @v3-alpha: Currently we're not propagating
-            // sc._create_help_and_version();
-            // sc._propagate();
+            if prop == Propagation::Full {
+                sc._build(Propagation::Full);
+            }
         }
     }
 
@@ -1835,13 +1852,12 @@ impl<'a, 'b> App<'a, 'b> {
             if self.help_short.is_none() && !self.contains_short('h') {
                 self.help_short = Some('h');
             }
-            let arg = Arg {
-                name: "hclap_help",
-                help: self.help_message.or(Some("Prints help information")),
-                short: self.help_short,
-                long: Some("help"),
-                ..Default::default()
-            };
+            let mut arg = Arg::with_name("hclap_help")
+                .long("help")
+                .help(self.help_message.unwrap_or("Prints help information"));
+
+            // we have to set short manually because we're dealing with char's
+            arg.short = self.help_short;
             self.args.push(arg);
         } else {
             self.settings.unset(AppSettings::NeedsLongHelp);
@@ -1852,19 +1868,17 @@ impl<'a, 'b> App<'a, 'b> {
                 self.version_short = Some('V');
             }
             // name is "vclap_version" because flags are sorted by name
-            let arg = Arg {
-                name: "vclap_version",
-                help: self.version_message.or(Some("Prints version information")),
-                short: self.version_short,
-                long: Some("version"),
-                ..Default::default()
-            };
+            let mut arg = Arg::with_name("vclap_version")
+                .long("version")
+                .help(self.version_message.unwrap_or("Prints version information"));
+            // we have to set short manually because we're dealing with char's
+            arg.short = self.version_short;
             self.args.push(arg);
         } else {
             self.settings.unset(AppSettings::NeedsLongVersion);
         }
         if self.has_subcommands() && !self.is_set(AppSettings::DisableHelpSubcommand)
-            && subcommands!(self).any(|s| s.name == "help")
+            && !subcommands!(self).any(|s| s.name == "help")
         {
             debugln!("App::_create_help_and_version: Building help");
             self.subcommands.push(
@@ -1878,21 +1892,12 @@ impl<'a, 'b> App<'a, 'b> {
 
     pub(crate) fn _derive_display_order(&mut self) {
         debugln!("App::_derive_display_order:{}", self.name);
-        if self.is_set(AppSettings::DeriveDisplayOrder) {
-            let unified = self.is_set(AppSettings::UnifiedHelpMessage);
-            for (i, o) in opts_mut!(self)
+        if self.settings.is_set(AppSettings::DeriveDisplayOrder) {
+            for (i, a) in args_mut!(self).filter(|a| a.has_switch())
+                .filter(|a| a.disp_ord == 999)
                 .enumerate()
-                .filter(|&(_, ref o)| o.disp_ord == 999)
             {
-                o.disp_ord =
-                    if unified { o.unified_ord } else { i };
-            }
-            for (i, f) in flags_mut!(self)
-                .enumerate()
-                .filter(|&(_, ref f)| f.disp_ord == 999)
-            {
-                f.disp_ord =
-                    if unified { f.unified_ord } else { i };
+                a.disp_ord = i;
             }
             for (i, sc) in &mut subcommands_mut!(self)
                 .enumerate()
@@ -1911,14 +1916,14 @@ impl<'a, 'b> App<'a, 'b> {
         debugln!("App::_arg_debug_asserts:{}", a.name);
         // No naming conflicts
         assert!(
-            arg_names!(self).filter(|name| name == &a.name).count() < 2,
+            arg_names!(self).fold(0, |acc, n| if n == a.name { acc + 1 } else { acc }) < 2,
             format!("Non-unique argument name: {} is already in use", a.name)
         );
 
         // Long conflicts
         if let Some(l) = a.long {
             assert!(
-                args!(self).filter(|arg| arg.long == Some(l)).count() < 2,
+                args!(self).fold(0, |acc, arg| if arg.long == Some(l) { acc + 1 } else { acc }) < 2,
                 "Argument long must be unique\n\n\t--{} is already in use",
                 l
             );
@@ -1927,7 +1932,7 @@ impl<'a, 'b> App<'a, 'b> {
         // Short conflicts
         if let Some(s) = a.short {
             assert!(
-                args!(self).filter(|arg| arg.short == Some(s)).count() < 2,
+                args!(self).fold(0, |acc, arg| if arg.short == Some(s) { acc + 1 } else { acc }) < 2,
                 "Argument short must be unique\n\n\t-{} is already in use",
                 s
             );
@@ -1936,7 +1941,7 @@ impl<'a, 'b> App<'a, 'b> {
         if let Some(idx) = a.index {
             // No index conflicts
             assert!(
-                positionals!(self).filter(|p| p.index == Some(idx as u64)).count() < 2,
+                positionals!(self).fold(0, |acc, p| if p.index == Some(idx as u64){acc+1}else{acc}) < 2,
                 "Argument '{}' has the same index as another positional \
                  argument\n\n\tUse Arg::multiple(true) to allow one positional argument \
                  to take multiple values",
@@ -1945,10 +1950,12 @@ impl<'a, 'b> App<'a, 'b> {
         }
         if a.is_set(ArgSettings::Last) {
             assert!(a.long.is_none(),
-                    "Flags or Options may not have last(true) set. {} has both a long and last(true) set.",
+                    "Flags or Options may not have last(true) set. {} has both a long and \
+                    last(true) set.",
                     a.name);
             assert!(a.short.is_none(),
-                    "Flags or Options may not have last(true) set. {} has both a short and last(true) set.",
+                    "Flags or Options may not have last(true) set. {} has both a short and \
+                    last(true) set.",
                     a.name);
         }
         assert!(
@@ -2220,8 +2227,4 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
 
 impl<'n, 'e> fmt::Display for App<'n, 'e> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "{}", self.name) }
-}
-
-impl<'b, 'c> DispOrder for App<'b, 'c> {
-    fn disp_ord(&self) -> usize { 999 }
 }

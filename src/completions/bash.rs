@@ -213,34 +213,15 @@ complete -F _{name} -o bashdefault -o default {name}
             debugln!("BashGen::all_options_for_path:iter: sc={}", sc);
             p = &find_subcmd!(p, sc).unwrap();
         }
-        let mut opts = shorts!(p).fold(String::new(), |acc, s| format!("{} -{}", acc, s));
-        opts = format!(
-            "{} {}",
-            opts,
-            longs!(p).fold(String::new(), |acc, l| format!("{} --{}", acc, l))
+        let opts = format!(
+            "{shorts} {longs} {pos} {subcmds}",
+            shorts = shorts!(p).fold(String::new(), |acc, s| format!("{} -{}", acc, s)),
+            // Handles aliases too
+            longs = longs!(p).fold(String::new(), |acc, l| format!("{} --{}", acc, l)),
+            pos = positionals!(p).fold(String::new(), |acc, p| format!("{} {}", acc, p)),
+            // Handles aliases too
+            subcmds = sc_names!(p).fold(String::new(), |acc, s| format!("{} {}", acc, s))
         );
-        opts = format!(
-            "{} {}",
-            opts,
-            positionals!(p).fold(String::new(), |acc, p| format!("{} {}", acc, p))
-        );
-        opts = format!(
-            "{} {}",
-            opts,
-            subcommands!(p).fold(String::new(), |acc, s| format!("{} {}", acc, s.name))
-        );
-        for sc in subcommands!(p) {
-            if let Some(ref aliases) = sc.aliases {
-                opts = format!(
-                    "{} {}",
-                    opts,
-                    aliases
-                        .iter()
-                        .map(|&(n, _)| n)
-                        .fold(String::new(), |acc, a| format!("{} {}", acc, a))
-                );
-            }
-        }
         opts
     }
 }

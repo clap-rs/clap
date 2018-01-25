@@ -15,7 +15,3 @@ mod subcommand;
 mod matched_arg;
 mod group;
 pub mod settings;
-
-pub trait DispOrder {
-    fn disp_ord(&self) -> usize;
-}

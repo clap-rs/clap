@@ -25,6 +25,7 @@ use suggestions;
 use app::settings::AppSettings as AS;
 use app::validator::Validator;
 use app::usage::Usage;
+use app::Propagation;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[doc(hidden)]
@@ -73,10 +74,10 @@ fn count_arg<'a, 'b>(
         positionals.insert(i, a.name);
     } else if a.is_set(ArgSettings::TakesValue) {
         *num_opts += 1;
-        a.unified_ord = *num_flags + *num_opts;
+    // a.unified_ord = *num_flags + *num_opts;
     } else {
         *num_flags += 1;
-        a.unified_ord = *num_flags + *num_opts;
+        // a.unified_ord = *num_flags + *num_opts;
     }
 }
 
@@ -164,9 +165,13 @@ where
             );
 
             // Next we check how many have both Multiple and not a specific number of values set
-            let count = positionals!(self.app)
-                .filter(|p| p.settings.is_set(ArgSettings::Multiple) && p.num_vals.is_none())
-                .count();
+            let count = positionals!(self.app).fold(0, |acc, p| {
+                if p.settings.is_set(ArgSettings::Multiple) && p.num_vals.is_none() {
+                    acc + 1
+                } else {
+                    acc
+                }
+            });
             let ok = count <= 1
                 || (last.is_set(ArgSettings::Last) && last.is_set(ArgSettings::Multiple)
                     && second_to_last.is_set(ArgSettings::Multiple)
@@ -244,9 +249,11 @@ where
             }
         }
         assert!(
-            positionals!(self.app)
-                .filter(|p| p.is_set(ArgSettings::Last))
-                .count() < 2,
+            positionals!(self.app).fold(0, |acc, p| if p.is_set(ArgSettings::Last) {
+                acc + 1
+            } else {
+                acc
+            }) < 2,
             "Only one positional argument may have last(true) set. Found two."
         );
         if positionals!(self.app)
@@ -390,15 +397,6 @@ where
                 }
 
                 if starts_new_arg {
-                    // {
-                    //     let any_arg = find!(self.app, &self.cache.unwrap_or(""));
-                    //     matcher.process_arg_overrides(
-                    //         any_arg,
-                    //         &mut self.overrides,
-                    //         &mut self.required,
-                    //     );
-                    // }
-
                     if arg_os.starts_with(b"--") {
                         needs_val_of = self.parse_long_arg(matcher, &arg_os)?;
                         debugln!(
@@ -527,14 +525,6 @@ where
                     self.app.settings.set(AS::TrailingValues);
                 }
                 if self.cache.map_or(true, |name| name != p.name) {
-                    // {
-                    //     let any_arg = find!(self.app, &self.cache.unwrap_or(""));
-                    //     matcher.process_arg_overrides(
-                    //         any_arg,
-                    //         &mut self.overrides,
-                    //         &mut self.required,
-                    //     );
-                    // }
                     self.cache = Some(p.name);
                 }
                 let _ = self.add_val_to_arg(p, &arg_os, matcher)?;
@@ -646,12 +636,6 @@ where
             });
         }
 
-        // In case the last arg was new, we  need to process it's overrides
-        // {
-        //     let any_arg = find!(self.app, &self.cache.unwrap_or(""));
-        //     matcher.process_arg_overrides(any_arg, &mut self.overrides, &mut self.required);
-        // }
-
         self.remove_overrides(matcher);
 
         Validator::new(self).validate(needs_val_of, subcmd_name, matcher)
@@ -710,12 +694,14 @@ where
                     help_help = true;
                     break; // Maybe?
                 }
-                if let Some(c) = find_subcmd_cloned!(sc, cmd) {
+                if let Some(mut c) = find_subcmd_cloned!(sc, cmd) {
+                    c._build(Propagation::NextLevel);
                     sc = c;
                     if i == cmds.len() - 1 {
                         break;
                     }
-                } else if let Some(c) = find_subcmd_cloned!(sc, &*cmd.to_string_lossy()) {
+                } else if let Some(mut c) = find_subcmd_cloned!(sc, &*cmd.to_string_lossy()) {
+                    c._build(Propagation::NextLevel);
                     sc = c;
                     if i == cmds.len() - 1 {
                         break;
@@ -803,35 +789,6 @@ where
         ret
     }
 
-    fn remove_overrides(&mut self, matcher: &mut ArgMatcher) {
-        debugln!("Parser::remove_overrides;");
-        let mut to_rem: Vec<&str> = Vec::new();
-        let mut seen: Vec<&str> = Vec::new();
-        for name in matcher.arg_names() {
-            debugln!("Parser::remove_overrides:iter:{};", name);
-            if let Some(arg) = find!(self.app, name) {
-                if let Some(ref overrides) = arg.overrides {
-                    debugln!("Parser::remove_overrides:iter:{}:{:?};", name, overrides);
-                    for o in overrides {
-                        if matcher.is_present(o) && !seen.contains(o) {
-                            debugln!("Parser::remove_overrides:iter:{}:iter:{}: self;", name, o);
-                            to_rem.push(arg.name);
-                        } else {
-                            debugln!("Parser::remove_overrides:iter:{}:iter:{}: other;", name, o);
-                            to_rem.push(o);
-                        }
-                    }
-                }
-                seen.push(arg.name);
-            }
-        }
-        for name in &to_rem {
-            debugln!("Parser::remove_overrides:iter:{}: removing;", name);
-            matcher.remove(name);
-            self.overriden.push(name);
-        }
-    }
-
     fn parse_subcommand<I, T>(
         &mut self,
         sc_name: &str,
@@ -879,7 +836,7 @@ where
             ));
 
             // Ensure all args are built and ready to parse
-            sc._build();
+            sc._build(Propagation::NextLevel);
 
             debugln!("Parser::parse_subcommand: About to parse sc={}", sc.name);
 
@@ -1236,6 +1193,35 @@ where
         Ok(ParseResult::Flag)
     }
 
+    fn remove_overrides(&mut self, matcher: &mut ArgMatcher) {
+        debugln!("Parser::remove_overrides;");
+        let mut to_rem: Vec<&str> = Vec::new();
+        let mut seen: Vec<&str> = Vec::new();
+        for name in matcher.arg_names() {
+            debugln!("Parser::remove_overrides:iter:{};", name);
+            if let Some(arg) = find!(self.app, name) {
+                if let Some(ref overrides) = arg.overrides {
+                    debugln!("Parser::remove_overrides:iter:{}:{:?};", name, overrides);
+                    for o in overrides {
+                        if matcher.is_present(o) && !seen.contains(o) {
+                            debugln!("Parser::remove_overrides:iter:{}:iter:{}: self;", name, o);
+                            to_rem.push(arg.name);
+                        } else {
+                            debugln!("Parser::remove_overrides:iter:{}:iter:{}: other;", name, o);
+                            to_rem.push(o);
+                        }
+                    }
+                }
+                seen.push(arg.name);
+            }
+        }
+        for name in &to_rem {
+            debugln!("Parser::remove_overrides:iter:{}: removing;", name);
+            matcher.remove(name);
+            self.overriden.push(name);
+        }
+    }
+
     pub(crate) fn add_defaults(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
         debugln!("Parser::add_defaults;");
         macro_rules! add_val {
@@ -1454,7 +1440,11 @@ where
             .args
         {
             if let Some(ref f) = find!(self.app, n) {
-                args.push(f.to_string());
+                if f.index.is_some() {
+                    args.push(f.name.to_owned());
+                } else {
+                    args.push(f.to_string());
+                }
             } else {
                 g_vec.push(n);
             }

@@ -45,6 +45,8 @@ impl<'a> UsageParser<'a> {
     pub fn parse(mut self) -> Arg<'a, 'a> {
         debugln!("UsageParser::parse;");
         let mut arg = Arg::default();
+        arg.disp_ord = 999;
+        arg.unified_ord = 999;
         loop {
             debugln!("UsageParser::parse:iter: pos={};", self.pos);
             self.stop_at(token);

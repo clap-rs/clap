@@ -17,7 +17,6 @@ use map::VecMap;
 
 use usage_parser::UsageParser;
 use args::settings::{ArgFlags, ArgSettings};
-use args::DispOrder;
 use INTERNAL_ERROR_MSG;
 
 /// The abstract representation of a command line argument. Used to set all the options and
@@ -127,6 +126,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     pub fn with_name(n: &'a str) -> Self {
         Arg {
             name: n,
+            disp_ord: 999,
+            unified_ord: 999,
             ..Default::default()
         }
     }
@@ -3738,7 +3739,7 @@ impl<'a, 'b> Arg<'a, 'b> {
 
     #[doc(hidden)]
     pub fn longest_filter(&self) -> bool {
-        self.is_set(ArgSettings::TakesValue) || self.index.is_some() || self.long.is_some()
+        self.is_set(ArgSettings::TakesValue) || self.long.is_some() || self.short.is_none()
     }
 
     // Used for positionals when printing
@@ -3757,7 +3758,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     // Used for positionals when printing
     #[doc(hidden)]
     pub fn name_no_brackets(&self) -> Cow<str> {
-        debugln!("PosBuilder::name_no_brackets;");
+        debugln!("PosBuilder::name_no_brackets:{}", self.name);
         let mut delim = String::new();
         delim.push(if self.is_set(ArgSettings::RequireDelimiter) {
             self.val_delim.expect(INTERNAL_ERROR_MSG)
@@ -3794,8 +3795,7 @@ impl<'n, 'e> PartialEq for Arg<'n, 'e> {
 
 impl<'n, 'e> Display for Arg<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        debugln!("Arg::fmt:{}", self.name);
-        if self.index.is_some() {
+        if self.index.is_some() || (self.long.is_none() && self.short.is_none()) {
             // Positional
             let mut delim = String::new();
             delim.push(if self.is_set(ArgSettings::RequireDelimiter) {
@@ -3817,7 +3817,9 @@ impl<'n, 'e> Display for Arg<'n, 'e> {
                 write!(f, "<{}>", self.name)?;
             }
             if self.settings.is_set(ArgSettings::Multiple)
-                && (self.val_names.is_none() || self.val_names.as_ref().unwrap().len() == 1)
+                && (self.val_names.is_none() 
+                    || (self.val_names.is_some() 
+                        && self.val_names.as_ref().unwrap().len() == 1))
             {
                 write!(f, "...")?;
             }
@@ -3826,8 +3828,8 @@ impl<'n, 'e> Display for Arg<'n, 'e> {
             // Flag
             if let Some(l) = self.long {
                 write!(f, "--{}", l)?;
-            } else {
-                write!(f, "-{}", self.short.unwrap())?;
+            } else if let Some(s) = self.short {
+                write!(f, "-{}", s)?;
             }
 
             return Ok(());
@@ -3942,10 +3944,6 @@ impl<'n, 'e> fmt::Debug for Arg<'n, 'e> {
             self.validator_os.as_ref().map_or("None", |_| "Some(Fn)")
         )
     }
-}
-
-impl<'n, 'e> DispOrder for Arg<'n, 'e> {
-    fn disp_ord(&self) -> usize { self.disp_ord }
 }
 
 // Flags
