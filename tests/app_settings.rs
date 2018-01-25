@@ -90,8 +90,8 @@ fn global_version() {
         .setting(AppSettings::GlobalVersion)
         .version("1.1")
         .subcommand(SubCommand::with_name("sub1"));
-    app.p.propagate_settings();
-    assert_eq!(app.p.subcommands[0].p.meta.version, Some("1.1"));
+    app._propagate();
+    assert_eq!(app.subcommands[0].version, Some("1.1"));
 }
 
 #[test]
@@ -296,16 +296,13 @@ fn global_setting() {
     let mut app = App::new("test")
         .global_setting(AppSettings::ColoredHelp)
         .subcommand(SubCommand::with_name("subcmd"));
-    app.p.propagate_settings();
-    assert!(app.p
+    app._propagate();
+    assert!(app
                .subcommands
                .iter()
-               .filter(|s| s.p
-                            .meta
-                            .name == "subcmd")
+               .filter(|s| s.name == "subcmd")
                .next()
                .unwrap()
-               .p
                .is_set(AppSettings::ColoredHelp));
 }
 
@@ -314,26 +311,19 @@ fn global_settings() {
     let mut app = App::new("test")
         .global_settings(&[AppSettings::ColoredHelp, AppSettings::TrailingVarArg])
         .subcommand(SubCommand::with_name("subcmd"));
-    app.p.propagate_settings();
-    assert!(app.p
-               .subcommands
+    app._propagate();
+    assert!(app.subcommands
                .iter()
-               .filter(|s| s.p
-                            .meta
-                            .name == "subcmd")
+               .filter(|s| s.name == "subcmd")
                .next()
                .unwrap()
-               .p
                .is_set(AppSettings::ColoredHelp));
-    assert!(app.p
+    assert!(app
                .subcommands
                .iter()
-               .filter(|s| s.p
-                            .meta
-                            .name == "subcmd")
+               .filter(|s| s.name == "subcmd")
                .next()
                .unwrap()
-               .p
                .is_set(AppSettings::TrailingVarArg));
 
 }
@@ -504,24 +494,24 @@ fn leading_double_hyphen_trailingvararg() {
 }
 
 #[test]
-fn test_unset_setting() {
+fn unset_setting() {
     let m = App::new("unset_setting");
-    assert!(m.p.is_set(AppSettings::AllowInvalidUtf8));
+    assert!(m.is_set(AppSettings::AllowInvalidUtf8));
 
     let m = m.unset_setting(AppSettings::AllowInvalidUtf8);
-    assert!(!m.p.is_set(AppSettings::AllowInvalidUtf8));
+    assert!(!m.is_set(AppSettings::AllowInvalidUtf8));
 }
 
 #[test]
-fn test_unset_settings() {
+fn unset_settings() {
     let m = App::new("unset_settings");
-    assert!(&m.p.is_set(AppSettings::AllowInvalidUtf8));
-    assert!(&m.p.is_set(AppSettings::ColorAuto));
+    assert!(&m.is_set(AppSettings::AllowInvalidUtf8));
+    assert!(&m.is_set(AppSettings::ColorAuto));
 
     let m = m.unset_settings(&[AppSettings::AllowInvalidUtf8,
                                AppSettings::ColorAuto]);
-    assert!(!m.p.is_set(AppSettings::AllowInvalidUtf8));
-    assert!(!m.p.is_set(AppSettings::ColorAuto));
+    assert!(!m.is_set(AppSettings::AllowInvalidUtf8), "{:?}", m.settings);
+    assert!(!m.is_set(AppSettings::ColorAuto));
 }
 
 #[test]
@@ -632,7 +622,7 @@ fn allow_missing_positional() {
 #[test]
 fn issue_1066_allow_leading_hyphen_and_unknown_args() {
     let res = App::new("prog")
-        .global_setting(AppSettings::AllowLeadingHyphen) 
+        .global_setting(AppSettings::AllowLeadingHyphen)
         .arg(Arg::from_usage("--some-argument"))
         .get_matches_from_safe(vec!["prog", "hello"]);
 
@@ -643,7 +633,7 @@ fn issue_1066_allow_leading_hyphen_and_unknown_args() {
 #[test]
 fn issue_1066_allow_leading_hyphen_and_unknown_args_no_vals() {
     let res = App::new("prog")
-        .global_setting(AppSettings::AllowLeadingHyphen) 
+        .global_setting(AppSettings::AllowLeadingHyphen)
         .arg(Arg::from_usage("--some-argument"))
         .get_matches_from_safe(vec!["prog", "--hello"]);
 
@@ -654,7 +644,7 @@ fn issue_1066_allow_leading_hyphen_and_unknown_args_no_vals() {
 #[test]
 fn issue_1066_allow_leading_hyphen_and_unknown_args_option() {
     let res = App::new("prog")
-        .global_setting(AppSettings::AllowLeadingHyphen) 
+        .global_setting(AppSettings::AllowLeadingHyphen)
         .arg(Arg::from_usage("--some-argument=[val]"))
         .get_matches_from_safe(vec!["prog", "-hello"]);
 

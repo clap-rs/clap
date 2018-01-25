@@ -36,7 +36,7 @@ fn basic() {
 
 #[test]
 fn quoted_app_name() {
-    let app = clap_app!(("app name with spaces-and-hyphens") =>
+    let mut app = clap_app!(("app name with spaces-and-hyphens") =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -66,7 +66,7 @@ fn quoted_app_name() {
             (@arg scpositional: index(1) "tests positionals"))
     );
 
-    assert_eq!(app.p.meta.name, "app name with spaces-and-hyphens");
+    assert_eq!(app.name, "app name with spaces-and-hyphens");
 
     let mut help_text = vec![];
     app.write_help(&mut help_text).expect("Could not write help text.");
