@@ -10,7 +10,7 @@ use std::io::Cursor;
 use clap::App;
 use clap::{Arg, SubCommand};
 
-fn build_help(app: &App) -> String {
+fn build_help(app: &mut App) -> String {
     let mut buf = Cursor::new(Vec::with_capacity(50));
     app.write_help(&mut buf).unwrap();
     let content = buf.into_inner();
@@ -165,60 +165,60 @@ fn app_example10<'b, 'c>() -> App<'b, 'c> {
 
 #[bench]
 fn example1(b: &mut Bencher) {
-    let app = app_example1();
-    b.iter(|| build_help(&app));
+    let mut app = app_example1();
+    b.iter(|| build_help(&mut app));
 }
 
 #[bench]
 fn example2(b: &mut Bencher) {
-    let app = app_example2();
-    b.iter(|| build_help(&app));
+    let mut app = app_example2();
+    b.iter(|| build_help(&mut app));
 }
 
 #[bench]
 fn example3(b: &mut Bencher) {
-    let app = app_example3();
-    b.iter(|| build_help(&app));
+    let mut app = app_example3();
+    b.iter(|| build_help(&mut app));
 }
 
 #[bench]
 fn example4(b: &mut Bencher) {
-    let app = app_example4();
-    b.iter(|| build_help(&app));
+    let mut app = app_example4();
+    b.iter(|| build_help(&mut app));
 }
 
 #[bench]
 fn example5(b: &mut Bencher) {
-    let app = app_example5();
-    b.iter(|| build_help(&app));
+    let mut app = app_example5();
+    b.iter(|| build_help(&mut app));
 }
 
 #[bench]
 fn example6(b: &mut Bencher) {
-    let app = app_example6();
-    b.iter(|| build_help(&app));
+    let mut app = app_example6();
+    b.iter(|| build_help(&mut app));
 }
 
 #[bench]
 fn example7(b: &mut Bencher) {
-    let app = app_example7();
-    b.iter(|| build_help(&app));
+    let mut app = app_example7();
+    b.iter(|| build_help(&mut app));
 }
 
 #[bench]
 fn example8(b: &mut Bencher) {
-    let app = app_example8();
-    b.iter(|| build_help(&app));
+    let mut app = app_example8();
+    b.iter(|| build_help(&mut app));
 }
 
 #[bench]
 fn example10(b: &mut Bencher) {
-    let app = app_example10();
-    b.iter(|| build_help(&app));
+    let mut app = app_example10();
+    b.iter(|| build_help(&mut app));
 }
 
 #[bench]
 fn example4_template(b: &mut Bencher) {
-    let app = app_example4().template("{bin} {version}\n{author}\n{about}\n\nUSAGE:\n    {usage}\n\nFLAGS:\n{flags}\n\nARGS:\n{args}\n");
-    b.iter(|| build_help(&app));
+    let mut app = app_example4().template("{bin} {version}\n{author}\n{about}\n\nUSAGE:\n    {usage}\n\nFLAGS:\n{flags}\n\nARGS:\n{args}\n");
+    b.iter(|| build_help(&mut app));
 }

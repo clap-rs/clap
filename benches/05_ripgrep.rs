@@ -24,14 +24,14 @@ fn build_app_long(b: &mut Bencher) { b.iter(|| app_long()); }
 
 #[bench]
 fn build_help_short(b: &mut Bencher) {
-    let app = app_short();
-    b.iter(|| build_help(&app));
+    let mut app = app_short();
+    b.iter(|| build_help(&mut app));
 }
 
 #[bench]
 fn build_help_long(b: &mut Bencher) {
-    let app = app_long();
-    b.iter(|| build_help(&app));
+    let mut app = app_long();
+    b.iter(|| build_help(&mut app));
 }
 
 #[bench]
@@ -261,7 +261,7 @@ pub fn app_short() -> App<'static, 'static> { app(false, |k| USAGES[k].short) }
 pub fn app_long() -> App<'static, 'static> { app(true, |k| USAGES[k].long) }
 
 /// Build the help text of an application.
-fn build_help(app: &App) -> String {
+fn build_help(app: &mut App) -> String {
     let mut buf = Cursor::new(Vec::with_capacity(50));
     app.write_help(&mut buf).unwrap();
     let content = buf.into_inner();

@@ -189,6 +189,7 @@ complete -c myapp -n "__fish_using_command myapp help" -s h -l help -d 'Prints h
 complete -c myapp -n "__fish_using_command myapp help" -s V -l version -d 'Prints version information'
 "#;
 
+#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
 #[cfg(not(target_os = "windows"))]
 static POWERSHELL: &'static str = r#"
 @('myapp', './myapp') | %{
@@ -240,6 +241,7 @@ static POWERSHELL: &'static str = r#"
 }
 "#;
 
+#[cfg_attr(target_os = "windows", allow(dead_code))]
 #[cfg(target_os = "windows")]
 static POWERSHELL: &'static str = r#"
 @('myapp', './myapp', 'myapp.exe', '.\myapp', '.\myapp.exe', './myapp.exe') | %{
@@ -280,6 +282,7 @@ static POWERSHELL: &'static str = r#"
 }
 "#;
 
+#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
 #[cfg(not(target_os = "windows"))]
 static POWERSHELL_SPECIAL_CMDS: &'static str = r#"
 @('my_app', './my_app') | %{
@@ -340,6 +343,7 @@ static POWERSHELL_SPECIAL_CMDS: &'static str = r#"
 }
 "#;
 
+#[cfg_attr(target_os = "windows", allow(dead_code))]
 #[cfg(target_os = "windows")]
 static POWERSHELL_SPECIAL_CMDS: &'static str = r#"
 @('my_app', './my_app', 'my_app.exe', '.\my_app', '.\my_app.exe', './my_app.exe') | %{
