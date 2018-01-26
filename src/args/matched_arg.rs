@@ -4,8 +4,10 @@ use std::ffi::OsString;
 #[doc(hidden)]
 #[derive(Debug, Clone)]
 pub struct MatchedArg {
-    #[doc(hidden)] pub occurs: u64,
-    #[doc(hidden)] pub vals: Vec<OsString>,
+    #[doc(hidden)]
+    pub occurs: u64,
+    #[doc(hidden)]
+    pub vals: Vec<OsString>,
 }
 
 impl Default for MatchedArg {

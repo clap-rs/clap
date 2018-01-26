@@ -152,7 +152,6 @@ impl<T: fmt::Display> Format<T> {
     }
 }
 
-
 #[cfg(all(feature = "color", not(target_os = "windows")))]
 impl<T: AsRef<str>> fmt::Display for Format<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "{}", &self.format()) }

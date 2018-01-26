@@ -1,10 +1,10 @@
-use app::App;
 // Third Party
 #[cfg(feature = "suggestions")]
 use strsim;
 
 // Internal
 use fmt::Format;
+use app::App;
 
 /// Produces a string from a given list of possible values which is similar to
 /// the passed in value `v` with a certain confidence.
@@ -42,14 +42,13 @@ where
 
 /// Returns a suffix that can be empty, or is the standard 'did you mean' phrase
 #[cfg_attr(feature = "lints", allow(needless_lifetimes))]
-pub fn did_you_mean_flag_suffix<'z, T, I>(
+pub fn did_you_mean_flag_suffix<'z, I>(
     arg: &str,
     longs: I,
     subcommands: &'z [App],
 ) -> (String, Option<&'z str>)
 where
-    T: AsRef<str> + 'z,
-    I: IntoIterator<Item = &'z T>,
+    I: IntoIterator<Item = &'z str>,
 {
     match did_you_mean(arg, longs) {
         Some(candidate) => {
@@ -61,14 +60,9 @@ where
             return (suffix, Some(candidate));
         }
         None => for subcommand in subcommands {
-            let opts = subcommand
-                .p
-                .flags
-                .iter()
-                .filter_map(|f| f.s.long)
-                .chain(subcommand.p.opts.iter().filter_map(|o| o.s.long));
+            let longs = longs!(subcommand);
 
-            if let Some(candidate) = did_you_mean(arg, opts) {
+            if let Some(candidate) = did_you_mean(arg, longs) {
                 let suffix = format!(
                     "\n\tDid you mean to put '{}{}' after the subcommand '{}'?",
                     Format::Good("--"),

@@ -2,25 +2,22 @@
 use std::io::Write;
 
 // Internal
-use app::parser::Parser;
+use app::App;
 use INTERNAL_ERROR_MSG;
 
-pub struct PowerShellGen<'a, 'b>
+pub struct PowerShellGen<'a, 'b>(&'b App<'a, 'b>)
 where
-    'a: 'b,
-{
-    p: &'b Parser<'a, 'b>,
-}
+    'a: 'b;
 
 impl<'a, 'b> PowerShellGen<'a, 'b> {
-    pub fn new(p: &'b Parser<'a, 'b>) -> Self { PowerShellGen { p: p } }
+    pub fn new(app: &'b App<'a, 'b>) -> Self { PowerShellGen(app) }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
-        let bin_name = self.p.meta.bin_name.as_ref().unwrap();
+        let bin_name = self.0.bin_name.as_ref().unwrap();
 
         let mut names = vec![];
         let (subcommands_detection_cases, subcommands_cases) =
-            generate_inner(self.p, "", &mut names);
+            generate_inner(self.0, "", &mut names);
 
         let mut bin_names = vec![bin_name.to_string(), format!("./{0}", bin_name)];
         if cfg!(windows) {
@@ -46,7 +43,7 @@ impl<'a, 'b> PowerShellGen<'a, 'b> {
             %{{
                 switch ($_.ToString()) {{
 {subcommands_detection_cases}
-                    default {{ 
+                    default {{
                         break
                     }}
                 }}
@@ -76,7 +73,7 @@ impl<'a, 'b> PowerShellGen<'a, 'b> {
 }
 
 fn generate_inner<'a, 'b, 'p>(
-    p: &'p Parser<'a, 'b>,
+    p: &'p App<'a, 'b>,
     previous_command_name: &str,
     names: &mut Vec<&'p str>,
 ) -> (String, String) {
@@ -85,14 +82,14 @@ fn generate_inner<'a, 'b, 'p>(
         format!(
             "{}_{}",
             previous_command_name,
-            &p.meta.bin_name.as_ref().expect(INTERNAL_ERROR_MSG)
+            &p.bin_name.as_ref().expect(INTERNAL_ERROR_MSG)
         )
     } else {
-        format!("{}_{}", previous_command_name, &p.meta.name)
+        format!("{}_{}", previous_command_name, &p.name)
     };
 
-    let mut subcommands_detection_cases = if !names.contains(&&*p.meta.name) {
-        names.push(&*p.meta.name);
+    let mut subcommands_detection_cases = if !names.contains(&&*p.name) {
+        names.push(&*p.name);
         format!(
             r"
                     '{0}' {{
@@ -100,7 +97,7 @@ fn generate_inner<'a, 'b, 'p>(
                         break
                     }}
 ",
-            &p.meta.name
+            &p.name
         )
     } else {
         String::new()
@@ -108,7 +105,7 @@ fn generate_inner<'a, 'b, 'p>(
 
     let mut completions = String::new();
     for subcommand in &p.subcommands {
-        completions.push_str(&format!("'{}', ", &subcommand.p.meta.name));
+        completions.push_str(&format!("'{}', ", &subcommand.name));
     }
     for short in shorts!(p) {
         completions.push_str(&format!("'-{}', ", short));
@@ -127,9 +124,9 @@ fn generate_inner<'a, 'b, 'p>(
         completions.trim_right_matches(", ")
     );
 
-    for subcommand in &p.subcommands {
+    for subcommand in subcommands!(p) {
         let (subcommand_subcommands_detection_cases, subcommand_subcommands_cases) =
-            generate_inner(&subcommand.p, &command_name, names);
+            generate_inner(&subcommand, &command_name, names);
         subcommands_detection_cases.push_str(&subcommand_subcommands_detection_cases);
         subcommands_cases.push_str(&subcommand_subcommands_cases);
     }

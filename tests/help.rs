@@ -4,7 +4,7 @@ extern crate regex;
 
 include!("../clap-test.rs");
 
-use clap::{App, AppSettings, SubCommand, ErrorKind, Arg};
+use clap::{App, AppSettings, Arg, ErrorKind, SubCommand};
 
 static REQUIRE_DELIM_HELP: &'static str = "test 1.3
 Kevin K.
@@ -179,7 +179,6 @@ USAGE:
 FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information";
-
 
 static MULTI_SC_HELP: &'static str = "ctest-subcmd-multi 0.1
 Kevin K. <kbknapp@gmail.com>
@@ -526,8 +525,7 @@ fn setup() -> App<'static, 'static> {
 
 #[test]
 fn help_short() {
-    let m = setup()
-        .get_matches_from_safe(vec!["myprog", "-h"]);
+    let m = setup().get_matches_from_safe(vec!["myprog", "-h"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
@@ -535,8 +533,7 @@ fn help_short() {
 
 #[test]
 fn help_long() {
-    let m = setup()
-        .get_matches_from_safe(vec!["myprog", "--help"]);
+    let m = setup().get_matches_from_safe(vec!["myprog", "--help"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
@@ -544,8 +541,7 @@ fn help_long() {
 
 #[test]
 fn help_no_subcommand() {
-    let m = setup() 
-        .get_matches_from_safe(vec!["myprog", "help"]);
+    let m = setup().get_matches_from_safe(vec!["myprog", "help"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
@@ -554,9 +550,11 @@ fn help_no_subcommand() {
 #[test]
 fn help_subcommand() {
     let m = setup()
-        .subcommand(SubCommand::with_name("test")
-            .about("tests things")
-            .arg_from_usage("-v --verbose 'with verbosity'"))
+        .subcommand(
+            SubCommand::with_name("test")
+                .about("tests things")
+                .arg_from_usage("-v --verbose 'with verbosity'"),
+        )
         .get_matches_from_safe(vec!["myprog", "help"]);
 
     assert!(m.is_err());
@@ -570,7 +568,12 @@ fn req_last_arg_usage() {
         (@arg FIRST: ... * "First")
         (@arg SECOND: ... * +last "Second")
     );
-    assert!(test::compare_output(app, "example --help", LAST_ARG_REQ_MULT, false));
+    assert!(test::compare_output(
+        app,
+        "example --help",
+        LAST_ARG_REQ_MULT,
+        false
+    ));
 }
 
 #[test]
@@ -578,38 +581,48 @@ fn args_with_last_usage() {
     let app = App::new("flamegraph")
         .version("0.1")
         .setting(AppSettings::TrailingVarArg)
-        .arg(Arg::with_name("verbose")
-            .help("Prints out more stuff.")
-            .short("v")
-            .long("verbose")
-            .multiple(true)
+        .arg(
+            Arg::with_name("verbose")
+                .help("Prints out more stuff.")
+                .short("v")
+                .long("verbose")
+                .multiple(true),
         )
-        .arg(Arg::with_name("timeout")
-            .help("Timeout in seconds.")
-            .short("t")
-            .long("timeout")
-            .value_name("SECONDS")
-            .takes_value(true)
+        .arg(
+            Arg::with_name("timeout")
+                .help("Timeout in seconds.")
+                .short("t")
+                .long("timeout")
+                .value_name("SECONDS")
+                .takes_value(true),
         )
-        .arg(Arg::with_name("frequency")
-            .help("The sampling frequency.")
-            .short("f")
-            .long("frequency")
-            .value_name("HERTZ")
-            .takes_value(true)
+        .arg(
+            Arg::with_name("frequency")
+                .help("The sampling frequency.")
+                .short("f")
+                .long("frequency")
+                .value_name("HERTZ")
+                .takes_value(true),
         )
-        .arg(Arg::with_name("binary path")
-            .help("The path of the binary to be profiled. for a binary.")
-            .takes_value(true)
-            .value_name("BINFILE")
+        .arg(
+            Arg::with_name("binary path")
+                .help("The path of the binary to be profiled. for a binary.")
+                .takes_value(true)
+                .value_name("BINFILE"),
         )
-        .arg(Arg::with_name("pass through args")
-            .help("Any arguments you wish to pass to the being profiled.")
-            .value_name("ARGS")
-            .last(true)
-            .multiple(true)
+        .arg(
+            Arg::with_name("pass through args")
+                .help("Any arguments you wish to pass to the being profiled.")
+                .value_name("ARGS")
+                .last(true)
+                .multiple(true),
         );
-    assert!(test::compare_output(app, "flamegraph --help", LAST_ARG_USAGE, false));
+    assert!(test::compare_output(
+        app,
+        "flamegraph --help",
+        LAST_ARG_USAGE,
+        false
+    ));
 }
 
 #[test]
@@ -638,7 +651,12 @@ fn subcommand_help_rev() {
 
 #[test]
 fn complex_help_output() {
-    assert!(test::compare_output(test::complex_app(), "clap-test --help", HELP, false));
+    assert!(test::compare_output(
+        test::complex_app(),
+        "clap-test --help",
+        HELP,
+        false
+    ));
 }
 
 #[test]
@@ -648,83 +666,123 @@ fn after_and_before_help_output() {
         .about("tests clap library")
         .before_help("some text that comes before the help")
         .after_help("some text that comes after the help");
-    assert!(test::compare_output(app, "clap-test --help", AFTER_HELP, false));
+    assert!(test::compare_output(
+        app,
+        "clap-test --help",
+        AFTER_HELP,
+        false
+    ));
 }
 
 #[test]
 fn multi_level_sc_help() {
-    let app = App::new("ctest")
-        .subcommand(SubCommand::with_name("subcmd").subcommand(SubCommand::with_name("multi")
-            .about("tests subcommands")
-            .author("Kevin K. <kbknapp@gmail.com>")
-            .version("0.1")
-            .args_from_usage("
-                    -f, --flag                    'tests flags'
-                    -o, --option [scoption]...    'tests options'
-                ")));
-    assert!(test::compare_output(app, "ctest help subcmd multi", MULTI_SC_HELP, false));
+    let app = App::new("ctest").subcommand(
+        SubCommand::with_name("subcmd").subcommand(
+            SubCommand::with_name("multi")
+                .about("tests subcommands")
+                .author("Kevin K. <kbknapp@gmail.com>")
+                .version("0.1")
+                .args_from_usage(
+                    "-f, --flag                    'tests flags'
+                    -o, --option [scoption]...    'tests options'",
+                ),
+        ),
+    );
+    assert!(test::compare_output(
+        app,
+        "ctest help subcmd multi",
+        MULTI_SC_HELP,
+        false
+    ));
 }
 
 #[test]
 fn no_wrap_help() {
-    let app = App::new("ctest")
-        .set_term_width(0)
-        .help(MULTI_SC_HELP);
-    assert!(test::compare_output(app, "ctest --help", MULTI_SC_HELP, false));
+    let app = App::new("ctest").set_term_width(0).help(MULTI_SC_HELP);
+    assert!(test::compare_output(
+        app,
+        "ctest --help",
+        MULTI_SC_HELP,
+        false
+    ));
 }
 
 #[test]
 fn no_wrap_default_help() {
     let app = App::new("ctest").version("1.0").set_term_width(0);
-    assert!(test::compare_output(app, "ctest --help", DEFAULT_HELP, false));
+    assert!(test::compare_output(
+        app,
+        "ctest --help",
+        DEFAULT_HELP,
+        false
+    ));
 }
 
 #[test]
 fn complex_subcommand_help_output() {
     let a = test::complex_app();
-    assert!(test::compare_output(a, "clap-test subcmd --help", SC_HELP, false));
+    assert!(test::compare_output(
+        a,
+        "clap-test subcmd --help",
+        SC_HELP,
+        false
+    ));
 }
-
 
 #[test]
 fn issue_626_unicode_cutoff() {
-    let app = App::new("ctest")
-        .version("0.1")
-        .set_term_width(70)
-        .arg(Arg::with_name("cafe")
+    let app = App::new("ctest").version("0.1").set_term_width(70).arg(
+        Arg::with_name("cafe")
             .short("c")
             .long("cafe")
             .value_name("FILE")
-            .help("A coffeehouse, coffee shop, or café is an establishment \
-           which primarily serves hot coffee, related coffee beverages \
-           (e.g., café latte, cappuccino, espresso), tea, and other hot \
-           beverages. Some coffeehouses also serve cold beverages such as \
-           iced coffee and iced tea. Many cafés also serve some type of \
-           food, such as light snacks, muffins, or pastries.")
-            .takes_value(true));
-    assert!(test::compare_output(app, "ctest --help", ISSUE_626_CUTOFF, false));
+            .help(
+                "A coffeehouse, coffee shop, or café is an establishment \
+                 which primarily serves hot coffee, related coffee beverages \
+                 (e.g., café latte, cappuccino, espresso), tea, and other hot \
+                 beverages. Some coffeehouses also serve cold beverages such as \
+                 iced coffee and iced tea. Many cafés also serve some type of \
+                 food, such as light snacks, muffins, or pastries.",
+            )
+            .takes_value(true),
+    );
+    assert!(test::compare_output(
+        app,
+        "ctest --help",
+        ISSUE_626_CUTOFF,
+        false
+    ));
 }
 
 #[test]
 fn hide_possible_vals() {
     let app = App::new("ctest")
         .version("0.1")
-        .arg(Arg::with_name("pos")
-            .short("p")
-            .long("pos")
-            .value_name("VAL")
-            .possible_values(&["fast", "slow"])
-            .help("Some vals")
-            .takes_value(true))
-        .arg(Arg::with_name("cafe")
-            .short("c")
-            .long("cafe")
-            .value_name("FILE")
-            .hide_possible_values(true)
-            .possible_values(&["fast", "slow"])
-            .help("A coffeehouse, coffee shop, or café.")
-            .takes_value(true));
-    assert!(test::compare_output(app, "ctest --help", HIDE_POS_VALS, false));
+        .arg(
+            Arg::with_name("pos")
+                .short("p")
+                .long("pos")
+                .value_name("VAL")
+                .possible_values(&["fast", "slow"])
+                .help("Some vals")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("cafe")
+                .short("c")
+                .long("cafe")
+                .value_name("FILE")
+                .hide_possible_values(true)
+                .possible_values(&["fast", "slow"])
+                .help("A coffeehouse, coffee shop, or café.")
+                .takes_value(true),
+        );
+    assert!(test::compare_output(
+        app,
+        "ctest --help",
+        HIDE_POS_VALS,
+        false
+    ));
 }
 
 #[test]
@@ -740,7 +798,12 @@ fn issue_626_panic() {
            d'Afrique et d'Asie, dans des plantations qui sont cultivées pour les marchés d'exportation. \
            Le café est souvent une contribution majeure aux exportations des régions productrices.")
            .takes_value(true));
-    assert!(test::compare_output(app, "ctest --help", ISSUE_626_PANIC, false));
+    assert!(test::compare_output(
+        app,
+        "ctest --help",
+        ISSUE_626_PANIC,
+        false
+    ));
 }
 
 #[test]
@@ -764,29 +827,44 @@ fn issue_626_variable_panic() {
 #[test]
 fn final_word_wrapping() {
     let app = App::new("ctest").version("0.1").set_term_width(24);
-    assert!(test::compare_output(app, "ctest --help", FINAL_WORD_WRAPPING, false));
+    assert!(test::compare_output(
+        app,
+        "ctest --help",
+        FINAL_WORD_WRAPPING,
+        false
+    ));
 }
 
 #[test]
 fn wrapping_newline_chars() {
-    let app = App::new("ctest")
-        .version("0.1")
-		.set_term_width(60)
-        .arg(Arg::with_name("mode")
-             .help("x, max, maximum   20 characters, contains symbols.{n}\
-                    l, long           Copy-friendly, 14 characters, contains symbols.{n}\
-                    m, med, medium    Copy-friendly, 8 characters, contains symbols.{n}"));
-    assert!(test::compare_output(app, "ctest --help", WRAPPING_NEWLINE_CHARS, false));
+    let app = App::new("ctest").version("0.1").set_term_width(60).arg(
+        Arg::with_name("mode").help(
+            "x, max, maximum   20 characters, contains symbols.{n}\
+             l, long           Copy-friendly, 14 characters, contains symbols.{n}\
+             m, med, medium    Copy-friendly, 8 characters, contains symbols.{n}",
+        ),
+    );
+    assert!(test::compare_output(
+        app,
+        "ctest --help",
+        WRAPPING_NEWLINE_CHARS,
+        false
+    ));
 }
 
 #[test]
 fn old_newline_chars() {
-    let app = App::new("ctest")
-        .version("0.1")
-        .arg(Arg::with_name("mode")
+    let app = App::new("ctest").version("0.1").arg(
+        Arg::with_name("mode")
             .short("m")
-            .help("Some help with some wrapping{n}(Defaults to something)"));
-    assert!(test::compare_output(app, "ctest --help", OLD_NEWLINE_CHARS, false));
+            .help("Some help with some wrapping{n}(Defaults to something)"),
+    );
+    assert!(test::compare_output(
+        app,
+        "ctest --help",
+        OLD_NEWLINE_CHARS,
+        false
+    ));
 }
 
 #[test]
@@ -834,25 +912,29 @@ fn issue_702_multiple_values() {
         .author("foo")
         .about("bar")
         .arg(Arg::with_name("arg1").help("some option"))
-        .arg(Arg::with_name("arg2")
-            .multiple(true)
-            .help("some option"))
-        .arg(Arg::with_name("some")
-            .help("some option")
-            .short("s")
-            .long("some")
-            .takes_value(true))
-        .arg(Arg::with_name("other")
-            .help("some other option")
-            .short("o")
-            .long("other")
-            .takes_value(true))
-        .arg(Arg::with_name("label")
-            .help("a label")
-            .short("l")
-            .long("label")
-            .multiple(true)
-            .takes_value(true));
+        .arg(Arg::with_name("arg2").multiple(true).help("some option"))
+        .arg(
+            Arg::with_name("some")
+                .help("some option")
+                .short("s")
+                .long("some")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("other")
+                .help("some other option")
+                .short("o")
+                .long("other")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("label")
+                .help("a label")
+                .short("l")
+                .long("label")
+                .multiple(true)
+                .takes_value(true),
+        );
     assert!(test::compare_output(app, "myapp --help", ISSUE_702, false));
 }
 
@@ -862,7 +944,9 @@ fn long_about() {
         .version("1.0")
         .author("foo")
         .about("bar")
-        .long_about("something really really long, with\nmultiple lines of text\nthat should be displayed")
+        .long_about(
+            "something really really long, with\nmultiple lines of text\nthat should be displayed",
+        )
         .arg(Arg::with_name("arg1").help("some option"));
     assert!(test::compare_output(app, "myapp --help", LONG_ABOUT, false));
 }
@@ -871,29 +955,33 @@ fn long_about() {
 fn issue_760() {
     let app = App::new("ctest")
         .version("0.1")
-        .arg(Arg::with_name("option")
-            .help("tests options")
-            .short("o")
-            .long("option")
-            .takes_value(true)
-            .multiple(true)
-            .number_of_values(1))
-        .arg(Arg::with_name("opt")
-            .help("tests options")
-            .short("O")
-            .long("opt")
-            .takes_value(true));
+        .arg(
+            Arg::with_name("option")
+                .help("tests options")
+                .short("o")
+                .long("option")
+                .takes_value(true)
+                .multiple(true)
+                .number_of_values(1),
+        )
+        .arg(
+            Arg::with_name("opt")
+                .help("tests options")
+                .short("O")
+                .long("opt")
+                .takes_value(true),
+        );
     assert!(test::compare_output(app, "ctest --help", ISSUE_760, false));
 }
 
 #[test]
 fn ripgrep_usage() {
-    let app = App::new("ripgrep")
-        .version("0.5")
-        .usage("rg [OPTIONS] <pattern> [<path> ...]
+    let app = App::new("ripgrep").version("0.5").usage(
+        "rg [OPTIONS] <pattern> [<path> ...]
     rg [OPTIONS] [-e PATTERN | -f FILE ]... [<path> ...]
     rg [OPTIONS] --files [<path> ...]
-    rg [OPTIONS] --type-list");
+    rg [OPTIONS] --type-list",
+    );
 
     assert!(test::compare_output(app, "rg --help", RIPGREP_USAGE, false));
 }
@@ -902,18 +990,22 @@ fn ripgrep_usage() {
 fn ripgrep_usage_using_templates() {
     let app = App::new("ripgrep")
         .version("0.5")
-        .usage("
+        .usage(
+            "
     rg [OPTIONS] <pattern> [<path> ...]
     rg [OPTIONS] [-e PATTERN | -f FILE ]... [<path> ...]
     rg [OPTIONS] --files [<path> ...]
-    rg [OPTIONS] --type-list")
-        .template("\
+    rg [OPTIONS] --type-list",
+        )
+        .template(
+            "\
 {bin} {version}
 
 USAGE:{usage}
 
 FLAGS:
-{flags}");
+{flags}",
+        );
 
     assert!(test::compare_output(app, "rg --help", RIPGREP_USAGE, false));
 }
@@ -926,15 +1018,22 @@ fn sc_negates_reqs() {
         .arg_from_usage("-o, --opt <FILE> 'tests options'")
         .arg(Arg::with_name("PATH").help("help"))
         .subcommand(SubCommand::with_name("test"));
-    assert!(test::compare_output(app, "prog --help", SC_NEGATES_REQS, false));
+    assert!(test::compare_output(
+        app,
+        "prog --help",
+        SC_NEGATES_REQS,
+        false
+    ));
 }
 
 #[test]
 fn hidden_args() {
     let app = App::new("prog")
         .version("1.0")
-        .args_from_usage("-f, --flag 'testing flags'
-                          -o, --opt [FILE] 'tests options'")
+        .args_from_usage(
+            "-f, --flag 'testing flags'
+                          -o, --opt [FILE] 'tests options'",
+        )
         .arg(Arg::with_name("pos").hidden(true));
     assert!(test::compare_output(app, "prog --help", HIDDEN_ARGS, false));
 }
@@ -944,22 +1043,36 @@ fn args_negate_sc() {
     let app = App::new("prog")
         .version("1.0")
         .setting(AppSettings::ArgsNegateSubcommands)
-        .args_from_usage("-f, --flag 'testing flags'
-                          -o, --opt [FILE] 'tests options'")
+        .args_from_usage(
+            "-f, --flag 'testing flags'
+                          -o, --opt [FILE] 'tests options'",
+        )
         .arg(Arg::with_name("PATH").help("help"))
         .subcommand(SubCommand::with_name("test"));
-    assert!(test::compare_output(app, "prog --help", ARGS_NEGATE_SC, false));
+    assert!(test::compare_output(
+        app,
+        "prog --help",
+        ARGS_NEGATE_SC,
+        false
+    ));
 }
 
 #[test]
 fn issue_1046_hidden_scs() {
     let app = App::new("prog")
         .version("1.0")
-        .args_from_usage("-f, --flag 'testing flags'
-                          -o, --opt [FILE] 'tests options'")
+        .args_from_usage(
+            "-f, --flag 'testing flags'
+                          -o, --opt [FILE] 'tests options'",
+        )
         .arg(Arg::with_name("PATH").help("some"))
         .subcommand(SubCommand::with_name("test").setting(AppSettings::Hidden));
-    assert!(test::compare_output(app, "prog --help", ISSUE_1046_HIDDEN_SCS, false));
+    assert!(test::compare_output(
+        app,
+        "prog --help",
+        ISSUE_1046_HIDDEN_SCS,
+        false
+    ));
 }
 
 #[test]
@@ -982,74 +1095,118 @@ fn customize_version_and_help() {
         .help_message("Print help information")
         .version_short("v")
         .version_message("Print version information");
-    assert!(test::compare_output(app, "customize --help", CUSTOM_VERSION_AND_HELP, false));
+    assert!(test::compare_output(
+        app,
+        "customize --help",
+        CUSTOM_VERSION_AND_HELP,
+        false
+    ));
 }
 
 #[test]
 fn last_arg_mult_usage() {
     let app = App::new("last")
-            .version("0.1")
-            .arg(Arg::with_name("TARGET").required(true).help("some"))
-            .arg(Arg::with_name("CORPUS").help("some"))
-            .arg(Arg::with_name("ARGS").multiple(true).last(true).help("some"));
+        .version("0.1")
+        .arg(Arg::with_name("TARGET").required(true).help("some"))
+        .arg(Arg::with_name("CORPUS").help("some"))
+        .arg(
+            Arg::with_name("ARGS")
+                .multiple(true)
+                .last(true)
+                .help("some"),
+        );
     assert!(test::compare_output(app, "last --help", LAST_ARG, false));
 }
 
 #[test]
 fn last_arg_mult_usage_req() {
     let app = App::new("last")
-            .version("0.1")
-            .arg(Arg::with_name("TARGET").required(true).help("some"))
-            .arg(Arg::with_name("CORPUS").help("some"))
-            .arg(Arg::with_name("ARGS").multiple(true).last(true).required(true).help("some"));
-    assert!(test::compare_output(app, "last --help", LAST_ARG_REQ, false));
+        .version("0.1")
+        .arg(Arg::with_name("TARGET").required(true).help("some"))
+        .arg(Arg::with_name("CORPUS").help("some"))
+        .arg(
+            Arg::with_name("ARGS")
+                .multiple(true)
+                .last(true)
+                .required(true)
+                .help("some"),
+        );
+    assert!(test::compare_output(
+        app,
+        "last --help",
+        LAST_ARG_REQ,
+        false
+    ));
 }
 
 #[test]
 fn last_arg_mult_usage_req_with_sc() {
     let app = App::new("last")
-            .version("0.1")
-            .setting(AppSettings::SubcommandsNegateReqs)
-            .arg(Arg::with_name("TARGET").required(true).help("some"))
-            .arg(Arg::with_name("CORPUS").help("some"))
-            .arg(Arg::with_name("ARGS").multiple(true).last(true).required(true).help("some"))
-            .subcommand(SubCommand::with_name("test").about("some"));
-    assert!(test::compare_output(app, "last --help", LAST_ARG_REQ_SC, false));
+        .version("0.1")
+        .setting(AppSettings::SubcommandsNegateReqs)
+        .arg(Arg::with_name("TARGET").required(true).help("some"))
+        .arg(Arg::with_name("CORPUS").help("some"))
+        .arg(
+            Arg::with_name("ARGS")
+                .multiple(true)
+                .last(true)
+                .required(true)
+                .help("some"),
+        )
+        .subcommand(SubCommand::with_name("test").about("some"));
+    assert!(test::compare_output(
+        app,
+        "last --help",
+        LAST_ARG_REQ_SC,
+        false
+    ));
 }
 
 #[test]
 fn last_arg_mult_usage_with_sc() {
     let app = App::new("last")
-            .version("0.1")
-            .setting(AppSettings::ArgsNegateSubcommands)
-            .arg(Arg::with_name("TARGET").required(true).help("some"))
-            .arg(Arg::with_name("CORPUS").help("some"))
-            .arg(Arg::with_name("ARGS").multiple(true).last(true).help("some"))
-            .subcommand(SubCommand::with_name("test").about("some"));
+        .version("0.1")
+        .setting(AppSettings::ArgsNegateSubcommands)
+        .arg(Arg::with_name("TARGET").required(true).help("some"))
+        .arg(Arg::with_name("CORPUS").help("some"))
+        .arg(
+            Arg::with_name("ARGS")
+                .multiple(true)
+                .last(true)
+                .help("some"),
+        )
+        .subcommand(SubCommand::with_name("test").about("some"));
     assert!(test::compare_output(app, "last --help", LAST_ARG_SC, false));
 }
 
-
 #[test]
 fn hidden_default_val() {
-    let app1 = App::new("default")
-        .version("0.1")
-        .set_term_width(120)
-        .arg(Arg::with_name("argument")
-             .help("Pass an argument to the program. [default: default-argument]")
-             .long("arg")
-             .default_value("default-argument")
-             .hide_default_value(true));
-    assert!(test::compare_output(app1, "default --help", HIDE_DEFAULT_VAL, false));
+    let app1 = App::new("default").version("0.1").set_term_width(120).arg(
+        Arg::with_name("argument")
+            .help("Pass an argument to the program. [default: default-argument]")
+            .long("arg")
+            .default_value("default-argument")
+            .hide_default_value(true),
+    );
+    assert!(test::compare_output(
+        app1,
+        "default --help",
+        HIDE_DEFAULT_VAL,
+        false
+    ));
 
-    let app2 = App::new("default")
-        .version("0.1")
-        .set_term_width(120)
-        .arg(Arg::with_name("argument")
-             .help("Pass an argument to the program.")
-             .long("arg")
-             .default_value("default-argument"));
-    assert!(test::compare_output(app2, "default --help", HIDE_DEFAULT_VAL, false));
+    let app2 = App::new("default").version("0.1").set_term_width(120).arg(
+        Arg::with_name("argument")
+            .help("Pass an argument to the program.")
+            .long("arg")
+            .default_value("default-argument"),
+    );
+    assert!(test::compare_output(
+        app2,
+        "default --help",
+        HIDE_DEFAULT_VAL,
+        false
+    ));
 }
 
 fn issue_1112_setup() -> App<'static, 'static> {
@@ -1058,14 +1215,12 @@ fn issue_1112_setup() -> App<'static, 'static> {
         .about("tests stuff")
         .version("1.3")
         .arg(Arg::from_usage("-h, --help 'some help'"))
-        .subcommand(SubCommand::with_name("foo")
-            .arg(Arg::from_usage("-h, --help 'some help'")))
+        .subcommand(SubCommand::with_name("foo").arg(Arg::from_usage("-h, --help 'some help'")))
 }
 
 #[test]
 fn issue_1112_override_help_long() {
-    let m = issue_1112_setup()
-        .get_matches_from_safe(vec!["test", "--help"]);
+    let m = issue_1112_setup().get_matches_from_safe(vec!["test", "--help"]);
 
     assert!(m.is_ok());
     assert!(m.unwrap().is_present("help"));
@@ -1073,8 +1228,7 @@ fn issue_1112_override_help_long() {
 
 #[test]
 fn issue_1112_override_help_short() {
-    let m = issue_1112_setup()
-        .get_matches_from_safe(vec!["test", "-h"]);
+    let m = issue_1112_setup().get_matches_from_safe(vec!["test", "-h"]);
 
     assert!(m.is_ok());
     assert!(m.unwrap().is_present("help"));
@@ -1082,20 +1236,28 @@ fn issue_1112_override_help_short() {
 
 #[test]
 fn issue_1112_override_help_subcmd_long() {
-    let m = issue_1112_setup()
-        .get_matches_from_safe(vec!["test", "foo", "--help"]);
+    let m = issue_1112_setup().get_matches_from_safe(vec!["test", "foo", "--help"]);
 
     assert!(m.is_ok());
-    assert!(m.unwrap().subcommand_matches("foo").unwrap().is_present("help"));
+    assert!(
+        m.unwrap()
+            .subcommand_matches("foo")
+            .unwrap()
+            .is_present("help")
+    );
 }
 
 #[test]
 fn issue_1112_override_help_subcmd_short() {
-    let m = issue_1112_setup()
-        .get_matches_from_safe(vec!["test", "foo", "-h"]);
+    let m = issue_1112_setup().get_matches_from_safe(vec!["test", "foo", "-h"]);
 
     assert!(m.is_ok());
-    assert!(m.unwrap().subcommand_matches("foo").unwrap().is_present("help"));
+    assert!(
+        m.unwrap()
+            .subcommand_matches("foo")
+            .unwrap()
+            .is_present("help")
+    );
 }
 
 #[test]
@@ -1104,9 +1266,18 @@ fn issue_1052_require_delim_help() {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
-        .arg(Arg::from_usage("-f, --fake <some> <val> 'some help'").require_delimiter(true).value_delimiter(":"));
+        .arg(
+            Arg::from_usage("-f, --fake <some> <val> 'some help'")
+                .require_delimiter(true)
+                .value_delimiter(":"),
+        );
 
-    assert!(test::compare_output(app, "test --help", REQUIRE_DELIM_HELP, false));
+    assert!(test::compare_output(
+        app,
+        "test --help",
+        REQUIRE_DELIM_HELP,
+        false
+    ));
 }
 
 #[test]
@@ -1116,22 +1287,31 @@ fn hide_env_vals() {
     env::set_var("ENVVAR", "MYVAL");
     let app = App::new("ctest")
         .version("0.1")
-        .arg(Arg::with_name("pos")
-            .short("p")
-            .long("pos")
-            .value_name("VAL")
-            .possible_values(&["fast", "slow"])
-            .help("Some vals")
-            .takes_value(true))
-        .arg(Arg::with_name("cafe")
-            .short("c")
-            .long("cafe")
-            .value_name("FILE")
-            .hide_env_values(true)
-            .env("ENVVAR")
-            .help("A coffeehouse, coffee shop, or café.")
-            .takes_value(true));
-    assert!(test::compare_output(app, "ctest --help", HIDE_ENV_VALS, false));
+        .arg(
+            Arg::with_name("pos")
+                .short("p")
+                .long("pos")
+                .value_name("VAL")
+                .possible_values(&["fast", "slow"])
+                .help("Some vals")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("cafe")
+                .short("c")
+                .long("cafe")
+                .value_name("FILE")
+                .hide_env_values(true)
+                .env("ENVVAR")
+                .help("A coffeehouse, coffee shop, or café.")
+                .takes_value(true),
+        );
+    assert!(test::compare_output(
+        app,
+        "ctest --help",
+        HIDE_ENV_VALS,
+        false
+    ));
 }
 
 #[test]
@@ -1141,20 +1321,29 @@ fn show_env_vals() {
     env::set_var("ENVVAR", "MYVAL");
     let app = App::new("ctest")
         .version("0.1")
-        .arg(Arg::with_name("pos")
-            .short("p")
-            .long("pos")
-            .value_name("VAL")
-            .possible_values(&["fast", "slow"])
-            .help("Some vals")
-            .takes_value(true))
-        .arg(Arg::with_name("cafe")
-            .short("c")
-            .long("cafe")
-            .value_name("FILE")
-            .hide_possible_values(true)
-            .env("ENVVAR")
-            .help("A coffeehouse, coffee shop, or café.")
-            .takes_value(true));
-    assert!(test::compare_output(app, "ctest --help", SHOW_ENV_VALS, false));
+        .arg(
+            Arg::with_name("pos")
+                .short("p")
+                .long("pos")
+                .value_name("VAL")
+                .possible_values(&["fast", "slow"])
+                .help("Some vals")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("cafe")
+                .short("c")
+                .long("cafe")
+                .value_name("FILE")
+                .hide_possible_values(true)
+                .env("ENVVAR")
+                .help("A coffeehouse, coffee shop, or café.")
+                .takes_value(true),
+        );
+    assert!(test::compare_output(
+        app,
+        "ctest --help",
+        SHOW_ENV_VALS,
+        false
+    ));
 }

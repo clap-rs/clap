@@ -1,13 +1,13 @@
 // Std
-use std::collections::hash_map::{Entry, Iter};
-use std::collections::HashMap;
 use std::ffi::OsStr;
-use std::ops::Deref;
+use std::collections::HashMap;
 use std::mem;
 
+// Third Party
+use ordermap;
+
 // Internal
-use args::{ArgMatches, MatchedArg, SubCommand};
-use args::AnyArg;
+use args::{Arg, ArgMatches, MatchedArg, SubCommand};
 use args::settings::ArgSettings;
 
 #[doc(hidden)]
@@ -21,36 +21,13 @@ impl<'a> Default for ArgMatcher<'a> {
 impl<'a> ArgMatcher<'a> {
     pub fn new() -> Self { ArgMatcher::default() }
 
-    pub fn process_arg_overrides<'b>(&mut self, a: Option<&AnyArg<'a, 'b>>, overrides: &mut Vec<(&'b str, &'a str)>, required: &mut Vec<&'a str>) {
-        debugln!("ArgMatcher::process_arg_overrides:{:?};", a.map_or(None, |a| Some(a.name())));
-        if let Some(aa) = a {
-            if let Some(a_overrides) = aa.overrides() {
-                for overr in a_overrides {
-                    debugln!("ArgMatcher::process_arg_overrides:iter:{};", overr);
-                    if self.is_present(overr) {
-                        debugln!("ArgMatcher::process_arg_overrides:iter:{}: removing from matches;", overr);
-                        self.remove(overr);
-                        for i in (0 .. required.len()).rev() {
-                            if &required[i] == overr {
-                                debugln!("ArgMatcher::process_arg_overrides:iter:{}: removing required;", overr);
-                                required.swap_remove(i);
-                                break;
-                            }
-                        }
-                    } else {
-                        overrides.push((overr, aa.name()));
-                    }
-                }
-            }
-        }
-    }
-
-    pub fn is_present(&self, name: &str) -> bool {
-        self.0.is_present(name)
-    }
+    pub fn is_present(&self, name: &str) -> bool { self.0.is_present(name) }
 
     pub fn propagate_globals(&mut self, global_arg_vec: &[&'a str]) {
-        debugln!( "ArgMatcher::get_global_values: global_arg_vec={:?}", global_arg_vec );
+        debugln!(
+            "ArgMatcher::get_global_values: global_arg_vec={:?}",
+            global_arg_vec
+        );
         let mut vals_map = HashMap::new();
         self.fill_in_global_values(global_arg_vec, &mut vals_map);
     }
@@ -97,6 +74,7 @@ impl<'a> ArgMatcher<'a> {
 
     pub fn remove(&mut self, arg: &str) { self.0.args.remove(arg); }
 
+    #[allow(dead_code)]
     pub fn remove_all(&mut self, args: &[&str]) {
         for &arg in args {
             self.0.args.remove(arg);
@@ -111,15 +89,17 @@ impl<'a> ArgMatcher<'a> {
 
     pub fn usage(&mut self, usage: String) { self.0.usage = Some(usage); }
 
-    pub fn arg_names(&'a self) -> Vec<&'a str> { self.0.args.keys().map(Deref::deref).collect() }
+    pub fn arg_names(&'a self) -> ordermap::Keys<&'a str, MatchedArg> { self.0.args.keys() }
 
-    pub fn entry(&mut self, arg: &'a str) -> Entry<&'a str, MatchedArg> { self.0.args.entry(arg) }
+    pub fn entry(&mut self, arg: &'a str) -> ordermap::Entry<&'a str, MatchedArg> {
+        self.0.args.entry(arg)
+    }
 
     pub fn subcommand(&mut self, sc: SubCommand<'a>) { self.0.subcommand = Some(Box::new(sc)); }
 
     pub fn subcommand_name(&self) -> Option<&str> { self.0.subcommand_name() }
 
-    pub fn iter(&self) -> Iter<&str, MatchedArg> { self.0.args.iter() }
+    pub fn iter(&self) -> ordermap::Iter<&str, MatchedArg> { self.0.args.iter() }
 
     pub fn inc_occurrence_of(&mut self, arg: &'a str) {
         debugln!("ArgMatcher::inc_occurrence_of: arg={}", arg);
@@ -147,23 +127,20 @@ impl<'a> ArgMatcher<'a> {
         ma.vals.push(val.to_owned());
     }
 
-    pub fn needs_more_vals<'b, A>(&self, o: &A) -> bool
-    where
-        A: AnyArg<'a, 'b>,
-    {
-        debugln!("ArgMatcher::needs_more_vals: o={}", o.name());
-        if let Some(ma) = self.get(o.name()) {
-            if let Some(num) = o.num_vals() {
+    pub fn needs_more_vals<'b>(&self, o: &Arg) -> bool {
+        debugln!("ArgMatcher::needs_more_vals: o={}", o.name);
+        if let Some(ma) = self.get(o.name) {
+            if let Some(num) = o.num_vals {
                 debugln!("ArgMatcher::needs_more_vals: num_vals...{}", num);
                 return if o.is_set(ArgSettings::Multiple) {
                     ((ma.vals.len() as u64) % num) != 0
                 } else {
                     num != (ma.vals.len() as u64)
                 };
-            } else if let Some(num) = o.max_vals() {
+            } else if let Some(num) = o.max_vals {
                 debugln!("ArgMatcher::needs_more_vals: max_vals...{}", num);
                 return !((ma.vals.len() as u64) > num);
-            } else if o.min_vals().is_some() {
+            } else if o.min_vals.is_some() {
                 debugln!("ArgMatcher::needs_more_vals: min_vals...true");
                 return true;
             }

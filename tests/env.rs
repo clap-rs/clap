@@ -25,9 +25,7 @@ fn env_os() {
     env::set_var("CLP_TEST_ENV", "env");
 
     let r = App::new("df")
-        .arg(
-            Arg::from_usage("[arg] 'some opt'").env_os(OsStr::new("CLP_TEST_ENV")),
-        )
+        .arg(Arg::from_usage("[arg] 'some opt'").env_os(OsStr::new("CLP_TEST_ENV")))
         .get_matches_from_safe(vec![""]);
 
     assert!(r.is_ok());
@@ -78,9 +76,7 @@ fn opt_user_override() {
     env::set_var("CLP_TEST_ENV", "env");
 
     let r = App::new("df")
-        .arg(
-            Arg::from_usage("--arg [FILE] 'some arg'").env("CLP_TEST_ENV"),
-        )
+        .arg(Arg::from_usage("--arg [FILE] 'some arg'").env("CLP_TEST_ENV"))
         .get_matches_from_safe(vec!["", "--arg", "opt"]);
 
     assert!(r.is_ok());
@@ -204,7 +200,6 @@ fn possible_value() {
     assert_eq!(m.value_of("arg").unwrap(), "env");
 }
 
-
 #[test]
 fn not_possible_value() {
     env::set_var("CLP_TEST_ENV", "env");
@@ -228,10 +223,12 @@ fn validator() {
         .arg(
             Arg::from_usage("[arg] 'some opt'")
                 .env("CLP_TEST_ENV")
-                .validator(|s| if s == "env" {
-                    Ok(())
-                } else {
-                    Err("not equal".to_string())
+                .validator(|s| {
+                    if s == "env" {
+                        Ok(())
+                    } else {
+                        Err("not equal".to_string())
+                    }
                 }),
         )
         .get_matches_from_safe(vec![""]);
@@ -251,10 +248,12 @@ fn validator_invalid() {
         .arg(
             Arg::from_usage("[arg] 'some opt'")
                 .env("CLP_TEST_ENV")
-                .validator(|s| if s != "env" {
-                    Ok(())
-                } else {
-                    Err("is equal".to_string())
+                .validator(|s| {
+                    if s != "env" {
+                        Ok(())
+                    } else {
+                        Err("is equal".to_string())
+                    }
                 }),
         )
         .get_matches_from_safe(vec![""]);

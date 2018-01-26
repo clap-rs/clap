@@ -534,6 +534,7 @@ extern crate ansi_term;
 extern crate atty;
 #[macro_use]
 extern crate bitflags;
+extern crate ordermap;
 #[cfg(feature = "suggestions")]
 extern crate strsim;
 #[cfg(feature = "wrap_help")]
@@ -548,7 +549,7 @@ extern crate yaml_rust;
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;
 pub use args::{Arg, ArgGroup, ArgMatches, ArgSettings, OsValues, SubCommand, Values};
-pub use app::{App, AppSettings};
+pub use app::{App, AppSettings, Propagation};
 pub use fmt::Format;
 pub use errors::{Error, ErrorKind, Result};
 pub use completions::Shell;
@@ -593,7 +594,6 @@ mod derive {
         fn try_parse() -> Result<Self, clap::Error> {
             Self::try_from_argmatches(Self::into_app().get_matches_safe()?)
         }
-
 
         /// @TODO @release @docs
         fn try_parse_from<I, T>(argv: I) -> Result<Self, clap::Error>

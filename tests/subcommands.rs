@@ -3,7 +3,7 @@ extern crate regex;
 
 include!("../clap-test.rs");
 
-use clap::{App, Arg, SubCommand, ErrorKind};
+use clap::{App, Arg, ErrorKind, SubCommand};
 
 static VISIBLE_ALIAS_HELP: &'static str = "clap-test 2.6
 
@@ -43,7 +43,8 @@ USAGE:
 For more information try --help";
 
 #[cfg(feature = "suggestions")]
-static DYM_ARG: &'static str = "error: Found argument '--subcm' which wasn't expected, or isn't valid in this context
+static DYM_ARG: &'static str =
+    "error: Found argument '--subcm' which wasn't expected, or isn't valid in this context
 \tDid you mean to put '--subcmdarg' after the subcommand 'subcmd'?
 
 USAGE:
@@ -54,12 +55,15 @@ For more information try --help";
 #[test]
 fn subcommand() {
     let m = App::new("test")
-        .subcommand(SubCommand::with_name("some")
-            .arg(Arg::with_name("test")
-                .short("t")
-                .long("test")
-                .takes_value(true)
-                .help("testing testing")))
+        .subcommand(
+            SubCommand::with_name("some").arg(
+                Arg::with_name("test")
+                    .short("t")
+                    .long("test")
+                    .takes_value(true)
+                    .help("testing testing"),
+            ),
+        )
         .arg(Arg::with_name("other").long("other"))
         .get_matches_from(vec!["myprog", "some", "--test", "testing"]);
 
@@ -72,12 +76,15 @@ fn subcommand() {
 #[test]
 fn subcommand_none_given() {
     let m = App::new("test")
-        .subcommand(SubCommand::with_name("some")
-            .arg(Arg::with_name("test")
-                .short("t")
-                .long("test")
-                .takes_value(true)
-                .help("testing testing")))
+        .subcommand(
+            SubCommand::with_name("some").arg(
+                Arg::with_name("test")
+                    .short("t")
+                    .long("test")
+                    .takes_value(true)
+                    .help("testing testing"),
+            ),
+        )
         .arg(Arg::with_name("other").long("other"))
         .get_matches_from(vec![""]);
 
@@ -88,14 +95,14 @@ fn subcommand_none_given() {
 fn subcommand_multiple() {
     let m = App::new("test")
         .subcommands(vec![
-            SubCommand::with_name("some")
-                .arg(Arg::with_name("test")
+            SubCommand::with_name("some").arg(
+                Arg::with_name("test")
                     .short("t")
                     .long("test")
                     .takes_value(true)
-                    .help("testing testing")),
-            SubCommand::with_name("add")
-                .arg(Arg::with_name("roster").short("r"))
+                    .help("testing testing"),
+            ),
+            SubCommand::with_name("add").arg(Arg::with_name("roster").short("r")),
         ])
         .arg(Arg::with_name("other").long("other"))
         .get_matches_from(vec!["myprog", "some", "--test", "testing"]);
@@ -111,68 +118,74 @@ fn subcommand_multiple() {
 #[test]
 fn single_alias() {
     let m = App::new("myprog")
-                .subcommand(SubCommand::with_name("test")
-                    .alias("do-stuff"))
-                .get_matches_from(vec!["myprog", "do-stuff"]);
+        .subcommand(SubCommand::with_name("test").alias("do-stuff"))
+        .get_matches_from(vec!["myprog", "do-stuff"]);
     assert_eq!(m.subcommand_name(), Some("test"));
 }
 
 #[test]
 fn multiple_aliases() {
     let m = App::new("myprog")
-                .subcommand(SubCommand::with_name("test")
-                    .aliases(&["do-stuff", "test-stuff"]))
-                .get_matches_from(vec!["myprog", "test-stuff"]);
+        .subcommand(SubCommand::with_name("test").aliases(&["do-stuff", "test-stuff"]))
+        .get_matches_from(vec!["myprog", "test-stuff"]);
     assert_eq!(m.subcommand_name(), Some("test"));
 }
 
 #[test]
-#[cfg(feature="suggestions")]
+#[cfg(feature = "suggestions")]
 fn subcmd_did_you_mean_output() {
-    let app = App::new("dym")
-        .subcommand(SubCommand::with_name("subcmd"));
+    let app = App::new("dym").subcommand(SubCommand::with_name("subcmd"));
     assert!(test::compare_output(app, "dym subcm", DYM_SUBCMD, true));
 }
 
 #[test]
-#[cfg(feature="suggestions")]
+#[cfg(feature = "suggestions")]
 fn subcmd_did_you_mean_output_arg() {
-    let app = App::new("dym")
-        .subcommand(SubCommand::with_name("subcmd")
-            .arg_from_usage("-s --subcmdarg [subcmdarg] 'tests'") );
+    let app = App::new("dym").subcommand(
+        SubCommand::with_name("subcmd").arg_from_usage("-s --subcmdarg [subcmdarg] 'tests'"),
+    );
     assert!(test::compare_output(app, "dym --subcm foo", DYM_ARG, true));
 }
 
 #[test]
 fn alias_help() {
     let m = App::new("myprog")
-                .subcommand(SubCommand::with_name("test")
-                    .alias("do-stuff"))
-                .get_matches_from_safe(vec!["myprog", "help", "do-stuff"]);
+        .subcommand(SubCommand::with_name("test").alias("do-stuff"))
+        .get_matches_from_safe(vec!["myprog", "help", "do-stuff"]);
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
 }
 
 #[test]
 fn visible_aliases_help_output() {
-    let app = App::new("clap-test")
-        .version("2.6")
-        .subcommand(SubCommand::with_name("test")
+    let app = App::new("clap-test").version("2.6").subcommand(
+        SubCommand::with_name("test")
             .about("Some help")
             .alias("invisible")
             .visible_alias("dongle")
-            .visible_alias("done"));
-    assert!(test::compare_output(app, "clap-test --help", VISIBLE_ALIAS_HELP, false));
+            .visible_alias("done"),
+    );
+    assert!(test::compare_output(
+        app,
+        "clap-test --help",
+        VISIBLE_ALIAS_HELP,
+        false
+    ));
 }
 
 #[test]
 fn invisible_aliases_help_output() {
-    let app = App::new("clap-test")
-        .version("2.6")
-        .subcommand(SubCommand::with_name("test")
+    let app = App::new("clap-test").version("2.6").subcommand(
+        SubCommand::with_name("test")
             .about("Some help")
-            .alias("invisible"));
-    assert!(test::compare_output(app, "clap-test --help", INVISIBLE_ALIAS_HELP, false));
+            .alias("invisible"),
+    );
+    assert!(test::compare_output(
+        app,
+        "clap-test --help",
+        INVISIBLE_ALIAS_HELP,
+        false
+    ));
 }
 
 #[test]

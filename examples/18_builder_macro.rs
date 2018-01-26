@@ -5,7 +5,6 @@ extern crate clap;
 // $crate:: internally
 
 fn main() {
-
     // Validation example testing that a file exists
     let file_exists = |path| {
         if std::fs::metadata(path).is_ok() {

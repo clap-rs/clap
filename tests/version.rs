@@ -38,10 +38,10 @@ fn complex_version_output() {
     let mut a = App::new("clap-test").version("v1.4.8");
     let _ = a.get_matches_from_safe_borrow(vec![""]);
 
-        // Now we check the output of print_version()
-        let mut ver = vec![];
-        a.write_version(&mut ver).unwrap();
-        assert_eq!(str::from_utf8(&ver).unwrap(), VERSION);
+    // Now we check the output of print_version()
+    let mut ver = vec![];
+    a.write_version(&mut ver).unwrap();
+    assert_eq!(str::from_utf8(&ver).unwrap(), VERSION);
 }
 
 #[test]

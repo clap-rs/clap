@@ -3,7 +3,6 @@ extern crate clap;
 use clap::{App, Arg};
 
 fn main() {
-
     // Of the three argument types, flags are the most simple. Flags are simple switches which can
     // be either "on" or "off"
     //
