@@ -63,7 +63,7 @@ static BASH: &'static str = r#"_myapp() {
             return 0
             ;;
         myapp__test)
-            opts=" -h -V  --help --version --case  "
+            opts=" -h -V  --case --help --version  "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
                 return 0
@@ -609,7 +609,7 @@ static BASH_SPECIAL_CMDS: &'static str = r#"_my_app() {
             return 0
             ;;
         my_app__some_cmd)
-            opts=" -h -V  --help --version --config  "
+            opts=" -h -V  --config --help --version  "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
                 return 0
@@ -628,7 +628,7 @@ static BASH_SPECIAL_CMDS: &'static str = r#"_my_app() {
             return 0
             ;;
         my_app__test)
-            opts=" -h -V  --help --version --case  "
+            opts=" -h -V  --case --help --version  "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
                 return 0
