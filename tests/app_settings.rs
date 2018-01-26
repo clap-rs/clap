@@ -1,7 +1,7 @@
 extern crate clap;
 extern crate regex;
 
-use clap::{App, AppSettings, Arg, ErrorKind, SubCommand};
+use clap::{App, AppSettings, Arg, ErrorKind, Propagation, SubCommand};
 
 include!("../clap-test.rs");
 
@@ -88,7 +88,7 @@ fn global_version() {
         .setting(AppSettings::GlobalVersion)
         .version("1.1")
         .subcommand(SubCommand::with_name("sub1"));
-    app._propagate();
+    app._propagate(Propagation::NextLevel);
     assert_eq!(app.subcommands[0].version, Some("1.1"));
 }
 
@@ -286,7 +286,7 @@ fn global_setting() {
     let mut app = App::new("test")
         .global_setting(AppSettings::ColoredHelp)
         .subcommand(SubCommand::with_name("subcmd"));
-    app._propagate();
+    app._propagate(Propagation::NextLevel);
     assert!(
         app.subcommands
             .iter()
@@ -302,7 +302,7 @@ fn global_settings() {
     let mut app = App::new("test")
         .global_settings(&[AppSettings::ColoredHelp, AppSettings::TrailingVarArg])
         .subcommand(SubCommand::with_name("subcmd"));
-    app._propagate();
+    app._propagate(Propagation::NextLevel);
     assert!(
         app.subcommands
             .iter()

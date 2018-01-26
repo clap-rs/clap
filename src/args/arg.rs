@@ -3961,7 +3961,7 @@ mod test {
 
         assert_eq!(&*format!("{}", f), "--flag");
 
-        let mut f2 = Arg::new("flg");
+        let mut f2 = Arg::with_name("flg");
         f2.short = Some('f');
 
         assert_eq!(&*format!("{}", f2), "-f");
@@ -3993,59 +3993,51 @@ mod test {
 
     #[test]
     fn option_display1() {
-        let mut o = Arg::with_name("opt");
-        o.long = Some("option");
-        o.settings.set(ArgSettings::Multiple);
+        let o = Arg::with_name("opt")
+            .long("option")
+            .takes_value(true)
+            .multiple(true);
 
         assert_eq!(&*format!("{}", o), "--option <opt>...");
     }
 
     #[test]
     fn option_display2() {
-        let mut v_names = VecMap::new();
-        v_names.insert(0, "file");
-        v_names.insert(1, "name");
-
-        let mut o2 = Arg::new("opt");
-        o2.short = Some('o');
-        o2.val_names = Some(v_names);
+        let o2 = Arg::with_name("opt")
+            .short("o")
+            .value_names(&["file", "name"]);
 
         assert_eq!(&*format!("{}", o2), "-o <file> <name>");
     }
 
     #[test]
     fn option_display3() {
-        let mut v_names = VecMap::new();
-        v_names.insert(0, "file");
-        v_names.insert(1, "name");
-
-        let mut o2 = Arg::new("opt");
-        o2.short = Some('o');
-        o2.val_names = Some(v_names);
-        o2.settings.set(ArgSettings::Multiple);
+        let o2 = Arg::with_name("opt")
+            .short("o")
+            .multiple(true)
+            .value_names(&["file", "name"]);
 
         assert_eq!(&*format!("{}", o2), "-o <file> <name>");
     }
 
     #[test]
     fn option_display_single_alias() {
-        let mut o = Arg::with_name("opt");
-        o.long = Some("option");
-        o.aliases = Some(vec![("als", true)]);
+        let o = Arg::with_name("opt")
+            .takes_value(true)
+            .long("option")
+            .visible_alias("als");
 
         assert_eq!(&*format!("{}", o), "--option <opt>");
     }
 
     #[test]
     fn option_display_multiple_aliases() {
-        let mut o = Arg::with_name("opt");
-        o.long = Some("option");
-        o.aliases = Some(vec![
-            ("als_not_visible", false),
-            ("als2", true),
-            ("als3", true),
-            ("als4", true),
-        ]);
+        let o = Arg::with_name("opt")
+            .long("option")
+            .takes_value(true)
+            .visible_aliases(&["als2", "als3", "als4"])
+            .alias("als_not_visible");
+
         assert_eq!(&*format!("{}", o), "--option <opt>");
     }
 
@@ -4053,7 +4045,7 @@ mod test {
 
     #[test]
     fn positiona_display_mult() {
-        let mut p = Arg::with_name("pos", 1);
+        let mut p = Arg::with_name("pos").index(1);
         p.settings.set(ArgSettings::Multiple);
 
         assert_eq!(&*format!("{}", p), "<pos>...");
@@ -4061,7 +4053,7 @@ mod test {
 
     #[test]
     fn positional_display_required() {
-        let mut p2 = Arg::with_name("pos", 1);
+        let mut p2 = Arg::with_name("pos").index(1);
         p2.settings.set(ArgSettings::Required);
 
         assert_eq!(&*format!("{}", p2), "<pos>");
@@ -4069,7 +4061,7 @@ mod test {
 
     #[test]
     fn positional_display_val_names() {
-        let mut p2 = Arg::with_name("pos", 1);
+        let mut p2 = Arg::with_name("pos").index(1);
         let mut vm = VecMap::new();
         vm.insert(0, "file1");
         vm.insert(1, "file2");
@@ -4080,7 +4072,7 @@ mod test {
 
     #[test]
     fn positional_display_val_names_req() {
-        let mut p2 = Arg::with_name("pos", 1);
+        let mut p2 = Arg::with_name("pos").index(1);
         p2.settings.set(ArgSettings::Required);
         let mut vm = VecMap::new();
         vm.insert(0, "file1");

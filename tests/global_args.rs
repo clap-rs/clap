@@ -29,8 +29,8 @@ mod tests {
     #[test]
     fn issue_1076() {
         let mut app = get_app();
-        app.get_matches_from_safe_borrow(vec!["myprog"]);
-        app.get_matches_from_safe_borrow(vec!["myprog"]);
-        app.get_matches_from_safe_borrow(vec!["myprog"]);
+        let _ = app.get_matches_from_safe_borrow(vec!["myprog"]);
+        let _ = app.get_matches_from_safe_borrow(vec!["myprog"]);
+        let _ = app.get_matches_from_safe_borrow(vec!["myprog"]);
     }
 }

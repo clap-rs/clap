@@ -549,7 +549,7 @@ extern crate yaml_rust;
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;
 pub use args::{Arg, ArgGroup, ArgMatches, ArgSettings, OsValues, SubCommand, Values};
-pub use app::{App, AppSettings};
+pub use app::{App, AppSettings, Propagation};
 pub use fmt::Format;
 pub use errors::{Error, ErrorKind, Result};
 pub use completions::Shell;

@@ -28,9 +28,10 @@ pub use self::settings::{AppFlags, AppSettings};
 use completions::{ComplGen, Shell};
 use fmt::ColorWhen;
 
+#[doc(hidden)]
 #[allow(dead_code)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub(crate) enum Propagation<'a> {
+pub enum Propagation<'a> {
     To(&'a str),
     Full,
     NextLevel,
@@ -1811,7 +1812,7 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     // @TODO @v3-alpha @perf: should only propagate globals to subcmd we find, or for help
-    pub(crate) fn _propagate(&mut self, prop: Propagation) {
+    pub fn _propagate(&mut self, prop: Propagation) {
         debugln!("App::_propagate:{}", self.name);
         for sc in &mut self.subcommands {
             // We have to create a new scope in order to tell rustc the borrow of `sc` is
