@@ -25,6 +25,13 @@
 
 extern crate clap as _clap;
 
+#[allow(unused_imports)]
+#[macro_use]
+extern crate structopt_derive;
+
+#[doc(hidden)]
+pub use structopt_derive::*;
+
 /// Re-export of clap
 pub mod clap {
     pub use _clap::*;

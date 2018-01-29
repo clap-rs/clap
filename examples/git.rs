@@ -3,8 +3,7 @@
 //! Documentation can be added either through doc comments or the
 //! `about` attribute.
 
-extern crate structopt;
-#[macro_use] extern crate structopt_derive;
+#[macro_use] extern crate structopt;
 
 use structopt::StructOpt;
 

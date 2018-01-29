@@ -17,9 +17,8 @@ structopt-derive = "0.1.0"
 
 And then, in your rust file:
 ```rust
-extern crate structopt;
 #[macro_use]
-extern crate structopt_derive;
+extern crate structopt;
 
 use structopt::StructOpt;
 

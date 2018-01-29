@@ -5,8 +5,7 @@
 // Version 2, as published by Sam Hocevar. See the COPYING file for
 // more details.
 
-extern crate structopt;
-#[macro_use] extern crate structopt_derive;
+#[macro_use] extern crate structopt;
 
 use structopt::StructOpt;
 
