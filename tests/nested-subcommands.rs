@@ -44,23 +44,23 @@ fn test_no_cmd() {
     assert!(result.is_err());
 
     assert_eq!(Opt2 { force: false, verbose: 0, cmd: None },
-               Opt2::from_clap(Opt2::clap().get_matches_from(&["test"])));
+               Opt2::from_clap(&Opt2::clap().get_matches_from(&["test"])));
 }
 
 #[test]
 fn test_fetch() {
     assert_eq!(Opt { force: false, verbose: 3, cmd: Sub::Fetch {} },
-               Opt::from_clap(Opt::clap().get_matches_from(&["test", "-vvv", "fetch"])));
+               Opt::from_clap(&Opt::clap().get_matches_from(&["test", "-vvv", "fetch"])));
     assert_eq!(Opt { force: true, verbose: 0, cmd: Sub::Fetch {} },
-               Opt::from_clap(Opt::clap().get_matches_from(&["test", "--force", "fetch"])));
+               Opt::from_clap(&Opt::clap().get_matches_from(&["test", "--force", "fetch"])));
 }
 
 #[test]
 fn test_add() {
     assert_eq!(Opt { force: false, verbose: 0, cmd: Sub::Add {} },
-               Opt::from_clap(Opt::clap().get_matches_from(&["test", "add"])));
+               Opt::from_clap(&Opt::clap().get_matches_from(&["test", "add"])));
     assert_eq!(Opt { force: false, verbose: 2, cmd: Sub::Add {} },
-               Opt::from_clap(Opt::clap().get_matches_from(&["test", "-vv", "add"])));
+               Opt::from_clap(&Opt::clap().get_matches_from(&["test", "-vv", "add"])));
 }
 
 #[test]
@@ -111,7 +111,7 @@ fn test_subsubcommand() {
             all: true,
             cmd: Sub2::Foo { file: "lib.rs".to_string(), cmd: Sub3::Quux {} }
         },
-        Opt3::from_clap(Opt3::clap().get_matches_from(&["test", "--all", "foo", "lib.rs", "quux"]))
+        Opt3::from_clap(&Opt3::clap().get_matches_from(&["test", "--all", "foo", "lib.rs", "quux"]))
     );
 }
 
@@ -147,7 +147,7 @@ enum Stash {
 #[test]
 fn sub_sub_cmd_with_option() {
     fn make(args: &[&str]) -> Option<SubSubCmdWithOption> {
-        SubSubCmdWithOption::clap().get_matches_from_safe(args).ok().map(SubSubCmdWithOption::from_clap)
+        SubSubCmdWithOption::clap().get_matches_from_safe(args).ok().map(|m| SubSubCmdWithOption::from_clap(&m))
     }
     assert_eq!(Some(SubSubCmdWithOption::Remote { cmd: None }), make(&["", "remote"]));
     assert_eq!(

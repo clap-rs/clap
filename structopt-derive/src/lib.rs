@@ -202,14 +202,19 @@
 //!         color: String
 //!     },
 //!     #[structopt(name = "finish")]
-//!     Finish {
-//!         #[structopt(short = "t")]
-//!         time: u32,
-//!         #[structopt(subcommand)]  // Note that we mark a field as a subcommand
-//!         type: FinishType
-//!     }
+//!     Finish(Finish),
 //! }
 //!
+//! // Subcommand can also be externalized by using a 1-uple enum variant
+//! #[derive(StructOpt)]
+//! struct Finish {
+//!     #[structopt(short = "t")]
+//!     time: u32,
+//!     #[structopt(subcommand)]  // Note that we mark a field as a subcommand
+//!     type: FinishType
+//! }
+//!
+//! // subsubcommand!
 //! #[derive(StructOpt)]
 //! enum FinishType {
 //!     #[structopt(name = "glaze")]
@@ -709,7 +714,7 @@ fn gen_from_clap(struct_name: &Ident, fields: &[Field]) -> quote::Tokens {
     let field_block = gen_constructor(fields);
 
     quote! {
-        fn from_clap(matches: _structopt::clap::ArgMatches) -> Self {
+        fn from_clap(matches: &_structopt::clap::ArgMatches) -> Self {
             #struct_name #field_block
         }
     }
@@ -797,7 +802,11 @@ fn gen_augment_clap_enum(variants: &[Variant]) -> quote::Tokens {
         let arg_block = match variant.data {
             VariantData::Struct(ref fields) => gen_augmentation(fields, &app_var),
             VariantData::Unit => quote!( #app_var ),
-            _ => unreachable!()
+            VariantData::Tuple(ref fields) if fields.len() == 1 => {
+                let ty = &fields[0];
+                quote!(#ty::augment_clap(#app_var))
+            }
+            VariantData::Tuple(..) => panic!("{}: tuple enum are not supported", variant.ident),
         };
         let from_attr = extract_attrs(&variant.attrs, AttrSource::Struct)
             .filter(|&(ref i, _)| i != "name")
@@ -822,7 +831,7 @@ fn gen_augment_clap_enum(variants: &[Variant]) -> quote::Tokens {
 fn gen_from_clap_enum(name: &Ident) -> quote::Tokens {
     quote! {
         #[doc(hidden)]
-        fn from_clap(matches: _structopt::clap::ArgMatches) -> Self {
+        fn from_clap(matches: &_structopt::clap::ArgMatches) -> Self {
             #name ::from_subcommand(matches.subcommand())
                 .unwrap()
         }
@@ -842,8 +851,12 @@ fn gen_from_subcommand(name: &Ident, variants: &[Variant]) -> quote::Tokens {
         let variant_name = &variant.ident;
         let constructor_block = match variant.data {
             VariantData::Struct(ref fields) => gen_constructor(fields),
-            VariantData::Unit => quote!(),  // empty
-            _ => unreachable!()
+            VariantData::Unit => quote!(),
+            VariantData::Tuple(ref fields) if fields.len() == 1 => {
+                let ty = &fields[0];
+                quote!( ( #ty::from_clap(matches) ) )
+            }
+            VariantData::Tuple(..) => panic!("{}: tuple enum are not supported", variant.ident),
         };
 
         quote! {
@@ -881,13 +894,6 @@ fn impl_structopt_for_struct(name: &Ident, fields: &[Field], attrs: &[Attribute]
 }
 
 fn impl_structopt_for_enum(name: &Ident, variants: &[Variant], attrs: &[Attribute]) -> quote::Tokens {
-    if variants.iter().any(|variant| {
-            if let VariantData::Tuple(..) = variant.data { true } else { false }
-        })
-    {
-        panic!("enum variants cannot be tuples");
-    }
-
     let clap = gen_clap_enum(attrs);
     let augment_clap = gen_augment_clap_enum(variants);
     let from_clap = gen_from_clap_enum(name);

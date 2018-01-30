@@ -47,7 +47,7 @@ fn test_path_opt_simple() {
             option_path_1: None,
             option_path_2: Some(PathBuf::from("j.zip")),
         },
-        PathOpt::from_clap(PathOpt::clap().get_matches_from(&[
+        PathOpt::from_clap(&PathOpt::clap().get_matches_from(&[
             "test",
             "-p", "/usr/bin",
             "-v", "/a/b/c",
@@ -75,11 +75,11 @@ struct HexOpt {
 fn test_parse_hex() {
     assert_eq!(
         HexOpt { number: 5 },
-        HexOpt::from_clap(HexOpt::clap().get_matches_from(&["test", "-n", "5"]))
+        HexOpt::from_clap(&HexOpt::clap().get_matches_from(&["test", "-n", "5"]))
     );
     assert_eq!(
         HexOpt { number: 0xabcdef },
-        HexOpt::from_clap(HexOpt::clap().get_matches_from(&["test", "-n", "abcdef"]))
+        HexOpt::from_clap(&HexOpt::clap().get_matches_from(&["test", "-n", "abcdef"]))
     );
 
     let err = HexOpt::clap().get_matches_from_safe(&["test", "-n", "gg"]).unwrap_err();
@@ -118,7 +118,7 @@ struct NoOpOpt {
 fn test_every_custom_parser() {
     assert_eq!(
         NoOpOpt { a: "A", b: "B", c: "C", d: "D" },
-        NoOpOpt::from_clap(NoOpOpt::clap().get_matches_from(&[
+        NoOpOpt::from_clap(&NoOpOpt::clap().get_matches_from(&[
             "test", "-a=?", "-b=?", "-c=?", "-d=?",
         ]))
     );
@@ -149,7 +149,7 @@ fn test_parser_with_default_value() {
             integer: 9000,
             path: PathBuf::from("src/lib.rs"),
         },
-        DefaultedOpt::from_clap(DefaultedOpt::clap().get_matches_from(&[
+        DefaultedOpt::from_clap(&DefaultedOpt::clap().get_matches_from(&[
             "test",
             "-b", "E²=p²c²+m²c⁴",
             "-i", "9000",
@@ -194,7 +194,7 @@ fn test_parser_occurrences() {
             little_unsigned: 4,
             custom: Foo(5),
         },
-        Occurrences::from_clap(Occurrences::clap().get_matches_from(&[
+        Occurrences::from_clap(&Occurrences::clap().get_matches_from(&[
             "test", "-s", "--signed", "--signed", "-l", "-rrrr", "-cccc", "--custom"
         ]))
     );
