@@ -365,17 +365,12 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Sets a custom usage string to override the auto-generated usage string.
+    /// Overrides the `clap` generated usage string.
     ///
-    /// This will be displayed to the user when errors are found in argument parsing, or when you
-    /// call [`ArgMatches::usage`]
+    /// This will be displayed to the user when errors are found in argument parsing.
     ///
     /// **CAUTION:** Using this setting disables `clap`s "context-aware" usage strings. After this
     /// setting is set, this will be the only usage string displayed to the user!
-    ///
-    /// **NOTE:** You do not need to specify the "USAGE: \n\t" portion, as that will
-    /// still be applied by `clap`, you only need to specify the portion starting
-    /// with the binary name.
     ///
     /// **NOTE:** This will not replace the entire help message, *only* the portion
     /// showing the usage.
@@ -385,7 +380,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```no_run
     /// # use clap::{App, Arg};
     /// App::new("myprog")
-    ///     .usage("myapp [-clDas] <some_file>")
+    ///     .override_usage("myapp [-clDas] <some_file>")
     /// # ;
     /// ```
     /// [`ArgMatches::usage`]: ./struct.ArgMatches.html#method.usage
@@ -394,7 +389,7 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Sets a custom help message and overrides the auto-generated one. This should only be used
+    /// Overrides the `clap` generated help message. This should only be used
     /// when the auto-generated message does not suffice.
     ///
     /// This will be displayed to the user when they use `--help` or `-h`
@@ -403,14 +398,14 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// **NOTE:** This **only** replaces the help message for the current command, meaning if you
     /// are using subcommands, those help messages will still be auto-generated unless you
-    /// specify a [`Arg::help`] for them as well.
+    /// specify a [`Arg::override_help`] for them as well.
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
     /// App::new("myapp")
-    ///     .help("myapp v1.0\n\
+    ///     .override_help("myapp v1.0\n\
     ///            Does awesome things\n\
     ///            (C) me@mail.com\n\n\
     ///
@@ -427,7 +422,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///            work             Do some work")
     /// # ;
     /// ```
-    /// [`Arg::help`]: ./struct.Arg.html#method.help
+    /// [`Arg::override_help`]: ./struct.Arg.html#method.override_help
     pub fn override_help<S: Into<&'b str>>(mut self, help: S) -> Self {
         self.help_str = Some(help.into());
         self
@@ -462,7 +457,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # use clap::{App, Arg};
     /// App::new("myprog")
     ///     .version("1.0")
-    ///     .template("{bin} ({version}) - {usage}")
+    ///     .help_template("{bin} ({version}) - {usage}")
     /// # ;
     /// ```
     /// **NOTE:**The template system is, on purpose, very simple. Therefore the tags have to writen
@@ -1172,7 +1167,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # use clap::{App, Arg};
     /// let matches = App::new("myprog")
     ///     // Args and options go here...
-    ///     .get_matches_safe()
+    ///     .try_get_matches()
     ///     .unwrap_or_else( |e| e.exit() );
     /// ```
     /// [`env::args_os`]: https://doc.rust-lang.org/std/env/fn.args_os.html
@@ -1235,7 +1230,7 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     /// Starts the parsing process. A combination of [`App::get_matches_from`], and
-    /// [`App::get_matches_safe`]
+    /// [`App::try_get_matches`]
     ///
     /// **NOTE:** This method WILL NOT exit when `--help` or `--version` (or short versions) are
     /// used. It will return a [`clap::Error`], where the [`kind`] is a [`ErrorKind::HelpDisplayed`]
@@ -1253,11 +1248,11 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// let matches = App::new("myprog")
     ///     // Args and options go here...
-    ///     .get_matches_from_safe(arg_vec)
+    ///     .try_get_matches_from(arg_vec)
     ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
     /// ```
     /// [`App::get_matches_from`]: ./struct.App.html#method.get_matches_from
-    /// [`App::get_matches_safe`]: ./struct.App.html#method.get_matches_safe
+    /// [`App::try_get_matches`]: ./struct.App.html#method.get_matches_safe
     /// [`ErrorKind::HelpDisplayed`]: ./enum.ErrorKind.html#variant.HelpDisplayed
     /// [`ErrorKind::VersionDisplayed`]: ./enum.ErrorKind.html#variant.VersionDisplayed
     /// [`Error::exit`]: ./struct.Error.html#method.exit
@@ -1275,7 +1270,7 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     /// Starts the parsing process without consuming the [`App`] struct `self`. This is normally not
-    /// the desired functionality, instead prefer [`App::get_matches_from_safe`] which *does*
+    /// the desired functionality, instead prefer [`App::try_get_matches_from`] which *does*
     /// consume `self`.
     ///
     /// **NOTE:** The first argument will be parsed as the binary name unless
@@ -1289,11 +1284,11 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// let mut app = App::new("myprog");
     ///     // Args and options go here...
-    /// let matches = app.get_matches_from_safe_borrow(arg_vec)
+    /// let matches = app.try_get_matches_from_mut(arg_vec)
     ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
     /// ```
     /// [`App`]: ./struct.App.html
-    /// [`App::get_matches_from_safe`]: ./struct.App.html#method.get_matches_from_safe
+    /// [`App::try_get_matches_from`]: ./struct.App.html#method.try_get_matches_from
     /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
     pub fn try_get_matches_from_mut<I, T>(&mut self, itr: I) -> ClapResult<ArgMatches<'a>>
     where
