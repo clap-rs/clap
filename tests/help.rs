@@ -4,7 +4,7 @@ extern crate regex;
 
 include!("../clap-test.rs");
 
-use clap::{App, AppSettings, Arg, ErrorKind, SubCommand};
+use clap::{App, AppSettings, Arg, ArgSettings, ErrorKind, SubCommand};
 
 static REQUIRE_DELIM_HELP: &'static str = "test 1.3
 Kevin K.
@@ -586,36 +586,36 @@ fn args_with_last_usage() {
                 .help("Prints out more stuff.")
                 .short("v")
                 .long("verbose")
-                .multiple(true),
+                .setting(ArgSettings::MultipleOccurrences),
         )
         .arg(
             Arg::with_name("timeout")
                 .help("Timeout in seconds.")
                 .short("t")
                 .long("timeout")
-                .value_name("SECONDS")
-                .takes_value(true),
+                .value_name("SECONDS"),
         )
         .arg(
             Arg::with_name("frequency")
                 .help("The sampling frequency.")
                 .short("f")
                 .long("frequency")
-                .value_name("HERTZ")
-                .takes_value(true),
+                .value_name("HERTZ"),
         )
         .arg(
             Arg::with_name("binary path")
                 .help("The path of the binary to be profiled. for a binary.")
-                .takes_value(true)
                 .value_name("BINFILE"),
         )
         .arg(
             Arg::with_name("pass through args")
                 .help("Any arguments you wish to pass to the being profiled.")
-                .value_name("ARGS")
-                .last(true)
-                .multiple(true),
+                .settings(&[
+                    ArgSettings::MultipleValues,
+                    ArgSettings::MultipleOccurrences,
+                    ArgSettings::Last,
+                ])
+                .value_name("ARGS"),
         );
     assert!(test::compare_output(
         app,
