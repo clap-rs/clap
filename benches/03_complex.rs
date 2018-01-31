@@ -4,7 +4,7 @@
 extern crate clap;
 extern crate test;
 
-use clap::{App, AppSettings, Arg, SubCommand};
+use clap::{App, AppSettings, Arg, SubCommand, ArgSettings};
 
 use test::Bencher;
 
@@ -21,7 +21,7 @@ macro_rules! create_app {
                 .author("Kevin K. <kbknapp@gmail.com>")
                 .args_from_usage(ARGS)
                 .arg(Arg::from_usage("-f --flag... 'tests flags'")
-                             .global(true))
+                             .setting(ArgSettings::Global))
                 .args(&[
                           Arg::from_usage("[flag2] -F 'tests flags with exclusions'").conflicts_with("flag").requires("option2"),
                           Arg::from_usage("--long-option-2 [option2] 'tests long options with exclusions'").conflicts_with("option").requires("positional2"),
@@ -57,8 +57,8 @@ fn create_app_builder(b: &mut Bencher) {
                     .help("tests options")
                     .short("o")
                     .long("option")
-                    .takes_value(true)
-                    .multiple(true),
+                    .setting(ArgSettings::MultipleValues)
+                    .setting(ArgSettings::MultipleOccurrences),
             )
             .arg(
                 Arg::with_name("positional")
@@ -70,8 +70,7 @@ fn create_app_builder(b: &mut Bencher) {
                     .short("f")
                     .help("tests flags")
                     .long("flag")
-                    .multiple(true)
-                    .global(true),
+                    .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::Global]),
             )
             .arg(
                 Arg::with_name("flag2")
@@ -85,7 +84,7 @@ fn create_app_builder(b: &mut Bencher) {
                     .help("tests long options with exclusions")
                     .conflicts_with("option")
                     .requires("positional2")
-                    .takes_value(true)
+                    .setting(ArgSettings::TakesValue)
                     .long("long-option-2"),
             )
             .arg(
@@ -97,13 +96,14 @@ fn create_app_builder(b: &mut Bencher) {
                 Arg::with_name("option3")
                     .short("O")
                     .long("Option")
-                    .takes_value(true)
+                    .setting(ArgSettings::TakesValue)
                     .help("tests options with specific value sets")
                     .possible_values(&OPT3_VALS),
             )
             .arg(
                 Arg::with_name("positional3")
-                    .multiple(true)
+                    .setting(ArgSettings::MultipleValues)
+                    .setting(ArgSettings::MultipleOccurrences)
                     .help("tests positionals with specific values")
                     .index(4)
                     .possible_values(&POS3_VALS),
@@ -111,31 +111,30 @@ fn create_app_builder(b: &mut Bencher) {
             .arg(
                 Arg::with_name("multvals")
                     .long("multvals")
-                    .takes_value(true)
                     .help("Tests mutliple values, not mult occs")
                     .value_names(&["one", "two"]),
             )
             .arg(
                 Arg::with_name("multvalsmo")
                     .long("multvalsmo")
-                    .takes_value(true)
-                    .multiple(true)
+                    .setting(ArgSettings::MultipleValues)
+                    .setting(ArgSettings::MultipleOccurrences)
                     .help("Tests mutliple values, not mult occs")
                     .value_names(&["one", "two"]),
             )
             .arg(
                 Arg::with_name("minvals")
                     .long("minvals2")
-                    .multiple(true)
-                    .takes_value(true)
+                    .setting(ArgSettings::MultipleValues)
+                    .setting(ArgSettings::MultipleOccurrences)
                     .help("Tests 2 min vals")
                     .min_values(2),
             )
             .arg(
                 Arg::with_name("maxvals")
                     .long("maxvals3")
-                    .takes_value(true)
-                    .multiple(true)
+                    .setting(ArgSettings::MultipleValues)
+                    .setting(ArgSettings::MultipleOccurrences)
                     .help("Tests 3 max vals")
                     .max_values(3),
             )
@@ -148,8 +147,8 @@ fn create_app_builder(b: &mut Bencher) {
                         Arg::with_name("scoption")
                             .short("o")
                             .long("option")
-                            .multiple(true)
-                            .takes_value(true)
+                            .setting(ArgSettings::MultipleValues)
+                            .setting(ArgSettings::MultipleOccurrences)
                             .help("tests options"),
                     )
                     .arg(
