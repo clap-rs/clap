@@ -336,11 +336,11 @@ impl<'a> ArgMatches<'a> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, Arg, ArgSettings};
     /// let m = App::new("myprog")
     ///     .arg(Arg::with_name("debug")
     ///         .short("d")
-    ///         .multiple(true))
+    ///         .setting(ArgSettings::MultipleOccurrences))
     ///     .get_matches_from(vec![
     ///         "myprog", "-d", "-d", "-d"
     ///     ]);
@@ -351,11 +351,11 @@ impl<'a> ArgMatches<'a> {
     /// This next example shows that counts actual uses of the argument, not just `-`'s
     ///
     /// ```rust
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, Arg, ArgSettings};
     /// let m = App::new("myprog")
     ///     .arg(Arg::with_name("debug")
     ///         .short("d")
-    ///         .multiple(true))
+    ///         .setting(ArgSettings::MultipleOccurrences))
     ///     .arg(Arg::with_name("flag")
     ///         .short("f"))
     ///     .get_matches_from(vec![

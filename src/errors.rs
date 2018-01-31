@@ -108,12 +108,12 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind};
+    /// # use clap::{App, Arg, ErrorKind, ArgSettings};
     /// let res = App::new("prog")
     ///     .arg(Arg::with_name("color")
-    ///          .long("color")
-    ///          .empty_values(false))
-    ///     .get_matches_from_safe(vec!["prog", "--color="]);
+    ///          .setting(ArgSettings::TakesValue)
+    ///          .long("color"))
+    ///     .try_get_matches_from(vec!["prog", "--color="]);
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
     /// ```
@@ -136,7 +136,7 @@ pub enum ErrorKind {
     /// let result = App::new("prog")
     ///     .arg(Arg::with_name("num")
     ///          .validator(is_numeric))
-    ///     .get_matches_from_safe(vec!["prog", "NotANumber"]);
+    ///     .try_get_matches_from(vec!["prog", "NotANumber"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::ValueValidation);
     /// ```
@@ -153,7 +153,7 @@ pub enum ErrorKind {
     ///     .arg(Arg::with_name("arg")
     ///         .multiple(true)
     ///         .max_values(2))
-    ///     .get_matches_from_safe(vec!["prog", "too", "many", "values"]);
+    ///     .try_get_matches_from(vec!["prog", "too", "many", "values"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::TooManyValues);
     /// ```
@@ -171,7 +171,7 @@ pub enum ErrorKind {
     ///     .arg(Arg::with_name("some_opt")
     ///         .long("opt")
     ///         .min_values(3))
-    ///     .get_matches_from_safe(vec!["prog", "--opt", "too", "few"]);
+    ///     .try_get_matches_from(vec!["prog", "--opt", "too", "few"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::TooFewValues);
     /// ```
@@ -191,7 +191,7 @@ pub enum ErrorKind {
     ///         .long("opt")
     ///         .takes_value(true)
     ///         .number_of_values(2))
-    ///     .get_matches_from_safe(vec!["prog", "--opt", "wrong"]);
+    ///     .try_get_matches_from(vec!["prog", "--opt", "wrong"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
     /// ```
@@ -213,7 +213,7 @@ pub enum ErrorKind {
     ///         .conflicts_with("color"))
     ///     .arg(Arg::with_name("color")
     ///         .long("color"))
-    ///     .get_matches_from_safe(vec!["prog", "--debug", "--color"]);
+    ///     .try_get_matches_from(vec!["prog", "--debug", "--color"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```

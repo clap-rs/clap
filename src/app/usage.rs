@@ -96,7 +96,7 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
         let has_last = positionals!(self.0.app).any(|p| p.is_set(ArgSettings::Last));
         // places a '--' in the usage string if there are args and options
         // supporting multiple values
-        if opts!(self.0.app).any(|o| o.is_set(ArgSettings::Multiple))
+        if opts!(self.0.app).any(|o| o.is_set(ArgSettings::MultipleValues))
             && positionals!(self.0.app).any(|p| !p.is_set(ArgSettings::Required))
             && !(self.0.app.has_visible_subcommands()
                 || self.0.is_set(AS::AllowExternalSubcommands)) && !has_last

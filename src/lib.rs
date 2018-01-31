@@ -516,6 +516,8 @@
 #![doc(html_root_url = "https://docs.rs/clap/2.29.2")]
 #![deny(missing_docs, missing_debug_implementations, missing_copy_implementations, trivial_casts,
         unused_import_braces, unused_allocation)]
+// @TODO @v3-beta: remove me!
+#![allow(deprecated)]
 // Lints we'd like to deny but are currently failing for upstream crates
 //      unused_qualifications       (bitflags, clippy)
 //      trivial_numeric_casts       (bitflags)

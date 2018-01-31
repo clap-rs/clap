@@ -132,7 +132,7 @@ impl<'a> ArgMatcher<'a> {
         if let Some(ma) = self.get(o.name) {
             if let Some(num) = o.num_vals {
                 debugln!("ArgMatcher::needs_more_vals: num_vals...{}", num);
-                return if o.is_set(ArgSettings::Multiple) {
+                return if o.is_set(ArgSettings::MultipleValues) {
                     ((ma.vals.len() as u64) % num) != 0
                 } else {
                     num != (ma.vals.len() as u64)
@@ -144,7 +144,7 @@ impl<'a> ArgMatcher<'a> {
                 debugln!("ArgMatcher::needs_more_vals: min_vals...true");
                 return true;
             }
-            return o.is_set(ArgSettings::Multiple);
+            return o.is_set(ArgSettings::MultipleValues);
         }
         true
     }

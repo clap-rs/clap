@@ -128,7 +128,7 @@ where
 
         // Next we verify that only the highest index has a .multiple(true) (if any)
         if positionals!(self.app).any(|a| {
-            a.is_set(ArgSettings::Multiple) && (a.index.unwrap_or(0) != highest_idx as u64)
+            a.is_set(ArgSettings::MultipleValues) && (a.index.unwrap_or(0) != highest_idx as u64)
         }) {
             // First we make sure if there is a positional that allows multiple values
             // the one before it (second to last) has one of these:
@@ -157,7 +157,8 @@ where
             );
 
             // We make sure if the second to last is Multiple the last is ArgSettings::Last
-            let ok = second_to_last.is_set(ArgSettings::Multiple) || last.is_set(ArgSettings::Last);
+            let ok = second_to_last.is_set(ArgSettings::MultipleValues)
+                || last.is_set(ArgSettings::Last);
             assert!(
                 ok,
                 "Only the last positional argument, or second to last positional \
@@ -166,15 +167,15 @@ where
 
             // Next we check how many have both Multiple and not a specific number of values set
             let count = positionals!(self.app).fold(0, |acc, p| {
-                if p.settings.is_set(ArgSettings::Multiple) && p.num_vals.is_none() {
+                if p.settings.is_set(ArgSettings::MultipleValues) && p.num_vals.is_none() {
                     acc + 1
                 } else {
                     acc
                 }
             });
             let ok = count <= 1
-                || (last.is_set(ArgSettings::Last) && last.is_set(ArgSettings::Multiple)
-                    && second_to_last.is_set(ArgSettings::Multiple)
+                || (last.is_set(ArgSettings::Last) && last.is_set(ArgSettings::MultipleValues)
+                    && second_to_last.is_set(ArgSettings::MultipleValues)
                     && count == 2);
             assert!(
                 ok,
@@ -307,7 +308,7 @@ where
         debug_assert!(self._verify_positionals());
         // Set the LowIndexMultiple flag if required
         if positionals!(self.app).any(|a| {
-            a.is_set(ArgSettings::Multiple)
+            a.is_set(ArgSettings::MultipleValues)
                 && (a.index.unwrap_or(0) as usize != self.positionals.len())
         }) && self.positionals.values().last().map_or(false, |p_name| {
             !find!(self.app, p_name)
@@ -535,7 +536,7 @@ where
 
                 self.app.settings.set(AS::ValidArgFound);
                 // Only increment the positional counter if it doesn't allow multiples
-                if !p.settings.is_set(ArgSettings::Multiple) {
+                if !p.settings.is_set(ArgSettings::MultipleValues) {
                     pos_counter += 1;
                 }
                 self.app.settings.set(AS::ValidArgFound);
@@ -721,7 +722,7 @@ where
         if help_help {
             let mut pb = Arg::with_name("subcommand")
                 .index(1)
-                .set(ArgSettings::Multiple)
+                .setting(ArgSettings::MultipleValues)
                 .help("The subcommand whose help message to display");
             pb._build();
             parser.positionals.insert(1, pb.name);
@@ -754,11 +755,11 @@ where
         let arg_allows_tac = match needs_val_of {
             ParseResult::Opt(name) => {
                 let o = find!(self.app, &name).expect(INTERNAL_ERROR_MSG);
-                (o.is_set(ArgSettings::AllowLeadingHyphen) || app_wide_settings)
+                (o.is_set(ArgSettings::AllowHyphenValues) || app_wide_settings)
             }
             ParseResult::Pos(name) => {
                 let p = find!(self.app, &name).expect(INTERNAL_ERROR_MSG);
-                (p.is_set(ArgSettings::AllowLeadingHyphen) || app_wide_settings)
+                (p.is_set(ArgSettings::AllowHyphenValues) || app_wide_settings)
             }
             ParseResult::ValuesDone => return true,
             _ => false,
@@ -1061,7 +1062,7 @@ where
         debugln!("Parser::parse_opt; opt.settings={:?}", opt.settings);
         let mut has_eq = false;
         let no_val = val.is_none();
-        let empty_vals = opt.is_set(ArgSettings::EmptyValues);
+        let empty_vals = opt.is_set(ArgSettings::AllowEmptyValues);
         let min_vals_zero = opt.min_vals.unwrap_or(1) == 0;
         let needs_eq = opt.is_set(ArgSettings::RequireEquals);
 
@@ -1101,7 +1102,8 @@ where
             .and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
 
         let needs_delim = opt.is_set(ArgSettings::RequireDelimiter);
-        let mult = opt.is_set(ArgSettings::Multiple);
+        let mult = opt.is_set(ArgSettings::MultipleValues);
+        // @TODO @soundness: if doesn't have an equal, but requires equal is ValuesDone?!
         if no_val && min_vals_zero && !has_eq && needs_eq {
             debugln!("Parser::parse_opt: More arg vals not required...");
             return Ok(ParseResult::ValuesDone);

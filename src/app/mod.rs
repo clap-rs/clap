@@ -1564,8 +1564,8 @@ impl<'a, 'b> App<'a, 'b> {
             assert!(
                 positionals!(self).fold(0, |acc, p| if p.index == Some(idx as u64){acc+1}else{acc}) < 2,
                 "Argument '{}' has the same index as another positional \
-                 argument\n\n\tUse Arg::multiple(true) to allow one positional argument \
-                 to take multiple values",
+                 argument\n\n\tUse Arg::setting(ArgSettings::MultipleValues) to allow one \
+                 positional argument to take multiple values",
                 a.name
             );
         }

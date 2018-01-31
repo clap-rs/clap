@@ -346,7 +346,11 @@ fn write_opts_of(p: &App) -> String {
             format!("({})", conflicts)
         };
 
-        let multiple = if o.is_set(ArgSettings::Multiple) {
+        // @TODO @soundness should probably be either multiple occurrences or multiple values and
+        // not both
+        let multiple = if o.is_set(ArgSettings::MultipleOccurrences)
+            || o.is_set(ArgSettings::MultipleValues)
+        {
             "*"
         } else {
             ""
@@ -407,7 +411,7 @@ fn write_flags_of(p: &App) -> String {
             format!("({})", conflicts)
         };
 
-        let multiple = if f.is_set(ArgSettings::Multiple) {
+        let multiple = if f.is_set(ArgSettings::MultipleOccurrences) {
             "*"
         } else {
             ""
