@@ -150,72 +150,6 @@ impl<'a, 'b> App<'a, 'b> {
     /// Get the name of the binary
     pub fn get_bin_name(&self) -> Option<&str> { self.bin_name.as_ref().map(|s| s.as_str()) }
 
-    /// Creates a new instance of an application requiring a name, but uses the [`crate_authors!`]
-    /// and [`crate_version!`] macros to fill in the [`App::author`] and [`App::version`] fields.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// let prog = App::with_defaults("My Program")
-    /// # ;
-    /// ```
-    /// [`crate_authors!`]: ./macro.crate_authors!.html
-    /// [`crate_version!`]: ./macro.crate_version!.html
-    /// [`App::author`]: ./struct.App.html#method.author
-    /// [`App::version`]: ./struct.App.html#method.author
-    #[deprecated(since="2.14.1", note="Can never work; use explicit App::author() and App::version() calls instead")]
-    pub fn with_defaults<S: Into<String>>(n: S) -> Self {
-        App {
-            name: n.into(),
-            author: Some("Kevin K. <kbknapp@gmail.com>"),
-            version: Some("2.19.2"),
-            ..Default::default()
-        }
-    }
-
-    /// Creates a new instance of [`App`] from a .yml (YAML) file. A full example of supported YAML
-    /// objects can be found in [`examples/17_yaml.rs`] and [`examples/17_yaml.yml`]. One great use
-    /// for using YAML is when supporting multiple languages and dialects, as each language could
-    /// be a distinct YAML file and determined at compiletime via `cargo` "features" in your
-    /// `Cargo.toml`
-    ///
-    /// In order to use this function you must compile `clap` with the `features = ["yaml"]` in
-    /// your settings for the `[dependencies.clap]` table of your `Cargo.toml`
-    ///
-    /// **NOTE:** Due to how the YAML objects are built there is a convenience macro for loading
-    /// the YAML file at compile time (relative to the current file, like modules work). That YAML
-    /// object can then be passed to this function.
-    ///
-    /// # Panics
-    ///
-    /// The YAML file must be properly formatted or this function will [`panic!`]. A good way to
-    /// ensure this doesn't happen is to run your program with the `--help` switch. If this passes
-    /// without error, you needn't worry because the YAML is properly formatted.
-    ///
-    /// # Examples
-    ///
-    /// The following example shows how to load a properly formatted YAML file to build an instance
-    /// of an [`App`] struct.
-    ///
-    /// ```ignore
-    /// # #[macro_use]
-    /// # extern crate clap;
-    /// # use clap::App;
-    /// # fn main() {
-    /// let yml = load_yaml!("app.yml");
-    /// let app = App::from_yaml(yml);
-    ///
-    /// // continued logic goes here, such as `app.get_matches()` etc.
-    /// # }
-    /// ```
-    /// [`App`]: ./struct.App.html
-    /// [`examples/17_yaml.rs`]: https://github.com/kbknapp/clap-rs/blob/master/examples/17_yaml.rs
-    /// [`examples/17_yaml.yml`]: https://github.com/kbknapp/clap-rs/blob/master/examples/17_yaml.yml
-    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
-    #[cfg(feature = "yaml")]
-    pub fn from_yaml(yaml: &'a Yaml) -> App<'a, 'a> { App::from(yaml) }
-
     /// Sets a string of author(s) that will be displayed to the user when they
     /// request the help information with `--help` or `-h`.
     ///
@@ -431,17 +365,12 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Sets a custom usage string to override the auto-generated usage string.
+    /// Overrides the `clap` generated usage string.
     ///
-    /// This will be displayed to the user when errors are found in argument parsing, or when you
-    /// call [`ArgMatches::usage`]
+    /// This will be displayed to the user when errors are found in argument parsing.
     ///
     /// **CAUTION:** Using this setting disables `clap`s "context-aware" usage strings. After this
     /// setting is set, this will be the only usage string displayed to the user!
-    ///
-    /// **NOTE:** You do not need to specify the "USAGE: \n\t" portion, as that will
-    /// still be applied by `clap`, you only need to specify the portion starting
-    /// with the binary name.
     ///
     /// **NOTE:** This will not replace the entire help message, *only* the portion
     /// showing the usage.
@@ -451,16 +380,16 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```no_run
     /// # use clap::{App, Arg};
     /// App::new("myprog")
-    ///     .usage("myapp [-clDas] <some_file>")
+    ///     .override_usage("myapp [-clDas] <some_file>")
     /// # ;
     /// ```
     /// [`ArgMatches::usage`]: ./struct.ArgMatches.html#method.usage
-    pub fn usage<S: Into<&'b str>>(mut self, usage: S) -> Self {
+    pub fn override_usage<S: Into<&'b str>>(mut self, usage: S) -> Self {
         self.usage_str = Some(usage.into());
         self
     }
 
-    /// Sets a custom help message and overrides the auto-generated one. This should only be used
+    /// Overrides the `clap` generated help message. This should only be used
     /// when the auto-generated message does not suffice.
     ///
     /// This will be displayed to the user when they use `--help` or `-h`
@@ -469,14 +398,14 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// **NOTE:** This **only** replaces the help message for the current command, meaning if you
     /// are using subcommands, those help messages will still be auto-generated unless you
-    /// specify a [`Arg::help`] for them as well.
+    /// specify a [`Arg::override_help`] for them as well.
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
     /// App::new("myapp")
-    ///     .help("myapp v1.0\n\
+    ///     .override_help("myapp v1.0\n\
     ///            Does awesome things\n\
     ///            (C) me@mail.com\n\n\
     ///
@@ -493,109 +422,9 @@ impl<'a, 'b> App<'a, 'b> {
     ///            work             Do some work")
     /// # ;
     /// ```
-    /// [`Arg::help`]: ./struct.Arg.html#method.help
-    pub fn help<S: Into<&'b str>>(mut self, help: S) -> Self {
+    /// [`Arg::override_help`]: ./struct.Arg.html#method.override_help
+    pub fn override_help<S: Into<&'b str>>(mut self, help: S) -> Self {
         self.help_str = Some(help.into());
-        self
-    }
-
-    /// Sets the [`short`] for the auto-generated `help` argument.
-    ///
-    /// By default `clap` automatically assigns `h`, but this can be overridden if you have a
-    /// different argument which you'd prefer to use the `-h` short with. This can be done by
-    /// defining your own argument with a lowercase `h` as the [`short`].
-    ///
-    /// `clap` lazily generates these `help` arguments **after** you've defined any arguments of
-    /// your own.
-    ///
-    /// **NOTE:** Any leading `-` characters will be stripped, and only the first
-    /// non `-` character will be used as the [`short`] version
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// App::new("myprog")
-    ///     .help_short("H") // Using an uppercase `H` instead of the default lowercase `h`
-    /// # ;
-    /// ```
-    /// [`short`]: ./struct.Arg.html#method.short
-    pub fn help_short<S: AsRef<str> + 'b>(mut self, s: S) -> Self {
-        let c = s.as_ref()
-            .trim_left_matches(|c| c == '-')
-            .chars()
-            .nth(0)
-            .unwrap_or('h');
-        self.help_short = Some(c);
-        self
-    }
-
-    /// Sets the [`short`] for the auto-generated `version` argument.
-    ///
-    /// By default `clap` automatically assigns `V`, but this can be overridden if you have a
-    /// different argument which you'd prefer to use the `-V` short with. This can be done by
-    /// defining your own argument with an uppercase `V` as the [`short`].
-    ///
-    /// `clap` lazily generates these `version` arguments **after** you've defined any arguments of
-    /// your own.
-    ///
-    /// **NOTE:** Any leading `-` characters will be stripped, and only the first
-    /// non `-` character will be used as the `short` version
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// App::new("myprog")
-    ///     .version_short("v") // Using a lowercase `v` instead of the default capital `V`
-    /// # ;
-    /// ```
-    /// [`short`]: ./struct.Arg.html#method.short
-    pub fn version_short<S: AsRef<str>>(mut self, s: S) -> Self {
-        let c = s.as_ref()
-            .trim_left_matches(|c| c == '-')
-            .chars()
-            .nth(0)
-            .unwrap_or('V');
-        self.version_short = Some(c);
-        self
-    }
-
-    /// Sets the help text for the auto-generated `help` argument.
-    ///
-    /// By default `clap` sets this to `"Prints help information"`, but if you're using a
-    /// different convention for your help messages and would prefer a different phrasing you can
-    /// override it.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// App::new("myprog")
-    ///     .help_message("Print help information") // Perhaps you want imperative help messages
-    ///
-    /// # ;
-    /// ```
-    pub fn help_message<S: Into<&'a str>>(mut self, s: S) -> Self {
-        self.help_message = Some(s.into());
-        self
-    }
-
-    /// Sets the help text for the auto-generated `version` argument.
-    ///
-    /// By default `clap` sets this to `"Prints version information"`, but if you're using a
-    /// different convention for your help messages and would prefer a different phrasing then you
-    /// can change it.
-    ///
-    /// # Examples
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// App::new("myprog")
-    ///     .version_message("Print version information") // Perhaps you want imperative help messages
-    /// # ;
-    /// ```
-    pub fn version_message<S: Into<&'a str>>(mut self, s: S) -> Self {
-        self.version_message = Some(s.into());
         self
     }
 
@@ -628,7 +457,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # use clap::{App, Arg};
     /// App::new("myprog")
     ///     .version("1.0")
-    ///     .template("{bin} ({version}) - {usage}")
+    ///     .help_template("{bin} ({version}) - {usage}")
     /// # ;
     /// ```
     /// **NOTE:**The template system is, on purpose, very simple. Therefore the tags have to writen
@@ -637,7 +466,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`App::after_help`]: ./struct.App.html#method.after_help
     /// [`App::before_help`]: ./struct.App.html#method.before_help
     /// [`AppSettings::UnifiedHelpMessage`]: ./enum.AppSettings.html#variant.UnifiedHelpMessage
-    pub fn template<S: Into<&'b str>>(mut self, s: S) -> Self {
+    pub fn help_template<S: Into<&'b str>>(mut self, s: S) -> Self {
         self.template = Some(s.into());
         self
     }
@@ -881,61 +710,6 @@ impl<'a, 'b> App<'a, 'b> {
     pub fn args(mut self, args: &[Arg<'a, 'b>]) -> Self {
         for arg in args {
             self.args.push(arg.clone());
-        }
-        self
-    }
-
-    /// A convenience method for adding a single [argument] from a usage type string. The string
-    /// used follows the same rules and syntax as [`Arg::from_usage`]
-    ///
-    /// **NOTE:** The downside to using this method is that you can not set any additional
-    /// properties of the [`Arg`] other than what [`Arg::from_usage`] supports.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// App::new("myprog")
-    ///     .arg_from_usage("-c --config=<FILE> 'Sets a configuration file to use'")
-    /// # ;
-    /// ```
-    /// [arguments]: ./struct.Arg.html
-    /// [`Arg`]: ./struct.Arg.html
-    /// [`Arg::from_usage`]: ./struct.Arg.html#method.from_usage
-    pub fn arg_from_usage(mut self, usage: &'a str) -> Self {
-        self.args.push(Arg::from_usage(usage));
-        self
-    }
-
-    /// Adds multiple [arguments] at once from a usage string, one per line. See
-    /// [`Arg::from_usage`] for details on the syntax and rules supported.
-    ///
-    /// **NOTE:** Like [`App::arg_from_usage`] the downside is you only set properties for the
-    /// [`Arg`]s which [`Arg::from_usage`] supports.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// App::new("myprog")
-    ///     .args_from_usage(
-    ///         "-c --config=[FILE] 'Sets a configuration file to use'
-    ///          [debug]... -d 'Sets the debugging level'
-    ///          <FILE> 'The input file to use'"
-    ///     )
-    /// # ;
-    /// ```
-    /// [arguments]: ./struct.Arg.html
-    /// [`Arg::from_usage`]: ./struct.Arg.html#method.from_usage
-    /// [`App::arg_from_usage`]: ./struct.App.html#method.arg_from_usage
-    /// [`Arg`]: ./struct.Arg.html
-    pub fn args_from_usage(mut self, usage: &'a str) -> Self {
-        for line in usage.lines() {
-            let l = line.trim();
-            if l.is_empty() {
-                continue;
-            }
-            self.args.push(Arg::from_usage(l));
         }
         self
     }
@@ -1363,160 +1137,6 @@ impl<'a, 'b> App<'a, 'b> {
         self._write_version(w, true).map_err(From::from)
     }
 
-    /// Generate a completions file for a specified shell at compile time.
-    ///
-    /// **NOTE:** to generate the file at compile time you must use a `build.rs` "Build Script"
-    ///
-    /// # Examples
-    ///
-    /// The following example generates a bash completion script via a `build.rs` script. In this
-    /// simple example, we'll demo a very small application with only a single subcommand and two
-    /// args. Real applications could be many multiple levels deep in subcommands, and have tens or
-    /// potentially hundreds of arguments.
-    ///
-    /// First, it helps if we separate out our `App` definition into a separate file. Whether you
-    /// do this as a function, or bare App definition is a matter of personal preference.
-    ///
-    /// ```
-    /// // src/cli.rs
-    ///
-    /// use clap::{App, Arg, SubCommand};
-    ///
-    /// pub fn build_cli() -> App<'static, 'static> {
-    ///     App::new("compl")
-    ///         .about("Tests completions")
-    ///         .arg(Arg::with_name("file")
-    ///             .help("some input file"))
-    ///         .subcommand(SubCommand::with_name("test")
-    ///             .about("tests things")
-    ///             .arg(Arg::with_name("case")
-    ///                 .long("case")
-    ///                 .takes_value(true)
-    ///                 .help("the case to test")))
-    /// }
-    /// ```
-    ///
-    /// In our regular code, we can simply call this `build_cli()` function, then call
-    /// `get_matches()`, or any of the other normal methods directly after. For example:
-    ///
-    /// ```ignore
-    /// // src/main.rs
-    ///
-    /// mod cli;
-    ///
-    /// fn main() {
-    ///     let m = cli::build_cli().get_matches();
-    ///
-    ///     // normal logic continues...
-    /// }
-    /// ```
-    ///
-    /// Next, we set up our `Cargo.toml` to use a `build.rs` build script.
-    ///
-    /// ```toml
-    /// # Cargo.toml
-    /// build = "build.rs"
-    ///
-    /// [build-dependencies]
-    /// clap = "2.23"
-    /// ```
-    ///
-    /// Next, we place a `build.rs` in our project root.
-    ///
-    /// ```ignore
-    /// extern crate clap;
-    ///
-    /// use clap::Shell;
-    ///
-    /// include!("src/cli.rs");
-    ///
-    /// fn main() {
-    ///     let outdir = match env::var_os("OUT_DIR") {
-    ///         None => return,
-    ///         Some(outdir) => outdir,
-    ///     };
-    ///     let mut app = build_cli();
-    ///     app.gen_completions("myapp",      // We need to specify the bin name manually
-    ///                         Shell::Bash,  // Then say which shell to build completions for
-    ///                         outdir);      // Then say where write the completions to
-    /// }
-    /// ```
-    /// Now, once we compile there will be a `{bin_name}.bash` file in the directory.
-    /// Assuming we compiled with debug mode, it would be somewhere similar to
-    /// `<project>/target/debug/build/myapp-<hash>/out/myapp.bash`.
-    ///
-    /// Fish shell completions will use the file format `{bin_name}.fish`
-    pub fn gen_completions<T: Into<OsString>, S: Into<String>>(
-        &mut self,
-        bin_name: S,
-        for_shell: Shell,
-        out_dir: T,
-    ) {
-        use std::error::Error;
-
-        let out_dir = PathBuf::from(out_dir.into());
-        let name = &*self.bin_name.as_ref().unwrap().clone();
-        let file_name = match for_shell {
-            Shell::Bash => format!("{}.bash", name),
-            Shell::Fish => format!("{}.fish", name),
-            Shell::Zsh => format!("_{}", name),
-            Shell::PowerShell => format!("_{}.ps1", name),
-        };
-
-        let mut file = match File::create(out_dir.join(file_name)) {
-            Err(why) => panic!("couldn't create completion file: {}", why.description()),
-            Ok(file) => file,
-        };
-        self.gen_completions_to(bin_name.into(), for_shell, &mut file)
-    }
-
-    /// Generate a completions file for a specified shell at runtime.  Until `cargo install` can
-    /// install extra files like a completion script, this may be used e.g. in a command that
-    /// outputs the contents of the completion script, to be redirected into a file by the user.
-    ///
-    /// # Examples
-    ///
-    /// Assuming a separate `cli.rs` like the [example above](./struct.App.html#method.gen_completions),
-    /// we can let users generate a completion script using a command:
-    ///
-    /// ```ignore
-    /// // src/main.rs
-    ///
-    /// mod cli;
-    /// use std::io;
-    ///
-    /// fn main() {
-    ///     let matches = cli::build_cli().get_matches();
-    ///
-    ///     if matches.is_present("generate-bash-completions") {
-    ///         cli::build_cli().gen_completions_to("myapp", Shell::Bash, &mut io::stdout());
-    ///     }
-    ///
-    ///     // normal logic continues...
-    /// }
-    ///
-    /// ```
-    ///
-    /// Usage:
-    ///
-    /// ```shell
-    /// $ myapp generate-bash-completions > /usr/share/bash-completion/completions/myapp.bash
-    /// ```
-    pub fn gen_completions_to<W: Write, S: Into<String>>(
-        &mut self,
-        bin_name: S,
-        for_shell: Shell,
-        buf: &mut W,
-    ) {
-        self.bin_name = Some(bin_name.into());
-        if !self.is_set(AppSettings::Propagated) {
-            self._build(Propagation::Full);
-            self._build_bin_names();
-        }
-
-        ComplGen::new(self).generate(for_shell, buf)
-    }
-
     /// Starts the parsing process, upon a failed parse an error will be displayed to the user and
     /// the process will exit with the appropriate error code. By default this method gets all user
     /// provided arguments from [`env::args_os`] in order to allow for invalid UTF-8 code points,
@@ -1547,7 +1167,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # use clap::{App, Arg};
     /// let matches = App::new("myprog")
     ///     // Args and options go here...
-    ///     .get_matches_safe()
+    ///     .try_get_matches()
     ///     .unwrap_or_else( |e| e.exit() );
     /// ```
     /// [`env::args_os`]: https://doc.rust-lang.org/std/env/fn.args_os.html
@@ -1558,9 +1178,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`clap::Result`]: ./type.Result.html
     /// [`clap::Error`]: ./struct.Error.html
     /// [`kind`]: ./struct.Error.html
-    pub fn get_matches_safe(self) -> ClapResult<ArgMatches<'a>> {
+    pub fn try_get_matches(self) -> ClapResult<ArgMatches<'a>> {
         // Start the parsing
-        self.get_matches_from_safe(&mut env::args_os())
+        self.try_get_matches_from(&mut env::args_os())
     }
 
     /// Starts the parsing process. Like [`App::get_matches`] this method does not return a [`clap::Result`]
@@ -1589,7 +1209,7 @@ impl<'a, 'b> App<'a, 'b> {
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
     {
-        self.get_matches_from_safe_borrow(itr).unwrap_or_else(|e| {
+        self.try_get_matches_from_mut(itr).unwrap_or_else(|e| {
             // Otherwise, write to stderr and exit
             if e.use_stderr() {
                 wlnerr!("{}", e.message);
@@ -1610,7 +1230,7 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     /// Starts the parsing process. A combination of [`App::get_matches_from`], and
-    /// [`App::get_matches_safe`]
+    /// [`App::try_get_matches`]
     ///
     /// **NOTE:** This method WILL NOT exit when `--help` or `--version` (or short versions) are
     /// used. It will return a [`clap::Error`], where the [`kind`] is a [`ErrorKind::HelpDisplayed`]
@@ -1628,11 +1248,11 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// let matches = App::new("myprog")
     ///     // Args and options go here...
-    ///     .get_matches_from_safe(arg_vec)
+    ///     .try_get_matches_from(arg_vec)
     ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
     /// ```
     /// [`App::get_matches_from`]: ./struct.App.html#method.get_matches_from
-    /// [`App::get_matches_safe`]: ./struct.App.html#method.get_matches_safe
+    /// [`App::try_get_matches`]: ./struct.App.html#method.get_matches_safe
     /// [`ErrorKind::HelpDisplayed`]: ./enum.ErrorKind.html#variant.HelpDisplayed
     /// [`ErrorKind::VersionDisplayed`]: ./enum.ErrorKind.html#variant.VersionDisplayed
     /// [`Error::exit`]: ./struct.Error.html#method.exit
@@ -1641,16 +1261,16 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`Error::exit`]: ./struct.Error.html#method.exit
     /// [`kind`]: ./struct.Error.html
     /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
-    pub fn get_matches_from_safe<I, T>(mut self, itr: I) -> ClapResult<ArgMatches<'a>>
+    pub fn try_get_matches_from<I, T>(mut self, itr: I) -> ClapResult<ArgMatches<'a>>
     where
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
     {
-        self.get_matches_from_safe_borrow(itr)
+        self.try_get_matches_from_mut(itr)
     }
 
     /// Starts the parsing process without consuming the [`App`] struct `self`. This is normally not
-    /// the desired functionality, instead prefer [`App::get_matches_from_safe`] which *does*
+    /// the desired functionality, instead prefer [`App::try_get_matches_from`] which *does*
     /// consume `self`.
     ///
     /// **NOTE:** The first argument will be parsed as the binary name unless
@@ -1664,13 +1284,13 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// let mut app = App::new("myprog");
     ///     // Args and options go here...
-    /// let matches = app.get_matches_from_safe_borrow(arg_vec)
+    /// let matches = app.try_get_matches_from_mut(arg_vec)
     ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
     /// ```
     /// [`App`]: ./struct.App.html
-    /// [`App::get_matches_from_safe`]: ./struct.App.html#method.get_matches_from_safe
+    /// [`App::try_get_matches_from`]: ./struct.App.html#method.try_get_matches_from
     /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
-    pub fn get_matches_from_safe_borrow<I, T>(&mut self, itr: I) -> ClapResult<ArgMatches<'a>>
+    pub fn try_get_matches_from_mut<I, T>(&mut self, itr: I) -> ClapResult<ArgMatches<'a>>
     where
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
@@ -2083,6 +1703,178 @@ impl<'a, 'b> App<'a, 'b> {
         self.long_about.is_some() || self.args.iter().any(|f| f.long_help.is_some())
             || subcommands!(self).any(|s| s.long_about.is_some())
     }
+}
+
+// @TODO @v3-beta: remove
+// Deprecations
+impl<'a, 'b> App<'a, 'b> {
+
+    /// Deprecated
+    #[deprecated(since="2.14.1", note="Can never work; use explicit App::author() and App::version() calls instead. Will be removed in v3.0-beta")]
+    pub fn with_defaults<S: Into<String>>(n: S) -> Self {
+        App {
+            name: n.into(),
+            author: Some("Kevin K. <kbknapp@gmail.com>"),
+            version: Some("2.19.2"),
+            ..Default::default()
+        }
+    }
+
+    /// **Deprecated**
+    #[deprecated(since="2.30.0", note="Use serde instead. Will be removed in v3.0-beta")]
+    #[cfg(feature = "yaml")]
+    pub fn from_yaml(yaml: &'a Yaml) -> App<'a, 'a> { App::from(yaml) }
+
+    /// **Deprecated**
+    #[deprecated(since="2.30.0", note="Use `App::mut_arg(\"help\", |a| a.short(\"H\"))` instead. Will be removed in v3.0-beta")]
+    pub fn help_short<S: AsRef<str> + 'b>(mut self, s: S) -> Self {
+        let c = s.as_ref()
+            .trim_left_matches(|c| c == '-')
+            .chars()
+            .nth(0)
+            .unwrap_or('h');
+        self.help_short = Some(c);
+        self
+    }
+
+    /// **Deprecated**
+    #[deprecated(since="2.30.0", note="Use `App::mut_arg(\"version\", |a| a.short(\"v\"))` instead. Will be removed in v3.0-beta")]
+    pub fn version_short<S: AsRef<str>>(mut self, s: S) -> Self {
+        let c = s.as_ref()
+            .trim_left_matches(|c| c == '-')
+            .chars()
+            .nth(0)
+            .unwrap_or('V');
+        self.version_short = Some(c);
+        self
+    }
+
+    /// **Deprecated**
+    #[deprecated(since="2.30.0", note="Use `App::mut_arg(\"help\", |a| a.help(\"Some message\"))` instead. Will be removed in v3.0-beta")]
+    pub fn help_message<S: Into<&'a str>>(mut self, s: S) -> Self {
+        self.help_message = Some(s.into());
+        self
+    }
+
+    /// **Deprecated**
+    #[deprecated(since="2.30.0", note="Use `App::mut_arg(\"version\", |a| a.short(\"Some message\"))` instead. Will be removed in v3.0-beta")]
+    pub fn version_message<S: Into<&'a str>>(mut self, s: S) -> Self {
+        self.version_message = Some(s.into());
+        self
+    }
+
+    /// **Deprecated**
+    #[deprecated(since="2.30.0", note="Renamed to `App::override_usage`. Will be removed in v3.0-beta")]
+    pub fn usage<S: Into<&'b str>>(mut self, usage: S) -> Self {
+        self.usage_str = Some(usage.into());
+        self
+    }
+
+    /// **Deprecated**
+    #[deprecated(since="2.30.0", note="Renamed to `App::override_help`. Will be removed in v3.0-beta")]
+    pub fn help<S: Into<&'b str>>(mut self, help: S) -> Self {
+        self.help_str = Some(help.into());
+        self
+    }
+
+    /// **Deprecated**
+    #[deprecated(since="2.30.0", note="Renamed to `App::help_template`. Will be removed in v3.0-beta")]
+    pub fn template<S: Into<&'b str>>(mut self, s: S) -> Self {
+        self.template = Some(s.into());
+        self
+    }
+
+    /// **Deprecated**
+    #[deprecated(since="2.30.0", note="Use `App::arg(Arg::from(&str)` instead. Will be removed in v3.0-beta")]
+    pub fn arg_from_usage(mut self, usage: &'a str) -> Self {
+        self.args.push(Arg::from_usage(usage));
+        self
+    }
+
+    /// **Deprecated**
+    #[deprecated(since="2.30.0", note="Use `App::args(&str)` instead. Will be removed in v3.0-beta")]
+    pub fn args_from_usage(mut self, usage: &'a str) -> Self {
+        for line in usage.lines() {
+            let l = line.trim();
+            if l.is_empty() {
+                continue;
+            }
+            self.args.push(Arg::from_usage(l));
+        }
+        self
+    }
+
+    /// **Deprecated**
+    #[allow(deprecated)]
+    #[deprecated(since="2.30.0", note="Use `clap_completions crate and clap_completions::generate` instead. Will be removed in v3.0-beta")]
+    pub fn gen_completions<T: Into<OsString>, S: Into<String>>(
+        &mut self,
+        bin_name: S,
+        for_shell: Shell,
+        out_dir: T,
+    ) {
+        use std::error::Error;
+
+        let out_dir = PathBuf::from(out_dir.into());
+        let name = &*self.bin_name.as_ref().unwrap().clone();
+        let file_name = match for_shell {
+            Shell::Bash => format!("{}.bash", name),
+            Shell::Fish => format!("{}.fish", name),
+            Shell::Zsh => format!("_{}", name),
+            Shell::PowerShell => format!("_{}.ps1", name),
+        };
+
+        let mut file = match File::create(out_dir.join(file_name)) {
+            Err(why) => panic!("couldn't create completion file: {}", why.description()),
+            Ok(file) => file,
+        };
+        self.gen_completions_to(bin_name.into(), for_shell, &mut file)
+    }
+
+    /// **Deprecated**
+    #[deprecated(since="2.30.0", note="Use `clap_completions crate and clap_completions::generate_to` instead. Will be removed in v3.0-beta")]
+    pub fn gen_completions_to<W: Write, S: Into<String>>(
+        &mut self,
+        bin_name: S,
+        for_shell: Shell,
+        buf: &mut W,
+    ) {
+        self.bin_name = Some(bin_name.into());
+        if !self.is_set(AppSettings::Propagated) {
+            self._build(Propagation::Full);
+            self._build_bin_names();
+        }
+
+        ComplGen::new(self).generate(for_shell, buf)
+    }
+
+    /// **Deprecated**
+    #[deprecated(since="2.30.0", note="Renamed `App::try_get_matches` to be consistent with Rust naming conventions. Will be removed in v3.0-beta")]
+    pub fn get_matches_safe(self) -> ClapResult<ArgMatches<'a>> {
+        // Start the parsing
+        self.try_get_matches_from(&mut env::args_os())
+    }
+
+    /// **Deprecated**
+    #[deprecated(since="2.30.0", note="Renamed `App::try_get_matches_from` to be consistent with Rust naming conventions. Will be removed in v3.0-beta")]
+    pub fn get_matches_from_safe<I, T>(mut self, itr: I) -> ClapResult<ArgMatches<'a>>
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<OsString> + Clone,
+    {
+        self.try_get_matches_from_mut(itr)
+    }
+
+    /// **Deprecated**
+    #[deprecated(since="2.30.0", note="Renamed `App::try_get_matches_from_mut` to be consistent with Rust naming conventions. Will be removed in v3.0-beta")]
+    pub fn get_matches_from_safe_borrow<I, T>(&mut self, itr: I) -> ClapResult<ArgMatches<'a>>
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<OsString> + Clone,
+    {
+        self.try_get_matches_from_mut(itr)
+    }
+
 }
 
 #[cfg(feature = "yaml")]
