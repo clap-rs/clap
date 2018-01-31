@@ -145,7 +145,7 @@ pub enum ArgSettings {
     /// When using args with `MultipleValues` and [subcommands], one needs to consider the
     /// posibility of an argument value being the same as a valid subcommand. By default `clap` will
     /// parse the argument in question as a value *only if* a value is possible at that moment.
-    /// Otherwise it will be parsed as a subcommand. In effect, this means using `Multiple` with no
+    /// Otherwise it will be parsed as a subcommand. In effect, this means using `MultipleValues` with no
     /// additional parameters and a value that coincides with a subcommand name, the subcommand
     /// cannot be called unless another argument is passed between them.
     ///
