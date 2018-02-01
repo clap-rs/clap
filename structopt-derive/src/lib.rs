@@ -530,7 +530,7 @@ fn gen_augmentation(fields: &[Field], app_var: &Ident) -> quote::Tokens {
             let required = if cur_type == Ty::Option {
                 quote!()
             } else {
-                quote!( let #app_var = #app_var.setting(_structopt::clap::AppSettings::SubcommandRequiredElseHelp); )
+                quote!( let #app_var = #app_var.setting(::structopt::clap::AppSettings::SubcommandRequiredElseHelp); )
             };
 
             quote!{
@@ -589,11 +589,10 @@ fn gen_augmentation(fields: &[Field], app_var: &Ident) -> quote::Tokens {
             let from_attr = extract_attrs(&field.attrs, AttrSource::Field)
                 .filter(|&(ref i, _)| i.as_ref() != "name")
                 .map(|(i, l)| gen_attr_call(&i, &l));
-            quote!( .arg(_structopt::clap::Arg::with_name(stringify!(#name)) #modifier #(#from_attr)*) )
+            quote!( .arg(::structopt::clap::Arg::with_name(stringify!(#name)) #modifier #(#from_attr)*) )
         });
 
     quote! {{
-        use std::error::Error;
         let #app_var = #app_var #( #args )* ;
         #( #subcmds )*
         #app_var
@@ -714,7 +713,7 @@ fn gen_from_clap(struct_name: &Ident, fields: &[Field]) -> quote::Tokens {
     let field_block = gen_constructor(fields);
 
     quote! {
-        fn from_clap(matches: &_structopt::clap::ArgMatches) -> Self {
+        fn from_clap(matches: &::structopt::clap::ArgMatches) -> Self {
             #struct_name #field_block
         }
     }
@@ -748,7 +747,7 @@ fn gen_clap(attrs: &[Attribute]) -> quote::Tokens {
         .collect::<Vec<_>>();
 
     quote! {
-        _structopt::clap::App::new(#name)
+        ::structopt::clap::App::new(#name)
             #version
             #author
             #about
@@ -760,7 +759,7 @@ fn gen_clap_struct(struct_attrs: &[Attribute]) -> quote::Tokens {
     let gen = gen_clap(struct_attrs);
 
     quote! {
-        fn clap<'a, 'b>() -> _structopt::clap::App<'a, 'b> {
+        fn clap<'a, 'b>() -> ::structopt::clap::App<'a, 'b> {
             let app = #gen;
             Self::augment_clap(app)
         }
@@ -771,7 +770,7 @@ fn gen_augment_clap(fields: &[Field]) -> quote::Tokens {
     let app_var = Ident::new("app");
     let augmentation = gen_augmentation(fields, &app_var);
     quote! {
-        pub fn augment_clap<'a, 'b>(#app_var: _structopt::clap::App<'a, 'b>) -> _structopt::clap::App<'a, 'b> {
+        pub fn augment_clap<'a, 'b>(#app_var: ::structopt::clap::App<'a, 'b>) -> ::structopt::clap::App<'a, 'b> {
             #augmentation
         }
     }
@@ -780,9 +779,9 @@ fn gen_augment_clap(fields: &[Field]) -> quote::Tokens {
 fn gen_clap_enum(enum_attrs: &[Attribute]) -> quote::Tokens {
     let gen = gen_clap(enum_attrs);
     quote! {
-        fn clap<'a, 'b>() -> _structopt::clap::App<'a, 'b> {
+        fn clap<'a, 'b>() -> ::structopt::clap::App<'a, 'b> {
             let app = #gen
-                .setting(_structopt::clap::AppSettings::SubcommandRequiredElseHelp);
+                .setting(::structopt::clap::AppSettings::SubcommandRequiredElseHelp);
             Self::augment_clap(app)
         }
     }
@@ -814,7 +813,7 @@ fn gen_augment_clap_enum(variants: &[Variant]) -> quote::Tokens {
 
         quote! {
             .subcommand({
-                let #app_var = _structopt::clap::SubCommand::with_name( #name )
+                let #app_var = ::structopt::clap::SubCommand::with_name( #name )
                     #( #from_attr )* ;
                 #arg_block
             })
@@ -822,7 +821,7 @@ fn gen_augment_clap_enum(variants: &[Variant]) -> quote::Tokens {
     });
 
     quote! {
-        pub fn augment_clap<'a, 'b>(app: _structopt::clap::App<'a, 'b>) -> _structopt::clap::App<'a, 'b> {
+        pub fn augment_clap<'a, 'b>(app: ::structopt::clap::App<'a, 'b>) -> ::structopt::clap::App<'a, 'b> {
             app #( #subcommands )*
         }
     }
@@ -831,7 +830,7 @@ fn gen_augment_clap_enum(variants: &[Variant]) -> quote::Tokens {
 fn gen_from_clap_enum(name: &Ident) -> quote::Tokens {
     quote! {
         #[doc(hidden)]
-        fn from_clap(matches: &_structopt::clap::ArgMatches) -> Self {
+        fn from_clap(matches: &::structopt::clap::ArgMatches) -> Self {
             #name ::from_subcommand(matches.subcommand())
                 .unwrap()
         }
@@ -867,7 +866,7 @@ fn gen_from_subcommand(name: &Ident, variants: &[Variant]) -> quote::Tokens {
 
     quote! {
         #[doc(hidden)]
-        pub fn from_subcommand<'a, 'b>(sub: (&'b str, Option<&'b _structopt::clap::ArgMatches<'a>>)) -> Option<Self> {
+        pub fn from_subcommand<'a, 'b>(sub: (&'b str, Option<&'b ::structopt::clap::ArgMatches<'a>>)) -> Option<Self> {
             match sub {
                 #( #match_arms ),*,
                 _ => None
@@ -882,7 +881,8 @@ fn impl_structopt_for_struct(name: &Ident, fields: &[Field], attrs: &[Attribute]
     let from_clap = gen_from_clap(name, fields);
 
     quote! {
-        impl _structopt::StructOpt for #name {
+        #[allow(unused_variables)]
+        impl ::structopt::StructOpt for #name {
             #clap
             #from_clap
         }
@@ -900,11 +900,12 @@ fn impl_structopt_for_enum(name: &Ident, variants: &[Variant], attrs: &[Attribut
     let from_subcommand = gen_from_subcommand(name, variants);
 
     quote! {
-        impl _structopt::StructOpt for #name {
+        impl ::structopt::StructOpt for #name {
             #clap
             #from_clap
         }
 
+        #[allow(unused_variables)]
         impl #name {
             #augment_clap
             #from_subcommand
@@ -922,14 +923,5 @@ fn impl_structopt(ast: &DeriveInput) -> quote::Tokens {
         _ => panic!("structopt only supports non-tuple structs and enums")
     };
 
-    let dummy_const = Ident::new(format!("_IMPL_STRUCTOPT_FOR_{}", struct_name));
-    quote! {
-        #[allow(non_upper_case_globals)]
-        #[allow(unused_attributes, unused_imports, unused_variables)]
-        const #dummy_const: () = {
-            extern crate structopt as _structopt;
-            use structopt::StructOpt;
-            #inner_impl
-        };
-    }
+    quote!(#inner_impl)
 }
