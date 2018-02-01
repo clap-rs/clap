@@ -9,7 +9,8 @@
 //!
 //! First, let's look at an example:
 //!
-//! ```ignore
+//! ```
+//! #[macro_use] extern crate structopt;
 //! #[derive(StructOpt)]
 //! #[structopt(name = "example", about = "An example of StructOpt usage.")]
 //! struct Opt {
@@ -22,6 +23,7 @@
 //!     #[structopt(help = "Output file, stdout if not present")]
 //!     output: Option<String>,
 //! }
+//! # fn main() {}
 //! ```
 //!
 //! So `derive(StructOpt)` tells Rust to generate a command line parser,
@@ -45,27 +47,21 @@
 //! Methods from `clap::App` that don't take an &str can be called by
 //! adding _raw to their name, e.g. to activate colored help text:
 //!
-//! ```ignore
-//! extern crate clap;
-//! extern crate structopt;
+//! ```
 //! #[macro_use]
-//! extern crate structopt_derive;
+//! extern crate structopt;
 //!
 //! use structopt::StructOpt;
 //!
 //! #[derive(StructOpt, Debug)]
-//! #[structopt(setting_raw = "clap::AppSettings::ColoredHelp")]
+//! #[structopt(setting_raw = "structopt::clap::AppSettings::ColoredHelp")]
 //! struct Opt {
 //!     #[structopt(short = "s")]
 //!     speed: bool,
 //!     #[structopt(short = "d")]
 //!     debug: bool,
 //! }
-//!
-//! fn main() {
-//!     let opt = Opt::from_args();
-//!     println!("{:?}", opt);
-//! }
+//! # fn main() {}
 //! ```
 //!
 //! Then, each field of the struct not marked as a subcommand corresponds
@@ -94,7 +90,10 @@
 //!
 //! Thus, the `speed` argument is generated as:
 //!
-//! ```ignore
+//! ```
+//! # extern crate clap;
+//! # fn parse_validator<T>(_: String) -> Result<(), String> { unimplemented!() }
+//! # fn main() {
 //! clap::Arg::with_name("speed")
 //!     .takes_value(true)
 //!     .multiple(false)
@@ -103,7 +102,8 @@
 //!     .short("s")
 //!     .long("speed")
 //!     .help("Set speed")
-//!     .default_value("42")
+//!     .default_value("42");
+//! # }
 //! ```
 //!
 //! ## Help messages
@@ -113,17 +113,17 @@
 //! already seen. For convenience, they can also be specified using
 //! doc comments. For example:
 //!
-//! ```ignore
+//! ```
+//! # #[macro_use] extern crate structopt;
 //! #[derive(StructOpt)]
 //! #[structopt(name = "foo")]
 //! /// The help message that will be displayed when passing `--help`.
 //! struct Foo {
-//!   ...
 //!   #[structopt(short = "b")]
 //!   /// The description for the arg that will be displayed when passing `--help`.
 //!   bar: String
-//!   ...
 //! }
+//! # fn main() {}
 //! ```
 //!
 //! ## Subcommands
@@ -136,7 +136,8 @@
 //!
 //! `clap` has this functionality, and `structopt` supports it through enums:
 //!
-//! ```ignore
+//! ```
+//! # #[macro_use] extern crate structopt;
 //! #[derive(StructOpt)]
 //! #[structopt(name = "git", about = "the stupid content tracker")]
 //! enum Git {
@@ -164,6 +165,7 @@
 //!         all: bool
 //!     }
 //! }
+//! # fn main() {}
 //! ```
 //!
 //! Using `derive(StructOpt)` on an enum instead of a struct will produce
@@ -173,11 +175,13 @@
 //! `structopt` also provides support for applications where certain flags
 //! need to apply to all subcommands, as well as nested subcommands:
 //!
-//! ```ignore
+//! ```
+//! # #[macro_use] extern crate structopt;
+//! # fn main() {}
 //! #[derive(StructOpt)]
 //! #[structopt(name = "make-cookie")]
 //! struct MakeCookie {
-//!     #[structopt(name = "supervisor", default_value = "Puck", required = false, long = "supervisor")]
+//!     #[structopt(name = "supervisor", default_value = "Puck", long = "supervisor")]
 //!     supervising_faerie: String,
 //!     #[structopt(name = "tree")]
 //!     /// The faerie tree this cookie is being made in.
@@ -211,7 +215,7 @@
 //!     #[structopt(short = "t")]
 //!     time: u32,
 //!     #[structopt(subcommand)]  // Note that we mark a field as a subcommand
-//!     type: FinishType
+//!     finish_type: FinishType
 //! }
 //!
 //! // subsubcommand!
@@ -242,7 +246,9 @@
 //!
 //! A nested subcommand can be marked optional:
 //!
-//! ```ignore
+//! ```
+//! # #[macro_use] extern crate structopt;
+//! # fn main() {}
 //! #[derive(StructOpt)]
 //! #[structopt(name = "foo")]
 //! struct Foo {
@@ -265,7 +271,9 @@
 //! like to provide a custom parsing scheme other than `FromStr`, you may
 //! provide a custom string parser using `parse(...)` like this:
 //!
-//! ```ignore
+//! ```
+//! # #[macro_use] extern crate structopt;
+//! # fn main() {}
 //! use std::num::ParseIntError;
 //! use std::path::PathBuf;
 //!
@@ -310,7 +318,6 @@
 //! In the `try_from_*` variants, the function will run twice on valid input:
 //! once to validate, and once to parse. Hence, make sure the function is
 //! side-effect-free.
-
 
 extern crate proc_macro;
 extern crate syn;
@@ -853,7 +860,7 @@ fn gen_from_subcommand(name: &Ident, variants: &[Variant]) -> quote::Tokens {
             VariantData::Unit => quote!(),
             VariantData::Tuple(ref fields) if fields.len() == 1 => {
                 let ty = &fields[0];
-                quote!( ( #ty::from_clap(matches) ) )
+                quote!( ( <#ty as ::structopt::StructOpt>::from_clap(matches) ) )
             }
             VariantData::Tuple(..) => panic!("{}: tuple enum are not supported", variant.ident),
         };
