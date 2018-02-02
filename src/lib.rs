@@ -410,7 +410,7 @@
 //! For example, to test the code, as above simply run:
 //!
 //! ```text
-//! $ just run-tests`
+//! $ just run-tests
 //! ```
 //!
 //! From here on, I will lis the appropriate `cargo` command as well as the `just` command.
