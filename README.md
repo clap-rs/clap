@@ -46,21 +46,21 @@ Here's whats new in 2.29.2:
 
 * **Many ZSH Completions Improvements** (Thanks to @segevfiner)
   *  Positional arguments will default to file completion when not using specific values!
-  *  Implement postional argument possible values completion 
-  *  Removes redundant code from output 
-  *  Don't pass `-S` to `_arguments` if Zsh is too old 
-  *  Fix completions with mixed positionals and subcommands 
-  *  String escape possible values for options 
+  *  Implement postional argument possible values completion
+  *  Removes redundant code from output
+  *  Don't pass `-S` to `_arguments` if Zsh is too old
+  *  Fix completions with mixed positionals and subcommands
+  *  String escape possible values for options
 
 
 Here's whats new in 2.29.1:
 
 * Debloats clap by deduplicating logic and refactors for a ~57% decrease in code size! This is with zero functinoality lost, and a slight perf increase!
-* Change the bash completion script code generation to support hyphens. 
+* Change the bash completion script code generation to support hyphens.
 * Fix completion of long option values in ZSH completions
 * Fixes broken links in docs
 * Updates contributors list
-* Fixes the ripgrep benchmark by adding a value to a flag that expects it 
+* Fixes the ripgrep benchmark by adding a value to a flag that expects it
 
 Here's whats new in 2.29.0:
 
@@ -321,7 +321,7 @@ subcommands:
 
 Since this feature requires additional dependencies that not everyone may want, it is *not* compiled in by default and we need to enable a feature flag in Cargo.toml:
 
-Simply change your `clap = "2.29"` to `clap = {version = "2.29", features = ["yaml"]}`.
+Simply change your `clap = "3.0.0-alpha1"` to `clap = {version = "3.0.0-alpha1", features = ["yaml"]}`.
 
 Finally we create our `main.rs` file just like we would have with the previous two examples:
 
@@ -441,7 +441,7 @@ For full usage, add `clap` as a dependency in your `Cargo.toml` () to use from c
 
 ```toml
 [dependencies]
-clap = "~2.29"
+clap = "~3.0"
 ```
 
 (**note**: If you are concerned with supporting a minimum version of Rust that is *older* than the current stable Rust minus 2 stable releases, it's recommended to use the `~major.minor.patch` style versions in your `Cargo.toml` which will only update the patch version automatically. For more information see the [Compatibility Policy](#compatibility-policy))
@@ -464,7 +464,7 @@ To disable these, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies.clap]
-version = "2.29"
+version = "3.0"
 default-features = false
 ```
 
@@ -472,7 +472,7 @@ You can also selectively enable only the features you'd like to include, by addi
 
 ```toml
 [dependencies.clap]
-version = "2.29"
+version = "3.0"
 default-features = false
 
 # Cherry-pick the features you'd like to use
@@ -520,7 +520,7 @@ In order to keep from being surprised of breaking changes, it is **highly** reco
 
 ```toml
 [dependencies]
-clap = "~2.29"
+clap = "~3.0"
 ```
 
 This will cause *only* the patch version to be updated upon a `cargo update` call, and therefore cannot break due to new features, or bumped minimum versions of Rust.
@@ -537,11 +537,11 @@ Right now Cargo's version resolution is pretty naive, it's just a brute-force se
 
 # In one Cargo.toml
 [dependencies]
-clap = "~2.29.0"
+clap = "~3.0.0"
 
 # In another Cargo.toml
 [dependencies]
-clap = "2.29"
+clap = "3.0"
 ```
 
 This is inherently an unresolvable crate graph in Cargo right now. Cargo requires there's only one major version of a crate, and being in the same workspace these two crates must share a version. This is impossible in this location, though, as these version constraints cannot be met.

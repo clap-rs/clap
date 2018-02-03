@@ -513,7 +513,7 @@
 //! this repository for more information.
 
 #![crate_type = "lib"]
-#![doc(html_root_url = "https://docs.rs/clap/2.29.2")]
+#![doc(html_root_url = "https://docs.rs/clap/3.0.0-alpha1")]
 #![deny(missing_docs, missing_debug_implementations, missing_copy_implementations, trivial_casts,
         unused_import_braces, unused_allocation)]
 // @TODO @v3-beta: remove me!
