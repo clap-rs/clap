@@ -35,20 +35,22 @@ fn unique_flag() {
 fn multiple_flag() {
     #[derive(StructOpt, PartialEq, Debug)]
     struct Opt {
-        #[structopt(short = "a", long = "alice")]
+        #[structopt(short = "a", long = "alice", parse(from_occurrences))]
         alice: u64,
+        #[structopt(short = "b", long = "bob", parse(from_occurrences))]
+        bob: u8,
     }
 
-    assert_eq!(Opt { alice: 0 },
+    assert_eq!(Opt { alice: 0, bob: 0 },
                Opt::from_clap(Opt::clap().get_matches_from(&["test"])));
-    assert_eq!(Opt { alice: 1 },
+    assert_eq!(Opt { alice: 1, bob: 0 },
                Opt::from_clap(Opt::clap().get_matches_from(&["test", "-a"])));
-    assert_eq!(Opt { alice: 2 },
+    assert_eq!(Opt { alice: 2, bob: 0 },
                Opt::from_clap(Opt::clap().get_matches_from(&["test", "-a", "-a"])));
-    assert_eq!(Opt { alice: 2 },
-               Opt::from_clap(Opt::clap().get_matches_from(&["test", "-a", "--alice"])));
-    assert_eq!(Opt { alice: 3 },
-               Opt::from_clap(Opt::clap().get_matches_from(&["test", "-aaa"])));
+    assert_eq!(Opt { alice: 2, bob: 2 },
+               Opt::from_clap(Opt::clap().get_matches_from(&["test", "-a", "--alice", "-bb"])));
+    assert_eq!(Opt { alice: 3, bob: 1 },
+               Opt::from_clap(Opt::clap().get_matches_from(&["test", "-aaa", "--bob"])));
     assert!(Opt::clap().get_matches_from_safe(&["test", "-i"]).is_err());
     assert!(Opt::clap().get_matches_from_safe(&["test", "-a", "foo"]).is_err());
 }
@@ -59,7 +61,7 @@ fn combined_flags() {
     struct Opt {
         #[structopt(short = "a", long = "alice")]
         alice: bool,
-        #[structopt(short = "b", long = "bob")]
+        #[structopt(short = "b", long = "bob", parse(from_occurrences))]
         bob: u64,
     }
 

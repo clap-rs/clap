@@ -157,3 +157,45 @@ fn test_parser_with_default_value() {
         ]))
     );
 }
+
+
+#[derive(PartialEq, Debug)]
+struct Foo(u8);
+
+fn foo(value: u64) -> Foo {
+    Foo(value as u8)
+}
+
+#[derive(StructOpt, PartialEq, Debug)]
+struct Occurrences {
+    #[structopt(short = "s", long = "signed", parse(from_occurrences))]
+    signed: i32,
+
+    #[structopt(short = "l", parse(from_occurrences))]
+    little_signed: i8,
+
+    #[structopt(short = "u", parse(from_occurrences))]
+    unsigned: usize,
+
+    #[structopt(short = "r", parse(from_occurrences))]
+    little_unsigned: u8,
+
+    #[structopt(short = "c", long = "custom", parse(from_occurrences = "foo"))]
+    custom: Foo,
+}
+
+#[test]
+fn test_parser_occurrences() {
+    assert_eq!(
+        Occurrences {
+            signed: 3,
+            little_signed: 1,
+            unsigned: 0,
+            little_unsigned: 4,
+            custom: Foo(5),
+        },
+        Occurrences::from_clap(Occurrences::clap().get_matches_from(&[
+            "test", "-s", "--signed", "--signed", "-l", "-rrrr", "-cccc", "--custom"
+        ]))
+    );
+}

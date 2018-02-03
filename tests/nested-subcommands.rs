@@ -14,7 +14,7 @@ use structopt::StructOpt;
 struct Opt {
     #[structopt(short = "f", long = "force")]
     force: bool,
-    #[structopt(short = "v", long = "verbose")]
+    #[structopt(short = "v", long = "verbose", parse(from_occurrences))]
     verbose: u64,
     #[structopt(subcommand)]
     cmd: Sub
@@ -32,7 +32,7 @@ enum Sub {
 struct Opt2 {
     #[structopt(short = "f", long = "force")]
     force: bool,
-    #[structopt(short = "v", long = "verbose")]
+    #[structopt(short = "v", long = "verbose", parse(from_occurrences))]
     verbose: u64,
     #[structopt(subcommand)]
     cmd: Option<Sub>
