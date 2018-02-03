@@ -2,7 +2,7 @@
 
 ## Breaking changes
 
-### Add `parse(from_occurrences)` parser adn don't special case `u64` by @SergioBenitez
+### Don't special case `u64` by @SergioBenitez
 
 If you are using a `u64` in your struct to get the number of occurence of a flag, you should now add `parse(from_occurrences)` on the flag.
 
@@ -19,9 +19,20 @@ verbose: u64,
 
 This feature was surprising as shown in #30. Using the `parse` feature seems much more natural.
 
-## Other
+### Change the signature of `Structopt::from_clap` to take its argument by reference by @TeXitoi
+
+There was no reason to take the argument by value. Most of the StructOpt users will not be impacted by this change. If you are using `StructOpt::from_clap`, just add a `&` before the argument.
+
+## New features
+
+* Add `parse(from_occurrences)` parser by @SergioBenitez
+* Support 1-uple enum variant as subcommand by @TeXitoi
+* structopt-derive crate is now an implementation detail, structopt reexport the custom derive macro by @TeXitoi
+
+## Documentation
 
 * Improve doc by @bestouff
+* All the documentation is now on the structopt crate by @TeXitoi
 
 # v0.1.7 (2018-01-23)
 
