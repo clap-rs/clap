@@ -875,7 +875,9 @@ where
             self.unset(AS::ValidNegNumFound);
             // Is this a new argument, or values from a previous option?
             let starts_new_arg = self.is_new_arg(&arg_os, needs_val_of);
-            if arg_os.starts_with(b"--") && arg_os.len_() == 2 && starts_new_arg {
+            if !self.is_set(AS::TrailingValues) &&
+                arg_os.starts_with(b"--") && arg_os.len_() == 2 && starts_new_arg
+            {
                 debugln!("Parser::get_matches_with: setting TrailingVals=true");
                 self.set(AS::TrailingValues);
                 continue;
