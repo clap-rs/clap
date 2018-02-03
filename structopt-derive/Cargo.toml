@@ -16,9 +16,5 @@ travis-ci = { repository = "TeXitoi/structopt" }
 syn = "0.11.4"
 quote = "0.3.12"
 
-[dev-dependencies]
-structopt = {path = "../"}
-clap = "2"
-
 [lib]
 proc-macro = true
