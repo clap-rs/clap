@@ -42,7 +42,7 @@ fn lots_o_flags_sep() {
             "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
             "-o", "-o", "-o",
         ]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{:?}", r.unwrap_err().kind);
     let m = r.unwrap();
     assert!(m.is_present("o"));
     assert_eq!(m.occurrences_of("o"), 297); // i.e. more than u8
@@ -60,7 +60,7 @@ fn lots_o_flags_combined() {
             "-oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
             "-ooooooooooooooooooooooooooooooooooooooooo",
         ]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{:?}", r.unwrap_err().kind);
     let m = r.unwrap();
     assert!(m.is_present("o"));
     assert_eq!(m.occurrences_of("o"), 297); // i.e. more than u8
@@ -120,7 +120,7 @@ fn short_flag_misspel() {
     assert_eq!(a.short.unwrap(), 'f');
     assert_eq!(a.long.unwrap(), "flag");
     assert_eq!(a.help.unwrap(), "some flag");
-    assert!(!a.is_set(ArgSettings::Multiple));
+    assert!(!a.is_set(ArgSettings::MultipleOccurrences));
     assert!(a.val_names.is_none());
     assert!(a.num_vals.is_none());
 }
@@ -132,7 +132,7 @@ fn short_flag_name_missing() {
     assert_eq!(a.short.unwrap(), 'f');
     assert!(a.long.is_none());
     assert_eq!(a.help.unwrap(), "some flag");
-    assert!(!a.is_set(ArgSettings::Multiple));
+    assert!(!a.is_set(ArgSettings::MultipleOccurrences));
     assert!(a.val_names.is_none());
     assert!(a.num_vals.is_none());
 }

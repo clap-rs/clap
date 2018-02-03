@@ -179,7 +179,9 @@ complete -F _{name} -o bashdefault -o default {name}
                 );
             }
             let num = vec.len();
-            if o.is_set(ArgSettings::Multiple) && num == 1 {
+            if (o.is_set(ArgSettings::MultipleValues) || o.is_set(ArgSettings::MultipleOccurrences))
+                && num == 1
+            {
                 ret = format!("{}...", ret);
             }
         } else if let Some(num) = o.num_vals {
@@ -192,12 +194,14 @@ complete -F _{name} -o bashdefault -o default {name}
                     if it.peek().is_some() { " " } else { "" }
                 );
             }
-            if o.is_set(ArgSettings::Multiple) && num == 1 {
+            if (o.is_set(ArgSettings::MultipleValues) || o.is_set(ArgSettings::MultipleOccurrences))
+                && num == 1
+            {
                 ret = format!("{}...", ret);
             }
         } else {
             ret = format!("<{}>", o.name);
-            if o.is_set(ArgSettings::Multiple) {
+            if o.is_set(ArgSettings::MultipleValues) || o.is_set(ArgSettings::MultipleOccurrences) {
                 ret = format!("{}...", ret);
             }
         }

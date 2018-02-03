@@ -3,7 +3,7 @@ extern crate regex;
 
 include!("../clap-test.rs");
 
-use clap::{App, Arg, ArgMatches, ErrorKind};
+use clap::{App, Arg, ArgMatches, ArgSettings, ErrorKind};
 
 #[cfg(feature = "suggestions")]
 static DYM: &'static str =
@@ -20,11 +20,11 @@ fn require_equals_fail() {
     let res = App::new("prog")
         .arg(
             Arg::with_name("cfg")
-                .require_equals(true)
-                .takes_value(true)
+                .setting(ArgSettings::RequireEquals)
+                .setting(ArgSettings::TakesValue)
                 .long("config"),
         )
-        .get_matches_from_safe(vec!["prog", "--config", "file.conf"]);
+        .try_get_matches_from(vec!["prog", "--config", "file.conf"]);
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
 }
@@ -34,13 +34,12 @@ fn require_equals_min_values_zero() {
     let res = App::new("prog")
         .arg(
             Arg::with_name("cfg")
-                .require_equals(true)
-                .takes_value(true)
+                .setting(ArgSettings::RequireEquals)
                 .min_values(0)
                 .long("config"),
         )
         .arg(Arg::with_name("cmd"))
-        .get_matches_from_safe(vec!["prog", "--config", "cmd"]);
+        .try_get_matches_from(vec!["prog", "--config", "cmd"]);
     assert!(res.is_ok());
     let m = res.unwrap();
     assert!(m.is_present("cfg"));
@@ -52,11 +51,10 @@ fn double_hyphen_as_value() {
     let res = App::new("prog")
         .arg(
             Arg::with_name("cfg")
-                .takes_value(true)
-                .allow_hyphen_values(true)
+                .setting(ArgSettings::AllowHyphenValues)
                 .long("config"),
         )
-        .get_matches_from_safe(vec!["prog", "--config", "--"]);
+        .try_get_matches_from(vec!["prog", "--config", "--"]);
     assert!(res.is_ok(), "{:?}", res);
     assert_eq!(res.unwrap().value_of("cfg"), Some("--"));
 }
@@ -66,12 +64,11 @@ fn require_equals_no_empty_values_fail() {
     let res = App::new("prog")
         .arg(
             Arg::with_name("cfg")
-                .require_equals(true)
-                .takes_value(true)
+                .setting(ArgSettings::RequireEquals)
                 .long("config"),
         )
         .arg(Arg::with_name("some"))
-        .get_matches_from_safe(vec!["prog", "--config=", "file.conf"]);
+        .try_get_matches_from(vec!["prog", "--config=", "file.conf"]);
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
 }
@@ -81,12 +78,11 @@ fn require_equals_empty_vals_pass() {
     let res = App::new("prog")
         .arg(
             Arg::with_name("cfg")
-                .require_equals(true)
-                .takes_value(true)
-                .empty_values(true)
+                .setting(ArgSettings::RequireEquals)
+                .setting(ArgSettings::AllowEmptyValues)
                 .long("config"),
         )
-        .get_matches_from_safe(vec!["prog", "--config="]);
+        .try_get_matches_from(vec!["prog", "--config="]);
     assert!(res.is_ok());
 }
 
@@ -95,11 +91,10 @@ fn require_equals_pass() {
     let res = App::new("prog")
         .arg(
             Arg::with_name("cfg")
-                .require_equals(true)
-                .takes_value(true)
+                .setting(ArgSettings::RequireEquals)
                 .long("config"),
         )
-        .get_matches_from_safe(vec!["prog", "--config=file.conf"]);
+        .try_get_matches_from(vec!["prog", "--config=file.conf"]);
     assert!(res.is_ok());
 }
 
@@ -107,7 +102,7 @@ fn require_equals_pass() {
 fn stdin_char() {
     let r = App::new("opts")
         .arg(Arg::from_usage("-f [flag] 'some flag'"))
-        .get_matches_from_safe(vec!["", "-f", "-"]);
+        .try_get_matches_from(vec!["", "-f", "-"]);
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("f"));
@@ -121,7 +116,7 @@ fn opts_using_short() {
             Arg::from_usage("-f [flag] 'some flag'"),
             Arg::from_usage("-c [color] 'some other flag'"),
         ])
-        .get_matches_from_safe(vec!["", "-f", "some", "-c", "other"]);
+        .try_get_matches_from(vec!["", "-f", "some", "-c", "other"]);
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("f"));
@@ -134,7 +129,7 @@ fn opts_using_short() {
 fn lots_o_vals() {
     let r = App::new("opts")
         .arg(Arg::from_usage("-o [opt]... 'some opt'"))
-        .get_matches_from_safe(vec![
+        .try_get_matches_from(vec![
             "", "-o", "some", "some", "some", "some", "some", "some", "some", "some", "some",
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
@@ -177,7 +172,7 @@ fn opts_using_long_space() {
             Arg::from_usage("--flag [flag] 'some flag'"),
             Arg::from_usage("--color [color] 'some other flag'"),
         ])
-        .get_matches_from_safe(vec!["", "--flag", "some", "--color", "other"]);
+        .try_get_matches_from(vec!["", "--flag", "some", "--color", "other"]);
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("flag"));
@@ -193,7 +188,7 @@ fn opts_using_long_equals() {
             Arg::from_usage("--flag [flag] 'some flag'"),
             Arg::from_usage("--color [color] 'some other flag'"),
         ])
-        .get_matches_from_safe(vec!["", "--flag=some", "--color=other"]);
+        .try_get_matches_from(vec!["", "--flag=some", "--color=other"]);
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("flag"));
@@ -209,7 +204,7 @@ fn opts_using_mixed() {
             Arg::from_usage("-f, --flag [flag] 'some flag'"),
             Arg::from_usage("-c, --color [color] 'some other flag'"),
         ])
-        .get_matches_from_safe(vec!["", "-f", "some", "--color", "other"]);
+        .try_get_matches_from(vec!["", "-f", "some", "--color", "other"]);
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("flag"));
@@ -225,7 +220,7 @@ fn opts_using_mixed2() {
             Arg::from_usage("-f, --flag [flag] 'some flag'"),
             Arg::from_usage("-c, --color [color] 'some other flag'"),
         ])
-        .get_matches_from_safe(vec!["", "--flag=some", "-c", "other"]);
+        .try_get_matches_from(vec!["", "--flag=some", "-c", "other"]);
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("flag"));
@@ -238,7 +233,7 @@ fn opts_using_mixed2() {
 fn default_values_user_value() {
     let r = App::new("df")
         .arg(Arg::from_usage("-o [opt] 'some opt'").default_value("default"))
-        .get_matches_from_safe(vec!["", "-o", "value"]);
+        .try_get_matches_from(vec!["", "-o", "value"]);
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("o"));
@@ -250,7 +245,7 @@ fn multiple_vals_pos_arg_equals() {
     let r = App::new("mvae")
         .arg(Arg::from_usage("-o [opt]... 'some opt'"))
         .arg(Arg::from_usage("[file] 'some file'"))
-        .get_matches_from_safe(vec!["", "-o=1", "some"]);
+        .try_get_matches_from(vec!["", "-o=1", "some"]);
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("o"));
@@ -262,9 +257,9 @@ fn multiple_vals_pos_arg_equals() {
 #[test]
 fn multiple_vals_pos_arg_delim() {
     let r = App::new("mvae")
-        .arg(Arg::from_usage("-o [opt]... 'some opt'"))
+        .arg(Arg::from_usage("-o [opt]... 'some opt'").setting(ArgSettings::UseValueDelimiter))
         .arg(Arg::from_usage("[file] 'some file'"))
-        .get_matches_from_safe(vec!["", "-o", "1,2", "some"]);
+        .try_get_matches_from(vec!["", "-o", "1,2", "some"]);
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("o"));
@@ -276,9 +271,9 @@ fn multiple_vals_pos_arg_delim() {
 #[test]
 fn require_delims_no_delim() {
     let r = App::new("mvae")
-        .arg(Arg::from_usage("-o [opt]... 'some opt'").require_delimiter(true))
+        .arg(Arg::from_usage("-o [opt]... 'some opt'").setting(ArgSettings::RequireDelimiter))
         .arg(Arg::from_usage("[file] 'some file'"))
-        .get_matches_from_safe(vec!["mvae", "-o", "1", "2", "some"]);
+        .try_get_matches_from(vec!["mvae", "-o", "1", "2", "some"]);
     assert!(r.is_err());
     let err = r.unwrap_err();
     assert_eq!(err.kind, ErrorKind::UnknownArgument);
@@ -287,9 +282,9 @@ fn require_delims_no_delim() {
 #[test]
 fn require_delims() {
     let r = App::new("mvae")
-        .arg(Arg::from_usage("-o [opt]... 'some opt'").require_delimiter(true))
+        .arg(Arg::from_usage("-o [opt]... 'some opt'").setting(ArgSettings::RequireDelimiter))
         .arg(Arg::from_usage("[file] 'some file'"))
-        .get_matches_from_safe(vec!["", "-o", "1,2", "some"]);
+        .try_get_matches_from(vec!["", "-o", "1,2", "some"]);
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("o"));
@@ -301,8 +296,8 @@ fn require_delims() {
 #[test]
 fn leading_hyphen_pass() {
     let r = App::new("mvae")
-        .arg(Arg::from_usage("-o [opt]... 'some opt'").allow_hyphen_values(true))
-        .get_matches_from_safe(vec!["", "-o", "-2", "3"]);
+        .arg(Arg::from_usage("-o [opt]... 'some opt'").setting(ArgSettings::AllowHyphenValues))
+        .try_get_matches_from(vec!["", "-o", "-2", "3"]);
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("o"));
@@ -313,7 +308,7 @@ fn leading_hyphen_pass() {
 fn leading_hyphen_fail() {
     let r = App::new("mvae")
         .arg(Arg::from_usage("-o [opt] 'some opt'"))
-        .get_matches_from_safe(vec!["", "-o", "-2"]);
+        .try_get_matches_from(vec!["", "-o", "-2"]);
     assert!(r.is_err());
     let m = r.unwrap_err();
     assert_eq!(m.kind, ErrorKind::UnknownArgument);
@@ -322,9 +317,9 @@ fn leading_hyphen_fail() {
 #[test]
 fn leading_hyphen_with_flag_after() {
     let r = App::new("mvae")
-        .arg(Arg::from_usage("-o [opt]... 'some opt'").allow_hyphen_values(true))
+        .arg(Arg::from_usage("-o [opt]... 'some opt'").setting(ArgSettings::AllowHyphenValues))
         .arg_from_usage("-f 'some flag'")
-        .get_matches_from_safe(vec!["", "-o", "-2", "-f"]);
+        .try_get_matches_from(vec!["", "-o", "-2", "-f"]);
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("o"));
@@ -335,9 +330,9 @@ fn leading_hyphen_with_flag_after() {
 #[test]
 fn leading_hyphen_with_flag_before() {
     let r = App::new("mvae")
-        .arg(Arg::from_usage("-o [opt]... 'some opt'").allow_hyphen_values(true))
+        .arg(Arg::from_usage("-o [opt]... 'some opt'").setting(ArgSettings::AllowHyphenValues))
         .arg_from_usage("-f 'some flag'")
-        .get_matches_from_safe(vec!["", "-f", "-o", "-2"]);
+        .try_get_matches_from(vec!["", "-f", "-o", "-2"]);
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("o"));
@@ -351,10 +346,10 @@ fn leading_hyphen_with_only_pos_follows() {
         .arg(
             Arg::from_usage("-o [opt]... 'some opt'")
                 .number_of_values(1)
-                .allow_hyphen_values(true),
+                .setting(ArgSettings::AllowHyphenValues),
         )
         .arg_from_usage("[arg] 'some arg'")
-        .get_matches_from_safe(vec!["", "-o", "-2", "--", "val"]);
+        .try_get_matches_from(vec!["", "-o", "-2", "--", "val"]);
     assert!(r.is_ok(), "{:?}", r);
     let m = r.unwrap();
     assert!(m.is_present("o"));
@@ -378,9 +373,8 @@ fn issue_665() {
     let res = App::new("tester")
         .arg_from_usage("-v, --reroll-count=[N] 'Mark the patch series as PATCH vN'")
         .arg(Arg::from_usage(
-"--subject-prefix [Subject-Prefix] 'Use [Subject-Prefix] instead of the standard [PATCH] prefix'")
-            .empty_values(false))
-        .get_matches_from_safe(vec!["test", "--subject-prefix", "-v", "2"]);
+"--subject-prefix [Subject-Prefix] 'Use [Subject-Prefix] instead of the standard [PATCH] prefix'") )
+        .try_get_matches_from(vec!["test", "--subject-prefix", "-v", "2"]);
 
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
@@ -393,8 +387,7 @@ fn issue_1047_min_zero_vals_default_val() {
             Arg::with_name("del")
                 .short("d")
                 .long("del")
-                .takes_value(true)
-                .require_equals(true)
+                .setting(ArgSettings::RequireEquals)
                 .min_values(0)
                 .default_value("default"),
         )
@@ -405,9 +398,12 @@ fn issue_1047_min_zero_vals_default_val() {
 
 fn issue_1105_setup(argv: Vec<&'static str>) -> Result<ArgMatches<'static>, clap::Error> {
     App::new("opts")
-        .arg_from_usage("-o, --option [opt] 'some option'")
-        .arg_from_usage("--flag 'some flag'")
-        .get_matches_from_safe(argv)
+        .arg(
+            Arg::from_usage("-o, --option [opt] 'some option'")
+                .setting(ArgSettings::AllowEmptyValues),
+        )
+        .arg(Arg::from_usage("--flag 'some flag'"))
+        .try_get_matches_from(argv)
 }
 
 #[test]

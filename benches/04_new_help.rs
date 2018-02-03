@@ -8,7 +8,7 @@ use test::Bencher;
 use std::io::Cursor;
 
 use clap::App;
-use clap::{Arg, SubCommand};
+use clap::{Arg, ArgSettings, SubCommand};
 
 fn build_help(app: &mut App) -> String {
     let mut buf = Cursor::new(Vec::with_capacity(50));
@@ -51,13 +51,13 @@ fn app_example3<'b, 'c>() -> App<'b, 'c> {
         .args(&[
             Arg::with_name("config")
                 .help("sets the config file to use")
-                .takes_value(true)
+                .setting(ArgSettings::TakesValue)
                 .short("c")
                 .long("config"),
             Arg::with_name("input")
                 .help("the input file to use")
                 .index(1)
-                .required(true),
+                .setting(ArgSettings::Required),
         ])
         .arg_from_usage("--license 'display the license file'")
         .args_from_usage(
@@ -87,7 +87,7 @@ fn app_example4<'b, 'c>() -> App<'b, 'c> {
             Arg::with_name("input")
                 .help("the input file to use")
                 .index(1)
-                .required(true),
+                .setting(ArgSettings::Required),
         )
 }
 
@@ -97,7 +97,7 @@ fn app_example5<'b, 'c>() -> App<'b, 'c> {
             .help("turns up the awesome")
             .short("a")
             .long("awesome")
-            .multiple(true)
+            .setting(ArgSettings::MultipleOccurrences)
             .requires("config")
             .conflicts_with("output"),
     )
@@ -111,7 +111,7 @@ fn app_example6<'b, 'c>() -> App<'b, 'c> {
                 .index(1)
                 .requires("config")
                 .conflicts_with("output")
-                .required(true),
+                .setting(ArgSettings::Required),
         )
         .arg(
             Arg::with_name("config")
@@ -127,11 +127,13 @@ fn app_example7<'b, 'c>() -> App<'b, 'c> {
         .arg(
             Arg::with_name("input")
                 .help("the input file to use")
-                .takes_value(true)
+                .settings(&[
+                    ArgSettings::MultipleValues,
+                    ArgSettings::MultipleOccurrences,
+                    ArgSettings::Required,
+                ])
                 .short("i")
                 .long("input")
-                .multiple(true)
-                .required(true)
                 .requires("config")
                 .conflicts_with("output"),
         )
@@ -144,11 +146,13 @@ fn app_example8<'b, 'c>() -> App<'b, 'c> {
         .arg(
             Arg::with_name("input")
                 .help("the input file to use")
-                .takes_value(true)
+                .settings(&[
+                    ArgSettings::MultipleValues,
+                    ArgSettings::MultipleOccurrences,
+                    ArgSettings::Required,
+                ])
                 .short("i")
                 .long("input")
-                .multiple(true)
-                .required(true)
                 .requires("config")
                 .conflicts_with("output"),
         )
@@ -159,7 +163,7 @@ fn app_example10<'b, 'c>() -> App<'b, 'c> {
         Arg::with_name("CONFIG")
             .help("The config file to use (default is \"config.json\")")
             .short("c")
-            .takes_value(true),
+            .setting(ArgSettings::TakesValue),
     )
 }
 

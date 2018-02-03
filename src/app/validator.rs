@@ -95,7 +95,7 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
             if let Some(ref p_vals) = arg.possible_vals {
                 debugln!("Validator::validate_arg_values: possible_vals={:?}", p_vals);
                 let val_str = val.to_string_lossy();
-                let ok = if arg.is_set(ArgSettings::CaseInsensitive) {
+                let ok = if arg.is_set(ArgSettings::IgnoreCase) {
                     p_vals.iter().any(|pv| pv.eq_ignore_ascii_case(&*val_str))
                 } else {
                     p_vals.contains(&&*val_str)
@@ -110,7 +110,7 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
                     ));
                 }
             }
-            if !arg.is_set(ArgSettings::EmptyValues) && val.is_empty_()
+            if !arg.is_set(ArgSettings::AllowEmptyValues) && val.is_empty_()
                 && matcher.contains(&*arg.name)
             {
                 debugln!("Validator::validate_arg_values: illegal empty val found");
@@ -292,7 +292,7 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
         matcher: &ArgMatcher<'a>,
     ) -> ClapResult<()> {
         debugln!("Validator::validate_arg_num_occurs: a={};", a.name);
-        if ma.occurs > 1 && !a.is_set(ArgSettings::Multiple) {
+        if ma.occurs > 1 && !a.is_set(ArgSettings::MultipleOccurrences) {
             // Not the first time, and we don't allow multiples
             return Err(Error::unexpected_multiple_usage(
                 a,
@@ -312,7 +312,7 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
         debugln!("Validator::validate_arg_num_vals;");
         if let Some(num) = a.num_vals {
             debugln!("Validator::validate_arg_num_vals: num_vals set...{}", num);
-            let should_err = if a.is_set(ArgSettings::Multiple) {
+            let should_err = if a.is_set(ArgSettings::MultipleValues) {
                 ((ma.vals.len() as u64) % num) != 0
             } else {
                 num != (ma.vals.len() as u64)
@@ -322,13 +322,14 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
                 return Err(Error::wrong_number_of_values(
                     a,
                     num,
-                    if a.is_set(ArgSettings::Multiple) {
+                    if a.is_set(ArgSettings::MultipleValues) {
                         (ma.vals.len() % num as usize)
                     } else {
                         ma.vals.len()
                     },
                     if ma.vals.len() == 1
-                        || (a.is_set(ArgSettings::Multiple) && (ma.vals.len() % num as usize) == 1)
+                        || (a.is_set(ArgSettings::MultipleValues)
+                            && (ma.vals.len() % num as usize) == 1)
                     {
                         "as"
                     } else {

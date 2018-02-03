@@ -296,6 +296,8 @@ impl<'w> Help<'w> {
     /// Writes argument's possible values to the wrapped stream.
     fn val<'b, 'c>(&mut self, arg: &Arg<'b, 'c>) -> Result<String, io::Error> {
         debugln!("Help::val: arg={}", arg.name);
+        let mult =
+            arg.is_set(ArgSettings::MultipleValues) || arg.is_set(ArgSettings::MultipleOccurrences);
         if arg.is_set(ArgSettings::TakesValue) {
             let delim = if arg.is_set(ArgSettings::RequireDelimiter) {
                 arg.val_delim.expect(INTERNAL_ERROR_MSG)
@@ -311,7 +313,7 @@ impl<'w> Help<'w> {
                     }
                 }
                 let num = vec.len();
-                if arg.is_set(ArgSettings::Multiple) && num == 1 {
+                if mult && num == 1 {
                     color!(self, "...", good)?;
                 }
             } else if let Some(num) = arg.num_vals {
@@ -322,12 +324,12 @@ impl<'w> Help<'w> {
                         write!(self.writer, "{}", delim)?;
                     }
                 }
-                if arg.is_set(ArgSettings::Multiple) && num == 1 {
+                if mult && num == 1 {
                     color!(self, "...", good)?;
                 }
             } else if arg.has_switch() {
                 color!(self, "<{}>", arg.name, good)?;
-                if arg.is_set(ArgSettings::Multiple) {
+                if mult {
                     color!(self, "...", good)?;
                 }
             } else {
