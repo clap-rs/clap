@@ -26,6 +26,7 @@
 //!
 //! ```
 //! #[macro_use] extern crate structopt;
+//! use std::path::PathBuf;
 //! #[derive(StructOpt)]
 //! #[structopt(name = "example", about = "An example of StructOpt usage.")]
 //! struct Opt {
@@ -33,10 +34,10 @@
 //!     debug: bool,
 //!     #[structopt(short = "s", long = "speed", help = "Set speed", default_value = "42")]
 //!     speed: f64,
-//!     #[structopt(help = "Input file")]
-//!     input: String,
-//!     #[structopt(help = "Output file, stdout if not present")]
-//!     output: Option<String>,
+//!     #[structopt(help = "Input file", parse(from_os_str))]
+//!     input: PathBuf,
+//!     #[structopt(help = "Output file, stdout if not present", parse(from_os_str))]
+//!     output: Option<PathBuf>,
 //! }
 //! # fn main() {}
 //! ```
@@ -59,8 +60,8 @@
 //!   - `author`: Defaults to the crate author name given by Cargo.
 //!   - `about`: Defaults to the crate description given by Cargo.
 //!
-//! Methods from `clap::App` that don't take an &str can be called by
-//! adding _raw to their name, e.g. to activate colored help text:
+//! Methods from `clap::App` that don't take an `&str` can be called by
+//! adding `_raw` to their name, e.g. to activate colored help text:
 //!
 //! ```
 //! #[macro_use]
@@ -124,9 +125,9 @@
 //! ## Help messages
 //!
 //! Help messages for the whole binary or individual arguments can be
-//! specified using the `about` attribute on the struct/field, as we've
-//! already seen. For convenience, they can also be specified using
-//! doc comments. For example:
+//! specified using the `about` attribute on the struct and the `help`
+//! attribute on the field, as we've already seen. For convenience,
+//! they can also be specified using doc comments. For example:
 //!
 //! ```
 //! # #[macro_use] extern crate structopt;
@@ -153,6 +154,7 @@
 //!
 //! ```
 //! # #[macro_use] extern crate structopt;
+//! # use std::path::PathBuf;
 //! #[derive(StructOpt)]
 //! #[structopt(name = "git", about = "the stupid content tracker")]
 //! enum Git {
@@ -162,7 +164,8 @@
 //!         interactive: bool,
 //!         #[structopt(short = "p")]
 //!         patch: bool,
-//!         files: Vec<String>
+//!         #[structopt(parse(from_os_str))]
+//!         files: Vec<PathBuf>
 //!     },
 //!     #[structopt(name = "fetch")]
 //!     Fetch {
