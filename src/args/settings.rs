@@ -185,7 +185,7 @@ pub enum ArgSettings {
     /// # use clap::{App, Arg, ArgSettings};
     /// let m = App::new("prog")
     ///     .arg(Arg::with_name("verbose")
-    ///         .setting(ArgSettings::MultipleValues)
+    ///         .setting(ArgSettings::MultipleOccurrences)
     ///         .short("v"))
     ///     .get_matches_from(vec![
     ///         "prog", "-v", "-v", "-v"    // note, -vvv would have same result
@@ -343,11 +343,11 @@ pub enum ArgSettings {
     ///         .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::TakesValue])
     ///         .short("F"))
     ///     .get_matches_from(vec![
-    ///         "prog", "-F", "file1", "-F", file2", "-F", "file3"
+    ///         "prog", "-F", "file1", "-F", "file2", "-F", "file3"
     ///     ]);
     ///
     /// assert!(m.is_present("file"));
-    /// assert_eq!(m.occurrences_of("file"), 1); // notice only one occurrence
+    /// assert_eq!(m.occurrences_of("file"), 3);
     /// let files: Vec<_> = m.values_of("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2", "file3"]);
     /// ```
