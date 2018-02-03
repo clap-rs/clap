@@ -2,6 +2,22 @@
 
 ## Breaking changes
 
+### Add `parse(from_occurrences)` parser adn don't special case `u64` by @SergioBenitez
+
+If you are using a `u64` in your struct to get the number of occurence of a flag, you should now add `parse(from_occurrences)` on the flag.
+
+For example
+```rust
+#[structopt(short = "v", long = "verbose")]
+verbose: u64,
+```
+must be changed by
+```rust
+#[structopt(short = "v", long = "verbose", parse(from_occurrences))]
+verbose: u64,
+```
+
+This feature was surprising as shown in #30. Using the `parse` feature seems much more natural.
 
 ## Other
 
