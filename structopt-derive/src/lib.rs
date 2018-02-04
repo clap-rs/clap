@@ -13,20 +13,22 @@ extern crate proc_macro;
 extern crate syn;
 #[macro_use]
 extern crate quote;
+extern crate proc_macro2;
 
 mod attrs;
 
 use proc_macro::TokenStream;
 use syn::*;
+use syn::punctuated::Punctuated;
+use syn::token::{Comma};
 use attrs::{Attrs, Parser};
 
 /// Generates the `StructOpt` impl.
 #[proc_macro_derive(StructOpt, attributes(structopt))]
 pub fn structopt(input: TokenStream) -> TokenStream {
-    let s = input.to_string();
-    let ast = syn::parse_derive_input(&s).unwrap();
-    let gen = impl_structopt(&ast);
-    gen.parse().unwrap()
+    let input: DeriveInput = syn::parse(input).unwrap();
+    let gen = impl_structopt(&input);
+    gen.into()
 }
 
 #[derive(Copy, Clone, PartialEq)]
@@ -37,9 +39,9 @@ enum Ty {
     Other,
 }
 
-fn ty(t: &syn::Ty) -> Ty {
-    if let syn::Ty::Path(None, syn::Path { segments: ref segs, .. }) = *t {
-        match segs.last().unwrap().ident.as_ref() {
+fn ty(t: &syn::Type) -> Ty {
+    if let syn::Type::Path(TypePath { path: syn::Path { ref segments, .. }, .. }) = *t {
+        match segments.iter().last().unwrap().ident.as_ref() {
             "bool" => Ty::Bool,
             "Option" => Ty::Option,
             "Vec" => Ty::Vec,
@@ -50,18 +52,25 @@ fn ty(t: &syn::Ty) -> Ty {
     }
 }
 
-fn sub_type(t: &syn::Ty) -> Option<&syn::Ty> {
+fn sub_type(t: &syn::Type) -> Option<&syn::Type> {
     let segs = match *t {
-        syn::Ty::Path(None, syn::Path { ref segments, .. }) => segments,
+        syn::Type::Path(TypePath { path: syn::Path { ref segments, .. }, .. }) => segments,
         _ => return None,
     };
-    match *segs.last().unwrap() {
+    match *segs.iter().last().unwrap() {
         PathSegment {
-            parameters: PathParameters::AngleBracketed(
-                AngleBracketedParameterData { ref types, .. }),
+            arguments: PathArguments::AngleBracketed(
+                AngleBracketedGenericArguments { ref args, .. }
+            ),
             ..
-        } if !types.is_empty() => Some(&types[0]),
-            _ => None,
+        } if args.len() == 1 => {
+            if let GenericArgument::Type(ref ty) = args[0] {
+                Some(ty)
+            } else {
+                None
+            }
+        }
+        _ => None,
     }
 }
 
@@ -74,7 +83,7 @@ fn convert_with_custom_parse(cur_type: Ty) -> Ty {
 
 /// Generate a block of code to add arguments/subcommands corresponding to
 /// the `fields` to an app.
-fn gen_augmentation(fields: &[Field], app_var: &Ident) -> quote::Tokens {
+fn gen_augmentation(fields: &Punctuated<Field, Comma>, app_var: &Ident) -> quote::Tokens {
     let subcmds: Vec<quote::Tokens> = fields.iter()
         .filter(|&field| Attrs::from_field(&field).is_subcommand())
         .map(|field| {
@@ -149,7 +158,7 @@ fn gen_augmentation(fields: &[Field], app_var: &Ident) -> quote::Tokens {
     }}
 }
 
-fn gen_constructor(fields: &[Field]) -> quote::Tokens {
+fn gen_constructor(fields: &Punctuated<Field, Comma>) -> quote::Tokens {
     let fields = fields.iter().map(|field| {
         let attrs = Attrs::from_field(field);
         let field_name = field.ident.as_ref().unwrap();
@@ -216,7 +225,7 @@ fn gen_constructor(fields: &[Field]) -> quote::Tokens {
     }}
 }
 
-fn gen_from_clap(struct_name: &Ident, fields: &[Field]) -> quote::Tokens {
+fn gen_from_clap(struct_name: &Ident, fields: &Punctuated<Field, Comma>) -> quote::Tokens {
     let field_block = gen_constructor(fields);
 
     quote! {
@@ -245,8 +254,8 @@ fn gen_clap_struct(struct_attrs: &[Attribute]) -> quote::Tokens {
     }
 }
 
-fn gen_augment_clap(fields: &[Field]) -> quote::Tokens {
-    let app_var = Ident::new("app");
+fn gen_augment_clap(fields: &Punctuated<Field, Comma>) -> quote::Tokens {
+    let app_var: Ident = "app".into();
     let augmentation = gen_augmentation(fields, &app_var);
     quote! {
         pub fn augment_clap<'a, 'b>(#app_var: ::structopt::clap::App<'a, 'b>) -> ::structopt::clap::App<'a, 'b> {
@@ -266,18 +275,21 @@ fn gen_clap_enum(enum_attrs: &[Attribute]) -> quote::Tokens {
     }
 }
 
-fn gen_augment_clap_enum(variants: &[Variant]) -> quote::Tokens {
+fn gen_augment_clap_enum(variants: &Punctuated<Variant, Comma>) -> quote::Tokens {
+    use syn::Fields::*;
+
     let subcommands = variants.iter().map(|variant| {
-        let attrs = Attrs::from_struct(&variant.attrs, variant.ident.to_string());
-        let app_var = Ident::new("subcommand");
-        let arg_block = match variant.data {
-            VariantData::Struct(ref fields) => gen_augmentation(fields, &app_var),
-            VariantData::Unit => quote!( #app_var ),
-            VariantData::Tuple(ref fields) if fields.len() == 1 => {
-                let ty = &fields[0];
+        let name = variant.ident.as_ref().to_string();
+        let attrs = Attrs::from_struct(&variant.attrs, name);
+        let app_var: Ident = "subcommand".into();
+        let arg_block = match variant.fields {
+            Named(ref fields) => gen_augmentation(&fields.named, &app_var),
+            Unit => quote!( #app_var ),
+            Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
+                let ty = &unnamed[0];
                 quote!(#ty::augment_clap(#app_var))
             }
-            VariantData::Tuple(..) => panic!("{}: tuple enum are not supported", variant.ident),
+            Unnamed(..) => panic!("{}: tuple enum are not supported", variant.ident),
         };
 
         let name = attrs.name();
@@ -306,19 +318,21 @@ fn gen_from_clap_enum(name: &Ident) -> quote::Tokens {
     }
 }
 
-fn gen_from_subcommand(name: &Ident, variants: &[Variant]) -> quote::Tokens {
+fn gen_from_subcommand(name: &Ident, variants: &Punctuated<Variant, Comma>) -> quote::Tokens {
+    use syn::Fields::*;
+
     let match_arms = variants.iter().map(|variant| {
         let attrs = Attrs::from_struct(&variant.attrs, variant.ident.as_ref().to_string());
         let sub_name = attrs.name();
         let variant_name = &variant.ident;
-        let constructor_block = match variant.data {
-            VariantData::Struct(ref fields) => gen_constructor(fields),
-            VariantData::Unit => quote!(),
-            VariantData::Tuple(ref fields) if fields.len() == 1 => {
-                let ty = &fields[0];
+        let constructor_block = match variant.fields {
+            Named(ref fields) => gen_constructor(&fields.named),
+            Unit => quote!(),
+            Unnamed(ref fields) if fields.unnamed.len() == 1 => {
+                let ty = &fields.unnamed[0];
                 quote!( ( <#ty as ::structopt::StructOpt>::from_clap(matches) ) )
             }
-            VariantData::Tuple(..) =>
+            Unnamed(..) =>
                 panic!("{}: tuple enum are not supported", variant.ident),
         };
 
@@ -339,7 +353,11 @@ fn gen_from_subcommand(name: &Ident, variants: &[Variant]) -> quote::Tokens {
     }
 }
 
-fn impl_structopt_for_struct(name: &Ident, fields: &[Field], attrs: &[Attribute]) -> quote::Tokens {
+fn impl_structopt_for_struct(
+    name: &Ident,
+    fields: &Punctuated<Field, Comma>,
+    attrs: &[Attribute]
+) -> quote::Tokens {
     let clap = gen_clap_struct(attrs);
     let augment_clap = gen_augment_clap(fields);
     let from_clap = gen_from_clap(name, fields);
@@ -357,7 +375,11 @@ fn impl_structopt_for_struct(name: &Ident, fields: &[Field], attrs: &[Attribute]
     }
 }
 
-fn impl_structopt_for_enum(name: &Ident, variants: &[Variant], attrs: &[Attribute]) -> quote::Tokens {
+fn impl_structopt_for_enum(
+    name: &Ident,
+    variants: &Punctuated<Variant, Comma>,
+    attrs: &[Attribute]
+) -> quote::Tokens {
     let clap = gen_clap_enum(attrs);
     let augment_clap = gen_augment_clap_enum(variants);
     let from_clap = gen_from_clap_enum(name);
@@ -377,13 +399,15 @@ fn impl_structopt_for_enum(name: &Ident, variants: &[Variant], attrs: &[Attribut
     }
 }
 
-fn impl_structopt(ast: &DeriveInput) -> quote::Tokens {
-    let struct_name = &ast.ident;
-    let inner_impl = match ast.body {
-        Body::Struct(VariantData::Struct(ref fields)) =>
-            impl_structopt_for_struct(struct_name, fields, &ast.attrs),
-        Body::Enum(ref variants) =>
-            impl_structopt_for_enum(struct_name, variants, &ast.attrs),
+fn impl_structopt(input: &DeriveInput) -> quote::Tokens {
+    use syn::Data::*;
+
+    let struct_name = &input.ident;
+    let inner_impl = match input.data {
+        Struct(DataStruct { fields: syn::Fields::Named(ref fields), .. }) =>
+            impl_structopt_for_struct(struct_name, &fields.named, &input.attrs),
+        Enum(ref e) =>
+            impl_structopt_for_enum(struct_name, &e.variants, &input.attrs),
         _ => panic!("structopt only supports non-tuple structs and enums")
     };
 

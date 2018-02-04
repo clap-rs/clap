@@ -7,8 +7,9 @@
 
 use std::env;
 use quote::Tokens;
-use syn::{self, Attribute};
+use syn::{self, Attribute, MetaNameValue, MetaList, LitStr};
 
+#[derive(Debug)]
 pub struct Attrs {
     name: String,
     methods: Vec<Method>,
@@ -16,6 +17,7 @@ pub struct Attrs {
     has_custom_parser: bool,
     is_subcommand: bool,
 }
+#[derive(Debug)]
 struct Method {
     name: String,
     args: Tokens,
@@ -44,8 +46,8 @@ impl ::std::str::FromStr for Parser {
 
 impl Attrs {
     fn new(attrs: &[Attribute], name: String, methods: Vec<Method>) -> Attrs {
-        use NestedMetaItem::MetaItem;
-        use MetaItem::*;
+        use Meta::*;
+        use NestedMeta::*;
         use Lit::*;
 
         let mut res = Attrs {
@@ -56,42 +58,53 @@ impl Attrs {
             is_subcommand: false,
         };
         let iter = attrs.iter()
-            .flat_map(|attr| match attr.value {
-                List(ref i, ref v) if i.as_ref() == "structopt" => v.as_slice(),
-                _ => &[],
+            .filter_map(|attr| {
+                let path = &attr.path;
+                match quote!(#path) == quote!(structopt) {
+                    true => Some(
+                        attr.interpret_meta()
+                            .expect(&format!("invalid structopt syntax: {}", quote!(attr)))
+                    ),
+                    false => None,
+                }
             }).
-            map(|m| match *m {
-                MetaItem(ref mi) => mi,
-                ref lit => panic!("unsupported syntax: {}", quote!(#lit).to_string()),
+            flat_map(|m| match m {
+                List(l) => l.nested,
+                tokens => panic!("unsupported syntax: {}", quote!(#tokens).to_string()),
+            })
+            .map(|m| match m {
+                Meta(m) => m,
+                ref tokens => panic!("unsupported syntax: {}", quote!(#tokens).to_string()),
             });
         for attr in iter {
-            match *attr {
-                NameValue(ref key, Str(ref value, _)) if value.is_empty() => {
-                    res.methods = res.methods
-                        .into_iter()
-                        .filter(|m| m.name == key.as_ref())
-                        .collect();
-                }
-                NameValue(ref key, Str(ref value, _)) if key == "name" =>
-                    res.name = value.to_string(),
-                NameValue(ref key, ref value) => {
+            match attr {
+                NameValue(MetaNameValue { ident, lit: Str(ref value), .. })
+                    if value.value() == "" => {
+                        res.methods = res.methods
+                            .into_iter()
+                            .filter(|m| m.name == ident.as_ref())
+                            .collect();
+                    }
+                NameValue(MetaNameValue { ident, lit: Str(ref s), .. })
+                    if ident == "name" => res.name = s.value(),
+                NameValue(MetaNameValue { ident, lit, .. }) => {
                     res.methods.push(Method {
-                        name: key.to_string(),
-                        args: quote!(#value),
+                        name: ident.to_string(),
+                        args: quote!(#lit),
                     })
                 }
-                List(ref method, ref args) if method == "parse" => {
-                    if args.len() != 1 {
+                List(MetaList { ident, ref nested, .. }) if ident == "parse" => {
+                    if nested.len() != 1 {
                         panic!("parse must have exactly one argument");
                     }
                     res.has_custom_parser = true;
-                    res.parser = match args[0] {
-                        MetaItem(NameValue(ref i, Str(ref v, _))) => {
-                            let function = syn::parse_path(v).expect("parser function path");
-                            let parser = i.as_ref().parse().unwrap();
+                    res.parser = match nested[0] {
+                        Meta(NameValue(MetaNameValue { ident, lit: Str(ref v), .. })) => {
+                            let function: syn::Path = v.parse().expect("parser function path");
+                            let parser = ident.as_ref().parse().unwrap();
                             (parser, quote!(#function))
                         }
-                        MetaItem(Word(ref i)) => {
+                        Meta(Word(ref i)) => {
                             use Parser::*;
                             let parser = i.as_ref().parse().unwrap();
                             let function = match parser {
@@ -106,11 +119,11 @@ impl Attrs {
                         ref l @ _ => panic!("unknown value parser specification: {}", quote!(#l)),
                     };
                 }
-                List(ref method, ref args) if method == "raw" => {
-                    for method in args {
+                List(MetaList { ident, ref nested, .. }) if ident == "raw" => {
+                    for method in nested {
                         match *method {
-                            MetaItem(NameValue(ref key, Str(ref value, _))) =>
-                                res.push_raw_method(key.as_ref(), value),
+                            Meta(NameValue(MetaNameValue { ident, lit: Str(ref v), .. })) =>
+                                res.push_raw_method(ident.as_ref(), v),
                             ref mi @ _ => panic!("unsupported raw entry: {}", quote!(#mi)),
                         }
                     }
@@ -122,8 +135,8 @@ impl Attrs {
         }
         res
     }
-    fn push_raw_method(&mut self, name: &str, args: &str) {
-        let ts = syn::parse_token_trees(args)
+    fn push_raw_method(&mut self, name: &str, args: &LitStr) {
+        let ts: ::proc_macro2::TokenStream = args.value().parse()
             .expect(&format!("bad parameter {} = {}: the parameter must be valid rust code", name, quote!(#args)));
         self.methods.push(Method {
             name: name.to_string(),
@@ -132,24 +145,28 @@ impl Attrs {
     }
     fn push_doc_comment(&mut self, attrs: &[Attribute], name: &str) {
         if self.has_method(name) { return; }
-        let doc_comments: Vec<&str> = attrs.iter()
+        let doc_comments: Vec<_> = attrs.iter()
             .filter_map(|attr| {
-                use MetaItem::*;
-                use StrStyle::*;
+                let path = &attr.path;
+                match quote!(#path) == quote!(doc) {
+                    true => attr.interpret_meta(),
+                    false => None,
+                }
+            })
+            .filter_map(|attr| {
+                use Meta::*;
                 use Lit::*;
-                if let Attribute {
-                    value: NameValue(ref name, Str(ref value, Cooked)),
-                    is_sugared_doc: true,
-                    ..
-                } = *attr {
-                    if name != "doc" { return None; }
-                    let text = value.trim_left_matches("//!")
+                if let NameValue(MetaNameValue { ident, lit: Str(s), .. }) = attr {
+                    if ident != "doc" { return None; }
+                    let value = s.value();
+                    let text = value
+                        .trim_left_matches("//!")
                         .trim_left_matches("///")
                         .trim_left_matches("/*!")
                         .trim_left_matches("/**")
                         .trim_right_matches("*/")
                         .trim();
-                    Some(text)
+                    Some(text.to_string())
                 } else {
                     None
                 }
