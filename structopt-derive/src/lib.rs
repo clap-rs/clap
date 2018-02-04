@@ -142,7 +142,7 @@ fn gen_augmentation(fields: &Punctuated<Field, Comma>, app_var: &Ident) -> quote
                 Ty::Vec => quote!( .takes_value(true).multiple(true) #validator ),
                 Ty::Other if occurences => quote!( .takes_value(false).multiple(true) ),
                 Ty::Other => {
-                    let required = attrs.has_method("default_value");
+                    let required = !attrs.has_method("default_value");
                     quote!( .takes_value(true).multiple(false).required(#required) #validator )
                 },
             };
