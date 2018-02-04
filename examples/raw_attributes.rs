@@ -13,20 +13,20 @@ use structopt::clap::AppSettings;
 
 /// An example of raw attributes
 #[derive(StructOpt, Debug)]
-#[structopt(global_settings_raw = "&[AppSettings::ColoredHelp, AppSettings::VersionlessSubcommands]")]
+#[structopt(raw(global_settings = "&[AppSettings::ColoredHelp, AppSettings::VersionlessSubcommands]"))]
 struct Opt {
     /// Output file
     #[structopt(short = "o", long = "output")]
     output: String,
 
     /// admin_level to consider
-    #[structopt(short = "l", long = "level", aliases_raw = "&[\"set-level\", \"lvl\"]")]
+    #[structopt(short = "l", long = "level", raw(aliases = "&[\"set-level\", \"lvl\"]"))]
     level: Vec<String>,
 
     /// Files to process
     ///
     /// `level` is required if a file is called `FILE`.
-    #[structopt(name = "FILE", requires_if_raw = "\"FILE\", \"level\"")]
+    #[structopt(name = "FILE", raw(requires_if = "\"FILE\", \"level\""))]
     files: Vec<String>,
 }
 

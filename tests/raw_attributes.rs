@@ -13,19 +13,20 @@ use structopt::clap::AppSettings;
 
 // Check if the global settings compile
 #[derive(StructOpt, Debug, PartialEq, Eq)]
-#[structopt(global_settings_raw = "&[AppSettings::ColoredHelp]")]
+#[structopt(raw(global_settings = "&[AppSettings::ColoredHelp]"))]
 struct Opt {
-    #[structopt(long = "x", display_order_raw = "2", next_line_help_raw = "true",
-        default_value_raw = "\"0\"", require_equals_raw = "true")]
+    #[structopt(long = "x",
+                raw(display_order = "2", next_line_help = "true",
+                    default_value = "\"0\"", require_equals = "true"))]
     x: i32,
 
-    #[structopt(short = "l", long = "level", aliases_raw = "&[\"set-level\", \"lvl\"]")]
+    #[structopt(short = "l", long = "level", raw(aliases = "&[\"set-level\", \"lvl\"]"))]
     level: String,
 
     #[structopt(long = "values")]
     values: Vec<i32>,
 
-    #[structopt(name = "FILE", requires_if_raw = "\"FILE\", \"values\"")]
+    #[structopt(name = "FILE", raw(requires_if = "\"FILE\", \"values\""))]
     files: Vec<String>,
 }
 

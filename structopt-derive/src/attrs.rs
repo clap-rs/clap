@@ -72,13 +72,8 @@ impl Attrs {
                         .filter(|m| m.name == key.as_ref())
                         .collect();
                 }
-                NameValue(ref key, Str(ref value, _)) if key == "name" => {
-                    res.name = value.to_string();
-                }
-                NameValue(ref key, Str(ref value, _)) if key.as_ref().ends_with("_raw") => {
-                    let key = key.as_ref();
-                    res.push_raw_method(&key[..key.len() - 4], value);
-                }
+                NameValue(ref key, Str(ref value, _)) if key == "name" =>
+                    res.name = value.to_string(),
                 NameValue(ref key, ref value) => {
                     res.methods.push(Method {
                         name: key.to_string(),
@@ -110,6 +105,15 @@ impl Attrs {
                         }
                         ref l @ _ => panic!("unknown value parser specification: {}", quote!(#l)),
                     };
+                }
+                List(ref method, ref args) if method == "raw" => {
+                    for method in args {
+                        match *method {
+                            MetaItem(NameValue(ref key, Str(ref value, _))) =>
+                                res.push_raw_method(key.as_ref(), value),
+                            ref mi @ _ => panic!("unsupported raw entry: {}", quote!(#mi)),
+                        }
+                    }
                 }
                 Word(ref w) if w == "subcommand" => res.is_subcommand = true,
                 ref i @ List(..) | ref i @ Word(..) =>

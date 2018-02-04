@@ -61,7 +61,7 @@
 //!   - `about`: Defaults to the crate description given by Cargo.
 //!
 //! Methods from `clap::App` that don't take an `&str` can be called by
-//! adding `_raw` to their name, e.g. to activate colored help text:
+//! wrapping them in `raw()`, e.g. to activate colored help text:
 //!
 //! ```
 //! #[macro_use]
@@ -70,7 +70,7 @@
 //! use structopt::StructOpt;
 //!
 //! #[derive(StructOpt, Debug)]
-//! #[structopt(setting_raw = "structopt::clap::AppSettings::ColoredHelp")]
+//! #[structopt(raw(setting = "structopt::clap::AppSettings::ColoredHelp"))]
 //! struct Opt {
 //!     #[structopt(short = "s")]
 //!     speed: bool,
@@ -87,7 +87,7 @@
 //! The `name` attribute can be used to customize the
 //! `Arg::with_name()` call (defaults to the field name).
 //! For functions that do not take a `&str` as argument, the attribute can be
-//! called `function_name_raw`, e. g. `aliases_raw = "&[\"alias\"]"`.
+//! wrapped in `raw()`, e. g. `raw(aliases = "&[\"alias\"]", next_line_help = "true")`.
 //!
 //! The type of the field gives the kind of argument:
 //!
