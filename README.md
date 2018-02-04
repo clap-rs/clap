@@ -6,7 +6,7 @@ Parse command line argument by defining a struct.  It combines [clap](https://cr
 
 ## Documentation
 
-Find it on [Docs.rs](https://docs.rs/structopt).
+Find it on [Docs.rs](https://docs.rs/structopt).  You can also check the [examples](https://github.com/TeXitoi/structopt/tree/master/examples).
 
 ## Example
 
