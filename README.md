@@ -2,6 +2,8 @@
 
 Parse command line argument by defining a struct.  It combines [clap](https://crates.io/crates/clap) with custom derive.
 
+**This README is in flux for v0.2 that's not yet published. Please refere to https://crates.io/crates/structopt to have a README syncronised with crates.io version.**
+
 ## Documentation
 
 Find it on Docs.rs: [structopt-derive](https://docs.rs/structopt-derive) and [structopt](https://docs.rs/structopt).
