@@ -909,9 +909,15 @@ where
                 }
 
                 if starts_new_arg {
+                    let check_all = self.is_set(AS::AllArgsOverrideSelf);
                     {
                         let any_arg = find_any_by_name!(self, self.cache.unwrap_or(""));
-                        matcher.process_arg_overrides(any_arg, &mut self.overrides, &mut self.required);
+                        matcher.process_arg_overrides(
+                            any_arg, 
+                            &mut self.overrides, 
+                            &mut self.required, 
+                            check_all
+                        );
                     }
 
                     if arg_os.starts_with(b"--") {
@@ -1039,9 +1045,15 @@ where
                     self.settings.set(AS::TrailingValues);
                 }
                 if self.cache.map_or(true, |name| name != p.b.name) {
+                    let check_all = self.is_set(AS::AllArgsOverrideSelf);
                     {
                         let any_arg = find_any_by_name!(self, self.cache.unwrap_or(""));
-                        matcher.process_arg_overrides(any_arg, &mut self.overrides, &mut self.required);
+                        matcher.process_arg_overrides(
+                            any_arg, 
+                            &mut self.overrides, 
+                            &mut self.required, 
+                            check_all
+                        );
                     }
                     self.cache = Some(p.b.name);
                 }
@@ -1157,9 +1169,15 @@ where
         }
 
         // In case the last arg was new, we  need to process it's overrides
+        let check_all = self.is_set(AS::AllArgsOverrideSelf);
         {
             let any_arg = find_any_by_name!(self, self.cache.unwrap_or(""));
-            matcher.process_arg_overrides(any_arg, &mut self.overrides, &mut self.required);
+            matcher.process_arg_overrides(
+                any_arg, 
+                &mut self.overrides, 
+                &mut self.required, 
+                check_all
+            );
         }
 
         self.remove_overrides(matcher);

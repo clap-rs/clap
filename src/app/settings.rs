@@ -46,6 +46,7 @@ bitflags! {
         const VALID_ARG_FOUND      = 1 << 37;
         const INFER_SUBCOMMANDS    = 1 << 38;
         const CONTAINS_LAST        = 1 << 39;
+        const ARGS_OVERRIDE_SELF   = 1 << 40;
     }
 }
 
@@ -75,6 +76,7 @@ impl AppFlags {
     impl_settings! { AppSettings,
         ArgRequiredElseHelp => Flags::A_REQUIRED_ELSE_HELP,
         ArgsNegateSubcommands => Flags::ARGS_NEGATE_SCS,
+        AllArgsOverrideSelf => Flags::ARGS_OVERRIDE_SELF,
         AllowExternalSubcommands => Flags::ALLOW_UNK_SC,
         AllowInvalidUtf8 => Flags::UTF8_NONE,
         AllowLeadingHyphen => Flags::LEADING_HYPHEN,
@@ -164,6 +166,13 @@ pub enum AppSettings {
     /// [`ArgMatches::lossy_value_of`]: ./struct.ArgMatches.html#method.lossy_value_of
     /// [`ArgMatches::lossy_values_of`]: ./struct.ArgMatches.html#method.lossy_values_of
     AllowInvalidUtf8,
+
+    /// Essentially sets [`Arg::overrides_with("itself")`] for all arguments.
+    ///
+    /// **WARNING:** Positional arguments cannot override themselves (or we would never be able
+    /// to advance to the next positional). This setting ignores positional arguments.
+    /// [`Arg::overrides_with("itself")`]: ./struct.Arg.html#method.overrides_with
+    AllArgsOverrideSelf,
 
     /// Specifies that leading hyphens are allowed in argument *values*, such as negative numbers
     /// like `-10`. (which would otherwise be parsed as another flag or option)
