@@ -23,6 +23,20 @@ This feature was surprising as shown in [#30](https://github.com/TeXitoi/structo
 
 There was no reason to take the argument by value. Most of the StructOpt users will not be impacted by this change. If you are using `StructOpt::from_clap`, just add a `&` before the argument.
 
+### Fail if attributes are not used by [@TeXitoi](https://github.com/TeXitoi)
+
+StructOpt was quite fuzzy in its attribute parsing: it was only searching for interresting things, e. g. something like `#[structopt(foo(bar))]` was accepted but not used. It now fails the compilation.
+
+You should have nothing to do here. This breaking change may highlight some missuse that can be bugs.
+
+In future versions, if there is cases that are not highlighed, they will be considerated as bugs, not breaking changes.
+
+### Use `raw()` wrapping instead of `_raw` suffixing by [@TeXitoi](https://github.com/TeXitoi)
+
+The syntax of raw attributes is changed to improve the syntax.
+
+You have to change `foo_raw = "bar", baz_raw = "foo"` by `raw(foo = "bar", baz = "foo")` or `raw(foo = "bar"), raw(baz = "foo")`.
+
 ## New features
 
 * Add `parse(from_occurrences)` parser by [@SergioBenitez](https://github.com/SergioBenitez)
