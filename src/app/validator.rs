@@ -336,7 +336,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
     where
         A: AnyArg<'a, 'b> + Display,
     {
-        debugln!("Validator::validate_arg_num_vals;");
+        debugln!("Validator::validate_arg_num_vals:{}", a.name());
         if let Some(num) = a.num_vals() {
             debugln!("Validator::validate_arg_num_vals: num_vals set...{}", num);
             let should_err = if a.is_set(ArgSettings::Multiple) {
