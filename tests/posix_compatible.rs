@@ -3,6 +3,81 @@ extern crate clap;
 use clap::{App, Arg, ErrorKind};
 
 #[test]
+fn flag_overrides_itself() {
+    let res = App::new("posix")
+                .arg(Arg::from_usage("--flag  'some flag'").overrides_with("flag"))
+                .get_matches_from_safe(vec!["", "--flag", "--flag"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("flag"));
+    assert_eq!(m.occurrences_of("flag"), 1);
+}
+
+#[test]
+fn mult_flag_overrides_itself() {
+    let res = App::new("posix")
+                .arg(Arg::from_usage("--flag...  'some flag'").overrides_with("flag"))
+                .get_matches_from_safe(vec!["", "--flag", "--flag", "--flag", "--flag"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("flag"));
+    assert_eq!(m.occurrences_of("flag"), 4);
+}
+
+#[test]
+fn option_overrides_itself() {
+    let res = App::new("posix")
+                .arg(Arg::from_usage("--opt [val] 'some option'").overrides_with("opt"))
+                .get_matches_from_safe(vec!["", "--opt=some", "--opt=other"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("opt"));
+    assert_eq!(m.occurrences_of("opt"), 1);
+    assert_eq!(m.value_of("opt"), Some("other"));
+}
+
+#[test]
+fn mult_option_require_delim_overrides_itself() {
+    let res = App::new("posix")
+                .arg(Arg::from_usage("--opt [val]... 'some option'")
+                    .overrides_with("opt")
+                    .number_of_values(1)
+                    .require_delimiter(true))
+                .get_matches_from_safe(vec!["", "--opt=some", "--opt=other", "--opt=one,two"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("opt"));
+    assert_eq!(m.occurrences_of("opt"), 1);
+    assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["one", "two"]);
+}
+
+#[test]
+fn mult_option_overrides_itself() {
+    let res = App::new("posix")
+                .arg(Arg::from_usage("--opt [val]... 'some option'")
+                    .overrides_with("opt"))
+                .get_matches_from_safe(vec!["", "--opt", "first", "overides", "--opt", "some", "other", "val"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("opt"));
+    assert_eq!(m.occurrences_of("opt"), 1);
+    assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["some", "other", "val"]);
+}
+
+#[test]
+fn aaos_pos_mult() {
+    // opts with multiple
+    let res = App::new("posix")
+                .arg(Arg::from_usage("[val]... 'some pos'").overrides_with("val"))
+                .get_matches_from_safe(vec!["", "some", "other", "value"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("val"));
+    assert_eq!(m.occurrences_of("val"), 3);
+    assert_eq!(m.values_of("val").unwrap().collect::<Vec<_>>(), &["some", "other", "value"]);
+}
+
+#[test]
 fn posix_compatible_flags_long() {
     let m = App::new("posix")
                 .arg(Arg::from_usage("--flag  'some flag'").overrides_with("color"))

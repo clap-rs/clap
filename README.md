@@ -42,25 +42,32 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's whats new in 2.29.3:
+
+* **Self Overrides:** now supports arguments which override themselves (Allows true shell aliases, config files, etc!)
+* **Requirements:**  fixes an issue where conflicting args would still show up as required and missing
+* Fixes a bug which disallows proper nesting of `--` for args that capture all values after the first `--`
+* **AppSettings::AllArgsOverrideSelf:**  adds a new convenience setting to allow all args to override themselves
+
 Here's whats new in 2.29.2:
 
 * **Many ZSH Completions Improvements** (Thanks to @segevfiner)
   *  Positional arguments will default to file completion when not using specific values!
-  *  Implement postional argument possible values completion 
-  *  Removes redundant code from output 
-  *  Don't pass `-S` to `_arguments` if Zsh is too old 
-  *  Fix completions with mixed positionals and subcommands 
-  *  String escape possible values for options 
+  *  Implement postional argument possible values completion
+  *  Removes redundant code from output
+  *  Don't pass `-S` to `_arguments` if Zsh is too old
+  *  Fix completions with mixed positionals and subcommands
+  *  String escape possible values for options
 
 
 Here's whats new in 2.29.1:
 
 * Debloats clap by deduplicating logic and refactors for a ~57% decrease in code size! This is with zero functinoality lost, and a slight perf increase!
-* Change the bash completion script code generation to support hyphens. 
+* Change the bash completion script code generation to support hyphens.
 * Fix completion of long option values in ZSH completions
 * Fixes broken links in docs
 * Updates contributors list
-* Fixes the ripgrep benchmark by adding a value to a flag that expects it 
+* Fixes the ripgrep benchmark by adding a value to a flag that expects it
 
 Here's whats new in 2.29.0:
 

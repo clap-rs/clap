@@ -251,6 +251,7 @@ where
     fn add_reqs(&mut self, a: &Arg<'a, 'b>) {
         if a.is_set(ArgSettings::Required) {
             // If the arg is required, add all it's requirements to master required list
+            self.required.push(a.b.name);
             if let Some(ref areqs) = a.b.requires {
                 for name in areqs
                     .iter()
@@ -260,7 +261,6 @@ where
                     self.required.push(name);
                 }
             }
-            self.required.push(a.b.name);
         }
     }
 
@@ -909,9 +909,15 @@ where
                 }
 
                 if starts_new_arg {
+                    let check_all = self.is_set(AS::AllArgsOverrideSelf);
                     {
                         let any_arg = find_any_by_name!(self, self.cache.unwrap_or(""));
-                        matcher.process_arg_overrides(any_arg, &mut self.overrides, &mut self.required);
+                        matcher.process_arg_overrides(
+                            any_arg, 
+                            &mut self.overrides, 
+                            &mut self.required, 
+                            check_all
+                        );
                     }
 
                     if arg_os.starts_with(b"--") {
@@ -1039,9 +1045,15 @@ where
                     self.settings.set(AS::TrailingValues);
                 }
                 if self.cache.map_or(true, |name| name != p.b.name) {
+                    let check_all = self.is_set(AS::AllArgsOverrideSelf);
                     {
                         let any_arg = find_any_by_name!(self, self.cache.unwrap_or(""));
-                        matcher.process_arg_overrides(any_arg, &mut self.overrides, &mut self.required);
+                        matcher.process_arg_overrides(
+                            any_arg, 
+                            &mut self.overrides, 
+                            &mut self.required, 
+                            check_all
+                        );
                     }
                     self.cache = Some(p.b.name);
                 }
@@ -1157,9 +1169,15 @@ where
         }
 
         // In case the last arg was new, we  need to process it's overrides
+        let check_all = self.is_set(AS::AllArgsOverrideSelf);
         {
             let any_arg = find_any_by_name!(self, self.cache.unwrap_or(""));
-            matcher.process_arg_overrides(any_arg, &mut self.overrides, &mut self.required);
+            matcher.process_arg_overrides(
+                any_arg, 
+                &mut self.overrides, 
+                &mut self.required, 
+                check_all
+            );
         }
 
         self.remove_overrides(matcher);

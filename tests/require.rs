@@ -30,6 +30,51 @@ USAGE:
 
 For more information try --help";
 
+static ISSUE_1158: &'static str = "error: The following required arguments were not provided:
+    -x <X>
+    -y <Y>
+    -z <Z>
+
+USAGE:
+    example [OPTIONS] <ID> -x <X> -y <Y> -z <Z>
+
+For more information try --help";
+
+#[test]
+fn issue_1158_conflicting_requirements() {
+    let app = App::new("example")
+        .arg(Arg::from_usage("-c, --config [FILE] 'Custom config file.'")
+             .required_unless("ID")
+             .conflicts_with("ID"))
+        .arg(Arg::from_usage("[ID] 'ID'")
+             .required_unless("config")
+             .conflicts_with("config")
+             .requires_all(&["x", "y", "z"]))
+        .arg(Arg::from_usage("-x [X] 'X'"))
+        .arg(Arg::from_usage("-y [Y] 'Y'"))
+        .arg(Arg::from_usage("-z [Z] 'Z'"));
+
+    assert!(test::compare_output(app, "example id", ISSUE_1158, true));
+}
+
+#[test]
+fn issue_1158_conflicting_requirements_rev() {
+    let res = App::new("example")
+        .arg(Arg::from_usage("-c, --config [FILE] 'Custom config file.'")
+             .required_unless("ID")
+             .conflicts_with("ID"))
+        .arg(Arg::from_usage("[ID] 'ID'")
+             .required_unless("config")
+             .conflicts_with("config")
+             .requires_all(&["x", "y", "z"]))
+        .arg(Arg::from_usage("-x [X] 'X'"))
+        .arg(Arg::from_usage("-y [Y] 'Y'"))
+        .arg(Arg::from_usage("-z [Z] 'Z'"))
+        .get_matches_from_safe(vec!["example", "--config", "some"]);
+
+    assert!(res.is_ok());
+}
+
 #[test]
 fn flag_required() {
     let result = App::new("flag_required")

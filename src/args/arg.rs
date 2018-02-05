@@ -1203,6 +1203,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// **NOTE:** When an argument is overridden it is essentially as if it never was used, any
     /// conflicts, requirements, etc. are evaluated **after** all "overrides" have been removed
     ///
+    /// **WARNING:** Positional arguments cannot override themselves (or we would never be able
+    /// to advance to the next positional). If a positional agument lists itself as an override,
+    /// it is simply ignored.
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -1221,6 +1225,74 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert!(m.is_present("debug")); // even though flag conflicts with debug, it's as if flag
     ///                                 // was never used because it was overridden with color
     /// assert!(!m.is_present("flag"));
+    /// ```
+    /// Care must be taken when using this setting, and having an arg override with itself. This
+    /// is common practice when supporting things like shell aliases, config files, etc.
+    /// However, when combined with multiple values, it can get dicy.
+    /// Here is how clap handles such situations:
+    ///
+    /// When a flag overrides itself, it's as if the flag was only ever used once (essentially
+    /// preventing a "Unexpected multiple usage" error):
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("posix")
+    ///             .arg(Arg::from_usage("--flag  'some flag'").overrides_with("flag"))
+    ///             .get_matches_from(vec!["posix", "--flag", "--flag"]);
+    /// assert!(m.is_present("flag"));
+    /// assert_eq!(m.occurrences_of("flag"), 1);
+    /// ```
+    /// Making a flag `multiple(true)` and override itself is essentially meaningless. Therefore
+    /// clap ignores an override of self if it's a flag and it already accepts multiple occurrences.
+    ///
+    /// ```
+    /// # use clap::{App, Arg};
+    /// let m = App::new("posix")
+    ///             .arg(Arg::from_usage("--flag...  'some flag'").overrides_with("flag"))
+    ///             .get_matches_from(vec!["", "--flag", "--flag", "--flag", "--flag"]);
+    /// assert!(m.is_present("flag"));
+    /// assert_eq!(m.occurrences_of("flag"), 4);
+    /// ```
+    /// Now notice with options, it's as if only the last occurrence mattered
+    ///
+    /// ```
+    /// # use clap::{App, Arg};
+    /// let m = App::new("posix")
+    ///             .arg(Arg::from_usage("--opt [val] 'some option'").overrides_with("opt"))
+    ///             .get_matches_from(vec!["", "--opt=some", "--opt=other"]);
+    /// assert!(m.is_present("opt"));
+    /// assert_eq!(m.occurrences_of("opt"), 1);
+    /// assert_eq!(m.value_of("opt"), Some("other"));
+    /// ```
+    ///
+    /// Here is where it gets interesting. If an option is declared as `multiple(true)` and it also
+    /// overrides with itself, only the last *set* of values will be saved.
+    ///
+    /// ```
+    /// # use clap::{App, Arg};
+    /// let m = App::new("posix")
+    ///             .arg(Arg::from_usage("--opt [val]... 'some option'")
+    ///                 .overrides_with("opt"))
+    ///             .get_matches_from(vec!["", "--opt", "first", "over", "--opt", "other", "val"]);
+    /// assert!(m.is_present("opt"));
+    /// assert_eq!(m.occurrences_of("opt"), 1);
+    /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["other", "val"]);
+    /// ```
+    ///
+    /// A safe thing to do, to ensure there is no confusion is to require an argument delimiter and
+    /// and only one "value set" per instance of the option.
+    ///
+    /// ```
+    /// # use clap::{App, Arg};
+    /// let m = App::new("posix")
+    ///             .arg(Arg::from_usage("--opt [val]... 'some option'")
+    ///                 .overrides_with("opt")
+    ///                 .number_of_values(1)
+    ///                 .require_delimiter(true))
+    ///             .get_matches_from(vec!["", "--opt=some,other", "--opt=one,two"]);
+    /// assert!(m.is_present("opt"));
+    /// assert_eq!(m.occurrences_of("opt"), 1);
+    /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["one", "two"]);
     /// ```
     pub fn overrides_with(mut self, name: &'a str) -> Self {
         if let Some(ref mut vec) = self.b.overrides {
