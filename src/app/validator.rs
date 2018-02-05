@@ -36,11 +36,14 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         self.0.add_defaults(matcher)?;
         if let ParseResult::Opt(a) = needs_val_of {
             debugln!("Validator::validate: needs_val_of={:?}", a);
-            let o = self.0
+            let o = {
+                self.0
                 .opts
                 .iter()
                 .find(|o| o.b.name == a)
-                .expect(INTERNAL_ERROR_MSG);
+                .expect(INTERNAL_ERROR_MSG)
+                .clone()
+            };
             self.validate_required(matcher)?;
             reqs_validated = true;
             let should_err = if let Some(v) = matcher.0.args.get(&*o.b.name) {
@@ -50,7 +53,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             };
             if should_err {
                 return Err(Error::empty_value(
-                    o,
+                    &o,
                     &*usage::create_error_usage(self.0, matcher, None),
                     self.0.color(),
                 ));
@@ -438,20 +441,46 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         Ok(())
     }
 
-    fn validate_required(&self, matcher: &ArgMatcher) -> ClapResult<()> {
+    fn validate_required(&mut self, matcher: &ArgMatcher) -> ClapResult<()> {
         debugln!(
             "Validator::validate_required: required={:?};",
             self.0.required
         );
 
-        'outer: for name in &self.0.required {
+        let mut should_err = false;
+        let mut to_rem = Vec::new();
+        for name in &self.0.required {
             debugln!("Validator::validate_required:iter:{}:", name);
             if matcher.contains(name) {
-                continue 'outer;
+                continue;
             }
-            if let Some(a) = find_any_by_name!(self.0, *name) {
+            if to_rem.contains(name) {
+                continue;
+            } else if let Some(a) = find_any_by_name!(self.0, *name) {
                 if self.is_missing_required_ok(a, matcher) {
-                    continue 'outer;
+                    to_rem.push(a.name());
+                    if let Some(reqs) = a.requires() {
+                        for r in reqs
+                            .iter()
+                            .filter(|&&(val, _)| val.is_none())
+                            .map(|&(_, name)| name)
+                        {
+                            to_rem.push(r);
+                        }
+                    }
+                    continue;
+                }
+            }
+            should_err = true;
+            break;
+        }
+        if should_err {
+            for r in &to_rem {
+                'inner: for i in (0 .. self.0.required.len()).rev() {
+                    if &self.0.required[i] == r {
+                        self.0.required.swap_remove(i);
+                        break 'inner;
+                    }
                 }
             }
             return self.missing_required_error(matcher, None);

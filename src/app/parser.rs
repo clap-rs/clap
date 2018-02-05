@@ -251,6 +251,7 @@ where
     fn add_reqs(&mut self, a: &Arg<'a, 'b>) {
         if a.is_set(ArgSettings::Required) {
             // If the arg is required, add all it's requirements to master required list
+            self.required.push(a.b.name);
             if let Some(ref areqs) = a.b.requires {
                 for name in areqs
                     .iter()
@@ -260,7 +261,6 @@ where
                     self.required.push(name);
                 }
             }
-            self.required.push(a.b.name);
         }
     }
 
