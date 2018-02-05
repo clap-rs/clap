@@ -1,0 +1,8 @@
+[package]
+name = "clap_test"
+version = "0.1.0"
+authors = ["Kevin K. <kbknapp@gmail.com>"]
+
+[dependencies]
+clap = {path = "../"}
+regex = "0.2"

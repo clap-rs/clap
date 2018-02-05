@@ -3,21 +3,49 @@
 name = "clap"
 version = "3.0.0-alpha1"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
-exclude = ["examples/*", "clap-test/*", "tests/*", "benches/*", "*.png", "clap-perf/*", "*.dot"]
+exclude = [
+	".github/*",
+	"examples/*", 
+	"tests/*", 
+	"benches/*", 
+	"clap-perf/*", 
+	"etc/*",
+	"*.png", 
+	"*.dot",
+	"*.yml",
+	"*.toml",
+	"*.md",
+	"clap-test.rs"
+]
+include = [
+	"src/**/*", 
+	"Cargo.toml", 
+	"README.md"
+]
 repository = "https://github.com/kbknapp/clap-rs"
 documentation = "https://docs.rs/clap/"
 homepage = "https://clap.rs/"
 readme = "README.md"
 license = "MIT"
-keywords = ["argument", "cli", "arg", "parser", "parse"]
+keywords = [
+	"argument", 
+	"cli", 
+	"arg", 
+	"parser", 
+	"parse"
+]
 categories = ["command-line-interface"]
 description = """
-A simple to use, efficient, and full featured  Command Line Argument Parser
+A simple to use, efficient, and full featured Command Line Argument Parser
 """
 
 [badges]
 travis-ci = { repository = "kbknapp/clap-rs" }
 appveyor = { repository = "kbknapp/clap-rs" }
+coveralls = { repostiory = "kbknapp/clap-rs", branch = "master" }
+is-it-maintained-issue-resolution = { repository = "kbknapp/clap-rs" }
+is-it-maintained-open-issues = { repository = "kbknapp/clap-rs" }
+maintenance = {status = "actively-developed"}
 
 [dependencies]
 bitflags              = "1.0"
