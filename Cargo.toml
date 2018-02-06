@@ -18,6 +18,10 @@ A simple to use, efficient, and full featured  Command Line Argument Parser
 [badges]
 travis-ci = { repository = "kbknapp/clap-rs" }
 appveyor = { repository = "kbknapp/clap-rs" }
+coveralls = { repostiory = "kbknapp/clap-rs", branch = "master" }
+is-it-maintained-issue-resolution = { repository = "kbknapp/clap-rs" }
+is-it-maintained-open-issues = { repository = "kbknapp/clap-rs" }
+maintenance = {status = "actively-developed"}
 
 [dependencies]
 bitflags              = "1.0"
