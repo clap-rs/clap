@@ -496,7 +496,7 @@ impl Error {
         Error {
             message: format!(
                 "{} '{}' isn't a valid value for '{}'\n\t\
-                 [values: {}]\n\
+                 [possible values: {}]\n\
                  {}\n\n\
                  {}\n\n\
                  For more information try {}",
