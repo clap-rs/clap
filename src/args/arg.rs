@@ -1242,7 +1242,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert!(m.is_present("flag"));
     /// assert_eq!(m.occurrences_of("flag"), 1);
     /// ```
-    /// Making a flag `multiple(true)` and override itself is essentially meaningless. Therefore
+    /// Making a arg `multiple(true)` and override itself is essentially meaningless. Therefore
     /// clap ignores an override of self if it's a flag and it already accepts multiple occurrences.
     ///
     /// ```
@@ -1253,7 +1253,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert!(m.is_present("flag"));
     /// assert_eq!(m.occurrences_of("flag"), 4);
     /// ```
-    /// Now notice with options, it's as if only the last occurrence mattered
+    /// Now notice with options (which *do not* set `multiple(true)`), it's as if only the last
+    /// occurrence happened.
     ///
     /// ```
     /// # use clap::{App, Arg};
@@ -1265,8 +1266,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(m.value_of("opt"), Some("other"));
     /// ```
     ///
-    /// Here is where it gets interesting. If an option is declared as `multiple(true)` and it also
-    /// overrides with itself, only the last *set* of values will be saved.
+    /// Just like flags, options with `multiple(true)` set, will ignore the "override self" setting.
     ///
     /// ```
     /// # use clap::{App, Arg};
@@ -1275,24 +1275,24 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///                 .overrides_with("opt"))
     ///             .get_matches_from(vec!["", "--opt", "first", "over", "--opt", "other", "val"]);
     /// assert!(m.is_present("opt"));
-    /// assert_eq!(m.occurrences_of("opt"), 1);
-    /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["other", "val"]);
+    /// assert_eq!(m.occurrences_of("opt"), 2);
+    /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["first", "over", "other", "val"]);
     /// ```
     ///
-    /// A safe thing to do, to ensure there is no confusion is to require an argument delimiter and
-    /// and only one "value set" per instance of the option.
+    /// A safe thing to do if you'd like to support an option which supports multiple values, but
+    /// also is "overridable" by itself, is to use `use_delimiter(false)` and *not* use 
+    /// `multiple(true)` while telling users to seperate values with a comma (i.e. `val1,val2`)
     ///
     /// ```
     /// # use clap::{App, Arg};
     /// let m = App::new("posix")
-    ///             .arg(Arg::from_usage("--opt [val]... 'some option'")
+    ///             .arg(Arg::from_usage("--opt [val] 'some option'")
     ///                 .overrides_with("opt")
-    ///                 .number_of_values(1)
-    ///                 .require_delimiter(true))
+    ///                 .use_delimiter(false))
     ///             .get_matches_from(vec!["", "--opt=some,other", "--opt=one,two"]);
     /// assert!(m.is_present("opt"));
     /// assert_eq!(m.occurrences_of("opt"), 1);
-    /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["one", "two"]);
+    /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["one,two"]);
     /// ```
     pub fn overrides_with(mut self, name: &'a str) -> Self {
         if let Some(ref mut vec) = self.b.overrides {

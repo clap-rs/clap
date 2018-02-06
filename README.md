@@ -42,6 +42,10 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's whats new in 2.29.4:
+
+* **Overrides Self:**  fixes a bug where options with multiple values couldnt ever have multiple values ([d95907cf](https://github.com/kbknapp/clap-rs/commit/d95907cff6d011a901fe35fa00b0f4e18547a1fb))
+
 Here's whats new in 2.29.3:
 
 * **Self Overrides:** now supports arguments which override themselves (Allows true shell aliases, config files, etc!)
@@ -68,26 +72,6 @@ Here's whats new in 2.29.1:
 * Fixes broken links in docs
 * Updates contributors list
 * Fixes the ripgrep benchmark by adding a value to a flag that expects it
-
-Here's whats new in 2.29.0:
-
-* **Arg:**  adds Arg::hide_env_values(bool) which allows one to hide any current env values and display only the key in help messages
-
-Here's whats new in 2.28.0:
-
-The minimum required Rust is now 1.20. This was done to start using bitflags 1.0 and having >1.0 deps is a *very good* thing!
-
-* Updates `bitflags` to 1.0
-* Adds the traits to be used with the `clap-derive` crate to be able to use Custom Derive (for now must be accessed with `unstable` feature flag)
-* Adds Arg::case_insensitive(bool) which allows matching Arg::possible_values without worrying about ASCII case
-* Fixes a regression where --help couldn't be overridden
-* adds '[SUBCOMMAND]' to usage strings with only AppSettings::AllowExternalSubcommands is used with no other subcommands
-* uses `.bash` for Bash completion scripts now instead of `.bash-completion` due to convention and `.bash-completion` not being supported by completion projects
-* Fix URL path to github hosted files
-* fix typos in docs
-* **README.md:**  updates the readme and pulls out some redundant sections
-* fixes a bug that allowed options to pass parsing when no value was provided
-* ignore PropagateGlobalValuesDown deprecation warning
 
 For full details, see [CHANGELOG.md](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md)
 

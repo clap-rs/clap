@@ -784,8 +784,8 @@ fn aaos_opts_mult() {
     assert!(res.is_ok());
     let m = res.unwrap();
     assert!(m.is_present("opt"));
-    assert_eq!(m.occurrences_of("opt"), 1);
-    assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["one", "two"]);
+    assert_eq!(m.occurrences_of("opt"), 3);
+    assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["some", "other", "one", "two"]);
 }
 
 #[test]
@@ -798,8 +798,8 @@ fn aaos_opts_mult_req_delims() {
     assert!(res.is_ok());
     let m = res.unwrap();
     assert!(m.is_present("opt"));
-    assert_eq!(m.occurrences_of("opt"), 1);
-    assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["some", "other", "val"]);
+    assert_eq!(m.occurrences_of("opt"), 2);
+    assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["first", "overides", "some", "other", "val"]);
 }
 
 #[test]
@@ -814,4 +814,17 @@ fn aaos_pos_mult() {
     assert!(m.is_present("val"));
     assert_eq!(m.occurrences_of("val"), 3);
     assert_eq!(m.values_of("val").unwrap().collect::<Vec<_>>(), &["some", "other", "value"]);
+}
+
+#[test]
+fn aaos_option_use_delim_false() {
+
+    let m = App::new("posix")
+                .setting(AppSettings::AllArgsOverrideSelf)
+                .arg(Arg::from_usage("--opt [val] 'some option'")
+                    .use_delimiter(false))
+                .get_matches_from(vec!["", "--opt=some,other", "--opt=one,two"]);
+    assert!(m.is_present("opt"));
+    assert_eq!(m.occurrences_of("opt"), 1);
+    assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["one,two"]);
 }
