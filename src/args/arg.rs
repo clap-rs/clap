@@ -1292,7 +1292,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///             .get_matches_from(vec!["", "--opt=some,other", "--opt=one,two"]);
     /// assert!(m.is_present("opt"));
     /// assert_eq!(m.occurrences_of("opt"), 1);
-    /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["one", "two"]);
+    /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["one,two"]);
     /// ```
     pub fn overrides_with(mut self, name: &'a str) -> Self {
         if let Some(ref mut vec) = self.b.overrides {
