@@ -10,7 +10,7 @@ use clap::{App, Arg, ErrorKind};
 
 #[cfg(feature = "suggestions")]
 static PV_ERROR: &'static str = "error: 'slo' isn't a valid value for '--Option <option3>'
-\t[values: fast, slow]
+\t[possible values: fast, slow]
 
 \tDid you mean 'slow'?
 
@@ -21,7 +21,7 @@ For more information try --help";
 
 #[cfg(not(feature = "suggestions"))]
 static PV_ERROR: &'static str = "error: 'slo' isn't a valid value for '--Option <option3>'
-\t[values: fast, slow]
+\t[possible values: fast, slow]
 
 
 USAGE:
