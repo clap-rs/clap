@@ -56,7 +56,7 @@ impl<'a> ArgMatcher<'a> {
     pub fn handle_self_overrides<'b>(&mut self, a: Option<&AnyArg<'a, 'b>>) {
         debugln!("ArgMatcher::handle_self_overrides:{:?};", a.map_or(None, |a| Some(a.name())));
         if let Some(aa) = a {
-            if !aa.has_switch() || (!aa.takes_value() && aa.is_set(ArgSettings::Multiple)) {
+            if !aa.has_switch() || aa.is_set(ArgSettings::Multiple) {
                 // positional args can't override self or else we would never advance to the next
 
                 // Also flags with --multiple set are ignored otherwise we could never have more 
