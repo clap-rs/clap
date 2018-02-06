@@ -1,3 +1,13 @@
+<a name="v2.29.4"></a>
+### v2.29.4 (2018-02-06)
+
+
+#### Bug Fixes
+
+* **Overrides Self:**  fixes a bug where options with multiple values couldnt ever have multiple values ([d95907cf](https://github.com/kbknapp/clap-rs/commit/d95907cff6d011a901fe35fa00b0f4e18547a1fb))
+
+
+
 <a name="v2.29.3"></a>
 ### v2.29.3 (2018-02-05)
 
