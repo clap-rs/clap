@@ -16,8 +16,7 @@ fn required_argument() {
     struct Opt {
         arg: i32,
     }
-    assert_eq!(Opt { arg: 42 },
-               Opt::from_clap(&Opt::clap().get_matches_from(&["test", "42"])));
+    assert_eq!(Opt { arg: 42 }, Opt::from_iter(&["test", "42"]));
     assert!(Opt::clap().get_matches_from_safe(&["test"]).is_err());
     assert!(Opt::clap().get_matches_from_safe(&["test", "42", "24"]).is_err());
 }
@@ -28,10 +27,8 @@ fn optional_argument() {
     struct Opt {
         arg: Option<i32>,
     }
-    assert_eq!(Opt { arg: Some(42) },
-               Opt::from_clap(&Opt::clap().get_matches_from(&["test", "42"])));
-    assert_eq!(Opt { arg: None },
-               Opt::from_clap(&Opt::clap().get_matches_from(&["test"])));
+    assert_eq!(Opt { arg: Some(42) }, Opt::from_iter(&["test", "42"]));
+    assert_eq!(Opt { arg: None }, Opt::from_iter(&["test"]));
     assert!(Opt::clap().get_matches_from_safe(&["test", "42", "24"]).is_err());
 }
 
@@ -42,10 +39,8 @@ fn argument_with_default() {
         #[structopt(default_value = "42")]
         arg: i32,
     }
-    assert_eq!(Opt { arg: 24 },
-               Opt::from_clap(&Opt::clap().get_matches_from(&["test", "24"])));
-    assert_eq!(Opt { arg: 42 },
-               Opt::from_clap(&Opt::clap().get_matches_from(&["test"])));
+    assert_eq!(Opt { arg: 24 }, Opt::from_iter(&["test", "24"]));
+    assert_eq!(Opt { arg: 42 }, Opt::from_iter(&["test"]));
     assert!(Opt::clap().get_matches_from_safe(&["test", "42", "24"]).is_err());
 }
 
@@ -56,10 +51,8 @@ fn argument_with_raw_default() {
         #[structopt(raw(default_value = "\"42\""))]
         arg: i32,
     }
-    assert_eq!(Opt { arg: 24 },
-               Opt::from_clap(&Opt::clap().get_matches_from(&["test", "24"])));
-    assert_eq!(Opt { arg: 42 },
-               Opt::from_clap(&Opt::clap().get_matches_from(&["test"])));
+    assert_eq!(Opt { arg: 24 }, Opt::from_iter(&["test", "24"]));
+    assert_eq!(Opt { arg: 42 }, Opt::from_iter(&["test"]));
     assert!(Opt::clap().get_matches_from_safe(&["test", "42", "24"]).is_err());
 }
 
@@ -69,10 +62,7 @@ fn arguments() {
     struct Opt {
         arg: Vec<i32>,
     }
-    assert_eq!(Opt { arg: vec![24] },
-               Opt::from_clap(&Opt::clap().get_matches_from(&["test", "24"])));
-    assert_eq!(Opt { arg: vec![] },
-               Opt::from_clap(&Opt::clap().get_matches_from(&["test"])));
-    assert_eq!(Opt { arg: vec![24, 42] },
-               Opt::from_clap(&Opt::clap().get_matches_from(&["test", "24", "42"])));
+    assert_eq!(Opt { arg: vec![24] }, Opt::from_iter(&["test", "24"]));
+    assert_eq!(Opt { arg: vec![] }, Opt::from_iter(&["test"]));
+    assert_eq!(Opt { arg: vec![24, 42] }, Opt::from_iter(&["test", "24", "42"]));
 }

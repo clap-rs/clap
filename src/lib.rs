@@ -370,7 +370,7 @@ pub trait StructOpt {
 
     /// Gets the struct from any iterator such as a `Vec` of your making.
     /// Print the error message and quit the program in case of failure.
-    fn from_any<I>(iter: I) -> Self
+    fn from_iter<I>(iter: I) -> Self
     where
         Self: Sized,
         I: IntoIterator,
