@@ -21,6 +21,7 @@ impl<'a> Default for ArgMatcher<'a> {
 impl<'a> ArgMatcher<'a> {
     pub fn new() -> Self { ArgMatcher::default() }
 
+    #[allow(dead_code)]
     pub fn is_present(&self, name: &str) -> bool { self.0.is_present(name) }
 
     pub fn propagate_globals(&mut self, global_arg_vec: &[&'a str]) {

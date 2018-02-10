@@ -46,6 +46,7 @@ bitflags! {
         const VALID_ARG_FOUND      = 1 << 37;
         const INFER_SUBCOMMANDS    = 1 << 38;
         const CONTAINS_LAST        = 1 << 39;
+        const ARGS_OVERRIDE_SELF   = 1 << 40;
     }
 }
 
@@ -112,6 +113,7 @@ impl AppFlags {
         Propagated => Flags::PROPAGATED,
         ValidArgFound => Flags::VALID_ARG_FOUND,
         InferSubcommands => Flags::INFER_SUBCOMMANDS,
+        AllArgsOverrideSelf => Flags::ARGS_OVERRIDE_SELF,
         ContainsLast => Flags::CONTAINS_LAST
     }
 }
@@ -189,6 +191,11 @@ pub enum AppSettings {
     /// ```
     /// [`Arg::allow_hyphen_values`]: ./struct.Arg.html#method.allow_hyphen_values
     AllowLeadingHyphen,
+
+    /// Specifies that all arguments override themselves. This is the equivolent to saying the `foo`
+    /// arg using [`Arg::overrides_with("foo")`] for all defined arguments.
+    /// [`Arg::overrides_with("foo")`]: ./struct.Arg.html#method.overrides_with
+    AllArgsOverrideSelf,
 
     /// Allows negative numbers to pass as values. This is similar to
     /// `AllowLeadingHyphen` except that it only allows numbers, all
