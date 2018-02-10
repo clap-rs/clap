@@ -5,6 +5,7 @@ use std::io::{self, BufWriter, Write};
 use std::os::unix::ffi::OsStrExt;
 use std::slice::Iter;
 use std::iter::Peekable;
+use std::mem;
 
 // Third party
 use vec_map::VecMap;
@@ -1199,13 +1200,27 @@ where
         debugln!("Parser::remove_overrides;");
         let mut to_rem: Vec<&str> = Vec::new();
         let mut seen: Vec<&str> = Vec::new();
+        let mut self_override: Vec<&str> = Vec::new();
         for name in matcher.arg_names() {
             debugln!("Parser::remove_overrides:iter:{};", name);
             if let Some(arg) = find!(self.app, name) {
                 if let Some(ref overrides) = arg.overrides {
                     debugln!("Parser::remove_overrides:iter:{}:{:?};", name, overrides);
                     for o in overrides {
-                        if matcher.is_present(o) && !seen.contains(o) {
+                        if o == &arg.name {
+                            if (arg.is_set(ArgSettings::MultipleValues)
+                                || arg.is_set(ArgSettings::MultipleOccurrences))
+                                || !arg.has_switch()
+                            {
+                                continue;
+                            }
+                            debugln!(
+                                "Parser::remove_overrides:iter:{}:iter:{}: self override;",
+                                name,
+                                o
+                            );
+                            self_override.push(o);
+                        } else if matcher.is_present(o) && !seen.contains(o) {
                             debugln!("Parser::remove_overrides:iter:{}:iter:{}: self;", name, o);
                             to_rem.push(arg.name);
                         } else {
@@ -1221,6 +1236,17 @@ where
             debugln!("Parser::remove_overrides:iter:{}: removing;", name);
             matcher.remove(name);
             self.overriden.push(name);
+        }
+        for name in &self_override {
+            debugln!("Parser::remove_overrides:iter:self:{}: resetting;", name);
+            if let Some(ma) = matcher.get_mut(name) {
+                ma.occurs = 1;
+                if !ma.vals.is_empty() {
+                    // This avoids a clone
+                    let mut v = vec![ma.vals.pop().expect(INTERNAL_ERROR_MSG)];
+                    mem::swap(&mut v, &mut ma.vals);
+                }
+            }
         }
     }
 
