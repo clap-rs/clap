@@ -34,9 +34,9 @@ struct Opt {
     #[structopt(short = "o", long = "output", parse(from_os_str))]
     output: PathBuf,
 
-    /// Number of car
-    #[structopt(short = "c", long = "car")]
-    car: Option<i32>,
+    /// Number of cars
+    #[structopt(short = "c", long = "nb-cars")]
+    nb_cars: Option<i32>,
 
     /// admin_level to consider
     #[structopt(short = "l", long = "level")]

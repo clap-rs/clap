@@ -2,8 +2,6 @@
 
 Parse command line argument by defining a struct.  It combines [clap](https://crates.io/crates/clap) with custom derive.
 
-**This README is in flux for v0.2 that's not yet published. Please refere to https://crates.io/crates/structopt to have a README syncronised with crates.io version.**
-
 ## Documentation
 
 Find it on [Docs.rs](https://docs.rs/structopt).  You can also check the [examples](https://github.com/TeXitoi/structopt/tree/master/examples) and the [changelog](https://github.com/TeXitoi/structopt/blob/master/CHANGELOG.md).
@@ -47,9 +45,9 @@ struct Opt {
     #[structopt(short = "o", long = "output", parse(from_os_str))]
     output: PathBuf,
 
-    /// Number of car
-    #[structopt(short = "c", long = "car")]
-    car: Option<i32>,
+    /// Number of cars
+    #[structopt(short = "c", long = "nb-cars")]
+    nb_cars: Option<i32>,
 
     /// admin_level to consider
     #[structopt(short = "l", long = "level")]
