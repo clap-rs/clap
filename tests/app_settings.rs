@@ -676,3 +676,176 @@ fn issue_1093_allow_ext_sc() {
         false
     ));
 }
+
+#[test]
+fn aaos_flags() {
+    // flags
+    let res = App::new("posix")
+        .setting(AppSettings::AllArgsOverrideSelf)
+        .arg(Arg::from_usage("--flag  'some flag'"))
+        .get_matches_from_safe(vec!["", "--flag", "--flag"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("flag"));
+    assert_eq!(m.occurrences_of("flag"), 1);
+}
+
+#[test]
+fn aaos_flags_mult() {
+    // flags with multiple
+    let res = App::new("posix")
+        .setting(AppSettings::AllArgsOverrideSelf)
+        .arg(Arg::from_usage("--flag...  'some flag'"))
+        .get_matches_from_safe(vec!["", "--flag", "--flag", "--flag", "--flag"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("flag"));
+    assert_eq!(m.occurrences_of("flag"), 4);
+}
+
+#[test]
+fn aaos_opts() {
+    // opts
+    let res = App::new("posix")
+        .setting(AppSettings::AllArgsOverrideSelf)
+        .arg(Arg::from_usage("--opt [val] 'some option'"))
+        .get_matches_from_safe(vec!["", "--opt=some", "--opt=other"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("opt"));
+    assert_eq!(m.occurrences_of("opt"), 1);
+    assert_eq!(m.value_of("opt"), Some("other"));
+}
+
+#[test]
+fn aaos_opts_w_other_overrides() {
+    // opts with other overrides
+    let res = App::new("posix")
+        .setting(AppSettings::AllArgsOverrideSelf)
+        .arg(Arg::from_usage("--opt [val] 'some option'"))
+        .arg(Arg::from_usage("--other [val] 'some other option'").overrides_with("opt"))
+        .get_matches_from_safe(vec!["", "--opt=some", "--other=test", "--opt=other"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("opt"));
+    assert!(!m.is_present("other"));
+    assert_eq!(m.occurrences_of("opt"), 1);
+    assert_eq!(m.value_of("opt"), Some("other"));
+}
+
+#[test]
+fn aaos_opts_w_other_overrides_rev() {
+    // opts with other overrides, rev
+    let res = App::new("posix")
+        .setting(AppSettings::AllArgsOverrideSelf)
+        .arg(Arg::from_usage("--opt [val] 'some option'"))
+        .arg(Arg::from_usage("--other [val] 'some other option'").overrides_with("opt"))
+        .get_matches_from_safe(vec!["", "--opt=some", "--opt=other", "--other=val"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(!m.is_present("opt"));
+    assert!(m.is_present("other"));
+    assert_eq!(m.value_of("other"), Some("val"));
+}
+
+#[test]
+fn aaos_opts_w_other_overrides_2() {
+    // opts with other overrides
+    let res = App::new("posix")
+        .setting(AppSettings::AllArgsOverrideSelf)
+        .arg(Arg::from_usage("--opt [val] 'some option'").overrides_with("other"))
+        .arg(Arg::from_usage("--other [val] 'some other option'"))
+        .get_matches_from_safe(vec!["", "--opt=some", "--other=test", "--opt=other"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("opt"));
+    assert!(!m.is_present("other"));
+    assert_eq!(m.occurrences_of("opt"), 1);
+    assert_eq!(m.value_of("opt"), Some("other"));
+}
+
+#[test]
+fn aaos_opts_w_other_overrides_rev_2() {
+    // opts with other overrides, rev
+    let res = App::new("posix")
+        .setting(AppSettings::AllArgsOverrideSelf)
+        .arg(Arg::from_usage("--opt [val] 'some option'").overrides_with("other"))
+        .arg(Arg::from_usage("--other [val] 'some other option'"))
+        .get_matches_from_safe(vec!["", "--opt=some", "--opt=other", "--other=val"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(!m.is_present("opt"));
+    assert!(m.is_present("other"));
+    assert_eq!(m.value_of("other"), Some("val"));
+}
+
+#[test]
+fn aaos_opts_mult() {
+    // opts with multiple
+    let res = App::new("posix")
+        .setting(AppSettings::AllArgsOverrideSelf)
+        .arg(
+            Arg::from_usage("--opt [val]... 'some option'")
+                .number_of_values(1)
+                .require_delimiter(true),
+        )
+        .get_matches_from_safe(vec!["", "--opt=some", "--opt=other", "--opt=one,two"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("opt"));
+    assert_eq!(m.occurrences_of("opt"), 3);
+    assert_eq!(
+        m.values_of("opt").unwrap().collect::<Vec<_>>(),
+        &["some", "other", "one", "two"]
+    );
+}
+
+#[test]
+fn aaos_opts_mult_req_delims() {
+    // opts with multiple and require delims
+    let res = App::new("posix")
+        .setting(AppSettings::AllArgsOverrideSelf)
+        .arg(Arg::from_usage("--opt [val]... 'some option'"))
+        .get_matches_from_safe(vec![
+            "", "--opt", "first", "overides", "--opt", "some", "other", "val"
+        ]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("opt"));
+    assert_eq!(m.occurrences_of("opt"), 2);
+    assert_eq!(
+        m.values_of("opt").unwrap().collect::<Vec<_>>(),
+        &["first", "overides", "some", "other", "val"]
+    );
+}
+
+#[test]
+fn aaos_pos_mult() {
+    // opts with multiple
+    let res = App::new("posix")
+        .setting(AppSettings::AllArgsOverrideSelf)
+        .arg(Arg::from_usage("[val]... 'some pos'"))
+        .get_matches_from_safe(vec!["", "some", "other", "value"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("val"));
+    assert_eq!(m.occurrences_of("val"), 3);
+    assert_eq!(
+        m.values_of("val").unwrap().collect::<Vec<_>>(),
+        &["some", "other", "value"]
+    );
+}
+
+#[test]
+fn aaos_option_use_delim_false() {
+    let m = App::new("posix")
+        .setting(AppSettings::AllArgsOverrideSelf)
+        .arg(Arg::from_usage("--opt [val] 'some option'").use_delimiter(false))
+        .get_matches_from(vec!["", "--opt=some,other", "--opt=one,two"]);
+    assert!(m.is_present("opt"));
+    assert_eq!(m.occurrences_of("opt"), 1);
+    assert_eq!(
+        m.values_of("opt").unwrap().collect::<Vec<_>>(),
+        &["one,two"]
+    );
+}
