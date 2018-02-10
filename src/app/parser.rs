@@ -54,6 +54,7 @@ where
     num_opts: usize,
     num_flags: usize,
     pub positionals: VecMap<&'a str>,
+    seen: Vec<&'a str>,
 }
 
 // Standalone split borrow functions
@@ -104,6 +105,7 @@ where
             num_opts: 0,
             num_flags: 0,
             positionals: VecMap::new(),
+            seen: Vec::new(),
         }
     }
 
@@ -399,6 +401,7 @@ where
                 }
 
                 if starts_new_arg {
+                    self.seen.extend(self.cache);
                     if arg_os.starts_with(b"--") {
                         needs_val_of = self.parse_long_arg(matcher, &arg_os)?;
                         debugln!(
@@ -611,6 +614,9 @@ where
                 ));
             }
         }
+
+        // Make sure we get the last one too
+        self.seen.extend(self.cache);
 
         if let Some(ref pos_sc_name) = subcmd_name {
             let sc_name = {
@@ -1199,47 +1205,61 @@ where
     fn remove_overrides(&mut self, matcher: &mut ArgMatcher) {
         debugln!("Parser::remove_overrides;");
         let mut to_rem: Vec<&str> = Vec::new();
-        let mut seen: Vec<&str> = Vec::new();
         let mut self_override: Vec<&str> = Vec::new();
+        let mut arg_overrides = Vec::new();
         for name in matcher.arg_names() {
             debugln!("Parser::remove_overrides:iter:{};", name);
             if let Some(arg) = find!(self.app, name) {
+                let mut handle_self_override = |o| {
+                    if (arg.is_set(ArgSettings::MultipleValues)
+                        || arg.is_set(ArgSettings::MultipleOccurrences))
+                        || !arg.has_switch()
+                    {
+                        return true;
+                    }
+                    debugln!(
+                        "Parser::remove_overrides:iter:{}:iter:{}: self override;",
+                        name,
+                        o
+                    );
+                    self_override.push(o);
+                    false
+                };
                 if let Some(ref overrides) = arg.overrides {
                     debugln!("Parser::remove_overrides:iter:{}:{:?};", name, overrides);
                     for o in overrides {
                         if o == &arg.name {
-                            if (arg.is_set(ArgSettings::MultipleValues)
-                                || arg.is_set(ArgSettings::MultipleOccurrences))
-                                || !arg.has_switch()
-                            {
+                            if handle_self_override(o) {
                                 continue;
                             }
-                            debugln!(
-                                "Parser::remove_overrides:iter:{}:iter:{}: self override;",
-                                name,
-                                o
-                            );
-                            self_override.push(o);
-                        } else if matcher.is_present(o) && !seen.contains(o) {
-                            debugln!("Parser::remove_overrides:iter:{}:iter:{}: self;", name, o);
-                            to_rem.push(arg.name);
                         } else {
-                            debugln!("Parser::remove_overrides:iter:{}:iter:{}: other;", name, o);
-                            to_rem.push(o);
+                            arg_overrides.push((&arg.name, o));
+                            arg_overrides.push((o, &arg.name));
                         }
                     }
                 }
-                seen.push(arg.name);
+                if self.is_set(AS::AllArgsOverrideSelf) {
+                    let _ = handle_self_override(arg.name);
+                }
             }
         }
-        for name in &to_rem {
-            debugln!("Parser::remove_overrides:iter:{}: removing;", name);
-            matcher.remove(name);
-            self.overriden.push(name);
+
+        // remove future overrides in reverse seen order
+        for arg in self.seen.iter().rev() {
+            for &(a, overr) in arg_overrides.iter().filter(|&&(a, _)| a == arg) {
+                if !to_rem.contains(a) {
+                    to_rem.push(overr);
+                }
+            }
         }
+
+        // Do self overrides
         for name in &self_override {
             debugln!("Parser::remove_overrides:iter:self:{}: resetting;", name);
             if let Some(ma) = matcher.get_mut(name) {
+                if ma.occurs < 2 {
+                    continue;
+                }
                 ma.occurs = 1;
                 if !ma.vals.is_empty() {
                     // This avoids a clone
@@ -1247,6 +1267,13 @@ where
                     mem::swap(&mut v, &mut ma.vals);
                 }
             }
+        }
+
+        // Finally remove conflicts
+        for name in &to_rem {
+            debugln!("Parser::remove_overrides:iter:{}: removing;", name);
+            matcher.remove(name);
+            self.overriden.push(name);
         }
     }
 
