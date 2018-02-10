@@ -346,6 +346,8 @@ extern crate structopt_derive;
 #[doc(hidden)]
 pub use structopt_derive::*;
 
+use std::ffi::OsString;
+
 /// Re-export of clap
 pub mod clap {
     pub use _clap::*;
@@ -364,5 +366,16 @@ pub trait StructOpt {
     /// error message and quit the program in case of failure.
     fn from_args() -> Self where Self: Sized {
         Self::from_clap(&Self::clap().get_matches())
+    }
+
+    /// Gets the struct from any iterator such as a `Vec` of your making.
+    /// Print the error message and quit the program in case of failure.
+    fn from_any<I>(iter: I) -> Self
+    where
+        Self: Sized,
+        I: IntoIterator,
+        I::Item: Into<OsString> + Clone
+    {
+        Self::from_clap(&Self::clap().get_matches_from(iter))
     }
 }
