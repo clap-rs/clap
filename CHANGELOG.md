@@ -1,4 +1,4 @@
-# v0.2.0 (2018-02-11)
+# v0.2.1 (2018-02-11)
 
 * Fix a bug around enum tuple and the about message in the global help by [@TeXitoi](https://github.com/TeXitoi)
 * Fix #65 by [@TeXitoi](https://github.com/TeXitoi)
