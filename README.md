@@ -19,7 +19,7 @@ And then, in your rust file:
 #[macro_use]
 extern crate structopt;
 
-use std::fs::PathBuf;
+use std::path::PathBuf;
 use structopt::StructOpt;
 
 /// A basic example
