@@ -21,3 +21,17 @@ fn no_author_version_about() {
 
     assert!(output.starts_with("foo \n\nUSAGE:"));
 }
+
+#[test]
+fn use_env() {
+    #[derive(StructOpt, PartialEq, Debug)]
+    #[structopt()]
+    struct Opt {}
+
+    let mut output = Vec::new();
+    Opt::clap().write_long_help(&mut output).unwrap();
+    let output = String::from_utf8(output).unwrap();
+    assert!(output.starts_with("structopt 0.2."));
+    assert!(output.contains("Guillaume Pinot <texitoi@texitoi.eu>"));
+    assert!(output.contains("Parse command line argument by defining a struct."));
+}

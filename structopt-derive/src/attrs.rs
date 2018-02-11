@@ -197,7 +197,7 @@ impl Attrs {
         ];
         attrs_with_env.iter()
             .filter_map(|&(m, v)| env::var(v).ok().and_then(|arg| Some((m, arg))))
-            .filter(|&(_, ref arg)| arg.is_empty())
+            .filter(|&(_, ref arg)| !arg.is_empty())
             .for_each(|(name, arg)| {
                 if arg == "author" { arg.replace(":", ", "); }
                 res.push_str_method(name, &arg);
