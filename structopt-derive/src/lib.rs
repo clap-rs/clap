@@ -245,7 +245,6 @@ fn gen_clap(attrs: &[Attribute]) -> quote::Tokens {
 
 fn gen_clap_struct(struct_attrs: &[Attribute]) -> quote::Tokens {
     let gen = gen_clap(struct_attrs);
-
     quote! {
         fn clap<'a, 'b>() -> ::structopt::clap::App<'a, 'b> {
             let app = #gen;
@@ -296,8 +295,9 @@ fn gen_augment_clap_enum(variants: &Punctuated<Variant, Comma>) -> quote::Tokens
         let from_attrs = attrs.methods();
         quote! {
             .subcommand({
-                let #app_var = ::structopt::clap::SubCommand::with_name(#name)#from_attrs;
-                #arg_block
+                let #app_var = ::structopt::clap::SubCommand::with_name(#name);
+                let #app_var = #arg_block;
+                #app_var#from_attrs
             })
         }
     });

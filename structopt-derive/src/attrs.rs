@@ -5,7 +5,7 @@
 // Version 2, as published by Sam Hocevar. See the COPYING file for
 // more details.
 
-use std::env;
+use std::{env, mem};
 use quote::Tokens;
 use syn::{self, Attribute, MetaNameValue, MetaList, LitStr};
 
@@ -45,18 +45,36 @@ impl ::std::str::FromStr for Parser {
 }
 
 impl Attrs {
-    fn new(attrs: &[Attribute], name: String, methods: Vec<Method>) -> Attrs {
+    fn new(name: String) -> Attrs {
+        Attrs {
+            name: name,
+            methods: vec![],
+            parser: (Parser::TryFromStr, quote!(::std::str::FromStr::from_str)),
+            has_custom_parser: false,
+            is_subcommand: false,
+        }
+    }
+    fn push_str_method(&mut self, name: &str, arg: &str) {
+        match (name, arg) {
+            (name, "") => {
+                let methods = mem::replace(&mut self.methods, vec![]);
+                self.methods = methods
+                    .into_iter()
+                    .filter(|m| m.name == name)
+                    .collect();
+            }
+            ("name", new_name) => self.name = new_name.into(),
+            (name, arg) => self.methods.push(Method {
+                name: name.to_string(),
+                args: quote!(#arg),
+            }),
+        }
+    }
+    fn push_attrs(&mut self, attrs: &[Attribute]) {
         use Meta::*;
         use NestedMeta::*;
         use Lit::*;
 
-        let mut res = Attrs {
-            name: name,
-            methods: methods,
-            parser: (Parser::TryFromStr, quote!(::std::str::FromStr::from_str)),
-            has_custom_parser: false,
-            is_subcommand: false,
-        };
         let iter = attrs.iter()
             .filter_map(|attr| {
                 let path = &attr.path;
@@ -78,17 +96,10 @@ impl Attrs {
             });
         for attr in iter {
             match attr {
-                NameValue(MetaNameValue { ident, lit: Str(ref value), .. })
-                    if value.value() == "" => {
-                        res.methods = res.methods
-                            .into_iter()
-                            .filter(|m| m.name == ident.as_ref())
-                            .collect();
-                    }
-                NameValue(MetaNameValue { ident, lit: Str(ref s), .. })
-                    if ident == "name" => res.name = s.value(),
+                NameValue(MetaNameValue { ident, lit: Str(ref value), .. }) =>
+                    self.push_str_method(ident.as_ref(), &value.value()),
                 NameValue(MetaNameValue { ident, lit, .. }) => {
-                    res.methods.push(Method {
+                    self.methods.push(Method {
                         name: ident.to_string(),
                         args: quote!(#lit),
                     })
@@ -97,8 +108,8 @@ impl Attrs {
                     if nested.len() != 1 {
                         panic!("parse must have exactly one argument");
                     }
-                    res.has_custom_parser = true;
-                    res.parser = match nested[0] {
+                    self.has_custom_parser = true;
+                    self.parser = match nested[0] {
                         Meta(NameValue(MetaNameValue { ident, lit: Str(ref v), .. })) => {
                             let function: syn::Path = v.parse().expect("parser function path");
                             let parser = ident.as_ref().parse().unwrap();
@@ -123,17 +134,16 @@ impl Attrs {
                     for method in nested {
                         match *method {
                             Meta(NameValue(MetaNameValue { ident, lit: Str(ref v), .. })) =>
-                                res.push_raw_method(ident.as_ref(), v),
+                                self.push_raw_method(ident.as_ref(), v),
                             ref mi @ _ => panic!("unsupported raw entry: {}", quote!(#mi)),
                         }
                     }
                 }
-                Word(ref w) if w == "subcommand" => res.is_subcommand = true,
+                Word(ref w) if w == "subcommand" => self.is_subcommand = true,
                 ref i @ List(..) | ref i @ Word(..) =>
                     panic!("unsupported option: {}", quote!(#i)),
             }
         }
-        res
     }
     fn push_raw_method(&mut self, name: &str, args: &LitStr) {
         let ts: ::proc_macro2::TokenStream = args.value().parse()
@@ -144,7 +154,6 @@ impl Attrs {
         })
     }
     fn push_doc_comment(&mut self, attrs: &[Attribute], name: &str) {
-        if self.has_method(name) { return; }
         let doc_comments: Vec<_> = attrs.iter()
             .filter_map(|attr| {
                 let path = &attr.path;
@@ -180,42 +189,42 @@ impl Attrs {
         });
     }
     pub fn from_struct(attrs: &[Attribute], name: String) -> Attrs {
-        let methods =
-            [
-                ("version", "CARGO_PKG_VERSION"),
-                ("about", "CARGO_PKG_DESCRIPTION"),
-                ("author", "CARGO_PKG_AUTHORS"),
-            ]
-            .iter()
+        let mut res = Self::new(name);
+        let attrs_with_env = [
+            ("version", "CARGO_PKG_VERSION"),
+            ("about", "CARGO_PKG_DESCRIPTION"),
+            ("author", "CARGO_PKG_AUTHORS"),
+        ];
+        attrs_with_env.iter()
             .filter_map(|&(m, v)| env::var(v).ok().and_then(|arg| Some((m, arg))))
             .filter(|&(_, ref arg)| arg.is_empty())
-            .map(|(name, arg)| {
+            .for_each(|(name, arg)| {
                 if arg == "author" { arg.replace(":", ", "); }
-                Method { name: name.into(), args: quote!(#arg) }
-            })
-            .collect();
-        let mut res = Self::new(attrs, name, methods);
+                res.push_str_method(name, &arg);
+            });
+        res.push_doc_comment(attrs, "about");
+        res.push_attrs(attrs);
         if res.has_custom_parser {
             panic!("parse attribute is only allowed on fields");
         }
         if res.is_subcommand {
             panic!("subcommand is only allowed on fields");
         }
-        res.push_doc_comment(attrs, "about");
         res
     }
     pub fn from_field(field: &syn::Field) -> Attrs {
         let name = field.ident.as_ref().unwrap().as_ref().to_string();
-        let mut res = Self::new(&field.attrs, name, vec![]);
+        let mut res = Self::new(name);
+        res.push_doc_comment(&field.attrs, "help");
+        res.push_attrs(&field.attrs);
         if res.is_subcommand {
             if res.has_custom_parser {
                 panic!("parse attribute is not allowed for subcommand");
             }
-            if !res.methods.is_empty() {
+            if !res.methods.iter().all(|m| m.name == "help") {
                 panic!("methods in attributes is not allowed for subcommand");
             }
         }
-        res.push_doc_comment(&field.attrs, "help");
         res
     }
     pub fn has_method(&self, method: &str) -> bool {

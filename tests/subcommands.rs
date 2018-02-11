@@ -92,19 +92,23 @@ fn test_null_commands() {
 }
 
 #[derive(StructOpt, PartialEq, Debug)]
+#[structopt(about = "Not shown")]
 struct Add {
     file: String,
 }
+/// Not shown
 #[derive(StructOpt, PartialEq, Debug)]
 struct Fetch {
     remote: String,
 }
 #[derive(StructOpt, PartialEq, Debug)]
 enum Opt4 {
-    #[structopt(name = "add")]
+    /// Not shown
+    #[structopt(name = "add", about = "Add a file")]
     Add(Add),
     #[structopt(name = "init")]
     Init,
+    /// download history from remote
     #[structopt(name = "fetch")]
     Fetch(Fetch),
 }
@@ -120,4 +124,12 @@ fn test_tuple_commands() {
         Opt4::Fetch(Fetch { remote: "origin".to_string() }),
         Opt4::from_clap(&Opt4::clap().get_matches_from(&["test", "fetch", "origin"]))
     );
+
+    let mut output = Vec::new();
+    Opt4::clap().write_long_help(&mut output).unwrap();
+    let output = String::from_utf8(output).unwrap();
+
+    assert!(output.contains("download history from remote"));
+    assert!(output.contains("Add a file"));
+    assert!(!output.contains("Not shown"));
 }
