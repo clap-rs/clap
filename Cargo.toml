@@ -1,6 +1,6 @@
 [package]
 name = "structopt"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["Guillaume Pinot <texitoi@texitoi.eu>"]
 description = "Parse command line argument by defining a struct."
 documentation = "https://docs.rs/structopt"
@@ -18,6 +18,6 @@ travis-ci = { repository = "TeXitoi/structopt" }
 
 [dependencies]
 clap = { version = "2.20", default-features = false }
-structopt-derive = { path = "structopt-derive", version = "0.2.1" }
+structopt-derive = { path = "structopt-derive", version = "0.2.2" }
 
 [workspace]

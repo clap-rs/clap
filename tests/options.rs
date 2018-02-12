@@ -83,3 +83,14 @@ fn options() {
     assert_eq!(Opt { arg: vec![24, 42] },
                Opt::from_clap(&Opt::clap().get_matches_from(&["test", "-a24", "--arg", "42"])));
 }
+
+#[test]
+fn empy_default_value() {
+    #[derive(StructOpt, PartialEq, Debug)]
+    struct Opt {
+        #[structopt(short = "a", default_value = "")]
+        arg: String,
+    }
+    assert_eq!(Opt { arg: "".into() }, Opt::from_iter(&["test"]));
+    assert_eq!(Opt { arg: "foo".into() }, Opt::from_iter(&["test", "-afoo"]));
+}

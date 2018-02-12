@@ -56,11 +56,11 @@ impl Attrs {
     }
     fn push_str_method(&mut self, name: &str, arg: &str) {
         match (name, arg) {
-            (name, "") => {
+            ("about", "") | ("version", "") | ("author", "") => {
                 let methods = mem::replace(&mut self.methods, vec![]);
                 self.methods = methods
                     .into_iter()
-                    .filter(|m| m.name == name)
+                    .filter(|m| m.name != name)
                     .collect();
             }
             ("name", new_name) => self.name = new_name.into(),
