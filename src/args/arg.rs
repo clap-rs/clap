@@ -122,6 +122,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 "value_name" => yaml_to_str!(a, v, value_name),
                 "use_delimiter" => yaml_to_bool!(a, v, use_delimiter),
                 "allow_hyphen_values" => yaml_to_bool!(a, v, allow_hyphen_values),
+                "last" => yaml_to_bool!(a, v, last),
                 "require_delimiter" => yaml_to_bool!(a, v, require_delimiter),
                 "value_delimiter" => yaml_to_str!(a, v, value_delimiter),
                 "required_unless" => yaml_to_str!(a, v, required_unless),
