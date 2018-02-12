@@ -550,14 +550,14 @@ impl<'a> Help<'a> {
                 debugln!("Help::spec_vals: Found possible vals...{:?}", pv);
                 spec_vals.push(if self.color {
                     format!(
-                        " [values: {}]",
+                        " [possible values: {}]",
                         pv.iter()
                             .map(|v| format!("{}", self.cizer.good(v)))
                             .collect::<Vec<_>>()
                             .join(", ")
                     )
                 } else {
-                    format!(" [values: {}]", pv.join(", "))
+                    format!(" [possible values: {}]", pv.join(", "))
                 });
             }
         }
