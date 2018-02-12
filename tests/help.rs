@@ -34,7 +34,7 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-    -O, --Option <option3>           specific vals [values: fast, slow]
+    -O, --Option <option3>           specific vals [possible values: fast, slow]
         --long-option-2 <option2>    tests long options with exclusions
         --maxvals3 <maxvals>...      Tests 3 max vals
         --minvals2 <minvals>...      Tests 2 min vals
@@ -45,7 +45,7 @@ OPTIONS:
 ARGS:
     <positional>        tests positionals
     <positional2>       tests positionals with exclusions
-    <positional3>...    tests specific values [values: vi, emacs]
+    <positional3>...    tests specific values [possible values: vi, emacs]
 
 SUBCOMMANDS:
     help      Prints this message or the help of the given subcommand(s)
@@ -244,7 +244,7 @@ FLAGS:
 
 OPTIONS:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café.
-    -p, --pos <VAL>      Some vals [values: fast, slow]";
+    -p, --pos <VAL>      Some vals [possible values: fast, slow]";
 
 static FINAL_WORD_WRAPPING: &'static str = "ctest 0.1
 
@@ -299,8 +299,8 @@ FLAGS:
 
 OPTIONS:
         --filter <filter>    Sets the filter, or sampling method, to use for interpolation when resizing the particle
-                             images. The default is Linear (Bilinear). [values: Nearest, Linear, Cubic, Gaussian,
-                             Lanczos3]";
+                             images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic,
+                             Gaussian, Lanczos3]";
 
 static ISSUE_702: &'static str = "myapp 1.0
 foo
@@ -501,7 +501,7 @@ FLAGS:
 
 OPTIONS:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR]
-    -p, --pos <VAL>      Some vals [values: fast, slow]";
+    -p, --pos <VAL>      Some vals [possible values: fast, slow]";
 
 static SHOW_ENV_VALS: &'static str = "ctest 0.1
 
@@ -514,7 +514,7 @@ FLAGS:
 
 OPTIONS:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]
-    -p, --pos <VAL>      Some vals [values: fast, slow]";
+    -p, --pos <VAL>      Some vals [possible values: fast, slow]";
 
 fn setup() -> App<'static, 'static> {
     App::new("test")
@@ -877,7 +877,7 @@ fn issue_688_hidden_pos_vals() {
 			.setting(AppSettings::HidePossibleValuesInHelp)
 			.arg(Arg::with_name("filter")
 				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
-                images. The default is Linear (Bilinear). [values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
+                images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
 				.long("filter")
 				.possible_values(&filter_values)
 				.takes_value(true));
@@ -899,7 +899,7 @@ fn issue_688_hidden_pos_vals() {
 			.set_term_width(120)
 			.arg(Arg::with_name("filter")
 				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
-                images. The default is Linear (Bilinear). [values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
+                images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
 				.long("filter")
 				.takes_value(true));
     assert!(test::compare_output(app3, "ctest --help", ISSUE_688, false));
