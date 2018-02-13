@@ -3,7 +3,7 @@ use std::io::Write;
 
 // Internal
 use app::App;
-use args::{Arg, ArgSettings};
+use args::Arg;
 use completions;
 
 pub struct BashGen<'a, 'b>(&'b App<'a, 'b>)
