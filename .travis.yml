@@ -22,19 +22,21 @@ before_script:
     fi
 script:
   - |
-    travis-cargo test -- --verbose --no-default-features &&
+    travis-cargo --only stable test -- --verbose --no-default-features &&
     travis-cargo --skip nightly test -- --verbose --features "yaml unstable" &&
     travis-cargo --only nightly test -- --verbose --features "yaml unstable nightly" &&
-    travis-cargo --only nightly bench
+    travis-cargo --only nightly bench -- --no-run 
 addons:
   apt:
     packages:
+    - binutils-dev 
     - libcurl4-openssl-dev
     - libelf-dev
     - libdw-dev
+    - libiberty-dev
     - cmake
     - gcc
-    - binutils-dev
+    - zlib1g-dev 
 after_success:
   - |
     wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz &&
