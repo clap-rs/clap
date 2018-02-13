@@ -42,19 +42,20 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-Here's whats new in 2.29.4:
+Here's whats new in 2.30.0:
+
+* **Bash Completions:**  instead of completing a generic option name, all bash completions fall back to file completions UNLESS `Arg::possible_values` was used 
+* **YAML:** Adds a missing conversion from  `Arg::last` when instantiating from a YAML file 
+* **Deps:**  No longer needlessly compiles `ansi_term` on Windows since its not used 
+* **Help Message:** changes the `[values: foo bar baz]` array to `[possible values: foo bar baz]` for consistency with the API 
+
+Here's whats new in 2.29.x:
 
 * **Overrides Self:**  fixes a bug where options with multiple values couldnt ever have multiple values ([d95907cf](https://github.com/kbknapp/clap-rs/commit/d95907cff6d011a901fe35fa00b0f4e18547a1fb))
-
-Here's whats new in 2.29.3:
-
 * **Self Overrides:** now supports arguments which override themselves (Allows true shell aliases, config files, etc!)
 * **Requirements:**  fixes an issue where conflicting args would still show up as required and missing
 * Fixes a bug which disallows proper nesting of `--` for args that capture all values after the first `--`
 * **AppSettings::AllArgsOverrideSelf:**  adds a new convenience setting to allow all args to override themselves
-
-Here's whats new in 2.29.2:
-
 * **Many ZSH Completions Improvements** (Thanks to @segevfiner)
   *  Positional arguments will default to file completion when not using specific values!
   *  Implement postional argument possible values completion
@@ -62,10 +63,6 @@ Here's whats new in 2.29.2:
   *  Don't pass `-S` to `_arguments` if Zsh is too old
   *  Fix completions with mixed positionals and subcommands
   *  String escape possible values for options
-
-
-Here's whats new in 2.29.1:
-
 * Debloats clap by deduplicating logic and refactors for a ~57% decrease in code size! This is with zero functinoality lost, and a slight perf increase!
 * Change the bash completion script code generation to support hyphens.
 * Fix completion of long option values in ZSH completions
@@ -312,7 +309,7 @@ subcommands:
 
 Since this feature requires additional dependencies that not everyone may want, it is *not* compiled in by default and we need to enable a feature flag in Cargo.toml:
 
-Simply change your `clap = "2.29"` to `clap = {version = "2.29", features = ["yaml"]}`.
+Simply change your `clap = "2.30"` to `clap = {version = "2.30", features = ["yaml"]}`.
 
 Finally we create our `main.rs` file just like we would have with the previous two examples:
 
@@ -432,7 +429,7 @@ For full usage, add `clap` as a dependency in your `Cargo.toml` () to use from c
 
 ```toml
 [dependencies]
-clap = "~2.29"
+clap = "~2.30"
 ```
 
 (**note**: If you are concerned with supporting a minimum version of Rust that is *older* than the current stable Rust minus 2 stable releases, it's recommended to use the `~major.minor.patch` style versions in your `Cargo.toml` which will only update the patch version automatically. For more information see the [Compatibility Policy](#compatibility-policy))
@@ -448,14 +445,14 @@ Then run `cargo build` or `cargo update && cargo build` for your project.
 #### Features enabled by default
 
 * **"suggestions"**: Turns on the `Did you mean '--myoption'?` feature for when users make typos. (builds dependency `strsim`)
-* **"color"**: Turns on colored error messages. This feature only works on non-Windows OSs. (builds dependency `ansi-term`)
+* **"color"**: Turns on colored error messages. This feature only works on non-Windows OSs. (builds dependency `ansi-term` only on non-Windows targets)
 * **"vec_map"**: Use [`VecMap`](https://crates.io/crates/vec_map) internally instead of a [`BTreeMap`](https://doc.rust-lang.org/stable/std/collections/struct.BTreeMap.html). This feature provides a _slight_ performance improvement. (builds dependency `vec_map`)
 
 To disable these, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies.clap]
-version = "2.29"
+version = "2.30"
 default-features = false
 ```
 
@@ -463,7 +460,7 @@ You can also selectively enable only the features you'd like to include, by addi
 
 ```toml
 [dependencies.clap]
-version = "2.29"
+version = "2.30"
 default-features = false
 
 # Cherry-pick the features you'd like to use
@@ -511,7 +508,7 @@ In order to keep from being surprised of breaking changes, it is **highly** reco
 
 ```toml
 [dependencies]
-clap = "~2.29"
+clap = "~2.30"
 ```
 
 This will cause *only* the patch version to be updated upon a `cargo update` call, and therefore cannot break due to new features, or bumped minimum versions of Rust.
@@ -528,11 +525,11 @@ Right now Cargo's version resolution is pretty naive, it's just a brute-force se
 
 # In one Cargo.toml
 [dependencies]
-clap = "~2.29.0"
+clap = "~2.30.0"
 
 # In another Cargo.toml
 [dependencies]
-clap = "2.29"
+clap = "2.30"
 ```
 
 This is inherently an unresolvable crate graph in Cargo right now. Cargo requires there's only one major version of a crate, and being in the same workspace these two crates must share a version. This is impossible in this location, though, as these version constraints cannot be met.
