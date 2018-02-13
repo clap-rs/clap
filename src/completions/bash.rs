@@ -3,7 +3,7 @@ use std::io::Write;
 
 // Internal
 use app::parser::Parser;
-use args::{ArgSettings, OptBuilder};
+use args::OptBuilder;
 use completions;
 
 pub struct BashGen<'a, 'b>
@@ -168,49 +168,13 @@ complete -F _{name} -o bashdefault -o default {name}
     fn vals_for(&self, o: &OptBuilder) -> String {
         debugln!("BashGen::vals_for: o={}", o.b.name);
         use args::AnyArg;
-        let mut ret = String::new();
-        let mut needs_quotes = true;
         if let Some(vals) = o.possible_vals() {
-            needs_quotes = false;
-            ret = format!("$(compgen -W \"{}\" -- ${{cur}})", vals.join(" "));
-        } else if let Some(vec) = o.val_names() {
-            let mut it = vec.iter().peekable();
-            while let Some((_, val)) = it.next() {
-                ret = format!(
-                    "{}<{}>{}",
-                    ret,
-                    val,
-                    if it.peek().is_some() { " " } else { "" }
-                );
-            }
-            let num = vec.len();
-            if o.is_set(ArgSettings::Multiple) && num == 1 {
-                ret = format!("{}...", ret);
-            }
-        } else if let Some(num) = o.num_vals() {
-            let mut it = (0..num).peekable();
-            while let Some(_) = it.next() {
-                ret = format!(
-                    "{}<{}>{}",
-                    ret,
-                    o.name(),
-                    if it.peek().is_some() { " " } else { "" }
-                );
-            }
-            if o.is_set(ArgSettings::Multiple) && num == 1 {
-                ret = format!("{}...", ret);
-            }
+            format!("$(compgen -W \"{}\" -- ${{cur}})", vals.join(" "))
         } else {
-            ret = format!("<{}>", o.name());
-            if o.is_set(ArgSettings::Multiple) {
-                ret = format!("{}...", ret);
-            }
+            String::from("$(compgen -f ${cur})")
         }
-        if needs_quotes {
-            ret = format!("\"{}\"", ret);
-        }
-        ret
     }
+
     fn all_options_for_path(&self, path: &str) -> String {
         debugln!("BashGen::all_options_for_path: path={}", path);
         let mut p = self.p;
