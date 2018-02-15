@@ -87,7 +87,7 @@
 //! The `name` attribute can be used to customize the
 //! `Arg::with_name()` call (defaults to the field name).
 //! For functions that do not take a `&str` as argument, the attribute can be
-//! wrapped in `raw()`, e. g. `raw(aliases = "&[\"alias\"]", next_line_help = "true")`.
+//! wrapped in `raw()`, e. g. `raw(aliases = r#"&["alias"]"#, next_line_help = "true")`.
 //!
 //! The type of the field gives the kind of argument:
 //!

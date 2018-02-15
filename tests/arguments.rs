@@ -48,7 +48,7 @@ fn argument_with_default() {
 fn argument_with_raw_default() {
     #[derive(StructOpt, PartialEq, Debug)]
     struct Opt {
-        #[structopt(raw(default_value = "\"42\""))]
+        #[structopt(raw(default_value = r#""42""#))]
         arg: i32,
     }
     assert_eq!(Opt { arg: 24 }, Opt::from_iter(&["test", "24"]));

@@ -17,16 +17,16 @@ use structopt::clap::AppSettings;
 struct Opt {
     #[structopt(long = "x",
                 raw(display_order = "2", next_line_help = "true",
-                    default_value = "\"0\"", require_equals = "true"))]
+                    default_value = r#""0""#, require_equals = "true"))]
     x: i32,
 
-    #[structopt(short = "l", long = "level", raw(aliases = "&[\"set-level\", \"lvl\"]"))]
+    #[structopt(short = "l", long = "level", raw(aliases = r#"&["set-level", "lvl"]"#))]
     level: String,
 
     #[structopt(long = "values")]
     values: Vec<i32>,
 
-    #[structopt(name = "FILE", raw(requires_if = "\"FILE\", \"values\""))]
+    #[structopt(name = "FILE", raw(requires_if = r#""FILE", "values""#))]
     files: Vec<String>,
 }
 
