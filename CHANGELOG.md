@@ -1,3 +1,7 @@
+# v0.2.3 (2018-02-16)
+
+* An empty line in a doc comment will result in a double linefeed in the generated about/help call by [@TeXitoi](https://github.com/TeXitoi)
+
 # v0.2.2 (2018-02-12)
 
 * Fix [#66](https://github.com/TeXitoi/structopt/issues/66) by [@TeXitoi](https://github.com/TeXitoi)

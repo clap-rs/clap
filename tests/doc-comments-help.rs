@@ -44,8 +44,24 @@ fn help_is_better_than_comments() {
     LoremIpsum::clap().write_long_help(&mut output).unwrap();
     let output = String::from_utf8(output).unwrap();
 
-    println!("{}", output);
     assert!(output.contains("Dolor sit amet"));
     assert!(!output.contains("Lorem ipsum"));
     assert!(output.contains("DO NOT PASS A BAR"));
+}
+
+#[test]
+fn empty_line_in_doc_comment_is_double_linefeed() {
+    /// Foo.
+    ///
+    /// Bar
+    #[derive(StructOpt, PartialEq, Debug)]
+    #[structopt(name = "lorem-ipsum", author = "", version = "")]
+    struct LoremIpsum {}
+
+    let mut output = Vec::new();
+    LoremIpsum::clap().write_long_help(&mut output).unwrap();
+    let output = String::from_utf8(output).unwrap();
+
+    println!("{}", output);
+    assert!(output.starts_with("lorem-ipsum \nFoo.\n\nBar\n\nUSAGE:"));
 }

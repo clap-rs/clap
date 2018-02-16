@@ -175,14 +175,23 @@ impl Attrs {
                         .trim_left_matches("/**")
                         .trim_right_matches("*/")
                         .trim();
-                    Some(text.to_string())
+                    if text.is_empty() {
+                        Some("\n\n".to_string())
+                    } else{
+                        Some(text.to_string())
+                    }
                 } else {
                     None
                 }
             })
             .collect();
         if doc_comments.is_empty() { return; }
-        let arg = doc_comments.join(" ");
+        let arg = doc_comments
+            .join(" ")
+            .split('\n')
+            .map(|l| l.trim().to_string())
+            .collect::<Vec<_>>()
+            .join("\n");
         self.methods.push(Method {
             name: name.to_string(),
             args: quote!(#arg),
