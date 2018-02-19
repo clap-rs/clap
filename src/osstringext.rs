@@ -1,10 +1,10 @@
-#[cfg(target_os = "windows")]
+#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
 use INVALID_UTF8;
 use std::ffi::OsStr;
-#[cfg(not(target_os = "windows"))]
+#[cfg(not(any(target_os = "windows", target_arch = "wasm32")))]
 use std::os::unix::ffi::OsStrExt;
 
-#[cfg(target_os = "windows")]
+#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
 pub trait OsStrExt3 {
     fn from_bytes(b: &[u8]) -> &Self;
     fn as_bytes(&self) -> &[u8];
@@ -22,19 +22,25 @@ pub trait OsStrExt2 {
     fn split(&self, b: u8) -> OsSplit;
 }
 
-#[cfg(target_os = "windows")]
+#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
 impl OsStrExt3 for OsStr {
     fn from_bytes(b: &[u8]) -> &Self {
         use std::mem;
         unsafe { mem::transmute(b) }
     }
-    fn as_bytes(&self) -> &[u8] { self.to_str().map(|s| s.as_bytes()).expect(INVALID_UTF8) }
+    fn as_bytes(&self) -> &[u8] {
+        self.to_str().map(|s| s.as_bytes()).expect(INVALID_UTF8)
+    }
 }
 
 impl OsStrExt2 for OsStr {
-    fn starts_with(&self, s: &[u8]) -> bool { self.as_bytes().starts_with(s) }
+    fn starts_with(&self, s: &[u8]) -> bool {
+        self.as_bytes().starts_with(s)
+    }
 
-    fn is_empty_(&self) -> bool { self.as_bytes().is_empty() }
+    fn is_empty_(&self) -> bool {
+        self.as_bytes().is_empty()
+    }
 
     fn contains_byte(&self, byte: u8) -> bool {
         for b in self.as_bytes() {
@@ -82,7 +88,9 @@ impl OsStrExt2 for OsStr {
         )
     }
 
-    fn len_(&self) -> usize { self.as_bytes().len() }
+    fn len_(&self) -> usize {
+        self.as_bytes().len()
+    }
 
     fn split(&self, b: u8) -> OsSplit {
         OsSplit {
