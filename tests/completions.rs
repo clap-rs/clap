@@ -189,205 +189,124 @@ complete -c myapp -n "__fish_using_command myapp help" -s h -l help -d 'Prints h
 complete -c myapp -n "__fish_using_command myapp help" -s V -l version -d 'Prints version information'
 "#;
 
-#[allow(dead_code)]
-#[cfg(not(target_os="windows"))]
 static POWERSHELL: &'static str = r#"
-@('myapp', './myapp') | %{
-    Register-ArgumentCompleter -Native -CommandName $_ -ScriptBlock {
-        param($wordToComplete, $commandAst, $cursorPosition)
+using namespace System.Management.Automation
+using namespace System.Management.Automation.Language
 
-        $command = '_myapp'
-        $commandAst.CommandElements |
-            Select-Object -Skip 1 |
-            %{
-                switch ($_.ToString()) {
+Register-ArgumentCompleter -Native -CommandName 'my_app' -ScriptBlock {
+    param($wordToComplete, $commandAst, $cursorPosition)
 
-                    'test' {
-                        $command += '_test'
-                        break
-                    }
-
-                    'help' {
-                        $command += '_help'
-                        break
-                    }
-
-                }
-            }
-
-        $completions = @()
-
-        switch ($command) {
-
-            '_myapp' {
-                $completions = @('test', 'help', '-h', '-V', '--help', '--version')
-            }
-
-            '_myapp_test' {
-                $completions = @('-h', '-V', '--case', '--help', '--version')
-            }
-
-            '_myapp_help' {
-                $completions = @('-h', '-V', '--help', '--version')
-            }
-
+    $commandElements = $commandAst.CommandElements
+    $command = @(
+        'my_app'
+        for ($i = 1; $i -lt $commandElements.Count; $i++) {
+            $element = $commandElements[$i]
+            if ($element -isnot [StringConstantExpressionAst] -or
+                $element.StringConstantType -ne [StringConstantType]::BareWord -or
+                $element.Value.StartsWith('-')) {
+                break
         }
+        $element.Value
+    }) -join ';'
 
-        $completions |
-            ?{ $_ -like "$wordToComplete*" } |
-            Sort-Object |
-            %{ New-Object System.Management.Automation.CompletionResult $_, $_, 'ParameterValue', $_ }
-    }
+    $completions = @(switch ($command) {
+        'my_app' {
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Prints version information')
+            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Prints version information')
+            [CompletionResult]::new('test', 'test', [CompletionResultType]::ParameterValue, 'tests things')
+            [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Prints this message or the help of the given subcommand(s)')
+            break
+        }
+        'my_app;test' {
+            [CompletionResult]::new('--case', 'case', [CompletionResultType]::ParameterName, 'the case to test')
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Prints version information')
+            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Prints version information')
+            break
+        }
+        'my_app;help' {
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Prints version information')
+            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Prints version information')
+            break
+        }
+    })
+
+    $completions.Where{ $_.CompletionText -like "$wordToComplete*" } |
+        Sort-Object -Property ListItemText
 }
 "#;
 
-#[allow(dead_code)]
-#[cfg(target_os="windows")]
-static POWERSHELL: &'static str = r#"
-@('myapp', './myapp', 'myapp.exe', '.\myapp', '.\myapp.exe', './myapp.exe') | %{
-    Register-ArgumentCompleter -Native -CommandName $_ -ScriptBlock {
-        param($wordToComplete, $commandAst, $cursorPosition)
-        $command = '_myapp'
-        $commandAst.CommandElements |
-            Select-Object -Skip 1 |
-            %{
-                switch ($_.ToString()) {
-                    'test' {
-                        $command += '_test'
-                        break
-                    }
-                    'help' {
-                        $command += '_help'
-                        break
-                    }
-                }
-            }
-        $completions = @()
-        switch ($command) {
-            '_myapp' {
-                $completions = @('test', 'help', '-h', '-V', '--help', '--version')
-            }
-            '_myapp_test' {
-                $completions = @('-h', '-V', '--case', '--help', '--version')
-            }
-            '_myapp_help' {
-                $completions = @('-h', '-V', '--help', '--version')
-            }
-        }
-        $completions |
-            ?{ $_ -like "$wordToComplete*" } |
-            Sort-Object |
-            %{ New-Object System.Management.Automation.CompletionResult $_, $_, 'ParameterValue', $_ }
-    }
-}
-"#;
-
-#[allow(dead_code)]
-#[cfg(not(target_os="windows"))]
 static POWERSHELL_SPECIAL_CMDS: &'static str = r#"
-@('my_app', './my_app') | %{
-    Register-ArgumentCompleter -Native -CommandName $_ -ScriptBlock {
-        param($wordToComplete, $commandAst, $cursorPosition)
+using namespace System.Management.Automation
+using namespace System.Management.Automation.Language
 
-        $command = '_my_app'
-        $commandAst.CommandElements |
-            Select-Object -Skip 1 |
-            %{
-                switch ($_.ToString()) {
+Register-ArgumentCompleter -Native -CommandName 'my_app' -ScriptBlock {
+    param($wordToComplete, $commandAst, $cursorPosition)
 
-                    'test' {
-                        $command += '_test'
-                        break
-                    }
-
-                    'some_cmd' {
-                        $command += '_some_cmd'
-                        break
-                    }
-
-                    'help' {
-                        $command += '_help'
-                        break
-                    }
-
-                }
-            }
-
-        $completions = @()
-
-        switch ($command) {
-
-            '_my_app' {
-                $completions = @('test', 'some_cmd', 'help', '-h', '-V', '--help', '--version')
-            }
-
-            '_my_app_test' {
-                $completions = @('-h', '-V', '--case', '--help', '--version')
-            }
-
-            '_my_app_some_cmd' {
-                $completions = @('-h', '-V', '--config', '--help', '--version')
-            }
-
-            '_my_app_help' {
-                $completions = @('-h', '-V', '--help', '--version')
-            }
-
+    $commandElements = $commandAst.CommandElements
+    $command = @(
+        'my_app'
+        for ($i = 1; $i -lt $commandElements.Count; $i++) {
+            $element = $commandElements[$i]
+            if ($element -isnot [StringConstantExpressionAst] -or
+                $element.StringConstantType -ne [StringConstantType]::BareWord -or
+                $element.Value.StartsWith('-')) {
+                break
         }
+        $element.Value
+    }) -join ';'
 
-        $completions |
-            ?{ $_ -like "$wordToComplete*" } |
-            Sort-Object |
-            %{ New-Object System.Management.Automation.CompletionResult $_, $_, 'ParameterValue', $_ }
-    }
-}
-"#;
-
-#[allow(dead_code)]
-#[cfg(target_os="windows")]
-static POWERSHELL_SPECIAL_CMDS: &'static str = r#"
-@('my_app', './my_app', 'my_app.exe', '.\my_app', '.\my_app.exe', './my_app.exe') | %{
-    Register-ArgumentCompleter -Native -CommandName $_ -ScriptBlock {
-        param($wordToComplete, $commandAst, $cursorPosition)
-        $command = '_my_app'
-        $commandAst.CommandElements |
-            Select-Object -Skip 1 |
-            %{
-                switch ($_.ToString()) {
-                    'test' {
-                        $command += '_test'
-                        break
-                    }
-                    'some_cmd' {
-                        $command += '_some_cmd'
-                        break
-                    }
-                    'help' {
-                        $command += '_help'
-                        break
-                    }
-                }
-            }
-        $completions = @()
-        switch ($command) {
-            '_my_app' {
-                $completions = @('test', 'some_cmd', 'help', '-h', '-V', '--help', '--version')
-            }
-            '_my_app_test' {
-                $completions = @('-h', '-V', '--case', '--help', '--version')
-            }
-            '_my_app_some_cmd' {
-                $completions = @('-h', '-V', '--config', '--help', '--version')
-            }
-            '_my_app_help' {
-                $completions = @('-h', '-V', '--help', '--version')
-            }
+    $completions = @(switch ($command) {
+        'my_app' {
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Prints version information')
+            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Prints version information')
+            [CompletionResult]::new('test', 'test', [CompletionResultType]::ParameterValue, 'tests things')
+            [CompletionResult]::new('some_cmd', 'some_cmd', [CompletionResultType]::ParameterValue, 'tests other things')
+            [CompletionResult]::new('some-cmd-with-hypens', 'some-cmd-with-hypens', [CompletionResultType]::ParameterValue, 'some-cmd-with-hypens')
+            [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Prints this message or the help of the given subcommand(s)')
+            break
         }
-        $completions |
-            ?{ $_ -like "$wordToComplete*" } |
-            Sort-Object |
-            %{ New-Object System.Management.Automation.CompletionResult $_, $_, 'ParameterValue', $_ }
-    }
+        'my_app;test' {
+            [CompletionResult]::new('--case', 'case', [CompletionResultType]::ParameterName, 'the case to test')
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Prints version information')
+            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Prints version information')
+            break
+        }
+        'my_app;some_cmd' {
+            [CompletionResult]::new('--config', 'config', [CompletionResultType]::ParameterName, 'the other case to test')
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Prints version information')
+            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Prints version information')
+            break
+        }
+        'my_app;some-cmd-with-hypens' {
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Prints version information')
+            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Prints version information')
+            break
+        }
+        'my_app;help' {
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Prints version information')
+            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Prints version information')
+            break
+        }
+    })
+
+    $completions.Where{ $_.CompletionText -like "$wordToComplete*" } |
+        Sort-Object -Property ListItemText
 }
 "#;
 
@@ -813,27 +732,25 @@ fn fish() {
     assert!(compare(&*string, FISH));
 }
 
-// Disabled until I figure out this windows line ending and AppVeyor issues
-//#[test]
-// fn powershell() {
-//     let mut app = build_app();
-//     let mut buf = vec![];
-//     app.gen_completions_to("myapp", Shell::PowerShell, &mut buf);
-//     let string = String::from_utf8(buf).unwrap();
-//
-//     assert!(compare(&*string, POWERSHELL));
-// }
+#[test]
+fn powershell() {
+    let mut app = build_app();
+    let mut buf = vec![];
+    app.gen_completions_to("my_app", Shell::PowerShell, &mut buf);
+    let string = String::from_utf8(buf).unwrap();
 
-// Disabled until I figure out this windows line ending and AppVeyor issues
-//#[test]
-// fn powershell_with_special_commands() {
-//     let mut app = build_app_special_commands();
-//     let mut buf = vec![];
-//     app.gen_completions_to("my_app", Shell::PowerShell, &mut buf);
-//     let string = String::from_utf8(buf).unwrap();
-//
-//     assert!(compare(&*string, POWERSHELL_SPECIAL_CMDS));
-// }
+    assert!(compare(&*string, POWERSHELL));
+}
+
+#[test]
+fn powershell_with_special_commands() {
+    let mut app = build_app_special_commands();
+    let mut buf = vec![];
+    app.gen_completions_to("my_app", Shell::PowerShell, &mut buf);
+    let string = String::from_utf8(buf).unwrap();
+
+    assert!(compare(&*string, POWERSHELL_SPECIAL_CMDS));
+}
 
 #[test]
 fn bash_with_special_commands() {
