@@ -550,6 +550,11 @@ Upon bumping the minimum version of Rust (assuming it's within the stable-2 rang
  * The breaking change is to be fixing a bug (i.e. relying on a bug as a feature)
  * The breaking change is a feature isn't used in the wild, or all users of said feature have given approval *prior* to the change
 
+#### Compatibility with Wasm
+
+A best effort is made to ensure that `clap` will work on projects targeting `wasm32-unknown-unknown`. However there is no dedicated CI build
+covering this specific target.
+
 ## License
 
 `clap` is licensed under the MIT license. Please read the [LICENSE-MIT](LICENSE-MIT) file in this repository for more information.
