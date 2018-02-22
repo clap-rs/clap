@@ -3,7 +3,7 @@ use std::ffi::{OsStr, OsString};
 use std::fmt::Display;
 use std::fs::File;
 use std::io::{self, BufWriter, Write};
-#[cfg(feature = "debug")]
+#[cfg(all(feature = "debug", not(target_arch = "wasm32")))]
 use std::os::unix::ffi::OsStrExt;
 use std::path::PathBuf;
 use std::slice::Iter;
@@ -657,9 +657,9 @@ where
     fn possible_subcommand(&self, arg_os: &OsStr) -> (bool, Option<&str>) {
         debugln!("Parser::possible_subcommand: arg={:?}", arg_os);
         fn starts(h: &str, n: &OsStr) -> bool {
-            #[cfg(not(target_os = "windows"))]
+            #[cfg(not(any(target_os = "windows", target_arch = "wasm32")))]
             use std::os::unix::ffi::OsStrExt;
-            #[cfg(target_os = "windows")]
+            #[cfg(any(target_os = "windows", target_arch = "wasm32"))]
             use osstringext::OsStrExt3;
 
             let n_bytes = n.as_bytes();
