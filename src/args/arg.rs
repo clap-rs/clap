@@ -3713,10 +3713,24 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Indicates that all parameters passed after this should not be parsed
-    /// individually, but rather passed in their entirety.
+    /// individually, but rather passed in their entirety. It is worth noting
+    /// that setting this requires all values to come after a `--` to indicate they
+    /// should all be captured. For example:
+    ///
+    /// ```notrust
+    /// --foo something -- -v -v -v -b -b -b --baz -q -u -x
+    /// ```
+    /// Will result in everything after `--` to be considered one raw argument. This behavior
+    /// may not be exactly what you are expecting and using [`AppSettings::TrailingVarArg`]
+    /// may be more appropriate.
     ///
     /// **NOTE:** Implicitly sets [`Arg::multiple(true)`], [`Arg::allow_hyphen_values(true)`], and
     /// [`Arg::last(true)`] when set to `true`
+    ///
+    /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
+    /// [`Arg::allow_hyphen_values(true)`]: ./struct.Arg.html#method.allow_hyphen_values
+    /// [`Arg::last(true)`]: ./struct.Arg.html#method.last
+    /// [`AppSettings::TrailingVarArg`]: ./enum.AppSettings.html#variant.TrailingVarArg
     pub fn raw(self, raw: bool) -> Self {
         self.multiple(raw).allow_hyphen_values(raw).last(raw)
     }
