@@ -2,9 +2,9 @@
 use std::collections::BTreeMap;
 use std::rc::Rc;
 use std::ffi::{OsStr, OsString};
-#[cfg(target_os = "windows")]
+#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
 use osstringext::OsStrExt3;
-#[cfg(not(target_os = "windows"))]
+#[cfg(not(any(target_os = "windows", target_arch = "wasm32")))]
 use std::os::unix::ffi::OsStrExt;
 use std::env;
 
@@ -147,8 +147,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 }
                 s => panic!(
                     "Unknown Arg setting '{}' in YAML file for arg '{}'",
-                    s,
-                    name_str
+                    s, name_str
                 ),
             }
         }
@@ -1281,7 +1280,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     ///
     /// A safe thing to do if you'd like to support an option which supports multiple values, but
-    /// also is "overridable" by itself, is to use `use_delimiter(false)` and *not* use 
+    /// also is "overridable" by itself, is to use `use_delimiter(false)` and *not* use
     /// `multiple(true)` while telling users to seperate values with a comma (i.e. `val1,val2`)
     ///
     /// ```
@@ -3576,7 +3575,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// assert_eq!(m.values_of("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
     /// ```
-    pub fn env(self, name: &'a str) -> Self { self.env_os(OsStr::new(name)) }
+    pub fn env(self, name: &'a str) -> Self {
+        self.env_os(OsStr::new(name))
+    }
 
     /// Specifies that if the value is not passed in as an argument, that it should be retrieved
     /// from the environment if available in the exact same manner as [`Arg::env`] only using
@@ -3589,7 +3590,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// @TODO @p2 @docs @release: write docs
-    pub fn hide_env_values(self, hide: bool) -> Self { 
+    pub fn hide_env_values(self, hide: bool) -> Self {
         if hide {
             self.set(ArgSettings::HideEnvValues)
         } else {
@@ -3713,7 +3714,9 @@ impl<'a, 'b> Arg<'a, 'b> {
 
     /// Checks if one of the [`ArgSettings`] settings is set for the argument
     /// [`ArgSettings`]: ./enum.ArgSettings.html
-    pub fn is_set(&self, s: ArgSettings) -> bool { self.b.is_set(s) }
+    pub fn is_set(&self, s: ArgSettings) -> bool {
+        self.b.is_set(s)
+    }
 
     /// Sets one of the [`ArgSettings`] settings for the argument
     /// [`ArgSettings`]: ./enum.ArgSettings.html
@@ -3730,10 +3733,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     #[doc(hidden)]
-    pub fn setb(&mut self, s: ArgSettings) { self.b.set(s); }
+    pub fn setb(&mut self, s: ArgSettings) {
+        self.b.set(s);
+    }
 
     #[doc(hidden)]
-    pub fn unsetb(&mut self, s: ArgSettings) { self.b.unset(s); }
+    pub fn unsetb(&mut self, s: ArgSettings) {
+        self.b.unset(s);
+    }
 }
 
 impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
@@ -3749,5 +3756,7 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
 }
 
 impl<'n, 'e> PartialEq for Arg<'n, 'e> {
-    fn eq(&self, other: &Arg<'n, 'e>) -> bool { self.b == other.b }
+    fn eq(&self, other: &Arg<'n, 'e>) -> bool {
+        self.b == other.b
+    }
 }
