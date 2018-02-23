@@ -257,6 +257,7 @@ fn gen_augment_clap(fields: &Punctuated<Field, Comma>) -> quote::Tokens {
     let app_var: Ident = "app".into();
     let augmentation = gen_augmentation(fields, &app_var);
     quote! {
+        #[doc(hidden)]
         pub fn augment_clap<'a, 'b>(#app_var: ::structopt::clap::App<'a, 'b>) -> ::structopt::clap::App<'a, 'b> {
             #augmentation
         }
@@ -303,6 +304,7 @@ fn gen_augment_clap_enum(variants: &Punctuated<Variant, Comma>) -> quote::Tokens
     });
 
     quote! {
+        #[doc(hidden)]
         pub fn augment_clap<'a, 'b>(app: ::structopt::clap::App<'a, 'b>) -> ::structopt::clap::App<'a, 'b> {
             app #( #subcommands )*
         }

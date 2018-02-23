@@ -1,3 +1,7 @@
+# v0.2.4 (2018-02-XX)
+
+* Fix compilation with `#![deny(missig_docs]` ([#74](https://github.com/TeXitoi/structopt/issues/74)) by [@TeXitoi](https://github.com/TeXitoi)
+
 # v0.2.3 (2018-02-16)
 
 * An empty line in a doc comment will result in a double linefeed in the generated about/help call by [@TeXitoi](https://github.com/TeXitoi)
