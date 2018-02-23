@@ -3,7 +3,7 @@ use std::ffi::{OsStr, OsString};
 use std::fmt::Display;
 use std::fs::File;
 use std::io::{self, BufWriter, Write};
-#[cfg(feature = "debug")]
+#[cfg(all(feature = "debug", not(target_arch = "wasm32")))]
 use std::os::unix::ffi::OsStrExt;
 use std::path::PathBuf;
 use std::slice::Iter;
@@ -154,12 +154,10 @@ where
             g.unwrap()
                 .args
                 .iter()
-                .find(|arg| {
-                    !(self.flags.iter().any(|f| &&f.b.name == arg)
-                        || self.opts.iter().any(|o| &&o.b.name == arg)
-                        || self.positionals.values().any(|p| &&p.b.name == arg)
-                        || self.groups.iter().any(|g| &&g.name == arg))
-                })
+                .find(|arg| !(self.flags.iter().any(|f| &&f.b.name == arg)
+                    || self.opts.iter().any(|o| &&o.b.name == arg)
+                    || self.positionals.values().any(|p| &&p.b.name == arg)
+                    || self.groups.iter().any(|g| &&g.name == arg)))
                 .unwrap()
         );
         true
@@ -345,9 +343,9 @@ where
             if let Some(ref reqs) = group.requires {
                 self.required.extend_from_slice(reqs);
             }
-//            if let Some(ref bl) = group.conflicts {
-//                self.blacklist.extend_from_slice(bl);
-//            }
+            //            if let Some(ref bl) = group.conflicts {
+            //                self.blacklist.extend_from_slice(bl);
+            //            }
         }
         if self.groups.iter().any(|g| g.name == group.name) {
             let grp = self.groups
@@ -443,7 +441,9 @@ where
         }
     }
 
-    pub fn required(&self) -> Iter<&str> { self.required.iter() }
+    pub fn required(&self) -> Iter<&str> {
+        self.required.iter()
+    }
 
     #[cfg_attr(feature = "lints", allow(needless_borrow))]
     #[inline]
@@ -452,16 +452,24 @@ where
     }
 
     #[inline]
-    pub fn has_opts(&self) -> bool { !self.opts.is_empty() }
+    pub fn has_opts(&self) -> bool {
+        !self.opts.is_empty()
+    }
 
     #[inline]
-    pub fn has_flags(&self) -> bool { !self.flags.is_empty() }
+    pub fn has_flags(&self) -> bool {
+        !self.flags.is_empty()
+    }
 
     #[inline]
-    pub fn has_positionals(&self) -> bool { !self.positionals.is_empty() }
+    pub fn has_positionals(&self) -> bool {
+        !self.positionals.is_empty()
+    }
 
     #[inline]
-    pub fn has_subcommands(&self) -> bool { !self.subcommands.is_empty() }
+    pub fn has_subcommands(&self) -> bool {
+        !self.subcommands.is_empty()
+    }
 
     #[inline]
     pub fn has_visible_opts(&self) -> bool {
@@ -499,13 +507,19 @@ where
     }
 
     #[inline]
-    pub fn is_set(&self, s: AS) -> bool { self.settings.is_set(s) }
+    pub fn is_set(&self, s: AS) -> bool {
+        self.settings.is_set(s)
+    }
 
     #[inline]
-    pub fn set(&mut self, s: AS) { self.settings.set(s) }
+    pub fn set(&mut self, s: AS) {
+        self.settings.set(s)
+    }
 
     #[inline]
-    pub fn unset(&mut self, s: AS) { self.settings.unset(s) }
+    pub fn unset(&mut self, s: AS) {
+        self.settings.unset(s)
+    }
 
     #[cfg_attr(feature = "lints", allow(block_in_if_condition_stmt))]
     pub fn verify_positionals(&mut self) -> bool {
@@ -554,9 +568,7 @@ where
 
             let count = self.positionals
                 .values()
-                .filter(|p| {
-                    p.b.settings.is_set(ArgSettings::Multiple) && p.v.num_vals.is_none()
-                })
+                .filter(|p| p.b.settings.is_set(ArgSettings::Multiple) && p.v.num_vals.is_none())
                 .count();
             let ok = count <= 1
                 || (last.is_set(ArgSettings::Last) && last.is_set(ArgSettings::Multiple)
@@ -568,7 +580,6 @@ where
                  command, unless the second one also has .last(true) set"
             );
         }
-
 
         if self.is_set(AS::AllowMissingPositional) {
             // Check that if a required positional argument is found, all positions with a lower
@@ -627,9 +638,10 @@ where
                 }
             }
         }
-        if self.positionals.values().any(|p| {
-            p.b.is_set(ArgSettings::Last) && p.b.is_set(ArgSettings::Required)
-        }) && self.has_subcommands() && !self.is_set(AS::SubcommandsNegateReqs)
+        if self.positionals
+            .values()
+            .any(|p| p.b.is_set(ArgSettings::Last) && p.b.is_set(ArgSettings::Required))
+            && self.has_subcommands() && !self.is_set(AS::SubcommandsNegateReqs)
         {
             panic!(
                 "Having a required positional argument with .last(true) set *and* child \
@@ -657,9 +669,9 @@ where
     fn possible_subcommand(&self, arg_os: &OsStr) -> (bool, Option<&str>) {
         debugln!("Parser::possible_subcommand: arg={:?}", arg_os);
         fn starts(h: &str, n: &OsStr) -> bool {
-            #[cfg(not(target_os = "windows"))]
+            #[cfg(not(any(target_os = "windows", target_arch = "wasm32")))]
             use std::os::unix::ffi::OsStrExt;
-            #[cfg(target_os = "windows")]
+            #[cfg(any(target_os = "windows", target_arch = "wasm32"))]
             use osstringext::OsStrExt3;
 
             let n_bytes = n.as_bytes();
@@ -773,7 +785,7 @@ where
     // allow wrong self convention due to self.valid_neg_num = true and it's a private method
     #[cfg_attr(feature = "lints", allow(wrong_self_convention))]
     fn is_new_arg(&mut self, arg_os: &OsStr, needs_val_of: ParseResult) -> bool {
-        debugln!( "Parser::is_new_arg:{:?}:{:?}", arg_os, needs_val_of);
+        debugln!("Parser::is_new_arg:{:?}:{:?}", arg_os, needs_val_of);
         let app_wide_settings = if self.is_set(AS::AllowLeadingHyphen) {
             true
         } else if self.is_set(AS::AllowNegativeNumbers) {
@@ -805,7 +817,7 @@ where
             ParseResult::ValuesDone => return true,
             _ => false,
         };
-        debugln!( "Parser::is_new_arg: arg_allows_tac={:?}", arg_allows_tac );
+        debugln!("Parser::is_new_arg: arg_allows_tac={:?}", arg_allows_tac);
 
         // Is this a new argument, or values from a previous option?
         let mut ret = if arg_os.starts_with(b"--") {
@@ -875,8 +887,8 @@ where
             self.unset(AS::ValidNegNumFound);
             // Is this a new argument, or values from a previous option?
             let starts_new_arg = self.is_new_arg(&arg_os, needs_val_of);
-            if !self.is_set(AS::TrailingValues) &&
-                arg_os.starts_with(b"--") && arg_os.len_() == 2 && starts_new_arg
+            if !self.is_set(AS::TrailingValues) && arg_os.starts_with(b"--") && arg_os.len_() == 2
+                && starts_new_arg
             {
                 debugln!("Parser::get_matches_with: setting TrailingVals=true");
                 self.set(AS::TrailingValues);
@@ -913,16 +925,19 @@ where
                     {
                         let any_arg = find_any_by_name!(self, self.cache.unwrap_or(""));
                         matcher.process_arg_overrides(
-                            any_arg, 
-                            &mut self.overrides, 
-                            &mut self.required, 
-                            check_all
+                            any_arg,
+                            &mut self.overrides,
+                            &mut self.required,
+                            check_all,
                         );
                     }
 
                     if arg_os.starts_with(b"--") {
                         needs_val_of = self.parse_long_arg(matcher, &arg_os)?;
-                        debugln!( "Parser:get_matches_with: After parse_long_arg {:?}", needs_val_of );
+                        debugln!(
+                            "Parser:get_matches_with: After parse_long_arg {:?}",
+                            needs_val_of
+                        );
                         match needs_val_of {
                             ParseResult::Flag | ParseResult::Opt(..) | ParseResult::ValuesDone => {
                                 continue
@@ -943,22 +958,21 @@ where
                             ParseResult::MaybeNegNum => {
                                 if !(arg_os.to_string_lossy().parse::<i64>().is_ok()
                                     || arg_os.to_string_lossy().parse::<f64>().is_ok())
-                                    {
-                                        return Err(Error::unknown_argument(
-                                            &*arg_os.to_string_lossy(),
-                                            "",
-                                            &*usage::create_error_usage(self, matcher, None),
-                                            self.color(),
-                                        ));
-                                    }
-                            },
+                                {
+                                    return Err(Error::unknown_argument(
+                                        &*arg_os.to_string_lossy(),
+                                        "",
+                                        &*usage::create_error_usage(self, matcher, None),
+                                        self.color(),
+                                    ));
+                                }
+                            }
                             ParseResult::Opt(..) | ParseResult::Flag | ParseResult::ValuesDone => {
                                 continue
                             }
                             _ => (),
                         }
                     }
-
                 } else {
                     if let ParseResult::Opt(name) = needs_val_of {
                         // Check to see if parsing a value from a previous arg
@@ -977,7 +991,9 @@ where
             if !(self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound))
                 && !self.is_set(AS::InferSubcommands)
             {
-                if let Some(cdate) = suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self)) {
+                if let Some(cdate) =
+                    suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self))
+                {
                     return Err(Error::invalid_subcommand(
                         arg_os.to_string_lossy().into_owned(),
                         cdate,
@@ -1039,9 +1055,9 @@ where
                         self.color(),
                     ));
                 }
-                if !self.is_set(AS::TrailingValues) &&
-                    (self.is_set(AS::TrailingVarArg) &&
-                    pos_counter == self.positionals.len()) {
+                if !self.is_set(AS::TrailingValues)
+                    && (self.is_set(AS::TrailingVarArg) && pos_counter == self.positionals.len())
+                {
                     self.settings.set(AS::TrailingValues);
                 }
                 if self.cache.map_or(true, |name| name != p.b.name) {
@@ -1049,10 +1065,10 @@ where
                     {
                         let any_arg = find_any_by_name!(self, self.cache.unwrap_or(""));
                         matcher.process_arg_overrides(
-                            any_arg, 
-                            &mut self.overrides, 
-                            &mut self.required, 
-                            check_all
+                            any_arg,
+                            &mut self.overrides,
+                            &mut self.required,
+                            check_all,
                         );
                     }
                     self.cache = Some(p.b.name);
@@ -1173,10 +1189,10 @@ where
         {
             let any_arg = find_any_by_name!(self, self.cache.unwrap_or(""));
             matcher.process_arg_overrides(
-                any_arg, 
-                &mut self.overrides, 
-                &mut self.required, 
-                check_all
+                any_arg,
+                &mut self.overrides,
+                &mut self.required,
+                check_all,
             );
         }
 
@@ -1190,10 +1206,20 @@ where
         for &(overr, name) in &self.overrides {
             debugln!("Parser::remove_overrides:iter:({},{});", overr, name);
             if matcher.is_present(overr) {
-                debugln!("Parser::remove_overrides:iter:({},{}): removing {};", overr, name, name);
+                debugln!(
+                    "Parser::remove_overrides:iter:({},{}): removing {};",
+                    overr,
+                    name,
+                    name
+                );
                 matcher.remove(name);
-                for i in (0 .. self.required.len()).rev() {
-                    debugln!("Parser::remove_overrides:iter:({},{}): removing required {};", overr, name, name);
+                for i in (0..self.required.len()).rev() {
+                    debugln!(
+                        "Parser::remove_overrides:iter:({},{}): removing required {};",
+                        overr,
+                        name,
+                        name
+                    );
                     if self.required[i] == name {
                         self.required.swap_remove(i);
                         break;
@@ -1563,9 +1589,9 @@ where
             self.parse_flag(flag, matcher)?;
 
             // Handle conflicts, requirements, etc.
-             if self.cache.map_or(true, |name| name != flag.b.name) {
-                 self.cache = Some(flag.b.name);
-             }
+            if self.cache.map_or(true, |name| name != flag.b.name) {
+                self.cache = Some(flag.b.name);
+            }
 
             return Ok(ParseResult::Flag);
         } else if self.is_set(AS::AllowLeadingHyphen) {
@@ -1804,7 +1830,6 @@ where
         Ok(ParseResult::ValuesDone)
     }
 
-
     fn parse_flag(
         &self,
         flag: &FlagBuilder<'a, 'b>,
@@ -2001,13 +2026,21 @@ where
         Ok(())
     }
 
-    pub fn flags(&self) -> Iter<FlagBuilder<'a, 'b>> { self.flags.iter() }
+    pub fn flags(&self) -> Iter<FlagBuilder<'a, 'b>> {
+        self.flags.iter()
+    }
 
-    pub fn opts(&self) -> Iter<OptBuilder<'a, 'b>> { self.opts.iter() }
+    pub fn opts(&self) -> Iter<OptBuilder<'a, 'b>> {
+        self.opts.iter()
+    }
 
-    pub fn positionals(&self) -> map::Values<PosBuilder<'a, 'b>> { self.positionals.values() }
+    pub fn positionals(&self) -> map::Values<PosBuilder<'a, 'b>> {
+        self.positionals.values()
+    }
 
-    pub fn subcommands(&self) -> Iter<App> { self.subcommands.iter() }
+    pub fn subcommands(&self) -> Iter<App> {
+        self.subcommands.iter()
+    }
 
     // Should we color the output? None=determined by output location, true=yes, false=no
     #[doc(hidden)]
@@ -2091,8 +2124,12 @@ where
     }
 
     #[inline]
-    fn contains_long(&self, l: &str) -> bool { longs!(self).any(|al| al == &l) }
+    fn contains_long(&self, l: &str) -> bool {
+        longs!(self).any(|al| al == &l)
+    }
 
     #[inline]
-    fn contains_short(&self, s: char) -> bool { shorts!(self).any(|arg_s| arg_s == &s) }
+    fn contains_short(&self, s: char) -> bool {
+        shorts!(self).any(|arg_s| arg_s == &s)
+    }
 }
