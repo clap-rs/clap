@@ -133,3 +133,29 @@ fn test_tuple_commands() {
     assert!(output.contains("Add a file"));
     assert!(!output.contains("Not shown"));
 }
+
+#[test]
+fn enum_in_enum_subsubcommand() {
+    #[derive(StructOpt, Debug, PartialEq)]
+    pub enum Opt {
+        #[structopt(name = "daemon")]
+        Daemon(DaemonCommand)
+    }
+
+    #[derive(StructOpt, Debug, PartialEq)]
+    pub enum DaemonCommand {
+        #[structopt(name = "start")]
+        Start,
+        #[structopt(name = "stop")]
+        Stop,
+    }
+
+    let result = Opt::clap().get_matches_from_safe(&["test"]);
+    assert!(result.is_err());
+
+    let result = Opt::clap().get_matches_from_safe(&["test", "daemon"]);
+    assert!(result.is_err());
+
+    let result = Opt::from_iter(&["test", "daemon", "start"]);
+    assert_eq!(Opt::Daemon(DaemonCommand::Start), result);
+}
