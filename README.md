@@ -471,6 +471,7 @@ features = [ "suggestions", "color" ]
 
 * **"yaml"**: Enables building CLIs from YAML documents. (builds dependency `yaml-rust`)
 * **"unstable"**: Enables unstable `clap` features that may change from release to release
+* **"wrap_help"**: Turns on the help text wrapping feature, based on the terminal size. (builds dependency `term-size`)
 
 ### Dependencies Tree
 
