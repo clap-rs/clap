@@ -444,7 +444,6 @@ Then run `cargo build` or `cargo update && cargo build` for your project.
 
 #### Features enabled by default
 
-* **"wrap_help"**: Turns on the help text wrapping feature, based on the terminal size. (builds dependency `term-size`)
 * **"suggestions"**: Turns on the `Did you mean '--myoption'?` feature for when users make typos. (builds dependency `strsim`)
 * **"color"**: Turns on colored error messages. This feature only works on non-Windows OSs. (builds dependency `ansi-term` only on non-Windows targets)
 * **"vec_map"**: Use [`VecMap`](https://crates.io/crates/vec_map) internally instead of a [`BTreeMap`](https://doc.rust-lang.org/stable/std/collections/struct.BTreeMap.html). This feature provides a _slight_ performance improvement. (builds dependency `vec_map`)
@@ -472,6 +471,7 @@ features = [ "suggestions", "color" ]
 
 * **"yaml"**: Enables building CLIs from YAML documents. (builds dependency `yaml-rust`)
 * **"unstable"**: Enables unstable `clap` features that may change from release to release
+* **"wrap_help"**: Turns on the help text wrapping feature, based on the terminal size. (builds dependency `term-size`)
 
 ### Dependencies Tree
 
