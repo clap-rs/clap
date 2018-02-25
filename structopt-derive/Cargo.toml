@@ -7,7 +7,7 @@ documentation = "https://docs.rs/structopt-derive"
 repository = "https://github.com/TeXitoi/structopt"
 keywords = ["clap", "cli", "derive", "docopt"]
 categories = ["command-line-interface"]
-license = "WTFPL"
+license = "Apache-2.0/MIT"
 
 [badges]
 travis-ci = { repository = "TeXitoi/structopt" }

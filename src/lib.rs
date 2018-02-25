@@ -1,9 +1,10 @@
-// Copyright (c) 2017 Guillaume Pinot <texitoi(a)texitoi.eu>
+// Copyright 2018 Guillaume Pinot (@TeXitoi) <texitoi@texitoi.eu>
 //
-// This work is free. You can redistribute it and/or modify it under
-// the terms of the Do What The Fuck You Want To Public License,
-// Version 2, as published by Sam Hocevar. See the COPYING file for
-// more details.
+// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+// option. This file may not be copied, modified, or distributed
+// except according to those terms.
 
 #![deny(missing_docs)]
 

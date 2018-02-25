@@ -2,6 +2,7 @@
 
 * Fix compilation with `#![deny(missig_docs]` ([#74](https://github.com/TeXitoi/structopt/issues/74)) by [@TeXitoi](https://github.com/TeXitoi)
 * Fix [#76](https://github.com/TeXitoi/structopt/issues/76) by [@TeXitoi](https://github.com/TeXitoi)
+* Re-licensed to Apache-2.0/MIT by [@CAD97](https://github.com/cad97)
 
 # v0.2.3 (2018-02-16)
 
