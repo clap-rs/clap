@@ -369,6 +369,189 @@ impl<'a> ArgMatches<'a> {
         self.args.get(name.as_ref()).map_or(0, |a| a.occurs)
     }
 
+    /// Gets the starting index of the argument in respect to all other arguments. Indices are
+    /// similar to argv indices, but are not exactly 1:1.
+    ///
+    /// For flags (i.e. those arguments which don't have an associated value), indices refer
+    /// to occurrence of the switch, such as `-f`, or `--flag`. However, for options the indices
+    /// refer to the *values* `-o val` would therefore not represent two distinct indices, only the
+    /// index for `val` would be recorded. This is by design.
+    ///
+    /// Besides the flag/option descrepancy, the primary difference between an argv index and clap
+    /// index, is that clap continues counting once all arguments have properly seperated, whereas
+    /// an argv index does not.
+    ///
+    /// The examples should clear this up.
+    ///
+    /// *NOTE:* If an argument is allowed multiple times, this method will only give the *first*
+    /// index.
+    ///
+    /// # Examples
+    ///
+    /// The argv indices are listed in the comments below. See how they correspond to the clap
+    /// indices. Note that if it's not listed in a clap index, this is becuase it's not saved in
+    /// in an `ArgMatches` struct for querying.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myapp")
+    ///     .arg(Arg::with_name("flag")
+    ///         .short("f"))
+    ///     .arg(Arg::with_name("option")
+    ///         .short("o")
+    ///         .takes_value(true))
+    ///     .get_matches_from(vec!["myapp", "-f", "-o", "val"]);
+    ///             // ARGV idices: ^0       ^1    ^2    ^3
+    ///             // clap idices:          ^1          ^3
+    /// 
+    /// assert_eq!(m.index_of("flag"), Some(1));
+    /// assert_eq!(m.index_of("option"), Some(3));
+    /// ```
+    ///
+    /// Now notice, if we use one of the other styles of options:
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myapp")
+    ///     .arg(Arg::with_name("flag")
+    ///         .short("f"))
+    ///     .arg(Arg::with_name("option")
+    ///         .short("o")
+    ///         .takes_value(true))
+    ///     .get_matches_from(vec!["myapp", "-f", "-o=val"]);
+    ///             // ARGV idices: ^0       ^1    ^2
+    ///             // clap idices:          ^1       ^3
+    /// 
+    /// assert_eq!(m.index_of("flag"), Some(1));
+    /// assert_eq!(m.index_of("option"), Some(2));
+    /// ```
+    ///
+    /// Things become much more complicated, or clear if we look at a more complex combination of
+    /// flags. Let's also throw in the final option style for good measure.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myapp")
+    ///     .arg(Arg::with_name("flag")
+    ///         .short("f"))
+    ///     .arg(Arg::with_name("flag2")
+    ///         .short("F"))
+    ///     .arg(Arg::with_name("flag3")
+    ///         .short("z"))
+    ///     .arg(Arg::with_name("option")
+    ///         .short("o")
+    ///         .takes_value(true))
+    ///     .get_matches_from(vec!["myapp", "-fzF", "-oval"]);
+    ///             // ARGV idices: ^0      ^1       ^2
+    ///             // clap idices:         ^1,2,3    ^5
+    ///             // 
+    ///             // clap sees the above as 'myapp -f -z -F -o val'
+    ///             //                         ^0    ^1 ^2 ^3 ^4 ^5
+    /// assert_eq!(m.index_of("flag"), Some(1));
+    /// assert_eq!(m.index_of("flag2"), Some(3));
+    /// assert_eq!(m.index_of("flag3"), Some(2));
+    /// assert_eq!(m.index_of("option"), Some(5));
+    /// ```
+    ///
+    /// One final combination of flags/options to see how they combine:
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myapp")
+    ///     .arg(Arg::with_name("option")
+    ///         .short("o")
+    ///         .takes_value(true)
+    ///         .multiple(true))
+    ///     .get_matches_from(vec!["myapp", "-ozFoval"]);
+    ///             // ARGV idices: ^0      ^1   
+    ///             // clap idices:         ^1,2,3^5
+    ///             // 
+    ///             // clap sees the above as 'myapp -f -z -F -o val'
+    ///             //                         ^0    ^1 ^2 ^3 ^4 ^5
+    /// assert_eq!(m.index_of("flag"), Some(1));
+    /// assert_eq!(m.index_of("flag2"), Some(3));
+    /// assert_eq!(m.index_of("flag3"), Some(2));
+    /// assert_eq!(m.index_of("option"), Some(5));
+    /// ```
+    ///
+    /// The last part to mention is when values are sent in multiple groups with a [delimiter].
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myapp")
+    ///     .arg(Arg::with_name("option")
+    ///         .short("o")
+    ///         .takes_value(true)
+    ///         .multiple(true))
+    ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
+    ///             // ARGV idices: ^0       ^1   
+    ///             // clap idices:             ^2   ^3   ^4
+    ///             // 
+    ///             // clap sees the above as 'myapp -o val1 val2 val3'
+    ///             //                         ^0    ^1 ^2   ^3   ^4
+    /// assert_eq!(m.index_of("option"), Some(2));
+    /// ```
+    /// [`ArgMatches`]: ./struct.ArgMatches.html
+    /// [delimiter]: ./struct.Arg.html#method.value_delimiter
+    pub fn index_of<S: AsRef<str>>(&self, name: S) -> Option<&str> {
+        unimplemented!()
+    }
+
+    /// Gets all indices of the argument in respect to all other arguments. Indices are
+    /// similar to argv indices, but are not exactly 1:1.
+    ///
+    /// For flags (i.e. those arguments which don't have an associated value), indices refer
+    /// to occurrence of the switch, such as `-f`, or `--flag`. However, for options the indices
+    /// refer to the *values* `-o val` would therefore not represent two distinct indices, only the
+    /// index for `val` would be recorded. This is by design.
+    ///
+    /// *NOTE:* For more information about how clap indices compare to argv indices, see 
+    /// [`ArgMatches::index_of`] 
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myapp")
+    ///     .arg(Arg::with_name("option")
+    ///         .short("o")
+    ///         .takes_value(true)
+    ///         .multiple(true))
+    ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
+    ///             // ARGV idices: ^0       ^1   
+    ///             // clap idices:             ^2   ^3   ^4
+    ///             // 
+    ///             // clap sees the above as 'myapp -o val1 val2 val3'
+    ///             //                         ^0    ^1 ^2   ^3   ^4
+    /// assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[2, 3, 4]);
+    /// ```
+    ///
+    /// Another quick example is when flags and options are used together
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myapp")
+    ///     .arg(Arg::with_name("option")
+    ///         .short("o")
+    ///         .takes_value(true)
+    ///         .multiple(true))
+    ///     .arg(Arg::with_name("flag")
+    ///         .short("f")
+    ///         .multiple(true))
+    ///     .get_matches_from(vec!["myapp", "-o", "val1", "-f", "-o", "val2", "-f"]);
+    ///             // ARGV idices: ^0       ^1    ^2      ^3    ^4    ^5      ^6 
+    ///             // clap idices:                ^2      ^3          ^5      ^6
+    ///
+    /// assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[2, 5]);
+    /// assert_eq!(m.indices_of("flag").unwrap().collect::<Vec<_>>(), &[3, 6]);
+    /// ```
+    /// [`ArgMatches`]: ./struct.ArgMatches.html
+    /// [`ArgMatches::index_of`]: ./struct.ArgMatches.html#method.index_of
+    /// [delimiter]: ./struct.Arg.html#method.value_delimiter
+    pub fn indices_of<S: AsRef<str>>(&self, name: S) -> Option<&str> {
+        unimplemented!()
+    }
+
     /// Because [`Subcommand`]s are essentially "sub-[`App`]s" they have their own [`ArgMatches`]
     /// as well. This method returns the [`ArgMatches`] for a particular subcommand or `None` if
     /// the subcommand wasn't present at runtime.
