@@ -231,5 +231,4 @@ fn issue_1161_multiple_hyphen_hyphen() {
             .map(|vals| vals.collect::<Vec<_>>());
 
     assert_eq!(expected, actual);
-
 }
