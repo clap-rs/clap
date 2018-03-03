@@ -775,19 +775,6 @@ impl<'a> Default for Values<'a> {
     }
 }
 
-#[test]
-fn test_default_values() {
-    let mut values: Values = Values::default();
-    assert_eq!(values.next(), None);
-}
-
-#[test]
-fn test_default_values_with_shorter_lifetime() {
-    let matches = ArgMatches::new();
-    let mut values = matches.values_of("").unwrap_or_default();
-    assert_eq!(values.next(), None);
-}
-
 /// An iterator for getting multiple values out of an argument via the [`ArgMatches::values_of_os`]
 /// method. Usage of this iterator allows values which contain invalid UTF-8 code points unlike
 /// [`Values`].
@@ -838,15 +825,33 @@ impl<'a> Default for OsValues<'a> {
     }
 }
 
-#[test]
-fn test_default_osvalues() {
-    let mut values: OsValues = OsValues::default();
-    assert_eq!(values.next(), None);
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    
+    #[test]
+    fn test_default_values() {
+        let mut values: Values = Values::default();
+        assert_eq!(values.next(), None);
+    }
 
-#[test]
-fn test_default_osvalues_with_shorter_lifetime() {
-    let matches = ArgMatches::new();
-    let mut values = matches.values_of_os("").unwrap_or_default();
-    assert_eq!(values.next(), None);
+    #[test]
+    fn test_default_values_with_shorter_lifetime() {
+        let matches = ArgMatches::new();
+        let mut values = matches.values_of("").unwrap_or_default();
+        assert_eq!(values.next(), None);
+    }
+
+    #[test]
+    fn test_default_osvalues() {
+        let mut values: OsValues = OsValues::default();
+        assert_eq!(values.next(), None);
+    }
+
+    #[test]
+    fn test_default_osvalues_with_shorter_lifetime() {
+        let matches = ArgMatches::new();
+        let mut values = matches.values_of_os("").unwrap_or_default();
+        assert_eq!(values.next(), None);
+    }
 }
