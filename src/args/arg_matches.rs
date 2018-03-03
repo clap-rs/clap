@@ -738,10 +738,16 @@ impl<'a> ArgMatches<'a> {
 /// # use clap::{App, Arg};
 /// let m = App::new("myapp")
 ///     .arg(Arg::with_name("output")
+///         .short("o")
+///         .multiple(true)
 ///         .takes_value(true))
-///     .get_matches_from(vec!["myapp", "something"]);
+///     .get_matches_from(vec!["myapp", "-o", "val1", "val2"]);
 ///
-/// assert_eq!(m.value_of("output"), Some("something"));
+/// let values = m.values_of("output").unwrap();
+///
+/// assert_eq!(values.next(), Some("val1"));
+/// assert_eq!(values.next(), Some("val2"));
+/// assert_eq!(values.next(), None);
 /// ```
 /// [`ArgMatches::values_of`]: ./struct.ArgMatches.html#method.values_of
 #[derive(Clone)]
