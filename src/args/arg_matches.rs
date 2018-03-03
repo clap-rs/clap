@@ -825,10 +825,62 @@ impl<'a> Default for OsValues<'a> {
     }
 }
 
+/// An iterator for getting multiple indices out of an argument via the [`ArgMatches::indices_of`]
+/// method.
+///
+/// # Examples
+///
+/// ```rust
+/// # use clap::{App, Arg};
+/// let m = App::new("myapp")
+///     .arg(Arg::with_name("output")
+///         .short("o")
+///         .multiple(true)
+///         .takes_value(true))
+///     .get_matches_from(vec!["myapp", "-o", "val1", "val2"]);
+///
+/// let indices = m.indices_of("output").unwrap();
+///
+/// assert_eq!(indicies.next(), Some(2));
+/// assert_eq!(indicies.next(), Some(3));
+/// assert_eq!(indicies.next(), None);
+/// ```
+/// [`ArgMatches::indices_of`]: ./struct.ArgMatches.html#method.indices_of
+#[derive(Clone)]
+#[allow(missing_debug_implementations)]
+pub struct Indices<'a> {
+    iter: Map<Iter<'a, OsString>, fn(&'a OsString) -> &'a usize>,
+}
+
+impl<'a> Iterator for Indices<'a> {
+    type Item = &'a usize;
+
+    fn next(&mut self) -> Option<&'a str> { self.iter.next() }
+    fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
+}
+
+impl<'a> DoubleEndedIterator for Indices<'a> {
+    fn next_back(&mut self) -> Option<&'a usize> { self.iter.next_back() }
+}
+
+impl<'a> ExactSizeIterator for Indices<'a> {}
+
+/// Creates an empty iterator.
+impl<'a> Default for Indices<'a> {
+    fn default() -> Self {
+        static EMPTY: [usize; 0] = [];
+        // This is never called because the iterator is empty:
+        fn to_usize_ref(_: &OsString) -> &usize { unreachable!() };
+        Indices {
+            iter: EMPTY[..].iter().map(to_usize_ref),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_default_values() {
         let mut values: Values = Values::default();
@@ -853,5 +905,18 @@ mod tests {
         let matches = ArgMatches::new();
         let mut values = matches.values_of_os("").unwrap_or_default();
         assert_eq!(values.next(), None);
+    }
+
+    #[test]
+    fn test_default_indices() {
+        let mut indices: Indices = Indices::default();
+        assert_eq!(indices.next(), None);
+    }
+
+    #[test]
+    fn test_default_indices_with_shorter_lifetime() {
+        let matches = ArgMatches::new();
+        let mut indices = matches.indices_of("").unwrap_or_default();
+        assert_eq!(indices.next(), None);
     }
 }
