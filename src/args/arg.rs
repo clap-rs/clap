@@ -1979,7 +1979,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// **WARNING:**
     ///
     /// When using args with `multiple(true)` on [options] or [positionals] (i.e. those args that
-    /// accept values) and [subcommands], one needs to consider the posibility of an argument value
+    /// accept values) and [subcommands], one needs to consider the possibility of an argument value
     /// being the same as a valid subcommand. By default `clap` will parse the argument in question
     /// as a value *only if* a value is possible at that moment. Otherwise it will be parsed as a
     /// subcommand. In effect, this means using `multiple(true)` with no additional parameters and
@@ -2049,7 +2049,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let files: Vec<_> = m.values_of("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2", "file3"]);
     /// ```
-    /// This is functionally equivilant to the example above
+    /// This is functionally equivalent to the example above
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -2220,7 +2220,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # ;
     /// ```
     ///
-    /// For example, assume an appliction with two subcommands, and you'd like to define a
+    /// For example, assume an application with two subcommands, and you'd like to define a
     /// `--verbose` flag that can be called on any of the subcommands and parent, but you don't
     /// want to clutter the source with three duplicate [`Arg`] definitions.
     ///
@@ -2727,9 +2727,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// **NOTE:** This does *not* implicitly set [`Arg::multiple(true)`]. This is because
     /// `-o val -o val` is multiple occurrences but a single value and `-o val1 val2` is a single
-    /// occurence with multiple values. For positional arguments this **does** set
+    /// occurrence with multiple values. For positional arguments this **does** set
     /// [`Arg::multiple(true)`] because there is no way to determine the difference between multiple
-    /// occurences and multiple values.
+    /// occurrences and multiple values.
     ///
     /// # Examples
     ///
@@ -2790,9 +2790,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// **NOTE:** This does not implicitly set [`Arg::multiple(true)`]. This is because
     /// `-o val -o val` is multiple occurrences but a single value and `-o val1 val2` is a single
-    /// occurence with multiple values. For positional arguments this **does** set
+    /// occurrence with multiple values. For positional arguments this **does** set
     /// [`Arg::multiple(true)`] because there is no way to determine the difference between multiple
-    /// occurences and multiple values.
+    /// occurrences and multiple values.
     ///
     /// # Examples
     ///
@@ -3187,7 +3187,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// **NOTE:** This implicitly sets [`Arg::takes_value(true)`].
     ///
     /// **NOTE:** This setting effectively disables `AppSettings::ArgRequiredElseHelp` if used in
-    /// conjuction as it ensures that some argument will always be present.
+    /// conjunction as it ensures that some argument will always be present.
     ///
     /// # Examples
     ///
@@ -3429,7 +3429,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     ///
     /// We can also see that these values are applied in order, and if more than one condition is
-    /// true, only the first evaluatd "wins"
+    /// true, only the first evaluated "wins"
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -3484,7 +3484,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// will return `0` even though the [`ArgMatches::value_of`] will return the default specified.
     ///
     /// **NOTE:** If the user *does not* use this argument at runtime [`ArgMatches::is_present`] will
-    /// return `true` if the variable is present in the environemnt . If you wish to determine whether
+    /// return `true` if the variable is present in the environment . If you wish to determine whether
     /// the argument was used at runtime or not, consider [`ArgMatches::occurrences_of`] which will
     /// return `0` if the argument was *not* used at runtime.
     ///

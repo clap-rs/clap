@@ -841,7 +841,7 @@ fn copy_and_capture<R: Read, W: Write>(
 
                 // The end of the reader was found without finding the closing tag.
                 // Write the opening byte and captured text to the writer.
-                // Return 0 indicating that nothing was caputred but the reader still contains data.
+                // Return 0 indicating that nothing was captured but the reader still contains data.
                 DelimiterNotFound(not_tag_length) => match w.write(b"{") {
                     Err(e) => Some(Err(e)),
                     _ => match w.write(&tag_buffer.get_ref()[0..not_tag_length]) {
@@ -884,7 +884,7 @@ impl<'a> Help<'a> {
         let mut tmplr = Cursor::new(&template);
         let mut tag_buf = Cursor::new(vec![0u8; 15]);
 
-        // The strategy is to copy the template from the the reader to wrapped stream
+        // The strategy is to copy the template from the reader to wrapped stream
         // until a tag is found. Depending on its value, the appropriate content is copied
         // to the wrapped stream.
         // The copy from template is then resumed, repeating this sequence until reading
