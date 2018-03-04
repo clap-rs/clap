@@ -3,7 +3,7 @@ extern crate regex;
 
 include!("../clap-test.rs");
 
-use clap::{App, ArgMatches, Arg, ErrorKind};
+use clap::{App, Arg};
 
 #[test]
 fn indices_mult_opts() {
@@ -107,7 +107,7 @@ fn indices_mult_flags_opt_combined() {
 			.short("i")
 			.multiple(true))
 		.arg(Arg::with_name("option")
-			.short("0")
+			.short("o")
 			.takes_value(true))
 		.get_matches_from(vec!["ind", "-eieeio", "val"]);
 
@@ -126,7 +126,7 @@ fn indices_mult_flags_opt_combined_eq() {
 			.short("i")
 			.multiple(true))
 		.arg(Arg::with_name("option")
-			.short("0")
+			.short("o")
 			.takes_value(true))
 		.get_matches_from(vec!["ind", "-eieeio=val"]);
 
@@ -141,9 +141,21 @@ fn indices_mult_opt_value_delim_eq() {
 	    .arg(Arg::with_name("option")
 		    .short("o")
 		    .takes_value(true)
+		    .use_delimiter(true)
 		    .multiple(true))
 	    .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
     assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[2, 3, 4]);
+}
+
+#[test]
+fn indices_mult_opt_value_no_delim_eq() {
+    let m = App::new("myapp")
+	    .arg(Arg::with_name("option")
+		    .short("o")
+		    .takes_value(true)
+		    .multiple(true))
+	    .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
+    assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[2]);
 }
 
 #[test]
