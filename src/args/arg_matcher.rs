@@ -59,7 +59,7 @@ impl<'a> ArgMatcher<'a> {
             if !aa.has_switch() || aa.is_set(ArgSettings::Multiple) {
                 // positional args can't override self or else we would never advance to the next
 
-                // Also flags with --multiple set are ignored otherwise we could never have more 
+                // Also flags with --multiple set are ignored otherwise we could never have more
                 // than one
                 return;
             }
@@ -172,9 +172,19 @@ impl<'a> ArgMatcher<'a> {
     pub fn add_val_to(&mut self, arg: &'a str, val: &OsStr) {
         let ma = self.entry(arg).or_insert(MatchedArg {
             occurs: 0,
+            indices: Vec::with_capacity(1),
             vals: Vec::with_capacity(1),
         });
         ma.vals.push(val.to_owned());
+    }
+
+    pub fn add_index_to(&mut self, arg: &'a str, idx: usize) {
+        let ma = self.entry(arg).or_insert(MatchedArg {
+            occurs: 0,
+            indices: Vec::with_capacity(1),
+            vals: Vec::new(),
+        });
+        ma.indices.push(idx);
     }
 
     pub fn needs_more_vals<'b, A>(&self, o: &A) -> bool

@@ -485,17 +485,22 @@ impl<'a> ArgMatches<'a> {
     ///         .takes_value(true)
     ///         .multiple(true))
     ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
-    ///             // ARGV idices: ^0       ^1   
+    ///             // ARGV idices: ^0       ^1
     ///             // clap idices:             ^2   ^3   ^4
-    ///             // 
+    ///             //
     ///             // clap sees the above as 'myapp -o val1 val2 val3'
     ///             //                         ^0    ^1 ^2   ^3   ^4
     /// assert_eq!(m.index_of("option"), Some(2));
     /// ```
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     /// [delimiter]: ./struct.Arg.html#method.value_delimiter
-    pub fn index_of<S: AsRef<str>>(&self, name: S) -> Option<&str> {
-        unimplemented!()
+    pub fn index_of<S: AsRef<str>>(&self, name: S) -> Option<usize> {
+        if let Some(arg) = self.args.get(name.as_ref()) {
+            if let Some(i) = arg.indices.get(0) {
+                return Some(*i);
+            }
+        }
+        None
     }
 
     /// Gets all indices of the argument in respect to all other arguments. Indices are
@@ -571,8 +576,15 @@ impl<'a> ArgMatches<'a> {
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     /// [`ArgMatches::index_of`]: ./struct.ArgMatches.html#method.index_of
     /// [delimiter]: ./struct.Arg.html#method.value_delimiter
-    pub fn indices_of<S: AsRef<str>>(&self, name: S) -> Option<&str> {
-        unimplemented!()
+    pub fn indices_of<S: AsRef<str>>(&'a self, name: S) -> Option<Indices<'a>> {
+        if let Some(arg) = self.args.get(name.as_ref()) {
+            fn to_usize(i: &usize) -> usize { *i }
+            let to_usize: fn(&usize) -> usize = to_usize; // coerce to fn pointer
+            return Some(Indices {
+                iter: arg.indices.iter().map(to_usize),
+            });
+        }
+        None
     }
 
     /// Because [`Subcommand`]s are essentially "sub-[`App`]s" they have their own [`ArgMatches`]
@@ -878,19 +890,19 @@ impl<'a> Default for OsValues<'a> {
 /// [`ArgMatches::indices_of`]: ./struct.ArgMatches.html#method.indices_of
 #[derive(Clone)]
 #[allow(missing_debug_implementations)]
-pub struct Indices<'a> {
-    iter: Map<Iter<'a, OsString>, fn(&'a OsString) -> &'a usize>,
+pub struct Indices<'a> { // would rather use '_, but: https://github.com/rust-lang/rust/issues/48469
+    iter: Map<Iter<'a, usize>, fn(&'a usize) -> usize>,
 }
 
 impl<'a> Iterator for Indices<'a> {
-    type Item = &'a usize;
+    type Item = usize;
 
-    fn next(&mut self) -> Option<&'a str> { self.iter.next() }
+    fn next(&mut self) -> Option<usize> { self.iter.next() }
     fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
 }
 
 impl<'a> DoubleEndedIterator for Indices<'a> {
-    fn next_back(&mut self) -> Option<&'a usize> { self.iter.next_back() }
+    fn next_back(&mut self) -> Option<usize> { self.iter.next_back() }
 }
 
 impl<'a> ExactSizeIterator for Indices<'a> {}
@@ -900,9 +912,9 @@ impl<'a> Default for Indices<'a> {
     fn default() -> Self {
         static EMPTY: [usize; 0] = [];
         // This is never called because the iterator is empty:
-        fn to_usize_ref(_: &OsString) -> &usize { unreachable!() };
+        fn to_usize(_: &usize) -> usize { unreachable!() };
         Indices {
-            iter: EMPTY[..].iter().map(to_usize_ref),
+            iter: EMPTY[..].iter().map(to_usize),
         }
     }
 }
