@@ -8,7 +8,7 @@ use std::iter::Peekable;
 use std::mem;
 
 // Third party
-use vec_map::VecMap;
+use map::{self, VecMap};
 
 // Internal
 use INTERNAL_ERROR_MSG;
@@ -109,6 +109,7 @@ where
         }
     }
 
+
     #[cfg_attr(feature = "lints", allow(block_in_if_condition_stmt))]
     fn _verify_positionals(&mut self) -> bool {
         debugln!("Parser::_verify_positionals;");
@@ -118,7 +119,18 @@ where
         // Firt we verify that the index highest supplied index, is equal to the number of
         // positional arguments to verify there are no gaps (i.e. supplying an index of 1 and 3
         // but no 2)
-        let highest_idx = self.positionals.keys().last().unwrap_or(0);
+        #[cfg(feature = "vec_map")]
+        fn _highest_idx(map: &VecMap<&str>) -> usize {
+            map.keys().last().unwrap_or(0)
+        }
+
+        #[cfg(not(feature = "vec_map"))]
+        fn _highest_idx(map: &VecMap<&str>) -> usize {
+            *map.keys().last().unwrap_or(&0)
+        }
+
+        let highest_idx = _highest_idx(&self.positionals);
+
         let num_p = self.positionals.len();
 
         assert!(

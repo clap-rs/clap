@@ -32,6 +32,8 @@ mod vec_map {
 
         pub fn values(&self) -> Values<V> { self.inner.values() }
 
+        pub fn keys(&self) -> btree_map::Keys<usize, V> { self.inner.keys() }
+
         pub fn iter(&self) -> Iter<V> {
             Iter {
                 inner: self.inner.iter(),
