@@ -403,7 +403,7 @@ impl<'a> ArgMatches<'a> {
     ///     .get_matches_from(vec!["myapp", "-f", "-o", "val"]);
     ///             // ARGV idices: ^0       ^1    ^2    ^3
     ///             // clap idices:          ^1          ^3
-    /// 
+    ///
     /// assert_eq!(m.index_of("flag"), Some(1));
     /// assert_eq!(m.index_of("option"), Some(3));
     /// ```
@@ -421,9 +421,9 @@ impl<'a> ArgMatches<'a> {
     ///     .get_matches_from(vec!["myapp", "-f", "-o=val"]);
     ///             // ARGV idices: ^0       ^1    ^2
     ///             // clap idices:          ^1       ^3
-    /// 
+    ///
     /// assert_eq!(m.index_of("flag"), Some(1));
-    /// assert_eq!(m.index_of("option"), Some(2));
+    /// assert_eq!(m.index_of("option"), Some(3));
     /// ```
     ///
     /// Things become much more complicated, or clear if we look at a more complex combination of
@@ -444,7 +444,7 @@ impl<'a> ArgMatches<'a> {
     ///     .get_matches_from(vec!["myapp", "-fzF", "-oval"]);
     ///             // ARGV idices: ^0      ^1       ^2
     ///             // clap idices:         ^1,2,3    ^5
-    ///             // 
+    ///             //
     ///             // clap sees the above as 'myapp -f -z -F -o val'
     ///             //                         ^0    ^1 ^2 ^3 ^4 ^5
     /// assert_eq!(m.index_of("flag"), Some(1));
@@ -458,14 +458,20 @@ impl<'a> ArgMatches<'a> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("myapp")
+    ///     .arg(Arg::with_name("flag")
+    ///         .short("f"))
+    ///     .arg(Arg::with_name("flag2")
+    ///         .short("F"))
+    ///     .arg(Arg::with_name("flag3")
+    ///         .short("z"))
     ///     .arg(Arg::with_name("option")
     ///         .short("o")
     ///         .takes_value(true)
     ///         .multiple(true))
-    ///     .get_matches_from(vec!["myapp", "-ozFoval"]);
-    ///             // ARGV idices: ^0      ^1   
-    ///             // clap idices:         ^1,2,3^5
-    ///             // 
+    ///     .get_matches_from(vec!["myapp", "-fzFoval"]);
+    ///             // ARGV idices: ^0       ^1
+    ///             // clap idices:          ^1,2,3^5
+    ///             //
     ///             // clap sees the above as 'myapp -f -z -F -o val'
     ///             //                         ^0    ^1 ^2 ^3 ^4 ^5
     /// assert_eq!(m.index_of("flag"), Some(1));
@@ -505,8 +511,8 @@ impl<'a> ArgMatches<'a> {
     /// refer to the *values* `-o val` would therefore not represent two distinct indices, only the
     /// index for `val` would be recorded. This is by design.
     ///
-    /// *NOTE:* For more information about how clap indices compare to argv indices, see 
-    /// [`ArgMatches::index_of`] 
+    /// *NOTE:* For more information about how clap indices compare to argv indices, see
+    /// [`ArgMatches::index_of`]
     ///
     /// # Examples
     ///
@@ -516,11 +522,12 @@ impl<'a> ArgMatches<'a> {
     ///     .arg(Arg::with_name("option")
     ///         .short("o")
     ///         .takes_value(true)
+    ///         .use_delimiter(true)
     ///         .multiple(true))
     ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
-    ///             // ARGV idices: ^0       ^1   
+    ///             // ARGV idices: ^0       ^1
     ///             // clap idices:             ^2   ^3   ^4
-    ///             // 
+    ///             //
     ///             // clap sees the above as 'myapp -o val1 val2 val3'
     ///             //                         ^0    ^1 ^2   ^3   ^4
     /// assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[2, 3, 4]);
@@ -539,11 +546,32 @@ impl<'a> ArgMatches<'a> {
     ///         .short("f")
     ///         .multiple(true))
     ///     .get_matches_from(vec!["myapp", "-o", "val1", "-f", "-o", "val2", "-f"]);
-    ///             // ARGV idices: ^0       ^1    ^2      ^3    ^4    ^5      ^6 
+    ///             // ARGV idices: ^0       ^1    ^2      ^3    ^4    ^5      ^6
     ///             // clap idices:                ^2      ^3          ^5      ^6
     ///
     /// assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[2, 5]);
     /// assert_eq!(m.indices_of("flag").unwrap().collect::<Vec<_>>(), &[3, 6]);
+    /// ```
+    ///
+    /// One final example, which is an odd case; if we *don't* use  value delimiter as we did with
+    /// the first example above instead of `val1`, `val2` and `val3` all being distinc values, they
+    /// would all be a single value of `val1,val2,val3`, in which case case they'd only receive a
+    /// single index.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myapp")
+    ///     .arg(Arg::with_name("option")
+    ///         .short("o")
+    ///         .takes_value(true)
+    ///         .multiple(true))
+    ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
+    ///             // ARGV idices: ^0       ^1
+    ///             // clap idices:             ^2
+    ///             //
+    ///             // clap sees the above as 'myapp -o "val1,val2,val3"'
+    ///             //                         ^0    ^1  ^2
+    /// assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[2]);
     /// ```
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     /// [`ArgMatches::index_of`]: ./struct.ArgMatches.html#method.index_of
@@ -743,7 +771,7 @@ impl<'a> ArgMatches<'a> {
 ///         .takes_value(true))
 ///     .get_matches_from(vec!["myapp", "-o", "val1", "val2"]);
 ///
-/// let values = m.values_of("output").unwrap();
+/// let mut values = m.values_of("output").unwrap();
 ///
 /// assert_eq!(values.next(), Some("val1"));
 /// assert_eq!(values.next(), Some("val2"));
@@ -845,11 +873,11 @@ impl<'a> Default for OsValues<'a> {
 ///         .takes_value(true))
 ///     .get_matches_from(vec!["myapp", "-o", "val1", "val2"]);
 ///
-/// let indices = m.indices_of("output").unwrap();
+/// let mut indices = m.indices_of("output").unwrap();
 ///
-/// assert_eq!(indicies.next(), Some(2));
-/// assert_eq!(indicies.next(), Some(3));
-/// assert_eq!(indicies.next(), None);
+/// assert_eq!(indices.next(), Some(2));
+/// assert_eq!(indices.next(), Some(3));
+/// assert_eq!(indices.next(), None);
 /// ```
 /// [`ArgMatches::indices_of`]: ./struct.ArgMatches.html#method.indices_of
 #[derive(Clone)]
