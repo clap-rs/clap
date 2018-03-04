@@ -42,12 +42,26 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
-Here's whats new in 2.30.0:
+Here's whats new in 2.31.0:
 
-* **Bash Completions:**  instead of completing a generic option name, all bash completions fall back to file completions UNLESS `Arg::possible_values` was used 
-* **YAML:** Adds a missing conversion from  `Arg::last` when instantiating from a YAML file 
-* **Deps:**  No longer needlessly compiles `ansi_term` on Windows since its not used 
-* **Help Message:** changes the `[values: foo bar baz]` array to `[possible values: foo bar baz]` for consistency with the API 
+* **Arg Indices:**  adds the ability to query argument value indices
+  * implements an `Indices<Item=usize>` iterator
+  * adds the documentation for the arg index querying methods
+* **Improves PowerShell completions** - Uses the short help tool-tip for PowerShell completion scripts
+* Adds WASM support (clap now compiles on WASM!)
+* **Raw Args** adds a convenience function to `Arg` that allows implying all of `Arg::last` `Arg::allow_hyphen_values` and `Arg::multiple(true)`
+* **CONTRIBUTING.md:**  fix url to clippy upstream repo
+* **Values Documentation:**  improves the docs example of the Values iterator
+* Updates README.md to hint that the `wrap_help` feature is a thing
+* Use `codegen-units = 1` in release and bench profiles to improve bench performance
+* Fix some typos and markdown issues in the docs
+
+Here's whats new in 2.30.x:
+
+* **Bash Completions:**  instead of completing a generic option name, all bash completions fall back to file completions UNLESS `Arg::possible_values` was used
+* **YAML:** Adds a missing conversion from  `Arg::last` when instantiating from a YAML file
+* **Deps:**  No longer needlessly compiles `ansi_term` on Windows since its not used
+* **Help Message:** changes the `[values: foo bar baz]` array to `[possible values: foo bar baz]` for consistency with the API
 
 Here's whats new in 2.29.x:
 
@@ -309,7 +323,7 @@ subcommands:
 
 Since this feature requires additional dependencies that not everyone may want, it is *not* compiled in by default and we need to enable a feature flag in Cargo.toml:
 
-Simply change your `clap = "2.30"` to `clap = {version = "2.30", features = ["yaml"]}`.
+Simply change your `clap = "2.31"` to `clap = {version = "2.31", features = ["yaml"]}`.
 
 Finally we create our `main.rs` file just like we would have with the previous two examples:
 
@@ -429,7 +443,7 @@ For full usage, add `clap` as a dependency in your `Cargo.toml` () to use from c
 
 ```toml
 [dependencies]
-clap = "~2.30"
+clap = "~2.31"
 ```
 
 (**note**: If you are concerned with supporting a minimum version of Rust that is *older* than the current stable Rust minus 2 stable releases, it's recommended to use the `~major.minor.patch` style versions in your `Cargo.toml` which will only update the patch version automatically. For more information see the [Compatibility Policy](#compatibility-policy))
@@ -452,7 +466,7 @@ To disable these, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies.clap]
-version = "2.30"
+version = "2.31"
 default-features = false
 ```
 
@@ -460,7 +474,7 @@ You can also selectively enable only the features you'd like to include, by addi
 
 ```toml
 [dependencies.clap]
-version = "2.30"
+version = "2.31"
 default-features = false
 
 # Cherry-pick the features you'd like to use
@@ -509,7 +523,7 @@ In order to keep from being surprised of breaking changes, it is **highly** reco
 
 ```toml
 [dependencies]
-clap = "~2.30"
+clap = "~2.31"
 ```
 
 This will cause *only* the patch version to be updated upon a `cargo update` call, and therefore cannot break due to new features, or bumped minimum versions of Rust.
@@ -526,11 +540,11 @@ Right now Cargo's version resolution is pretty naive, it's just a brute-force se
 
 # In one Cargo.toml
 [dependencies]
-clap = "~2.30.0"
+clap = "~2.31.0"
 
 # In another Cargo.toml
 [dependencies]
-clap = "2.30"
+clap = "2.31"
 ```
 
 This is inherently an unresolvable crate graph in Cargo right now. Cargo requires there's only one major version of a crate, and being in the same workspace these two crates must share a version. This is impossible in this location, though, as these version constraints cannot be met.
