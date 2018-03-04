@@ -549,7 +549,7 @@ impl<'a> ArgMatches<'a> {
     ///         .multiple(true))
     ///     .arg(Arg::with_name("flag")
     ///         .short("f")
-    ///         .multiple(true))
+    ///         .multiple_occurrences(true))
     ///     .get_matches_from(vec!["myapp", "-o", "val1", "-f", "-o", "val2", "-f"]);
     ///             // ARGV idices: ^0       ^1    ^2      ^3    ^4    ^5      ^6
     ///             // clap idices:                ^2      ^3          ^5      ^6

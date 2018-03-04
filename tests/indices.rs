@@ -57,10 +57,10 @@ fn index_flags() {
 	let m = App::new("ind")
 		.arg(Arg::with_name("exclude")
 			.short("e")
-			.multiple(true))
+			.multiple_occurrences(true))
 		.arg(Arg::with_name("include")
 			.short("i")
-			.multiple(true))
+			.multiple_occurrences(true))
 		.get_matches_from(vec!["ind", "-e", "-i", "-e", "-e", "-i"]);
 
 		assert_eq!(m.index_of("exclude"), Some(1));
@@ -72,10 +72,10 @@ fn indices_mult_flags() {
 	let m = App::new("ind")
 		.arg(Arg::with_name("exclude")
 			.short("e")
-			.multiple(true))
+			.multiple_occurrences(true))
 		.arg(Arg::with_name("include")
 			.short("i")
-			.multiple(true))
+			.multiple_occurrences(true))
 		.get_matches_from(vec!["ind", "-e", "-i", "-e", "-e", "-i"]);
 
 		assert_eq!(m.indices_of("exclude").unwrap().collect::<Vec<_>>(), &[1, 3, 4]);
@@ -87,10 +87,10 @@ fn indices_mult_flags_combined() {
 	let m = App::new("ind")
 		.arg(Arg::with_name("exclude")
 			.short("e")
-			.multiple(true))
+			.multiple_occurrences(true))
 		.arg(Arg::with_name("include")
 			.short("i")
-			.multiple(true))
+			.multiple_occurrences(true))
 		.get_matches_from(vec!["ind", "-eieei"]);
 
 		assert_eq!(m.indices_of("exclude").unwrap().collect::<Vec<_>>(), &[1, 3, 4]);
@@ -102,10 +102,10 @@ fn indices_mult_flags_opt_combined() {
 	let m = App::new("ind")
 		.arg(Arg::with_name("exclude")
 			.short("e")
-			.multiple(true))
+			.multiple_occurrences(true))
 		.arg(Arg::with_name("include")
 			.short("i")
-			.multiple(true))
+			.multiple_occurrences(true))
 		.arg(Arg::with_name("option")
 			.short("o")
 			.takes_value(true))
@@ -121,10 +121,10 @@ fn indices_mult_flags_opt_combined_eq() {
 	let m = App::new("ind")
 		.arg(Arg::with_name("exclude")
 			.short("e")
-			.multiple(true))
+			.multiple_occurrences(true))
 		.arg(Arg::with_name("include")
 			.short("i")
-			.multiple(true))
+			.multiple_occurrences(true))
 		.arg(Arg::with_name("option")
 			.short("o")
 			.takes_value(true))
@@ -164,10 +164,10 @@ fn indices_mult_opt_mult_flag() {
     .arg(Arg::with_name("option")
 	    .short("o")
 	    .takes_value(true)
-	    .multiple(true))
+	    .multiple_occurrences(true))
     .arg(Arg::with_name("flag")
 	    .short("f")
-	    .multiple(true))
+	    .multiple_occurrences(true))
     .get_matches_from(vec!["myapp", "-o", "val1", "-f", "-o", "val2", "-f"]);
 
     assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[2, 5]);

@@ -108,6 +108,7 @@ where
             num_flags: 0,
             positionals: VecMap::new(),
             seen: Vec::new(),
+            cur_idx: Cell::new(0),
         }
     }
 
@@ -489,7 +490,7 @@ where
             let low_index_mults = self.is_set(AS::LowIndexMultiplePositional)
                 && pos_counter == (self.positionals.len() - 1);
             let missing_pos = self.is_set(AS::AllowMissingPositional)
-                && (pos_counter == (self.positionals.len() - 1) 
+                && (pos_counter == (self.positionals.len() - 1)
                     && !self.is_set(AS::TrailingValues));
             debugln!(
                 "Parser::get_matches_with: Positional counter...{}",
@@ -1193,20 +1194,20 @@ where
     ) -> ClapResult<ParseResult<'a>> {
         debugln!("Parser::add_single_val_to_arg;");
         debugln!("Parser::add_single_val_to_arg: adding val...{:?}", v);
-        
+
         // update the current index because each value is a distinct index to clap
         self.cur_idx.set(self.cur_idx.get() + 1);
-        
+
         // @TODO @docs @p4 docs should probably note that terminator doesn't get an index
         if let Some(t) = arg.terminator {
             if t == v {
                 return Ok(ParseResult::ValuesDone);
             }
         }
-        
+
         matcher.add_val_to(arg.name, v);
         matcher.add_index_to(arg.name, self.cur_idx.get());
-        
+
         // Increment or create the group "args"
         if let Some(grps) = self.groups_for_arg(arg.name) {
             for grp in grps {
@@ -1229,7 +1230,7 @@ where
 
         matcher.inc_occurrence_of(flag.name);
         matcher.add_index_to(flag.name, self.cur_idx.get());
-        
+
         // Increment or create the group "args"
         self.groups_for_arg(flag.name)
             .and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
