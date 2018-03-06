@@ -42,6 +42,10 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's whats new in 2.31.1:
+
+* **AllowMissingPositional:**  improves the ability of `AppSetting::AllowMissingPositional` to allow "skipping" to the last positional arg with the `--` operator
+
 Here's whats new in 2.31.0:
 
 * **Arg Indices:**  adds the ability to query argument value indices
@@ -540,7 +544,7 @@ Right now Cargo's version resolution is pretty naive, it's just a brute-force se
 
 # In one Cargo.toml
 [dependencies]
-clap = "~2.31.0"
+clap = "~2.31.1"
 
 # In another Cargo.toml
 [dependencies]

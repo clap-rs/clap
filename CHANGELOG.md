@@ -1,3 +1,12 @@
+<a name="v2.30.1"></a>
+### v2.30.1 (2018-03-06)
+
+
+#### Improvements
+
+* **AllowMissingPositional:**  improves the ability of AllowMissingPositional to allow 'skipping' to the last positional arg with '--' ([df20e6e2](https://github.com/kbknapp/clap-rs/commit/df20e6e24b4e782be0b423b484b9798e3e2efe2f))
+
+
 <a name="v2.31.0"></a>
 ## v2.31.0 (2018-03-04)
 
