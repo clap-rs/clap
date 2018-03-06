@@ -444,9 +444,7 @@ where
         }
     }
 
-    pub fn required(&self) -> Iter<&str> {
-        self.required.iter()
-    }
+    pub fn required(&self) -> Iter<&str> { self.required.iter() }
 
     #[cfg_attr(feature = "lints", allow(needless_borrow))]
     #[inline]
@@ -455,24 +453,16 @@ where
     }
 
     #[inline]
-    pub fn has_opts(&self) -> bool {
-        !self.opts.is_empty()
-    }
+    pub fn has_opts(&self) -> bool { !self.opts.is_empty() }
 
     #[inline]
-    pub fn has_flags(&self) -> bool {
-        !self.flags.is_empty()
-    }
+    pub fn has_flags(&self) -> bool { !self.flags.is_empty() }
 
     #[inline]
-    pub fn has_positionals(&self) -> bool {
-        !self.positionals.is_empty()
-    }
+    pub fn has_positionals(&self) -> bool { !self.positionals.is_empty() }
 
     #[inline]
-    pub fn has_subcommands(&self) -> bool {
-        !self.subcommands.is_empty()
-    }
+    pub fn has_subcommands(&self) -> bool { !self.subcommands.is_empty() }
 
     #[inline]
     pub fn has_visible_opts(&self) -> bool {
@@ -510,19 +500,13 @@ where
     }
 
     #[inline]
-    pub fn is_set(&self, s: AS) -> bool {
-        self.settings.is_set(s)
-    }
+    pub fn is_set(&self, s: AS) -> bool { self.settings.is_set(s) }
 
     #[inline]
-    pub fn set(&mut self, s: AS) {
-        self.settings.set(s)
-    }
+    pub fn set(&mut self, s: AS) { self.settings.set(s) }
 
     #[inline]
-    pub fn unset(&mut self, s: AS) {
-        self.settings.unset(s)
-    }
+    pub fn unset(&mut self, s: AS) { self.settings.unset(s) }
 
     #[cfg_attr(feature = "lints", allow(block_in_if_condition_stmt))]
     pub fn verify_positionals(&mut self) -> bool {
@@ -1010,7 +994,8 @@ where
             let low_index_mults = self.is_set(AS::LowIndexMultiplePositional)
                 && pos_counter == (self.positionals.len() - 1);
             let missing_pos = self.is_set(AS::AllowMissingPositional)
-                && pos_counter == (self.positionals.len() - 1);
+                && (pos_counter == (self.positionals.len() - 1) 
+                    && !self.is_set(AS::TrailingValues));
             debugln!(
                 "Parser::get_matches_with: Positional counter...{}",
                 pos_counter
@@ -1043,7 +1028,9 @@ where
                     debugln!("Parser::get_matches_with: Bumping the positional counter...");
                     pos_counter += 1;
                 }
-            } else if self.is_set(AS::ContainsLast) && self.is_set(AS::TrailingValues) {
+            } else if (self.is_set(AS::AllowMissingPositional) && self.is_set(AS::TrailingValues))
+                || (self.is_set(AS::ContainsLast) && self.is_set(AS::TrailingValues))
+            {
                 // Came to -- and one postional has .last(true) set, so we go immediately
                 // to the last (highest index) positional
                 debugln!("Parser::get_matches_with: .last(true) and --, setting last pos");
@@ -2047,21 +2034,13 @@ where
         Ok(())
     }
 
-    pub fn flags(&self) -> Iter<FlagBuilder<'a, 'b>> {
-        self.flags.iter()
-    }
+    pub fn flags(&self) -> Iter<FlagBuilder<'a, 'b>> { self.flags.iter() }
 
-    pub fn opts(&self) -> Iter<OptBuilder<'a, 'b>> {
-        self.opts.iter()
-    }
+    pub fn opts(&self) -> Iter<OptBuilder<'a, 'b>> { self.opts.iter() }
 
-    pub fn positionals(&self) -> map::Values<PosBuilder<'a, 'b>> {
-        self.positionals.values()
-    }
+    pub fn positionals(&self) -> map::Values<PosBuilder<'a, 'b>> { self.positionals.values() }
 
-    pub fn subcommands(&self) -> Iter<App> {
-        self.subcommands.iter()
-    }
+    pub fn subcommands(&self) -> Iter<App> { self.subcommands.iter() }
 
     // Should we color the output? None=determined by output location, true=yes, false=no
     #[doc(hidden)]
@@ -2145,12 +2124,8 @@ where
     }
 
     #[inline]
-    fn contains_long(&self, l: &str) -> bool {
-        longs!(self).any(|al| al == &l)
-    }
+    fn contains_long(&self, l: &str) -> bool { longs!(self).any(|al| al == &l) }
 
     #[inline]
-    fn contains_short(&self, s: char) -> bool {
-        shorts!(self).any(|arg_s| arg_s == &s)
-    }
+    fn contains_short(&self, s: char) -> bool { shorts!(self).any(|arg_s| arg_s == &s) }
 }
