@@ -364,6 +364,229 @@ impl<'a> ArgMatches<'a> {
         self.args.get(name.as_ref()).map_or(0, |a| a.occurs)
     }
 
+    /// Gets the starting index of the argument in respect to all other arguments. Indices are
+    /// similar to argv indices, but are not exactly 1:1.
+    ///
+    /// For flags (i.e. those arguments which don't have an associated value), indices refer
+    /// to occurrence of the switch, such as `-f`, or `--flag`. However, for options the indices
+    /// refer to the *values* `-o val` would therefore not represent two distinct indices, only the
+    /// index for `val` would be recorded. This is by design.
+    ///
+    /// Besides the flag/option descrepancy, the primary difference between an argv index and clap
+    /// index, is that clap continues counting once all arguments have properly seperated, whereas
+    /// an argv index does not.
+    ///
+    /// The examples should clear this up.
+    ///
+    /// *NOTE:* If an argument is allowed multiple times, this method will only give the *first*
+    /// index.
+    ///
+    /// # Examples
+    ///
+    /// The argv indices are listed in the comments below. See how they correspond to the clap
+    /// indices. Note that if it's not listed in a clap index, this is becuase it's not saved in
+    /// in an `ArgMatches` struct for querying.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myapp")
+    ///     .arg(Arg::with_name("flag")
+    ///         .short("f"))
+    ///     .arg(Arg::with_name("option")
+    ///         .short("o")
+    ///         .takes_value(true))
+    ///     .get_matches_from(vec!["myapp", "-f", "-o", "val"]);
+    ///             // ARGV idices: ^0       ^1    ^2    ^3
+    ///             // clap idices:          ^1          ^3
+    ///
+    /// assert_eq!(m.index_of("flag"), Some(1));
+    /// assert_eq!(m.index_of("option"), Some(3));
+    /// ```
+    ///
+    /// Now notice, if we use one of the other styles of options:
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myapp")
+    ///     .arg(Arg::with_name("flag")
+    ///         .short("f"))
+    ///     .arg(Arg::with_name("option")
+    ///         .short("o")
+    ///         .takes_value(true))
+    ///     .get_matches_from(vec!["myapp", "-f", "-o=val"]);
+    ///             // ARGV idices: ^0       ^1    ^2
+    ///             // clap idices:          ^1       ^3
+    ///
+    /// assert_eq!(m.index_of("flag"), Some(1));
+    /// assert_eq!(m.index_of("option"), Some(3));
+    /// ```
+    ///
+    /// Things become much more complicated, or clear if we look at a more complex combination of
+    /// flags. Let's also throw in the final option style for good measure.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myapp")
+    ///     .arg(Arg::with_name("flag")
+    ///         .short("f"))
+    ///     .arg(Arg::with_name("flag2")
+    ///         .short("F"))
+    ///     .arg(Arg::with_name("flag3")
+    ///         .short("z"))
+    ///     .arg(Arg::with_name("option")
+    ///         .short("o")
+    ///         .takes_value(true))
+    ///     .get_matches_from(vec!["myapp", "-fzF", "-oval"]);
+    ///             // ARGV idices: ^0      ^1       ^2
+    ///             // clap idices:         ^1,2,3    ^5
+    ///             //
+    ///             // clap sees the above as 'myapp -f -z -F -o val'
+    ///             //                         ^0    ^1 ^2 ^3 ^4 ^5
+    /// assert_eq!(m.index_of("flag"), Some(1));
+    /// assert_eq!(m.index_of("flag2"), Some(3));
+    /// assert_eq!(m.index_of("flag3"), Some(2));
+    /// assert_eq!(m.index_of("option"), Some(5));
+    /// ```
+    ///
+    /// One final combination of flags/options to see how they combine:
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myapp")
+    ///     .arg(Arg::with_name("flag")
+    ///         .short("f"))
+    ///     .arg(Arg::with_name("flag2")
+    ///         .short("F"))
+    ///     .arg(Arg::with_name("flag3")
+    ///         .short("z"))
+    ///     .arg(Arg::with_name("option")
+    ///         .short("o")
+    ///         .takes_value(true)
+    ///         .multiple(true))
+    ///     .get_matches_from(vec!["myapp", "-fzFoval"]);
+    ///             // ARGV idices: ^0       ^1
+    ///             // clap idices:          ^1,2,3^5
+    ///             //
+    ///             // clap sees the above as 'myapp -f -z -F -o val'
+    ///             //                         ^0    ^1 ^2 ^3 ^4 ^5
+    /// assert_eq!(m.index_of("flag"), Some(1));
+    /// assert_eq!(m.index_of("flag2"), Some(3));
+    /// assert_eq!(m.index_of("flag3"), Some(2));
+    /// assert_eq!(m.index_of("option"), Some(5));
+    /// ```
+    ///
+    /// The last part to mention is when values are sent in multiple groups with a [delimiter].
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myapp")
+    ///     .arg(Arg::with_name("option")
+    ///         .short("o")
+    ///         .takes_value(true)
+    ///         .multiple(true))
+    ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
+    ///             // ARGV idices: ^0       ^1
+    ///             // clap idices:             ^2   ^3   ^4
+    ///             //
+    ///             // clap sees the above as 'myapp -o val1 val2 val3'
+    ///             //                         ^0    ^1 ^2   ^3   ^4
+    /// assert_eq!(m.index_of("option"), Some(2));
+    /// ```
+    /// [`ArgMatches`]: ./struct.ArgMatches.html
+    /// [delimiter]: ./struct.Arg.html#method.value_delimiter
+    pub fn index_of<S: AsRef<str>>(&self, name: S) -> Option<usize> {
+        if let Some(arg) = self.args.get(name.as_ref()) {
+            if let Some(i) = arg.indices.get(0) {
+                return Some(*i);
+            }
+        }
+        None
+    }
+
+    /// Gets all indices of the argument in respect to all other arguments. Indices are
+    /// similar to argv indices, but are not exactly 1:1.
+    ///
+    /// For flags (i.e. those arguments which don't have an associated value), indices refer
+    /// to occurrence of the switch, such as `-f`, or `--flag`. However, for options the indices
+    /// refer to the *values* `-o val` would therefore not represent two distinct indices, only the
+    /// index for `val` would be recorded. This is by design.
+    ///
+    /// *NOTE:* For more information about how clap indices compare to argv indices, see
+    /// [`ArgMatches::index_of`]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myapp")
+    ///     .arg(Arg::with_name("option")
+    ///         .short("o")
+    ///         .takes_value(true)
+    ///         .use_delimiter(true)
+    ///         .multiple(true))
+    ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
+    ///             // ARGV idices: ^0       ^1
+    ///             // clap idices:             ^2   ^3   ^4
+    ///             //
+    ///             // clap sees the above as 'myapp -o val1 val2 val3'
+    ///             //                         ^0    ^1 ^2   ^3   ^4
+    /// assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[2, 3, 4]);
+    /// ```
+    ///
+    /// Another quick example is when flags and options are used together
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myapp")
+    ///     .arg(Arg::with_name("option")
+    ///         .short("o")
+    ///         .takes_value(true)
+    ///         .multiple(true))
+    ///     .arg(Arg::with_name("flag")
+    ///         .short("f")
+    ///         .multiple(true))
+    ///     .get_matches_from(vec!["myapp", "-o", "val1", "-f", "-o", "val2", "-f"]);
+    ///             // ARGV idices: ^0       ^1    ^2      ^3    ^4    ^5      ^6
+    ///             // clap idices:                ^2      ^3          ^5      ^6
+    ///
+    /// assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[2, 5]);
+    /// assert_eq!(m.indices_of("flag").unwrap().collect::<Vec<_>>(), &[3, 6]);
+    /// ```
+    ///
+    /// One final example, which is an odd case; if we *don't* use  value delimiter as we did with
+    /// the first example above instead of `val1`, `val2` and `val3` all being distinc values, they
+    /// would all be a single value of `val1,val2,val3`, in which case case they'd only receive a
+    /// single index.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myapp")
+    ///     .arg(Arg::with_name("option")
+    ///         .short("o")
+    ///         .takes_value(true)
+    ///         .multiple(true))
+    ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
+    ///             // ARGV idices: ^0       ^1
+    ///             // clap idices:             ^2
+    ///             //
+    ///             // clap sees the above as 'myapp -o "val1,val2,val3"'
+    ///             //                         ^0    ^1  ^2
+    /// assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[2]);
+    /// ```
+    /// [`ArgMatches`]: ./struct.ArgMatches.html
+    /// [`ArgMatches::index_of`]: ./struct.ArgMatches.html#method.index_of
+    /// [delimiter]: ./struct.Arg.html#method.value_delimiter
+    pub fn indices_of<S: AsRef<str>>(&'a self, name: S) -> Option<Indices<'a>> {
+        if let Some(arg) = self.args.get(name.as_ref()) {
+            fn to_usize(i: &usize) -> usize { *i }
+            let to_usize: fn(&usize) -> usize = to_usize; // coerce to fn pointer
+            return Some(Indices {
+                iter: arg.indices.iter().map(to_usize),
+            });
+        }
+        None
+    }
+
     /// Because [`Subcommand`]s are essentially "sub-[`App`]s" they have their own [`ArgMatches`]
     /// as well. This method returns the [`ArgMatches`] for a particular subcommand or `None` if
     /// the subcommand wasn't present at runtime.
@@ -551,10 +774,16 @@ impl<'a> ArgMatches<'a> {
 /// # use clap::{App, Arg};
 /// let m = App::new("myapp")
 ///     .arg(Arg::with_name("output")
+///         .short("o")
+///         .multiple(true)
 ///         .takes_value(true))
-///     .get_matches_from(vec!["myapp", "something"]);
+///     .get_matches_from(vec!["myapp", "-o", "val1", "val2"]);
 ///
-/// assert_eq!(m.value_of("output"), Some("something"));
+/// let mut values = m.values_of("output").unwrap();
+///
+/// assert_eq!(values.next(), Some("val1"));
+/// assert_eq!(values.next(), Some("val2"));
+/// assert_eq!(values.next(), None);
 /// ```
 /// [`ArgMatches::values_of`]: ./struct.ArgMatches.html#method.values_of
 #[derive(Clone)]
@@ -586,19 +815,6 @@ impl<'a> Default for Values<'a> {
             iter: EMPTY[..].iter().map(to_str_slice),
         }
     }
-}
-
-#[test]
-fn test_default_values() {
-    let mut values: Values = Values::default();
-    assert_eq!(values.next(), None);
-}
-
-#[test]
-fn test_default_values_with_shorter_lifetime() {
-    let matches = ArgMatches::new();
-    let mut values = matches.values_of("").unwrap_or_default();
-    assert_eq!(values.next(), None);
 }
 
 /// An iterator for getting multiple values out of an argument via the [`ArgMatches::values_of_os`]
@@ -651,15 +867,98 @@ impl<'a> Default for OsValues<'a> {
     }
 }
 
-#[test]
-fn test_default_osvalues() {
-    let mut values: OsValues = OsValues::default();
-    assert_eq!(values.next(), None);
+/// An iterator for getting multiple indices out of an argument via the [`ArgMatches::indices_of`]
+/// method.
+///
+/// # Examples
+///
+/// ```rust
+/// # use clap::{App, Arg};
+/// let m = App::new("myapp")
+///     .arg(Arg::with_name("output")
+///         .short("o")
+///         .multiple(true)
+///         .takes_value(true))
+///     .get_matches_from(vec!["myapp", "-o", "val1", "val2"]);
+///
+/// let mut indices = m.indices_of("output").unwrap();
+///
+/// assert_eq!(indices.next(), Some(2));
+/// assert_eq!(indices.next(), Some(3));
+/// assert_eq!(indices.next(), None);
+/// ```
+/// [`ArgMatches::indices_of`]: ./struct.ArgMatches.html#method.indices_of
+#[derive(Clone)]
+#[allow(missing_debug_implementations)]
+pub struct Indices<'a> { // would rather use '_, but: https://github.com/rust-lang/rust/issues/48469
+    iter: Map<Iter<'a, usize>, fn(&'a usize) -> usize>,
 }
 
-#[test]
-fn test_default_osvalues_with_shorter_lifetime() {
-    let matches = ArgMatches::new();
-    let mut values = matches.values_of_os("").unwrap_or_default();
-    assert_eq!(values.next(), None);
+impl<'a> Iterator for Indices<'a> {
+    type Item = usize;
+
+    fn next(&mut self) -> Option<usize> { self.iter.next() }
+    fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
+}
+
+impl<'a> DoubleEndedIterator for Indices<'a> {
+    fn next_back(&mut self) -> Option<usize> { self.iter.next_back() }
+}
+
+impl<'a> ExactSizeIterator for Indices<'a> {}
+
+/// Creates an empty iterator.
+impl<'a> Default for Indices<'a> {
+    fn default() -> Self {
+        static EMPTY: [usize; 0] = [];
+        // This is never called because the iterator is empty:
+        fn to_usize(_: &usize) -> usize { unreachable!() };
+        Indices {
+            iter: EMPTY[..].iter().map(to_usize),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default_values() {
+        let mut values: Values = Values::default();
+        assert_eq!(values.next(), None);
+    }
+
+    #[test]
+    fn test_default_values_with_shorter_lifetime() {
+        let matches = ArgMatches::new();
+        let mut values = matches.values_of("").unwrap_or_default();
+        assert_eq!(values.next(), None);
+    }
+
+    #[test]
+    fn test_default_osvalues() {
+        let mut values: OsValues = OsValues::default();
+        assert_eq!(values.next(), None);
+    }
+
+    #[test]
+    fn test_default_osvalues_with_shorter_lifetime() {
+        let matches = ArgMatches::new();
+        let mut values = matches.values_of_os("").unwrap_or_default();
+        assert_eq!(values.next(), None);
+    }
+
+    #[test]
+    fn test_default_indices() {
+        let mut indices: Indices = Indices::default();
+        assert_eq!(indices.next(), None);
+    }
+
+    #[test]
+    fn test_default_indices_with_shorter_lifetime() {
+        let matches = ArgMatches::new();
+        let mut indices = matches.indices_of("").unwrap_or_default();
+        assert_eq!(indices.next(), None);
+    }
 }
