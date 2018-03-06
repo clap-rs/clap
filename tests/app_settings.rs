@@ -630,6 +630,91 @@ fn allow_missing_positional() {
 }
 
 #[test]
+fn allow_missing_positional_no_default() {
+    let m = App::new("test")
+        .setting(AppSettings::AllowMissingPositional)
+        .arg(Arg::from_usage("[src] 'some file'"))
+        .arg_from_usage("<dest> 'some file'")
+        .get_matches_from_safe(vec!["test", "file"]);
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    let m = m.unwrap();
+    assert_eq!(m.value_of("src"), None);
+    assert_eq!(m.value_of("dest"), Some("file"));
+}
+
+#[test]
+fn missing_positional_no_hyphen() {
+    let r = App::new("bench")
+        .setting(AppSettings::AllowMissingPositional)
+        .arg(Arg::from_usage("[BENCH] 'some bench'"))
+        .arg(Arg::from_usage("[ARGS]... 'some args'"))
+        .get_matches_from_safe(vec!["bench", "foo", "arg1", "arg2", "arg3"]);
+    assert!(r.is_ok(), "{:?}", r.unwrap_err().kind);
+
+    let m = r.unwrap();
+
+    let expected_bench = Some("foo");
+    let expected_args = vec!["arg1", "arg2", "arg3"];
+
+    assert_eq!(m.value_of("BENCH"), expected_bench);
+    assert_eq!(m.values_of("ARGS").unwrap().collect::<Vec<_>>(), &*expected_args);
+}
+
+#[test]
+fn missing_positional_hyphen() {
+    let r = App::new("bench")
+        .setting(AppSettings::AllowMissingPositional)
+        .arg(Arg::from_usage("[BENCH] 'some bench'"))
+        .arg(Arg::from_usage("[ARGS]... 'some args'"))
+        .get_matches_from_safe(vec!["bench", "--", "arg1", "arg2", "arg3"]);
+    assert!(r.is_ok(), "{:?}", r.unwrap_err().kind);
+
+    let m = r.unwrap();
+
+    let expected_bench = None;
+    let expected_args = vec!["arg1", "arg2", "arg3"];
+
+    assert_eq!(m.value_of("BENCH"), expected_bench);
+    assert_eq!(m.values_of("ARGS").unwrap().collect::<Vec<_>>(), &*expected_args);
+}
+
+#[test]
+fn missing_positional_hyphen_far_back() {
+    let r = App::new("bench")
+        .setting(AppSettings::AllowMissingPositional)
+        .arg(Arg::from_usage("[BENCH1] 'some bench'"))
+        .arg(Arg::from_usage("[BENCH2] 'some bench'"))
+        .arg(Arg::from_usage("[BENCH3] 'some bench'"))
+        .arg(Arg::from_usage("[ARGS]... 'some args'"))
+        .get_matches_from_safe(vec!["bench", "foo", "--", "arg1", "arg2", "arg3"]);
+    assert!(r.is_ok(), "{:?}", r.unwrap_err().kind);
+
+    let m = r.unwrap();
+
+    let expected_bench1 = Some("foo");
+    let expected_bench2 = None;
+    let expected_bench3 = None;
+    let expected_args = vec!["arg1", "arg2", "arg3"];
+
+    assert_eq!(m.value_of("BENCH1"), expected_bench1);
+    assert_eq!(m.value_of("BENCH2"), expected_bench2);
+    assert_eq!(m.value_of("BENCH3"), expected_bench3);
+    assert_eq!(m.values_of("ARGS").unwrap().collect::<Vec<_>>(), &*expected_args);
+}
+
+#[test]
+fn missing_positional_hyphen_req_error() {
+    let r = App::new("bench")
+        .setting(AppSettings::AllowMissingPositional)
+        .arg(Arg::from_usage("[BENCH1] 'some bench'"))
+        .arg(Arg::from_usage("<BENCH2> 'some bench'"))
+        .arg(Arg::from_usage("[ARGS]... 'some args'"))
+        .get_matches_from_safe(vec!["bench", "foo", "--", "arg1", "arg2", "arg3"]);
+    assert!(r.is_err());
+    assert_eq!(r.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+}
+
+#[test]
 fn issue_1066_allow_leading_hyphen_and_unknown_args() {
     let res = App::new("prog")
         .global_setting(AppSettings::AllowLeadingHyphen) 
