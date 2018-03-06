@@ -57,7 +57,7 @@ yaml-rust = { version = "0.3.5",  optional = true }
 clippy    = { version = "~0.0.166", optional = true }
 atty      = { version = "0.2.2",  optional = true }
 vec_map   = { version = "0.8", optional = true }
-term_size = { version = "0.3.0", optional = true }
+term_size = { version = "1.0.0-beta1", optional = true }
 
 [target.'cfg(not(windows))'.dependencies]
 ansi_term = { version = "0.10.0",  optional = true }
