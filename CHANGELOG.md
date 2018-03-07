@@ -1,6 +1,6 @@
-# Unreleased
+# v0.2.5 (2018-03-07)
 
-* Work around breakage when `proc-macro2`'s nightly feature is enabled. ([#77](https://github.com/Texitoi/structopt/pull/77) and [proc-macro2#67](https://github.com/alexcrichton/proc-macro2/issues/67))
+* Work around breakage when `proc-macro2`'s nightly feature is enabled. ([#77](https://github.com/Texitoi/structopt/pull/77) and [proc-macro2#67](https://github.com/alexcrichton/proc-macro2/issues/67)) by [@fitzgen](https://github.com/fitzgen)
 
 # v0.2.4 (2018-02-25)
 
