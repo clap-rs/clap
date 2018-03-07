@@ -5,5 +5,11 @@ rust:
   - beta
   - nightly
 matrix:
+  include:
+    - rust: nightly
+      env: FEATURES="--features testing_only_proc_macro2_nightly"
   allow_failures:
     - rust: nightly
+
+script:
+  - cargo test $FEATURES

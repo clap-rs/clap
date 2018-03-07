@@ -50,7 +50,7 @@ impl Attrs {
         Attrs {
             name: name,
             methods: vec![],
-            parser: (Parser::TryFromStr, quote!(::std::str::FromStr::from_str)),
+            parser: (Parser::TryFromStr, my_quote!(::std::str::FromStr::from_str)),
             has_custom_parser: false,
             is_subcommand: false,
         }
@@ -67,7 +67,7 @@ impl Attrs {
             ("name", new_name) => self.name = new_name.into(),
             (name, arg) => self.methods.push(Method {
                 name: name.to_string(),
-                args: quote!(#arg),
+                args: my_quote!(#arg),
             }),
         }
     }
@@ -79,21 +79,21 @@ impl Attrs {
         let iter = attrs.iter()
             .filter_map(|attr| {
                 let path = &attr.path;
-                match quote!(#path) == quote!(structopt) {
+                match my_quote!(#path) == my_quote!(structopt) {
                     true => Some(
                         attr.interpret_meta()
-                            .expect(&format!("invalid structopt syntax: {}", quote!(attr)))
+                            .expect(&format!("invalid structopt syntax: {}", my_quote!(attr)))
                     ),
                     false => None,
                 }
             }).
             flat_map(|m| match m {
                 List(l) => l.nested,
-                tokens => panic!("unsupported syntax: {}", quote!(#tokens).to_string()),
+                tokens => panic!("unsupported syntax: {}", my_quote!(#tokens).to_string()),
             })
             .map(|m| match m {
                 Meta(m) => m,
-                ref tokens => panic!("unsupported syntax: {}", quote!(#tokens).to_string()),
+                ref tokens => panic!("unsupported syntax: {}", my_quote!(#tokens).to_string()),
             });
         for attr in iter {
             match attr {
@@ -102,7 +102,7 @@ impl Attrs {
                 NameValue(MetaNameValue { ident, lit, .. }) => {
                     self.methods.push(Method {
                         name: ident.to_string(),
-                        args: quote!(#lit),
+                        args: my_quote!(#lit),
                     })
                 }
                 List(MetaList { ident, ref nested, .. }) if ident == "parse" => {
@@ -114,21 +114,21 @@ impl Attrs {
                         Meta(NameValue(MetaNameValue { ident, lit: Str(ref v), .. })) => {
                             let function: syn::Path = v.parse().expect("parser function path");
                             let parser = ident.as_ref().parse().unwrap();
-                            (parser, quote!(#function))
+                            (parser, my_quote!(#function))
                         }
                         Meta(Word(ref i)) => {
                             use Parser::*;
                             let parser = i.as_ref().parse().unwrap();
                             let function = match parser {
-                                FromStr => quote!(::std::convert::From::from),
-                                TryFromStr => quote!(::std::str::FromStr::from_str),
-                                FromOsStr => quote!(::std::convert::From::from),
+                                FromStr => my_quote!(::std::convert::From::from),
+                                TryFromStr => my_quote!(::std::str::FromStr::from_str),
+                                FromOsStr => my_quote!(::std::convert::From::from),
                                 TryFromOsStr => panic!("cannot omit parser function name with `try_from_os_str`"),
-                                FromOccurrences => quote!({|v| v as _}),
+                                FromOccurrences => my_quote!({|v| v as _}),
                             };
                             (parser, function)
                         }
-                        ref l @ _ => panic!("unknown value parser specification: {}", quote!(#l)),
+                        ref l @ _ => panic!("unknown value parser specification: {}", my_quote!(#l)),
                     };
                 }
                 List(MetaList { ident, ref nested, .. }) if ident == "raw" => {
@@ -136,29 +136,29 @@ impl Attrs {
                         match *method {
                             Meta(NameValue(MetaNameValue { ident, lit: Str(ref v), .. })) =>
                                 self.push_raw_method(ident.as_ref(), v),
-                            ref mi @ _ => panic!("unsupported raw entry: {}", quote!(#mi)),
+                            ref mi @ _ => panic!("unsupported raw entry: {}", my_quote!(#mi)),
                         }
                     }
                 }
                 Word(ref w) if w == "subcommand" => self.is_subcommand = true,
                 ref i @ List(..) | ref i @ Word(..) =>
-                    panic!("unsupported option: {}", quote!(#i)),
+                    panic!("unsupported option: {}", my_quote!(#i)),
             }
         }
     }
     fn push_raw_method(&mut self, name: &str, args: &LitStr) {
         let ts: ::proc_macro2::TokenStream = args.value().parse()
-            .expect(&format!("bad parameter {} = {}: the parameter must be valid rust code", name, quote!(#args)));
+            .expect(&format!("bad parameter {} = {}: the parameter must be valid rust code", name, my_quote!(#args)));
         self.methods.push(Method {
             name: name.to_string(),
-            args: quote!(#(#ts)*),
+            args: my_quote!(#(#ts)*),
         })
     }
     fn push_doc_comment(&mut self, attrs: &[Attribute], name: &str) {
         let doc_comments: Vec<_> = attrs.iter()
             .filter_map(|attr| {
                 let path = &attr.path;
-                match quote!(#path) == quote!(doc) {
+                match my_quote!(#path) == my_quote!(doc) {
                     true => attr.interpret_meta(),
                     false => None,
                 }
@@ -195,7 +195,7 @@ impl Attrs {
             .join("\n");
         self.methods.push(Method {
             name: name.to_string(),
-            args: quote!(#arg),
+            args: my_quote!(#arg),
         });
     }
     pub fn from_struct(attrs: &[Attribute], name: String) -> Attrs {
@@ -243,9 +243,9 @@ impl Attrs {
     pub fn methods(&self) -> Tokens {
         let methods = self.methods.iter().map(|&Method { ref name, ref args }| {
             let name: ::syn::Ident = name.as_str().into();
-            quote!( .#name(#args) )
+            my_quote!( .#name(#args) )
         });
-        quote!( #(#methods)* )
+        my_quote!( #(#methods)* )
     }
     pub fn name(&self) -> &str {
         &self.name

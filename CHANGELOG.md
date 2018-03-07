@@ -1,3 +1,7 @@
+# Unreleased
+
+* Work around breakage when `proc-macro2`'s nightly feature is enabled. ([#77](https://github.com/Texitoi/structopt/pull/77) and [proc-macro2#67](https://github.com/alexcrichton/proc-macro2/issues/67))
+
 # v0.2.4 (2018-02-25)
 
 * Fix compilation with `#![deny(missig_docs]` ([#74](https://github.com/TeXitoi/structopt/issues/74)) by [@TeXitoi](https://github.com/TeXitoi)
