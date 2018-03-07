@@ -19,14 +19,14 @@ static DONT_COLLAPSE_ARGS: &'static str = "clap-test v1.4.8
 USAGE:
     clap-test [arg1] [arg2] [arg3]
 
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
-
 ARGS:
     <arg1>    some
     <arg2>    some
-    <arg3>    some";
+    <arg3>    some
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information";
 
 static REQUIRE_EQUALS: &'static str = "clap-test v1.4.8
 
@@ -47,14 +47,14 @@ tests stuff
 USAGE:
     test [OPTIONS] [arg1]
 
+ARGS:
+    <arg1>    some pos arg
+
 OPTIONS:
     -f, --flag            some flag
     -h, --help            Prints help information
         --option <opt>    some option
-    -V, --version         Prints version information
-
-ARGS:
-    <arg1>    some pos arg";
+    -V, --version         Prints version information";
 
 static SKIP_POS_VALS: &'static str = "test 1.3
 Kevin K.
@@ -63,15 +63,15 @@ tests stuff
 USAGE:
     test [OPTIONS] [arg1]
 
+ARGS:
+    <arg1>    some pos arg
+
 FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information
 
 OPTIONS:
-    -o, --opt <opt>    some option
-
-ARGS:
-    <arg1>    some pos arg";
+    -o, --opt <opt>    some option";
 
 #[test]
 fn sub_command_negate_required() {
