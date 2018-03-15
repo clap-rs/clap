@@ -25,22 +25,34 @@
 //!
 //! First, let's look at an example:
 //!
-//! ```
-//! #[macro_use] extern crate structopt;
+//! ```should_panic
+//! #[macro_use]
+//! extern crate structopt;
+//!
 //! use std::path::PathBuf;
-//! #[derive(StructOpt)]
+//! use structopt::StructOpt;
+//!
+//! #[derive(Debug, StructOpt)]
 //! #[structopt(name = "example", about = "An example of StructOpt usage.")]
 //! struct Opt {
-//!     #[structopt(short = "d", long = "debug", help = "Activate debug mode")]
+//!     /// Activate debug mode
+//!     #[structopt(short = "d", long = "debug")]
 //!     debug: bool,
-//!     #[structopt(short = "s", long = "speed", help = "Set speed", default_value = "42")]
+//!     /// Set speed
+//!     #[structopt(short = "s", long = "speed", default_value = "42")]
 //!     speed: f64,
-//!     #[structopt(help = "Input file", parse(from_os_str))]
+//!     /// Input file
+//!     #[structopt(parse(from_os_str))]
 //!     input: PathBuf,
-//!     #[structopt(help = "Output file, stdout if not present", parse(from_os_str))]
+//!     /// Output file, stdout if not present
+//!     #[structopt(parse(from_os_str))]
 //!     output: Option<PathBuf>,
 //! }
-//! # fn main() {}
+//!
+//! fn main() {
+//!     let opt = Opt::from_args();
+//!     println!("{:?}", opt);
+//! }
 //! ```
 //!
 //! So `derive(StructOpt)` tells Rust to generate a command line parser,

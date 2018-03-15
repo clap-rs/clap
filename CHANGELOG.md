@@ -1,3 +1,7 @@
+# v0.2.5 (2018-XX-XX)
+
+* Improve first example in the documentation ([#82](https://github.com/TeXitoi/structopt/issues/82)) by [@TeXitoi](https://github.com/TeXitoi)
+
 # v0.2.5 (2018-03-07)
 
 * Work around breakage when `proc-macro2`'s nightly feature is enabled. ([#77](https://github.com/Texitoi/structopt/pull/77) and [proc-macro2#67](https://github.com/alexcrichton/proc-macro2/issues/67)) by [@fitzgen](https://github.com/fitzgen)
