@@ -34,6 +34,9 @@ Does awesome things
 USAGE:
     MyApp [FLAGS] [OPTIONS] <output> [SUBCOMMAND]
 
+ARGS:
+    <output>    Sets an optional output file
+
 FLAGS:
     -d               Turn debugging information on
     -h, --help       Prints help information
@@ -41,9 +44,6 @@ FLAGS:
 
 OPTIONS:
     -c, --config <FILE>    Sets a custom config file
-
-ARGS:
-    <output>    Sets an optional output file
 
 SUBCOMMANDS:
     help    Prints this message or the help of the given subcommand(s)

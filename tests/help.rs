@@ -27,6 +27,11 @@ tests clap library
 USAGE:
     clap-test [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
 
+ARGS:
+    <positional>        tests positionals
+    <positional2>       tests positionals with exclusions
+    <positional3>...    tests specific values [possible values: vi, emacs]
+
 FLAGS:
     -f, --flag       tests flags
     -F               tests flags with exclusions
@@ -42,11 +47,6 @@ OPTIONS:
         --multvalsmo <one> <two>     Tests mutliple values, and mult occs
     -o, --option <opt>...            tests options
 
-ARGS:
-    <positional>        tests positionals
-    <positional2>       tests positionals with exclusions
-    <positional3>...    tests specific values [possible values: vi, emacs]
-
 SUBCOMMANDS:
     help      Prints this message or the help of the given subcommand(s)
     subcmd    tests subcommands";
@@ -57,15 +57,15 @@ USAGE:
     prog --opt <FILE> [PATH]
     prog [PATH] <SUBCOMMAND>
 
+ARGS:
+    <PATH>    help
+
 FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information
 
 OPTIONS:
     -o, --opt <FILE>    tests options
-
-ARGS:
-    <PATH>    help
 
 SUBCOMMANDS:
     help    Prints this message or the help of the given subcommand(s)
@@ -77,6 +77,9 @@ USAGE:
     prog [FLAGS] [OPTIONS] [PATH]
     prog <SUBCOMMAND>
 
+ARGS:
+    <PATH>    help
+
 FLAGS:
     -f, --flag       testing flags
     -h, --help       Prints help information
@@ -84,9 +87,6 @@ FLAGS:
 
 OPTIONS:
     -o, --opt <FILE>    tests options
-
-ARGS:
-    <PATH>    help
 
 SUBCOMMANDS:
     help    Prints this message or the help of the given subcommand(s)
@@ -126,6 +126,9 @@ tests subcommands
 USAGE:
     clap-test subcmd [FLAGS] [OPTIONS] [--] [scpositional]
 
+ARGS:
+    <scpositional>    tests positionals
+
 FLAGS:
     -f, --flag       tests flags
     -h, --help       Prints help information
@@ -133,15 +136,15 @@ FLAGS:
 
 OPTIONS:
     -o, --option <scoption>...     tests options
-    -s, --subcmdarg <subcmdarg>    tests other args
-
-ARGS:
-    <scpositional>    tests positionals";
+    -s, --subcmdarg <subcmdarg>    tests other args";
 
 static ISSUE_1046_HIDDEN_SCS: &'static str = "prog 1.0
 
 USAGE:
     prog [FLAGS] [OPTIONS] [PATH]
+
+ARGS:
+    <PATH>    some
 
 FLAGS:
     -f, --flag       testing flags
@@ -149,10 +152,7 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-    -o, --opt <FILE>    tests options
-
-ARGS:
-    <PATH>    some";
+    -o, --opt <FILE>    tests options";
 
 // Using number_of_values(1) with multiple(true) misaligns help message
 static ISSUE_760: &'static str = "ctest 0.1
@@ -276,17 +276,17 @@ static WRAPPING_NEWLINE_CHARS: &'static str = "ctest 0.1
 USAGE:
     ctest [mode]
 
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
-
 ARGS:
     <mode>    x, max, maximum   20 characters, contains
               symbols.
               l, long           Copy-friendly, 14
               characters, contains symbols.
               m, med, medium    Copy-friendly, 8
-              characters, contains symbols.";
+              characters, contains symbols.
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information";
 
 static ISSUE_688: &'static str = "ctest 0.1
 
@@ -309,6 +309,10 @@ bar
 USAGE:
     myapp [OPTIONS] [--] [ARGS]
 
+ARGS:
+    <arg1>       some option
+    <arg2>...    some option
+
 FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information
@@ -316,11 +320,7 @@ FLAGS:
 OPTIONS:
     -l, --label <label>...    a label
     -o, --other <other>       some other option
-    -s, --some <some>         some option
-
-ARGS:
-    <arg1>       some option
-    <arg2>...    some option";
+    -s, --some <some>         some option";
 
 static ISSUE_777: &'static str = "A app with a crazy very long long
 long name hahaha 1.0
@@ -356,14 +356,14 @@ static LAST_ARG: &'static str = "last 0.1
 USAGE:
     last <TARGET> [CORPUS] [-- <ARGS>...]
 
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
-
 ARGS:
     <TARGET>     some
     <CORPUS>     some
-    <ARGS>...    some";
+    <ARGS>...    some
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information";
 
 static LAST_ARG_SC: &'static str = "last 0.1
 
@@ -371,14 +371,14 @@ USAGE:
     last <TARGET> [CORPUS] [-- <ARGS>...]
     last <SUBCOMMAND>
 
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
-
 ARGS:
     <TARGET>     some
     <CORPUS>     some
     <ARGS>...    some
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
 
 SUBCOMMANDS:
     help    Prints this message or the help of the given subcommand(s)
@@ -389,14 +389,14 @@ static LAST_ARG_REQ: &'static str = "last 0.1
 USAGE:
     last <TARGET> [CORPUS] -- <ARGS>...
 
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
-
 ARGS:
     <TARGET>     some
     <CORPUS>     some
-    <ARGS>...    some";
+    <ARGS>...    some
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information";
 
 static LAST_ARG_REQ_SC: &'static str = "last 0.1
 
@@ -404,14 +404,14 @@ USAGE:
     last <TARGET> [CORPUS] -- <ARGS>...
     last <SUBCOMMAND>
 
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
-
 ARGS:
     <TARGET>     some
     <CORPUS>     some
     <ARGS>...    some
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
 
 SUBCOMMANDS:
     help    Prints this message or the help of the given subcommand(s)
@@ -434,6 +434,10 @@ static LAST_ARG_USAGE: &'static str = "flamegraph 0.1
 USAGE:
     flamegraph [FLAGS] [OPTIONS] [BINFILE] [-- <ARGS>...]
 
+ARGS:
+    <BINFILE>    The path of the binary to be profiled. for a binary.
+    <ARGS>...    Any arguments you wish to pass to the being profiled.
+
 FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information
@@ -441,24 +445,20 @@ FLAGS:
 
 OPTIONS:
     -f, --frequency <HERTZ>    The sampling frequency.
-    -t, --timeout <SECONDS>    Timeout in seconds.
-
-ARGS:
-    <BINFILE>    The path of the binary to be profiled. for a binary.
-    <ARGS>...    Any arguments you wish to pass to the being profiled.";
+    -t, --timeout <SECONDS>    Timeout in seconds.";
 
 static LAST_ARG_REQ_MULT: &'static str = "example 1.0
 
 USAGE:
     example <FIRST>... [--] <SECOND>...
 
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
-
 ARGS:
     <FIRST>...     First
-    <SECOND>...    Second";
+    <SECOND>...    Second
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information";
 
 static DEFAULT_HELP: &'static str = "ctest 1.0
 
@@ -478,17 +478,16 @@ that should be displayed
 USAGE:
     myapp [arg1]
 
+ARGS:
+    <arg1>    
+            some option
+
 FLAGS:
     -h, --help       
             Prints help information
 
     -V, --version    
-            Prints version information
-
-
-ARGS:
-    <arg1>    
-            some option";
+            Prints version information";
 
 static HIDE_ENV_VALS: &'static str = "ctest 0.1
 
