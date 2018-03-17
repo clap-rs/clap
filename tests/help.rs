@@ -1346,3 +1346,43 @@ fn show_env_vals() {
         false
     ));
 }
+
+static CUSTOM_HELP_SECTION: &'static str = "blorp 1.4
+Will M.
+does stuff
+
+USAGE:
+    test --fake <some>:<val>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -f, --fake <some>:<val>    some help
+    
+NETWORKING:
+    --no-proxy     Do not use system proxy settings";
+
+#[test]
+fn custom_argument_headers() {
+    let app = App::new("blorp")
+        .author("Will M.")
+        .about("does stuff")
+        .version("1.4")
+        .arg(Arg::from_usage("-f, --fake <some> <val> 'some help'")
+                .require_delimiter(true)
+                .value_delimiter(":"),
+        )
+        .arg_heading("NETWORKING")
+        .arg(Arg::with_name("no-proxy")
+                .long("no-proxy")
+        );
+
+    assert!(test::compare_output(
+        app,
+        "test --help",
+        CUSTOM_HELP_SECTION,
+        false
+    ));
+}
