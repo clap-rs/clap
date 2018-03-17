@@ -103,6 +103,8 @@ where
     pub index: Option<u64>,
     #[doc(hidden)]
     pub r_ifs: Option<Vec<(&'a str, &'b str)>>,
+    #[doc(hidden)]
+    pub arg_heading: Option<&'a str>,
 }
 
 impl<'a, 'b> Arg<'a, 'b> {
@@ -3795,6 +3797,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`ArgSettings`]: ./enum.ArgSettings.html
     pub fn unset_setting(mut self, s: ArgSettings) -> Self {
         self.unsetb(s);
+        self
+    }
+
+    /// Set a custom heading for this arg to be printed under
+    pub fn arg_heading(mut self, s: &'a str) -> Self {
+        self.arg_heading = Some(s);
         self
     }
 

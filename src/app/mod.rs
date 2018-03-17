@@ -123,6 +123,8 @@ where
     pub help_message: Option<&'a str>,
     #[doc(hidden)]
     pub version_message: Option<&'a str>,
+    #[doc(hidden)]
+    pub arg_headings: Vec<(&'a str, usize)>,
 }
 
 impl<'a, 'b> App<'a, 'b> {
@@ -638,7 +640,15 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Adds multiple [arguments] to the list of valid possibilities
+    /// set a custom section heading for future args. Every call to arg will
+    /// have this header (instead of its default header) until a subsequent
+    /// call to arg_heading
+    pub fn arg_heading(mut self, heading: &'a str) -> Self {
+        self.arg_headings.push((heading, self.args.len()));
+        self
+    }
+
+    /// Adds multiple [arguments] to the list of valid possibilties
     ///
     /// # Examples
     ///
