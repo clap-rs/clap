@@ -701,10 +701,6 @@ impl<'w> Help<'w> {
 
         let mut first = true;
 
-        // TODO add a custom_sectioned! macro imitating positionals
-        // and also make the existing macros skip the args that have 
-        // custom help
-
         if pos {
             if !first {
                 self.writer.write_all(b"\n\n")?;
@@ -742,6 +738,7 @@ impl<'w> Help<'w> {
                 first = false;
             }
             if custom_headings {
+                // TODO: fix output formatting - missing arg explanation and has extra newline
                 for heading in parser.app.arg_headings.iter()
                     .filter(|heading| heading.is_some())
                     .map(|heading| heading.unwrap()) {
@@ -862,8 +859,6 @@ impl<'w> Help<'w> {
             debugln!("Help::write_default_help: writing long about");
             write_thing!(about)
         }
-
-        // TODO: also write custom sections
 
         color!(self, "\nUSAGE:", warning)?;
         write!(
