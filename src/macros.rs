@@ -872,6 +872,7 @@ macro_rules! flags {
         $app.args.$how()
             .filter(|a| !a.settings.is_set(::args::settings::ArgSettings::TakesValue))
             .filter(|a| a.short.is_some() || a.long.is_some())
+            .filter(|a| !a.arg_heading.is_some())
     };
     ($app:expr) => {
         flags!($app, iter)
@@ -890,6 +891,7 @@ macro_rules! opts {
         $app.args.$how()
             .filter(|a| a.settings.is_set(::args::settings::ArgSettings::TakesValue))
             .filter(|a| a.short.is_some() || a.long.is_some())
+            .filter(|a| !a.arg_heading.is_some())
     };
     ($app:expr) => {
         opts!($app, iter)
@@ -905,7 +907,9 @@ macro_rules! opts_mut {
 
 macro_rules! positionals {
     ($app:expr, $how:ident) => {
-        $app.args.$how().filter(|a| !(a.short.is_some() || a.long.is_some()))
+        $app.args.$how()
+            .filter(|a| !a.arg_heading.is_some())
+            .filter(|a| !(a.short.is_some() || a.long.is_some()))
     };
     ($app:expr) => {
         positionals!($app, iter)
@@ -916,6 +920,23 @@ macro_rules! positionals {
 macro_rules! positionals_mut {
     ($app:expr) => {
         positionals!($app, iter_mut)
+    }
+}
+
+#[allow(unused_macros)]
+macro_rules! custom_headings {
+    ($app:expr, $how:ident) => {
+        $app.args.$how().filter(|a| (a.arg_heading.is_some()))
+    };
+    ($app:expr) => {
+        custom_headings!($app, iter)
+    }
+}
+
+#[allow(unused_macros)]
+macro_rules! custom_headings_mut {
+    ($app:expr) => {
+        custom_headings!($app, iter_mut)
     }
 }
 

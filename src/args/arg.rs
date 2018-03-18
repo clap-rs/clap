@@ -3801,8 +3801,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Set a custom heading for this arg to be printed under
-    pub fn arg_heading(mut self, s: &'a str) -> Self {
-        self.arg_heading = Some(s);
+    pub fn arg_heading(mut self, s: Option<&'a str>) -> Self {
+        self.arg_heading = s;
         self
     }
 

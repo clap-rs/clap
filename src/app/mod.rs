@@ -124,7 +124,7 @@ where
     #[doc(hidden)]
     pub version_message: Option<&'a str>,
     #[doc(hidden)]
-    pub arg_headings: Vec<(&'a str, usize)>,
+    pub arg_headings: Vec<Option<&'a str>>,
 }
 
 impl<'a, 'b> App<'a, 'b> {
@@ -636,15 +636,27 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [argument]: ./struct.Arg.html
     pub fn arg<A: Into<Arg<'a, 'b>>>(mut self, a: A) -> Self {
-        self.args.push(a.into());
+        let arg_heading : Option<&'a str> = if let Some(option_str) = self.arg_headings.last() {
+            *option_str
+        } else {
+            None
+        };
+        let arg = a.into().arg_heading(arg_heading);
+        self.args.push(arg);
         self
     }
 
-    /// set a custom section heading for future args. Every call to arg will
+    /// Set a custom section heading for future args. Every call to arg will
     /// have this header (instead of its default header) until a subsequent
     /// call to arg_heading
     pub fn arg_heading(mut self, heading: &'a str) -> Self {
-        self.arg_headings.push((heading, self.args.len()));
+        self.arg_headings.push(Some(heading));
+        self
+    }
+
+    /// Stop using custom section headings.
+    pub fn stop_custom_headings(mut self) -> Self {
+        self.arg_headings.push(None);
         self
     }
 
