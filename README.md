@@ -174,7 +174,7 @@ The following examples show a quick example of some of the very basic functional
 
  **NOTE:** All of these examples are functionally the same, but show different styles in which to use `clap`. These different styles are purely a matter of personal preference.
 
-The first example shows a method using the 'Builder Pattern' which allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired. The downside is it's more verbose.
+The first example shows a method using the 'Builder Pattern' which allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired.
 
 ```rust
 // (Full example with detailed comments in examples/01b_quick_example.rs)
@@ -244,37 +244,7 @@ fn main() {
 }
 ```
 
-The next example shows a far less verbose method, but sacrifices some of the advanced configuration options (not shown in this small example). This method also takes a *very* minor runtime penalty.
-
-```rust
-// (Full example with detailed comments in examples/01a_quick_example.rs)
-//
-// This example demonstrates clap's "usage strings" method of creating arguments
-// which is less verbose
-extern crate clap;
-use clap::{Arg, App, SubCommand};
-
-fn main() {
-    let matches = App::new("myapp")
-                          .version("1.0")
-                          .author("Kevin K. <kbknapp@gmail.com>")
-                          .about("Does awesome things")
-                          .args_from_usage(
-                              "-c, --config=[FILE] 'Sets a custom config file'
-                              <INPUT>              'Sets the input file to use'
-                              -v...                'Sets the level of verbosity'")
-                          .subcommand(SubCommand::with_name("test")
-                                      .about("controls testing features")
-                                      .version("1.3")
-                                      .author("Someone E. <someone_else@other.com>")
-                                      .arg_from_usage("-d, --debug 'Print debug information'"))
-                          .get_matches();
-
-    // Same as previous example...
-}
-```
-
-This third method shows how you can use a YAML file to build your CLI and keep your Rust source tidy
+One could also optionally decleare their CLI in YAML format and keep your Rust source tidy
 or support multiple localized translations by having different YAML files for each localization.
 
 First, create the `cli.yml` file to hold your CLI options, but it could be called anything we like:
@@ -334,32 +304,6 @@ fn main() {
 }
 ```
 
-Last but not least there is a macro version, which is like a hybrid approach offering the runtime speed of the builder pattern (the first example), but without all the verbosity.
-
-```rust
-#[macro_use]
-extern crate clap;
-
-fn main() {
-    let matches = clap_app!(myapp =>
-        (version: "1.0")
-        (author: "Kevin K. <kbknapp@gmail.com>")
-        (about: "Does awesome things")
-        (@arg CONFIG: -c --config +takes_value "Sets a custom config file")
-        (@arg INPUT: +required "Sets the input file to use")
-        (@arg debug: -d ... "Sets the level of debugging information")
-        (@subcommand test =>
-            (about: "controls testing features")
-            (version: "1.3")
-            (author: "Someone E. <someone_else@other.com>")
-            (@arg verbose: -v --verbose "Print test information verbosely")
-        )
-    ).get_matches();
-
-    // Same as before...
-}
-```
-
 If you were to compile any of the above programs and run them with the flag `--help` or `-h` (or `help` subcommand, since we defined `test` as a subcommand) the following would be output
 
 ```sh
@@ -388,6 +332,13 @@ SUBCOMMANDS:
 ```
 
 **NOTE:** You could also run `myapp test --help` or `myapp help test` to see the help message for the `test` subcommand.
+
+There are also two other methods to create CLIs. Which style you choose is largely a matter of personal preference. The two other methods are:
+
+* Using [usage strings (examples/01a_quick_example.rs)](examples/01a_quick_example.rs) similar to (but not exact) docopt style usage statements. This is far less verbose than the above methods, but incurs a slight runtime penalty.
+* Using [a macro (examples/01c_quick_example.rs)](examples/01c_quick_example.rs) which is like a hybrid of the builder and usage string style. It's less verbose, but doesn't incur the runtime penalty of the usage string style. The downside is that it's harder to debug, and more opaque.
+
+Examples of each method can be found in the [examples/](examples) directory of this repository.
 
 ## Try it!
 
