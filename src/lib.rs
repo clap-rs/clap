@@ -404,7 +404,7 @@
 //! ```
 //!
 //! Alternatively, if you have [`just`](https://github.com/casey/just) installed you can run the
-//! prebuilt recipies. *Not* using `just` is prfeclty fine as well, it simply bundles commands
+//! prebuilt recipies. *Not* using `just` is perfectly fine as well, it simply bundles commands
 //! automatically.
 //!
 //! For example, to test the code, as above simply run:
