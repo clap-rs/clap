@@ -472,7 +472,7 @@ where
             }
 
             if !(self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound))
-                && !self.is_set(AS::InferSubcommands)
+                && !self.is_set(AS::InferSubcommands) && !self.is_set(AS::AllowExternalSubcommands)
             {
                 if let Some(cdate) =
                     suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app))
