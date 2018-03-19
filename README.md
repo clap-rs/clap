@@ -42,6 +42,12 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's whats new in 2.31.2:
+
+* **Fish Completions:**  fixes a bug that only allowed a single completion in in Fish Shell
+* **AllowExternalSubcommands**: fixes a bug where external subcommands would be blocked by a similarly named subcomand
+* Fixes some typos in the `README.md`
+
 Here's whats new in 2.31.1:
 
 * **AllowMissingPositional:**  improves the ability of `AppSetting::AllowMissingPositional` to allow "skipping" to the last positional arg with the `--` operator
@@ -66,27 +72,6 @@ Here's whats new in 2.30.x:
 * **YAML:** Adds a missing conversion from  `Arg::last` when instantiating from a YAML file
 * **Deps:**  No longer needlessly compiles `ansi_term` on Windows since its not used
 * **Help Message:** changes the `[values: foo bar baz]` array to `[possible values: foo bar baz]` for consistency with the API
-
-Here's whats new in 2.29.x:
-
-* **Overrides Self:**  fixes a bug where options with multiple values couldnt ever have multiple values ([d95907cf](https://github.com/kbknapp/clap-rs/commit/d95907cff6d011a901fe35fa00b0f4e18547a1fb))
-* **Self Overrides:** now supports arguments which override themselves (Allows true shell aliases, config files, etc!)
-* **Requirements:**  fixes an issue where conflicting args would still show up as required and missing
-* Fixes a bug which disallows proper nesting of `--` for args that capture all values after the first `--`
-* **AppSettings::AllArgsOverrideSelf:**  adds a new convenience setting to allow all args to override themselves
-* **Many ZSH Completions Improvements** (Thanks to @segevfiner)
-  *  Positional arguments will default to file completion when not using specific values!
-  *  Implement postional argument possible values completion
-  *  Removes redundant code from output
-  *  Don't pass `-S` to `_arguments` if Zsh is too old
-  *  Fix completions with mixed positionals and subcommands
-  *  String escape possible values for options
-* Debloats clap by deduplicating logic and refactors for a ~57% decrease in code size! This is with zero functinoality lost, and a slight perf increase!
-* Change the bash completion script code generation to support hyphens.
-* Fix completion of long option values in ZSH completions
-* Fixes broken links in docs
-* Updates contributors list
-* Fixes the ripgrep benchmark by adding a value to a flag that expects it
 
 For full details, see [CHANGELOG.md](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md)
 
