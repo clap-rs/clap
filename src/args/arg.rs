@@ -1879,9 +1879,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// **NOTE:** This does *not* implicitly set [`Arg::multiple(true)`]. This is because
     /// `-o val -o val` is multiple occurrences but a single value and `-o val1 val2` is a single
-    /// occurence with multiple values. For positional arguments this **does** set
+    /// occurrence with multiple values. For positional arguments this **does** set
     /// [`Arg::multiple(true)`] because there is no way to determine the difference between multiple
-    /// occurences and multiple values.
+    /// occurrences and multiple values.
     ///
     /// # Examples
     ///
@@ -1943,9 +1943,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// **NOTE:** This does not implicitly set [`Arg::multiple(true)`]. This is because
     /// `-o val -o val` is multiple occurrences but a single value and `-o val1 val2` is a single
-    /// occurence with multiple values. For positional arguments this **does** set
+    /// occurrence with multiple values. For positional arguments this **does** set
     /// [`Arg::multiple(true)`] because there is no way to determine the difference between multiple
-    /// occurences and multiple values.
+    /// occurrences and multiple values.
     ///
     /// # Examples
     ///
@@ -2194,7 +2194,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// **NOTE:** This implicitly sets [`Arg::takes_value(true)`].
     ///
     /// **NOTE:** This setting effectively disables `AppSettings::ArgRequiredElseHelp` if used in
-    /// conjuction as it ensures that some argument will always be present.
+    /// conjunction as it ensures that some argument will always be present.
     ///
     /// # Examples
     ///
@@ -2436,7 +2436,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     ///
     /// We can also see that these values are applied in order, and if more than one condition is
-    /// true, only the first evaluatd "wins"
+    /// true, only the first evaluated "wins"
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -2491,7 +2491,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// will return `0` even though the [`ArgMatches::value_of`] will return the default specified.
     ///
     /// **NOTE:** If the user *does not* use this argument at runtime [`ArgMatches::is_present`] will
-    /// return `true` if the variable is present in the environemnt . If you wish to determine whether
+    /// return `true` if the variable is present in the environment . If you wish to determine whether
     /// the argument was used at runtime or not, consider [`ArgMatches::occurrences_of`] which will
     /// return `0` if the argument was *not* used at runtime.
     ///
