@@ -976,7 +976,7 @@ where
             }
 
             if !(self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound))
-                && !self.is_set(AS::InferSubcommands)
+                && !self.is_set(AS::InferSubcommands) && !self.is_set(AS::AllowExternalSubcommands)
             {
                 if let Some(cdate) =
                     suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self))
@@ -994,7 +994,7 @@ where
             let low_index_mults = self.is_set(AS::LowIndexMultiplePositional)
                 && pos_counter == (self.positionals.len() - 1);
             let missing_pos = self.is_set(AS::AllowMissingPositional)
-                && (pos_counter == (self.positionals.len() - 1) 
+                && (pos_counter == (self.positionals.len() - 1)
                     && !self.is_set(AS::TrailingValues));
             debugln!(
                 "Parser::get_matches_with: Positional counter...{}",
