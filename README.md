@@ -480,7 +480,7 @@ Right now Cargo's version resolution is pretty naive, it's just a brute-force se
 
 # In one Cargo.toml
 [dependencies]
-clap = "~2.31.1"
+clap = "~2.31.2"
 
 # In another Cargo.toml
 [dependencies]
