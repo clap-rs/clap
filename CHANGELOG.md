@@ -1,5 +1,17 @@
-<a name="v2.30.1"></a>
-### v2.30.1 (2018-03-06)
+<a name="v2.31.2"></a>
+### v2.31.2 (2018-03-19)
+
+#### Bug Fixes
+
+* **Fish Completions:**  fixes a bug that only allowed a single completion in in Fish Shell ([e8774a8](https://github.com/kbknapp/clap-rs/pull/1214/commits/e8774a84ee4a319c888036e7c595ab46451d8e48), closes [#1212](https://github.com/kbknapp/clap-rs/issues/1212))
+* **AllowExternalSubcommands**: fixes a bug where external subcommands would be blocked by a similarly named subcomand (suggestions were getting in the way). ([a410e85](https://github.com/kbknapp/clap-rs/pull/1215/commits/a410e855bcd82b05f9efa73fa8b9774dc8842c6b))
+
+#### Documentation
+
+* Fixes some typos in the `README.md` ([c8e685d7](https://github.com/kbknapp/clap-rs/commit/c8e685d76adee2a3cc06cac6952ffcf6f9548089))
+
+<a name="v2.31.1"></a>
+### v2.31.1 (2018-03-06)
 
 
 #### Improvements

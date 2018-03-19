@@ -42,6 +42,12 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 ## What's New
 
+Here's whats new in 2.31.2:
+
+* **Fish Completions:**  fixes a bug that only allowed a single completion in in Fish Shell
+* **AllowExternalSubcommands**: fixes a bug where external subcommands would be blocked by a similarly named subcomand
+* Fixes some typos in the `README.md`
+
 Here's whats new in 2.31.1:
 
 * **AllowMissingPositional:**  improves the ability of `AppSetting::AllowMissingPositional` to allow "skipping" to the last positional arg with the `--` operator
@@ -66,27 +72,6 @@ Here's whats new in 2.30.x:
 * **YAML:** Adds a missing conversion from  `Arg::last` when instantiating from a YAML file
 * **Deps:**  No longer needlessly compiles `ansi_term` on Windows since its not used
 * **Help Message:** changes the `[values: foo bar baz]` array to `[possible values: foo bar baz]` for consistency with the API
-
-Here's whats new in 2.29.x:
-
-* **Overrides Self:**  fixes a bug where options with multiple values couldnt ever have multiple values ([d95907cf](https://github.com/kbknapp/clap-rs/commit/d95907cff6d011a901fe35fa00b0f4e18547a1fb))
-* **Self Overrides:** now supports arguments which override themselves (Allows true shell aliases, config files, etc!)
-* **Requirements:**  fixes an issue where conflicting args would still show up as required and missing
-* Fixes a bug which disallows proper nesting of `--` for args that capture all values after the first `--`
-* **AppSettings::AllArgsOverrideSelf:**  adds a new convenience setting to allow all args to override themselves
-* **Many ZSH Completions Improvements** (Thanks to @segevfiner)
-  *  Positional arguments will default to file completion when not using specific values!
-  *  Implement postional argument possible values completion
-  *  Removes redundant code from output
-  *  Don't pass `-S` to `_arguments` if Zsh is too old
-  *  Fix completions with mixed positionals and subcommands
-  *  String escape possible values for options
-* Debloats clap by deduplicating logic and refactors for a ~57% decrease in code size! This is with zero functinoality lost, and a slight perf increase!
-* Change the bash completion script code generation to support hyphens.
-* Fix completion of long option values in ZSH completions
-* Fixes broken links in docs
-* Updates contributors list
-* Fixes the ripgrep benchmark by adding a value to a flag that expects it
 
 For full details, see [CHANGELOG.md](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md)
 
@@ -189,7 +174,7 @@ The following examples show a quick example of some of the very basic functional
 
  **NOTE:** All of these examples are functionally the same, but show different styles in which to use `clap`. These different styles are purely a matter of personal preference.
 
-The first example shows a method using the 'Builder Pattern' which allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired. The downside is it's more verbose.
+The first example shows a method using the 'Builder Pattern' which allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired.
 
 ```rust
 // (Full example with detailed comments in examples/01b_quick_example.rs)
@@ -259,37 +244,7 @@ fn main() {
 }
 ```
 
-The next example shows a far less verbose method, but sacrifices some of the advanced configuration options (not shown in this small example). This method also takes a *very* minor runtime penalty.
-
-```rust
-// (Full example with detailed comments in examples/01a_quick_example.rs)
-//
-// This example demonstrates clap's "usage strings" method of creating arguments
-// which is less verbose
-extern crate clap;
-use clap::{Arg, App, SubCommand};
-
-fn main() {
-    let matches = App::new("myapp")
-                          .version("1.0")
-                          .author("Kevin K. <kbknapp@gmail.com>")
-                          .about("Does awesome things")
-                          .args_from_usage(
-                              "-c, --config=[FILE] 'Sets a custom config file'
-                              <INPUT>              'Sets the input file to use'
-                              -v...                'Sets the level of verbosity'")
-                          .subcommand(SubCommand::with_name("test")
-                                      .about("controls testing features")
-                                      .version("1.3")
-                                      .author("Someone E. <someone_else@other.com>")
-                                      .arg_from_usage("-d, --debug 'Print debug information'"))
-                          .get_matches();
-
-    // Same as previous example...
-}
-```
-
-This third method shows how you can use a YAML file to build your CLI and keep your Rust source tidy
+One could also optionally decleare their CLI in YAML format and keep your Rust source tidy
 or support multiple localized translations by having different YAML files for each localization.
 
 First, create the `cli.yml` file to hold your CLI options, but it could be called anything we like:
@@ -349,32 +304,6 @@ fn main() {
 }
 ```
 
-Last but not least there is a macro version, which is like a hybrid approach offering the runtime speed of the builder pattern (the first example), but without all the verbosity.
-
-```rust
-#[macro_use]
-extern crate clap;
-
-fn main() {
-    let matches = clap_app!(myapp =>
-        (version: "1.0")
-        (author: "Kevin K. <kbknapp@gmail.com>")
-        (about: "Does awesome things")
-        (@arg CONFIG: -c --config +takes_value "Sets a custom config file")
-        (@arg INPUT: +required "Sets the input file to use")
-        (@arg debug: -d ... "Sets the level of debugging information")
-        (@subcommand test =>
-            (about: "controls testing features")
-            (version: "1.3")
-            (author: "Someone E. <someone_else@other.com>")
-            (@arg verbose: -v --verbose "Print test information verbosely")
-        )
-    ).get_matches();
-
-    // Same as before...
-}
-```
-
 If you were to compile any of the above programs and run them with the flag `--help` or `-h` (or `help` subcommand, since we defined `test` as a subcommand) the following would be output
 
 ```sh
@@ -403,6 +332,13 @@ SUBCOMMANDS:
 ```
 
 **NOTE:** You could also run `myapp test --help` or `myapp help test` to see the help message for the `test` subcommand.
+
+There are also two other methods to create CLIs. Which style you choose is largely a matter of personal preference. The two other methods are:
+
+* Using [usage strings (examples/01a_quick_example.rs)](examples/01a_quick_example.rs) similar to (but not exact) docopt style usage statements. This is far less verbose than the above methods, but incurs a slight runtime penalty.
+* Using [a macro (examples/01c_quick_example.rs)](examples/01c_quick_example.rs) which is like a hybrid of the builder and usage string style. It's less verbose, but doesn't incur the runtime penalty of the usage string style. The downside is that it's harder to debug, and more opaque.
+
+Examples of each method can be found in the [examples/](examples) directory of this repository.
 
 ## Try it!
 
@@ -544,7 +480,7 @@ Right now Cargo's version resolution is pretty naive, it's just a brute-force se
 
 # In one Cargo.toml
 [dependencies]
-clap = "~2.31.1"
+clap = "~2.31.2"
 
 # In another Cargo.toml
 [dependencies]
