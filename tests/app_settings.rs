@@ -717,7 +717,7 @@ fn missing_positional_hyphen_req_error() {
 #[test]
 fn issue_1066_allow_leading_hyphen_and_unknown_args() {
     let res = App::new("prog")
-        .global_setting(AppSettings::AllowLeadingHyphen) 
+        .global_setting(AppSettings::AllowLeadingHyphen)
         .arg(Arg::from_usage("--some-argument"))
         .get_matches_from_safe(vec!["prog", "hello"]);
 
@@ -728,7 +728,7 @@ fn issue_1066_allow_leading_hyphen_and_unknown_args() {
 #[test]
 fn issue_1066_allow_leading_hyphen_and_unknown_args_no_vals() {
     let res = App::new("prog")
-        .global_setting(AppSettings::AllowLeadingHyphen) 
+        .global_setting(AppSettings::AllowLeadingHyphen)
         .arg(Arg::from_usage("--some-argument"))
         .get_matches_from_safe(vec!["prog", "--hello"]);
 
@@ -739,7 +739,7 @@ fn issue_1066_allow_leading_hyphen_and_unknown_args_no_vals() {
 #[test]
 fn issue_1066_allow_leading_hyphen_and_unknown_args_option() {
     let res = App::new("prog")
-        .global_setting(AppSettings::AllowLeadingHyphen) 
+        .global_setting(AppSettings::AllowLeadingHyphen)
         .arg(Arg::from_usage("--some-argument=[val]"))
         .get_matches_from_safe(vec!["prog", "-hello"]);
 
@@ -753,6 +753,24 @@ fn issue_1093_allow_ext_sc() {
         .version("v1.4.8")
         .setting(AppSettings::AllowExternalSubcommands);
     assert!(test::compare_output(app, "clap-test --help", ALLOW_EXT_SC, false));
+}
+
+#[test]
+fn external_subcommand_looks_like_built_in() {
+    let res = App::new("cargo")
+        .version("1.26.0")
+        .setting(AppSettings::AllowExternalSubcommands)
+        .subcommand(SubCommand::with_name("install"))
+        .get_matches_from_safe(vec!["cargo", "install-update", "foo"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    match m.subcommand() {
+        (name, Some(args)) => {
+            assert_eq!(name, "install-update");
+            assert_eq!(args.values_of_lossy(""), Some(vec!["foo".to_string()]));
+        }
+        _ => assert!(false),
+    }
 }
 
 #[test]
