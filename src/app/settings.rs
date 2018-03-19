@@ -503,7 +503,7 @@ pub enum AppSettings {
     DeriveDisplayOrder,
 
     /// Specifies to use the version of the current command for all child [`SubCommand`]s.
-    /// (Defaults to `false`; subcommands have independant version strings from their parents.)
+    /// (Defaults to `false`; subcommands have independent version strings from their parents.)
     ///
     /// **NOTE:** The version for the current command **and** this setting must be set **prior** to
     /// adding any child subcommands
@@ -551,7 +551,7 @@ pub enum AppSettings {
     /// designing CLIs which allow inferred subcommands and have potential positional/free
     /// arguments whose values could start with the same characters as subcommands. If this is the
     /// case, it's recommended to use settings such as [`AppSeettings::ArgsNegateSubcommands`] in
-    /// conjuction with this setting.
+    /// conjunction with this setting.
     ///
     /// # Examples
     ///

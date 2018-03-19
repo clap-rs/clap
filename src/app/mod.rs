@@ -693,7 +693,7 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Adds multiple [arguments] to the list of valid possibilties
+    /// Adds multiple [arguments] to the list of valid possibilities
     ///
     /// # Examples
     ///
@@ -829,7 +829,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// Meaning any of the arguments that belong to that group will cause a failure if present with
     /// the conflicting argument.
     ///
-    /// Another added benfit of [`ArgGroup`]s is that you can extract a value from a group instead
+    /// Another added benefit of [`ArgGroup`]s is that you can extract a value from a group instead
     /// of determining exactly which argument was used.
     ///
     /// Finally, using [`ArgGroup`]s to ensure exclusion between arguments is another very common
@@ -1009,7 +1009,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`-h` (short)]: ./struct.Arg.html#method.help
     /// [`--help` (long)]: ./struct.Arg.html#method.long_help
     pub fn print_help(&mut self) -> ClapResult<()> {
-        // If there are global arguments, or settings we need to propgate them down to subcommands
+        // If there are global arguments, or settings we need to propagate them down to subcommands
         // before parsing incase we run into a subcommand
         self._build(Propagation::NextLevel);
 
@@ -1036,7 +1036,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`-h` (short)]: ./struct.Arg.html#method.help
     /// [`--help` (long)]: ./struct.Arg.html#method.long_help
     pub fn print_long_help(&mut self) -> ClapResult<()> {
-        // If there are global arguments, or settings we need to propgate them down to subcommands
+        // If there are global arguments, or settings we need to propagate them down to subcommands
         // before parsing incase we run into a subcommand
         self._build(Propagation::NextLevel);
 

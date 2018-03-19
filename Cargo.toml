@@ -86,7 +86,7 @@ debug = false
 rpath = false
 lto = true
 debug-assertions = false
-# codegen-units ignored with lto=true
+codegen-units = 1
 
 [profile.dev]
 opt-level = 0
@@ -110,6 +110,7 @@ debug = false
 rpath = false
 lto = true
 debug-assertions = false
+codegen-units = 1
 
 [profile.doc]
 opt-level = 0

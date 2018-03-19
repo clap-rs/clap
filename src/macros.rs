@@ -9,7 +9,7 @@
 ///
 /// # Examples
 ///
-/// The following example shows how to load a properly formatted YAML file to build an instnace
+/// The following example shows how to load a properly formatted YAML file to build an instance
 /// of an `App` struct.
 ///
 /// ```ignore
@@ -607,10 +607,10 @@ macro_rules! app_from_crate {
 /// * Three dots (`...`) sets [`Arg::multiple(true)`]
 /// * Angled brackets after either a short or long will set [`Arg::value_name`] and
 /// `Arg::required(true)` such as `--config <FILE>` = `Arg::value_name("FILE")` and
-/// `Arg::required(true)
+/// `Arg::required(true)`
 /// * Square brackets after either a short or long will set [`Arg::value_name`] and
 /// `Arg::required(false)` such as `--config [FILE]` = `Arg::value_name("FILE")` and
-/// `Arg::required(false)
+/// `Arg::required(false)`
 /// * There are short hand syntaxes for Arg methods that accept booleans
 ///   * A plus sign will set that method to `true` such as `+required` = `Arg::required(true)`
 ///   * An exclamation will set that method to `false` such as `!required` = `Arg::required(false)`
