@@ -89,7 +89,7 @@ FLAGS:
     -v, --verbose    Verbose mode
 
 OPTIONS:
-    -c, --car <car>           Number of car
+    -c, --nb-cars <nb_cars>   Number of cars
     -l, --level <level>...    admin_level to consider
     -o, --output <output>     Output file
     -s, --speed <speed>       Set speed [default: 42]
@@ -98,8 +98,8 @@ ARGS:
     <FILE>...    Files to process
 $ ./basic -o foo.txt
 Opt { debug: false, verbose: 0, speed: 42, output: "foo.txt", car: None, level: [], files: [] }
-$ ./basic -o foo.txt -dvvvs 1337 -l alice -l bob --car 4 bar.txt baz.txt
-Opt { debug: true, verbose: 3, speed: 1337, output: "foo.txt", car: Some(4), level: ["alice", "bob"], files: ["bar.txt", "baz.txt"] }
+$ ./basic -o foo.txt -dvvvs 1337 -l alice -l bob --nb-cars 4 bar.txt baz.txt
+Opt { debug: true, verbose: 3, speed: 1337, output: "foo.txt", nb_cars: Some(4), level: ["alice", "bob"], files: ["bar.txt", "baz.txt"] }
 ```
 
 ## Why
