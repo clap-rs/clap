@@ -78,7 +78,7 @@ fn main() {
 
     // You can check for the existence of subcommands, and if found use their
     // matches just as you would the top level app
-    if let Some(ref matches) = matches.subcommand_matches("test") {
+    if let Some(matches) = matches.subcommand_matches("test") {
         // "$ myapp test" was run
         if matches.is_present("list") {
             // "$ myapp test -l" was run

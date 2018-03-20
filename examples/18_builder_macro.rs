@@ -41,7 +41,7 @@ fn main() {
             (@arg list: -l "Lists test values")
             (@arg test_req: -r requires[list] "Tests requirement for listing")
             (@arg aaaa: --aaaa +takes_value {
-                    |a| if a.contains("a") {
+                    |a| if a.contains('a') {
                         Ok(())
                     } else {
                         Err(String::from("string does not contain at least one a"))
@@ -70,7 +70,7 @@ fn main() {
 
     // You can check for the existence of subcommands, and if found use their
     // matches just as you would the top level app
-    if let Some(ref matches) = matches.subcommand_matches("test") {
+    if let Some(matches) = matches.subcommand_matches("test") {
         // "$ myapp test" was run
         if matches.is_present("list") {
             // "$ myapp test -l" was run

@@ -23,7 +23,7 @@ fn main() {
     }
 
     // You can get the independent subcommand matches (which function exactly like App matches)
-    if let Some(ref matches) = matches.subcommand_matches("add") {
+    if let Some(matches) = matches.subcommand_matches("add") {
         // Safe to use unwrap() because of the required() option
         println!("Adding file: {}", matches.value_of("input").unwrap());
     }
