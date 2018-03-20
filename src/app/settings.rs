@@ -412,7 +412,7 @@ pub enum AppSettings {
     ///
     /// # Platform Specific
     ///
-    /// This setting only applies to Unix, Linux, and OSX (i.e. non-Windows platforms)
+    /// This setting only applies to Unix, Linux, and macOS (i.e. non-Windows platforms)
     ///
     /// # Examples
     ///
@@ -432,7 +432,7 @@ pub enum AppSettings {
     ///
     /// # Platform Specific
     ///
-    /// This setting only applies to Unix, Linux, and OSX (i.e. non-Windows platforms).
+    /// This setting only applies to Unix, Linux, and macOS (i.e. non-Windows platforms).
     ///
     /// # Examples
     ///
@@ -450,7 +450,7 @@ pub enum AppSettings {
     ///
     /// # Platform Specific
     ///
-    /// This setting only applies to Unix, Linux, and OSX (i.e. non-Windows platforms).
+    /// This setting only applies to Unix, Linux, and macOS (i.e. non-Windows platforms).
     ///
     /// # Examples
     ///
@@ -468,7 +468,7 @@ pub enum AppSettings {
     ///
     /// # Platform Specific
     ///
-    /// This setting only applies to Unix, Linux, and OSX (i.e. non-Windows platforms)
+    /// This setting only applies to Unix, Linux, and macOS (i.e. non-Windows platforms)
     ///
     /// # Examples
     ///

@@ -297,7 +297,7 @@ pub enum ErrorKind {
     ///
     /// # Platform Specific
     ///
-    /// Non-Windows platforms only (such as Linux, Unix, OSX, etc.)
+    /// Non-Windows platforms only (such as Linux, Unix, macOS, etc.)
     ///
     /// # Examples
     ///
