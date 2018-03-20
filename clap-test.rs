@@ -50,7 +50,7 @@ mod test {
         compare(&*left, right1) || compare(&*left, right2)
     }
 
-    // Legacy tests from the pyhton script days
+    // Legacy tests from the Python script days
 
     pub fn complex_app() -> App<'static, 'static> {
         let args = "-o --option=[opt]... 'tests options'
@@ -70,8 +70,8 @@ mod test {
                 Arg::from_usage("[positional2] 'tests positionals with exclusions'"),
                 Arg::from_usage("-O --Option [option3] 'specific vals'").possible_values(&opt3_vals),
                 Arg::from_usage("[positional3]... 'tests specific values'").possible_values(&pos3_vals),
-                Arg::from_usage("--multvals [one] [two] 'Tests mutliple values, not mult occs'"),
-                Arg::from_usage("--multvalsmo... [one] [two] 'Tests mutliple values, and mult occs'"),
+                Arg::from_usage("--multvals [one] [two] 'Tests multiple values, not mult occs'"),
+                Arg::from_usage("--multvalsmo... [one] [two] 'Tests multiple values, and mult occs'"),
                 Arg::from_usage("--minvals2 [minvals]... 'Tests 2 min vals'").min_values(2),
                 Arg::from_usage("--maxvals3 [maxvals]... 'Tests 3 max vals'").max_values(3)
             ])

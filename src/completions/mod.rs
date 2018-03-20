@@ -72,8 +72,8 @@ pub fn all_subcommands(p: &Parser) -> Vec<(String, String)> {
     subcmds
 }
 
-// Gets all subcommands exlcuding child subcommands in the form of (name, bin_name) where the name
-// is a single word (i.e. "install") and the bin_name is a space deliniated list of the path to said
+// Gets all subcommands excluding child subcommands in the form of (name, bin_name) where the name
+// is a single word (i.e. "install") and the bin_name is a space delineated list of the path to said
 // subcommand (i.e. "rustup toolchain install")
 //
 // Also note, aliases are treated as their own subcommands but duplicates of whatever they're

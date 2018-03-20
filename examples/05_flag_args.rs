@@ -25,13 +25,13 @@ fn main() {
                                                                   // occurrences such as "-aaa" or "-a -a"
                                     .requires("config")           // Says, "If the user uses -a, they MUST
                                                                   // also use this other 'config' arg too"
-                                                                  // Can also specifiy a list using
+                                                                  // Can also specify a list using
                                                                   // requires_all(Vec<&str>)
                                     .conflicts_with("output")     // Opposite of requires(), says "if the
                                                                   // user uses -a, they CANNOT use 'output'"
                                                                   // also has a mutually_excludes_all(Vec<&str>)
                         )
-                        // NOTE: In order to compile this example, comment out requres() and
+                        // NOTE: In order to compile this example, comment out requires() and
                         // mutually_excludes() because we have not defined an "output" or "config"
                         // argument.
                         .get_matches();
@@ -41,7 +41,7 @@ fn main() {
         println!("Awesomeness is turned on");
     }
 
-    // If we set the mutliple() option of a flag we can check how many times the user specified
+    // If we set the multiple() option of a flag we can check how many times the user specified
     //
     // Note: if we did not specify the multiple() option, and the user used "awesome" we would get
     // a 1 (no matter how many times they actually used it), or a 0 if they didn't use it at all

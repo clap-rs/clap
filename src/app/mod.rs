@@ -419,10 +419,10 @@ impl<'a, 'b> App<'a, 'b> {
     ///            Does awesome things\n\
     ///            (C) me@mail.com\n\n\
     ///
-    ///            USAGE: myapp <opts> <comamnd>\n\n\
+    ///            USAGE: myapp <opts> <command>\n\n\
     ///
     ///            Options:\n\
-    ///            -h, --helpe      Dispay this message\n\
+    ///            -h, --help       Display this message\n\
     ///            -V, --version    Display version info\n\
     ///            -s <stuff>       Do something with stuff\n\
     ///            -v               Be verbose\n\n\
@@ -560,7 +560,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///     .template("{bin} ({version}) - {usage}")
     /// # ;
     /// ```
-    /// **NOTE:**The template system is, on purpose, very simple. Therefore the tags have to writen
+    /// **NOTE:**The template system is, on purpose, very simple. Therefore the tags have to written
     /// in the lowercase and without spacing.
     /// [`App::about`]: ./struct.App.html#method.about
     /// [`App::after_help`]: ./struct.App.html#method.after_help

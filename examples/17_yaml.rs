@@ -1,4 +1,4 @@
-// In order to use YAML to define your CLI you must compile clap with the "yaml" feature becasue
+// In order to use YAML to define your CLI you must compile clap with the "yaml" feature because
 // it's **not** included by default.
 //
 // In order to do this, ensure your Cargo.toml looks like one of the following:
@@ -23,7 +23,7 @@ fn main() {
 
     // To load a yaml file containing our CLI definition such as the example '17_yaml.yml' we can
     // use the convenience macro which loads the file at compile relative to the current file
-    // similiar to how modules are found.
+    // similar to how modules are found.
     //
     // Then we pass that yaml object to App to build the CLI.
     //

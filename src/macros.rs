@@ -942,7 +942,7 @@ macro_rules! find_by_name {
     }
 }
 
-// Finds an option including if it's aliasesed
+// Finds an option including if it's aliased
 macro_rules! find_opt_by_long {
     (@os $_self:ident, $long:expr) => {{
         _find_by_long!($_self, $long, opts)

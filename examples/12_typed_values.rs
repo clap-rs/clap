@@ -34,7 +34,7 @@ fn main() {
                         .get_matches();
 
     // Here we get a value of type u32 from our optional -l argument.
-    // If the value provided to len failes to parse, we default to 10
+    // If the value provided to len fails to parse, we default to 10
     //
     // Using other methods such as unwrap_or_else(|e| println!("{}",e))
     // are possible too.
