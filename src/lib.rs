@@ -330,7 +330,7 @@
 //! * `suggestions`: Turns on the `Did you mean '--myoption'?` feature for when users make typos. (builds dependency `strsim`)
 //! * `color`: Turns on colored error messages. This feature only works on non-Windows OSs. (builds dependency `ansi-term` and `atty`)
 //! * `wrap_help`: Wraps the help at the actual terminal width when
-//!  available, instead of 120 chracters. (builds dependency `textwrap`
+//!  available, instead of 120 characters. (builds dependency `textwrap`
 //! with feature `term_size`)
 //!
 //! To disable these, add this to your `Cargo.toml`:
@@ -404,7 +404,7 @@
 //! ```
 //!
 //! Alternatively, if you have [`just`](https://github.com/casey/just) installed you can run the
-//! prebuilt recipies. *Not* using `just` is perfectly fine as well, it simply bundles commands
+//! prebuilt recipes. *Not* using `just` is perfectly fine as well, it simply bundles commands
 //! automatically.
 //!
 //! For example, to test the code, as above simply run:
@@ -413,7 +413,7 @@
 //! $ just run-tests
 //! ```
 //!
-//! From here on, I will lis the appropriate `cargo` command as well as the `just` command.
+//! From here on, I will list the appropriate `cargo` command as well as the `just` command.
 //!
 //! Sometimes it's helpful to only run a subset of the tests, which can be done via:
 //!
@@ -487,7 +487,7 @@
 //! version of Rust is considered a minor breaking change, meaning *at a minimum* the minor version
 //! of `clap` will be bumped.
 //!
-//! In order to keep from being suprised of breaking changes, it is **highly** recommended to use
+//! In order to keep from being surprised by breaking changes, it is **highly** recommended to use
 //! the `~major.minor.patch` style in your `Cargo.toml`:
 //!
 //! ```toml

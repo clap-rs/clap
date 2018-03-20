@@ -56,18 +56,18 @@ args:
         possible_values: [ vi, emacs ]
     - multvals:
         long: multvals
-        help: Tests mutliple values, not mult occs
+        help: Tests multiple values, not mult occs
         value_names:
             - one
             - two
     - multvalsmo:
         long: multvalsmo
         multiple: true
-        help: Tests mutliple values, not mult occs
+        help: Tests multiple values, not mult occs
         value_names: [one, two]
     - multvalsdelim:
         long: multvalsdelim
-        help: Tests mutliple values with required delimiter
+        help: Tests multiple values with required delimiter
         multiple: true
         require_delimiter: true
     - singlealias:
@@ -78,7 +78,7 @@ args:
             - [multvalsmo, two]
     - multaliases:
         long: multaliases
-        help: Tests mutliple aliases
+        help: Tests multiple aliases
         aliases: [als1, als2, als3]
     - minvals2:
         long: minvals2

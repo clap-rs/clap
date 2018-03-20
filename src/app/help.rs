@@ -877,7 +877,7 @@ impl<'a> Help<'a> {
     ///     * `{after-help}`  - Info to be displayed after the help message.
     ///     * `{before-help}` - Info to be displayed before the help message.
     ///
-    /// The template system is, on purpose, very simple. Therefore the tags have to writen
+    /// The template system is, on purpose, very simple. Therefore the tags have to written
     /// in the lowercase and without spacing.
     fn write_templated_help(&mut self, parser: &Parser, template: &str) -> ClapResult<()> {
         debugln!("Help::write_templated_help;");

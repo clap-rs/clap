@@ -45,7 +45,7 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 Here's whats new in 2.31.2:
 
 * **Fish Completions:**  fixes a bug that only allowed a single completion in in Fish Shell
-* **AllowExternalSubcommands**: fixes a bug where external subcommands would be blocked by a similarly named subcomand
+* **AllowExternalSubcommands**: fixes a bug where external subcommands would be blocked by a similarly named subcommand
 * Fixes some typos in the `README.md`
 
 Here's whats new in 2.31.1:

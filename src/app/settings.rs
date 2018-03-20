@@ -244,7 +244,7 @@ pub enum AppSettings {
     /// For example, imagine a CLI which has three positional arguments `[foo] [bar] [baz]...` where
     /// `baz` accepts multiple values (similar to man `ARGS...` style training arguments).
     ///
-    /// With this setting the following invocations are posisble:
+    /// With this setting the following invocations are possible:
     ///
     /// * `$ prog foo bar baz1 baz2 baz3`
     /// * `$ prog foo -- baz1 baz2 baz3`
@@ -307,7 +307,7 @@ pub enum AppSettings {
     /// assert_eq!(m.values_of("baz").unwrap().collect::<Vec<_>>(), &["baz1", "baz2", "baz3"]);
     /// ```
     ///
-    /// Now nofice if we don't specifiy `foo` or `baz` but use the `--` operator.
+    /// Now notice if we don't specify `foo` or `baz` but use the `--` operator.
     ///
     /// ```rust
     /// # use clap::{App, Arg, AppSettings};
@@ -364,7 +364,7 @@ pub enum AppSettings {
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     AllowExternalSubcommands,
 
-    /// Specifies that use of a valid [argument] negates [subcomands] being used after. By default
+    /// Specifies that use of a valid [argument] negates [subcommands] being used after. By default
     /// `clap` allows arguments between subcommands such as
     /// `<cmd> [cmd_args] <cmd2> [cmd2_args] <cmd3> [cmd3_args]`. This setting disables that
     /// functionality and says that arguments can only follow the *final* subcommand. For instance
@@ -520,7 +520,7 @@ pub enum AppSettings {
     /// let res = App::new("myprog")
     ///     .version("v1.1")
     ///     .setting(AppSettings::DisableHelpSubcommand)
-    ///     // Normally, creating a subcommand causes a `help` subcommand to automaticaly
+    ///     // Normally, creating a subcommand causes a `help` subcommand to automatically
     ///     // be generated as well
     ///     .subcommand(SubCommand::with_name("test"))
     ///     .get_matches_from_safe(vec![

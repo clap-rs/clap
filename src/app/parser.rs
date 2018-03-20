@@ -311,7 +311,7 @@ where
             self.flags.push(fb);
         }
     }
-    // actually adds the arguments but from a borrow (which means we have to do some clonine)
+    // actually adds the arguments but from a borrow (which means we have to do some cloning)
     pub fn add_arg_ref(&mut self, a: &Arg<'a, 'b>) {
         debug_assert!(self.debug_asserts(a));
         self.add_conditional_reqs(a);
@@ -1543,7 +1543,7 @@ where
         // maybe here lifetime should be 'a
         debugln!("Parser::parse_long_arg;");
 
-        // Update the curent index
+        // Update the current index
         self.cur_idx.set(self.cur_idx.get() + 1);
 
         let mut val = None;
@@ -1677,7 +1677,7 @@ where
                 ret = self.parse_flag(flag, matcher)?;
 
                 // Handle conflicts, requirements, overrides, etc.
-                // Must be called here due to mutablilty
+                // Must be called here due to mutabililty
                 if self.cache.map_or(true, |name| name != flag.b.name) {
                     self.cache = Some(flag.b.name);
                 }

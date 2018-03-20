@@ -21,7 +21,7 @@ fn main() {
 
                         // Next we'll use the Option::unwrap_or method on this "CONFIG" option
                         .arg(Arg::with_name("CONFIG")
-                                // Note that we have to manaully include some verbage to the user
+                                // Note that we have to manually include some verbiage to the user
                                 // telling them what the default will be.
                                 .help("The config file to use (default is \"config.json\")")
                                 .short("c")
