@@ -48,7 +48,7 @@ fn main() {
     }
 
     // We can also get the values for those arguments
-    if let Some(ref in_file) = matches.value_of("input") {
+    if let Some(in_file) = matches.value_of("input") {
         // It's safe to call unwrap() because of the required options we set above
         println!("Doing work with {} and {}", in_file, matches.value_of("config").unwrap());
     }

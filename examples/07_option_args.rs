@@ -49,7 +49,7 @@ fn main() {
     //
     // NOTE: If we specified multiple(), this will only return the _FIRST_
     // occurrence
-    if let Some(ref in_file) = matches.value_of("input") {
+    if let Some(in_file) = matches.value_of("input") {
         println!("An input file: {}", in_file);
     }
 
