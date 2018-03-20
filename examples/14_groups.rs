@@ -3,11 +3,11 @@
 /// instead of having to list each individually, or when you want a rule to apply "any but not all"
 /// arguments.
 ///
-/// For instance, you can make an entire ArgGroup required, this means that one (and *only* one)
-/// argument. from that group must be present. Using more than one argument from an ArgGroup causes
+/// For instance, you can make an entire `ArgGroup` required, this means that one (and *only* one)
+/// argument from that group must be present. Using more than one argument from an `ArgGroup` causes
 /// a failure (graceful exit).
 ///
-/// You can also do things such as name an ArgGroup as a confliction or requirement, meaning any
+/// You can also do things such as name an `ArgGroup` as a confliction or requirement, meaning any
 /// of the arguments that belong to that group will cause a failure if present, or must present
 /// respectively.
 ///
