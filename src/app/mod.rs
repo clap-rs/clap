@@ -491,33 +491,9 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Enables a single setting that is propagated down through all child [`SubCommand`]s.
-    ///
-    /// See [`AppSettings`] for a full list of possibilities and examples.
-    ///
-    /// **NOTE**: The setting is *only* propagated *down* and not up through parent commands.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myprog")
-    ///     .global_setting(AppSettings::SubcommandRequired)
-    /// # ;
-    /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
-    /// [`AppSettings`]: ./enum.AppSettings.html
-    pub fn global_setting(mut self, setting: AppSettings) -> Self {
-        self.settings.set(setting);
-        self.g_settings.set(setting);
-        self
-    }
-
     /// Disables a single command, or [`SubCommand`], level setting.
     ///
     /// See [`AppSettings`] for a full list of possibilities and examples.
-    ///
-    /// **NOTE:** The setting being unset will be unset from both local and [global] settings
     ///
     /// # Examples
     ///
@@ -531,6 +507,48 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`AppSettings`]: ./enum.AppSettings.html
     /// [global]: ./struct.App.html#method.global_setting
     pub fn unset_setting(mut self, setting: AppSettings) -> Self {
+        self.settings.unset(setting);
+        self
+    }
+
+    /// Enables a single setting that is propagated down through all child subcommands.
+    ///
+    /// See [`AppSettings`] for a full list of possibilities and examples.
+    ///
+    /// **NOTE**: The setting is *only* propagated *down* and not up through parent commands.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, AppSettings};
+    /// App::new("myprog")
+    ///     .global_setting(AppSettings::SubcommandRequired)
+    /// # ;
+    /// ```
+    /// [`AppSettings`]: ./enum.AppSettings.html
+    pub fn global_setting(mut self, setting: AppSettings) -> Self {
+        self.settings.set(setting);
+        self.g_settings.set(setting);
+        self
+    }
+
+    /// Disables a global setting, and stops propagating down to child subcommands.
+    ///
+    /// See [`AppSettings`] for a full list of possibilities and examples.
+    ///
+    /// **NOTE:** The setting being unset will be unset from both local and [global] settings
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, AppSettings};
+    /// App::new("myprog")
+    ///     .unset_global_setting(AppSettings::ColorAuto)
+    /// # ;
+    /// ```
+    /// [`AppSettings`]: ./enum.AppSettings.html
+    /// [global]: ./struct.App.html#method.global_setting
+    pub fn unset_global_setting(mut self, setting: AppSettings) -> Self {
         self.settings.unset(setting);
         self.g_settings.unset(setting);
         self

@@ -10,6 +10,7 @@
 * Multiple delima fixed (vals vs occurrences)
 * Ability to mutate args once they've been added to an `App`
 * `App::args` and `App::arg` are more generic
+* Can unset global settings
 
 # How to Upgrade
 
@@ -61,6 +62,7 @@
 ## App
 
 * `App::mut_arg`
+* `App::unset_global_setting`
 
 ## Arg
 
