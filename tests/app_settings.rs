@@ -498,11 +498,12 @@ fn leading_double_hyphen_trailingvararg() {
 
 #[test]
 fn unset_setting() {
-    let m = App::new("unset_setting");
-    assert!(m.is_set(AppSettings::AllowInvalidUtf8));
+    let m = App::new("unset_setting")
+        .setting(AppSettings::AllArgsOverrideSelf);
+    assert!(m.is_set(AppSettings::AllArgsOverrideSelf));
 
-    let m = m.unset_setting(AppSettings::AllowInvalidUtf8);
-    assert!(!m.is_set(AppSettings::AllowInvalidUtf8));
+    let m = m.unset_setting(AppSettings::AllArgsOverrideSelf);
+    assert!(!m.is_set(AppSettings::AllArgsOverrideSelf));
 }
 
 #[test]
