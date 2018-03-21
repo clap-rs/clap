@@ -62,7 +62,7 @@ fn escape_string(string: &str) -> String { string.replace("'", "''") }
 
 fn get_tooltip<T : ToString>(help: Option<&str>, data: T) -> String {
     match help {
-        Some(help) => escape_string(&help),
+        Some(help) => escape_string(help),
         _ => data.to_string()
     }
 }
