@@ -19,7 +19,7 @@ mod test {
         let right = re.replace_all(&*rs, "");
         let b = left == right;
         if !b {
-            println!("");
+            println!();
             println!("--> left");
             println!("{}", left);
             println!("--> right");

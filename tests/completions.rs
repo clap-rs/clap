@@ -604,7 +604,7 @@ fn compare(left: &str, right: &str) -> bool {
     let b = left == right;
     if !b {
         let re = Regex::new(" ").unwrap();
-        println!("");
+        println!();
         println!("--> left");
         // println!("{}", left);
         println!("{}", re.replace_all(left, "\u{2022}"));
