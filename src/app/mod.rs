@@ -1086,6 +1086,40 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`env::args_os`]: https://doc.rust-lang.org/std/env/fn.args_os.html
     pub fn get_matches(self) -> ArgMatches<'a> { self.get_matches_from(&mut env::args_os()) }
 
+    /// Starts the parsing process, just like [`App::get_matches`] but doesn't consume the `App`
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let app = App::new("myprog")
+    ///     // Args and options go here...
+    ///     ;
+    /// let matches = app.get_matches_mut();
+    /// ```
+    /// [`env::args_os`]: https://doc.rust-lang.org/std/env/fn.args_os.html
+    /// [`App::get_matches`]: ./struct.App.html#method.get_matches
+    pub fn get_matches_mut(&mut self) -> ArgMatches<'a> {
+        self.try_get_matches_from_mut(itr).unwrap_or_else(|e| {
+            // Otherwise, write to stderr and exit
+            if e.use_stderr() {
+                wlnerr!("{}", e.message);
+                if self.settings.is_set(AppSettings::WaitOnError) {
+                    wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
+                    let mut s = String::new();
+                    let i = io::stdin();
+                    i.lock().read_line(&mut s).unwrap();
+                }
+                drop(self);
+                drop(e);
+                process::exit(1);
+            }
+
+            drop(self);
+            e.exit()
+        })
+    }
+
     /// Starts the parsing process. This method will return a [`clap::Result`] type instead of exiting
     /// the process on failed parse. By default this method gets matches from [`env::args_os`]
     ///
