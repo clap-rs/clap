@@ -4,9 +4,9 @@ use std::rc::Rc;
 use std::borrow::Cow;
 use std::fmt::{self, Display, Formatter};
 use std::ffi::{OsStr, OsString};
-#[cfg(target_os = "windows")]
+#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
 use osstringext::OsStrExt3;
-#[cfg(not(target_os = "windows"))]
+#[cfg(not(any(target_os = "windows", target_arch = "wasm32")))]
 use std::os::unix::ffi::OsStrExt;
 use std::env;
 use std::cmp::{Ord, Ordering};
@@ -3744,6 +3744,29 @@ impl<'a, 'b> Arg<'a, 'b> {
         } else {
             self.unset_setting(ArgSettings::MultipleOccurrences)
         }
+    }
+    
+    /// Indicates that all parameters passed after this should not be parsed
+    /// individually, but rather passed in their entirety. It is worth noting
+    /// that setting this requires all values to come after a `--` to indicate they
+    /// should all be captured. For example:
+    ///
+    /// ```notrust
+    /// --foo something -- -v -v -v -b -b -b --baz -q -u -x
+    /// ```
+    /// Will result in everything after `--` to be considered one raw argument. This behavior
+    /// may not be exactly what you are expecting and using [`AppSettings::TrailingVarArg`]
+    /// may be more appropriate.
+    ///
+    /// **NOTE:** Implicitly sets [`Arg::multiple(true)`], [`Arg::allow_hyphen_values(true)`], and
+    /// [`Arg::last(true)`] when set to `true`
+    ///
+    /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
+    /// [`Arg::allow_hyphen_values(true)`]: ./struct.Arg.html#method.allow_hyphen_values
+    /// [`Arg::last(true)`]: ./struct.Arg.html#method.last
+    /// [`AppSettings::TrailingVarArg`]: ./enum.AppSettings.html#variant.TrailingVarArg
+    pub fn raw(self, raw: bool) -> Self {
+        self.multiple(raw).allow_hyphen_values(raw).last(raw)
     }
 
     // @TODO @docs @v3-beta: write better docs as ArgSettings is now critical

@@ -1,7 +1,7 @@
 // Std
 use std::ffi::{OsStr, OsString};
 use std::io::{self, BufWriter, Write};
-#[cfg(feature = "debug")]
+#[cfg(all(feature = "debug", not(target_arch = "wasm32")))]
 use std::os::unix::ffi::OsStrExt;
 use std::slice::Iter;
 use std::iter::Peekable;
