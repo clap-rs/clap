@@ -405,7 +405,7 @@ impl Error {
     pub fn write_to<W: Write>(&self, w: &mut W) -> io::Result<()> { write!(w, "{}", self.message) }
 
     #[doc(hidden)]
-    pub fn argument_conflict<'a, 'b, O, U>(
+    pub fn argument_conflict<O, U>(
         arg: &AnyArg,
         other: Option<O>,
         usage: U,
@@ -444,7 +444,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn empty_value<'a, 'b, U>(arg: &AnyArg, usage: U, color: ColorWhen) -> Self
+    pub fn empty_value<U>(arg: &AnyArg, usage: U, color: ColorWhen) -> Self
     where
         U: Display,
     {
@@ -469,7 +469,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn invalid_value<'a, 'b, B, G, U>(
+    pub fn invalid_value<B, G, U>(
         bad_val: B,
         good_vals: &[G],
         arg: &AnyArg,
@@ -658,7 +658,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn too_many_values<'a, 'b, V, U>(val: V, arg: &AnyArg, usage: U, color: ColorWhen) -> Self
+    pub fn too_many_values<V, U>(val: V, arg: &AnyArg, usage: U, color: ColorWhen) -> Self
     where
         V: AsRef<str> + Display + ToOwned,
         U: Display,
@@ -686,7 +686,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn too_few_values<'a, 'b, U>(
+    pub fn too_few_values<U>(
         arg: &AnyArg,
         min_vals: u64,
         curr_vals: usize,
@@ -720,7 +720,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn value_validation<'a, 'b>(arg: Option<&AnyArg>, err: String, color: ColorWhen) -> Self
+    pub fn value_validation(arg: Option<&AnyArg>, err: String, color: ColorWhen) -> Self
     {
         let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
@@ -749,7 +749,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn wrong_number_of_values<'a, 'b, S, U>(
+    pub fn wrong_number_of_values<S, U>(
         arg: &AnyArg,
         num_vals: u64,
         curr_vals: usize,
@@ -785,7 +785,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn unexpected_multiple_usage<'a, 'b, U>(arg: &AnyArg, usage: U, color: ColorWhen) -> Self
+    pub fn unexpected_multiple_usage<U>(arg: &AnyArg, usage: U, color: ColorWhen) -> Self
     where
         U: Display,
     {
