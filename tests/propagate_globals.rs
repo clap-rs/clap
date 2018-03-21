@@ -28,7 +28,7 @@ mod tests {
     }
 
     fn get_matches(app: App<'static, 'static>, argv: &'static str) -> ArgMatches<'static> {
-        app.get_matches_from(argv.split(" ").collect::<Vec<_>>())
+        app.get_matches_from(argv.split(' ').collect::<Vec<_>>())
     }
 
     fn get_outer_matches<'a>(m: &'a ArgMatches<'static>) -> &'a ArgMatches<'static> {

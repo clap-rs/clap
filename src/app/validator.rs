@@ -158,9 +158,9 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
 
     fn build_err(&self, name: &str, matcher: &ArgMatcher) -> ClapResult<()> {
         debugln!("build_err!: name={}", name);
-        let mut c_with = find_from!(self.0, &name, blacklist, &matcher);
+        let mut c_with = find_from!(self.0, &name, blacklist, matcher);
         c_with = c_with.or(
-        self.0.find_any_arg(&name).map_or(None, |aa| aa.blacklist())
+        self.0.find_any_arg(name).map_or(None, |aa| aa.blacklist())
             .map_or(None,
                     |bl| bl.iter().find(|arg| matcher.contains(arg)))
             .map_or(None, |an| self.0.find_any_arg(an))

@@ -57,7 +57,7 @@ fn multiple_aliases_of_option() {
             .long("aliases")
             .takes_value(true)
             .help("multiple aliases")
-            .aliases(&vec![
+            .aliases(&[
                 "alias1",
                 "alias2",
                 "alias3"
@@ -151,7 +151,7 @@ fn alias_on_a_subcommand_option() {
                 .help("testing testing")))
         .arg(Arg::with_name("other")
             .long("other")
-            .aliases(&vec!["o1", "o2", "o3"]))
+            .aliases(&["o1", "o2", "o3"]))
         .get_matches_from(vec![
             "test", "some", "--opt", "awesome"
         ]);
