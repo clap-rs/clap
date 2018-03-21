@@ -627,16 +627,22 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```no_run
     /// # use clap::{App, Arg};
     /// App::new("myprog")
-    ///     .args(
-    ///         &[Arg::from_usage("[debug] -d 'turns on debugging info'"),
-    ///          Arg::with_name("input").index(1).help("the input file to use")]
-    ///     )
+    ///     .args(&[
+    ///         Arg::from("[debug] -d 'turns on debugging info'"),
+    ///         Arg::with_name("input").index(1).help("the input file to use")
+    ///     ])
     /// # ;
     /// ```
     /// [arguments]: ./struct.Arg.html
-    pub fn args(mut self, args: &[Arg<'a, 'b>]) -> Self {
-        for arg in args {
-            self.args.push(arg.clone());
+    pub fn args<I, T>(mut self, args: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<Arg<'a, 'b>>,
+    {
+        // @TODO @perf @p4 @v3-beta: maybe extend_from_slice would be possible and perform better?
+        // But that may also not let us do `&["-a 'some'", "-b 'other']` because of not Into<Arg>
+        for arg in args.into_iter() {
+            self.args.push(arg.into());
         }
         self
     }
