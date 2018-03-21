@@ -763,6 +763,24 @@ fn issue_1093_allow_ext_sc() {
 }
 
 #[test]
+fn external_subcommand_looks_like_built_in() {
+    let res = App::new("cargo")
+        .version("1.26.0")
+        .setting(AppSettings::AllowExternalSubcommands)
+        .subcommand(SubCommand::with_name("install"))
+        .get_matches_from_safe(vec!["cargo", "install-update", "foo"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    match m.subcommand() {
+        (name, Some(args)) => {
+            assert_eq!(name, "install-update");
+            assert_eq!(args.values_of_lossy(""), Some(vec!["foo".to_string()]));
+        }
+        _ => assert!(false),
+    }
+}
+
+#[test]
 fn aaos_flags() {
     // flags
     let res = App::new("posix")
