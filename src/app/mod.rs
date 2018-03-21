@@ -491,80 +491,9 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Enables multiple command, or [`SubCommand`], level settings
-    ///
-    /// See [`AppSettings`] for a full list of possibilities and examples.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myprog")
-    ///     .settings(&[AppSettings::SubcommandRequired,
-    ///                  AppSettings::WaitOnError])
-    /// # ;
-    /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
-    /// [`AppSettings`]: ./enum.AppSettings.html
-    pub fn settings(mut self, settings: &[AppSettings]) -> Self {
-        for s in settings {
-            self.settings.set(*s);
-        }
-        self
-    }
-
-    /// Enables a single setting that is propagated down through all child [`SubCommand`]s.
-    ///
-    /// See [`AppSettings`] for a full list of possibilities and examples.
-    ///
-    /// **NOTE**: The setting is *only* propagated *down* and not up through parent commands.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myprog")
-    ///     .global_setting(AppSettings::SubcommandRequired)
-    /// # ;
-    /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
-    /// [`AppSettings`]: ./enum.AppSettings.html
-    pub fn global_setting(mut self, setting: AppSettings) -> Self {
-        self.settings.set(setting);
-        self.g_settings.set(setting);
-        self
-    }
-
-    /// Enables multiple settings which are propagated *down* through all child [`SubCommand`]s.
-    ///
-    /// See [`AppSettings`] for a full list of possibilities and examples.
-    ///
-    /// **NOTE**: The setting is *only* propagated *down* and not up through parent commands.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myprog")
-    ///     .global_settings(&[AppSettings::SubcommandRequired,
-    ///                  AppSettings::ColoredHelp])
-    /// # ;
-    /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
-    /// [`AppSettings`]: ./enum.AppSettings.html
-    pub fn global_settings(mut self, settings: &[AppSettings]) -> Self {
-        for s in settings {
-            self.settings.set(*s);
-            self.g_settings.set(*s)
-        }
-        self
-    }
-
     /// Disables a single command, or [`SubCommand`], level setting.
     ///
     /// See [`AppSettings`] for a full list of possibilities and examples.
-    ///
-    /// **NOTE:** The setting being unset will be unset from both local and [global] settings
     ///
     /// # Examples
     ///
@@ -579,11 +508,31 @@ impl<'a, 'b> App<'a, 'b> {
     /// [global]: ./struct.App.html#method.global_setting
     pub fn unset_setting(mut self, setting: AppSettings) -> Self {
         self.settings.unset(setting);
-        self.g_settings.unset(setting);
         self
     }
 
-    /// Disables multiple command, or [`SubCommand`], level settings.
+    /// Enables a single setting that is propagated down through all child subcommands.
+    ///
+    /// See [`AppSettings`] for a full list of possibilities and examples.
+    ///
+    /// **NOTE**: The setting is *only* propagated *down* and not up through parent commands.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, AppSettings};
+    /// App::new("myprog")
+    ///     .global_setting(AppSettings::SubcommandRequired)
+    /// # ;
+    /// ```
+    /// [`AppSettings`]: ./enum.AppSettings.html
+    pub fn global_setting(mut self, setting: AppSettings) -> Self {
+        self.settings.set(setting);
+        self.g_settings.set(setting);
+        self
+    }
+
+    /// Disables a global setting, and stops propagating down to child subcommands.
     ///
     /// See [`AppSettings`] for a full list of possibilities and examples.
     ///
@@ -594,18 +543,14 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```no_run
     /// # use clap::{App, AppSettings};
     /// App::new("myprog")
-    ///     .unset_settings(&[AppSettings::ColorAuto,
-    ///                       AppSettings::AllowInvalidUtf8])
+    ///     .unset_global_setting(AppSettings::ColorAuto)
     /// # ;
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`AppSettings`]: ./enum.AppSettings.html
     /// [global]: ./struct.App.html#method.global_setting
-    pub fn unset_settings(mut self, settings: &[AppSettings]) -> Self {
-        for s in settings {
-            self.settings.unset(*s);
-            self.g_settings.unset(*s);
-        }
+    pub fn unset_global_setting(mut self, setting: AppSettings) -> Self {
+        self.settings.unset(setting);
+        self.g_settings.unset(setting);
         self
     }
 
@@ -700,16 +645,22 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```no_run
     /// # use clap::{App, Arg};
     /// App::new("myprog")
-    ///     .args(
-    ///         &[Arg::from_usage("[debug] -d 'turns on debugging info'"),
-    ///          Arg::with_name("input").index(1).help("the input file to use")]
-    ///     )
+    ///     .args(&[
+    ///         Arg::from_usage("[debug] -d 'turns on debugging info'"),
+    ///         Arg::with_name("input").index(1).help("the input file to use")
+    ///     ])
     /// # ;
     /// ```
     /// [arguments]: ./struct.Arg.html
-    pub fn args(mut self, args: &[Arg<'a, 'b>]) -> Self {
-        for arg in args {
-            self.args.push(arg.clone());
+    pub fn args<I, T>(mut self, args: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<Arg<'a, 'b>>,
+    {
+        // @TODO @perf @p4 @v3-beta: maybe extend_from_slice would be possible and perform better?
+        // But that may also not let us do `&["-a 'some'", "-b 'other']` because of not Into<Arg>
+        for arg in args.into_iter() {
+            self.args.push(arg.into());
         }
         self
     }
@@ -991,6 +942,43 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
+    /// Allows one to mutate an [`Arg`] after it's been added to an `App`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    ///
+    /// let mut app = App::new("foo")
+    ///     .arg(Arg::with_name("bar")
+    ///         .short("b"))
+    ///     .mut_arg("bar", |a| a.short("B"));
+    ///
+    /// let res = app.try_get_matches_from_mut(vec!["foo", "-b"]);
+    ///
+    /// // Since we changed `bar`'s short to "B" this should err as there
+    /// // is no `-b` anymore, only `-B`
+    ///
+    /// assert!(res.is_err());
+    ///
+    /// let res = app.try_get_matches_from_mut(vec!["foo", "-B"]);
+    /// assert!(res.is_ok());
+    /// ```
+    /// [`Arg`]: ./struct.Arg.html
+    pub fn mut_arg<F>(mut self, arg: &'a str, f: F) -> Self
+    where F: FnOnce(Arg<'a, 'b>) -> Arg<'a, 'b> {
+        let i = self.args.iter().enumerate().filter(|&(i, a)| a.name == arg).map(|(i, _)| i).next();
+        let a = if let Some(idx) = i {
+            let mut a = self.args.swap_remove(idx);
+            f(a)
+        } else {
+            let mut a = Arg::with_name(arg);
+            f(a)
+        };
+        self.args.push(a);
+        self
+    }
+
     /// Prints the full help message to [`io::stdout()`] using a [`BufWriter`] using the same
     /// method as if someone ran `-h` to request the help message
     ///
@@ -1152,6 +1140,40 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`env::args_os`]: https://doc.rust-lang.org/std/env/fn.args_os.html
     pub fn get_matches(self) -> ArgMatches<'a> { self.get_matches_from(&mut env::args_os()) }
+
+    /// Starts the parsing process, just like [`App::get_matches`] but doesn't consume the `App`
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// let mut app = App::new("myprog")
+    ///     // Args and options go here...
+    ///     ;
+    /// let matches = app.get_matches_mut();
+    /// ```
+    /// [`env::args_os`]: https://doc.rust-lang.org/std/env/fn.args_os.html
+    /// [`App::get_matches`]: ./struct.App.html#method.get_matches
+    pub fn get_matches_mut(&mut self) -> ArgMatches<'a> {
+        self.try_get_matches_from_mut(&mut env::args_os()).unwrap_or_else(|e| {
+            // Otherwise, write to stderr and exit
+            if e.use_stderr() {
+                wlnerr!("{}", e.message);
+                if self.settings.is_set(AppSettings::WaitOnError) {
+                    wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
+                    let mut s = String::new();
+                    let i = io::stdin();
+                    i.lock().read_line(&mut s).unwrap();
+                }
+                drop(self);
+                drop(e);
+                process::exit(1);
+            }
+
+            drop(self);
+            e.exit()
+        })
+    }
 
     /// Starts the parsing process. This method will return a [`clap::Result`] type instead of exiting
     /// the process on failed parse. By default this method gets matches from [`env::args_os`]
@@ -1709,8 +1731,39 @@ impl<'a, 'b> App<'a, 'b> {
 // Deprecations
 impl<'a, 'b> App<'a, 'b> {
 
-    /// Deprecated
-    #[deprecated(since="2.14.1", note="Can never work; use explicit App::author() and App::version() calls instead. Will be removed in v3.0-beta")]
+    /// **Deprecated:** Use `App::global_setting( SettingOne | SettingTwo )` instead
+    #[deprecated(since="2.33.0", note="Use `App::global_setting( SettingOne | SettingTwo )` instead")]
+    pub fn global_settings(mut self, settings: &[AppSettings]) -> Self {
+        for s in settings {
+            self.settings.set(*s);
+            self.g_settings.set(*s)
+        }
+        self
+    }
+
+    /// **Deprecated:** Use `App::setting( SettingOne | SettingTwo )` instead
+    #[deprecated(since="2.33.0", note="Use `App::setting( SettingOne | SettingTwo )` instead")]
+    pub fn settings(mut self, settings: &[AppSettings]) -> Self {
+        for s in settings {
+            self.settings.set(*s);
+        }
+        self
+    }
+
+
+    /// **Deprecated:** Use `App::unset_setting( SettingOne | SettingTwo )` instead
+    #[deprecated(since="2.33.0", note="Use `App::unset_setting( SettingOne | SettingTwo )` instead")]
+    pub fn unset_settings(mut self, settings: &[AppSettings]) -> Self {
+        for s in settings {
+            self.settings.unset(*s);
+            self.g_settings.unset(*s);
+        }
+        self
+    }
+
+    /// **Deprecated:** Use explicit `App::author()` and `App::version()` calls instead.
+    #[deprecated(since="2.14.1", note="Can never work; use explicit App::author() and \
+        App::version() calls instead. Will be removed in v3.0-beta")]
     pub fn with_defaults<S: Into<String>>(n: S) -> Self {
         App {
             name: n.into(),
@@ -1720,12 +1773,12 @@ impl<'a, 'b> App<'a, 'b> {
         }
     }
 
-    /// **Deprecated**
+    /// **Deprecated:** Use
     #[deprecated(since="2.30.0", note="Use serde instead. Will be removed in v3.0-beta")]
     #[cfg(feature = "yaml")]
     pub fn from_yaml(yaml: &'a Yaml) -> App<'a, 'a> { App::from(yaml) }
 
-    /// **Deprecated**
+    /// **Deprecated:** Use
     #[deprecated(since="2.30.0", note="Use `App::mut_arg(\"help\", |a| a.short(\"H\"))` instead. Will be removed in v3.0-beta")]
     pub fn help_short<S: AsRef<str> + 'b>(mut self, s: S) -> Self {
         let c = s.as_ref()
@@ -1737,7 +1790,7 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// **Deprecated**
+    /// **Deprecated:** Use
     #[deprecated(since="2.30.0", note="Use `App::mut_arg(\"version\", |a| a.short(\"v\"))` instead. Will be removed in v3.0-beta")]
     pub fn version_short<S: AsRef<str>>(mut self, s: S) -> Self {
         let c = s.as_ref()
@@ -1749,49 +1802,49 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// **Deprecated**
+    /// **Deprecated:** Use
     #[deprecated(since="2.30.0", note="Use `App::mut_arg(\"help\", |a| a.help(\"Some message\"))` instead. Will be removed in v3.0-beta")]
     pub fn help_message<S: Into<&'a str>>(mut self, s: S) -> Self {
         self.help_message = Some(s.into());
         self
     }
 
-    /// **Deprecated**
+    /// **Deprecated:** Use
     #[deprecated(since="2.30.0", note="Use `App::mut_arg(\"version\", |a| a.short(\"Some message\"))` instead. Will be removed in v3.0-beta")]
     pub fn version_message<S: Into<&'a str>>(mut self, s: S) -> Self {
         self.version_message = Some(s.into());
         self
     }
 
-    /// **Deprecated**
+    /// **Deprecated:** Use
     #[deprecated(since="2.30.0", note="Renamed to `App::override_usage`. Will be removed in v3.0-beta")]
     pub fn usage<S: Into<&'b str>>(mut self, usage: S) -> Self {
         self.usage_str = Some(usage.into());
         self
     }
 
-    /// **Deprecated**
+    /// **Deprecated:** Use
     #[deprecated(since="2.30.0", note="Renamed to `App::override_help`. Will be removed in v3.0-beta")]
     pub fn help<S: Into<&'b str>>(mut self, help: S) -> Self {
         self.help_str = Some(help.into());
         self
     }
 
-    /// **Deprecated**
+    /// **Deprecated:** Use
     #[deprecated(since="2.30.0", note="Renamed to `App::help_template`. Will be removed in v3.0-beta")]
     pub fn template<S: Into<&'b str>>(mut self, s: S) -> Self {
         self.template = Some(s.into());
         self
     }
 
-    /// **Deprecated**
+    /// **Deprecated:** Use
     #[deprecated(since="2.30.0", note="Use `App::arg(Arg::from(&str)` instead. Will be removed in v3.0-beta")]
     pub fn arg_from_usage(mut self, usage: &'a str) -> Self {
         self.args.push(Arg::from_usage(usage));
         self
     }
 
-    /// **Deprecated**
+    /// **Deprecated:** Use
     #[deprecated(since="2.30.0", note="Use `App::args(&str)` instead. Will be removed in v3.0-beta")]
     pub fn args_from_usage(mut self, usage: &'a str) -> Self {
         for line in usage.lines() {
@@ -1804,7 +1857,7 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// **Deprecated**
+    /// **Deprecated:** Use
     #[allow(deprecated)]
     #[deprecated(since="2.30.0", note="Use `clap_completions crate and clap_completions::generate` instead. Will be removed in v3.0-beta")]
     pub fn gen_completions<T: Into<OsString>, S: Into<String>>(
@@ -1831,7 +1884,7 @@ impl<'a, 'b> App<'a, 'b> {
         self.gen_completions_to(bin_name.into(), for_shell, &mut file)
     }
 
-    /// **Deprecated**
+    /// **Deprecated:** Use
     #[deprecated(since="2.30.0", note="Use `clap_completions crate and clap_completions::generate_to` instead. Will be removed in v3.0-beta")]
     pub fn gen_completions_to<W: Write, S: Into<String>>(
         &mut self,
@@ -1848,14 +1901,14 @@ impl<'a, 'b> App<'a, 'b> {
         ComplGen::new(self).generate(for_shell, buf)
     }
 
-    /// **Deprecated**
+    /// **Deprecated:** Use
     #[deprecated(since="2.30.0", note="Renamed `App::try_get_matches` to be consistent with Rust naming conventions. Will be removed in v3.0-beta")]
     pub fn get_matches_safe(self) -> ClapResult<ArgMatches<'a>> {
         // Start the parsing
         self.try_get_matches_from(&mut env::args_os())
     }
 
-    /// **Deprecated**
+    /// **Deprecated:** Use
     #[deprecated(since="2.30.0", note="Renamed `App::try_get_matches_from` to be consistent with Rust naming conventions. Will be removed in v3.0-beta")]
     pub fn get_matches_from_safe<I, T>(mut self, itr: I) -> ClapResult<ArgMatches<'a>>
     where
@@ -1865,7 +1918,7 @@ impl<'a, 'b> App<'a, 'b> {
         self.try_get_matches_from_mut(itr)
     }
 
-    /// **Deprecated**
+    /// **Deprecated:** Use
     #[deprecated(since="2.30.0", note="Renamed `App::try_get_matches_from_mut` to be consistent with Rust naming conventions. Will be removed in v3.0-beta")]
     pub fn get_matches_from_safe_borrow<I, T>(&mut self, itr: I) -> ClapResult<ArgMatches<'a>>
     where
