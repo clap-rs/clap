@@ -487,7 +487,8 @@ where
             let low_index_mults = self.is_set(AS::LowIndexMultiplePositional)
                 && pos_counter == (self.positionals.len() - 1);
             let missing_pos = self.is_set(AS::AllowMissingPositional)
-                && pos_counter == (self.positionals.len() - 1);
+                && (pos_counter == (self.positionals.len() - 1) 
+                    && !self.is_set(AS::TrailingValues));
             debugln!(
                 "Parser::get_matches_with: Positional counter...{}",
                 pos_counter
@@ -522,7 +523,9 @@ where
                     debugln!("Parser::get_matches_with: Bumping the positional counter...");
                     pos_counter += 1;
                 }
-            } else if self.is_set(AS::ContainsLast) && self.is_set(AS::TrailingValues) {
+            } else if (self.is_set(AS::AllowMissingPositional) && self.is_set(AS::TrailingValues))
+                || (self.is_set(AS::ContainsLast) && self.is_set(AS::TrailingValues))
+            {
                 // Came to -- and one postional has .last(true) set, so we go immediately
                 // to the last (highest index) positional
                 debugln!("Parser::get_matches_with: .last(true) and --, setting last pos");
