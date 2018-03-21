@@ -122,12 +122,22 @@ impl<'a> ArgMatcher<'a> {
     pub fn add_val_to(&mut self, arg: &'a str, val: &OsStr) {
         let ma = self.entry(arg).or_insert(MatchedArg {
             occurs: 0,
+            indices: Vec::with_capacity(1),
             vals: Vec::with_capacity(1),
         });
         // let len = ma.vals.len() + 1;
         ma.vals.push(val.to_owned());
     }
 
+    pub fn add_index_to(&mut self, arg: &'a str, idx: usize) {
+      let ma = self.entry(arg).or_insert(MatchedArg {
+        occurs: 0,
+        indices: Vec::with_capacity(1),
+        vals: Vec::new(),
+      });
+      ma.indices.push(idx);
+    }
+    
     pub fn needs_more_vals<'b>(&self, o: &Arg) -> bool {
         debugln!("ArgMatcher::needs_more_vals: o={}", o.name);
         if let Some(ma) = self.get(o.name) {

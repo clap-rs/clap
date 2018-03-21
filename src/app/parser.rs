@@ -6,6 +6,7 @@ use std::os::unix::ffi::OsStrExt;
 use std::slice::Iter;
 use std::iter::Peekable;
 use std::mem;
+use std::cell::Cell;
 
 // Third party
 use map::{self, VecMap};
@@ -55,6 +56,7 @@ where
     num_flags: usize,
     pub positionals: VecMap<&'a str>,
     seen: Vec<&'a str>,
+    cur_idx: Cell<usize>,
 }
 
 // Standalone split borrow functions
@@ -930,6 +932,10 @@ where
     ) -> ClapResult<ParseResult<'a>> {
         // maybe here lifetime should be 'a
         debugln!("Parser::parse_long_arg;");
+
+        // Update the curent index
+        self.cur_idx.set(self.cur_idx.get() + 1);
+
         let mut val = None;
         debug!("Parser::parse_long_arg: Does it contain '='...");
         let arg = if full_arg.contains_byte(b'=') {
@@ -1013,6 +1019,10 @@ where
         let mut ret = ParseResult::NotFound;
         for c in arg.chars() {
             debugln!("Parser::parse_short_arg:iter:{}", c);
+
+            // update each index because `-abcd` is four indices to clap
+            self.cur_idx.set(self.cur_idx.get() + 1);
+
             // Check for matching short options, and return the name if there is no trailing
             // concatenated value: -oval
             // Option: -o
@@ -1183,13 +1193,20 @@ where
     ) -> ClapResult<ParseResult<'a>> {
         debugln!("Parser::add_single_val_to_arg;");
         debugln!("Parser::add_single_val_to_arg: adding val...{:?}", v);
+        
+        // update the current index because each value is a distinct index to clap
+        self.cur_idx.set(self.cur_idx.get() + 1);
+        
+        // @TODO @docs @p4 docs should probably note that terminator doesn't get an index
         if let Some(t) = arg.terminator {
             if t == v {
                 return Ok(ParseResult::ValuesDone);
             }
         }
+        
         matcher.add_val_to(arg.name, v);
-
+        matcher.add_index_to(arg.name, self.cur_idx.get());
+        
         // Increment or create the group "args"
         if let Some(grps) = self.groups_for_arg(arg.name) {
             for grp in grps {
@@ -1211,6 +1228,8 @@ where
         debugln!("Parser::parse_flag;");
 
         matcher.inc_occurrence_of(flag.name);
+        matcher.add_index_to(flag.name, self.cur_idx.get());
+        
         // Increment or create the group "args"
         self.groups_for_arg(flag.name)
             .and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
