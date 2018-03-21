@@ -1296,9 +1296,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     pub fn overrides_with(mut self, name: &'a str) -> Self {
         if let Some(ref mut vec) = self.b.overrides {
-            vec.push(name.as_ref());
+            vec.push(name);
         } else {
-            self.b.overrides = Some(vec![name.as_ref()]);
+            self.b.overrides = Some(vec![name]);
         }
         self
     }
