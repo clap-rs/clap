@@ -4,9 +4,9 @@ use std::rc::Rc;
 use std::borrow::Cow;
 use std::fmt::{self, Display, Formatter};
 use std::ffi::{OsStr, OsString};
-#[cfg(target_os = "windows")]
+#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
 use osstringext::OsStrExt3;
-#[cfg(not(target_os = "windows"))]
+#[cfg(not(any(target_os = "windows", target_arch = "wasm32")))]
 use std::os::unix::ffi::OsStrExt;
 use std::env;
 use std::cmp::{Ord, Ordering};
