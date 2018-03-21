@@ -628,7 +628,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # use clap::{App, Arg};
     /// App::new("myprog")
     ///     .args(&[
-    ///         Arg::from("[debug] -d 'turns on debugging info'"),
+    ///         Arg::from_usage("[debug] -d 'turns on debugging info'"),
     ///         Arg::with_name("input").index(1).help("the input file to use")
     ///     ])
     /// # ;
@@ -924,6 +924,43 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
+    /// Allows one to mutate an [`Arg`] after it's been added to an `App`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    ///
+    /// let mut app = App::new("foo")
+    ///     .arg(Arg::with_name("bar")
+    ///         .short("b"))
+    ///     .mut_arg("bar", |a| a.short("B"));
+    ///
+    /// let res = app.try_get_matches_from_mut(vec!["foo", "-b"]);
+    ///
+    /// // Since we changed `bar`'s short to "B" this should err as there
+    /// // is no `-b` anymore, only `-B`
+    ///
+    /// assert!(res.is_err());
+    ///
+    /// let res = app.try_get_matches_from_mut(vec!["foo", "-B"]);
+    /// assert!(res.is_ok());
+    /// ```
+    /// [`Arg`]: ./struct.Arg.html
+    pub fn mut_arg<F>(mut self, arg: &'a str, f: F) -> Self
+    where F: FnOnce(Arg<'a, 'b>) -> Arg<'a, 'b> {
+        let i = self.args.iter().enumerate().filter(|&(i, a)| a.name == arg).map(|(i, _)| i).next();
+        let a = if let Some(idx) = i {
+            let mut a = self.args.swap_remove(idx);
+            f(a)
+        } else {
+            let mut a = Arg::with_name(arg);
+            f(a)
+        };
+        self.args.push(a);
+        self
+    }
+
     /// Prints the full help message to [`io::stdout()`] using a [`BufWriter`] using the same
     /// method as if someone ran `-h` to request the help message
     ///
@@ -1092,7 +1129,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
-    /// let app = App::new("myprog")
+    /// let mut app = App::new("myprog")
     ///     // Args and options go here...
     ///     ;
     /// let matches = app.get_matches_mut();
@@ -1100,7 +1137,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`env::args_os`]: https://doc.rust-lang.org/std/env/fn.args_os.html
     /// [`App::get_matches`]: ./struct.App.html#method.get_matches
     pub fn get_matches_mut(&mut self) -> ArgMatches<'a> {
-        self.try_get_matches_from_mut(itr).unwrap_or_else(|e| {
+        self.try_get_matches_from_mut(&mut env::args_os()).unwrap_or_else(|e| {
             // Otherwise, write to stderr and exit
             if e.use_stderr() {
                 wlnerr!("{}", e.message);

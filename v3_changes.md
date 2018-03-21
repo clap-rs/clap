@@ -8,6 +8,8 @@
 * Allow empty values no longer default
 * UseValueDelimiter no longer the default
 * Multiple delima fixed (vals vs occurrences)
+* Ability to mutate args once they've been added to an `App`
+* `App::args` and `App::arg` are more generic
 
 # How to Upgrade
 
@@ -57,6 +59,8 @@
 # Additional APIs
 
 ## App
+
+* `App::mut_arg`
 
 ## Arg
 
