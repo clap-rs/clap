@@ -59,7 +59,8 @@ use args::SubCommand;
 /// [`App::get_matches`]: ./struct.App.html#method.get_matches
 #[derive(Debug, Clone)]
 pub struct ArgMatches<'a> {
-    #[doc(hidden)] pub args: HashMap<&'a str, MatchedArg>,
+    #[doc(hidden)] #[cfg(not(feature = "indexmap"))] pub args: HashMap<&'a str, MatchedArg>,
+    #[doc(hidden)] #[cfg(feature = "indexmap")] pub args: HashMap<&'a str, MatchedArg>,
     #[doc(hidden)] pub subcommand: Option<Box<SubCommand<'a>>>,
     #[doc(hidden)] pub usage: Option<String>,
 }
