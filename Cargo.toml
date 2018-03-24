@@ -33,6 +33,7 @@ clippy    = { version = "~0.0.166", optional = true }
 atty      = { version = "0.2.2",  optional = true }
 vec_map   = { version = "0.8", optional = true }
 term_size = { version = "0.3.0", optional = true }
+indexmap  = { version = "1.0.1", optional = true }
 
 [target.'cfg(not(windows))'.dependencies]
 ansi_term = { version = "0.11",  optional = true }
@@ -43,11 +44,12 @@ lazy_static = "1"
 version-sync = "0.5"
 
 [features]
-default     = ["suggestions", "color", "vec_map"]
+default     = ["suggestions", "color", "vec_map", "iter"]
 suggestions = ["strsim"]
 color       = ["ansi_term", "atty"]
 wrap_help   = ["term_size", "textwrap/term_size"]
 yaml        = ["yaml-rust"]
+iter        = ["indexmap"]
 unstable    = [] # for building with unstable clap features (doesn't require nightly Rust) (currently none)
 nightly     = [] # for building with unstable Rust features (currently none)
 lints       = ["clippy"] # Requires nightly Rust
