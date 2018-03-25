@@ -1,11 +1,7 @@
-extern crate indexmap;
-
-#[cfg(feature = "iter_matches")]
-use self::indexmap::map::{Entry, Iter};
-
 // Std
 #[cfg(not(feature = "iter_matches"))]
 use std::collections::hash_map::{Entry, Iter};
+#[cfg(not(feature = "iter_matches"))]
 use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::ops::Deref;
@@ -15,6 +11,12 @@ use std::mem;
 use args::{ArgMatches, MatchedArg, SubCommand};
 use args::AnyArg;
 use args::settings::ArgSettings;
+
+// iter_matches specific
+#[cfg(feature = "iter_matches")] extern crate indexmap;
+#[cfg(feature = "iter_matches")] use self::indexmap::map::{Entry, Iter};
+#[cfg(feature = "iter_matches")] use self::indexmap::IndexMap as HashMap;
+
 
 #[doc(hidden)]
 #[allow(missing_debug_implementations)]

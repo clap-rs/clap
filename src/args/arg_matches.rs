@@ -1,11 +1,7 @@
-extern crate indexmap;
-
-// External
-use self::indexmap::IndexMap;
-
 // Std
-use std::borrow::Cow;
+#[cfg(not(feature = "iter_matches"))]
 use std::collections::HashMap;
+use std::borrow::Cow;
 use std::ffi::{OsStr, OsString};
 use std::iter::Map;
 use std::slice::Iter;
@@ -14,6 +10,10 @@ use std::slice::Iter;
 use INVALID_UTF8;
 use args::MatchedArg;
 use args::SubCommand;
+
+// iter_matches specific
+#[cfg(feature = "iter_matches")] extern crate indexmap;
+#[cfg(feature = "iter_matches")] use self::indexmap::IndexMap as HashMap;
 
 /// Used to get information about the arguments that where supplied to the program at runtime by
 /// the user. New instances of this struct are obtained by using the [`App::get_matches`] family of
@@ -64,8 +64,7 @@ use args::SubCommand;
 /// [`App::get_matches`]: ./struct.App.html#method.get_matches
 #[derive(Debug, Clone)]
 pub struct ArgMatches<'a> {
-    #[doc(hidden)] #[cfg(not(feature = "iter_matches"))] pub args: HashMap<&'a str, MatchedArg>,
-    #[doc(hidden)] #[cfg(feature = "iter_matches")] pub args: IndexMap<&'a str, MatchedArg>,
+    #[doc(hidden)] pub args: HashMap<&'a str, MatchedArg>,
     #[doc(hidden)] pub subcommand: Option<Box<SubCommand<'a>>>,
     #[doc(hidden)] pub usage: Option<String>,
 }
@@ -73,8 +72,7 @@ pub struct ArgMatches<'a> {
 impl<'a> Default for ArgMatches<'a> {
     fn default() -> Self {
         ArgMatches {
-            #[cfg(not(feature = "iter_matches"))] args: HashMap::new(),
-            #[cfg(feature = "iter_matches")] args: IndexMap::new(),
+            args: HashMap::new(),
             subcommand: None,
             usage: None,
         }
