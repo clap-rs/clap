@@ -1,3 +1,8 @@
+extern crate indexmap;
+
+// External
+use self::indexmap::IndexMap;
+
 // Std
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -59,8 +64,8 @@ use args::SubCommand;
 /// [`App::get_matches`]: ./struct.App.html#method.get_matches
 #[derive(Debug, Clone)]
 pub struct ArgMatches<'a> {
-    #[doc(hidden)] #[cfg(not(feature = "indexmap"))] pub args: HashMap<&'a str, MatchedArg>,
-    #[doc(hidden)] #[cfg(feature = "indexmap")] pub args: HashMap<&'a str, MatchedArg>,
+    #[doc(hidden)] #[cfg(not(feature = "iter"))] pub args: HashMap<&'a str, MatchedArg>,
+    #[doc(hidden)] #[cfg(feature = "iter")] pub args: IndexMap<&'a str, MatchedArg>,
     #[doc(hidden)] pub subcommand: Option<Box<SubCommand<'a>>>,
     #[doc(hidden)] pub usage: Option<String>,
 }
@@ -68,7 +73,8 @@ pub struct ArgMatches<'a> {
 impl<'a> Default for ArgMatches<'a> {
     fn default() -> Self {
         ArgMatches {
-            args: HashMap::new(),
+            #[cfg(not(feature = "iter"))] args: HashMap::new(),
+            #[cfg(feature = "iter")] args: IndexMap::new(),
             subcommand: None,
             usage: None,
         }

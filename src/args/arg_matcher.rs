@@ -1,4 +1,10 @@
+extern crate indexmap;
+
+#[cfg(feature = "iter")]
+use self::indexmap::map::{Entry, Iter};
+
 // Std
+#[cfg(not(feature = "iter"))]
 use std::collections::hash_map::{Entry, Iter};
 use std::collections::HashMap;
 use std::ffi::OsStr;
