@@ -64,8 +64,8 @@ use args::SubCommand;
 /// [`App::get_matches`]: ./struct.App.html#method.get_matches
 #[derive(Debug, Clone)]
 pub struct ArgMatches<'a> {
-    #[doc(hidden)] #[cfg(not(feature = "iter"))] pub args: HashMap<&'a str, MatchedArg>,
-    #[doc(hidden)] #[cfg(feature = "iter")] pub args: IndexMap<&'a str, MatchedArg>,
+    #[doc(hidden)] #[cfg(not(feature = "iter_matches"))] pub args: HashMap<&'a str, MatchedArg>,
+    #[doc(hidden)] #[cfg(feature = "iter_matches")] pub args: IndexMap<&'a str, MatchedArg>,
     #[doc(hidden)] pub subcommand: Option<Box<SubCommand<'a>>>,
     #[doc(hidden)] pub usage: Option<String>,
 }
@@ -73,8 +73,8 @@ pub struct ArgMatches<'a> {
 impl<'a> Default for ArgMatches<'a> {
     fn default() -> Self {
         ArgMatches {
-            #[cfg(not(feature = "iter"))] args: HashMap::new(),
-            #[cfg(feature = "iter")] args: IndexMap::new(),
+            #[cfg(not(feature = "iter_matches"))] args: HashMap::new(),
+            #[cfg(feature = "iter_matches")] args: IndexMap::new(),
             subcommand: None,
             usage: None,
         }

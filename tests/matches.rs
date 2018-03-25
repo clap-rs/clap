@@ -1,4 +1,4 @@
-#![cfg(feature="iter")]
+#![cfg(feature="iter_matches")]
 
 extern crate clap;
 
