@@ -44,7 +44,7 @@ lazy_static = "1"
 version-sync = "0.5"
 
 [features]
-default     = ["suggestions", "color", "vec_map", "iter"]
+default     = ["suggestions", "color", "vec_map"]
 suggestions = ["strsim"]
 color       = ["ansi_term", "atty"]
 wrap_help   = ["term_size", "textwrap/term_size"]
