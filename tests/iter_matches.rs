@@ -1,9 +1,8 @@
-#![cfg(feature="iter_matches")]
-
 extern crate clap;
 
 use clap::{App, Arg};
 
+#![cfg(feature = "iter_matches")]
 #[test]
 fn iter_matches_empty() {
     let res = App::new("prog")
