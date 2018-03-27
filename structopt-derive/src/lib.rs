@@ -381,7 +381,7 @@ fn impl_structopt_for_struct(
             #from_clap
         }
 
-        #[allow(dead_code)]
+        #[allow(dead_code, unreachable_code)]
         #[doc(hidden)]
         impl #name {
             #augment_clap
@@ -406,7 +406,7 @@ fn impl_structopt_for_enum(
             #from_clap
         }
 
-        #[allow(unused_variables, dead_code)]
+        #[allow(unused_variables, dead_code, unreachable_code)]
         #[doc(hidden)]
         impl #name {
             #augment_clap

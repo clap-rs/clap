@@ -18,7 +18,7 @@ quote = "0.4"
 proc-macro2 = "0.2"
 
 [features]
-testing_only_proc_macro2_nightly = ["proc-macro2/nightly"]
+nightly = ["proc-macro2/nightly"]
 
 [lib]
 proc-macro = true

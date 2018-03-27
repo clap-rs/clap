@@ -12,7 +12,7 @@ readme = "README.md"
 
 [features]
 default = ["clap/default"]
-testing_only_proc_macro2_nightly = ["structopt-derive/testing_only_proc_macro2_nightly"]
+nightly = ["structopt-derive/nightly"]
 
 [badges]
 travis-ci = { repository = "TeXitoi/structopt" }
