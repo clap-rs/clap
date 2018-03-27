@@ -42,7 +42,7 @@ where
 
 /// Returns a suffix that can be empty, or is the standard 'did you mean' phrase
 #[cfg_attr(feature = "lints", allow(needless_lifetimes))]
-pub fn did_you_mean_flag_suffix<'z, T, I>(
+pub fn did_you_mean_flag_suffix<'z, T: ?Sized, I>(
     arg: &str,
     longs: I,
     subcommands: &'z [App],

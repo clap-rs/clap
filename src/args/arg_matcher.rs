@@ -187,9 +187,7 @@ impl<'a> ArgMatcher<'a> {
         ma.indices.push(idx);
     }
 
-    pub fn needs_more_vals<'b, A>(&self, o: &A) -> bool
-    where
-        A: AnyArg<'a, 'b>,
+    pub fn needs_more_vals<'b>(&self, o: &AnyArg<'a, 'b>) -> bool
     {
         debugln!("ArgMatcher::needs_more_vals: o={}", o.name());
         if let Some(ma) = self.get(o.name()) {

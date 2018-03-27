@@ -20,7 +20,7 @@ impl<'a, 'b> BashGen<'a, 'b> {
         w!(
             buf,
             format!(
-                "_{name}() {{
+                "_{name}() .find_subcmd(
     local i cur prev opts cmds
     COMPREPLY=()
     cur=\"${{COMP_WORDS[COMP_CWORD]}}\"
@@ -133,7 +133,7 @@ complete -F _{name} -o bashdefault -o default {name}
         let mut p = self.p;
         for sc in path.split("__").skip(1) {
             debugln!("BashGen::option_details_for_path:iter: sc={}", sc);
-            p = &find_subcmd!(p, sc).unwrap().p;
+            p = &p.find_subcmd(sc.as_ref()).unwrap().p;
         }
         let mut opts = String::new();
         for o in p.opts() {
@@ -180,13 +180,13 @@ complete -F _{name} -o bashdefault -o default {name}
         let mut p = self.p;
         for sc in path.split("__").skip(1) {
             debugln!("BashGen::all_options_for_path:iter: sc={}", sc);
-            p = &find_subcmd!(p, sc).unwrap().p;
+            p = &p.find_subcmd(sc.as_ref()).unwrap().p;
         }
-        let mut opts = shorts!(p).fold(String::new(), |acc, s| format!("{} -{}", acc, s));
+        let mut opts = p.shorts().fold(String::new(), |acc, s| format!("{} -{}", acc, s));
         opts = format!(
             "{} {}",
             opts,
-            longs!(p).fold(String::new(), |acc, l| format!("{} --{}", acc, l))
+            p.longs().fold(String::new(), |acc, l| format!("{} --{}", acc, l))
         );
         opts = format!(
             "{} {}",
