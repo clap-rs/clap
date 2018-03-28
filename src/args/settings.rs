@@ -217,11 +217,11 @@ mod test {
             "hideenvvalues".parse::<ArgSettings>().unwrap(),
             ArgSettings::HideEnvValues
         );
-        assert_eq(
+        assert_eq!(
             "hiddenshorthelp".parse::<ArgSettings>().unwrap(),
             ArgSettings::HiddenShortHelp
         );
-        assert_eq(
+        assert_eq!(
             "hiddenlonghelp".parse::<ArgSettings>().unwrap(),
             ArgSettings::HiddenLongHelp
         );
