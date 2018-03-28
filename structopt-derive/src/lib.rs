@@ -25,7 +25,7 @@ use proc_macro::TokenStream;
 use syn::*;
 use syn::punctuated::Punctuated;
 use syn::token::{Comma};
-use attrs::{Attrs, Parser};
+use attrs::{Attrs, Parser, Ty};
 
 /// Generates the `StructOpt` impl.
 #[proc_macro_derive(StructOpt, attributes(structopt))]
@@ -33,27 +33,6 @@ pub fn structopt(input: TokenStream) -> TokenStream {
     let input: DeriveInput = syn::parse(input).unwrap();
     let gen = impl_structopt(&input);
     gen.into()
-}
-
-#[derive(Copy, Clone, PartialEq)]
-enum Ty {
-    Bool,
-    Vec,
-    Option,
-    Other,
-}
-
-fn ty(t: &syn::Type) -> Ty {
-    if let syn::Type::Path(TypePath { path: syn::Path { ref segments, .. }, .. }) = *t {
-        match segments.iter().last().unwrap().ident.as_ref() {
-            "bool" => Ty::Bool,
-            "Option" => Ty::Option,
-            "Vec" => Ty::Vec,
-            _ => Ty::Other,
-        }
-    } else {
-        Ty::Other
-    }
 }
 
 fn sub_type(t: &syn::Type) -> Option<&syn::Type> {
@@ -78,34 +57,27 @@ fn sub_type(t: &syn::Type) -> Option<&syn::Type> {
     }
 }
 
-fn convert_with_custom_parse(cur_type: Ty) -> Ty {
-    match cur_type {
-        Ty::Bool => Ty::Other,
-        rest => rest,
-    }
-}
-
 /// Generate a block of code to add arguments/subcommands corresponding to
 /// the `fields` to an app.
 fn gen_augmentation(fields: &Punctuated<Field, Comma>, app_var: &Ident) -> quote::Tokens {
     let subcmds: Vec<quote::Tokens> = fields.iter()
-        .filter(|&field| Attrs::from_field(&field).is_subcommand())
-        .map(|field| {
-            let cur_type = ty(&field.ty);
-            let subcmd_type = match (cur_type, sub_type(&field.ty)) {
+        .filter_map(|field| {
+            let attrs = Attrs::from_field(&field);
+            if !attrs.is_subcommand() { return None; }
+            let subcmd_type = match (attrs.ty(), sub_type(&field.ty)) {
                 (Ty::Option, Some(sub_type)) => sub_type,
                 _ => &field.ty
             };
-            let required = if cur_type == Ty::Option {
+            let required = if attrs.ty() == Ty::Option {
                 my_quote!()
             } else {
                 my_quote!( let #app_var = #app_var.setting(::structopt::clap::AppSettings::SubcommandRequiredElseHelp); )
             };
 
-            my_quote!{
+            Some(my_quote!{
                 let #app_var = #subcmd_type ::augment_clap( #app_var );
                 #required
-            }
+            })
         })
         .collect();
 
@@ -115,16 +87,12 @@ fn gen_augmentation(fields: &Punctuated<Field, Comma>, app_var: &Ident) -> quote
         .filter_map(|field| {
             let attrs = Attrs::from_field(field);
             if attrs.is_subcommand() { return None; }
-            let mut cur_type = ty(&field.ty);
-            let convert_type = match cur_type {
+            let convert_type = match attrs.ty() {
                 Ty::Vec | Ty::Option => sub_type(&field.ty).unwrap_or(&field.ty),
                 _ => &field.ty,
             };
 
             let occurences = attrs.parser().0 == Parser::FromOccurrences;
-            if attrs.has_custom_parser() {
-                cur_type = convert_with_custom_parse(cur_type);
-            }
 
             let validator = match *attrs.parser() {
                 (Parser::TryFromStr, ref f) => my_quote! {
@@ -140,7 +108,7 @@ fn gen_augmentation(fields: &Punctuated<Field, Comma>, app_var: &Ident) -> quote
                 _ => my_quote!(),
             };
 
-            let modifier = match cur_type {
+            let modifier = match attrs.ty() {
                 Ty::Bool => my_quote!( .takes_value(false).multiple(false) ),
                 Ty::Option => my_quote!( .takes_value(true).multiple(false) #validator ),
                 Ty::Vec => my_quote!( .takes_value(true).multiple(true) #validator ),
@@ -167,23 +135,16 @@ fn gen_constructor(fields: &Punctuated<Field, Comma>) -> quote::Tokens {
         let attrs = Attrs::from_field(field);
         let field_name = field.ident.as_ref().unwrap();
         if attrs.is_subcommand() {
-            let cur_type = ty(&field.ty);
-            let subcmd_type = match (cur_type, sub_type(&field.ty)) {
+            let subcmd_type = match (attrs.ty(), sub_type(&field.ty)) {
                 (Ty::Option, Some(sub_type)) => sub_type,
                 _ => &field.ty
             };
-            let unwrapper = match cur_type {
+            let unwrapper = match attrs.ty() {
                 Ty::Option => my_quote!(),
                 _ => my_quote!( .unwrap() )
             };
             my_quote!(#field_name: #subcmd_type::from_subcommand(matches.subcommand())#unwrapper)
         } else {
-            let real_ty = &field.ty;
-            let mut cur_type = ty(real_ty);
-            if attrs.has_custom_parser() {
-                cur_type = convert_with_custom_parse(cur_type);
-            }
-
             use Parser::*;
             let (value_of, values_of, parse) = match *attrs.parser() {
                 (FromStr, ref f) => (my_quote!(value_of), my_quote!(values_of), f.clone()),
@@ -198,7 +159,7 @@ fn gen_constructor(fields: &Punctuated<Field, Comma>) -> quote::Tokens {
 
             let occurences = attrs.parser().0 == Parser::FromOccurrences;
             let name = attrs.name();
-            let field_value = match cur_type {
+            let field_value = match attrs.ty() {
                 Ty::Bool => my_quote!(matches.is_present(#name)),
                 Ty::Option => my_quote! {
                     matches.#value_of(#name)

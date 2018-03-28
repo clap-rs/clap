@@ -8,8 +8,16 @@
 
 use std::{env, mem};
 use quote::Tokens;
-use syn::{self, Attribute, MetaNameValue, MetaList, LitStr};
+use syn::{self, Attribute, MetaNameValue, MetaList, LitStr, TypePath};
+use syn::Type::Path;
 
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub enum Ty {
+    Bool,
+    Vec,
+    Option,
+    Other,
+}
 #[derive(Debug)]
 pub struct Attrs {
     name: String,
@@ -17,6 +25,7 @@ pub struct Attrs {
     parser: (Parser, Tokens),
     has_custom_parser: bool,
     is_subcommand: bool,
+    ty: Ty,
 }
 #[derive(Debug)]
 struct Method {
@@ -53,6 +62,7 @@ impl Attrs {
             parser: (Parser::TryFromStr, my_quote!(::std::str::FromStr::from_str)),
             has_custom_parser: false,
             is_subcommand: false,
+            ty: Ty::Other,
         }
     }
     fn push_str_method(&mut self, name: &str, arg: &str) {
@@ -235,6 +245,31 @@ impl Attrs {
                 panic!("methods in attributes is not allowed for subcommand");
             }
         }
+
+        if let Path(TypePath { path: syn::Path { ref segments, .. }, .. }) = field.ty {
+            res.ty = match segments.iter().last().unwrap().ident.as_ref() {
+                "bool" => Ty::Bool,
+                "Option" => Ty::Option,
+                "Vec" => Ty::Vec,
+                _ => Ty::Other,
+            };
+        }
+        if res.has_custom_parser {
+            match res.ty {
+                Ty::Option | Ty::Vec => (),
+                _ => res.ty = Ty::Other,
+            }
+        }
+
+        if res.ty == Ty::Bool {
+            if res.has_method("default_value") {
+                panic!("default_value is meaningless for bool")
+            }
+            if res.has_method("required") {
+                panic!("required is meaningless for bool")
+            }
+        }
+
         res
     }
     pub fn has_method(&self, method: &str) -> bool {
@@ -253,8 +288,8 @@ impl Attrs {
     pub fn parser(&self) -> &(Parser, Tokens) {
         &self.parser
     }
-    pub fn has_custom_parser(&self) -> bool {
-        self.has_custom_parser
+    pub fn ty(&self) -> Ty {
+        self.ty
     }
     pub fn is_subcommand(&self) -> bool {
         self.is_subcommand

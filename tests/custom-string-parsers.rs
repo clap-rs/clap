@@ -199,3 +199,57 @@ fn test_parser_occurrences() {
         ]))
     );
 }
+
+#[test]
+fn test_custom_bool() {
+    fn parse_bool(s: &str) -> Result<bool, String> {
+        match s {
+            "true" => Ok(true),
+            "false" => Ok(false),
+            _ => Err(format!("invalid bool {}", s)),
+        }
+    }
+    #[derive(StructOpt, PartialEq, Debug)]
+    struct Opt {
+        #[structopt(short = "d", parse(try_from_str = "parse_bool"))]
+        debug: bool,
+        #[structopt(short = "v", default_value = "false", parse(try_from_str = "parse_bool"))]
+        verbose: bool,
+        #[structopt(short = "t", parse(try_from_str = "parse_bool"))]
+        tribool: Option<bool>,
+        #[structopt(short = "b", parse(try_from_str = "parse_bool"))]
+        bitset: Vec<bool>,
+    }
+
+    assert!(Opt::clap().get_matches_from_safe(&["test"]).is_err());
+    assert!(Opt::clap().get_matches_from_safe(&["test", "-d"]).is_err());
+    assert!(Opt::clap().get_matches_from_safe(&["test", "-dfoo"]).is_err());
+    assert_eq!(
+        Opt { debug: false, verbose: false, tribool: None, bitset: vec![] },
+        Opt::from_iter(&["test", "-dfalse"]),
+    );
+    assert_eq!(
+        Opt { debug: true, verbose: false, tribool: None, bitset: vec![] },
+        Opt::from_iter(&["test", "-dtrue"]),
+    );
+    assert_eq!(
+        Opt { debug: true, verbose: false, tribool: None, bitset: vec![] },
+        Opt::from_iter(&["test", "-dtrue", "-vfalse"]),
+    );
+    assert_eq!(
+        Opt { debug: true, verbose: true, tribool: None, bitset: vec![] },
+        Opt::from_iter(&["test", "-dtrue", "-vtrue"]),
+    );
+    assert_eq!(
+        Opt { debug: true, verbose: false, tribool: Some(false), bitset: vec![] },
+        Opt::from_iter(&["test", "-dtrue", "-tfalse"]),
+    );
+    assert_eq!(
+        Opt { debug: true, verbose: false, tribool: Some(true), bitset: vec![] },
+        Opt::from_iter(&["test", "-dtrue", "-ttrue"]),
+    );
+    assert_eq!(
+        Opt { debug: true, verbose: false, tribool: None, bitset: vec![false, true, false, false] },
+        Opt::from_iter(&["test", "-dtrue", "-bfalse", "-btrue", "-bfalse","-bfalse"]),
+    );
+}
