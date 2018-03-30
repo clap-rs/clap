@@ -104,7 +104,7 @@ where
     #[doc(hidden)]
     pub r_ifs: Option<Vec<(&'a str, &'b str)>>,
     #[doc(hidden)]
-    pub arg_heading: Option<&'a str>,
+    pub help_heading: Option<&'a str>,
 }
 
 impl<'a, 'b> Arg<'a, 'b> {
@@ -3801,8 +3801,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Set a custom heading for this arg to be printed under
-    pub fn arg_heading(mut self, s: Option<&'a str>) -> Self {
-        self.arg_heading = s;
+    pub fn help_heading(mut self, s: Option<&'a str>) -> Self {
+        self.help_heading = s;
         self
     }
 

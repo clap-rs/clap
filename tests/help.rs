@@ -515,6 +515,23 @@ OPTIONS:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]
     -p, --pos <VAL>      Some vals [possible values: fast, slow]";
 
+static CUSTOM_HELP_SECTION: &'static str = "blorp 1.4
+Will M.
+does stuff
+
+USAGE:
+    test --fake <some>:<val>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -f, --fake <some>:<val>    some help
+
+NETWORKING:
+    -n, --no-proxy    Do not use system proxy settings";
+
 fn setup() -> App<'static, 'static> {
     App::new("test")
         .author("Kevin K.")
@@ -1347,23 +1364,6 @@ fn show_env_vals() {
     ));
 }
 
-static CUSTOM_HELP_SECTION: &'static str = "blorp 1.4
-Will M.
-does stuff
-
-USAGE:
-    test --fake <some>:<val>
-
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
-
-OPTIONS:
-    -f, --fake <some>:<val>    some help
-    
-NETWORKING:
-    --no-proxy     Do not use system proxy settings";
-
 #[test]
 fn custom_argument_headers() {
     let app = App::new("blorp")
@@ -1374,9 +1374,11 @@ fn custom_argument_headers() {
                 .require_delimiter(true)
                 .value_delimiter(":"),
         )
-        .arg_heading("NETWORKING")
+        .help_heading("NETWORKING")
         .arg(Arg::with_name("no-proxy")
+                .short("n")
                 .long("no-proxy")
+                .help("Do not use system proxy settings")
         );
 
     assert!(test::compare_output(
