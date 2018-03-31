@@ -1,4 +1,4 @@
-# v0.2.6 (2018-XX-XX)
+# v0.2.6 (2018-03-31)
 
 * Fail compilation when using `default_value` or `required` with `bool` ([#80](https://github.com/TeXitoi/structopt/issues/80)) by [@TeXitoi](https://github.com/TeXitoi)
 * Fix compilation with `#[deny(warnings)]` with the `!` type (https://github.com/rust-lang/rust/pull/49039#issuecomment-376398999) by [@TeXitoi](https://github.com/TeXitoi)
