@@ -626,6 +626,12 @@ macro_rules! app_from_crate {
 /// `Arg::conflicts_with("FOO")`, `Arg::conflicts_with("BAR")`, and `Arg::conflicts_with("BAZ")`
 /// (note the lack of quotes around the values in the macro)
 ///
+/// # Shorthand Syntax for Groups
+///
+/// * There are short hand syntaxes for `ArgGroup` methods that accept booleans
+///   * A plus sign will set that method to `true` such as `+required` = `ArgGroup::required(true)`
+///   * An exclamation will set that method to `false` such as `!required` = `ArgGroup::required(false)`
+///
 /// [`Arg::short`]: ./struct.Arg.html#method.short
 /// [`Arg::long`]: ./struct.Arg.html#method.long
 /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
@@ -657,13 +663,25 @@ macro_rules! clap_app {
             $($tt)*
         }
     };
-// Treat the application builder as an argument to set it's attributes
+// Treat the application builder as an argument to set its attributes
     (@app ($builder:expr) (@attributes $($attr:tt)*) $($tt:tt)*) => {
         clap_app!{ @app (clap_app!{ @arg ($builder) $($attr)* }) $($tt)* }
     };
     (@app ($builder:expr) (@group $name:ident => $($tail:tt)*) $($tt:tt)*) => {
         clap_app!{ @app
             (clap_app!{ @group ($builder, $crate::ArgGroup::with_name(stringify!($name))) $($tail)* })
+            $($tt)*
+        }
+    };
+    (@app ($builder:expr) (@group $name:ident !$ident:ident => $($tail:tt)*) $($tt:tt)*) => {
+        clap_app!{ @app
+            (clap_app!{ @group ($builder, $crate::ArgGroup::with_name(stringify!($name)).$ident(false)) $($tail)* })
+            $($tt)*
+        }
+    };
+    (@app ($builder:expr) (@group $name:ident +$ident:ident => $($tail:tt)*) $($tt:tt)*) => {
+        clap_app!{ @app
+            (clap_app!{ @group ($builder, $crate::ArgGroup::with_name(stringify!($name)).$ident(true)) $($tail)* })
             $($tt)*
         }
     };
@@ -687,6 +705,7 @@ macro_rules! clap_app {
 
 // Add members to group and continue argument handling with the parent builder
     (@group ($builder:expr, $group:expr)) => { $builder.group($group) };
+    // Treat the group builder as an argument to set its attributes
     (@group ($builder:expr, $group:expr) (@attributes $($attr:tt)*) $($tt:tt)*) => {
         clap_app!{ @group ($builder, clap_app!{ @arg ($group) (-) $($attr)* }) $($tt)* }
     };

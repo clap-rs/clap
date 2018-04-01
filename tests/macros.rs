@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate clap;
 
+use clap::ErrorKind;
+
 #[test]
 fn basic() {
     clap_app!(claptests =>
@@ -146,6 +148,105 @@ fn quoted_arg_name() {
     let matches = app.get_matches_from_safe(vec!["bin_name", "value1", "value2", "--long-option-2"])
         .expect("Expected to successfully match the given args.");
     assert!(matches.is_present("option2"));
+}
+
+#[test]
+fn group_macro() {
+    let app = clap_app!(claptests =>
+        (version: "0.1")
+        (about: "tests clap library")
+        (author: "Kevin K. <kbknapp@gmail.com>")
+             (@group difficulty =>
+                 (@arg hard: -h --hard "Sets hard mode")
+                 (@arg normal: -n --normal "Sets normal mode")
+                 (@arg easy: -e --easy "Sets easy mode")
+             )
+    );
+
+    let result = app.get_matches_from_safe(vec!["bin_name", "--hard"]);
+    assert!(result.is_ok());
+    let matches = result.expect("Expected to successfully match the given args.");
+    assert!(matches.is_present("difficulty"));
+    assert!(matches.is_present("hard"));
+}
+
+#[test]
+fn group_macro_set_multiple() {
+    let app = clap_app!(claptests =>
+        (version: "0.1")
+        (about: "tests clap library")
+        (author: "Kevin K. <kbknapp@gmail.com>")
+             (@group difficulty +multiple =>
+                 (@arg hard: -h --hard "Sets hard mode")
+                 (@arg normal: -n --normal "Sets normal mode")
+                 (@arg easy: -e --easy "Sets easy mode")
+             )
+    );
+
+    let result = app.get_matches_from_safe(vec!["bin_name", "--hard", "--easy"]);
+    assert!(result.is_ok());
+    let matches = result.expect("Expected to successfully match the given args.");
+    assert!(matches.is_present("difficulty"));
+    assert!(matches.is_present("hard"));
+    assert!(matches.is_present("easy"));
+    assert!(!matches.is_present("normal"));
+}
+
+#[test]
+fn group_macro_set_not_multiple() {
+    let app = clap_app!(claptests =>
+        (version: "0.1")
+        (about: "tests clap library")
+        (author: "Kevin K. <kbknapp@gmail.com>")
+             (@group difficulty !multiple =>
+                 (@arg hard: -h --hard "Sets hard mode")
+                 (@arg normal: -n --normal "Sets normal mode")
+                 (@arg easy: -e --easy "Sets easy mode")
+             )
+    );
+
+    let result = app.get_matches_from_safe(vec!["bin_name", "--hard", "--easy"]);
+    assert!(result.is_err());
+    let err = result.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+}
+
+#[test]
+fn group_macro_set_required() {
+    let app = clap_app!(claptests =>
+        (version: "0.1")
+        (about: "tests clap library")
+        (author: "Kevin K. <kbknapp@gmail.com>")
+             (@group difficulty +required =>
+                 (@arg hard: -h --hard "Sets hard mode")
+                 (@arg normal: -n --normal "Sets normal mode")
+                 (@arg easy: -e --easy "Sets easy mode")
+             )
+    );
+
+    let result = app.get_matches_from_safe(vec!["bin_name"]);
+    assert!(result.is_err());
+    let err = result.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
+}
+
+#[test]
+fn group_macro_set_not_required() {
+    let app = clap_app!(claptests =>
+        (version: "0.1")
+        (about: "tests clap library")
+        (author: "Kevin K. <kbknapp@gmail.com>")
+             (@group difficulty !required =>
+                 (@arg hard: -h --hard "Sets hard mode")
+                 (@arg normal: -n --normal "Sets normal mode")
+                 (@arg easy: -e --easy "Sets easy mode")
+             )
+    );
+
+    let result = app.get_matches_from_safe(vec!["bin_name"]);
+    assert!(result.is_ok());
+    let matches = result.expect("Expected to successfully match the given args.");
+    assert!(!matches.is_present("difficulty"));
 }
 
 #[test]
