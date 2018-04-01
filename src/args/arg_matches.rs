@@ -12,8 +12,8 @@ use args::MatchedArg;
 use args::SubCommand;
 
 // iter_matches specific
-#[cfg(feature = "iter_matches")] extern crate indexmap;
-#[cfg(feature = "iter_matches")] use self::indexmap::IndexMap as HashMap;
+#[cfg(feature = "iter_matches")]
+use indexmap::IndexMap as HashMap;
 
 /// Used to get information about the arguments that where supplied to the program at runtime by
 /// the user. New instances of this struct are obtained by using the [`App::get_matches`] family of

@@ -536,6 +536,8 @@ extern crate atty;
 extern crate bitflags;
 #[cfg(feature = "suggestions")]
 extern crate strsim;
+#[cfg(feature = "iter_matches")]
+extern crate indexmap;
 #[cfg(feature = "wrap_help")]
 extern crate term_size;
 extern crate textwrap;
