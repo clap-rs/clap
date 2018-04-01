@@ -1,3 +1,7 @@
+// iter_matches specific
+#[cfg(feature = "iter_matches")]
+use indexmap::IndexMap as HashMap;
+
 // Std
 #[cfg(not(feature = "iter_matches"))]
 use std::collections::HashMap;
@@ -10,10 +14,6 @@ use std::slice::Iter;
 use INVALID_UTF8;
 use args::MatchedArg;
 use args::SubCommand;
-
-// iter_matches specific
-#[cfg(feature = "iter_matches")]
-use indexmap::IndexMap as HashMap;
 
 /// Used to get information about the arguments that where supplied to the program at runtime by
 /// the user. New instances of this struct are obtained by using the [`App::get_matches`] family of
