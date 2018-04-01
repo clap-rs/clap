@@ -571,6 +571,7 @@ fn should_show_arg(use_long: bool, arg: &ArgWithOrder) -> bool {
     if arg.is_set(ArgSettings::Hidden) {
         return false;
     }
+
     (!arg.is_set(ArgSettings::HiddenLongHelp) && use_long) ||
         (!arg.is_set(ArgSettings::HiddenShortHelp) && !use_long) ||
     arg.is_set(ArgSettings::NextLineHelp)

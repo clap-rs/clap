@@ -3744,6 +3744,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// **NOTE:** This does **not** hide the argument from usage strings on error
     ///
+    /// **NOTE:** Setting this option will cause next-line-help output style to be used
+    /// when long help (`--help`) is called.
+    /// 
     /// # Examples
     ///
     /// ```rust
@@ -3818,6 +3821,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// **NOTE:** This does **not** hide the argument from usage strings on error
     ///
+    /// **NOTE:** Setting this option will cause next-line-help output style to be used
+    /// when long help (`--help`) is called.
+    /// 
     /// # Examples
     ///
     /// ```rust
@@ -3853,7 +3859,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// -V, --version    Prints version information
     /// ```
     /// 
-    /// However, when --help is called
+    /// However, when -h is called
     /// 
     /// ```rust
     /// # use clap::{App, Arg};
