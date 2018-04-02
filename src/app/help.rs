@@ -202,8 +202,9 @@ impl<'a> Help<'a> {
         // The shortest an arg can legally be is 2 (i.e. '-x')
         self.longest = 2;
         let mut arg_v = Vec::with_capacity(10);
+        let use_long = self.use_long;
         for arg in args.filter(|arg| {
-            !(arg.is_set(ArgSettings::Hidden)) || arg.is_set(ArgSettings::NextLineHelp)
+            should_show_arg(use_long, *arg)
         }) {
             if arg.longest_filter() {
                 self.longest = cmp::max(self.longest, str_width(arg.to_string().as_str()));
@@ -231,12 +232,13 @@ impl<'a> Help<'a> {
         // The shortest an arg can legally be is 2 (i.e. '-x')
         self.longest = 2;
         let mut ord_m = VecMap::new();
+        let use_long = self.use_long;
         // Determine the longest
         for arg in args.filter(|arg| {
             // If it's NextLineHelp, but we don't care to compute how long because it may be
             // NextLineHelp on purpose *because* it's so long and would throw off all other
             // args alignment
-            !arg.is_set(ArgSettings::Hidden) || arg.is_set(ArgSettings::NextLineHelp)
+            should_show_arg(use_long, *arg)
         }) {
             if arg.longest_filter() {
                 debugln!("Help::write_args: Current Longest...{}", self.longest);
@@ -565,6 +567,15 @@ impl<'a> Help<'a> {
     }
 }
 
+fn should_show_arg(use_long: bool, arg: &ArgWithOrder) -> bool {
+    if arg.is_set(ArgSettings::Hidden) {
+        return false;
+    }
+
+    (!arg.is_set(ArgSettings::HiddenLongHelp) && use_long) ||
+        (!arg.is_set(ArgSettings::HiddenShortHelp) && !use_long) ||
+    arg.is_set(ArgSettings::NextLineHelp)
+}
 
 // Methods to write Parser help.
 impl<'a> Help<'a> {

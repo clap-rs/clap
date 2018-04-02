@@ -1499,14 +1499,25 @@ where
     }
 
     fn use_long_help(&self) -> bool {
-        self.meta.long_about.is_some() || self.flags.iter().any(|f| f.b.long_help.is_some())
-            || self.opts.iter().any(|o| o.b.long_help.is_some())
-            || self.positionals.values().any(|p| p.b.long_help.is_some())
+        // In this case, both must be checked. This allows the retention of 
+        // original formatting, but also ensures that the actual -h or --help
+        // specified by the user is sent through. If HiddenShortHelp is not included,
+        // then items specified with hidden_short_help will also be hidden.
+        let should_long = |v: &Base| { 
+            v.long_help.is_some() || 
+            v.is_set(ArgSettings::HiddenLongHelp) || 
+            v.is_set(ArgSettings::HiddenShortHelp) 
+        };
+
+        self.meta.long_about.is_some() 
+            || self.flags.iter().any(|f| should_long(&f.b))
+            || self.opts.iter().any(|o| should_long(&o.b))
+            || self.positionals.values().any(|p| should_long(&p.b))
             || self.subcommands
                 .iter()
                 .any(|s| s.p.meta.long_about.is_some())
     }
-
+    
     fn _help(&self, mut use_long: bool) -> Error {
         debugln!("Parser::_help: use_long={:?}", use_long);
         use_long = use_long && self.use_long_help();
