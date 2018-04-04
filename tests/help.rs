@@ -515,6 +515,23 @@ OPTIONS:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]
     -p, --pos <VAL>      Some vals [possible values: fast, slow]";
 
+static CUSTOM_HELP_SECTION: &'static str = "blorp 1.4
+Will M.
+does stuff
+
+USAGE:
+    test --fake <some>:<val>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -f, --fake <some>:<val>    some help
+
+NETWORKING:
+    -n, --no-proxy    Do not use system proxy settings";
+
 fn setup() -> App<'static, 'static> {
     App::new("test")
         .author("Kevin K.")
@@ -1343,6 +1360,87 @@ fn show_env_vals() {
         app,
         "ctest --help",
         SHOW_ENV_VALS,
+        false
+    ));
+}
+
+#[test]
+fn custom_headers_headers() {
+    let app = App::new("blorp")
+        .author("Will M.")
+        .about("does stuff")
+        .version("1.4")
+        .arg(Arg::from_usage("-f, --fake <some> <val> 'some help'")
+                .require_delimiter(true)
+                .value_delimiter(":"),
+        )
+        .help_heading("NETWORKING")
+        .arg(Arg::with_name("no-proxy")
+                .short("n")
+                .long("no-proxy")
+                .help("Do not use system proxy settings")
+        );
+
+    assert!(test::compare_output(
+        app,
+        "test --help",
+        CUSTOM_HELP_SECTION,
+        false
+    ));
+}
+
+static MULTIPLE_CUSTOM_HELP_SECTIONS: &'static str = "blorp 1.4
+Will M.
+does stuff
+
+USAGE:
+    test [OPTIONS] --birthday-song <song> --fake <some>:<val>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -f, --fake <some>:<val>    some help
+    -s, --speed <SPEED>        How fast? [possible values: fast, slow]
+
+NETWORKING:
+    -n, --no-proxy    Do not use system proxy settings
+
+SPECIAL:
+    -b, --birthday-song <song>    Change which song is played for birthdays";
+
+#[test]
+fn multiple_custom_help_headers() {
+    let app = App::new("blorp")
+        .author("Will M.")
+        .about("does stuff")
+        .version("1.4")
+        .arg(Arg::from_usage("-f, --fake <some> <val> 'some help'")
+                .require_delimiter(true)
+                .value_delimiter(":"),
+        )
+        .help_heading("NETWORKING")
+        .arg(Arg::with_name("no-proxy")
+                .short("n")
+                .long("no-proxy")
+                .help("Do not use system proxy settings")
+        )
+        .help_heading("SPECIAL")
+        .arg(Arg::from_usage("-b, --birthday-song <song> 'Change which song is played for birthdays'"))
+        .stop_custom_headings()
+        .arg(Arg::with_name("speed")
+                .long("speed")
+                .short("s")
+                .value_name("SPEED")
+                .possible_values(&["fast", "slow"])
+                .help("How fast?")
+                .takes_value(true));
+
+    assert!(test::compare_output(
+        app,
+        "test --help",
+        MULTIPLE_CUSTOM_HELP_SECTIONS,
         false
     ));
 }
