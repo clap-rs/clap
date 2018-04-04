@@ -693,6 +693,14 @@ impl<'w> Help<'w> {
         let opts = parser.has_opts();
         let subcmds = parser.has_visible_subcommands();
 
+        let custom_headings = custom_headings!(parser.app).fold(0, |acc, arg| {
+            if arg.help_heading.is_some() {
+                acc + 1
+            } else {
+                acc
+            }
+        }) > 0;
+
         let mut first = true;
 
         if pos {
@@ -730,6 +738,18 @@ impl<'w> Help<'w> {
                 color!(self, "OPTIONS:\n", warning)?;
                 self.write_args(opts!(parser.app))?;
                 first = false;
+            }
+            if custom_headings {
+                for heading in parser.app.help_headings.iter()
+                    .filter(|heading| heading.is_some())
+                    .map(|heading| heading.unwrap()) {
+                        if !first {
+                            self.writer.write_all(b"\n\n")?;
+                        }
+                        color!(self, format!("{}:\n", heading), warning)?;
+                        self.write_args(custom_headings!(parser.app).filter(|a| a.help_heading.unwrap() == heading))?;
+                        first = false
+                    }
             }
         }
 
