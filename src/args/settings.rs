@@ -1,5 +1,5 @@
 // Std
-#[allow(unused_imports)]
+#[allow(deprecated, unused_imports)]
 use std::ascii::AsciiExt;
 use std::str::FromStr;
 
