@@ -3,7 +3,7 @@ extern crate regex;
 
 include!("../clap-test.rs");
 
-#[allow(unused_imports)]
+#[allow(deprecated, unused_imports)]
 use std::ascii::AsciiExt;
 
 use clap::{App, Arg, ErrorKind};

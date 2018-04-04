@@ -1,6 +1,6 @@
 // Std
 use std::io::Write;
-#[allow(unused_imports)]
+#[allow(deprecated, unused_imports)]
 use std::ascii::AsciiExt;
 
 // Internal
