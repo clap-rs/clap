@@ -926,6 +926,54 @@ where
         Ok(())
     }
 
+    fn use_long_help(&self) -> bool {
+        // In this case, both must be checked. This allows the retention of 
+        // original formatting, but also ensures that the actual -h or --help
+        // specified by the user is sent through. If HiddenShortHelp is not included,
+        // then items specified with hidden_short_help will also be hidden.
+        let should_long = |v: &Base| { 
+            v.long_help.is_some() || 
+            v.is_set(ArgSettings::HiddenLongHelp) || 
+            v.is_set(ArgSettings::HiddenShortHelp) 
+        };
+
+        self.meta.long_about.is_some() 
+            || self.flags.iter().any(|f| should_long(&f.b))
+            || self.opts.iter().any(|o| should_long(&o.b))
+            || self.positionals.values().any(|p| should_long(&p.b))
+            || self.subcommands
+                .iter()
+                .any(|s| s.p.meta.long_about.is_some())
+    }
+    
+    fn _help(&self, mut use_long: bool) -> Error {
+        debugln!("Parser::_help: use_long={:?}", use_long);
+        use_long = use_long && self.use_long_help();
+        let mut buf = vec![];
+        match Help::write_parser_help(&mut buf, self, use_long) {
+            Err(e) => e,
+            _ => Error {
+                message: String::from_utf8(buf).unwrap_or_default(),
+                kind: ErrorKind::HelpDisplayed,
+                info: None,
+            },
+        }
+    }
+
+    fn _version(&self, use_long: bool) -> Error {
+        debugln!("Parser::_version: ");
+        let out = io::stdout();
+        let mut buf_w = BufWriter::new(out.lock());
+        match self.print_version(&mut buf_w, use_long) {
+            Err(e) => e,
+            _ => Error {
+                message: String::new(),
+                kind: ErrorKind::VersionDisplayed,
+                info: None,
+            },
+        }
+    }
+
     fn parse_long_arg(
         &mut self,
         matcher: &mut ArgMatcher<'a>,

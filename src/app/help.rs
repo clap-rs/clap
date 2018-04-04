@@ -182,8 +182,9 @@ impl<'w> Help<'w> {
         // The shortest an arg can legally be is 2 (i.e. '-x')
         self.longest = 2;
         let mut arg_v = Vec::with_capacity(10);
+        let use_long = self.use_long;
         for arg in args.filter(|arg| {
-            !(arg.is_set(ArgSettings::Hidden)) || arg.is_set(ArgSettings::NextLineHelp)
+            should_show_arg(use_long, *arg)
         }) {
             if arg.longest_filter() {
                 self.longest = cmp::max(self.longest, str_width(arg.to_string().as_str()));
@@ -215,12 +216,13 @@ impl<'w> Help<'w> {
         // The shortest an arg can legally be is 2 (i.e. '-x')
         self.longest = 2;
         let mut ord_m = VecMap::new();
+        let use_long = self.use_long;
         // Determine the longest
         for arg in args.filter(|arg| {
             // If it's NextLineHelp we don't care to compute how long it is because it may be
             // NextLineHelp on purpose simply *because* it's so long and would throw off all other
             // args alignment
-            !arg.is_set(ArgSettings::Hidden) || arg.is_set(ArgSettings::NextLineHelp)
+            should_show_arg(use_long, *arg)
         }) {
             if arg.longest_filter() {
                 debugln!("Help::write_args: Current Longest...{}", self.longest);
@@ -556,17 +558,14 @@ impl<'w> Help<'w> {
         }
         spec_vals.join(" ")
     }
-}
-
-/// Methods to write a single subcommand
-impl<'w> Help<'w> {
-    fn write_subcommand<'a, 'b>(&mut self, app: &App<'a, 'b>) -> io::Result<()> {
-        debugln!("Help::write_subcommand;");
-        write!(self.writer, "{}", TAB)?;
-        color!(self, "{}", app.name, good)?;
-        let spec_vals = self.sc_val(app)?;
-        self.sc_help(app, &*spec_vals)?;
-        Ok(())
+    
+    fn should_show_arg(use_long: bool, arg: &Arg) -> bool {
+        if arg.is_set(ArgSettings::Hidden) {
+            return false;
+        }
+        (!arg.is_set(ArgSettings::HiddenLongHelp) && use_long) ||
+            (!arg.is_set(ArgSettings::HiddenShortHelp) && !use_long) ||
+        arg.is_set(ArgSettings::NextLineHelp)
     }
 
     fn sc_val<'a, 'b>(&mut self, app: &App<'a, 'b>) -> Result<String, io::Error> {
@@ -587,87 +586,6 @@ impl<'w> Help<'w> {
             );
         }
         Ok(spec_vals)
-    }
-
-    fn sc_spec_vals(&self, a: &App) -> String {
-        debugln!("Help::sc_spec_vals: a={}", a.name);
-        let mut spec_vals = vec![];
-        if let Some(ref aliases) = a.aliases {
-            debugln!("Help::spec_vals: Found aliases...{:?}", aliases);
-            let als = if self.color {
-                aliases
-                    .iter()
-                    .filter(|&als| als.1) // visible
-                    .map(|&als| format!("{}", self.cizer.good(als.0))) // name
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            } else {
-                aliases
-                    .iter()
-                    .filter(|&als| als.1)
-                    .map(|&als| als.0)
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            };
-            if !als.is_empty() {
-                spec_vals.push(format!(" [aliases: {}]", als));
-            }
-        }
-        spec_vals.join(" ")
-    }
-
-    fn sc_help<'a, 'b>(&mut self, app: &App<'a, 'b>, spec_vals: &str) -> io::Result<()> {
-        debugln!("Help::sc_help;");
-        let h = if self.use_long {
-            app.long_about.unwrap_or_else(|| app.about.unwrap_or(""))
-        } else {
-            app.about.unwrap_or_else(|| app.long_about.unwrap_or(""))
-        };
-        let mut help = String::from(h) + spec_vals;
-        let nlh = self.next_line_help || self.use_long;
-        debugln!("Help::sc_help: Next Line...{:?}", nlh);
-
-        let spcs = if nlh || self.force_next_line {
-            12 // "tab" * 3
-        } else {
-            self.longest + 12
-        };
-
-        let too_long = spcs + str_width(h) + str_width(&*spec_vals) >= self.term_w;
-
-        // Is help on next line, if so then indent
-        if nlh || self.force_next_line {
-            write!(self.writer, "\n{}{}{}", TAB, TAB, TAB)?;
-        }
-
-        debug!("Help::sc_help: Too long...");
-        if too_long && spcs <= self.term_w || h.contains("{n}") {
-            sdebugln!("Yes");
-            debugln!("Help::sc_help: help...{}", help);
-            debugln!("Help::sc_help: help width...{}", str_width(&*help));
-            // Determine how many newlines we need to insert
-            let avail_chars = self.term_w - spcs;
-            debugln!("Help::sc_help: Usable space...{}", avail_chars);
-            help = wrap_help(&help.replace("{n}", "\n"), avail_chars);
-        } else {
-            sdebugln!("No");
-        }
-        if let Some(part) = help.lines().next() {
-            write!(self.writer, "{}", part)?;
-        }
-        for part in help.lines().skip(1) {
-            write!(self.writer, "\n")?;
-            if nlh || self.force_next_line {
-                write!(self.writer, "{}{}{}", TAB, TAB, TAB)?;
-            } else {
-                write_nspaces!(self.writer, self.longest + 8);
-            }
-            write!(self.writer, "{}", part)?;
-        }
-        if !help.contains('\n') && (nlh || self.force_next_line) {
-            write!(self.writer, "\n")?;
-        }
-        Ok(())
     }
 }
 
