@@ -174,16 +174,17 @@ impl<'w> Help<'w> {
 impl<'w> Help<'w> {
     /// Writes help for each argument in the order they were declared to the wrapped stream.
     fn write_args_unsorted<'a, 'b, I>(&mut self, args: I) -> io::Result<()>
-    where
-        'a: 'b,
-        I: Iterator<Item = &'b Arg<'a, 'b>>,
+        where
+            'a: 'b,
+            I: Iterator<Item=&'b Arg<'a, 'b>>,
     {
         debugln!("Help::write_args_unsorted;");
         // The shortest an arg can legally be is 2 (i.e. '-x')
         self.longest = 2;
         let mut arg_v = Vec::with_capacity(10);
+        let use_long = self.use_long;
         for arg in args.filter(|arg| {
-            !(arg.is_set(ArgSettings::Hidden)) || arg.is_set(ArgSettings::NextLineHelp)
+            should_show_arg(use_long, *arg)
         }) {
             if arg.longest_filter() {
                 self.longest = cmp::max(self.longest, str_width(arg.to_string().as_str()));
@@ -207,20 +208,21 @@ impl<'w> Help<'w> {
 
     /// Sorts arguments by length and display order and write their help to the wrapped stream.
     fn write_args<'a, 'b, I>(&mut self, args: I) -> io::Result<()>
-    where
-        'a: 'b,
-        I: Iterator<Item = &'b Arg<'a, 'b>>,
+        where
+            'a: 'b,
+            I: Iterator<Item=&'b Arg<'a, 'b>>,
     {
         debugln!("Help::write_args;");
         // The shortest an arg can legally be is 2 (i.e. '-x')
         self.longest = 2;
         let mut ord_m = VecMap::new();
+        let use_long = self.use_long;
         // Determine the longest
         for arg in args.filter(|arg| {
             // If it's NextLineHelp we don't care to compute how long it is because it may be
             // NextLineHelp on purpose simply *because* it's so long and would throw off all other
             // args alignment
-            !arg.is_set(ArgSettings::Hidden) || arg.is_set(ArgSettings::NextLineHelp)
+            should_show_arg(use_long, *arg)
         }) {
             if arg.longest_filter() {
                 debugln!("Help::write_args: Current Longest...{}", self.longest);
@@ -682,10 +684,10 @@ impl<'w> Help<'w> {
         let flags = parser.has_flags();
         // Strange filter/count vs fold... https://github.com/rust-lang/rust/issues/33038
         let pos = positionals!(parser.app).fold(0, |acc, arg| {
-            if arg.is_set(ArgSettings::Hidden) {
-                acc
-            } else {
+            if should_show_arg(self.use_long, arg) {
                 acc + 1
+            } else {
+                acc
             }
         }) > 0;
         let opts = parser.has_opts();
@@ -1098,6 +1100,17 @@ impl<'w> Help<'w> {
         }
     }
 }
+
+fn should_show_arg(use_long: bool, arg: &Arg) -> bool {
+    debugln!("Help::should_show_arg: use_long={:?}, arg={}", use_long, arg.name);
+    if arg.is_set(ArgSettings::Hidden) {
+        return false;
+    }
+    (!arg.is_set(ArgSettings::HiddenLongHelp) && use_long) ||
+        (!arg.is_set(ArgSettings::HiddenShortHelp) && !use_long) ||
+        arg.is_set(ArgSettings::NextLineHelp)
+}
+
 
 fn wrap_help(help: &str, avail_chars: usize) -> String {
     let wrapper = textwrap::Wrapper::new(avail_chars).break_words(false);

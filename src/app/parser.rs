@@ -8,8 +8,8 @@ use std::iter::Peekable;
 use std::mem;
 use std::cell::Cell;
 
-// Third party
-use map::{self, VecMap};
+// Third party facade
+use map::VecMap;
 
 // Internal
 use INTERNAL_ERROR_MSG;
@@ -926,6 +926,51 @@ where
         Ok(())
     }
 
+    fn use_long_help(&self) -> bool {
+        debugln!("Parser::use_long_help;");
+        // In this case, both must be checked. This allows the retention of 
+        // original formatting, but also ensures that the actual -h or --help
+        // specified by the user is sent through. If HiddenShortHelp is not included,
+        // then items specified with hidden_short_help will also be hidden.
+        let should_long = |v: &Arg| {
+            v.long_help.is_some() || 
+            v.is_set(ArgSettings::HiddenLongHelp) || 
+            v.is_set(ArgSettings::HiddenShortHelp) 
+        };
+
+        self.app.long_about.is_some()
+            || args!(self.app).any(|f| should_long(&f))
+            || subcommands!(self.app).any(|s| s.long_about.is_some())
+    }
+    
+//    fn _help(&self, mut use_long: bool) -> ClapError {
+//        debugln!("Parser::_help: use_long={:?}", use_long && self.use_long_help());
+//        use_long = use_long && self.use_long_help();
+//        let mut buf = vec![];
+//        match Help::write_parser_help(&mut buf, self, use_long) {
+//            Err(e) => e,
+//            _ => ClapError {
+//                message: String::from_utf8(buf).unwrap_or_default(),
+//                kind: ErrorKind::HelpDisplayed,
+//                info: None,
+//            },
+//        }
+//    }
+//
+//    fn _version(&self, use_long: bool) -> ClapError {
+//        debugln!("Parser::_version: ");
+//        let out = io::stdout();
+//        let mut buf_w = BufWriter::new(out.lock());
+//        match self.print_version(&mut buf_w, use_long) {
+//            Err(e) => e,
+//            _ => ClapError {
+//                message: String::new(),
+//                kind: ErrorKind::VersionDisplayed,
+//                info: None,
+//            },
+//        }
+//    }
+
     fn parse_long_arg(
         &mut self,
         matcher: &mut ArgMatcher<'a>,
@@ -1464,8 +1509,8 @@ where
     }
 
     fn help_err(&self, mut use_long: bool) -> ClapError {
-        debugln!("Parser::_help: use_long={:?}", use_long);
-        use_long = use_long && self.app.use_long_help();
+        debugln!("Parser::help_err: use_long={:?}", use_long && self.use_long_help());
+        use_long = use_long && self.use_long_help();
         let mut buf = vec![];
         match Help::write_parser_help(&mut buf, self, use_long) {
             Err(e) => e,
@@ -1478,7 +1523,7 @@ where
     }
 
     fn version_err(&self, use_long: bool) -> ClapError {
-        debugln!("Parser::_version: ");
+        debugln!("Parser::version_err: ");
         let out = io::stdout();
         let mut buf_w = BufWriter::new(out.lock());
         match self.print_version(&mut buf_w, use_long) {

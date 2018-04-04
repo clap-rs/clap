@@ -23,7 +23,9 @@ bitflags! {
         const HIDE_DEFAULT_VAL = 1 << 15 | Self::TAKES_VAL.bits;
         const CASE_INSENSITIVE = 1 << 16;
         const HIDE_ENV_VALS    = 1 << 17;
-        const MULTIPLE_VALS    = 1 << 18 | Self::TAKES_VAL.bits;
+        const HIDDEN_SHORT_H   = 1 << 18;
+        const HIDDEN_LONG_H    = 1 << 19;
+        const MULTIPLE_VALS    = 1 << 20 | Self::TAKES_VAL.bits;
     }
 }
 
@@ -54,7 +56,9 @@ impl ArgFlags {
         Last => Flags::LAST,
         IgnoreCase => Flags::CASE_INSENSITIVE,
         HideEnvValues => Flags::HIDE_ENV_VALS,
-        HideDefaultValue => Flags::HIDE_DEFAULT_VAL
+        HideDefaultValue => Flags::HIDE_DEFAULT_VAL,
+        HiddenShortHelp => Flags::HIDDEN_SHORT_H,
+        HiddenLongHelp => Flags::HIDDEN_LONG_H
     }
 }
 
@@ -111,6 +115,10 @@ pub enum ArgSettings {
     /// Hides any values currently assigned to ENV variables in the help message (good for sensitive
     /// information)
     HideEnvValues,
+    /// The argument should **not** be shown in short help text
+    HiddenShortHelp,
+    /// The argument should **not** be shown in long help text
+    HiddenLongHelp,
     #[doc(hidden)] RequiredUnlessAll,
     #[doc(hidden)] ValueDelimiterNotSet,
 }
@@ -136,6 +144,8 @@ impl FromStr for ArgSettings {
             "hidedefaultvalue" => Ok(ArgSettings::HideDefaultValue),
             "ignorecase" => Ok(ArgSettings::IgnoreCase),
             "hideenvvalues" => Ok(ArgSettings::HideEnvValues),
+            "hiddenshorthelp" => Ok(ArgSettings::HiddenShortHelp),
+            "hiddenlonghelp" => Ok(ArgSettings::HiddenLongHelp),
             _ => Err("unknown ArgSetting, cannot convert from str".to_owned()),
         }
     }
@@ -211,6 +221,14 @@ mod test {
         assert_eq!(
             "hideenvvalues".parse::<ArgSettings>().unwrap(),
             ArgSettings::HideEnvValues
+        );
+        assert_eq!(
+            "hiddenshorthelp".parse::<ArgSettings>().unwrap(),
+            ArgSettings::HiddenShortHelp
+        );
+        assert_eq!(
+            "hiddenlonghelp".parse::<ArgSettings>().unwrap(),
+            ArgSettings::HiddenLongHelp
         );
         assert!("hahahaha".parse::<ArgSettings>().is_err());
     }
