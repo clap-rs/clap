@@ -10,6 +10,7 @@ use osstringext::OsStrExt3;
 use std::os::unix::ffi::OsStrExt;
 use std::env;
 use std::cmp::{Ord, Ordering};
+use std::str;
 
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
@@ -4250,7 +4251,7 @@ mod test {
         f.long = Some("flag");
         f.aliases = Some(vec![("als", true)]);
 
-        assert_eq!(&*format!("{}", f), "--flag");
+        assert_eq!(&*format!("{}", f), "--flag")
     }
 
     #[test]

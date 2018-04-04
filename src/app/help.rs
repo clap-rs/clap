@@ -174,9 +174,9 @@ impl<'w> Help<'w> {
 impl<'w> Help<'w> {
     /// Writes help for each argument in the order they were declared to the wrapped stream.
     fn write_args_unsorted<'a, 'b, I>(&mut self, args: I) -> io::Result<()>
-    where
-        'a: 'b,
-        I: Iterator<Item = &'b Arg<'a, 'b>>,
+        where
+            'a: 'b,
+            I: Iterator<Item=&'b Arg<'a, 'b>>,
     {
         debugln!("Help::write_args_unsorted;");
         // The shortest an arg can legally be is 2 (i.e. '-x')
@@ -208,9 +208,9 @@ impl<'w> Help<'w> {
 
     /// Sorts arguments by length and display order and write their help to the wrapped stream.
     fn write_args<'a, 'b, I>(&mut self, args: I) -> io::Result<()>
-    where
-        'a: 'b,
-        I: Iterator<Item = &'b Arg<'a, 'b>>,
+        where
+            'a: 'b,
+            I: Iterator<Item=&'b Arg<'a, 'b>>,
     {
         debugln!("Help::write_args;");
         // The shortest an arg can legally be is 2 (i.e. '-x')
@@ -558,14 +558,17 @@ impl<'w> Help<'w> {
         }
         spec_vals.join(" ")
     }
-    
-    fn should_show_arg(use_long: bool, arg: &Arg) -> bool {
-        if arg.is_set(ArgSettings::Hidden) {
-            return false;
-        }
-        (!arg.is_set(ArgSettings::HiddenLongHelp) && use_long) ||
-            (!arg.is_set(ArgSettings::HiddenShortHelp) && !use_long) ||
-        arg.is_set(ArgSettings::NextLineHelp)
+}
+
+/// Methods to write a single subcommand
+impl<'w> Help<'w> {
+    fn write_subcommand<'a, 'b>(&mut self, app: &App<'a, 'b>) -> io::Result<()> {
+        debugln!("Help::write_subcommand;");
+        write!(self.writer, "{}", TAB)?;
+        color!(self, "{}", app.name, good)?;
+        let spec_vals = self.sc_val(app)?;
+        self.sc_help(app, &*spec_vals)?;
+        Ok(())
     }
 
     fn sc_val<'a, 'b>(&mut self, app: &App<'a, 'b>) -> Result<String, io::Error> {
@@ -587,6 +590,87 @@ impl<'w> Help<'w> {
         }
         Ok(spec_vals)
     }
+
+    fn sc_spec_vals(&self, a: &App) -> String {
+        debugln!("Help::sc_spec_vals: a={}", a.name);
+        let mut spec_vals = vec![];
+        if let Some(ref aliases) = a.aliases {
+            debugln!("Help::spec_vals: Found aliases...{:?}", aliases);
+            let als = if self.color {
+                aliases
+                    .iter()
+                    .filter(|&als| als.1) // visible
+                    .map(|&als| format!("{}", self.cizer.good(als.0))) // name
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            } else {
+                aliases
+                    .iter()
+                    .filter(|&als| als.1)
+                    .map(|&als| als.0)
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            };
+            if !als.is_empty() {
+                spec_vals.push(format!(" [aliases: {}]", als));
+            }
+        }
+        spec_vals.join(" ")
+    }
+
+    fn sc_help<'a, 'b>(&mut self, app: &App<'a, 'b>, spec_vals: &str) -> io::Result<()> {
+        debugln!("Help::sc_help;");
+        let h = if self.use_long {
+            app.long_about.unwrap_or_else(|| app.about.unwrap_or(""))
+        } else {
+            app.about.unwrap_or_else(|| app.long_about.unwrap_or(""))
+        };
+        let mut help = String::from(h) + spec_vals;
+        let nlh = self.next_line_help || self.use_long;
+        debugln!("Help::sc_help: Next Line...{:?}", nlh);
+
+        let spcs = if nlh || self.force_next_line {
+            12 // "tab" * 3
+        } else {
+            self.longest + 12
+        };
+
+        let too_long = spcs + str_width(h) + str_width(&*spec_vals) >= self.term_w;
+
+        // Is help on next line, if so then indent
+        if nlh || self.force_next_line {
+            write!(self.writer, "\n{}{}{}", TAB, TAB, TAB)?;
+        }
+
+        debug!("Help::sc_help: Too long...");
+        if too_long && spcs <= self.term_w || h.contains("{n}") {
+            sdebugln!("Yes");
+            debugln!("Help::sc_help: help...{}", help);
+            debugln!("Help::sc_help: help width...{}", str_width(&*help));
+            // Determine how many newlines we need to insert
+            let avail_chars = self.term_w - spcs;
+            debugln!("Help::sc_help: Usable space...{}", avail_chars);
+            help = wrap_help(&help.replace("{n}", "\n"), avail_chars);
+        } else {
+            sdebugln!("No");
+        }
+        if let Some(part) = help.lines().next() {
+            write!(self.writer, "{}", part)?;
+        }
+        for part in help.lines().skip(1) {
+            write!(self.writer, "\n")?;
+            if nlh || self.force_next_line {
+                write!(self.writer, "{}{}{}", TAB, TAB, TAB)?;
+            } else {
+                write_nspaces!(self.writer, self.longest + 8);
+            }
+            write!(self.writer, "{}", part)?;
+        }
+        if !help.contains('\n') && (nlh || self.force_next_line) {
+            write!(self.writer, "\n")?;
+        }
+        Ok(())
+    }
 }
 
 // Methods to write Parser help.
@@ -600,10 +684,10 @@ impl<'w> Help<'w> {
         let flags = parser.has_flags();
         // Strange filter/count vs fold... https://github.com/rust-lang/rust/issues/33038
         let pos = positionals!(parser.app).fold(0, |acc, arg| {
-            if arg.is_set(ArgSettings::Hidden) {
-                acc
-            } else {
+            if should_show_arg(self.use_long, arg) {
                 acc + 1
+            } else {
+                acc
             }
         }) > 0;
         let opts = parser.has_opts();
@@ -1016,6 +1100,17 @@ impl<'w> Help<'w> {
         }
     }
 }
+
+fn should_show_arg(use_long: bool, arg: &Arg) -> bool {
+    debugln!("Help::should_show_arg: use_long={:?}, arg={}", use_long, arg.name);
+    if arg.is_set(ArgSettings::Hidden) {
+        return false;
+    }
+    (!arg.is_set(ArgSettings::HiddenLongHelp) && use_long) ||
+        (!arg.is_set(ArgSettings::HiddenShortHelp) && !use_long) ||
+        arg.is_set(ArgSettings::NextLineHelp)
+}
+
 
 fn wrap_help(help: &str, avail_chars: usize) -> String {
     let wrapper = textwrap::Wrapper::new(avail_chars).break_words(false);
