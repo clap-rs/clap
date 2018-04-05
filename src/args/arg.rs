@@ -1830,11 +1830,11 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Result`]: https://doc.rust-lang.org/std/result/enum.Result.html
     /// [`Err(String)`]: https://doc.rust-lang.org/std/result/enum.Result.html#variant.Err
     /// [`Rc`]: https://doc.rust-lang.org/std/rc/struct.Rc.html
-    pub fn validator<F>(mut self, f: F) -> Self
-    where
-        F: Fn(String) -> Result<(), String> + 'static,
+    pub fn validator<F, O, E>(mut self, f: F) -> Self
+        where F: Fn(String) -> Result<O, E> + 'static,
+              E: ToString
     {
-        self.validator = Some(Rc::new(f));
+        self.validator = Some(Rc::new(move |s| f(s).map(|_| ()).map_err(|e| e.to_string())));
         self
     }
 
@@ -1868,11 +1868,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Result`]: https://doc.rust-lang.org/std/result/enum.Result.html
     /// [`Err(String)`]: https://doc.rust-lang.org/std/result/enum.Result.html#variant.Err
     /// [`Rc`]: https://doc.rust-lang.org/std/rc/struct.Rc.html
-    pub fn validator_os<F>(mut self, f: F) -> Self
-    where
-        F: Fn(&OsStr) -> Result<(), OsString> + 'static,
+    pub fn validator_os<F, O>(mut self, f: F) -> Self
+        where F: Fn(&OsStr) -> Result<O, OsString> + 'static
     {
-        self.validator_os = Some(Rc::new(f));
+        self.validator_os = Some(Rc::new(move |s| f(s).map(|_| ())));
         self
     }
 
