@@ -241,6 +241,21 @@ fn validator() {
 }
 
 #[test]
+fn validator_output() {
+    env::set_var("CLP_TEST_ENV", "42");
+
+    let r = App::new("df")
+        .arg(
+            Arg::from_usage("[arg] 'some opt'")
+                .env("CLP_TEST_ENV")
+                .validator(|s| s.parse::<i32>())
+        )
+        .get_matches_from_safe(vec![""]);
+
+    assert_eq!(r.unwrap().value_of("arg").unwrap().parse(), Ok(42));
+}
+
+#[test]
 fn validator_invalid() {
     env::set_var("CLP_TEST_ENV", "env");
 
