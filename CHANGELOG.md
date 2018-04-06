@@ -1,3 +1,7 @@
+# v0.2.7 (unreleased)
+
+* Fail compilation when using `default_value` or `required` with `Option` ([#88](https://github.com/TeXitoi/structopt/pull/88)) by [@Kerollmops](https://github.com/Kerollmops)
+
 # v0.2.6 (2018-03-31)
 
 * Fail compilation when using `default_value` or `required` with `bool` ([#80](https://github.com/TeXitoi/structopt/issues/80)) by [@TeXitoi](https://github.com/TeXitoi)

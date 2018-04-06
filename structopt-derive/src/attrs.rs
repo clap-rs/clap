@@ -261,13 +261,24 @@ impl Attrs {
             }
         }
 
-        if res.ty == Ty::Bool {
-            if res.has_method("default_value") {
-                panic!("default_value is meaningless for bool")
-            }
-            if res.has_method("required") {
-                panic!("required is meaningless for bool")
-            }
+        match res.ty {
+            Ty::Bool => {
+                if res.has_method("default_value") {
+                    panic!("default_value is meaningless for bool")
+                }
+                if res.has_method("required") {
+                    panic!("required is meaningless for bool")
+                }
+            },
+            Ty::Option => {
+                if res.has_method("default_value") {
+                    panic!("default_value is meaningless for Option")
+                }
+                if res.has_method("required") {
+                    panic!("required is meaningless for Option")
+                }
+            },
+            _ => (),
         }
 
         res
