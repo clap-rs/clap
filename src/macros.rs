@@ -362,10 +362,11 @@ macro_rules! arg_enum {
         );
     };
     ($(#[$($m:meta),+])+ enum $e:ident { $($v:ident $(=$val:expr)*,)+ } ) => {
-        arg_enum!($(#[$($m:meta),+])+
-            enum $e:ident {
-                $($v:ident $(=$val:expr)*),+
-            }
+        arg_enum!(@impls
+            ($(#[$($m),+])+
+             enum $e {
+                 $($v$(=$val)*),+
+             }) -> ($e, $($v),+)
         );
     };
     ($(#[$($m:meta),+])+ enum $e:ident { $($v:ident $(=$val:expr)*),+ } ) => {
@@ -377,9 +378,11 @@ macro_rules! arg_enum {
         );
     };
     (pub enum $e:ident { $($v:ident $(=$val:expr)*,)+ } ) => {
-        arg_enum!(pub enum $e:ident {
-            $($v:ident $(=$val:expr)*),+
-        });
+        arg_enum!(@impls
+            (pub enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
     };
     (pub enum $e:ident { $($v:ident $(=$val:expr)*),+ } ) => {
         arg_enum!(@impls
@@ -389,9 +392,11 @@ macro_rules! arg_enum {
         );
     };
     (enum $e:ident { $($v:ident $(=$val:expr)*,)+ } ) => {
-        arg_enum!(enum $e:ident {
-            $($v:ident $(=$val:expr)*),+
-        });
+        arg_enum!(@impls
+            (enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
     };
     (enum $e:ident { $($v:ident $(=$val:expr)*),+ } ) => {
         arg_enum!(@impls
