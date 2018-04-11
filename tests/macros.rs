@@ -251,24 +251,115 @@ fn group_macro_set_not_required() {
 
 #[test]
 fn arg_enum() {
-    arg_enum!{
-        #[derive(Debug, PartialEq, Copy, Clone)]
-        pub enum Greek {
-            Alpha,
-            Bravo
-        }
+    // Helper macros to avoid repetition
+    macro_rules! test_greek {
+        ($arg_enum:item, $tests:block) => {{
+            $arg_enum
+            // FromStr implementation
+            assert!("Charlie".parse::<Greek>().is_err());
+            // Display implementation
+            assert_eq!(format!("{}", Greek::Alpha), "Alpha");
+            assert_eq!(format!("{}", Greek::Bravo), "Bravo");
+            // fn variants()
+            assert_eq!(Greek::variants(), ["Alpha", "Bravo"]);
+            // rest of tests
+            $tests
+        }};
     }
-    assert_eq!("Alpha".parse::<Greek>(), Ok(Greek::Alpha));
-}
+    macro_rules! test_greek_no_meta {
+        {$arg_enum:item} => {
+            test_greek!($arg_enum, {
+                // FromStr implementation
+                assert!("Alpha".parse::<Greek>().is_ok());
+                assert!("Bravo".parse::<Greek>().is_ok());
+            })
+        };
+    }
+    macro_rules! test_greek_meta {
+        {$arg_enum:item} => {
+            test_greek!($arg_enum, {
+                // FromStr implementation
+                assert_eq!("Alpha".parse::<Greek>(), Ok(Greek::Alpha));
+                assert_eq!("Bravo".parse::<Greek>(), Ok(Greek::Bravo));
+            })
+        };
+    }
 
-#[test]
-fn arg_enum_trailing_comma() {
-    arg_enum!{
-        #[derive(Debug, PartialEq, Copy, Clone)]
-        pub enum Greek {
-            Alpha,
-            Bravo,
+    // Tests for each pattern
+    // meta  NO, pub  NO, trailing comma  NO
+    test_greek_no_meta!{
+        arg_enum!{
+            enum Greek {
+                Alpha,
+                Bravo
+            }
         }
-    }
-    assert_eq!("Alpha".parse::<Greek>(), Ok(Greek::Alpha));
+    };
+    // meta  NO, pub  NO, trailing comma YES
+    test_greek_no_meta!{
+        arg_enum!{
+            enum Greek {
+                Alpha,
+                Bravo,
+            }
+        }
+    };
+    // meta  NO, pub YES, trailing comma  NO
+    test_greek_no_meta!{
+        arg_enum!{
+            pub enum Greek {
+                Alpha,
+                Bravo
+            }
+        }
+    };
+    // meta  NO, pub YES, trailing comma YES
+    test_greek_no_meta!{
+        arg_enum!{
+            pub enum Greek {
+                Alpha,
+                Bravo,
+            }
+        }
+    };
+    // meta YES, pub  NO, trailing comma  NO
+    test_greek_meta!{
+        arg_enum!{
+            #[derive(Debug, PartialEq, Copy, Clone)]
+            enum Greek {
+                Alpha,
+                Bravo
+            }
+        }
+    };
+    // meta YES, pub  NO, trailing comma YES
+    test_greek_meta!{
+        arg_enum!{
+            #[derive(Debug, PartialEq, Copy, Clone)]
+            enum Greek {
+                Alpha,
+                Bravo,
+            }
+        }
+    };
+    // meta YES, pub YES, trailing comma  NO
+    test_greek_meta!{
+        arg_enum!{
+            #[derive(Debug, PartialEq, Copy, Clone)]
+            pub enum Greek {
+                Alpha,
+                Bravo
+            }
+        }
+    };
+    // meta YES, pub YES, trailing comma YES
+    test_greek_meta!{
+        arg_enum!{
+            #[derive(Debug, PartialEq, Copy, Clone)]
+            pub enum Greek {
+                Alpha,
+                Bravo,
+            }
+        }
+    };
 }
