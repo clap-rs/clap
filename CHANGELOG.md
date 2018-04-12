@@ -1,5 +1,6 @@
 # v0.2.7 (unreleased)
 
+* Add flattening, the insertion of options of another StructOpt struct into another ([#92](https://github.com/TeXitoi/structopt/pull/92)) by [@birkenfeld](https://github.com/birkenfeld)
 * Fail compilation when using `default_value` or `required` with `Option` ([#88](https://github.com/TeXitoi/structopt/pull/88)) by [@Kerollmops](https://github.com/Kerollmops)
 
 # v0.2.6 (2018-03-31)

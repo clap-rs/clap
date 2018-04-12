@@ -296,6 +296,40 @@
 //! }
 //! ```
 //!
+//! ## Flattening
+//!
+//! It can sometimes be useful to group related arguments in a substruct,
+//! while keeping the command-line interface flat. In these cases you can mark
+//! a field as `flatten` and give it another type that derives `StructOpt`:
+//!
+//! ```
+//! # #[macro_use] extern crate structopt;
+//! # use structopt::StructOpt;
+//! # fn main() {}
+//! #[derive(StructOpt)]
+//! struct Cmdline {
+//!     #[structopt(short = "v", help = "switch on verbosity")]
+//!     verbose: bool,
+//!     #[structopt(flatten)]
+//!     daemon_opts: DaemonOpts,
+//! }
+//!
+//! #[derive(StructOpt)]
+//! struct DaemonOpts {
+//!     #[structopt(short = "u", help = "daemon user")]
+//!     user: String,
+//!     #[structopt(short = "g", help = "daemon group")]
+//!     group: String,
+//! }
+//! ```
+//!
+//! In this example, the derived `Cmdline` parser will support the options `-v`,
+//! `-u` and `-g`.
+//!
+//! This feature also makes it possible to define a `StructOpt` struct in a
+//! library, parse the corresponding arguments in the main argument parser, and
+//! pass off this struct to a handler provided by that library.
+//!
 //! ## Custom string parsers
 //!
 //! If the field type does not have a `FromStr` implementation, or you would

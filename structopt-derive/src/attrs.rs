@@ -12,6 +12,12 @@ use syn::{self, Attribute, MetaNameValue, MetaList, LitStr, TypePath};
 use syn::Type::Path;
 
 #[derive(Copy, Clone, PartialEq, Debug)]
+pub enum Kind {
+    Arg(Ty),
+    Subcommand(Ty),
+    FlattenStruct,
+}
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub enum Ty {
     Bool,
     Vec,
@@ -24,8 +30,7 @@ pub struct Attrs {
     methods: Vec<Method>,
     parser: (Parser, Tokens),
     has_custom_parser: bool,
-    is_subcommand: bool,
-    ty: Ty,
+    kind: Kind,
 }
 #[derive(Debug)]
 struct Method {
@@ -61,8 +66,7 @@ impl Attrs {
             methods: vec![],
             parser: (Parser::TryFromStr, quote!(::std::str::FromStr::from_str)),
             has_custom_parser: false,
-            is_subcommand: false,
-            ty: Ty::Other,
+            kind: Kind::Arg(Ty::Other),
         }
     }
     fn push_str_method(&mut self, name: &str, arg: &str) {
@@ -150,7 +154,12 @@ impl Attrs {
                         }
                     }
                 }
-                Word(ref w) if w == "subcommand" => self.is_subcommand = true,
+                Word(ref w) if w == "subcommand" => {
+                    self.set_kind(Kind::Subcommand(Ty::Other));
+                }
+                Word(ref w) if w == "flatten" => {
+                    self.set_kind(Kind::FlattenStruct);
+                }
                 ref i @ List(..) | ref i @ Word(..) =>
                     panic!("unsupported option: {}", quote!(#i)),
             }
@@ -227,61 +236,87 @@ impl Attrs {
         if res.has_custom_parser {
             panic!("parse attribute is only allowed on fields");
         }
-        if res.is_subcommand {
-            panic!("subcommand is only allowed on fields");
+        match res.kind {
+            Kind::Subcommand(_) => panic!("subcommand is only allowed on fields"),
+            Kind::FlattenStruct => panic!("flatten is only allowed on fields"),
+            Kind::Arg(_) => res,
         }
-        res
+    }
+    fn ty_from_field(ty: &syn::Type) -> Ty {
+        if let Path(TypePath { path: syn::Path { ref segments, .. }, .. }) = *ty {
+            match segments.iter().last().unwrap().ident.as_ref() {
+                "bool" => Ty::Bool,
+                "Option" => Ty::Option,
+                "Vec" => Ty::Vec,
+                _ => Ty::Other,
+            }
+        } else {
+            Ty::Other
+        }
     }
     pub fn from_field(field: &syn::Field) -> Attrs {
         let name = field.ident.as_ref().unwrap().as_ref().to_string();
         let mut res = Self::new(name);
         res.push_doc_comment(&field.attrs, "help");
         res.push_attrs(&field.attrs);
-        if res.is_subcommand {
-            if res.has_custom_parser {
-                panic!("parse attribute is not allowed for subcommand");
-            }
-            if !res.methods.iter().all(|m| m.name == "help") {
-                panic!("methods in attributes is not allowed for subcommand");
-            }
-        }
 
-        if let Path(TypePath { path: syn::Path { ref segments, .. }, .. }) = field.ty {
-            res.ty = match segments.iter().last().unwrap().ident.as_ref() {
-                "bool" => Ty::Bool,
-                "Option" => Ty::Option,
-                "Vec" => Ty::Vec,
-                _ => Ty::Other,
-            };
-        }
-        if res.has_custom_parser {
-            match res.ty {
-                Ty::Option | Ty::Vec => (),
-                _ => res.ty = Ty::Other,
+        match res.kind {
+            Kind::FlattenStruct => {
+                if res.has_custom_parser {
+                    panic!("parse attribute is not allowed for flattened entry");
+                }
+                if !res.methods.is_empty() {
+                    panic!("methods are not allowed for flattened entry");
+                }
             }
-        }
-
-        match res.ty {
-            Ty::Bool => {
-                if res.has_method("default_value") {
-                    panic!("default_value is meaningless for bool")
+            Kind::Subcommand(_) => {
+                if res.has_custom_parser {
+                    panic!("parse attribute is not allowed for subcommand");
                 }
-                if res.has_method("required") {
-                    panic!("required is meaningless for bool")
+                if !res.methods.iter().all(|m| m.name == "help") {
+                    panic!("methods in attributes is not allowed for subcommand");
                 }
-            },
-            Ty::Option => {
-                if res.has_method("default_value") {
-                    panic!("default_value is meaningless for Option")
+                res.kind = Kind::Subcommand(Self::ty_from_field(&field.ty));
+            }
+            Kind::Arg(_) => {
+                let mut ty = Self::ty_from_field(&field.ty);
+                if res.has_custom_parser {
+                    match ty {
+                        Ty::Option | Ty::Vec => (),
+                        _ => ty = Ty::Other,
+                    }
                 }
-                if res.has_method("required") {
-                    panic!("required is meaningless for Option")
+                match ty {
+                    Ty::Bool => {
+                        if res.has_method("default_value") {
+                            panic!("default_value is meaningless for bool")
+                        }
+                        if res.has_method("required") {
+                            panic!("required is meaningless for bool")
+                        }
+                    },
+                    Ty::Option => {
+                        if res.has_method("default_value") {
+                            panic!("default_value is meaningless for Option")
+                        }
+                        if res.has_method("required") {
+                            panic!("required is meaningless for Option")
+                        }
+                    },
+                    _ => (),
                 }
-            },
-            _ => (),
+                res.kind = Kind::Arg(ty);
+            }
         }
 
         res
+    }
+    fn set_kind(&mut self, kind: Kind) {
+        if let Kind::Arg(_) = self.kind {
+            self.kind = kind;
+        } else {
+            panic!("subcommands cannot be flattened");
+        }
     }
     pub fn has_method(&self, method: &str) -> bool {
         self.methods.iter().find(|m| m.name == method).is_some()
@@ -299,10 +334,7 @@ impl Attrs {
     pub fn parser(&self) -> &(Parser, Tokens) {
         &self.parser
     }
-    pub fn ty(&self) -> Ty {
-        self.ty
-    }
-    pub fn is_subcommand(&self) -> bool {
-        self.is_subcommand
+    pub fn kind(&self) -> Kind {
+        self.kind
     }
 }
