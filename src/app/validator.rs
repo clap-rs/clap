@@ -10,7 +10,6 @@ use args::{AnyArg, ArgMatcher, MatchedArg};
 use args::settings::ArgSettings;
 use errors::{Error, ErrorKind};
 use errors::Result as ClapResult;
-use osstringext::OsStrExt2;
 use app::settings::AppSettings as AS;
 use app::parser::{ParseResult, Parser};
 use fmt::{Colorizer, ColorizerOption};
@@ -120,7 +119,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                     ));
                 }
             }
-            if !arg.is_set(ArgSettings::EmptyValues) && val.is_empty_()
+            if !arg.is_set(ArgSettings::EmptyValues) && val.is_empty()
                 && matcher.contains(&*arg.name())
             {
                 debugln!("Validator::validate_arg_values: illegal empty val found");
