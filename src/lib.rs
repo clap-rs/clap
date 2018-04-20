@@ -425,4 +425,18 @@ pub trait StructOpt {
     {
         Self::from_clap(&Self::clap().get_matches_from(iter))
     }
+
+    /// Gets the struct from any iterator such as a `Vec` of your making.
+    ///
+    /// Returns a `clap::Error` in case of failure. This does *not* exit in the
+    /// case of `--help` or `--version`, to achieve the same behavior as
+    /// `from_iter()` you must call `.exit()` on the error value.
+    fn from_iter_safe<I>(iter: I) -> Result<Self, clap::Error>
+    where
+        Self: Sized,
+        I: IntoIterator,
+        I::Item: Into<OsString> + Clone
+    {
+        Ok(Self::from_clap(&Self::clap().get_matches_from_safe(iter)?))
+    }
 }

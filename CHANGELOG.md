@@ -1,3 +1,10 @@
+# NEXT
+
+* Add `StructOpt::from_iter_safe()`, which returns an `Error` instead of
+  killing the program when it fails to parse, or parses one of the
+  short-circuiting flags. ([#98](https://github.com/TeXitoi/structopt/pull/98)
+  by [@quodlibetor](https://github.com/quodlibetor))
+
 # v0.2.7 (2018-04-12)
 
 * Add flattening, the insertion of options of another StructOpt struct into another ([#92](https://github.com/TeXitoi/structopt/pull/92)) by [@birkenfeld](https://github.com/birkenfeld)

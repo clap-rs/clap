@@ -10,6 +10,7 @@
 extern crate structopt;
 
 use structopt::StructOpt;
+use structopt::clap;
 
 #[test]
 fn required_argument() {
@@ -66,4 +67,21 @@ fn arguments() {
     assert_eq!(Opt { arg: vec![24] }, Opt::from_iter(&["test", "24"]));
     assert_eq!(Opt { arg: vec![] }, Opt::from_iter(&["test"]));
     assert_eq!(Opt { arg: vec![24, 42] }, Opt::from_iter(&["test", "24", "42"]));
+}
+
+
+#[test]
+fn arguments_safe() {
+    #[derive(StructOpt, PartialEq, Debug)]
+    struct Opt {
+        arg: Vec<i32>,
+    }
+    assert_eq!(Opt { arg: vec![24] }, Opt::from_iter_safe(&["test", "24"]).unwrap());
+    assert_eq!(Opt { arg: vec![] }, Opt::from_iter_safe(&["test"]).unwrap());
+    assert_eq!(Opt { arg: vec![24, 42] }, Opt::from_iter_safe(&["test", "24", "42"]).unwrap());
+
+    assert_eq!(
+        clap::ErrorKind::ValueValidation,
+        Opt::from_iter_safe(&["test", "NOPE"]).err().unwrap().kind,
+    );
 }
