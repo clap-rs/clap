@@ -988,8 +988,14 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     pub fn mut_arg<F>(mut self, arg: &'a str, f: F) -> Self
-    where F: FnOnce(Arg<'a, 'b>) -> Arg<'a, 'b> {
-        let i = self.args.iter().enumerate().filter(|&(i, a)| a.name == arg).map(|(i, _)| i).next();
+    where
+        F: FnOnce(Arg<'a, 'b>) -> Arg<'a, 'b>,
+    {
+        let i = self.args
+            .iter()
+            .enumerate()
+            .filter_map(|(i, a)| if a.name == arg { Some(i) } else { None })
+            .next();
         let a = if let Some(idx) = i {
             let mut a = self.args.swap_remove(idx);
             f(a)
