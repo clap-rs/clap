@@ -3,17 +3,17 @@
 use std::ascii::AsciiExt;
 
 // Internal
-use INTERNAL_ERROR_MSG;
-use INVALID_UTF8;
-use args::{Arg, ArgMatcher, MatchedArg};
-use args::settings::ArgSettings;
-use errors::{Error, ErrorKind};
-use errors::Result as ClapResult;
-use osstringext::OsStrExt2;
-use app::settings::AppSettings as AS;
 use app::parser::{ParseResult, Parser};
-use fmt::{Colorizer, ColorizerOption};
+use app::settings::AppSettings as AS;
 use app::usage::Usage;
+use args::settings::ArgSettings;
+use args::{Arg, ArgMatcher, MatchedArg};
+use errors::Result as ClapResult;
+use errors::{Error, ErrorKind};
+use fmt::{Colorizer, ColorizerOption};
+use osstringext::OsStrExt2;
+use INVALID_UTF8;
+use INTERNAL_ERROR_MSG;
 
 pub struct Validator<'a, 'b, 'c, 'z>(&'z mut Parser<'a, 'b, 'c>)
 where
@@ -465,7 +465,7 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
                     ru.iter().$how(|n| {
                         $m.contains(n) || {
                             if let Some(grp) = find!($_self.app, n, groups) {
-                                     grp.args.iter().any(|arg| $m.contains(arg))
+                                grp.args.iter().any(|arg| $m.contains(arg))
                             } else {
                                 false
                             }

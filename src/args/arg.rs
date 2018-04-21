@@ -1,23 +1,23 @@
-#[cfg(feature = "yaml")]
-use std::collections::BTreeMap;
-use std::rc::Rc;
-use std::borrow::Cow;
-use std::fmt::{self, Display, Formatter};
-use std::ffi::{OsStr, OsString};
 #[cfg(any(target_os = "windows", target_arch = "wasm32"))]
 use osstringext::OsStrExt3;
+use std::borrow::Cow;
+use std::cmp::{Ord, Ordering};
+#[cfg(feature = "yaml")]
+use std::collections::BTreeMap;
+use std::env;
+use std::ffi::{OsStr, OsString};
+use std::fmt::{self, Display, Formatter};
 #[cfg(not(any(target_os = "windows", target_arch = "wasm32")))]
 use std::os::unix::ffi::OsStrExt;
-use std::env;
-use std::cmp::{Ord, Ordering};
+use std::rc::Rc;
 use std::str;
 
+use map::VecMap;
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
-use map::VecMap;
 
-use usage_parser::UsageParser;
 use args::settings::{ArgFlags, ArgSettings};
+use usage_parser::UsageParser;
 use INTERNAL_ERROR_MSG;
 
 /// The abstract representation of a command line argument. Used to set all the options and
@@ -1496,7 +1496,6 @@ impl<'a, 'b> Arg<'a, 'b> {
         self.index = Some(idx);
         self
     }
-
 
     /// Specifies a value that *stops* parsing multiple values of a give argument. By default when
     /// one sets [`multiple(true)`] on an argument, clap will continue parsing values for that
@@ -3176,7 +3175,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// **Deprecated**
-    #[deprecated(since="2.30.0", note="Use `Arg::setting(ArgSettings::AllowEmptyValues)` instead. Will be removed in v3.0-beta")]
+    #[deprecated(
+        since = "2.30.0",
+        note = "Use `Arg::setting(ArgSettings::AllowEmptyValues)` instead. Will be removed in v3.0-beta"
+    )]
     pub fn empty_values(mut self, ev: bool) -> Self {
         if ev {
             self.setting(ArgSettings::AllowEmptyValues)
@@ -3748,7 +3750,7 @@ impl<'a, 'b> Arg<'a, 'b> {
             self.unset_setting(ArgSettings::MultipleOccurrences)
         }
     }
-    
+
     /// Indicates that all parameters passed after this should not be parsed
     /// individually, but rather passed in their entirety. It is worth noting
     /// that setting this requires all values to come after a `--` to indicate they
@@ -3768,9 +3770,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::allow_hyphen_values(true)`]: ./struct.Arg.html#method.allow_hyphen_values
     /// [`Arg::last(true)`]: ./struct.Arg.html#method.last
     /// [`AppSettings::TrailingVarArg`]: ./enum.AppSettings.html#variant.TrailingVarArg
-    pub fn raw(self, raw: bool) -> Self {
-        self.multiple(raw).allow_hyphen_values(raw).last(raw)
-    }
+    pub fn raw(self, raw: bool) -> Self { self.multiple(raw).allow_hyphen_values(raw).last(raw) }
 
     /// Hides an argument from short help message output.
     ///
@@ -3778,7 +3778,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// **NOTE:** Setting this option will cause next-line-help output style to be used
     /// when long help (`--help`) is called.
-    /// 
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -3813,9 +3813,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
-    /// 
+    ///
     /// However, when --help is called
-    /// 
+    ///
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
@@ -3827,24 +3827,24 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         "prog", "--help"
     ///     ]);
     /// ```
-    /// 
+    ///
     /// Then the following would be displayed
-    /// 
+    ///
     /// ```notrust
     /// helptest
-    /// 
+    ///
     /// USAGE:
     ///    helptest [FLAGS]
-    /// 
+    ///
     /// FLAGS:
     ///     --config     Some help text describing the --config arg
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
     pub fn hidden_short_help(self, hide: bool) -> Self {
-        if hide { 
+        if hide {
             self.set(ArgSettings::HiddenShortHelp)
-        } else { 
+        } else {
             self.unset(ArgSettings::HiddenShortHelp)
         }
     }
@@ -3855,7 +3855,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// **NOTE:** Setting this option will cause next-line-help output style to be used
     /// when long help (`--help`) is called.
-    /// 
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -3890,9 +3890,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
-    /// 
+    ///
     /// However, when -h is called
-    /// 
+    ///
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
@@ -3904,15 +3904,15 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         "prog", "-h"
     ///     ]);
     /// ```
-    /// 
+    ///
     /// Then the following would be displayed
-    /// 
+    ///
     /// ```notrust
     /// helptest
-    /// 
+    ///
     /// USAGE:
     ///    helptest [FLAGS]
-    /// 
+    ///
     /// FLAGS:
     ///     --config     Some help text describing the --config arg
     /// -h, --help       Prints help information
@@ -3964,7 +3964,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     #[doc(hidden)]
     pub fn _build(&mut self) {
         if (self.is_set(ArgSettings::UseValueDelimiter)
-            || self.is_set(ArgSettings::RequireDelimiter)) && self.val_delim.is_none() {
+            || self.is_set(ArgSettings::RequireDelimiter)) && self.val_delim.is_none()
+        {
             self.val_delim = Some(',');
         }
         if self.index.is_some() || (self.short.is_none() && self.long.is_none()) {
@@ -4005,8 +4006,9 @@ impl<'a, 'b> Arg<'a, 'b> {
         let mult_vals = self.val_names
             .as_ref()
             .map_or(true, |names| names.len() < 2);
-        if (self.is_set(ArgSettings::MultipleValues) || self.is_set(ArgSettings::MultipleOccurrences))
-            && mult_vals {
+        if (self.is_set(ArgSettings::MultipleValues)
+            || self.is_set(ArgSettings::MultipleOccurrences)) && mult_vals
+        {
             "..."
         } else {
             ""
@@ -4046,29 +4048,28 @@ impl<'a, 'b> Arg<'a, 'b> {
 // Deprecations
 // @TODO @v3-beta: remove
 impl<'a, 'b> Arg<'a, 'b> {
-
     /// **Deprecated**
-    #[deprecated(since="2.30.0", note="Renamed to `Arg::setting`. Will be removed in v3.0-beta")]
+    #[deprecated(since = "2.30.0", note = "Renamed to `Arg::setting`. Will be removed in v3.0-beta")]
     pub fn set(mut self, s: ArgSettings) -> Self {
         self.setb(s);
         self
     }
 
     /// **Deprecated**
-    #[deprecated(since="2.30.0", note="Renamed to `Arg::unset_setting`. Will be removed in v3.0-beta")]
+    #[deprecated(
+        since = "2.30.0", note = "Renamed to `Arg::unset_setting`. Will be removed in v3.0-beta"
+    )]
     pub fn unset(mut self, s: ArgSettings) -> Self {
         self.unsetb(s);
         self
     }
 
-
     /// **Deprecated**
-    #[deprecated(since="2.30.0", note="Use `Arg::from` instead. Will be removed in v3.0-beta")]
+    #[deprecated(since = "2.30.0", note = "Use `Arg::from` instead. Will be removed in v3.0-beta")]
     pub fn from_usage(u: &'a str) -> Self {
         let parser = UsageParser::from_usage(u);
         parser.parse()
     }
-
 }
 
 impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
@@ -4104,8 +4105,7 @@ impl<'n, 'e> Display for Arg<'n, 'e> {
             }
             if self.settings.is_set(ArgSettings::MultipleValues)
                 && (self.val_names.is_none()
-                    || (self.val_names.is_some()
-                        && self.val_names.as_ref().unwrap().len() == 1))
+                    || (self.val_names.is_some() && self.val_names.as_ref().unwrap().len() == 1))
             {
                 write!(f, "...")?;
             }
@@ -4235,9 +4235,9 @@ impl<'n, 'e> fmt::Debug for Arg<'n, 'e> {
 // Flags
 #[cfg(test)]
 mod test {
-    use map::VecMap;
-    use args::settings::ArgSettings;
     use super::Arg;
+    use args::settings::ArgSettings;
+    use map::VecMap;
 
     #[test]
     fn flag_display() {
