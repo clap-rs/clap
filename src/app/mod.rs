@@ -1748,11 +1748,6 @@ impl<'a, 'b> App<'a, 'b> {
             .filter(|sc| sc.name != "help")
             .any(|sc| !sc.is_set(AppSettings::Hidden))
     }
-
-    fn use_long_help(&self) -> bool {
-        self.long_about.is_some() || self.args.iter().any(|f| f.long_help.is_some())
-            || subcommands!(self).any(|s| s.long_about.is_some())
-    }
 }
 
 // @TODO @v3-beta: remove
