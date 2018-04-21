@@ -151,7 +151,7 @@ fn group_multi_value_single_arg() {
 #[test]
 fn empty_group() {
     let r = App::new("empty_group")
-        .arg(Arg::from_usage("-f, --flag 'some flag'"))
+        .arg(Arg::from("-f, --flag 'some flag'"))
         .group(ArgGroup::with_name("vers").required(true))
         .get_matches_from_safe(vec!["empty_prog"]);
     assert!(r.is_err());
@@ -183,8 +183,8 @@ fn req_group_usage_string() {
 #[test]
 fn req_group_with_conflict_usage_string() {
     let app = App::new("req_group")
-        .arg(Arg::from_usage("[base] 'Base commit'").conflicts_with("delete"))
-        .arg(Arg::from_usage(
+        .arg(Arg::from("[base] 'Base commit'").conflicts_with("delete"))
+        .arg(Arg::from(
             "-d, --delete 'Remove the base commit information'",
         ))
         .group(

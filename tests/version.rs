@@ -50,7 +50,7 @@ fn override_ver() {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
-        .arg(Arg::from_usage("-v, --version 'some version'"))
+        .arg(Arg::from("-v, --version 'some version'"))
         .get_matches_from_safe(vec!["test", "--version"]);
 
     assert!(m.is_ok());

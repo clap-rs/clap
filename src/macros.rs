@@ -287,7 +287,7 @@ macro_rules! _clap_count_exprs {
 /// // and implements std::str::FromStr to use with the value_t! macros
 /// fn main() {
 ///     let m = App::new("app")
-///                 .arg(Arg::from_usage("<foo> 'the foo'")
+///                 .arg(Arg::from("<foo> 'the foo'")
 ///                     .possible_values(&Foo::variants())
 ///                     .case_insensitive(true))
 ///                 .get_matches_from(vec![

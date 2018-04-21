@@ -39,7 +39,7 @@ use INTERNAL_ERROR_MSG;
 ///       .value_name("FILE")
 ///       .help("Provides a config file to myprog");
 /// // Using a usage string (setting a similar argument to the one above)
-/// let input = Arg::from_usage("-i, --input=[FILE] 'Provides an input file to the program'");
+/// let input = Arg::from("-i, --input=[FILE] 'Provides an input file to the program'");
 /// ```
 /// [`Arg`]: ./struct.Arg.html
 #[allow(missing_debug_implementations)]
@@ -867,13 +867,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```rust # use clap::{App, Arg};
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
-    ///     .arg(Arg::from_usage("-f, --flag 'some flag'")
+    ///     .arg(Arg::from("-f, --flag 'some flag'")
     ///         .conflicts_with("debug"))
-    ///     .arg(Arg::from_usage("-d, --debug 'other flag'"))
-    ///     .arg(Arg::from_usage("-c, --color 'third flag'")
+    ///     .arg(Arg::from("-d, --debug 'other flag'"))
+    ///     .arg(Arg::from("-c, --color 'third flag'")
     ///         .overrides_with("flag"))
     ///     .get_matches_from(vec![
     ///         "prog", "-f", "-d", "-c"]);
@@ -895,7 +895,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("posix")
-    ///             .arg(Arg::from_usage("--flag  'some flag'").overrides_with("flag"))
+    ///             .arg(Arg::from("--flag  'some flag'").overrides_with("flag"))
     ///             .get_matches_from(vec!["posix", "--flag", "--flag"]);
     /// assert!(m.is_present("flag"));
     /// assert_eq!(m.occurrences_of("flag"), 1);
@@ -906,7 +906,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// # use clap::{App, Arg};
     /// let m = App::new("posix")
-    ///             .arg(Arg::from_usage("--flag...  'some flag'").overrides_with("flag"))
+    ///             .arg(Arg::from("--flag...  'some flag'").overrides_with("flag"))
     ///             .get_matches_from(vec!["", "--flag", "--flag", "--flag", "--flag"]);
     /// assert!(m.is_present("flag"));
     /// assert_eq!(m.occurrences_of("flag"), 4);
@@ -917,7 +917,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// # use clap::{App, Arg};
     /// let m = App::new("posix")
-    ///             .arg(Arg::from_usage("--opt [val] 'some option'").overrides_with("opt"))
+    ///             .arg(Arg::from("--opt [val] 'some option'").overrides_with("opt"))
     ///             .get_matches_from(vec!["", "--opt=some", "--opt=other"]);
     /// assert!(m.is_present("opt"));
     /// assert_eq!(m.occurrences_of("opt"), 1);
@@ -930,7 +930,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// # use clap::{App, Arg};
     /// let m = App::new("posix")
-    ///             .arg(Arg::from_usage("--opt [val]... 'some option'")
+    ///             .arg(Arg::from("--opt [val]... 'some option'")
     ///                 .overrides_with("opt"))
     ///             .get_matches_from(vec!["", "--opt", "first", "over", "--opt", "other", "val"]);
     /// assert!(m.is_present("opt"));
@@ -945,7 +945,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// # use clap::{App, Arg};
     /// let m = App::new("posix")
-    ///             .arg(Arg::from_usage("--opt [val] 'some option'")
+    ///             .arg(Arg::from("--opt [val] 'some option'")
     ///                 .overrides_with("opt"))
     ///             .get_matches_from(vec!["", "--opt=some,other", "--opt=one,two"]);
     /// assert!(m.is_present("opt"));
@@ -975,10 +975,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
-    ///     .arg(Arg::from_usage("-f, --flag 'some flag'")
+    ///     .arg(Arg::from("-f, --flag 'some flag'")
     ///         .conflicts_with("color"))
-    ///     .arg(Arg::from_usage("-d, --debug 'other flag'"))
-    ///     .arg(Arg::from_usage("-c, --color 'third flag'")
+    ///     .arg(Arg::from("-d, --debug 'other flag'"))
+    ///     .arg(Arg::from("-c, --color 'third flag'")
     ///         .overrides_with_all(&["flag", "debug"]))
     ///     .get_matches_from(vec![
     ///         "prog", "-f", "-d", "-c"]);
@@ -4072,6 +4072,10 @@ impl<'a, 'b> Arg<'a, 'b> {
 
 impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
     fn from(a: &'z Arg<'a, 'b>) -> Self { a.clone() }
+}
+
+impl<'a, 'b> From<&'a str> for Arg<'a, 'b> {
+    fn from(s: &'a str) -> Self { Self::from_usage(s) }
 }
 
 impl<'n, 'e> PartialEq for Arg<'n, 'e> {

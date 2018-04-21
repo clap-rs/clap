@@ -27,9 +27,9 @@ fn hidden_args() {
         .about("tests stuff")
         .version("1.4")
         .args(&[
-            Arg::from_usage("-f, --flag 'some flag'").hidden(true),
-            Arg::from_usage("-F, --flag2 'some other flag'"),
-            Arg::from_usage("--option [opt] 'some option'"),
+            Arg::from("-f, --flag 'some flag'").hidden(true),
+            Arg::from("-F, --flag2 'some other flag'"),
+            Arg::from("--option [opt] 'some option'"),
             Arg::with_name("DUMMY").hidden(true),
         ]);
     assert!(test::compare_output(app, "test --help", HIDDEN_ARGS, false));

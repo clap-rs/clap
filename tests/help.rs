@@ -1230,8 +1230,8 @@ fn issue_1112_setup() -> App<'static, 'static> {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
-        .arg(Arg::from_usage("-h, --help 'some help'"))
-        .subcommand(SubCommand::with_name("foo").arg(Arg::from_usage("-h, --help 'some help'")))
+        .arg(Arg::from("-h, --help 'some help'"))
+        .subcommand(SubCommand::with_name("foo").arg(Arg::from("-h, --help 'some help'")))
 }
 
 #[test]
@@ -1283,7 +1283,7 @@ fn issue_1052_require_delim_help() {
         .about("tests stuff")
         .version("1.3")
         .arg(
-            Arg::from_usage("-f, --fake <some> <val> 'some help'")
+            Arg::from("-f, --fake <some> <val> 'some help'")
                 .require_delimiter(true)
                 .value_delimiter(":"),
         );
@@ -1370,7 +1370,7 @@ fn custom_headers_headers() {
         .author("Will M.")
         .about("does stuff")
         .version("1.4")
-        .arg(Arg::from_usage("-f, --fake <some> <val> 'some help'")
+        .arg(Arg::from("-f, --fake <some> <val> 'some help'")
                 .require_delimiter(true)
                 .value_delimiter(":"),
         )
@@ -1416,7 +1416,7 @@ fn multiple_custom_help_headers() {
         .author("Will M.")
         .about("does stuff")
         .version("1.4")
-        .arg(Arg::from_usage("-f, --fake <some> <val> 'some help'")
+        .arg(Arg::from("-f, --fake <some> <val> 'some help'")
                 .require_delimiter(true)
                 .value_delimiter(":"),
         )
@@ -1427,7 +1427,7 @@ fn multiple_custom_help_headers() {
                 .help("Do not use system proxy settings")
         )
         .help_heading("SPECIAL")
-        .arg(Arg::from_usage("-b, --birthday-song <song> 'Change which song is played for birthdays'"))
+        .arg(Arg::from("-b, --birthday-song <song> 'Change which song is played for birthdays'"))
         .stop_custom_headings()
         .arg(Arg::with_name("speed")
                 .long("speed")

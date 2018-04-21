@@ -64,18 +64,18 @@ mod test {
             .about("tests clap library")
             .author("Kevin K. <kbknapp@gmail.com>")
             .args_from_usage(args)
-            .arg(Arg::from_usage("-f --flag... 'tests flags'")
+            .arg(Arg::from("-f --flag... 'tests flags'")
                 .global(true))
             .args(&[
-                Arg::from_usage("[flag2] -F 'tests flags with exclusions'").conflicts_with("flag").requires("long-option-2"),
-                Arg::from_usage("--long-option-2 [option2] 'tests long options with exclusions'").conflicts_with("option").requires("positional2"),
-                Arg::from_usage("[positional2] 'tests positionals with exclusions'"),
-                Arg::from_usage("-O --Option [option3] 'specific vals'").possible_values(&opt3_vals),
-                Arg::from_usage("[positional3]... 'tests specific values'").possible_values(&pos3_vals),
-                Arg::from_usage("--multvals [one] [two] 'Tests mutliple values, not mult occs'"),
-                Arg::from_usage("--multvalsmo... [one] [two] 'Tests mutliple values, and mult occs'"),
-                Arg::from_usage("--minvals2 [minvals]... 'Tests 2 min vals'").min_values(2),
-                Arg::from_usage("--maxvals3 [maxvals]... 'Tests 3 max vals'").max_values(3)
+                Arg::from("[flag2] -F 'tests flags with exclusions'").conflicts_with("flag").requires("long-option-2"),
+                Arg::from("--long-option-2 [option2] 'tests long options with exclusions'").conflicts_with("option").requires("positional2"),
+                Arg::from("[positional2] 'tests positionals with exclusions'"),
+                Arg::from("-O --Option [option3] 'specific vals'").possible_values(&opt3_vals),
+                Arg::from("[positional3]... 'tests specific values'").possible_values(&pos3_vals),
+                Arg::from("--multvals [one] [two] 'Tests mutliple values, not mult occs'"),
+                Arg::from("--multvalsmo... [one] [two] 'Tests mutliple values, and mult occs'"),
+                Arg::from("--minvals2 [minvals]... 'Tests 2 min vals'").min_values(2),
+                Arg::from("--maxvals3 [maxvals]... 'Tests 3 max vals'").max_values(3)
             ])
             .subcommand(SubCommand::with_name("subcmd")
                                     .about("tests subcommands")
