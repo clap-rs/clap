@@ -3671,7 +3671,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(res.unwrap().value_of("config"), None);
     /// ```
     /// [`ArgSettings::TakesValue`]: ./enum.ArgSettings.html#variant.TakesValue
-    pub fn multiple_values(mut self, multi: bool) -> Self {
+    pub fn multiple_values(self, multi: bool) -> Self {
         if multi {
             self.setting(ArgSettings::MultipleValues)
         } else {
@@ -3740,7 +3740,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [specific number of values]: ./struct.Arg.html#method.number_of_values
     /// [maximum]: ./struct.Arg.html#method.max_values
     /// [specific]: ./struct.Arg.html#method.number_of_values
-    pub fn multiple_occurrences(mut self, multi: bool) -> Self {
+    pub fn multiple_occurrences(self, multi: bool) -> Self {
         if multi {
             self.setting(ArgSettings::MultipleOccurrences)
         } else {
