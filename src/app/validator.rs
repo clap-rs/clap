@@ -135,7 +135,7 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
                     sdebugln!("error");
                     return Err(Error::value_validation(
                         Some(arg),
-                        (*e).to_string_lossy().to_string(),
+                        (*e).to_string(),
                         self.0.app.color(),
                     ));
                 } else {
