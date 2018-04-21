@@ -13,6 +13,7 @@
 
 // Using yaml requires calling a clap macro `load_yaml!()` so we must use the '#[macro_use]'
 // directive
+#[cfg(feature = "yaml")]
 #[macro_use]
 extern crate clap;
 
