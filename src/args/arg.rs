@@ -89,7 +89,7 @@ where
     #[doc(hidden)]
     pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
     #[doc(hidden)]
-    pub validator_os: Option<Rc<Fn(&OsStr) -> Result<(), OsString>>>,
+    pub validator_os: Option<Rc<Fn(&OsStr) -> Result<(), String>>>,
     #[doc(hidden)]
     pub val_delim: Option<char>,
     #[doc(hidden)]
@@ -1848,9 +1848,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg};
     /// # use std::ffi::{OsStr, OsString};
     /// # use std::os::unix::ffi::OsStrExt;
-    /// fn has_ampersand(v: &OsStr) -> Result<(), OsString> {
+    /// fn has_ampersand(v: &OsStr) -> Result<(), String> {
     ///     if v.as_bytes().iter().any(|b| *b == b'&') { return Ok(()); }
-    ///     Err(OsString::from("The value did not contain the required & sigil"))
+    ///     Err(String::from("The value did not contain the required & sigil"))
     /// }
     /// let res = App::new("prog")
     ///     .arg(Arg::with_name("file")
@@ -1870,7 +1870,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Rc`]: https://doc.rust-lang.org/std/rc/struct.Rc.html
     pub fn validator_os<F>(mut self, f: F) -> Self
     where
-        F: Fn(&OsStr) -> Result<(), OsString> + 'static,
+        F: Fn(&OsStr) -> Result<(), String> + 'static,
     {
         self.validator_os = Some(Rc::new(f));
         self
