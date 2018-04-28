@@ -160,3 +160,20 @@ fn enum_in_enum_subsubcommand() {
     let result = Opt::from_iter(&["test", "daemon", "start"]);
     assert_eq!(Opt::Daemon(DaemonCommand::Start), result);
 }
+
+#[test]
+fn flatten_enum() {
+    #[derive(StructOpt, Debug, PartialEq)]
+    struct Opt {
+        #[structopt(flatten)]
+        sub_cmd: SubCmd,
+    }
+    #[derive(StructOpt, Debug, PartialEq)]
+    enum SubCmd {
+        Foo,
+        Bar,
+    }
+
+    assert!(Opt::from_iter_safe(&["test"]).is_err());
+    assert_eq!(Opt::from_iter(&["test", "Foo"]), Opt { sub_cmd: SubCmd::Foo });
+}

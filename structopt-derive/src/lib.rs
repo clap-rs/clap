@@ -90,7 +90,14 @@ fn gen_augmentation(fields: &Punctuated<Field, Comma>, app_var: &Ident) -> quote
                 Kind::Subcommand(_) => None,
                 Kind::FlattenStruct => {
                     let ty = &field.ty;
-                    Some(quote! { let #app_var = <#ty>::augment_clap(#app_var); })
+                    Some(quote! {
+                        let #app_var = <#ty>::augment_clap(#app_var);
+                        let #app_var = if <#ty>::is_subcommand() {
+                            #app_var.setting(::structopt::clap::AppSettings::SubcommandRequiredElseHelp)
+                        } else {
+                            #app_var
+                        };
+                    })
                 }
                 Kind::Arg(ty) => {
                     let convert_type = match ty {
