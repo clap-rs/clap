@@ -60,7 +60,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             }
         }
 
-        if matcher.is_empty() && matcher.subcommand_name().is_none()
+        if !reqs_validated && matcher.subcommand_name().is_none()
             && self.0.is_set(AS::ArgRequiredElseHelp)
         {
             let mut out = vec![];
