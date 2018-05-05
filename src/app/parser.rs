@@ -3,8 +3,10 @@ use std::ffi::{OsStr, OsString};
 use std::fmt::Display;
 use std::fs::File;
 use std::io::{self, BufWriter, Write};
-#[cfg(all(feature = "debug", not(target_arch = "wasm32")))]
+#[cfg(all(feature = "debug", not(any(target_os = "windows", target_arch = "wasm32"))))]
 use std::os::unix::ffi::OsStrExt;
+#[cfg(all(feature = "debug", any(target_os = "windows", target_arch = "wasm32")))]
+use osstringext::OsStrExt3;
 use std::path::PathBuf;
 use std::slice::Iter;
 use std::iter::Peekable;
