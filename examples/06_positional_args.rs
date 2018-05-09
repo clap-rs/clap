@@ -25,7 +25,7 @@ fn main() {
                                                                    // requires_all(Vec<&str>)
                                     .conflicts_with("output")      // Opposite of requires(), says "if the
                                                                    // user uses -a, they CANNOT use 'output'"
-                                                                   // also has a mutually_excludes_all(Vec<&str>)
+                                                                   // also has a conflicts_with_all(Vec<&str>)
                                     .required(true)                // By default this argument MUST be present
                                                                    // NOTE: mutual exclusions take precedence over
                                                                    // required arguments
@@ -38,7 +38,7 @@ fn main() {
                                                                    // Note, we also do not need to specify requires("input")
                                                                    // because requires lists are automatically two-way
 
-                        // NOTE: In order to compile this example, comment out mutually_excludes()
+                        // NOTE: In order to compile this example, comment out conflicts_with()
                         // because we have not defined an "output" argument.
                         .get_matches();
 
