@@ -1,7 +1,7 @@
 [package]
 name = "structopt"
 version = "0.2.8"
-authors = ["Guillaume Pinot <texitoi@texitoi.eu>"]
+authors = ["Guillaume Pinot <texitoi@texitoi.eu>", "others"]
 description = "Parse command line argument by defining a struct."
 documentation = "https://docs.rs/structopt"
 repository = "https://github.com/TeXitoi/structopt"

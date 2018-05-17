@@ -228,8 +228,12 @@ impl Attrs {
             .filter_map(|&(m, v)| env::var(v).ok().and_then(|arg| Some((m, arg))))
             .filter(|&(_, ref arg)| !arg.is_empty())
             .for_each(|(name, arg)| {
-                if arg == "author" { arg.replace(":", ", "); }
-                res.push_str_method(name, &arg);
+                let new_arg = if name == "author" {
+                    arg.replace(":", ", ")
+                } else {
+                    arg
+                };
+                res.push_str_method(name, &new_arg);
             });
         res.push_doc_comment(attrs, "about");
         res.push_attrs(attrs);
