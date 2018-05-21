@@ -7,7 +7,7 @@
 // except according to those terms.
 
 #![deny(warnings)]
-#![cfg(feature = "nightly")]// TODO: remove that when never is stable
+#![cfg(feature = "nightly")] // TODO: remove that when never is stable
 #![feature(never_type)]
 
 #[macro_use]
@@ -26,9 +26,12 @@ fn warning_never_struct() {
         #[structopt(parse(try_from_str = "try_str"))]
         s: String,
     }
-    assert_eq!(Opt { s: "foo".to_string() },
-               Opt::from_iter(&["test", "foo"]));
-
+    assert_eq!(
+        Opt {
+            s: "foo".to_string()
+        },
+        Opt::from_iter(&["test", "foo"])
+    );
 }
 
 #[test]
@@ -38,10 +41,12 @@ fn warning_never_enum() {
         Foo {
             #[structopt(parse(try_from_str = "try_str"))]
             s: String,
-        }
+        },
     }
-    assert_eq!(Opt::Foo { s: "foo".to_string() },
-               Opt::from_iter(&["test", "Foo", "foo"]));
-
+    assert_eq!(
+        Opt::Foo {
+            s: "foo".to_string()
+        },
+        Opt::from_iter(&["test", "Foo", "foo"])
+    );
 }
-

@@ -14,8 +14,7 @@ fn vers_arg_group() -> ArgGroup<'static> {
     // As the attributes of the struct are executed before the struct
     // fields, we can't use .args(...), but we can use the group
     // attribute on the fields.
-    ArgGroup::with_name("vers")
-        .required(true)
+    ArgGroup::with_name("vers").required(true)
 }
 
 #[derive(StructOpt, Debug)]

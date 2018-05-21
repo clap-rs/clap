@@ -6,7 +6,8 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-#[macro_use] extern crate structopt;
+#[macro_use]
+extern crate structopt;
 
 use structopt::StructOpt;
 
@@ -19,32 +20,54 @@ enum Opt {
         #[structopt(short = "f", long = "force")]
         /// Overwrite local branches.
         force: bool,
-        repo: String
+        repo: String,
     },
-    
+
     #[structopt(name = "add")]
     Add {
         #[structopt(short = "i", long = "interactive")]
         interactive: bool,
         #[structopt(short = "v", long = "verbose")]
-        verbose: bool
-    }
+        verbose: bool,
+    },
 }
 
 #[test]
 fn test_fetch() {
-    assert_eq!(Opt::Fetch { all: true, force: false, repo: "origin".to_string() },
-               Opt::from_clap(&Opt::clap().get_matches_from(&["test", "fetch", "--all", "origin"])));
-    assert_eq!(Opt::Fetch { all: false, force: true, repo: "origin".to_string() },
-               Opt::from_clap(&Opt::clap().get_matches_from(&["test", "fetch", "-f", "origin"])));
+    assert_eq!(
+        Opt::Fetch {
+            all: true,
+            force: false,
+            repo: "origin".to_string()
+        },
+        Opt::from_clap(&Opt::clap().get_matches_from(&["test", "fetch", "--all", "origin"]))
+    );
+    assert_eq!(
+        Opt::Fetch {
+            all: false,
+            force: true,
+            repo: "origin".to_string()
+        },
+        Opt::from_clap(&Opt::clap().get_matches_from(&["test", "fetch", "-f", "origin"]))
+    );
 }
 
 #[test]
 fn test_add() {
-    assert_eq!(Opt::Add { interactive: false, verbose: false },
-               Opt::from_clap(&Opt::clap().get_matches_from(&["test", "add"])));
-    assert_eq!(Opt::Add { interactive: true, verbose: true },
-               Opt::from_clap(&Opt::clap().get_matches_from(&["test", "add", "-i", "-v"])));
+    assert_eq!(
+        Opt::Add {
+            interactive: false,
+            verbose: false
+        },
+        Opt::from_clap(&Opt::clap().get_matches_from(&["test", "add"]))
+    );
+    assert_eq!(
+        Opt::Add {
+            interactive: true,
+            verbose: true
+        },
+        Opt::from_clap(&Opt::clap().get_matches_from(&["test", "add", "-i", "-v"]))
+    );
 }
 
 #[test]
@@ -62,17 +85,19 @@ fn test_no_parse() {
 #[derive(StructOpt, PartialEq, Debug)]
 enum Opt2 {
     #[structopt(name = "do-something")]
-    DoSomething {
-        arg: String
-    }
+    DoSomething { arg: String },
 }
 
 #[test]
 /// This test is specifically to make sure that hyphenated subcommands get
 /// processed correctly.
 fn test_hyphenated_subcommands() {
-    assert_eq!(Opt2::DoSomething { arg: "blah".to_string() },
-               Opt2::from_clap(&Opt2::clap().get_matches_from(&["test", "do-something", "blah"])));
+    assert_eq!(
+        Opt2::DoSomething {
+            arg: "blah".to_string()
+        },
+        Opt2::from_clap(&Opt2::clap().get_matches_from(&["test", "do-something", "blah"]))
+    );
 }
 
 #[derive(StructOpt, PartialEq, Debug)]
@@ -82,14 +107,23 @@ enum Opt3 {
     #[structopt(name = "init")]
     Init,
     #[structopt(name = "fetch")]
-    Fetch
+    Fetch,
 }
 
 #[test]
 fn test_null_commands() {
-    assert_eq!(Opt3::Add, Opt3::from_clap(&Opt3::clap().get_matches_from(&["test", "add"])));
-    assert_eq!(Opt3::Init, Opt3::from_clap(&Opt3::clap().get_matches_from(&["test", "init"])));
-    assert_eq!(Opt3::Fetch, Opt3::from_clap(&Opt3::clap().get_matches_from(&["test", "fetch"])));
+    assert_eq!(
+        Opt3::Add,
+        Opt3::from_clap(&Opt3::clap().get_matches_from(&["test", "add"]))
+    );
+    assert_eq!(
+        Opt3::Init,
+        Opt3::from_clap(&Opt3::clap().get_matches_from(&["test", "init"]))
+    );
+    assert_eq!(
+        Opt3::Fetch,
+        Opt3::from_clap(&Opt3::clap().get_matches_from(&["test", "fetch"]))
+    );
 }
 
 #[derive(StructOpt, PartialEq, Debug)]
@@ -117,12 +151,19 @@ enum Opt4 {
 #[test]
 fn test_tuple_commands() {
     assert_eq!(
-        Opt4::Add(Add { file: "f".to_string() }),
+        Opt4::Add(Add {
+            file: "f".to_string()
+        }),
         Opt4::from_clap(&Opt4::clap().get_matches_from(&["test", "add", "f"]))
     );
-    assert_eq!(Opt4::Init, Opt4::from_clap(&Opt4::clap().get_matches_from(&["test", "init"])));
     assert_eq!(
-        Opt4::Fetch(Fetch { remote: "origin".to_string() }),
+        Opt4::Init,
+        Opt4::from_clap(&Opt4::clap().get_matches_from(&["test", "init"]))
+    );
+    assert_eq!(
+        Opt4::Fetch(Fetch {
+            remote: "origin".to_string()
+        }),
         Opt4::from_clap(&Opt4::clap().get_matches_from(&["test", "fetch", "origin"]))
     );
 
@@ -140,7 +181,7 @@ fn enum_in_enum_subsubcommand() {
     #[derive(StructOpt, Debug, PartialEq)]
     pub enum Opt {
         #[structopt(name = "daemon")]
-        Daemon(DaemonCommand)
+        Daemon(DaemonCommand),
     }
 
     #[derive(StructOpt, Debug, PartialEq)]
@@ -175,5 +216,10 @@ fn flatten_enum() {
     }
 
     assert!(Opt::from_iter_safe(&["test"]).is_err());
-    assert_eq!(Opt::from_iter(&["test", "Foo"]), Opt { sub_cmd: SubCmd::Foo });
+    assert_eq!(
+        Opt::from_iter(&["test", "Foo"]),
+        Opt {
+            sub_cmd: SubCmd::Foo
+        }
+    );
 }

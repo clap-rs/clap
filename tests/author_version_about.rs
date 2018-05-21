@@ -6,7 +6,8 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-#[macro_use] extern crate structopt;
+#[macro_use]
+extern crate structopt;
 
 use structopt::StructOpt;
 

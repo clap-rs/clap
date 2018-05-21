@@ -23,9 +23,18 @@ fn flatten() {
         #[structopt(flatten)]
         common: Common,
     }
-    assert_eq!(Opt { common: Common { arg: 42 } }, Opt::from_iter(&["test", "42"]));
+    assert_eq!(
+        Opt {
+            common: Common { arg: 42 }
+        },
+        Opt::from_iter(&["test", "42"])
+    );
     assert!(Opt::clap().get_matches_from_safe(&["test"]).is_err());
-    assert!(Opt::clap().get_matches_from_safe(&["test", "42", "24"]).is_err());
+    assert!(
+        Opt::clap()
+            .get_matches_from_safe(&["test", "42", "24"])
+            .is_err()
+    );
 }
 
 #[test]
@@ -76,8 +85,18 @@ fn flatten_in_subcommand() {
         Add(Add),
     }
 
-    assert_eq!(Opt::Fetch { all: false, common: Common { arg: 42 } },
-               Opt::from_iter(&["test", "fetch", "42"]));
-    assert_eq!(Opt::Add(Add { interactive: true, common: Common { arg: 43 } }),
-               Opt::from_iter(&["test", "add", "-i", "43"]));
+    assert_eq!(
+        Opt::Fetch {
+            all: false,
+            common: Common { arg: 42 }
+        },
+        Opt::from_iter(&["test", "fetch", "42"])
+    );
+    assert_eq!(
+        Opt::Add(Add {
+            interactive: true,
+            common: Common { arg: 43 }
+        }),
+        Opt::from_iter(&["test", "add", "-i", "43"])
+    );
 }

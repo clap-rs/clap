@@ -3,7 +3,8 @@
 //! Documentation can be added either through doc comments or the
 //! `about` attribute.
 
-#[macro_use] extern crate structopt;
+#[macro_use]
+extern crate structopt;
 
 use structopt::StructOpt;
 
@@ -19,7 +20,7 @@ enum Opt {
         #[structopt(long = "all")]
         all: bool,
         #[structopt(default_value = "origin")]
-        repository: String
+        repository: String,
     },
     #[structopt(name = "add")]
     /// add files to the staging area
@@ -28,8 +29,8 @@ enum Opt {
         interactive: bool,
         #[structopt(short = "a")]
         all: bool,
-        files: Vec<String>
-    }
+        files: Vec<String>,
+    },
 }
 
 fn main() {

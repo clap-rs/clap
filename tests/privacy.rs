@@ -12,18 +12,18 @@ extern crate structopt;
 mod options {
     #[derive(Debug, StructOpt)]
     pub struct Options {
-	#[structopt(subcommand)]
-	pub subcommand: ::subcommands::SubCommand,
+        #[structopt(subcommand)]
+        pub subcommand: ::subcommands::SubCommand,
     }
 }
 
 mod subcommands {
     #[derive(Debug, StructOpt)]
     pub enum SubCommand {
-	#[structopt(name = "foo", about = "foo")]
-	Foo {
-	    #[structopt(help = "foo")]
-	    bars: Vec<String>,
-	},
+        #[structopt(name = "foo", about = "foo")]
+        Foo {
+            #[structopt(help = "foo")]
+            bars: Vec<String>,
+        },
     }
 }

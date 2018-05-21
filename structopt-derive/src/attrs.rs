@@ -6,10 +6,10 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+use proc_macro2::{Span, TokenStream};
 use std::{env, mem};
-use quote::Tokens;
-use syn::{self, Attribute, MetaNameValue, MetaList, LitStr, TypePath};
 use syn::Type::Path;
+use syn::{self, Attribute, Ident, LitStr, MetaList, MetaNameValue, TypePath};
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum Kind {
@@ -28,14 +28,14 @@ pub enum Ty {
 pub struct Attrs {
     name: String,
     methods: Vec<Method>,
-    parser: (Parser, Tokens),
+    parser: (Parser, TokenStream),
     has_custom_parser: bool,
     kind: Kind,
 }
 #[derive(Debug)]
 struct Method {
     name: String,
-    args: Tokens,
+    args: TokenStream,
 }
 #[derive(Debug, PartialEq)]
 pub enum Parser {
@@ -54,7 +54,7 @@ impl ::std::str::FromStr for Parser {
             "from_os_str" => Ok(Parser::FromOsStr),
             "try_from_os_str" => Ok(Parser::TryFromOsStr),
             "from_occurrences" => Ok(Parser::FromOccurrences),
-            _ => Err(format!("unsupported parser {}", s))
+            _ => Err(format!("unsupported parser {}", s)),
         }
     }
 }
@@ -73,10 +73,7 @@ impl Attrs {
         match (name, arg) {
             ("about", "") | ("version", "") | ("author", "") => {
                 let methods = mem::replace(&mut self.methods, vec![]);
-                self.methods = methods
-                    .into_iter()
-                    .filter(|m| m.name != name)
-                    .collect();
+                self.methods = methods.into_iter().filter(|m| m.name != name).collect();
             }
             ("name", new_name) => self.name = new_name.into(),
             (name, arg) => self.methods.push(Method {
@@ -86,22 +83,23 @@ impl Attrs {
         }
     }
     fn push_attrs(&mut self, attrs: &[Attribute]) {
+        use Lit::*;
         use Meta::*;
         use NestedMeta::*;
-        use Lit::*;
 
-        let iter = attrs.iter()
+        let iter = attrs
+            .iter()
             .filter_map(|attr| {
                 let path = &attr.path;
-                match quote!(#path) == quote!(structopt) {
+                match quote!(#path).to_string() == "structopt" {
                     true => Some(
                         attr.interpret_meta()
-                            .expect(&format!("invalid structopt syntax: {}", quote!(attr)))
+                            .expect(&format!("invalid structopt syntax: {}", quote!(attr))),
                     ),
                     false => None,
                 }
-            }).
-            flat_map(|m| match m {
+            })
+            .flat_map(|m| match m {
                 List(l) => l.nested,
                 tokens => panic!("unsupported syntax: {}", quote!(#tokens).to_string()),
             })
@@ -110,46 +108,55 @@ impl Attrs {
                 ref tokens => panic!("unsupported syntax: {}", quote!(#tokens).to_string()),
             });
         for attr in iter {
-            match attr {
-                NameValue(MetaNameValue { ident, lit: Str(ref value), .. }) =>
-                    self.push_str_method(ident.as_ref(), &value.value()),
-                NameValue(MetaNameValue { ident, lit, .. }) => {
-                    self.methods.push(Method {
-                        name: ident.to_string(),
-                        args: quote!(#lit),
-                    })
-                }
-                List(MetaList { ident, ref nested, .. }) if ident == "parse" => {
+            match &attr {
+                NameValue(MetaNameValue {
+                    ident,
+                    lit: Str(value),
+                    ..
+                }) => self.push_str_method(&ident.to_string(), &value.value()),
+                NameValue(MetaNameValue { ident, lit, .. }) => self.methods.push(Method {
+                    name: ident.to_string(),
+                    args: quote!(#lit),
+                }),
+                List(MetaList { ident, nested, .. }) if ident == "parse" => {
                     if nested.len() != 1 {
                         panic!("parse must have exactly one argument");
                     }
                     self.has_custom_parser = true;
-                    self.parser = match nested[0] {
-                        Meta(NameValue(MetaNameValue { ident, lit: Str(ref v), .. })) => {
+                    self.parser = match &nested[0] {
+                        Meta(NameValue(MetaNameValue {
+                            ident, lit: Str(v), ..
+                        })) => {
                             let function: syn::Path = v.parse().expect("parser function path");
-                            let parser = ident.as_ref().parse().unwrap();
+                            let parser = ident.to_string().parse().unwrap();
                             (parser, quote!(#function))
                         }
                         Meta(Word(ref i)) => {
                             use Parser::*;
-                            let parser = i.as_ref().parse().unwrap();
+                            let parser = i.to_string().parse().unwrap();
                             let function = match parser {
                                 FromStr => quote!(::std::convert::From::from),
                                 TryFromStr => quote!(::std::str::FromStr::from_str),
                                 FromOsStr => quote!(::std::convert::From::from),
-                                TryFromOsStr => panic!("cannot omit parser function name with `try_from_os_str`"),
-                                FromOccurrences => quote!({|v| v as _}),
+                                TryFromOsStr => panic!(
+                                    "cannot omit parser function name with `try_from_os_str`"
+                                ),
+                                FromOccurrences => quote!({ |v| v as _ }),
                             };
                             (parser, function)
                         }
                         ref l @ _ => panic!("unknown value parser specification: {}", quote!(#l)),
                     };
                 }
-                List(MetaList { ident, ref nested, .. }) if ident == "raw" => {
+                List(MetaList {
+                    ident, ref nested, ..
+                }) if ident == "raw" =>
+                {
                     for method in nested {
-                        match *method {
-                            Meta(NameValue(MetaNameValue { ident, lit: Str(ref v), .. })) =>
-                                self.push_raw_method(ident.as_ref(), v),
+                        match method {
+                            Meta(NameValue(MetaNameValue {
+                                ident, lit: Str(v), ..
+                            })) => self.push_raw_method(&ident.to_string(), v),
                             ref mi @ _ => panic!("unsupported raw entry: {}", quote!(#mi)),
                         }
                     }
@@ -160,33 +167,41 @@ impl Attrs {
                 Word(ref w) if w == "flatten" => {
                     self.set_kind(Kind::FlattenStruct);
                 }
-                ref i @ List(..) | ref i @ Word(..) =>
-                    panic!("unsupported option: {}", quote!(#i)),
+                ref i @ List(..) | ref i @ Word(..) => panic!("unsupported option: {}", quote!(#i)),
             }
         }
     }
     fn push_raw_method(&mut self, name: &str, args: &LitStr) {
-        let ts: ::proc_macro2::TokenStream = args.value().parse()
-            .expect(&format!("bad parameter {} = {}: the parameter must be valid rust code", name, quote!(#args)));
+        let ts: TokenStream = args.value().parse().expect(&format!(
+            "bad parameter {} = {}: the parameter must be valid rust code",
+            name,
+            quote!(#args)
+        ));
         self.methods.push(Method {
             name: name.to_string(),
             args: quote!(#(#ts)*),
         })
     }
     fn push_doc_comment(&mut self, attrs: &[Attribute], name: &str) {
-        let doc_comments: Vec<_> = attrs.iter()
+        let doc_comments: Vec<_> = attrs
+            .iter()
             .filter_map(|attr| {
                 let path = &attr.path;
-                match quote!(#path) == quote!(doc) {
+                match quote!(#path).to_string() == "doc" {
                     true => attr.interpret_meta(),
                     false => None,
                 }
             })
             .filter_map(|attr| {
-                use Meta::*;
                 use Lit::*;
-                if let NameValue(MetaNameValue { ident, lit: Str(s), .. }) = attr {
-                    if ident != "doc" { return None; }
+                use Meta::*;
+                if let NameValue(MetaNameValue {
+                    ident, lit: Str(s), ..
+                }) = attr
+                {
+                    if ident != "doc" {
+                        return None;
+                    }
                     let value = s.value();
                     let text = value
                         .trim_left_matches("//!")
@@ -197,7 +212,7 @@ impl Attrs {
                         .trim();
                     if text.is_empty() {
                         Some("\n\n".to_string())
-                    } else{
+                    } else {
                         Some(text.to_string())
                     }
                 } else {
@@ -205,7 +220,9 @@ impl Attrs {
                 }
             })
             .collect();
-        if doc_comments.is_empty() { return; }
+        if doc_comments.is_empty() {
+            return;
+        }
         let arg = doc_comments
             .join(" ")
             .split('\n')
@@ -224,7 +241,8 @@ impl Attrs {
             ("about", "CARGO_PKG_DESCRIPTION"),
             ("author", "CARGO_PKG_AUTHORS"),
         ];
-        attrs_with_env.iter()
+        attrs_with_env
+            .iter()
             .filter_map(|&(m, v)| env::var(v).ok().and_then(|arg| Some((m, arg))))
             .filter(|&(_, ref arg)| !arg.is_empty())
             .for_each(|(name, arg)| {
@@ -247,8 +265,12 @@ impl Attrs {
         }
     }
     fn ty_from_field(ty: &syn::Type) -> Ty {
-        if let Path(TypePath { path: syn::Path { ref segments, .. }, .. }) = *ty {
-            match segments.iter().last().unwrap().ident.as_ref() {
+        if let Path(TypePath {
+            path: syn::Path { ref segments, .. },
+            ..
+        }) = *ty
+        {
+            match segments.iter().last().unwrap().ident.to_string().as_str() {
                 "bool" => Ty::Bool,
                 "Option" => Ty::Option,
                 "Vec" => Ty::Vec,
@@ -259,7 +281,7 @@ impl Attrs {
         }
     }
     pub fn from_field(field: &syn::Field) -> Attrs {
-        let name = field.ident.as_ref().unwrap().as_ref().to_string();
+        let name = field.ident.as_ref().unwrap().to_string();
         let mut res = Self::new(name);
         res.push_doc_comment(&field.attrs, "help");
         res.push_attrs(&field.attrs);
@@ -298,7 +320,7 @@ impl Attrs {
                         if res.has_method("required") {
                             panic!("required is meaningless for bool")
                         }
-                    },
+                    }
                     Ty::Option => {
                         if res.has_method("default_value") {
                             panic!("default_value is meaningless for Option")
@@ -306,7 +328,7 @@ impl Attrs {
                         if res.has_method("required") {
                             panic!("required is meaningless for Option")
                         }
-                    },
+                    }
                     _ => (),
                 }
                 res.kind = Kind::Arg(ty);
@@ -325,9 +347,9 @@ impl Attrs {
     pub fn has_method(&self, method: &str) -> bool {
         self.methods.iter().find(|m| m.name == method).is_some()
     }
-    pub fn methods(&self) -> Tokens {
+    pub fn methods(&self) -> TokenStream {
         let methods = self.methods.iter().map(|&Method { ref name, ref args }| {
-            let name: ::syn::Ident = name.as_str().into();
+            let name = Ident::new(&name, Span::call_site());
             quote!( .#name(#args) )
         });
         quote!( #(#methods)* )
@@ -335,7 +357,7 @@ impl Attrs {
     pub fn name(&self) -> &str {
         &self.name
     }
-    pub fn parser(&self) -> &(Parser, Tokens) {
+    pub fn parser(&self) -> &(Parser, TokenStream) {
         &self.parser
     }
     pub fn kind(&self) -> Kind {

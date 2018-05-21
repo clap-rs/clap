@@ -1,4 +1,5 @@
-#[macro_use] extern crate structopt;
+#[macro_use]
+extern crate structopt;
 
 use structopt::StructOpt;
 
@@ -10,7 +11,7 @@ pub struct Foo {
 #[derive(Debug, StructOpt)]
 pub enum Command {
     #[structopt(name = "foo")]
-    Foo(Foo)
+    Foo(Foo),
 }
 
 #[derive(Debug, StructOpt)]

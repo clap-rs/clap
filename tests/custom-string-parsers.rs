@@ -11,9 +11,9 @@ extern crate structopt;
 
 use structopt::StructOpt;
 
-use std::path::PathBuf;
-use std::num::ParseIntError;
 use std::ffi::{OsStr, OsString};
+use std::num::ParseIntError;
+use std::path::PathBuf;
 
 #[derive(StructOpt, PartialEq, Debug)]
 struct PathOpt {
@@ -48,18 +48,10 @@ fn test_path_opt_simple() {
             option_path_2: Some(PathBuf::from("j.zip")),
         },
         PathOpt::from_clap(&PathOpt::clap().get_matches_from(&[
-            "test",
-            "-p", "/usr/bin",
-            "-v", "/a/b/c",
-            "-v", "/d/e/f",
-            "-v", "/g/h/i",
-            "-q", "j.zip",
+            "test", "-p", "/usr/bin", "-v", "/a/b/c", "-v", "/d/e/f", "-v", "/g/h/i", "-q", "j.zip"
         ]))
     );
 }
-
-
-
 
 fn parse_hex(input: &str) -> Result<u64, ParseIntError> {
     u64::from_str_radix(input, 16)
@@ -82,12 +74,11 @@ fn test_parse_hex() {
         HexOpt::from_clap(&HexOpt::clap().get_matches_from(&["test", "-n", "abcdef"]))
     );
 
-    let err = HexOpt::clap().get_matches_from_safe(&["test", "-n", "gg"]).unwrap_err();
+    let err = HexOpt::clap()
+        .get_matches_from_safe(&["test", "-n", "gg"])
+        .unwrap_err();
     assert!(err.message.contains("invalid digit found in string"), err);
 }
-
-
-
 
 fn custom_parser_1(_: &str) -> &'static str {
     "A"
@@ -117,13 +108,15 @@ struct NoOpOpt {
 #[test]
 fn test_every_custom_parser() {
     assert_eq!(
-        NoOpOpt { a: "A", b: "B", c: "C", d: "D" },
-        NoOpOpt::from_clap(&NoOpOpt::clap().get_matches_from(&[
-            "test", "-a=?", "-b=?", "-c=?", "-d=?",
-        ]))
+        NoOpOpt {
+            a: "A",
+            b: "B",
+            c: "C",
+            d: "D"
+        },
+        NoOpOpt::from_clap(&NoOpOpt::clap().get_matches_from(&["test", "-a=?", "-b=?", "-c=?", "-d=?",]))
     );
 }
-
 
 // Note: can't use `Vec<u8>` directly, as structopt would instead look for
 // conversion function from `&str` to `u8`.
@@ -151,13 +144,15 @@ fn test_parser_with_default_value() {
         },
         DefaultedOpt::from_clap(&DefaultedOpt::clap().get_matches_from(&[
             "test",
-            "-b", "E²=p²c²+m²c⁴",
-            "-i", "9000",
-            "-p", "src/lib.rs",
+            "-b",
+            "E²=p²c²+m²c⁴",
+            "-i",
+            "9000",
+            "-p",
+            "src/lib.rs",
         ]))
     );
 }
-
 
 #[derive(PartialEq, Debug)]
 struct Foo(u8);
@@ -223,33 +218,72 @@ fn test_custom_bool() {
 
     assert!(Opt::clap().get_matches_from_safe(&["test"]).is_err());
     assert!(Opt::clap().get_matches_from_safe(&["test", "-d"]).is_err());
-    assert!(Opt::clap().get_matches_from_safe(&["test", "-dfoo"]).is_err());
+    assert!(
+        Opt::clap()
+            .get_matches_from_safe(&["test", "-dfoo"])
+            .is_err()
+    );
     assert_eq!(
-        Opt { debug: false, verbose: false, tribool: None, bitset: vec![] },
+        Opt {
+            debug: false,
+            verbose: false,
+            tribool: None,
+            bitset: vec![],
+        },
         Opt::from_iter(&["test", "-dfalse"]),
     );
     assert_eq!(
-        Opt { debug: true, verbose: false, tribool: None, bitset: vec![] },
+        Opt {
+            debug: true,
+            verbose: false,
+            tribool: None,
+            bitset: vec![],
+        },
         Opt::from_iter(&["test", "-dtrue"]),
     );
     assert_eq!(
-        Opt { debug: true, verbose: false, tribool: None, bitset: vec![] },
+        Opt {
+            debug: true,
+            verbose: false,
+            tribool: None,
+            bitset: vec![],
+        },
         Opt::from_iter(&["test", "-dtrue", "-vfalse"]),
     );
     assert_eq!(
-        Opt { debug: true, verbose: true, tribool: None, bitset: vec![] },
+        Opt {
+            debug: true,
+            verbose: true,
+            tribool: None,
+            bitset: vec![],
+        },
         Opt::from_iter(&["test", "-dtrue", "-vtrue"]),
     );
     assert_eq!(
-        Opt { debug: true, verbose: false, tribool: Some(false), bitset: vec![] },
+        Opt {
+            debug: true,
+            verbose: false,
+            tribool: Some(false),
+            bitset: vec![],
+        },
         Opt::from_iter(&["test", "-dtrue", "-tfalse"]),
     );
     assert_eq!(
-        Opt { debug: true, verbose: false, tribool: Some(true), bitset: vec![] },
+        Opt {
+            debug: true,
+            verbose: false,
+            tribool: Some(true),
+            bitset: vec![],
+        },
         Opt::from_iter(&["test", "-dtrue", "-ttrue"]),
     );
     assert_eq!(
-        Opt { debug: true, verbose: false, tribool: None, bitset: vec![false, true, false, false] },
-        Opt::from_iter(&["test", "-dtrue", "-bfalse", "-btrue", "-bfalse","-bfalse"]),
+        Opt {
+            debug: true,
+            verbose: false,
+            tribool: None,
+            bitset: vec![false, true, false, false],
+        },
+        Opt::from_iter(&["test", "-dtrue", "-bfalse", "-btrue", "-bfalse", "-bfalse"]),
     );
 }

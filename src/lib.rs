@@ -411,7 +411,10 @@ pub trait StructOpt {
 
     /// Gets the struct from the command line arguments.  Print the
     /// error message and quit the program in case of failure.
-    fn from_args() -> Self where Self: Sized {
+    fn from_args() -> Self
+    where
+        Self: Sized,
+    {
         Self::from_clap(&Self::clap().get_matches())
     }
 
@@ -421,7 +424,7 @@ pub trait StructOpt {
     where
         Self: Sized,
         I: IntoIterator,
-        I::Item: Into<OsString> + Clone
+        I::Item: Into<OsString> + Clone,
     {
         Self::from_clap(&Self::clap().get_matches_from(iter))
     }
@@ -435,7 +438,7 @@ pub trait StructOpt {
     where
         Self: Sized,
         I: IntoIterator,
-        I::Item: Into<OsString> + Clone
+        I::Item: Into<OsString> + Clone,
     {
         Ok(Self::from_clap(&Self::clap().get_matches_from_safe(iter)?))
     }
