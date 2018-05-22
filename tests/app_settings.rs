@@ -269,8 +269,8 @@ fn skip_possible_values() {
         .version("1.3")
         .setting(AppSettings::HidePossibleValuesInHelp)
         .args(&[
-            Arg::from_usage("-o, --opt [opt] 'some option'").possible_values(&["one", "two"]),
-            Arg::from_usage("[arg1] 'some pos arg'").possible_values(&["three", "four"]),
+            Arg::from("-o, --opt [opt] 'some option'").possible_values(&["one", "two"]),
+            Arg::from("[arg1] 'some pos arg'").possible_values(&["three", "four"]),
         ]);
 
     assert!(test::compare_output(
@@ -326,8 +326,8 @@ fn stop_delim_values_only_pos_follows() {
     let r = App::new("onlypos")
         .setting(AppSettings::DontDelimitTrailingValues)
         .args(&[
-            Arg::from_usage("-f [flag] 'some opt'"),
-            Arg::from_usage("[arg]... 'some arg'"),
+            Arg::from("-f [flag] 'some opt'"),
+            Arg::from("[arg]... 'some arg'"),
         ])
         .get_matches_from_safe(vec!["", "--", "-f", "-g,x"]);
     assert!(r.is_ok());
@@ -345,7 +345,7 @@ fn dont_delim_values_trailingvararg() {
     let m = App::new("positional")
         .setting(AppSettings::TrailingVarArg)
         .setting(AppSettings::DontDelimitTrailingValues)
-        .arg(Arg::from_usage("[opt]... 'some pos'"))
+        .arg(Arg::from("[opt]... 'some pos'"))
         .get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"]);
     assert!(m.is_present("opt"));
     assert_eq!(
@@ -358,8 +358,8 @@ fn dont_delim_values_trailingvararg() {
 fn delim_values_only_pos_follows() {
     let r = App::new("onlypos")
         .args(&[
-            Arg::from_usage("-f [flag] 'some opt'"),
-            Arg::from_usage("[arg]... 'some arg'"),
+            Arg::from("-f [flag] 'some opt'"),
+            Arg::from("[arg]... 'some arg'"),
         ])
         .get_matches_from_safe(vec!["", "--", "-f", "-g,x"]);
     assert!(r.is_ok());
@@ -376,7 +376,7 @@ fn delim_values_only_pos_follows() {
 fn delim_values_trailingvararg() {
     let m = App::new("positional")
         .setting(AppSettings::TrailingVarArg)
-        .arg(Arg::from_usage("[opt]... 'some pos'"))
+        .arg(Arg::from("[opt]... 'some pos'"))
         .get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"]);
     assert!(m.is_present("opt"));
     assert_eq!(
@@ -389,8 +389,8 @@ fn delim_values_trailingvararg() {
 fn delim_values_only_pos_follows_with_delim() {
     let r = App::new("onlypos")
         .args(&[
-            Arg::from_usage("-f [flag] 'some opt'"),
-            Arg::from_usage("[arg]... 'some arg'").use_delimiter(true),
+            Arg::from("-f [flag] 'some opt'"),
+            Arg::from("[arg]... 'some arg'").use_delimiter(true),
         ])
         .get_matches_from_safe(vec!["", "--", "-f", "-g,x"]);
     assert!(r.is_ok());
@@ -407,7 +407,7 @@ fn delim_values_only_pos_follows_with_delim() {
 fn delim_values_trailingvararg_with_delim() {
     let m = App::new("positional")
         .setting(AppSettings::TrailingVarArg)
-        .arg(Arg::from_usage("[opt]... 'some pos'").use_delimiter(true))
+        .arg(Arg::from("[opt]... 'some pos'").use_delimiter(true))
         .get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"]);
     assert!(m.is_present("opt"));
     assert_eq!(
@@ -487,7 +487,7 @@ fn leading_double_hyphen_trailingvararg() {
     let m = App::new("positional")
         .setting(AppSettings::TrailingVarArg)
         .setting(AppSettings::AllowLeadingHyphen)
-        .arg(Arg::from_usage("[opt]... 'some pos'"))
+        .arg(Arg::from("[opt]... 'some pos'"))
         .get_matches_from(vec!["", "--foo", "-Wl", "bar"]);
     assert!(m.is_present("opt"));
     assert_eq!(
@@ -609,7 +609,7 @@ fn args_negate_subcommands_two_levels() {
 #[test]
 fn propagate_vals_down() {
     let m = App::new("myprog")
-        .arg(Arg::from_usage("[cmd] 'command to run'").global(true))
+        .arg(Arg::from("[cmd] 'command to run'").global(true))
         .subcommand(SubCommand::with_name("foo"))
         .get_matches_from_safe(vec!["myprog", "set", "foo"]);
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
@@ -623,7 +623,7 @@ fn propagate_vals_down() {
 fn allow_missing_positional() {
     let m = App::new("test")
         .setting(AppSettings::AllowMissingPositional)
-        .arg(Arg::from_usage("[src] 'some file'").default_value("src"))
+        .arg(Arg::from("[src] 'some file'").default_value("src"))
         .arg_from_usage("<dest> 'some file'")
         .get_matches_from_safe(vec!["test", "file"]);
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
@@ -636,7 +636,7 @@ fn allow_missing_positional() {
 fn allow_missing_positional_no_default() {
     let m = App::new("test")
         .setting(AppSettings::AllowMissingPositional)
-        .arg(Arg::from_usage("[src] 'some file'"))
+        .arg(Arg::from("[src] 'some file'"))
         .arg_from_usage("<dest> 'some file'")
         .get_matches_from_safe(vec!["test", "file"]);
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
@@ -649,8 +649,8 @@ fn allow_missing_positional_no_default() {
 fn missing_positional_no_hyphen() {
     let r = App::new("bench")
         .setting(AppSettings::AllowMissingPositional)
-        .arg(Arg::from_usage("[BENCH] 'some bench'"))
-        .arg(Arg::from_usage("[ARGS]... 'some args'"))
+        .arg(Arg::from("[BENCH] 'some bench'"))
+        .arg(Arg::from("[ARGS]... 'some args'"))
         .get_matches_from_safe(vec!["bench", "foo", "arg1", "arg2", "arg3"]);
     assert!(r.is_ok(), "{:?}", r.unwrap_err().kind);
 
@@ -667,8 +667,8 @@ fn missing_positional_no_hyphen() {
 fn missing_positional_hyphen() {
     let r = App::new("bench")
         .setting(AppSettings::AllowMissingPositional)
-        .arg(Arg::from_usage("[BENCH] 'some bench'"))
-        .arg(Arg::from_usage("[ARGS]... 'some args'"))
+        .arg(Arg::from("[BENCH] 'some bench'"))
+        .arg(Arg::from("[ARGS]... 'some args'"))
         .get_matches_from_safe(vec!["bench", "--", "arg1", "arg2", "arg3"]);
     assert!(r.is_ok(), "{:?}", r.unwrap_err().kind);
 
@@ -685,10 +685,10 @@ fn missing_positional_hyphen() {
 fn missing_positional_hyphen_far_back() {
     let r = App::new("bench")
         .setting(AppSettings::AllowMissingPositional)
-        .arg(Arg::from_usage("[BENCH1] 'some bench'"))
-        .arg(Arg::from_usage("[BENCH2] 'some bench'"))
-        .arg(Arg::from_usage("[BENCH3] 'some bench'"))
-        .arg(Arg::from_usage("[ARGS]... 'some args'"))
+        .arg(Arg::from("[BENCH1] 'some bench'"))
+        .arg(Arg::from("[BENCH2] 'some bench'"))
+        .arg(Arg::from("[BENCH3] 'some bench'"))
+        .arg(Arg::from("[ARGS]... 'some args'"))
         .get_matches_from_safe(vec!["bench", "foo", "--", "arg1", "arg2", "arg3"]);
     assert!(r.is_ok(), "{:?}", r.unwrap_err().kind);
 
@@ -709,9 +709,9 @@ fn missing_positional_hyphen_far_back() {
 fn missing_positional_hyphen_req_error() {
     let r = App::new("bench")
         .setting(AppSettings::AllowMissingPositional)
-        .arg(Arg::from_usage("[BENCH1] 'some bench'"))
-        .arg(Arg::from_usage("<BENCH2> 'some bench'"))
-        .arg(Arg::from_usage("[ARGS]... 'some args'"))
+        .arg(Arg::from("[BENCH1] 'some bench'"))
+        .arg(Arg::from("<BENCH2> 'some bench'"))
+        .arg(Arg::from("[ARGS]... 'some args'"))
         .get_matches_from_safe(vec!["bench", "foo", "--", "arg1", "arg2", "arg3"]);
     assert!(r.is_err());
     assert_eq!(r.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
@@ -721,7 +721,7 @@ fn missing_positional_hyphen_req_error() {
 fn issue_1066_allow_leading_hyphen_and_unknown_args() {
     let res = App::new("prog")
         .global_setting(AppSettings::AllowLeadingHyphen)
-        .arg(Arg::from_usage("--some-argument"))
+        .arg(Arg::from("--some-argument"))
         .get_matches_from_safe(vec!["prog", "hello"]);
 
     assert!(res.is_err());
@@ -732,7 +732,7 @@ fn issue_1066_allow_leading_hyphen_and_unknown_args() {
 fn issue_1066_allow_leading_hyphen_and_unknown_args_no_vals() {
     let res = App::new("prog")
         .global_setting(AppSettings::AllowLeadingHyphen)
-        .arg(Arg::from_usage("--some-argument"))
+        .arg(Arg::from("--some-argument"))
         .get_matches_from_safe(vec!["prog", "--hello"]);
 
     assert!(res.is_err());
@@ -743,7 +743,7 @@ fn issue_1066_allow_leading_hyphen_and_unknown_args_no_vals() {
 fn issue_1066_allow_leading_hyphen_and_unknown_args_option() {
     let res = App::new("prog")
         .global_setting(AppSettings::AllowLeadingHyphen)
-        .arg(Arg::from_usage("--some-argument=[val]"))
+        .arg(Arg::from("--some-argument=[val]"))
         .get_matches_from_safe(vec!["prog", "-hello"]);
 
     assert!(res.is_err());
@@ -786,7 +786,7 @@ fn aaos_flags() {
     // flags
     let res = App::new("posix")
         .setting(AppSettings::AllArgsOverrideSelf)
-        .arg(Arg::from_usage("--flag  'some flag'"))
+        .arg(Arg::from("--flag  'some flag'"))
         .get_matches_from_safe(vec!["", "--flag", "--flag"]);
     assert!(res.is_ok());
     let m = res.unwrap();
@@ -799,7 +799,7 @@ fn aaos_flags_mult() {
     // flags with multiple
     let res = App::new("posix")
         .setting(AppSettings::AllArgsOverrideSelf)
-        .arg(Arg::from_usage("--flag...  'some flag'"))
+        .arg(Arg::from("--flag...  'some flag'"))
         .get_matches_from_safe(vec!["", "--flag", "--flag", "--flag", "--flag"]);
     assert!(res.is_ok());
     let m = res.unwrap();
@@ -812,7 +812,7 @@ fn aaos_opts() {
     // opts
     let res = App::new("posix")
         .setting(AppSettings::AllArgsOverrideSelf)
-        .arg(Arg::from_usage("--opt [val] 'some option'"))
+        .arg(Arg::from("--opt [val] 'some option'"))
         .get_matches_from_safe(vec!["", "--opt=some", "--opt=other"]);
     assert!(res.is_ok());
     let m = res.unwrap();
@@ -826,8 +826,8 @@ fn aaos_opts_w_other_overrides() {
     // opts with other overrides
     let res = App::new("posix")
         .setting(AppSettings::AllArgsOverrideSelf)
-        .arg(Arg::from_usage("--opt [val] 'some option'"))
-        .arg(Arg::from_usage("--other [val] 'some other option'").overrides_with("opt"))
+        .arg(Arg::from("--opt [val] 'some option'"))
+        .arg(Arg::from("--other [val] 'some other option'").overrides_with("opt"))
         .get_matches_from_safe(vec!["", "--opt=some", "--other=test", "--opt=other"]);
     assert!(res.is_ok());
     let m = res.unwrap();
@@ -842,8 +842,8 @@ fn aaos_opts_w_other_overrides_rev() {
     // opts with other overrides, rev
     let res = App::new("posix")
         .setting(AppSettings::AllArgsOverrideSelf)
-        .arg(Arg::from_usage("--opt [val] 'some option'"))
-        .arg(Arg::from_usage("--other [val] 'some other option'").overrides_with("opt"))
+        .arg(Arg::from("--opt [val] 'some option'"))
+        .arg(Arg::from("--other [val] 'some other option'").overrides_with("opt"))
         .get_matches_from_safe(vec!["", "--opt=some", "--opt=other", "--other=val"]);
     assert!(res.is_ok());
     let m = res.unwrap();
@@ -857,8 +857,8 @@ fn aaos_opts_w_other_overrides_2() {
     // opts with other overrides
     let res = App::new("posix")
         .setting(AppSettings::AllArgsOverrideSelf)
-        .arg(Arg::from_usage("--opt [val] 'some option'").overrides_with("other"))
-        .arg(Arg::from_usage("--other [val] 'some other option'"))
+        .arg(Arg::from("--opt [val] 'some option'").overrides_with("other"))
+        .arg(Arg::from("--other [val] 'some other option'"))
         .get_matches_from_safe(vec!["", "--opt=some", "--other=test", "--opt=other"]);
     assert!(res.is_ok());
     let m = res.unwrap();
@@ -873,8 +873,8 @@ fn aaos_opts_w_other_overrides_rev_2() {
     // opts with other overrides, rev
     let res = App::new("posix")
         .setting(AppSettings::AllArgsOverrideSelf)
-        .arg(Arg::from_usage("--opt [val] 'some option'").overrides_with("other"))
-        .arg(Arg::from_usage("--other [val] 'some other option'"))
+        .arg(Arg::from("--opt [val] 'some option'").overrides_with("other"))
+        .arg(Arg::from("--other [val] 'some other option'"))
         .get_matches_from_safe(vec!["", "--opt=some", "--opt=other", "--other=val"]);
     assert!(res.is_ok());
     let m = res.unwrap();
@@ -889,7 +889,7 @@ fn aaos_opts_mult() {
     let res = App::new("posix")
         .setting(AppSettings::AllArgsOverrideSelf)
         .arg(
-            Arg::from_usage("--opt [val]... 'some option'")
+            Arg::from("--opt [val]... 'some option'")
                 .number_of_values(1)
                 .require_delimiter(true),
         )
@@ -909,7 +909,7 @@ fn aaos_opts_mult_req_delims() {
     // opts with multiple and require delims
     let res = App::new("posix")
         .setting(AppSettings::AllArgsOverrideSelf)
-        .arg(Arg::from_usage("--opt [val]... 'some option'"))
+        .arg(Arg::from("--opt [val]... 'some option'"))
         .get_matches_from_safe(vec![
             "", "--opt", "first", "overides", "--opt", "some", "other", "val"
         ]);
@@ -928,7 +928,7 @@ fn aaos_pos_mult() {
     // opts with multiple
     let res = App::new("posix")
         .setting(AppSettings::AllArgsOverrideSelf)
-        .arg(Arg::from_usage("[val]... 'some pos'"))
+        .arg(Arg::from("[val]... 'some pos'"))
         .get_matches_from_safe(vec!["", "some", "other", "value"]);
     assert!(res.is_ok());
     let m = res.unwrap();
@@ -944,7 +944,7 @@ fn aaos_pos_mult() {
 fn aaos_option_use_delim_false() {
     let m = App::new("posix")
         .setting(AppSettings::AllArgsOverrideSelf)
-        .arg(Arg::from_usage("--opt [val] 'some option'").use_delimiter(false))
+        .arg(Arg::from("--opt [val] 'some option'").use_delimiter(false))
         .get_matches_from(vec!["", "--opt=some,other", "--opt=one,two"]);
     assert!(m.is_present("opt"));
     assert_eq!(m.occurrences_of("opt"), 1);

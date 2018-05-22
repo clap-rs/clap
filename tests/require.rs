@@ -34,8 +34,8 @@ For more information try --help";
 #[test]
 fn flag_required() {
     let result = App::new("flag_required")
-        .arg(Arg::from_usage("-f, --flag 'some flag'").requires("color"))
-        .arg(Arg::from_usage("-c, --color 'third flag'"))
+        .arg(Arg::from("-f, --flag 'some flag'").requires("color"))
+        .arg(Arg::from("-c, --color 'third flag'"))
         .get_matches_from_safe(vec!["", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -45,8 +45,8 @@ fn flag_required() {
 #[test]
 fn flag_required_2() {
     let m = App::new("flag_required")
-        .arg(Arg::from_usage("-f, --flag 'some flag'").requires("color"))
-        .arg(Arg::from_usage("-c, --color 'third flag'"))
+        .arg(Arg::from("-f, --flag 'some flag'").requires("color"))
+        .arg(Arg::from("-c, --color 'third flag'"))
         .get_matches_from(vec!["", "-f", "-c"]);
     assert!(m.is_present("color"));
     assert!(m.is_present("flag"));
@@ -55,8 +55,8 @@ fn flag_required_2() {
 #[test]
 fn option_required() {
     let result = App::new("option_required")
-        .arg(Arg::from_usage("-f [flag] 'some flag'").requires("c"))
-        .arg(Arg::from_usage("-c [color] 'third flag'"))
+        .arg(Arg::from("-f [flag] 'some flag'").requires("c"))
+        .arg(Arg::from("-c [color] 'third flag'"))
         .get_matches_from_safe(vec!["", "-f", "val"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -66,8 +66,8 @@ fn option_required() {
 #[test]
 fn option_required_2() {
     let m = App::new("option_required")
-        .arg(Arg::from_usage("-f [flag] 'some flag'").requires("c"))
-        .arg(Arg::from_usage("-c [color] 'third flag'"))
+        .arg(Arg::from("-f [flag] 'some flag'").requires("c"))
+        .arg(Arg::from("-c [color] 'third flag'"))
         .get_matches_from(vec!["", "-f", "val", "-c", "other_val"]);
     assert!(m.is_present("c"));
     assert_eq!(m.value_of("c").unwrap(), "other_val");
@@ -97,15 +97,15 @@ fn positional_required_2() {
 #[test]
 fn group_required() {
     let result = App::new("group_required")
-        .arg(Arg::from_usage("-f, --flag 'some flag'"))
+        .arg(Arg::from("-f, --flag 'some flag'"))
         .group(
             ArgGroup::with_name("gr")
                 .required(true)
                 .arg("some")
                 .arg("other"),
         )
-        .arg(Arg::from_usage("--some 'some arg'"))
-        .arg(Arg::from_usage("--other 'other arg'"))
+        .arg(Arg::from("--some 'some arg'"))
+        .arg(Arg::from("--other 'other arg'"))
         .get_matches_from_safe(vec!["", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -115,15 +115,15 @@ fn group_required() {
 #[test]
 fn group_required_2() {
     let m = App::new("group_required")
-        .arg(Arg::from_usage("-f, --flag 'some flag'"))
+        .arg(Arg::from("-f, --flag 'some flag'"))
         .group(
             ArgGroup::with_name("gr")
                 .required(true)
                 .arg("some")
                 .arg("other"),
         )
-        .arg(Arg::from_usage("--some 'some arg'"))
-        .arg(Arg::from_usage("--other 'other arg'"))
+        .arg(Arg::from("--some 'some arg'"))
+        .arg(Arg::from("--other 'other arg'"))
         .get_matches_from(vec!["", "-f", "--some"]);
     assert!(m.is_present("some"));
     assert!(!m.is_present("other"));
@@ -133,15 +133,15 @@ fn group_required_2() {
 #[test]
 fn group_required_3() {
     let m = App::new("group_required")
-        .arg(Arg::from_usage("-f, --flag 'some flag'"))
+        .arg(Arg::from("-f, --flag 'some flag'"))
         .group(
             ArgGroup::with_name("gr")
                 .required(true)
                 .arg("some")
                 .arg("other"),
         )
-        .arg(Arg::from_usage("--some 'some arg'"))
-        .arg(Arg::from_usage("--other 'other arg'"))
+        .arg(Arg::from("--some 'some arg'"))
+        .arg(Arg::from("--other 'other arg'"))
         .get_matches_from(vec!["", "-f", "--other"]);
     assert!(!m.is_present("some"));
     assert!(m.is_present("other"));
@@ -151,10 +151,10 @@ fn group_required_3() {
 #[test]
 fn arg_require_group() {
     let result = App::new("arg_require_group")
-        .arg(Arg::from_usage("-f, --flag 'some flag'").requires("gr"))
+        .arg(Arg::from("-f, --flag 'some flag'").requires("gr"))
         .group(ArgGroup::with_name("gr").arg("some").arg("other"))
-        .arg(Arg::from_usage("--some 'some arg'"))
-        .arg(Arg::from_usage("--other 'other arg'"))
+        .arg(Arg::from("--some 'some arg'"))
+        .arg(Arg::from("--other 'other arg'"))
         .get_matches_from_safe(vec!["", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -164,10 +164,10 @@ fn arg_require_group() {
 #[test]
 fn arg_require_group_2() {
     let m = App::new("arg_require_group")
-        .arg(Arg::from_usage("-f, --flag 'some flag'").requires("gr"))
+        .arg(Arg::from("-f, --flag 'some flag'").requires("gr"))
         .group(ArgGroup::with_name("gr").arg("some").arg("other"))
-        .arg(Arg::from_usage("--some 'some arg'"))
-        .arg(Arg::from_usage("--other 'other arg'"))
+        .arg(Arg::from("--some 'some arg'"))
+        .arg(Arg::from("--other 'other arg'"))
         .get_matches_from(vec!["", "-f", "--some"]);
     assert!(m.is_present("some"));
     assert!(!m.is_present("other"));
@@ -177,10 +177,10 @@ fn arg_require_group_2() {
 #[test]
 fn arg_require_group_3() {
     let m = App::new("arg_require_group")
-        .arg(Arg::from_usage("-f, --flag 'some flag'").requires("gr"))
+        .arg(Arg::from("-f, --flag 'some flag'").requires("gr"))
         .group(ArgGroup::with_name("gr").arg("some").arg("other"))
-        .arg(Arg::from_usage("--some 'some arg'"))
-        .arg(Arg::from_usage("--other 'other arg'"))
+        .arg(Arg::from("--some 'some arg'"))
+        .arg(Arg::from("--other 'other arg'"))
         .get_matches_from(vec!["", "-f", "--other"]);
     assert!(!m.is_present("some"));
     assert!(m.is_present("other"));
@@ -192,24 +192,24 @@ fn arg_require_group_3() {
 #[test]
 fn issue_753() {
     let m = App::new("test")
-        .arg(Arg::from_usage(
+        .arg(Arg::from(
             "-l, --list 'List available interfaces (and stop there)'",
         ))
         .arg(
-            Arg::from_usage(
+            Arg::from(
                 "-i, --iface=[INTERFACE] 'Ethernet interface for fetching NTP packets'",
             ).required_unless("list"),
         )
         .arg(
-            Arg::from_usage("-f, --file=[TESTFILE] 'Fetch NTP packets from pcap file'")
+            Arg::from("-f, --file=[TESTFILE] 'Fetch NTP packets from pcap file'")
                 .conflicts_with("iface")
                 .required_unless("list"),
         )
         .arg(
-            Arg::from_usage("-s, --server=[SERVER_IP] 'NTP server IP address'")
+            Arg::from("-s, --server=[SERVER_IP] 'NTP server IP address'")
                 .required_unless("list"),
         )
-        .arg(Arg::from_usage("-p, --port=[SERVER_PORT] 'NTP server port'").default_value("123"))
+        .arg(Arg::from("-p, --port=[SERVER_PORT] 'NTP server port'").default_value("123"))
         .get_matches_from_safe(vec!["test", "--list"]);
     assert!(m.is_ok());
 }

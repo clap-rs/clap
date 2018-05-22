@@ -628,9 +628,9 @@ impl<'a, 'b> App<'a, 'b> {
     ///            .help("turns on debugging mode")
     ///     )
     ///     // Adding a single "option" argument with a short, a long, and help text using the less
-    ///     // verbose Arg::from_usage()
+    ///     // verbose Arg::from()
     ///     .arg(
-    ///         Arg::from_usage("-c --config=[CONFIG] 'Optionally sets a config file to use'")
+    ///         Arg::from("-c --config=[CONFIG] 'Optionally sets a config file to use'")
     ///     )
     /// # ;
     /// ```
@@ -668,7 +668,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # use clap::{App, Arg};
     /// App::new("myprog")
     ///     .args(&[
-    ///         Arg::from_usage("[debug] -d 'turns on debugging info'"),
+    ///         Arg::from("[debug] -d 'turns on debugging info'"),
     ///         Arg::with_name("input").index(1).help("the input file to use")
     ///     ])
     /// # ;
@@ -1862,7 +1862,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// **Deprecated:** Use
     #[deprecated(since="2.30.0", note="Use `App::arg(Arg::from(&str)` instead. Will be removed in v3.0-beta")]
     pub fn arg_from_usage(mut self, usage: &'a str) -> Self {
-        self.args.push(Arg::from_usage(usage));
+        self.args.push(Arg::from(usage));
         self
     }
 
@@ -1874,7 +1874,7 @@ impl<'a, 'b> App<'a, 'b> {
             if l.is_empty() {
                 continue;
             }
-            self.args.push(Arg::from_usage(l));
+            self.args.push(Arg::from(l));
         }
         self
     }

@@ -191,7 +191,7 @@ fn invisible_aliases_help_output() {
 #[test]
 fn issue_1031_args_with_same_name() {
     let res = App::new("prog")
-        .arg(Arg::from_usage("--ui-path=<PATH>"))
+        .arg(Arg::from("--ui-path=<PATH>"))
         .subcommand(SubCommand::with_name("signer"))
         .get_matches_from_safe(vec!["prog", "--ui-path", "signer"]);
 
@@ -203,7 +203,7 @@ fn issue_1031_args_with_same_name() {
 #[test]
 fn issue_1031_args_with_same_name_no_more_vals() {
     let res = App::new("prog")
-        .arg(Arg::from_usage("--ui-path=<PATH>"))
+        .arg(Arg::from("--ui-path=<PATH>"))
         .subcommand(SubCommand::with_name("signer"))
         .get_matches_from_safe(vec!["prog", "--ui-path", "value", "signer"]);
 

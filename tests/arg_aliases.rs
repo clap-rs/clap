@@ -170,7 +170,7 @@ fn invisible_arg_aliases_help_output() {
                     .takes_value(true)
                     .aliases(&["invisible", "als1", "more"]),
             )
-            .arg(Arg::from_usage("-f, --flag").aliases(&["invisible", "flg1", "anyway"])),
+            .arg(Arg::from("-f, --flag").aliases(&["invisible", "flg1", "anyway"])),
     );
     assert!(test::compare_output(
         app,
