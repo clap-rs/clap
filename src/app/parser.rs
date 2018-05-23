@@ -811,7 +811,7 @@ where
         // Is this a new argument, or values from a previous option?
         let mut ret = if arg_os.starts_with(b"--") {
             debugln!("Parser::is_new_arg: -- found");
-            if arg_os.len_() == 2 && !arg_allows_tac {
+            if arg_os.len() == 2 && !arg_allows_tac {
                 return true; // We have to return true so override everything else
             } else if arg_allows_tac {
                 return false;
@@ -820,7 +820,7 @@ where
         } else if arg_os.starts_with(b"-") {
             debugln!("Parser::is_new_arg: - found");
             // a singe '-' by itself is a value and typically means "stdin" on unix systems
-            !(arg_os.len_() == 1)
+            !(arg_os.len() == 1)
         } else {
             debugln!("Parser::is_new_arg: probably value");
             false
@@ -876,7 +876,7 @@ where
             self.unset(AS::ValidNegNumFound);
             // Is this a new argument, or values from a previous option?
             let starts_new_arg = self.is_new_arg(&arg_os, needs_val_of);
-            if !self.is_set(AS::TrailingValues) && arg_os.starts_with(b"--") && arg_os.len_() == 2
+            if !self.is_set(AS::TrailingValues) && arg_os.starts_with(b"--") && arg_os.len() == 2
                 && starts_new_arg
             {
                 debugln!("Parser::get_matches_with: setting TrailingVals=true");
@@ -933,7 +933,7 @@ where
                             }
                             _ => (),
                         }
-                    } else if arg_os.starts_with(b"-") && arg_os.len_() != 1 {
+                    } else if arg_os.starts_with(b"-") && arg_os.len() != 1 {
                         // Try to parse short args like normal, if AllowLeadingHyphen or
                         // AllowNegativeNumbers is set, parse_short_arg will *not* throw
                         // an error, and instead return Ok(None)
@@ -1726,7 +1726,7 @@ where
         if let Some(fv) = val {
             has_eq = fv.starts_with(&[b'=']) || had_eq;
             let v = fv.trim_left_matches(b'=');
-            if !empty_vals && (v.len_() == 0 || (needs_eq && !has_eq)) {
+            if !empty_vals && (v.len() == 0 || (needs_eq && !has_eq)) {
                 sdebugln!("Found Empty - Error");
                 return Err(Error::empty_value(
                     opt,
@@ -1734,7 +1734,7 @@ where
                     self.color(),
                 ));
             }
-            sdebugln!("Found - {:?}, len: {}", v, v.len_());
+            sdebugln!("Found - {:?}, len: {}", v, v.len());
             debugln!(
                 "Parser::parse_opt: {:?} contains '='...{:?}",
                 fv,
@@ -1787,7 +1787,7 @@ where
         );
         if !(self.is_set(AS::TrailingValues) && self.is_set(AS::DontDelimitTrailingValues)) {
             if let Some(delim) = arg.val_delim() {
-                if val.is_empty_() {
+                if val.is_empty() {
                     Ok(self.add_single_val_to_arg(arg, val, matcher)?)
                 } else {
                     let mut iret = ParseResult::ValuesDone;

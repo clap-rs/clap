@@ -16,9 +16,7 @@ pub trait OsStrExt2 {
     fn split_at_byte(&self, b: u8) -> (&OsStr, &OsStr);
     fn split_at(&self, i: usize) -> (&OsStr, &OsStr);
     fn trim_left_matches(&self, b: u8) -> &OsStr;
-    fn len_(&self) -> usize;
     fn contains_byte(&self, b: u8) -> bool;
-    fn is_empty_(&self) -> bool;
     fn split(&self, b: u8) -> OsSplit;
 }
 
@@ -36,10 +34,6 @@ impl OsStrExt3 for OsStr {
 impl OsStrExt2 for OsStr {
     fn starts_with(&self, s: &[u8]) -> bool {
         self.as_bytes().starts_with(s)
-    }
-
-    fn is_empty_(&self) -> bool {
-        self.as_bytes().is_empty()
     }
 
     fn contains_byte(&self, byte: u8) -> bool {
@@ -62,7 +56,7 @@ impl OsStrExt2 for OsStr {
         }
         (
             &*self,
-            OsStr::from_bytes(&self.as_bytes()[self.len_()..self.len_()]),
+            OsStr::from_bytes(&self.as_bytes()[self.len()..self.len()]),
         )
     }
 
@@ -76,7 +70,7 @@ impl OsStrExt2 for OsStr {
             }
         }
         if found {
-            return OsStr::from_bytes(&self.as_bytes()[self.len_()..]);
+            return OsStr::from_bytes(&self.as_bytes()[self.len()..]);
         }
         &*self
     }
@@ -86,10 +80,6 @@ impl OsStrExt2 for OsStr {
             OsStr::from_bytes(&self.as_bytes()[..i]),
             OsStr::from_bytes(&self.as_bytes()[i..]),
         )
-    }
-
-    fn len_(&self) -> usize {
-        self.as_bytes().len()
     }
 
     fn split(&self, b: u8) -> OsSplit {
@@ -125,33 +115,5 @@ impl<'a> Iterator for OsSplit<'a> {
             }
         }
         Some(OsStr::from_bytes(&self.val[start..]))
-    }
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        let mut count = 0;
-        for b in &self.val[self.pos..] {
-            if *b == self.sep {
-                count += 1;
-            }
-        }
-        if count > 0 {
-            return (count, Some(count));
-        }
-        (0, None)
-    }
-}
-
-impl<'a> DoubleEndedIterator for OsSplit<'a> {
-    fn next_back(&mut self) -> Option<&'a OsStr> {
-        if self.pos == 0 {
-            return None;
-        }
-        let start = self.pos;
-        for b in self.val[..self.pos].iter().rev() {
-            self.pos -= 1;
-            if *b == self.sep {
-                return Some(OsStr::from_bytes(&self.val[self.pos + 1..start]));
-            }
-        }
-        Some(OsStr::from_bytes(&self.val[..start]))
     }
 }
