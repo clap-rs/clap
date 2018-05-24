@@ -177,7 +177,7 @@ fn gen_constructor(fields: &Punctuated<Field, Comma>) -> TokenStream {
                 };
                 quote!(#field_name: <#subcmd_type>::from_subcommand(matches.subcommand())#unwrapper)
             }
-            Kind::FlattenStruct => quote!(#field_name: StructOpt::from_clap(matches)),
+            Kind::FlattenStruct => quote!(#field_name: ::structopt::StructOpt::from_clap(matches)),
             Kind::Arg(ty) => {
                 use Parser::*;
                 let (value_of, values_of, parse) = match *attrs.parser() {
