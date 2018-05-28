@@ -47,6 +47,7 @@ bitflags! {
         const INFER_SUBCOMMANDS    = 1 << 38;
         const CONTAINS_LAST        = 1 << 39;
         const ARGS_OVERRIDE_SELF   = 1 << 40;
+        const ALIGN_ALL            = 1 << 41;
     }
 }
 
@@ -109,6 +110,7 @@ impl AppFlags {
         NextLineHelp => Flags::NEXT_LINE_HELP,
         VersionlessSubcommands => Flags::VERSIONLESS_SC,
         WaitOnError => Flags::WAIT_ON_ERROR,
+        AlignAll => Flags::ALIGN_ALL,
         TrailingValues => Flags::TRAILING_VALUES,
         ValidNegNumFound => Flags::VALID_NEG_NUM_FOUND,
         Propagated => Flags::PROPAGATED,
@@ -926,6 +928,42 @@ pub enum AppSettings {
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     WaitOnError,
+    /// Will display the help comments aligned across different sections
+    ///
+    /// This is most useful for applications that have a small number of subsections where the
+    /// default help visualisation may look messy.
+    ///
+    /// # Example:
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, AppSettings};
+    /// App::new("myprog")
+    ///     .setting(AppSettings::AlignAll);
+    /// # ;
+    /// ```
+    ///
+    /// Instead of looking like so:
+    /// FLAGS:
+    ///     -h, --help       Prints help information
+    ///     -V, --version    Prints version information
+    ///
+    /// OPTIONS:
+    ///     -l <library>...        Adds a library to be injected
+    ///
+    /// ARGS:
+    ///     <command>...    The command to be executed
+    ///
+    /// the output would look like so:
+    /// FLAGS:
+    ///     -h, --help             Prints help information
+    ///     -V, --version          Prints version information
+    ///
+    /// OPTIONS:
+    ///     -l <library>...        Adds a library to be injected
+    ///
+    /// ARGS:
+    ///     <command>...           The command to be executed
+    AlignAll,
 
     #[doc(hidden)] NeedsLongVersion,
 
@@ -980,6 +1018,7 @@ impl FromStr for AppSettings {
             "unifiedhelpmessage" => Ok(AppSettings::UnifiedHelpMessage),
             "versionlesssubcommands" => Ok(AppSettings::VersionlessSubcommands),
             "waitonerror" => Ok(AppSettings::WaitOnError),
+            "alignall" => Ok(AppSettings::AlignAll),
             "validnegnumfound" => Ok(AppSettings::ValidNegNumFound),
             "validargfound" => Ok(AppSettings::ValidArgFound),
             "propagated" => Ok(AppSettings::Propagated),
@@ -1110,6 +1149,10 @@ mod test {
         assert_eq!(
             "waitonerror".parse::<AppSettings>().unwrap(),
             AppSettings::WaitOnError
+        );
+        assert_eq!(
+            "alignall".parse::<AppSettings>().unwrap(),
+            AppSettings::AlignAll
         );
         assert_eq!(
             "validnegnumfound".parse::<AppSettings>().unwrap(),
