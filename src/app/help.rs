@@ -117,18 +117,16 @@ impl<'a> Help<'a> {
             next_line_help: next_line_help,
             hide_pv: hide_pv,
             term_w: match term_w {
-                Some(width) => if width == 0 {
-                    usize::MAX
-                } else {
-                    width
-                },
-                None => cmp::min(
-                    term_size::dimensions().map_or(120, |(w, _)| w),
-                    match max_w {
-                        None | Some(0) => usize::MAX,
-                        Some(mw) => mw,
-                    },
-                ),
+                Some(width) => if width == 0 { usize::MAX } else { width },
+                None => {
+                    cmp::min(
+                        term_size::dimensions().map_or(120, |(w, _)| w),
+                        match max_w {
+                            None | Some(0) => usize::MAX,
+                            Some(mw) => mw,
+                        },
+                    )
+                }
             },
             color: color,
             cizer: cizer,
@@ -247,7 +245,8 @@ impl<'a> Help<'a> {
             // NextLineHelp on purpose *because* it's so long and would throw off all other
             // args alignment
             should_show_arg(use_long, *arg)
-        }) {
+        })
+        {
             if arg.longest_filter() {
                 debugln!("Help::write_args: Current Longest...{}", self.longest);
                 self.longest = cmp::max(self.longest, str_width(arg.to_string().as_str()));
@@ -369,9 +368,9 @@ impl<'a> Help<'a> {
         let h_w = str_width(h) + str_width(&*spec_vals);
         let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp);
         let taken = self.longest + 12;
-        self.force_next_line = !nlh && self.term_w >= taken
-            && (taken as f32 / self.term_w as f32) > 0.40
-            && h_w > (self.term_w - taken);
+        self.force_next_line = !nlh && self.term_w >= taken &&
+            (taken as f32 / self.term_w as f32) > 0.40 &&
+            h_w > (self.term_w - taken);
 
         debug!("Help::val: Has switch...");
         if arg.has_switch() {
@@ -579,9 +578,9 @@ fn should_show_arg(use_long: bool, arg: &ArgWithOrder) -> bool {
         return false;
     }
 
-    (!arg.is_set(ArgSettings::HiddenLongHelp) && use_long)
-        || (!arg.is_set(ArgSettings::HiddenShortHelp) && !use_long)
-        || arg.is_set(ArgSettings::NextLineHelp)
+    (!arg.is_set(ArgSettings::HiddenLongHelp) && use_long) ||
+        (!arg.is_set(ArgSettings::HiddenShortHelp) && !use_long) ||
+        arg.is_set(ArgSettings::NextLineHelp)
 }
 
 // Methods to write Parser help.
@@ -605,10 +604,9 @@ impl<'a> Help<'a> {
         let mut first = true;
 
         if unified_help && (flags || opts) {
-            let opts_flags = parser
-                .flags()
-                .map(as_arg_trait)
-                .chain(parser.opts().map(as_arg_trait));
+            let opts_flags = parser.flags().map(as_arg_trait).chain(parser.opts().map(
+                as_arg_trait,
+            ));
             color!(self, "OPTIONS:\n", warning)?;
             self.write_args(opts_flags)?;
             first = false;
@@ -633,7 +631,9 @@ impl<'a> Help<'a> {
                 self.writer.write_all(b"\n\n")?;
             }
             color!(self, "ARGS:\n", warning)?;
-            self.write_args_unsorted(parser.positionals().map(as_arg_trait))?;
+            self.write_args_unsorted(
+                parser.positionals().map(as_arg_trait),
+            )?;
             first = false;
         }
 
@@ -654,10 +654,9 @@ impl<'a> Help<'a> {
         // The shortest an arg can legally be is 2 (i.e. '-x')
         self.longest = 2;
         let mut ord_m = VecMap::new();
-        for sc in parser
-            .subcommands
-            .iter()
-            .filter(|s| !s.p.is_set(AppSettings::Hidden))
+        for sc in parser.subcommands.iter().filter(|s| {
+            !s.p.is_set(AppSettings::Hidden)
+        })
         {
             let btm = ord_m.entry(sc.p.meta.disp_ord).or_insert(BTreeMap::new());
             self.longest = cmp::max(self.longest, str_width(sc.p.meta.name.as_str()));
@@ -834,7 +833,8 @@ fn copy_and_capture<R: Read, W: Write>(
         // The end of the reader was reached without finding the opening tag.
         // (either with or without having copied data to the writer)
         // Return None indicating that we are done.
-        ReaderEmpty | DelimiterNotFound(_) => None,
+        ReaderEmpty |
+        DelimiterNotFound(_) => None,
 
         // Something went wrong.
         ReadError(e) | WriteError(e) => Some(Err(e)),
@@ -860,13 +860,17 @@ fn copy_and_capture<R: Read, W: Write>(
                 // The end of the reader was found without finding the closing tag.
                 // Write the opening byte and captured text to the writer.
                 // Return 0 indicating that nothing was captured but the reader still contains data.
-                DelimiterNotFound(not_tag_length) => match w.write(b"{") {
-                    Err(e) => Some(Err(e)),
-                    _ => match w.write(&tag_buffer.get_ref()[0..not_tag_length]) {
+                DelimiterNotFound(not_tag_length) => {
+                    match w.write(b"{") {
                         Err(e) => Some(Err(e)),
-                        _ => Some(Ok(0)),
-                    },
-                },
+                        _ => {
+                            match w.write(&tag_buffer.get_ref()[0..not_tag_length]) {
+                                Err(e) => Some(Err(e)),
+                                _ => Some(Ok(0)),
+                            }
+                        }
+                    }
+                }
 
                 ReadError(e) | WriteError(e) => Some(Err(e)),
             }
@@ -965,10 +969,9 @@ impl<'a> Help<'a> {
                     self.write_all_args(parser)?;
                 }
                 b"unified" => {
-                    let opts_flags = parser
-                        .flags()
-                        .map(as_arg_trait)
-                        .chain(parser.opts().map(as_arg_trait));
+                    let opts_flags = parser.flags().map(as_arg_trait).chain(parser.opts().map(
+                        as_arg_trait,
+                    ));
                     self.write_args(opts_flags)?;
                 }
                 b"flags" => {
