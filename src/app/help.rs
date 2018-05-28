@@ -175,8 +175,37 @@ impl<'a> Help<'a> {
         ).write_help(parser)
     }
 
+    #[cfg(feature = "align_all")]
+    /// Max argument length for a subcategory of arguments
+    fn longest<'b: 'd, 'c: 'd, 'd, I: 'd>(&self, longest: usize, args: I) -> usize
+    where
+        I: Iterator<Item = &'d ArgWithOrder<'b, 'c>>,
+    {
+        let mut length = longest;
+        let use_long = self.use_long;
+        for arg in args.filter(|arg| should_show_arg(use_long, *arg)) {
+            if arg.longest_filter() {
+                length = cmp::max(length, str_width(arg.to_string().as_str()));
+            }
+        }
+        length
+
+    }
+
+    #[cfg(not(feature = "align_all"))]
+    fn initialize_longest(&mut self, _: &Parser) { self.longest = 0 }
+    #[cfg(feature = "align_all")]
+    fn initialize_longest(&mut self, parser: &Parser) {
+        self.longest = self.longest(self.longest, parser.flags().map(as_arg_trait));
+        self.longest = self.longest(self.longest, parser.opts().map(as_arg_trait));
+        self.longest = self.longest(self.longest, parser.positionals().map(as_arg_trait));
+        self.longest = self.longest(self.longest, parser.subcommands().map(as_arg_trait));
+
+    }
+
     /// Writes the parser help to the wrapped stream.
     pub fn write_help(&mut self, parser: &Parser) -> ClapResult<()> {
+        self.initialize_longest(parser);
         debugln!("Help::write_help;");
         if let Some(h) = parser.meta.help_str {
             write!(self.writer, "{}", h).map_err(Error::from)?;
@@ -191,14 +220,20 @@ impl<'a> Help<'a> {
 
 // Methods to write AnyArg help.
 impl<'a> Help<'a> {
+    #[cfg(not(feature = "align_all"))]
+    fn reset_offset(&self) -> usize {
+        // The shortest an arg can legally be is 2 (i.e. '-x')
+        2
+    }
+    #[cfg(feature = "align_all")]
+    fn reset_offset(&self) -> usize { self.longest }
     /// Writes help for each argument in the order they were declared to the wrapped stream.
     fn write_args_unsorted<'b: 'd, 'c: 'd, 'd, I: 'd>(&mut self, args: I) -> io::Result<()>
     where
         I: Iterator<Item = &'d ArgWithOrder<'b, 'c>>,
     {
         debugln!("Help::write_args_unsorted;");
-        // The shortest an arg can legally be is 2 (i.e. '-x')
-        self.longest = 2;
+        self.longest = self.reset_offset();
         let mut arg_v = Vec::with_capacity(10);
         let use_long = self.use_long;
         for arg in args.filter(|arg| should_show_arg(use_long, *arg)) {
@@ -225,10 +260,10 @@ impl<'a> Help<'a> {
         I: Iterator<Item = &'d ArgWithOrder<'b, 'c>>,
     {
         debugln!("Help::write_args;");
-        // The shortest an arg can legally be is 2 (i.e. '-x')
-        self.longest = 2;
+        self.longest = self.reset_offset();
         let mut ord_m = VecMap::new();
         let use_long = self.use_long;
+
         // Determine the longest
         for arg in args.filter(|arg| {
             // If it's NextLineHelp, but we don't care to compute how long because it may be
@@ -311,6 +346,11 @@ impl<'a> Help<'a> {
         Ok(())
     }
 
+    #[cfg(not(feature = "align_all"))]
+    fn additional_offset(&self) -> usize { 4 }
+    #[cfg(feature = "align_all")]
+    fn additional_offset(&self) -> usize { 8 }
+
     /// Writes argument's possible values to the wrapped stream.
     fn val<'b, 'c>(&mut self, arg: &ArgWithDisplay<'b, 'c>) -> Result<String, io::Error> {
         debugln!("Help::val: arg={}", arg);
@@ -390,7 +430,6 @@ impl<'a> Help<'a> {
                     // Only account for ', --' + 4 after the val
                     spcs += 8;
                 }
-
                 write_nspaces!(self.writer, spcs);
             } else {
                 sdebugln!("Yes");
@@ -399,7 +438,7 @@ impl<'a> Help<'a> {
             sdebugln!("No, and not next_line");
             write_nspaces!(
                 self.writer,
-                self.longest + 4 - (str_width(arg.to_string().as_str()))
+                self.longest + self.additional_offset() - (str_width(arg.to_string().as_str()))
             );
         } else {
             sdebugln!("No");
@@ -641,8 +680,7 @@ impl<'a> Help<'a> {
     /// Writes help for subcommands of a Parser Object to the wrapped stream.
     fn write_subcommands(&mut self, parser: &Parser) -> io::Result<()> {
         debugln!("Help::write_subcommands;");
-        // The shortest an arg can legally be is 2 (i.e. '-x')
-        self.longest = 2;
+        self.longest = self.reset_offset();
         let mut ord_m = VecMap::new();
         for sc in parser.subcommands.iter().filter(|s| {
             !s.p.is_set(AppSettings::Hidden)
@@ -650,7 +688,6 @@ impl<'a> Help<'a> {
         {
             let btm = ord_m.entry(sc.p.meta.disp_ord).or_insert(BTreeMap::new());
             self.longest = cmp::max(self.longest, str_width(sc.p.meta.name.as_str()));
-            //self.longest = cmp::max(self.longest, sc.p.meta.name.len());
             btm.insert(sc.p.meta.name.clone(), sc.clone());
         }
 
@@ -901,7 +938,6 @@ impl<'a> Help<'a> {
         // to the wrapped stream.
         // The copy from template is then resumed, repeating this sequence until reading
         // the complete template.
-
         loop {
             let tag_length = match copy_and_capture(&mut tmplr, &mut self.writer, &mut tag_buf) {
                 None => return Ok(()),
