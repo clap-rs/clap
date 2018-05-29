@@ -557,8 +557,9 @@ where
                 let _ = self.add_val_to_arg(p, &arg_os, matcher)?;
 
                 matcher.inc_occurrence_of(p.name);
-                let _ = self.groups_for_arg(p.name)
-                    .and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
+                if let Some(grps) = self.groups_for_arg(p.name) {
+                    matcher.inc_occurrences_of(&*grps);
+                }
 
                 self.app.settings.set(AS::ValidArgFound);
                 // Only increment the positional counter if it doesn't allow multiples
@@ -1180,8 +1181,9 @@ where
 
         matcher.inc_occurrence_of(opt.name);
         // Increment or create the group "args"
-        self.groups_for_arg(opt.name)
-            .and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
+        if let Some(grps) = self.groups_for_arg(opt.name) {
+            matcher.inc_occurrences_of(&*grps)
+        }
 
         let needs_delim = opt.is_set(ArgSettings::RequireDelimiter);
         let mult = opt.is_set(ArgSettings::MultipleValues);
@@ -1483,12 +1485,14 @@ where
         // Add the arg to the matches to build a proper usage string
         if let Some(name) = suffix.1 {
             if let Some(opt) = find_by_long!(self.app, name) {
-                self.groups_for_arg(&*opt.name)
-                    .and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
+                if let Some(grps) = self.groups_for_arg(&*opt.name) {
+                    Some(matcher.inc_occurrences_of(&*grps));
+                }
                 matcher.insert(&*opt.name);
             } else if let Some(flg) = find_by_long!(self.app, name) {
-                self.groups_for_arg(&*flg.name)
-                    .and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
+                if let Some(grps) = self.groups_for_arg(&*flg.name) {
+                    matcher.inc_occurrences_of(&*grps);
+                }
                 matcher.insert(&*flg.name);
             }
         }
