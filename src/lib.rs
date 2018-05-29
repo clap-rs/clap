@@ -569,9 +569,9 @@ mod strext;
 mod completions;
 mod map;
 
-const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider filing a bug \
-                                          report at https://github.com/kbknapp/clap-rs/issues";
-const INVALID_UTF8: &'static str = "unexpected invalid UTF-8 code point";
+const INTERNAL_ERROR_MSG: &str = "Fatal internal error. Please consider filing a bug \
+                                  report at https://github.com/kbknapp/clap-rs/issues";
+const INVALID_UTF8: &str = "unexpected invalid UTF-8 code point";
 
 #[cfg(unstable)]
 pub use derive::{ArgEnum, ClapApp, FromArgMatches, IntoApp};

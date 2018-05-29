@@ -28,7 +28,7 @@ mod term_size {
 
 fn str_width(s: &str) -> usize { UnicodeWidthStr::width(s) }
 
-const TAB: &'static str = "    ";
+const TAB: &str = "    ";
 
 // trait ArgWithOrder<'b, 'c>: Display + DispOrder {
 //     fn as_base(&self) -> &Arg<'b, 'c>;
