@@ -114,6 +114,7 @@ where
 
 
     #[cfg_attr(feature = "lints", allow(block_in_if_condition_stmt))]
+    #[cfg_attr(feature = "cargo-clippy", allow(block_in_if_condition_stmt))]
     fn _verify_positionals(&mut self) -> bool {
         debugln!("Parser::_verify_positionals;");
         // Because you must wait until all arguments have been supplied, this is the first chance
@@ -287,6 +288,8 @@ where
     }
 
     // Does all the initializing and prepares the parser
+    #[cfg_attr(feature = "lints", allow(block_in_if_condition_stmt))]
+    #[cfg_attr(feature = "cargo-clippy", allow(block_in_if_condition_stmt))]
     fn _build(&mut self) {
         debugln!("Parser::_build;");
 
@@ -353,6 +356,7 @@ where
 {
     // The actual parsing function
     #[cfg_attr(feature = "lints", allow(while_let_on_iterator, collapsible_if))]
+    #[cfg_attr(feature = "cargo-clippy", allow(cyclomatic_complexity, collapsible_if))]
     pub fn get_matches_with<I, T>(
         &mut self,
         matcher: &mut ArgMatcher<'a>,
