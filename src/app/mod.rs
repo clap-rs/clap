@@ -1398,7 +1398,7 @@ impl<'a, 'b> App<'a, 'b> {
             }
         }
 
-        let global_arg_vec: Vec<&str> = (&self)
+        let global_arg_vec: Vec<&str> = self
             .args
             .iter()
             .filter(|a| a.is_set(ArgSettings::Global))
