@@ -99,7 +99,7 @@ where
             .collect();
 
         Parser {
-            app: app,
+            app,
             required: reqs,
             r_ifs: Vec::new(),
             overriden: Vec::new(),
@@ -871,7 +871,7 @@ where
             let mut p = Parser::new(sc);
             p.get_matches_with(&mut sc_matcher, it)?;
             matcher.subcommand(SubCommand {
-                name: name,
+                name,
                 matches: sc_matcher.into(),
             });
         }
@@ -1434,6 +1434,7 @@ where
         Ok(())
     }
 
+    #[cfg_attr(feature = "cargo-clippy", allow(collapsible_if))]
     pub(crate) fn add_env(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
         for a in &self.app.args {
             if let Some(ref val) = a.env {

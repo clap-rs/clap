@@ -29,7 +29,7 @@ impl<'a> UsageParser<'a> {
     fn new(usage: &'a str) -> Self {
         debugln!("UsageParser::new: usage={:?}", usage);
         UsageParser {
-            usage: usage,
+            usage,
             pos: 0,
             start: 0,
             prev: UsageToken::Unknown,

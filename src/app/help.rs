@@ -90,8 +90,8 @@ impl<'w> Help<'w> {
         debugln!("Help::new;");
         Help {
             writer: w,
-            next_line_help: next_line_help,
-            hide_pv: hide_pv,
+            next_line_help,
+            hide_pv,
             term_w: match term_w {
                 Some(width) => if width == 0 {
                     usize::MAX
@@ -106,11 +106,11 @@ impl<'w> Help<'w> {
                     },
                 ),
             },
-            color: color,
-            cizer: cizer,
+            color,
+            cizer,
             longest: 0,
             force_next_line: false,
-            use_long: use_long,
+            use_long,
         }
     }
 

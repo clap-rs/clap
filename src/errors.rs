@@ -884,7 +884,7 @@ impl Error {
         });
         Error {
             message: format!("{} {}", c.error("error:"), description),
-            kind: kind,
+            kind,
             info: None,
         }
     }
