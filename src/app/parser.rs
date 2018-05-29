@@ -136,12 +136,10 @@ where
 
         let num_p = self.positionals.len();
 
-        assert!(
-            highest_idx == num_p,
-            "Found positional argument whose index is {} but there \
-             are only {} positional arguments defined",
-            highest_idx,
-            num_p
+        assert_eq!(highest_idx, num_p,
+                   "Found positional argument whose index is {} but there \
+                    are only {} positional arguments defined",
+                   highest_idx, num_p
         );
 
         // Next we verify that only the highest index has a .multiple(true) (if any)
