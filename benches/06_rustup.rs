@@ -186,7 +186,7 @@ pub fn build_cli() -> App<'static, 'static> {
             .setting(AppSettings::TrailingVarArg)
             .arg(Arg::with_name("toolchain").setting(ArgSettings::Required))
             .arg(Arg::with_name("command")
-                .settings(&[ArgSettings::Required, ArgSettings::MultipleValues, ArgSettings::MutlipleOccurrences])))
+                .settings(&[ArgSettings::Required, ArgSettings::MultipleValues, ArgSettings::MultipleOccurrences])))
         .subcommand(SubCommand::with_name("which")
             .about("Display which binary will be run for a given command")
             .arg(Arg::with_name("command").setting(ArgSettings::Required)))
