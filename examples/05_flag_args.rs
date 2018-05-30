@@ -29,10 +29,10 @@ fn main() {
                                                                   // requires_all(Vec<&str>)
                                     .conflicts_with("output")     // Opposite of requires(), says "if the
                                                                   // user uses -a, they CANNOT use 'output'"
-                                                                  // also has a mutually_excludes_all(Vec<&str>)
+                                                                  // also has a conflicts_with_all(Vec<&str>)
                         )
                         // NOTE: In order to compile this example, comment out requires() and
-                        // mutually_excludes() because we have not defined an "output" or "config"
+                        // conflicts_with() because we have not defined an "output" or "config"
                         // argument.
                         .get_matches();
 
