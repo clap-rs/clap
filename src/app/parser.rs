@@ -5,7 +5,6 @@ use std::io::{self, BufWriter, Write};
 use std::os::unix::ffi::OsStrExt;
 #[cfg(all(feature = "debug", any(target_os = "windows", target_arch = "wasm32")))]
 use osstringext::OsStrExt3;
-use std::path::PathBuf;
 use std::slice::Iter;
 use std::iter::Peekable;
 use std::mem;
@@ -799,7 +798,7 @@ where
         // Is this a new argument, or values from a previous option?
         let mut ret = if arg_os.starts_with(b"--") {
             debugln!("Parser::is_new_arg: -- found");
-            if arg_os.len_() == 2 && !arg_allows_tac {
+            if arg_os.len() == 2 && !arg_allows_tac {
                 return true; // We have to return true so override everything else
             } else if arg_allows_tac {
                 return false;
@@ -808,7 +807,7 @@ where
         } else if arg_os.starts_with(b"-") {
             debugln!("Parser::is_new_arg: - found");
             // a singe '-' by itself is a value and typically means "stdin" on unix systems
-            !(arg_os.len_() == 1)
+            !(arg_os.len() == 1)
         } else {
             debugln!("Parser::is_new_arg: probably value");
             false
@@ -932,21 +931,21 @@ where
 
     fn use_long_help(&self) -> bool {
         debugln!("Parser::use_long_help;");
-        // In this case, both must be checked. This allows the retention of 
+        // In this case, both must be checked. This allows the retention of
         // original formatting, but also ensures that the actual -h or --help
         // specified by the user is sent through. If HiddenShortHelp is not included,
         // then items specified with hidden_short_help will also be hidden.
         let should_long = |v: &Arg| {
-            v.long_help.is_some() || 
-            v.is_set(ArgSettings::HiddenLongHelp) || 
-            v.is_set(ArgSettings::HiddenShortHelp) 
+            v.long_help.is_some() ||
+            v.is_set(ArgSettings::HiddenLongHelp) ||
+            v.is_set(ArgSettings::HiddenShortHelp)
         };
 
         self.app.long_about.is_some()
             || args!(self.app).any(|f| should_long(&f))
             || subcommands!(self.app).any(|s| s.long_about.is_some())
     }
-    
+
 //    fn _help(&self, mut use_long: bool) -> ClapError {
 //        debugln!("Parser::_help: use_long={:?}", use_long && self.use_long_help());
 //        use_long = use_long && self.use_long_help();

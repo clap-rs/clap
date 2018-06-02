@@ -109,7 +109,7 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
                     ));
                 }
             }
-            if !arg.is_set(ArgSettings::EmptyValues) && val.is_empty()
+            if !arg.is_set(ArgSettings::AllowEmptyValues) && val.is_empty()
                 && matcher.contains(&*arg.name)
             {
                 debugln!("Validator::validate_arg_values: illegal empty val found");
