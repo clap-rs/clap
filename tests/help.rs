@@ -1166,10 +1166,10 @@ USAGE:
     ctest foo
 
 FLAGS:
-    -h, --help
+    -h, --help       
             Prints help information
 
-    -V, --version
+    -V, --version    
             Prints version information";
 
 #[test]
@@ -1181,4 +1181,25 @@ fn show_long_about_issue_897() {
             .about("About foo")
             .long_about("Long about foo"));
     assert!(test::compare_output(app, "ctest foo --help", ISSUE_897, false));
+}
+
+static ISSUE_897_SHORT: &'static str = "ctest-foo 0.1
+Long about foo
+
+USAGE:
+    ctest foo
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information";
+
+#[test]
+fn show_short_about_issue_897() {
+    let app = App::new("ctest")
+        .version("0.1")
+        .subcommand(SubCommand::with_name("foo")
+            .version("0.1")
+            .about("About foo")
+            .long_about("Long about foo"));
+    assert!(test::compare_output(app, "ctest foo -h", ISSUE_897_SHORT, false));
 }
