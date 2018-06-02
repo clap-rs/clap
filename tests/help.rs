@@ -1158,3 +1158,27 @@ fn show_env_vals() {
             .takes_value(true));
     assert!(test::compare_output(app, "ctest --help", SHOW_ENV_VALS, false));
 }
+
+static ISSUE_897: &'static str = "ctest-foo 0.1
+Long about foo
+
+USAGE:
+    ctest foo
+
+FLAGS:
+    -h, --help
+            Prints help information
+
+    -V, --version
+            Prints version information";
+
+#[test]
+fn show_long_about_issue_897() {
+    let app = App::new("ctest")
+        .version("0.1")
+        .subcommand(SubCommand::with_name("foo")
+            .version("0.1")
+            .about("About foo")
+            .long_about("Long about foo"));
+    assert!(test::compare_output(app, "ctest foo --help", ISSUE_897, false));
+}
