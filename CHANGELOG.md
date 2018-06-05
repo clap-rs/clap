@@ -1,3 +1,12 @@
+# v0.2.9 (2018-06-05)
+
+* Fix a bug when using `flatten` by
+  [@fbenkstein](https://github.com/fbenkstein)
+* Update syn, quote and proc_macro2 by
+  [@TeXitoi](https://github.com/TeXitoi)
+* Fix a regression when there is multiple authors by
+  [@windwardly](https://github.com/windwardly)
+
 # v0.2.8 (2018-04-28)
 
 * Add `StructOpt::from_iter_safe()`, which returns an `Error` instead of
