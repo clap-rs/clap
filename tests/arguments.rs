@@ -9,8 +9,8 @@
 #[macro_use]
 extern crate structopt;
 
-use structopt::StructOpt;
 use structopt::clap;
+use structopt::StructOpt;
 
 #[test]
 fn required_argument() {

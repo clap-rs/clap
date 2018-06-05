@@ -4,8 +4,8 @@
 #[macro_use]
 extern crate structopt;
 
-use structopt::StructOpt;
 use structopt::clap::ArgGroup;
+use structopt::StructOpt;
 
 // This function is not needed, we can insert everything in the group
 // attribute, but, as it might be long, using a function is more

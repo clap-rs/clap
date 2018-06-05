@@ -48,7 +48,8 @@ fn test_path_opt_simple() {
             option_path_2: Some(PathBuf::from("j.zip")),
         },
         PathOpt::from_clap(&PathOpt::clap().get_matches_from(&[
-            "test", "-p", "/usr/bin", "-v", "/a/b/c", "-v", "/d/e/f", "-v", "/g/h/i", "-q", "j.zip"
+            "test", "-p", "/usr/bin", "-v", "/a/b/c", "-v", "/d/e/f", "-v", "/g/h/i", "-q",
+            "j.zip",
         ]))
     );
 }
@@ -114,7 +115,7 @@ fn test_every_custom_parser() {
             c: "C",
             d: "D"
         },
-        NoOpOpt::from_clap(&NoOpOpt::clap().get_matches_from(&["test", "-a=?", "-b=?", "-c=?", "-d=?",]))
+        NoOpOpt::from_clap(&NoOpOpt::clap().get_matches_from(&["test", "-a=?", "-b=?", "-c=?", "-d=?"]))
     );
 }
 
@@ -190,7 +191,7 @@ fn test_parser_occurrences() {
             custom: Foo(5),
         },
         Occurrences::from_clap(&Occurrences::clap().get_matches_from(&[
-            "test", "-s", "--signed", "--signed", "-l", "-rrrr", "-cccc", "--custom"
+            "test", "-s", "--signed", "--signed", "-l", "-rrrr", "-cccc", "--custom",
         ]))
     );
 }

@@ -9,16 +9,22 @@
 #[macro_use]
 extern crate structopt;
 
-use structopt::StructOpt;
 use structopt::clap::AppSettings;
+use structopt::StructOpt;
 
 // Check if the global settings compile
 #[derive(StructOpt, Debug, PartialEq, Eq)]
 #[structopt(raw(global_settings = "&[AppSettings::ColoredHelp]"))]
 struct Opt {
-    #[structopt(long = "x",
-                raw(display_order = "2", next_line_help = "true", default_value = r#""0""#,
-                    require_equals = "true"))]
+    #[structopt(
+        long = "x",
+        raw(
+            display_order = "2",
+            next_line_help = "true",
+            default_value = r#""0""#,
+            require_equals = "true"
+        )
+    )]
     x: i32,
 
     #[structopt(short = "l", long = "level", raw(aliases = r#"&["set-level", "lvl"]"#))]

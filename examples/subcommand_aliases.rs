@@ -1,8 +1,8 @@
 #[macro_use]
 extern crate structopt;
 
-use structopt::StructOpt;
 use structopt::clap::AppSettings;
+use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
 // https://docs.rs/clap/2/clap/enum.AppSettings.html#variant.InferSubcommands
