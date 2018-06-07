@@ -922,7 +922,15 @@ where
                     }
 
                     if arg_os.starts_with(b"--") {
-                        needs_val_of = self.parse_long_arg(matcher, &arg_os)?;
+                        let long_arg_parse = self.parse_long_arg(matcher, &arg_os);
+                        if let Err(e) = long_arg_parse {
+                            if e.kind == ErrorKind::UnknownArgument {
+                                continue;
+                            } else {
+                                return Err(e)
+                            }
+                        };
+                        needs_val_of = long_arg_parse.unwrap();
                         debugln!(
                             "Parser:get_matches_with: After parse_long_arg {:?}",
                             needs_val_of
@@ -937,7 +945,16 @@ where
                         // Try to parse short args like normal, if AllowLeadingHyphen or
                         // AllowNegativeNumbers is set, parse_short_arg will *not* throw
                         // an error, and instead return Ok(None)
-                        needs_val_of = self.parse_short_arg(matcher, &arg_os)?;
+                        let short_arg_parse = self.parse_short_arg(matcher, &arg_os);
+                        if let Err(e) = short_arg_parse {
+                            if e.kind == ErrorKind::UnknownArgument {
+                                continue;
+                            } else {
+                                return Err(e)
+                            }
+                        };
+
+                        needs_val_of = short_arg_parse.unwrap();
                         // If it's None, we then check if one of those two AppSettings was set
                         debugln!(
                             "Parser:get_matches_with: After parse_short_arg {:?}",
