@@ -272,3 +272,25 @@ fn last_positional_second_to_last_mult() {
         .get_matches_from_safe(vec!["test", "tgt", "crp1", "crp2", "--", "arg"]);
     assert!(r.is_ok(), "{:?}", r.unwrap_err().kind);
 }
+
+#[test]
+fn last_positional_var_arg_hyphenized() {
+    let r = App::new("test")
+        .arg(Arg::from_usage("<TARGET> 'some file'"))
+        .arg(Arg::from_usage("[ARGS]... 'some corpus'").allow_hyphen_values(true))
+        .get_matches_from_safe(vec!["prog", "test", "-s", "crp2"]);
+    assert!(r.is_ok(), "{:?}", r.unwrap_err().kind);
+    let m = r.unwrap();
+    assert_eq!(m.values_of("ARGS").unwrap().collect::<Vec<_>>(), &["-s", "crp2"]);
+}
+
+#[test]
+fn last_positional_var_arg_double_hyphenized() {
+    let r = App::new("test")
+        .arg(Arg::from_usage("<TARGET> 'some file'"))
+        .arg(Arg::from_usage("[ARGS]... 'some corpus'").allow_hyphen_values(true))
+        .get_matches_from_safe(vec!["prog", "test", "--thing", "crp2"]);
+    assert!(r.is_ok(), "{:?}", r.unwrap_err().kind);
+    let m = r.unwrap();
+    assert_eq!(m.values_of("ARGS").unwrap().collect::<Vec<_>>(), &["--thing", "crp2"]);
+}
