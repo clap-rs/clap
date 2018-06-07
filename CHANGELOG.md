@@ -1,3 +1,8 @@
+# v0.2.10 (2018-06-07)
+
+* 1.21.0 is the minimum required rustc version by
+  [@TeXitoi](https://github.com/TeXitoi)
+
 # v0.2.9 (2018-06-05)
 
 * Fix a bug when using `flatten` by

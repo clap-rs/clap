@@ -231,7 +231,7 @@ fn test_custom_bool() {
             tribool: None,
             bitset: vec![],
         },
-        Opt::from_iter(&["test", "-dfalse"]),
+        Opt::from_iter(&["test", "-dfalse"])
     );
     assert_eq!(
         Opt {
@@ -240,7 +240,7 @@ fn test_custom_bool() {
             tribool: None,
             bitset: vec![],
         },
-        Opt::from_iter(&["test", "-dtrue"]),
+        Opt::from_iter(&["test", "-dtrue"])
     );
     assert_eq!(
         Opt {
@@ -249,7 +249,7 @@ fn test_custom_bool() {
             tribool: None,
             bitset: vec![],
         },
-        Opt::from_iter(&["test", "-dtrue", "-vfalse"]),
+        Opt::from_iter(&["test", "-dtrue", "-vfalse"])
     );
     assert_eq!(
         Opt {
@@ -258,7 +258,7 @@ fn test_custom_bool() {
             tribool: None,
             bitset: vec![],
         },
-        Opt::from_iter(&["test", "-dtrue", "-vtrue"]),
+        Opt::from_iter(&["test", "-dtrue", "-vtrue"])
     );
     assert_eq!(
         Opt {
@@ -267,7 +267,7 @@ fn test_custom_bool() {
             tribool: Some(false),
             bitset: vec![],
         },
-        Opt::from_iter(&["test", "-dtrue", "-tfalse"]),
+        Opt::from_iter(&["test", "-dtrue", "-tfalse"])
     );
     assert_eq!(
         Opt {
@@ -276,7 +276,7 @@ fn test_custom_bool() {
             tribool: Some(true),
             bitset: vec![],
         },
-        Opt::from_iter(&["test", "-dtrue", "-ttrue"]),
+        Opt::from_iter(&["test", "-dtrue", "-ttrue"])
     );
     assert_eq!(
         Opt {
@@ -285,6 +285,6 @@ fn test_custom_bool() {
             tribool: None,
             bitset: vec![false, true, false, false],
         },
-        Opt::from_iter(&["test", "-dtrue", "-bfalse", "-btrue", "-bfalse", "-bfalse"]),
+        Opt::from_iter(&["test", "-dtrue", "-bfalse", "-btrue", "-bfalse", "-bfalse"])
     );
 }

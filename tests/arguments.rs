@@ -106,6 +106,6 @@ fn arguments_safe() {
 
     assert_eq!(
         clap::ErrorKind::ValueValidation,
-        Opt::from_iter_safe(&["test", "NOPE"]).err().unwrap().kind,
+        Opt::from_iter_safe(&["test", "NOPE"]).err().unwrap().kind
     );
 }

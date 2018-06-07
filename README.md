@@ -102,6 +102,12 @@ $ ./basic -o foo.txt -dvvvs 1337 -l alice -l bob --nb-cars 4 bar.txt baz.txt
 Opt { debug: true, verbose: 3, speed: 1337, output: "foo.txt", nb_cars: Some(4), level: ["alice", "bob"], files: ["bar.txt", "baz.txt"] }
 ```
 
+## StructOpt rustc version policy
+
+- Minimum rustc version modification must be specified in the [changelog](https://github.com/TeXitoi/structopt/blob/master/CHANGELOG.md) and in the [travis configuration](https://github.com/TeXitoi/structopt/blob/master/.travis.yml).
+- Contributors can increment minimum rustc version without any justification if the new version is required by the latest version of one of StructOpt's depedencies (`cargo update` will not fail on StructOpt).
+- Contributors can increment minimum rustc version if the library user experience is improved.
+
 ## Why
 
 I use [docopt](https://crates.io/crates/docopt) since a long time (pre rust 1.0). I really like the fact that you have a structure with the parsed argument: no need to convert `String` to `f64`, no useless `unwrap`. But on the other hand, I don't like to write by hand the usage string. That's like going back to the golden age of WYSIWYG editors.  Field naming is also a bit artificial.

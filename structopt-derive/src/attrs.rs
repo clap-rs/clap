@@ -108,7 +108,7 @@ impl Attrs {
                 ref tokens => panic!("unsupported syntax: {}", quote!(#tokens).to_string()),
             });
         for attr in iter {
-            match &attr {
+            match attr {
                 NameValue(MetaNameValue {
                     ident,
                     lit: Str(value),
@@ -118,14 +118,21 @@ impl Attrs {
                     name: ident.to_string(),
                     args: quote!(#lit),
                 }),
-                List(MetaList { ident, nested, .. }) if ident == "parse" => {
+                List(MetaList {
+                    ref ident,
+                    ref nested,
+                    ..
+                }) if ident == "parse" =>
+                {
                     if nested.len() != 1 {
                         panic!("parse must have exactly one argument");
                     }
                     self.has_custom_parser = true;
-                    self.parser = match &nested[0] {
+                    self.parser = match nested[0] {
                         Meta(NameValue(MetaNameValue {
-                            ident, lit: Str(v), ..
+                            ref ident,
+                            lit: Str(ref v),
+                            ..
                         })) => {
                             let function: syn::Path = v.parse().expect("parser function path");
                             let parser = ident.to_string().parse().unwrap();
@@ -149,13 +156,17 @@ impl Attrs {
                     };
                 }
                 List(MetaList {
-                    ident, ref nested, ..
+                    ref ident,
+                    ref nested,
+                    ..
                 }) if ident == "raw" =>
                 {
                     for method in nested {
-                        match method {
+                        match *method {
                             Meta(NameValue(MetaNameValue {
-                                ident, lit: Str(v), ..
+                                ref ident,
+                                lit: Str(ref v),
+                                ..
                             })) => self.push_raw_method(&ident.to_string(), v),
                             ref mi @ _ => panic!("unsupported raw entry: {}", quote!(#mi)),
                         }
