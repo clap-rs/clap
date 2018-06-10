@@ -1671,6 +1671,7 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
         yaml_str!(a, yaml, author);
         yaml_str!(a, yaml, bin_name);
         yaml_str!(a, yaml, about);
+        yaml_str!(a, yaml, long_about);
         yaml_str!(a, yaml, before_help);
         yaml_str!(a, yaml, after_help);
         yaml_str!(a, yaml, template);
@@ -1788,7 +1789,7 @@ impl<'a, 'b> Clone for App<'a, 'b> {
 
 impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn name(&self) -> &'n str {
-        unreachable!("App struct does not support AnyArg::name, this is a bug!")
+        ""
     }
     fn overrides(&self) -> Option<&[&'e str]> { None }
     fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]> { None }

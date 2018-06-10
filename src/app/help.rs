@@ -7,27 +7,31 @@ use std::io::{self, Cursor, Read, Write};
 use std::usize;
 
 // Internal
-use app::{App, AppSettings};
 use app::parser::Parser;
+use app::usage;
+use app::{App, AppSettings};
 use args::{AnyArg, ArgSettings, DispOrder};
 use errors::{Error, Result as ClapResult};
 use fmt::{Colorizer, ColorizerOption, Format};
-use app::usage;
 use map::VecMap;
 use INTERNAL_ERROR_MSG;
 
 // Third Party
-use unicode_width::UnicodeWidthStr;
 #[cfg(feature = "wrap_help")]
 use term_size;
 use textwrap;
+use unicode_width::UnicodeWidthStr;
 
 #[cfg(not(feature = "wrap_help"))]
 mod term_size {
-    pub fn dimensions() -> Option<(usize, usize)> { None }
+    pub fn dimensions() -> Option<(usize, usize)> {
+        None
+    }
 }
 
-fn str_width(s: &str) -> usize { UnicodeWidthStr::width(s) }
+fn str_width(s: &str) -> usize {
+    UnicodeWidthStr::width(s)
+}
 
 const TAB: &'static str = "    ";
 
@@ -46,13 +50,19 @@ impl<'b, 'c, T> ArgWithOrder<'b, 'c> for T
 where
     T: ArgWithDisplay<'b, 'c> + DispOrder,
 {
-    fn as_base(&self) -> &ArgWithDisplay<'b, 'c> { self }
+    fn as_base(&self) -> &ArgWithDisplay<'b, 'c> {
+        self
+    }
 }
 
-fn as_arg_trait<'a, 'b, T: ArgWithOrder<'a, 'b>>(x: &T) -> &ArgWithOrder<'a, 'b> { x }
+fn as_arg_trait<'a, 'b, T: ArgWithOrder<'a, 'b>>(x: &T) -> &ArgWithOrder<'a, 'b> {
+    x
+}
 
 impl<'b, 'c> DispOrder for App<'b, 'c> {
-    fn disp_ord(&self) -> usize { 999 }
+    fn disp_ord(&self) -> usize {
+        999
+    }
 }
 
 macro_rules! color {
@@ -203,9 +213,7 @@ impl<'a> Help<'a> {
         self.longest = 2;
         let mut arg_v = Vec::with_capacity(10);
         let use_long = self.use_long;
-        for arg in args.filter(|arg| {
-            should_show_arg(use_long, *arg)
-        }) {
+        for arg in args.filter(|arg| should_show_arg(use_long, *arg)) {
             if arg.longest_filter() {
                 self.longest = cmp::max(self.longest, str_width(arg.to_string().as_str()));
             }
@@ -444,13 +452,13 @@ impl<'a> Help<'a> {
     /// Writes argument's help to the wrapped stream.
     fn help<'b, 'c>(&mut self, arg: &ArgWithDisplay<'b, 'c>, spec_vals: &str) -> io::Result<()> {
         debugln!("Help::help;");
-        let h = if self.use_long {
+        let h = if self.use_long && arg.name() != "" {
             arg.long_help().unwrap_or_else(|| arg.help().unwrap_or(""))
         } else {
             arg.help().unwrap_or_else(|| arg.long_help().unwrap_or(""))
         };
         let mut help = String::from(h) + spec_vals;
-        let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp) || self.use_long;
+        let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp) || (self.use_long && arg.name() != "");
         debugln!("Help::help: Next Line...{:?}", nlh);
 
         let spcs = if nlh || self.force_next_line {
@@ -508,15 +516,14 @@ impl<'a> Help<'a> {
                 env.1
             );
             let env_val = if !a.is_set(ArgSettings::HideEnvValues) {
-                format!("={}", env.1.map_or(Cow::Borrowed(""), |val| val.to_string_lossy()))
+                format!(
+                    "={}",
+                    env.1.map_or(Cow::Borrowed(""), |val| val.to_string_lossy())
+                )
             } else {
                 String::new()
             };
-            let env_info = format!(
-                " [env: {}{}]",
-                env.0.to_string_lossy(),
-                env_val
-            );
+            let env_info = format!(" [env: {}{}]", env.0.to_string_lossy(), env_val);
             spec_vals.push(env_info);
         }
         if !a.is_set(ArgSettings::HideDefaultValue) {
@@ -572,9 +579,9 @@ fn should_show_arg(use_long: bool, arg: &ArgWithOrder) -> bool {
         return false;
     }
 
-    (!arg.is_set(ArgSettings::HiddenLongHelp) && use_long) ||
-        (!arg.is_set(ArgSettings::HiddenShortHelp) && !use_long) ||
-    arg.is_set(ArgSettings::NextLineHelp)
+    (!arg.is_set(ArgSettings::HiddenLongHelp) && use_long)
+        || (!arg.is_set(ArgSettings::HiddenShortHelp) && !use_long)
+        || arg.is_set(ArgSettings::NextLineHelp)
 }
 
 // Methods to write Parser help.
@@ -714,8 +721,7 @@ impl<'a> Help<'a> {
             ($thing:expr) => {{
                 let mut owned_thing = $thing.to_owned();
                 owned_thing = owned_thing.replace("{n}", "\n");
-                write!(self.writer, "{}\n",
-                            wrap_help(&owned_thing, self.term_w))?
+                write!(self.writer, "{}\n", wrap_help(&owned_thing, self.term_w))?
             }};
         }
         // Print the version
@@ -726,19 +732,20 @@ impl<'a> Help<'a> {
         if let Some(author) = parser.meta.author {
             write_thing!(author)
         }
-        if self.use_long {
-            if let Some(about) = parser.meta.long_about {
-                debugln!("Help::write_default_help: writing long about");
-                write_thing!(about)
-            } else if let Some(about) = parser.meta.about {
-                debugln!("Help::write_default_help: writing about");
-                write_thing!(about)
-            }
+        // if self.use_long {
+        //     if let Some(about) = parser.meta.long_about {
+        //         debugln!("Help::write_default_help: writing long about");
+        //         write_thing!(about)
+        //     } else if let Some(about) = parser.meta.about {
+        //         debugln!("Help::write_default_help: writing about");
+        //         write_thing!(about)
+        //     }
+        // } else
+        if let Some(about) = parser.meta.long_about {
+            debugln!("Help::write_default_help: writing long about");
+            write_thing!(about)
         } else if let Some(about) = parser.meta.about {
             debugln!("Help::write_default_help: writing about");
-            write_thing!(about)
-        } else if let Some(about) = parser.meta.long_about {
-            debugln!("Help::write_default_help: writing long about");
             write_thing!(about)
         }
 
@@ -866,7 +873,6 @@ fn copy_and_capture<R: Read, W: Write>(
         }
     }
 }
-
 
 // Methods to write Parser help using templates.
 impl<'a> Help<'a> {
