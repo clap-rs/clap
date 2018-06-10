@@ -36,9 +36,11 @@ clap = { version = "2", features = ["debug"] }
 
 <details>
 <summary> Debug Output </summary>
+<pre>
 <code>
 
 Paste Debug Output Here
 
 </code>
+</pre>
 </details>
