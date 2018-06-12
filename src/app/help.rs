@@ -845,19 +845,11 @@ impl<'w> Help<'w> {
         if let Some(author) = parser.app.author {
             write_thing!(author)
         }
-        if self.use_long {
-            if let Some(about) = parser.app.long_about {
-                debugln!("Help::write_default_help: writing long about");
-                write_thing!(about)
-            } else if let Some(about) = parser.app.about {
-                debugln!("Help::write_default_help: writing about");
-                write_thing!(about)
-            }
+        if let Some(about) = parser.app.long_about {
+            debugln!("Help::write_default_help: writing long about");
+            write_thing!(about)
         } else if let Some(about) = parser.app.about {
             debugln!("Help::write_default_help: writing about");
-            write_thing!(about)
-        } else if let Some(about) = parser.app.long_about {
-            debugln!("Help::write_default_help: writing long about");
             write_thing!(about)
         }
 
