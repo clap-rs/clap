@@ -5,12 +5,12 @@ version = "3.0.0-alpha1"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
 exclude = [
 	".github/*",
-	"examples/*", 
-	"tests/*", 
-	"benches/*", 
-	"clap-perf/*", 
+	"examples/*",
+	"tests/*",
+	"benches/*",
+	"clap-perf/*",
 	"etc/*",
-	"*.png", 
+	"*.png",
 	"*.dot",
 	"*.yml",
 	"*.toml",
@@ -18,8 +18,8 @@ exclude = [
 	"clap-test.rs"
 ]
 include = [
-	"src/**/*", 
-	"Cargo.toml", 
+	"src/**/*",
+	"Cargo.toml",
 	"README.md"
 ]
 repository = "https://github.com/kbknapp/clap-rs"
@@ -28,10 +28,10 @@ homepage = "https://clap.rs/"
 readme = "README.md"
 license = "MIT"
 keywords = [
-	"argument", 
-	"cli", 
-	"arg", 
-	"parser", 
+	"argument",
+	"cli",
+	"arg",
+	"parser",
 	"parse"
 ]
 categories = ["command-line-interface"]
@@ -111,14 +111,6 @@ rpath = false
 lto = true
 debug-assertions = false
 codegen-units = 1
-
-[profile.doc]
-opt-level = 0
-debug = true
-rpath = false
-lto = false
-debug-assertions = true
-codegen-units = 4
 
 [package.metadata.docs.rs]
 features = ["doc"]
