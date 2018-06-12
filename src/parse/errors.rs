@@ -8,9 +8,9 @@ use std::process;
 use std::result::Result as StdResult;
 
 // Internal
-use args::Arg;
-use fmt::{ColorWhen, Colorizer, ColorizerOption};
-use suggestions;
+use build::Arg;
+use output::fmt::{ColorWhen, Colorizer, ColorizerOption};
+use parse::features::suggestions;
 
 /// Short hand for [`Result`] type
 ///

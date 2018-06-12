@@ -1,8 +1,5 @@
 mod settings;
-pub mod parser;
-mod help;
-mod validator;
-mod usage;
+pub use self::settings::{AppFlags, AppSettings};
 
 // Std
 use std::env;
@@ -19,14 +16,12 @@ use std::iter::Peekable;
 use yaml_rust::Yaml;
 
 // Internal
-use app::parser::Parser;
-use app::help::Help;
-use args::{Arg, ArgGroup, ArgMatcher, ArgMatches};
-use args::settings::ArgSettings;
-use errors::Result as ClapResult;
-pub use self::settings::{AppFlags, AppSettings};
+use build::{Arg, ArgGroup, ArgSettings};
 use completions::{ComplGen, Shell};
-use fmt::ColorWhen;
+use output::Help;
+use output::fmt::ColorWhen;
+use parse::{Parser, ArgMatcher, ArgMatches};
+use parse::errors::Result as ClapResult;
 
 #[doc(hidden)]
 #[allow(dead_code)]
@@ -116,9 +111,9 @@ where
     #[doc(hidden)]
     pub groups: Vec<ArgGroup<'a>>,
     #[doc(hidden)]
-    help_short: Option<char>,
+    pub help_short: Option<char>,
     #[doc(hidden)]
-    version_short: Option<char>,
+    pub version_short: Option<char>,
     #[doc(hidden)]
     pub help_message: Option<&'a str>,
     #[doc(hidden)]
@@ -1409,7 +1404,7 @@ impl<'a, 'b> App<'a, 'b> {
         Ok(matcher.into())
     }
 
-    fn _build(&mut self, prop: Propagation) {
+    pub(crate) fn _build(&mut self, prop: Propagation) {
         debugln!("App::_build;");
         // Make sure all the globally set flags apply to us as well
         self.settings = self.settings | self.g_settings;
@@ -1709,9 +1704,9 @@ impl<'a, 'b> App<'a, 'b> {
             ColorWhen::Auto
         }
     }
-    fn contains_long(&self, l: &str) -> bool { longs!(self).any(|al| al == l) }
+    pub(crate) fn contains_long(&self, l: &str) -> bool { longs!(self).any(|al| al == l) }
 
-    fn contains_short(&self, s: char) -> bool { shorts!(self).any(|arg_s| arg_s == s) }
+    pub(crate) fn contains_short(&self, s: char) -> bool { shorts!(self).any(|arg_s| arg_s == s) }
 
     pub fn is_set(&self, s: AppSettings) -> bool {
         self.settings.is_set(s) || self.g_settings.is_set(s)

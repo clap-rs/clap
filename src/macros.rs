@@ -889,7 +889,7 @@ macro_rules! args_mut {
 macro_rules! flags {
     ($app:expr, $how:ident) => {
         $app.args.$how()
-            .filter(|a| !a.settings.is_set(::args::settings::ArgSettings::TakesValue))
+            .filter(|a| !a.settings.is_set(::build::ArgSettings::TakesValue))
             .filter(|a| a.short.is_some() || a.long.is_some())
             .filter(|a| !a.help_heading.is_some())
     };
@@ -908,7 +908,7 @@ macro_rules! flags_mut {
 macro_rules! opts {
     ($app:expr, $how:ident) => {
         $app.args.$how()
-            .filter(|a| a.settings.is_set(::args::settings::ArgSettings::TakesValue))
+            .filter(|a| a.settings.is_set(::build::ArgSettings::TakesValue))
             .filter(|a| a.short.is_some() || a.long.is_some())
             .filter(|a| !a.help_heading.is_some())
     };

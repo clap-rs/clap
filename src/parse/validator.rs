@@ -5,14 +5,13 @@ use std::ascii::AsciiExt;
 // Internal
 use INTERNAL_ERROR_MSG;
 use INVALID_UTF8;
-use args::{Arg, ArgMatcher, MatchedArg};
-use args::settings::ArgSettings;
-use errors::{Error, ErrorKind};
-use errors::Result as ClapResult;
-use app::settings::AppSettings as AS;
-use app::parser::{ParseResult, Parser};
-use fmt::{Colorizer, ColorizerOption};
-use app::usage::Usage;
+use build::{Arg, ArgSettings};
+use build::app::AppSettings as AS;
+use parse::{ArgMatcher, MatchedArg, ParseResult, Parser};
+use parse::errors::{Error, ErrorKind};
+use parse::errors::Result as ClapResult;
+use output::fmt::{Colorizer, ColorizerOption};
+use output::Usage;
 
 pub struct Validator<'a, 'b, 'c, 'z>(&'z mut Parser<'a, 'b, 'c>)
 where

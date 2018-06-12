@@ -7,8 +7,8 @@ use std::mem;
 use indexmap;
 
 // Internal
-use args::{Arg, ArgMatches, MatchedArg, SubCommand};
-use args::settings::ArgSettings;
+use build::{Arg, ArgSettings};
+use parse::{ArgMatches, MatchedArg, SubCommand};
 
 #[doc(hidden)]
 #[allow(missing_debug_implementations)]

@@ -3,10 +3,9 @@ use std::collections::{BTreeMap, VecDeque};
 
 // Internal
 use INTERNAL_ERROR_MSG;
-use args::{Arg, ArgMatcher};
-use args::settings::ArgSettings;
-use app::settings::AppSettings as AS;
-use app::parser::Parser;
+use build::{Arg, ArgSettings};
+use build::AppSettings as AS;
+use parse::{Parser, ArgMatcher};
 
 pub struct Usage<'a, 'b, 'c, 'z>(&'z Parser<'a, 'b, 'c>)
 where

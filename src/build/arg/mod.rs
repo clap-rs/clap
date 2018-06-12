@@ -1,3 +1,9 @@
+#[macro_use]
+mod macros;
+mod settings;
+pub use self::settings::{ArgFlags, ArgSettings};
+
+// Std
 #[cfg(feature = "yaml")]
 use std::collections::BTreeMap;
 use std::rc::Rc;
@@ -12,12 +18,13 @@ use std::env;
 use std::cmp::{Ord, Ordering};
 use std::str;
 
+// Third Party 
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
-use map::VecMap;
+use util::VecMap;
 
-use usage_parser::UsageParser;
-use args::settings::{ArgFlags, ArgSettings};
+// Internal
+use build::UsageParser;
 use INTERNAL_ERROR_MSG;
 
 /// The abstract representation of a command line argument. Used to set all the options and
@@ -4239,8 +4246,8 @@ impl<'n, 'e> fmt::Debug for Arg<'n, 'e> {
 // Flags
 #[cfg(test)]
 mod test {
-    use map::VecMap;
-    use args::settings::ArgSettings;
+    use util::VecMap;
+    use build::ArgSettings;
     use super::Arg;
 
     #[test]

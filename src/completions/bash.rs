@@ -2,8 +2,7 @@
 use std::io::Write;
 
 // Internal
-use app::App;
-use args::Arg;
+use build::{App, Arg};
 use completions;
 
 pub struct BashGen<'a, 'b>(&'b App<'a, 'b>)
