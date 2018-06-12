@@ -50,7 +50,7 @@ maintenance = {status = "actively-developed"}
 [dependencies]
 bitflags              = "1.0"
 unicode-width         = "0.1.4"
-textwrap              = "0.9.0"
+textwrap              = "0.10.0"
 ordermap			  = "0.3.5"
 strsim    = { version = "0.7.0",  optional = true }
 yaml-rust = { version = "0.3.5",  optional = true }
@@ -60,10 +60,10 @@ vec_map   = { version = "0.8", optional = true }
 term_size = { version = "1.0.0-beta1", optional = true }
 
 [target.'cfg(not(windows))'.dependencies]
-ansi_term = { version = "0.10.0",  optional = true }
+ansi_term = { version = "0.11.0",  optional = true }
 
 [dev-dependencies]
-regex = "0.2"
+regex = "1.0"
 lazy_static = "1"
 version-sync = "0.5"
 
