@@ -31,3 +31,14 @@ Compile clap with cargo features `"debug"` such as:
 clap = { version = "2", features = ["debug"] }
 ```
 The output may be very long, so feel free to link to a gist or attach a text file
+
+<details>
+<summary> Debug Output </summary>
+<pre>
+<code>
+
+Paste Debug Output Here
+
+</code>
+</pre>
+</details>

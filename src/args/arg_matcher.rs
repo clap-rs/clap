@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use std::mem;
 
 // Third Party
-use ordermap;
+use indexmap;
 
 // Internal
 use args::{Arg, ArgMatches, MatchedArg, SubCommand};
@@ -90,9 +90,9 @@ impl<'a> ArgMatcher<'a> {
 
     pub fn usage(&mut self, usage: String) { self.0.usage = Some(usage); }
 
-    pub fn arg_names(&'a self) -> ordermap::Keys<&'a str, MatchedArg> { self.0.args.keys() }
+    pub fn arg_names(&'a self) -> indexmap::map::Keys<&'a str, MatchedArg> { self.0.args.keys() }
 
-    pub fn entry(&mut self, arg: &'a str) -> ordermap::Entry<&'a str, MatchedArg> {
+    pub fn entry(&mut self, arg: &'a str) -> indexmap::map::Entry<&'a str, MatchedArg> {
         self.0.args.entry(arg)
     }
 
@@ -100,7 +100,7 @@ impl<'a> ArgMatcher<'a> {
 
     pub fn subcommand_name(&self) -> Option<&str> { self.0.subcommand_name() }
 
-    pub fn iter(&self) -> ordermap::Iter<&str, MatchedArg> { self.0.args.iter() }
+    pub fn iter(&self) -> indexmap::map::Iter<&str, MatchedArg> { self.0.args.iter() }
 
     pub fn inc_occurrence_of(&mut self, arg: &'a str) {
         debugln!("ArgMatcher::inc_occurrence_of: arg={}", arg);

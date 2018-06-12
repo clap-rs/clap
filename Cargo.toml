@@ -5,12 +5,12 @@ version = "3.0.0-alpha1"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
 exclude = [
 	".github/*",
-	"examples/*", 
-	"tests/*", 
-	"benches/*", 
-	"clap-perf/*", 
+	"examples/*",
+	"tests/*",
+	"benches/*",
+	"clap-perf/*",
 	"etc/*",
-	"*.png", 
+	"*.png",
 	"*.dot",
 	"*.yml",
 	"*.toml",
@@ -18,8 +18,8 @@ exclude = [
 	"clap-test.rs"
 ]
 include = [
-	"src/**/*", 
-	"Cargo.toml", 
+	"src/**/*",
+	"Cargo.toml",
 	"README.md"
 ]
 repository = "https://github.com/kbknapp/clap-rs"
@@ -28,10 +28,10 @@ homepage = "https://clap.rs/"
 readme = "README.md"
 license = "MIT"
 keywords = [
-	"argument", 
-	"cli", 
-	"arg", 
-	"parser", 
+	"argument",
+	"cli",
+	"arg",
+	"parser",
 	"parse"
 ]
 categories = ["command-line-interface"]
@@ -50,8 +50,8 @@ maintenance = {status = "actively-developed"}
 [dependencies]
 bitflags              = "1.0"
 unicode-width         = "0.1.4"
-textwrap              = "0.9.0"
-ordermap			  = "0.3.5"
+textwrap              = "0.10.0"
+indexmap              = "1.0.1"
 strsim    = { version = "0.7.0",  optional = true }
 yaml-rust = { version = "0.3.5",  optional = true }
 clippy    = { version = "~0.0.166", optional = true }
@@ -60,10 +60,10 @@ vec_map   = { version = "0.8", optional = true }
 term_size = { version = "1.0.0-beta1", optional = true }
 
 [target.'cfg(not(windows))'.dependencies]
-ansi_term = { version = "0.10.0",  optional = true }
+ansi_term = { version = "0.11.0",  optional = true }
 
 [dev-dependencies]
-regex = "0.2"
+regex = "1.0"
 lazy_static = "1"
 version-sync = "0.5"
 
@@ -111,14 +111,6 @@ rpath = false
 lto = true
 debug-assertions = false
 codegen-units = 1
-
-[profile.doc]
-opt-level = 0
-debug = true
-rpath = false
-lto = false
-debug-assertions = true
-codegen-units = 4
 
 [package.metadata.docs.rs]
 features = ["doc"]

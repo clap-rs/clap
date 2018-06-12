@@ -536,7 +536,7 @@ extern crate ansi_term;
 extern crate atty;
 #[macro_use]
 extern crate bitflags;
-extern crate ordermap;
+extern crate indexmap;
 #[cfg(feature = "suggestions")]
 extern crate strsim;
 #[cfg(feature = "wrap_help")]

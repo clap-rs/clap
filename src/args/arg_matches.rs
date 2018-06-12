@@ -5,7 +5,7 @@ use std::iter::Map;
 use std::slice::Iter;
 
 // Third Party
-use ordermap::OrderMap;
+use indexmap::IndexMap;
 
 // Internal
 use INVALID_UTF8;
@@ -62,7 +62,7 @@ use args::SubCommand;
 #[derive(Debug, Clone)]
 pub struct ArgMatches<'a> {
     #[doc(hidden)]
-    pub args: OrderMap<&'a str, MatchedArg>,
+    pub args: IndexMap<&'a str, MatchedArg>,
     #[doc(hidden)]
     pub subcommand: Option<Box<SubCommand<'a>>>,
     #[doc(hidden)]
@@ -72,7 +72,7 @@ pub struct ArgMatches<'a> {
 impl<'a> Default for ArgMatches<'a> {
     fn default() -> Self {
         ArgMatches {
-            args: OrderMap::new(),
+            args: IndexMap::new(),
             subcommand: None,
             usage: None,
         }

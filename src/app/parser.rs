@@ -1,8 +1,10 @@
 // Std
 use std::ffi::{OsStr, OsString};
 use std::io::{self, BufWriter, Write};
-#[cfg(all(feature = "debug", not(target_arch = "wasm32")))]
+#[cfg(all(feature = "debug", not(any(target_os = "windows", target_arch = "wasm32"))))]
 use std::os::unix::ffi::OsStrExt;
+#[cfg(all(feature = "debug", any(target_os = "windows", target_arch = "wasm32")))]
+use osstringext::OsStrExt3;
 use std::slice::Iter;
 use std::iter::Peekable;
 use std::mem;
@@ -384,8 +386,9 @@ where
             self.unset(AS::ValidNegNumFound);
             // Is this a new argument, or values from a previous option?
             let starts_new_arg = self.is_new_arg(&arg_os, needs_val_of);
-            if !self.is_set(AS::TrailingValues) &&
-                arg_os.starts_with(b"--") && arg_os.len_() == 2 && starts_new_arg {
+            if !self.is_set(AS::TrailingValues) && arg_os.starts_with(b"--") && arg_os.len() == 2
+                && starts_new_arg
+            {
                 debugln!("Parser::get_matches_with: setting TrailingVals=true");
                 self.set(AS::TrailingValues);
                 continue;
@@ -430,7 +433,7 @@ where
                             }
                             _ => (),
                         }
-                    } else if arg_os.starts_with(b"-") && arg_os.len_() != 1 {
+                    } else if arg_os.starts_with(b"-") && arg_os.len() != 1 {
                         // Try to parse short args like normal, if AllowLeadingHyphen or
                         // AllowNegativeNumbers is set, parse_short_arg will *not* throw
                         // an error, and instead return Ok(None)
@@ -795,7 +798,7 @@ where
         // Is this a new argument, or values from a previous option?
         let mut ret = if arg_os.starts_with(b"--") {
             debugln!("Parser::is_new_arg: -- found");
-            if arg_os.len_() == 2 && !arg_allows_tac {
+            if arg_os.len() == 2 && !arg_allows_tac {
                 return true; // We have to return true so override everything else
             } else if arg_allows_tac {
                 return false;
@@ -804,7 +807,7 @@ where
         } else if arg_os.starts_with(b"-") {
             debugln!("Parser::is_new_arg: - found");
             // a singe '-' by itself is a value and typically means "stdin" on unix systems
-            !(arg_os.len_() == 1)
+            !(arg_os.len() == 1)
         } else {
             debugln!("Parser::is_new_arg: probably value");
             false
@@ -928,21 +931,21 @@ where
 
     fn use_long_help(&self) -> bool {
         debugln!("Parser::use_long_help;");
-        // In this case, both must be checked. This allows the retention of 
+        // In this case, both must be checked. This allows the retention of
         // original formatting, but also ensures that the actual -h or --help
         // specified by the user is sent through. If HiddenShortHelp is not included,
         // then items specified with hidden_short_help will also be hidden.
         let should_long = |v: &Arg| {
-            v.long_help.is_some() || 
-            v.is_set(ArgSettings::HiddenLongHelp) || 
-            v.is_set(ArgSettings::HiddenShortHelp) 
+            v.long_help.is_some() ||
+            v.is_set(ArgSettings::HiddenLongHelp) ||
+            v.is_set(ArgSettings::HiddenShortHelp)
         };
 
         self.app.long_about.is_some()
             || args!(self.app).any(|f| should_long(&f))
             || subcommands!(self.app).any(|s| s.long_about.is_some())
     }
-    
+
 //    fn _help(&self, mut use_long: bool) -> ClapError {
 //        debugln!("Parser::_help: use_long={:?}", use_long && self.use_long_help());
 //        use_long = use_long && self.use_long_help();
@@ -1149,7 +1152,7 @@ where
         if let Some(fv) = val {
             has_eq = fv.starts_with(&[b'=']) || had_eq;
             let v = fv.trim_left_matches(b'=');
-            if !empty_vals && (v.len_() == 0 || (needs_eq && !has_eq)) {
+            if !empty_vals && (v.len() == 0 || (needs_eq && !has_eq)) {
                 sdebugln!("Found Empty - Error");
                 return Err(ClapError::empty_value(
                     opt,
@@ -1157,7 +1160,7 @@ where
                     self.app.color(),
                 ));
             }
-            sdebugln!("Found - {:?}, len: {}", v, v.len_());
+            sdebugln!("Found - {:?}, len: {}", v, v.len());
             debugln!(
                 "Parser::parse_opt: {:?} contains '='...{:?}",
                 fv,
@@ -1208,7 +1211,7 @@ where
         );
         if !(self.is_set(AS::TrailingValues) && self.is_set(AS::DontDelimitTrailingValues)) {
             if let Some(delim) = arg.val_delim {
-                if val.is_empty_() {
+                if val.is_empty() {
                     Ok(self.add_single_val_to_arg(arg, val, matcher)?)
                 } else {
                     let mut iret = ParseResult::ValuesDone;
