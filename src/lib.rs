@@ -550,24 +550,19 @@ extern crate yaml_rust;
 
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;
-pub use args::{Arg, ArgGroup, ArgMatches, ArgSettings, OsValues, SubCommand, Values};
-pub use app::{App, AppSettings, Propagation};
-pub use fmt::Format;
-pub use errors::{Error, ErrorKind, Result};
+pub use build::{Arg, ArgGroup, ArgSettings, App, AppSettings, Propagation};
+pub use parse::{OsValues, SubCommand, Values, ArgMatches};
+pub use output::fmt::Format;
+pub use parse::errors::{Error, ErrorKind, Result};
 pub use completions::Shell;
 
 #[macro_use]
 mod macros;
-mod app;
-mod args;
-mod usage_parser;
-mod fmt;
-mod suggestions;
-mod errors;
-mod osstringext;
-mod strext;
 mod completions;
-mod map;
+mod parse;
+mod build;
+mod util;
+mod output;
 
 const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider filing a bug \
                                           report at https://github.com/kbknapp/clap-rs/issues";

@@ -4,8 +4,7 @@ use std::io::Write;
 use std::ascii::AsciiExt;
 
 // Internal
-use app::App;
-use args::ArgSettings;
+use build::{App, ArgSettings};
 use completions;
 use INTERNAL_ERROR_MSG;
 

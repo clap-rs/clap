@@ -3,8 +3,8 @@
 use strsim;
 
 // Internal
-use fmt::Format;
-use app::App;
+use build::App;
+use output::fmt::Format;
 
 /// Produces a string from a given list of possible values which is similar to
 /// the passed in value `v` with a certain confidence.

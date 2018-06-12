@@ -10,7 +10,7 @@ mod shell;
 use std::io::Write;
 
 // Internal
-use app::App;
+use build::App;
 use self::bash::BashGen;
 use self::fish::FishGen;
 use self::zsh::ZshGen;

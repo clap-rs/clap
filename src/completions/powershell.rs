@@ -2,7 +2,7 @@
 use std::io::Write;
 
 // Internal
-use app::App;
+use build::App;
 use INTERNAL_ERROR_MSG;
 
 pub struct PowerShellGen<'a, 'b>(&'b App<'a, 'b>)

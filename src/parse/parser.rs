@@ -11,25 +11,23 @@ use std::mem;
 use std::cell::Cell;
 
 // Third party facade
-use map::VecMap;
+use util::VecMap;
 
 // Internal
 use INTERNAL_ERROR_MSG;
 use INVALID_UTF8;
-use SubCommand;
-use app::App;
-use app::help::Help;
-use args::{Arg, ArgMatcher};
-use args::settings::ArgSettings;
-use errors::ErrorKind;
-use errors::Error as ClapError;
-use errors::Result as ClapResult;
-use osstringext::OsStrExt2;
-use suggestions;
-use app::settings::AppSettings as AS;
-use app::validator::Validator;
-use app::usage::Usage;
-use app::Propagation;
+use build::{App, Arg, ArgSettings};
+use build::app::Propagation;
+use build::AppSettings as AS;
+use parse::{ArgMatcher, SubCommand};
+use output::Help;
+use parse::errors::ErrorKind;
+use parse::errors::Error as ClapError;
+use parse::errors::Result as ClapResult;
+use parse::Validator;
+use util::OsStrExt2;
+use parse::features::suggestions;
+use output::Usage;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[doc(hidden)]

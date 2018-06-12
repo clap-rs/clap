@@ -1,8 +1,7 @@
 // Internal
 use INTERNAL_ERROR_MSG;
-use args::Arg;
-use args::settings::ArgSettings;
-use map::VecMap;
+use build::{Arg, ArgSettings};
+use util::VecMap;
 
 #[derive(PartialEq, Debug)]
 enum UsageToken {
@@ -216,8 +215,7 @@ fn help_start(b: u8) -> bool { b != b'\'' }
 
 #[cfg(test)]
 mod test {
-    use args::Arg;
-    use args::ArgSettings;
+    use build::{Arg, ArgSettings};
 
     #[test]
     fn create_flag_usage() {

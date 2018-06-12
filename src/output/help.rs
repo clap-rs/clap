@@ -6,13 +6,12 @@ use std::io::{self, Cursor, Read, Write};
 use std::usize;
 
 // Internal
-use app::{App, AppSettings};
-use app::parser::Parser;
-use args::{Arg, ArgSettings};
-use errors::{Error, Result as ClapResult};
-use fmt::{Colorizer, ColorizerOption, Format};
-use app::usage::Usage;
-use map::VecMap;
+use build::{App, AppSettings, Arg, ArgSettings};
+use parse::Parser;
+use parse::errors::{Error, Result as ClapResult};
+use output::fmt::{Colorizer, ColorizerOption, Format};
+use output::Usage;
+use util::VecMap;
 use INTERNAL_ERROR_MSG;
 
 // Third Party
