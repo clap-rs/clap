@@ -735,6 +735,12 @@ where
                 .filter(|s| starts(s, &*arg_os))
                 .collect::<Vec<_>>();
 
+            for sc in &v {
+                if OsStr::new(sc) == arg_os {
+                    return (true, Some(sc));
+                }
+            }
+
             if v.len() == 1 {
                 return (true, Some(v[0]));
             }
