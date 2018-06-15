@@ -478,19 +478,6 @@ fn allow_negative_numbers() {
 }
 
 #[test]
-fn allow_negative_numbers_fail() {
-    let res = App::new("negnum")
-        .setting(AppSettings::AllowNegativeNumbers)
-        .arg(Arg::with_name("panum"))
-        .arg(Arg::with_name("onum")
-            .short("o")
-            .takes_value(true))
-        .get_matches_from_safe(vec!["negnum", "--foo", "-o", "-1.2"]);
-    assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument)
-}
-
-#[test]
 fn leading_double_hyphen_trailingvararg() {
     let m = App::new("positional")
         .setting(AppSettings::TrailingVarArg)
