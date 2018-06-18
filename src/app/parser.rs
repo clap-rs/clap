@@ -656,13 +656,12 @@ where
 
     // Checks if the arg matches a subcommand name, or any of it's aliases (if defined)
     fn possible_subcommand(&self, arg_os: &OsStr) -> (bool, Option<&str>) {
+        #[cfg(not(any(target_os = "windows", target_arch = "wasm32")))]
+        use std::os::unix::ffi::OsStrExt;
+        #[cfg(any(target_os = "windows", target_arch = "wasm32"))]
+        use osstringext::OsStrExt3;
         debugln!("Parser::possible_subcommand: arg={:?}", arg_os);
         fn starts(h: &str, n: &OsStr) -> bool {
-            #[cfg(not(any(target_os = "windows", target_arch = "wasm32")))]
-            use std::os::unix::ffi::OsStrExt;
-            #[cfg(any(target_os = "windows", target_arch = "wasm32"))]
-            use osstringext::OsStrExt3;
-
             let n_bytes = n.as_bytes();
             let h_bytes = OsStr::new(h).as_bytes();
 
@@ -693,6 +692,12 @@ where
                 })
                 .map(|sc| &sc.p.meta.name)
                 .collect::<Vec<_>>();
+
+            for sc in &v {
+                if OsStr::new(sc) == arg_os {
+                    return (true, Some(sc));
+                }
+            }
 
             if v.len() == 1 {
                 return (true, Some(v[0]));

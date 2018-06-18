@@ -222,6 +222,19 @@ fn infer_subcommands_pass_close() {
     assert_eq!(m.subcommand_name(), Some("test"));
 }
 
+#[test]
+fn infer_subcommands_pass_exact_match() {
+    let m = App::new("prog")
+        .setting(AppSettings::InferSubcommands)
+        .subcommand(SubCommand::with_name("test"))
+        .subcommand(SubCommand::with_name("testa"))
+        .subcommand(SubCommand::with_name("testb"))
+        .get_matches_from(vec![
+            "prog", "test"
+        ]);
+    assert_eq!(m.subcommand_name(), Some("test"));
+}
+
 #[cfg(feature = "suggestions")]
 #[test]
 fn infer_subcommands_fail_suggestions() {
