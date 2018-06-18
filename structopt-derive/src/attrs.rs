@@ -303,7 +303,7 @@ impl Attrs {
                     panic!("parse attribute is not allowed for flattened entry");
                 }
                 if !res.methods.is_empty() {
-                    panic!("methods are not allowed for flattened entry");
+                    panic!("methods and doc comments are not allowed for flattened entry");
                 }
             }
             Kind::Subcommand(_) => {
