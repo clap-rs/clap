@@ -1,0 +1,13 @@
+name: claptests
+version: "1.0"
+about: tests clap library
+author: Kevin K. <kbknapp@gmail.com>
+settings:
+  - ArgRequiredElseHelp
+help_message: prints help with a nonstandard description
+args:
+  - opt:
+    short: o
+    long: option
+    multiple: true
+    help: tests options
