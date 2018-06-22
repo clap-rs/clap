@@ -1,3 +1,6 @@
+#[macro_use]
+mod macros;
+
 pub mod app;
 pub mod arg;
 

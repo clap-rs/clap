@@ -1792,7 +1792,7 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     /// **Deprecated:** Use
-    #[deprecated(since="2.30.0", note="Use serde instead. Will be removed in v3.0-beta")]
+    #[deprecated(since="2.30.0", note="Use App::from instead. Will be removed in v3.0-beta")]
     #[cfg(feature = "yaml")]
     pub fn from_yaml(yaml: &'a Yaml) -> App<'a, 'a> { App::from(yaml) }
 
@@ -1951,7 +1951,7 @@ impl<'a, 'b> App<'a, 'b> {
 #[cfg(feature = "yaml")]
 impl<'a> From<&'a Yaml> for App<'a, 'a> {
     fn from(mut yaml: &'a Yaml) -> Self {
-        use args::SubCommand;
+        use parse::SubCommand;
         // We WANT this to panic on error...so expect() is good.
         let mut is_sc = None;
         let mut a = if let Some(name) = yaml["name"].as_str() {

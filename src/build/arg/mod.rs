@@ -1,11 +1,7 @@
-#[macro_use]
-mod macros;
 mod settings;
 pub use self::settings::{ArgFlags, ArgSettings};
 
 // Std
-#[cfg(feature = "yaml")]
-use std::collections::BTreeMap;
 use std::rc::Rc;
 use std::borrow::Cow;
 use std::fmt::{self, Display, Formatter};
@@ -20,7 +16,7 @@ use std::str;
 
 // Third Party 
 #[cfg(feature = "yaml")]
-use yaml_rust::Yaml;
+use yaml_rust;
 use util::VecMap;
 
 // Internal
@@ -157,7 +153,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     #[cfg(feature = "yaml")]
-    pub fn from_yaml(y: &BTreeMap<Yaml, Yaml>) -> Arg {
+    pub fn from_yaml(y: &yaml_rust::yaml::Hash) -> Arg {
         // We WANT this to panic on error...so expect() is good.
         let name_yml = y.keys().nth(0).unwrap();
         let name_str = name_yml.as_str().unwrap();

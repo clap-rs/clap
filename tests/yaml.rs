@@ -11,6 +11,13 @@ fn create_app_from_yaml() {
     App::from_yaml(yml);
 }
 
+// TODO: Uncomment to test yaml with 2 spaces https://github.com/chyh1990/yaml-rust/issues/101
+// #[test]
+// fn create_app_from_yaml_2spaces() {
+//     let yml = load_yaml!("app_2space.yml");
+//     App::from(yml);
+// }
+
 #[test]
 fn help_message() {
     let yml = load_yaml!("app.yml");
