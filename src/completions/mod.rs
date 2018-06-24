@@ -4,6 +4,7 @@ mod bash;
 mod fish;
 mod zsh;
 mod powershell;
+mod elvish;
 mod shell;
 
 // Std
@@ -15,6 +16,7 @@ use self::bash::BashGen;
 use self::fish::FishGen;
 use self::zsh::ZshGen;
 use self::powershell::PowerShellGen;
+use self::elvish::ElvishGen;
 pub use self::shell::Shell;
 
 pub struct ComplGen<'a, 'b>
@@ -33,6 +35,7 @@ impl<'a, 'b> ComplGen<'a, 'b> {
             Shell::Fish => FishGen::new(self.p).generate_to(buf),
             Shell::Zsh => ZshGen::new(self.p).generate_to(buf),
             Shell::PowerShell => PowerShellGen::new(self.p).generate_to(buf),
+            Shell::Elvish => ElvishGen::new(self.p).generate_to(buf),
         }
     }
 }
