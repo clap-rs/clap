@@ -15,11 +15,13 @@ pub enum Shell {
     Zsh,
     /// Generates a completion file for PowerShell
     PowerShell,
+    /// Generates a completion file for Elvish
+    Elvish,
 }
 
 impl Shell {
     /// A list of possible variants in `&'static str` form
-    pub fn variants() -> [&'static str; 4] { ["zsh", "bash", "fish", "powershell"] }
+    pub fn variants() -> [&'static str; 5] { ["zsh", "bash", "fish", "powershell", "elvish"] }
 }
 
 impl FromStr for Shell {
@@ -31,7 +33,8 @@ impl FromStr for Shell {
             "FISH" | _ if s.eq_ignore_ascii_case("fish") => Ok(Shell::Fish),
             "BASH" | _ if s.eq_ignore_ascii_case("bash") => Ok(Shell::Bash),
             "POWERSHELL" | _ if s.eq_ignore_ascii_case("powershell") => Ok(Shell::PowerShell),
-            _ => Err(String::from("[valid values: bash, fish, zsh, powershell]")),
+            "ELVISH" | _ if s.eq_ignore_ascii_case("elvish") => Ok(Shell::Elvish),
+            _ => Err(String::from("[valid values: bash, fish, zsh, powershell, elvish]")),
         }
     }
 }
@@ -43,6 +46,7 @@ impl fmt::Display for Shell {
             Shell::Fish => write!(f, "FISH"),
             Shell::Zsh => write!(f, "ZSH"),
             Shell::PowerShell => write!(f, "POWERSHELL"),
+            Shell::Elvish => write!(f, "ELVISH"),
         }
     }
 }
