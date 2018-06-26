@@ -1,3 +1,31 @@
+<a name="v2.32.0"></a>
+## v2.32.0 (2018-06-26)
+
+#### Minimum Required Rust
+
+* As of this release, `clap` requires `rustc 1.21.0` or greater.
+
+
+#### Features
+
+* **Completions:**  adds completion support for Elvish. ([e9d0562a](https://github.com/kbknapp/clap-rs/commit/e9d0562a1dc5dfe731ed7c767e6cee0af08f0cf9))
+
+#### Improvements
+
+* **macros:**  Support shorthand syntax for ArgGroups ([df9095e7](https://github.com/kbknapp/clap-rs/commit/df9095e75bb1e7896415251d0d4ffd8a0ebcd559))
+
+#### Bug Fixes
+
+* **OsValues:**  Add `ExactSizeIterator` implementation ([356c69e5](https://github.com/kbknapp/clap-rs/commit/356c69e508fd25a9f0ea2d27bf80ae1d9a8d88f4))
+* **arg_enum!:**  Invalid expansions of some trailing-comma patterns ([7023184f](https://github.com/kbknapp/clap-rs/commit/7023184fca04e852c270341548d6a16207d13862))
+* **help message:**  Unconditionally uses long description for subcommands ([6acc8b6a](https://github.com/kbknapp/clap-rs/commit/6acc8b6a621a765cbf513450188000d943676a30), closes [#897](https://github.com/kbknapp/clap-rs/issues/897))
+
+#### Documentation
+
+*   Refer to macOS rather than OSX. ([ab0d767f](https://github.com/kbknapp/clap-rs/commit/ab0d767f3a5a57e2bbb97d0183c2ef63c8c77a6c))
+
+
+
 <a name="v2.31.2"></a>
 ### v2.31.2 (2018-03-19)
 

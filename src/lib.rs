@@ -513,7 +513,7 @@
 //! this repository for more information.
 
 #![crate_type = "lib"]
-#![doc(html_root_url = "https://docs.rs/clap/2.31.2")]
+#![doc(html_root_url = "https://docs.rs/clap/2.32.0")]
 #![deny(missing_docs, missing_debug_implementations, missing_copy_implementations, trivial_casts,
         unused_import_braces, unused_allocation)]
 // Lints we'd like to deny but are currently failing for upstream crates
