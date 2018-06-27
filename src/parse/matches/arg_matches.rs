@@ -858,6 +858,8 @@ impl<'a> DoubleEndedIterator for OsValues<'a> {
     fn next_back(&mut self) -> Option<&'a OsStr> { self.iter.next_back() }
 }
 
+impl<'a> ExactSizeIterator for OsValues<'a> {}
+
 /// Creates an empty iterator.
 impl<'a> Default for OsValues<'a> {
     fn default() -> Self {

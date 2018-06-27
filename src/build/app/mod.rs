@@ -1893,6 +1893,7 @@ impl<'a, 'b> App<'a, 'b> {
             Shell::Fish => format!("{}.fish", name),
             Shell::Zsh => format!("_{}", name),
             Shell::PowerShell => format!("_{}.ps1", name),
+            Shell::Elvish => format!("{}.elv", name),
         };
 
         let mut file = match File::create(out_dir.join(file_name)) {
