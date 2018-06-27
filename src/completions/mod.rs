@@ -4,6 +4,7 @@ mod bash;
 mod fish;
 mod zsh;
 mod powershell;
+mod elvish;
 mod shell;
 
 // Std
@@ -15,6 +16,7 @@ use self::bash::BashGen;
 use self::fish::FishGen;
 use self::zsh::ZshGen;
 use self::powershell::PowerShellGen;
+use self::elvish::ElvishGen;
 pub use self::shell::Shell;
 
 pub struct ComplGen<'a, 'b>(&'b App<'a, 'b>)
@@ -26,6 +28,7 @@ impl<'a, 'b> ComplGen<'a, 'b> {
 
     pub fn generate<W: Write>(&self, for_shell: Shell, buf: &mut W) {
         match for_shell {
+            Shell::Elvish => ElvishGen::new(self.p).generate_to(buf),
             Shell::Bash => BashGen::new(self.0).generate_to(buf),
             Shell::Fish => FishGen::new(self.0).generate_to(buf),
             Shell::Zsh => ZshGen::new(self.0).generate_to(buf),
