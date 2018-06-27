@@ -17,6 +17,8 @@ pub enum Shell {
     PowerShell,
     /// Generates a completion file for Elvish
     Elvish,
+    #[doc(hidden)]
+    __Nonexhaustive,
 }
 
 impl Shell {
@@ -47,6 +49,7 @@ impl fmt::Display for Shell {
             Shell::Zsh => write!(f, "ZSH"),
             Shell::PowerShell => write!(f, "POWERSHELL"),
             Shell::Elvish => write!(f, "ELVISH"),
+            _ => panic!("Unsupported shell type for completion generation")
         }
     }
 }

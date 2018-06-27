@@ -28,11 +28,12 @@ impl<'a, 'b> ComplGen<'a, 'b> {
 
     pub fn generate<W: Write>(&self, for_shell: Shell, buf: &mut W) {
         match for_shell {
-            Shell::Elvish => ElvishGen::new(self.p).generate_to(buf),
             Shell::Bash => BashGen::new(self.0).generate_to(buf),
             Shell::Fish => FishGen::new(self.0).generate_to(buf),
             Shell::Zsh => ZshGen::new(self.0).generate_to(buf),
             Shell::PowerShell => PowerShellGen::new(self.0).generate_to(buf),
+            Shell::Elvish => ElvishGen::new(self.0).generate_to(buf),
+            _ => panic!("Unsupported shell type for generating completions")
         }
     }
 }
