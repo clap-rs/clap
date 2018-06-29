@@ -165,6 +165,7 @@ pub enum AppSettings {
     /// [`ArgMatches::os_values_of`]: ./struct.ArgMatches.html#method.os_values_of
     /// [`ArgMatches::lossy_value_of`]: ./struct.ArgMatches.html#method.lossy_value_of
     /// [`ArgMatches::lossy_values_of`]: ./struct.ArgMatches.html#method.lossy_values_of
+    /// [`SubCommand`]: ./struct.SubCommand.html
     AllowInvalidUtf8,
 
     /// Essentially sets [`Arg::overrides_with("itself")`] for all arguments.
@@ -562,6 +563,7 @@ pub enum AppSettings {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::VersionDisplayed);
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [`App`]: ./struct.App.html
     DisableVersion,
 
     /// Displays the arguments and [`SubCommand`]s in the help message in the order that they were
@@ -903,7 +905,7 @@ pub enum AppSettings {
     /// [`SubCommand`]: ./struct.SubCommand.html
     VersionlessSubcommands,
 
-    /// Will display a message "Press [ENTER]/[RETURN] to continue..." and wait for user before
+    /// Will display a message "Press \[ENTER\]/\[RETURN\] to continue..." and wait for user before
     /// exiting
     ///
     /// This is most useful when writing an application which is run from a GUI shortcut, or on

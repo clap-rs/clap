@@ -77,7 +77,8 @@ pub enum ArgSettings {
     Multiple,
     /// The argument allows empty values such as `--option ""`
     EmptyValues,
-    /// The argument should be propagated down through all child [`SubCommands`]
+    /// The argument should be propagated down through all child [`SubCommand`]s
+    ///
     /// [`SubCommand`]: ./struct.SubCommand.html
     Global,
     /// The argument should **not** be shown in help text

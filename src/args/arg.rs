@@ -2301,7 +2301,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// **NOTE:** Implicitly sets [`Arg::hidden_short_help(true)`] and [`Arg::hidden_long_help(true)`]
     /// when set to true
-    /// 
+    ///
     /// **NOTE:** This does **not** hide the argument from usage strings on error
     ///
     /// # Examples
@@ -3580,6 +3580,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// assert_eq!(m.values_of("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
     /// ```
+    /// [`ArgMatches::occurrences_of`]: ./struct.ArgMatches.html#method.occurrences_of
+    /// [`ArgMatches::value_of`]: ./struct.ArgMatches.html#method.value_of
+    /// [`ArgMatches::is_present`]: ./struct.ArgMatches.html#method.is_present
+    /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
+    /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
+    /// [`Arg::use_delimiter(true)`]: ./struct.Arg.html#method.use_delimiter
     pub fn env(self, name: &'a str) -> Self {
         self.env_os(OsStr::new(name))
     }
@@ -3746,7 +3752,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// **NOTE:** Setting this option will cause next-line-help output style to be used
     /// when long help (`--help`) is called.
-    /// 
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -3781,9 +3787,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
-    /// 
+    ///
     /// However, when --help is called
-    /// 
+    ///
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
@@ -3795,24 +3801,24 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         "prog", "--help"
     ///     ]);
     /// ```
-    /// 
+    ///
     /// Then the following would be displayed
-    /// 
+    ///
     /// ```notrust
     /// helptest
-    /// 
+    ///
     /// USAGE:
     ///    helptest [FLAGS]
-    /// 
+    ///
     /// FLAGS:
     ///     --config     Some help text describing the --config arg
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
     pub fn hidden_short_help(self, hide: bool) -> Self {
-        if hide { 
+        if hide {
             self.set(ArgSettings::HiddenShortHelp)
-        } else { 
+        } else {
             self.unset(ArgSettings::HiddenShortHelp)
         }
     }
@@ -3823,7 +3829,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// **NOTE:** Setting this option will cause next-line-help output style to be used
     /// when long help (`--help`) is called.
-    /// 
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -3858,9 +3864,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
-    /// 
+    ///
     /// However, when -h is called
-    /// 
+    ///
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
@@ -3872,15 +3878,15 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         "prog", "-h"
     ///     ]);
     /// ```
-    /// 
+    ///
     /// Then the following would be displayed
-    /// 
+    ///
     /// ```notrust
     /// helptest
-    /// 
+    ///
     /// USAGE:
     ///    helptest [FLAGS]
-    /// 
+    ///
     /// FLAGS:
     ///     --config     Some help text describing the --config arg
     /// -h, --help       Prints help information
@@ -3894,20 +3900,23 @@ impl<'a, 'b> Arg<'a, 'b> {
         }
     }
 
-    /// Checks if one of the [`ArgSettings`] settings is set for the argument
+    /// Checks if one of the [`ArgSettings`] settings is set for the argument.
+    ///
     /// [`ArgSettings`]: ./enum.ArgSettings.html
     pub fn is_set(&self, s: ArgSettings) -> bool {
         self.b.is_set(s)
     }
 
-    /// Sets one of the [`ArgSettings`] settings for the argument
+    /// Sets one of the [`ArgSettings`] settings for the argument.
+    ///
     /// [`ArgSettings`]: ./enum.ArgSettings.html
     pub fn set(mut self, s: ArgSettings) -> Self {
         self.setb(s);
         self
     }
 
-    /// Unsets one of the [`ArgSettings`] settings for the argument
+    /// Unsets one of the [`ArgSettings`] settings for the argument.
+    ///
     /// [`ArgSettings`]: ./enum.ArgSettings.html
     pub fn unset(mut self, s: ArgSettings) -> Self {
         self.unsetb(s);
