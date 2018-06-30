@@ -29,8 +29,8 @@
 //!
 //! The following examples show a quick example of some of the very basic functionality of `clap`.
 //! For more advanced usage, such as requirements, conflicts, groups, multiple values and
-//! occurrences see the [documentation](https://docs.rs/clap/), [examples/](https://github.com/kbknapp/clap-rs/tree/master/examples) directory of
-//! this repository or the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl2Z5T8g1pRkIynR3E0_pc7U).
+//! occurrences see the [documentation](https://docs.rs/clap/), [examples/] directory of
+//! this repository or the [video tutorials].
 //!
 //! **NOTE:** All of these examples are functionally the same, but show different styles in which to
 //! use `clap`
@@ -319,7 +319,7 @@
 //! Add `extern crate clap;` to your crate root.
 //!
 //! Define a list of valid arguments for your program (see the
-//! [documentation](https://docs.rs/clap/) or [examples/](examples) directory of this repo)
+//! [documentation](https://docs.rs/clap/) or [examples/] directory of this repo)
 //!
 //! Then run `cargo build` or `cargo update && cargo build` for your project.
 //!
@@ -372,11 +372,11 @@
 //!
 //! You can find complete documentation on the [docs.rs](https://docs.rs/clap/) for this project.
 //!
-//! You can also find usage examples in the [examples/](https://github.com/kbknapp/clap-rs/tree/master/examples) directory of this repo.
+//! You can also find usage examples in the [examples/] directory of this repo.
 //!
 //! #### Video Tutorials
 //!
-//! There's also the video tutorial series [Argument Parsing with Rust v2](https://www.youtube.com/playlist?list=PLza5oFLQGTl2Z5T8g1pRkIynR3E0_pc7U).
+//! There's also the video tutorial series [Argument Parsing with Rust v2][video tutorials].
 //!
 //! These videos slowly trickle out as I finish them and currently a work in progress.
 //!
@@ -388,7 +388,7 @@
 //! appreciated!
 //!
 //! Another really great way to help is if you find an interesting, or helpful way in which to use
-//! `clap`. You can either add it to the [examples/](examples) directory, or file an issue and tell
+//! `clap`. You can either add it to the [examples/] directory, or file an issue and tell
 //! me. I'm all about giving credit where credit is due :)
 //!
 //! Please read [CONTRIBUTING.md](https://raw.githubusercontent.com/kbknapp/clap-rs/master/.github/CONTRIBUTING.md) before you start contributing.
@@ -509,8 +509,12 @@
 //!
 //! ## License
 //!
-//! `clap` is licensed under the MIT license. Please read the [LICENSE-MIT](LICENSE-MIT) file in
+//! `clap` is licensed under the MIT license. Please read the [LICENSE-MIT][license] file in
 //! this repository for more information.
+//!
+//! [examples/]: https://github.com/kbknapp/clap-rs/tree/master/examples
+//! [video tutorials]: https://www.youtube.com/playlist?list=PLza5oFLQGTl2Z5T8g1pRkIynR3E0_pc7U
+//! [license]: https://raw.githubusercontent.com/kbknapp/clap-rs/master/LICENSE-MIT
 
 #![crate_type = "lib"]
 #![doc(html_root_url = "https://docs.rs/clap/2.32.0")]

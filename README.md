@@ -347,14 +347,14 @@ To try out the pre-built examples, use the following steps:
 * Compile the example `$ cargo build --example <EXAMPLE>`
 * Run the help info `$ ./target/debug/examples/<EXAMPLE> --help`
 * Play with the arguments!
-* You can also do a onetime run via `$ cargo run --example <EXAMPLE> -- [args to example]
+* You can also do a onetime run via `$ cargo run --example <EXAMPLE> -- [args to example]`
 
 ### BYOB (Build Your Own Binary)
 
 To test out `clap`'s default auto-generated help/version follow these steps:
 * Create a new cargo project `$ cargo new fake --bin && cd fake`
 * Add `clap` to your `Cargo.toml`
-*
+
 ```toml
 [dependencies]
 clap = "2"
