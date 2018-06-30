@@ -196,7 +196,7 @@ pub enum ErrorKind {
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
     /// ```
-    /// [`Arg::number_of_values`]
+    ///
     /// [`Arg::number_of_values`]: ./struct.Arg.html#method.number_of_values
     /// [`Arg::value_names`]: ./struct.Arg.html#method.value_names
     WrongNumberOfValues,
@@ -365,6 +365,7 @@ pub enum ErrorKind {
 
     /// Represents a [Format error] (which is a part of [`Display`]).
     /// Typically caused by writing to `stderr` or `stdout`.
+    ///
     /// [`Display`]: https://doc.rust-lang.org/std/fmt/trait.Display.html
     /// [Format error]: https://doc.rust-lang.org/std/fmt/struct.Error.html
     Format,

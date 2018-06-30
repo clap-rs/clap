@@ -820,7 +820,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///     .arg_from_usage("-c --config=<FILE> 'Sets a configuration file to use'")
     /// # ;
     /// ```
-    /// [arguments]: ./struct.Arg.html
+    /// [argument]: ./struct.Arg.html
     /// [`Arg`]: ./struct.Arg.html
     /// [`Arg::from_usage`]: ./struct.Arg.html#method.from_usage
     pub fn arg_from_usage(mut self, usage: &'a str) -> Self {
