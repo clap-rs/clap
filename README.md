@@ -572,7 +572,7 @@ Upon bumping the minimum version of Rust (assuming it's within the stable-2 rang
 There are several excellent crates which can be used with `clap`, I recommend checking them all out! If you've got a crate that would be a good fit to be used with `clap` open an issue and let me know, I'd love to add it!
 
 * [`structopt`](https://github.com/TeXitoi/structopt) - This crate allows you to define a struct, and build a CLI from it! No more "stringly typed" and it uses `clap` behind the scenes! (*Note*: There is work underway to pull this crate into mainline `clap`).
-* [`assert_cli`](https://github.com/killercup/assert_cli) - This crate allows you test your CLIs in a very intuitive and functional way!
+* [`assert_cli`](https://github.com/assert-rs/assert_cli) - This crate allows you test your CLIs in a very intuitive and functional way!
 
 ## Recent Breaking Changes
 
