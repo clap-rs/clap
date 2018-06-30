@@ -574,7 +574,10 @@ pub use derive::{ArgEnum, ClapApp, FromArgMatches, IntoApp};
 #[cfg(unstable)]
 mod derive {
     /// @TODO @release @docs
-    pub trait ClapApp: IntoApp + FromArgMatches + Sized {
+    pub trait Clap: IntoApp + FromArgMatches + Parse + Sized {}
+
+    /// @TODO @release @docs
+    pub trait Parse {
         /// @TODO @release @docs
         fn parse() -> Self { Self::from_argmatches(Self::into_app().get_matches()) }
 
