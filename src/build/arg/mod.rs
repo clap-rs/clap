@@ -13,6 +13,7 @@ use std::os::unix::ffi::OsStrExt;
 use std::env;
 use std::cmp::{Ord, Ordering};
 use std::str;
+use std::hash::{Hash, Hasher};
 
 // Third Party 
 #[cfg(feature = "yaml")]
@@ -4194,6 +4195,12 @@ impl<'n, 'e> Ord for Arg<'n, 'e> {
 }
 
 impl<'n, 'e> Eq for Arg<'n, 'e> {}
+
+impl<'n, 'e> Hash for Arg<'n, 'e> {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.name.hash(state);
+    }
+}
 
 impl<'n, 'e> fmt::Debug for Arg<'n, 'e> {
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
