@@ -267,7 +267,7 @@ macro_rules! _clap_count_exprs {
 ///
 /// **NOTE:** This macro automatically implements [`std::str::FromStr`] and [`std::fmt::Display`]
 ///
-/// **NOTE:** These enums support pub (or not) and uses of the #[derive()] traits
+/// **NOTE:** These enums support pub (or not) and uses of the `#[derive()]` traits
 ///
 /// # Examples
 ///
