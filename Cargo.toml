@@ -1,24 +1,35 @@
 [package]
-name = "structopt-derive"
-version = "0.2.10"
-authors = ["Guillaume Pinot <texitoi@texitoi.eu>"]
+name = "clap_derive"
+version = "0.3.0"
+authors = [
+    "Guillaume Pinot <texitoi@texitoi.eu>", 
+    "Kevin K. <kbknapp@gmail.com>", 
+    "hoverbear <andrew@hoverbear.org>"
+]
 description = "Parse command line argument by defining a struct, derive crate."
-documentation = "https://docs.rs/structopt-derive"
-repository = "https://github.com/TeXitoi/structopt"
-keywords = ["clap", "cli", "derive", "docopt"]
-categories = ["command-line-interface"]
+documentation = "https://docs.rs/clap_derive"
+repository = "https://github.com/kbknapp/clap_derive"
+keywords = ["clap", "cli", "derive", "proc_macro", "parse"]
+categories = ["command-line-interface", "development-tools::procedural-macro-helpers"]
 license = "Apache-2.0/MIT"
+readme = "README.md"
+
+[lib]
+proc-macro = true
 
 [badges]
-travis-ci = { repository = "TeXitoi/structopt" }
+travis-ci = { repository = "kbknapp/clap_derive" }
+appveyor = { repository = "https://github.com/kbknapp/clap_derive", service = "github" }
 
 [dependencies]
 syn = "0.14"
 quote = "0.6"
 proc-macro2 = "0.4"
+clippy = {version = "0.174",optional = true}
 
 [features]
-nightly = ["proc-macro2/nightly"]
-
-[lib]
-proc-macro = true
+default = []
+nightly = []
+lints = ["clippy"]
+debug = []
+doc = ["doc"]

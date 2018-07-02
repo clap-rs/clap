@@ -9,7 +9,30 @@
 //! This crate is custom derive for StructOpt. It should not be used
 //! directly. See [structopt documentation](https://docs.rs/structopt)
 //! for the usage of `#[derive(StructOpt)]`.
+#![recursion_limit = "256"]
 
+extern crate proc_macro;
+extern crate syn;
+#[macro_use]
+extern crate quote;
+#[macro_use]
+extern crate error_chain;
+
+use errors::*;
+use proc_macro::TokenStream;
+use quote::Tokens;
+use syn::DeriveInput;
+
+mod arg_enum;
+use arg_enum::ArgEnum;
+mod errors;
+mod helpers;
+
+/// It is required to have this seperate and specificly defined.
+#[proc_macro_derive(ArgEnum, attributes(case_sensitive))]
+pub fn derive_arg_enum(input: TokenStream) -> TokenStream {
+    ArgEnum::derive(input).unwrap()
+}
 extern crate proc_macro;
 extern crate syn;
 #[macro_use]
@@ -440,4 +463,27 @@ fn impl_structopt(input: &DeriveInput) -> TokenStream {
     };
 
     quote!(#inner_impl)
+}
+
+trait ClapDerive {
+    /// Generate the output from a given input.
+    fn generate_from(ast: &DeriveInput) -> Result<Tokens>;
+
+    /// Wraps around `generate_from` and does some pre/post processing.
+    fn derive(input: TokenStream) -> Result<TokenStream> {
+        let derive_input = Self::parse_input(input)?;
+        let generated_output = Self::generate_from(&derive_input)?;
+        let stream = generated_output
+            .parse()
+            .map_err(|e| ErrorKind::ProcLexError(e))?;
+        Ok(stream)
+    }
+    /// Parses the inputted stream.
+    fn parse_input(input: TokenStream) -> Result<DeriveInput> {
+        // Construct a string representation of the type definition
+        let as_string = input.to_string();
+        // Parse the string representation
+        let parsed = syn::parse_derive_input(&as_string).map_err(|e| ErrorKind::ParseError(e))?;
+        Ok(parsed)
+    }
 }
