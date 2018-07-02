@@ -13,23 +13,23 @@
 // MIT/Apache 2.0 license.
 
 #[macro_use]
-extern crate structopt;
+extern crate clap;
 
-use structopt::StructOpt;
+use clap::Clap;
 
 #[test]
 fn commets_intead_of_actual_help() {
     /// Lorem ipsum
-    #[derive(StructOpt, PartialEq, Debug)]
+    #[derive(Clap, PartialEq, Debug)]
     struct LoremIpsum {
         /// Fooify a bar
         /// and a baz
-        #[structopt(short = "f", long = "foo")]
+        #[clap(short = "f", long = "foo")]
         foo: bool,
     }
 
     let mut output = Vec::new();
-    LoremIpsum::clap().write_long_help(&mut output).unwrap();
+    LoremIpsum::into_app().write_long_help(&mut output).unwrap();
     let output = String::from_utf8(output).unwrap();
 
     assert!(output.contains("Lorem ipsum"));
@@ -39,16 +39,16 @@ fn commets_intead_of_actual_help() {
 #[test]
 fn help_is_better_than_comments() {
     /// Lorem ipsum
-    #[derive(StructOpt, PartialEq, Debug)]
-    #[structopt(name = "lorem-ipsum", about = "Dolor sit amet")]
+    #[derive(Clap, PartialEq, Debug)]
+    #[clap(name = "lorem-ipsum", about = "Dolor sit amet")]
     struct LoremIpsum {
         /// Fooify a bar
-        #[structopt(short = "f", long = "foo", help = "DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES")]
+        #[clap(short = "f", long = "foo", help = "DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES")]
         foo: bool,
     }
 
     let mut output = Vec::new();
-    LoremIpsum::clap().write_long_help(&mut output).unwrap();
+    LoremIpsum::into_app().write_long_help(&mut output).unwrap();
     let output = String::from_utf8(output).unwrap();
 
     assert!(output.contains("Dolor sit amet"));
@@ -61,12 +61,12 @@ fn empty_line_in_doc_comment_is_double_linefeed() {
     /// Foo.
     ///
     /// Bar
-    #[derive(StructOpt, PartialEq, Debug)]
-    #[structopt(name = "lorem-ipsum", author = "", version = "")]
+    #[derive(Clap, PartialEq, Debug)]
+    #[clap(name = "lorem-ipsum", author = "", version = "")]
     struct LoremIpsum {}
 
     let mut output = Vec::new();
-    LoremIpsum::clap().write_long_help(&mut output).unwrap();
+    LoremIpsum::into_app().write_long_help(&mut output).unwrap();
     let output = String::from_utf8(output).unwrap();
 
     println!("{}", output);

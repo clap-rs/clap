@@ -12,10 +12,10 @@ arg_enum! {
     }
 }
 
-#[derive(StructOpt, Debug)]
+#[derive(Clap, Debug)]
 struct Opt {
     /// Important argument.
-    #[structopt(raw(possible_values = "&Baz::variants()", case_insensitive = "true"))]
+    #[clap(raw(possible_values = "&Baz::variants()", case_insensitive = "true"))]
     i: Baz,
 }
 

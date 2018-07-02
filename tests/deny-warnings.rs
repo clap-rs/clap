@@ -17,33 +17,33 @@
 #![feature(never_type)]
 
 #[macro_use]
-extern crate structopt;
+extern crate clap;
 
-use structopt::StructOpt;
+use clap::Clap;
 
 fn try_str(s: &str) -> Result<String, !> { Ok(s.into()) }
 
 #[test]
 fn warning_never_struct() {
-    #[derive(Debug, PartialEq, StructOpt)]
+    #[derive(Debug, PartialEq, Clap)]
     struct Opt {
-        #[structopt(parse(try_from_str = "try_str"))]
+        #[clap(parse(try_from_str = "try_str"))]
         s: String,
     }
     assert_eq!(
         Opt {
             s: "foo".to_string()
         },
-        Opt::from_iter(&["test", "foo"])
+        Opt::parse_from(&["test", "foo"])
     );
 }
 
 #[test]
 fn warning_never_enum() {
-    #[derive(Debug, PartialEq, StructOpt)]
+    #[derive(Debug, PartialEq, Clap)]
     enum Opt {
         Foo {
-            #[structopt(parse(try_from_str = "try_str"))]
+            #[clap(parse(try_from_str = "try_str"))]
             s: String,
         },
     }
@@ -51,6 +51,6 @@ fn warning_never_enum() {
         Opt::Foo {
             s: "foo".to_string()
         },
-        Opt::from_iter(&["test", "Foo", "foo"])
+        Opt::parse_from(&["test", "Foo", "foo"])
     );
 }

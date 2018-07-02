@@ -72,12 +72,12 @@ If you are using a `u64` in your struct to get the number of occurence of a flag
 
 For example
 ```rust
-#[structopt(short = "v", long = "verbose")]
+#[clap(short = "v", long = "verbose")]
 verbose: u64,
 ```
 must be changed by
 ```rust
-#[structopt(short = "v", long = "verbose", parse(from_occurrences))]
+#[clap(short = "v", long = "verbose", parse(from_occurrences))]
 verbose: u64,
 ```
 
@@ -89,7 +89,7 @@ There was no reason to take the argument by value. Most of the StructOpt users w
 
 ### Fail if attributes are not used by [@TeXitoi](https://github.com/TeXitoi)
 
-StructOpt was quite fuzzy in its attribute parsing: it was only searching for interresting things, e. g. something like `#[structopt(foo(bar))]` was accepted but not used. It now fails the compilation.
+StructOpt was quite fuzzy in its attribute parsing: it was only searching for interresting things, e. g. something like `#[clap(foo(bar))]` was accepted but not used. It now fails the compilation.
 
 You should have nothing to do here. This breaking change may highlight some missuse that can be bugs.
 

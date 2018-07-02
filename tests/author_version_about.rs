@@ -13,18 +13,18 @@
 // MIT/Apache 2.0 license.
 
 #[macro_use]
-extern crate structopt;
+extern crate clap;
 
-use structopt::StructOpt;
+use clap::Clap;
 
 #[test]
 fn no_author_version_about() {
-    #[derive(StructOpt, PartialEq, Debug)]
-    #[structopt(name = "foo", about = "", author = "", version = "")]
+    #[derive(Clap, PartialEq, Debug)]
+    #[clap(name = "foo", about = "", author = "", version = "")]
     struct Opt {}
 
     let mut output = Vec::new();
-    Opt::clap().write_long_help(&mut output).unwrap();
+    Opt::into_app().write_long_help(&mut output).unwrap();
     let output = String::from_utf8(output).unwrap();
 
     assert!(output.starts_with("foo \n\nUSAGE:"));
@@ -32,12 +32,12 @@ fn no_author_version_about() {
 
 #[test]
 fn use_env() {
-    #[derive(StructOpt, PartialEq, Debug)]
-    #[structopt()]
+    #[derive(Clap, PartialEq, Debug)]
+    #[clap()]
     struct Opt {}
 
     let mut output = Vec::new();
-    Opt::clap().write_long_help(&mut output).unwrap();
+    Opt::into_app().write_long_help(&mut output).unwrap();
     let output = String::from_utf8(output).unwrap();
     assert!(output.starts_with("structopt 0.2."));
     assert!(output.contains("Guillaume Pinot <texitoi@texitoi.eu>, others"));

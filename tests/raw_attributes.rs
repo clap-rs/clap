@@ -13,16 +13,15 @@
 // MIT/Apache 2.0 license.
 
 #[macro_use]
-extern crate structopt;
+extern crate clap;
 
-use structopt::clap::AppSettings;
-use structopt::StructOpt;
+use clap::{AppSettings, Clap};
 
 // Check if the global settings compile
-#[derive(StructOpt, Debug, PartialEq, Eq)]
-#[structopt(raw(global_settings = "&[AppSettings::ColoredHelp]"))]
+#[derive(Clap, Debug, PartialEq, Eq)]
+#[clap(raw(global_settings = "&[AppSettings::ColoredHelp]"))]
 struct Opt {
-    #[structopt(
+    #[clap(
         long = "x",
         raw(
             display_order = "2",
@@ -33,13 +32,13 @@ struct Opt {
     )]
     x: i32,
 
-    #[structopt(short = "l", long = "level", raw(aliases = r#"&["set-level", "lvl"]"#))]
+    #[clap(short = "l", long = "level", raw(aliases = r#"&["set-level", "lvl"]"#))]
     level: String,
 
-    #[structopt(long = "values")]
+    #[clap(long = "values")]
     values: Vec<i32>,
 
-    #[structopt(name = "FILE", raw(requires_if = r#""FILE", "values""#))]
+    #[clap(name = "FILE", raw(requires_if = r#""FILE", "values""#))]
     files: Vec<String>,
 }
 
@@ -52,7 +51,7 @@ fn test_raw_slice() {
             files: Vec::new(),
             values: vec![],
         },
-        Opt::from_clap(&Opt::clap().get_matches_from(&["test", "-l", "1"]))
+        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "-l", "1"]))
     );
     assert_eq!(
         Opt {
@@ -61,7 +60,7 @@ fn test_raw_slice() {
             files: Vec::new(),
             values: vec![],
         },
-        Opt::from_clap(&Opt::clap().get_matches_from(&["test", "--level", "1"]))
+        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "--level", "1"]))
     );
     assert_eq!(
         Opt {
@@ -70,7 +69,7 @@ fn test_raw_slice() {
             files: Vec::new(),
             values: vec![],
         },
-        Opt::from_clap(&Opt::clap().get_matches_from(&["test", "--set-level", "1"]))
+        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "--set-level", "1"]))
     );
     assert_eq!(
         Opt {
@@ -79,7 +78,7 @@ fn test_raw_slice() {
             files: Vec::new(),
             values: vec![],
         },
-        Opt::from_clap(&Opt::clap().get_matches_from(&["test", "--lvl", "1"]))
+        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "--lvl", "1"]))
     );
 }
 
@@ -92,7 +91,7 @@ fn test_raw_multi_args() {
             files: vec!["file".to_string()],
             values: vec![],
         },
-        Opt::from_clap(&Opt::clap().get_matches_from(&["test", "-l", "1", "file"]))
+        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "-l", "1", "file"]))
     );
     assert_eq!(
         Opt {
@@ -101,15 +100,15 @@ fn test_raw_multi_args() {
             files: vec!["FILE".to_string()],
             values: vec![1],
         },
-        Opt::from_clap(
-            &Opt::clap().get_matches_from(&["test", "-l", "1", "--values", "1", "--", "FILE"]),
+        Opt::from_argmatches(
+            &Opt::into_app().get_matches_from(&["test", "-l", "1", "--values", "1", "--", "FILE"]),
         )
     );
 }
 
 #[test]
 fn test_raw_multi_args_fail() {
-    let result = Opt::clap().get_matches_from_safe(&["test", "-l", "1", "--", "FILE"]);
+    let result = Opt::into_app().get_matches_from_safe(&["test", "-l", "1", "--", "FILE"]);
     assert!(result.is_err());
 }
 
@@ -122,8 +121,8 @@ fn test_raw_bool() {
             files: vec![],
             values: vec![],
         },
-        Opt::from_clap(&Opt::clap().get_matches_from(&["test", "-l", "1", "--x=1"]))
+        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "-l", "1", "--x=1"]))
     );
-    let result = Opt::clap().get_matches_from_safe(&["test", "-l", "1", "--x", "1"]);
+    let result = Opt::into_app().get_matches_from_safe(&["test", "-l", "1", "--x", "1"]);
     assert!(result.is_err());
 }

@@ -13,31 +13,31 @@
 // MIT/Apache 2.0 license.
 
 #[macro_use]
-extern crate structopt;
+extern crate clap;
 
-use structopt::StructOpt;
+use clap::Clap;
 
 #[test]
 fn flatten() {
-    #[derive(StructOpt, PartialEq, Debug)]
+    #[derive(Clap, PartialEq, Debug)]
     struct Common {
         arg: i32,
     }
 
-    #[derive(StructOpt, PartialEq, Debug)]
+    #[derive(Clap, PartialEq, Debug)]
     struct Opt {
-        #[structopt(flatten)]
+        #[clap(flatten)]
         common: Common,
     }
     assert_eq!(
         Opt {
             common: Common { arg: 42 }
         },
-        Opt::from_iter(&["test", "42"])
+        Opt::parse_from(&["test", "42"])
     );
-    assert!(Opt::clap().get_matches_from_safe(&["test"]).is_err());
+    assert!(Opt::into_app().get_matches_from_safe(&["test"]).is_err());
     assert!(
-        Opt::clap()
+        Opt::into_app()
             .get_matches_from_safe(&["test", "42", "24"])
             .is_err()
     );
@@ -46,48 +46,48 @@ fn flatten() {
 #[test]
 #[should_panic]
 fn flatten_twice() {
-    #[derive(StructOpt, PartialEq, Debug)]
+    #[derive(Clap, PartialEq, Debug)]
     struct Common {
         arg: i32,
     }
 
-    #[derive(StructOpt, PartialEq, Debug)]
+    #[derive(Clap, PartialEq, Debug)]
     struct Opt {
-        #[structopt(flatten)]
+        #[clap(flatten)]
         c1: Common,
         // Defines "arg" twice, so this should not work.
-        #[structopt(flatten)]
+        #[clap(flatten)]
         c2: Common,
     }
-    Opt::from_iter(&["test", "42", "43"]);
+    Opt::parse_from(&["test", "42", "43"]);
 }
 
 #[test]
 fn flatten_in_subcommand() {
-    #[derive(StructOpt, PartialEq, Debug)]
+    #[derive(Clap, PartialEq, Debug)]
     struct Common {
         arg: i32,
     }
 
-    #[derive(StructOpt, PartialEq, Debug)]
+    #[derive(Clap, PartialEq, Debug)]
     struct Add {
-        #[structopt(short = "i")]
+        #[clap(short = "i")]
         interactive: bool,
-        #[structopt(flatten)]
+        #[clap(flatten)]
         common: Common,
     }
 
-    #[derive(StructOpt, PartialEq, Debug)]
+    #[derive(Clap, PartialEq, Debug)]
     enum Opt {
-        #[structopt(name = "fetch")]
+        #[clap(name = "fetch")]
         Fetch {
-            #[structopt(short = "a")]
+            #[clap(short = "a")]
             all: bool,
-            #[structopt(flatten)]
+            #[clap(flatten)]
             common: Common,
         },
 
-        #[structopt(name = "add")]
+        #[clap(name = "add")]
         Add(Add),
     }
 
@@ -96,13 +96,13 @@ fn flatten_in_subcommand() {
             all: false,
             common: Common { arg: 42 }
         },
-        Opt::from_iter(&["test", "fetch", "42"])
+        Opt::parse_from(&["test", "fetch", "42"])
     );
     assert_eq!(
         Opt::Add(Add {
             interactive: true,
             common: Common { arg: 43 }
         }),
-        Opt::from_iter(&["test", "add", "-i", "43"])
+        Opt::parse_from(&["test", "add", "-i", "43"])
     );
 }

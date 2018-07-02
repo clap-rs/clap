@@ -13,22 +13,22 @@
 // MIT/Apache 2.0 license.
 
 #[macro_use]
-extern crate structopt;
+extern crate clap;
 
 mod options {
-    #[derive(Debug, StructOpt)]
+    #[derive(Debug, Clap)]
     pub struct Options {
-        #[structopt(subcommand)]
+        #[clap(subcommand)]
         pub subcommand: ::subcommands::SubCommand,
     }
 }
 
 mod subcommands {
-    #[derive(Debug, StructOpt)]
+    #[derive(Debug, Clap)]
     pub enum SubCommand {
-        #[structopt(name = "foo", about = "foo")]
+        #[clap(name = "foo", about = "foo")]
         Foo {
-            #[structopt(help = "foo")]
+            #[clap(help = "foo")]
             bars: Vec<String>,
         },
     }
