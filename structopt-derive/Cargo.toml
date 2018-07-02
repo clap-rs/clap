@@ -1,0 +1,24 @@
+[package]
+name = "structopt-derive"
+version = "0.2.10"
+authors = ["Guillaume Pinot <texitoi@texitoi.eu>"]
+description = "Parse command line argument by defining a struct, derive crate."
+documentation = "https://docs.rs/structopt-derive"
+repository = "https://github.com/TeXitoi/structopt"
+keywords = ["clap", "cli", "derive", "docopt"]
+categories = ["command-line-interface"]
+license = "Apache-2.0/MIT"
+
+[badges]
+travis-ci = { repository = "TeXitoi/structopt" }
+
+[dependencies]
+syn = "0.14"
+quote = "0.6"
+proc-macro2 = "0.4"
+
+[features]
+nightly = ["proc-macro2/nightly"]
+
+[lib]
+proc-macro = true

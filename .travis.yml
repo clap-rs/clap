@@ -1,0 +1,17 @@
+language: rust
+cache: cargo
+rust:
+  - 1.21.0
+  - stable
+  - beta
+  - nightly
+matrix:
+  include:
+    - rust: nightly
+      env: FEATURES="--features nightly"
+    - rust: stable
+      env: RUN=FMT
+      before_script: rustup component add rustfmt-preview
+      script: cargo fmt --all -- --write-mode diff
+script:
+  - cargo test $FEATURES
