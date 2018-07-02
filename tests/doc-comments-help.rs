@@ -1,29 +1,35 @@
-// Copyright 2018 Guillaume Pinot (@TeXitoi) <texitoi@texitoi.eu>
+// Copyright 2018 Guillaume Pinot (@TeXitoi) <texitoi@texitoi.eu>,
+// Kevin Knapp (@kbknapp) <kbknapp@gmail.com>, and
+// Andrew Hobden (@hoverbear) <andrew@hoverbear.org>
 //
 // Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
 // http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
 // <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
+//
+// This work was derived from Structopt (https://github.com/TeXitoi/structopt)
+// commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
+// MIT/Apache 2.0 license.
 
 #[macro_use]
-extern crate structopt;
+extern crate clap;
 
-use structopt::StructOpt;
+use clap::Clap;
 
 #[test]
 fn commets_intead_of_actual_help() {
     /// Lorem ipsum
-    #[derive(StructOpt, PartialEq, Debug)]
+    #[derive(Clap, PartialEq, Debug)]
     struct LoremIpsum {
         /// Fooify a bar
         /// and a baz
-        #[structopt(short = "f", long = "foo")]
+        #[clap(short = "f", long = "foo")]
         foo: bool,
     }
 
     let mut output = Vec::new();
-    LoremIpsum::clap().write_long_help(&mut output).unwrap();
+    LoremIpsum::into_app().write_long_help(&mut output).unwrap();
     let output = String::from_utf8(output).unwrap();
 
     assert!(output.contains("Lorem ipsum"));
@@ -33,16 +39,16 @@ fn commets_intead_of_actual_help() {
 #[test]
 fn help_is_better_than_comments() {
     /// Lorem ipsum
-    #[derive(StructOpt, PartialEq, Debug)]
-    #[structopt(name = "lorem-ipsum", about = "Dolor sit amet")]
+    #[derive(Clap, PartialEq, Debug)]
+    #[clap(name = "lorem-ipsum", about = "Dolor sit amet")]
     struct LoremIpsum {
         /// Fooify a bar
-        #[structopt(short = "f", long = "foo", help = "DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES")]
+        #[clap(short = "f", long = "foo", help = "DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES")]
         foo: bool,
     }
 
     let mut output = Vec::new();
-    LoremIpsum::clap().write_long_help(&mut output).unwrap();
+    LoremIpsum::into_app().write_long_help(&mut output).unwrap();
     let output = String::from_utf8(output).unwrap();
 
     assert!(output.contains("Dolor sit amet"));
@@ -55,12 +61,12 @@ fn empty_line_in_doc_comment_is_double_linefeed() {
     /// Foo.
     ///
     /// Bar
-    #[derive(StructOpt, PartialEq, Debug)]
-    #[structopt(name = "lorem-ipsum", author = "", version = "")]
+    #[derive(Clap, PartialEq, Debug)]
+    #[clap(name = "lorem-ipsum", author = "", version = "")]
     struct LoremIpsum {}
 
     let mut output = Vec::new();
-    LoremIpsum::clap().write_long_help(&mut output).unwrap();
+    LoremIpsum::into_app().write_long_help(&mut output).unwrap();
     let output = String::from_utf8(output).unwrap();
 
     println!("{}", output);

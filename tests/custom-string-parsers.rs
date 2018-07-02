@@ -1,35 +1,41 @@
-// Copyright 2018 Guillaume Pinot (@TeXitoi) <texitoi@texitoi.eu>
+// Copyright 2018 Guillaume Pinot (@TeXitoi) <texitoi@texitoi.eu>,
+// Kevin Knapp (@kbknapp) <kbknapp@gmail.com>, and
+// Andrew Hobden (@hoverbear) <andrew@hoverbear.org>
 //
 // Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
 // http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
 // <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
+//
+// This work was derived from Structopt (https://github.com/TeXitoi/structopt)
+// commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
+// MIT/Apache 2.0 license.
 
 #[macro_use]
-extern crate structopt;
+extern crate clap;
 
-use structopt::StructOpt;
+use clap::Clap;
 
 use std::ffi::{OsStr, OsString};
 use std::num::ParseIntError;
 use std::path::PathBuf;
 
-#[derive(StructOpt, PartialEq, Debug)]
+#[derive(Clap, PartialEq, Debug)]
 struct PathOpt {
-    #[structopt(short = "p", long = "path", parse(from_os_str))]
+    #[clap(short = "p", long = "path", parse(from_os_str))]
     path: PathBuf,
 
-    #[structopt(short = "d", default_value = "../", parse(from_os_str))]
+    #[clap(short = "d", default_value = "../", parse(from_os_str))]
     default_path: PathBuf,
 
-    #[structopt(short = "v", parse(from_os_str))]
+    #[clap(short = "v", parse(from_os_str))]
     vector_path: Vec<PathBuf>,
 
-    #[structopt(short = "o", parse(from_os_str))]
+    #[clap(short = "o", parse(from_os_str))]
     option_path_1: Option<PathBuf>,
 
-    #[structopt(short = "q", parse(from_os_str))]
+    #[clap(short = "q", parse(from_os_str))]
     option_path_2: Option<PathBuf>,
 }
 
@@ -47,20 +53,18 @@ fn test_path_opt_simple() {
             option_path_1: None,
             option_path_2: Some(PathBuf::from("j.zip")),
         },
-        PathOpt::from_clap(&PathOpt::clap().get_matches_from(&[
+        PathOpt::from_argmatches(&PathOpt::into_app().get_matches_from(&[
             "test", "-p", "/usr/bin", "-v", "/a/b/c", "-v", "/d/e/f", "-v", "/g/h/i", "-q",
             "j.zip",
         ]))
     );
 }
 
-fn parse_hex(input: &str) -> Result<u64, ParseIntError> {
-    u64::from_str_radix(input, 16)
-}
+fn parse_hex(input: &str) -> Result<u64, ParseIntError> { u64::from_str_radix(input, 16) }
 
-#[derive(StructOpt, PartialEq, Debug)]
+#[derive(Clap, PartialEq, Debug)]
 struct HexOpt {
-    #[structopt(short = "n", parse(try_from_str = "parse_hex"))]
+    #[clap(short = "n", parse(try_from_str = "parse_hex"))]
     number: u64,
 }
 
@@ -68,41 +72,33 @@ struct HexOpt {
 fn test_parse_hex() {
     assert_eq!(
         HexOpt { number: 5 },
-        HexOpt::from_clap(&HexOpt::clap().get_matches_from(&["test", "-n", "5"]))
+        HexOpt::from_argmatches(&HexOpt::into_app().get_matches_from(&["test", "-n", "5"]))
     );
     assert_eq!(
         HexOpt { number: 0xabcdef },
-        HexOpt::from_clap(&HexOpt::clap().get_matches_from(&["test", "-n", "abcdef"]))
+        HexOpt::from_argmatches(&HexOpt::into_app().get_matches_from(&["test", "-n", "abcdef"]))
     );
 
-    let err = HexOpt::clap()
+    let err = HexOpt::into_app()
         .get_matches_from_safe(&["test", "-n", "gg"])
         .unwrap_err();
     assert!(err.message.contains("invalid digit found in string"), err);
 }
 
-fn custom_parser_1(_: &str) -> &'static str {
-    "A"
-}
-fn custom_parser_2(_: &str) -> Result<&'static str, u32> {
-    Ok("B")
-}
-fn custom_parser_3(_: &OsStr) -> &'static str {
-    "C"
-}
-fn custom_parser_4(_: &OsStr) -> Result<&'static str, OsString> {
-    Ok("D")
-}
+fn custom_parser_1(_: &str) -> &'static str { "A" }
+fn custom_parser_2(_: &str) -> Result<&'static str, u32> { Ok("B") }
+fn custom_parser_3(_: &OsStr) -> &'static str { "C" }
+fn custom_parser_4(_: &OsStr) -> Result<&'static str, OsString> { Ok("D") }
 
-#[derive(StructOpt, PartialEq, Debug)]
+#[derive(Clap, PartialEq, Debug)]
 struct NoOpOpt {
-    #[structopt(short = "a", parse(from_str = "custom_parser_1"))]
+    #[clap(short = "a", parse(from_str = "custom_parser_1"))]
     a: &'static str,
-    #[structopt(short = "b", parse(try_from_str = "custom_parser_2"))]
+    #[clap(short = "b", parse(try_from_str = "custom_parser_2"))]
     b: &'static str,
-    #[structopt(short = "c", parse(from_os_str = "custom_parser_3"))]
+    #[clap(short = "c", parse(from_os_str = "custom_parser_3"))]
     c: &'static str,
-    #[structopt(short = "d", parse(try_from_os_str = "custom_parser_4"))]
+    #[clap(short = "d", parse(try_from_os_str = "custom_parser_4"))]
     d: &'static str,
 }
 
@@ -115,7 +111,9 @@ fn test_every_custom_parser() {
             c: "C",
             d: "D"
         },
-        NoOpOpt::from_clap(&NoOpOpt::clap().get_matches_from(&["test", "-a=?", "-b=?", "-c=?", "-d=?"]))
+        NoOpOpt::from_argmatches(
+            &NoOpOpt::into_app().get_matches_from(&["test", "-a=?", "-b=?", "-c=?", "-d=?"])
+        )
     );
 }
 
@@ -123,15 +121,15 @@ fn test_every_custom_parser() {
 // conversion function from `&str` to `u8`.
 type Bytes = Vec<u8>;
 
-#[derive(StructOpt, PartialEq, Debug)]
+#[derive(Clap, PartialEq, Debug)]
 struct DefaultedOpt {
-    #[structopt(short = "b", parse(from_str))]
+    #[clap(short = "b", parse(from_str))]
     bytes: Bytes,
 
-    #[structopt(short = "i", parse(try_from_str))]
+    #[clap(short = "i", parse(try_from_str))]
     integer: u64,
 
-    #[structopt(short = "p", parse(from_os_str))]
+    #[clap(short = "p", parse(from_os_str))]
     path: PathBuf,
 }
 
@@ -158,25 +156,23 @@ fn test_parser_with_default_value() {
 #[derive(PartialEq, Debug)]
 struct Foo(u8);
 
-fn foo(value: u64) -> Foo {
-    Foo(value as u8)
-}
+fn foo(value: u64) -> Foo { Foo(value as u8) }
 
-#[derive(StructOpt, PartialEq, Debug)]
+#[derive(Clap, PartialEq, Debug)]
 struct Occurrences {
-    #[structopt(short = "s", long = "signed", parse(from_occurrences))]
+    #[clap(short = "s", long = "signed", parse(from_occurrences))]
     signed: i32,
 
-    #[structopt(short = "l", parse(from_occurrences))]
+    #[clap(short = "l", parse(from_occurrences))]
     little_signed: i8,
 
-    #[structopt(short = "u", parse(from_occurrences))]
+    #[clap(short = "u", parse(from_occurrences))]
     unsigned: usize,
 
-    #[structopt(short = "r", parse(from_occurrences))]
+    #[clap(short = "r", parse(from_occurrences))]
     little_unsigned: u8,
 
-    #[structopt(short = "c", long = "custom", parse(from_occurrences = "foo"))]
+    #[clap(short = "c", long = "custom", parse(from_occurrences = "foo"))]
     custom: Foo,
 }
 
@@ -205,22 +201,26 @@ fn test_custom_bool() {
             _ => Err(format!("invalid bool {}", s)),
         }
     }
-    #[derive(StructOpt, PartialEq, Debug)]
+    #[derive(Clap, PartialEq, Debug)]
     struct Opt {
-        #[structopt(short = "d", parse(try_from_str = "parse_bool"))]
+        #[clap(short = "d", parse(try_from_str = "parse_bool"))]
         debug: bool,
-        #[structopt(short = "v", default_value = "false", parse(try_from_str = "parse_bool"))]
+        #[clap(short = "v", default_value = "false", parse(try_from_str = "parse_bool"))]
         verbose: bool,
-        #[structopt(short = "t", parse(try_from_str = "parse_bool"))]
+        #[clap(short = "t", parse(try_from_str = "parse_bool"))]
         tribool: Option<bool>,
-        #[structopt(short = "b", parse(try_from_str = "parse_bool"))]
+        #[clap(short = "b", parse(try_from_str = "parse_bool"))]
         bitset: Vec<bool>,
     }
 
-    assert!(Opt::clap().get_matches_from_safe(&["test"]).is_err());
-    assert!(Opt::clap().get_matches_from_safe(&["test", "-d"]).is_err());
+    assert!(Opt::into_app().get_matches_from_safe(&["test"]).is_err());
     assert!(
-        Opt::clap()
+        Opt::into_app()
+            .get_matches_from_safe(&["test", "-d"])
+            .is_err()
+    );
+    assert!(
+        Opt::into_app()
             .get_matches_from_safe(&["test", "-dfoo"])
             .is_err()
     );
@@ -231,7 +231,7 @@ fn test_custom_bool() {
             tribool: None,
             bitset: vec![],
         },
-        Opt::from_iter(&["test", "-dfalse"])
+        Opt::parse_from(&["test", "-dfalse"])
     );
     assert_eq!(
         Opt {
@@ -240,7 +240,7 @@ fn test_custom_bool() {
             tribool: None,
             bitset: vec![],
         },
-        Opt::from_iter(&["test", "-dtrue"])
+        Opt::parse_from(&["test", "-dtrue"])
     );
     assert_eq!(
         Opt {
@@ -249,7 +249,7 @@ fn test_custom_bool() {
             tribool: None,
             bitset: vec![],
         },
-        Opt::from_iter(&["test", "-dtrue", "-vfalse"])
+        Opt::parse_from(&["test", "-dtrue", "-vfalse"])
     );
     assert_eq!(
         Opt {
@@ -258,7 +258,7 @@ fn test_custom_bool() {
             tribool: None,
             bitset: vec![],
         },
-        Opt::from_iter(&["test", "-dtrue", "-vtrue"])
+        Opt::parse_from(&["test", "-dtrue", "-vtrue"])
     );
     assert_eq!(
         Opt {
@@ -267,7 +267,7 @@ fn test_custom_bool() {
             tribool: Some(false),
             bitset: vec![],
         },
-        Opt::from_iter(&["test", "-dtrue", "-tfalse"])
+        Opt::parse_from(&["test", "-dtrue", "-tfalse"])
     );
     assert_eq!(
         Opt {
@@ -276,7 +276,7 @@ fn test_custom_bool() {
             tribool: Some(true),
             bitset: vec![],
         },
-        Opt::from_iter(&["test", "-dtrue", "-ttrue"])
+        Opt::parse_from(&["test", "-dtrue", "-ttrue"])
     );
     assert_eq!(
         Opt {
@@ -285,6 +285,6 @@ fn test_custom_bool() {
             tribool: None,
             bitset: vec![false, true, false, false],
         },
-        Opt::from_iter(&["test", "-dtrue", "-bfalse", "-btrue", "-bfalse", "-bfalse"])
+        Opt::parse_from(&["test", "-dtrue", "-bfalse", "-btrue", "-bfalse", "-bfalse"])
     );
 }

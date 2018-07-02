@@ -25,11 +25,14 @@ appveyor = { repository = "https://github.com/kbknapp/clap_derive", service = "g
 syn = "0.14"
 quote = "0.6"
 proc-macro2 = "0.4"
-clippy = {version = "0.174",optional = true}
+clippy = {version = "0.0.174", optional = true }
+
+[dev-dependencies]
+clap = {path = "../clap-rs"} # ONLY FOR INITIAL DEVELOPMENT...change to real crates.io ver for rlease!
 
 [features]
 default = []
 nightly = []
 lints = ["clippy"]
 debug = []
-doc = ["doc"]
+doc = []
