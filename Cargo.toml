@@ -1,0 +1,28 @@
+[package]
+name = "clap_derive"
+description = """
+Custom derives for Clap.
+"""
+version = "0.0.5"
+authors = ["hoverbear <andrew@hoverbear.org>"]
+license = "MIT"
+
+categories = ["development-tools::procedural-macro-helpers"]
+keywords = ["macro", "clap", "command-line"]
+readme = "README.md"
+repository = "https://github.com/kbknapp/clap-derives"
+
+[badges]
+travis-ci = { repository = "https://github.com/kbknapp/clap-derives" }
+appveyor = { repository = "https://github.com/kbknapp/clap-derives", service = "github" }
+
+[lib]
+proc-macro = true
+
+[dependencies]
+quote = "*"
+syn = "*"
+error-chain = "*"
+
+[dev-dependencies]
+clap = "*"
