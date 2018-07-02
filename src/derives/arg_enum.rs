@@ -7,30 +7,29 @@
 // <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
-use errors::*;
-use helpers;
-use quote::Tokens;
-use syn::DeriveInput;
-use ClapDerive;
+use proc_macro2;
+use quote;
+use syn;
+use syn::punctuated;
+use syn::token;
 
-pub struct ArgEnum;
+pub fn derive_arg_enum(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
+    unimplemented!()
 
-impl ClapDerive for ArgEnum {
-    fn generate_from(ast: &DeriveInput) -> Result<Tokens> {
-        let from_str_block = impl_from_str(ast)?;
-        let variants_block = impl_variants(ast)?;
+    // let from_str_block = impl_from_str(ast)?;
+    // let variants_block = impl_variants(ast)?;
 
-        Ok(quote! {
-            #from_str_block
-            #variants_block
-        })
-    }
+    // quote! {
+    //     #from_str_block
+    //     #variants_block
+    // }
 }
 
-fn impl_from_str(ast: &DeriveInput) -> Result<Tokens> {
+/*
+fn impl_from_str(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
     let ident = &ast.ident;
     let is_case_sensitive = ast.attrs.iter().any(|v| v.name() == "case_sensitive");
-    let variants = helpers::variants(ast)?;
+    let variants = variants(ast)?;
 
     let strings = variants
         .iter()
@@ -67,9 +66,9 @@ fn impl_from_str(ast: &DeriveInput) -> Result<Tokens> {
     })
 }
 
-fn impl_variants(ast: &DeriveInput) -> Result<Tokens> {
+fn impl_variants(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
     let ident = &ast.ident;
-    let variants = helpers::variants(ast)?
+    let variants = variants(ast)?
         .iter()
         .map(|ref variant| String::from(variant.ident.as_ref()))
         .collect::<Vec<_>>();
@@ -83,3 +82,13 @@ fn impl_variants(ast: &DeriveInput) -> Result<Tokens> {
         }
     })
 }
+
+fn variants(ast: &syn::DeriveInput) -> &punctuated::Punctuated<syn::Variant, token::Comma> {
+    use syn::Data::*;
+
+    match ast.data {
+        Enum(ref data) => data.variants,
+        _ => panic!("Only enums are supported for deriving the ArgEnum trait"),
+    }
+}
+*/
