@@ -1,41 +1,44 @@
-// Copyright 2018 Guillaume Pinot (@TeXitoi) <texitoi@texitoi.eu>
+// Copyright 2018 Guillaume Pinot (@TeXitoi) <texitoi@texitoi.eu>,
+// Kevin Knapp (@kbknapp) <kbknapp@gmail.com>, and
+// Andrew Hobden (@hoverbear) <andrew@hoverbear.org>
 //
 // Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
 // http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
 // <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
+//
+// This work was derived from Structopt (https://github.com/TeXitoi/structopt)
+// commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
+// MIT/Apache 2.0 license.
 
-// This should be in tests but it will not work until
-// https://github.com/rust-lang/rust/issues/24584 is fixed
-
-//! A test to check that structopt compiles with deny(missing_docs)
+//! A test to check that clap_derive compiles with deny(missing_docs)
 
 #![deny(missing_docs)]
 
 #[macro_use]
-extern crate structopt;
+extern crate clap;
 
-use structopt::StructOpt;
+use clap::Clap;
 
 /// The options
-#[derive(StructOpt, Debug, PartialEq)]
+#[derive(Clap, Debug, PartialEq)]
 pub struct Opt {
-    #[structopt(short = "v")]
+    #[clap(short = "v")]
     verbose: bool,
-    #[structopt(subcommand)]
+    #[clap(subcommand)]
     cmd: Option<Cmd>,
 }
 
 /// Some subcommands
-#[derive(StructOpt, Debug, PartialEq)]
+#[derive(Clap, Debug, PartialEq)]
 pub enum Cmd {
     /// command A
     A,
     /// command B
     B {
         /// Alice?
-        #[structopt(short = "a")]
+        #[clap(short = "a")]
         alice: bool,
     },
     /// command C
@@ -43,12 +46,12 @@ pub enum Cmd {
 }
 
 /// The options for C
-#[derive(StructOpt, Debug, PartialEq)]
+#[derive(Clap, Debug, PartialEq)]
 pub struct COpt {
-    #[structopt(short = "b")]
+    #[clap(short = "b")]
     bob: bool,
 }
 
 fn main() {
-    println!("{:?}", Opt::from_args());
+    println!("{:?}", Opt::parse());
 }

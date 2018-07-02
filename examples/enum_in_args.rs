@@ -1,9 +1,7 @@
 #[macro_use]
-extern crate structopt;
-#[macro_use]
 extern crate clap;
 
-use structopt::StructOpt;
+use clap::Clap;
 
 arg_enum! {
     #[derive(Debug)]

@@ -2,10 +2,9 @@
 // https://docs.rs/clap/2.31.2/clap/struct.App.html#method.group
 
 #[macro_use]
-extern crate structopt;
+extern crate clap;
 
-use structopt::clap::ArgGroup;
-use structopt::StructOpt;
+use clap::{ArgGroup, Clap};
 
 // This function is not needed, we can insert everything in the group
 // attribute, but, as it might be long, using a function is more
@@ -17,24 +16,24 @@ fn vers_arg_group() -> ArgGroup<'static> {
     ArgGroup::with_name("vers").required(true)
 }
 
-#[derive(StructOpt, Debug)]
-#[structopt(raw(group = "vers_arg_group()"))]
+#[derive(Clap, Debug)]
+#[clap(raw(group = "vers_arg_group()"))]
 struct Opt {
     /// set the version manually
-    #[structopt(long = "set-ver", group = "vers")]
+    #[clap(long = "set-ver", group = "vers")]
     set_ver: Option<String>,
     /// auto increase major
-    #[structopt(long = "major", group = "vers")]
+    #[clap(long = "major", group = "vers")]
     major: bool,
     /// auto increase minor
-    #[structopt(long = "minor", group = "vers")]
+    #[clap(long = "minor", group = "vers")]
     minor: bool,
     /// auto increase patch
-    #[structopt(long = "patch", group = "vers")]
+    #[clap(long = "patch", group = "vers")]
     patch: bool,
 }
 
 fn main() {
-    let opt = Opt::from_args();
+    let opt = Opt::parse();
     println!("{:?}", opt);
 }

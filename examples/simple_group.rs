@@ -1,31 +1,31 @@
 #[macro_use]
-extern crate structopt;
+extern crate clap;
 
-use structopt::StructOpt;
+use clap::Clap;
 
-#[derive(StructOpt, Debug)]
+#[derive(Clap, Debug)]
 struct Opt {
     /// Set a custom HTTP verb
-    #[structopt(long = "method", group = "verb")]
+    #[clap(long = "method", group = "verb")]
     method: Option<String>,
     /// HTTP GET; default if no other HTTP verb is selected
-    #[structopt(long = "get", group = "verb")]
+    #[clap(long = "get", group = "verb")]
     get: bool,
     /// HTTP HEAD
-    #[structopt(long = "head", group = "verb")]
+    #[clap(long = "head", group = "verb")]
     head: bool,
     /// HTTP POST
-    #[structopt(long = "post", group = "verb")]
+    #[clap(long = "post", group = "verb")]
     post: bool,
     /// HTTP PUT
-    #[structopt(long = "put", group = "verb")]
+    #[clap(long = "put", group = "verb")]
     put: bool,
     /// HTTP DELETE
-    #[structopt(long = "delete", group = "verb")]
+    #[clap(long = "delete", group = "verb")]
     delete: bool,
 }
 
 fn main() {
-    let opt = Opt::from_args();
+    let opt = Opt::parse();
     println!("{:?}", opt);
 }

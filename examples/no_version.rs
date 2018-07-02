@@ -1,11 +1,10 @@
 #[macro_use]
-extern crate structopt;
+extern crate clap;
 
-use structopt::clap::AppSettings;
-use structopt::StructOpt;
+use clap::{AppSettings, Clap};
 
-#[derive(StructOpt, Debug)]
-#[structopt(
+#[derive(Clap, Debug)]
+#[clap(
     name = "no_version",
     about = "",
     version = "",
@@ -15,6 +14,6 @@ use structopt::StructOpt;
 struct Opt {}
 
 fn main() {
-    let opt = Opt::from_args();
+    let opt = Opt::parse();
     println!("{:?}", opt);
 }
