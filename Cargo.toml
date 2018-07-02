@@ -25,11 +25,11 @@ appveyor = { repository = "https://github.com/kbknapp/clap_derive", service = "g
 syn = "0.14"
 quote = "0.6"
 proc-macro2 = "0.4"
-clippy = {version = "0.174",optional = true}
+clippy = {version = "0.0.174", optional = true }
 
 [features]
 default = []
 nightly = []
 lints = ["clippy"]
 debug = []
-doc = ["doc"]
+doc = []
