@@ -131,7 +131,7 @@ fn gen_app_augmentation(
     }}
 }
 
-fn gen_parse_fns(
+fn gen_augment_app_fn(
     fields: &punctuated::Punctuated<syn::Field, token::Comma>,
 ) -> proc_macro2::TokenStream {
     let app_var = syn::Ident::new("app", proc_macro2::Span::call_site());
@@ -145,18 +145,7 @@ fn gen_parse_fns(
     }
 }
 
-fn gen_clap_enum(enum_attrs: &[syn::Attribute]) -> proc_macro2::TokenStream {
-    let gen = into_app::gen_app_builder(enum_attrs);
-    quote! {
-        fn clap<'a, 'b>() -> ::structopt::clap::App<'a, 'b> {
-            let app = #gen
-                .setting(::structopt::clap::AppSettings::SubcommandRequiredElseHelp);
-            Self::augment_app(app)
-        }
-    }
-}
-
-fn gen_augment_clap_enum(
+fn gen_augment_app_for_enum(
     variants: &punctuated::Punctuated<syn::Variant, token::Comma>,
 ) -> proc_macro2::TokenStream {
     use syn::Fields::*;
@@ -175,7 +164,7 @@ fn gen_augment_clap_enum(
                         let #app_var = <#ty>::augment_app(#app_var);
                         if <#ty>::is_subcommand() {
                             #app_var.setting(
-                                ::structopt::clap::AppSettings::SubcommandRequiredElseHelp
+                                ::clap::AppSettings::SubcommandRequiredElseHelp
                             )
                         } else {
                             #app_var
@@ -190,7 +179,7 @@ fn gen_augment_clap_enum(
         let from_attrs = attrs.methods();
         quote! {
             .subcommand({
-                let #app_var = ::structopt::clap::SubCommand::with_name(#name);
+                let #app_var = ::clap::SubCommand::with_name(#name);
                 let #app_var = #arg_block;
                 #app_var#from_attrs
             })
@@ -199,18 +188,9 @@ fn gen_augment_clap_enum(
 
     quote! {
         pub fn augment_app<'a, 'b>(
-            app: ::structopt::clap::App<'a, 'b>
-        ) -> ::structopt::clap::App<'a, 'b> {
+            app: ::clap::App<'a, 'b>
+        ) -> ::clap::App<'a, 'b> {
             app #( #subcommands )*
-        }
-    }
-}
-
-fn gen_from_clap_enum(name: &syn::Ident) -> proc_macro2::TokenStream {
-    quote! {
-        fn from_clap(matches: &::structopt::clap::ArgMatches) -> Self {
-            <#name>::from_subcommand(matches.subcommand())
-                .unwrap()
         }
     }
 }
@@ -230,7 +210,7 @@ fn gen_from_subcommand(
             Unit => quote!(),
             Unnamed(ref fields) if fields.unnamed.len() == 1 => {
                 let ty = &fields.unnamed[0];
-                quote!( ( <#ty as ::structopt::StructOpt>::from_clap(matches) ) )
+                quote!( ( <#ty as ::clap::FromArgMatches>::from_argmatches(matches) ) )
             }
             Unnamed(..) => panic!("{}: tuple enum are not supported", variant.ident),
         };
@@ -243,7 +223,7 @@ fn gen_from_subcommand(
 
     quote! {
         pub fn from_subcommand<'a, 'b>(
-            sub: (&'b str, Option<&'b ::structopt::clap::ArgMatches<'a>>)
+            sub: (&'b str, Option<&'b ::clap::ArgMatches<'a>>)
         ) -> Option<Self> {
             match sub {
                 #( #match_arms ),*,
@@ -253,13 +233,13 @@ fn gen_from_subcommand(
     }
 }
 
-fn clap_for_struct_impl(
+fn clap_impl_for_struct(
     name: &syn::Ident,
     fields: &punctuated::Punctuated<syn::Field, token::Comma>,
     attrs: &[syn::Attribute],
 ) -> proc_macro2::TokenStream {
-    let into_app_impl = into_app::gen_into_app_impl_for_struct(name, fields, attrs);
-    let parse_fns = gen_parse_fns(fields);
+    let into_app_impl = into_app::gen_into_app_impl_for_struct(name, attrs);
+    let augment_app_fn = gen_augment_app_fn(fields);
     let from_argmatches_impl = from_argmatches::gen_from_argmatches_impl_for_struct(name, fields);
 
     quote! {
@@ -273,33 +253,38 @@ fn clap_for_struct_impl(
         #[allow(dead_code, unreachable_code)]
         #[doc(hidden)]
         impl #name {
-            #parse_fns
+            #augment_app_fn
+
             pub fn is_subcommand() -> bool { false }
         }
     }
 }
 
-fn clap_for_enum_impl(
+fn clap_impl_for_enum(
     name: &syn::Ident,
     variants: &punctuated::Punctuated<syn::Variant, token::Comma>,
     attrs: &[syn::Attribute],
 ) -> proc_macro2::TokenStream {
-    let clap = gen_clap_enum(attrs);
-    let augment_clap = gen_augment_clap_enum(variants);
-    let from_clap = gen_from_clap_enum(name);
+    let into_app_impl = into_app::gen_into_app_impl_for_enum(name, attrs);
+    let augment_app_fn = gen_augment_app_for_enum(variants);
+    let from_argmatches_impl = from_argmatches::gen_from_argmatches_impl_for_enum(name);
     let from_subcommand = gen_from_subcommand(name, variants);
 
     quote! {
-        impl ::structopt::StructOpt for #name {
-            #clap
-            #from_clap
-        }
+        #[allow(unused_variables)]
+        impl ::clap::Clap for #name { }
+
+        #into_app_impl
+
+        #from_argmatches_impl
 
         #[allow(unused_variables, dead_code, unreachable_code)]
         #[doc(hidden)]
         impl #name {
-            #augment_clap
+            #augment_app_fn
+
             #from_subcommand
+
             pub fn is_subcommand() -> bool { true }
         }
     }
@@ -313,8 +298,8 @@ pub fn derive_clap(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
         Struct(syn::DataStruct {
             fields: syn::Fields::Named(ref fields),
             ..
-        }) => clap_for_struct_impl(struct_name, &fields.named, &input.attrs),
-        Enum(ref e) => clap_for_enum_impl(struct_name, &e.variants, &input.attrs),
+        }) => clap_impl_for_struct(struct_name, &fields.named, &input.attrs),
+        Enum(ref e) => clap_impl_for_enum(struct_name, &e.variants, &input.attrs),
         _ => panic!("clap_derive only supports non-tuple structs and enums"),
     };
 

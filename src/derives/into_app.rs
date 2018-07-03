@@ -28,7 +28,7 @@ pub fn derive_into_app(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
         Struct(syn::DataStruct {
             fields: syn::Fields::Named(ref fields),
             ..
-        }) => gen_into_app_impl_for_struct(struct_name, &fields.named, &input.attrs),
+        }) => gen_into_app_impl_for_struct(struct_name, &input.attrs),
         // Enum(ref e) => clap_for_enum_impl(struct_name, &e.variants, &input.attrs),
         _ => panic!("clap_derive only supports non-tuple structs"), // and enums"),
     };
@@ -38,7 +38,6 @@ pub fn derive_into_app(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
 
 pub fn gen_into_app_impl_for_struct(
     name: &syn::Ident,
-    fields: &punctuated::Punctuated<syn::Field, token::Comma>,
     attrs: &[syn::Attribute],
 ) -> proc_macro2::TokenStream {
     let into_app_fn = gen_into_app_fn_for_struct(attrs);
@@ -74,4 +73,34 @@ pub fn gen_app_builder(attrs: &[syn::Attribute]) -> proc_macro2::TokenStream {
     let name = attrs.name();
     let methods = attrs.methods();
     quote!(::clap::App::new(#name)#methods)
+}
+
+pub fn gen_into_app_impl_for_enum(
+    name: &syn::Ident,
+    attrs: &[syn::Attribute],
+) -> proc_macro2::TokenStream {
+    let into_app_fn = gen_into_app_fn_for_enum(attrs);
+
+    quote! {
+        impl ::clap::IntoApp for #name {
+            #into_app_fn
+        }
+
+        impl Into<::clap::App> for #name {
+            fn into(self) -> ::clap::App {
+                <Self as ::clap::IntoApp>::into_app()
+            }
+        }
+    }
+}
+
+pub fn gen_into_app_fn_for_enum(enum_attrs: &[syn::Attribute]) -> proc_macro2::TokenStream {
+    let gen = gen_app_builder(enum_attrs);
+    quote! {
+        fn into_app<'a, 'b>() -> ::clap::App<'a, 'b> {
+            let app = #gen
+                .setting(::clap::AppSettings::SubcommandRequiredElseHelp);
+            Self::augment_app(app)
+        }
+    }
 }

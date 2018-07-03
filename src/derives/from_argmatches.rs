@@ -141,3 +141,22 @@ pub fn gen_constructor(
         #( #fields ),*
     }}
 }
+
+pub fn gen_from_argmatches_impl_for_enum(name: &syn::Ident) -> proc_macro2::TokenStream {
+    quote! {
+        impl ::clap::FromArgMatches for #name {
+            fn from_argmatches(matches: &::clap::ArgMatches) -> Self {
+                <#name>::from_subcommand(matches.subcommand())
+                    .unwrap()
+            }
+        }
+
+        impl From<::clap::ArgMatches> for #name {
+            fn from(m: ::clap::ArgMatches) -> Self {
+                <Self as ::clap::FromArgMatches>::from_argmatches(&m)
+            }
+        }
+
+        // @TODO: impl TryFrom once stable
+    }
+}
