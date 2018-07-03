@@ -20,10 +20,12 @@ use syn::token;
 
 use derives;
 use derives::attrs::{Attrs, Kind, Parser, Ty};
+use derives::from_argmatches;
+use derives::into_app;
 
 /// Generate a block of code to add arguments/subcommands corresponding to
 /// the `fields` to an app.
-fn gen_augmentation(
+fn gen_app_augmentation(
     fields: &punctuated::Punctuated<syn::Field, token::Comma>,
     app_var: &syn::Ident,
 ) -> proc_macro2::TokenStream {
@@ -41,13 +43,13 @@ fn gen_augmentation(
                 } else {
                     quote! {
                         let #app_var = #app_var.setting(
-                            ::structopt::clap::AppSettings::SubcommandRequiredElseHelp
+                            ::clap::AppSettings::SubcommandRequiredElseHelp
                         );
                     }
                 };
 
                 Some(quote!{
-                    let #app_var = <#subcmd_type>::augment_clap( #app_var );
+                    let #app_var = <#subcmd_type>::augment_app( #app_var );
                     #required
                 })
             } else {
@@ -68,9 +70,9 @@ fn gen_augmentation(
             Kind::FlattenStruct => {
                 let ty = &field.ty;
                 Some(quote! {
-                    let #app_var = <#ty>::augment_clap(#app_var);
+                    let #app_var = <#ty>::augment_app(#app_var);
                     let #app_var = if <#ty>::is_subcommand() {
-                        #app_var.setting(::structopt::clap::AppSettings::SubcommandRequiredElseHelp)
+                        #app_var.setting(::clap::AppSettings::SubcommandRequiredElseHelp)
                     } else {
                         #app_var
                     };
@@ -98,6 +100,7 @@ fn gen_augmentation(
                     _ => quote!(),
                 };
 
+                // @TODO remove unneccessary builders
                 let modifier = match ty {
                     Ty::Bool => quote!( .takes_value(false).multiple(false) ),
                     Ty::Option => quote!( .takes_value(true).multiple(false) #validator ),
@@ -112,7 +115,7 @@ fn gen_augmentation(
                 let name = attrs.name();
                 Some(quote!{
                     let #app_var = #app_var.arg(
-                        ::structopt::clap::Arg::with_name(#name)
+                        ::clap::Arg::with_name(#name)
                             #modifier
                             #methods
                     );
@@ -128,131 +131,27 @@ fn gen_augmentation(
     }}
 }
 
-fn gen_constructor(
-    fields: &punctuated::Punctuated<syn::Field, token::Comma>,
-) -> proc_macro2::TokenStream {
-    let fields = fields.iter().map(|field| {
-        let attrs = Attrs::from_field(field);
-        let field_name = field.ident.as_ref().unwrap();
-        match attrs.kind() {
-            Kind::Subcommand(ty) => {
-                let subcmd_type = match (ty, derives::sub_type(&field.ty)) {
-                    (Ty::Option, Some(sub_type)) => sub_type,
-                    _ => &field.ty,
-                };
-                let unwrapper = match ty {
-                    Ty::Option => quote!(),
-                    _ => quote!( .unwrap() ),
-                };
-                quote!(#field_name: <#subcmd_type>::from_subcommand(matches.subcommand())#unwrapper)
-            }
-            Kind::FlattenStruct => quote!(#field_name: ::structopt::StructOpt::from_clap(matches)),
-            Kind::Arg(ty) => {
-                use self::Parser::*;
-                let (value_of, values_of, parse) = match *attrs.parser() {
-                    (FromStr, ref f) => (quote!(value_of), quote!(values_of), f.clone()),
-                    (TryFromStr, ref f) => (
-                        quote!(value_of),
-                        quote!(values_of),
-                        quote!(|s| #f(s).unwrap()),
-                    ),
-                    (FromOsStr, ref f) => (quote!(value_of_os), quote!(values_of_os), f.clone()),
-                    (TryFromOsStr, ref f) => (
-                        quote!(value_of_os),
-                        quote!(values_of_os),
-                        quote!(|s| #f(s).unwrap()),
-                    ),
-                    (FromOccurrences, ref f) => (quote!(occurrences_of), quote!(), f.clone()),
-                };
-
-                let occurences = attrs.parser().0 == Parser::FromOccurrences;
-                let name = attrs.name();
-                let field_value = match ty {
-                    Ty::Bool => quote!(matches.is_present(#name)),
-                    Ty::Option => quote! {
-                        matches.#value_of(#name)
-                            .as_ref()
-                            .map(#parse)
-                    },
-                    Ty::Vec => quote! {
-                        matches.#values_of(#name)
-                            .map(|v| v.map(#parse).collect())
-                            .unwrap_or_else(Vec::new)
-                    },
-                    Ty::Other if occurences => quote! {
-                        #parse(matches.#value_of(#name))
-                    },
-                    Ty::Other => quote! {
-                        matches.#value_of(#name)
-                            .map(#parse)
-                            .unwrap()
-                    },
-                };
-
-                quote!( #field_name: #field_value )
-            }
-        }
-    });
-
-    quote! {{
-        #( #fields ),*
-    }}
-}
-
-fn gen_from_clap(
-    struct_name: &syn::Ident,
-    fields: &punctuated::Punctuated<syn::Field, token::Comma>,
-) -> proc_macro2::TokenStream {
-    let field_block = gen_constructor(fields);
-
-    quote! {
-        fn from_clap(matches: &::structopt::clap::ArgMatches) -> Self {
-            #struct_name #field_block
-        }
-    }
-}
-
-fn gen_clap(attrs: &[syn::Attribute]) -> proc_macro2::TokenStream {
-    let name = env::var("CARGO_PKG_NAME")
-        .ok()
-        .unwrap_or_else(String::default);
-    let attrs = Attrs::from_struct(attrs, name);
-    let name = attrs.name();
-    let methods = attrs.methods();
-    quote!(::structopt::clap::App::new(#name)#methods)
-}
-
-fn gen_clap_struct(struct_attrs: &[syn::Attribute]) -> proc_macro2::TokenStream {
-    let gen = gen_clap(struct_attrs);
-    quote! {
-        fn clap<'a, 'b>() -> ::structopt::clap::App<'a, 'b> {
-            let app = #gen;
-            Self::augment_clap(app)
-        }
-    }
-}
-
-fn gen_augment_clap(
+fn gen_parse_fns(
     fields: &punctuated::Punctuated<syn::Field, token::Comma>,
 ) -> proc_macro2::TokenStream {
     let app_var = syn::Ident::new("app", proc_macro2::Span::call_site());
-    let augmentation = gen_augmentation(fields, &app_var);
+    let augmentation = gen_app_augmentation(fields, &app_var);
     quote! {
-        pub fn augment_clap<'a, 'b>(
-            #app_var: ::structopt::clap::App<'a, 'b>
-        ) -> ::structopt::clap::App<'a, 'b> {
+        pub fn augment_app<'a, 'b>(
+            #app_var: ::clap::App<'a, 'b>
+        ) -> ::clap::App<'a, 'b> {
             #augmentation
         }
     }
 }
 
 fn gen_clap_enum(enum_attrs: &[syn::Attribute]) -> proc_macro2::TokenStream {
-    let gen = gen_clap(enum_attrs);
+    let gen = into_app::gen_app_builder(enum_attrs);
     quote! {
         fn clap<'a, 'b>() -> ::structopt::clap::App<'a, 'b> {
             let app = #gen
                 .setting(::structopt::clap::AppSettings::SubcommandRequiredElseHelp);
-            Self::augment_clap(app)
+            Self::augment_app(app)
         }
     }
 }
@@ -267,13 +166,13 @@ fn gen_augment_clap_enum(
         let attrs = Attrs::from_struct(&variant.attrs, name);
         let app_var = syn::Ident::new("subcommand", proc_macro2::Span::call_site());
         let arg_block = match variant.fields {
-            Named(ref fields) => gen_augmentation(&fields.named, &app_var),
+            Named(ref fields) => gen_app_augmentation(&fields.named, &app_var),
             Unit => quote!( #app_var ),
             Unnamed(syn::FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
                 let ty = &unnamed[0];
                 quote! {
                     {
-                        let #app_var = <#ty>::augment_clap(#app_var);
+                        let #app_var = <#ty>::augment_app(#app_var);
                         if <#ty>::is_subcommand() {
                             #app_var.setting(
                                 ::structopt::clap::AppSettings::SubcommandRequiredElseHelp
@@ -299,7 +198,7 @@ fn gen_augment_clap_enum(
     });
 
     quote! {
-        pub fn augment_clap<'a, 'b>(
+        pub fn augment_app<'a, 'b>(
             app: ::structopt::clap::App<'a, 'b>
         ) -> ::structopt::clap::App<'a, 'b> {
             app #( #subcommands )*
@@ -327,7 +226,7 @@ fn gen_from_subcommand(
         let sub_name = attrs.name();
         let variant_name = &variant.ident;
         let constructor_block = match variant.fields {
-            Named(ref fields) => gen_constructor(&fields.named),
+            Named(ref fields) => from_argmatches::gen_constructor(&fields.named),
             Unit => quote!(),
             Unnamed(ref fields) if fields.unnamed.len() == 1 => {
                 let ty = &fields.unnamed[0];
@@ -354,32 +253,33 @@ fn gen_from_subcommand(
     }
 }
 
-fn impl_structopt_for_struct(
+fn clap_for_struct_impl(
     name: &syn::Ident,
     fields: &punctuated::Punctuated<syn::Field, token::Comma>,
     attrs: &[syn::Attribute],
 ) -> proc_macro2::TokenStream {
-    let clap = gen_clap_struct(attrs);
-    let augment_clap = gen_augment_clap(fields);
-    let from_clap = gen_from_clap(name, fields);
+    let into_app_impl = into_app::gen_into_app_impl_for_struct(name, fields, attrs);
+    let parse_fns = gen_parse_fns(fields);
+    let from_argmatches_impl = from_argmatches::gen_from_argmatches_impl_for_struct(name, fields);
 
     quote! {
         #[allow(unused_variables)]
-        impl ::structopt::StructOpt for #name {
-            #clap
-            #from_clap
-        }
+        impl ::clap::Clap for #name { }
+
+        #into_app_impl
+
+        #from_argmatches_impl
 
         #[allow(dead_code, unreachable_code)]
         #[doc(hidden)]
         impl #name {
-            #augment_clap
+            #parse_fns
             pub fn is_subcommand() -> bool { false }
         }
     }
 }
 
-fn impl_structopt_for_enum(
+fn clap_for_enum_impl(
     name: &syn::Ident,
     variants: &punctuated::Punctuated<syn::Variant, token::Comma>,
     attrs: &[syn::Attribute],
@@ -413,9 +313,9 @@ pub fn derive_clap(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
         Struct(syn::DataStruct {
             fields: syn::Fields::Named(ref fields),
             ..
-        }) => impl_structopt_for_struct(struct_name, &fields.named, &input.attrs),
-        Enum(ref e) => impl_structopt_for_enum(struct_name, &e.variants, &input.attrs),
-        _ => panic!("structopt only supports non-tuple structs and enums"),
+        }) => clap_for_struct_impl(struct_name, &fields.named, &input.attrs),
+        Enum(ref e) => clap_for_enum_impl(struct_name, &e.variants, &input.attrs),
+        _ => panic!("clap_derive only supports non-tuple structs and enums"),
     };
 
     quote!(#inner_impl)
