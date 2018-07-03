@@ -11,8 +11,6 @@
 // This work was derived from Structopt (https://github.com/TeXitoi/structopt)
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
-use std::env;
-
 use proc_macro2;
 use syn;
 use syn::punctuated;
@@ -241,8 +239,11 @@ fn clap_impl_for_struct(
     let into_app_impl = into_app::gen_into_app_impl_for_struct(name, attrs);
     let augment_app_fn = gen_augment_app_fn(fields);
     let from_argmatches_impl = from_argmatches::gen_from_argmatches_impl_for_struct(name, fields);
+    let parse_fns = gen_parse_fns(name);
 
     quote! {
+        use ::clap::{FromArgMatches, IntoApp};
+
         #[allow(unused_variables)]
         impl ::clap::Clap for #name { }
 
@@ -254,6 +255,8 @@ fn clap_impl_for_struct(
         #[doc(hidden)]
         impl #name {
             #augment_app_fn
+
+            #parse_fns
 
             pub fn is_subcommand() -> bool { false }
         }
@@ -269,6 +272,7 @@ fn clap_impl_for_enum(
     let augment_app_fn = gen_augment_app_for_enum(variants);
     let from_argmatches_impl = from_argmatches::gen_from_argmatches_impl_for_enum(name);
     let from_subcommand = gen_from_subcommand(name, variants);
+    let parse_fns = gen_parse_fns(name);
 
     quote! {
         #[allow(unused_variables)]
@@ -284,6 +288,8 @@ fn clap_impl_for_enum(
             #augment_app_fn
 
             #from_subcommand
+
+            #parse_fns
 
             pub fn is_subcommand() -> bool { true }
         }
@@ -304,4 +310,30 @@ pub fn derive_clap(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
     };
 
     quote!(#inner_impl)
+}
+
+fn gen_parse_fns(name: &syn::Ident) -> proc_macro2::TokenStream {
+    quote! {
+        fn parse() -> #name {
+            #name::from_argmatches(&#name::into_app().get_matches())
+        }
+
+        fn try_parse() -> ::std::result::Result<#name, ::clap::Error> {
+            Ok(#name::from_argmatches(&#name::into_app().get_matches_safe()?))
+        }
+
+        fn parse_from<I, T>(itr: I) -> #name
+        where
+            I: ::std::iter::IntoIterator<Item = T>,
+            T: Into<::std::ffi::OsString> + Clone {
+            #name::from_argmatches(&#name::into_app().get_matches_from(itr))
+        }
+
+        fn try_parse_from<I, T>(itr: I) -> ::std::result::Result<#name, ::clap::Error>
+        where
+            I: ::std::iter::IntoIterator<Item = T>,
+            T: Into<::std::ffi::OsString> + Clone {
+            Ok(#name::from_argmatches(&#name::into_app().get_matches_from_safe(itr)?))
+        }
+    }
 }

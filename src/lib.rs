@@ -40,7 +40,7 @@ pub fn clap(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 }
 
 /// Generates the `IntoApp` impl.
-#[proc_macro_derive(IntoApp, attributes(clap))]
+#[proc_macro_derive(IntoApp)]
 pub fn into_app(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input: syn::DeriveInput = syn::parse(input).unwrap();
     derives::derive_into_app(&input).into()

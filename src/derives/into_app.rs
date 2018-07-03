@@ -15,8 +15,6 @@ use std::env;
 
 use proc_macro2;
 use syn;
-use syn::punctuated;
-use syn::token;
 
 use derives::Attrs;
 
@@ -25,10 +23,8 @@ pub fn derive_into_app(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
 
     let struct_name = &input.ident;
     let inner_impl = match input.data {
-        Struct(syn::DataStruct {
-            fields: syn::Fields::Named(ref fields),
-            ..
-        }) => gen_into_app_impl_for_struct(struct_name, &input.attrs),
+        Struct(syn::DataStruct { .. }) => gen_into_app_impl_for_struct(struct_name, &input.attrs),
+        // @TODO impl into_app for enums?
         // Enum(ref e) => clap_for_enum_impl(struct_name, &e.variants, &input.attrs),
         _ => panic!("clap_derive only supports non-tuple structs"), // and enums"),
     };
@@ -47,20 +43,19 @@ pub fn gen_into_app_impl_for_struct(
             #into_app_fn
         }
 
-        impl Into<::clap::App> for #name {
-            fn into(self) -> ::clap::App {
-                <Self as ::clap::IntoApp>::into_app()
+        impl<'a, 'b> Into<::clap::App<'a, 'b>> for #name {
+            fn into(self) -> ::clap::App<'a, 'b> {
+                <#name as ::clap::IntoApp>::into_app()
             }
         }
     }
 }
 
 pub fn gen_into_app_fn_for_struct(struct_attrs: &[syn::Attribute]) -> proc_macro2::TokenStream {
-    let gen = gen_app_builder(struct_attrs);
+    let app = gen_app_builder(struct_attrs);
     quote! {
         fn into_app<'a, 'b>() -> ::clap::App<'a, 'b> {
-            let app = #gen;
-            Self::augment_clap(app)
+            Self::augment_app(#app)
         }
     }
 }
@@ -86,9 +81,9 @@ pub fn gen_into_app_impl_for_enum(
             #into_app_fn
         }
 
-        impl Into<::clap::App> for #name {
-            fn into(self) -> ::clap::App {
-                <Self as ::clap::IntoApp>::into_app()
+        impl<'a, 'b> Into<::clap::App<'a, 'b>> for #name {
+            fn into(self) -> ::clap::App<'a, 'b> {
+                <#name as ::clap::IntoApp>::into_app()
             }
         }
     }
