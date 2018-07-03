@@ -141,7 +141,7 @@ fn test_parser_with_default_value() {
             integer: 9000,
             path: PathBuf::from("src/lib.rs"),
         },
-        DefaultedOpt::from_clap(&DefaultedOpt::clap().get_matches_from(&[
+        DefaultedOpt::from_argmatches(&DefaultedOpt::into_app().get_matches_from(&[
             "test",
             "-b",
             "E²=p²c²+m²c⁴",
@@ -186,7 +186,7 @@ fn test_parser_occurrences() {
             little_unsigned: 4,
             custom: Foo(5),
         },
-        Occurrences::from_clap(&Occurrences::clap().get_matches_from(&[
+        Occurrences::from_argmatches(&Occurrences::into_app().get_matches_from(&[
             "test", "-s", "--signed", "--signed", "-l", "-rrrr", "-cccc", "--custom",
         ]))
     );

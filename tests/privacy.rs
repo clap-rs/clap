@@ -15,6 +15,8 @@
 #[macro_use]
 extern crate clap;
 
+use clap::Clap;
+
 mod options {
     #[derive(Debug, Clap)]
     pub struct Options {

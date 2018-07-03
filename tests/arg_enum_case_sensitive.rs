@@ -9,10 +9,8 @@
 // except according to those terms.
 #[macro_use]
 extern crate clap;
-#[macro_use]
-extern crate clap_derive;
 
-use clap::{App, Arg};
+use clap::{App, Arg, ArgEnum};
 
 #[derive(ArgEnum, Debug, PartialEq)]
 #[case_sensitive]
