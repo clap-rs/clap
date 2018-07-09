@@ -96,10 +96,10 @@ impl Attrs {
             .iter()
             .filter_map(|attr| {
                 let path = &attr.path;
-                match quote!(#path).to_string() == "structopt" {
+                match quote!(#path).to_string() == "clap" {
                     true => Some(
                         attr.interpret_meta()
-                            .expect(&format!("invalid structopt syntax: {}", quote!(attr))),
+                            .expect(&format!("invalid clap_derive syntax: {}", quote!(attr))),
                     ),
                     false => None,
                 }
