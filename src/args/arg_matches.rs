@@ -786,8 +786,7 @@ impl<'a> ArgMatches<'a> {
 /// assert_eq!(values.next(), None);
 /// ```
 /// [`ArgMatches::values_of`]: ./struct.ArgMatches.html#method.values_of
-#[derive(Clone)]
-#[allow(missing_debug_implementations)]
+#[derive(Debug, Clone)]
 pub struct Values<'a> {
     iter: Map<Iter<'a, OsString>, fn(&'a OsString) -> &'a str>,
 }
@@ -838,8 +837,7 @@ impl<'a> Default for Values<'a> {
 /// ```
 /// [`ArgMatches::values_of_os`]: ./struct.ArgMatches.html#method.values_of_os
 /// [`Values`]: ./struct.Values.html
-#[derive(Clone)]
-#[allow(missing_debug_implementations)]
+#[derive(Debug, Clone)]
 pub struct OsValues<'a> {
     iter: Map<Iter<'a, OsString>, fn(&'a OsString) -> &'a OsStr>,
 }
@@ -890,8 +888,7 @@ impl<'a> Default for OsValues<'a> {
 /// assert_eq!(indices.next(), None);
 /// ```
 /// [`ArgMatches::indices_of`]: ./struct.ArgMatches.html#method.indices_of
-#[derive(Clone)]
-#[allow(missing_debug_implementations)]
+#[derive(Debug, Clone)]
 pub struct Indices<'a> { // would rather use '_, but: https://github.com/rust-lang/rust/issues/48469
     iter: Map<Iter<'a, usize>, fn(&'a usize) -> usize>,
 }
