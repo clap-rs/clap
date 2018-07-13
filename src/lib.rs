@@ -551,6 +551,10 @@ extern crate unicode_width;
 extern crate vec_map;
 #[cfg(feature = "yaml")]
 extern crate yaml_rust;
+#[cfg(feature = "derive")]
+#[cfg_attr(feature = "derive", allow(unused_imports))]
+#[cfg_attr(feature = "derive", macro_use)]
+extern crate clap_derive;
 
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;
@@ -559,6 +563,12 @@ pub use parse::{OsValues, SubCommand, Values, ArgMatches};
 pub use output::fmt::Format;
 pub use parse::errors::{Error, ErrorKind, Result};
 pub use completions::Shell;
+
+#[cfg(feature = "derive")]
+#[cfg_attr(feature = "derive", doc(hidden))]
+pub use clap_derive::*;
+
+use std::result::Result as StdResult;
 
 #[macro_use]
 mod macros;
@@ -572,58 +582,27 @@ const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider 
                                           report at https://github.com/kbknapp/clap-rs/issues";
 const INVALID_UTF8: &'static str = "unexpected invalid UTF-8 code point";
 
-#[cfg(unstable)]
-pub use derive::{ArgEnum, ClapApp, FromArgMatches, IntoApp};
+/// @TODO @release @docs
+pub trait Clap: FromArgMatches + IntoApp + Sized {
 
-#[cfg(unstable)]
-mod derive {
-    /// @TODO @release @docs
-    pub trait Clap: IntoApp + FromArgMatches + Parse + Sized {}
-
-    /// @TODO @release @docs
-    pub trait Parse {
-        /// @TODO @release @docs
-        fn parse() -> Self { Self::from_argmatches(Self::into_app().get_matches()) }
-
-        /// @TODO @release @docs
-        fn parse_from<I, T>(argv: I) -> Self
-        where
-            I: IntoIterator<Item = T>,
-            T: Into<OsString> + Clone,
-        {
-            Self::from_argmatches(Self::into_app().get_matches_from(argv))
-        }
-
-        /// @TODO @release @docs
-        fn try_parse() -> Result<Self, clap::Error> {
-            Self::try_from_argmatches(Self::into_app().get_matches_safe()?)
-        }
-
-        /// @TODO @release @docs
-        fn try_parse_from<I, T>(argv: I) -> Result<Self, clap::Error>
-        where
-            I: IntoIterator<Item = T>,
-            T: Into<OsString> + Clone,
-        {
-            Self::try_from_argmatches(Self::into_app().get_matches_from_safe(argv)?)
-        }
-    }
-
-    /// @TODO @release @docs
-    pub trait IntoApp {
-        /// @TODO @release @docs
-        fn into_app<'a, 'b>() -> clap::App<'a, 'b>;
-    }
-
-    /// @TODO @release @docs
-    pub trait FromArgMatches: Sized {
-        /// @TODO @release @docs
-        fn from_argmatches<'a>(matches: clap::ArgMatches<'a>) -> Self;
-
-        /// @TODO @release @docs
-        fn try_from_argmatches<'a>(matches: clap::ArgMatches<'a>) -> Result<Self, clap::Error>;
-    }
-
-    /// @TODO @release @docs
-    pub trait ArgEnum {}
 }
+
+/// @TODO @release @docs
+pub trait FromArgMatches: Sized {
+    /// @TODO @release @docs
+    fn from_argmatches<'a>(matches: &::parse::ArgMatches<'a>) -> Self;
+
+    /// @TODO @release @docs
+    fn try_from_argmatches<'a>(matches: &::parse::ArgMatches<'a>) -> StdResult<Self, ::parse::errors::Error> {
+        Ok(<Self as FromArgMatches>::from_argmatches(matches))
+    }
+}
+
+/// @TODO @release @docs
+pub trait IntoApp: Sized {
+    /// @TODO @release @docs
+    fn into_app<'a, 'b>() -> ::build::App<'a, 'b>;
+}
+
+/// @TODO @release @docs
+pub trait ArgEnum {}
