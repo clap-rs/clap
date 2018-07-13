@@ -88,7 +88,7 @@ fn test_parse_hex() {
 fn custom_parser_1(_: &str) -> &'static str { "A" }
 fn custom_parser_2(_: &str) -> Result<&'static str, u32> { Ok("B") }
 fn custom_parser_3(_: &OsStr) -> &'static str { "C" }
-fn custom_parser_4(_: &OsStr) -> Result<&'static str, OsString> { Ok("D") }
+fn custom_parser_4(_: &OsStr) -> Result<&'static str, String> { Ok("D") }
 
 #[derive(Clap, PartialEq, Debug)]
 struct NoOpOpt {
@@ -172,7 +172,11 @@ struct Occurrences {
     #[clap(short = "r", parse(from_occurrences))]
     little_unsigned: u8,
 
-    #[clap(short = "c", long = "custom", parse(from_occurrences = "foo"))]
+    #[clap(
+        short = "c",
+        long = "custom",
+        parse(from_occurrences = "foo")
+    )]
     custom: Foo,
 }
 
@@ -205,7 +209,11 @@ fn test_custom_bool() {
     struct Opt {
         #[clap(short = "d", parse(try_from_str = "parse_bool"))]
         debug: bool,
-        #[clap(short = "v", default_value = "false", parse(try_from_str = "parse_bool"))]
+        #[clap(
+            short = "v",
+            default_value = "false",
+            parse(try_from_str = "parse_bool")
+        )]
         verbose: bool,
         #[clap(short = "t", parse(try_from_str = "parse_bool"))]
         tribool: Option<bool>,
