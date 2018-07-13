@@ -24,12 +24,8 @@ fn required_argument() {
         arg: i32,
     }
     assert_eq!(Opt { arg: 42 }, Opt::parse_from(&["test", "42"]));
-    assert!(Opt::into_app().get_matches_from_safe(&["test"]).is_err());
-    assert!(
-        Opt::into_app()
-            .get_matches_from_safe(&["test", "42", "24"])
-            .is_err()
-    );
+    assert!(Opt::try_parse_from(&["test"]).is_err());
+    assert!(Opt::try_parse_from(&["test", "42", "24"]).is_err());
 }
 
 #[test]
@@ -40,11 +36,7 @@ fn optional_argument() {
     }
     assert_eq!(Opt { arg: Some(42) }, Opt::parse_from(&["test", "42"]));
     assert_eq!(Opt { arg: None }, Opt::parse_from(&["test"]));
-    assert!(
-        Opt::into_app()
-            .get_matches_from_safe(&["test", "42", "24"])
-            .is_err()
-    );
+    assert!(Opt::try_parse_from(&["test", "42", "24"]).is_err());
 }
 
 #[test]
@@ -56,11 +48,7 @@ fn argument_with_default() {
     }
     assert_eq!(Opt { arg: 24 }, Opt::parse_from(&["test", "24"]));
     assert_eq!(Opt { arg: 42 }, Opt::parse_from(&["test"]));
-    assert!(
-        Opt::into_app()
-            .get_matches_from_safe(&["test", "42", "24"])
-            .is_err()
-    );
+    assert!(Opt::try_parse_from(&["test", "42", "24"]).is_err());
 }
 
 #[test]
@@ -72,11 +60,7 @@ fn argument_with_raw_default() {
     }
     assert_eq!(Opt { arg: 24 }, Opt::parse_from(&["test", "24"]));
     assert_eq!(Opt { arg: 42 }, Opt::parse_from(&["test"]));
-    assert!(
-        Opt::into_app()
-            .get_matches_from_safe(&["test", "42", "24"])
-            .is_err()
-    );
+    assert!(Opt::try_parse_from(&["test", "42", "24"]).is_err());
 }
 
 #[test]

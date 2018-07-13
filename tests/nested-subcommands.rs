@@ -47,7 +47,7 @@ struct Opt2 {
 
 #[test]
 fn test_no_cmd() {
-    let result = Opt::into_app().get_matches_from_safe(&["test"]);
+    let result = Opt::try_parse_from(&["test"]);
     assert!(result.is_err());
 
     assert_eq!(
@@ -56,7 +56,7 @@ fn test_no_cmd() {
             verbose: 0,
             cmd: None
         },
-        Opt2::from_argmatches(&Opt2::into_app().get_matches_from(&["test"]))
+        Opt2::parse_from(&["test"])
     );
 }
 
@@ -68,7 +68,7 @@ fn test_fetch() {
             verbose: 3,
             cmd: Sub::Fetch {}
         },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "-vvv", "fetch"]))
+        Opt::parse_from(&["test", "-vvv", "fetch"])
     );
     assert_eq!(
         Opt {
@@ -76,7 +76,7 @@ fn test_fetch() {
             verbose: 0,
             cmd: Sub::Fetch {}
         },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "--force", "fetch"]))
+        Opt::parse_from(&["test", "--force", "fetch"])
     );
 }
 
@@ -88,7 +88,7 @@ fn test_add() {
             verbose: 0,
             cmd: Sub::Add {}
         },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "add"]))
+        Opt::parse_from(&["test", "add"])
     );
     assert_eq!(
         Opt {
@@ -96,19 +96,19 @@ fn test_add() {
             verbose: 2,
             cmd: Sub::Add {}
         },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "-vv", "add"]))
+        Opt::parse_from(&["test", "-vv", "add"])
     );
 }
 
 #[test]
 fn test_badinput() {
-    let result = Opt::into_app().get_matches_from_safe(&["test", "badcmd"]);
+    let result = Opt::try_parse_from(&["test", "badcmd"]);
     assert!(result.is_err());
-    let result = Opt::into_app().get_matches_from_safe(&["test", "add", "--verbose"]);
+    let result = Opt::try_parse_from(&["test", "add", "--verbose"]);
     assert!(result.is_err());
-    let result = Opt::into_app().get_matches_from_safe(&["test", "--badopt", "add"]);
+    let result = Opt::try_parse_from(&["test", "--badopt", "add"]);
     assert!(result.is_err());
-    let result = Opt::into_app().get_matches_from_safe(&["test", "add", "--badopt"]);
+    let result = Opt::try_parse_from(&["test", "add", "--badopt"]);
     assert!(result.is_err());
 }
 
@@ -150,9 +150,7 @@ fn test_subsubcommand() {
                 cmd: Sub3::Quux {}
             }
         },
-        Opt3::from_argmatches(
-            &Opt3::into_app().get_matches_from(&["test", "--all", "foo", "lib.rs", "quux"])
-        )
+        Opt3::parse_from(&["test", "--all", "foo", "lib.rs", "quux"])
     );
 }
 
@@ -188,10 +186,12 @@ enum Stash {
 #[test]
 fn sub_sub_cmd_with_option() {
     fn make(args: &[&str]) -> Option<SubSubCmdWithOption> {
+        use clap::{FromArgMatches, IntoApp};
+
         SubSubCmdWithOption::into_app()
             .get_matches_from_safe(args)
             .ok()
-            .map(|m| SubSubCmdWithOption::from_clap(&m))
+            .map(|m| SubSubCmdWithOption::from_argmatches(&m))
     }
     assert_eq!(
         Some(SubSubCmdWithOption::Remote { cmd: None }),

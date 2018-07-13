@@ -32,7 +32,11 @@ struct Opt {
     )]
     x: i32,
 
-    #[clap(short = "l", long = "level", raw(aliases = r#"&["set-level", "lvl"]"#))]
+    #[clap(
+        short = "l",
+        long = "level",
+        raw(aliases = r#"&["set-level", "lvl"]"#)
+    )]
     level: String,
 
     #[clap(long = "values")]
@@ -51,7 +55,7 @@ fn test_raw_slice() {
             files: Vec::new(),
             values: vec![],
         },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "-l", "1"]))
+        Opt::parse_from(&["test", "-l", "1"])
     );
     assert_eq!(
         Opt {
@@ -60,7 +64,7 @@ fn test_raw_slice() {
             files: Vec::new(),
             values: vec![],
         },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "--level", "1"]))
+        Opt::parse_from(&["test", "--level", "1"])
     );
     assert_eq!(
         Opt {
@@ -69,7 +73,7 @@ fn test_raw_slice() {
             files: Vec::new(),
             values: vec![],
         },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "--set-level", "1"]))
+        Opt::parse_from(&["test", "--set-level", "1"])
     );
     assert_eq!(
         Opt {
@@ -78,7 +82,7 @@ fn test_raw_slice() {
             files: Vec::new(),
             values: vec![],
         },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "--lvl", "1"]))
+        Opt::parse_from(&["test", "--lvl", "1"])
     );
 }
 
@@ -91,7 +95,7 @@ fn test_raw_multi_args() {
             files: vec!["file".to_string()],
             values: vec![],
         },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "-l", "1", "file"]))
+        Opt::parse_from(&["test", "-l", "1", "file"])
     );
     assert_eq!(
         Opt {
@@ -100,15 +104,13 @@ fn test_raw_multi_args() {
             files: vec!["FILE".to_string()],
             values: vec![1],
         },
-        Opt::from_argmatches(
-            &Opt::into_app().get_matches_from(&["test", "-l", "1", "--values", "1", "--", "FILE"]),
-        )
+        Opt::parse_from(&["test", "-l", "1", "--values", "1", "--", "FILE"])
     );
 }
 
 #[test]
 fn test_raw_multi_args_fail() {
-    let result = Opt::into_app().get_matches_from_safe(&["test", "-l", "1", "--", "FILE"]);
+    let result = Opt::try_parse_from(&["test", "-l", "1", "--", "FILE"]);
     assert!(result.is_err());
 }
 
@@ -121,8 +123,8 @@ fn test_raw_bool() {
             files: vec![],
             values: vec![],
         },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "-l", "1", "--x=1"]))
+        Opt::parse_from(&["test", "-l", "1", "--x=1"])
     );
-    let result = Opt::into_app().get_matches_from_safe(&["test", "-l", "1", "--x", "1"]);
+    let result = Opt::try_parse_from(&["test", "-l", "1", "--x", "1"]);
     assert!(result.is_err());
 }

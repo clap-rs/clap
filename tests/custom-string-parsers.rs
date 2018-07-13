@@ -17,7 +17,7 @@ extern crate clap;
 
 use clap::Clap;
 
-use std::ffi::{OsStr, OsString};
+use std::ffi::OsStr;
 use std::num::ParseIntError;
 use std::path::PathBuf;
 
@@ -53,10 +53,10 @@ fn test_path_opt_simple() {
             option_path_1: None,
             option_path_2: Some(PathBuf::from("j.zip")),
         },
-        PathOpt::from_argmatches(&PathOpt::into_app().get_matches_from(&[
+        PathOpt::parse_from(&[
             "test", "-p", "/usr/bin", "-v", "/a/b/c", "-v", "/d/e/f", "-v", "/g/h/i", "-q",
             "j.zip",
-        ]))
+        ])
     );
 }
 
@@ -72,16 +72,14 @@ struct HexOpt {
 fn test_parse_hex() {
     assert_eq!(
         HexOpt { number: 5 },
-        HexOpt::from_argmatches(&HexOpt::into_app().get_matches_from(&["test", "-n", "5"]))
+        HexOpt::parse_from(&["test", "-n", "5"])
     );
     assert_eq!(
         HexOpt { number: 0xabcdef },
-        HexOpt::from_argmatches(&HexOpt::into_app().get_matches_from(&["test", "-n", "abcdef"]))
+        HexOpt::parse_from(&["test", "-n", "abcdef"])
     );
 
-    let err = HexOpt::into_app()
-        .get_matches_from_safe(&["test", "-n", "gg"])
-        .unwrap_err();
+    let err = HexOpt::try_parse_from(&["test", "-n", "gg"]).unwrap_err();
     assert!(err.message.contains("invalid digit found in string"), err);
 }
 
@@ -111,9 +109,7 @@ fn test_every_custom_parser() {
             c: "C",
             d: "D"
         },
-        NoOpOpt::from_argmatches(
-            &NoOpOpt::into_app().get_matches_from(&["test", "-a=?", "-b=?", "-c=?", "-d=?"])
-        )
+        NoOpOpt::parse_from(&["test", "-a=?", "-b=?", "-c=?", "-d=?"])
     );
 }
 
@@ -141,7 +137,7 @@ fn test_parser_with_default_value() {
             integer: 9000,
             path: PathBuf::from("src/lib.rs"),
         },
-        DefaultedOpt::from_argmatches(&DefaultedOpt::into_app().get_matches_from(&[
+        DefaultedOpt::parse_from(&[
             "test",
             "-b",
             "E²=p²c²+m²c⁴",
@@ -149,7 +145,7 @@ fn test_parser_with_default_value() {
             "9000",
             "-p",
             "src/lib.rs",
-        ]))
+        ])
     );
 }
 
@@ -190,9 +186,9 @@ fn test_parser_occurrences() {
             little_unsigned: 4,
             custom: Foo(5),
         },
-        Occurrences::from_argmatches(&Occurrences::into_app().get_matches_from(&[
+        Occurrences::parse_from(&[
             "test", "-s", "--signed", "--signed", "-l", "-rrrr", "-cccc", "--custom",
-        ]))
+        ])
     );
 }
 
@@ -221,17 +217,9 @@ fn test_custom_bool() {
         bitset: Vec<bool>,
     }
 
-    assert!(Opt::into_app().get_matches_from_safe(&["test"]).is_err());
-    assert!(
-        Opt::into_app()
-            .get_matches_from_safe(&["test", "-d"])
-            .is_err()
-    );
-    assert!(
-        Opt::into_app()
-            .get_matches_from_safe(&["test", "-dfoo"])
-            .is_err()
-    );
+    assert!(Opt::try_parse_from(&["test"]).is_err());
+    assert!(Opt::try_parse_from(&["test", "-d"]).is_err());
+    assert!(Opt::try_parse_from(&["test", "-dfoo"]).is_err());
     assert_eq!(
         Opt {
             debug: false,

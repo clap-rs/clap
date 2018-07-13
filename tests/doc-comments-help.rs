@@ -19,6 +19,8 @@ use clap::Clap;
 
 #[test]
 fn commets_intead_of_actual_help() {
+    use clap::IntoApp;
+
     /// Lorem ipsum
     #[derive(Clap, PartialEq, Debug)]
     struct LoremIpsum {
@@ -38,12 +40,17 @@ fn commets_intead_of_actual_help() {
 
 #[test]
 fn help_is_better_than_comments() {
+    use clap::IntoApp;
     /// Lorem ipsum
     #[derive(Clap, PartialEq, Debug)]
     #[clap(name = "lorem-ipsum", about = "Dolor sit amet")]
     struct LoremIpsum {
         /// Fooify a bar
-        #[clap(short = "f", long = "foo", help = "DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES")]
+        #[clap(
+            short = "f",
+            long = "foo",
+            help = "DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES"
+        )]
         foo: bool,
     }
 
@@ -58,6 +65,7 @@ fn help_is_better_than_comments() {
 
 #[test]
 fn empty_line_in_doc_comment_is_double_linefeed() {
+    use clap::IntoApp;
     /// Foo.
     ///
     /// Bar
