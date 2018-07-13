@@ -242,8 +242,6 @@ fn clap_impl_for_struct(
     let parse_fns = gen_parse_fns(name);
 
     quote! {
-        use ::clap::{FromArgMatches, IntoApp};
-
         #[allow(unused_variables)]
         impl ::clap::Clap for #name { }
 
@@ -315,10 +313,12 @@ pub fn derive_clap(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
 fn gen_parse_fns(name: &syn::Ident) -> proc_macro2::TokenStream {
     quote! {
         fn parse() -> #name {
+            use ::clap::{FromArgMatches, IntoApp};
             #name::from_argmatches(&#name::into_app().get_matches())
         }
 
         fn try_parse() -> ::std::result::Result<#name, ::clap::Error> {
+            use ::clap::{FromArgMatches, IntoApp};
             Ok(#name::from_argmatches(&#name::into_app().get_matches_safe()?))
         }
 
@@ -326,6 +326,7 @@ fn gen_parse_fns(name: &syn::Ident) -> proc_macro2::TokenStream {
         where
             I: ::std::iter::IntoIterator<Item = T>,
             T: Into<::std::ffi::OsString> + Clone {
+            use ::clap::{FromArgMatches, IntoApp};
             #name::from_argmatches(&#name::into_app().get_matches_from(itr))
         }
 
@@ -333,6 +334,7 @@ fn gen_parse_fns(name: &syn::Ident) -> proc_macro2::TokenStream {
         where
             I: ::std::iter::IntoIterator<Item = T>,
             T: Into<::std::ffi::OsString> + Clone {
+            use ::clap::{FromArgMatches, IntoApp};
             Ok(#name::from_argmatches(&#name::into_app().get_matches_from_safe(itr)?))
         }
     }

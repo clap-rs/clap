@@ -45,6 +45,7 @@ pub fn gen_into_app_impl_for_struct(
 
         impl<'a, 'b> Into<::clap::App<'a, 'b>> for #name {
             fn into(self) -> ::clap::App<'a, 'b> {
+                use ::clap::IntoApp;
                 <#name as ::clap::IntoApp>::into_app()
             }
         }
@@ -83,6 +84,7 @@ pub fn gen_into_app_impl_for_enum(
 
         impl<'a, 'b> Into<::clap::App<'a, 'b>> for #name {
             fn into(self) -> ::clap::App<'a, 'b> {
+                use ::clap::IntoApp;
                 <#name as ::clap::IntoApp>::into_app()
             }
         }
