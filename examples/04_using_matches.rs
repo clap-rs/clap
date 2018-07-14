@@ -44,8 +44,8 @@ fn main() {
         println!("Debugging is turned on");
     }
 
-    // If we wanted to some custom initialization based off some configuration file provided
-    // by the user, we could get the file (A string of the file)
+    // If we wanted to do some custom initialization based off some configuration file
+    // provided by the user, we could get the file (A string of the file)
     if let Some(ref file) = matches.value_of("config") {
         println!("Using config file: {}", file);
     }
