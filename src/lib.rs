@@ -581,7 +581,11 @@ use std::result::Result as StdResult;
 
 #[macro_use]
 mod macros;
+<<<<<<< HEAD
 mod build;
+=======
+mod mkeymap;
+>>>>>>> WIP changing macros into MKeyMap calls
 mod completions;
 mod output;
 mod parse;
