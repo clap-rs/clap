@@ -2128,6 +2128,7 @@ impl<'a> From<&'a Yaml> for App<'a> {
         }
 
         yaml_str!(a, yaml, version);
+        yaml_str!(a, yaml, long_version);
         yaml_str!(a, yaml, author);
         yaml_str!(a, yaml, bin_name);
         yaml_str!(a, yaml, about);
