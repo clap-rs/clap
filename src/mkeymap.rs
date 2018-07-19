@@ -1,12 +1,12 @@
 #![feature(nll)]
 
+use build::Arg;
 use std::collections::hash_map;
 use std::collections::hash_map::DefaultHasher;
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsStr;
 use std::hash::{Hash, Hasher};
 use std::slice;
-use build::Arg;
 // ! rustdoc
 
 #[derive(Default, PartialEq, Debug)]
@@ -27,9 +27,7 @@ pub enum KeyType<'a> {
 }
 
 impl<'a, 'b> MKeyMap<'a, 'b> {
-    pub fn new() -> Self {
-        MKeyMap::default()
-    }
+    pub fn new() -> Self { MKeyMap::default() }
     //TODO ::from(x), ::with_capacity(n) etc
     //? set theory ops?
 
@@ -67,6 +65,8 @@ impl<'a, 'b> MKeyMap<'a, 'b> {
                     set
                 });
         }
+        
+        index
     }
     //TODO ::push_many([x, y])
 
@@ -89,37 +89,31 @@ impl<'a, 'b> MKeyMap<'a, 'b> {
         self.keys.insert(key, index);
     }
 
-    pub fn get(&self, key: KeyType<'a>) -> &Arg<'a, 'b> {
+    pub fn get(&self, key: KeyType<'a>) -> Option<&Arg<'a, 'b>> {
         self.keys
             .get(&key)
             .and_then(|&idx| self.value_index.get(idx))
-            .expect(&format!("No entry for the key: {:?}", key))
     }
     //TODO ::get_first([KeyA, KeyB])
 
-    pub fn get_mut(&mut self, key: KeyType<'a>) -> &mut Arg<'a, 'b> {
-        let idx = *self
+    pub fn get_mut(&mut self, key: KeyType<'a>) -> Option<&mut Arg<'a, 'b>> {
+        if let Some(&idx) = self
             .keys
-            .get(&key)
-            .expect(&format!("No entry for the key: {:?}", key));
-
-        self.value_index.get_mut(idx).unwrap()
+            .get(&key) {
+                self.value_index.get_mut(idx)
+            } else {
+                None
+            }
     }
 
-    pub fn is_empty(&self) -> bool {
-        self.keys.is_empty() && self.values.is_empty()
-    }
+    pub fn is_empty(&self) -> bool { self.keys.is_empty() && self.values.is_empty() }
 
-    pub fn remove(&mut self, key: KeyType) -> Option<Arg> {
-        unimplemented!()
-    }
+    pub fn remove(&mut self, key: KeyType) -> Option<Arg> { unimplemented!() }
     //TODO ::remove_many([KeyA, KeyB])
     //? probably shouldn't add a possibility for removal?
     //? or remove by replacement by some dummy object, so the order is preserved
 
-    pub fn remove_key(&mut self, key: KeyType) {
-        unimplemented!()
-    }
+    pub fn remove_key(&mut self, key: KeyType) { unimplemented!() }
     //TODO ::remove_keys([KeyA, KeyB])
 
     pub fn keys(&'a self) -> Keys<'a, usize> {
@@ -139,8 +133,16 @@ impl<'a, 'b> MKeyMap<'a, 'b> {
             iter: self.value_index.iter_mut(),
         }
     }
+
+    pub fn iter(&self) -> Iter {
+        Iter {
+            map: self,
+            keys: self.keys(),
+        }
+    }
 }
 
+//TODO remove generics
 pub struct Keys<'a, V: 'a> {
     iter: hash_map::Keys<'a, KeyType<'a>, V>,
 }
@@ -148,9 +150,7 @@ pub struct Keys<'a, V: 'a> {
 impl<'a, V> Iterator for Keys<'a, V> {
     type Item = &'a KeyType<'a>;
 
-    fn next(&mut self) -> Option<Self::Item> {
-        self.iter.next()
-    }
+    fn next(&mut self) -> Option<Self::Item> { self.iter.next() }
 }
 
 pub struct Values<'a, V: 'a> {
@@ -160,9 +160,7 @@ pub struct Values<'a, V: 'a> {
 impl<'a, V> Iterator for Values<'a, V> {
     type Item = &'a V;
 
-    fn next(&mut self) -> Option<Self::Item> {
-        self.iter.next()
-    }
+    fn next(&mut self) -> Option<Self::Item> { self.iter.next() }
 }
 
 pub struct ValuesMut<'a, V: 'a> {
@@ -170,18 +168,36 @@ pub struct ValuesMut<'a, V: 'a> {
 }
 
 impl<'a, V> Iterator for ValuesMut<'a, V> {
-    type Item = &'a V;
+    type Item = &'a mut V;
+
+    fn next(&mut self) -> Option<Self::Item> { self.iter.next() }
+}
+
+pub struct Iter<'a, 'b, 'c>  where
+'a: 'b,
+'b: 'c {
+    map: &'c MKeyMap<'a, 'b>,
+    keys: Keys<'c, usize>,
+}
+
+impl <'a, 'b, 'c> Iterator for Iter<'a, 'b, 'c> 
+{
+    type Item = (&'c KeyType<'a>, &'c Arg<'a, 'b>);
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.iter.next()
+        if let Some(key) = self.keys.next() {
+            Some((key, self.map.get(key.clone()).unwrap()))
+        } else {
+            None
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use self::KeyType::*;
     use super::*;
     use std::ffi::OsStr;
-    use self::KeyType::*;
 
     #[test]
     fn get_some_value() {
@@ -191,10 +207,7 @@ mod tests {
             map.insert(Long(&OsStr::new("One")), Arg::with_name("Value1"));
         }
 
-        assert_eq!(
-            map.get(Long(&OsStr::new("One"))),
-            &Arg::with_name("Value1")
-        );
+        assert_eq!(map.get(Long(&OsStr::new("One"))), &Arg::with_name("Value1"));
     }
 
     #[test]
@@ -265,7 +278,7 @@ mod tests {
         );
         assert_eq!(map.values.len(), 1);
     }
-    
+
     #[test]
     fn insert_by_name() {
         let mut map: MKeyMap = MKeyMap::new();
@@ -281,7 +294,7 @@ mod tests {
     }
 
     #[test]
-    fn get_mutable(){
+    fn get_mutable() {
         let mut map: MKeyMap = MKeyMap::new();
 
         map.insert(Long(&OsStr::new("One")), Arg::with_name("Value1"));
@@ -289,7 +302,7 @@ mod tests {
         assert_eq!(
             map.get_mut(Long(&OsStr::new("One"))),
             &mut Arg::with_name("Value1")
-        );        
+        );
     }
 
     #[test]
