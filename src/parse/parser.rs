@@ -38,6 +38,9 @@ use parse::{ArgMatcher, SubCommand};
 use util::OsStrExt2;
 use INVALID_UTF8;
 use INTERNAL_ERROR_MSG;
+use parse::features::suggestions;
+use output::Usage;
+use mkeymap::KeyType;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[doc(hidden)]
@@ -303,7 +306,22 @@ where
     pub(crate) fn _build(&mut self) {
         debugln!("Parser::_build;");
 
-        for a in &mut self.app.args {
+        for (i, a) in self.app.args.values_mut().enumerate() {
+            if let Some(index) = a.index {
+                self.app.args.insert_key(KeyType::Positional(index), i);
+            } else {
+                if let Some(c) = a.short {
+                    self.app.args.insert_key(KeyType::Short(c), i);
+                }
+                if let Some(l) = a.long {
+                    self.app.args.insert_key(KeyType::Long(&OsStr::new(l)), i);
+                }
+                if let Some(v) = a.aliases {
+                    for (item, _) in &v {
+                        self.app.args.insert_key(KeyType::Long(&OsStr::new(item)), i);
+                    }
+                }
+            }
             // Add conditional requirements
             if let Some(ref r_ifs) = a.r_ifs {
                 for &(arg, val) in r_ifs {
@@ -1012,8 +1030,9 @@ where
             sdebugln!("No");
             full_arg.trim_left_matches(b'-')
         };
-
-        if let Some(opt) = find_by_long!(self.app, arg, opts) {
+// opts?? Should probably now check once, then check whether it's opt or flag, or sth else
+        if let Some(opt) = self.app.args.get(KeyType::Long(arg))
+        {
             debugln!(
                 "Parser::parse_long_arg: Found valid opt '{}'",
                 opt.to_string()
@@ -1025,7 +1044,8 @@ where
             }
 
             return Ok(ret);
-        } else if let Some(flag) = find_by_long!(self.app, arg, flags) {
+//flags??
+        } else if let Some(flag) = self.app.args.get(KeyType::Long(arg)) {
             debugln!(
                 "Parser::parse_long_arg: Found valid flag '{}'",
                 flag.to_string()
@@ -1092,7 +1112,7 @@ where
             // concatenated value: -oval
             // Option: -o
             // Value: val
-            if let Some(opt) = find_by_short!(self.app, c, opts) {
+            if let Some(opt) = self.app.args.get(KeyType::Short(c)) {
                 debugln!("Parser::parse_short_arg:iter:{}: Found valid opt", c);
                 self.app.settings.set(AS::ValidArgFound);
                 // Check for trailing concatenated value
@@ -1124,7 +1144,7 @@ where
                 }
 
                 return Ok(ret);
-            } else if let Some(flag) = find_by_short!(self.app, c, flags) {
+            } else if let Some(flag) = self.app.args.get(KeyType::Short(c)) {
                 debugln!("Parser::parse_short_arg:iter:{}: Found valid flag", c);
                 self.app.settings.set(AS::ValidArgFound);
                 // Only flags can be help or version
@@ -1510,11 +1530,11 @@ where
 
         // Add the arg to the matches to build a proper usage string
         if let Some(name) = suffix.1 {
-            if let Some(opt) = find_by_long!(self.app, name) {
+            if let Some(opt) = self.app.args.get(KeyType::Long(name)) {
                 self.groups_for_arg(&*opt.name)
                     .and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
                 matcher.insert(&*opt.name);
-            } else if let Some(flg) = find_by_long!(self.app, name) {
+            } else if let Some(flg) = self.app.args.get(KeyType::Long(name)) {
                 self.groups_for_arg(&*flg.name)
                     .and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
                 matcher.insert(&*flg.name);

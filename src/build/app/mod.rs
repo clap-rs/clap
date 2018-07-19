@@ -22,6 +22,7 @@ use output::fmt::ColorWhen;
 use output::{Help, Usage};
 use parse::errors::Result as ClapResult;
 use parse::{ArgMatcher, ArgMatches, Parser};
+use mkeymap::{MKeyMap, KeyType};
 
 #[doc(hidden)]
 #[allow(dead_code)]
@@ -105,7 +106,7 @@ where
     #[doc(hidden)]
     pub g_settings: AppFlags,
     #[doc(hidden)]
-    pub args: Vec<Arg<'a, 'b>>,
+    pub args: MKeyMap,
     #[doc(hidden)]
     pub subcommands: Vec<App<'a, 'b>>,
     #[doc(hidden)]
@@ -637,6 +638,7 @@ impl<'a, 'b> App<'a, 'b> {
             None
         };
         let arg = a.into().help_heading(help_heading);
+        //TODO add push functionality to MKeyMap
         self.args.push(arg);
         self
     }
@@ -1439,12 +1441,13 @@ impl<'a, 'b> App<'a, 'b> {
         }
         // Perform expensive debug assertions
         debug_assert!({
-            for a in &self.args {
+            for a in self.args.values() {
                 self._arg_debug_asserts(a);
             }
             true
         });
-        for a in &mut self.args {
+        //TODO add .values_mut() for MKeyMap
+        for a in self.args.values_mut() {
             // Fill in the groups
             if let Some(ref grps) = a.groups {
                 for g in grps {

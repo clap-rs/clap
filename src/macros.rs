@@ -1024,29 +1024,29 @@ macro_rules! find {
     }
 }
 
-macro_rules! find_by_long {
-    ($app:expr, $long:expr, $what:ident) => {{
-        $what!($app)
-            .filter(|a| a.long.is_some())
-            .find(|a| match_alias!(a, $long, a.long.unwrap()))
-    }};
-    ($app:expr, $long:expr) => {{
-        $app.args.iter()
-            .filter(|a| a.long.is_some())
-            .find(|a| match_alias!(a, $long, a.long.unwrap()))
-    }};
-}
+// macro_rules! find_by_long {
+//     ($app:expr, $long:expr, $what:ident) => {{
+//         $what!($app)
+//             .filter(|a| a.long.is_some())
+//             .find(|a| match_alias!(a, $long, a.long.unwrap()))
+//     }};
+//     ($app:expr, $long:expr) => {{
+//         $app.args.iter()
+//             .filter(|a| a.long.is_some())
+//             .find(|a| match_alias!(a, $long, a.long.unwrap()))
+//     }};
+// }
 
-macro_rules! find_by_short {
-    ($app:expr, $short:expr, $what:ident) => {{
-        $what!($app)
-            .find(|a| a.short == Some($short))
-    }};
-    ($app:expr, $short:expr) => {{
-        $app.args.iter()
-            .find(|a| a.short == Some($short))
-    }}
-}
+// macro_rules! find_by_short {
+//     ($app:expr, $short:expr, $what:ident) => {{
+//         $what!($app)
+//             .find(|a| a.short == Some($short))
+//     }};
+//     ($app:expr, $short:expr) => {{
+//         $app.args.iter()
+//             .find(|a| a.short == Some($short))
+//     }}
+// }
 
 macro_rules! find_subcmd_cloned {
     ($_self:expr, $sc:expr) => {{
@@ -1062,27 +1062,42 @@ macro_rules! find_subcmd {
     }};
 }
 
-macro_rules! shorts {
-    ($app:expr) => {{
-        _shorts_longs!($app, short)
-    }};
-}
+// macro_rules! shorts {
+//     ($app:expr) => {{
+//         _shorts_longs!($app, short)
+//     }};
+// }
 
+// macro_rules! longs {
+//     ($app:expr) => {{
+//         $app.args.iter()
+//             .filter(|a| a.long.is_some())
+//             .map(|a| a.long.unwrap())
+//             .chain($app.args.iter()
+//                 .filter(|a| a.aliases.is_some())
+//                 .flat_map(|a| a.aliases.as_ref().unwrap().iter().map(|als| als.0)))
+//     }};
+// }
+
+// macro_rules! _shorts_longs {
+//     ($app:expr, $what:ident) => {{
+//         $app.args.iter().filter_map(|a| a.$what)
+//     }};
+// }
+
+//TODO change into one macro (repeated structure)
 macro_rules! longs {
-    ($app:expr) => {{
-        $app.args.iter()
-            .filter(|a| a.long.is_some())
-            .map(|a| a.long.unwrap())
-            .chain($app.args.iter()
-                .filter(|a| a.aliases.is_some())
-                .flat_map(|a| a.aliases.as_ref().unwrap().iter().map(|als| als.0)))
-    }};
+    ($app:expr) => ({
+        use mkeymap::KeyType;
+        $app.args.keys().filter_map(|a| if let KeyType::Long(v) = a {Some(v)} else {None})
+    });
 }
 
-macro_rules! _shorts_longs {
-    ($app:expr, $what:ident) => {{
-        $app.args.iter().filter_map(|a| a.$what)
-    }};
+macro_rules! shorts {
+    ($app:expr) => ({
+        use mkeymap::KeyType;
+        $app.args.keys().filter_map(|a| if let KeyType::Short(v) = a {Some(v)} else {None})
+    })
 }
 
 macro_rules! _names {
@@ -1113,15 +1128,15 @@ macro_rules! sc_names {
     }};
 }
 
-macro_rules! match_alias {
-    ($a:expr, $to:expr, $what:expr) => {{
-        $what == $to ||
-        ($a.aliases.is_some() &&
-            $a.aliases
-            .as_ref()
-            .unwrap()
-            .iter()
-            .any(|alias| alias.0 == $to))
+// macro_rules! match_alias {
+//     ($a:expr, $to:expr, $what:expr) => {{
+//         $what == $to ||
+//         ($a.aliases.is_some() &&
+//             $a.aliases
+//             .as_ref()
+//             .unwrap()
+//             .iter()
+//             .any(|alias| alias.0 == $to))
 
-    }}
-}
+//     }}
+// }
