@@ -83,13 +83,13 @@ fn options() {
 }
 
 #[test]
-fn empy_default_value() {
+fn default_value() {
     #[derive(Clap, PartialEq, Debug)]
     struct Opt {
-        #[clap(short = "a", default_value = "")]
+        #[clap(short = "a", default_value = "test")]
         arg: String,
     }
-    assert_eq!(Opt { arg: "".into() }, Opt::parse_from(&["test"]));
+    assert_eq!(Opt { arg: "test".into() }, Opt::parse_from(&["test"]));
     assert_eq!(
         Opt { arg: "foo".into() },
         Opt::parse_from(&["test", "-afoo"])
