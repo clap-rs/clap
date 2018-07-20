@@ -25,38 +25,13 @@ fn unique_flag() {
         alice: bool,
     }
 
-    assert_eq!(
-        Opt { alice: false },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test"]))
-    );
-    assert_eq!(
-        Opt { alice: true },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "-a"]))
-    );
-    assert_eq!(
-        Opt { alice: true },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "--alice"]))
-    );
-    assert!(
-        Opt::into_app()
-            .get_matches_from_safe(&["test", "-i"])
-            .is_err()
-    );
-    assert!(
-        Opt::into_app()
-            .get_matches_from_safe(&["test", "-a", "foo"])
-            .is_err()
-    );
-    assert!(
-        Opt::into_app()
-            .get_matches_from_safe(&["test", "-a", "-a"])
-            .is_err()
-    );
-    assert!(
-        Opt::into_app()
-            .get_matches_from_safe(&["test", "-a", "--alice"])
-            .is_err()
-    );
+    assert_eq!(Opt { alice: false }, Opt::parse_from(&["test"]));
+    assert_eq!(Opt { alice: true }, Opt::parse_from(&["test", "-a"]));
+    assert_eq!(Opt { alice: true }, Opt::parse_from(&["test", "--alice"]));
+    assert!(Opt::try_parse_from(&["test", "-i"]).is_err());
+    assert!(Opt::try_parse_from(&["test", "-a", "foo"]).is_err());
+    assert!(Opt::try_parse_from(&["test", "-a", "-a"]).is_err());
+    assert!(Opt::try_parse_from(&["test", "-a", "--alice"]).is_err());
 }
 
 #[test]
@@ -69,36 +44,22 @@ fn multiple_flag() {
         bob: u8,
     }
 
-    assert_eq!(
-        Opt { alice: 0, bob: 0 },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test"]))
-    );
-    assert_eq!(
-        Opt { alice: 1, bob: 0 },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "-a"]))
-    );
+    assert_eq!(Opt { alice: 0, bob: 0 }, Opt::parse_from(&["test"]));
+    assert_eq!(Opt { alice: 1, bob: 0 }, Opt::parse_from(&["test", "-a"]));
     assert_eq!(
         Opt { alice: 2, bob: 0 },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "-a", "-a"]))
+        Opt::parse_from(&["test", "-a", "-a"])
     );
     assert_eq!(
         Opt { alice: 2, bob: 2 },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "-a", "--alice", "-bb"]))
+        Opt::parse_from(&["test", "-a", "--alice", "-bb"])
     );
     assert_eq!(
         Opt { alice: 3, bob: 1 },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "-aaa", "--bob"]))
+        Opt::parse_from(&["test", "-aaa", "--bob"])
     );
-    assert!(
-        Opt::into_app()
-            .get_matches_from_safe(&["test", "-i"])
-            .is_err()
-    );
-    assert!(
-        Opt::into_app()
-            .get_matches_from_safe(&["test", "-a", "foo"])
-            .is_err()
-    );
+    assert!(Opt::try_parse_from(&["test", "-i"]).is_err());
+    assert!(Opt::try_parse_from(&["test", "-a", "foo"]).is_err());
 }
 
 #[test]
@@ -116,41 +77,41 @@ fn combined_flags() {
             alice: false,
             bob: 0
         },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test"]))
+        Opt::parse_from(&["test"])
     );
     assert_eq!(
         Opt {
             alice: true,
             bob: 0
         },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "-a"]))
+        Opt::parse_from(&["test", "-a"])
     );
     assert_eq!(
         Opt {
             alice: true,
             bob: 0
         },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "-a"]))
+        Opt::parse_from(&["test", "-a"])
     );
     assert_eq!(
         Opt {
             alice: false,
             bob: 1
         },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "-b"]))
+        Opt::parse_from(&["test", "-b"])
     );
     assert_eq!(
         Opt {
             alice: true,
             bob: 1
         },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "--alice", "--bob"]))
+        Opt::parse_from(&["test", "--alice", "--bob"])
     );
     assert_eq!(
         Opt {
             alice: true,
             bob: 4
         },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "-bb", "-a", "-bb"]))
+        Opt::parse_from(&["test", "-bb", "-a", "-bb"])
     );
 }

@@ -46,9 +46,7 @@ fn test_fetch() {
             force: false,
             repo: "origin".to_string()
         },
-        Opt::from_argmatches(
-            &Opt::into_app().get_matches_from(&["test", "fetch", "--all", "origin"])
-        )
+        Opt::parse_from(&["test", "fetch", "--all", "origin"])
     );
     assert_eq!(
         Opt::Fetch {
@@ -56,7 +54,7 @@ fn test_fetch() {
             force: true,
             repo: "origin".to_string()
         },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "fetch", "-f", "origin"]))
+        Opt::parse_from(&["test", "fetch", "-f", "origin"])
     );
 }
 
@@ -67,26 +65,26 @@ fn test_add() {
             interactive: false,
             verbose: false
         },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "add"]))
+        Opt::parse_from(&["test", "add"])
     );
     assert_eq!(
         Opt::Add {
             interactive: true,
             verbose: true
         },
-        Opt::from_argmatches(&Opt::into_app().get_matches_from(&["test", "add", "-i", "-v"]))
+        Opt::parse_from(&["test", "add", "-i", "-v"])
     );
 }
 
 #[test]
 fn test_no_parse() {
-    let result = Opt::into_app().get_matches_from_safe(&["test", "badcmd", "-i", "-v"]);
+    let result = Opt::try_parse_from(&["test", "badcmd", "-i", "-v"]);
     assert!(result.is_err());
 
-    let result = Opt::into_app().get_matches_from_safe(&["test", "add", "--badoption"]);
+    let result = Opt::try_parse_from(&["test", "add", "--badoption"]);
     assert!(result.is_err());
 
-    let result = Opt::into_app().get_matches_from_safe(&["test"]);
+    let result = Opt::try_parse_from(&["test"]);
     assert!(result.is_err());
 }
 
@@ -104,11 +102,7 @@ fn test_hyphenated_subcommands() {
         Opt2::DoSomething {
             arg: "blah".to_string()
         },
-        Opt2::from_argmatches(&Opt2::into_app().get_matches_from(&[
-            "test",
-            "do-something",
-            "blah"
-        ]))
+        Opt2::parse_from(&["test", "do-something", "blah"])
     );
 }
 
@@ -124,18 +118,9 @@ enum Opt3 {
 
 #[test]
 fn test_null_commands() {
-    assert_eq!(
-        Opt3::Add,
-        Opt3::from_argmatches(&Opt3::into_app().get_matches_from(&["test", "add"]))
-    );
-    assert_eq!(
-        Opt3::Init,
-        Opt3::from_argmatches(&Opt3::into_app().get_matches_from(&["test", "init"]))
-    );
-    assert_eq!(
-        Opt3::Fetch,
-        Opt3::from_argmatches(&Opt3::into_app().get_matches_from(&["test", "fetch"]))
-    );
+    assert_eq!(Opt3::Add, Opt3::parse_from(&["test", "add"]));
+    assert_eq!(Opt3::Init, Opt3::parse_from(&["test", "init"]));
+    assert_eq!(Opt3::Fetch, Opt3::parse_from(&["test", "fetch"]));
 }
 
 #[derive(Clap, PartialEq, Debug)]
@@ -162,21 +147,20 @@ enum Opt4 {
 
 #[test]
 fn test_tuple_commands() {
+    use clap::IntoApp;
+
     assert_eq!(
         Opt4::Add(Add {
             file: "f".to_string()
         }),
-        Opt4::from_argmatches(&Opt4::into_app().get_matches_from(&["test", "add", "f"]))
+        Opt4::parse_from(&["test", "add", "f"])
     );
-    assert_eq!(
-        Opt4::Init,
-        Opt4::from_argmatches(&Opt4::into_app().get_matches_from(&["test", "init"]))
-    );
+    assert_eq!(Opt4::Init, Opt4::parse_from(&["test", "init"]));
     assert_eq!(
         Opt4::Fetch(Fetch {
             remote: "origin".to_string()
         }),
-        Opt4::from_argmatches(&Opt4::into_app().get_matches_from(&["test", "fetch", "origin"]))
+        Opt4::parse_from(&["test", "fetch", "origin"])
     );
 
     let mut output = Vec::new();
@@ -204,10 +188,10 @@ fn enum_in_enum_subsubcommand() {
         Stop,
     }
 
-    let result = Opt::into_app().get_matches_from_safe(&["test"]);
+    let result = Opt::try_parse_from(&["test"]);
     assert!(result.is_err());
 
-    let result = Opt::into_app().get_matches_from_safe(&["test", "daemon"]);
+    let result = Opt::try_parse_from(&["test", "daemon"]);
     assert!(result.is_err());
 
     let result = Opt::parse_from(&["test", "daemon", "start"]);

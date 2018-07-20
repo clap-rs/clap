@@ -19,6 +19,8 @@ use clap::Clap;
 
 #[test]
 fn no_author_version_about() {
+    use clap::IntoApp;
+
     #[derive(Clap, PartialEq, Debug)]
     #[clap(name = "foo", about = "", author = "", version = "")]
     struct Opt {}
@@ -30,8 +32,25 @@ fn no_author_version_about() {
     assert!(output.starts_with("foo \n\nUSAGE:"));
 }
 
+static ENV_HELP: &str = "clap_derive 0.3.0
+Guillaume Pinot <texitoi@texitoi.eu>, Kevin K. <kbknapp@gmail.com>, hoverbear <andrew@hoverbear.org>
+Parse command line argument by defining a struct, derive crate.
+
+USAGE:
+    clap_derive
+
+FLAGS:
+    -h, --help       
+            Prints help information
+
+    -V, --version    
+            Prints version information
+";
+
 #[test]
 fn use_env() {
+    use clap::IntoApp;
+
     #[derive(Clap, PartialEq, Debug)]
     #[clap()]
     struct Opt {}
@@ -39,7 +58,5 @@ fn use_env() {
     let mut output = Vec::new();
     Opt::into_app().write_long_help(&mut output).unwrap();
     let output = String::from_utf8(output).unwrap();
-    assert!(output.starts_with("structopt 0.2."));
-    assert!(output.contains("Guillaume Pinot <texitoi@texitoi.eu>, others"));
-    assert!(output.contains("Parse command line argument by defining a struct."));
+    assert_eq!(output, ENV_HELP);
 }

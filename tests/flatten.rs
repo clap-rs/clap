@@ -35,12 +35,8 @@ fn flatten() {
         },
         Opt::parse_from(&["test", "42"])
     );
-    assert!(Opt::into_app().get_matches_from_safe(&["test"]).is_err());
-    assert!(
-        Opt::into_app()
-            .get_matches_from_safe(&["test", "42", "24"])
-            .is_err()
-    );
+    assert!(Opt::try_parse_from(&["test"]).is_err());
+    assert!(Opt::try_parse_from(&["test", "42", "24"]).is_err());
 }
 
 #[test]
