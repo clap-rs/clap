@@ -100,15 +100,13 @@ fn gen_app_augmentation(
 
                 // @TODO remove unneccessary builders
                 let modifier = match ty {
-                    Ty::Bool => quote!( .takes_value(false).multiple(false) ),
-                    Ty::Option => quote!( .takes_value(true).multiple(false) #validator ),
+                    Ty::Bool => quote!(),
+                    Ty::Option => quote!( .takes_value(true) #validator ),
                     Ty::Vec => quote!( .takes_value(true).multiple(true) #validator ),
-                    Ty::Other if occurences => {
-                        quote!( .takes_value(false).multiple_occurrences(true) )
-                    }
+                    Ty::Other if occurences => quote!( .multiple_occurrences(true) ),
                     Ty::Other => {
                         let required = !attrs.has_method("default_value");
-                        quote!( .takes_value(true).multiple(false).required(#required) #validator )
+                        quote!( .takes_value(true).required(#required) #validator )
                     }
                 };
                 let methods = attrs.methods();
