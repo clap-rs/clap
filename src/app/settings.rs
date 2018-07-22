@@ -886,7 +886,7 @@ pub enum AppSettings {
     /// Disables `-V` and `--version` for all [`SubCommand`]s
     /// (Defaults to `false`; subcommands *do* have version flags.)
     ///
-    /// **NOTE:** This setting must be set **prior** adding any subcommands
+    /// **NOTE:** This setting must be set **prior** to adding any subcommands.
     ///
     /// # Examples
     ///
