@@ -1406,7 +1406,9 @@ impl<'a, 'b> App<'a, 'b> {
         Ok(matcher.into())
     }
 
-    pub(crate) fn _build(&mut self, prop: Propagation) {
+    // used in clap_generate (https://github.com/clap-rs/clap_generate)
+    #[doc(hidden)]
+    pub fn _build(&mut self, prop: Propagation) {
         debugln!("App::_build;");
         // Make sure all the globally set flags apply to us as well
         self.settings = self.settings | self.g_settings;
@@ -1654,7 +1656,9 @@ impl<'a, 'b> App<'a, 'b> {
         true
     }
 
-    fn _build_bin_names(&mut self) {
+    // used in clap_generate (https://github.com/clap-rs/clap_generate)
+    #[doc(hidden)]
+    pub fn _build_bin_names(&mut self) {
         debugln!("App::_build_bin_names;");
         for sc in subcommands_mut!(self) {
             debug!("Parser::build_bin_names:iter: bin_name set...");
