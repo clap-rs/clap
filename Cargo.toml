@@ -1,7 +1,7 @@
 [package]
 
 name = "clap"
-version = "3.0.0-alpha1"
+version = "3.0.0-alpha.1"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
 exclude = [
 	".github/*",
@@ -26,7 +26,7 @@ repository = "https://github.com/kbknapp/clap-rs"
 documentation = "https://docs.rs/clap/"
 homepage = "https://clap.rs/"
 readme = "README.md"
-license = "MIT"
+license = "MIT OR Apache-2.0"
 keywords = [
 	"argument",
 	"cli",
