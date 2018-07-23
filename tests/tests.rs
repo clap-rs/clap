@@ -305,8 +305,8 @@ fn create_app() {
 fn add_multiple_arg() {
     let _ = App::new("test")
         .args(&[
-            Arg::with_name("test").short("s"),
-            Arg::with_name("test2").short("l"),
+            Arg::with_name("test").short('s'),
+            Arg::with_name("test2").short('l'),
         ])
         .get_matches_from(vec![""]);
 }

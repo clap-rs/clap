@@ -244,15 +244,15 @@ fn validator() {
 fn validator_output() {
     env::set_var("CLP_TEST_ENV", "42");
 
-    let r = App::new("df")
+    let m = App::new("df")
         .arg(
             Arg::from("[arg] 'some opt'")
                 .env("CLP_TEST_ENV")
-                .validator(|s| s.parse::<i32>())
+                .validator(|s| s.parse::<i32>()),
         )
-        .get_matches_from_safe(vec![""]);
+        .get_matches_from(vec![""]);
 
-    assert_eq!(r.unwrap().value_of("arg").unwrap().parse(), Ok(42));
+    assert_eq!(m.value_of("arg").unwrap().parse(), Ok(42));
 }
 
 #[test]

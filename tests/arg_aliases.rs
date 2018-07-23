@@ -137,7 +137,7 @@ fn alias_on_a_subcommand_option() {
         .subcommand(
             SubCommand::with_name("some").arg(
                 Arg::with_name("test")
-                    .short("t")
+                    .short('t')
                     .long("test")
                     .takes_value(true)
                     .alias("opt")
@@ -166,7 +166,7 @@ fn invisible_arg_aliases_help_output() {
             .arg(
                 Arg::with_name("opt")
                     .long("opt")
-                    .short("o")
+                    .short('o')
                     .takes_value(true)
                     .aliases(&["invisible", "als1", "more"]),
             )
@@ -189,7 +189,7 @@ fn visible_arg_aliases_help_output() {
             .arg(
                 Arg::with_name("opt")
                     .long("opt")
-                    .short("o")
+                    .short('o')
                     .takes_value(true)
                     .alias("invisible")
                     .visible_alias("visible"),
@@ -197,7 +197,7 @@ fn visible_arg_aliases_help_output() {
             .arg(
                 Arg::with_name("flg")
                     .long("flag")
-                    .short("f")
+                    .short('f')
                     .visible_aliases(&["v_flg", "flag2", "flg3"]),
             ),
     );

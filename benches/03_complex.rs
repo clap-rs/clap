@@ -4,7 +4,7 @@
 extern crate clap;
 extern crate test;
 
-use clap::{App, AppSettings, Arg, SubCommand, ArgSettings};
+use clap::{App, AppSettings, Arg, ArgSettings, SubCommand};
 
 use test::Bencher;
 
@@ -14,32 +14,39 @@ static OPT3_VALS: [&'static str; 2] = ["fast", "slow"];
 static POS3_VALS: [&'static str; 2] = ["vi", "emacs"];
 
 macro_rules! create_app {
-    () => ({
+    () => {{
         App::new("claptests")
-                .version("0.1")
-                .about("tests clap library")
-                .author("Kevin K. <kbknapp@gmail.com>")
-                .args_from_usage(ARGS)
-                .arg(Arg::from("-f --flag... 'tests flags'")
-                             .setting(ArgSettings::Global))
-                .args(&[
-                          Arg::from("[flag2] -F 'tests flags with exclusions'").conflicts_with("flag").requires("option2"),
-                          Arg::from("--long-option-2 [option2] 'tests long options with exclusions'").conflicts_with("option").requires("positional2"),
-                          Arg::from("[positional2] 'tests positionals with exclusions'"),
-                          Arg::from("-O --Option [option3] 'tests options with specific value sets'").possible_values(&OPT3_VALS),
-                          Arg::from("[positional3]... 'tests positionals with specific values'").possible_values(&POS3_VALS),
-                          Arg::from("--multvals [one] [two] 'Tests mutliple values, not mult occs'"),
-                          Arg::from("--multvalsmo... [one] [two] 'Tests mutliple values, not mult occs'"),
-                          Arg::from("--minvals2 [minvals]... 'Tests 2 min vals'").min_values(2),
-                          Arg::from("--maxvals3 [maxvals]... 'Tests 3 max vals'").max_values(3)
-                    ])
-                .subcommand(SubCommand::with_name("subcmd")
-                                        .about("tests subcommands")
-                                        .version("0.1")
-                                        .author("Kevin K. <kbknapp@gmail.com>")
-                                        .arg_from_usage("-o --option [scoption]... 'tests options'")
-                                        .arg_from_usage("[scpositional] 'tests positionals'"))
-    })
+            .version("0.1")
+            .about("tests clap library")
+            .author("Kevin K. <kbknapp@gmail.com>")
+            .args_from_usage(ARGS)
+            .arg(Arg::from("-f --flag... 'tests flags'").setting(ArgSettings::Global))
+            .args(&[
+                Arg::from("[flag2] -F 'tests flags with exclusions'")
+                    .conflicts_with("flag")
+                    .requires("option2"),
+                Arg::from("--long-option-2 [option2] 'tests long options with exclusions'")
+                    .conflicts_with("option")
+                    .requires("positional2"),
+                Arg::from("[positional2] 'tests positionals with exclusions'"),
+                Arg::from("-O --Option [option3] 'tests options with specific value sets'")
+                    .possible_values(&OPT3_VALS),
+                Arg::from("[positional3]... 'tests positionals with specific values'")
+                    .possible_values(&POS3_VALS),
+                Arg::from("--multvals [one] [two] 'Tests mutliple values, not mult occs'"),
+                Arg::from("--multvalsmo... [one] [two] 'Tests mutliple values, not mult occs'"),
+                Arg::from("--minvals2 [minvals]... 'Tests 2 min vals'").min_values(2),
+                Arg::from("--maxvals3 [maxvals]... 'Tests 3 max vals'").max_values(3),
+            ])
+            .subcommand(
+                SubCommand::with_name("subcmd")
+                    .about("tests subcommands")
+                    .version("0.1")
+                    .author("Kevin K. <kbknapp@gmail.com>")
+                    .arg_from_usage("-o --option [scoption]... 'tests options'")
+                    .arg_from_usage("[scpositional] 'tests positionals'"),
+            )
+    }};
 }
 
 #[bench]
@@ -55,7 +62,7 @@ fn create_app_builder(b: &mut Bencher) {
             .arg(
                 Arg::with_name("opt")
                     .help("tests options")
-                    .short("o")
+                    .short('o')
                     .long("option")
                     .setting(ArgSettings::MultipleValues)
                     .setting(ArgSettings::MultipleOccurrences),
@@ -67,14 +74,14 @@ fn create_app_builder(b: &mut Bencher) {
             )
             .arg(
                 Arg::with_name("flag")
-                    .short("f")
+                    .short('f')
                     .help("tests flags")
                     .long("flag")
                     .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::Global]),
             )
             .arg(
                 Arg::with_name("flag2")
-                    .short("F")
+                    .short('F')
                     .help("tests flags with exclusions")
                     .conflicts_with("flag")
                     .requires("option2"),
@@ -94,7 +101,7 @@ fn create_app_builder(b: &mut Bencher) {
             )
             .arg(
                 Arg::with_name("option3")
-                    .short("O")
+                    .short('O')
                     .long("Option")
                     .setting(ArgSettings::TakesValue)
                     .help("tests options with specific value sets")
@@ -145,7 +152,7 @@ fn create_app_builder(b: &mut Bencher) {
                     .author("Kevin K. <kbknapp@gmail.com>")
                     .arg(
                         Arg::with_name("scoption")
-                            .short("o")
+                            .short('o')
                             .long("option")
                             .setting(ArgSettings::MultipleValues)
                             .setting(ArgSettings::MultipleOccurrences)

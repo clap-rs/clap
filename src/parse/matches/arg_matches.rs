@@ -25,10 +25,10 @@ use parse::{MatchedArg, SubCommand};
 ///         .required(true)
 ///         .takes_value(true))
 ///     .arg(Arg::with_name("debug")
-///         .short("d")
+///         .short('d')
 ///         .multiple(true))
 ///     .arg(Arg::with_name("cfg")
-///         .short("c")
+///         .short('c')
 ///         .takes_value(true))
 ///     .get_matches(); // builds the instance of ArgMatches
 ///
@@ -202,7 +202,7 @@ impl<'a> ArgMatches<'a> {
     /// let m = App::new("myprog")
     ///     .arg(Arg::with_name("output")
     ///         .multiple(true)
-    ///         .short("o")
+    ///         .short('o')
     ///         .takes_value(true))
     ///     .get_matches_from(vec![
     ///         "myprog", "-o", "val1", "val2", "val3"
@@ -309,7 +309,7 @@ impl<'a> ArgMatches<'a> {
     /// # use clap::{App, Arg};
     /// let m = App::new("myprog")
     ///     .arg(Arg::with_name("debug")
-    ///         .short("d"))
+    ///         .short('d'))
     ///     .get_matches_from(vec![
     ///         "myprog", "-d"
     ///     ]);
@@ -338,7 +338,7 @@ impl<'a> ArgMatches<'a> {
     /// # use clap::{App, Arg, ArgSettings};
     /// let m = App::new("myprog")
     ///     .arg(Arg::with_name("debug")
-    ///         .short("d")
+    ///         .short('d')
     ///         .setting(ArgSettings::MultipleOccurrences))
     ///     .get_matches_from(vec![
     ///         "myprog", "-d", "-d", "-d"
@@ -353,10 +353,10 @@ impl<'a> ArgMatches<'a> {
     /// # use clap::{App, Arg, ArgSettings};
     /// let m = App::new("myprog")
     ///     .arg(Arg::with_name("debug")
-    ///         .short("d")
+    ///         .short('d')
     ///         .setting(ArgSettings::MultipleOccurrences))
     ///     .arg(Arg::with_name("flag")
-    ///         .short("f"))
+    ///         .short('f'))
     ///     .get_matches_from(vec![
     ///         "myprog", "-ddfd"
     ///     ]);
@@ -395,9 +395,9 @@ impl<'a> ArgMatches<'a> {
     /// # use clap::{App, Arg};
     /// let m = App::new("myapp")
     ///     .arg(Arg::with_name("flag")
-    ///         .short("f"))
+    ///         .short('f'))
     ///     .arg(Arg::with_name("option")
-    ///         .short("o")
+    ///         .short('o')
     ///         .takes_value(true))
     ///     .get_matches_from(vec!["myapp", "-f", "-o", "val"]);
     ///             // ARGV idices: ^0       ^1    ^2    ^3
@@ -413,9 +413,9 @@ impl<'a> ArgMatches<'a> {
     /// # use clap::{App, Arg};
     /// let m = App::new("myapp")
     ///     .arg(Arg::with_name("flag")
-    ///         .short("f"))
+    ///         .short('f'))
     ///     .arg(Arg::with_name("option")
-    ///         .short("o")
+    ///         .short('o')
     ///         .takes_value(true))
     ///     .get_matches_from(vec!["myapp", "-f", "-o=val"]);
     ///             // ARGV idices: ^0       ^1    ^2
@@ -432,13 +432,13 @@ impl<'a> ArgMatches<'a> {
     /// # use clap::{App, Arg};
     /// let m = App::new("myapp")
     ///     .arg(Arg::with_name("flag")
-    ///         .short("f"))
+    ///         .short('f'))
     ///     .arg(Arg::with_name("flag2")
-    ///         .short("F"))
+    ///         .short('F'))
     ///     .arg(Arg::with_name("flag3")
-    ///         .short("z"))
+    ///         .short('z'))
     ///     .arg(Arg::with_name("option")
-    ///         .short("o")
+    ///         .short('o')
     ///         .takes_value(true))
     ///     .get_matches_from(vec!["myapp", "-fzF", "-oval"]);
     ///             // ARGV idices: ^0      ^1       ^2
@@ -458,13 +458,13 @@ impl<'a> ArgMatches<'a> {
     /// # use clap::{App, Arg};
     /// let m = App::new("myapp")
     ///     .arg(Arg::with_name("flag")
-    ///         .short("f"))
+    ///         .short('f'))
     ///     .arg(Arg::with_name("flag2")
-    ///         .short("F"))
+    ///         .short('F'))
     ///     .arg(Arg::with_name("flag3")
-    ///         .short("z"))
+    ///         .short('z'))
     ///     .arg(Arg::with_name("option")
-    ///         .short("o")
+    ///         .short('o')
     ///         .takes_value(true)
     ///         .multiple(true))
     ///     .get_matches_from(vec!["myapp", "-fzFoval"]);
@@ -485,7 +485,7 @@ impl<'a> ArgMatches<'a> {
     /// # use clap::{App, Arg};
     /// let m = App::new("myapp")
     ///     .arg(Arg::with_name("option")
-    ///         .short("o")
+    ///         .short('o')
     ///         .takes_value(true)
     ///         .multiple(true))
     ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
@@ -524,7 +524,7 @@ impl<'a> ArgMatches<'a> {
     /// # use clap::{App, Arg};
     /// let m = App::new("myapp")
     ///     .arg(Arg::with_name("option")
-    ///         .short("o")
+    ///         .short('o')
     ///         .takes_value(true)
     ///         .use_delimiter(true)
     ///         .multiple(true))
@@ -543,11 +543,11 @@ impl<'a> ArgMatches<'a> {
     /// # use clap::{App, Arg};
     /// let m = App::new("myapp")
     ///     .arg(Arg::with_name("option")
-    ///         .short("o")
+    ///         .short('o')
     ///         .takes_value(true)
     ///         .multiple(true))
     ///     .arg(Arg::with_name("flag")
-    ///         .short("f")
+    ///         .short('f')
     ///         .multiple_occurrences(true))
     ///     .get_matches_from(vec!["myapp", "-o", "val1", "-f", "-o", "val2", "-f"]);
     ///             // ARGV idices: ^0       ^1    ^2      ^3    ^4    ^5      ^6
@@ -566,7 +566,7 @@ impl<'a> ArgMatches<'a> {
     /// # use clap::{App, Arg};
     /// let m = App::new("myapp")
     ///     .arg(Arg::with_name("option")
-    ///         .short("o")
+    ///         .short('o')
     ///         .takes_value(true)
     ///         .multiple(true))
     ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
@@ -601,7 +601,7 @@ impl<'a> ArgMatches<'a> {
     /// # use clap::{App, Arg, SubCommand};
     /// let app_m = App::new("myprog")
     ///     .arg(Arg::with_name("debug")
-    ///         .short("d"))
+    ///         .short('d'))
     ///     .subcommand(SubCommand::with_name("test")
     ///         .arg(Arg::with_name("opt")
     ///             .long("option")
@@ -777,7 +777,7 @@ impl<'a> ArgMatches<'a> {
 /// # use clap::{App, Arg};
 /// let m = App::new("myapp")
 ///     .arg(Arg::with_name("output")
-///         .short("o")
+///         .short('o')
 ///         .multiple(true)
 ///         .takes_value(true))
 ///     .get_matches_from(vec!["myapp", "-o", "val1", "val2"]);
@@ -881,7 +881,7 @@ impl<'a> Default for OsValues<'a> {
 /// # use clap::{App, Arg};
 /// let m = App::new("myapp")
 ///     .arg(Arg::with_name("output")
-///         .short("o")
+///         .short('o')
 ///         .multiple(true)
 ///         .takes_value(true))
 ///     .get_matches_from(vec!["myapp", "-o", "val1", "val2"]);

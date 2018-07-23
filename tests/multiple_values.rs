@@ -13,7 +13,7 @@ fn option_long() {
                 .multiple(true),
         )
         .get_matches_from_safe(vec![
-            "", "--option", "val1", "--option", "val2", "--option", "val3"
+            "", "--option", "val1", "--option", "val2", "--option", "val3",
         ]);
 
     assert!(m.is_ok());
@@ -32,7 +32,7 @@ fn option_short() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("option")
-                .short("o")
+                .short('o')
                 .help("multiple options")
                 .takes_value(true)
                 .multiple(true),
@@ -56,13 +56,13 @@ fn option_mixed() {
         .arg(
             Arg::with_name("option")
                 .long("option")
-                .short("o")
+                .short('o')
                 .help("multiple options")
                 .takes_value(true)
                 .multiple(true),
         )
         .get_matches_from_safe(vec![
-            "", "-o", "val1", "--option", "val2", "--option", "val3", "-o", "val4"
+            "", "-o", "val1", "--option", "val2", "--option", "val3", "-o", "val4",
         ]);
 
     assert!(m.is_ok());
@@ -81,7 +81,7 @@ fn option_exact_exact() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("option")
-                .short("o")
+                .short('o')
                 .help("multiple options")
                 .takes_value(true)
                 .multiple(true)
@@ -105,7 +105,7 @@ fn option_exact_exact_not_mult() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("option")
-                .short("o")
+                .short('o')
                 .help("multiple options")
                 .takes_value(true)
                 .number_of_values(3),
@@ -128,14 +128,14 @@ fn option_exact_exact_mult() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("option")
-                .short("o")
+                .short('o')
                 .help("multiple options")
                 .takes_value(true)
                 .multiple(true)
                 .number_of_values(3),
         )
         .get_matches_from_safe(vec![
-            "", "-o", "val1", "val2", "val3", "-o", "val4", "val5", "val6"
+            "", "-o", "val1", "val2", "val3", "-o", "val4", "val5", "val6",
         ]);
 
     assert!(m.is_ok());
@@ -154,7 +154,7 @@ fn option_exact_less() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("option")
-                .short("o")
+                .short('o')
                 .help("multiple options")
                 .takes_value(true)
                 .multiple(true)
@@ -171,14 +171,14 @@ fn option_exact_more() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("option")
-                .short("o")
+                .short('o')
                 .help("multiple options")
                 .takes_value(true)
                 .multiple(true)
                 .number_of_values(3),
         )
         .get_matches_from_safe(vec![
-            "", "-o", "val1", "-o", "val2", "-o", "val3", "-o", "val4"
+            "", "-o", "val1", "-o", "val2", "-o", "val3", "-o", "val4",
         ]);
 
     assert!(m.is_err());
@@ -190,7 +190,7 @@ fn option_min_exact() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("option")
-                .short("o")
+                .short('o')
                 .help("multiple options")
                 .takes_value(true)
                 .multiple(true)
@@ -214,7 +214,7 @@ fn option_min_less() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("option")
-                .short("o")
+                .short('o')
                 .help("multiple options")
                 .takes_value(true)
                 .multiple(true)
@@ -232,14 +232,14 @@ fn option_short_min_more_mult_occurs() {
         .arg(Arg::with_name("arg").required(true))
         .arg(
             Arg::with_name("option")
-                .short("o")
+                .short('o')
                 .help("multiple options")
                 .takes_value(true)
                 .multiple(true)
                 .min_values(3),
         )
         .get_matches_from_safe(vec![
-            "", "pos", "-o", "val1", "-o", "val2", "-o", "val3", "-o", "val4"
+            "", "pos", "-o", "val1", "-o", "val2", "-o", "val3", "-o", "val4",
         ]);
 
     assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
@@ -261,7 +261,7 @@ fn option_short_min_more_single_occur() {
         .arg(Arg::with_name("arg").required(true))
         .arg(
             Arg::with_name("option")
-                .short("o")
+                .short('o')
                 .help("multiple options")
                 .takes_value(true)
                 .multiple(true)
@@ -287,7 +287,7 @@ fn option_max_exact() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("option")
-                .short("o")
+                .short('o')
                 .help("multiple options")
                 .takes_value(true)
                 .multiple(true)
@@ -311,7 +311,7 @@ fn option_max_less() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("option")
-                .short("o")
+                .short('o')
                 .help("multiple options")
                 .takes_value(true)
                 .multiple(true)
@@ -335,14 +335,14 @@ fn option_max_more() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("option")
-                .short("o")
+                .short('o')
                 .help("multiple options")
                 .takes_value(true)
                 .multiple(true)
                 .max_values(3),
         )
         .get_matches_from_safe(vec![
-            "", "-o", "val1", "-o", "val2", "-o", "val3", "-o", "val4"
+            "", "-o", "val1", "-o", "val2", "-o", "val3", "-o", "val4",
         ]);
 
     assert!(m.is_err());
@@ -584,7 +584,7 @@ fn sep_short_equals() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("option")
-                .short("o")
+                .short('o')
                 .help("multiple options")
                 .use_delimiter(true)
                 .takes_value(true)
@@ -608,7 +608,7 @@ fn sep_short_space() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("option")
-                .short("o")
+                .short('o')
                 .help("multiple options")
                 .use_delimiter(true)
                 .takes_value(true)
@@ -632,7 +632,7 @@ fn sep_short_no_space() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("option")
-                .short("o")
+                .short('o')
                 .help("multiple options")
                 .use_delimiter(true)
                 .takes_value(true)
@@ -818,7 +818,7 @@ fn req_delimiter_short_with_space() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("option")
-                .short("o")
+                .short('o')
                 .multiple(true)
                 .use_delimiter(true)
                 .require_delimiter(true)
@@ -847,7 +847,7 @@ fn req_delimiter_short_with_no_space() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("option")
-                .short("o")
+                .short('o')
                 .multiple(true)
                 .use_delimiter(true)
                 .require_delimiter(true)
@@ -876,7 +876,7 @@ fn req_delimiter_short_with_equal() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("option")
-                .short("option")
+                .short('o')
                 .multiple(true)
                 .use_delimiter(true)
                 .require_delimiter(true)
@@ -906,7 +906,7 @@ fn req_delimiter_complex() {
         .arg(
             Arg::with_name("option")
                 .long("option")
-                .short("o")
+                .short('o')
                 .multiple(true)
                 .use_delimiter(true)
                 .require_delimiter(true)
@@ -1079,7 +1079,7 @@ fn low_index_positional_with_option() {
         .arg(Arg::with_name("target").index(2).required(true))
         .arg(Arg::with_name("opt").long("option").takes_value(true))
         .get_matches_from_safe(vec![
-            "lip", "file1", "file2", "file3", "target", "--option", "test"
+            "lip", "file1", "file2", "file3", "target", "--option", "test",
         ]);
 
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
@@ -1130,7 +1130,7 @@ fn multiple_value_terminator_option() {
     let m = App::new("lip")
         .arg(
             Arg::with_name("files")
-                .short("f")
+                .short('f')
                 .value_terminator(";")
                 .multiple(true),
         )
@@ -1155,12 +1155,12 @@ fn multiple_value_terminator_option_other_arg() {
     let m = App::new("lip")
         .arg(
             Arg::with_name("files")
-                .short("f")
+                .short('f')
                 .value_terminator(";")
                 .multiple(true),
         )
         .arg(Arg::with_name("other"))
-        .arg(Arg::with_name("flag").short("-F"))
+        .arg(Arg::with_name("flag").short('F'))
         .get_matches_from_safe(vec!["lip", "-f", "val1", "val2", "-F", "otherval"]);
 
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);

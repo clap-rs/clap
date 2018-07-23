@@ -619,7 +619,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///     // Adding a single "flag" argument with a short and help text, using Arg::with_name()
     ///     .arg(
     ///         Arg::with_name("debug")
-    ///            .short("d")
+    ///            .short('d')
     ///            .help("turns on debugging mode")
     ///     )
     ///     // Adding a single "option" argument with a short, a long, and help text using the less
@@ -968,8 +968,8 @@ impl<'a, 'b> App<'a, 'b> {
     ///
     /// let mut app = App::new("foo")
     ///     .arg(Arg::with_name("bar")
-    ///         .short("b"))
-    ///     .mut_arg("bar", |a| a.short("B"));
+    ///         .short('b'))
+    ///     .mut_arg("bar", |a| a.short('B'));
     ///
     /// let res = app.try_get_matches_from_mut(vec!["foo", "-b"]);
     ///

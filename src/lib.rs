@@ -54,7 +54,7 @@
 //!                           .author("Kevin K. <kbknapp@gmail.com>")
 //!                           .about("Does awesome things")
 //!                           .arg(Arg::with_name("config")
-//!                                .short("c")
+//!                                .short('c')
 //!                                .long("config")
 //!                                .value_name("FILE")
 //!                                .help("Sets a custom config file")
@@ -64,7 +64,7 @@
 //!                                .required(true)
 //!                                .index(1))
 //!                           .arg(Arg::with_name("v")
-//!                                .short("v")
+//!                                .short('v')
 //!                                .multiple(true)
 //!                                .help("Sets the level of verbosity"))
 //!                           .subcommand(SubCommand::with_name("test")
@@ -72,7 +72,7 @@
 //!                                       .version("1.3")
 //!                                       .author("Someone E. <someone_else@other.com>")
 //!                                       .arg(Arg::with_name("debug")
-//!                                           .short("d")
+//!                                           .short('d')
 //!                                           .help("print debug information verbosely")))
 //!                           .get_matches();
 //!
@@ -517,15 +517,24 @@
 //! [license]: https://raw.githubusercontent.com/kbknapp/clap-rs/master/LICENSE-MIT
 
 #![crate_type = "lib"]
-#![doc(html_root_url = "https://docs.rs/clap/3.0.0-alpha1")]
-#![deny(missing_docs, missing_debug_implementations, missing_copy_implementations, trivial_casts,
-        unused_import_braces, unused_allocation)]
+#![doc(html_root_url = "https://docs.rs/clap/3.0.0-alpha.1")]
+#![deny(
+    missing_docs,
+    missing_debug_implementations,
+    missing_copy_implementations,
+    trivial_casts,
+    unused_import_braces,
+    unused_allocation
+)]
 // @TODO @v3-beta: remove me!
 #![allow(deprecated)]
 // Lints we'd like to deny but are currently failing for upstream crates
 //      unused_qualifications       (bitflags, clippy)
 //      trivial_numeric_casts       (bitflags)
-#![cfg_attr(not(any(feature = "lints", feature = "nightly")), forbid(unstable_features))]
+#![cfg_attr(
+    not(any(feature = "lints", feature = "nightly")),
+    forbid(unstable_features)
+)]
 #![cfg_attr(feature = "lints", feature(plugin))]
 #![cfg_attr(feature = "lints", plugin(clippy))]
 // Need to disable deny(warnings) while deprecations are active
@@ -540,6 +549,10 @@ extern crate ansi_term;
 extern crate atty;
 #[macro_use]
 extern crate bitflags;
+#[cfg(feature = "derive")]
+#[cfg_attr(feature = "derive", allow(unused_imports))]
+#[cfg_attr(feature = "derive", macro_use)]
+extern crate clap_derive;
 extern crate indexmap;
 #[cfg(feature = "suggestions")]
 extern crate strsim;
@@ -551,18 +564,14 @@ extern crate unicode_width;
 extern crate vec_map;
 #[cfg(feature = "yaml")]
 extern crate yaml_rust;
-#[cfg(feature = "derive")]
-#[cfg_attr(feature = "derive", allow(unused_imports))]
-#[cfg_attr(feature = "derive", macro_use)]
-extern crate clap_derive;
 
-#[cfg(feature = "yaml")]
-pub use yaml_rust::YamlLoader;
-pub use build::{Arg, ArgGroup, ArgSettings, App, AppSettings, Propagation};
-pub use parse::{OsValues, SubCommand, Values, ArgMatches};
+pub use build::{App, AppSettings, Arg, ArgGroup, ArgSettings, Propagation};
+pub use completions::Shell;
 pub use output::fmt::Format;
 pub use parse::errors::{Error, ErrorKind, Result};
-pub use completions::Shell;
+pub use parse::{ArgMatches, OsValues, SubCommand, Values};
+#[cfg(feature = "yaml")]
+pub use yaml_rust::YamlLoader;
 
 #[cfg(feature = "derive")]
 #[cfg_attr(feature = "derive", doc(hidden))]
@@ -572,20 +581,18 @@ use std::result::Result as StdResult;
 
 #[macro_use]
 mod macros;
-mod completions;
-mod parse;
 mod build;
-mod util;
+mod completions;
 mod output;
+mod parse;
+mod util;
 
 const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider filing a bug \
                                           report at https://github.com/kbknapp/clap-rs/issues";
 const INVALID_UTF8: &'static str = "unexpected invalid UTF-8 code point";
 
 /// @TODO @release @docs
-pub trait Clap: FromArgMatches + IntoApp + Sized {
-
-}
+pub trait Clap: FromArgMatches + IntoApp + Sized {}
 
 /// @TODO @release @docs
 pub trait FromArgMatches: Sized {
@@ -593,7 +600,9 @@ pub trait FromArgMatches: Sized {
     fn from_argmatches<'a>(matches: &::parse::ArgMatches<'a>) -> Self;
 
     /// @TODO @release @docs
-    fn try_from_argmatches<'a>(matches: &::parse::ArgMatches<'a>) -> StdResult<Self, ::parse::errors::Error> {
+    fn try_from_argmatches<'a>(
+        matches: &::parse::ArgMatches<'a>,
+    ) -> StdResult<Self, ::parse::errors::Error> {
         Ok(<Self as FromArgMatches>::from_argmatches(matches))
     }
 }

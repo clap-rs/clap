@@ -2,23 +2,23 @@ mod settings;
 pub use self::settings::{ArgFlags, ArgSettings};
 
 // Std
-use std::rc::Rc;
-use std::borrow::Cow;
-use std::fmt::{self, Display, Formatter};
-use std::ffi::{OsStr, OsString};
 #[cfg(any(target_os = "windows", target_arch = "wasm32"))]
 use osstringext::OsStrExt3;
+use std::borrow::Cow;
+use std::cmp::{Ord, Ordering};
+use std::env;
+use std::ffi::{OsStr, OsString};
+use std::fmt::{self, Display, Formatter};
+use std::hash::{Hash, Hasher};
 #[cfg(not(any(target_os = "windows", target_arch = "wasm32")))]
 use std::os::unix::ffi::OsStrExt;
-use std::env;
-use std::cmp::{Ord, Ordering};
+use std::rc::Rc;
 use std::str;
-use std::hash::{Hash, Hasher};
 
-// Third Party 
+// Third Party
+use util::VecMap;
 #[cfg(feature = "yaml")]
 use yaml_rust;
-use util::VecMap;
 
 // Internal
 use build::UsageParser;
@@ -37,7 +37,7 @@ use INTERNAL_ERROR_MSG;
 /// # use clap::Arg;
 /// // Using the traditional builder pattern and setting each option manually
 /// let cfg = Arg::with_name("config")
-///       .short("c")
+///       .short('c')
 ///       .long("config")
 ///       .takes_value(true)
 ///       .value_name("FILE")
@@ -224,18 +224,15 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// arguments, in which case `clap` simply will not assign those to the auto-generated
     /// `version` or `help` arguments.
     ///
-    /// **NOTE:** Any leading `-` characters will be stripped, and only the first
-    /// non `-` character will be used as the [`short`] version
-    ///
     /// # Examples
     ///
-    /// To set [`short`] use a single valid UTF-8 code point. If you supply a leading `-` such as
+    /// To set [`short`] use a single valid UTF-8 character. If you supply a leading `-` such as
     /// `-c`, the `-` will be stripped.
     ///
     /// ```rust
     /// # use clap::{App, Arg};
     /// Arg::with_name("config")
-    ///     .short("c")
+    ///     .short('c')
     /// # ;
     /// ```
     ///
@@ -245,7 +242,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
     ///     .arg(Arg::with_name("config")
-    ///         .short("c"))
+    ///         .short('c'))
     ///     .get_matches_from(vec![
     ///         "prog", "-c"
     ///     ]);
@@ -253,8 +250,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert!(m.is_present("config"));
     /// ```
     /// [`short`]: ./struct.Arg.html#method.short
-    pub fn short<S: AsRef<str>>(mut self, s: S) -> Self {
-        self.short = s.as_ref().trim_left_matches(|c| c == '-').chars().nth(0);
+    pub fn short(mut self, s: char) -> Self {
+        self.short = Some(s);
         self
     }
 
@@ -639,7 +636,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("dbg")
     ///         .long("debug"))
     ///     .arg(Arg::with_name("infile")
-    ///         .short("i")
+    ///         .short('i')
     ///         .takes_value(true))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "--debug", "-i", "file"
@@ -661,7 +658,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("dbg")
     ///         .long("debug"))
     ///     .arg(Arg::with_name("infile")
-    ///         .short("i")
+    ///         .short('i')
     ///         .takes_value(true))
     ///     .get_matches_from_safe(vec![
     ///         "prog"
@@ -714,7 +711,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("dbg")
     ///         .long("debug"))
     ///     .arg(Arg::with_name("infile")
-    ///         .short("i")
+    ///         .short('i')
     ///         .takes_value(true))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "--debug"
@@ -736,7 +733,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("dbg")
     ///         .long("debug"))
     ///     .arg(Arg::with_name("infile")
-    ///         .short("i")
+    ///         .short('i')
     ///         .takes_value(true))
     ///     .get_matches_from_safe(vec![
     ///         "prog"
@@ -1501,7 +1498,6 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-
     /// Specifies a value that *stops* parsing multiple values of a give argument. By default when
     /// one sets [`multiple(true)`] on an argument, clap will continue parsing values for that
     /// argument until it reaches another valid argument, or one of the other more specific settings
@@ -1770,7 +1766,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// Arg::with_name("file")
-    ///     .short("f")
+    ///     .short('f')
     ///     .number_of_values(3)
     /// # ;
     /// ```
@@ -1783,7 +1779,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("file")
     ///         .takes_value(true)
     ///         .number_of_values(2)
-    ///         .short("F"))
+    ///         .short('F'))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "-F", "file1"
     ///     ]);
@@ -1835,10 +1831,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Err(String)`]: https://doc.rust-lang.org/std/result/enum.Result.html#variant.Err
     /// [`Rc`]: https://doc.rust-lang.org/std/rc/struct.Rc.html
     pub fn validator<F, O, E>(mut self, f: F) -> Self
-        where F: Fn(String) -> Result<O, E> + 'static,
-              E: ToString
+    where
+        F: Fn(String) -> Result<O, E> + 'static,
+        E: ToString,
     {
-        self.validator = Some(Rc::new(move |s| f(s).map(|_| ()).map_err(|e| e.to_string())));
+        self.validator = Some(Rc::new(move |s| {
+            f(s).map(|_| ()).map_err(|e| e.to_string())
+        }));
         self
     }
 
@@ -1895,7 +1894,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// Arg::with_name("file")
-    ///     .short("f")
+    ///     .short('f')
     ///     .max_values(3)
     /// # ;
     /// ```
@@ -1908,7 +1907,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("file")
     ///         .takes_value(true)
     ///         .max_values(3)
-    ///         .short("F"))
+    ///         .short('F'))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "-F", "file1", "file2"
     ///     ]);
@@ -1927,7 +1926,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("file")
     ///         .takes_value(true)
     ///         .max_values(2)
-    ///         .short("F"))
+    ///         .short('F'))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "-F", "file1", "file2", "file3"
     ///     ]);
@@ -1959,7 +1958,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// Arg::with_name("file")
-    ///     .short("f")
+    ///     .short('f')
     ///     .min_values(3)
     /// # ;
     /// ```
@@ -1972,7 +1971,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("file")
     ///         .takes_value(true)
     ///         .min_values(2)
-    ///         .short("F"))
+    ///         .short('F'))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "-F", "file1", "file2", "file3"
     ///     ]);
@@ -1991,7 +1990,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("file")
     ///         .takes_value(true)
     ///         .min_values(2)
-    ///         .short("F"))
+    ///         .short('F'))
     ///     .get_matches_from_safe(vec![
     ///         "prog", "-F", "file1"
     ///     ]);
@@ -2017,7 +2016,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
     ///     .arg(Arg::with_name("config")
-    ///         .short("c")
+    ///         .short('c')
     ///         .long("config")
     ///         .value_delimiter(";"))
     ///     .get_matches_from(vec![
@@ -2065,7 +2064,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// Arg::with_name("speed")
-    ///     .short("s")
+    ///     .short('s')
     ///     .value_names(&["fast", "slow"])
     /// # ;
     /// ```
@@ -2621,12 +2620,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///                              // Args without a display_order have a value of 999 and are
     ///                              // displayed alphabetically with all other 999 valued args.
     ///         .long("long-option")
-    ///         .short("o")
+    ///         .short('o')
     ///         .takes_value(true)
     ///         .help("Some help and text"))
     ///     .arg(Arg::with_name("b")
     ///         .long("other-option")
-    ///         .short("O")
+    ///         .short('O')
     ///         .takes_value(true)
     ///         .display_order(1)   // In order to force this arg to appear *first*
     ///                             // all we have to do is give it a value lower than 999.
@@ -2988,7 +2987,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg, ArgSettings};
     /// Arg::with_name("debug")
-    ///     .short("d")
+    ///     .short('d')
     ///     .setting(ArgSettings::Global)
     /// # ;
     /// ```
@@ -3002,7 +3001,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let m = App::new("prog")
     ///     .arg(Arg::with_name("verb")
     ///         .long("verbose")
-    ///         .short("v")
+    ///         .short('v')
     ///         .setting(ArgSettings::Global))
     ///     .subcommand(SubCommand::with_name("test"))
     ///     .subcommand(SubCommand::with_name("do-stuff"))
@@ -3049,7 +3048,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg, ArgSettings};
     /// let delims = App::new("prog")
     ///     .arg(Arg::with_name("opt")
-    ///         .short("o")
+    ///         .short('o')
     ///         .settings(&[ArgSettings::RequireDelimiter, ArgSettings::MultipleValues]))
     ///     .get_matches_from(vec![
     ///         "prog", "-o", "val1,val2,val3",
@@ -3064,7 +3063,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg, ErrorKind, ArgSettings};
     /// let res = App::new("prog")
     ///     .arg(Arg::with_name("opt")
-    ///         .short("o")
+    ///         .short('o')
     ///         .setting(ArgSettings::RequireDelimiter))
     ///     .try_get_matches_from(vec![
     ///         "prog", "-o", "val1", "val2", "val3",
@@ -3085,7 +3084,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg, ArgSettings};
     /// let delims = App::new("prog")
     ///     .arg(Arg::with_name("opt")
-    ///         .short("o")
+    ///         .short('o')
     ///         .setting(ArgSettings::MultipleValues))
     ///     .get_matches_from(vec![
     ///         "prog", "-o", "val1", "val2", "val3",
@@ -3180,7 +3179,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// **Deprecated**
-    #[deprecated(since="2.30.0", note="Use `Arg::setting(ArgSettings::AllowEmptyValues)` instead. Will be removed in v3.0-beta")]
+    #[deprecated(
+        since = "2.30.0",
+        note = "Use `Arg::setting(ArgSettings::AllowEmptyValues)` instead. Will be removed in v3.0-beta"
+    )]
     pub fn empty_values(mut self, ev: bool) -> Self {
         if ev {
             self.setting(ArgSettings::AllowEmptyValues)
@@ -3266,7 +3268,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg, ArgSettings};
     /// let m = App::new("pv")
     ///     .arg(Arg::with_name("option")
-    ///         .short("-o")
+    ///         .short('o')
     ///         .long("--option")
     ///         .settings(&[ArgSettings::IgnoreCase, ArgSettings::MultipleValues])
     ///         .possible_value("test123")
@@ -3399,7 +3401,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let m = App::new("prog")
     ///     .arg(Arg::with_name("opt")
     ///         .long("long-option-flag")
-    ///         .short("o")
+    ///         .short('o')
     ///         .settings(&[ArgSettings::TakesValue, ArgSettings::NextLineHelp])
     ///         .value_names(&["value1", "value2"])
     ///         .help("Some really long help and complex\n\
@@ -3492,7 +3494,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg, ArgSettings};
     /// Arg::with_name("debug")
-    ///     .short("d")
+    ///     .short('d')
     ///     .setting(ArgSettings::MultipleValues)
     /// # ;
     /// ```
@@ -3503,7 +3505,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let m = App::new("prog")
     ///     .arg(Arg::with_name("verbose")
     ///         .setting(ArgSettings::MultipleOccurrences)
-    ///         .short("v"))
+    ///         .short('v'))
     ///     .get_matches_from(vec![
     ///         "prog", "-v", "-v", "-v"    // note, -vvv would have same result
     ///     ]);
@@ -3519,7 +3521,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let m = App::new("prog")
     ///     .arg(Arg::with_name("file")
     ///         .setting(ArgSettings::MultipleValues) // implies TakesValue
-    ///         .short("F"))
+    ///         .short('F'))
     ///     .get_matches_from(vec![
     ///         "prog", "-F", "file1", "file2", "file3"
     ///     ]);
@@ -3536,7 +3538,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let res = App::new("prog")
     ///     .arg(Arg::with_name("file")
     ///         .setting(ArgSettings::MultipleValues) // implies TakesValue
-    ///         .short("F"))
+    ///         .short('F'))
     ///     .try_get_matches_from(vec![
     ///         "prog", "-F", "file1", "-F", "file2", "-F", "file3"
     ///     ]);
@@ -3552,7 +3554,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let m = App::new("prog")
     ///     .arg(Arg::with_name("file")
     ///         .setting(ArgSettings::MultipleValues) // implies TakesValue
-    ///         .short("F"))
+    ///         .short('F'))
     ///     .arg(Arg::with_name("word")
     ///         .index(1))
     ///     .get_matches_from(vec![
@@ -3576,7 +3578,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let m = App::new("prog")
     ///     .arg(Arg::with_name("file")
     ///         .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::TakesValue])
-    ///         .short("F"))
+    ///         .short('F'))
     ///     .arg(Arg::with_name("word")
     ///         .index(1))
     ///     .get_matches_from(vec![
@@ -3596,7 +3598,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let res = App::new("prog")
     ///     .arg(Arg::with_name("file")
     ///         .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::TakesValue])
-    ///         .short("F"))
+    ///         .short('F'))
     ///     .arg(Arg::with_name("word")
     ///         .index(1))
     ///     .try_get_matches_from(vec![
@@ -3650,7 +3652,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .long("config")
-    ///         .short("v")
+    ///         .short('v')
     ///         .setting(ArgSettings::TakesValue))
     ///     .try_get_matches_from(vec![
     ///         "prog", "--config="
@@ -3666,7 +3668,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .long("config")
-    ///         .short("v")
+    ///         .short('v')
     ///         .setting(ArgSettings::AllowEmptyValues)) // implies TakesValue
     ///     .try_get_matches_from(vec![
     ///         "prog", "--config="
@@ -3697,7 +3699,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg, ArgSettings};
     /// Arg::with_name("debug")
-    ///     .short("d")
+    ///     .short('d')
     ///     .setting(ArgSettings::MultipleOccurrences)
     /// # ;
     /// ```
@@ -3708,7 +3710,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let m = App::new("prog")
     ///     .arg(Arg::with_name("verbose")
     ///         .setting(ArgSettings::MultipleOccurrences)
-    ///         .short("v"))
+    ///         .short('v'))
     ///     .get_matches_from(vec![
     ///         "prog", "-v", "-v", "-v"    // note, -vvv would have same result
     ///     ]);
@@ -3724,7 +3726,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let m = App::new("prog")
     ///     .arg(Arg::with_name("file")
     ///         .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::TakesValue])
-    ///         .short("F"))
+    ///         .short('F'))
     ///     .get_matches_from(vec![
     ///         "prog", "-F", "file1", "-F", "file2", "-F", "file3"
     ///     ]);
@@ -3752,7 +3754,7 @@ impl<'a, 'b> Arg<'a, 'b> {
             self.unset_setting(ArgSettings::MultipleOccurrences)
         }
     }
-    
+
     /// Indicates that all parameters passed after this should not be parsed
     /// individually, but rather passed in their entirety. It is worth noting
     /// that setting this requires all values to come after a `--` to indicate they
@@ -3772,9 +3774,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::allow_hyphen_values(true)`]: ./struct.Arg.html#method.allow_hyphen_values
     /// [`Arg::last(true)`]: ./struct.Arg.html#method.last
     /// [`AppSettings::TrailingVarArg`]: ./enum.AppSettings.html#variant.TrailingVarArg
-    pub fn raw(self, raw: bool) -> Self {
-        self.multiple(raw).allow_hyphen_values(raw).last(raw)
-    }
+    pub fn raw(self, raw: bool) -> Self { self.multiple(raw).allow_hyphen_values(raw).last(raw) }
 
     /// Hides an argument from short help message output.
     ///
@@ -3782,7 +3782,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// **NOTE:** Setting this option will cause next-line-help output style to be used
     /// when long help (`--help`) is called.
-    /// 
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -3817,9 +3817,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
-    /// 
+    ///
     /// However, when --help is called
-    /// 
+    ///
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
@@ -3831,24 +3831,24 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         "prog", "--help"
     ///     ]);
     /// ```
-    /// 
+    ///
     /// Then the following would be displayed
-    /// 
+    ///
     /// ```notrust
     /// helptest
-    /// 
+    ///
     /// USAGE:
     ///    helptest [FLAGS]
-    /// 
+    ///
     /// FLAGS:
     ///     --config     Some help text describing the --config arg
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
     pub fn hidden_short_help(self, hide: bool) -> Self {
-        if hide { 
+        if hide {
             self.set(ArgSettings::HiddenShortHelp)
-        } else { 
+        } else {
             self.unset(ArgSettings::HiddenShortHelp)
         }
     }
@@ -3859,7 +3859,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// **NOTE:** Setting this option will cause next-line-help output style to be used
     /// when long help (`--help`) is called.
-    /// 
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -3894,9 +3894,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
-    /// 
+    ///
     /// However, when -h is called
-    /// 
+    ///
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
@@ -3908,15 +3908,15 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         "prog", "-h"
     ///     ]);
     /// ```
-    /// 
+    ///
     /// Then the following would be displayed
-    /// 
+    ///
     /// ```notrust
     /// helptest
-    /// 
+    ///
     /// USAGE:
     ///    helptest [FLAGS]
-    /// 
+    ///
     /// FLAGS:
     ///     --config     Some help text describing the --config arg
     /// -h, --help       Prints help information
@@ -3968,11 +3968,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     #[doc(hidden)]
     pub fn _build(&mut self) {
         if (self.is_set(ArgSettings::UseValueDelimiter)
-            || self.is_set(ArgSettings::RequireDelimiter)) && self.val_delim.is_none() {
+            || self.is_set(ArgSettings::RequireDelimiter)) && self.val_delim.is_none()
+        {
             self.val_delim = Some(',');
         }
         if self.index.is_some() || (self.short.is_none() && self.long.is_none()) {
-            if self.max_vals.is_some() || self.min_vals.is_some()
+            if self.max_vals.is_some()
+                || self.min_vals.is_some()
                 || (self.num_vals.is_some() && self.num_vals.unwrap() > 1)
             {
                 self.setb(ArgSettings::MultipleValues);
@@ -4006,11 +4008,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     // Used for positionals when printing
     #[doc(hidden)]
     pub fn multiple_str(&self) -> &str {
-        let mult_vals = self.val_names
+        let mult_vals = self
+            .val_names
             .as_ref()
             .map_or(true, |names| names.len() < 2);
-        if (self.is_set(ArgSettings::MultipleValues) || self.is_set(ArgSettings::MultipleOccurrences))
-            && mult_vals {
+        if (self.is_set(ArgSettings::MultipleValues)
+            || self.is_set(ArgSettings::MultipleOccurrences)) && mult_vals
+        {
             "..."
         } else {
             ""
@@ -4050,29 +4054,35 @@ impl<'a, 'b> Arg<'a, 'b> {
 // Deprecations
 // @TODO @v3-beta: remove
 impl<'a, 'b> Arg<'a, 'b> {
-
     /// **Deprecated**
-    #[deprecated(since="2.30.0", note="Renamed to `Arg::setting`. Will be removed in v3.0-beta")]
+    #[deprecated(
+        since = "2.30.0",
+        note = "Renamed to `Arg::setting`. Will be removed in v3.0-beta"
+    )]
     pub fn set(mut self, s: ArgSettings) -> Self {
         self.setb(s);
         self
     }
 
     /// **Deprecated**
-    #[deprecated(since="2.30.0", note="Renamed to `Arg::unset_setting`. Will be removed in v3.0-beta")]
+    #[deprecated(
+        since = "2.30.0",
+        note = "Renamed to `Arg::unset_setting`. Will be removed in v3.0-beta"
+    )]
     pub fn unset(mut self, s: ArgSettings) -> Self {
         self.unsetb(s);
         self
     }
 
-
     /// **Deprecated**
-    #[deprecated(since="2.30.0", note="Use `Arg::from` instead. Will be removed in v3.0-beta")]
+    #[deprecated(
+        since = "2.30.0",
+        note = "Use `Arg::from` instead. Will be removed in v3.0-beta"
+    )]
     pub fn from_usage(u: &'a str) -> Self {
         let parser = UsageParser::from_usage(u);
         parser.parse()
     }
-
 }
 
 impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
@@ -4112,8 +4122,7 @@ impl<'n, 'e> Display for Arg<'n, 'e> {
             }
             if self.settings.is_set(ArgSettings::MultipleValues)
                 && (self.val_names.is_none()
-                    || (self.val_names.is_some()
-                        && self.val_names.as_ref().unwrap().len() == 1))
+                    || (self.val_names.is_some() && self.val_names.as_ref().unwrap().len() == 1))
             {
                 write!(f, "...")?;
             }
@@ -4197,9 +4206,7 @@ impl<'n, 'e> Ord for Arg<'n, 'e> {
 impl<'n, 'e> Eq for Arg<'n, 'e> {}
 
 impl<'n, 'e> Hash for Arg<'n, 'e> {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.name.hash(state);
-    }
+    fn hash<H: Hasher>(&self, state: &mut H) { self.name.hash(state); }
 }
 
 impl<'n, 'e> fmt::Debug for Arg<'n, 'e> {
@@ -4249,9 +4256,9 @@ impl<'n, 'e> fmt::Debug for Arg<'n, 'e> {
 // Flags
 #[cfg(test)]
 mod test {
-    use util::VecMap;
-    use build::ArgSettings;
     use super::Arg;
+    use build::ArgSettings;
+    use util::VecMap;
 
     #[test]
     fn flag_display() {
@@ -4304,7 +4311,7 @@ mod test {
     #[test]
     fn option_display2() {
         let o2 = Arg::with_name("opt")
-            .short("o")
+            .short('o')
             .value_names(&["file", "name"]);
 
         assert_eq!(&*format!("{}", o2), "-o <file> <name>");
@@ -4313,7 +4320,7 @@ mod test {
     #[test]
     fn option_display3() {
         let o2 = Arg::with_name("opt")
-            .short("o")
+            .short('o')
             .multiple(true)
             .value_names(&["file", "name"]);
 

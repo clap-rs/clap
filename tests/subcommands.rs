@@ -58,7 +58,7 @@ fn subcommand() {
         .subcommand(
             SubCommand::with_name("some").arg(
                 Arg::with_name("test")
-                    .short("t")
+                    .short('t')
                     .long("test")
                     .takes_value(true)
                     .help("testing testing"),
@@ -79,7 +79,7 @@ fn subcommand_none_given() {
         .subcommand(
             SubCommand::with_name("some").arg(
                 Arg::with_name("test")
-                    .short("t")
+                    .short('t')
                     .long("test")
                     .takes_value(true)
                     .help("testing testing"),
@@ -97,12 +97,12 @@ fn subcommand_multiple() {
         .subcommands(vec![
             SubCommand::with_name("some").arg(
                 Arg::with_name("test")
-                    .short("t")
+                    .short('t')
                     .long("test")
                     .takes_value(true)
                     .help("testing testing"),
             ),
-            SubCommand::with_name("add").arg(Arg::with_name("roster").short("r")),
+            SubCommand::with_name("add").arg(Arg::with_name("roster").short('r')),
         ])
         .arg(Arg::with_name("other").long("other"))
         .get_matches_from(vec!["myprog", "some", "--test", "testing"]);
@@ -217,8 +217,8 @@ fn issue_1031_args_with_same_name_no_more_vals() {
 fn issue_1161_multiple_hyphen_hyphen() {
     // from example 22
     let res = App::new("myprog")
-        .arg(Arg::with_name("eff").short("f"))
-        .arg(Arg::with_name("pea").short("p").takes_value(true))
+        .arg(Arg::with_name("eff").short('f'))
+        .arg(Arg::with_name("pea").short('p').takes_value(true))
         .arg(Arg::with_name("slop").multiple(true).last(true))
         .get_matches_from_safe(vec!["-f", "-p=bob", "--", "sloppy", "slop", "-a", "--", "subprogram", "position", "args"]);
 

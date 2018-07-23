@@ -260,7 +260,7 @@ fn required_unless_all() {
                 .long("config"),
         )
         .arg(Arg::with_name("dbg").long("debug"))
-        .arg(Arg::with_name("infile").short("i").takes_value(true))
+        .arg(Arg::with_name("infile").short('i').takes_value(true))
         .get_matches_from_safe(vec!["unlessall", "--debug", "-i", "file"]);
 
     assert!(res.is_ok());
@@ -280,7 +280,7 @@ fn required_unless_all_err() {
                 .long("config"),
         )
         .arg(Arg::with_name("dbg").long("debug"))
-        .arg(Arg::with_name("infile").short("i").takes_value(true))
+        .arg(Arg::with_name("infile").short('i').takes_value(true))
         .get_matches_from_safe(vec!["unlessall", "--debug"]);
 
     assert!(res.is_err());
@@ -299,7 +299,7 @@ fn required_unless_one() {
                 .long("config"),
         )
         .arg(Arg::with_name("dbg").long("debug"))
-        .arg(Arg::with_name("infile").short("i").takes_value(true))
+        .arg(Arg::with_name("infile").short('i').takes_value(true))
         .get_matches_from_safe(vec!["unlessone", "--debug"]);
 
     assert!(res.is_ok());
@@ -320,7 +320,7 @@ fn required_unless_one_2() {
                 .long("config"),
         )
         .arg(Arg::with_name("dbg").long("debug"))
-        .arg(Arg::with_name("infile").short("i").takes_value(true))
+        .arg(Arg::with_name("infile").short('i').takes_value(true))
         .get_matches_from_safe(vec!["unlessone", "-i", "file"]);
 
     assert!(res.is_ok());
@@ -333,11 +333,11 @@ fn required_unless_one_2() {
 fn required_unless_one_works_with_short() {
     // GitHub issue: https://github.com/kbknapp/clap-rs/issues/1135
     let res = App::new("unlessone")
-        .arg(Arg::with_name("a").conflicts_with("b").short("a"))
-        .arg(Arg::with_name("b").short("b"))
+        .arg(Arg::with_name("a").conflicts_with("b").short('a'))
+        .arg(Arg::with_name("b").short('b'))
         .arg(
             Arg::with_name("x")
-                .short("x")
+                .short('x')
                 .required_unless_one(&["a", "b"]),
         )
         .get_matches_from_safe(vec!["unlessone", "-a"]);
@@ -348,11 +348,11 @@ fn required_unless_one_works_with_short() {
 #[test]
 fn required_unless_one_works_with_short_err() {
     let res = App::new("unlessone")
-        .arg(Arg::with_name("a").conflicts_with("b").short("a"))
-        .arg(Arg::with_name("b").short("b"))
+        .arg(Arg::with_name("a").conflicts_with("b").short('a'))
+        .arg(Arg::with_name("b").short('b'))
         .arg(
             Arg::with_name("x")
-                .short("x")
+                .short('x')
                 .required_unless_one(&["a", "b"]),
         )
         .get_matches_from_safe(vec!["unlessone"]);
@@ -363,8 +363,8 @@ fn required_unless_one_works_with_short_err() {
 #[test]
 fn required_unless_one_works_without() {
     let res = App::new("unlessone")
-        .arg(Arg::with_name("a").conflicts_with("b").short("a"))
-        .arg(Arg::with_name("b").short("b"))
+        .arg(Arg::with_name("a").conflicts_with("b").short('a'))
+        .arg(Arg::with_name("b").short('b'))
         .arg(Arg::with_name("x").required_unless_one(&["a", "b"]))
         .get_matches_from_safe(vec!["unlessone", "-a"]);
 
@@ -374,8 +374,8 @@ fn required_unless_one_works_without() {
 #[test]
 fn required_unless_one_works_with_long() {
     let res = App::new("unlessone")
-        .arg(Arg::with_name("a").conflicts_with("b").short("a"))
-        .arg(Arg::with_name("b").short("b"))
+        .arg(Arg::with_name("a").conflicts_with("b").short('a'))
+        .arg(Arg::with_name("b").short('b'))
         .arg(
             Arg::with_name("x")
                 .long("x_is_the_option")
@@ -396,7 +396,7 @@ fn required_unless_one_1() {
                 .long("config"),
         )
         .arg(Arg::with_name("dbg").long("debug"))
-        .arg(Arg::with_name("infile").short("i").takes_value(true))
+        .arg(Arg::with_name("infile").short('i').takes_value(true))
         .get_matches_from_safe(vec!["unlessone", "--debug"]);
 
     assert!(res.is_ok());
@@ -416,7 +416,7 @@ fn required_unless_one_err() {
                 .long("config"),
         )
         .arg(Arg::with_name("dbg").long("debug"))
-        .arg(Arg::with_name("infile").short("i").takes_value(true))
+        .arg(Arg::with_name("infile").short('i').takes_value(true))
         .get_matches_from_safe(vec!["unlessone"]);
 
     assert!(res.is_err());
@@ -654,7 +654,7 @@ fn require_eq() {
     let app = App::new("clap-test").version("v1.4.8").arg(
         Arg::with_name("opt")
             .long("opt")
-            .short("o")
+            .short('o')
             .required(true)
             .require_equals(true)
             .value_name("FILE")

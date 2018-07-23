@@ -385,7 +385,7 @@ fn issue_1047_min_zero_vals_default_val() {
     let m = App::new("foo")
         .arg(
             Arg::with_name("del")
-                .short("d")
+                .short('d')
                 .long("del")
                 .setting(ArgSettings::RequireEquals)
                 .min_values(0)

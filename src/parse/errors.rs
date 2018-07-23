@@ -309,7 +309,7 @@ pub enum ErrorKind {
     /// let result = App::new("prog")
     ///     .setting(AppSettings::StrictUtf8)
     ///     .arg(Arg::with_name("utf8")
-    ///         .short("u")
+    ///         .short('u')
     ///         .takes_value(true))
     ///     .get_matches_from_safe(vec![OsString::from("myprog"),
     ///                                 OsString::from("-u"),

@@ -421,7 +421,7 @@ fn leading_hyphen_short() {
     let res = App::new("leadhy")
         .setting(AppSettings::AllowLeadingHyphen)
         .arg(Arg::with_name("some"))
-        .arg(Arg::with_name("other").short("o"))
+        .arg(Arg::with_name("other").short('o'))
         .get_matches_from_safe(vec!["", "-bar", "-o"]);
     assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind);
     let m = res.unwrap();
@@ -435,7 +435,7 @@ fn leading_hyphen_long() {
     let res = App::new("leadhy")
         .setting(AppSettings::AllowLeadingHyphen)
         .arg(Arg::with_name("some"))
-        .arg(Arg::with_name("other").short("o"))
+        .arg(Arg::with_name("other").short('o'))
         .get_matches_from_safe(vec!["", "--bar", "-o"]);
     assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind);
     let m = res.unwrap();
@@ -449,7 +449,7 @@ fn leading_hyphen_opt() {
     let res = App::new("leadhy")
         .setting(AppSettings::AllowLeadingHyphen)
         .arg(Arg::with_name("some").takes_value(true).long("opt"))
-        .arg(Arg::with_name("other").short("o"))
+        .arg(Arg::with_name("other").short('o'))
         .get_matches_from_safe(vec!["", "--opt", "--bar", "-o"]);
     assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind);
     let m = res.unwrap();
@@ -463,7 +463,7 @@ fn allow_negative_numbers() {
     let res = App::new("negnum")
         .setting(AppSettings::AllowNegativeNumbers)
         .arg(Arg::with_name("panum"))
-        .arg(Arg::with_name("onum").short("o").takes_value(true))
+        .arg(Arg::with_name("onum").short('o').takes_value(true))
         .get_matches_from_safe(vec!["negnum", "-20", "-o", "-1.2"]);
     assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind);
     let m = res.unwrap();
@@ -476,7 +476,7 @@ fn allow_negative_numbers_fail() {
     let res = App::new("negnum")
         .setting(AppSettings::AllowNegativeNumbers)
         .arg(Arg::with_name("panum"))
-        .arg(Arg::with_name("onum").short("o").takes_value(true))
+        .arg(Arg::with_name("onum").short('o').takes_value(true))
         .get_matches_from_safe(vec!["negnum", "--foo", "-o", "-1.2"]);
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument)
@@ -551,7 +551,7 @@ fn require_eq() {
     let app = App::new("clap-test").version("v1.4.8").arg(
         Arg::with_name("opt")
             .long("opt")
-            .short("o")
+            .short('o')
             .required(true)
             .require_equals(true)
             .value_name("FILE")

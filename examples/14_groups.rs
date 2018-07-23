@@ -45,7 +45,7 @@ fn main() {
                       // Now let's assume we have a -c [config] argument which requires one of
                       // (but **not** both) the "input" arguments
                       .arg(Arg::with_name("config")
-                        .short("c")
+                        .short('c')
                         .takes_value(true)
                         .requires("input"))
                       .get_matches();

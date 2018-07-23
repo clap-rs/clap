@@ -727,7 +727,7 @@ macro_rules! clap_app {
         clap_app!{ @arg ($arg.long(stringify!($long))) $modes $($tail)* }
     };
     (@arg ($arg:expr) $modes:tt -$short:ident $($tail:tt)*) => {
-        clap_app!{ @arg ($arg.short(stringify!($short))) $modes $($tail)* }
+        clap_app!{ @arg ($arg.short(stringify!($short).chars().nth(0).unwrap())) $modes $($tail)* }
     };
     (@arg ($arg:expr) (-) <$var:ident> $($tail:tt)*) => {
         clap_app!{ @arg ($arg.value_name(stringify!($var))) (+) +takes_value +required $($tail)* }

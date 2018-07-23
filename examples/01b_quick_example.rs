@@ -39,7 +39,7 @@ fn main() {
         .about("Does awesome things")
         .arg(
             Arg::with_name("config")
-                .short("c")
+                .short('c')
                 .long("config")
                 .value_name("FILE")
                 .help("Sets a custom config file")
@@ -52,14 +52,14 @@ fn main() {
         )
         .arg(
             Arg::with_name("debug")
-                .short("d")
+                .short('d')
                 .multiple(true)
                 .help("Turn debugging information on"),
         )
         .subcommand(
             SubCommand::with_name("test")
                 .about("does testing things")
-                .arg(Arg::with_name("list").short("l").help("lists test values")),
+                .arg(Arg::with_name("list").short('l').help("lists test values")),
         )
         .get_matches();
 

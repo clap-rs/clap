@@ -19,7 +19,7 @@ fn main() {
                         .arg(Arg::with_name("input")
                                     .help("the input file to use") // Displayed when showing help info
                                     .takes_value(true)             // MUST be set to true in order to be an "option" argument
-                                    .short("i")                    // This argument is triggered with "-i"
+                                    .short('i')                    // This argument is triggered with "-i"
                                     .long("input")                 // This argument is triggered with "--input"
                                     .multiple(true)                // Set to true if you wish to allow multiple occurrences
                                                                    // such as "-i file -i other_file -i third_file"

@@ -76,12 +76,12 @@ fn hidden_short_args() {
         .version("2.31.2")
         .args(&[
             Arg::with_name("cfg")
-                .short("c")
+                .short('c')
                 .long("config")
                 .hidden_short_help(true)
                 .help("Some help text describing the --config arg"),                
             Arg::with_name("visible")
-                .short("v")
+                .short('v')
                 .long("visible")
                 .help("This text should be visible")]);
 
@@ -97,12 +97,12 @@ fn hidden_short_args_long_help() {
         .version("2.31.2")
         .args(&[
             Arg::with_name("cfg")
-                .short("c")
+                .short('c')
                 .long("config")
                 .hidden_short_help(true)
                 .help("Some help text describing the --config arg"),                
             Arg::with_name("visible")
-                .short("v")
+                .short('v')
                 .long("visible")
                 .help("This text should be visible")]);
 
@@ -134,12 +134,12 @@ fn hidden_long_args() {
         .version("2.31.2")
         .args(&[
             Arg::with_name("cfg")
-                .short("c")
+                .short('c')
                 .long("config")
                 .hidden_long_help(true)
                 .help("Some help text describing the --config arg"),                
             Arg::with_name("visible")
-                .short("v")
+                .short('v')
                 .long("visible")
                 .help("This text should be visible")]);
 
@@ -167,12 +167,12 @@ fn hidden_long_args_short_help() {
         .version("2.31.2")
         .args(&[
             Arg::with_name("cfg")
-                .short("c")
+                .short('c')
                 .long("config")
                 .hidden_long_help(true)
                 .help("Some help text describing the --config arg"),                
             Arg::with_name("visible")
-                .short("v")
+                .short('v')
                 .long("visible")
                 .help("This text should be visible")]);
 

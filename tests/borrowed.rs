@@ -8,11 +8,11 @@ include!("../clap-test.rs");
 #[test]
 fn borrowed_args() {
     let arg = Arg::with_name("some")
-        .short("s")
+        .short('s')
         .long("some")
         .help("other help");
     let arg2 = Arg::with_name("some2")
-        .short("S")
+        .short('S')
         .long("some-thing")
         .help("other help");
     let result = App::new("sub_command_negate")

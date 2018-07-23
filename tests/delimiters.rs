@@ -43,7 +43,7 @@ fn opt_s_eq_no_delim() {
     let m = App::new("no_delim")
         .arg(
             Arg::with_name("option")
-                .short("o")
+                .short('o')
                 .setting(ArgSettings::TakesValue),
         )
         .try_get_matches_from(vec!["", "-o=val1,val2,val3"]);
@@ -61,7 +61,7 @@ fn opt_s_default_no_delim() {
     let m = App::new("no_delim")
         .arg(
             Arg::with_name("option")
-                .short("o")
+                .short('o')
                 .setting(ArgSettings::TakesValue),
         )
         .try_get_matches_from(vec!["", "-o", "val1,val2,val3"]);
@@ -79,7 +79,7 @@ fn opt_s_no_space_no_delim() {
     let m = App::new("no_delim")
         .arg(
             Arg::with_name("option")
-                .short("o")
+                .short('o')
                 .setting(ArgSettings::TakesValue),
         )
         .try_get_matches_from(vec!["", "-o", "val1,val2,val3"]);
@@ -97,7 +97,7 @@ fn opt_s_no_space_mult_no_delim() {
     let m = App::new("no_delim")
         .arg(
             Arg::with_name("option")
-                .short("o")
+                .short('o')
                 .setting(ArgSettings::MultipleValues),
         )
         .try_get_matches_from(vec!["", "-o", "val1,val2,val3"]);

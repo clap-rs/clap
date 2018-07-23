@@ -23,13 +23,13 @@ fn main() {
         .arg(
             Arg::with_name("debug")
                 .help("turn on debugging information")
-                .short("d")
+                .short('d')
                 .long("debug"),
         )
         .arg(
             Arg::with_name("config")
                 .help("sets the config file to use")
-                .short("c")
+                .short('c')
                 .long("config"),
         )
         .arg(

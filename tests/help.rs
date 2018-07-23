@@ -600,21 +600,21 @@ fn args_with_last_usage() {
         .arg(
             Arg::with_name("verbose")
                 .help("Prints out more stuff.")
-                .short("v")
+                .short('v')
                 .long("verbose")
                 .setting(ArgSettings::MultipleOccurrences),
         )
         .arg(
             Arg::with_name("timeout")
                 .help("Timeout in seconds.")
-                .short("t")
+                .short('t')
                 .long("timeout")
                 .value_name("SECONDS"),
         )
         .arg(
             Arg::with_name("frequency")
                 .help("The sampling frequency.")
-                .short("f")
+                .short('f')
                 .long("frequency")
                 .value_name("HERTZ"),
         )
@@ -749,7 +749,7 @@ fn complex_subcommand_help_output() {
 fn issue_626_unicode_cutoff() {
     let app = App::new("ctest").version("0.1").set_term_width(70).arg(
         Arg::with_name("cafe")
-            .short("c")
+            .short('c')
             .long("cafe")
             .value_name("FILE")
             .help(
@@ -776,7 +776,7 @@ fn hide_possible_vals() {
         .version("0.1")
         .arg(
             Arg::with_name("pos")
-                .short("p")
+                .short('p')
                 .long("pos")
                 .value_name("VAL")
                 .possible_values(&["fast", "slow"])
@@ -785,7 +785,7 @@ fn hide_possible_vals() {
         )
         .arg(
             Arg::with_name("cafe")
-                .short("c")
+                .short('c')
                 .long("cafe")
                 .value_name("FILE")
                 .hide_possible_values(true)
@@ -807,7 +807,7 @@ fn issue_626_panic() {
         .version("0.1")
         .set_term_width(52)
         .arg(Arg::with_name("cafe")
-           .short("c")
+           .short('c')
            .long("cafe")
            .value_name("FILE")
            .help("La culture du café est très développée dans de nombreux pays à climat chaud d'Amérique, \
@@ -829,7 +829,7 @@ fn issue_626_variable_panic() {
             .version("0.1")
             .set_term_width(i)
             .arg(Arg::with_name("cafe")
-               .short("c")
+               .short('c')
                .long("cafe")
                .value_name("FILE")
                .help("La culture du café est très développée dans de nombreux pays à climat chaud d'Amérique, \
@@ -853,13 +853,14 @@ fn final_word_wrapping() {
 
 #[test]
 fn wrapping_newline_chars() {
-    let app = App::new("ctest").version("0.1").set_term_width(60).arg(
-        Arg::with_name("mode").help(
+    let app = App::new("ctest")
+        .version("0.1")
+        .set_term_width(60)
+        .arg(Arg::with_name("mode").help(
             "x, max, maximum   20 characters, contains symbols.{n}\
              l, long           Copy-friendly, 14 characters, contains symbols.{n}\
              m, med, medium    Copy-friendly, 8 characters, contains symbols.{n}",
-        ),
-    );
+        ));
     assert!(test::compare_output(
         app,
         "ctest --help",
@@ -872,7 +873,7 @@ fn wrapping_newline_chars() {
 fn old_newline_chars() {
     let app = App::new("ctest").version("0.1").arg(
         Arg::with_name("mode")
-            .short("m")
+            .short('m')
             .help("Some help with some wrapping{n}(Defaults to something)"),
     );
     assert!(test::compare_output(
@@ -932,21 +933,21 @@ fn issue_702_multiple_values() {
         .arg(
             Arg::with_name("some")
                 .help("some option")
-                .short("s")
+                .short('s')
                 .long("some")
                 .takes_value(true),
         )
         .arg(
             Arg::with_name("other")
                 .help("some other option")
-                .short("o")
+                .short('o')
                 .long("other")
                 .takes_value(true),
         )
         .arg(
             Arg::with_name("label")
                 .help("a label")
-                .short("l")
+                .short('l')
                 .long("label")
                 .multiple(true)
                 .takes_value(true),
@@ -974,7 +975,7 @@ fn issue_760() {
         .arg(
             Arg::with_name("option")
                 .help("tests options")
-                .short("o")
+                .short('o')
                 .long("option")
                 .takes_value(true)
                 .multiple(true)
@@ -983,7 +984,7 @@ fn issue_760() {
         .arg(
             Arg::with_name("opt")
                 .help("tests options")
-                .short("O")
+                .short('O')
                 .long("opt")
                 .takes_value(true),
         );
@@ -1305,7 +1306,7 @@ fn hide_env_vals() {
         .version("0.1")
         .arg(
             Arg::with_name("pos")
-                .short("p")
+                .short('p')
                 .long("pos")
                 .value_name("VAL")
                 .possible_values(&["fast", "slow"])
@@ -1314,7 +1315,7 @@ fn hide_env_vals() {
         )
         .arg(
             Arg::with_name("cafe")
-                .short("c")
+                .short('c')
                 .long("cafe")
                 .value_name("FILE")
                 .hide_env_values(true)
@@ -1339,7 +1340,7 @@ fn show_env_vals() {
         .version("0.1")
         .arg(
             Arg::with_name("pos")
-                .short("p")
+                .short('p')
                 .long("pos")
                 .value_name("VAL")
                 .possible_values(&["fast", "slow"])
@@ -1348,7 +1349,7 @@ fn show_env_vals() {
         )
         .arg(
             Arg::with_name("cafe")
-                .short("c")
+                .short('c')
                 .long("cafe")
                 .value_name("FILE")
                 .hide_possible_values(true)
@@ -1370,15 +1371,17 @@ fn custom_headers_headers() {
         .author("Will M.")
         .about("does stuff")
         .version("1.4")
-        .arg(Arg::from("-f, --fake <some> <val> 'some help'")
+        .arg(
+            Arg::from("-f, --fake <some> <val> 'some help'")
                 .require_delimiter(true)
                 .value_delimiter(":"),
         )
         .help_heading("NETWORKING")
-        .arg(Arg::with_name("no-proxy")
-                .short("n")
+        .arg(
+            Arg::with_name("no-proxy")
+                .short('n')
                 .long("no-proxy")
-                .help("Do not use system proxy settings")
+                .help("Do not use system proxy settings"),
         );
 
     assert!(test::compare_output(
@@ -1416,26 +1419,32 @@ fn multiple_custom_help_headers() {
         .author("Will M.")
         .about("does stuff")
         .version("1.4")
-        .arg(Arg::from("-f, --fake <some> <val> 'some help'")
+        .arg(
+            Arg::from("-f, --fake <some> <val> 'some help'")
                 .require_delimiter(true)
                 .value_delimiter(":"),
         )
         .help_heading("NETWORKING")
-        .arg(Arg::with_name("no-proxy")
-                .short("n")
+        .arg(
+            Arg::with_name("no-proxy")
+                .short('n')
                 .long("no-proxy")
-                .help("Do not use system proxy settings")
+                .help("Do not use system proxy settings"),
         )
         .help_heading("SPECIAL")
-        .arg(Arg::from("-b, --birthday-song <song> 'Change which song is played for birthdays'"))
+        .arg(Arg::from(
+            "-b, --birthday-song <song> 'Change which song is played for birthdays'",
+        ))
         .stop_custom_headings()
-        .arg(Arg::with_name("speed")
+        .arg(
+            Arg::with_name("speed")
                 .long("speed")
-                .short("s")
+                .short('s')
                 .value_name("SPEED")
                 .possible_values(&["fast", "slow"])
                 .help("How fast?")
-                .takes_value(true));
+                .takes_value(true),
+        );
 
     assert!(test::compare_output(
         app,
@@ -1460,13 +1469,18 @@ FLAGS:
 
 #[test]
 fn show_long_about_issue_897() {
-    let app = App::new("ctest")
-        .version("0.1")
-        .subcommand(SubCommand::with_name("foo")
+    let app = App::new("ctest").version("0.1").subcommand(
+        SubCommand::with_name("foo")
             .version("0.1")
             .about("About foo")
-            .long_about("Long about foo"));
-    assert!(test::compare_output(app, "ctest foo --help", ISSUE_897, false));
+            .long_about("Long about foo"),
+    );
+    assert!(test::compare_output(
+        app,
+        "ctest foo --help",
+        ISSUE_897,
+        false
+    ));
 }
 
 static ISSUE_897_SHORT: &'static str = "ctest-foo 0.1
@@ -1481,11 +1495,16 @@ FLAGS:
 
 #[test]
 fn show_short_about_issue_897() {
-    let app = App::new("ctest")
-        .version("0.1")
-        .subcommand(SubCommand::with_name("foo")
+    let app = App::new("ctest").version("0.1").subcommand(
+        SubCommand::with_name("foo")
             .version("0.1")
             .about("About foo")
-            .long_about("Long about foo"));
-    assert!(test::compare_output(app, "ctest foo -h", ISSUE_897_SHORT, false));
+            .long_about("Long about foo"),
+    );
+    assert!(test::compare_output(
+        app,
+        "ctest foo -h",
+        ISSUE_897_SHORT,
+        false
+    ));
 }

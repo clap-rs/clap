@@ -46,13 +46,13 @@ fn app_example3<'b, 'c>() -> App<'b, 'c> {
         .arg(
             Arg::with_name("debug")
                 .help("turn on debugging information")
-                .short("d"),
+                .short('d'),
         )
         .args(&[
             Arg::with_name("config")
                 .help("sets the config file to use")
                 .setting(ArgSettings::TakesValue)
-                .short("c")
+                .short('c')
                 .long("config"),
             Arg::with_name("input")
                 .help("the input file to use")
@@ -74,13 +74,13 @@ fn app_example4<'b, 'c>() -> App<'b, 'c> {
         .arg(
             Arg::with_name("debug")
                 .help("turn on debugging information")
-                .short("d")
+                .short('d')
                 .long("debug"),
         )
         .arg(
             Arg::with_name("config")
                 .help("sets the config file to use")
-                .short("c")
+                .short('c')
                 .long("config"),
         )
         .arg(
@@ -95,7 +95,7 @@ fn app_example5<'b, 'c>() -> App<'b, 'c> {
     App::new("MyApp").arg(
         Arg::with_name("awesome")
             .help("turns up the awesome")
-            .short("a")
+            .short('a')
             .long("awesome")
             .setting(ArgSettings::MultipleOccurrences)
             .requires("config")
@@ -132,7 +132,7 @@ fn app_example7<'b, 'c>() -> App<'b, 'c> {
                     ArgSettings::MultipleOccurrences,
                     ArgSettings::Required,
                 ])
-                .short("i")
+                .short('i')
                 .long("input")
                 .requires("config")
                 .conflicts_with("output"),
@@ -151,7 +151,7 @@ fn app_example8<'b, 'c>() -> App<'b, 'c> {
                     ArgSettings::MultipleOccurrences,
                     ArgSettings::Required,
                 ])
-                .short("i")
+                .short('i')
                 .long("input")
                 .requires("config")
                 .conflicts_with("output"),
@@ -162,7 +162,7 @@ fn app_example10<'b, 'c>() -> App<'b, 'c> {
     App::new("myapp").about("does awesome things").arg(
         Arg::with_name("CONFIG")
             .help("The config file to use (default is \"config.json\")")
-            .short("c")
+            .short('c')
             .setting(ArgSettings::TakesValue),
     )
 }

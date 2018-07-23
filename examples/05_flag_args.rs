@@ -18,7 +18,7 @@ fn main() {
                         // you want for your individual case.
                         .arg(Arg::with_name("awesome")
                                     .help("turns up the awesome") // Displayed when showing help info
-                                    .short("a")                   // Trigger this arg with "-a"
+                                    .short('a')                   // Trigger this arg with "-a"
                                     .long("awesome")              // Trigger this arg with "--awesome"
                                     .multiple(true)               // This flag should allow multiple
                                                                   // occurrences such as "-aaa" or "-a -a"
