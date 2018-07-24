@@ -1,7 +1,7 @@
 // Internal
-use INTERNAL_ERROR_MSG;
 use build::{Arg, ArgSettings};
 use util::VecMap;
+use INTERNAL_ERROR_MSG;
 
 #[derive(PartialEq, Debug)]
 enum UsageToken {
@@ -74,7 +74,8 @@ impl<'a> UsageParser<'a> {
 
     fn name(&mut self, arg: &mut Arg<'a, 'a>) {
         debugln!("UsageParser::name;");
-        if *self.usage
+        if *self
+            .usage
             .as_bytes()
             .get(self.pos)
             .expect(INTERNAL_ERROR_MSG) == b'<' && !self.explicit_name_set
@@ -122,7 +123,8 @@ impl<'a> UsageParser<'a> {
     fn short_or_long(&mut self, arg: &mut Arg<'a, 'a>) {
         debugln!("UsageParser::short_or_long;");
         self.pos += 1;
-        if *self.usage
+        if *self
+            .usage
             .as_bytes()
             .get(self.pos)
             .expect(INTERNAL_ERROR_MSG) == b'-'

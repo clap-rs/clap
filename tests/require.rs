@@ -196,19 +196,15 @@ fn issue_753() {
             "-l, --list 'List available interfaces (and stop there)'",
         ))
         .arg(
-            Arg::from(
-                "-i, --iface=[INTERFACE] 'Ethernet interface for fetching NTP packets'",
-            ).required_unless("list"),
+            Arg::from("-i, --iface=[INTERFACE] 'Ethernet interface for fetching NTP packets'")
+                .required_unless("list"),
         )
         .arg(
             Arg::from("-f, --file=[TESTFILE] 'Fetch NTP packets from pcap file'")
                 .conflicts_with("iface")
                 .required_unless("list"),
         )
-        .arg(
-            Arg::from("-s, --server=[SERVER_IP] 'NTP server IP address'")
-                .required_unless("list"),
-        )
+        .arg(Arg::from("-s, --server=[SERVER_IP] 'NTP server IP address'").required_unless("list"))
         .arg(Arg::from("-p, --port=[SERVER_PORT] 'NTP server port'").default_value("123"))
         .get_matches_from_safe(vec!["test", "--list"]);
     assert!(m.is_ok());

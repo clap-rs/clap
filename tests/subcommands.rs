@@ -220,15 +220,32 @@ fn issue_1161_multiple_hyphen_hyphen() {
         .arg(Arg::with_name("eff").short('f'))
         .arg(Arg::with_name("pea").short('p').takes_value(true))
         .arg(Arg::with_name("slop").multiple(true).last(true))
-        .get_matches_from_safe(vec!["-f", "-p=bob", "--", "sloppy", "slop", "-a", "--", "subprogram", "position", "args"]);
+        .get_matches_from_safe(vec![
+            "-f",
+            "-p=bob",
+            "--",
+            "sloppy",
+            "slop",
+            "-a",
+            "--",
+            "subprogram",
+            "position",
+            "args",
+        ]);
 
     assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
     let m = res.unwrap();
 
-    let expected = Some(vec!["sloppy", "slop", "-a", "--", "subprogram", "position", "args"]);
-    let actual = m
-            .values_of("slop")
-            .map(|vals| vals.collect::<Vec<_>>());
+    let expected = Some(vec![
+        "sloppy",
+        "slop",
+        "-a",
+        "--",
+        "subprogram",
+        "position",
+        "args",
+    ]);
+    let actual = m.values_of("slop").map(|vals| vals.collect::<Vec<_>>());
 
     assert_eq!(expected, actual);
 }

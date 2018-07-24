@@ -6,8 +6,8 @@ use ansi_term::Colour::{Green, Red, Yellow};
 
 #[cfg(feature = "color")]
 use atty;
-use std::fmt;
 use std::env;
+use std::fmt;
 
 #[doc(hidden)]
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -164,9 +164,9 @@ impl<T: fmt::Display> fmt::Display for Format<T> {
 
 #[cfg(all(test, feature = "color", not(target_os = "windows")))]
 mod test {
+    use super::Format;
     use ansi_term::ANSIString;
     use ansi_term::Colour::{Green, Red, Yellow};
-    use super::Format;
 
     #[test]
     fn colored_output() {

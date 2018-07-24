@@ -721,45 +721,63 @@ fn build_app_with_name(s: &'static str) -> App<'static, 'static> {
     App::new(s)
         .about("Tests completions")
         .arg(Arg::with_name("file").help("some input file"))
-        .subcommand(SubCommand::with_name("test")
-            .about("tests things")
-            .arg(Arg::with_name("case")
-                .long("case")
-                .takes_value(true)
-                .help("the case to test")))
+        .subcommand(
+            SubCommand::with_name("test").about("tests things").arg(
+                Arg::with_name("case")
+                    .long("case")
+                    .takes_value(true)
+                    .help("the case to test"),
+            ),
+        )
 }
 
 fn build_app_special_commands() -> App<'static, 'static> {
     build_app_with_name("my_app")
-        .subcommand(SubCommand::with_name("some_cmd")
-                    .about("tests other things")
-                    .arg(Arg::with_name("config")
-                         .long("--config")
-                         .takes_value(true)
-                         .help("the other case to test")))
+        .subcommand(
+            SubCommand::with_name("some_cmd")
+                .about("tests other things")
+                .arg(
+                    Arg::with_name("config")
+                        .long("--config")
+                        .takes_value(true)
+                        .help("the other case to test"),
+                ),
+        )
         .subcommand(SubCommand::with_name("some-cmd-with-hypens"))
 }
 
 fn build_app_special_help() -> App<'static, 'static> {
     App::new("my_app")
-        .arg(Arg::with_name("single-quotes")
-            .long("single-quotes")
-            .help("Can be 'always', 'auto', or 'never'"))
-        .arg(Arg::with_name("double-quotes")
-            .long("double-quotes")
-            .help("Can be \"always\", \"auto\", or \"never\""))
-        .arg(Arg::with_name("backticks")
-            .long("backticks")
-            .help("For more information see `echo test`"))
-        .arg(Arg::with_name("backslash")
-            .long("backslash")
-            .help("Avoid '\\n'"))
-        .arg(Arg::with_name("brackets")
-            .long("brackets")
-            .help("List packages [filter]"))
-        .arg(Arg::with_name("expansions")
-            .long("expansions")
-            .help("Execute the shell command with $SHELL"))
+        .arg(
+            Arg::with_name("single-quotes")
+                .long("single-quotes")
+                .help("Can be 'always', 'auto', or 'never'"),
+        )
+        .arg(
+            Arg::with_name("double-quotes")
+                .long("double-quotes")
+                .help("Can be \"always\", \"auto\", or \"never\""),
+        )
+        .arg(
+            Arg::with_name("backticks")
+                .long("backticks")
+                .help("For more information see `echo test`"),
+        )
+        .arg(
+            Arg::with_name("backslash")
+                .long("backslash")
+                .help("Avoid '\\n'"),
+        )
+        .arg(
+            Arg::with_name("brackets")
+                .long("brackets")
+                .help("List packages [filter]"),
+        )
+        .arg(
+            Arg::with_name("expansions")
+                .long("expansions")
+                .help("Execute the shell command with $SHELL"),
+        )
 }
 
 #[test]

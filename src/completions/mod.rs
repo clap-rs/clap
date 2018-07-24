@@ -1,23 +1,23 @@
 #[macro_use]
 mod macros;
 mod bash;
-mod fish;
-mod zsh;
-mod powershell;
 mod elvish;
+mod fish;
+mod powershell;
 mod shell;
+mod zsh;
 
 // Std
 use std::io::Write;
 
 // Internal
-use build::App;
 use self::bash::BashGen;
-use self::fish::FishGen;
-use self::zsh::ZshGen;
-use self::powershell::PowerShellGen;
 use self::elvish::ElvishGen;
+use self::fish::FishGen;
+use self::powershell::PowerShellGen;
 pub use self::shell::Shell;
+use self::zsh::ZshGen;
+use build::App;
 
 pub struct ComplGen<'a, 'b>(&'b App<'a, 'b>)
 where
@@ -33,7 +33,7 @@ impl<'a, 'b> ComplGen<'a, 'b> {
             Shell::Zsh => ZshGen::new(self.0).generate_to(buf),
             Shell::PowerShell => PowerShellGen::new(self.0).generate_to(buf),
             Shell::Elvish => ElvishGen::new(self.0).generate_to(buf),
-            _ => panic!("Unsupported shell type for generating completions")
+            _ => panic!("Unsupported shell type for generating completions"),
         }
     }
 }

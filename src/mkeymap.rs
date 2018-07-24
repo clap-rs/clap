@@ -65,7 +65,7 @@ impl<'a, 'b> MKeyMap<'a, 'b> {
                     set
                 });
         }
-        
+
         index
     }
     //TODO ::push_many([x, y])
@@ -89,6 +89,8 @@ impl<'a, 'b> MKeyMap<'a, 'b> {
         self.keys.insert(key, index);
     }
 
+    // ! Arg mutation functionality
+
     pub fn get(&self, key: KeyType<'a>) -> Option<&Arg<'a, 'b>> {
         self.keys
             .get(&key)
@@ -97,13 +99,11 @@ impl<'a, 'b> MKeyMap<'a, 'b> {
     //TODO ::get_first([KeyA, KeyB])
 
     pub fn get_mut(&mut self, key: KeyType<'a>) -> Option<&mut Arg<'a, 'b>> {
-        if let Some(&idx) = self
-            .keys
-            .get(&key) {
-                self.value_index.get_mut(idx)
-            } else {
-                None
-            }
+        if let Some(&idx) = self.keys.get(&key) {
+            self.value_index.get_mut(idx)
+        } else {
+            None
+        }
     }
 
     pub fn is_empty(&self) -> bool { self.keys.is_empty() && self.values.is_empty() }
@@ -122,13 +122,13 @@ impl<'a, 'b> MKeyMap<'a, 'b> {
         }
     }
 
-    pub fn values(&'a self) -> Values<'a, Arg> {
+    pub fn values(&'a self) -> Values<'a, Arg<'a, 'b>> {
         Values {
             iter: self.value_index.iter(),
         }
     }
 
-    pub fn values_mut(&'a mut self) -> ValuesMut<'a, Arg> {
+    pub fn values_mut(&'a mut self) -> ValuesMut<'a, Arg<'a, 'b>> {
         ValuesMut {
             iter: self.value_index.iter_mut(),
         }
@@ -173,14 +173,19 @@ impl<'a, V> Iterator for ValuesMut<'a, V> {
     fn next(&mut self) -> Option<Self::Item> { self.iter.next() }
 }
 
-pub struct Iter<'a, 'b, 'c>  where
-'a: 'b,
-'b: 'c {
+pub struct Iter<'a, 'b, 'c>
+where
+    'a: 'b,
+    'b: 'c,
+{
     map: &'c MKeyMap<'a, 'b>,
     keys: Keys<'c, usize>,
 }
 
-impl <'a, 'b, 'c> Iterator for Iter<'a, 'b, 'c> 
+impl<'a, 'b, 'c> Iterator for Iter<'a, 'b, 'c>
+where
+    'a: 'b,
+    'b: 'c,
 {
     type Item = (&'c KeyType<'a>, &'c Arg<'a, 'b>);
 
@@ -203,11 +208,12 @@ mod tests {
     fn get_some_value() {
         let mut map: MKeyMap = MKeyMap::new();
 
-        {
-            map.insert(Long(&OsStr::new("One")), Arg::with_name("Value1"));
-        }
+        map.insert(Long(&OsStr::new("One")), Arg::with_name("Value1"));
 
-        assert_eq!(map.get(Long(&OsStr::new("One"))), &Arg::with_name("Value1"));
+        assert_eq!(
+            map.get(Long(&OsStr::new("One"))),
+            Some(&Arg::with_name("Value1"))
+        );
     }
 
     #[test]
@@ -217,6 +223,8 @@ mod tests {
 
         map.insert(Long(&OsStr::new("One")), Arg::with_name("Value1"));
         map.get(Long(&OsStr::new("Two")));
+
+        assert_eq!(map.get(Long(&OsStr::new("Two"))), None);
     }
 
     //    #[test]
@@ -301,7 +309,7 @@ mod tests {
 
         assert_eq!(
             map.get_mut(Long(&OsStr::new("One"))),
-            &mut Arg::with_name("Value1")
+            Some(&mut Arg::with_name("Value1"))
         );
     }
 

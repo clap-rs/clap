@@ -24,5 +24,5 @@ macro_rules! get_zsh_arg_conflicts {
         } else {
             String::new()
         }
-    }
+    };
 }
