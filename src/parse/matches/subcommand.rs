@@ -36,33 +36,23 @@ pub struct SubCommand<'a> {
 }
 
 impl<'a> SubCommand<'a> {
-    /// Creates a new instance of a subcommand requiring a name. The name will be displayed
-    /// to the user when they print version or help and usage information.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, SubCommand};
-    /// App::new("myprog")
-    ///     .subcommand(
-    ///         SubCommand::with_name("config"))
-    /// # ;
-    /// ```
+    // @TODO-v3-beta: remove
+    /// **Deprecated**
+    #[deprecated(
+        since = "2.32.0",
+        note = "Use App::new instead. Will be removed in v3-beta"
+    )]
     pub fn with_name<'b>(name: &str) -> App<'a, 'b> { App::new(name) }
 
-    /// Creates a new instance of a subcommand from a YAML (.yml) document
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// # #[macro_use]
-    /// # extern crate clap;
-    /// # use clap::Subcommand;
-    /// # fn main() {
-    /// let sc_yaml = load_yaml!("test_subcommand.yml");
-    /// let sc = SubCommand::from_yaml(sc_yaml);
-    /// # }
-    /// ```
+    // @TODO-v3-beta: remove
+    /// **Deprecated**
+    #[cfg_attr(
+        feature = "yaml",
+        deprecated(
+            since = "2.32.0",
+            note = "Use App::from instead. Will be removed in v3-beta"
+        )
+    )]
     #[cfg(feature = "yaml")]
     pub fn from_yaml(yaml: &Yaml) -> App { App::from_yaml(yaml) }
 }
