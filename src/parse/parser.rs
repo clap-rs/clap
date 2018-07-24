@@ -1,33 +1,43 @@
 // Std
+#[cfg(
+    all(
+        feature = "debug",
+        any(target_os = "windows", target_arch = "wasm32")
+    )
+)]
+use osstringext::OsStrExt3;
+use std::cell::Cell;
 use std::ffi::{OsStr, OsString};
 use std::io::{self, BufWriter, Write};
-#[cfg(all(feature = "debug", not(any(target_os = "windows", target_arch = "wasm32"))))]
-use std::os::unix::ffi::OsStrExt;
-#[cfg(all(feature = "debug", any(target_os = "windows", target_arch = "wasm32")))]
-use osstringext::OsStrExt3;
-use std::slice::Iter;
 use std::iter::Peekable;
 use std::mem;
-use std::cell::Cell;
+#[cfg(
+    all(
+        feature = "debug",
+        not(any(target_os = "windows", target_arch = "wasm32"))
+    )
+)]
+use std::os::unix::ffi::OsStrExt;
+use std::slice::Iter;
 
 // Third party facade
 use util::VecMap;
 
 // Internal
-use INTERNAL_ERROR_MSG;
-use INVALID_UTF8;
-use build::{App, Arg, ArgSettings};
 use build::app::Propagation;
 use build::AppSettings as AS;
-use parse::{ArgMatcher, SubCommand};
+use build::{App, Arg, ArgSettings};
 use output::Help;
-use parse::errors::ErrorKind;
-use parse::errors::Error as ClapError;
-use parse::errors::Result as ClapResult;
-use parse::Validator;
-use util::OsStrExt2;
-use parse::features::suggestions;
 use output::Usage;
+use parse::errors::Error as ClapError;
+use parse::errors::ErrorKind;
+use parse::errors::Result as ClapResult;
+use parse::features::suggestions;
+use parse::Validator;
+use parse::{ArgMatcher, SubCommand};
+use util::OsStrExt2;
+use INVALID_UTF8;
+use INTERNAL_ERROR_MSG;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[doc(hidden)]
@@ -92,7 +102,8 @@ where
     'b: 'c,
 {
     pub fn new(app: &'c mut App<'a, 'b>) -> Self {
-        let reqs = app.args
+        let reqs = app
+            .args
             .iter()
             .filter(|a| a.settings.is_set(ArgSettings::Required))
             .map(|a| a.name)
@@ -112,7 +123,6 @@ where
         }
     }
 
-
     #[cfg_attr(feature = "lints", allow(block_in_if_condition_stmt))]
     fn _verify_positionals(&mut self) -> bool {
         debugln!("Parser::_verify_positionals;");
@@ -123,14 +133,10 @@ where
         // positional arguments to verify there are no gaps (i.e. supplying an index of 1 and 3
         // but no 2)
         #[cfg(feature = "vec_map")]
-        fn _highest_idx(map: &VecMap<&str>) -> usize {
-            map.keys().last().unwrap_or(0)
-        }
+        fn _highest_idx(map: &VecMap<&str>) -> usize { map.keys().last().unwrap_or(0) }
 
         #[cfg(not(feature = "vec_map"))]
-        fn _highest_idx(map: &VecMap<&str>) -> usize {
-            *map.keys().last().unwrap_or(&0)
-        }
+        fn _highest_idx(map: &VecMap<&str>) -> usize { *map.keys().last().unwrap_or(&0) }
 
         let highest_idx = _highest_idx(&self.positionals);
 
@@ -192,7 +198,8 @@ where
                 }
             });
             let ok = count <= 1
-                || (last.is_set(ArgSettings::Last) && last.is_set(ArgSettings::MultipleValues)
+                || (last.is_set(ArgSettings::Last)
+                    && last.is_set(ArgSettings::MultipleValues)
                     && second_to_last.is_set(ArgSettings::MultipleValues)
                     && count == 2);
             assert!(
@@ -207,7 +214,8 @@ where
             // index are also required.
             let mut found = false;
             let mut foundx2 = false;
-            for p in self.positionals
+            for p in self
+                .positionals
                 .values()
                 .rev()
                 .map(|p_name| find!(self.app, p_name).expect(INTERNAL_ERROR_MSG))
@@ -242,7 +250,8 @@ where
             // Check that if a required positional argument is found, all positions with a lower
             // index are also required
             let mut found = false;
-            for p in self.positionals
+            for p in self
+                .positionals
                 .values()
                 .rev()
                 .map(|p_name| find!(self.app, p_name).expect(INTERNAL_ERROR_MSG))
@@ -268,10 +277,12 @@ where
             }
         }
         assert!(
-            positionals!(self.app).fold(0, |acc, p| if p.is_set(ArgSettings::Last) {
-                acc + 1
-            } else {
-                acc
+            positionals!(self.app).fold(0, |acc, p| {
+                if p.is_set(ArgSettings::Last) {
+                    acc + 1
+                } else {
+                    acc
+                }
             }) < 2,
             "Only one positional argument may have last(true) set. Found two."
         );
@@ -289,7 +300,7 @@ where
     }
 
     // Does all the initializing and prepares the parser
-    fn _build(&mut self) {
+    pub(crate) fn _build(&mut self) {
         debugln!("Parser::_build;");
 
         for a in &mut self.app.args {
@@ -354,7 +365,10 @@ where
     'b: 'c,
 {
     // The actual parsing function
-    #[cfg_attr(feature = "lints", allow(while_let_on_iterator, collapsible_if))]
+    #[cfg_attr(
+        feature = "lints",
+        allow(while_let_on_iterator, collapsible_if)
+    )]
     pub fn get_matches_with<I, T>(
         &mut self,
         matcher: &mut ArgMatcher<'a>,
@@ -384,7 +398,9 @@ where
             self.unset(AS::ValidNegNumFound);
             // Is this a new argument, or values from a previous option?
             let starts_new_arg = self.is_new_arg(&arg_os, needs_val_of);
-            if !self.is_set(AS::TrailingValues) && arg_os.starts_with(b"--") && arg_os.len() == 2
+            if !self.is_set(AS::TrailingValues)
+                && arg_os.starts_with(b"--")
+                && arg_os.len() == 2
                 && starts_new_arg
             {
                 debugln!("Parser::get_matches_with: setting TrailingVals=true");
@@ -473,7 +489,8 @@ where
             }
 
             if !(self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound))
-                && !self.is_set(AS::InferSubcommands) && !self.is_set(AS::AllowExternalSubcommands)
+                && !self.is_set(AS::InferSubcommands)
+                && !self.is_set(AS::AllowExternalSubcommands)
             {
                 if let Some(cdate) =
                     suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app))
@@ -555,7 +572,8 @@ where
                 let _ = self.add_val_to_arg(p, &arg_os, matcher)?;
 
                 matcher.inc_occurrence_of(p.name);
-                let _ = self.groups_for_arg(p.name)
+                let _ = self
+                    .groups_for_arg(p.name)
                     .and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
 
                 self.app.settings.set(AS::ValidArgFound);
@@ -673,10 +691,10 @@ where
     fn possible_subcommand(&self, arg_os: &OsStr) -> (bool, Option<&str>) {
         debugln!("Parser::possible_subcommand: arg={:?}", arg_os);
         fn starts(h: &str, n: &OsStr) -> bool {
-            #[cfg(not(target_os = "windows"))]
-            use std::os::unix::ffi::OsStrExt;
             #[cfg(target_os = "windows")]
             use osstringext::OsStrExt3;
+            #[cfg(not(target_os = "windows"))]
+            use std::os::unix::ffi::OsStrExt;
 
             let n_bytes = n.as_bytes();
             let h_bytes = OsStr::new(h).as_bytes();
@@ -934,9 +952,9 @@ where
         // specified by the user is sent through. If HiddenShortHelp is not included,
         // then items specified with hidden_short_help will also be hidden.
         let should_long = |v: &Arg| {
-            v.long_help.is_some() ||
-            v.is_set(ArgSettings::HiddenLongHelp) ||
-            v.is_set(ArgSettings::HiddenShortHelp)
+            v.long_help.is_some()
+                || v.is_set(ArgSettings::HiddenLongHelp)
+                || v.is_set(ArgSettings::HiddenShortHelp)
         };
 
         self.app.long_about.is_some()
@@ -944,33 +962,33 @@ where
             || subcommands!(self.app).any(|s| s.long_about.is_some())
     }
 
-//    fn _help(&self, mut use_long: bool) -> ClapError {
-//        debugln!("Parser::_help: use_long={:?}", use_long && self.use_long_help());
-//        use_long = use_long && self.use_long_help();
-//        let mut buf = vec![];
-//        match Help::write_parser_help(&mut buf, self, use_long) {
-//            Err(e) => e,
-//            _ => ClapError {
-//                message: String::from_utf8(buf).unwrap_or_default(),
-//                kind: ErrorKind::HelpDisplayed,
-//                info: None,
-//            },
-//        }
-//    }
-//
-//    fn _version(&self, use_long: bool) -> ClapError {
-//        debugln!("Parser::_version: ");
-//        let out = io::stdout();
-//        let mut buf_w = BufWriter::new(out.lock());
-//        match self.print_version(&mut buf_w, use_long) {
-//            Err(e) => e,
-//            _ => ClapError {
-//                message: String::new(),
-//                kind: ErrorKind::VersionDisplayed,
-//                info: None,
-//            },
-//        }
-//    }
+    //    fn _help(&self, mut use_long: bool) -> ClapError {
+    //        debugln!("Parser::_help: use_long={:?}", use_long && self.use_long_help());
+    //        use_long = use_long && self.use_long_help();
+    //        let mut buf = vec![];
+    //        match Help::write_parser_help(&mut buf, self, use_long) {
+    //            Err(e) => e,
+    //            _ => ClapError {
+    //                message: String::from_utf8(buf).unwrap_or_default(),
+    //                kind: ErrorKind::HelpDisplayed,
+    //                info: None,
+    //            },
+    //        }
+    //    }
+    //
+    //    fn _version(&self, use_long: bool) -> ClapError {
+    //        debugln!("Parser::_version: ");
+    //        let out = io::stdout();
+    //        let mut buf_w = BufWriter::new(out.lock());
+    //        match self.print_version(&mut buf_w, use_long) {
+    //            Err(e) => e,
+    //            _ => ClapError {
+    //                message: String::new(),
+    //                kind: ErrorKind::VersionDisplayed,
+    //                info: None,
+    //            },
+    //        }
+    //    }
 
     fn parse_long_arg(
         &mut self,
@@ -1365,16 +1383,26 @@ where
             (@default $_self:ident, $a:ident, $m:ident) => {
                 if let Some(ref val) = $a.default_val {
                     debugln!("Parser::add_defaults:iter:{}: has default vals", $a.name);
-                    if $m.get($a.name).map(|ma| ma.vals.len())
-                        .map(|len| len == 0).unwrap_or(false) {
-                        debugln!("Parser::add_defaults:iter:{}: has no user defined vals", $a.name);
+                    if $m
+                        .get($a.name)
+                        .map(|ma| ma.vals.len())
+                        .map(|len| len == 0)
+                        .unwrap_or(false)
+                    {
+                        debugln!(
+                            "Parser::add_defaults:iter:{}: has no user defined vals",
+                            $a.name
+                        );
                         $_self.add_val_to_arg($a, OsStr::new(val), $m)?;
 
                         if $_self.cache.map_or(true, |name| name != $a.name) {
                             $_self.cache = Some($a.name);
                         }
                     } else if $m.get($a.name).is_some() {
-                        debugln!("Parser::add_defaults:iter:{}: has user defined vals", $a.name);
+                        debugln!(
+                            "Parser::add_defaults:iter:{}: has user defined vals",
+                            $a.name
+                        );
                     } else {
                         debugln!("Parser::add_defaults:iter:{}: wasn't used", $a.name);
 
@@ -1385,7 +1413,10 @@ where
                         }
                     }
                 } else {
-                    debugln!("Parser::add_defaults:iter:{}: doesn't have default vals", $a.name);
+                    debugln!(
+                        "Parser::add_defaults:iter:{}: doesn't have default vals",
+                        $a.name
+                    );
                 }
             };
             ($_self:ident, $a:ident, $m:ident) => {
@@ -1510,7 +1541,10 @@ where
     }
 
     fn help_err(&self, mut use_long: bool) -> ClapError {
-        debugln!("Parser::help_err: use_long={:?}", use_long && self.use_long_help());
+        debugln!(
+            "Parser::help_err: use_long={:?}",
+            use_long && self.use_long_help()
+        );
         use_long = use_long && self.use_long_help();
         let mut buf = vec![];
         match Help::write_parser_help(&mut buf, self, use_long) {

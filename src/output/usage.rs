@@ -2,10 +2,10 @@
 use std::collections::{BTreeMap, VecDeque};
 
 // Internal
-use INTERNAL_ERROR_MSG;
-use build::{Arg, ArgSettings};
 use build::AppSettings as AS;
-use parse::{Parser, ArgMatcher};
+use build::{Arg, ArgSettings};
+use parse::{ArgMatcher, Parser};
+use INTERNAL_ERROR_MSG;
 
 pub struct Usage<'a, 'b, 'c, 'z>(&'z Parser<'a, 'b, 'c>)
 where
@@ -59,8 +59,10 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
 
     // Creates a usage string for display in help messages (i.e. not for errors)
     pub fn create_help_usage(&self, incl_reqs: bool) -> String {
+        debugln!("Usage::create_help_usage; incl_reqs={:?}", incl_reqs);
         let mut usage = String::with_capacity(75);
-        let name = self.0
+        let name = self
+            .0
             .app
             .usage
             .as_ref()
@@ -116,7 +118,7 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
                 let pos = positionals!(self.0.app)
                     .find(|p| p.is_set(ArgSettings::Last))
                     .expect(INTERNAL_ERROR_MSG);
-                debugln!("usage::create_help_usage: '{}' has .last(true)", pos.name);
+                debugln!("Usage::create_help_usage: '{}' has .last(true)", pos.name);
                 let req = pos.is_set(ArgSettings::Required);
                 if req && positionals!(self.0.app).any(|p| !p.is_set(ArgSettings::Required)) {
                     usage.push_str(" -- <");
@@ -170,12 +172,14 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
         let mut hs: Vec<&str> = self.0.required().map(|s| &**s).collect();
         hs.extend_from_slice(used);
 
-        let r_string = self.get_required_usage_from(&hs, None, None, false)
+        let r_string = self
+            .get_required_usage_from(&hs, None, None, false)
             .iter()
             .fold(String::new(), |acc, s| acc + &format!(" {}", s)[..]);
 
         usage.push_str(
-            &self.0
+            &self
+                .0
                 .app
                 .usage
                 .as_ref()
@@ -220,7 +224,8 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
         } else if count == 1 && incl_reqs {
             let pos = positionals!(self.0.app)
                 .find(|pos| {
-                    !pos.is_set(ArgSettings::Required) && !pos.is_set(ArgSettings::Hidden)
+                    !pos.is_set(ArgSettings::Required)
+                        && !pos.is_set(ArgSettings::Hidden)
                         && !pos.is_set(ArgSettings::Last)
                 })
                 .expect(INTERNAL_ERROR_MSG);
@@ -233,7 +238,8 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
                 pos.name_no_brackets(),
                 pos.multiple_str()
             ));
-        } else if self.0.is_set(AS::DontCollapseArgsInUsage) && self.0.has_positionals()
+        } else if self.0.is_set(AS::DontCollapseArgsInUsage)
+            && self.0.has_positionals()
             && incl_reqs
         {
             debugln!("usage::get_args_tag:iter: Don't collapse returning all");
@@ -318,7 +324,7 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
         incl_last: bool,
     ) -> VecDeque<String> {
         debugln!(
-            "usage::get_required_usage_from: reqs={:?}, extra={:?}",
+            "Usage::get_required_usage_from: reqs={:?}, extra={:?}",
             reqs,
             extra
         );
@@ -326,15 +332,19 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
         desc_reqs.extend(extra);
         let mut new_reqs: Vec<&str> = vec![];
         macro_rules! get_requires {
-            (@group $a: ident, $v:ident, $p:ident) => {{
+            (@group $a:ident, $v:ident, $p:ident) => {{
                 if let Some(rl) = groups!(self.0.app)
-                                                .filter(|g| g.requires.is_some())
-                                                .find(|g| &g.name == $a)
-                                                .map(|g| g.requires.as_ref().unwrap()) {
+                    .filter(|g| g.requires.is_some())
+                    .find(|g| &g.name == $a)
+                    .map(|g| g.requires.as_ref().unwrap())
+                {
                     for r in rl {
                         if !$p.contains(&r) {
-                            debugln!("usage::get_required_usage_from:iter:{}: adding group req={:?}",
-                                $a, r);
+                            debugln!(
+                                "Usage::get_required_usage_from:iter:{}: adding group req={:?}",
+                                $a,
+                                r
+                            );
                             $v.push(r);
                         }
                     }
@@ -342,13 +352,17 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
             }};
             ($a:ident, $what:ident, $how:ident, $v:ident, $p:ident) => {{
                 if let Some(rl) = $what!(self.0.app)
-                                            .filter(|a| a.requires.is_some())
-                                            .find(|arg| &arg.name == $a)
-                                            .map(|a| a.requires.as_ref().unwrap()) {
+                    .filter(|a| a.requires.is_some())
+                    .find(|arg| &arg.name == $a)
+                    .map(|a| a.requires.as_ref().unwrap())
+                {
                     for &(_, r) in rl.iter() {
                         if !$p.contains(&r) {
-                            debugln!("usage::get_required_usage_from:iter:{}: adding arg req={:?}",
-                                $a, r);
+                            debugln!(
+                                "usage::get_required_usage_from:iter:{}: adding arg req={:?}",
+                                $a,
+                                r
+                            );
                             $v.push(r);
                         }
                     }
@@ -388,7 +402,7 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
                 new_reqs.clear();
                 new_reqs.extend_from_slice(&*tmp);
                 debugln!(
-                    "usage::get_required_usage_from: after iter desc_reqs={:?}",
+                    "Usage::get_required_usage_from: after iter desc_reqs={:?}",
                     desc_reqs
                 );
             }
@@ -397,7 +411,7 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
         desc_reqs.sort();
         desc_reqs.dedup();
         debugln!(
-            "usage::get_required_usage_from: final desc_reqs={:?}",
+            "Usage::get_required_usage_from: final desc_reqs={:?}",
             desc_reqs
         );
         let mut ret_val = VecDeque::new();
@@ -427,10 +441,11 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
                 .collect::<BTreeMap<u64, &Arg>>() // sort by index
         };
         debugln!(
-            "usage::get_required_usage_from: args_in_groups={:?}",
+            "Usage::get_required_usage_from: args_in_groups={:?}",
             args_in_groups
         );
         for &p in pmap.values() {
+            debugln!("Usage::get_required_usage_from:iter:{}", p.to_string());
             let s = p.to_string();
             if args_in_groups.is_empty() || !args_in_groups.contains(&&*s) {
                 ret_val.push_back(s);
@@ -443,7 +458,7 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
             .filter(|name| !args_in_groups.contains(name))
             .filter(|name| !(matcher.is_some() && matcher.as_ref().unwrap().contains(name)))
         {
-            debugln!("usage::get_required_usage_from:iter:{}:", a);
+            debugln!("Usage::get_required_usage_from:iter:{}:", a);
             let arg = find!(self.0.app, a)
                 .map(|f| f.to_string())
                 .expect(INTERNAL_ERROR_MSG);
@@ -464,6 +479,7 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
             ret_val.push_back(g);
         }
 
+        debugln!("Usage::get_required_usage_from: ret_val={:?}", ret_val);
         ret_val
     }
 }

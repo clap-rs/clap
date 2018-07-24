@@ -8,8 +8,8 @@ use std::slice::Iter;
 use indexmap::IndexMap;
 
 // Internal
-use INVALID_UTF8;
 use parse::{MatchedArg, SubCommand};
+use INVALID_UTF8;
 
 /// Used to get information about the arguments that where supplied to the program at runtime by
 /// the user. New instances of this struct are obtained by using the [`App::get_matches`] family of
@@ -64,8 +64,6 @@ pub struct ArgMatches<'a> {
     pub args: IndexMap<&'a str, MatchedArg>,
     #[doc(hidden)]
     pub subcommand: Option<Box<SubCommand<'a>>>,
-    #[doc(hidden)]
-    pub usage: Option<String>,
 }
 
 impl<'a> Default for ArgMatches<'a> {
@@ -73,7 +71,6 @@ impl<'a> Default for ArgMatches<'a> {
         ArgMatches {
             args: IndexMap::new(),
             subcommand: None,
-            usage: None,
         }
     }
 }
@@ -746,21 +743,13 @@ impl<'a> ArgMatches<'a> {
             .map_or(("", None), |sc| (&sc.name[..], Some(&sc.matches)))
     }
 
-    /// Returns a string slice of the usage statement for the [`App`] or [`SubCommand`]
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, SubCommand};
-    /// let app_m = App::new("myprog")
-    ///     .subcommand(SubCommand::with_name("test"))
-    ///     .get_matches();
-    ///
-    /// println!("{}", app_m.usage());
-    /// ```
-    /// [`Subcommand`]: ./struct.SubCommand.html
-    /// [`App`]: ./struct.App.html
-    pub fn usage(&self) -> &str { self.usage.as_ref().map_or("", |u| &u[..]) }
+    // @TODO @v3-beta: remove
+    /// **Deprecated**
+    #[deprecated(
+        since = "2.32.0",
+        note = "Use App::usage instead. Will be removed in v3-beta"
+    )]
+    pub fn usage(&self) -> &str { panic!("Use App::usage instead. Will be removed in v3-beta") }
 }
 
 // The following were taken and adapated from vec_map source
@@ -895,7 +884,8 @@ impl<'a> Default for OsValues<'a> {
 /// [`ArgMatches::indices_of`]: ./struct.ArgMatches.html#method.indices_of
 #[derive(Clone)]
 #[allow(missing_debug_implementations)]
-pub struct Indices<'a> { // would rather use '_, but: https://github.com/rust-lang/rust/issues/48469
+pub struct Indices<'a> {
+    // would rather use '_, but: https://github.com/rust-lang/rust/issues/48469
     iter: Map<Iter<'a, usize>, fn(&'a usize) -> usize>,
 }
 

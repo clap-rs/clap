@@ -3,15 +3,15 @@
 use std::ascii::AsciiExt;
 
 // Internal
-use INTERNAL_ERROR_MSG;
-use INVALID_UTF8;
-use build::{Arg, ArgSettings};
 use build::app::AppSettings as AS;
-use parse::{ArgMatcher, MatchedArg, ParseResult, Parser};
-use parse::errors::{Error, ErrorKind};
-use parse::errors::Result as ClapResult;
+use build::{Arg, ArgSettings};
 use output::fmt::{Colorizer, ColorizerOption};
 use output::Usage;
+use parse::errors::Result as ClapResult;
+use parse::errors::{Error, ErrorKind};
+use parse::{ArgMatcher, MatchedArg, ParseResult, Parser};
+use INVALID_UTF8;
+use INTERNAL_ERROR_MSG;
 
 pub struct Validator<'a, 'b, 'c, 'z>(&'z mut Parser<'a, 'b, 'c>)
 where
@@ -51,7 +51,8 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
             }
         }
 
-        if matcher.is_empty() && matcher.subcommand_name().is_none()
+        if matcher.is_empty()
+            && matcher.subcommand_name().is_none()
             && self.0.is_set(AS::ArgRequiredElseHelp)
         {
             let mut out = vec![];
@@ -67,7 +68,6 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
             self.validate_required(matcher)?;
         }
         self.validate_matched_args(matcher)?;
-        matcher.usage(Usage::new(self.0).create_usage_with_title(&[]));
 
         Ok(())
     }
@@ -108,7 +108,8 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
                     ));
                 }
             }
-            if !arg.is_set(ArgSettings::AllowEmptyValues) && val.is_empty()
+            if !arg.is_set(ArgSettings::AllowEmptyValues)
+                && val.is_empty()
                 && matcher.contains(&*arg.name)
             {
                 debugln!("Validator::validate_arg_values: illegal empty val found");
@@ -463,7 +464,7 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
                     ru.iter().$how(|n| {
                         $m.contains(n) || {
                             if let Some(grp) = find!($_self.app, n, groups) {
-                                     grp.args.iter().any(|arg| $m.contains(arg))
+                                grp.args.iter().any(|arg| $m.contains(arg))
                             } else {
                                 false
                             }

@@ -19,7 +19,7 @@ use yaml_rust::Yaml;
 use build::{Arg, ArgGroup, ArgSettings};
 use completions::{ComplGen, Shell};
 use output::fmt::ColorWhen;
-use output::Help;
+use output::{Help, Usage};
 use parse::errors::Result as ClapResult;
 use parse::{ArgMatcher, ArgMatches, Parser};
 
@@ -1147,6 +1147,19 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`--version` (long)]: ./struct.App.html#method.long_version
     pub fn write_long_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
         self._write_version(w, true).map_err(From::from)
+    }
+
+    /// @TODO-v3-alpha @docs @p2: write docs
+    pub fn generate_usage(&mut self) -> String {
+        // If there are global arguments, or settings we need to propgate them down to subcommands
+        // before parsing incase we run into a subcommand
+        if !self.settings.is_set(AppSettings::Propagated) {
+            self._build(Propagation::NextLevel);
+        }
+
+        let mut parser = Parser::new(self);
+        parser._build();
+        Usage::new(&parser).create_usage_with_title(&[])
     }
 
     /// Starts the parsing process, upon a failed parse an error will be displayed to the user and
