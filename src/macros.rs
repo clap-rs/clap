@@ -466,7 +466,7 @@ macro_rules! crate_authors {
         struct CargoAuthors {
             __private_field: (),
         };
-        
+                
         impl Deref for CargoAuthors {
             type Target = str;
 
@@ -888,24 +888,29 @@ macro_rules! args {
         $app.args.$how()
     };
     ($app:expr) => {
-        args!($app, iter)
+        args!($app, values)
     };
 }
 
 macro_rules! args_mut {
     ($app:expr) => {
-        args!($app, iter_mut)
+        args!($app, values_mut)
     };
 }
 
 macro_rules! flags {
-    ($app:expr, $how:ident) => {
+    ($app:expr, $how:ident) => {{
+        use mkeymap::KeyType::*;
         $app.args
             .$how()
-            .filter(|a| !a.settings.is_set(::build::ArgSettings::TakesValue))
-            .filter(|a| a.short.is_some() || a.long.is_some())
-            .filter(|a| !a.help_heading.is_some())
-    };
+            .filter(|(k, a)| !a.settings.is_set(::build::ArgSettings::TakesValue))
+            .filter(|(k, a)| match k {
+                Long(_) => true,
+                Short(_) => true,
+                Position(_) => false,
+            })
+            .filter(|(k, a)| !a.help_heading.is_some())
+    }};
     ($app:expr) => {
         flags!($app, iter)
     };
@@ -919,13 +924,18 @@ macro_rules! flags_mut {
 }
 
 macro_rules! opts {
-    ($app:expr, $how:ident) => {
+    ($app:expr, $how:ident) => {{
+        use mkeymap::KeyType::*;
         $app.args
             .$how()
-            .filter(|a| a.settings.is_set(::build::ArgSettings::TakesValue))
-            .filter(|a| a.short.is_some() || a.long.is_some())
-            .filter(|a| !a.help_heading.is_some())
-    };
+            .filter(|(k, a)| a.settings.is_set(::build::ArgSettings::TakesValue))
+            .filter(|(k, a)| match k {
+                Long(_) => true,
+                Short(_) => true,
+                Position(_) => false,
+            })
+            .filter(|(k, a)| !a.help_heading.is_some())
+    }};
     ($app:expr) => {
         opts!($app, iter)
     };
@@ -939,21 +949,19 @@ macro_rules! opts_mut {
 }
 
 macro_rules! positionals {
-    ($app:expr, $how:ident) => {
-        $app.args
-            .$how()
-            .filter(|a| !a.help_heading.is_some())
-            .filter(|a| !(a.short.is_some() || a.long.is_some()))
-    };
     ($app:expr) => {
-        positionals!($app, iter)
+        $app.args
+            .values()
+            .filter(|a| !(a.short.is_some() || a.long.is_some()))
     };
 }
 
 #[allow(unused_macros)]
 macro_rules! positionals_mut {
     ($app:expr) => {
-        positionals!($app, iter_mut)
+        $app.args
+            .values_mut()
+            .filter(|a| !(a.short.is_some() || a.long.is_some()))
     };
 }
 
@@ -963,14 +971,14 @@ macro_rules! custom_headings {
         $app.args.$how().filter(|a| (a.help_heading.is_some()))
     };
     ($app:expr) => {
-        custom_headings!($app, iter)
+        custom_headings!($app, values)
     };
 }
 
 #[allow(unused_macros)]
 macro_rules! custom_headings_mut {
     ($app:expr) => {
-        custom_headings!($app, iter_mut)
+        custom_headings!($app, values_mut)
     };
 }
 
@@ -995,7 +1003,7 @@ macro_rules! subcommands {
 macro_rules! subcommands_mut {
     ($app:expr) => {
         subcommands!($app, iter_mut)
-    }
+    };
 }
 
 macro_rules! groups {
@@ -1004,13 +1012,13 @@ macro_rules! groups {
     };
     ($app:expr) => {
         groups!($app, iter)
-    }
+    };
 }
 
 macro_rules! groups_mut {
     ($app:expr) => {
         groups!($app, iter_mut)
-    }
+    };
 }
 
 // macro_rules! groups_mut {
@@ -1029,12 +1037,13 @@ macro_rules! groups_for_arg {
 }
 
 // Finds an arg by name
+// ! look up usages and find ways to improve performance
 macro_rules! find {
     ($app:expr, $name:expr, $what:ident) => {
         $what!($app).find(|a| &a.name == $name)
     };
     ($app:expr, $name:expr) => {
-        $app.args.iter().find(|a| &a.name == $name)
+        $app.args.values().find(|a| &a.name == $name)
     };
 }
 
@@ -1099,35 +1108,45 @@ macro_rules! find_subcmd {
 //     }};
 // }
 
-//TODO change into one macro (repeated structure)
+//TODO change into one macro (repeated structure) + Positionals
 macro_rules! longs {
-    ($app:expr) => ({
+    ($app:expr) => {{
         use mkeymap::KeyType;
-        $app.args.keys().filter_map(|a| if let KeyType::Long(v) = a {Some(v)} else {None})
-    });
+        $app.args.keys().filter_map(|a| {
+            if let KeyType::Long(v) = a {
+                Some(v)
+            } else {
+                None
+            }
+        })
+    }};
 }
 
 macro_rules! shorts {
-    ($app:expr) => ({
+    ($app:expr) => {{
         use mkeymap::KeyType;
-        $app.args.keys().filter_map(|a| if let KeyType::Short(v) = a {Some(v)} else {None})
-    })
+        $app.args.keys().filter_map(|a| {
+            if let KeyType::Short(v) = a {
+                Some(v)
+            } else {
+                None
+            }
+        })
+    }};
 }
 
 macro_rules! _names {
     (@args $app:expr) => {{
-        $app.args.iter().map(|a| &*a.name)
+        $app.args.values().map(|a| &*a.name)
     }};
     (@sc $app:expr) => {{
-        $app.subcommands
-            .iter()
-            .map(|s| &*s.name)
-            .chain($app.subcommands
-                         .iter()
-                         .filter(|s| s.aliases.is_some())
-                         .flat_map(|s| s.aliases.as_ref().unwrap().iter().map(|&(n, _)| n)))
-
-    }}
+        $app.subcommands.iter().map(|s| &*s.name).chain(
+            $app.subcommands
+                .iter()
+                .filter(|s| s.aliases.is_some())
+                .flat_map(|s| s.aliases.as_ref().unwrap().iter().map(|&(n, _)| n)),
+        )
+    }};
 }
 
 macro_rules! arg_names {
@@ -1142,6 +1161,7 @@ macro_rules! sc_names {
     }};
 }
 
+//probably scrap it altogether, as instead of iterating and matching alias we can just find by a Long
 macro_rules! match_alias {
     ($a:expr, $to:expr, $what:expr) => {{
         $what == $to

@@ -26,6 +26,7 @@ use util::VecMap;
 use build::app::Propagation;
 use build::AppSettings as AS;
 use build::{App, Arg, ArgSettings};
+use mkeymap::KeyType;
 use output::Help;
 use output::Usage;
 use parse::errors::Error as ClapError;
@@ -38,7 +39,6 @@ use util::{ChildGraph, OsStrExt2};
 use INVALID_UTF8;
 use INTERNAL_ERROR_MSG;
 use parse::features::suggestions;
-use mkeymap::KeyType;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[doc(hidden)]
@@ -62,10 +62,10 @@ where
     pub required: ChildGraph<&'a str>,
     // pub r_ifs: Vec<(&'a str, &'b str, &'a str)>,
     pub overriden: Vec<&'a str>,
-    cache: Option<&'a str>,
+    //cache: Option<&'a str>,
     num_opts: usize,
     num_flags: usize,
-    pub positionals: VecMap<&'a str>,
+    //pub positionals: VecMap<&'a str>,
     seen: Vec<&'a str>,
     cur_idx: Cell<usize>,
 }
@@ -104,7 +104,7 @@ where
         let mut reqs = ChildGraph::with_capacity(5);
         for a in app
             .args
-            .iter()
+            .values()
             .filter(|a| a.settings.is_set(ArgSettings::Required))
             .map(|a| a.name)
         {
@@ -115,10 +115,8 @@ where
             app: app,
             required: ChildGraph::from(reqs),
             overriden: Vec::new(),
-            cache: None,
             num_opts: 0,
             num_flags: 0,
-            positionals: VecMap::new(),
             seen: Vec::new(),
             cur_idx: Cell::new(0),
         }
@@ -133,15 +131,32 @@ where
         // Firt we verify that the index highest supplied index, is equal to the number of
         // positional arguments to verify there are no gaps (i.e. supplying an index of 1 and 3
         // but no 2)
-        #[cfg(feature = "vec_map")]
-        fn _highest_idx(map: &VecMap<&str>) -> usize { map.keys().last().unwrap_or(0) }
+        let highest_idx = *self
+            .app
+            .args
+            .keys()
+            .filter_map(|x| {
+                if let KeyType::Position(n) = x {
+                    Some(n)
+                } else {
+                    None
+                }
+            })
+            .max()
+            .unwrap_or(&0);
 
-        #[cfg(not(feature = "vec_map"))]
-        fn _highest_idx(map: &VecMap<&str>) -> usize { *map.keys().last().unwrap_or(&0) }
-
-        let highest_idx = _highest_idx(&self.positionals);
-
-        let num_p = self.positionals.len();
+        let num_p = self
+            .app
+            .args
+            .keys()
+            .filter(|x| {
+                if let KeyType::Position(_) = x {
+                    true
+                } else {
+                    false
+                }
+            })
+            .count();
 
         assert!(
             highest_idx == num_p,
@@ -160,16 +175,28 @@ where
             //  * a value terminator
             //  * ArgSettings::Last
             //  * The last arg is Required
-            let mut it = self.positionals.values().rev();
+            let mut it = self.app.args.keys().filter(|x| {
+                if let KeyType::Position(_) = x {
+                    true
+                } else {
+                    false
+                }
+            });
+            //self.positionals.values().rev();
 
             // We can't pass the closure (it.next()) to the macro directly because each call to
             // find() (iterator, not macro) gets called repeatedly.
-            let last_name = it.next().expect(INTERNAL_ERROR_MSG);
-            let second_to_last_name = it.next().expect(INTERNAL_ERROR_MSG);
-            let last = self.app.find(last_name).expect(INTERNAL_ERROR_MSG);
+            let last = self
+                .app
+                .args
+                .get(KeyType::Position(highest_idx))
+                .expect(INTERNAL_ERROR_MSG);
+            //let second_to_last_name = it.next().expect(INTERNAL_ERROR_MSG);
+            //let last = find!(self.app, last_name).expect(INTERNAL_ERROR_MSG);
             let second_to_last = self
                 .app
-                .find(second_to_last_name)
+                .args
+                .get(KeyType::Position(highest_idx - 1))
                 .expect(INTERNAL_ERROR_MSG);
 
             // Either the final positional is required
@@ -218,6 +245,7 @@ where
             // index are also required.
             let mut found = false;
             let mut foundx2 = false;
+
             for p in self
                 .positionals
                 .values()
@@ -309,7 +337,7 @@ where
 
         for (i, a) in self.app.args.values_mut().enumerate() {
             if let Some(index) = a.index {
-                self.app.args.insert_key(KeyType::Positional(index), i);
+                self.app.args.insert_key(KeyType::Position(index), i);
             } else {
                 if let Some(c) = a.short {
                     self.app.args.insert_key(KeyType::Short(c), i);
@@ -319,7 +347,9 @@ where
                 }
                 if let Some(v) = a.aliases {
                     for (item, _) in &v {
-                        self.app.args.insert_key(KeyType::Long(&OsStr::new(item)), i);
+                        self.app
+                            .args
+                            .insert_key(KeyType::Long(&OsStr::new(item)), i);
                     }
                 }
             }
@@ -358,7 +388,13 @@ where
         // Set the LowIndexMultiple flag if required
         if positionals!(self.app).any(|a| {
             a.is_set(ArgSettings::MultipleValues)
-                && (a.index.unwrap_or(0) as usize != self.positionals.len())
+                && (a.index.unwrap_or(0) as usize
+                    != self
+                        .app
+                        .args
+                        .keys()
+                        .filter(|x| if let Position(_) = x { true } else { false })
+                        .count())
         }) && self.positionals.values().last().map_or(false, |p_name| {
             !self
                 .app
@@ -1004,37 +1040,18 @@ where
             sdebugln!("No");
             full_arg.trim_left_matches(b'-')
         };
-// opts?? Should probably now check once, then check whether it's opt or flag, or sth else
-        if let Some(opt) = self.app.args.get(KeyType::Long(arg))
-        {
+        if let Some(opt) = self.app.args.get(KeyType::Long(arg)) {
             debugln!(
                 "Parser::parse_long_arg: Found valid opt '{}'",
                 opt.to_string()
             );
             self.app.settings.set(AS::ValidArgFound);
-            let ret = self.parse_opt(val, opt, val.is_some(), matcher)?;
-            if self.cache.map_or(true, |name| name != opt.name) {
-                self.cache = Some(opt.name);
-            }
 
-            return Ok(ret);
-//flags??
-        } else if let Some(flag) = self.app.args.get(KeyType::Long(arg)) {
-            debugln!(
-                "Parser::parse_long_arg: Found valid flag '{}'",
-                flag.to_string()
-            );
-            self.app.settings.set(AS::ValidArgFound);
-            // Only flags could be help or version, and we need to check the raw long
-            // so this is the first point to check
-            self.check_for_help_and_version_str(arg)?;
+            if opt.is_set(ArgSettings::TakesValue) {
+                return Ok(self.parse_opt(val, opt, val.is_some(), matcher)?);
+	    }
 
             self.parse_flag(flag, matcher)?;
-
-            // Handle conflicts, requirements, etc.
-            if self.cache.map_or(true, |name| name != flag.name) {
-                self.cache = Some(flag.name);
-            }
 
             return Ok(ParseResult::Flag);
         } else if self.is_set(AS::AllowLeadingHyphen) {
@@ -1461,7 +1478,7 @@ where
     }
 
     pub(crate) fn add_env(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
-        for a in &self.app.args {
+        for a in self.app.args.values() {
             if let Some(ref val) = a.env {
                 if matcher
                     .get(a.name)
@@ -1509,10 +1526,9 @@ where
                     matcher.inc_occurrence_of(&*grp);
                 }
                 matcher.insert(&*opt.name);
-            } else if let Some(flg) = find_by_long!(self.app, name) {
-                for grp in groups_for_arg!(self.app, &flg.name) {
-                    matcher.inc_occurrence_of(&*grp);
-                }
+            } else if let Some(flg) = self.app.args.get(KeyType::Long(name)) {
+                self.groups_for_arg(&*flg.name)
+                    .and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
                 matcher.insert(&*flg.name);
             }
         }
@@ -1594,7 +1610,20 @@ where
 
     pub(crate) fn has_flags(&self) -> bool { self.app.has_flags() }
 
-    pub(crate) fn has_positionals(&self) -> bool { !self.positionals.is_empty() }
+    pub(crate) fn has_positionals(&self) -> bool {
+        !self
+            .app
+            .args
+            .keys()
+            .filter(|x| {
+                if let KeyType::Position(_) = x {
+                    true
+                } else {
+                    false
+                }
+            })
+            .count() == 0
+    }
 
     pub(crate) fn has_subcommands(&self) -> bool { self.app.has_subcommands() }
 

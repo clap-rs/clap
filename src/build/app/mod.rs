@@ -107,7 +107,7 @@ where
     #[doc(hidden)]
     pub g_settings: AppFlags,
     #[doc(hidden)]
-    pub args: MKeyMap,
+    pub args: MKeyMap<'a, 'b>,
     #[doc(hidden)]
     pub subcommands: Vec<App<'a, 'b>>,
     #[doc(hidden)]
@@ -990,7 +990,7 @@ impl<'a, 'b> App<'a, 'b> {
     {
         let i = self
             .args
-            .iter()
+            .values()
             .enumerate()
             .filter_map(|(i, a)| if a.name == arg { Some(i) } else { None })
             .next();
@@ -1410,7 +1410,7 @@ impl<'a, 'b> App<'a, 'b> {
 
         let global_arg_vec: Vec<&str> = (&self)
             .args
-            .iter()
+            .values()
             .filter(|a| a.is_set(ArgSettings::Global))
             .map(|ga| ga.name)
             .collect();
@@ -1480,16 +1480,18 @@ impl<'a, 'b> App<'a, 'b> {
         debugln!("App::app_debug_asserts;");
         // * Args listed inside groups should exist
         // * Groups should not have naming conflicts with Args
-        let g = self.groups.iter().find(|g| {
-            g.args.iter().any(|arg| {
-                !(self.find(arg).is_some() || self.groups.iter().any(|g| &g.name == arg))
-            })
-        });
-        assert!(
-            g.is_none(),
-            "The group '{}' contains an arg that doesn't exist or has a naming conflict with a group.",
-            g.unwrap().name
-        );
+
+        // * Will be removed as a part of removing String types
+        // let g = groups!(self).find(|g| {
+        //     g.args
+        //         .iter()
+        //         .any(|arg| !(find!(self, arg).is_some() || groups!(self).any(|g| &g.name == arg)))
+        // });
+        // assert!(
+        //     g.is_none(),
+        //     "The group '{}' contains an arg that doesn't exist or has a naming conflict with a group.",
+        //     g.unwrap().name
+        // );
         true
     }
 
@@ -1516,7 +1518,7 @@ impl<'a, 'b> App<'a, 'b> {
                 sc.max_w = self.max_w;
             }
             {
-                for a in self.args.iter().filter(|a| a.is_set(ArgSettings::Global)) {
+                for a in self.args.values().filter(|a| a.is_set(ArgSettings::Global)) {
                     sc.args.push(a.clone());
                 }
             }
@@ -1762,9 +1764,11 @@ impl<'a, 'b> App<'a, 'b> {
             ColorWhen::Auto
         }
     }
-    pub(crate) fn contains_long(&self, l: &str) -> bool { longs!(self).any(|al| al == l) }
+    pub(crate) fn contains_long(&self, l: &str) -> bool {
+        longs!(self).any(|&al| al == OsString::from(l).as_os_str())
+    }
 
-    pub(crate) fn contains_short(&self, s: char) -> bool { shorts!(self).any(|arg_s| arg_s == s) }
+    pub(crate) fn contains_short(&self, s: char) -> bool { shorts!(self).any(|&arg_s| arg_s == s) }
 
     pub fn is_set(&self, s: AppSettings) -> bool {
         self.settings.is_set(s) || self.g_settings.is_set(s)
@@ -1788,9 +1792,13 @@ impl<'a, 'b> App<'a, 'b> {
 
     pub fn has_positionals(&self) -> bool { positionals!(self).count() > 0 }
 
-    pub fn has_visible_opts(&self) -> bool { opts!(self).any(|o| !o.is_set(ArgSettings::Hidden)) }
+    pub fn has_visible_opts(&self) -> bool {
+        opts!(self).any(|(k, o)| !o.is_set(ArgSettings::Hidden))
+    }
 
-    pub fn has_visible_flags(&self) -> bool { flags!(self).any(|o| !o.is_set(ArgSettings::Hidden)) }
+    pub fn has_visible_flags(&self) -> bool {
+        flags!(self).any(|(k, o)| !o.is_set(ArgSettings::Hidden))
+    }
 
     pub fn has_visible_positionals(&self) -> bool {
         positionals!(self).any(|o| !o.is_set(ArgSettings::Hidden))
