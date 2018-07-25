@@ -18,7 +18,7 @@ static MISSING_REQ: &'static str = "error: The following required arguments were
     --long-option-2 <option2>
 
 USAGE:
-    clap-test <positional2> -F --long-option-2 <option2>
+    clap-test <positional2> --long-option-2 <option2> -F
 
 For more information try --help";
 
@@ -27,7 +27,7 @@ static COND_REQ_IN_USAGE: &'static str =
     --output <output>
 
 USAGE:
-    test --input <input> --output <output> --target <target>
+    test --target <target> --input <input> --output <output>
 
 For more information try --help";
 
@@ -155,7 +155,7 @@ fn arg_require_group() {
         .group(ArgGroup::with_name("gr").arg("some").arg("other"))
         .arg(Arg::from("--some 'some arg'"))
         .arg(Arg::from("--other 'other arg'"))
-        .get_matches_from_safe(vec!["", "-f"]);
+        .try_get_matches_from(vec!["", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
@@ -163,12 +163,14 @@ fn arg_require_group() {
 
 #[test]
 fn arg_require_group_2() {
-    let m = App::new("arg_require_group")
+    let res = App::new("arg_require_group")
         .arg(Arg::from("-f, --flag 'some flag'").requires("gr"))
         .group(ArgGroup::with_name("gr").arg("some").arg("other"))
         .arg(Arg::from("--some 'some arg'"))
         .arg(Arg::from("--other 'other arg'"))
-        .get_matches_from(vec!["", "-f", "--some"]);
+        .try_get_matches_from(vec!["", "-f", "--some"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
     assert!(m.is_present("some"));
     assert!(!m.is_present("other"));
     assert!(m.is_present("flag"));
@@ -176,12 +178,14 @@ fn arg_require_group_2() {
 
 #[test]
 fn arg_require_group_3() {
-    let m = App::new("arg_require_group")
+    let res = App::new("arg_require_group")
         .arg(Arg::from("-f, --flag 'some flag'").requires("gr"))
         .group(ArgGroup::with_name("gr").arg("some").arg("other"))
         .arg(Arg::from("--some 'some arg'"))
         .arg(Arg::from("--other 'other arg'"))
-        .get_matches_from(vec!["", "-f", "--other"]);
+        .try_get_matches_from(vec!["", "-f", "--other"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
     assert!(!m.is_present("some"));
     assert!(m.is_present("other"));
     assert!(m.is_present("flag"));
@@ -196,19 +200,15 @@ fn issue_753() {
             "-l, --list 'List available interfaces (and stop there)'",
         ))
         .arg(
-            Arg::from(
-                "-i, --iface=[INTERFACE] 'Ethernet interface for fetching NTP packets'",
-            ).required_unless("list"),
+            Arg::from("-i, --iface=[INTERFACE] 'Ethernet interface for fetching NTP packets'")
+                .required_unless("list"),
         )
         .arg(
             Arg::from("-f, --file=[TESTFILE] 'Fetch NTP packets from pcap file'")
                 .conflicts_with("iface")
                 .required_unless("list"),
         )
-        .arg(
-            Arg::from("-s, --server=[SERVER_IP] 'NTP server IP address'")
-                .required_unless("list"),
-        )
+        .arg(Arg::from("-s, --server=[SERVER_IP] 'NTP server IP address'").required_unless("list"))
         .arg(Arg::from("-p, --port=[SERVER_PORT] 'NTP server port'").default_value("123"))
         .get_matches_from_safe(vec!["test", "--list"]);
     assert!(m.is_ok());
@@ -661,4 +661,46 @@ fn require_eq() {
             .help("some"),
     );
     assert!(test::compare_output(app, "clap-test", REQUIRE_EQUALS, true));
+}
+
+static ISSUE_1158: &'static str = "error: The following required arguments were not provided:
+    -x <X>
+    -y <Y>
+    -z <Z>
+
+USAGE:
+    example <ID> -x <X> -y <Y> -z <Z>
+
+For more information try --help";
+
+fn issue_1158_app() -> App<'static, 'static> {
+    App::new("example")
+        .arg(
+            Arg::from_usage("-c, --config [FILE] 'Custom config file.'")
+                .required_unless("ID")
+                .conflicts_with("ID"),
+        )
+        .arg(
+            Arg::from_usage("[ID] 'ID'")
+                .required_unless("config")
+                .conflicts_with("config")
+                .requires_all(&["x", "y", "z"]),
+        )
+        .arg(Arg::from_usage("-x [X] 'X'"))
+        .arg(Arg::from_usage("-y [Y] 'Y'"))
+        .arg(Arg::from_usage("-z [Z] 'Z'"))
+}
+
+#[test]
+fn issue_1158_conflicting_requirements() {
+    let app = issue_1158_app();
+
+    assert!(test::compare_output(app, "example id", ISSUE_1158, true));
+}
+
+#[test]
+fn issue_1158_conflicting_requirements_rev() {
+    let res = issue_1158_app().try_get_matches_from(&["", "--config", "some.conf"]);
+
+    assert!(res.is_ok());
 }

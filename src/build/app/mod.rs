@@ -10,6 +10,7 @@ use std::io::{self, BufRead, BufWriter, Write};
 use std::iter::Peekable;
 use std::path::{Path, PathBuf};
 use std::process;
+use std::slice::Iter;
 
 // Third Party
 #[cfg(feature = "yaml")]
@@ -22,6 +23,7 @@ use output::fmt::ColorWhen;
 use output::{Help, Usage};
 use parse::errors::Result as ClapResult;
 use parse::{ArgMatcher, ArgMatches, Parser};
+use INTERNAL_ERROR_MSG;
 
 #[doc(hidden)]
 #[allow(dead_code)]
@@ -1403,9 +1405,7 @@ impl<'a, 'b> App<'a, 'b> {
             let mut parser = Parser::new(self);
 
             // do the real parsing
-            if let Err(e) = parser.get_matches_with(&mut matcher, it) {
-                return Err(e);
-            }
+            parser.get_matches_with(&mut matcher, it)?;
         }
 
         let global_arg_vec: Vec<&str> = (&self)
@@ -1449,7 +1449,7 @@ impl<'a, 'b> App<'a, 'b> {
             if let Some(ref grps) = a.groups {
                 for g in grps {
                     let mut found = false;
-                    if let Some(ref mut ag) = groups_mut!(self).find(|grp| &grp.name == g) {
+                    if let Some(ref mut ag) = self.groups.iter_mut().find(|grp| &grp.name == g) {
                         ag.args.push(a.name);
                         found = true;
                     }
@@ -1480,10 +1480,10 @@ impl<'a, 'b> App<'a, 'b> {
         debugln!("App::app_debug_asserts;");
         // * Args listed inside groups should exist
         // * Groups should not have naming conflicts with Args
-        let g = groups!(self).find(|g| {
-            g.args
-                .iter()
-                .any(|arg| !(find!(self, arg).is_some() || groups!(self).any(|g| &g.name == arg)))
+        let g = self.groups.iter().find(|g| {
+            g.args.iter().any(|arg| {
+                !(self.find(arg).is_some() || self.groups.iter().any(|g| &g.name == arg))
+            })
         });
         assert!(
             g.is_none(),
@@ -1725,6 +1725,10 @@ impl<'a, 'b> App<'a, 'b> {
 // Internal Query Methods
 #[doc(hidden)]
 impl<'a, 'b> App<'a, 'b> {
+    pub(crate) fn find(&self, name: &str) -> Option<&Arg<'a, 'b>> {
+        self.args.iter().find(|a| a.name == name)
+    }
+
     // Should we color the output? None=determined by output location, true=yes, false=no
     #[doc(hidden)]
     pub fn color(&self) -> ColorWhen {
@@ -1779,6 +1783,101 @@ impl<'a, 'b> App<'a, 'b> {
         subcommands!(self)
             .filter(|sc| sc.name != "help")
             .any(|sc| !sc.is_set(AppSettings::Hidden))
+    }
+
+    pub(crate) fn unroll_args_in_group(&self, group: &'a str) -> Vec<&'a str> {
+        let mut g_vec = vec![group];
+        let mut args = vec![];
+
+        while let Some(ref g) = g_vec.pop() {
+            for n in self
+                .groups
+                .iter()
+                .find(|grp| &grp.name == g)
+                .expect(INTERNAL_ERROR_MSG)
+                .args
+                .iter()
+            {
+                if !args.contains(n) {
+                    if self.find(n).is_some() {
+                        args.push(n)
+                    } else {
+                        g_vec.push(n);
+                    }
+                }
+            }
+        }
+
+        args
+    }
+
+    pub(crate) fn unroll_conflicts_for_group(&self, group: &'a str) -> Vec<&'a str> {
+        let mut g_vec = vec![group];
+        let mut confs = vec![];
+
+        while let Some(ref g) = g_vec.pop() {
+            if let Some(ref c_vec) = self
+                .groups
+                .iter()
+                .find(|grp| &grp.name == g)
+                .expect(INTERNAL_ERROR_MSG)
+                .conflicts
+            {
+                for c in c_vec {
+                    if !confs.contains(c) {
+                        if self.find(c).is_some() {
+                            confs.push(c)
+                        } else {
+                            g_vec.push(c);
+                        }
+                    }
+                }
+            }
+        }
+
+        confs
+    }
+
+    pub(crate) fn unroll_requirements_for_arg(
+        &self,
+        arg: &str,
+        matcher: &ArgMatcher<'a>,
+    ) -> Vec<&'a str> {
+        let requires_if_or_not = |&(val, req_arg)| {
+            if let Some(v) = val {
+                if matcher
+                    .get(arg)
+                    .and_then(|ma| Some(ma.contains_val(v)))
+                    .unwrap_or(false)
+                {
+                    Some(req_arg)
+                } else {
+                    None
+                }
+            } else {
+                Some(req_arg)
+            }
+        };
+
+        let mut r_vec = vec![arg];
+        let mut args = vec![];
+
+        while let Some(ref a) = r_vec.pop() {
+            if let Some(arg) = self.find(a) {
+                if let Some(ref reqs) = arg.requires {
+                    for r in reqs.iter().filter_map(requires_if_or_not) {
+                        if let Some(req) = self.find(r) {
+                            if req.requires.is_some() {
+                                r_vec.push(req.name)
+                            }
+                        }
+                        args.push(r);
+                    }
+                }
+            }
+        }
+
+        args
     }
 }
 

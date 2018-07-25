@@ -983,20 +983,30 @@ macro_rules! subcommands_mut {
     }
 }
 
-macro_rules! groups {
-    ($app:expr, $how:ident) => {
-        $app.groups.$how()
-    };
-    ($app:expr) => {
-        groups!($app, iter)
-    }
+// macro_rules! groups {
+//     ($app:expr, $how:ident) => {
+//         $app.groups.$how()
+//     };
+//     ($app:expr) => {
+//         groups!($app, iter)
+//     }
+// }
+
+// macro_rules! groups_mut {
+//     ($app:expr) => {
+//         groups!($app, iter_mut)
+//     }
+// }
+macro_rules! groups_for_arg {
+    ($app:expr, $grp:expr) => {{
+        debugln!("Parser::groups_for_arg: name={}", $grp);
+        $app.groups
+            .iter()
+            .filter(|grp| grp.args.iter().any(|a| a == $grp))
+            .map(|grp| grp.name)
+    }}
 }
 
-macro_rules! groups_mut {
-    ($app:expr) => {
-        groups!($app, iter_mut)
-    }
-}
 
 macro_rules! find_from {
     ($app:expr, $arg_name:expr, $from:ident, $matcher:expr) => {{

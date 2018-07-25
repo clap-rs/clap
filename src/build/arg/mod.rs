@@ -603,7 +603,7 @@ impl<'a, 'b> Arg<'a, 'b> {
         } else {
             self.r_unless = Some(vec![name]);
         }
-        self.required(true)
+        self
     }
 
     /// Sets args that override this arg's required setting. (i.e. this arg will be required unless
@@ -677,8 +677,7 @@ impl<'a, 'b> Arg<'a, 'b> {
         } else {
             self.r_unless = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
         }
-        self.setb(ArgSettings::RequiredUnlessAll);
-        self.required(true)
+        self.setting(ArgSettings::RequiredUnlessAll)
     }
 
     /// Sets args that override this arg's [required] setting. (i.e. this arg will be required
@@ -753,7 +752,7 @@ impl<'a, 'b> Arg<'a, 'b> {
         } else {
             self.r_unless = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
         }
-        self.required(true)
+        self
     }
 
     /// Sets a conflicting argument by name. I.e. when using this argument,

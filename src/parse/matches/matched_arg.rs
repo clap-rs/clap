@@ -1,5 +1,5 @@
 // Std
-use std::ffi::OsString;
+use std::ffi::{OsStr, OsString};
 
 #[doc(hidden)]
 #[derive(Debug, Clone)]
@@ -24,4 +24,10 @@ impl Default for MatchedArg {
 
 impl MatchedArg {
     pub fn new() -> Self { MatchedArg::default() }
+    pub(crate) fn contains_val(&self, val: &str) -> bool {
+        self.vals
+            .iter()
+            .map(|v| v.as_os_str())
+            .any(|v| v == OsStr::new(val))
+    }
 }

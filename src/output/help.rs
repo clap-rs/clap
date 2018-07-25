@@ -7,18 +7,18 @@ use std::usize;
 
 // Internal
 use build::{App, AppSettings, Arg, ArgSettings};
-use parse::Parser;
-use parse::errors::{Error, Result as ClapResult};
 use output::fmt::{Colorizer, ColorizerOption, Format};
 use output::Usage;
+use parse::errors::{Error, Result as ClapResult};
+use parse::Parser;
 use util::VecMap;
 use INTERNAL_ERROR_MSG;
 
 // Third Party
-use unicode_width::UnicodeWidthStr;
 #[cfg(feature = "wrap_help")]
 use term_size;
 use textwrap;
+use unicode_width::UnicodeWidthStr;
 
 #[cfg(not(feature = "wrap_help"))]
 mod term_size {
@@ -173,18 +173,16 @@ impl<'w> Help<'w> {
 impl<'w> Help<'w> {
     /// Writes help for each argument in the order they were declared to the wrapped stream.
     fn write_args_unsorted<'a, 'b, I>(&mut self, args: I) -> io::Result<()>
-        where
-            'a: 'b,
-            I: Iterator<Item=&'b Arg<'a, 'b>>,
+    where
+        'a: 'b,
+        I: Iterator<Item = &'b Arg<'a, 'b>>,
     {
         debugln!("Help::write_args_unsorted;");
         // The shortest an arg can legally be is 2 (i.e. '-x')
         self.longest = 2;
         let mut arg_v = Vec::with_capacity(10);
         let use_long = self.use_long;
-        for arg in args.filter(|arg| {
-            should_show_arg(use_long, *arg)
-        }) {
+        for arg in args.filter(|arg| should_show_arg(use_long, *arg)) {
             if arg.longest_filter() {
                 self.longest = cmp::max(self.longest, str_width(arg.to_string().as_str()));
             }
@@ -207,9 +205,9 @@ impl<'w> Help<'w> {
 
     /// Sorts arguments by length and display order and write their help to the wrapped stream.
     fn write_args<'a, 'b, I>(&mut self, args: I) -> io::Result<()>
-        where
-            'a: 'b,
-            I: Iterator<Item=&'b Arg<'a, 'b>>,
+    where
+        'a: 'b,
+        I: Iterator<Item = &'b Arg<'a, 'b>>,
     {
         debugln!("Help::write_args;");
         // The shortest an arg can legally be is 2 (i.e. '-x')
@@ -346,7 +344,8 @@ impl<'w> Help<'w> {
         let h_w = str_width(h) + str_width(&*spec_vals);
         let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp);
         let taken = self.longest + 12;
-        self.force_next_line = !nlh && self.term_w >= taken
+        self.force_next_line = !nlh
+            && self.term_w >= taken
             && (taken as f32 / self.term_w as f32) > 0.40
             && h_w > (self.term_w - taken);
 
@@ -427,7 +426,12 @@ impl<'w> Help<'w> {
     }
 
     /// Writes argument's help to the wrapped stream.
-    fn help<'b, 'c>(&mut self, arg: &Arg<'b, 'c>, spec_vals: &str, prevent_nlh: bool) -> io::Result<()> {
+    fn help<'b, 'c>(
+        &mut self,
+        arg: &Arg<'b, 'c>,
+        spec_vals: &str,
+        prevent_nlh: bool,
+    ) -> io::Result<()> {
         debugln!("Help::help;");
         let h = if self.use_long {
             arg.long_help.unwrap_or_else(|| arg.help.unwrap_or(""))
@@ -577,7 +581,8 @@ impl<'w> Help<'w> {
         let h_w = str_width(h) + str_width(&*spec_vals);
         let nlh = self.next_line_help;
         let taken = self.longest + 12;
-        self.force_next_line = !nlh && self.term_w >= taken
+        self.force_next_line = !nlh
+            && self.term_w >= taken
             && (taken as f32 / self.term_w as f32) > 0.40
             && h_w > (self.term_w - taken);
 
@@ -739,16 +744,22 @@ impl<'w> Help<'w> {
                 first = false;
             }
             if custom_headings {
-                for heading in parser.app.help_headings.iter()
+                for heading in parser
+                    .app
+                    .help_headings
+                    .iter()
                     .filter(|heading| heading.is_some())
-                    .map(|heading| heading.unwrap()) {
-                        if !first {
-                            self.writer.write_all(b"\n\n")?;
-                        }
-                        color!(self, format!("{}:\n", heading), warning)?;
-                        self.write_args(custom_headings!(parser.app).filter(|a| a.help_heading.unwrap() == heading))?;
-                        first = false
+                    .map(|heading| heading.unwrap())
+                {
+                    if !first {
+                        self.writer.write_all(b"\n\n")?;
                     }
+                    color!(self, format!("{}:\n", heading), warning)?;
+                    self.write_args(
+                        custom_headings!(parser.app).filter(|a| a.help_heading.unwrap() == heading),
+                    )?;
+                    first = false
+                }
             }
         }
 
@@ -832,8 +843,7 @@ impl<'w> Help<'w> {
             ($thing:expr) => {{
                 let mut owned_thing = $thing.to_owned();
                 owned_thing = owned_thing.replace("{n}", "\n");
-                write!(self.writer, "{}\n",
-                            wrap_help(&owned_thing, self.term_w))?
+                write!(self.writer, "{}\n", wrap_help(&owned_thing, self.term_w))?
             }};
         }
         // Print the version
@@ -1113,15 +1123,18 @@ impl<'w> Help<'w> {
 }
 
 fn should_show_arg(use_long: bool, arg: &Arg) -> bool {
-    debugln!("Help::should_show_arg: use_long={:?}, arg={}", use_long, arg.name);
+    debugln!(
+        "Help::should_show_arg: use_long={:?}, arg={}",
+        use_long,
+        arg.name
+    );
     if arg.is_set(ArgSettings::Hidden) {
         return false;
     }
-    (!arg.is_set(ArgSettings::HiddenLongHelp) && use_long) ||
-        (!arg.is_set(ArgSettings::HiddenShortHelp) && !use_long) ||
-        arg.is_set(ArgSettings::NextLineHelp)
+    (!arg.is_set(ArgSettings::HiddenLongHelp) && use_long)
+        || (!arg.is_set(ArgSettings::HiddenShortHelp) && !use_long)
+        || arg.is_set(ArgSettings::NextLineHelp)
 }
-
 
 fn wrap_help(help: &str, avail_chars: usize) -> String {
     let wrapper = textwrap::Wrapper::new(avail_chars).break_words(false);
