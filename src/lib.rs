@@ -517,11 +517,7 @@
 //! [license]: https://raw.githubusercontent.com/kbknapp/clap-rs/master/LICENSE-MIT
 
 #![crate_type = "lib"]
-<<<<<<< HEAD
 #![doc(html_root_url = "https://docs.rs/clap/3.0.0-alpha.1")]
-=======
-#![doc(html_root_url = "https://docs.rs/clap/3.0.0-alpha1")]
->>>>>>> WIP. Big reformat
 #![deny(
     missing_docs,
     missing_debug_implementations,
@@ -585,18 +581,14 @@ use std::result::Result as StdResult;
 
 #[macro_use]
 mod macros;
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 mod build;
-=======
+
 mod mkeymap;
->>>>>>> WIP changing macros into MKeyMap calls
+
 mod completions;
-=======
 mod build;
 mod completions;
-mod mkeymap;
->>>>>>> WIP. Big reformat
 mod output;
 mod parse;
 mod util;

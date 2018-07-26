@@ -246,11 +246,7 @@ where
             let mut found = false;
             let mut foundx2 = false;
 
-            for p in self
-                .positionals
-                .values()
-                .rev()
-                .map(|p_name| self.app.find(p_name).expect(INTERNAL_ERROR_MSG))
+            for p in positionals!(self.app)
             {
                 if foundx2 && !p.is_set(ArgSettings::Required) {
                     assert!(
@@ -282,11 +278,7 @@ where
             // Check that if a required positional argument is found, all positions with a lower
             // index are also required
             let mut found = false;
-            for p in self
-                .positionals
-                .values()
-                .rev()
-                .map(|p_name| self.app.find(p_name).expect(INTERNAL_ERROR_MSG))
+            for p in positionals!(self.app)
             {
                 if found {
                     assert!(
@@ -337,7 +329,7 @@ where
 
         for (i, a) in self.app.args.values_mut().enumerate() {
             if let Some(index) = a.index {
-                self.app.args.insert_key(KeyType::Position(index), i);
+                self.app.args.insert_key(KeyType::Position(index as usize), i);
             } else {
                 if let Some(c) = a.short {
                     self.app.args.insert_key(KeyType::Short(c), i);
@@ -393,7 +385,7 @@ where
                         .app
                         .args
                         .keys()
-                        .filter(|x| if let Position(_) = x { true } else { false })
+                        .filter(|x| if let KeyType::Position(_) = x { true } else { false })
                         .count())
         }) && self.positionals.values().last().map_or(false, |p_name| {
             !self
@@ -494,7 +486,8 @@ where
                 }
 
                 if starts_new_arg {
-                    self.seen.extend(self.cache);
+                    // ! add values to seen somewhere?
+                    //self.seen.extend(self.cache);
                     if arg_os.starts_with(b"--") {
                         needs_val_of = self.parse_long_arg(matcher, &arg_os)?;
                         debugln!(
@@ -566,9 +559,21 @@ where
             }
 
             let low_index_mults = self.is_set(AS::LowIndexMultiplePositional)
-                && pos_counter == (self.positionals.len() - 1);
+                && pos_counter == (
+                    //TODO make a macro for that
+                    self
+                        .app
+                        .args
+                        .keys()
+                        .filter(|x| if let KeyType::Position(_) = x { true } else { false })
+                        .count() - 1);
             let missing_pos = self.is_set(AS::AllowMissingPositional)
-                && (pos_counter == (self.positionals.len() - 1)
+                && (pos_counter == (self
+                        .app
+                        .args
+                        .keys()
+                        .filter(|x| if let KeyType::Position(_) = x { true } else { false })
+                        .count() - 1)
                     && !self.is_set(AS::TrailingValues));
             debugln!(
                 "Parser::get_matches_with: Positional counter...{}",
@@ -610,7 +615,12 @@ where
                 // Came to -- and one postional has .last(true) set, so we go immediately
                 // to the last (highest index) positional
                 debugln!("Parser::get_matches_with: .last(true) and --, setting last pos");
-                pos_counter = self.positionals.len();
+                pos_counter = self
+                        .app
+                        .args
+                        .keys()
+                        .filter(|x| if let KeyType::Position(_) = x { true } else { false })
+                        .count();
             }
             if let Some(p) = positionals!(self.app).find(|p| p.index == Some(pos_counter as u64)) {
                 if p.is_set(ArgSettings::Last) && !self.is_set(AS::TrailingValues) {
@@ -622,12 +632,14 @@ where
                     ));
                 }
                 if !self.is_set(AS::TrailingValues)
-                    && (self.is_set(AS::TrailingVarArg) && pos_counter == self.positionals.len())
+                    && (self.is_set(AS::TrailingVarArg) && pos_counter == self
+                        .app
+                        .args
+                        .keys()
+                        .filter(|x| if let KeyType::Position(_) = x { true } else { false })
+                        .count())
                 {
                     self.app.settings.set(AS::TrailingValues);
-                }
-                if self.cache.map_or(true, |name| name != p.name) {
-                    self.cache = Some(p.name);
                 }
                 let _ = self.add_val_to_arg(p, &arg_os, matcher)?;
 
@@ -714,7 +726,7 @@ where
         }
 
         // Make sure we get the last one too
-        self.seen.extend(self.cache);
+        //self.seen.extend(self.cache);
 
         if let Some(ref pos_sc_name) = subcmd_name {
             let sc_name = {
@@ -830,7 +842,7 @@ where
                 .setting(ArgSettings::MultipleValues)
                 .help("The subcommand whose help message to display");
             pb._build();
-            parser.positionals.insert(1, pb.name);
+            //parser.positionals.insert(1, pb.name);
             parser.app.settings = parser.app.settings | self.app.g_settings;
             parser.app.g_settings = self.app.g_settings;
         }
@@ -1130,10 +1142,6 @@ where
                 // Default to "we're expecting a value later"
                 let ret = self.parse_opt(val, opt, false, matcher)?;
 
-                if self.cache.map_or(true, |name| name != opt.name) {
-                    self.cache = Some(opt.name);
-                }
-
                 return Ok(ret);
             } else if let Some(flag) = self.app.args.get(KeyType::Short(c)) {
                 debugln!("Parser::parse_short_arg:iter:{}: Found valid flag", c);
@@ -1141,12 +1149,6 @@ where
                 // Only flags can be help or version
                 self.check_for_help_and_version_char(c)?;
                 ret = self.parse_flag(flag, matcher)?;
-
-                // Handle conflicts, requirements, overrides, etc.
-                // Must be called here due to mutablilty
-                if self.cache.map_or(true, |name| name != flag.name) {
-                    self.cache = Some(flag.name);
-                }
             } else {
                 let arg = format!("-{}", c);
                 return Err(ClapError::unknown_argument(
@@ -1406,9 +1408,6 @@ where
                         );
                         $_self.add_val_to_arg($a, OsStr::new(val), $m)?;
 
-                        if $_self.cache.map_or(true, |name| name != $a.name) {
-                            $_self.cache = Some($a.name);
-                        }
                     } else if $m.get($a.name).is_some() {
                         debugln!(
                             "Parser::add_defaults:iter:{}: has user defined vals",
@@ -1418,10 +1417,6 @@ where
                         debugln!("Parser::add_defaults:iter:{}: wasn't used", $a.name);
 
                         $_self.add_val_to_arg($a, OsStr::new(val), $m)?;
-
-                        if $_self.cache.map_or(true, |name| name != $a.name) {
-                            $_self.cache = Some($a.name);
-                        }
                     }
                 } else {
                     debugln!(
@@ -1447,9 +1442,6 @@ where
                             };
                             if add {
                                 $_self.add_val_to_arg($a, OsStr::new(default), $m)?;
-                                if $_self.cache.map_or(true, |name| name != $a.name) {
-                                    $_self.cache = Some($a.name);
-                                }
                                 done = true;
                                 break;
                             }
@@ -1466,7 +1458,7 @@ where
             };
         }
 
-        for o in opts!(self.app) {
+        for (k, o) in opts!(self.app) {
             debug!("Parser::add_defaults:iter:{}:", o.name);
             add_val!(self, o, matcher);
         }
@@ -1488,18 +1480,10 @@ where
                 {
                     if let Some(ref val) = val.1 {
                         self.add_val_to_arg(a, OsStr::new(val), matcher)?;
-
-                        if self.cache.map_or(true, |name| name != a.name) {
-                            self.cache = Some(a.name);
-                        }
                     }
                 } else {
                     if let Some(ref val) = val.1 {
                         self.add_val_to_arg(a, OsStr::new(val), matcher)?;
-
-                        if self.cache.map_or(true, |name| name != a.name) {
-                            self.cache = Some(a.name);
-                        }
                     }
                 }
             }
@@ -1526,7 +1510,7 @@ where
                     matcher.inc_occurrence_of(&*grp);
                 }
                 matcher.insert(&*opt.name);
-            } else if let Some(flg) = self.app.args.get(KeyType::Long(name)) {
+            } else if let Some(flg) = self.app.args.get(KeyType::Long(&OsStr::new(name))) {
                 self.groups_for_arg(&*flg.name)
                     .and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
                 matcher.insert(&*flg.name);

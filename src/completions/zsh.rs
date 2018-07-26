@@ -334,7 +334,7 @@ fn escape_value(string: &str) -> String {
 fn write_opts_of(p: &App) -> String {
     debugln!("write_opts_of;");
     let mut ret = vec![];
-    for o in opts!(p) {
+    for (_, o) in opts!(p) {
         debugln!("write_opts_of:iter: o={}", o.name);
         let help = o.help.map_or(String::new(), escape_help);
         let mut conflicts = get_zsh_arg_conflicts!(p, o, INTERNAL_ERROR_MSG);
@@ -399,7 +399,7 @@ fn write_opts_of(p: &App) -> String {
 fn write_flags_of(p: &App) -> String {
     debugln!("write_flags_of;");
     let mut ret = vec![];
-    for f in flags!(p) {
+    for (_, f) in flags!(p) {
         debugln!("write_flags_of:iter: f={}", f.name);
         let help = f.help.map_or(String::new(), escape_help);
         let mut conflicts = get_zsh_arg_conflicts!(p, f, INTERNAL_ERROR_MSG);
