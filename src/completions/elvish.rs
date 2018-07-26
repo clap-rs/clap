@@ -80,7 +80,7 @@ where
     let mut completions = String::new();
     let preamble = String::from("\n            cand ");
 
-    for option in opts!(p) {
+    for (_, option) in opts!(p) {
         if let Some(data) = option.short {
             let tooltip = get_tooltip(option.help, data);
             completions.push_str(&preamble);
@@ -93,7 +93,7 @@ where
         }
     }
 
-    for flag in flags!(p) {
+    for (_, flag) in flags!(p) {
         if let Some(data) = flag.short {
             let tooltip = get_tooltip(flag.help, data);
             completions.push_str(&preamble);

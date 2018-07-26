@@ -9,7 +9,7 @@ use std::hash::{Hash, Hasher};
 use std::slice;
 // ! rustdoc
 
-#[derive(Default, PartialEq, Debug)]
+#[derive(Default, PartialEq, Debug, Clone)]
 pub struct MKeyMap<'a, 'b>
 where
     'a: 'b,
