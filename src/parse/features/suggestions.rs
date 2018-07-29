@@ -1,4 +1,3 @@
-#![feature(nll)]
 // Third Party
 #[cfg(feature = "suggestions")]
 use strsim;
@@ -13,57 +12,59 @@ use output::fmt::Format;
 /// `Some("foo")`, whereas "blark" would yield `None`.
 #[cfg(feature = "suggestions")]
 #[cfg_attr(feature = "lints", allow(needless_lifetimes))]
-pub fn did_you_mean<'a, T: ?Sized, I>(v: &str, possible_values: I) -> Option<&'a str>
+pub fn did_you_mean<T, I>(v: &str, possible_values: I) -> Option<String>
 where
-    T: AsRef<str> + 'a,
-    I: IntoIterator<Item = &'a T>,
+    T: AsRef<str>,
+    I: IntoIterator<Item = T>,
 {
-    let mut candidate: Option<(f64, &str)> = None;
+    let mut candidate: Option<(f64, String)> = None;
     for pv in possible_values {
         let confidence = strsim::jaro_winkler(v, pv.as_ref());
         if confidence > 0.8 && (candidate.is_none() || (candidate.as_ref().unwrap().0 < confidence))
         {
-            candidate = Some((confidence, pv.as_ref()));
+            candidate = Some((confidence, pv.as_ref().to_owned()));
         }
     }
     match candidate {
         None => None,
-        Some((_, candidate)) => Some(candidate),
+        Some((_, candidate)) => Some(candidate.to_owned()),
     }
 }
 
 #[cfg(not(feature = "suggestions"))]
-pub fn did_you_mean<'a, T: ?Sized, I>(_: &str, _: I) -> Option<&'a str>
+pub fn did_you_mean<T, I>(_: &str, _: I) -> Option<String>
 where
-    T: AsRef<str> + 'a,
-    I: IntoIterator<Item = &'a T>,
+    T: AsRef<str>,
+    I: IntoIterator<Item = T>,
 {
     None
 }
 
 /// Returns a suffix that can be empty, or is the standard 'did you mean' phrase
 #[cfg_attr(feature = "lints", allow(needless_lifetimes))]
-pub fn did_you_mean_flag_suffix<'z, I>(
+pub fn did_you_mean_flag_suffix<I, T>(
     arg: &str,
     longs: I,
-    subcommands: &'z [App],
-) -> (String, Option<&'z str>)
+    subcommands: &[App],
+) -> (String, Option<String>)
 where
-    I: IntoIterator<Item = &'z str>,
+    T: AsRef<str>,
+    I: IntoIterator<Item = T>,
 {
     match did_you_mean(arg, longs) {
-        Some(candidate) => {
+        Some(ref candidate) => {
             let suffix = format!(
                 "\n\tDid you mean {}{}?",
                 Format::Good("--"),
                 Format::Good(candidate)
             );
-            return (suffix, Some(candidate));
+            return (suffix, Some(candidate.to_owned()));
         }
         None => for subcommand in subcommands {
-            let longs = longs!(subcommand).map(|x| x.to_string_lossy().into_owned()).collect::<Vec<_>>();
-
-            if let Some(candidate) = did_you_mean(arg, longs.iter()) {
+            if let Some(ref candidate) = did_you_mean(
+                arg,
+                longs!(subcommand).map(|x| x.to_string_lossy().into_owned()),
+            ) {
                 let suffix = format!(
                     "\n\tDid you mean to put '{}{}' after the subcommand '{}'?",
                     Format::Good("--"),
@@ -78,15 +79,15 @@ where
 }
 
 /// Returns a suffix that can be empty, or is the standard 'did you mean' phrase
-pub fn did_you_mean_value_suffix<'z, T, I>(arg: &str, values: I) -> (String, Option<&'z str>)
+pub fn did_you_mean_value_suffix<T, I>(arg: &str, values: I) -> (String, Option<String>)
 where
-    T: AsRef<str> + 'z,
-    I: IntoIterator<Item = &'z T>,
+    T: AsRef<str>,
+    I: IntoIterator<Item = T>,
 {
     match did_you_mean(arg, values) {
-        Some(candidate) => {
+        Some(ref candidate) => {
             let suffix = format!("\n\tDid you mean '{}'?", Format::Good(candidate));
-            (suffix, Some(candidate))
+            (suffix, Some(candidate.to_owned()))
         }
         None => (String::new(), None),
     }

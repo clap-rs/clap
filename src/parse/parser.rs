@@ -38,7 +38,6 @@ use parse::{ArgMatcher, SubCommand};
 use util::{ChildGraph, OsStrExt2};
 use INVALID_UTF8;
 use INTERNAL_ERROR_MSG;
-use parse::features::suggestions;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[doc(hidden)]
@@ -221,8 +220,7 @@ where
             let mut found = false;
             let mut foundx2 = false;
 
-            for p in positionals!(self.app)
-            {
+            for p in positionals!(self.app) {
                 if foundx2 && !p.is_set(ArgSettings::Required) {
                     assert!(
                         p.is_set(ArgSettings::Required),
@@ -253,8 +251,7 @@ where
             // Check that if a required positional argument is found, all positions with a lower
             // index are also required
             let mut found = false;
-            for p in positionals!(self.app)
-            {
+            for p in positionals!(self.app) {
                 if found {
                     assert!(
                         p.is_set(ArgSettings::Required),
@@ -301,9 +298,8 @@ where
     // Does all the initializing and prepares the parser
     pub(crate) fn _build(&mut self) {
         debugln!("Parser::_build;");
-            let mut key: Vec<(KeyType, usize)> = Vec::new();
+        let mut key: Vec<(KeyType, usize)> = Vec::new();
         for (i, a) in self.app.args.values().enumerate() {
-
             if let Some(ref index) = a.index {
                 key.push((KeyType::Position((*index) as usize), i));
             } else {
@@ -355,7 +351,13 @@ where
                         .app
                         .args
                         .keys()
-                        .filter(|x| if let KeyType::Position(_) = x { true } else { false })
+                        .filter(|x| {
+                            if let KeyType::Position(_) = x {
+                                true
+                            } else {
+                                false
+                            }
+                        })
                         .count())
         }) && self.positionals.values().last().map_or(false, |p_name| {
             !self
@@ -529,7 +531,8 @@ where
             }
 
             let low_index_mults = self.is_set(AS::LowIndexMultiplePositional)
-                && pos_counter == (
+                && pos_counter
+                    == (
                     //TODO make a macro for that
                     self
                         .app
@@ -542,9 +545,14 @@ where
                         .app
                         .args
                         .keys()
-                        .filter(|x| if let KeyType::Position(_) = x { true } else { false })
-                        .count() - 1)
-                    && !self.is_set(AS::TrailingValues));
+                        .filter(|x| {
+                            if let KeyType::Position(_) = x {
+                                true
+                            } else {
+                                false
+                            }
+                        })
+                        .count() - 1) && !self.is_set(AS::TrailingValues));
             debugln!(
                 "Parser::get_matches_with: Positional counter...{}",
                 pos_counter
@@ -586,11 +594,17 @@ where
                 // to the last (highest index) positional
                 debugln!("Parser::get_matches_with: .last(true) and --, setting last pos");
                 pos_counter = self
-                        .app
-                        .args
-                        .keys()
-                        .filter(|x| if let KeyType::Position(_) = x { true } else { false })
-                        .count();
+                    .app
+                    .args
+                    .keys()
+                    .filter(|x| {
+                        if let KeyType::Position(_) = x {
+                            true
+                        } else {
+                            false
+                        }
+                    })
+                    .count();
             }
             if let Some(p) = positionals!(self.app).find(|p| p.index == Some(pos_counter as u64)) {
                 if p.is_set(ArgSettings::Last) && !self.is_set(AS::TrailingValues) {
@@ -602,12 +616,20 @@ where
                     ));
                 }
                 if !self.is_set(AS::TrailingValues)
-                    && (self.is_set(AS::TrailingVarArg) && pos_counter == self
-                        .app
-                        .args
-                        .keys()
-                        .filter(|x| if let KeyType::Position(_) = x { true } else { false })
-                        .count())
+                    && (self.is_set(AS::TrailingVarArg)
+                        && pos_counter
+                            == self
+                                .app
+                                .args
+                                .keys()
+                                .filter(|x| {
+                                    if let KeyType::Position(_) = x {
+                                        true
+                                    } else {
+                                        false
+                                    }
+                                })
+                                .count())
                 {
                     self.app.settings.set(AS::TrailingValues);
                 }
@@ -1377,7 +1399,6 @@ where
                             $a.name
                         );
                         $_self.add_val_to_arg($a, OsStr::new(val), $m)?;
-
                     } else if $m.get($a.name).is_some() {
                         debugln!(
                             "Parser::add_defaults:iter:{}: has user defined vals",
@@ -1470,15 +1491,16 @@ where
 {
     fn did_you_mean_error(&self, arg: &str, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
         // Didn't match a flag or option
+        let longs = longs!(self.app).map(|x| x.to_string_lossy().into_owned()).collect::<Vec<_>>();
+        
         let suffix =
             suggestions::did_you_mean_flag_suffix(arg, longs.iter().map(|ref x| &x[..] ), &*self.app.subcommands);
 
         // Add the arg to the matches to build a proper usage string
-        if let Some(name) = suffix.1 {
-            if let Some(opt) = self.app.args.get(KeyType::Long(name)) {
-                for grp in groups_for_arg!(self.app, &opt.name) {
-                    matcher.inc_occurrence_of(&*grp);
-                }
+        if let Some(ref name) = suffix.1 {
+            if let Some(opt) = self.app.args.get(KeyType::Long(OsString::from(name))) {
+                self.groups_for_arg(&*opt.name)
+                    .and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
                 matcher.insert(&*opt.name);
             } else if let Some(flg) = self.app.args.get(KeyType::Long(&OsStr::new(name))) {
                 self.groups_for_arg(&*flg.name)
