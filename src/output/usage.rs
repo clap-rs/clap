@@ -423,7 +423,7 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
         let pmap = if let Some(m) = matcher {
             desc_reqs
                 .iter()
-                .filter(|a| self.0.positionals.values().any(|p| &p == a))
+                .filter(|a| self.0.app.args.values().any(|p| p.name == **a))
                 .filter(|&pos| !m.contains(pos))
                 .filter_map(|pos| find!(self.0.app, pos))
                 .filter(|&pos| incl_last || !pos.is_set(ArgSettings::Last))
@@ -433,7 +433,7 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
         } else {
             desc_reqs
                 .iter()
-                .filter(|a| self.0.positionals.values().any(|p| &p == a))
+                .filter(|a| self.0.app.args.values().any(|p| p.name == **a))
                 .filter_map(|pos| find!(self.0.app, pos))
                 .filter(|&pos| incl_last || !pos.is_set(ArgSettings::Last))
                 .filter(|pos| !args_in_groups.contains(&pos.name))

@@ -1,3 +1,4 @@
+#![feature(nll)]
 // Third Party
 #[cfg(feature = "suggestions")]
 use strsim;
@@ -60,16 +61,16 @@ where
             return (suffix, Some(candidate));
         }
         None => for subcommand in subcommands {
-            let longs = longs!(subcommand);
+            let longs = longs!(subcommand).map(|x| x.to_string_lossy().into_owned()).collect::<Vec<_>>();
 
-            if let Some(candidate) = did_you_mean(arg, longs) {
+            if let Some(candidate) = did_you_mean(arg, longs.iter()) {
                 let suffix = format!(
                     "\n\tDid you mean to put '{}{}' after the subcommand '{}'?",
                     Format::Good("--"),
                     Format::Good(candidate),
                     Format::Good(subcommand.get_name())
                 );
-                return (suffix, Some(candidate));
+                return (suffix, Some(candidate.clone()));
             }
         },
     }

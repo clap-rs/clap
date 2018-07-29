@@ -79,7 +79,7 @@ fn generate_inner<'a, 'b, 'p>(
     let mut completions = String::new();
     let preamble = String::from("\n            [CompletionResult]::new(");
 
-    for (_, option) in opts!(p) {
+    for option in opts!(p) {
         if let Some(data) = option.short {
             let tooltip = get_tooltip(option.help, data);
             completions.push_str(&preamble);
@@ -102,7 +102,7 @@ fn generate_inner<'a, 'b, 'p>(
         }
     }
 
-    for (_, flag) in flags!(p) {
+    for flag in flags!(p) {
         if let Some(data) = flag.short {
             let tooltip = get_tooltip(flag.help, data);
             completions.push_str(&preamble);

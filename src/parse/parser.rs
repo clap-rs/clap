@@ -39,8 +39,6 @@ use parse::{ArgMatcher, SubCommand};
 use util::OsStrExt2;
 use INVALID_UTF8;
 use INTERNAL_ERROR_MSG;
-use parse::features::suggestions;
-use output::Usage;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[doc(hidden)]
@@ -70,32 +68,6 @@ where
     //pub positionals: VecMap<&'a str>,
     seen: Vec<&'a str>,
     cur_idx: Cell<usize>,
-}
-
-// Standalone split borrow functions
-fn count_arg<'a, 'b>(
-    a: &mut Arg<'a, 'b>,
-    positionals: &mut VecMap<&'a str>,
-    num_opts: &mut usize,
-    num_flags: &mut usize,
-) {
-    // Count types
-    if a.index.is_some() || (a.short.is_none() && a.long.is_none()) {
-        let i = if a.index.is_none() {
-            (positionals.len() + 1)
-        } else {
-            a.index.unwrap() as usize
-        };
-        a.index = Some(i as u64);
-        a.settings.set(ArgSettings::TakesValue);
-        positionals.insert(i, a.name);
-    } else if a.is_set(ArgSettings::TakesValue) {
-        *num_opts += 1;
-    // a.unified_ord = *num_flags + *num_opts;
-    } else {
-        *num_flags += 1;
-        // a.unified_ord = *num_flags + *num_opts;
-    }
 }
 
 // Initializing Methods
@@ -337,22 +309,21 @@ where
     // Does all the initializing and prepares the parser
     pub(crate) fn _build(&mut self) {
         debugln!("Parser::_build;");
+            let mut key: Vec<(KeyType, usize)> = Vec::new();
+        for (i, a) in self.app.args.values().enumerate() {
 
-        for (i, a) in self.app.args.values_mut().enumerate() {
-            if let Some(index) = a.index {
-                self.app.args.insert_key(KeyType::Position(index as usize), i);
+            if let Some(ref index) = a.index {
+                key.push((KeyType::Position((*index) as usize), i));
             } else {
-                if let Some(c) = a.short {
-                    self.app.args.insert_key(KeyType::Short(c), i);
+                if let Some(ref c) = a.short {
+                    key.push((KeyType::Short(*c), i));
                 }
-                if let Some(l) = a.long {
-                    self.app.args.insert_key(KeyType::Long(&OsStr::new(l)), i);
+                if let Some(ref l) = a.long {
+                    key.push((KeyType::Long(OsString::from(l)), i));
                 }
-                if let Some(v) = a.aliases {
-                    for (item, _) in &v {
-                        self.app
-                            .args
-                            .insert_key(KeyType::Long(&OsStr::new(item)), i);
+                if let Some(ref v) = a.aliases {
+                    for (item, _) in v {
+                        key.push((KeyType::Long(OsString::from(item)), i));
                     }
                 }
             }
@@ -377,13 +348,9 @@ where
                 }
                 self.required.push(a.name);
             }
-
-            count_arg(
-                a,
-                &mut self.positionals,
-                &mut self.num_opts,
-                &mut self.num_flags,
-            );
+        }
+        for (k, i) in key.into_iter() {
+            self.app.args.insert_key(k, i);
         }
 
         debug_assert!(self._verify_positionals());
@@ -398,11 +365,8 @@ where
                         .filter(|x| if let KeyType::Position(_) = x { true } else { false })
                         .count())
                 //? what is happening below?
-        }) && self.positionals.values().last().map_or(false, |p_name| {
-            !find!(self.app, p_name)
-                .expect(INTERNAL_ERROR_MSG)
-                .is_set(ArgSettings::Last)
-        }) {
+        }) && self.app.args.iter().any(|(_, v)| v.is_set(ArgSettings::Last))
+        {
             self.app.settings.set(AS::LowIndexMultiplePositional);
         }
 
@@ -1092,7 +1056,7 @@ where
             full_arg.trim_left_matches(b'-')
         };
         // opts?? Should probably now check once, then check whether it's opt or flag, or sth else
-        if let Some(opt) = self.app.args.get(KeyType::Long(arg)) {
+        if let Some(opt) = self.app.args.get(KeyType::Long(arg.into())) {
             debugln!(
                 "Parser::parse_long_arg: Found valid opt '{}'",
                 opt.to_string()
@@ -1511,7 +1475,7 @@ where
             };
         }
 
-        for (k, o) in opts!(self.app) {
+        for o in opts!(self.app) {
             debug!("Parser::add_defaults:iter:{}:", o.name);
             add_val!(self, o, matcher);
         }
@@ -1553,16 +1517,18 @@ where
 {
     fn did_you_mean_error(&self, arg: &str, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
         // Didn't match a flag or option
+        let longs = longs!(self.app).map(|x| x.to_string_lossy().into_owned()).collect::<Vec<_>>();
+        
         let suffix =
-            suggestions::did_you_mean_flag_suffix(arg, longs!(self.app), &*self.app.subcommands);
+            suggestions::did_you_mean_flag_suffix(arg, longs.iter().map(|ref x| &x[..] ), &*self.app.subcommands);
 
         // Add the arg to the matches to build a proper usage string
         if let Some(name) = suffix.1 {
-            if let Some(opt) = self.app.args.get(KeyType::Long(&OsStr::new(name))) {
+            if let Some(opt) = self.app.args.get(KeyType::Long(OsString::from(name))) {
                 self.groups_for_arg(&*opt.name)
                     .and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
                 matcher.insert(&*opt.name);
-            } else if let Some(flg) = self.app.args.get(KeyType::Long(&OsStr::new(name))) {
+            } else if let Some(flg) = self.app.args.get(KeyType::Long(OsString::from(name))) {
                 self.groups_for_arg(&*flg.name)
                     .and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
                 matcher.insert(&*flg.name);
