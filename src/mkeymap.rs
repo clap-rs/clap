@@ -1,5 +1,3 @@
-#![feature(nll)]
-
 use build::Arg;
 use std::collections::hash_map;
 use std::collections::hash_map::DefaultHasher;
@@ -10,8 +8,7 @@ use std::slice;
 // ! rustdoc
 
 #[derive(Default, PartialEq, Debug, Clone)]
-pub struct MKeyMap<T>
-{
+pub struct MKeyMap<T> {
     keys: HashMap<KeyType, usize>,
     value_index: Vec<T>,
     values: HashMap<u64, HashSet<usize>>,
@@ -24,8 +21,9 @@ pub enum KeyType {
     Position(usize),
 }
 
-impl <T> MKeyMap<T> 
-where T: Sized + Hash + PartialEq + Default + Eq
+impl<T> MKeyMap<T>
+where
+    T: Sized + Hash + PartialEq + Default + Eq,
 {
     pub fn new() -> Self { MKeyMap::default() }
     //TODO ::from(x), ::with_capacity(n) etc
@@ -124,15 +122,13 @@ where T: Sized + Hash + PartialEq + Default + Eq
         }
     }
 
-    pub fn values(&self) -> Values<T>
-    {
+    pub fn values(&self) -> Values<T> {
         Values {
             iter: self.value_index.iter(),
         }
     }
 
-    pub fn values_mut(&mut self) -> ValuesMut<T> 
-    {
+    pub fn values_mut(&mut self) -> ValuesMut<T> {
         ValuesMut {
             iter: self.value_index.iter_mut(),
         }
@@ -146,6 +142,7 @@ where T: Sized + Hash + PartialEq + Default + Eq
     }
 }
 
+#[derive(Debug)]
 pub struct Keys<'a, V: 'a> {
     iter: hash_map::Keys<'a, KeyType, V>,
 }
@@ -156,6 +153,7 @@ impl<'a, V> Iterator for Keys<'a, V> {
     fn next(&mut self) -> Option<Self::Item> { self.iter.next() }
 }
 
+#[derive(Debug)]
 pub struct Values<'a, V: 'a> {
     iter: slice::Iter<'a, V>,
 }
@@ -166,6 +164,7 @@ impl<'a, V> Iterator for Values<'a, V> {
     fn next(&mut self) -> Option<Self::Item> { self.iter.next() }
 }
 
+#[derive(Debug)]
 pub struct ValuesMut<'a, V: 'a> {
     iter: slice::IterMut<'a, V>,
 }
@@ -176,15 +175,18 @@ impl<'a, V> Iterator for ValuesMut<'a, V> {
     fn next(&mut self) -> Option<Self::Item> { self.iter.next() }
 }
 
+#[derive(Debug)]
 pub struct Iter<'c, T>
-where T: 'c
+where
+    T: 'c,
 {
     map: &'c MKeyMap<T>,
     keys: Keys<'c, usize>,
 }
 
 impl<'c, T> Iterator for Iter<'c, T>
-where T: 'c + Sized + Hash + PartialEq + Default + Eq
+where
+    T: 'c + Sized + Hash + PartialEq + Default + Eq,
 {
     type Item = (&'c KeyType, &'c T);
 
