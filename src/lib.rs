@@ -587,8 +587,6 @@ mod build;
 mod mkeymap;
 
 mod completions;
-mod build;
-mod completions;
 mod output;
 mod parse;
 mod util;

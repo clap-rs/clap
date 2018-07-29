@@ -1070,7 +1070,7 @@ impl<'w> Help<'w> {
                     self.write_all_args(parser)?;
                 }
                 b"unified" => {
-                    let opts_flags = parser.app.args.iter().filter(|a| a.has_switch());
+                    let opts_flags = parser.app.args.values().filter(|a| a.has_switch());
                     self.write_args(opts_flags)?;
                 }
                 b"flags" => {

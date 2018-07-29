@@ -327,6 +327,49 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
                 for aa in self.p.app.unroll_requirements_for_arg(a, m) {
                     unrolled_reqs.push(aa);
                 }
+            }};
+            ($a:ident, $what:ident, $how:ident, $v:ident, $p:ident) => {{
+                if let Some(rl) = $what!(self.0.app)
+                    .filter(|a| a.requires.is_some())
+                    .find(|arg| &arg.name == $a)
+                    .map(|a| a.requires.as_ref().unwrap())
+                {
+                    for &(_, r) in rl.iter() {
+                        if !$p.contains(&r) {
+                            debugln!(
+                                "usage::get_required_usage_from:iter:{}: adding arg req={:?}",
+                                $a,
+                                r
+                            );
+                            $v.push(r);
+                        }
+                    }
+                }
+            }};
+        }
+        // initialize new_reqs
+        for a in reqs {
+            get_requires!(a, flags, iter, new_reqs, reqs);
+            get_requires!(a, opts, iter, new_reqs, reqs);
+            get_requires!(a, positionals, values, new_reqs, reqs);
+            get_requires!(@group a, new_reqs, reqs);
+        }
+        desc_reqs.extend_from_slice(&*new_reqs);
+        debugln!(
+            "usage::get_required_usage_from: after init desc_reqs={:?}",
+            desc_reqs
+        );
+        loop {
+            let mut tmp = vec![];
+            for a in &new_reqs {
+                get_requires!(a, flags, iter, tmp, desc_reqs);
+                get_requires!(a, opts, iter, tmp, desc_reqs);
+                get_requires!(a, positionals, values, tmp, desc_reqs);
+                get_requires!(@group a, tmp, desc_reqs);
+            }
+            if tmp.is_empty() {
+                debugln!("usage::get_required_usage_from: no more children");
+                break;
             } else {
                 unrolled_reqs.push(a);
             }

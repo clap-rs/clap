@@ -910,6 +910,7 @@ macro_rules! flags {
                 Position(_) => false,
             })
             .filter(|(k, a)| !a.help_heading.is_some())
+            .map(|(k, v)| v)
     }};
     ($app:expr) => {
         flags!($app, iter)
@@ -935,6 +936,7 @@ macro_rules! opts {
                 Position(_) => false,
             })
             .filter(|(k, a)| !a.help_heading.is_some())
+            .map(|(k, v)| v)
     }};
     ($app:expr) => {
         opts!($app, iter)

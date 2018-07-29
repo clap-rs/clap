@@ -44,7 +44,7 @@ fn gen_fish_inner(root_command: &str, comp_gen: &FishGen, subcommand: &str, buff
         basic_template.push_str(format!("\"__fish_seen_subcommand_from {}\"", subcommand).as_str());
     }
 
-    for (_, option) in opts!(comp_gen.0) {
+    for option in opts!(comp_gen.0) {
         let mut template = basic_template.clone();
         if let Some(data) = option.short {
             template.push_str(format!(" -s {}", data).as_str());
@@ -62,7 +62,7 @@ fn gen_fish_inner(root_command: &str, comp_gen: &FishGen, subcommand: &str, buff
         buffer.push_str("\n");
     }
 
-    for (_, flag) in flags!(comp_gen.0) {
+    for flag in flags!(comp_gen.0) {
         let mut template = basic_template.clone();
         if let Some(data) = flag.short {
             template.push_str(format!(" -s {}", data).as_str());

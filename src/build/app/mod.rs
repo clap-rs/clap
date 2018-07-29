@@ -107,7 +107,7 @@ where
     #[doc(hidden)]
     pub g_settings: AppFlags,
     #[doc(hidden)]
-    pub args: MKeyMap<'a, 'b>,
+    pub args: MKeyMap<Arg<'a, 'b>>,
     #[doc(hidden)]
     pub subcommands: Vec<App<'a, 'b>>,
     #[doc(hidden)]
@@ -988,18 +988,17 @@ impl<'a, 'b> App<'a, 'b> {
     where
         F: FnOnce(Arg<'a, 'b>) -> Arg<'a, 'b>,
     {
-        let i = self
-            .args
-            .values()
-            .enumerate()
-            .filter_map(|(i, a)| if a.name == arg { Some(i) } else { None })
-            .next();
-        let a = if let Some(idx) = i {
-            let mut a = self.args.swap_remove(idx);
-            f(a)
+        // let i = self
+        //     .args
+        //     .values()
+        //     .enumerate()
+        //     .filter_map(|(i, a)| if a.name == arg { Some(i) } else { None })
+        //     .next();
+        let a = if let Some(x) = self.args.remove_by_name(arg) {
+            f(x)
         } else {
-            let mut a = Arg::with_name(arg);
-            f(a)
+            let mut x = Arg::with_name(arg);
+            f(x)
         };
         self.args.push(a);
         self
@@ -1765,7 +1764,7 @@ impl<'a, 'b> App<'a, 'b> {
         }
     }
     pub(crate) fn contains_long(&self, l: &str) -> bool {
-        longs!(self).any(|&al| al == OsString::from(l).as_os_str())
+        longs!(self).any(|al| al == &OsString::from(l))
     }
 
     pub(crate) fn contains_short(&self, s: char) -> bool { shorts!(self).any(|&arg_s| arg_s == s) }
@@ -1793,11 +1792,11 @@ impl<'a, 'b> App<'a, 'b> {
     pub fn has_positionals(&self) -> bool { positionals!(self).count() > 0 }
 
     pub fn has_visible_opts(&self) -> bool {
-        opts!(self).any(|(k, o)| !o.is_set(ArgSettings::Hidden))
+        opts!(self).any(|o| !o.is_set(ArgSettings::Hidden))
     }
 
     pub fn has_visible_flags(&self) -> bool {
-        flags!(self).any(|(k, o)| !o.is_set(ArgSettings::Hidden))
+        flags!(self).any(|o| !o.is_set(ArgSettings::Hidden))
     }
 
     pub fn has_visible_positionals(&self) -> bool {
