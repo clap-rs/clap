@@ -366,7 +366,11 @@ impl Attrs {
     pub fn methods(&self) -> proc_macro2::TokenStream {
         let methods = self.methods.iter().map(|&Method { ref name, ref args }| {
             let name = syn::Ident::new(&name, proc_macro2::Span::call_site());
-            quote!( .#name(#args) )
+            if name == "short" {
+                quote!( .#name(#args.chars().nth(0).unwrap()) )
+            } else {
+                quote!( .#name(#args) )
+            }
         });
         quote!( #(#methods)* )
     }
