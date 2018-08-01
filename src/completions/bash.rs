@@ -1,6 +1,6 @@
 // Std
-use std::io::Write;
 use std::ffi::OsStr;
+use std::io::Write;
 
 // Internal
 use build::{App, Arg};
@@ -182,7 +182,9 @@ complete -F _{name} -o bashdefault -o default {name}
             shorts = shorts!(p).fold(String::new(), |acc, s| format!("{} -{}", acc, s)),
             // Handles aliases too
             // error-handling?
-            longs = longs!(p).fold(String::new(), |acc, l| format!("{} --{}", acc, l.to_str().unwrap())),
+            longs = longs!(p).fold(String::new(), |acc, l| {
+                format!("{} --{}", acc, l.to_str().unwrap())
+            }),
             pos = positionals!(p).fold(String::new(), |acc, p| format!("{} {}", acc, p)),
             // Handles aliases too
             subcmds = sc_names!(p).fold(String::new(), |acc, s| format!("{} {}", acc, s))

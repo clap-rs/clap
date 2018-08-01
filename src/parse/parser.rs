@@ -133,7 +133,7 @@ where
             .count();
 
         assert!(
-            highest_idx == num_p,
+            highest_idx == num_p as u64,
             "Found positional argument whose index is {} but there \
              are only {} positional arguments defined",
             highest_idx,
@@ -301,7 +301,7 @@ where
         let mut key: Vec<(KeyType, usize)> = Vec::new();
         for (i, a) in self.app.args.values().enumerate() {
             if let Some(ref index) = a.index {
-                key.push((KeyType::Position((*index) as usize), i));
+                key.push((KeyType::Position(*index), i));
             } else {
                 if let Some(ref c) = a.short {
                     key.push((KeyType::Short(*c), i));
