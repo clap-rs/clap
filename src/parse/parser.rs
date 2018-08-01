@@ -142,7 +142,7 @@ where
             .count();
 
         assert!(
-            highest_idx == num_p,
+            highest_idx == num_p as u64,
             "Found positional argument whose index is {} but there \
              are only {} positional arguments defined",
             highest_idx,
@@ -310,7 +310,7 @@ where
         let mut key: Vec<(KeyType, usize)> = Vec::new();
         for (i, a) in self.app.args.values().enumerate() {
             if let Some(ref index) = a.index {
-                key.push((KeyType::Position((*index) as usize), i));
+                key.push((KeyType::Position(*index), i));
             } else {
                 if let Some(ref c) = a.short {
                     key.push((KeyType::Short(*c), i));
@@ -367,7 +367,6 @@ where
                             }
                         })
                         .count())
-            //? what is happening below?
         })
             && self
                 .app
@@ -641,6 +640,8 @@ where
                 {
                     self.app.settings.set(AS::TrailingValues);
                 }
+                //not sure
+                self.seen.push(p.name);
                 let _ = self.add_val_to_arg(p, &arg_os, matcher)?;
 
                 matcher.inc_occurrence_of(p.name);
@@ -1084,7 +1085,6 @@ where
             sdebugln!("No");
             full_arg.trim_left_matches(b'-')
         };
-        // opts?? Should probably now check once, then check whether it's opt or flag, or sth else
         if let Some(opt) = self.app.args.get(KeyType::Long(arg.into())) {
             debugln!(
                 "Parser::parse_long_arg: Found valid opt '{}'",
@@ -1094,6 +1094,9 @@ where
 
             if opt.is_set(ArgSettings::TakesValue) {
                 let ret = self.parse_opt(val, opt, val.is_some(), matcher)?;
+
+                //not sure
+                self.seen.push(opt.name);
                 // if self.cache.map_or(true, |name| name != opt.name) {
                 //     self.cache = Some(opt.name);
                 // }
@@ -1106,6 +1109,7 @@ where
 
                 self.parse_flag(opt, matcher)?;
 
+                self.seen.push(opt.name);
                 // if self.cache.map_or(true, |name| name != opt.name) {
                 //     self.cache = Some(opt.name);
                 // }
@@ -1188,6 +1192,9 @@ where
                 // Default to "we're expecting a value later"
                 let ret = self.parse_opt(val, opt, false, matcher)?;
 
+                //not sure
+                self.seen.push(opt.name);
+
                 return Ok(ret);
             } else if let Some(flag) = self.app.args.get(KeyType::Short(c)) {
                 debugln!("Parser::parse_short_arg:iter:{}: Found valid flag", c);
@@ -1195,6 +1202,9 @@ where
                 // Only flags can be help or version
                 self.check_for_help_and_version_char(c)?;
                 ret = self.parse_flag(flag, matcher)?;
+
+                //not sure
+                self.seen.push(flag.name);
             } else {
                 let arg = format!("-{}", c);
                 return Err(ClapError::unknown_argument(
@@ -1453,6 +1463,9 @@ where
                             $a.name
                         );
                         $_self.add_val_to_arg($a, OsStr::new(val), $m)?;
+
+                        //not sure
+                        $_self.seen.push($a.name);
                     } else if $m.get($a.name).is_some() {
                         debugln!(
                             "Parser::add_defaults:iter:{}: has user defined vals",
@@ -1462,6 +1475,9 @@ where
                         debugln!("Parser::add_defaults:iter:{}: wasn't used", $a.name);
 
                         $_self.add_val_to_arg($a, OsStr::new(val), $m)?;
+
+                        //not sure
+                        $_self.seen.push($a.name);
                     }
                 } else {
                     debugln!(
@@ -1487,6 +1503,10 @@ where
                             };
                             if add {
                                 $_self.add_val_to_arg($a, OsStr::new(default), $m)?;
+
+                                //not sure
+                                $_self.seen.push($a.name);
+
                                 done = true;
                                 break;
                             }
@@ -1526,10 +1546,16 @@ where
                     if let Some(ref val) = val.1 {
                         self.add_val_to_arg(a, OsStr::new(val), matcher)?;
                     }
+
+                    //not sure
+                    self.seen.push(a.name);
                 } else {
                     if let Some(ref val) = val.1 {
                         self.add_val_to_arg(a, OsStr::new(val), matcher)?;
                     }
+
+                    //not sure
+                    self.seen.push(a.name);
                 }
             }
         }

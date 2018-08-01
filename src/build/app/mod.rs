@@ -18,11 +18,11 @@ use yaml_rust::Yaml;
 // Internal
 use build::{Arg, ArgGroup, ArgSettings};
 use completions::{ComplGen, Shell};
+use mkeymap::{KeyType, MKeyMap};
 use output::fmt::ColorWhen;
 use output::{Help, Usage};
 use parse::errors::Result as ClapResult;
 use parse::{ArgMatcher, ArgMatches, Parser};
-use mkeymap::{MKeyMap, KeyType};
 
 #[doc(hidden)]
 #[allow(dead_code)]
@@ -638,7 +638,6 @@ impl<'a, 'b> App<'a, 'b> {
             None
         };
         let arg = a.into().help_heading(help_heading);
-        //TODO add push functionality to MKeyMap
         self.args.push(arg);
         self
     }
@@ -679,7 +678,7 @@ impl<'a, 'b> App<'a, 'b> {
         // @TODO @perf @p4 @v3-beta: maybe extend_from_slice would be possible and perform better?
         // But that may also not let us do `&["-a 'some'", "-b 'other']` because of not Into<Arg>
         for arg in args.into_iter() {
-            self.args.push(arg.into());
+            self.args.make_entries(arg.into());
         }
         self
     }
@@ -988,19 +987,8 @@ impl<'a, 'b> App<'a, 'b> {
     where
         F: FnOnce(Arg<'a, 'b>) -> Arg<'a, 'b>,
     {
-        // let i = self
-        //     .args
-        //     .values()
-        //     .enumerate()
-        //     .filter_map(|(i, a)| if a.name == arg { Some(i) } else { None })
-        //     .next();
-        let a = if let Some(x) = self.args.remove_by_name(arg) {
-            f(x)
-        } else {
-            let mut x = Arg::with_name(arg);
-            f(x)
-        };
-        self.args.push(a);
+        self.args.mut_arg(arg, f);
+
         self
     }
 
@@ -1545,7 +1533,7 @@ impl<'a, 'b> App<'a, 'b> {
 
             // we have to set short manually because we're dealing with char's
             arg.short = self.help_short;
-            self.args.push(arg);
+            self.args.make_entries(arg);
         } else {
             self.settings.unset(AppSettings::NeedsLongHelp);
         }
@@ -1560,7 +1548,7 @@ impl<'a, 'b> App<'a, 'b> {
                 .help(self.version_message.unwrap_or("Prints version information"));
             // we have to set short manually because we're dealing with char's
             arg.short = self.version_short;
-            self.args.push(arg);
+            self.args.make_entries(arg);
         } else {
             self.settings.unset(AppSettings::NeedsLongVersion);
         }
@@ -1773,13 +1761,9 @@ impl<'a, 'b> App<'a, 'b> {
 
     pub fn has_positionals(&self) -> bool { positionals!(self).count() > 0 }
 
-    pub fn has_visible_opts(&self) -> bool {
-        opts!(self).any(|o| !o.is_set(ArgSettings::Hidden))
-    }
+    pub fn has_visible_opts(&self) -> bool { opts!(self).any(|o| !o.is_set(ArgSettings::Hidden)) }
 
-    pub fn has_visible_flags(&self) -> bool {
-        flags!(self).any(|o| !o.is_set(ArgSettings::Hidden))
-    }
+    pub fn has_visible_flags(&self) -> bool { flags!(self).any(|o| !o.is_set(ArgSettings::Hidden)) }
 
     pub fn has_visible_positionals(&self) -> bool {
         positionals!(self).any(|o| !o.is_set(ArgSettings::Hidden))
@@ -1944,7 +1928,7 @@ impl<'a, 'b> App<'a, 'b> {
         note = "Use `App::arg(Arg::from(&str)` instead. Will be removed in v3.0-beta"
     )]
     pub fn arg_from_usage(mut self, usage: &'a str) -> Self {
-        self.args.push(Arg::from(usage));
+        self.args.make_entries(Arg::from(usage));
         self
     }
 
@@ -1959,7 +1943,7 @@ impl<'a, 'b> App<'a, 'b> {
             if l.is_empty() {
                 continue;
             }
-            self.args.push(Arg::from(l));
+            self.args.make_entries(Arg::from(l));
         }
         self
     }

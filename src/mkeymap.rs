@@ -4,6 +4,7 @@ use std::collections::hash_map::DefaultHasher;
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsString;
 use std::hash::{Hash, Hasher};
+use std::mem;
 use std::slice;
 // ! rustdoc
 
@@ -18,7 +19,7 @@ pub struct MKeyMap<T> {
 pub enum KeyType {
     Short(char),
     Long(OsString),
-    Position(usize),
+    Position(u64),
 }
 
 impl<T> MKeyMap<T>
@@ -77,16 +78,6 @@ where
     }
     //TODO ::insert_keyset([Long, Key2])
 
-    // pub fn insert_key_by_name(&mut self, key: KeyType, name: &str) {
-    //     let index = self
-    //         .value_index
-    //         .iter()
-    //         .position(|x| x.name == name)
-    //         .expect("No such name found");
-
-    //     self.keys.insert(key, index);
-    // }
-
     // ! Arg mutation functionality
 
     pub fn get(&self, key: KeyType) -> Option<&T> {
@@ -113,7 +104,7 @@ where
     //? probably shouldn't add a possibility for removal?
     //? or remove by replacement by some dummy object, so the order is preserved
 
-    pub fn remove_key(&mut self, key: KeyType) { unimplemented!() }
+    pub fn remove_key(&mut self, key: KeyType) { self.keys.remove(&key); }
     //TODO ::remove_keys([KeyA, KeyB])
 
     pub fn keys(&self) -> Keys<usize> {
@@ -139,6 +130,113 @@ where
             map: self,
             keys: self.keys(),
         }
+    }
+}
+
+impl<'a, 'b> MKeyMap<Arg<'a, 'b>> {
+    pub fn insert_key_by_name(&mut self, key: KeyType, name: &str) {
+        let index = self.find_by_name(name);
+
+        self.keys.insert(key, index);
+    }
+
+    pub fn make_entries(&mut self, arg: Arg<'a, 'b>) -> usize {
+        let short = arg.short.map(|c| KeyType::Short(c));
+        let positional = arg.index.map(|n| KeyType::Position(n));
+
+        let mut longs = arg
+            .aliases
+            .clone()
+            .map(|v| {
+                v.iter()
+                    .map(|(n, _)| KeyType::Long(OsString::from(n)))
+                    .collect()
+            })
+            .unwrap_or(Vec::new());
+
+        longs.extend(arg.long.map(|l| KeyType::Long(OsString::from(l))));
+
+        let index = self.push(arg);
+        short.map(|s| self.insert_key(s, index));
+        positional.map(|p| self.insert_key(p, index));
+        longs.into_iter().map(|l| self.insert_key(l, index)).count();
+
+        index
+    }
+
+    pub fn make_entries_by_index(&mut self, index: usize) {
+        let short;
+        let positional;
+        let mut longs;
+
+        {
+            let arg = &self.value_index[index];
+            short = arg.short.map(|c| KeyType::Short(c));
+            positional = arg.index.map(|n| KeyType::Position(n));
+
+            longs = arg
+                .aliases
+                .clone()
+                .map(|v| {
+                    v.iter()
+                        .map(|(n, _)| KeyType::Long(OsString::from(n)))
+                        .collect()
+                })
+                .unwrap_or(Vec::new());
+            longs.extend(arg.long.map(|l| KeyType::Long(OsString::from(l))));
+        }
+
+        short.map(|s| self.insert_key(s, index));
+        positional.map(|p| self.insert_key(p, index));
+        longs.into_iter().map(|l| self.insert_key(l, index)).count();
+    }
+
+    pub fn mut_arg<F>(&mut self, name: &str, f: F)
+    where
+        F: FnOnce(Arg<'a, 'b>) -> Arg<'a, 'b>,
+    {
+        let index = self.find_by_name(name);
+        let new_arg = f(self.value_index[index].clone());
+
+        let value_key = self
+            .values
+            .iter()
+            .filter(|(_, v)| v.contains(&index))
+            .map(|(k, _)| k)
+            .next()
+            .map(|&x| x);
+        value_key.map(|k| {
+            self.values.entry(k).and_modify(|v| {
+                v.remove(&index);
+            })
+        });
+
+        let mut hasher = DefaultHasher::new();
+
+        new_arg.hash(&mut hasher);
+
+        let hash = hasher.finish();
+        self.values
+            .entry(hash)
+            .and_modify(|x| {
+                x.insert(index);
+            })
+            .or_insert({
+                let mut set = HashSet::new();
+                set.insert(index);
+                set
+            });
+
+        self.value_index.push(new_arg);
+        self.value_index.swap_remove(index);
+        self.make_entries_by_index(index);
+    }
+
+    pub fn find_by_name(&mut self, name: &str) -> usize {
+        self.value_index
+            .iter()
+            .position(|x| x.name == name)
+            .expect("No such name found")
     }
 }
 
@@ -218,7 +316,6 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
     fn get_none_value() {
         let mut map: MKeyMap<Arg> = MKeyMap::new();
 

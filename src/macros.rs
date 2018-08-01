@@ -466,7 +466,7 @@ macro_rules! crate_authors {
         struct CargoAuthors {
             __private_field: (),
         };
-                
+                        
         impl Deref for CargoAuthors {
             type Target = str;
 
