@@ -25,12 +25,12 @@ extern crate proc_macro2;
 
 mod derives;
 
-/// It is required to have this seperate and specificly defined.
-#[proc_macro_derive(ArgEnum, attributes(case_sensitive))]
-pub fn arg_enum(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let input: syn::DeriveInput = syn::parse(input).unwrap();
-    derives::derive_arg_enum(&input).into()
-}
+// /// It is required to have this seperate and specificly defined.
+// #[proc_macro_derive(ArgEnum, attributes(case_sensitive))]
+// pub fn arg_enum(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+//     let input: syn::DeriveInput = syn::parse(input).unwrap();
+//     derives::derive_arg_enum(&input).into()
+// }
 
 /// Generates the `Clap` impl.
 #[proc_macro_derive(Clap, attributes(clap))]

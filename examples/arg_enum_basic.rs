@@ -1,7 +1,9 @@
-#[macro_use]
-extern crate clap;
+// #[macro_use]
+// extern crate clap;
 
-use clap::{App, Arg};
+// use clap::{App, Arg};
+
+fn main() {}
 
 // #[derive(ArgEnum, Debug)]
 // enum ArgChoice {
